@@ -1,12 +1,8 @@
-#
-# Light on dark themes
-#
-
 #NEWLAYER: abstractia/abyss
-layerinfo "type" = "theme";
-layerinfo "name" = "Abyss";
+layerinfo type = "theme";
+layerinfo name = "Abyss";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/abyss";
+layerinfo redist_uniq = "abstractia/abyss";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -24,6 +20,10 @@ set color_page_link_hover = "#0997bf";
 set color_page_link_visited = "#07759d";
 set color_page_text = "#eee";
 set color_page_title = "#000";
+set color_footer_link = "#07759d";
+set color_footer_link_active = "#0997bf";
+set color_footer_link_hover = "#0997bf";
+set color_footer_link_visited = "#07759d";
 
 ##===============================
 ## Entry Colors
@@ -36,27 +36,7 @@ set color_entry_link_visited = "#05556c";
 set color_entry_interaction_links = "#07759d";
 set color_entry_text = "#eee";
 set color_entry_title = "#07759d";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#07759d";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title = "#07759d";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#07759d";
-set color_footer_link_active = "#0997bf";
-set color_footer_link_hover = "#0997bf";
-set color_footer_link_visited = "#07759d";
 
 ##===============================
 ## Module Colors
@@ -101,11 +81,550 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
-#NEWLAYER: abstractia/burnished
-layerinfo "type" = "theme";
-layerinfo "name" = "Burnished";
+#NEWLAYER: abstractia/aulait
+layerinfo type = "theme";
+layerinfo name = "Au Lait";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/burnished";
+layerinfo redist_uniq = "abstractia/aulait";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#948972";
+set color_page_link = "#703305";
+set color_page_link_active = "#501103";
+set color_page_link_hover = "#501103";
+set color_page_link_visited = "#703305";
+set color_page_text = "#351e0c";
+set color_page_title = "#71411d";
+set color_footer_link = "#703305";
+set color_footer_link_active = "#501103";
+set color_footer_link_hover = "#501103";
+set color_footer_link_visited = "#703305";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#703305";
+set color_entry_link = "#703305";
+set color_entry_link_active = "#501103";
+set color_entry_link_hover = "#501103";
+set color_entry_link_visited = "#5b2400";
+set color_entry_text = "#351e0c";
+set color_entry_title = "#703305";
+set color_comment_title = "#703305";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#703305";
+set color_module_link_active = "#501103";
+set color_module_link_hover = "#501103";
+set color_module_link_visited = "#703305";
+set color_module_text = "#351e0c";
+set color_module_title = "#351e0c";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/aulait-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/aulait-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/aulait-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/aulait-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/aulait-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/aulait-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/aulait-calendar-and-form.png";
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+#NEWLAYER: abstractia/aurora
+layerinfo type = "theme";
+layerinfo name = "Aurora";
+layerinfo redist_uniq = "abstractia/aurora";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#a33b78";
+set color_page_link_hover = "#895ac4";
+set color_page_link_visited = "#514caa";
+set color_page_text = "#f9f7fc";
+set color_footer_link = "#a33b78";
+set color_footer_link_hover = "#895ac4";
+set color_footer_link_visited = "#514caa";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#514caa";
+set color_entry_link = "#a33b78";
+set color_entry_link_hover = "#895ac4";
+set color_entry_link_visited = "#514caa";
+set color_entry_text = "#f9f7fc";
+set color_entry_title = "#a33b78";
+set color_comment_title = "#a33b78";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/aurora.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/battleraven
+layerinfo type = "theme";
+layerinfo name = "Battle Raven";
+layerinfo redist_uniq = "abstractia/battleraven";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#357381";
+set color_page_link_hover = "#1a3440";
+set color_page_link_visited = "#488191";
+set color_page_text = "#d3e3e2";
+set color_page_title = "#d3e3e2";
+set color_footer_link = "#357381";
+set color_footer_link_hover = "#1a3440";
+set color_footer_link_visited = "#488191";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#488191";
+set color_entry_link = "#357381";
+set color_entry_link_hover = "#1a3440";
+set color_entry_link_visited = "#488191";
+set color_entry_text = "#d3e3e2";
+set color_entry_title = "#357381";
+set color_comment_title = "#357381";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/battleraven.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/blacklace
+layerinfo type = "theme";
+layerinfo name = "Black Lace";
+layerinfo redist_uniq = "abstractia/blacklace";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#aaa";
+set color_page_link = "#777";
+set color_page_link_hover = "#ccc";
+set color_page_link_visited = "#ccc";
+set color_page_text = "#eee";
+set color_page_title = "#fff";
+set color_footer_link = "#777";
+set color_footer_link_active = "#ccc";
+set color_footer_link_hover = "#ccc";
+set color_footer_link_visited = "#555";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#777";
+set color_entry_link = "#777";
+set color_entry_link_active = "#ccc";
+set color_entry_link_hover = "#ccc";
+set color_entry_link_visited = "#555";
+set color_entry_text = "#eee";
+set color_entry_title = "#777";
+set color_comment_title = "#777";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/blacklace.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/bubblegum
+layerinfo type = "theme";
+layerinfo name = "Bubble Gum";
+layerinfo author_name = "chiming";
+layerinfo redist_uniq = "abstractia/bubblegum";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#bb667d";
+set color_page_link = "#700421";
+set color_page_link_active = "#501103";
+set color_page_link_visited = "#4f0317";
+set color_page_link_hover = "#700421";
+set color_page_text = "#360c17";
+set color_page_title = "#701d33";
+set color_footer_link = "#700421";
+set color_footer_link_active = "#4f0317";
+set color_footer_link_hover = "#4f0317";
+set color_footer_link_visited = "#700421";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#700421";
+set color_entry_link = "#700421";
+set color_entry_link_active = "#4f0317";
+set color_entry_link_hover = "#4f0317";
+set color_entry_link_visited = "#5c0018";
+set color_entry_text = "#360c17";
+set color_entry_title = "#700421";
+set color_comment_title = "#700421";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#700421";
+set color_module_link_active = "#4f0317";
+set color_module_link_hover = "#4f0317";
+set color_module_link_visited = "#700421";
+set color_module_text = "#360c17";
+set color_module_title = "#360c17";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/bubblegum-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/bubblegum-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/bubblegum-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/bubblegum-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/bubblegum-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/bubblegum-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/bubblegum-calendar-and-form.png";
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+#NEWLAYER: abstractia/bubbles
+layerinfo type = "theme";
+layerinfo name = "Bubbles";
+layerinfo redist_uniq = "abstractia/bubbles";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#f84fde";
+set color_page_link_hover = "#a6f0fb";
+set color_page_link_visited = "#62d8b5";
+set color_page_text = "#fff";
+set color_page_title = "#f84fde";
+set color_footer_link = "#f84fde";
+set color_footer_link_hover = "#a6f0fb";
+set color_footer_link_visited = "#62d8b5";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#62d8b5";
+set color_entry_link = "#f84fde";
+set color_entry_link_hover = "#a6f0fb";
+set color_entry_link_visited = "#62d8b5";
+set color_entry_text = "#fff";
+set color_entry_title = "#f84fde";
+set color_comment_title = "#f84fde";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/bubbles.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/burnished
+layerinfo type = "theme";
+layerinfo name = "Burnished";
+layerinfo author_name = "chiming";
+layerinfo redist_uniq = "abstractia/burnished";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -123,6 +642,10 @@ set color_page_link_hover = "#ffb546";
 set color_page_link_visited = "#df9324";
 set color_page_text = "#eee";
 set color_page_title = "#000";
+set color_footer_link = "#df9324";
+set color_footer_link_active = "#ffb546";
+set color_footer_link_hover = "#ffb546";
+set color_footer_link_visited = "#df9324";
 
 ##===============================
 ## Entry Colors
@@ -135,27 +658,7 @@ set color_entry_link_hover = "#ffb546";
 set color_entry_link_visited = "#be6e1e";
 set color_entry_text = "#eee";
 set color_entry_title = "#df9324";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#df9324";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title = "#df9324";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#df9324";
-set color_footer_link_active = "#ffb546";
-set color_footer_link_hover = "#ffb546";
-set color_footer_link_visited = "#df9324";
 
 ##===============================
 ## Module Colors
@@ -201,10 +704,10 @@ set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
 #NEWLAYER: abstractia/darkcarnival
-layerinfo "type" = "theme";
-layerinfo "name" = "Dark Carnival";
+layerinfo type = "theme";
+layerinfo name = "Dark Carnival";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/darkcarnival";
+layerinfo redist_uniq = "abstractia/darkcarnival";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -222,6 +725,10 @@ set color_page_link_hover = "#ef0cb8";
 set color_page_link_visited = "#ce0a96";
 set color_page_text = "#eee";
 set color_page_title = "#000";
+set color_footer_link = "#ce0a96";
+set color_footer_link_active = "#ef0cb8";
+set color_footer_link_hover = "#ef0cb8";
+set color_footer_link_visited = "#ce0a96";
 
 ##===============================
 ## Entry Colors
@@ -234,21 +741,7 @@ set color_entry_link_hover = "#ef0cb8";
 set color_entry_link_visited = "#890554";
 set color_entry_text = "#eee";
 set color_entry_title = "#ce0a96";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#ce0a96";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#ce0a96";
-set color_footer_link_active = "#ef0cb8";
-set color_footer_link_hover = "#ef0cb8";
-set color_footer_link_visited = "#ce0a96";
 
 ##===============================
 ## Module Colors
@@ -293,11 +786,547 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
-#NEWLAYER: abstractia/midnight
-layerinfo "type" = "theme";
-layerinfo "name" = "Midnight";
+#NEWLAYER: abstractia/deepforest
+layerinfo type = "theme";
+layerinfo name = "Deep Forest";
+layerinfo redist_uniq = "abstractia/deepforest";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#006d24";
+set color_page_link_hover = "#037c03";
+set color_page_link_visited = "#0e592c";
+set color_page_text = "#fff";
+set color_page_title = "#006d24";
+set color_footer_link = "#006d24";
+set color_footer_link_hover = "#037c03";
+set color_footer_link_visited = "#0e592c";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#0e592c";
+set color_entry_link = "#006d24";
+set color_entry_link_hover = "#037c03";
+set color_entry_link_visited = "#0e592c";
+set color_entry_text = "#fff";
+set color_entry_title = "#006d24";
+set color_comment_title = "#006d24";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/deepforest.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/electricmayhem
+layerinfo type = "theme";
+layerinfo name = "Electric Mayhem";
+layerinfo redist_uniq = "abstractia/electricmayhem";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#d9ce38";
+set color_page_link_hover = "#6b9dce";
+set color_page_link_visited = "#dd51a8";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_footer_link = "#d9ce38";
+set color_footer_link_hover = "#6b9dce";
+set color_footer_link_visited = "#dd51a8";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#6b9dce";
+set color_entry_link = "#d9ce38";
+set color_entry_link_hover = "#6b9dce";
+set color_entry_link_visited = "#dd51a8";
+set color_entry_text = "#fff";
+set color_entry_title = "#dd51a8";
+set color_comment_title = "#dd51a8";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/electricmayhem.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/electricmayhemii
+layerinfo type = "theme";
+layerinfo name = "Electric Mayhem II";
+layerinfo redist_uniq = "abstractia/electricmayhemii";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#193388";
+set color_page_link_hover = "#92292d";
+set color_page_link_visited = "#287f48";
+set color_page_text = "#000";
+set color_footer_link = "#193388";
+set color_footer_link_hover = "#92292d";
+set color_footer_link_visited = "#287f48";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#92292d";
+set color_entry_link = "#193388";
+set color_entry_link_hover = "#92292d";
+set color_entry_link_visited = "#287f48";
+set color_entry_text = "#000";
+set color_entry_title = "#193388";
+set color_comment_title = "#287f48";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/abstractia_transparency2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/abstractia_transparency2.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/electricmayhemii.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/abstractia_transparency2.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/abstractia_transparency2.png";
+
+
+#NEWLAYER: abstractia/loveless
+layerinfo type = "theme";
+layerinfo name = "Loveless";
+layerinfo redist_uniq = "abstractia/loveless";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#e73155";
+set color_page_link_hover = "#52045e";
+set color_page_link_visited = "#ff476c";
+set color_page_text = "#efcadc";
+set color_page_title = "#52045e";
+set color_footer_link = "#e73155";
+set color_footer_link_hover = "#52045e";
+set color_footer_link_visited = "#ff476c";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#ff476c";
+set color_entry_link = "#e73155";
+set color_entry_link_hover = "#52045e";
+set color_entry_link_visited = "#ff476c";
+set color_entry_text = "#efcadc";
+set color_entry_title = "#e73155";
+set color_comment_title = "#e73155";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/loveless.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/lucky
+layerinfo type = "theme";
+layerinfo name = "Lucky";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/midnight";
+layerinfo redist_uniq = "abstractia/lucky";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#a766ba";
+set color_page_link = "#570470";
+set color_page_link_active = "#3d034f";
+set color_page_link_hover = "#3d034f";
+set color_page_link_visited = "#570470";
+set color_page_text = "#2c0c36";
+set color_page_title = "#5d1d70";
+set color_footer_link = "#570470";
+set color_footer_link_active = "#3d034f";
+set color_footer_link_hover = "#3d034f";
+set color_footer_link_visited = "#570470";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#054aa2";
+set color_entry_link = "#570470";
+set color_entry_link_active = "#3d034f";
+set color_entry_link_hover = "#3d034f";
+set color_entry_link_visited = "#46005c";
+set color_entry_text = "#2c0c36";
+set color_entry_title = "#570470";
+set color_comment_title = "#570470";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#570470";
+set color_module_link_active = "#3d034f";
+set color_module_link_hover = "#3d034f";
+set color_module_link_visited = "#570470";
+set color_module_text = "#2c0c36";
+set color_module_title = "#2c0c36";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/lucky-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/lucky-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/lucky-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/lucky-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/lucky-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/lucky-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/lucky-calendar-and-form.png";
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+#NEWLAYER: abstractia/makewaves
+layerinfo type = "theme";
+layerinfo name = "Make Waves";
+layerinfo author_name = "chiming";
+layerinfo redist_uniq = "abstractia/makewaves";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#66aeba";
+set color_page_link = "#046070";
+set color_page_link_active = "#03444f";
+set color_page_link_hover = "#03444f";
+set color_page_link_visited = "#046070";
+set color_page_text = "#0c2f36";
+set color_page_title = "#1d6470";
+set color_footer_link = "#046070";
+set color_footer_link_active = "#03444f";
+set color_footer_link_hover = "#03444f";
+set color_footer_link_visited = "#046070";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#046070";
+set color_entry_link = "#046070";
+set color_entry_link_active = "#03444f";
+set color_entry_link_hover = "#03444f";
+set color_entry_link_visited = "#1d6470";
+set color_entry_text = "#0c2f36";
+set color_entry_title = "#046070";
+set color_comment_title = "#046070";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#046070";
+set color_module_link_active = "#03444f";
+set color_module_link_hover = "#03444f";
+set color_module_link_visited = "#046070";
+set color_module_text = "#0c2f36";
+set color_module_title = "#0c2f36";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/makewaves-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/makewaves-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/makewaves-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/makewaves-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/makewaves-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/makewaves-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/makewaves-calendar-and-form.png";
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+
+#NEWLAYER: abstractia/midnight
+layerinfo type = "theme";
+layerinfo name = "Midnight";
+layerinfo author_name = "chiming";
+layerinfo redist_uniq = "abstractia/midnight";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -315,6 +1344,10 @@ set color_page_link_hover = "#ccc";
 set color_page_link_visited = "#777";
 set color_page_text = "#eee";
 set color_page_title = "#000";
+set color_footer_link = "#777";
+set color_footer_link_active = "#ccc";
+set color_footer_link_hover = "#ccc";
+set color_footer_link_visited = "#777";
 
 ##===============================
 ## Entry Colors
@@ -327,21 +1360,7 @@ set color_entry_link_hover = "#ccc";
 set color_entry_link_visited = "#555";
 set color_entry_text = "#eee";
 set color_entry_title = "#777";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#777";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#777";
-set color_footer_link_active = "#ccc";
-set color_footer_link_hover = "#ccc";
-set color_footer_link_visited = "#777";
 
 ##===============================
 ## Module Colors
@@ -387,10 +1406,10 @@ set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
 #NEWLAYER: abstractia/oceanfloor
-layerinfo "type" = "theme";
-layerinfo "name" = "Ocean Floor";
+layerinfo type = "theme";
+layerinfo name = "Ocean Floor";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/oceanfloor";
+layerinfo redist_uniq = "abstractia/oceanfloor";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -408,6 +1427,10 @@ set color_page_link_hover = "#088e8f";
 set color_page_link_visited = "#066c6e";
 set color_page_text = "#eee";
 set color_page_title = "#000";
+set color_footer_link = "#066c6e";
+set color_footer_link_active = "#088e8f";
+set color_footer_link_hover = "#088e8f";
+set color_footer_link_visited = "#066c6e";
 
 ##===============================
 ## Entry Colors
@@ -420,21 +1443,7 @@ set color_entry_link_hover = "#088e8f";
 set color_entry_link_visited = "#075b56";
 set color_entry_text = "#eee";
 set color_entry_title = "#066c6e";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#066c6e";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#066c6e";
-set color_footer_link_active = "#088e8f";
-set color_footer_link_hover = "#088e8f";
-set color_footer_link_visited = "#066c6e";
 
 ##===============================
 ## Module Colors
@@ -479,11 +1488,90 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
+#NEWLAYER: abstractia/peacockfringe
+layerinfo type = "theme";
+layerinfo name = "Peacock Fringe";
+layerinfo redist_uniq = "abstractia/peacockfringe";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#088e8f";
+set color_page_link_hover = "#32ac63";
+set color_page_text = "#eee";
+set color_page_title = "#fff";
+set color_footer_link = "#088e8f";
+set color_footer_link_hover = "#32ac63";
+set color_footer_link_visited = "#088e8f";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#088e8f";
+set color_entry_text = "#eeeeee";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/peacockfringe.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
 #NEWLAYER: abstractia/pulse
-layerinfo "type" = "theme";
-layerinfo "name" = "Pulse";
+layerinfo type = "theme";
+layerinfo name = "Pulse";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/pulse";
+layerinfo redist_uniq = "abstractia/pulse";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -501,6 +1589,10 @@ set color_page_link_hover = "#ba3434";
 set color_page_link_visited = "#981212";
 set color_page_text = "#eee";
 set color_page_title = "#000";
+set color_footer_link = "#981212";
+set color_footer_link_active = "#ba3434";
+set color_footer_link_hover = "#ba3434";
+set color_footer_link_visited = "#981212";
 
 ##===============================
 ## Entry Colors
@@ -513,21 +1605,7 @@ set color_entry_link_hover = "#ba3434";
 set color_entry_link_visited = "#6f0e0d";
 set color_entry_text = "#eee";
 set color_entry_title = "#981212";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#981212";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#981212";
-set color_footer_link_active = "#ba3434";
-set color_footer_link_hover = "#ba3434";
-set color_footer_link_visited = "#981212";
 
 ##===============================
 ## Module Colors
@@ -573,10 +1651,10 @@ set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
 #NEWLAYER: abstractia/radioactive
-layerinfo "type" = "theme";
-layerinfo "name" = "Radioactive";
+layerinfo type = "theme";
+layerinfo name = "Radioactive";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/radioactive";
+layerinfo redist_uniq = "abstractia/radioactive";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -594,6 +1672,10 @@ set color_page_link_hover = "#8fce09";
 set color_page_link_visited = "#6fac07";
 set color_page_text = "#eee";
 set color_page_title = "#000";
+set color_footer_link = "#6fac07";
+set color_footer_link_active = "#8fce09";
+set color_footer_link_hover = "#8fce09";
+set color_footer_link_visited = "#6fac07";
 
 ##===============================
 ## Entry Colors
@@ -606,21 +1688,7 @@ set color_entry_link_hover = "#8fce09";
 set color_entry_link_visited = "#4c7205";
 set color_entry_text = "#eee";
 set color_entry_title = "#6fac07";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#6fac07";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#6fac07";
-set color_footer_link_active = "#8fce09";
-set color_footer_link_hover = "#8fce09";
-set color_footer_link_visited = "#6fac07";
 
 ##===============================
 ## Module Colors
@@ -665,533 +1733,11 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
-#NEWLAYER: abstractia/toxic
-layerinfo "type" = "theme";
-layerinfo "name" = "Toxic";
-layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/toxic";
-
-set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
-
-#VARIABLES
-
-##===============================
-## Page Colors
-##===============================
-
-set color_page_background = "#000";
-set color_page_border = "#49036a";
-set color_page_link = "#7009a0";
-set color_page_link_active = "#900bc0";
-set color_page_link_hover = "#900bc0";
-set color_page_link_visited = "#7009a0";
-set color_page_text = "#eee";
-set color_page_title = "#000";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_entry_interaction_links = "#7009a0";
-set color_entry_link = "#7009a0";
-set color_entry_link_active = "#900bc0";
-set color_entry_link_hover = "#900bc0";
-set color_entry_link_visited = "#540680";
-set color_entry_text = "#eee";
-set color_entry_title = "#7009a0";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title = "#7009a0";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#7009a0";
-set color_footer_link_active = "#900bc0";
-set color_footer_link_hover = "#900bc0";
-set color_footer_link_visited = "#7009a0";
-
-##===============================
-## Module Colors
-##===============================
-
-set color_module_link = "#7009a0";
-set color_module_link_active = "#900bc0";
-set color_module_link_hover = "#900bc0";
-set color_module_link_visited = "#7009a0";
-set color_module_text = "#eee";
-set color_module_title = "#eee";
-
-##===============================
-## Images
-##===============================
-
-### For most themes, only change the background image
-
-set image_background_page_position = "top center";
-set image_background_page_repeat = "no-repeat";
-set image_background_page_url = "abstractia/toxic-page.jpg";
-set image_background_content_header_position = "top left";
-set image_background_content_header_repeat = "repeat";
-set image_background_content_header_url = "abstractia/content-header.png";
-set image_background_content_position = "top left";
-set image_background_content_repeat = "repeat";
-set image_background_content_url = "abstractia/content.png";
-set image_background_content_footer_position = "top left";
-set image_background_content_footer_repeat = "repeat";
-set image_background_content_footer_url = "abstractia/content-footer.png";
-set image_background_userpic_position = "top left";
-set image_background_userpic_repeat = "repeat";
-set image_background_userpic_url = "abstractia/userpic.png";
-set image_background_sidebar_position = "top left";
-set image_background_sidebar_repeat = "repeat";
-set image_background_sidebar_url = "abstractia/sidebar.png";
-set image_background_archive_calendar_position = "top left";
-set image_background_archive_calendar_repeat = "repeat";
-set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
-set image_background_calendar_and_form_position = "top left";
-set image_background_calendar_and_form_repeat = "repeat";
-set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
-
-
-#
-# Dark on light themes
-#
-
-
-#NEWLAYER: abstractia/aulait
-layerinfo "type" = "theme";
-layerinfo "name" = "Au Lait";
-layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/aulait";
-
-set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
-
-#VARIABLES
-
-##===============================
-## Page Colors
-##===============================
-
-set color_page_background = "#fff";
-set color_page_border = "#948972";
-set color_page_link = "#703305";
-set color_page_link_active = "#501103";
-set color_page_link_hover = "#501103";
-set color_page_link_visited = "#703305";
-set color_page_text = "#351e0c";
-set color_page_title = "#71411d";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_entry_interaction_links = "#703305";
-set color_entry_link = "#703305";
-set color_entry_link_active = "#501103";
-set color_entry_link_hover = "#501103";
-set color_entry_link_visited = "#5b2400";
-set color_entry_text = "#351e0c";
-set color_entry_title = "#703305";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title = "#703305";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#703305";
-set color_footer_link_active = "#501103";
-set color_footer_link_hover = "#501103";
-set color_footer_link_visited = "#703305";
-
-##===============================
-## Module Colors
-##===============================
-
-set color_module_link = "#703305";
-set color_module_link_active = "#501103";
-set color_module_link_hover = "#501103";
-set color_module_link_visited = "#703305";
-set color_module_text = "#351e0c";
-set color_module_title = "#351e0c";
-
-##===============================
-## Images
-##===============================
-
-### For most themes, only change the background image
-
-set image_background_page_position = "top center";
-set image_background_page_repeat = "no-repeat";
-set image_background_page_url = "abstractia/aulait-page.jpg";
-set image_background_content_header_position = "top left";
-set image_background_content_header_repeat = "repeat";
-set image_background_content_header_url = "abstractia/aulait-content-header.png";
-set image_background_content_position = "top left";
-set image_background_content_repeat = "repeat";
-set image_background_content_url = "abstractia/aulait-content.png";
-set image_background_content_footer_position = "top left";
-set image_background_content_footer_repeat = "repeat";
-set image_background_content_footer_url = "abstractia/content-footer.png";
-set image_background_userpic_position = "top left";
-set image_background_userpic_repeat = "repeat";
-set image_background_userpic_url = "abstractia/aulait-userpic.png";
-set image_background_sidebar_position = "top left";
-set image_background_sidebar_repeat = "repeat";
-set image_background_sidebar_url = "abstractia/aulait-sidebar.png";
-set image_background_archive_calendar_position = "top left";
-set image_background_archive_calendar_repeat = "repeat";
-set image_background_archive_calendar_url = "abstractia/aulait-archive-calendar.png";
-set image_background_calendar_and_form_position = "top left";
-set image_background_calendar_and_form_repeat = "repeat";
-set image_background_calendar_and_form_url = "abstractia/aulait-calendar-and-form.png";
-
-##===============================
-## Edit for dark-on-light styles
-##===============================
-
-function Page::print_theme_stylesheet () {
-
-var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
-
-    """
-    .module-navlinks .current { $calendar_and_form_image }
-    """;
-}
-
-
-#NEWLAYER: abstractia/bubblegum
-layerinfo "type" = "theme";
-layerinfo "name" = "Bubble Gum";
-layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/bubblegum";
-
-set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
-
-#VARIABLES
-
-##===============================
-## Page Colors
-##===============================
-
-set color_page_background = "#fff";
-set color_page_border = "#bb667d";
-set color_page_link = "#700421";
-set color_page_link_active = "#501103";
-set color_page_link_visited = "#4f0317";
-set color_page_link_hover = "#700421";
-set color_page_text = "#360c17";
-set color_page_title = "#701d33";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_entry_interaction_links = "#700421";
-set color_entry_link = "#700421";
-set color_entry_link_active = "#4f0317";
-set color_entry_link_hover = "#4f0317";
-set color_entry_link_visited = "#5c0018";
-set color_entry_text = "#360c17";
-set color_entry_title = "#700421";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title = "#700421";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#700421";
-set color_footer_link_active = "#4f0317";
-set color_footer_link_hover = "#4f0317";
-set color_footer_link_visited = "#700421";
-
-##===============================
-## Module Colors
-##===============================
-
-set color_module_link = "#700421";
-set color_module_link_active = "#4f0317";
-set color_module_link_hover = "#4f0317";
-set color_module_link_visited = "#700421";
-set color_module_text = "#360c17";
-set color_module_title = "#360c17";
-
-##===============================
-## Images
-##===============================
-
-### For most themes, only change the background image
-
-set image_background_page_position = "top center";
-set image_background_page_repeat = "no-repeat";
-set image_background_page_url = "abstractia/bubblegum-page.jpg";
-set image_background_content_header_position = "top left";
-set image_background_content_header_repeat = "repeat";
-set image_background_content_header_url = "abstractia/bubblegum-content-header.png";
-set image_background_content_position = "top left";
-set image_background_content_repeat = "repeat";
-set image_background_content_url = "abstractia/bubblegum-content.png";
-set image_background_content_footer_position = "top left";
-set image_background_content_footer_repeat = "repeat";
-set image_background_content_footer_url = "abstractia/content-footer.png";
-set image_background_userpic_position = "top left";
-set image_background_userpic_repeat = "repeat";
-set image_background_userpic_url = "abstractia/bubblegum-userpic.png";
-set image_background_sidebar_position = "top left";
-set image_background_sidebar_repeat = "repeat";
-set image_background_sidebar_url = "abstractia/bubblegum-sidebar.png";
-set image_background_archive_calendar_position = "top left";
-set image_background_archive_calendar_repeat = "repeat";
-set image_background_archive_calendar_url = "abstractia/bubblegum-archive-calendar.png";
-set image_background_calendar_and_form_position = "top left";
-set image_background_calendar_and_form_repeat = "repeat";
-set image_background_calendar_and_form_url = "abstractia/bubblegum-calendar-and-form.png";
-
-##===============================
-## Edit for dark-on-light styles
-##===============================
-
-function Page::print_theme_stylesheet () {
-
-var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
-
-    """
-    .module-navlinks .current { $calendar_and_form_image }
-    """;
-}
-
-
-#NEWLAYER: abstractia/lucky
-layerinfo "type" = "theme";
-layerinfo "name" = "Lucky";
-layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/lucky";
-
-set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
-
-#VARIABLES
-
-##===============================
-## Page Colors
-##===============================
-
-set color_page_background = "#fff";
-set color_page_border = "#a766ba";
-set color_page_link = "#570470";
-set color_page_link_active = "#3d034f";
-set color_page_link_hover = "#3d034f";
-set color_page_link_visited = "#570470";
-set color_page_text = "#2c0c36";
-set color_page_title = "#5d1d70";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_entry_interaction_links = "#054aa2";
-set color_entry_link = "#570470";
-set color_entry_link_active = "#3d034f";
-set color_entry_link_hover = "#3d034f";
-set color_entry_link_visited = "#46005c";
-set color_entry_text = "#2c0c36";
-set color_entry_title = "#570470";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title = "#570470";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#570470";
-set color_footer_link_active = "#3d034f";
-set color_footer_link_hover = "#3d034f";
-set color_footer_link_visited = "#570470";
-
-##===============================
-## Module Colors
-##===============================
-
-set color_module_link = "#570470";
-set color_module_link_active = "#3d034f";
-set color_module_link_hover = "#3d034f";
-set color_module_link_visited = "#570470";
-set color_module_text = "#2c0c36";
-set color_module_title = "#2c0c36";
-
-##===============================
-## Images
-##===============================
-
-### For most themes, only change the background image
-
-set image_background_page_position = "top center";
-set image_background_page_repeat = "no-repeat";
-set image_background_page_url = "abstractia/lucky-page.jpg";
-set image_background_content_header_position = "top left";
-set image_background_content_header_repeat = "repeat";
-set image_background_content_header_url = "abstractia/lucky-content-header.png";
-set image_background_content_position = "top left";
-set image_background_content_repeat = "repeat";
-set image_background_content_url = "abstractia/lucky-content.png";
-set image_background_content_footer_position = "top left";
-set image_background_content_footer_repeat = "repeat";
-set image_background_content_footer_url = "abstractia/content-footer.png";
-set image_background_userpic_position = "top left";
-set image_background_userpic_repeat = "repeat";
-set image_background_userpic_url = "abstractia/lucky-userpic.png";
-set image_background_sidebar_position = "top left";
-set image_background_sidebar_repeat = "repeat";
-set image_background_sidebar_url = "abstractia/lucky-sidebar.png";
-set image_background_archive_calendar_position = "top left";
-set image_background_archive_calendar_repeat = "repeat";
-set image_background_archive_calendar_url = "abstractia/lucky-archive-calendar.png";
-set image_background_calendar_and_form_position = "top left";
-set image_background_calendar_and_form_repeat = "repeat";
-set image_background_calendar_and_form_url = "abstractia/lucky-calendar-and-form.png";
-
-##===============================
-## Edit for dark-on-light styles
-##===============================
-
-function Page::print_theme_stylesheet () {
-
-var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
-
-    """
-    .module-navlinks .current { $calendar_and_form_image }
-    """;
-}
-
-
-#NEWLAYER: abstractia/makewaves
-layerinfo "type" = "theme";
-layerinfo "name" = "Make Waves";
-layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/makewaves";
-
-set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
-
-#VARIABLES
-
-##===============================
-## Page Colors
-##===============================
-
-set color_page_background = "#fff";
-set color_page_border = "#66aeba";
-set color_page_link = "#046070";
-set color_page_link_active = "#03444f";
-set color_page_link_hover = "#03444f";
-set color_page_link_visited = "#046070";
-set color_page_text = "#0c2f36";
-set color_page_title = "#1d6470";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_entry_interaction_links = "#046070";
-set color_entry_link = "#046070";
-set color_entry_link_active = "#03444f";
-set color_entry_link_hover = "#03444f";
-set color_entry_link_visited = "#1d6470";
-set color_entry_text = "#0c2f36";
-set color_entry_title = "#046070";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title = "#046070";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#046070";
-set color_footer_link_active = "#03444f";
-set color_footer_link_hover = "#03444f";
-set color_footer_link_visited = "#046070";
-
-##===============================
-## Module Colors
-##===============================
-
-set color_module_link = "#046070";
-set color_module_link_active = "#03444f";
-set color_module_link_hover = "#03444f";
-set color_module_link_visited = "#046070";
-set color_module_text = "#0c2f36";
-set color_module_title = "#0c2f36";
-
-##===============================
-## Images
-##===============================
-
-### For most themes, only change the background image
-
-set image_background_page_position = "top center";
-set image_background_page_repeat = "no-repeat";
-set image_background_page_url = "abstractia/makewaves-page.jpg";
-set image_background_content_header_position = "top left";
-set image_background_content_header_repeat = "repeat";
-set image_background_content_header_url = "abstractia/makewaves-content-header.png";
-set image_background_content_position = "top left";
-set image_background_content_repeat = "repeat";
-set image_background_content_url = "abstractia/makewaves-content.png";
-set image_background_content_footer_position = "top left";
-set image_background_content_footer_repeat = "repeat";
-set image_background_content_footer_url = "abstractia/content-footer.png";
-set image_background_userpic_position = "top left";
-set image_background_userpic_repeat = "repeat";
-set image_background_userpic_url = "abstractia/makewaves-userpic.png";
-set image_background_sidebar_position = "top left";
-set image_background_sidebar_repeat = "repeat";
-set image_background_sidebar_url = "abstractia/makewaves-sidebar.png";
-set image_background_archive_calendar_position = "top left";
-set image_background_archive_calendar_repeat = "repeat";
-set image_background_archive_calendar_url = "abstractia/makewaves-archive-calendar.png";
-set image_background_calendar_and_form_position = "top left";
-set image_background_calendar_and_form_repeat = "repeat";
-set image_background_calendar_and_form_url = "abstractia/makewaves-calendar-and-form.png";
-
-##===============================
-## Edit for dark-on-light styles
-##===============================
-
-function Page::print_theme_stylesheet () {
-
-var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
-
-    """
-    .module-navlinks .current { $calendar_and_form_image }
-    """;
-}
-
-
 #NEWLAYER: abstractia/sky
-layerinfo "type" = "theme";
-layerinfo "name" = "Sky";
+layerinfo type = "theme";
+layerinfo name = "Sky";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/sky";
+layerinfo redist_uniq = "abstractia/sky";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -1209,6 +1755,10 @@ set color_page_link_hover = "#021770";
 set color_page_link_visited = "#054aa2";
 set color_page_text = "#0c1d36";
 set color_page_title = "#1d4070";
+set color_footer_link = "#054aa2";
+set color_footer_link_active = "#021770";
+set color_footer_link_hover = "#021770";
+set color_footer_link_visited = "#054aa2";
 
 ##===============================
 ## Entry Colors
@@ -1221,21 +1771,7 @@ set color_entry_link_hover = "#021770";
 set color_entry_link_visited = "#032880";
 set color_entry_text = "#0c1d36";
 set color_entry_title = "#054aa2";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#054aa2";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#054aa2";
-set color_footer_link_active = "#021770";
-set color_footer_link_hover = "#021770";
-set color_footer_link_visited = "#054aa2";
 
 ##===============================
 ## Module Colors
@@ -1280,8 +1816,10 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/sky-calendar-and-form.png";
 
 ##===============================
-## Edit for dark-on-light styles
+## CSS
 ##===============================
+
+# Edit for dark-on-light styles
 
 function Page::print_theme_stylesheet () {
 
@@ -1294,10 +1832,10 @@ var string calendar_and_form_image = generate_background_css ($*image_background
 
 
 #NEWLAYER: abstractia/smoke
-layerinfo "type" = "theme";
-layerinfo "name" = "Smoke";
+layerinfo type = "theme";
+layerinfo name = "Smoke";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/smoke";
+layerinfo redist_uniq = "abstractia/smoke";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -1315,6 +1853,10 @@ set color_page_link_hover = "#ddd";
 set color_page_link_visited = "#fff";
 set color_page_text = "#363636";
 set color_page_title = "#707070";
+set color_footer_link = "#fff";
+set color_footer_link_active = "#ddd";
+set color_footer_link_hover = "#ddd";
+set color_footer_link_visited = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -1327,21 +1869,7 @@ set color_entry_link_hover = "#ddd";
 set color_entry_link_visited = "#ccc";
 set color_entry_text = "#363636";
 set color_entry_title = "#fff";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#fff";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#fff";
-set color_footer_link_active = "#ddd";
-set color_footer_link_hover = "#ddd";
-set color_footer_link_visited = "#fff";
 
 ##===============================
 ## Module Colors
@@ -1386,8 +1914,10 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/smoke-calendar-and-form.png";
 
 ##===============================
-## Edit for dark-on-light styles
+## CSS
 ##===============================
+
+# Edit for dark-on-light styles
 
 function Page::print_theme_stylesheet () {
 
@@ -1399,11 +1929,179 @@ var string calendar_and_form_image = generate_background_css ($*image_background
 }
 
 
-#NEWLAYER: abstractia/tropicalsunset
-layerinfo "type" = "theme";
-layerinfo "name" = "Tropical Sunset";
+#NEWLAYER: abstractia/sylph
+layerinfo type = "theme";
+layerinfo name = "Sylph";
+layerinfo redist_uniq = "abstractia/sylph";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#7d9382";
+set color_page_link_hover = "#698271";
+set color_page_link_visited = "#5c726c";
+set color_page_text = "#6c716e";
+set color_page_title = "#7d9382";
+set color_footer_link = "#7d9382";
+set color_footer_link_hover = "#698271";
+set color_footer_link_visited = "#5c726c";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#7d9382";
+set color_entry_link = "#7d9382";
+set color_entry_link_hover = "#698271";
+set color_entry_link_visited = "#5c726c";
+set color_entry_text = "#6c716e";
+set color_entry_title = "#5c726c";
+set color_comment_title = "#5c726c";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/abstractia_transparency2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/abstractia_transparency3.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/sylph.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/abstractia_transparency3.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/abstractia_transparency2.png";
+
+
+#NEWLAYER: abstractia/toxic
+layerinfo type = "theme";
+layerinfo name = "Toxic";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/tropicalsunset";
+layerinfo redist_uniq = "abstractia/toxic";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#49036a";
+set color_page_link = "#7009a0";
+set color_page_link_active = "#900bc0";
+set color_page_link_hover = "#900bc0";
+set color_page_link_visited = "#7009a0";
+set color_page_text = "#eee";
+set color_page_title = "#000";
+set color_footer_link = "#7009a0";
+set color_footer_link_active = "#900bc0";
+set color_footer_link_hover = "#900bc0";
+set color_footer_link_visited = "#7009a0";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#7009a0";
+set color_entry_link = "#7009a0";
+set color_entry_link_active = "#900bc0";
+set color_entry_link_hover = "#900bc0";
+set color_entry_link_visited = "#540680";
+set color_entry_text = "#eee";
+set color_entry_title = "#7009a0";
+set color_comment_title = "#7009a0";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#7009a0";
+set color_module_link_active = "#900bc0";
+set color_module_link_hover = "#900bc0";
+set color_module_link_visited = "#7009a0";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/toxic-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+
+
+#NEWLAYER: abstractia/tropicalsunset
+layerinfo type = "theme";
+layerinfo name = "Tropical Sunset";
+layerinfo author_name = "chiming";
+layerinfo redist_uniq = "abstractia/tropicalsunset";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -1421,6 +2119,10 @@ set color_page_link_hover = "#701a02";
 set color_page_link_visited = "#a32705";
 set color_page_text = "#36150c";
 set color_page_title = "#702f1d";
+set color_footer_link = "#a32705";
+set color_footer_link_active = "#701a02";
+set color_footer_link_hover = "#701a02";
+set color_footer_link_visited = "#a32705";
 
 ##===============================
 ## Entry Colors
@@ -1433,21 +2135,7 @@ set color_entry_link_hover = "#701a02";
 set color_entry_link_visited = "#801e03";
 set color_entry_text = "#36150c";
 set color_entry_title = "#a32705";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#a32705";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#a32705";
-set color_footer_link_active = "#701a02";
-set color_footer_link_hover = "#701a02";
-set color_footer_link_visited = "#a32705";
 
 ##===============================
 ## Module Colors
@@ -1492,8 +2180,10 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/tropicalsunset-calendar-and-form.png";
 
 ##===============================
-## Edit for dark-on-light styles
+## CSS
 ##===============================
+
+# Edit for dark-on-light styles
 
 function Page::print_theme_stylesheet () {
 
@@ -1506,10 +2196,10 @@ var string calendar_and_form_image = generate_background_css ($*image_background
 
 
 #NEWLAYER: abstractia/twinkle
-layerinfo "type" = "theme";
-layerinfo "name" = "Twinkle";
+layerinfo type = "theme";
+layerinfo name = "Twinkle";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/twinkle";
+layerinfo redist_uniq = "abstractia/twinkle";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -1527,6 +2217,10 @@ set color_page_link_hover = "#3d034f";
 set color_page_link_visited = "#570470";
 set color_page_text = "#2c0c36";
 set color_page_title = "#5d1d70";
+set color_footer_link = "#570470";
+set color_footer_link_active = "#3d034f";
+set color_footer_link_hover = "#3d034f";
+set color_footer_link_visited = "#570470";
 
 ##===============================
 ## Entry Colors
@@ -1539,21 +2233,7 @@ set color_entry_link_hover = "#3d034f";
 set color_entry_link_visited = "#46005c";
 set color_entry_text = "#2c0c36";
 set color_entry_title = "#570470";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#570470";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#570470";
-set color_footer_link_active = "#3d034f";
-set color_footer_link_hover = "#3d034f";
-set color_footer_link_visited = "#570470";
 
 ##===============================
 ## Module Colors
@@ -1598,8 +2278,10 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/twinkle-calendar-and-form.png";
 
 ##===============================
-## Edit for dark-on-light styles
+## CSS
 ##===============================
+
+# Edit for dark-on-light styles
 
 function Page::print_theme_stylesheet () {
 
@@ -1612,10 +2294,10 @@ var string calendar_and_form_image = generate_background_css ($*image_background
 
 
 #NEWLAYER: abstractia/valentine
-layerinfo "type" = "theme";
-layerinfo "name" = "Valentine";
+layerinfo type = "theme";
+layerinfo name = "Valentine";
 layerinfo author_name = "chiming";
-layerinfo "redist_uniq" = "abstractia/valentine";
+layerinfo redist_uniq = "abstractia/valentine";
 
 set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
 
@@ -1633,6 +2315,10 @@ set color_page_link_hover = "#700702";
 set color_page_link_visited = "#a30c05";
 set color_page_text = "#360e0c";
 set color_page_title = "#70211d";
+set color_footer_link = "#a30c05";
+set color_footer_link_active = "#700702";
+set color_footer_link_hover = "#700702";
+set color_footer_link_visited = "#a30c05";
 
 ##===============================
 ## Entry Colors
@@ -1645,21 +2331,7 @@ set color_entry_link_hover = "#700702";
 set color_entry_link_visited = "#46005c";
 set color_entry_text = "#360e0c";
 set color_entry_title = "#a30c05";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title = "#70211d";
-
-##===============================
-## Footer Colors
-##===============================
-
-set color_footer_link = "#a30c05";
-set color_footer_link_active = "#700702";
-set color_footer_link_hover = "#700702";
-set color_footer_link_visited = "#a30c05";
 
 ##===============================
 ## Module Colors
@@ -1704,8 +2376,10 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/valentine-calendar-and-form.png";
 
 ##===============================
-## Edit for dark-on-light styles
+## CSS
 ##===============================
+
+# Edit for dark-on-light styles
 
 function Page::print_theme_stylesheet () {
 
@@ -1715,4 +2389,3 @@ var string calendar_and_form_image = generate_background_css ($*image_background
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
-
