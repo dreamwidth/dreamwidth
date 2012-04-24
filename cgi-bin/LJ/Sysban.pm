@@ -33,6 +33,44 @@ package LJ::Sysban;
 sub sysban_check {
     my ($what, $value) = @_;
 
+    # cache if noanon_ip ban
+    if ($what eq 'noanon_ip') {
+
+        my $now = time();
+        my $ip_ban_delay = $LJ::SYSBAN_IP_REFRESH || 120;
+
+        # check memcache first if not loaded
+        $LJ::NOANON_IP_BANNED_LOADED = 0 unless defined $LJ::NOANON_IP_BANNED_LOADED;
+        unless ($LJ::NOANON_IP_BANNED_LOADED + $ip_ban_delay > $now) {
+            my $memval = LJ::MemCache::get("sysban:noanon_ip");
+            if ($memval) {
+                *LJ::NOANON_IP_BANNED = $memval;
+                $LJ::NOANON_IP_BANNED_LOADED = $now;
+            } else {
+                $LJ::NOANON_IP_BANNED_LOADED = 0;
+            }
+        }
+
+        # is it already cached in memory?
+        if ($LJ::NOANON_IP_BANNED_LOADED) {
+            return (defined $LJ::NOANON_IP_BANNED{$value} &&
+                    ($LJ::NOANON_IP_BANNED{$value} == 0 ||     # forever
+                     $LJ::NOANON_IP_BANNED{$value} > time())); # not-expired
+        }
+
+        # set this before the query
+        $LJ::NOANON_IP_BANNED_LOADED = time();
+
+        sysban_populate( \%LJ::NOANON_IP_BANNED, "noanon_ip" )
+            or return undef $LJ::NOANON_IP_BANNED_LOADED;
+
+        # set in memcache
+        LJ::MemCache::set("sysban:noanon_ip", \%LJ::NOANON_IP_BANNED, $ip_ban_delay);
+
+        # return value to user
+        return $LJ::NOANON_IP_BANNED{$value};
+    }
+
     # cache if ip ban
     if ($what eq 'ip') {
 
