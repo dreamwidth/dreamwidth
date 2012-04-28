@@ -47,13 +47,18 @@ sub index_controller {
         return DW::Template->render_template( 'error.tt', { "message" => "Invalid form auth" } )
             unless LJ::check_form_auth( $r->post_args->{lj_form_auth} );
 
-        my $u =  LJ::load_user_or_identity( $r->post_args->{user} ) if $r->post_args->{user};
-        $vars->{user} = LJ::ehtml( $r->post_args->{user} ) if $r->post_args->{user};
+        my $u;
+        my $user = LJ::ehtml( $r->post_args->{user} );
 
-        push @errors, "Unknown user: " . LJ::ehtml( $r->post_args->{user} ) unless $u;
+        if ( $r->post_args->{user} ) {
+            $u = LJ::load_user_or_identity( $r->post_args->{user} );
+            $vars->{user} = $user;
+        }
+
+        push @errors, "Unknown user: $user" unless $u;
 
         if ( $u ) {
-            push @errors, "Deleted and purged user: " . LJ::ehtml( $r->post_args->{user} )
+            push @errors, "Deleted and purged user: $user"
                 if $u->is_expunged; # notify of this but still expire sessions
             push @errors, "User is a community: " . LJ::ljuser( $u ) if $u->is_community;
             push @errors, "User is a feed: " . LJ::ljuser( $u ) if $u->is_syndicated;

@@ -475,7 +475,8 @@ sub load_comment {
     my $id = shift;
     my $state = $bak{"comment:state:$id"};
     return {} unless $state;
-    my @data = ($1, $2, $3, $4)
+    my @data;
+    @data = ($1, $2, $3, $4)
         if $state =~ /^(\w):(\d+):(\d+):(\d+)$/;
     my %hash = (
         id => $id,
@@ -580,7 +581,7 @@ sub do_alter_security {
     die "New security must be one of: friends, private, or the name of a group you have.\n"
         unless defined $security && defined $allowmask;
     d("do_alter_security: new security = $security ($allowmask)");
-    
+
     # load up the user's events
     d("do_alter_security: loading events");
     my %events;

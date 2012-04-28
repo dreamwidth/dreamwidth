@@ -102,7 +102,7 @@ sub _init_opts {
     # when we're pulling via BML vs via a controller, etc
     # let's just pull directly from the request
     my $r = DW::Request->get;
-    my $post_args = $r->post_args if $r;
+    my $post_args = $r ? $r->post_args : undef;
 
     if ( $post_args ) {
         if ( my $response_noscript = $post_args->{textcaptcha_response_noscript} ) {

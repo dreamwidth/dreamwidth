@@ -45,7 +45,7 @@ sub index_controller {
 
     if ( $args->{user} ) {
         my $user = LJ::canonical_username( $args->{user} );
-        my $u = LJ::load_user($user) if $user;
+        my $u = $user ? LJ::load_user($user) : undef;
 
         push @errors, "Unknown user: " . LJ::ehtml( $args->{user} ) unless $u;
 

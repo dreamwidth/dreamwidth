@@ -154,7 +154,8 @@ sub openid_claim_confirm_handler {
     my $args = $r->get_args;
 
     # verify that the link they followed is good
-    my ( $aaid, $authcode ) = ( $1, $2 )
+    my ( $aaid, $authcode );
+    ( $aaid, $authcode ) = ( $1, $2 )
         if $args->{auth} =~ /^(\d+)\.(\w+)$/;
     my $aa = LJ::is_valid_authaction( $aaid, $authcode );
     return $err->( '.error.invalid_auth' )
@@ -175,7 +176,7 @@ sub openid_claim_confirm_handler {
     # now start the claim process
     $u->claim_identity( $ou );
 
-    return DW::Template->render_template( 'openid/claim_confirm.tt' ); 
+    return DW::Template->render_template( 'openid/claim_confirm.tt' );
 }
 
 1;
