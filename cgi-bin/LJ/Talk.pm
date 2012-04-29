@@ -679,7 +679,10 @@ sub get_talk_data
     my $ret = {};
 
     # check for data in memcache
-    my $DATAVER = "1";  # single character
+    my $DATAVER = "3";  # single character
+    my $PACK_FORMAT = "NNNNC"; ## $talkid, $parenttalkid, $poster, $time, $state
+    my $RECORD_SIZE = 17;   
+
     my $memkey = [$u->{'userid'}, "talk2:$u->{'userid'}:$nodetype:$nodeid"];
     my $lockkey = $memkey->[1];
     my $packed = LJ::MemCache::get($memkey);
@@ -750,15 +753,15 @@ sub get_talk_data
 
     my $memcache_good = sub {
         return $packed && substr($packed,0,1) eq $DATAVER &&
-            length($packed) % 16 == 1;
+            length($packed) % $RECORD_SIZE == 1;
     };
 
     my $memcache_decode = sub {
-        my $n = (length($packed) - 1) / 16;
+        my $n = (length($packed) - 1) / $RECORD_SIZE;
         for (my $i=0; $i<$n; $i++) {
-            my ($f1, $par, $poster, $time) = unpack("NNNN",substr($packed,$i*16+1,16));
-            my $state = chr($f1 & 255);
-            my $talkid = $f1 >> 8;
+            my ( $talkid, $par, $poster, $time, $state ) =
+                unpack( $PACK_FORMAT, substr($packed, $i*$RECORD_SIZE+1, $RECORD_SIZE ) );
+            $state = chr($state);
             $ret->{$talkid} = {
                 talkid => $talkid,
                 state => $state,
@@ -824,11 +827,12 @@ sub get_talk_data
             LJ::Talk::add_talk2row_memcache($u->id, $r->{talkid}, \%row_arg);
         }
 
-        $memval .= pack("NNNN",
-                        ($r->{'talkid'} << 8) + ord($r->{'state'}),
+        $memval .= pack($PACK_FORMAT,
+                        $r->{'talkid'},
                         $r->{'parenttalkid'},
                         $r->{'posterid'},
-                        $r->{'datepost_unix'});
+                        $r->{'datepost_unix'},
+                        ord($r->{'state'}));
 
         $rp_ourcount++ if $r->{'state'} eq "A";
     }
@@ -1412,7 +1416,7 @@ sub load_userpics {
             foreach my $k (qw(userid width height flags picdate)) {
                 $ur->{$k} += 0;
             }
-            $ur->{location} = uc(substr($ur->{location}, 0, 1));
+            $ur->{location} = uc(substr($ur->{location} || '', 0, 1));
 
             $LJ::CACHE_USERPIC{$id} = $ur;
             LJ::MemCache::set([$id,"userpic.$id"], LJ::MemCache::hash_to_array("userpic", $ur));

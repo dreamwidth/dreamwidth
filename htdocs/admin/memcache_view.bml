@@ -101,17 +101,19 @@ _c?>
      # unpack packed data
      if ($key =~ /^talk2:/) {
          my $newval;
-         my $n = (length($val) - 1) / 16;
+         my $PACK_FORMAT = "NNNNC"; ## $talkid, $parenttalkid, $poster, $time, $state
+         my $RECORD_SIZE = 17;
+                     
+         my $n = (length($val) - 1) / $RECORD_SIZE;
          for (my $i=0; $i<$n; $i++) {
-             my ($f1, $par, $poster, $time) = unpack("NNNN",substr($val,$i*16+1,16));
-             my $state = chr($f1 & 255);
-             my $talkid = $f1 >> 8;
+             my ( $talkid, $parenttalkid, $poster, $time, $state ) =
+                 unpack( $PACK_FORMAT, substr( $val, $i*$RECORD_SIZE+1, $RECORD_SIZE ) );
              $newval->{$talkid} = {
                  talkid => $talkid,
-                 state => $state,
+                 state => chr($state),
                  posterid => $poster,
                  datepost => LJ::mysql_time($time),
-                 parenttalkid => $par,
+                 parenttalkid => $parenttalkid,
              };
          }
          $val = [substr($val,0,1), $newval];
