@@ -48,6 +48,7 @@ LJ::Entry
 #    allowmask:  if _loaded_row
 #    posterid:   if _loaded_row
 #    comments:   arrayref of comment objects on this entry
+#    talkdata:   hash of raw comment data for this entry
 
 #    userpic
 
@@ -55,6 +56,7 @@ LJ::Entry
 #    _loaded_row:      loaded log2 row
 #    _loaded_props:    loaded props
 #    _loaded_comments: loaded comments
+#    _loaded_talkdata: loaded talkdata
 
 my %singletons = (); # journalid->jitemid->singleton
 
@@ -484,17 +486,31 @@ sub _load_comments {
     return 1 if $self->{_loaded_comments};
 
     # need to load using talklib API
-    my $comment_ref = LJ::Talk::get_talk_data($self->journal, 'L', $self->jitemid);
+    my $comment_ref =  $self->{_loaded_talkdata} ? $self->{talkdata} : LJ::Talk::get_talk_data($self->journal, 'L', $self->jitemid);
+
     die "unable to load comment data for entry"
         unless ref $comment_ref;
 
+    my @comment_list;
+
+    my $u = $self->journal;
+    my $nodeid = $self->jitemid;
+
     # instantiate LJ::Comment singletons and set them on our $self
-    # -- members were filled in to the LJ::Comment singleton during the talklib call,
-    #    so we'll just re-instantiate here and rely on the fact that the singletons
-    #    already exist and have db rows absorbed into them
-    $self->set_comment_list
-        ( map { LJ::Comment->new( $self->journal, jtalkid => $_->{talkid}) }
-          values %$comment_ref );
+    foreach my $jtalkid ( keys %$comment_ref ) {
+        my $row = $comment_ref->{$jtalkid};
+        # at this point we have data for this comment loaded in memory
+        # -- instantiate an LJ::Comment object as a singleton and absorb
+        #    that data into the object
+        my $comment = LJ::Comment->new($u, jtalkid => $jtalkid);
+        # add important info to row
+        $row->{nodetype} = "L";
+        $row->{nodeid}   = $nodeid;
+        $comment->absorb_row(%$row);
+        
+        push @comment_list, $comment;
+    }        
+    $self->set_comment_list( @comment_list );
 
     return $self;
 }
@@ -510,6 +526,15 @@ sub set_comment_list {
 
     $self->{comments} = \@args;
     $self->{_loaded_comments} = 1;
+
+    return 1;
+}
+
+sub set_talkdata {
+    my ( $self, $talkdata ) = @_;
+
+    $self->{talkdata} = $talkdata;
+    $self->{_loaded_talkdata} = 1;
 
     return 1;
 }

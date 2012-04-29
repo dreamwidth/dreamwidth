@@ -56,10 +56,12 @@ LJ::Comment
 #    subject_orig   subject of comment w/o transcoding, present if unknown8bit
 
 #    props:   hashref of props,                    loaded if _loaded_props
+#    childids:   arrayref of child ids              loaded if _loaded_childids
 
 #    _loaded_text:   loaded talktext2 row
 #    _loaded_row:    loaded talk2 row
 #    _loaded_props:  loaded props
+#    _loaded_childids:  loaded childids
 
 my %singletons = (); # journalid->jtalkid->singleton
 
@@ -413,6 +415,19 @@ sub parent {
 # returns an array of LJ::Comment objects with parentid == $self->jtalkid
 sub children {
     my $self = $_[0];
+
+    if ( $self->{_loaded_childids} ) {
+        my @children = ();
+        my $u = $self->journal;
+        if ( $self->{childids} && scalar @{$self->{childids}} ) {
+            my @childids = @{$self->{childids}};
+            foreach my $talkid ( @childids ) {
+                my $child = LJ::Comment->new($u, jtalkid => $talkid);
+                push @children, $child;
+            }
+        }
+        return @children;
+    }
 
     my $entry = $self->entry;
     return grep { $_->{parenttalkid} == $self->{jtalkid} } $entry->comment_list;

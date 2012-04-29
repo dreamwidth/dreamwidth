@@ -716,39 +716,12 @@ sub get_talk_data
         }
     };
 
-    my $make_comment_singleton = sub {
-        my ($jtalkid, $row) = @_;
-        return 1 unless $nodetype eq 'L';
-
-        # at this point we have data for this comment loaded in memory
-        # -- instantiate an LJ::Comment object as a singleton and absorb
-        #    that data into the object
-        my $comment = LJ::Comment->new($u, jtalkid => $jtalkid);
-        # add important info to row
-        $row->{nodetype} = $nodetype;
-        $row->{nodeid}   = $nodeid;
-        $comment->absorb_row(%$row);
-
-        return 1;
-    };
-
-    # This is a bit tricky.  Since we just loaded and instantiated all comment singletons for this
-    # entry (journalid, jitemid) we'll instantiate a skeleton LJ::Entry object (probably a singleton
-    # used later in this request anyway) and let it know that its comments are already loaded
+    # Save the talkdata on the entry for later
     my $set_entry_cache = sub {
         return 1 unless $nodetype eq 'L';
 
-        my $entry = LJ::Entry->new($u, jitemid => $nodeid);
-
-        # find all singletons that LJ::Comment knows about, then grep for the ones we've set in
-        # this get_talk_data call (ones for this userid / nodeid)
-        # note: This is a heavily-used path. The hash lookup on nodeid is a deliberate optimization
-        my $uid = $u->userid;
-        LJ::Comment->preload_rows();
-        my @comments_for_entry =
-            grep { $_->{journalid} == $uid && $_->{nodeid} == $nodeid } LJ::Comment->all_singletons;
-
-        $entry->set_comment_list(@comments_for_entry);
+        my $entry = LJ::Entry->new( $u, jitemid => $nodeid );
+        $entry->set_talkdata( $ret );
     };
 
     my $memcache_good = sub {
@@ -770,9 +743,6 @@ sub get_talk_data
                 datepost => LJ::mysql_time($time),  # timezone surely fucked.  deprecated.
                 parenttalkid => $par,
             };
-
-            # instantiate comment singleton
-            $make_comment_singleton->($talkid, $ret->{$talkid});
 
             # comments are counted if they're 'A'pproved or 'F'rozen
             $rp_ourcount++ if $state eq "A" || $state eq "F";
@@ -819,9 +789,6 @@ sub get_talk_data
             my %row_arg = %$r;
             $row_arg{nodeid}   = $nodeid;
             $row_arg{nodetype} = $nodetype;
-
-            # instantiate comment singleton
-            $make_comment_singleton->($r->{talkid}, \%row_arg);
 
             # set talk2row memcache key for this bit of data
             LJ::Talk::add_talk2row_memcache($u->id, $r->{talkid}, \%row_arg);
@@ -1021,15 +988,15 @@ sub load_comments
                         ( $remote->userid == $uposterid || # made in remote's journal
                           $remote->userid == $post->{posterid} || # made by remote
                           $remote->can_manage( $u ) || # made in a journal remote manages
-                           (
-                              # remote authored the parent, and this comment is by an admin
-                              exists $posts->{$parenttalkid} &&
-                              $posts->{$parenttalkid}->{posterid} &&
-                              $posts->{$parenttalkid}->{posterid} == $remote->userid &&
-                              $poster && $poster->can_manage( $u )
-                           )
+                          (
+                           # remote authored the parent, and this comment is by an admin
+                           exists $posts->{$parenttalkid} &&
+                           $posts->{$parenttalkid}->{posterid} &&
+                           $posts->{$parenttalkid}->{posterid} == $remote->userid &&
+                           $poster && $poster->can_manage( $u )
+                          )
                         )
-                      );
+                    );
             }
             $post->{'_show'} = $should_show;
             $post_count += $should_show;
@@ -1328,6 +1295,36 @@ sub load_comments
             load_userpics( $opts->{userpicref}, \@load_pic );
         }
     }
+
+    # make singletons for the returned comments
+    my $make_comment_singleton = sub {
+        my ($self, $jtalkid, $row) = @_;
+        return 1 unless $nodetype eq 'L';
+
+        # at this point we have data for this comment loaded in memory
+        # -- instantiate an LJ::Comment object as a singleton and absorb
+        #    that data into the object
+        my $comment = LJ::Comment->new($u, jtalkid => $jtalkid);
+        # add important info to row
+        $row->{nodetype} = $nodetype;
+        $row->{nodeid}   = $nodeid;
+        $comment->absorb_row(%$row);
+
+        $comment->{childids} = $row->{children};
+        $comment->{_loaded_childids} = 1;
+
+        if ( $row->{children} && scalar @{$row->{children}} ) {
+            foreach my $child ( @{$row->{children}} ) {
+                $self->($self, $child, $posts->{$child});
+            }
+        }
+        return 1;
+    };
+
+    foreach my $talkid ( @top_replies ) {
+        $make_comment_singleton->($make_comment_singleton, $talkid, $posts->{$talkid});
+    }
+
     return map { $posts->{$_} } @top_replies;
 }
 
