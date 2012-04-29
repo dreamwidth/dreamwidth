@@ -108,6 +108,7 @@ use LJ::Time;
 use LJ::Capabilities;
 use DW::Mood;
 use LJ::Global::Img;  # defines LJ::Img
+use LJ::Global::Secrets;  # defines LJ::Secrets
 
 require "$LJ::HOME/cgi-bin/ljlib-local.pl"
     if -e "$LJ::HOME/cgi-bin/ljlib-local.pl";

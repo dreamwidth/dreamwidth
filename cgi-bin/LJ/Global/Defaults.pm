@@ -369,6 +369,8 @@ no strict "vars";
     # default location of community posting guidelines
     $DEFAULT_POSTING_GUIDELINES_LOC ||= "N";
 
+    # Secrets
+    %SECRETS = () unless defined %SECRETS;
 }
 
 

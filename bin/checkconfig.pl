@@ -27,6 +27,7 @@ my @checks = (  # put these in the order they should be checked in
     "modules",
     "env",
     "database",
+    "secrets",
 );
 foreach my $check (@checks) { $dochecks{$check} = 1; }
 
@@ -51,6 +52,7 @@ usage() unless GetOptions(
 if ($debs_only) {
     $dochecks{database} = 0;
     $dochecks{timezone} = 0;
+    $dochecks{secrets} = 0;
 }
 
 usage() if $only_check && $no_check;
@@ -379,3 +381,40 @@ sub check_timezone {
     $err->( "Timezone must be UTC." ) unless $timezone->is_utc;
 }
 
+sub check_secrets {
+    print "[Checking Secrets...]\n";
+
+    foreach my $secret ( keys %LJ::Secrets::secret ) {
+        my $def = $LJ::Secrets::secret{$secret};
+        my $req_len = exists $def->{len} || exists $def->{min_len} || exists $def->{max_len};
+        my $rec_len = exists $def->{rec_len} || exists $def->{rec_min_len} || exists $def->{rec_max_len};
+
+        my $req_min = $def->{len} || $def->{min_len} || 0;
+        my $req_max = $def->{len} || $def->{max_len} || 0;
+
+        my $rec_min = $def->{rec_len} || $def->{rec_min_len} || 0;
+        my $rec_max = $def->{rec_len} || $def->{rec_max_len} || 0;
+        my $val = $LJ::SECRETS{$secret} || '';
+        my $len = length( $val );
+
+        if ( ! defined( $LJ::SECRETS{$secret} ) || ! $LJ::SECRETS{$secret} ) {
+            if ( $def->{required} ) {
+                $err->( "Missing requred secret '$secret': $def->{desc}" );
+            } else {
+                print STDERR "Missing optional secret '$secret': $def->{desc}\n";
+            }
+        } elsif ( $req_len && ( $len < $req_min || $len > $req_max ) ) {
+            if ( $req_min == $req_max ) {
+                $err->( "Secret '$secret' not of required length: is $len, must be $req_min" );
+            } else {
+                $err->( "Secret '$secret' not of required length: is $len, must be between $req_min and $req_max" );
+            }
+        } elsif ( $rec_len && ( $len < $rec_min || $len > $rec_max ) ) {
+            if ( $rec_min == $rec_max ) {
+                print STDERR "Secret '$secret' not of recommended length: is $len, should be $rec_min\n";
+            } else {
+                print STDERR "Secret '$secret' not of recommended length: is $len, should be between $rec_min and $rec_max\n";
+            }
+        }
+    }
+}
