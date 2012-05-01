@@ -25,14 +25,14 @@ use Carp qw(croak);
 
 sub need_res {
     return qw(
-            js/core.js
-            js/dom.js
-            js/view.js
-            js/datasource.js
-            js/checkallbutton.js
-            js/selectable_table.js
-            js/httpreq.js
-            js/hourglass.js
+            js/6alib/core.js
+            js/6alib/dom.js
+            js/6alib/view.js
+            js/6alib/datasource.js
+            js/6alib/checkallbutton.js
+            js/6alib/selectable_table.js
+            js/6alib/httpreq.js
+            js/6alib/hourglass.js
             js/esn_inbox.js
             stc/esn.css
             stc/lj_base.css

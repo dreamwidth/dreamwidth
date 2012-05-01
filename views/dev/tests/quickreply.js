@@ -1,6 +1,6 @@
 /* INCLUDE:
-old: js/x_core.js
-old: js/quickreply.js
+old: js/6alib/x_core.js
+old: js/6alib/quickreply.js
 jquery: js/jquery/jquery.ui.widget.js
 jquery: js/jquery.quickreply.js
 */

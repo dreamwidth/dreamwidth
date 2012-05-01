@@ -2173,24 +2173,24 @@ sub init_iconbrowser_js {
         @additional,
     ) : (
         # base libraries
-        'js/core.js',
-        'js/dom.js',
-        'js/json.js',
+        'js/6alib/core.js',
+        'js/6alib/dom.js',
+        'js/6alib/json.js',
         # for the formatting of the icon selector popup
-        'js/template.js',
-        'js/ippu.js',
+        'js/6alib/template.js',
+        'js/6alib/ippu.js',
         'js/lj_ippu.js',
         # logic for the icon selector
         'js/userpicselect.js',
         # fetching the userpic information
-        'js/httpreq.js',
-        'js/hourglass.js',
+        'js/6alib/httpreq.js',
+        'js/6alib/hourglass.js',
         # autocomplete
-        'js/inputcomplete.js',
+        'js/6alib/inputcomplete.js',
         'stc/ups.css',
         # selecting an icon by clicking on a row
-        'js/datasource.js',
-        'js/selectable_table.js',
+        'js/6alib/datasource.js',
+        'js/6alib/selectable_table.js',
         # additional files from arguments
         @additional,
     );

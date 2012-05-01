@@ -1,33 +1,33 @@
 /* INCLUDE:
-old: js/core.js
-old: js/dom.js
-old: js/json.js
-old: js/httpreq.js
-old: js/hourglass.js
-old: js/inputcomplete.js
-old: js/datasource.js
-old: js/selectable_table.js
+old: js/6alib/core.js
+old: js/6alib/dom.js
+old: js/6alib/json.js
+old: js/6alib/httpreq.js
+old: js/6alib/hourglass.js
+old: js/6alib/inputcomplete.js
+old: js/6alib/datasource.js
+old: js/6alib/selectable_table.js
 
-old: js/checkallbutton.js
+old: js/6alib/checkallbutton.js
 
-old: js/progressbar.js
-old: js/ljprogressbar.js
+old: js/6alib/progressbar.js
+old: js/6alib/ljprogressbar.js
 
-old: js/ippu.js
-old: js/lj_ippu.js
-old: js/template.js
-old: js/userpicselect.js
+old: js/6alib/ippu.js
+old: js/6alib/lj_ippu.js
+old: js/6alib/template.js
+old: js/6alib/userpicselect.js
 
-old: js/view.js
-old: js/directorysearch.js
-old: js/directorysearchconstraints.js
-old: js/directorysearchresults.js
+old: js/6alib/view.js
+old: js/6alib/directorysearch.js
+old: js/6alib/directorysearchconstraints.js
+old: js/6alib/directorysearchresults.js
 
-old: js/esnmanager.js
+old: js/6alib/esnmanager.js
 
-old: js/ljwidget.js
-old: js/ljwidget_ippu.js
-old: js/widget_ippu/settingprod.js
+old: js/6alib/ljwidget.js
+old: js/6alib/ljwidget_ippu.js
+old: js/6alib/widget_ippu/settingprod.js
 */
 
 module( "old" );

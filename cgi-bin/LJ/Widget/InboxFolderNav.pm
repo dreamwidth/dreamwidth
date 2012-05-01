@@ -19,9 +19,9 @@ use Carp qw(croak);
 
 sub need_res {
     return qw(
-            js/core.js
-            js/dom.js
-            js/hourglass.js
+            js/6alib/core.js
+            js/6alib/dom.js
+            js/6alib/hourglass.js
             stc/esn.css
             stc/lj_base.css
             );

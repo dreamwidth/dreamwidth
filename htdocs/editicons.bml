@@ -48,9 +48,9 @@ use strict;
 
     LJ::need_res(qw(
                     stc/editicons.css
-                    js/progressbar.js
+                    js/6alib/progressbar.js
                     js/ljprogressbar.js
-                    js/perlbal-uploadtrack.js
+                    js/6alib/perlbal-uploadtrack.js
                     js/editicons.js
                     ));
 

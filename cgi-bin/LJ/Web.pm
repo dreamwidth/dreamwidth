@@ -1473,9 +1473,9 @@ sub entry_form {
 
     ### Insert Object Toolbar:
     LJ::need_res(qw(
-                    js/core.js
-                    js/dom.js
-                    js/ippu.js
+                    js/6alib/core.js
+                    js/6alib/dom.js
+                    js/6alib/ippu.js
                     js/lj_ippu.js
                     ));
     $out .= "<div id='htmltools' class='pkg'>\n";
@@ -3303,9 +3303,9 @@ sub subscribe_interface {
     croak "Invalid options passed to subscribe_interface" if (scalar keys %opts);
 
     LJ::need_res('stc/esn.css');
-    LJ::need_res('js/core.js');
-    LJ::need_res('js/dom.js');
-    LJ::need_res('js/checkallbutton.js');
+    LJ::need_res('js/6alib/core.js');
+    LJ::need_res('js/6alib/dom.js');
+    LJ::need_res('js/6alib/checkallbutton.js');
     LJ::need_res('js/esn.js');
 
     my @categories = $catref ? @$catref : ();

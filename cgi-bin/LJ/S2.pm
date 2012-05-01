@@ -183,9 +183,9 @@ sub make_journal
 
         # used if we're using our old library
         LJ::need_res(qw(
-                    js/core.js
-                    js/dom.js
-                    js/httpreq.js
+                    js/6alib/core.js
+                    js/6alib/dom.js
+                    js/6alib/httpreq.js
                     js/livejournal.js
                     js/md5.js
                     js/login.js

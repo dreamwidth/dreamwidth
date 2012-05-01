@@ -1,6 +1,6 @@
 /* INCLUDE:
 js/md5.js
-old: js/login.js
+old: js/6alib/login.js
 jquery: js/login-jquery.js
 */
 

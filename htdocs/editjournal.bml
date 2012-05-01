@@ -33,7 +33,7 @@ body<=
     if ($GET{'itemid'} || $POST{'itemid'}) { $mode = "edit"; }
 
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
-    LJ::need_res( 'js/inputcomplete.js' );
+    LJ::need_res( 'js/6alib/inputcomplete.js' );
     
     # are they asking to be authed as someone else?
     my $authas = $GET{'authas'} || $remote->{'user'};
@@ -639,9 +639,9 @@ head<=
     my $ret;
 
     LJ::need_res(qw(
-                    js/core.js
-                    js/dom.js
-                    js/httpreq.js
+                    js/6alib/core.js
+                    js/6alib/dom.js
+                    js/6alib/httpreq.js
                     js/livejournal.js
                     js/entry.js
                     js/poll.js

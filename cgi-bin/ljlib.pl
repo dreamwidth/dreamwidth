@@ -1072,9 +1072,9 @@ sub start_request
 
         # standard site-wide JS and CSS
         LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                        js/core.js
-                        js/dom.js
-                        js/httpreq.js
+                        js/6alib/core.js
+                        js/6alib/dom.js
+                        js/6alib/httpreq.js
                         js/livejournal.js
                         stc/lj_base.css
                         ));
@@ -1089,9 +1089,9 @@ sub start_request
         # contextual popup JS
         if ( $LJ::CTX_POPUP ) {
             LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                            js/ippu.js
+                            js/6alib/ippu.js
                             js/lj_ippu.js
-                            js/hourglass.js
+                            js/6alib/hourglass.js
                             js/contextualhover.js
                             stc/contextualhover.css
                             ));
@@ -1113,7 +1113,7 @@ sub start_request
 
         # development JS
         LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                        js/devel.js
+                        js/6alib/devel.js
                         js/livejournal-devel.js
                         ))
             if $LJ::IS_DEV_SERVER;

@@ -82,7 +82,7 @@ _c?>
     LJ::Hooks::run_hooks("transform_update_$POST{transform}", \%GET, \%POST) if $POST{transform};
 
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
-    LJ::need_res('stc/display_none.css', 'stc/lj_base.css', 'js/inputcomplete.js');
+    LJ::need_res('stc/display_none.css', 'stc/lj_base.css', 'js/6alib/inputcomplete.js');
 
     ## figure out times
     my $now = DateTime->now;
@@ -525,9 +525,9 @@ head<=
     my $ret = $_[1]->{'head'};
 
     LJ::need_res(qw(
-                    js/core.js
-                    js/dom.js
-                    js/httpreq.js
+                    js/6alib/core.js
+                    js/6alib/dom.js
+                    js/6alib/httpreq.js
                     js/livejournal.js
                     js/entry.js
                     js/poll.js

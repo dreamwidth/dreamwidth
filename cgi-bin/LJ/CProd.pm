@@ -413,10 +413,10 @@ sub wrap_content {
     my ($class, $content, %opts) = @_;
 
     # include js libraries
-    LJ::need_res("js/core.js");
-    LJ::need_res("js/dom.js");
-    LJ::need_res("js/httpreq.js");
-    LJ::need_res("js/hourglass.js");
+    LJ::need_res("js/6alib/core.js");
+    LJ::need_res("js/6alib/dom.js");
+    LJ::need_res("js/6alib/httpreq.js");
+    LJ::need_res("js/6alib/hourglass.js");
     LJ::need_res("js/cprod.js");
     LJ::need_res("stc/cprod.css");
     my $e_class = LJ::ehtml($class);

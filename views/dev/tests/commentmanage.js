@@ -1,6 +1,6 @@
 /* INCLUDE:
 
-old: js/commentmanage.js
+old: js/6alib/commentmanage.js
 jquery: js/jquery/jquery.ui.widget.js
 jquery: js/jquery.ajaxtip.js
 jquery: js/jquery.commentmanage.js
