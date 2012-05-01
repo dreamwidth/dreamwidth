@@ -119,7 +119,28 @@ sub create_url {
     return LJ::create_url( $_[1], %{ $_[2] || {} } );
 }
 
+=head2 ml
 
+Get the translated string. The filter form is preferred:
+
+    " '.key' | ml " filter
+
+Use this when the translation string needs to be used as an argument.
+
+    [% form.textbox(
+        label = dw.ml( '.key', arg1 = 'arg1' )
+    ) %]
+=cut
+sub ml {
+    my $self = shift;
+    my $rv = DW::Template::Filters::ml( @_ );
+
+    return $rv->($_[0]);
+}
+
+=head2 img
+
+=cut
 sub img {
     my $self = shift;
     return LJ::img(@_);

@@ -33,7 +33,6 @@ Apply a ML string.
 
 =cut
 
-# Separated out of DW::Template::Plugin to avoid accidental use as a method.
 sub ml {
     # save the last argument as the hashref, hopefully
     my $args = $_[-1];
