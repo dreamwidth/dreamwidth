@@ -3055,7 +3055,7 @@ sub int__compare
     return $other <=> $this;
 }
 
-sub Color__update_hsl
+sub _Color__update_hsl
 {
     my ($this, $force) = @_;
     return if $this->{'_hslset'}++;
@@ -3064,16 +3064,16 @@ sub Color__update_hsl
     $this->{$_} = int($this->{$_} * 255 + 0.5) foreach qw(_h _s _l);
 }
 
-sub Color__update_rgb
+sub _Color__update_rgb
 {
     my ($this) = @_;
 
     ($this->{'r'}, $this->{'g'}, $this->{'b'}) =
         S2::Color::hsl_to_rgb( map { $this->{$_} / 255 } qw(_h _s _l) );
-    Color__make_string($this);
+    _Color__make_string($this);
 }
 
-sub Color__make_string
+sub _Color__make_string
 {
     my ($this) = @_;
     $this->{'as_string'} = sprintf("\#%02x%02x%02x",
@@ -3097,7 +3097,7 @@ sub Color__Color
     $this->{'b'} = hex(substr($s, 4, 2));
     $this->{$_} = $this->{$_} % 256 foreach qw(r g b);
 
-    Color__make_string($this);
+    _Color__make_string($this);
     return $this;
 }
 
@@ -3109,12 +3109,12 @@ sub Color__clone
 
 sub Color__set_hsl
 {
-    my ($this, $h, $s, $l) = @_;
-    $this->{'_h'} = $h % 256;
-    $this->{'_s'} = $s % 256;
-    $this->{'_l'} = $l % 256;
-    $this->{'_hslset'} = 1;
-    Color__update_rgb($this);
+    my ($ctx, $this, $h, $s, $l) = @_;
+    $this->{_h} = $h % 256;
+    $this->{_s} = $s % 256;
+    $this->{_l} = $l % 256;
+    $this->{_hslset} = 1;
+    _Color__update_rgb($this);
 }
 
 sub Color__red {
@@ -3122,7 +3122,7 @@ sub Color__red {
     if (defined $r) {
         $this->{'r'} = $r % 256;
         delete $this->{'_hslset'};
-        Color__make_string($this);
+        _Color__make_string($this);
     }
     $this->{'r'};
 }
@@ -3132,7 +3132,7 @@ sub Color__green {
     if (defined $g) {
         $this->{'g'} = $g % 256;
         delete $this->{'_hslset'};
-        Color__make_string($this);
+        _Color__make_string($this);
     }
     $this->{'g'};
 }
@@ -3142,7 +3142,7 @@ sub Color__blue {
     if (defined $b) {
         $this->{'b'} = $b % 256;
         delete $this->{'_hslset'};
-        Color__make_string($this);
+        _Color__make_string($this);
     }
     $this->{'b'};
 }
@@ -3150,40 +3150,37 @@ sub Color__blue {
 sub Color__hue {
     my ($ctx, $this, $h) = @_;
 
+    _Color__update_hsl($this) unless $this->{_hslset};
     if (defined $h) {
-        $this->{'_h'} = $h % 256;
-        $this->{'_hslset'} = 1;
-        Color__update_rgb($this);
-    } elsif (! $this->{'_hslset'}) {
-        Color__update_hsl($this);
+        $this->{_h} = $h % 256;
+        _Color__update_rgb($this);
     }
-    $this->{'_h'};
+
+    $this->{_h};
 }
 
 sub Color__saturation {
     my ($ctx, $this, $s) = @_;
+
+    _Color__update_hsl($this) unless $this->{_hslset};
     if (defined $s) {
-        $this->{'_s'} = $s % 256;
-        $this->{'_hslset'} = 1;
-        Color__update_rgb($this);
-    } elsif (! $this->{'_hslset'}) {
-        Color__update_hsl($this);
+        $this->{_s} = $s % 256;
+        _Color__update_rgb($this);
     }
-    $this->{'_s'};
+
+    $this->{_s};
 }
 
 sub Color__lightness {
     my ($ctx, $this, $l) = @_;
 
+    _Color__update_hsl($this) unless $this->{_hslset};
     if (defined $l) {
-        $this->{'_l'} = $l % 256;
-        $this->{'_hslset'} = 1;
-        Color__update_rgb($this);
-    } elsif (! $this->{'_hslset'}) {
-        Color__update_hsl($this);
+        $this->{_l} = $l % 256;
+        _Color__update_rgb($this);
     }
 
-    $this->{'_l'};
+    $this->{_l};
 }
 
 sub Color__inverse {
@@ -3194,7 +3191,7 @@ sub Color__inverse {
         'g' => 255 - $this->{'g'},
         'b' => 255 - $this->{'b'},
     };
-    Color__make_string($new);
+    _Color__make_string($new);
     return $new;
 }
 
@@ -3206,7 +3203,7 @@ sub Color__average {
         'g' => int(($this->{'g'} + $other->{'g'}) / 2 + .5),
         'b' => int(($this->{'b'} + $other->{'b'}) / 2 + .5),
     };
-    Color__make_string($new);
+    _Color__make_string($new);
     return $new;
 }
 
@@ -3219,7 +3216,7 @@ sub Color__blend {
         'g' => int($this->{'g'} - (($this->{'g'} - $other->{'g'}) * $multiplier) + .5),
         'b' => int($this->{'b'} - (($this->{'b'} - $other->{'b'}) * $multiplier) + .5),
     };
-    Color__make_string($new);
+    _Color__make_string($new);
     return $new;
 }
 
@@ -3227,7 +3224,7 @@ sub Color__lighter {
     my ($ctx, $this, $amt) = @_;
     $amt = defined $amt ? $amt : 30;
 
-    Color__update_hsl($this);
+    _Color__update_hsl($this);
 
     my $new = {
         '_type' => 'Color',
@@ -3237,7 +3234,7 @@ sub Color__lighter {
         '_l' => ($this->{'_l'} + $amt > 255 ? 255 : $this->{'_l'} + $amt),
     };
 
-    Color__update_rgb($new);
+    _Color__update_rgb($new);
     return $new;
 }
 
@@ -3245,7 +3242,7 @@ sub Color__darker {
     my ($ctx, $this, $amt) = @_;
     $amt = defined $amt ? $amt : 30;
 
-    Color__update_hsl($this);
+    _Color__update_hsl($this);
 
     my $new = {
         '_type' => 'Color',
@@ -3255,7 +3252,7 @@ sub Color__darker {
         '_l' => ($this->{'_l'} - $amt < 0 ? 0 : $this->{'_l'} - $amt),
     };
 
-    Color__update_rgb($new);
+    _Color__update_rgb($new);
     return $new;
 }
 
