@@ -1,0 +1,42 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+property string blah;
+set "blah" = "foo";
+
+class Dog
+{
+  var string name;
+  function out;
+}
+
+class KillerDog extends Dog
+{
+  var int weight;
+}
+
+class Page
+{
+  var KillerDog d;
+  function foo (int c);
+}
+
+
+function Dog::out {
+  println "I'm a dog named \"$.name\".";
+}
+
+function KillerDog::out {
+  println "I'm a killer dog named \"$.name\" with weight $.weight";
+}
+
+function main ()
+{
+  var KillerDog kd = new KillerDog;
+  $kd.name = "Killer Dog";
+  $kd.weight = 9999;
+  $kd->out();
+}
+

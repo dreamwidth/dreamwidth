@@ -1,0 +1,12 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+function main ()
+{
+  "hi.\n"
+}
+
+
+

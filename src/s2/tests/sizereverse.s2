@@ -1,0 +1,31 @@
+#-*-perl-*-
+
+layerinfo type = core;
+layerinfo "majorversion" = 0;
+
+function builtin string(int i) : string;
+function builtin int(string s) : int;
+
+function main ()
+{
+    var int[] iarray;
+    $iarray[0] = 0;
+    $iarray[1] = 1;
+    $iarray[2] = 2;
+    $iarray[3] = 3;
+    $iarray[4] = 4;
+    $iarray[5] = 5;
+
+    $iarray = reverse $iarray;
+    $iarray[0] = 0;
+    $iarray[5] = 5;
+    $iarray = reverse $iarray;
+    
+    println "Size of array = " + string(size $iarray);
+    println "Iterating over array:";
+    foreach var int i ($iarray)
+    {
+	println $i;
+    }
+    println "Done.";
+}

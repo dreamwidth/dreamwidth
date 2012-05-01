@@ -1,0 +1,20 @@
+#-*-perl-*-
+
+layerinfo type = core;
+layerinfo "majorversion" = 0;
+
+class Foo
+{
+  var readonly int a;
+  var int b;
+}
+
+property Foo f;
+
+function main()
+{
+    var Foo f;
+    $f.b = 1;
+    println "Foo.b = $f.b";
+#    $f.a = 2;
+}

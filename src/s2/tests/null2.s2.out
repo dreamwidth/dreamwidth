@@ -1,0 +1,14 @@
+test1 is null
+test2 is null
+test3 is NOT null!
+test4 is null
+returnThingy() returned null
+test is NOT defined!
+test2 is NOT defined!
+test3 is defined
+test4 is NOT defined!
+returnThingy returned NOT defined!
+test is null
+test2 is null
+test3 is NOT null!
+test4 is null

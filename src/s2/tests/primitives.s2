@@ -1,0 +1,15 @@
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 1;
+
+function testIntArray(int[] args) {}
+function testBoolArray(bool[] args) {}
+function testStringArray(string[] args) {}
+function testIntHash(int{} args) {}
+function testBoolHash(bool{} args) {}
+function testStringHash(string{} args) {}
+
+# If this compiled okay then it passed the test
+
+function main() {}
+

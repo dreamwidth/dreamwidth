@@ -1,0 +1,28 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+property string blah;
+set "blah" = "foo";
+
+function main ()
+{
+  var string n;
+  $n = "foo";
+
+  var int size;
+
+  var string[] a;
+  $a[0] = "a";
+  $a[1] = "b";
+  $a[2] = "c";
+  $a[3] = "d";
+
+  $size = size $a;
+
+  print "n=$n, size=$size\n";
+}
+
+
+

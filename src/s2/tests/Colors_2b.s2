@@ -1,0 +1,62 @@
+#-*-perl-*-
+
+layerinfo type = core;
+layerinfo "majorversion" = 0;
+
+class Color
+{
+  var readonly int r;
+  var readonly int g;
+  var readonly int b;
+  var  string as_string;
+  function builtin red(int r);
+  function builtin red() : int;
+  function builtin green(int g);
+  function builtin green() : int;
+  function builtin blue(int b);
+  function builtin blue() : int;
+  function builtin Color(string s) : Color;
+}
+
+class string
+{
+  function builtin substr(int start, int length) : string;
+}
+
+function builtin string(int i) : string;
+function builtin int(string s) : int;
+
+property Color bgcolor {
+  des = "Background color";
+}
+set bgcolor = "#FF0000";
+
+property int age {
+  des = "Your age";
+}
+set age = 123;
+
+property string name {
+  des = "Your name";
+}
+set name = "foo";
+
+function main()
+{
+  println "Bgcolor_pre = $*bgcolor";
+  $*name = "jack";
+  $*age = 21;
+  $*bgcolor = "#C0C0C0";
+
+  var Color c;
+  $c = "#123456";
+
+  "$c\n";
+  $c->blue($c->blue() + 1);
+  "My color is now $c\n";
+
+  println "Age = $*age";
+  println "Name = $*name";
+
+  println "Bgcolor_post = $*bgcolor";
+}

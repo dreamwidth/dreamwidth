@@ -1,0 +1,15 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+
+layerinfo "name" = "First";
+layerinfo "name" = "Second";
+
+
+function main ()
+{
+  "hi.\n";
+}
+
+
+

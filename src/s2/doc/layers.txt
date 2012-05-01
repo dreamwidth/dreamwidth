@@ -1,0 +1,168 @@
+S2 Layers
+=========
+
+A style in the S2 system is comprised of a number of layers stacked on
+top of each other.  Layers serve different purposes and can add or
+change different things at each step.  End-users pick and choose which
+layers they want and that ultimate determines how their journal looks.
+
+The layers from the bottom to top are:
+
+          Built-in
+	  Core
+          I18n-C
+	  Layout
+	  I18n
+	  Theme
+	  User
+
+
+0: BUILT-IN
+===========
+
+This is a very thin layer that can almost be considered part of the
+core layer (layer 1), but it has on large difference: the
+implementation of the built-in layer is done in the S2 system's
+backend language.  In this initial implementation, this is Perl.  This
+layer serves as the bridge between reality and the happy opaque world
+that is S2.  It lets S2 code have access to get data from the outside
+and do things that are either available in native S2, or explicitly
+disallowed because they could be unsafe.
+
+1: CORE
+=======
+
+The core defines all the classes that are available in the system.
+This definition includes both the data structures available to higher
+layers and default implementations.  That is, it defines everything
+there is available in, say, a journal entry object, and also defines
+how to dump it to HTML.
+
+Overtime as more functionality is added to LJ, the number of these
+classes will grow, but it must never shrink or change, as to preserve
+compatability with old layers above it.  Classes exist to represent
+common LJ objects (journal entries, users, page views, etc.).
+
+The cool thing about having default implementations in this layer is
+that they're inherited by higher layers, including old ones written
+when the core layer was smaller.  This lets us add new view types
+(Memories view, Userinfo view, etc...) and have them match the user's
+layout, without any of the layer authors updating their code.
+
+There is only one core layer so users can't select it.  (well, see
+versioning.txt) The core layer defines what's available in the
+built-in layer, so obviously users can't select their built-in layer
+either.  In fact, the existence of a built-in layer is transparent to
+most parts of the system.
+
+2: LAYOUT
+=========
+
+The layout is what in S1 we called a style.  In S2 terminology, the
+style is the end result of combining all your layers together.  The
+layout layer defines the most basic customizable element of the S2
+system... it determines the base look for the style.  If a user wanted
+to change their journal to match a very explcit look (say, to match an
+existing website of theirs), then they'd make a new layout layer.  LJ
+will provide a half-dozen of these, but the real customizabilty in the
+new system is in the upper layers.
+
+All layers can overide functions and properties in lower layers, but a
+layout layer is unique in that it can define new functions and
+properties.
+
+3: THEME
+========
+
+In S1, a color theme was a top-level entity, just like a style.  The
+idea was that style authors should be careful in designing their
+styles using the right color codes such that any color theme could be
+applied to it and the result would be pleasing.  This required a lot
+of effort on the part of both style authors and color theme authors,
+so it ultimately failed.  Lots of fingers were pointed between the two
+groups and finally I admitted I was wrong in designing a system that
+relied on everybody understanding such concepts.  Once one person made
+a misbehaving style or theme, it pretty much ruined the entire system,
+as nobody cared from that point on.
+
+The result is that we were left with the obscure notion of "color
+codes" which were impossible for users to imagine how to map onto the
+style (now: layout) they were looking at.  They'd eventually discover
+that "light emphasis text 2" meant, "the color at the top in the box".
+
+In S2, themes are tied to layouts, and the layout layer defines that
+properties can be overridden (these include color codes).  That way a
+theme will fit a layout very closely.  Also, themes can define any
+properties that a layout layer reflects, which might include images
+and sound (I hate cheesy MIDIs... before sound will be allowed, there
+will be a visitor option to disable ever hearing any sound).
+
+Themes will rule.
+
+4: I18N
+=======
+
+The next layer up is i18n (Internationalization).  Functionally, an
+i18n layer as all the same power as a theme layer, but they serve
+different purposes.  Whereas a theme layer will be overriding
+properties and methods that affect colors and graphics, an i18n layer
+will override a different subset that affects the text.
+
+An i18n layer is specific to a layout, not a layout+theme.  We can
+hopefully expect translators to produce 5 or 6 i18n layers (one per
+layout), but we can't expect them to produce 120 (6 times, say, 20
+themes per layout).
+
+This then raises the question -- what if the i18n layer and theme
+layer override an overlapping set of functions or properties?  If the
+layout layer is designed to abstract copy and style in all the right
+places, then this won't be a problem.  This isn't actually very hard
+to do, and once we show users how it's done, they'll be able to write
+compliant layout layers.  Only compliant layouts will be publicly
+available to users, so even if a user does make their own terribly
+non-compliant layout, chances are they're not interested in having it
+translated anyway.
+
+5: USER
+=======
+
+The final layer is the user layer.  Few users will likely use this,
+but it provides a way to tweak anything that the lower layers didn't do
+to the journal owner's pleasing.  This is equivalent to the S1
+"overrides" box, but will be a lot simpler.  The user will be able to
+make this layer with a wizard as well, or type in S2 code manually if
+they so please.
+
+
+SUMMARY
+=======
+
+In summary, the layers are:
+
+          Built-in  -- bridge to real world
+
+	  Core      -- defines what layers can access & do
+          I18n-C    -- internationalization that applies to the core
+
+	  Layout    -- an S1 "style", but see note below.
+
+          i18n     \
+	  Theme      - Tweaking a layout.
+	  User      /
+
+Although we called a layout a "style" in S1, in S2 we're going to be
+calling a layout a layout and we'll only use "style" to describe the
+end result of all a user's layers together.
+
+CAPABILITIES:
+=============
+
+Declaring classes: core
+
+Declaring new functions: core, layout
+
+Declaring properties: core, layout
+
+Changing "des" property on properties: i18n
+
+

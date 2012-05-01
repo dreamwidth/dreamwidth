@@ -1,0 +1,145 @@
+LEXICAL SPECIFICATION  (Tokenizer.java)
+============================================================================
+
+string     := "([^\\]|\\.)*?" | """([^\\]|\\.)*?"""
+
+              Either a "quoted string with \" \\ escaping" or:
+              """tripled quoted strings, which allow "quotes" inside them"""
+
+              Both types of quoting allow interpolation of variables, so
+	      $ signs must be escaped when meant literally.
+
+ident      := [a-zA-Z_] [a-zA-Z0-9_]*
+
+integer    := [0-9]+
+
+VarRef := "$" ("."|"*")? ident ( "." ident )*  |
+          "${" ("."|"*")? ident ( "." ident )* "}"
+
+ws         := [ \n\t\r]+
+
+doublecolon := "::"
+
+NativeType  := "bool" | "string" | "int"
+
+DocString := <TokenStringLiteral>
+
+GRAMMAR 
+============================================================================
+
+Layer.java:
+-------------------------
+Layer := <LayerContents>*
+
+LayerContents := LayerInfo | ClassDecl | FuncDecl | FuncDef |
+	         Prop | Set
+
+NodeLayerInfo.java
+-------------------------
+LayerInfo := "layerinfo" <Text> "=" <Text> ";"
+
+NodeText.java
+-------------------------
+Text := <ident> | <string> | <integer>
+
+
+NodeClass.java
+-------------------------
+ClassDecl := "class" <ident> 
+	      ( "extends" <ident> )?
+              <StringLiteral>?
+	      "{" ClassItemDecl* "}"
+
+ClassItemDecl := ClassVarDecl | FuncDecl
+
+ClassVarDecl := "var" <NamedType> DocString? ";"
+
+
+NodeProperty.java
+-------------------------
+Prop := "property" "builtin" Type ident ";" 
+			     |
+        "property" Type ident "{" <PropertyPair>* "}"
+                             |
+        "property" ("use" | "hide") Type ";"
+
+
+NodePropertyPair.java
+-------------------------
+PropertyPair := <Text> "=" <Text> ";"
+
+NodeSet.java
+-------------------------
+Set := "set" <Text> "=" <Text> ";"
+
+NodeFunction.java
+-------------------------
+
+
+
+FuncReturn := ":" <SimpleType>
+
+FuncDecl := "function" "builtin"? <ident> FuncArgs? FuncReturn? DocString? ";"
+
+FuncArgs := "(" FuncArgItem ("," FuncArgItem)* ")"
+
+FuncArgItem := <Type> <ident>
+
+FuncDef := "function" (<ident> "::")? <ident> FuncArgs? FuncReturn? DocString? <StmtBlock>
+
+VarDeclStmt := "var" <Type> <ident> ";"
+
+
+Expr := <AssignExpr>
+
+AssignExpr := <CondExpr> ({"="} <AssignExpr>)?
+
+CondExpr := <LogOrExpr> ("?" <LogOrExpr> ":" <LogOrExpr>)
+
+LogOrExpr := <LogAndExpr> ({"or"|"xor"} <LogAndExpr>)?
+
+LogAndExpr := <EqualExpr> ("and" <EqualExpr>)?
+
+EqualExpr := <RelationExpr> ({"=="|"!="} <RelationExpr>)?
+
+RelationExpr := <SumExpr> ({"<"|"<="|">"|">="} <SumExpr>)?
+
+SumExpr := <MultExpr> ({"+"|"-"} <MultExpr>)?
+
+MultExpr := <UnaryExpr> ({"*"|"/"|"%"} <UnaryExpr>)?
+
+UnaryNegation = {"not"|"-"}? <IncExpr>
+
+IncExpr = <Term> {"--"|"++"} |
+	  {"--"|"++"} <Term> |
+	  <Term>
+
+Term := <integer> | <string> | VarRef | ParenExpr | CallExpr
+
+ParenExpr := "(" <Expr> ")"
+
+CallExpr := <ident> "(" ArgList ")"
+
+
+
+
+ArgList := (Expr ("," Expr)*)?
+
+Type := SimpleType ("[]"|"{}")*
+
+StmtBlock := "{" Stmt* "}"
+
+Stmt := PrintStmt | IfStmt | ForeachStmt
+
+PrintStmt := {"print" | "println"} <Expr> ";"
+
+ForeachVarDecl = "var" <SimpleType> <LocalVarRef>
+
+ForeachStmt := "foreach" { <LocalVarRef> | <ForeachVarDecl> }
+	       "(" <Expr> ")" <StmtBlock>
+
+IfStmt := "if" "(" <Expr> ")" <StmtBlock> 
+          ( "elseif" <StmtBlock> )*
+          ( "else" <StmtBlock> )?
+
+		  

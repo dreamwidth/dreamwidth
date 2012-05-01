@@ -1,0 +1,17 @@
+If it ever becomes necessary to scrap the entire core layer because of
+a design flaw that's too difficult to work around, here's the
+solution that provides a clean upgrade path:
+
+-- insert a new s2layers row with a type of 'core' and a b2lid
+   of 0, like the existing core layer.  but all core layers are
+   required to have a 'majorversion' layerinfo field.
+
+-- make the /customize/ UI let people pick in the layer drop down
+   not just layers, but core+layer combos that work, labeled with
+   their major versions, so people will prefer higher ones.
+
+-- the ljviews code that gives the data structure to S2 runner will
+   have to know which version the S2 code is expecting, and do the
+   right thing, based on the core layer's 'majorversion' data.
+
+-- the S2 Builtin layer has to be a superset every version higher.

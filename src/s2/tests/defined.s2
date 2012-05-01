@@ -1,0 +1,40 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 1;
+
+class string { 
+    function repeat () : string;
+}
+
+class Foo {
+    var string foo;
+}
+
+function main ()
+{
+    var Foo f;
+    if (defined $f) {
+        print "fail.\n";
+    } else {
+        print "pass.\n";
+    }
+
+    $f = new Foo;
+    if (defined $f) {
+        print "pass.\n";
+    } else {
+        print "fail.\n";
+    }
+
+    $f = null Foo;
+    if (defined $f) {
+        print "fail.\n";
+    } else {
+        print "pass.\n";
+    }
+
+
+
+}
+

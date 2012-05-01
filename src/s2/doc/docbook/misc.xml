@@ -1,0 +1,19 @@
+<title>Misc</title>
+
+<section id='&s2.idroot;misc.inheritance'>
+<title>Inheritance: object inheritance vs. layer inheritance</title>
+
+<para>You might've read about layout inheritance (things not defined in a
+layout inherit from the core, for example) and read about the more familiar
+object inheritance (an undefined method <function>Poodle::bark()</function>
+inherits from <function>Dog::bark()</function>) and asked yourself&hellip;</para>
+
+<para><emphasis>"How do object inheritance and layer inheritance interact?
+Which comes first?"</emphasis></para>
+
+<para>Object inheritance happens first and is saved into the layer. At the very
+end, when layers are combined to make a vtable for a style, that's when layer
+inheritance happens.</para>
+
+</section>
+

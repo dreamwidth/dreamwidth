@@ -1,0 +1,31 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 1;
+
+function main () {
+    var string[] test = [ "Hello", "I", "am", "a", "goat" ];
+
+    foreach var string item ($test) {
+        println($item);
+    }
+
+    var string str = "";
+    while (size($str) < 5) {
+        $str = $str + "a";
+    }
+    println($str);
+
+    for (var int i = 0; $i < 10; $i++) {
+        print("$i");
+    }
+    print("\n");
+
+    var int i;
+    for ($i = 9; $i >= 0; $i--) {
+        print("$i");
+    }
+    print("\n");
+
+}
+

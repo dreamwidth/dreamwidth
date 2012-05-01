@@ -1,0 +1,56 @@
+<title>Design Goals</title>
+
+<itemizedlist>
+<listitem><para>Easy and flexible for beginners</para>
+  <para>End users who aren't programmers should be able to have an extreme
+  amount of control over their journals without ever seeing or knowing HTML,
+  CSS, hex color codes, or other web geekery. The styles and themes should have
+  graphical previews and graphical wizards to customize every color, option,
+  and text.</para>
+</listitem>
+<listitem><para>Powerful, familiar, and powerful for geeks</para>
+  <para>The core of S2 is actually a programming language, with syntax and
+  semantics resembling Perl/C++/Java/etc. People who do know how to program
+  will be able to do anything they want, including make styles which all their
+  non-geek friends will able to use, since the styles are capable of reflecting
+  all their options, which the graphical wizard lets them tweak.</para>
+  <para>Developers shouldn't have to write a lot of repeated or unnecessary
+  code. Authors of layouts need not override all functionality, instead being
+  able to fall back on the core-provided functionality.</para>
+</listitem>
+<listitem><para>Security</para>
+  <para>Rather than letting users program directly in C or Perl, S2 ensures
+  that the resultant compiled code is both safe and fast.</para>
+  <para>S2 code can't get access to anything on the host machine or do anything
+  malicious.</para>
+  <para>S2 code can't waste host machine resources. (CPU or memory)</para>
+  <para>Untrusted S2 code can't print JavaScript to prevent people from making
+  styles which read their visitor's session cookies.</para>
+</listitem>
+<listitem><para>Speed</para>
+  <para>Internally, S2 code is compiled into a lower level language and run
+  directly when the page is loaded. Unlike S1, no parsing is necessary at run
+  time. Also, S2 outputs directly to the client instead of being entirely
+  buffered in memory first like S1, since S2 doesn't need to do tons of
+  templating replacements at the end.</para>
+  <para>Trusted code by default prints direct to the client without going
+  through the HTML cleaner. Untrusted, user-created layers send all their
+  output through an HTML cleaner which removes JavaScript and other potentially
+  harmful markup.</para>
+  <para>Popular S2 code &amp; data is cached by the webserver.</para>
+</listitem>
+<listitem><para>Internationalization</para>
+  <para>S1 was English-centric. If you wanted to say "1 comment" vs "2
+  comments", you used the magical %%s%% which was an es when plural and nothing
+  otherwise. But then of course we had to make a magical %%ies%% for "1 reply"
+  vs "2 replies". This ignores languages where the plural form is entirely
+  different, or there are multiple plural forms.</para>
+  <para>S2 uses UTF-8 everywhere, handles plural forms correctly, and makes
+  customizing text/date formats/etc all trivial.</para>
+  <para>S2 makes it possible for languages to override not only the text which
+  will appear in the final output, but all the property names and descriptions
+  as well, so understanding English is never a requirement to customize the
+  look of one's content.</para>
+</listitem>
+</itemizedlist>
+

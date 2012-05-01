@@ -1,0 +1,33 @@
+The layerinfo keys & values can for the most part be whatever you want.
+
+However, some are either required or recommended:
+
+REQUIRED:
+         type   =  must be core, i18nc, layout, theme, i18n, or user.
+         name   =  shown in selection on the website.
+         majorversion = all core layers must have integer majorversion.  see versioning.txt
+
+RECOMMENDED:
+	author_name
+	author_email
+	des		= description
+
+MAGIC:
+
+       redist_uniq = When layers are redistributed, they need a uniqname
+              that never changes so they can be found and upgraded on
+              any installation, regardless of that system's system
+              account userid and s2lid values.  the compiler or web
+              tool doesn't enforce this.  it's just handled by
+              redist.pl (called by update-db.pl).  this value should
+              have no spaces or funky characters, since it'll be a filename
+              on disk.  that is, it should be in /^\w{1,25}$/
+              the uniqname should be prefixed by "loc" if it's a site
+              local layer, so the namespaces don't conflict.  this is
+              just convention, though; not enforced or used in any tools.
+
+        scope = used by `redist.pl --write` to decide which system
+              styles go in redist.dat and which go in redist-local.dat.
+              by default, scope of system stuff is "general" unless
+              declared "local"
+

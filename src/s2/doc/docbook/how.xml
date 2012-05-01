@@ -1,0 +1,43 @@
+<title>Behind the Scenes</title>
+
+<section id='&s2.idroot;howworks'>
+<title>How it all works, in a nutshell</title>
+
+<para>The web application gets a request and decides what user it is for, and the type of
+resource it is for.</para>
+
+<para>The web application loads the user's style for that resource, and then
+  loads each layer for that style, unless it's already loaded.  (layers are selectively
+  cached)</para>
+
+<para>The S2 system builds a <emphasis role="strong">context</emphasis> which
+contains the property values set by the top-most layer for each property, as
+well as a function vtable computed the same way.</para>
+
+<para>Next the web application invokes the global <function>prop_init()</function>
+function which the layout layer might've implemented.  The job of this function is to initialize
+the <emphasis role="strong">constructional properties</emphasis>. Constructional properties
+are properties which the web app looks at to influence its subsequent data structure population.
+For example, FotoBilder examines the value
+of <varname>$*gallery_max_page_size</varname> to determine how many thumbnails
+to load and return for a gallery.  However, a layout wouldn't always want to directly expose this
+property to the users.  What if the layout was a grid and the user wanted a page size that was a
+prime number?  How do you make an even grid out of 37 pictures?  This sort of layout should ask the
+user for the number of rows and columns they want, then
+compute <varname>$*gallery_max_page_size</varname> in
+<function>prop_init()</function> by multiplying <varname>$*rows</varname> and
+<varname>$*cols</varname>.</para>
+
+<para> The web <abbrev>app</abbrev> looks at the current context and determines
+both the version number of the core layer, and values of all constructional properties.
+Next, it builds an appropriate data-structure for the resource requested.  This
+instantiated object is probably pretty deep, containing many instantiated
+objects all hanging off it.</para>
+
+<para>The web <abbrev>app</abbrev> invokes the entry point method (probably
+called <function>-&gt;print()</function>) on the object it just instantiated.
+From here, S2 code runs, printing what it wants, and invoking methods on other
+objects in its huge data structure (which may also print).</para>
+
+</section>
+

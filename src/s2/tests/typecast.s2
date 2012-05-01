@@ -1,0 +1,61 @@
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 1;
+layerinfo "name" = "Typecasting Test";
+
+class Parent {
+    function say_something();
+}
+
+class Child extends Parent {
+}
+
+class Grandchild extends Child {
+    function say_something_else();
+}
+
+function main() {
+    var Parent p = new Grandchild;
+    $p->say_something();
+    
+    var Grandchild gc = $p as Grandchild;
+    $gc->say_something();
+    $gc->say_something_else();
+
+    var Child c = $p as Child;
+    $gc->say_something();
+
+    $p = new Parent;
+    $p->say_something();
+
+    $gc = $p as Grandchild;
+    if (defined $gc) {
+        $gc->say_something();
+        $gc->say_something_else();
+    }
+    else {
+        println "\$gc is null!";
+    }
+
+    # Now a nice easy up-cast. These casts should all just be stripped away by the compiler.
+    $gc = new Grandchild;
+    $c = $gc;           $c->say_something();
+    $p = $gc as Parent; $p->say_something();
+    $p = $gc as Child;  $p->say_something();
+
+}
+
+function Parent::say_something() {
+    println "Kumquats are orange and tangy";
+}
+function Child::say_something() {
+    println "Get on the dog and have a butchers";
+}
+function Grandchild::say_something() {
+    println "Knock, knock!";
+}
+
+function Grandchild::say_something_else() {
+    println "Who's there?";
+}
+

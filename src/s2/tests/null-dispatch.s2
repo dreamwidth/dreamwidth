@@ -1,0 +1,22 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+class Tree {  function grow; }
+class Maple extends Tree { }
+class Oak extends Tree {  }
+
+function Tree::grow { "Tree grows.\n"; }
+function Maple::grow { "Maple grows.\n"; }
+
+function main ()
+{
+  var Tree t;
+  $t = new Maple;  $t->grow();
+  $t = new Oak;    $t->grow();
+  var Tree notree; 
+  $notree->grow();
+}
+
+

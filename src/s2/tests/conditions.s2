@@ -1,0 +1,87 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 1;
+
+class Foo {
+    var string member;
+}
+
+property string blah;
+set "blah" = "foo";
+
+function void {
+}
+
+function side_effect : Foo {
+    print "side-effect!\n";
+    return new Foo;
+}
+
+function main ()
+{
+    # integers are boolable
+    var int i = 5;
+    println $i ? "pass" : "fail";
+    if ($i) {
+        println "pass.";
+    } else {
+        println "fail.";
+    }
+    if (0) {
+        println "fail.";
+    } elseif ($i) {
+        println "pass.";
+    }
+
+    # objs are boolable
+    var Foo fd = new Foo;
+    println $fd ? "pass" : "fail";
+    if ($fd) {
+        println "pass.";
+    } else {
+        println "fail.";
+    }
+    if (0) {
+        println "fail.";
+    } elseif ($fd) {
+        println "pass.";
+    }
+
+    # objs are boolable
+    $fd = null Foo;
+    println $fd ? "fail" : "pass";
+    if ($fd) {
+        println "fail.";
+    } else {
+        println "pass.";
+    }
+    if (0) {
+        println "fail.";
+    } elseif ($fd) {
+        println "fail.";
+    } else {
+        println "pass.";
+    }
+
+    var string[] arr;
+    println $arr ? "fail." : "pass.";
+    $arr[0] = "test";
+    println $arr ? "pass." : "fail.";
+
+    var string{} hash;
+    println $hash ? "fail." : "pass.";
+    $hash{"bar"} = "foo";
+    println $hash ? "pass." : "fail.";
+
+    #if (void()) {
+    #    print "FAIL.\n";
+    #}
+
+    println side_effect() ? "pass." : "fail.";
+    
+
+}
+
+
+

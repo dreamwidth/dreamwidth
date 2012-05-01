@@ -1,0 +1,24 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+class string { 
+    function repeat () : string;
+}
+
+function string::repeat () : string
+{
+    return $this + $this;
+}
+
+function main ()
+{
+    var string b = "foo ";
+    var string r = "";
+    $r = $b->repeat();
+    $r = $r->repeat();
+
+    println "repeated: $r";
+}
+

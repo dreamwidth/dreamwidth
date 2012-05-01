@@ -1,0 +1,58 @@
+Design Goals of S2:
+===================
+
+S2, or "LiveJournal, Style System, version 2", was designed with the
+following goals in mind:
+
+
+Easy and flexible for beginners:
+
+     End users that aren't programmers will be able to have an extreme
+     amount of control over their journals without ever editing text
+     in a large <textarea> box, like "S1".  Because the new style
+     system layers reflect their properties, a series of wizards will
+     let users customize the appearance at a very high level.
+
+Powerful and familiar for experts:
+
+     The new style system is actually a programming language, with
+     syntax and semantics resembling Perl/C+/Java/etc.  The object
+     oriented & inheritance-based design of S2 is actually what leads
+     to the simplicity and flexibility for beginners.  They won't need
+     to understand OO-design to benefit from the power that
+     customizing the function to dump a journal entry effects all the
+     different journal views.  In fact, they'll probably not even
+     modify the function themselves--- they'll most likely redefine a
+     property using a web GUI that the style they're using recognizes
+     and respects accordingly.
+
+Speed:
+
+     S2 code is compiled into a lower level language and run directly
+     when the page is loaded.  Currently this lower level language is
+     Perl, but there is no reason the backend can't be any language.
+     Further, style layers are cached in a LRU pool by the web-server
+     to prevent unnecessary database access and re-compliation of the
+     resultant Perl code into Perl bytecodes.  (the functions of a
+     style layer are stored as CODE refs in memory, ready to be run as
+     necessary... don't need to |eval| huge chunks of text each time)
+     Also, no buffering in memory of the resultant page is necessary
+     as in S1 ... each function in a layer can output directly to the
+     client, since the system isn't based on repeated substitutions as
+     in S1.
+
+Security:
+
+     Rather than letting users program directly in C or Perl, S2
+     ensures that the resultant compiled code is both safe and fast.
+     The language isn't Turing complete, but by limiting the
+     functionality of the language we can ensure the program will
+     halt.  Giving users an XML tree of data and letting them use XSLT
+     was one consideration, but XSLT is ugly and though some people
+     know it, it isn't as easy to pick up quickly as S2 is.  Of
+     course, security wasn't the only design consideration, otherwise
+     we could've used Perl's Safe.pm module and let users run
+     restricted Perl with an alarm set to interrupt the code after a
+     number of seconds.  S2 is a lot more encompassing.  Security is
+     actually the easiest thing to guarantee once you built a whole
+     system like this.

@@ -1,0 +1,46 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+class Animal
+{
+  function out;
+}
+
+class Dog extends Animal
+{
+  var string name;
+  var int weight;
+}
+
+class KillerDog extends Dog
+{
+}
+
+function Animal::out {
+  println "I'm an animal!";
+}
+
+function Dog::out {
+  println "I'm a dog named \"$.name\".";
+  $super->out();
+}
+
+function KillerDog::out {
+  println "I'm a killer dog named \"$.name\" with weight $.weight";
+  $super->out();
+}
+
+function main ()
+{
+  var KillerDog kd = new KillerDog;
+  $kd.name = "Killer Dog";
+  $kd.weight = 9999;
+  $kd->out();
+
+  var Dog d = $kd;
+  "And the same:\n";
+  $d->out();
+}
+

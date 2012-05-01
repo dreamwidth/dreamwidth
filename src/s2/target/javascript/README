@@ -1,0 +1,39 @@
+
+JavaScript Target for S2
+------------------------
+
+The JavaScript target compiles layers to JavaScript code which can then
+be used in situations where a JavaScript interpreter is available, such
+as in a web browser.
+
+It has been used, albeit only as a tech demo, to do in-browser,
+client-side rendering of S2 styles for real-time previews during
+style customization.
+
+This target is experimental, and has not been used in any production
+applications. Its runtime library and API are also subject to change
+in future, which may break existing apps and require layers to be
+recompiled.
+
+To use:
+    s2compile --output javascript --layervar layer ...
+
+The "layervar" parameter specifies the name of a variable that should
+recieve the layer object at runtime. The intention is that applications
+will compile each layer to a separate JavaScript source file, and then
+(for in-browser JavaScript, for example) load each layer in turn before
+using them:
+
+<script language="JavaScript" href="s2runtime.js"></script>
+<script language="JavaScript" href="core.js"></script>
+<script language="JavaScript" href="layout.js"></script>
+<script language="JavaScript">
+
+// core.js loaded the core layer into variable "core"
+// layout.js loaded the core layer into variable "layout"
+var ctx = new s2.Context(core, layout);
+ctx.setPrint(document.write);
+ctx.runFunction("main()");
+
+</script>
+

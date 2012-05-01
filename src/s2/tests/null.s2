@@ -1,0 +1,27 @@
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = "1";
+
+function builtin string(int n) : string;
+
+class TestClass {
+    var string member;
+}
+
+function returnThingy() : TestClass {
+    return null TestClass;
+}
+
+function main() {
+    var TestClass test;
+    var bool nullness = isnull $test;
+    println ((isnull $test) ? "It's null" : "NOT A NULL!");
+    if (isnull $test) {
+        println "It's still null.";
+    }
+    if (isnull returnThingy()) {
+        println "The function returned a null thingy";
+    }
+    $test = new TestClass;
+    println "Member = \"$test.member\"";
+}

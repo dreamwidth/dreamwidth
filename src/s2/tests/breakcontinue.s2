@@ -1,0 +1,25 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 1;
+
+function main () {
+	var string[] test = [ "Hello", "I", "am", "a", "goat" ];
+
+    foreach var string item ($test) {
+        if ($item == "am") {
+            break;
+        }
+        println($item);
+    }
+
+    foreach var string item ($test) {
+        if ($item == "am") {
+            continue;
+        }
+        println($item);
+    }
+
+
+}
+

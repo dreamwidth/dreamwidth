@@ -1,0 +1,47 @@
+CREATE TABLE s2layers
+(
+   s2lid INT UNSIGNED NOT NULL AUTO_INCREMENT,
+   PRIMARY KEY (s2lid),
+   b2lid INT UNSIGNED NOT NULL,
+   userid INT UNSIGNED NOT NULL,
+   type ENUM('core','i18nc','layout','theme','i18n','user') NOT NULL,
+   INDEX (userid),
+   INDEX (b2lid, type)
+);
+
+/* clustered */
+CREATE TABLE s2style
+(
+    userid INT UNSIGNED NOT NULL,
+    type ENUM('core','i18nc','layout','theme','i18n','user') NOT NULL,
+    UNIQUE (userid, type),
+    s2lid INT UNSIGNED NOT NULL
+);
+
+/* clustered */
+CREATE TABLE s2info
+(
+   s2lid INT UNSIGNED NOT NULL,
+   infokey   VARCHAR(80) NOT NULL,
+   value VARCHAR(255) NOT NULL,
+   PRIMARY KEY (s2lid, infokey)
+);
+
+/* clustered */
+CREATE TABLE s2source
+(
+   s2lid INT UNSIGNED NOT NULL,
+   PRIMARY KEY (s2lid),
+   s2code MEDIUMBLOB
+);
+
+/* clustered */
+CREATE TABLE s2compiled
+(
+   s2lid INT UNSIGNED NOT NULL,
+   PRIMARY KEY (s2lid),
+   comptime INT UNSIGNED NOT NULL,
+   compdata MEDIUMBLOB
+);
+
+

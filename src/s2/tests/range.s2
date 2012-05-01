@@ -1,0 +1,18 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+function main ()
+{
+  var int[] count = 1 .. 5;
+  foreach var int i ($count) {
+    println $i;
+  }
+  foreach var int i (true ? 5 .. 10 : 11 .. 20) {
+    println $i;
+  }
+}
+
+
+

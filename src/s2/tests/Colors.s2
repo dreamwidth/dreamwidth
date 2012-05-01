@@ -1,0 +1,31 @@
+layerinfo type = core;
+layerinfo "majorversion" = 0;
+
+class Color
+{
+  var int r;
+  var int g;
+  var int b;
+  function toString() : string;
+}
+
+function builtin string(int i) : string;
+
+function Color::toString : string
+{
+  return "rgb(" + 
+    string($.r) + "," +
+    string($.g) + "," +
+    string($.b) + ")";
+}
+
+function main()
+{
+  var Color c = new Color;
+  $c.r = 100;
+  $c.g = 0;
+  $c.b = 50;
+
+  "$c\n";
+  "My color is $c\n";
+}

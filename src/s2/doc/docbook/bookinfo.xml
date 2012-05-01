@@ -1,0 +1,50 @@
+<bookinfo>
+
+<title>S2 Manual</title>
+
+  <authorgroup>
+    <editor>
+      <firstname>Jesse</firstname>
+      <surname>Proulx</surname>
+      <email>jproulx@livejournal.com</email>
+    </editor>
+
+    <author>
+      <firstname>Brad</firstname>
+      <surname>Fitzpatrick</surname>
+      <email>bradfitz@livejournal.com</email>
+    </author>
+
+    <author>
+      <firstname>Martin</firstname>
+      <surname>Atkins</surname>
+      <email>mart@livejournal.com</email>
+    </author>
+  </authorgroup>
+
+<abstract>
+    <para>An all-inclusive manual on S2 and using S2 with LiveJournal.</para>
+</abstract>
+
+<legalnotice>
+    <para>Permission is granted to copy, distribute and/or modify this document
+    under the terms of the <acronym>GNU</acronym> Free Documentation License,
+    Version 1.2 or any later version published by the Free Software Foundation;
+    with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+    Texts.  A copy of the license is included in in the section
+    entitled <quote><xref linkend='appx.gfdl'/></quote></para>
+</legalnotice>
+
+<copyright>
+    <year>1999</year>
+    <year>2000</year>
+    <year>2001</year>
+    <year>2002</year>
+    <year>2003</year>
+    <year>2007</year>
+    <year>2008</year>
+    <holder><ulink url="http://www.danga.com/">Danga Interactive, Inc.</ulink></holder>
+</copyright>
+
+</bookinfo>
+

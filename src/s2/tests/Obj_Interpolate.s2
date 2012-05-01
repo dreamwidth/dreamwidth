@@ -1,0 +1,51 @@
+#-*-perl-*-
+
+layerinfo type = core;
+layerinfo "majorversion" = 0;
+
+class BracketWrapper
+{
+    var  string  text;
+    function builtin as_string () : string;
+}
+
+class BracketWrapper2
+{
+    var  string  text;
+    function builtin toString () : string;
+}
+
+class Foo
+{
+    var string text;
+    function as_string() : string;
+}
+
+function Foo::as_string() : string {
+    return "_${.text}_";
+}
+
+function main()
+{
+    var BracketWrapper bw = new BracketWrapper;
+    $bw.text = "as_string";
+    print "Wrapped in brackets: $bw\n";
+
+    var BracketWrapper2 bw2 = new BracketWrapper2;
+    $bw2.text = "toString";
+    print "Wrapped in brackets: $bw2\n";
+
+    var BracketWrapper bnull;
+    print "Null BracketWrapper (builtin): {$bnull}\n";
+
+    var Foo fcontent = new Foo;
+    $fcontent.text = "underscores";
+    print "Defined local as_string: {$fcontent}\n";
+
+    var Foo fnull;
+    print "Null local as_string: {$fnull}\n";
+    print "Empty lines:\n";
+    println $fnull;
+    println "$fnull";
+    print "end.\n";
+}

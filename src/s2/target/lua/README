@@ -1,0 +1,22 @@
+
+Lua Target for S2
+-----------------
+
+The Lua target compiles layers to Lua code which can then be used
+in situations where a Lua interpreter is available. Lua is a
+scripting language popular for embedding into applications due to
+its compact compiler/runtime, its speed and its portability.
+
+This target is experimental, and has not been used in any production
+applications. It currently lacks a runtime library, and is thus not
+of much practical use.
+
+To use:
+    s2compile --output lua ...
+
+The backend generates a source file that "returns" the layer. The
+layer can be loaded by running the source file and storing the
+return value. You can do this either in Lua's C API (load the
+script into the stack and do lua_pcall) or from a Lua script
+if your Lua instance has an "include" function of some description.
+

@@ -1,0 +1,910 @@
+<title>Language Reference</title>
+
+<section id='&s2.idroot;langref.overview'>
+<title>S2 Language Overview</title>
+
+<para>The S2 language is an object-oriented and statically-typed language
+with syntax mostly borrowed from Perl, but with some borrowings from other languages
+including Java and Python.</para>
+
+<para>This language is domain-specific, which means that it has a reduced
+feature set compared to general-purpose programming languages you may be familiar with.
+In particular, the flow control constructs available are restricted to
+conditional branching (<quote>if</quote> statements) and iteration over finite
+lists (<quote>foreach</quote> loops).</para>
+
+<para>The language has several features which are designed to make life easier:
+    <itemizedlist>
+        <listitem><simpara>Variables can be referenced from within string
+        literals, in which case their values will be interpolated into the resulting string.
+        This behavior is similar to perl.</simpara></listitem>
+        <listitem><simpara>String literals can be given enclosed in three
+        sets of quotes (<literal>"""</literal>), which allows quote characters
+        to be included within the string unescaped. This is useful for producing
+        HTML which features lots of quote symbols.</simpara></listitem>
+        <listitem><simpara>String expressions can be used as statements,
+        causing their value to be implicitly output to the client.</simpara></listitem>
+        <listitem><simpara><emphasis>Properties</emphasis> can be defined
+        which are special global variables exposed from a layer to be set
+        from other layers or from a friendly customization interface.</simpara></listitem>
+    </itemizedlist></para>
+
+<para>This section serves as a reference guide for the S2 language. Anyone
+who is familiar with procedural programming should be right at home. If you
+have not done programming before, you may like to get an idea of the concepts
+behind programming before you begin.</para>
+
+</section>
+
+<section id='&s2.idroot;langref.literals'>
+  <title>Literals</title>
+  <para>S2 supports integer, string, boolean, array and hash literals:</para>
+  <variablelist>
+    <varlistentry>
+      <term><parameter>123</parameter></term>
+      <listitem><simpara>Integer literal representing the number <quote>one
+      hundred and twenty three</quote>.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><parameter>"Blah blah blah"</parameter></term>
+      <listitem><simpara>Simple string literal. Variables are interpolated and
+      escape sequences are processed.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><parameter>"""string with "quotes" in it"""</parameter></term>
+      <listitem><simpara>Triple-quote string literal. Quotes can occur within
+      with no escaping for one or two consecutive characters. Variables are
+      interpolated and escape sequences are processed.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      
+      <term><parameter>true</parameter></term><term><parameter>false</parameter>
+      </term>
+      <listitem><simpara>The two boolean literals.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><parameter>[ item, item, item, item ]</parameter></term>
+      <listitem><simpara>Array literal. All items must be of the same type, and
+      this literal will return an array of that type. Trailing commas are fine,
+      if you want to include them.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><parameter>{ key => value, key => value, key => value }</parameter></term>
+      <listitem><simpara>Array literal. All <quote>key</quote> items must be
+      strings, and all <quote>value</quote> items must be of the same type.
+      This literal will return a hash of that type.</simpara></listitem>
+    </varlistentry>
+  </variablelist>
+  <para>The following escape sequences are supported in strings:</para>
+  <variablelist>
+    <varlistentry>
+      <term><literal>\n</literal></term>
+      <listitem><simpara>Newline</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>\"</literal></term>
+      <listitem><simpara>Literal quote</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>\\</literal></term>
+      <listitem><simpara>Literal backslash</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>\$</literal></term>
+      <listitem><simpara>Literal dollarsign</simpara></listitem>
+    </varlistentry>
+  </variablelist>
+</section>
+
+<section id='&s2.idroot;langref.variables'>
+  <title>Variables</title>
+  <para>S2 supports several primitive types, as well as regular and associative
+  arrays and objects based on classes.</para>
+  <section id='&s2.idroot;langref.variables.types'>
+    <title>Variable Types</title>
+    <para>S2 has the following primitive types:</para>
+  <variablelist>
+    <varlistentry>
+      <term><literal>int</literal></term>
+      <listitem><simpara>An integer</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>bool</literal></term>
+      <listitem><simpara>A boolean (true/false) value</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>string</literal></term>
+      <listitem><simpara>A string</simpara></listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+  <section id='&s2.idroot;langref.variables.declaration'>
+    <title>Declaration</title>    
+  <variablelist>
+    <varlistentry>
+      <term><literal>var int somenumber;</literal></term>
+      <listitem><simpara>Declare a simple variable named somenumber as an
+      integer.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>var string[] names</literal></term>
+      <listitem><simpara>Declare a regular array of strings called
+      names.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>var bool{} has_stuff</literal></term>
+      <listitem><simpara>Declare an associative array of boolean values called
+      has_stuff.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>var SomeClass[] stuffs</literal></term>
+      <listitem><simpara>Declare a regular array of the class SomeClass and
+      name it stuffs.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>var SomeClass{} stuffs</literal></term>
+      <listitem><simpara>Declare an associative array of the class SomeClass
+      and name it stuffs.</simpara></listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+  <section id='&s2.idroot;langref.variables.access'>
+    <title>Access</title>
+  <variablelist>
+    <varlistentry>
+      <term><literal>$variable</literal></term>
+      <listitem><simpara>Returns the value stored in the variable, or reference
+      to the regular or associative array or instance of a class with this
+      name.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>$this</literal></term>
+      <listitem><simpara>An instance of the class the currently-executing
+      function was envoked from.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+    <term><literal>$.member</literal></term><term><literal>$this.member</literal></term>
+    <listitem><simpara>Equivalent ways to return the value stored in this
+    member of the class which owns the function being
+    executed.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>$var.member</literal></term>
+      <listitem><simpara>Returns the value stored in this member of the
+      instance of a class known as  <classname>var</classname>.</simpara>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>$*propertyname</literal></term>
+      <listitem><simpara>Returns the value of the property specified.</simpara>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>$variable[2]</literal></term>
+      <listitem><simpara>Returns the value stored in element 2 (3rd element) of
+      the regular array.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>$variable{"fred"}</literal></term>
+      <listitem><simpara>A value stored in the associative array.</simpara>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+</section>
+
+<section id='&s2.idroot;langref.operators'>
+  <title>Operators</title>
+  <para>S2 operators have the following associativity and precedence, listed
+  from highest precedence to lowest.</para>
+  <informaltable frame='none'>
+    <tgroup cols='2'>
+      <colspec colwidth="2*" />
+      <tbody>
+        <row><entry>left</entry><entry>Terms (literals, expressions in
+        parentheses, variables, function/method calls, named unary
+        operators)</entry></row>
+        <row><entry>nonassoc</entry><entry>++ --</entry></row>
+        <row><entry>left</entry><entry>instanceof isa as</entry></row>
+        <row><entry>right</entry><entry>not -</entry></row>
+        <row><entry>left</entry><entry>* / %</entry></row>
+        <row><entry>left</entry><entry>+ -</entry></row>
+        <row><entry>nonassoc</entry><entry><![CDATA[< > <= >=]]></entry></row>
+        <row><entry>nonassoc</entry><entry>== !=</entry></row>
+        <row><entry>left</entry><entry>and</entry></row>
+        <row><entry>left</entry><entry>or</entry></row>
+        <row><entry>nonassoc</entry><entry>..</entry></row>
+        <row><entry>nonassoc</entry><entry>? :</entry></row>
+        <row><entry>right</entry><entry>=</entry></row>
+      </tbody>
+    </tgroup>
+  </informaltable>
+
+  <section id="&s2.idroot;langref.operators.arithmetic">
+    <title>Arithmetic Operators</title>
+    <para>The S2 language has the usual set of arithmetic operators you'd
+    expect to find in a programming language. These are the same as the
+    arithmetic operators in perl.</para>
+    <para>As you might expect, these operators can only be applied to integers,
+    and will return integers.</para>
+    <informaltable frame='none'>
+        <tgroup cols='3'>
+        <tbody>
+        <row><entry><literal>+</literal></entry><entry>binary</entry><entry>Addition</entry></row>
+        <row><entry><literal>-</literal></entry><entry>binary</entry><entry>Subtraction</entry></row>
+        <row><entry><literal>*</literal></entry><entry>binary</entry><entry>Multiplication</entry></row>
+        <row><entry><literal>/</literal></entry><entry>binary</entry><entry>Division</entry></row>
+        <row><entry><literal>%</literal></entry><entry>binary</entry><entry>Modulus (remainder)</entry></row>
+        <row><entry><literal>++</literal></entry><entry>unary</entry><entry>Increment in-place</entry></row>
+        <row><entry><literal>--</literal></entry><entry>unary</entry><entry>Decrement in-place</entry></row>
+        <row><entry><literal>-</literal></entry><entry>unary</entry><entry>Negation</entry></row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </section>
+
+  <section id="&s2.idroot;langref.operators.comparison">
+    <title>Comparison Operators</title>
+
+    <para>These operators allow you to compare one value to another. Both operands
+    must be of the same type, and all but simple equality/inequality can only be applied to
+    integers. Only primitive types may be compared with these operators.
+    All comparison operators return  a boolean value.</para>
+
+    <informaltable frame='none'>
+    <tgroup cols='3'>
+    <tbody>
+    <row><entry><literal>==</literal></entry><entry>binary</entry><entry>Equals</entry></row>
+    <row><entry><literal>!=</literal></entry><entry>binary</entry><entry>Does not equal</entry></row>
+    <row><entry><literal>&lt;</literal></entry><entry>binary</entry><entry>Less than</entry></row>
+    <row><entry><literal>&gt;</literal></entry><entry>binary</entry><entry>Greater than</entry></row>
+    <row><entry><literal>&lt;=</literal></entry><entry>binary</entry><entry>Less than or equal to</entry></row>
+    <row><entry><literal>&gt;=</literal></entry><entry>binary</entry><entry>Greater than or equal to</entry></row>
+    </tbody>
+    </tgroup>
+    </informaltable>
+
+  </section>
+
+  <section id="&s2.idroot;langref.operators.logical">
+    <title>Logical Operators</title>
+
+<para>These operators perform logical operations on boolean values. All operands
+must be boolean, and a boolean value results.</para>
+
+    <informaltable frame='none'>
+    <tgroup cols='3'>
+    <tbody>
+
+    <row><entry><literal>and</literal></entry><entry>binary</entry><entry>Logical AND</entry></row>
+    <row><entry><literal>or</literal></entry><entry>binary</entry><entry>Logical OR</entry></row>
+    <row><entry><literal>not</literal></entry><entry>unary</entry><entry>Logical complement</entry></row>
+    </tbody>
+    </tgroup>
+    </informaltable>
+
+<para>In summary, AND returns true if and only if both of its operands are
+true. OR returns true if one or both of its operands are true. NOT returns
+true if its operand is false, and false otherwise.</para>
+
+<para>The two binary logical operators are usually used in an
+<literal>if</literal> statement to include two or more comparisons.</para>
+  </section>
+
+  <section id="&s2.idroot;langref.operators.type">
+    <title>Type Conversion/Testing Operators</title>
+
+<para>These functions operate on object values only. Their left operand is
+the subject, while the right operand is a class name.</para>
+
+<informaltable frame='none'>
+    <tgroup cols='3'>
+    <tbody>
+    <row><entry><literal>isa</literal></entry><entry>Returns true if the object
+    can be typecasted to the given class</entry></row>
+    <row><entry><literal>instanceof</literal></entry><entry>Returns true if
+    the type of the object is exactly the classname given.</entry></row>
+    <row><entry><literal>as</literal></entry><entry>Cast the given value to
+    the classname given, but only if the object's runtime type is compatible.
+    If not, returns a null object.</entry></row>
+    </tbody>
+    </tgroup>
+    </informaltable>
+
+<para>The S2 language uses <emphasis>dynamic binding</emphasis>, which
+means that an object's type may be a subclass of the class of the variable
+which holds it. These functions allow the programmer to test the runtime type
+and, assuming the runtime type is compatible, convert (or <emphasis>cast</emphasis>)
+to a different variable type.</para>
+
+<para>When calling methods on an object, it is the type of the object which
+determines which function will be called, not the type of the variable on
+which the arrow operator is applied.</para>
+
+  </section>
+
+  <section id="&s2.idroot;langref.operators.other">
+  <title>Other Operators</title>
+
+<para>These operators don't really fit into a category of their own, and
+have perhaps non-obvious functions.</para>
+
+    <section>
+    <title>The assignment operator: <literal>=</literal></title>
+
+    <para>The assignment operator (which should not be confused with the
+    equality test operator, <literal>==</literal>), is used to assign a value
+    to a named variable. This means that unlike most other operators, its left
+    operand <emphasis>must</emphasis> be a variable name. No other kind of
+    expression will do.</para>
+
+    <para>The assignment operator can take operands of any type, but the
+    right-hand operand must be of the same type as the variable given on the left, or
+    <emphasis>coercable</emphasis> into that type.</para>
+
+    <para>The assignment operator also returns whatever value it has just
+    assigned to the variable, meaning that you can chain several assignments
+    together as follows:
+    <programlisting>$foo = $bar = $baz = 2;</programlisting>
+    In this case, <varname>$foo</varname>, <varname>$bar</varname> and
+    <varname>$baz</varname> will all be assigned the value 2.</para>
+
+    <para>As a special case, assignment can also be used when declaring local
+    variables:
+    <programlisting>var string $name = "John";</programlisting>
+    However, this is only true for local variables. Class variables cannot be
+    initialized in this way.</para>
+
+    <para>The symbol <literal>=</literal> is used for several other
+    assignment-like things in the S2 language, including setting property
+    values and layerinfo. These aren't really assignment, but act similarly
+    and in the case of property setting follow many of the rules described
+    above.</para>
+
+    </section>
+
+    <section>
+    <title>String Concatenation with <literal>+</literal></title>
+
+    <para>The <literal>+</literal> symbol actually has two purposes in the S2
+    language. When one of its operands is a string, it becomes
+    the <emphasis>string concatenation operator</emphasis>.
+    In this form, it will firstly attempt to coerce any non-string operand
+    into a string, then stick the two strings together to form a resulting
+    string which is returned.</para>
+
+    <para>The simplest form of string concatenation involves two strings.
+    In this case, both strings are just concatenated and that is it. However,
+    as long as one operand remains a string, the other operand can be an
+    integer, a boolean or an object with certain conditions. Objects may
+    only be concatenated to strings if their class has
+    an <function>as_string()</function> method which returns a string.
+    The return value of this method will be used as the string value for
+    concatenation.</para>
+
+    <para>String literals with interpolated variables are really just concatenation
+    with a more convenient syntax, which is why you are able to interpolate
+    integers and certain objects directly into string literals.</para>
+
+    </section>
+
+    <section>
+    <title>The ternary conditional operator <literal>? :</literal></title>
+
+    <para>This is the only operator in the S2 language with three operands.
+    Its function can be thought of as being like an
+    <literal>if</literal> statement in the form of an operator.</para>
+
+    <para>This operator is best explained with an example:
+    <programlisting>$label = ($c == 1 ? "1 comment" : "$c comments");</programlisting>
+    In this example, the conditional operator and its operands are enclosed
+    in parenthesis for clarity. These are optional, but can make things more
+    readable. The first operand, preceding the question-mark symbol, is a
+    boolean expression. In this case it is an equality test. If this
+    expression evaluates to true, the second operand, which is after the
+    question-mark and before the colon, is returned. If the expression is
+    false, the third operand is returned.</para>
+
+    <para>The first operand <emphasis>must</emphasis> be a boolean
+    expression. The second and third operands can be of any type but their
+    types must match. The return type of this operator is the same as that
+    of the second and third operand. In the above example, then, the return
+    type would be string.</para>
+
+    <para>In all cases an <literal>if</literal> construct can be used in place
+    of this operator, but the conditional operator is shorter and more readable
+    in some cases.</para>
+
+    </section>
+
+    <section>
+    <title>The range operator <literal>..</literal></title>
+
+    <para>This rather quirky operator is borrowed from Perl. It takes two
+    integer operands and returns an array of integers containing all integers
+    between the first and second operand, inclusive. For example:
+    <programlisting>var int[] list = 1 .. 10;</programlisting>
+    The array <varname>$list</varname> will now contain ten elements,
+    each numbered in order from 1 to 10. This has the same effect as:
+    <programlisting>var int[] list = [1,2,3,4,5,6,7,8,9,10];</programlisting></para>
+
+    <para>This operator is really only useful for creating a loop which will
+    iterate a certain number of times:
+    <programlisting>foreach var int i (1 .. 10) { println "Iteration number $i"; }</programlisting>
+    This example will print ten lines, each containing a number from 1 to 10
+    in order.</para>
+
+    <note><para>Some readers will probably balk at the use of an array of
+    integers to create a loop such as this, as it would use more memory than a
+    conventional <literal>for</literal> loop from a general programming
+    language.</para>
+
+    <para>However, you don't have to worry. The above idiom is optimised
+    to an efficient form at compile time, so there is no memory wasted.</para></note>
+
+    </section>
+    </section>
+
+    <section id="&s2.idroot;langref.operators.unary">
+    <title>Named Unary Operators</title>
+
+<simpara>The following are the built-in named operators. You do not have to
+    wrap the following term in parentheses.</simpara>
+
+<variablelist>
+    <varlistentry>
+    <term><function>isnull</function> <varname>$object</varname></term>
+    <listitem><simpara>returns a boolean: true if <varname>$object</varname> is
+    null (has no value)</simpara></listitem></varlistentry>
+    <varlistentry>
+      <term><function>defined</function> <varname>$object</varname></term>
+      <listitem><simpara>opposite of <function>isnull</function>. might be
+      prettier than negating <function>isnull</function></simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><function>new</function> <varname>ClassName</varname></term>
+      <listitem><simpara>returns an instance of <varname>ClassName</varname> 
+      with all members empty or zero</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><function>null</function> <varname>ClassName</varname></term>
+      <listitem><simpara>returns an undefined value of type
+      <varname>ClassName</varname></simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><function>reverse</function> <varname>$string</varname></term>
+      <listitem><simpara>returns copy of <varname>$string</varname> with
+      characters reversed</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><function>reverse</function> <varname>$array</varname></term>
+      <listitem><simpara>returns shallow copy of <varname>$array</varname> with
+      elements reversed.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><function>size</function> <varname>$string</varname></term>
+      <listitem><para>returns number of <emphasis>bytes</emphasis> in
+      <varname>$string</varname>. This behavior is deprecated. Please see note
+      below.</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><function>size</function> <varname>$array</varname></term>
+      <listitem><simpara>returns number of elements in
+      <varname>$array</varname></simpara></listitem>
+    </varlistentry>
+    </variablelist>
+    <note><simpara>The use of the <function>size</function> operator on strings
+    is deprecated and will be removed or updated without notice. Instead, you
+    should use  the string class's length method to get the number
+    of <emphasis>characters</emphasis>. Remember that some characters
+    are represented by more than one byte.</simpara></note>
+
+    </section>
+</section>
+
+<section id='&s2.idroot;langref.statements'>
+<title>Statements</title>
+
+<para>A statement is an expression terminated by a semicolon. Statements can
+contain <literal>code blocks</literal> delimited by curly braces which can
+then contain one or more statements themselves. Flow control constructs can
+also be statements.</para>
+
+<para>A statement consisting wholly of a string literal, or a string literal
+with other strings concatenated to it will be output to the client. A
+statement consisting wholly of a variable will behave similarly.</para>
+
+<para>The <function>print</function> instruction will cause the string or
+numeric expression supplied as its parameter to be output to the client. The
+<function>print safe</function> alternative does similarly, but forces the
+output to be checked for <quote>safety</quote>. In the case of LiveJournal
+and FotoBilder, this means running a <acronym>HTML</acronym> cleaner. All
+untrusted (non-system) layers always run through the checker, reglardless of
+which print instuction is used.</para>
+
+    <section id='&s2.idroot;langref.statements.flow'>
+    <title>Flow Control</title>
+
+    <para>A limited subset of the flow control constructs normally present in
+    high-level programming languages is available in S2. Each includes at least
+    one code block enclosed in curly braces.</para>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>if ( expr ) block</literal></term>
+      <listitem><simpara>Simple conditional. If <literal>expr</literal>
+      evaluates to true, <literal>block</literal> will be executed, otherwise
+      it will be skipped.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>if ( expr ) block1 else block2</literal></term>
+      <listitem><simpara>If <literal>expr</literal> evaluates to true,
+      <literal>block1</literal> will be executed, otherwise
+      <literal>block2</literal> will be executed.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><literal>if ( expr1 ) block1 elseif ( expr2 ) block2 else
+      block3</literal></term>
+      <listitem><simpara>If <literal>expr</literal> evaluates to true,
+      <literal>block1</literal> will be executed. Otherwise,
+      <literal>expr2</literal> will be tested and if it evaluates to true,
+      <literal>block2</literal> will be executed. If both
+      <literal>expr1</literal> and <literal>expr2</literal> evaluate to false,
+      <literal>block3</literal> is executed.</simpara></listitem>
+      </varlistentry>
+
+    <varlistentry>
+      <term><literal>foreach var ( expr ) block</literal></term>
+      <listitem><simpara><literal>block</literal> will be executed once for
+      each element in the regular or associative array given in <literal>expr</literal>.
+      On each iteration, an element of the array (or key of an associative
+      array element) will be placed into the variable declared
+      in <varname>var</varname>. <function>foreach</function> can also be used
+      on strings, in which case the iteration variable must be a string and
+      this variable will contain a character from the string with each
+      iteration.</simpara></listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+</section>
+
+<section id='&s2.idroot;langref.classes'>
+  <title>Classes</title>
+  <para>Base classes are defined using the following syntax:</para>
+  <programlisting>class Image {
+    var string url;
+    var int w;
+    var int h;
+    var string alt;
+    var string extrahtml;
+    var string title;
+    var string longdesc;
+    function output;
+    }</programlisting>
+  <para>A subclass of any class can be created as follows:</para>
+  <programlisting>class Button extends Image {
+    var string linkurl;
+    var int bordersize;
+    }</programlisting>
+
+  <para>All members of <classname>Image</classname> are now valid in
+  <classname>Button</classname>, with the addition of our two new members
+  <varname>linkurl</varname> and <varname>bordersize</varname>. The function
+  <methodname>Button::output</methodname> will override
+  <methodname>Image::output</methodname> if it exists, otherwise
+  <methodname>Image::output</methodname> will be used as a fallback.</para>
+
+  <para>See the <link linkend="&s2.idroot;langref.variables">variable</link>
+  and <link linkend="&s2.idroot;langref.functions">function</link> reference for
+  the syntax for accessing members of classes.</para>
+</section>
+
+<section id='&s2.idroot;langref.functions'>
+<title>Functions</title>
+
+<para>Functions in S2 can be simple functions, methods of a class, or call
+functions written in the backend language from the <literal>builtin</literal>
+layer.</para>
+
+<para>Functions can return data in any simple internal datatype, or
+<returnvalue>void</returnvalue> if no return data is required.</para>
+
+  <section id='&s2.idroot;langref.functions.declaration'>
+    <title>Declaration</title>
+
+    <para>Declaring a function within a class is done as follows:
+    <programlisting>class SomeClass { function do_stuff(int para1, string para2) : string;
+    }</programlisting></para>
+
+    <para>This declares a function called <methodname>do_stuff</methodname> in the
+    <classname>SomeClass</classname> class with two parameters and which
+    returns a string. The colon and type keyword may be omitted where a function will
+    return <returnvalue>void</returnvalue> (no value).</para>
+
+
+    <para>Functions outside classes are declared in the same way:
+    <programlisting>function do_global_stuff(int para1, string para2);</programlisting></para>
+
+    <para>Functions outside classes do not need to be declared, but if they are
+    not declared they must be defined before they are called.</para>
+
+    <para>Built-in functions can be declared in the core layer using the
+    <literal>builtin</literal> keyword in the function prototype:
+    <programlisting>function builtin ehtml(string s) : string; class string { function builtin ends_with (string sub) : bool;
+    }</programlisting></para>
+    <para>Functions can have some or no parameters, in the latter case the
+    parentheses may be omitted in declaration. If several functions of the same
+    name exist with different parameters, they can be defined as follows:</para>
+    <programlisting>function dostuff(int para1); function dostuff;</programlisting>
+
+    <para>Non-class (global) functions can be implemented when they are
+    declared:
+    <programlisting>function do_global_stuff() { print "I'm doing stuff!";
+    }</programlisting></para>
+
+    <para>Class functions (methods) must first be declared within the class
+    they will apply to, and can then be implemented outside the class declaration as
+    follows:
+    <programlisting>function SomeClass::do_stuff() { print "I'm doing stuff!";
+    }</programlisting></para>
+
+    <para>It is not permitted to implement a <literal>builtin</literal> function.
+    These will instead be mapped onto some code written in the host language in
+    the S2 backend.</para>
+
+    <para>Layouts are allowed to add new methods to a class without pre-declaration,
+    but with a few special constraints. Firstly, the method must be declared
+    and implemented before it is used. Secondly, the method name must begin
+    with <literal>lay_</literal>, to avoid problems in the future when new
+    methods may be added to the core layer with the same name.</para>
+
+  </section>
+
+  <section id='&s2.idroot;langref.functions.calling'>
+    <title>Calling</title>
+
+    <para>Functions outside classes can be called using the following
+    syntax:</para>
+
+    <programlisting>dostuff();
+dostuff(5);</programlisting>
+    <para>Functions in classes are envoked from an instance of the class as
+    follows:</para>
+
+    <programlisting>$thingy->dostuff(45,"boink");</programlisting>
+
+<para>Note that the parentheses <emphasis>are</emphasis> required when
+envoking a function.</para>
+
+  </section>
+</section>
+
+<section id='&s2.idroot;langref.layerinfo'>
+<title><varname>layerinfo</varname> declarations</title>
+
+    <para>You can use the <varname>layerinfo</varname> declaration to set
+    arbitrary meta-data for a layer. However, certain meta-data keys and values
+    are required for each type of layer.</para>
+
+    <para>The syntax of <varname>layerinfo</varname> is:</para>
+    <programlisting><![CDATA["layerinfo" <Text> "=" <Text> ";"
+<Text> ::= <identifier> | <string literal> | <integer 
+literal>]]></programlisting>
+
+    <para>At minimum, all that's required to create a valid layer is one layerinfo
+    declaration with name "type", stating the type of the layer. Depending on the
+    layer type, more declarations may be required. Valid types  are those listed
+    in the Layers section.</para>
+
+    <para>Example:</para>
+    <programlisting><![CDATA[layerinfo type = theme;
+layerinfo name = "Polka-dotted yellow sunrise";
+layerinfo author_name = "Jon Doe";
+layerinfo author_email = "jondoe@email.addr";
+layerinfo des = "A beautiful polka-dotted yellow sunrise with lots of yellow & orange.";
+set bgcolor = "#ffff00";
+set fgcolor = "#ffc000";]]></programlisting>
+
+    <section id="&s2.idroot;langref.layerinfo.keys">
+    <title>Keys</title>
+
+        <section id="&s2.idroot;langref.layerinfo.keys.required">
+        <title>Required Keys</title>
+        <informaltable frame='none'>
+          <tgroup cols='2'>
+            <tbody>
+            <row><entry><literal>type</literal></entry><entry>The layer type identifier.</entry></row>
+            <row><entry><literal>majorversion</literal></entry><entry>Required for core layers only.</entry></row>
+            <row><entry><literal>langcode</literal></entry><entry>Language being configured.
+            i18n and i18nc layers only.</entry></row>
+            </tbody>
+          </tgroup>
+        </informaltable>
+    </section>
+
+    <section id="&s2.idroot;langref.layerinfo.keys.recommended">
+        <title>Recommended Keys</title>
+        <informaltable frame='none'>
+          <tgroup cols='2'>
+            <tbody>
+              <row><entry><literal>name</literal></entry><entry>The name of
+              the layer to be displayed in the interface.</entry></row>
+            </tbody>
+          </tgroup>
+        </informaltable>
+    </section>
+
+    <section id="&s2.idroot;langref.layerinfo.keys.other">
+        <title>Other Supported Keys</title>
+        <informaltable frame='none'>
+          <tgroup cols='2'>
+            <tbody>
+              <row><entry><literal>des</literal></entry><entry>A longer
+              description of the layer.</entry></row>
+              <row><entry><literal>author_name</literal></entry><entry>The name
+              of the author.</entry></row>
+              <row><entry><literal>author_email</literal></entry><entry>The
+              email address of the author.</entry></row>
+              
+              <row><entry><literal>source_viewable</literal></entry><entry>Source
+              of the layer is available to all users on the host site.</entry></row>
+              <row><entry><literal>is_public</literal></entry><entry>Allow
+              users on the host site to use layers from other users in their
+              styles.</entry></row>
+            </tbody>
+          </tgroup>
+        </informaltable>
+
+        <note>
+            <para>The email address, if given, will likely be displayed on the
+            host site in clear-text. You should probably leave it out if you
+            are concerned about email-address collecting software and spam.</para></note>
+
+    </section>
+  </section>
+
+</section>
+
+<section id='&s2.idroot;langref.properties'>
+  <title>Properties</title>
+
+<para>Properties are single values which are exposed by the core and layout
+layers and set in all subsequent layers to configure aspects of a style.
+Properties can be of any primitive type as well as any class which provides
+both an  <function>as_string()</function> function which returns a string
+representation of its data and a constructor function named after the class
+which accepts a <parameter>string</parameter> as a parameter and returns an
+object based on that string.</para>
+
+<para>The purpose of properties is to expose certain configuration settings
+of a style such that they can be set from a friendly <quote>wizard</quote>-like
+interface.</para>
+
+    <section id='&s2.idroot;langref.properties.declaration'>
+    <title>Declaration</title>
+
+<para>Properties are defined using the following syntax:</para>
+    <programlisting>property int page_recent_items { des = "Number of journal entries to show on recent entry page";
+      min = 5;
+      max = 50;
+}</programlisting>
+
+    <para>The key and value pairs within the braces are known as <emphasis>attributes</emphasis>.
+    These are used by the host application for various uses, including the
+    presentation of a friendly customization interface.</para>
+
+
+    <section id='&s2.idroot;langref.properties.standard'>
+    <title>Standard Properties</title>
+
+        <para>The following attributes are available for all properties:</para>
+        <variablelist>
+          <varlistentry>
+            <term><varname>des</varname></term>
+            <listitem><simpara><emphasis role="bold">Required</emphasis> - A
+            textual description of this property.</simpara></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><varname>values</varname></term>
+            <listitem><simpara>A string setting the acceptable values of this
+            property, along with a natural language description of each, in the
+            format <literal>"value1|Description1|value2|Description2"</literal>
+            and so on.</simpara></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><varname>example</varname></term>
+            <listitem><simpara>An example of what might be put in this field.
+            Can be used when it's not obvious what the value should look
+            like.</simpara></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><varname>note</varname></term>
+            <listitem><simpara>A note to be displayed with the field to enter
+            this value.</simpara></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><varname>noui</varname></term>
+            <listitem><simpara>Suppresses the display of this property in the
+            editing GUI.</simpara></listitem>
+          </varlistentry>
+        </variablelist>
+
+        <para>There are also attributes only available for specific types of
+        property, as described in the following sections.</para>
+
+        <section id='&s2.idroot;langref.properties.standard.integer'>
+            <title>Attributes for integer properties</title>
+            <variablelist>
+              <varlistentry>
+                <term><varname>max</varname></term>
+                <listitem><simpara>The maximum value permitted.</simpara></listitem>
+              </varlistentry>
+              <varlistentry>
+                <term><varname>min</varname></term>
+                <listitem><simpara>The minimum value permitted.</simpara></listitem>
+              </varlistentry>
+            </variablelist>
+        </section>
+        <section id='&s2.idroot;langref.properties.standard.string'>
+            <title>Attributes for string properties</title>
+            <variablelist>
+              <varlistentry>
+                <term><varname>maxlength</varname></term>
+                <listitem><simpara>The maximum amount of characters this
+                property can contain.</simpara></listitem>
+              </varlistentry>
+              <varlistentry>
+                <term><varname>size</varname></term>
+                <listitem><simpara>The size (in characters) of text widget
+                which should be used to set this property from an interface.</simpara></listitem>
+              </varlistentry>
+            </variablelist>
+         </section>
+
+     </section>
+  </section>
+  
+  <section id='&s2.idroot;langref.properties.set'>
+    <title>Setting</title>
+    <para>The <function>set</function> command is used to set the values of
+    properties from all layers:</para>
+    <programlisting>set text_read_comment = "Read 1 comment";</programlisting>
+    <para>The value set by the highest layer will be used.</para>
+
+  </section>
+  
+  <section id='&s2.idroot;langref.properties.use'>
+    <title>Use</title>
+
+    <para>In order to use a property from the core layer in a layout, you
+    should first tell the system that you are going to use it. This makes it
+    appear in the customization UI if applicable.</para>
+
+    <programlisting>property use property_name;</programlisting>
+    <para>All layers can use properties as variables as described in the
+    variables section above:</para>
+
+    <programlisting>print $*property_name;</programlisting>
+
+  </section>
+</section>
+
+<section id='&s2.idroot;langref.docstrings'>
+<title>DocStrings</title>
+
+<para>You can add short documentation strings to your classes, methods, data
+members and functions by placing them in quotes inside the declaration, like
+so:</para>
+
+  <programlisting>class Example "An example class" {
+    var string some_string "An example data member";
+    function some_method() : int "An example method";
+}
+function some_function() "An example global function";</programlisting>
+
+<para>These are made available to the S2 backend support code, and
+applications may provide some kind of documentation browsing facility or the
+ability to generate static files containing documentation.</para>
+</section>
+

@@ -1,0 +1,17 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+function main ()
+{
+    var int i = 5;
+    if (($i = 5)) {
+	print "i is 5.\n";
+    } elseif ($i = 6) {
+	print "i = 6\n";
+    }
+}
+
+
+

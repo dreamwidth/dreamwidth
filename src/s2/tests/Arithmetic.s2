@@ -1,0 +1,31 @@
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = "1";
+
+function main() {
+    var int first = 7;
+    var int second = 5;
+    println "$first + $second = " + ($first + $second);
+    println "$first - $second = " + ($first - $second);
+    println "$second - $first = " + ($second - $first);
+    println "$first * $second = " + ($first * $second);
+    println "$first / $second = " + ($first / $second);
+    println "$first % $second = " + ($first % $second);
+
+    var int third = 8;
+    $first = $second = $third;
+    println "All eight: $first $second $third";
+    if ($third == 8 and $first == 8 and $second == 8) {
+       println("t1");
+    }
+    if ($third == 4 or $first == 2 or $second == 8) {
+       println("t2");
+    }
+
+    $third = $first * $second * $second;
+    println "512 = $third";
+
+    $third = 3 * $first + 5 * $second;
+    println "64 = $third";
+
+}

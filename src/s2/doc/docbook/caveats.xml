@@ -1,0 +1,16 @@
+<title>Caveats</title>
+<section id='&s2.idroot;caveats.printhtml'>
+    <title>Untrusted layers printing incomplete HTML.</title>
+  <para>All output from the print command in untrusted layers gets piped
+  through the HTML cleaner which militantly cleans HTML, removing anything
+  that's harmful or potentially harmful. Because styles can contain both user
+  layers and trusted system layers, both of which can be printing, a print from
+  a trusted layer flushes the HTML cleaner's buffer, forcing it to finish
+  earlier than it might otherwise wish to. For instance, if an untrusted layer
+  prints out an incomplete tag, normally the HTML cleaner waits until it sees
+  the rest before sending it along to the client. But if a trusted layer forces
+  a flush, the HTML cleaner may be confused and forced to over-escape a lot of
+  HTML to be safe.</para>
+  <para>To avoid this problem print only complete tags at once, or avoid
+  calling other code which may switch into trusted code.</para>
+</section>

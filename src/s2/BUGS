@@ -1,0 +1,42 @@
+
+- HTML backend will escape quotes in tripled quoted
+  TokenStringLiterals that weren't escaped originally
+
+- in a foreach statement when iterating over hash keys,
+  you can extract them as ints or strings, regardless of
+  what they actually are.  for the perl backend, this 
+  doesn't really matter, but a better solution might have
+  to be found sometime.
+
+- builtin functions can't be overridden by S2 functions 
+  in subclasses. This can't really be worked around without
+  losing the direct call optimisation that the perl backend
+  does on builtins.
+
+- Confusing message when trying to interpolate an object without
+  a toString() method:
+      "Right hand side of + operator is Color, not a string or
+       integer at line 28, column 16"
+
+MAYBE TODO:
+
+- don't make vardecls in foreach stmts require the type.  infer it
+  instead from the listexpr type minus an arrayref
+
+- static variables
+
+- constructors with arguments
+
+- private functions/members
+
+GOTCHAS:
+
+- this might be considered a bug:
+
+    function foo():string{ print "hi"; }
+
+  won't parse.  the { after 'string' is parsed as part of the return
+  type.  whitespace is required in there.
+
+  UPDATE: mart says this isn't a bug.  :)
+

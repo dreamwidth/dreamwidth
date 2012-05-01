@@ -1,0 +1,44 @@
+<title>FAQ</title>
+
+<qandaset defaultlabel='qanda'>
+  <qandaentry id='&s2.idroot;faq.xslt'>
+    <question><simpara>Why didn't you just use XML and let style authors use
+    XSLT?</simpara></question>
+    <answer><simpara>
+    <ulink url="http://evan.livejournal.com/601685.html">Because XSLT
+    is ugly and difficult.</ulink></simpara></answer>
+  </qandaentry>
+  <qandaentry id='&s2.idroot;faq.newlang'>
+    <question><simpara>Why invent a whole new programming language and not just
+    use, say, Perl and Safe.pm?</simpara></question>
+    <answer><para>Believe me, a lot of options were considered. There are a
+    number of reasons we "reinvented the wheel":</para>
+      <itemizedlist>
+        <listitem><simpara>The other wheels weren't round.</simpara></listitem>
+        <listitem><simpara>Safe.pm isn't too safe.</simpara></listitem>
+        <listitem><para>By making our own domain language, we make it easy to
+        do the things which are common/specific to this problem. A short list:
+          <itemizedlist>
+            <listitem><simpara>The common operation is print. So we made an
+            expression statement starting with a string literal be a print
+            statement on that expression.</simpara></listitem>
+            <listitem><simpara>Large blocks of text are printed often, so we
+            wanted the Python-style triple-quoted string
+            literals.</simpara></listitem>
+            <listitem><simpara>We wanted 
+            <link linkend='&s2.idroot;layers'>layers</link> of
+            functionality/overridability.</simpara></listitem>
+            <listitem><simpara>We wanted a graphical wizard to be able to look
+            inside the layers and see what options are available.</simpara></listitem>
+          </itemizedlist>
+        </para></listitem>
+        <listitem><simpara>It wasn't that hard.</simpara></listitem>
+        <listitem><simpara>The language is very similar to other languages
+        which geeks are already familiar with. The learning curve isn't too
+        steep.</simpara></listitem>
+      </itemizedlist>
+    </answer>
+  </qandaentry>
+  &s2.faq.extra;
+</qandaset>
+

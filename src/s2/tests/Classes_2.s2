@@ -1,0 +1,44 @@
+#-*-c++-*-
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 0;
+
+class A { 
+  function write(string s); 
+}
+class B extends A { }
+
+function A::write(string s) {
+  println "A wrote: " + $s;
+}
+
+function B::write(string s) {
+  println "B wrote: " + $s;
+}
+
+function getA (bool subclass) : A
+{
+    var A v = new A;
+    if ($subclass) {
+	$v = new B;
+    }
+    return $v;
+}
+
+function main ()
+{
+  var B b = new B;
+  var A a = new A;
+  $a->write("A");
+  $b->write("B");
+
+  $a = $b;
+  $a->write("B from A");
+
+  var A fa;
+  $fa = getA(false);
+  $fa->write("should be A");
+  $fa = getA(true);
+  $fa->write("should be B");
+}
+

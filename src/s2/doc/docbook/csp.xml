@@ -1,0 +1,172 @@
+<title>S2 Client Protocol</title>
+<para>
+  This protocol, initially implemented for
+  <ulink url="http://www.livejournal.com/">LiveJournal.com</ulink> but applicable
+  elsewhere, provides a machine-friendly interface to an S2 system on a
+  remote server.
+</para>
+<para>
+  The protocol is just HTTP. You can implement it using any suitable HTTP
+  library, including the Perl LWP library.
+</para>
+<section id="&s2.idroot;csp.general">
+  <title>General Rules</title>
+  <para>
+    A new <parameter>Content-type</parameter> value is introduced for S2 layers, named
+    <literal>application/x-danga-s2-layer</literal>. This is used both in server
+    responses and client layer uploads.
+  </para>
+  <section id="&s2.idroot;csp.general.request">
+    <title>Requests</title>
+    <para>
+      When making a request to the S2 interface, you can authenticate with the
+      remote server using HTTP Digest authentication<footnote id="&s2.idroot;csp.general.ftn.digest_auth">
+         <simpara>
+           Refer to <ulink url="http://www.faqs.org/rfcs/rfc2617.html">RFC 2617</ulink>
+           for more information.
+         </simpara>
+      </footnote>
+      or some site-specific authentication method. On LiveJournal.com, session
+      cookies are supported.
+    </para><para>
+      The request URL will vary between applications. On LiveJournal it can be
+      found at <systemitem class="systemname">/interface/s2</systemitem>.
+      </para>
+      <para>An example uploading client named <filename>s2up.pl</filename> for
+      the protocol, written in perl using LWP, is in the
+      SVN <ulink url="http://code.sixapart.com/svn/s2/trunk/tools/s2up.pl">repository</ulink>.</para>
+    <para>The same URL is used for both retrieval and updating; the method used
+      defines the action the server will take. On LiveJournal, that URL will be
+      <systemitem class="systemname">/interface/s2/<replaceable>layerid</replaceable></systemitem>.
+      How you find the correct layerid is outside the scope of this specification.</para>
+  </section>
+  <section id="&s2.idroot;csp.general.response">
+    <title>Responses</title>
+    <para>
+      When parsing response bodies, consider only ASCII character 10 (newline, \n)
+      to indicate a newline. Disregard any occurrences of ASCII 13 (carriage return, \r).
+    </para><para>
+      Error responses have a HTTP error code and a plain text
+      response body. This will contain a short error message, then a newline,
+      then a longer error message also followed by a newline, and optionally
+      other data which you may wish to display.
+    </para><para>
+      If the response is not in the expected format (i.e. content-type does not
+      indicate a plain text response) clients should simply explain that the
+      server has returned an invalid response and that this may be temporary
+      or might be due to an incorrect URL. Even in the case of an unparsable body,
+      the HTTP response code can be used to infer the nature of the error.
+    </para><para>
+      You should be prepared to accept any HTTP response code and treat it as
+      the HTTP spec advises. This includes the redirection codes. You are
+      advised to use a full HTTP library, which is available for most
+      languages, to make your requests rather than hacking up flakey HTTP code
+      which assumes everything will always work in a particular way.
+    </para><para>
+      An exception to this rule is that the <returnvalue>403 Forbidden</returnvalue>
+      response is defined in HTTP to indicate that "authentication will not help".
+      This protocol also allows for it to describe the condition where
+      authentication credentials are given but the given account has no access
+      to whatever was requested. This slight quirk is made under the assumption
+      many clients for this protocol will be non-interactive and launched as tools
+      from text editors, and prompting for alternative credentials would be impossible.</para>
+  </section>
+</section>
+<section id="&s2.idroot;csp.download">
+  <title>Retrieve Layer Source</title>
+  <para>
+    In order to get the S2 source of a layer for local editing, a simple GET
+    request is sufficient:
+  </para>
+    
+<programlisting>GET /interface/s2/1 HTTP/1.1
+Host: www.livejournal.com
+Accept: application/x-danga-s2-layer</programlisting>
+
+  <para>
+    In addition to the basic header shown above, digest
+    authentication<footnoteref linkend='&s2.idroot;csp.general.ftn.digest_auth'/> can
+    be used.
+           Anonymous requests are allowed, but the server may respond with 
+           <returnvalue>401 Unauthorized</returnvalue>, describing the standard HTTP
+    authentication methods supported. Some servers, as described above, may
+    implement <quote>special</quote> authentication methods,
+    such as LiveJournal supporting website session cookies. These are not
+    described (in a machine-readable way, at least) in the Unauthorized response.
+  </para>
+  <para>
+    Client authors are <emphasis>strongly advised</emphasis> to send the
+    <parameter>Accept</parameter> header, as in the future other formats
+    may be supported and the server will be able to see which
+    format you are expecting and either honor your request or return the
+    response <returnvalue>Unacceptable</returnvalue> if S2 layer source
+    as we know it now is unavailable.
+  </para>
+  <para>
+    If the response is an error, the response body will contain a short error
+    followed by details of the error, plus optionally further error lines 
+    which you may wish to display if they are present. The HTTP response code 
+    will give you some idea of the nature of the error.
+  </para>
+  <para>
+    If the response is successful (response code is 200 OK), and the
+    <parameter>content-type</parameter> is <literal>application/x-danga-s2-layer</literal>,
+    you will find S2 source in the response body. As with error responses,
+    you should consider only ASCII 10 (\n) to mean newline. Disregard ASCII 13
+    (\r). You may transform the returned \n characters to the local newline
+    representation for output if you wish.
+  </para>
+</section>
+<section id="&s2.idroot;csp.upload">
+  <title>Upload a Layer</title>
+  <para>
+    This mechanism can only be used to update an existing layer. This version
+    of the protocol does not allow for new layers to be created via the
+    interface. The S2 application will provide some mechanism, probably
+    human-oriented, to do this.
+  </para>
+  <para>
+    Uploading is done via an HTTP PUT request. The URL is the same used to
+    retrieve the given layer.
+  </para>
+  
+<programlisting>PUT /interface/s2/1 HTTP/1.1
+Host: www.livejournal.com
+Content-Length: 65
+Content-Type: application/x-danga-s2-layer
+
+layerinfo "type" = "layout";
+layerinfo "name" = "Upload Example";
+...
+</programlisting>
+
+  <para>
+    If the given layer is an acceptable replacement for the layer indicated,
+    the server will respond with either <returnvalue>201 Created</returnvalue>,
+    which means that the layer is accepted and has been updated on the system,
+    or <returnvalue>202 Accepted</returnvalue>, indicating that the layer was
+    acceptable but the system will not instantly replace the existing layer
+    with it for reasons unspecified.
+  </para>
+  <para>
+    The server can also respond with any HTTP error code. The code
+    <returnvalue>500</returnvalue> is used to indicate that the server is unable
+    to accept the layer. If this is due to a layer compile error, the error will
+    be given in the optional part of the error response after the short and long
+    error descriptions.
+  </para>
+  <note>
+    <title>Optional Client Features</title>
+    <simpara>
+      A client with access to a local S2 compiler may wish to perform a
+      syntax check on the layer to be uploaded first. An option to override 
+      this should be provided to allow for future changes to S2 syntax 
+      which may cause parse errors in older versions of the compiler.
+    </simpara><simpara>
+      It is not advisable for the local client to attempt the checker
+      phase of compilation, as this is slow and local copies of parent
+      layers will frequently become out of date with that on the server.
+    </simpara>
+  </note>
+</section>
+

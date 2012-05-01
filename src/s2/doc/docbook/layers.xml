@@ -1,0 +1,204 @@
+<title>Layer Types</title>
+<para>As previously mentioned, there are 6 layers types in S2:</para>
+<programlisting><![CDATA[
+  => core
+    => i18nc
+    => layout
+      => i18n
+      => theme
+      => user
+]]></programlisting>
+<para>The hierarchy above indicates which layer types are specific to which
+others. For example, any given i18n, theme, or user layer is specific to a
+certain layout. You can't have a theme which works with any layout, since the
+theme is tied to that layout.</para>
+
+<para>Layouts are tied to a core, but since there's at present only 1 core
+layer, a layout can pretty much be thought of as the top layer. If in the
+future it becomes apparent that design mistakes were made at the core layer we
+can then make a new core layer and support both. Layouts will then be able to
+be written to any version of the core.</para>
+
+<variablelist>
+  <varlistentry>
+    <term>Core Layer (core)</term>
+    <listitem><para>The core layer defines the classes of objects which will be
+    provided to the S2 code by the web application. Further, it defines the
+    methods on those objects and useful global functions.</para>
+    <para>Only the core layer can define builtin functions and methods, where
+    the implementation isn't in S2, but implemented by the host web
+    application. Users cannot create new core layers. More than likely, there
+    will only be one core layer on the system. However, the core layer is
+    versioned in case the web application changes drastically and needs a new
+    core layer. In that case, multiple core layers can exist at the same
+    time, and it's the web application's job to check the version number on
+    the core layer in use and provide the right data structures to it.</para>
+    <para>The core also provides basic implementations for everything, in
+    case other layers don't override them. One major advantage of this is
+    that it makes it extremely easy for LiveJournal to add more view types in
+    the future and have them be compatible with all existing layers: since
+    those layers wouldn't know how to generate a "FooPage", they'll just
+    inherit the FooPage from the core. (Inheritance note)</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>Core Internationalization Layer (i18nc)</term>
+    <listitem><para>The i18nc layer overrides text properties in the core,
+    translating them into a specific language. It also overrides the default
+    short, medium, and long date and time formats and functions which do things
+    like return ordinal numbers from cardinal numbers and map item counts onto
+    their plural form.</para>
+    <para>The core layer should have properties for every textual string
+    likely to be used by more than one layout, to reduce work for translators.
+    Because the i18nc layer overrides the core, and not specific layouts,
+    all layouts can take advantage of things defined in the core and i18nc layers.</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>Layout Layer (layout)</term>
+    <listitem><para>A layout is the largest and most involved layer type
+    developers will create. A layout defines the look &amp; feel of the journal
+    and provides all the properties which the three child layers have access to
+    modify.</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>Layout Internationalization Layer (i18n)</term>
+    <listitem><para>An i18n layer is like i18nc, but it's specific to a
+    layout.</para>
+    <para>If a layout introduces new textual or locale-specific
+    properties/functions because it couldn't use stuff already in the core,
+    an i18n layer overrides just those new items. The fact that there are two
+    i18n layers is hidden from the user... they just select "Deutsch" (or
+    it's selected by default automatically, based on their browser settings)
+    and the system picks the i18nc and i18n layers which match the "de"
+    language code for their layout and core. (their core layer is also
+    automatically selected if there are more than one, based on the layout
+    they choose)</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>Theme Layer (theme)</term>
+    <listitem><para>A theme layer overrides color, image, font, and sound
+    properties provided in the layout (some of which the layout may simply pass
+    on from the core).</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>User Layer (user)</term>
+    <listitem><para>A user layer tweaks any last properties. A graphical wizard
+    on the site auto-generates this after showing the end-user all the
+    available properties. Everything is incredibly simple: colors are picked
+    using a color-picker widget, for example.</para>
+    </listitem>
+  </varlistentry>
+</variablelist>
+<section id='&s2.idroot;layers.caps'>
+  <title>Layer Capabilities</title>
+  <para>The following table summarizes what each layer type is permitted to
+  do:</para>
+  <informaltable frame='all'>
+    <tgroup cols='7' align='center' colsep='1' rowsep='1'>
+      <colspec align="left" />
+      <thead>
+        <row>
+          <entry></entry>
+          <entry>core</entry>
+          <entry>i18nc</entry>
+          <entry>layout</entry>
+          <entry>i18n</entry>
+          <entry>theme</entry>
+          <entry>user</entry>
+        </row>
+      </thead>
+      <tbody>
+        <row>
+          <entry>Define classes</entry>
+          <entry>X</entry>
+          <entry />
+          <entry />
+          <entry />
+          <entry />
+          <entry />
+        </row>
+        <row>
+          <entry>Define <function>builtin</function> functions/methods</entry>
+          <entry>X</entry>
+          <entry />
+          <entry />
+          <entry />
+          <entry />
+          <entry />
+        </row>
+
+        <row>
+          <entry>Define global functions</entry>
+          <entry>X</entry>
+          <entry />
+          <entry>X</entry>
+          <entry />
+          <entry />
+          <entry />
+        </row>
+        <row>
+          <entry>Define class methods</entry>
+          <entry>X</entry>
+          <entry />
+          <entry>X<footnote><para>Layouts adding methods to classes must
+          prefix the method name with <function>lay_</function> to avoid future
+          namespace collisions should the core layer expand.</para></footnote></entry>
+          <entry />
+          <entry />
+          <entry />
+        </row>
+        <row>
+          <entry>Define properties</entry>
+          <entry>X</entry>
+          <entry />
+          <entry>X</entry>
+          <entry />
+          <entry />
+          <entry />
+        </row>
+        <row>
+          <entry>Expose properties to graphical wizard</entry>
+          <entry />
+          <entry />
+          <entry>X</entry>
+          <entry />
+          <entry />
+          <entry />
+        </row>
+        <row>
+          <entry>Override name/description of properties</entry>
+          <entry>-</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry />
+          <entry />
+        </row>
+        <row>
+          <entry>Override functions/methods</entry>
+          <entry>-</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry />
+        </row>
+        <row>
+          <entry>Set properties</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+          <entry>X</entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </informaltable>
+
+</section>
+

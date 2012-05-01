@@ -1,0 +1,47 @@
+#-*-s2-*-
+
+layerinfo type = core;
+layerinfo majorversion = 0;
+
+class Color
+"Represent a color"
+{
+  var readonly int r;
+  var readonly int g;
+  var readonly int b;
+  var  string as_string "HTML hex encoded: #rrggbb";
+  function builtin Color(string s) : Color "Constructor for color class.  Lets you make a Color object from a string of form #rrggbb";
+}
+
+function builtin foo () : int;
+
+property int foo;
+property hide foo;
+
+set foo = 5 + 8;
+
+property int[][] thematrix;
+set thematrix = [ [ 1, 2 ], [ 3, 4, 6-1 ] ];
+
+property string[] bar;
+
+set bar = [ "Jan", "Feb", "Mar", "Apr" ];
+
+property Color bgcolor;
+set bgcolor = "#102030";
+
+function main ()
+{
+  var string[] empty = [];
+  $empty = [];
+
+  var string[] s = [ "a", "b", "c" ];
+  println "$s[0] $s[1] $s[2]";
+
+  var string{} h = { "1" => "one", "2" => "two" };
+  println "$h{"1"} $h{2}";
+
+  println "$*thematrix[0][0] $*thematrix[0][1] $*thematrix[1][0] $*thematrix[1][1] $*thematrix[1][2]";
+
+  println "Color: $*bgcolor.r $*bgcolor.g $*bgcolor.b";
+}

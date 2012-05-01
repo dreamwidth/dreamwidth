@@ -1,0 +1,32 @@
+
+perloo - Object-oriented Perl Target for S2
+-------------------------------------------
+
+The S2 compiler's Perl backend traditionally generates code which depends on
+a global S2 package, which itself maintains state in global variables. This
+runtime is fast, but it has some drawbacks:
+
+    * It isn't fully re-entrant
+    * Caller has to know/think about layerids even if the layers aren't
+     being stored in a database.
+    * The API's just a bit ugly in general.
+
+perloo is a new mode for the Perl backend accompanied by a new runtime which
+generates object-oriented Perl code. Its goals are to rectify all of the above
+listed problems while retaining the speed as much as possible. The new
+embedding API is similar to that offered by the experimental JavaScript and
+Lua targets.
+
+At this point the perloo target should be considered experimental. It hasn't
+yet been tested in any real world applications and it lacks some of the
+optimizations present in the traditional perl target.
+
+To use:
+    s2compile --output perloo ...
+    
+When targeting perloo, the --layerid parameter is not required and is
+ignored.
+
+For information on the runtime library, please refer to the source code which
+currently includes rudimentary POD that will be expanded on later.
+

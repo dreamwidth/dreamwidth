@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+#
+
+exec("s2compile.pl", @ARGV);
+

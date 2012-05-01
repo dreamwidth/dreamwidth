@@ -1,0 +1,48 @@
+
+# Tests for the new typeless nulls and back-compat
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = "1";
+
+function builtin string(int n) : string;
+
+class TestClass {
+    var string member;
+}
+
+function returnThingy() : TestClass {
+    return null;
+}
+
+function main() {
+    var TestClass test1; # defaults to null
+    var TestClass test2 = null; # new-style typeless null
+    var TestClass test3 = new TestClass; # not null
+    var TestClass test4 = null TestClass; # old-style typed null
+
+    println((isnull $test1) ? "test1 is null" : "test is NOT null!");
+    println((isnull $test2) ? "test2 is null" : "test2 is NOT null!");
+    println((isnull $test3) ? "test3 is null" : "test3 is NOT null!");
+    println((isnull $test4) ? "test4 is null" : "test4 is NOT null!");
+    println((isnull returnThingy()) ? "returnThingy() returned null" : "returnThingy returned NOT null!");
+
+    println((defined $test1) ? "test1 is defined" : "test is NOT defined!");
+    println((defined $test2) ? "test2 is defined" : "test2 is NOT defined!");
+    println((defined $test3) ? "test3 is defined" : "test3 is NOT defined!");
+    println((defined $test4) ? "test4 is defined" : "test4 is NOT defined!");
+    println((defined returnThingy()) ? "returnThingy() returned defined" : "returnThingy returned NOT defined!");
+
+    # S2 allows assignment to members in a null object,
+    # but the object stays null. This is weird behavior,
+    # but we're kinda stuck with it now.
+    $test1.member = "test1";
+    $test2.member = "test2";
+    $test3.member = "test3";
+    $test4.member = "test4";
+
+    println((isnull $test1) ? "test is null" : "test is NOT null!");
+    println((isnull $test2) ? "test2 is null" : "test2 is NOT null!");
+    println((isnull $test3) ? "test3 is null" : "test3 is NOT null!");
+    println((isnull $test4) ? "test4 is null" : "test4 is NOT null!");
+
+}

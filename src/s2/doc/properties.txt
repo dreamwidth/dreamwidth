@@ -1,0 +1,33 @@
+properties can be either strings or integers (or of type Color)
+
+attributes on properties:
+
+Required for all types:
+
+     des = description of property (short)
+ 
+Optional for all types:
+
+	 values = acceptable values with accompanying descriptions in form
+	          join("|", "value|des"), like "1|One|2|Two"
+         example = example value to be shown in italics when it's not obvious what
+                   the value should be like.
+         paidonly = need a paid account to set this property, otherwise default.
+         note = further note explaining the property
+
+Optional for type 'int':
+
+	 max  -- maximum value for the int
+	 min  -- minimum value for the int
+
+Optional for type 'string':
+
+	 maxlength -- max length of string
+         size -- size of text widget to show
+
+Built-in:
+
+    name -- the variable name is included in the hash.  the API adds 
+            this virtual attribute.
+
+

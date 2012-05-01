@@ -1,0 +1,45 @@
+variable interpolation in strings:
+==================================
+
+"foo" -> ("foo")
+"hi $name" is expanded -> ("hi " + $name)  
+"my name is ${name}athon" -> ("my name is " + $name + "athon")
+
+   NOTE: extra tokens for parens and opt. plus signs
+
+
+typing:
+=======
+
+strong typing.
+casting functions builtin.
+
+
+class declarations:
+===================
+
+only allowed in the core.
+they could be allowed in the layout layer as well, but then there are problems:
+  - need syntax to create objects at run-time
+  - class namespace (what if we add a new class to the core later?)
+  - little need, anyway.
+
+
+function declarations:
+=====================
+
+function declarations inside class declarations (method declations)
+are only declarations.  since class declarations can only be in the
+core, so can declarations of new methods.
+
+function declarations outside classes are either:
+  1) empty (no StmtBlock).  look like C prototypes. this implies the
+  function is built-in (defined in s2builtin.pl).  only allowed in
+  core.
+  2) defined, with body.  allowed in all layers, with the following
+     restrictions:
+     - can only override existing functions in theme, i18n, user
+     layers
+     - free users can only define 1 or 2 functions in their user
+     layer, though they can define all available properties.
+

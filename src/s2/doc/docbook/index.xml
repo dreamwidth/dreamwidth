@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE book SYSTEM "/usr/share/xml/docbook/schema/dtd/4.4/docbookx.dtd" [
+<!ENTITY % content SYSTEM "entities.xml">
+%content;
+]>
+<book id="index" status="prelim" lang="en">
+  &s2.bookinfo;
+  <chapter id='&s2.idroot;preface'>
+    &s2.preface;
+  </chapter>
+  <chapter id='&s2.idroot;overview'>
+    &s2.overview;
+  </chapter>
+  <chapter id='&s2.idroot;langref'>
+    &s2.langref;
+  </chapter>
+  <chapter id='&s2.idroot;notes'>
+    &s2.notes;
+  </chapter>
+  <chapter id='&s2.idroot;csp'>
+    &s2.csp;
+  </chapter>
+  <appendix id='&s2.idroot;faq'>
+    &s2.faq;
+  </appendix>
+  &appx.gfdl;
+</book>

@@ -1,0 +1,14 @@
+Overview of S2:
+===============
+
+This is the overview file for S2, or "LiveJournal, Style System,
+version 2".  See the documents referenced below for more details of
+different aspects of the S2 system.
+
+
+Design goals:   design_goals.txt.
+
+Layers:         layers.txt.
+
+Language:       language.txt
+

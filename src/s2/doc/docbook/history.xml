@@ -1,0 +1,37 @@
+<title>History and Motivation</title>
+
+<para>S2 (Style System 2) is the follow-up to LiveJournal's original templating
+engine, now referred to as "S1". S1 allowed people who knew HTML to somewhat
+easily re-style their journal but had a number of shortcomings:</para>
+
+<itemizedlist>
+    <listitem><para>The four views (recent ("lastn"), friends, calendar, and day)
+    all had to be created independently and couldn't share any code. So if you
+    wanted to make a new style you had to do it four times. The tediousness of
+    this made us reluctant to add any more views to the system (such as a month
+    view or single item/comments view).
+
+        <itemizedlist>
+        <listitem><simpara>Styles weren't easily customizable, and thus not
+        well-suited for the majority of users. While there existed the idea of
+        "color themes", they were ill-designed in that it was assumed any color
+        theme should be able to plug into any style. The available colors to
+        set (by the themes) and use (by the styles) were named things like
+        background", "foreground", "weak accent", "text on weak accent",
+        "strong accent", etc. Unfortunately, no color theme worked well with
+        every layout and no layout worked well with all color theme. In S2,
+        color themes are specific to the layout.</simpara></listitem>
+        <listitem><simpara>Colors were the only things that were easily
+        customizable. Other options required editing HTML or doing CSS, both
+        things which the average user neither knows nor should
+        know.</simpara></listitem></itemizedlist></para></listitem>
+
+    <listitem><simpara>S1 didn't give style authors much flexibility, since it
+    didn't offer any way to do conditional output. Instead, the system itself has
+    to anticipate author needs and conditionally populate and provide certain
+    template blocks, depending on whether there's, say, an entry subject or not.
+    S2, on the other hand, is a full programming langauge, so authors can do
+    whatever they want.</simpara></listitem>
+</itemizedlist>
+
+

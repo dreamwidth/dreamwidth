@@ -1,0 +1,42 @@
+
+layerinfo "type" = "core";
+layerinfo "majorversion" = 1;
+layerinfo "name" = "Runtime Types Test";
+
+class Parent {
+    var int blah;
+    function builtin ooblah();
+    function its();
+}
+
+class Child extends Parent {
+    var int foo;
+}
+
+class Grandchild extends Child {
+    var int faaaaa;
+}
+
+function main() {
+    var Parent p = new Grandchild;
+
+    if ($p isa Parent) {
+        println "p isa Parent";
+    }
+    if ($p instanceof Parent) {
+        println "p instanceof Parent";
+    }
+    if ($p isa Child) {
+        println "p isa Child";
+    }
+    if ($p instanceof Child) {
+        println "p instanceof Child";
+    }
+    if ($p isa Grandchild) {
+        println "p isa Grandchild";
+    }
+    if ($p instanceof Grandchild) {
+        println "p instanceof Grandchild";
+    }
+
+}

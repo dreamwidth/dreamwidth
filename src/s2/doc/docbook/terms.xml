@@ -1,0 +1,47 @@
+<title>Terminology</title>
+
+<para>S2 uses different terminology from S1. Here is an overview:</para>
+
+<variablelist>
+  <varlistentry>
+    <term>layer</term>
+    <listitem><simpara>There are 6 layer types in S2. Each type provides and/or
+    overrides particular types of functions &amp; properties. These include: core
+    (the base), i18nc (internationalization for the core), layout, i18n, theme,
+    and user.</simpara></listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>style</term>
+    <listitem><simpara>A style is a set of 1-6 layers. At minimum a style
+    includes a core layer (at present, there's only one) and can contain 0 or 1
+    of each other layer type. The only options for a style (outside of its
+    layers) are its name and whether it's public or not.</simpara></listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>layout</term>
+    <listitem><simpara>A layout is the most important &amp; influential of the
+    different layer types, excluding the core which is built-in and users can't
+    create or modify. The layout defines the look and feel of the style. The
+    other layers just tweak the layout. A layout layer is roughly analagous to
+    an S1 style.</simpara></listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>property</term>
+    <listitem><simpara>Both core and layout layers can define properties which
+    the end-user can modify using a graphical wizard. When defining a property
+    you define its datatype, optional min/max values, set of possible values
+    for a drop-down, widget type to offer, etc..</simpara></listitem>
+  </varlistentry>
+  <varlistentry>
+    <term>constructional property</term>
+    <listitem><simpara>The core layer defines some properties which are
+    recognized by the system and inspected prior to constructing the data
+    structure which S2 code is given. The global function prop_init(),
+    optionally implemented by the layout layer, is responsible for setting the
+    constructional properties if it's inappropriate to expose them directly to
+    the user, or if they need to be setup based upon other properties the user
+    did choose. The constructional properties are indicated in the core layer
+    documentation.</simpara></listitem>
+  </varlistentry>
+</variablelist>
+
