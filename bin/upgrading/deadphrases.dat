@@ -1501,3 +1501,8 @@ general error.security.noarg
 general /talkpost.bml.userpic.random
 
 general /manage/circle/edit.bml.success.editgroups
+
+general /customize/index.bml.switcher.btn
+general /customize/index.bml.switcher.label
+general /customize/options.bml.switcher.btn
+general /customize/options.bml.switcher.label

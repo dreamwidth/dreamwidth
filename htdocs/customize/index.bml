@@ -66,7 +66,7 @@ body<=
     }
 
     $ret .= "<form action='$LJ::SITEROOT/customize/' method='get' class='theme-switcher'>";
-    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, label => $ML{'.switcher.label'}, button => $ML{'.switcher.btn'} });
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
     $ret .= "</form>";
 
     # would you like to set the site skin instead?

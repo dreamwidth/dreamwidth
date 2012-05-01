@@ -59,7 +59,7 @@ body<=
     }
 
     $ret .= "<form action='$LJ::SITEROOT/customize/options' method='get' class='theme-switcher'>";
-    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, label => $ML{'.switcher.label'}, button => $ML{'.switcher.btn'} });
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
     $ret .= "</form>";
 
     my $current_theme = LJ::Widget::CurrentTheme->new;
