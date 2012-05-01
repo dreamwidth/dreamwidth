@@ -153,6 +153,7 @@ body<=
                 LJ::Setting::Display::Emails
                 LJ::Setting::Display::EmailPosts
                 LJ::Setting::Display::Orders
+                DW::Setting::Display::OpenIDClaim
             )],
         },
         othersites => {

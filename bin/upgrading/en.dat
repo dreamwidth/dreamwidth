@@ -2600,6 +2600,10 @@ setting.display.logins.label=Logins
 
 setting.display.logins.option=Manage login sessions
 
+setting.display.openidclaim.label=Claim OpenID Account
+
+setting.display.openidclaim.option=Claim an OpenID account
+
 setting.display.orders.label=Orders
 
 setting.display.orders.option=View order history
