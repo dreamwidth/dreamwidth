@@ -167,15 +167,15 @@ my %modules = (
                },
                "Class::Accessor" => {
                    'deb' => 'libclass-accessor-perl',
-                   'opt' => "Required for TheSchwartz job submission.",
                },
                "Class::Trigger" => {
                    'deb' => 'libclass-trigger-perl',
-                   'opt' => "Required for TheSchwartz job submission.",
                },
                "Class::Data::Inheritable" => {
                    'deb' => 'libclass-data-inheritable-perl',
-                   'opt' => "Required for TheSchwartz job submission.",
+               },
+               "Data::ObjectDriver" => {
+                   'deb' => 'libdata-objectdriver-perl',
                },
                "GnuPG::Interface" => {
                    'deb' => 'libgnupg-interface-perl',
