@@ -1086,22 +1086,24 @@ function builtin get_image(string key) : Image
 
 ##[ properties ]
 
+propgroup presentation = "Presentation";
 propgroup colors = "Colors";
 propgroup fonts = "Fonts";
-propgroup presentation = "Presentation";
-propgroup other = "Other";
-propgroup text = "Text";
-propgroup background = "Background";
-propgroup sidebar = "Sidebar";
-propgroup modules = "Modules";
-propgroup appearance = "Appearance";
-propgroup options = "Options";
 propgroup images = "Images";
+propgroup modules = "Modules";
+propgroup text = "Text";
 propgroup customcss = "Custom CSS";
 
-##===============================
+propgroup appearance = "Appearance";
+propgroup background = "Background";
+propgroup sidebar = "Sidebar";
+propgroup options = "Options";
+propgroup other = "Other";
+
+##=======================================
 ## Constant system properties
-##===============================
+##=======================================
+
 property builtin string IMGDIR {
     noui = 1;
     doc_flags = "[sys]";
@@ -1117,37 +1119,39 @@ property builtin string SITENAME {
     doc_flags = "[sys]";
     des = "Name of the current Dreamwidth site.  Example: \"Dreamwidth.com\".";
 }
-
 property builtin string SITENAMESHORT {
     noui = 1;
     doc_flags = "[sys]";
     des = "Shorter name of the current Dreamwidth site.  Example: \"Dreamwidth\".";
 }
-
 property builtin string SITENAMEABBREV {
     noui = 1;
     doc_flags = "[sys]";
     des = "Abbreviation of the current Dreamwidth site.  Example: \"DW\".";
 }
-
 property builtin string SITEROOT {
     noui = 1;
     doc_flags = "[sys]";
     des = "The base URL of the current Dreamwidth site, without a trailing slash.  Example: \"http://www.dreamwidth.com\".";
 }
-
 property builtin string PALIMGROOT {
     noui = 1;
     doc_flags = "[sys]";
     des = "The base URL of palimg files, without a trailing slash.  Example: \"http://www.dreamwidth.com/palimg\".";
 }
 
+##=======================================
+## Display properties - Presentation
+## Basic options
+##=======================================
 
-##===============================
-## Display settings - general
-##===============================
+# FIXME: Not sure if none is a sensible value, but need something appropriate as a default for designers who are not using this option.
+# In order to use layout_type on /customize/ in official layouts, the associated S2Theme file needs to be edited, and then changing the layout type will select a different wizard-layer.  Non-official layouts can use this property on the /customize/options.bml page.  Both methods will add the layout_type to <body> in the Page::print-wrapper to allow CSS to be written accordingly.
 
-# FIXME: Not all of these properties are hooked into the appropriate functions, so setting them does not yet work.
+property string layout_type {
+        des = "Layout Type";
+        values = "|none|one-column|One column (modules at bottom)|one-column-split|One column split (modules at top & bottom)|two-columns-left|Two columns (sidebar on the left)|two-columns-right|Two columns (sidebar on the right)|three-columns-sides|Three columns (one sidebar on each Side)|three-columns-left|Three column (two sidebars on the left)|three-columns-right|Three column (two sidebars on the right)";
+}
 
 property int num_items_recent {
     des = "Number of journal entries to show on the Recent Entries page";
@@ -1161,27 +1165,222 @@ property int num_items_reading {
     min = 5;
     max = 50;
 }
+
+# Defaults to false, but layouts can set it to true to switch on custom colors for different posters on reading page.
+property bool use_custom_friend_colors  { des = "Use my custom reading page colors"; }
+
+property bool use_shared_pic {
+    des = "Show community icons instead of posters' icons";
+}
+
+# was !view_entry_disabled
+property bool use_journalstyle_entry_page {
+    des = "Show entry pages in my journal style rather than the site skin";
+    note = "OBSOLETE: This option has been moved to Account Settings";
+    obsolete = 1;
+}
+
+property bool use_journalstyle_icons_page { des = "Show icons page in my journal style rather than the site skin"; }
+
+property string margins_size {
+    des = "Size of left and right margins";
+    size = 5;
+}
+property string margins_unit {
+    des = "Unit for margins size";
+    values = "em|em|%|%|px|px";
+}
+
+property string sidebar_width {
+    des = "Set the width of a single sidebar.  Ensure that the value is given in em or px.";
+    example = "15em";
+}
+property string sidebar_width_doubled {
+    des = "For a setup of two sidebars on the side, set the width to twice the value of a single sidebar (also in em or px).";
+    example = "30em";
+}
+
+set layout_type = "";
 set num_items_recent = 20;
 set num_items_reading = 20;
+set use_custom_friend_colors = false;
+set use_shared_pic = false;
+set use_journalstyle_entry_page = true;
+set use_journalstyle_icons_page = false;
+set margins_size = "0";
+set margins_unit = "em";
+set sidebar_width = "";
+set sidebar_width_doubled = "";
 
-property int num_items_icons {
-    des = "Number of icons to show on the icons page, or 0 for site default";
-    doc_flags = "[construct]";
-    max = 50;
-}
-set num_items_icons = 0;
+##=======================================
+## Display properties - Presentation
+## Tags page & Icons page
+##=======================================
 
 property string tags_page_type {
     des = "Type of tags display on the tags page. For the tag module, see the Modules section.";
     values="list|List|cloud|Cloud|multi|Multilevel";
 }
-set tags_page_type = "multi";
-
+property int num_items_icons {
+    des = "Number of icons to show on the icons page, or 0 for site default";
+    doc_flags = "[construct]";
+    max = 50;
+}
 property string icons_page_sort {
     des = "Default sort order for icons page";
     values="upload|Upload Order|keyword|Keyword Order";
 }
+
+set num_items_icons = 0;
 set icons_page_sort = "upload";
+set tags_page_type = "multi";
+
+##=======================================
+## Display properties - Presentation
+## Entries & Comments
+##=======================================
+
+property string[] entry_datetime_format_group {
+    des = "Entry date/time format";
+    grouptype = "datetime";
+}
+set entry_datetime_format_group = ["entry_date_format", "entry_time_format"];
+property string entry_date_format {
+    des = "Date";
+    values = "iso|2010-04-30|short|4/30/10|short_dayfirst|30/4/10|short_dayfirst_full|30/04/2010|med|Apr. 30th, 2010|med_dayfirst|30 Apr 2010|med_day_iso|2010-Apr-30, Friday|med_day|Fri, Apr. 30th, 2010|long|April 30th, 2010|long_dayfirst|30 April 2010|long_day|Friday, April 30th, 2010|long_day_dayfirst|Friday, 30 April 2010";
+    grouped = 1;
+}
+property string entry_time_format {
+    des = "Time";
+    values = "short|9:00pm|short_24|21:00";
+    note = "This format will be displayed to you (personal journal only) and logged-out users. Other logged-in users will keep on seeing time in their preferred format.";
+    grouped = 1;
+}
+
+property string[] comment_datetime_format_group {
+    des = "Comment date/time format";
+    grouptype = "datetime";
+}
+set comment_datetime_format_group = ["comment_date_format", "comment_time_format"];
+property string comment_date_format {
+    des = "Date";
+    values = "iso|2010-04-30|short|4/30/10|short_dayfirst|30/4/10|short_dayfirst_full|30/04/2010|med|Apr. 30th, 2010|med_dayfirst|30 Apr 2010|med_day_iso|2010-Apr-30, Friday|med_day|Fri, Apr. 30th, 2010|long|April 30th, 2010|long_dayfirst|30 April 2010|long_day|Friday, April 30th, 2010|long_day_dayfirst|Friday, 30 April 2010";
+    grouped = 1;
+}
+property string comment_time_format {
+    des = "Time";
+    values = "short|9:00pm|short_24|21:00";
+    note = "This format will be displayed to you (personal journal only) and logged-out users. Other logged-in users will keep on seeing time in their preferred format.";
+    grouped = 1;
+}
+
+property string[] userpics_style_group {
+    des = "Select the size of icons";
+    grouptype = "datetime";
+}
+set userpics_style_group = ["entry_userpic_style", "comment_userpic_style"];
+property string entry_userpic_style {
+    des = "In entries";
+    doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
+    doc_flags = "[construct]";
+    values = "|Full|small|Small|smaller|Smaller";
+    grouped = 1;
+}
+property string comment_userpic_style {
+    des = "In comments";
+    doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
+    doc_flags = "[construct]";
+    values = "|Full|small|Small|smaller|Smaller";
+    grouped = 1;
+}
+
+property string userpics_position {
+    des = "Place of icons in entries and comments";
+    values = "none|None (don't show)|left|Left|right|Right";
+}
+
+property string entry_metadata_position {
+    des = "Place of metadata in entries";
+    values = "top|Before entry text|bottom|After entry text";
+}
+
+property string userlite_interaction_links {
+    des = "Select whether user interaction links are printed as text or using the available icons";
+    values = "icons|icons|text|text-only|";
+}
+property string entry_management_links {
+    des = "Select whether entry management links are printed as text or using the available icons";
+    values = "icons|icons|text|text-only|";
+}
+property string comment_management_links {
+    des = "Select whether comment management links are printed as text or using the available icons";
+    values = "icons|icons|text|text-only|";
+}
+
+property bool all_entrysubjects {
+    des = "Display the replacement text when no subject is specified in entries";
+    note = "If disabled, the replacement text will still appear where a subject is required, such as on month views.";
+}
+
+property bool all_commentsubjects {
+    des = "Display the replacement text when no subject is specified in comments";
+    note = "If disabled, the replacement text will still appear where a subject is required, such as in collapsed comments.";
+}
+
+set entry_date_format = "med";
+set entry_time_format = "short";
+set comment_date_format = "iso";
+set comment_time_format = "short";
+set entry_userpic_style = "";
+set comment_userpic_style = "";
+set userpics_position = "left";
+set entry_metadata_position = "bottom";
+set userlite_interaction_links = "icons";
+set entry_management_links = "icons";
+set comment_management_links = "icons";
+set all_entrysubjects = true;
+set all_commentsubjects = false;
+
+property string reg_firstdayofweek {
+    des = "Day the calendar week starts on";
+    doc = "The day of the week the calendar weeks starts on.  Either 'sunday' or 'monday'. Not currently implemented";
+    doc_flags = "[construct]";
+    values = "sunday|Sunday|monday|Monday";
+}
+set reg_firstdayofweek = "sunday";
+
+##=======================================
+## Display properties - Presentation
+## Misc. options - not exposed
+##=======================================
+
+property bool linklist_support {
+    des = "Display link list";
+}
+
+property bool tags_aware {
+    des = "When enabled, style is responsible for handling tags.  When disabled, tags are automatically inserted into entry bodies.";
+    noui = 1;
+}
+
+property string tags_page_count_type {
+    des = "Determines how the tag count is displayed on the tags page";
+    values = "|(default for this tag display)|title|Title|number|Number|text|Text";
+}
+property string module_tags_opts_count_type {
+    des = "Determines how the tag count is displayed in the module";
+    values = "|(default for this tag display)|title|Title|number|Number|text|Text";
+}
+
+set linklist_support = true;
+set tags_aware = true;
+set tags_page_count_type = "";
+set module_tags_opts_count_type = "";
+
+##=======================================
+## Display properties - Presentation
+## Misc. options - not implemented
+##=======================================
 
 property string[] reverse_sortorder_group {
     des = "Display entries in reverse-chronological order on my:";
@@ -1200,10 +1399,6 @@ property bool reverse_sortorder_year {
     grouped = 1;
 }
 property bool reverse_sortorder_reading   { des = "Display entries in reverse-chronological order on my reading page"; }
-set reverse_sortorder_recent = true;
-set reverse_sortorder_day = false;
-set reverse_sortorder_year = false;
-set reverse_sortorder_reading = true;
 
 property string[] show_userpics_group {
     des = "Display userpics on my:";
@@ -1230,466 +1425,137 @@ property bool show_userpics_comments {
     label = "Comments";
     grouped = 1;
 }
+
+set reverse_sortorder_recent = true;
+set reverse_sortorder_day = false;
+set reverse_sortorder_year = false;
+set reverse_sortorder_reading = true;
+
 set show_userpics_recent = true;
 set show_userpics_reading = true;
 set show_userpics_entry = true;
 set show_userpics_comments = true;
 
-# was !view_entry_disabled
-property bool use_journalstyle_entry_page {
-    des = "Show entry pages in my journal style rather than the site skin";
-    note = "OBSOLETE: This option has been moved to Account Settings";
-    obsolete = 1;
+##=======================================
+## Display properties - Basic colors
+##=======================================
+
+property Color color_page_background { des = "Page background color"; }
+property Color color_page_text { des = "Page text color"; }
+property Color color_page_link { des = "Page link color"; }
+property Color color_page_link_active { des = "Page active link color"; }
+property Color color_page_link_hover { des = "Page hover link color"; }
+property Color color_page_link_visited { des = "Page visited link color"; }
+property Color color_page_border { des = "Page border color"; }
+property Color color_page_details_text { des = "Color for miscellaneous page details text"; }
+
+property Color color_module_background { des = "Module background color"; }
+property Color color_module_text { des = "Module text color"; }
+property Color color_module_link { des = "Module link color"; }
+property Color color_module_link_active { des = "Module active link color"; }
+property Color color_module_link_hover { des = "Module hover link color"; }
+property Color color_module_link_visited { des = "Module visited link color"; }
+property Color color_module_title_background { des = "Module title background color"; }
+property Color color_module_title { des = "Module title color"; }
+property Color color_module_border { des = "Module border color"; }
+
+property Color color_header_background { des = "Page header background color"; }
+property Color color_page_title { des = "Page header title color"; }
+property Color color_header_link { des = "Page header link color"; }
+property Color color_header_link_active { des = "Page header active link color"; }
+property Color color_header_link_hover { des = "Page header hover link color"; }
+property Color color_header_link_visited { des = "Page header visited link color"; }
+property Color color_footer_background { des = "Page footer background color"; }
+property Color color_footer_link { des = "Page footer link color"; }
+property Color color_footer_link_active { des = "Page footer active link color"; }
+property Color color_footer_link_hover { des = "Page footer hover link color"; }
+property Color color_footer_link_visited { des = "Page footer visited link color"; }
+
+property Color color_entry_background { des = "Entry background color"; }
+property Color color_entry_text { des = "Entry text color"; }
+property Color color_entry_link { des = "Entry link color"; }
+property Color color_entry_link_active  { des = "Entry active link color"; }
+property Color color_entry_link_hover   { des = "Entry hover link color"; }
+property Color color_entry_link_visited { des = "Entry visited link color"; }
+property Color color_entry_title_background { des = "Entry title background color"; }
+property Color color_entry_title { des = "Entry title color"; }
+property Color color_entry_interaction_links_background { des = "Entry interaction links background color"; }
+property Color color_entry_interaction_links { des = "Entry interaction links color"; }
+property Color color_entry_interaction_links_active { des = "Entry active interaction links color"; }
+property Color color_entry_interaction_links_hover { des = "Entry hover interaction links color"; }
+property Color color_entry_interaction_links_visited { des = "Entry visited interaction links color"; }
+property Color color_entry_border { des = "Entry border color"; }
+
+property Color color_comment_title_background { des = "Comment title background color"; }
+property Color color_comment_title { des = "Comment title color"; }
+
+property Color color_comment_bar {
+   des = "Color of comment bar header";
 }
-set use_journalstyle_entry_page = true;
 
-property bool use_journalstyle_icons_page  { des = "Show icons page in my journal style rather than the site skin"; }
-set use_journalstyle_icons_page = false;
+set color_comment_bar = "#d0d0ff";
 
-# Defaults to false, but layouts can set it to true to switch on custom colors for different posters on reading page.
-property bool use_custom_friend_colors  { des = "Use my custom reading page colors"; }
-set use_custom_friend_colors = false;
+##=======================================
+## Display properties - Custom colors
+##=======================================
 
+# Initialize custom colors, these properties can be selected or overwritten by layout layers, but should not normally be exposed in the wizard.
 
-property string[] entry_datetime_format_group {
-    des = "Entry date/time format";
-    grouptype = "datetime";
-    }
-set entry_datetime_format_group = ["entry_date_format", "entry_time_format"];
-property string entry_date_format {
-    des = "Date";
-    values = "iso|2010-04-30|short|4/30/10|short_dayfirst|30/4/10|short_dayfirst_full|30/04/2010|med|Apr. 30th, 2010|med_dayfirst|30 Apr 2010|med_day_iso|2010-Apr-30, Friday|med_day|Fri, Apr. 30th, 2010|long|April 30th, 2010|long_dayfirst|30 April 2010|long_day|Friday, April 30th, 2010|long_day_dayfirst|Friday, 30 April 2010";
-    grouped = 1;
-    }
-property string entry_time_format {
-    des = "Time";
-    values = "short|9:00pm|short_24|21:00";
-    note = "This format will be displayed to you (personal journal only) and logged-out users. Other logged-in users will keep on seeing time in their preferred format.";
-    grouped = 1;
-    }
-
-property string[] comment_datetime_format_group {
-    des = "Comment date/time format";
-    grouptype = "datetime";
-    }
-set comment_datetime_format_group = ["comment_date_format", "comment_time_format"];
-property string comment_date_format {
-    des = "Date";
-    values = "iso|2010-04-30|short|4/30/10|short_dayfirst|30/4/10|short_dayfirst_full|30/04/2010|med|Apr. 30th, 2010|med_dayfirst|30 Apr 2010|med_day_iso|2010-Apr-30, Friday|med_day|Fri, Apr. 30th, 2010|long|April 30th, 2010|long_dayfirst|30 April 2010|long_day|Friday, April 30th, 2010|long_day_dayfirst|Friday, 30 April 2010";
-    grouped = 1;
-    }
-property string comment_time_format {
-    des = "Time";
-    values = "short|9:00pm|short_24|21:00";
-    note = "This format will be displayed to you (personal journal only) and logged-out users. Other logged-in users will keep on seeing time in their preferred format.";
-    grouped = 1;
-    }
-
-set entry_date_format = "med";
-set entry_time_format = "short";
-set comment_date_format = "iso";
-set comment_time_format = "short";
-
-property string time_ago_seconds {
-    des = "# seconds";
+property string custom_foreground_element {
+    des = "Part of entry that will display foreground color, if you have custom colors enabled";
+    values = "subject|Entry title|userpic_border|Icon border|postername|Posted by|entry|Entry text|metadata|Mood/music/location|bottom_links|Comment links|custom|Custom template";
     noui = 1;
-}
-property string time_ago_minutes {
-    des = "# minutes";
-    noui = 1;
-}
-property string time_ago_hours {
-    des = "# hours";
-    noui = 1;
-}
-property string time_ago_days {
-    des = "# seconds";
-    noui = 1;
-}
-set time_ago_seconds = "1 second // # seconds";
-set time_ago_minutes = "1 minute // # minutes";
-set time_ago_hours = "1 hour // # hours";
-set time_ago_days = "1 day // # days";
-
-property string reg_firstdayofweek {
-    des = "Day the calendar week starts on";
-    doc = "The day of the week the calendar weeks starts on.  Either 'sunday' or 'monday'. Not currently implemented";
-    doc_flags = "[construct]";
-    values = "sunday|Sunday|monday|Monday";
-}
-set reg_firstdayofweek = "sunday";
-
-##===============================
-## Display settings - misc behavior
-##===============================
-
-property bool use_shared_pic {
-    des = "Show community icons instead of posters' icons";
-}
-
-property bool tags_aware {
-    des = "When enabled, style is responsible for handling tags.  When disabled, tags are automatically inserted into entry bodies.";
-    noui = 1;
-}
-
-property string[] userpics_style_group {
-    des = "Select the size of icons";
-    grouptype = "datetime";
     }
-set userpics_style_group = ["entry_userpic_style", "comment_userpic_style"];
-property string entry_userpic_style {
-    des = "In entries";
-    doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
-    doc_flags = "[construct]";
-    values = "|Full|small|Small|smaller|Smaller";
-    grouped = 1;
-}
-property string comment_userpic_style {
-    des = "In comments";
-    doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
-    doc_flags = "[construct]";
-    values = "|Full|small|Small|smaller|Smaller";
-    grouped = 1;
-}
-
-property string userpics_position {
-   des = "Place of icons in entries and comments";
-   values = "none|None (don't show)|left|Left|right|Right";
-   }
-
-property string entry_metadata_position {
-    des = "Place of metadata in entries";
-    values = "top|Before entry text|bottom|After entry text";
+property string custom_background_element {
+    des = "Part of entry that will display background color, if you have custom colors enabled";
+    values = "subject|Entry header background|userpic_background|Icon background|entry_border|Entry border|metadata_background|Mood/music/location section|footer_border|Entry footer|custom|Custom template";
+    noui = 1;
+    }
+property string custom_colors_template {
+    des = "Your own CSS to use for custom color";
+    doc = "Enter a CSS statement with the class or id of CSS elements you want to use for foreground and background, and any CSS instructions.
+           Use %%foreground%% for the custom foreground color, and %%background%% for the custom background color
+           Each CSS rule should begin with %%new%%";
+    example = "%%new%% div.special {border: 1px dotted %%background%%; font-size: 120%; color: %%foreground%%}";
+    noui = 1;
+    string_mode = "css";
     }
 
-property bool linklist_support {
-    des = "Display link list";
+set custom_foreground_element = "";
+set custom_background_element = "";
+set custom_colors_template = "";
+
+##=======================================
+## Display properties - Nav strip colors
+##=======================================
+
+property string custom_control_strip_colors {
+    des = "Navigation strip colors";
+    values = "off|Do not use custom colors|on_gradient|Use custom colors with a background gradient|on_no_gradient|Use custom colors without a background gradient";
+    note = "Custom colors can be set in the \"Colors\" section.";
+}
+property Color control_strip_bgcolor {
+    des = "Background color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+property Color control_strip_fgcolor {
+    des = "Text color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+property Color control_strip_bordercolor {
+    des = "Border color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+property Color control_strip_linkcolor {
+    des = "Link color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
 }
 
-property string userlite_interaction_links {
-    des = "Select whether user interaction links are printed as text or using the available icons";
-    values = "icons|icons|text|text-only|";
-}
-property string entry_management_links {
-    des = "Select whether entry management links are printed as text or using the available icons";
-    values = "icons|icons|text|text-only|";
-}
-property string comment_management_links {
-    des = "Select whether comment management links are printed as text or using the available icons";
-    values = "icons|icons|text|text-only|";
-}
-property string tags_page_count_type {
-    des = "Determines how the tag count is displayed on the tags page";
-    values = "|(default for this tag display)|title|Title|number|Number|text|Text";
-}
-property string module_tags_opts_count_type {
-    des = "Determines how the tag count is displayed in the module";
-    values = "|(default for this tag display)|title|Title|number|Number|text|Text";
-}
+set custom_control_strip_colors = "off";
 
-set use_shared_pic = false;
-set tags_aware = true;
-set entry_userpic_style = "";
-set comment_userpic_style = "";
-set userpics_position = "left";
-set entry_metadata_position = "bottom";
-set linklist_support = true;
-set userlite_interaction_links = "icons";
-set entry_management_links = "icons";
-set comment_management_links = "icons";
-set tags_page_count_type = "";
-set module_tags_opts_count_type = "";
-##===============================
-## Display settings - sidebar
-##===============================
-
-# FIXME: Not sure if none is a sensible value, but need something appropriate as a default for designers who are not using this option.
-# In order to use layout_type on /customize/ in official layouts, the associated S2Theme file needs to be edited, and then changing the layout type will select a different wizard-layer.  Non-official layouts can use this property on the /customize/options.bml page.  Both methods will add the layout_type to <body> in the Page::print-wrapper to allow CSS to be written accordingly.
-
-property string layout_type {
-        des = "Layout Type";
-        values = "|none|one-column|One column (modules at bottom)|one-column-split|One column split (modules at top & bottom)|two-columns-left|Two columns (sidebar on the left)|two-columns-right|Two columns (sidebar on the right)|three-columns-sides|Three columns (one sidebar on each Side)|three-columns-left|Three column (two sidebars on the left)|three-columns-right|Three column (two sidebars on the right)";
-    }
-
-property string sidebar_width {
-    des = "Set the width of a single sidebar.  Ensure that the value is given in em or px.";
-    example = "15em";
-}
-
-property string sidebar_width_doubled {
-    des = "For a setup of two sidebars on the side, set the width to twice the value of a single sidebar (also in em or px).";
-    example = "30em";
-}
-
-property string margins_size {
-    des = "Size of left and right margins";
-    size = 5;
-}
-
-property string margins_unit {
-    des = "Unit for margins size";
-    values = "em|em|%|%|px|px";
-}
-
-set layout_type = "";
-set sidebar_width = "";
-set sidebar_width_doubled = "";
-set margins_size = "0";
-set margins_unit = "em";
-
-property string module_layout_sections {
-    des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
-    example = "none|(none)|one|Left Sidebar|two|Right Sidebar";
-    noui = 1;
-}
-set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
-
-property string[][]{} module_sections {
-    des = "Build up a list of module sections and the ordering within them";
-    noui = 1;
-}
-
-property string{} grouped_property_override {
-    des="Use to override a specific property in a group of properties (for example, which sections a module should show up in), by mapping the default property to a new property you create";
-    example="""{ "module_something_section" => "module_something_section_override" } (module_something_section_override is a new property created in your layout layer) """;
-    noui = 1;
-}
-
-##===============================
-## Display settings - modules
-##===============================
-property string[] module_userprofile_group {
-    des = "Profile";
-    grouptype = "module";
-}
-set module_userprofile_group = ["module_userprofile_show", "module_userprofile_order", "module_userprofile_section", "module_userprofile_opts_group"];
-property bool module_userprofile_show   { grouped = 1; }
-property int  module_userprofile_order  { grouped = 1; }
-property string module_userprofile_section { grouped = 1; }
-
-property string[] module_userprofile_opts_group {
-    grouptype = "moduleopts";
-    grouped = 1;
-}
-set module_userprofile_opts_group = ["module_userprofile_opts_userpic", "module_userprofile_opts_name", "module_userprofile_opts_website"];
-property bool module_userprofile_opts_userpic   { grouped = 1; label = "Display Default Icon"; }
-property bool module_userprofile_opts_name      { grouped = 1; label = "Display Name"; }
-property bool module_userprofile_opts_website   { grouped = 1; label = "Display Website"; }
-
-set module_userprofile_show = true;
-set module_userprofile_order = 1;
-set module_userprofile_section = "one";
-set module_userprofile_opts_userpic = true;
-set module_userprofile_opts_name = true;
-set module_userprofile_opts_website = true;
-
-property string[] module_navlinks_group {
-    des = "Navigation";
-    grouptype = "module";
-}
-set module_navlinks_group = ["module_navlinks_show", "module_navlinks_order", "module_navlinks_section"];
-property bool module_navlinks_show    { grouped = 1; }
-property int  module_navlinks_order   { grouped = 1; }
-property string module_navlinks_section { grouped = 1; }
-
-set module_navlinks_show = true;
-set module_navlinks_order = 2;
-set module_navlinks_section = "one";
-
-property string[] module_calendar_group {
-    des = "Calendar";
-    grouptype = "module";
-}
-set module_calendar_group = ["module_calendar_show", "module_calendar_order", "module_calendar_section", "module_calendar_opts_group"];
-property bool module_calendar_show    { grouped = 1; }
-property int  module_calendar_order   { grouped = 1; }
-property string module_calendar_section { grouped = 1; }
-property string[] module_calendar_opts_group {
-    grouptype = "moduleopts";
-    grouped = 1;
-}
-set module_calendar_opts_group = ["module_calendar_opts_type"];
-property string module_calendar_opts_type         { grouped = 1; values = "|Table|horizontal|Horizontal"; des = "Type of calendar display"; }
-
-set module_calendar_show = true;
-set module_calendar_order = 3;
-set module_calendar_section = "one";
-
-property string[] module_pagesummary_group {
-    des = "Page Summary";
-    grouptype = "module";
-}
-set module_pagesummary_group = ["module_pagesummary_show", "module_pagesummary_order", "module_pagesummary_section", "module_pagesummary_opts_group"];
-property bool module_pagesummary_show   { grouped = 1; }
-property int  module_pagesummary_order  { grouped = 1; }
-property string module_pagesummary_section { grouped = 1; }
-property string[] module_pagesummary_opts_group { grouptype="moduleopts"; grouped = 1; }
-set module_pagesummary_opts_group = ["module_pagesummary_opts_comments_tooltip"];
-property bool module_pagesummary_opts_comments_tooltip {
-    grouped = 1;
-    des = "Display comment counts in page summary as tooltip (otherwise the number will appear next to the entry title)";
-    label = "Display the comment count as a tooltip";
-}
-
-set module_pagesummary_opts_comments_tooltip = true;
-
-set module_pagesummary_show = true;
-set module_pagesummary_order = 7;
-set module_pagesummary_section = "one";
-
-property string[] module_tags_group {
-    des = "Tags";
-    grouptype = "module";
-}
-set module_tags_group = ["module_tags_show", "module_tags_order", "module_tags_section", "module_tags_opts_group"];
-property bool module_tags_show  { grouped = 1; }
-property int  module_tags_order { grouped = 1; }
-property string module_tags_section { grouped = 1; }
-
-property string[] module_tags_opts_group {
-    grouptype = "moduleopts";
-    grouped = 1;
-}
-set module_tags_opts_group = ["module_tags_opts_limit","module_tags_opts_type"];
-property string module_tags_opts_type       { grouped = 1; des = "Type of tags display"; values="|List|cloud|Cloud|multi|Multilevel"; }
-property int module_tags_opts_limit         { grouped = 1; des = "Number of most popular tags to display. Type '0' to display all tags."; }
-
-set module_tags_show = true;
-set module_tags_order = 6;
-set module_tags_section = "one";
-set module_tags_opts_type = "";
-set module_tags_opts_limit = 50;
-
-property string[] module_links_group {
-    des = "Link List";
-    grouptype = "module";
-}
-set module_links_group = ["module_links_show", "module_links_order", "module_links_section"];
-property bool module_links_show     { grouped = 1; }
-property int  module_links_order    { grouped = 1; }
-property string module_links_section { grouped = 1; }
-
-set module_links_show = true;
-set module_links_order = 4;
-set module_links_section = "one";
-
-property string[] module_active_group {
-    des = "Recent active entries";
-    grouptype = "module";
-    requires_cap = "activeentries";
-}
-set module_active_group = ["module_active_show", "module_active_order", "module_active_section"];
-property bool module_active_show     { grouped = 1; }
-property int  module_active_order    { grouped = 1; }
-property string module_active_section { grouped = 1; }
-
-set module_active_show = true;
-set module_active_order = 8;
-set module_active_section = "one";
-
-property string[] module_syndicate_group {
-    des = "Syndication";
-    grouptype = "module";
-}
-set module_syndicate_group = ["module_syndicate_show", "module_syndicate_order", "module_syndicate_section"];
-property bool module_syndicate_show    { grouped = 1; }
-property int  module_syndicate_order   { grouped = 1; }
-property string module_syndicate_section { grouped = 1; }
-
-set module_syndicate_show = true;
-set module_syndicate_order = 5;
-set module_syndicate_section = "one";
-
-property string[] module_time_group {
-    des = "Time Loaded";
-    grouptype = "module";
-}
-set module_time_group = ["module_time_show", "module_time_order", "module_time_section"];
-property bool module_time_show      { grouped = 1; }
-property int  module_time_order     { grouped = 1; }
-property string module_time_section { grouped = 1; }
-
-set module_time_show = true;
-set module_time_order = 11;
-set module_time_section = "two";
-
-property string[] module_poweredby_group {
-    des = "Powered By";
-    grouptype = "module";
-}
-set module_poweredby_group = ["module_poweredby_show", "module_poweredby_order", "module_poweredby_section"];
-property bool module_poweredby_show    { grouped = 1; }
-property int  module_poweredby_order   { grouped = 1; }
-property string module_poweredby_section { grouped = 1; }
-
-set module_poweredby_show = true;
-set module_poweredby_order = 12;
-set module_poweredby_section = "two";
-
-property string[] module_customtext_group {
-    des = "Custom Text";
-    grouptype = "module";
-}
-set module_customtext_group = ["module_customtext_show", "module_customtext_order", "module_customtext_section"];
-property bool module_customtext_show    { grouped = 1; }
-property int  module_customtext_order   { grouped = 1; }
-property string module_customtext_section { grouped = 1; }
-
-set module_customtext_show = false;
-set module_customtext_order = 13;
-set module_customtext_section = "one";
-
-property string[] module_credit_group {
-    des = "Style Credit";
-    grouptype = "module";
-}
-set module_credit_group = ["module_credit_show", "module_credit_order", "module_credit_section"];
-property bool module_credit_show    { grouped = 1; }
-property int module_credit_order    { grouped = 1; }
-property string module_credit_section { grouped = 1; }
-
-set module_credit_show = true;
-set module_credit_order = 14;
-set module_credit_section = "one";
-
-property string{}[] layout_authors { noui = 1;  des = "The style author (or authors). Accepts 'name', 'url', 'type'"; }
-property string{}[] theme_authors { noui = 1;  des = "The theme author (or authors). Accepts 'name', 'url', 'type'"; }
-property string{}[] layout_resources { noui = 1; des = "Resources used in the layout. Accepts 'name', 'url'"; }
-
-set layout_authors = [];
-set theme_authors = [];
-set layout_resources = [];
-
-property string[] module_search_group {
-    des = "Search";
-    grouptype = "module";
-}
-set module_search_group = ["module_search_show", "module_search_order", "module_search_section"];
-property bool module_search_show { grouped = 1; }
-property int module_search_order { grouped = 1; }
-property string module_search_section { grouped = 1; }
-
-set module_search_show = true;
-set module_search_order = 15;
-set module_search_section = "one";
-
-property string[] module_cuttagcontrols_group {
-    des = "Cut Tag Controls";
-    grouptype = "module";
-}
-set module_cuttagcontrols_group = ["module_cuttagcontrols_show", "module_cuttagcontrols_order", "module_cuttagcontrols_section"];
-property bool module_cuttagcontrols_show    { grouped = 1; }
-property int  module_cuttagcontrols_order   { grouped = 1; }
-property string module_cuttagcontrols_section { grouped = 1; }
-
-set module_cuttagcontrols_show = true;
-set module_cuttagcontrols_order = 16;
-set module_cuttagcontrols_section = "one";
-
-
-##===============================
-## Journal style - fonts
-##===============================
+##=======================================
+## Display properties - Fonts
+##=======================================
 
 property string font_base {
     des = "Preferred journal font";
@@ -1697,90 +1563,17 @@ property string font_base {
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
-set font_base = "";   # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
-
 property string font_fallback {
     des = "Alternative journal font";
     values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced||Use browser's default";
     note = "This general style will serve as a fallback if your preferred font is unavailable.";
 }
-set font_fallback = ""; # Default in core is to let the browser handle it.
-
 property string font_base_size {
     des = "Size of base font";
     size = 3;
 }
-
 property string font_base_units {
     des = "Units for base font size";
-    values = "em|em|ex|ex|%|%|pt|pt|px|px";
-}
-
-property string font_journal_title {
-    des = "Preferred font for journal titles";
-    maxlength = 50;
-    size = 25;
-    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
-}
-
-property string font_journal_title_size {
-    des = "Size of title font";
-    size = 3;
-}
-
-property string font_journal_title_units {
-    des = "Units for title size";
-    values = "em|em|ex|ex|%|%|pt|pt|px|px";
-}
-
-property string font_journal_subtitle {
-    des = "Preferred font for journal subtitles";
-    maxlength = 50;
-    size = 25;
-    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
-}
-
-property string font_journal_subtitle_size {
-    des = "Size of subtitle font";
-    size = 3;
-}
-
-property string font_journal_subtitle_units {
-    des = "Units for subtitle size";
-    values = "em|em|ex|ex|%|%|pt|pt|px|px";
-}
-
-property string font_entry_title {
-    des = "Preferred font for entry titles";
-    maxlength = 50;
-    size = 25;
-    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
-}
-
-property string font_entry_title_size {
-    des = "Size of entry title font";
-    size = 3;
-}
-
-property string font_entry_title_units {
-    des = "Units for entry title size";
-    values = "em|em|ex|ex|%|%|pt|pt|px|px";
-}
-
-property string font_comment_title {
-    des = "Preferred font for comment titles";
-    maxlength = 50;
-    size = 25;
-    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
-}
-
-property string font_comment_title_size {
-    des = "Size of comment title font";
-    size = 3;
-}
-
-property string font_comment_title_units {
-    des = "Units for comment title size";
     values = "em|em|ex|ex|%|%|pt|pt|px|px";
 }
 
@@ -1790,12 +1583,10 @@ property string font_module_heading {
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
-
 property string font_module_heading_size {
     des = "Size of module heading font";
     size = 3;
 }
-
 property string font_module_heading_units {
     des = "Units for module heading size";
     values = "em|em|ex|ex|%|%|pt|pt|px|px";
@@ -1807,14 +1598,72 @@ property string font_module_text {
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
-
 property string font_module_text_size {
     des = "Size of module text font";
     size = 3;
 }
-
 property string font_module_text_units {
     des = "Units for module text size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
+}
+
+property string font_journal_title {
+    des = "Preferred font for journal titles";
+    maxlength = 50;
+    size = 25;
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+}
+property string font_journal_title_size {
+    des = "Size of title font";
+    size = 3;
+}
+property string font_journal_title_units {
+    des = "Units for title size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
+}
+
+property string font_journal_subtitle {
+    des = "Preferred font for journal subtitles";
+    maxlength = 50;
+    size = 25;
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+}
+property string font_journal_subtitle_size {
+    des = "Size of subtitle font";
+    size = 3;
+}
+property string font_journal_subtitle_units {
+    des = "Units for subtitle size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
+}
+
+property string font_entry_title {
+    des = "Preferred font for entry titles";
+    maxlength = 50;
+    size = 25;
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+}
+property string font_entry_title_size {
+    des = "Size of entry title font";
+    size = 3;
+}
+property string font_entry_title_units {
+    des = "Units for entry title size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
+}
+
+property string font_comment_title {
+    des = "Preferred font for comment titles";
+    maxlength = 50;
+    size = 25;
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+}
+property string font_comment_title_size {
+    des = "Size of comment title font";
+    size = 3;
+}
+property string font_comment_title_units {
+    des = "Units for comment title size";
     values = "em|em|ex|ex|%|%|pt|pt|px|px";
 }
 
@@ -1823,9 +1672,12 @@ property string font_sources {
     note = "Embedded fonts can slow page loading time. Blank the field to stop using them.";
 }
 
-##===============================
-## Journal style - images
-##===============================
+set font_base = "";     # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
+set font_fallback = ""; # Default in core is to let the browser handle it.
+
+##=======================================
+## Display properties - Images
+##=======================================
 
 property string[] image_background_page_group {
     des = "Background image";
@@ -1840,6 +1692,24 @@ property string image_background_page_repeat {
     grouped = 1;
 }
 property string image_background_page_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+    grouped = 1;
+    allow_other = 1;
+}
+
+property string[] image_background_module_group {
+    des = "Module background image";
+    grouptype = "image";
+}
+set image_background_module_group = [ "image_background_module_url", "image_background_module_repeat", "image_background_module_position" ];
+property string image_background_module_url {
+    grouped = 1;
+}
+property string image_background_module_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string image_background_module_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
     allow_other = 1;
@@ -1886,24 +1756,6 @@ property string image_background_entry_position {
     allow_other = 1;
 }
 
-property string[] image_background_module_group {
-    des = "Module background image";
-    grouptype = "image";
-}
-set image_background_module_group = [ "image_background_module_url", "image_background_module_repeat", "image_background_module_position" ];
-property string image_background_module_url {
-    grouped = 1;
-}
-property string image_background_module_repeat {
-    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
-    grouped = 1;
-}
-property string image_background_module_position {
-    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
-    grouped = 1;
-    allow_other = 1;
-}
-
 property string[] separator_image_group {
     des = "Separator";
     grouptype = "image";
@@ -1922,168 +1774,244 @@ property string separator_image_position {
     allow_other = 1;
 }
 
-##===============================
-## Journal style - basic colors
-##===============================
+##=======================================
+## Display properties - Modules
+##=======================================
 
-property Color color_comment_bar {
-   des = "Color of comment bar header";
-}
-
-set color_comment_bar = "#d0d0ff";
-
-property string custom_control_strip_colors {
-    des = "Navigation strip colors";
-    values = "off|Do not use custom colors|on_gradient|Use custom colors with a background gradient|on_no_gradient|Use custom colors without a background gradient";
-    note = "Custom colors can be set in the \"Colors\" section.";
-}
-set custom_control_strip_colors = "off";
-
-property Color control_strip_bgcolor {
-    des = "Background color of navigation strip";
-    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
-}
-
-property Color control_strip_fgcolor {
-    des = "Text color of navigation strip";
-    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
-}
-
-property Color control_strip_bordercolor {
-    des = "Border color of navigation strip";
-    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
-}
-
-property Color control_strip_linkcolor {
-    des = "Link color of navigation strip";
-    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
-}
-
-
-##===============================
-## Journal style - element colors
-##===============================
-
-property Color color_entry_background   { des = "Entry background color"; }
-property Color color_entry_text         { des = "Entry text color"; }
-property Color color_entry_link         { des = "Entry link color"; }
-property Color color_entry_link_active  { des = "Entry active link color"; }
-property Color color_entry_link_hover   { des = "Entry hover link color"; }
-property Color color_entry_link_visited { des = "Entry visited link color"; }
-property Color color_entry_border       { des = "Entry border color"; }
-property Color color_entry_title        { des = "Entry title color"; }
-property Color color_entry_title_background { des = "Entry title background color"; }
-property Color color_entry_interaction_links { des = "Entry interaction links color"; }
-property Color color_entry_interaction_links_background { des = "Entry interaction links background color"; }
-property Color color_entry_interaction_links_hover { des = "Entry hover interaction links color"; }
-property Color color_entry_interaction_links_active { des = "Entry active interaction links color"; }
-property Color color_entry_interaction_links_visited { des = "Entry visited interaction links color"; }
-
-
-##===============================
-## Journal style - element colors
-##===============================
-
-property Color color_comment_title { des = "Comment title color"; }
-property Color color_comment_title_background { des = "Comment title background color"; }
-
-##===============================
-## Journal style - element colors
-##===============================
-
-property Color color_page_background { des = "Page background color"; }
-property Color color_page_text { des = "Page text color"; }
-property Color color_page_link { des = "Page link color"; }
-property Color color_page_link_active { des = "Page active link color"; }
-property Color color_page_link_hover { des = "Page hover link color"; }
-property Color color_page_link_visited { des = "Page visited link color"; }
-property Color color_page_border { des = "Page border color"; }
-property Color color_page_title { des = "Page title color"; }
-property Color color_page_details_text { des = "Color for miscellaneous page details text"; }
-
-property Color color_header_background { des = "Page header background color";}
-property Color color_header_link { des = "Page header link color"; }
-property Color color_header_link_active { des = "Page header active link color"; }
-property Color color_header_link_hover { des = "Page header hover link color"; }
-property Color color_header_link_visited { des = "Page header visited link color"; }
-property Color color_footer_background { des = "Page footer background color"; }
-property Color color_footer_link { des = "Page footer link color"; }
-property Color color_footer_link_active { des = "Page footer active link color"; }
-property Color color_footer_link_hover { des = "Page footer hover link color"; }
-property Color color_footer_link_visited { des = "Page footer visited link color"; }
-
-property Color color_module_background { des = "Module background color"; }
-property Color color_module_text { des = "Module text color"; }
-property Color color_module_link { des = "Module link color"; }
-property Color color_module_link_active { des = "Module active link color"; }
-property Color color_module_link_hover { des = "Module hover link color"; }
-property Color color_module_link_visited { des = "Module visited link color"; }
-property Color color_module_border { des = "Module border color"; }
-property Color color_module_title { des = "Module title color"; }
-property Color color_module_title_background { des = "Module title background color"; }
-
-# Initialize custom colors, these properties can be selected or overwritten by layout layers, but should not normally be exposed in the wizard.
-
-property string custom_foreground_element {
-    des = "Part of entry that will display foreground color, if you have custom colors enabled";
-    values = "subject|Entry title|userpic_border|Icon border|postername|Posted by|entry|Entry text|metadata|Mood/music/location|bottom_links|Comment links|custom|Custom template";
-    noui = 1;
-    }
-property string custom_background_element {
-    des = "Part of entry that will display background color, if you have custom colors enabled";
-    values = "subject|Entry header background|userpic_background|Icon background|entry_border|Entry border|metadata_background|Mood/music/location section|footer_border|Entry footer|custom|Custom template";
-    noui = 1;
-    }
-property string custom_colors_template {
-    des = "Your own CSS to use for custom color";
-    doc = "Enter a CSS statement with the class or id of CSS elements you want to use for foreground and background, and any CSS instructions.
-           Use %%foreground%% for the custom foreground color, and %%background%% for the custom background color
-           Each CSS rule should begin with %%new%%";
-    example = "%%new%% div.special {border: 1px dotted %%background%%; font-size: 120%; color: %%foreground%%}";
-    noui = 1;
-    string_mode = "css";
-    }
-
-set custom_foreground_element = "";
-set custom_background_element = "";
-set custom_colors_template = "";
-
-##===============================
-## Custom CSS
-##===============================
-
-property bool external_stylesheet {
-    des = "Use links for external stylesheets";
-    note = "If true, a stylesheet link element will point to a file containing the layout's CSS data.";
+property string module_layout_sections {
+    des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
+    example = "none|(none)|one|Left Sidebar|two|Right Sidebar";
     noui = 1;
 }
 
-property bool include_default_stylesheet {
-    des = "Use layout's stylesheet(s)";
-    note = "Disable this only if you want to re-style this layout completely from scratch using a custom stylesheet.";
+property string[][]{} module_sections {
+    des = "Build up a list of module sections and the ordering within them";
+    noui = 1;
 }
 
-property string linked_stylesheet {
-    des = "Custom stylesheet URL";
-    note = "If you have a custom external stylesheet that you'd like to use, enter its URL here.";
+property string{} grouped_property_override {
+    des = "Use to override a specific property in a group of properties (for example, which sections a module should show up in), by mapping the default property to a new property you create";
+    example = """{ "module_something_section" => "module_something_section_override" } (module_something_section_override is a new property created in your layout layer) """;
+    noui = 1;
 }
 
-property string custom_css {
-    des = "Use embedded CSS";
-    note = "If you'd like to add custom CSS to this style, enter it here.";
-    cols = 60;
-    rows = 40;
-    string_mode = "css";
+property string[] module_userprofile_group {
+    des = "Profile";
+    grouptype = "module";
+}
+set module_userprofile_group = ["module_userprofile_show", "module_userprofile_order", "module_userprofile_section", "module_userprofile_opts_group"];
+property bool module_userprofile_show { grouped = 1; }
+property int  module_userprofile_order { grouped = 1; }
+property string module_userprofile_section { grouped = 1; }
+
+property string[] module_userprofile_opts_group {
+    grouptype = "moduleopts";
+    grouped = 1;
+}
+set module_userprofile_opts_group = ["module_userprofile_opts_userpic", "module_userprofile_opts_name", "module_userprofile_opts_website"];
+property bool module_userprofile_opts_userpic { grouped = 1; label = "Display Default Icon"; }
+property bool module_userprofile_opts_name { grouped = 1; label = "Display Name"; }
+property bool module_userprofile_opts_website { grouped = 1; label = "Display Website"; }
+
+property string[] module_navlinks_group {
+    des = "Navigation";
+    grouptype = "module";
+}
+set module_navlinks_group = ["module_navlinks_show", "module_navlinks_order", "module_navlinks_section"];
+property bool module_navlinks_show { grouped = 1; }
+property int  module_navlinks_order { grouped = 1; }
+property string module_navlinks_section { grouped = 1; }
+
+property string[] module_calendar_group {
+    des = "Calendar";
+    grouptype = "module";
+}
+set module_calendar_group = ["module_calendar_show", "module_calendar_order", "module_calendar_section", "module_calendar_opts_group"];
+property bool module_calendar_show { grouped = 1; }
+property int  module_calendar_order { grouped = 1; }
+property string module_calendar_section { grouped = 1; }
+property string[] module_calendar_opts_group {
+    grouptype = "moduleopts";
+    grouped = 1;
+}
+set module_calendar_opts_group = ["module_calendar_opts_type"];
+property string module_calendar_opts_type { grouped = 1; values = "|Table|horizontal|Horizontal"; des = "Type of calendar display"; }
+
+property string[] module_links_group {
+    des = "Link List";
+    grouptype = "module";
+}
+set module_links_group = ["module_links_show", "module_links_order", "module_links_section"];
+property bool module_links_show { grouped = 1; }
+property int  module_links_order { grouped = 1; }
+property string module_links_section { grouped = 1; }
+
+property string[] module_syndicate_group {
+    des = "Syndication";
+    grouptype = "module";
+}
+set module_syndicate_group = ["module_syndicate_show", "module_syndicate_order", "module_syndicate_section"];
+property bool module_syndicate_show { grouped = 1; }
+property int  module_syndicate_order { grouped = 1; }
+property string module_syndicate_section { grouped = 1; }
+
+property string[] module_tags_group {
+    des = "Tags";
+    grouptype = "module";
+}
+set module_tags_group = ["module_tags_show", "module_tags_order", "module_tags_section", "module_tags_opts_group"];
+property bool module_tags_show { grouped = 1; }
+property int  module_tags_order { grouped = 1; }
+property string module_tags_section { grouped = 1; }
+
+property string[] module_tags_opts_group {
+    grouptype = "moduleopts";
+    grouped = 1;
+}
+set module_tags_opts_group = ["module_tags_opts_limit","module_tags_opts_type"];
+property string module_tags_opts_type { grouped = 1; des = "Type of tags display"; values="|List|cloud|Cloud|multi|Multilevel"; }
+property int module_tags_opts_limit { grouped = 1; des = "Number of most popular tags to display. Type '0' to display all tags."; }
+
+property string[] module_pagesummary_group {
+    des = "Page Summary";
+    grouptype = "module";
+}
+set module_pagesummary_group = ["module_pagesummary_show", "module_pagesummary_order", "module_pagesummary_section", "module_pagesummary_opts_group"];
+property bool module_pagesummary_show { grouped = 1; }
+property int  module_pagesummary_order { grouped = 1; }
+property string module_pagesummary_section { grouped = 1; }
+property string[] module_pagesummary_opts_group { grouptype="moduleopts"; grouped = 1; }
+set module_pagesummary_opts_group = ["module_pagesummary_opts_comments_tooltip"];
+property bool module_pagesummary_opts_comments_tooltip {
+    grouped = 1;
+    des = "Display comment counts in page summary as tooltip (otherwise the number will appear next to the entry title)";
+    label = "Display the comment count as a tooltip";
 }
 
-set external_stylesheet = true;
-set include_default_stylesheet = true;
-set linked_stylesheet = "";
-set custom_css = "";
+property string[] module_active_group {
+    des = "Recent active entries";
+    grouptype = "module";
+    requires_cap = "activeentries";
+}
+set module_active_group = ["module_active_show", "module_active_order", "module_active_section"];
+property bool module_active_show { grouped = 1; }
+property int  module_active_order { grouped = 1; }
+property string module_active_section { grouped = 1; }
 
-##===============================
-## Text - main navigation
-##===============================
+property string[] module_time_group {
+    des = "Time Loaded";
+    grouptype = "module";
+}
+set module_time_group = ["module_time_show", "module_time_order", "module_time_section"];
+property bool module_time_show { grouped = 1; }
+property int  module_time_order { grouped = 1; }
+property string module_time_section { grouped = 1; }
+
+property string[] module_poweredby_group {
+    des = "Powered By";
+    grouptype = "module";
+}
+set module_poweredby_group = ["module_poweredby_show", "module_poweredby_order", "module_poweredby_section"];
+property bool module_poweredby_show { grouped = 1; }
+property int  module_poweredby_order { grouped = 1; }
+property string module_poweredby_section { grouped = 1; }
+
+property string[] module_customtext_group {
+    des = "Custom Text";
+    grouptype = "module";
+}
+set module_customtext_group = ["module_customtext_show", "module_customtext_order", "module_customtext_section"];
+property bool module_customtext_show { grouped = 1; }
+property int  module_customtext_order { grouped = 1; }
+property string module_customtext_section { grouped = 1; }
+
+property string[] module_credit_group {
+    des = "Style Credit";
+    grouptype = "module";
+}
+set module_credit_group = ["module_credit_show", "module_credit_order", "module_credit_section"];
+property bool module_credit_show { grouped = 1; }
+property int module_credit_order { grouped = 1; }
+property string module_credit_section { grouped = 1; }
+property string{}[] layout_authors { noui = 1;  des = "The style author (or authors). Accepts 'name', 'url', 'type'"; }
+property string{}[] theme_authors { noui = 1;  des = "The theme author (or authors). Accepts 'name', 'url', 'type'"; }
+property string{}[] layout_resources { noui = 1; des = "Resources used in the layout. Accepts 'name', 'url'"; }
+
+property string[] module_search_group {
+    des = "Search";
+    grouptype = "module";
+}
+set module_search_group = ["module_search_show", "module_search_order", "module_search_section"];
+property bool module_search_show { grouped = 1; }
+property int module_search_order { grouped = 1; }
+property string module_search_section { grouped = 1; }
+
+property string[] module_cuttagcontrols_group {
+    des = "Cut Tag Controls";
+    grouptype = "module";
+}
+set module_cuttagcontrols_group = ["module_cuttagcontrols_show", "module_cuttagcontrols_order", "module_cuttagcontrols_section"];
+property bool module_cuttagcontrols_show { grouped = 1; }
+property int  module_cuttagcontrols_order { grouped = 1; }
+property string module_cuttagcontrols_section { grouped = 1; }
+
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
+set module_userprofile_show = true;
+set module_userprofile_order = 1;
+set module_userprofile_section = "one";
+set module_userprofile_opts_userpic = true;
+set module_userprofile_opts_name = true;
+set module_userprofile_opts_website = true;
+set module_navlinks_show = true;
+set module_navlinks_order = 2;
+set module_navlinks_section = "one";
+set module_calendar_show = true;
+set module_calendar_order = 3;
+set module_calendar_section = "one";
+set module_links_show = true;
+set module_links_order = 4;
+set module_links_section = "one";
+set module_syndicate_show = true;
+set module_syndicate_order = 5;
+set module_syndicate_section = "one";
+set module_tags_show = true;
+set module_tags_order = 6;
+set module_tags_section = "one";
+set module_tags_opts_type = "";
+set module_tags_opts_limit = 50;
+set module_pagesummary_show = true;
+set module_pagesummary_order = 7;
+set module_pagesummary_section = "one";
+set module_pagesummary_opts_comments_tooltip = true;
+set module_active_show = true;
+set module_active_order = 8;
+set module_active_section = "one";
+set module_time_show = true;
+set module_time_order = 11;
+set module_time_section = "two";
+set module_poweredby_show = true;
+set module_poweredby_order = 12;
+set module_poweredby_section = "two";
+set module_customtext_show = false;
+set module_customtext_order = 13;
+set module_customtext_section = "one";
+set module_credit_show = true;
+set module_credit_order = 14;
+set module_credit_section = "one";
+set layout_authors = [];
+set theme_authors = [];
+set layout_resources = [];
+set module_search_show = true;
+set module_search_order = 15;
+set module_search_section = "one";
+set module_cuttagcontrols_show = true;
+set module_cuttagcontrols_order = 16;
+set module_cuttagcontrols_section = "one";
+
+##=======================================
+## Display properties - Text
+## Navigation
+##=======================================
 
 property string text_view_recent {
     des = "Text used to link to the 'Recent Entries' page";
@@ -2097,6 +2025,12 @@ property string text_view_recent_tagged {
     "size" = 15;
     example = "Entries tagged with ";
 }
+property string text_view_archive {
+    des = "Text used to link to the 'Archive' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Archive";
+}
 property string text_view_friends {
     des = "Text used to link to the 'Reading' page";
     maxlength = 40;
@@ -2109,17 +2043,17 @@ property string text_view_friends_comm {
     "size" = 15;
     example = "Member Posts";
 }
-property string text_view_network {
-    des = "Text used to link to the 'Network' page";
-    maxlength = 40;
-    "size" = 15;
-    example = "Network";
-}
 property string text_view_friends_filter {
     des = "Text used to link to the 'Reading' page with an unnamed filter in effect";
     maxlength = 40;
     "size" = 15;
     example = "Reading (Custom filter)";
+}
+property string text_view_network {
+    des = "Text used to link to the 'Network' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Network";
 }
 property string text_view_network_filter {
     des = "Text used to link to the 'Network' page with an unnamed filter in effect";
@@ -2127,11 +2061,17 @@ property string text_view_network_filter {
     "size" = 15;
     example = "Network (Custom filter)";
 }
-property string text_view_archive {
-    des = "Text used to link to the 'Archive' page";
+property string text_view_tags {
+    des = "Text used to link to the 'Tags' page";
     maxlength = 40;
     "size" = 15;
-    example = "Archive";
+    example = "Tags";
+}
+property string text_view_memories {
+    des = "Text used to link to the 'Memories' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Memories";
 }
 property string text_view_userinfo {
     des = "Text used to link to the 'Profile' page";
@@ -2139,41 +2079,12 @@ property string text_view_userinfo {
     "size" = 15;
     example = "Profile";
 }
-
-property string text_view_memories {
-    des = "Text used to link to the 'Memories' page";
-    maxlength = 40;
-    "size" = 15;
-    example = "Memories";
-}
-
 property string text_view_icons {
     des = "Text used to link to the 'Icons' page";
     maxlength = 40;
     "size" = 15;
     example = "Icons";
 }
-
-property string text_view_tags {
-    des = "Text used to link to the 'Tags' page";
-    maxlength = 40;
-    "size" = 15;
-    example = "Tags";
-}
-
-set text_view_recent = "Recent Entries";
-set text_view_recent_tagged = "Entries tagged with ";
-set text_view_friends = "Reading";
-set text_view_friends_comm = "Member Posts";
-set text_view_friends_filter = "Reading (Custom filter)";
-set text_view_network = "Network";
-set text_view_network_filter = "Network (Custom filter)";
-set text_view_archive = "Archive";
-set text_view_userinfo = "Profile";
-set text_view_memories = "Memories";
-set text_view_icons = "Icons";
-set text_view_tags = "Tags";
-
 property string text_skiplinks_back {
     des = "Text to show in a link to skip back through entries";
     maxlength = 20;
@@ -2195,175 +2106,139 @@ property string text_page_top {
     example = "Top of page";
 }
 
-set text_skiplinks_back="Previous #";
-set text_skiplinks_forward="Next #";
+set text_view_recent = "Recent Entries";
+set text_view_recent_tagged = "Entries tagged with ";
+set text_view_archive = "Archive";
+set text_view_friends = "Reading";
+set text_view_friends_comm = "Member Posts";
+set text_view_friends_filter = "Reading (Custom filter)";
+set text_view_network = "Network";
+set text_view_network_filter = "Network (Custom filter)";
+set text_view_tags = "Tags";
+set text_view_memories = "Memories";
+set text_view_userinfo = "Profile";
+set text_view_icons = "Icons";
+set text_skiplinks_back = "Previous #";
+set text_skiplinks_forward = "Next #";
 set text_page_top = "Top of page";
-##===============================
-## Text - metadata
-##===============================
-property string text_meta_music {
-    des = "Text for 'Current Music'";
-}
-set text_meta_music = "Current Music";
 
-property string text_meta_mood {
-    des = "Text for 'Current Mood'";
-}
-set text_meta_mood = "Current Mood";
-
-property string text_meta_location {
-    des = "Text for 'Current Location'";
-}
-set text_meta_location = "Current Location";
-
-property string text_meta_groups {
-    des = "Text for 'Custom Access Groups'";
-}
-set text_meta_groups = "Custom Access Groups";
-
-property string text_meta_xpost {
-    des = "Text for 'Crossposts'";
-}
-set text_meta_xpost = "Crossposts";
-
-property string text_tags {
-    des = "Text for 'Tags' header for an entry";
-    example = "Tags:";
-}
-set text_tags = "Tags:";
-
-##===============================
-## Text - module headings
-##===============================
-
-property string text_module_cuttagcontrols {
-    des = "Text used for the heading for the Cut Tag Controls section";
-    maxlength = 50;
-    size = 20;
-    example = "Expand Cut Tags";
-}
+##=======================================
+## Display properties - Text
+## Module headings
+##=======================================
 
 property string text_module_links {
-    des = "Text used  for the heading of the links list";
+    des = "Text for the 'Links' heading";
     maxlength = 50;
     size = 20;
     example = "Links";
 }
-
-property string text_module_pagesummary {
-    des = "Text used for the heading for the Page Summary navigation section";
-    maxlength = 100;
-    size = 30;
-    example = "Entries on This Page";
-}
-
 property string text_module_syndicate {
-    des = "Text used for the heading for the Syndication navigation section";
+    des = "Text for the 'Syndicate' heading";
     maxlength = 50;
     size = 20;
-    example = "Subscribe to my feeds";
+    example = "Syndicate";
 }
-
 property string text_module_tags {
-    des = "Text for the 'Tags' heading in the navigation area";
+    des = "Text for the 'Tags' heading";
     maxlength = 50;
     size = 20;
-    example = "My tags";
+    example = "Tags";
 }
-
 property string text_module_popular_tags {
-    des = "Text for the 'Most Popular Tags' heading in the navigation area (used when there are more tags than shown)";
+    des = "Text for the 'Most Popular Tags' heading (used when there are more tags than shown)";
     maxlength = 50;
     size = 20;
     example = "Most Popular Tags";
 }
-
+property string text_module_pagesummary {
+    des = "Text for the 'Page Summary' heading";
+    maxlength = 50;
+    size = 20;
+    example = "Page Summary";
+}
 property string text_module_active_entries {
     des = "Text for the 'Active Entries' heading";
     maxlength = 50;
     size = 20;
     example = "Active Entries";
 }
-
 property string text_module_customtext {
-    des = "Text for the 'Custom text' heading";
+    des = "Text for the 'Custom Text' heading";
     maxlength = 50;
     size = 20;
-    example = "Custom text";
+    example = "Custom Text";
 }
-
+property string text_module_customtext_url {
+    des = "URL for the 'Custom Text' heading link";
+    maxlength = 100;
+    size = 30;
+    example = "http://www.dreamwidth.org";
+}
 property string text_module_customtext_content {
-    des = "Text for the 'Custom text' box";
+    des = "Text for the 'Custom Text' box";
     cols = 50;
     rows = 10;
     string_mode = "html";
 }
-
-property string text_module_customtext_url {
-    des = "URL for 'Custom text' header link";
-    maxlength = 100;
-    size = 20;
-    example = "http://www.dreamwidth.org";
-}
-
 property string text_module_credit {
-    des = "Text for the 'Style Credit' module heading";
+    des = "Text for the 'Style Credit' heading";
     maxlength = 50;
     size = 20;
     example = "Style Credit";
 }
+property string text_module_cuttagcontrols {
+    des = "Text for the 'Expand Cut Tags' heading";
+    maxlength = 50;
+    size = 20;
+    example = "Expand Cut Tags";
+}
 
-set text_module_cuttagcontrols = "Expand Cut Tags";
 set text_module_links = "Links";
-set text_module_pagesummary = "Page Summary";
 set text_module_syndicate = "Syndicate";
 set text_module_tags = "Tags";
 set text_module_popular_tags = "Most Popular Tags";
+set text_module_pagesummary = "Page Summary";
 set text_module_active_entries = "Active Entries";
-set text_module_credit = "Style Credit";
-
-set text_module_customtext = "Custom text";
-set text_module_customtext_content = "";
+set text_module_customtext = "Custom Text";
 set text_module_customtext_url = "";
+set text_module_customtext_content = "";
+set text_module_credit = "Style Credit";
+set text_module_cuttagcontrols = "Expand Cut Tags";
 
-##===============================
-## Text - user linkbar
-##===============================
+##=======================================
+## Display properties - Text
+## Module user linkbar
+##=======================================
+
 property string text_user_manage_membership {
     des = "Link text to manage your membership to a community journal";
     example = "Membership";
 }
-
 property string text_user_trust {
     des = "Link text to manage your access settings for this journal";
     example = "Manage Access";
 }
-
 property string text_user_watch {
     des = "Link text to manage your subscription settings for this journal";
     example = "Manage Subscription";
 }
-
 property string text_user_post_entry {
     des = "Link text to post an entry to this journal";
     example = "Post Entry";
 }
-
 property string text_user_message {
     des = "Link text to send a message to this user";
     example = "Send Message";
 }
-
 property string text_user_track {
     des = "Link text to track new entries made to this journal";
     example = "Track Entries";
 }
-
 property string text_user_memories {
     des = "Link text to memories saved by this journal";
     example = "Memories";
 }
-
 property string text_user_tell_friend {
     des = "Link text to send other people a link to this journal";
     example = "Share Journal Link";
@@ -2378,56 +2253,45 @@ set text_user_track = "Track Entries";
 set text_user_memories = "Memories";
 set text_user_tell_friend = "Share Journal Link";
 
+##=======================================
+## Display properties - Text
+## Metadata
+##=======================================
 
-##===============================
-## Text - entry comment-related
-##===============================
+property string text_meta_location {
+    des = "Text for 'Current Location'";
+}
+property string text_meta_music {
+    des = "Text for 'Current Music'";
+}
+property string text_meta_mood {
+    des = "Text for 'Current Mood'";
+}
+property string text_meta_groups {
+    des = "Text for 'Custom Access Groups'";
+}
+property string text_meta_xpost {
+    des = "Text for 'Crossposts'";
+}
+property string text_tags {
+    des = "Text for 'Tags' header for an entry";
+    example = "Tags:";
+}
 
-property string text_post_comment {
-    des = "Link text to leave a comment";
-    example = "Reply";
-}
-property string text_max_comments {
-    des = "Text when entry has reached a comment maximum";
-    example = "Maximum comments reached";
-}
-property string text_read_comments {
-    des = "Link text to read comments";
-    format = "plurals";
-    example = "1 comment // # comments";
-}
-set text_post_comment = "Reply";
-set text_max_comments = "Maximum comments reached";
-set text_read_comments = "1 comment // # comments";
+property string text_stickyentry_subject { des = "Text that appears before the subject of the sticky entry"; }
 
-property string text_post_comment_friends {
-    des = "Link text to leave a comment from your Reading page";
-    example = "Reply";
-}
-property string text_read_comments_friends {
-    des = "Link text to read comments from your Reading page";
-    format = "plurals";
-    example = "1 comment // # comments";
-}
-set text_post_comment_friends = "Reply";
-set text_read_comments_friends = "1 comment // # comments";
+set text_meta_groups = "Custom Access Groups";
+set text_meta_location = "Current Location";
+set text_meta_mood = "Current Mood";
+set text_meta_music = "Current Music";
+set text_meta_xpost = "Crossposts";
+set text_tags = "Tags:";
+set text_stickyentry_subject = "Sticky: ";
 
-property string text_read_comments_threads {
-    des = "Link text to read comment threads from an entry";
-    format = "plurals";
-    example = "1 response // # responses";
-}
-set text_read_comments_threads = "1 response // # responses";
-
-property string text_comments_disabled_maintainer {
-    des = "Text shown instead of comments if a community maintainer has disabled comments";
-    example = "Comments disabled by a maintainer of this community";
-}
-set text_comments_disabled_maintainer = "Comments disabled by a maintainer of this community";
-
-##===============================
-## Text - entry actions
-##===============================
+##=======================================
+## Display properties - Text
+## Entry management
+##=======================================
 
 property string text_entry_prev {
     des = "Text to link to the previous entry";
@@ -2443,19 +2307,56 @@ property string text_edit_entry { des = "Text to edit an entry"; }
 
 property string text_edit_tags { des = "Text to edit tags for an entry"; }
 
-property string text_tell_friend {
-    des = "Text to tell someone about an entry";
-    example = "\"Share This Entry\" or \"Share\"";
-}
-
 property string text_mem_add {
     des = "Text to add an entry into memories";
     example = "\"Add Memory\" or \"Memory\"";
 }
 
+property string text_tell_friend {
+    des = "Text to tell someone about an entry";
+    example = "\"Share This Entry\" or \"Share\"";
+}
 property string text_watch_comments { des = "Text to track events on an entry"; }
 
 property string text_unwatch_comments { des = "Text to stop tracking events on an entry"; }
+
+set text_entry_prev = "Previous Entry";
+set text_entry_next = "Next Entry";
+set text_edit_entry = "Edit Entry";
+set text_edit_tags = "Edit Tags";
+set text_mem_add = "Add Memory";
+set text_tell_friend = "Share This Entry";
+set text_watch_comments = "Track This";
+set text_unwatch_comments = "Untrack This";
+
+##=======================================
+## Display properties - Text
+## Entry interaction
+##=======================================
+
+property string text_read_comments {
+    des = "Link text to read comments";
+    format = "plurals";
+    example = "1 comment // # comments";
+}
+property string text_read_comments_friends {
+    des = "Link text to read comments from your Reading page";
+    format = "plurals";
+    example = "1 comment // # comments";
+}
+
+property string text_post_comment {
+    des = "Link text to leave a comment";
+    example = "Reply";
+}
+property string text_post_comment_friends {
+    des = "Link text to leave a comment from your Reading page";
+    example = "Reply";
+}
+property string text_max_comments {
+    des = "Text when entry has reached a comment maximum";
+    example = "Maximum comments reached";
+}
 
 property string text_permalink {
     des = "Text for an entry's permanent link";
@@ -2464,23 +2365,23 @@ property string text_permalink {
     size = 20;
 }
 
-property string text_stickyentry_subject { des = "Text that appears before the subject of the sticky entry"; }
-
-set text_entry_prev = "Previous Entry";
-set text_entry_next = "Next Entry";
-set text_edit_entry = "Edit Entry";
-set text_edit_tags = "Edit Tags";
-set text_tell_friend = "Share This Entry";
-set text_mem_add = "Add Memory";
-set text_watch_comments = "Track This";
-set text_unwatch_comments = "Untrack This";
+set text_read_comments = "1 comment // # comments";
+set text_read_comments_friends = "1 comment // # comments";
+set text_post_comment = "Reply";
+set text_post_comment_friends = "Reply";
+set text_max_comments = "Maximum comments reached";
 set text_permalink = "Link";
-set text_stickyentry_subject = "Sticky: ";
 
-##===============================
-## Text - comment actions
-##===============================
+##=======================================
+## Display properties - Text
+## Comment interaction
+##=======================================
 
+property string text_comment_link {
+    des = "Text to link to the comment";
+    example = "Link";
+    maxlength = "50";
+}
 property string text_comment_reply {
     des = "Text to link to reply for comment";
     example = "Reply to this";
@@ -2491,24 +2392,19 @@ property string text_comment_frozen {
     example = "Replies frozen";
     maxlength = "50";
 }
+property string text_comment_threadroot {
+    des = "Text to link to the entire thread this comment is part of";
+    example = "Thread from start";
+    maxlength = "50";
+}
 property string text_comment_parent {
     des = "Text to link to parent comment of current comment";
     example = "Parent";
     maxlength = "50";
 }
-property string text_comment_link {
-    des = "Text to link to the comment";
-    example = "Link";
-    maxlength = "50";
-}
 property string text_comment_thread {
     des = "Text to link to the thread stemming from the comment";
     example = "Thread";
-    maxlength = "50";
-}
-property string text_comment_threadroot {
-    des = "Text to link to the entire thread this comment is part of";
-    example = "Thread from start";
     maxlength = "50";
 }
 property string text_comment_expand {
@@ -2526,68 +2422,88 @@ property string text_comment_unhide {
     example = "Show 1 comment // Show # comments";
     maxlength = "50";
 }
+set text_comment_link = "Link";
 set text_comment_reply = "Reply";
 set text_comment_frozen = "Frozen";
-set text_comment_parent = "Parent";
-set text_comment_link = "Link";
-set text_comment_thread = "Thread";
 set text_comment_threadroot = "Thread from start";
+set text_comment_parent = "Parent";
+set text_comment_thread = "Thread";
 set text_comment_expand = "Expand";
 set text_comment_hide = "Hide 1 comment // Hide # comments";
 set text_comment_unhide = "Show 1 comment // Show # comments";
 
-##===============================
-## Text - icons
-##===============================
+##=======================================
+## Display properties - Text
+## Tags page & Tags module
+##=======================================
+
+property string text_tags_page_header {
+    des = "Text for the header of the Tags page";
+    example = "Visible Tags";
+}
+property string text_tags_item_sep {
+    des = "Text to separate items in a list of tags";
+    example = ",";
+}
+property string text_tagsmultilevel_delimiter {
+    des = "Text to use as a delimiter for multi-level tags";
+    example = ":";
+}
+property string text_tag_uses {
+    des = "Text to show how many times a tag has been used";
+    format = "plurals";
+    example = "1 use // # uses";
+}
+
+set text_tags_page_header = "Visible Tags";
+set text_tags_item_sep = ",";
+set text_tagsmultilevel_delimiter = ":";
+set text_tag_uses = "1 use // # uses";
+
+##=======================================
+## Display properties - Text
+## Icons page
+##=======================================
 
 property string text_icons_page_header {
     des = "Text for the header of the Icons page";
     example = "Current Icons";
 }
-
 property string text_icons_page_empty_header {
     des = "Text for the header of the Icons page when it is empty";
     example = "No Icons";
 }
-
-property string text_icons_keywords {
-    des = "Text for the list of keywords";
-    example = "Keywords:";
-}
-
-property string text_icons_comment {
-    des = "Text for the icon comment";
-    example = "Comment:";
-}
-
-property string text_icons_description {
-    des = "Text for the icon description";
-    example = "Description:";
-}
-
-property string text_icons_default {
-    des = "Text for the default icon";
-    example = "Default";
-}
-
-property string text_icons_inactive {
-    des = "Text for inactive icons";
-    example = "Inactive";
-}
-
-property string text_icons_keyword_sep {
-    des = "Text to separate items in a list of keywords";
-    example = ",";
-}
-
 property string text_icons_sort_upload {
     des = "Text for sort by upload order link";
     example = "Upload Order";
 }
-
 property string text_icons_sort_keyword {
     des = "Text for sort by keyword link";
     example = "Keyword Order";
+}
+property string text_icons_default {
+    des = "Text for the default icon";
+    example = "Default";
+}
+property string text_icons_inactive {
+    des = "Text for inactive icons";
+    example = "Inactive";
+}
+property string text_icons_keywords {
+    des = "Text for the list of keywords";
+    example = "Keywords:";
+}
+property string text_icons_keyword_sep {
+    des = "Text to separate items in a list of keywords";
+    example = ",";
+}
+property string text_icons_comment {
+    des = "Text for the icon comment";
+    example = "Comment:";
+}
+property string text_icons_description {
+    des = "Text for the icon description";
+    example = "Description:";
 }
 
 property string text_icon_manage {
@@ -2597,73 +2513,43 @@ property string text_icon_manage {
 
 set text_icons_page_header = "Current Icons";
 set text_icons_page_empty_header = "No Icons";
-set text_icons_keywords = "Keywords:";
-set text_icons_comment = "Comment:";
-set text_icons_description = "Description:";
-set text_icons_keyword_sep = ",";
-set text_icons_default = "Default";
-set text_icons_inactive = "Inactive";
 set text_icons_sort_upload = "Upload Order";
 set text_icons_sort_keyword = "Keyword Order";
+set text_icons_default = "Default";
+set text_icons_inactive = "Inactive";
+set text_icons_keywords = "Keywords:";
+set text_icons_keyword_sep = ",";
+set text_icons_comment = "Comment:";
+set text_icons_description = "Description:";
 set text_icon_manage = "Manage Icons";
 
-##===============================
-## Text - tags
-##===============================
+##=======================================
+## Display properties - Text
+## Misc strings - Modules
+## Not popular enough to expose in wizard
+##=======================================
 
-property string text_tags_page_header {
-    des = "Text for the header of the Tags page";
-    example = "Visible Tags";
-}
+property string text_website_default_name { noui = 1; des = "If an account's website is specified, but there's no website name, use this text instead"; }
 
-property string text_tag_uses {
-    des = "Text to show how many times a tag has been used";
+property string text_calendar_num_entries {
+    des = "Text to show how many entries were made on a particular day";
     format = "plurals";
-    example = "1 use // # uses";
+    example = "1 entry // # entries";
 }
-
-property string text_tagsmultilevel_delimiter {
-    des = "Text to use as a delimiter for multi-level tags";
-    example = ":";
-}
-
-property string text_tags_manage {
-    des = "Text to use to link to this journal's tags management page.";
-    example = "Manage Tags";
-}
-
-property string text_tags_item_sep {
-    des = "Text to separate items in a list of tags";
-    example = ",";
-}
-
-set text_tags_page_header = "Visible Tags";
-set text_tag_uses = "1 use // # uses";
-set text_tagsmultilevel_delimiter = ":";
-set text_tags_manage = "Manage Tags";
-set text_tags_item_sep = ",";
-
-##================================================================
-## Text - misc strings, not popular enough to expose in wizard
-##================================================================
 
 property string text_linklist_manage {
     des = "Text to use to link to this journal's links list management page.";
     example = "Manage Links";
 }
-
-property string text_default_separator {
-    des = "Text used to separate items";
-    maxlength = 5;
-    "size" = 5;
-    example = " | ";
+property string text_tags_manage {
+    des = "Text to use to link to this journal's tags management page.";
+    example = "Manage Tags";
 }
 
-property string text_view_month {
-    des = "Text used to link to a list of subjects for a month";
-    maxlength = 20;
-    "size" = 15;
-    example = "View Subjects";
+property string text_read_comments_threads {
+    des = "Link text to read comment threads from an entry";
+    format = "plurals";
+    example = "1 response // # responses";
 }
 
 property string text_generated_on {
@@ -2683,11 +2569,78 @@ property string text_base_layout_authors {
 property string text_theme_authors { noui = 1; des = "Text label for the theme author"; }
 property string text_layout_resources { noui = 1; des = "Text label for the layout resources"; }
 
-property string text_posting_in {
-    des = "Text when user is posting in a community";
-    example = "posting in ";
+property string text_cuttagcontrols_nocuttags {
+    des = "Text to show when there are no cuts on the page";
+    example = "No cut tags";
 }
 
+set text_website_default_name = "My Website";
+set text_calendar_num_entries = "1 entry // # entries";
+set text_linklist_manage = "Manage Links";
+set text_tags_manage = "Manage Tags";
+set text_read_comments_threads = "1 response // # responses";
+set text_generated_on = "Page generated";
+set text_powered_by = "Powered by";
+set text_layout_authors = "Style:";
+set text_base_layout_authors = "Base style:";
+set text_theme_authors = "Theme:";
+set text_layout_resources = "Resources:";
+set text_cuttagcontrols_nocuttags = "No cut tags";
+
+##=======================================
+## Display properties - Text
+## Misc strings - Navigation
+## Not popular enough to expose in wizard
+##=======================================
+
+property string text_default_separator {
+    des = "Text used to separate items";
+    maxlength = 5;
+    "size" = 5;
+    example = " | ";
+}
+
+property string text_noentries_recent {
+    des = "Text to display when there are no entries on the recent page";
+    maxlength = 255;
+    size = 50;
+    noui = 1;
+}
+property string text_noentries_read {
+    des = "Text to display when there are no entries on the reading page";
+    maxlength = 255;
+    size = 50;
+    noui = 1;
+}
+property string text_noentries_day {
+    des = "Text to display when there are no entries on the day view";
+    maxlength = 255;
+    size = 50;
+    noui = 1;
+}
+property string text_day_prev {
+    des = "Text to link to the previous day";
+    example = "Previous Day";
+    maxlength = 20;
+}
+property string text_day_next {
+    des = "Text to link to the next day";
+    example = "Next Day";
+    maxlength = 20;
+}
+
+set text_default_separator = " | ";
+set text_noentries_recent = "There are no entries to display.";
+set text_noentries_read = "There are no earlier entries to display. This page displays only the most recent 1000 entries posted within the last 14 days.";
+set text_noentries_day = "There were no entries on this day.";
+set text_day_prev = "Previous Day";
+set text_day_next = "Next Day";
+
+##=======================================
+## Display properties - Text
+## Misc strings - Entries & Comments
+## Not popular enough to expose in wizard
+##=======================================
 
 property string text_nosubject {
     des = "Text to replace a subject line when no subject is specified";
@@ -2705,80 +2658,44 @@ property string text_nosubject_screenreader {
     noui = 1;
 }
 
-property string text_calendar_num_entries {
-    des = "Text to show how many entries were made on a particular day";
-    format = "plurals";
-    example = "1 entry // # entries";
+property string text_icon_alt_protected { noui = 1; des = "Alternative text for icons of friends-only entries"; }
+property string text_icon_alt_private   { noui = 1; des = "Alternative text for icons of private entries"; }
+property string text_icon_alt_groups    { noui = 1; des = "Alternative text for icons of custom friends group entries"; }
+property string text_icon_alt_nsfw      { noui = 1; des = "Alternative text for icons of NSFW entries"; }
+property string text_icon_alt_18        { noui = 1; des = "Alternative text for icons of 18+ entries"; }
+property string text_icon_alt_sticky_entry        { noui = 1; des = "Alternative text for icons of sticky entries"; }
+
+property string text_posting_in {
+    des = "Text when user is posting in a community";
+    example = "posting in ";
 }
 
-property string text_cuttagcontrols_nocuttags {
-    des = "Text to show when there are no cuts on the page";
-    example = "No cut tags";
+property string text_view_month {
+    des = "Text used to link to a list of subjects for a month";
+    maxlength = 20;
+    "size" = 15;
+    example = "View Subjects";
 }
 
-set text_linklist_manage = "Manage Links";
-set text_default_separator = " | ";
-set text_view_month = "View Subjects";
-set text_generated_on = "Page generated";
-set text_powered_by = "Powered by";
-set text_layout_authors = "Style:";
-set text_base_layout_authors = "Base style:";
-set text_theme_authors = "Theme:";
-set text_layout_resources = "Resources:";
-set text_posting_in = " posting in ";
-set text_nosubject = "(no subject)";
-set text_nosubject_screenreader = "no subject";
-set text_calendar_num_entries = "1 entry // # entries";
-set text_cuttagcontrols_nocuttags = "No cut tags";
-
-property bool all_entrysubjects {
-    des = "Display the replacement text when no subject is specified in entries";
-    note = "If disabled, the replacement text will still appear where a subject is required, such as on month views.";
+property string text_reply_back {
+    des = "Text to link back to the single entry view from the read comments page";
+    example = "Read Comments";
+    maxlength = "50";
 }
-
-property bool all_commentsubjects {
-    des = "Display the replacement text when no subject is specified in comments";
-    note = "If disabled, the replacement text will still appear where a subject is required, such as in collapsed comments.";
+property string text_reply_nocomments_header {
+    des = "Heading text that explains that comments are disabled";
+    example = "Comments Disabled:";
+    maxlength = "50";
 }
-
-property string text_noentries_recent {
-    des = "Text to display when there are no entries on the recent page";
-    maxlength = 255;
-    size = 50;
-    noui = 1;
+property string text_reply_nocomments {
+    des = "Text that explains that comments are not allowed for this post.";
+    example = "Comments have been disabled for this post.";
+    maxlength = "100";
 }
-
-property string text_noentries_read {
-    des = "Text to display when there are no entries on the reading page";
-    maxlength = 255;
-    size = 50;
-    noui = 1;
+property string text_comments_disabled_maintainer {
+    des = "Text shown instead of comments if a community maintainer has disabled comments";
+    example = "Comments disabled by a maintainer of this community";
 }
-
-property string text_noentries_day {
-    des = "Text to display when there are no entries on the day view";
-    maxlength = 255;
-    size = 50;
-    noui = 1;
-}
-
-property string text_month_screened_comments { des = "Text to indicate there are screened comments"; }
-
-property string text_month_form_btn { des = "Text used for Submit button in MonthPage selector"; }
-
-property string text_replyform_header { des = "Text for the heading above the form on the reply page"; }
-
-property string text_comment_posted { des = "Text to display when a comment has just been posted by the user"; }
-
-set all_entrysubjects = true;
-set all_commentsubjects = false;
-set text_noentries_recent = "There are no entries to display.";
-set text_noentries_read = "There are no earlier entries to display. This page displays only the most recent 1000 entries posted within the last 14 days.";
-set text_noentries_day = "There were no entries on this day.";
-set text_month_screened_comments = "w/ Screened";
-set text_month_form_btn = "View";
-set text_replyform_header = "Comment Form";
-set text_comment_posted = "Comment successfully posted.";
 
 property string comment_page_prev {
     des = "Text to link the previous comment page";
@@ -2788,27 +2705,39 @@ property string comment_page_next {
     des = "Text to link the previous comment page";
     example = "Previous Comment Page";
 }
-set comment_page_prev = "&lt;&lt";
-set comment_page_next = "&gt;&gt";
 
+property string text_screened {
+   des = "The text used when a comment is screened";
+   example = "(screened comment) ";
+}
+property string text_deleted {
+   des = "The text used when a comment has been deleted";
+   example = "(deleted comment)";
+}
+property string text_fromsuspended {
+   des = "The text used when the comment's author has been suspended";
+   example = "(reply from suspended user)";
+}
+property string text_frozen {
+   des = "The text used when a comment is frozen";
+   example = "(frozen) ";
+}
+property string text_poster_anonymous {
+    des = "The placeholder used when something is posted by an anonymous user";
+    example = "(Anonymous)";
+}
 
-property string text_day_prev {
-    des = "Text to link to the previous day";
-    example = "Previous Day";
-    maxlength = 20;
-}
-property string text_day_next {
-    des = "Text to link to the next day";
-    example = "Next Day";
-    maxlength = 20;
-}
-set text_day_prev = "Previous Day";
-set text_day_next = "Next Day";
+property string text_comment_posted { des = "Text to display when a comment has just been posted by the user"; }
 
 property string text_comment_from {
     des = "Text of the 'from' header in comments";
     example = "From:";
     maxlength = "20";
+}
+property string text_openid_from {
+  des = "Text to indicate which site this OpenID account originally posted a comment on";
+  example = "from";
+  noui = 1;
 }
 property string text_comment_date {
     des = "Text of the 'date' header in comments";
@@ -2825,85 +2754,22 @@ property string text_comment_edittime {
     example = "Edited";
     maxlength = "20";
 }
-set text_comment_from = "From:";
-set text_comment_date = "Date:";
-set text_comment_ipaddr = "IP Address:";
-set text_comment_edittime = "Edited";
-
-property string text_screened {
-   des = "The text used when a comment is screened";
-   example = "(screened comment) ";
+property string time_ago_seconds {
+    des = "# seconds";
+    noui = 1;
 }
-
-property string text_deleted {
-   des = "The text used when a comment has been deleted";
-   example = "(deleted comment)";
+property string time_ago_minutes {
+    des = "# minutes";
+    noui = 1;
 }
-
-property string text_fromsuspended {
-   des = "The text used when the comment's author has been suspended";
-   example = "(reply from suspended user)";
+property string time_ago_hours {
+    des = "# hours";
+    noui = 1;
 }
-
-property string text_frozen {
-   des = "The text used when a comment is frozen";
-   example = "(frozen) ";
+property string time_ago_days {
+    des = "# seconds";
+    noui = 1;
 }
-
-property string text_poster_anonymous {
-    des = "The placeholder used when something is posted by an anonymous user";
-    example = "(Anonymous)";
-}
-
-property string text_openid_from {
-  des = "Text to indicate which site this OpenID account originally posted a comment on";
-  example = "from";
-  noui = 1;
-}
-
-property string text_reply_back {
-    des = "Text to link back to the single entry view from the read comments page";
-    example = "Read Comments";
-    maxlength = "50";
-}
-
-property string text_reply_nocomments_header {
-    des = "Heading text that explains that comments are disabled";
-    example = "Comments Disabled:";
-    maxlength = "50";
-}
-
-property string text_reply_nocomments {
-    des = "Text that explains that comments are not allowed for this post.";
-    example = "Comments have been disabled for this post.";
-    maxlength = "100";
-}
-
-property string text_website_default_name { noui = 1; des = "If an account's website is specified, but there's no website name, use this text instead"; }
-
-set text_screened = "(screened comment) ";
-set text_deleted = "(deleted comment)";
-set text_fromsuspended = "(reply from suspended user)";
-set text_frozen = "(frozen) ";
-set text_poster_anonymous = "(Anonymous)";
-set text_openid_from = "from";
-set text_reply_back = "Read Comments";
-set text_reply_nocomments_header = "Comments Disabled:";
-set text_reply_nocomments = "Comments have been disabled for this post.";
-set text_website_default_name = "My Website";
-
-property string text_icon_alt_protected { noui = 1; des = "Alternative text for icons of friends-only entries"; }
-property string text_icon_alt_private   { noui = 1; des = "Alternative text for icons of private entries"; }
-property string text_icon_alt_groups    { noui = 1; des = "Alternative text for icons of custom friends group entries"; }
-property string text_icon_alt_nsfw      { noui = 1; des = "Alternative text for icons of NSFW entries"; }
-property string text_icon_alt_18        { noui = 1; des = "Alternative text for icons of 18+ entries"; }
-property string text_icon_alt_sticky_entry        { noui = 1; des = "Alternative text for icons of sticky entries"; }
-set text_icon_alt_protected = "[protected post]";
-set text_icon_alt_private = "[private post]";
-set text_icon_alt_groups = "[custom friends groups post]";
-set text_icon_alt_nsfw = "[NSFW]";
-set text_icon_alt_18 = "[18+]";
-set text_icon_alt_sticky_entry = "[sticky entry]";
 
 property string text_multiform_check { des = "Text beside a comment multi-action checkbox"; }
 
@@ -2935,6 +2801,47 @@ property string text_multiform_opt_untrack { des = "Text for the comment untrack
 
 property string text_multiform_opt_edit { des = "Text for the comment editing action"; }
 
+property string text_replyform_header { des = "Text for the heading above the form on the reply page"; }
+
+set text_nosubject = "(no subject)";
+set text_nosubject_screenreader = "no subject";
+
+set text_icon_alt_protected = "[protected post]";
+set text_icon_alt_private = "[private post]";
+set text_icon_alt_groups = "[custom friends groups post]";
+set text_icon_alt_nsfw = "[NSFW]";
+set text_icon_alt_18 = "[18+]";
+set text_icon_alt_sticky_entry = "[sticky entry]";
+
+set text_posting_in = " posting in ";
+
+set text_reply_back = "Read Comments";
+set text_reply_nocomments_header = "Comments Disabled:";
+set text_reply_nocomments = "Comments have been disabled for this post.";
+set text_comments_disabled_maintainer = "Comments disabled by a maintainer of this community";
+
+set comment_page_prev = "&lt;&lt";
+set comment_page_next = "&gt;&gt";
+
+set text_screened = "(screened comment) ";
+set text_deleted = "(deleted comment)";
+set text_fromsuspended = "(reply from suspended user)";
+set text_frozen = "(frozen) ";
+set text_poster_anonymous = "(Anonymous)";
+
+set text_comment_posted = "Comment successfully posted.";
+
+set text_comment_from = "From:";
+set text_openid_from = "from";
+set text_comment_date = "Date:";
+set text_comment_ipaddr = "IP Address:";
+set text_comment_edittime = "Edited";
+
+set time_ago_seconds = "1 second // # seconds";
+set time_ago_minutes = "1 minute // # minutes";
+set time_ago_hours = "1 hour // # hours";
+set time_ago_days = "1 day // # days";
+
 set text_multiform_conf_delete = "Delete selected comments?";
 set text_multiform_opt_track = "Track This";
 set text_multiform_opt_untrack = "Untrack This";
@@ -2951,9 +2858,59 @@ set text_multiform_opt_freeze = "Freeze";
 set text_multiform_opt_delete = "Delete";
 set text_multiform_opt_deletespam = "Delete as Spam";
 
-##===============================
+set text_replyform_header = "Comment Form";
+
+##=======================================
+## Display properties - Text
+## Misc strings - Archive pages
+## Not popular enough to expose in wizard
+##=======================================
+
+property string text_month_screened_comments { des = "Text to indicate there are screened comments"; }
+
+property string text_month_form_btn { des = "Text used for Submit button in MonthPage selector"; }
+
+set text_view_month = "View Subjects";
+set text_month_screened_comments = "w/ Screened";
+set text_month_form_btn = "View";
+
+##=======================================
+## Properties - Custom CSS
+##=======================================
+
+property bool external_stylesheet {
+    des = "Use links for external stylesheets";
+    note = "If true, a stylesheet link element will point to a file containing the layout's CSS data.";
+    noui = 1;
+}
+
+property bool include_default_stylesheet {
+    des = "Use layout's stylesheet(s)";
+    note = "Disable this only if you want to re-style this layout completely from scratch using a custom stylesheet.";
+}
+
+property string linked_stylesheet {
+    des = "Custom stylesheet URL";
+    note = "If you have a custom external stylesheet that you'd like to use, enter its URL here.";
+}
+
+property string custom_css {
+    des = "Use embedded CSS";
+    note = "If you'd like to add custom CSS to this style, enter it here.";
+    cols = 60;
+    rows = 40;
+    string_mode = "css";
+}
+
+set external_stylesheet = true;
+set include_default_stylesheet = true;
+set linked_stylesheet = "";
+set custom_css = "";
+
+##=======================================
 ## Language defaults (noui)
-##===============================
+##=======================================
+
 property string lang_current { noui = 1; des = "Current language code.  So layouts can change date/time formats more safely if they want."; }
 set lang_current = "en";  # core is English.
 

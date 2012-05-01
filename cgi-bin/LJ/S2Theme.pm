@@ -883,28 +883,38 @@ sub display_option_props {
     )
 }
 
+sub page_props {
+    qw (
+        color_page_background
+        color_page_text
+        color_page_link
+        color_page_link_active
+        color_page_link_hover
+        color_page_link_visited
+        color_page_border
+        color_page_details_text
+        font_base
+        font_fallback
+        font_base_size
+        font_base_units
+        image_background_page_group
+        image_background_page_url
+        image_background_page_repeat
+        image_background_page_position
+    )
+}
+
 sub module_props {
     qw (
-        text_module_links
-        text_module_pagesummary
-        text_module_syndicate
-        text_module_tags
-        text_module_active_entries
-        text_generated_on
-        text_tags_manage
-        text_tag_uses
-        text_module_customtext
-        text_module_customtext_content
-        text_module_customtext_url
         color_module_background
         color_module_text
-        color_module_border
         color_module_link
         color_module_link_active
         color_module_link_hover
         color_module_link_visited
-        color_module_title
         color_module_title_background
+        color_module_title
+        color_module_border
         font_module_heading
         font_module_heading_size
         font_module_heading_units
@@ -915,27 +925,30 @@ sub module_props {
         image_background_module_url
         image_background_module_repeat
         image_background_module_position
+        text_module_customtext
+        text_module_customtext_url
+        text_module_customtext_content
     )
 }
 
 sub navigation_props {
     qw (
+        text_view_recent
         text_view_archive
         text_view_friends
         text_view_friends_comm
         text_view_friends_filter
         text_view_network
-        text_view_memories
-        text_view_recent
-        text_view_userinfo
         text_view_tags
+        text_view_memories
+        text_view_userinfo
     )
 }
 
 sub header_props {
     qw (
-        text_tags_page_header
         color_header_background
+        color_page_title
         color_header_link
         color_header_link_active
         color_header_link_hover
@@ -966,41 +979,20 @@ sub footer_props {
 
 sub entry_props {
     qw (
-        text_edit_entry
-        text_edit_tags
-        text_mem_add
-        text_post_comment
-        text_read_comments
-        text_post_comment_friends
-        text_read_comments_friends
-        text_permalink
-        text_stickyentry_subject
-        text_entry_prev
-        text_entry_next
-        text_tell_friend
-        text_meta_mood
-        text_meta_music
-        text_meta_groups
-        text_meta_location
-        text_meta_xpost
-        text_nosubject
-        text_watch_comments
-        text_unwatch_comments
-        text_tags
         color_entry_link
+        color_entry_background
+        color_entry_text
         color_entry_link_active
         color_entry_link_hover
         color_entry_link_visited
-        color_entry_border
-        color_entry_background
-        color_entry_text
-        color_entry_title
         color_entry_title_background
-        color_entry_interaction_links
+        color_entry_title
         color_entry_interaction_links_background
-        color_entry_interaction_links_hover
+        color_entry_interaction_links
         color_entry_interaction_links_active
+        color_entry_interaction_links_hover
         color_entry_interaction_links_visited
+        color_entry_border
         font_entry_title
         font_entry_title_size
         font_entry_title_units
@@ -1008,25 +1000,34 @@ sub entry_props {
         image_background_entry_url
         image_background_entry_repeat
         image_background_entry_position
+        text_edit_entry
+        text_edit_tags
+        text_mem_add
+        text_tell_friend
+        text_watch_comments
+        text_unwatch_comments
+        text_read_comments
+        text_read_comments_friends
+        text_post_comment
+        text_post_comment_friends
+        text_permalink
+        text_entry_prev
+        text_entry_next
+        text_meta_groups
+        text_meta_location
+        text_meta_mood
+        text_meta_music
+        text_meta_xpost
+        text_tags
+        text_stickyentry_subject
+        text_nosubject
     )
 }
 
 sub comment_props {
     qw (
-        text_comment_date
-        text_comment_edittime
-        text_comment_expand
-        text_comment_from
-        text_comment_frozen
-        text_comment_hide
-        text_comment_ipaddr
-        text_comment_parent
-        text_comment_posted
-        text_comment_reply
-        text_comment_thread
-        text_comment_unhide
-        color_comment_title
         color_comment_title_background
+        color_comment_title
         font_comment_title
         font_comment_title_size
         font_comment_title_units
@@ -1035,31 +1036,6 @@ sub comment_props {
 
 sub archive_props {
     qw (
-        text_day_next
-        text_day_prev
-        text_view_month
-    )
-}
-
-sub page_props {
-    qw (
-        color_page_background
-        color_page_text
-        color_page_link
-        color_page_link_active
-        color_page_link_hover
-        color_page_link_visited
-        color_page_title
-        color_page_border
-        color_page_details_text
-        font_base
-        font_fallback
-        font_base_size
-        font_base_units
-        image_background_page_group
-        image_background_page_url
-        image_background_page_repeat
-        image_background_page_position
     )
 }
 
