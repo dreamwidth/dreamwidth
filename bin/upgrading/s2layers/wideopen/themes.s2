@@ -1,0 +1,73 @@
+#NEWLAYER: wideopen/koi
+layerinfo type = "theme";
+layerinfo name = "Koi";
+layerinfo redist_uniq = "wideopen/koi";
+layerinfo author_name = "mmmag";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f4d0a8";
+set color_page_button_background = "#000";
+set color_page_button_background_hover = "#e50000";
+set color_page_button_text = "#fff";
+set color_page_button_text_hover = "#fff";
+set color_page_link = "#000";
+set color_page_subtitle = "#67543c";
+set color_page_text = "#453320";
+set color_page_textarea_background = "#fffcd6";
+set color_page_textarea_background_focus = "#fff";
+set color_page_textarea_text = "#666";
+set color_page_textarea_text_focus = "#000";
+set color_page_title = "#74685c";
+set color_page_title_textshadow = "#f7e4c8";
+set color_header_link_active = "#e50000";
+set color_header_link_hover = "#e50000";
+set color_footer_border = "#b09370";
+set color_footer_link = "#453320";
+set color_footer_text = "#72614a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_accent1 = "#7E6E5C";
+set color_entry_accent2 = "#70604c";
+set color_entry_interaction_links = "#6e5539";
+set color_entry_title = "#453320";
+set color_entry_title_hover = "#e50000";
+set color_entry_title_textshadow = "#f7e4c8";
+set color_entry_userpic_border = "#ceab80";
+set color_comment_border = "#483f32";
+set color_comment_title_hover = "#e50000";
+set color_comment_userpic_border = "#ceab80";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link_hover = "#e50000";
+set color_module_text = "#7b6043";
+set color_module_title = "#644c33";
+set color_module_title_border = "#b09370";
+set color_module_title_textshadow = "#f7e4c8";
+set color_module_navigation_border = "#D08E6C";
+
+##===============================
+## Images
+##===============================
+
+set image_background_footer_height = 144;
+set image_background_footer_position = "bottom right";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "wideopen/koi_footer_background.gif";
+set image_background_header_position = "top right";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "wideopen/koi_header_background.gif";
+set image_background_navigation_module_position = "bottom right";
+set image_background_navigation_module_repeat = "repeat";
+set image_background_navigation_module_url = "wideopen/koi_navigation_background.png";
+set image_background_page_position = "top center";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "wideopen/koi_page_background.jpg";
