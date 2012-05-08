@@ -23,6 +23,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>[% poststatus %]</p>
 
 [%- IF crossposts.size > 0 -%]
+<div class='message-box'>
 <ul>
     [%- FOREACH crosspost IN crossposts -%]
         <li [% IF crosspost.status == "error" -%] class="error-box" [%- END -%]>
@@ -30,13 +31,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </li>
     [%- END -%]
 </ul>
+</div>
 [%- END -%]
 
 [%- IF links.size > 0 -%]
-<p>[%- "/update.bml.success.links" | ml -%]</p>
+<p>[%- links_header | ml -%]</p>
 <ul>
     [%- FOREACH link IN links -%]
-        <li><a href="[% link.url %]">[% link.text %]</a></li>
+        <li><a href="[% link.url %]">[% link.ml_string | ml %]</a></li>
     [%- END -%]
 </ul>
 [%- END -%]

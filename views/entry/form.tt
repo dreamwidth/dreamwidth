@@ -5,7 +5,7 @@ Page to post and edit entries
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2011 by Dreamwidth Studios, LLC.
+Copyright (c) 2011-2012 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -125,7 +125,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 
 <div class="message-box ui-state-highlight">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
 
-[%- IF warnings.size > 0 -%]
+[%- IF warnings.size -%]
     [%- FOREACH warning IN warnings -%]
         <div class="message-box [% warning.type %]-box">[%- warning.message -%]</div>
     [%- END -%]
@@ -249,7 +249,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                                  id = "spellcheck_button" );
                 END -%]
 
-                [%- post_label = '.button.post' | ml;
+                [%- post_label = action.edit ? '.button.edit' : '.button.post' | ml;
                     form.submit( value = post_label
                                  name = "action:post"
                                  id = "submit_entry" )
@@ -262,7 +262,8 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
     [%- BLOCK column %]
         [% FOREACH component = components %]
         <div class='component ui-corner-top [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'>
-        [%- dw.scoped_include( "entry/module-${component}.tt" ); %]
+        [%- file = editable.$component ? "entry/module-${component}.tt" : "entry/display/module-${component}.tt" -%]
+        [%- dw.scoped_include( file ); %]
         </div>
         [%- END -%]
     [% END -%]

@@ -39,7 +39,8 @@ init: function(formData) {
             $("#icon_browser_link").remove();
         }
         $select.iconrandom( { handler: update_icon_preview, trigger: "#icon_random_link" } );
-        $select.change(update_icon_preview);
+        $select.change(update_icon_preview)
+            .triggerHandler( "change" );
 
         $("#post_entry").bind( "journalselect", function( e, journal ) {
             if ( journal.name && journal.isremote ) {
@@ -264,7 +265,7 @@ init: function(formData) {
                 iscomm  = $option.val() !== "";
             } else {
                 journal = $this.val();
-                iscomm = journal !== $.trim($("#post_as_remote").next("label").text());
+                iscomm = journal !== $("#poster_remote").val();
             }
             $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: true});
         });
@@ -294,7 +295,7 @@ init: function(formData) {
                 $("#custom_access_groups").slideDown();
             else
                 $("#custom_access_groups").slideUp();
-        });
+        }).triggerHandler("change");
 
         function adjustSecurityDropdown(data) {
             if ( ! data ) return;
@@ -365,7 +366,6 @@ init: function(formData) {
 
     function initCrosspost() {
         $("#crosspost_component").crosspost();
-
         $("#post_entry").bind("journalselect", function(e, journal) {
             if ( journal.name && journal.isremote )
                 $("#crosspost_component").crosspost("toggle", "community", ! journal.iscomm, true);
