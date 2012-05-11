@@ -106,6 +106,9 @@ steppingstones/themes    theme+                      steppingstones/layout
 tranquilityiii/layout    layout(core2base/layout)    core2
 tranquilityiii/themes    theme+                      tranquilityiii/layout
 
+wideopen/layout          layout(core2base/layout)    core2
+wideopen/themes          theme+                      wideopen/layout
+
 zesty/layout             layout                      core2
 zesty/themes             theme+                      zesty/layout
 

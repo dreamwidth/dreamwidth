@@ -1,0 +1,84 @@
+[%# manage/logins.tt
+
+Authors:
+    Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2012 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+<p>[% '.intro' | ml(sitename = site.nameshort) %]</p>
+
+[%- IF adminmode %]
+<form method='GET'>
+    <p><label for='user'>[% '.user' | ml %]</label> <input name='user' id='user' value='[% user | html %]' maxlength="25" size="15"/>
+    <input type='submit' value='[% '.user.submit' | ml | html %]'></p></form>
+[%- END %]
+
+[%- IF user -%]
+    <h1>[% '.loggedin.header.user' | ml(user = user) %]</h1>
+[%- ELSE -%]
+    <h1>[% '.loggedin.header' | ml %]</h1>
+[%- END -%]
+
+<table style="width: 100%"><thead><tr>
+    <th>[% '.loggedin.table.time' | ml %]</th>
+    <th>[% '.loggedin.table.ip' | ml %]</th>
+    <th style="width: 45%">[% '.loggedin.table.useragent' | ml %]</th>
+[%- IF adminmode %]
+    <th>[% '.loggedin.table.exptype' | ml %]</th>
+    <th>[% '.loggedin.table.bound' | ml %]</th>
+    <th>[% '.loggedin.table.create' | ml %]</th>
+    <th>[% '.loggedin.table.expire' | ml %]</th>
+[%- END -%][%- IF ! user %]
+    <th>[% '.loggedin.table.logout' | ml %]</th>
+[%- END %]
+</tr></thead><tbody>
+[% FOREACH item = loggedin %]
+<tr>
+    <td>[% item.time | html %]</td>
+    <td>[% item.ip | html %]</td>
+    <td>[% item.useragent | html %]</td>
+[%- IF adminmode %]
+    <td>[% item.exptype | html %]</td>
+    <td>[% item.bound | html %]</td>
+    <td>[% item.create | html %]</td>
+    <td>[% item.expire | html %]</td>
+[%- END %]
+[%- IF ! user %][% IF item.current %]
+    <td style='whitespace: nowrap; font-size: 0.75em'>[% '.loggedin.table.current' | ml %]</td>
+[%- ELSE %]
+    <td><form method='POST'>
+    [% dw.form_auth %]
+    <input type='hidden' name='session' value='[% item.sid | html %]'/>
+    <input type='submit' value='X'/></form></td>
+[%- END %][% END %]
+</tr>
+[%- END %]
+</tbody></table><br />
+
+[%- IF user -%]
+    <h1>[% '.prior.header.user' | ml(user = user) %]</h1>
+[%- ELSE -%]
+    <h1>[% '.prior.header' | ml %]</h1>
+[%- END -%]
+
+<table style="width: 100%"><thead><tr>
+    <th>[% '.prior.table.time' | ml %]</th>
+    <th>[% '.prior.table.ip' | ml %]</th>
+    <th style="width: 57%">[% '.prior.table.useragent' | ml %]</th>
+</tr></thead><tbody>
+[% FOREACH item = prior %]
+<tr>
+    <td>[% item.time | html %]</td>
+    <td>[% item.ip | html %]</td>
+    <td>[% item.useragent | html %]</td>
+</tr>
+[% END %]
+</tbody></table>

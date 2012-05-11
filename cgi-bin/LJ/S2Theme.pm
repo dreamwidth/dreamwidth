@@ -64,6 +64,7 @@ sub default_themes {
         skittlishdreams => 'skittlishdreams/orange',
         steppingstones => 'steppingstones/purple',
         tranquilityiii => 'tranquilityiii/nightsea',
+        wideopen => 'wideopen/koi',
         zesty => 'zesty/white',
     );
 

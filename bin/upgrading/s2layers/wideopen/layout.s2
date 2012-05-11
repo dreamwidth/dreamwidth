@@ -1,0 +1,1125 @@
+layerinfo type = "layout";
+layerinfo name = "Wide Open";
+layerinfo redist_uniq = "wideopen/layout";
+layerinfo author_name = "mmmag";
+layerinfo lang = "en";
+layerinfo des = "Ported Wordpress theme Koi by N.Design Studio";
+
+set layout_authors = [ { "name" => "mmmag", "type" => "user" } ];
+set layout_resources = [{ "name" => "N.Design Studio", "url" => "http://www.ndesign-studio.com/" }];
+
+##===============================
+## Presentation
+##===============================
+
+propgroup presentation_child {
+    property string module_max_height {
+        des = "Set the maximum height of some modules in certain page setups. Ensure that the value is given in em or px.";
+        example = "15em";
+        note = "Blank the field to always display modules to their full height.";
+    }
+    property string footer_module_separator {
+        des = "Character to use as a separator between footer modules";
+        noui = 1;
+    }
+}
+
+set layout_type = "two-columns-right";
+set sidebar_width = "18em";
+set sidebar_width_doubled = "36em";
+set userpics_position = "left";
+set entry_date_format = "long_day";
+set footer_module_separator = "&bull;";
+set module_max_height = "15em";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_page_title_textshadow { des = "Page title shadow color"; }
+    property Color color_page_subtitle { des = "Page subtitle color"; }
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+    property Color color_footer_text { des = "Page footer color"; }
+    property Color color_footer_border { des = "Page footer border color"; }
+    property Color color_entry_accent1 { des = "Entry and comment accent color 1"; }
+    property Color color_entry_accent2 { des = "Entry and comment accent color 2"; }
+    property Color color_entry_title_textshadow { des = "Entry title shadow color"; }
+    property Color color_entry_title_hover { des = "Entry title hover color"; }
+    property Color color_entry_userpic_border { des = "Entry userpic border color"; }
+    property Color color_comment_title_hover { des = "Comment title hover color"; }
+    property Color color_comment_userpic_border { des = "Comment userpic border color"; }
+    property Color color_comment_border {des = "Comment border color"; }
+    property Color color_module_title_textshadow { des = "Module title shadow color"; }
+    property Color color_module_title_border { des = "Module title border color"; }
+    property Color color_module_navigation_border { des = "Navigation module border color"; }
+    property Color color_page_textarea_background { des = "Text area background color"; }
+    property Color color_page_textarea_text { des = "Text area text color"; }
+    property Color color_page_textarea_background_focus {des = "Text area background focus color";}
+    property Color color_page_textarea_text_focus {des = "Text area text focus color";}
+    property Color color_page_button_background { des = "Button background color"; }
+    property Color color_page_button_text { des = "Button text color "; }
+    property Color color_page_button_background_hover { des = "Button background hover color"; }
+    property Color color_page_button_text_hover { des = "Button text hover color"; }
+}
+
+##===============================
+## Fonts
+##===============================
+
+propgroup fonts_child {
+    property string font_navigation_module {
+        des = "Preferred font for the navigation module";
+        maxlength = 25;
+        size = 15;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+    }
+    property string font_navigation_module_size {
+        des = "Size of navigation module font";
+        size = 3;
+    }
+    property string font_navigation_module_units {
+        des = "Units for navigation module size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+    }
+}
+
+set font_base = "Georgia, 'Times New Roman', Times";
+set font_fallback = "serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_journal_title = "Arial, Helvetica";
+set font_journal_title_size = "3";
+set font_journal_title_units = "em";
+set font_journal_subtitle = "Georgia, 'Times New Roman', Times";
+set font_journal_subtitle_size = "1.3";
+set font_journal_subtitle_units = "em"; 
+set font_entry_title = "Georgia, 'Times New Roman', Times";
+set font_entry_title_size = "1.8";
+set font_entry_title_units = "em";
+set font_comment_title = "Arial, Helvetica";
+set font_comment_title_size = "1.3";
+set font_comment_title_units = "em";
+set font_module_heading = "Georgia, 'Times New Roman', Times";
+set font_module_heading_size = "1.35";
+set font_module_heading_units = "em";
+set font_module_text = "Georgia, 'Times New Roman', Time";
+set font_module_text_size = ".9";
+set font_module_text_units = "em";
+set font_navigation_module_size = "1.3";
+set font_navigation_module_units = "em";
+
+##===============================
+## Images
+##===============================
+
+propgroup images_child {
+    property string[] image_background_footer_group {
+        des = "Footer background image";
+        grouptype = "image";
+        }
+    set image_background_footer_group = [ "image_background_footer_url", "image_background_footer_repeat", "image_background_footer_position" ];
+        property string image_background_footer_url {
+        grouped = 1;
+        }
+    property string image_background_footer_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+    }
+    property string image_background_footer_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+    }
+    property int image_background_footer_height {
+        des = "The height of your footer image, in pixels. Use 0 for default.";
+        example = "50";
+        size = 6;
+        }
+
+    property string[] image_background_navigation_module_group {
+        des = "Navigation module background image";
+        grouptype = "image";
+        }
+    set image_background_navigation_module_group = [ "image_background_navigation_module_url", "image_background_navigation_module_repeat", "image_background_navigation_module_position" ];
+        property string image_background_navigation_module_url {
+        grouped = 1;
+        }
+    property string image_background_navigation_module_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+    }
+    property string image_background_navigation_module_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+    }
+}
+
+##===============================
+## Modules
+##===============================
+
+propgroup modules_child {
+    property string module_navlinks_section_override {
+        values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+        grouped = 1;
+        }
+    property string module_search_section_override {
+        values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+        grouped = 1;
+        }
+    property string module_poweredby_section_override {
+        values = "none|(none)|one|Main Module Section|two|Second Module Section|footer|Footer";
+        grouped = 1;
+        }
+    property string module_credit_section_override {
+        values = "none|(none)|one|Main Module Section|two|Second Module Section|footer|Footer";
+        grouped = 1;
+        }
+    }
+
+set grouped_property_override = {
+        "module_navlinks_section" => "module_navlinks_section_override",
+        "module_search_section" => "module_navlinks_section_override",
+        "module_poweredby_section" => "module_poweredby_section_override",
+        "module_credit_section" => "module_credit_section_override"
+    };
+
+set module_navlinks_section = "header";
+set module_search_section = "header";
+set module_poweredby_section = "footer";
+set module_credit_section = "footer";
+set module_userprofile_section = "two";
+set module_pagesummary_section = "two";
+set module_active_section = "two";
+
+##===============================
+## Functions
+##===============================
+
+# Add class and prop for the separator between footer modules
+
+function print_module_poweredby() {
+    var Page p = get_page();
+    open_module("powered", "", "");
+    if ($*module_poweredby_section == "footer") {
+        """<span class="footer-module-separator">$*footer_module_separator</span>""";
+    }
+    server_sig();
+    close_module();
+}
+
+function print_module_credit() {
+    var string ret = "";
+    var string sep = "";
+    var int layout_authors_size = size $*layout_authors;
+    var int theme_authors_size = size $*theme_authors;
+    var string text_style_authors = ($theme_authors_size > 0) ? $*text_base_layout_authors : $*text_layout_authors;
+
+    if ($*module_credit_section == "footer") {
+        $sep = """<span class="footer-module-separator">$*footer_module_separator</span>""";
+    }
+
+    if ( $layout_authors_size > 0) {
+        var int count = 0;
+        $ret = $ret + $sep + "<dt>$text_style_authors</dt> ";
+        foreach var string{} author ( $*layout_authors ) {
+            var string item;
+            if ( $author{"url"} != "" ) {
+                $item = "<a href='" + $author{"url"} + "'>" + $author{"name"} + "</a>";
+            } elseif ( $author{"type"} == "user" ) {
+                var UserLite u = UserLite( $author{"name"} );
+                if ( defined $u ) {
+                    $item = $u->ljuser();
+                }
+            }
+            if ( $item == "" ) {
+                $item = $author{"name"};
+            }
+
+            $ret = $ret + "<dd>$item";
+            $count++;
+            if ($count < $layout_authors_size ) { $ret = $ret + ","; }
+            $ret = $ret + "</dd>\n";
+        }
+    }
+
+    if ( $theme_authors_size > 0) {
+        var int count = 0;
+        $ret = $ret + $sep + "<dt>$*text_theme_authors</dt> ";
+        foreach var string{} author ( $*theme_authors ) {
+            var string item;
+            if ( $author{"url"} != "" ) {
+                $item = "<a href='" + $author{"url"} + "'>" + $author{"name"} + "</a>";
+            } elseif ( $author{"type"} == "user" ) {
+                var UserLite u = UserLite( $author{"name"} );
+                if ( defined $u ) {
+                    $item = $u->ljuser();
+                }
+            }
+            if ( $item == "" ) {
+                $item = $author{"name"};
+            }
+
+            $ret = $ret + "<dd>$item";
+            $count++;
+            if ($count < $theme_authors_size ) { $ret = $ret + ","; }
+            $ret = $ret + "</dd>\n";
+        }
+    }
+
+    var int resources_size = size $*layout_resources;
+    if ( $resources_size > 0 ) {
+        var int count = 0;
+        $ret = $ret + $sep + "<dt>$*text_layout_resources</dt> ";
+        foreach var string{} resource ( $*layout_resources ) {
+            var string item;
+            if ( $resource{"url"} != "" ) {
+                $item = "<a href='" + $resource{"url"} + "'>" + $resource{"name"} + "</a>";
+            } else {
+                $item = $resource{"name"};
+            }
+
+            $ret = $ret + "<dd>$item";
+            $count++;
+            if ($count < $resources_size ) { $ret = $ret + ","; }
+            $ret = $ret + "</dd>\n";
+        }
+    }
+
+    if ( $ret != "" ) {
+        open_module("credit", $*text_module_credit, "");
+        print safe "<dl>$ret</dl>";
+        close_module();
+    }
+}
+
+## Add header and footer module sections
+## Move secondary to footer in one-column and two-column modes
+
+function Page::print() {
+"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    """<!-- Style adapted from Wordpress theme Koi by N.Design Studio, licensed under GPL v2 -->""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+                    $this->print_module_section("header");
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+                    """<div id="secondary"><div class="inner">""";
+                        $this->print_module_section("one");
+                    """</div></div><!--  end secondary and secondary>inner -->""";
+                }
+    
+                    """<div id="primary"><div class="inner">""";
+                        $this->print_body();
+                    """</div></div><!-- end primary and primary>inner -->""";
+
+                if ($*layout_type != "one-column-split") {
+                    """<div id="secondary"><div class="inner">""";
+                        $this->print_module_section("one");
+                    """</div></div><!--  end secondary and secondary>inner -->""";
+                }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+    """;
+                if ( $*layout_type->contains("three") ) {
+                    """<div id="tertiary"><div class="inner">""";
+                        $this->print_module_section("two");
+                    """</div></div><!-- end tertiary and tertiary>inner -->""";
+                }
+    """
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+        <div id="footer">
+            <div class="inner">
+    """;
+            if ($*layout_type->contains("one") or $*layout_type->contains("two")) {
+                """<div id="tertiary"><div class="inner">""";
+                    $this->print_module_section("two");
+                """</div></div><!-- end tertiary and tertiary>inner -->""";
+            }
+            print safe """<div class="page-top"><a href="#">$*text_page_top</a></div>""";
+            $this->print_module_section("footer");
+    """
+            </div><!-- end footer>inner -->
+        </div><!-- end footer -->    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+"""</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+
+    var string header_paddingtop = ($*image_background_header_url != "") ? "65px" : "40px";
+
+    var string footer_background = generate_background_css ($*image_background_footer_url, $*image_background_footer_repeat, $*image_background_footer_position, $*color_footer_background);
+
+    var string footer_margintop = ($*image_background_footer_url != "") ? ($*image_background_footer_height - 50 + """px""") : "40px";
+
+    var string nav_module_background = generate_background_css ($*image_background_navigation_module_url, $*image_background_navigation_module_repeat, $*image_background_navigation_module_position, new Color);
+
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string nav_module_font = generate_font_css($*font_navigation_module, $*font_base, $*font_fallback, $*font_navigation_module_size, $*font_navigation_module_units);
+
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+
+    var string module_maxheight = $*module_max_height ? ("""max-height: $*module_max_height; overflow: auto;""") : "";
+
+    var string header_modulewrapper = "";
+
+    if($*module_navlinks_section == "header") {
+        $header_modulewrapper = """
+        #header .module-wrapper {
+            $nav_module_background
+            border: solid $*color_module_navigation_border;
+            border-width: 1px 0;
+            padding: 10px 7.5px;
+            }
+        """;
+    }
+
+    var string navlinks_padding = ($*module_search_section == "header") ? "$*sidebar_width" : "0";
+
+    var string entry_padding = "";
+
+    if ( $*entry_userpic_style == "" ) { $entry_padding = "110px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_padding = "85px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_padding = "60px"; }
+
+    var string entry_padding_read = "";
+
+    if ($*use_custom_friend_colors) {
+
+        if ( $*entry_userpic_style == "" ) { $entry_padding_read = "118px"; }
+        elseif ( $*entry_userpic_style == "small" ) { $entry_padding_read = "93px"; }
+        elseif ( $*entry_userpic_style == "smaller" ) { $entry_padding_read = "68px"; }
+    }
+
+    var string comment_padding = "";
+    if ( $*comment_userpic_style == "" ) { $comment_padding = "110px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_padding = "85px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_padding = "60px"; }
+
+    var string userpic_css = "";
+
+    if($*userpics_position == "left") {
+        $userpic_css = """
+        .entry { padding-left: $entry_padding; }
+        .page-read .entry { padding-left: $entry_padding_read; }
+
+        .comment { padding-left: $comment_padding; }
+
+        .entry .userpic,
+        .comment .userpic {
+            left: 0;
+            }
+        """;
+    }
+    elseif($*userpics_position == "right") {
+        $userpic_css = """
+        .entry { padding-right: $entry_padding; }
+        .page-read .entry { padding-right: $entry_padding_read; }
+
+        .comment { padding-right: $comment_padding; }
+
+        .entry .userpic,
+        .comment .userpic {
+            right: 0;
+            }
+        """;
+    }
+
+"""
+
+/* Wide Open
+/* by mmmag
+/* adapted from Wordpress theme Koi by N.Design Studio
+******************************************************/
+
+/* General
+******************************/
+
+body {
+    line-height: 1.5em;
+    margin: 0;
+    }
+
+body.has-navstrip {
+    margin-top: 5px;
+    }
+
+a {
+    outline: none;
+    text-decoration: none;
+    }
+
+a:hover {
+    text-decoration: underline;
+    }
+
+#canvas input[type=text],
+#canvas input[type=password],
+#canvas textarea,
+#canvas select {
+    background: $*color_page_textarea_background;
+    border: none;
+    color: $*color_page_textarea_text;
+    padding: 5px 7px;
+    }
+
+#canvas textarea:focus,
+#canvas input[type=password]:focus,
+#canvas input[type=text]:focus,
+#canvas select:focus {
+    background: $*color_page_textarea_background_focus;
+    color: $*color_page_textarea_text_focus;
+    outline: none;
+    }
+
+#canvas input {
+    background: $*color_page_button_background;
+    border: none;
+    color: $*color_page_button_text;
+    padding: 4px 15px;
+    }
+
+#canvas input,
+#canvas textarea,
+#canvas select {
+    margin: .1em;
+    }
+
+#canvas input[type=button]:hover,
+#canvas input[type=reset]:hover,
+#canvas input[type=submit]:hover {
+    background: $*color_page_button_background_hover;
+    color: $*color_page_button_text_hover;
+    }
+
+/* Main Containers
+******************************/
+
+#content {
+    margin: 0 2%;
+    }
+
+#primary > .inner:first-child {
+    padding: 20px 0;
+    }
+
+.column-left #primary > .inner:first-child {
+    padding-left: 2em;
+    }
+
+.column-right #primary > .inner:first-child {
+    padding-right: 2em;
+    }
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+    padding: 0;
+    }
+
+.two-columns-left #tertiary { margin-left: 0; }
+.two-columns-right #tertiary { margin-right: 0; }
+
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child {
+    margin-right: 1em;
+    }
+
+.three-columns-left #tertiary > .inner:first-child,
+.three-columns-right #tertiary > .inner:first-child {
+    margin-left: 1em;
+    }
+
+/* Header
+******************************/
+
+#header {
+    margin: 0 0 20px;
+    padding: $header_paddingtop 2% 0;
+    position: relative;
+    }
+
+h1#title {
+    font-weight: bold;
+    letter-spacing: -.05em;
+    margin: 0;
+    text-shadow: 0 1px 0 $*color_page_title_textshadow;
+    }
+
+h2#subtitle {
+    color: $*color_page_subtitle;
+    font-style: italic;
+    margin: 10px 0 20px;
+    }
+
+$header_modulewrapper
+
+#header .module {
+    margin: 0;
+    }
+
+#header .module-navlinks {
+    $nav_module_font
+    margin-right: $navlinks_padding;
+    }
+
+#header .module-navlinks ul {
+    margin: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks li {
+    display: inline; 
+    font-variant: small-caps;
+    line-height: 1em;
+    list-style: none;
+    margin: 0;
+    padding: 0 7.5px 0;
+    position: relative;
+    }
+
+#header .module-navlinks li a {
+    color: $*color_header_link;
+    letter-spacing: -.02em;
+    }
+
+#header .module-navlinks li a;visited { color: $*color_header_link_visited; }
+#header .module-navlinks li a:hover { color: $*color_header_link_hover; }
+#header .module-navlinks li a:active,
+#header .module-navlinks a.current {
+    color: $*color_header_link_active;
+    }
+
+#header .module-search {
+    bottom: 5px;
+    margin-right: 15px;
+    position: absolute;
+    right: 2%;
+    }
+
+#header .module-search h2 {
+    border: none;
+    display: none;
+    }
+
+/* Entries
+******************************/
+
+.navigation li:first-child {
+    padding-left: 0;
+    }
+
+.entry {
+    margin-bottom: 60px;
+    min-height: 100px;
+    position: relative;
+    }
+
+h3.entry-title {
+    font-weight: bold;
+    letter-spacing: -.04em;
+    line-height: 1em;
+    margin-bottom: 5px;
+    text-shadow: 0 1px 0 $*color_entry_title_textshadow;
+    }
+
+.entry .datetime,
+.entry .poster,
+.metadata-label,
+.tag-text {
+    color: $*color_entry_accent1;
+    font-size: .9em;
+    font-style: italic;
+    line-height: 1.2em;
+    margin: 3px 0 10px;
+    }
+
+.entry .poster a,
+.metadata-item,
+.metadata a,
+.tag a {
+    color: $*color_entry_accent2;
+    font-size: .9em;
+    font-style: normal;
+    }
+
+.entry .header a:hover {
+    color: $*color_entry_title_hover;
+    }
+
+.entry .userpic {
+    position: absolute;
+    top: 0;
+    }
+
+.entry .userpic img {
+    border-bottom: 2px solid $*color_entry_userpic_border;
+    padding-bottom: 2px;
+    }
+
+.entry-content {
+    margin: 1em 0;
+    }
+
+.entry-content a {
+    text-decoration: underline;
+    }
+
+.entry .poster:before {
+    content: 'By ';
+    }
+
+.entry .poster.empty:before {
+    content: '';
+    }
+
+.metadata ul
+.footer ul {
+    display: inline;
+    }
+
+.metadata ul,
+.metadata ul li,
+.footer ul,
+.footer ul li {
+    margin: 0;
+    padding: 0;
+    }
+
+.entry .footer {
+    margin-top: 1em;
+    }
+
+.tag {
+    margin-bottom: 1em;
+    }
+
+.entry .entry-management-links.icon-links {
+    display: inline;
+    }
+
+ul.entry-interaction-links {
+    float: right;
+    clear: both;
+    }
+
+ul.entry-interaction-links a,
+ul.entry-management-links a {
+    color: $*color_entry_interaction_links;
+    font: bold .86em/1 $*font_journal_title;
+    padding: .5em;
+    }
+
+/* Comments
+******************************/
+
+#comments {
+    border-top: double 4px $*color_comment_border;
+    }
+
+.comment {
+    margin-bottom: 5px;
+    min-height: 100px;
+    position: relative;
+    }
+
+.comment-title {
+    font-weight: bold
+    line-height: 1.3em;
+    }
+
+.comment .comment-title a:hover {
+    color: $*color_comment_title_hover;
+    }
+
+.comment .userpic {
+    position: absolute;
+    top: 0;
+    }
+
+.comment .userpic img {
+    border-bottom: 2px solid $*color_comment_userpic_border;
+    padding-bottom: 2px;
+    }
+
+.comment .datetime,
+.comment .poster {
+    color: $*color_entry_accent1;
+    font-size: .9em;
+    font-style: italic;
+    line-height: 1.2em;
+    margin: 3px 0 10px;
+    }
+
+.comment .poster a,
+.comment .datetime span {
+    color: $*color_entry_accent2;
+    font-size: .9em;
+    font-style: normal;
+    }
+
+.comment-content {
+    margin: 1em 0;
+    }
+
+.comment-content a {
+    text-decoration: underline;
+    }
+
+.comment .footer {
+    border-bottom: solid 1px $*color_comment_border; 
+    padding: .5em;
+    }
+
+ul.comment-management-links {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    }
+
+ul.comment-interaction-links {
+    float: right;
+    clear: both;
+    }
+ul.comment-management-links a,
+ul.comment-interaction-links a {
+    color: $*color_entry_interaction_links;
+    font: bold .86em/1 $*font_journal_title;
+    padding: .5em;
+    }
+
+#comments .separator {
+    clear: both;
+    }
+
+$userpic_css
+
+/* Archive Pages
+******************************/
+
+.page-archive .navigation,
+.page-month .navigation {
+    text-align: center;
+    }
+
+.page-archive .navigation li,
+.page-month .navigation li {
+    padding: 0 1em;
+    }
+
+.page-archive caption {
+    display: none;
+    }
+
+.page-archive table {
+    border: none;
+    margin: 0 auto;
+    width: 70%;
+    }
+
+.page-archive .month h3 {
+    $entry_title_colors
+    $entry_title_font
+    font-weight: bold;
+    letter-spacing: -.04em;
+    line-height: 1em;
+    margin-bottom: 5px;
+    text-align: center;
+    text-shadow: 0 1px 0 $*color_entry_title_textshadow;
+    }
+
+.month h3.entry-title {
+    $entry_title_colors
+    $entry_title_font
+    display: block;
+    }
+
+.month table th {
+    border: none;
+    }
+
+.month table td {
+    border: none;
+    vertical-align: top;
+    width: 14%;
+    }
+
+.month td.day {
+    height: 4em;
+    }
+
+.month .footer {
+    margin-bottom: 4em;
+    text-align: center;
+    }
+
+.month .tag ul,
+.month .tag ul li {
+    margin: 0;
+    padding: 0;
+    }
+
+/* Tags Page
+******************************/
+
+.tags-container h2 {
+    $entry_title_colors
+    $entry_title_font
+    font-weight: bold;
+    letter-spacing: -.04em;
+    line-height: 1em;
+    margin-bottom: 5px;
+    text-shadow: 0 1px 0 $*color_entry_title_textshadow;
+    }
+
+/* Icons Page
+******************************/
+
+.icons-container h2 {
+    $entry_title_colors
+    $entry_title_font
+    font-weight: bold;
+    letter-spacing: -.04em;
+    line-height: 1em;
+    margin-bottom: 5px;
+    text-shadow: 0 1px 0 $*color_entry_title_textshadow;
+    }
+
+.sorting-options ul {
+    padding-left: 0;
+    text-align: center;
+    }
+
+.icons-container .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+/* Modules
+******************************/
+
+.module {
+    margin: 40px 0;
+    }
+
+.module h2 {
+    border-bottom: 4px double $*color_module_title_border;
+    letter-spacing: -.05em;
+    line-height: 1em;
+    margin: 0 0 7px;
+    padding: 0 0 7px;
+    text-shadow: 0 1px 0 $*color_module_title_textshadow;
+    }
+
+.module h2 a {
+    color: $*color_module_title;
+    }
+
+.module a:hover {
+    text-decoration: none;
+    }
+
+.module ul  {
+    list-style: none;
+    margin: 0 0 1em;
+    padding: 0;
+    }
+
+.module ul ul {
+    margin: 0 0 0 15px;
+    list-style: circle;
+    }
+
+.module ul li {
+    margin: 8px 0;
+    padding: 0;
+    }
+
+.module ul ul li {
+    margin: 5px 0;
+    }
+
+.module-userprofile .module-content {
+    text-align: center;
+    }
+
+.module-userprofile .module-content li {
+    display: inline;
+    padding: 10px;
+    }
+
+.module-userprofile .module-content ul {
+    margin-top: 10px;
+    }
+
+.module-calendar table {
+    width: 100%;
+    }
+
+.module-calendar td {
+    padding: 4px 2px;
+    text-align: center;
+    width: 14%;
+    }
+
+/* Footer
+******************************/
+
+#footer {
+    $footer_background
+    padding: 0;
+    }
+
+#footer .inner {
+    border-top: 4px double $*color_footer_border;
+    margin: 20px 2% 0;
+    }
+
+#footer .inner .inner {
+    border-top: none;
+    margin: 0;
+    }
+
+.one-column #secondary .module,
+.one-column #tertiary .module,
+.two-columns #tertiary .module {
+    display: inline-block;
+    float: none;
+    margin: .5em 1em 0 0;
+    width: $*sidebar_width;
+    vertical-align: top;
+    }
+
+.one-column #secondary .module h2,
+.one-column #tertiary .module h2,
+.two-columns #tertiary .module h2 {
+    border-bottom: 1px double $*color_module_title_border;
+    }
+
+.one-column #secondary .module-content,
+.one-column #tertiary .module-content,
+.two-columns #tertiary .module-content {
+    $module_maxheight
+    }
+
+.page-top {
+    display: inline-block;
+    font: .9em/1em $*font_base;
+    margin: $footer_margintop .5em 40px 0;
+    }
+
+.page-top + .module-wrapper {
+    display: inline-block;
+    }
+
+.module-section-footer .module h2 {
+    display: none;
+    }
+
+.module-section-footer {
+    clear: both;
+    }
+
+.module-section-footer .module {
+    background: transparent;
+    color: $*color_footer_text;
+    display: inline-block;
+    float: none;
+    font: .9em/1em $*font_base;
+    margin: 0 .5em 0 0;
+    width: auto;
+    }
+
+.module-section-footer .module a { color: $*color_footer_link; }
+.module-section-footer .module a:visited { color: $*color_footer_link_visited; }
+.module-section-footer .module a:hover { color: $*color_footer_link_hover; }
+.module-section-footer .module a:active { color: $*color_footer_link_active; }
+
+.footer-module-separator {
+     padding-right: .5em;
+     }
+
+.module-section-footer .module-credit dt {
+    margin-right: 0;
+    }
+
+.module-section-footer .module-credit dd {
+    margin-right: .5em;
+    }
+
+/* Navigation Strip
+******************************/
+
+#lj_controlstrip {
+    background: $*color_page_background;
+    border-bottom: 4px double $*color_footer_border;
+    }
+
+#lj_controlstrip td { color: $*color_page_text; }
+
+#lj_controlstrip a { color: $*color_page_link; }
+#lj_controlstrip a:visited { color: $*color_page_link_visited; }
+#lj_controlstrip a:hover { color: $*color_page_link_hover; }
+#lj_controlstrip a:active { color: $*color_page_link_active; }
+
+#lj_controlstrip_statustext { color: $*color_page_text; }
+
+#lj_controlstrip_user,
+#lj_controlstrip_login,
+#lj_controlstrip_loggedout_userpic,
+#lj_controlstrip_actionlinks {
+    border-right: 1px solid $*color_footer_border;
+    }
+""";
+}
