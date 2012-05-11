@@ -20,6 +20,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
    [% IF remote %]
     <fieldset>
     <legend><span>[% ".label.post_as" | ml %]</span></legend>
+    [%- form.hidden( id = "poster_remote", name = "poster_remote", value = remote.user ) -%]
     <ul><li>[%-
         form.radio( label = remote.user
             name = "post_as"

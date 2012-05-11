@@ -813,6 +813,25 @@ sub comments_manageable_by {
     return $remote->userid == $self->posterid || $remote->can_manage( $u );
 }
 
+# instance method: returns bool, if remote user can edit this entry
+# use this to determine whether to, e.g., show edit buttons or an edit form
+# but don't use this when saving stuff to the database -- those need to pass through the protocol
+# does not care about readonly status, just about permissions
+sub editable_by
+{
+    my ( $self, $remote ) = @_;
+    return 0 unless LJ::isu( $remote );
+    return 0 unless $self->visible_to( $remote );
+
+    # remote is editing their own entry
+    return 1 if $self->posterid == $remote->userid;
+
+    # editing an entry that's not your personal journal
+    return 1 if $self->journalid != $self->posterid && $remote->can_manage( $self->journal );
+
+    return 0;
+}
+
 # instance method:  returns bool, if remote user can view this entry
 sub visible_to
 {
