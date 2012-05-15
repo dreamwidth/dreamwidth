@@ -1,2 +1,4 @@
 /logs
 /temp
+/lib
+/etc/config*.pl

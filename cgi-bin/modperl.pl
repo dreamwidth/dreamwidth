@@ -45,6 +45,8 @@ $LJ::HOME = $ENV{LJHOME};
 #    return Apache2::Const::OK;
 #}
 
+require $LJ::HOME . "/cgi-bin/patch_inc.pl";
+
 # pull in libraries and do per-start initialization once.
 require "modperl_subs.pl";
 
@@ -53,6 +55,7 @@ LJ::ModPerl::setup_restart();
 
 # delete itself from %INC to make sure this file is run again
 # when apache is restarted
+
 delete $INC{"$LJ::HOME/cgi-bin/modperl.pl"};
 
 # remember modtime of all loaded libraries
