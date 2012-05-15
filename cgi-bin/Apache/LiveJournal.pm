@@ -358,26 +358,8 @@ sub trans
 
     # only allow certain pages over SSL
     if ($is_ssl) {
-        my $ret = DW::Routing->call( ssl => 1 );
-        return $ret if defined $ret;
-
-        if ($uri =~ m!^/interface/! || $uri =~ m!^/__rpc_!) {
-            # handled later
-        } elsif ($LJ::SSLDOCS && $uri !~ m!(\.\.|\%|\.\/)!) {
-            my $file = "$LJ::SSLDOCS/$uri";
-            unless (-e $file) {
-                # no such file.  send them to the main server if it's a GET.
-                return $r->method eq 'GET' ? redir($r, "$LJ::SITEROOT$uri$args_wq") : 404;
-            }
-            if (-d _) { $file .= "/index.bml"; }
-            $file =~ s!/{2,}!/!g;
-            $r->filename($file);
-            $LJ::IMGPREFIX = "/img";
-            $LJ::STATPREFIX = "/stc";
-            return OK;
-        } else {
-            return FORBIDDEN;
-        }
+        $LJ::IMGPREFIX = $LJ::SSLIMGPREFIX;
+        $LJ::STATPREFIX = $LJ::SSLSTATPREFIX;
     } elsif (LJ::Hooks::run_hook("set_alternate_statimg")) {
         # do nothing, hook did it.
     } else {
@@ -792,6 +774,13 @@ sub trans
         # let the main server handle any errors
         $r->status < 400)
     {
+        if ( $is_ssl ) {
+            # FIXME: Remove when we are ready for SSL in userspace
+            return redir($r, LJ::create_url( undef, ssl => 0, keep_args => 1 ) )
+                    if $r->method eq "GET" || $r->method eq "HEAD";
+            return 404;
+        }
+
         my $user = $1;
 
         # see if the "user" is really functional code
@@ -912,7 +901,7 @@ sub trans
 
     # see if there is a modular handler for this URI
     my $ret = LJ::URI->handle( $uri, $r );
-    $ret = DW::Routing->call unless defined $ret;
+    $ret = DW::Routing->call( ssl => $is_ssl ) unless defined $ret;
     return $ret if defined $ret;
 
     # protocol support
