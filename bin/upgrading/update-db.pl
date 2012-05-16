@@ -21,8 +21,9 @@ use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require "ljlib.pl"; }
 use Getopt::Long;
 use File::Path ();
-use File::Basename ();
+use File::Basename qw/ dirname /;
 use File::Copy ();
+use Cwd qw/ abs_path /;
 use Image::Size ();
 use LJ::S2;
 use MogileFS::Admin;
@@ -258,7 +259,7 @@ sub populate_s2 {
     # S2
     print "Populating public system styles (S2):\n";
     {
-        my $LD = "s2layers"; # layers dir
+        my $LD_NAME = "s2layers"; # layers dir
 
         my $sysid = $su->{'userid'};
 
@@ -272,7 +273,7 @@ sub populate_s2 {
 
         my $has_new_layer = 0;
         my $compile = sub {
-            my ($base, $type, $parent, $s2source) = @_;
+            my ($base, $type, $parent, $s2source, $LD) = @_;
             return unless $s2source =~ /\S/;
 
             my $id = $existing->{$base} ? $existing->{$base}->{'s2lid'} : 0;
@@ -358,13 +359,21 @@ sub populate_s2 {
             LJ::S2::set_layer_source($id, \$s2source);
         };
 
-        my @layerfiles = ("s2layers.dat");
+        my @layerfiles = map { "$_/bin/upgrading/s2layers.dat" } ( $LJ::HOME, @$LJ::EXT_DIRS );
         while (@layerfiles)
         {
-            my $file = shift @layerfiles;
+            my $file = abs_path( shift @layerfiles );
             next unless -e $file;
             open (SL, $file) or die;
-            print "SOURCE: $file\n";
+            my $LD = dirname( $file ) . "/$LD_NAME";
+            my $d_file = $file;
+            my $d_LD = $LD;
+
+            $d_file =~ s!^\Q$LJ::HOME\E/*!!; 
+            $d_LD =~ s!^\Q$LJ::HOME\E/*!!;
+ 
+            print "SOURCE: $d_file ( $d_LD )\n";
+
             while (<SL>)
             {
                 s/\#.*//; s/^\s+//; s/\s+$//;
@@ -394,7 +403,7 @@ sub populate_s2 {
                         while (<$map_layout>) { $s2source .= $_; }
                     }
                     while (<L>) { $s2source .= $_; }
-                    $compile->($base, $type, $parent, $s2source);
+                    $compile->($base, $type, $parent, $s2source, $LD);
                 } else {
                     my $curname;
                     while (<L>) {
@@ -411,7 +420,7 @@ sub populate_s2 {
                             # skip any lines before the first #NEWLAYER section
                         }
                     }
-                    $compile->($curname, $type, $parent, $s2source);
+                    $compile->($curname, $type, $parent, $s2source, $LD);
                 }
                 close L;
             }

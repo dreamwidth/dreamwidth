@@ -15,6 +15,18 @@ unless ( $LJ::INC_PATCHED ) {
 
     push @INC, ( 'src/DSMS/lib' );
 
+    {
+        my @dirs = ();
+        my $ext_path = $LJ::HOME . "/ext/*";
+
+        foreach ( glob( $ext_path ) ) {
+            next unless -d $_;
+            push @dirs, $_;
+            unshift @INC, "$_/cgi-bin" if -d "$_/cgi-bin";
+        }
+        $LJ::EXT_DIRS = \@dirs;
+    }
+
     $LJ::INC_PATCHED = 1;
 }
 
