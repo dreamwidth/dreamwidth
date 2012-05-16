@@ -381,7 +381,7 @@ sub populate_s2 {
                 my ($base, $type, $parent) = split;
 
                 if ($type eq "INCLUDE") {
-                    push @layerfiles, $base;
+                    push @layerfiles, dirname($file) . "/$base";
                     next;
                 }
 
