@@ -20,6 +20,11 @@ use strict;
 
 package LJ;
 
+BEGIN {
+    # Please do not change this to "LJ::Directories"
+    require $LJ::HOME . "/cgi-bin/LJ/Directories.pm";
+}
+
 use Apache2::ServerUtil ();
 
 use LJ::Config;

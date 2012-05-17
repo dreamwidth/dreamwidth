@@ -359,7 +359,7 @@ sub populate_s2 {
             LJ::S2::set_layer_source($id, \$s2source);
         };
 
-        my @layerfiles = map { "$_/bin/upgrading/s2layers.dat" } ( $LJ::HOME, @$LJ::EXT_DIRS );
+        my @layerfiles = LJ::get_all_files("bin/upgrading/s2layers.dat", home_first => 1);
         while (@layerfiles)
         {
             my $file = abs_path( shift @layerfiles );

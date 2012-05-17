@@ -26,9 +26,9 @@ BEGIN {
     $LJ::HOME ||= $ENV{LJHOME};
     die "No \$LJ::HOME set, or not a directory!\n"
         unless $LJ::HOME && -d $LJ::HOME;
-    
-    require $LJ::HOME . "/cgi-bin/patch_inc.pl";
 
+    # Please do not change this to "LJ::Directories"
+    require $LJ::HOME . "/cgi-bin/LJ/Directories.pm";
 }
 
 # now that the library is setup, we can start pulling things in.  start with

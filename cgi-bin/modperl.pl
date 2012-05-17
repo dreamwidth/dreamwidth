@@ -45,8 +45,6 @@ $LJ::HOME = $ENV{LJHOME};
 #    return Apache2::Const::OK;
 #}
 
-require $LJ::HOME . "/cgi-bin/patch_inc.pl";
-
 # pull in libraries and do per-start initialization once.
 require "modperl_subs.pl";
 
