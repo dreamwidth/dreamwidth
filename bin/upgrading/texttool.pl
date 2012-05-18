@@ -23,13 +23,14 @@ use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require "ljlib.pl"; }
 use File::Basename ();
 use File::Path ();
+use File::Find ();
 use Getopt::Long;
 use LJ::Config; LJ::Config->load;
 use LJ::LangDatFile;
 use LJ::Lang;
 use LJ::Web;
 
-my $DATA_PATH = "bin/upgrading";
+my $DATA_DIR = "bin/upgrading";
 
 my $opt_help = 0;
 my $opt_local_lang;
@@ -87,13 +88,13 @@ my %lang_dir_map;
 
 foreach my $scope ( "general", "local" ) {
     my $file = $scope eq "general" ? "text.dat" : "text-local.dat";
-    my @files = LJ::get_all_files( "$DATA_PATH/$file", home_first => 1);
+    my @files = LJ::get_all_files( "$DATA_DIR/$file", home_first => 1);
     if ( $scope eq 'general' && ! @files ) {
         die "$file file not found; odd: did you delete it?\n";
     }
     foreach my $ffile ( @files ) {
         my $dir = File::Basename::dirname($ffile);
-        $dir =~ s!/\Q$DATA_PATH\E$!!;
+        $dir =~ s!/\Q$DATA_DIR\E$!!;
 
         open (F, $ffile) or die "Can't open file: $file: $!\n";
         while (<F>) {
@@ -373,30 +374,56 @@ sub poptext {
     # learn about base files
     my %source;   # langcode -> absfilepath
     foreach my $lang (@langs) {
-        my $file = "$ENV{'LJHOME'}/bin/upgrading/${lang}.dat";
+        my $file = $lang_dir_map{$lang} . "/$DATA_DIR/${lang}.dat";
+        print " $lang   * $file\n";
         next if $opt_only && $lang ne $opt_only;
         next unless -e $file;
         $source{$file} = [$lang, ''];
     }
 
+    my $wanted = sub {
+        print join(" ", ( $_, $File::Find::Dir, $File::Find::name) ) . "\n";
+        return $_ =~ m/\.text(\.local)?$/;
+    };
+
     # learn about local files
-    chdir "$ENV{LJHOME}" or die "Failed to chdir to \$LJHOME.\n";
-    my @textfiles = `find htdocs/ views/ -name '*.text' -or -name '*.text.local'`;
-    chomp @textfiles;
-    foreach my $tf (@textfiles) {
+
+    my $lang;
+    my $current_dir;
+
+    my $process_file = sub {
+        my $tf = $File::Find::name;
+        return unless $tf =~ m/\.text(\.local)?$/;
+
         my $is_local = $tf =~ /\.local$/;
-        my $lang = "en";
+
         if ($is_local) {
-            $lang = $LJ::DEFAULT_LANG;
             die "uh, what is this .local file?" unless $lang ne "en";
         }
+
         my $pfx = $tf;
         $pfx =~ s!^htdocs/!!;
         $pfx =~ s!^views/!!;
         $pfx =~ s!\.text(\.local)?$!!;
         $pfx = "/$pfx";
-        $source{"$ENV{'LJHOME'}/$tf"} = [$lang, $pfx];
+        $source{$current_dir . '/' . $tf} = [$lang, $pfx];
+    };
+
+    my $original_dir = Cwd::getcwd();
+
+    # Only going over these directories and not all directories
+    # This can be revisited if we have .text(.local) files
+    #  outside of these
+    foreach my $the_lang ( keys %lang_dir_map ) {
+        $lang = $the_lang;
+        $current_dir = $lang_dir_map{$lang};
+        next unless -d $current_dir;
+        chdir $current_dir;
+        print " * $current_dir\n";
+        File::Find::find( $process_file, 'htdocs', 'views' );
     }
+
+    chdir $original_dir;
 
     my %existing_item;  # langid -> code -> 1
 
