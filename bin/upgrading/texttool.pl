@@ -29,6 +29,8 @@ use LJ::LangDatFile;
 use LJ::Lang;
 use LJ::Web;
 
+my $DATA_PATH = "bin/upgrading";
+
 my $opt_help = 0;
 my $opt_local_lang;
 my $opt_only;
@@ -60,7 +62,6 @@ Where <command> is one of:
   dumptext     Dump lang text based on text[-local].dat information
                Optionally:
                   [lang...] list of languages to dump (default is all)
-  dumptextcvs  Same as dumptext, but dumps to the CVS area, not the live area
   check        Check validity of text[-local].dat files
   wipedb       Remove all language/text data from database, including crumbs.
   wipecrumbs   Remove all crumbs from the database, leaving other text alone.
@@ -82,74 +83,82 @@ my $set = sub {
     $hash->{$key} = $val;
 };
 
-foreach my $scope ("general", "local") {
+my %lang_dir_map;
+
+foreach my $scope ( "general", "local" ) {
     my $file = $scope eq "general" ? "text.dat" : "text-local.dat";
-    my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
-    unless (-e $ffile) {
-        next if $scope eq "local";
+    my @files = LJ::get_all_files( "$DATA_PATH/$file", home_first => 1);
+    if ( $scope eq 'general' && ! @files ) {
         die "$file file not found; odd: did you delete it?\n";
     }
-    open (F, $ffile) or die "Can't open file: $file: $!\n";
-    while (<F>) {
-        s/\s+$//; s/^\#.+//;
-        next unless /\S/;
-        my @vals = split(/:/, $_);
-        my $what = shift @vals;
+    foreach my $ffile ( @files ) {
+        my $dir = File::Basename::dirname($ffile);
+        $dir =~ s!/\Q$DATA_PATH\E$!!;
 
-        # language declaration
-        if ($what eq "lang") {
-            my $lang = {
-                scope  => $scope,
-                lnid   => $vals[0],
-                lncode => $vals[1],
-                lnname => $vals[2],
-                parentlnid => 0,   # default.  changed later.
-                parenttype => 'diff',
-            };
-            $lang->{'parenttype'} = $vals[3] if defined $vals[3];
-            if (defined $vals[4]) {
-                unless (exists $lang_code{$vals[4]}) {
-                    die "Can't declare language $lang->{'lncode'} with missing parent language $vals[4].\n";
-                }
-                $lang->{'parentlnid'} = $lang_code{$vals[4]}->{'lnid'};
-            }
-            $set->(\%lang_id,   $lang->{'lnid'},   $lang, "Language already defined with ID: ");
-            $set->(\%lang_code, $lang->{'lncode'}, $lang, "Language already defined with code: ");
-        }
+        open (F, $ffile) or die "Can't open file: $file: $!\n";
+        while (<F>) {
+            s/\s+$//; s/^\#.+//;
+            next unless /\S/;
+            my @vals = split(/:/, $_);
+            my $what = shift @vals;
 
-        # domain declaration
-        if ($what eq "domain") {
-            my $dcode = $vals[1];
-            my ($type, $args) = split(m!/!, $dcode);
-            my $dom = {
-                scope => $scope,
-                dmid => $vals[0],
-                type => $type,
-                args => $args || "",
-            };
-            $set->(\%dom_id,   $dom->{'dmid'}, $dom,
-                "Domain already defined with ID: ");
-            $set->(\%dom_code, $dcode, $dom,
-                "Domain already defined with parameters: ");
-        }
+            # language declaration
+            if ($what eq "lang") {
+                $lang_dir_map{$vals[1]} = $dir;
 
-        # langdomain declaration
-        if ($what eq "langdomain") {
-            my $ld = {
-                lnid =>
-                    (exists $lang_code{$vals[0]}
-                        ? $lang_code{$vals[0]}->{'lnid'}
-                        : die "Undefined language: $vals[0]\n"),
-                dmid =>
-                    (exists $dom_code{$vals[1]}
-                        ? $dom_code{$vals[1]}->{'dmid'}
-                        : die "Undefined domain: $vals[1]\n"),
-                dmmaster => $vals[2] ? "1" : "0",
+                my $lang = {
+                    scope  => $scope,
+                    lnid   => $vals[0],
+                    lncode => $vals[1],
+                    lnname => $vals[2],
+                    parentlnid => 0,   # default.  changed later.
+                    parenttype => 'diff',
                 };
-            push @lang_domains, $ld;
+                $lang->{'parenttype'} = $vals[3] if defined $vals[3];
+                if (defined $vals[4]) {
+                    unless (exists $lang_code{$vals[4]}) {
+                        die "Can't declare language $lang->{'lncode'} with missing parent language $vals[4].\n";
+                    }
+                    $lang->{'parentlnid'} = $lang_code{$vals[4]}->{'lnid'};
+                }
+                $set->(\%lang_id,   $lang->{'lnid'},   $lang, "Language already defined with ID: ");
+                $set->(\%lang_code, $lang->{'lncode'}, $lang, "Language already defined with code: ");
+            }
+
+            # domain declaration
+            if ($what eq "domain") {
+                my $dcode = $vals[1];
+                my ($type, $args) = split(m!/!, $dcode);
+                my $dom = {
+                    scope => $scope,
+                    dmid => $vals[0],
+                    type => $type,
+                    args => $args || "",
+                };
+                $set->(\%dom_id,   $dom->{'dmid'}, $dom,
+                    "Domain already defined with ID: ");
+                $set->(\%dom_code, $dcode, $dom,
+                    "Domain already defined with parameters: ");
+            }
+
+            # langdomain declaration
+            if ($what eq "langdomain") {
+                my $ld = {
+                    lnid =>
+                        (exists $lang_code{$vals[0]}
+                            ? $lang_code{$vals[0]}->{'lnid'}
+                            : die "Undefined language: $vals[0]\n"),
+                    dmid =>
+                        (exists $dom_code{$vals[1]}
+                            ? $dom_code{$vals[1]}->{'dmid'}
+                            : die "Undefined domain: $vals[1]\n"),
+                    dmmaster => $vals[2] ? "1" : "0",
+                    };
+                push @lang_domains, $ld;
+            }
         }
+        close F;
     }
-    close F;
 }
 
 if ($mode eq "check") {
@@ -186,7 +195,7 @@ poptext(@ARGV) if $mode eq "poptext" or $mode eq "load";
 copyfaq() if $mode eq "copyfaq" or $mode eq "load";
 loadcrumbs() if $mode eq "loadcrumbs" or $mode eq "load";
 makeusable() if $mode eq "makeusable" or $mode eq "load";
-dumptext($1, 0, @ARGV) if $mode =~ /^dumptext(cvs)?$/;
+dumptext(0, @ARGV) if $mode =~ /^dumptext?$/;
 wipedb() if $mode eq "wipedb";
 wipecrumbs() if $mode eq "wipecrumbs";
 remove(@ARGV) if $mode eq "remove" and scalar(@ARGV) == 2;
@@ -498,14 +507,18 @@ sub poptext {
 
 # TODO: use LJ::LangDatFile->save
 sub dumptext {
-    my $to_cvs = shift;
     my $append = shift;
     my @langs = @_;
     unless (@langs) { @langs = keys %lang_code; }
 
     $out->('Dumping text...', '+');
     foreach my $lang (@langs) {
-        $out->("$lang");
+        my $lang_dir = $lang_dir_map{$lang};
+        my $d_langdir = $lang_dir;
+        $d_langdir =~ s!^\Q$LJ::HOME\E/!!;
+
+        $out->("$lang ( $d_langdir )");
+
         my $l = $lang_code{$lang};
 
         my %fh_map = (); # filename => filehandle
@@ -538,19 +551,21 @@ sub dumptext {
 
         while (my ($itcode, $text, $staleness, $notes) = $sth->fetchrow_array) {
 
-            my $langdat_file = LJ::Lang::langdat_file_of_lang_itcode($lang, $itcode, $to_cvs);
+            my $langdat_file = LJ::Lang::relative_langdat_file_of_lang_itcode($lang, $itcode);
 
             $itcode = LJ::Lang::itcode_for_langdat_file($langdat_file, $itcode);
 
             my $fh = $fh_map{$langdat_file};
             unless ($fh) {
-
+                my $langdat_path = $lang_dir . '/' . $langdat_file;
+                print " * opening $langdat_path\n";
+ 
                 # the dir might not exist in some cases
                 my $d = File::Basename::dirname($langdat_file);
                 File::Path::mkpath($d) unless -e $d;
 
-                open ($fh, $append ? ">>$langdat_file" : ">$langdat_file")
-                    or die "unable to open langdat file: $langdat_file ($!)";
+                open ($fh, $append ? ">>$langdat_path" : ">$langdat_path")
+                    or die "unable to open langdat file: $langdat_path ($!)";
 
                 $fh_map{$langdat_file} = $fh;
 
