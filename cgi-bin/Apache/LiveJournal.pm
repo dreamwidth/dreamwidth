@@ -41,6 +41,7 @@ use LJ::URI;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
+use Cwd qw/abs_path/;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -52,6 +53,8 @@ my %RQ;       # per-request data
 my %USERPIC;  # conf related to userpics
 my %REDIR;
 my ( $TOR_UPDATE_TIME, %TOR_EXITS );
+
+my %FILE_LOOKUP_CACHE;
 
 # Mapping of MIME types to image types understood by the blob functions.
 my %MimeTypeMapd6 = (
@@ -279,6 +282,34 @@ sub ip_is_via_tor {
     return exists $TOR_EXITS{$_[0]};
 }
 
+sub resolve_path_for_uri {
+    my $uri = $_[0];
+
+    if ( $uri !~ m!(\.\.|\%|\.\/)! ) {
+        if ( exists $FILE_LOOKUP_CACHE{$uri} ) {
+            return $FILE_LOOKUP_CACHE{$uri};
+        }
+
+        foreach my $dir ( LJ::get_all_directories( 'htdocs' ) ) {
+            my $file = "$dir/$uri";
+            $file .= "index.bml" if -e "$file/index.bml" && $uri eq '/'; 
+            $file .= ".bml" if -e "$file.bml";
+            next unless -e $file;
+
+            if ( -d $file && -e "$file/index.bml" ) {
+                return redir( $uri . "/" ) unless $uri =~ m!/$!;
+                $file .= "/index.bml";
+            }
+
+            $file = abs_path( $file );
+            if ( $file ) { 
+                return $FILE_LOOKUP_CACHE{$uri} = $file;
+            }
+        }
+    }
+    return undef;
+}
+
 sub trans
 {
     my $r = shift;
@@ -341,18 +372,11 @@ sub trans
             return OK;
             }
 
-
-        # this is a fancy transform - basically, if the file exists with a BML extension,
-        # then assume we're trying to get to it.  (this allows us to write URLs without the
-        # extension...)
-        if ( $host eq $LJ::DOMAIN_WEB && -e "$LJ::HTDOCS/$uri.bml" ) {
-            $r->uri( $uri = "$uri.bml" );
-        }
-
     } else { # not is_initial_req
         if ($r->status == 404) {
             my $fn = $LJ::PAGE_404 || "404-error.bml";
-            return $bml_handler->("$LJ::HOME/htdocs/" . $fn);
+            my $path = resolve_path_for_uri($fn);
+            return $bml_handler->( $path ) if $path;
         }
     }
 
@@ -367,6 +391,12 @@ sub trans
         $LJ::IMGPREFIX = $LJ::IMGPREFIX_BAK;
         $LJ::STATPREFIX = $LJ::STATPREFIX_BAK;
         $LJ::USERPIC_ROOT = $LJ::USERPICROOT_BAK if $LJ::USERPICROOT_BAK;
+    }
+
+    my $alt_path = resolve_path_for_uri($uri);
+    if ( $alt_path ) {
+        $r->filename( $alt_path );
+        return OK;
     }
 
     # let foo.com still work, but redirect to www.foo.com
