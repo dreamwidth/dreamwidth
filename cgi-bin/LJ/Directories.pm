@@ -46,7 +46,7 @@ sub get_all_files {
 }
 
 sub get_all_directories {
-    return grep { -f $_ } get_all_paths(@_);
+    return grep { -d $_ } get_all_paths(@_);
 }
 
 unless ( $INC_PATCHED ) {
