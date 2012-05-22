@@ -375,7 +375,6 @@ sub poptext {
     my %source;   # langcode -> absfilepath
     foreach my $lang (@langs) {
         my $file = $lang_dir_map{$lang} . "/$DATA_DIR/${lang}.dat";
-        print " $lang   * $file\n";
         next if $opt_only && $lang ne $opt_only;
         next unless -e $file;
         $source{$file} = [$lang, ''];
@@ -419,7 +418,6 @@ sub poptext {
         $current_dir = $lang_dir_map{$lang};
         next unless -d $current_dir;
         chdir $current_dir;
-        print " * $current_dir\n";
         File::Find::find( $process_file, 'htdocs', 'views' );
     }
 
@@ -585,7 +583,6 @@ sub dumptext {
             my $fh = $fh_map{$langdat_file};
             unless ($fh) {
                 my $langdat_path = $lang_dir . '/' . $langdat_file;
-                print " * opening $langdat_path\n";
  
                 # the dir might not exist in some cases
                 my $d = File::Basename::dirname($langdat_file);
