@@ -48,6 +48,7 @@ use APR::Finfo ();
 use Digest::MD5;
 use File::Spec;
 use DW::SiteScheme;
+use LJ::Directories;
 
 BEGIN {
     $Apache::BML::HAVE_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -304,12 +305,12 @@ sub handler
     my $default_scheme_override = undef;
     if ($env->{'HOOK-default_scheme_override'}) {
         $default_scheme_override = eval {
-            $env->{'HOOK-default_scheme_override'}->($scheme || $env->{DefaultScheme});
+            $env->{'HOOK-default_scheme_override'}->($scheme || DW::SiteScheme->current);
         };
         return report_error($r, "<b>Error running scheme override hook:</b><br />\n$@") if $@;
     }
 
-    $scheme ||= $default_scheme_override || $env->{'DefaultScheme'};
+    $scheme ||= $default_scheme_override || DW::SiteScheme->current;
 
     # now we've made the decision about what scheme to use
     # -- does a hook want to translate this into another scheme?
@@ -322,7 +323,7 @@ sub handler
 
     unless (BML::set_scheme($scheme)) {
         $scheme = $env->{'ForceScheme'} ||
-            $env->{'DefaultScheme'};
+            DW::SiteScheme->current;;
         BML::set_scheme($scheme);
     }
 
@@ -1411,7 +1412,7 @@ sub set_scheme
     return 0 if $scheme =~ /[^\w\-]/;
     unless ($scheme) {
         $scheme = $req->{'env'}->{'ForceScheme'} ||
-            $req->{'env'}->{'DefaultScheme'};
+            DW::SiteScheme->current;
     }
 
     my $dw_scheme = DW::SiteScheme->get($scheme);
