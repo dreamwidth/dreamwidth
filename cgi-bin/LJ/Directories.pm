@@ -51,17 +51,7 @@ sub get_all_directories {
 
 unless ( $INC_PATCHED ) {
     lib->import($_) foreach map { $LJ::HOME . "/lib/" . $_ } (
-        'gearman/api/perl/Gearman/lib',
-        'TheSchwartz/lib',
-        'TheSchwartz-Worker-SendEmail/lib',
-
-        'memcached/api/perl/lib',
-
         'ddlockd/api/perl',
-
-        'hubbub/perl/lib',
-        'hubbub/perl-schwartz/lib',
-
         'LJ-UserSearch',
     );
 

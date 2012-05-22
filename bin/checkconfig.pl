@@ -242,6 +242,14 @@ my %modules = (
                    deb => 'libtext-markdown-perl',
                    opt => 'Required to allow using Markdown in entries.',
                },
+               "Cache::Memcached" => {
+                   deb => 'libcache-memcached-perl',
+               },
+               "Gearman::Client" => {
+                   deb => 'libgearman-client-perl',
+               },
+               "Net::PubSubHubbub::Publisher" => {},
+               "TheSchwartz::Worker::PubSubHubbubPublish" => {},
               );
 
 
