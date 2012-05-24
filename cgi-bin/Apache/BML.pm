@@ -305,12 +305,12 @@ sub handler
     my $default_scheme_override = undef;
     if ($env->{'HOOK-default_scheme_override'}) {
         $default_scheme_override = eval {
-            $env->{'HOOK-default_scheme_override'}->($scheme || DW::SiteScheme->current);
+            $env->{'HOOK-default_scheme_override'}->( $scheme || DW::SiteScheme->default );
         };
         return report_error($r, "<b>Error running scheme override hook:</b><br />\n$@") if $@;
     }
 
-    $scheme ||= $default_scheme_override || DW::SiteScheme->current;
+    $scheme ||= $default_scheme_override || DW::SiteScheme->default;
 
     # now we've made the decision about what scheme to use
     # -- does a hook want to translate this into another scheme?
@@ -323,7 +323,7 @@ sub handler
 
     unless (BML::set_scheme($scheme)) {
         $scheme = $env->{'ForceScheme'} ||
-            DW::SiteScheme->current;;
+            DW::SiteScheme->default;
         BML::set_scheme($scheme);
     }
 
@@ -1412,7 +1412,7 @@ sub set_scheme
     return 0 if $scheme =~ /[^\w\-]/;
     unless ($scheme) {
         $scheme = $req->{'env'}->{'ForceScheme'} ||
-            DW::SiteScheme->current;
+            DW::SiteScheme->default;
     }
 
     my $dw_scheme = DW::SiteScheme->get($scheme);

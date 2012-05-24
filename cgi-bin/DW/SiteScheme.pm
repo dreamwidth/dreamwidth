@@ -180,8 +180,17 @@ sub current {
             $r->cookie( 'BMLschemepref' );
     }
 
-    return $rv ||
-        $sitescheme_order[0] ||
+    return $rv || $_[0]->default;
+}
+
+=head2 C<< DW::SiteScheme->default >>
+
+Get the default sitescheme.
+
+=cut
+
+sub default {
+    return $sitescheme_order[0] ||
         'global';
 }
 
