@@ -190,6 +190,8 @@ Get the default sitescheme.
 =cut
 
 sub default {
+    $_[0]->__load_data;
+
     return $sitescheme_order[0] ||
         'global';
 }

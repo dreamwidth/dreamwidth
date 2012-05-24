@@ -275,7 +275,6 @@ sub handler
         }
     }
 
-
     if ($env->{'HOOK-startup'}) {
         eval {
             $env->{'HOOK-startup'}->();
@@ -1770,7 +1769,7 @@ sub decide_language
     return $winner if $winner;
 
     # next is the default language
-    return $req->{'env'}->{'DefaultLanguage'} if $req->{'env'}->{'DefaultLanguage'};
+    return $LJ::LANGS[0];
 
     # lastly, english.
     return "en";
