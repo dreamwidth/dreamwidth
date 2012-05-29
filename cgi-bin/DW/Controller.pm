@@ -130,14 +130,16 @@ sub controller {
         foreach my $priv ( @$privs ) {
             # if priv is a string, assign the priv having to has_one and stop searching
             if ( not ref( $priv ) ) {
-                if ( $has_one = $vars->{remote}->has_priv( $priv ) ) {
+                if ( $vars->{remote}->has_priv( $priv ) ) {
+                    $has_one = 1;
                     last;
                 } else {
                     push @privnames, $priv;
                 }
             } elsif ( ref( $priv ) eq "CODE" ) { # if priv is a function, get the result and name
                 my( $result, $name ) = $priv->( $vars->{remote} );
-                if ( $has_one = $result ) {
+                if ( $result ) {
+                    $has_one = 1;
                     last;
                 } else {
                     push @privnames, $name;
