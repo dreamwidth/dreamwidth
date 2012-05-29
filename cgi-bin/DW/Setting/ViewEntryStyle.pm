@@ -21,10 +21,6 @@ use base 'DW::Setting::ViewStyle';
 use strict;
 use warnings;
 
-sub supports_site {
-    return 1;
-}
-
 sub label {
     return $_[0]->ml( 'setting.display.viewentrystyle.label' );
 }

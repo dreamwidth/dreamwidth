@@ -1,0 +1,9 @@
+table.month { border-collapse: collapse; }
+
+table.month caption { display: none; }
+
+table.month td, table.month th { border: 1px solid #E2E2E2; padding: .2em; }
+
+table.month td.day { vertical-align: top; min-width: 3em; }
+
+table.month td.day p { margin: 0px .5em; text-align: right; }

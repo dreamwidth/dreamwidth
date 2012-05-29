@@ -1,0 +1,144 @@
+
+/* Recent page */
+
+.entry-wrapper { margin: 2em 0em; }
+
+.entry-wrapper .header {
+    padding: .5em;
+    margin-bottom: .5em;
+}
+
+.entry-wrapper .header h3 { font-size: 1.2em; }
+.entry-wrapper .header h3 a {
+    text-decoration: none;
+    margin-bottom: .4em;
+}
+
+.entry-wrapper .header .access-filter, .entry-wrapper .header .restrictions {
+    float: left;
+    margin-right: 8px;
+}
+
+.entry-wrapper .datetime {
+    display: block;
+    text-align: right;
+}
+
+.entry-wrapper .userpic {
+    float: left;
+    margin: .5em 1em 1em 0em;
+}
+
+.entry-content {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+.entry .metadata {
+    clear: both;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.entry .metadata ul { list-style-type: none; }
+.entry .metadata-label { font-weight: bold; }
+
+.entry .tag { margin: .5em 0em; }
+.entry .tag .tag-text { font-weight: bold; }
+.entry .tag ul { list-style-type: none; display: inline; }
+.entry .tag ul li { display: inline; }
+
+.entry-wrapper .contents, .entry-wrapper .footer { clear: both; }
+
+.entry .footer { margin-top: .5em; }
+
+ul.entry-management-links { float: left; margin-left: 0px; }
+ul.entry-interaction-links { float: right; }
+
+ul.entry-management-links li, ul.entry-interaction-links li {
+    display: inline;
+    margin-right: .2em;
+}
+
+.separator-after { clear: both; }
+
+/* Year archive */
+
+.month-wrapper h3, .month-wrapper .contents { padding: .5em 0em; }
+
+.month-wrapper caption { display: none; }
+
+.month-wrapper table.month {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.month-wrapper table.month td.day {
+    height: 4em;
+    padding: 0px;
+}
+
+.month-wrapper table.month td.day span.label {
+    display: block;
+    width: 2em;
+    height: 1.5em;
+    padding: .2em .5em 0em 0em;
+    text-align: right;
+}
+
+.month-wrapper table.month th { padding: .5em; }
+
+#content .month-wrapper table.month td.day-has-entries p  {
+    font-weight: bold;
+    text-align: center;
+    margin: 0px;
+    padding: 0px;
+}
+
+#content .month-wrapper table.month td.day-has-entries p a {
+    display: block;
+    text-decoration: none;
+    height: 3em;
+}
+
+.month-wrapper .footer { padding: .5em 0em; }
+
+.month .header h3 { padding-left: .5em; }
+
+.month .footer a , .tags-container .manage-link a {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    border-radius: .2em;
+    padding: .5em 0em;
+}
+
+/* Day archive page navigation, year archive page navigation */
+
+.day, .year { clear: both; }
+
+.navigation ul {
+    list-style-type: none;
+    padding-left: 0px;
+    margin-left: 0px;
+}
+
+.navigation li.page-back { float: left; }
+.navigation li.page-forward { float: right; }
+
+#archive-year .navigation li { float: left; margin-right: 1em;}
+
+.navigation a, .navigation li.active {
+    border-radius: 0.2em 0.2em 0.2em 0.2em;
+    display: block;
+    padding: 0.5em;
+    text-align: center;
+    text-decoration: none;
+    margin-bottom: .5em;
+}
+
+.navigation li.active { font-weight: bold; }
+
+/* Tag page */
+
+.tags-container .header, .tags-container .contents { padding: .5em; }

@@ -39,6 +39,7 @@ function Page::print_title() {
 
 function Page::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
+    $*SITEVIEWS->need_res( "stc/siteviews/layout.css" );
 }
 
 function Page::print_theme_stylesheet() {}
