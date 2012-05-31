@@ -1,3 +1,68 @@
+#NEWLAYER: modish/badfairy
+layerinfo type = "theme";
+layerinfo name = "Bad Fairy";
+layerinfo redist_uniq = "modish/badfairy";
+layerinfo author_name = "musyc";
+
+set layout_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#2f1648";
+set color_page_details_text = "#c8c2cd";
+set color_page_link = "#ee3689";
+set color_page_link_active = "#c8c2cd";
+set color_page_link_hover = "#c8c2cd";
+set color_page_link_visited = "#966981";
+set color_page_text = "#c8c2cd";
+set color_page_title = "#c8c2cd";
+set color_header_background = "#2f1648";
+set color_footer_background = "#2f1648";
+set color_footer_link = "#ee3689";
+set color_footer_link_active = "#966981";
+set color_footer_link_hover = "#966981";
+set color_footer_link_visited = "#c8c2cd";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#2f1648";
+set color_entry_link = "#ee3689";
+set color_entry_link_active = "#966981";
+set color_entry_link_hover = "#966981";
+set color_entry_link_visited = "#966981";
+set color_entry_text = "#c8c2cd";
+set color_entry_title = "#2f1648";
+set color_entry_title_background = "#c8c2cd";
+set color_comment_title = "#2f1648";
+set color_comment_title_background = "#c8c2cd";
+
+##===============================
+## CSS
+##===============================
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-navlinks a {
+        color: #4f4562;
+        background: #c8c2cd;
+        }
+
+    .module-navlinks a:visited {
+        color: #2f1648;
+        }
+
+    .module-navlinks a:hover {
+        color: #2f1648;
+        background: #ee3689;
+        }
+    """;
+}
+
+
 #NEWLAYER: modish/bluespruce
 layerinfo type = "theme";
 layerinfo name = "Blue Spruce";
@@ -112,7 +177,7 @@ function Page::print_theme_stylesheet() {
         }
 
     ul.entry-interaction-links {
-        background-color: $*color_entry_title; 
+        background-color: $*color_entry_title;
         border-bottom: 1px solid $*color_entry_title_background;
         }
     """;
@@ -283,6 +348,138 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: modish/lilacpetals
+layerinfo type = "theme";
+layerinfo name = "Lilac Petals";
+layerinfo redist_uniq = "modish/lilacpetals";
+layerinfo author_name = "musyc";
+
+set layout_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page
+##===============================
+
+set color_footer_background = "#332230";
+set color_footer_link = "#fff";
+set color_footer_link_active = "#fff";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#fff";
+set color_header_background = "#332230";
+set color_page_background = "#91758c";
+set color_page_details_text = "#fff";
+set color_page_link = "#332230";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#342832";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#fff";
+set color_comment_title_background = "#332230";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#332230";
+
+##===============================
+## Module
+##===============================
+
+set color_module_border = "#332230";
+
+##===============================
+## CSS
+##===============================
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-navlinks a {
+        color: #fff;
+        background: #332230;
+        }
+
+    .module-navlinks a:visited {
+        color: #91758c;
+        }
+
+    .module-navlinks a:hover {
+        color: #91758c;
+        background: #ddd;
+        }
+    """;
+}
+
+
+#NEWLAYER: modish/midcenturymodern
+layerinfo type = "theme";
+layerinfo name = "Mid-Century Modern";
+layerinfo redist_uniq = "modish/midcenturymodern";
+layerinfo author_name = "musyc";
+
+set layout_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page
+##===============================
+
+set color_footer_background = "#653b2d";
+set color_footer_link = "#c39363";
+set color_footer_link_active = "#c39363";
+set color_footer_link_hover = "#c39363";
+set color_footer_link_visited = "#c39363";
+set color_header_background = "#653b2d";
+set color_page_background = "#121115";
+set color_page_details_text = "#c39363";
+set color_page_link = "#e1c2a4";
+set color_page_link_active = "#ccc";
+set color_page_link_hover = "#ccc";
+set color_page_link_visited = "#c39363";
+set color_page_text = "#c39363";
+set color_page_title = "#c39363";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#121115";
+set color_comment_title_background = "#c39363";
+set color_entry_background = "#653b2d";
+set color_entry_link_active = "#121115";
+set color_entry_link_hover = "#121115";
+set color_entry_title = "#121115";
+set color_entry_title_background = "#c39363";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#653b2d";
+set color_module_link_active = "#121115";
+set color_module_link_hover = "#121115";
+set color_module_title = "#c39363";
+set color_module_title_background = "#653b2d";
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-navlinks a {
+        color: #e1c2a4;
+        background: #121115;
+        }
+
+    .module-navlinks a:visited {
+        color: #c39363;
+        }
+
+    .module-navlinks a:hover {
+        color: #121115;
+        background: #e1c2a4;
+        }
+    """;
+}
+
+
 #NEWLAYER: modish/moonlight
 layerinfo type = "theme";
 layerinfo name = "Moonlight";
@@ -338,12 +535,76 @@ set color_module_title_background = "#18002C";
 function Page::print_theme_stylesheet() {
     """
     .module-navlinks .module-list .module-list-item a {
-        color: $*color_module_border; 
+        color: $*color_module_border;
         text-decoration: none;
         }
 
     .module-navlinks .module-list .module-list-item:hover a {
         color: $*color_page_text;
+        }
+    """;
+}
+
+
+#NEWLAYER: modish/mountaindevil
+layerinfo type = "theme";
+layerinfo name = "Mountain Devil";
+layerinfo redist_uniq = "modish/mountaindevil";
+layerinfo author_name = "musyc";
+
+set layout_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#010f21";
+set color_page_details_text = "#cee3eb";
+set color_page_link = "#00f3e1";
+set color_page_link_active = "#646d72";
+set color_page_link_hover = "#646d72";
+set color_page_link_visited = "#077495";
+set color_page_text = "#cee3eb";
+set color_page_title = "#00f3e1";
+set color_header_background = "#010f21";
+set color_footer_background = "#010f21";
+set color_footer_link = "#00f3e1";
+set color_footer_link_hover = "#646d72";
+set color_footer_link_visited = "#077495";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#010f21";
+set color_entry_interaction_links = "";
+set color_entry_link = "#00f3e1";
+set color_entry_link_hover = "#646d72";
+set color_entry_link_visited = "#077495";
+set color_entry_text = "#cee3eb";
+set color_entry_title = "#00f3e1";
+set color_entry_title_background = "#010f21";
+set color_comment_title = "#00f3e1";
+set color_comment_title_background = "#010f21";
+
+##===============================
+## CSS
+##===============================
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-navlinks a {
+        color: #010f21;
+        background: #00f3e1;
+        }
+
+    .module-navlinks a:hover {
+        color: #010f21;
+        background: #646d72;
+        }
+
+    .module-navlinks a:visited {
+        color: #010f21;
         }
     """;
 }
@@ -470,6 +731,70 @@ set color_module_title = "#AFB2BB";
 set color_module_title_background = "#FFFCF7";
 
 
+#NEWLAYER: modish/tigerlilies
+layerinfo type = "theme";
+layerinfo name = "Tiger Lilies";
+layerinfo redist_uniq = "modish/tigerlilies";
+layerinfo author_name = "musyc";
+
+set layout_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page
+##===============================
+
+set color_footer_background = "#ff5300";
+set color_footer_link = "#444";
+set color_footer_link_active = "#444";
+set color_footer_link_hover = "#444";
+set color_footer_link_visited = "#444";
+set color_header_background = "#ff5300";
+set color_page_background = "#444";
+set color_page_details_text = "#fff";
+set color_page_link = "#ff5300";
+set color_page_link_active = "#fff";
+set color_page_link_hover = "#fff";
+set color_page_link_visited = "#ffa073";
+set color_page_text = "#fff";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#444444";
+set color_comment_title_background = "#ff5300";
+set color_entry_link_hover = "#fff";
+set color_entry_title = "#ff5300";
+
+##===============================
+## Module
+##===============================
+
+set color_module_border = "#ffa073";
+
+##===============================
+## CSS
+##===============================
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-navlinks a {
+        color: #444;
+        background: #ff5300;
+        }
+
+    .module-navlinks a:visited {
+        color: #ffa073;
+        }
+
+    .module-navlinks a:hover {
+        color: #ff5300;
+        background: #444;
+        }
+    """;
+}
+
+
 #NEWLAYER: modish/trusty
 layerinfo type = "theme";
 layerinfo name = "Trusty";
@@ -544,7 +869,7 @@ function Page::print_theme_stylesheet() {
         }
 
     ul.entry-interaction-links {
-        background-color: $*color_module_title_background; 
+        background-color: $*color_module_title_background;
         border-bottom: 1px solid $*color_module_border;
         }
 
@@ -606,3 +931,82 @@ set color_module_link_hover = "#aceded";
 set color_module_link_visited = "#132245";
 set color_module_title = "#ffe8b9";
 set color_module_title_background = "#a66229";
+
+
+#NEWLAYER: modish/yellowmoons
+layerinfo type = "theme";
+layerinfo name = "Yellow Moons";
+layerinfo redist_uniq = "modish/yellowmoons";
+layerinfo author_name = "musyc";
+
+set layout_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page
+##===============================
+
+set color_footer_background = "#ffcc00";
+set color_footer_link = "#333";
+set color_footer_link_active = "#f3f3f3";
+set color_footer_link_hover = "#333";
+set color_footer_link_visited = "#333";
+set color_header_background = "#333";
+set color_page_background = "#8b8878";
+set color_page_details_text = "#f3f3f3";
+set color_page_link = "#ffcc00";
+set color_page_link_active = "#ffcc00";
+set color_page_link_hover = "#333";
+set color_page_link_visited = "#ffff99";
+set color_page_text = "#f3f3f3";
+set color_page_title = "#ffcc00";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#ffcc00";
+set color_comment_title_background = "#333";
+set color_entry_background = "#333";
+set color_entry_link = "#ffcc00";
+set color_entry_link_active = "#ffcc00";
+set color_entry_link_hover = "#f3f3f3";
+set color_entry_link_visited = "#ffff99";
+set color_entry_text = "#f3f3f3";
+set color_entry_title = "#ffcc00";
+set color_entry_title_background = "#333";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#333333";
+set color_module_border = "#ffcc00";
+set color_module_link = "#ffcc00";
+set color_module_link_active = "#ffcc00";
+set color_module_link_hover = "#f3f3f3";
+set color_module_link_visited = "#ffff99";
+set color_module_text = "#f3f3f3";
+set color_module_title = "#ffcc00";
+set color_module_title_background = "#333333";
+
+##===============================
+## CSS
+##===============================
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-navlinks a {
+        color: #333;
+        background: #ffcc00;
+        }
+
+    .module-navlinks a:visited {
+        color: #333;
+        }
+
+    .module-navlinks a:hover {
+        color: #333;
+        background: #ffff99;
+        }
+    """;
+}
