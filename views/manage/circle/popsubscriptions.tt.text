@@ -1,6 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.communities.intro=These are the most popular community accounts in your circle:
-
 .disabled=This feature is not available on this service.
 
 .error.noresults=Sorry, there were no accounts found for your search.
@@ -10,8 +8,6 @@
 .error.noresults.feeds=Sorry, there were no personal accounts found for your search.
 
 .error.noresults.personal=Sorry, there were no feeds found for your search.
-
-.feeds.intro=These are the most popular feeds in your circle:
 
 .filters.access=access list
 
@@ -38,4 +34,3 @@
 .results.personal=These are the most popular personal accounts in your circle:
 
 .title=Popular With Circle
-

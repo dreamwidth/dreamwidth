@@ -52,6 +52,10 @@ _code?>
   <td class='name'><a href="<?siteroot?>/manage/circle/filter"><?_ml /manage/circle/filter.bml.title3 _ml?></a></td>
   <td><?_ml .filter.about _ml?></td>
 </tr>
+<tr>
+  <td class='name'><a href="<?siteroot?>/manage/circle/popsubscriptions"><?_ml /manage/circle/popsubscriptions.tt.title _ml?></a></td>
+  <td><?_ml .popsub.about _ml?></td>
+</tr>
 </table>
 <?p p?>
 <?h1 <?_ml .security.header _ml?> h1?>
