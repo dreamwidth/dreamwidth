@@ -35,6 +35,8 @@
 
 .circle.intro=Here are the <a [[aopts1]]>people</a>, <a [[aopts2]]>communities</a>, and <a [[aopts3]]>feeds</a> that are in your circle.  You can change who appears on your Reading Page and who you give access to by using the check boxes.  You can also <a [[aopts4]]>edit your notification tracking options</a>.
 
+.circle.intro.feeds=You can also use [[sitename]] as a syndicated feed reader to have posts from other sites show up on your [[sitename]] reading page. To browse existing feeds or add a new one, visit <a [[aopts]]>the list of popular feeds.</a>
+
 .circle.intro.nonpeople=These are the communities and feeds in your Circle. You can use the checkboxes to unsubscribe from these accounts.
 
 .circle.join.apply=<a [[aopts]]>Apply to join?</a>
