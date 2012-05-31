@@ -53,6 +53,7 @@ sub default_themes {
         forthebold => 'forthebold/tealeaves',
         funkycircles => 'funkycircles/darkpurple',
         hibiscus => 'hibiscus/tropical',
+        headsup => 'headsup/caturdaygreytabby',
         lineup => 'lineup/modernity',
         marginless => 'marginless/mars',
         modular => 'modular/mediterraneanpeach',

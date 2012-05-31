@@ -1,0 +1,664 @@
+layerinfo type = "layout";
+layerinfo name = "Heads Up";
+layerinfo redist_uniq = "headsup/layout";
+layerinfo author_name = "momijizukamori";
+layerinfo lang = "en";
+layerinfo des = "A layout designed to be friendly for header images, and to let you easily align your content with your header.";
+
+set layout_authors = [ { "name" => "momijizuakmori", "type" => "user" } ];
+set layout_type = "two-columns-left";
+
+##===============================
+## Presentation
+##===============================
+propgroup presentation_child {
+    property string content_size { des = "Width of content area (if you want this to align neatly with a header image, make it the same width)"; }
+}
+
+set content_size = "90%";
+set userlite_interaction_links = "text";
+set comment_management_links = "text";
+set entry_management_links = "text";
+set userpics_position = "right";
+property string margins_size { noui = 1; }
+property string margins_unit { noui = 1; }
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_comment_title_even { des = "Comment title alternate color"; }
+    property Color color_comment_title_background_even { des = "Comment title alternate background color"; }
+    property Color color_comment_title_border { des = "Border color for comment titles"; }
+    property Color color_entry_title_border { des = "Border color for entry titles"; }
+    property Color color_module_title_border { des = "Border color for module titles"; }
+    property Color color_userpic_background { des = "Border color for user icon on sidebar and in entries"; }
+    }
+
+##===============================
+## Images
+##===============================
+
+propgroup images_child {
+
+property string image_foreground_header_url {
+   des = "The URL to the header image (this style does not automatically resize images)";
+}
+
+property int image_foreground_header_height {
+    des = "The height of your header image, in pixels.";
+    example = "100";
+    size = 6;
+}
+
+property int image_foreground_header_width {
+    des = "The width of your header image, in pixels.";
+    example = "600";
+    size = 6;
+}
+
+property string image_foreground_header_alignment {
+    des = "The alignment of the header image in its area.";
+    values = "left|left|center|center|right|right";
+}
+
+property string image_foreground_header_position {
+    values = "before|above journal header text|after|below journal header text|inline|inline with journal header text";
+    des = "Position of header image (inline may cause text to overlap the header image)";
+}
+
+property string image_foreground_header_alt {
+    des = "Alt text for your header image, for screen readers.";
+    example = "A sunset.";
+}
+
+}
+
+##===============================
+## Modules
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    grouped = 1;
+    }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "one";
+
+##===============================
+## Functions
+##===============================
+
+# Give a title to the navlinks module
+function print_module_navlinks() {
+    var Page p = get_page();
+    var string title = "Navigation";
+    open_module("navlinks", "$title", "");
+    var string[] links = [];
+    foreach var string k ($p.views_order) {
+        var string css = """ class="$k" """;
+        if ($p.view == $k) { $css = """ class="current $k" """; }
+        $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+    }
+    print_module_list($links);
+    close_module();
+}
+
+# Add section for navlinks module
+function Page::print() {
+var string image_foreground_url = generate_image_url($*image_foreground_header_url);
+
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+
+            <div id="header">
+                <div class="inner">
+""";
+            if ($*image_foreground_header_url != "" and $*image_foreground_header_position == "before") {
+                    print """<div class="header-image">""";
+    print """<img src="$image_foreground_url" width="$*image_foreground_header_width" height="$*image_foreground_header_height" alt="$*image_foreground_header_alt">""";
+    print """</div>""";
+            }
+if ($image_foreground_url != "" and $*image_foreground_header_position == "inline") {
+                    print """<div class="header-image">""";
+    print """<img src="$image_foreground_url" width="$*image_foreground_header_width" height="$*image_foreground_header_height" alt="$*image_foreground_header_alt">""";
+    print """</div>"""; }
+    """
+                    <div class="page-header">""";
+                    $this->print_module_section("header");
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+            if ($*image_foreground_header_url != "" and $*image_foreground_header_position == "after") {
+                    print """<div class="header-image">""";
+    print """<img src="$image_foreground_url" width="$*image_foreground_header_width" height="$*image_foreground_header_height" alt="$*image_foreground_header_alt">""";
+    print """</div>""";
+            }
+    """             </div>
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+
+            <div id="content-wrapper">
+                <div id="content">
+                    <div class="inner">
+        """;
+                    if ($*layout_type == "one-column-split") {
+        """
+                        <div id="secondary"><div class="inner">
+        """;
+                            $this->print_module_section("one");
+        """
+                        </div></div><!--  end secondary and secondary>inner -->
+        """;
+                    }
+        """
+                        <div id="primary"><div class="inner">
+                            """;
+                            $this->print_body();
+        """
+                        </div></div><!-- end primary and primary>inner -->
+        """;
+                    if ($*layout_type != "one-column-split") {
+        """
+                        <div id="secondary"><div class="inner">
+        """;
+                            $this->print_module_section("one");
+        """
+                        </div></div><!--  end secondary and secondary>inner -->
+        """;
+                    }
+        """
+                        <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                        <div id="tertiary"><div class="inner">
+                            """;
+                            $this->print_module_section("two");
+        """
+                        </div></div><!-- end tertiary and tertiary>inner -->
+                        <div id="content-footer"></div>
+                    </div><!-- end content>inner -->
+                </div> <!-- end content -->
+            </div> <!-- end content-wrapper -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+
+function print_stylesheet () {
+
+var string header_background_height;
+    if ($*image_background_header_height > 0) {
+        $header_background_height = """
+            height: """ + $*image_background_header_height + """px;""";
+    }
+
+var string headerimage_area_height;
+    if ($*image_foreground_header_height > 0) {
+        $headerimage_area_height = """
+            min-height: """ + $*image_foreground_header_height + """px;""";
+    }
+    var string header_margintop;
+    if ($*image_foreground_header_height > 0 and $*image_foreground_header_position == "inline" ) {
+        $header_margintop = """
+            margin-top: -""" + $*image_foreground_header_height + """px;""";
+    }
+
+var string userpic_css = "";
+    if ($*userpics_position == "right") {
+        $userpic_css = """
+        .entry .userpic, .comment .userpic {
+            float: right;
+            margin-right: 0;
+            }
+        """;
+    }
+    else {
+        $userpic_css = """
+        .entry .userpic, .comment .userpic {
+            float: left;
+            margin-left: 0;
+            }
+        """;
+    }
+var string navlinks_css = "";
+    if ($*module_navlinks_section == "header") {
+        $navlinks_css = """
+            .module-navlinks {
+                background-color: transparent;
+                border: none;
+                margin-bottom: 0;
+                margin-top: .5em;
+                text-align: right;
+                }
+
+            .module-navlinks li {
+                border-left: 1px solid $*color_page_title;
+                display: inline;
+                padding-left: .5em;
+                }
+
+            .module-navlinks ul > li:first-child {
+                border-left: none;
+                }
+
+            .module-navlinks .module-header {
+                display: none;
+                }
+
+            .module-navlinks a, .module-navlinks a.current {
+                color: $*color_page_title;
+                }
+        """;
+    }
+    else {
+        $navlinks_css = "";
+    }
+
+    """
+
+/*--- Heads Up ---*/
+/*--- by momijizukamori ---*/
+
+/*--- Main ---*/
+
+blockquote {
+    font-style: italic;
+    padding: 1em 1em .5em 2em;
+    }
+
+blockquote > p:first-child {
+    margin-top: 0;
+    }
+
+dl dt {
+    font-weight: bold;
+    }
+
+* {-moz-box-sizing: border-box;
+   box-sizing: border-box;
+   -webkit-box-sizing: border-box;
+}
+
+/*--- Main Containers ---*/
+
+body {
+    margin-top: 0;
+    }
+.two-columns-left #content,
+.three-columns-sides #content {
+    border-left: $*sidebar_width solid $*color_module_background;
+}
+
+.two-columns-right #content,
+.three-columns-sides #content {
+    border-right: $*sidebar_width solid $*color_module_background;
+}
+
+.three-columns-left #content {
+    border-left: $*sidebar_width_doubled solid $*color_module_background;
+}
+
+.three-columns-right #content {
+    border-right: $*sidebar_width_doubled solid $*color_module_background;
+}
+
+#canvas {
+    position: relative;
+    width: $*content_size;
+    margin-left:auto;
+    margin-right:auto;
+    }
+
+#content, #content-wrapper {
+    background-color: $*color_entry_background;
+    }
+
+#secondary {
+    background-color: $*color_module_background;
+    border: .5em solid transparent;
+    }
+
+#content-wrapper{
+     padding:10px;
+}
+#primary .inner {
+    color:$*color_entry_text;
+    }
+
+#primary .inner a { color:$*color_entry_link; }
+#primary .inner a:visited { color: $*color_entry_link_visited; }
+#primary .inner a:hover { color:$*color_entry_link_hover; }
+#primary .inner a:active { color:$*color_entry_link_active; }
+
+/*--- Journal Header ---*/
+
+#header {
+    padding:0;
+    overflow:hidden;
+    $headerimage_area_height
+    }
+
+#header .page-header {
+$header_background_height
+$header_margintop }
+
+.page-header {
+    padding: .5em 1em;
+    }
+
+.header-image {
+    padding-left: -1em;
+    padding-top: -0.5em;
+    $headerimage_area_height
+    text-align: $*image_foreground_header_alignment;
+    }
+
+/*--- Journal Navigation ---*/
+
+.navigation {
+    text-align: right;
+    }
+
+.page-month .navigation {
+    text-align: center;
+    }
+
+/*--- Entries & Comments ---*/
+
+.entry-wrapper {
+    margin-bottom: 2em;
+    }
+
+#primary .entry .entry-title a{
+    color: $*color_entry_title ;
+    }
+
+#primary .month .header, #primary .tags-container h2, #primary .icons-container h2, #primary .entry .entry-title {
+    border-bottom: 5px solid $*color_entry_title_border;
+    background: $*color_entry_title_background;
+    color: $*color_entry_title;
+    font-family: $*font_entry_title;
+}
+
+.userpic {
+    margin: 0 1em .5em 1em;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    }
+
+$userpic_css
+
+.userpic img {
+    border: 5px solid $*color_userpic_background;
+   -moz-box-sizing: content-box;
+   box-sizing: content-box;
+   -webkit-box-sizing: content-box;
+   }
+
+.datetime, .poster-ip {
+    font-size: small;
+    }
+
+.entry .contents, .comment .contents {
+    margin: 1em 0;
+    }
+
+.entry-content, .comment-content {
+    margin-top: 1em;
+    }
+
+.entry-content { /*keeps entry metadata from shifting on very short entries */
+    min-height: 3em;
+    }
+
+.entry .metadata-label, .entry .tag-text {
+    font-weight: bold;
+    }
+
+.entry .metadata ul, .entry .metadata li {
+    display: block;
+    list-style: none;
+    margin: 0;
+}
+
+.entry .metadata.bottom-metadata {
+    margin-top:1em;
+    margin-bottom: -1em;
+    clear: left;
+    }
+
+.entry .footer, .comment .footer {
+    clear: both;
+    padding-bottom: .5em;
+    }
+
+.entry .tag {
+    margin-bottom: .5em;
+    }
+
+ul.entry-management-links, .comment-management-links {
+    float: left;
+    margin-bottom: .5em;
+    margin-top: .5em;
+    }
+
+ul.entry-interaction-links, .comment-interaction-links {
+    text-align: right;
+    margin-bottom: .5em;
+    margin-right: .5em;
+    margin-top: .5em;
+    }
+
+#primary .coment-management-links a, #primary .comment-interaction-links a, #primary .entry-management-links a, #primary .entry-interaction-links a {
+    color: $*color_entry_interaction_links;
+    }
+
+.comment-wrapper .header {
+    border-bottom: 5px solid $*color_comment_title_border;
+    padding: .25em .5em;
+    }
+
+#primary .comment-wrapper .header a {
+    color: $*color_comment_title;
+    }
+
+.comment-title {
+    font-size: large;
+    margin-bottom: .25em;
+    }
+
+.partial .comment {
+    padding: .25em .5em;
+    }
+
+.partial .comment-title {
+    font-size: medium;
+    margin-bottom: 0;
+    }
+
+.multiform-checkbox {
+    clear: both;
+    display: block;
+    }
+
+.bottomcomment {
+    padding: .25em .5em;
+    border-bottom: 5px solid $*color_comment_title_border;
+    border-top: 5px solid $*color_comment_title_border;
+    }
+
+#primary .bottomcomment a {
+    color: $*color_comment_title;
+    }
+.bottompages { text-align:center;}
+
+/*--- Icon Page ---*/
+
+.icon-image {
+    display: inline;
+    float: left;
+    }
+
+.icon-image img {
+    padding: 0.2em 0.5em;
+    margin-right: 1em;
+    margin-top: 15px;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    }
+
+.icon-info {
+    overflow:auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+    }
+
+.icons-container .icon {
+    width:50%;
+    float: left;
+    vertical-align: botton;
+    min-width: 350px;
+    }
+
+.icon-info .label,
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icons-container .inner .footer {
+    clear: both;
+    text-align: center;
+    }
+
+/*--- Archive Pages ---*/
+
+.month {
+    margin-bottom: 2em;
+    }
+
+.month .contents {
+    padding: 1em .5em 0;
+    }
+
+.month .footer {
+    padding: 0 .5em 1em;
+    text-align: center;
+    }
+
+table.month td, table.month th {
+    vertical-align: top;
+    padding: .25em .5em;
+    }
+
+table.month caption {
+    color: $*color_entry_background;
+    }
+
+#archive-month .month {
+    padding: 0 1em;
+    }
+
+#archive-month .entry-title {
+    font-weight: bold;
+    }
+
+h3.day-date {Den
+    text-align: center;
+    margin-bottom: 2em;
+    }
+
+/*--- Sidebars ---*/
+
+
+.two-columns-left #tertiary .separator-after, .two-columns-right #tertiary .separator-after {
+    clear: both;
+    }
+
+.two-columns-left #tertiary {
+    margin-left: 0;
+    }
+
+.two-columns-right #tertiary {
+    margin-right: 0;
+    }
+
+.module {
+    border: none;
+    margin-bottom: 1em;
+    }
+
+.module-content ul, .module-list, .module-credit dl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    }
+
+.module-content ul ul {
+    margin-left: 1em;
+    }
+
+.module-header {
+    border-bottom: 5px solid $*color_module_title_border;
+    font-size: large;
+    }
+.module-header a {
+    color: $*color_module_title;
+    }
+
+.module .userlite-interaction-links {
+    margin-top: .5em;
+    }
+
+.module-navlinks a.current {
+    color: $*color_module_text;
+    text-decoration: none;
+    }
+
+.module-calendar .module-content {
+    text-align: left;
+    }
+
+.module-calendar table {
+    margin: 0;
+    }
+
+$navlinks_css
+
+/*--- Footer ---*/
+
+#footer {
+    text-align: center;
+    }
+
+    """;
+}

@@ -73,6 +73,9 @@ lineup/themes            theme+                      lineup/layout
 hibiscus/layout          layout(core2base/layout)    core2
 hibiscus/themes          theme+                      hibiscus/layout
 
+headsup/layout           layout(core2base/layout)    core2
+headsup/themes           theme+                      headsup/layout
+
 marginless/layout        layout(core2base/layout)    core2
 marginless/themes        theme+                      marginless/layout
 
