@@ -1,0 +1,86 @@
+#NEWLAYER: strata/springmorning
+layerinfo type = "theme";
+layerinfo name = "Spring Morning";
+layerinfo redist_uniq = "strata/springmorning";
+layerinfo author_name = "yati";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#9fa876";
+set color_page_text = "#000000";
+set color_page_link = "#b9475d";
+set color_page_link_active = "#b9475d";
+set color_page_link_hover = "#c68da5";
+set color_page_link_visited = "#c1959e";
+set color_page_title = "#000";
+set color_header_background = "#DAE3B2";
+set color_header_navlinks_background = "#EBCCB1";
+set color_header_navlinks_current_background = "#FFC";
+set color_footer_background = "#DAE3B2";
+set color_footer_link = "#b9475d";
+set color_footer_link_active = "#b9475d";
+set color_footer_link_hover = "#c68da5";
+set color_footer_link_visited = "#c1959e";
+
+##===============================
+## Entry Colors
+##===============================
+set color_entry_background = "#FFF";
+set color_entry_border = "#DAE3B2";
+set color_entry_text = "#000";
+set color_entry_link = "#b9475d";
+set color_entry_link_active = "#b9475d";
+set color_entry_link_hover = "#c68da5";
+set color_entry_link_visited = "#c1959e";
+set color_entry_title = "#000";
+set color_entry_title_link = "#933";
+set color_entry_title_link_active = "#933";
+set color_entry_title_link_hover = "#9d7980";
+set color_entry_title_link_visited = "#771313";
+set color_entry_title_background = "#EBCCB1";
+set color_entry_footer_background = "#FFC";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#DAE3B2";
+set color_module_text = "#000";
+set color_module_link = "#b9475d";
+set color_module_link_active = "#b9475d";
+set color_module_link_hover = "#c68da5";
+set color_module_link_visited = "#c1959e";
+set color_module_title = "#000";
+set color_module_title_background = "#EBCCB1";
+set color_module_title_link ="#993333";
+set color_module_title_link_active = "#993333";
+set color_module_title_link_hover = "#9d7980";
+set color_module_title_link_visited = "#771313";
+set color_module_footer_background = "#FFC";
+
+##===============================
+## Display settings - fonts
+##===============================
+
+set font_base = "Tahoma, Helvetica, Arial";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_journal_title = "Georgia, \"Times New Roman\"";
+set font_journal_title_size = "2";
+set font_journal_title_units= "em";
+set font_journal_subtitle = "Georgia, \"Times New Roman\"";
+set font_journal_subtitle_size = "1.5";
+set font_journal_subtitle_units = "em";
+set font_entry_title = "Georgia, \"Times New Roman\"";
+set font_entry_title_size = "1.4";
+set font_entry_title_units = "em";
+set font_module_heading = "Tahoma, Helvetica, Arial";
+set font_module_heading_size = "0.9";
+set font_module_heading_units = "em";
+set font_module_text = "Tahoma, Helvetica, Arial";
+set font_module_text_size = "0.9";
+set font_module_text_units = "em";

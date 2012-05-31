@@ -64,6 +64,7 @@ sub default_themes {
         refriedtablet => 'refriedtablet/refriedclassic',
         skittlishdreams => 'skittlishdreams/orange',
         steppingstones => 'steppingstones/purple',
+        strata => 'strata/springmorning',
         tranquilityiii => 'tranquilityiii/nightsea',
         wideopen => 'wideopen/koi',
         zesty => 'zesty/white',

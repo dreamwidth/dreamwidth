@@ -106,6 +106,9 @@ skittlishdreams/themes   theme+                      skittlishdreams/layout
 steppingstones/layout    layout(core2base/layout)    core2
 steppingstones/themes    theme+                      steppingstones/layout
 
+strata/layout            layout(core2base/layout)    core2
+strata/themes            theme+                      strata/layout
+
 tranquilityiii/layout    layout(core2base/layout)    core2
 tranquilityiii/themes    theme+                      tranquilityiii/layout
 
