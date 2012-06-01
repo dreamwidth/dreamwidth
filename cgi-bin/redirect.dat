@@ -54,3 +54,5 @@
 /directory.bml                      /directorysearch
 /support/known_issues               /support/
 /support/known_issues.bml           /support/
+/tools/popsubscriptions             /manage/circle/popsubscriptions
+/tools/popsubscriptions.bml         /manage/circle/popsubscriptions

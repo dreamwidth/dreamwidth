@@ -338,7 +338,7 @@ body<=
         $subject = $T{nosubject};
     }
     my $flags = ( $sec or $age_restriction ) ? "$sec$age_restriction " : "";
-    $ret .= qq{<div id='entrysubj'>$flags<a href="$talkurl">$subject</a></div><br />\n};
+    $ret .= qq{<div id='entrysubj'>$flags<h2><a href="$talkurl">$subject</a></h2></div>\n};
 
     $event = LJ::CleanHTML::quote_html( $event, $GET{nohtml} );
     $ret .= $event;
@@ -538,15 +538,20 @@ body<=
                 }
 
                 my $cleansubject = LJ::ehtml( $post->{'subject'} );
+                if ( $cleansubject eq "" ) {
+                    $cleansubject = "<span class='invisible'>no subject</span>";
+                }
+
 
                 my $echitext = "";
                 if ( $post->{echi} ) {
                     $echitext = qq{<span class="echi">$post->{echi}.</span> };
                 }
                 if ( $post->{state} eq 'S' ) {
-                    $ret .= "<span class='commentsubject'>" . BML::ml( '.comment.screened.subject' ) . "$echitext<b>$cleansubject</b></span> $icon";
+                    $ret .= "<h3 class='commentsubject'>" .  BML::ml( '.comment.screened.subject' ) .  "$echitext$cleansubject</h3> $icon";
                 } else {
-                    $ret .= "<span class='commentsubject'><b>$echitext$cleansubject</b></span> $icon";
+                    $ret .= "<h3 class='commentsubject'>$echitext$cleansubject</h3> $icon";
+
                 }
                 $ret .= "<br />$user\n";
                 $ret .= " " . BML::ml( '.from_external', {site=>$post->{props}->{imported_from}} ) if $post->{props}->{imported_from};

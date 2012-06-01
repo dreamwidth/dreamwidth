@@ -1,0 +1,33 @@
+[%# views/entry/display/module-journal.tt
+
+Display the journal we're posting as/to
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2012 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+ <div>
+   <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
+   <div class="inner">
+    <ul>
+      <li>
+        <label>[% ".label.poster" | ml %]</label> [% remote.ljuser_display -%]
+      </li>
+      [% UNLESS remote.equals( journalu )  %]
+      <li>
+        <label>[% ".label.journal" | ml %]</label> [% journalu.ljuser_display -%]
+      </li>
+      [%- END -%]
+      [%# helper fields for JS #%]
+      [%- form.hidden( name = "usejournal", id = "usejournal", value = journalu.user ) -%]
+      [%- form.hidden( name = "poster_remote", id="poster_remote", value = remote.user ) %]
+    </ul>
+
+      </div>
+ </div>

@@ -6,6 +6,17 @@
     margin-bottom: 10px;
 }
 
+/* adding headers for semantic page layout/accessibility, but
+ * don't want to change sitescheme look and feel
+ */
+#entrysubj h2 {
+    font-weight: bold;
+    font-style: italic;
+    font-size: larger;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 #poster {
     margin-top: 10px;
 }
@@ -44,6 +55,13 @@
 .commentsubject {
     font-size: larger;
     font-weight: bold;
+}
+
+/* adding headers for semantic page layout/accessibility, but
+ * don't want to change sitescheme look and feel
+ */
+h3.commentsubject {
+    display: inline;
 }
 
 .datepost {

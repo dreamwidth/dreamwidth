@@ -308,7 +308,7 @@ sub post_with {
 
     my %req;
     my %decode_status;
-    %decode_status = DW::Controller::Entry::_decode( \%req, $post );
+    %decode_status = DW::Controller::Entry::_form_to_backend( \%req, $post );
 
     my $res = DW::Controller::Entry::_save_new_entry( \%req, \%flags, \%auth );
     delete $req{props}->{unknown8bit}; # TODO: remove this from protocol at some point
@@ -557,12 +557,26 @@ note( "Altlogin - but changed mind" );
 
 note( "Editing a draft" );
 TODO: {
-    local $TODO = "Editing a draft"
+    local $TODO = "Editing a draft";
 }
+
+# note( "Editing an entry with the wrong ditemid" );
+# {
+#     my ( $req, $res, $u, $decode ) = post_with( undef => undef );
+#     is_deeply( $req, $postdecoded_bare, "decoded entry form" );
+#     is_deeply( $decode, {}, "no errors" );
+
+#     my $anum_fake = $res->{anum} == 0 ? $res->{anum} + 1 : $res->{anum} - 1;
+#     my $ditemid_fake = $res->{ditemid} * 256 + $anum_fake;
+
+#     my $rq = HTTP::Request->new( GET => "$LJ::SITEROOT/entry/".$u->username."/$ditemid_fake/edit" );
+#     my $r = DW::Request::Standard->new( $rq );
+#     DW::Controller::Entry::_edit( {}, $u->username, $ditemid_fake );
+# }
 
 note( "Editing an existing entry" );
 TODO: {
-    local $TODO = "Editing an existing entry.";
+    local $TODO = "Editing an existing entry";
 }
 
 note( "openid - post" );

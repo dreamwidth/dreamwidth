@@ -88,7 +88,7 @@ sub checkbox {
     my $ret = "";
 
     if ( ! defined $args->{selected} && $self->{data} ) {
-        my %selected = map { $_ => 1 } $self->{data}->get_all( $args->{name} );
+        my %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
         $args->{selected} = $selected{$args->{value}};
     }
 

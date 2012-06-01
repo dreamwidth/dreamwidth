@@ -59,6 +59,7 @@ body<=
         $ret .= "<form method='post' name='editFriends' action='edit$getextra'>\n";
         $ret .= LJ::form_auth();
         $ret .= "<p>" . BML::ml( '.circle.intro', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'", aopts4 => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'" }) . "</p>\n\n";
+        $ret .= "<p>" . BML::ml( '.circle.intro.feeds', { sitename => "$LJ::SITENAMESHORT", aopts => "href='$LJ::SITEROOT/feeds'" }) . "</p>\n\n";
         $ret .= "<?h2 $ML{'.circle.header'} h2?>\n";
 
         # little standout box to repeat before each section:

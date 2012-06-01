@@ -234,6 +234,10 @@ my %modules = (
                  },
                "LWPx::ParanoidAgent" => { deb => 'liblwpx-paranoidagent-perl' },
                "MogileFS::Client" => {},
+               "TheSchwartz" => {
+                   deb => 'libtheschwartz-perl',
+               },
+               "TheSchwartz::Worker::SendEmail" => {},
               );
 
 

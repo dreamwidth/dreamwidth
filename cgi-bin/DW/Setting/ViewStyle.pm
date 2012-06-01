@@ -23,10 +23,6 @@ use warnings;
 
 # Only override the below methods
 
-sub supports_site {
-    return 0;
-}
-
 sub label {
     die "Neglected to override 'label' in DW::Setting::ViewStyle subclass";
 }
@@ -58,13 +54,7 @@ sub option {
     my @options = (
         O => $class->ml( 'setting.display.viewstyle.original' ),
         M => $class->ml( 'setting.display.viewstyle.mine' ),
-    );
-
-    push @options, (
         S => $class->ml( 'setting.display.viewstyle.site' ),
-    ) if $class->supports_site;
-
-    push @options, (
         L => $class->ml( 'setting.display.viewstyle.light' ),
     );
 
@@ -83,7 +73,6 @@ sub error_check {
     my $val = uc( $class->get_arg( $args, "style" ) );
 
     $class->error( style => $class->ml( '.setting.display.viewstyle.invalid' ) ) unless $val =~ /^[OMSL]$/;
-    $class->error( style => $class->ml( '.setting.display.viewstyle.invalid' ) ) if ( $val eq 'S' && ! $class->supports_site );
 
     return 1;
 }

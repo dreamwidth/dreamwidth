@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2012 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -24,6 +24,26 @@ use DW::Template;
 
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
+
+use DW::External::Account;
+
+
+my %form_to_props = (
+    # currents / metadata
+    current_mood        => "current_moodid",
+    current_mood_other  => "current_mood",
+    current_music       => "current_music",
+    current_location    => "current_location",
+
+    taglist             => "taglist",
+);
+
+
+my @modules = qw(
+    tags currents displaydate
+    access journal comments
+    age_restriction icons crosspost
+);
 
 
 =head1 NAME
@@ -46,7 +66,7 @@ DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app 
 DW::Routing->register_string( '/__rpc_entryformcollapse', \&collapse_rpc_handler, app => 1, methods => { GET => 1 }, format => 'json' );
 
                              # /entry/username/ditemid/edit
-#DW::Routing->register_regex( '^/entry/(?:(.+)/)?(\d+)/edit$', \&edit_handler, app => 1 );
+DW::Routing->register_regex( '^/entry/(?:(.+)/)?(\d+)/edit$', \&edit_handler, app => 1 );
 
 DW::Routing->register_string( '/entry/new', \&_new_handler_userspace, user => 1 );
 
@@ -141,7 +161,7 @@ sub new_handler {
             }
 
             my $form_req = {};
-            my %status = _decode( $form_req, $post );
+            my %status = _form_to_backend( $form_req, $post );
             push @error_list, @{$status{errors}}
                 if exists $status{errors};
 
@@ -178,12 +198,24 @@ sub new_handler {
         $trust_datetime_value = 0;  # may want to override with client-side JS
     }
 
+
+    # crosspost account selected?
+    my %crosspost;
+    if ( ! $r->did_post && $remote ) {
+        %crosspost = map { $_->acctid => $_->xpostbydefault }
+            DW::External::Account->get_external_accounts( $remote )
+    }
+
+
     my $get = $r->get_args;
     $usejournal ||= $get->{usejournal};
-    my $vars = _init( {  usejournal  => $usejournal,
+    my $vars = _init( { usejournal  => $usejournal,
                         altlogin    => $get->{altlogin},
+
                         datetime    => $datetime || "",
                         trust_datetime_value => $trust_datetime_value,
+
+                        crosspost => \%crosspost,
                       }, @_ );
 
     return $vars->{ret} if $vars->{handled};
@@ -206,6 +238,8 @@ sub new_handler {
 
     # prepopulate if we haven't been through this form already
     $vars->{formdata} = $post || _prepopulate( $get );
+
+    $vars->{editable} = { map { $_ => 1 } @modules };
 
     # we don't need this JS magic if we are sending everything over SSL
     unless ( $LJ::IS_SSL ) {
@@ -256,6 +290,7 @@ sub _init {
 
     my @crosspost_list;
     my $crosspost_main = 0;
+    my %crosspost_selected = %{ $form_opts->{crosspost} || {} };
 
     my $panels;
     my $formwidth;
@@ -304,13 +339,13 @@ sub _init {
         my @accounts = DW::External::Account->get_external_accounts( $u );
         if ( scalar @accounts ) {
             foreach my $acct ( @accounts ) {
-                my $selected;
+                my $id = $acct->acctid;
 
-                # FIXME: edit, spellcheck
-                $selected = $acct->xpostbydefault;
+                # FIXME:  spellcheck
+                my $selected = $crosspost_selected{$id};
 
                 push @crosspost_list, {
-                    id          => $acct->acctid,
+                    id          => $id,
                     name        => $acct->displayname,
                     selected    => $selected,
                     need_password => $acct->password ? 0 : 1,
@@ -407,13 +442,150 @@ Handles generating the form for, and handling the actual edit of an entry
 
 =cut
 sub edit_handler {
-    # FIXME: this needs careful handling for auth, but for right now let me just skip that altogether
     return _edit(@_);
 }
 
-# FIXME: remove
 sub _edit {
     my ( $opts, $username, $ditemid ) = @_;
+
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r = DW::Request->get;
+
+    my $remote = LJ::get_remote();
+    my $journal = defined $username ? LJ::load_user( $username ) : $remote;
+
+    return error_ml( 'error.invalidauth' ) unless $journal;
+
+    my @error_list;
+    my @warnings;
+    my $post;
+    my %spellcheck;
+
+    if ( $r->did_post ) {
+        $post = $r->post_args;
+
+        # no difference because we rely on the entry info, but let's get rid of this
+        # just to make sure it doesn't trip us up in the future...
+        $post->remove( 'poster_remote' );
+        $post->remove( 'usejournal' );
+
+
+        my $mode_preview = $post->{"action:preview"};
+        my $mode_spellcheck = $post->{"action:spellcheck"};
+
+        push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
+            unless LJ::text_in( $post );
+
+
+        my $okay_formauth =  LJ::check_form_auth( $post->{lj_form_auth} );
+        push @error_list, LJ::Lang::ml( "error.invalidform" )
+            unless $okay_formauth;
+
+        if ( $mode_preview ) {
+            # do nothing
+        } elsif ( $mode_spellcheck ) {
+            if ( $LJ::SPELLER ) {
+                my $spellchecker = LJ::SpellCheck-> new( {
+                                    spellcommand => $LJ::SPELLER,
+                                    class        => "searchhighlight",
+                                } );
+                my $event = $post->{event};
+                $spellcheck{results} = $spellchecker->check_html( \$event, 1 );
+                $spellcheck{did_spellcheck} = 1;
+            }
+        } elsif ( $okay_formauth) {
+            push @error_list, $LJ::MSG_READONLY_USER
+                if $journal && $journal->readonly;
+
+            my $form_req = {};
+            my %status = _form_to_backend( $form_req, $post );
+            push @error_list, @{$status{errors}}
+                if exists $status{errors};
+
+            # if we didn't have any errors with decoding the form, proceed to post
+            unless ( @error_list ) {
+                my %edit_res = _do_edit(
+                        $ditemid,
+                        $form_req,
+                        { remote => $remote, journal => $journal },
+                        warnings => \@warnings
+                        );
+                return $edit_res{render} if $edit_res{status} eq "ok";
+
+                # oops errors when posting: show error, fall through to show form
+                push @error_list, $edit_res{errors} if $edit_res{errors};
+            }
+        }
+    }
+
+    # we can always trust this value:
+    # it either came straight from the entry
+    # or it's from the user's POST
+    my $trust_datetime_value = 1;
+
+    my $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
+
+    # are you authorized to view this entry
+    # and does the entry we got match the provided ditemid exactly?
+    my $anum = $ditemid % 256;
+    my $itemid = $ditemid >> 8;
+    return error_ml( "/entry/form.tt.error.nofind" )
+        unless $entry_obj->editable_by( $remote )
+            && $anum == $entry_obj->anum && $itemid == $entry_obj->jitemid;
+
+    # so at this point, we know that we are authorized to edit this entry
+    # but we need to handle things differently if we're an admin
+    # FIXME: handle communities
+    return error_ml( 'IS AN ADMIN' ) unless $entry_obj->poster->equals( $remote );
+
+    my %crosspost;
+    if ( ! $r->did_post && ( my $xpost = $entry_obj->prop( "xpostdetail" ) ) )  {
+        my $xposthash = DW::External::Account->xpost_string_to_hash( $xpost );
+
+        %crosspost = map { $_ => 1 } keys %{ $xposthash || {} };
+    }
+
+    my $vars = _init( { usejournal  => $journal->username,
+
+                        datetime => $entry_obj->eventtime_mysql,
+                        trust_datetime_value => $trust_datetime_value,
+
+                        crosspost => \%crosspost,
+                      }, @_ );
+
+    # these kinds of errors prevent us from initiating the form at all
+    # so abort and return it without the form
+    return error_ml( $vars->{abort}, $vars->{args} )
+        if $vars->{abort};
+
+    # now look for errors that we still want to recover from
+    my $get = $r->get_args;
+    push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
+        if defined $get->{usejournal} && ! $vars->{usejournal};
+
+    # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
+    $vars->{error_list} = \@error_list if @error_list;
+    $vars->{warnings} = \@warnings;
+
+    $vars->{spellcheck} = \%spellcheck;
+
+
+    $vars->{formdata} = $post || _backend_to_form( $entry_obj );
+
+    my %editable = map { $_ => 1 } @modules;
+    $vars->{editable} = \%editable;
+
+    # this can't be edited after posting
+    delete $editable{journal};
+
+
+    $vars->{action} = {
+        edit => 1,
+    };
+
+    return DW::Template->render_template( 'entry/form.tt', $vars );
 }
 
 # returns:
@@ -478,7 +650,7 @@ sub _auth {
 
 # decodes the posted form into a hash suitable for use with the protocol
 # $post is expected to be an instance of Hash::MultiValue
-sub _decode {
+sub _form_to_backend {
     my ( $req, $post ) = @_;
 
     my @errors;
@@ -495,21 +667,11 @@ sub _decode {
     $req->{props} ||= {};
     my $props = $req->{props};
 
-    my %mapped_props = (
-        # currents / metadata
-        current_mood        => "current_moodid",
-        current_mood_other  => "current_mood",
-        current_music       => "current_music",
-        current_location    => "current_location",
-
-        taglist             => "taglist",
-
-        icon                => "picture_keyword",
-    );
-    while ( my ( $formname, $propname ) = each %mapped_props ) {
+    while ( my ( $formname, $propname ) = each %form_to_props ) {
         $props->{$propname} = $post->{$formname}
             if defined $post->{$formname};
     }
+    $props->{picture_keyword} = $post->{icon} if defined $post->{icon};
     $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
     # FIXME
     $props->{opt_preformatted} = 0;
@@ -602,6 +764,121 @@ sub _decode {
     return ();
 }
 
+# given an LJ::Entry object, returns a hashref populated with data suitable for use in generating the form
+sub _backend_to_form {
+    my ( $entry ) = @_;
+
+#             my $entry = {
+#                 'usejournal' => $usejournal,
+#                 'auth' => $auth,
+#                 'spellcheck_html' => $spellcheck_html,
+#                 'richtext' => LJ::is_enabled('richtext'),
+#                 'suspended' => $suspend_msg,
+#                 'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0,
+#             };
+
+    # direct translation of prop values to the form
+    my %formprops = map { $_ => $entry->prop( $form_to_props{$_} ) } keys %form_to_props;
+
+    # some properties aren't in the hash above, so go through them manually
+    my %otherprops = (
+        entrytime_outoforder => $entry->prop( "opt_backdated" ),
+
+        age_restriction     =>  {
+                                    ''          => '',
+                                    'none'      => 'none',
+                                    'concepts'  => 'discretion',
+                                    'explicit'  => 'restricted',
+                                }->{ $entry->prop( "adult_content" ) || '' },
+        age_restriction_reason => $entry->prop( "adult_content_reason" ),
+
+        # FIXME:
+        # ...       => $entry->prop( "opt_preformatted" )
+
+        # FIXME: remove before taking the page out of beta
+        opt_screening       => $entry->prop( "opt_screening" ),
+        comment_settings    => $entry->prop( "opt_nocomments" ) ? "nocomments"
+                            :  $entry->prop( "opt_noemail" ) ? "noemail"
+                            : undef,
+    );
+
+
+    my $security = $entry->security || "";
+    my @custom_groups;
+    if ( $security eq "usemask" ) {
+        my $amask = $entry->allowmask;
+
+        if ( $amask == 1 ) {
+            $security = "access";
+        } else {
+            $security = "custom";
+            @custom_groups = ( map { $_ => 1 } grep { $amask & ( 1 << $_ ) } 1..60 );
+        }
+    }
+
+    return {
+        subject => $entry->subject_raw,
+        event   => $entry->event_raw,
+
+        icon        => $entry->userpic_kw,
+        security    => $security,
+        custom_bit  => \@custom_groups,
+
+        %formprops,
+        %otherprops,
+    };
+}
+
+sub _queue_crosspost {
+    my ( $form_req, %opts ) = @_;
+
+    my $u = delete $opts{remote};
+    my $ju = delete $opts{journal};
+    my $deleted = delete $opts{deleted};
+    my $editurl = delete $opts{editurl};
+    my $ditemid = delete $opts{ditemid};
+
+    my @crossposts;
+    if ( $u->equals( $ju ) && $form_req->{crosspost_entry} ) {
+        my $user_crosspost = $form_req->{crosspost};
+        my ( $xpost_successes, $xpost_errors ) =
+            LJ::Protocol::schedule_xposts( $u, $ditemid, $deleted,
+                    sub {
+                        my $submitted = $user_crosspost->{$_[0]->acctid} || {};
+
+                        # first argument is true if user checked the box
+                        # false otherwise
+                        return ( $submitted->{id} ? 1 : 0,
+                            {
+                                password => $submitted->{password},
+                                auth_challenge => $submitted->{chal},
+                                auth_response => $submitted->{resp},
+                            }
+                        );
+                    } );
+
+        foreach my $crosspost ( @{$xpost_successes||[]} ) {
+            push @crossposts, { text => LJ::Lang::ml( "xpost.request.success2", {
+                                            account => $crosspost->displayname,
+                                            sitenameshort => $LJ::SITENAMESHORT,
+                                        } ),
+                                status => "ok",
+                            };
+        }
+
+        foreach my $crosspost( @{$xpost_errors||[]} ) {
+            push @crossposts, { text => LJ::Lang::ml( 'xpost.request.failed', {
+                                                account => $crosspost->displayname,
+                                                editurl => $editurl,
+                                            } ),
+                                status => "error",
+                             };
+        }
+    }
+
+    return @crossposts;
+}
+
 sub _save_new_entry {
     my ( $form_req, $flags, $auth ) = @_;
 
@@ -634,7 +911,6 @@ sub _do_post {
     my $ret = "";
     my $render_ret;
     my @links;
-    my @crossposts;
 
     # we may have warnings generated by previous parts of the process
     my @warnings = @{ $opts{warnings} || [] };
@@ -670,11 +946,11 @@ sub _do_post {
         my $juser = $ju->user;
         my $ditemid = $res->{itemid} * 256 + $res->{anum};
         my $itemlink = $res->{url};
-        my $edititemlink = "$LJ::SITEROOT/editjournal?journal=$juser&itemid=$ditemid";
+        my $edititemlink = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
         my @links = (
             { url => $itemlink,
-                text => LJ::Lang::ml( "/update.bml.success.links.view" ) }
+                ml_string => "/update.bml.success.links.view" }
         );
 
         if ( $form_req->{props}->{opt_backdated} ) {
@@ -683,58 +959,28 @@ sub _do_post {
             my ( $y, $m, $d ) = ( $e->{eventtime} =~ /^(\d+)-(\d+)-(\d+)/ );
             push @links, {
                 url => $ju->journal_base . "/$y/$m/$d/",
-                text => LJ::Lang::ml( "/update.bml.success.links.backdated" ),
+                ml_string => "/update.bml.success.links.backdated",
             }
         }
 
         push @links, (
             { url => $edititemlink,
-                text => LJ::Lang::ml( "/update.bml.success.links.edit" ) },
+                ml_string => "/update.bml.success.links.edit" },
             { url => "$LJ::SITEROOT/tools/memadd?journal=$juser&itemid=$ditemid",
-                text => LJ::Lang::ml( "/update.bml.success.links.memories" ) },
+                ml_string => "/update.bml.success.links.memories" },
             { url => "$LJ::SITEROOT/edittags?journal=$juser&itemid=$ditemid",
-                text => LJ::Lang::ml( "/update.bml.success.links.tags" ) },
+                ml_string => "/update.bml.success.links.tags" },
         );
 
 
         # crosspost!
-        my @crossposts;
-        if ( $u->equals( $ju ) && $form_req->{crosspost_entry} ) {
-            my $user_crosspost = $form_req->{crosspost};
-            my ( $xpost_successes, $xpost_errors ) =
-                LJ::Protocol::schedule_xposts( $u, $ditemid, 0,
-                        sub {
-                            my $submitted = $user_crosspost->{$_[0]->acctid} || {};
-
-                            # first argument is true if user checked the box
-                            # false otherwise
-                            return ( $submitted->{id} ? 1 : 0,
-                                {
-                                    password => $submitted->{password},
-                                    auth_challenge => $submitted->{chal},
-                                    auth_response => $submitted->{resp},
-                                }
-                            );
-                        } );
-
-            foreach my $crosspost ( @{$xpost_successes||[]} ) {
-                push @crossposts, { text => LJ::Lang::ml( "xpost.request.success2", {
-                                                account => $crosspost->displayname,
-                                                sitenameshort => $LJ::SITENAMESHORT,
-                                            } ),
-                                    status => "ok",
-                                };
-            }
-
-            foreach my $crosspost( @{$xpost_errors||[]} ) {
-                push @crossposts, { text => LJ::Lang::ml( 'xpost.request.failed', {
-                                                    account => $crosspost->displayname,
-                                                    editurl => $edititemlink,
-                                                } ),
-                                    status => "error",
-                                 };
-            }
-        }
+        my @crossposts = _queue_crosspost( $form_req,
+                remote => $u,
+                journal => $ju,
+                deleted => 0,
+                editurl => $edititemlink,
+                ditemid => $ditemid,
+        );
 
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
@@ -742,9 +988,110 @@ sub _do_post {
                 warnings    => \@warnings,   # warnings about the entry or your account
                 crossposts  => \@crossposts,# crosspost status list
                 links       => \@links,
+                links_header => "/update.bml.success.links",
             }
         );
     }
+
+    return ( status => "ok", render => $render_ret );
+}
+
+sub _save_editted_entry {
+    my ( $ditemid, $form_req, $auth ) = @_;
+
+    my $req = {
+        ver         => $LJ::PROTOCOL_VER,
+        username    => $auth->{remote} ? $auth->{remote}->user : undef,
+        usejournal  => $auth->{journal} ? $auth->{journal}->user : undef,
+        xpost       => '0', # don't crosspost by default; we handle this ourselves later
+        itemid      => $ditemid >> 8,
+        %$form_req
+    };
+
+
+    my $err = 0;
+    my $res = LJ::Protocol::do_request( "editevent", $req, \$err, {
+            noauth => 1,
+            u =>  $auth->{remote},
+        } );
+
+    return { errors => LJ::Protocol::error_message( $err ) } unless $res;
+    return $res;
+}
+
+sub _do_edit {
+    my ( $ditemid, $form_req, $auth, %opts ) = @_;
+
+    my $res = _save_editted_entry( $ditemid, $form_req, $auth );
+    return %$res if $res->{errors};
+
+    my $remote = $auth->{remote};
+    my $journal = $auth->{journal};
+
+    my $deleted = 0;
+
+    # post succeeded, time to do some housecleaning
+    _persist_props( $remote, $form_req );
+
+    my $ret = "";
+    my $render_ret;
+    my @links;
+
+    # we may have warnings generated by previous parts of the process
+    my @warnings = @{ $opts{warnings} || [] };
+
+    # e.g., bad HTML in the entry
+    push @warnings, {   type => "warning",
+                        message => LJ::auto_linkify( LJ::ehtml( $res->{message} ) )
+                    } if $res->{message};
+
+    # bunch of helpful links:
+    my $juser = $journal->user;
+    my $entry_url = $res->{url};
+    my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
+
+    if ( $deleted ) {
+
+    } else {
+        $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );
+
+        push @links, {
+            url => $entry_url,
+            ml_string => "/editjournal.bml.success.fromhere.viewentry",
+        };
+
+        push @links, {
+            url => $edit_url,
+            ml_string => "/editjournal.bml.success.fromhere.editentry",
+        } if @warnings;
+
+    }
+
+    push @links, ( {
+        url => $journal->journal_base,
+        ml_string => '/editjournal.bml.success.fromhere.viewentries',
+    }, {
+        url => "$LJ::SITEROOT/editjournal",
+        ml_string => '/editjournal.bml.success.fromhere.manageentries',
+    } );
+
+    my @crossposts = _queue_crosspost( $form_req,
+        remote => $remote,
+        journal => $journal,
+        deleted => $deleted,
+        ditemid => $ditemid,
+        editurl => $edit_url,
+    );
+
+    $render_ret = DW::Template->render_template(
+        'entry/success.tt', {
+            poststatus  => $ret,        # did the update succeed or fail?
+            warnings    => \@warnings,   # warnings about the entry or your account
+            crossposts  => \@crossposts,# crosspost status list
+            links       => \@links,
+            links_header => '/editjournal.bml.success.fromhere',
+        }
+    );
 
     return ( status => "ok", render => $render_ret );
 }
@@ -829,7 +1176,7 @@ sub preview_handler {
     my ( $ditemid, $anum, $itemid );
 
     my $form_req = {};
-    _decode( $form_req, $post );    # ignore errors
+    _form_to_backend( $form_req, $post );    # ignore errors
 
     my ( $event, $subject ) = ( $form_req->{event}, $form_req->{subject} );
     LJ::CleanHTML::clean_subject( \$subject );
@@ -1157,9 +1504,7 @@ sub _options {
                             label_ml    => "/entry/module-$_.tt.header",
                             panel_name  => $_,
                             id          => "panel_$_",
-                            name        =>  $panel_element_name, },
-                      qw( access comments age_restriction journal
-                          crosspost icons tags currents displaydate );
+                            name        =>  $panel_element_name, }, @modules;
 
     my $vars = {
         panels => \@panel_options
