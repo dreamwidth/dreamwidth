@@ -1476,6 +1476,28 @@ sub clean_event
         $opts = { 'preformatted' => $opts };
     }
 
+    # this is the hack to make markdown work. really.
+    if ($$ref =~ s/^\s*!markdown\s*\r?\n//s) {
+        my $rv = eval "use Text::Markdown; 1;";
+        die "Attempted to use Markdown without the Text::Markdown module.\n"
+            unless $rv;
+
+        # first, markdown-ize the world
+        $$ref = Text::Markdown::markdown( $$ref );
+        $opts->{preformatted} = 1;
+
+        # second, convert @-style addressing to user tags
+        my $usertag = sub {
+            my ($user, $site) = ($1, $2 || 'dreamwidth.org');
+            if (my $siteobj = DW::External::Site->get_site( site => $site )) {
+                return qq|<user name="$user" site="$siteobj->{domain}" />|;
+            } else {
+                return qq|\@$user.$site|;
+            }
+        };
+        $$ref =~ s/(?<=\W)\@([\w\d_]+)(?:\.([\w\d\.]+))?(?=$|\W)/$usertag->($1, $2)/mge;
+    }
+
     my $wordlength = defined $opts->{'wordlength'} ? $opts->{'wordlength'} : 40;
 
     # fast path:  no markup or URLs to linkify, and no suspend message needed

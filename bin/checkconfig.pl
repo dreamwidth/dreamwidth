@@ -238,6 +238,10 @@ my %modules = (
                    deb => 'libtheschwartz-perl',
                },
                "TheSchwartz::Worker::SendEmail" => {},
+               "Text::Markdown" => {
+                   deb => 'libtext-markdown-perl',
+                   opt => 'Required to allow using Markdown in entries.',
+               },
               );
 
 
