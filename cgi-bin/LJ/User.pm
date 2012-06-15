@@ -209,9 +209,9 @@ sub create_community {
     $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled( 'adult_content' );
     $u->set_default_style;
 
-    my $admin = LJ::load_userid( $opts{admin_userid} )
-        if $opts{admin_userid};
-    $admin ||= LJ::get_remote();
+    my $admin = $opts{admin_userid} ?
+        LJ::load_userid( $opts{admin_userid} ) :
+        LJ::get_remote();
 
     if ( $admin ) {
         LJ::set_rel($u, $admin, "A");  # maintainer
