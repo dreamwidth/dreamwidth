@@ -140,7 +140,7 @@ Is SSL request?
 
 =cut
 
-sub ssl { return $_[0]->{role} eq 'ssl' ? 1 : 0; }
+sub ssl { return $_[0]->{ssl} ? 1 : 0; }
 
 =head2 C<< $self->subpatterns >>
 
