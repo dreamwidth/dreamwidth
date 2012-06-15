@@ -464,7 +464,7 @@ userproplist.icq:
 
 userproplist.identity_posting:
   cldversion: 4
-  datatype: bol
+  datatype: bool
   des: Whether to allow identity users to post entries to this journal
   indexed: 0
   multihomed: 0
