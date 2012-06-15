@@ -29,10 +29,13 @@ sub matches_filter {
     # check that subscription's journal is the same as event's journal
     return 0 if $sjid && $sjid != $ejid;
 
-
     my $comment = $self->comment;
     my $entry = $comment->entry;
     return 0 unless $entry;
+
+    # no notifications unless they can see the comment
+    my $watcher = $subscr->owner;
+    return 0 unless $comment->visible_to( $watcher );
 
     # check that event's entry is the entry we're interested in (subscribed to)
     my $wanted_ditemid = $subscr->arg1;
