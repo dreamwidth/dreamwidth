@@ -615,12 +615,11 @@ sub active_entries
     # get latest 10 entries that were commented on - we will see whether $remote can view them later
     # disregard screened and deleted comments when ordering
 
-    # NOTE: this used to have AND state NOT IN ('D', 'S') but that was removed because there is no
-    # index that works for the query in that case. it was taking a long time on large accounts and
-    # causing database unhappiness.
+    # NOTE: we have to force the index because MySQL's optimizer gets this wrong. we know that our
+    # data is going to be near the top.
     my $entryids = $u->selectcol_arrayref(
-        q{SELECT DISTINCT nodeid FROM talk2
-          WHERE journalid = ? 
+        q{SELECT DISTINCT nodeid FROM talk2 FORCE INDEX (PRIMARY)
+          WHERE journalid = ? AND state NOT IN ('D', 'S')
           ORDER BY jtalkid DESC LIMIT 10},
         undef, $u->id
     );
