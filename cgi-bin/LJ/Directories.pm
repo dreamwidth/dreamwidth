@@ -50,12 +50,7 @@ sub get_all_directories {
 }
 
 unless ( $INC_PATCHED ) {
-    lib->import($_) foreach map { $LJ::HOME . "/lib/" . $_ } (
-        'ddlockd/api/perl',
-        'LJ-UserSearch',
-    );
-
-    lib->import( $LJ::HOME . '/src/DSMS/lib' );
+    lib->import( $LJ::HOME . "/src/DSMS/lib" );
 
     {
         my @dirs = ();
