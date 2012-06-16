@@ -49,6 +49,15 @@ sub get_all_directories {
     return grep { -d $_ } get_all_paths(@_);
 }
 
+sub resolve_file {
+    return ( get_all_files(@_) )[0];
+}
+
+sub resolve_directory {
+    return ( get_all_directories(@_) )[0];
+}
+
+
 unless ( $INC_PATCHED ) {
     lib->import( $LJ::HOME . "/src/DSMS/lib" );
 
