@@ -500,6 +500,12 @@ sub save_s2_props {
         next if ! defined $prop_value and ! defined $prop_values{existing};
         next if defined $prop_value and defined $prop_values{existing}
                 and $prop_value eq $prop_values{existing};
+
+        # special case: if the style doesn't define a value, and the user has a defined-but
+        # blank or empty value, skip it
+        next if ! defined $prop_values{existing} && defined $prop_value &&
+            length($prop_value) == 0;
+
         $override{$name} = [ $prop, $prop_value ];
     }
 
