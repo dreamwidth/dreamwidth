@@ -429,7 +429,8 @@ ul.entry-interaction-links { text-align: right;
    content: "- ";
    }
 
-.comment-title {
+.comment-title,
+.no-subject .comment .comment-title {
     background-color: $*color_entry_title_background;
     color: $*color_entry_title;
     padding: .25em;
