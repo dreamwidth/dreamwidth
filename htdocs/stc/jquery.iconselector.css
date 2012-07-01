@@ -26,6 +26,15 @@
     overflow:hidden;
 }
 
+.half_icons #iconselector_icons_list li {
+    width:60px;
+}
+
+.half_icons #iconselector_icons_list img {
+    width:50px;
+    height:50px;
+}
+
 #iconselector_icons_list li:hover {
     border-width:1px;
     border-style:solid;
@@ -38,6 +47,11 @@
     width:100px;
 }
 
+.half_icons .icon_image {
+    height:50px;
+    width:50px;
+    overflow:hidden;
+}
 
 .meta_wrapper {
     height: 5em;
@@ -49,11 +63,18 @@
     display: none;
 }
 
-.image-text-toggle .toggle-image-only, .image-text-toggle.no_meta .toggle-no-meta {
+.image-text-toggle.half_icons.no_meta .toggle-off-half-image,
+.image-text-toggle.no_meta .toggle-off-full-image,
+.image-text-toggle .toggle-off-meta-info {
     display: inline;
 }
 
-.image-text-toggle.no_meta .toggle-image-only, .image-text-toggle .toggle-no-meta {
+.image-text-toggle .toggle-off-half-image,
+.image-text-toggle.no_meta .toggle-off-half-image,
+.image-text-toggle .toggle-off-full-image,
+.image-text-toggle.half_icons.no_meta .toggle-off-full-image,
+.image-text-toggle.no_meta .toggle-off-meta-info,
+.image-text-toggle.half_icons.no_meta .toggle-off-meta-info {
     display: none;
 }
 

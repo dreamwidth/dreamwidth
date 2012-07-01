@@ -39,9 +39,9 @@
           Search: <input type='search' id='iconselector_search'>\
           </span>\
         <span class='image-text-toggle' id='iconselector_image_text_toggle'>\
-          <span class='toggle-image-only'><a href='#' class='image_only'>Images only</a> / Show meta text</span>\
-          <span class='toggle-no-meta'>Images only / <a href='#' class='show_text'>Show meta text</a></span>\
-        </span>\
+          <span class='toggle-off-half-image'>Small images / <a href='#' class='full_image'>Large images</a> / <a href='#' class='meta_image'>Image and meta text</a></span>\
+          <span class='toggle-off-full-image'><a href='#' class='half_image'>Small images</a> / Large images / <a href='#' class='meta_image'>Image and meta text</a></span>\
+          <span class='toggle-off-meta-info'><a href='#' class='half_image'>Small images</a> / <a href='#' class='full_image'>Large images</a> / Image and meta text</span>\
         <div class='kwmenu'>\
           <label for='iconselector_kwmenu'>Keywords of selected icon:</label>\
           <div class='keywords'></div>\
@@ -170,15 +170,21 @@
              } )
             .keydown(_selectByEnter);
 
+
             $("#iconselector_image_text_toggle a").click(function() {
-                if ( $(this).hasClass("image_only") ) {
+                if ($(this).hasClass("half_image") ) {
+                    $("#iconselector_icons, #iconselector_image_text_toggle, #iconselector_icons_list").addClass("half_icons");
+                    $("#iconselector_icons, #iconselector_image_text_toggle").addClass("no_meta");
+                } else if ($(this).hasClass("full_image") ) {
+                    $("#iconselector_icons, #iconselector_image_text_toggle, #iconselector_icons_list").removeClass("half_icons");
                     $("#iconselector_icons, #iconselector_image_text_toggle").addClass("no_meta");
                 } else {
+                    $("#iconselector_icons, #iconselector_image_text_toggle, #iconselector_icons_list").removeClass("half_icons");
                     $("#iconselector_icons, #iconselector_image_text_toggle").removeClass("no_meta");
                 }
 
-                // refocus, because we just hid the link we just clicked on
-                $("#iconselector_image_text_toggle a").focus();
+                // refocus because we just hid the link we clicked on
+                $("#iconselector_image_text_toggle a:visible:first").focus();
 
                 return false;
             });
