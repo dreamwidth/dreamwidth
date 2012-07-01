@@ -14,6 +14,8 @@
 
 .body.added.next.view=View all your memorable entries
 
+.body.added.next.keywords=View all memorable entries saved as "[[keyword]]"
+
 .body.added.text=Your list of memorable entries has been revised.
 
 .description=Description:
@@ -29,6 +31,8 @@
 .
 
 .error.deleted.body=The journal entry "[[desc]]" has been removed from your list of memorable entries.
+
+.error.deleted.next=View all your memorable entries
 
 .error.deleted.title=Memory deleted
 
@@ -80,6 +84,8 @@
 .title.deleted=Deleted
 
 .title.edit_memory=Edit Memorable Entry
+
+.uncategorized=Uncategorized
 
 .whocansee=You have the same control over your memoried entries as you do over your journal entries. Set an access level for this memory now.
 
