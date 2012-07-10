@@ -25,8 +25,7 @@ require lib;
 #  It loaded very very early in the startups process and anything else
 #  being included here ( including ljlib ) may cause very fun and interesting
 #  bugs.
-
-my $INC_PATCHED = 0;
+our $INC_PATCHED;
 my @FILE_DIRS;
 
 sub get_all_paths {
@@ -57,6 +56,15 @@ sub resolve_directory {
     return ( get_all_directories(@_) )[0];
 }
 
+my %SCOPE_ORDER = (
+    general => 0,
+    'local' => 1,
+    private => 2,
+    highest => 1000,
+);
+
+my @SCOPES =
+    sort { $SCOPE_ORDER{$b} <=> $SCOPE_ORDER{$a} } keys %SCOPE_ORDER;
 
 unless ( $INC_PATCHED ) {
     lib->import( $LJ::HOME . "/src/DSMS/lib" );
@@ -66,18 +74,29 @@ unless ( $INC_PATCHED ) {
         my $ext_path = abs_path( $LJ::HOME . "/ext" );
         die "ext directory missing" unless defined $ext_path;
 
-        push @dirs, abs_path($LJ::HOME);
+        my %dir_scopes = (
+            'general' => [
+                abs_path($LJ::HOME)
+            ]
+        );
+
         foreach ( glob( $ext_path . "/*" ) ) {
             my $dir = abs_path($_);
             next unless -d $dir;
-            push @dirs, $dir;
+            my $scope = 'general';
+            if ( -e "$dir/.dir_scope" ) {
+                open my $fh, "<", "$dir/.dir_scope";
+                $scope = <$fh>;
+                chomp $scope;
+                close $fh;
+            }
+            die "$dir has invalid scope '$scope'" unless exists $SCOPE_ORDER{$scope};
+            push @{ $dir_scopes{$scope} }, $dir;
         }
 
-        # FIXME: Sort the directories in some way
-        @FILE_DIRS = @dirs;
+        @FILE_DIRS = map { @{ $dir_scopes{$_} || [] } } @SCOPES;
 
-
-        foreach my $dir ( reverse map { abs_path($_."/cgi-bin") } @dirs ) {
+        foreach my $dir ( reverse map { abs_path($_."/cgi-bin") } @FILE_DIRS ) {
             lib->import($dir) if defined $dir;
         }
     }
