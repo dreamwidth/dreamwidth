@@ -98,3 +98,5 @@ lib->import( $LJ::HOME . "/src/DSMS/lib" );
         lib->import($dir) if defined $dir;
     }
 }
+
+1;
