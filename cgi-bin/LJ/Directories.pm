@@ -17,7 +17,7 @@ use strict;
 use Cwd 'abs_path';
 use List::MoreUtils 'uniq';
 
-# There is no reason this be loaded, but making sure
+# There is no reason for this to not be loaded, but making sure
 #   Not 'use' to prevent calling an empty import().
 require lib;
 
@@ -25,7 +25,6 @@ require lib;
 #  It loaded very very early in the startups process and anything else
 #  being included here ( including ljlib ) may cause very fun and interesting
 #  bugs.
-our $INC_PATCHED;
 my @FILE_DIRS;
 
 sub get_all_paths {
@@ -66,40 +65,36 @@ my %SCOPE_ORDER = (
 my @SCOPES =
     sort { $SCOPE_ORDER{$b} <=> $SCOPE_ORDER{$a} } keys %SCOPE_ORDER;
 
-unless ( 0 ) { #$INC_PATCHED ) {
-    lib->import( $LJ::HOME . "/src/DSMS/lib" );
+lib->import( $LJ::HOME . "/src/DSMS/lib" );
 
-    {
-        my @dirs = ();
-        my $ext_path = abs_path( $LJ::HOME . "/ext" );
-        die "ext directory missing" unless defined $ext_path;
+{
+    my @dirs = ();
+    my $ext_path = abs_path( $LJ::HOME . "/ext" );
+    die "ext directory missing" unless defined $ext_path;
 
-        my %dir_scopes = (
-            'general' => [
-                abs_path($LJ::HOME)
-            ]
-        );
+    my %dir_scopes = (
+        'general' => [
+            abs_path($LJ::HOME)
+        ]
+    );
 
-        foreach ( glob( $ext_path . "/*" ) ) {
-            my $dir = abs_path($_);
-            next unless -d $dir;
-            my $scope = 'general';
-            if ( -e "$dir/.dir_scope" ) {
-                open my $fh, "<", "$dir/.dir_scope";
-                $scope = <$fh>;
-                chomp $scope;
-                close $fh;
-            }
-            die "$dir has invalid scope '$scope'" unless exists $SCOPE_ORDER{$scope};
-            push @{ $dir_scopes{$scope} }, $dir;
+    foreach ( glob( $ext_path . "/*" ) ) {
+        my $dir = abs_path($_);
+        next unless -d $dir;
+        my $scope = 'general';
+        if ( -e "$dir/.dir_scope" ) {
+            open my $fh, "<", "$dir/.dir_scope";
+            $scope = <$fh>;
+            chomp $scope;
+            close $fh;
         }
-
-        @FILE_DIRS = map { @{ $dir_scopes{$_} || [] } } @SCOPES;
-
-        foreach my $dir ( reverse map { abs_path($_."/cgi-bin") } @FILE_DIRS ) {
-            lib->import($dir) if defined $dir;
-        }
+        die "$dir has invalid scope '$scope'" unless exists $SCOPE_ORDER{$scope};
+        push @{ $dir_scopes{$scope} }, $dir;
     }
 
-    $INC_PATCHED = 1;
+    @FILE_DIRS = map { @{ $dir_scopes{$_} || [] } } @SCOPES;
+
+    foreach my $dir ( reverse map { abs_path($_."/cgi-bin") } @FILE_DIRS ) {
+        lib->import($dir) if defined $dir;
+    }
 }
