@@ -287,13 +287,19 @@ sub resolve_path_for_uri {
 
     if ( $uri !~ m!(\.\.|\%|\.\/)! ) {
         if ( exists $FILE_LOOKUP_CACHE{$uri} ) {
-            return $FILE_LOOKUP_CACHE{$uri};
+            return @{ $FILE_LOOKUP_CACHE{$uri} };
         }
 
         foreach my $dir ( LJ::get_all_directories( 'htdocs' ) ) {
             my $file = "$dir/$uri";
-            $file .= "index.bml" if -e "$file/index.bml" && $uri eq '/'; 
-            $file .= ".bml" if -e "$file.bml";
+            if ( -e "$file/index.bml" && $uri eq '/' ) { 
+                $file .= "index.bml";
+                $uri .= "/index.bml";
+            }
+            if ( -e "$file.bml" ) {
+                $file .= ".bml";
+                $uri .= ".bml";
+            }
             next unless -e $file;
 
             if ( -d $file && -e "$file/index.bml" ) {
@@ -303,7 +309,9 @@ sub resolve_path_for_uri {
 
             $file = abs_path( $file );
             if ( $file ) { 
-                return $FILE_LOOKUP_CACHE{$uri} = $file;
+                $uri =~ s!^/+!/!;
+                $FILE_LOOKUP_CACHE{$uri} = [ $uri, $file ];
+                return @{ $FILE_LOOKUP_CACHE{$uri} };
             }
         }
     }
@@ -375,7 +383,7 @@ sub trans
     } else { # not is_initial_req
         if ($r->status == 404) {
             my $fn = $LJ::PAGE_404 || "404-error.bml";
-            my $path = resolve_path_for_uri($fn);
+            my ( $uri, $path ) = resolve_path_for_uri($fn);
             return $bml_handler->( $path ) if $path;
         }
     }
@@ -393,8 +401,9 @@ sub trans
         $LJ::USERPIC_ROOT = $LJ::USERPICROOT_BAK if $LJ::USERPICROOT_BAK;
     }
 
-    my $alt_path = resolve_path_for_uri($uri);
+    my ( $alt_uri, $alt_path ) = resolve_path_for_uri($uri);
     if ( $alt_path ) {
+        $r->uri( $alt_uri );
         $r->filename( $alt_path );
         return OK;
     }

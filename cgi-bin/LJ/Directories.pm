@@ -66,7 +66,7 @@ my %SCOPE_ORDER = (
 my @SCOPES =
     sort { $SCOPE_ORDER{$b} <=> $SCOPE_ORDER{$a} } keys %SCOPE_ORDER;
 
-unless ( $INC_PATCHED ) {
+unless ( 0 ) { #$INC_PATCHED ) {
     lib->import( $LJ::HOME . "/src/DSMS/lib" );
 
     {

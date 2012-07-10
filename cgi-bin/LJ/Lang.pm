@@ -561,19 +561,20 @@ sub get_text
         my ($localcode, @files);
         if ($code =~ m!^(/.+\.bml)(\..+)!) {
             my $file;
-            ($file, $localcode) = ("$LJ::HTDOCS$1", $2);
+            ($file, $localcode) = ("htdocs$1", $2);
             @files = ("$file.text.local", "$file.text");
         } elsif ( $code =~ m!^(/.+\.tt)(\..+)! ) {
             my $file;
-            ( $file, $localcode ) = ( "$LJ::HOME/views$1", $2 );
+            ( $file, $localcode ) = ( "views$1", $2 );
             @files = ( "$file.text.local", "$file.text" );
         } else {
             $localcode = $code;
-            @files = ("$LJ::HOME/bin/upgrading/$LJ::DEFAULT_LANG.dat",
-                      "$LJ::HOME/bin/upgrading/en.dat");
+            @files = ("bin/upgrading/$LJ::DEFAULT_LANG.dat",
+                      "bin/upgrading/en.dat");
         }
 
         foreach my $tf (@files) {
+            $tf = LJ::resolve_file( $tf );
             next unless -e $tf;
 
             # compare file modtime to when the string was updated in the DB.
