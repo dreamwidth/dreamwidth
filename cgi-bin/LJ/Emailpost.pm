@@ -378,7 +378,7 @@ sub process {
         $body =~ s/-----BEGIN PGP SIGNATURE-----.+//s;
     }
 
-    $body =~ s/^(?:\- )?[\-_]{2,}\s*\r?\n.*//ms; # trim sigs
+    $body =~ s/^(?:\- )?[\-_]{2,}(\s|&nbsp;)*\r?\n.*//ms; # trim sigs
 
     # respect flowed text
     if (lc($format) eq 'flowed') {
