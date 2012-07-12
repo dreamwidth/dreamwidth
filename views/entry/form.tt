@@ -213,7 +213,6 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                             labelclass = "invisible"
 
                             placeholder = placeholder
-                            title = title
                     ) -%]
                 </div>
 
@@ -231,7 +230,6 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                         labelclass = "invisible"
 
                         placeholder = placeholder
-                        title = title
                     ) -%]
                 </div>
             </fieldset>
