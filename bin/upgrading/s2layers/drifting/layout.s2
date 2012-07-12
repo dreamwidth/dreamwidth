@@ -608,13 +608,17 @@ function Page::print_default_stylesheet()
         word-wrap: break-word;
     }
 
+    /* Search Module
+    ***************************************************************************/
+    .search-box { max-width: 100%; }
+
     /* Tag Module
     ***************************************************************************/
     .module-tags_cloud .module-list {
         margin-bottom: 0.5em;
     }
 
-    .module-tags_cloud li, .tags_cloud li { 
+    .module-tags_cloud li, .tags_cloud li {
         display: inline;
         list-style-type: none; }
 

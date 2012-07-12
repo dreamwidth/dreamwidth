@@ -562,6 +562,7 @@ ul.userlite-interaction-links.icon-links li {
     }
 
 .module-search .search-box {
+    max-width:100%;
     margin: .2em;
     }
 

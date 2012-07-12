@@ -1048,7 +1048,7 @@ ul.userlite-interaction-links.icon-links li {
     }
 
 .module-search .search-form { margin: .2em auto; }
-.module-search .search-box { margin: .2em; }
+.module-search .search-box { margin: .2em; max-width:100%; }
 
 #tertiary .module-content ul {
     list-style-image: none;

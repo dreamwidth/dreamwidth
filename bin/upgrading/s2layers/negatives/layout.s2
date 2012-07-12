@@ -440,9 +440,13 @@ function Page::print_default_stylesheet()
         $module_font
     }
 
-    .module-tags_cloud li, .tags_cloud li { 
+    .module-tags_cloud li, .tags_cloud li {
         display: inline;
-        list-style-type: none; 
+        list-style-type: none;
+    }
+
+    .search-box {
+        max-width: 100%;
     }
 
     .entry, .entry-wrapper, .comment, .comment-wrapper {

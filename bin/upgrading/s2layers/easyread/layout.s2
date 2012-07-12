@@ -530,6 +530,10 @@ h2.module-header a {
     content: ")";
 }
 
+.search-box {
+    max-width:100%;
+}
+
 /*
  * Single Post and Comment pages
  */

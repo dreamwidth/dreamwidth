@@ -730,15 +730,19 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
     $module_font
 }
 
-.two-columns-right #entries, 
-.two-columns-right.page-entry .entry-wrapper, 
-.two-columns-right.page-entry #comments, 
-.two-columns-right.page-archive .year, 
+.search-box {
+    max-width: 100%;
+}
+
+.two-columns-right #entries,
+.two-columns-right.page-entry .entry-wrapper,
+.two-columns-right.page-entry #comments,
+.two-columns-right.page-archive .year,
 .two-columns-right #archive-month {padding-right:22px; margin:-20px 5px -20px -20px; padding-left:5px; border-left: solid 1px $*color_page_border; $entry_background }
-.two-columns-left #entries, 
-.two-columns-left.page-entry .entry-wrapper, 
-.two-columns-left.page-entry #comments, 
-.two-columns-left.page-archive .year, 
+.two-columns-left #entries,
+.two-columns-left.page-entry .entry-wrapper,
+.two-columns-left.page-entry #comments,
+.two-columns-left.page-archive .year,
 .two-columns-left #archive-month {padding-left:22px; margin:-20px -20px -20px 5px; padding-right:5px; border-right: solid 1px $*color_page_border; $entry_background_redux }
 
 .two-columns-right .tags-container,
