@@ -175,9 +175,10 @@ body<=
 
         if ( $u->is_individual ) {
             # gender
-            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.fn.gender'}</td>\n";
+            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.fn.gender1'}</td>\n";
             $ret .= "<td>";
-            $ret .= LJ::html_select( { name => 'gender', title => $ML{'.fn.gender'},
+            # strip HTML out of title
+            $ret .= LJ::html_select( { name => 'gender', title => LJ::strip_html( $ML{'.fn.gender1'} ),
                                        selected => $u->prop( 'gender' ) || 'U' },
                                      F => $ML{'.gender.female'},
                                      M => $ML{'.gender.male'},
