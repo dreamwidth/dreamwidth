@@ -73,7 +73,7 @@ propgroup colors {
     property use color_page_link_visited;
     property use color_page_border;
     property use color_page_title;
-    
+
     property use color_header_background;
 
     property use color_module_background;
@@ -96,7 +96,7 @@ propgroup colors {
     property use color_entry_title;
     property use color_entry_title_background;
     property use color_entry_interaction_links;
-    
+
     property use color_comment_title_background;
 
 }
@@ -224,20 +224,20 @@ propgroup text {
 
     property use text_skiplinks_back;
     property use text_skiplinks_forward;
-    property use text_meta_music; 
-    property use text_meta_mood; 
-    property use text_meta_location; 
+    property use text_meta_music;
+    property use text_meta_mood;
+    property use text_meta_location;
     property use text_meta_xpost;
-    property use text_tags; 
+    property use text_tags;
 
     property use text_entry_prev;
-    property use text_entry_next; 
-    property use text_edit_entry; 
-    property use text_edit_tags; 
-    property use text_tell_friend; 
-    property use text_mem_add; 
-    property use text_watch_comments; 
-    property use text_unwatch_comments; 
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_tell_friend;
+    property use text_mem_add;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
     property use text_permalink;
     property use text_stickyentry_subject;
 
@@ -250,7 +250,7 @@ function print_module_navlinks() {
     var Page p = get_page();
     open_module("navlinks", "", "");
     var string[] links = [];
-    
+
     println """<ul class="module-list">""";
     foreach var string k ($p.views_order) {
         var string css = """$k""";
@@ -287,7 +287,7 @@ function Page::print()
             <div id="content">
                 <div class="inner">
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -298,10 +298,10 @@ function Page::print()
                     </div></div><!--  end secondary and secondary>inner -->
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
-    """    
+
+    """
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -324,13 +324,13 @@ var string entry_title_font = generate_font_css($*font_entry_title, $*font_base,
 var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
 var string module_text_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
 var string module_heading_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
-var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, 
+var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat,
     $*image_background_page_position, $*color_page_background);
-var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, 
+var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat,
     $*image_background_header_position, $*color_header_background);
-var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, 
+var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat,
     $*image_background_entry_position, $*color_entry_background );
-var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, 
+var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat,
     $*image_background_module_position, $*color_module_background );
 var Color element_background = $*color_page_background->lighter();
 
@@ -416,8 +416,8 @@ var Color element_background = $*color_page_background->lighter();
         }
 
     """
-/* DREAMWIDTH :--- Bases. --- 
-Sven @ Fruitstyle.Dreamwidth.org 
+/* DREAMWIDTH :--- Bases. ---
+Sven @ Fruitstyle.Dreamwidth.org
 Do not remove this note. */
 
 /* ====================== PAGE ======================= */
@@ -467,7 +467,7 @@ a:hover, a:visited:hover, a:active:hover {color: $*color_page_link_hover; text-d
 
 abbr {border-color: $*color_page_link; }
 
-blockquote {border-bottom: 0.083em solid $*color_page_border; clear: both; margin: 0.833em 1.667em 0.833em 1.667em; 
+blockquote {border-bottom: 0.083em solid $*color_page_border; clear: both; margin: 0.833em 1.667em 0.833em 1.667em;
             padding: 0.833em; background: $element_background; border-top: 0.583em solid $*color_page_link; }
 
 q { font-style: italic; }
@@ -692,7 +692,7 @@ li.page-separator {display: none;}
 
 .entry-title a {text-decoration: none; color: $*color_entry_title; }
 
-.datetime { font-size: 0.75em; text-transform: uppercase; display: block; color: $*color_entry_text; padding: 0.5em 1em 0.5em 1em; 
+.datetime { font-size: 0.75em; text-transform: uppercase; display: block; color: $*color_entry_text; padding: 0.5em 1em 0.5em 1em;
 border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_title_background; }
 
 .access-filter, .restrictions {float: left; margin: 0.25em 0.5em 0.25em 0.5em;}
@@ -720,7 +720,7 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 /* ====================== METADATA ======================= */
 
 .metadata ul {padding: 0; margin: 0; list-style: none; }
-.metadata li {padding: 0.167em 0.833em 0.167em 0.833em; margin: 0; border-bottom: 0.083em solid $*color_entry_border;} 
+.metadata li {padding: 0.167em 0.833em 0.167em 0.833em; margin: 0; border-bottom: 0.083em solid $*color_entry_border;}
 .metadata-label {font-weight: bold; }
 .page-recent .journal-type-P .metadata.top-metadata li,
 .page-recent .journal-type-I .metadata.top-metadata li,

@@ -225,7 +225,7 @@ function Page::print_default_stylesheet() {
             $header_background
             height: """ + $*image_background_header_height + """px;""";
     }
-    
+
     var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
     var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
     var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
@@ -276,7 +276,7 @@ function Page::print_default_stylesheet() {
                  text-align: right;
                  }
              """;
-         } 
+         }
 
     """
 H1, H2, H3 {
@@ -750,4 +750,3 @@ ul.userlite-interaction-links.text-links {
 $userpic_css
     """;
 }
-

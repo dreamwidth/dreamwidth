@@ -55,7 +55,7 @@ propgroup colors {
     property use color_page_link_visited;
     property use color_page_border;
     property use color_page_title;
-    
+
     property use color_header_background;
     property Color color_header_footer_border { des = "Header and footer border color"; }
 

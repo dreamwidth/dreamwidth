@@ -53,12 +53,12 @@ propgroup colors {
     property use color_page_link_active;
     property use color_page_link_visited;
     property use color_page_title;
-  
+
     property use color_header_background;
 
     property use color_entry_background;
     property use color_entry_text;
-  
+
 }
 
 ##===============================
@@ -249,7 +249,7 @@ function Page::print()
                     </div></div><!--  end secondary and secondary>inner -->
 
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -260,9 +260,9 @@ function Page::print()
                     </div></div><!-- end tertiary and tertiary>inner -->
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -271,7 +271,7 @@ function Page::print()
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -465,7 +465,7 @@ html body {
 }
 
 .navigation .inner ul li {
-    display: inline;  
+    display: inline;
 }
 
 .navigation ul li.page-back:after {
@@ -509,9 +509,9 @@ h2.module-header a {
     display: inline;
 }
 
-.tags_cloud li, .module-tags_cloud li { 
+.tags_cloud li, .module-tags_cloud li {
     display: inline;
-    list-style-type: none; 
+    list-style-type: none;
 }
 
 .module-tags_list ul.module-list li {
@@ -581,7 +581,7 @@ h2.module-header a {
     text-transform: uppercase;
 }
 
-.entry .metadata ul {  
+.entry .metadata ul {
     list-style: none;
     padding-left: 0;
 }
