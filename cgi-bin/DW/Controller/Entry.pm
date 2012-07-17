@@ -249,6 +249,11 @@ sub new_handler {
 
     $vars->{show_unimplemented} = $get->{highlight} ? 1 : 0;
     $vars->{betacommunity} = LJ::load_user( "dw_beta" );
+
+    $vars->{action} = {
+        url  => LJ::create_url( undef, keep_args => 1 ),
+    };
+
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
 
@@ -583,6 +588,7 @@ sub _edit {
 
     $vars->{action} = {
         edit => 1,
+        url  => LJ::create_url( undef, keep_args => 1 ),
     };
 
     return DW::Template->render_template( 'entry/form.tt', $vars );

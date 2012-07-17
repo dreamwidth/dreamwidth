@@ -155,7 +155,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
     <h2>[% 'entryform.form' | ml %]</h2>
 [%- END -%]
 
-<form method="POST" id="post_entry" action="" class="
+<form method="POST" id="post_entry" action="[% action.url %]" class="
         [%- formwidth == "narrow" ? "entry-partial-width" : "entry-full-width" -%]">
     <input type="hidden" id="nojs" value="1" name="nojs" />
 
