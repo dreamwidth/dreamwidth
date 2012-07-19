@@ -57,40 +57,18 @@ sub multisearch_handler {
             }
         }
 
-        eval "use LJ::NavTag;";
-        return error_ml( 'error.tempdisabled' ) if $@;
-
-        my @dests = LJ::NavTag->dests_of_tag( $q );
-        my $last_is_untrusted = 0;
-
-        if ( $type eq "nav_and_user" ) {
-            if ( my $u = LJ::load_user_or_identity($q) ) {
-                push @dests, LJ::NavTag::Dest->new( type => "LJUSER",
-                                                    dest => $u->user );
-
-                # Presumably users will start registering usernames that match
-                # our site navigation tags, so let's preempt that and push them
-                # into a bottom section when site-defined tags are also present.
-                $last_is_untrusted = 1 if $u->is_visible;
-            }
-        }
+	if ( $type eq "nav_and_user" ) {
+	    if ( my $u = LJ::load_user_or_identity($q) ) {
+                       return $r->redirect( $u->profile_url() );
+	    }
+	}
 
         my $eq = LJ::ehtml( $q );
-        return error_ml( '/multisearch.tt.errorpage.nomatch.nav', { query => $eq } )
-            unless @dests;
-        return $r->redirect( $dests[0]->url ) if @dests == 1;
-
-        # multiple matches
-        my @cats = ( { name => 'site', list => \@dests } );
-        push @cats,  { name => 'user', list => [ pop @dests ] }
-            if $last_is_untrusted;
-
-        $rv->{type} = 'nav';
-        $rv->{query} = $eq;
-        $rv->{cats} = \@cats;
+        return error_ml( '/multisearch.tt.errorpage.nomatch.nav', { query => $eq } );
 
         return DW::Template->render_template( $tpl, $rv );
-    };
+
+	};
 
     $f_user = sub {
         my $user = $q;

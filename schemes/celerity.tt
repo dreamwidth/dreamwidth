@@ -40,28 +40,28 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <body [% sections.bodyopts %]>
         <div id="canvas">
             <div id="page">
-                <div id="masthead">
+                <div id="masthead" role="banner">
                         [% PROCESS block.logo %]
                 </div><!-- end masthead-->
 
-                <div id="content" [% sections.contentopts %]>
+                <div id="content" role="main" [% sections.contentopts %]>
                 <h1>[% sections.title %]</h1>
                 [% content %]
                 </div><!--end content-->
                 <div id="page-decoration"></div>
                 </div><!-- end page-->
-                <div id="account-links">
+                <div id="account-links" role="navigation">
                     [% PROCESS block.accountlinks %]
                 </div><!-- end account links-->
-                <div id="sidebar">
+                <div id="sidebar" role="navigation">
                     [% PROCESS block.userpic %]
                     [% PROCESS block.menunav %]
                 </div>
                 <div id="header-divider"> <div id="header-divider-insert"></div></div>
-                <div id="header-search">
+                <div id="header-search" role="search">
                     [% dw_scheme.search_render %]
                 </div><!-- end header-search-->
-                <div id="footer">
+                <div id="footer" role="contentinfo">
                     [% PROCESS block.footer %]
                 </div>
         </div> <!-- end canvas-->

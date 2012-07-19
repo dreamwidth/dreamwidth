@@ -99,7 +99,7 @@ propgroup images
     property string image_header_right {
         des = "Right header image URL";
     }
-    property string image_module_header_url { 
+    property string image_module_header_url {
         des = "Module/Entry header image URL";
     }
 }
@@ -608,13 +608,17 @@ function Page::print_default_stylesheet()
         word-wrap: break-word;
     }
 
+    /* Search Module
+    ***************************************************************************/
+    .search-box { max-width: 100%; }
+
     /* Tag Module
     ***************************************************************************/
     .module-tags_cloud .module-list {
         margin-bottom: 0.5em;
     }
 
-    .module-tags_cloud li, .tags_cloud li { 
+    .module-tags_cloud li, .tags_cloud li {
         display: inline;
         list-style-type: none; }
 
@@ -1135,7 +1139,7 @@ function EntryPage::print_comment (Comment c)
             println "</div>";
 
             $c->print_metadata();
-            
+
             println "<div class=\"comment-text\">";
             $c->print_text();
             println "</div>";
@@ -1161,14 +1165,14 @@ function EntryPage::print_comment (Comment c)
 ################################################################################
 function ReplyPage::print_body
 {
-    if ($.replyto isa Entry) 
+    if ($.replyto isa Entry)
     {
         var Entry e = $.replyto as Entry;
         $this->print_entry($e);
     }
-    elseif ($.replyto isa Comment) 
+    elseif ($.replyto isa Comment)
     {
-    
+
         var Comment c = $.replyto as Comment;
         $this->print_comment($c);
     }
@@ -1208,12 +1212,12 @@ function ReplyPage::print_comment (Comment c)
             println "</div>";
 
             $c->print_metadata();
-            
+
             println "<div class=\"comment-text\">";
             $c->print_text();
             println "</div>";
 
-            $c->print_interaction_links();            
+            $c->print_interaction_links();
         println "</div>";
 
     $c->print_wrapper_end();

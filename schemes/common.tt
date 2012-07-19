@@ -125,26 +125,26 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- BLOCK block.pagediv -%]
 <div id="page">
-    <div id="masthead">
+    <div id="masthead" role="banner">
         <span id="logo">
             [% PROCESS block.logo %]
         </span>
     </div>
 
-    <div id="content" [% sections.contentopts %]>
+    <div id="content" role="main" [% sections.contentopts %]>
     <h1>[% sections.title %]</h1>
     [% content %]
     </div>
-    <div id="account-links">
+    <div id="account-links" role="navigation">
         [% PROCESS block.accountlinks %]
     </div>
-    <div id="menu">
+    <div id="menu" role="navigation">
         [% PROCESS block.menunav %]
     </div>
-    <div id="header-search">
+    <div id="header-search" role="search">
         [% dw_scheme.search_render %]
     </div>
-    <div id="footer">
+    <div id="footer" role="contentinfo">
         [% PROCESS block.footer %]
     </div>
 </div>

@@ -58,6 +58,51 @@ set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
 
 
+#NEWLAYER: strata/athousandrubies
+layerinfo type = "theme";
+layerinfo name = "A Thousand Rubies";
+layerinfo redist_uniq = "strata/athousandrubies";
+layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_header_background = "#6d0009";
+set color_header_navlinks_background = "#93000c";
+set color_header_navlinks_current_background = "#ba000f";
+set color_page_background = "#D93D4A";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#bbb";
+set color_page_text = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title_background = "#ad000e";
+set color_entry_background = "#6d0009";
+set color_entry_border = "#ba000f";
+set color_entry_footer_background = "#93000c";
+set color_entry_title_background = "#ad000e";
+set color_entry_title = "#eee";
+set color_entry_title_link = "#eee";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#6d0009";
+set color_module_border = "#ba000f";
+set color_module_footer_background = "#93000c";
+set color_module_title_background = "#ad000e";
+set color_module_title_link = "#eee";
+set color_module_title = "#eee";
+
+
 #NEWLAYER: strata/blackforestcake
 layerinfo type = "theme";
 layerinfo name = "Black Forest Cake";
@@ -258,6 +303,51 @@ set color_module_title_background = "#096B38";
 set color_module_title_link = "#eee";
 
 
+#NEWLAYER: strata/pumpkinpie
+layerinfo type = "theme";
+layerinfo name = "Pumpkin Pie";
+layerinfo redist_uniq = "strata/pumpkinpie";
+layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_header_background = "#592F07";
+set color_header_navlinks_background = "#99510C";
+set color_header_navlinks_current_background = "#BF650F";
+set color_page_background = "#E67A12";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#bbb";
+set color_page_text = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title_background = "#D97311";
+set color_entry_background = "#592F07";
+set color_entry_border = "#BF650F";
+set color_entry_footer_background = "#99510C";
+set color_entry_title_background = "#D97311";
+set color_entry_title = "#eee";
+set color_entry_title_link = "#eee";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#592F07";
+set color_module_border = "#BF650F";
+set color_module_footer_background = "#99510C";
+set color_module_title_background = "#D97311";
+set color_module_title_link = "#eee";
+set color_module_title = "#eee";
+
+
 #NEWLAYER: strata/sandstone
 layerinfo type = "theme";
 layerinfo name = "Sandstone";
@@ -392,3 +482,99 @@ set font_module_heading_units = "em";
 set font_module_text = "Tahoma, Helvetica, Arial";
 set font_module_text_size = "0.9";
 set font_module_text_units = "em";
+
+
+#NEWLAYER: strata/sunshine
+layerinfo type = "theme";
+layerinfo name = "Sunshine";
+layerinfo redist_uniq = "strata/sunshine";
+layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_header_background = "#827a1f";
+set color_header_navlinks_background = "#bfb32e";
+set color_header_navlinks_current_background = "#e5d737";
+set color_navlinks_current = "#777";
+set color_navlinks_link = "#555555";
+set color_page_background = "#fff266";
+set color_page_link = "#777";
+set color_page_link_hover = "#999";
+set color_page_link_visited = "#555";
+set color_page_text = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title_background = "#ffef3d";
+set color_entry_background = "#827a1f";
+set color_entry_border = "#e5d737";
+set color_entry_footer_background = "#bfb32e";
+set color_entry_link = "#666";
+set color_entry_link_hover = "#999";
+set color_entry_link_visited = "#bbb";
+set color_entry_title = "#777";
+set color_entry_title_background = "#ffef3d";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#827a1f";
+set color_module_border = "#e5d737";
+set color_module_footer_background = "#bfb32e";
+set color_module_link = "#ddd";
+set color_module_link_hover = "#ccc";
+set color_module_link_visited = "#aaa";
+set color_module_title = "#777";
+set color_module_title_background = "#ffef3d";
+
+
+#NEWLAYER: strata/violets
+layerinfo type = "theme";
+layerinfo name = "Violets";
+layerinfo redist_uniq = "strata/violets";
+layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_header_background = "#25023d";
+set color_header_navlinks_background = "#56058f";
+set color_header_navlinks_current_background = "#7c07cf";
+set color_page_background = "#8907E5";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#bbb";
+set color_page_text = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title_background = "#6d06b5";
+set color_entry_background = "#25023d";
+set color_entry_border = "#7c07cf";
+set color_entry_footer_background = "#56058f";
+set color_entry_title_background = "#6d06b5";
+set color_entry_title = "#eeeeee";
+set color_entry_title_link = "#eee";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#25023d";
+set color_module_border = "#7c07cf";
+set color_module_footer_background = "#56058f";
+set color_module_title_background = "#6d06b5";
+set color_module_title_link = "#eee";
+set color_module_title = "#eee";

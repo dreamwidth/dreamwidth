@@ -485,6 +485,20 @@ h2#pagetitle {
         text-transform: uppercase;
         }
 
+    /* Give a min height to make sure the userpic always sits in the same place */
+    /* Use default H3 size or custom size */
+    .has-userpic.no-subject .entry-title,
+    .has-userpic.no-subject .comment-title {
+        min-height: 1.17em;
+        min-height: $*font_entry_title_size$*font_entry_title_units;
+        }
+
+    /* Give H3 spacing to comment titles */
+    .has-userpic .comment-title {
+        margin: .25em 0;
+        padding: .25em 0;
+        }
+
     .entry-title a,
     .comment-title a {
         $entry_title_colors

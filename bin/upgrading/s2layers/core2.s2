@@ -4835,7 +4835,8 @@ function Comment::print_wrapper_start() {
     if ($this.deleted or $this.fromsuspended or $this.screened_noshow) { $poster =  "poster-hidden"; }
     var string full = $this.full ? "full" : "partial";
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
-    var string commentsubject = (not $*all_commentsubjects and $.subject == "" and $.full) ? "no-subject" : "has-subject";
+    var bool commenthassubject = ($.screened or $.frozen or $.echi != "" or $.subject != "") ? true : false;
+    var string commentsubject = (not $*all_commentsubjects and not $commenthassubject and $.full) ? "no-subject" : "has-subject";
     var string entryauthor = "";
     if (not isnull $ep and defined $this.poster and $this.poster.username == $ep.entry.poster.username) {
         $entryauthor = "entry-author";

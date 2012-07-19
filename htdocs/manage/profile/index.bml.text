@@ -97,7 +97,7 @@
 
 .fn.friendof3=Circled By
 
-.fn.gender=For statistical purposes, please provide your gender.<br /> (It will not be publicly displayed.)
+.fn.gender1=Gender<br /> (for statistics)
 
 .fn.interests=List all your interests, separated by commas, to allow other users to find you using the Interest Search.
 

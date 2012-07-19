@@ -219,20 +219,20 @@ propgroup text {
 
     property use text_skiplinks_back;
     property use text_skiplinks_forward;
-    property use text_meta_music; 
-    property use text_meta_mood; 
-    property use text_meta_location; 
+    property use text_meta_music;
+    property use text_meta_mood;
+    property use text_meta_location;
     property use text_meta_xpost;
-    property use text_tags; 
+    property use text_tags;
 
     property use text_entry_prev;
-    property use text_entry_next; 
-    property use text_edit_entry; 
-    property use text_edit_tags; 
-    property use text_tell_friend; 
-    property use text_mem_add; 
-    property use text_watch_comments; 
-    property use text_unwatch_comments; 
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_tell_friend;
+    property use text_mem_add;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
     property use text_permalink;
     property use text_stickyentry_subject;
 
@@ -440,9 +440,13 @@ function Page::print_default_stylesheet()
         $module_font
     }
 
-    .module-tags_cloud li, .tags_cloud li { 
+    .module-tags_cloud li, .tags_cloud li {
         display: inline;
-        list-style-type: none; 
+        list-style-type: none;
+    }
+
+    .search-box {
+        max-width: 100%;
     }
 
     .entry, .entry-wrapper, .comment, .comment-wrapper {
@@ -457,7 +461,7 @@ function Page::print_default_stylesheet()
         min-width: 15em;
     }
 
-    .comment-wrapper.partial , .partial .comment { 
+    .comment-wrapper.partial , .partial .comment {
         min-height: 0;
     }
 
@@ -554,15 +558,15 @@ function Page::print_default_stylesheet()
     .entry-interaction-links a:visited, .comment-interaction-links a:visited{
         color: $*color_entry_interaction_links_visited;
      }
-    .entry-management-links a:hover, .comment-management-links a:hover, 
+    .entry-management-links a:hover, .comment-management-links a:hover,
     .entry-interaction-links a:hover, .comment-interaction-links a:hover{
          color: $*color_entry_interaction_links_hover;
-    } 
+    }
     .entry-management-links a:active, .comment-management-links a:active,
     .entry-interaction-links a:active, .comment-interaction-links a:active{
         color: $*color_entry_interaction_links_active;
     }
- 
+
     .userlite-interaction-links.icon-links, .entry-management-links ul, .comment-management-links ul {
         list-style: none;
         margin-left: 0;
@@ -1027,4 +1031,3 @@ function Page::print()
     $this->print_wrapper_end();
     println "</html>";
 }
-
