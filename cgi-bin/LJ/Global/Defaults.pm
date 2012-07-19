@@ -180,7 +180,6 @@ no strict "vars";
     # defined a MOGILEFS_CONFIG hash in etc/config.pl and you explicitly set
     # at least the hosts key to be an arrayref of ip:port combinations
     # indicating where to reach your local MogileFS server.
-    %MOGILEFS_CONFIG = () unless defined %MOGILEFS_CONFIG;
     $MOGILEFS_CONFIG{domain}                 ||= 'livejournal';
     $MOGILEFS_CONFIG{timeout}                ||= 3;
 
@@ -188,6 +187,7 @@ no strict "vars";
     $MOGILEFS_CONFIG{classes}->{temp}        ||= 2;
     $MOGILEFS_CONFIG{classes}->{userpics}    ||= 3;
     $MOGILEFS_CONFIG{classes}->{vgifts}      ||= 3;
+    $MOGILEFS_CONFIG{classes}->{media}       ||= 3;
 
     # Default to allow all reproxying.
     %REPROXY_DISABLE = () unless %REPROXY_DISABLE;
@@ -357,20 +357,20 @@ no strict "vars";
 
         "js/hoverIntent.js"             => "js/hoverIntent.minified.js",
         "js/tooltip.js"                 => "js/tooltip.min.js",
-    ) unless defined %LJ::MINIFY;
+    ) unless %LJ::MINIFY;
 
     # mapping of captcha type to specific desired implementation
     %CAPTCHA_TYPES = (
         "T" => "textcaptcha",   # "T" is for text
         "I" => "recaptcha",     # "I" is for image
-    ) unless defined %CAPTCHA_TYPES;
+    ) unless %CAPTCHA_TYPES;
     $DEFAULT_CAPTCHA_TYPE ||= "T";
 
     # default location of community posting guidelines
     $DEFAULT_POSTING_GUIDELINES_LOC ||= "N";
 
     # Secrets
-    %SECRETS = () unless defined %SECRETS;
+    %SECRETS = () unless %SECRETS;
 }
 
 

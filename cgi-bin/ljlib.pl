@@ -89,6 +89,14 @@ use LJ::CleanHTML;
 use DW::LatestFeed;
 use LJ::Keywords;
 use LJ::Procnotify;
+use LJ::DB;
+use LJ::Tags;
+use LJ::TextUtil;
+use LJ::Time;
+use LJ::Capabilities;
+use DW::Mood;
+use LJ::Global::Img;  # defines LJ::Img
+use DW::Media;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {

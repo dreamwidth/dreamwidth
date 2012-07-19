@@ -3131,6 +3131,23 @@ CREATE TABLE openid_claims (
 )
 EOC
 
+register_tablecreate("media", <<'EOC');
+CREATE TABLE `media` (
+  `userid` int(10) unsigned NOT NULL,
+  `mediaid` int(10) unsigned NOT NULL,
+  `anum` tinyint(3) unsigned NOT NULL,
+  `ext` varchar(10) NOT NULL,
+  `state` char(1) NOT NULL DEFAULT 'A',
+  `mediatype` tinyint(3) unsigned NOT NULL,
+  `security` enum('public','private','usemask') NOT NULL DEFAULT 'public',
+  `allowmask` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `logtime` int(10) unsigned NOT NULL,
+  `mimetype` varchar(60) NOT NULL,
+  `filesize` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`userid`,`mediaid`)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes

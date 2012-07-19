@@ -1,0 +1,6 @@
+[%- sections.title = '.title' | ml -%]
+<p>[% '.intro' | ml %]</p>
+
+[% FOREACH obj IN media %]
+    url=[% obj.url %] mime=[% obj.mimetype %] size=[% obj.size %] sec=[% obj.security %] mask=[% obj.allowmask %]<br />
+[% END %]

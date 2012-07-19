@@ -58,7 +58,7 @@ sub process {
         $format, $tent,
 
         # pict upload vars
-#       $fb_upload, $fb_upload_errstr,
+       $fb_upload, $fb_upload_errstr,
     );
 
     $head = $entity->head;
@@ -129,7 +129,7 @@ sub process {
     $body =~ s/\s+$//;
 
     # Snag charset and do utf-8 conversion
-    my $content_type = $tent->head->get('Content-type:');
+    my $content_type = $tent ? $tent->head->get('Content-type:') : '';
     $charset = $1 if $content_type =~ /\bcharset=['\"]?(\S+?)['\"]?[\s\;]/i;
     $format = $1 if $content_type =~ /\bformat=['\"]?(\S+?)['\"]?[\s\;]/i;
     my $delsp;
@@ -470,48 +470,50 @@ sub process {
     $post_headers{'imgsecurity'} = lc($post_headers{'imgsecurity'}) ||
                                    $u->{'emailpost_imgsecurity'}  || 'public';
     $post_headers{'imgsecurity'} = 'private'
-      unless $post_headers{'imgsecurity'} =~ /^(private|regusers|friends|public)$/;
+        unless $post_headers{'imgsecurity'} =~ /^(private|access|public)$/;
+
+    # FIXME: translate security into usemask/allowmask combo
 
     # upload picture attachments to fotobilder.
     # undef return value? retry posting for later.
-#     $fb_upload = upload_images(
-#         $entity, $u,
-#         \$fb_upload_errstr,
-#         {
-#             imgsec  => $post_headers{'imgsecurity'},
-#             galname => $post_headers{'gallery'} || $u->{'emailpost_gallery'}
-#         }
-#       ) || return $err->( $fb_upload_errstr, { retry => 1 } );
-#
-#     # if we found and successfully uploaded some images...
-#     if (ref $fb_upload eq 'ARRAY') {
-#         my $fb_html = LJ::FBUpload::make_html( $u, $fb_upload, \%post_headers );
-#         ##
-#         ## A problem was here:
-#         ## $body is utf-8 text without utf-8 flag (see Unicode::MapUTF8::to_utf8),
-#         ## $fb_html is ASCII with utf-8 flag on (because uploaded image description
-#         ## is parsed by XML::Simple, see cgi-bin/fbupload.pl, line 153).
-#         ## When 2 strings are concatenated, $body is auto-converted (incorrectly)
-#         ## from Latin-1 to UTF-8.
-#         ##
-#         $fb_html = Encode::encode("utf8", $fb_html) if Encode::is_utf8($fb_html);
-#         $body .= $fb_html;
-#     }
-#
-#     # at this point, there are either no images in the message ($fb_upload == 1)
-#     # or we had some error during upload that we may or may not want to retry
-#     # from.  $fb_upload contains the http error code.
-#     if (   $fb_upload == 400   # bad http request
-#         || $fb_upload == 1401  # user has exceeded the fb quota
-#         || $fb_upload == 1402  # user has exceeded the fb quota
-#     ) {
-#         # don't retry these errors, go ahead and post the body
-#         # to the journal, postfixed with the remote error.
-#         $body .= "\n";
-#         $body .= "(Your picture was not posted: $fb_upload_errstr)";
-#     }
-#
-#     # Fotobilder server error.  Retry.
+    $fb_upload = upload_images(
+         $entity, $u,
+         \$fb_upload_errstr,
+         {
+             security => $post_headers{'imgsecurity'},
+         }
+       ) || return $err->( $fb_upload_errstr, { retry => 1 } );
+
+     # if we found and successfully uploaded some images...
+     if (ref $fb_upload eq 'ARRAY') {
+         my $fb_html = join( '<br />', map { '<img src="' . $_->url . '" />' } @$fb_upload );
+
+         ##
+         ## A problem was here:
+         ## $body is utf-8 text without utf-8 flag (see Unicode::MapUTF8::to_utf8),
+         ## $fb_html is ASCII with utf-8 flag on (because uploaded image description
+         ## is parsed by XML::Simple, see cgi-bin/fbupload.pl, line 153).
+         ## When 2 strings are concatenated, $body is auto-converted (incorrectly)
+         ## from Latin-1 to UTF-8.
+         ##
+         $fb_html = Encode::encode("utf8", $fb_html) if Encode::is_utf8($fb_html);
+         $body .= $fb_html;
+     }
+
+     # at this point, there are either no images in the message ($fb_upload == 1)
+     # or we had some error during upload that we may or may not want to retry
+     # from.  $fb_upload contains the http error code.
+     if (   $fb_upload == 400   # bad http request
+         || $fb_upload == 1401  # user has exceeded the fb quota
+         || $fb_upload == 1402  # user has exceeded the fb quota
+     ) {
+         # don't retry these errors, go ahead and post the body
+         # to the journal, postfixed with the remote error.
+         $body .= "\n";
+         $body .= "(Your picture was not posted: $fb_upload_errstr)";
+     }
+
+     # Fotobilder server error.  Retry.
 #     return $err->( $fb_upload_errstr, { retry => 1 } ) if $fb_upload == 500;
 
     # build lj entry
@@ -707,59 +709,24 @@ sub check_sig {
 # undef - failure during upload
 # http_code - failure during upload w/ code
 # hashref - { title => url } for each image uploaded
-# sub upload_images
-# {
-#     my ($entity, $u, $rv, $opts) = @_;
+sub upload_images {
+    my ( $entity, $u, $rv, $opts ) = @_;
+
+# FIXME: check if user can do this
 #     return 1 unless LJ::get_cap($u, 'fb_can_upload') && $LJ::FB_SITEROOT;
-#
-#     my @imgs = get_entity($entity, 'image');
-#     return 1 unless scalar @imgs;
-#
-#     my @images;
-#     foreach my $img_entity (@imgs) {
-#         my $img     = $img_entity->bodyhandle;
-#         my $path    = $img->path;
-#
-#         my $result = LJ::FBUpload::do_upload(
-#             $u, $rv,
-#             {
-#                 path    => $path,
-#                 rawdata => \$img->as_string,
-#                 imgsec  => $opts->{'imgsec'},
-#                 galname => $opts->{'galname'},
-#             }
-#         );
-#
-#         # do upload() returned undef?  This is a posting error
-#         # that should most likely be retried, due to something
-#         # wrong on our side of things.
-#         return if ! defined $result && $$rv;
-#
-#         # http error during upload attempt
-#         # decide retry based on error type in caller
-#         return $result unless ref $result;
-#
-#         # examine $result for errors
-#         if ($result->{Error}->{code}) {
-#             $$rv = $result->{Error}->{content};
-#
-#             # add 1000 to error code, so we can easily tell the
-#             # difference between fb protocol error and
-#             # http error when checking results.
-#             return $result->{Error}->{code} + 1000;
-#         }
-#
-#         push @images, {
-#             url     => $result->{URL},
-#             width   => $result->{Width},
-#             height  => $result->{Height},
-#             title   => $result->{Title},
-#         };
-#     }
-#
-#     return \@images if scalar @images;
-#     return;
-# }
+
+    my @imgs = get_entity( $entity, 'image' );
+    return 1 unless scalar @imgs;
+
+    my @images;
+    foreach my $img_entity ( @imgs ) {
+        my $obj = DW::Media->upload_media( user => $u, data => $img_entity->bodyhandle->as_string, %$opts );
+        push @images, $obj if $obj;
+    }
+
+    return unless scalar @images;
+    return \@images;
+}
 
 sub dblog
 {

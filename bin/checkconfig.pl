@@ -242,6 +242,10 @@ my %modules = (
                    deb => 'libtext-markdown-perl',
                    opt => 'Required to allow using Markdown in entries.',
                },
+               "File::Type" => {
+                   deb => 'libfile-type-perl',
+                   opt => 'For media storage',
+               }
               );
 
 
