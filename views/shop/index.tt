@@ -45,6 +45,19 @@
     </div>
 </div>
 
+<div class='shop-category'>
+    <div class='shop-category-title'>[% '.title.icons' | ml %]</div>
+    <div class='shop-category-items'>
+[% IF remote AND remote.is_personal %]
+        <span class='shop-category-item'><a href="[% site.root %]/shop/icons?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
+[% END %]
+[% IF remote AND remote.is_personal %]
+        <span class='shop-category-item'><a href="[% site.root %]/shop/icons?for=gift">[% '.for.different' | ml %]</a></span>
+[% ELSE %]
+        <span class='shop-category-item'><a href="[% site.root %]/shop/icons?for=gift">[% '.for.existing' | ml %]</a></span>
+[% END %]
+    </div>
+</div>
 [%#
 
 Here for future expansion ...

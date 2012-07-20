@@ -3572,6 +3572,18 @@ shop.item.account.name.perm=[[points]] points for a [[name]]
 
 shop.item.account.randomuser=Random active free user
 
+shop.item.icons.canbeadded.banned=You are restricted from making purchases for this journal.
+
+shop.item.icons.canbeadded.invalidjournaltype=You can only buy icons for a personal journal.
+
+shop.item.icons.canbeadded.itemerror=Could not add item to cart.
+
+shop.item.icons.canbeadded.notauser=You can only buy icons for an active account.
+
+shop.item.icons.canbeadded.outofrange=You can only buy up to [[count]] icons for this journal.
+
+shop.item.icons.name=[[num]] [[sitename]] icons
+
 shop.item.points.canbeadded.banned=You are restricted from making purchases for this journal.
 
 shop.item.points.canbeadded.insufficient=You do not have enough points to do that.
