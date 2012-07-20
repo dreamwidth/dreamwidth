@@ -117,7 +117,7 @@ sub get_upload_type {
     # FIXME: This may not cover everything. :-)
     return (TYPE_PHOTO, 'jpg') if $mime eq 'image/jpeg';
     return (TYPE_PHOTO, 'gif') if $mime eq 'image/gif';
-    return (TYPE_PHOTO, 'png') if $mime eq 'image/png';
+    return (TYPE_PHOTO, 'png') if $mime eq 'image/png' || $mime eq 'image/x-png';
 
     return (undef, undef);
 }
