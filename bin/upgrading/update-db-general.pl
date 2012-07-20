@@ -3131,6 +3131,7 @@ CREATE TABLE openid_claims (
 )
 EOC
 
+# FIXME: add alt text, etc. mediaprops?
 register_tablecreate("media", <<'EOC');
 CREATE TABLE `media` (
   `userid` int(10) unsigned NOT NULL,
@@ -3145,6 +3146,38 @@ CREATE TABLE `media` (
   `mimetype` varchar(60) NOT NULL,
   `filesize` int(10) unsigned NOT NULL,
   PRIMARY KEY (`userid`,`mediaid`)
+)
+EOC
+
+register_tablecreate("collections", <<'EOC');
+CREATE TABLE `collections` (
+  `userid` int(10) unsigned NOT NULL,
+  `colid` int(10) unsigned NOT NULL,
+  `paruserid` int(10) unsigned NOT NULL,
+  `parcolid` int(10) unsigned NOT NULL,
+  `anum` tinyint(3) unsigned NOT NULL,
+  `state` char(1) NOT NULL DEFAULT 'A',
+  `security` enum('public','private','usemask') NOT NULL DEFAULT 'public',
+  `allowmask` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `logtime` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`userid`,`colid`),
+  INDEX (`paruserid`,`parcolid`)
+)
+EOC
+
+# FIXME: the indexes here are totally whack
+register_tablecreate("collection_items", <<'EOC');
+CREATE TABLE `collection_items` (
+  `userid` int(10) unsigned NOT NULL,
+  `colitemid` int(10) unsigned NOT NULL,
+  `colid` int(10) unsigned NOT NULL,
+  `itemtype` tinyint(3) unsigned NOT NULL,
+  `itemownerid` int(10) unsigned NOT NULL,
+  `itemid` int(10) unsigned NOT NULL,
+  `logtime` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`userid`,`colid`,`colitemid`),
+  UNIQUE (`userid`,`colid`,`itemtype`,`itemownerid`,`itemid`),
+  INDEX (`itemtype`,`itemownerid`,`itemid`)
 )
 EOC
 
