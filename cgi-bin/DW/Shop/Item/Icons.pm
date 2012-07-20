@@ -97,6 +97,15 @@ sub _apply_userid {
     # we're applied now, regardless of what happens with the email
     $self->{applied} = 1;
 
+    # see if this has put the user over their limit
+    my $overlimit = '';
+    my $real_total = $self->icons + $u->get_cap( 'userpics' ) + $cur;
+    if ( $real_total > $LJ::USERPIC_MAXIMUM ) {
+        $overlimit = LJ::Lang::ml( 'shop.item.icons.overlimit',
+                { sitename => $LJ::SITENAMESHORT, max => $LJ::USERPIC_MAXIMUM,
+                  overage => $real_total - $LJ::USERPIC_MAXIMUM } );
+    }
+
     # now we have to mail this notification
     my $word = $fu->equals( $u ) ? 'self' : 'other';
     my $body = LJ::Lang::ml( "shop.email.gift.$word.body",
@@ -105,6 +114,7 @@ sub _apply_userid {
             fromuser => $fu->display_name,
             sitename => $LJ::SITENAME,
             gift => sprintf( '%d %s Extra Icons', $self->icons, $LJ::SITENAMESHORT ),
+            extra => $overlimit,
         }
     );
     my $subj = LJ::Lang::ml( "shop.email.gift.$word.subject", { sitename => $LJ::SITENAME } );
@@ -162,6 +172,12 @@ sub can_be_added_user {
     # the receiving user must be a person for now
     unless ( $target_u->is_personal && $target_u->is_visible ) {
         $$errref = LJ::Lang::ml( 'shop.item.icons.canbeadded.invalidjournaltype' );
+        return 0;
+    }
+
+    # and they must be paid
+    unless ( $target_u->can_buy_icons ) {
+        $$errref = LJ::Lang::ml( 'shop.item.icons.canbeadded.notpaid' );
         return 0;
     }
 

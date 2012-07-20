@@ -1,3 +1,6 @@
+#
+# NOTE: This module now requires Perl 5.10 or greater.
+#
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
@@ -7228,8 +7231,10 @@ Returns the number of userpics the user can upload (base account type cap + bonu
 =cut
 sub userpic_quota {
     my $u = shift or return undef;
-    my $ct = $u->get_cap('userpics') + ($u->prop('bonus_icons') || 0);
-    return min($ct, $LJ::USERPIC_MAXIMUM);
+    my $ct = $u->get_cap( 'userpics' );
+    $ct += $u->prop('bonus_icons') // 0
+        if $u->is_paid; # paid accounts get bonus icons
+    return min( $ct, $LJ::USERPIC_MAXIMUM );
 }
 
 # Intentionally no POD here.
