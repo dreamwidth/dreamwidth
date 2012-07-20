@@ -1,0 +1,32 @@
+#media-grid .media-item {
+    list-style-type: none;
+    display: inline-block;
+    vertical-align: top;
+    margin: 2em 1em;
+    outline: 1px #666 solid;
+    padding: 1em;
+    min-width: 50px;
+    -webkit-box-shadow: 1px 2px 3px 1px rgba(200, 200, 200, 1);
+    box-shadow: 1px 2px 3px 1px rgba(200, 200, 200, 1);
+}
+
+#media-grid .media-item img {
+    max-height: 300px;
+    outline: 1px #eee solid;
+    margin: 0 auto 1em auto;
+    display: block;
+}
+
+#media-grid .media-item p {
+    margin: 0; padding: 0;
+    text-align: center;
+}
+
+#media-grid .media-item .name {
+    font-weight: bold;
+}
+
+#media-grid .media-item .filesize {
+    font-size: smaller;
+    font-style: italic;
+}

@@ -1,0 +1,13 @@
+[% CALL dw.need_res( "stc/media.css" ) %]
+
+[% IF media.size %]
+<ul id="media-list">
+    [%- FOREACH obj IN media -%]
+        <li class='media-grid'>
+            <img src="[% obj.url %]" />
+            <p class='name'>Title</p>
+            <p class='filesize'>[% obj.size %] bytes</p>
+        </li>
+    [%- END -%]
+</ul>
+[% END %]
