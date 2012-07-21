@@ -1,6 +1,21 @@
-[%- sections.title = '.title' | ml -%]
-<p>[% '.intro' | ml %]</p>
+[% sections.title = '.title' | ml %]
 
-[% FOREACH obj IN media %]
-    url=[% obj.url %] mime=[% obj.mimetype %] size=[% obj.size %] sec=[% obj.security %] mask=[% obj.allowmask %]<br />
+[% dw.need_res(
+    "stc/media.css"
+) %]
+
+<p>[% ".intro" | ml %] <a href="[%site.root%]/file/edit">[% '.intro.edit' | ml %]</a></p>
+
+[% IF media.size %]
+<ul id="media-grid">
+    [%- FOREACH obj IN media -%]
+        <li class='media-item'>
+        <div class='inner'>
+            <p class='media'><img src="[% obj.url %]" /></p>
+            <p class='details'><span class='name'>[% obj.displayid %]. [% obj.ext %]</span><br /><span class='filesize'>[% obj.size / 1000 %] kb</span></p>
+        </div>
+        </li>
+    [%- END -%]
+</ul>
+
 [% END %]
