@@ -46,6 +46,14 @@ userproplist.betafeatures_list:
   multihomed: 0
   prettyname: Beta Features List
 
+userproplist.bonus_icons:
+  cldversion: 0
+  datatype: num
+  des: Count of permanent extra icon slots
+  indexed: 0
+  multihomed: 0
+  prettyname: How many bonus icon slots the user has purchased
+
 userproplist.browselang:
   cldversion: 4
   datatype: char
