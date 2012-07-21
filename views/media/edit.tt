@@ -1,13 +1,36 @@
-[% CALL dw.need_res( "stc/media.css" ) %]
+[% sections.title = '.title' | ml %]
 
+[% CALL dw.active_resource_group( "jquery") %]
+[% CALL dw.need_res( { group => "jquery" },
+    "js/media/bulkedit.js"
+    "stc/media.css"
+) %]
+
+<p>[% ".intro" | ml %]</p>
 [% IF media.size %]
-<ul id="media-list">
+<form id="media-manage" method="POST" action="[%site.root%]/file/edit">
+[%- dw.form_auth -%]
+<fieldset id="media-list">
+<ul>
     [%- FOREACH obj IN media -%]
-        <li class='media-grid'>
-            <img src="[% obj.url %]" />
-            <p class='name'>Title</p>
-            <p class='filesize'>[% obj.size %] bytes</p>
+        <li class='media-item [% loop.count % 2 ? 'even' : 'odd' %]'>
+        <div class='inner'>
+            <p class='media'><img src="[% obj.url %]" /></p>
+            <p class='details'><span class='name '>[%obj.displayid%]</span><br /><span class='filesize'>[% obj.size / 1000 %] kb</span></p>
+            [%- form.select( name="security-$obj.displayid"
+                items = security
+                selected = obj.security ) -%]
+            <p><label for="delete_[% obj.displayid %]">Delete?</label> <input type="checkbox" name="delete" id="delete_[% obj.displayid %]" value="[% obj.displayid %]" /></p>
+        </div>
         </li>
     [%- END -%]
 </ul>
+</fieldset>
+<fieldset class="submit">
+    <input type="submit" value="Change Security" name="action:edit" />
+</fieldset>
+<fieldset class="submit destructive">
+    <input type="submit" value="Delete Selected" name="action:delete" />
+</fieldset>
+</form>
 [% END %]

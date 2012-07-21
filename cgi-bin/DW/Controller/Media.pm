@@ -43,6 +43,43 @@ sub media_bulkedit_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
+    my @security = (
+            { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },
+            { value => "usemask",  text => LJ::Lang::ml( 'label.security.accesslist' ) },
+            { value => "private", text => LJ::Lang::ml( 'label.security.private2' ) },
+        );
+    $rv->{security} = \@security;
+
+    my $r = DW::Request->get;
+    if ( $r->did_post ) {
+        my $post_args = $r->post_args;
+        return error_ml( 'error.invalidauth' ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+
+        if ( $post_args->{"action:edit"} ) {
+            my %post = %{$post_args->as_hashref||{}};
+            while ( my ($key, $secval) = each %post ) {
+                next unless $key =~ m/^security-(\d+)/;
+                my $mediaid = $1 >> 8;
+                my $media = DW::Media->new( user => $rv->{u}, mediaid => $mediaid );
+                next unless $media;
+
+                my $amask = $secval eq "usemask" ? 1 : 0;
+                $media->set_security( security => $secval, allowmask => $amask );
+            }
+        } elsif ( $post_args->{"action:delete"} ) {
+            # FIXME: update with more efficient mass loader
+            my @to_delete = $post_args->get_all( "delete" );
+            foreach my $id ( @to_delete ) {
+                # FIXME: error messages
+                my $mediaid = $id >> 8;
+                my $media = DW::Media->new( user => $rv->{u}, mediaid => $mediaid );
+                next unless $media;
+
+                $media->delete;
+            }
+        }
+    }
+
     $rv->{media} = [ DW::Media->get_active_for_user( $rv->{remote} ) ];
 
     return DW::Template->render_template( 'media/edit.tt', $rv );
