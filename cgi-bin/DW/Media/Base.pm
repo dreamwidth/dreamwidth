@@ -49,6 +49,7 @@ sub ext { $_[0]->{ext} }
 
 # helper state subs
 sub is_active { $_[0]->state eq 'A' }
+sub is_deleted { $_[0]->state eq 'D' }
 
 # construct a URL for this resource
 sub url {
@@ -89,6 +90,56 @@ sub visible_to {
 
     # totally failed.
     return 0;
+}
+
+# we delete the actual file
+# but we keep the metadata around for record-keeping purpose
+# returns 1/0 on success or failure
+sub delete {
+    my $self = $_[0];
+    return 0 if $self->is_deleted;
+
+    # we need a mogilefs client or we can't edit media
+    my $mog = LJ::mogclient()
+        or croak 'Sorry, MogileFS is not currently available.';
+    my $u = $self->u
+        or croak 'Sorry, unable to load the user.';
+
+    $u->do( q{UPDATE media SET state = 'D' WHERE userid = ? AND mediaid = ?},
+            undef, $u->id, $self->id );
+    confess $u->errstr if $u->err;
+
+    $self->{state} = 'D';
+
+    LJ::mogclient()->delete( $self->mogkey );
+
+    return 1;
+}
+
+# change the security of this item. returns 0/1 for successfulness.
+sub set_security {
+    my ( $self, %opts ) = @_;
+    return 0 if $self->is_deleted;
+
+    my $security = $opts{security};
+    confess 'Invalid security type passed to set_security.'
+        unless $security =~ /^(?:private|public|usemask)$/;
+
+    my $mask = 0;
+    if ( $security eq 'usemask' ) {
+        $mask = int $opts{allowmask};
+    }
+
+    my $u = $self->u
+        or croak 'Sorry, unable to load the user.';
+    $u->do( q{UPDATE media SET security = ?, allowmask = ? WHERE userid = ? AND mediaid = ?},
+            undef, $security, $mask, $u->id, $self->id );
+    confess $u->errstr if $u->err;
+
+    $self->{security} = $security;
+    $self->{allowmask} = $mask;
+
+    return 1;
 }
 
 
