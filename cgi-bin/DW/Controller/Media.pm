@@ -26,6 +26,8 @@ use DW::Controller;
 DW::Routing->register_regex( qr|^/media/(\d+)$|, \&media_handler, user => 1, formats => 1 );
 DW::Routing->register_string( '/media', \&media_manage_handler, app => 1 );
 
+DW::Routing->register_string( '/media/edit', \&media_bulkedit_handler, app => 1 );
+
 sub media_manage_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
@@ -35,6 +37,15 @@ sub media_manage_handler {
     $rv->{media} = [ DW::Media->get_active_for_user( $rv->{remote} ) ];
 
     return DW::Template->render_template( 'media/index.tt', $rv );
+}
+
+sub media_bulkedit_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    $rv->{media} = [ DW::Media->get_active_for_user( $rv->{remote} ) ];
+
+    return DW::Template->render_template( 'media/edit.tt', $rv );
 }
 
 sub media_handler {
