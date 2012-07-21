@@ -25,7 +25,7 @@
 </div>
 
 <hr />
-<div role="navigation><p>[ <a href='[% site.root %]/'>[% 'lynx.nav.home' | ml %]</a> | <a href='[% site.root %]/update'>[% 'lynx.nav.update' | ml %]</a> |
+<div role="navigation"><p>[ <a href='[% site.root %]/'>[% 'lynx.nav.home' | ml %]</a> | <a href='[% site.root %]/update'>[% 'lynx.nav.update' | ml %]</a> |
 [%- IF remote %][% baseurl = remote.journal_base %]
 <a href='[% baseurl %]/'>[% 'lynx.nav.recent' | ml %]</a> | <a href='[% baseurl %]/read'>[% 'lynx.nav.friends' | ml %]</a> |
 <a href='[% site.root %]/logout'>[% 'lynx.nav.logout' | ml %]</a> | [% remote.ljuser_display %] |
