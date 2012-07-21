@@ -62,6 +62,7 @@ $LJ::DBIRole = new DBI::Role {
                     "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
                     "logprop_history", "import_status", "externalaccount",
                     "content_filters", "content_filter_data", "userpicmap3",
+                    "media", "collections", "collection_items",
                     );
 
 # keep track of what db locks we have out
@@ -727,6 +728,8 @@ sub alloc_global_counter
 #       'D' == 'moDule embed contents', 'I' == Import data block
 #       'Z' == import status item, 'X' == eXternal account
 #       'F' == filter id, 'Y' = pic/keYword mapping id
+#       'A' == mediA item id, 'O' == cOllection id,
+#       'N' == collectioN item id
 #
 sub alloc_user_counter
 {
@@ -735,7 +738,7 @@ sub alloc_user_counter
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFY]$/;           #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFYA]$/;          #
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -852,7 +855,16 @@ sub alloc_user_counter
                                       undef, $uid);
     } elsif ($dom eq "Y") {
         $newmax = $u->selectrow_array("SELECT MAX(mapid) FROM userpicmap3 WHERE userid=?",
-                                         undef, $uid);
+                                      undef, $uid);
+    } elsif ($dom eq "A") {
+        $newmax = $u->selectrow_array("SELECT MAX(mediaid) FROM media WHERE userid = ?",
+                                      undef, $uid);
+    } elsif ($dom eq "O") {
+        $newmax = $u->selectrow_array("SELECT MAX(colid) FROM collections WHERE userid = ?",
+                                      undef, $uid);
+    } elsif ($dom eq "N") {
+        $newmax = $u->selectrow_array("SELECT MAX(colitemid) FROM collection_items WHERE userid = ?",
+                                      undef, $uid);
     } else {
         die "No user counter initializer defined for area '$dom'.\n";
     }
