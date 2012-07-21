@@ -111,6 +111,34 @@ sub upload_media {
     return $obj;
 }
 
+# we delete the actual file
+# but we keep the metadata around for record-keeping purpose
+sub delete_media {
+    my ( $class, %opts ) = @_;
+
+    confess 'Need a user key'
+        unless $opts{user} && LJ::isu( $opts{user} );
+
+    my $mediaid = $opts{mediaid} + 0;
+    confess 'Need a mediaid key'
+        unless $mediaid;
+
+
+    # we need a mogilefs client or we can't edit media
+    my $mog = LJ::mogclient()
+        or croak 'Sorry, MogileFS is not currently available.';
+
+    my $obj = DW::Media->new( user => $opts{user}, mediaid => $id );
+
+    # FIXME: Better error handling
+    die "No such media object" unless $obj->id;
+
+    $opts{user}->do( "UPDATE media SET state='D' WHERE userid=? AND mediaid=?", undef, $opts->{user}->id, $obj->id );
+    LJ::mogclient()->delete( $obj->mogkey );
+
+    return 1;
+}
+
 sub get_upload_type {
     my ( $class, $mime ) = @_;
 
