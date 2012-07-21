@@ -1,5 +1,7 @@
 ;; -*- coding: utf-8 -*-
 
-.intro=Below is the media you have uploaded to the site.  To manage an item, please select it first.
+.intro=Below are the files you have uploaded to the site.
 
-.title=Your Media
+.intro.edit=Manage your files
+
+.title=Your Files

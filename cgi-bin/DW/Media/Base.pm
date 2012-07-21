@@ -59,7 +59,7 @@ sub url {
         $extra = $w . 'x' . $h . '/'
             if $w || $h;
     }
-    return $self->u->journal_base . '/media/' . $extra . $self->displayid . '.' . $self->ext;
+    return $self->u->journal_base . '/file/' . $extra . $self->displayid . '.' . $self->ext;
 }
 
 # if user can see this

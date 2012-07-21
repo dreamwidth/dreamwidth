@@ -23,10 +23,10 @@ use DW::Request;
 
 use DW::Controller;
 
-DW::Routing->register_regex( qr|^/media/(\d+)$|, \&media_handler, user => 1, formats => 1 );
-DW::Routing->register_string( '/media', \&media_manage_handler, app => 1 );
+DW::Routing->register_regex( qr|^/file/(\d+)$|, \&media_handler, user => 1, formats => 1 );
+DW::Routing->register_string( '/file/list', \&media_manage_handler, app => 1 );
 
-DW::Routing->register_string( '/media/edit', \&media_bulkedit_handler, app => 1 );
+DW::Routing->register_string( '/file/edit', \&media_bulkedit_handler, app => 1 );
 
 sub media_manage_handler {
     my ( $ok, $rv ) = controller();
@@ -64,7 +64,6 @@ sub media_handler {
 
     # get the media id
     my ( $id, $ext ) = ( $opts->subpatterns->[0], $opts->{format} );
-    warn "$id $ext\n";
     $error_out->( 404, 'Not found' )
         unless $id && $ext;
     my $anum = $id % 256;
