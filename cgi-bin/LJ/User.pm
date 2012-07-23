@@ -5024,11 +5024,18 @@ sub new_entry_editor {
     return $LJ::DEFAULT_EDITOR; # Use config default
 }
 
-
+# What security level to use for new posts. This magic flag is used to give
+# user's the ability to specify that "if I try to post public, don't let me".
+# To override this, you have to go back and edit your post.
 sub newpost_minsecurity {
-    my $u = shift;
+    return $_[0]->prop( 'newpost_minsecurity' ) || 'public';
+}
 
-    return $u->prop('newpost_minsecurity') || 'public';
+# This loads the user's specified post-by-email security. If they haven't
+# set that up, then we fall back to the standard new post minimum security.
+sub emailpost_security {
+    return $_[0]->prop( 'emailpost_security' ) ||
+        $_[0]->newpost_minsecurity;
 }
 
 

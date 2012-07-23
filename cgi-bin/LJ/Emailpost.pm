@@ -422,7 +422,7 @@ sub process {
         qw/
           emailpost_userpic emailpost_security
           emailpost_comments emailpost_gallery
-          emailpost_imgsecurity /
+        /
     );
 
     # Get post options, using post-headers first, and falling back
@@ -446,7 +446,9 @@ sub process {
       if $post_headers{comments}    =~ /noemail/i
       || $u->{'emailpost_comments'} =~ /noemail/i;
 
-    $post_headers{security} = lc($post_headers{security}) || $u->{'emailpost_security'};
+    $post_headers{security} = lc $post_headers{security} ||
+        $u->emailpost_security;
+
     if ( $post_headers{security} =~ /^(public|private|friends|access)$/ ) {
         if ( $1 eq 'friends' or $1 eq 'access' ) {
             $post_headers{security} = 'usemask';
@@ -454,7 +456,7 @@ sub process {
         }
     } elsif ($post_headers{security}) { # Assume a friendgroup if unknown security mode.
         # Get the mask for the requested friends group, or default to private.
-        my $group = $u->trust_groups( 'name' => $post_headers{security} );
+        my $group = $u->trust_groups( name => $post_headers{security} );
         if ($group) {
             $amask = (1 << $group->{groupnum});
             $post_headers{security} = 'usemask';
@@ -465,22 +467,14 @@ sub process {
         }
     }
 
-    # if they specified a imgsecurity header but it isn't valid, default
-    # to private.  Otherwise, set to what they specified.
-    $post_headers{'imgsecurity'} = lc($post_headers{'imgsecurity'}) ||
-                                   $u->{'emailpost_imgsecurity'}  || 'public';
-    $post_headers{'imgsecurity'} = 'private'
-        unless $post_headers{'imgsecurity'} =~ /^(private|access|public)$/;
-
-    # FIXME: translate security into usemask/allowmask combo
-
     # upload picture attachments to fotobilder.
     # undef return value? retry posting for later.
     $fb_upload = upload_images(
          $entity, $u,
          \$fb_upload_errstr,
          {
-             security => $post_headers{'imgsecurity'},
+             security => $post_headers{security},
+             allowmask => $post_headers{amask},
          }
        ) || return $err->( $fb_upload_errstr, { retry => 1 } );
 
@@ -497,7 +491,7 @@ sub process {
          ## from Latin-1 to UTF-8.
          ##
          $fb_html = Encode::encode("utf8", $fb_html) if Encode::is_utf8($fb_html);
-         $body .= $fb_html;
+         $body .= '<br />' . $fb_html;
      }
 
      # at this point, there are either no images in the message ($fb_upload == 1)
@@ -720,7 +714,11 @@ sub upload_images {
 
     my @images;
     foreach my $img_entity ( @imgs ) {
-        my $obj = DW::Media->upload_media( user => $u, data => $img_entity->bodyhandle->as_string, %$opts );
+        my $obj = DW::Media->upload_media(
+             user => $u,
+             data => $img_entity->bodyhandle->as_string,
+             %$opts, # Should contain security.
+        );
         push @images, $obj if $obj;
     }
 
