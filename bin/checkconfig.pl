@@ -233,7 +233,9 @@ my %modules = (
                     opt => 'Required for Perlbal',
                  },
                "LWPx::ParanoidAgent" => { deb => 'liblwpx-paranoidagent-perl' },
-               "MogileFS::Client" => {},
+               "MogileFS::Client" => {
+                   ver => '1.12',
+               },
                "TheSchwartz" => {
                    deb => 'libtheschwartz-perl',
                },
