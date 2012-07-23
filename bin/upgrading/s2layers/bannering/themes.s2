@@ -70,7 +70,7 @@ set color_page_link_visited = "#660";
 set color_page_link_active = "#009";
 set color_page_title = "#fff";
 set color_header_inner_background = "#600";
-set header_border = "bottom";
+set header_border_position = "bottom";
 set color_header_border = "#000";
 set header_border_width = "3px";
 set header_border_style = "solid";
@@ -126,7 +126,7 @@ set color_page_link_visited = "#660";
 set color_page_link_active = "#900";
 set color_page_title = "#fff";
 set color_header_inner_background = "#066";
-set header_border = "bottom";
+set header_border_position = "bottom";
 set color_header_border = "#333";
 set header_border_width = "3px";
 set header_border_style = "solid";
@@ -201,7 +201,7 @@ set color_entry_border = "#ccc";
 
 set color_module_title = "#f6f3ee";
 set color_module_border = "#ccc";
-set color_navlinks_current = "#000";
+set color_navlinks_link_current = "#000";
 set color_navlinks_link = "#fff";
 set color_navlinks_link_visited = "#ccc";
 
@@ -250,7 +250,7 @@ set color_page_link = "#b6bf92";
 set color_page_link_visited = "#ac3b19";
 set color_page_link_active = "#506b8b";
 set color_page_title = "#fffff9";
-set header_border = "bottom";
+set header_border_position = "bottom";
 set color_header_border = "#000";
 set header_border_width = "2px";
 set header_border_style = "solid";
@@ -270,7 +270,7 @@ set color_entry_border = "#000";
 
 set color_module_title = "#000";
 set color_module_border = "#000";
-set color_navlinks_current = "#fffff9";
+set color_navlinks_link_current = "#fffff9";
 set color_navlinks_link_visited = "#80371c";
 
 ##===============================
@@ -317,7 +317,7 @@ set color_page_link_visited = "#a7a08d";
 set color_page_link_active = "#900";
 set color_page_title = "#000";
 set color_header_background = "#fefdf9";
-set header_border = "topbottom";
+set header_border_position = "topbottom";
 set color_header_border = "#000";
 set header_border_width = "2px";
 set header_border_style = "solid";
@@ -337,7 +337,7 @@ set color_entry_border = "#fefdf9";
 
 set color_module_title = "#fff";
 set color_module_border = "#fefdf9";
-set color_navlinks_current = "#000";
+set color_navlinks_link_current = "#000";
 set color_navlinks_link = "#809435";
 set color_navlinks_link_visited = "#585336";
 
@@ -399,7 +399,7 @@ set color_entry_border = "#eee";
 
 set color_module_title = "#fff";
 set color_module_border = "#eee";
-set color_navlinks_current = "#fff";
+set color_navlinks_link_current = "#fff";
 
 ##===============================
 ## Fonts
@@ -459,7 +459,7 @@ set color_entry_border = "#666";
 
 set color_module_title = "#000";
 set color_module_border = "#666";
-set color_navlinks_current = "#000";
+set color_navlinks_link_current = "#000";
 
 ##===============================
 ## Fonts
@@ -501,7 +501,7 @@ set color_page_link = "#118ea4";
 set color_page_link_visited = "#7a5e14";
 set color_page_link_active = "#e00";
 set color_page_title = "#fff";
-set header_border = "bottom";
+set header_border_position = "bottom";
 set color_header_border = "#607381";
 set header_border_width = "2px";
 set header_border_style = "solid";
@@ -521,7 +521,7 @@ set color_entry_border = "#999";
 
 set color_module_title = "#000";
 set color_module_border = "#999";
-set color_navlinks_current = "#fff";
+set color_navlinks_link_current = "#fff";
 
 ##===============================
 ## Fonts
@@ -569,7 +569,7 @@ set color_page_link_visited = "#8e6e60";
 set color_page_link_active = "#009";
 set color_page_title = "#f3ebf3";
 set color_header_inner_background = "#2d9da4";
-set header_border = "bottom";
+set header_border_position = "bottom";
 set color_header_border = "#000";
 set header_border_width = "1px";
 set header_border_style = "solid";
@@ -588,7 +588,7 @@ set color_entry_border = "#666";
 
 set color_module_title = "#000";
 set color_module_border = "#666";
-set color_navlinks_current = "#000";
+set color_navlinks_link_current = "#000";
 set color_navlinks_link = "#ead9d6";
 set color_navlinks_link_visited = "#cdbdbb";
 
@@ -633,11 +633,11 @@ set color_page_text = "#000";
 set color_page_link = "#007cc2";
 set color_page_link_visited = "#004c92";
 set color_page_link_active = "#090";
-set header_border = "all";
+set header_border_position = "all";
 set color_header_border = "#000";
 set header_border_width = "2px";
 set header_border_style = "solid";
-set header_margin = "2.5em 2em";
+set header_margin_size = "2.5em 2em";
 
 ##===============================
 ## Entry Colors
@@ -652,7 +652,7 @@ set color_entry_border = "#000";
 
 set color_module_title = "#000";
 set color_module_border = "#000";
-set color_navlinks_current = "#000";
+set color_navlinks_link_current = "#000";
 
 ##===============================
 ## Fonts
@@ -716,7 +716,7 @@ set color_entry_border = "#9396a9";
 
 set color_module_title = "#fff";
 set color_module_border = "#9396a9";
-set color_navlinks_current = "#000";
+set color_navlinks_link_current = "#000";
 set color_navlinks_link = "#3f4112";
 set color_navlinks_link_visited = "#9396a9";
 
@@ -779,7 +779,7 @@ set color_entry_border = "#000";
 
 set color_module_title = "#fff";
 set color_module_border = "#000";
-set color_navlinks_current = "#fff";
+set color_navlinks_link_current = "#fff";
 
 ##===============================
 ## Fonts
@@ -823,7 +823,7 @@ set color_page_link_visited = "#600";
 set color_page_link_active = "#009";
 set color_page_title = "#fff";
 set color_header_inner_background = "#fff";
-set header_border = "bottom";
+set header_border_position = "bottom";
 set color_header_border = "#500";
 set header_border_width = "3px";
 set header_border_style = "solid";
@@ -842,7 +842,7 @@ set color_entry_border = "#666";
 
 set color_module_title = "#000";
 set color_module_border = "#666";
-set color_navlinks_current = "#000";
+set color_navlinks_link_current = "#000";
 
 ##===============================
 ## Fonts

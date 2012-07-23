@@ -12,7 +12,7 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
 propgroup presentation_child {
 
-property string header_border {
+property string header_border_position {
     des = "Add border to header";
     values = "none|None|bottom|Bottom|topbottom|Top and Bottom|all|On All Sides";
     }
@@ -23,7 +23,7 @@ property string header_border_style {
     des = "Define style of optional header border";
     values = "solid|Solid|double|Double|dotted|Dotted|dashed|Dashed";
     }
-property string header_margin {
+property string header_margin_size {
     des = "Add a margin around the header";
     }
 property string header_title_position {
@@ -39,10 +39,10 @@ property string header_title_spacing_side {
 }
 
 set userpics_position = "left";
-set header_border = "none";
+set header_border_position = "none";
 set header_border_width = "1px";
 set header_border_style = "solid";
-set header_margin = "0em";
+set header_margin_size = "0em";
 set header_title_position = "left";
 set header_title_spacing_top = "0em";
 set header_title_spacing_side = "0em";
@@ -89,11 +89,11 @@ set text_post_comment_friends = "Reply";
 ##===============================
 
 propgroup images_child {
-    property string[] image_header_background_group2 {
+    property string[] image_header_background_inner_group {
         des = "Second header image";
         grouptype = "image";
     }
-    set image_header_background_group2 = [ "image_background_header_inner_url", "image_background_header_inner_repeat", "image_background_header_inner_position" ];
+    set image_header_background_inner_group = [ "image_background_header_inner_url", "image_background_header_inner_repeat", "image_background_header_inner_position" ];
     property string image_background_header_inner_url {
         grouped = 1;
     }
@@ -111,7 +111,7 @@ propgroup images_child {
 
 propgroup colors_child {
     property Color color_header_inner_background { des = "Color of the inner header."; }
-    property Color color_navlinks_current { des = "The color of the nav link for the page you are currently on."; }
+    property Color color_navlinks_link_current { des = "The color of the nav link for the page you are currently on."; }
     property Color color_navlinks_link { des = "The link color of the nav links (used when those appear in the header)."; }
     property Color color_navlinks_link_visited { des = "The visited link color of the nav links (used when those appear in the header)."; }
     property Color color_header_border { des = "Color of the header border."; }
@@ -247,14 +247,14 @@ var string userpic_css = "";
 
 
 var string header_border_css = "";
-    if ($*header_border == "bottom") {
+    if ($*header_border_position == "bottom") {
         $header_border_css = "#header { border-bottom: $*header_border_style $*header_border_width $*color_header_border; }";
     }
-    if ($*header_border == "topbottom") {
+    if ($*header_border_position == "topbottom") {
         $header_border_css = "#header { border-bottom: $*header_border_style $*header_border_width $*color_header_border;
             border-top: $*header_border_style $*header_border_width $*color_header_border; }";
     }
-    if ($*header_border == "all") {
+    if ($*header_border_position == "all") {
         $header_border_css = "#header { border: $*header_border_style $*header_border_width $*color_header_border; }";
     }
 
@@ -319,7 +319,7 @@ a:hover { text-decoration: none; }
     padding-top: 1px; }
 
 #header {
-    margin: $*header_margin;
+    margin: $*header_margin_size;
     text-align: $*header_title_position;
     margin: 0;
     margin-bottom: 1em;
@@ -522,7 +522,7 @@ h3.day-date { text-align: center;
 .module-calendar table { margin: 0; }
 
 $navlinks_css
-.module-navlinks a.current { color: $*color_navlinks_current;
+.module-navlinks a.current { color: $*color_navlinks_link_current;
     text-decoration: none; }
 
 .search-box {max-width: 100%;}

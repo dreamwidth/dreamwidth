@@ -8,7 +8,7 @@ sub layout_prop { "layout_type" }
 sub module_props {
     my $self = shift;
     my @props = qw(
-        color_navlinks_current
+        color_navlinks_link_current
         color_navlinks_link
         color_navlinks_link_visited
     );
@@ -20,7 +20,7 @@ sub header_props {
     my @props = qw(
         color_header_border
         color_header_inner_background
-        image_header_background_group2
+        image_header_background_inner_group
         image_background_header_inner_height
     );
     return $self->_append_props( "header_props", @props );
