@@ -49,7 +49,7 @@ sub new {
 
     # Set up our initial cost structure
     $self->{cost_cash} = $self->{icons};
-    $self->{cost_points} = 0;
+    $self->{cost_points} = $self->{icons} * 10;
 
     # for now, we can only apply to a user.  in the future this is an obvious way
     # to do gift certificates by allowing an email address here...
