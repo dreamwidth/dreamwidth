@@ -1371,7 +1371,8 @@ sub respondents_as_html {
     my $pollid = $self->pollid;
 
     my @res = @{ $self->journal->selectall_arrayref(
-        "SELECT DISTINCT(userid) FROM pollresult2 WHERE pollid=? AND journalid=? ",
+        "SELECT userid FROM pollsubmission2 WHERE " .
+        "pollid=? AND journalid=? ORDER BY datesubmit ",
         undef, $pollid, $self->journalid ) };
     my @respondents = map { $_->[0] } @res;
 
