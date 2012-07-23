@@ -2033,8 +2033,10 @@ sub talkform {
 
     # Display captcha challenge if over rate limits.
     if ( $opts->{do_captcha} ) {
-        my $captcha = DW::Captcha->new( undef, want => $journalu->captcha_type );
+        my $captcha_type = $journalu->captcha_type;
+        my $captcha = DW::Captcha->new( undef, want => $captcha_type );
         $ret .= $captcha->print;
+        $ret .= "<input type='hidden' name='captcha_type' value='$captcha_type' />";
     }
 
     if ( $editid ) {
@@ -3736,6 +3738,7 @@ sub init {
         # see if they're in the second+ phases of a captcha check.
         # are they sending us a response?
 
+        $form->{want} = $form->{captcha_type};
         my $captcha = DW::Captcha->new( undef, %{$form || {}} );
 
         if ( $captcha->enabled && $captcha->response ) {
