@@ -150,7 +150,7 @@ EOC
             
         } elsif ( $obj->isa( 'LJ::Entry' ) ) {
             # final check, must be public still
-            next unless $obj->security eq 'public';
+            next unless $obj->security eq 'public'  && $obj->poster->is_visible;
 
             # output entry HTML
             my $subj = $obj->subject_html || 'no subject';
