@@ -69,6 +69,10 @@ sub success_ml {
 # - privcheck => $privs -- user must be logged in and have at least one priv of
 #                          the ones in this arrayref.
 #                          Example: [ "faqedit:guides", "faqcat", "admin:*" ]
+# - skip_domsess => 1 -- (for user domains) don't redirect if there is no domain
+#                      login cookie
+# - skip_domsess => 0 -- (for user domains) do redirect for the user domain 
+#                        cookie (default)
 #
 # Returns one of:
 # - 0, $error_text (if there's an error)
@@ -97,13 +101,23 @@ sub controller {
     # 'anonymous' pages must declare themselves, else we assume that a remote is
     # necessary as most pages require a user
     $vars->{u} = $vars->{remote} = LJ::get_remote();
+    
+    my $r = DW::Request->get;
+
+    # check to see if we need to do a bounce to set the domain cookie
+    unless ( $r->did_post || $args{skip_domsess} ) {
+        my $burl = LJ::remote_bounce_url();
+        if ( $burl ) {
+            return $fail->( $r->redirect( $burl ) );
+        }
+    }
+
     unless ( $args{anonymous} ) {
         $vars->{remote}
             or return $fail->( needlogin() );
     }
 
     # if they can specify a user argument, try to load that
-    my $r = DW::Request->get;
     if ( $args{specify_user} ) {
         # use 'user' argument if specified, default to remote
         $vars->{u} = LJ::load_user( $r->get_args->{user} ) || $vars->{remote}
