@@ -572,9 +572,12 @@ sub maintainer_linkbar {
         $page eq "customize" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</strong>" :
             "<a href='$LJ::SITEROOT/customize/?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</a>",
-        $page eq "settings" ?
-            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/settings?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</a>",
+        $page eq "settingspost" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingspost') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/settings?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingspost') . "</a>",
+        $page eq "settingsaccount" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</strong>" :
+            "<a href='$LJ::SITEROOT/manage/settings?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</a>",
         $page eq "invites" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</strong>" :
             "<a href='$LJ::SITEROOT/community/sentinvites?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
