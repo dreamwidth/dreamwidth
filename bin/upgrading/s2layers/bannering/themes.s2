@@ -1,0 +1,863 @@
+#NEWLAYER: bannering/adjustablegradient
+layerinfo type = "theme";
+layerinfo name = "Adjustable Gradient";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/adjustablegradient";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#606";
+set color_page_link_visited = "#660";
+set color_page_link_active = "#900";
+set color_page_title = "#fff";
+set color_header_background = "#606";
+set header_title_spacing_top = "1.5em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#666";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#666";
+set color_navlinks_link = "#fff";
+set color_navlinks_link_visited = "#ccc";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_inner_url = "bannering/adjustablegradient.png";
+set image_background_header_inner_repeat = "repeat-x";
+set image_background_header_inner_position = "bottom left";
+set image_background_header_inner_height = 200;
+set image_background_header_height = 185;
+
+
+#NEWLAYER: bannering/adjustablestripes
+layerinfo type = "theme";
+layerinfo name = "Adjustable Stripes";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/adjustablestripes";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#900";
+set color_page_link_visited = "#660";
+set color_page_link_active = "#009";
+set color_page_title = "#fff";
+set color_header_inner_background = "#600";
+set header_border = "bottom";
+set color_header_border = "#000";
+set header_border_width = "3px";
+set header_border_style = "solid";
+set header_title_spacing_top = "1.5em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#666";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#666";
+set color_navlinks_link = "#fff";
+set color_navlinks_link_visited = "#ccc";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_inner_url = "bannering/adjustablestripes.png";
+set image_background_header_inner_height = 200;
+
+
+#NEWLAYER: bannering/adjustablestripesdiagonal
+layerinfo type = "theme";
+layerinfo name = "Adjustable Stripes Diagonal";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/adjustablestripesdiagonal";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#066";
+set color_page_link_visited = "#660";
+set color_page_link_active = "#900";
+set color_page_title = "#fff";
+set color_header_inner_background = "#066";
+set header_border = "bottom";
+set color_header_border = "#333";
+set header_border_width = "3px";
+set header_border_style = "solid";
+set header_title_spacing_top = "1.5em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#666";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#666";
+set color_navlinks_link = "#fff";
+set color_navlinks_link_visited = "#ccc";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_inner_url = "bannering/adjustablestripesdiagonal.png";
+set image_background_header_inner_height = 200;
+
+
+#NEWLAYER: bannering/blackhill
+layerinfo type = "theme";
+layerinfo name = "Black Hill";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/blackhill";
+
+
+#uses image by pinepig (www.cafepress.com/pinepigstudio)
+
+set layout_resources = [ { "name" => "pinepig", "url" => "http://www.cafepress.com/pinepigstudio/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_text = "#f6f3ee";
+set color_page_link = "#cff";
+set color_page_link_visited = "#cc9";
+set color_page_link_active = "#e00";
+set color_page_title = "#000";
+set header_title_spacing_top = "40px";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#f6f3ee";
+set color_entry_border = "#ccc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#f6f3ee";
+set color_module_border = "#ccc";
+set color_navlinks_current = "#000";
+set color_navlinks_link = "#fff";
+set color_navlinks_link_visited = "#ccc";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/blackhill_tile.jpg";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "top left";
+set image_background_header_height = 300;
+set image_background_header_inner_url = "bannering/blackhill.jpg";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "top right";
+set image_background_header_inner_height = 300;
+
+
+#NEWLAYER: bannering/finches
+layerinfo type = "theme";
+layerinfo name = "Finches";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/finches";
+
+
+# image by Bill Pusztai (http://www.radiantpage.com/ )
+
+set layout_resources = [ { "name" => "Bill Pusztai", "url" => "http://www.radiantpage.com/" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#b6bf92";
+set color_page_link_visited = "#ac3b19";
+set color_page_link_active = "#506b8b";
+set color_page_title = "#fffff9";
+set header_border = "bottom";
+set color_header_border = "#000";
+set header_border_width = "2px";
+set header_border_style = "solid";
+set header_title_spacing_top = "70px";
+set header_title_spacing_side = "4em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#000";
+set color_navlinks_current = "#fffff9";
+set color_navlinks_link_visited = "#80371c";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/finches_tile.jpg";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "bottom right";
+set image_background_header_inner_url = "bannering/finches.jpg";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "bottom right";
+set image_background_header_inner_height = 299;
+
+
+#NEWLAYER: bannering/fronds
+layerinfo type = "theme";
+layerinfo name = "Fronds";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/fronds";
+
+
+# image by Bill Pusztai (http://www.radiantpage.com/ )
+
+set layout_resources = [ { "name" => "Bill Pusztai", "url" => "http://www.radiantpage.com/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#38341b";
+set color_page_text = "#fff";
+set color_page_link = "#b6bf92";
+set color_page_link_visited = "#a7a08d";
+set color_page_link_active = "#900";
+set color_page_title = "#000";
+set color_header_background = "#fefdf9";
+set header_border = "topbottom";
+set color_header_border = "#000";
+set header_border_width = "2px";
+set header_border_style = "solid";
+set header_title_spacing_top = "110px";
+set header_title_spacing_side = "100px";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#fefdf9";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_border = "#fefdf9";
+set color_navlinks_current = "#000";
+set color_navlinks_link = "#809435";
+set color_navlinks_link_visited = "#585336";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/fronds_right.jpg";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_position = "bottom right";
+set image_background_header_inner_url = "bannering/fronds_left.jpg";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "bottom left";
+set image_background_header_inner_height = 300;
+
+
+#NEWLAYER: bannering/frostynight
+layerinfo type = "theme";
+layerinfo name = "Frosty Night";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/frostynight";
+
+
+#uses "xmas card" by Chrisdesign (http://openclipart.org/media/files/Chrisdesign/5904)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_text = "#fff";
+set color_page_link = "#aec7e3";
+set color_page_link_visited = "#7e97b3";
+set color_page_link_active = "#ee0";
+set color_header_background = "#141434";
+set header_title_spacing_top = "2em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#eee";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_border = "#eee";
+set color_navlinks_current = "#fff";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/frostynight_tile.png";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "bottom right";
+set image_background_header_height = 300;
+set image_background_header_inner_url = "bannering/frostynight.png";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "bottom right";
+set image_background_header_inner_height = 300;
+
+
+#NEWLAYER: bannering/overthehills
+layerinfo type = "theme";
+layerinfo name = "Over The Hills";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/overthehills";
+
+
+#uses "landscape" by hrum (http://openclipart.org/media/files/hrum/14927)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#63A64C";
+set color_page_link_visited = "#3B804C";
+set color_page_link_active = "#a61206";
+set header_title_spacing_top = "1.5em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#666";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#666";
+set color_navlinks_current = "#000";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/overthehills.png";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "bottom left";
+set image_background_header_height = 290;
+
+
+#NEWLAYER: bannering/seachurch
+layerinfo type = "theme";
+layerinfo name = "Sea Church";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/seachurch";
+
+
+#uses image by pinepig (www.cafepress.com/pinepigstudio)
+
+set layout_resources = [ { "name" => "pinepig", "url" => "http://www.cafepress.com/pinepigstudio/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#118ea4";
+set color_page_link_visited = "#7a5e14";
+set color_page_link_active = "#e00";
+set color_page_title = "#fff";
+set header_border = "bottom";
+set color_header_border = "#607381";
+set header_border_width = "2px";
+set header_border_style = "solid";
+set header_title_spacing_top = "60px";
+set header_title_spacing_side = "300px";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#999";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#999";
+set color_navlinks_current = "#fff";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/seachurch_tile.jpg";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "top left";
+set image_background_header_height = 300;
+set image_background_header_inner_url = "bannering/seachurch.jpg";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "top left";
+set image_background_header_inner_height = 300;
+
+
+#NEWLAYER: bannering/sealions
+layerinfo type = "theme";
+layerinfo name = "Sea Lions";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/sealions";
+
+
+#uses image by raisedbymoodles (http://raisedbymoogles.dreamwidth.org/)
+
+set layout_resources = [ { "name" => "raisedbymoodles", "url" => "http://raisedbymoodles.dreamwidth.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#2d9da4";
+set color_page_link_visited = "#8e6e60";
+set color_page_link_active = "#009";
+set color_page_title = "#f3ebf3";
+set color_header_inner_background = "#2d9da4";
+set header_border = "bottom";
+set color_header_border = "#000";
+set header_border_width = "1px";
+set header_border_style = "solid";
+set header_title_spacing_top = "1.5em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#666";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#666";
+set color_navlinks_current = "#000";
+set color_navlinks_link = "#ead9d6";
+set color_navlinks_link_visited = "#cdbdbb";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_inner_url = "bannering/sealions.jpg";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "bottom right";
+set image_background_header_inner_height = 230;
+
+
+#NEWLAYER: bannering/seaside
+layerinfo type = "theme";
+layerinfo name = "Seaside";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/seaside";
+
+
+# uses "crashing wave" supplied by johhny_automatic (http://openclipart.org/media/files/johnny_automatic/2860)
+# and "stormo di uccelli" by anonymous (http://www.clker.com/clipart-3324.html)
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu/",
+    "name" => "Clker.com", "url" => "http://www.clker.com/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#007cc2";
+set color_page_link_visited = "#004c92";
+set color_page_link_active = "#090";
+set header_border = "all";
+set color_header_border = "#000";
+set header_border_width = "2px";
+set header_border_style = "solid";
+set header_margin = "2.5em 2em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#000";
+set color_navlinks_current = "#000";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/seaside_left.jpg";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_position = "bottom left";
+set image_background_header_inner_url = "bannering/seaside_right.png";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "center right";
+set image_background_header_inner_height = 250;
+
+
+#NEWLAYER: bannering/stonehenge
+layerinfo type = "theme";
+layerinfo name = "Stonehenge";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/stonehenge";
+
+
+#uses image by Amy Levy (http://amylevy.com )
+
+set layout_resources = [ { "name" => "Amy Levy", "url" => "http://amylevy.com/wp/" },
+    { "name" => "GIMP", "url" => "http://www.gimp.org/" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3f4112";
+set color_page_text = "#fff";
+set color_page_link = "#d8deff";
+set color_page_link_visited = "#9396a9";
+set color_page_link_active = "#900";
+set color_page_title = "#000";
+set color_header_background = "#d8deff";
+set header_title_spacing_top = "1.5em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#9396a9";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_border = "#9396a9";
+set color_navlinks_current = "#000";
+set color_navlinks_link = "#3f4112";
+set color_navlinks_link_visited = "#9396a9";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/stonehenge_tile.jpg";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "bottom right";
+set image_background_header_height = 300;
+set image_background_header_inner_url = "bannering/stonehenge.jpg";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "bottom right";
+set image_background_header_inner_height = 299;
+
+
+#NEWLAYER: bannering/tomatoes
+layerinfo type = "theme";
+layerinfo name = "Tomatoes";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/tomatoes";
+
+
+#uses image by Bill Pusztai (http://www.radiantpage.com/ )
+
+set layout_resources = [ { "name" => "Bill Pusztai", "url" => "http://www.radiantpage.com/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_text = "#fff";
+set color_page_link = "#fede81";
+set color_page_link_visited = "#7e7f22";
+set color_page_link_active = "#99c";
+set header_title_spacing_top = "1em";
+set header_title_spacing_side = "1em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_border = "#000";
+set color_navlinks_current = "#fff";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+##  Images
+##===============================
+
+set image_background_header_url = "bannering/tomatoes.jpg";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "bottom left";
+set image_background_header_height = 300;
+
+
+#NEWLAYER: bannering/windpower
+layerinfo type = "theme";
+layerinfo name = "Wind Power";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/windpower";
+
+
+#uses "Turbineheader" by Sarah Wheaton (http://dianavilliers.dreamwidth.org/)
+#image editing done with GIMP (http://www.gimp.org/)
+
+set layout_resources = [ { "name" => "Sarah Wheaton", "url" => "http://dianavilliers.dreamwidth.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#900";
+set color_page_link_visited = "#600";
+set color_page_link_active = "#009";
+set color_page_title = "#fff";
+set color_header_inner_background = "#fff";
+set header_border = "bottom";
+set color_header_border = "#500";
+set header_border_width = "3px";
+set header_border_style = "solid";
+set header_title_spacing_top = "1.5em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#666";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#666";
+set color_navlinks_current = "#000";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_inner_url = "bannering/windpower.jpg";
+set image_background_header_inner_repeat = "repeat-x";
+set image_background_header_inner_position = "bottom left";
+set image_background_header_inner_height = 299;

@@ -37,6 +37,7 @@ sub default_themes {
         abstractia => 'abstractia/darkcarnival',
         bases => 'bases/tropical',
         basicboxes => 'basicboxes/green',
+        bannering => 'bannering/overthehills',
         blanket => 'blanket/peach',
         boxesandborders => 'boxesandborders/gray',
         brittle => 'brittle/rust',
