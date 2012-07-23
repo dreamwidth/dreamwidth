@@ -3250,7 +3250,7 @@ has been credited with:
 
     [[gift]]
 
-
+[[extra]]
 Regards,
 The [[sitename]] Team
 .
@@ -3264,7 +3264,7 @@ Your [[sitename]] account has now been credited with the following:
 
     [[gift]]
 
-
+[[extra]]
 Regards,
 The [[sitename]] Team
 .
@@ -3571,6 +3571,29 @@ shop.item.account.name.nopoints=[[name]] ([[num]] [[?num|month|months]])
 shop.item.account.name.perm=[[points]] points for a [[name]]
 
 shop.item.account.randomuser=Random active free user
+
+shop.item.icons.canbeadded.banned=You are restricted from making purchases for this journal.
+
+shop.item.icons.canbeadded.invalidjournaltype=You can only buy icons for a personal journal.
+
+shop.item.icons.canbeadded.itemerror=Could not add item to cart.
+
+shop.item.icons.canbeadded.notauser=You can only buy icons for an active account.
+
+shop.item.icons.canbeadded.notpaid=That account is ineligible for extra icons. These can only be purchased for a paid account.
+
+shop.item.icons.canbeadded.outofrange=You can only buy up to [[count]] icons for this journal.
+
+shop.item.icons.name=[[num]] [[sitename]] icons
+
+shop.item.icons.overlimit<<
+NOTE: This order has pushed your account over the [[sitename]] limit
+of [[max]] icons. If you would like to transfer the surplus icons to
+another account, or convert them into [[sitename]] Points, please
+contact us for assistance.
+
+
+.
 
 shop.item.points.canbeadded.banned=You are restricted from making purchases for this journal.
 

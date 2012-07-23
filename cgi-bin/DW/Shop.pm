@@ -25,6 +25,7 @@ use DW::Shop::Engine;
 use DW::Shop::Item::Account;
 use DW::Shop::Item::Points;
 use DW::Shop::Item::Rename;
+use DW::Shop::Item::Icons;
 
 # constants across the site
 our $MIN_ORDER_COST = 3.00; # cost in USD minimum.  this only comes into affect if
@@ -188,6 +189,5 @@ sub shop {
     return $_[0]->{_shop}
         or confess 'tried to get shop without calling DW::Shop->initialize()';
 }
-
 
 1;

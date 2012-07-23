@@ -371,6 +371,9 @@ no strict "vars";
 
     # Secrets
     %SECRETS = () unless defined %SECRETS;
+
+    # Userpic maximum. No user can have more than this.
+    $USERPIC_MAXIMUM ||= 500;
 }
 
 
