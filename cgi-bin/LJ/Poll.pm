@@ -1181,6 +1181,8 @@ sub render {
             if ($q->type eq 'scale') {
                 my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $q->opts );
                 $by = 1 unless ($by > 0 and int($by) == $by);
+                $highlabel //= "";
+                $lowlabel //= "";
 
                 push @items, [ $from, "$lowlabel $from" ];
                 for (my $at=$from+$by; $at<=$to-$by; $at+=$by) {
