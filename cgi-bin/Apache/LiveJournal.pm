@@ -401,13 +401,6 @@ sub trans
         $LJ::USERPIC_ROOT = $LJ::USERPICROOT_BAK if $LJ::USERPICROOT_BAK;
     }
 
-    my ( $alt_uri, $alt_path ) = resolve_path_for_uri($uri);
-    if ( $alt_path ) {
-        $r->uri( $alt_uri );
-        $r->filename( $alt_path );
-        return OK;
-    }
-
     # let foo.com still work, but redirect to www.foo.com
     if ($LJ::DOMAIN_WEB && $r->method eq "GET" &&
         $host eq $LJ::DOMAIN && $LJ::DOMAIN_WEB ne $LJ::DOMAIN)
@@ -991,6 +984,13 @@ sub trans
 
         my $view = $determine_view->($user, $vhost, $rest);
         return $view if defined $view;
+    }
+
+    my ( $alt_uri, $alt_path ) = resolve_path_for_uri($uri);
+    if ( $alt_path ) {
+        $r->uri( $alt_uri );
+        $r->filename( $alt_path );
+        return OK;
     }
 
     # customview (get an S1 journal by number)
