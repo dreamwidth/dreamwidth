@@ -186,7 +186,7 @@ body<=
             # since journaltype changed
             $cu->invalidate_directory_record;
 
-            $ret .= $cu->maintainer_linkbar( "settings" );
+            $ret .= $cu->maintainer_linkbar( "settingspost" );
             $ret .= "<?h1 $ML{'.success'} h1?>";
             if ($mode eq 'create') {
                 $ret .= "<?p $ML{'.label.commcreated'} p?>";
@@ -276,7 +276,7 @@ body<=
     } else {
         LJ::set_active_crumb('commsettings');
           $ret .= LJ::html_hidden('cuser', $cname);
-          $ret .= $c->maintainer_linkbar( "settings" );
+          $ret .= $c->maintainer_linkbar( "settingspost" );
     }
 
     $ret .= "<div id='left-column' class='community-settings'>";

@@ -46,6 +46,14 @@ userproplist.betafeatures_list:
   multihomed: 0
   prettyname: Beta Features List
 
+userproplist.bonus_icons:
+  cldversion: 0
+  datatype: num
+  des: Count of permanent extra icon slots
+  indexed: 0
+  multihomed: 0
+  prettyname: How many bonus icon slots the user has purchased
+
 userproplist.browselang:
   cldversion: 4
   datatype: char
@@ -238,38 +246,6 @@ userproplist.emailpost_gallery:
   multihomed: 
   prettyname: Gallery name for email imgs
 
-userproplist.emailpost_imgcut:
-  cldversion: 4
-  datatype: char
-  des: Default image cut type for post-by-email images
-  indexed: 
-  multihomed: 
-  prettyname: Image cut type for email posting
-
-userproplist.emailpost_imglayout:
-  cldversion: 4
-  datatype: char
-  des: Default image layout for post-by-email images
-  indexed: 
-  multihomed: 
-  prettyname: Image layout for email posting
-
-userproplist.emailpost_imgsecurity:
-  cldversion: 4
-  datatype: char
-  des: Default security for post-by-email images
-  indexed: 
-  multihomed: 
-  prettyname: Image security for email posting
-
-userproplist.emailpost_imgsize:
-  cldversion: 4
-  datatype: char
-  des: Default image size for post-by-email images
-  indexed: 
-  multihomed: 
-  prettyname: Image size for email posting
-
 userproplist.emailpost_pin:
   cldversion: 4
   datatype: char
@@ -281,7 +257,7 @@ userproplist.emailpost_pin:
 userproplist.emailpost_security:
   cldversion: 4
   datatype: char
-  des: Default security for post-by-email entries
+  des: Default security for post-by-email entries (and pictures)
   indexed: 
   multihomed: 
   prettyname: Entry security for email posting

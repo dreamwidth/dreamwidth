@@ -27,6 +27,7 @@ use JSON;
 # routing directions
 DW::Routing->register_string( '/shop', \&shop_index_handler, app => 1 );
 DW::Routing->register_string( '/shop/points', \&shop_points_handler, app => 1 );
+DW::Routing->register_string( '/shop/icons', \&shop_icons_handler, app => 1 );
 DW::Routing->register_string( '/shop/transferpoints', \&shop_transfer_points_handler, app => 1 );
 
 # our basic shop controller, this does setup that is unique to all shop
@@ -236,6 +237,63 @@ sub shop_points_handler {
     }
 
     return DW::Template->render_template( 'shop/points.tt', $rv );
+}
+
+# handles the shop buy icons page
+sub shop_icons_handler {
+    my ( $ok, $rv ) = _shop_controller();
+    return $rv unless $ok;
+
+    my $remote = $rv->{remote};
+    my %errs;
+    $rv->{errs} = \%errs;
+
+    my $r = DW::Request->get;
+    if ( $r->did_post ) {
+        my $args = $r->post_args;
+        die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
+
+        my $u = LJ::load_user( $args->{foruser} );
+        my $icons = int( $args->{icons} + 0 );
+        my $item;  # provisionally create the item to access object methods
+
+        if ( !$u ) {
+            $errs{foruser} = LJ::Lang::ml( 'shop.item.icons.canbeadded.notauser' );
+
+        } elsif ( $item = DW::Shop::Item::Icons->new( target_userid => $u->id, from_userid => $remote->id, icons => $icons ) ) {
+            # error check the user
+            if ( $item->can_be_added_user( errref => \$errs{foruser} ) ) {
+                $rv->{foru} = $u;
+                delete $errs{foruser};  # undefined
+            }
+
+            # error check the icons
+            if ( $item->can_be_added_icons( errref => \$errs{icons} ) ) {
+                $rv->{icons} = $icons;
+                delete $errs{icons};  # undefined
+            }
+
+        } else {
+            $errs{foruser} = LJ::Lang::ml( 'shop.item.icons.canbeadded.itemerror' );
+        }
+
+        # looks good, add it!
+        unless ( keys %errs ) {
+            $rv->{cart}->add_item( $item );
+            return $r->redirect( "$LJ::SITEROOT/shop" );
+        }
+
+    } else {
+        my $for = $r->get_args->{for};
+
+        if ( ! $for || $for eq 'self' ) {
+            $rv->{foru} = $remote;
+        } else {
+            $rv->{foru} = LJ::load_user( $for );
+        }
+    }
+
+    return DW::Template->render_template( 'shop/icons.tt', $rv );
 }
 
 

@@ -1,3 +1,6 @@
+#
+# NOTE: This module now requires Perl 5.10 or greater.
+#
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
@@ -32,8 +35,8 @@ no warnings 'uninitialized';
 package LJ::User;
 use Carp;
 use Storable;
+use List::Util qw/ min /;
 use lib "$LJ::HOME/cgi-bin";
-use List::Util ();
 use LJ::Global::Constants;
 use LJ::MemCache;
 use LJ::Session;
@@ -1946,6 +1949,10 @@ sub can_beta_payments {
     return $_[0]->get_cap( 'beta_payments' ) ? 1 : 0;
 }
 
+sub can_buy_icons {
+    return $_[0]->get_cap( 'bonus_icons' ) ? 1 : 0;
+}
+
 sub can_create_feeds {
     return $_[0]->get_cap( 'synd_create' ) ? 1 : 0;
 }
@@ -2324,7 +2331,7 @@ sub count_max_userlinks {
 }
 
 sub count_max_userpics {
-    return $_[0]->get_cap( 'userpics' );
+    return $_[0]->userpic_quota;
 }
 
 sub count_max_xpost_accounts {
@@ -3053,7 +3060,7 @@ shop.  For adjusting points on a user, please see C<<$self->give_shop_points>>.
 =cut
 
 sub shop_points {
-    return $_[0]->prop( 'shop_points' )+0;
+    return $_[0]->prop( 'shop_points' ) // 0;
 }
 
 
@@ -5017,11 +5024,18 @@ sub new_entry_editor {
     return $LJ::DEFAULT_EDITOR; # Use config default
 }
 
-
+# What security level to use for new posts. This magic flag is used to give
+# user's the ability to specify that "if I try to post public, don't let me".
+# To override this, you have to go back and edit your post.
 sub newpost_minsecurity {
-    my $u = shift;
+    return $_[0]->prop( 'newpost_minsecurity' ) || 'public';
+}
 
-    return $u->prop('newpost_minsecurity') || 'public';
+# This loads the user's specified post-by-email security. If they haven't
+# set that up, then we fall back to the standard new post minimum security.
+sub emailpost_security {
+    return $_[0]->prop( 'emailpost_security' ) ||
+        $_[0]->newpost_minsecurity;
 }
 
 
@@ -6412,7 +6426,6 @@ sub activate_userpics {
     # active / inactive lists
     my @active = ();
     my @inactive = ();
-    my $allow = LJ::get_cap($u, "userpics");
 
     # get a database handle for reading/writing
     my $dbh = LJ::get_db_writer();
@@ -6432,8 +6445,9 @@ sub activate_userpics {
     }
 
     # inactivate previously activated userpics
-    if (@active > $allow) {
-        my $to_ban = @active - $allow;
+    my $allowed = $u->userpic_quota;
+    if (scalar @active > $allowed) {
+        my $to_ban = scalar @active - $allowed;
 
         # find first jitemid greater than time 2 months ago using rlogtime index
         # ($LJ::EndOfTime - UnixTime)
@@ -6491,8 +6505,8 @@ sub activate_userpics {
     }
 
     # activate previously inactivated userpics
-    if (@inactive && @active < $allow) {
-        my $to_activate = $allow - @active;
+    if (scalar @inactive && scalar @active < $allowed) {
+        my $to_activate = $allowed - @active;
         $to_activate = @inactive if $to_activate > @inactive;
 
         # take the $to_activate newest (highest numbered) pictures
@@ -7217,17 +7231,17 @@ sub userpic_have_mapid {
     return $_[0]->dversion >= 9;
 }
 
-
 =head3 C<< $u->userpic_quota >>
 
-Returns the number of userpics the user can upload
+Returns the number of userpics the user can upload (base account type cap + bonus slots purchased)
 
 =cut
 sub userpic_quota {
     my $u = shift or return undef;
-    my $quota = $u->get_cap('userpics');
-
-    return $quota;
+    my $ct = $u->get_cap( 'userpics' );
+    $ct += $u->prop('bonus_icons') // 0
+        if $u->is_paid; # paid accounts get bonus icons
+    return min( $ct, $LJ::USERPIC_MAXIMUM );
 }
 
 # Intentionally no POD here.

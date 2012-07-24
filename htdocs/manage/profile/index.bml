@@ -99,6 +99,13 @@ body<=
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
         $ret .= "</form>\n\n";
 
+        # if they're working as a community, reproduce the community management linkbar:
+        if ( $u && $u->is_community ) {
+            my $linkbar;
+            $linkbar = $u->maintainer_linkbar( "profile" );
+            $ret .= "<p class='intro'>" . $linkbar . "</p>";
+        }
+
         $ret .= "<div style='margin: 1em 0;'> ";
         $ret .= BML::ml( ".intro1", { aopts1 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'",
                                      aopts2 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=display'" } );

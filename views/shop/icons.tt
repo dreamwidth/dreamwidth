@@ -1,0 +1,38 @@
+[%- sections.title = '.title' | ml(sitename = site.nameshort) -%]
+
+[% cart_display %]
+
+<p>[% '.about' | ml(sitename = site.nameshort) %]</p>
+
+<form method='post'>
+[% dw.form_auth %]
+<table summary='' class='shop-table-gift'>
+[% IF foru %]
+    <tr><td>[% '.buying.for' | ml %]</td><td>[% foru.ljuser_display %]
+        <input type='hidden' name='foruser' value='[% foru.user %]' />
+        <input type='hidden' name='maxicons' value='[% maxicons %]' />
+    </td></tr>
+[% ELSE %]
+    <tr><td>[% '.buying.for' | ml %]</td><td><input type='text' name='foruser' maxlength='25' size='15' />
+        [% IF errs.foruser %]<br /><strong>[% errs.foruser %][% END %]
+    </td></tr>
+[% END %]
+<tr><td>[% '.buying.icons' | ml %]</td>
+    <td><input type='text' name='icons' id='icons' maxlength='3' size='10' value='[% icons %]' />
+    [% IF errs.icons %]<br /><strong>[% errs.icons %][% END %]
+</td></tr>
+<tr><td><span id='icons-cost'></span></td><td><input type='submit' value='[% '.addtocart' | ml %]' /></td></tr>
+</table>
+</form>
+
+<p id='icons-about'>[% '.about2' | ml %]</p>
+
+[%# FIXME: move this to shop.js or something %]
+<script type='text/javascript'>
+    jQuery( function($) {
+        setInterval(
+            function() {
+                $('#icons-cost').html( 'Cost: <strong>$' + ($('#icons').val() / 1).toFixed(2) + ' USD</strong>' );
+            }, 250 );
+    } );
+</script>

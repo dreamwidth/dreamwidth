@@ -639,7 +639,7 @@ set color_header_background = "#d8e9f5";
 ##===============================
 
 set color_entry_background = "#d8e9f5";
-set color_entry_border = "#ffff";
+set color_entry_border = "#fff";
 set color_entry_title = "#708696";
 set color_entry_title_background = "#e6eff5";
 

@@ -137,6 +137,7 @@ CLUSTER: foreach my $cluster (@clusters) {
     my $load_datfile = sub {
         my $file = shift;
         my $local = shift;
+        print "!! $file\n";
         return if $local && ! -e $file;
         open(F, $file) or die "Can't find database update file at $file\n";
         my $data;
@@ -150,8 +151,12 @@ CLUSTER: foreach my $cluster (@clusters) {
         return 1;
     };
 
-    $load_datfile->("$LJ::HOME/bin/upgrading/update-db-local.pl", 1);
-    $load_datfile->("$LJ::HOME/bin/upgrading/update-db-general.pl");
+    foreach my $fn ( LJ::get_all_files("bin/upgrading/update-db-local.pl") ) {
+        $load_datfile->( $fn, 1 );
+    }
+    foreach my $fn ( LJ::get_all_files("bin/upgrading/update-db-general.pl") ) {
+        $load_datfile->( $fn );
+    }
 
     foreach my $t (sort keys %table_create) {
         delete $table_drop{$t} if ($table_drop{$t});

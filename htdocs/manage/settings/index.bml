@@ -392,8 +392,16 @@ body<=
         $ret .= "</div>";
     }
 
-    $ret .= "<p id='intro'>" . BML::ml('.intro3', { aopts1 => "href='$LJ::SITEROOT/manage/profile/$getextra'", aopts2 => "href='$LJ::SITEROOT/customize/$getextra'" }) . "</p>"
+    # if they're working as a community, reproduce the community management linkbar:
+    if ( $u && $u->is_community ) {
+        my $linkbar;
+        $linkbar = $u->maintainer_linkbar( "settingsaccount" );
+        $ret .= "<p class='intro'>" . $linkbar . "</p>";
+    }
+
+    $ret .= "<p class='intro'>" . BML::ml('.intro3', { aopts1 => "href='$LJ::SITEROOT/manage/profile/$getextra'", aopts2 => "href='$LJ::SITEROOT/customize/$getextra'" }) . "</p>"
         if $u;
+
     $ret .= $submit_msg;
 
     $ret .= "<div id='settings_left'>";
