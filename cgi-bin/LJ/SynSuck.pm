@@ -120,7 +120,7 @@ sub get_content {
     # check if not modified
     if ($res->code() == RC_NOT_MODIFIED) {
         print "  not modified.\n" if $verbose;
-        return delay($userid, $readers ? 60 : 24*60, "notmodified");
+        return delay($userid, $readers ? 60 : 24*60, "notmodified", $synurl);
     }
 
     return [$res, $content];
