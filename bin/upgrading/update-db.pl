@@ -137,7 +137,6 @@ CLUSTER: foreach my $cluster (@clusters) {
     my $load_datfile = sub {
         my $file = shift;
         my $local = shift;
-        print "!! $file\n";
         return if $local && ! -e $file;
         open(F, $file) or die "Can't find database update file at $file\n";
         my $data;
