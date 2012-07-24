@@ -22,7 +22,7 @@ use LJ::ConfCheck;
 
 add_singletons(qw(
                   @USER_TABLES $PROTOCOL_VER $MAX_DVERSION
-                  $CLEAR_CACHES $BIN $HTDOCS $SSLDOCS
+                  $CLEAR_CACHES $BIN $HTDOCS
                   $ACTIVE_CRUMB $IMGPREFIX_BAK $IS_SSL
                   $_XFER_REMOTE_IP $STATPREFIX_BAK
                   %LIB_MOD_TIME %MEMCACHE_ARRAYFMT

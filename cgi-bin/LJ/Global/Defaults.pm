@@ -43,7 +43,6 @@ no strict "vars";
 
     $HOME = $LJ::HOME;
     $HTDOCS = "$HOME/htdocs";
-    $SSLDOCS ||= "$HOME/ssldocs";
     $BIN = "$HOME/bin";
 
     $SERVER_NAME ||= Sys::Hostname::hostname();
