@@ -121,5 +121,3 @@ wideopen/themes          theme+                      wideopen/layout
 zesty/layout             layout                      core2
 zesty/themes             theme+                      zesty/layout
 
-# include local file
-s2layers-local.dat      INCLUDE

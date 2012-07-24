@@ -244,6 +244,14 @@ my %modules = (
                    deb => 'libtext-markdown-perl',
                    opt => 'Required to allow using Markdown in entries.',
                },
+               "Cache::Memcached" => {
+                   deb => 'libcache-memcached-perl',
+               },
+               "Gearman::Client" => {
+                   deb => 'libgearman-client-perl',
+               },
+               "Net::PubSubHubbub::Publisher" => {},
+               "TheSchwartz::Worker::PubSubHubbubPublish" => {},
                "File::Type" => {
                    deb => 'libfile-type-perl',
                    opt => 'For media storage',
@@ -343,11 +351,11 @@ sub check_env {
         exit 1 unless $good;
     }
 
-    $err->("No config-local.pl file found at $ENV{'LJHOME'}/etc/config-local.pl")
-        unless -e "$ENV{'LJHOME'}/etc/config-local.pl";
-
     eval { require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl"; };
     $err->("Failed to load ljlib.pl: $@") if $@;
+
+    $err->("No config-local.pl file found at etc/config-local.pl")
+        unless LJ::resolve_file( 'etc/config-local.pl' );
 
 }
 

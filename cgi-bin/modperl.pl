@@ -53,6 +53,7 @@ LJ::ModPerl::setup_restart();
 
 # delete itself from %INC to make sure this file is run again
 # when apache is restarted
+
 delete $INC{"$LJ::HOME/cgi-bin/modperl.pl"};
 
 # remember modtime of all loaded libraries
