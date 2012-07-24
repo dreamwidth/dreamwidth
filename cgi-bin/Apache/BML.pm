@@ -48,6 +48,7 @@ use APR::Finfo ();
 use Digest::MD5;
 use File::Spec;
 use DW::SiteScheme;
+use LJ::Directories;
 
 BEGIN {
     $Apache::BML::HAVE_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -274,7 +275,6 @@ sub handler
         }
     }
 
-
     if ($env->{'HOOK-startup'}) {
         eval {
             $env->{'HOOK-startup'}->();
@@ -304,12 +304,12 @@ sub handler
     my $default_scheme_override = undef;
     if ($env->{'HOOK-default_scheme_override'}) {
         $default_scheme_override = eval {
-            $env->{'HOOK-default_scheme_override'}->($scheme || $env->{DefaultScheme});
+            $env->{'HOOK-default_scheme_override'}->( $scheme || DW::SiteScheme->default );
         };
         return report_error($r, "<b>Error running scheme override hook:</b><br />\n$@") if $@;
     }
 
-    $scheme ||= $default_scheme_override || $env->{'DefaultScheme'};
+    $scheme ||= $default_scheme_override || DW::SiteScheme->default;
 
     # now we've made the decision about what scheme to use
     # -- does a hook want to translate this into another scheme?
@@ -322,7 +322,7 @@ sub handler
 
     unless (BML::set_scheme($scheme)) {
         $scheme = $env->{'ForceScheme'} ||
-            $env->{'DefaultScheme'};
+            DW::SiteScheme->default;
         BML::set_scheme($scheme);
     }
 
@@ -1411,7 +1411,7 @@ sub set_scheme
     return 0 if $scheme =~ /[^\w\-]/;
     unless ($scheme) {
         $scheme = $req->{'env'}->{'ForceScheme'} ||
-            $req->{'env'}->{'DefaultScheme'};
+            DW::SiteScheme->default;
     }
 
     my $dw_scheme = DW::SiteScheme->get($scheme);
@@ -1769,7 +1769,7 @@ sub decide_language
     return $winner if $winner;
 
     # next is the default language
-    return $req->{'env'}->{'DefaultLanguage'} if $req->{'env'}->{'DefaultLanguage'};
+    return $LJ::LANGS[0];
 
     # lastly, english.
     return "en";
