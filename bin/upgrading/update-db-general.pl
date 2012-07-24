@@ -1282,10 +1282,12 @@ CREATE TABLE syndicated (
     lastcheck  DATETIME,
     lastmod    INT UNSIGNED, # unix time
     etag       VARCHAR(80),
+    fuzzy_token  VARCHAR(255),
 
     PRIMARY KEY (userid),
     UNIQUE (synurl),
-    INDEX (checknext)
+    INDEX (checknext),
+    INDEX (fuzzy_token)
 )
 EOC
 
@@ -4091,6 +4093,12 @@ EOF
             "ALTER TABLE pollquestion2 MODIFY COLUMN opts VARCHAR(255) DEFAULT NULL");
     }
 
+    if (column_type("syndicated", "fuzzy_token") eq '') {
+        do_alter( 'syndicated',
+            "ALTER TABLE syndicated ".
+            "ADD COLUMN fuzzy_token VARCHAR(255), " .
+            "ADD INDEX (fuzzy_token);" );
+    }
 });
 
 
