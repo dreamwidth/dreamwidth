@@ -530,9 +530,10 @@ sub process_content {
     # if readers are gone, don't check for a whole day
     $int = 60*24 unless $readers;
 
-    $dbh->do("UPDATE syndicated SET fuzzy_token=?, checknext=DATE_ADD(NOW(), INTERVAL $int MINUTE), ".
+    $dbh->do("UPDATE syndicated SET fuzzy_token=?, checknext=DATE_ADD(NOW(), INTERVAL ? MINUTE), ".
              "lastcheck=NOW(), lastmod=?, etag=?, laststatus=?, numreaders=? $updatenew ".
-             "WHERE userid=$userid", undef, $fuzzy_token, $r_lastmod, $r_etag, $status, $readers) or die $dbh->errstr;
+             "WHERE userid=?", undef,
+             $fuzzy_token, $int, $r_lastmod, $r_etag, $status, $readers, $userid) or die $dbh->errstr;
     eval { LJ::Worker::SynSuck->cond_debug("Syndication userid $userid updated w/ new items") };
     return 1;
 }
