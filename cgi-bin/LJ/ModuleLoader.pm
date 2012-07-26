@@ -29,10 +29,10 @@ use DW;
 sub module_subclasses {
     shift if @_ > 1; # get rid of classname
     my $base_class = shift;
-    my $base_path  = join("/", DW->home, 'cgi-bin', split("::", $base_class));
-    die "invalid base: $base_class ($base_path)" unless -d $base_path;
+    my $base_path  = join("/", 'cgi-bin', split("::", $base_class));
 
-    my @dirs = $base_path;
+    my @dirs = LJ::get_all_directories( $base_path );
+
     my @files;
     while (@dirs) {
         my $dir = shift @dirs;

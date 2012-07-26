@@ -1,0 +1,25 @@
+#!/bin/sh
+
+if (test -z "$LJHOME")
+then
+    echo "\$LJHOME is not set at all, you need to set this variable to the home directory of your installation of livejournal server."
+    exit 1;
+fi
+
+if [ ! -d $LJHOME ]
+then
+    echo "\$LJHOME is not set to a useful value, you need to set this variable to the home directory of your installation of livejournal server."
+    exit 1;
+fi
+
+# now need to change working dir to repo directory
+cd $LJHOME/src/LJ-UserSearch;
+
+perl Makefile.PL LIB=$LJHOME/cgi-bin PREFIX=$LJHOME/src/LJ-UserSearch/
+make all test install
+
+echo "*** BEGIN CONTENTS OF PACKLIST ***"
+# This next command shouldn't be hard coded, but ExtUtils::Installed doesn't work properly with libs outside perls main search paths.
+##perl -pe 's/$ENV{LJHOME}\///' < $LJHOME/cgi-bin/i386-linux-thread-multi/auto/LJ/UserSearch/.packlist
+perl -pe 's/$ENV{LJHOME}\///' < $LJHOME/cgi-bin/x86_64-linux-thread-multi/auto/LJ/UserSearch/.packlist
+echo "*** END CONTENTS OF PACKLIST ***"

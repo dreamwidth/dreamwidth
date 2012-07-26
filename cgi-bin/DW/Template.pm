@@ -65,7 +65,7 @@ my $site_constants = Template::Namespace::Constants->new({
 
 # precreating this
 my $view_engine = Template->new({
-    INCLUDE_PATH => "$LJ::HOME/views/",
+    INCLUDE_PATH => join(':', LJ::get_all_directories('views') ),
     NAMESPACE => {
         site => $site_constants,
     },
@@ -82,7 +82,7 @@ my $view_engine = Template->new({
 });
 
 my $scheme_engine = Template->new({
-    INCLUDE_PATH => "$LJ::HOME/schemes/",
+    INCLUDE_PATH => join(':', LJ::get_all_directories('schemes') ),
     NAMESPACE => {
         site => $site_constants,
     },

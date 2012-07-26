@@ -1,0 +1,9 @@
+Makefile.PL
+MANIFEST
+ppport.h
+README
+UserSearch.xs
+t/LJ-UserSearch.t
+fallback/const-c.inc
+fallback/const-xs.inc
+lib/LJ/UserSearch.pm

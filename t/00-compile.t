@@ -18,6 +18,9 @@ my %SKIP = (
 
     'LJ/Global/BMLInit.pm' => 'BML::register_isocode called from non-conffile context',
     'cgi-bin/lj-bml-blocks.pl' => 'BML::register_block called from non-lookfile context',
+
+    'cgi-bin/modperl.pl' => "Special file",
+    'cgi-bin/modperl_subs.pl' => "Special file",
 );
 
 my @scripts = File::Find::Rule->file->name('*.pl')->in('cgi-bin');
@@ -43,7 +46,7 @@ foreach my $file (@modules) {
         next;
     }
 
-    system qq($^X -I$lib -e "require( $module ); print 'ok';" > $out 2>$err);
+    system qq($^X -I$lib -e "require 'ljlib.pl'; require( $module ); print 'ok';" > $out 2>$err);
     my $err_data = slurp($err);
     is($err_data, '', "STDERR of $file");
 
