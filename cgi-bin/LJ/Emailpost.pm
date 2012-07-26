@@ -474,7 +474,7 @@ sub process {
          \$fb_upload_errstr,
          {
              security => $post_headers{security},
-             allowmask => $post_headers{amask},
+             allowmask => $amask,
          }
        ) || return $err->( $fb_upload_errstr, { retry => 1 } );
 
