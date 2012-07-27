@@ -87,6 +87,8 @@
 
 .groups.reading=<i>Optional:</i> Include in one or more subscription filters.  <strong>You must subscribe to the user by selecting the second box above in order to add them to any subscription filters.</strong>
 
+.groups.reading.feed=<i>Optional:</i>: Include in one or more subscription filters.
+
 .groups.text1=<em>Optional:</em> Include in one or more access filters.  <strong>You must grant access to this account by selecting the first box above in order to add them to any access filters.</strong>
 
 .optional=Optional
