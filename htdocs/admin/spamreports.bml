@@ -242,7 +242,7 @@ _c?>
             }
         }
 
-        $body .= "</table><br />" . ($state eq 'open' ? $dellink->(\@srids, 'Close All', $extra) : '');
+        $body .= "</table><br />" . ($state eq 'open' ? $dellink->(\@srids, 'Close All', $extra) : $extra);
 
     } elsif ($mode =~ /^del/) {
         # figure out our combination
