@@ -62,6 +62,9 @@ $.widget("dw.cuttag", {
 
         self.element.css("display","inline");
 
+        if ( sessionStorage.getItem(self.identifier) )
+            this.open();
+
         if ( isExpandingAll )
             this.open();
     },
@@ -91,8 +94,12 @@ $.widget("dw.cuttag", {
                 self.handleError(error);
             }
         });
+        sessionStorage.setItem(self.identifier, "open");
     },
     close: function() {
+        var self = this;
+        sessionStorage.removeItem(self.identifier);
+
         if ( ! this.isOpen() )
             return;
         this.tag.div.removeClass("cuttag-open");
