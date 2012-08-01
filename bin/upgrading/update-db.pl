@@ -469,11 +469,12 @@ sub populate_s2 {
 
 sub populate_basedata {
     # base data
-    foreach my $file ("base-data.sql", "base-data-local.sql") {
-        my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
-        next unless -e $ffile;
-        print "Populating database with $file.\n";
-        open (BD, $ffile) or die "Can't open $file file\n";
+    foreach my $ffile ( LJ::get_all_files("bin/upgrading/base-data.sql", home_first => 1) ) {
+        my $d_file = $ffile;
+        $d_file =~ s!^\Q$LJ::HOME\E/*!!;
+
+        print "Populating database with $d_file.\n";
+        open (BD, $ffile) or die "Can't open $d_file file\n";
         while (my $q = <BD>)
         {
             chomp $q;  # remove newline
@@ -490,11 +491,12 @@ sub populate_basedata {
 }
 
 sub populate_proplists {
-    foreach my $file ("proplists.dat", "proplists-local.dat") {
-        my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
-        next unless -e $ffile;
-        my $scope = ($file =~ /local/) ? "local" : "general";
-        populate_proplist_file($ffile, $scope);
+    foreach my $ffile ( LJ::get_all_files("bin/upgrading/proplists.dat", home_first => 1) ) {
+        populate_proplist_file($ffile, "general");
+    }
+
+    foreach my $ffile ( LJ::get_all_files("bin/upgrading/proplists-local.dat", home_first => 1) ) {
+        populate_proplist_file($ffile, "local");
     }
 }
 
@@ -606,12 +608,13 @@ sub populate_external_moods {
 }
 
 sub populate_moods {
-    foreach my $file ( "moods.dat", "moods-local.dat" ) {
-        my $moodfile = "$ENV{'LJHOME'}/bin/upgrading/$file";
+    foreach my $moodfile ( LJ::get_all_files("bin/upgrading/moods.dat", home_first => 1) ) {
         if ( open( M, $moodfile ) ) {
-            my $local = $file eq "moods-local.dat" ? "local " : "";
-            print "Populating ${local}mood data.\n";
-            
+            my $file = $moodfile;
+            $file =~ s!^\Q$LJ::HOME\E/*!!;
+
+            print "Populating mood data [ $file ].\n";
+
             my %mood;   # id -> [ mood, parent_id ]
             my $sth = $dbh->prepare("SELECT moodid, mood, parentmood, weight FROM moods");
             $sth->execute;
