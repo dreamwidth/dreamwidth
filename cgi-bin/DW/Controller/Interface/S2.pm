@@ -19,6 +19,7 @@ package DW::Controller::Interface::S2;
 use strict;
 use warnings;
 use DW::Routing;
+use DW::Auth;
 
 # handle, even with no id, so that we can present an informative error message
 DW::Routing->register_regex( '^/interface/s2(?:/(\d+)?)?$', \&interface_handler, app => 1, format => 'plain', methods => { GET => 1, PUT => 1 } );
@@ -37,9 +38,7 @@ sub interface_handler {
     return error( $r, $r->NOT_FOUND, 'Layer not found', "There is no layer with id '$layerid' at this site" )
         unless $lay;
 
-    LJ::auth_digest( $r );
-
-    my $remote = LJ::get_remote();
+    my ( $remote ) = DW::Auth->authenticate( remote => 1, digest => 1 );
     return error( $r, $r->HTTP_UNAUTHORIZED, 'Unauthorized', "You must send your $LJ::SITENAME username and password or a valid session cookie\n" )
         unless $remote;
 

@@ -29,6 +29,8 @@ use HTTP::Status qw( :constants );
 
 use LJ::Protocol;
 
+use DW::Auth;
+
 # service document URL is the same for all users
 DW::Routing->register_string( "/interface/atom",   \&service_document, app => 1,
         format => "atom", methods => { GET => 1 } );
@@ -77,86 +79,18 @@ sub authenticate {
     my ( %opts ) = @_;
     my $r = DW::Request->get;
 
-    # if wsse information is provided, use it
-    # if not, fall back to digest
-    my $nonce_dup;
-    my $wsse = $r->header_in( "X-WSSE" );
-    my $remote = $wsse ? _auth_wsse( $wsse, \$nonce_dup ) : LJ::auth_digest( $r );
+    my ( $remote ) = DW::Auth->authenticate( wsse => { allow_duplicate_nonce => $opts{allow_duplicate_nonce} || 0 }, digest => 1 );
     my $u = LJ::load_user( $opts{journal} ) || $remote;
 
     return ( 0, err( "Authentication failed for this AtomAPI request.",
             $r->HTTP_UNAUTHORIZED ) )
-        if ! $remote || ( $nonce_dup && ! $opts{allow_duplicate_nonce} );
+        if ! $remote;
 
     return ( 0, err( "User $remote->{user} has no posting access to account $u->{user}.",
             $r->HTTP_UNAUTHORIZED ) )
         if ! $remote->can_post_to( $u );
 
     return ( 1, { u => $u, remote => $remote } );
-}
-sub _auth_wsse {
-    my ( $wsse, $nonce_dup ) = @_;
-
-    my $fail = sub {
-        my $reason = shift;
-        return undef;
-    };
-
-    $wsse =~ s/UsernameToken // or return $fail->( "no username token" );
-
-    # parse credentials into a hash.
-    my %creds;
-    foreach ( split /, /, $wsse ) {
-        my ($k, $v) = split '=', $_, 2;
-        $v =~ s/^[\'\"]//;
-        $v =~ s/[\'\"]$//;
-        $v =~ s/=$// if $k =~ /passworddigest/i; # strip base64 newline char
-        $creds{ lc($k) } = $v;
-    }
-
-    # invalid create time?  invalid wsse.
-    my $ctime = LJ::ParseFeed::w3cdtf_to_time( $creds{created} ) or
-        return $fail->( "no created date" );
-
-    # prevent replay attacks.
-    $ctime = LJ::mysqldate_to_time( $ctime, 'gmt' );
-    return $fail->( "replay time skew" ) if abs( time() - $ctime ) > 42300;
-
-    my $u = LJ::load_user( LJ::canonical_username( $creds{username} ) )
-        or return $fail->( "invalid username [$creds{username}]" );
-
-    if (@LJ::MEMCACHE_SERVERS && ref $nonce_dup) {
-        $$nonce_dup = 1
-          unless LJ::MemCache::add( "wsse_auth:$creds{username}:$creds{nonce}", 1, 180 )
-    }
-
-    # validate hash
-    my $hash =
-      Digest::SHA1::sha1_base64(
-        $creds{nonce} . $creds{created} . $u->password );
-
-    # Nokia's WSSE implementation is incorrect as of 1.5, and they
-    # base64 encode their nonce *value*.  If the initial comparison
-    # fails, we need to try this as well before saying it's invalid.
-    if ( $hash ne $creds{passworddigest} ) {
-        $hash =
-          Digest::SHA1::sha1_base64(
-                MIME::Base64::decode_base64( $creds{nonce} ) .
-                $creds{created} .
-                $u->password );
-
-        if ( $hash ne $creds{passworddigest} ) {
-            LJ::handle_bad_login( $u );
-            return $fail->( "hash wrong" );
-        }
-    }
-
-    return $fail->( "ip_ratelimiting" )
-        if LJ::login_ip_banned( $u );
-
-    # If we're here, we're valid.
-    LJ::set_remote( $u );
-    return $u;
 }
 
 sub _create_workspace {

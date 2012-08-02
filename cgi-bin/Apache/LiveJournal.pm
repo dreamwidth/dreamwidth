@@ -41,6 +41,7 @@ use LJ::URI;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
+use DW::Auth;
 use Cwd qw/abs_path/;
 
 BEGIN {
@@ -1302,8 +1303,9 @@ sub journal_content
     # handle HTTP digest authentication
     if ($GET{'auth'} eq 'digest' ||
         $r->headers_in->{"Authorization"} =~ /^Digest/) {
-        my $res = LJ::auth_digest($r);
+        my ($res) = DW::Auth::authenticate( digest => 1 );
         unless ($res) {
+            $r->status_line("401 Authentication required");
             $r->content_type("text/html");
             $r->print("<b>Digest authentication failed.</b>");
             return OK;
