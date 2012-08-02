@@ -13,6 +13,7 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
+# FIXME: Make this handle form_auth better ( e.g. have the automatic bits work )
 
 package DW::Controller::Admin::ThemeMetadata;
 
@@ -66,7 +67,7 @@ sub _validate_category {
 }
 
 sub theme_controller {
-    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:themes" ] );
+    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:themes" ], form_auth => 0 );
     return $rv unless $ok;
 
     my $r = DW::Request->get;
@@ -166,7 +167,7 @@ sub theme_controller {
 }
 
 sub category_controller {
-    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:themes" ] );
+    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:themes" ], form_auth => 0 );
     return $rv unless $ok;
 
     my $r = DW::Request->get;

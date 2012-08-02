@@ -89,7 +89,6 @@ sub shop_transfer_points_handler {
     my $r = DW::Request->get;
     if ( $r->did_post ) {
         my $args = $r->post_args;
-        die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
 
         my $u = LJ::load_user( $args->{foruser} );
         my $points = int( $args->{points} + 0 );
@@ -194,7 +193,6 @@ sub shop_points_handler {
     my $r = DW::Request->get;
     if ( $r->did_post ) {
         my $args = $r->post_args;
-        die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
 
         my $u = LJ::load_user( $args->{foruser} );
         my $points = int( $args->{points} + 0 );

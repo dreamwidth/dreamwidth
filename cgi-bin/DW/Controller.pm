@@ -73,6 +73,7 @@ sub success_ml {
 #                      login cookie
 # - skip_domsess => 0 -- (for user domains) do redirect for the user domain 
 #                        cookie (default)
+# - form_auth => 1 -- ( default ) auto-checks the form auth if the request is a post.
 #
 # Returns one of:
 # - 0, $error_text (if there's an error)
@@ -97,6 +98,8 @@ sub controller {
         if ( $args{authas} && $args{specify_user} ) ||
            ( $args{authas} && $args{anonymous} ) ||
            ( $args{privcheck} && $args{anonymous} );
+
+    $args{form_auth} = 1 unless exists $args{form_auth};
 
     # 'anonymous' pages must declare themselves, else we assume that a remote is
     # necessary as most pages require a user
@@ -168,6 +171,11 @@ sub controller {
                     { numprivs => scalar @$privs,
                       needprivs => join( ', ', sort @privnames ) } ) )
             unless $has_one;
+    }
+
+    if ( $r->did_post && $args{form_auth} ) {
+        my $post_args = $r->post_args || {};
+        return $fail->( error_ml( 'error.invalidform' ) ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
     }
 
     # everything good... let the caller know they can continue
