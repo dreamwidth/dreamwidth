@@ -2031,7 +2031,7 @@ sub talkform {
             );
     }
 
-    # Display captcha challenge if over rate limits.
+    # Display captcha challenge if required.
     if ( $opts->{do_captcha} ) {
         my $captcha_type = $journalu->captcha_type;
         my $captcha = DW::Captcha->new( undef, want => $captcha_type );
