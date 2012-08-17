@@ -98,27 +98,38 @@ sub _validate {
 sub _init_opts {
     my ( $self, %opts ) = @_;
 
-    # rather than having a lot of ifs/elses here to extract multiple keys
-    # when we're pulling via BML vs via a controller, etc
-    # let's just pull directly from the request
-    my $r = DW::Request->get;
-    my $post_args = $r ? $r->post_args : undef;
+    #we could just be creating a captcha, in which case the challenge & 
+    # response won't exist yet.
+    if (defined($opts{textcaptcha_challenge})
+           && defined($opts{textcaptcha_response})) {
 
-    if ( $post_args ) {
-        if ( my $response_noscript = $post_args->{textcaptcha_response_noscript} ) {
+        #TextCAPTCHAs can have multiple valid answers. Therefore, 
+        # $opts{textcaptcha_challenge} needs to be an array ref. If we're being 
+        # called from a BML page that uses %POST, the hashes of the two possible
+        # answers will have been concatanated into a scalar instead, separated
+        # by a null character. So, if what we see isn't an array, turn it into one.
+        # TT-based pages should probably be sending an array and thus not need
+        # further munging, but this hasn't been tested as no TT-based pages use
+        # CAPTCHAS at the time of writing!
+        #FIXME: This can be removed once we no longer support BML.
+
+        $opts{textcaptcha_challenge} =
+            [ split /\0/, $opts{textcaptcha_challenge} ]
+            unless ref($opts{textcaptcha_challenge}) eq "ARRAY" ;
+
+        if ( my $response_noscript = $opts{textcaptcha_response_noscript} ) {
             my %parsed = DW::Captcha::textCAPTCHA::Logic::from_form_string( $response_noscript );
             $self->{$_} ||= $parsed{$_} foreach qw( challenge response form_auth captcha_auth );
         } else {
-            # allow multiple values
-            $self->{challenge} ||= [ $post_args->get_all( "textcaptcha_challenge" ) ];
 
-            # just allow the user to submit one
-            $self->{response} ||= $post_args->{textcaptcha_response};
+            $self->{challenge} ||= $opts{textcaptcha_challenge};
+
+            $self->{response} ||= $opts{textcaptcha_response};
 
             # assume we need the form auth
-            $self->{form_auth} ||= $post_args->{lj_form_auth};
+            $self->{form_auth} ||= $opts{lj_form_auth};
 
-            $self->{captcha_auth} ||= $post_args->{textcaptcha_chalauth};
+            $self->{captcha_auth} ||= $opts{textcaptcha_chalauth};
         }
     }
 }
