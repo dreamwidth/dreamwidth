@@ -283,7 +283,7 @@ sub ip_is_via_tor {
 }
 
 sub resolve_path_for_uri {
-    my $uri = $_[0];
+    my ( $r, $uri ) = @_;
 
     if ( $uri !~ m!(\.\.|\%|\.\/)! ) {
         if ( exists $FILE_LOOKUP_CACHE{$uri} ) {
@@ -303,7 +303,7 @@ sub resolve_path_for_uri {
             next unless -e $file;
 
             if ( -d $file && -e "$file/index.bml" ) {
-                return redir( $uri . "/" ) unless $uri =~ m!/$!;
+                return redir( $r, $uri . "/" ) unless $uri =~ m!/$!;
                 $file .= "/index.bml";
             }
 
@@ -383,7 +383,7 @@ sub trans
     } else { # not is_initial_req
         if ($r->status == 404) {
             my $fn = $LJ::PAGE_404 || "404-error.bml";
-            my ( $uri, $path ) = resolve_path_for_uri($fn);
+            my ( $uri, $path ) = resolve_path_for_uri( $r, $fn );
             return $bml_handler->( $path ) if $path;
         }
     }
@@ -986,7 +986,7 @@ sub trans
         return $view if defined $view;
     }
 
-    my ( $alt_uri, $alt_path ) = resolve_path_for_uri($uri);
+    my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $r, $uri );
     if ( $alt_path ) {
         $r->uri( $alt_uri );
         $r->filename( $alt_path );
