@@ -41,7 +41,7 @@ use Digest::MD5 ();
 sub name { return "textcaptcha" }
 
 # object methods
-sub form_fields { qw( textcaptcha_challenge textcaptcha_response textcaptcha_response_noscript textcaptcha_chalauth ) }
+sub form_fields { qw( textcaptcha_challenge textcaptcha_response textcaptcha_response_noscript textcaptcha_chalauth lj_form_auth ) }
 sub _implementation_enabled {
     return LJ::is_enabled( 'captcha', 'textcaptcha' ) && _api_key() ? 1 : 0;
 }
