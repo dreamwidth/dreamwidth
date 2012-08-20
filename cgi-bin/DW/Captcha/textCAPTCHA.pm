@@ -100,8 +100,7 @@ sub _init_opts {
 
     #we could just be creating a captcha, in which case the challenge & 
     # response won't exist yet.
-    if (defined($opts{textcaptcha_challenge})
-           && defined($opts{textcaptcha_response})) {
+    if ( defined($opts{textcaptcha_challenge}) ) {
 
         #TextCAPTCHAs can have multiple valid answers. Therefore, 
         # $opts{textcaptcha_challenge} needs to be an array ref. If we're being 
@@ -126,7 +125,6 @@ sub _init_opts {
 
             $self->{response} ||= $opts{textcaptcha_response};
 
-            # assume we need the form auth
             $self->{form_auth} ||= $opts{lj_form_auth};
 
             $self->{captcha_auth} ||= $opts{textcaptcha_chalauth};
