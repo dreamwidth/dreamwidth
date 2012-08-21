@@ -33,12 +33,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
         autocomplete = "off"
     ) -%]
 
-    [%- FOREACH answer = captcha.answers;
-        form.hidden(
+    [%- form.hidden(
             name = "textcaptcha_challenge"
-            value = answer
-        );
-    END -%]
+            value = captcha.answers
+        ) -%]
 
     [%- form.hidden(
         name = "textcaptcha_chalauth"
