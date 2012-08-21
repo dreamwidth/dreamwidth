@@ -110,7 +110,7 @@ sub _init_opts {
 
         } else {
 
-            #TextCAPTCHAs can have multiple correct answers. Ie there is >1 
+            #TextCAPTCHAs can have multiple correct answers. If there is >1 
             # right answer, the hashed answers should have been concatanated 
             # with a : as seperator. We'll split them back out into an array.
             $self->{challenge} ||= 
