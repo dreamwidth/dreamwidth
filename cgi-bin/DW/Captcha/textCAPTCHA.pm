@@ -103,26 +103,18 @@ sub _init_opts {
     if ( defined ($opts{textcaptcha_challenge}) ||
         defined ($opts{textcaptcha_response_noscript}) ) {
 
-        #TextCAPTCHAs can have multiple valid answers. Therefore, 
-        # $opts{textcaptcha_challenge} needs to be an array ref. If we're being 
-        # called from a BML page that uses %POST, the hashes of the two possible
-        # answers will have been concatanated into a scalar instead, separated
-        # by a null character. So, if what we see isn't an array, turn it into one.
-        # TT-based pages should probably be sending an array and thus not need
-        # further munging, but this hasn't been tested as no TT-based pages use
-        # CAPTCHAS at the time of writing!
-        #FIXME: This can be removed once we no longer support BML.
-
-        $opts{textcaptcha_challenge} =
-            [ split /\0/, $opts{textcaptcha_challenge} ]
-            unless ref($opts{textcaptcha_challenge}) eq "ARRAY" ;
-
         if ( my $response_noscript = $opts{textcaptcha_response_noscript} ) {
+            #Noscript version
             my %parsed = DW::Captcha::textCAPTCHA::Logic::from_form_string( $response_noscript );
             $self->{$_} ||= $parsed{$_} foreach qw( challenge response form_auth captcha_auth );
+
         } else {
 
-            $self->{challenge} ||= $opts{textcaptcha_challenge};
+            #TextCAPTCHAs can have multiple correct answers. Ie there is >1 
+            # right answer, the hashed answers should have been concatanated 
+            # with a : as seperator. We'll split them back out into an array.
+            $self->{challenge} ||= 
+                [ split( ':' , $opts{textcaptcha_challenge} ) ];
 
             $self->{response} ||= $opts{textcaptcha_response};
 
@@ -186,9 +178,16 @@ sub form_data {
     my $secret = LJ::get_secret( (split( /:/, $auth ))[1] );
     my @salted_answers = map { Digest::MD5::md5_hex( $auth . $secret . $_ ) } @{$captcha->{answer}};
 
+    # TextCAPTCHAs can have multiple correct answers. In this package, they
+    # are usually handled as arrays (or as a list in this case). For simplicity
+    # when handling them in HTML forms, we'll concat them with a
+    # : as seperator and just produce a single answer variable, then split 
+    # it back into an array when it's passed back to us in _init_opts.
+    my $concat_answers = join( ':', @salted_answers );
+
     return {
         question => $captcha->{question},
-        answers => \@salted_answers,
+        answers => $concat_answers,
         chal    => LJ::challenge_generate( 900 ),  # 15 minute token
     };
 }
