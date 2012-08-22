@@ -2563,8 +2563,6 @@ function Page::print_theme_stylesheet() {
     .footer,
     .bottomcomment, .comments-message {
         box-shadow: .067em .067em .667em #433d46;
-        -khtml-box-shadow: .067em .067em .667em #433d46;
-        -webkit-box-shadow: .067em .067em .667em #433d46;
         }
 
     a:hover,

@@ -114,7 +114,8 @@ input, textarea {
     color: $*color_entry_text;
     }
 
-::-moz-selection {
+::-moz-selection,
+::selection {
     background-color: $*color_calendar_background;
     color: $*color_calendar_text;
     }

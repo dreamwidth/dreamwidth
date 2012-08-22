@@ -304,7 +304,6 @@ dl dt {
 
 * {-moz-box-sizing: border-box;
    box-sizing: border-box;
-   -webkit-box-sizing: border-box;
 }
 
 /*--- Main Containers ---*/
@@ -412,7 +411,6 @@ $header_margintop }
     margin: 0 1em .5em 1em;
     -moz-box-sizing: content-box;
     box-sizing: content-box;
-    -webkit-box-sizing: content-box;
     }
 
 $userpic_css
@@ -421,7 +419,6 @@ $userpic_css
     border: 5px solid $*color_userpic_background;
    -moz-box-sizing: content-box;
    box-sizing: content-box;
-   -webkit-box-sizing: content-box;
    }
 
 .datetime, .poster-ip {
@@ -534,7 +531,6 @@ ul.entry-interaction-links, .comment-interaction-links {
     margin-top: 15px;
     -moz-box-sizing: content-box;
     box-sizing: content-box;
-    -webkit-box-sizing: content-box;
     }
 
 .icon-info {

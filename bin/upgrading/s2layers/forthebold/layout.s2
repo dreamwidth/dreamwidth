@@ -164,7 +164,8 @@ input, textarea {
     border-radius: 5px;
     }
 
-::-moz-selection {
+::-moz-selection,
+::selection {
     background-color:$*color_calendar_background;
     color: $*color_calendar_text;
     }

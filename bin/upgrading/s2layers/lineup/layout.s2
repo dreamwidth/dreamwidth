@@ -161,7 +161,8 @@ input, textarea {
     color: $*color_entry_text;
     }
 
-::-moz-selection {
+::-moz-selection,
+::selection {
     background-color: #ededed;
     color: #2d2d2d;
     }
