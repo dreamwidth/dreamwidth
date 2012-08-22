@@ -146,26 +146,25 @@ body<=
             if ($why_mail eq 'reject' && $POST{'why'}) {
                 $body .= "Here are the reasons for the rejection as provided by the moderator: \n\n" . $POST{'why'} . "\n\n";
             }
-            unless ($why_mail eq 'success') {
-                $body .= "This is the message you submitted:\n\n";
-                my $etime = sprintf("%04d-%02d-%02d %02d:%02d",
-                                    $req->{'year'}, $req->{'mon'},
-                                    $req->{'day'}, $req->{'hour'},
-                                    $req->{'min'});
-                $body .= "Time: $etime\n";
-                $body .= "Subject: " . $req->{'subject'} . "\n";
-                if ($req->{'props'}->{'current_music'}) {
-                    $body .= "Current Music: " . $req->{'props'}->{'current_music'} . "\n";
-                }
-                if ($req->{'props'}->{'current_mood'}) {
-                    $body .= "Current Mood: " . $req->{'props'}->{'current_mood'} . "\n";
-                }
-                if ($req->{'props'}->{'picture_keyword'}) {
-                    $body .= "Picture Keyword: " . $req->{'props'}->{'picture_keyword'} . "\n";
-                }
-                $body .= "Text:\n" . $req->{'event'} . "\n\n";
-                $body .= "Regards,\n$LJ::SITENAME Team\n\n$LJ::SITEROOT/\n";
+            $body .= "This is the message you submitted:\n\n";
+            my $etime = sprintf("%04d-%02d-%02d %02d:%02d",
+                                $req->{'year'}, $req->{'mon'},
+                                $req->{'day'}, $req->{'hour'},
+                                $req->{'min'});
+            $body .= "Time: $etime\n";
+            $body .= "Subject: " . $req->{'subject'} . "\n";
+            if ($req->{'props'}->{'current_music'}) {
+                $body .= "Current Music: " . $req->{'props'}->{'current_music'} . "\n";
             }
+            if ($req->{'props'}->{'current_mood'}) {
+                $body .= "Current Mood: " . $req->{'props'}->{'current_mood'} . "\n";
+            }
+            if ($req->{'props'}->{'picture_keyword'}) {
+                $body .= "Picture Keyword: " . $req->{'props'}->{'picture_keyword'} . "\n";
+            }
+            $body .= "Text:\n" . $req->{'event'} . "\n\n";
+            $body .= "Regards,\n$LJ::SITENAME Team\n\n$LJ::SITEROOT/\n";
+
             LJ::send_mail({
                 'to' => $to,
                 'from' => $LJ::BOGUS_EMAIL,
