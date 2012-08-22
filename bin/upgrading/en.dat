@@ -4166,9 +4166,7 @@ web.ads.search=Sponsored Search Links
 
 web.authas.btn=Switch
 
-web.authas.label=Work as account:
-
-web.authas.label.comm=Work as community:
+web.authas.select=Work as [[menu]] instead of current [[username]]
 
 web.controlstrip.btn.go=Go
 

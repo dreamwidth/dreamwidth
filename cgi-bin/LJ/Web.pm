@@ -192,10 +192,6 @@ sub make_authas_select {
 
     my $authas = $opts->{authas} || $u->user;
     my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
-    my $label  = $opts->{label};
-
-    my $comm = $opts->{type} && $opts->{type} eq "C" ? ".comm" : "";
-    $label ||= $BML::ML{"web.authas.label$comm"};
 
     my @list = $u->get_authas_list( $opts );
 
@@ -205,7 +201,8 @@ sub make_authas_select {
                                      class => 'hideable' },
                                    map { $_, $_ } @list );
 
-        $ret = "$label $ret " . LJ::html_submit( undef, $button )
+
+        $ret = "<br/>" . LJ::Lang::ml( "web.authas.select", { menu => $ret, username => LJ::ljuser($authas) } ) . " " . LJ::html_submit( undef, $button ) . "<br/><br/>\n"
             unless $opts->{selectonly};
 
         return $ret;

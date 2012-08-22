@@ -1506,3 +1506,6 @@ general /customize/index.bml.switcher.btn
 general /customize/index.bml.switcher.label
 general /customize/options.bml.switcher.btn
 general /customize/options.bml.switcher.label
+
+general web.authas.label
+general web.authas.label.comm
