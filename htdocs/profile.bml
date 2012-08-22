@@ -926,7 +926,7 @@ body<=
                 if $remote && $remote->can_manage( $u );
            push @$links, { url => $u->journal_base . "/read", text => $ML{'.people.viewentries'} };
         } else {
-            push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} }
+            push @$links, { url => "$LJ::SITEROOT/manage/circle/edit#editpeople", text => $ML{'.section.edit'} }
                 if $remote && $remote->can_manage( $u );
             push @$links, { url => $u->journal_base . "/read?show=P", text => $ML{'.people.viewentries'} }
                 unless $u->is_syndicated;
@@ -991,7 +991,7 @@ body<=
         if ( $member_of_body || $admin_of_body || $posting_access_to_body || $watched_body ) {
             my $links = [];
             if ( $remote && $remote->can_manage( $u ) ) {
-                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} };
+                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit#editcomms", text => $ML{'.section.edit'} };
             }
             push @$links, { url => $u->journal_base . "/read?show=C", text => $ML{'.comms.viewentries'} };
 
@@ -1026,7 +1026,7 @@ body<=
         if ( $watched_body ) {
             my $links = [];
             if ( $remote && $remote->can_manage( $u ) ) {
-                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} };
+                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit#editfeeds", text => $ML{'.section.edit'} };
             }
             push @$links, { url => $u->journal_base . "/read?show=Y", text => $ML{'.feeds.viewentries'} };
 
