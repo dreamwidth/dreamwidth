@@ -1,6 +1,3 @@
-;; -*- coding: utf-8 -*-
-# hint for text-encoding
-
 #NEWLAYER: funkycircles/atomicorange
 layerinfo type = "theme";
 layerinfo name = "Atomic Orange";
