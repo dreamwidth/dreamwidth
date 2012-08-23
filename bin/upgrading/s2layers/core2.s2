@@ -2127,6 +2127,12 @@ set text_page_top = "Top of page";
 ## Module headings
 ##=======================================
 
+property string text_module_userprofile {
+    des = "Text for the 'Profile' heading";
+    maxlength = 50;
+    size = 20;
+    example = "Profile";
+}
 property string text_module_links {
     des = "Text for the 'Links' heading";
     maxlength = 50;
@@ -2146,10 +2152,11 @@ property string text_module_tags {
     example = "Tags";
 }
 property string text_module_popular_tags {
-    des = "Text for the 'Most Popular Tags' heading (used when there are more tags than shown)";
+    des = "Text for the 'Most Popular Tags' heading";
     maxlength = 50;
     size = 20;
     example = "Most Popular Tags";
+    note = "Used when there are more tags than shown.";
 }
 property string text_module_pagesummary {
     des = "Text for the 'Page Summary' heading";
@@ -2193,7 +2200,17 @@ property string text_module_cuttagcontrols {
     size = 20;
     example = "Expand Cut Tags";
 }
+property string text_module_search {
+    des = "Text for the 'Search' heading";
+    maxlength = 50;
+    size = 20;
+    example = "Search";
+}
 
+# Modules without titles: navlinks, time, poweredby
+# Calendar uses month and year
+
+set text_module_userprofile = "Profile";
 set text_module_links = "Links";
 set text_module_syndicate = "Syndicate";
 set text_module_tags = "Tags";
@@ -2205,6 +2222,7 @@ set text_module_customtext_url = "";
 set text_module_customtext_content = "";
 set text_module_credit = "Style Credit";
 set text_module_cuttagcontrols = "Expand Cut Tags";
+set text_module_search = "Search";
 
 ##=======================================
 ## Display properties - Text
@@ -3999,9 +4017,8 @@ function print_module_search() {
     # only print this module if the viewer can search this journal
     if (viewer_can_search()) {
         var Page p = get_page();
-        var string title = "Search";
 
-        open_module("search", $title, "$*SITEROOT/search?user=" + $p.journal.username);
+        open_module("search", $*text_module_search, "$*SITEROOT/search?user=" + $p.journal.username);
         print_search_form("Search");
         close_module();
     }
@@ -4009,9 +4026,8 @@ function print_module_search() {
 
 function print_module_userprofile() {
     var Page p = get_page();
-    var string title = "Profile";
 
-    open_module("userprofile", $title, $p.view_url{"userinfo"});
+    open_module("userprofile", $*text_module_userprofile, $p.view_url{"userinfo"});
 
     if ($*module_userprofile_opts_userpic) {
         if (defined $p.journal.default_pic) {

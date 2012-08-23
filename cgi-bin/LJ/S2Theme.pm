@@ -929,9 +929,19 @@ sub module_props {
         image_background_module_url
         image_background_module_repeat
         image_background_module_position
+        text_module_userprofile
+        text_module_links
+        text_module_syndicate
+        text_module_tags
+        text_module_popular_tags
+        text_module_pagesummary
+        text_module_active_entries
         text_module_customtext
         text_module_customtext_url
         text_module_customtext_content
+        text_module_credit
+        text_module_search
+        text_module_cuttagcontrols
     )
 }
 
