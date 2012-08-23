@@ -319,6 +319,9 @@ function print_stylesheet () {
 
     var string comment_border_image_even = generate_background_css ($*image_comment_border_end_even_url, $*image_comment_border_end_even_repeat, $*image_comment_border_end_even_position, new Color);
 
+var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
+
     var string navlinks_css = "";
         if ($*module_navlinks_section == "header") {
             $navlinks_css = """
@@ -502,13 +505,18 @@ h2 a, h3 a, h4 a:visited {
 .entry .header h3,
 .page-month h3.entry-title {
     background: transparent;
-    font-size: large;
     margin-top: .5em;
     padding-left: 0;
     }
 
-.entry .header h3 {
+.entry .entry-title {
     font-size: x-large;
+/* Make sure custom size applies */
+    $entry_title_font
+    }
+
+.page-month h3.entry-title {
+    font-size: large;
     }
 
 .entry .header h3 a,
@@ -791,6 +799,8 @@ ul.entry-interaction-links {
     margin: .25em 0 0;
     padding: .25em 0;
     font-size: large;
+/* Make sure custom size applies */
+    $comment_title_font
     }
 
 .comment-title a {
