@@ -122,7 +122,7 @@ body<=
                $ret .= BML::ml('Actionlink', {
                    'link'=>"<a href='$LJ::SITEROOT/customize/?authas=$user'>$ML{'.commlist.customize2'}</a>"}) . "&nbsp;&nbsp;";
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/community/settings?authas=$user'>$ML{'.commlist.actsettings2'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/community/settings?authas=$user'>$ML{'.commlist.actsettingspost'}</a>"}) . "&nbsp;&nbsp;";
                $ret .= BML::ml('Actionlink', {
                    'link'=>"<a href='/community/sentinvites?authas=$user'>$ML{'.commlist.actinvites'}</a>"}) . "&nbsp;&nbsp;";
                my $pend = $pending{$id} ? BML::ml('.commlist.actpending', { num => $pending{$id},
