@@ -5,7 +5,6 @@ layerinfo author_name = "yati";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "yati", "type" => "user" }];
-set use_journalstyle_icons_page = true; #FIXME: REMOVE THIS LINE BEFORE COMMIT
 
 set layout_type = "two-columns-right";
 set sidebar_width = "15em";
