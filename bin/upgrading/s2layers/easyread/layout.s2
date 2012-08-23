@@ -570,6 +570,8 @@ h2.module-header a {
 
 .has-userpic .entry .header {
     margin-bottom: 1em;
+    position: relative;
+    z-index: 99;
 }
 
 .entry {
