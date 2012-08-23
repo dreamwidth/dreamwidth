@@ -49,13 +49,13 @@ propgroup colors_child {
 
 function print_stylesheet () {
 
-	var string footer_inner_colors = generate_color_css (new Color, $*color_module_footer_background, $*color_module_title_background);
-	var string entry_bar_colors = generate_color_css($*color_entry_text, $*color_entry_footer_background, $*color_entry_border);
-	var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
-	var Color days_of_week = $*color_header_background -> lighter(30);
-	var Color days_with_entries = $*color_entry_title_background -> lighter(30);
-	var Color days_without_entries= $*color_entry_footer_background -> lighter(15);
-	var string module_outer_colors = generate_color_css($*color_module_text, $*color_module_border, $*color_module_border);
+    var string footer_inner_colors = generate_color_css (new Color, $*color_module_footer_background, $*color_module_title_background);
+    var string entry_bar_colors = generate_color_css($*color_entry_text, $*color_entry_footer_background, $*color_entry_border);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var Color days_of_week = $*color_header_background -> lighter(30);
+    var Color days_with_entries = $*color_entry_title_background -> lighter(30);
+    var Color days_without_entries= $*color_entry_footer_background -> lighter(15);
+    var string module_outer_colors = generate_color_css($*color_module_text, $*color_module_border, $*color_module_border);
 
 var string userpic_css = "";
     if ($*userpics_position == "left") {
@@ -63,13 +63,13 @@ var string userpic_css = "";
         .comment .userpic { float: left;
             margin-left: 0 !important; }
         .entry .userpic img{
-	        margin: 0 20px 0 0;}";
+            margin: 0 20px 0 0;}";
     }
     elseif ($*userpics_position == "right") {
         $userpic_css = ".entry .userpic,
         .comment .userpic { float: right; }
         .entry .userpic img{
-	        margin: 0 0 0 20px;}";
+            margin: 0 0 0 20px;}";
     }
 
 """
@@ -90,60 +90,60 @@ blockquote {
 #header, #footer { padding: 10px; }
 
 #header {
-	padding: 0;
-	margin: 0;
-	 }
+    padding: 0;
+    margin: 0;
+     }
 
 #footer .inner {
-	$footer_inner_colors
-	padding: 5px 20px;
-	text-align: right;
+    $footer_inner_colors
+    padding: 5px 20px;
+    text-align: right;
 }
 
 h1#title, h2#subtitle, h2#pagetitle {
-	margin: 0;
-	padding: 5px 30px 0 0;
-	font-weight: normal;
-	letter-spacing: 1px;
-	text-align: right;
+    margin: 0;
+    padding: 5px 30px 0 0;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-align: right;
 }
 
 /* -- primary -- */
 #content { padding: 20px 0; }
 
-#primary {	margin-bottom: 20px; }
+#primary {    margin-bottom: 20px; }
 
 #header > .inner:first-child {
-	background-color: $*color_header_background;
-	padding: 5px 0;
-	margin: 0;
+    background-color: $*color_header_background;
+    padding: 5px 0;
+    margin: 0;
 }
 
 #primary > .inner:first-child {
-	padding: 0em 1em;
+    padding: 0em 1em;
 }
 
 #secondary > .inner:first-child {
-	padding: 0;
-	margin:0 10px;
+    padding: 0;
+    margin:0 10px;
 }
 
 #tertiary > .inner:first-child {
-	padding: 0;
-	margin:0 10px;
+    padding: 0;
+    margin:0 10px;
 }
 
 .navigation ul {
-	text-align: center;
-	background-color:$*color_entry_footer_background;
+    text-align: center;
+    background-color:$*color_entry_footer_background;
     color: $*color_entry_interaction_links;
-	padding: 5px;
+    padding: 5px;
 }
 
 /* ------- entries  ------- */
 .entry {
-	border: 16px solid $*color_entry_border;
-	background-color: transparent;
+    border: 16px solid $*color_entry_border;
+    background-color: transparent;
 }
 
 .entry .inner {
@@ -152,13 +152,13 @@ border: 0; }
 
 .entry .header {
     color: $*color_entry_title;
-	background-color: $*color_entry_title_background;
-	padding: 10px;
+    background-color: $*color_entry_title_background;
+    padding: 10px;
 }
 
 .entry .header .inner {
     color: $*color_entry_title;
-	background-color: $*color_entry_title_background;
+    background-color: $*color_entry_title_background;
     }
 
 .entry .header a:link { color: $*color_entry_title_link; }
@@ -169,56 +169,56 @@ border: 0; }
 $userpic_css
 
 .entry .userpic img{
-	padding: 0 10px 10px;
-	background-color: $*color_entry_title_background;
+    padding: 0 10px 10px;
+    background-color: $*color_entry_title_background;
 }
 
 .no-userpic .userpic {padding: 0px;}
 
 h3.entry-title {
-	$entry_title_font
-	font-weight: normal;
-	line-height: 125%;
-	padding: 0;
+    $entry_title_font
+    font-weight: normal;
+    line-height: 125%;
+    padding: 0;
 }
 
 .entry-content {
-	background-color: $*color_entry_background;
-	padding: 10px 10px 25px 10px;
+    background-color: $*color_entry_background;
+    padding: 10px 10px 25px 10px;
 
 }
 
 .entry-poster {
-	display: block;
-	padding: 5px;
+    display: block;
+    padding: 5px;
 }
 
 .entry .footer {
-	clear: both;
-	padding: 0 0 35px;
-	border-bottom: 15px solid $*color_entry_footer_background;
+    clear: both;
+    padding: 0 0 35px;
+    border-bottom: 15px solid $*color_entry_footer_background;
 }
 
 .entry .footer .tag {
     color: $*color_entry_title;
-	background-color: $*color_entry_title_background;
-	padding: 10px;
-	font-size: 0.9em;
+    background-color: $*color_entry_title_background;
+    padding: 10px;
+    font-size: 0.9em;
 }
 
 .metadata {
     color: $*color_entry_title;
-	background-color: $*color_entry_title_background;
-	border-bottom: 1px solid $*color_entry_title_background;
-	font-size: .9em;
-	padding: 0 10px;
+    background-color: $*color_entry_title_background;
+    border-bottom: 1px solid $*color_entry_title_background;
+    font-size: .9em;
+    padding: 0 10px;
 }
 
 .top-metadata {
-	background-color: $entry_bar_colors;
-	border-width:0;
-	font-size: .9em;
-	padding: 0 10px;
+    background-color: $entry_bar_colors;
+    border-width:0;
+    font-size: .9em;
+    padding: 0 10px;
 }
 
 .entry .footer .tag a, .metadata a { color: $*color_entry_title_link; }
@@ -227,8 +227,8 @@ h3.entry-title {
 .entry .footer .tag a:active, .metadata a:active { color: $*color_entry_title_link_active; }
 
 ul.entry-management-links {
-	float: left;
-	padding: 0 .25em;
+    float: left;
+    padding: 0 .25em;
 }
 
 .bottomcomment { padding-bottom: 10px;
@@ -248,35 +248,35 @@ ul.entry-management-links {
     }
 
 .bottomcomment ul.entry-management-links, .bottompages a{
-	float: none;
-	padding: 10px 0 0;
-	text-align: center;
+    float: none;
+    padding: 10px 0 0;
+    text-align: center;
     color: $*color_entry_interaction_links;
-	}
+    }
 
 ul.entry-interaction-links {
-	float: right;
-	padding: 5px 15px;
+    float: right;
+    padding: 5px 15px;
 }
 .entry-wrapper .separator-after {background: $*color_entry_border }
 
 /* ------- comments --------- */
 
 #comments {
-	margin:0;
-	padding:0;
+    margin:0;
+    padding:0;
     background: $*color_entry_border;
 }
 
 #comments .header { padding: 10px; }
 
 #comments .datetime, #comments .comment-title {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 #comments .poster-ip, #comments .comment-poster {
-	display: block;
-	padding: 10px;
+    display: block;
+    padding: 10px;
 }
 
 #comments .userpic { background-color: transparent; }
@@ -284,13 +284,13 @@ ul.entry-interaction-links {
 #comments .comment-content { padding: 10px 20px; }
 
 #comments .footer {
-	padding: 0 10px 40px 20px;
-	background: $*color_entry_background;
+    padding: 0 10px 40px 20px;
+    background: $*color_entry_background;
 }
 
 .multiform-checkbox {
-	display: block;
-	float: right;
+    display: block;
+    float: right;
 }
 
 .comment-wrapper {
@@ -308,13 +308,13 @@ ul.entry-interaction-links {
 .comment .comment-content { clear: left }
 
 .comment-interaction-links, .comment-management-links {
-	float: left;
-	font-size: .9em;
+    float: left;
+    font-size: .9em;
 }
 
 .footer .inner .multiform-checkbox {
-	float: right;
-	font-size: .9em;
+    float: right;
+    font-size: .9em;
 }
 
 .no-userpic .comment .header { float: none; }
@@ -326,34 +326,34 @@ ul.entry-interaction-links {
 .page-entry .separator-after { padding: 0; }
 
 form#postform, form#qrform {
-	background-color:$*color_entry_background;
-	margin:10px;
-	padding:10px;
-	clear: both;
+    background-color:$*color_entry_background;
+    margin:10px;
+    padding:10px;
+    clear: both;
 }
 
 /* ----- archive ------ */
 
 .month-wrapper {
     border: 16px solid $*color_entry_border;
-	background-color: $*color_entry_background;
+    background-color: $*color_entry_background;
 }
 
 .month .header h3{
-	background-color: $*color_entry_title_background;
+    background-color: $*color_entry_title_background;
     color: $*color_entry_title;
-	padding: 10px;
-	font-weight: lighter;
-	letter-spacing: 1px;
+    padding: 10px;
+    font-weight: lighter;
+    letter-spacing: 1px;
 }
 
 .month caption { padding: 10px 0; }
 
 .month .footer {
-	background-color: $*color_entry_footer_background;
+    background-color: $*color_entry_footer_background;
     margin-top: 20px;
-	padding: 10px;
-	text-align: right;
+    padding: 10px;
+    text-align: right;
 }
 
 .month .footer a { color: $*color_entry_interaction_links; }
@@ -361,31 +361,31 @@ form#postform, form#qrform {
 .month-wrapper .separator-after { padding: 0; }
 
 #archive-month .month {
-	background-color: $*color_entry_footer_background;
+    background-color: $*color_entry_footer_background;
     color: $*color_entry_interaction_links;
-	padding: 15px;
-	margin: 15px;
+    padding: 15px;
+    margin: 15px;
 }
 
 #archive-month .month dl {
-	padding: 10px;
-	margin: 20px 0;
-	background-color: $*color_entry_background;
+    padding: 10px;
+    margin: 20px 0;
+    background-color: $*color_entry_background;
 }
 
 #archive-month .month dl dt {
-	background-color: $*color_entry_title_background;
-	font-weight:bold;
-	margin:10px;
-	padding:2px 10px;
+    background-color: $*color_entry_title_background;
+    font-weight:bold;
+    margin:10px;
+    padding:2px 10px;
 }
 
 #archive-month .month dl dt a { color: $*color_entry_title_link_active; }
 #archive-month .month dl dt a:hover { color: $*color_entry_title_link_hover; }
 
 #archive-day h3 {
-	text-align: center;
-	text-tansform: uppercase;
+    text-align: center;
+    text-tansform: uppercase;
 }
 
 #archive-day h3.entry-title { text-align: left; }
@@ -393,11 +393,11 @@ form#postform, form#qrform {
 table.month { border-collapse: separate; }
 
 table.month td, table.month th {
-	border:1px solid $*color_entry_background;
-	padding:5px 20px;
-	text-align:center;
-	vertical-align:top;
-	background-color: $days_without_entries;
+    border:1px solid $*color_entry_background;
+    padding:5px 20px;
+    text-align:center;
+    vertical-align:top;
+    background-color: $days_without_entries;
     color: $*color_entry_interaction_links;
 }
 
@@ -411,19 +411,19 @@ table.month td.day-has-entries {
 /*--- Icon Page ---*/
 .page-icons .icons-container {
     border: 16px solid $*color_entry_border;
-	background-color: $*color_entry_footer_background;
-	margin: 10px;
+    background-color: $*color_entry_footer_background;
+    margin: 10px;
 }
 
 .page-icons .icons-container h2 {
-	background-color: $*color_entry_title_background;
-	letter-spacing: 1px;
-	font-weight: lighter;
-	padding: 5px 20px;
+    background-color: $*color_entry_title_background;
+    letter-spacing: 1px;
+    font-weight: lighter;
+    padding: 5px 20px;
 }
 
 .page-icons .icon {
-	background-color: $*color_entry_background;
+    background-color: $*color_entry_background;
     clear: both;
     padding-left: 1em;
 }
@@ -482,9 +482,9 @@ table.month td.day-has-entries {
 /* ------- modules ------ */
 
 .module {
-	$module_outer_colors
-	padding: 10px;
-	margin: 0 0 15px;
+    $module_outer_colors
+    padding: 10px;
+    margin: 0 0 15px;
 }
 
 .module-header a { color: $*color_module_title_link; }
@@ -493,26 +493,26 @@ table.month td.day-has-entries {
 .module-header a:hover { color: $*color_module_title_link_hover; }
 
 .module-content {
-	background-color: $*color_module_background;
-	border-color: $*color_module_footer_background;
-	border-style:solid;
-	border-width:5px 0 15px;
-	margin:0;
-	padding:2px;
+    background-color: $*color_module_background;
+    border-color: $*color_module_footer_background;
+    border-style:solid;
+    border-width:5px 0 15px;
+    margin:0;
+    padding:2px;
 }
 
 .module-userprofile .module-content,
 .module-calendar .module-content,
 .module-syndicate  .module-content,
 .module-credit .module-content {
-	text-align: center;
+    text-align: center;
 }
 
 .module-userprofile .userpic {
-	background-color: transparent;
-	float: none;
-	padding: 15px;
-	margin: 0;
+    background-color: transparent;
+    float: none;
+    padding: 15px;
+    margin: 0;
 }
 
 .module-customtext .module-content { padding: 10px; }
@@ -522,23 +522,23 @@ table.month td.day-has-entries {
 .module-calendar th { background-color: $*color_module_footer_background; }
 
 .module-calendar td.entry-day {
-	background-color: $days_with_entries;
-	border: 1px solid $*color_module_title_background;
+    background-color: $days_with_entries;
+    border: 1px solid $*color_module_title_background;
 }
 
 #header .module-navlinks {
-	padding: 0;
-	margin: 0;
-	}
+    padding: 0;
+    margin: 0;
+    }
 
 
 #header .module-navlinks .module-list-item:first-child {
-	margin: 5px;
-	padding: 10px;}
+    margin: 5px;
+    padding: 10px;}
 
 #header .module-list-item a.current {
-	background-color: $*color_header_navlinks_current_background;
-	padding: 10px;
+    background-color: $*color_header_navlinks_current_background;
+    padding: 10px;
     color: $*color_navlinks_current;
 }
 #header .module-navlinks a { color: $*color_navlinks_link; }
@@ -550,8 +550,8 @@ table.month td.day-has-entries {
 
 #header .module-navlinks li {
     padding: 2px 8px;
-	display: inline;
-	}
+    display: inline;
+    }
 
 .module-typelist li { padding: 2px 8px; }
 
@@ -559,22 +559,22 @@ ul.module-list { list-style: none; }
 #header .module-navlinks .module-list {margin-bottom: 0;}
 
 .module-header {
-	text-align: center;
-	padding: 5px 2px;
-	margin: 0;
-	letter-spacing: 1px;
-	font-weight: normal;
+    text-align: center;
+    padding: 5px 2px;
+    margin: 0;
+    letter-spacing: 1px;
+    font-weight: normal;
 }
 
 .manage-tags-link {
-	font-weight: bold;
-	padding-right: 5px 10px;
-	text-align: right;
+    font-weight: bold;
+    padding-right: 5px 10px;
+    text-align: right;
 }
 
 .module-time, .module-powered,
 .module-tags_cloud .module-content, .module-search {
-	text-align: center;
+    text-align: center;
 }
 
 .search-box {margin-top: 10px;}
@@ -584,9 +584,9 @@ ul.module-list { list-style: none; }
 .module-tags_cloud .module-content { padding: 15px; }
 
 #header .header-navlinks {
-	padding-top: 5px;
-	margin-top: 5px;
-	}
+    padding-top: 5px;
+    margin-top: 5px;
+    }
 
 #header .module-navlinks li {
     display: inline;
@@ -599,14 +599,14 @@ ul.module-list { list-style: none; }
     }
 
 #header .module-navlinks .module-content {
-	padding-top: 15px;
-	background-color: $*color_header_navlinks_background;
-	border-color: $*color_header_navlinks_background $*color_header_navlinks_background $*color_header_navlinks_current_background;
-	border-style: solid;
-	border-width: 5px 0 10px;
-	font-size: 1em;
-	letter-spacing: 1px;
-	}
+    padding-top: 15px;
+    background-color: $*color_header_navlinks_background;
+    border-color: $*color_header_navlinks_background $*color_header_navlinks_background $*color_header_navlinks_current_background;
+    border-style: solid;
+    border-width: 5px 0 10px;
+    font-size: 1em;
+    letter-spacing: 1px;
+    }
 
 .search-box {
     width: 100%
@@ -615,25 +615,25 @@ ul.module-list { list-style: none; }
 /* ---- tags pages ----- */
 .page-tags .tags-container {
     border: 16px solid $*color_entry_border;
-	background-color: $*color_entry_footer_background;
-	margin: 10px;
+    background-color: $*color_entry_footer_background;
+    margin: 10px;
 }
 
 .page-tags .tags-container h2 {
-	background-color: $*color_entry_title_background;
-	letter-spacing: 1px;
-	font-weight: lighter;
-	padding: 5px 20px;
-	font-size: 1em;
+    background-color: $*color_entry_title_background;
+    letter-spacing: 1px;
+    font-weight: lighter;
+    padding: 5px 20px;
+    font-size: 1em;
 }
 
 .page-tags .tags-container .ljtaglist {
-	background-color: $*color_entry_background;
+    background-color: $*color_entry_background;
 }
 
 .page-tags .tags-container .tags_cloud {
-	padding:50px;
-	text-align:center;
+    padding:50px;
+    text-align:center;
 }
 
 .page-tags .tags-container .manage-tags-link a {
