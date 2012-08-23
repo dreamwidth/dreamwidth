@@ -910,6 +910,13 @@ sub trans
         return 404;
     }
 
+    my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $r, $uri );
+    if ( $alt_path ) {
+        $r->uri( $alt_uri );
+        $r->filename( $alt_path );
+        return OK;
+    }
+
     # userpic
     return userpic_trans($r) if $uri =~ m!^/userpic/!;
 
@@ -984,13 +991,6 @@ sub trans
 
         my $view = $determine_view->($user, $vhost, $rest);
         return $view if defined $view;
-    }
-
-    my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $r, $uri );
-    if ( $alt_path ) {
-        $r->uri( $alt_uri );
-        $r->filename( $alt_path );
-        return OK;
     }
 
     # customview (get an S1 journal by number)
