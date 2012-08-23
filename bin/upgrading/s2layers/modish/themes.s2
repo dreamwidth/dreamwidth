@@ -7,7 +7,7 @@ layerinfo author_name = "musyc";
 set layout_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_page_background = "#2f1648";
@@ -26,7 +26,7 @@ set color_footer_link_hover = "#966981";
 set color_footer_link_visited = "#c8c2cd";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#2f1648";
@@ -41,25 +41,25 @@ set color_comment_title = "#2f1648";
 set color_comment_title_background = "#c8c2cd";
 
 ##===============================
-## CSS
+## Stylesheet
 ##===============================
 
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks a {
-        color: #4f4562;
         background: #c8c2cd;
-        }
+        color: #4f4562;
+    }
 
     .module-navlinks a:visited {
         color: #2f1648;
-        }
+    }
 
     .module-navlinks a:hover {
-        color: #2f1648;
         background: #ee3689;
-        }
-    """;
+        color: #2f1648;
+    }
+""";
 }
 
 
@@ -168,19 +168,23 @@ set color_module_text = "#4D4D4D";
 set color_module_title = "#80695C";
 set color_module_title_background = "#D1AB94";
 
+##===============================
+## Stylesheet
+##===============================
+
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks,
     .module-time,
     .module-powered {
         background-color: $*color_page_background;
-        }
+    }
 
     ul.entry-interaction-links {
         background-color: $*color_entry_title;
         border-bottom: 1px solid $*color_entry_title_background;
-        }
-    """;
+    }
+""";
 }
 
 
@@ -311,40 +315,44 @@ set color_module_text = "#D6D6BF";
 set color_module_title = "#D4D496";
 set color_module_title_background = "#787856";
 
+##===============================
+## Stylesheet
+##===============================
+
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks,
     .module-time,
     .module-powered {
         background-color: $*color_page_background;
-        }
+    }
 
     .module-navlinks .module-list .module-list-item a {
         background-color: $*color_header_background;
-        }
+    }
 
     .date,
     .time {
         color: $*color_page_title;
-        }
+    }
 
     .entry .entry-title a:visited {
         color: $*color_entry_link_visited;
-        }
+    }
 
     .entry .entry-title a:hover {
         color: $*color_entry_link_hover;
-        }
+    }
 
     ul.entry-interaction-links,
     ul.entry-management-links {
         padding-top: 2px;
-        }
+    }
 
     ul.entry-interaction-links {
         border-top: 1px solid $*color_entry_border;
-        }
-    """;
+    }
+""";
 }
 
 
@@ -357,15 +365,9 @@ layerinfo author_name = "musyc";
 set layout_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
-set color_footer_background = "#332230";
-set color_footer_link = "#fff";
-set color_footer_link_active = "#fff";
-set color_footer_link_hover = "#fff";
-set color_footer_link_visited = "#fff";
-set color_header_background = "#332230";
 set color_page_background = "#91758c";
 set color_page_details_text = "#fff";
 set color_page_link = "#332230";
@@ -373,42 +375,48 @@ set color_page_link_hover = "#ddd";
 set color_page_link_visited = "#342832";
 set color_page_text = "#fff";
 set color_page_title = "#fff";
+set color_header_background = "#332230";
+set color_footer_background = "#332230";
+set color_footer_link = "#fff";
+set color_footer_link_active = "#fff";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#fff";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
-set color_comment_title = "#fff";
-set color_comment_title_background = "#332230";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#332230";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#332230";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_border = "#332230";
 
 ##===============================
-## CSS
+## Stylesheet
 ##===============================
 
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks a {
-        color: #fff;
         background: #332230;
-        }
+        color: #fff;
+    }
 
     .module-navlinks a:visited {
         color: #91758c;
-        }
+    }
 
     .module-navlinks a:hover {
-        color: #91758c;
         background: #ddd;
-        }
-    """;
+        color: #91758c;
+    }
+""";
 }
 
 
@@ -421,15 +429,9 @@ layerinfo author_name = "musyc";
 set layout_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
-set color_footer_background = "#653b2d";
-set color_footer_link = "#c39363";
-set color_footer_link_active = "#c39363";
-set color_footer_link_hover = "#c39363";
-set color_footer_link_visited = "#c39363";
-set color_header_background = "#653b2d";
 set color_page_background = "#121115";
 set color_page_details_text = "#c39363";
 set color_page_link = "#e1c2a4";
@@ -438,21 +440,27 @@ set color_page_link_hover = "#ccc";
 set color_page_link_visited = "#c39363";
 set color_page_text = "#c39363";
 set color_page_title = "#c39363";
+set color_header_background = "#653b2d";
+set color_footer_background = "#653b2d";
+set color_footer_link = "#c39363";
+set color_footer_link_active = "#c39363";
+set color_footer_link_hover = "#c39363";
+set color_footer_link_visited = "#c39363";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
-set color_comment_title = "#121115";
-set color_comment_title_background = "#c39363";
 set color_entry_background = "#653b2d";
 set color_entry_link_active = "#121115";
 set color_entry_link_hover = "#121115";
 set color_entry_title = "#121115";
 set color_entry_title_background = "#c39363";
+set color_comment_title = "#121115";
+set color_comment_title_background = "#c39363";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#653b2d";
@@ -461,22 +469,26 @@ set color_module_link_hover = "#121115";
 set color_module_title = "#c39363";
 set color_module_title_background = "#653b2d";
 
+##===============================
+## Stylesheet
+##===============================
+
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks a {
-        color: #e1c2a4;
         background: #121115;
-        }
+        color: #e1c2a4;
+    }
 
     .module-navlinks a:visited {
         color: #c39363;
-        }
+    }
 
     .module-navlinks a:hover {
-        color: #121115;
         background: #e1c2a4;
-        }
-    """;
+        color: #121115;
+    }
+""";
 }
 
 
@@ -533,16 +545,16 @@ set color_module_title = "#B6ADDC";
 set color_module_title_background = "#18002C";
 
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks .module-list .module-list-item a {
         color: $*color_module_border;
         text-decoration: none;
-        }
+    }
 
     .module-navlinks .module-list .module-list-item:hover a {
         color: $*color_page_text;
-        }
-    """;
+    }
+""";
 }
 
 
@@ -555,7 +567,7 @@ layerinfo author_name = "musyc";
 set layout_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_page_background = "#010f21";
@@ -573,11 +585,10 @@ set color_footer_link_hover = "#646d72";
 set color_footer_link_visited = "#077495";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#010f21";
-set color_entry_interaction_links = "";
 set color_entry_link = "#00f3e1";
 set color_entry_link_hover = "#646d72";
 set color_entry_link_visited = "#077495";
@@ -588,25 +599,25 @@ set color_comment_title = "#00f3e1";
 set color_comment_title_background = "#010f21";
 
 ##===============================
-## CSS
+## Stylesheet
 ##===============================
 
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks a {
-        color: #010f21;
         background: #00f3e1;
-        }
+        color: #010f21;
+    }
 
     .module-navlinks a:hover {
-        color: #010f21;
         background: #646d72;
-        }
+        color: #010f21;
+    }
 
     .module-navlinks a:visited {
         color: #010f21;
-        }
-    """;
+    }
+""";
 }
 
 
@@ -740,15 +751,9 @@ layerinfo author_name = "musyc";
 set layout_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
-set color_footer_background = "#ff5300";
-set color_footer_link = "#444";
-set color_footer_link_active = "#444";
-set color_footer_link_hover = "#444";
-set color_footer_link_visited = "#444";
-set color_header_background = "#ff5300";
 set color_page_background = "#444";
 set color_page_details_text = "#fff";
 set color_page_link = "#ff5300";
@@ -756,42 +761,48 @@ set color_page_link_active = "#fff";
 set color_page_link_hover = "#fff";
 set color_page_link_visited = "#ffa073";
 set color_page_text = "#fff";
+set color_header_background = "#ff5300";
+set color_footer_background = "#ff5300";
+set color_footer_link = "#444";
+set color_footer_link_active = "#444";
+set color_footer_link_hover = "#444";
+set color_footer_link_visited = "#444";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
-set color_comment_title = "#444444";
-set color_comment_title_background = "#ff5300";
 set color_entry_link_hover = "#fff";
 set color_entry_title = "#ff5300";
+set color_comment_title = "#444";
+set color_comment_title_background = "#ff5300";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_border = "#ffa073";
 
 ##===============================
-## CSS
+## Stylesheet
 ##===============================
 
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks a {
-        color: #444;
         background: #ff5300;
-        }
+        color: #444;
+    }
 
     .module-navlinks a:visited {
         color: #ffa073;
-        }
+    }
 
     .module-navlinks a:hover {
-        color: #ff5300;
         background: #444;
-        }
-    """;
+        color: #ff5300;
+    }
+""";
 }
 
 
@@ -848,36 +859,40 @@ set color_module_text = "#616161";
 set color_module_title = "#EBF3F6";
 set color_module_title_background = "#9FB9C2";
 
+##===============================
+## Stylesheet
+##===============================
+
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks,
     .module-time,
     .module-powered {
         background-color: $*color_page_background;
-        }
+    }
 
     .module-navlinks .module-list .module-list-item a {
         color: $*color_footer_link_active;
-        }
+    }
 
     .module-navlinks .module-list .module-list-item:hover a {
         color: $*color_module_title;
-        }
+    }
 
     .topnav a, .bottomnav a {
         color: $*color_page_text;
-        }
+    }
 
     ul.entry-interaction-links {
         background-color: $*color_module_title_background;
         border-bottom: 1px solid $*color_module_border;
-        }
+    }
 
     ul.entry-interaction-links a:visited,
     ul.entry-interaction-links a:hover {
         color: $*color_entry_interaction_links;
-        }
-    """;
+    }
+""";
 }
 
 
@@ -942,71 +957,71 @@ layerinfo author_name = "musyc";
 set layout_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
-set color_footer_background = "#ffcc00";
+set color_page_background = "#8b8878";
+set color_page_details_text = "#f3f3f3";
+set color_page_link = "#fc0";
+set color_page_link_active = "#fc0";
+set color_page_link_hover = "#333";
+set color_page_link_visited = "#ff9";
+set color_page_text = "#f3f3f3";
+set color_page_title = "#fc0";
+set color_header_background = "#333";
+set color_footer_background = "#fc0";
 set color_footer_link = "#333";
 set color_footer_link_active = "#f3f3f3";
 set color_footer_link_hover = "#333";
 set color_footer_link_visited = "#333";
-set color_header_background = "#333";
-set color_page_background = "#8b8878";
-set color_page_details_text = "#f3f3f3";
-set color_page_link = "#ffcc00";
-set color_page_link_active = "#ffcc00";
-set color_page_link_hover = "#333";
-set color_page_link_visited = "#ffff99";
-set color_page_text = "#f3f3f3";
-set color_page_title = "#ffcc00";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
-set color_comment_title = "#ffcc00";
-set color_comment_title_background = "#333";
 set color_entry_background = "#333";
-set color_entry_link = "#ffcc00";
-set color_entry_link_active = "#ffcc00";
+set color_entry_link = "#fc0";
+set color_entry_link_active = "#fc0";
 set color_entry_link_hover = "#f3f3f3";
-set color_entry_link_visited = "#ffff99";
+set color_entry_link_visited = "#ff9";
 set color_entry_text = "#f3f3f3";
-set color_entry_title = "#ffcc00";
+set color_entry_title = "#fc0";
 set color_entry_title_background = "#333";
+set color_comment_title = "#fc0";
+set color_comment_title_background = "#333";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
-set color_module_background = "#333333";
-set color_module_border = "#ffcc00";
-set color_module_link = "#ffcc00";
-set color_module_link_active = "#ffcc00";
+set color_module_background = "#333";
+set color_module_border = "#fc0";
+set color_module_link = "#fc0";
+set color_module_link_active = "#fc0";
 set color_module_link_hover = "#f3f3f3";
-set color_module_link_visited = "#ffff99";
+set color_module_link_visited = "#ff9";
 set color_module_text = "#f3f3f3";
-set color_module_title = "#ffcc00";
-set color_module_title_background = "#333333";
+set color_module_title = "#fc0";
+set color_module_title_background = "#333";
 
 ##===============================
-## CSS
+## Stylesheet
 ##===============================
 
 function Page::print_theme_stylesheet() {
-    """
+"""
     .module-navlinks a {
+        background: #fc0;
         color: #333;
-        background: #ffcc00;
-        }
+    }
 
     .module-navlinks a:visited {
         color: #333;
-        }
+    }
 
     .module-navlinks a:hover {
+        background: #ff9;
         color: #333;
-        background: #ffff99;
-        }
-    """;
+    }
+""";
 }
