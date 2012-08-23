@@ -102,7 +102,7 @@ body<=
                 # does the poster want to know? if they have working email and notification on
                 ($do_mail, $why_mail) = (1, 'success')
                     if ($poster->{'opt_gettalkemail'} eq "Y" && $poster->{'status'} eq "A");
-                $posturl = LJ::item_link($c, $res->{'itemid'}, $res->{'anum'}) . "\n\n";
+                $posturl = LJ::item_link($c, $res->{'itemid'}, $res->{'anum'});
             } else {
                 $prot_err = LJ::Protocol::error_message($prot_err) if $prot_err;
                 $ret .= "<?h1 $ML{'Error'} h1?><?p " .
@@ -131,45 +131,53 @@ body<=
 
         # mail the poster
         if ($do_mail) {
-            my $subject="Moderated submission notification";
             my $to = $poster->email_raw;
-            my $body = "Your message submitted to the moderated community $c->{'user'} ";
-            if ($why_mail eq 'success') {
-                $body .= "has been approved and successfully posted.\n\n$posturl";
-                $body .= "The moderator that approved your post has attached the following note: \n\n$POST{why}\n\n"
-                    if $POST{why};
-            } elsif ($why_mail eq 'proterror') {
-                $body .= "has been approved, but failed to be posted due to the following protocol error:\n$prot_err\n\n";
-            } elsif ($why_mail eq 'reject') {
-                $body .= "has been rejected by a moderator of that community.\n\nPlease note that replies to this email are not sent to the community's moderator(s). If you would like to discuss the reasons for your entry's rejection, you will need to contact a moderator directly.\n\n";
-            }
-            if ($why_mail eq 'reject' && $POST{'why'}) {
-                $body .= "Here are the reasons for the rejection as provided by the moderator: \n\n" . $POST{'why'} . "\n\n";
-            }
-            $body .= "This is the message you submitted:\n\n";
+            my $body;
             my $etime = sprintf("%04d-%02d-%02d %02d:%02d",
                                 $req->{'year'}, $req->{'mon'},
                                 $req->{'day'}, $req->{'hour'},
                                 $req->{'min'});
-            $body .= "Time: $etime\n";
-            $body .= "Subject: " . $req->{'subject'} . "\n";
-            if ($req->{'props'}->{'current_music'}) {
-                $body .= "Current Music: " . $req->{'props'}->{'current_music'} . "\n";
+            my $music = $req->{'props'}->{'current_music'};
+            my $mood = $req->{'props'}->{'current_mood'};
+            my $pickeyword = $req->{'props'}->{'picture_keyword'};
+
+            if ($why_mail eq 'success') {
+                $body .= LJ::Lang::ml( ".email.body.approved", { comm => $c->{'user'}, url => $posturl } );
+                $body .= LJ::Lang::ml( ".email.body.approved.note", { note => $POST{'why'} } ) if $POST{why};
+            } elsif ($why_mail eq 'proterror') {
+                $body .= LJ::Lang::ml( ".email.body.proterror", { comm => $c->{'user'}, error => $prot_err } );
+            } elsif ($why_mail eq 'reject') {
+                $body .= LJ::Lang::ml( ".email.body.rejected", { comm => $c->{'user'} } );
+                $body .= LJ::Lang::ml( ".email.body.rejected.why", { reason => $POST{'why'} } ) if $POST{why};
             }
-            if ($req->{'props'}->{'current_mood'}) {
-                $body .= "Current Mood: " . $req->{'props'}->{'current_mood'} . "\n";
+
+            $body .= LJ::Lang::ml( ".email.submission.header", {
+                time => $etime,
+                subject => $req->{'subject'}
+            } );
+
+            if ($music) {
+                $body .= LJ::Lang::ml( ".email.submission.music", { music => $music } ) . "\n";
             }
-            if ($req->{'props'}->{'picture_keyword'}) {
-                $body .= "Picture Keyword: " . $req->{'props'}->{'picture_keyword'} . "\n";
+            if ($mood) {
+                $body .= LJ::Lang::ml( ".email.submission.mood", { mood => $mood } ) . "\n";
             }
-            $body .= "Text:\n" . $req->{'event'} . "\n\n";
-            $body .= "Regards,\n$LJ::SITENAME Team\n\n$LJ::SITEROOT/\n";
+            if ($pickeyword) {
+                $body .= LJ::Lang::ml( ".email.submission.pickeyword", { pickeyword => $pickeyword } ) . "\n";
+            }
+
+            $body .= LJ::Lang::ml( ".email.submission.text", { text => $req->{'event'} } );
+
+            $body .= LJ::Lang::ml( ".email.footer", {
+                sitename => $LJ::SITENAME,
+                siteurl => $LJ::SITEROOT
+            } );
 
             LJ::send_mail({
                 'to' => $to,
                 'from' => $LJ::BOGUS_EMAIL,
                 'charset' => 'utf-8',
-                'subject' => $subject,
+                'subject' => LJ::Lang::ml( ".email.subject" ),
                 'body' => $body,
             });
         }

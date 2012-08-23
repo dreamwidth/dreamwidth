@@ -31,6 +31,73 @@
 
 .choice.reject=Reject
 
+.email.body.approved<<
+Your message submitted to the moderated community [[comm]] has been approved and successfully posted:
+
+[[url]]
+
+.
+
+.email.body.approved.note<<
+
+The moderator that approved your post has attached the following note:
+
+[[note]]
+
+.
+
+.email.body.proterror<<
+Your message submitted to the moderated community [[comm]] has been approved, but failed to be posted due to the following protocol error:
+[[error]]
+
+.
+
+.email.body.rejected<<
+Your message submitted to the moderated community [[comm]] has been rejected by a moderator of that community.
+
+Please note that replies to this email are not sent to the community's moderator(s). If you would like to discuss the reasons for your entry's rejection, you will need to contact a moderator directly.
+
+.
+
+.email.footer<<
+
+Regards,
+[[sitename]] Team
+
+[[siteurl]]
+.
+
+.email.body.rejected.why<<
+
+Here are the reasons for the rejection as provided by the moderator:
+
+[[reason]]
+
+.
+
+.email.subject=Moderated submission notification
+
+.email.submission.header<<
+
+This is the message you submitted:
+
+Time: [[time]]
+Subject: [[subject]]
+
+.
+
+.email.submission.music=Current Music: [[music]]
+
+.email.submission.mood=Current Mood: [[mood]]
+
+.email.submission.pickeyword=Picture Keyword: [[pickeyword]]
+
+.email.submission.text<<
+Text:
+[[text]]
+
+.
+
 .error.noaccess=You're not an moderator for [[comm]].
 
 .error.noentry=This entry wasn't found.  It may have already been handled by another administrator.
@@ -70,6 +137,8 @@
 .posted.text=The entry has been successfully posted.
 
 .reject.button=Yes, reject it.
+
+.reject.header=Reject this entry?
 
 .reject.reason=You can tell the community member your reasons for rejecting this entry and they'll be emailed to the member.
 
