@@ -478,8 +478,16 @@ body<=
             $sec = "<?securityprotected?>";
         }
 
-        $sec .= "<br />\n" unless $sec eq "" or $subject;
         $ret .= $sec;
+
+        my $adult = $props->{'adult_content'};
+        my $age_restriction;
+        if ($adult eq "explicit" ) {
+            $age_restriction = LJ::img( "adult-18" );
+        } elsif ( $adult eq "concepts" ) {
+            $age_restriction = LJ::img( "adult-nsfw" );
+        }
+        if ($adult) { $ret .= $age_restriction . " "; }
 
         if ($subject) {
             LJ::CleanHTML::clean_subject(\$subject);
