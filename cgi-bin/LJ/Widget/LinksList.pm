@@ -19,28 +19,17 @@ use Carp qw(croak);
 
 sub authas { 1 }
 
-# okay so this is the sub we need: render_body
-
 sub render_body {
     my $class = shift;
     my %opts = @_;
 
-# Stuff that is passed to the method
-
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
-# Check whether you're logged in
-
     return "" unless $u->prop('stylesys') == 2;
-
-# This checks whether it's s2, I think?
 
     my $post = $class->post_fields($opts{post});
     my $linkobj = LJ::Links::load_linkobj($u, "master");
-    # okay, $linkobj is what? need to have a look. how do I find out about $u and master? queries, I have them. (I think $u is the user object - reference to a hash - but I'm not sure.
-
-# Grabbing information from other methods, not sure what we are getting here
 
     my $link_min = $opts{link_min} || 5; # how many do they start with ?
     my $link_more = $opts{link_more} || 5; # how many do they get when they click "more"
@@ -68,8 +57,8 @@ sub render_body {
 # add the table-ey stuff at the top
 
     $ret .= "<table border='0' cellspacing='5' cellpadding='0'>";
-    $ret .= "<thead><tr><th>" . $class->ml('widget.linkslist.table.order') . "</th>";
-    $ret .= "<th>" . $class->ml('widget.linkslist.table.title') . "</th><td>&nbsp;</td></tr></thead>"; 
+    $ret .= "<thead><tr><th>" . $class->ml('widget.linkslist.table.title') . "</th>";
+    $ret .= "<th>" . $class->ml('widget.linkslist.table.order') . "</th><td>&nbsp;</td></tr></thead>"; 
 
 # now we're building the textareas
 # --- here would be the bit I am interested in ---
