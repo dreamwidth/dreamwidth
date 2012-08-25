@@ -169,7 +169,12 @@ body<=
         } elsif ( $l->{email} ) {
             # the ehtml call here shouldn't be necessary, but just in case they slip in an email
             # that contains Bad Stuff, escape it
-            return LJ::CleanHTML::mangle_email_address( LJ::ehtml( $l->{email} ) );
+            my $mangled_email = LJ::CleanHTML::mangle_email_address( LJ::ehtml( $l->{email} ) );
+            # return the mangled email with a privacy icon if there is one,
+            #  otherwise by itself
+
+            return $l->{secimg} . $mangled_email if $l->{secimg};
+            return $mangled_email;
         } else {
             return "(Error in Linkification)";
         }
@@ -331,6 +336,12 @@ body<=
         return '' if $hidden && ( !$remote || !$remote->can_manage( $u ) );
 
         my $section_name = ref $opts{section_name_ml} eq 'HASH' ? BML::ml( $opts{section_name_ml}->{ml}, $opts{section_name_ml}->{opts} ) : $ML{$opts{section_name_ml}};
+
+        #allow for extra HTML to be added after the translated section header
+        # text - used for the security icon for the list of IM addresses
+        $section_name .= $opts{section_name_postfix}
+            if $opts{section_name_postfix};
+
         my $section_hidden_text = $hidden ? " <em>$ML{'.label.hidden'}</em>" : '';
         my $collapsible = defined $opts{collapsible} ? $opts{collapsible} : 1;
         my ( $collapse_text, $body );
@@ -504,8 +515,7 @@ body<=
     }
 
     if ( my @contacts = $profile->contact_rows ) {
-        my $secimg = $profile->security_image( $u->opt_showcontact );
-        $bibody .= qq( <div class="contact"><p class="section_body_title">$ML{'.contact.header'}$secimg</p> );
+        $bibody .= qq( <div class="contact"><p class="section_body_title">$ML{'.contact.header'}</p> );
         $bibody .= join( '<br />', map { $linkify->( $_ ) } @contacts );
         $bibody .= q{ </div> };
     };
@@ -639,6 +649,7 @@ body<=
         $imlist .= "</tr>";
     }
     if ( $imlist ) {
+        my $secimg = $profile->security_image( $u->opt_showcontact );
         my $new_im_margin;
         $new_im_margin = " style='margin-top: 0;'" unless $intlist;
         $connectbody .= qq{ <div class="external_services"$new_im_margin> };
@@ -647,6 +658,7 @@ body<=
             if $remote && $remote->can_manage( $u );
         $connectbody .= $content_inner_block->(
             section_name_ml => '.im.header2',
+            section_name_postfix => $secimg,
             section_link    => 'services',
             extra_attrs     => $new_im_margin,
             body            => "<table summary=''>$imlist</table>",

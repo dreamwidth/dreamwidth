@@ -447,7 +447,7 @@ sub _basic_info_location {
             $country_ret = LJ::is_enabled( 'directory' ) ?
                 { url => "$dirurl&amp;loc_cn=$ecountry",
                   text => $countries{ $country } } : $countries{ $country };
-            $country_ret->{secimg} = $secimg if ! $state && ! $city && ref $country_ret eq "HASHREF";
+            $country_ret->{secimg} = $secimg if ! $state && ! $city && ref $country_ret eq "HASH";
         }
 
         if ( $state ) {
@@ -461,7 +461,7 @@ sub _basic_info_location {
             $state_ret = $country && LJ::is_enabled( 'directory' ) ?
                 { url => "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate",
                   text => LJ::ehtml( $state ) } : LJ::ehtml( $state );
-            $state_ret->{secimg} = $secimg if !$city && ref $state_ret eq "HASHREF";
+            $state_ret->{secimg} = $secimg if !$city && ref $state_ret eq "HASH";
         }
 
         if ( $city ) {
@@ -469,7 +469,7 @@ sub _basic_info_location {
             $city_ret = $country && LJ::is_enabled( 'directory' ) ?
                 { url => "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity",
                   text => $city } : $city;
-            $city_ret->{secimg} = $secimg if ref $city_ret eq "HASHREF";
+            $city_ret->{secimg} = $secimg if ref $city_ret eq "HASH";
         }
 
         push @$ret, $city_ret, $state_ret, $country_ret;
@@ -650,8 +650,12 @@ sub contact_rows {
     # email
     if ( ( !$u->is_syndicated && $u->share_contactinfo( $remote ) ) || $self->{viewall} ) {
         my @emails = $u->emails_visible( $remote );
+        my $secimg = $self->security_image( $u->opt_showcontact )
+            if @emails;
         foreach my $email (@emails) {
-            push @ret, { email => $email };
+            push @ret, {
+                email => $email ,
+                secimg => $secimg };
         }
     }
 
