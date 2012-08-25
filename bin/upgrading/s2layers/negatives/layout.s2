@@ -8,92 +8,93 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "phoenix", "type" => "user" } ];
 
 ##===============================
-## Display settings - general
+## Presentation
 ##===============================
 
 propgroup presentation {
+    property use layout_type;
     property use num_items_recent;
     property use num_items_reading;
-    property use num_items_icons;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
     property use use_journalstyle_entry_page;
-    property use layout_type;
     property use margins_size;
     property use margins_unit;
+
     property use tags_page_type;
+    property use num_items_icons;
     property use icons_page_sort;
+
+    property use all_entrysubjects;
+    property use all_commentsubjects;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
     property use userpics_style_group;
     property use userpics_position;
     property use entry_metadata_position;
-    property use use_custom_friend_colors;
-    property use use_shared_pic;
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
+
     property use reg_firstdayofweek;
-    property use entry_datetime_format_group;
-    property use comment_datetime_format_group;
-    property use all_entrysubjects;
-    property use all_commentsubjects;
 }
 
-set userpics_position = "right";
 set layout_type = "two-columns-right";
+set userpics_position = "right";
+set entry_management_links = "text";
+set comment_management_links = "text";
 set custom_colors_template = "%%new%% div.footer, %%new%% div.footer ul, %%new%% div.footer ul a {background-color: %%background%%} %%new%% {border: 5px solid %%background%%;} %%new%% div.footer a, %%new%% div.footer {color: %%foreground%%;}";
 
 ##===============================
-## Journal style - colors
+## Colors
 ##===============================
 
 propgroup colors {
-
     property use color_page_background;
     property use color_page_text;
     property use color_page_link;
-    property use color_page_link_hover;
     property use color_page_link_active;
+    property use color_page_link_hover;
     property use color_page_link_visited;
+
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_link;
+    property use color_module_link_active;
+    property use color_module_link_hover;
+    property use color_module_link_visited;
+    property use color_module_title;
+    property use color_module_border;
 
     property use color_header_background;
     property use color_header_link;
-    property use color_header_link_hover;
     property use color_header_link_active;
+    property use color_header_link_hover;
     property use color_header_link_visited;
 
     property use color_footer_background;
     property use color_footer_link;
-    property use color_footer_link_hover;
     property use color_footer_link_active;
+    property use color_footer_link_hover;
     property use color_footer_link_visited;
 
-    property use color_module_background;
-    property use color_module_text;
-    property use color_module_border;
-    property use color_module_link;
-    property use color_module_link_hover;
-    property use color_module_link_active;
-    property use color_module_link_visited;
-    property use color_module_title;
-
-    property use color_entry_link;
-    property use color_entry_link_hover;
-    property use color_entry_link_active;
-    property use color_entry_link_visited;
-    property use color_entry_border;
     property use color_entry_background;
     property use color_entry_text;
+    property use color_entry_link;
+    property use color_entry_link_active;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
     property use color_entry_title;
-
     property use color_entry_interaction_links_background;
     property use color_entry_interaction_links;
-    property use color_entry_interaction_links_hover;
     property use color_entry_interaction_links_active;
+    property use color_entry_interaction_links_hover;
     property use color_entry_interaction_links_visited;
-
+    property use color_entry_border;
 }
 
-
 ##===============================
-## Journal style - images
+## Fonts
 ##===============================
 
 propgroup fonts {
@@ -101,18 +102,18 @@ propgroup fonts {
     property use font_fallback;
     property use font_base_size;
     property use font_base_units;
-    property use font_entry_title;
-    property use font_entry_title_size;
-    property use font_entry_title_units;
-    property use font_comment_title;
-    property use font_comment_title_size;
-    property use font_comment_title_units;
     property use font_module_heading;
     property use font_module_heading_units;
     property use font_module_heading_size;
     property use font_module_text;
     property use font_module_text_size;
     property use font_module_text_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
 }
 
 set font_base = "Georgia";
@@ -125,70 +126,51 @@ set font_entry_title_size = "1.1";
 set font_entry_title_units = "em";
 
 ##===============================
-## Journal style - images
-##===============================
+## Images
+##================================
 
 propgroup images {
     property use image_background_page_group;
+    property use image_background_module_group;
     property use image_background_header_group;
     property use image_background_header_height;
     property use image_background_entry_group;
-    property use image_background_module_group;
 }
 
 ##===============================
-## Display settings - modules
+## Modules
 ##===============================
 
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
-    property use module_customtext_group;
     property use module_calendar_group;
-    property use module_pagesummary_group;
-    property use module_active_group;
-    property use module_tags_group;
     property use module_links_group;
     property use module_syndicate_group;
+    property use module_tags_group;
+    property use module_pagesummary_group;
+    property use module_active_group;
     property use module_time_group;
     property use module_poweredby_group;
+    property use module_customtext_group;
     property use module_credit_group;
     property use module_search_group;
     property use module_cuttagcontrols_group;
 }
 
-
 set module_layout_sections = "none|(none)|one|Main Module Section|two|Header|three|Footer";
 
 set module_navlinks_section = "two";
-
-set module_userprofile_section = "one";
-set module_customtext_section = "one";
-set module_pagesummary_section = "one";
-set module_tags_section = "one";
-set module_links_section = "one";
-set module_syndicate_section = "one";
-set module_credit_section = "one";
-
 set module_calendar_section = "three";
 set module_calendar_opts_type = "horizontal";
-
 set module_time_section = "none";
 set module_poweredby_section = "one";
 
 ##===============================
-## Custom CSS
+## Text
 ##===============================
 
-propgroup customcss {
-    property use external_stylesheet;
-    property use include_default_stylesheet;
-    property use linked_stylesheet;
-    property use custom_css;
-}
-
 propgroup text {
-
     property use text_module_userprofile;
     property use text_module_links;
     property use text_module_syndicate;
@@ -203,60 +185,54 @@ propgroup text {
     property use text_module_search;
     property use text_module_cuttagcontrols;
 
-##===============================
-## Text - main navigation
-##===============================
-
-    property use text_view_archive;
-    property use text_view_userinfo;
-    property use text_view_memories;
-    property use text_view_tags;
-
-##===============================
-## Text - entry comment-related
-##===============================
-
     property use text_view_recent;
+    property use text_view_archive;
     property use text_view_friends;
-    property use text_view_network;
     property use text_view_friends_comm;
     property use text_view_friends_filter;
-    property use text_view_archive;
-    property use text_view_userinfo;
+    property use text_view_network;
+    property use text_view_tags;
     property use text_view_memories;
-
-    property use text_post_comment;
-    property use text_max_comments;
-    property use text_read_comments;
-    property use text_post_comment_friends;
-    property use text_read_comments_friends;
-
-    property use text_skiplinks_back;
-    property use text_skiplinks_forward;
-    property use text_meta_music;
-    property use text_meta_mood;
-    property use text_meta_location;
-    property use text_meta_xpost;
-    property use text_tags;
+    property use text_view_userinfo;
 
     property use text_entry_prev;
     property use text_entry_next;
     property use text_edit_entry;
     property use text_edit_tags;
-    property use text_tell_friend;
     property use text_mem_add;
+    property use text_tell_friend;
     property use text_watch_comments;
     property use text_unwatch_comments;
     property use text_permalink;
+
+    property use text_read_comments;
+    property use text_read_comments_friends;
+    property use text_post_comment;
+    property use text_post_comment_friends;
+
+    property use text_meta_location;
+    property use text_meta_mood;
+    property use text_meta_music;
+    property use text_meta_xpost;
+    property use text_tags;
+
     property use text_stickyentry_subject;
 
-    property use text_module_customtext;
-    property use text_module_customtext_content;
-    property use text_module_customtext_url;
+    property use text_max_comments;
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
 }
 
-set entry_management_links = "text";
-set comment_management_links = "text";
+##===============================
+## Custom CSS
+##===============================
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
 
 #######################
 #Functions
