@@ -267,6 +267,7 @@ class UserLink
     var readonly bool is_heading "Is this link a heading or category name?  If so, it has no url and a list of children.";
     var readonly string title "The title or label for the link";
     var readonly string url "The url to which the link points";
+    var readonly string hover "The hover text for the link";
     var readonly UserLink[] children "Not Implemented: An array of child UserLink objects.";
 }
 
@@ -4346,7 +4347,7 @@ function print_module_links() {
              $items = [];
         }
         if (not $link.is_heading and $link.title != "") {
-            $items[size $items] = """<a href="$link.url">$link.title</a>""";
+            $items[size $items] = """<a href="$link.url" title="$link.hover">$link.title</a>""";
         }
     }
     if ($box_open) {

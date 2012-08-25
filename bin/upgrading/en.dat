@@ -4874,13 +4874,17 @@ widget.linkslist.about.blank=Enter a "-" for the title to create a blank line (n
 
 widget.linkslist.about.heading=Enter a title with no URL to create a heading.
 
+widget.linkslist.about.hover=You can add an optional text box to your links, which can pop up when someone hovers their mouse over the link without clicking.
+
+widget.linkslist.about.hoverhead=Headings do not allow hover text.
+
 widget.linkslist.about.reorder=Modify the order number to reorder your links.
 
 widget.linkslist.table.more=More
 
 widget.linkslist.table.order=Order
 
-widget.linkslist.table.title=Title/URL
+widget.linkslist.table.title=Title/Hover Text/URL
 
 widget.linkslist.tips=Tips for the Links List:
 
