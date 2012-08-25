@@ -28,8 +28,10 @@ set color_entry_link_visited = "#3dac8e";
 set color_entry_text = "#333";
 set color_entry_title = "#333";
 set color_entry_title_border = "#999";
+set color_entry_userpic_border = "#333";
 set color_comment_title = "#333";
 set color_comment_title_border = "#999";
+set color_comment_userpic_border = "#333";
 set color_calendar_background = "#f5f5f5";
 set color_calendar_text = "#333";
 
@@ -44,3 +46,4 @@ set color_module_link_visited = "#fff";
 set color_module_text = "#333";
 set color_module_title = "#333";
 set color_module_title_border = "#7ab8a7";
+set color_module_profile_userpic_border = "#fff";

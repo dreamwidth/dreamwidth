@@ -7,19 +7,19 @@ sub layout_prop { "layout_type" }
 
 sub module_props {
     my $self = shift;
-    my @props = qw( color_module_title_border );
+    my @props = qw( color_module_title_border color_module_profile_userpic_border );
     return $self->_append_props( "module_props", @props );
 }
 
 sub entry_props {
     my $self = shift;
-    my @props = qw( color_entry_title_border );
+    my @props = qw( color_entry_title_border color_entry_userpic_border );
     return $self->_append_props( "entry_props", @props );
 }
 
 sub comment_props {
     my $self = shift;
-    my @props = qw( color_comment_title_border );
+    my @props = qw( color_comment_title_border color_comment_userpic_border );
     return $self->_append_props( "comment_props", @props );
 }
 
