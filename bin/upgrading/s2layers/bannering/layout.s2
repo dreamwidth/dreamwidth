@@ -7,38 +7,43 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
 ##===============================
-## Display settings - general
+## Presentation
 ##===============================
 
 propgroup presentation_child {
-
 property string header_border_position {
-    des = "Add border to header";
+    des = "Position of header border";
     values = "none|None|bottom|Bottom|topbottom|Top and Bottom|all|On All Sides";
     }
 property string header_border_width {
-    des = "Define width of optional header border";
+    des = "Width of header border";
+    size = 5;
     }
 property string header_border_style {
-    des = "Define style of optional header border";
+    des = "Style of header border";
     values = "solid|Solid|double|Double|dotted|Dotted|dashed|Dashed";
     }
 property string header_margin_size {
-    des = "Add a margin around the header";
+    des = "Size of header margin";
     }
 property string header_title_position {
-    des = "Position journal and page titles";
+    des = "Position of journal and page titles";
     values = "left|Left|right|Right|center|Center";
     }
 property string header_title_spacing_top {
-    des = "Put extra space above the journal and page titles";
+    des = "Spacing above journal and page titles";
     }
 property string header_title_spacing_side {
-    des = "Put extra space to the side of the journal and page titles";
+    des = "Spacing on the side of journal and page titles";
     }
 }
 
+set layout_type = "two-columns-left";
+set sidebar_width = "13em";
+set sidebar_width_doubled = "26em";
 set userpics_position = "left";
+set entry_management_links = "text";
+set comment_management_links = "text";
 set header_border_position = "none";
 set header_border_width = "1px";
 set header_border_style = "solid";
@@ -47,50 +52,25 @@ set header_title_position = "left";
 set header_title_spacing_top = "0em";
 set header_title_spacing_side = "0em";
 
-set layout_type = "two-columns-left";
-
-set sidebar_width = "13em";
-set sidebar_width_doubled = "26em";
-
-
 ##===============================
-##Modules
+## Colors
 ##===============================
 
-property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
-       grouped = 1;
-       }
-
-set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
-
-set module_navlinks_section = "header";
-
+propgroup colors_child {
+    property Color color_navlinks_link_current { des = "Navigation module current link color"; }
+    property Color color_header_inner_background { des = "Page header inner background color"; }
+    property Color color_navlinks_link { des = "Header navigation module link color"; }
+    property Color color_navlinks_link_visited { des = "Header navigation module visited link color"; }
+    property Color color_header_border { des = "Header border color"; }
+}
 
 ##===============================
-##Text
-##===============================
-
-set entry_management_links = "text";
-set comment_management_links = "text";
-
-set text_entry_prev = "Previous";
-set text_entry_next = "Next";
-set text_mem_add = "Memory";
-set text_watch_comments = "Track";
-set text_unwatch_comments = "Untrack";
-set text_tell_friend = "Share";
-set text_post_comment = "Reply";
-set text_post_comment_friends = "Reply";
-
-
-##===============================
-## More Images and Colors
+## Images
 ##===============================
 
 propgroup images_child {
     property string[] image_header_background_inner_group {
-        des = "Second header image";
+        des = "Second header background image";
         grouptype = "image";
     }
     set image_header_background_inner_group = [ "image_background_header_inner_url", "image_background_header_inner_repeat", "image_background_header_inner_position" ];
@@ -109,14 +89,30 @@ propgroup images_child {
         des = "The height of your second header image, in pixels.  Use 0 for default."; }
 }
 
-propgroup colors_child {
-    property Color color_header_inner_background { des = "Color of the inner header."; }
-    property Color color_navlinks_link_current { des = "The color of the nav link for the page you are currently on."; }
-    property Color color_navlinks_link { des = "The link color of the nav links (used when those appear in the header)."; }
-    property Color color_navlinks_link_visited { des = "The visited link color of the nav links (used when those appear in the header)."; }
-    property Color color_header_border { des = "Color of the header border."; }
-}
+##===============================
+## Modules
+##===============================
 
+property string module_navlinks_section_override {
+       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       grouped = 1;
+       }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+set module_navlinks_section = "header";
+
+##===============================
+##Text
+##===============================
+
+set text_entry_prev = "Previous";
+set text_entry_next = "Next";
+set text_tell_friend = "Share";
+set text_mem_add = "Memory";
+set text_watch_comments = "Track";
+set text_unwatch_comments = "Untrack";
+set text_post_comment = "Reply";
+set text_post_comment_friends = "Reply";
 
 ##=============
 ## Functions
