@@ -112,28 +112,28 @@ body<=
            my $user = $names{$id}->[0];
            my $name = $names{$id}->[1];
            my $rstyle = ($rc++ & 1) ? "even" : "odd";
-           $ret .= "<tr class='$rstyle'><td><?ljcomm $user ljcomm?></td><td>" . LJ::eall($name) . "</td><td nowrap='nowrap'>";
+           $ret .= "<tr class='$rstyle'><td><?ljcomm $user ljcomm?></td><td>" . LJ::eall($name) . "</td><td>";
            if ($admin{$id}) {
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/update?usejournal=$user'>$ML{'.commlist.post'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/update?usejournal=$user'>$ML{'.commlist.post'}</a>"}) . "&nbsp; ";
                $ret .= LJ::Hooks::run_hook('community_manage_actionlink', $user);
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/manage/profile/?authas=$user'>$ML{'.commlist.actinfo2'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/manage/profile/?authas=$user'>$ML{'.commlist.actinfo2'}</a>"}) . "&nbsp; ";
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='$LJ::SITEROOT/customize/?authas=$user'>$ML{'.commlist.customize2'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='$LJ::SITEROOT/customize/?authas=$user'>$ML{'.commlist.customize2'}</a>"}) . "&nbsp; ";
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/community/settings?authas=$user'>$ML{'.commlist.actsettingspost'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/community/settings?authas=$user'>$ML{'.commlist.actsettingspost'}</a>"}) . "<br />\n";
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/community/sentinvites?authas=$user'>$ML{'.commlist.actinvites'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/community/sentinvites?authas=$user'>$ML{'.commlist.actinvites'}</a>"}) . "&nbsp; ";
                my $pend = $pending{$id} ? BML::ml('.commlist.actpending', { num => $pending{$id},
                                                   aopts => "href=\"/community/pending?authas=$user\"" }) : '';
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/community/members?authas=$user'>$ML{'.commlist.actmembers2'}</a>$pend"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/community/members?authas=$user'>$ML{'.commlist.actmembers2'}</a>$pend"}) . "&nbsp; ";
 
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/manage/tags?authas=$user'>$ML{'.commlist.tags'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/manage/tags?authas=$user'>$ML{'.commlist.tags'}</a>"}) . "&nbsp; ";
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/manage/tracking/user?journal=$user'>$ML{'.commlist.tracking'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/manage/tracking/user?journal=$user'>$ML{'.commlist.tracking'}</a>"}) . "&nbsp; ";
            }
            $ret .= "</td><td align='center'>";
            if ($mods{$id}) {
