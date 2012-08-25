@@ -8,46 +8,41 @@ layerinfo "lang" = "en";
 set layout_authors = [ { "name" => "Kaigou" } ];
 set layout_resources = [ { "name" => "Circular Icons", "url" => "http://prothemedesign.com/circular-icons/" } ];
 
-set entry_management_links = "text";
-set comment_management_links = "text";
-
-
-set text_entry_prev = "Previous";
-set text_entry_next = "Next";
-set text_mem_add = "Memory";
-set text_watch_comments = "Track";
-set text_unwatch_comments = "Untrack";
-set text_tell_friend = "Share";
-set text_post_comment = "Reply";
-set text_post_comment_friends = "Reply";
+##===============================
+## Presentation
+##===============================
 
 propgroup presentation {
+    property use layout_type;
     property use num_items_recent;
     property use num_items_reading;
-    property use num_items_icons;
-    property use use_journalstyle_entry_page;
-    property use layout_type;
-    property use tags_page_type;
-    property use icons_page_sort;
-    property use sidebar_width;
     property use margins_size;
     property use margins_unit;
+    property use sidebar_width;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use use_journalstyle_entry_page;
+
+    property use tags_page_type;
+    property use num_items_icons;
+    property use icons_page_sort;
+
+    property use all_entrysubjects;
+    property use all_commentsubjects;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
     property use userpics_style_group;
     property string entryicons_position {
        des = "Place icons on the same side or opposite the sidebar";
        values = "none|None (don't show)|same|Same side as sidebar|opposite|Opposite the sidebar";
     }
     property use entry_metadata_position;
-    property use use_custom_friend_colors;
-    property use use_shared_pic;
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
+
     property use reg_firstdayofweek;
-    property use entry_datetime_format_group;
-    property use comment_datetime_format_group;
-    property use all_entrysubjects;
-    property use all_commentsubjects;
+
     property bool use_action_links_images {
         des = "Theme has images for the entry/comment links";
         noui = 1;
@@ -57,10 +52,16 @@ propgroup presentation {
 set layout_type = "two-columns-right";
 set sidebar_width = "300px";
 set tags_page_type = "";
-set entryicons_position = "same";
-set custom_colors_template = "%%new%% .userpic a {background-color: %%background%%; border: solid 1px %%foreground%%;}";
 set all_commentsubjects = true;
+set entryicons_position = "same";
+set entry_management_links = "text";
+set comment_management_links = "text";
 set use_action_links_images = true;
+set custom_colors_template = "%%new%% .userpic a {background-color: %%background%%; border: solid 1px %%foreground%%;}";
+
+##===============================
+## Colors
+##===============================
 
 propgroup colors {
     property use color_page_background;
@@ -69,11 +70,16 @@ propgroup colors {
     property use color_page_link_hover;
     property use color_page_link_visited;
     property Color color_page_border { des = "Main border color for the page, and various elements"; }
-    property use color_page_title;
     property use color_page_details_text;
 
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_link;
+    property use color_module_title;
 
     property use color_header_background;
+    property use color_page_title;
+
     property use color_footer_background;
     property Color color_footer_link {
         des = "Header/footer link and text color";
@@ -82,31 +88,58 @@ propgroup colors {
         des = "Header/footer link hover color";
     }
 
-    property use color_module_background;
-    property use color_module_text;
-    property use color_module_link;
-    property use color_module_title;
-
     property use color_entry_background;
     property use color_entry_text;
-
     property use color_entry_title;
     property use color_entry_title_background;
     property Color color_entry_title_border { des = "Entry title border color"; }
     property Color color_entry_title_border_alt { des = "Alternate entry title border color"; }
-
-    property Color color_entry_metadata_text {des = "Entry metadata color";}
+    property Color color_entry_metadata_text { des = "Entry metadata color"; }
 }
+
+##===============================
+## Fonts
+##===============================
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_module_heading_size;
+    property use font_module_heading;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
+}
+
+set font_base = "Tahoma, Verdana, Arial";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_module_heading_size = "1.1";
+set font_module_heading_units = "em";
+set font_journal_title_size = "2";
+set font_journal_title_units = "em";
+
+##===============================
+## Images
+##===============================
 
 propgroup images {
     property use image_background_page_group;
-    property use image_background_header_group;
-    property use image_background_header_height;
-    property use image_background_module_group;
-    property use image_background_entry_group;
-
     property string[] image_background_container_group {
-        des = "Main body image";
+        des = "Main body background image";
         grouptype = "image";
     }
     set image_background_container_group = [ "image_background_container_url", "image_background_container_repeat", "image_background_container_position" ];
@@ -122,28 +155,9 @@ propgroup images {
         grouped = 1;
         allow_other = 1;
     }
-
-
-    property string[] image_background_footer_group {
-        des = "Footer image";
-        grouptype = "image";
-    }
-    set image_background_footer_group = [ "image_background_footer_url", "image_background_footer_repeat", "image_background_footer_position" ];
-    property string image_background_footer_url {
-        grouped = 1;
-    }
-    property string image_background_footer_repeat {
-        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
-        grouped = 1;
-    }
-    property string image_background_footer_position {
-        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
-        grouped = 1;
-        allow_other = 1;
-    }
-
+    property use image_background_module_group;
     property string[] image_background_navigation_group {
-        des = "Navigation image";
+        des = "Navigation background image";
         grouptype = "image";
     }
     set image_background_navigation_group = [ "image_background_navigation_url", "image_background_navigation_repeat", "image_background_navigation_position" ];
@@ -159,134 +173,115 @@ propgroup images {
         grouped = 1;
         allow_other = 1;
     }
+    property use image_background_header_group;
+    property use image_background_header_height;
+    property string[] image_background_footer_group {
+        des = "Footer background image";
+        grouptype = "image";
+    }
+    set image_background_footer_group = [ "image_background_footer_url", "image_background_footer_repeat", "image_background_footer_position" ];
+    property string image_background_footer_url {
+        grouped = 1;
+    }
+    property string image_background_footer_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+    }
+    property string image_background_footer_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+    }
+    property use image_background_entry_group;
 }
 
-set image_background_navigation_repeat = "no-repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat-x";
+set image_background_container_position = "top right";
+set image_background_container_repeat = "repeat-y";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "no-repeat";
 set image_background_navigation_position = "top right";
+set image_background_navigation_repeat = "no-repeat";
+set image_background_header_height = 100;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat-x";
+set image_background_footer_position = "top left";
+set image_background_footer_repeat = "repeat-x";
 set image_background_entry_repeat = "repeat-y";
 set image_background_entry_position = "top right";
-set image_background_module_repeat = "no-repeat";
-set image_background_module_position = "top left";
-set image_background_footer_repeat = "repeat-x";
-set image_background_footer_position = "top left";
-set image_background_container_repeat = "repeat-y";
-set image_background_container_position = "top right";
-set image_background_header_repeat = "repeat-x";
-set image_background_header_position = "top left";
-set image_background_header_height = 100;
-set image_background_page_repeat = "repeat-x";
-set image_background_page_position = "top left";
 
-propgroup fonts {
-    property use font_base;
-    property use font_fallback;
-    property use font_base_size;
-    property use font_base_units;
-    property use font_journal_title;
-    property use font_journal_title_size;
-    property use font_journal_title_units;
-    property use font_entry_title;
-    property use font_entry_title_size;
-    property use font_entry_title_units;
-    property use font_comment_title;
-    property use font_comment_title_size;
-    property use font_comment_title_units;
-    property use font_module_heading_size;
-    property use font_module_heading;
-    property use font_module_heading_units;
-    property use font_module_text;
-    property use font_module_text_size;
-    property use font_module_text_units;
-}
-
-set font_base = "Tahoma, Verdana, Arial";
-set font_fallback = "sans-serif";
-set font_base_size = "1";
-set font_base_units = "em";
-set font_journal_title_size = "2";
-set font_journal_title_units = "em";
-set font_module_heading_size = "1.1";
-set font_module_heading_units = "em";
-
-set module_layout_sections = "none|(none)|two|Sidebar";
+##===============================
+## Modules
+##===============================
 
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
-    property use module_calendar_group;
-    property use module_pagesummary_group;
-    property use module_tags_group;
-    property use module_active_group;
-    property use module_links_group;
-    property use module_syndicate_group;
-    property use module_time_group;
-    property use module_poweredby_group;
-    property use module_customtext_group;
-    property use module_credit_group;
-    property use module_search_group;
-    property use module_cuttagcontrols_group;
-
     property string module_navlinks_section_override {
        values = "none|(none)|one|Header|two|Sidebar";
        grouped = 1;
        }
-
-    property string module_poweredby_section_override {
-       values = "none|(none)|two|Sidebar|three|Footer";
-       grouped = 1;
-       }
-
+    property use module_calendar_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_tags_group;
+    property use module_pagesummary_group;
+    property use module_active_group;
+    property use module_time_group;
     property string module_time_section_override {
        values = "none|(none)|two|Sidebar|three|Footer";
        grouped = 1;
        }
+    property use module_poweredby_group;
+    property string module_poweredby_section_override {
+       values = "none|(none)|two|Sidebar|three|Footer";
+       grouped = 1;
+       }
+    property use module_customtext_group;
+    property use module_credit_group;
+    property use module_search_group;
+    property use module_cuttagcontrols_group;
 }
 
+set module_layout_sections = "none|(none)|two|Sidebar";
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override",
+                                "module_poweredby_section" => "module_poweredby_section_override",
+                                "module_time_section" => "module_time_section_override",
+                                };
 set module_userprofile_section = "two";
-set module_pagesummary_section = "two";
-set module_tags_section = "two";
-set module_active_section = "two";
+set module_navlinks_section = "one";
+set module_calendar_section = "two";
 set module_links_section = "two";
 set module_syndicate_section = "two";
-set module_calendar_section = "two";
+set module_tags_section = "two";
+set module_pagesummary_section = "two";
+set module_active_section = "two";
+set module_time_section = "none";
+set module_poweredby_section = "three";
 set module_customtext_section = "two";
 set module_credit_section = "two";
 set module_search_section = "two";
 set module_cuttagcontrols_section = "two";
 
-set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override",
-                                "module_poweredby_section" => "module_poweredby_section_override",
-                                "module_time_section" => "module_time_section_override",
-                                };
-
-set module_navlinks_section = "one";
-set module_poweredby_section = "three";
-set module_time_section = "none";
+##===============================
+## Text
+##===============================
 
 propgroup text {
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+
     property use text_view_recent;
+    property use text_view_archive;
     property use text_view_friends;
-    property use text_view_network;
     property use text_view_friends_comm;
     property use text_view_friends_filter;
-    property use text_view_archive;
-    property use text_view_userinfo;
-    property use text_view_memories;
+    property use text_view_network;
     property use text_view_tags;
-
-    property use text_post_comment;
-    property use text_max_comments;
-    property use text_read_comments;
-    property use text_post_comment_friends;
-    property use text_read_comments_friends;
-
-    property use text_skiplinks_back;
-    property use text_skiplinks_forward;
-    property use text_meta_music;
-    property use text_meta_mood;
-    property use text_meta_location;
-    property use text_meta_xpost;
-    property use text_tags;
+    property use text_view_memories;
+    property use text_view_userinfo;
 
     property use text_entry_prev;
     property use text_entry_next;
@@ -297,12 +292,37 @@ propgroup text {
     property use text_watch_comments;
     property use text_unwatch_comments;
     property use text_permalink;
+
+    property use text_read_comments;
+    property use text_read_comments_friends;
+    property use text_post_comment;
+    property use text_post_comment_friends;
+
+    property use text_meta_location;
+    property use text_meta_mood;
+    property use text_meta_music;
+    property use text_meta_xpost;
+    property use text_tags;
+
     property use text_stickyentry_subject;
 
-    property use text_module_customtext;
-    property use text_module_customtext_content;
-    property use text_module_customtext_url;
+    property use text_max_comments;
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
 }
+
+set text_entry_prev = "Previous";
+set text_entry_next = "Next";
+set text_tell_friend = "Share";
+set text_mem_add = "Memory";
+set text_watch_comments = "Track";
+set text_unwatch_comments = "Untrack";
+set text_post_comment = "Reply";
+set text_post_comment_friends = "Reply";
+
+##===============================
+## Custom CSS
+##===============================
 
 propgroup customcss {
     property use external_stylesheet;
