@@ -53,12 +53,22 @@ sub render_body {
     $showlinks += $link_more if $post->{'action:morelinks'};
     $showlinks = $link_min if $showlinks < $link_min;
     $showlinks = $caplinks if $showlinks > $caplinks;
-    
+ 
+    $ret .= "<td><div class='highlight-box'><p class='tips-header'><strong>" . $class->ml('widget.linkslist.tips') . "</strong></p>";
+    $ret .= "<ul><li>" . $class->ml('widget.linkslist.about.reorder') . "</li>";
+    $ret .= "<li>" . $class->ml('widget.linkslist.about.blank') . "</li>";
+    $ret .= "<li>" . $class->ml('widget.linkslist.about.heading') . "</li>";
+    $ret .= "<li>" . $class->ml('widget.linkslist.about.hover') . "</li>";
+    $ret .= "<li>" . $class->ml('widget.linkslist.about.hoverhead') . 
+    "</li></ul></div>"; 
+    $ret .= "</td></tr></table>";
+
+   
 # add the table-ey stuff at the top
 
     $ret .= "<table border='0' cellspacing='5' cellpadding='0'>";
-    $ret .= "<thead><tr><th></th><th>" . $class->ml('widget.linkslist.table.title') . "</th>";
-    $ret .= "<th>" . $class->ml('widget.linkslist.table.order') . "</th><td>&nbsp;</td></tr></thead>"; 
+    $ret .= "<thead><tr><th>" . $class->ml('widget.linkslist.table.order') . "</th><th></th>";
+    $ret .= "<th>" . $class->ml('widget.linkslist.table.title') . "</th><td>&nbsp;</td></tr></thead>"; 
 
 # now we're building the textareas
 # --- here would be the bit I am interested in ---
@@ -68,11 +78,31 @@ sub render_body {
         # so $linkobj is an array ref?
         # we get it from Links::load_linkobj so let's see what that does.
 
+# builds the order number
+
+        $ret .= "<tr><td>";
+        $ret .= $class->html_text(
+            name => "link_${ct}_ordernum",
+            size => 4,
+            value => $ct * $order_step,
+        );
+        $ret .= "</td>";
+
+# the link itself
+
+        $ret .= "<td>";
+        $ret .= "<label>Link</label></td><td>";
+        $ret .= $class->html_text(
+            name => "link_${ct}_url",
+            size => 50,
+            maxlength => 255,
+            value => $it->{url} || "http://",
+        );
 
 # the title of the link
 
-        $ret .= "<tr><td>";
-        $ret .= "<label>Title</label></td><td>";
+        $ret .= "<tr><td></td><td>";
+        $ret .= "<label>Link text</label></td><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_title",
             size => 50,
@@ -81,21 +111,10 @@ sub render_body {
         );
         $ret .= "</td>";
         
-# builds the order number
-
-        $ret .= "<td>";
-        $ret .= $class->html_text(
-            name => "link_${ct}_ordernum",
-            size => 4,
-            value => $ct * $order_step,
-        );
-        $ret .= "</td</tr>";
-
-
 # so here's where we might insert some hover text
 
-        $ret .= "<tr><td>";
-        $ret .= "<label>Hover<label></td><td>";
+        $ret .= "<tr><td></td><td>";
+        $ret .= "<label>Hover text<label></td><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_hover",
             size => 50,
@@ -103,17 +122,6 @@ sub render_body {
             value => $it->{hover},
         );
         $ret .= "</td><td>&nbsp;</td></tr>";
-
-# the link itself
-
-        $ret .= "<tr><td>";
-        $ret .= "<label>URL</label></td><td>";
-        $ret .= $class->html_text(
-            name => "link_${ct}_url",
-            size => 50,
-            maxlength => 255,
-            value => $it->{url} || "http://",
-        );
 
 # --- and here is where the code I'm interested in stops ---
 
@@ -144,15 +152,6 @@ sub render_body {
 
     $ret .= $class->html_hidden( numlinks => $showlinks );
     $ret .= "</table></td>";
-
-    $ret .= "<td><div class='highlight-box'><p class='tips-header'><strong>" . $class->ml('widget.linkslist.tips') . "</strong></p>";
-    $ret .= "<ul><li>" . $class->ml('widget.linkslist.about.reorder') . "</li>";
-    $ret .= "<li>" . $class->ml('widget.linkslist.about.blank') . "</li>";
-    $ret .= "<li>" . $class->ml('widget.linkslist.about.heading') . "</li>";
-    $ret .= "<li>" . $class->ml('widget.linkslist.about.hover') . "</li>";
-    $ret .= "<li>" . $class->ml('widget.linkslist.about.hoverhead') . 
-    "</li></ul></div>"; 
-    $ret .= "</td></tr></table>";
 
     return $ret;
 }
