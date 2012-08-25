@@ -68,29 +68,32 @@ sub render_body {
         # so $linkobj is an array ref?
         # we get it from Links::load_linkobj so let's see what that does.
 
-# builds the order number
-
-        $ret .= "<tr><td>";
-        $ret .= $class->html_text(
-            name => "link_${ct}_ordernum",
-            size => 4,
-            value => $ct * $order_step,
-        );
-        $ret .= "</td><td>";
 
 # the title of the link
 
+        $ret .= "<tr><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_title",
             size => 50,
             maxlength => 255,
             value => $it->{title},
         );
-        $ret .= "</td><td>&nbsp;</td></tr>";
+        $ret .= "</td>";
         
+# builds the order number
+
+        $ret .= "<td>";
+        $ret .= $class->html_text(
+            name => "link_${ct}_ordernum",
+            size => 4,
+            value => $ct * $order_step,
+        );
+        $ret .= "</td</tr>";
+
+
 # so here's where we might insert some hover text
 
-        $ret .= "<tr><td>&nbsp;</td><td>";
+        $ret .= "<tr><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_hover",
             size => 50,
@@ -101,7 +104,7 @@ sub render_body {
 
 # the link itself
 
-        $ret .= "<tr><td>&nbsp;</td><td>";
+        $ret .= "<tr><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_url",
             size => 50,
