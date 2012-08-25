@@ -57,7 +57,7 @@ sub render_body {
 # add the table-ey stuff at the top
 
     $ret .= "<table border='0' cellspacing='5' cellpadding='0'>";
-    $ret .= "<thead><tr><th>" . $class->ml('widget.linkslist.table.title') . "</th>";
+    $ret .= "<thead><tr><th></th><th>" . $class->ml('widget.linkslist.table.title') . "</th>";
     $ret .= "<th>" . $class->ml('widget.linkslist.table.order') . "</th><td>&nbsp;</td></tr></thead>"; 
 
 # now we're building the textareas
@@ -72,6 +72,7 @@ sub render_body {
 # the title of the link
 
         $ret .= "<tr><td>";
+        $ret .= "<label>Title:</label></td><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_title",
             size => 50,
@@ -94,6 +95,7 @@ sub render_body {
 # so here's where we might insert some hover text
 
         $ret .= "<tr><td>";
+        $ret .= "<label>Hover:<label></td><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_hover",
             size => 50,
@@ -105,6 +107,7 @@ sub render_body {
 # the link itself
 
         $ret .= "<tr><td>";
+        $ret .= "<label>URL:</label></td><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_url",
             size => 50,
