@@ -1,4 +1,5 @@
-.image-text-toggle {
+.image-text-toggle,
+.image-size-toggle {
     display:block;
     text-align:right;
     margin-bottom:.5em;
@@ -15,6 +16,7 @@
     list-style-type:none;
 
 }
+
 #iconselector_icons_list li {
     float:left;
     margin:.25em;
@@ -27,12 +29,14 @@
 }
 
 .half_icons #iconselector_icons_list li {
-    width:60px;
+    width:270px;
+    text-align:left;
 }
 
 .half_icons #iconselector_icons_list img {
-    width:50px;
-    height:50px;
+    width: auto; max-height: 100%;
+    height: auto; max-width: 100%;
+    vertical-align:middle;
 }
 
 #iconselector_icons_list li:hover {
@@ -48,6 +52,7 @@
 }
 
 .half_icons .icon_image {
+    float:left;
     height:50px;
     width:50px;
     overflow:hidden;
@@ -59,24 +64,31 @@
     line-height:1.2em;
 }
 
+.half_icons .meta_wrapper {
+    float:left;
+    width:200px;
+    padding:5px;
+}
+
 .no_meta .meta_wrapper {
     display: none;
 }
 
-.image-text-toggle.half_icons.no_meta .toggle-off-half-image,
-.image-text-toggle.no_meta .toggle-off-full-image,
-.image-text-toggle .toggle-off-meta-info {
-    display: inline;
+.image-text-toggle.no_meta .toggle-meta-on,
+.image-text-toggle .toggle-meta-off,
+.image-size-toggle.half_icons .toggle-full-image,
+.image-size-toggle .toggle-half-image {
+    display:none;
 }
 
-.image-text-toggle .toggle-off-half-image,
-.image-text-toggle.no_meta .toggle-off-half-image,
-.image-text-toggle .toggle-off-full-image,
-.image-text-toggle.half_icons.no_meta .toggle-off-full-image,
-.image-text-toggle.no_meta .toggle-off-meta-info,
-.image-text-toggle.half_icons.no_meta .toggle-off-meta-info {
-    display: none;
+.image-text-toggle.no_meta .toggle-meta-off,
+.image-text-toggle .toggle-meta-on,
+.image-size-toggle.half_icons .toggle-half-image,
+.image-size-toggle .toggle-full-image
+{
+    display:inline;
 }
+
 
 .comment {
   margin-top:.5em;
