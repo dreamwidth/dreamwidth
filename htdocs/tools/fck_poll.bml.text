@@ -1,0 +1,47 @@
+.button.insert=Insert
+
+.button.more=More...
+
+.button.nextquestion=Next Question
+
+.button.switch=Switch
+
+.field.answertype=Answer Type
+
+.field.by=By:
+
+.field.from=From:
+
+.field.maxlength=Max. Length:
+
+.field.pollname=Poll Name
+
+.field.size=Size:
+
+.field.to=To:
+
+.field.type.check=Check Boxes
+
+.field.type.drop=Drop-down Box
+
+.field.type.radio=Radio Buttons
+
+.field.type.scale=Scale
+
+.field.type.text=Text Entry
+
+.field.whoview=Who can view this poll?
+
+.field.whovote=Who can vote in this poll?
+
+.label.next=Next
+
+.label.of=of
+
+.label.previous=Prev
+
+.label.question=Question
+
+.tab.questions=Questions
+
+.tab.setup=Setup
