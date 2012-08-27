@@ -41,6 +41,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [% dw_scheme.res_includes %]
     [% sections.head %]
     [% dw_scheme.final_head_html %]
+    <!--[if lte IE 8]>
+    <script src="/js/html5.js" type="text/javascript"></script>
+    <![endif]-->
 </head>
 [%- END -%]
 
@@ -125,6 +128,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- BLOCK block.pagediv -%]
 <div id="page">
+    [%# Not using the HTML 5 <header> element for now
+    because of incompatibilities with JAWS and
+    Firefox %]
     <div id="masthead" role="banner">
         <span id="logo">
             [% PROCESS block.logo %]
@@ -138,22 +144,22 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div id="account-links" role="navigation">
         [% PROCESS block.accountlinks %]
     </div>
-    <div id="menu" role="navigation">
+    <nav role="navigation">
         [% PROCESS block.menunav %]
-    </div>
+    </nav>
     <div id="header-search" role="search">
         [% dw_scheme.search_render %]
     </div>
-    <div id="footer" role="contentinfo">
+    <footer role="contentinfo">
         [% PROCESS block.footer %]
-    </div>
+    </footer>
 </div>
 [%- END -%]
 
 [%- canvas_opts = "" -%]
 [%- BLOCK block.page -%]
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
     [% PROCESS block.head %]
     <body [% sections.bodyopts %]>
         <div id="canvas" [% canvas_opts %]>
