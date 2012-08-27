@@ -59,6 +59,10 @@ propgroup colors {
     property use color_module_text;
     property use color_module_border;
     property use color_module_title;
+    property use color_module_link;
+    property use color_module_link_active;
+    property use color_module_link_hover;
+    property use color_module_link_visited;
 
     property use color_header_background;
     property use color_page_title;
@@ -67,6 +71,10 @@ propgroup colors {
     property use color_entry_text;
     property use color_entry_title;
     property use color_entry_border;
+    property use color_entry_link;
+    property use color_entry_link_active;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
 
     property Color color_header_footer_border { des = "Header and footer border color"; }
     property Color color_entry_accent { des = "Entry and comment accent color"; }
@@ -229,6 +237,16 @@ function Page::print_default_stylesheet () {
     var string page_link_active_colors = generate_color_css( $*color_page_link_active, new Color, new Color );
     var string page_link_hover_colors = generate_color_css( $*color_page_link_hover, new Color, new Color );
     var string page_link_visited_colors = generate_color_css( $*color_page_link_visited, new Color, new Color );
+
+    var string entry_link_colors = generate_color_css( $*color_entry_link, new Color, new Color );
+    var string entry_link_active_colors = generate_color_css( $*color_entry_link_active, new Color, new Color );
+    var string entry_link_hover_colors = generate_color_css( $*color_entry_link_hover, new Color, new Color );
+    var string entry_link_visited_colors = generate_color_css( $*color_entry_link_visited, new Color, new Color );
+
+    var string module_link_colors = generate_color_css( $*color_module_link, new Color, new Color );
+    var string module_link_active_colors = generate_color_css( $*color_module_link_active, new Color, new Color );
+    var string module_link_hover_colors = generate_color_css( $*color_module_link_hover, new Color, new Color );
+    var string module_link_visited_colors = generate_color_css( $*color_module_link_visited, new Color, new Color );
 
     var string header_colors = generate_color_css( new Color, $*color_header_background, new Color);
     var string journal_title_colors = generate_color_css( $*color_page_title, new Color, new Color );
@@ -472,6 +490,23 @@ li.page-separator {
     clear: both;
     }
 
+#secondary a {
+    text-decoration: none;
+    $module_link_colors
+    }
+
+#secondary a:visited {
+    $module_link_visited_colors
+    }
+
+#secondary a:hover {
+    $module_link_hover_colors
+    }
+
+#secondary a:active {
+    $module_link_active_colors
+    }
+
 .module-tags_cloud {
     border-bottom: 1px solid $*color_entry_border;
     border-top: 1px solid $*color_entry_border;
@@ -543,6 +578,23 @@ ul.userlite-interaction-links.icon-links li {
     }
 
 /*--- entry ---*/
+
+.entry a {
+    text-decoration: none;
+    $entry_link_colors
+    }
+
+.entry a:visited {
+    $entry_link_visited_colors
+    }
+
+.entry a:hover {
+    $entry_link_hover_colors
+    }
+
+.entry a:active {
+    $entry_link_active_colors
+    }
 
 .entry {
     $entry_colors
