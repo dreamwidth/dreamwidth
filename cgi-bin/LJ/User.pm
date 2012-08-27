@@ -7543,7 +7543,7 @@ sub load_user_or_identity {
 # des-userid: Userid of user to load.
 # des-force: if set to true, won't return cached user object and will
 #            query a dbh
-# returns: Hashref with keys being columns of [dbtable[user]] table.
+# returns: LJ::User object.
 # </LJFUNC>
 sub load_userid {
     my ($userid, $force) = @_;
