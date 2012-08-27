@@ -275,6 +275,7 @@ class UserLite
 {
     var readonly string username "Canonical Username, ex: johnqpub.  Note that if journal_type is an external identity, there will be no username, so this field will be a display version of their URL, longer than 25 characters, and with characters other than a-z, 0-9 and underscore.";
     var readonly string name "User's formatted name, ex: John Q. Public";
+    var readonly string user "Backend Username: should match username for registered journals, external identities will be represented as ext_XXX instead";
     var readonly string journal_type "Type of account: P (personal), C (community), Y (syndicated), I (external identity) etc";
     var readonly string userpic_listing_url "URL of a page listing this user's userpics";
 
@@ -4847,7 +4848,7 @@ function Comment::print_wrapper_start() {
     var string deletedstate = $this.deleted ? "deleted" : "";
     var string suspendedstate = $this.fromsuspended ? "from-suspended" : "";
     var string frozen = $this.frozen ? "frozen" : "";
-    var string poster = defined $this.poster ? "poster-" + $this.poster.username : "poster-anonymous";
+    var string poster = defined $this.poster ? "poster-" + $this.poster.user : "poster-anonymous";
     if ($this.deleted or $this.fromsuspended or $this.screened_noshow) { $poster =  "poster-hidden"; }
     var string full = $this.full ? "full" : "partial";
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
