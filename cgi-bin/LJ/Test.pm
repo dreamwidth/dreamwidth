@@ -412,6 +412,7 @@ sub t_enter_comment {
     die "Could not post comment: $err" unless $jtalkid;
 
     delete $entry->{_loaded_comments};
+    delete $entry->{_loaded_talkdata};
 
     return LJ::Comment->new($entryu, jtalkid => $jtalkid);
 }
