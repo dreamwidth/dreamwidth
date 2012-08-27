@@ -1040,6 +1040,41 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/abstractia_transparency2.png";
 
 
+#NEWLAYER: abstractia/hazyautumn
+layerinfo type = "theme";
+layerinfo name = "Hazy Autumn";
+layerinfo redist_uniq = "abstractia/hazyautumn";
+layerinfo author_name = "anthologia";
+
+set theme_authors = [ { "name" => "anthologia", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffa773";
+set color_page_border = "#a63e00";
+set color_page_link = "#a63e00";
+set color_page_link_active = "#a63100";
+set color_page_link_hover = "#a63100";
+set color_page_link_visited = "#a62000";
+set color_page_text = "#000";
+set color_page_title = "#a30008";
+set color_userpic_background = "#ff6140";
+set color_sidebar_background = "#ffbc73";
+set color_content_background = "#ffbc73";
+set color_content_footer_background = "#ffbc73";
+set color_content_header_background = "#ffbc73";
+set color_archive_calendar_background = "#ffbc73";
+set color_calendar_and_form_background = "#ffbc73";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#a63100";
+
+
 #NEWLAYER: abstractia/loveless
 layerinfo type = "theme";
 layerinfo name = "Loveless";
