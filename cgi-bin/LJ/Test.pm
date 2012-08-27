@@ -55,7 +55,7 @@ sub theschwartz {
 
     my $dbh = DBI->connect($fakedsn,
                            '', '', { RaiseError => 1, PrintError => 0 });
-    my @sql = $load_sql->("$LJ::HOME/cvs/TheSchwartz/t/schema-sqlite.sql");
+    my @sql = $load_sql->("$LJ::HOME/t/data/schema-sqlite.sql");
     for my $sql (@sql) {
         $dbh->do($sql);
     }
