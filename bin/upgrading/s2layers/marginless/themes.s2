@@ -4,7 +4,7 @@ layerinfo name = "Andúnë";
 layerinfo redist_uniq = "marginless/andune";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -59,7 +59,7 @@ layerinfo name = "Battle Raven";
 layerinfo redist_uniq = "marginless/battleraven";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -208,7 +208,7 @@ layerinfo name = "Great Oak";
 layerinfo redist_uniq = "marginless/greatoak";
 layerinfo author_name = "momijizukamori";
 
-set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -371,7 +371,7 @@ layerinfo name = "Love Game";
 layerinfo redist_uniq = "marginless/lovegame";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -427,7 +427,7 @@ layerinfo name = "Loveless";
 layerinfo redist_uniq = "marginless/loveless";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -488,7 +488,7 @@ layerinfo name = "Marry the Night";
 layerinfo redist_uniq = "marginless/marrythenight";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -544,7 +544,7 @@ layerinfo name = "Mars";
 layerinfo redist_uniq = "marginless/mars";
 layerinfo author_name = "momijizukamori";
 
-set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -593,7 +593,7 @@ layerinfo name = "Midnight";
 layerinfo redist_uniq = "marginless/midnight";
 layerinfo author_name = "momijizukamori";
 
-set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -646,7 +646,7 @@ layerinfo name = "Midnight Hour";
 layerinfo redist_uniq = "marginless/midnighthour";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -705,7 +705,7 @@ layerinfo name = "Sweetness";
 layerinfo redist_uniq = "marginless/sweetness";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

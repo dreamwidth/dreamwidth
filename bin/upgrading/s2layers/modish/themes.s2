@@ -4,7 +4,7 @@ layerinfo name = "Bad Fairy";
 layerinfo redist_uniq = "modish/badfairy";
 layerinfo author_name = "musyc";
 
-set layout_authors = [ { "name" => "Musyc"} ];
+set theme_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
 ## Page Colors
@@ -362,7 +362,7 @@ layerinfo name = "Lilac Petals";
 layerinfo redist_uniq = "modish/lilacpetals";
 layerinfo author_name = "musyc";
 
-set layout_authors = [ { "name" => "Musyc"} ];
+set theme_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
 ## Page Colors
@@ -426,7 +426,7 @@ layerinfo name = "Mid-Century Modern";
 layerinfo redist_uniq = "modish/midcenturymodern";
 layerinfo author_name = "musyc";
 
-set layout_authors = [ { "name" => "Musyc"} ];
+set theme_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
 ## Page Colors
@@ -564,7 +564,7 @@ layerinfo name = "Mountain Devil";
 layerinfo redist_uniq = "modish/mountaindevil";
 layerinfo author_name = "musyc";
 
-set layout_authors = [ { "name" => "Musyc"} ];
+set theme_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
 ## Page Colors
@@ -748,7 +748,7 @@ layerinfo name = "Tiger Lilies";
 layerinfo redist_uniq = "modish/tigerlilies";
 layerinfo author_name = "musyc";
 
-set layout_authors = [ { "name" => "Musyc"} ];
+set theme_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
 ## Page Colors
@@ -954,7 +954,7 @@ layerinfo name = "Yellow Moons";
 layerinfo redist_uniq = "modish/yellowmoons";
 layerinfo author_name = "musyc";
 
-set layout_authors = [ { "name" => "Musyc"} ];
+set theme_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
 ## Page Colors

@@ -4,7 +4,7 @@ layerinfo name = "Andúnë";
 layerinfo redist_uniq = "paletteable/andune";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

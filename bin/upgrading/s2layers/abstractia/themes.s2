@@ -185,7 +185,7 @@ layerinfo name = "Aurora";
 layerinfo redist_uniq = "abstractia/aurora";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -269,7 +269,7 @@ layerinfo name = "Battle Raven";
 layerinfo redist_uniq = "abstractia/battleraven";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -354,7 +354,7 @@ layerinfo name = "Black Lace";
 layerinfo redist_uniq = "abstractia/blacklace";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -541,7 +541,7 @@ layerinfo name = "Bubbles";
 layerinfo redist_uniq = "abstractia/bubbles";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -792,7 +792,7 @@ layerinfo name = "Deep Forest";
 layerinfo redist_uniq = "abstractia/deepforest";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -877,7 +877,7 @@ layerinfo name = "Electric Mayhem";
 layerinfo redist_uniq = "abstractia/electricmayhem";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -962,7 +962,7 @@ layerinfo name = "Electric Mayhem II";
 layerinfo redist_uniq = "abstractia/electricmayhemii";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -1081,7 +1081,7 @@ layerinfo name = "Loveless";
 layerinfo redist_uniq = "abstractia/loveless";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -1529,7 +1529,7 @@ layerinfo name = "Peacock Fringe";
 layerinfo redist_uniq = "abstractia/peacockfringe";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -1970,7 +1970,7 @@ layerinfo name = "Sylph";
 layerinfo redist_uniq = "abstractia/sylph";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
