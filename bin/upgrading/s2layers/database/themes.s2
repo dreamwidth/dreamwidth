@@ -4,6 +4,11 @@ layerinfo name = "Blue";
 layerinfo redist_uniq = "database/blue";
 layerinfo author_name = "ninetydegrees";
 
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
 ##===============================
 ## Page Colors
 ##===============================
@@ -80,31 +85,31 @@ set image_background_footer_position = "top center";
 set image_background_footer_repeat = "no-repeat";
 set image_background_footer_url = "database/blue.png";
 
-set image_addmemories = "database/icon-entry-addtomemories_gray.png";
-set image_comments = "database/icon-entry-readcomments_gray.png";
-set image_delete = "database/icon-comment-delete_gray.png";
-set image_edit = "database/icon-post-edit_gray.png";
-set image_edittags = "database/icon-entry-edittags_gray.png";
-set image_expand = "database/icon-comment-expand_gray.png";
-set image_freeze = "database/icon-comment-freeze_gray.png";
-set image_giveaccess = "database/icon-profile_giveaccess_gray.png";
-set image_join = "database/icon-profile-join_gray.png";
-set image_link = "database/icon-post-link_gray.png";
-set image_maxcomments = "database/icon-entry-maxcomments_gray.png";
-set image_message = "database/icon-post-reply_gray.png";
-set image_next = "database/icon-entry-next_gray.png";
-set image_parent = "database/icon-comment-parent_gray.png";
-set image_prev = "database/icon-entry-previous_gray.png";
-set image_reply = "database/icon-post-reply_gray.png";
-set image_screen = "database/icon-comment-screen_gray.png";
-set image_subscribe = "database/icon-profile-subscribe_gray.png";
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
 set image_tellafriend = "database/icon-tellafriend_gray.png";
-set image_thread = "database/icon-comment-thread_gray.png";
-set image_threadroot = "database/icon-comment-threadroot_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
 set image_track = "database/icon-track_gray.png";
 set image_tracked = "database/icon-tracked_gray.png";
-set image_unfreeze = "database/icon-comment-unfreeze_gray.png";
-set image_unscreen = "database/icon-comment-unscreen_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
 
 
 #NEWLAYER: database/gray
@@ -112,6 +117,11 @@ layerinfo type = "theme";
 layerinfo name = "Gray";
 layerinfo redist_uniq = "database/gray";
 layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
 
 ##===============================
 ## Page Colors
@@ -189,31 +199,31 @@ set image_background_footer_position = "top center";
 set image_background_footer_repeat = "no-repeat";
 set image_background_footer_url = "database/gray.png";
 
-set image_addmemories = "database/icon-entry-addtomemories_gray.png";
-set image_comments = "database/icon-entry-readcomments_gray.png";
-set image_delete = "database/icon-comment-delete_gray.png";
-set image_edit = "database/icon-post-edit_gray.png";
-set image_edittags = "database/icon-entry-edittags_gray.png";
-set image_expand = "database/icon-comment-expand_gray.png";
-set image_freeze = "database/icon-comment-freeze_gray.png";
-set image_giveaccess = "database/icon-profile_giveaccess_gray.png";
-set image_join = "database/icon-profile-join_gray.png";
-set image_link = "database/icon-post-link_gray.png";
-set image_maxcomments = "database/icon-entry-maxcomments_gray.png";
-set image_message = "database/icon-post-reply_gray.png";
-set image_next = "database/icon-entry-next_gray.png";
-set image_parent = "database/icon-comment-parent_gray.png";
-set image_prev = "database/icon-entry-previous_gray.png";
-set image_reply = "database/icon-post-reply_gray.png";
-set image_screen = "database/icon-comment-screen_gray.png";
-set image_subscribe = "database/icon-profile-subscribe_gray.png";
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
 set image_tellafriend = "database/icon-tellafriend_gray.png";
-set image_thread = "database/icon-comment-thread_gray.png";
-set image_threadroot = "database/icon-comment-threadroot_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
 set image_track = "database/icon-track_gray.png";
 set image_tracked = "database/icon-tracked_gray.png";
-set image_unfreeze = "database/icon-comment-unfreeze_gray.png";
-set image_unscreen = "database/icon-comment-unscreen_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
 
 
 #NEWLAYER: database/green
@@ -221,6 +231,11 @@ layerinfo type = "theme";
 layerinfo name = "Green";
 layerinfo redist_uniq = "database/green";
 layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
 
 ##===============================
 ## Page Colors
@@ -298,31 +313,31 @@ set image_background_footer_position = "top center";
 set image_background_footer_repeat = "no-repeat";
 set image_background_footer_url = "database/green.png";
 
-set image_addmemories = "database/icon-entry-addtomemories_gray.png";
-set image_comments = "database/icon-entry-readcomments_gray.png";
-set image_delete = "database/icon-comment-delete_gray.png";
-set image_edit = "database/icon-post-edit_gray.png";
-set image_edittags = "database/icon-entry-edittags_gray.png";
-set image_expand = "database/icon-comment-expand_gray.png";
-set image_freeze = "database/icon-comment-freeze_gray.png";
-set image_giveaccess = "database/icon-profile_giveaccess_gray.png";
-set image_join = "database/icon-profile-join_gray.png";
-set image_link = "database/icon-post-link_gray.png";
-set image_maxcomments = "database/icon-entry-maxcomments_gray.png";
-set image_message = "database/icon-post-reply_gray.png";
-set image_next = "database/icon-entry-next_gray.png";
-set image_parent = "database/icon-comment-parent_gray.png";
-set image_prev = "database/icon-entry-previous_gray.png";
-set image_reply = "database/icon-post-reply_gray.png";
-set image_screen = "database/icon-comment-screen_gray.png";
-set image_subscribe = "database/icon-profile-subscribe_gray.png";
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
 set image_tellafriend = "database/icon-tellafriend_gray.png";
-set image_thread = "database/icon-comment-thread_gray.png";
-set image_threadroot = "database/icon-comment-threadroot_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
 set image_track = "database/icon-track_gray.png";
 set image_tracked = "database/icon-tracked_gray.png";
-set image_unfreeze = "database/icon-comment-unfreeze_gray.png";
-set image_unscreen = "database/icon-comment-unscreen_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
 
 
 #NEWLAYER: database/purple
@@ -330,6 +345,11 @@ layerinfo type = "theme";
 layerinfo name = "Purple";
 layerinfo redist_uniq = "database/purple";
 layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
 
 ##===============================
 ## Page Colors
@@ -407,31 +427,31 @@ set image_background_footer_position = "top center";
 set image_background_footer_repeat = "no-repeat";
 set image_background_footer_url = "database/purple.png";
 
-set image_addmemories = "database/icon-entry-addtomemories_gray.png";
-set image_comments = "database/icon-entry-readcomments_gray.png";
-set image_delete = "database/icon-comment-delete_gray.png";
-set image_edit = "database/icon-post-edit_gray.png";
-set image_edittags = "database/icon-entry-edittags_gray.png";
-set image_expand = "database/icon-comment-expand_gray.png";
-set image_freeze = "database/icon-comment-freeze_gray.png";
-set image_giveaccess = "database/icon-profile_giveaccess_gray.png";
-set image_join = "database/icon-profile-join_gray.png";
-set image_link = "database/icon-post-link_gray.png";
-set image_maxcomments = "database/icon-entry-maxcomments_gray.png";
-set image_message = "database/icon-post-reply_gray.png";
-set image_next = "database/icon-entry-next_gray.png";
-set image_parent = "database/icon-comment-parent_gray.png";
-set image_prev = "database/icon-entry-previous_gray.png";
-set image_reply = "database/icon-post-reply_gray.png";
-set image_screen = "database/icon-comment-screen_gray.png";
-set image_subscribe = "database/icon-profile-subscribe_gray.png";
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
 set image_tellafriend = "database/icon-tellafriend_gray.png";
-set image_thread = "database/icon-comment-thread_gray.png";
-set image_threadroot = "database/icon-comment-threadroot_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
 set image_track = "database/icon-track_gray.png";
 set image_tracked = "database/icon-tracked_gray.png";
-set image_unfreeze = "database/icon-comment-unfreeze_gray.png";
-set image_unscreen = "database/icon-comment-unscreen_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
 
 
 #NEWLAYER: database/red
@@ -439,6 +459,11 @@ layerinfo type = "theme";
 layerinfo name = "Red";
 layerinfo redist_uniq = "database/red";
 layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
 
 ##===============================
 ## Page Colors
@@ -516,31 +541,31 @@ set image_background_footer_position = "top center";
 set image_background_footer_repeat = "no-repeat";
 set image_background_footer_url = "database/red.png";
 
-set image_addmemories = "database/icon-entry-addtomemories_gray.png";
-set image_comments = "database/icon-entry-readcomments_gray.png";
-set image_delete = "database/icon-comment-delete_gray.png";
-set image_edit = "database/icon-post-edit_gray.png";
-set image_edittags = "database/icon-entry-edittags_gray.png";
-set image_expand = "database/icon-comment-expand_gray.png";
-set image_freeze = "database/icon-comment-freeze_gray.png";
-set image_giveaccess = "database/icon-profile_giveaccess_gray.png";
-set image_join = "database/icon-profile-join_gray.png";
-set image_link = "database/icon-post-link_gray.png";
-set image_maxcomments = "database/icon-entry-maxcomments_gray.png";
-set image_message = "database/icon-post-reply_gray.png";
-set image_next = "database/icon-entry-next_gray.png";
-set image_parent = "database/icon-comment-parent_gray.png";
-set image_prev = "database/icon-entry-previous_gray.png";
-set image_reply = "database/icon-post-reply_gray.png";
-set image_screen = "database/icon-comment-screen_gray.png";
-set image_subscribe = "database/icon-profile-subscribe_gray.png";
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
 set image_tellafriend = "database/icon-tellafriend_gray.png";
-set image_thread = "database/icon-comment-thread_gray.png";
-set image_threadroot = "database/icon-comment-threadroot_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
 set image_track = "database/icon-track_gray.png";
 set image_tracked = "database/icon-tracked_gray.png";
-set image_unfreeze = "database/icon-comment-unfreeze_gray.png";
-set image_unscreen = "database/icon-comment-unscreen_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
 
 
 #NEWLAYER: database/teal
@@ -549,8 +574,10 @@ layerinfo name = "Teal";
 layerinfo redist_uniq = "database/teal";
 layerinfo author_name = "ninetydegrees";
 
-set default_icons = false;
-set userlite_interaction_links = "icons";
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
 
 ##===============================
 ## Page Colors
@@ -628,28 +655,28 @@ set image_background_footer_position = "top center";
 set image_background_footer_repeat = "no-repeat";
 set image_background_footer_url = "database/teal.png";
 
-set image_addmemories = "database/icon-entry-addtomemories_gray.png";
-set image_comments = "database/icon-entry-readcomments_gray.png";
-set image_delete = "database/icon-comment-delete_gray.png";
-set image_edit = "database/icon-post-edit_gray.png";
-set image_edittags = "database/icon-entry-edittags_gray.png";
-set image_expand = "database/icon-comment-expand_gray.png";
-set image_freeze = "database/icon-comment-freeze_gray.png";
-set image_giveaccess = "database/icon-profile_giveaccess_gray.png";
-set image_join = "database/icon-profile-join_gray.png";
-set image_link = "database/icon-post-link_gray.png";
-set image_maxcomments = "database/icon-entry-maxcomments_gray.png";
-set image_message = "database/icon-post-reply_gray.png";
-set image_next = "database/icon-entry-next_gray.png";
-set image_parent = "database/icon-comment-parent_gray.png";
-set image_prev = "database/icon-entry-previous_gray.png";
-set image_reply = "database/icon-post-reply_gray.png";
-set image_screen = "database/icon-comment-screen_gray.png";
-set image_subscribe = "database/icon-profile-subscribe_gray.png";
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
 set image_tellafriend = "database/icon-tellafriend_gray.png";
-set image_thread = "database/icon-comment-thread_gray.png";
-set image_threadroot = "database/icon-comment-threadroot_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
 set image_track = "database/icon-track_gray.png";
 set image_tracked = "database/icon-tracked_gray.png";
-set image_unfreeze = "database/icon-comment-unfreeze_gray.png";
-set image_unscreen = "database/icon-comment-unscreen_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
