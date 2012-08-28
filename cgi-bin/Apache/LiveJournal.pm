@@ -910,13 +910,6 @@ sub trans
         return 404;
     }
 
-    my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $r, $uri );
-    if ( $alt_path ) {
-        $r->uri( $alt_uri );
-        $r->filename( $alt_path );
-        return OK;
-    }
-
     # userpic
     return userpic_trans($r) if $uri =~ m!^/userpic/!;
 
@@ -942,6 +935,14 @@ sub trans
     my $ret = LJ::URI->handle( $uri, $r );
     $ret = DW::Routing->call( ssl => $is_ssl ) unless defined $ret;
     return $ret if defined $ret;
+
+    # now check for BML pages
+    my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $r, $uri );
+    if ( $alt_path ) {
+        $r->uri( $alt_uri );
+        $r->filename( $alt_path );
+        return OK;
+    }
 
     # protocol support
     if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
