@@ -734,6 +734,17 @@ sub external_services {
 
     return () unless $u->is_personal && ( $u->share_contactinfo( $remote ) || $self->{viewall} );
 
+    if ( my $ao3 = $u->prop( 'ao3' ) ) {
+        my $ao3 = LJ::eurl( $ao3 );
+        push @ret, {
+            type => 'ao3',
+            text => LJ::ehtml( $ao3 ),
+            url => "http://archiveofourown.org/users/$ao3",
+            image => 'ao3.png',
+            title_ml => '.service.ao3',
+        };
+    }
+
     if ( my $aol = $u->prop( 'aolim') ) {
         my $eaol = LJ::eurl( $aol );
         $eaol =~ s/ //g;
@@ -746,6 +757,59 @@ sub external_services {
             status_title_ml => '.im.aol.status',
             status_width => 11,
             status_height => 13,
+        };
+    }
+
+    if ( my $delicious = $u->prop( 'delicious' ) ) {
+        my $delicious = LJ::eurl( $delicious );
+        push @ret, {
+            type => 'delicious',
+            text => LJ::ehtml( $delicious ),
+            url => "http://www.delicious.com/$delicious",
+            image => 'delicious.png',
+            title_ml => '.service.delicious',
+        };
+    }
+
+    if ( my $diigo = $u->prop( 'diigo' ) ) {
+        my $diigo = LJ::eurl( $diigo );
+        push @ret, {
+            type => 'diigo',
+            text => LJ::ehtml( $diigo ),
+            url => "http://www.diigo.com/user/$diigo",
+            image => 'diigo.png',
+            title_ml => '.service.diigo',
+        };
+    }
+
+    if ( my $etsy = $u->prop( 'etsy' ) ) {
+        my $etsy = LJ::eurl( $etsy );
+        push @ret, {
+            type => 'etsy',
+            text => LJ::ehtml( $etsy ),
+            url => "http://www.etsy.com/people/$etsy",
+            image => 'etsy.png',
+            title_ml => '.service.etsy',
+        };
+    }
+
+    if ( my $ffnet = $u->prop( 'ffnet' ) ) {
+        my $ffnet = LJ::eurl( $ffnet );
+        push @ret, {
+            type => 'ffnet',
+            text => LJ::ehtml( $ffnet ),
+            url => "http://www.fanfiction.net/~$ffnet",
+            image => 'ffnet.png',
+            title_ml => '.service.ffnet',
+        };
+    }
+
+    if ( my $google = $u->prop( 'google_talk' ) ) {
+        push @ret, {
+            type => 'google',
+            email => LJ::ehtml( $google ),
+            image => 'gtalk.gif',
+            title_ml => '.im.gtalk',
         };
     }
 
@@ -764,30 +828,6 @@ sub external_services {
         };
     }
 
-    if ( my $yahoo = $u->prop( 'yahoo' ) ) {
-        my $eyahoo = LJ::eurl( $yahoo );
-        push @ret, {
-            type => 'yahoo',
-            text => LJ::ehtml( $yahoo ),
-            url => "http://profiles.yahoo.com/$eyahoo",
-            image => 'yahoo.gif',
-            title_ml => '.im.yim',
-            status_image => "http://opi.yahoo.com/online?u=$eyahoo&amp;m=g&amp;t=0",
-            status_title_ml => '.im.yim.status',
-            status_width => 12,
-            status_height => 12,
-        };
-    }
-
-    if ( my $msn = $u->prop( 'msn' ) ) {
-        push @ret, {
-            type => 'msn',
-            email => LJ::ehtml( $msn ),
-            image => 'msn.gif',
-            title_ml => '.im.msn',
-        };
-    }
-
     if ( my $jabber = $u->prop( 'jabber' ) ) {
         push @ret, {
             type => 'jabber',
@@ -795,32 +835,6 @@ sub external_services {
             image => 'jabber.gif',
             title_ml => '.im.jabber',
         };
-    }
-
-    if ( my $google = $u->prop( 'google_talk' ) ) {
-        push @ret, {
-            type => 'google',
-            email => LJ::ehtml( $google ),
-            image => 'gtalk.gif',
-            title_ml => '.im.gtalk',
-        };
-    }
-
-    if ( my $skype = $u->prop( 'skype' ) ) {
-        my $service = {
-            type => 'skype',
-            email => LJ::ehtml( $skype ),
-            image => 'skype.gif',
-            title_ml => '.im.skype',
-        };
-        if ( $skype =~ /^[\w\.\-]+$/ ) {
-            my $eskype = LJ::eurl( $skype );
-            $service->{status_image} = "http://mystatus.skype.com/smallicon/$eskype";
-            $service->{status_title_ml} = '.im.skype.status';
-            $service->{status_width} = 16;
-            $service->{status_height} = 16;
-        }
-        push @ret, $service;
     }
 
     if ( my $lastfm = $u->prop( 'last_fm_user' ) ) {
@@ -836,58 +850,12 @@ sub external_services {
         };
     }
 
-    if ( my $twitter = $u->prop( 'twitter' ) ) {
-        my $twitter = LJ::eurl( $twitter );
+    if ( my $msn = $u->prop( 'msn' ) ) {
         push @ret, {
-            type => 'twitter',
-            text => LJ::ehtml( $twitter ),
-            url => "http://www.twitter.com/$twitter",
-            image => 'twitter.png',
-            title_ml => '.service.twitter',
-        };
-    }
-
-    if ( my $delicious = $u->prop( 'delicious' ) ) {
-        my $delicious = LJ::eurl( $delicious );
-        push @ret, {
-            type => 'delicious',
-            text => LJ::ehtml( $delicious ),
-            url => "http://www.delicious.com/$delicious",
-            image => 'delicious.png',
-            title_ml => '.service.delicious',
-        };
-    }
-
-    if ( my $ravelry = $u->prop( 'ravelry' ) ) {
-        my $ravelry = LJ::eurl( $ravelry );
-        push @ret, {
-            type => 'ravelry',
-            text => LJ::ehtml( $ravelry ),
-            url => "http://www.ravelry.com/people/$ravelry",
-            image => 'ravelry.png',
-            title_ml => '.service.ravelry',
-        };
-    }
-
-    if ( my $etsy = $u->prop( 'etsy' ) ) {
-        my $etsy = LJ::eurl( $etsy );
-        push @ret, {
-            type => 'etsy',
-            text => LJ::ehtml( $etsy ),
-            url => "http://www.etsy.com/people/$etsy",
-            image => 'etsy.png',
-            title_ml => '.service.etsy',
-        };
-    }
-
-    if ( my $diigo = $u->prop( 'diigo' ) ) {
-        my $diigo = LJ::eurl( $diigo );
-        push @ret, {
-            type => 'diigo',
-            text => LJ::ehtml( $diigo ),
-            url => "http://www.diigo.com/user/$diigo",
-            image => 'diigo.png',
-            title_ml => '.service.diigo',
+            type => 'msn',
+            email => LJ::ehtml( $msn ),
+            image => 'msn.gif',
+            title_ml => '.im.msn',
         };
     }
 
@@ -913,6 +881,34 @@ sub external_services {
         };
     }
 
+    if ( my $ravelry = $u->prop( 'ravelry' ) ) {
+        my $ravelry = LJ::eurl( $ravelry );
+        push @ret, {
+            type => 'ravelry',
+            text => LJ::ehtml( $ravelry ),
+            url => "http://www.ravelry.com/people/$ravelry",
+            image => 'ravelry.png',
+            title_ml => '.service.ravelry',
+        };
+    }
+
+    if ( my $skype = $u->prop( 'skype' ) ) {
+        my $service = {
+            type => 'skype',
+            email => LJ::ehtml( $skype ),
+            image => 'skype.gif',
+            title_ml => '.im.skype',
+        };
+        if ( $skype =~ /^[\w\.\-]+$/ ) {
+            my $eskype = LJ::eurl( $skype );
+            $service->{status_image} = "http://mystatus.skype.com/smallicon/$eskype";
+            $service->{status_title_ml} = '.im.skype.status';
+            $service->{status_width} = 16;
+            $service->{status_height} = 16;
+        }
+        push @ret, $service;
+    }
+
     if ( my $tumblr = $u->prop( 'tumblr' ) ) {
         my $tumblr = LJ::eurl( $tumblr );
         push @ret, {
@@ -924,25 +920,29 @@ sub external_services {
         };
     }
 
-    if ( my $ao3 = $u->prop( 'ao3' ) ) {
-        my $ao3 = LJ::eurl( $ao3 );
+    if ( my $twitter = $u->prop( 'twitter' ) ) {
+        my $twitter = LJ::eurl( $twitter );
         push @ret, {
-            type => 'ao3',
-            text => LJ::ehtml( $ao3 ),
-            url => "http://archiveofourown.org/users/$ao3",
-            image => 'ao3.png',
-            title_ml => '.service.ao3',
+            type => 'twitter',
+            text => LJ::ehtml( $twitter ),
+            url => "http://www.twitter.com/$twitter",
+            image => 'twitter.png',
+            title_ml => '.service.twitter',
         };
     }
 
-    if ( my $ffnet = $u->prop( 'ffnet' ) ) {
-        my $ffnet = LJ::eurl( $ffnet );
+    if ( my $yahoo = $u->prop( 'yahoo' ) ) {
+        my $eyahoo = LJ::eurl( $yahoo );
         push @ret, {
-            type => 'ffnet',
-            text => LJ::ehtml( $ffnet ),
-            url => "http://www.fanfiction.net/~$ffnet",
-            image => 'ffnet.png',
-            title_ml => '.service.ffnet',
+            type => 'yahoo',
+            text => LJ::ehtml( $yahoo ),
+            url => "http://profiles.yahoo.com/$eyahoo",
+            image => 'yahoo.gif',
+            title_ml => '.im.yim',
+            status_image => "http://opi.yahoo.com/online?u=$eyahoo&amp;m=g&amp;t=0",
+            status_title_ml => '.im.yim.status',
+            status_width => 12,
+            status_height => 12,
         };
     }
 

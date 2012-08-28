@@ -53,11 +53,8 @@ body<=
     # props in this list will be preloaded on page load and saved on post
     my @uprops = qw/
         opt_whatemailshow comm_theme
-        aolim google_talk icq jabber
-        msn skype yahoo tumblr
-        plurk twitter delicious diigo
-        pinboard last_fm_user
-        etsy ravelry ao3 ffnet
+        ao3 aolim delicious diigo etsy ffnet google_talk icq jabber
+        last_fm_user msn pinboard plurk ravelry skype tumblr twitter yahoo
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
@@ -437,24 +434,24 @@ body<=
             my $oddeven = 0;
 
             foreach my $p (
+                           ["ao3", $ML{ '.services.ao3' }, 40],
                            ["aolim", $ML{'.chat.aolim'}, 28],
+                           ["delicious", $ML{ '.services.delicious' }, 40],
+                           ["diigo", $ML{ '.services.diigo' }, 16],
+                           ["etsy", $ML{ '.services.etsy' }, 20],
+                           ["ffnet", $ML{ '.services.ffnet' }, 30],
                            ["google_talk", $ML{'.chat.googletalk'}, 60],
                            ["icq", $ML{'.chat.icquin'}, 12],
                            ["jabber", $ML{'.chat.jabber'}, 60],
-                           ["msn", $ML{'.chat.msnusername'}, 60],
-                           ["skype", $ML{'.chat.skype'}, 40],
-                           ["yahoo", $ML{'.chat.yahooid'}, 33],
-                           ["tumblr", $ML{ '.services.tumblr' }, 255],
-                           ["plurk", $ML{ '.services.plurk' }, 255],
-                           ["twitter", $ML{ '.services.twitter' }, 40],
-                           ["delicious", $ML{ '.services.delicious' }, 40],
-                           ["diigo", $ML{ '.services.diigo' }, 16],
-                           ["pinboard", $ML{'.services.pinboard'}, 30],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
-                           ["etsy", $ML{ '.services.etsy' }, 20],
+                           ["msn", $ML{'.chat.msnusername'}, 60],
+                           ["pinboard", $ML{'.services.pinboard'}, 30],
+                           ["plurk", $ML{ '.services.plurk' }, 255],
                            ["ravelry", $ML{ '.services.ravelry' }, 40],
-                           ["ao3", $ML{ '.services.ao3' }, 40],
-                           ["ffnet", $ML{ '.services.ffnet' }, 30],
+                           ["skype", $ML{'.chat.skype'}, 40],
+                           ["tumblr", $ML{ '.services.tumblr' }, 255],
+                           ["twitter", $ML{ '.services.twitter' }, 40],
+                           ["yahoo", $ML{'.chat.yahooid'}, 33],
                           )
 
             {
