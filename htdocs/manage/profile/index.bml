@@ -338,12 +338,17 @@ body<=
             $ret .= "</td><td class='selectvis'>";
             # this is where we get BVL back
             my $checked = ( $u->opt_whatemailshow =~ /[BVL]/ ) ? 'Y' : 'N';
-            $ret .= LJ::html_select( { name => 'opt_usesite',
-                                       title => BML::ml( '.display.title',
-                                                { name => $ML{'.fn.email.site'} } ),
-                                       selected => $checked },
-                                     Y => $ML{'.security.visibility.privacy'},
-                                     N => $ML{'.security.visibility.noshow'} );
+            $ret .= LJ::html_select
+                    (
+                        {
+                            name => 'opt_usesite',
+                            title => BML::ml( '.display.title',
+                                { name => BML::ml( '.fn.email.site', { siteabbrev => $LJ::SITENAMEABBREV } ) } ),
+                            selected => $checked
+                        },
+                        Y => $ML{'.security.visibility.privacy'},
+                        N => $ML{'.security.visibility.noshow'}
+                    );
             $ret .= "</td></tr>\n";
         }
 
@@ -355,13 +360,18 @@ body<=
                 $ret .= "</td><td style='vertical-align: middle'>" . $u->ljtalk_id;
                 # Don't show LJ Talk field? (opt_showljtalk)
                 $ret .= "</td><td class='selectvis'>";
-                $ret .= LJ::html_select( { name => 'opt_showljtalk',
-                                           id => 'opt_showljtalk',
-                                           title => BML::ml( '.display.title',
-                                                    { name => $ML{'.fn.ljtalk.address'} } ),
-                                           selected => $u->hide_ljtalk ? 'N' : 'Y' },
-                                         Y => $ML{'.security.visibility.privacy'},
-                                         N => $ML{'.security.visibility.noshow'} );
+                $ret .= LJ::html_select
+                    (
+                        {
+                            name => 'opt_showljtalk',
+                            id => 'opt_showljtalk',
+                            title => BML::ml( '.display.title',
+                                { name => BML::ml( '.fn.ljtalk.address', { siteabbrev => $LJ::SITENAMEABBREV } ) } ),
+                            selected => $u->hide_ljtalk ? 'N' : 'Y'
+                        },
+                        Y => $ML{'.security.visibility.privacy'},
+                        N => $ML{'.security.visibility.noshow'}
+                    );
                 $ret .= "</td></tr>\n";
 
                 my $jabber_title = LJ::Hooks::run_hook("jabber_title") || $ML{'/manage/settings/index.bml.jabber.title'};
@@ -371,14 +381,19 @@ body<=
                 $ret .= "<span class='helper'>" . BML::ml('/manage/settings/index.bml.jabber.text', {'jabbertitle' => $jabber_title}) . "</span>";
                 # Jabber Online Status
                 $ret .= "</td><td class='selectvis'>";
-                $ret .= LJ::html_select( { name => 'opt_showonlinestatus',
-                                           id => 'opt_showonlinestatus',
-                                           title => BML::ml( '.privacy.title',
-                                                    { name => $ML{'.fn.ljtalk.status'} } ),
-                                           selected => $u->opt_showonlinestatus },
-                                         Y => $ML{'.security.visibility.everybody2'},
-                                         F => $ML{'.security.visibility.access'},
-                                         N => $ML{'.security.visibility.nobody'} );
+                $ret .= LJ::html_select
+                    (
+                        {
+                            name => 'opt_showonlinestatus',
+                            id => 'opt_showonlinestatus',
+                            title => BML::ml( '.privacy.title',
+                                { name => BML::ml( '.fn.ljtalk.status', { siteabbrev => $LJ::SITENAMEABBREV } ) } ),
+                            selected => $u->opt_showonlinestatus
+                        },
+                        Y => $ML{'.security.visibility.everybody2'},
+                        F => $ML{'.security.visibility.access'},
+                        N => $ML{'.security.visibility.nobody'}
+                    );
                 $ret .= "</td></tr>\n";
             }
 
