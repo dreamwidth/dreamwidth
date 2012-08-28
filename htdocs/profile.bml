@@ -79,6 +79,7 @@ body<=
     }
 
     LJ::set_active_journal( $u );
+    my $force_empty = exists $LJ::FORCE_EMPTY_SUBSCRIPTIONS{$u->id} ? 1 : 0;
 
     # error if account is purged
     if ( $u->is_expunged ) {
@@ -756,15 +757,18 @@ body<=
             # it doesn't break things for smaller communities by not loading them for the admins.
             # FIXME: This overall situation of profile pages choking up for large amounts of subscribers or members
             #   needs to be fixed in a more elegant and useful way.
-            unless $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) );
+            unless $force_empty ||
+                ( $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) ) );
     }
 
     my ( @members_userids, @member_of_userids, @admin_of_userids, @posting_access_to_userids, @posting_access_from_userids );
-    @members_userids = $u->member_userids if $u->is_community;
+    @members_userids = $u->member_userids
+        if $u->is_community && !$force_empty;
     @member_of_userids = $u->member_of_userids if $u->is_personal;
     @admin_of_userids = @{LJ::load_rel_target_cache( $u, 'A' )} if $u->is_personal;
     @posting_access_to_userids = @{LJ::load_rel_target_cache( $u, 'P' )} if $u->is_personal;
-    @posting_access_from_userids = @{LJ::load_rel_user_cache( $u, 'P' )} if $u->is_community;
+    @posting_access_from_userids = @{LJ::load_rel_user_cache( $u, 'P' )}
+        if $u->is_community && !$force_empty;
 
     my $us = LJ::load_userids(
         @trusted_userids, @trusted_by_userids,
@@ -907,7 +911,9 @@ body<=
                 section_name_ml => $mlsn->( '.people.members', \@members_list ),
                 section_link    => 'members',
                 extra_classes   => ' first',
-                body            => $listusers->( \@members_list ),
+                body            => $force_empty
+                                   ? 'Member list is disabled for this community.'
+                                   : $listusers->( \@members_list ),
             );
 
             my @posting_access_from_list = map { $us->{$_} } @posting_access_from_userids;
@@ -915,7 +921,9 @@ body<=
                 section_name    => 'posting_access_from_people',
                 section_name_ml => $mlsn->( '.people.posting_access_from', \@posting_access_from_list ),
                 section_link    => 'posting_access_from',
-                body            => $listusers->( \@posting_access_from_list ),
+                body            => $force_empty
+                                   ? 'Posting access list is disabled for this community.'
+                                   : $listusers->( \@posting_access_from_list ),
                 hidable         => 1,
             );
         }
@@ -926,7 +934,9 @@ body<=
             section_name    => 'watched_by_people',
             section_name_ml => $mlsn->( '.people.watched_by', \@watched_by_list ),
             section_link    => 'watched_by',
-            body            => $listusers->( \@watched_by_list ),
+            body            => $force_empty
+                               ? 'Subscriber list is disabled for this community.'
+                               : $listusers->( \@watched_by_list ),
             hidable         => 1,
         );
     }
