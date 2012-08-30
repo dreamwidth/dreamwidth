@@ -4,8 +4,6 @@ layerinfo name = "Cloudy Days";
 layerinfo redist_uniq = "ciel/cloudydays";
 layerinfo author_name = "carisma_sensei";
 
-set theme_authors = [ { "name" => "carisma_sensei", "type" => "user" } ];
-
 ##===============================
 ## Page
 ##===============================
@@ -15,6 +13,7 @@ set color_page_link = "#3c8989";
 set color_page_subtitle = "#666";
 set color_page_text = "#666";
 set color_page_title = "#3c8989";
+set color_calendar_entryday_background = "#f5f5f5";
 
 ##===============================
 ## Module
@@ -24,7 +23,6 @@ set color_module_background = "#eee";
 set color_navlinks_link_background = "#95b7ae";
 set color_navlinks_link_hover_background = "#607878";
 set color_navlinks_link = "#fff";
-set color_calendar_entryday_background = "#f5f5f5";
 
 ##===============================
 ## Entry

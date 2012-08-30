@@ -87,21 +87,31 @@ function print_stylesheet () {
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
 
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+
+		.entry .userpic, .comment .userpic {
+                float: left;
+
+                }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .userpic, .comment .userpic {
+                float: right;
+                }
+            """;
+        }
+
+
 """
 
 /* Page-wide */
 body {
     padding: 0;
     margin: 0;
-}
-
-img {
-    border: none;
-}
-
-.entry-content hr, .comment-content hr {
-    display: block;
-    margin: 1em 10%;
 }
 
 a, a:link, a:active, a:visited { text-decoration: none; }
@@ -174,49 +184,18 @@ min-height: 150px; padding: 1em 0;
 .entry-title, .module-header {
     font-weight: normal;
     text-transform: uppercase;
-    border-left: 0;
-    border-right: 0;
     padding: 3px;
-    margin: 0;
 }
 
 .datetime { text-transform: uppercase; }
 
 .top-metadata {padding-top:1em;}
 
-.metadata ul {
-    display: inline;
-    list-style: none;
-    margin-left: .5em;
-    padding-left: 0;
-
-}
-.metadata li {
-    margin-bottom: .5em;
-}
-
-.metadata-label {
-    text-transform: uppercase;
-    font-family: $*font_metadata;
-    color: $*color_metadata_label;
-}
-
 .tag-text {
     text-transform: uppercase;
     font-family: $*font_metadata;
     color: $*color_metadata_label;
 }
-
-.tag ul {
-    display: inline;
-    list-style: none;
-    margin-left: .5em;
-    padding-left: 0;
-}
-.tag ul li {
-    display: inline;
-    padding: .25em;
-} /* same for month view */
 
 ul.entry-management-links {
     list-style: none;
@@ -228,20 +207,12 @@ ul.entry-management-links {
     color: $*color_management_links;
     background: $*color_management_links_background;
 }
-ul.entry-management-links li {
-    display: inline;
-    padding: 0 .25em;
-}
 
 .entry-interaction-links a, .entry-management-links a {
     font-family: $*font_management;
     text-transform: uppercase;
 }
 
-ul.entry-interaction-links li {
-    display: inline;
-    padding: 0 .25em;
-}
 
 ul.entry-interaction-links {
     list-style: none;
@@ -251,12 +222,6 @@ ul.entry-interaction-links {
     text-align: right;
     padding: 6px;
     background: $*color_interaction_links_background;
-}
-
-.entry .userpic a {
-    margin: 0;
-    padding: 0;
-    border: 0;
 }
 
 .entry .userpic img {
@@ -269,6 +234,8 @@ ul.entry-interaction-links {
     border: 5px solid $*color_userpic_border_alt;
 }
 
+$userpic_css
+
 /* Comments */
 
 .comment { min-height: 138px; }
@@ -280,39 +247,12 @@ ul.entry-interaction-links {
 .bottomcomment label { padding-left: 1em;}
 
 .comment-wrapper {
-    padding: .5em 0;
     border-bottom: 5px solid $*color_userpic_border;
 }
 
 .comment .userpic {
     margin: 5px;
 }
-
-ul.comment-management-links {
-    list-style: none;
-    margin-left: 0;
-    padding-left: 0;
-    text-align: right;
-}
-ul.comment-management-links li {
-    display: inline;
-    padding: 0 .25em;
-}
-
-ul.comment-interaction-links {
-    list-style: none;
-    margin-left: 0;
-    padding-left: 0;
-}
-ul.comment-interaction-links li {
-    display: inline;
-    padding: 0 .25em;
-}
-
-textarea#commenttext {
-    width: 100%; /* fix for FF form width glitch */
-}
-
 /* Secondary pages: Archive, Icons, Tags */
 
 #archive-year .header h3, .tags-container .header h2, .icons-container .header h2 {
@@ -431,7 +371,7 @@ td.day-has-entries {
 
 .module-navlinks .current {font-style: italic;}
 
-.module-navlinks .module-list-item a {
+.module-navlinks a {
     color: $*color_navlinks_link;
     padding: 3px;
     text-decoration: none;
@@ -442,16 +382,16 @@ td.day-has-entries {
     display: block;
 }
 
-.module-navlinks .module-list-item a:active {
+.module-navlinks a:active {
     background: $*color_navlinks_link_active_background;
     text-decoration: none;
-
-.module-navlinks .module-list-item a:hover {
+}
+.module-navlinks a:hover {
     background: $*color_navlinks_link_hover_background;
     text-decoration: none;
 }
 
-.module-navlinks .module-list-item a:visited {
+.module-navlinks a:visited {
     background: $*color_navlinks_link_visited_background;
 }
 
