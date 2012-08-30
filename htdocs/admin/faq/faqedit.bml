@@ -59,7 +59,7 @@ body<=
         $summary = $faq->summary_raw;
         $answer = $faq->answer_raw;
         $has_summary = $faq->has_summary;
-        unless ( $ac_edit{'*'} || $ac_edit{$faqcat} ) {
+        unless ( $ac_edit{'*'} || $ac_edit{''} || $ac_edit{$faqcat} ) {
             if ( %ac_edit ) {
                 return "<b>Error: </b> You do not have access to edit a FAQ question in the \"$faqcat\" category.";
             } else {
