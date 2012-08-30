@@ -3668,9 +3668,6 @@ sub init {
     # unixify line-endings
     $form->{'body'} =~ s/\r\n/\n/g;
 
-    # FIXME: remove when we no longer support BML
-    $form->{textcaptcha_challenge} = [ split /\0/, $form->{textcaptcha_challenge} ];
-
     # now check for UTF-8 correctness, it must hold
     return $err->("<?badinput?>") unless LJ::text_in($form);
 
