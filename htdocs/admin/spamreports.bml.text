@@ -31,6 +31,7 @@
 .report.individual.subject.none=no subject
 .report.individual.sysban.anon=anonymous spamreports
 .report.individual.sysban.done=Already talk_ip_test banned
+.report.individual.sysban.ip=Also Sysban IP?
 .report.individual.sysban.nonote=(no note)
 
 .reports.anon=anonymous
@@ -59,9 +60,9 @@
 .top10user.label=Top 10 by User
 .top10user.title=Spam Reports - Top 10 by User
 
-.view.byip.title=Spam Reports - By IP
-.view.byposterid.title=Spam Reports - By
-.view.byposter.title=Spam Reports - Comments By
+.view.byip.title=Spam Reports - By IP [[ip]] ([[state]])
+.view.byposterid.title=Spam Reports - By [[user]]
+.view.byposter.title=Spam Reports - Comments By [[user]]
 .view.closedreports=View Closed Reports
 .view.noreports=No reports found.
 .view.openreports=View Open Reports
