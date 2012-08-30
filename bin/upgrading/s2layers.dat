@@ -31,6 +31,9 @@ boxesandborders/themes   theme+                      boxesandborders/layout
 brittle/layout           layout                      core2
 brittle/themes           theme+                      brittle/layout
 
+ciel/layout              layout(core2base/layout)    core2
+ciel/themes              theme+                      ciel/layout
+
 colorside/layout         layout(core2base/layout)    core2
 colorside/themes         theme+                      colorside/layout
 
