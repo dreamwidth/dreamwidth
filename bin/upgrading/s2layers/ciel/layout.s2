@@ -1,0 +1,459 @@
+layerinfo type = "layout";
+layerinfo name = "Ciel";
+layerinfo redist_uniq = "ciel/layout";
+layerinfo author_name = "carisma_sensei";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "carisma_sensei", "type" => "user" } ];
+set layout_type = "two-columns-left";
+
+##===============================
+## Presentation
+##===============================
+
+set margins_size ="5";
+set margins_unit = "%";
+
+##===============================
+## Properties
+##===============================
+
+propgroup colors_child {
+    property Color color_page_subtitle { des = "Page header subtitle color "; }
+    property Color color_management_links { des = "Entry management links color"; }
+    property Color color_management_links_background { des = "Entry management links background color"; }
+    property Color color_interaction_links_background { des = "Entry interaction links background color"; }
+    property Color color_userpic_border { des = "Userpic border color in entries"; }
+    property Color color_userpic_border_alt { des = "Userpic border color in alternating entries"; }
+    property Color color_navlinks_link { des = "Navigation module link text color"; }
+    property Color color_navlinks_link_background { des = "Navigation module link background color"; }
+    property Color color_navlinks_link_active_background { des = "Navigation module active link background color"; }
+    property Color color_navlinks_link_hover_background { des = "Navigation module hover link background color"; }
+    property Color color_navlinks_link_visited_background { des = "Navigation module visited link background color"; }
+    property Color color_calendar_entryday_background { des = "Calendar entry days background color"; }
+    property Color color_metadata_label { des = "Color for metadata and tag labels"; }
+}
+
+propgroup fonts_child {
+    property string font_management {
+        des = "Preferred font for management and interaction links";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+    }
+    property string font_navlinks {
+        des = "Preferred font for navigation module links";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+    }
+    property string font_metadata {
+        des = "Preferred font for metadata and tag labels";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+    }
+}
+
+##==============================
+## Default Font Settings
+##==============================
+
+set font_base = "Arial";
+set font_comment_title_units = "em";
+set font_entry_title = "Helvetica";
+set font_entry_title_size = "1.25";
+set font_entry_title_units = "em";
+set font_fallback = "sans-serif";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Georgia";
+set font_journal_title_size = "3";
+set font_journal_title_units = "em";
+set font_management = "Georgia";
+set font_metadata = "'Lucida Grande'";
+set font_module_heading_size = "1.25";
+set font_module_heading_units = "em";
+set font_module_text_units = "em";
+set font_navlinks = "Georgia";
+
+##===============================
+## Stylesheet
+##===============================
+
+
+function print_stylesheet () {
+
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+
+"""
+
+/* Page-wide */
+body {
+    padding: 0;
+    margin: 0;
+}
+
+img {
+    border: none;
+}
+
+.entry-content hr, .comment-content hr {
+    display: block;
+    margin: 1em 10%;
+}
+
+a, a:link, a:active, a:visited { text-decoration: none; }
+
+a:hover { text-decoration: underline; }
+
+#primary {
+    $entry_colors
+    border-radius: 2em;
+}
+
+#primary > .inner:first-child, #secondary > .inner:first-child, #tertiary > .inner:first-child {
+    padding: 0;
+}
+
+.navigation ul {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+.navigation li {
+    display: inline;
+    padding: 0 .5em;
+}
+
+.navigation {padding: 1em;}
+
+.navigation ul {
+    margin: 4px 0 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: right;
+}
+
+.navigation li {
+    display: inline;
+    padding: 0 10px 0 10px;
+}
+
+/* Header and Titles */
+
+#header, #footer {
+    margin: 0;
+    clear: both;
+    border-radius: 2em;
+    padding:1em;
+}
+
+
+#title { text-transform: uppercase; padding: 0; margin: 0;}
+
+#subtitle, #pagetitle {color: $*color_page_subtitle; padding: 0; margin: 0;}
+
+
+/* Entries */
+
+.entry {
+    background: transparent;
+    border:0;
+}
+
+.entry .header { padding: 1em 1em 0;}
+
+.entry .contents, .tag, .comment {padding:0 1em;}
+
+.entry-content {
+min-height: 150px; padding: 1em 0;
+}
+
+.entry-title, .module-header {
+    font-weight: normal;
+    text-transform: uppercase;
+    border-left: 0;
+    border-right: 0;
+    padding: 3px;
+    margin: 0;
+}
+
+.datetime { text-transform: uppercase; }
+
+.top-metadata {padding-top:1em;}
+
+.metadata ul {
+    display: inline;
+    list-style: none;
+    margin-left: .5em;
+    padding-left: 0;
+
+}
+.metadata li {
+    margin-bottom: .5em;
+}
+
+.metadata-label {
+    text-transform: uppercase;
+    font-family: $*font_metadata;
+    color: $*color_metadata_label;
+}
+
+.tag-text {
+    text-transform: uppercase;
+    font-family: $*font_metadata;
+    color: $*color_metadata_label;
+}
+
+.tag ul {
+    display: inline;
+    list-style: none;
+    margin-left: .5em;
+    padding-left: 0;
+}
+.tag ul li {
+    display: inline;
+    padding: .25em;
+} /* same for month view */
+
+ul.entry-management-links {
+    list-style: none;
+    margin: 0;
+    margin-top: 1em;
+    padding-left: 0;
+    text-align: right;
+    padding: 6px;
+    color: $*color_management_links;
+    background: $*color_management_links_background;
+}
+ul.entry-management-links li {
+    display: inline;
+    padding: 0 .25em;
+}
+
+.entry-interaction-links a, .entry-management-links a {
+    font-family: $*font_management;
+    text-transform: uppercase;
+}
+
+ul.entry-interaction-links li {
+    display: inline;
+    padding: 0 .25em;
+}
+
+ul.entry-interaction-links {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+    margin-bottom: 1em ;
+    text-align: right;
+    padding: 6px;
+    background: $*color_interaction_links_background;
+}
+
+.entry .userpic a {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.entry .userpic img {
+    margin: 10px;
+    padding: 8px;
+    border: 5px solid $*color_userpic_border;
+}
+
+.entry-wrapper-odd .entry .userpic img {
+    border: 5px solid $*color_userpic_border_alt;
+}
+
+/* Comments */
+
+.comment { min-height: 138px; }
+
+.comment-pages { text-align:center;}
+
+.bottompages {padding: 1em 0;}
+
+.bottomcomment label { padding-left: 1em;}
+
+.comment-wrapper {
+    padding: .5em 0;
+    border-bottom: 5px solid $*color_userpic_border;
+}
+
+.comment .userpic {
+    margin: 5px;
+}
+
+ul.comment-management-links {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+    text-align: right;
+}
+ul.comment-management-links li {
+    display: inline;
+    padding: 0 .25em;
+}
+
+ul.comment-interaction-links {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+ul.comment-interaction-links li {
+    display: inline;
+    padding: 0 .25em;
+}
+
+textarea#commenttext {
+    width: 100%; /* fix for FF form width glitch */
+}
+
+/* Secondary pages: Archive, Icons, Tags */
+
+#archive-year .header h3, .tags-container .header h2, .icons-container .header h2 {
+    $entry_title_font
+    text-transform: uppercase;
+    font-weight:normal;
+    padding: 3px;
+    $entry_title_colors;
+}
+
+.tags-container, .icons-container, #archive-year { padding: 1em; }
+
+.tags-container a, .icons-container a, #archive-year a { color:$*color_entry_link; }
+
+.tags-container a:active, .icons-container a:active, #archive-year a:active { color:$*color_entry_link_active; }
+
+.tags-container a:hover, .icons-container a:hover, #archive-year a:hover { color:$*color_entry_link_hover; }
+
+.tags-container a:visited, .icons-container a:visited, #archive-year a:visited { color:$*color_entry_link_visited; }
+
+.month caption {
+    display: none;
+}
+
+table.month {
+    width: 80%;
+    text-align: center;
+}
+
+.month th {
+    padding: 10px 0 0 0;
+}
+
+td.day-has-entries {
+    background: $*color_calendar_entryday_background;
+}
+
+.month .footer {padding: 0.5em;}
+
+.icon-image {
+    display: inline;
+    float: left;
+    }
+
+.icon-image img {
+    padding: 0.2em 0.5em;
+    margin-right: 1em;
+    margin-top: 15px;
+    }
+
+.icon-info {
+    overflow:auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+    }
+
+.icons-container .icon {
+    width:50%;
+    float: left;
+    vertical-align: botton;
+    min-width: 350px;
+    }
+
+.icon-info .label,
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icons-container .inner .footer {
+    clear: both;
+    text-align: center;
+    }
+
+/* Sidebars and Modules */
+
+
+.two-columns-right .module, .three-columns-right .module, .three-columns-sides #tertiary .module, .one-column .module { margin: 0 0 1em 1em}
+.two-columns-left .module, .three-columns-left .module, .three-columns-sides #secondary .module { margin: 0 1em 1em 0;}
+
+.module {
+    padding: 1em;
+    border-radius: 2em;
+}
+
+.one-column .module {
+    display:inline-block;
+    width:$*sidebar_width;
+    vertical-align: top;
+    text-align: left;
+}
+
+.one-column #secondary, .one-column #tertiary, .one-column .module-navlinks {text-align: center;}
+
+.module-userprofile {text-align: center;}
+
+.module .userpic {display:inline-block; float: none;}
+
+.module-navlinks {
+    text-align: center;
+    background: $*color_navlinks_link_background;
+    padding: 2em 0;
+}
+
+.module-navlinks ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.module-navlinks li {
+    margin: 0;
+    line-height: 25px;
+}
+
+.module-navlinks .module-list-item .recent { border-top: 2px solid $*color_navlinks_link;}
+
+.module-navlinks .current {font-style: italic;}
+
+.module-navlinks .module-list-item a {
+    color: $*color_navlinks_link;
+    padding: 3px;
+    text-decoration: none;
+    font-size: 1.1em;
+    text-transform: uppercase;
+    font-family: $*font_navlinks;
+    border-bottom: 2px solid $*color_navlinks_link;
+    display: block;
+}
+
+.module-navlinks .module-list-item a:active {
+    background: $*color_navlinks_link_active_background;
+    text-decoration: none;
+
+.module-navlinks .module-list-item a:hover {
+    background: $*color_navlinks_link_hover_background;
+    text-decoration: none;
+}
+
+.module-navlinks .module-list-item a:visited {
+    background: $*color_navlinks_link_visited_background;
+}
+
+ """;
+}
