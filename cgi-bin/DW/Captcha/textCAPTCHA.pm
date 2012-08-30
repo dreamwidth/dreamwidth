@@ -41,7 +41,7 @@ use Digest::MD5 ();
 sub name { return "textcaptcha" }
 
 # object methods
-sub form_fields { qw( textcaptcha_challenge textcaptcha_response textcaptcha_response_noscript textcaptcha_chalauth ) }
+sub form_fields { qw( textcaptcha_challenge textcaptcha_response textcaptcha_response_noscript textcaptcha_chalauth lj_form_auth ) }
 sub _implementation_enabled {
     return LJ::is_enabled( 'captcha', 'textcaptcha' ) && _api_key() ? 1 : 0;
 }
@@ -98,27 +98,29 @@ sub _validate {
 sub _init_opts {
     my ( $self, %opts ) = @_;
 
-    # rather than having a lot of ifs/elses here to extract multiple keys
-    # when we're pulling via BML vs via a controller, etc
-    # let's just pull directly from the request
-    my $r = DW::Request->get;
-    my $post_args = $r ? $r->post_args : undef;
+    #we could just be creating a captcha, in which case the challenge & 
+    # response won't exist yet.
+    if ( defined ($opts{textcaptcha_challenge}) ||
+        defined ($opts{textcaptcha_response_noscript}) ) {
 
-    if ( $post_args ) {
-        if ( my $response_noscript = $post_args->{textcaptcha_response_noscript} ) {
+        if ( my $response_noscript = $opts{textcaptcha_response_noscript} ) {
+            #Noscript version
             my %parsed = DW::Captcha::textCAPTCHA::Logic::from_form_string( $response_noscript );
             $self->{$_} ||= $parsed{$_} foreach qw( challenge response form_auth captcha_auth );
+
         } else {
-            # allow multiple values
-            $self->{challenge} ||= [ $post_args->get_all( "textcaptcha_challenge" ) ];
 
-            # just allow the user to submit one
-            $self->{response} ||= $post_args->{textcaptcha_response};
+            #TextCAPTCHAs can have multiple correct answers. If there is >1 
+            # right answer, the hashed answers should have been concatanated 
+            # with a : as seperator. We'll split them back out into an array.
+            $self->{challenge} ||= 
+                [ split( ':' , $opts{textcaptcha_challenge} ) ];
 
-            # assume we need the form auth
-            $self->{form_auth} ||= $post_args->{lj_form_auth};
+            $self->{response} ||= $opts{textcaptcha_response};
 
-            $self->{captcha_auth} ||= $post_args->{textcaptcha_chalauth};
+            $self->{form_auth} ||= $opts{lj_form_auth};
+
+            $self->{captcha_auth} ||= $opts{textcaptcha_chalauth};
         }
     }
 }
@@ -176,9 +178,16 @@ sub form_data {
     my $secret = LJ::get_secret( (split( /:/, $auth ))[1] );
     my @salted_answers = map { Digest::MD5::md5_hex( $auth . $secret . $_ ) } @{$captcha->{answer}};
 
+    # TextCAPTCHAs can have multiple correct answers. In this package, they
+    # are usually handled as arrays (or as a list in this case). For simplicity
+    # when handling them in HTML forms, we'll concat them with a
+    # : as seperator and just produce a single answer variable, then split 
+    # it back into an array when it's passed back to us in _init_opts.
+    my $concat_answers = join( ':', @salted_answers );
+
     return {
         question => $captcha->{question},
-        answers => \@salted_answers,
+        answers => $concat_answers,
         chal    => LJ::challenge_generate( 900 ),  # 15 minute token
     };
 }
