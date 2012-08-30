@@ -62,7 +62,7 @@ _c?>
             my $typedes = " ($lay->{'type'}" . (! $is_child ? ": <b>$lid</b>" : '') . ")";
 
             # show link to detailed view
-            $body .= "<li><a href='layerbrowse?id=$lay->{'uniq'}'>" . LJ::ehtml($layerinfo{$lid}->{'name'});
+            $body .= "<li><a href='layerbrowse?id=$lay->{'uniq'}' name='$lay->{'uniq'}' id='$lay->{'uniq'}'>" . LJ::ehtml($layerinfo{$lid}->{'name'});
             $body .= "</a>$typedes</li>\n";
 
             # done unless there are children to recurse through
@@ -75,7 +75,7 @@ _c?>
                     my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$child}->{uniq});
                     $num_children++ if !defined $is_active || $is_active;
                 }
-                $body .= "<ul><li>[<a href='layerbrowse?expand=$lid'>";
+                $body .= "<ul><li>[<a href='layerbrowse?expand=$lid#$lay->{'uniq'}'>";
                 $body .= BML::ml('.layerchildren', {'numchildren' => $num_children}) . "</a>]</li></ul>";
                 return;
             }
