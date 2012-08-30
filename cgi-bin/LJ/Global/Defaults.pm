@@ -327,7 +327,7 @@ no strict "vars";
     # default priority for libraries and resources in a sitescheme,
     # so that they come before any stylesheets declared by the page itself
     $LJ::LIB_RES_PRIORITY = 3;
-    $LJ::SCHEME_RES_PRIORITY = 2;
+    $LJ::SCHEME_RES_PRIORITY = 3;
 
     # FIXME: remove the need for this, it's a hack of a hack of a hack
     # it used to be that site scheme pages were called later than page-level CSS
