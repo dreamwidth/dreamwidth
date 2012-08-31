@@ -1,66 +1,73 @@
 
-.entry .header {background:none !important;}
-.entry .datetime:before { content:"@ " !important;}
-.entry .datetime:after {content:" UTC";}
-.entry .datetime {font-style: italic;}
-.entry .contents{ margin-left: 30px !important}
+.action-box {clear:both;}
 
+.action-box .inner { /*FIXME: some of this code needs to be specified on the layout pages, not here*/
+    padding: 0.5em;
+    background-color: #FFAFB6;
+    border: 1px solid #C1272D;
+    color: #111111;
+}
 
- h3.entry-title {     font-size: larger;
+.action-box ul {background-color:none; border: 0; list-style: none outside none;}
+
+.tag-text, .metadata-label {font-weight: bold;}
+.entry .metadata {padding:0;}
+.metadata ul {margin:0; }
+.currents {clear:both;}
+.tag ul {list-style:none; display:inline; margin-left:0;}
+.tag li {display:inline;}
+
+h3.entry-title {
+    font-size: larger;
     font-style: italic;
     font-weight: bold;
     margin: 10px 0;}
 
-.action-box {clear:both !important;
- }
-
-.action-box .inner {padding: 0.5em !important;background-color: #FFAFB6 !important;
-    border: 1px solid #C1272D !important;
-    color: #111111;
- }
-.action-box ul {background-color:none !important; border: 0 !important;     list-style: none outside none;}
-.entry .metadata {padding:0 !important;}
-.metadata ul {margin:0 !important; }
-.currents {
- clear:both !important;}
-
-    .entry-wrapper .userpic {
-    display: table-cell !important; float: none !important;}
+.entry .header {background:none;}
+.entry .datetime:before { content:"@ ";}
+.entry .datetime:after {content:" UTC";}
+.entry .datetime {font-style: italic;}
+.entry .contents{ margin-left: 30px}
 
 
+.entry-wrapper .userpic {display: table-cell; float: none;}
 
-.poster-info { display: table-cell !important;
-    overflow: auto !important;
-    padding: 0.5em !important;
-    vertical-align: bottom !important; }
+.entry .footer {text-align: center;}
 
-    .entry-wrapper {margin:0 !important}
+.poster-info { display: table-cell;
+    overflow: auto;
+    padding: 0.5em;
+    vertical-align: bottom; }
 
-    hr.above-entry-interaction-links {margin: 1em 0 !important;}
+.entry-wrapper {margin:0}
 
-    .entry-interaction-links, .comment-pages {text-align: center !important; font-weight:bold !important; float:none !important;}
+hr.above-entry-interaction-links {margin: 1em 0;}
+
+.entry-interaction-links, .comment-pages {text-align: center; font-weight:bold; float:none;}
 
 .entry-interaction-links li {display:inline;}
-    .entry-interaction-links li:before, .comment-interaction-links li:before, .comment-pages a:before {content:"(" !important;}
-    .comment .userpic {display:inline-block !important; max-width:100px !important;}
-        .entry-interaction-links li:after, .comment-interaction-links li:after,.comment-pages a:after {content:")" !important;}
+
+.entry-interaction-links li:before, .comment-interaction-links li:before, .comment-pages a:before {content:"(";}
+.entry-interaction-links li:after, .comment-interaction-links li:after,.comment-pages a:after {content:")";}
+
+.comment .userpic {display:inline-block; max-width:100px;}
+
 ul.entry-interaction-links {list-style: none outside none; display: inline; text-align: center; padding: 0.5em 0;}
 
-        .comment-info {display: inline-block !important; vertical-align: top !important;}
-        .poster {display: block !important;}
-        ul.comment-management-links {display: inline !important;}
-        .comment-management-links li {display:inline!important; list-style: none!important; }
+.comment-info {display: inline-block; vertical-align: top;}
+.poster {display: block;}
 
-          ul.comment-interaction-links {display: inline !important; margin: 0 !important; }
-        .comment-interaction-links li {display:inline!important; list-style: none!important; }
-              .link {color: #111 !important;}
+ul.comment-management-links {display: inline;}
+.comment-management-links li {display:inline; list-style: none; }
 
-              .comment .footer { padding: .7em 0 1.2em !important;}
+ul.comment-interaction-links {display: inline; margin: 0; }
+.comment-interaction-links li {display:inline; list-style: none; }
 
-
-              .commentpermalink {margin-left:1.5em !important;}
-              .footer .commentpermalink {display:none !important;}
+.link {color: #111;} /*FIXME: needs to be on layout stylesheets*/
+.comment .footer { padding: .7em 0 1.2em;}
+.bottom-comment {text-align: center;}
+.commentpermalink, .comment .poster-ip  {margin-left:1.5em;}
+.footer .commentpermalink {display:none;}
 .bottompages { margin-bottom: 1em;}
-              .comment .invisible {position: relative !important;}
-.comment .poster-ip {margin-left: 1.5em;}
+.comment .invisible {position: relative;}
 .comment .datetime {font-size:smaller;}
