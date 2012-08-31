@@ -11,6 +11,7 @@ class Siteviews {
     function builtin set_content(string area, string text);
 }
 
+
 property builtin Siteviews SITEVIEWS {
     noui = 1;
     doc_flags = "[sys]";
@@ -89,7 +90,7 @@ set text_icons_keyword_sep = ", ";
 set text_icons_inactive = "[Inactive]";
 
 function IconsPage::print_title() {
-    # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate. 
+    # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate.
     $*SITEVIEWS->set_content("title",$this->view_title());
 }
 
@@ -107,7 +108,7 @@ function IconsPage::print_body() {
         } else {
             """$.journal hasn't uploaded any icons. You can <a href="$*SITEROOT/manage/subscriptions/user?journal=$.journal.username">be notified</a> when $.journal uploads an icon, if you want.""";
         }
-    } else {    
+    } else {
         """<h1>$*text_icons_page_header</h1><p>""";
         print "These are the icons for ";
         print $.journal;
@@ -134,7 +135,7 @@ function IconsPage::print_body() {
             }
             if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
         }
-        
+
         """<div class="icon-container">""";
         foreach var Icon i ($.icons) {
             $piccount++;
@@ -146,7 +147,7 @@ function IconsPage::print_body() {
             $i->print();
 
             if ($piccount % 2 == 1) {
-                
+
             } else {
                 """</div>""";
             }
@@ -155,7 +156,7 @@ function IconsPage::print_body() {
             if ($piccount % 2 == 1) {
                 """</div>""";
             }
-            
+
         } else {
         }
         """</div>""";
@@ -165,3 +166,158 @@ function IconsPage::print_body() {
     }
 }
 
+
+# EntryPage Functions
+
+set text_post_comment = "Post a new comment";
+set text_comment_reply = "Reply to this";
+set entry_date_format = "iso";
+
+function EntryPage::print_default_stylesheet() {
+    # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
+    $*SITEVIEWS->need_res( "stc/entryreplypage.css" );
+
+}
+
+function Page::print_entry(Entry e)
+"The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
+{
+    ## For most styles, this will be overridden by FriendsPage::print_entry and such.
+    $e->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $e->print_userpic();
+    """<div class="poster-info">\n""";
+    $e->print_poster();
+    $e->print_metatypes();
+    $e->print_time();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="action-box">\n""";
+    """<div class="inner">\n""";
+    $e->print_management_links();
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="currents">\n""";
+    $e->print_metadata();
+    $e->print_tags();
+    """</div>\n""";
+    """<div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $e->print_subject();
+    $e->print_text();
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $this->print_entry_footer($e);
+    "</div>\n</div>\n";
+
+    $e->print_wrapper_end();
+
+}
+
+function EntryPage::print_entry_footer(Entry e) {
+    """<hr class="above-entry-interaction-links" />""";
+    $e->print_interaction_links("topcomment");
+    $this->print_reply_container({ "target" => "topcomment" });
+}
+
+function EntryPage::print_comment_section(Entry e) {
+   "<div id='comments'><div class='inner'>";
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages" });
+   if ( $e.comments.comments_disabled_maintainer ) {
+        """<div class='comments-message'>$*text_comments_disabled_maintainer</div>""";
+   }
+   $.comment_nav->print({ "class" => "comment-pages toppages" });
+   $this->print_multiform_start();
+
+   $this->print_comments($.comments);
+   if ($.comment_pages.total_subitems > 0) {
+        "<div class='bottomcomment'>";
+        $e->print_interaction_links("bottomcomment");
+        $this->print_reply_container({ "target" => "bottomcomment" });
+        "</div>";
+   }
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages bottompages" });
+   if ($.comment_pages.total_subitems > 0) {
+        $.comment_nav->print({ "class" => "comment-pages bottompages" });
+        $this->print_multiform_actionline();
+        $this->print_multiform_end();
+   }
+    "</div></div>";
+}
+
+function ReplyPage::print_comment (Comment c) {
+# ReplyPage and EntryPage work nicest if they output the same structure for printing comments and entries, but this requires to manually change both ReplyPage::print_comment and EntryPage::print_comment.  Layout authors can also choose to override separately for different structures.
+# Note that there is no multiform check on the ReplyPage.
+
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    if ($c.subject) {
+    $c->print_subject();
+    } else {"""<hr style="style: none; padding: 0.5em 0;">""";}
+    $c->print_metatypes();
+    $c->print_time();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $c->print_userpic();
+    """<div class="poster-information">\n""";
+    $c->print_poster();
+    $c->print_metadata();
+    """</div>\n""";
+    $c->print_text();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+}
+
+function EntryPage::print_comment (Comment c) {
+# ReplyPage and EntryPage work nicest if they output the same structure for printing comments and entries, but this requires to manually change both ReplyPage::print_comment and EntryPage::print_entry.  Layout authors can also choose to override separately for different structures.
+
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $c->print_userpic();
+    """<div class="comment-info">\n""";
+    $c->print_subject();
+    $c->print_metatypes();
+    $c->print_poster();
+    $c->print_time();
+    $c->print_metadata();
+
+   print safe """<span class="link commentpermalink">(<a href="$c.permalink_url">$*text_comment_link</a>)</span>\n"""; $c->print_management_links();
+    if ($this.multiform_on) {
+            """<span class="multiform-checkbox">""";
+            print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
+            $c->print_multiform_check();
+        "</span>";
+        }
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $c->print_text();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+        $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+}

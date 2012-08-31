@@ -1,0 +1,66 @@
+
+.entry .header {background:none !important;}
+.entry .datetime:before { content:"@ " !important;}
+.entry .datetime:after {content:" UTC";}
+.entry .datetime {font-style: italic;}
+.entry .contents{ margin-left: 30px !important}
+
+
+ h3.entry-title {     font-size: larger;
+    font-style: italic;
+    font-weight: bold;
+    margin: 10px 0;}
+
+.action-box {clear:both !important;
+ }
+
+.action-box .inner {padding: 0.5em !important;background-color: #FFAFB6 !important;
+    border: 1px solid #C1272D !important;
+    color: #111111;
+ }
+.action-box ul {background-color:none !important; border: 0 !important;     list-style: none outside none;}
+.entry .metadata {padding:0 !important;}
+.metadata ul {margin:0 !important; }
+.currents {
+ clear:both !important;}
+
+    .entry-wrapper .userpic {
+    display: table-cell !important; float: none !important;}
+
+
+
+.poster-info { display: table-cell !important;
+    overflow: auto !important;
+    padding: 0.5em !important;
+    vertical-align: bottom !important; }
+
+    .entry-wrapper {margin:0 !important}
+
+    hr.above-entry-interaction-links {margin: 1em 0 !important;}
+
+    .entry-interaction-links, .comment-pages {text-align: center !important; font-weight:bold !important; float:none !important;}
+
+.entry-interaction-links li {display:inline;}
+    .entry-interaction-links li:before, .comment-interaction-links li:before, .comment-pages a:before {content:"(" !important;}
+    .comment .userpic {display:inline-block !important; max-width:100px !important;}
+        .entry-interaction-links li:after, .comment-interaction-links li:after,.comment-pages a:after {content:")" !important;}
+ul.entry-interaction-links {list-style: none outside none; display: inline; text-align: center; padding: 0.5em 0;}
+
+        .comment-info {display: inline-block !important; vertical-align: top !important;}
+        .poster {display: block !important;}
+        ul.comment-management-links {display: inline !important;}
+        .comment-management-links li {display:inline!important; list-style: none!important; }
+
+          ul.comment-interaction-links {display: inline !important; margin: 0 !important; }
+        .comment-interaction-links li {display:inline!important; list-style: none!important; }
+              .link {color: #111 !important;}
+
+              .comment .footer { padding: .7em 0 1.2em !important;}
+
+
+              .commentpermalink {margin-left:1.5em !important;}
+              .footer .commentpermalink {display:none !important;}
+.bottompages { margin-bottom: 1em;}
+              .comment .invisible {position: relative !important;}
+.comment .poster-ip {margin-left: 1.5em;}
+.comment .datetime {font-size:smaller;}
