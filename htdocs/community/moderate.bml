@@ -495,6 +495,10 @@ body<=
               $ret .= "<font face='Arial,Helvetica' size='+1'><i><b>$subject</b></i></font><br />\n";
           }
         $ret .= $event;
+
+        my $reason = $props->{'adult_content_reason'};
+        if ($reason) { $ret .= "<br /><br />" . LJ::Lang::ml( '.adult.reason', { reason => $reason } ) };
+
         $ret .= "</div>";
         $ret .= "<br clear='all' /><hr width='100%' size='2' align='center' />";
     }
