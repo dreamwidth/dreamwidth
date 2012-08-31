@@ -1509,3 +1509,5 @@ general /customize/options.bml.switcher.label
 
 general web.authas.label
 general web.authas.label.comm
+
+general /community/settings.bml.label.commheader
