@@ -172,16 +172,19 @@ function IconsPage::print_body() {
 set text_post_comment = "Post a new comment";
 set text_comment_reply = "Reply to this";
 set entry_date_format = "iso";
+set text_comment_from = "";
+set text_comment_date = "";
+set text_comment_ipaddr = "";
 
 function EntryPage::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/entryreplypage.css" );
+    $*SITEVIEWS->need_res( "stc/entrypage.css" );
 
 }
 
 function ReplyPage::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/entryreplypage.css" );
+    $*SITEVIEWS->need_res( "stc/replypage.css" );
 
 }
 
@@ -247,15 +250,26 @@ function Entry::print_poster {
     }
     print safe "</span>";
 }
+
+function Comment::print_poster() {
+    var Page p = get_page();
+    var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
+    if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
+if ($p isa ReplyPage) {
+    print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster wrote</span>\n";
+} else {     print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster</span>\n"; }
+
+
+}
 function EntryPage::print_entry_footer(Entry e) {
     """<hr class="above-entry-interaction-links" />""";
     $e->print_interaction_links("topcomment");
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages" });
     $this->print_reply_container({ "target" => "topcomment" });
 }
 
 function EntryPage::print_comment_section(Entry e) {
    "<div id='comments'><div class='inner'>";
-   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages" });
    if ( $e.comments.comments_disabled_maintainer ) {
         """<div class='comments-message'>$*text_comments_disabled_maintainer</div>""";
    }
@@ -317,24 +331,24 @@ function EntryPage::print_comment (Comment c) {
 function ReplyPage::print_comment (Comment c) {
 # ReplyPage and EntryPage work nicest if they output the same structure for printing comments and entries, but this requires to manually change both ReplyPage::print_comment and EntryPage::print_entry.  Layout authors can also choose to override separately for different structures.
 
+    ## For most styles, this will be overridden by FriendsPage::print_entry and such.
     $c->print_wrapper_start();
     """<div class="header">\n""";
     """<div class="inner">\n""";
     $c->print_userpic();
-    """<div class="comment-info">\n""";
-    $c->print_subject();
-    $c->print_metatypes();
+    """<div class="poster-info">\n""";
     $c->print_poster();
+    $c->print_metatypes();
     $c->print_time();
-    $c->print_metadata();
-
-   print safe """<span class="link commentpermalink">(<a href="$c.permalink_url">$*text_comment_link</a>)</span>\n"""; $c->print_management_links();
     """</div>\n""";
     """</div>\n""";
     """</div>\n""";
+    """<div>\n""";
     """<div class="contents">\n""";
     """<div class="inner">\n""";
+    $c->print_subject();
     $c->print_text();
+    """</div>\n""";
     """</div>\n""";
     """</div>\n""";
     """<div class="footer">\n""";
@@ -342,7 +356,28 @@ function ReplyPage::print_comment (Comment c) {
         $c->print_interaction_links();
     $c->print_reply_container();
     "</div>\n</div>\n";
+
     $c->print_wrapper_end();
+
+}
+
+function Entry::print_poster {
+    var Page p = get_page();
+    var string emptyclass = ((($p isa RecentPage and not $p isa FriendsPage) or $p isa MonthPage or $p isa DayPage) and $p.journal.journal_type != "C") ? "empty" : "";
+    print safe "<span class=\"poster entry-poster $emptyclass\">";
+    if ($p isa FriendsPage or $p isa EntryPage or $p isa ReplyPage) {
+        print safe "$this.poster.name ("; $this.poster->print();""") wrote""";
+        if (not $this.poster->equals($this.journal)) {
+            print safe " in ";
+            $this.journal->print();""")""";
+        }
+    }
+    else {
+        if (not $this.poster->equals($this.journal)) {
+          $this.poster->print();
+        }
+    }
+    print safe "</span>";
 }
 
 function ReplyPage::print_body
@@ -355,12 +390,26 @@ function ReplyPage::print_body
     if ($.replyto isa Entry) {
         var Entry e = $.replyto as Entry;
         $this->print_entry($e);
+        """<hr style="margin: 1em 0;">""";
+        $e->print_interaction_links("topcomment");
     }
     elseif ($.replyto isa Comment) {
         var Comment c = $.replyto as Comment;
         $this->print_comment($c);
+        """<hr style="margin: 1em 0;">""";
+        $.entry->print_interaction_links("topcomment");
     }
 
     """<h1>Post a comment in response:</h1>""";
     $.form->print();
+}
+
+function EntryPage::print_title() {
+    # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate.
+    $*SITEVIEWS->set_content("windowtitle",$this.journal.username + $*text_default_separator + $this->view_title());
+}
+
+function ReplyPage::print_title() {
+    # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate.
+    $*SITEVIEWS->set_content("windowtitle",$this.journal.username + $*text_default_separator + $this->view_title());
 }
