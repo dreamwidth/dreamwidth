@@ -66,10 +66,13 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .link {color: #111;} /*FIXME: needs to be on layout stylesheets*/
 .comment .footer { padding: .7em 0 1.2em;}
 .bottomcomment {text-align: center;}
-.commentpermalink, .comment .poster-ip  {margin-left:1.5em;}
+.commentpermalink, .comment .poster-ip  {margin-left:1em;}
 .footer .commentpermalink {display:none;}
 .bottompages { margin-bottom: 1em;}
 .comment .invisible {position: relative;}
 .comment .datetime {font-size:smaller;}
+.comment .hidden {font-weight:bold;}
+.partial h4.entry-title {font-size: 1em;}
+.partial .poster {display:inline;}
 
 #qrform table {margin: 0 auto;}

@@ -67,6 +67,7 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .commentpermalink, .comment .poster-ip  {margin-left:1.5em;}
 .footer .commentpermalink {display:none;}
 .bottompages { margin-bottom: 1em;}
+.comment .hidden {font-weight:bold;}
 
 #qrform table {margin: 0 auto;}
 .readlink {font-weight:bold; text-align: center;}
