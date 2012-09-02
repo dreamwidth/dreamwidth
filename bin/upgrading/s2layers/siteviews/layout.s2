@@ -175,6 +175,7 @@ set entry_date_format = "iso";
 set text_comment_from = "";
 set text_comment_date = "";
 set text_comment_ipaddr = "";
+set text_comment_link = "Thread";
 
 function EntryPage::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
@@ -307,7 +308,7 @@ function EntryPage::print_comment (Comment c) {
     $c->print_time();
     $c->print_metadata();
 
-   print safe """<span class="commentpermalink">(<a href="$c.permalink_url">$*text_comment_link</a>)</span>\n"""; $c->print_management_links();
+   print safe """<span class="commentpermalink">(<a href="$c.permalink_url">link</a>)</span>\n"""; $c->print_management_links();
     if ($this.multiform_on) {
             """<span class="multiform-checkbox">""";
             print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
@@ -402,21 +403,6 @@ function ReplyPage::print_body
     ") </div>\n";
     """<h1>Post a comment in response:</h1>""";
     $.form->print();
-}
-
-#FIXME - this needs to be in core2. Also assumes a return either comment or entry in.
-
-function ReplyPage::view_title() : string {
-if ($.replyto isa Comment) {
-        var Comment c = $.replyto as Comment;
-        return $c->get_plain_subject() + " (" + $*text_comment_reply + ")";
-    }
-    else {
-        var Entry e = $.replyto as Entry;
-        return $e->get_plain_subject() + " (" + $*text_comment_reply + ")";
-    }
-
-
 }
 
 function EntryPage::print_title() {
