@@ -390,18 +390,32 @@ function ReplyPage::print_body
     if ($.replyto isa Entry) {
         var Entry e = $.replyto as Entry;
         $this->print_entry($e);
-        """<hr style="margin: 1em 0;">""";
-        $e->print_interaction_links("topcomment");
     }
     elseif ($.replyto isa Comment) {
         var Comment c = $.replyto as Comment;
         $this->print_comment($c);
-        """<hr style="margin: 1em 0;">""";
-        $.entry->print_interaction_links("topcomment");
     }
-
+    """<hr style="margin: 1em 0;">""";
+    """<div class="readlink"> (""";
+    $.entry.comments->print_readlink();
+    ") </div>\n";
     """<h1>Post a comment in response:</h1>""";
     $.form->print();
+}
+
+#FIXME - this needs to be in core2. Also assumes a return either comment or entry in.
+
+function ReplyPage::view_title() : string {
+if ($.replyto isa Comment) {
+        var Comment c = $.replyto as Comment;
+        return $c->get_plain_subject() + " (" + $*text_comment_reply + ")";
+    }
+    else {
+        var Entry e = $.replyto as Entry;
+        return $e->get_plain_subject() + " (" + $*text_comment_reply + ")";
+    }
+
+
 }
 
 function EntryPage::print_title() {
