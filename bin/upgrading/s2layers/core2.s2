@@ -4681,7 +4681,7 @@ function Comment::print_poster() {
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
     if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
 
-    print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster</span>\n";
+    print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster</span>\n";
 }
 
 
@@ -4896,7 +4896,7 @@ function Entry::print_metadata() {
 }
 function Comment::print_metadata() {
     if ($.metadata{"poster_ip"}) {
-        print safe "<span class=\"poster-ip\">$*text_comment_ipaddr (" + $.metadata{"poster_ip"} + ")</span>";
+        print safe "<span class=\"poster-ip\"><span class=\"comment-ip-text\">$*text_comment_ipaddr</span> (" + $.metadata{"poster_ip"} + ")</span>";
     }
 }
 
@@ -5367,7 +5367,7 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
     if ($datefmt != "none" and $timefmt != "none") { $main = $main + " "; }
     if ($timefmt != "none") { $main = $main + $display_time; }
 
-    return "<span class=\"datetime\">" + $*text_comment_date + " <span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span></span>";
+    return "<span class=\"datetime\"><span class=\"comment-date-text\">" + $*text_comment_date + " </span> <span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span></span>";
 }
 
 function Comment::print_time (string datefmt, string timefmt) {
@@ -5958,10 +5958,10 @@ function ItemRange::print(string{} opts) {
         print " $*comment_page_prev ";
     }
     foreach var int i (1..$.total) {
-        if ($i == $.current) { "<b>[$i]</b> "; }
+        if ($i == $.current) { "<span class=\"comment-page-$i comment-page-current\"><b>[$i]</b></span> "; }
         else {
             var string url_of = $this->url_of($i);
-            "<a href='$url_of$anchor'><b>[$i]</b></a> ";
+            "<a href='$url_of$anchor' class=\"comment-page\"><b>[$i]</b></a> ";
         }
     }
     var string url_next = $this->url_of($.current + 1);
@@ -5991,9 +5991,9 @@ function CommentNav::print(string{} opts) {
     print "<div class='$class'>";
 
     var string{} links = {
-        "flat"      => """<a href="$.url${sep}view=flat#comments">Flat</a>""",
-        "threaded"  => """<a href="$.url#comments">Threaded</a>""",
-        "top-only"  => """<a href="$.url${sep}view=top-only#comments">Top-Level Comments Only</a>""",
+        "flat"      => """<span class="flat"><a href="$.url${sep}view=flat#comments">Flat</a></span>""",
+        "threaded"  => """<span class="threaded"><a href="$.url#comments">Threaded</a></span>""",
+        "top-only"  => """<span class="top-only"><a href="$.url${sep}view=top-only#comments">Top-Level Comments Only</a></span>""",
         "expand_all"  => """<a href="$.url${sep}expand_all=1${page_arg}#comments" onClick="Expander.make(this,'$.url${sep}expand_all=1${page_arg}#comments',-1,false,false);return false;">Expand All</a>"""
     };
 
