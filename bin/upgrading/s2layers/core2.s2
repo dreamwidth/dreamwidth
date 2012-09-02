@@ -3713,14 +3713,7 @@ function EntryPage::view_title() : string {
     return $.entry.subject ? $.entry->get_plain_subject() : $*text_nosubject;
 }
 function ReplyPage::view_title() : string {
-if ($.replyto isa Comment) {
-        var Comment c = $.replyto as Comment;
-        return $c->get_plain_subject() + " (" + $*text_comment_reply + ")";
-    }
-    else {
-        var Entry e = $.replyto as Entry;
-        return $e->get_plain_subject() + " (" + $*text_comment_reply + ")";
-    }
+    return $.entry->get_plain_subject() + " (" + $*text_comment_reply + ")";
 }
 function Page::title() [notags] : string {
     return $this->view_title();
