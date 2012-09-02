@@ -279,6 +279,7 @@ function EntryPage::print_comment_section(Entry e) {
    $this->print_comments($.comments);
    if ($.comment_pages.total_subitems > 0) {
         "<div class='bottomcomment'>";
+        """<hr class="below-entry-interaction-links" />""";
         $e->print_interaction_links("bottomcomment");
         $this->print_reply_container({ "target" => "bottomcomment" });
         "</div>";

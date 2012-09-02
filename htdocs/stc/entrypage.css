@@ -41,7 +41,7 @@ h3.entry-title {
 
 .entry-wrapper {margin:0}
 
-hr.above-entry-interaction-links {margin: 1em 0;}
+hr.above-entry-interaction-links, hr.below-entry-interaction-links {margin: 1em 0;}
 
 .entry-interaction-links, .comment-pages {text-align: center; font-weight:bold; float:none;}
 
@@ -71,8 +71,9 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .bottompages { margin-bottom: 1em;}
 .comment .invisible {position: relative;}
 .comment .datetime {font-size:smaller;}
-.comment .hidden {font-weight:bold;}
-.partial h4.entry-title {font-size: 1em;}
+.poster-hidden {font-weight:bold;}
+.partial h4.entry-title {font-size: 1em; display:inline;}
+.partial h4.entry-title a {font-size: 1em;}
 .partial .poster {display:inline;}
 
 #qrform table {margin: 0 auto;}
