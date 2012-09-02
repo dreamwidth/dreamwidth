@@ -1,14 +1,9 @@
 
 .action-box {clear:both;}
 
-.action-box .inner { /*FIXME: some of this code needs to be specified on the layout pages, not here*/
-    padding: 0.5em;
-    background-color: #FFAFB6;
-    border: 1px solid #C1272D;
-    color: #111111;
-}
+.action-box .inner { padding: 0.5em; }
 
-.action-box ul {background-color:none; border: 0; list-style: none outside none;}
+.action-box ul {background-color:none; border: 0; list-style: none outside none; margin:0;}
 
 .tag-text, .metadata-label {font-weight: bold;}
 .entry .metadata {padding:0;}
@@ -65,7 +60,7 @@ ul.comment-management-links {display: inline;}
 ul.comment-interaction-links {display: inline; margin: 0; }
 .comment-interaction-links li {display:inline; list-style: none; }
 
-.link {color: #111;} /*FIXME: needs to be on layout stylesheets*/
+
 .comment .footer { padding: .7em 0 1.2em;}
 .bottomcomment {text-align: center;}
 .commentpermalink, .comment .poster-ip  {margin-left:1em;}

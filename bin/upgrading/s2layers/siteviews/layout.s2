@@ -307,7 +307,7 @@ function EntryPage::print_comment (Comment c) {
     $c->print_time();
     $c->print_metadata();
 
-   print safe """<span class="link commentpermalink">(<a href="$c.permalink_url">$*text_comment_link</a>)</span>\n"""; $c->print_management_links();
+   print safe """<span class="commentpermalink">(<a href="$c.permalink_url">$*text_comment_link</a>)</span>\n"""; $c->print_management_links();
     if ($this.multiform_on) {
             """<span class="multiform-checkbox">""";
             print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";

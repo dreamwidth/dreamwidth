@@ -127,9 +127,9 @@ table.grid, table.grid td {
     background: transparent !important;
 }
 
-td.odd { background-color: #c0c0c0; }
-td.even { background-color: #e2e2e2; }
-td.screened { background-color: #707070; }
+.comment-wrapper-odd .header { background-color: #c0c0c0; }
+.comment-wrapper-even .header { background-color: #e2e2e2; }
+.screened .header { background-color: #707070; }
 td.highlight { background-color: #eeeeee; }
 
 /* Quick Reply table */
@@ -137,4 +137,3 @@ td.highlight { background-color: #eeeeee; }
 #qrformdiv table {
     border: 1px solid #999;
 }
-

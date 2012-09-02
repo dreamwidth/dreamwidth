@@ -573,10 +573,10 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
     background: transparent !important;
 }
 
-.cmtbar { border-bottom: none; border-right: none; }
-td.odd  { background-color: #EEEECC; }
-td.even { background-color: #DDDBBB; }
-td.screened { background-color: #EEEEEE; }
+.comment .header { border-bottom: none; border-right: none; }
+.comment-wrapper-odd .header  { background-color: #EEEECC; }
+.comment-wrapper-even .header { background-color: #DDDBBB; }
+.screened .header{ background-color: #EEEEEE; }
 
 /* profile.css */
 .section, .username, .actions li {
