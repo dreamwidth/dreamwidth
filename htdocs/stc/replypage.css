@@ -12,9 +12,11 @@
 
 .tag-text, .metadata-label {font-weight: bold;}
 .entry .metadata {padding:0;}
-.metadata ul {margin:0; }
-.currents {clear:both;}
-.tag ul {list-style:none; display:inline; margin-left:0;}
+.metadata ul {margin: 0; list-style: none;}
+.metadata li {margin-top: 0.5em;}
+.currents {clear:both; margin-left:50px;}
+.tag ul {list-style:none; display:inline; margin-left:0; }
+.tag {margin-top:0.6em;}
 .tag li {display:inline;}
 
 h3.entry-title, h4.comment-title {

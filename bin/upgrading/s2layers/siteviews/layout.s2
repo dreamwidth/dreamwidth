@@ -256,7 +256,7 @@ function Comment::print_poster() {
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
     if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
 if ($p isa ReplyPage) {
-    print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster wrote</span>\n";
+    print safe "<span class=\"poster comment-poster\">$*text_comment_from $this.poster.name ($poster) wrote</span>\n";
 } else {     print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster</span>\n"; }
 
 
