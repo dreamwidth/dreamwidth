@@ -305,6 +305,7 @@ sub resolve_path_for_uri {
             if ( -d $file && -e "$file/index.bml" ) {
                 return redir( $r, $uri . "/" ) unless $uri =~ m!/$!;
                 $file .= "/index.bml";
+                $uri .= "/index.bml";
             }
 
             $file = abs_path( $file );
