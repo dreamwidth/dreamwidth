@@ -19,6 +19,7 @@ use lib "$LJ::HOME/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
 use LJ::Protocol;
 use LJ::ParseFeed;
 use LJ::CleanHTML;
+use DW::FeedCanonicalizer;
 
 sub update_feed {
     my ($urow, $verbose) = @_;
@@ -43,7 +44,7 @@ sub update_feed {
 }
 
 sub delay {
-    my ($userid, $minutes, $status) = @_;
+    my ($userid, $minutes, $status, $synurl) = @_;
 
     # add some random backoff to avoid waves building up
     $minutes += int(rand(5));
@@ -51,10 +52,13 @@ sub delay {
     # in old ljmaint-based codepath, LJ::Worker::SynSuck won't be loaded.  hence the eval.
     eval { LJ::Worker::SynSuck->cond_debug("Syndication userid $userid rescheduled for $minutes minutes due to $status") };
 
+    my $token = defined $synurl ? DW::FeedCanonicalizer::canonicalize( $synurl ) : undef;
+
     my $dbh = LJ::get_db_writer();
+
     $dbh->do("UPDATE syndicated SET lastcheck=NOW(), checknext=DATE_ADD(NOW(), ".
-             "INTERVAL ? MINUTE), laststatus=? WHERE userid=?",
-             undef, $minutes, $status, $userid);
+             "INTERVAL ? MINUTE), laststatus=?, fuzzy_token = COALESCE(?,fuzzy_token) WHERE userid=?",
+             undef, $minutes, $status, $token, $userid);
     return undef;
 }
 
@@ -116,7 +120,7 @@ sub get_content {
     # check if not modified
     if ($res->code() == RC_NOT_MODIFIED) {
         print "  not modified.\n" if $verbose;
-        return delay($userid, $readers ? 60 : 24*60, "notmodified");
+        return delay($userid, $readers ? 60 : 24*60, "notmodified", $synurl);
     }
 
     return [$res, $content];
@@ -195,8 +199,8 @@ sub process_content {
     my ($urow, $resp, $verbose) = @_;
 
     my ($res, $content) = @$resp;
-    my ($user, $userid, $synurl, $lastmod, $etag, $readers) =
-        map { $urow->{$_} } qw(user userid synurl lastmod etag numreaders);
+    my ($user, $userid, $synurl, $lastmod, $etag, $readers, $fuzzy_token) =
+        map { $urow->{$_} } qw(user userid synurl lastmod etag numreaders fuzzy_token);
 
     my $dbh = LJ::get_db_writer();
 
@@ -204,7 +208,7 @@ sub process_content {
     unless ( $ok ) {
         if ( $rv->{type} eq "parseerror" ) {
             # parse error!
-            delay( $userid, 3*60, "parseerror" );
+            delay( $userid, 3*60, "parseerror", $synurl );
             if ( my $error = $rv->{message} ) {
                 print "Parse error! $error\n" if $verbose;
                 $error =~ s! at /.*!!;
@@ -222,6 +226,8 @@ sub process_content {
     }
 
     my $feed = $rv->{feed};
+    $fuzzy_token = DW::FeedCanonicalizer::canonicalize( $synurl, $feed );
+  
     # register feeds that can support hubbub.
     if ( LJ::is_enabled( 'hubbub' ) && $feed->{self} && $feed->{hub} ) {
         # this is a square operation.  register every "self" and the feed url along
@@ -244,7 +250,7 @@ sub process_content {
 
     my $udbh = LJ::get_cluster_master($su);
     unless ($udbh) {
-        return delay($userid, 15, "nodb");
+        return delay($userid, 15, "nodb"); 
     }
 
     # TAG:LOG2:synsuck_delete_olderitems
@@ -524,9 +530,10 @@ sub process_content {
     # if readers are gone, don't check for a whole day
     $int = 60*24 unless $readers;
 
-    $dbh->do("UPDATE syndicated SET checknext=DATE_ADD(NOW(), INTERVAL $int MINUTE), ".
+    $dbh->do("UPDATE syndicated SET fuzzy_token=?, checknext=DATE_ADD(NOW(), INTERVAL ? MINUTE), ".
              "lastcheck=NOW(), lastmod=?, etag=?, laststatus=?, numreaders=? $updatenew ".
-             "WHERE userid=$userid", undef, $r_lastmod, $r_etag, $status, $readers);
+             "WHERE userid=?", undef,
+             $fuzzy_token, $int, $r_lastmod, $r_etag, $status, $readers, $userid) or die $dbh->errstr;
     eval { LJ::Worker::SynSuck->cond_debug("Syndication userid $userid updated w/ new items") };
     return 1;
 }
