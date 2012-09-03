@@ -16,7 +16,6 @@ package LJ;
 use strict;
 use Cwd 'abs_path';
 use List::MoreUtils 'uniq';
-use DW;
 
 # There is no reason for this to not be loaded, but making sure
 #   Not 'use' to prevent calling an empty import().
@@ -70,7 +69,7 @@ lib->import( $LJ::HOME . "/src/DSMS/lib" );
 
 {
     my @dirs = ();
-    my $ext_path = abs_path( DW->home . "/ext" );
+    my $ext_path = abs_path( $LJ::HOME . "/ext" );
     die "ext directory missing" unless defined $ext_path;
 
     my %dir_scopes = (

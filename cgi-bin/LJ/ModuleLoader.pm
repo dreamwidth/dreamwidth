@@ -23,7 +23,6 @@ our @ISA    = qw(Exporter);
 our @EXPORT = qw(module_subclasses);
 
 use DW;
-use LJ::Directories;
 
 # given a module name, looks under cgi-bin/ for its patch and, if valid,
 # returns (assumed) package names of all modules in the directory
