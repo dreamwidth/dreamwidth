@@ -1,3 +1,345 @@
+#NEWLAYER: database/applegreen
+layerinfo type = "theme";
+layerinfo name = "Apple Green";
+layerinfo redist_uniq = "database/applegreen";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#93bc0d";
+set color_page_link_visited = "#abbd71";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#0e0e0e";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#93bc0d";
+set color_entry_link_hover = "#93bc0d";
+set color_entry_link_visited = "#abbd71";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#93bc0d";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#93bc0d";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#abbd71";
+set color_calendar_header_background = "#000";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#93bc0d";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#93bc0d";
+set color_module_calendar_background_visited = "#abbd71";
+set color_module_calendar_header_background = "#0e0e0e";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#0e0e0e";
+set color_module_header_background_hover = "#93bc0d";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#abbd71";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#93bc0d";
+set color_module_link_visited = "#abbd71";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_gray.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/applegreen.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/applegreen.png";
+
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
+set image_tellafriend = "database/icon-tellafriend_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
+set image_track = "database/icon-track_gray.png";
+set image_tracked = "database/icon-tracked_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
+
+
+#NEWLAYER: database/aquaticlife
+layerinfo type = "theme";
+layerinfo name = "Aquatic Life";
+layerinfo redist_uniq = "database/aquaticlife";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#081e1d";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#89bb31";
+set color_page_link_visited = "#a6ba82";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#112e2d";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#89bb31";
+set color_entry_link_hover = "#89bb31";
+set color_entry_link_visited = "#a6ba82";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#89bb31";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#89bb31";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#a6ba82";
+set color_calendar_header_background = "#081e1d";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#89bb31";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#89bb31";
+set color_module_calendar_background_visited = "#a6ba82";
+set color_module_calendar_header_background = "#112e2d";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#112e2d";
+set color_module_header_background_hover = "#89bb31";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#a6ba82";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#89bb31";
+set color_module_link_visited = "#a6ba82";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_green.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/applegreen2.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/applegreen2.png";
+
+set image_addmemories = "database/icon-addmemories_green.png";
+set image_comments = "database/icon-comments_green.png";
+set image_delete = "database/icon-delete_green.png";
+set image_edit = "database/icon-edit_green.png";
+set image_edittags = "database/icon-edittags_green.png";
+set image_expand = "database/icon-expand_green.png";
+set image_freeze = "database/icon-freeze_green.png";
+set image_giveaccess = "database/icon-giveaccess_green.png";
+set image_join = "database/icon-join_green.png";
+set image_link = "database/icon-link_green.png";
+set image_maxcomments = "database/icon-maxcomments_green.png";
+set image_message = "database/icon-reply_green.png";
+set image_next = "database/icon-next_green.png";
+set image_parent = "database/icon-parent_green.png";
+set image_prev = "database/icon-previous_green.png";
+set image_reply = "database/icon-reply_green.png";
+set image_screen = "database/icon-screen_green.png";
+set image_subscribe = "database/icon-subscribe_green.png";
+set image_tellafriend = "database/icon-tellafriend_green.png";
+set image_thread = "database/icon-thread_green.png";
+set image_threadroot = "database/icon-threadroot_green.png";
+set image_track = "database/icon-track_green.png";
+set image_tracked = "database/icon-tracked_green.png";
+set image_unfreeze = "database/icon-unfreeze_green.png";
+set image_unscreen = "database/icon-unscreen_green.png";
+
+
+#NEWLAYER: database/automne
+layerinfo type = "theme";
+layerinfo name = "Automne";
+layerinfo redist_uniq = "database/automne";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1e1413";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#d75124";
+set color_page_link_visited = "#d69681";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2f2221";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#d75124";
+set color_entry_link_hover = "#d75124";
+set color_entry_link_visited = "#d69681";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#d75124";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#d75124";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#d69681";
+set color_calendar_header_background = "#1e1413";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#d75124";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#d75124";
+set color_module_calendar_background_visited = "#d69681";
+set color_module_calendar_header_background = "#2f2221";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#2f2221";
+set color_module_header_background_hover = "#d75124";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#d69681";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#d75124";
+set color_module_link_visited = "#d69681";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_brown.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/darkorange.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/darkorange.png";
+
+set image_addmemories = "database/icon-addmemories_brown.png";
+set image_comments = "database/icon-comments_brown.png";
+set image_delete = "database/icon-delete_brown.png";
+set image_edit = "database/icon-edit_brown.png";
+set image_edittags = "database/icon-edittags_brown.png";
+set image_expand = "database/icon-expand_brown.png";
+set image_freeze = "database/icon-freeze_brown.png";
+set image_giveaccess = "database/icon-giveaccess_brown.png";
+set image_join = "database/icon-join_brown.png";
+set image_link = "database/icon-link_brown.png";
+set image_maxcomments = "database/icon-maxcomments_brown.png";
+set image_message = "database/icon-reply_brown.png";
+set image_next = "database/icon-next_brown.png";
+set image_parent = "database/icon-parent_brown.png";
+set image_prev = "database/icon-previous_brown.png";
+set image_reply = "database/icon-reply_brown.png";
+set image_screen = "database/icon-screen_brown.png";
+set image_subscribe = "database/icon-subscribe_brown.png";
+set image_tellafriend = "database/icon-tellafriend_brown.png";
+set image_thread = "database/icon-thread_brown.png";
+set image_threadroot = "database/icon-threadroot_brown.png";
+set image_track = "database/icon-track_brown.png";
+set image_tracked = "database/icon-tracked_brown.png";
+set image_unfreeze = "database/icon-unfreeze_brown.png";
+set image_unscreen = "database/icon-unscreen_brown.png";
+
+
 #NEWLAYER: database/blue
 layerinfo type = "theme";
 layerinfo name = "Blue";
@@ -84,6 +426,576 @@ set image_background_footer_height = 31;
 set image_background_footer_position = "top center";
 set image_background_footer_repeat = "no-repeat";
 set image_background_footer_url = "database/blue.png";
+
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
+set image_tellafriend = "database/icon-tellafriend_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
+set image_track = "database/icon-track_gray.png";
+set image_tracked = "database/icon-tracked_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
+
+
+#NEWLAYER: database/champetre
+layerinfo type = "theme";
+layerinfo name = "Champêtre";
+layerinfo redist_uniq = "database/champetre";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#081e1d";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#ddb61a";
+set color_page_link_visited = "#decc85";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#112e2d";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#ddb61a";
+set color_entry_link_hover = "#ddb61a";
+set color_entry_link_visited = "#decc85";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#ddb61a";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#ddb61a";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#decc85";
+set color_calendar_header_background = "#081e1d";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#ddb61a";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#ddb61a";
+set color_module_calendar_background_visited = "#decc85";
+set color_module_calendar_header_background = "#112e2d";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#112e2d";
+set color_module_header_background_hover = "#ddb61a";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#decc85";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#ddb61a";
+set color_module_link_visited = "#decc85";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_green.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/mustard.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/mustard.png";
+
+set image_addmemories = "database/icon-addmemories_green.png";
+set image_comments = "database/icon-comments_green.png";
+set image_delete = "database/icon-delete_green.png";
+set image_edit = "database/icon-edit_green.png";
+set image_edittags = "database/icon-edittags_green.png";
+set image_expand = "database/icon-expand_green.png";
+set image_freeze = "database/icon-freeze_green.png";
+set image_giveaccess = "database/icon-giveaccess_green.png";
+set image_join = "database/icon-join_green.png";
+set image_link = "database/icon-link_green.png";
+set image_maxcomments = "database/icon-maxcomments_green.png";
+set image_message = "database/icon-reply_green.png";
+set image_next = "database/icon-next_green.png";
+set image_parent = "database/icon-parent_green.png";
+set image_prev = "database/icon-previous_green.png";
+set image_reply = "database/icon-reply_green.png";
+set image_screen = "database/icon-screen_green.png";
+set image_subscribe = "database/icon-subscribe_green.png";
+set image_tellafriend = "database/icon-tellafriend_green.png";
+set image_thread = "database/icon-thread_green.png";
+set image_threadroot = "database/icon-threadroot_green.png";
+set image_track = "database/icon-track_green.png";
+set image_tracked = "database/icon-tracked_green.png";
+set image_unfreeze = "database/icon-unfreeze_green.png";
+set image_unscreen = "database/icon-unscreen_green.png";
+
+
+#NEWLAYER: database/continental
+layerinfo type = "theme";
+layerinfo name = "Continental";
+layerinfo redist_uniq = "database/continental";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1e1413";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#48a4c3";
+set color_page_link_visited = "#74aec2";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2f2221";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#48a4c3";
+set color_entry_link_hover = "#48a4c3";
+set color_entry_link_visited = "#74aec2";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#48a4c3";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#48a4c3";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#74aec2";
+set color_calendar_header_background = "#1e1413";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#48a4c3";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#48a4c3";
+set color_module_calendar_background_visited = "#74aec2";
+set color_module_calendar_header_background = "#2f2221";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#2f2221";
+set color_module_header_background_hover = "#48a4c3";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#74aec2";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#48a4c3";
+set color_module_link_visited = "#74aec2";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_brown.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/cyan.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/cyan.png";
+
+set image_addmemories = "database/icon-addmemories_brown.png";
+set image_comments = "database/icon-comments_brown.png";
+set image_delete = "database/icon-delete_brown.png";
+set image_edit = "database/icon-edit_brown.png";
+set image_edittags = "database/icon-edittags_brown.png";
+set image_expand = "database/icon-expand_brown.png";
+set image_freeze = "database/icon-freeze_brown.png";
+set image_giveaccess = "database/icon-giveaccess_brown.png";
+set image_join = "database/icon-join_brown.png";
+set image_link = "database/icon-link_brown.png";
+set image_maxcomments = "database/icon-maxcomments_brown.png";
+set image_message = "database/icon-reply_brown.png";
+set image_next = "database/icon-next_brown.png";
+set image_parent = "database/icon-parent_brown.png";
+set image_prev = "database/icon-previous_brown.png";
+set image_reply = "database/icon-reply_brown.png";
+set image_screen = "database/icon-screen_brown.png";
+set image_subscribe = "database/icon-subscribe_brown.png";
+set image_tellafriend = "database/icon-tellafriend_brown.png";
+set image_thread = "database/icon-thread_brown.png";
+set image_threadroot = "database/icon-threadroot_brown.png";
+set image_track = "database/icon-track_brown.png";
+set image_tracked = "database/icon-tracked_brown.png";
+set image_unfreeze = "database/icon-unfreeze_brown.png";
+set image_unscreen = "database/icon-unscreen_brown.png";
+
+
+#NEWLAYER: database/cornucopia
+layerinfo type = "theme";
+layerinfo name = "Cornucopia";
+layerinfo redist_uniq = "database/cornucopia";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1b0711";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#cb4473";
+set color_page_link_visited = "#e58aaa";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2f141f";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#cb4473";
+set color_entry_link_hover = "#cb4473";
+set color_entry_link_visited = "#e58aaa";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#cb4473";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#cb4473";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#e58aaa";
+set color_calendar_header_background = "#1b0711";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#cb4473";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#cb4473";
+set color_module_calendar_background_visited = "#e58aaa";
+set color_module_calendar_header_background = "#2f141f";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#2f141f";
+set color_module_header_background_hover = "#cb4473";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#e58aaa";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#cb4473";
+set color_module_link_visited = "#e58aaa";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_pink.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/darkpink.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/darkpink.png";
+
+set image_addmemories = "database/icon-addmemories_pink.png";
+set image_comments = "database/icon-comments_pink.png";
+set image_delete = "database/icon-delete_pink.png";
+set image_edit = "database/icon-edit_pink.png";
+set image_edittags = "database/icon-edittags_pink.png";
+set image_expand = "database/icon-expand_pink.png";
+set image_freeze = "database/icon-freeze_pink.png";
+set image_giveaccess = "database/icon-giveaccess_pink.png";
+set image_join = "database/icon-join_pink.png";
+set image_link = "database/icon-link_pink.png";
+set image_maxcomments = "database/icon-maxcomments_pink.png";
+set image_message = "database/icon-reply_pink.png";
+set image_next = "database/icon-next_pink.png";
+set image_parent = "database/icon-parent_pink.png";
+set image_prev = "database/icon-previous_pink.png";
+set image_reply = "database/icon-reply_pink.png";
+set image_screen = "database/icon-screen_pink.png";
+set image_subscribe = "database/icon-subscribe_pink.png";
+set image_tellafriend = "database/icon-tellafriend_pink.png";
+set image_thread = "database/icon-thread_pink.png";
+set image_threadroot = "database/icon-threadroot_pink.png";
+set image_track = "database/icon-track_pink.png";
+set image_tracked = "database/icon-tracked_pink.png";
+set image_unfreeze = "database/icon-unfreeze_pink.png";
+set image_unscreen = "database/icon-unscreen_pink.png";
+
+
+#NEWLAYER: database/entrails
+layerinfo type = "theme";
+layerinfo name = "Entrails";
+layerinfo redist_uniq = "database/entrails";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1b0711";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#48a4c3";
+set color_page_link_visited = "#74aec2";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2f141f";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#48a4c3";
+set color_entry_link_hover = "#48a4c3";
+set color_entry_link_visited = "#74aec2";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#48a4c3";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#48a4c3";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#74aec2";
+set color_calendar_header_background = "#1b0711";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#48a4c3";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#48a4c3";
+set color_module_calendar_background_visited = "#74aec2";
+set color_module_calendar_header_background = "#2f141f";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#2f141f";
+set color_module_header_background_hover = "#48a4c3";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#74aec2";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#48a4c3";
+set color_module_link_visited = "#74aec2";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_pink.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/cyan.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/cyan.png";
+
+set image_addmemories = "database/icon-addmemories_pink.png";
+set image_comments = "database/icon-comments_pink.png";
+set image_delete = "database/icon-delete_pink.png";
+set image_edit = "database/icon-edit_pink.png";
+set image_edittags = "database/icon-edittags_pink.png";
+set image_expand = "database/icon-expand_pink.png";
+set image_freeze = "database/icon-freeze_pink.png";
+set image_giveaccess = "database/icon-giveaccess_pink.png";
+set image_join = "database/icon-join_pink.png";
+set image_link = "database/icon-link_pink.png";
+set image_maxcomments = "database/icon-maxcomments_pink.png";
+set image_message = "database/icon-reply_pink.png";
+set image_next = "database/icon-next_pink.png";
+set image_parent = "database/icon-parent_pink.png";
+set image_prev = "database/icon-previous_pink.png";
+set image_reply = "database/icon-reply_pink.png";
+set image_screen = "database/icon-screen_pink.png";
+set image_subscribe = "database/icon-subscribe_pink.png";
+set image_tellafriend = "database/icon-tellafriend_pink.png";
+set image_thread = "database/icon-thread_pink.png";
+set image_threadroot = "database/icon-threadroot_pink.png";
+set image_track = "database/icon-track_pink.png";
+set image_tracked = "database/icon-tracked_pink.png";
+set image_unfreeze = "database/icon-unfreeze_pink.png";
+set image_unscreen = "database/icon-unscreen_pink.png";
+
+
+#NEWLAYER: database/fuchsia
+layerinfo type = "theme";
+layerinfo name = "Fuchsia";
+layerinfo redist_uniq = "database/fuchsia";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#b20da8";
+set color_page_link_visited = "#b36bae";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#0e0e0e";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#b20da8";
+set color_entry_link_hover = "#b20da8";
+set color_entry_link_visited = "#b36bae";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#b20da8";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#b20da8";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#b36bae";
+set color_calendar_header_background = "#000";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#b20da8";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#b20da8";
+set color_module_calendar_background_visited = "#b36bae";
+set color_module_calendar_header_background = "#0e0e0e";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#0e0e0e";
+set color_module_header_background_hover = "#b20da8";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#b36bae";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#b20da8";
+set color_module_link_visited = "#b36bae";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_gray.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/fuchsia.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/fuchsia.png";
 
 set image_addmemories = "database/icon-addmemories_gray.png";
 set image_comments = "database/icon-comments_gray.png";
@@ -340,6 +1252,664 @@ set image_unfreeze = "database/icon-unfreeze_gray.png";
 set image_unscreen = "database/icon-unscreen_gray.png";
 
 
+#NEWLAYER: database/horizon
+layerinfo type = "theme";
+layerinfo name = "Horizon";
+layerinfo redist_uniq = "database/horizon";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0f1125";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#d75124";
+set color_page_link_visited = "#d69681";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#1d1f33";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#d75124";
+set color_entry_link_hover = "#d75124";
+set color_entry_link_visited = "#d69681";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#d75124";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#d75124";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#d69681";
+set color_calendar_header_background = "#0f1125";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#d75124";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#d75124";
+set color_module_calendar_background_visited = "#d69681";
+set color_module_calendar_header_background = "#1d1f33";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#1d1f33";
+set color_module_header_background_hover = "#d75124";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#d69681";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#d75124";
+set color_module_link_visited = "#d69681";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_blue.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/darkorange.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/darkorange.png";
+
+set image_addmemories = "database/icon-addmemories_blue.png";
+set image_comments = "database/icon-comments_blue.png";
+set image_delete = "database/icon-delete_blue.png";
+set image_edit = "database/icon-edit_blue.png";
+set image_edittags = "database/icon-edittags_blue.png";
+set image_expand = "database/icon-expand_blue.png";
+set image_freeze = "database/icon-freeze_blue.png";
+set image_giveaccess = "database/icon-giveaccess_blue.png";
+set image_join = "database/icon-join_blue.png";
+set image_link = "database/icon-link_blue.png";
+set image_maxcomments = "database/icon-maxcomments_blue.png";
+set image_message = "database/icon-reply_blue.png";
+set image_next = "database/icon-next_blue.png";
+set image_parent = "database/icon-parent_blue.png";
+set image_prev = "database/icon-previous_blue.png";
+set image_reply = "database/icon-reply_blue.png";
+set image_screen = "database/icon-screen_blue.png";
+set image_subscribe = "database/icon-subscribe_blue.png";
+set image_tellafriend = "database/icon-tellafriend_blue.png";
+set image_thread = "database/icon-thread_blue.png";
+set image_threadroot = "database/icon-threadroot_blue.png";
+set image_track = "database/icon-track_blue.png";
+set image_tracked = "database/icon-tracked_blue.png";
+set image_unfreeze = "database/icon-unfreeze_blue.png";
+set image_unscreen = "database/icon-unscreen_blue.png";
+
+
+#NEWLAYER: database/lecerisier
+layerinfo type = "theme";
+layerinfo name = "Le Cerisier";
+layerinfo redist_uniq = "database/lecerisier";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1e1413";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#cb4473";
+set color_page_link_visited = "#e58aaa";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2f2221";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#cb4473";
+set color_entry_link_hover = "#cb4473";
+set color_entry_link_visited = "#e58aaa";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#cb4473";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#cb4473";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#e58aaa";
+set color_calendar_header_background = "#1e1413";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#cb4473";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#cb4473";
+set color_module_calendar_background_visited = "#e58aaa";
+set color_module_calendar_header_background = "#2f2221";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#2f2221";
+set color_module_header_background_hover = "#cb4473";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#e58aaa";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#cb4473";
+set color_module_link_visited = "#e58aaa";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_brown.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/darkpink.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/darkpink.png";
+
+set image_addmemories = "database/icon-addmemories_brown.png";
+set image_comments = "database/icon-comments_brown.png";
+set image_delete = "database/icon-delete_brown.png";
+set image_edit = "database/icon-edit_brown.png";
+set image_edittags = "database/icon-edittags_brown.png";
+set image_expand = "database/icon-expand_brown.png";
+set image_freeze = "database/icon-freeze_brown.png";
+set image_giveaccess = "database/icon-giveaccess_brown.png";
+set image_join = "database/icon-join_brown.png";
+set image_link = "database/icon-link_brown.png";
+set image_maxcomments = "database/icon-maxcomments_brown.png";
+set image_message = "database/icon-reply_brown.png";
+set image_next = "database/icon-next_brown.png";
+set image_parent = "database/icon-parent_brown.png";
+set image_prev = "database/icon-previous_brown.png";
+set image_reply = "database/icon-reply_brown.png";
+set image_screen = "database/icon-screen_brown.png";
+set image_subscribe = "database/icon-subscribe_brown.png";
+set image_tellafriend = "database/icon-tellafriend_brown.png";
+set image_thread = "database/icon-thread_brown.png";
+set image_threadroot = "database/icon-threadroot_brown.png";
+set image_track = "database/icon-track_brown.png";
+set image_tracked = "database/icon-tracked_brown.png";
+set image_unfreeze = "database/icon-unfreeze_brown.png";
+set image_unscreen = "database/icon-unscreen_brown.png";
+
+
+#NEWLAYER: database/nenuphar
+layerinfo type = "theme";
+layerinfo name = "Nénuphar";
+layerinfo redist_uniq = "database/nenuphar";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#081e1d";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#cb4473";
+set color_page_link_visited = "#e58aaa";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#112e2d";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#cb4473";
+set color_entry_link_hover = "#cb4473";
+set color_entry_link_visited = "#e58aaa";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#cb4473";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#cb4473";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#e58aaa";
+set color_calendar_header_background = "#081e1d";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#cb4473";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#cb4473";
+set color_module_calendar_background_visited = "#e58aaa";
+set color_module_calendar_header_background = "#112e2d";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#112e2d";
+set color_module_header_background_hover = "#cb4473";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#e58aaa";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#cb4473";
+set color_module_link_visited = "#e58aaa";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_green.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/darkpink.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/darkpink.png";
+
+set image_addmemories = "database/icon-addmemories_green.png";
+set image_comments = "database/icon-comments_green.png";
+set image_delete = "database/icon-delete_green.png";
+set image_edit = "database/icon-edit_green.png";
+set image_edittags = "database/icon-edittags_green.png";
+set image_expand = "database/icon-expand_green.png";
+set image_freeze = "database/icon-freeze_green.png";
+set image_giveaccess = "database/icon-giveaccess_green.png";
+set image_join = "database/icon-join_green.png";
+set image_link = "database/icon-link_green.png";
+set image_maxcomments = "database/icon-maxcomments_green.png";
+set image_message = "database/icon-reply_green.png";
+set image_next = "database/icon-next_green.png";
+set image_parent = "database/icon-parent_green.png";
+set image_prev = "database/icon-previous_green.png";
+set image_reply = "database/icon-reply_green.png";
+set image_screen = "database/icon-screen_green.png";
+set image_subscribe = "database/icon-subscribe_green.png";
+set image_tellafriend = "database/icon-tellafriend_green.png";
+set image_thread = "database/icon-thread_green.png";
+set image_threadroot = "database/icon-threadroot_green.png";
+set image_track = "database/icon-track_green.png";
+set image_tracked = "database/icon-tracked_green.png";
+set image_unfreeze = "database/icon-unfreeze_green.png";
+set image_unscreen = "database/icon-unscreen_green.png";
+
+
+#NEWLAYER: database/oceanictrench
+layerinfo type = "theme";
+layerinfo name = "Oceanic Trench";
+layerinfo redist_uniq = "database/oceanictrench";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0f1125";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#48a4c3";
+set color_page_link_visited = "#74aec2";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#1d1f33";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#48a4c3";
+set color_entry_link_hover = "#48a4c3";
+set color_entry_link_visited = "#74aec2";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#48a4c3";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#48a4c3";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#74aec2";
+set color_calendar_header_background = "#0f1125";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#48a4c3";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#48a4c3";
+set color_module_calendar_background_visited = "#74aec2";
+set color_module_calendar_header_background = "#1d1f33";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#1d1f33";
+set color_module_header_background_hover = "#48a4c3";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#74aec2";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#48a4c3";
+set color_module_link_visited = "#74aec2";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_blue.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/cyan.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/cyan.png";
+
+set image_addmemories = "database/icon-addmemories_blue.png";
+set image_comments = "database/icon-comments_blue.png";
+set image_delete = "database/icon-delete_blue.png";
+set image_edit = "database/icon-edit_blue.png";
+set image_edittags = "database/icon-edittags_blue.png";
+set image_expand = "database/icon-expand_blue.png";
+set image_freeze = "database/icon-freeze_blue.png";
+set image_giveaccess = "database/icon-giveaccess_blue.png";
+set image_join = "database/icon-join_blue.png";
+set image_link = "database/icon-link_blue.png";
+set image_maxcomments = "database/icon-maxcomments_blue.png";
+set image_message = "database/icon-reply_blue.png";
+set image_next = "database/icon-next_blue.png";
+set image_parent = "database/icon-parent_blue.png";
+set image_prev = "database/icon-previous_blue.png";
+set image_reply = "database/icon-reply_blue.png";
+set image_screen = "database/icon-screen_blue.png";
+set image_subscribe = "database/icon-subscribe_blue.png";
+set image_tellafriend = "database/icon-tellafriend_blue.png";
+set image_thread = "database/icon-thread_blue.png";
+set image_threadroot = "database/icon-threadroot_blue.png";
+set image_track = "database/icon-track_blue.png";
+set image_tracked = "database/icon-tracked_blue.png";
+set image_unfreeze = "database/icon-unfreeze_blue.png";
+set image_unscreen = "database/icon-unscreen_blue.png";
+
+
+#NEWLAYER: database/orange
+layerinfo type = "theme";
+layerinfo name = "Orange";
+layerinfo redist_uniq = "database/orange";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#ed5d0f";
+set color_page_link_visited = "#edaf8e";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#0e0e0e";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#ed5d0f";
+set color_entry_link_hover = "#ed5d0f";
+set color_entry_link_visited = "#edaf8e";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#ed5d0f";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#ed5d0f";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#edaf8e";
+set color_calendar_header_background = "#000";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#ed5d0f";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#ed5d0f";
+set color_module_calendar_background_visited = "#edaf8e";
+set color_module_calendar_header_background = "#0e0e0e";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#0e0e0e";
+set color_module_header_background_hover = "#ed5d0f";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#edaf8e";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#ed5d0f";
+set color_module_link_visited = "#edaf8e";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_gray.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/orange.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/orange.png";
+
+set image_addmemories = "database/icon-addmemories_gray.png";
+set image_comments = "database/icon-comments_gray.png";
+set image_delete = "database/icon-delete_gray.png";
+set image_edit = "database/icon-edit_gray.png";
+set image_edittags = "database/icon-edittags_gray.png";
+set image_expand = "database/icon-expand_gray.png";
+set image_freeze = "database/icon-freeze_gray.png";
+set image_giveaccess = "database/icon-giveaccess_gray.png";
+set image_join = "database/icon-join_gray.png";
+set image_link = "database/icon-link_gray.png";
+set image_maxcomments = "database/icon-maxcomments_gray.png";
+set image_message = "database/icon-reply_gray.png";
+set image_next = "database/icon-next_gray.png";
+set image_parent = "database/icon-parent_gray.png";
+set image_prev = "database/icon-previous_gray.png";
+set image_reply = "database/icon-reply_gray.png";
+set image_screen = "database/icon-screen_gray.png";
+set image_subscribe = "database/icon-subscribe_gray.png";
+set image_tellafriend = "database/icon-tellafriend_gray.png";
+set image_thread = "database/icon-thread_gray.png";
+set image_threadroot = "database/icon-threadroot_gray.png";
+set image_track = "database/icon-track_gray.png";
+set image_tracked = "database/icon-tracked_gray.png";
+set image_unfreeze = "database/icon-unfreeze_gray.png";
+set image_unscreen = "database/icon-unscreen_gray.png";
+
+
+#NEWLAYER: database/pink
+layerinfo type = "theme";
+layerinfo name = "Pink";
+layerinfo redist_uniq = "database/pink";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#ed0f77";
+set color_page_link_visited = "#ed8ebb";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#0e0e0e";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#ed0f77";
+set color_entry_link_hover = "#ed0f77";
+set color_entry_link_visited = "#ed8ebb";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#ed0f77";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#ed0f77";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#ed8ebb";
+set color_calendar_header_background = "#000";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#ed0f77";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#ed0f77";
+set color_module_calendar_background_visited = "#ed8ebb";
+set color_module_calendar_header_background = "#0e0e0e";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#0e0e0e";
+set color_module_header_background_hover = "#ed0f77";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#ed8ebb";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#ed0f77";
+set color_module_link_visited = "#ed8ebb";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_gray.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/pink.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/pink.png";
+
+
 #NEWLAYER: database/purple
 layerinfo type = "theme";
 layerinfo name = "Purple";
@@ -566,6 +2136,234 @@ set image_track = "database/icon-track_gray.png";
 set image_tracked = "database/icon-tracked_gray.png";
 set image_unfreeze = "database/icon-unfreeze_gray.png";
 set image_unscreen = "database/icon-unscreen_gray.png";
+
+
+#NEWLAYER: database/rosarosarosam
+layerinfo type = "theme";
+layerinfo name = "Rosa Rosa Rosam";
+layerinfo redist_uniq = "database/rosarosarosam";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1b0711";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#89bb31";
+set color_page_link_visited = "#a6ba82";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2f141f";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#89bb31";
+set color_entry_link_hover = "#89bb31";
+set color_entry_link_visited = "#a6ba82";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#89bb31";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#89bb31";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#a6ba82";
+set color_calendar_header_background = "#1b0711";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#89bb31";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#89bb31";
+set color_module_calendar_background_visited = "#a6ba82";
+set color_module_calendar_header_background = "#2f141f";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#2f141f";
+set color_module_header_background_hover = "#89bb31";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#a6ba82";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#89bb31";
+set color_module_link_visited = "#a6ba82";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_pink.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/applegreen2.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/applegreen2.png";
+
+set image_addmemories = "database/icon-addmemories_pink.png";
+set image_comments = "database/icon-comments_pink.png";
+set image_delete = "database/icon-delete_pink.png";
+set image_edit = "database/icon-edit_pink.png";
+set image_edittags = "database/icon-edittags_pink.png";
+set image_expand = "database/icon-expand_pink.png";
+set image_freeze = "database/icon-freeze_pink.png";
+set image_giveaccess = "database/icon-giveaccess_pink.png";
+set image_join = "database/icon-join_pink.png";
+set image_link = "database/icon-link_pink.png";
+set image_maxcomments = "database/icon-maxcomments_pink.png";
+set image_message = "database/icon-reply_pink.png";
+set image_next = "database/icon-next_pink.png";
+set image_parent = "database/icon-parent_pink.png";
+set image_prev = "database/icon-previous_pink.png";
+set image_reply = "database/icon-reply_pink.png";
+set image_screen = "database/icon-screen_pink.png";
+set image_subscribe = "database/icon-subscribe_pink.png";
+set image_tellafriend = "database/icon-tellafriend_pink.png";
+set image_thread = "database/icon-thread_pink.png";
+set image_threadroot = "database/icon-threadroot_pink.png";
+set image_track = "database/icon-track_pink.png";
+set image_tracked = "database/icon-tracked_pink.png";
+set image_unfreeze = "database/icon-unfreeze_pink.png";
+set image_unscreen = "database/icon-unscreen_pink.png";
+
+
+#NEWLAYER: database/satellite
+layerinfo type = "theme";
+layerinfo name = "Satellite";
+layerinfo redist_uniq = "database/satellite";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0f1125";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#ddb61a";
+set color_page_link_visited = "#decc85";
+set color_page_text = "#fefefe";
+set color_page_title_shadow = "#555";
+set color_elements_border = "#1b1b1b";
+set color_userpic_shadow = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#1d1f33";
+set color_entry_interaction_links = "#4d4d4f";
+set color_entry_link = "#ddb61a";
+set color_entry_link_hover = "#ddb61a";
+set color_entry_link_visited = "#decc85";
+set color_entry_text = "#fefefe";
+set color_entry_title = "#ddb61a";
+set color_entry_title_shadow = "#333";
+set color_calendar_background = "#ddb61a";
+set color_calendar_background_hover = "#fefefe";
+set color_calendar_background_visited = "#decc85";
+set color_calendar_header_background = "#0f1125";
+set color_calendar_header_text = "#fefefe";
+set color_calendar_link = "#0e0e0e";
+set color_calendar_link_hover = "#0e0e0e";
+set color_calendar_link_visited = "#0e0e0e";
+set color_comment_title = "#ddb61a";
+set color_comment_title_shadow = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_calendar_background = "#fefefe";
+set color_module_calendar_background_hover = "#ddb61a";
+set color_module_calendar_background_visited = "#decc85";
+set color_module_calendar_header_background = "#1d1f33";
+set color_module_calendar_header_text = "#fefefe";
+set color_module_calendar_link = "#0e0e0e";
+set color_module_calendar_link_hover = "#0e0e0e";
+set color_module_calendar_link_visited = "#0e0e0e";
+set color_module_header_background = "#1d1f33";
+set color_module_header_background_hover = "#ddb61a";
+set color_module_header_background_visited = "#0e0e0e";
+set color_module_header_link = "#fefefe";
+set color_module_header_link_hover = "#0e0e0e";
+set color_module_header_link_visited = "#decc85";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#ddb61a";
+set color_module_link_visited = "#decc85";
+set color_module_title_shadow = "#555";
+
+##===============================
+## Images
+##===============================
+
+set image_background_blockquote_width = 39;
+set image_background_blockquote_position = "10px 15px";
+set image_background_blockquote_repeat = "no-repeat";
+set image_background_blockquote_url = "database/icon-blockquote_blue.png";
+set image_background_header_height = 31;
+set image_background_header_position = "bottom center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "database/mustard.png";
+set image_background_footer_height = 31;
+set image_background_footer_position = "top center";
+set image_background_footer_repeat = "no-repeat";
+set image_background_footer_url = "database/mustard.png";
+
+set image_addmemories = "database/icon-addmemories_blue.png";
+set image_comments = "database/icon-comments_blue.png";
+set image_delete = "database/icon-delete_blue.png";
+set image_edit = "database/icon-edit_blue.png";
+set image_edittags = "database/icon-edittags_blue.png";
+set image_expand = "database/icon-expand_blue.png";
+set image_freeze = "database/icon-freeze_blue.png";
+set image_giveaccess = "database/icon-giveaccess_blue.png";
+set image_join = "database/icon-join_blue.png";
+set image_link = "database/icon-link_blue.png";
+set image_maxcomments = "database/icon-maxcomments_blue.png";
+set image_message = "database/icon-reply_blue.png";
+set image_next = "database/icon-next_blue.png";
+set image_parent = "database/icon-parent_blue.png";
+set image_prev = "database/icon-previous_blue.png";
+set image_reply = "database/icon-reply_blue.png";
+set image_screen = "database/icon-screen_blue.png";
+set image_subscribe = "database/icon-subscribe_blue.png";
+set image_tellafriend = "database/icon-tellafriend_blue.png";
+set image_thread = "database/icon-thread_blue.png";
+set image_threadroot = "database/icon-threadroot_blue.png";
+set image_track = "database/icon-track_blue.png";
+set image_tracked = "database/icon-tracked_blue.png";
+set image_unfreeze = "database/icon-unfreeze_blue.png";
+set image_unscreen = "database/icon-unscreen_blue.png";
 
 
 #NEWLAYER: database/teal
