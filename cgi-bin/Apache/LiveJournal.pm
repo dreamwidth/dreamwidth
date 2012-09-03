@@ -292,17 +292,22 @@ sub resolve_path_for_uri {
         }
 
         foreach my $dir ( LJ::get_all_directories( 'htdocs' ) ) {
+            # main page
             my $file = "$dir/$uri";
             if ( -e "$file/index.bml" && $uri eq '/' ) {
                 $file .= "index.bml";
                 $uri .= "/index.bml";
             }
+
+            # /blah/file => /blah/file.bml
             if ( -e "$file.bml" ) {
                 $file .= ".bml";
                 $uri .= ".bml";
             }
             next unless -e $file;
 
+            # /foo  => /foo/
+            # /foo/ => /foo/index.bml
             if ( -d $file && -e "$file/index.bml" ) {
                 return redir( $r, $uri . "/" ) unless $uri =~ m!/$!;
                 $file .= "/index.bml";
