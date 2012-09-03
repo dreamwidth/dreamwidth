@@ -2486,6 +2486,7 @@ sub UserLink
         'is_heading' => $link->{'url'} ? 0 : 1,
         'url' => LJ::ehtml($link->{'url'}),
         'title' => LJ::ehtml($link->{'title'}),
+        'hover' => LJ::ehtml($link->{'hover'}),
         'children' => $link->{'children'} || [], # TODO: implement parent-child relationships
     };
 }
