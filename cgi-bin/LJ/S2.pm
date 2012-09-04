@@ -3947,8 +3947,9 @@ sub EntryLite__get_link
 
 # method for smart converting raw subject to html-link
 sub EntryLite__formatted_subject {
-    my ($ctx, $this, $attrs) = @_;
+    my ($ctx, $this, $opts) = @_;
     my $subject = $this->{subject};
+    my $force_plain = delete $opts->{plain} || 0;
 
     # Figure out what subject to show. Even if the settings are configured
     # to show nothing for entries or comments without subjects, there should
@@ -3972,7 +3973,7 @@ sub EntryLite__formatted_subject {
         if ( $subject eq "" ) {
             # still no subject, so use hidden text_nosubject_screenreader
             $subject = $ctx->[S2::PROPS]->{text_nosubject_screenreader};
-            $attrs->{class} .= " invisible";
+            $opts->{class} .= " invisible";
         }
     };
 
@@ -3988,15 +3989,23 @@ sub EntryLite__formatted_subject {
     }
 
     # display subject as-is (cleaned but not wrapped in a link)
-    # if subject has a link and we are on a full comment/single entry view and don't need to click through
+    # if we forced it to plain
+    #   or subject has a link and we are on a full comment/single entry view and don't need to click through
     # TODO: how about other HTML tags?
-    if ( $subject =~ /href/ && ( $this->{full} || $LJ::S2::CURR_PAGE->{view} eq "reply" ||  $LJ::S2::CURR_PAGE->{view} eq "entry" ) ) {
+    if ( $force_plain
+        || ( $subject =~ /href/
+                && ( $this->{full}
+                    || $LJ::S2::CURR_PAGE->{view} eq "reply"
+                    || $LJ::S2::CURR_PAGE->{view} eq "entry"
+                    )
+            )
+        ) {
         return $subject;
     } else {
         # we need to be able to click through this subject, so remove links
         LJ::CleanHTML::clean( \$subject, { noexpandembedded => 1, mode => "allow", remove => [ "a" ] } );
-        my $class = $attrs->{class} ? " class=\"" . LJ::ehtml( $attrs->{class} ) . "\" " : '';
-        my $style = $attrs->{style} ? " style=\"" . LJ::ehtml( $attrs->{style} ) . "\" " : '';
+        my $class = $opts->{class} ? " class=\"" . LJ::ehtml( $opts->{class} ) . "\" " : '';
+        my $style = $opts->{style} ? " style=\"" . LJ::ehtml( $opts->{style} ) . "\" " : '';
 
         # additional cleaning for title attribute, necessary to enable
         # screenreaders to see the names of the invisible links
