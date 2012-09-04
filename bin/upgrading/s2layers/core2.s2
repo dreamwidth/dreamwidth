@@ -246,6 +246,7 @@ class CommentInfo
     var readonly string post_url "URL pointer to the 'Post Comments' view.";
     var readonly string permalink_url "Permanent URL for the entry.";
     var int count "Current number of comments available to be read by the viewer.";
+    var int screened_count "Current number of screened comments (only visible if remote user can view screened comments)";
     var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
     var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
     var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community maintainer";
