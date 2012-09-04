@@ -5014,7 +5014,7 @@ function Comment::print_interaction_links()
     """<ul class="comment-interaction-links">""";
     print safe """<li class="link commentpermalink"><a href="$this.permalink_url">$*text_comment_link</a></li>\n""";
     if ($this.frozen) {
-        print safe """<li class="link frozen first-item">$*text_comment_frozen</li>\n""";
+        print safe """<li class="frozen first-item">$*text_comment_frozen</li>\n""";
     } else {
         """<li class="link reply first-item">""";
         $this->print_reply_link({"linktext" => $*text_comment_reply});
