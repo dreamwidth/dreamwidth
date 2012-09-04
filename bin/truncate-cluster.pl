@@ -14,7 +14,9 @@
 # part of this distribution.
 
 use strict;
-require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
 
 my $cid = shift;
 die "Usage: truncate-cluster.pl <clusterid>\n" unless $cid =~ /^\d+$/;

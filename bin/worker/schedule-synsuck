@@ -16,7 +16,9 @@
 #
 
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN {
+    require 'ljlib.pl';
+}
 
 use Getopt::Long;
 
