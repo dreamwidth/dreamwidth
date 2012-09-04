@@ -319,6 +319,24 @@ TAG:    foreach my $tagid (keys %$res) {
             push @purge, $tagid;
         }
         delete $res->{$_} foreach @purge;
+
+        #add up how many uses of this tag are visible to the given $remote,
+        # and add a "visible_uses" key to reflect this.
+        # FIXME not finished!
+        foreach my $tag (values %$res) {
+            my $sum = 0;
+            warn LJ::D($tag);
+            $sum += $tag->{security}->{public};
+            $sum += $tag->{security}->{protected}
+                if $trusted;
+            foreach my $grpid ( keys %{$tag->{security}->{groups}} ) {
+                $sum+= $tag->{security}->{groups}->{$grpid}
+                    if $grpmask & (1 << $grpid);
+                }
+            warn $tag->{name} . " : " . $sum;
+        }
+
+
     }
 
     return $res;
