@@ -70,7 +70,7 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .comment .datetime {font-size:smaller;}
 .poster-hidden {font-weight:bold;}
 .partial h4.entry-title {font-size: 1em; display:inline;}
-.partial h4.entry-title a {font-size: 1em;}
+.partial h4.entry-title a {font-size: 1em; display:inline;}
 .partial .poster {display:inline;}
 
 #qrform table {margin: 0 auto;}
