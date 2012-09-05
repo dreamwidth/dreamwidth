@@ -44,6 +44,7 @@ sub default_themes {
         ciel => 'ciel/cloudydays',
         compartmentalize => 'compartmentalize/poppyfields',
         core2base => 'core2base/testing',
+        corinthian => 'corinthian/deepseas',
         crisped => 'crisped/freshcotton',
         crossroads => 'crossroads/lettuce',
         database => 'database/blue',

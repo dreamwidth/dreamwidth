@@ -43,6 +43,9 @@ compartmentalize/themes  theme+                      compartmentalize/layout
 core2base/layout         layout                      core2
 core2base/themes         theme+                      core2base/layout
 
+corinthian/layout        layout(core2base/layout)    core2
+corinthian/themes        theme+                      corinthian/layout
+
 crisped/layout           layout(core2base/layout)    core2
 crisped/themes           theme+                      crisped/layout
 
