@@ -1937,6 +1937,37 @@ sub TagDetail
         visibility => $tag->{security_level},
     };
 
+    # Work out how many uses of the tag the current remote (if any)
+    # should be able to see. This is easy for public & protected 
+    # entries, but gets tricky with group filters because a post can
+    # be visible to >1 of them.
+    my $count = 0;
+    my $remote = LJ::get_remote();
+
+    # FIXME: Just pass the total number of uses if they're looking at their own
+    #  journal, or otherwise have can_manage, or viewall is on.
+
+    if ( defined $remote ) {
+        my $trusted = $u->trusts_or_has_member( $remote );
+        my $grpmask = $u->trustmask( $remote );
+
+        $count = $tag->{security}->{public};
+        $count += $tag->{security}->{protected} if $trusted;
+        
+        # if $grpmask is 0 or 1 then the remote isn't in any access filters,
+        #  and we can skip the next bit
+        if ( $grpmask > 1 ) {
+
+
+        }
+
+    } else {    #logged out.
+        $count = $tag->{security}->{public};
+    }
+
+warn $tag->{name} . " : " . $count;
+    # FIXME: I'm not sure that we should be exposing the info below to the 
+    #  style system. To be discussed.
     my $sum = 0;
     $sum += $tag->{security}->{groups}->{$_}
         foreach keys %{$tag->{security}->{groups} || {}};
