@@ -317,9 +317,12 @@ body<=
     $ret .= $sec . $age_restriction;
     $ret .= "<br />\n" unless ( $sec eq "" && $age_restriction eq "" ) or $parpost->{subject};
 
+
+    # define this variable OUTSIDE the following if-statement
+    my $cleansubject = $parpost->{'subject'};
+
     ###
     if ($parpost->{'subject'}) {
-        my $cleansubject = $parpost->{'subject'};
         if ($init->{'replyto'}) {
             # comments can't have HTML in subjects at all
             $cleansubject = LJ::ehtml($cleansubject);
@@ -328,10 +331,15 @@ body<=
             LJ::CleanHTML::clean_subject(\$cleansubject);
             BML::ebml(\$cleansubject);
           }
-        $ret .= "<div id='entrysubj'>$cleansubject</div><br />\n";
-        $title_subject = LJ::strip_html($cleansubject);
-    }
+          $title_subject = LJ::strip_html($cleansubject);
+        } else {
+          # (no subject) should display in mode=reply too!
+          $title_subject = BML::ml('.nosubject');
+      }
 
+    $ret .= qq{<div id='entrysubj'><h2><a href="$talkurl">$title_subject</a></h2></div>\n};
+        # let's go for visual consistency with the main entry page!
+        # note that this doesn't contain the age-restriction $flags magic
     $ret .= $event;
     $ret .= "</div>";
 

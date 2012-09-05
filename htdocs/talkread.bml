@@ -245,9 +245,9 @@ body<=
     LJ::expand_embedded($u, $ditemid, $remote, \$event);
     BML::ebml(\$event);
 
-    # make the title
+    # make the title, which should be "(no subject)" if there isn't one
     {
-        my $subject = $item->{'subject'} || $event;
+        my $subject = $item->{'subject'} || BML::ml('.nosubject');
         # yes, the 3 param to text_trim is chars, and length returns bytes, but
         # it works, as bytes >= chars:
         $subject = LJ::CleanHTML::clean_and_trim_subject(\$subject, length($item->{'subject'}) || 40);
