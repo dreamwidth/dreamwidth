@@ -573,6 +573,8 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
     background: transparent !important;
 }
 
+.entry .link, .comment .link {color: #222211; }
+
 .comment .header { border-bottom: none; border-right: none; }
 .comment-wrapper-odd .header  { background-color: #EEEECC; }
 .comment-wrapper-even .header { background-color: #DDDBBB; }

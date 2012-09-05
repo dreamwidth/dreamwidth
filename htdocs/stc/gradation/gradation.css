@@ -649,6 +649,8 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
     background: transparent !important;
 }
 
+.comment .link, .entry .link {color: #e9e9e0;}
+
 .screened .header {
     border-bottom: none;
     border-right: none;

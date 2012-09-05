@@ -44,8 +44,8 @@ hr.above-entry-interaction-links {margin: 1em 0;}
 
 .entry-interaction-links li {display:inline;}
 
-.entry-interaction-links li:before, .comment-interaction-links li:before, .comment-pages a:before {content:"(";}
-.entry-interaction-links li:after, .comment-interaction-links li:after,.comment-pages a:after {content:")";}
+.entry-interaction-links li:before, .comment-interaction-links li:before, .view-flat:before, .view-threaded:before, .view-top-only:before {content:"(";}
+.entry-interaction-links li:after, .comment-interaction-links li:after, .view-flat:after, .view-threaded:after, .view-top-only:after {content:")";}
 
 ul.entry-interaction-links {list-style: none outside none; display: inline; text-align: center; padding: 0.5em 0;}
 
