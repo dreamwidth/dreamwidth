@@ -69,8 +69,9 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .comment .invisible {position: relative;}
 .comment .datetime {font-size:smaller;}
 .poster-hidden {font-weight:bold;}
-.partial h4.entry-title {font-size: 1em; display:inline;}
-.partial h4.entry-title a {font-size: 1em; display:inline;}
+.partial h4.comment-title {font-size: 1em; display:inline;}
+.partial h4.comment-title a {font-size: 1em; display:inline;}
 .partial .poster {display:inline;}
+.no-userpic .comment-info {padding-left:10px;}
 
 #qrform table {margin: 0 auto;}
