@@ -3720,8 +3720,8 @@ if ($.replyto isa Comment) {
     }
     else {
         var Entry e = $.replyto as Entry;
-        return $.e.subject ?
-          $.e->get_plain_subject() + " (" + $*text_comment_reply + ")" :
+        return $e.subject ?
+          $e->get_plain_subject() + " (" + $*text_comment_reply + ")" :
           $*text_nosubject + " (" + $*text_comment_reply + ")";
     }
 }
