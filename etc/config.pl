@@ -848,14 +848,14 @@
 
     # pages where we want to see captcha
     %CAPTCHA_FOR = (
-        create   => 0,
-        lostinfo => 1,
-        validate_openid => 1,
-        support_submit_anon => 0,
-        anonpost => 1,
-        authpost => 0,
-        comment_html_anon => 1,
-        comment_html_auth => 0,
+        create   => 0,               # account creation
+        lostinfo => 1,               # forgotten password/username
+        validate_openid => 1,        # confirming email address of openid acc
+        support_submit_anon => 0,    # support request without logged-in user
+        anonpost => 1,               # rate-limiting on anon posts
+        authpost => 0,               # rate-limiting on non-anon posts
+        comment_html_anon => 1,      # HTML comments from anon commenters?
+        comment_html_auth => 0,      # HTML comments from non-anon commenters?
     );
 }
 

@@ -4804,7 +4804,11 @@ widget.inbox.menu.delete.btn=Delete Selected
 
 widget.inbox.menu.delete_all.btn=Delete All
 
+widget.inbox.menu.delete_all.subfolder.btn=Delete All in Subfolder
+
 widget.inbox.menu.mark_all_read.btn=Mark All Read
+
+widget.inbox.menu.mark_all_read.subfolder.btn=Mark Subfolder Read
 
 widget.inbox.menu.mark_read.btn=Mark Read
 
@@ -4874,13 +4878,17 @@ widget.linkslist.about.blank=Enter a "-" for the title to create a blank line (n
 
 widget.linkslist.about.heading=Enter a title with no URL to create a heading.
 
+widget.linkslist.about.hover=You can add optional extra text to your links, which will pop up when someone hovers their mouse over the link without clicking.
+
+widget.linkslist.about.hoverhead=Headings do not allow hover text.
+
 widget.linkslist.about.reorder=Modify the order number to reorder your links.
 
 widget.linkslist.table.more=More
 
 widget.linkslist.table.order=Order
 
-widget.linkslist.table.title=Title/URL
+widget.linkslist.table.title=Link Details
 
 widget.linkslist.tips=Tips for the Links List:
 
