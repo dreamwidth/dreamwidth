@@ -82,7 +82,7 @@ set color_entry_text = "#000";
 
 set font_base = "Verdana, Helvetica, Arial";
 set font_fallback = "sans-serif";
-set font_journal_title = "'arial black', impact";
+set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
     #primary a {font-weight:bold; text-decoration: none;}
