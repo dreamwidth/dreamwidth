@@ -44,8 +44,8 @@ hr.above-entry-interaction-links, hr.below-entry-interaction-links {margin: 1em 
 
 .entry-interaction-links li {display:inline;}
 
-.entry-interaction-links li:before, .comment-interaction-links li:before, .view-flat:before, .view-threaded:before, .view-top-only:before {content:"(";}
-.entry-interaction-links li:after, .comment-interaction-links li:after, .view-flat:after, .view-threaded:after, .view-top-only:after {content:")";}
+.entry-interaction-links li:before, .comment-interaction-links li:before, .view-flat:before, .view-threaded:before, .view-top-only:before, .expand_all:before {content:"(";}
+.entry-interaction-links li:after, .comment-interaction-links li:after, .view-flat:after, .view-threaded:after, .view-top-only:after, .expand_all:after {content:")";}
 
 .comment .userpic {display:inline-block; max-width:100px;}
 
@@ -75,3 +75,8 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .no-userpic .comment-info {padding-left:10px;}
 
 #qrform table {margin: 0 auto;}
+#qrform td {vertical-align:top;}
+
+label.multiform_mode  {font-weight:bold;}
+
+td
