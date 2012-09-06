@@ -31,7 +31,7 @@ propgroup colors_child {
     property Color color_navlinks_link_hover_background { des = "Navigation module hover link background color"; }
     property Color color_navlinks_link_visited_background { des = "Navigation module visited link background color"; }
     property Color color_calendar_entryday_background { des = "Calendar entry days background color"; }
-    property Color color_metadata_label { des = "Color for metadata and tag labels"; }
+    property Color color_entry_metadata_label { des = "Color for metadata and tag labels"; }
 }
 
 propgroup fonts_child {
@@ -47,7 +47,7 @@ propgroup fonts_child {
         size = 25;
         note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
     }
-    property string font_metadata {
+    property string font_entry_metadata {
         des = "Preferred font for metadata and tag labels";
         maxlength = 50;
         size = 25;
@@ -70,7 +70,7 @@ set font_journal_title = "Georgia";
 set font_journal_title_size = "3";
 set font_journal_title_units = "em";
 set font_management = "Georgia";
-set font_metadata = "'Lucida Grande'";
+set font_entry_metadata = "'Lucida Grande'";
 set font_module_heading_size = "1.25";
 set font_module_heading_units = "em";
 set font_module_text_units = "em";
@@ -191,10 +191,10 @@ min-height: 150px; padding: 1em 0;
 
 .top-metadata {padding-top:1em;}
 
-.tag-text {
+.tag-text, .metadata-label {
     text-transform: uppercase;
-    font-family: $*font_metadata;
-    color: $*color_metadata_label;
+    font-family: $*font_entry_metadata;
+    color: $*color_entry_metadata_label;
 }
 
 ul.entry-management-links {
@@ -207,6 +207,7 @@ ul.entry-management-links {
     color: $*color_management_links;
     background: $*color_management_links_background;
 }
+.entry-management-links a { color: $*color_management_links; }
 
 .entry-interaction-links a, .entry-management-links a {
     font-family: $*font_management;
@@ -292,39 +293,37 @@ td.day-has-entries {
 
 .month .footer {padding: 0.5em;}
 
+
+.icons-container .icon {
+    float: left;
+    margin-bottom: 15px;
+    min-width: 350px;
+    vertical-align: bottom;
+    width: 50%;
+}
+
 .icon-image {
     display: inline;
     float: left;
-    }
-
-.icon-image img {
-    padding: 0.2em 0.5em;
     margin-right: 1em;
-    margin-top: 15px;
-    }
+    min-width: 100px;
+}
 
 .icon-info {
-    overflow:auto;
+    overflow: auto;
     vertical-align: bottom;
     word-wrap: break-word;
-    }
-
-.icons-container .icon {
-    width:50%;
-    float: left;
-    vertical-align: botton;
-    min-width: 350px;
-    }
+}
 
 .icon-info .label,
 .icon-info span {
     font-weight: bold;
-    }
+}
 
 .icons-container .inner .footer {
     clear: both;
     text-align: center;
-    }
+}
 
 /* Sidebars and Modules */
 
