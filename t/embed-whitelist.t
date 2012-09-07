@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 28;
+use Test::More tests => 31;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
@@ -71,6 +71,12 @@ note( "misc" );
     test_good_url( "http://www.scribd.com/embeds/123123/content?start_page=1&view_mode=list&access_key=" );
 
     test_good_url( "http://www.slideshare.net/slideshow/embed_code/12312312" );
+
+    test_good_url( "http://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F23318382&show_artwork=true" );
+
+    test_good_url( "https://embed.spotify.com/?uri=spotify:track:1DeuZgn99eUC1hreXTWBvY" );
+
+    test_good_url( "http://www.twitvid.com/embed.php?guid=QNDLU&autoplay=0" );
 
     test_good_url( "http://player.vimeo.com/video/123123123?title=0&byline=0&portrait=0" );
     test_bad_url( "http://player.vimeo.com/video/123abc?title=0&byline=0&portrait=0" );
