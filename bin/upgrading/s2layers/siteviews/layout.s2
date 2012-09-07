@@ -276,7 +276,6 @@ function EntryPage::print_entry_footer(Entry e) {
     """<hr class="above-entry-interaction-links" />""";
     $e->print_interaction_links("topcomment");
    $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages" });
-    $this->print_reply_container({ "target" => "topcomment" });
 }
 
 function EntryPage::print_comment_section(Entry e) {
@@ -285,6 +284,7 @@ function EntryPage::print_comment_section(Entry e) {
         """<div class='comments-message'>$*text_comments_disabled_maintainer</div>""";
    }
    $.comment_nav->print({ "class" => "comment-pages toppages" });
+    $this->print_reply_container({ "target" => "topcomment" });
    $this->print_multiform_start();
 
    $this->print_comments($.comments);
