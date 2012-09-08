@@ -1940,11 +1940,14 @@ sub TagDetail
     # Work out how many uses of the tag the current remote (if any)
     # should be able to see. This is easy for public & protected 
     # entries, but gets tricky with group filters because a post can
-    # be visible to >1 of them.
+    # be visible to >1 of them. Instead of working it out accurately
+    # every time, we give an approximation that will either be accurate
+    # or an underestimate.
     my $count = 0;
     my $remote = LJ::get_remote();
 
     if ( defined $remote && $remote->can_manage( $u )) {    #own journal
+        #FIXME: should probably show all if viewall is being used too.
         $count = $tag->{uses};
 
     } elsif ( defined $remote ) {           #logged in, not own journal
@@ -1953,27 +1956,20 @@ sub TagDetail
 
         $count = $tag->{security}->{public};
         $count += $tag->{security}->{protected} if $trusted;
-        
-        # if $grpmask is 0 or 1 then the remote isn't in any access filters,
-        #  and we can skip the expensive part.
         if ( $grpmask > 1 ) {
-            # Need to remove the first bit (ie subtract 1) from $grpmask to
-            #  avoid double-counting protected but not filtered entries.
-            my $grpmask1 = $grpmask - 1;
-
-            my $sql = "SELECT COUNT(*) FROM logsec2 INNER JOIN logtags ";
-            $sql .= "ON logsec2.jitemid=logtags.jitemid ";
-            $sql .= "WHERE logtags.journalid = $u->{userid} ";
-            $sql .= "AND logtags.kwid = $kwid ";
-            $sql .= "AND logsec2.allowmask & $grpmask1";
-
+            # Find which group that this remote is a member of has the most 
+            #  uses of this tag, and add that no of uses to the count.
+            # Need to subtract 1 (first bit) from $grpmask to avoid
+            #  double-counting protected but unfiltered entries.
+            my @ingroups = LJ::bit_breakdown( $grpmask - 1 );
+            $count += ( sort {$b<=>$a}
+                @{$tag->{security}->{groups}}{@ingroups} )[0];
         }
 
     } else {        #logged out.
         $count = $tag->{security}->{public};
     }
 
-warn $tag->{name} . " : " . $count;
     # FIXME: I'm not sure that we should be exposing the info below to the 
     #  style system. To be discussed.
     my $sum = 0;
