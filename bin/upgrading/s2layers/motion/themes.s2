@@ -1,0 +1,81 @@
+#NEWLAYER: motion/bluemotion
+layerinfo "type" = "theme";
+layerinfo "name" = "Blue Motion";
+layerinfo "redist_uniq" = "motion/bluemotion";
+layerinfo "author_name" = "wiring";
+
+set theme_authors = [ { "name" => "wiring", "type" => "user" } ];
+set layout_resources = [ { "name" => "Wordpress Motion", "url" => "http://www.webdesigncompany.net/motion/" } ];
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_text = "#fff";
+set color_page_link = "#a8ef9d";
+set color_page_link_visited = "#ccc";
+
+##===============================
+## Module
+##===============================
+
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_link_hover = "#afdaff";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_link = "#a8ef9d";
+set color_entry_link_visited = "#ccc";
+set color_entry_title = "#afdaff";
+set color_comment_title = "#b9ff9d";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "motion/bluemotion.jpg";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "top center";
+set image_entry_header_url = "motion/motion_entry_module.png";
+set image_entry_header_repeat = "repeat";
+set image_entry_header_position = "top left";
+set image_entry_footer_url = "motion/motion_footer.png";
+set image_entry_footer_repeat = "repeat";
+set image_entry_footer_position = "top left";
+set image_background_module_url = "motion/motion_entry_module.png";
+set image_background_module_repeat = "repeat";
+set image_background_module_position = "top left";
+set image_module_header_url = "motion/motion_entry_module.png";
+set image_module_header_repeat = "repeat";
+set image_module_header_position = "top left";
+set image_icon_background_url = "motion/motion_entry_module.png";
+set image_icon_background_repeat = "repeat";
+set image_icon_background_position = "top left";
+set image_link_background_url = "motion/motion_entry_module.png";
+set image_link_background_repeat = "repeat";
+set image_link_background_position = "top left";
+set image_link_hover_background_url = "motion/motion_link.png";
+set image_link_hover_background_repeat = "repeat";
+set image_link_hover_background_position = "top left";
+
+
+##===============================
+## CSS
+##===============================
+
+function Page::print_theme_stylesheet () {
+    """
+    body { background-attachment: fixed; }
+    #pagetitle {color: #a8ef9d; }
+
+    .header a:hover{
+        color: $*color_page_link;
+       border-bottom:1px dashed $*color_page_link;
+    }
+    """;
+}

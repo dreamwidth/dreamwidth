@@ -1,0 +1,813 @@
+layerinfo type = "layout";
+layerinfo name = "Motion";
+layerinfo author_name = "wiring";
+layerinfo redist_uniq = "motion/layout";
+
+set layout_authors = [ { "name" => "wiring", "type" => "user" } ];
+set use_journalstyle_icons_page = true; #FIXME REMOVE THIS LINE BEFORE COMMIT
+
+
+##===============================
+## Images
+##===============================
+
+propgroup images_child {
+
+    property string[] image_entry_header_group {
+        des = "Entry header and table background image";
+        grouptype = "image";
+        }
+    set image_entry_header_group = [ "image_entry_header_url", "image_entry_header_repeat", "image_entry_header_position" ];
+    property string image_entry_header_url {
+        grouped = 1;
+        }
+    property string image_entry_header_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_entry_header_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+    property string[] image_module_header_group {
+        des = "Module header background image";
+        grouptype = "image";
+        }
+    set image_module_header_group = [ "image_module_header_url", "image_module_header_repeat", "image_module_header_position" ];
+        property string image_module_header_url {
+        grouped = 1;
+        }
+    property string image_module_header_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_module_header_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+    property string[] image_entry_footer_group {
+        des = "Entry footer and table header background image";
+        grouptype = "image";
+        }
+    set image_entry_footer_group = [ "image_entry_footer_url", "image_entry_footer_repeat", "image_entry_footer_position" ];
+        property string image_entry_footer_url {
+        grouped = 1;
+        }
+    property string image_entry_footer_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_entry_footer_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+
+    property string[] image_icon_background_group {
+        des = "User icon background image";
+        grouptype = "image";
+        }
+    set image_icon_background_group = [ "image_icon_background_url", "image_icon_background_repeat", "image_icon_background_position" ];
+        property string image_icon_background_url {
+        grouped = 1;
+        }
+    property string image_icon_background_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_icon_background_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+    property string[] image_link_background_group {
+        des = "Link background image";
+        grouptype = "image";
+        }
+    set image_link_background_group = [ "image_link_background_url", "image_link_background_repeat", "image_link_background_position" ];
+        property string image_link_background_url {
+        grouped = 1;
+        }
+    property string image_link_background_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_link_background_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+
+    property string[] image_link_hover_background_group {
+        des = "Link hover background image";
+        grouptype = "image";
+        }
+    set image_link_hover_background_group = [ "image_link_hover_background_url", "image_link_hover_background_repeat", "image_link_hover_background_position" ];
+        property string image_link_hover_background_url {
+        grouped = 1;
+        }
+    property string image_link_hover_background_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_link_hover_background_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+}
+
+propgroup colors_child {
+    property Color color_link_hover_background { des = "Page hover link background color"; }
+    property Color color_entry_footer { des = "Entry footer background color"; }
+    property Color color_link_background { des = "Page link background color"; }
+    property Color color_icon_background { des = "Icon border color"; }
+
+}
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Verdana, Arial, Helvetica";
+set font_fallback = "sans-serif";
+set font_journal_title = "Rockwell, Georgia, 'Palatino Linotype', Palatino, 'Times New Roman', Times";
+set font_entry_title = "Rockwell, Georgia, 'Palatino Linotype', Palatino, 'Times New Roman', Times";
+set font_comment_title = "Rockwell, Georgia, 'Palatino Linotype', Palatino, 'Times New Roman', Times";
+set font_module_heading = "Rockwell, Georgia, 'Palatino Linotype', Palatino, 'Times New Roman', Times";
+
+
+##===============================
+## Layout
+##===============================
+
+set margins_size = "3";
+set margins_unit = "%";
+set sidebar_width = "20em";
+set layout_type = "two-columns-right";
+
+
+##===============================
+## Modules
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    grouped = 1;
+    }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "one";
+
+
+##===============================
+## Functions
+##===============================
+# Add section for navlinks module
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+                    $this->print_module_section("header");
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+
+
+##===============================
+## CSS
+##===============================
+
+function print_stylesheet() {
+
+var string entry_header_image = generate_background_css ($*image_entry_header_url, $*image_entry_header_repeat, $*image_entry_header_position, $*color_entry_title_background);
+var string module_header_image = generate_background_css ($*image_module_header_url, $*image_module_header_repeat, $*image_module_header_position, $*color_module_title_background);
+var string entry_footer_image = generate_background_css ($*image_entry_footer_url, $*image_entry_footer_repeat, $*image_entry_footer_position, $*color_entry_footer);
+var string icon_background_image = generate_background_css ($*image_icon_background_url, $*image_icon_background_repeat, $*image_icon_background_position, $*color_icon_background);
+var string link_background_image = generate_background_css ($*image_link_background_url, $*image_link_background_repeat, $*image_link_background_position, $*color_link_background);
+var string link_hover_background_image = generate_background_css ($*image_link_hover_background_url, $*image_link_hover_background_repeat, $*image_link_hover_background_position, $*color_link_hover_background);
+
+    var string userpic_css = "";
+
+    if($*userpics_position == "left") {
+        $userpic_css = """
+
+        #primary .userpic{
+            float:left;
+            margin:0 1em 1em 0;
+        }
+        """;
+    }
+    elseif($*userpics_position == "right") {
+        $userpic_css = """
+
+       #primary .userpic{
+            float:right;
+            margin:0 0 1em 1em;
+        }
+
+        """;
+    }
+
+
+    """
+   /*-------------------------------------------------
+  Base: Tabula Rasa
+  Title: Motion
+  Theme: Original
+
+  Note: This theme was originally designed and built for the WordPress CMS and is copyright 85ideas.com. (http://www.webdesigncompany.net/motion/)
+  Modify, adapt, and customize for your own site at will!
+  The CSS, XHTML and design of this theme are released under GPL:http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+  Adapted for Dreamwidth by Li (wiring), 2011
+---------------------------------------------------*/
+/************************************************
+* Resets *
+************************************************/
+
+h1, h2, h3, h4, h5, h6{font-size:1em; margin:0; padding:0;}
+
+/************************************************
+* General elements *
+************************************************/
+
+h1, h2, h3, h4, h5, h6, p, li, dt, dd, blockquote, label, th, td, a {text-shadow: 0 0 4px #444;}
+
+a:hover{}
+a img{border:0}
+
+blockquote{
+    font-style:italic;
+    $entry_footer_image
+    padding:.4em 1em .7em 1em;
+    margin:.7em 0 .3em 0;
+    }
+
+kbd, tt{font-size:1.2em}
+
+hr{border:1px solid $*color_page_link}
+
+pre{
+    overflow:auto;
+    $entry_header_image
+    padding:1em 1.5em;
+    margin:1em;
+    font-size:1.2em;
+    white-space:pre-wrap; /* css3 */}
+
+dt{font-weight:bold}
+
+dd{padding-left:1em}
+
+#canvas table{margin:.5em 0}
+
+#canvas table th{color:$*color_page_link}
+
+#canvas table td,#canvas table th{padding:.25em .30em}
+
+#canvas table th{
+    $entry_footer_image
+    border-bottom:1px transparent;
+    }
+
+#canvas table td{ $entry_header_image  vertical-align:middle}
+
+#canvas table tr:hover td{ $entry_footer_image }
+
+#canvas fieldset{padding:1.2em; border:1px dashed $*color_page_link}
+
+/************************************************
+* General *
+************************************************/
+#canvas{
+    margin:1em $*margins_size$*margins_unit;
+    padding:0;
+    }
+
+/************************************************
+* Header *
+************************************************/
+#title, #subtitle, #pagetitle { margin-bottom: .15em; }
+
+#title{
+    font-size:2em;
+    text-shadow:0 0 6px #555}
+
+#pagetitle{font-weight:normal;
+    font-size:1.3em;
+    padding-bottom:.15em;
+    }
+
+#header .module-navlinks {
+    background: none;
+    padding-left: 0;
+    margin: 1em 0 0 0;
+    }
+
+#header .module-navlinks ul {margin-left: 0; }
+
+#header .module-navlinks li { display: inline; }
+
+#header .module-navlinks li a {
+    display: block;
+    float: left;
+    margin-right: .75em;
+    line-height: 2em;
+    padding: .5em 1em;
+    $link_background_image;
+    }
+
+#header .module-navlinks li a:hover { $link_hover_background_image; }
+
+/**********************************************
+ * Content
+ *********************************************/
+#content {padding:2em 0}
+
+/************************************************
+ * Entry &Comments *
+ ***********************************************/
+.sticky-entry-wrapper {
+    padding:.5em;
+    margin:0 0 2em;
+    $entry_header_image
+    }
+
+.header{ $entry_header_image  padding:.5em}
+
+.header a{color: $*color_entry_title; font-size:1.4em}
+
+.access-filter, .restrictions, .datetime{
+    line-height:1.5em;
+    position:relative;
+    top:5px
+    }
+
+.datetime{
+    overflow:hidden;
+    font-size:0.7em;
+    width:100%;
+    padding-top: .4em;
+    }
+
+.contents {margin:.8em 0;}
+
+.entry .contents {min-height: 150px;}
+
+.contents h1{padding:.8em 0; font-size:1.5em}
+.contents h2{padding:.8em 0; font-size:1.4em}
+.contents h3{padding:.8em 0; font-size:1.3em}
+.contents h4{padding:.8em 0; font-size:1.2em}
+.contents h5{padding:.8em 0; font-size:1.1em}
+.contents h6{padding:.8em 0; font-size:1em}
+
+.contents a{border-bottom:1px dashed $*color_entry_link}
+
+.contents a:hover{ $link_background_image }
+
+.contents a img{background:none; border-bottom:0}
+
+.contents .metadata ul li { list-style: none; }
+
+.footer{ $entry_footer_image
+    overflow:hidden;
+    padding:1em 0 0;
+    font-size:0.8em;
+    margin:1em 0
+    }
+
+
+.footer .tag{
+    float:left;
+    width:93%;
+    line-height:1em;
+    }
+
+.footer .tag .tag-text{
+    float:left;
+    margin:0 .5em 0 0
+    }
+
+.footer li{ display:inline}
+
+.footer .tag { margin: 0 1em; }
+
+.footer .entry-management-links{ margin:1em 1em .5em; }
+
+.footer .entry-management-links{ float:left}
+
+.footer hr{ display:none}
+
+/*----- MANAGEMENT/INTERACTION LINKS -----*/
+.entry-interaction-links, .comment-interaction-links{float:right; margin:0 1em .5em}
+
+.entry-interaction-links li, .comment-interaction-links li, .bottomcomment .entry-interaction-links li {display:inline;}
+
+.entry-interaction-links li a, .comment-interaction-links li a, .bottomcomment .entry-interaction-links li a {
+    $link_background_image
+    padding:.5em;
+    line-height:3em;
+    font-size:.9em
+    }
+
+.entry-interaction-links li a:hover, .comment-interaction-links li a:hover, .bottomcomment .entry-interaction-links li a:hover { $link_hover_background_image }
+
+.entry-interaction-links li:hover, .comment-interaction-links li:hover{color: $*color_entry_link}
+
+/*----- USERPICS -----*/
+$userpic_css
+
+.userpic {
+    $icon_background_image
+    padding:1em;
+    /* optional rounded corners for browsers that support it */
+    -moz-border-radius:4px;
+    -khtml-border-radius:4px;
+    -webkit-border-radius:4px;
+    border-radius:4px
+    }
+
+.module .userpic { float: left;}
+
+.userpic a{ border:0;}
+
+.userpic a:hover{ background:none}
+
+#secondary .module-userprofile .userpic img{padding:1em}
+
+/*----- COMMENTS -----*/
+#comments {overflow:visible; width:100%}
+
+#comments ul.commentlist li ul.children li {clear:both; margin:1.5em 0 0 1.5em}
+
+.comment .contents {min-height: 100px; }
+
+.comment h3{font-size:1em; font-weight:normal}
+
+.comment .poster, .comment .poster-ip {
+    font-size:.9em;
+    margin-bottom:10px;
+    color:$*color_page_text;
+    }
+
+.comment-poster a {color:$*color_comment_title}
+
+#comments .footer {
+    font-size:.7em;
+    clear:both;
+    padding:1em
+    }
+
+#comments .footer .inner {float:left; width:96.5%}
+
+#comments .footer .inner .multiform-checkbox{ float:left; margin:.5em 0 0}
+
+#comments .footer .inner .comment-management-links { float:left; margin:.5em 0 0 1em}
+
+#comments .footer .comment-interaction-links {margin:0}
+
+#comments h3#trackbacktitle{padding-top: .75em}
+
+#comments ul.trackback {
+    margin:.75em 0 0 0;
+    padding:1em;
+    $link_background_image
+    }
+
+#comments ul.trackback li{margin-bottom:1.5em; font-size:.9em}
+
+#comments ul.trackback li .commentbody .author{margin:0}
+
+#comments a#cancel-comment-reply-link{display:block; padding: .75em 0}
+
+#comments a#cancel-comment-reply-link:hover{border-bottom: 1px dashed; }
+
+#comments .reply {
+    margin-top:1.75em;
+    overflow:hidden;
+    width:100%
+    }
+
+#ljqrttopcomment {clear:both}
+
+#qrformdiv{ max-width:98%; margin:0 auto}
+
+.bottomcomment{
+    clear:both;
+    margin:2.5em 0;
+    $entry_footer_image
+    padding:1em;
+    overflow:hidden
+    }
+
+.bottomcomment .entry-management-links{ float:left}
+
+.bottomcomment .entry-management-links li{ display:inline}
+
+.bottomcomment .entry-interaction-links{ margin:-.5em 0}
+
+/************************************************
+* Navigation (page turns) *
+************************************************/
+.navigation{
+    overflow:hidden;
+    width:100%;
+    line-height:1.7em;
+    margin-bottom:1.5em;
+    }
+
+.navigation li { float: left; line-height: 2em; }
+
+.navigation li a {
+    float:left;
+    $link_background_image line-height:2em;
+    padding:.5em 1em;
+    color: $*color_page_text;
+    font-size:0.8em;
+    }
+
+.navigation li a:hover{$link_hover_background_image text-decoration:none}
+
+
+/************************************************
+* All Modules *
+************************************************/
+.one-column #secondary .module, .one-column #tertiary .module {display:inline-block; width: $*sidebar_width; vertical-align:top; margin: 0 1em 0 1em;}
+
+.module {
+    overflow:hidden;
+    padding: .75em;
+    margin-bottom: 1em;
+    line-height:1.4em;
+    }
+
+.module ul {
+    width:100%;
+    overflow:hidden;
+    list-style: none;
+    }
+
+.module table{width:100%}
+
+.module li {margin: .5em .25em}
+
+.module li ul{margin-bottom:0}
+
+.module h2{
+    $module_header_image
+    padding:.5em .75em;
+    line-height:1.3em;
+    font-weight:normal;
+    font-size:1.4em;
+    margin-bottom:.75em
+    }
+
+.module h2 a { color: $*color_module_title;}
+
+.module ul ul li a{display:block; padding: .15em .5em}
+
+.module p a:hover{ $link_background_image }
+
+.module ul ul ul li{
+    line-height:1.5em;
+    padding:0 0 0 .75em;
+    margin:0 0 0 .75em
+    }
+
+.module img{
+    background:none;
+    border:none;
+    padding:0 .5em;
+    }
+
+.module .ljuser img { padding-left: 0; }
+
+/*----- SPECIFIC MODULE TWEAKS -----*/
+.module-userprofile .journal-website-name, .module-userprofile .userlite-interaction-links{  margin: 1em 0 0;}
+
+.module-userprofile .journal-name {
+    margin: 1em 0 0;
+    clear:both;
+    }
+
+.module-userprofile .userpic img { padding: 0 !important; }
+
+.module-userprofile li {display:inline}
+
+.module-navlinks .current { font-style: italic; }
+
+.module-syndicate ul li span {padding: .15em .5em}
+
+.module-credit dd { padding-left: 0; margin-right: 1.5em; }
+
+.module-search .search-button{
+    $link_background_image
+    color: $*color_module_text;
+    font-size:1em; padding:1em;
+    margin:0 0 0 1em;
+    vertical-align:top;
+    }
+
+.module-search .search-button:hover{$entry_footer_image }
+
+.module-search .search-box{ padding:0.10em; width:100%;}
+
+/************************************************
+* Page Footer *
+************************************************/
+.two-columns #tertiary .module {margin: 0 .25em; min-height: 3em; }
+
+/************************************************
+* Reading Page *
+************************************************/
+.page-read .poster, .page-network .poster{
+    display: block;
+    text-align:left;
+    margin:.5em 1em 1em 0;
+    $entry_footer_image
+    overflow:hidden;
+    padding:1em;
+    font-size:0.8em;
+    line-height:1.1em
+    }
+
+/************************************************
+* Archive Page *
+************************************************/
+.page-archive .month-wrapper{ margin:0 0 2em}
+
+.page-archive .month-wrapper caption{ display:none}
+
+.page-archive .month{ width:100%}
+
+.page-archive table.month, .page-archive .month td, .page-archive .month th { border-color: transparent !important; }
+
+.page-archive .month .day a { padding: .25em .5em; }
+
+.page-archive .month .day .label{ float:left;  font-size:2em}
+
+.page-archive .month .footer .inner{ padding:0 1em 1em}
+
+/************************************************
+* Icon Page *
+************************************************/
+
+.sorting-options ul {
+    list-style: none;
+    margin-left: 0;
+}
+
+.sorting-options ul li {
+    display: inline;
+}
+
+.keywords ul {
+    display: inline;
+    list-style: none;
+    margin-left: .5em;
+    padding-left: 0;
+}
+
+.keywords ul li {
+    display: inline;
+    padding: .25em;
+}
+
+.icon-image {
+    display: inline;
+    float: left;
+    }
+
+.icon-image img {
+    padding: 0.2em 0.5em;
+    margin-right: 1em;
+    margin-top: 15px;
+    }
+
+.icon-image a {
+    border: 0;
+    text-shadow: none;
+    background:none !important;
+    }
+
+.icon-info {
+    overflow:auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+    }
+
+.icon {
+    width:50%;
+    float: left;
+    vertical-align: botton;
+    min-width: 350px;
+    }
+
+.label, .comment-text, .description-text, .default {
+    font-weight: bold;
+    }
+
+.icons-container .inner .footer {
+    clear: both;
+    text-align: center;
+    }
+
+/************************************************
+* Tags Page *
+************************************************/
+.page-tags ul ul.tags_multilevel{ margin:0 0 0 1em}
+
+.tags-container ul li { line-height: 1.5em; }
+
+/************************************************
+* Reply Page *
+************************************************/
+.page-reply table{ font-size: .75em}
+
+/************************************************
+* Contextual Popup *
+************************************************/
+div.ContextualPopup div.Inner{ background: $*color_page_background; color: $*color_page_text; }
+div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited{ text-decoration:underline !important;  font-weight:bold;  color:$*color_page_text;}
+
+    """;
+}
