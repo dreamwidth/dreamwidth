@@ -91,6 +91,9 @@ modish/themes            theme+                      modish/layout
 modular/layout           layout(core2base/layout)    core2
 modular/themes           theme+                      modular/layout
 
+motion/layout            layout(core2base/layout)    core2
+motion/themes            theme+                      motion/layout
+
 negatives/layout         layout                      core2
 negatives/themes         theme+                      negatives/layout
 

@@ -59,6 +59,7 @@ sub default_themes {
         lineup => 'lineup/modernity',
         marginless => 'marginless/mars',
         modular => 'modular/mediterraneanpeach',
+        motion => 'motion/bluemotion',
         negatives => 'negatives/black',
         nouveauoleanders => 'nouveauoleanders/sienna',
         paletteable => 'paletteable/descending',
