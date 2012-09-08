@@ -58,7 +58,11 @@ ul.comment-management-links {display: inline;}
 ul.comment-interaction-links {display: inline; margin: 0; }
 .comment-interaction-links li {display:inline; list-style: none; }
 
+<<<<<<< Updated upstream
 .comment .header, .screened {background:none; border:0;}
+=======
+.comment .header {border:none; background:none;}
+>>>>>>> Stashed changes
 .comment .footer { padding: 1.2em 0;}
 .bottom-comment {text-align: center;}
 .commentpermalink, .comment .poster-ip  {margin-left:1.5em;}

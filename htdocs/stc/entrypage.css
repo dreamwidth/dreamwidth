@@ -60,7 +60,7 @@ ul.comment-management-links {display: inline;}
 ul.comment-interaction-links {display: inline; margin: 0; }
 .comment-interaction-links li {display:inline; list-style: none; }
 
-
+.comment {min-width:15em;}
 .comment .footer { padding: .7em 0 1.2em;}
 .bottomcomment {text-align: center;}
 .commentpermalink, .comment .poster-ip  {margin-left:1em;}
