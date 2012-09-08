@@ -1944,10 +1944,10 @@ sub TagDetail
     my $count = 0;
     my $remote = LJ::get_remote();
 
-    # FIXME: Just pass the total number of uses if they're looking at their own
-    #  journal, or otherwise have can_manage, or viewall is on.
+    if ( defined $remote && $remote->can_manage( $u )) {    #own journal
+        $count = $tag->{uses};
 
-    if ( defined $remote ) {
+    } elsif ( defined $remote ) {           #logged in, not own journal
         my $trusted = $u->trusts_or_has_member( $remote );
         my $grpmask = $u->trustmask( $remote );
 
@@ -1955,13 +1955,21 @@ sub TagDetail
         $count += $tag->{security}->{protected} if $trusted;
         
         # if $grpmask is 0 or 1 then the remote isn't in any access filters,
-        #  and we can skip the next bit
+        #  and we can skip the expensive part.
         if ( $grpmask > 1 ) {
+            # Need to remove the first bit (ie subtract 1) from $grpmask to
+            #  avoid double-counting protected but not filtered entries.
+            my $grpmask1 = $grpmask - 1;
 
+            my $sql = "SELECT COUNT(*) FROM logsec2 INNER JOIN logtags ";
+            $sql .= "ON logsec2.jitemid=logtags.jitemid ";
+            $sql .= "WHERE logtags.journalid = $u->{userid} ";
+            $sql .= "AND logtags.kwid = $kwid ";
+            $sql .= "AND logsec2.allowmask & $grpmask1";
 
         }
 
-    } else {    #logged out.
+    } else {        #logged out.
         $count = $tag->{security}->{public};
     }
 
