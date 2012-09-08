@@ -283,35 +283,42 @@ sub ip_is_via_tor {
 }
 
 sub resolve_path_for_uri {
-    my ( $r, $uri ) = @_;
+    my ( $r, $orig_uri ) = @_;
 
+    my $uri = $orig_uri;
     if ( $uri !~ m!(\.\.|\%|\.\/)! ) {
-        if ( exists $FILE_LOOKUP_CACHE{$uri} ) {
-            return @{ $FILE_LOOKUP_CACHE{$uri} };
+        if ( exists $FILE_LOOKUP_CACHE{$orig_uri} ) {
+            return @{ $FILE_LOOKUP_CACHE{$orig_uri} };
         }
 
         foreach my $dir ( LJ::get_all_directories( 'htdocs' ) ) {
+            # main page
             my $file = "$dir/$uri";
-            if ( -e "$file/index.bml" && $uri eq '/' ) { 
+            if ( -e "$file/index.bml" && $uri eq '/' ) {
                 $file .= "index.bml";
                 $uri .= "/index.bml";
             }
+
+            # /blah/file => /blah/file.bml
             if ( -e "$file.bml" ) {
                 $file .= ".bml";
                 $uri .= ".bml";
             }
             next unless -e $file;
 
+            # /foo  => /foo/
+            # /foo/ => /foo/index.bml
             if ( -d $file && -e "$file/index.bml" ) {
                 return redir( $r, $uri . "/" ) unless $uri =~ m!/$!;
                 $file .= "/index.bml";
+                $uri .= "/index.bml";
             }
 
             $file = abs_path( $file );
-            if ( $file ) { 
+            if ( $file ) {
                 $uri =~ s!^/+!/!;
-                $FILE_LOOKUP_CACHE{$uri} = [ $uri, $file ];
-                return @{ $FILE_LOOKUP_CACHE{$uri} };
+                $FILE_LOOKUP_CACHE{$orig_uri} = [ $uri, $file ];
+                return @{ $FILE_LOOKUP_CACHE{$orig_uri} };
             }
         }
     }

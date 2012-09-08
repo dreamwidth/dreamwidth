@@ -272,10 +272,11 @@ var string header_spacing_css = "";
 
 var string navlinks_css = "";
     if ($*module_navlinks_section == "header") {
-        $navlinks_css = ".module-navlinks { position: absolute;
-                top: 1em;
-                right: 2em;
-                border: none;
+        $navlinks_css = ".module-navlinks {
+                margin-bottom: -3em;
+                padding-right: 2em;
+                padding-top: 1em;
+                text-align: right;
                 background-color: transparent; }
             .module-navlinks li { display: inline;
                 padding-left: .5em;
