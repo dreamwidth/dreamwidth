@@ -1933,7 +1933,6 @@ sub TagDetail
         _id => $kwid,
         name => LJ::ehtml( $tag->{name} ),
         url => $u->journal_base . '/tag/' . LJ::eurl( $tag->{name} ),
-        use_count => $tag->{uses},
         visibility => $tag->{security_level},
     };
 
@@ -1969,6 +1968,8 @@ sub TagDetail
     } else {        #logged out.
         $count = $tag->{security}->{public};
     }
+    
+    $t->{use_count} = $count;
 
     # FIXME: I'm not sure that we should be exposing the info below to the 
     #  style system. To be discussed.
