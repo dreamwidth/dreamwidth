@@ -100,6 +100,9 @@ nouveauoleanders/themes  theme+                      nouveauoleanders/layout
 paletteable/layout       layout(core2base/layout)    core2
 paletteable/themes       theme+                      paletteable/layout
 
+paperme/layout           layout(core2base/layout)    core2
+paperme/themes           theme+                      paperme/layout
+
 practicality/layout      layout(core2base/layout)    core2
 practicality/themes      theme+                      practicality/layout
 
