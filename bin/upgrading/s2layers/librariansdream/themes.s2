@@ -1,0 +1,113 @@
+#NEWLAYER: librariansdream/grayscaledark
+layerinfo type = "theme";
+layerinfo name = "Grayscale Dark";
+layerinfo redist_uniq = "librariansdream/grayscaledark";
+layerinfo author_name = "branchandroot";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#161616";
+set color_footer_link = "#bbb";
+set color_footer_link_active = "#900";
+set color_footer_link_visited = "#666";
+set color_header_background = "#161616";
+set color_page_background = "#292929"; 
+set color_page_text = "#eee";
+set color_page_link = "#6cc";
+set color_page_link_active = "#900";
+set color_page_link_hover = "";
+set color_page_link_visited = "#399";
+set color_page_title = "#bbb";
+set color_primary_background = "#161616"; 
+set color_sidebars_background = "#161616";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title_background = "#333";
+set color_entry_background = "#030303";
+set color_entry_title = "#ccc";
+set color_entry_title_background = "#333";
+set color_entry_meta_background = "#222";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#222";
+set color_module_text = "#f9f9f9";
+set color_module_link = "#bbb";
+set color_module_link_active = "#900";
+set color_module_link_hover = "#eee";
+set color_module_link_visited = "#888";
+set color_module_title = "#ccc";
+set color_module_title_background = "#333";
+set color_module_link_border = "#333";
+set color_module_link_hover_border = "#6cc";
+set color_module_link_background = "#222";
+set color_module_link_hover_background = "#030303";
+set color_navigation_link = "#9ff";
+set color_navigation_link_visited = "#cff";
+set color_navigation_link_active = "#900";
+
+
+#NEWLAYER: librariansdream/grayscalelight
+layerinfo type = "theme";
+layerinfo name = "Grayscale Light";
+layerinfo redist_uniq = "librariansdream/grayscalelight";
+layerinfo author_name = "branchandroot";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#eee";
+set color_footer_link = "#444";
+set color_footer_link_active = "#900";
+set color_footer_link_visited = "#666";
+set color_header_background = "#eee";
+set color_page_background = "#bbb";
+set color_page_text = "#111";
+set color_page_link = "#399";
+set color_page_link_active = "#900";
+set color_page_link_visited = "#066";
+set color_page_title = "#444";
+set color_primary_background = "#eee";
+set color_sidebars_background = "#eee";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title_background = "#ccc";
+set color_entry_background = "#fcfcfc";
+set color_entry_title = "#333";
+set color_entry_title_background = "#ccc"; 
+set color_entry_meta_background = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ddd";
+set color_module_text = "#000";
+set color_module_link = "#555";
+set color_module_link_active = "#900";
+set color_module_link_hover = "#111";
+set color_module_link_visited = "#777";
+set color_module_title = "#333";
+set color_module_title_background = "#ccc";
+set color_module_link_border = "#ccc";
+set color_module_link_hover_border = "#399";
+set color_module_link_background = "#ddd";
+set color_module_link_hover_background = "#f9f9f9";
+set color_navigation_link = "#6cc";
+set color_navigation_link_visited = "#9cc";
+set color_navigation_link_active = "#900";

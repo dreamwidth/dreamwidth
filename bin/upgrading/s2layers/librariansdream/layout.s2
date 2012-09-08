@@ -1,0 +1,783 @@
+layerinfo type = "layout";
+layerinfo name = "Librarian's Dream";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "librariansdream/layout";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+# loosely inspired by the WordPress theme whose name I have never found
+
+##===============================
+## Extra Colors
+##===============================
+
+propgroup more_colors {
+    property Color color_entry_meta_background 
+      { des = "Entry management links background color"; }
+    property Color color_module_link_background 
+      { des = "Module link background color"; }
+    property Color color_module_link_hover_background 
+      { des = "Module hovered link background color"; }
+    property Color color_module_link_border 
+      { des = "Module link border color"; }
+    property Color color_module_link_hover_border 
+      { des = "Module hovered link border color"; }
+    property Color color_navigation_link 
+      { des = "Navigation link color"; }
+    property Color color_navigation_link_visited 
+      { des = "Navigation visited link color"; }
+    property Color color_navigation_link_active 
+      { des = "Navigation active link color"; }
+    property Color color_navigation_link_hover 
+      { des = "Navigation hovered link color"; }
+    property Color color_primary_background 
+      { des = "Entries column background color"; }
+    property Color color_sidebars_background 
+      { des = "Sidebar background color"; }
+}
+
+
+##===============================
+## Text
+##===============================
+
+set userlite_interaction_links = "text";
+
+set module_tags_opts_count_type = "title";
+set all_commentsubjects = true;
+
+##===============================
+## Presentation
+##===============================
+
+set userpics_position = "right";
+
+##===============================
+## Modules
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    grouped = 1;
+}
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "one";
+
+##===============================
+## Layout
+##===============================
+
+set margins_size = "2";
+set margins_unit = "%";
+
+set layout_type = "two-columns-left";
+
+set module_tags_opts_type = "multi";
+
+
+##===============================
+## Functions
+##===============================
+
+#to give a title to the navlinks module
+function print_module_navlinks( bool apply_class_to_link ) {
+    var Page p = get_page();
+    var string title = "Navigation";
+
+    open_module("navlinks", "$title", "");
+
+    if ( $apply_class_to_link ) {
+        var string[] links = [];
+        foreach var string k ($p.views_order) {
+            var string css = """ class="$k" """;
+            if ($p.view == $k) { $css = """ class="current $k" """; }
+            $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+
+        }
+        print_module_list($links);
+    } else {
+        var string{}[] links = [];
+        foreach var string k ($p.views_order) {
+            var string class = $k;
+            if ($p.view == $k) { $class = "current $k"; }
+            $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
+        }
+        print_module_list($links);
+    }
+
+    close_module();
+}
+
+# Add section for navlinks module
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_module_section("header");
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+    """;
+    
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet() {
+
+#to move userpic left or right
+var string userpic_css = "";
+    if ($*userpics_position == "right") {
+        $userpic_css = ".entry .userpic,
+            .comment .userpic { float: right; }";
+    }
+    else {
+        $userpic_css = ".entry .userpic,
+            .comment .userpic { float: left; }
+            .entry .header,
+            .comment .header { text-align: right; }
+            .entry-title,
+            .comment-title { text-align: left; }";
+    }
+
+
+#for re-setting active module font size
+var string recent_size = "";
+var string recent_units = "";
+    if ( $*font_module_text_size == "" ) { $*font_module_text_size = $*font_base_size;
+        $*font_module_text_units = $*font_base_units; }
+    if ( ($*font_base_size == "") or ($*font_base_units == "%") ) { $recent_size = "medium"; 
+        $recent_units = ""; }
+    else { $recent_size = $*font_module_text_size;
+        $recent_units =  $*font_module_text_units; }
+
+
+#for showing the module in the header
+var string navlinks_css = "";
+if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
+    #header > .inner:first-child { padding-bottom: 2em;
+        position: relative; }
+    .module-navlinks { position: absolute;
+        bottom: 1em;
+        right: 1em; }
+    .module-navlinks * {
+       display: inline !important;
+       background:  transparent !important; 
+       border-left: none !important; }
+    .module-navlinks a {
+       color: $*color_page_link !important; }
+    .module-navlinks a:visited {
+       color: $*color_page_link_visited !important; }
+    .module-navlinks a:hover {
+       color: $*color_page_link_hover !important; }
+    .module-navlinks a.current {
+       color: $*color_page_text !important;
+       text-decoration: none; }
+    .module-navlinks .module-header { display: none !important; }
+    """; }
+else { $navlinks_css = ""; }
+
+
+"""
+/* Lists CSS */
+
+/* Spacing */
+
+#primary > .inner:first-child {
+    margin: .25em .25em .25em .25em;
+    padding: .5em 1em;
+}
+
+.two-columns-left #primary > .inner:first-child,
+.three-columns-left #primary > .inner:first-child { margin-right: 0; }
+.two-columns-right #primary > .inner:first-child,
+.three-columns-right #primary > .inner:first-child { margin-left: 0; }
+
+.two-columns-left #header,
+.three-columns-sides #header { margin-left: $*sidebar_width;
+    border-left: .25em solid $*color_page_background; }
+.three-columns-left #header { margin-left: $*sidebar_width_doubled;
+    border-left: .25em solid $*color_page_background; }
+.two-columns-right #header,
+.three-columns-sides #header { margin-right: $*sidebar_width;
+    border-right: .25em solid $*color_page_background; }
+.three-columns-right #header { margin-right: $*sidebar_width_doubled;
+    border-right: .25em solid $*color_page_background; }
+
+#secondary,
+.three-columns-left #tertiary,
+.three-columns-right #tertiary,
+.three-columns-sides #tertiary { position: absolute;
+    top: 1em;
+    margin: 0 !important;
+}
+
+.two-columns-left #secondary,
+.three-columns-sides #secondary { left: 0; }
+.three-columns-left #secondary { left: -.25em; }
+
+.two-columns-right #secondary,
+.three-columns-sides #tertiary { right: 0; }
+.three-columns-right #tertiary {right: -.25em; }
+
+.three-columns-right #secondary { right: $*sidebar_width;  }
+.three-columns-left #tertiary { left: $*sidebar_width; }
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+    padding: .5em .75em;
+}
+
+.two-columns-left #tertiary .module,
+.two-columns-right #tertiary .module { margin: 0 .25em 0 0; }
+
+#footer { margin-top: .25em; }
+
+/* Canvas level */
+blockquote {
+    padding: 1em 1em .5em 2em;
+    font-style: italic;
+} 
+blockquote > p:first-child { margin-top: 0; }
+q { font-style: italic; }
+dl dt { font-weight: bold; }
+
+a:hover { text-decoration: none; }
+
+body {
+    background:  $*color_page_background; 
+    padding: 0;
+    margin: 0;
+}
+
+#canvas { 
+    margin: 0 $*margins_size$*margins_unit;
+    padding: 1em 0;
+    position: relative;
+    background: $*color_page_background;
+}
+
+#header { 
+    background:  transparent;
+    padding: 1px; }
+#header .inner { padding: 1px 1em;
+    margin-top: -1px;
+    background:  $*color_header_background; }
+
+#content { border-color: $*color_page_background !important; }
+#content-footer { clear: both; }
+
+.navigation { text-align: right; }
+.navigation ul { margin: .5em 0; }
+
+.navigation a { color: $*color_navigation_link; }
+.navigation a:visited { color: $*color_navigation_link_visited; }
+.navigation a:active { color: $*color_navigation_link_active; }
+.navigation a:hover { color: $*color_navigation_link_hover; }
+
+#title,
+#pagetitle,
+#subtitle,
+.entry-title,
+.module-header,
+.comment-title,
+.tags-container h2,
+#archive-year .month .header h3 {
+    font-weight: normal;
+    text-transform: capitalize;
+}
+
+#header h1,
+#header h2,
+#header h3 {
+    margin: 0;
+    padding: .15em 0;
+}
+
+/* entry */
+
+#primary > .inner:first-child { background:  $*color_primary_background; }
+
+.entry-wrapper,
+.comment-wrapper {
+    background: $*color_entry_meta_background;
+    margin: 0 0 1em 0;
+}
+
+.entry,
+.comment { margin: 0 0 0 35px; padding: 0;
+    position: relative;
+    border: none; }
+
+.entry .header,
+.comment .header { padding-left: 10px; } /*so datetime et al has some padding */
+
+.entry-title,
+.comment-title { 
+    padding: .25em .5em;
+    margin: 0;
+    margin-left: -45px;
+    border-bottom: 1px solid $*color_primary_background; 
+}
+
+.entry .datetime,
+.comment .header .datetime { font-size: small; }
+
+.entry .contents,
+.comment .contents { padding: 0 .5em .5em .5em;
+    min-height: 100px; }
+
+.entry-content,
+.comment-content { padding: 1em .5em .5em .5em; }
+
+$userpic_css
+
+.entry .userpic,
+.comment .userpic { margin: -.75em .25em .5em .25em; }
+
+.entry .tag { padding-left: .5em; }
+
+ul.entry-interaction-links,
+.comment-interaction-links { 
+    padding: 0 .5em .75em .5em;
+    margin: 0; }
+
+ul.entry-management-links,
+.comment-management-links {
+    position: absolute;
+    top: 3em;
+    left: -30px;
+    width: 25px;
+}
+ul.entry-management-links li,
+.comment-management-links li { 
+    display: block;
+    padding: 0 .25em;
+}
+
+.bottomcomment {
+    background: $*color_entry_background;
+    padding: 1px;
+    margin: .5em 0; 
+}
+.bottomcomment ul.entry-management-links {
+    position: static;
+    width: auto; 
+}
+.bottomcomment ul.entry-management-links li {
+    display: inline;
+    padding: 0 .25em;
+}
+.bottomcomment ul.entry-management-links {
+    float: left;
+    margin-top: .5em;
+    margin-bottom: .25em; 
+}
+.bottomcomment ul.entry-interaction-links {
+    text-align: right;
+    margin-right: .5em;
+    margin-top: .5em;
+    margin-bottom: .25em; 
+}
+
+/* Comments */
+.comment-pages { 
+    background: $*color_entry_background;
+    padding: .25em;
+    margin: .5em 0;
+    text-align: center;  /* links when paginated */
+}
+.comment-wrapper { padding: 0;  }
+
+.comment { background:  $*color_entry_background; }
+
+.comment-title { background:  $*color_entry_title_background; }
+.comment-title a { color: $*color_entry_title; }
+
+.poster-ip { font-size: small; }
+
+.comment .footer { padding: 1px; }
+
+.comment .footer .multiform-checkbox { 
+    margin: 0 10px;
+    font-size: small;   
+}
+
+.comment-management-links { top: 2em; }
+
+.comment-interaction-links { text-align: right; }
+
+.partial .comment { padding: .25em; }
+.partial .comment-title { 
+    display: inline;
+    background: transparent;
+    margin-left: 0;
+}
+
+
+/* Archive */
+
+#archive-year .month-wrapper {margin: 0 0 1.5em 0; }
+
+#archive-year .month,
+#archive-month .month { background:  $*color_entry_background; }
+
+#archive-year .month .header h3 { 
+    background: $*color_entry_title_background;
+    color: $*color_entry_title;
+    border-bottom: 1px solid $*color_primary_background;
+    padding: .20em .25em;
+    margin: 0; 
+}
+
+#archive-year .month .contents { padding-top: 1em; }
+
+#archive-year .month .footer { padding: 1em; }
+
+table.month td,
+table.month th { padding: .25em .5em;
+    vertical-align: top; }
+
+table.month caption { display: none; }
+
+#archive-month .month { padding: 1em; }
+
+#archive-month .month .entry-title { border-bottom: none;
+    font-weight: bold;
+    margin-left: 0; }
+
+#archive-month .navigation { text-align: center; }
+
+
+/* Tags */
+
+.page-tags .tags-container { background:  $*color_entry_background; }
+
+.tags-container h2 { background:  $*color_entry_title_background;
+    color: $*color_entry_title;
+    border-bottom: 1px solid $*color_primary_background;
+    padding: .20em .25em;
+    margin: 0; 
+}
+
+.tags-container .manage-tags-link { padding: 1em; }
+
+
+/*Sidebars*/
+#secondary,
+#tertiary { background:  $*color_sidebars_background; }
+
+.two-columns-left #tertiary .separator-after,
+.two-columns-right #tertiary .separator-after  {clear: both; }
+
+.two-columns-left #tertiary { margin-left: .25em; }
+.two-columns-right #tertiary { margin-right: .25em }
+
+.module a { color: $*color_module_link; }
+.module a:visited { color: $*color_module_link_visited; }
+.module a:active { color: $*color_module_link_active; }
+.module a:hover { color: $*color_module_link_hover; }
+
+.module { 
+    border: none;
+    background:  transparent;
+    margin-bottom: 4px; 
+}
+
+.module-header { 
+    font-size: large;
+    padding: .25em;
+    margin: 0; 
+    background:  $*color_module_title_background; 
+}
+.module-header a { color: $*color_module_title; }
+.module-header a:visited { color: $*color_module_title; }
+
+.module-content ul,
+.module-list,
+.module dl { 
+    list-style: none;
+    margin: 0; 
+    padding: 0;
+}
+.module-content li,
+.module-list-item,
+.module-syndicate a,
+.module .manage-link a,
+.module dt,
+.module dd,
+.module-search input { 
+    margin: 1px 0;
+}
+
+.module-content li a,
+.module-list-item a,
+.module-syndicate a,
+.module .manage-link a,
+.module-calendar td a,
+.journal-website-name a,
+.module-credit dt,
+.module-credit dd,
+.module-search input {
+    display: block;
+    padding: .25em .5em;
+    background:  $*color_module_link_background; 
+    border-left: .5em solid $*color_module_link_border;
+    color: $*color_module_link;
+}
+
+.module-calendar td { font-size: small; }
+.module-calendar td.empty-day { padding: .25em; }
+.module-calendar td.entry-day a { padding: .25em; border: none; }
+.module-search input.search-box { margin-top: 2px; }
+
+.module-content li a:hover,
+.module-list-item a:hover,
+.module-syndicate a:hover,
+.module .manage-link a:hover,
+.module-calendar td a:hover,
+.journal-website-name a:hover,
+.module-credit dd:hover,
+.module-search input.search-button:hover,
+.module-search input.search-box:focus {
+    background:  $*color_module_link_hover_background;
+    border-left: .5em solid $*color_module_link_hover_border;
+    color: $*color_module_link_hover; 
+}
+
+$navlinks_css
+
+.manage-link { font-style: italic; }
+
+.module-calendar td a:hover { 
+    border: .05em solid $*color_module_link_hover_border; padding: .20em; 
+}
+
+.module-userprofile .userpic,
+.journal-name { 
+    padding: .20em .5em;
+    margin-bottom: 1px;
+    background:  $*color_module_link_background; 
+}
+
+.module-userprofile .module-content { 
+    text-align: left;
+    padding-top: 1px;
+}
+
+.module-userprofile .userpic img { height: 1.5em; width: 1.5em; }
+
+.module-user-links .module-content { 
+    text-align: left;
+}
+ul.userlite-interaction-links {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+ul.userlite-interaction-links li { 
+    display: block;
+    padding: 0; 
+}
+
+.module-powered,
+.module-time,
+.module-tags_cloud .module-content { 
+    background:  $*color_module_background;
+    padding: .5em; 
+}
+
+.module-pagesummary li { 
+    background:  $*color_module_link_background;
+    padding: .25em .5em;
+    border-left: .5em solid $*color_module_link_border; 
+}
+
+.module-pagesummary li:hover { 
+    background:  $*color_module_link_hover_background;
+    border-left: .5em solid $*color_module_link_hover_border; 
+}
+
+.module-pagesummary a { 
+    display: inline !important;
+    border-left: none !important;
+    padding: 0 !important; 
+}
+
+.module-pagesummary li:hover a { 
+    background:  transparent;
+    color: $*color_module_link_hover; 
+}
+
+.module-tags_multilevel .non-link-tag {
+    display: block;
+    padding: .25em .5em;
+    background:  $*color_module_link_background; 
+    border-left: .5em solid $*color_module_link_border; 
+}
+
+.module-tags_multilevel ul ul a { padding-left: 2em; }
+
+.module-tags_cloud a,
+.module-tags_cloud .manage-tags-link a { 
+    display: inline; 
+    background:  transparent;
+    border-left: none;
+    padding: .25em; 
+}
+
+.module-tags_cloud a:hover,
+.module-tags_cloud .manage-tags-link a:hover {
+    background:  transparent;
+    border-left: none; 
+}
+
+.module-tags_cloud .manage-tags-link  { margin-top: 1em; }
+
+.module-active li { font-size: 0; }
+.module-active li a { font-size: $recent_size$recent_units; }
+
+
+/* Footer */
+
+.two-columns-left #footer,
+.three-columns-sides #footer { margin-left: $*sidebar_width;
+    border-left: .25em solid $*color_page_background; }
+.two-columns-right #footer,
+.three-columns-sides #footer { margin-right: $*sidebar_width;
+    border-right: .25em solid $*color_page_background; }
+.three-columns-left #footer { margin-left: $*sidebar_width_doubled;
+    border-left: .25em solid $*color_page_background; }
+.three-columns-right #footer { margin-right: $*sidebar_width_doubled;
+    border-right: .25em solid $*color_page_background; }
+
+
+
+""";
+}
+
+function need_page_styles() {
+var Page p = get_page();
+var bool userpic_exists = defined $p.journal.default_pic; #thanks ysobel!
+
+#to make userprofile components look very different than usual
+var string userprofile_css = "";
+    if ( $*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == true and $userpic_exists == true) {
+        $userprofile_css = "
+            .module-userprofile .userpic { 
+                float: left;
+                border-left: .5em solid $*color_module_link_border;
+             }
+            .module-userprofile .journal-name { min-height: 1.5em; }";
+    }
+    if ($*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == false and $userpic_exists == true) {
+        $userprofile_css = ".module-userprofile .userpic { border-left: .5em solid $*color_module_link_border; }";
+    }
+    if ($*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == false and $userpic_exists == false) {
+        $userprofile_css = "";
+    }
+    if ( ($*module_userprofile_opts_userpic == false and $*module_userprofile_opts_name == true) or 
+      ( $*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == true and $userpic_exists == false)) {
+        $userprofile_css = ".module-userprofile .journal-name { border-left: .5em solid $*color_module_link_border; }";
+    }
+
+        println """<style type="text/css">""";
+        start_css();
+        print $userprofile_css;
+        end_css();
+        println """</style>""";
+}
+
+
+# to incorporate the css above, which requires the Page object, which the external style sheet cannot access
+function Page::print_default_stylesheets() 
+"Contains the layout and theme default stylesheets. Themes and child layouts may use this to disable the printing of the layout's base default stylesheet, or to add theme-specific CSS bits. May be overriden on a per-layout/theme basis"
+{
+    if ($*external_stylesheet) {
+        # prints out the stylesheets for $this->print_default_stylesheet, print_stylesheet(), and $this->print_theme_stylesheet
+        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+
+        # added for the css that requires the Page object
+        need_page_styles();
+    }
+    else {
+        println """<style type="text/css">""";
+        start_css();
+        $this->print_default_stylesheet();
+        print_stylesheet();
+        $this->print_theme_stylesheet();
+        end_css();
+        println """</style>""";
+    }   
+}
