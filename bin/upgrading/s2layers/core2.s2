@@ -309,7 +309,7 @@ class Tag
 class TagDetail extends Tag
 "A rich structure with lots of information about a Tag."
 {
-    var readonly int use_count "Count of how many times this tag has been used.";
+    var readonly int use_count "Count of approximately how many times this tag has been used in posts that the viewer has access to.";
     var readonly string visibility "The visibility level for this tag.  Based on the entries it's used on.  Can be one of: public, private, friends, group.";
     var readonly int{} security_counts "How many times this tag has used this security.  The keys are which security, one of: public, private, friends, group.  The value is the count of times the tag is used on entries with that security level.";
 }
