@@ -7,6 +7,7 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "carisma_sensei", "type" => "user" } ];
 set layout_type = "two-columns-left";
 
+
 ##===============================
 ## Presentation
 ##===============================
@@ -320,7 +321,7 @@ td.day-has-entries {
     font-weight: bold;
 }
 
-.icons-container .inner .footer {
+.icons-container .inner .footer, .icon-pages {
     clear: both;
     text-align: center;
 }
