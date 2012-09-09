@@ -73,6 +73,9 @@ forthebold/themes        theme+                      forthebold/layout
 funkycircles/layout      layout(core2base/layout)    core2
 funkycircles/themes      theme+                      funkycircles/layout
 
+leftovers/layout         layout(core2base/layout)    core2
+leftovers/themes         theme+                      leftovers/layout
+
 lineup/layout            layout(core2base/layout)    core2
 lineup/themes            theme+                      lineup/layout
 
@@ -123,4 +126,3 @@ wideopen/themes          theme+                      wideopen/layout
 
 zesty/layout             layout                      core2
 zesty/themes             theme+                      zesty/layout
-
