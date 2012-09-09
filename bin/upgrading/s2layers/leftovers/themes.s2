@@ -1,0 +1,53 @@
+#NEWLAYER: leftovers/fruitsalad
+layerinfo type = "theme";
+layerinfo name = "Fruit Salad";
+layerinfo redist_uniq = "leftovers/fruitsalad";
+layerinfo author_name = "renoir";
+
+
+##===============================
+## Page
+##===============================
+
+set color_calender_header_background = "#f9f9f9";
+set color_footer_background = "#fff";
+set color_navlinks_archive_background = "#f29f05";
+set color_navlinks_archive_hover_background = "#fab433";
+set color_navlinks_link = "#fff";
+set color_navlinks_memories_background = "#0396a6";
+set color_navlinks_memories_hover_background = "#52bcc8";
+set color_navlinks_network_background = "#54afbc";
+set color_navlinks_network_hover_background = "#49c9dc";
+set color_navlinks_read_background = "#d96704";
+set color_navlinks_read_hover_background = "#ee862b";
+set color_navlinks_recent_background = "#0396a6";
+set color_navlinks_recent_hover_background = "#52bcc8";
+set color_navlinks_tags_background = "#79a617";
+set color_navlinks_tags_hover_background = "#9fc351";
+set color_navlinks_userinfo_background = "#d90404";
+set color_navlinks_userinfo_hover_background = "#fb3f3f";
+set color_page_background = "#e0e0e0";
+set color_page_link = "#0396a6";
+set color_page_link_active = "#0396a6";
+set color_page_link_hover = "#d90404";
+set color_page_link_visited = "#0396a6";
+set color_page_text = "#aaa";
+set color_page_title = "#d90404";
+set color_userpic_border = "#f29f05";
+
+##===============================
+## Entry
+##===============================
+
+set color_calender_entryday_background = "#f6f6f6";
+set color_entry_background = "#fff";
+set color_entry_title = "#79a617";
+set color_entry_title_border = "#d3d3d3";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#fff";
+set color_module_title = "#79a617";
+set color_module_title_border = "#e5e5e5";
