@@ -230,7 +230,6 @@ img, img a {
 .module-navlinks .current {font-style: italic; color: $*color_module_text;}
 
 .module-navlinks  ul {
-    display: list-item;
     list-style: none;
     text-align: left;
     line-height:1.2em;
@@ -385,39 +384,37 @@ $userpic_padding_css
 .tags-container a:visited, .icons-container a:visited, #archive-year a:visited { color: $*color_entry_link_visited; }
 
 
+.icons-container .icon {
+    float: left;
+    margin-bottom: 15px;
+    min-width: 350px;
+    vertical-align: bottom;
+    width: 50%;
+}
+
 .icon-image {
     display: inline;
     float: left;
-    }
-
-.icon-image img {
-    padding: 0.2em 0.5em;
     margin-right: 1em;
-    margin-top: 15px;
-    }
+    min-width: 100px;
+}
 
 .icon-info {
-    overflow:auto;
+    overflow: auto;
     vertical-align: bottom;
     word-wrap: break-word;
-    }
-
-.icons-container .icon {
-    width:50%;
-    float: left;
-    vertical-align: botton;
-    min-width: 350px;
-    }
+}
 
 .icon-info .label,
 .icon-info span {
     font-weight: bold;
-    }
+}
 
-.icons-container .inner .footer {
+.icons-container .inner .footer, .icon-pages {
     clear: both;
     text-align: center;
-    }
+}
+
 
 /* ---------------------- End CSS -------------- */""";
 }
