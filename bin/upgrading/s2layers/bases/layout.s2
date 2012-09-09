@@ -947,15 +947,19 @@ div.ljtaglist {padding: 0.5em; }
     text-decoration: underline;
     }
 
+.icon-keywords {
+    padding-right: .5em;
+    }
+
 .icon-keywords ul {
     display: inline;
-    padding-left: 0;
+    margin: 0;
+    padding: 0;
     }
 
 .icon-keywords ul li {
     display: inline;
-    list-style: none;
-    padding: 0 .25em 0 0;
+    margin: 0;
     }
 
 .icons-container .manage-link {

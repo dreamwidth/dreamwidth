@@ -954,11 +954,7 @@ h3.day-date {
     }
 
 .icon-keywords ul {
-    margin-left: 0;
-    }
-
-.icon-keywords ul li {
-    padding: 0 .25em 0 0;
+    margin: 0;
     }
 
 /* Modules
