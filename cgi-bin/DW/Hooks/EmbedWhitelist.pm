@@ -59,9 +59,13 @@ my %host_path_match = (
 
     "ext.nicovideo.jp"      => qr!^/thumb/!,
 
-    "www.sbs.com.au"         => qr!/player/embed/!,  # best guess; language parameter before /player may vary
+    "www.sbs.com.au"        => qr!/player/embed/!,  # best guess; language parameter before /player may vary
     "www.scribd.com"        => qr!^/embeds/!,
     "www.slideshare.net"    => qr!^/slideshow/embed_code/!,
+    "w.soundcloud.com"      => qr!^/player/!,
+    "embed.spotify.com"     => qr!^/$!,
+
+    "www.twitvid.com"       => qr!^/embed.php$!,
 
     "player.vimeo.com"      => qr!^/video/\d+$!,
 );
