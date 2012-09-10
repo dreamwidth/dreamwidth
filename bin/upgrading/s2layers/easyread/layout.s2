@@ -474,12 +474,11 @@ html body {
 
 .navigation ul {
     clear: left;
-    list-style: none;
     font-weight: bold;
     padding-left: 0;
 }
 
-.navigation .inner ul li {
+.navigation ul li {
     display: inline;
 }
 
@@ -492,7 +491,6 @@ html body {
  */
 
 ul.userlite-interaction-links {
-    list-style: none;
     padding-left: 0;
 }
 
@@ -519,17 +517,19 @@ h2.module-header a {
 }
 
 .module-tags_list ul.module-list {
-    list-style: none;
     padding-left: 0;
     display: inline;
 }
 
-.tags_cloud li, .module-tags_cloud li {
+.module-tags_list ul.module-list li {
     display: inline;
-    list-style-type: none;
 }
 
-.module-tags_list ul.module-list li {
+.tags_cloud ul, .module-tags_cloud ul {
+    list-style: none;
+}
+
+.tags_cloud li, .module-tags_cloud li {
     display: inline;
 }
 
@@ -716,7 +716,6 @@ ul.comment-interaction-links li, ul.comment-management-links li {
 }
 
 .tag ul {
-    list-style: none;
     display: inline;
     padding-left: 0;
 }
@@ -763,7 +762,6 @@ module-section-two ul.module-list li {
  */
 
 .sorting-options ul {
-    list-style: none;
     padding-left: 0;
     }
 
@@ -797,7 +795,6 @@ module-section-two ul.module-list li {
 
 .icon-keywords ul {
     display: inline;
-    list-style: none;
     padding-left: 0;
     }
 

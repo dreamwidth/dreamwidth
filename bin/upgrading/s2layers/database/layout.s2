@@ -1305,9 +1305,7 @@ h2#pagetitle {
 #header .module li.current { background-color: $*color_module_header_background_hover; }
 #header .module li.current a { color: $*color_module_header_link_hover; }
 
-#header .module li {
-    list-style: none;
-    }
+#header .module li { list-style: none; }
 
 #header-footer {
     $header_background
@@ -1898,8 +1896,8 @@ span.de {
 
 .day-date { display: none; }
 
-.tags-container li { list-style-type: square; }
-.tags-container li li { list-style-type: none; }
+.tags-container li { list-style: square; }
+.tags-container li li { list-style: none; }
 
 .sorting-options ul {
     margin: 0 0 1em;
@@ -1985,11 +1983,11 @@ $module_css
 .module ul { margin-bottom: 0; }
 
 .module li {
-    list-style-type: square;
+    list-style: square;
     margin: 0;
     }
 
-.module li li { list-style-type: none; }
+.module li li { list-style: none; }
 
 .module-navlinks li.current,
 .module-navlinks li.current a {

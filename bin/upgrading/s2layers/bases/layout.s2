@@ -371,7 +371,6 @@ var Color element_background = $*color_page_background->lighter();
                 display: inline;
                 height: 2.2em;
                 line-height: 2.2em;
-                list-style: none;
                 margin: 0;
                 margin-left: -.25em;
                 padding: .5em 0;
@@ -543,7 +542,7 @@ $navlinks_css
 .module a:active { color: $*color_module_link_active; }
 .module a:hover, #secondary a:visited:hover, #secondary a:active:hover { color: $*color_module_link_hover; }
 
-.module-header { text-align: center; margin: 0; list-style: none; background: $*color_module_title_background; padding: 0.6em 0 0.6em 0;
+.module-header { text-align: center; margin: 0; background: $*color_module_title_background; padding: 0.6em 0 0.6em 0;
                  $module_heading_font font-weight: bold; color: $*color_module_title; border-bottom: 0.083em solid $*color_module_background;}
 .module-header a, .module-header a:visited, .module-header a:active { text-decoration: underline; color: $*color_module_title;}
 .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: $*color_comment_title_background;}
@@ -599,7 +598,7 @@ $navlinks_css
 .module-typelist .module-list .module-list-item a { text-align: left; font-size: 1.2em;}
 
 .module-tags_cloud .module-list {padding: 0.5em;}
-.module-tags_cloud li, .tags_cloud li {display: inline; list-style-type: none;}
+.module-tags_cloud li, .tags_cloud li { display: inline; }
 
 .module-tags_cloud .manage-link {
     border-top: .083em solid $*color_module_border;
@@ -609,7 +608,7 @@ $navlinks_css
 
 .module-tags_multilevel .module-list { padding: 0.5em; margin: 0; }
 .module-tags_multilevel .module-list .module-list { border-top: 0.083em solid $*color_module_border; border-bottom: 0; padding: 1em; }
-.module-tags_multilevel .module-list .module-list-item {list-style-type: none; color: $*color_module_text;  border-bottom: 0.083em solid $*color_module_border; margin: 0;  }
+.module-tags_multilevel .module-list .module-list-item { list-style: none; color: $*color_module_text;  border-bottom: 0.083em solid $*color_module_border; margin: 0;  }
 .module-tags_multilevel .module-list .module-list-item a { text-align: left; }
 
 .module-typelist .manage-link,
@@ -653,7 +652,7 @@ $navlinks_css
 
 /* ====================== NAVIGATION BAR ======================= */
 
-.navigation ul {margin: 0; padding: 0; list-style: none; border-top: 0.083em solid $*color_page_border; }
+.navigation ul {margin: 0; padding: 0; none; border-top: 0.083em solid $*color_page_border; }
 .navigation li {display: inline; padding: 0 1em 0 1em; border-right: 0.083em solid $*color_page_border; }
 li.page-separator {display: none;}
 .navigation li + li {margin-left: -0.25em;}
@@ -731,7 +730,7 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 
 .tag {margin: 0; padding: 0; border-bottom: 0.083em solid $*color_entry_border; background: $*color_entry_background; }
 .tag-text {float: left; font-weight: bold; padding: 0 0.5em 0 1em; }
-.tag ul { padding: 0; list-style: none; margin: 0; }
+.tag ul { padding: 0; margin: 0; }
 .tag li {display: inline; margin: 0; }
 
 .metadata li, .metadata li + li + li {background: $*color_comment_title_background; color: }
@@ -740,13 +739,13 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 /* ====================== ENTRY TOOLS ======================= */
 
 .entry .footer { overflow: auto; background:  $*color_module_title_background; border-bottom: 0.083em solid $*color_entry_background;}
-.entry-interaction-links {margin: 0; list-style: none; padding: 0.583em; border-top: 0.083em solid $*color_entry_background;}
+.entry-interaction-links {margin: 0; padding: 0.583em; border-top: 0.083em solid $*color_entry_background;}
 .entry-interaction-links li {display: inline; padding: 0.583em 0 0.583em 0 !important; border-left: 0.083em solid $*color_entry_background; border-right: 0.083em solid $*color_entry_background; }
 .entry-interaction-links li + li {border-left: 0; margin: 0 0 0 -0.25em;}
 .entry-interaction-links a {color: $*color_entry_interaction_links !important; padding: 0.583em 0.833em 0.583em 0.833em; font-weight: bold;}
 .entry-interaction-links a:hover{background: $*color_module_link_hover; text-decoration: underline; }
 
-.entry-management-links { margin: 0.583em 0.583em 0 0; list-style: none; display: inline; float: right;}
+.entry-management-links { margin: 0.583em 0.583em 0 0; display: inline; float: right;}
 .entry-management-links li {display: inline; margin: 0 0.25em 0 0.25em; }
 
 .entry-management-links.text-links {
@@ -846,7 +845,7 @@ li.first-item {margin-left: 0;}
 .comment .userpic img {border: 0;}
 .comment a img:hover {opacity: .7;}
 
-.comment-interaction-links {padding: 0; margin: 0; list-style: none; background: $*color_comment_title_background; padding: 0.25em; border-top: 0.083em solid $*color_entry_border;
+.comment-interaction-links {padding: 0; margin: 0; background: $*color_comment_title_background; padding: 0.25em; border-top: 0.083em solid $*color_entry_border;
                             text-align: left; }
 .comment-interaction-links li {display: inline; padding: 0.25em 0 0.25em 0 !important; border-right: 0.083em solid $*color_entry_background; }
 .comment-interaction-links li + li { margin: 0 0 0 -0.25em; }
@@ -857,7 +856,7 @@ li.first-item {margin-left: 0;}
 
 .comment-interaction-links .first-item {border-left: 0;}
 
-.comment-management-links { margin: 1.833em 0.5em 0 0; list-style: none; display: inline; float: right;}
+.comment-management-links { margin: 1.833em 0.5em 0 0; display: inline; float: right;}
 .comment-management-links li {display: inline; margin: 0.25em !important; }
 
 .comment-management-links img { padding: 0 0.25em 0.25em 0.25em; }
@@ -920,7 +919,6 @@ div.ljtaglist {padding: 0.5em; }
 
 .sorting-options ul li {
     display: inline;
-    list-style: none;
     }
 
 .icons-container .icon {
