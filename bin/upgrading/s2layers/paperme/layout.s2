@@ -1,0 +1,420 @@
+layerinfo type = "layout";
+layerinfo name = "Paper Me";
+layerinfo redist_uniq = "paperme/layout";
+layerinfo author_name = "cimorene";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "cimorene", "type" => "user" } ];
+set layout_type = "two-columns-right";
+set use_journalstyle_icons_page = true; #FIXME: remove before commit
+
+##===============================
+## Presentation
+##===============================
+
+set entry_management_links = "text";
+set entry_metadata_position = "top";
+set margins_size ="5";
+set margins_unit = "%";
+
+##===============================
+## Text
+##===============================
+
+set all_commentsubjects = true;
+set comment_management_links = "text";
+set entry_management_links = "text";
+set text_entry_prev = "Previous";
+set text_entry_next = "Next";
+set text_mem_add = "Memory";
+set text_tell_friend = "Share";
+set text_watch_comments = "Track";
+set text_unwatch_comments = "Untrack";
+
+##==============================
+## Default Font Settings
+##==============================
+
+set font_base = "Verdana";
+set font_fallback = "sans-serif";
+
+set font_journal_title = "'Century Gothic', 'Lucida Grande', 'Lucida Sans Unicode'";
+set font_entry_title = "'Century Gothic', 'Lucida Grande', 'Lucida Sans Unicode'";
+set font_module_heading = "'Century Gothic', 'Lucida Grande', 'Lucida Sans Unicode'";
+
+
+set font_journal_title_size = "4";
+set font_journal_title_units = "em";
+
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+
+
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+
+set font_module_text_size = "1";
+set font_module_text_units = "em";
+
+
+
+propgroup colors_child {
+    property Color color_page_subtitle { des = "Page header subtitle color"; }
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+
+function print_stylesheet () {
+
+var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+var string page_title_font = generate_font_css($*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+var string module_text_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+var string module_heading_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+
+var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+
+var string userpic_padding_css = "";
+         if ($*userpics_position == "left") {
+             $userpic_padding_css = """
+             .entry .header, .comment .header, .top-metadata {
+                 border-left: 110px solid transparent;
+                 }
+             """;
+         }
+
+"""/* ----------- Paper Me for Dreamwidth Style System 2 Core 2, by cimorene.dreamwidth.org ------------- */
+
+ #primary { $entry_background $entry_colors }
+
+ #secondary, #tertiary { $module_background }
+
+/* --------------------- Page header, entry titles, sidebar nav, & sidebar headers -------------------- */
+
+/* Header position */
+#header {
+   padding-left:5%;
+   margin-top: 2em;
+   margin-bottom: 0px;
+   }
+
+/* Journal title */
+#title {
+   text-decoration: none;
+   text-align: left;
+   font-weight:normal;
+   margin-bottom: 0px;
+   }
+
+/* Journal subtitle */
+#subtitle,  #pagetitle {
+   $page_subtitle_font
+   font-weight:bold;
+   color: $*color_page_subtitle;
+   text-align: left;
+   margin-left: 1em;
+   margin-top: 0px;
+   }
+
+/* ------------------------------------------- Page Layout ------------------------------------------ */
+
+body {
+    $page_font
+    margin: 0;
+    padding: 0;
+    border-top: none;
+    }
+
+a {
+    text-decoration: none;
+    font-weight: bold;
+    }
+
+a:visited, a:active { text-decoration: none;}
+
+a:hover { text-decoration: underline; }
+
+img, img a {
+    border: 0!important;
+    }
+
+.navigation ul, .tag ul {
+    list-style-type: none;
+   }
+
+.navigation ul li, .tag ul li{
+    list-style-type:none;
+   }
+
+.tag ul, .tag ul li { display:inline; }
+
+.page-top, .page-top a {
+    text-align: center;
+    color: $*color_page_title;
+    font-family: $*font_journal_title, $*font_fallback;
+    background: $*color_header_background; }
+
+/*------------------------------------------ Sidebar --------------------------------------------*/
+
+.one-column #tertiary .module, .one-column #secondary .module, .two-columns #tertiary .module {
+    float:none !important;
+    display:inline-block;
+    width: $*sidebar_width;
+    vertical-align: top;
+    background: none;
+    }
+
+.module ul {
+    list-style-type: none;
+    }
+
+.module a {
+    font-weight:bold;
+    }
+
+.module a:active {
+    text-decoration: none;
+    }
+
+.module a:hover {text-decoration:underline;}
+
+.module .module-header {
+    font-weight:bold;
+    }
+
+.module .module-header a {
+    text-decoration: none;
+    }
+
+.module .manage-tags-link {
+    text-align: center;
+    font-size: smaller;
+    text-transform: uppercase;
+    }
+
+
+/**-------------------- Sidebar modules --------------------**/
+
+/*** --------- Profile --------- ****/
+
+.module-userprofile .journal-name {
+    text-align: center;
+    font-weight:bold;
+    }
+
+.userlite-interaction-links ul {
+    text-align: center;
+    margin-left: 0.5em;
+    padding:0;
+    list-style-type:none;
+}
+
+.module-userprofile .userpic {text-align: center;}
+
+/*** ----- Journal Navlinks ------ ***/
+
+.module-navlinks {
+    margin-top:1em;
+    margin-left: 1em;
+    }
+
+.module-navlinks .current {font-style: italic; color: $*color_module_text;}
+
+.module-navlinks  ul {
+    list-style: none;
+    text-align: left;
+    line-height:1.2em;
+    }
+
+.module-section-two  ul li {
+    font-weight: bold;
+    }
+
+
+
+/* ---------------------------------- Entry --------------------------------- */
+
+.entry{
+    min-height: 110px;
+    overflow:auto;
+    }
+
+.entry, .comment {
+    min-height: 110px;
+    padding:1%;
+    background: none;
+    }
+
+.entry .userpic, .comment .userpic {
+    padding: 5px;
+    padding-top:0;
+    margin-top: -3em;
+    }
+
+.entrysubject { width:100%; height:110px; }
+
+.entry-title, .entry-title a {
+    text-decoration: none;
+    font-weight: normal;
+    padding-top:0.5em;
+    margin-bottom:0;
+    text-align:left;
+    }
+
+.entry-content{ padding: 1em 2em;}
+
+.restrictions, .access-filter {padding-top:0.5em; }
+
+.datetime{
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    font-size: 1em;
+    line-height:1em;
+    font-weight: bold;
+    }
+
+.metadata {
+    list-style-type: none;
+    font-size: smaller;
+    font-weight: bold;
+    }
+
+.metadata ul {
+    list-style-type:none;
+    margin: 0px;
+    padding: 0px;
+    }
+
+.tag {text-align:left;
+    list-style-type: none;
+    font-weight: bold;
+    padding-bottom: 1em;
+    text-transform: none;
+    }
+.tag ul { display: inline; margin:0; padding:0; }
+
+.tag ul li { display:inline; padding-left:0.8em; }
+
+.entrytags ul li first { margin-left: -15em; }
+
+.bottomcomment {
+    padding: 1em;
+    margin-top: 1em;
+    text-align:right;
+    font-weight: bold;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    color: $*color_entry_interaction_links;
+    padding-bottom: 2em;
+    }
+
+.comment-poster .anonymous {
+    font-weight: bold;
+    }
+
+.footer {
+     margin: 0 0 1em;
+     font-weight: bold;
+     font-size: 0.7em;
+     text-transform: uppercase;
+     text-align:right;
+     }
+
+.entry-management-links, .entry-management-links a,.entry-interaction-links, .entry-interaction-links a {
+    padding: 0.5em 0.5em 0.5em 0;
+    margin-top: 2em;
+    list-style: none;
+    display: inline;
+    text-align: left;
+    }
+
+.entry-management-links a:hover, .entry-management-links a:active, .entry-interaction-links a:hover, .entry-interaction-links a:active {
+    text-decoration: none;
+    }
+
+.entry-management-links ul, .entry-interaction-links ul {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+    }
+
+.entry-management-links li, .entry-interaction-links li {
+    list-style: none;
+    display: inline;
+    }
+
+
+
+/* -------------------------- Misc hacks & entry styling ----------------------- */
+
+    /*separators*/
+.page-separator { display:none; }
+
+
+    q{
+        font-style: italic;
+    }
+
+$userpic_padding_css
+
+
+/* ---------------------- Secondary pages -------------- */
+.page-archive .month .header, .tags-container .header, .icons-container .header {
+    $entry_title_font
+    background: $*color_entry_title_background;
+    color: $*color_entry_title;
+    }
+
+
+.tags-container a, .icons-container a, #archive-year a { color: $*color_entry_link; }
+
+.tags-container a:active, .icons-container a:active, #archive-year a:active { color: $*color_entry_link_active; }
+
+.tags-container a:hover, .icons-container a:hover, #archive-year a:hover { color: $*color_entry_link_hover; }
+
+.tags-container a:visited, .icons-container a:visited, #archive-year a:visited { color: $*color_entry_link_visited; }
+
+
+.icons-container .icon {
+    float: left;
+    margin-bottom: 15px;
+    min-width: 350px;
+    vertical-align: bottom;
+    width: 50%;
+}
+
+.icon-image {
+    display: inline;
+    float: left;
+    margin-right: 1em;
+    min-width: 100px;
+}
+
+.icon-info {
+    overflow: auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+}
+
+.icon-info .label,
+.icon-info span {
+    font-weight: bold;
+}
+
+.icons-container .inner .footer, .icon-pages {
+    clear: both;
+    text-align: center;
+}
+
+
+/* ---------------------- End CSS -------------- */""";
+}
