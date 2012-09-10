@@ -622,7 +622,8 @@ sub get_permission_levels {
 # args: tagstring, listref?, opts?
 # des-tagstring: Opaque tag string provided by the user.
 # des-listref: If specified, return valid list of canonical tags in arrayref here.
-# des-opts: currently only 'omit_underscore_check' is recognized
+# des-opts: currently only 'omit_underscore_check' & 'disallow_plus' are
+# recognized
 # returns: 1 if list is valid, 0 if not.
 # </LJFUNC>
 sub is_valid_tagstring {
@@ -639,6 +640,13 @@ sub is_valid_tagstring {
         # but we added this after some underscores already existed.
         # Allow underscore tags to be viewed/deleted, but not created/modified.
         return 0 if ! $opts->{'omit_underscore_check'} && $tag =~ /^_/;
+
+        # plus signs in tags cause problems with URL encoding, as plus is used
+        # to represent space. As a temporary measure, we want to prevent
+        # new tags or renames using + signs, but not get in the way of existing
+        # tags with them.
+        # #FIXME: remove this check once we have fixed our URLs. (see bug 844)
+        return 0 if $opts->{'disallow_plus'} && $tag =~ /.*\+.*/;
 
         return 0 if $tag =~ /[\<\>\r\n\t]/;     # no HTML, newlines, tabs, etc
         return 0 unless $tag =~ /^(?:.+\s?)+$/; # one or more "words"
@@ -1103,7 +1111,7 @@ sub create_usertag {
 
     my $tags = [];
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $kw ) } ) )
-        unless LJ::Tags::is_valid_tagstring($kw, $tags);
+        unless LJ::Tags::is_valid_tagstring($kw, $tags, { disallow_plus => 1 });
 
     # check to ensure we don't exceed the max of tags
     my $max = $opts->{ignore_max} ? 0 : $u->count_tags_max;
@@ -1142,17 +1150,21 @@ sub create_usertag {
 # name: LJ::Tags::validate_tag
 # class: tags
 # des: Check the validity of a single tag.
-# args: tag
+# args: tag, opts
 # des-tag: The tag to check.
+# des-opts: Options for is_valid_tagstring. Useful one: disallow_plus
+#  if a plus sign in the tag is not OK.
+#  FIXME: Remove this option passthrough when we no longer need the plus
+#   sign check. See bug 844.
 # returns: If valid, the canonicalized tag, else, undef.
 # </LJFUNC>
 sub validate_tag {
-    my $tag = shift;
+    my ( $tag, $opts ) = @_;
     return undef unless $tag;
 
     my $list = [];
     return undef unless
-        LJ::Tags::is_valid_tagstring($tag, $list);
+        LJ::Tags::is_valid_tagstring($tag, $list, $opts);
     return undef if scalar(@$list) > 1;
 
     return $list->[0];
@@ -1258,7 +1270,7 @@ sub rename_usertag {
     };
 
     # validate new tag
-    my $newname = LJ::Tags::validate_tag($newkw);
+    my $newname = LJ::Tags::validate_tag($newkw, { disallow_plus => 1 } );
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $newkw ) } ) )
         unless $newname;
 
@@ -1355,7 +1367,7 @@ sub merge_usertags {
         unless $merge_to;
 
     # check whether new tag is valid
-    my $newname = LJ::Tags::validate_tag( $merge_to );
+    my $newname = LJ::Tags::validate_tag( $merge_to, { disallow_plus => 1 } );
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $merge_to ) } ) )
         unless $newname;
 
