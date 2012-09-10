@@ -4244,7 +4244,7 @@ function print_module_active() {
         var int i = 1;
                 foreach var Entry activeentry ( $activeentries ) {
                     var string subject = ( $activeentry.subject != "" ? striphtml($activeentry.subject) : "$*text_nosubject" );
-                    $subjects[size $subjects] = """$i: <a href="$activeentry.permalink_url">$subject</a>""";
+                    $subjects[size $subjects] = """<span class='active-entry-label active-entry-$i'>$i:</span> <a href="$activeentry.permalink_url">$subject</a>""";
                     $i++;
                  }
         print_module_list( $subjects );
