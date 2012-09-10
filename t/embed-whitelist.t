@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
@@ -49,6 +49,7 @@ note( "youtube" );
 
 note( "misc" );
 {
+    test_good_url( "http://8tracks.com/mixes/878698/player_v3_universal" );
     test_good_url( "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123/size=venti/bgcol=FFFFFF/linkcol=4285BB/" );
     test_good_url( "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123" );
 
