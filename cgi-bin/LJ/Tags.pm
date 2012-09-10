@@ -1365,7 +1365,7 @@ sub merge_usertags {
         unless $merge_to;
 
     # check whether new tag is valid
-    my $newname = LJ::Tags::validate_tag( $merge_to, { disallow_plus => 1 } );
+    my $newname = LJ::Tags::validate_tag( $merge_to );
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $merge_to ) } ) )
         unless $newname;
 
