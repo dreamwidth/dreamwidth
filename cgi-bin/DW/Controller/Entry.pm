@@ -818,7 +818,7 @@ sub _backend_to_form {
             $security = "access";
         } else {
             $security = "custom";
-            @custom_groups = ( map { $_ => 1 } grep { $amask & ( 1 << $_ ) } 1..60 );
+            @custom_groups = grep { $amask & ( 1 << $_ ) } 1..60;
         }
     }
 

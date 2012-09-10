@@ -34,7 +34,7 @@ body<=
 
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
     LJ::need_res( 'js/6alib/inputcomplete.js' );
-    
+
     # are they asking to be authed as someone else?
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
@@ -46,6 +46,11 @@ body<=
     # are we modify a community post?
     my $usejournal = $GET{'usejournal'} || $POST{'usejournal'} || $GET{'journal'};
     undef $usejournal if $usejournal eq $u->{'user'}; # ignore if it's the user
+
+    my $itemid = $GET{itemid} + 0;
+    my $edituser = LJ::canonical_username( $usejournal ) || $u->{user};
+    return BML::redirect( "/entry/$edituser/$itemid/edit" )
+            if ! LJ::did_post() && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
     # extra get arguments
     my $getextra = '';
