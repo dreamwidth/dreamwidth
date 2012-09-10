@@ -6115,14 +6115,14 @@ function Icon::print {
     if ($.keywords) {
         """<div class="icon-keywords">""";
         var int keyword_count = 0;
-        print safe "<span class='keywords-label'>$*text_icons_keywords</span> ";
-        """<ul>""";
+        print safe "<span class='keywords-label'>$*text_icons_keywords</span>";
+        """<ul>\n""";
         foreach var string kw ($.keywords) {
             $keyword_count++;
             """<li>""";
             print safe $kw;
             if ($keyword_count < size $.keywords) { print $*text_icons_keyword_sep; }
-            """</li>""";
+            """</li>\n""";
         }
         """</ul></div>\n""";
     }

@@ -1065,12 +1065,13 @@ if ( $*use_action_links_images ) {
 .icon-keywords ul {
     display: inline;
     list-style: none;
-    padding-left: 0;
+    margin: 0;
+    padding: 0;
     }
 
 .icon-keywords ul li {
     display: inline;
-    padding: 0 .25em 0 0;
+    padding: 0;
     }
 
 $entryicon_css

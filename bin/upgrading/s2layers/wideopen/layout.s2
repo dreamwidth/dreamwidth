@@ -946,6 +946,12 @@ $userpic_css
     text-decoration: underline;
     }
 
+.icon-keywords ul,
+.icon-keywords ul li {
+    margin: 0;
+    padding: 0;
+}
+
 /* Modules
 ******************************/
 
