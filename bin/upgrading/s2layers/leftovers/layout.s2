@@ -1,0 +1,521 @@
+layerinfo type = "layout";
+layerinfo name = "Leftovers";
+layerinfo redist_uniq = "leftovers/layout";
+layerinfo author_name = "renoir";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
+
+set layout_type= "two-columns-right";
+set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
+set font_fallback = "sans-serif";
+set margins_size = "5";
+set margins_unit = "%";
+
+##===============================
+## Modules
+##===============================
+
+propgroup colors_child {
+    property Color color_userpic_border { des = "Userpic border color"; }
+    property Color color_entry_title_border { des = "Entry title border color"; }
+    property Color color_module_title_border { des = "Module title border color"; }
+    property Color color_navlinks_link { des = "Navigation module text color"; }
+    property Color color_navlinks_recent_background { des = "Recent Entries link background color"; }
+    property Color color_navlinks_recent_hover_background { des = "Recent Entries hover link background color"; }
+    property Color color_navlinks_archive_background { des = "Archive link background color"; }
+    property Color color_navlinks_archive_hover_background { des = "Archive hover link background color"; }
+    property Color color_navlinks_read_background { des = "Reading link background color"; }
+    property Color color_navlinks_read_hover_background { des = "Reading hover link background color"; }
+    property Color color_navlinks_network_background { des = "Network link background color"; }
+    property Color color_navlinks_network_hover_background { des = "Network hover link background color"; }
+    property Color color_navlinks_tags_background { des = "Tags link background color"; }
+    property Color color_navlinks_tags_hover_background { des = "Tags hover link background color"; }
+    property Color color_navlinks_memories_background { des = "Memories link background color"; }
+    property Color color_navlinks_memories_hover_background { des = "Memories hover link background color"; }
+    property Color color_navlinks_userinfo_background { des = "Profile link background color"; }
+    property Color color_navlinks_userinfo_hover_background { des = "Profile hover link background color"; }
+    property Color color_calender_header_background { des = "The background color of the calender header entries"; }
+    property Color color_calender_entryday_background { des = "The background color of the calender days with entries"; }
+}
+
+function print_stylesheet () {
+
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .userpic, .comment .userpic {
+                display: block; float: left; margin: 0 10px 10px -60px;
+                }
+
+            .comment .userpic img, .entry .userpic img { border-left: 10px solid $*color_userpic_border; }
+
+            #primary{ border-left: 60px solid transparent; }
+
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .userpic, .entry .userpic {
+                display: block; float: right; margin: 0 -60px 10px 10px;
+                }
+
+            .comment .userpic img, .comment .userpic img { border-right: 10px solid $*color_userpic_border; }
+
+            #primary{ border-right: 60px solid transparent; }
+            """;
+        }
+"""
+
+/*-------------------------------------
+
+
+	layout name: leftovers
+	latout type: tabularasa
+
+	renoir.dreamwidth.org / vaisselle.livejournal.com
+	please do not redistribute
+
+
+-------------------------------------*/
+
+
+
+/*------------------------------------- basics -------------------------------------*/
+
+* { margin: 0; padding: 0; }
+html { font-size: 100%; }
+
+body { line-height: 1.8em; text-align: center; margin: 60px 0; }
+
+a, a:link, a:visited {text-decoration: none; }
+
+a:hover { text-decoration: underline; }
+
+#canvas { text-align: justify; padding: 50px 0 0 0;}
+
+#primary { text-align: justify; -moz-box-sizing: border-box;    box-sizing: border-box;}
+
+.navigation {
+    $entry_colors
+    padding: 20px;
+    clear: both;
+    text-align: right;
+    text-transform: uppercase;
+    margin: 0 0 20px 0;
+}
+
+li.page-back, li.page-forward { display: inline; list-style: none; padding: 0; margin: 0; }
+
+li.page-separator { display: none; }
+
+div.navigation ul { display: inline; padding: 0; margin: 0; }
+
+
+
+/*------------------------------------- header & footer -------------------------------------*/
+
+#footer {
+    padding: 20px;
+    text-align: right;
+    text-transform: uppercase;
+    margin: 0 0 20px 0;
+}
+
+#title {
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.5em;
+    padding: 0;
+    margin: 0;
+}
+
+#subtitle {
+    font-weight: normal;
+    text-transform: lowercase;
+    letter-spacing: 0.55em;
+    padding: 0;
+    margin: 0;
+}
+
+
+/*------------------------------------- navigation -------------------------------------*/
+
+.module-navlinks { padding: 0; margin: 0; background: none;}
+
+.module-navlinks a  {color:$*color_navlinks_link; padding: 0.3em 1em 0.3em 0.3em;}
+
+.module-navlinks .current {font-weight: bold;}
+
+.module-navlinks .recent  {
+    background: $*color_navlinks_recent_background;
+    border-right: 5px solid $*color_navlinks_recent_hover_background;
+}
+.module-navlinks .recent:hover {background: $*color_navlinks_recent_hover_background;}
+
+.module-navlinks .archive {
+    background: $*color_navlinks_archive_background;
+    border-right: 5px solid $*color_navlinks_archive_hover_background;
+}
+.module-navlinks .archive:hover {background: $*color_navlinks_archive_hover_background;}
+
+.module-navlinks .read {
+    background: $*color_navlinks_read_background;
+    border-right: 5px solid $*color_navlinks_read_hover_background;
+}
+.module-navlinks .read:hover {background: $*color_navlinks_read_hover_background;}
+
+.module-navlinks .network {
+    background: $*color_navlinks_network_background;
+    border-right: 5px solid $*color_navlinks_network_hover_background;
+}
+.module-navlinks .network:hover {background: $*color_navlinks_network_hover_background;}
+
+.module-navlinks .tags {
+    background: $*color_navlinks_tags_background;
+    border-right: 5px solid $*color_navlinks_tags_hover_background;
+}
+.module-navlinks .tags:hover {background: $*color_navlinks_tags_hover_background;}
+
+.module-navlinks .memories {
+    background: $*color_navlinks_memories_background;
+    border-right: 5px solid $*color_navlinks_memories_hover_background;
+}
+.module-navlinks .memories:hover {background: $*color_navlinks_memories_hover_background;}
+
+.module-navlinks .userinfo {
+    background: $*color_navlinks_userinfo_background;
+    border-right: 5px solid $*color_navlinks_userinfo_hover_background;
+}
+.module-navlinks .userinfo:hover {background: $*color_navlinks_userinfo_hover_background;}
+
+.module-navlinks ul.module-list { padding: 0; margin:0; list-style: none; font-size: 1.2em; text-transform: uppercase; letter-spacing: 0.15em; }
+.module-navlinks ul.module-list li { padding: 0; margin: 0.75em 0; list-style: none; background-image: none; }
+
+
+/*------------------------------------- entry -------------------------------------*/
+
+.entry { padding: 20px; margin: 0 0 20px 0; }
+
+.entry-content { margin: 10px 0 0 0; }
+
+.entry .header {
+    padding: 0;
+    margin: 0 0 10px 0;
+    border-bottom: 1px dotted $*color_entry_title_border;
+}
+
+.entry-title {
+    font-weight: normal;
+    letter-spacing: 0.1em;
+    padding: 0;
+    margin: 0;
+    text-transform: lowercase;
+}
+
+.datetime {  text-transform: uppercase; letter-spacing: 0.3em; }
+
+.poster { margin: 15px 0; }
+
+.metadata { margin: 20px 0 0 0; }
+
+div.metadata ul { padding: 0; margin: 0; }
+
+div.metadata ul li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-transform: lowercase;
+}
+
+.metadata-item-location { padding: 0 0 0 15px; margin: 0; display: inline; }
+
+.metadata-item-music {  padding: 0 0 0 15px; margin: 0; display: inline; }
+
+.metadata-item-mood {  padding: 0 0 0 15px; margin: 0; display: inline; }
+
+.tag ul {  padding: 0 0 0 15px; margin: 0; display: inline; }
+
+.tag ul li {
+    display: inline;
+    list-style: none;
+    font-weight: normal;
+    padding: 0;
+    margin: 0 5px 0 0;
+}
+
+ul.entry-management-links {
+    padding: 0;
+    margin: 10px 0 0 0;
+    list-style: none;
+    text-align: center;
+}
+
+ul.entry-management-links li {
+    padding: 0;
+    margin: 0 auto;
+    display: inline;
+    list-style: none;
+    text-align: center;
+}
+
+ul.entry-interaction-links {
+    padding: 0;
+    margin: 10px 0 0 0;
+    text-align: center;
+}
+
+ul.entry-interaction-links li {
+    display: inline;
+    list-style: none;
+    font-weight: normal;
+    text-transform: uppercase;
+    margin: 0 5px 0 0;
+    padding: 0;
+}
+
+$userpic_css
+
+/*-------------------------------Secondary Pages----------------------------*/
+.month a, .icons-container a, .tags-container a {color: $*color_entry_link;}
+
+.month a:active, .icons-container a:active, .tags-container a:active {color: $*color_entry_link_active;}
+
+.month a:hover, .icons-container a:hover, .tags-container a:hover {color: $*color_entry_link_hover;}
+
+.month a:visited, .icons-container a:visited, .tags-container a:visited {color: $*color_entry_link_visited;}
+
+.month, .icons-container, .tags-container {
+    $entry_colors
+    margin: 0 0 20px 0;
+    padding: 20px;
+}
+
+.month h3, .icons-container .header h2, .tags-container .header h2{
+    padding: 0;
+    margin: 0;
+    $entry_title_font
+    $entry_title_colors
+    text-transform: lowercase;
+    letter-spacing: 0.1em;
+    font-weight: normal;
+    border-bottom: 1px dotted $*color_entry_title_border;
+}
+
+/*------------------- archive & calender page ---------------------------*/
+
+li.active {
+    list-style: none;
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+div.navigation ul { display: inline; }
+
+div.navigation li { display: inline; list-style: none; }
+
+table.month { border: 0; }
+
+.month th {
+    text-align: center;
+    margin: 0 2px;
+    text-transform: lowercase;
+    font-weight: normal;
+    background: $*color_calender_header_background;
+}
+
+.month td.day { font-weight: normal; }
+
+.month td.day-has-entries { font-weight: normal; background:$*color_calender_entryday_background;}
+
+.month table { width: 100%; border: 0; margin: auto; }
+
+.month caption { display: none; }
+
+td.day { padding: 10px; border: 0; text-align: center; }
+
+
+
+/*------------------------------------- tags page -------------------------------------*/
+
+.page-tags .ljtaglist { margin: 0; padding: 0; }
+
+.page-tags .ljtaglist li {
+    padding: 0 0 0 10px;
+    margin: 0;
+    text-transform: lowercase;
+    letter-spacing: 0;
+    list-style: none;
+}
+
+/*------------------------------ Icon Page -------------------------------------*/
+
+.icons-container .icon {
+    float: left;
+    margin-bottom: 15px;
+    min-width: 350px;
+    vertical-align: bottom;
+    width: 50%;
+}
+
+.icon-image {
+    display: inline;
+    float: left;
+    margin-right: 1em;
+    min-width: 100px;
+}
+
+.icon-info {
+    overflow: auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+}
+
+.icon-info .label,
+.icon-info span {
+    font-weight: bold;
+}
+
+.icons-container .inner .footer, .icon-pages {
+    clear: both;
+    text-align: center;
+}
+/*------------------------------------- read comments & write a comment -------------------------------------*/
+
+hr.above-entry-interaction-links, hr.below-reply-container { display: none; }
+
+textarea.textbox  { width: 80% !important; }
+
+.comment {
+    $entry_colors
+    margin: 0;
+    padding: 20px;
+}
+
+.comment-wrapper { margin: 20px 0; padding: 0; }
+
+.comment-content { margin: 20px 0; }
+
+.bottomcomment {
+    $entry_colors
+    border: 1px solid $*color_entry_title_border;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+
+.comment-management-links li, .comment-interaction-links li { display: inline; }
+
+#qrform table { border: 0!important; }
+
+.comment-poster {  text-transform: uppercase; }
+
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+
+.comment-management-links li, .comment-interaction-links li { display: inline; }
+
+table.talkform {
+    $entry_colors
+    margin: 0 0 10px 0;
+    padding: 20px;
+}
+
+
+/*------------------------------------- sidebar (minus the navigation)  -------------------------------------*/
+
+.module-header {
+    padding: 0;
+    margin: 0 0 10px 0;
+    text-transform: lowercase;
+    letter-spacing: 0.1em;
+    font-weight: normal;
+    border-bottom: 1px dotted $*color_module_border;
+}
+
+.module { padding: 20px; margin: 0 0 10px 0; }
+
+.module-content .userpic { text-align: center; }
+
+div.module-content .userpic img { border: 5px solid $*color_userpic_border; }
+
+.journal-name {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin: 5px 0 0 0;
+    text-align: center;
+    }
+
+.journal-website-name {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin: 0;
+    text-align: center;
+}
+
+ul.userlite-interaction-links {
+    padding: 0;
+    margin: 5px 0 0 0;
+    list-style: none;
+    text-align: center;
+}
+
+ul.userlite-interaction-links li {
+    padding: 0;
+    margin: 0 auto;
+    display: inline;
+    list-style: none;
+    text-align: center;
+}
+
+ul.module-list { padding: 0; margin: 0; list-style: none; }
+
+ul.module-list li { padding: 0 0 0 9px; margin: 0; list-style: none;  }
+
+ul.module-list-item { padding: 0; margin: 0; list-style: none; }
+
+ul.module-list-item li { padding: 0 0 0 9px; margin: 0; list-style: none;  }
+.manage-tags-link {
+    margin: 10px 0 0 0;
+    padding: 0;
+    text-transform: uppercase;
+    text-align: right;
+    letter-spacing: 0.15em;
+}
+
+.module-calendar table { text-align: center; margin: 0 auto;}
+
+.module-calendar th {
+    text-transform: uppercase;
+    background: $*color_calender_header_background;
+    margin: 0 1px;
+    padding: 3px 8px;
+    border: 1px solid $*color_module_text;
+}
+.module-calendar td {
+    text-transform: uppercase;
+    margin: 0 1px;
+    border: 1px solid $*color_module_text;
+}
+
+.module-calendar td.entry-day {
+    text-transform: uppercase;
+    background: $*color_calender_entryday_background;
+    margin: 0 1px;
+    border: 1px solid $*color_module_text;
+}
+
+
+/*------------------------------------- extras  -------------------------------------*/
+
+blockquote { border: 1px solid $*color_entry_border; font-style: italic; padding: 40px 20px; margin: 20px;  }
+
+hr { color: transparent; height: 1px; border-style : none;  border-bottom: 3px double $*color_entry_text; }
+
+""";
+}
