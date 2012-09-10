@@ -642,10 +642,9 @@ sub is_valid_tagstring {
         return 0 if ! $opts->{'omit_underscore_check'} && $tag =~ /^_/;
 
         # plus signs in tags cause problems with URL encoding, as plus is used
-        # to represent space. As a temporary measure, we want to prevent
-        # new tags or renames using + signs, but not get in the way of existing
-        # tags with them.
-        # #FIXME: remove this check once we have fixed our URLs. (see bug 844)
+        # to represent space. We want to prevent new tags or renames from using
+        # + signs, but not get in the way of existing tags with them. New tags
+        # & renames should use the disallow_plus option when validating.
         return 0 if $opts->{'disallow_plus'} && $tag =~ /.*\+.*/;
 
         return 0 if $tag =~ /[\<\>\r\n\t]/;     # no HTML, newlines, tabs, etc
@@ -1153,9 +1152,8 @@ sub create_usertag {
 # args: tag, opts
 # des-tag: The tag to check.
 # des-opts: Options for is_valid_tagstring. Useful one: disallow_plus
-#  if a plus sign in the tag is not OK.
-#  FIXME: Remove this option passthrough when we no longer need the plus
-#   sign check. See bug 844.
+#  if a plus sign in the tag is not OK (ie if this is a new tag or a rename,
+#  since plus signs are discouraged).
 # returns: If valid, the canonicalized tag, else, undef.
 # </LJFUNC>
 sub validate_tag {
