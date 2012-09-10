@@ -312,8 +312,8 @@ sub resolve_path_for_uri {
             # /foo/ => /foo/index.bml
             if ( -d $file && -e "$file/index.bml" ) {
                 return redir( $r, $uri . "/" ) unless $uri =~ m!/$!;
-                $file .= "/index.bml";
-                $uri .= "/index.bml";
+                $file .= "index.bml";
+                $uri .= "index.bml";
             }
 
             $file = abs_path( $file );
