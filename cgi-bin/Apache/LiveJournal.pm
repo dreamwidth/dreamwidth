@@ -286,7 +286,6 @@ sub resolve_path_for_uri {
     my ( $r, $orig_uri ) = @_;
 
     my $uri = $orig_uri;
-    $uri =~ s!^/+!!;
 
     if ( $uri !~ m!(\.\.|\%|\.\/)! ) {
         if ( exists $FILE_LOOKUP_CACHE{$orig_uri} ) {
