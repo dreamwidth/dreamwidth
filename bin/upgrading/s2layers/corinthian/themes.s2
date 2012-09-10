@@ -1,0 +1,268 @@
+#NEWLAYER: corinthian/athousandrubies
+layerinfo type = "theme";
+layerinfo name = "A Thousand Rubies";
+layerinfo redist_uniq = "corinthian/athousandrubies";
+layerinfo author_name = "momijizukamori";
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#93000c";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#bbb";
+set color_page_text = "#eee";
+set color_footer_background = "#ba000f";
+set color_header_background = "#ba000f";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#ba000f";
+set color_module_link = "#6d0009";
+set color_module_link_active = "#6d0009";
+set color_module_link_hover = "#4C0007";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#6d0009";
+set color_entry_title = "#eee";
+
+
+#NEWLAYER: corinthian/bolt
+layerinfo type = "theme";
+layerinfo name = "Bolt";
+layerinfo redist_uniq = "corinthian/bolt";
+layerinfo author_name = "momijizukamori";
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#fff";
+set color_page_title = "#fffc10";
+set color_page_text = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#fffc10";
+set color_footer_link_active = "#fffc10";
+set color_footer_link_hover = "#aba918";
+set color_footer_link_visited = "#eee";
+set color_header_background = "#000";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#000";
+set color_module_link = "#fffc10";
+set color_module_link_active = "#fffc10";
+set color_module_link_hover = "#aba918";
+set color_module_link_visited = "#fffc10";
+set color_module_text = "#fff";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_link = "#333";
+set color_entry_link_active = "#333";
+set color_entry_link_hover = "#000";
+set color_entry_text = "#000";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Verdana, Helvetica, Arial";
+set font_fallback = "sans-serif";
+set font_journal_title = "'Arial Black', Impact";
+
+function Page::print_theme_stylesheet() { """
+    #primary a {font-weight:bold; text-decoration: none;}
+    #primary a:hover {text-decoration:underline;}
+"""; }
+
+
+#NEWLAYER: corinthian/deepseas
+layerinfo type = "theme";
+layerinfo name = "Deep Seas";
+layerinfo redist_uniq = "corinthian/deepseas";
+layerinfo author_name = "momijizukamori";
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#087EC3";
+set color_page_link = "#102749";
+set color_page_link_active = "#102749";
+set color_page_link_hover = "#211f27";
+set color_page_link_visited = "#333";
+set color_page_text = "#eee";
+set color_page_title = "#087EC3";
+set color_footer_background = "#102749";
+set color_header_background = "#102749";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#102749";
+set color_module_link = "#66C0F4";
+set color_module_link_active = "#66C0F4";
+set color_module_link_hover = "#268FCC";
+set color_module_link_visited = "#aaa";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#155397";
+
+
+#NEWLAYER: corinthian/enchantedforest
+layerinfo type = "theme";
+layerinfo name = "Enchanted Forest";
+layerinfo redist_uniq = "corinthian/enchantedforest";
+layerinfo author_name = "momijizukamori";
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#033f3f";
+set color_page_link = "#469e2c";
+set color_page_link_hover = "#58aa19";
+set color_page_link_visited = "#62902d";
+set color_page_text = "#b7d698";
+set color_page_title = "#b7d698";
+set color_header_link_visited = "#62902d";
+set color_footer_background = "#063435";
+set color_footer_link = "#469e2c";
+set color_footer_link_hover = "#58aa19";
+set color_footer_link_visited = "#62902d";
+set color_header_background = "#063435";
+set color_header_link = "#469e2c";
+set color_header_link_hover = "#58aa19";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#063435";
+set color_module_link = "#469e2c";
+set color_module_link_hover = "#58aa19";
+set color_module_link_visited = "#62902d";
+set color_module_text = "#b7d698";
+set color_module_title = "#62902d";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_link = "#469e2c";
+set color_entry_link_hover = "#58aa19";
+set color_entry_link_visited = "#62902d";
+set color_entry_text = "#b7d698";
+set color_entry_title = "#62902d";
+
+
+#NEWLAYER: corinthian/mars
+layerinfo type = "theme";
+layerinfo name = "Mars";
+layerinfo redist_uniq = "corinthian/mars";
+layerinfo author_name = "momijizukamori";
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#8d070a";
+set color_page_link_active = "#8d070a";
+set color_page_link_hover = "#510204";
+set color_page_link_visited = "#d31612";
+set color_page_title = "#fff";
+set color_page_text = "#000";
+set color_footer_background = "#d31612";
+set color_header_background = "#000";
+set color_module_background = "#d31612";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#dedede";
+set color_module_link_active = "#dedede";
+set color_module_link_hover = "#adadad";
+set color_module_link_visited = "#f0f0f0";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_link = "#8d070a";
+set color_entry_link_active = "#8d070a";
+set color_entry_link_hover = "#510204";
+set color_entry_link_visited = "#d31612";
+set color_entry_text = "#000";
+set color_comment_title_background = "#8d070a";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Verdana, Helvetica, Arial";
+set font_fallback = "sans-serif";
+set font_journal_title = "'Arial Black', Impact";
+
+
+#NEWLAYER: corinthian/moss
+layerinfo type = "theme";
+layerinfo name = "Moss";
+layerinfo redist_uniq = "corinthian/moss";
+layerinfo author_name = "momijizukamori";
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#358c64";
+set color_page_link = "#003127";
+set color_page_link_active = "#003127";
+set color_page_link_hover = "#005642";
+set color_page_link_visited = "#333";
+set color_page_text = "#eee";
+set color_page_title = "#208c3b";
+set color_footer_background = "#003127";
+set color_header_background = "#003127";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#003127";
+set color_module_link = "#208c3b";
+set color_module_link_active = "#208c3b";
+set color_module_link_hover = "#5BC476";
+set color_module_link_visited = "#888";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#3a7755";

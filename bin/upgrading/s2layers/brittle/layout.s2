@@ -810,13 +810,14 @@ td.day {
 
 .icon-keywords ul {
     display: inline;
+    margin: 0;
     padding: 0 0 0 13px;
     }
 
 .icon-keywords ul li {
     display: inline;
     list-style: none;
-    padding: 0 .25em 0 0;
+    padding: 0;
     }
 
 /*--- comments ---*/

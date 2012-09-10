@@ -1,0 +1,571 @@
+#NEWLAYER: paperme/cheeryrainyday
+layerinfo type = "theme";
+layerinfo name = "Cheery Rainy Day";
+layerinfo redist_uniq = "paperme/cheeryrainyday";
+layerinfo author_name = "cimorene";
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#6CB8B3";
+set color_page_title = "#fff";
+set color_page_subtitle = "#444";
+set color_page_text = "#000";
+set color_page_link = "#599200";
+set color_page_link_hover = "#E5DF24";
+set color_page_link_visited = "#52A8A1";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#FEFFCF";
+set color_module_text = "#111";
+set color_module_title = "#111";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_text = "#444";
+set color_entry_title = "#52A8A1";
+set color_entry_interaction_links = "#599200";
+
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "Georgia";
+set font_entry_title = "Georgia";
+set font_module_heading = "Georgia";
+set font_journal_title_size = "3";
+set font_journal_title_units = "em";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.5";
+set font_entry_title_units = "em";
+set font_module_text_size = "1";
+set font_module_text_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "paperme/cheeryrainyday.png";
+set image_background_entry_url = "paperme/paperme_entry_background_light.png";
+set image_background_page_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_position = "top center";
+
+
+#NEWLAYER: paperme/circus
+layerinfo type = "theme";
+layerinfo name = "Circus";
+layerinfo redist_uniq = "paperme/circus";
+layerinfo author_name = "cimorene";
+
+##===============================
+## Presentation
+##===============================
+
+set text_post_comment    = "Comment";
+set text_post_comment_friends    = "Comment";
+set text_read_comments = "1 // #";
+set text_read_comments_friends = "1 // #";
+set text_edit_entry = "Edit";
+set text_meta_location    = "Location";
+set text_meta_mood    = "Mood";
+set text_meta_music    = "Music";
+set text_mem_add = "&hearts;";
+set text_tell_friend = "Share";
+set text_edit_tags = "Tag";
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#bdcb5c";
+set color_page_text = "#666";
+set color_page_title = "#7d8a23";
+set color_page_subtitle = "#666";
+set color_page_link = "#40a062";
+set color_page_link_hover = "#00c0ba";
+set color_page_link_visited = "#94a23a";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#fff";
+set color_module_text = "#7d8a23";
+set color_module_title = "#666";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_text = "#888";
+set color_entry_title = "#94a23a";
+set color_entry_interaction_links = "#94a23a";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "paperme/circus.jpg";
+set image_background_page_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_entry_url = "paperme/paperme_entry_background_light.png";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_position = "top center";
+set image_background_module_repeat = "repeat";
+set image_background_module_position = "top center";
+
+
+#NEWLAYER: paperme/newleaf
+layerinfo type = "theme";
+layerinfo name = "New Leaf";
+layerinfo redist_uniq = "paperme/newleaf";
+layerinfo author_name = "cimorene";
+
+
+set layout_resources = [ { "name" => "Shotpoint", "url" => "http://www.colourlovers.com/palette/250331/Shotpoint" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#B6CDA0";
+set color_page_text = "#88af41";
+set color_page_title = "#88af41";
+set color_page_link = "#88af41";
+set color_page_link_hover = "#AAA628";
+set color_page_link_visited = "#AAA628";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "DFE2CC";
+set color_module_text = "#8daa4b";
+set color_module_title = "#8daa4b";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_text = "#6B793E";
+set color_entry_title = "#5b7600";
+set color_entry_interaction_links = "#88af41";
+
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "FirstCrush, Gigi, 'Arial Black'";
+set font_entry_title = "'Arial Narrow', Arial";
+set font_module_heading = "'Arial Narrow', Arial";
+set font_module_text = "'Arial Narrow', Arial";
+set font_journal_title_size = "4";
+set font_journal_title_units = "em";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+set font_module_text_size = "1";
+set font_module_text_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "paperme/newleaf.png";
+set image_background_entry_url = "paperme/paperme_entry_background_light.png";
+set image_background_page_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_position = "top center";
+
+function Page::print_theme_stylesheet() { """
+
+    /* Journal title */
+    #title {
+       text-transform:lowercase;
+       }
+
+    #secondary .module-header, #secondary .module-header a, .module-section-two, .entry-title, .entry-title a {
+       text-transform:lowercase;
+       font-weight:bold;
+       }
+
+    """; }
+
+
+#NEWLAYER: paperme/raspberryswizzle
+layerinfo type = "theme";
+layerinfo name = "Raspberry Swizzle";
+layerinfo redist_uniq = "paperme/raspberryswizzle";
+layerinfo author_name = "cimorene";
+
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#9C7F84";
+set color_page_title = "#935169";
+set color_page_subtitle = "#68394a";
+set color_page_text = "#68394a";
+set color_page_link = "#cd4663";
+set color_page_link_hover = "#cd4663";
+set color_page_link_visited = "#C8B1B1";
+set color_module_background = "FFD0CC";
+
+##===============================
+## Module
+##===============================
+
+set color_module_text = "#444";
+set color_module_title = "#68394a";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_text = "#68394a";
+set color_entry_title = "#68394a";
+set color_entry_interaction_links = "#cd4663";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Verdana";
+set font_fallback = "sans-serif";
+set font_journal_title = "'Monotype Corsiva', 'URW Chancery L', 'Apple Chancery', 'Lucida Handwriting', cursive";
+set font_entry_title = "'Trebuchet MS'";
+set font_module_heading = "'Trebuchet MS'";
+set font_journal_title_size = "6";
+set font_journal_title_units = "em";
+set font_journal_subtitle_size = "0.8";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+set font_module_text_size = "1";
+set font_module_text_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "paperme/raspberryswizzle.jpeg";
+set image_background_entry_url = "paperme/paperme_entry_background_light.png";
+set image_background_page_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_position = "top center";
+
+function Page::print_theme_stylesheet() { """
+        #secondary .module-header, #secondary .module-header a, .module-section-two, .entry-title, .entry-title a {
+       text-transform: lowercase;
+       font-weight: bold;
+         }
+
+
+    """; }
+
+
+#NEWLAYER: paperme/sinisteria
+layerinfo type = "theme";
+layerinfo name = "Sinisteria";
+layerinfo redist_uniq = "paperme/sinisteria";
+layerinfo author_name = "cimorene";
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#393939";
+set color_page_title = "b7b7b7";
+set color_page_text = "#000";
+set color_page_link = "#3B3B3B";
+set color_page_link_hover = "#fff";
+set color_page_link_visited = "#eee";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#CBCACA";
+set color_module_text = "#777";
+set color_module_title = "#777";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_text = "#626262";
+set color_entry_title = "#626262";
+set color_entry_interaction_links = "#3B3B3B";
+
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "Georgia";
+set font_journal_title_size = "4";
+set font_journal_title_units = "em";
+set font_entry_title = "Georgia";
+set font_module_heading = "Georgia";
+set font_module_text = "Georgia";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "paperme/sinisteria.jpeg";
+set image_background_entry_url = "paperme/paperme_entry_background_light.png";
+set image_background_page_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_position = "top center";
+
+function Page::print_theme_stylesheet() { """
+
+
+    #secondary .module-header, #secondary .module-header a, .module-section-two, .entry-title, .entry-title a {
+       text-transform: lowercase;
+         }
+
+
+    """; }
+
+
+#NEWLAYER: paperme/smokeonthewater
+layerinfo type = "theme";
+layerinfo name = "Smoke on the Water";
+layerinfo redist_uniq = "paperme/smokeonthewater";
+layerinfo author_name = "cimorene";
+
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#ccc";
+set color_page_text = "#b7b7b7";
+set color_page_title = "#b7b7b7";
+set color_page_link = "#b7b7b7";
+set color_page_link_hover = "#71c6c1";
+set color_page_link_visited = "#888";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#eee";
+set color_module_text = "#777";
+set color_module_title = "#888";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_text = "#777";
+set color_entry_title = "#b7b7b7";
+set color_entry_interaction_links = "#b7b7b7";
+
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "'Riesling', 'Century Gothic', 'Trebuchet MS', 'Arial Narrow'";
+set font_journal_title_size = "6";
+set font_journal_title_units = "em";
+set font_entry_title = "'Arial Narrow', 'Century Gothic', 'Trebuchet MS'";
+set font_module_heading = "'Arial Narrow', 'Century Gothic', 'Trebuchet MS'";
+set font_module_text = "'Arial Narrow', 'Century Gothic', 'Trebuchet MS'";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "paperme/smokeonthewater.png";
+set image_background_entry_url = "paperme/paperme_entry_background_light.png";
+set image_background_page_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_position = "top center";
+
+function Page::print_theme_stylesheet() { """
+
+    #secondary .module-header, #secondary .module-header a, .module-section-two, .entry-title, .entry-title a {
+       text-transform: uppercase;
+       font-weight:bold;
+         }
+
+
+    """; }
+
+
+#NEWLAYER: paperme/tealdear
+layerinfo type = "theme";
+layerinfo name = "Teal, Dear";
+layerinfo redist_uniq = "paperme/tealdear";
+layerinfo author_name = "cimorene";
+
+##===============================
+## Presentation
+##===============================
+
+set text_post_comment    = "Comment";
+set text_post_comment_friends    = "Comment";
+set text_read_comments = "1 // #";
+set text_read_comments_friends = "1 // #";
+set text_edit_entry = "Edit";
+set text_meta_location    = "Location";
+set text_meta_mood    = "Mood";
+set text_meta_music    = "Music";
+set text_mem_add = "&hearts;";
+set text_tell_friend = "Share";
+set text_edit_tags = "Tag";
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#00c0ba";
+set color_page_text = "#007478";
+set color_page_title = "#007478";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#fff";
+set color_module_text = "#666";
+set color_module_title = "#666";
+set color_module_link = "#007478";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_link = "00948f";
+set color_entry_link_hover = "00c0ba";
+set color_entry_link_visited = "#888";
+set color_entry_text = "#888";
+set color_entry_title = "#888";
+set color_entry_interaction_links = "#888";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "paperme/tealdear.jpg";
+set image_background_entry_url = "paperme/paperme_entry_background_light.png";
+set image_background_page_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_position = "top center";
+set image_background_module_repeat = "repeat";
+set image_background_module_position = "top center";
+
+function Page::print_theme_stylesheet() { """
+
+    /*title*/
+    #title { text-transform:lowercase; }
+
+
+
+    /* Sidebar & entry title styles */
+    #secondary { }
+    #secondary .module-header, #secondary .module-header a, .module-section-two { font-style:normal; }
+    .entry-title, .entry-title a { font-weight:normal; }
+
+    """; }
+
+
+#NEWLAYER: paperme/terracotta
+layerinfo type = "theme";
+layerinfo name = "Terra Cotta";
+layerinfo redist_uniq = "paperme/terracotta";
+layerinfo author_name = "cimorene";
+
+
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#f79273";
+set color_page_title = "#B46036";
+set color_page_text = "#000";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#fbd7bd";
+set color_module_text = "#9b9360";
+set color_module_title = "#B46036";
+set color_module_link = "#B46036";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_link = "#D39474";
+set color_entry_link_visited = "B46036";
+set color_entry_text = "#666";
+set color_entry_title = "#B46036";
+set color_entry_interaction_links = "#D39474";
+
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "'Loki Cola', 'Century Gothic', 'Trebuchet MS'";
+set font_journal_title_size = "6";
+set font_journal_title_units = "em";
+set font_entry_title = "'Arial Narrow', Arial";
+set font_module_heading = "'Arial Narrow', Arial";
+set font_module_text = "'Arial Narrow', Arial";
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "paperme/terracotta.jpeg";
+set image_background_entry_url = "paperme/paperme_entry_background_light.png";
+set image_background_page_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_position = "top center";
+
+function Page::print_theme_stylesheet() { """
+
+    #title { text-transform:lowercase; }
+
+
+    #secondary .module-header, #secondary .module-header a, .module-section-two, .entry-title, .entry-title a {
+       text-transform: uppercase;
+         }
+
+    .entry-title, .entry-title a {
+         font-weight:bold;
+         }
+
+    """; }

@@ -286,6 +286,7 @@ sub resolve_path_for_uri {
     my ( $r, $orig_uri ) = @_;
 
     my $uri = $orig_uri;
+
     if ( $uri !~ m!(\.\.|\%|\.\/)! ) {
         if ( exists $FILE_LOOKUP_CACHE{$orig_uri} ) {
             return @{ $FILE_LOOKUP_CACHE{$orig_uri} };
@@ -304,14 +305,14 @@ sub resolve_path_for_uri {
                 $file .= ".bml";
                 $uri .= ".bml";
             }
-            next unless -e $file;
+            next unless -f $file;
 
             # /foo  => /foo/
             # /foo/ => /foo/index.bml
             if ( -d $file && -e "$file/index.bml" ) {
                 return redir( $r, $uri . "/" ) unless $uri =~ m!/$!;
-                $file .= "/index.bml";
-                $uri .= "/index.bml";
+                $file .= "index.bml";
+                $uri .= "index.bml";
             }
 
             $file = abs_path( $file );
