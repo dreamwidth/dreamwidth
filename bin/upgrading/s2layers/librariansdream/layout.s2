@@ -12,28 +12,28 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 ## Extra Colors
 ##===============================
 
-propgroup more_colors {
-    property Color color_entry_meta_background 
+propgroup colors_child {
+    property Color color_entry_meta_background
       { des = "Entry management links background color"; }
-    property Color color_module_link_background 
+    property Color color_module_link_background
       { des = "Module link background color"; }
-    property Color color_module_link_hover_background 
+    property Color color_module_link_hover_background
       { des = "Module hovered link background color"; }
-    property Color color_module_link_border 
+    property Color color_module_link_border
       { des = "Module link border color"; }
-    property Color color_module_link_hover_border 
+    property Color color_module_link_hover_border
       { des = "Module hovered link border color"; }
-    property Color color_navigation_link 
+    property Color color_navigation_link
       { des = "Navigation link color"; }
-    property Color color_navigation_link_visited 
+    property Color color_navigation_link_visited
       { des = "Navigation visited link color"; }
-    property Color color_navigation_link_active 
+    property Color color_navigation_link_active
       { des = "Navigation active link color"; }
-    property Color color_navigation_link_hover 
+    property Color color_navigation_link_hover
       { des = "Navigation hovered link color"; }
-    property Color color_primary_background 
+    property Color color_primary_background
       { des = "Entries column background color"; }
-    property Color color_sidebars_background 
+    property Color color_sidebars_background
       { des = "Sidebar background color"; }
 }
 
@@ -147,7 +147,7 @@ function Page::print() {
                 }
     """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -171,9 +171,9 @@ function Page::print() {
                     <div id="content-footer"></div>
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -182,7 +182,7 @@ function Page::print() {
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -217,7 +217,7 @@ var string recent_size = "";
 var string recent_units = "";
     if ( $*font_module_text_size == "" ) { $*font_module_text_size = $*font_base_size;
         $*font_module_text_units = $*font_base_units; }
-    if ( ($*font_base_size == "") or ($*font_base_units == "%") ) { $recent_size = "medium"; 
+    if ( ($*font_base_size == "") or ($*font_base_units == "%") ) { $recent_size = "medium";
         $recent_units = ""; }
     else { $recent_size = $*font_module_text_size;
         $recent_units =  $*font_module_text_units; }
@@ -233,7 +233,7 @@ if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
         right: 1em; }
     .module-navlinks * {
        display: inline !important;
-       background:  transparent !important; 
+       background:  transparent !important;
        border-left: none !important; }
     .module-navlinks a {
        color: $*color_page_link !important; }
@@ -247,6 +247,12 @@ if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
     .module-navlinks .module-header { display: none !important; }
     """; }
 else { $navlinks_css = ""; }
+
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+
+
 
 
 """
@@ -308,7 +314,7 @@ else { $navlinks_css = ""; }
 blockquote {
     padding: 1em 1em .5em 2em;
     font-style: italic;
-} 
+}
 blockquote > p:first-child { margin-top: 0; }
 q { font-style: italic; }
 dl dt { font-weight: bold; }
@@ -316,19 +322,19 @@ dl dt { font-weight: bold; }
 a:hover { text-decoration: none; }
 
 body {
-    background:  $*color_page_background; 
+    background:  $*color_page_background;
     padding: 0;
     margin: 0;
 }
 
-#canvas { 
+#canvas {
     margin: 0 $*margins_size$*margins_unit;
     padding: 1em 0;
     position: relative;
     background: $*color_page_background;
 }
 
-#header { 
+#header {
     background:  transparent;
     padding: 1px; }
 #header .inner { padding: 1px 1em;
@@ -384,11 +390,11 @@ body {
 .comment .header { padding-left: 10px; } /*so datetime et al has some padding */
 
 .entry-title,
-.comment-title { 
+.comment-title {
     padding: .25em .5em;
     margin: 0;
     margin-left: -45px;
-    border-bottom: 1px solid $*color_primary_background; 
+    border-bottom: 1px solid $*color_primary_background;
 }
 
 .entry .datetime,
@@ -409,7 +415,7 @@ $userpic_css
 .entry .tag { padding-left: .5em; }
 
 ul.entry-interaction-links,
-.comment-interaction-links { 
+.comment-interaction-links {
     padding: 0 .5em .75em .5em;
     margin: 0; }
 
@@ -421,7 +427,7 @@ ul.entry-management-links,
     width: 25px;
 }
 ul.entry-management-links li,
-.comment-management-links li { 
+.comment-management-links li {
     display: block;
     padding: 0 .25em;
 }
@@ -429,11 +435,11 @@ ul.entry-management-links li,
 .bottomcomment {
     background: $*color_entry_background;
     padding: 1px;
-    margin: .5em 0; 
+    margin: .5em 0;
 }
 .bottomcomment ul.entry-management-links {
     position: static;
-    width: auto; 
+    width: auto;
 }
 .bottomcomment ul.entry-management-links li {
     display: inline;
@@ -442,17 +448,17 @@ ul.entry-management-links li,
 .bottomcomment ul.entry-management-links {
     float: left;
     margin-top: .5em;
-    margin-bottom: .25em; 
+    margin-bottom: .25em;
 }
 .bottomcomment ul.entry-interaction-links {
     text-align: right;
     margin-right: .5em;
     margin-top: .5em;
-    margin-bottom: .25em; 
+    margin-bottom: .25em;
 }
 
 /* Comments */
-.comment-pages { 
+.comment-pages {
     background: $*color_entry_background;
     padding: .25em;
     margin: .5em 0;
@@ -469,9 +475,9 @@ ul.entry-management-links li,
 
 .comment .footer { padding: 1px; }
 
-.comment .footer .multiform-checkbox { 
+.comment .footer .multiform-checkbox {
     margin: 0 10px;
-    font-size: small;   
+    font-size: small;
 }
 
 .comment-management-links { top: 2em; }
@@ -479,27 +485,38 @@ ul.entry-management-links li,
 .comment-interaction-links { text-align: right; }
 
 .partial .comment { padding: .25em; }
-.partial .comment-title { 
+.partial .comment-title {
     display: inline;
     background: transparent;
     margin-left: 0;
 }
 
+/*-----------------------Generic Secondary Pages Styling----------------------------*/
+
+#archive-year .header h3, .tags-container .header h2, .icons-container .header h2, #archive-month .header h3 {
+    $entry_title_font
+    $entry_title_colors;
+    border-bottom: 1px solid $*color_primary_background;
+    padding: .20em .25em;
+    margin: 0;
+}
+
+.tags-container, .icons-container, #archive-year .month, #comments, #archive-month .month { $entry_colors }
+
+.tags-container a, .icons-container a, #archive-year a, #comments a, #archive-month a { color:$*color_entry_link; }
+
+.tags-container a:active, .icons-container a:active, #archive-year a:active, #comments a:active, #archive-month a:active { color:$*color_entry_link_active; }
+
+.tags-container a:hover, .icons-container a:hover, #archive-year a:hover, #comments a:hover, #archive-month a:hover { color:$*color_entry_link_hover; }
+
+.tags-container a:visited, .icons-container a:visited, #archive-year a:visited, #comments a:visited, #archive-month a:visited { color:$*color_entry_link_visited; }
+
+
+
 
 /* Archive */
 
 #archive-year .month-wrapper {margin: 0 0 1.5em 0; }
-
-#archive-year .month,
-#archive-month .month { background:  $*color_entry_background; }
-
-#archive-year .month .header h3 { 
-    background: $*color_entry_title_background;
-    color: $*color_entry_title;
-    border-bottom: 1px solid $*color_primary_background;
-    padding: .20em .25em;
-    margin: 0; 
-}
 
 #archive-year .month .contents { padding-top: 1em; }
 
@@ -522,17 +539,41 @@ table.month caption { display: none; }
 
 /* Tags */
 
-.page-tags .tags-container { background:  $*color_entry_background; }
-
-.tags-container h2 { background:  $*color_entry_title_background;
-    color: $*color_entry_title;
-    border-bottom: 1px solid $*color_primary_background;
-    padding: .20em .25em;
-    margin: 0; 
-}
 
 .tags-container .manage-tags-link { padding: 1em; }
 
+/* Icons */
+
+.icons-container .icon {
+    float: left;
+    margin-bottom: 15px;
+    min-width: 350px;
+    vertical-align: bottom;
+    width: 50%;
+}
+
+.icon-image {
+    display: inline;
+    float: left;
+    margin-right: 1em;
+    min-width: 100px;
+}
+
+.icon-info {
+    overflow: auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+}
+
+.icon-info .label,
+.icon-info span {
+    font-weight: bold;
+}
+
+.icons-container .inner .footer, .icon-pages {
+    clear: both;
+    text-align: center;
+}
 
 /*Sidebars*/
 #secondary,
@@ -549,26 +590,26 @@ table.month caption { display: none; }
 .module a:active { color: $*color_module_link_active; }
 .module a:hover { color: $*color_module_link_hover; }
 
-.module { 
+.module {
     border: none;
     background:  transparent;
-    margin-bottom: 4px; 
+    margin-bottom: 4px;
 }
 
-.module-header { 
+.module-header {
     font-size: large;
     padding: .25em;
-    margin: 0; 
-    background:  $*color_module_title_background; 
+    margin: 0;
+    background:  $*color_module_title_background;
 }
 .module-header a { color: $*color_module_title; }
 .module-header a:visited { color: $*color_module_title; }
 
 .module-content ul,
 .module-list,
-.module dl { 
+.module dl {
     list-style: none;
-    margin: 0; 
+    margin: 0;
     padding: 0;
 }
 .module-content li,
@@ -577,7 +618,7 @@ table.month caption { display: none; }
 .module .manage-link a,
 .module dt,
 .module dd,
-.module-search input { 
+.module-search input {
     margin: 1px 0;
 }
 
@@ -592,7 +633,7 @@ table.month caption { display: none; }
 .module-search input {
     display: block;
     padding: .25em .5em;
-    background:  $*color_module_link_background; 
+    background:  $*color_module_link_background;
     border-left: .5em solid $*color_module_link_border;
     color: $*color_module_link;
 }
@@ -613,32 +654,32 @@ table.month caption { display: none; }
 .module-search input.search-box:focus {
     background:  $*color_module_link_hover_background;
     border-left: .5em solid $*color_module_link_hover_border;
-    color: $*color_module_link_hover; 
+    color: $*color_module_link_hover;
 }
 
 $navlinks_css
 
 .manage-link { font-style: italic; }
 
-.module-calendar td a:hover { 
-    border: .05em solid $*color_module_link_hover_border; padding: .20em; 
+.module-calendar td a:hover {
+    border: .05em solid $*color_module_link_hover_border; padding: .20em;
 }
 
 .module-userprofile .userpic,
-.journal-name { 
+.journal-name {
     padding: .20em .5em;
     margin-bottom: 1px;
-    background:  $*color_module_link_background; 
+    background:  $*color_module_link_background;
 }
 
-.module-userprofile .module-content { 
+.module-userprofile .module-content {
     text-align: left;
     padding-top: 1px;
 }
 
 .module-userprofile .userpic img { height: 1.5em; width: 1.5em; }
 
-.module-user-links .module-content { 
+.module-user-links .module-content {
     text-align: left;
 }
 ul.userlite-interaction-links {
@@ -646,61 +687,61 @@ ul.userlite-interaction-links {
     margin-left: 0;
     padding-left: 0;
 }
-ul.userlite-interaction-links li { 
+ul.userlite-interaction-links li {
     display: block;
-    padding: 0; 
+    padding: 0;
 }
 
 .module-powered,
 .module-time,
-.module-tags_cloud .module-content { 
+.module-tags_cloud .module-content {
     background:  $*color_module_background;
-    padding: .5em; 
+    padding: .5em;
 }
 
-.module-pagesummary li { 
+.module-pagesummary li {
     background:  $*color_module_link_background;
     padding: .25em .5em;
-    border-left: .5em solid $*color_module_link_border; 
+    border-left: .5em solid $*color_module_link_border;
 }
 
-.module-pagesummary li:hover { 
+.module-pagesummary li:hover {
     background:  $*color_module_link_hover_background;
-    border-left: .5em solid $*color_module_link_hover_border; 
+    border-left: .5em solid $*color_module_link_hover_border;
 }
 
-.module-pagesummary a { 
+.module-pagesummary a {
     display: inline !important;
     border-left: none !important;
-    padding: 0 !important; 
+    padding: 0 !important;
 }
 
-.module-pagesummary li:hover a { 
+.module-pagesummary li:hover a {
     background:  transparent;
-    color: $*color_module_link_hover; 
+    color: $*color_module_link_hover;
 }
 
 .module-tags_multilevel .non-link-tag {
     display: block;
     padding: .25em .5em;
-    background:  $*color_module_link_background; 
-    border-left: .5em solid $*color_module_link_border; 
+    background:  $*color_module_link_background;
+    border-left: .5em solid $*color_module_link_border;
 }
 
 .module-tags_multilevel ul ul a { padding-left: 2em; }
 
 .module-tags_cloud a,
-.module-tags_cloud .manage-tags-link a { 
-    display: inline; 
+.module-tags_cloud .manage-tags-link a {
+    display: inline;
     background:  transparent;
     border-left: none;
-    padding: .25em; 
+    padding: .25em;
 }
 
 .module-tags_cloud a:hover,
 .module-tags_cloud .manage-tags-link a:hover {
     background:  transparent;
-    border-left: none; 
+    border-left: none;
 }
 
 .module-tags_cloud .manage-tags-link  { margin-top: 1em; }
@@ -735,7 +776,7 @@ var bool userpic_exists = defined $p.journal.default_pic; #thanks ysobel!
 var string userprofile_css = "";
     if ( $*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == true and $userpic_exists == true) {
         $userprofile_css = "
-            .module-userprofile .userpic { 
+            .module-userprofile .userpic {
                 float: left;
                 border-left: .5em solid $*color_module_link_border;
              }
@@ -747,7 +788,7 @@ var string userprofile_css = "";
     if ($*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == false and $userpic_exists == false) {
         $userprofile_css = "";
     }
-    if ( ($*module_userprofile_opts_userpic == false and $*module_userprofile_opts_name == true) or 
+    if ( ($*module_userprofile_opts_userpic == false and $*module_userprofile_opts_name == true) or
       ( $*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == true and $userpic_exists == false)) {
         $userprofile_css = ".module-userprofile .journal-name { border-left: .5em solid $*color_module_link_border; }";
     }
@@ -761,7 +802,7 @@ var string userprofile_css = "";
 
 
 # to incorporate the css above, which requires the Page object, which the external style sheet cannot access
-function Page::print_default_stylesheets() 
+function Page::print_default_stylesheets()
 "Contains the layout and theme default stylesheets. Themes and child layouts may use this to disable the printing of the layout's base default stylesheet, or to add theme-specific CSS bits. May be overriden on a per-layout/theme basis"
 {
     if ($*external_stylesheet) {
@@ -779,5 +820,5 @@ function Page::print_default_stylesheets()
         $this->print_theme_stylesheet();
         end_css();
         println """</style>""";
-    }   
+    }
 }
