@@ -246,6 +246,7 @@ class CommentInfo
     var readonly string post_url "URL pointer to the 'Post Comments' view.";
     var readonly string permalink_url "Permanent URL for the entry.";
     var int count "Current number of comments available to be read by the viewer.";
+    var int screened_count "Current number of screened comments (only visible if remote user can view screened comments)";
     var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
     var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
     var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community maintainer";
@@ -2359,6 +2360,18 @@ property string text_read_comments {
     format = "plurals";
     example = "1 comment // # comments";
 }
+
+property string text_read_comments_screened {
+    des = "Text for number of screened comments on an entry";
+    format = "plurals";
+    example = "1 screened comment // # screened comments";
+}
+
+property string text_read_comments_screened_visible {
+    des = "Text for number of unscreened comments on an entry with screened comments";
+    example = "visible";
+}
+
 property string text_read_comments_friends {
     des = "Link text to read comments from your Reading page";
     format = "plurals";
@@ -2387,6 +2400,8 @@ property string text_permalink {
 
 set text_read_comments = "1 comment // # comments";
 set text_read_comments_friends = "1 comment // # comments";
+set text_read_comments_screened_visible = " visible";
+set text_read_comments_screened = "1 screened comment // # screened comments";
 set text_post_comment = "Reply";
 set text_post_comment_friends = "Reply";
 set text_max_comments = "Maximum comments reached";
@@ -5711,10 +5726,16 @@ function DayPage::print_navigation( string{} opts ) [fixed] {
 
 function CommentInfo::print_readlink {
     var Page p = get_page();
-    print safe "<a href=\"$.read_url#comments\">"+
-        get_plural_phrase($.count, ( $p.view == "read" or $p.view == "network" ) ?
-                          "text_read_comments_friends" : "text_read_comments")+
-    "</a>";
+    if ($.screened) {
+        print safe "<a href=\"$.read_url#comments\">"+ $.count + $*text_read_comments_screened_visible + " | " +
+                get_plural_phrase($.screened_count, "text_read_comments_screened")+
+            "</a>";
+    } else {
+        print safe "<a href=\"$.read_url#comments\">"+
+            get_plural_phrase($.count, ( $p.view == "read" or $p.view == "network" ) ?
+                              "text_read_comments_friends" : "text_read_comments")+
+        "</a>";
+}
 }
 function CommentInfo::print_postlink() {
     var Page p = get_page();
