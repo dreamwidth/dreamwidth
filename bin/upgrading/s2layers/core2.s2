@@ -2301,11 +2301,11 @@ property string text_tags {
 
 property string text_stickyentry_subject { des = "Text that appears before the subject of the sticky entry"; }
 
-set text_meta_groups = "Custom Access Groups";
-set text_meta_location = "Current Location";
-set text_meta_mood = "Current Mood";
-set text_meta_music = "Current Music";
-set text_meta_xpost = "Crossposts";
+set text_meta_groups = "Custom Access Groups:";
+set text_meta_location = "Current Location:";
+set text_meta_mood = "Current Mood:";
+set text_meta_music = "Current Music:";
+set text_meta_xpost = "Crossposts:";
 set text_tags = "Tags:";
 set text_stickyentry_subject = "Sticky: ";
 
@@ -2400,7 +2400,7 @@ property string text_permalink {
 
 set text_read_comments = "1 comment // # comments";
 set text_read_comments_friends = "1 comment // # comments";
-set text_read_comments_screened_visible = " visible";
+set text_read_comments_screened_visible = "visible";
 set text_read_comments_screened = "1 screened comment // # screened comments";
 set text_post_comment = "Reply";
 set text_post_comment_friends = "Reply";
@@ -2702,7 +2702,7 @@ property string text_icon_alt_sticky_entry        { noui = 1; des = "Alternative
 
 property string text_posting_in {
     des = "Text when user is posting in a community";
-    example = "posting in ";
+    example = " posting in ";
 }
 
 property string text_view_month {
@@ -2858,10 +2858,10 @@ set text_comments_disabled_maintainer = "Comments disabled by a maintainer of th
 set comment_page_prev = "&lt;&lt";
 set comment_page_next = "&gt;&gt";
 
-set text_screened = "(screened comment) ";
+set text_screened = "(screened comment)";
 set text_deleted = "(deleted comment)";
 set text_fromsuspended = "(reply from suspended user)";
-set text_frozen = "(frozen) ";
+set text_frozen = "(frozen)";
 set text_poster_anonymous = "(Anonymous)";
 
 set text_comment_posted = "Comment successfully posted.";
@@ -4800,10 +4800,10 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
         var Comment c = $this as Comment;
         """<h4 class="comment-title">""";
         if ($c.screened) {
-            print $*text_screened;
+            print $*text_screened + " ";
         }
         if ($c.frozen) {
-            print $*text_frozen;
+            print $*text_frozen + " ";
         }
         if ($c.echi) {
             print "<span class='echi'>${c.echi}.</span> ";
@@ -4909,7 +4909,7 @@ function Entry::print_metadata() {
         """<div class="metadata$position">\n<ul>\n""";
         foreach var string m ( keys_alpha( $.metadata ) ) {
             var string metadata_name = lang_metadata_title($m);
-            """<li><span class="metadata-label metadata-label-$m">$metadata_name: </span>""";
+            """<li><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
             if ($m == "mood") {
                 " $.mood_icon ";
             }
@@ -5727,9 +5727,9 @@ function DayPage::print_navigation( string{} opts ) [fixed] {
 function CommentInfo::print_readlink {
     var Page p = get_page();
     if ($.screened) {
-        print safe "<a href=\"$.read_url#comments\">"+ $.count + $*text_read_comments_screened_visible + " | " +
-                get_plural_phrase($.screened_count, "text_read_comments_screened")+
-            "</a>";
+        print safe "<a href=\"$.read_url#comments\">"+ $.count + " " + $*text_read_comments_screened_visible
+                + $*text_default_separator + get_plural_phrase($.screened_count, "text_read_comments_screened")
+                + "</a>";
     } else {
         print safe "<a href=\"$.read_url#comments\">"+
             get_plural_phrase($.count, ( $p.view == "read" or $p.view == "network" ) ?
@@ -6028,15 +6028,15 @@ function CommentNav::print(string{} opts) {
     };
 
     if ( $.view_mode == "threaded" ) {
-        print "$links{"flat"} | $links{"top-only"}";
+        print "$links{"flat"}" + "$*text_default_separator" + "$links{"top-only"}";
     } elseif ( $.view_mode == "flat" ) {
-        print "$links{"threaded"} | $links{"top-only"}";
+        print "$links{"threaded"}" + "$*text_default_separator" + "$links{"top-only"}";
     } elseif ( $.view_mode == "top-only" ) {
-        print "$links{"threaded"} | $links{"flat"}";
+        print "$links{"threaded"}" + "$*text_default_separator" + "$links{"flat"}";
     }
 
     if ( $.show_expand_all ) {
-        print "<span class='expand_all'> | $links{"expand_all"}</span>";
+        print "<span class='expand_all'>$*text_default_separator$links{"expand_all"}</span>";
     }
     print "</div>";
 }
