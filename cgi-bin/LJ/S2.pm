@@ -1949,10 +1949,11 @@ sub TagDetail
         $count = $tag->{uses};
 
     } elsif ( defined $remote ) {           #logged in, not own journal
+        my $trusted = $u->trusts_or_has_member( $remote );
         my $grpmask = $u->trustmask( $remote );
 
         $count = $tag->{security}->{public};
-        $count += $tag->{security}->{protected} if $grpmask > 0;
+        $count += $tag->{security}->{protected} if $trusted;
         if ( $grpmask > 1 ) {
             # Find which group that this remote is a member of has the most 
             #  uses of this tag, and add that no of uses to the count.
