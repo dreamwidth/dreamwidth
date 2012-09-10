@@ -736,6 +736,11 @@ table.month td {
     text-decoration: underline;
     }
 
+.icon-keywords ul li {
+    margin-right: 5px;
+    padding: 0;
+    }
+
 .icons-container .manage-link {
     text-align: right;
     text-transform: uppercase;

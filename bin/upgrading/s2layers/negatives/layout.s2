@@ -661,13 +661,13 @@ function Page::print_default_stylesheet()
 
     .icon-keywords ul {
         display: inline;
+        margin: 0;
         padding: 0;
         }
 
     .icon-keywords ul li {
         display: inline;
         list-style: none;
-        padding: 0 .25em 0 0;
         }
 
     .module-section-two .module,
