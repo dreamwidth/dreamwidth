@@ -190,6 +190,35 @@ function Page::print() {
 }
 
 
+function print_module_userprofile() {
+    var Page p = get_page();
+
+    open_module("userprofile", $*text_module_userprofile, $p.view_url{"userinfo"});
+    """<div class='userprofile-userinfo'>""";
+    if ($*module_userprofile_opts_userpic) {
+        if (defined $p.journal.default_pic) {
+            $p.journal.default_pic.width  = $p.journal.default_pic.width  / 4;
+            $p.journal.default_pic.height = $p.journal.default_pic.height / 4;
+            """<span class="userpic">""";
+            $p.journal->print_userpic();
+             """</span>""";
+        }
+    }
+    if ($*module_userprofile_opts_name or $*module_userprofile_opts_website) {
+        if ($*module_userprofile_opts_name) {
+            println "<span class='journal-name'>"+$p.journal.name+"</span>";
+        }
+    """</div>""";
+        if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
+            var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
+            println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
+        }
+    }
+    $p.journal->print_interaction_links();
+    close_module();
+}
+
+
 ##===============================
 ## Stylesheet
 ##===============================
@@ -401,22 +430,22 @@ body {
 .comment .header .datetime { font-size: small; }
 
 .entry .contents,
-.comment .contents { padding: 0 .5em .5em .5em;
+.comment .contents { padding: 0 .5em .5em;
     min-height: 100px; }
 
 .entry-content,
-.comment-content { padding: 1em .5em .5em .5em; }
+.comment-content { padding: 1em .5em .5em; }
 
 $userpic_css
 
 .entry .userpic,
-.comment .userpic { margin: -.75em .25em .5em .25em; }
+.comment .userpic { margin: -.75em .25em .5em; }
 
 .entry .tag { padding-left: .5em; }
 
 ul.entry-interaction-links,
 .comment-interaction-links {
-    padding: 0 .5em .75em .5em;
+    padding: 0 .5em .75em;
     margin: 0; }
 
 ul.entry-management-links,
@@ -452,9 +481,7 @@ ul.entry-management-links li,
 }
 .bottomcomment ul.entry-interaction-links {
     text-align: right;
-    margin-right: .5em;
-    margin-top: .5em;
-    margin-bottom: .25em;
+    margin: .5em .5em .25em 0;
 }
 
 /* Comments */
@@ -512,11 +539,9 @@ ul.entry-management-links li,
 .tags-container a:visited, .icons-container a:visited, #archive-year a:visited, #comments a:visited, #archive-month a:visited { color:$*color_entry_link_visited; }
 
 
-
-
 /* Archive */
 
-#archive-year .month-wrapper {margin: 0 0 1.5em 0; }
+#archive-year .month-wrapper {margin: 0 0 1.5em; }
 
 #archive-year .month .contents { padding-top: 1em; }
 
@@ -575,6 +600,12 @@ table.month caption { display: none; }
     text-align: center;
 }
 
+.userprofile-userinfo {
+    border-left: .5em solid $*color_module_link_border;
+    background:  $*color_module_link_background;
+    margin-bottom: 1px;
+}
+
 /*Sidebars*/
 #secondary,
 #tertiary { background:  $*color_sidebars_background; }
@@ -602,8 +633,6 @@ table.month caption { display: none; }
     margin: 0;
     background:  $*color_module_title_background;
 }
-.module-header a { color: $*color_module_title; }
-.module-header a:visited { color: $*color_module_title; }
 
 .module-content ul,
 .module-list,
@@ -662,22 +691,15 @@ $navlinks_css
 .manage-link { font-style: italic; }
 
 .module-calendar td a:hover {
-    border: .05em solid $*color_module_link_hover_border; padding: .20em;
-}
-
-.module-userprofile .userpic,
-.journal-name {
+    border: .05em solid $*color_module_link_hover_border;
+    padding: .20em;
     padding: .20em .5em;
-    margin-bottom: 1px;
-    background:  $*color_module_link_background;
 }
 
 .module-userprofile .module-content {
     text-align: left;
     padding-top: 1px;
 }
-
-.module-userprofile .userpic img { height: 1.5em; width: 1.5em; }
 
 .module-user-links .module-content {
     text-align: left;
@@ -746,9 +768,8 @@ ul.userlite-interaction-links li {
 
 .module-tags_cloud .manage-tags-link  { margin-top: 1em; }
 
-.module-active li { font-size: 0; }
-.module-active li a { font-size: $recent_size$recent_units; }
-
+.module-active li { font-size: 0; } /*Hides the number before each active entry*/
+.module-active li a { font-size: $recent_size$recent_units; } /*Shows the entry title and link */
 
 /* Footer */
 
@@ -766,59 +787,4 @@ ul.userlite-interaction-links li {
 
 
 """;
-}
-
-function need_page_styles() {
-var Page p = get_page();
-var bool userpic_exists = defined $p.journal.default_pic; #thanks ysobel!
-
-#to make userprofile components look very different than usual
-var string userprofile_css = "";
-    if ( $*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == true and $userpic_exists == true) {
-        $userprofile_css = "
-            .module-userprofile .userpic {
-                float: left;
-                border-left: .5em solid $*color_module_link_border;
-             }
-            .module-userprofile .journal-name { min-height: 1.5em; }";
-    }
-    if ($*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == false and $userpic_exists == true) {
-        $userprofile_css = ".module-userprofile .userpic { border-left: .5em solid $*color_module_link_border; }";
-    }
-    if ($*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == false and $userpic_exists == false) {
-        $userprofile_css = "";
-    }
-    if ( ($*module_userprofile_opts_userpic == false and $*module_userprofile_opts_name == true) or
-      ( $*module_userprofile_opts_userpic == true and $*module_userprofile_opts_name == true and $userpic_exists == false)) {
-        $userprofile_css = ".module-userprofile .journal-name { border-left: .5em solid $*color_module_link_border; }";
-    }
-
-        println """<style type="text/css">""";
-        start_css();
-        print $userprofile_css;
-        end_css();
-        println """</style>""";
-}
-
-
-# to incorporate the css above, which requires the Page object, which the external style sheet cannot access
-function Page::print_default_stylesheets()
-"Contains the layout and theme default stylesheets. Themes and child layouts may use this to disable the printing of the layout's base default stylesheet, or to add theme-specific CSS bits. May be overriden on a per-layout/theme basis"
-{
-    if ($*external_stylesheet) {
-        # prints out the stylesheets for $this->print_default_stylesheet, print_stylesheet(), and $this->print_theme_stylesheet
-        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
-
-        # added for the css that requires the Page object
-        need_page_styles();
-    }
-    else {
-        println """<style type="text/css">""";
-        start_css();
-        $this->print_default_stylesheet();
-        print_stylesheet();
-        $this->print_theme_stylesheet();
-        end_css();
-        println """</style>""";
-    }
 }
