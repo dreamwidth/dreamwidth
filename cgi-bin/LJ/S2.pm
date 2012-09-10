@@ -1946,7 +1946,6 @@ sub TagDetail
     my $remote = LJ::get_remote();
 
     if ( defined $remote && $remote->can_manage( $u )) {    #own journal
-        #FIXME: should probably show all if viewall is being used too.
         $count = $tag->{uses};
 
     } elsif ( defined $remote ) {           #logged in, not own journal
@@ -1970,8 +1969,6 @@ sub TagDetail
     
     $t->{use_count} = $count;
 
-    # FIXME: I'm not sure that we should be exposing the info below to the 
-    #  style system. To be discussed.
     my $sum = 0;
     $sum += $tag->{security}->{groups}->{$_}
         foreach keys %{$tag->{security}->{groups} || {}};
