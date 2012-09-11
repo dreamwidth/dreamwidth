@@ -1947,13 +1947,19 @@ sub TagDetail
 
     if ( defined $remote && $remote->can_manage( $u )) {    #own journal
         $count = $tag->{uses};
+        $t->{security_counts}->{$_} = $tag->{security}->{$_}
+            foreach qw(public private protected);
 
     } elsif ( defined $remote ) {           #logged in, not own journal
         my $trusted = $u->trusts_or_has_member( $remote );
         my $grpmask = $u->trustmask( $remote );
 
         $count = $tag->{security}->{public};
-        $count += $tag->{security}->{protected} if $trusted;
+        $t->{security_counts}->{public} = $tag->{security}->{public};
+        if ( $trusted ) {
+            $count += $tag->{security}->{protected};
+            $t->{security_counts}->{protected} = $tag->{security}->{protected};
+        }
         if ( $grpmask > 1 ) {
             # Find which group that this remote is a member of has the most 
             #  uses of this tag, and add that no of uses to the count.
@@ -1966,16 +1972,10 @@ sub TagDetail
 
     } else {        #logged out.
         $count = $tag->{security}->{public};
+        $t->{security_counts}->{public} = $tag->{security}->{public};
     }
     
     $t->{use_count} = $count;
-
-    my $sum = 0;
-    $sum += $tag->{security}->{groups}->{$_}
-        foreach keys %{$tag->{security}->{groups} || {}};
-    $t->{security_counts}->{$_} = $tag->{security}->{$_}
-        foreach qw(public private friends);
-    $t->{security_counts}->{groups} = $sum;
 
     return $t;
 }
