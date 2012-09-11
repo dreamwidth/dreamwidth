@@ -458,7 +458,7 @@ sub add_paid_time {
                 } elsif ( $from_type eq 'premium' && $to_type eq 'paid' ) {
                     $newtypeid = $ps->{typeid};
 
-                    # we are not sending their current time to the conversion function 
+                    # we are not sending their current time to the conversion function
                     #   because it is already premium. just convert the newly purchased time.
                     #   But, we do include any value in $adays to accomodate arbitrary additions.
                     $asecs = $ps->{expiresin} + DW::BusinessRules::Pay::convert( $to_type, $from_type, $amonths, $adays, undef );
