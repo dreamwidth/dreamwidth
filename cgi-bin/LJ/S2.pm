@@ -1977,13 +1977,6 @@ sub TagDetail
     
     $t->{use_count} = $count;
 
-    my $sum = 0;
-    $sum += $tag->{security}->{groups}->{$_}
-        foreach keys %{$tag->{security}->{groups} || {}};
-#    $t->{security_counts}->{$_} = $tag->{security}->{$_}
-#        foreach qw(public private friends);
-    $t->{security_counts}->{groups} = $sum;
-
     return $t;
 }
 
