@@ -13,28 +13,17 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 ##===============================
 
 propgroup colors_child {
-    property Color color_entry_meta_background
-      { des = "Entry management links background color"; }
-    property Color color_module_link_background
-      { des = "Module link background color"; }
-    property Color color_module_link_hover_background
-      { des = "Module hovered link background color"; }
-    property Color color_module_link_border
-      { des = "Module link border color"; }
-    property Color color_module_link_hover_border
-      { des = "Module hovered link border color"; }
-    property Color color_navigation_link
-      { des = "Navigation link color"; }
-    property Color color_navigation_link_visited
-      { des = "Navigation visited link color"; }
-    property Color color_navigation_link_active
-      { des = "Navigation active link color"; }
-    property Color color_navigation_link_hover
-      { des = "Navigation hovered link color"; }
-    property Color color_primary_background
-      { des = "Entries column background color"; }
-    property Color color_sidebars_background
-      { des = "Sidebar background color"; }
+    property Color color_entry_management_background  { des = "Entry management links background color"; }
+    property Color color_module_link_background { des = "Module link background color"; }
+    property Color color_module_link_hover_background { des = "Module hovered link background color"; }
+    property Color color_module_link_border { des = "Module link border color"; }
+    property Color color_module_link_hover_border { des = "Module hovered link border color"; }
+    property Color color_navigation_link { des = "Navigation link color"; }
+    property Color color_navigation_link_visited { des = "Navigation visited link color"; }
+    property Color color_navigation_link_active { des = "Navigation active link color"; }
+    property Color color_navigation_link_hover { des = "Navigation hovered link color"; }
+    property Color color_primary_background { des = "Entries column background color"; }
+    property Color color_sidebars_background { des = "Sidebar background color"; }
 }
 
 
@@ -74,7 +63,6 @@ set margins_size = "2";
 set margins_unit = "%";
 
 set layout_type = "two-columns-left";
-
 set module_tags_opts_type = "multi";
 
 
@@ -126,10 +114,10 @@ function Page::print() {
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_module_section("header");
                     $this->print_global_title();
                     $this->print_global_subtitle();
                     $this->print_title();
+                    $this->print_module_section("header");
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -241,25 +229,12 @@ var string userpic_css = "";
     }
 
 
-#for re-setting active module font size
-var string recent_size = "";
-var string recent_units = "";
-    if ( $*font_module_text_size == "" ) { $*font_module_text_size = $*font_base_size;
-        $*font_module_text_units = $*font_base_units; }
-    if ( ($*font_base_size == "") or ($*font_base_units == "%") ) { $recent_size = "medium";
-        $recent_units = ""; }
-    else { $recent_size = $*font_module_text_size;
-        $recent_units =  $*font_module_text_units; }
-
-
 #for showing the module in the header
 var string navlinks_css = "";
 if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
     #header > .inner:first-child { padding-bottom: 2em;
         position: relative; }
-    .module-navlinks { position: absolute;
-        bottom: 1em;
-        right: 1em; }
+    .module-navlinks { text-align:right;}
     .module-navlinks * {
        display: inline !important;
        background:  transparent !important;
@@ -406,7 +381,7 @@ body {
 
 .entry-wrapper,
 .comment-wrapper {
-    background: $*color_entry_meta_background;
+    background: $*color_entry_management_background;
     margin: 0 0 1em 0;
 }
 
@@ -616,10 +591,23 @@ table.month caption { display: none; }
 .two-columns-left #tertiary { margin-left: .25em; }
 .two-columns-right #tertiary { margin-right: .25em }
 
-.module a { color: $*color_module_link; }
-.module a:visited { color: $*color_module_link_visited; }
-.module a:active { color: $*color_module_link_active; }
-.module a:hover { color: $*color_module_link_hover; }
+.one-column #secondary, .one-column #tertiary {
+    background-color: $*color_sidebars_background;
+    width: 100%;
+    position: relative;
+    text-align:center;
+    margin: 1em 0 !important;
+    top: 0;
+    }
+
+.one-column .module {
+    display: inline-block;
+    vertical-align: top;
+    width: $*sidebar_width;
+    margin: 0.5em;
+    }
+
+.one-column .module-list {text-align: left;}
 
 .module {
     border: none;
@@ -631,7 +619,6 @@ table.month caption { display: none; }
     font-size: large;
     padding: .25em;
     margin: 0;
-    background:  $*color_module_title_background;
 }
 
 .module-content ul,
@@ -669,7 +656,6 @@ table.month caption { display: none; }
 
 .module-calendar td { font-size: small; }
 .module-calendar td.empty-day { padding: .25em; }
-.module-calendar td.entry-day a { padding: .25em; border: none; }
 .module-search input.search-box { margin-top: 2px; }
 
 .module-content li a:hover,
@@ -692,7 +678,11 @@ $navlinks_css
 
 .module-calendar td a:hover {
     border: .05em solid $*color_module_link_hover_border;
-    padding: .20em;
+    padding: .20em .5em;
+}
+
+.module-calendar td a {
+    border: .05em solid transparent;
     padding: .20em .5em;
 }
 
@@ -768,8 +758,7 @@ ul.userlite-interaction-links li {
 
 .module-tags_cloud .manage-tags-link  { margin-top: 1em; }
 
-.module-active li { font-size: 0; } /*Hides the number before each active entry*/
-.module-active li a { font-size: $recent_size$recent_units; } /*Shows the entry title and link */
+.module-active .active-entry-label { display:none; }
 
 /* Footer */
 

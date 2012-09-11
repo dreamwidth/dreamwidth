@@ -15,14 +15,14 @@ set color_footer_link = "#bbb";
 set color_footer_link_active = "#900";
 set color_footer_link_visited = "#666";
 set color_header_background = "#161616";
-set color_page_background = "#292929"; 
+set color_page_background = "#292929";
 set color_page_text = "#eee";
 set color_page_link = "#6cc";
 set color_page_link_active = "#900";
 set color_page_link_hover = "";
 set color_page_link_visited = "#399";
 set color_page_title = "#bbb";
-set color_primary_background = "#161616"; 
+set color_primary_background = "#161616";
 set color_sidebars_background = "#161616";
 
 ##===============================
@@ -33,7 +33,7 @@ set color_comment_title_background = "#333";
 set color_entry_background = "#030303";
 set color_entry_title = "#ccc";
 set color_entry_title_background = "#333";
-set color_entry_meta_background = "#222";
+set color_entry_management_background = "#222";
 
 ##===============================
 ## Module Colors
@@ -89,8 +89,8 @@ set color_sidebars_background = "#eee";
 set color_comment_title_background = "#ccc";
 set color_entry_background = "#fcfcfc";
 set color_entry_title = "#333";
-set color_entry_title_background = "#ccc"; 
-set color_entry_meta_background = "#ddd";
+set color_entry_title_background = "#ccc";
+set color_entry_management_background = "#ddd";
 
 ##===============================
 ## Module Colors
