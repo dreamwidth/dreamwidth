@@ -5184,7 +5184,7 @@ function RecentPage::print_body {
             $this->print_sticky_entry($s);
         }
         else {
-	    $this->print_entry($e);
+            $this->print_entry($e);
         }
     }
 
