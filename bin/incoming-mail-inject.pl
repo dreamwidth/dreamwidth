@@ -17,10 +17,11 @@ use strict;
 use warnings;
 BEGIN {
     $ENV{LJHOME} ||= "/home/lj";
+    use lib "$ENV{LJHOME}/cgi-bin";
+    use lib "$ENV{LJHOME}/extlib/lib/perl5";
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
-use lib "$ENV{LJHOME}/cgi-bin";
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+
 use Class::Autouse qw(
                       LJ::IncomingEmailHandle
                       );

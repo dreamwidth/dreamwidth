@@ -14,7 +14,9 @@
 
 use strict;
 use lib "$ENV{'LJHOME'}/cgi-bin";
-require 'ljlib.pl';
+BEGIN {
+    require 'ljlib.pl';
+}
 
 # so output happens quickly
 $| = 1;
