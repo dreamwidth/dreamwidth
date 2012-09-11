@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::Test qw( temp_user temp_comm );
 
 use DW::Routing::CallInfo;

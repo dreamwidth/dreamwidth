@@ -3,7 +3,7 @@ use strict;
 
 use Test::More tests => 26;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 
 use DW::Hooks::EmbedWhitelist;
 

@@ -3,7 +3,7 @@
 use strict;
 use Test::More tests => 13;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::Emailpost;  # includes LJ::Emailpost::Web
 use LJ::Test;
 use FindBin qw($Bin);

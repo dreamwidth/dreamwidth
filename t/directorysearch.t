@@ -3,7 +3,7 @@
 use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::Test;
 use LJ::Directory::Search;
 use LJ::ModuleCheck;
