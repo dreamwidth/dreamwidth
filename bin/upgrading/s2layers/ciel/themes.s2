@@ -32,6 +32,6 @@ set color_entry_background = "#fff";
 set color_entry_title = "#52736b";
 set color_interaction_links_background = "#d6e3e3";
 set color_management_links_background = "#bbd5cf";
-set color_metadata_label = "#52736B";
+set color_entry_metadata_label = "#52736B";
 set color_userpic_border = "#b6d2cb";
 set color_userpic_border_alt = "#d6e3e3";

@@ -1004,12 +1004,13 @@ function Page::print_default_stylesheet()
     .icon-keywords ul {
         display: inline;
         list-style: none;
-        padding-left: 0;
+        display: inline;
+        margin 0;
+        padding-left: 5px;
     }
 
     .icon-keywords ul li {
         display: inline;
-        padding: 0 .25em 0 0;
     }
 
     /* Footer

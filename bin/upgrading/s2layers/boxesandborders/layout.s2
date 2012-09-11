@@ -451,6 +451,11 @@ text-align: center; }
     text-decoration: underline;
     }
 
+.icon-keywords ul li {
+    margin-left: 0;
+    padding: .25em .10em;
+}
+
 /* sidebars */
 
 #secondary > .inner:first-child,

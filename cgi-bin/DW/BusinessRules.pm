@@ -92,7 +92,8 @@ sub install_overrides {
 
     my $pkgpath = $callpkg;
     $pkgpath =~ s!::!/!g;
-    return unless -d DW->home . "/cgi-bin/$pkgpath";
+    my @dirs = LJ::get_all_directories( "cgi-bin/$pkgpath" );
+    return unless @dirs;
 
     my %seen;
     foreach my $dpkg ( LJ::ModuleLoader->module_subclasses( $callpkg ) ) {
