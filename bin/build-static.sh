@@ -5,8 +5,8 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 
-buildroot="$LJHOME/build/static";
-mkdir -p $buildroot;
+buildroot="$LJHOME/build/static"
+mkdir -p $buildroot
 
 # check the relevant paths using the same logic as the codebase
 perl -e '
