@@ -60,6 +60,9 @@ do
             if [[ ( "$ext" = "js" || "$ext" = "css" ) && ( -f "$synced_file" ) ]]; then
                 mkdir -p "$final/$dir"
                 java -jar $compressor "$synced_file" -o "$final/$modified_file"
+            else
+                mkdir -p "$final/$dir"
+                cp -p "$synced_file" "$final/$modified_file"
             fi
         fi
     done
