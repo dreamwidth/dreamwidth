@@ -1947,8 +1947,12 @@ sub TagDetail
 
     if ( defined $remote && $remote->can_manage( $u )) {    #own journal
         $count = $tag->{uses};
-        $t->{security_counts}->{$_} = $tag->{security}->{$_}
-            foreach qw(public private protected);
+        my $groupcount = $tag->{uses};
+        foreach ( qw(public private protected) ) {
+            $t->{security_counts}->{$_} = $tag->{security}->{$_};
+            $groupcount -= $tag->{security}->{$_};
+        }
+        $t->{security_counts}->{group} = $groupcount;
 
     } elsif ( defined $remote ) {           #logged in, not own journal
         my $trusted = $u->trusts_or_has_member( $remote );
