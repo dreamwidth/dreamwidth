@@ -1909,7 +1909,7 @@ sub Tag
     return undef unless $u && $kwid && $kw;
 
     my $url = LJ::eurl( $kw );
-    $url = ( $url =~ m![\\\/]! )
+    $url = ( $url =~ m![\\\/]! || $url =~ /\%2B/ )
             ? $u->journal_base . '?tag=' . $url
             : $u->journal_base . '/tag/' . $url;
 
