@@ -573,12 +573,19 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
     background: transparent !important;
 }
 
-.entry .link, .comment .link {color: #222211; }
+/*S2 talkpage*/
+.entry .link, .comment .link {color: #222211; } /*overrides having link color applied to :before and :after elements*/
 
 .comment .header { border-bottom: none; border-right: none; }
 .comment-wrapper-odd .header  { background-color: #EEEECC; }
 .comment-wrapper-even .header { background-color: #DDDBBB; }
 .screened .header{ background-color: #EEEEEE; }
+
+/* bml talkpage*/
+.cmtbar { border-bottom: none; border-right: none; }
+td.odd  { background-color: #EEEECC; }
+td.even { background-color: #DDDBBB; }
+td.screened { background-color: #EEEEEE; }
 
 /* profile.css */
 .section, .username, .actions li {
