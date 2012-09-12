@@ -852,7 +852,13 @@ sub update_logtags {
 
     # now we can create the new tags, since we know we're safe
     # We still need to propagate ignore_max, as create_usertag does some checks of it's own.
-    LJ::Tags::create_usertag( $u, $_, { display => 1, ignore_max => $opts->{ignore_max} } ) foreach @to_create;
+    # We also need to validate the tag names again, this time to make sure 
+    # that these new tags don't have "+" in them before we create them.
+    foreach ( @to_create ) {
+        return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $_ ) } ) )
+            unless LJ::Tags::validate_tag( $_, { disallow_plus => 1 } );
+        LJ::Tags::create_usertag( $u, $_, { display => 1, ignore_max => $opts->{ignore_max} } ); 
+    }
 
     # %add and %delete are accurate, but we need to track necessary
     # security updates; this is a hash of keyword ids and a modification
