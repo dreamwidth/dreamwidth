@@ -1383,6 +1383,10 @@ sub merge_usertags {
         $merge_to_id = $u->get_keyword_id( $newname );
     } else {
         my $merge_to_ids = LJ::Tags::create_usertag( $u, $newname, { display => 1 } );
+        #FIXME should english-strip this error. Or, better, pass on the error
+        # from create_usertag.
+        return $err->( "Failed to create new tag: " . LJ::ehtml( $newname ) )
+            unless $merge_to_ids;
         $merge_to_id = $merge_to_ids->{$newname};
     }
 
