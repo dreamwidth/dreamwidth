@@ -254,11 +254,11 @@ set module_tags_opts_type = "multi";
 
 set text_default_separator = " &#9726; ";
 set text_posting_in = " in ";
-set text_meta_music = "&#9726; Current Music";
-set text_meta_mood = "&#9726; Current Mood";
-set text_meta_location = "&#9726; Current Location";
-set text_meta_groups = "&#9726; Custom Access Groups";
-set text_meta_xpost = "&#9642; Crossposts";
+set text_meta_music = "&#9726; Current Music:";
+set text_meta_mood = "&#9726; Current Mood:";
+set text_meta_location = "&#9726; Current Location:";
+set text_meta_groups = "&#9726; Custom Access Groups:";
+set text_meta_xpost = "&#9642; Crossposts:";
 set text_tags = "&#9726; Tags:";
 set text_comment_from = "Posted by:";
 set text_comment_date = "Date/Time:";
