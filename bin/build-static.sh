@@ -57,12 +57,15 @@ do
             ext=${base##*.}
             dir=$(dirname "$modified_file")
             synced_file="$sync_to/$modified_file"
-            if [[ ( "$ext" = "js" || "$ext" = "css" ) && ( -f "$synced_file" ) ]]; then
+            if [[ -f "$synced_file" ]]; then
+
                 mkdir -p "$final/$dir"
-                java -jar $compressor "$synced_file" -o "$final/$modified_file"
-            else
-                mkdir -p "$final/$dir"
-                cp -p "$synced_file" "$final/$modified_file"
+
+                if [[ "$ext" = "js" || "$ext" = "css" ]]; then
+                    java -jar $compressor "$synced_file" -o "$final/$modified_file"
+                else
+                    cp -p "$synced_file" "$final/$modified_file"
+                fi
             fi
         fi
     done
