@@ -66,6 +66,14 @@ do
                 else
                     cp -p "$synced_file" "$final/$modified_file"
                 fi
+            else
+                # we're deleting rather than copying
+                # only need this for compressed files
+                # rsync handles the uncompressed ones
+                deleting=${modified_file#deleting }
+                if [[ "$deleting" != "$modified_file" ]]; then
+                    rm "$final/$deleting"
+                fi
             fi
         fi
     done
