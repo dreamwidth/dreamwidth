@@ -39,7 +39,6 @@ h3.entry-title, h4.comment-title {
 .entry-wrapper {margin:0}
 
 /* Entry footer styling */
-.entry .footer {text-align: center;}
 hr.above-entry-interaction-links {margin: 1em 0;}
 .entry-interaction-links, .comment-pages {text-align: center; font-weight:bold; float:none;}
 .entry-interaction-links li {display:inline;}
@@ -60,8 +59,6 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .comment .reply {display:none;} /*hide the reply-link - we're on the reply page!*/
 
 .comment .footer { padding: 1.2em 0;}
-.bottom-comment {text-align: center;}
-.bottompages { margin-bottom: 1em;}
 
 /*Styling for comment links*/
 #qrform table {margin: 0 auto;}

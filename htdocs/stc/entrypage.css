@@ -46,8 +46,8 @@ ul.entry-interaction-links {list-style: none outside none; display: inline; text
 .entry-interaction-links li:after, .comment-interaction-links li:after, .view-flat:after, .view-threaded:after, .view-top-only:after, .expand_all:after {content:")";}
 
 /*Comment header and content styling*/
-.comment .userpic {display:inline-block; max-width:100px;}
-.comment-info {display: inline-block; vertical-align: top;}
+.comment .userpic {display:table-cell; max-width:100px;}
+.comment-info {display: table-cell; vertical-align: top;}
 .poster {display: block;}
 .commentpermalink, .comment .poster-ip  {margin-left:1em;}
 .comment .invisible {position: relative;} /*Gives us top padding for comments with no subject */
