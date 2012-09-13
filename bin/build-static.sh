@@ -34,10 +34,10 @@ do
     compress=`echo $line | cut -d ":" -f 1`
 
     to_dir=`echo $line | cut -d ":" -f 2`
-    final="$buildroot/htdocs/$to_dir"                           # directory we serve files from, if minifying
+    final="$buildroot/$to_dir"                           # directory we serve files from, if minifying
 
     if [[ -n "$compressor" && -n "$compress" ]]; then
-        sync_to="$buildroot/htdocs$uncompressed_dir/$to_dir"    # directory we're copying files to
+        sync_to="$buildroot$uncompressed_dir/$to_dir"    # directory we're copying files to
     else
         sync_to=$final
     fi
@@ -85,8 +85,8 @@ do
 done
 
 if [[ -n $compressor ]]; then
-    escaped=$( echo $buildroot/htdocs | sed 's/\//\\\//g' )
-    find $buildroot/htdocs/js $buildroot/htdocs/max/js   | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
-    find $buildroot/htdocs/stc $buildroot/htdocs/max/stc | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
+    escaped=$( echo $buildroot | sed 's/\//\\\//g' )
+    find $buildroot/js $buildroot/max/js   | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
+    find $buildroot/stc $buildroot/max/stc | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
 fi
 
