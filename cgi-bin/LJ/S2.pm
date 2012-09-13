@@ -1965,10 +1965,8 @@ sub TagDetail
             $t->{security_counts}->{protected} = $tag->{security}->{protected};
         }
         if ( $grpmask > 1 ) {
-            # Find which group that this remote is a member of has the most 
-            #  uses of this tag, and add that no of uses to the count.
-            # Need to subtract 1 (first bit) from $grpmask to avoid
-            #  double-counting protected but unfiltered entries.
+            # Find the greatest number of uses of this tag in any one group
+            # that this remote is a member of, and add that number to the count
             my $maxgroupsize = 0;
             foreach ( LJ::bit_breakdown ( $grpmask ) ) {
                 $maxgroupsize = $tag->{security}->{groups}->{$_}
