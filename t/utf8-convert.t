@@ -3,7 +3,7 @@
 use strict;
 use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 
 ok(Unicode::MapUTF8::utf8_supported_charset("iso-8859-1"), "8859-1 is supported");
 ok(Unicode::MapUTF8::utf8_supported_charset("iso-8859-1"), "8859-1 is supported still");

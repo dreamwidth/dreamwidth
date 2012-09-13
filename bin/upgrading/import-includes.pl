@@ -19,7 +19,9 @@
 # on disk is newer than the one in the database.
 
 use strict;
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+}
 
 # create list of files to check
 my $dir = "$ENV{'LJHOME'}/htdocs/inc";

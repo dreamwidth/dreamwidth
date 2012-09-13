@@ -3,7 +3,7 @@
 use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::Community;
 use LJ::Test qw (temp_user temp_comm);
 

@@ -21,7 +21,9 @@ unless (-d $ENV{'LJHOME'}) {
     die "\$LJHOME not set.\n";
 }
 
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+}
 
 unless ( LJ::is_enabled('ljmaint_tasks') ) {
     print "ljmaint.pl tasks disabled, exiting\n";
