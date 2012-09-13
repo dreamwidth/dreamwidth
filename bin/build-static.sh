@@ -59,8 +59,13 @@ do
             synced_file="$sync_to/$modified_file"
             if [[ -f "$synced_file" ]]; then
 
-                mkdir -p "$final/$dir"
+                # remove the old one so that we don't have a stale version
+                # in case minifying fails for any reason
+                if [[ -f "$final/$modified_file" ]]; then
+                    rm "$final/$modified_file"
+                fi
 
+                mkdir -p "$final/$dir"
                 if [[ "$ext" = "js" || "$ext" = "css" ]]; then
                     java -jar $compressor "$synced_file" -o "$final/$modified_file"
                 else
@@ -79,4 +84,9 @@ do
     done
 done
 
+if [[ -n $compressor ]]; then
+    escaped=$( echo $buildroot/htdocs | sed 's/\//\\\//g' )
+    find $buildroot/htdocs/js $buildroot/htdocs/max/js   | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
+    find $buildroot/htdocs/stc $buildroot/htdocs/max/stc | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
+fi
 
