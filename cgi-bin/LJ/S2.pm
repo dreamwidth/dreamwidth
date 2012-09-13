@@ -1969,9 +1969,13 @@ sub TagDetail
             #  uses of this tag, and add that no of uses to the count.
             # Need to subtract 1 (first bit) from $grpmask to avoid
             #  double-counting protected but unfiltered entries.
-            my @ingroups = LJ::bit_breakdown( $grpmask - 1 );
-            $count += ( sort {$b<=>$a}
-                @{$tag->{security}->{groups}}{@ingroups} )[0];
+            my $maxgroupsize = 0;
+            foreach ( LJ::bit_breakdown ( $grpmask ) ) {
+                $maxgroupsize = $tag->{security}->{groups}->{$_}
+                    if $tag->{security}->{groups}->{$_} 
+                    && $tag->{security}->{groups}->{$_} > $maxgroupsize;
+            }
+            $count += $maxgroupsize;
         }
 
     } else {        #logged out.
