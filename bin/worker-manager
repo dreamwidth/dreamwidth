@@ -13,6 +13,9 @@ use strict;
 use POSIX qw/ :sys_wait_h /;
 use YAML;
 
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Directories;
+
 # daemonize ourselves unless debugging
 my $debug = $ARGV[0] eq '--debug' ? 1 : 0;
 daemonize() unless $debug;
@@ -21,8 +24,9 @@ daemonize() unless $debug;
 use sigtrap handler => \&terminate, qw/ INT ABRT QUIT TERM /;
 
 # now get config
-my $want = load_config()
-    or die "no jobs configured in $ENV{LJHOME}/etc/workers.conf\n";
+my $config_file;
+my $want = load_config( \$config_file )
+    or die $config_file ? "no jobs configured in $config_file\n" : "could not find an etc/workers.conf file";
 
 # main loop is pretty simple, reap and spawn
 my ( %have, %kids );
@@ -38,8 +42,10 @@ while (1) {
 
 sub load_config {
     print "load_config()\n" if $debug;
+    my $config_file_ref = $_[0];
 
-    my $fn = "$ENV{LJHOME}/etc/workers.conf";
+    my $fn = LJ::resolve_file( "etc/workers.conf" );
+    $$config_file_ref = $fn;
     return unless -e $fn;
 
     my $conf = YAML::LoadFile( $fn )
