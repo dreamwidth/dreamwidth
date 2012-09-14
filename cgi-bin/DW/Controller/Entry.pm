@@ -57,7 +57,7 @@ Handlers for creating and editing entries
 =cut
 
 DW::Routing->register_string( '/entry/new', \&new_handler, app => 1 );
-DW::Routing->register_regex( '/entry/([^/]+)/new', \&new_handler, app => 1 );
+DW::Routing->register_regex( '^/entry/([^/]+)/new$', \&new_handler, app => 1 );
 
 DW::Routing->register_string( '/entry/preview', \&preview_handler, app => 1, methods => { POST => 1 } );
 
