@@ -295,7 +295,7 @@ set color_navlinks_current = "#1693a5";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "strata/certainfrogs.png";
+set image_background_page_url = "commons/certainfrogs.png";
 
 
 #NEWLAYER: strata/chinesepink
@@ -375,7 +375,7 @@ set color_navlinks_current = "#5f3c30";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "strata/chinesepink.png";
+set image_background_page_url = "commons/chinesepink.png";
 
 
 #NEWLAYER: strata/chrome
@@ -566,7 +566,7 @@ set color_navlinks_current = "#749891";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "strata/dependable.png";
+set image_background_page_url = "commons/dependable.png";
 
 
 #NEWLAYER: strata/dune
@@ -717,7 +717,7 @@ set color_navlinks_current = "#e6ac27";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "strata/elegantbrown.png";
+set image_background_page_url = "commons/elegantbrown.png";
 
 
 #NEWLAYER: strata/greentomatoes
@@ -1449,7 +1449,7 @@ set color_navlinks_current = "#907360";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "strata/rocket.png";
+set image_background_page_url = "commons/rocket.png";
 
 
 #NEWLAYER: strata/rosegardeni

@@ -117,7 +117,7 @@ set color_calendar_text = "#0f0f0f";
 set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "crisped/argyle.png";
+set image_background_header_url = "commons/argyle.png";
 
 
 #NEWLAYER: crisped/barrenwintertrees
@@ -1372,7 +1372,7 @@ set color_calendar_text = "#f6f7e8";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "crisped/elegantbrown.png";
+set image_background_page_url = "commons/elegantbrown.png";
 
 
 #NEWLAYER: crisped/eggplanted

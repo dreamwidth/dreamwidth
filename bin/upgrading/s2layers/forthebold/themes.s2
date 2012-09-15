@@ -117,7 +117,7 @@ set color_module_profile_userpic_border = "#ade15c";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "forthebold/certainfrogs.png ";
+set image_background_page_url = "commons/certainfrogs.png ";
 
 
 #NEWLAYER: forthebold/fantasticcyan

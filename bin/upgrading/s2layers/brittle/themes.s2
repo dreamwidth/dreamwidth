@@ -45,7 +45,7 @@ set color_navigation_module_link_visited = "#253136";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/argyle.png";
+set image_background_page_url = "commons/argyle.png";
 
 
 #NEWLAYER: brittle/badfairy
@@ -240,7 +240,7 @@ set font_other_module_text_size = ".9";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/bluedays.png";
+set image_background_page_url = "commons/bluedays.png";
 
 function Page::print_theme_stylesheet() {
     """
@@ -536,7 +536,7 @@ set color_navigation_module_link_visited = "#0F6671";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/certainfrogs.png";
+set image_background_page_url = "commons/certainfrogs.png";
 
 
 #NEWLAYER: brittle/chinesepink
@@ -586,7 +586,7 @@ set color_navigation_module_link_visited = "#7D4D3F";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/chinesepink.png";
+set image_background_page_url = "commons/chinesepink.png";
 
 
 #NEWLAYER: brittle/circus
@@ -1083,7 +1083,7 @@ set color_navigation_module_link_visited = "#80bca3";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/elegantbrown.png";
+set image_background_page_url = "commons/elegantbrown.png";
 
 function Page::print_theme_stylesheet() {
     """
