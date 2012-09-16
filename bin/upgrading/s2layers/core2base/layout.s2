@@ -457,7 +457,6 @@ h2#pagetitle {
 }
 
 .navigation ul {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -519,7 +518,6 @@ h2#pagetitle {
 
 .tag ul {
     display: inline;
-    list-style: none;
     margin-left: .5em;
     padding-left: 0;
 }
@@ -529,7 +527,6 @@ h2#pagetitle {
 } /* same for month view */
 
 ul.entry-management-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -539,7 +536,6 @@ ul.entry-management-links li {
 }
 
 ul.entry-interaction-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     text-align: right;
@@ -574,7 +570,6 @@ ul.entry-interaction-links li {
 }
 
 ul.comment-management-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     text-align: right;
@@ -585,7 +580,6 @@ ul.comment-management-links li {
 }
 
 ul.comment-interaction-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -637,7 +631,6 @@ table.month td p {
 /* icons */
 
 .sorting-options ul {
-    list-style: none;
     margin-left: 0;
 }
 
@@ -647,7 +640,6 @@ table.month td p {
 
 .icon-keywords ul {
     display: inline;
-    list-style: none;
     margin-left: .5em;
     padding-left: 0;
 }
@@ -688,7 +680,6 @@ table.month td p {
 }
 
 ul.userlite-interaction-links.icon-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -748,8 +739,7 @@ ul.userlite-interaction-links.text-links {
     margin-right: 0.5em;
 }
 
-.tags_cloud li, .module-tags_cloud li { display: inline;
-    list-style-type: none; }
+.tags_cloud li, .module-tags_cloud li { display: inline; }
 
 .module-syndicate .module-content {
     text-align: center;

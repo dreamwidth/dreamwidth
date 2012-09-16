@@ -185,7 +185,6 @@ function print_stylesheet() {
 
             .module-navlinks ul {
                 background: $*color_navigation_module_background;
-                list-style: none;
                 margin: 0;
                 padding-left: 1em;
                 }

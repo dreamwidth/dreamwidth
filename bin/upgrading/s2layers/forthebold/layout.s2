@@ -183,14 +183,12 @@ blockquote {
     }
 
 ul {
-    list-style-position: inside;
-    list-style-type: circle;
+    list-style: circle inside;
     margin: 5px 0 5px 15px;
     }
 
 ol {
-    list-style-position: inside;
-    list-style-type: decimal;
+    list-style: decimal inside;
     margin: 5px 0 5px 35px;
     }
 
@@ -694,13 +692,11 @@ ul.userlite-interaction-links.icon-links li {
 
 .module-navlinks {
     font-size: $*font_module_heading_size$*font_module_heading_units;
-    list-style: none;
     text-transform: uppercase;
     text-align: right;
     }
 
 .module-navlinks .module-list {
-    list-style: none;
     margin: 0;
     }
 

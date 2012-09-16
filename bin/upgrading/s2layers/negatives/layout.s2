@@ -432,7 +432,6 @@ function Page::print_default_stylesheet()
 
     .module-tags_cloud li, .tags_cloud li {
         display: inline;
-        list-style-type: none;
     }
 
     .search-box {
@@ -632,7 +631,6 @@ function Page::print_default_stylesheet()
 
     .sorting-options ul li {
         display: inline;
-        list-style: none;
         }
 
     .icons-container .icon {
@@ -667,7 +665,6 @@ function Page::print_default_stylesheet()
 
     .icon-keywords ul li {
         display: inline;
-        list-style: none;
         }
 
     .module-section-two .module,
@@ -701,7 +698,7 @@ function Page::print_default_stylesheet()
         list-style-position: inside;
     }
     .module-section-one ul { padding-left: 0.3em }
-    .navigation ul { padding-left: 0em; list-style-type: none; }
+    .navigation ul { padding-left: 0em; }
     .navigation li { padding-left: 0.3em; display: inline; }
     .datetime{
         margin-bottom:10px;
