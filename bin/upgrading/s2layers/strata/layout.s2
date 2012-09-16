@@ -433,7 +433,6 @@ table.month td.day-has-entries {
     padding: 0 10px; }
 
 .sorting-options ul {
-    list-style: none;
     margin-left: 0;
 }
 
@@ -443,7 +442,6 @@ table.month td.day-has-entries {
 
 .keywords ul {
     display: inline;
-    list-style: none;
     margin-left: .5em;
     padding-left: 0;
 }
