@@ -525,10 +525,6 @@ h2.module-header a {
     display: inline;
 }
 
-.tags_cloud ul, .module-tags_cloud ul {
-    list-style: none;
-}
-
 .tags_cloud li, .module-tags_cloud li {
     display: inline;
 }
