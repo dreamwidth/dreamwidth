@@ -345,7 +345,6 @@ var string comment_title_font = generate_font_css($*font_comment_title, $*font_b
                 }
 
             .module-navlinks ul {
-                list-style: none;
                 margin: .25em auto;
                 }
 

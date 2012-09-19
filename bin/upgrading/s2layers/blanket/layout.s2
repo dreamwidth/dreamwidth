@@ -380,7 +380,6 @@ input, textarea {
 li.page-back,
 li.page-forward {
     display: inline;
-    list-style: none;
     margin: 0 0 0 .3125em;
     padding: 0;
     }
@@ -397,7 +396,6 @@ li.page-separator {
 
 .navigation li {
     display: inline;
-    list-style: none;
     }
 
 /*--- header texts ---*/
@@ -452,7 +450,6 @@ li.page-separator {
 .module-navlinks ul.module-list li {
     border-right: 1px solid $*color_module_border;
     display: inline;
-    list-style: none;
     margin: 0 1em 0 0;
     padding: 0 .5em 0 0;
     }
@@ -522,7 +519,6 @@ li.page-separator {
 .module-tags_cloud li,
 .tags_cloud li {
     display: inline;
-    list-style-type: none;
     }
 
 #secondary .module-content {
@@ -541,7 +537,6 @@ li.page-separator {
     }
 
 ul.userlite-interaction-links.icon-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     }
@@ -677,6 +672,7 @@ h3.entry-title a {
     }
 
 .metadata ul {
+    list-style: none;
     margin: 0;
     padding: 0;
     }
@@ -686,7 +682,6 @@ h3.entry-title a {
     font-size: .9em;
     font-weight: normal;
     letter-spacing: 0;
-    list-style: none;
     padding: 0;
     text-transform: lowercase;
     }
@@ -719,7 +714,6 @@ h3.entry-title a {
     font-size: .9em;
     font-weight: normal;
     letter-spacing: 0;
-    list-style: none;
     padding: 0;
     text-transform: lowercase;
     }
@@ -735,7 +729,6 @@ ul.entry-management-links li {
     font-size: .9em;
     font-weight: normal;
     letter-spacing: 0;
-    list-style: none;
     padding: 0 5px 0 0;
     text-transform: lowercase;
     }
@@ -753,7 +746,6 @@ ul.entry-interaction-links li {
     font-size: .9em;
     font-weight: normal;
     letter-spacing: 0;
-    list-style: none;
     padding: 0 5px 0 0;
     text-transform: uppercase;
     }
@@ -801,7 +793,6 @@ textarea.textbox {
 
 .comment-management-links ul,
 .comment-interaction-links ul {
-    list-style: none;
     margin: 0;
     padding: 0;
     }
@@ -820,7 +811,6 @@ textarea.textbox {
 li.active {
     $active_month_colors
     display: inline;
-    list-style: none;
     margin: 0;
     padding: 0;
     text-align: center;
@@ -890,12 +880,12 @@ td.day {
     }
 
 .page-tags .tags-container ul {
+    list-style: none;
     margin: 1em;
     padding: 0;
     }
 
 .page-tags .tags-container ul li {
-    list-style: none;
     margin: 0 0 0 1em;
     padding: 0;
     }
@@ -932,7 +922,6 @@ td.day {
 
 .sorting-options ul li {
     display: inline;
-    list-style: none;
     }
 
 .icons-container .icon {
@@ -967,7 +956,6 @@ td.day {
 
 .icon-keywords ul li {
     display: inline;
-    list-style: none;
     padding: 0;
     }
 

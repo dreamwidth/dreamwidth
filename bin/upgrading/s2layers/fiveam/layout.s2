@@ -905,7 +905,7 @@ h3.day-date {
     }
 
 .tags-container ul.ljtaglist {
-    list-style-type: none;
+    list-style: none;
     }
 
 .tags-container .manage-tags-link {
@@ -995,7 +995,7 @@ h3.day-date {
     }
 
 .module-content ul {
-    list-style-type: none;
+    list-style: none;
     padding-left: 0;
     }
 
@@ -1076,7 +1076,7 @@ ul.userlite-interaction-links li {
     }
 
 .module-tags_multilevel li {
-    list-style-type: none;
+    list-style: none;
     margin-left: 0;
     padding-left: 0;
     }

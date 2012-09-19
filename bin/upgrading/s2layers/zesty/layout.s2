@@ -1055,7 +1055,6 @@ h3 {
 
 .module-tags_cloud li, .tags_cloud li {
     display: inline;
-    list-style-type: none;
 }
 
 
@@ -1105,7 +1104,6 @@ h3 {
 
 .icon-keywords ul li {
     display: inline;
-    list-style: none;
     }
 
 /* ReplyPage reply box */

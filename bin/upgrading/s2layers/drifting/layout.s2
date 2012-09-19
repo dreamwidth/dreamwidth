@@ -483,7 +483,6 @@ function Page::print_default_stylesheet()
     }
 
     .navigation ul {
-        list-style: none;
         display: inline;
         padding: 0px;
     }
@@ -635,7 +634,7 @@ function Page::print_default_stylesheet()
 
     .module-tags_cloud li, .tags_cloud li {
         display: inline;
-        list-style-type: none; }
+    }
 
     /* Reply
     ***************************************************************************/
@@ -776,7 +775,6 @@ function Page::print_default_stylesheet()
     .comment-interaction-links,
     .comment-management-links {
         display: inline;
-        list-style: none;
         padding-left: 0px;
     }
 
@@ -1002,8 +1000,6 @@ function Page::print_default_stylesheet()
     }
 
     .icon-keywords ul {
-        display: inline;
-        list-style: none;
         display: inline;
         margin 0;
         padding-left: 5px;

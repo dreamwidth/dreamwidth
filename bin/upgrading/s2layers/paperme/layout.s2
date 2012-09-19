@@ -147,14 +147,6 @@ img, img a {
     border: 0!important;
     }
 
-.navigation ul, .tag ul {
-    list-style-type: none;
-   }
-
-.navigation ul li, .tag ul li{
-    list-style-type:none;
-   }
-
 .tag ul, .tag ul li { display:inline; }
 
 .page-top, .page-top a {
@@ -174,7 +166,7 @@ img, img a {
     }
 
 .module ul {
-    list-style-type: none;
+    list-style: none;
     }
 
 .module a {
@@ -215,7 +207,6 @@ img, img a {
     text-align: center;
     margin-left: 0.5em;
     padding:0;
-    list-style-type:none;
 }
 
 .module-userprofile .userpic {text-align: center;}
@@ -230,7 +221,6 @@ img, img a {
 .module-navlinks .current {font-style: italic; color: $*color_module_text;}
 
 .module-navlinks  ul {
-    list-style: none;
     text-align: left;
     line-height:1.2em;
     }
@@ -283,19 +273,16 @@ img, img a {
     }
 
 .metadata {
-    list-style-type: none;
     font-size: smaller;
     font-weight: bold;
     }
 
 .metadata ul {
-    list-style-type:none;
     margin: 0px;
     padding: 0px;
     }
 
 .tag {text-align:left;
-    list-style-type: none;
     font-weight: bold;
     padding-bottom: 1em;
     text-transform: none;
@@ -332,7 +319,6 @@ img, img a {
 .entry-management-links, .entry-management-links a,.entry-interaction-links, .entry-interaction-links a {
     padding: 0.5em 0.5em 0.5em 0;
     margin-top: 2em;
-    list-style: none;
     display: inline;
     text-align: left;
     }
@@ -342,13 +328,11 @@ img, img a {
     }
 
 .entry-management-links ul, .entry-interaction-links ul {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     }
 
 .entry-management-links li, .entry-interaction-links li {
-    list-style: none;
     display: inline;
     }
 

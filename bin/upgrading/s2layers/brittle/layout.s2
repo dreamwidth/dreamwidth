@@ -462,7 +462,6 @@ q { font-style: italic; }
 
 li.page-back, li.page-forward {
     display: inline;
-    list-style: none;
     padding: 0;
     margin: 0;
     }
@@ -548,12 +547,12 @@ h3.entry-title a { color: $*color_entry_title; }
 .metadata.top-metadata { margin: 10px 0 1.25em 0; }
 
 .metadata ul {
+    list-style: none;
     padding: 0;
     margin: 0;
     }
 
 .metadata ul li {
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -575,7 +574,6 @@ h3.entry-title a { color: $*color_entry_title; }
 
 .tag ul li {
     display: inline;
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -591,7 +589,6 @@ ul.entry-management-links {
 
 ul.entry-management-links li {
     display: inline;
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -608,7 +605,6 @@ ul.entry-interaction-links {
 
 ul.entry-interaction-links li {
     display: inline;
-    list-style: none;
     font-size: 65%;
     font-weight: normal;
     text-transform: uppercase;
@@ -621,7 +617,6 @@ ul.entry-interaction-links li {
 /*-- archive --*/
 
 li.active {
-    list-style: none;
     display: inline;
     padding: 0;
     margin: 10px;
@@ -657,7 +652,7 @@ li.active {
     }
 
 .navigation ul { display: inline; }
-.navigation li { display: inline; list-style: none; }
+.navigation li { display: inline; }
 
 table.month { border: 0; }
 .month caption { display: none; }
@@ -716,13 +711,12 @@ td.day {
     color: $*color_entry_title;
     }
 
-.page-tags .ljtaglist { margin: 0; padding: 0; }
+.page-tags .ljtaglist { list-style: none; margin: 0; padding: 0; }
 .page-tags .ljtaglist li {
     padding: 0 0 0 10px;
     margin: 0;
     text-transform: lowercase;
     letter-spacing: 0;
-    list-style: none;
     }
 
 .page-tags .tags-container a {
@@ -780,7 +774,6 @@ td.day {
 
 .sorting-options ul li {
     display: inline;
-    list-style: none;
     margin: 0;
     }
 
@@ -816,7 +809,6 @@ td.day {
 
 .icon-keywords ul li {
     display: inline;
-    list-style: none;
     padding: 0;
     }
 
@@ -901,7 +893,7 @@ textarea.textbox  { width: 90%!important; }
     color: $*color_entry_link_hover;
     }
 
-.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; }
 .comment-management-links li, .comment-interaction-links li { display: inline; }
 
 #qrform table { border: 0!important; }
@@ -912,7 +904,7 @@ textarea.textbox  { width: 90%!important; }
     color: $*color_entry_title;
     }
 
-.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; }
 .comment-management-links li, .comment-interaction-links li { display: inline; }
 
 table.talkform {
@@ -967,14 +959,13 @@ table.talkform a:hover {
     }
 
 .module-navlinks ul.module-list {
+    list-style: none;
     padding: 0;
     margin: 0;
-    list-style: none;
     }
 .module-navlinks ul.module-list li {
     padding: 0;
     margin: 0;
-    list-style: none;
     }
 .module-navlinks ul.module-list li a, .module-navlinks ul.module-list li a:link { color: $*color_navigation_module_link; }
 .module-navlinks ul.module-list li a:visited { color: $*color_navigation_module_link_visited; }
@@ -1014,9 +1005,6 @@ table.talkform a:hover {
 .module-userprofile .userpic img { border:5px solid $*color_navigation_module_background; }
 
 ul.userlite-interaction-links.icon-links {
-    list-style-image: none;
-    list-style-position: outside;
-    list-style-type: none;
     margin-left: 0;
     padding-left: 0;
     text-align: center;
@@ -1029,8 +1017,7 @@ ul.userlite-interaction-links.icon-links li {
 
 .module-tags_cloud, .module-time, .module-powered { width: 90%; }
 
-.tags_cloud li, .module-tags_cloud li { display: inline;
-    list-style-type: none; }
+.tags_cloud li, .module-tags_cloud li { display: inline; }
 
 .manage-link {
     font-size: smaller;
@@ -1052,9 +1039,7 @@ ul.userlite-interaction-links.icon-links li {
 .module-search .search-box { margin: .2em; max-width:100%; }
 
 #tertiary .module-content ul {
-    list-style-image: none;
-    list-style-position: outside;
-    list-style-type: disc;
+    list-style-position: disc outside;
     margin-left: 1em;
     padding-left: 0;
     }
