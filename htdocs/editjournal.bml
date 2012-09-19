@@ -47,11 +47,6 @@ body<=
     my $usejournal = $GET{'usejournal'} || $POST{'usejournal'} || $GET{'journal'};
     undef $usejournal if $usejournal eq $u->{'user'}; # ignore if it's the user
 
-    my $itemid = $GET{itemid} + 0;
-    my $edituser = LJ::canonical_username( $usejournal ) || $u->{user};
-    return BML::redirect( "/entry/$edituser/$itemid/edit" )
-            if ! LJ::did_post() && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
-
     # extra get arguments
     my $getextra = '';
     $getextra .= "authas=$authas&" if $authas ne $u->{'user'};
@@ -188,6 +183,9 @@ body<=
             if (!$disabled_save && ($u->is_readonly || ($usejournal_u && $usejournal_u->is_readonly))) {
                 $disabled_save++;
             }
+
+            return BML::redirect( "/entry/" . $u_for_entry->user . "/$ditemid/edit" )
+                    if ! LJ::did_post() && ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
             ###
             ### SAVE EDITS
