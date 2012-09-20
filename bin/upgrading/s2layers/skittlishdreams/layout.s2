@@ -868,15 +868,15 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 if ( $*use_action_links_images ) {
 """.entry-management-links li a, .comment-management-links li a, .comment-interaction-links .thread a {background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px; }
 
-.entry-management-links .edit_entry a, .comment-management-links .delete_comment a, .comment-management-links .edit_comment a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_edit.png); }
-.entry-management-links .edit_tags a, .comment-interaction-links .parent a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_tag.png); }
-.entry-management-links .mem_add a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_add.png); }
-.entry-management-links .watch_comments a, .comment-management-links .watch_thread a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_track.png); }
-.entry-management-links .link_prev a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_arrow_left.png); }
-.entry-management-links .link_next a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_arrow_right.png); }
-.entry-management-links .tell_friend a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_tell.png);}
-.entry-interaction-links .entry-readlink a, .entry-interaction-links .entry-permalink a { background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_comments.png); }
-.entry-interaction-links li a, .comment-interaction-links li a { background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_comment.png); background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px;  display: inline; }""";
+.entry-management-links .edit_entry a, .comment-management-links .delete_comment a, .comment-management-links .edit_comment a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_edit.png); }
+.entry-management-links .edit_tags a, .comment-interaction-links .parent a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_tag.png); }
+.entry-management-links .mem_add a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_add.png); }
+.entry-management-links .watch_comments a, .comment-management-links .watch_thread a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_track.png); }
+.entry-management-links .link_prev a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_arrow_left.png); }
+.entry-management-links .link_next a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_arrow_right.png); }
+.entry-management-links .tell_friend a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_tell.png);}
+.entry-interaction-links .entry-readlink a, .entry-interaction-links .entry-permalink a { background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_comments.png); }
+.entry-interaction-links li a, .comment-interaction-links li a { background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_comment.png); background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px;  display: inline; }""";
 }
 
 """
