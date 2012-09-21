@@ -4389,13 +4389,13 @@ widget.betafeature.journaljquery.title=New JS on Journals
 widget.betafeature.s2comments.off<<
 <p>Activate the testing version of the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
 
-<p>To report bugs with the new comment and reply pages, <a href="FIXME:new entry url here">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
+<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?></p>.
 .
 
 widget.betafeature.s2comments.on<<
 <p>You are currently testing the the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
 
-<p>To report bugs with the new comment and reply pages, <a href="FIXME:new entry url here">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
+<p>To report bugs with the new comment and reply pages,leave a comment in <?ljuser dw_beta ljuser?></p>.
 .
 
 widget.betafeature.s2comments.title=New S2 Comment Pages
