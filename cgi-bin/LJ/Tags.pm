@@ -1101,7 +1101,8 @@ sub reset_cache {
 # returns: undef on error, else a hashref of { keyword => tagid } for each 
 #   keyword defined 
 # </LJFUNC>
-sub create_usertag { return undef unless LJ::is_enabled('tags');
+sub create_usertag { 
+    return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     my $kw = shift;
@@ -1391,11 +1392,13 @@ sub merge_usertags {
     if ( $exists ) {
         $merge_to_id = $u->get_keyword_id( $newname );
     } else {
-        my $merge_to_ids = LJ::Tags::create_usertag( $u, $newname, { display => 1 } );
-        #FIXME should english-strip this error. Or, better, pass on the error
-        # from create_usertag.
-        return $err->( "Failed to create new tag: " . LJ::ehtml( $newname ) )
-            unless $merge_to_ids;
+        #If there is an error in creating the tag (most likely because there's
+        # a + in it), send that error up the chain.
+        my $error = undef;
+        my $merge_to_ids = LJ::Tags::create_usertag( $u, $newname, 
+            { display => 1, err_ref => \$error } );
+        return $err->( $error ) unless $merge_to_ids;
+
         $merge_to_id = $merge_to_ids->{$newname};
     }
 
