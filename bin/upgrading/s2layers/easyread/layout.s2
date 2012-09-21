@@ -17,6 +17,8 @@ propgroup presentation {
     property use num_items_icons;
     property use use_journalstyle_entry_page;
     property use layout_type;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property use icons_page_sort;
     property use margins_size;
@@ -29,7 +31,6 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
     property use all_entrysubjects;

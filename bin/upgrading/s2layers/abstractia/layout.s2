@@ -17,6 +17,8 @@ propgroup presentation {
     property use num_items_reading;
     property use use_journalstyle_entry_page;
     property use layout_type;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property string sidebar_width {
         des = "Set the percentage width of a single sidebar, without the % symbol.";
@@ -42,7 +44,6 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
 }

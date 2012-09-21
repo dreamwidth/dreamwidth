@@ -1217,8 +1217,35 @@ set sidebar_width_doubled = "";
 
 ##=======================================
 ## Display properties - Presentation
-## Tags page & Icons page
+## Specific pages
 ##=======================================
+
+property string[] reverse_sortorder_group {
+    des = "Display content in reverse-chronological order on:";
+    grouptype = "viewslist";
+}
+set reverse_sortorder_group = [ "reverse_sortorder_year", "reverse_sortorder_month", "reverse_sortorder_day"];
+property bool reverse_sortorder_year {
+    des = "Display months in reverse-chronological order on the archive page";
+    label = "the archive page";
+    grouped = 1;
+}
+property bool reverse_sortorder_month {
+    des = "Display days and entries in reverse-chronological order on the month page";
+    label = "the month page";
+    grouped = 1;
+}
+property bool reverse_sortorder_day {
+    des = "Display entries in reverse-chronological order on the day page";
+    label = "the day page";
+    grouped = 1;
+}
+
+property string reg_firstdayofweek {
+    des = "Day the calendar week starts on";
+    doc_flags = "[construct]";
+    values = "sunday|Sunday|monday|Monday";
+}
 
 property string tags_page_type {
     des = "Type of tags display on the tags page. For the tag module, see the Modules section.";
@@ -1234,9 +1261,13 @@ property string icons_page_sort {
     values="upload|Upload Order|keyword|Keyword Order";
 }
 
+set reverse_sortorder_year = false;
+set reverse_sortorder_month = false;
+set reverse_sortorder_day = false;
+set reg_firstdayofweek = "sunday";
+set tags_page_type = "multi";
 set num_items_icons = 0;
 set icons_page_sort = "upload";
-set tags_page_type = "multi";
 
 ##=======================================
 ## Display properties - Presentation
@@ -1356,14 +1387,6 @@ set comment_interaction_links = "text";
 set all_entrysubjects = true;
 set all_commentsubjects = false;
 
-property string reg_firstdayofweek {
-    des = "Day the calendar week starts on";
-    doc = "The day of the week the calendar weeks starts on.  Either 'sunday' or 'monday'. Not currently implemented";
-    doc_flags = "[construct]";
-    values = "sunday|Sunday|monday|Monday";
-}
-set reg_firstdayofweek = "sunday";
-
 ##=======================================
 ## Display properties - Presentation
 ## Misc. options - not exposed
@@ -1397,22 +1420,7 @@ set module_tags_opts_count_type = "";
 ## Misc. options - not implemented
 ##=======================================
 
-property string[] reverse_sortorder_group {
-    des = "Display entries in reverse-chronological order on my:";
-    grouptype = "viewslist";
-}
-set reverse_sortorder_group = [ "reverse_sortorder_day", "reverse_sortorder_year" ];
 property bool reverse_sortorder_recent    { des = "Display entries in reverse-chronological order on my recent entries page"; }
-property bool reverse_sortorder_day {
-    des = "Display entries in reverse-chronological order on my day page";
-    label = "Day Page";
-    grouped = 1;
-}
-property bool reverse_sortorder_year {
-    des = "Display entries in reverse-chronological order on my year archive";
-    label = "Year Archive";
-    grouped = 1;
-}
 property bool reverse_sortorder_reading   { des = "Display entries in reverse-chronological order on my reading page"; }
 
 property string[] show_userpics_group {
@@ -1442,8 +1450,6 @@ property bool show_userpics_comments {
 }
 
 set reverse_sortorder_recent = true;
-set reverse_sortorder_day = false;
-set reverse_sortorder_year = false;
 set reverse_sortorder_reading = true;
 
 set show_userpics_recent = true;
@@ -5466,6 +5472,7 @@ function Comment::edittime_display (string datefmt, string timefmt) : string {
 ### Year view
 
 function YearPage::print_body {
+var YearMonth[] months = $*reverse_sortorder_year ? reverse $.months : $.months;
     """
     <div id="archive-year">
         <div class="inner">
@@ -5475,7 +5482,7 @@ function YearPage::print_body {
             <div class="year">
                 <div class="inner">
                     """;
-                    foreach var YearMonth m ($.months) {
+                    foreach var YearMonth m ($months) {
                         $this->print_month($m);
                     }
                     """
@@ -5597,6 +5604,7 @@ function MonthPage::view_title : string {
 }
 
 function MonthPage::print_body {
+var MonthDay[] days = $*reverse_sortorder_month ? reverse $.days : $.days;
     """
     <div id="archive-month">
         <div class="inner">
@@ -5609,7 +5617,7 @@ function MonthPage::print_body {
                     <dl>
                     """;
 
-    foreach var MonthDay d ($.days) {
+    foreach var MonthDay d ($days) {
         if ($d.has_entries) {
             """<dt><a href="$d.url">""";
                 if ($*entry_date_format == "med" or $*entry_date_format == "med_day" or $*entry_date_format == "long" or $*entry_date_format == "long_day") {
@@ -5675,10 +5683,11 @@ function MonthPage::print_navigation( string{} opts ) [fixed] {
 }
 
 function MonthDay::print_subjectlist() {
+var Entry[] entries = $*reverse_sortorder_month ? reverse $.entries : $.entries;
     # Too many tables...
     var Page p = get_page();
 
-    foreach var Entry e ($.entries) {
+    foreach var Entry e ($entries) {
         $e->print_time("none", "");
         $e->print_poster();
         $e->print_metatypes();
@@ -5698,6 +5707,7 @@ function MonthDay::print_subjectlist() {
 ### Day view
 
 function DayPage::print_body() {
+var Entry[] entries = $*reverse_sortorder_day ? reverse $.entries : $.entries;
     """
     <div id="archive-day">
         <div class="inner">
@@ -5711,7 +5721,7 @@ function DayPage::print_body() {
                     """;
                     print "<h3 class='day-date'>" + $.date->date_format($*entry_date_format) + "</h3>";
                     if ($.has_entries) {
-                        foreach var Entry e ($.entries) {
+                        foreach var Entry e ($entries) {
                             $this->print_entry($e);
                         }
                     } else {

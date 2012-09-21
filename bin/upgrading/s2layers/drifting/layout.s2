@@ -30,6 +30,8 @@ propgroup presentation
     property use use_journalstyle_entry_page;
     property use margins_size;
     property use margins_unit;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use icons_page_sort;
     property use userpics_style_group;
     property use userpics_position;
@@ -39,7 +41,6 @@ propgroup presentation
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
     property use all_entrysubjects;
@@ -1237,15 +1238,16 @@ function ReplyPage::print_comment (Comment c)
 
 ## Day Page
 ################################################################################
-function DayPage::print_body()
-{
+function DayPage::print_body() {
+var Entry[] entries = $*reverse_sortorder_day ? reverse $.entries : $.entries;
+
     $this->print_navigation();
 
     println "<h2 class=\"day-title\">" + $.date->date_format("long") + "</h2>";
 
     if ($.has_entries)
     {
-        foreach var Entry e ($.entries)
+        foreach var Entry e ($entries)
         {
             $this->print_entry($e);
         }
@@ -1260,11 +1262,12 @@ function DayPage::print_body()
 
 ## Year Page
 ################################################################################
-function YearPage::print_body
-{
+function YearPage::print_body {
+var YearMonth[] months = $*reverse_sortorder_year ? reverse $.months : $.months;
+
     $this->print_navigation();
 
-    foreach var YearMonth m ($.months)
+    foreach var YearMonth m ($months)
     {
         $this->print_month($m);
     }
@@ -1299,14 +1302,15 @@ function YearPage::print_month(YearMonth m)
 
 ## Month Page
 ################################################################################
-function MonthPage::print_body
-{
+function MonthPage::print_body {
+var MonthDay[] days = $*reverse_sortorder_month ? reverse $.days : $.days;
+
     $this->print_navigation();
 
     println "<h2 class=\"month-title\">" + $.date->date_format($*lang_fmt_month_long) + "</h2>";
 
     println "<div class=\"month-entries\">";
-        foreach var MonthDay d ($.days)
+        foreach var MonthDay d ($days)
         {
             if ($d.has_entries)
             {
