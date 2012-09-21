@@ -1101,7 +1101,7 @@ sub reset_cache {
 # returns: undef on error, else a hashref of { keyword => tagid } for each 
 #   keyword defined 
 # </LJFUNC>
-sub create_usertag { 
+sub create_usertag {
     return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
