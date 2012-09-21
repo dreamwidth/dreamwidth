@@ -18,6 +18,8 @@ propgroup presentation {
     property use sidebar_width;
     property use sidebar_width_doubled;
 
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property use num_items_icons;
     property use icons_page_sort;
@@ -33,7 +35,6 @@ propgroup presentation {
     property use entry_management_links;
     property use comment_management_links;
 
-    property use reg_firstdayofweek;
 }
 
 set layout_type = "one-column";
