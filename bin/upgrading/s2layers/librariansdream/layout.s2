@@ -9,10 +9,14 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 # loosely inspired by the WordPress theme whose name I have never found
 
 ##===============================
-## Extra Colors
+##  Colors
 ##===============================
 
 propgroup colors_child {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
     property Color color_entry_management_background  { des = "Entry management links background color"; }
     property Color color_module_link_background { des = "Module link background color"; }
     property Color color_module_link_hover_background { des = "Module hovered link background color"; }
@@ -240,13 +244,13 @@ if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
        background:  transparent !important;
        border-left: none !important; }
     .module-navlinks a {
-       color: $*color_page_link !important; }
+       color: $*color_header_link !important; }
     .module-navlinks a:visited {
-       color: $*color_page_link_visited !important; }
+       color: $*color_header_link_visited !important; }
     .module-navlinks a:hover {
-       color: $*color_page_link_hover !important; }
+       color: $*color_header_link_hover !important; }
     .module-navlinks a.current {
-       color: $*color_page_text !important;
+       color: $*color_page_title !important;
        text-decoration: none; }
     .module-navlinks .module-header { display: none !important; }
     """; }
@@ -375,6 +379,8 @@ body {
     padding: .15em 0;
 }
 
+.one-column #header .module-navlinks {width:100%;}
+
 /* entry */
 
 #primary > .inner:first-child { background:  $*color_primary_background; }
@@ -390,8 +396,10 @@ body {
     position: relative;
     border: none; }
 
-.entry .header,
-.comment .header { padding-left: 10px; } /*so datetime et al has some padding */
+.entry .header .datetime,
+.comment .header .datetime { padding:0 10px; } /*so datetime et al has some padding */
+
+.entry .header {padding-left: 10px;}
 
 .entry-title,
 .comment-title {
@@ -418,20 +426,21 @@ $userpic_css
 
 .entry .tag { padding-left: .5em; }
 
-ul.entry-interaction-links,
+.entry ul.text-links,
 .comment-interaction-links {
     padding: 0 .5em .75em;
-    margin: 0; }
+    margin: 0;
+    text-align:right;}
 
-ul.entry-management-links,
-.comment-management-links {
+.entry ul.icon-links,
+.comment .icon-links {
     position: absolute;
     top: 3em;
     left: -30px;
     width: 25px;
 }
-ul.entry-management-links li,
-.comment-management-links li {
+.entry ul.icon-links,
+.comment .icon-links {
     display: block;
     padding: 0 .25em;
 }
@@ -700,13 +709,13 @@ ul.userlite-interaction-links {
     padding-left: 0;
 }
 ul.userlite-interaction-links li {
-    display: block;
-    padding: 0;
+    display: block !important;
+    padding: 0 !important;
 }
 
 .module-powered,
 .module-time,
-.module-tags_cloud .module-content {
+.module-tags_cloud .module-content .module-list{
     background:  $*color_module_background;
     padding: .5em;
 }
@@ -742,7 +751,7 @@ ul.userlite-interaction-links li {
 
 .module-tags_multilevel ul ul a { padding-left: 2em; }
 
-.module-tags_cloud a,
+.module-tags_cloud .module-list-item a,
 .module-tags_cloud .manage-tags-link a {
     display: inline;
     background:  transparent;
@@ -750,7 +759,7 @@ ul.userlite-interaction-links li {
     padding: .25em;
 }
 
-.module-tags_cloud a:hover,
+.module-tags_cloud .module-list-item a:hover,
 .module-tags_cloud .manage-tags-link a:hover {
     background:  transparent;
     border-left: none;

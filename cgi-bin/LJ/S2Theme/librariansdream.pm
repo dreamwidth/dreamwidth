@@ -7,8 +7,14 @@ sub layout_prop { "layout_type" }
 
 sub module_props {
     my $self = shift;
-    my @props = qw( color_module_link_background color_module_link_hover_background color_module_link_border color_module_link_hover_border color_navigation_link color_navigation_link_visited color_navigation_link_active color_navigation_link_hover color_sidebars_background );
+    my @props = qw( color_module_link_background color_module_link_hover_background color_module_link_border color_module_link_hover_border  color_sidebars_background );
     return $self->_append_props( "module_props", @props );
+}
+
+sub navigation_props {
+    my $self = shift;
+    my @props = qw( color_navigation_link color_navigation_link_visited color_navigation_link_active color_navigation_link_hover);
+    return $self->_append_props( "navigation_props", @props );
 }
 
 sub entry_props {
