@@ -852,12 +852,13 @@ sub update_logtags {
 
     # now we can create the new tags, since we know we're safe
     # We still need to propagate ignore_max, as create_usertag does some checks of it's own.
-    # We also need to validate the tag names again, this time to make sure 
-    # that these new tags don't have "+" in them before we create them.
+    # If we're not working from the importer ($opts->{force}) we also need 
+    # to validate the tag names again, this time to make sure 
+    # that these new tags don't have "+" in them.
     foreach ( @to_create ) {
         return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $_ ) } ) )
-            unless LJ::Tags::validate_tag( $_, { disallow_plus => 1 } );
-        LJ::Tags::create_usertag( $u, $_, { display => 1, ignore_max => $opts->{ignore_max} } ); 
+            unless LJ::Tags::validate_tag( $_, { disallow_plus => 1 } ) || $opts->{force};
+        LJ::Tags::create_usertag( $u, $_, { display => 1, ignore_max => $opts->{ignore_max}, allow_plus => $opts->{force} } ); 
     }
 
     # %add and %delete are accurate, but we need to track necessary
@@ -1091,15 +1092,16 @@ sub reset_cache {
 # args: uobj, kw, opts?
 # des-uobj: User object to create tag on.
 # des-kw: Tag string (comma separated list of tags) to create.
-# des-opts: Optional; hashref, possible keys being 'display' and value being whether or
-#           not this tag should be a display tag and 'parenttagid' being the tagid of a
-#           parent tag for hierarchy.  'err_ref' optional key should be a ref to a scalar
-#           where we will store text about errors.  'ignore_max' if set will ignore the
-#           user's max tags limit when creating this tag.
-# returns: undef on error, else a hashref of { keyword => tagid } for each keyword defined
+# des-opts: Optional; hashref, possible keys being 'display' and value being
+#   whether or not this tag should be a display tag and 'parenttagid' being the
+#   tagid of a parent tag for hierarchy.  'err_ref' optional key should be a ref
+#   to a scalar where we will store text about errors.  'ignore_max' if set will
+#   ignore the user's max tags limit when creating this tag. 'allow_plus' if set
+#   will allow + signs in the new tags. This is needed for the importer.  
+# returns: undef on error, else a hashref of { keyword => tagid } for each 
+#   keyword defined 
 # </LJFUNC>
-sub create_usertag {
-    return undef unless LJ::is_enabled('tags');
+sub create_usertag { return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     my $kw = shift;
@@ -1116,7 +1118,8 @@ sub create_usertag {
 
     my $tags = [];
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $kw ) } ) )
-        unless LJ::Tags::is_valid_tagstring($kw, $tags, { disallow_plus => 1 });
+        unless LJ::Tags::is_valid_tagstring($kw, $tags, 
+            { disallow_plus => !$opts->{allow_plus} });
 
     # check to ensure we don't exceed the max of tags
     my $max = $opts->{ignore_max} ? 0 : $u->count_tags_max;
