@@ -222,15 +222,13 @@ blockquote {
     }
 
 ul {
-    list-style: square;
-    list-style-position: inside;
+    list-style: square inside;
     margin: .2em 0 0 2.5em;
     }
 
 ol {
+    list-style: decimal inside;
     margin: .2em 0 0 2.5em;
-    list-style: decimal;
-    list-style-position: inside;
     }
 
 /*--- Main Containers ---*/
@@ -377,18 +375,9 @@ ul.module-list {
     list-style: none;
     }
 
-ul.module-list li {
-    padding: 0 0 0 5px;
-    list-style: none;
-    }
-
-ul.module-list-item {
-    list-style: none;
-    }
-
+ul.module-list li ,
 ul.module-list-item li {
     padding: 0 0 0 5px;
-    list-style: none;
     }
 
 .module-content .userpic {
@@ -423,7 +412,7 @@ ul.userlite-interaction-links.icon-links li {
 
 ul.userlite-interaction-links.text-links {
     padding: 0 0 0 5px;
-    list-style: none;;
+    list-style: none;
     }
 
 .module-navlinks {

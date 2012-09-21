@@ -724,7 +724,6 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .module-section-one li {
     display: inline;
     line-height: 2.2em;
-    list-style: none;
     }
 
 .module-section-one li a {text-decoration: none; padding-top: 0.5em; padding-right: 20px; padding-bottom: 0.5em; padding-left: 20px; $header_colors }
@@ -732,13 +731,13 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .module-section-two a { $module_link_colors }
 .module-section-two .module-header a {text-decoration: none; }
 .module-section-two h2 {margin: 0; margin-bottom: 7px; padding: 0.2em; $module_title_colors }
-.module-section-two ul {list-style-type: none; margin-left: 0.5em; padding: 0; }
-.module-section-two ul ul {list-style-type: none; margin-left: 0.5em; padding: 0.5em; }
+.module-section-two ul {list-style: none; margin-left: 0.5em; padding: 0; }
+.module-section-two ul ul { margin-left: 0.5em; padding: 0.5em; }
 .module-userprofile .userpic img {border: none; margin: 20px; }
 .module-userprofile .userpic {text-align: center; }
 .module-userprofile ul {margin: 0px; padding: 0px; text-align: center; margin-top: 5px; }
 .module-userprofile p {margin-top: 0px; margin-bottom: 0px; }
-.module-userprofile li {display: inline; padding: 5px; list-style: none; }
+.module-userprofile li {display: inline; padding: 5px; }
 .module-calendar .module-content {text-align: center; }
 .module-calendar table {margin-left: auto; margin-right: auto; }
 
@@ -852,17 +851,16 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 .tag {font-weight: bold; text-align: left; }
 .tag a {font-weight: normal; }
 .tag ul {display: inline; margin: 0; padding: 0; }
-.tag li {display: inline; list-style: none; padding: 0px; }
+.tag li {display: inline; padding: 0px; }
 *+html .tag li {padding: 0 5px; }
 
 .entry .metadata.top-metadata { padding-top: 10px; }
-.entry .metadata ul {margin: 0px; padding: 0px; }
-.entry .metadata li {list-style: none; }
+.entry .metadata ul {list-style: none; margin: 0px; padding: 0px; }
 .entry .footer .inner, .comment .footer .inner {text-align: right; }
 .entry .footer a {white-space: nowrap; }
 
 .entry-management-links, .entry-interaction-links, .comment-management-links, .comment-interaction-links {text-align: right; margin: 0; padding: 0; display: inline; }
-.entry-management-links li, .entry-interaction-links li,  .comment-management-links li, .comment-interaction-links li {display: inline; list-style: none; margin: 0; padding: 5px; }
+.entry-management-links li, .entry-interaction-links li,  .comment-management-links li, .comment-interaction-links li {display: inline; margin: 0; padding: 5px; }
 .comment-management-links li.unscreen_comment a, .comment-management-links li.screen_comment a, .comment-management-links li.freeze_thread a { padding-left: 0; }""";
 
 if ( $*use_action_links_images ) {
@@ -915,7 +913,7 @@ if ( $*use_action_links_images ) {
     text-align: right;
     }
 
-.module-tags_cloud li, .tags_cloud li { display: inline; list-style-type: none; }
+.module-tags_cloud li, .tags_cloud li { display: inline; }
 
 .hfeed .navigation, #archive-year .navigation,  #archive-month .navigation, #archive-day .navigation  {height:61px; margin-bottom:-20px; }
 .two-columns-right .hfeed .navigation,
@@ -1029,7 +1027,6 @@ if ( $*use_action_links_images ) {
 /*--- Icons Page ---*/
 
 .sorting-options ul {
-    list-style: none;
     padding-left: 0;
     text-align: center;
     }
@@ -1064,7 +1061,6 @@ if ( $*use_action_links_images ) {
 
 .icon-keywords ul {
     display: inline;
-    list-style: none;
     margin: 0;
     padding: 0;
     }

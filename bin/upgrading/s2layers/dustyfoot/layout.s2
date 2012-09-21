@@ -397,7 +397,6 @@ h2#pagetitle {
 
 #header .module-navlinks li {
     display: inline;
-    list-style: none;
     padding: 10px;
     }
 
@@ -598,7 +597,6 @@ h2#pagetitle {
 .footer li,
 .entry .metadata li,
 .tag li {
-    list-style: none;
     margin-left: 0 !important;
     }
 
@@ -835,7 +833,7 @@ h2#pagetitle {
 
 .module-section-one ul,
 .module-section-two ul {
-    list-style-type: none;
+    list-style: none;
     margin: 0;
     }
 

@@ -14,7 +14,9 @@
 # part of this distribution.
 
 use strict;
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+}
 
 my $dbh = LJ::get_db_writer();
 

@@ -176,14 +176,12 @@ blockquote {
     }
 
 ul {
-    list-style-position: inside;
-    list-style-type: square;
+    list-style: square inside;
     margin: 5px 0 5px 15px;
     }
 
 ol {
-    list-style-position: inside;
-    list-style-type: decimal;
+    list-style: decimal inside;
     margin: 5px 0 5px 15px;
     }
 

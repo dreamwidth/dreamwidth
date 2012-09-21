@@ -309,9 +309,9 @@ class Tag
 class TagDetail extends Tag
 "A rich structure with lots of information about a Tag."
 {
-    var readonly int use_count "Count of how many times this tag has been used.";
-    var readonly string visibility "The visibility level for this tag.  Based on the entries it's used on.  Can be one of: public, private, friends, group.";
-    var readonly int{} security_counts "How many times this tag has used this security.  The keys are which security, one of: public, private, friends, group.  The value is the count of times the tag is used on entries with that security level.";
+    var readonly int use_count "Count of approximately how many times this tag has been used in posts that the viewer has access to.";
+    var readonly string visibility "The visibility level for this tag. Equal to the least restrictive security level that it's used on.  Can be one of: public, protected, private, group.";
+    var readonly int{} security_counts "How many times this tag has used this security.  The keys are which security, one of: public, protected, private, group. The value is the count of times the tag is used on entries with that security level. If the current user does not have access to that security level, the value is undefined. The group level is only available if the current user is the journal owner.";
 }
 
 class EntryLite
@@ -1315,9 +1315,19 @@ property string entry_management_links {
     des = "Select whether entry management links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
 }
+property string entry_interaction_links {
+    des = "Select whether entry interaction links are printed as text or using the available icons";
+    values = "icons|icons|text|text-only|";
+    noui = 1; # FIXME: no icons made yet
+}
 property string comment_management_links {
     des = "Select whether comment management links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
+}
+property string comment_interaction_links {
+    des = "Select whether comment interaction links are printed as text or using the available icons";
+    value = "icons|icons|text|text-only|";
+    noui = 1; # FIXME: no icons made yet
 }
 
 property bool all_entrysubjects {
@@ -1340,7 +1350,9 @@ set userpics_position = "left";
 set entry_metadata_position = "bottom";
 set userlite_interaction_links = "icons";
 set entry_management_links = "icons";
+set entry_interaction_links = "text";
 set comment_management_links = "icons";
+set comment_interaction_links = "text";
 set all_entrysubjects = true;
 set all_commentsubjects = false;
 
@@ -3384,10 +3396,6 @@ function UserLite::print_interaction_links()
 {
 
     var string display_type = ($*userlite_interaction_links == "text") ? " text-links" : " icon-links";
-
-    """<ul class="userlite-interaction-links$display_type">""";
-    # FIXME: HTML is not valid if there are no items inside a list, so there should be a
-    # check that there are user interaction links before opening the ul class.
     var Link link;
     var int count;
     $count = 0;
@@ -3395,6 +3403,9 @@ function UserLite::print_interaction_links()
         $link = $this->get_link($k);
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="userlite-interaction-links$display_type">""";
+            }
             if ($*userlite_interaction_links == "text") {
                 """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
             }
@@ -3403,7 +3414,9 @@ function UserLite::print_interaction_links()
             }
         }
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 
 function Friend::print() {
@@ -4997,10 +5010,6 @@ function Comment::print_management_links()
 {
 
     var string display_type = ($*comment_management_links == "text") ? " text-links" : " icon-links";
-
-    # FIXME: HTML is not valid if there are no items inside a list, so there should
-    # be a check that there are comment management links before opening the ul class.
-    """<ul class="comment-management-links$display_type">""";
     var Link link;
     var int count;
     var string extras;
@@ -5009,6 +5018,9 @@ function Comment::print_management_links()
         $link = $this->get_link($k);
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="comment-management-links$display_type">""";
+            }
             if ($*comment_management_links == "text") {
                 foreach var string extra ( $link.extra ) {
                     var string value = $link.extra{$extra};
@@ -5021,14 +5033,18 @@ function Comment::print_management_links()
             }
         }
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 
 function EntryLite::print_interaction_links() {}
 function Comment::print_interaction_links()
 "Prints comment interaction links, aka reply/thread/parent/expand."
 {
-    """<ul class="comment-interaction-links">""";
+    var string display_type = ($*comment_interaction_links == "text") ? " text-links" : " icon-links";
+
+    """<ul class="comment-interaction-links$display_type">""";
     print safe """<li class="link commentpermalink"><a href="$this.permalink_url">$*text_comment_link</a></li>\n""";
     if ($this.frozen) {
         print safe """<li class="frozen first-item">$*text_comment_frozen</li>\n""";
@@ -5098,10 +5114,12 @@ function Entry::print_management_links()
     var int count;
     var string extras;
     $count = 0;
-    """<ul class="entry-management-links$display_type">""";
     var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
     if ($show_interentry) {
         $count ++;
+        if ($count == 1) {
+            """<ul class="entry-management-links$display_type">""";
+        }
         """<li class="link link_prev first-item">""";
         $this->print_link_prev();
         """</li>\n""";
@@ -5111,6 +5129,9 @@ function Entry::print_management_links()
         $link = $this->get_link($k);
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="entry-management-links$display_type">""";
+            }
             if ($*entry_management_links == "text") {
                 foreach var string extra ( $link.extra ) {
                     var string value = $link.extra{$extra};
@@ -5124,11 +5145,17 @@ function Entry::print_management_links()
         }
     }
     if ($show_interentry) {
+        $count ++;
+        if ($count == 1) {
+            """<ul class="entry-management-links$display_type">""";
+        }
         """<li class="link link_next">""";
         $this->print_link_next();
         """</li>\n""";
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 function Entry::print_interaction_links() {
     $this->print_interaction_links( "" );
@@ -5137,29 +5164,38 @@ function Entry::print_interaction_links() {
 function Entry::print_interaction_links(string target)
 "Prints entry interaction links, aka # comments/leave a comment, with standardized CSS."
 {
+    var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
+
     var Page p = get_page();
     var int count;
     $count = 0;
-        if ($p isa EntryPage) {
-        """<ul class="entry-interaction-links">""";
-            var EntryPage ep = $p as EntryPage;
+    if ($p isa EntryPage) {
+        var EntryPage ep = $p as EntryPage;
         if ($.comments.enabled and $ep.comment_pages.total_subitems > 0) {
             $count ++;
-            """<li class="entry-readlink first-item">""";
-                $this.comments->print_readlink();
-            "</li>\n";
+            if ($count == 1) {
+                """<ul class="entry-interaction-links$display_type">""";
             }
+            """<li class="entry-readlink first-item">""";
+            $this.comments->print_readlink();
+            "</li>\n";
+        }
         if ($.comments.enabled) {
             if ($.comments.maxcomments) {
                 print safe "$*text_max_comments";
             } else {
                 $count ++;
+                if ($count == 1) {
+                    """<ul class="entry-interaction-links$display_type">""";
+                }
                 """<li class="entry-replylink""" + ( $count == 1 ? " first-item" : "" ) + """">""";
                 $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
                 "</li>\n";
             }
         }
-        "</ul>";
+        if ($count > 0) {
+            "</ul>";
+        }
     } else {
             $this.comments->print();
         }
@@ -5184,7 +5220,7 @@ function RecentPage::print_body {
             $this->print_sticky_entry($s);
         }
         else {
-	    $this->print_entry($e);
+            $this->print_entry($e);
         }
     }
 
@@ -5746,19 +5782,20 @@ function CommentInfo::print_postlink() {
     }
 }
 function CommentInfo::print() {
-        """<ul class="entry-interaction-links">\n""";
-        """<li class="entry-permalink first-item"><a href="$.permalink_url">$*text_permalink</a></li>\n""";
-        if ($.show_readlink) {
-            """<li class="entry-readlink">""";
-            $this->print_readlink();
-            "</li>\n";
-        }
-        if ($.show_postlink and $.enabled) {
-            """<li class="entry-replylink">""";
-            $this->print_postlink();
-            "</li>\n";
-        }
-        "</ul>";
+    var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
+    """<ul class="entry-interaction-links$display_type">\n""";
+    """<li class="entry-permalink first-item"><a href="$.permalink_url">$*text_permalink</a></li>\n""";
+    if ($.show_readlink) {
+        """<li class="entry-readlink">""";
+        $this->print_readlink();
+        "</li>\n";
+    }
+    if ($.show_postlink and $.enabled) {
+        """<li class="entry-replylink">""";
+        $this->print_postlink();
+        "</li>\n";
+    }
+    "</ul>";
 }
 
 

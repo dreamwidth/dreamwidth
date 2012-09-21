@@ -604,7 +604,6 @@ $header_modulewrapper
     display: inline; 
     font-variant: small-caps;
     line-height: 1em;
-    list-style: none;
     margin: 0;
     padding: 0 7.5px 0;
     position: relative;

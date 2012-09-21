@@ -128,15 +128,14 @@ blockquote {
     }
 
 ul {
+    list-style: square inside;
     margin: 5px 0 5px 15px;
-    list-style-position: inside;
-    list-style-type: square;
+
     }
 
 ol {
+    list-style: decimal inside;
     margin: 5px 0 5px 15px;
-    list-style-position: inside;
-    list-style-type: decimal;
     }
 
 .poster {
@@ -700,8 +699,7 @@ h2.module-header a {
     padding: 15px;
     }
 
-ul.module-list,
-ul.module-list-item {
+ul.module-list {
     list-style: none;
     }
 
