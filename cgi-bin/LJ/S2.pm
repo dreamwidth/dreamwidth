@@ -1285,6 +1285,7 @@ sub populate_system_props
     $ctx->[S2::PROPS]->{'SITENAMESHORT'} = $LJ::SITENAMESHORT;
     $ctx->[S2::PROPS]->{'SITENAMEABBREV'} = $LJ::SITENAMEABBREV;
     $ctx->[S2::PROPS]->{'IMGDIR'} = $LJ::IMGPREFIX;
+    $ctx->[S2::PROPS]->{'STYLES_IMGDIR'} = $LJ::IMGPREFIX . "/styles";
     $ctx->[S2::PROPS]->{'STATDIR'} = $LJ::STATPREFIX;
 }
 

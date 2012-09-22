@@ -514,7 +514,7 @@ h2#pagetitle {
 .entry-management-links.text-links li a,
 .comment-management-links.text-links li a,
 .comment-interaction-links.text-links .thread a {
-    background-image: url($*STATDIR/transmogrified/permalink.gif);
+    background-image: url($*STYLES_IMGDIR/transmogrified/permalink.gif);
     background-repeat: no-repeat;
     background-position: 0% 50%;
     padding-left: 14px;
@@ -523,32 +523,32 @@ h2#pagetitle {
 .entry-management-links.text-links .edit_entry a,
 .comment-management-links.text-links .delete_comment a,
 .comment-management-links.text-links .edit_comment a {
-    background-image: url($*STATDIR/transmogrified/edit.gif);
+    background-image: url($*STYLES_IMGDIR/transmogrified/edit.gif);
     }
 
 .entry-management-links.text-links .edit_tags a,
 .comment-interaction-links .parent a {
-    background-image: url($*STATDIR/transmogrified/tag.gif);
+    background-image: url($*STYLES_IMGDIR/transmogrified/tag.gif);
     }
 
 .entry-management-links.text-links .mem_add a,
 .entry-management-links.text-links .watch_comments a,
 .comment-management-links.text-links .watch_thread a {
-    background-image: url($*STATDIR/transmogrified/memories.gif);
+    background-image: url($*STYLES_IMGDIR/transmogrified/memories.gif);
     }
 
 .entry-management-links.text-links .link_prev a {
-    background-image: url($*STATDIR/transmogrified/previous.gif);
+    background-image: url($*STYLES_IMGDIR/transmogrified/previous.gif);
     }
 
 .entry-management-links.text-links .link_next a {
-    background-image: url($*STATDIR/transmogrified/next.gif);
+    background-image: url($*STYLES_IMGDIR/transmogrified/next.gif);
     }
 
 .entry-interaction-links li a,
 .comment-interaction-links li a,
 .entry-management-links.text-links .tell_friend a {
-    background-image: url($*STATDIR/transmogrified/comment.gif);
+    background-image: url($*STYLES_IMGDIR/transmogrified/comment.gif);
     background-repeat: no-repeat;
     background-position: 0% 50%;
     display: inline;
@@ -556,7 +556,7 @@ h2#pagetitle {
     }
 
 .comment-management-links.text-links .delete_comment a {
-    background-image: url($*STATDIR/transmogrified/delete.gif);
+    background-image: url($*STYLES_IMGDIR/transmogrified/delete.gif);
     }
 
 .text_noentries_day {
