@@ -902,6 +902,10 @@ set color_page_link_active = "#900";
 set color_page_link_hover = "";
 set color_page_link_visited = "#399";
 set color_page_title = "#bbb";
+set color_header_link = "#6cc";
+set color_header_link_active = "#900";
+set color_header_link_hover = "";
+set color_header_link_visited = "#399";
 set color_primary_background = "#161616";
 set color_sidebars_background = "#161616";
 
@@ -959,6 +963,9 @@ set color_page_link = "#399";
 set color_page_link_active = "#900";
 set color_page_link_visited = "#066";
 set color_page_title = "#444";
+set color_header_link = "#399";
+set color_header_link_active = "#900";
+set color_header_link_visited = "#066";
 set color_primary_background = "#eee";
 set color_sidebars_background = "#eee";
 
