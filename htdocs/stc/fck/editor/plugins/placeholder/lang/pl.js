@@ -18,6 +18,6 @@
  */
 FCKLang.PlaceholderBtn			= 'Wstaw/Edytuj nagłówek' ;
 FCKLang.PlaceholderDlgTitle		= 'Właśności nagłóweka' ;
-FCKLang.PlaceholderDlgName		= 'Nazwa nagłóweka ;
+FCKLang.PlaceholderDlgName		= 'Nazwa nagłóweka' ;
 FCKLang.PlaceholderErrNoName	= 'Proszę wprowadzić nazwę nagłówka' ;
 FCKLang.PlaceholderErrNameInUse	= 'Podana nazwa jest już w użyciu' ;
