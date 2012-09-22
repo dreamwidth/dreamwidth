@@ -21,6 +21,8 @@ propgroup presentation {
     property use margins_size;
     property use margins_unit;
 
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property use num_items_icons;
     property use icons_page_sort;
@@ -35,8 +37,6 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-
-    property use reg_firstdayofweek;
 }
 
 set layout_type = "two-columns-right";
@@ -821,8 +821,9 @@ var string raquo = (not $*all_entrysubjects and $e.subject == "" and $.view != "
 
 #######################################
 #Year Page
-function YearPage::print_body()
-{
+function YearPage::print_body() {
+var YearMonth[] months = $*reverse_sortorder_year ? reverse $.months : $.months;
+
     println "<div class=\"entry\">";
 
         "<div class=\"subject\">";
@@ -830,7 +831,7 @@ function YearPage::print_body()
         println "</div>";
 
         println "<center>";
-        foreach var YearMonth m ($.months) {
+        foreach var YearMonth m ($months) {
             $this->print_month($m);
         }
         println "</center>";
@@ -877,10 +878,9 @@ function YearWeek::print() {
     "</tr>";
 }
 
+function MonthPage::print_body {
+var MonthDay[] days = $*reverse_sortorder_month ? reverse $.days : $.days;
 
-
-function MonthPage::print_body
-{
     println "<div class=\"entry\">";
     println "<div class=\"subject\">" + $.date->date_format($*lang_fmt_month_long) + "</div>";
     "<form method='post' action='$.redir.url'><center>";
@@ -900,7 +900,7 @@ function MonthPage::print_body
     }
     if ($.next_url != "") { "\n[<a href='$.next_url'>&gt;&gt;&gt;</a>]\n"; }
     "</center></form>";
-    foreach var MonthDay d ($.days) {
+    foreach var MonthDay d ($days) {
         if ($d.has_entries) {
             println "<div class='subject'>";
             println "<a href=\"$d.url\">" + lang_ordinal($d.day) + " " + $.date->date_format($*lang_fmt_month_long) + "</a></div>";
@@ -912,12 +912,13 @@ function MonthPage::print_body
     println "</div>";
 }
 
-function DayPage::print_body()
-{
+function DayPage::print_body() {
+var Entry[] entries = $*reverse_sortorder_day ? reverse $.entries : $.entries;
+
     if (not $.has_entries) {
         println $*text_noentries_day;
     }
-    foreach var Entry e ($.entries) {
+    foreach var Entry e ($entries) {
         $this->print_entry($e);
     }
 }
