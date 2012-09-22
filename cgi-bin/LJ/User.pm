@@ -9558,7 +9558,10 @@ sub make_journal {
 
         # there are no BML handlers for these views, so force s2
         # FIXME: Temporaray until talkread/talkpost/month views are converted
-        if ( !( { entry => 1, reply => 1, month => 1 }->{$view} ) ) {
+
+    if ( !( {   entry => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+        reply => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+        month => 1 }->{$view} ) ) {
             $fallback = "s2";
         }
 

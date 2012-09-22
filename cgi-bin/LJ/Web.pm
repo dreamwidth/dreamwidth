@@ -1212,6 +1212,7 @@ sub viewing_style_opts {
     my $valid_style_args = {
         style  => { light => 1, site => 1, mine => 1, original => 1 },
         format => { light => 1 },
+        fallback => { s2 => 1, bml => 1 },
     };
 
     my %ret;
