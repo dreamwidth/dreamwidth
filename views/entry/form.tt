@@ -288,11 +288,14 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
             -%]
         </span>
 
-<!--    TODO:
-        <span class="otheractions unimplemented">
-            <input type='submit' name="action:delete" value='Delete' />
+        [% IF action.edit %]
+        <span class="destructive">
+            [%- form.submit( value = dw.ml( '.button.delete' )
+                             name  = "action:delete"
+                             id    = "delete_entry" )
+            -%]
         </span>
--->
+        [% END %]
     </div>
 </form>
 

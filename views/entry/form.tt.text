@@ -3,6 +3,8 @@
 
 .beta.off=You need to enable beta testing to use the new Create Entries page. <a [[aopts]]>Enable beta testing?</a>.
 
+.button.delete=Delete
+
 .button.edit=Save Changes
 
 .button.post=Post Entry

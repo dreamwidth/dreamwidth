@@ -412,6 +412,10 @@ init: function(formData) {
             $(this.form).data("skipchecks", "spellcheck");
         });
 
+        $("#delete_entry").click(function(e) {
+            $(this.form).data("skipchecks", "delete");
+        });
+
         $("#post_options").click(function(e){
             e.preventDefault();
 

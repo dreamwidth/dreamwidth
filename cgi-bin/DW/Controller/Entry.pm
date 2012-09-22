@@ -100,8 +100,8 @@ sub new_handler {
     if ( $r->did_post ) {
         $post = $r->post_args;
 
-        my $mode_preview = $post->{"action:preview"};
-        my $mode_spellcheck = $post->{"action:spellcheck"};
+        my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
+        my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -477,8 +477,9 @@ sub _edit {
         $post->remove( 'usejournal' );
 
 
-        my $mode_preview = $post->{"action:preview"};
-        my $mode_spellcheck = $post->{"action:spellcheck"};
+        my $mode_preview    = $post->{"action:preview"} ? 1 :0;
+        my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
+        my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -511,6 +512,19 @@ sub _edit {
 
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( @error_list ) {
+
+                if ( $mode_delete ) {
+                    $form_req->{event} = "";
+
+                    # now log the event created above
+                    $journal->log_event('delete_entry', {
+                            remote => $remote,
+                            actiontarget => $ditemid,
+                            method => 'web',
+                    });
+
+                }
+
                 my %edit_res = _do_edit(
                         $ditemid,
                         $form_req,
@@ -1014,7 +1028,6 @@ sub _save_editted_entry {
         %$form_req
     };
 
-
     my $err = 0;
     my $res = LJ::Protocol::do_request( "editevent", $req, \$err, {
             noauth => 1,
@@ -1034,7 +1047,7 @@ sub _do_edit {
     my $remote = $auth->{remote};
     my $journal = $auth->{journal};
 
-    my $deleted = 0;
+    my $deleted = $form_req->{event} ? 0 : 1;
 
     # post succeeded, time to do some housecleaning
     _persist_props( $remote, $form_req );
@@ -1057,7 +1070,7 @@ sub _do_edit {
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
     if ( $deleted ) {
-
+        $ret .= LJ::Lang::ml( '/editjournal.bml.success.delete' );
     } else {
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );
 

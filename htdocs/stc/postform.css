@@ -378,9 +378,20 @@ ul.icon-functions li {
   line-height: 1.5em;
 }
 
-.otheractions {
+.destructive {
   line-height: 2em;
   position: absolute;
-  bottom: 0.5em;
+  bottom: 0;
 }
 
+.destructive input {
+  border: 0;
+  background: transparent;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+
+  font-size: 0.9em;
+  text-decoration: underline;
+  margin-right: 2em;
+}
