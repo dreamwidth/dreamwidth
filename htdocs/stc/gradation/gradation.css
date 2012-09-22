@@ -649,14 +649,30 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
     background: transparent !important;
 }
 
-.screened {
+/* S2 TalkPage*/
+.comment .link, .entry .link {color: #e9e9e0;} /*overrides having link color applied to :before and :after elements*/
+
+.screened .header {
     border-bottom: none;
     border-right: none;
     background-image: url("/img/gradation/blackfade_screened.png") !important;
     background-position: top;
     background-repeat: repeat-x;
+    background-color: #333333;
 }
 
+.comment .header {
+    border-bottom: none;
+    border-right: none;
+    background-image: url("/img/gradation/blackfade.png");
+    background-position: top;
+    background-repeat: repeat-x;
+}
+.comment-wrapper-odd .header { background-color: #444444; }
+.comment-wrapper-even .header { background-color: #555555; }
+
+
+/*bml talkpage*/
 .cmtbar {
     border-bottom: none;
     border-right: none;
@@ -664,10 +680,16 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
     background-position: top;
     background-repeat: repeat-x;
 }
+
 td.odd { background-color: #444444; }
 td.even { background-color: #555555; }
-td.screened { background-color: #333333; }
-
+td.screened {
+    border-bottom: none;
+    border-right: none;
+    background-image: url("/img/gradation/blackfade_screened.png") !important;
+    background-position: top;
+    background-repeat: repeat-x;
+    background-color: #333333;}
 
 /* lj_settings.css */
 .section_head, div.username {
@@ -896,4 +918,3 @@ div#cf-edit select {
 #qrformdiv table {
     border: 1px solid #888;
 }
-
