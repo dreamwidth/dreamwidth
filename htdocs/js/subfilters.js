@@ -515,7 +515,7 @@ function cfNewFilter() {
             cfFilters[data.id] = {
                 'id': data.id,
                 'name': data.name,
-                'public': data.public,
+                'public': data["public"],
                 'sortorder': data.sortorder
             };
 
