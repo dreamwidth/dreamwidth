@@ -1112,6 +1112,11 @@ property builtin string IMGDIR {
     doc_flags = "[sys]";
     des = "The base URL of the current Dreamwidth site's image directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/img\".";
 }
+property builtin string STYLES_IMGDIR {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The base URL of the current Dreamwidth site's style image directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/img/styles\".";
+}
 property builtin string STATDIR {
     noui = 1;
     doc_flags = "[sys]";
@@ -3551,10 +3556,10 @@ function FriendsPage::print_stylesheets() {
 }
 
 function generate_image_url ( string image_path ) : string
-"Take an image property and append static diretory path if not given absolute path"
+"Take an image property and append style image directory path if not given absolute path"
 {
     if ( $image_path != "" and not $image_path->starts_with("http://") ) {
-        $image_path = "$*STATDIR/$image_path";
+        $image_path = "$*STYLES_IMGDIR/$image_path";
     }
 
     return $image_path;
