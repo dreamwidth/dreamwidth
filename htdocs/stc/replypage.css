@@ -20,7 +20,7 @@ h3.entry-title, h4.comment-title {
     font-weight: bold;
     margin: 10px 0 1.5em;}
 
-.entry .header, .comment .header {background:none;}
+.entry .header, .comment .header {background:none; border:0;}
 .entry .datetime:before, .comment .datetime:before { content:"@ ";} /*add the talkread-style elements to the date and time*/
 .entry .datetime:after {content:" UTC";}
 .entry .datetime, .comment .datetime {font-style: italic; display:block;}
