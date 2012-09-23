@@ -47,7 +47,7 @@ ul.entry-interaction-links {list-style: none outside none; display: inline; text
 
 /*Comment header and content styling*/
 .comment .userpic {display:table-cell; max-width:100px;}
-.comment-info {display: table-cell; vertical-align: top;}
+.comment-info {display: table-cell; vertical-align: top; padding-left:10px;}
 .poster {display: block;}
 .commentpermalink, .comment .poster-ip  {margin-left:1em;}
 .comment .invisible {position: relative;} /*Gives us top padding for comments with no subject */
