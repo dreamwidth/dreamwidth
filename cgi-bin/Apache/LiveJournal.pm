@@ -672,7 +672,10 @@ sub trans
 
         # if favicon, let filesystem handle it, for now, until
         # we have per-user favicons.
-        return DECLINED if $uuri eq "/favicon.ico";
+        if ( $uuri eq "/favicon.ico" ) {
+            $r->filename( LJ::resolve_file( "htdocs/$uuri" ) );
+            return OK;
+        }
 
         # see if there is a modular handler for this URI
         my $ret = LJ::URI->handle($uuri, $r);
@@ -859,7 +862,11 @@ sub trans
         } elsif ($func eq "journal") {
 
             unless ($uri =~ m!^/(\w{1,25})(/.*)?$!) {
-                return DECLINED if $uri eq "/favicon.ico";
+                if ( $uri eq "/favicon.ico" ) {
+                    $r->filename( LJ::resolve_file( "htdocs/$uri" ) );
+                    return OK;
+                }
+
                 my $redir = LJ::Hooks::run_hook("journal_subdomain_redirect_url",
                                          $host, $uri);
                 return redir($r, $redir) if $redir;
