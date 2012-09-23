@@ -9559,7 +9559,7 @@ sub make_journal {
         # there are no BML handlers for these views, so force s2
         # FIXME: Temporaray until talkread/talkpost/month views are converted
 
-    if ( !( {   entry => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+        if ( !( {   entry => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
         reply => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
         month => 1 }->{$view} ) ) {
             $fallback = "s2";
@@ -9763,7 +9763,10 @@ sub make_journal {
 
         # intercept flag to handle_with_bml_ref and instead use siteviews
         # FIXME: Temporary, till everything is converted.
-        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || { icons => 1, tag => 1 }->{$view} ) ) {
+        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || {
+                entry => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+                reply => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+                icons => 1, tag => 1 }->{$view} ) ) {
             $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
         }
 
