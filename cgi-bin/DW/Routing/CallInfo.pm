@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2012 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -140,7 +140,15 @@ Is SSL request?
 
 =cut
 
-sub ssl { return $_[0]->{role} eq 'ssl' ? 1 : 0; }
+sub ssl { return $_[0]->{ssl} ? 1 : 0; }
+
+=head2 C<< $self->prefer_ssl >>
+
+Should prefer SSL if possible.
+
+=cut
+
+sub prefer_ssl { return $_[0]->{__hash}->{prefer_ssl} || 0; }
 
 =head2 C<< $self->subpatterns >>
 

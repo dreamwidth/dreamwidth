@@ -283,8 +283,6 @@ a:hover {
     padding: 0;
     padding-bottom: 1.65em;
     box-shadow: -.667em .067em .667em $*color_shadow;
-    -khtml-box-shadow: -.667em .067em .667em $*color_shadow;
-    -webkit-box-shadow: -.667em .067em .667em $*color_shadow;
     }
 
 #header .inner {
@@ -305,8 +303,6 @@ h1#title {
     text-transform: uppercase;
     word-spacing: .167em;
     box-shadow: inset -.667em .067em .667em $*color_shadow;
-    -khtml-box-shadow: -.667em .067em .667em $*color_shadow;
-    -webkit-box-shadow: -.667em .067em .667em $*color_shadow;
     }
 
 h2#subtitle,
@@ -485,6 +481,20 @@ h2#pagetitle {
         text-transform: uppercase;
         }
 
+    /* Give a min height to make sure the userpic always sits in the same place */
+    /* Use default H3 size or custom size */
+    .has-userpic.no-subject .entry-title,
+    .has-userpic.no-subject .comment-title {
+        min-height: 1.17em;
+        min-height: $*font_entry_title_size$*font_entry_title_units;
+        }
+
+    /* Give H3 spacing to comment titles */
+    .has-userpic .comment-title {
+        margin: .25em 0;
+        padding: .25em 0;
+        }
+
     .entry-title a,
     .comment-title a {
         $entry_title_colors
@@ -517,8 +527,6 @@ h2#pagetitle {
     border-right: none;
     margin-bottom: 1em;
     box-shadow: .067em .067em .667em $*color_shadow;
-    -khtml-box-shadow: .667em .067em .667em $*color_shadow;
-    -webkit-box-shadow: .667em .067em .667em $*color_shadow;
     }
 
 .no-userpic .contents,
@@ -686,8 +694,6 @@ h2#pagetitle {
         background-color: $*color_entry_userpic_border;
         padding: 10px;
         box-shadow: .067em .067em .2em $*color_shadow;
-        -khtml-box-shadow: .067em .067em .2em $*color_shadow;
-        -webkit-box-shadow: .067em .067em .2em $*color_shadow;
         }
 
 
@@ -793,8 +799,6 @@ $userpic_css
     padding: 0 .5em;
     text-align: right;
     box-shadow: .067em .067em .667em $*color_shadow;
-    -khtml-box-shadow: .067em .067em .667em $*color_shadow;
-    -webkit-box-shadow: .067em .067em .667em $*color_shadow;
     }
 
     .tags-container .manage-tags-link,
@@ -949,8 +953,6 @@ $userpic_css
     $entry_footer_colors
     padding: .5em;
     box-shadow: .067em .067em .667em $*color_shadow;
-    -khtml-box-shadow: .067em .067em .667em $*color_shadow;
-    -webkit-box-shadow: .067em .067em .667em $*color_shadow;
     }
 
     #postform a {
@@ -1053,8 +1055,6 @@ $userpic_css
             background-color: $*color_header_background;
             padding: .7em;
             box-shadow: .067em .067em .2em $*color_shadow;
-            -khtml-box-shadow: .067em .067em .2em $*color_shadow;
-            -webkit-box-shadow: .067em .067em .2em $*color_shadow;
             }
 
     .module-userprofile .userlite-interaction-links li {
@@ -1070,23 +1070,17 @@ $userpic_css
         padding: .3em;
         width: 14.285%;
         border-radius: .2em;
-        -khtml-border-radius: .2em;
-        -webkit-border-radius: .2em;
         }
 
         .module-calendar td.empty-day {
             background-color: $*color_specificmodule_background;
             color: $*color_specificmodule_text;
             box-shadow: .067em .067em .134em $*color_shadow;
-            -khtml-box-shadow: .067em .067em .134em $*color_shadow;
-            -webkit-box-shadow: .067em .067em .134em $*color_shadow;
             }
 
         .module-calendar td.entry-day {
             background-color: $*color_specificmodule_background_alt;
             box-shadow: .067em .067em .134em $*color_shadow_alt;
-            -khtml-box-shadow: .067em .067em .134em $*color_shadow_alt;
-            -webkit-box-shadow: .067em .067em .134em $*color_shadow_alt;
             }
 
             .module-calendar td.entry-day a {
@@ -1149,8 +1143,6 @@ $userpic_css
     border: 0;
     padding: .3em;
     border-radius: .2em;
-    -khtml-border-radius: .2em;
-    -webkit-border-radius: .2em;
     }
 
 .module-search .search-box {
@@ -1158,8 +1150,6 @@ $userpic_css
     color: $*color_specificmodule_text_alt;
     width: 90%;
     box-shadow: .067em .067em .134em $*color_shadow_alt;
-    -khtml-box-shadow: .067em .067em .134em $*color_shadow_alt;
-    -webkit-box-shadow: .067em .067em .134em $*color_shadow_alt;
     }
 
     .one-column .module-search .search-box {
@@ -1175,8 +1165,6 @@ $userpic_css
     color: $*color_specificmodule_text;
     margin-top: .3em;
     box-shadow: .067em .067em .134em $*color_shadow;
-    -khtml-box-shadow: .067em .067em .134em $*color_shadow;
-    -webkit-box-shadow: .067em .067em .134em $*color_shadow;
     }
 
     .one-column .module-search .search-button {

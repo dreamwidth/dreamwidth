@@ -18,7 +18,9 @@
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN {
+    require 'ljlib.pl';
+}
 
 die "\$LJ::USE_TOR_CONFIGS is disabled.\n" unless $LJ::USE_TOR_CONFIGS;
 die "\$LJ::EXTERNAL_IP is not set.\n" unless $LJ::EXTERNAL_IP;

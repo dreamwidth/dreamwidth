@@ -1,0 +1,29 @@
+.month-wrapper table.month td.day span.label {
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;
+    color: #999;
+}
+
+.month-wrapper table.month th { color: #aaa; }
+
+.month-wrapper table.month td, .month-wrapper table.month th { border: 1px solid #999; }
+
+.month .footer a, .tags-container .manage-link a {
+    background-color: #666666;
+    color: white;
+}
+
+.month .footer a:hover, .tags-container .manage-link a:hover { color: #CCCC99; }
+
+.navigation a, .navigation li.active {
+    background-color: #666;
+    color: white;
+}
+
+.navigation li.active {
+    color: white;
+    background-color: #999;
+    border: 1px solid #aaa;
+}
+
+.navigation a:hover { color: #CCCC99; }

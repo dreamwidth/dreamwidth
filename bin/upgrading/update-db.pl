@@ -21,8 +21,9 @@ use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require "ljlib.pl"; }
 use Getopt::Long;
 use File::Path ();
-use File::Basename ();
+use File::Basename qw/ dirname /;
 use File::Copy ();
+use Cwd qw/ abs_path /;
 use Image::Size ();
 use LJ::S2;
 use MogileFS::Admin;
@@ -149,8 +150,12 @@ CLUSTER: foreach my $cluster (@clusters) {
         return 1;
     };
 
-    $load_datfile->("$LJ::HOME/bin/upgrading/update-db-local.pl", 1);
-    $load_datfile->("$LJ::HOME/bin/upgrading/update-db-general.pl");
+    foreach my $fn ( LJ::get_all_files("bin/upgrading/update-db-local.pl") ) {
+        $load_datfile->( $fn, 1 );
+    }
+    foreach my $fn ( LJ::get_all_files("bin/upgrading/update-db-general.pl") ) {
+        $load_datfile->( $fn );
+    }
 
     foreach my $t (sort keys %table_create) {
         delete $table_drop{$t} if ($table_drop{$t});
@@ -258,7 +263,7 @@ sub populate_s2 {
     # S2
     print "Populating public system styles (S2):\n";
     {
-        my $LD = "s2layers"; # layers dir
+        my $LD_NAME = "s2layers"; # layers dir
 
         my $sysid = $su->{'userid'};
 
@@ -272,7 +277,7 @@ sub populate_s2 {
 
         my $has_new_layer = 0;
         my $compile = sub {
-            my ($base, $type, $parent, $s2source) = @_;
+            my ($base, $type, $parent, $s2source, $LD) = @_;
             return unless $s2source =~ /\S/;
 
             my $id = $existing->{$base} ? $existing->{$base}->{'s2lid'} : 0;
@@ -358,13 +363,21 @@ sub populate_s2 {
             LJ::S2::set_layer_source($id, \$s2source);
         };
 
-        my @layerfiles = ("s2layers.dat");
+        my @layerfiles = LJ::get_all_files("bin/upgrading/s2layers.dat", home_first => 1);
         while (@layerfiles)
         {
-            my $file = shift @layerfiles;
+            my $file = abs_path( shift @layerfiles );
             next unless -e $file;
             open (SL, $file) or die;
-            print "SOURCE: $file\n";
+            my $LD = dirname( $file ) . "/$LD_NAME";
+            my $d_file = $file;
+            my $d_LD = $LD;
+
+            $d_file =~ s!^\Q$LJ::HOME\E/*!!; 
+            $d_LD =~ s!^\Q$LJ::HOME\E/*!!;
+ 
+            print "SOURCE: $d_file ( $d_LD )\n";
+
             while (<SL>)
             {
                 s/\#.*//; s/^\s+//; s/\s+$//;
@@ -372,7 +385,7 @@ sub populate_s2 {
                 my ($base, $type, $parent) = split;
 
                 if ($type eq "INCLUDE") {
-                    push @layerfiles, $base;
+                    push @layerfiles, dirname($file) . "/$base";
                     next;
                 }
 
@@ -394,7 +407,7 @@ sub populate_s2 {
                         while (<$map_layout>) { $s2source .= $_; }
                     }
                     while (<L>) { $s2source .= $_; }
-                    $compile->($base, $type, $parent, $s2source);
+                    $compile->($base, $type, $parent, $s2source, $LD);
                 } else {
                     my $curname;
                     while (<L>) {
@@ -411,7 +424,7 @@ sub populate_s2 {
                             # skip any lines before the first #NEWLAYER section
                         }
                     }
-                    $compile->($curname, $type, $parent, $s2source);
+                    $compile->($curname, $type, $parent, $s2source, $LD);
                 }
                 close L;
             }
@@ -456,11 +469,12 @@ sub populate_s2 {
 
 sub populate_basedata {
     # base data
-    foreach my $file ("base-data.sql", "base-data-local.sql") {
-        my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
-        next unless -e $ffile;
-        print "Populating database with $file.\n";
-        open (BD, $ffile) or die "Can't open $file file\n";
+    foreach my $ffile ( LJ::get_all_files("bin/upgrading/base-data.sql", home_first => 1) ) {
+        my $d_file = $ffile;
+        $d_file =~ s!^\Q$LJ::HOME\E/*!!;
+
+        print "Populating database with $d_file.\n";
+        open (BD, $ffile) or die "Can't open $d_file file\n";
         while (my $q = <BD>)
         {
             chomp $q;  # remove newline
@@ -477,11 +491,12 @@ sub populate_basedata {
 }
 
 sub populate_proplists {
-    foreach my $file ("proplists.dat", "proplists-local.dat") {
-        my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
-        next unless -e $ffile;
-        my $scope = ($file =~ /local/) ? "local" : "general";
-        populate_proplist_file($ffile, $scope);
+    foreach my $ffile ( LJ::get_all_files("bin/upgrading/proplists.dat", home_first => 1) ) {
+        populate_proplist_file($ffile, "general");
+    }
+
+    foreach my $ffile ( LJ::get_all_files("bin/upgrading/proplists-local.dat", home_first => 1) ) {
+        populate_proplist_file($ffile, "local");
     }
 }
 
@@ -593,12 +608,13 @@ sub populate_external_moods {
 }
 
 sub populate_moods {
-    foreach my $file ( "moods.dat", "moods-local.dat" ) {
-        my $moodfile = "$ENV{'LJHOME'}/bin/upgrading/$file";
+    foreach my $moodfile ( LJ::get_all_files("bin/upgrading/moods.dat", home_first => 1) ) {
         if ( open( M, $moodfile ) ) {
-            my $local = $file eq "moods-local.dat" ? "local " : "";
-            print "Populating ${local}mood data.\n";
-            
+            my $file = $moodfile;
+            $file =~ s!^\Q$LJ::HOME\E/*!!;
+
+            print "Populating mood data [ $file ].\n";
+
             my %mood;   # id -> [ mood, parent_id ]
             my $sth = $dbh->prepare("SELECT moodid, mood, parentmood, weight FROM moods");
             $sth->execute;

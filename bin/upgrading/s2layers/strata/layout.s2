@@ -1,0 +1,736 @@
+layerinfo type = "layout";
+layerinfo name = "Strata";
+layerinfo redist_uniq = "strata/layout";
+layerinfo author_name = "yati";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "yati", "type" => "user" }];
+
+set layout_type = "two-columns-right";
+set sidebar_width = "15em";
+set sidebar_width_doubled = "30em";
+
+##===============================
+## Navigation Module
+##===============================
+
+    property string module_navlinks_section_override {
+       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       grouped = 1;
+       }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "header";
+
+##===============================
+##Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_entry_title_link {des = "Entry title link color";}
+    property Color color_entry_title_link_active {des = "Entry title active link color";}
+    property Color color_entry_title_link_hover {des = "Entry title hover link color";}
+    property Color color_entry_title_link_visited {des = "Entry title visited link color";}
+    property Color color_entry_footer_background {des = "Entry footer color";}
+    property Color color_header_navlinks_background {des = "Header navigation background color";}
+    property Color color_header_navlinks_current_background {des = "Header navigation current page background color";}
+    property Color color_module_title_link {des = "Module title link color";}
+    property Color color_module_title_link_active {des = "Module title active link color";}
+    property Color color_module_title_link_hover {des = "Module title hover link color";}
+    property Color color_module_title_link_visited {des = "Module title visited link color";}
+    property Color color_module_footer_background {des = "Module footer color";}
+    property Color color_navlinks_current { des = "The color of the nav link for the page you are currently on."; }
+    property Color color_navlinks_link { des = "The link color of the nav links (used when those appear in the header)."; }
+    property Color color_navlinks_link_visited { des = "The visited link color of the nav links (used when those appear in the header)."; }
+}
+
+
+function print_stylesheet () {
+
+    var string footer_inner_colors = generate_color_css (new Color, $*color_module_footer_background, $*color_module_title_background);
+    var string entry_bar_colors = generate_color_css($*color_entry_text, $*color_entry_footer_background, $*color_entry_border);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var Color days_of_week = $*color_header_background -> lighter(30);
+    var Color days_with_entries = $*color_entry_title_background -> lighter(30);
+    var Color days_without_entries= $*color_entry_footer_background -> lighter(15);
+    var string module_outer_colors = generate_color_css($*color_module_text, $*color_module_border, $*color_module_border);
+
+var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = ".entry .userpic,
+        .comment .userpic { float: left;
+            margin-left: 0 !important; }
+        .entry .userpic img{
+            margin: 0 20px 0 0;}";
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = ".entry .userpic,
+        .comment .userpic { float: right; }
+        .entry .userpic img{
+            margin: 0 0 0 20px;}";
+    }
+
+"""
+
+/*css for Strata */
+
+a { text-decoration: none; }
+
+.two-columns-left #tertiary .module, .two-columns-right #tertiary .module { margin:0 10px; }
+
+blockquote {
+    padding: 10px;
+    border: dashed 1px $*color_entry_title_background;
+}
+
+/* ----- header and footer ----- */
+
+#header, #footer { padding: 10px; }
+
+#header {
+    padding: 0;
+    margin: 0;
+     }
+
+#footer .inner {
+    $footer_inner_colors
+    padding: 5px 20px;
+    text-align: right;
+}
+
+h1#title, h2#subtitle, h2#pagetitle {
+    margin: 0;
+    padding: 5px 30px 0 0;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-align: right;
+}
+
+/* -- primary -- */
+#content { padding: 20px 0; }
+
+#primary {    margin-bottom: 20px; }
+
+#header > .inner:first-child {
+    background-color: $*color_header_background;
+    padding: 5px 0;
+    margin: 0;
+}
+
+#primary > .inner:first-child {
+    padding: 0em 1em;
+}
+
+#secondary > .inner:first-child {
+    padding: 0;
+    margin:0 10px;
+}
+
+#tertiary > .inner:first-child {
+    padding: 0;
+    margin:0 10px;
+}
+
+.navigation ul {
+    text-align: center;
+    background-color:$*color_entry_footer_background;
+    color: $*color_entry_interaction_links;
+    padding: 5px;
+}
+
+/* ------- entries  ------- */
+.entry {
+    border: 16px solid $*color_entry_border;
+    background-color: transparent;
+}
+
+.entry .inner {
+$entry_bar_colors
+border: 0; }
+
+.entry .header {
+    color: $*color_entry_title;
+    background-color: $*color_entry_title_background;
+    padding: 10px;
+}
+
+.entry .header .inner {
+    color: $*color_entry_title;
+    background-color: $*color_entry_title_background;
+    }
+
+.entry .header a:link { color: $*color_entry_title_link; }
+.entry .header a:active { color: $*color_entry_title_link_active; }
+.entry .header a:visited { color: $*color_entry_title_link_visited; }
+.entry .header a:hover { color: $*color_entry_title_link_hover; }
+
+$userpic_css
+
+.entry .userpic img{
+    padding: 0 10px 10px;
+    background-color: $*color_entry_title_background;
+}
+
+.no-userpic .userpic {padding: 0px;}
+
+h3.entry-title {
+    $entry_title_font
+    font-weight: normal;
+    line-height: 125%;
+    padding: 0;
+}
+
+.entry-content {
+    background-color: $*color_entry_background;
+    padding: 10px 10px 25px 10px;
+
+}
+
+.entry-poster {
+    display: block;
+    padding: 5px;
+}
+
+.entry .footer {
+    clear: both;
+    padding: 0 0 35px;
+    border-bottom: 15px solid $*color_entry_footer_background;
+}
+
+.entry .footer .tag {
+    color: $*color_entry_title;
+    background-color: $*color_entry_title_background;
+    padding: 10px;
+    font-size: 0.9em;
+}
+
+.metadata {
+    color: $*color_entry_title;
+    background-color: $*color_entry_title_background;
+    border-bottom: 1px solid $*color_entry_title_background;
+    font-size: .9em;
+    padding: 0 10px;
+}
+
+.top-metadata {
+    background-color: $entry_bar_colors;
+    border-width:0;
+    font-size: .9em;
+    padding: 0 10px;
+}
+
+.entry .footer .tag a, .metadata a { color: $*color_entry_title_link; }
+.entry .footer .tag a:visited, .metadata a:visited { color: $*color_entry_title_link_visited; }
+.entry .footer .tag a:hover, .metadata a:hover { color: $*color_entry_title_link_hover; }
+.entry .footer .tag a:active, .metadata a:active { color: $*color_entry_title_link_active; }
+
+ul.entry-management-links {
+    float: left;
+    padding: 0 .25em;
+}
+
+.bottomcomment { padding-bottom: 10px;
+    background-color: $*color_entry_footer_background;
+    color: $*color_entry_interaction_links;
+    border-width: 16px 16px 0px;
+    border-style: solid;
+    border-color: $*color_entry_border;
+    }
+
+.bottompages { padding-bottom: 10px;
+    background-color: $*color_entry_footer_background;
+    color: $*color_entry_interaction_links;
+    border-width: 0px 16px 16px;
+    border-style: solid;
+    border-color: $*color_entry_border;
+    }
+
+.bottomcomment ul.entry-management-links, .bottompages a{
+    float: none;
+    padding: 10px 0 0;
+    text-align: center;
+    color: $*color_entry_interaction_links;
+    }
+
+ul.entry-interaction-links {
+    float: right;
+    padding: 5px 15px;
+}
+.entry-wrapper .separator-after {background: $*color_entry_border }
+
+/* ------- comments --------- */
+
+#comments {
+    margin:0;
+    padding:0;
+    background: $*color_entry_border;
+}
+
+#comments .header { padding: 10px; }
+
+#comments .datetime, #comments .comment-title {
+    font-weight: bold;
+}
+
+#comments .poster-ip, #comments .comment-poster {
+    display: block;
+    padding: 10px;
+}
+
+#comments .userpic { background-color: transparent; }
+
+#comments .comment-content { padding: 10px 20px; }
+
+#comments .footer {
+    padding: 0 10px 40px 20px;
+    background: $*color_entry_background;
+}
+
+.multiform-checkbox {
+    display: block;
+    float: right;
+}
+
+.comment-wrapper {
+    border: 16px solid $*color_entry_border;
+    padding: 0;
+    }
+.comment-wrapper .comment .contents, .comment-wrapper .comment .header {
+    background-color: $*color_comment_title_background;
+    color: $*color_comment_title;}
+
+.comment .comment-content { background-color: $*color_entry_background;
+    color: $*color_entry_text !important;
+    color: $*color_page_text;}
+
+.comment .comment-content { clear: left }
+
+.comment-interaction-links, .comment-management-links {
+    float: left;
+    font-size: .9em;
+}
+
+.footer .inner .multiform-checkbox {
+    float: right;
+    font-size: .9em;
+}
+
+.no-userpic .comment .header { float: none; }
+
+.screened .comment .contents, .screened .comment .header { background-color: #ccc; }
+
+.separator-after { padding: 7px; }
+
+.page-entry .separator-after { padding: 0; }
+
+form#postform, form#qrform {
+    background-color:$*color_entry_background;
+    margin:10px;
+    padding:10px;
+    clear: both;
+}
+
+/* ----- archive ------ */
+
+.month-wrapper {
+    border: 16px solid $*color_entry_border;
+    background-color: $*color_entry_background;
+}
+
+.month .header h3{
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title;
+    padding: 10px;
+    font-weight: lighter;
+    letter-spacing: 1px;
+}
+
+.month caption { padding: 10px 0; }
+
+.month .footer {
+    background-color: $*color_entry_footer_background;
+    margin-top: 20px;
+    padding: 10px;
+    text-align: right;
+}
+
+.month .footer a { color: $*color_entry_interaction_links; }
+
+.month-wrapper .separator-after { padding: 0; }
+
+#archive-month .month {
+    background-color: $*color_entry_footer_background;
+    color: $*color_entry_interaction_links;
+    padding: 15px;
+    margin: 15px;
+}
+
+#archive-month .month dl {
+    padding: 10px;
+    margin: 20px 0;
+    background-color: $*color_entry_background;
+}
+
+#archive-month .month dl dt {
+    background-color: $*color_entry_title_background;
+    font-weight:bold;
+    margin:10px;
+    padding:2px 10px;
+}
+
+#archive-month .month dl dt a { color: $*color_entry_title_link_active; }
+#archive-month .month dl dt a:hover { color: $*color_entry_title_link_hover; }
+
+#archive-day h3 {
+    text-align: center;
+    text-tansform: uppercase;
+}
+
+#archive-day h3.entry-title { text-align: left; }
+
+table.month { border-collapse: separate; }
+
+table.month td, table.month th {
+    border:1px solid $*color_entry_background;
+    padding:5px 20px;
+    text-align:center;
+    vertical-align:top;
+    background-color: $days_without_entries;
+    color: $*color_entry_interaction_links;
+}
+
+table.month th { background-color: $days_of_week; }
+
+table.month td.day-has-entries {
+    background-color: $days_with_entries;
+    color: $*color_entry_title;
+    }
+
+/*--- Icon Page ---*/
+.page-icons .icons-container {
+    border: 16px solid $*color_entry_border;
+    background-color: $*color_entry_footer_background;
+    margin: 10px;
+}
+
+.page-icons .icons-container h2 {
+    background-color: $*color_entry_title_background;
+    letter-spacing: 1px;
+    font-weight: lighter;
+    padding: 5px 20px;
+}
+
+.page-icons .icon {
+    background-color: $*color_entry_background;
+    clear: both;
+    padding-left: 1em;
+}
+
+.page-icons .icons-container .manage-icons-link a {
+    color: $*color_entry_interaction_links;
+    text-align: right;
+    padding: 0 10px; }
+
+.sorting-options ul {
+    margin-left: 0;
+}
+
+.sorting-options ul li {
+    display: inline;
+}
+
+.keywords ul {
+    display: inline;
+    margin-left: .5em;
+    padding-left: 0;
+}
+
+.keywords ul li {
+    display: inline;
+    padding: .25em;
+}
+
+.icon-image {
+    display: inline;
+
+    }
+
+.icon-image img {
+    padding: 0.2em 0.5em;
+    margin-right: 1em;
+    margin-top: 15px;
+    }
+
+.icon-info {
+    vertical-align: bottom;
+    word-wrap: break-word;
+    }
+
+.label, .comment-text, .description-text, .default {
+    font-weight: bold;
+    }
+
+.icons-container .inner .footer {
+    clear: both;
+    text-align: right;
+    }
+
+/* ------- modules ------ */
+
+.module {
+    $module_outer_colors
+    padding: 10px;
+    margin: 0 0 15px;
+}
+
+.module-header a { color: $*color_module_title_link; }
+.module-header a:active { color: $*color_module_title_link; }
+.module-header a:visited { color: $*color_module_title_link_visited; }
+.module-header a:hover { color: $*color_module_title_link_hover; }
+
+.module-content {
+    background-color: $*color_module_background;
+    border-color: $*color_module_footer_background;
+    border-style:solid;
+    border-width:5px 0 15px;
+    margin:0;
+    padding:2px;
+}
+
+.module-userprofile .module-content,
+.module-calendar .module-content,
+.module-syndicate  .module-content,
+.module-credit .module-content {
+    text-align: center;
+}
+
+.module-userprofile .userpic {
+    background-color: transparent;
+    float: none;
+    padding: 15px;
+    margin: 0;
+}
+
+.module-customtext .module-content { padding: 10px; }
+
+.module-calendar td { padding: 2px; }
+
+.module-calendar th { background-color: $*color_module_footer_background; }
+
+.module-calendar td.entry-day {
+    background-color: $days_with_entries;
+    border: 1px solid $*color_module_title_background;
+}
+
+#header .module-navlinks {
+    padding: 0;
+    margin: 0;
+    }
+
+
+#header .module-navlinks .module-list-item:first-child {
+    margin: 5px;
+    padding: 10px;}
+
+#header .module-list-item a.current {
+    background-color: $*color_header_navlinks_current_background;
+    padding: 10px;
+    color: $*color_navlinks_current;
+}
+#header .module-navlinks a { color: $*color_navlinks_link; }
+#header .module-navlinks a:visited { color: $*color_navlinks_link_visited; }
+
+.module-list-item a.current {
+    color: $*color_module_text
+    }
+
+#header .module-navlinks li {
+    padding: 2px 8px;
+    display: inline;
+    }
+
+.module-typelist li { padding: 2px 8px; }
+
+ul.module-list { list-style: none; }
+#header .module-navlinks .module-list {margin-bottom: 0;}
+
+.module-header {
+    text-align: center;
+    padding: 5px 2px;
+    margin: 0;
+    letter-spacing: 1px;
+    font-weight: normal;
+}
+
+.manage-tags-link {
+    font-weight: bold;
+    padding-right: 5px 10px;
+    text-align: right;
+}
+
+.module-time, .module-powered,
+.module-tags_cloud .module-content, .module-search {
+    text-align: center;
+}
+
+.search-box {margin-top: 10px;}
+.search-button {margin: 10px;}
+
+.module-search {text-align: center;}
+.module-tags_cloud .module-content { padding: 15px; }
+
+#header .header-navlinks {
+    padding-top: 5px;
+    margin-top: 5px;
+    }
+
+#header .module-navlinks li {
+    display: inline;
+    padding-left: .5em;
+    }
+
+#header .module { border: 0; }
+#header .module-navlinks .module-header {
+    display: none;
+    }
+
+#header .module-navlinks .module-content {
+    padding-top: 15px;
+    background-color: $*color_header_navlinks_background;
+    border-color: $*color_header_navlinks_background $*color_header_navlinks_background $*color_header_navlinks_current_background;
+    border-style: solid;
+    border-width: 5px 0 10px;
+    font-size: 1em;
+    letter-spacing: 1px;
+    }
+
+.search-box {
+    width: 100%
+    }
+
+/* ---- tags pages ----- */
+.page-tags .tags-container {
+    border: 16px solid $*color_entry_border;
+    background-color: $*color_entry_footer_background;
+    margin: 10px;
+}
+
+.page-tags .tags-container h2 {
+    background-color: $*color_entry_title_background;
+    letter-spacing: 1px;
+    font-weight: lighter;
+    padding: 5px 20px;
+    font-size: 1em;
+}
+
+.page-tags .tags-container .ljtaglist {
+    background-color: $*color_entry_background;
+}
+
+.page-tags .tags-container .tags_cloud {
+    padding:50px;
+    text-align:center;
+}
+
+.page-tags .tags-container .manage-tags-link a {
+    color: $*color_entry_interaction_links;
+    padding: 0 10px; }
+
+ """;
+}
+
+##===============================
+## Functions
+##===============================
+# Give a title to the navlinks module
+function print_module_navlinks() {
+    var Page p = get_page();
+    var string title = "Navigation";
+    open_module("navlinks", "$title", "");
+    var string[] links = [];
+    foreach var string k ($p.views_order) {
+        var string css = """ class="$k" """;
+        if ($p.view == $k) { $css = """ class="current $k" """; }
+        $links[size $links] = """<a href="$p.view_url{$k}"$css>""" + lang_viewname($k) + """</a>""";
+    }
+    print_module_list($links);
+    close_module();
+}
+
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+                    $this->print_module_section("header");
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}

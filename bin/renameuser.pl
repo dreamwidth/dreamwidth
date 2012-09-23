@@ -16,7 +16,9 @@
 use strict;
 use Getopt::Long;
 
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+}
 
 sub usage {
     die "Usage: [--swap --force] <from_user> <to_user>\n";

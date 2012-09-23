@@ -34,7 +34,7 @@ body<=
 
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
     LJ::need_res( 'js/6alib/inputcomplete.js' );
-    
+
     # are they asking to be authed as someone else?
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
@@ -183,6 +183,9 @@ body<=
             if (!$disabled_save && ($u->is_readonly || ($usejournal_u && $usejournal_u->is_readonly))) {
                 $disabled_save++;
             }
+
+            return BML::redirect( "/entry/" . $u_for_entry->user . "/$ditemid/edit" )
+                    if ! LJ::did_post() && ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
             ###
             ### SAVE EDITS

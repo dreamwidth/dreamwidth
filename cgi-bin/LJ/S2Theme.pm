@@ -37,11 +37,14 @@ sub default_themes {
         abstractia => 'abstractia/darkcarnival',
         bases => 'bases/tropical',
         basicboxes => 'basicboxes/green',
+        bannering => 'bannering/overthehills',
         blanket => 'blanket/peach',
         boxesandborders => 'boxesandborders/gray',
         brittle => 'brittle/rust',
+        ciel => 'ciel/cloudydays',
         compartmentalize => 'compartmentalize/poppyfields',
         core2base => 'core2base/testing',
+        corinthian => 'corinthian/deepseas',
         crisped => 'crisped/freshcotton',
         crossroads => 'crossroads/lettuce',
         database => 'database/blue',
@@ -53,16 +56,20 @@ sub default_themes {
         forthebold => 'forthebold/tealeaves',
         funkycircles => 'funkycircles/darkpurple',
         hibiscus => 'hibiscus/tropical',
+        headsup => 'headsup/caturdaygreytabby',
+        librariansdream => 'librariansdream/grayscalelight',
         lineup => 'lineup/modernity',
         marginless => 'marginless/mars',
         modular => 'modular/mediterraneanpeach',
         negatives => 'negatives/black',
         nouveauoleanders => 'nouveauoleanders/sienna',
         paletteable => 'paletteable/descending',
+        paperme => 'paperme/newleaf',
         practicality => 'practicality/warmth',
         refriedtablet => 'refriedtablet/refriedclassic',
         skittlishdreams => 'skittlishdreams/orange',
         steppingstones => 'steppingstones/purple',
+        strata => 'strata/springmorning',
         tranquilityiii => 'tranquilityiii/nightsea',
         wideopen => 'wideopen/koi',
         zesty => 'zesty/white',
@@ -926,9 +933,19 @@ sub module_props {
         image_background_module_url
         image_background_module_repeat
         image_background_module_position
+        text_module_userprofile
+        text_module_links
+        text_module_syndicate
+        text_module_tags
+        text_module_popular_tags
+        text_module_pagesummary
+        text_module_active_entries
         text_module_customtext
         text_module_customtext_url
         text_module_customtext_content
+        text_module_credit
+        text_module_search
+        text_module_cuttagcontrols
     )
 }
 

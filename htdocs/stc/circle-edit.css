@@ -1,0 +1,33 @@
+.editfriends {
+    margin-bottom: 10px;
+}
+.editfriends tr:hover {
+    background-color: #d1ced2;
+}
+.editfriends tr.header:hover {
+    background-color: transparent;
+}
+.editfriends td, .editfriends th,
+#addfriends td, #addfriends th {
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #000;
+}
+#addfriends td td, #addfriends th th {
+    padding: 0;
+    border: 0;
+}
+.editfriends td {
+    text-align: left;
+    border: 1px solid #000;
+}
+.editfriends caption {
+    font-weight: bold;
+}
+.editfriendsframe {
+    text-align: center;
+    padding: 1em;
+}
+.editfriendsframe table, .editfriendsframe caption {
+    margin: 0 auto;
+}

@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2012 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -23,11 +23,11 @@ use DW::Template;
 use JSON;
 use DW::Request;
 use DW::Routing::CallInfo;
+use Carp qw/croak/;
 
 our %string_choices;
 our %regex_choices = (
     app  => [],
-    ssl  => [],
     user => []
 );
 
@@ -59,7 +59,7 @@ Valid options:
 =item uri - explicitly override the uri
 =item role - explicitly define the role
 =item username - define the username, implies username role
-=item ssl - this is a SSL page, implies the ssl role
+=item ssl - this is a SSL call
 
 =back
 
@@ -84,7 +84,7 @@ Valid options:
 =item uri - explicitly override the uri
 =item role - explicitly define the role
 =item username - define the username, implies username role
-=item ssl - this is a SSL page, implies the ssl role
+=item ssl - this is a SSL call
 
 =back
 
@@ -102,7 +102,7 @@ sub get_call_opts {
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
 
     # add more data to the options hash, we'll need it
-    $opts{role} ||= $opts{ssl} ? 'ssl' : ( $opts{username} ? 'user' : 'app' );
+    $opts{role} ||= $opts{username} ? 'user' : 'app';
     $opts{uri}    = $uri;
     $opts{format} = $format;
 
@@ -167,6 +167,13 @@ sub _call_hash {
     my $format = $opts->format;
     # check for format validity
     return $r->NOT_FOUND unless $opts->format_valid;
+
+    # prefer SSL if wanted and possible
+    #  cannot do SSL on userspace, cannot do SSL if it's not set up
+    #  cannot do the redirect safely for non-GET/HEAD requests.
+    return $r->redirect( LJ::create_url($r->uri, keep_args => 1, ssl => 1) )
+        if $opts->prefer_ssl && $LJ::USE_SSL && $opts->role eq 'app' &&
+            ! $opts->ssl && $r->method eq 'GET' || $r->method eq 'HEAD';
 
     # apply default content type if it exists
     $r->content_type( $default_content_types->{$format} )
@@ -295,15 +302,15 @@ sub register_static {
 
 =item args - passed verbatim to sub.
 
-=item ssl - If this sub should run for ssl.
+=item app - Serve this in app-space.
 
-=item app - 1 if app
-
-=item user - 1 if user
+=item user - Serve this in journalspace.
 
 =item format - What format should be used, defaults to HTML
 
 =item formats - An array of possible formats, or 1 to allow everything.
+
+=item prefer_ssl - Auto-redirect to SSL version if possible.
 
 =back
 
@@ -317,14 +324,13 @@ sub register_string {
     my $hash = _apply_defaults( \%opts, {
         sub    => $sub,
     });
+
     $string_choices{'app'  . $string} = $hash if $hash->{app};
-    $string_choices{'ssl'  . $string} = $hash if $hash->{ssl};
     $string_choices{'user' . $string} = $hash if $hash->{user};
 
     if ( $string =~ m!(^(.*)/)index$! && ! exists $opts{no_redirects} ) {
         my %opts = (
             app => $hash->{app},
-            ssl => $hash->{ssl},
             user => $hash->{user},
             formats => $hash->{formats},
             format => $hash->{format},
@@ -333,7 +339,6 @@ sub register_string {
         );
         $class->register_redirect( $2, $1, %opts ) if $2;
         $string_choices{'app'  . $1} = $hash if $hash->{app};
-        $string_choices{'ssl'  . $1} = $hash if $hash->{ssl};
         $string_choices{'user' . $1} = $hash if $hash->{user};
     }
 }
@@ -395,7 +400,6 @@ sub register_regex {
         sub    => $sub,
     });
     push @{$regex_choices{app}}, $hash if $hash->{app};
-    push @{$regex_choices{ssl}}, $hash if $hash->{ssl};
     push @{$regex_choices{user}}, $hash if $hash->{user};
 }
 
@@ -407,16 +411,19 @@ sub _apply_defaults {
     $hash ||= {};
     $opts->{app} = 1 if ! defined $opts->{app} && !$opts->{user};
     $hash->{args} = $opts->{args};
-    $hash->{ssl} = $opts->{ssl} || 0;
     $hash->{app} = $opts->{app} || 0;
     $hash->{user} = $opts->{user} || 0;
     $hash->{format} = $opts->{format} || 'html';
+    $hash->{prefer_ssl} = $opts->{prefer_ssl} || 0;
+
 
     my $formats = $opts->{formats} || [ $hash->{format} ];
     $formats = { map { ( $_, 1 ) } @$formats } if ( ref($formats) eq 'ARRAY' );
 
     $hash->{formats} = $formats;
     $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1 };
+
+    croak "Cannot register with prefer_ssl without app role" if ( $hash->{prefer_ssl} && ! $hash->{app} );
 
     return $hash;
 }

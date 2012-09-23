@@ -301,13 +301,14 @@ sub clean
         {
             my $tag  = $update_tag->( $token->[1] );
             my $attr = $token->[2];  # hashref
+            my $ljcut_div = $tag eq "div" && lc $attr->{class} eq "ljcut";
 
             $good_until = length $newdata;
 
             if (@eatuntil) {
                 push @capture, $token if $capturing_during_eat;
                 # have to keep the cut counts consistent even if they're nested
-                if ( $tag eq "lj-cut" ) {
+                if ( $tag eq "lj-cut" || $ljcut_div) {
                     $cutcount++;
                 }
                 if ($tag eq $eatuntil[-1]) {
@@ -318,7 +319,7 @@ sub clean
 
             # if we're looking for cut tags, ignore everything that's
             # not a cut tag.
-            if ( $eatall && $tag ne "lj-cut" ) {
+            if ( $eatall && $tag ne "lj-cut" && !$ljcut_div ) {
                 next TOKEN;
             }
 
@@ -479,7 +480,6 @@ sub clean
             }
             # stupid hack to remove the class='ljcut' from divs when we're
             # disabling them, so we account for the open div normally later.
-            my $ljcut_div = $tag eq "div" && lc $attr->{class} eq "ljcut";
             if ($ljcut_div && $ljcut_disable) {
                 $ljcut_div = 0;
             }
@@ -1014,6 +1014,12 @@ sub clean
                 $opencount{$tag}--;
                 $tablescope[-1]->{$tag}-- if $opts->{'tablecheck'} && @tablescope;
             }
+            # Since this is an end-tag, we can't know if it's the closing
+            # div for a faked <div class="ljcut"> tag, which means that
+            # community moderators can't see <b></cut></b> at the end of one
+            # of those tags; if this was a problem, then the 'S' branch of
+            # this function would need to record the ljcut_div flag in a
+            # state variable which is stashed across tokens.
             elsif ($tag eq "lj-cut") {
                 if ($opts->{'cutpreview'}) {
                     $newdata .= "<b>&lt;/cut&gt;</b>";
@@ -1468,6 +1474,28 @@ sub clean_event
     # now the second argument is a hashref of options, so convert it to support the old way.
     unless (ref $opts eq "HASH") {
         $opts = { 'preformatted' => $opts };
+    }
+
+    # this is the hack to make markdown work. really.
+    if ($$ref =~ s/^\s*!markdown\s*\r?\n//s) {
+        my $rv = eval "use Text::Markdown; 1;";
+        die "Attempted to use Markdown without the Text::Markdown module.\n"
+            unless $rv;
+
+        # first, markdown-ize the world
+        $$ref = Text::Markdown::markdown( $$ref );
+        $opts->{preformatted} = 1;
+
+        # second, convert @-style addressing to user tags
+        my $usertag = sub {
+            my ($user, $site) = ($1, $2 || 'dreamwidth.org');
+            if (my $siteobj = DW::External::Site->get_site( site => $site )) {
+                return qq|<user name="$user" site="$siteobj->{domain}" />|;
+            } else {
+                return qq|\@$user.$site|;
+            }
+        };
+        $$ref =~ s/(?<=\W)\@([\w\d_]+)(?:\.([\w\d\.]+))?(?=$|\W)/$usertag->($1, $2)/mge;
     }
 
     my $wordlength = defined $opts->{'wordlength'} ? $opts->{'wordlength'} : 40;

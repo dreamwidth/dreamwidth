@@ -12,7 +12,9 @@
 .commlist.actpending|notes=This is appended to /community/manage.bml.commlist.actmembers2 when there are pending people.
 .commlist.actpending=, <a [[aopts]]>[[num]] pending</a>
 
-.commlist.actsettings2=Settings
+.commlist.actsettingsaccount=Account Settings
+
+.commlist.actsettingspost=Posting Settings
 
 .commlist.customize=Customize
 

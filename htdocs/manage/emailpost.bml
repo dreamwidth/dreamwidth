@@ -56,8 +56,6 @@ body<=
       emailpost_pin emailpost_allowfrom
       emailpost_userpic emailpost_security
       emailpost_comments emailpost_gallery
-      emailpost_imgsecurity emailpost_imgsize
-      emailpost_imglayout emailpost_imgcut
       /;
 
     my ($mode, $type) = ($GET{mode}, $GET{type});

@@ -1,0 +1,65 @@
+/* Styling for the management icon box*/
+.action-box {clear:both;}
+.action-box .inner { padding: 0.5em; }
+.action-box ul {background-color:none; border: 0; list-style: none outside none; margin:0;}
+
+/*Styling for metadata tags*/
+.tag-text, .metadata-label {font-weight: bold;}
+.entry .metadata {padding:0;}
+.metadata ul {margin: 0; list-style: none;}
+.metadata li {margin-top: 0.5em;}
+.currents {clear:both; margin-left:50px;}
+.tag ul {list-style:none; display:inline; margin-left:0; }
+.tag {margin-top:0.6em;}
+.tag li {display:inline;}
+
+/*Styling for entry + comment header and contents*/
+h3.entry-title, h4.comment-title {
+    font-size: larger;
+    font-style: italic;
+    font-weight: bold;
+    margin: 10px 0 1.5em;}
+
+.entry .header, .comment .header {background:none;}
+.entry .datetime:before, .comment .datetime:before { content:"@ ";} /*add the talkread-style elements to the date and time*/
+.entry .datetime:after {content:" UTC";}
+.entry .datetime, .comment .datetime {font-style: italic; display:block;}
+.entry .contents, .comment .contents{ margin-left: 30px}
+.comment .header, .screened {background:none; border:0;}
+.commentpermalink, .comment .poster-ip  {margin-left:1.5em;}
+
+.entry-wrapper .userpic, .comment-wrapper .userpic {display: table-cell; float: none;}
+
+.comment-info {display: inline-block; vertical-align: top;}
+.poster-info { display: table-cell;
+    overflow: auto;
+    padding: 0.5em;
+    vertical-align: bottom; }
+
+.entry-wrapper {margin:0}
+
+/* Entry footer styling */
+hr.above-entry-interaction-links {margin: 1em 0;}
+.entry-interaction-links, .comment-pages {text-align: center; font-weight:bold; float:none;}
+.entry-interaction-links li {display:inline;}
+ul.entry-interaction-links {list-style: none outside none; display: inline; text-align: center; padding: 0.5em 0;}
+.readlink {font-weight:bold; text-align: center;}
+.entry .footer {display:none;}
+
+/* give talkread styling to management links without S2 overrides*/
+.entry-interaction-links li:before, .comment-interaction-links li:before, .view-flat:before, .view-threaded:before, .view-top-only:before, .expand_all:before {content:"(";}
+.entry-interaction-links li:after, .comment-interaction-links li:after, .view-flat:after, .view-threaded:after, .view-top-only:after, .expand_all:after {content:")";}
+
+/*Comment management links */
+ul.comment-management-links {display: inline;}
+.comment-management-links li {display:inline; list-style: none; }
+
+ul.comment-interaction-links {display: inline; margin: 0; }
+.comment-interaction-links li {display:inline; list-style: none; }
+.comment .reply {display:none;} /*hide the reply-link - we're on the reply page!*/
+
+.comment .footer { padding: 1.2em 0;}
+
+/*Styling for comment links*/
+#qrform table {margin: 0 auto;}
+.talkform td {vertical-align:top;}

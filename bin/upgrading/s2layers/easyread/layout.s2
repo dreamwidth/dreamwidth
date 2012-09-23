@@ -17,6 +17,8 @@ propgroup presentation {
     property use num_items_icons;
     property use use_journalstyle_entry_page;
     property use layout_type;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property use icons_page_sort;
     property use margins_size;
@@ -29,7 +31,6 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
     property use all_entrysubjects;
@@ -53,12 +54,12 @@ propgroup colors {
     property use color_page_link_active;
     property use color_page_link_visited;
     property use color_page_title;
-  
+
     property use color_header_background;
 
     property use color_entry_background;
     property use color_entry_text;
-  
+
 }
 
 ##===============================
@@ -137,6 +138,21 @@ propgroup customcss {
 }
 
 propgroup text {
+
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
+
 ##===============================
 ## Text - main navigation
 ##===============================
@@ -249,7 +265,7 @@ function Page::print()
                     </div></div><!--  end secondary and secondary>inner -->
 
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -260,9 +276,9 @@ function Page::print()
                     </div></div><!-- end tertiary and tertiary>inner -->
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -271,7 +287,7 @@ function Page::print()
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -459,13 +475,12 @@ html body {
 
 .navigation ul {
     clear: left;
-    list-style: none;
     font-weight: bold;
     padding-left: 0;
 }
 
-.navigation .inner ul li {
-    display: inline;  
+.navigation ul li {
+    display: inline;
 }
 
 .navigation ul li.page-back:after {
@@ -477,7 +492,6 @@ html body {
  */
 
 ul.userlite-interaction-links {
-    list-style: none;
     padding-left: 0;
 }
 
@@ -504,17 +518,15 @@ h2.module-header a {
 }
 
 .module-tags_list ul.module-list {
-    list-style: none;
     padding-left: 0;
     display: inline;
 }
 
-.tags_cloud li, .module-tags_cloud li { 
+.module-tags_list ul.module-list li {
     display: inline;
-    list-style-type: none; 
 }
 
-.module-tags_list ul.module-list li {
+.tags_cloud li, .module-tags_cloud li {
     display: inline;
 }
 
@@ -528,6 +540,10 @@ h2.module-header a {
 .module-tags_list .manage-link:after,
 .module-tags_multilevel .manage-link:after {
     content: ")";
+}
+
+.search-box {
+    max-width:100%;
 }
 
 /*
@@ -551,6 +567,8 @@ h2.module-header a {
 
 .has-userpic .entry .header {
     margin-bottom: 1em;
+    position: relative;
+    z-index: 99;
 }
 
 .entry {
@@ -581,7 +599,7 @@ h2.module-header a {
     text-transform: uppercase;
 }
 
-.entry .metadata ul {  
+.entry .metadata ul {
     list-style: none;
     padding-left: 0;
 }
@@ -695,7 +713,6 @@ ul.comment-interaction-links li, ul.comment-management-links li {
 }
 
 .tag ul {
-    list-style: none;
     display: inline;
     padding-left: 0;
 }
@@ -742,7 +759,6 @@ module-section-two ul.module-list li {
  */
 
 .sorting-options ul {
-    list-style: none;
     padding-left: 0;
     }
 
@@ -776,13 +792,11 @@ module-section-two ul.module-list li {
 
 .icon-keywords ul {
     display: inline;
-    list-style: none;
     padding-left: 0;
     }
 
 .icon-keywords ul li {
     display: inline;
-    padding: 0 .25em 0 0;
     }
 
 $userpic_css

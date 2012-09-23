@@ -142,25 +142,26 @@ a:active,
 /**
  * Sidebar and Menu
  */
-#sidebar { position: absolute;
+nav { position: absolute;
     top: 0;
     left: 1em;
     width: 9em;
     background-color: #DDDDAA;
     }
-    #sidebar ul { margin-left: 5px;
+nav ul { margin-left: 5px;
         margin-right: 3px;
         margin-top: 40px;
         padding-left: 0;
         font-size: small;
         list-style: none;
         }
-        #sidebar ul ul { margin-left: 1em;
+nav ul ul { margin-left: 1em;
             margin-right: 0;
             margin-top: 0;
         }
-    #sidebar li { padding: .15em 0; }
-    #sidebar a {color: #222200; }
+nav li { padding: .15em 0; }
+nav .subnav a,
+nav .topnav a {color: #222200; }
 
 #header-userpic { text-align: center;
     height: 100px;
@@ -176,18 +177,18 @@ a:active,
 /**
  * Footer
  */
-#footer { border-top: 4px double #999966;
+footer { border-top: 4px double #999966;
     border-bottom: 4px double #999966;
     margin: 1em;
     text-align: center;
     }
-    #footer ul { list-style: none;
+    footer ul { list-style: none;
         margin: .25em 0;
         margin-left: 0;
         padding-left: 0;
         }
-    #footer li { display: inline; }
-    #footer p { margin: .25em 0;
+    footer li { display: inline; }
+    footer p { margin: .25em 0;
         padding: 0;
         font-size: small;
         color: #666666;
@@ -572,6 +573,15 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
     background: transparent !important;
 }
 
+/*S2 talkpage*/
+.entry .link, .comment .link {color: #222211; } /*overrides having link color applied to :before and :after elements*/
+
+.comment .header { border-bottom: none; border-right: none; }
+.comment-wrapper-odd .header  { background-color: #EEEECC; }
+.comment-wrapper-even .header { background-color: #DDDBBB; }
+.screened .header{ background-color: #EEEEEE; }
+
+/* bml talkpage*/
 .cmtbar { border-bottom: none; border-right: none; }
 td.odd  { background-color: #EEEECC; }
 td.even { background-color: #DDDBBB; }

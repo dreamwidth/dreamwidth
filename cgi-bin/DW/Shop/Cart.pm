@@ -175,10 +175,20 @@ sub new_cart {
     # now, delete any old carts we don't need
     my $dbh = LJ::get_db_writer()
         or return undef;
-    $dbh->do(
-        q{UPDATE shop_carts SET state = ? WHERE (userid = ? OR uniq = ?) AND state = ?},
-        undef, $DW::Shop::STATE_CLOSED, $cart->{userid}, $cart->{uniq}, $DW::Shop::STATE_OPEN
-    );
+    if ( defined $cart->{userid} ) {
+        $dbh->do(
+            q{UPDATE shop_carts SET state = ? WHERE userid = ? AND state = ?},
+            undef, $DW::Shop::STATE_CLOSED, $cart->{userid}, $DW::Shop::STATE_OPEN
+        );
+        croak $dbh->errstr if $dbh->err;
+    }
+    if ( defined $cart->{uniq} ) {
+        $dbh->do(
+            q{UPDATE shop_carts SET state = ? WHERE uniq = ? AND state = ?},
+            undef, $DW::Shop::STATE_CLOSED, $cart->{uniq}, $DW::Shop::STATE_OPEN
+        );
+        croak $dbh->errstr if $dbh->err;
+    }
 
     # build this into an object and activate it
     $cart = $class->_build( $cart );

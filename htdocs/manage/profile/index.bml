@@ -53,11 +53,8 @@ body<=
     # props in this list will be preloaded on page load and saved on post
     my @uprops = qw/
         opt_whatemailshow comm_theme
-        aolim google_talk icq jabber
-        msn skype yahoo tumblr
-        plurk twitter delicious diigo
-        pinboard last_fm_user
-        etsy ravelry ao3 ffnet
+        ao3 aolim delicious diigo etsy ffnet google_talk icq jabber
+        last_fm_user msn pinboard plurk ravelry skype tumblr twitter yahoo
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
@@ -98,6 +95,13 @@ body<=
         $ret .= "<form method='get' action='./'>\n";
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
         $ret .= "</form>\n\n";
+
+        # if they're working as a community, reproduce the community management linkbar:
+        if ( $u && $u->is_community ) {
+            my $linkbar;
+            $linkbar = $u->maintainer_linkbar( "profile" );
+            $ret .= "<p class='intro'>" . $linkbar . "</p>";
+        }
 
         $ret .= "<div style='margin: 1em 0;'> ";
         $ret .= BML::ml( ".intro1", { aopts1 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'",
@@ -175,9 +179,10 @@ body<=
 
         if ( $u->is_individual ) {
             # gender
-            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.fn.gender'}</td>\n";
+            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.fn.gender1'}</td>\n";
             $ret .= "<td>";
-            $ret .= LJ::html_select( { name => 'gender', title => $ML{'.fn.gender'},
+            # strip HTML out of title
+            $ret .= LJ::html_select( { name => 'gender', title => LJ::strip_html( $ML{'.fn.gender1'} ),
                                        selected => $u->prop( 'gender' ) || 'U' },
                                      F => $ML{'.gender.female'},
                                      M => $ML{'.gender.male'},
@@ -333,12 +338,17 @@ body<=
             $ret .= "</td><td class='selectvis'>";
             # this is where we get BVL back
             my $checked = ( $u->opt_whatemailshow =~ /[BVL]/ ) ? 'Y' : 'N';
-            $ret .= LJ::html_select( { name => 'opt_usesite',
-                                       title => BML::ml( '.display.title',
-                                                { name => $ML{'.fn.email.site'} } ),
-                                       selected => $checked },
-                                     Y => $ML{'.security.visibility.privacy'},
-                                     N => $ML{'.security.visibility.noshow'} );
+            $ret .= LJ::html_select
+                    (
+                        {
+                            name => 'opt_usesite',
+                            title => BML::ml( '.display.title',
+                                { name => BML::ml( '.fn.email.site', { siteabbrev => $LJ::SITENAMEABBREV } ) } ),
+                            selected => $checked
+                        },
+                        Y => $ML{'.security.visibility.privacy'},
+                        N => $ML{'.security.visibility.noshow'}
+                    );
             $ret .= "</td></tr>\n";
         }
 
@@ -350,13 +360,18 @@ body<=
                 $ret .= "</td><td style='vertical-align: middle'>" . $u->ljtalk_id;
                 # Don't show LJ Talk field? (opt_showljtalk)
                 $ret .= "</td><td class='selectvis'>";
-                $ret .= LJ::html_select( { name => 'opt_showljtalk',
-                                           id => 'opt_showljtalk',
-                                           title => BML::ml( '.display.title',
-                                                    { name => $ML{'.fn.ljtalk.address'} } ),
-                                           selected => $u->hide_ljtalk ? 'N' : 'Y' },
-                                         Y => $ML{'.security.visibility.privacy'},
-                                         N => $ML{'.security.visibility.noshow'} );
+                $ret .= LJ::html_select
+                    (
+                        {
+                            name => 'opt_showljtalk',
+                            id => 'opt_showljtalk',
+                            title => BML::ml( '.display.title',
+                                { name => BML::ml( '.fn.ljtalk.address', { siteabbrev => $LJ::SITENAMEABBREV } ) } ),
+                            selected => $u->hide_ljtalk ? 'N' : 'Y'
+                        },
+                        Y => $ML{'.security.visibility.privacy'},
+                        N => $ML{'.security.visibility.noshow'}
+                    );
                 $ret .= "</td></tr>\n";
 
                 my $jabber_title = LJ::Hooks::run_hook("jabber_title") || $ML{'/manage/settings/index.bml.jabber.title'};
@@ -366,14 +381,19 @@ body<=
                 $ret .= "<span class='helper'>" . BML::ml('/manage/settings/index.bml.jabber.text', {'jabbertitle' => $jabber_title}) . "</span>";
                 # Jabber Online Status
                 $ret .= "</td><td class='selectvis'>";
-                $ret .= LJ::html_select( { name => 'opt_showonlinestatus',
-                                           id => 'opt_showonlinestatus',
-                                           title => BML::ml( '.privacy.title',
-                                                    { name => $ML{'.fn.ljtalk.status'} } ),
-                                           selected => $u->opt_showonlinestatus },
-                                         Y => $ML{'.security.visibility.everybody2'},
-                                         F => $ML{'.security.visibility.access'},
-                                         N => $ML{'.security.visibility.nobody'} );
+                $ret .= LJ::html_select
+                    (
+                        {
+                            name => 'opt_showonlinestatus',
+                            id => 'opt_showonlinestatus',
+                            title => BML::ml( '.privacy.title',
+                                { name => BML::ml( '.fn.ljtalk.status', { siteabbrev => $LJ::SITENAMEABBREV } ) } ),
+                            selected => $u->opt_showonlinestatus
+                        },
+                        Y => $ML{'.security.visibility.everybody2'},
+                        F => $ML{'.security.visibility.access'},
+                        N => $ML{'.security.visibility.nobody'}
+                    );
                 $ret .= "</td></tr>\n";
             }
 
@@ -429,24 +449,24 @@ body<=
             my $oddeven = 0;
 
             foreach my $p (
+                           ["ao3", $ML{ '.services.ao3' }, 40],
                            ["aolim", $ML{'.chat.aolim'}, 28],
+                           ["delicious", $ML{ '.services.delicious' }, 40],
+                           ["diigo", $ML{ '.services.diigo' }, 16],
+                           ["etsy", $ML{ '.services.etsy' }, 20],
+                           ["ffnet", $ML{ '.services.ffnet' }, 30],
                            ["google_talk", $ML{'.chat.googletalk'}, 60],
                            ["icq", $ML{'.chat.icquin'}, 12],
                            ["jabber", $ML{'.chat.jabber'}, 60],
-                           ["msn", $ML{'.chat.msnusername'}, 60],
-                           ["skype", $ML{'.chat.skype'}, 40],
-                           ["yahoo", $ML{'.chat.yahooid'}, 33],
-                           ["tumblr", $ML{ '.services.tumblr' }, 255],
-                           ["plurk", $ML{ '.services.plurk' }, 255],
-                           ["twitter", $ML{ '.services.twitter' }, 40],
-                           ["delicious", $ML{ '.services.delicious' }, 40],
-                           ["diigo", $ML{ '.services.diigo' }, 16],
-                           ["pinboard", $ML{'.services.pinboard'}, 30],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
-                           ["etsy", $ML{ '.services.etsy' }, 20],
+                           ["msn", $ML{'.chat.msnusername'}, 60],
+                           ["pinboard", $ML{'.services.pinboard'}, 30],
+                           ["plurk", $ML{ '.services.plurk' }, 255],
                            ["ravelry", $ML{ '.services.ravelry' }, 40],
-                           ["ao3", $ML{ '.services.ao3' }, 40],
-                           ["ffnet", $ML{ '.services.ffnet' }, 30],
+                           ["skype", $ML{'.chat.skype'}, 40],
+                           ["tumblr", $ML{ '.services.tumblr' }, 255],
+                           ["twitter", $ML{ '.services.twitter' }, 40],
+                           ["yahoo", $ML{'.chat.yahooid'}, 33],
                           )
 
             {

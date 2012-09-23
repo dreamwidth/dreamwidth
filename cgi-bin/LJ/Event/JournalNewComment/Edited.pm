@@ -33,7 +33,9 @@ sub content {
     my $htmlid  = LJ::Talk::comment_htmlid( $dtalkid );
 
     my $reason = LJ::ehtml( $comment->edit_reason );
-    my $comment_body = "This comment was edited.";
+    my $comment_body =
+        "This comment was edited. " .
+        "Please see the original notification for the updated text.";
     $comment_body .= " " . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.edit_reason", undef, { reason => $reason } ) . "."
             if $reason;
 

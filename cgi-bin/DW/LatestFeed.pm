@@ -275,7 +275,7 @@ sub _process_queue {
     }
 
     # step 6.5) we're going to need the latest things global tag frequency map (...hah)
-    #   [ [ tagname, kwid, ct ], [ tagname, kwid, ct ], ... ]
+    #   [ [ tagname, kwid, ct, time ], [ tagname, kwid, ct, time ], ... ]
     my $tfmap = LJ::MemCache::get( 'latest_items_tag_frequency_map' ) || [];
 
     #   ( kwid => tagname, kwid => tagname, ... )
@@ -320,8 +320,10 @@ sub _process_queue {
                 foreach my $row ( @$tfmap ) {
                     next unless $row->[1] == $kwid;
 
-                    # found the row, so increment the count and bail
+                    # found the row, so increment the count and bail. also, we update the last used
+                    # time so that we know when we can purge the items if they go stale.
                     $row->[2]++;
+                    $row->[3] = time();
                     last;
                 }
 
@@ -329,14 +331,14 @@ sub _process_queue {
                 LJ::MemCache::add( "latest_items_tag_ct:$kwid", 0 );
                 LJ::MemCache::incr( "latest_items_tag_ct:$kwid" );
 
-                # if the tag is noo already in the list, see if we should add it
+                # if the tag is not already in the list, see if we should add it
                 if ( ! exists $tfsr{$kwid} ) {
                     my $ct = LJ::MemCache::get( "latest_items_tag_ct:$kwid" ) || 0;
                     next unless scalar @$tfmap < NUM_TOP_TAGS  # or we don't have enough tags in the list
                                 || $ct > $tfmap->[-1]->[2];    # exceeds minimum value in list already
 
                     # okay, we're going to put this one in the list, prepare a space
-                    push @$tfmap, [ $tag, $kwid, $ct ];
+                    push @$tfmap, [ $tag, $kwid, $ct, time() ];
                     @$tfmap = sort { $b->[2] <=> $a->[2] } @$tfmap;
                     @$tfmap = splice @$tfmap, 0, NUM_TOP_TAGS;
                 }
@@ -363,7 +365,9 @@ sub _process_queue {
     }
 
     # re-sort and update our tag frequency map, then store it
-    @$tfmap = sort { $b->[2] <=> $a->[2] } @$tfmap;
+    my $cutoff = time() - 86400; # ignore tags staler than this
+    @$tfmap = sort { $b->[2] <=> $a->[2] }
+              grep { $_->[3] > $cutoff } @$tfmap;
     @$tfmap = splice @$tfmap, 0, NUM_TOP_TAGS;
     LJ::MemCache::set( latest_items_tag_frequency_map => $tfmap );
 

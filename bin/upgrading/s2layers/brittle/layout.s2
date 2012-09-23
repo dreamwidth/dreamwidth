@@ -6,80 +6,80 @@ layerinfo author_name = "renoir";
 set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
 
 ##===============================
-## Display settings - general
+## Presentation
 ##===============================
 
 propgroup presentation {
+    property use layout_type;
     property use num_items_recent;
     property use num_items_reading;
-    property use num_items_icons;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
     property use use_journalstyle_entry_page;
-    property use layout_type;
-    property use tags_page_type;
-    property use icons_page_sort;
-    property use sidebar_width;
     property use margins_size;
     property use margins_unit;
+    property use sidebar_width;
+
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
+    property use tags_page_type;
+    property use num_items_icons;
+    property use icons_page_sort;
+
+    property use all_entrysubjects;
+    property use all_commentsubjects;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
     property use userpics_style_group;
     property string entryicons_position {
        des = "Place icons on the same side or opposite the sidebar";
        values = "none|None (don't show)|same|Same side as sidebar|opposite|Opposite the sidebar";
     }
     property use entry_metadata_position;
-    property use use_custom_friend_colors;
-    property use use_shared_pic;
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
-    property use entry_datetime_format_group;
-    property use comment_datetime_format_group;
-    property use all_entrysubjects;
-    property use all_commentsubjects;
 }
 
-set sidebar_width = "15em";
 set layout_type = "two-columns-right";
+set sidebar_width = "15em";
 set entry_userpic_style= "small";
 set comment_userpic_style= "small";
 set entryicons_position = "opposite";
-set use_custom_friend_colors = false;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
 
 ##===============================
-## Journal style - colors
+## Colors
 ##===============================
 
 propgroup colors {
-
     property use color_page_background;
     property use color_page_text;
     property use color_page_link;
     property use color_page_link_hover;
     property use color_page_link_visited;
 
-    property use color_footer_background;
-    property use color_footer_link;
-    property use color_footer_link_hover;
-    property use color_footer_link_visited;
-
     property Color color_navigation_module_background { des = "Navigation module background color"; }
     property Color color_navigation_module_link { des = "Navigation module link color"; }
     property Color color_navigation_module_link_hover { des = "Navigation module hover link color"; }
     property Color color_navigation_module_link_visited { des = "Navigation module visited link color"; }
 
-    property use color_entry_title;
+    property use color_footer_background;
+    property use color_footer_link;
+    property use color_footer_link_hover;
+    property use color_footer_link_visited;
+
     property use color_entry_background;
     property use color_entry_text;
     property use color_entry_link;
     property use color_entry_link_hover;
     property use color_entry_link_visited;
+    property use color_entry_title;
 }
 
-
 ##===============================
-## Display settings - fonts
+## Fonts
 ##===============================
 
 propgroup fonts {
@@ -87,28 +87,9 @@ propgroup fonts {
     property use font_fallback;
     property use font_base_size;
     property use font_base_units;
-
-    property string font_entry_text {
-        des = "Preferred font for entry text";
-        maxlength = 50;
-        size = 25;
-        note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
-        }
-    property string font_entry_text_size {
-        des = "Size of entry text font";
-        size = 3;
-        }
-    property string font_entry_text_units {
-        des = "Units for entry text size";
-        values = "em|em|ex|ex|%|%|pt|pt|px|px";
-    }
-    property use font_entry_title;
-    property use font_entry_title_size;
-    property use font_entry_title_units;
-    property use font_comment_title;
-    property use font_comment_title_size;
-    property use font_comment_title_units;
-
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
     property string font_navigation_module_text {
         des = "Preferred font for navigation module text";
         maxlength = 50;
@@ -123,9 +104,7 @@ propgroup fonts {
         des = "Units for navigation module text size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-    property use font_module_heading;
-    property use font_module_heading_size;
-    property use font_module_heading_units;
+
     property string font_other_module_text {
         des = "Preferred font for module text other than navigation module";
         maxlength = 50;
@@ -140,7 +119,26 @@ propgroup fonts {
         des = "Units for module text size other than navigation module";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property string font_entry_text {
+        des = "Preferred font for entry text";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+        }
+    property string font_entry_text_size {
+        des = "Size of entry text font";
+        size = 3;
+        }
+    property string font_entry_text_units {
+        des = "Units for entry text size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+    }
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
     property string font_date_time {
         des = "Preferred font for date and time in entries and comments";
         maxlength = 50;
@@ -155,38 +153,33 @@ propgroup fonts {
         des = "Units for date and time in entries and comments text size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-
 }
-
 
 set font_base = "Georgia";
 set font_fallback = "sans-serif";
 set font_base_size = "1";
 set font_base_units = "em";
-
-set font_entry_text = "Georgia";
-set font_entry_text_size = "0.95";
-set font_entry_text_units = "em";
-set font_entry_title = "Georgia";
-set font_entry_title_size = "0.7";
-set font_entry_title_units = "em";
-
-set font_navigation_module_text = "Georgia";
-set font_navigation_module_text_size = "0.8";
-set font_navigation_module_text_units = "em";
-set font_other_module_text = "Georgia";
-set font_other_module_text_size = "0.8";
-set font_other_module_text_units = "em";
 set font_module_heading = "Georgia";
 set font_module_heading_size = "1";
 set font_module_heading_units = "em";
-
+set font_navigation_module_text = "Georgia";
+set font_navigation_module_text_size = ".8";
+set font_navigation_module_text_units = "em";
+set font_other_module_text = "Georgia";
+set font_other_module_text_size = ".8";
+set font_other_module_text_units = "em";
+set font_entry_title = "Georgia";
+set font_entry_title_size = ".7";
+set font_entry_title_units = "em";
+set font_entry_text = "Georgia";
+set font_entry_text_size = ".95";
+set font_entry_text_units = "em";
 set font_date_time = "Helvetica";
-set font_date_time_size = "0.6";
+set font_date_time_size = ".6";
 set font_date_time_units = "em";
 
 ##===============================
-## Display settings - images
+## Images
 ##===============================
 
 propgroup images {
@@ -195,21 +188,21 @@ propgroup images {
 }
 
 ##===============================
-## Display settings - modules
+## Modules
 ##===============================
 
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
-    property use module_customtext_group;
     property use module_calendar_group;
-    property use module_pagesummary_group;
-    property use module_tags_group;
-    property use module_active_group;
     property use module_links_group;
     property use module_syndicate_group;
+    property use module_tags_group;
+    property use module_pagesummary_group;
+    property use module_active_group;
     property use module_time_group;
     property use module_poweredby_group;
+    property use module_customtext_group;
     property use module_credit_group;
     property use module_search_group;
     property use module_cuttagcontrols_group;
@@ -218,28 +211,82 @@ propgroup modules {
 # explicitly define what sections the layout has available
 set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
 
-# set module order and sections
-set module_navlinks_order = 1;
+set module_userprofile_section = "two";
+set module_userprofile_order = 3;
 set module_navlinks_section = "one";
+set module_navlinks_order = 1;
+set module_calendar_section = "two";
+set module_calendar_order = 13;
+set module_calendar_opts_type = "horizontal";
+set module_links_section = "two";
+set module_links_order = 5;
+set module_syndicate_section = "two";
+set module_syndicate_order = 6;
+set module_tags_section = "two";
+set module_tags_order = 7;
+set module_pagesummary_section = "two";
+set module_pagesummary_order = 8;
+set module_active_section = "two";
+set module_active_order = 9;
 set module_customtext_order = 2;
 set module_customtext_section = "one";
-set module_userprofile_order = 3;
-set module_userprofile_section = "two";
-set module_links_order = 5;
-set module_links_section = "two";
-set module_syndicate_order = 6;
-set module_syndicate_section = "two";
-set module_tags_order = 7;
-set module_tags_section = "two";
-set module_pagesummary_order = 8;
-set module_pagesummary_section = "two";
-set module_active_order = 9;
-set module_active_section = "two";
-set module_credit_order = 10;
 set module_credit_section = "two";
-set module_calendar_order = 13;
-set module_calendar_section = "two";
-set module_calendar_opts_type = "horizontal";
+set module_credit_order = 10;
+
+##===============================
+## Text
+##===============================
+
+propgroup text {
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
+
+    property use text_view_recent;
+    property use text_view_archive;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_tags;
+    property use text_view_memories;
+    property use text_view_userinfo;
+
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_mem_add;
+    property use text_tell_friend;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+
+    property use text_read_comments;
+    property use text_read_comments_friends;
+    property use text_post_comment;
+    property use text_post_comment_friends;
+    property use text_permalink;
+
+    property use text_meta_location;
+    property use text_meta_mood;
+    property use text_meta_music;
+    property use text_meta_xpost;
+    property use text_tags;
+
+    property use text_stickyentry_subject;
+
+    property use text_max_comments;
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+}
 
 ##===============================
 ## Custom CSS
@@ -250,53 +297,6 @@ propgroup customcss {
     property use include_default_stylesheet;
     property use linked_stylesheet;
     property use custom_css;
-}
-
-propgroup text {
-##===============================
-## Text - main navigation
-##===============================
-
-    property use text_view_recent;
-    property use text_view_friends;
-    property use text_view_network;
-    property use text_view_archive;
-    property use text_view_userinfo;
-    property use text_view_memories;
-    property use text_view_tags;
-
-##===============================
-## Text - entry comment-related
-##===============================
-
-    property use text_post_comment;
-    property use text_max_comments;
-    property use text_read_comments;
-    property use text_post_comment_friends;
-    property use text_read_comments_friends;
-
-    property use text_skiplinks_back;
-    property use text_skiplinks_forward;
-    property use text_meta_music;
-    property use text_meta_mood;
-    property use text_meta_location;
-    property use text_meta_xpost;
-    property use text_tags;
-
-    property use text_entry_prev;
-    property use text_entry_next;
-    property use text_edit_entry;
-    property use text_edit_tags;
-    property use text_tell_friend;
-    property use text_mem_add;
-    property use text_watch_comments;
-    property use text_unwatch_comments;
-    property use text_permalink;
-    property use text_stickyentry_subject;
-
-    property use text_module_customtext;
-    property use text_module_customtext_content;
-    property use text_module_customtext_url;
 }
 
 function prop_init() {
@@ -462,7 +462,6 @@ q { font-style: italic; }
 
 li.page-back, li.page-forward {
     display: inline;
-    list-style: none;
     padding: 0;
     margin: 0;
     }
@@ -548,12 +547,12 @@ h3.entry-title a { color: $*color_entry_title; }
 .metadata.top-metadata { margin: 10px 0 1.25em 0; }
 
 .metadata ul {
+    list-style: none;
     padding: 0;
     margin: 0;
     }
 
 .metadata ul li {
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -575,7 +574,6 @@ h3.entry-title a { color: $*color_entry_title; }
 
 .tag ul li {
     display: inline;
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -591,7 +589,6 @@ ul.entry-management-links {
 
 ul.entry-management-links li {
     display: inline;
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -608,7 +605,6 @@ ul.entry-interaction-links {
 
 ul.entry-interaction-links li {
     display: inline;
-    list-style: none;
     font-size: 65%;
     font-weight: normal;
     text-transform: uppercase;
@@ -621,7 +617,6 @@ ul.entry-interaction-links li {
 /*-- archive --*/
 
 li.active {
-    list-style: none;
     display: inline;
     padding: 0;
     margin: 10px;
@@ -657,7 +652,7 @@ li.active {
     }
 
 .navigation ul { display: inline; }
-.navigation li { display: inline; list-style: none; }
+.navigation li { display: inline; }
 
 table.month { border: 0; }
 .month caption { display: none; }
@@ -716,13 +711,12 @@ td.day {
     color: $*color_entry_title;
     }
 
-.page-tags .ljtaglist { margin: 0; padding: 0; }
+.page-tags .ljtaglist { list-style: none; margin: 0; padding: 0; }
 .page-tags .ljtaglist li {
     padding: 0 0 0 10px;
     margin: 0;
     text-transform: lowercase;
     letter-spacing: 0;
-    list-style: none;
     }
 
 .page-tags .tags-container a {
@@ -780,7 +774,6 @@ td.day {
 
 .sorting-options ul li {
     display: inline;
-    list-style: none;
     margin: 0;
     }
 
@@ -810,13 +803,13 @@ td.day {
 
 .icon-keywords ul {
     display: inline;
+    margin: 0;
     padding: 0 0 0 13px;
     }
 
 .icon-keywords ul li {
     display: inline;
-    list-style: none;
-    padding: 0 .25em 0 0;
+    padding: 0;
     }
 
 /*--- comments ---*/
@@ -900,7 +893,7 @@ textarea.textbox  { width: 90%!important; }
     color: $*color_entry_link_hover;
     }
 
-.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; }
 .comment-management-links li, .comment-interaction-links li { display: inline; }
 
 #qrform table { border: 0!important; }
@@ -911,7 +904,7 @@ textarea.textbox  { width: 90%!important; }
     color: $*color_entry_title;
     }
 
-.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; }
 .comment-management-links li, .comment-interaction-links li { display: inline; }
 
 table.talkform {
@@ -966,14 +959,13 @@ table.talkform a:hover {
     }
 
 .module-navlinks ul.module-list {
+    list-style: none;
     padding: 0;
     margin: 0;
-    list-style: none;
     }
 .module-navlinks ul.module-list li {
     padding: 0;
     margin: 0;
-    list-style: none;
     }
 .module-navlinks ul.module-list li a, .module-navlinks ul.module-list li a:link { color: $*color_navigation_module_link; }
 .module-navlinks ul.module-list li a:visited { color: $*color_navigation_module_link_visited; }
@@ -1013,9 +1005,6 @@ table.talkform a:hover {
 .module-userprofile .userpic img { border:5px solid $*color_navigation_module_background; }
 
 ul.userlite-interaction-links.icon-links {
-    list-style-image: none;
-    list-style-position: outside;
-    list-style-type: none;
     margin-left: 0;
     padding-left: 0;
     text-align: center;
@@ -1028,8 +1017,7 @@ ul.userlite-interaction-links.icon-links li {
 
 .module-tags_cloud, .module-time, .module-powered { width: 90%; }
 
-.tags_cloud li, .module-tags_cloud li { display: inline;
-    list-style-type: none; }
+.tags_cloud li, .module-tags_cloud li { display: inline; }
 
 .manage-link {
     font-size: smaller;
@@ -1048,12 +1036,10 @@ ul.userlite-interaction-links.icon-links li {
     }
 
 .module-search .search-form { margin: .2em auto; }
-.module-search .search-box { margin: .2em; }
+.module-search .search-box { margin: .2em; max-width:100%; }
 
 #tertiary .module-content ul {
-    list-style-image: none;
-    list-style-position: outside;
-    list-style-type: disc;
+    list-style-position: disc outside;
     margin-left: 1em;
     padding-left: 0;
     }

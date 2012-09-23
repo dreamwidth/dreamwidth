@@ -19,6 +19,9 @@ bases/themes             theme+                      bases/layout
 basicboxes/layout        layout(core2base/layout)    core2
 basicboxes/themes        theme+                      basicboxes/layout
 
+bannering/layout         layout(core2base/layout)    core2
+bannering/themes         theme+                      bannering/layout
+
 blanket/layout           layout                      core2
 blanket/themes           theme+                      blanket/layout
 
@@ -28,6 +31,9 @@ boxesandborders/themes   theme+                      boxesandborders/layout
 brittle/layout           layout                      core2
 brittle/themes           theme+                      brittle/layout
 
+ciel/layout              layout(core2base/layout)    core2
+ciel/themes              theme+                      ciel/layout
+
 colorside/layout         layout(core2base/layout)    core2
 colorside/themes         theme+                      colorside/layout
 
@@ -36,6 +42,9 @@ compartmentalize/themes  theme+                      compartmentalize/layout
 
 core2base/layout         layout                      core2
 core2base/themes         theme+                      core2base/layout
+
+corinthian/layout        layout(core2base/layout)    core2
+corinthian/themes        theme+                      corinthian/layout
 
 crisped/layout           layout(core2base/layout)    core2
 crisped/themes           theme+                      crisped/layout
@@ -67,11 +76,17 @@ forthebold/themes        theme+                      forthebold/layout
 funkycircles/layout      layout(core2base/layout)    core2
 funkycircles/themes      theme+                      funkycircles/layout
 
-lineup/layout            layout(core2base/layout)    core2
-lineup/themes            theme+                      lineup/layout
-
 hibiscus/layout          layout(core2base/layout)    core2
 hibiscus/themes          theme+                      hibiscus/layout
+
+headsup/layout           layout(core2base/layout)    core2
+headsup/themes           theme+                      headsup/layout
+
+librariansdream/layout   layout(core2base/layout)    core2
+librariansdream/themes   theme+                      librariansdream/layout
+
+lineup/layout            layout(core2base/layout)    core2
+lineup/themes            theme+                      lineup/layout
 
 marginless/layout        layout(core2base/layout)    core2
 marginless/themes        theme+                      marginless/layout
@@ -91,6 +106,9 @@ nouveauoleanders/themes  theme+                      nouveauoleanders/layout
 paletteable/layout       layout(core2base/layout)    core2
 paletteable/themes       theme+                      paletteable/layout
 
+paperme/layout           layout(core2base/layout)    core2
+paperme/themes           theme+                      paperme/layout
+
 practicality/layout      layout(core2base/layout)    core2
 practicality/themes      theme+                      practicality/layout
 
@@ -103,6 +121,9 @@ skittlishdreams/themes   theme+                      skittlishdreams/layout
 steppingstones/layout    layout(core2base/layout)    core2
 steppingstones/themes    theme+                      steppingstones/layout
 
+strata/layout            layout(core2base/layout)    core2
+strata/themes            theme+                      strata/layout
+
 tranquilityiii/layout    layout(core2base/layout)    core2
 tranquilityiii/themes    theme+                      tranquilityiii/layout
 
@@ -111,6 +132,3 @@ wideopen/themes          theme+                      wideopen/layout
 
 zesty/layout             layout                      core2
 zesty/themes             theme+                      zesty/layout
-
-# include local file
-s2layers-local.dat      INCLUDE

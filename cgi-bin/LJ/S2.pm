@@ -1285,6 +1285,7 @@ sub populate_system_props
     $ctx->[S2::PROPS]->{'SITENAMESHORT'} = $LJ::SITENAMESHORT;
     $ctx->[S2::PROPS]->{'SITENAMEABBREV'} = $LJ::SITENAMEABBREV;
     $ctx->[S2::PROPS]->{'IMGDIR'} = $LJ::IMGPREFIX;
+    $ctx->[S2::PROPS]->{'STYLES_IMGDIR'} = $LJ::IMGPREFIX . "/styles";
     $ctx->[S2::PROPS]->{'STATDIR'} = $LJ::STATPREFIX;
 }
 
@@ -1908,11 +1909,16 @@ sub Tag
     my ($u, $kwid, $kw) = @_;
     return undef unless $u && $kwid && $kw;
 
+    my $url = LJ::eurl( $kw );
+    $url = ( $url =~ m![\\\/]! )
+            ? $u->journal_base . '?tag=' . $url
+            : $u->journal_base . '/tag/' . $url;
+
     my $t = {
         _type => 'Tag',
         _id => $kwid,
         name => LJ::ehtml( $kw ),
-        url => $u->journal_base . '/tag/' . LJ::eurl( $kw ),
+        url => $url,
     };
 
     return $t;
@@ -1928,16 +1934,55 @@ sub TagDetail
         _id => $kwid,
         name => LJ::ehtml( $tag->{name} ),
         url => $u->journal_base . '/tag/' . LJ::eurl( $tag->{name} ),
-        use_count => $tag->{uses},
         visibility => $tag->{security_level},
     };
 
-    my $sum = 0;
-    $sum += $tag->{security}->{groups}->{$_}
-        foreach keys %{$tag->{security}->{groups} || {}};
-    $t->{security_counts}->{$_} = $tag->{security}->{$_}
-        foreach qw(public private friends);
-    $t->{security_counts}->{groups} = $sum;
+    # Work out how many uses of the tag the current remote (if any)
+    # should be able to see. This is easy for public & protected 
+    # entries, but gets tricky with group filters because a post can
+    # be visible to >1 of them. Instead of working it out accurately
+    # every time, we give an approximation that will either be accurate
+    # or an underestimate.
+    my $count = 0;
+    my $remote = LJ::get_remote();
+
+    if ( defined $remote && $remote->can_manage( $u )) {    #own journal
+        $count = $tag->{uses};
+        my $groupcount = $tag->{uses};
+        foreach ( qw(public private protected) ) {
+            $t->{security_counts}->{$_} = $tag->{security}->{$_};
+            $groupcount -= $tag->{security}->{$_};
+        }
+        $t->{security_counts}->{group} = $groupcount;
+
+    } elsif ( defined $remote ) {           #logged in, not own journal
+        my $trusted = $u->trusts_or_has_member( $remote );
+        my $grpmask = $u->trustmask( $remote );
+
+        $count = $tag->{security}->{public};
+        $t->{security_counts}->{public} = $tag->{security}->{public};
+        if ( $trusted ) {
+            $count += $tag->{security}->{protected};
+            $t->{security_counts}->{protected} = $tag->{security}->{protected};
+        }
+        if ( $grpmask > 1 ) {
+            # Find the greatest number of uses of this tag in any one group
+            # that this remote is a member of, and add that number to the count
+            my $maxgroupsize = 0;
+            foreach ( LJ::bit_breakdown ( $grpmask ) ) {
+                $maxgroupsize = $tag->{security}->{groups}->{$_}
+                    if $tag->{security}->{groups}->{$_} 
+                    && $tag->{security}->{groups}->{$_} > $maxgroupsize;
+            }
+            $count += $maxgroupsize;
+        }
+
+    } else {        #logged out.
+        $count = $tag->{security}->{public};
+        $t->{security_counts}->{public} = $tag->{security}->{public};
+    }
+    
+    $t->{use_count} = $count;
 
     return $t;
 }
@@ -2486,6 +2531,7 @@ sub UserLink
         'is_heading' => $link->{'url'} ? 0 : 1,
         'url' => LJ::ehtml($link->{'url'}),
         'title' => LJ::ehtml($link->{'title'}),
+        'hover' => LJ::ehtml($link->{'hover'}),
         'children' => $link->{'children'} || [], # TODO: implement parent-child relationships
     };
 }

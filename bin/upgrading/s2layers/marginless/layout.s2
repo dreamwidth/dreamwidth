@@ -418,16 +418,6 @@ ul.entry-interaction-links, ul.comment-interaction-links {
     color: inherit;
     }
 
-.bottomcomment {
-    padding: .25em .5em;
-    background-color: $*color_comment_title_background;
-    color: $*color_comment_title;
-    }
-
-.bottomcomment a {
-    color: $*color_comment_title;
-    }
-
 #qrdiv {
     clear: both;
      }
@@ -624,6 +614,3 @@ $navlinks_css
 
     """;
 }
-
-
-

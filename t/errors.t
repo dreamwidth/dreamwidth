@@ -3,7 +3,7 @@
 use strict;
 use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 
 # old calling conventions unmodified:  return undef on no dbh
 my $db = LJ::get_dbh("foo", "bar");

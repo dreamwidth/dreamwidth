@@ -748,7 +748,7 @@ body<=
                 $q =~ s/^\s+//;
                 $q =~ s/\s+$//;
                 $q =~ s/\n/ /g;
-                $q = substr( $q, 0, 50 ) . "..." if length( $q ) > 50;
+                $q = substr( $q, 0, 75 ) . "..." if length( $q ) > 75;
                 push @faqlist, ( $faq->faqid, $q );
             }
         }

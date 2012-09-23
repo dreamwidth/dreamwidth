@@ -20,12 +20,15 @@ BEGIN {
     # ugly hack to shutup dependent libraries which sometimes want to bring in
     # ljlib.pl (via require, ick!).  so this lets them know if it's recursive.
     # we REALLY need to move the rest of this crap to .pm files.
-    $LJ::_LJLIB_INIT = 1;
+
 
     # ensure we have $LJ::HOME, or complain very vigorously
     $LJ::HOME ||= $ENV{LJHOME};
     die "No \$LJ::HOME set, or not a directory!\n"
         unless $LJ::HOME && -d $LJ::HOME;
+
+    # Please do not change this to "LJ::Directories"
+    require $LJ::HOME . "/cgi-bin/LJ/Directories.pm";
 }
 
 # now that the library is setup, we can start pulling things in.  start with
@@ -89,6 +92,14 @@ use LJ::CleanHTML;
 use DW::LatestFeed;
 use LJ::Keywords;
 use LJ::Procnotify;
+use LJ::DB;
+use LJ::Tags;
+use LJ::TextUtil;
+use LJ::Time;
+use LJ::Capabilities;
+use DW::Mood;
+use LJ::Global::Img;  # defines LJ::Img
+use DW::Media;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {

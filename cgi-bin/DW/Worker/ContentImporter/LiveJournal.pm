@@ -560,7 +560,14 @@ sub get_foaf_from {
     my $content = $r->content;
     $content =~ s!<ya:school.+</foaf:Person>!</foaf:Person>!s;
 
-    $parser->parse( $content );
+    eval {
+        $parser->parse( $content );
+    };
+    if ($@) {
+        # the person above us already knows how to handle blank results,
+        # so this is best effort. fail.
+        return undef;
+    }
 
     return ( \%items, \@interests, \@schools );
 }

@@ -17,6 +17,8 @@ propgroup presentation {
     property use num_items_reading;
     property use use_journalstyle_entry_page;
     property use layout_type;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property string sidebar_width {
         des = "Set the percentage width of a single sidebar, without the % symbol.";
@@ -42,7 +44,6 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
 }
@@ -349,6 +350,21 @@ propgroup customcss {
 }
 
 propgroup text {
+
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
+
 ##===============================
 ## Text - main navigation
 ##===============================
@@ -681,11 +697,11 @@ img {
 }
 
 ul {
-    list-style-type: square;
+    list-style: square;
 }
 
 ul ul {
-    list-style-type: circle;
+    list-style: circle;
 }
 
 blockquote {
@@ -962,14 +978,13 @@ q {
 }
 
 .module-userprofile li {
-    list-style-type: none;
     display: inline;
 }
 
 .module-navlinks ul,
 .module-typelist ul,
 .module-active ul {
-    list-style-type: none;
+    list-style: none;
 }
 
 .module-navlinks a {
@@ -1003,7 +1018,6 @@ q {
 }
 .module-tags_cloud li {
     display: inline;
-    list-style-type: none;
 }
 
 .module-search input.search-box {
@@ -1127,12 +1141,12 @@ q {
 }
 
 .metadata ul {
+    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
 
 .metadata li {
-    list-style-type: none;
     font-size: .9em;
 }
 
@@ -1430,7 +1444,6 @@ q {
 }
 .page-tags .tags-container .tags_cloud li {
     display: inline;
-    list-style-type: none;
 }
 .page-tags .tags-container .manage-tags-link {
     margin: 1em 0;
@@ -1469,7 +1482,6 @@ q {
 
 .sorting-options ul li {
     display: inline;
-    list-style-type: none;
 }
 
 .icons-container .icon {
@@ -1505,7 +1517,6 @@ q {
 
 .icon-keywords ul li {
     display: inline;
-    list-style-type: none;
 }
 
 .icons-container .manage-link {

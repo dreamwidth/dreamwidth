@@ -375,7 +375,7 @@ sub EntryPage
                 my $cmt = LJ::Comment->new($u, dtalkid => $i->{talkid});
 
                 my $has_threads = scalar @{$i->{'replies'}};
-                my $poster = $i->{'poster'} ? $i->{'poster'}{'user'} : "";
+                my $poster = $i->{'poster'} ? $i->{'poster'}{'username'} : "";
                 my @child_ids = map { $_->{'talkid'} } @{$i->{'replies'}};
                 $cmtinfo->{$i->{talkid}} = {
                     rc     => \@child_ids,

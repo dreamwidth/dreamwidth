@@ -3,7 +3,7 @@
 use strict;
 use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 
@@ -170,6 +170,23 @@ $orig_post = $entry_text;
 $cut_text = qq{<em>in</em>};
 $clean->( { cut_retrieve => 2 } );
 is( $orig_post, $cut_text, "Text under inner cut, HTML" );
+
+$entry_text = qq{<div class='ljcut'>Text here</div>};
+$orig_post = $entry_text;
+$cut_text = qq{Text here};
+$clean->( { cut_retrieve => 1 } );
+is( $orig_post, $cut_text, "text in <div> style cut is retrieved" );
+
+$entry_text = qq{<div class='ljcut'>Text here</div> <lj-cut>Other text here</lj-cut>};
+$orig_post = $entry_text;
+$cut_text = qq{Text here};
+$clean->( { cut_retrieve => 1 } );
+is( $orig_post, $cut_text, "text in <div> style cut is retrieved" );
+
+$orig_post = $entry_text;
+$cut_text = qq{Other text here};
+$clean->( { cut_retrieve => 2 } );
+is( $orig_post, $cut_text, "text in <lj-cut> style cut after <div> style cut is retrieved" );
 
 # embed tags
 

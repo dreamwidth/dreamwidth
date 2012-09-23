@@ -1282,10 +1282,12 @@ CREATE TABLE syndicated (
     lastcheck  DATETIME,
     lastmod    INT UNSIGNED, # unix time
     etag       VARCHAR(80),
+    fuzzy_token  VARCHAR(255),
 
     PRIMARY KEY (userid),
     UNIQUE (synurl),
-    INDEX (checknext)
+    INDEX (checknext),
+    INDEX (fuzzy_token)
 )
 EOC
 
@@ -1552,6 +1554,7 @@ CREATE TABLE links (
     parentnum tinyint(4) unsigned NOT NULL default '0',
     url varchar(255) default NULL,
     title varchar(255) NOT NULL default '',
+    hover varchar(255) default NULL,
 
     KEY  (journalid)
 )
@@ -3131,6 +3134,56 @@ CREATE TABLE openid_claims (
 )
 EOC
 
+# FIXME: add alt text, etc. mediaprops?
+register_tablecreate("media", <<'EOC');
+CREATE TABLE `media` (
+  `userid` int(10) unsigned NOT NULL,
+  `mediaid` int(10) unsigned NOT NULL,
+  `anum` tinyint(3) unsigned NOT NULL,
+  `ext` varchar(10) NOT NULL,
+  `state` char(1) NOT NULL DEFAULT 'A',
+  `mediatype` tinyint(3) unsigned NOT NULL,
+  `security` enum('public','private','usemask') NOT NULL DEFAULT 'public',
+  `allowmask` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `logtime` int(10) unsigned NOT NULL,
+  `mimetype` varchar(60) NOT NULL,
+  `filesize` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`userid`,`mediaid`)
+)
+EOC
+
+register_tablecreate("collections", <<'EOC');
+CREATE TABLE `collections` (
+  `userid` int(10) unsigned NOT NULL,
+  `colid` int(10) unsigned NOT NULL,
+  `paruserid` int(10) unsigned NOT NULL,
+  `parcolid` int(10) unsigned NOT NULL,
+  `anum` tinyint(3) unsigned NOT NULL,
+  `state` char(1) NOT NULL DEFAULT 'A',
+  `security` enum('public','private','usemask') NOT NULL DEFAULT 'public',
+  `allowmask` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `logtime` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`userid`,`colid`),
+  INDEX (`paruserid`,`parcolid`)
+)
+EOC
+
+# FIXME: the indexes here are totally whack
+register_tablecreate("collection_items", <<'EOC');
+CREATE TABLE `collection_items` (
+  `userid` int(10) unsigned NOT NULL,
+  `colitemid` int(10) unsigned NOT NULL,
+  `colid` int(10) unsigned NOT NULL,
+  `itemtype` tinyint(3) unsigned NOT NULL,
+  `itemownerid` int(10) unsigned NOT NULL,
+  `itemid` int(10) unsigned NOT NULL,
+  `logtime` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`userid`,`colid`,`colitemid`),
+  UNIQUE (`userid`,`colid`,`itemtype`,`itemownerid`,`itemid`),
+  INDEX (`itemtype`,`itemownerid`,`itemid`)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes
@@ -3986,7 +4039,12 @@ EOF
     unless ( column_type( 'acctcode_promo', 'paid_class' ) =~ /^\Qvarchar(100)\E/ ) {
         do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo MODIFY COLUMN paid_class varchar(100)" );
     }
+# Add the hover text field in 'links' for existing installations
 
+    unless ( column_type( 'links', 'hover' ) ) {
+        do_alter( 'links', "ALTER TABLE links ADD COLUMN hover varchar(255) default NULL" );
+    }
+ 
     if ( table_relevant( "wt_edges" ) && ! check_dbnote( "fix_redirect_edges" ) ) {
         warn "fixing edges leading to a redirect account";
         my $sth = $dbh->prepare(
@@ -4041,6 +4099,12 @@ EOF
             "ALTER TABLE pollquestion2 MODIFY COLUMN opts VARCHAR(255) DEFAULT NULL");
     }
 
+    if (column_type("syndicated", "fuzzy_token") eq '') {
+        do_alter( 'syndicated',
+            "ALTER TABLE syndicated ".
+            "ADD COLUMN fuzzy_token VARCHAR(255), " .
+            "ADD INDEX (fuzzy_token);" );
+    }
 });
 
 

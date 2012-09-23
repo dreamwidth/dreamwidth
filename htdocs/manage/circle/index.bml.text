@@ -15,6 +15,8 @@
 
 .invite.title=Invite Someone
 
+.popsub.about=Discover new journals to follow, by seeing which other accounts are popular with the current members of your circle.
+
 .security=You use your Access List to restrict access to some or all of your entries; only the people to whom you've given access will be able to view them. This doesn't apply to communities or feeds.
 
 .security.custom=You can specify which access groups can view your entry with "Custom" access.  If you select multiple groups for one entry, it will be visible to anyone in any of those groups.

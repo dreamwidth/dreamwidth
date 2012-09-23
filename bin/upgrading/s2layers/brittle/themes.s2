@@ -45,7 +45,7 @@ set color_navigation_module_link_visited = "#253136";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/argyle.png";
+set image_background_page_url = "commons/argyle.png";
 
 
 #NEWLAYER: brittle/badfairy
@@ -240,7 +240,7 @@ set font_other_module_text_size = ".9";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/bluedays.png";
+set image_background_page_url = "commons/bluedays.png";
 
 function Page::print_theme_stylesheet() {
     """
@@ -536,7 +536,7 @@ set color_navigation_module_link_visited = "#0F6671";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/certainfrogs.png";
+set image_background_page_url = "commons/certainfrogs.png";
 
 
 #NEWLAYER: brittle/chinesepink
@@ -586,7 +586,7 @@ set color_navigation_module_link_visited = "#7D4D3F";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/chinesepink.png";
+set image_background_page_url = "commons/chinesepink.png";
 
 
 #NEWLAYER: brittle/circus
@@ -1083,7 +1083,7 @@ set color_navigation_module_link_visited = "#80bca3";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/elegantbrown.png";
+set image_background_page_url = "commons/elegantbrown.png";
 
 function Page::print_theme_stylesheet() {
     """
@@ -1756,6 +1756,120 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: brittle/justadream
+layerinfo type = "theme";
+layerinfo name = "Just a Dream";
+layerinfo redist_uniq = "brittle/justadream";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#eafde6";
+set color_page_link = "#2D7823";
+set color_page_link_hover = "#0aa4aa";
+set color_page_link_visited = "#1b676b";
+set color_page_text = "#0a0a0a";
+set color_footer_background = "#c0fdb2";
+set color_footer_link = "#2D7823";
+set color_footer_link_hover = "#0aa4aa";
+set color_footer_link_visited = "#1b676b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d4fdcb";
+set color_entry_link = "#2D7823";
+set color_entry_link_hover = "#0aa4aa";
+set color_entry_link_visited = "#1b676b";
+set color_entry_text = "#0a0a0a";
+set color_entry_title = "#1e888c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#c0fdb2";
+set color_navigation_module_link = "#2D7823";
+set color_navigation_module_link_hover = "#0aa4aa";
+set color_navigation_module_link_visited = "#1b676b";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_navigation_module_background;
+        border: none;
+        color: $*color_navigation_module_link;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
 #NEWLAYER: brittle/lavender
 layerinfo type = "theme";
 layerinfo name = "Lavender";
@@ -2268,6 +2382,121 @@ function Page::print_theme_stylesheet() {
         background: $*color_page_background;
         border: none;
         color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
+#NEWLAYER: brittle/rattlesnake
+layerinfo type = "theme";
+layerinfo name = "Rattlesnake";
+layerinfo redist_uniq = "brittle/rattlesnake";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+
+set color_page_background = "#FEEED6";
+set color_page_link = "#667149";
+set color_page_link_hover = "#afa752";
+set color_page_link_visited = "#294425";
+set color_page_text = "#0a0a0a";
+set color_footer_background = "#FEF5EA";
+set color_footer_link = "#667149";
+set color_footer_link_hover = "#afa752";
+set color_footer_link_visited = "#294425";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fafafa";
+set color_entry_link = "#667149";
+set color_entry_link_hover = "#afa752";
+set color_entry_link_visited = "#294425";
+set color_entry_text = "#0a0a0a";
+set color_entry_title = "#1e1e1e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#FEF5EA";
+set color_navigation_module_link = "#667149";
+set color_navigation_module_link_hover = "#afa752";
+set color_navigation_module_link_visited = "#294425";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_navigation_module_background;
+        border: none;
+        color: $*color_navigation_module_link;
         font-size: inherit;
         font-style: normal;
         margin-top: .5em;

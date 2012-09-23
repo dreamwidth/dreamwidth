@@ -18,7 +18,9 @@
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN {
+    require 'ljlib.pl';
+}
 
 die "Need to have Sphinx search enabled.\n"
     unless @LJ::SPHINX_SEARCHD;

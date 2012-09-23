@@ -116,6 +116,8 @@ _c?>
                 $body = "<?h1 $ML{'.error.deleted.title'} h1?><?p " .
                         BML::ml(".error.deleted.body", { 'desc' => $memory->{'des'} }) .
                         " p?>";
+                $body .= "<ul><li><a href='$LJ::SITEROOT/tools/memories?user=" . $memoryu->user .
+                         "'>" . "$ML{'.error.deleted.next'}</a></li></ul>";
                 return;
             } else {
                 $title = $ML{'Error'};
@@ -368,6 +370,7 @@ _c?>
                                  security => $sec,
                              }, \@kwid);
         LJ::Memories::updated_keywords($memoryu) if $needflush;
+        $exist_kw = LJ::Memories::get_keywords($memoryu) if $needflush;
 
         $title = $ML{'.title.added'};
         $body .= "<?h1 $ML{'.body.added.header'} h1?>";
@@ -378,6 +381,23 @@ _c?>
         $body .= "<li><a href='" . $entry->url . "'>$ML{'.body.added.next.entry'}</a></li>";
         $body .= "<li><a href='$LJ::SITEROOT/tools/memories?user=" . $memoryu->user . "'>"
                . "$ML{'.body.added.next.view'}</a></li>";
+
+        foreach my $kwid ( @kwid ) {
+                my $kw = $exist_kw->{$kwid};
+                my $ue_kw = LJ::eurl( $kw );
+                LJ::text_out( \$kw );
+
+                if ($kw eq "*") {
+                    $kw = $ML{'.uncategorized'};
+                } else {
+                    $kw = LJ::ehtml( $kw );
+                }
+
+                $body .= "<li><a href=\"/tools/memories?user=" . $memoryu->user .
+                         "&amp;keyword=$ue_kw&amp;filter=all\">" .
+                         BML::ml( ".body.added.next.keywords", { 'keyword' => $kw } ) . "</a></li>";
+        }
+
         $body .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'.body.added.next.friends'}</a></li>";
         $body .= "<li>" . BML::ml(".body.added.next.journal", { 'user' => $ju->ljuser_display }) . "</li>";
         $body .= "</ul>";

@@ -30,6 +30,8 @@ propgroup presentation
     property use use_journalstyle_entry_page;
     property use margins_size;
     property use margins_unit;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use icons_page_sort;
     property use userpics_style_group;
     property use userpics_position;
@@ -39,7 +41,6 @@ propgroup presentation
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
     property use all_entrysubjects;
@@ -99,7 +100,7 @@ propgroup images
     property string image_header_right {
         des = "Right header image URL";
     }
-    property string image_module_header_url { 
+    property string image_module_header_url {
         des = "Module/Entry header image URL";
     }
 }
@@ -194,6 +195,21 @@ set module_links_order         = 3;
 ################################################################################
 propgroup text
 {
+
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
+
     property use text_view_recent;
     property use text_view_friends;
     property use text_view_network;
@@ -468,7 +484,6 @@ function Page::print_default_stylesheet()
     }
 
     .navigation ul {
-        list-style: none;
         display: inline;
         padding: 0px;
     }
@@ -608,15 +623,19 @@ function Page::print_default_stylesheet()
         word-wrap: break-word;
     }
 
+    /* Search Module
+    ***************************************************************************/
+    .search-box { max-width: 100%; }
+
     /* Tag Module
     ***************************************************************************/
     .module-tags_cloud .module-list {
         margin-bottom: 0.5em;
     }
 
-    .module-tags_cloud li, .tags_cloud li { 
+    .module-tags_cloud li, .tags_cloud li {
         display: inline;
-        list-style-type: none; }
+    }
 
     /* Reply
     ***************************************************************************/
@@ -757,7 +776,6 @@ function Page::print_default_stylesheet()
     .comment-interaction-links,
     .comment-management-links {
         display: inline;
-        list-style: none;
         padding-left: 0px;
     }
 
@@ -984,13 +1002,12 @@ function Page::print_default_stylesheet()
 
     .icon-keywords ul {
         display: inline;
-        list-style: none;
-        padding-left: 0;
+        margin 0;
+        padding-left: 5px;
     }
 
     .icon-keywords ul li {
         display: inline;
-        padding: 0 .25em 0 0;
     }
 
     /* Footer
@@ -1135,7 +1152,7 @@ function EntryPage::print_comment (Comment c)
             println "</div>";
 
             $c->print_metadata();
-            
+
             println "<div class=\"comment-text\">";
             $c->print_text();
             println "</div>";
@@ -1161,14 +1178,14 @@ function EntryPage::print_comment (Comment c)
 ################################################################################
 function ReplyPage::print_body
 {
-    if ($.replyto isa Entry) 
+    if ($.replyto isa Entry)
     {
         var Entry e = $.replyto as Entry;
         $this->print_entry($e);
     }
-    elseif ($.replyto isa Comment) 
+    elseif ($.replyto isa Comment)
     {
-    
+
         var Comment c = $.replyto as Comment;
         $this->print_comment($c);
     }
@@ -1208,12 +1225,12 @@ function ReplyPage::print_comment (Comment c)
             println "</div>";
 
             $c->print_metadata();
-            
+
             println "<div class=\"comment-text\">";
             $c->print_text();
             println "</div>";
 
-            $c->print_interaction_links();            
+            $c->print_interaction_links();
         println "</div>";
 
     $c->print_wrapper_end();
@@ -1221,15 +1238,16 @@ function ReplyPage::print_comment (Comment c)
 
 ## Day Page
 ################################################################################
-function DayPage::print_body()
-{
+function DayPage::print_body() {
+var Entry[] entries = $*reverse_sortorder_day ? reverse $.entries : $.entries;
+
     $this->print_navigation();
 
     println "<h2 class=\"day-title\">" + $.date->date_format("long") + "</h2>";
 
     if ($.has_entries)
     {
-        foreach var Entry e ($.entries)
+        foreach var Entry e ($entries)
         {
             $this->print_entry($e);
         }
@@ -1244,11 +1262,12 @@ function DayPage::print_body()
 
 ## Year Page
 ################################################################################
-function YearPage::print_body
-{
+function YearPage::print_body {
+var YearMonth[] months = $*reverse_sortorder_year ? reverse $.months : $.months;
+
     $this->print_navigation();
 
-    foreach var YearMonth m ($.months)
+    foreach var YearMonth m ($months)
     {
         $this->print_month($m);
     }
@@ -1283,14 +1302,15 @@ function YearPage::print_month(YearMonth m)
 
 ## Month Page
 ################################################################################
-function MonthPage::print_body
-{
+function MonthPage::print_body {
+var MonthDay[] days = $*reverse_sortorder_month ? reverse $.days : $.days;
+
     $this->print_navigation();
 
     println "<h2 class=\"month-title\">" + $.date->date_format($*lang_fmt_month_long) + "</h2>";
 
     println "<div class=\"month-entries\">";
-        foreach var MonthDay d ($.days)
+        foreach var MonthDay d ($days)
         {
             if ($d.has_entries)
             {

@@ -3,7 +3,7 @@ use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 
 #plan tests => 16;
 plan skip_all => 'Fix this test!';

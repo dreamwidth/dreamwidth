@@ -192,10 +192,6 @@ sub make_authas_select {
 
     my $authas = $opts->{authas} || $u->user;
     my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
-    my $label  = $opts->{label};
-
-    my $comm = $opts->{type} && $opts->{type} eq "C" ? ".comm" : "";
-    $label ||= $BML::ML{"web.authas.label$comm"};
 
     my @list = $u->get_authas_list( $opts );
 
@@ -205,7 +201,8 @@ sub make_authas_select {
                                      class => 'hideable' },
                                    map { $_, $_ } @list );
 
-        $ret = "$label $ret " . LJ::html_submit( undef, $button )
+
+        $ret = "<br/>" . LJ::Lang::ml( "web.authas.select", { menu => $ret, username => LJ::ljuser($authas) } ) . " " . LJ::html_submit( undef, $button ) . "<br/><br/>\n"
             unless $opts->{selectonly};
 
         return $ret;
@@ -1215,6 +1212,7 @@ sub viewing_style_opts {
     my $valid_style_args = {
         style  => { light => 1, site => 1, mine => 1, original => 1 },
         format => { light => 1 },
+        fallback => { s2 => 1, bml => 1 },
     };
 
     my %ret;
@@ -2604,7 +2602,7 @@ sub res_includes {
         my %oldest; # type -> $oldest
         my %included = ();
         my $add = sub {
-            my ($type, $what, $modtime) = @_;
+            my ($type, $what, $modtime, $order) = @_;
 
             # the same file may have been included twice
             # if it was in two different groups and not JS
@@ -2617,15 +2615,19 @@ sub res_includes {
             # end, which is done later in the tags function.
             $what .= "?v=$modtime" unless $do_concat;
 
-            push @{$list{$type} ||= []}, $what;
-            $oldest{$type} = $modtime if $modtime > ( $oldest{$type} || 0 );
+            $list{$type} ||= [];
+            push @{$list{$type}[$order] ||= []}, $what;
+            $oldest{$type} ||= [];
+            $oldest{$type}[$order] = $modtime if $modtime > ( $oldest{$type}[$order] || 0 );
         };
 
         # we may not want to pull in the libraries again, say if we're pulling in elements via an ajax load
         delete $LJ::NEEDED_RES[$LJ::LIB_RES_PRIORITY] unless $include_libs;
 
+        my $order = 0;
         foreach my $by_priority ( reverse @LJ::NEEDED_RES ) {
             next unless $by_priority;
+            $order++;
 
             foreach my $resrow ( @$by_priority ) {
                 # determine if this resource is part of the resource group that is active;
@@ -2654,30 +2656,33 @@ sub res_includes {
                 }
 
                 if ($path =~ m!^js/(.+)!) {
-                    $add->('js', $1, $mtime);
+                    $add->("js", $1, $mtime, $order);
                 } elsif ($path =~ /\.css$/ && $path =~ m!^(w?)stc/(.+)!) {
-                    $add->("${1}stccss", $2, $mtime);
+                    $add->("${1}stccss", $2, $mtime, $order);
                 } elsif ($path =~ /\.js$/ && $path =~ m!^(w?)stc/(.+)!) {
-                    $add->("${1}stcjs", $2, $mtime);
+                    $add->("${1}stcjs", $2, $mtime, $order);
                 }
             }
         }
 
         my $tags = sub {
             my ($type, $template) = @_;
-            my $list;
-            return unless $list = $list{$type};
+            for my $o ( 0...$order ) {
+                my $list;
+                my $template_order = $template;
+                next unless $list = $list{$type}[$o];
 
-            if ($do_concat) {
-                my $csep = join(',', @$list);
-                $csep .= "?v=" . $oldest{$type};
-                $template =~ s/__+/??$csep/;
-                $ret .= $template;
-            } else {
-                foreach my $item (@$list) {
-                    my $inc = $template;
-                    $inc =~ s/__+/$item/;
-                    $ret .= $inc;
+                if ($do_concat) {
+                    my $csep = join(',', @$list);
+                    $csep .= "?v=" . $oldest{$type}[$o];
+                    $template_order =~ s/__+/??$csep/;
+                    $ret .= $template_order;
+                } else {
+                    foreach my $item (@$list) {
+                        my $inc = $template;
+                        $inc =~ s/__+/$item/;
+                        $ret .= $inc;
+                    }
                 }
             }
         };

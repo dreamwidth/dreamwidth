@@ -624,8 +624,8 @@ sub _rename_to_ex {
     my $tries = 0;
 
     while ( $tries < 10 ) {
-        # take the first ten characters of the old username + a random number
-        my $ex_user = substr( $u->user, 0, 10 ) . int( rand( 999 ) );
+        # take the first nineteen characters of the old username + a random number
+        my $ex_user = substr( $u->user, 0, 19 ) . int( rand( 999 ) );
 
         # do the rename if the user doesn't already exist
         return DW::User::Rename::_rename( $u, "ex_$ex_user", redirect => 0, token => DW::RenameToken->create_token( systemtoken => 1 ) )

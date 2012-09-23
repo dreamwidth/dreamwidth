@@ -228,7 +228,7 @@ sub get_menu_navigation {
                     display => $always,
                 },
                 {
-                    url => "$LJ::SITEROOT/tools/popsubscriptions",
+                    url => "$LJ::SITEROOT/manage/circle/popsubscriptions",
                     text => "menunav.explore.popsubscriptions",
                     display => $loggedin_popsubscriptions,
                 },
@@ -339,7 +339,7 @@ sub get_menu_display {
     }
 
     # remove empty menus and only include title, name and item information
-    my @menus = map { { title => $_->{title}, name => $_->{name}, items => $_->{items} } } 
+    my @menus = map { { title => $_->{title}, name => $_->{name}, items => $_->{items} } }
         grep { $_->{display} } @$menu_nav;
 
     # Return undefined if we don't have any menus to return

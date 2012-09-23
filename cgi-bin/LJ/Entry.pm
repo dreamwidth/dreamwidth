@@ -582,6 +582,7 @@ sub comment_info {
         ( $journal->{opt_showtalklinks} eq "Y" && !$self->comments_disabled ) ) ? 1 : 0;
     my $has_screened = ( $self->props->{hasscreened} && $remote && $journal
                          && $remote->can_manage( $journal ) ) ? 1 : 0;
+    my $screenedcount = $has_screened ? LJ::Talk::get_screenedcount( $u, $self->jitemid ) : 0;
     my $replycount = $comments_enabled ? $self->reply_count : 0;
     my $nc = "";
     $nc .= "nc=$replycount" if $replycount && $remote && $remote->{opt_nctalklinks};
@@ -595,6 +596,7 @@ sub comment_info {
         enabled => $comments_enabled,
         comments_disabled_maintainer => $self->comments_disabled_maintainer,
         screened => $has_screened,
+        screened_count => $screenedcount,
         show_readlink => $comments_enabled && ( $replycount || $has_screened ),
         show_postlink => $comments_enabled,
     };
@@ -811,6 +813,25 @@ sub comments_manageable_by {
     return 0 unless $remote;
     my $u = $self->{u};
     return $remote->userid == $self->posterid || $remote->can_manage( $u );
+}
+
+# instance method: returns bool, if remote user can edit this entry
+# use this to determine whether to, e.g., show edit buttons or an edit form
+# but don't use this when saving stuff to the database -- those need to pass through the protocol
+# does not care about readonly status, just about permissions
+sub editable_by
+{
+    my ( $self, $remote ) = @_;
+    return 0 unless LJ::isu( $remote );
+    return 0 unless $self->visible_to( $remote );
+
+    # remote is editing their own entry
+    return 1 if $self->posterid == $remote->userid;
+
+    # editing an entry that's not your personal journal
+    return 1 if $self->journalid != $self->posterid && $remote->can_manage( $self->journal );
+
+    return 0;
 }
 
 # instance method:  returns bool, if remote user can view this entry

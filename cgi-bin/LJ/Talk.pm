@@ -2031,10 +2031,12 @@ sub talkform {
             );
     }
 
-    # Display captcha challenge if over rate limits.
+    # Display captcha challenge if required.
     if ( $opts->{do_captcha} ) {
-        my $captcha = DW::Captcha->new( undef, want => $journalu->captcha_type );
+        my $captcha_type = $journalu->captcha_type;
+        my $captcha = DW::Captcha->new( undef, want => $captcha_type );
         $ret .= $captcha->print;
+        $ret .= "<input type='hidden' name='captcha_type' value='$captcha_type' />";
     }
 
     if ( $editid ) {
@@ -3666,9 +3668,6 @@ sub init {
     # unixify line-endings
     $form->{'body'} =~ s/\r\n/\n/g;
 
-    # FIXME: remove when we no longer support BML
-    $form->{textcaptcha_challenge} = [ split /\0/, $form->{textcaptcha_challenge} ];
-
     # now check for UTF-8 correctness, it must hold
     return $err->("<?badinput?>") unless LJ::text_in($form);
 
@@ -3736,6 +3735,7 @@ sub init {
         # see if they're in the second+ phases of a captcha check.
         # are they sending us a response?
 
+        $form->{want} = $form->{captcha_type};
         my $captcha = DW::Captcha->new( undef, %{$form || {}} );
 
         if ( $captcha->enabled && $captcha->response ) {

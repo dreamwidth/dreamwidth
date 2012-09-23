@@ -5,10 +5,7 @@ layerinfo author_name = "ninetydegrees";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
-set layout_resources = [
-    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
-    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
-];
+set layout_resources = [ { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" } ];
 
 ##===============================
 ## Presentation 
@@ -107,6 +104,10 @@ propgroup colors_child {
 ##===============================
 ## Fonts 
 ##===============================
+
+propgroup fonts_child {
+    property use font_sources;
+}
 
 set font_sources = "http://fonts.googleapis.com/css?family=Iceland";
 set font_base = "Iceland, 'Courier New'";
@@ -1304,9 +1305,7 @@ h2#pagetitle {
 #header .module li.current { background-color: $*color_module_header_background_hover; }
 #header .module li.current a { color: $*color_module_header_link_hover; }
 
-#header .module li {
-    list-style: none;
-    }
+#header .module li { list-style: none; }
 
 #header-footer {
     $header_background
@@ -1448,12 +1447,12 @@ h2#pagetitle {
 
 .restrictions { color: $*color_entry_link_hover; }
 
-.date:before { content: 'Date: '; }
-.time:before { content: 'Time: '; }
-.entry .poster:before { content: 'Posted by: '; }
+.date::before { content: 'Date: '; }
+.time::before { content: 'Time: '; }
+.entry .poster::before { content: 'Posted by: '; }
 .poster.empty { display: none; }
-.access-filter:before { content: 'Security: '; }
-.restrictions:before { content: 'Warnings: '; }
+.access-filter::before { content: 'Security: '; }
+.restrictions::before { content: 'Warnings: '; }
 
 .has-userpic .userpic {
     float: $*userpics_position;
@@ -1897,8 +1896,8 @@ span.de {
 
 .day-date { display: none; }
 
-.tags-container li { list-style-type: square; }
-.tags-container li li { list-style-type: none; }
+.tags-container li { list-style: square; }
+.tags-container li li { list-style: none; }
 
 .sorting-options ul {
     margin: 0 0 1em;
@@ -1926,13 +1925,12 @@ span.de {
 
 .icon-info .default { text-decoration: underline; }
 
-.icon-info .comment { margin-bottom: 0; }
-
-.keywords ul {
+.icon-keywords ul {
     color: $*color_entry_link_hover;
     margin: 0;
     }
-.keywords ul li { padding: 0; }
+
+.icon-keywords ul li { padding: 0; }
 
 /* Modules
 ******************************/
@@ -1985,11 +1983,11 @@ $module_css
 .module ul { margin-bottom: 0; }
 
 .module li {
-    list-style-type: square;
+    list-style: square;
     margin: 0;
     }
 
-.module li li { list-style-type: none; }
+.module li li { list-style: none; }
 
 .module-navlinks li.current,
 .module-navlinks li.current a {

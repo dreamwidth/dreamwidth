@@ -21,10 +21,6 @@ use base 'DW::Setting::ViewStyle';
 use strict;
 use warnings;
 
-sub supports_site {
-    return 0;
-}
-
 sub label {
     return $_[0]->ml( 'setting.display.viewjournalstyle.label' );
 }

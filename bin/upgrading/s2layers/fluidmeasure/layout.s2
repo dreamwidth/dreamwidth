@@ -161,9 +161,8 @@ blockquote { margin: 0 1em 1em 1em;
     padding: .5em;
     background-color: $*color_entry_border;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; } 
+    }
+
 dl dt { font-weight: bold; }
 
 ul {  }
@@ -219,15 +218,12 @@ position: relative; z-index: 120;}
 /*to make the bottom curves */
 .one-column #content,
 .two-columns-left #content,
-.two-columns-right #content { border-bottom-color: transparent;
+.two-columns-right #content {
+    border-bottom-color: transparent;
     border-bottom-left-radius: 1em;
     border-bottom-right-radius: 1em;
-    -moz-border-radius-bottomright: 1em;
-    -moz-border-radius-bottomleft: 1em;
-    -webkit-border-bottom-left-radius: 1em;
-    -webkit-border-bottom-right-radius: 1em;
-    -khtml-border-bottom-left-radius: 1em;
-    -khtml-border-bottom-right-radius: 1em; }
+    }
+
 .three-columns-sides #color-footer,
 .three-columns-left #color-footer,
 .three-columns-right #color-footer { background-color: $*color_page_border;
@@ -235,13 +231,8 @@ position: relative; z-index: 120;}
     border: 1em solid $*color_page_border;
     border-bottom-left-radius: 1em;
     border-bottom-right-radius: 1em;
-    -moz-border-radius-bottomright: 1em;
-    -moz-border-radius-bottomleft: 1em;
-    -webkit-border-bottom-left-radius: 1em;
-    -webkit-border-bottom-right-radius: 1em;
-    -khtml-border-bottom-left-radius: 1em;
-    -khtml-border-bottom-right-radius: 1em;
-clear: both;  }
+    clear: both;
+    }
 
 
 /* header */
@@ -250,13 +241,9 @@ clear: both;  }
     color: $*color_page_title;
     border-top-left-radius: 1em;
     border-top-right-radius: 1em;
-    -moz-border-radius-topleft: 1em;
-    -moz-border-radius-topright: 1em;
-    -webkit-border-top-left-radius: 1em;
-    -webkit-border-top-right-radius: 1em;
-    -khtml-border-top-left-radius: 1em;
-    -khtml-border-top-right-radius: 1em;
-position: relative; z-index: 130; }
+    position: relative;
+    z-index: 130;
+    }
 
 #pagetitle {  }
 
@@ -274,9 +261,8 @@ position: relative; z-index: 130; }
     color: $*color_entry_title;
     padding: .5em;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; }
+    }
+
 .navigation .page-forward { margin-left: 1em; }
 .navigation a { color: $*color_entry_title; }
 .navigation .page-separator { display: none; }
@@ -302,17 +288,12 @@ float: left; width: 100%; /*asinine IE7 hack*/ }
 .entry { background-color: $*color_entry_background;
     border: 1px solid $*color_page_background !important;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
-    padding: 3em 0 0 0;}
+    padding: 3em 0 0 0;
+    }
 
 .entry .header { padding: 0 .5em; }
 .entry .entry-title { background-color: $*color_entry_title_background;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
     margin: -4em 15em 1em 1.5em;
     padding: .5em;
     float: left; }
@@ -351,12 +332,8 @@ position: relative; /*more asinine IE7 hackish fixing*/ }
     overflow: auto; /* keep floated elements inside the footer */
     border-bottom-left-radius: 1em;
     border-bottom-right-radius: 1em;
-    -moz-border-radius-bottomleft: 1em;
-    -moz-border-radius-bottomright: 1em;
-    -webkit-border-bottom-left-radius: 1em;
-    -webkit-border-bottom-right-radius: 1em;
-    -khtml-border-bottom-left-radius: 1em;
-    -khtml-border-bottom-right-radius: 1em; }
+    }
+
 .entry .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
 
 .entry .tag { padding: .5em .5em 1em .5em;
@@ -385,10 +362,8 @@ padding-top: 2em; } /*die in a fire, IE7*/
 .comment { 
     background-color: $*color_entry_background;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
-    padding: 3em .5em .5em .5em;}
+    padding: 3em .5em .5em .5em;
+    }
 
 .partial .comment { margin-bottom: 0; padding: 1em;} 
 
@@ -447,9 +422,7 @@ padding-top: 2em; } /*die in a fire, IE7*/
     margin-bottom: 2em;
     background-color: $*color_entry_background;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; }
+    }
 
 .bottomcomment .entry-management-links,
 .bottomcomment .entry-interaction-links { margin: .25em 0 .5em 0; }
@@ -461,11 +434,9 @@ padding-top: 2em; } /*die in a fire, IE7*/
 table.talkform { background-color: $*color_entry_background;
     padding: .5em;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
-clear: both;
-display: block;}
+    clear: both;
+    display: block;
+    }
 
 
 /* archive */
@@ -478,9 +449,7 @@ div.month { margin: 1em 0 2em 0;
     background-color: $*color_entry_background;
     padding: .5em;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; }
+    }
 
 table.month td,
 table.month th { border-color: $*color_page_details_text;
@@ -507,10 +476,8 @@ text-align: center; }
     padding: .5em;
     margin-bottom: 3em;
     width: 14em;
-    -border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; }
+    border-radius: 1em;
+    }
 
 
 /* tags page */
@@ -518,9 +485,7 @@ text-align: center; }
     padding: .5em;
     margin: 1em 2em;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;}
+    }
 
 /* icons */
 
@@ -609,9 +574,7 @@ text-align: center; }
 #secondary,
 #tertiary { background-color: $*color_page_border;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; }
+    }
 
 .one-column #secondary,
 .one-column #tertiary {
@@ -640,23 +603,16 @@ text-align: center; }
 .two-columns-right #tertiary { 
     border-bottom-left-radius: 1em;
     border-bottom-right-radius: 1em;
-    -moz-border-radius-bottomleft: 1em;
-    -moz-border-radius-bottomright: 1em;
-    -webkit-border-bottom-left-radius: 1em;
-    -webkit-border-bottom-right-radius: 1em;
-    -khtml-border-bottom-left-radius: 1em;
-    -khtml-border-bottom-right-radius: 1em;
- }
+    }
 
 
 .module {  padding: 1em .25em .5em .25em; 
     margin: 2.5em 1.5em;
     background-color: $*color_module_background;
-border-color: transparent !important;
+    border-color: transparent !important;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; } 
+    }
+
 .two-columns-left #tertiary .module,
 .two-columns-right #tertiary .module { margin: 1em 1.5em; }
 
@@ -669,9 +625,8 @@ border-color: transparent !important;
     float: left;
     color: $*color_module_title;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; }
+    }
+
 #secondary .module-header a,
 #tertiary .module-header a,
 #secondary .module-header a:visited,
@@ -690,9 +645,8 @@ border-color: transparent !important;
     background-color: $*color_page_border;
     padding: 2px;
     border-radius: 4px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -khtml-border-radius: 4px;}
+    }
+
 .module-calendar table a { text-decoration: none; }
 .module-calendar table a:hover { text-decoration: underline; }
 
@@ -703,9 +657,7 @@ border-color: transparent !important;
 .module-powered { padding: .5em; }
 
 .module-search .search-box, .module-search .search-button {
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
+    border-radius: 1em;
     background-color: $*color_entry_background;
     color: $*color_entry_text;
     border: 1px solid $*color_module_title_background;
@@ -732,9 +684,7 @@ border-color: transparent !important;
     margin: 1em 2em;
     float: left;
     border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em; }
+    }
 
 $userpic_css
 """;

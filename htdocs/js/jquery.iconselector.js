@@ -37,10 +37,14 @@
       <div class='iconselector_top'>\
         <span class='iconselector_searchbox'>\
           Search: <input type='search' id='iconselector_search'>\
-          </span>\
-        <span class='image-text-toggle' id='iconselector_image_text_toggle'>\
-          <span class='toggle-image-only'><a href='#' class='image_only'>Images only</a> / Show meta text</span>\
-          <span class='toggle-no-meta'>Images only / <a href='#' class='show_text'>Show meta text</a></span>\
+        </span>\
+        <span class='image-text-toggle' id ='iconselector_image_text_toggle'>\
+          <span class='toggle-meta-on'>Meta text / <a href='#' class='no_meta_text'>No meta text</a></span>\
+          <span class='toggle-meta-off'><a href='#' class ='meta_text'>Meta text</a> / No meta text</span>\
+        </span>\
+        <span class='image-size-toggle' id='iconselector_image_size_toggle'>\
+          <span class='toggle-half-image'>Small images / <a href='#' class='full_image'>Large images</a></span>\
+          <span class='toggle-full-image'><a href='#' class='half_image'>Small images</a> / Large images</span>\
         </span>\
         <div class='kwmenu'>\
           <label for='iconselector_kwmenu'>Keywords of selected icon:</label>\
@@ -170,15 +174,29 @@
              } )
             .keydown(_selectByEnter);
 
-            $("#iconselector_image_text_toggle a").click(function() {
-                if ( $(this).hasClass("image_only") ) {
-                    $("#iconselector_icons, #iconselector_image_text_toggle").addClass("no_meta");
+
+            $("#iconselector_image_size_toggle a").click(function() {
+                if ($(this).hasClass("half_image") ) {
+                    $("#iconselector_icons, #iconselector_image_size_toggle, #iconselector_icons_list").addClass("half_icons");
                 } else {
-                    $("#iconselector_icons, #iconselector_image_text_toggle").removeClass("no_meta");
+                    $("#iconselector_icons, #iconselector_image_size_toggle, #iconselector_icons_list").removeClass("half_icons");
                 }
 
-                // refocus, because we just hid the link we just clicked on
-                $("#iconselector_image_text_toggle a").focus();
+                //refocus
+                $("#iconselector_image_size_toggle a:visible:first").focus();
+
+                return false;
+            });
+
+            $("#iconselector_image_text_toggle a").click(function() {
+                if ($(this).hasClass("no_meta_text") ) {
+                    $("#iconselector_icons, #iconselector_image_text_toggle, #iconselector_icons_list").addClass("no_meta");
+                } else {
+                    $("#iconselector_icons, #iconselector_image_text_toggle, #iconselector_icons_list").removeClass("no_meta");
+                }
+
+                // refocus because we just hid the link we clicked on
+                $("#iconselector_image_text_toggle a:visible:first").focus();
 
                 return false;
             });

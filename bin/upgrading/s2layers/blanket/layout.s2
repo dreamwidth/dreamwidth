@@ -4,49 +4,49 @@ layerinfo "redist_uniq" = "blanket/layout";
 layerinfo "author_name" = "renoir";
 layerinfo "lang" = "en";
 
-set layout_type = "one-column";
 set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
 
 ##===============================
-## Display settings - general
+## Presentation
 ##===============================
 
 propgroup presentation {
+    property use layout_type;
     property use num_items_recent;
     property use num_items_reading;
-    property use num_items_icons;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
     property use use_journalstyle_entry_page;
-    property use layout_type;
+
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
+    property use num_items_icons;
     property use icons_page_sort;
+
+    property use all_entrysubjects;
+    property use all_commentsubjects;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
     property use userpics_style_group;
     property use userpics_position;
     property use entry_metadata_position;
-    property use use_custom_friend_colors;
-    property use use_shared_pic;
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
-    property use entry_datetime_format_group;
-    property use comment_datetime_format_group;
-    property use all_entrysubjects;
-    property use all_commentsubjects;
 }
 
 set layout_type = "one-column";
 set entry_userpic_style= "small";
 set comment_userpic_style= "small";
-set use_custom_friend_colors = false;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
 
 ##===============================
-## Journal style - colors
+## Colors
 ##===============================
 
 propgroup colors {
-
     property use color_page_background;
     property use color_page_text;
     property use color_page_link;
@@ -54,25 +54,34 @@ propgroup colors {
     property use color_page_link_hover;
     property use color_page_link_visited;
     property use color_page_border;
-    property use color_page_title;
-    
-    property use color_header_background;
-    property Color color_header_footer_border { des = "Header and footer border color"; }
 
     property use color_module_background;
     property use color_module_text;
     property use color_module_border;
     property use color_module_title;
+    property use color_module_link;
+    property use color_module_link_active;
+    property use color_module_link_hover;
+    property use color_module_link_visited;
 
-    property Color color_entry_accent { des = "Entry accents color"; }
+    property use color_header_background;
+    property use color_page_title;
+
     property use color_entry_background;
     property use color_entry_text;
-    property use color_entry_border;
     property use color_entry_title;
+    property use color_entry_border;
+    property use color_entry_link;
+    property use color_entry_link_active;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
+
+    property Color color_header_footer_border { des = "Header and footer border color"; }
+    property Color color_entry_accent { des = "Entry and comment accent color"; }
 }
 
 ##===============================
-## Display settings - fonts
+## Fonts
 ##===============================
 
 propgroup fonts {
@@ -80,6 +89,12 @@ propgroup fonts {
     property use font_fallback;
     property use font_base_size;
     property use font_base_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
     property use font_journal_title;
     property use font_journal_title_size;
     property use font_journal_title_units;
@@ -92,88 +107,116 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
-    property use font_module_heading;
-    property use font_module_heading_size;
-    property use font_module_heading_units;
-    property use font_module_text;
-    property use font_module_text_size;
-    property use font_module_text_units;
 }
 
-##===============================
-## Display settings - modules
-##===============================
+set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_journal_title_size = "1.25";
+set font_journal_title_units = "em";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.5";
+set font_entry_title_units = "em";
 
-set module_layout_sections = "none|(none)|one|Column";
+##===============================
+## Modules
+##===============================
 
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
-    property use module_customtext_group;
+    property string module_navlinks_section_override {
+       values = "none|(none)|two|Fixed";
+       grouped = 1;
+       }
     property use module_calendar_group;
-    property use module_pagesummary_group;
-    property use module_active_group;
-    property use module_tags_group;
     property use module_links_group;
     property use module_syndicate_group;
+    property use module_tags_group;
+    property use module_customtext_group;
+    property use module_pagesummary_group;
+    property use module_active_group;
     property use module_time_group;
     property use module_poweredby_group;
     property use module_credit_group;
     property use module_search_group;
     property use module_cuttagcontrols_group;
-
-    property string module_navlinks_section_override {
-       values = "none|(none)|two|Fixed";
-       grouped = 1;
-       }
 }
 
+set module_layout_sections = "none|(none)|one|Column";
 set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
 
-set module_navlinks_section = "two";
-set module_navlinks_show = true;
-
-set module_userprofile_section = "one";
-set module_userprofile_show = true;
-
-set module_calendar_section = "one";
-set module_calendar_show = true;
-
-set module_pagesummary_section = "one";
-set module_pagesummary_show = true;
-
-set module_tags_section = "one";
-set module_tags_show = true;
-set module_tags_opts_type = "cloud";
-
-set module_links_section = "one";
-set module_links_show = true;
-
-set module_syndicate_section = "one";
-set module_syndicate_show = true;
-
-set module_time_section = "one";
-set module_time_show = true;
-
-set module_poweredby_section = "one";
-set module_poweredby_show = true;
-
-set module_customtext_section = "one";
-set module_customtext_show = false;
-
-set module_credit_section = "one";
-set module_credit_show = true;
-
 set module_userprofile_order = 1;
+set module_navlinks_section = "two";
 set module_calendar_order = 2;
-set module_credit_order = 3;
-set module_syndicate_order = 5;
-set module_time_order = 6;
-set module_poweredby_order = 7;
-set module_tags_order = 17;
 set module_links_order = 18;
-set module_pagesummary_order = 19;
+set module_syndicate_order = 5;
+set module_tags_order = 17;
+set module_tags_opts_type = "cloud";
 set module_customtext_order = 20;
+set module_pagesummary_order = 19;
+set module_time_section = "one";
+set module_time_order = 6;
+set module_poweredby_section = "one";
+set module_poweredby_order = 7;
+set module_credit_order = 3;
+
+##===============================
+## Text
+##===============================
+
+propgroup text {
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
+
+    property use text_view_recent;
+    property use text_view_archive;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_tags;
+    property use text_view_memories;
+    property use text_view_userinfo;
+
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_mem_add;
+    property use text_tell_friend;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+
+    property use text_read_comments;
+    property use text_read_comments_friends;
+    property use text_post_comment;
+    property use text_post_comment_friends;
+    property use text_permalink;
+
+    property use text_meta_location;
+    property use text_meta_mood;
+    property use text_meta_music;
+    property use text_meta_xpost;
+    property use text_tags;
+
+    property use text_stickyentry_subject;
+
+    property use text_max_comments;
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+}
 
 ##===============================
 ## Custom CSS
@@ -186,65 +229,6 @@ propgroup customcss {
     property use custom_css;
 }
 
-propgroup text {
-##===============================
-## Text - main navigation
-##===============================
-
-    property use text_view_recent;
-    property use text_view_friends;
-    property use text_view_network;
-    property use text_view_archive;
-    property use text_view_userinfo;
-    property use text_view_memories;
-    property use text_view_tags;
-
-##===============================
-## Text - entry comment-related
-##===============================
-
-    property use text_post_comment;
-    property use text_max_comments;
-    property use text_read_comments;
-    property use text_post_comment_friends;
-    property use text_read_comments_friends;
-
-    property use text_skiplinks_back;
-    property use text_skiplinks_forward;
-    property use text_meta_music;
-    property use text_meta_mood;
-    property use text_meta_location;
-    property use text_meta_xpost;
-    property use text_tags;
-
-    property use text_entry_prev;
-    property use text_entry_next;
-    property use text_edit_entry;
-    property use text_edit_tags;
-    property use text_tell_friend;
-    property use text_mem_add;
-    property use text_watch_comments;
-    property use text_unwatch_comments;
-    property use text_permalink;
-    property use text_stickyentry_subject;
-
-    property use text_module_customtext;
-    property use text_module_customtext_content;
-    property use text_module_customtext_url;
-}
-
-set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
-set font_fallback = "sans-serif";
-set font_base_size = "1";
-set font_base_units = "em";
-
-set font_journal_title_size = "1.25";
-set font_journal_title_units = "em";
-set font_journal_subtitle_size = "1";
-set font_journal_subtitle_units = "em";
-set font_entry_title_size = "1.5";
-set font_entry_title_units = "em";
-
 function Page::print_default_stylesheet () {
 
     var string page_colors = generate_color_css( $*color_page_text, $*color_page_background, new Color );
@@ -253,6 +237,16 @@ function Page::print_default_stylesheet () {
     var string page_link_active_colors = generate_color_css( $*color_page_link_active, new Color, new Color );
     var string page_link_hover_colors = generate_color_css( $*color_page_link_hover, new Color, new Color );
     var string page_link_visited_colors = generate_color_css( $*color_page_link_visited, new Color, new Color );
+
+    var string entry_link_colors = generate_color_css( $*color_entry_link, new Color, new Color );
+    var string entry_link_active_colors = generate_color_css( $*color_entry_link_active, new Color, new Color );
+    var string entry_link_hover_colors = generate_color_css( $*color_entry_link_hover, new Color, new Color );
+    var string entry_link_visited_colors = generate_color_css( $*color_entry_link_visited, new Color, new Color );
+
+    var string module_link_colors = generate_color_css( $*color_module_link, new Color, new Color );
+    var string module_link_active_colors = generate_color_css( $*color_module_link_active, new Color, new Color );
+    var string module_link_hover_colors = generate_color_css( $*color_module_link_hover, new Color, new Color );
+    var string module_link_visited_colors = generate_color_css( $*color_module_link_visited, new Color, new Color );
 
     var string header_colors = generate_color_css( new Color, $*color_header_background, new Color);
     var string journal_title_colors = generate_color_css( $*color_page_title, new Color, new Color );
@@ -386,7 +380,6 @@ input, textarea {
 li.page-back,
 li.page-forward {
     display: inline;
-    list-style: none;
     margin: 0 0 0 .3125em;
     padding: 0;
     }
@@ -403,7 +396,6 @@ li.page-separator {
 
 .navigation li {
     display: inline;
-    list-style: none;
     }
 
 /*--- header texts ---*/
@@ -458,7 +450,6 @@ li.page-separator {
 .module-navlinks ul.module-list li {
     border-right: 1px solid $*color_module_border;
     display: inline;
-    list-style: none;
     margin: 0 1em 0 0;
     padding: 0 .5em 0 0;
     }
@@ -496,6 +487,23 @@ li.page-separator {
     clear: both;
     }
 
+#secondary a {
+    text-decoration: none;
+    $module_link_colors
+    }
+
+#secondary a:visited {
+    $module_link_visited_colors
+    }
+
+#secondary a:hover {
+    $module_link_hover_colors
+    }
+
+#secondary a:active {
+    $module_link_active_colors
+    }
+
 .module-tags_cloud {
     border-bottom: 1px solid $*color_entry_border;
     border-top: 1px solid $*color_entry_border;
@@ -511,7 +519,6 @@ li.page-separator {
 .module-tags_cloud li,
 .tags_cloud li {
     display: inline;
-    list-style-type: none;
     }
 
 #secondary .module-content {
@@ -530,7 +537,6 @@ li.page-separator {
     }
 
 ul.userlite-interaction-links.icon-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     }
@@ -562,10 +568,28 @@ ul.userlite-interaction-links.icon-links li {
     }
 
 .module-search .search-box {
+    max-width:100%;
     margin: .2em;
     }
 
 /*--- entry ---*/
+
+.entry a {
+    text-decoration: none;
+    $entry_link_colors
+    }
+
+.entry a:visited {
+    $entry_link_visited_colors
+    }
+
+.entry a:hover {
+    $entry_link_hover_colors
+    }
+
+.entry a:active {
+    $entry_link_active_colors
+    }
 
 .entry {
     $entry_colors
@@ -648,6 +672,7 @@ h3.entry-title a {
     }
 
 .metadata ul {
+    list-style: none;
     margin: 0;
     padding: 0;
     }
@@ -657,7 +682,6 @@ h3.entry-title a {
     font-size: .9em;
     font-weight: normal;
     letter-spacing: 0;
-    list-style: none;
     padding: 0;
     text-transform: lowercase;
     }
@@ -690,7 +714,6 @@ h3.entry-title a {
     font-size: .9em;
     font-weight: normal;
     letter-spacing: 0;
-    list-style: none;
     padding: 0;
     text-transform: lowercase;
     }
@@ -706,7 +729,6 @@ ul.entry-management-links li {
     font-size: .9em;
     font-weight: normal;
     letter-spacing: 0;
-    list-style: none;
     padding: 0 5px 0 0;
     text-transform: lowercase;
     }
@@ -724,7 +746,6 @@ ul.entry-interaction-links li {
     font-size: .9em;
     font-weight: normal;
     letter-spacing: 0;
-    list-style: none;
     padding: 0 5px 0 0;
     text-transform: uppercase;
     }
@@ -772,7 +793,6 @@ textarea.textbox {
 
 .comment-management-links ul,
 .comment-interaction-links ul {
-    list-style: none;
     margin: 0;
     padding: 0;
     }
@@ -791,7 +811,6 @@ textarea.textbox {
 li.active {
     $active_month_colors
     display: inline;
-    list-style: none;
     margin: 0;
     padding: 0;
     text-align: center;
@@ -861,12 +880,12 @@ td.day {
     }
 
 .page-tags .tags-container ul {
+    list-style: none;
     margin: 1em;
     padding: 0;
     }
 
 .page-tags .tags-container ul li {
-    list-style: none;
     margin: 0 0 0 1em;
     padding: 0;
     }
@@ -903,7 +922,6 @@ td.day {
 
 .sorting-options ul li {
     display: inline;
-    list-style: none;
     }
 
 .icons-container .icon {
@@ -932,13 +950,13 @@ td.day {
 
 .icon-keywords ul {
     display: inline;
-    padding-left: 0;
+    margin: 0;
+    padding: 0;
     }
 
 .icon-keywords ul li {
     display: inline;
-    list-style: none;
-    padding: 0 .25em 0 0;
+    padding: 0;
     }
 
 $userpic_css

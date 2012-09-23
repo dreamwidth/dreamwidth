@@ -86,7 +86,6 @@ use Pod::Usage qw{pod2usage};
 use IO::Socket::INET;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-use LJ::Cmdbuffer;
 
 # NOTE: these options are used both by Getopt::Long for command-line parsing
 # in single user move move, and also set by hand when in --jobserver mode,
@@ -132,6 +131,7 @@ sub multiMove {
     # the job server can keep giving us new jobs to move (or a stop command)
     # over and over, so we avoid perl exec times
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+    eval "use LJ::Cmdbuffer; 1;" or die $@;
 
     my $sock;
   ITER:
@@ -260,6 +260,7 @@ sub singleMove {
     abortWithUsage() unless defined $user && defined $dclust;
 
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+    eval "use LJ::Cmdbuffer; 1;" or die $@;
 
     $user = LJ::canonical_username($user);
     abortWithUsage("Invalid username") unless length($user);

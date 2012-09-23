@@ -18,6 +18,8 @@ propgroup presentation {
     property use sidebar_width;
     property use sidebar_width_doubled;
 
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property use num_items_icons;
     property use icons_page_sort;
@@ -33,7 +35,6 @@ propgroup presentation {
     property use entry_management_links;
     property use comment_management_links;
 
-    property use reg_firstdayofweek;
 }
 
 set layout_type = "one-column";
@@ -166,9 +167,20 @@ set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Mod
 ##===============================
 
 propgroup text {
+
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
     property use text_module_customtext;
     property use text_module_customtext_url;
     property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
 
     property use text_view_recent;
     property use text_view_archive;
@@ -225,7 +237,7 @@ function Page::print_default_stylesheet() {
             $header_background
             height: """ + $*image_background_header_height + """px;""";
     }
-    
+
     var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
     var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
     var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
@@ -276,7 +288,7 @@ function Page::print_default_stylesheet() {
                  text-align: right;
                  }
              """;
-         } 
+         }
 
     """
 H1, H2, H3 {
@@ -446,7 +458,6 @@ h2#pagetitle {
 }
 
 .navigation ul {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -508,7 +519,6 @@ h2#pagetitle {
 
 .tag ul {
     display: inline;
-    list-style: none;
     margin-left: .5em;
     padding-left: 0;
 }
@@ -518,7 +528,6 @@ h2#pagetitle {
 } /* same for month view */
 
 ul.entry-management-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -528,7 +537,6 @@ ul.entry-management-links li {
 }
 
 ul.entry-interaction-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     text-align: right;
@@ -563,7 +571,6 @@ ul.entry-interaction-links li {
 }
 
 ul.comment-management-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     text-align: right;
@@ -574,7 +581,6 @@ ul.comment-management-links li {
 }
 
 ul.comment-interaction-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -626,7 +632,6 @@ table.month td p {
 /* icons */
 
 .sorting-options ul {
-    list-style: none;
     margin-left: 0;
 }
 
@@ -636,14 +641,13 @@ table.month td p {
 
 .icon-keywords ul {
     display: inline;
-    list-style: none;
     margin-left: .5em;
     padding-left: 0;
 }
 
 .icon-keywords ul li {
     display: inline;
-    padding: 0 .25em 0 0;
+    padding: .25em;
 }
 
 /* modules */
@@ -677,7 +681,6 @@ table.month td p {
 }
 
 ul.userlite-interaction-links.icon-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -717,6 +720,7 @@ ul.userlite-interaction-links.text-links {
 
 .search-box {
     margin: .2em auto;
+    max-width: 100%;
 }
 
 /* wrap long content, particularly openid usernames */
@@ -736,8 +740,7 @@ ul.userlite-interaction-links.text-links {
     margin-right: 0.5em;
 }
 
-.tags_cloud li, .module-tags_cloud li { display: inline;
-    list-style-type: none; }
+.tags_cloud li, .module-tags_cloud li { display: inline; }
 
 .module-syndicate .module-content {
     text-align: center;
@@ -750,4 +753,3 @@ ul.userlite-interaction-links.text-links {
 $userpic_css
     """;
 }
-

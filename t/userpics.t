@@ -3,7 +3,7 @@
 use strict;
 use Test::More tests => 65;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::Userpic;
 use LJ::Test;
 use FindBin qw($Bin);
