@@ -33,6 +33,10 @@
     text-align:left;
 }
 
+.half_icons.no_meta #iconselector_icons_list li {
+    width: auto;
+}
+
 .half_icons #iconselector_icons_list img {
     width: auto; max-height: 100%;
     height: auto; max-width: 100%;
@@ -56,6 +60,10 @@
     height:50px;
     width:50px;
     overflow:hidden;
+}
+
+.half_icons.no_meta {
+
 }
 
 .meta_wrapper {
