@@ -23,7 +23,7 @@ use DW::Routing;
 use JSON;
 use DW::Captcha::textCAPTCHA;
 
-DW::Routing->register_regex( '^/__rpc_captcha/(.*)$', \&captcha_handler, app => 1, user => 1, format => 'html', formats => [qw( html json )] );
+DW::Routing->register_regex( '^/[^/]+/__rpc_captcha/(.*)$', \&captcha_handler, app => 1, user => 1, format => 'html', formats => [qw( html json )] );
 DW::Routing->register_regex( '^/captcha/text/(.*)$', \&iframe_captcha_handler, app => 1, format => 'html' );
 
 # loaded inline into the page using JS
