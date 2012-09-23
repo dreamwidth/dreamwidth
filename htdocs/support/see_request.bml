@@ -714,7 +714,7 @@ body<=
         my $altlang = $deflang ne $curlang;
         $altlang = 0 unless $mld and $mll;
         if ( $altlang ) {
-            my $sql = qq{SELECT fc.faqcat, t.text, fc.catorder
+            my $sql = qq{SELECT fc.faqcat, t.text as faqcatname, fc.catorder
                          FROM faqcat fc, ml_text t, ml_latest l, ml_items i
                          WHERE t.dmid=$mld->{'dmid'} AND l.dmid=$mld->{'dmid'}
                              AND i.dmid=$mld->{'dmid'} AND l.lnid=$mll->{'lnid'}
