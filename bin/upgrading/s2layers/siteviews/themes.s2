@@ -47,9 +47,3 @@ function Page::print_theme_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
     $*SITEVIEWS->need_res( "stc/siteviews/lynx.css" );
 }
-
-# override this so the layout.css is NOT included
-function Page::print_default_stylesheet() {
-    # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-}
-
