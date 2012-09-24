@@ -668,8 +668,8 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
     background-position: top;
     background-repeat: repeat-x;
 }
-.comment-depth-odd .header { background-color: #444444; }
-.comment-depth-even .header { background-color: #555555; }
+.comment-depth-odd > .dwexpcomment .header { background-color: #444444; }
+.comment-depth-even > .dwexpcomment .header { background-color: #555555; }
 
 
 /*bml talkpage*/
