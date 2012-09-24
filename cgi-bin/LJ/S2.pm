@@ -3989,6 +3989,9 @@ sub EntryLite__formatted_subject {
 
     }
 
+    my $class = $opts->{class} ? " class=\"" . LJ::ehtml( $opts->{class} ) . "\" " : '';
+    my $style = $opts->{style} ? " style=\"" . LJ::ehtml( $opts->{style} ) . "\" " : '';
+
     # display subject as-is (cleaned but not wrapped in a link)
     # if we forced it to plain text
     #   or subject has a link and we are on a full comment/single entry view and don't need to click through
@@ -4001,12 +4004,10 @@ sub EntryLite__formatted_subject {
                     )
             )
         ) {
-        return $subject;
+        return "<span $class$style>$subject</span>";
     } else {
         # we need to be able to click through this subject, so remove links
         LJ::CleanHTML::clean( \$subject, { noexpandembedded => 1, mode => "allow", remove => [ "a" ] } );
-        my $class = $opts->{class} ? " class=\"" . LJ::ehtml( $opts->{class} ) . "\" " : '';
-        my $style = $opts->{style} ? " style=\"" . LJ::ehtml( $opts->{style} ) . "\" " : '';
 
         # additional cleaning for title attribute, necessary to enable
         # screenreaders to see the names of the invisible links
