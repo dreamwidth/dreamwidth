@@ -1910,7 +1910,7 @@ sub Tag
     return undef unless $u && $kwid && $kw;
 
     my $url = LJ::eurl( $kw );
-    $url = ( $url =~ m![\\\/]! )
+    $url = ( $url =~ m![\\\/]! || $url =~ /\%2B/ )
             ? $u->journal_base . '?tag=' . $url
             : $u->journal_base . '/tag/' . $url;
 
@@ -1933,9 +1933,14 @@ sub TagDetail
         _type => 'TagDetail',
         _id => $kwid,
         name => LJ::ehtml( $tag->{name} ),
-        url => $u->journal_base . '/tag/' . LJ::eurl( $tag->{name} ),
         visibility => $tag->{security_level},
     };
+
+    #use the ?tag= form of the url if the tag contains a + sign.
+    my $url = LJ::eurl( $tag->{name} );
+    $t->{url} = ( $url =~ /\%2B/ )
+        ? $u->journal_base . '?tag=' . $url
+        : $u->journal_base . '/tag/' . $url;
 
     # Work out how many uses of the tag the current remote (if any)
     # should be able to see. This is easy for public & protected 

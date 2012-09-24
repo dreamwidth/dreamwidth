@@ -622,7 +622,8 @@ sub get_permission_levels {
 # args: tagstring, listref?, opts?
 # des-tagstring: Opaque tag string provided by the user.
 # des-listref: If specified, return valid list of canonical tags in arrayref here.
-# des-opts: currently only 'omit_underscore_check' is recognized
+# des-opts: currently only 'omit_underscore_check' & 'disallow_plus' are
+# recognized
 # returns: 1 if list is valid, 0 if not.
 # </LJFUNC>
 sub is_valid_tagstring {
@@ -639,6 +640,12 @@ sub is_valid_tagstring {
         # but we added this after some underscores already existed.
         # Allow underscore tags to be viewed/deleted, but not created/modified.
         return 0 if ! $opts->{'omit_underscore_check'} && $tag =~ /^_/;
+
+        # plus signs in tags cause problems with URL encoding, as plus is used
+        # to represent space. We want to prevent new tags or renames from using
+        # + signs, but not get in the way of existing tags with them. New tags
+        # & renames should use the disallow_plus option when validating.
+        return 0 if $opts->{'disallow_plus'} && $tag =~ /.*\+.*/;
 
         return 0 if $tag =~ /[\<\>\r\n\t]/;     # no HTML, newlines, tabs, etc
         return 0 unless $tag =~ /^(?:.+\s?)+$/; # one or more "words"
@@ -845,7 +852,14 @@ sub update_logtags {
 
     # now we can create the new tags, since we know we're safe
     # We still need to propagate ignore_max, as create_usertag does some checks of it's own.
-    LJ::Tags::create_usertag( $u, $_, { display => 1, ignore_max => $opts->{ignore_max} } ) foreach @to_create;
+    # If we're not working from the importer ($opts->{force}) we also need 
+    # to validate the tag names again, this time to make sure 
+    # that these new tags don't have "+" in them.
+    foreach ( @to_create ) {
+        return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $_ ) } ) )
+            unless LJ::Tags::validate_tag( $_, { disallow_plus => 1 } ) || $opts->{force};
+        LJ::Tags::create_usertag( $u, $_, { display => 1, ignore_max => $opts->{ignore_max}, allow_plus => $opts->{force} } ); 
+    }
 
     # %add and %delete are accurate, but we need to track necessary
     # security updates; this is a hash of keyword ids and a modification
@@ -1078,12 +1092,14 @@ sub reset_cache {
 # args: uobj, kw, opts?
 # des-uobj: User object to create tag on.
 # des-kw: Tag string (comma separated list of tags) to create.
-# des-opts: Optional; hashref, possible keys being 'display' and value being whether or
-#           not this tag should be a display tag and 'parenttagid' being the tagid of a
-#           parent tag for hierarchy.  'err_ref' optional key should be a ref to a scalar
-#           where we will store text about errors.  'ignore_max' if set will ignore the
-#           user's max tags limit when creating this tag.
-# returns: undef on error, else a hashref of { keyword => tagid } for each keyword defined
+# des-opts: Optional; hashref, possible keys being 'display' and value being
+#   whether or not this tag should be a display tag and 'parenttagid' being the
+#   tagid of a parent tag for hierarchy.  'err_ref' optional key should be a ref
+#   to a scalar where we will store text about errors.  'ignore_max' if set will
+#   ignore the user's max tags limit when creating this tag. 'allow_plus' if set
+#   will allow + signs in the new tags. This is needed for the importer.  
+# returns: undef on error, else a hashref of { keyword => tagid } for each 
+#   keyword defined 
 # </LJFUNC>
 sub create_usertag {
     return undef unless LJ::is_enabled('tags');
@@ -1103,7 +1119,8 @@ sub create_usertag {
 
     my $tags = [];
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $kw ) } ) )
-        unless LJ::Tags::is_valid_tagstring($kw, $tags);
+        unless LJ::Tags::is_valid_tagstring($kw, $tags, 
+            { disallow_plus => !$opts->{allow_plus} });
 
     # check to ensure we don't exceed the max of tags
     my $max = $opts->{ignore_max} ? 0 : $u->count_tags_max;
@@ -1142,17 +1159,20 @@ sub create_usertag {
 # name: LJ::Tags::validate_tag
 # class: tags
 # des: Check the validity of a single tag.
-# args: tag
+# args: tag, opts
 # des-tag: The tag to check.
+# des-opts: Options for is_valid_tagstring. Useful one: disallow_plus
+#  if a plus sign in the tag is not OK (ie if this is a new tag or a rename,
+#  since plus signs are discouraged).
 # returns: If valid, the canonicalized tag, else, undef.
 # </LJFUNC>
 sub validate_tag {
-    my $tag = shift;
+    my ( $tag, $opts ) = @_;
     return undef unless $tag;
 
     my $list = [];
     return undef unless
-        LJ::Tags::is_valid_tagstring($tag, $list);
+        LJ::Tags::is_valid_tagstring($tag, $list, $opts);
     return undef if scalar(@$list) > 1;
 
     return $list->[0];
@@ -1258,7 +1278,7 @@ sub rename_usertag {
     };
 
     # validate new tag
-    my $newname = LJ::Tags::validate_tag($newkw);
+    my $newname = LJ::Tags::validate_tag($newkw, { disallow_plus => 1 } );
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $newkw ) } ) )
         unless $newname;
 
@@ -1372,7 +1392,13 @@ sub merge_usertags {
     if ( $exists ) {
         $merge_to_id = $u->get_keyword_id( $newname );
     } else {
-        my $merge_to_ids = LJ::Tags::create_usertag( $u, $newname, { display => 1 } );
+        #If there is an error in creating the tag (most likely because there's
+        # a + in it), send that error up the chain.
+        my $error = undef;
+        my $merge_to_ids = LJ::Tags::create_usertag( $u, $newname, 
+            { display => 1, err_ref => \$error } );
+        return $err->( $error ) unless $merge_to_ids;
+
         $merge_to_id = $merge_to_ids->{$newname};
     }
 
