@@ -11,12 +11,11 @@
 .entry-wrapper {margin:0}
 
 h3.entry-title {
-    font-size: larger;
     font-style: italic;
     font-weight: bold;
     margin: 10px 0;}
 
-.entry .header {background:none;}
+.entry .header {background:none; border:0;}
 .entry .datetime:before { content:"@ ";} /*add the talkread-style elements to the date and time*/
 .entry .datetime:after {content:" UTC";}
 .entry .datetime {font-style: italic;}
@@ -47,12 +46,14 @@ ul.entry-interaction-links {list-style: none outside none; display: inline; text
 
 /*Comment header and content styling*/
 .comment .userpic {display:table-cell; max-width:100px;}
+.comment .userpic img {display:block;}
 .comment-info {display: table-cell; vertical-align: top; padding-left:10px;}
 .poster {display: block;}
 .commentpermalink, .comment .poster-ip  {margin-left:1em;}
 .comment .invisible {position: relative;} /*Gives us top padding for comments with no subject */
 .comment .datetime {font-size:smaller;}
 .no-userpic .comment-info {padding-left:10px;}
+.edittime {padding-top:1em;}
 
 /*Styling for comment links*/
 ul.comment-management-links {display: inline;}
@@ -69,8 +70,8 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .bottomcomment {text-align: center;}
 
 /*Styling for collapsed comments*/
-.partial h4.comment-title {font-size: 1em; display:inline;}
-.partial h4.comment-title a {font-size: 1em; display:inline;}
+.partial h4.comment-title {font-size: 1em; display:inline; font-weight:normal;}
+.partial h4.comment-title a {font-size: 1em; display:inline; font-weight:normal;}
 .partial .poster {display:inline;}
 
 /*Styling for deleted/screened comments*/
