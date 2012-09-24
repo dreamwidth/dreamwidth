@@ -128,8 +128,8 @@ table.grid, table.grid td {
 }
 
 /*S2 talkpage*/
-.comment-wrapper-odd .header { background-color: #c0c0c0; }
-.comment-wrapper-even .header { background-color: #e2e2e2; }
+.comment-depth-odd .header { background-color: #c0c0c0; }
+.comment-depth-even .header { background-color: #e2e2e2; }
 .screened .header { background-color: #707070; }
 
 /*bml talkpage*/
