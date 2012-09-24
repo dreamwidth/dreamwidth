@@ -294,6 +294,7 @@ sub handler
 
     my $scheme = $r->notes->{'bml_use_scheme'} ||
         $env->{'ForceScheme'} ||
+        $BMLCodeBlock::GET{skin} ||
         $BMLCodeBlock::GET{'usescheme'} ||
         $BML::COOKIE{'BMLschemepref'};
 
