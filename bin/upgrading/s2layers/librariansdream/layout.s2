@@ -182,34 +182,37 @@ function Page::print() {
 }
 
 
+## Enclose userpic and name in new DIV
+## Switch from DIV to SPAN for userpic and name
+
 function print_module_userprofile() {
     var Page p = get_page();
 
     open_module("userprofile", $*text_module_userprofile, $p.view_url{"userinfo"});
-    """<div class='userprofile-userinfo'>""";
-    if ($*module_userprofile_opts_userpic) {
-        if (defined $p.journal.default_pic) {
-            $p.journal.default_pic.width  = $p.journal.default_pic.width  / 4;
-            $p.journal.default_pic.height = $p.journal.default_pic.height / 4;
-            """<span class="userpic">""";
-            $p.journal->print_userpic();
-             """</span>""";
+
+    if ($*module_userprofile_opts_userpic or $*module_userprofile_opts_name) {
+        """<div class="userprofile-userinfo">""";
+        if ($*module_userprofile_opts_userpic) {
+            if (defined $p.journal.default_pic) {
+                $p.journal.default_pic.width  = $p.journal.default_pic.width  / 4;
+                $p.journal.default_pic.height = $p.journal.default_pic.height / 4;
+                """<span class="userpic">""";
+                $p.journal->print_userpic();
+                """</span>""";
+            }
         }
-    }
-    if ($*module_userprofile_opts_name or $*module_userprofile_opts_website) {
         if ($*module_userprofile_opts_name) {
-            println "<span class='journal-name'>"+$p.journal.name+"</span>";
+            println "<span class='journal-name'>" + $p.journal.name + "</span>";
         }
-    """</div>""";
-        if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
-            var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
-            println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
-        }
+        "</div>";
+    }
+    if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
+        var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
+        println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
     }
     $p.journal->print_interaction_links();
     close_module();
 }
-
 
 ##===============================
 ## Stylesheet
@@ -711,6 +714,10 @@ ul.userlite-interaction-links {
 ul.userlite-interaction-links li {
     display: block !important;
     padding: 0 !important;
+}
+
+.module-userprofile .journal-name {
+    padding-left: .5em;
 }
 
 .module-powered,
