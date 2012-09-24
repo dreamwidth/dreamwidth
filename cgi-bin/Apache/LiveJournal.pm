@@ -242,7 +242,7 @@ sub blocked_anon
     my $message = $LJ::BLOCKED_ANON_MESSAGE;
 
     unless ( $message ) {
-        $message = "You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?usescheme=lynx'>log in</a>.";
+        $message = "You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?skin=lynx'>log in</a>.";
 
         if ( $LJ::BLOCKED_ANON_URI ) {
             $message .= " <a href='$LJ::BLOCKED_ANON_URI'>Why can't I access the site without logging in?</a>";
