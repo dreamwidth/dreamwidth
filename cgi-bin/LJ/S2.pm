@@ -3949,7 +3949,8 @@ sub EntryLite__get_link
 sub EntryLite__formatted_subject {
     my ($ctx, $this, $opts) = @_;
     my $subject = $this->{subject};
-    my $force_plain = delete $opts->{plain} || 0;
+    my $format = delete $opts->{format} || "";
+    my $force_text = $format eq "text" ? 1 : 0;
 
     # Figure out what subject to show. Even if the settings are configured
     # to show nothing for entries or comments without subjects, there should
@@ -3989,10 +3990,10 @@ sub EntryLite__formatted_subject {
     }
 
     # display subject as-is (cleaned but not wrapped in a link)
-    # if we forced it to plain
+    # if we forced it to plain text
     #   or subject has a link and we are on a full comment/single entry view and don't need to click through
     # TODO: how about other HTML tags?
-    if ( $force_plain
+    if ( $force_text
         || ( $subject =~ /href/
                 && ( $this->{full}
                     || $LJ::S2::CURR_PAGE->{view} eq "reply"
