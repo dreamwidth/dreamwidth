@@ -67,7 +67,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     );
 END -%]
 
-[% sections.title = '.title' | ml %]
+[% sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) %]
 [% sections.contentopts = '' %]
 
 [% sections.head = BLOCK %]
