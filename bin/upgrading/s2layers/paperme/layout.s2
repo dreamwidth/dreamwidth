@@ -83,14 +83,26 @@ var string entry_background = generate_background_css ($*image_background_entry_
     var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
 
-var string userpic_padding_css = "";
-         if ($*userpics_position == "left") {
-             $userpic_padding_css = """
-             .entry .header, .comment .header, .top-metadata {
-                 border-left: 110px solid transparent;
-                 }
-             """;
-         }
+var string userpic_css = "";
+    if ($*userpics_position == "right") {
+        $userpic_css = ".entry .userpic,
+        .comment .userpic {float:right; }
+        .entry .userpic img,
+        .comment .userpic img { right: 0; }
+
+        .has-userpic .entry .header,
+        .has-userpic .comment .header { margin-right: 110px; }";
+    }
+    else {
+        $userpic_css = ".entry .userpic,
+        .comment .userpic {float: left;
+            margin-left: 0 !important; }
+        .entry .userpic img,
+        .comment .userpic img { left: 0; }
+
+        .has-userpic .entry .header,
+        .has-userpic .comment .header { margin-left: 110px; }";
+    }
 
 """/* ----------- Paper Me for Dreamwidth Style System 2 Core 2, by cimorene.dreamwidth.org ------------- */
 
@@ -272,6 +284,8 @@ img, img a {
     font-weight: bold;
     }
 
+.top-metadata {clear:both; padding-top: 0.5em;}
+
 .metadata {
     font-size: smaller;
     font-weight: bold;
@@ -348,7 +362,9 @@ img, img a {
         font-style: italic;
     }
 
-$userpic_padding_css
+$userpic_css
+
+.no-userpic .userpic {margin-top:0;}
 
 
 /* ---------------------- Secondary pages -------------- */
