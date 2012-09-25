@@ -290,18 +290,23 @@ init: function(formData) {
     // access
     function initAccess() {
         $("#custom_access_groups").hide();
-        $("#security").change( function() {
-            if ( $(this).val() == "custom" )
+        $("#security").change( function(e, init) {
+            var $this = $(this);
+            if ( $this.val() == "custom" )
                 $("#custom_access_groups").slideDown();
             else
                 $("#custom_access_groups").slideUp();
-        }).triggerHandler("change");
+
+            if ( ! init ) {
+                $this.data("lastselected",$this.val())
+            }
+        }).triggerHandler("change", true)
 
         function adjustSecurityDropdown(data) {
             if ( ! data ) return;
 
             var $security = $("#security");
-            var oldval = $security.val();
+            var oldval = $security.data("lastselected");
             var rank = { "public": "0", "access": "1", "private": "2", "custom": "3" };
 
             $security.empty();
