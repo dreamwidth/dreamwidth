@@ -312,7 +312,7 @@ function EntryPage::print_comment (Comment c) {
     """<div class="inner">\n""";
     $c->print_userpic();
     """<div class="comment-info">\n""";
-    $c->print_subject();
+    $c->print_subject({ "format" => "text" });
     $c->print_metatypes();
     $c->print_poster();
     $c->print_time();

@@ -15,7 +15,7 @@
 
 /*Styling for entry + comment header and contents*/
 h3.entry-title, h4.comment-title {
-    font-size: larger;
+    font-size: 1.5em;
     font-style: italic;
     font-weight: bold;
     margin: 10px 0 1.5em;}

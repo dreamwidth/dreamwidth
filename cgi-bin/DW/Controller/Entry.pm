@@ -34,8 +34,6 @@ my %form_to_props = (
     current_mood_other  => "current_mood",
     current_music       => "current_music",
     current_location    => "current_location",
-
-    taglist             => "taglist",
 );
 
 
@@ -248,7 +246,6 @@ sub new_handler {
     }
 
     $vars->{show_unimplemented} = $get->{highlight} ? 1 : 0;
-    $vars->{betacommunity} = LJ::load_user( "dw_beta" );
 
     $vars->{action} = {
         url  => LJ::create_url( undef, keep_args => 1 ),
@@ -436,6 +433,9 @@ sub _init {
         panels      => $panels,
         formwidth   => $formwidth eq "P" ? "narrow" : "wide",
         min_animation => $min_animation ? 1 : 0,
+
+        # TODO: Remove this when beta is over
+        betacommunity => LJ::load_user( "dw_beta" ),
     };
 
     return $vars;
@@ -599,7 +599,6 @@ sub _edit {
     # this can't be edited after posting
     delete $editable{journal};
 
-
     $vars->{action} = {
         edit => 1,
         url  => LJ::create_url( undef, keep_args => 1 ),
@@ -691,6 +690,7 @@ sub _form_to_backend {
         $props->{$propname} = $post->{$formname}
             if defined $post->{$formname};
     }
+    $props->{taglist} = $post->{taglist} if defined $post->{taglist};
     $props->{picture_keyword} = $post->{icon} if defined $post->{icon};
     $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
     # FIXME
@@ -802,6 +802,8 @@ sub _backend_to_form {
 
     # some properties aren't in the hash above, so go through them manually
     my %otherprops = (
+        taglist => join( ', ', $entry->tags ),
+
         entrytime_outoforder => $entry->prop( "opt_backdated" ),
 
         age_restriction     =>  {
