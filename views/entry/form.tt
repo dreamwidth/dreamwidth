@@ -96,6 +96,7 @@ END -%]
 
 <script type="text/javascript">
 var postFormInitData = new Object();
+postFormInitData.edit = [% action.edit ? "true" : "false" %];
 postFormInitData.icons = [
     [%- FOREACH icon = icons %]
         { 'src': '[% icon.userpic.url %]', 'alt': [% icon.userpic.description | js %] }

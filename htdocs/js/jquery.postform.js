@@ -355,8 +355,9 @@ init: function(formData) {
             var $security = $("#security");
             if ( $security.length > 0 ) {
               if ( anon ) {
+                // no custom groups
                 adjustSecurityDropdown({})
-              } else {
+              } else if ( ! formData.edit ) {
                 $.getJSON( Site.siteroot + "/tools/endpoints/getsecurityoptions",
                     { "user": journal.name }, adjustSecurityDropdown);
             }
