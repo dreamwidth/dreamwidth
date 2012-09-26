@@ -48,7 +48,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- END -%]
 
 [%- BLOCK block.logo -%]
-<span id='sitename'><a href="[% site.root %]/">[% site.nameshort %]</a></span>
+<span id='sitename'><a href="[% is_ssl ? site.ssl.root : site.root %]/">[% site.nameshort %]</a></span>
 [%- END -%]
 
 [%- BLOCK block.footer -%]
@@ -87,7 +87,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- identity = remote.is_identity -%]
     [%- -%]<div id='account-links-text'>
     [%- IF dw_scheme.show_logout_button -%]
-    [%- -%]<form action='[% site.root %]/logout?ret=1' method='post'>
+    [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/logout?ret=1' method='post'>
     [%- remote.ljuser_display -%]
     [%- -%]<input type='hidden' name='user' value='[% remote.user %]' />
     [%- -%]<input type='hidden' name='sessid' value='[% remote.session.sessid %]' />
@@ -106,17 +106,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- -%]</div>
 [%- ELSE -%]
     [%- chal = dw_scheme.challenge_generate(300) -%]
-    [%- -%]<form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
+    [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/login?ret=1' method='post' class='lj_login_form'>
     [%- -%]<input type="hidden" name="returnto" value="[% get.returnto | html %]" />
     [%- -%]<input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
     <input type='hidden' name='response' class='lj_login_response' value='' />
     <table summary='' id='login-table'>
     [%- -%]<tr><td><label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label></td>
     [%- -%]<td class='input-cell' colspan='2'><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" />
-    [%- %] <a href='[% site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></td></tr>
+    [%- %] <a href='[% is_ssl ? site.ssl.root : site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></td></tr>
     [%- -%]<tr><td><label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label></td>
     [%- -%]<td class='input-cell' colspan='2'><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true" class="lj_login_password">
-    [%- %] <a href='[% site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></td></tr>
+    [%- %] <a href='[% is_ssl ? site.ssl.root : site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></td></tr>
     [%- -%]<tr><td>&nbsp;</td>
     [%- -%]<td class='remember-me-cell'>
     [%- -%]<input type="checkbox" name="remember_me" id="login_remember_me" value="1" tabindex="3" />
