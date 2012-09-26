@@ -1613,4 +1613,22 @@ sub deleted_trust_group {
     return 1;
 }
 
+sub tag_url {
+# LJ::Tags::tag_url
+# Arguments: $u = user object; $tagname = scalar with name of tag
+# Returns: Scalar containing the URL for the "posts with this tag" page.
+#   The form that is used varies according to whether the tag name contains
+#   difficult characters.
+    my ( $u, $tagname ) = @_;
+    return undef unless $u && $tagname;
+
+    my $escapedname = LJ::eurl( $tagname );
+    # Does it have a slash or plus sign in it?
+    my $url = ( $escapedname =~ m![\\\/]|\%2B! )
+        ? $u->journal_base . '?tag=' . $escapedname
+        : $u->journal_base . '/tag/' . $escapedname;
+
+    return $url;
+}
+
 1;

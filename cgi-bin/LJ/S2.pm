@@ -1909,10 +1909,7 @@ sub Tag
     my ($u, $kwid, $kw) = @_;
     return undef unless $u && $kwid && $kw;
 
-    my $url = LJ::eurl( $kw );
-    $url = ( $url =~ m![\\\/]! )
-            ? $u->journal_base . '?tag=' . $url
-            : $u->journal_base . '/tag/' . $url;
+    my $url = LJ::Tags::tag_url( $u, $kw );
 
     my $t = {
         _type => 'Tag',
@@ -1933,7 +1930,7 @@ sub TagDetail
         _type => 'TagDetail',
         _id => $kwid,
         name => LJ::ehtml( $tag->{name} ),
-        url => $u->journal_base . '/tag/' . LJ::eurl( $tag->{name} ),
+        url => LJ::Tags::tag_url( $u, $tag->{name} ),
         visibility => $tag->{security_level},
     };
 
