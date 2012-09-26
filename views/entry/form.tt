@@ -121,6 +121,11 @@ postFormInitData.panels = {
 };
 
 postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
+
+postFormInitData.strings = {
+  "delete_confirm" : [%- dw.ml("entryform.delete.confirm") | js -%],
+};
+
 </script>
 [% END  # sections.head %]
 
