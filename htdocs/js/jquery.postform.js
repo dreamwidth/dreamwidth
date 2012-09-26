@@ -415,6 +415,10 @@ init: function(formData) {
 
         $("#delete_entry").click(function(e) {
             $(this.form).data("skipchecks", "delete");
+            var conf = confirm(formData.strings.delete_confirm);
+            if ( ! conf ) {
+                e.preventDefault();
+            }
         });
 
         $("#post_options").click(function(e){
