@@ -1623,7 +1623,8 @@ sub tag_url {
     return undef unless $u && $tagname;
 
     my $escapedname = LJ::eurl( $tagname );
-    my $url = ( $escapedname =~ m![\\\/]! || $escapedname =~ /\%2B/ )
+    # Does it have a slash or plus sign in it?
+    my $url = ( $escapedname =~ m![\\\/]|\%2B! )
         ? $u->journal_base . '?tag=' . $escapedname
         : $u->journal_base . '/tag/' . $escapedname;
 
