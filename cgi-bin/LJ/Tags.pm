@@ -1613,19 +1613,12 @@ sub deleted_trust_group {
     return 1;
 }
 
-# <LJFUNC>
-# name: LJ::Tags::tag_url
-# class: tags
-# des: Returns the correct URL to link to the "posts with this tag" page. The
-#  form that is used varies according to whether the tag name contains 
-#  difficult characters.
-# args: uobj, tagname
-# des-uobj: User object.
-# des-tagname: Scalar - name of the tag
-# returns: Scalar containing URL
-# </LJFUNC>
-
 sub tag_url {
+# LJ::Tags::tag_url
+# Arguments: $u = user object; $tagname = scalar with name of tag
+# Returns: Scalar containing the URL for the "posts with this tag" page.
+#   The form that is used varies according to whether the tag name contains
+#   difficult characters.
     my ( $u, $tagname ) = @_;
     return undef unless $u && $tagname;
 
