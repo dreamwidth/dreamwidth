@@ -2442,7 +2442,7 @@ property string text_comment_link {
     maxlength = "50";
 }
 property string text_comment_reply {
-    des = "Text to link to reply for comment";
+    des = "Text to link to reply for comment.";
     example = "Reply to this";
     maxlength = "50";
 }
@@ -2862,6 +2862,10 @@ property string text_multiform_opt_edit { des = "Text for the comment editing ac
 
 property string text_replyform_header { des = "Text for the heading above the form on the reply page"; }
 
+property string text_new_comment_title { des = "Text for the page title when writing a new comment"; }
+
+property string text_edit_comment_title { des = "Text for the page title when editing an existing comment"; }
+
 set text_nosubject = "(no subject)";
 set text_nosubject_screenreader = "no subject";
 
@@ -2918,6 +2922,9 @@ set text_multiform_opt_delete = "Delete";
 set text_multiform_opt_deletespam = "Delete as Spam";
 
 set text_replyform_header = "Comment Form";
+
+set text_new_comment_title = "Reply";
+set text_edit_comment_title = "Edit reply";
 
 ##=======================================
 ## Display properties - Text
@@ -3755,8 +3762,8 @@ function EntryPage::view_title() : string {
 }
 function ReplyPage::view_title() : string {
 var string suffix = $.isedit ?
-    " (Edit " + $*text_comment_reply + ")" :
-    " (" + $*text_comment_reply + ")";
+    " (" + $*text_edit_comment_title + ")" :
+    " (" + $*text_new_comment_title + ")";
 if ($.replyto isa Comment) {
         var Comment c = $.replyto as Comment;
         return $c->get_plain_subject() + $suffix;
