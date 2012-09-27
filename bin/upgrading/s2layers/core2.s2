@@ -925,6 +925,7 @@ class ReplyPage extends Page
     var Entry entry "The journal entry for this talk page";
     var EntryLite replyto "The object which is being replied to, either the entry or a comment";
     var ReplyForm form "The reply form.";
+    var bool isedit "True if we are editing a comment, false if writing a new one";
 
     function print_comment(Comment comment) "Prints a full comment";
 }
@@ -3753,15 +3754,18 @@ function EntryPage::view_title() : string {
     return $.entry.subject ? $.entry->get_plain_subject() : $*text_nosubject;
 }
 function ReplyPage::view_title() : string {
+var string suffix = $.isedit ?
+    " (Edit " + $*text_comment_reply + ")" :
+    " (" + $*text_comment_reply + ")";
 if ($.replyto isa Comment) {
         var Comment c = $.replyto as Comment;
-        return $c->get_plain_subject() + " (" + $*text_comment_reply + ")";
+        return $c->get_plain_subject() + $suffix;
     }
     else {
         var Entry e = $.replyto as Entry;
         return $e.subject ?
-          $e->get_plain_subject() + " (" + $*text_comment_reply + ")" :
-          $*text_nosubject + " (" + $*text_comment_reply + ")";
+          $e->get_plain_subject() + $suffix :
+          $*text_nosubject + $suffix;
     }
 }
 function Page::title() [notags] : string {
