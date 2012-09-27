@@ -2442,7 +2442,7 @@ property string text_comment_link {
     maxlength = "50";
 }
 property string text_comment_reply {
-    des = "Text to link to reply for comment.";
+    des = "Text to link to reply for comment";
     example = "Reply to this";
     maxlength = "50";
 }
