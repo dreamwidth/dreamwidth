@@ -131,7 +131,7 @@ sub call_xmlrpc {
     
     my $xmlrpc = eval {
         XMLRPC::Lite->proxy( $proxyurl,
-            agent => "$LJ::SITENAME XPoster ($LJ::ADMIN_EMAIL)"
+            agent => "$LJ::SITENAME XPoster ($LJ::ADMIN_EMAIL)",
             timeout => 3,
         );
     };
