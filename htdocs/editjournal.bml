@@ -352,7 +352,6 @@ body<=
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
                 $result .= "<li><a href='$entry_url'>$ML{'.success.fromhere.viewentry'}</a></li>" unless $deleted;
                 $result .= "<li><a href='$edit_url'>$ML{'.success.fromhere.editentry'}</a></li>" if $message;
-                #$result .= "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";
                 $result .= ($journalu->is_community) ?
                     "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries.comm'}</a></li>" :
                     "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";
