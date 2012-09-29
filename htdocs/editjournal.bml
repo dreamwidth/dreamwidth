@@ -310,7 +310,9 @@ body<=
                 my $message;
 
                 if ($deleted) {
-                    $result .= "<?p $ML{'.success.delete'} p?>";
+                    $result .= ($journalu->is_community) ?
+                        "<?p $ML{'.success.delete.comm'} p?>" :
+                        "<?p $ML{'.success.delete'} p?>";
                     $result .= "<?p $ML{'.success.deletespam'} p?>" if $POST{'action:deletespam'};
 
                     $result .= $xpost_result;
@@ -318,7 +320,9 @@ body<=
                     $result .= $deleted_extras if defined $deleted_extras;
                 } else {
                     $message = LJ::auto_linkify( LJ::ehtml( $res{message} ) );
-                    $result .= "<?p $ML{'.success.edited'} p?>";
+                    $result .= ($journalu->is_community) ? 
+                        "<?p $ML{'.success.edited.comm'} p?>" :
+                        "<?p $ML{'.success.edited'} p?>";
                     $result .= "<?p $message p?>" if $message;
                     $result .= $xpost_result;
                     # open a request about the unsuspension if one doesn't already exist
@@ -348,8 +352,10 @@ body<=
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
                 $result .= "<li><a href='$entry_url'>$ML{'.success.fromhere.viewentry'}</a></li>" unless $deleted;
                 $result .= "<li><a href='$edit_url'>$ML{'.success.fromhere.editentry'}</a></li>" if $message;
-                $result .= "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";
-                $result .= "<li><a href='$LJ::SITEROOT/editjournal'>$ML{'.success.fromhere.manageentries'}</a></li>";
+                $result .= ($journalu->is_community) ?
+                    "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries.comm'}</a></li>" :
+                    "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";
+                $result .= "<li><a href='$LJ::SITEROOT/editjournal'>$ML{'.success.fromhere.manageentries'}</a></li>" unless $journalu->is_community;
                 $result .= "</ul></div>";
                 $result .= "</td>";
 
