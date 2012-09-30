@@ -23,7 +23,6 @@ set layout_resources           = [ { "name" => "OSWD design", "url" => "http://w
 ################################################################################
 propgroup presentation
 {
-    property use show_userpics_recent;
     property use num_items_recent;
     property use num_items_reading;
     property use num_items_icons;
@@ -48,7 +47,6 @@ propgroup presentation
 }
 
 set layout_type            = "two-columns-left";
-set show_userpics_recent   = true;
 set userpics_position = "right";
 set num_items_recent       = 20;
 set num_items_reading      = 20;
