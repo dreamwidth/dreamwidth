@@ -16,14 +16,18 @@ set color_page_background = "#000";
 set color_page_text = "#fff";
 set color_page_link = "#a8ef9d";
 set color_page_link_visited = "#ccc";
+set color_page_pagetitle = "#a8ef9d";
+set color_table_header = "#a8ef9d";
+set color_title_shadow = "#555";
 
 ##===============================
 ## Module
-##===============================
+##===============================;
 
 set color_module_text = "#fff";
 set color_module_title = "#fff";
 set color_module_link_hover = "#afdaff";
+set color_module_text_shadow = "#444";
 
 ##===============================
 ## Entry
@@ -33,6 +37,9 @@ set color_entry_link = "#a8ef9d";
 set color_entry_link_visited = "#ccc";
 set color_entry_title = "#afdaff";
 set color_comment_title = "#b9ff9d";
+set color_entry_title_border_hover = "#a8ef9d";
+set color_entry_link_border_hover = "#a8ef9d";
+set color_entry_text_shadow = "#444";
 
 ##===============================
 ## Images
@@ -62,20 +69,3 @@ set image_link_background_position = "top left";
 set image_link_hover_background_url = "motion/motion_link.png";
 set image_link_hover_background_repeat = "repeat";
 set image_link_hover_background_position = "top left";
-
-
-##===============================
-## CSS
-##===============================
-
-function Page::print_theme_stylesheet () {
-    """
-    body { background-attachment: fixed; }
-    #pagetitle {color: #a8ef9d; }
-
-    .header a:hover{
-        color: $*color_page_link;
-       border-bottom:1px dashed $*color_page_link;
-    }
-    """;
-}
