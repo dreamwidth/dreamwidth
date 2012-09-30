@@ -981,7 +981,9 @@ sub render {
     } elsif ( $mode eq 'results' ) {
         $ret .= "<br />\n";
         # change vote link
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter' class='LJ_PollChangeLink' id='LJ_PollChangeLink_${pollid}' lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
+        my $pollvotetext = %preval ? "poll.changevote" : "poll.vote";
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter' class='LJ_PollChangeLink' id='LJ_PollChangeLink_${pollid}' lj_pollid='$pollid' >" 
+            . LJ::Lang::ml( $pollvotetext ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
         if ( $self->can_view && $self->isanon ne "yes" ) {
             $ret .= "<br /><br /><div class='respondents'><a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=ans_extended' class='LJ_PollRespondentsLink' " .
             "id='LJ_PollRespondentsLink_${pollid}' " .

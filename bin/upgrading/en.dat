@@ -2164,6 +2164,8 @@ poll.error.unknownpqtype=Unknown type on lj-pq tag.
 
 poll.error.unlockedtag=Unlocked [[tag]] tag.
 
+poll.vote=Fill out Poll
+
 poll.error.whoview=whoview must be 'all', 'friends', or 'none'.
 
 poll.error.whovote=whovote must be 'all' or 'friends'.
