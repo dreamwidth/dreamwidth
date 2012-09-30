@@ -85,6 +85,9 @@ hibiscus/themes          theme+                      hibiscus/layout
 headsup/layout           layout(core2base/layout)    core2
 headsup/themes           theme+                      headsup/layout
 
+lefty/layout             layout(core2base/layout)    core2
+lefty/themes             theme+                      lefty/layout
+
 librariansdream/layout   layout(core2base/layout)    core2
 librariansdream/themes   theme+                      librariansdream/layout
 
