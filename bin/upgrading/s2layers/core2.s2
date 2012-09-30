@@ -4082,18 +4082,19 @@ function print_module_userprofile() {
         if (defined $p.journal.default_pic) {
             """<div class="userpic">""";
             $p.journal->print_userpic();
-             """</div>""";
+             "</div>";
         }
     }
-    if ($*module_userprofile_opts_name or $*module_userprofile_opts_website) {
-        if ($*module_userprofile_opts_name) {
-            println "<div class='journal-name'>"+$p.journal.name+"</div>";
-        }
-        if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
-            var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
-            println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
-        }
+
+    if ($*module_userprofile_opts_name) {
+        println "<div class='journal-name'>" + $p.journal.name + "</div>";
     }
+
+    if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
+        var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
+        println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
+    }
+
     $p.journal->print_interaction_links();
     close_module();
 }
