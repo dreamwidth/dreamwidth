@@ -66,6 +66,7 @@ sub RecentPage
         $p->{filter_active} = 1;
         $p->{filter_name} = join(", ", @{$opts->{tags}});
         $p->{filter_tags} = 1;
+        $p->{view} = "";
     }
 
     if ( $opts->{securityfilter} ) {
