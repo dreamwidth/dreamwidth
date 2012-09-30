@@ -2086,11 +2086,11 @@ Password=Password
 
 poll.changevote=Change Your Vote
 
-poll.checkexact=You must choose exactly <b>[[options]]</b> responses.
+poll.checkexact2=You must choose exactly <b>[[options]]</b> [[?options|response|responses]].
 
-poll.checkmin=You must choose at least <b>[[options]]</b> responses.
+poll.checkmin2=You must choose at least <b>[[options]]</b> [[?options|response|responses]].
 
-poll.checkmax=You can choose up to <b>[[options]]</b> responses.
+poll.checkmax2=You can choose up to <b>[[options]]</b> [[?options|response|responses]].
 
 poll.clear=Clear Answers
 
@@ -2110,13 +2110,13 @@ poll.error.cantview=Error: you don't have access to these poll results.
 
 poll.error.cantvote=Sorry, you don't have permission to vote in this particular poll.
 
-poll.error.checkfewoptions2=You must select at least <b>[[options]]</b> responses in question <b>#[[question]]</b>, or you can choose to skip it.
+poll.error.checkfewoptions3=You must select at least <b>[[options]]</b> [[?options|response|responses]] in question <b>#[[question]]</b>, or you can choose to skip it.
 
 poll.error.checkmaxtoolow=Checkmax attribute must be higher than Checkmin attribute.
 
 poll.error.checkmintoolow=Checkmin attribute must be positive.
 
-poll.error.checktoomuchoptions2=You can only select up to <b>[[options]]</b> responses in question <b>#[[question]]</b>.
+poll.error.checktoomuchoptions3=You can only select up to <b>[[options]]</b> [[?options|response|responses]] in question <b>#[[question]]</b>.
 
 poll.error.deletedowner=Error: poll owner has been deleted
 
