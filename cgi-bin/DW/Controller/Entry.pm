@@ -84,8 +84,11 @@ Handles posting a new entry
 sub new_handler {
     my ( $call_opts, $usejournal ) = @_;
 
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
     my $r = DW::Request->get;
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
 
     return error_ml( "/entry/form.tt.beta.off", { aopts => "href='$LJ::SITEROOT/betafeatures'" } )
         unless $remote && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
@@ -209,14 +212,13 @@ sub new_handler {
     $usejournal ||= $get->{usejournal};
     my $vars = _init( { usejournal  => $usejournal,
                         altlogin    => $get->{altlogin},
+                        remote      => $remote,
 
                         datetime    => $datetime || "",
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
                       }, @_ );
-
-    return $vars->{ret} if $vars->{handled};
 
     # these kinds of errors prevent us from initializing the form at all
     # so abort and return it without the form
@@ -267,11 +269,8 @@ sub new_handler {
 sub _init {
     my ( $form_opts, $call_opts ) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
-    return { handled => 1, ret => $rv } unless $ok;
-
     my $post_as_other = $form_opts->{altlogin} ? 1 : 0;
-    my $u = $post_as_other ? undef : $rv->{remote};
+    my $u = $post_as_other ? undef : $form_opts->{remote};
     my $vars = {};
 
     my @icons;
@@ -458,7 +457,7 @@ sub _edit {
 
     my $r = DW::Request->get;
 
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
     my $journal = defined $username ? LJ::load_user( $username ) : $remote;
 
     return error_ml( 'error.invalidauth' ) unless $journal;
@@ -567,6 +566,7 @@ sub _edit {
     }
 
     my $vars = _init( { usejournal  => $journal->username,
+                        remote      => $remote,
 
                         datetime => $entry_obj->eventtime_mysql,
                         trust_datetime_value => $trust_datetime_value,
