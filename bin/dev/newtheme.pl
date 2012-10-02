@@ -18,7 +18,7 @@ if ( !$layout_human ) {
     diehelp;
 }
 
-( $layout_name = lc ( $layout_human ) ) =~ s/\s//g;
+( $layout_name = lc ( $layout_human ) ) =~ s/\s|'//g;
 
 
 ####################
