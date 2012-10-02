@@ -70,6 +70,7 @@ while ( <STDIN> ) {
             if ( m/layerinfo "name" = "(.+)"/ ) {
                 $theme_human = $1;
                 ( $theme_name = lc ( $theme_human ) ) =~ s/\s//g;
+                warn "WARNING: $theme_name contains non-ascii characters" if $theme_name =~ m/[^\x01-\x7f]/;
             }
             push( @dropped, $line );
             next;
