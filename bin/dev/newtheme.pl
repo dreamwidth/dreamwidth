@@ -67,7 +67,7 @@ while ( <STDIN> ) {
 } else {
         next unless $line;
         if ( $line =~ m/^layerinfo / || $line =~ m/ "";/ ) {
-            if ( m/layerinfo "name" = "(.+)"/ ) {
+            if ( m/layerinfo "?name"? = "(.+)"/ ) {
                 $theme_human = $1;
                 ( $theme_name = lc ( $theme_human ) ) =~ s/\s//g;
                 warn "WARNING: $theme_name contains non-ascii characters" if $theme_name =~ m/[^\x01-\x7f]/;
