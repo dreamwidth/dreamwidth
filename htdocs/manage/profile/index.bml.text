@@ -234,16 +234,20 @@
 .subsection.web=Website (Optional)
 
 .success.editicons=Manage your icons
+.success.editicons.comm=Manage this community's icons
 
 .success.editprofile=Edit your profile
+.success.editprofile.comm=Edit this community's profile
 
 .success.gonext=What would you like to do next?
 
 .success.header=Success.
 
 .success.text=Your profile has been revised.
+.success.text.comm=The profile for your community [[commname]] has been revised.
 
 .success.viewprofile=View your profile
+.success.viewprofile.comm=View this community's profile
 
 .timezone.select=(Select your timezone)
 

@@ -764,12 +764,22 @@ body<=
         # tell the user all is well
         my $base = $u->journal_base;
         my $profile_url = $u->profile_url;
-        return "<?h1 $ML{'.success.header'} h1?>\n" .
-                         "<?p $ML{'.success.text'} p?>" .
-                         "<?p $ML{'.success.gonext'} p?>" .
-                         "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
-                         "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-                         "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
+        if ($u->is_community) {
+            return "<?h1 $ML{'.success.header'} h1?>\n" .
+                 "<?p " . BML::ml( '.success.text.comm', 
+                    {commname => LJ::ljuser($u->{user}) } ) . " p?>" .
+                 "<?p $ML{'.success.gonext'} p?>" .
+                 "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile.comm'}</a></li>" .
+                 "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile.comm'}</a></li>" .
+                 "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons.comm'}</a></li></ul>";
+        } else {
+            return "<?h1 $ML{'.success.header'} h1?>\n" .
+                 "<?p $ML{'.success.text'} p?>" .
+                 "<?p $ML{'.success.gonext'} p?>" .
+                 "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
+                 "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
+                 "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
+        }
     }
 
     # should never happen
