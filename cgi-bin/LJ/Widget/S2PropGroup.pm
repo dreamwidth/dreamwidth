@@ -319,6 +319,7 @@ sub skip_prop {
     if ( $opts{user}->is_community ) {
         return 1 if $prop_name eq "text_view_network";
         return 1 if $prop_name eq "text_view_friends";
+        return 1 if $prop_name eq "text_view_friends_filter";
     } else {
         return 1 if $prop_name eq "text_view_friends_comm"
     }
