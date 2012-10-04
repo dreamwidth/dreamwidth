@@ -138,7 +138,7 @@ sub can_rename_to {
         # person-to-community (only under restricted circumstances for the community)
         return 1 if DW::User::Rename::_is_authorized_for_comm( $self, $tou );
 
-        push @$errref, LJ::Lang::ml( 'rename.error.unauthorized', { to => $tou->ljuser_display } );
+        push @$errref, LJ::Lang::ml( 'rename.error.unauthorized2', { to => $tou->ljuser_display } );
         return 0;
     } elsif ( $self->is_community && LJ::isu( $opts{user} ) ) {
         my $admin = $opts{user};

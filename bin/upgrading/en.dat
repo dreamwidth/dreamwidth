@@ -2350,7 +2350,7 @@ rename.error.tokeninvalid=The provided token is not a valid token.
 
 rename.error.tokentoofew=Too few tokens; you need two to perform a swap.
 
-rename.error.unauthorized=[[to]] is not under your control.
+rename.error.unauthorized2=[[to]] is not under your control. Both accounts need to have the same verified email address and the same password for this operation.
 
 rename.error.unauthorized.forcomm=The community [[comm]] must have no members, and must be under your control.
 
