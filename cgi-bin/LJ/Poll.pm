@@ -1006,15 +1006,15 @@ sub render {
             $maxcheck ||= 255;
 
             if ($mincheck > 0 && $mincheck eq $maxcheck ) {
-                $results_table .= "<i>". LJ::Lang::ml( "poll.checkexact", { options => $mincheck } ). "</i><br />\n";
+                $results_table .= "<i>". LJ::Lang::ml( "poll.checkexact2", { options => $mincheck } ). "</i><br />\n";
             }
             else {
                 if ($mincheck > 0) {
-                    $results_table .= "<i>". LJ::Lang::ml( "poll.checkmin", { options => $mincheck } ). "</i><br />\n";
+                    $results_table .= "<i>". LJ::Lang::ml( "poll.checkmin2", { options => $mincheck } ). "</i><br />\n";
                 }
 
                 if ($maxcheck < 255) {
-                    $results_table .= "<i>". LJ::Lang::ml( "poll.checkmax", { options => $maxcheck } ). "</i><br />\n";
+                    $results_table .= "<i>". LJ::Lang::ml( "poll.checkmax2", { options => $maxcheck } ). "</i><br />\n";
                 }
             }
         }
@@ -1562,12 +1562,12 @@ sub process_submission {
                 $checkmax ||= 255;
 
                 if($num_opts < $checkmin) {
-                    $$error = LJ::Lang::ml( 'poll.error.checkfewoptions2', {'question' => $qid, 'options' => $checkmin} );
+                    $$error = LJ::Lang::ml( 'poll.error.checkfewoptions3', {'question' => $qid, 'options' => $checkmin} );
                     $error_code = 2;
                     $val = "";
                 }
                 if($num_opts > $checkmax) {
-                    $$error = LJ::Lang::ml( 'poll.error.checktoomuchoptions2', {'question' => $qid, 'options' => $checkmax} );
+                    $$error = LJ::Lang::ml( 'poll.error.checktoomuchoptions3', {'question' => $qid, 'options' => $checkmax} );
                     $error_code = 2;
                     $val = "";
                 }
