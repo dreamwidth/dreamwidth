@@ -4851,15 +4851,21 @@ widget.journaltitles.cancel=Cancel
 
 widget.journaltitles.desc=These titles appear in your journal and on your profile.
 
+widget.journaltitles.desc.comm=These titles appear in your community and on its profile.
+
 widget.journaltitles.edit=Edit
 
 widget.journaltitles.friendspagesubtitle=Reading Page Subtitle:
+widget.journaltitles.friendspagesubtitle.comm=Reading Page Subtitle:
 
 widget.journaltitles.friendspagetitle=Reading Page Title:
+widget.journaltitles.friendspagetitle.comm=Reading Page Title:
 
 widget.journaltitles.journalsubtitle=Journal Subtitle:
+widget.journaltitles.journalsubtitle.comm=Community Subtitle:
 
 widget.journaltitles.journaltitle=Journal Title:
+widget.journaltitles.journaltitle.comm=Community Title:
 
 widget.journaltitles.title=1. Edit Titles
 
