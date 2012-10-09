@@ -3146,14 +3146,14 @@ LOGIN_BAR
     # a quick little routine to use when cycling through the options
     # to create the style links for the nav bar
     my $make_style_link = sub {
-        return create_url( $uri,
+        return LJ::ehtml( create_url( $uri,
             host => $host,
             cur_args => $argshash,
             # change the style arg
             'args' => { 'style' => $_[0] },
             # keep any other existing arguments
             'keep_args' => 1,
-        );
+        ) );
     };
 
     # cycle through all possibilities, add the valid ones
