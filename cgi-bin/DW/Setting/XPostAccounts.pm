@@ -86,13 +86,28 @@ sub option {
                 id       => "${key}xpostbydefault[${acctid}]",
                 selected => $externalacct->xpostbydefault
             }) . "</td>";
-            $ret .= "<td class='checkbox'>" . LJ::html_check({
-                name     => "${key}recordlink[${acctid}]",
-                value    => 1,
-                id       => "${key}recordlink[${acctid}]",
-                selected => $externalacct->recordlink
-            }) . "</td>";
-            $ret .= "<td style='text-align: center;'><a href='$LJ::SITEROOT/manage/externalaccount?acctid=${acctid}'>" . $class->ml('setting.xpost.option.change') . "</a></td>\n";
+            if ( $externalacct->siteid == 9 ) {
+                #grey out this checkbox for Twitter accounts.
+                $ret .= "<td class='checkbox'>" . LJ::html_check({
+                    disabled => 1,
+                    name     => "${key}recordlink[${acctid}]",
+                    value    => 1,
+                    id       => "${key}recordlink[${acctid}]",
+                    selected => $externalacct->recordlink
+                }) . "</td>";
+            } else {
+                $ret .= "<td class='checkbox'>" . LJ::html_check({
+                    name     => "${key}recordlink[${acctid}]",
+                    value    => 1,
+                    id       => "${key}recordlink[${acctid}]",
+                    selected => $externalacct->recordlink
+                }) . "</td>";
+            }
+            if ( $externalacct->siteid == 9 ) {
+                $ret .= "<td style='text-align: center;'><a href='$LJ::SITEROOT/manage/externalaccounts/twittersettings?acctid=${acctid}'>" . $class->ml('setting.xpost.option.change') . "</a></td>\n";
+            } else {
+                $ret .= "<td style='text-align: center;'><a href='$LJ::SITEROOT/manage/externalaccount?acctid=${acctid}'>" . $class->ml('setting.xpost.option.change') . "</a></td>\n";
+            }
             $ret .= "<td class='checkbox'>" . LJ::html_check({
                 name     => "${key}delete[${acctid}]",
                 value    => 1,
@@ -112,10 +127,16 @@ sub option {
 
     # add account
     if (scalar @accounts < $max_accounts) {
-        $ret .= "<div class='xpost_add'><a href='$LJ::SITEROOT/manage/externalaccount'>" . $class->ml('setting.xpost.btn.add') . "</a></div>\n";
+        $ret .= "<div class='xpost_add'><a href='$LJ::SITEROOT/manage/externalaccount'>" . $class->ml('setting.xpost.btn.add') . "</a>"; 
+        if ( $LJ::TWITTER{enabled} ) {
+            $ret .= "&nbsp;&nbsp;&nbsp;&nbsp;<a href='$LJ::SITEROOT/manage/externalaccounts/twittersettings'>" . $class->ml('setting.xpost.btn.add.twitter') . "</a>";
+        }
+        $ret .= "</div>\n";
     }
 
     $ret .= "<h2>" . $class->ml('setting.xpost.settings') . "</h2>";
+    $ret .= "<em>" . $class->ml('setting.xpost.settings.note') . "</em>"
+        if $LJ::TWITTER{enabled};
     # disable comments on crosspost
     $ret .= "<table summary=''><tr>";
     $ret .= "<td><b>" . $class->ml('setting.xpost.comments') . "</b></td><td><label for='${key}xpostdisablecomments'>" . $class->ml('setting.xpost.option.disablecomments') . "</label></td><td>";

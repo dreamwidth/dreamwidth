@@ -3093,7 +3093,9 @@ setting.viewingadultcontent.reason=(To change this option, you must <a [[aopts]]
 
 setting.xpost.accounts=Accounts
 
-setting.xpost.btn.add=Add New Account
+setting.xpost.btn.add=Add New LiveJournal-style Account
+
+setting.xpost.btn.add.twitter=Add New Twitter Account
 
 setting.xpost.comments=Comments
 
@@ -3156,6 +3158,8 @@ setting.xpost.option.xpostbydefault=Crosspost by Default
 setting.xpost.preview=Preview
 
 setting.xpost.settings=Crosspost Settings
+
+setting.xpost.settings.note=The settings below only apply to Livejournal-style accounts.
 
 setting.xpostcomments.about=When Crossposting to LJ-based accounts, disable comments on the other posts.
 
@@ -5423,3 +5427,31 @@ xpost.request.success2=Crosspost requested to [[account]].  You will be notified
 xpost.respected=This will respect your default <a [[aopts]]>crosspost settings</a>, so make sure you have them set properly before you do this.
 
 xpost.success=Crosspost to [[username]]@[[server]] successful.  You can view this entry <a href = "[[xpostlink]]">here</a>.
+
+xpost.error.nonpublic=This is not a public entry. Only public entries may be posted to [[service]].
+
+twitter.prefix_text.default=New [[siteabbrev]] post:
+
+twitter.auth.please_reauth=[[sitename]] does not seem to have access to your Twitter account. Please (re)authorize from the <a href="[[url]]">Twitter account settings page</a>.
+
+twitter.auth.success=[[sitename]] access to your Twitter account was successfully authorized!
+
+twitter.unknown_error=There was an unknown error when trying to access Twitter. If this error persists, please contact Support. The error given was:
+
+oauth.callback.authdenied=[[service]] denied authorization for [[sitename]] to post. Maybe you clicked "cancel", or maybe something went wrong. You can try again if this was not intended.
+
+oauth.callback.tokenmismatch=The token returned by the external site does not match the one that we were expecting. Please try again. If the problem persists, plese contact Support.
+
+oauth.callback.wronguser=The account you are attempting to authorize is not for the current user. Please make sure that you are logged in as the correct user and try again.
+
+oauth.start.fail=There was an error trying to connect to the OAuth provider: [[error]]
+
+twitter.username_updated=Your Twitter username was retreived.
+
+twitter.maxaccounts.plural=You are already at your limit of [[max_accts]] accounts.
+
+twitter.maxaccounts.singular=You are already at your limit of [[max_accts]] account.
+
+twitter.settings.prefix_too_long=Please reduce the length of the prefix text to 100 characters or less.
+
+twitter.twitter_disabled=Twitter features are not enabled on this site.

@@ -1,0 +1,83 @@
+[%# manage/externalaccounts/twittersettings.tt
+
+Authors:
+    Simon Waldman <swaldman@firecloud.org.uk>
+
+Copyright (c) 2012 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+<div id='settings_page'>
+
+<form action="/manage/externalaccounts/twittersettings" method="post"
+    id="twittersettings">
+<table summary='' class='setting_table'>
+[% form.hidden( name='acctid' value=acctid ) %]
+
+[% IF message_list %]
+    <div class='info-box message-box'>
+    <ul class='error-list'>
+    [% FOREACH message = message_list %]
+        <li>[% message %]</li>
+    [% END %]
+    </ul>
+    </div>
+    <hr>
+[% END %]
+
+[% IF error_list %]
+    <div class='error-box message-box'>
+    <ul class='error-list'>
+    [% FOREACH error = error_list %]
+        <li>[% error %]</li>
+    [% END %]
+    </ul>
+    </div>
+    <hr>
+[% END %]
+
+<br />
+<tr><td class='setting_label'><label for='username'>
+[%- '.username.label' | ml -%]</label></td>
+<td>[% username | html %]</td></tr>
+
+<tr><td class='setting_label'><label for="authorized">
+[% '.is_authorized.label' | ml( sitename = site.nameabbrev ) %]</label></td>
+[% IF is_authorized %]
+    <td>[% '.is_authorized.yes' | ml %]</td>
+    <td><a href="[%- site.root -%]/manage/externalaccounts/begin_oauth?acctid=[%- acctid -%]">
+        [% '.reauthorize' | ml %]</a></td>
+[% ELSE %]
+    <td>[% '.is_authorized.no' | ml %]</td>
+    <td><a href="[%- site.root -%]/manage/externalaccounts/begin_oauth?acctid=[%- acctid -%]">
+        [% '.authorize' | ml %]</a></td>
+[% END %]
+</tr>
+
+<tr><td class='setting_label'><label for='tweetbydefault'>
+[% '.tweetbydefault.label' | ml %]</label></td>
+<td>[% form.checkbox( name='tweetbydefault', id='tweetbydefault', 
+	default=tweetbydefault, value=1 ) %]
+</td><td><em>[% '.tweetbydefault.note' | ml( sitename = site.nameshort ) %]</td></tr>
+
+<tr><td class='setting_label'><label for='prefix_text'>
+[% '.prefix_text.label' | ml %]</label></td>
+<td>[% form.textbox( name='prefix_text', id='prefix_text', 
+	default=prefix_text, maxlength="100" )%]</td>
+<td><em>[% '.prefix_text.note' | ml %]</em></td></tr>
+
+</table>
+
+[% form.submit( value='Update' ) %]
+</form>
+
+<br />
+<p><em>[% '.tweet_layout_explanation' | ml %]</em></p>
+
+</div>
