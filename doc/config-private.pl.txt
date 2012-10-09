@@ -176,6 +176,12 @@
     #    api_key => "demo",
     #    timeout => 10,
     #);
+
+    #%TWITTER = (
+    #   consumer_key => ,
+    #   consumer_secret => ,
+    #);
+
 }
 
 1;

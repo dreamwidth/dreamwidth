@@ -447,6 +447,17 @@ sub displayname {
     return $_[0]->username . "@" . $_[0]->servername;
 }
 
+# returns the is_authorized value for an OAuth account
+sub is_authorized {
+    my $self = shift;
+    
+    #If it's not an OAuth account this shouldn't have been called at all,
+    # but just return true.
+    return 1 unless $self->uses_oauth;
+
+    return $self->options->{is_authorized};
+}
+
 # returns the protocol for this account, either as set directly or
 # from the configured site
 sub protocol {
@@ -510,6 +521,24 @@ sub set_password {
     return 1;
 }
 
+#updates the username for this ExternalAccount.
+#Should probably only be used with OAuth accounts where the username can change,
+#e.g. Twitter.
+sub set_username {
+    my ( $self, $newusername ) = @_;
+
+    my $u = $self->owner;
+    unless ( $newusername eq $self->username ) {
+        $u->do( "UPDATE externalaccount SET username=? WHERE userid=? AND acctid=?", undef, $newusername, $u->{userid}, $self->acctid );
+        LJ::throw( $u->errstr ) if $u->err;
+
+        $self->{username} = $newusername;
+        $self->_remove_from_memcache( $self->_memcache_id );
+    }
+    return 1;
+}
+
+
 # sets the (protocol-specific) options.  takes a hashref as the options
 # argument.
 sub set_options {
@@ -530,6 +559,37 @@ sub set_options {
     $self->_remove_from_memcache($self->_memcache_id);
 
     return 1;
+}
+
+# updates the is_authorized flag for an OAuth account. 
+sub set_is_authorized {
+    my ( $self, $is_authorized ) = @_;
+
+    LJ::throw( 'Cannot set is_authorized flag on an account that does not use OAuth' )
+        unless $self->uses_oauth;
+
+    my $newvalue = $is_authorized ? 1 : 0;
+    unless ( $newvalue == $self->options->{is_authorized} ) {
+        my $options = $self->options;
+        $options->{is_authorized} = $newvalue;
+        $self->set_options( $options );
+    }
+    return 1;
+}
+
+# Returns true if this externalaccount uses a protocol that shouldn't receive
+#  non-public entries
+sub public_posts_only {
+    my $self = shift;
+    return 0 unless $self->protocol;
+    return $self->protocol->public_posts_only;
+}
+
+# Returns true if this account uses OAuth.
+sub uses_oauth {
+    my $self = shift;
+    return 0 unless $self->protocol;
+    return $self->protocol->uses_oauth;
 }
 
 1;
