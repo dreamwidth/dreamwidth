@@ -916,7 +916,7 @@ sub create_qr_div {
     $qrhtml .= LJ::ljuser($remote->{'user'});
     $qrhtml .= "</td><td align='center'>";
 
-    my $beta_jquery = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta_jquery = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     # Userpic selector
     {
         my %res;
@@ -1019,7 +1019,7 @@ sub create_qr_div {
                                       {'name' => 'saved_ptid', 'id' => 'saved_ptid'},
                                       ));
 
-    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
         # FIXME: figure out how to fix the saving of the qr entry stuff
         $ret .= qq{jQuery(function(jQ){
                 jQ("body").append(jQ("<div id='qrdiv'></div>").html("$qrhtml").hide());
