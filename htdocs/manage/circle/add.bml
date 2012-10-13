@@ -248,6 +248,24 @@ _c?>
     # let them pick access and content filters to put the user in
     my $err;
 
+    if ( $remote->can_trust( $u ) && @trust_groups || $remote->can_watch( $u ) && @content_filters ) {
+        # extra add and cancel buttons
+        $body .= "<br /><br />";
+        if ($u->is_visible) {
+            my $btn = ( $watched || $trusted ) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $u->display_name } );
+            $body .= "<input type='submit' value=\"$btn\"> ";
+        } else {
+            $body .= "<input type='submit' name='action:delete' value=\"$ML{'.btn.remove'}\"> \n";
+        }
+
+        my $cancel_btn = LJ::ejs($ML{'.btn.cancel'});
+
+        $body .= "<script type='text/javascript' language='Javascript'> \n <!-- \n
+       document.write(\"<input type='button' value='$cancel_btn' onclick='history.go(-1); return false;'>\");
+        \n // -->\n ";
+        $body .= '</script>';
+    }
+
     # trust group buttons
     if ( $remote->can_trust( $u ) && @trust_groups ) {
         $body .= "<div class='add_trust' style='float: left; width: 45%; padding: 1em;'>";
@@ -548,7 +566,8 @@ _c?>
 
    } # end is_visible if statement
 
-   $body .= "<br />\n <?p ";
+    $body .= "<div class='add_trust add_watch'>\n"; 
+    $body .= "<br />\n <?p ";
     # Form submit buttons
     if ($u->is_visible) {
         my $btn = ( $watched || $trusted ) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $u->display_name } );
@@ -562,8 +581,7 @@ _c?>
     $body .= "<script type='text/javascript' language='Javascript'> \n <!-- \n
        document.write(\"<input type='button' value='$cancel_btn' onclick='history.go(-1); return false;'>\");
         \n // -->\n ";
-    $body .= '</script> p?>';
-
+    $body .= '</script> p?></div>';
 
     $body .= "</form>";
 
