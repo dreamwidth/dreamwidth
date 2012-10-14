@@ -5781,6 +5781,7 @@ function CommentInfo::print_readlink {
     var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
     var string text_both = $text_visible + $*text_default_separator + $text_screened;
     var string text_total = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+
     if ($.screened) { # show visible count and screened count
         print safe """<a href="$.read_url#comments">"""+ $text_both + """</a>""";
     } else {
