@@ -1026,6 +1026,8 @@ sub entry_props {
         text_unwatch_comments
         text_read_comments
         text_read_comments_friends
+        text_read_comments_screened_visible
+        text_read_comments_screened
         text_post_comment
         text_post_comment_friends
         text_permalink
