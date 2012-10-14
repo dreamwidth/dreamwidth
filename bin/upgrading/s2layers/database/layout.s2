@@ -1078,9 +1078,7 @@ if ($.replyto isa Comment) {
           $*text_nosubject + " (" + $*text_comment_reply + ")";
     }
 }
-function ReplyPage::view_title() : string {
-    return $*text_default_separator + $.entry->get_plain_subject() + " (" + $*text_comment_reply + ")";
-}
+
 function Page::title() [notags] : string {
     return $*text_default_separator + $this->view_title();
 }
