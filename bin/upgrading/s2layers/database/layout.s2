@@ -465,10 +465,10 @@ function Entry::print_management_links() {
 
 function CommentInfo::print_readlink {
     var Page p = get_page();
-    var string text_all = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
     var string text_visible = get_plural_phrase($.count, "text_read_comments_screened_visible");
     var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
     var string text_both = $text_visible + $*text_default_separator + $text_screened;
+    var string text_total = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
 
     if ($.screened) {
         if ($*entry_interaction_links == "text") {
@@ -481,9 +481,9 @@ function CommentInfo::print_readlink {
         
     } else {
         if ($*entry_interaction_links == "text") {
-            print safe """<a href="$.read_url#comments">"""+ $text_all + """</a>""";
+            print safe """<a href="$.read_url#comments">"""+ $text_total + """</a>""";
         } else {
-            print safe """<a href="$.read_url#comments" alt="$text_all" title="$text_all">$.count <img src="$*image_comments" /></a>""";
+            print safe """<a href="$.read_url#comments" alt="$text_total" title="$text_total">$.count <img src="$*image_comments" /></a>""";
         }
     }
 }
