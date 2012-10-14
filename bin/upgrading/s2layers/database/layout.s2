@@ -620,8 +620,6 @@ function Comment::print_management_links() {
     }
 }
 
-## FIXME: add hide comments functionality
-
 function Comment::print_interaction_links() {
     var string display_type = ($*comment_interaction_links == "text") ? " text-links" : " icon-links";
 
@@ -642,7 +640,7 @@ function Comment::print_interaction_links() {
         if ($*comment_interaction_links == "text") {
             $this->print_reply_link({"linktext" => $*text_comment_reply});
         } else {
-            $this->print_reply_link({ "img_url" => "$*image_reply", "alt" => $*text_comment_reply, "title" => $*text_comment_reply });
+            $this->print_reply_link({ "img_url" => $*image_reply, "alt" => $*text_comment_reply, "title" => $*text_comment_reply });
         }
         """</li>""";
     }
@@ -650,14 +648,16 @@ function Comment::print_interaction_links() {
         if ($*comment_interaction_links == "text") {
             print safe """<li class="link threadroot"><a href="$this.threadroot_url">$*text_comment_threadroot</a></li>\n""";
         } else {
-            print safe """<li class="link threadroot"><a href="$this.threadroot_url"><img src="$*image_threadroot" alt="$*text_comment_threadroot" title="$*text_comment_threadroot" /></a></li>""";}
+            print safe """<li class="link threadroot"><a href="$this.threadroot_url"><img src="$*image_threadroot" alt="$*text_comment_threadroot" title="$*text_comment_threadroot" /></a></li>""";
         }
+    }
     if ($this.parent_url != "") {
         if ($*comment_interaction_links == "text") {
             print safe """<li class="link commentparent"><a href="$this.parent_url">$*text_comment_parent</a></li>\n""";
         } else {
-            print safe """<li class="link commentparent"><a href="$this.parent_url"><img src="$*image_parent" alt="$*text_comment_parent" title="$*text_comment_parent" /></a></li>"""; }
+            print safe """<li class="link commentparent"><a href="$this.parent_url"><img src="$*image_parent" alt="$*text_comment_parent" title="$*text_comment_parent" /></a></li>""";
         }
+    }
     if ($this.thread_url != "") {
         if ($*comment_interaction_links == "text") {
             print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>\n""";
@@ -671,9 +671,34 @@ function Comment::print_interaction_links() {
         if ($*comment_interaction_links == "text") {
             $this->print_expand_link();
         } else {
-            $this->print_expand_link({ "img_url" => "$*image_expand" });
+            $this->print_expand_link({ "img_url" => $*image_expand, "alt" => $*text_comment_expand, "title" => $*text_comment_expand });
         }
         """</li>""";
+    }
+    var Link hide_link = $this->get_link("hide_comments");
+    if (defined $hide_link) {
+        var string show_hide = "";
+        if (not $this.hide_children) {
+            $show_hide = " cmt_show_hide_default";
+        }
+        """<li class="link cmt_hide$show_hide" style="display:none;" id="cmt${this.talkid}_hide">""";
+        if ($*comment_interaction_links == "text") {
+            $this->print_hide_link();
+        } else {
+        $this->print_hide_link({ "img_url" => $*image_hide, "alt" => $*text_comment_hide, "title" => $*text_comment_hide });
+        }
+        """</li>\n""";
+    }
+    var Link unhide_link = $this->get_link("unhide_comments");
+    if (defined $unhide_link) {
+        var string show_hide = "";
+        """<li class="link cmt_unhide$show_hide" style="display: none;" id="cmt${this.talkid}_unhide">""";
+        if ($*comment_interaction_links == "text") {
+            $this->print_unhide_link();
+        } else {
+            $this->print_unhide_link({ "img_url" => $*image_show, "alt" => $*text_comment_unhide, "title" => $*text_comment_unhide });
+        }
+        """</li>\n""";
     }
     """</ul>""";
 }
