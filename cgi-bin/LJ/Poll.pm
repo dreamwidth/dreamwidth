@@ -287,7 +287,7 @@ sub new_from_html {
                         {
                             $size = $opts->{'size'}+0;
                         } else {
-                            return $err->('poll.error.badsize');
+                            return $err->('poll.error.badsize2');
                         }
                     }
                     if (defined $opts->{'maxlength'}) {
@@ -386,7 +386,7 @@ sub new_from_html {
 
                 if ($qopts{'type'} eq "text")
                 {
-                    return $err->('poll.error.noitemstext');
+                    return $err->('poll.error.noitemstext2');
                 }
 
                 $iopen = 1;
@@ -447,7 +447,7 @@ sub new_from_html {
                 $qopts{'qtext'} =~ s/^\s+//;
                 $qopts{'qtext'} =~ s/\s+$//;
                 my $len = length($qopts{'qtext'})
-                    or return $err->('poll.error.notext');
+                    or return $err->('poll.error.notext2');
 
                 my $question = LJ::Poll::Question->new_from_row(\%qopts);
                 push @{$popts{'questions'}}, $question;
