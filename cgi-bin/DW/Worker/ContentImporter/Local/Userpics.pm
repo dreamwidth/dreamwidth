@@ -46,7 +46,7 @@ sub import_userpics {
     $log ||= sub { undef };
 
     my $count = $u->get_userpic_count;
-    my $max = $LJ::IMPORT_OVERRIDE_USERPICS || $u->userpic_quota;
+    my $max = $u->userpic_quota;
     my $left = $max - $count;
     my $pending = scalar( @{$upics || [] } );
 
@@ -151,7 +151,7 @@ sub import_userpic {
         $ret = 1;
 
         my $count = $u->get_userpic_count;
-        my $max = $LJ::IMPORT_OVERRIDE_USERPICS || $u->userpic_quota;
+        my $max = $u->userpic_quota;
 
         if ( $count >= $max ) {
             push @$errors, "Icon '$identifier': You are at your limit of $max " . ($max == 1 ? "userpic" : "userpics") .
