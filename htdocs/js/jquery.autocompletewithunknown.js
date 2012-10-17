@@ -172,12 +172,12 @@
                             self.justCompleted = true;
                             event.preventDefault();
 
-                            var $menu = $input.data("autocomplete").menu;
+                            var $menu = $input.data("ui-autocomplete").menu;
                             $menu.deactivate();
 
                             return;
                         case keyCode.TAB:
-                            var $menu = $input.data("autocomplete").menu;
+                            var $menu = $input.data("ui-autocomplete").menu;
                             if ( $menu.element.is(":visible")) {
                                 if ( !$menu.active ) {
                                     $menu.next(event);
@@ -205,7 +205,7 @@
                         _handleComplete.apply( $input, [event, { item: { value: $input.val() } } ]);
                 }).change(function(event){
                     // if we have the menu open, let that handle the autocomplete
-                    var $menu = $(this).data("autocomplete").menu;
+                    var $menu = $(this).data("ui-autocomplete").menu;
                     if ( $menu.element.is(":visible") ) return;
 
                     _handleComplete.apply( $(this), [event, { item: { value: $(event.currentTarget).val() } } ]);
@@ -216,9 +216,9 @@
                         self.justCompleted = false;
                     }
                 })
-                .data("autocomplete")._renderItem = function( ul, item ) {
+                .data("ui-autocomplete")._renderItem = function( ul, item ) {
                         return $( "<li></li>" )
-                            .data( "item.autocomplete", item )
+                            .data( "ui-autocomplete-item", item )
                             .append( "<a>" + item.label + "</a>" )
                             .appendTo( ul );
                 };
