@@ -168,7 +168,7 @@ body<=
             $ret .= "<br /><i>($ML{'.userpic.none'})</i>";
         }
         $ret .= "</div><div style='margin-left: 110px'>\n";
-        $ret .= "<span class='helper'>$ML{'.userpic'}</span>";
+        $ret .= "<span class='helper'>" . $ML{".userpic$iscomm"} . "</span>";
         $ret .= LJ::help_icon('upic_keywords');
         $ret .= "<?p <a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";

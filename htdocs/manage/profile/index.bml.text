@@ -267,6 +267,8 @@
 
 .userpic=This is the icon that will be displayed on your profile.  It will also be displayed on your entries and comments unless you select a different one at the time you post your entry or comment.
 
+.userpic.comm=This is the icon that will be displayed on the community's profile.
+
 .userpic.change=Change default icon
 
 .userpic.none=no icon uploaded
