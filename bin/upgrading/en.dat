@@ -2501,8 +2501,11 @@ setting.contactinfo.error.invalid=Invalid selection.
 setting.contactinfo.label=Contact Info Security
 
 setting.contactinfo.option=Who can view your contact info?
+setting.contactinfo.option.comm=Who can view this community's contact info?
 
 setting.contactinfo.option.note=This setting controls who can view your contact information for any external services, in addition to your selected email address(es), on your profile page.
+
+setting.contactinfo.option.note.comm=This setting controls who can view the contact information and external services on this community's profile page.
 
 setting.ctxpopup.label=Hover Menu
 
@@ -2593,10 +2596,15 @@ setting.display.emails.label=Email Addresses
 setting.display.emails.option=View past email addresses
 
 setting.display.journalentrystyle.label=Journal Entry Style
+setting.display.journalentrystyle.label2=Entry Style
 
 setting.display.journalentrystyle.note=Note: this setting affects everyone who views your journal who has not chosen a different Entry View Style.
 
+setting.display.journalentrystyle.note.comm=Note: this setting affects everyone who views this community who has not chosen a different Entry View Style.
+
 setting.display.journalentrystyle.option=Show my journal's entry pages in my chosen style instead of the site layout
+
+setting.display.journalentrystyle.option.comm=Show this community's entry pages in its chosen style instead of the site layout
 
 setting.display.logins.label=Logins
 
@@ -2751,7 +2759,11 @@ setting.globalsearch.label=Site-Wide Search Inclusion
 
 setting.globalsearch.sel.no=No, do not allow my content to be included in site searches
 
+setting.globalsearch.sel.no.comm=Do not allow this community's content to be included in site searches
+
 setting.globalsearch.sel.yes=Yes, include my public content in site search results (default)
+
+setting.globalsearch.sel.yes.comm=Include this community's public content in site search results (default)
 
 setting.googleanalytics.error.invalid=Invalid Google Analytics ID entered, must be of the format: UA-NNNNNNN-NN (where N represents numbers).
 
@@ -2837,9 +2849,15 @@ setting.randompaidgifts.label=Random Paid Gifts
 
 setting.randompaidgifts.option=Include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
+setting.randompaidgifts.option.comm=Include this community in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
+
 setting.randompaidgifts.option.note=You may receive a paid account from someone you do not know.
 
+setting.randompaidgifts.option.note.comm=The community may receive paid time from someone you do not know.
+
 setting.randompaidgifts.option.paid=If your paid account expires, include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
+
+setting.randompaidgifts.option.paid.comm=If this community's paid account expires, include it in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
 setting.safesearch.error.invalid=Invalid safe search setting.
 
@@ -2882,6 +2900,8 @@ setting.synlevel.error.invalid=Invalid syndication level.
 setting.synlevel.label=Syndication Level
 
 setting.synlevel.option=Display the following level of content in my journal's feed:
+
+setting.synlevel.option.comm=Display the following level of content in this community's feed:
 
 setting.synlevel.option.note=(Feed links: <a [[aopts_atom]]>Atom</a> <a [[aopts_rss]]>RSS</a>)
 
@@ -2938,6 +2958,10 @@ setting.usermessaging.opt.m=Only Mutually Trusted
 setting.usermessaging.opt.n=Nobody
 
 setting.usermessaging.opt.y=Registered Accounts
+
+setting.usermessaging.opt.members=Members
+
+setting.usermessaging.opt.admins=Administrators
 
 setting.usermessaging.option=Receive messages from:
 
@@ -4851,15 +4875,21 @@ widget.journaltitles.cancel=Cancel
 
 widget.journaltitles.desc=These titles appear in your journal and on your profile.
 
+widget.journaltitles.desc.comm=These titles appear in your community and on its profile.
+
 widget.journaltitles.edit=Edit
 
 widget.journaltitles.friendspagesubtitle=Reading Page Subtitle:
+widget.journaltitles.friendspagesubtitle.comm=Reading Page Subtitle:
 
 widget.journaltitles.friendspagetitle=Reading Page Title:
+widget.journaltitles.friendspagetitle.comm=Reading Page Title:
 
 widget.journaltitles.journalsubtitle=Journal Subtitle:
+widget.journaltitles.journalsubtitle.comm=Community Subtitle:
 
 widget.journaltitles.journaltitle=Journal Title:
+widget.journaltitles.journaltitle.comm=Community Title:
 
 widget.journaltitles.title=1. Edit Titles
 

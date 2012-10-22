@@ -120,6 +120,12 @@ _c?>
     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $body .= "</form> p?>\n\n";
 
+    #Communities can't have access filters at present
+    if ( $u->is_community ) {
+        $body .= "<?p $ML{'.comm.nofilters'} p?>";
+        return;
+    }
+
     $body .= "<?p $ML{'.text'} p?><?p $ML{'.text.sec'} p?><p>";
     $body .= "<form method='post' name='fg' action='editfilters$getextra'>";
     $body .= LJ::form_auth();
