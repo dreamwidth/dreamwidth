@@ -130,7 +130,10 @@ sub call_xmlrpc {
     my ($self, $proxyurl, $mode, $req, $auth) = @_;
     
     my $xmlrpc = eval {
-        XMLRPC::Lite->proxy( $proxyurl, agent => "$LJ::SITENAME XPoster ($LJ::ADMIN_EMAIL)" );
+        XMLRPC::Lite->proxy( $proxyurl,
+            agent => "$LJ::SITENAME XPoster ($LJ::ADMIN_EMAIL)",
+            timeout => 3,
+        );
     };
 
     # connection error if no proxy
@@ -249,7 +252,7 @@ sub validate_server {
     $depth ||= 1;
 
     # get the xml-rpc proxy and start the connection.
-    my $xmlrpc = eval { XMLRPC::Lite->proxy($proxyurl); };
+    my $xmlrpc = eval { XMLRPC::Lite->proxy($proxyurl, timeout => 3); };
 
     # fail if no proxy
     return 0 unless $xmlrpc;
@@ -593,7 +596,7 @@ sub challenge {
     # get the xml-rpc proxy and start the connection.
     # use the custom serviceurl if available, or the default using the hostname
     my $proxyurl = $extacct->serviceurl || "http://" . $extacct->serverhost . "/interface/xmlrpc";
-    my $xmlrpc = eval { XMLRPC::Lite->proxy($proxyurl); };
+    my $xmlrpc = eval { XMLRPC::Lite->proxy($proxyurl, timeout => 3); };
     return 0 unless $xmlrpc;
 
     my $challengecall = eval { $xmlrpc->call("LJ.XMLRPC.getchallenge"); };

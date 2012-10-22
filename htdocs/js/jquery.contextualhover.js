@@ -36,10 +36,10 @@ function _initUserhead(context) {
 }
 
 function _initIcons(context) {
-    $("img[src*='/userpic/']",context).each(function() {
+    var re = new RegExp( "^" + Site.iconprefix + "/\\d+\/\\d+$" );
+    $("img[src^='"+Site.iconprefix+"']",context).each(function() {
         var $icon = $(this);
-        if (this.src.match(/userpic\..+\/\d+\/\d+/) ||
-            this.src.match(/\/userpic\/\d+\/\d+/)) {
+        if (this.src.match(re)) {
             $icon.contextualhover({ "icon_url": this.src, type: "icon" });
         }
     });

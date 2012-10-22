@@ -126,10 +126,6 @@
     $COMMENT_IMPORT_MAX = undef;
     $COMMENT_IMPORT_ERROR = "Importing more than 10,000 comments is currently disabled.";
 
-    # Uncomment and set this value if you want to allow anybody to import as many userpics
-    # as they can. Otherwise, we obey the quota their account type has.
-    #$IMPORT_OVERRIDE_USERPICS = 500;
-
 }
 
 1;
