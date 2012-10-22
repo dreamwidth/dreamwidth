@@ -38,7 +38,7 @@ sub render_body {
     $ret .= ( $u->is_community ) ?
         $class->ml('widget.journaltitles.desc.comm') :
         $class->ml('widget.journaltitles.desc');
-    $ret .= LJ::help_icon('journal_titles') . "</p>";
+    $ret .= " " . LJ::help_icon('journal_titles') . "</p>";
 
     foreach my $id (qw( journaltitle journalsubtitle friendspagetitle friendspagesubtitle )) {
         my $eprop = LJ::ehtml( $u->prop( $id ) ) || '';
