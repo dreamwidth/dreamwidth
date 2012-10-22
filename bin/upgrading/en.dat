@@ -2939,6 +2939,10 @@ setting.usermessaging.opt.n=Nobody
 
 setting.usermessaging.opt.y=Registered Accounts
 
+setting.usermessaging.opt.members=Members
+
+setting.usermessaging.opt.admins=Administrators
+
 setting.usermessaging.option=Receive messages from:
 
 setting.usermessaging.option.note=Only registered [[sitename]] users can send you messages. You also have options to receive messages only from users on your Access List.
