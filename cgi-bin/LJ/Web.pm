@@ -2512,19 +2512,21 @@ sub res_includes {
     my $do_concat = $LJ::IS_SSL ? $LJ::CONCAT_RES_SSL : $LJ::CONCAT_RES;
 
     # use correct root and prefixes for SSL pages
-    my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix);
+    my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix, $iconprefix);
     if ($LJ::IS_SSL) {
         $siteroot = $LJ::SSLROOT;
         $imgprefix = $LJ::SSLIMGPREFIX;
         $statprefix = $LJ::SSLSTATPREFIX;
         $jsprefix = $LJ::SSLJSPREFIX;
         $wstatprefix = $LJ::SSLWSTATPREFIX;
+        $iconprefix = $LJ::USERPIC_ROOT;
     } else {
         $siteroot = $LJ::SITEROOT;
         $imgprefix = $LJ::IMGPREFIX;
         $statprefix = $LJ::STATPREFIX;
         $jsprefix = $LJ::JSPREFIX;
         $wstatprefix = $LJ::WSTATPREFIX;
+        $iconprefix = $LJ::USERPIC_ROOT;
     }
 
     if ( $include_js ) {
@@ -2566,6 +2568,7 @@ sub res_includes {
                     imgprefix => "$imgprefix",
                     siteroot => "$siteroot",
                     statprefix => "$statprefix",
+                    iconprefix => "$iconprefix",
                     currentJournalBase => "$journal_base",
                     currentJournal => "$journal",
                     has_remote => $hasremote,
