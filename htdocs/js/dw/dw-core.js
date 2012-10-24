@@ -51,11 +51,18 @@ $.extractParams = function(url) {
 
 $.throbber = {
   src: Site.imgprefix + "/ajax-loader.gif",
-  image: function() { return $("<img>", { src:  $.throbber.src } ) }
+  image: function() { return $("<img />", {
+        src:  $.throbber.src,
+        alt: "Loading..."
+    } )
+    .css( {
+            "position": "absolute"
+        } );
+    }
 };
 
 $.endpoint = function(action){
-  return Site && Site.currentJournal ? "/" + Site.currentJournal + "/__rpc_" + action : "/__rpc_" + action;
+  return ( Site && Site.currentJournal ) ? "/" + Site.currentJournal + "/__rpc_" + action : "/__rpc_" + action;
 };
 
 // position is an optional first argument

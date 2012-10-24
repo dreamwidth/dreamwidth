@@ -410,10 +410,12 @@ sub EntryPage
 
     LJ::need_res( "js/commentmanage.js" );
     LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.tooltip.js
             js/jquery.ajaxtip.js
             js/jquery.commentmanage.js
             js/tooltip.js
             js/jquery/jquery.ui.position.js
+            stc/jquery/jquery.ui.tooltip.css
             stc/ajaxtip.css
             stc/popup-form.css
         ) );

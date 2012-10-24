@@ -200,8 +200,9 @@ sub make_journal
 
     LJ::need_res( { group => "jquery" }, qw(
         js/jquery/jquery.ui.widget.js
+        js/jquery/jquery.ui.tooltip.js
         js/jquery.ajaxtip.js
-        js/tooltip.js
+        stc/jquery/jquery.ui.tooltip.css
         stc/ajaxtip.css
 
         js/jquery.poll.js
@@ -1803,9 +1804,10 @@ sub tracking_popup_js {
         { group => 'jquery' }, qw(
         js/jquery/jquery.ui.widget.js
 
+        js/jquery/jquery.ui.tooltip.js
         js/jquery.ajaxtip.js
-        js/tooltip.js
         js/jquery/jquery.ui.position.js
+        stc/jquery/jquery.ui.tooltip.css
         stc/ajaxtip.css
 
         js/jquery.esn.js

@@ -995,9 +995,10 @@ sub start_request
                 qw(
                     js/jquery/jquery.ui.widget.js
 
+                    js/jquery/jquery.ui.tooltip.js
                     js/jquery.ajaxtip.js
-                    js/tooltip.js
                     js/jquery/jquery.ui.position.js
+                    stc/jquery/jquery.ui.tooltip.css
                     stc/ajaxtip.css
 
                     js/jquery.hoverIntent.js

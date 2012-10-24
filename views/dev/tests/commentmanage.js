@@ -4,7 +4,7 @@ old: js/6alib/commentmanage.js
 jquery: js/jquery/jquery.ui.widget.js
 jquery: js/jquery.ajaxtip.js
 jquery: js/jquery.commentmanage.js
-jquery: js/tooltip.js
+jquery: js/jquery/jquery.ui.tooltip.js
 jquery: js/jquery/jquery.ui.position.js
 */
 

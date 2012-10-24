@@ -1,19 +1,79 @@
 (function($) {
-$.widget("dw.ajaxtip", {
+$.widget("dw.ajaxtip", $.ui.tooltip, {
     options: {
-        namespace: undefined,
         content: undefined,
-        tooltip: { dynamic: true },
+        items: "*",
+
+        // tooltip persists until the user performs an action. No fadeaway timer
         persist: false,
-        multiple: false // allow multiple ajaxtip requests, even if we're not done processing the previous
-    },
-    _namespace: function() {
-        return this.options.namespace ? "."+this.options.namespace : "";
+
+        // allow multiple ajaxtip requests, even if we're not done processing the previous
+        multiple: false
     },
     _create: function() {
-        var self = this;
-        var ns = self._namespace();
+        this._super();
 
+        this._on({
+            ajaxstart: "open"
+        });
+    },
+    error: function(msg) {
+        this.option("content", msg);
+        this.open();
+    },
+    load: function(opts) {
+        /* opts contains overrides
+         *
+         * endpoint : name of the endpoint we wish to use (not the URL)
+         *
+         * ajax     : options for the AJAX call, in case you want to override the defaults
+         *            Here are the moste useful ones:
+         *
+         *    type      : POST or GET
+         *    data      : any additional data to pass to the request
+         *                 e.g., POST parameters
+         *    context   : the context used for "this" in the callbacks
+         *
+         *    success   : success callback
+         *    error     : error callback
+         */
+        var endpoint_url = $.endpoint( opts["endpoint"] );
+
+        var self = this;
+
+        if ( self.cur_req ) {
+            self.cur_req.abort();
+        }
+
+        var deferred = $.ajax( $.extend({
+            url : endpoint_url,
+            context: self,
+
+            dataType: "json"
+        }, opts.ajax ));
+        self.cur_req = deferred;
+
+        // now add the throbber. It will be removed automatically
+        $(self.element).throbber("after",deferred);
+
+        self.option( "content", function(setContent) {
+            deferred.done(function() {
+                // setContent();
+            });
+
+            deferred.fail(function(jqxhr, status, error) {
+                // "abort" status means we cancelled the ajax request
+                if ( status !== "abort" ) {
+                    setContent( "Error contacting server: " + error );
+                }
+            });
+        });
+    }
+});
+
+/* 3.4k compressed
+$.widget("dw.ajaxtipold", $.ui.tooltip, {
+    _create: function() {
         var tipcontainer = $("<div class='ajaxtooltip ajaxtip' style='display: none'></div>")
                         .click(function(e) {e.stopPropagation()})
 
@@ -83,13 +143,7 @@ $.widget("dw.ajaxtip", {
     _reposition: function( tip ) {
         tip.position({ my: "left top", at: "left bottom", of: this.element, collision: "fit"})
     },
-    _endpointurl : function( action ) {
-        // if we are on a journal subdomain then our url will be
-        // /journalname/__rpc_action instead of /__rpc_action
-        return Site.currentJournal
-            ? "/" + Site.currentJournal + "/__rpc_" + action
-            : "/__rpc_" + action;
-    },
+
     widget: function() {
         return this.element.data("tooltip").getTip();
     },
@@ -100,7 +154,7 @@ $.widget("dw.ajaxtip", {
     show: function() {
         var tip = this.element.data("tooltip");
         tip.show();
-        this.success(/*no msg*/);
+        this.success((no msg));
     },
     load: function(opts) {
         var self = this;
@@ -113,6 +167,7 @@ $.widget("dw.ajaxtip", {
         }
 
         self.element.trigger("ajaxstart" + self._namespace());
+
 
         var xhr = $.ajax({
             type: opts.formmethod || "POST",
@@ -157,7 +212,7 @@ $.widget("dw.ajaxtip", {
                                 ajaxresult: { message: msg, status: "error" } })
     }
 });
-
+*/
 $.extend( $.dw.ajaxtip, {
     closeall: function(e) {
         $(".ajaxtip:visible").each(
@@ -169,10 +224,10 @@ $.extend( $.dw.ajaxtip, {
                 } else {
                     $(this).trigger("close");
                 }
-            })
+            });
     }
-})
-})(jQuery);
+});
+})(jQuery, Site);
 
 jQuery(function($) {
     $(document).click(function(e) {

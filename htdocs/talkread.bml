@@ -845,10 +845,11 @@ body<=
                 LJ::need_res('js/commentmanage.js');
                 LJ::need_res( { group => "jquery" }, qw(
                             js/jquery/jquery.ui.widget.js
+                            js/jquery/jquery.ui.tooltip.js
                             js/jquery.ajaxtip.js
                             js/jquery.commentmanage.js
                             js/jquery/jquery.ui.position.js
-                            js/tooltip.js
+                            stc/jquery/jquery.ui.tooltip.css
                             stc/ajaxtip.css
                             stc/popup-form.css
                 ) );

@@ -46,7 +46,7 @@
 
   // shows an error.  just uses alert() for now.
   function showExpanderError(element,error) {
-    $(element).ajaxtip({namespace:"threadexpander", content: " ", persist: true }).ajaxtip("error", error);
+    $(element).ajaxtip().ajaxtip( "error", error );
   }
 
   // ajax expands the comments for the given talkid
