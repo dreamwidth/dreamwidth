@@ -23,7 +23,7 @@ $.widget("dw.moderate", {
         journal: undefined,
         form_auth: undefined,
 
-        endpoint: "__rpc_talkscreen",
+        endpoint: "talkscreen"
     },
     _updateLink: function(newData) {
         this.element.attr("href", newData.newurl);
@@ -50,13 +50,11 @@ $.widget("dw.moderate", {
 
     _abort: function(reason, ditemid) {
         ditemid = ditemid || this.linkdata.id;
-        this.element.ajaxtip({namespace:"moderate"})
-            .ajaxtip( "abort", "Error moderating comment #" + ditemid + ". " + reason);
+        this.element.ajaxtip().ajaxtip( "error", "Error moderating comment #" + ditemid + ". " + reason);
     },
 
     _create: function() {
         var self = this;
-
         var params = $.extractParams(this.element.attr("href"));
         this.linkdata = {
             id: params.talkid || "",
@@ -83,31 +81,36 @@ $.widget("dw.moderate", {
                 return;
             }
 
-            var posturl = "/" + self.options.journal + "/" + self.options.endpoint
-                        + "?jsmode=1&json=1&mode=" + self.linkdata.action;
+            var endpoint = self.options.endpoint +
+                "?jsmode=1&json=1&mode=" + self.linkdata.action;
 
             self.element
-                .ajaxtip({
-                    namespace: "moderate",
-                })
-                .ajaxtip("load", {
-                    url: posturl,
-                    context: self,
-                    data: {
-                        talkid  : self.linkdata.id,
-                        journal : self.options.journal,
+                .ajaxtip() // init
+                .ajaxtip( "load", {
+                    endpoint: endpoint,
 
-                        confirm : "Y",
-                        lj_form_auth: self.options.form_auth
-                    },
-                    success: function( data, status, jqxhr ) {
-                        if ( data.error ) {
-                            self.element.ajaxtip( "error", "Error while trying to " + self.linkdata.action + ": " + data.error )
-                        } else {
-                            self.element.ajaxtip("success",data.msg);
-                            self._updateLink(data);
+                    ajax: {
+                        type: "POST",
+
+                        context: self,
+
+                        data: {
+                            talkid  : self.linkdata.id,
+                            journal : self.options.journal,
+
+                            confirm : "Y",
+                            lj_form_auth: self.options.form_auth
+                        },
+
+                        success: function( data, status, jqxhr ) {
+                            if ( data.error ) {
+                                this.element.ajaxtip( "error", "Error while trying to " + this.linkdata.action + ": " + data.error );
+                            } else {
+                                this.element.ajaxtip( "success", data.msg );
+                                this._updateLink(data);
+                            }
+                            self._trigger( "complete" );
                         }
-                        self._trigger( "complete" );
                     }
                 });
         });
@@ -120,13 +123,13 @@ $.widget("dw.delcomment", {
         journal: undefined,
         form_auth: undefined,
 
-        endpoint: "__rpc_delcomment"
+        endpoint: "delcomment"
     },
 
     _abort: function(reason, ditemid) {
         ditemid = ditemid || this.linkdata.id;
-        this.element.ajaxtip({namespace:"delcomment"})
-            .ajaxtip( "abort", "Error deleting comment #" + ditemid + ". " + reason);
+        this.element.ajaxtip() // init
+            .ajaxtip( "error", "Error deleting comment #" + ditemid + ". " + reason );
     },
 
     _create: function() {
@@ -149,8 +152,8 @@ $.widget("dw.delcomment", {
                 return;
             }
 
-            var posturl = "/" + self.options.journal + "/" + self.options.endpoint
-                    +"?"+$.param({ mode: "js", json: 1, journal: self.options.journal, id: self.linkdata.id});
+            var endpoint = self.options.endpoint +
+                "?"+$.param({ mode: "js", json: 1, journal: self.options.journal, id: self.linkdata.id});
 
             var postdata = { confirm: 1 };
             if($("#popdel"+self.linkdata.id+"ban").is(":checked")) postdata["ban"] = 1;
@@ -158,21 +161,26 @@ $.widget("dw.delcomment", {
             if($("#popdel"+self.linkdata.id+"thread").is(":checked")) postdata["delthread"] = 1;
             if(self.options.form_auth) postdata["lj_form_auth"] = self.options.form_auth;
 
-            self.element
-                .ajaxtip("load", {
-                    url: posturl,
-                    data: postdata,
-                    context: self,
-                    success: function( data, status, jqxhr ) {
-                        if ( data.error ) {
-                            self.element.ajaxtip( "error", "Error while trying to delete comment: " + data.error )
-                        } else {
-                            self.element.ajaxtip("success",data.msg);
-                            removecomment(self.linkdata.id, postdata["delthread"]);
+            self.element.ajaxtip()
+                .ajaxtip( "load", {
+                    endpoint: endpoint,
+                    ajax: {
+                        type: "POST",
+                        context: self,
+
+                        data: postdata,
+
+                        success: function( data, status, jqxhr ) {
+                            if ( data.error ) {
+                                this.element.ajaxtip( "error", "Error while trying to delete comment: " + data.error );
+                            } else {
+                                this.element.ajaxtip( "success", data.msg );
+                                removecomment(this.linkdata.id, postdata["delthread"]);
+                            }
+                            self._trigger( "complete" );
                         }
-                        self._trigger( "complete" );
                     }
-                })
+                });
         }
 
         function removecomment(ditemid,killchildren) {
@@ -209,57 +217,58 @@ $.widget("dw.delcomment", {
             }
 
             if ( e.shiftKey ) {
-                self.element.ajaxtip({ namespace: "delcomment" })
                 deletecomment();
                 return;
             }
 
-            self.element
-                .ajaxtip({
-                    namespace: "delcomment",
-                    content: function() {
-                        var canAdmin = cmtinfo["canAdmin"];
-                        var canSpam = cmtinfo["canSpam"];
 
-                        var form = $("<form class='popup-form'><fieldset><legend>Delete comment?</legend></fieldset></form>");
-                        var ul = $("<ul>").appendTo(form.find("fieldset"));
+            var $deleteDialog = function() {
+                var canAdmin = cmtinfo["canAdmin"];
+                var canSpam = cmtinfo["canSpam"];
 
-                        if(remote != "" && cmtdata.u != "" && cmtdata.u != remote && canAdmin) {
-                            var id = "popdel"+self.linkdata.id+"ban";
-                            ul.append($("<li>").append(
-                                $("<input>", { type: "checkbox", value: "ban", id: id}),
-                                $("<label>", { "for": id }).html("Ban <strong>"+cmtdata.u+"</strong> from commenting")
-                            ));
-                        }
+                var _checkbox = function(action, label) {
+                    var prefix = "popdel"+self.linkdata.id;
+                    return "<li><input type='checkbox' value='"+action+"' id='"+prefix+action+"'>" +
+                        "<label for='"+prefix+action+"'>"+label+"</label></li>";
+                };
 
-                        if(remote != "" && cmtdata.u != remote && canSpam) {
-                            var id = "popdel"+self.linkdata.id+"spam";
-                            ul.append($("<li>").append(
-                                $("<input>", { type: "checkbox", value: "spam", id: id}),
-                                $("<label>", { "for": id }).text("Mark this comment as spam")
-                            ));
-                        }
+                var form = $("<form title='Delete Comment'></form>");
+                var checkboxes = [];
 
-                        if(cmtdata.rc && cmtdata.rc.length && canAdmin){
-                            var id = "popdel"+self.linkdata.id+"thread";
-                            ul.append($("<li>").append(
-                                $("<input>", { type: "checkbox", value: "thread", id: id}),
-                                $("<label>", { "for": id }).text("Delete thread (all subcomments)")
-                            ));
-                        }
-
-                        ul.append($("<li>", { "class": "submit" }).append(
-                            $("<input>", { type: "button", value: "Delete"})
-                                .click(deletecomment),
-
-                            $("<input>", { type: "button", value: "Cancel" })
-                                .click(function(){self.element.ajaxtip("cancel")}),
-
-                            $("<div class='note'>shift-click to delete without options</div>")
-                        ));
-
-                        return form;
+                if(remote !== "" && cmtdata.u !== "" && cmtdata.u !== remote && canAdmin) {
+                    checkboxes.push(_checkbox( "ban", "Ban <strong>"+cmtdata.u+"</strong> from commenting" ));
                 }
+
+                if(remote !== "" && cmtdata.u !== remote && canSpam) {
+                    checkboxes.push(_checkbox( "spam", "Mark this comment as spam" ));
+                }
+
+                if(cmtdata.rc && cmtdata.rc.length && canAdmin){
+                    checkboxes.push(_checkbox( "thread", "Delete thread (all subcomments)" ));
+                }
+
+                $("<ul>").append(checkboxes.join("")).appendTo(form);
+                $("<p class='detail'>shift-click to delete without options</p>").appendTo(form);
+
+                return form;
+            }();
+
+            $deleteDialog.dialog({
+                position: {
+                    my: "right bottom+10",
+                    at: "left center",
+                    of: this,
+                    collision: "flipfit flipfit"
+                },
+                buttons: {
+                    "Delete": function() {
+                        $(this).dialog( "close" );
+                        deletecomment();
+                    }
+                },
+                dialogClass: "popdel",
+                maxWidth: "80%",
+                width: 500
             });
         });
     }

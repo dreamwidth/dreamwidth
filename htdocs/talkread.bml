@@ -844,14 +844,17 @@ body<=
             if ($do_commentmanage_js) {
                 LJ::need_res('js/commentmanage.js');
                 LJ::need_res( { group => "jquery" }, qw(
-                            js/jquery/jquery.ui.widget.js
                             js/jquery/jquery.ui.tooltip.js
                             js/jquery.ajaxtip.js
+                            js/jquery/jquery.ui.button.js
+                            js/jquery/jquery.ui.dialog.js
                             js/jquery.commentmanage.js
                             js/jquery/jquery.ui.position.js
                             stc/jquery/jquery.ui.tooltip.css
+                            stc/jquery/jquery.ui.button.css
+                            stc/jquery/jquery.ui.dialog.css
                             stc/ajaxtip.css
-                            stc/popup-form.css
+                            stc/jquery.commentmanage.css
                 ) );
                 my $js_screen_color = "\"" . LJ::ejs(BML::get_template_def("screenedbarcolor") || BML::get_template_def("emcolor")) . "\"";
                 my $js_normal_color = "\"" . LJ::ejs(BML::get_template_def("emcolor")) . "\"";

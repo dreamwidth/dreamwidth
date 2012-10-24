@@ -80,18 +80,13 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         // now add the throbber. It will be removed automatically
         $(self.element).throbber( deferred );
 
-        self.option( "content", function(setContent) {
-            deferred.done(function() {
-                // setContent();
-            });
-
-            deferred.fail(function(jqxhr, status, error) {
-                // "abort" status means we cancelled the ajax request
-                if ( status !== "abort" ) {
-                    setContent( "Error contacting server: " + error );
-                }
-            });
+        deferred.fail(function(jqxhr, status, error) {
+            // "abort" status means we cancelled the ajax request
+            if ( status !== "abort" ) {
+                self.error( "Error contacting server: " + error );
+            }
         });
+
     }
 });
 
@@ -134,11 +129,7 @@ $.widget("dw.ajaxtipold", $.ui.tooltip, {
                     self._reposition( tip );
                 }
             },  self.options.tooltip));
-    },
-    _init: function() {
-        if(this.options.content)
-            this.element.data("tooltip").show()
-    },
+    }
 });
 */
 // TODO: make this work

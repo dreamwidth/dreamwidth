@@ -51,14 +51,7 @@ $.extractParams = function(url) {
 
 $.throbber = {
   src: Site.imgprefix + "/ajax-loader.gif",
-  error: Site.imgprefix + "/silk/site/error.png",
-  image: function() {
-        return $("<img />", {
-            src:  $.throbber.src,
-            alt: "Loading..."
-        } )
-        ;
-    }
+  error: Site.imgprefix + "/silk/site/error.png"
 };
 
 $.endpoint = function(action){
