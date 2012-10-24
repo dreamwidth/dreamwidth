@@ -4,9 +4,11 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         content: undefined,
         items: "*",
 
+        // TODO:
         // tooltip persists until the user performs an action. No fadeaway timer
         persist: false,
 
+        // TODO:
         // allow multiple ajaxtip requests, even if we're not done processing the previous
         multiple: false
     },
@@ -54,7 +56,7 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         self.cur_req = deferred;
 
         // now add the throbber. It will be removed automatically
-        $(self.element).throbber("after",deferred);
+        $(self.element).throbber(deferred);
 
         self.option( "content", function(setContent) {
             deferred.done(function() {
