@@ -37,6 +37,14 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         this.option("content", msg);
         this.open();
     },
+    success: function(msg) {
+        var self = this;
+        self.option("content", msg);
+        self.open();
+
+        // this is only a confirmation message. We can fade away quickly
+        window.setTimeout( function() { self.close(); }, 1500 );
+    },
     load: function(opts) {
         /* opts contains overrides
          *
