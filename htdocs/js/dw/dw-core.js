@@ -51,6 +51,7 @@ $.extractParams = function(url) {
 
 $.throbber = {
   src: Site.imgprefix + "/ajax-loader.gif",
+  error: Site.imgprefix + "/silk/site/error.png",
   image: function() {
         return $("<img />", {
             src:  $.throbber.src,
@@ -67,16 +68,23 @@ $.endpoint = function(action){
 $.fn.throbber = function(jqxhr) {
     var $this = $(this);
 
-    $this.css( {
-        "paddingRight": "+=18px",
-        "background": "url('" + $.throbber.src + "') center right no-repeat"
+    if ( ! $this.data( "throbber" ) ) {
+        $this.css( "padding-right", "+=18px" );
+    }
+
+    $this
+        .css( "background", "url('" + $.throbber.src + "') center right no-repeat" )
+        .data("throbber", true);
+
+    jqxhr.then(function() {
+        $this.css( {
+            "paddingRight": "-=18px",
+            "backgroundImage": "none"
+        }).data("throbber", false);
     });
 
-    jqxhr.complete(function() {
-            $this.css( {
-                "paddingRight": "-=18px",
-                "backgroundImage": "none"
-            });
+    jqxhr.fail(function() {
+        $this.css( "backgroundImage", "url('" + $.throbber.error + "')" );
     });
 
     return $this;
