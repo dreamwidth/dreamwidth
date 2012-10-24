@@ -4,9 +4,13 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         content: undefined,
         items: "*",
 
-        // TODO:
-        // tooltip persists until the user performs an action. No fadeaway timer
-        persist: false,
+        tooltipClass: "ajaxtooltip ajaxtip",
+        position: {
+            my: "left top+10",
+            at: "left bottom",
+            collision: "flipfit flipfit"
+        },
+
 
         // TODO:
         // allow multiple ajaxtip requests, even if we're not done processing the previous
