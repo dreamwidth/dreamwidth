@@ -90,48 +90,6 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
     }
 });
 
-/* 3.4k compressed
-$.widget("dw.ajaxtipold", $.ui.tooltip, {
-    _create: function() {
-        self.element
-            .bind("ajaxresult"+ns, function(e) {
-                var tip = self.element.data("tooltip").getTip()
-                     .addClass("ajaxresult-" + e.ajaxresult.status);
-                if ( e.ajaxresult.message ) tip.text(e.ajaxresult.message);
-            })
-            .tooltip($.extend({
-                onBeforeShow: function(e) {
-                    var tooltipAPI = this;
-                    var tip = tooltipAPI.getTip();
-                    tip.removeClass("ajaxresult ajaxresult-success ajaxresult-error")
-                        .appendTo("body");
-                    if ( ! tip.data( "boundclose" ) ) {
-                        tip.bind( "close", function () {
-
-                            // abort any existing request
-                            var xhr = tip.data( "xhr" );
-                            if ( xhr ) xhr.abort();
-
-                            // hide any currently shown ones
-                            tooltipAPI.hide();
-                        } );
-                        tip.data( "boundclose", true );
-                    }
-
-                    if ( self.options.content && ! this.inprogress ){
-                        tip.html(self.options.content)
-                    } else {
-                        tip.empty().append($("<img />", { src: Site.imgprefix + "/ajax-loader.gif" }))
-                            .addClass("ajaxresult")
-                    }
-
-                    tip.css({position: "absolute", top: "", left: ""})
-                    self._reposition( tip );
-                }
-            },  self.options.tooltip));
-    }
-});
-*/
 // TODO: make this work
 $.extend( $.dw.ajaxtip, {
     closeall: function(e) {
