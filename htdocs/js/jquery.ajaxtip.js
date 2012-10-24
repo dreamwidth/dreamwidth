@@ -17,11 +17,22 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         multiple: false
     },
     _create: function() {
-        this._super();
+        // we override completely because we want to control what events trigger this widget
+        var self = this;
 
+        // attach (and remove) custom handlers
         this._on({
-            ajaxstart: "open"
+            ajaxtipopen: function (event, ui) {
+                ui.tooltip.on( "mouseleave focusout", function() {
+                    self.close();
+                } );
+            },
+            ajaxtipclose: function(event, ui) {
+                ui.tooltip.off( "mouseleave mouseout" );
+            }
         });
+
+        this.tooltips = {};
     },
     error: function(msg) {
         this.option("content", msg);
