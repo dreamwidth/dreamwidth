@@ -232,7 +232,7 @@ $.widget("dw.delcomment", {
                         "<label for='"+prefix+action+"'>"+label+"</label></li>";
                 };
 
-                var form = $("<form title='Delete Comment'></form>");
+                var form = $("<form></form>");
                 var checkboxes = [];
 
                 if(remote !== "" && cmtdata.u !== "" && cmtdata.u !== remote && canAdmin) {
@@ -254,6 +254,7 @@ $.widget("dw.delcomment", {
             }();
 
             $deleteDialog.dialog({
+                title: "Delete Comment",
                 position: {
                     my: "right bottom+10",
                     at: "left center",
