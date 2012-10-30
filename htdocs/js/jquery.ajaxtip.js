@@ -9,11 +9,7 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
             my: "left top+10",
             at: "left bottom",
             collision: "flipfit flipfit"
-        },
-
-        // TODO:
-        // allow multiple ajaxtip requests, even if we're not done processing the previous
-        multiple: false
+        }
     },
     _create: function() {
         // we override completely because we want to control what events trigger this widget
@@ -32,6 +28,7 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         });
 
         this.tooltips = {};
+        this.requests = [];
     },
     error: function(msg) {
         this.option("content", msg);
@@ -45,8 +42,8 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         // this is only a confirmation message. We can fade away quickly
         window.setTimeout( function() { self.close(); }, 1500 );
     },
-    load: function(opts) {
-        /* opts contains overrides
+    load: function(args) {
+        /* opts is an object (or array of objects) containing overrides:
          *
          * endpoint : name of the endpoint we wish to use (not the URL)
          *
@@ -61,31 +58,43 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
          *    success   : success callback
          *    error     : error callback
          */
-        var endpoint_url = $.endpoint( opts["endpoint"] );
 
         var self = this;
 
-        if ( self.cur_req ) {
-            self.cur_req.abort();
+        // abort and remove any old requests
+        if ( self.requests.length ) {
+            $.each( self.requests, function (i, req) {
+                req.abort();
+            });
+            self.requests = [];
         }
 
-        var deferred = $.ajax( $.extend({
-            url : endpoint_url,
-            context: self,
+        $.each( $.isArray( args ) ? args : [ args ], function (i, opts) {
+            var endpoint_url = $.endpoint( opts["endpoint"] );
 
-            dataType: "json"
-        }, opts.ajax ));
-        self.cur_req = deferred;
+            var deferred = $.ajax( $.extend({
+                url : endpoint_url,
+                context: self,
 
-        // now add the throbber. It will be removed automatically
-        $(self.element).throbber( deferred );
+                dataType: "json"
+            }, opts.ajax ));
+            self.requests.push( deferred );
 
-        deferred.fail(function(jqxhr, status, error) {
-            // "abort" status means we cancelled the ajax request
-            if ( status !== "abort" ) {
-                self.error( "Error contacting server: " + error );
-            }
-        });
+            // now add the throbber. It will be removed automatically
+            $(self.element).throbber( deferred );
+
+            deferred.fail(function(jqxhr, status, error) {
+                // "abort" status means we cancelled the ajax request
+                if ( status !== "abort" ) {
+                    self.error( "Error contacting server: " + error );
+                }
+            });
+        } );
+
+        // clean out requests queue once all requests have successfully completed
+        $.when.apply( $, self.requests ).done(function() {
+            self.requests = [];
+        })
 
     }
 });

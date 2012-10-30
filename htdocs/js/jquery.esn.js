@@ -6,9 +6,10 @@ _toggleSubscriptions: function(subInfo,subs) {
     var self = this;
     subInfo["subid"] = Number(subInfo["subid"]);
 
+    var data = [];
     if ((subInfo["subid"] && ! subs["newComments"])
         || (! subInfo["subid"] && subs["newComments"])) {
-        self._toggleSubscription(subInfo, "newComments");
+        data.push( self._toggleSubscription(subInfo, "newComments") );
     }
 
     subInfo["newentry_subid"] = Number(subInfo["newentry_subid"]);
@@ -17,7 +18,12 @@ _toggleSubscriptions: function(subInfo,subs) {
 
         var newEntrySubInfo = new Object(subInfo);
         newEntrySubInfo["subid"] = Number(subInfo["newentry_subid"]);
-        self._toggleSubscription(newEntrySubInfo, "newEntry");
+        data.push(self._toggleSubscription(newEntrySubInfo, "newEntry"));
+    }
+
+    if ( data.length ) {
+        self.element.ajaxtip() // init
+        .ajaxtip("load", data );
     }
 },
 
@@ -54,8 +60,7 @@ _toggleSubscription: function(subInfo, type) {
     params.action = action;
 
     var $clicked = self.element;
-    $clicked.ajaxtip() // init
-    .ajaxtip("load", {
+    return {
         endpoint: "esn_subs",
         ajax: {
             type: "POST",
@@ -120,8 +125,7 @@ _toggleSubscription: function(subInfo, type) {
                 }
             }
         }
-    });
-
+    };
 },
 
 // given a dtalkid, find the track button for its parent comment (if any)
