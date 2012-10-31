@@ -4,7 +4,7 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         content: undefined,
         items: "*",
 
-        tooltipClass: "ajaxtooltip ajaxtip",
+        tooltipClass: "ajaxtip",
         position: {
             my: "left top+10",
             at: "left bottom",
@@ -101,7 +101,7 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         // clean out requests queue once all requests have successfully completed
         $.when.apply( $, self.requests ).done(function() {
             self.requests = [];
-        })
+        });
 
     }
 });

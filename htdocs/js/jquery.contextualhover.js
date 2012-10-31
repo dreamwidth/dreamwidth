@@ -61,7 +61,7 @@ _create: function() {
     var opts = self.options;
 
     if ( opts.type == "icon" ) {
-        var parent = self.element.parent("a")
+        var parent = self.element.parent("a");
         if ( parent.length > 0 )
             self.element = parent;
     }
@@ -320,7 +320,7 @@ _renderPopup: function() {
     this.element.ajaxtip("show")
     this.element
         .ajaxtip("widget")
-            .removeClass("ajaxresult ajaxtooltip").addClass("ContextualPopup")
+            .addClass("ContextualPopup")
             .empty().append($inner);
 },
 
