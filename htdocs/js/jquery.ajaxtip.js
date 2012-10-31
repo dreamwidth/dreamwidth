@@ -23,7 +23,7 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
                 } );
             },
             ajaxtipclose: function(event, ui) {
-                ui.tooltip.off( "mouseleave mouseout" );
+                ui.tooltip.off( "mouseleave focusout" );
             }
         });
 
