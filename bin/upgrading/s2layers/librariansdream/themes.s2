@@ -500,10 +500,10 @@ set color_module_title = "#98d2ce";
 set color_module_title_background = "#281133";
 
 
-#NEWLAYER: librariansdream/cvětý
+#NEWLAYER: librariansdream/cvety
 layerinfo type = "theme";
 layerinfo name = "Cvětý";
-layerinfo redist_uniq = "librariansdream/cvětý";
+layerinfo redist_uniq = "librariansdream/cvety";
 layerinfo author_name = "rising";
 
 set theme_authors = [ { "name" => "rising", "type" => "user" } ];
