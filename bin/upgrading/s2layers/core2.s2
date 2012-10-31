@@ -5948,6 +5948,9 @@ function EntryPage::print_comment (Comment c) {
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
@@ -6016,6 +6019,9 @@ function EntryPage::print_comment_partial (Comment c) {
         var Link expand_link = $c->get_link("expand_comments");
         if (defined $expand_link) {
             " - "; $c->print_expand_link();
+    if ( $c.comment_posted ) {
+         print safe " <span class='comment-posted'>$*text_comment_posted</span>";
+     }
         }
     }
     $c->print_wrapper_end();
