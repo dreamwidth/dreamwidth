@@ -30,6 +30,13 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         this.tooltips = {};
         this.requests = [];
     },
+    // close everything except the target (if it was a tooltip)
+    closeinactive: function($target) {
+        var target_id = $target.attr( "id" );
+        if ( ! this.tooltips[target_id] ) {
+            this.close();
+        }
+    },
     error: function(msg) {
         this.option("content", msg);
         this.open();
@@ -99,19 +106,9 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
     }
 });
 
-// TODO: make this work
 $.extend( $.dw.ajaxtip, {
     closeall: function(e) {
-        $(".ajaxtip:visible").each(
-            function(){
-                var $this = $(this);
-
-                if ( e && e.target && $this.has( e.target ).length > 0 ) {
-                    // clicked inside this popup; do nothing
-                } else {
-                    $(this).trigger("close");
-                }
-            });
+        $(":dw-ajaxtip").ajaxtip( "closeinactive", $(e.target).closest(".ajaxtip") );
     }
 });
 })(jQuery, Site);
