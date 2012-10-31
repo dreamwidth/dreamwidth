@@ -1,5 +1,7 @@
 (function($,Site){
 
+if ( ! window.LJ_cmtinfo ) LJ_cmtinfo = {};
+
 $.widget("dw.trackbutton", {
 options: {},
 _toggleSubscriptions: function(subInfo,subs) {
