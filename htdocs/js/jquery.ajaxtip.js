@@ -18,12 +18,16 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         // attach (and remove) custom handlers
         this._on({
             ajaxtipopen: function (event, ui) {
-                ui.tooltip.on( "mouseleave focusout", function() {
-                    self.close();
-                } );
+                self._on( ui.tooltip, {
+                    // we want to bind the events to the tooltip
+                    // but we want close() to use this.element
+                    // so we have to call this.close() ourselves
+                    mouseleave: function() { self.close(); },
+                    focusout: function() { self.close(); }
+                });
             },
             ajaxtipclose: function(event, ui) {
-                ui.tooltip.off( "mouseleave focusout" );
+                self._off( ui.tooltip, "mouseleave focusout" );
             }
         });
 
