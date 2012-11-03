@@ -158,11 +158,6 @@ sub try_work {
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
-    # and xpost map
-    my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
-    $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
-    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
-
     # now backfill into jitemid_map
     my ( %entry_source, %jitemid_map );
     $log->( 'Filtering parameters: hostname=[%s], username=[%s].', $data->{hostname}, $data->{username} );
@@ -175,13 +170,18 @@ sub try_work {
                     ( $turl =~ /\b$data->{username}\b/ ||
                         ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
 
-        if ( $url =~ m!/(\d+)\.html$! ) {
+        if ( $url =~ m!/(\d+)(?:\.html)?$! ) {
             my $jitemid = $1 >> 8;
             $jitemid_map{$jitemid} = $entry_map->{$url};
             $entry_source{$jitemid_map{$jitemid}} = $url;
         }
     }
     $log->( 'Entry map has %d entries post-prune.', scalar( keys %$entry_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    # now prepare the xpost map
+    my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
+    $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     foreach my $jitemid ( keys %$xpost_map ) {
@@ -205,7 +205,7 @@ sub try_work {
                     ( $turl =~ /\b$data->{username}\b/ ||
                         ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
 
-        if ( $url =~ m!thread=(\d+)$! ) {
+        if ( $url =~ m!(?:thread=|/)(\d+)$! ) {
             my $jtalkid = $1 >> 8;
             $jtalkid_map->{$jtalkid} = $talk_map->{$url};
         }
@@ -261,6 +261,10 @@ sub try_work {
 
     # hit up the server for metadata
     while ( defined $server_next_id && $server_next_id =~ /^\d+$/ ) {
+        # let them know we're still working
+        $job->grabbed_until( time() + 3600 );
+        $job->save;
+
         $log->( 'Fetching metadata; max_id = %d, next_id = %d.', $server_max_id || 0, $server_next_id || 0 );
 
         $title->( 'meta-fetch from id %d', $server_next_id );
@@ -459,6 +463,10 @@ sub try_work {
 
     # start looping to fetch all of the comment bodies
     while ( $lastid < $server_max_id ) {
+        # let them know we're still working
+        $job->grabbed_until( time() + 3600 );
+        $job->save;
+
         $log->( 'Fetching bodydata; last_id = %d, max_id = %d.', $lastid || 0, $server_max_id || 0 );
 
         my ( $reset_lastid, $reset_curid ) = ( $lastid, $curid );
