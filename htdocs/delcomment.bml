@@ -178,7 +178,7 @@ _info?><?_code
     if ($can_ban) {
         $body .= "<div>" . LJ::html_check({ 'type' => 'check', 'name' => 'ban', 'id' => 'ban' });
         $body .= "<label for='ban'>";
-        $body .= BML::ml(".confirm.banuser.comm", { 'user' => LJ::ljuser($tp->{'userpost'}) });
+        $body .= BML::ml(".confirm.banuser$iscomm", { 'user' => LJ::ljuser($tp->{'userpost'}) });
         $body .= "</label></div>";
     }
 
