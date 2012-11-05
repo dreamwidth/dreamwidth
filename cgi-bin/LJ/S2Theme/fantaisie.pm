@@ -76,4 +76,10 @@ sub entry_props {
     return $self->_append_props( "entry_props", @props );
 }
 
+sub archive_props {
+    my $self = shift;
+    my @props = qw( color_calendar_header_background color_calendar_header_text );
+    return $self->_append_props( "archive_props", @props );
+}
+
 1;

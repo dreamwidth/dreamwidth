@@ -28,8 +28,8 @@ propgroup colors_child {
     property use color_header_link_active;
     property use color_header_link_hover;
     property use color_header_link_visited;
-    property Color color_header_image_border { des = "Header image border color"; }
-    property Color color_header_image_shadow { des = "Header image shadow color"; }
+    property Color color_header_image_border { des = "Page header image border color"; }
+    property Color color_header_image_shadow { des = "Page header image shadow color"; }
     property Color color_calendar_header_background { des = "Archive calendar header background color"; }
     property Color color_calendar_header_text { des = "Archive calendar header text color"; }
     property Color color_module_calendar_background { des = "Calendar module background color"; }
@@ -44,7 +44,7 @@ propgroup colors_child {
     property Color color_module_calendar_background_visited { des = "Calendar module visited background color"; }
     property Color color_module_calendar_link_visited { des = "Calendar module visited link color"; }
     property Color color_module_calendar_shadow_visited { des = "Calendar module visited shadow color"; }
-    property Color color_footer_text { des = "Footer text color"; }
+    property Color color_footer_text { des = "Page footer text color"; }
     }
 
 ##===============================
@@ -101,12 +101,12 @@ propgroup images_child {
         des = "Page header subtitles background image URL";
         }
     property int image_background_header_secondary_height {
-        des = "The height of your image, in pixels.  Use 0 for default.";
+        des = "The height of your image, in pixels.";
         example = "50";
         size = 6;
         }
     property int image_background_header_secondary_width {
-        des = "The width of your image, in pixels.  Use 0 for default.";
+        des = "The width of your image, in pixels.";
         example = "50";
         size = 6;
         }
@@ -115,22 +115,22 @@ propgroup images_child {
         des = "Module title background image URL";
         }
     property int image_background_module_title_height {
-        des = "The height of your image, in pixels.  Use 0 for default.";
+        des = "The height of your image, in pixels.";
         example = "50";
         size = 6;
         }
     property int image_background_module_title_width {
-        des = "The width of your image, in pixels.  Use 0 for default.";
+        des = "The width of your image, in pixels.";
         example = "50";
         size = 6;
         }
 
     property string image_background_module_footer_url {
         des = "Module footer background image URL";
-        note =" Only displayed in sidebar.";
+        note ="Only displayed in sidebar.";
         }
     property int image_background_module_footer_height {
-        des = "The height of your image, in pixels.  Use 0 for default.";
+        des = "The height of your image, in pixels.";
         example = "50";
         size = 6;
         }
@@ -140,14 +140,15 @@ propgroup images_child {
         }
     property string image_background_navigation_url_alt {
         des = "Alternate navigation background image URL";
+        note ="Used when navigation is right-aligned.";
         }
     property int image_background_navigation_height {
-        des = "The height of your image, in pixels.  Use 0 for default.";
+        des = "The height of your image, in pixels.";
         example = "50";
         size = 6;
         }
     property int image_background_navigation_width {
-        des = "The width of your image, in pixels.  Use 0 for default.";
+        des = "The width of your image, in pixels.";
         example = "50";
         size = 6;
         }
@@ -156,12 +157,12 @@ propgroup images_child {
         des = "Entry title background image URL";
         }
     property int image_background_entry_title_height {
-        des = "The height of your image, in pixels.  Use 0 for default.";
+        des = "The height of your image, in pixels.";
         example = "50";
         size = 6;
         }
     property int image_background_entry_title_width {
-        des = "The width of your image, in pixels.  Use 0 for default.";
+        des = "The width of your image, in pixels.";
         example = "50";
         size = 6;
         }
@@ -170,12 +171,12 @@ propgroup images_child {
         des = "Footer background image URL";
         }
     property int image_background_footer_height {
-        des = "The height of your image, in pixels.  Use 0 for default.";
+        des = "The height of your image, in pixels.";
         example = "50";
         size = 6;
         }
     property int image_background_footer_width {
-        des = "The width of your image, in pixels.  Use 0 for default.";
+        des = "The width of your image, in pixels.";
         example = "50";
         size = 6;
         }
