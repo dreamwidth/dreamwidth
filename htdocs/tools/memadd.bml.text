@@ -41,6 +41,7 @@
 .
 
 .error.deleted.body=The journal entry "[[desc]]" has been removed from your list of memorable entries.
+
 .error.deleted.body2=The entry "[[desc]]" has been removed from your list of memorable entries.
 
 .error.deleted.next=View all your memorable entries
@@ -48,6 +49,7 @@
 .error.deleted.title=Memory deleted
 
 .error.entry_deleted=Journal entry no longer exists. Memory deleted.
+
 .error.entry_deleted2=Journal or community entry no longer exists. Memory deleted.
 
 .error.fivekeywords=Only 5 keywords or categories are allowed per memorable entry.

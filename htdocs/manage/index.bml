@@ -94,7 +94,7 @@ body<=
     my $status = $u->{'status'} eq "A" ? $ML{'.youraccount.validated.yes'} :
         "<a href='$LJ::SITEROOT/register?authas=$u->{user}'>$ML{'.youraccount.validated.no'}</a>";
     my $is_identity_no_email = $u->is_identity && !$u->email_raw;
-    my $iscomm = ( $u->is_community ) ? '.comm' : undef;
+    my $iscomm = $u->is_community ? '.comm' : '';
 
     $ret .= "<?h1 $ML{'.youraccount.header' . $iscomm} h1?><div style='margin-left: 2em;'>";
     $ret .= "<table summary='' width='50%'>";
@@ -117,7 +117,7 @@ _code?>
 <?block
 header=><?_ml .settings_pref _ml?>
 about<=
-<?_code return ($BMLCodeBlock::u->is_comm) ?
+<?_code return $BMLCodeBlock::u->is_comm ?
         $ML{'.information.comm'} : $ML{'.information'}; _code?>
 <=about
 
@@ -171,7 +171,7 @@ block?>
 <?block
 header=><?_ml .customization.header _ml?>
 about<=
-<?_code return ($BMLCodeBlock::u->is_comm) ?
+<?_code return $BMLCodeBlock::u->is_comm ?
         $ML{'.customization.comm'} : $ML{'.customization'}; _code?>
 <=about
 list<=
@@ -201,7 +201,7 @@ block?>
 <?block
 header=><?_ml .entries.header _ml?>
 about<=
-<?_code return ($BMLCodeBlock::u->is_comm) ?
+<?_code return $BMLCodeBlock::u->is_comm ?
         $ML{'.entries.comm'} : $ML{'.entries'}; _code?>
 <=about
 list<=
@@ -236,7 +236,7 @@ _code?>
 <?block
 header=><?_ml .userpics.header _ml?>
 about<=
-<?_code return ($BMLCodeBlock::u->is_comm) ?
+<?_code return $BMLCodeBlock::u->is_comm ?
         $ML{'.userpics.comm'} : $ML{'.userpics'}; _code?>
 <=about
 list<=

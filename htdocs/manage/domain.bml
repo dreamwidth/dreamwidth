@@ -123,7 +123,7 @@ body<=
 
     my $has_cap = $u->can_map_domains;
     my $has_dom = $u->{journaldomain} ? 1 : 0;
-    my $is_comm = ( $u->is_community ) ? '.comm' : undef;
+    my $is_comm = $u->is_community ? '.comm' : '';
     if ($LJ::OTHER_VHOSTS && ($has_cap || $has_dom)) {
         $ret .= "<?h2 $ML{'.domainalias.head'} h2?><?p $ML{'.domainalias.about' . $is_comm} p?>\n";
 

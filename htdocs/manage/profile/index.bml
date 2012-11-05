@@ -35,7 +35,7 @@ body<=
     return $LJ::MSG_READONLY_USER if $u->readonly;
 
     # create $iscomm to help with community-specific translation strings
-    my $iscomm = ( $u->is_community ) ? '.comm' : undef;
+    my $iscomm = $u->is_community ? '.comm' : '';
 
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';

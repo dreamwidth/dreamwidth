@@ -26,6 +26,7 @@
 .domainalias.domainname=Domain name:
 
 .domainalias.example=Example: <i>my-journal.com</i>
+
 .domainalias.example.comm=Example: <i>my-community.com</i>
 
 .domainalias.head=Domain Aliasing

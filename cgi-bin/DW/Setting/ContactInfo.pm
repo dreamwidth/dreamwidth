@@ -35,7 +35,7 @@ sub option {
 
     my $contactinfo = $class->get_arg( $args, "contactinfo" ) || $u->opt_showcontact;
 
-    my $iscomm = $u->is_community ? '.comm' : undef;
+    my $iscomm = $u->is_community ? '.comm' : '';
 
     my @options = $iscomm ? 
     (

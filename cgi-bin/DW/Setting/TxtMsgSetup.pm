@@ -90,7 +90,7 @@ sub option {
         if $u->{'txtmsg_status'} =~ /^(?:off|none)$/;
     my $security = $class->get_arg( $args, "txtmsg_security" ) || $tminfo->{security};
 
-    my @opts = ( $u->is_community ) ? 
+    my @opts = $u->is_community ? 
     (
         all => $class->ml( "setting.usermessaging.opt.a" ),
         reg => $class->ml( "setting.usermessaging.opt.y" ),

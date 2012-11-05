@@ -29,7 +29,7 @@ body<=
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
 
-    $title = ( $u->is_community ) ?
+    $title = $u->is_community ?
         $ML{'.title.comm'} :
         $ML{'.title2'};
 

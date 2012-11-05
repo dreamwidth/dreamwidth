@@ -12,6 +12,7 @@
 .communities.manage.about=Manage your communities' settings and members
 
 .customization=Customize the look of your journal pages:
+
 .customization.comm=Customize the look of your community pages:
 
 .customization.advanced=Advanced Customization
@@ -49,6 +50,7 @@
 .deleteaccount=Delete Account
 
 .entries=Work with entries you've made in your journal:
+
 .entries.comm=Work with entries in your community:
 
 .entries.edit.about=Edit or delete entries in your journal
@@ -72,6 +74,7 @@
 .friends.header=Access Page
 
 .information=Choose what information is displayed on your account:
+
 .information.comm=Choose what information is displayed for your community account:
 
 .information.changepass=Change Account Password
@@ -121,6 +124,7 @@
 .undeleteaccount=Undelete Account
 
 .userpics=Upload and manage icons for your account:
+
 .userpics.comm=Upload and manage icons for your community:
 
 .userpics.edit.about=Upload and Manage Your Icons
@@ -130,6 +134,7 @@
 .youraccount.email=Email Address:
 
 .youraccount.header=Your Account:
+
 .youraccount.header.comm=Your Community:
 
 .youraccount.name=Name:

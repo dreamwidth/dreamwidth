@@ -36,7 +36,7 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $iscomm = $u->is_community ? '.comm' : undef;
+    my $iscomm = $u->is_community ? '.comm' : '';
 
     my $randompaidgifts = $class->get_arg( $args, "randompaidgifts" ) || $u->prop( "opt_randompaidgifts" ) || 'Y';
 

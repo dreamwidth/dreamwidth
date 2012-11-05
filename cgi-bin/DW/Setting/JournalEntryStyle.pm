@@ -29,14 +29,14 @@ sub label {
 sub option_ml {
     my ( $class, $u ) = @_;
     return $_[0]->ml('setting.display.journalentrystyle.option.comm')
-        if ( $u && $u->is_community );
+        if $u && $u->is_community;
     return $_[0]->ml('setting.display.journalentrystyle.option');
 }
 
 sub note_ml {
     my ( $class, $u ) = @_;
     return $_[0]->ml('setting.display.journalentrystyle.note.comm')
-        if ( $u && $u->is_community ); 
+        if $u && $u->is_community; 
     return $_[0]->ml('setting.display.journalentrystyle.note');
 }
 

@@ -2501,6 +2501,7 @@ setting.contactinfo.error.invalid=Invalid selection.
 setting.contactinfo.label=Contact Info Security
 
 setting.contactinfo.option=Who can view your contact info?
+
 setting.contactinfo.option.comm=Who can view this community's contact info?
 
 setting.contactinfo.option.note=This setting controls who can view your contact information for any external services, in addition to your selected email address(es), on your profile page.
@@ -2596,6 +2597,7 @@ setting.display.emails.label=Email Addresses
 setting.display.emails.option=View past email addresses
 
 setting.display.journalentrystyle.label=Journal Entry Style
+
 setting.display.journalentrystyle.label2=Entry Style
 
 setting.display.journalentrystyle.note=Note: this setting affects everyone who views your journal who has not chosen a different Entry View Style.
@@ -4880,15 +4882,19 @@ widget.journaltitles.desc.comm=These titles appear in your community and on its 
 widget.journaltitles.edit=Edit
 
 widget.journaltitles.friendspagesubtitle=Reading Page Subtitle:
+
 widget.journaltitles.friendspagesubtitle.comm=Reading Page Subtitle:
 
 widget.journaltitles.friendspagetitle=Reading Page Title:
+
 widget.journaltitles.friendspagetitle.comm=Reading Page Title:
 
 widget.journaltitles.journalsubtitle=Journal Subtitle:
+
 widget.journaltitles.journalsubtitle.comm=Community Subtitle:
 
 widget.journaltitles.journaltitle=Journal Title:
+
 widget.journaltitles.journaltitle.comm=Community Title:
 
 widget.journaltitles.title=1. Edit Titles

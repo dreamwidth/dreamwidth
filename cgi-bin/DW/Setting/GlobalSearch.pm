@@ -38,7 +38,7 @@ sub option {
     $sel = $u->include_in_global_search ? 'N' : 'Y'
         unless defined $sel && length $sel;
 
-    my $iscomm = $u->is_community ? '.comm' : undef;
+    my $iscomm = $u->is_community ? '.comm' : '';
 
     my $ret .= LJ::html_select(
         {

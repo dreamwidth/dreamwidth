@@ -30,6 +30,7 @@
 .error.mustlogin=You must be logged in or using a username/password to reply to this protected entry.
 
 .error.noanon=You can't post anonymously in this journal.
+
 .error.noanon.comm=You can't post anonymously in this community.
 
 .error.noauth=You aren't authorized to reply to this protected entry.

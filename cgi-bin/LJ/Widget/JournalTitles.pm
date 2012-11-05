@@ -35,7 +35,7 @@ sub render_body {
     $ret .= $no_theme_chooser ? $class->ml('widget.journaltitles.title_nonum') : $class->ml('widget.journaltitles.title');
     $ret .= "</h2>";
     $ret .= "<div class='theme-titles-content'><p class='detail'>";
-    $ret .= ( $u->is_community ) ?
+    $ret .= $u->is_community ?
         $class->ml('widget.journaltitles.desc.comm') :
         $class->ml('widget.journaltitles.desc');
     $ret .= " " . LJ::help_icon('journal_titles') . "</p>";

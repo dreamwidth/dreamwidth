@@ -68,8 +68,8 @@ body<=
 
         # no need to change?
         if ( $u->statusvis eq $statusvis ) {
-            my $text = ($u->is_community) ?
-                '.message.nochange.comm' : '.message.nochange' ;
+            my $text = $u->is_community ?
+                '.message.nochange.comm' : '.message.nochange';
             return $ok->(BML::ml( $text, {'statusvis' => $statusvis{$statusvis} }));
         }
 
@@ -126,12 +126,12 @@ body<=
             unless $res;
 
         # success
-        $ret .= ($u->is_community) ? 
+        $ret .= $u->is_community ? 
             $ok->(BML::ml('.message.success.comm', {'statusvis' => $statusvis{$statusvis} })) :
             $ok->(BML::ml('.message.success', {'statusvis' => $statusvis{$statusvis} }));
 
         if ( $statusvis eq 'D' ) {
-            $ret .= ($u->is_community) ? 
+            $ret .= $u->is_community ? 
                 "<p>$ML{'.message.deleted.comm'}</p>" :
                 "<p>" . BML::ml( '.message.deleted2', {
                                 sitenameshort => $LJ::SITENAMESHORT
@@ -188,7 +188,7 @@ body<=
     $ret .= "<form method='post' action='accountstatus$getextra'>\n";
     $ret .= LJ::form_auth();
 
-    if ($u->is_community) {
+    if $u->is_community {
         $ret .= "<p>" . BML::ml( '.journalstatus.about.comm', 
             { sitenameshort => $LJ::SITENAMESHORT,
               commname => LJ::ljuser( $u->{user} )} ) . "</p>\n";
@@ -215,7 +215,7 @@ body<=
                             size => 50,
                             maxlength => 255,
                          }) . "<br />";
-    my $text = ($u->is_community) ? '.reason.about.comm' : '.reason.about';
+    my $text = $u->is_community ? '.reason.about.comm' : '.reason.about';
     $ret .= "<span style='font-size:smaller; font-style:italic;'>$ML{$text}<br /><br />\n";
 
     $ret .= LJ::html_submit(undef, $ML{'.btn.status'},

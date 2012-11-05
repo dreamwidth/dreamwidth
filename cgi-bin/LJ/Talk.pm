@@ -1553,7 +1553,7 @@ sub talkform {
         $other_user = '' unless $other_user;
         my $ml_loggedin =
             BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } );
-        my $ml_bannedfrom = ( $journalu->is_community ) ?
+        my $ml_bannedfrom = $journalu->is_community ?
             BML::ml( ".opt.bannedfrom.comm", { journal => $journalu->user } ) :
             BML::ml( ".opt.bannedfrom", { journal => $journalu->user } );
         return qq{
@@ -3417,7 +3417,7 @@ sub init {
     }
 
     my $userpost = lc($form->{'userpost'});
-    my $iscomm = ( $journalu->is_community ) ? '.comm' : undef;
+    my $iscomm = $journalu->is_community ? '.comm' : '';
     my $up;             # user posting
     my $exptype;        # set to long if ! after username
     my $ipfixed;        # set to remote  ip if < after username

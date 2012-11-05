@@ -59,7 +59,7 @@ _info?><?_code
 
     # find out whether $u is a community. We'll use this to refer to ML strings
     #  later
-    my $iscomm = ( $u->is_community ) ? '.comm' : undef;
+    my $iscomm = $u->is_community ? '.comm' : '';
 
     # if we're on a user vhost, our remote was authed using that vhost,
     # so let's let them only modify the journal that their session
