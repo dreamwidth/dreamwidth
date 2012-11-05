@@ -51,7 +51,7 @@ sub default_themes {
         drifting => 'drifting/blue',
         dustyfoot => 'dustyfoot/dreamer',
         easyread => 'easyread/green',
-        fantaisie => 'fantaisie/unrelenting routine',
+        fantaisie => 'fantaisie/unrelentingroutine',
         fiveam => 'fiveam/earlyedition',
         fluidmeasure => 'fluidmeasure/spice',
         forthebold => 'forthebold/tealeaves',
