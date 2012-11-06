@@ -1694,7 +1694,7 @@ property string font_comment_title_units {
 }
 
 property string font_sources {
-    des = "Embedded fonts source URL";
+    des = "Embedded fonts source URL (e.g., 'http://fonts.googleapis.com/css?family=Average+Sans')";
     note = "Embedded fonts can slow page loading time. Blank the field to stop using them.";
 }
 
