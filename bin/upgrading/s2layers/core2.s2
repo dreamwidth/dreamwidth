@@ -1585,7 +1585,7 @@ set custom_control_strip_colors = "off";
 
 property string font_base {
     des = "Preferred journal font";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1605,7 +1605,7 @@ property string font_base_units {
 
 property string font_module_heading {
     des = "Preferred font for module headings";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1620,7 +1620,7 @@ property string font_module_heading_units {
 
 property string font_module_text {
     des = "Preferred font for module text";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1635,7 +1635,7 @@ property string font_module_text_units {
 
 property string font_journal_title {
     des = "Preferred font for journal titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1650,7 +1650,7 @@ property string font_journal_title_units {
 
 property string font_journal_subtitle {
     des = "Preferred font for journal subtitles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1665,7 +1665,7 @@ property string font_journal_subtitle_units {
 
 property string font_entry_title {
     des = "Preferred font for entry titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1680,7 +1680,7 @@ property string font_entry_title_units {
 
 property string font_comment_title {
     des = "Preferred font for comment titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
