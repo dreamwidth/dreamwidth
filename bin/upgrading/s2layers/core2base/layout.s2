@@ -17,6 +17,7 @@ propgroup presentation {
     property use margins_unit;
     property use sidebar_width;
     property use sidebar_width_doubled;
+    property use custom_control_strip_colors;
 
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
@@ -90,6 +91,11 @@ propgroup colors {
 
     property use color_comment_title_background;
     property use color_comment_title;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
