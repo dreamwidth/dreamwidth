@@ -90,6 +90,7 @@ propgroup fonts {
     property use font_module_heading;
     property use font_module_heading_size;
     property use font_module_heading_units;
+    property use font_sources;
     property string font_navigation_module_text {
         des = "Preferred font for navigation module text";
         maxlength = 50;
