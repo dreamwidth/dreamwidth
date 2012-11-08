@@ -998,15 +998,6 @@ table.month {width: 100%; text-align: center; }
 /* ====================== EXTRAS ======================= */
 
 #lj_controlstrip {width: 100%; }
-
-#lj_controlstrip td{border-right: 0.083em solid $*color_page_border; background: $*color_module_background; color: $*color_page_text; font-size: 1em; border-bottom: 0.083em solid $*color_page_border;}
-#lj_controlstrip a {color: $*color_page_link;}
-#lj_controlstrip a:visited {color: $*color_page_link_visited;}
-#lj_controlstrip a:active {color: $*color_page_link_active;}
-#lj_controlstrip a:hover, #lj_controlstrip a:visited:hover, #lj_controlstrip a:active:hover { color: $*color_page_link_hover; }
-
-#lj_controlstrip_statustext {color: $*color_page_text; }
-
 #lj_controlstrip table td {border: 0;}
 
 div.ContextualPopup {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0.583em;}
