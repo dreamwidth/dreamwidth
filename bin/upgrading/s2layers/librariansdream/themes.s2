@@ -10,27 +10,25 @@ set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page
 ##===============================
 
-
-set color_header_background = "#6d0009";
 set color_page_background = "#D93D4A";
 set color_page_link = "#aaa";
 set color_page_link_hover = "#ddd";
 set color_page_link_visited = "#bbb";
 set color_page_text = "#eee";
-## set color_navigation_background = "#ad000e";
-## set color_navigation_border = "#93000c";
+set color_header_background = "#6d0009";
+set color_primary_background = "#ba000f";
+set color_sidebars_background = "#ba000f";
 
 ##===============================
 ## Entry
 ##===============================
 
-set color_comment_title_background = "#ad000e";
 set color_entry_background = "#6d0009";
 set color_entry_border = "#ad000e";
 set color_entry_management_background = "#93000c";
 set color_entry_title_background = "#ad000e";
 set color_entry_title = "#eee";
-set color_primary_background = "#ba000f";
+set color_comment_title_background = "#ad000e";
 
 ##===============================
 ## Module
@@ -42,7 +40,6 @@ set color_module_link_border = "#93000c";
 set color_module_link_hover_border = "#d93d4a";
 set color_module_title_background = "#ad000e";
 set color_module_title = "#eee";
-set color_sidebars_background = "#ba000f";
 
 
 #NEWLAYER: librariansdream/altair
@@ -801,7 +798,6 @@ set color_page_text = "#eee";
 set color_header_background = "#211f27";
 set color_primary_background = "#1c6996";
 set color_sidebars_background = "#1c6996";
-
 
 ##===============================
 ## Entry Colors
@@ -1756,25 +1752,25 @@ set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_header_background = "#592F07";
-set color_primary_background = "#BF650F";
-set color_sidebars_background = "#BF650F";
 set color_page_background = "#E67A12";
 set color_page_link = "#aaa";
 set color_page_link_hover = "#ddd";
 set color_page_link_visited = "#bbb";
 set color_page_text = "#eee";
+set color_header_background = "#592F07";
+set color_primary_background = "#BF650F";
+set color_sidebars_background = "#BF650F";
 
 ##===============================
 ## Entry
 ##===============================
 
-set color_comment_title_background = "#D97311";
 set color_entry_background = "#592F07";
 set color_entry_border = "#D97311";
 set color_entry_management_background = "#99510C";
 set color_entry_title_background = "#D97311";
 set color_entry_title = "#eee";
+set color_comment_title_background = "#D97311";
 
 ##===============================
 ## Module
@@ -2367,20 +2363,19 @@ set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_header_background = "#827a1f";
-set color_primary_background = "#e5d737";
-set color_sidebars_background = "#e5d737";
 set color_page_background = "#fff266";
 set color_page_link = "#777";
 set color_page_link_hover = "#999";
 set color_page_link_visited = "#555";
 set color_page_text = "#eee";
+set color_header_background = "#827a1f";
+set color_primary_background = "#e5d737";
+set color_sidebars_background = "#e5d737";
 
 ##===============================
 ## Entry
 ##===============================
 
-set color_comment_title_background = "#ffef3d";
 set color_entry_background = "#827a1f";
 set color_entry_border = "#ffef3d";
 set color_entry_management_background = "#bfb32e";
@@ -2389,6 +2384,7 @@ set color_entry_link_hover = "#999";
 set color_entry_link_visited = "#bbb";
 set color_entry_title = "#777";
 set color_entry_title_background = "#ffef3d";
+set color_comment_title_background = "#ffef3d";
 
 ##===============================
 ## Module
@@ -2567,25 +2563,25 @@ set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_header_background = "#25023d";
-set color_primary_background = "#7c07cf";
-set color_sidebars_background = "#7c07cf";
 set color_page_background = "#8907E5";
 set color_page_link = "#aaa";
 set color_page_link_hover = "#ddd";
 set color_page_link_visited = "#bbb";
 set color_page_text = "#eee";
+set color_header_background = "#25023d";
+set color_primary_background = "#7c07cf";
+set color_sidebars_background = "#7c07cf";
 
 ##===============================
 ## Entry
 ##===============================
 
-set color_comment_title_background = "#6d06b5";
 set color_entry_background = "#25023d";
 set color_entry_border = "#6d06b5";
 set color_entry_management_background = "#56058f";
 set color_entry_title_background = "#6d06b5";
 set color_entry_title = "#eeeeee";
+set color_comment_title_background = "#6d06b5";
 
 ##===============================
 ## Module
