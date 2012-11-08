@@ -856,6 +856,60 @@ set color_module_title_background = "#D97311";
 set color_module_title = "#eee";
 
 
+#NEWLAYER: lineup/refresh
+layerinfo type = "theme";
+layerinfo name = "Refresh";
+layerinfo redist_uniq = "lineup/refresh";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_calendar_header_background = "#4c2c37";
+set color_calendar_header_text = "#e7ecc9";
+set color_calendar_border = "#C70426";
+set color_footer_background = "#E7ECC9";
+set color_footer_link = "#C70426";
+set color_header_border = "#C70426";
+set color_navigation_border = "#C70426";
+set color_page_background = "#AA8278";
+set color_page_link = "#C70426";
+set color_header_background = "#E7ECC9";
+set color_navigation_background = "#4C2C37";
+set color_navigation_link = "#E7ECC9";
+set color_navigation_text = "#E7ECC9";
+set color_page_text = "#593235";
+set color_page_title = "#593235";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_link = "#C70426";
+set color_entry_link_hover = "#AA8278";
+set color_entry_userpic_background = "#C70426";
+set color_comment_title = "#593235";
+set color_entry_background = "#E7ECC9";
+set color_entry_border = "#4C2C37";
+set color_entry_title = "#593235";
+set color_entry_text = "#593235";
+set color_entry_userpic_border = "#4C2C37";
+
+##===============================
+## Module
+##===============================
+
+set color_module_title_background = "#C70426";
+set color_module_background = "#E7ECC9";
+set color_module_border = "#4C2C37";
+set color_module_text = "#593235";
+set color_module_title = "#E7ECC9";
+set color_module_link_hover = "#AA8278";
+
+
 #NEWLAYER: lineup/sandstone
 layerinfo type = "theme";
 layerinfo name = "Sandstone";
@@ -949,6 +1003,58 @@ set color_module_link_hover = "#ccc";
 set color_module_link_visited = "#aaa";
 set color_module_title = "#777";
 set color_module_title_background = "#ffef3d";
+
+
+#NEWLAYER: lineup/velvetsteel
+layerinfo type = "theme";
+layerinfo name = "Velvet Steel";
+layerinfo redist_uniq = "lineup/velvetsteel";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_calendar_border = "#783060";
+set color_footer_background = "#fff";
+set color_footer_link = "#783060";
+set color_header_border = "#783060";
+set color_navigation_border = "#783060";
+set color_page_background = "#626262";
+set color_page_link = "#783060";
+set color_header_background = "#fff";
+set color_navigation_background = "#303030";
+set color_navigation_link = "#fff";
+set color_navigation_text = "#fff";
+set color_page_text = "#494949";
+set color_page_title = "#494949";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_link = "#783060";
+set color_entry_link_hover = "#626262";
+set color_entry_userpic_background = "#783060";
+set color_comment_title = "#494949";
+set color_entry_background = "#fff";
+set color_entry_border = "#303030";
+set color_entry_title = "#494949";
+set color_entry_text = "#494949";
+set color_entry_userpic_border = "#303030";
+
+##===============================
+## Module
+##===============================
+
+set color_module_title_background = "#783060";
+set color_module_background = "#fff";
+set color_module_border = "#303030";
+set color_module_text = "#494949";
+set color_module_title = "#fff";
+set color_module_link_hover = "#626262";
 
 
 #NEWLAYER: lineup/violets
