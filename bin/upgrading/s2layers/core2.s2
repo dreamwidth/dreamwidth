@@ -1422,45 +1422,14 @@ set module_tags_opts_count_type = "";
 
 ##=======================================
 ## Display properties - Presentation
-## Misc. options - not implemented
+## Misc. options - not implemented yet
 ##=======================================
 
 property bool reverse_sortorder_recent    { des = "Display entries in reverse-chronological order on my recent entries page"; }
 property bool reverse_sortorder_reading   { des = "Display entries in reverse-chronological order on my reading page"; }
 
-property string[] show_userpics_group {
-    des = "Display userpics on my:";
-    grouptype = "viewslist";
-}
-set show_userpics_group = [ "show_userpics_recent", "show_userpics_reading", "show_userpics_entry", "show_userpics_comments" ];
-property bool show_userpics_recent {
-    des = "Display userpics on my recent entries";
-    label = "Recent Entries";
-    grouped = 1;
-}
-property bool show_userpics_reading {
-    des = "Display userpics on my reading page";
-    label = "Reading Page";
-    grouped = 1;
-}
-property bool show_userpics_entry {
-    des = "Display userpics on my entry pages";
-    label = "Entry Pages";
-    grouped = 1;
-}
-property bool show_userpics_comments {
-    des = "Display userpics on my comments";
-    label = "Comments";
-    grouped = 1;
-}
-
 set reverse_sortorder_recent = true;
 set reverse_sortorder_reading = true;
-
-set show_userpics_recent = true;
-set show_userpics_reading = true;
-set show_userpics_entry = true;
-set show_userpics_comments = true;
 
 ##=======================================
 ## Display properties - Basic colors
@@ -4082,18 +4051,19 @@ function print_module_userprofile() {
         if (defined $p.journal.default_pic) {
             """<div class="userpic">""";
             $p.journal->print_userpic();
-             """</div>""";
+             "</div>";
         }
     }
-    if ($*module_userprofile_opts_name or $*module_userprofile_opts_website) {
-        if ($*module_userprofile_opts_name) {
-            println "<div class='journal-name'>"+$p.journal.name+"</div>";
-        }
-        if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
-            var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
-            println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
-        }
+
+    if ($*module_userprofile_opts_name) {
+        println "<div class='journal-name'>" + $p.journal.name + "</div>";
     }
+
+    if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
+        var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
+        println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
+    }
+
     $p.journal->print_interaction_links();
     close_module();
 }
