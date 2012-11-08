@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_custom_friend_colors;
     property use use_shared_pic;
     property use use_journalstyle_entry_page;
+    property use custom_control_strip_colors;
 
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
@@ -82,6 +83,11 @@ propgroup colors {
     property use color_entry_interaction_links;
     property use color_entry_border;
     property use color_comment_title_background;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -409,6 +415,7 @@ var Color element_background = $*color_page_background->lighter();
         else {
             $navlinks_css = "";
         }
+    print_custom_control_strip_css();
 
     """
 /* DREAMWIDTH :--- Bases. ---

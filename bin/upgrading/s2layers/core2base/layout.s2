@@ -295,6 +295,7 @@ function Page::print_default_stylesheet() {
                  }
              """;
          }
+    print_custom_control_strip_css();
 
     """
 H1, H2, H3 {
