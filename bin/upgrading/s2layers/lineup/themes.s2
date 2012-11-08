@@ -10,13 +10,13 @@ set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_header_background = "#6d0009";
-set color_header_border = "#ba000f";
 set color_page_background = "#D93D4A";
 set color_page_link = "#aaa";
 set color_page_link_hover = "#ddd";
 set color_page_link_visited = "#bbb";
 set color_page_text = "#eee";
+set color_header_background = "#6d0009";
+set color_header_border = "#ba000f";
 set color_navigation_background = "#ad000e";
 set color_navigation_border = "#93000c";
 
@@ -24,12 +24,12 @@ set color_navigation_border = "#93000c";
 ## Entry
 ##===============================
 
-set color_comment_title_background = "#ad000e";
 set color_entry_background = "#6d0009";
 set color_entry_border = "#ba000f";
-set color_entry_userpic_background = "#93000c";
 set color_entry_title_background = "#ad000e";
 set color_entry_title = "#eee";
+set color_entry_userpic_background = "#93000c";
+set color_comment_title_background = "#ad000e";
 
 ##===============================
 ## Module
@@ -59,9 +59,9 @@ set color_page_link_hover = "#de8fce";
 set color_page_link_visited = "#c86c95";
 set color_page_text = "#000";
 set color_page_title = "#c86c95";
+set color_header_border = "#000";
 set color_navigation_background = "#fafbd8";
 set color_navigation_border = "#ffcdf8";
-set color_header_border = "#000";
 
 ##===============================
 ## Entry Colors
@@ -69,10 +69,10 @@ set color_header_border = "#000";
 
 set color_entry_background = "#fafbd8";
 set color_entry_border = "#000";
-set color_entry_userpic_background = "#ff9bcc";
 set color_entry_interaction_links = "#fff";
 set color_entry_title = "#c86c95";
 set color_entry_title_background = "#ffcdf8";
+set color_entry_userpic_background = "#ff9bcc";
 set color_comment_title = "#c86c95";
 set color_comment_title_background = "#ffcdf8";
 
@@ -126,8 +126,8 @@ set color_navigation_border = "#170d00";
 
 set color_entry_background = "#170d00";
 set color_entry_border = "#331003";
-set color_entry_userpic_background = "#080400";
 set color_entry_title_background = "#331003";
+set color_entry_userpic_background = "#080400";
 set color_comment_title_background = "#331003";
 
 ##===============================
@@ -246,7 +246,6 @@ set color_footer_link_visited = "#777";
 
 set color_entry_background = "#000";
 set color_entry_border = "#555";
-set color_entry_userpic_background = "#666";
 set color_entry_link = "#ddd";
 set color_entry_link_active = "#ddd";
 set color_entry_link_hover = "#bbb";
@@ -254,6 +253,7 @@ set color_entry_link_visited = "#aaa";
 set color_entry_text = "#fff";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#454545";
+set color_entry_userpic_background = "#666";
 set color_comment_title = "#fff";
 set color_comment_title_background = "#454545";
 
@@ -371,8 +371,8 @@ set color_navigation_border = "#1c6996";
 
 set color_entry_background = "#211f27";
 set color_entry_border = "#1c6996";
-set color_entry_userpic_background = "#102749";
 set color_entry_title_background = "#103e70";
+set color_entry_userpic_background = "#102749";
 set color_comment_title_background = "#103e70";
 
 ##===============================
@@ -661,8 +661,8 @@ set color_navigation_border = "#003127";
 
 set color_entry_background = "#3a7755";
 set color_entry_border = "#0C944E";
-set color_entry_userpic_background = "#003127";
 set color_entry_title = "#eee";
+set color_entry_userpic_background = "#003127";
 set color_entry_title_background = "#096B38";
 set color_comment_title_background = "#096B38";
 
@@ -825,26 +825,26 @@ set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_header_background = "#592F07";
-set color_header_border = "#BF650F";
-set color_navigation_background = "#99510C";
-set color_navigation_border = "#BF650F";
 set color_page_background = "#E67A12";
 set color_page_link = "#aaa";
 set color_page_link_hover = "#ddd";
 set color_page_link_visited = "#bbb";
 set color_page_text = "#eee";
+set color_header_background = "#592F07";
+set color_header_border = "#BF650F";
+set color_navigation_background = "#99510C";
+set color_navigation_border = "#BF650F";
 
 ##===============================
 ## Entry
 ##===============================
 
-set color_comment_title_background = "#D97311";
 set color_entry_background = "#592F07";
 set color_entry_border = "#BF650F";
-set color_entry_userpic_background = "#99510C";
 set color_entry_title_background = "#D97311";
 set color_entry_title = "#eee";
+set color_entry_userpic_background = "#99510C";
+set color_comment_title_background = "#D97311";
 
 ##===============================
 ## Module
@@ -868,21 +868,18 @@ set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_calendar_header_background = "#4c2c37";
-set color_calendar_header_text = "#e7ecc9";
-set color_calendar_border = "#C70426";
-set color_footer_background = "#E7ECC9";
-set color_footer_link = "#C70426";
-set color_header_border = "#C70426";
-set color_navigation_border = "#C70426";
 set color_page_background = "#AA8278";
 set color_page_link = "#C70426";
-set color_header_background = "#E7ECC9";
-set color_navigation_background = "#4C2C37";
-set color_navigation_link = "#E7ECC9";
-set color_navigation_text = "#E7ECC9";
 set color_page_text = "#593235";
 set color_page_title = "#593235";
+set color_header_background = "#E7ECC9";
+set color_header_border = "#C70426";
+set color_navigation_background = "#4C2C37";
+set color_navigation_border = "#C70426";
+set color_navigation_link = "#E7ECC9";
+set color_navigation_text = "#E7ECC9";
+set color_footer_background = "#E7ECC9";
+set color_footer_link = "#C70426";
 
 ##===============================
 ## Entry
@@ -891,12 +888,15 @@ set color_page_title = "#593235";
 set color_entry_link = "#C70426";
 set color_entry_link_hover = "#AA8278";
 set color_entry_userpic_background = "#C70426";
-set color_comment_title = "#593235";
 set color_entry_background = "#E7ECC9";
 set color_entry_border = "#4C2C37";
 set color_entry_title = "#593235";
 set color_entry_text = "#593235";
 set color_entry_userpic_border = "#4C2C37";
+set color_calendar_header_background = "#4c2c37";
+set color_calendar_header_text = "#e7ecc9";
+set color_calendar_border = "#C70426";
+set color_comment_title = "#593235";
 
 ##===============================
 ## Module
@@ -939,10 +939,10 @@ set color_navigation_border = "#c76c58";
 
 set color_entry_background = "#bf9169";
 set color_entry_border = "#f2ca6d";
-set color_entry_userpic_background = "#f4e2b7";
 set color_entry_interaction_links = "#bf7315";
 set color_entry_title = "#fff2b0";
 set color_entry_title_background = "#c76c58";
+set color_entry_userpic_background = "#f4e2b7";
 set color_comment_title = "#fff2b0";
 set color_comment_title_background = "#c76c58";
 
@@ -968,29 +968,29 @@ set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_header_background = "#827a1f";
-set color_header_border = "#e5d737";
-set color_navigation_background = "#bfb32e";
-set color_navigation_border = "#e5d737";
 set color_page_background = "#fff266";
 set color_page_link = "#777";
 set color_page_link_hover = "#999";
 set color_page_link_visited = "#555";
 set color_page_text = "#eee";
+set color_header_background = "#827a1f";
+set color_header_border = "#e5d737";
+set color_navigation_background = "#bfb32e";
+set color_navigation_border = "#e5d737";
 
 ##===============================
 ## Entry
 ##===============================
 
-set color_comment_title_background = "#ffef3d";
 set color_entry_background = "#827a1f";
 set color_entry_border = "#e5d737";
-set color_entry_userpic_background = "#bfb32e";
 set color_entry_link = "#666";
 set color_entry_link_hover = "#999";
 set color_entry_link_visited = "#bbb";
 set color_entry_title = "#777";
 set color_entry_title_background = "#ffef3d";
+set color_entry_userpic_background = "#bfb32e";
+set color_comment_title_background = "#ffef3d";
 
 ##===============================
 ## Module
@@ -1017,19 +1017,18 @@ set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_calendar_border = "#783060";
-set color_footer_background = "#fff";
-set color_footer_link = "#783060";
-set color_header_border = "#783060";
-set color_navigation_border = "#783060";
 set color_page_background = "#626262";
 set color_page_link = "#783060";
-set color_header_background = "#fff";
-set color_navigation_background = "#303030";
-set color_navigation_link = "#fff";
-set color_navigation_text = "#fff";
 set color_page_text = "#494949";
 set color_page_title = "#494949";
+set color_header_background = "#fff";
+set color_header_border = "#783060";
+set color_navigation_background = "#303030";
+set color_navigation_border = "#783060";
+set color_navigation_link = "#fff";
+set color_navigation_text = "#fff";
+set color_footer_background = "#fff";
+set color_footer_link = "#783060";
 
 ##===============================
 ## Entry
@@ -1038,12 +1037,13 @@ set color_page_title = "#494949";
 set color_entry_link = "#783060";
 set color_entry_link_hover = "#626262";
 set color_entry_userpic_background = "#783060";
-set color_comment_title = "#494949";
 set color_entry_background = "#fff";
 set color_entry_border = "#303030";
 set color_entry_title = "#494949";
 set color_entry_text = "#494949";
 set color_entry_userpic_border = "#303030";
+set color_comment_title = "#494949";
+set color_calendar_border = "#783060";
 
 ##===============================
 ## Module
@@ -1069,26 +1069,26 @@ set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page
 ##===============================
 
-set color_header_background = "#25023d";
-set color_header_border = "#7c07cf";
-set color_navigation_background = "#56058f";
-set color_navigation_border = "#7c07cf";
 set color_page_background = "#8907E5";
 set color_page_link = "#aaa";
 set color_page_link_hover = "#ddd";
 set color_page_link_visited = "#bbb";
 set color_page_text = "#eee";
+set color_header_background = "#25023d";
+set color_header_border = "#7c07cf";
+set color_navigation_background = "#56058f";
+set color_navigation_border = "#7c07cf";
 
 ##===============================
 ## Entry
 ##===============================
 
-set color_comment_title_background = "#6d06b5";
 set color_entry_background = "#25023d";
 set color_entry_border = "#7c07cf";
-set color_entry_userpic_background = "#56058f";
 set color_entry_title_background = "#6d06b5";
 set color_entry_title = "#eeeeee";
+set color_entry_userpic_background = "#56058f";
+set color_comment_title_background = "#6d06b5";
 
 ##===============================
 ## Module
