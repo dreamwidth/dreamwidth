@@ -1455,7 +1455,7 @@ my @comment_close = qw(
     table tr td th tbody tfoot thead colgroup caption
     area map form textarea
 );
-my @comment_all = ( @comment_close, qw( img br hr p col ) );
+my @comment_all = ( @comment_close, qw( img br hr p col object embed iframe ) );
 
 my $event_eat = $subject_eat;
 my $event_remove = [ qw[ bgsound embed object link body meta noscript plaintext noframes ] ];
@@ -1598,7 +1598,7 @@ sub clean_comment
     return clean($ref, {
         'linkify' => 1,
         'wordlength' => 40,
-        'addbreaks' => $opts->{preformatted} ? 0 : 1,
+        'addbreaks' => $opts->{'preformatted'} ? 0 : 1,
         'eat' => [qw[head title style layer iframe applet object]],
         'mode' => 'deny',
         'allow' => \@comment_all,
@@ -1613,6 +1613,10 @@ sub clean_comment
         'textonly' => $opts->{'textonly'} ? 1 : 0,
         'remove_positioning' => 1,
         'remove_abs_sizes' => $opts->{anon_comment},
+		'noexpandembedded' => $opts->{'noexpandembedded'} ? 1 : 0,
+        'transform_embed_nocheck' => $opts->{'transform_embed_nocheck'} ? 1 : 0,
+        'transform_embed_wmode' => $opts->{'transform_embed_wmode'},
+        rewrite_embed_param => $opts->{rewrite_embed_param} ? 1 : 0,
     });
 }
 
