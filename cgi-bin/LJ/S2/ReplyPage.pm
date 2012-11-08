@@ -64,7 +64,7 @@ sub ReplyPage
     LJ::need_res( LJ::S2::tracking_popup_js() );
     
     # libs for userpicselect
-    my $beta = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     LJ::need_res( LJ::Talk::init_iconbrowser_js( $beta, $beta ? 'stc/jquery/jquery.ui.theme.smoothness.css' : 'stc/lj_base.css' ) )
         if $remote && $remote->can_use_userpic_select;
 

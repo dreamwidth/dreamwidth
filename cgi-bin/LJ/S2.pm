@@ -172,7 +172,7 @@ sub make_journal
     # like print_stylesheet() won't run, which don't have an method invocant
     return $page if $page && ref $page ne 'HASH';
 
-    my $beta_jquery = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta_jquery = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     LJ::set_active_resource_group( 'jquery' )
         if $beta_jquery;
 
@@ -3457,7 +3457,7 @@ sub _Comment__get_link
     if ($key eq "hide_comments") {
         ## show "Hide/Show" link if the comment has any children
         # only show hide/show comments if using jquery
-        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) && @{ $this->{replies} } > 0 ) {
+        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} } > 0 ) {
             return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                                 $ctx->[S2::PROPS]->{"text_comment_hide"});
         } else {
@@ -3467,7 +3467,7 @@ sub _Comment__get_link
     if ($key eq "unhide_comments") {
         ## show "Hide/Unhide" link if the comment has any children
         # only show hide/show comments if using jquery
-        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) && @{ $this->{replies} } > 0 ) {
+        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} } > 0 ) {
             return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                                 $ctx->[S2::PROPS]->{"text_comment_unhide"});
         } else {
@@ -3654,7 +3654,7 @@ sub Comment__expand_link
 
         # unhide only works with jquery; if the user isn't in the jquery
         # beta, drop back down to the no-javascript option
-        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
             $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false, true); return false;\"";
         }
     } else {

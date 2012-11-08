@@ -2202,7 +2202,7 @@ sub init_iconbrowser_js {
 
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
-    return LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" )
+    return ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" )
     ?   qq {
         <script type="text/javascript">
         jQuery(function(jQ){
@@ -2287,7 +2287,7 @@ sub js_quote_button {
     }
 QUOTE
 
-    if ( LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" ) ) {
+    if ( ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" ) ) {
         return <<"QQ";
 jQuery(function(jQ){
     $quote_func
