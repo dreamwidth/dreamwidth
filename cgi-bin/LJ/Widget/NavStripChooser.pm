@@ -55,10 +55,10 @@ sub render_body {
         %bordercolor_values = LJ::Customize->get_s2_prop_values("control_strip_bordercolor", $u, $style);
         %linkcolor_values = LJ::Customize->get_s2_prop_values("control_strip_linkcolor", $u, $style);
 
-        unless ($colors_values{override} eq "off") {
+        unless ($colors_values{existing} eq "off") {
             $color_selected = "layout_default";
-            unless ($bgcolor_values{override} eq "" && $fgcolor_values{override} eq "" &&
-                    $bordercolor_values{override} eq "" && $linkcolor_values{override} eq "") {
+            unless ($bgcolor_values{existing} eq "" && $fgcolor_values{existing} eq "" &&
+                    $bordercolor_values{existing} eq "" && $linkcolor_values{existing} eq "") {
                 $color_selected = "custom";
             }
         }
@@ -78,31 +78,16 @@ sub render_body {
         type => "radio",
         name => "control_strip_color",
         id => "control_strip_color_light",
-        value => "light", 
+        value => "light",
         selected => $color_selected eq "light" ? 1 : 0,
     ) . "</td>";
     $ret .= "<td><label for='control_strip_color_light' class='color-light'><strong>" . $class->ml('widget.navstripchooser.option.color.light') . "</strong></label></td></tr>";
 
     if ($u->prop('stylesys') == 2 && $prop_is_used{custom_control_strip_colors}) {
-        my $no_gradient = $colors_values{override} eq "on_no_gradient" ? 1 : 0;
+        my $no_gradient = $colors_values{existing} eq "on_no_gradient" ? 1 : 0;
 
-        $ret .= "<tr><td valign='top'>" . $class->html_check(
-            type => "radio",
-            name => "control_strip_color",
-            id => "control_strip_color_layout_default",
-            value => "layout_default",
-            selected => $color_selected eq "layout_default" ? 1 : 0,
-        ) . "</td>";
-        $ret .= "<td><label for='control_strip_color_layout_default'><strong>" . $class->ml('widget.navstripchooser.option.color.layout_default') . "</strong></label><br />";
 
-        $ret .= "<div id='layout_default_subdiv'>";
-        $ret .= $class->html_check(
-            name => "control_strip_no_gradient_default",
-            id => "control_strip_gradient_default",
-            selected => $no_gradient,
-        );
-        $ret .= " <label for='control_strip_gradient_default'>" . $class->ml('widget.navstripchooser.option.color.no_gradient') . "</label></td></tr>";
-        $ret .= "</div>";
+
 
         $ret .= "<tr><td valign='top'>" . $class->html_check(
             type => "radio",

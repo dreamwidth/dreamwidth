@@ -43,7 +43,6 @@ set num_items_reading = 10;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
 set userpics_position = "right";
-set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
