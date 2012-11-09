@@ -142,7 +142,7 @@ sub try_work {
         next unless $url =~ /\Q$data->{hostname}\E/ &&
                     $url =~ /\b$data->{username}\b/;
 
-        unless ( $url =~ m!/(\d+)\.html$! ) {
+        unless ( $url =~ m!/(\d+)(?:\.html)?$! ) {
             $log->( 'URL %s not of expected format in prune.', $url );
             next;
         }
@@ -167,22 +167,16 @@ sub try_work {
 
     $title->( 'post-prune' );
 
-    # used below for automatically determining prefixes
-    my $url_prefix = 'http://' . $data->{username} . '.' . $data->{hostname};
-    $url_prefix =~ s/_/-/g; # URLs use '-'
-
     # this is a useful helper sub we use
     my $count = 0;
     my $process_entry = sub {
         my $evt = $_[0];
 
-        # URL remapping. It seems that sometimes LJ is returning a URL that
-        # is prefixed with a hash mark, which is causing our duplicate check
-        # to do report an all-clear, leading to dupes. It also makes comments
-        # fail to import.
-        $evt->{url} =~ s/^#/$url_prefix/;
+        # URL remapping. We know the username and the site, so we set this to
+        # something that is dependable.
+        $evt->{key} = $evt->{url} = $data->{hostname} . '/' . $data->{username} . '/' .
+            ( $evt->{itemid} * 256 + $evt->{anum} );
 
-        $evt->{key} = $evt->{url};
         $count++;
         $log->( '    %d %s %s; mapped = %d (import_source) || %d (xpost).',
                 $evt->{itemid}, $evt->{url}, $evt->{logtime}, $entry_map->{$evt->{key}},
@@ -274,6 +268,10 @@ sub try_work {
 
     # helper to load some events
     my $fetch_events = sub {
+        # let them know we're still working
+        $job->grabbed_until( time() + 3600 );
+        $job->save;
+
         $log->( 'Fetching %d items.', scalar @_ );
         $title->( 'getevents - %d to %d', $_[0], $_[-1] );
 
