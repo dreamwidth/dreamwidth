@@ -1524,10 +1524,6 @@ h2#pagetitle {
     padding: 1em 1.5em;
     }
 
-.comment-posted {
-    font-weight:bold;
-}
-
 .comment a { color: $*color_entry_text; }
 .comment-content a { color: $*color_entry_link; }
 .comment-content a:visited, .comment a:visited { color: $*color_entry_link_visited; }
