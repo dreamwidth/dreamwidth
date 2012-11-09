@@ -61,7 +61,8 @@ _c?>
             # handle escaping ", ', etc. We just escape the < and > ourselves
             alt => sub { LJ::etags($upic->description) . "" }, # force to string
 
-            comment => LJ::strip_html($upic->comment),
+            comment => sub { LJ::strip_html($upic->comment) . "" } , # force to string
+
             id => $id,
             keywords => [ map { LJ::strip_html($_) } $upic->keywords],
         };
