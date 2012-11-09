@@ -8,7 +8,7 @@ set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
 set layout_resources = [ { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" } ];
 
 ##===============================
-## Presentation 
+## Presentation
 ##===============================
 
 propgroup presentation_child {
@@ -102,7 +102,7 @@ propgroup colors_child {
 }
 
 ##===============================
-## Fonts 
+## Fonts
 ##===============================
 
 propgroup fonts_child {
@@ -126,7 +126,7 @@ set font_module_heading_size = "1.25";
 set font_module_heading_units = "em";
 
 ##===============================
-## Images 
+## Images
 ##===============================
 
 propgroup images_child {
@@ -393,7 +393,7 @@ function Entry::print_link_prev() {
 }
 
 function Entry::print_management_links() {
-    var string{} manage_icons = { 
+    var string{} manage_icons = {
         "edit_entry" => $*image_edit,
         "edit_tags" => $*image_edittags,
         "mem_add" => $*image_addmemories,
@@ -451,7 +451,7 @@ function CommentInfo::print_readlink {
     var Page p = get_page();
     var string alt = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
     if ($*entry_interaction_links == "text") {
-            print safe "<a href=\"$.read_url#comments\">"+ 
+            print safe "<a href=\"$.read_url#comments\">"+
         get_plural_phrase($.count, $p.view == "read" ?
                           "text_read_comments_friends" : "text_read_comments")+
     "</a>";
@@ -680,6 +680,9 @@ function EntryPage::print_comment_partial (Comment c) {
             }
         }
     }
+     if ( $c.comment_posted ) {
+         print safe "<span class='comment-posted'>$*text_comment_posted</span>";
+     }
     $c->print_wrapper_end();
 }
 
@@ -782,6 +785,9 @@ function EntryPage::print_comment (Comment c) {
     $c->print_time();
     $c->print_poster();
     $c->print_metatypes();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     $c->print_userpic();
     """<div class="contents">\n""";
@@ -1051,7 +1057,7 @@ function Page::print() {
                     }
                 """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
                         """
                     </div></div><!-- end primary and primary>inner -->
@@ -1464,7 +1470,7 @@ h2#pagetitle {
     clear: both;
     margin: 1em 0;
     }
-    
+
 .entry-content {
     margin-bottom: 1em;
     text-align: $*post_text_align;
@@ -1517,6 +1523,10 @@ h2#pagetitle {
     $entry_colors
     padding: 1em 1.5em;
     }
+
+.comment-posted {
+    font-weight:bold;
+}
 
 .comment a { color: $*color_entry_text; }
 .comment-content a { color: $*color_entry_link; }
