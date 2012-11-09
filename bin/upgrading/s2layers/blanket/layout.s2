@@ -774,6 +774,10 @@ ul.entry-interaction-links li {
     background: none;
     }
 
+.comment-posted {
+    font-weight:bold;
+}
+
 hr.above-entry-interaction-links,
 hr.below-reply-container {
     display: none;
