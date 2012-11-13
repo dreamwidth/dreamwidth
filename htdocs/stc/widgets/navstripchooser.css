@@ -20,7 +20,7 @@
     background-repeat: repeat-x;
 }
 
-.appwidget-navstripchooser div, .appwidget-navstripchooser div.newline input[type="radio"] {
+.appwidget-navstripchooser div, .appwidget-navstripchooser .option input[type="radio"] {
     float: left;
 }
 
@@ -28,7 +28,7 @@
     padding: 0.2em 0.5em;
 }
 
-.appwidget-navstripchooser div.newline {
+.appwidget-navstripchooser .option {
     clear: left;
 	min-height: 15px;
 }

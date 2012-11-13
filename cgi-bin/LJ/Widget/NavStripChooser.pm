@@ -64,7 +64,7 @@ sub render_body {
         }
     }
 
-    $ret .= "<div class='newline'>" . $class->html_check(
+    $ret .= "<div class='option'>" . $class->html_check(
         type => "radio",
         name => "control_strip_color",
         id => "control_strip_color_dark",
@@ -73,7 +73,7 @@ sub render_body {
     ) . "</div>";
     $ret .= "<div><label for='control_strip_color_dark' class='color-dark'><strong>" . $class->ml('widget.navstripchooser.option.color.dark') . "</strong></label></div>";
 
-    $ret .= "<div class='newline'>" . $class->html_check(
+    $ret .= "<div class='option'>" . $class->html_check(
         type => "radio",
         name => "control_strip_color",
         id => "control_strip_color_light",
@@ -85,7 +85,7 @@ sub render_body {
     if ($u->prop('stylesys') == 2 && $prop_is_used{custom_control_strip_colors}) {
         my $no_gradient = $colors_values{override} eq "on_no_gradient" ? 1 : 0;
 
-        $ret .= "<div class='newline'>" . $class->html_check(
+        $ret .= "<div class='option'>" . $class->html_check(
             type => "radio",
             name => "control_strip_color",
             id => "control_strip_color_layout_default",
@@ -103,7 +103,7 @@ sub render_body {
         $ret .= " <label for='control_strip_gradient_default'>" . $class->ml('widget.navstripchooser.option.color.no_gradient') . "</label></div>";
         $ret .= "</div>";
 
-        $ret .= "<div class='newline'>" . $class->html_check(
+        $ret .= "<div class='option'>" . $class->html_check(
             type => "radio",
             name => "control_strip_color",
             id => "control_strip_color_custom",
@@ -153,7 +153,7 @@ sub render_body {
         }
         $ret .= "</table></div></div>";
     }
-    $ret .= "<div class='newline'></div>";
+    $ret .= "<div class='option'></div>";
 
     return $ret;
 }
