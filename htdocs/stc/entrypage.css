@@ -14,7 +14,8 @@ h3.entry-title {
     font-size:1.5em;
     font-style: italic;
     font-weight: bold;
-    margin: 10px 0;}
+    margin: 10px 0;
+    display:inline;}
 
 .entry .header {background:none; border:0;}
 .entry .datetime:before { content:"@ ";} /*add the talkread-style elements to the date and time*/
@@ -80,4 +81,5 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 
 /*Styling for quick-reply box*/
 #qrform table {margin: 0 auto;}
+.comment #qrform table {margin-left:0;}
 #qrform td {vertical-align:top;}
