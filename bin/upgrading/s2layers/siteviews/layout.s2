@@ -292,12 +292,12 @@ function EntryPage::print_comment_section(Entry e) {
         "<div class='bottomcomment'>";
         """<hr class="below-entry-interaction-links" />""";
         $e->print_interaction_links("bottomcomment");
-        $this->print_reply_container({ "target" => "bottomcomment" });
         "</div>";
    }
    $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages bottompages" });
    if ($.comment_pages.total_subitems > 0) {
         $.comment_nav->print({ "class" => "comment-pages bottompages" });
+        $this->print_reply_container({ "target" => "bottomcomment" });
         $this->print_multiform_actionline();
         $this->print_multiform_end();
    }
