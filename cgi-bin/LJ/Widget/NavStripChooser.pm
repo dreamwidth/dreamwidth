@@ -55,12 +55,8 @@ sub render_body {
         %bordercolor_values = LJ::Customize->get_s2_prop_values("control_strip_bordercolor", $u, $style);
         %linkcolor_values = LJ::Customize->get_s2_prop_values("control_strip_linkcolor", $u, $style);
 
-        unless ($colors_values{existing} eq "off") {
-            $color_selected = "layout_default";
-            unless ($bgcolor_values{existing} eq "" && $fgcolor_values{existing} eq "" &&
-                    $bordercolor_values{existing} eq "" && $linkcolor_values{existing} eq "") {
-                $color_selected = "custom";
-            }
+        unless ($colors_values{override} eq "off") {
+            $color_selected = "custom";
         }
     }
 
@@ -84,10 +80,7 @@ sub render_body {
     $ret .= "<td><label for='control_strip_color_light' class='color-light'><strong>" . $class->ml('widget.navstripchooser.option.color.light') . "</strong></label></td></tr>";
 
     if ($u->prop('stylesys') == 2 && $prop_is_used{custom_control_strip_colors}) {
-        my $no_gradient = $colors_values{existing} eq "on_no_gradient" ? 1 : 0;
-
-
-
+        my $no_gradient = $colors_values{override} eq "on_no_gradient" ? 1 : 0;
 
         $ret .= "<tr><td valign='top'>" . $class->html_check(
             type => "radio",
@@ -155,13 +148,15 @@ sub handle_post {
 
     my %override;
     my $post_fields_of_parent = LJ::Widget->post_fields_of_widget("CustomizeTheme");
-    my ( $given_control_strip_color, $props );
+    my ( $given_control_strip_color, $props);
+
     if ($post_fields_of_parent->{reset}) {
-        $given_control_strip_color = "";
-        $override{control_strip_bgcolor} = "";
-        $override{control_strip_fgcolor} = "";
-        $override{control_strip_bordercolor} = "";
-        $override{control_strip_linkcolor} = "";
+
+        my $style = LJ::S2::load_style($u->prop('s2_style'));
+        die "Style not found." unless $style && $style->{userid} == $u->id;
+        LJ::Customize->save_s2_props($u, $style, \%$post, reset => 1);
+
+
     } else {
         $given_control_strip_color = $post->{control_strip_color};
     }
@@ -173,21 +168,10 @@ sub handle_post {
 
     $u->set_prop( 'control_strip_color', $props->{control_strip_color} );
 
-    if ($color ne "layout_default" && $color ne "custom") {
+    if ($color ne "custom") {
         $override{custom_control_strip_colors} = "off";
     } else {
-        if ($color eq "layout_default") {
-            if ($post->{control_strip_no_gradient_default}) {
-                $override{custom_control_strip_colors} = "on_no_gradient";
-            } else {
-                $override{custom_control_strip_colors} = "on_gradient";
-            }
-
-            $override{control_strip_bgcolor} = "";
-            $override{control_strip_fgcolor} = "";
-            $override{control_strip_bordercolor} = "";
-            $override{control_strip_linkcolor} = "";
-        } elsif ($color eq "custom") {
+        if ($color eq "custom") {
             if ($post->{control_strip_no_gradient_custom}) {
                 $override{custom_control_strip_colors} = "on_no_gradient";
             } else {
