@@ -306,6 +306,27 @@ function EntryPage::print_comment_section(Entry e) {
     "</div></div>";
 }
 
+function EntryPage::print_comments (Comment[] cs) {
+    if (size $cs == 0) { return; }
+    foreach var Comment c ($cs) {
+        var string parity = $c.depth % 2 ? "odd" : "even";
+        var int indent = ($c.depth - 1) * 25;
+        "<div class='comment-thread comment-depth-$parity comment-depth-$c.depth'>\n";
+        "<div id='$c.dom_id' class='dwexpcomment' style='margin-left: ${indent}px; margin-top: 5px;";
+        if ($c.hidden_child) {
+            " display: none;";
+        }
+        "'>\n";
+        if ($c.full) {
+            $this->print_comment($c);
+        } else {
+            $this->print_comment_partial($c);
+        }
+        "</div></div>";
+        $this->print_comments($c.replies);
+    }
+}
+
 function EntryPage::print_comment (Comment c) {
 # ReplyPage and EntryPage work nicest if they output the same structure for printing comments and entries, but this requires to manually change both ReplyPage::print_comment and EntryPage::print_entry.  Layout authors can also choose to override separately for different structures.
 
