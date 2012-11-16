@@ -481,10 +481,6 @@ function Page::print_theme_stylesheet () {
         color: $*color_module_text !important;
         }
 
-    #lj_controlstrip_statustext,
-    #lj_controlstrip td {
-        color: $*color_module_text !important;
-        }
     """;
 }
 

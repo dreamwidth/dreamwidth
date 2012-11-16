@@ -998,9 +998,6 @@ table.month {width: 100%; text-align: center; }
 
 /* ====================== EXTRAS ======================= */
 
-#lj_controlstrip {width: 100%; }
-#lj_controlstrip table td {border: 0;}
-
 div.ContextualPopup {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0.583em;}
 div.ContextualPopup div.Inner {border: 0; }
 div.ContextualPopup .Userpic {border: 0.083em solid $*color_page_border; padding: 0.25em; }
