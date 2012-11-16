@@ -27,6 +27,10 @@ set color_header_link_hover = "#e50000";
 set color_footer_border = "#b09370";
 set color_footer_link = "#453320";
 set color_footer_text = "#72614a";
+set control_strip_bgcolor= "#f4d0a8";
+set control_strip_fgcolor = "#453320";
+set control_strip_bordercolor = "#b09370";
+set control_strip_linkcolor = "#000";
 
 ##===============================
 ## Entry Colors

@@ -8,7 +8,7 @@ set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
 set layout_resources = [ { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" } ];
 
 ##===============================
-## Presentation 
+## Presentation
 ##===============================
 
 propgroup presentation_child {
@@ -54,6 +54,7 @@ set all_commentsubjects = true;
 set post_title_align = "right";
 set post_text_align = "justify";
 set default_icons = false;
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -102,7 +103,7 @@ propgroup colors_child {
 }
 
 ##===============================
-## Fonts 
+## Fonts
 ##===============================
 
 propgroup fonts_child {
@@ -126,7 +127,7 @@ set font_module_heading_size = "1.25";
 set font_module_heading_units = "em";
 
 ##===============================
-## Images 
+## Images
 ##===============================
 
 propgroup images_child {
@@ -393,7 +394,7 @@ function Entry::print_link_prev() {
 }
 
 function Entry::print_management_links() {
-    var string{} manage_icons = { 
+    var string{} manage_icons = {
         "edit_entry" => $*image_edit,
         "edit_tags" => $*image_edittags,
         "mem_add" => $*image_addmemories,
@@ -451,7 +452,7 @@ function CommentInfo::print_readlink {
     var Page p = get_page();
     var string alt = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
     if ($*entry_interaction_links == "text") {
-            print safe "<a href=\"$.read_url#comments\">"+ 
+            print safe "<a href=\"$.read_url#comments\">"+
         get_plural_phrase($.count, $p.view == "read" ?
                           "text_read_comments_friends" : "text_read_comments")+
     "</a>";
@@ -1051,7 +1052,7 @@ function Page::print() {
                     }
                 """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
                         """
                     </div></div><!-- end primary and primary>inner -->
@@ -1464,7 +1465,7 @@ h2#pagetitle {
     clear: both;
     margin: 1em 0;
     }
-    
+
 .entry-content {
     margin-bottom: 1em;
     text-align: $*post_text_align;
@@ -2180,65 +2181,6 @@ div.ContextualPopup div.Inner a { color: $*color_page_link_hover; }
 div.ContextualPopup div.Inner a:visited { color: $*color_page_link_visited; }
 div.ContextualPopup div.Inner a:hover { text-decoration: underline !important; }
 div.ContextualPopup div.Inner a:active { color: $*color_page_link_active; }
-
-/* Navigation Strip
-******************************/
-
-#lj_controlstrip {
-    $entry_colors
-    background-image: url();
-    border-radius: .6em;
-    padding: .2em 0;
-    }
-
-#lj_controlstrip td {
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip a {
-    color: $*color_entry_link;
-    }
-
-#lj_controlstrip a:visited { color: $*color_entry_link_visited; }
-
-#lj_controlstrip a:hover {
-    color: $*color_entry_link_hover;
-    text-decoration: underline;
-    }
-
-#lj_controlstrip a:active { color: $*color_entry_link_active; }
-
-#lj_controlstrip select,
-#lj_controlstrip input,
-#lj_controlstrip input#xc_user,
-#lj_controlstrip input#xc_password,
-#lj_controlstrip input#xc_remember,
-#lj_controlstrip input#search {
-    $page_colors
-    border: 1px solid $*color_elements_border;
-    border-radius: .6em;
-    padding: .2em;
-    }
-
-#lj_controlstrip input#search:focus { border: 1px solid $*color_entry_text; }
-
-#lj_controlstrip input[type='button']:hover,
-#lj_controlstrip input[type='submit']:hover {
-    background-color: $*color_calendar_background;
-    border-color: transparent;
-    color: $*color_calendar_link;
-    }
-
-#lj_controlstrip_statustext {
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip_user,
-#lj_controlstrip_login,
-#lj_controlstrip_loggedout_userpic,
-#lj_controlstrip_actionlinks {
-    border-right: 1px solid $*color_elements_border;
-    }
 
 """;
 }
