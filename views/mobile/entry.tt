@@ -1,0 +1,61 @@
+[%# mobile/entry.tt
+
+Mobile entry page.
+
+Authors:
+    foxfirefey <foxfirefey@gmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[% USE Dumper %]
+[% USE day = date( format => '%l:%M%p %d-%b-%Y') %]
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Entry Page</title>
+    [% INCLUDE "mobile/head.tt" %]
+</head>
+<body>
+<div class="entry-page" data-role="page">
+	<div data-role="header">
+		<h1>Entry Page</h1>
+	</div>
+<div data-role="content">
+
+<div class="entry no-text-collapse" data-role="collapsible" data-collapsed="false">
+<h3>[% IF entry.security_icon %]<img src="[% site.imgroot %][% entry.security_icon.src %]" >[% END %]
+[% IF entry.adult_content_icon %]<img src="[% site.imgroot %][% entry.adult_content_icon.src %]" >[% END %]
+[% entry.subject_html %]</h3>
+<div class="ui-grid-a">
+	<div class="ui-block-a"><p>at [% day.format( entry.eventtime ) %]</p>[%# todo: make decent format %]
+<p>by <b>[% entry.poster.ljuser_display %]</b>[% IF entry.journal.userid != entry.poster.userid %] in <b>[% entry.journal.ljuser_display %]</b>[% END %]</p>
+</div>
+	<div class="ui-block-b">
+[% IF display_icons and entry.has_userpic %]
+[%# does not work? entry.userpic.url %]
+[%# does not work? entry.userpic.defined %]
+<img class="userpic" src="[% entry.userpic_url %]" />
+[% END %]
+	</div>
+</div><!-- /grid-a -->
+<div class="entry-content" style="clear: both;">
+[% entry.event_text %]
+</div>
+<div class="entry-dump">
+[%# Dumper.dump_html(entry) %]
+</div>
+</div>
+<ul class="entry-actions padded-list" data-role="listview">
+[% IF entry.reply_count > 0 %]
+<li><a href="[% siteroot %]/mobile/entry/[% entry.journal.username %]/[% entry.ditemid %]/comments">Comments<span class="ui-li-count comment-count">[% entry.reply_count %]</span></a></li>
+[% END %]
+<li><a href="[% siteroot %]/mobile/entry/[% entry.journal.username %]/[% entry.ditemid %]/comments/reply">Reply</a></li>
+[%# <li><a href="#">Edit</a></li> TODO: need to display only when relevant; make so community editors can edit relevant things %]
+</ul>
+</div>
+</div>
+</body>
+</html>
