@@ -30,10 +30,12 @@ use JSON;
 use LJ::Global::Img;
 
 DW::Routing->register_regex( qr!^/mobile/(reading|network)$!, \&readingnetwork_handler, app => 1 );
-DW::Routing->register_regex( qr!^/mobile/entry/([a-z0-9_]+)/([0-9]+)$!, \&entry_handler, app => 1 );
+DW::Routing->register_regex( qr!^/mobile/user/([a-z0-9_]+)/entry/([0-9]+)$!, \&entry_handler, app => 1 );
+DW::Routing->register_regex( qr!^/mobile/user/([a-z0-9_]+)/(recent)$!, \&recenttag_handler, app => 1 );
 
 # TODO: a better option for this
 my $ITEMS_PER_PAGE = 5;
+my $DISPLAY_ICONS = 1;
 
 # this helps decorate an Entry object for mobile display
 sub decorate_entry {
@@ -138,7 +140,7 @@ sub readingnetwork_handler {
     my @processed_entries = process_entry_ids( $u, @entries );
 
     my $vars = {
-        display_icons   => 1,
+        display_icons   => $DISPLAY_ICONS,
         entries         => \@processed_entries,
         u               => $u,
         skip            => $skip,
@@ -150,6 +152,85 @@ sub readingnetwork_handler {
     };
 
     return DW::Template->render_template( 'mobile/reading.tt', $vars, {'no_sitescheme' => 1} );
+}
+
+sub recenttag_handler {
+    my ( $opts, $username, $view ) = @_;
+
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $u = LJ::load_user_or_identity( $username );
+    my $remote = LJ::get_remote();
+
+    my $r = DW::Request->get;
+    # todo: error handling
+
+    my $skip = defined $r->get_args->{skip} ? $r->get_args->{skip} + 0 : 0;
+    my @entryids;
+    my $err;
+    my @entries = $u->recent_items(
+        clusterid     => $u->{clusterid},
+        clustersource => 'slave',
+       # viewall       => $viewall,
+        remote        => $remote,
+        itemshow      => $ITEMS_PER_PAGE + 1,
+        skip          => $skip,
+        #tagids        => $opts->{tagids}, #TODO
+        #tagmode       => $opts->{tagmode}, #TODO
+        #security      => $opts->{securityfilter}, #TODO
+        itemids       => \@entryids,
+        dateformat    => 'S2',
+        order         => $u->is_community ? 'logtime' : '',
+        err           => \$err,
+        #posterid      => $posteru_filter ? $posteru_filter->id : undef,
+    );
+
+    die $err if $err;
+
+  # ADD SKIPS OVER SUSPENDED USERS
+
+  # ADD STICKY ENTRIES
+  #  # prepare sticky entry for S2 - only show sticky entry on first page of Recent Entries, not on skip= pages
+  #  # or tag and security subfilters
+  #  my $stickyentry;
+  #  $stickyentry = $u->get_sticky_entry
+  #      if $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
+  #  # only show if visible to user
+  #  if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
+  #      # create S2 entry object and show first on page
+  #      my $entry = Entry_from_entryobj( $u, $stickyentry, $opts );
+  #      # sticky entry specific things
+  #      my $sticky_icon = Image_std( 'sticky-entry' );
+  #      $entry->{_type} = 'StickyEntry';
+  #      $entry->{sticky_entry_icon} = $sticky_icon;
+  #      # show on top of page
+  #      push @{$p->{entries}}, $entry;
+  #  }
+
+    my $numentries = @entries;
+
+    my $previous_entries = $numentries > $ITEMS_PER_PAGE ? defined pop @entries : undef;
+    my $backcount = $skip + $ITEMS_PER_PAGE if $previous_entries;
+    my $forwardcount = $skip ? $skip - $ITEMS_PER_PAGE : -1;
+
+    my @processed_entries = process_entry_ids( $u,
+    	map { { ditemid => $_->{itemid} * 256 + $_->{anum}, journalid => $_->{posterid} } } @entries );
+
+    my $vars = {
+        display_icons   => $DISPLAY_ICONS,
+        entries         => \@processed_entries,
+        u               => $u,
+        remote          => $remote,
+        skip            => $skip,
+        itemsperpage    => $ITEMS_PER_PAGE,
+        backcount       => $backcount,
+        forwardcount    => $forwardcount,
+        view            => $view,
+        skipurl         => "mobile/user/" . $u->username . "/$view",
+    };
+
+    return DW::Template->render_template( 'mobile/recent.tt', $vars, {'no_sitescheme' => 1} );
 }
 
 sub entry_handler {
@@ -171,7 +252,7 @@ sub entry_handler {
         'remote' => LJ::User->remote,
         'u' => $u,
         'entry' => $entry,
-        'display_icons' => 1,
+        'display_icons' => $DISPLAY_ICONS,
     };
 
     return DW::Template->render_template( 'mobile/entry.tt', $vars, {'no_sitescheme' => 1} );

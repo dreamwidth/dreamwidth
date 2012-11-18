@@ -6,7 +6,7 @@
 <ul data-role="listview">
 [% FOREACH entry IN entries %]
 <li>
-<a href="[% siteroot %]/mobile/entry/[% entry.journal.username %]/[% entry.ditemid %]" data-transition="slide">
+<a href="[% siteroot %]/mobile/user/[% entry.journal.username %]/entry/[% entry.ditemid %]" data-transition="slide">
 [% IF display_icons %]
 [%# does not work? entry.userpic.url %]
 <img src="[% entry.userpic_url %]" />
