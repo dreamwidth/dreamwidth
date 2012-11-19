@@ -31,6 +31,10 @@ set color_footer_link = "#ce4f82";
 set color_footer_link_active = "#ce1c28";
 set color_footer_link_hover = "#ce1c67";
 set color_footer_link_visited = "#853657";
+set control_strip_bgcolor = "#f7f2e6";
+set control_strip_linkcolor = "#ce4f82";
+set control_strip_fgcolor = "#1a1a1a";
+set control_strip_bordercolor = "#f7f2e6";
 
 ##===============================
 ## Entry Colors
@@ -102,6 +106,10 @@ set color_footer_link = "#d9712d";
 set color_footer_link_active = "#d9712d";
 set color_footer_link_hover = "#f5b232";
 set color_footer_link_visited = "#c2441e";
+set control_strip_bgcolor = "#2d1436";
+set control_strip_linkcolor = "#d9712d";
+set control_strip_fgcolor = "#d1c8b0";
+set control_strip_bordercolor = "#2d1436";
 
 ##===============================
 ## Entry Colors
@@ -167,6 +175,10 @@ set color_navigation_text = "#141414";
 set color_footer_background = "#fff";
 set color_footer_link = "#df151a";
 set color_footer_link_visited = "#ab1018";
+set control_strip_bgcolor = "#fff";
+set control_strip_linkcolor = "#df151a";
+set control_strip_fgcolor = "#141414";
+set control_strip_bordercolor = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -234,6 +246,10 @@ set color_footer_link = "#dc4c4c";
 set color_footer_link_active = "#dc4c4c";
 set color_footer_link_hover = "#fa5757";
 set color_footer_link_visited = "#963434";
+set control_strip_bgcolor = "#ecedf1";
+set control_strip_linkcolor = "#dc4c4c";
+set control_strip_fgcolor = "#131313";
+set control_strip_bordercolor = "#ecedf1";
 
 ##===============================
 ## Entry Colors
@@ -302,6 +318,10 @@ set color_footer_background = "#f5f5f5";
 set color_footer_link = "#2e6a06";
 set color_footer_link_hover = "#68a138";
 set color_footer_link_visited = "#0e3100";
+set control_strip_bgcolor = "#f5f5f5";
+set control_strip_linkcolor = "#2e6a06";
+set control_strip_fgcolor = "#1e1e1e";
+set control_strip_bordercolor = "#f5f5f5";
 
 ##===============================
 ## Entry Colors
@@ -359,6 +379,10 @@ set color_navigation_background = "#2d2d2d";
 set color_navigation_border = "#db3f3f";
 set color_navigation_link = "#fff";
 set color_navigation_text = "#fff";
+set control_strip_bgcolor = "#fff";
+set control_strip_linkcolor = "#db3f3f";
+set control_strip_fgcolor = "#323232";
+set control_strip_bordercolor = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -422,6 +446,10 @@ set color_footer_link = "#fd68ae";
 set color_footer_link_active = "#fdd199";
 set color_footer_link_hover = "#fdbf68";
 set color_footer_link_visited = "#fd99c8";
+set control_strip_bgcolor = "#333a44";
+set control_strip_linkcolor = "#fd68ae";
+set control_strip_fgcolor = "#f3f5f8";
+set control_strip_bordercolor = "#333a44";
 
 ##===============================
 ## Entry Colors
@@ -490,6 +518,10 @@ set color_footer_background = "#eee1e3";
 set color_footer_link = "#38718a";
 set color_footer_link_hover = "#394c8c";
 set color_footer_link_visited = "#1e3d4b";
+set control_strip_bgcolor = "#eee1e3";
+set control_strip_linkcolor = "#38718a";
+set control_strip_fgcolor = "#141414";
+set control_strip_bordercolor = "#eee1e3";
 
 ##===============================
 ## Entry Colors
@@ -556,6 +588,10 @@ set color_footer_background = "#eee";
 set color_footer_link = "#2f965f";
 set color_footer_link_hover = "#38b475";
 set color_footer_link_visited = "#2f8f96";
+set control_strip_bgcolor = "#eee";
+set control_strip_linkcolor = "#2f965f";
+set control_strip_fgcolor = "#282828";
+set control_strip_bordercolor = "#eee";
 
 ##===============================
 ## Entry Colors
