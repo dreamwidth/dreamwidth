@@ -20,6 +20,10 @@ set color_footer_background = "#7e718f";
 set color_footer_link = "#d5d2e3";
 set color_footer_link_hover = "#e5dcf4";
 set color_footer_link_visited = "#d5caf7";
+set control_strip_bgcolor = "#565e71";
+set control_strip_bordercolor = "#7e718f";
+set control_strip_linkcolor = "#d5d2e3";
+set control_strip_fgcolor = "#f9f7fc";
 
 ##===============================
 ## Entry Colors
@@ -72,6 +76,10 @@ set color_footer_link = "#5b7882";
 set color_footer_link_active = "#5b7882";
 set color_footer_link_hover = "#4a99b4";
 set color_footer_link_visited = "#2D3C41";
+set control_strip_bgcolor = "#f7f9fe";
+set control_strip_bordercolor = "#d4e1e5";
+set control_strip_linkcolor = "#5b7882";
+set control_strip_fgcolor = "#0f0f0f";
 
 ##===============================
 ## Entry Colors
@@ -141,6 +149,10 @@ set color_page_link_visited = "#9797b7";
 set color_page_subtitle = "#aaa";
 set color_page_text = "#aaa";
 set color_page_title = "#9797b7";
+set control_strip_bgcolor = "#212128";
+set control_strip_bordercolor = "#10101b";
+set control_strip_linkcolor = "#9797b7";
+set control_strip_fgcolor = "#aaa";
 
 ##===============================
 ## Entry Colors
@@ -208,25 +220,25 @@ function Page::print_theme_stylesheet () {
     }
 
     .module-navlinks, .module-time, .module-powered, .module-header {
-        background: -moz-linear-gradient(top, $*color_module_title_background, 
+        background: -moz-linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* Firefox */
-        background: -webkit-linear-gradient(linear, left top, left bottom, 
-          color-stop(0, $*color_module_title_background), color-stop(30px, 
+        background: -webkit-linear-gradient(linear, left top, left bottom,
+          color-stop(0, $*color_module_title_background), color-stop(30px,
           $*color_module_background)); /* Safari 4+, Chrome 2+ */
-        background: -webkit-linear-gradient(top, 
+        background: -webkit-linear-gradient(top,
           $*color_module_title_background, $*color_module_background 30px);
         filter: progid:DXImageTransform.Microsoft.gradient
           (GradientType=0,startColorstr='$*color_module_title_background',
           endColorstr='$*color_module_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
-        background: -ms-linear-gradient(top, $*color_module_title_background, 
+        background: -ms-linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* IE 10 */
-        background: linear-gradient(top, $*color_module_title_background, 
+        background: linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* Standard Syntax */
     }
 
     noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
-        background: -o-linear-gradient(top, $*color_module_title_background 0, 
+        background: -o-linear-gradient(top, $*color_module_title_background 0,
           $*color_module_background 30px); /* Opera 11.10+ */
     }
 
@@ -286,10 +298,10 @@ function Page::print_theme_stylesheet () {
     .tags-container h2,
     .icons-container h2 {
         background: $*color_entry_background;
-        background: -moz-linear-gradient(top, $*color_entry_title_background, 
+        background: -moz-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Firefox */
-        background: -webkit-linear-gradient(linear, left top, left bottom, 
-          color-stop(0, $*color_entry_title_background), color-stop(30px, 
+        background: -webkit-linear-gradient(linear, left top, left bottom,
+          color-stop(0, $*color_entry_title_background), color-stop(30px,
           $*color_entry_background)); /* Safari 4+, Chrome 2+ */
         background: -webkit-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
@@ -297,9 +309,9 @@ function Page::print_theme_stylesheet () {
           startColorstr='$*color_entry_title_background',
           endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
-        background: -ms-linear-gradient(top, $*color_entry_title_background, 
+        background: -ms-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* IE 10 */
-        background: linear-gradient(top, $*color_entry_title_background, 
+        background: linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Standard Syntax */
     }
 
@@ -310,16 +322,8 @@ function Page::print_theme_stylesheet () {
     .month,
     .tags-container h2,
     .icons-container h2 {
-        background: -o-linear-gradient(top, $*color_entry_title_background 0, 
+        background: -o-linear-gradient(top, $*color_entry_title_background 0,
           $*color_entry_background 30px); /* Opera 11.10+ */
-    }
-
-    #lj_controlstrip {
-        box-shadow: 0px 1px 2px $*color_entry_border;
-    }
-
-    #lj_controlstrip td {
-        border: 1px solid $*color_entry_title_background;
     }
 
     div.ContextualPopup .Inner {
@@ -357,6 +361,10 @@ set color_footer_background = "#16161A";
 set color_footer_link = "#357381";
 set color_footer_link_hover = "#1a3440";
 set color_footer_link_visited = "#488191";
+set control_strip_bgcolor = "#0d0c14";
+set control_strip_bordercolor = "#07202b";
+set control_strip_linkcolor = "#357381";
+set control_strip_fgcolor = "#d3e3e2";
 
 ##===============================
 ## Entry Colors
@@ -423,6 +431,11 @@ set color_footer_link = "#8bee94";
 set color_footer_link_active = "#8bee94";
 set color_footer_link_hover = "#90d9f8";
 set color_footer_link_visited = "#fbcd55";
+layerinfo name = "Bluebird";
+set control_strip_bgcolor = "#415275";
+set control_strip_bordercolor = "#4c6089";
+set control_strip_linkcolor = "#8bee94";
+set control_strip_fgcolor = "#eed9bf";
 
 ##===============================
 ## Entry Colors
@@ -489,6 +502,10 @@ set color_footer_link = "#4dbce9";
 set color_footer_link_active = "#4dbce9";
 set color_footer_link_hover = "#54cffd";
 set color_footer_link_visited = "#3f9bbe";
+set control_strip_bgcolor = "#242424";
+set control_strip_bordercolor = "#292929";
+set control_strip_linkcolor = "#4dbce9";
+set control_strip_fgcolor = "#fdfdfd";
 
 ##===============================
 ## Entry Colors
@@ -555,6 +572,10 @@ set color_footer_link = "#0b9e79";
 set color_footer_link_active = "#0b9e79";
 set color_footer_link_hover = "#0b539e";
 set color_footer_link_visited = "#0e6ed0";
+set control_strip_bgcolor = "#a9cfb7";
+set control_strip_bordercolor = "#bdcfa9";
+set control_strip_linkcolor = "#0b9e79";
+set control_strip_fgcolor = "#060606";
 
 ##===============================
 ## Entry Colors
@@ -621,6 +642,10 @@ set color_footer_link = "#236853";
 set color_footer_link_active = "#236853";
 set color_footer_link_hover = "#800f2b";
 set color_footer_link_visited = "#183351";
+set control_strip_bgcolor = "#abba80";
+set control_strip_bordercolor = "#b6c48e";
+set control_strip_linkcolor = "#236853";
+set control_strip_fgcolor = "#080808";
 
 ##===============================
 ## Entry Colors
@@ -687,6 +712,10 @@ set color_footer_link = "#d9712d";
 set color_footer_link_active = "#d9712d";
 set color_footer_link_hover = "#f5b232";
 set color_footer_link_visited = "#c2441e";
+set control_strip_bgcolor = "#281231";
+set control_strip_bordercolor = "#331640";
+set control_strip_linkcolor = "#d9712d";
+set control_strip_fgcolor = "#d1c8b0";
 
 ##===============================
 ## Entry Colors
@@ -747,6 +776,10 @@ set color_page_link_visited = "#6170aa";
 set color_page_text = "#5f6161";
 set color_page_title = "#6170aa";
 set color_page_subtitle = "#727475";
+set control_strip_bgcolor = "#dee3e4";
+set control_strip_bordercolor = "#727475";
+set control_strip_linkcolor = "#6170aa";
+set control_strip_fgcolor = "#5f6161";
 
 ##===============================
 ## Entry Colors
@@ -807,25 +840,25 @@ function Page::print_theme_stylesheet () {
     }
 
     .module-navlinks, .module-time, .module-powered, .module-header {
-        background: -moz-linear-gradient(top, $*color_module_title_background, 
+        background: -moz-linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* Firefox */
-        background: -webkit-linear-gradient(linear, left top, left bottom, 
-          color-stop(0, $*color_module_title_background), color-stop(30px, 
+        background: -webkit-linear-gradient(linear, left top, left bottom,
+          color-stop(0, $*color_module_title_background), color-stop(30px,
           $*color_module_background)); /* Safari 4+, Chrome 2+ */
-        background: -webkit-linear-gradient(top, 
+        background: -webkit-linear-gradient(top,
           $*color_module_title_background, $*color_module_background 30px);
         filter: progid:DXImageTransform.Microsoft.gradient
           (GradientType=0,startColorstr='$*color_module_title_background',
           endColorstr='$*color_module_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
-        background: -ms-linear-gradient(top, $*color_module_title_background, 
+        background: -ms-linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* IE 10 */
-        background: linear-gradient(top, $*color_module_title_background, 
+        background: linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* Standard Syntax */
     }
 
     noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
-        background: -o-linear-gradient(top, $*color_module_title_background 0, 
+        background: -o-linear-gradient(top, $*color_module_title_background 0,
           $*color_module_background 30px); /* Opera 11.10+ */
     }
 
@@ -885,10 +918,10 @@ function Page::print_theme_stylesheet () {
     .tags-container h2,
     .icons-container h2 {
         background: $*color_entry_background;
-        background: -moz-linear-gradient(top, $*color_entry_title_background, 
+        background: -moz-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Firefox */
-        background: -webkit-linear-gradient(linear, left top, left bottom, 
-          color-stop(0, $*color_entry_title_background), color-stop(30px, 
+        background: -webkit-linear-gradient(linear, left top, left bottom,
+          color-stop(0, $*color_entry_title_background), color-stop(30px,
           $*color_entry_background)); /* Safari 4+, Chrome 2+ */
         background: -webkit-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
@@ -896,9 +929,9 @@ function Page::print_theme_stylesheet () {
           startColorstr='$*color_entry_title_background',
           endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
-        background: -ms-linear-gradient(top, $*color_entry_title_background, 
+        background: -ms-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* IE 10 */
-        background: linear-gradient(top, $*color_entry_title_background, 
+        background: linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Standard Syntax */
     }
 
@@ -909,16 +942,8 @@ function Page::print_theme_stylesheet () {
     .month,
     .tags-container h2,
     .icons-container h2 {
-        background: -o-linear-gradient(top, $*color_entry_title_background 0, 
+        background: -o-linear-gradient(top, $*color_entry_title_background 0,
           $*color_entry_background 30px); /* Opera 11.10+ */
-    }
-
-    #lj_controlstrip {
-        box-shadow: 0px 1px 2px $*color_entry_border;
-    }
-
-    #lj_controlstrip td {
-        border: 1px solid $*color_entry_title_background;
     }
 
     div.ContextualPopup .Inner {
@@ -949,6 +974,10 @@ set color_page_link_hover = "#ff5c5c";
 set color_page_subtitle = "#1a2708";
 set color_page_text = "#1a2708";
 set color_page_title = "#c90227";
+set control_strip_bgcolor = "#fff";
+set control_strip_bordercolor = "#ffab87";
+set control_strip_linkcolor = "#c90227";
+set control_strip_fgcolor = "#1a2708";
 
 ##===============================
 ## Entry Colors
@@ -1003,6 +1032,10 @@ set color_header_background = "#12041f";
 set color_footer_background = "#400f68";
 set color_footer_link = "#ffcaae";
 set color_footer_link_visited = "#b2889c";
+set control_strip_bgcolor = "#400f68";
+set control_strip_bordercolor = "#400f68";
+set control_strip_linkcolor = "#ffcaae";
+set control_strip_fgcolor = "#deccd5";
 
 ##===============================
 ## Entry Colors
@@ -1057,6 +1090,10 @@ set color_page_subtitle = "#352123";
 set color_page_text = "#352123";
 set color_page_title = "#cd4c44";
 set color_footer_background = "#f9f2f7";
+set control_strip_bgcolor = "#f9f2f7";
+set control_strip_bordercolor = "#ddc3d2";
+set control_strip_linkcolor = "#cd4c44";
+set control_strip_fgcolor = "#352123";
 
 ##===============================
 ## Entry Colors
@@ -1111,6 +1148,10 @@ set color_footer_link = "#382a42";
 set color_footer_link_active = "#382a42";
 set color_footer_link_hover = "#314228";
 set color_footer_link_visited = "#243835";
+set control_strip_bgcolor = "#b55635";
+set control_strip_bordercolor = "#ab4a24";
+set control_strip_linkcolor = "#382a42";
+set control_strip_fgcolor = "#240c03";
 
 ##===============================
 ## Entry Colors
@@ -1173,6 +1214,10 @@ set color_footer_background = "#6b0d2b";
 set color_footer_link = "#b35f77";
 set color_footer_link_hover = "#cf0030";
 set color_footer_link_visited = "#ee7298";
+set control_strip_bgcolor = "#401e26";
+set control_strip_bordercolor = "#801835";
+set control_strip_linkcolor = "#b35f77";
+set control_strip_fgcolor = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -1221,6 +1266,10 @@ set color_header_background = "#ffedb8";
 set color_footer_background = "#ffedb8";
 set color_footer_link = "#07807b";
 set color_footer_link_hover = "9f7f57";
+set control_strip_bgcolor = "#f2dc99";
+set control_strip_bordercolor = "#d3c189";
+set control_strip_linkcolor = "#07807b";
+set control_strip_fgcolor = "#7e6345";
 
 ##===============================
 ## Entry Colors
@@ -1275,6 +1324,10 @@ set color_footer_background = "#202163";
 set color_footer_link = "#76a4bf";
 set color_footer_link_hover = "#afc1d8";
 set color_footer_link_visited = "#6378a9";
+set control_strip_bgcolor = "#394174";
+set control_strip_bordercolor = "#485487";
+set control_strip_linkcolor = "#76a4bf";
+set control_strip_fgcolor = "#d2e2ef";
 
 ##===============================
 ## Entry Colors
@@ -1328,6 +1381,10 @@ set color_footer_link = "#e6ac27";
 set color_footer_link_active = "#e6ac27";
 set color_footer_link_hover = "#96dcbd";
 set color_footer_link_visited = "#80bca3";
+set control_strip_bgcolor = "#655643";
+set control_strip_bordercolor = "#6f5c49";
+set control_strip_linkcolor = "#e6ac27";
+set control_strip_fgcolor = "#f6f7e8";
 
 ##===============================
 ## Entry Colors
@@ -1394,6 +1451,11 @@ set color_page_title = "#612040";
 set color_footer_background = "#e5d59c";
 set color_footer_link = "#612040";
 set color_footer_link_hover = "#917742";
+set control_strip_bgcolor = "#e5d59c";
+set control_strip_bordercolor = "#a8894c";
+set control_strip_linkcolor = "#612040";
+set control_strip_fgcolor = "#3b2f1a";
+
 
 ##===============================
 ## Entry Colors
@@ -1462,6 +1524,10 @@ set color_footer_link_visited = "#62902d";
 set color_header_background = "#063435";
 set color_header_link = "#469e2c";
 set color_header_link_hover = "#58aa19";
+set control_strip_bgcolor = "#005049";
+set control_strip_bordercolor = "#007250";
+set control_strip_linkcolor = "#469e2c";
+set control_strip_fgcolor = "#b7d698";
 
 ##===============================
 ## Entry Colors
@@ -1509,6 +1575,10 @@ set color_page_link_visited = "#aa7061";
 set color_page_text = "#61615f";
 set color_page_title = "#aa7061";
 set color_page_subtitle = "#757472";
+set control_strip_bgcolor = "#e4e3de";
+set control_strip_bordercolor = "#757472";
+set control_strip_linkcolor = "#aa7061";
+set control_strip_fgcolor = "#61615f";
 
 ##===============================
 ## Entry Colors
@@ -1563,32 +1633,32 @@ function Page::print_theme_stylesheet () {
         border: 1px solid $*color_module_border;
     }
 
-    .module-calendar th, .module-calendar .entry-day, .month th, 
+    .module-calendar th, .module-calendar .entry-day, .month th,
       .month .day-has-entries {
         background-color: $*color_page_background;
         border: 1px solid $*color_module_border;
     }
 
     .module-navlinks, .module-time, .module-powered, .module-header {
-        background: -moz-linear-gradient(top, $*color_module_title_background, 
+        background: -moz-linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* Firefox */
-        background: -webkit-linear-gradient(linear, left top, left bottom, 
-          color-stop(0, $*color_module_title_background), color-stop(30px, 
+        background: -webkit-linear-gradient(linear, left top, left bottom,
+          color-stop(0, $*color_module_title_background), color-stop(30px,
           $*color_module_background)); /* Safari 4+, Chrome 2+ */
-        background: -webkit-linear-gradient(top, 
+        background: -webkit-linear-gradient(top,
           $*color_module_title_background, $*color_module_background 30px);
         filter:  progid:DXImageTransform.Microsoft.gradient
           (GradientType=0,startColorstr='$*color_module_title_background',
           endColorstr='$*color_module_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
-        background: -ms-linear-gradient(top, $*color_module_title_background, 
+        background: -ms-linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* IE 10 */
-        background: linear-gradient(top, $*color_module_title_background, 
+        background: linear-gradient(top, $*color_module_title_background,
           $*color_module_background 30px); /* Standard Syntax */
     }
 
     noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
-        background: -o-linear-gradient(top, $*color_module_title_background 0, 
+        background: -o-linear-gradient(top, $*color_module_title_background 0,
           $*color_module_background 30px); /* Opera 11.10+ */
     }
 
@@ -1648,10 +1718,10 @@ function Page::print_theme_stylesheet () {
     .tags-container h2,
     .icons-container h2 {
         background: $*color_entry_background;
-        background: -moz-linear-gradient(top, $*color_entry_title_background, 
+        background: -moz-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Firefox */
-        background: -webkit-linear-gradient(linear, left top, left bottom, 
-          color-stop(0, $*color_entry_title_background), color-stop(30px, 
+        background: -webkit-linear-gradient(linear, left top, left bottom,
+          color-stop(0, $*color_entry_title_background), color-stop(30px,
           $*color_entry_background)); /* Safari 4+, Chrome 2+ */
         background: -webkit-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
@@ -1659,9 +1729,9 @@ function Page::print_theme_stylesheet () {
           startColorstr='$*color_entry_title_background',
           endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
-        background: -ms-linear-gradient(top, $*color_entry_title_background, 
+        background: -ms-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* IE 10 */
-        background: linear-gradient(top, $*color_entry_title_background, 
+        background: linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Standard Syntax */
     }
 
@@ -1672,16 +1742,8 @@ function Page::print_theme_stylesheet () {
     .month,
     .tags-container h2,
     .icons-container h2 {
-        background: -o-linear-gradient(top, $*color_entry_title_background 0, 
+        background: -o-linear-gradient(top, $*color_entry_title_background 0,
           $*color_entry_background 30px); /* Opera 11.10+ */
-    }
-
-    #lj_controlstrip {
-        box-shadow: 0px 1px 2px $*color_entry_border;
-    }
-
-    #lj_controlstrip td {
-        border: 1px solid $*color_entry_title_background;
     }
 
     div.ContextualPopup .Inner {
@@ -1714,6 +1776,10 @@ set color_page_link_visited = "#7B98C1";
 set color_page_text = "#5f5f5f";
 set color_page_title = "#7B98C1";
 set color_page_subtitle = "#757575";
+set control_strip_bgcolor = "#fff";
+set control_strip_bordercolor = "#dcdcdc";
+set control_strip_linkcolor = "#7B98C1";
+set control_strip_fgcolor = "#5f5f5f";
 
 ##===============================
 ## Entry Colors
@@ -1771,6 +1837,10 @@ set color_footer_background = "#6d7041";
 set color_footer_link = "#c9c97e";
 set color_footer_link_hover = "#f4c56b";
 set color_footer_link_visited = "#d3bd74";
+set control_strip_bgcolor = "#968164";
+set control_strip_bordercolor = "#b1af76";
+set control_strip_linkcolor = "#c9c97e";
+set control_strip_fgcolor = "#2d261c";
 
 ##===============================
 ## Entry Colors
@@ -1821,6 +1891,10 @@ set color_footer_link = "#bd5858";
 set color_footer_link_active = "bd5858";
 set color_footer_link_hover = "7f4538";
 set color_footer_link_visited = "bd5858";
+set control_strip_bgcolor = "#ffdeaa";
+set control_strip_bordercolor = "#e8b778";
+set control_strip_linkcolor = "#bd5858";
+set control_strip_fgcolor = "#624c32";
 
 ##===============================
 ## Entry Colors
@@ -1886,6 +1960,10 @@ set color_footer_link = "#4f967c";
 set color_footer_link_active = "#4f967c";
 set color_footer_link_hover = "#67aa93";
 set color_footer_link_visited = "#808c3f";
+set control_strip_bgcolor = "#ffd997";
+set control_strip_bordercolor = "#ffdeab";
+set control_strip_linkcolor = "#4f967c";
+set control_strip_fgcolor = "#191919";
 
 ##===============================
 ## Entry Colors
@@ -1951,6 +2029,10 @@ set color_footer_link = "#48b170";
 set color_footer_link_active = "#48b170";
 set color_footer_link_hover = "#dc5a04";
 set color_footer_link_visited = "#3d7b55";
+set control_strip_bgcolor = "#eef5e2";
+set control_strip_bordercolor = "#e9f0de";
+set control_strip_linkcolor = "#48b170";
+set control_strip_fgcolor = "#0b0b0b";
 
 ##===============================
 ## Entry Colors
@@ -2011,6 +2093,10 @@ set color_page_title = "#c0d830";
 set color_footer_background = "#f0f0f0";
 set color_footer_link = "#0090d8";
 set color_footer_link_hover = "#00a8d8";
+set control_strip_bgcolor = "#f0f0f0";
+set control_strip_bordercolor = "#E4E4E4";
+set control_strip_linkcolor = "#0090d8";
+set control_strip_fgcolor = "#00040d";
 
 ##===============================
 ## Entry Colors
@@ -2060,6 +2146,10 @@ set color_page_title = "#770444";
 set color_footer_background = "#fff";
 set color_footer_link = "#CE4B08";
 set color_footer_link_hover = "#EB6A2A";
+set control_strip_bgcolor = "#fff";
+set control_strip_bordercolor = "#e2560f";
+set control_strip_linkcolor = "#CE4B08";
+set control_strip_fgcolor = "#773D04";
 
 ##===============================
 ## Entry Colors
@@ -2125,6 +2215,10 @@ set color_footer_background = "#005049";
 set color_footer_link = "#9fd86b";
 set color_footer_link_hover = "#037c76";
 set color_footer_link_visited = "#007250";
+set control_strip_bgcolor = "#067e7a";
+set control_strip_bordercolor = "#007250";
+set control_strip_linkcolor = "#53ba83";
+set control_strip_fgcolor = "#0c0636";
 
 ##===============================
 ## Entry Colors
@@ -2171,6 +2265,10 @@ set color_page_text = "#f0a914";
 set color_page_title = "#F55822";
 set color_footer_background = "#641908";
 set color_footer_link = "#f04d14";
+set control_strip_bgcolor = "#641908";
+set control_strip_bordercolor = "#5b1a06";
+set control_strip_linkcolor = "#f04d14";
+set control_strip_fgcolor = "#f0a914";
 
 ##===============================
 ## Entry Colors
@@ -2230,6 +2328,10 @@ set color_footer_link = "#de482f";
 set color_footer_link_active = "#de482f";
 set color_footer_link_hover = "#2b5178";
 set color_footer_link_visited = "#273456";
+set control_strip_bgcolor = "#edebe8";
+set control_strip_bordercolor = "#e3d8c3";
+set control_strip_linkcolor = "#de482f";
+set control_strip_fgcolor = "#050505";
 
 ##===============================
 ## Entry Colors
@@ -2292,6 +2394,10 @@ set color_footer_background = "#670067";
 set color_footer_link = "#e73155";
 set color_footer_link_hover = "#c72559";
 set color_footer_link_visited = "#ff476c";
+set control_strip_bgcolor = "#670067";
+set control_strip_bordercolor = "#860c62";
+set control_strip_linkcolor = "#e73155";
+set control_strip_fgcolor = "#efcadc";
 
 ##===============================
 ## Entry Colors
@@ -2337,6 +2443,10 @@ set color_page_subtitle = "#ffe29b";
 set color_footer_background = "#6E655F";
 set color_footer_link = "#b8faff";
 set color_footer_link_hover = "#afe0d0";
+set control_strip_bgcolor = "#6E655F";
+set control_strip_bordercolor = "#443E39";
+set control_strip_linkcolor = "#b8faff";
+set control_strip_fgcolor = "#FFFFF9";
 
 ##===============================
 ## Entry Colors
@@ -2394,6 +2504,10 @@ set color_footer_link = "#007b62";
 set color_footer_link_active = "#007b62";
 set color_footer_link_hover = "#471e4c";
 set color_footer_link_visited = "#00503e";
+set control_strip_bgcolor = "#a4e0ab";
+set control_strip_bordercolor = "#bdeac1";
+set control_strip_linkcolor = "#007b62";
+set control_strip_fgcolor = "#191919";
 
 ##===============================
 ## Entry Colors
@@ -2456,6 +2570,10 @@ set color_footer_background = "#0c2430";
 set color_footer_link = "#B3F2F1";
 set color_footer_link_hover = "#0d8185";
 set color_footer_link_visited = "#B7E6F4";
+set control_strip_bgcolor = "#063942";
+set control_strip_bordercolor = "#0c2430";
+set control_strip_linkcolor = "#B3F2F1";
+set control_strip_fgcolor = "#deeef2";
 
 ##===============================
 ## Entry Colors
@@ -2520,6 +2638,10 @@ set color_footer_background = "#bfbfd9";
 set color_footer_link = "#996";
 set color_footer_link_hover = "#b3b3b3";
 set color_footer_link_visited = "#828162";
+set control_strip_bgcolor = "#b3b3b3";
+set control_strip_bordercolor = "#996";
+set control_strip_linkcolor = "#595877";
+set control_strip_fgcolor = "#3c3d32";
 
 ##===============================
 ## Entry Colors
@@ -2565,6 +2687,10 @@ set color_page_text = "#554244";
 set color_page_title = "#554244";
 set color_footer_background = "#efdde8";
 set color_footer_link = "#8983a4";
+set control_strip_bgcolor = "#efdde8";
+set control_strip_bordercolor = "#cfbfc9";
+set control_strip_linkcolor = "#8983a4";
+set control_strip_fgcolor = "#554244";
 
 ##===============================
 ## Entry Colors
@@ -2623,6 +2749,10 @@ set color_footer_link = "#de794e";
 set color_footer_link_active = "#de794e";
 set color_footer_link_hover = "#a43d3d";
 set color_footer_link_visited = "#784242";
+set control_strip_bgcolor = "#f7f5f3";
+set control_strip_bordercolor = "#ede7a7";
+set control_strip_linkcolor = "#de794e";
+set control_strip_fgcolor = "#111";
 
 ##===============================
 ## Entry Colors
@@ -2690,6 +2820,10 @@ set color_footer_link = "#ffb44c";
 set color_footer_link_active = "#ffb44c";
 set color_footer_link_hover = "#ff9400";
 set color_footer_link_visited = "#EB8E17";
+set control_strip_bgcolor = "#242424";
+set control_strip_bordercolor = "#292929";
+set control_strip_linkcolor = "#ffb44c";
+set control_strip_fgcolor = "#fdfdfd";
 
 ##===============================
 ## Entry Colors
@@ -2752,6 +2886,10 @@ set color_footer_background = "#53460e";
 set color_footer_link = "#fbfae8";
 set color_footer_link_hover = "#a9d4a3";
 set color_footer_link_visited = "#e7c07d";
+set control_strip_bgcolor = "#7a5c14";
+set control_strip_bordercolor = "#53460e";
+set control_strip_linkcolor = "#ecd0dc";
+set control_strip_fgcolor = "#fbfae8";
 
 ##===============================
 ## Entry Colors
@@ -2806,6 +2944,10 @@ set color_page_subtitle = "#301818";
 set color_page_text = "#301818";
 set color_page_title = "#D62300";
 set color_footer_background = "#f7f7de";
+set control_strip_bgcolor = "#f7f7de";
+set control_strip_bordercolor = "#d8d8a8";
+set control_strip_linkcolor = "#D62300";
+set control_strip_fgcolor = "#301818";
 
 ##===============================
 ## Entry Colors
@@ -2860,6 +3002,10 @@ set color_footer_link = "#ed0b00";
 set color_footer_link_active = "#ed0b00";
 set color_footer_link_hover = "#5b1a81";
 set color_footer_link_visited = "#481463";
+set control_strip_bgcolor = "#fff";
+set control_strip_bordercolor = "#b4b4b4";
+set control_strip_linkcolor = "#ed0b00";
+set control_strip_fgcolor = "#000";
 
 ##===============================
 ## Entry Colors
@@ -2918,6 +3064,10 @@ set color_page_title = "#705129";
 set color_footer_background = "#fefee9";
 set color_footer_link = "#8b6633";
 set color_footer_link_hover = "#eeb658";
+set control_strip_bgcolor = "#fefee9";
+set control_strip_bordercolor = "#eeb658";
+set control_strip_linkcolor = "#8b6633";
+set control_strip_fgcolor = "#392c20";
 
 ##===============================
 ## Entry Colors
@@ -2975,6 +3125,10 @@ set color_footer_link = "#135c4f";
 set color_footer_link_active = "#135c4f";
 set color_footer_link_hover = "#3b8c53";
 set color_footer_link_visited = "#123e4a";
+set control_strip_bgcolor = "#e8cb8d";
+set control_strip_bordercolor = "#e8bc53";
+set control_strip_linkcolor = "#135c4f";
+set control_strip_fgcolor = "#282828";
 
 ##===============================
 ## Entry Colors
@@ -3040,6 +3194,10 @@ set color_footer_link = "#d03f43";
 set color_footer_link_active = "#d03f43";
 set color_footer_link_hover = "#d0060b";
 set color_footer_link_visited = "#5A4D99";
+set control_strip_bgcolor = "#fddadb";
+set control_strip_bordercolor = "#fdc1c2";
+set control_strip_linkcolor = "#d03f43";
+set control_strip_fgcolor = "#060606";
 
 ##===============================
 ## Entry Colors
@@ -3097,6 +3255,10 @@ set color_page_subtitle = "#301818";
 set color_page_text = "#301818";
 set color_page_title = "#AA0400";
 set color_footer_background = "#FFFFE2";
+set control_strip_bgcolor = "#FFFFE2";
+set control_strip_bordercolor = "#D8D8A8";
+set control_strip_linkcolor = "#AA0400";
+set control_strip_fgcolor = "#301818";
 
 ##===============================
 ## Entry Colors
@@ -3151,6 +3313,10 @@ set color_footer_link = "#556342";
 set color_footer_link_active = "#556342";
 set color_footer_link_hover = "#425163";
 set color_footer_link_visited = "#504263";
+set control_strip_bgcolor = "#f6f9ef";
+set control_strip_bordercolor = "#d1dfae";
+set control_strip_linkcolor = "#556342";
+set control_strip_fgcolor = "#161616";
 
 ##===============================
 ## Entry Colors
@@ -3217,6 +3383,10 @@ set color_footer_link = "#09ff15";
 set color_footer_link_active = "#09ff15";
 set color_footer_link_hover = "#ffcf69";
 set color_footer_link_visited = "#ffbf27";
+set control_strip_bgcolor = "#242424";
+set control_strip_bordercolor = "#292929";
+set control_strip_linkcolor = "#09ff15";
+set control_strip_fgcolor = "#fdfdfd";
 
 ##===============================
 ## Entry Colors
@@ -3298,6 +3468,10 @@ set color_footer_link = "#ff0";
 set color_footer_link_active = "#ff0";
 set color_footer_link_hover = "#fffb91";
 set color_footer_link_visited = "#CBFF00";
+set control_strip_bgcolor = "#3d7a79";
+set control_strip_bordercolor = "#428481";
+set control_strip_linkcolor = "#ff0";
+set control_strip_fgcolor = "#fbfaee";
 
 ##===============================
 ## Entry Colors
@@ -3358,6 +3532,10 @@ set color_page_title = "#f7864a";
 set color_footer_background = "#ecbf71";
 set color_footer_link = "#662f2c";
 set color_footer_link_hover = "#251344";
+set control_strip_bgcolor = "#ecbf71";
+set control_strip_bordercolor = "#72322f";
+set control_strip_linkcolor = "#662f2c";
+set control_strip_fgcolor = "#201916";
 
 ##===============================
 ## Entry Colors
@@ -3407,6 +3585,10 @@ set color_page_subtitle = "#3b1a2c";
 set color_page_text = "#BD989E";
 set color_page_title = "#FDC007";
 set color_footer_background = "#562a35";
+set control_strip_bgcolor = "#562a35";
+set control_strip_bordercolor = "#3b1a2c";
+set control_strip_linkcolor = "#edb818";
+set control_strip_fgcolor = "#BD989E";
 
 ##===============================
 ## Entry Colors
@@ -3457,6 +3639,10 @@ set color_footer_background = "#786767";
 set color_footer_link = "#ede6e7";
 set color_footer_link_hover = "#E0A4A4";
 set color_footer_link_visited = "#f7e0df";
+set control_strip_bgcolor = "#967a7a";
+set control_strip_bordercolor = "#d1a1a1";
+set control_strip_linkcolor = "#ede6e7";
+set control_strip_fgcolor = "#1e1415";
 
 ##===============================
 ## Entry Colors
@@ -3520,6 +3706,10 @@ set color_header_background = "#212f26";
 set color_footer_background = "#3b5244";
 set color_footer_link = "#a7ba86";
 set color_footer_link_visited = "#7d966c";
+set control_strip_bgcolor = "#3b5244";
+set control_strip_bordercolor = "#3b5244";
+set control_strip_linkcolor = "#a7ba86";
+set control_strip_fgcolor = "#d6e5cc";
 
 ##===============================
 ## Entry Colors
@@ -3582,6 +3772,10 @@ set color_footer_link = "#609eb5";
 set color_footer_link_active = "#609eb5";
 set color_footer_link_hover = "#4b9884";
 set color_footer_link_visited = "#8d5b50";
+set control_strip_bgcolor = "#f8ffe6";
+set control_strip_bordercolor = "#effad2";
+set control_strip_linkcolor = "#609eb5";
+set control_strip_fgcolor = "#2d2b2b";
 
 ##===============================
 ## Entry Colors
@@ -3639,6 +3833,10 @@ set color_page_subtitle = "#404040";
 set color_page_text = "#404040";
 set color_page_title = "#783060";
 set color_footer_background = "#ededed";
+set control_strip_bgcolor = "#ededed";
+set control_strip_bordercolor = "#404040";
+set control_strip_linkcolor = "#97457E";
+set control_strip_fgcolor = "#404040";
 
 ##===============================
 ## Entry Colors
@@ -3689,6 +3887,10 @@ set color_footer_background = "#dde2fc";
 set color_footer_link = "#33385d";
 set color_footer_link_hover = "#A4ABC4";
 set color_footer_link_visited = "#47456b";
+set control_strip_bgcolor = "#d1d3dc";
+set control_strip_bordercolor = "#e5eef9";
+set control_strip_linkcolor = "#33385d";
+set control_strip_fgcolor = "#3a4445";
 
 ##===============================
 ## Entry Colors
@@ -3741,6 +3943,10 @@ set color_footer_link = "#8095ab";
 set color_footer_link_active = "#8095ab";
 set color_footer_link_hover = "#4678ab";
 set color_footer_link_visited = "#5b4e69";
+set control_strip_bgcolor = "#f5f2ed";
+set control_strip_bordercolor = "#ffe6b3";
+set control_strip_linkcolor = "#8095ab";
+set control_strip_fgcolor = "#333";
 
 ##===============================
 ## Entry Colors
@@ -3806,6 +4012,10 @@ set color_footer_link = "#3f9dca";
 set color_footer_link_active = "#3f9dca";
 set color_footer_link_hover = "#3cc058";
 set color_footer_link_visited = "#226888";
+set control_strip_bgcolor = "#fffde1";
+set control_strip_bordercolor = "#ffd600";
+set control_strip_linkcolor = "#3f9dca";
+set control_strip_fgcolor = "#1b1b1b";
 
 ##===============================
 ## Entry Colors

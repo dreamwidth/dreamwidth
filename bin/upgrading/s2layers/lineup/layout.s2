@@ -15,6 +15,7 @@ set sidebar_width = "19.5em";
 set sidebar_width_doubled = "39em";
 set userpics_position = "right";
 set custom_colors_template = "%%new%% .entry .userpic img { background-color: %%foreground%%; border: 5px solid %%background%% }";
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -897,45 +898,6 @@ div.ContextualPopup div.Inner a:hover {
     }
 
 div.ContextualPopup div.Inner a:active {
-    color: $*color_entry_link_active;
-    }
-
-/* Navigation Bar
-***************************************************************************/
-
-table#lj_controlstrip td {
-    background-color: $*color_entry_background;
-    border: none;
-    border-top: 5px solid $*color_entry_border;
-    color: $*color_entry_text;
-    text-transform: uppercase;
-    }
-
-#lj_controlstrip_statustext {
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip input {
-    background-color: $*color_entry_background;
-    border-top: 1px solid $*color_entry_border;
-    color: $*color_entry_text;
-    padding: 0 5px;
-    text-transform: uppercase;
-    }
-
-#lj_controlstrip a {
-    color: $*color_entry_link;
-    }
-
-#lj_controlstrip a:visited {
-    color: $*color_entry_link_visited;
-    }
-
-#lj_controlstrip a:hover {
-    color: $*color_entry_link_hover;
-    }
-
-#lj_controlstrip a:active {
     color: $*color_entry_link_active;
     }
 

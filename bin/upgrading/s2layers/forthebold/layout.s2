@@ -20,6 +20,7 @@ set custom_colors_template = "%%new%% .entry .userpic img {
     border: 7.5px solid %%background%%;
     padding: 7.5px;
     }";
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -137,7 +138,7 @@ function print_stylesheet () {
 
 """;
 
-/* For the Bold 
+/* For the Bold
 /* by timeasmymeasure
 ******************************/
 
@@ -493,7 +494,7 @@ table.month {
 
 table.month td,
 table.month th {
-    border: 1px solid $*color_entry_date; 
+    border: 1px solid $*color_entry_date;
     height: auto;
     padding: 0;
     }
@@ -800,31 +801,6 @@ div.ContextualPopup div.Inner a { color: $*color_entry_link; }
 div.ContextualPopup div.Inner a:visited { color: $*color_entry_link_visited; }
 div.ContextualPopup div.Inner a:hover { color: $*color_entry_link_hover; }
 div.ContextualPopup div.Inner a:active { color: $*color_entry_link_active; }
-
-/* Navigation Strip
-******************************/
-
-table#lj_controlstrip td {
-    background-color: $*color_entry_background;
-    color: $*color_entry_text;
-    border: none;
-    }
-
-#lj_controlstrip_statustext,
-#lj_controlstrip .ljuser a b {
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip input {
-    background-color: $*color_calendar_background;
-    border: 1px solid $*color_calendar_text;
-    color: $*color_calendar_text;
-    }
-
-#lj_controlstrip a { color: $*color_entry_link; }
-#lj_controlstrip a:visited { color: $*color_entry_link_visited; }
-#lj_controlstrip a:hover { color: $*color_entry_link_hover; }
-#lj_controlstrip a:active { color: $*color_entry_link_active; }
 
 """;
 }

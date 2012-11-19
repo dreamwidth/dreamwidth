@@ -4975,7 +4975,7 @@ widget.navstripchooser.option.color.control_strip_fgcolor=Text color:
 
 widget.navstripchooser.option.color.control_strip_linkcolor=Link color:
 
-widget.navstripchooser.option.color.custom=Custom colors
+widget.navstripchooser.option.color.custom=Use custom colors on my journal.
 
 widget.navstripchooser.option.color.dark=Dark gray gradient
 
