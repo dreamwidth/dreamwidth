@@ -40,7 +40,7 @@ sub render_body {
         ? $u->prop( 'control_strip_color' )
         : "dark";
 
-    my ($theme, @props, %prop_is_used, %colors_values, %bgcolor_values, %fgcolor_values, %bordercolor_values, %linkcolor_values);
+    my ($theme, @props, %prop_is_used, %colors_values, %bgcolor_values, %fgcolor_values, %bordercolor_values, %linkcolor_values, $color_custom);
     if ($u->prop('stylesys') == 2) {
         $theme = LJ::Customize->get_current_theme($u);
         @props = S2::get_properties($theme->layoutid);
@@ -55,8 +55,9 @@ sub render_body {
         %bordercolor_values = LJ::Customize->get_s2_prop_values("control_strip_bordercolor", $u, $style);
         %linkcolor_values = LJ::Customize->get_s2_prop_values("control_strip_linkcolor", $u, $style);
 
+        $color_custom = 0;
         unless ($colors_values{override} eq "off") {
-            $color_selected = "custom";
+            $color_custom = 1;
         }
     }
 
@@ -83,11 +84,10 @@ sub render_body {
         my $no_gradient = $colors_values{override} eq "on_no_gradient" ? 1 : 0;
 
         $ret .= "<tr><td valign='top'>" . $class->html_check(
-            type => "radio",
-            name => "control_strip_color",
+            name => "control_strip_custom",
             id => "control_strip_color_custom",
             value => "custom",
-            selected => $color_selected eq "custom" ? 1 : 0,
+            selected => $color_custom,
         ) . "</td>";
         $ret .= "<td><label for='control_strip_color_custom'><strong>" . $class->ml('widget.navstripchooser.option.color.custom') . "</strong></label><br />";
 
@@ -148,7 +148,7 @@ sub handle_post {
 
     my %override;
     my $post_fields_of_parent = LJ::Widget->post_fields_of_widget("CustomizeTheme");
-    my ( $given_control_strip_color, $props);
+    my ( $given_control_strip_color, $props, $given_control_strip_custom);
 
     if ($post_fields_of_parent->{reset}) {
 
@@ -159,19 +159,18 @@ sub handle_post {
 
     } else {
         $given_control_strip_color = $post->{control_strip_color};
+        $given_control_strip_custom = $post->{control_strip_custom};
     }
 
-    my $color = $given_control_strip_color;
-
     # we only want to store dark or light in the user props
-    $props->{control_strip_color} = $color if $color eq 'light' || $color eq 'dark';
+    $props->{control_strip_color} = $given_control_strip_color;
 
     $u->set_prop( 'control_strip_color', $props->{control_strip_color} );
 
-    if ($color ne "custom") {
+    if ($given_control_strip_custom ne "custom") {
         $override{custom_control_strip_colors} = "off";
     } else {
-        if ($color eq "custom") {
+        if ($given_control_strip_custom eq "custom") {
             if ($post->{control_strip_no_gradient_custom}) {
                 $override{custom_control_strip_colors} = "on_no_gradient";
             } else {
