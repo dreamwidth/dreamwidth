@@ -49,9 +49,11 @@ body<=
     my $ret;
 
     if (LJ::did_post()) {
-        my @errors = LJ::Widget->handle_post(\%POST, qw(CustomizeTheme JournalTitles MoodThemeChooser NavStripChooser S2PropGroup LinksList LayoutChooser));
+        my @errors = LJ::Widget->handle_post(\%POST, qw(CustomizeTheme CustomTextModule JournalTitles MoodThemeChooser NavStripChooser S2PropGroup LinksList LayoutChooser));
         $ret .= LJ::bad_input(@errors) if @errors;
     }
+
+    warn LJ::D(\%POST);
 
     $ret .= "<form action='$LJ::SITEROOT/customize/options' method='get' class='theme-switcher'>";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });

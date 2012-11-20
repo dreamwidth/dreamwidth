@@ -2325,6 +2325,9 @@ sub Page
             memories => "$LJ::SITEROOT/tools/memories?user=$u->{user}",
         },
         'linklist' => $linklist,
+        'customtext_title' => $u->prop( 'customtext_title' ),
+        'customtext_url' => $u->prop( 'customtext_url' ),
+        'customtext_content' => $u->prop( 'customtext_content' ),
         'views_order' => [ 'recent', 'archive', 'read', 'tags', 'memories', 'userinfo' ],
         'global_title' =>  LJ::ehtml($u->{'journaltitle'} || $u->{'name'}),
         'global_subtitle' => LJ::ehtml($u->{'journalsubtitle'}),
@@ -2353,7 +2356,7 @@ sub Page
 
     # other useful link rels
     $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
-    $p->{head_content} .= qq{<link rel="apple-touch-icon" href="$LJ::APPLE_TOUCH_ICON" />\n} 
+    $p->{head_content} .= qq{<link rel="apple-touch-icon" href="$LJ::APPLE_TOUCH_ICON" />\n}
          if $LJ::APPLE_TOUCH_ICON;
     # Identity (type I) accounts only have read views
     $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
