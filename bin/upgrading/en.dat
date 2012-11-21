@@ -1441,6 +1441,8 @@ esn.screened=This comment was screened.
 
 esn.security_attribute_changed.account_activated.email_subject=Your account has been activated
 
+esn.security_attribute_changed.account_activated.email_subject2=Your account [[user]] has been activated
+
 esn.security_attribute_changed.account_activated.email_text<<
 Dear [[username]],
 
@@ -1479,6 +1481,8 @@ This letter was sent out automatically to help you keep your community secure. Y
 
 
 esn.security_attribute_changed.account_deleted.email_subject=Your account has been deleted
+
+esn.security_attribute_changed.account_deleted.email_subject2=Your account [[user]] has been deleted
 
 esn.security_attribute_changed.account_deleted.email_text<<
 Dear [[username]],
@@ -1519,6 +1523,8 @@ This letter was sent out automatically to help you keep your community secure. Y
 
 
 esn.security_attribute_changed.account_renamed.email_subject=Your account has been renamed
+
+esn.security_attribute_changed.account_renamed.email_subject2=Your account has been renamed
 
 esn.security_attribute_changed.account_renamed.email_text2<<
 Dear [[user]],

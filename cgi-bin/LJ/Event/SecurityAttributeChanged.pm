@@ -180,7 +180,7 @@ sub _arg1_to_mlkey {
 sub as_email_subject {
     my ($self, $u) = @_;
     my $lang    = $u->prop('browselang');
-    return LJ::Lang::get_text($lang, _arg1_to_mlkey($self->arg1) . 'email_subject',
+    return LJ::Lang::get_text($lang, _arg1_to_mlkey($self->arg1) . 'email_subject2',
         undef,
         {
             'user' => $u->{user}
