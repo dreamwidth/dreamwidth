@@ -204,9 +204,11 @@ sub _as_email {
             " FROM userlog".
             " WHERE userid=$userid AND logtime=$logtime LIMIT 1");
         return undef unless $remoteid;
+        my $remoteuser = LJ::get_username($remoteid);
         return (
             datetime    => $datetime,
             remoteid    => $remoteid,
+            remoteuser  => $remoteuser,
             ip          => $ip,
             uniq        => $uniq,
             userid      => $userid,
@@ -266,7 +268,10 @@ sub _as_email {
             %logparams,
     };
 
-    return LJ::Lang::get_text($lang, _arg1_to_mlkey($action) . 'email_text', undef, $vars);
+    my $iscomm = $u->is_community ? '.comm' : '';
+
+    return LJ::Lang::get_text($lang, _arg1_to_mlkey($action) .
+        'email_text2' . $iscomm, undef, $vars);
 }
 
 sub as_email_string {
