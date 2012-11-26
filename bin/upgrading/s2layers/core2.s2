@@ -2294,11 +2294,11 @@ property string text_tags {
 
 property string text_stickyentry_subject { des = "Text that appears before the subject of the sticky entry"; }
 
-set text_meta_groups = "Custom Access Groups";
-set text_meta_location = "Current Location";
-set text_meta_mood = "Current Mood";
-set text_meta_music = "Current Music";
-set text_meta_xpost = "Crossposts";
+set text_meta_groups = "Custom Access Groups:";
+set text_meta_location = "Current Location:";
+set text_meta_mood = "Current Mood:";
+set text_meta_music = "Current Music:";
+set text_meta_xpost = "Crossposts:";
 set text_tags = "Tags:";
 set text_stickyentry_subject = "Sticky: ";
 
@@ -4914,7 +4914,7 @@ function Entry::print_metadata() {
         """<div class="metadata$position">\n<ul>\n""";
         foreach var string m ( keys_alpha( $.metadata ) ) {
             var string metadata_name = lang_metadata_title($m);
-            """<li><span class="metadata-label metadata-label-$m">$metadata_name: </span>""";
+            """<li><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
             if ($m == "mood") {
                 " $.mood_icon ";
             }
