@@ -94,8 +94,9 @@ body<=
     my $status = $u->{'status'} eq "A" ? $ML{'.youraccount.validated.yes'} :
         "<a href='$LJ::SITEROOT/register?authas=$u->{user}'>$ML{'.youraccount.validated.no'}</a>";
     my $is_identity_no_email = $u->is_identity && !$u->email_raw;
+    my $iscomm = $u->is_community ? '.comm' : '';
 
-    $ret .= "<?h1 $ML{'.youraccount.header'} h1?><div style='margin-left: 2em;'>";
+    $ret .= "<?h1 $ML{'.youraccount.header' . $iscomm} h1?><div style='margin-left: 2em;'>";
     $ret .= "<table summary='' width='50%'>";
     $ret .= "<tr><th align='left'>$ML{'.youraccount.user'}</th><td>" . LJ::ljuser($u) . "</td></tr>";
     $ret .= "<tr><th align='left'>$ML{'.youraccount.name'}</th><td>" . LJ::ehtml($u->{'name'}) . "</td></tr>";
@@ -115,12 +116,15 @@ _code?>
 <tr valign="top"><td style="width: 50%">
 <?block
 header=><?_ml .settings_pref _ml?>
-about=><?_ml .information _ml?>
+about<=
+<?_code return $BMLCodeBlock::u->is_comm ?
+        $ML{'.information.comm'} : $ML{'.information'}; _code?>
+<=about
+
 list<=
 <li><a href="/manage/profile/<?authas?>" title="<?_ml .information.editinfo.about _ml?>"><?_ml /manage/profile/index.bml.title _ml?></a></li>
 <li><a href="/manage/comments/<?authas?>" title="<?_ml .information.comments.about _ml?>"><?_ml .information.comments _ml?></a></li>
 <li><a href="/manage/settings/<?authas?>" title="<?_ml .information.settings.about _ml?>"><?_ml /manage/settings/index.bml.title _ml?></a></li>
-
 <?_code
     my $u = $BMLCodeBlock::u;
     return '' if $u->is_identity;
@@ -166,7 +170,10 @@ block?>
 
 <?block
 header=><?_ml .customization.header _ml?>
-about=><?_ml .customization _ml?>
+about<=
+<?_code return $BMLCodeBlock::u->is_comm ?
+        $ML{'.customization.comm'} : $ML{'.customization'}; _code?>
+<=about
 list<=
 
 <?_code
@@ -193,7 +200,10 @@ block?>
 
 <?block
 header=><?_ml .entries.header _ml?>
-about=><?_ml .entries        _ml?>
+about<=
+<?_code return $BMLCodeBlock::u->is_comm ?
+        $ML{'.entries.comm'} : $ML{'.entries'}; _code?>
+<=about
 list<=
 <?_code
     my $u = $BMLCodeBlock::u;
@@ -225,7 +235,10 @@ _code?>
 
 <?block
 header=><?_ml .userpics.header _ml?>
-about=><?_ml .userpics        _ml?>
+about<=
+<?_code return $BMLCodeBlock::u->is_comm ?
+        $ML{'.userpics.comm'} : $ML{'.userpics'}; _code?>
+<=about
 list<=
 <li><a href="/editicons<?authas?>"><?_ml .userpics.edit.about _ml?></a></li>
 <=list
