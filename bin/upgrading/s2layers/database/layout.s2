@@ -1069,7 +1069,10 @@ function EntryPage::view_title() : string {
 function ReplyPage::view_title() : string {
 if ($.replyto isa Comment) {
         var Comment c = $.replyto as Comment;
-        return $*text_default_separator + $c->get_plain_subject() + " (" + $*text_comment_reply + ")";
+        var string suffix = $.isedit ?
+            " (" + $*text_edit_comment_title + ")" :
+            " (" + $*text_new_comment_title + ")";
+        return $*text_default_separator + $c->get_plain_subject() + $suffix;
     }
     else {
         var Entry e = $.replyto as Entry;
