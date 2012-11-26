@@ -950,13 +950,13 @@ sub render {
         $ret .= LJ::html_hidden('id', $pollid);    #for the ajax request
     }
 
-    $ret .= "<b><a href='$LJ::SITEROOT/poll/?id=$pollid'>" . LJ::Lang::ml('poll.pollnum', { 'num' => $pollid }) . "</a></b> ";
+    $ret .= "<div class='poll-title'><b><a href='$LJ::SITEROOT/poll/?id=$pollid'>" . LJ::Lang::ml('poll.pollnum', { 'num' => $pollid }) . "</a></b> ";
     if ($self->name) {
         my $name = $self->name;
         LJ::Poll->clean_poll(\$name);
-        $ret .= "<i>$name</i>";
+        $ret .= "<i>$name</i></div>\n";
     }
-    $ret .= "<br />\n";
+	$ret .= "<div class='poll-status'>";
     $ret .= "<span style='font-family: monospace; font-weight: bold; font-size: 1.2em;'>" .
             LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
         if ($self->is_closed);
@@ -972,25 +972,22 @@ sub render {
                                        'whoview' => LJ::Lang::ml('poll.security.'.$whoview) });
 
     $ret .= LJ::Lang::ml('poll.participants', { 'total' => $self->num_participants });
+	$ret .= "</div>";
     if ( $mode eq 'enter' && $self->can_view( $remote ) ) {
-        $ret .= "<br />\n";
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results' class='LJ_PollDisplayLink'
+        $ret .= "<div class='poll-control'>[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results' class='LJ_PollDisplayLink'
             id='LJ_PollDisplayLink_${pollid}' lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.seeresults' ) . "</a> ]  ";
         $ret .= "&nbsp&nbsp;[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=clear'
-            class='LJ_PollClearLink' id='LJ_PollClearLink_${pollid}' lj_pollid='$pollid'>  " . BML::ml('poll.clear') ."</a> ]";
+            class='LJ_PollClearLink' id='LJ_PollClearLink_${pollid}' lj_pollid='$pollid'>  " . BML::ml('poll.clear') ."</a> ]</div>";
     } elsif ( $mode eq 'results' ) {
-        $ret .= "<br />\n";
         # change vote link
         my $pollvotetext = %preval ? "poll.changevote" : "poll.vote";
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter' class='LJ_PollChangeLink' id='LJ_PollChangeLink_${pollid}' lj_pollid='$pollid' >" 
-            . LJ::Lang::ml( $pollvotetext ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
+        $ret .= "<div class='poll-control'>[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter' class='LJ_PollChangeLink' id='LJ_PollChangeLink_${pollid}' lj_pollid='$pollid' >" 
+            . LJ::Lang::ml( $pollvotetext ) . "</a> ]</div>" if $self->can_vote( $remote ) && !$self->is_closed;
         if ( $self->can_view && $self->isanon ne "yes" ) {
-            $ret .= "<br /><br /><div class='respondents'><a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=ans_extended' class='LJ_PollRespondentsLink' " .
+            $ret .= "<br /><div class='respondents'><a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=ans_extended' class='LJ_PollRespondentsLink' " .
             "id='LJ_PollRespondentsLink_${pollid}' " .
             "lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.viewrespondents' ) . "</a></div><br />"
         }
-    } else {
-        $ret .= "<br />\n";
     }
 
     my $results_table = "";
@@ -999,7 +996,7 @@ sub render {
         my $qid = $q->pollqid;
         my $text = $q->text;
         LJ::Poll->clean_poll(\$text);
-        $results_table .= "<p>$text</p>";
+        $results_table .= "<div class='poll-inquiry'><p>$text</p>";
 
         # shows how many options a user must/can choose if that restriction applies
         if ($q->type eq 'check' && $do_form) {
@@ -1020,8 +1017,8 @@ sub render {
                 }
             }
         }
-
-        $results_table .= "<div style='margin: 10px 0 10px 40px'>";
+		
+        $results_table .= "<div style='margin: 10px 0 10px 40px' class='poll-response'>";
 
         ### get statistics, for scale questions
         my ($valcount, $valmean, $valstddev, $valmedian);
@@ -1240,7 +1237,7 @@ sub render {
 
         }
 
-        $results_table .= "</div>";
+        $results_table .= "</div></div>";
     }
 
     $ret .= $results_table;
