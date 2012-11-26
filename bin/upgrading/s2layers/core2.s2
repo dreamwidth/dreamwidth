@@ -925,6 +925,7 @@ class ReplyPage extends Page
     var Entry entry "The journal entry for this talk page";
     var EntryLite replyto "The object which is being replied to, either the entry or a comment";
     var ReplyForm form "The reply form.";
+    var bool isedit "True if we are editing a comment, false if writing a new one";
 
     function print_comment(Comment comment) "Prints a full comment";
 }
@@ -2830,6 +2831,10 @@ property string text_multiform_opt_edit { des = "Text for the comment editing ac
 
 property string text_replyform_header { des = "Text for the heading above the form on the reply page"; }
 
+property string text_new_comment_title { des = "Text for the page title when writing a new comment"; }
+
+property string text_edit_comment_title { des = "Text for the page title when editing an existing comment"; }
+
 set text_nosubject = "(no subject)";
 set text_nosubject_screenreader = "no subject";
 
@@ -2886,6 +2891,9 @@ set text_multiform_opt_delete = "Delete";
 set text_multiform_opt_deletespam = "Delete as Spam";
 
 set text_replyform_header = "Comment Form";
+
+set text_new_comment_title = "Reply";
+set text_edit_comment_title = "Edit reply";
 
 ##=======================================
 ## Display properties - Text
@@ -3722,15 +3730,18 @@ function EntryPage::view_title() : string {
     return $.entry.subject ? $.entry->get_plain_subject() : $*text_nosubject;
 }
 function ReplyPage::view_title() : string {
+var string suffix = $.isedit ?
+    " (" + $*text_edit_comment_title + ")" :
+    " (" + $*text_new_comment_title + ")";
 if ($.replyto isa Comment) {
         var Comment c = $.replyto as Comment;
-        return $c->get_plain_subject() + " (" + $*text_comment_reply + ")";
+        return $c->get_plain_subject() + $suffix;
     }
     else {
         var Entry e = $.replyto as Entry;
         return $e.subject ?
-          $e->get_plain_subject() + " (" + $*text_comment_reply + ")" :
-          $*text_nosubject + " (" + $*text_comment_reply + ")";
+          $e->get_plain_subject() + $suffix :
+          $*text_nosubject + $suffix;
     }
 }
 function Page::title() [notags] : string {

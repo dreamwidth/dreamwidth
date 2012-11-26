@@ -260,6 +260,8 @@ sub ReplyPage
         '_styleopts' => $p->{_styleopts},
     };
 
+    $p->{'isedit'} = $editid ? 1 : 0;
+
     return $p;
 }
 
