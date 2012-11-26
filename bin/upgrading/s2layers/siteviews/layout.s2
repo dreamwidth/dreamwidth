@@ -275,7 +275,7 @@ if ($p isa ReplyPage) {
 function EntryPage::print_entry_footer(Entry e) {
     """<hr class="above-entry-interaction-links" />""";
     $e->print_interaction_links("topcomment");
-   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages" });
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages comment-page-list" });
 }
 
 function EntryPage::print_comment_section(Entry e) {
@@ -295,7 +295,7 @@ function EntryPage::print_comment_section(Entry e) {
         $this->print_reply_container({ "target" => "bottomcomment" });
         "</div>";
    }
-   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages bottompages" });
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages bottompages comment-page-list" });
    if ($.comment_pages.total_subitems > 0) {
         $.comment_nav->print({ "class" => "comment-pages bottompages" });
         $this->print_multiform_actionline();
