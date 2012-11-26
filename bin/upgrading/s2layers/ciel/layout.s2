@@ -174,7 +174,6 @@ min-height: 150px; padding: 1em 0;
 .entry-title, .module-header {
     font-weight: normal;
     text-transform: uppercase;
-    padding: 3px;
 }
 
 .datetime { text-transform: uppercase; }
@@ -241,6 +240,10 @@ $userpic_css
 
 .comment .userpic {
     margin: 5px;
+}
+
+.comment .comment-content {
+    margin: 1em 0;
 }
 /* Secondary pages: Archive, Icons, Tags */
 
@@ -317,7 +320,7 @@ td.day-has-entries {
 
 
 .two-columns-right .module, .three-columns-right .module, .three-columns-sides #tertiary .module, .one-column .module { margin: 0 0 1em 1em}
-.two-columns-left .module, .three-columns-left .module, .three-columns-sides #secondary .module { margin: 0 1em 1em 0;}
+.two-columns-left .module, .three-columns-left .module, .three-columns-sides #secondary .module { margin: 1em;}
 
 .module {
     padding: 1em;
