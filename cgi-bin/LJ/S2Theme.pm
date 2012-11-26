@@ -70,6 +70,7 @@ sub default_themes {
         skittlishdreams => 'skittlishdreams/orange',
         steppingstones => 'steppingstones/purple',
         strata => 'strata/springmorning',
+        summertime => 'summertime/tenniscourt',
         tranquilityiii => 'tranquilityiii/nightsea',
         wideopen => 'wideopen/koi',
         zesty => 'zesty/white',
