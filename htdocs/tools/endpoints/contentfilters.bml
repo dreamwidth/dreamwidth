@@ -163,6 +163,10 @@
                 delete $data->{$uid} unless exists $filt->{members}->{$uid};
             }
 
+            # save public and sortorder preferences
+            $cf->_getset( 'sortorder', $filt->{sortorder} + 0 ) unless $filt->{sortorder} == $cf->{sortorder};
+            $cf->_getset( 'public', $filt->{public} ? 1 : 0 ) unless $filt->{public} == $cf->{public};
+
             # save the filter, very important...
             $cf->_save;
         }

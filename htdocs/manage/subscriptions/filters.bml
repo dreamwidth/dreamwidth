@@ -64,9 +64,17 @@ body<=
 </div>
 
 <div id='cf-filtopts'>
-    Options for <span id='cf-foname'>selected filter</span>:<br /><br />
+    <h4>Options for "<span id='cf-foname'>selected filter</span>"</h4> 
 
-    (filter options are not implemented yet, sorry!)
+    <p><label for='cf-public'>Visibility:</label>
+    <select id='cf-public'>
+       <option value='0'>Private</option>
+       <option value='1'>Public</option>
+    </select></p>
+
+    <p><label for="cf-sortorder">Order:</label>
+    <input id="cf-sortorder" onchange="cfSortOrder()" size="2" /></p>
+
 </div>
 
 <div id='cf-intro'>
