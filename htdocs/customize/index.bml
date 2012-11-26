@@ -21,8 +21,6 @@ body<=
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/customize.css" );
     LJ::need_res( "js/customize.js", "stc/select-list.css" );
 
-    $title = $ML{'.title2'};
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
@@ -30,6 +28,10 @@ body<=
     my $u = LJ::get_authas_user($authas);
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
+
+    $title = $u->is_community ?
+        $ML{'.title.comm'} :
+        $ML{'.title2'};
 
     # extra arguments for get requests
     my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
@@ -77,7 +79,11 @@ body<=
     }
 
     # would you like to set the site skin instead?
-    $ret .= "<p>" . BML::ml( '.setsiteskin.desc', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } ) . "</p>";
+    if ( $u && $u->is_community ) {
+        $ret .= "<p>" . BML::ml( '.setsiteskin.desc.comm', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } ) . "</p>";
+    } else {
+        $ret .= "<p>" . BML::ml( '.setsiteskin.desc', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } ) . "</p>";
+    }
 
     my $current_theme = LJ::Widget::CurrentTheme->new;
     $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );

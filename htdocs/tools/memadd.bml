@@ -114,7 +114,7 @@ _c?>
                 LJ::Memories::updated_keywords($memoryu);
                 $title = $ML{'.title.deleted'};
                 $body = "<?h1 $ML{'.error.deleted.title'} h1?><?p " .
-                        BML::ml(".error.deleted.body", { 'desc' => $memory->{'des'} }) .
+                        BML::ml(".error.deleted.body2", { 'desc' => $memory->{'des'} }) .
                         " p?>";
                 $body .= "<ul><li><a href='$LJ::SITEROOT/tools/memories?user=" . $memoryu->user .
                          "'>" . "$ML{'.error.deleted.next'}</a></li></ul>";
@@ -122,7 +122,7 @@ _c?>
             } else {
                 $title = $ML{'Error'};
                 $body = "<?h1 $ML{'.error.nodescription.title'} h1?><?p ";
-                $body .= BML::ml('.error.nodescription.body');
+                $body .= BML::ml('.error.nodescription.body2');
                 $body .= " p?>";
                 return;
             }
@@ -226,7 +226,7 @@ _c?>
                 LJ::Memories::delete_by_id($memoryu, $memory->{memid});
                 LJ::Memories::updated_keywords($memoryu);
                 $title = $ML{'Error'};
-                $body = $ML{'.error.entry_deleted'};
+                $body = $ML{'.error.entry_deleted2'};
                 return;
             }
 
@@ -264,7 +264,7 @@ _c?>
         if (defined $memory) {
             $body .= $ML{'.edit_previous'};
         } else {
-            $body .= $ML{'.add_previous'};
+            $body .= $ML{'.add_previous2'};
         }
 
         my $getextra = "?itemid=$dbitemid";
@@ -279,7 +279,7 @@ _c?>
         $body .= "<table cellpadding='4'>";
         $body .= "<tr><th align='right' valign='top'>$ML{'.description'}</th><td>";
         $body .= LJ::html_text({name => 'des', value => $des, maxlength => LJ::CMAX_MEMORY, size => 40});
-        $body .= "<br /><small>$ML{'.description.text'}</small></td></tr>";
+        $body .= "<br /><small>$ML{'.description.text2'}</small></td></tr>";
 
         $body .= "<tr><th align='right' valign='top'>$ML{'.keywords'}</th><td>";
         $body .= LJ::html_text({name => 'keywords', size => 40, value => $keywords});

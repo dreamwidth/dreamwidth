@@ -34,6 +34,9 @@ body<=
 
     return $LJ::MSG_READONLY_USER if $u->readonly;
 
+    # create $iscomm to help with community-specific translation strings
+    my $iscomm = $u->is_community ? '.comm' : '';
+
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
     my $getsep = $getextra ? "&" : "?";
@@ -82,6 +85,21 @@ body<=
     # load interests: $interests{name} = intid
     my %interests = %{ $u->interests( { forceids => 1 } ) };
 
+    # determine what the options in "Show to:" dropdowns should be, depending
+    #  on user or community
+
+    my %showtoopts;
+    if ( $iscomm ) {
+        $showtoopts{A} = $ML{'.security.visibility.everybody2'};
+        $showtoopts{R} = $ML{'.security.visibility.regusers'};
+        $showtoopts{F} = $ML{'.security.visibility.members'};
+        $showtoopts{N} = $ML{'.security.visibility.admins'};
+    } else {
+        $showtoopts{A} = $ML{'.security.visibility.everybody2'};
+        $showtoopts{R} = $ML{'.security.visibility.regusers'};
+        $showtoopts{F} = $ML{'.security.visibility.access'};
+        $showtoopts{N} = $ML{'.security.visibility.nobody'};
+    }
 
     ###
     ### no post, show edit form
@@ -97,14 +115,14 @@ body<=
         $ret .= "</form>\n\n";
 
         # if they're working as a community, reproduce the community management linkbar:
-        if ( $u && $u->is_community ) {
+        if ( $iscomm ) {
             my $linkbar;
             $linkbar = $u->maintainer_linkbar( "profile" );
             $ret .= "<p class='intro'>" . $linkbar . "</p>";
         }
 
         $ret .= "<div style='margin: 1em 0;'> ";
-        $ret .= BML::ml( ".intro1", { aopts1 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'",
+        $ret .= BML::ml( ".intro1$iscomm", { aopts1 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'",
                                      aopts2 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=display'" } );
         $ret .= "</div>";
 
@@ -150,7 +168,7 @@ body<=
             $ret .= "<br /><i>($ML{'.userpic.none'})</i>";
         }
         $ret .= "</div><div style='margin-left: 110px'>\n";
-        $ret .= "<span class='helper'>$ML{'.userpic'}</span>";
+        $ret .= "<span class='helper'>" . $ML{".userpic$iscomm"} . "</span>";
         $ret .= LJ::help_icon('upic_keywords');
         $ret .= "<?p <a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";
@@ -233,10 +251,7 @@ body<=
                                    title => BML::ml( '.privacy.title',
                                             { name => $ML{'.fn.birthday'} } ),
                                    selected => $opt_sharebday },
-                                 A => $ML{'.security.visibility.everybody2'},
-                                 R => $ML{'.security.visibility.regusers'},
-                                 F => $ML{'.security.visibility.access'},
-                                 N => $ML{'.security.visibility.nobody'} );
+                                   %showtoopts );
         $ret .= "</td></tr>\n";
 
         #location
@@ -249,10 +264,7 @@ body<=
                                    title => BML::ml( '.privacy.title',
                                             { name => $ML{'.fn.location'} } ),
                                    selected => $u->opt_showlocation },
-                                 Y => $ML{'.security.visibility.everybody2'},
-                                 R => $ML{'.security.visibility.regusers'},
-                                 F => $ML{'.security.visibility.access'},
-                                 N => $ML{'.security.visibility.nobody'} );
+                                   %showtoopts );
         $ret .= "</td></tr>\n";
 
         ## CONTACT INFO
@@ -286,11 +298,19 @@ body<=
         $ret .= "</td></tr>\n";
 
         # email
-        my $curr_privacy = { Y => $ML{'.security.visibility.everybody2'},
-                             R => $ML{'.security.visibility.regusers'},
-                             F => $ML{'.security.visibility.access'},
-                             N => $ML{'.security.visibility.nobody'},
-                           }->{$u->opt_showcontact};
+        my $curr_privacy = $iscomm ?
+            { Y => $ML{'.security.visibility.everybody2'},
+              R => $ML{'.security.visibility.regusers'},
+              F => $ML{'.security.visibility.members'},
+              N => $ML{'.security.visibility.admins'},
+            }->{$u->opt_showcontact}
+            :
+            { Y => $ML{'.security.visibility.everybody2'},
+              R => $ML{'.security.visibility.regusers'},
+              F => $ML{'.security.visibility.access'},
+              N => $ML{'.security.visibility.nobody'},
+            }->{$u->opt_showcontact};
+
         $ret .= qq{
     <tr class='section_subhead'><td colspan=2>$ML{'.subsection.messaging'}
     </td><td class='view_options'>
@@ -493,7 +513,8 @@ body<=
 
         $ret .= "<div class='section_head'><a name='bio'></a>$ML{'.section.bio2'}</div>";
         if ( LJ::text_in( $saved{'bio'} ) ) {
-            $ret .= $u->is_identity ? $ML{'.fn.bio.openid'} : $ML{'.fn.bio'};
+            $ret .= $u->is_identity ? $ML{'.fn.bio.openid'} : 
+                $ML{".fn.bio$iscomm"};
             $ret .= "<br />\n";
             $ret .= LJ::html_textarea( { name => 'bio',
                                          title => $ML{'.section.bio2'},
@@ -524,7 +545,7 @@ body<=
             push @eintsl, $_ if LJ::text_in( $_ );
         }
 
-        $ret .= $ML{'.fn.interests'};
+        $ret .= $ML{".fn.interests$iscomm"};
         $ret .= LJ::html_textarea( { name => 'interests',
                                      title => $ML{'.section.interests'},
                                      value => join(", ", @eintsl),
@@ -764,12 +785,22 @@ body<=
         # tell the user all is well
         my $base = $u->journal_base;
         my $profile_url = $u->profile_url;
-        return "<?h1 $ML{'.success.header'} h1?>\n" .
-                         "<?p $ML{'.success.text'} p?>" .
-                         "<?p $ML{'.success.gonext'} p?>" .
-                         "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
-                         "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-                         "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
+        if ($u->is_community) {
+            return "<?h1 $ML{'.success.header'} h1?>\n" .
+                 "<?p " . BML::ml( '.success.text.comm', 
+                    {commname => LJ::ljuser($u->{user}) } ) . " p?>" .
+                 "<?p $ML{'.success.gonext'} p?>" .
+                 "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile.comm'}</a></li>" .
+                 "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile.comm'}</a></li>" .
+                 "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons.comm'}</a></li></ul>";
+        } else {
+            return "<?h1 $ML{'.success.header'} h1?>\n" .
+                 "<?p $ML{'.success.text'} p?>" .
+                 "<?p $ML{'.success.gonext'} p?>" .
+                 "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
+                 "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
+                 "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
+        }
     }
 
     # should never happen
