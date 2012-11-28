@@ -4046,44 +4046,45 @@ EOF
     }
  
     if ( table_relevant( "wt_edges" ) && ! check_dbnote( "fix_redirect_edges" ) ) {
-        warn "fixing edges leading to a redirect account";
-        my $sth = $dbh->prepare(
+        do_code("fixing edges leading to a redirect account", sub {
+            my $sth = $dbh->prepare(
                               qq{ SELECT from_userid, to_userid FROM wt_edges INNER JOIN user
                                     ON user.journaltype="R" AND user.userid=wt_edges.to_userid;
                                     } );
-        $sth->execute();
-        die $sth->errstr if $sth->err;
+            $sth->execute();
+            die $sth->errstr if $sth->err;
 
-        while ( my ( $from_userid, $to_userid ) = $sth->fetchrow_array ) {
-            my $from_u = LJ::load_userid( $from_userid );
-            my $to_u = LJ::load_userid( $to_userid );
+            while ( my ( $from_userid, $to_userid ) = $sth->fetchrow_array ) {
+                my $from_u = LJ::load_userid( $from_userid );
+                my $to_u = LJ::load_userid( $to_userid );
 
-            my $redir_u = $to_u->get_renamed_user;
+                my $redir_u = $to_u->get_renamed_user;
 
-            warn "transferring edge of $from_u->{user}=>$to_u->{user} to $from_u->{user}=>$redir_u->{user}";
-            if ( $from_u->trusts( $to_u ) ) {
-                if ( $from_u->trusts( $redir_u ) ) {
-                    warn "...already trusted";
-                } else {
-                    warn "...adding trust edge";
-                    $from_u->add_edge( $redir_u, trust => { nonotify => 1 } )
+                warn "transferring edge of $from_u->{user}=>$to_u->{user} to $from_u->{user}=>$redir_u->{user}";
+                if ( $from_u->trusts( $to_u ) ) {
+                    if ( $from_u->trusts( $redir_u ) ) {
+                        warn "...already trusted";
+                    } else {
+                        warn "...adding trust edge";
+                        $from_u->add_edge( $redir_u, trust => { nonotify => 1 } )
+                     }
+
+                    $from_u->remove_edge( $to_u, trust => { nonotify => 1 } );
                 }
+                if ( $from_u->watches( $to_u ) ) {
+                    if ( $from_u->watches( $redir_u ) ) {
+                        warn "...already watched";
+                    } else {
+                        warn "...adding trust edge";
+                       $from_u->add_edge( $redir_u, watch => { nonotify => 1 } )
+                    }
 
-                $from_u->remove_edge( $to_u, trust => { nonotify => 1 } );
-            }
-            if ( $from_u->watches( $to_u ) ) {
-                if ( $from_u->watches( $redir_u ) ) {
-                    warn "...already watched";
-                } else {
-                    warn "...adding trust edge";
-                    $from_u->add_edge( $redir_u, watch => { nonotify => 1 } )
+                     $from_u->remove_edge( $to_u, watch => { nonotify => 1 } );
                 }
-
-                $from_u->remove_edge( $to_u, watch => { nonotify => 1 } );
             }
-        }
 
-        set_dbnote( "fix_redirect_edges", 1 );
+            set_dbnote( "fix_redirect_edges", 1 );
+        });
     }
 
     # accommodate more poll answers by widening value
