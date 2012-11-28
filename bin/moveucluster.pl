@@ -689,8 +689,8 @@ sub moveUser {
                       "pendcomments" => 1,    # don't need to copy these
                       "active_user"  => 1,    # don't need to copy these
                       "random_user_set" => 1, # "
-                      "blobcache" => 1,       # No need to handle this, used for database migrations
-                      );
+                      "dbnotes" => 1,         # No need to handle this, used for database migrations
+                     );
 
     $skip_table{'inviterecv'} = 1 unless $u->is_person; # if not person, skip invites received
     $skip_table{'invitesent'} = 1 unless $u->is_community; # if not community, skip invites sent

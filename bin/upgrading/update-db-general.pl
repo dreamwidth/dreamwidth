@@ -3184,6 +3184,14 @@ CREATE TABLE `collection_items` (
 )
 EOC
 
+register_tablecreate("dbnotes", <<'EOC');
+CREATE TABLE dbnotes (
+    dbnote VARCHAR(40) NOT NULL,
+    PRIMARY KEY (dbnote),
+    value VARCHAR(255)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes
