@@ -93,7 +93,7 @@ body<=
     ################################################################################
 
     # at this point, they have done a POST, which means they want to search something
-    return $error->( "Failauth." ) unless LJ::check_form_auth();
+    return $error->( "Did you leave this window open too long? Please refresh and try again." ) unless LJ::check_form_auth();
 
     # and make sure we got a query
     return $error->( "Query must be shorter than 255 characters, sorry!" )
