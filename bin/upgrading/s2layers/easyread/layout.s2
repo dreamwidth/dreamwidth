@@ -89,6 +89,7 @@ propgroup fonts {
     property use font_module_text;
     property use font_module_text_size;
     property use font_module_text_units;
+    property use font_sources;
 }
 set font_base = """APHont, "Helvetica Neue", Arial, Helvetica, Geneva""";
 set font_base_size = "1";

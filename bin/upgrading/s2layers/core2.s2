@@ -1664,8 +1664,8 @@ property string font_comment_title_units {
 }
 
 property string font_sources {
-    des = "Embedded fonts source URL";
-    note = "Embedded fonts can slow page loading time. Blank the field to stop using them.";
+    des = "Embedded fonts stylesheet URL";
+    note = "The URL must point to a font stylesheet such as 'http://fonts.googleapis.com/css?family=Average+Sans' and not directly at the font file. Embedded fonts can slow page loading time. Blank the field to stop using them.";
 }
 
 set font_base = "";     # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
