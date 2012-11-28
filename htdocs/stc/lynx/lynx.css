@@ -132,6 +132,8 @@ table.grid, table.grid td {
 .comment-depth-even > .dwexpcomment .header { background-color: #e2e2e2; }
 .screened .header { background-color: #707070; }
 
+h4.comment-title {margin: 0.25em 0;}
+
 /*bml talkpage*/
 td.odd { background-color: #c0c0c0; }
 td.even { background-color: #e2e2e2; }

@@ -179,6 +179,8 @@ set text_comment_link = "Thread";
 set text_frozen = "(frozen comment)";
 set text_tags = "Entry tags:";
 set text_multiform_check = "Select";
+set entry_time_format = "short_24";
+set comment_time_format = "short_24";
 
 
 function EntryPage::print_default_stylesheet() {
@@ -204,7 +206,6 @@ function Page::print_entry(Entry e)
     $e->print_userpic();
     """<div class="poster-info">\n""";
     $e->print_poster();
-    $e->print_metatypes();
     $e->print_time();
     """</div>\n""";
     """</div>\n""";
@@ -221,6 +222,7 @@ function Page::print_entry(Entry e)
     """<div>\n""";
     """<div class="contents">\n""";
     """<div class="inner">\n""";
+    $e->print_metatypes();
     $e->print_subject();
     $e->print_text();
     """</div>\n""";
@@ -302,6 +304,27 @@ function EntryPage::print_comment_section(Entry e) {
         $this->print_multiform_end();
    }
     "</div></div>";
+}
+
+function EntryPage::print_comments (Comment[] cs) {
+    if (size $cs == 0) { return; }
+    foreach var Comment c ($cs) {
+        var string parity = $c.depth % 2 ? "odd" : "even";
+        var int indent = ($c.depth - 1) * 25;
+        "<div class='comment-thread comment-depth-$parity comment-depth-$c.depth'>\n";
+        "<div id='$c.dom_id' class='dwexpcomment' style='margin-left: ${indent}px; margin-top: 5px;";
+        if ($c.hidden_child) {
+            " display: none;";
+        }
+        "'>\n";
+        if ($c.full) {
+            $this->print_comment($c);
+        } else {
+            $this->print_comment_partial($c);
+        }
+        "</div></div>";
+        $this->print_comments($c.replies);
+    }
 }
 
 function EntryPage::print_comment (Comment c) {
