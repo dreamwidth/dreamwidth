@@ -57,6 +57,10 @@ _info?><?_code
     return $bad_input->($ML{'error.nojournal'})
         unless $u;
 
+    # find out whether $u is a community. We'll use this to refer to ML strings
+    #  later
+    my $iscomm = $u->is_community ? '.comm' : '';
+
     # if we're on a user vhost, our remote was authed using that vhost,
     # so let's let them only modify the journal that their session
     # was authed against.  if they're on www., then their javascript is
@@ -89,7 +93,7 @@ _info?><?_code
     return $bad_input->($ML{'.error.nocomment'})
         unless $tp;
 
-    return $bad_input->($ML{'.error.invalidtype'})
+    return $bad_input->($ML{'.error.invalidtype2'})
         unless $tp->{'nodetype'} eq 'L';
 
     return $bad_input->($ML{'.error.alreadydeleted'})
@@ -141,7 +145,7 @@ _info?><?_code
         if ($POST{'ban'} && $can_ban) {
             LJ::set_rel($u->{'userid'}, $tp->{'posterid'}, 'B');
             $u->log_event('ban_set', { actiontarget => $tp->{'posterid'}, remote => $remote });
-            $msg = BML::ml('.success.andban', { 'user' => LJ::ljuser($tp->{'userpost'}) });
+            $msg = BML::ml(".success.andban$iscomm", { 'user' => LJ::ljuser($tp->{'userpost'}) });
         }
         $msg ||= $ML{'.success.noban'};
         $msg .= " <p>$ML{'.success.spam'}</p>" if $POST{spam} && $can_spam;
@@ -174,7 +178,7 @@ _info?><?_code
     if ($can_ban) {
         $body .= "<div>" . LJ::html_check({ 'type' => 'check', 'name' => 'ban', 'id' => 'ban' });
         $body .= "<label for='ban'>";
-        $body .= BML::ml('.confirm.banuser', { 'user' => LJ::ljuser($tp->{'userpost'}) });
+        $body .= BML::ml(".confirm.banuser$iscomm", { 'user' => LJ::ljuser($tp->{'userpost'}) });
         $body .= "</label></div>";
     }
 
@@ -191,7 +195,7 @@ _info?><?_code
     $body .= "</div>";
 
     if ($can_manage) {
-        my $msg = BML::ml('.changeoptions', { 'link' =>
+        my $msg = BML::ml(".changeoptions$iscomm", { 'link' =>
             "<a href='/manage/settings/?cat=privacy&authas=$u->{'user'}'>$ML{'/manage/settings/index.bml.title.self'}</a>" });
         $body .= "<?p $msg p?>";
     }

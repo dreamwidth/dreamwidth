@@ -161,7 +161,8 @@ input, textarea {
     color: $*color_entry_text;
     }
 
-::-moz-selection {
+::-moz-selection,
+::selection {
     background-color: #ededed;
     color: #2d2d2d;
     }
@@ -175,14 +176,12 @@ blockquote {
     }
 
 ul {
-    list-style-position: inside;
-    list-style-type: square;
+    list-style: square inside;
     margin: 5px 0 5px 15px;
     }
 
 ol {
-    list-style-position: inside;
-    list-style-type: decimal;
+    list-style: decimal inside;
     margin: 5px 0 5px 15px;
     }
 
@@ -733,6 +732,11 @@ table.month td {
 
 .icon-info .default {
     text-decoration: underline;
+    }
+
+.icon-keywords ul li {
+    margin-right: 5px;
+    padding: 0;
     }
 
 .icons-container .manage-link {

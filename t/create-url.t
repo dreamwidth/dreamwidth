@@ -3,7 +3,7 @@ use strict;
 use Test::More tests => 20; # replace this number with the number of check_req calls
 use lib "$ENV{LJHOME}/cgi-bin";
 
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use DW::Request::Standard;
 use HTTP::Request;
 

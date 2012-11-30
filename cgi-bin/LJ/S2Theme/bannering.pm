@@ -9,8 +9,6 @@ sub module_props {
     my $self = shift;
     my @props = qw(
         color_navlinks_link_current
-        color_navlinks_link
-        color_navlinks_link_visited
     );
     return $self->_append_props( "module_props", @props );
 }
@@ -18,13 +16,14 @@ sub module_props {
 sub header_props {
     my $self = shift;
     my @props = qw(
-        color_header_border
         color_header_inner_background
+        color_navlinks_link
+        color_navlinks_link_visited
+        color_header_border
         image_header_background_inner_group
         image_background_header_inner_height
     );
     return $self->_append_props( "header_props", @props );
 }
-
 
 1;

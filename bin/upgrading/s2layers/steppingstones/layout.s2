@@ -498,6 +498,8 @@ table.month th {
 
 .icon-info .default { text-decoration: underline; }
 
+.icon-keywords ul li { padding: .25em .10em; }
+
 /* Sidebars
 ******************************/
 

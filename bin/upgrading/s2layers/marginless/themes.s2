@@ -4,7 +4,7 @@ layerinfo name = "Andúnë";
 layerinfo redist_uniq = "marginless/andune";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -59,7 +59,7 @@ layerinfo name = "Battle Raven";
 layerinfo redist_uniq = "marginless/battleraven";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -110,13 +110,105 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_fallback = "serif";
 
 
+#NEWLAYER: marginless/bluelights
+layerinfo type = "theme";
+layerinfo name = "Blue Lights";
+layerinfo redist_uniq = "marginless/bluelights";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#262626";
+set color_page_link = "#4dbce9";
+set color_page_link_active = "#4de9cd";
+set color_page_link_hover = "#54cffd";
+set color_page_link_visited = "#3f9bbe";
+set color_page_text = "#fdfdfd";
+set color_userpic_background = "#464646";
+# Only on Archive page
+set color_calendar_background = "#2b2b2b";
+set color_calendar_entry = "#262626";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#131313";
+set color_entry_interaction_links = "#dcdcdc";
+set color_entry_title = "#54cffd";
+set color_comment_title = "#54cffd";
+set color_comment_title_even = "#54cffd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2b2b2b";
+set color_module_text = "#fdfdfd";
+set color_module_title = "#54cffd";
+
+
+#NEWLAYER: marginless/exponential
+layerinfo type = "theme";
+layerinfo name = "Exponential";
+layerinfo redist_uniq = "marginless/exponential";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a3dfe7";
+set color_page_border = "#a3dfe7";
+set color_page_link = "#df151a";
+set color_page_link_active = "#df151a";
+set color_page_link_hover = "#155d64";
+set color_page_link_visited = "#ab1018";
+set color_page_text = "#161616";
+set color_page_title = "#161616";
+set color_header_background = "#56d7e7";
+set color_footer_background = "#56d7e7";
+set color_userpic_background = "#56d7e7";
+# Only on Archive page
+set color_calendar_background = "#cbe4e7";
+set color_calendar_entry = "#BEE2E7";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f0f4f5";
+set color_entry_interaction_links = "#e98316";
+set color_entry_text = "#161616";
+set color_entry_title = "#161616";
+set color_entry_title_background = "#cbe4e7";
+set color_comment_title = "#161616";
+set color_comment_title_background = "#cbe4e7";
+set color_comment_title_background_even = "#cbe4e7";
+set color_comment_title_even = "#161616";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#a3dfe7";
+set color_module_text = "#161616";
+set color_module_title = "#161616";
+
+
 #NEWLAYER: marginless/greatoak
 layerinfo type = "theme";
 layerinfo name = "Great Oak";
 layerinfo redist_uniq = "marginless/greatoak";
 layerinfo author_name = "momijizukamori";
 
-set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -162,13 +254,124 @@ set color_module_link_visited = "#398c42";
 set color_module_text = "#222";
 
 
+#NEWLAYER: marginless/hesperidesdark
+layerinfo type = "theme";
+layerinfo name = "Hesperides Dark";
+layerinfo redist_uniq = "marginless/hesperidesdark";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#6f483f";
+set color_page_border = "#6f483f";
+set color_page_link = "#edc890";
+set color_page_link_hover = "#f44b34";
+set color_page_link_visited = "#e3b458";
+set color_page_text = "#f1f3e1";
+set color_page_title = "#eff3ce";
+set color_header_background = "#654039";
+set color_footer_background = "#6f483f";
+set color_footer_link = "#edc890";
+set color_footer_link_hover = "#f44b34";
+set color_footer_link_visited = "#e3b458";
+set color_userpic_background = "#83534a";
+# Only on Archive page
+set color_calendar_background = "#51312c";
+set color_calendar_entry = "#5B3631";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#472c27";
+set color_entry_border = "#472c27";
+set color_entry_interaction_links = "#f09f04";
+set color_entry_link = "#edc890";
+set color_entry_link_hover = "#f44b34";
+set color_entry_link_visited = "#e3b458";
+set color_entry_text = "#f1f3e1";
+set color_entry_title = "#eff3ce";
+set color_entry_title_background = "#51312c";
+set color_comment_title = "#eff3ce";
+set color_comment_title_background = "#51312c";
+set color_comment_title_background_even = "#51312c";
+set color_comment_title_even = "#eff3ce";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#5b3a33";
+set color_module_border = "#5b3a33";
+set color_module_link = "#edc890";
+set color_module_link_hover = "#f44b34";
+set color_module_link_visited = "#e3b458";
+set color_module_text = "#f1f3e1";
+set color_module_title = "#eff3ce";
+set color_module_title_background = "#51312c";
+
+
+#NEWLAYER: marginless/lemonade
+layerinfo type = "theme";
+layerinfo name = "Lemonade";
+layerinfo redist_uniq = "marginless/lemonade";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fbffa7";
+set color_page_link = "#007339";
+set color_page_link_active = "#003673";
+set color_page_link_hover = "#360073";
+set color_page_link_visited = "#004120";
+set color_page_text = "#101010";
+set color_page_title = "#643707";
+set color_header_background = "#ffda42";
+set color_footer_background = "#ffda42";
+set color_userpic_background = "#fbffa7";
+# Only on Archive page
+set color_calendar_background = "#fdffe1";
+set color_calendar_entry = "#fdffcd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f0f0f0";
+set color_entry_interaction_links = "#003673";
+set color_entry_text = "#101010";
+set color_entry_title = "#3c1f04";
+set color_entry_title_background = "#faff75";
+set color_comment_title = "#3c1f04";
+set color_comment_title_background = "#fcffb3";
+set color_comment_title_background_even = "#faff75";
+set color_comment_title_even = "#3c1f04";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#faff75";
+set color_module_text = "#101010";
+set color_module_title = "#3c1f04";
+set color_module_title_background = "#ffda42";
+
+
 #NEWLAYER: marginless/lovegame
 layerinfo type = "theme";
 layerinfo name = "Love Game";
 layerinfo redist_uniq = "marginless/lovegame";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -224,7 +427,7 @@ layerinfo name = "Loveless";
 layerinfo redist_uniq = "marginless/loveless";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -285,7 +488,7 @@ layerinfo name = "Marry the Night";
 layerinfo redist_uniq = "marginless/marrythenight";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -341,7 +544,7 @@ layerinfo name = "Mars";
 layerinfo redist_uniq = "marginless/mars";
 layerinfo author_name = "momijizukamori";
 
-set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -390,7 +593,7 @@ layerinfo name = "Midnight";
 layerinfo redist_uniq = "marginless/midnight";
 layerinfo author_name = "momijizukamori";
 
-set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -443,7 +646,7 @@ layerinfo name = "Midnight Hour";
 layerinfo redist_uniq = "marginless/midnighthour";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -502,7 +705,7 @@ layerinfo name = "Sweetness";
 layerinfo redist_uniq = "marginless/sweetness";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -549,3 +752,130 @@ set color_module_title = "#ff0586";
 ##===============================
 set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_fallback = "serif";
+
+
+#NEWLAYER: marginless/theycorrupt
+layerinfo type = "theme";
+layerinfo name = "They Corrupt";
+layerinfo redist_uniq = "marginless/theycorrupt";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#c3d9d5";
+set color_page_link = "#eb483f";
+set color_page_link_active = "#962b28";
+set color_page_link_hover = "#f0814a";
+set color_page_link_visited = "#b93832";
+set color_page_text = "#242424";
+set color_page_title = "#242424";
+set color_header_background = "#def7f0";
+set color_footer_background = "#def7f0";
+set color_footer_link = "#eb483f";
+set color_footer_link_active = "#962b28";
+set color_footer_link_hover = "#f0814a";
+set color_footer_link_visited = "#b93832";
+set color_userpic_background = "#def7f0";
+# Only on Archive page
+set color_calendar_background = "#def7f0";
+set color_calendar_entry = "#cce3de";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d5ede7";
+set color_entry_interaction_links = "#AA1A17";
+set color_entry_link = "#eb483f";
+set color_entry_link_active = "#962b28";
+set color_entry_link_hover = "#f0814a";
+set color_entry_link_visited = "#b93832";
+set color_entry_text = "#383838";
+set color_entry_title = "#242424";
+set color_entry_title_background = "#cce3de";
+set color_comment_title = "#242424";
+set color_comment_title_background = "#cce3de";
+set color_comment_title_background_even = "#def7f0";
+set color_comment_title_even = "#242424";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#cce3de";
+set color_module_link = "#eb483f";
+set color_module_link_active = "#962b28";
+set color_module_link_hover = "#f0814a";
+set color_module_link_visited = "#b93832";
+set color_module_text = "#383838";
+set color_module_title = "#242424";
+set color_module_title_background = "#c3d9d5";
+
+
+#NEWLAYER: marginless/zeljonyj
+layerinfo type = "theme";
+layerinfo name = "Zeljónyj";
+layerinfo redist_uniq = "marginless/zeljonyj";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d0e8c5";
+set color_page_border = "#d0e8c5";
+set color_page_link = "#468c23";
+set color_page_link_active = "#3780dc";
+set color_page_link_hover = "#285da0";
+set color_page_link_visited = "#2b5415";
+set color_page_text = "#070707";
+set color_page_title = "#070707";
+set color_header_background = "#abd997";
+set color_footer_background = "#d6eeca";
+set color_footer_link = "#468c23";
+set color_footer_link_active = "#3780dc";
+set color_footer_link_hover = "#285da0";
+set color_footer_link_visited = "#2b5415";
+set color_userpic_background = "#edf3ea";
+# Only on Archive page
+set color_calendar_background = "#edf3ea";
+set color_calendar_entry = "#e9f3e5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f5fcf5";
+set color_entry_border = "#f5fcf5";
+set color_entry_interaction_links = "#285da0";
+set color_entry_link = "#468c23";
+set color_entry_link_active = "#3780dc";
+set color_entry_link_hover = "#285da0";
+set color_entry_link_visited = "#2b5415";
+set color_entry_text = "#070707";
+set color_entry_title = "#070707";
+set color_entry_title_background = "#e9f3e5";
+set color_comment_title = "#070707";
+set color_comment_title_background = "#e9f3e5";
+set color_comment_title_background_even = "#e9f3e5";
+set color_comment_title_even = "#070707";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#cae8bc";
+set color_module_border = "#cae8bc";
+set color_module_link = "#468c23";
+set color_module_link_active = "#3780dc";
+set color_module_link_hover = "#285da0";
+set color_module_link_visited = "#2b5415";
+set color_module_text = "#070707";
+set color_module_title = "#070707";
+set color_module_title_background = "#e9f3e5";

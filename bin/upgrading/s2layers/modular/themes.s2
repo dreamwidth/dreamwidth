@@ -50,7 +50,7 @@ layerinfo name = "Andúnë";
 layerinfo redist_uniq = "modular/andune";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -112,7 +112,7 @@ layerinfo name = "Battle Raven";
 layerinfo redist_uniq = "modular/battleraven";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

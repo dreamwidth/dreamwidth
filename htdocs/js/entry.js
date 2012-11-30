@@ -415,15 +415,15 @@ function changeSecurityOptions(defaultjournal) {
                 if (data.ret) {
                     // give the appropriate security options for the account type
                     if (data.ret['is_comm']) {
-                        $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                        $('security').options[0] = new Option(UpdateFormStrings["public"], 'public');
                         $('security').options[1] = new Option(UpdateFormStrings.friends_comm, 'friends');
                         if ( data.ret['can_manage'] ) {
                             $('security').options[2] = new Option(UpdateFormStrings.admin, 'private');
                         }
                     } else {
-                        $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                        $('security').options[0] = new Option(UpdateFormStrings["public"], 'public');
                         $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');
-                        $('security').options[2] = new Option(UpdateFormStrings.private, 'private');
+                        $('security').options[2] = new Option(UpdateFormStrings["private"], 'private');
                         if (data.ret['friend_groups_exist']) {
                             $('security').options[3] = new Option(UpdateFormStrings.custom, 'custom');
                         }
@@ -452,9 +452,9 @@ function changeSecurityOptions(defaultjournal) {
                 // if the user is not known
                 } else {
                     // personal journal, but no custom option, and no minsecurity
-                    $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                    $('security').options[0] = new Option(UpdateFormStrings["public"], 'public');
                     $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');
-                    $('security').options[2] = new Option(UpdateFormStrings.private, 'private');
+                    $('security').options[2] = new Option(UpdateFormStrings["private"], 'private');
                     $('security').selectedIndex = 0;
                     _changeOptionState($('security').options[0], true);
                     _changeOptionState($('security').options[1], true);

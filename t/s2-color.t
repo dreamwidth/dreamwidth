@@ -3,7 +3,7 @@
 use strict;
 use Test::More tests => 14;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 
 # As all of these are builtins, fake context.
 my $ctx = [];

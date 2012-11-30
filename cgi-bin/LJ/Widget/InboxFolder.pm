@@ -118,10 +118,17 @@ sub render_body {
     my $markdeleteall = sub {
         my $sfx = shift;
 
+        # choose button text depending on whether user is viewing all emssages or only a subfolder
+        # to avoid any confusion as to what deleting and marking read will do
+        my $mark_all_text = ( $view eq "all" ) ? "widget.inbox.menu.mark_all_read.btn" : "widget.inbox.menu.mark_all_read.subfolder.btn";
+        my $delete_all_text = ( $view eq "all" ) ? "widget.inbox.menu.delete_all.btn" : "widget.inbox.menu.delete_all.subfolder.btn";
+
         return qq {
             <div style="text-align: center; margin-bottom: 20px; margin-top: 20px;">
-                <input type="submit" name="markAllRead_$sfx" value="<?_ml widget.inbox.menu.mark_all_read.btn _ml?>" $disabled id="${name}_MarkAllRead_$sfx" style="margin-right: 5em; width: 12em;" />
-                <input type="submit" name="deleteAll_$sfx" value="<?_ml widget.inbox.menu.delete_all.btn _ml?>" $disabled id="${name}_DeleteAll_$sfx" style="width: 12em;" />
+            <input type="submit" name="markAllRead_$sfx" value="<?_ml $mark_all_text _ml?>" $disabled 
+                id="${name}_MarkAllRead_$sfx" style="margin-right: 5em; width: 12em;" />
+            <input type="submit" name="deleteAll_$sfx" value="<?_ml $delete_all_text _ml?>" 
+                $disabled id="${name}_DeleteAll_$sfx" style="width: 12em;" />
             </div>
         };
     };

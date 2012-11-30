@@ -586,7 +586,7 @@ if (typeof module == "object" && typeof require == "function") {
                 return this;
             },
 
-            throws: function throws(error, message) {
+            "throws": function _throws(error, message) {
                 if (typeof error == "string") {
                     this.exception = new Error(message);
                     this.exception.name = error;

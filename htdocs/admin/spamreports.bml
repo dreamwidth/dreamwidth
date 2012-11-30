@@ -178,13 +178,13 @@ _c?>
             $what += 0;
             my $u = LJ::load_userid($what);
             return $error->('<?_ml .error.noposterid _ml?>') unless $u;
-            $title = "<?_ml .view.byposterid.title _ml?>" . $u->ljuser_display;
+            $title = BML::ml( ".view.byposterid.title", { user => $u->ljuser_display } );
             $title .= " (" . $u->{user} . ")" if $u->is_identity;
             $title .= " ($state)";
         } elsif ($by eq 'poster') {
             my $u = LJ::load_user($what);
             return $error->('<?_ml .error.nouser _ml?>') unless $u;
-            $title = "<?_ml .view.byposter.title _ml?>" . $u->ljuser_display;
+            $title = BML::ml( ".view.byposter.title", { user => $u->ljuser_display } );
             $title .= " (" . $u->{user} . ")" if $u->is_identity;
 
             # Now just pretend that user used 'posterid'
@@ -193,7 +193,7 @@ _c?>
         } elsif ($by eq 'ip') {
             # check for right format x.x.x.x, not necessarily a valid IP
             return $error->('<?_ml .error.noip _ml?>') if $what !~ /^\d+\.\d+\.\d+\.\d+$/ or length $what > 15;
-            $title = "<?_ml .view.byip.title _ml?>$what ($state)";
+            $title = BML::ml( ".view.byip.title", { ip => $what, state => $state} );
         }
 
         # see if we should call a hook for extra actions?
@@ -237,12 +237,12 @@ _c?>
                     $extra .= "<br/><textarea name='sysban_note' rows='3' cols='60' readonly='1'>" . LJ::ehtml( $reason->{talk_ip_test}->{note} || "<?_ml .report.individual.syban.nonote _ml?>" ) . "</textarea>";
                 }
             } elsif ( $remote && $remote->has_priv( 'sysban', 'talk_ip_test' ) ) {
-                $extra = LJ::html_check({name => "sysban_ip", value => $what, label => "Also Sysban IP?"});
+                $extra = LJ::html_check({name => "sysban_ip", value => $what, label => BML::ml( ".report.individual.sysban.ip" )});
                 $extra .= "<br/><textarea name='sysban_note' rows='3' cols='60'> ~" . LJ::ehtml( $remote->username . " @ " . LJ::mysql_time() ) . "</textarea>";
             }
         }
 
-        $body .= "</table><br />" . ($state eq 'open' ? $dellink->(\@srids, 'Close All', $extra) : '');
+        $body .= "</table><br />" . ($state eq 'open' ? $dellink->(\@srids, 'Close All', $extra) : $extra);
 
     } elsif ($mode =~ /^del/) {
         # figure out our combination

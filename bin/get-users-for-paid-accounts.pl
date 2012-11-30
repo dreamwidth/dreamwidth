@@ -17,7 +17,9 @@
 use strict;
 use warnings;
 use lib "$ENV{'LJHOME'}/cgi-bin";
-require "ljlib.pl";
+BEGIN {
+    require "ljlib.pl";
+}
 use LJ::Sysban;
 use DW::Pay;
 use List::Util qw( min );

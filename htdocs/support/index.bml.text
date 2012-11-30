@@ -13,6 +13,8 @@
 
 .knownissues.head=Known Issues
 
+.search.text=If you're looking for your current or past requests, you can <a [[aopts]]>use our History tool to search for them</a>.
+
 .title=<?sitename?> Support
 
 .volunteer.head=Did You Know?

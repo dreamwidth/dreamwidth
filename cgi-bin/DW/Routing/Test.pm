@@ -7,7 +7,7 @@
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2012 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -24,10 +24,12 @@ use Test::Builder::Module;
 our @ISA    = qw(Test::Builder::Module);
 our @EXPORT = qw(
     begin_tests got_result expected_format
-    handle_request handle_server_error handle_redirect
+    handle_request handle_server_error handle_redirect handle_custom
     handler regex_handler
-    okay is todo_skip skip
+    okay is todo_skip skip plan
     $TODO
+
+    ok is
 );
 
 my $CLASS = __PACKAGE__;
@@ -113,6 +115,48 @@ sub handle_request {
             return 0;
         }
         is( $result, $expected, "handler set wrong value.");
+    });
+}
+
+sub handle_custom {
+    my ( $uri, %test_opts ) = @_;
+    $CLASS->builder->subtest($test_opts{name} || $uri, sub {
+        my $tb = $CLASS->builder;
+        $tb->plan( tests => 1 );
+
+        my $schema = $test_opts{schema} || "http";
+        my $method = ( $test_opts{method} || "GET" );
+
+        my $req = HTTP::Request->new( $method => "$schema://www.example.com$uri" );
+        $req->header( Host => 'www.example.com' );
+        DW::Request->reset;
+        my $r = DW::Request::Standard->new($req);
+
+        my $opts = DW::Routing->get_call_opts( %{$test_opts{opts} || {}} );
+
+        unless ( $opts ) {
+            ok( 0, "opts exists" );
+            _skip("opts is undef");
+            return;
+        }
+
+        my $hash = $opts->call_opts;
+
+        unless ( $hash && $hash->{sub} ) {
+             ok( 0, "improper opts" );
+             _skip("opts are improper");
+             return;
+        }
+
+        if ( $test_opts{final} ) {
+            my $rv = DW::Routing->call_hash( $opts );
+
+            $CLASS->builder->subtest("custom sub",sub {
+                $test_opts{final}->( $r, $rv );
+            });
+        } else {
+            _skip("no final sub");
+        }
     });
 }
 

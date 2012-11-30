@@ -142,7 +142,7 @@ sub try_work {
         next unless $url =~ /\Q$data->{hostname}\E/ &&
                     $url =~ /\b$data->{username}\b/;
 
-        unless ( $url =~ m!/(\d+)\.html$! ) {
+        unless ( $url =~ m!/(\d+)(?:\.html)?$! ) {
             $log->( 'URL %s not of expected format in prune.', $url );
             next;
         }
@@ -171,7 +171,12 @@ sub try_work {
     my $count = 0;
     my $process_entry = sub {
         my $evt = $_[0];
-        $evt->{key} = $evt->{url};
+
+        # URL remapping. We know the username and the site, so we set this to
+        # something that is dependable.
+        $evt->{key} = $evt->{url} = $data->{hostname} . '/' . $data->{username} . '/' .
+            ( $evt->{itemid} * 256 + $evt->{anum} );
+
         $count++;
         $log->( '    %d %s %s; mapped = %d (import_source) || %d (xpost).',
                 $evt->{itemid}, $evt->{url}, $evt->{logtime}, $entry_map->{$evt->{key}},
@@ -263,6 +268,10 @@ sub try_work {
 
     # helper to load some events
     my $fetch_events = sub {
+        # let them know we're still working
+        $job->grabbed_until( time() + 3600 );
+        $job->save;
+
         $log->( 'Fetching %d items.', scalar @_ );
         $title->( 'getevents - %d to %d', $_[0], $_[-1] );
 

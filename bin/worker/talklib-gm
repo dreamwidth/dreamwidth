@@ -14,8 +14,10 @@
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
-require 'talklib.pl';
+BEGIN {
+    require 'ljlib.pl';
+    require 'talklib.pl';
+}
 
 use LJ::Worker::Gearman;
 use Storable;

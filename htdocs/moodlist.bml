@@ -44,6 +44,8 @@ body<=
     my $ret;
 
     my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
     my $journal = $GET{'journal'} || $remote->{'user'};
     my $u = LJ::load_user($journal);
 

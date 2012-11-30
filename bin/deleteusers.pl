@@ -15,7 +15,10 @@
 
 use strict;
 
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+}
+
 my $dbh = LJ::get_dbh("master");
 $dbh->{'RaiseError'} = 1;
 $dbh->{'PrintError'} = 1;

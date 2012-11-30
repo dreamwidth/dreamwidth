@@ -26,6 +26,7 @@ package LJ::Links;
 # $linkobj = [
 #    { 'title'     => 'link title',
 #      'url'       => 'http://www.somesite.com',
+#      'hover'     => 'hover text',
 #      'children'  => [ ... ],
 #    },
 #    { ... },
@@ -50,7 +51,7 @@ sub load_linkobj
         my $db = $use_master ? LJ::get_cluster_def_reader($u) : LJ::get_cluster_reader($u);
 
         local $" = ",";
-        my $sth = $db->prepare("SELECT ordernum, parentnum, title, url " .
+        my $sth = $db->prepare("SELECT ordernum, parentnum, title, url, hover " .
                                "FROM links WHERE journalid=?");
         $sth->execute($u->{'userid'});
         push @$linkobj, $_ while $_ = $sth->fetchrow_hashref;
@@ -94,10 +95,11 @@ sub save_linkobj
     my (@bind, @vals);
     foreach my $ct (1..$numlinks) {
         my $it = $linkobj->[$ct-1];
+        my $hover = LJ::strip_html($it->{'hover'});
 
         # journalid, ordernum, parentnum, url, title
-        push @bind, "(?,?,?,?,?)";
-        push @vals, ($u->{'userid'}, $ct, 0, $it->{'url'}, $it->{'title'});
+        push @bind, "(?,?,?,?,?,?)";
+        push @vals, ($u->{'userid'}, $ct, 0, $it->{'url'}, $it->{'title'}, $it->{'hover'});
     }
 
     # invalidate memcache
@@ -107,7 +109,7 @@ sub save_linkobj
     # insert into database
     {
         local $" = ",";
-        return $u->do("INSERT INTO links (journalid, ordernum, parentnum, url, title) " .
+        return $u->do("INSERT INTO links (journalid, ordernum, parentnum, url, title, hover) " .
                       "VALUES @bind", undef, @vals);
     }
 }
@@ -140,6 +142,9 @@ sub make_linkobj_from_form
         $title = $stripspaces->($title);
         next unless $title;
 
+        my $hover = $post->{"link_${num}_hover"};
+        $hover = $stripspaces->($hover);
+
         my $url = $post->{"link_${num}_url"};
         $url = $stripspaces->($url);
 
@@ -150,7 +155,7 @@ sub make_linkobj_from_form
 
         # build link object element
         $post->{"link_${num}_url"} = $url;
-        push @$linkobj, { 'title' => $title, 'url' => $url };
+        push @$linkobj, { 'title' => $title, 'url' => $url, 'hover' => $hover };
 
         # TODO: build child relationships
         #       push @{$linkobj->[$parentnum-1]->{'children'}}, $myself

@@ -14,9 +14,11 @@
 # part of this distribution.
 
 use strict;
-use Getopt::Long
+use Getopt::Long;
 use lib "$ENV{LJHOME}/cgi-bin";
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+}
 use LJ::Support;
 use LJ::Cmdbuffer;
 

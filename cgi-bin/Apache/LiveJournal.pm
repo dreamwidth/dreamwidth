@@ -242,7 +242,7 @@ sub blocked_anon
     my $message = $LJ::BLOCKED_ANON_MESSAGE;
 
     unless ( $message ) {
-        $message = "You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?usescheme=lynx'>log in</a>.";
+        $message = "You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?skin=lynx'>log in</a>.";
 
         if ( $LJ::BLOCKED_ANON_URI ) {
             $message .= " <a href='$LJ::BLOCKED_ANON_URI'>Why can't I access the site without logging in?</a>";
@@ -283,35 +283,43 @@ sub ip_is_via_tor {
 }
 
 sub resolve_path_for_uri {
-    my $uri = $_[0];
+    my ( $r, $orig_uri ) = @_;
+
+    my $uri = $orig_uri;
 
     if ( $uri !~ m!(\.\.|\%|\.\/)! ) {
-        if ( exists $FILE_LOOKUP_CACHE{$uri} ) {
-            return @{ $FILE_LOOKUP_CACHE{$uri} };
+        if ( exists $FILE_LOOKUP_CACHE{$orig_uri} ) {
+            return @{ $FILE_LOOKUP_CACHE{$orig_uri} };
         }
 
         foreach my $dir ( LJ::get_all_directories( 'htdocs' ) ) {
+            # main page
             my $file = "$dir/$uri";
-            if ( -e "$file/index.bml" && $uri eq '/' ) { 
+            if ( -e "$file/index.bml" && $uri eq '/' ) {
                 $file .= "index.bml";
                 $uri .= "/index.bml";
             }
+
+            # /blah/file => /blah/file.bml
             if ( -e "$file.bml" ) {
                 $file .= ".bml";
                 $uri .= ".bml";
             }
-            next unless -e $file;
+            next unless -f $file;
 
+            # /foo  => /foo/
+            # /foo/ => /foo/index.bml
             if ( -d $file && -e "$file/index.bml" ) {
-                return redir( $uri . "/" ) unless $uri =~ m!/$!;
-                $file .= "/index.bml";
+                return redir( $r, $uri . "/" ) unless $uri =~ m!/$!;
+                $file .= "index.bml";
+                $uri .= "index.bml";
             }
 
             $file = abs_path( $file );
-            if ( $file ) { 
+            if ( $file ) {
                 $uri =~ s!^/+!/!;
-                $FILE_LOOKUP_CACHE{$uri} = [ $uri, $file ];
-                return @{ $FILE_LOOKUP_CACHE{$uri} };
+                $FILE_LOOKUP_CACHE{$orig_uri} = [ $uri, $file ];
+                return @{ $FILE_LOOKUP_CACHE{$orig_uri} };
             }
         }
     }
@@ -383,7 +391,7 @@ sub trans
     } else { # not is_initial_req
         if ($r->status == 404) {
             my $fn = $LJ::PAGE_404 || "404-error.bml";
-            my ( $uri, $path ) = resolve_path_for_uri($fn);
+            my ( $uri, $path ) = resolve_path_for_uri( $r, $fn );
             return $bml_handler->( $path ) if $path;
         }
     }
@@ -664,7 +672,10 @@ sub trans
 
         # if favicon, let filesystem handle it, for now, until
         # we have per-user favicons.
-        return DECLINED if $uuri eq "/favicon.ico";
+        if ( $uuri eq "/favicon.ico" ) {
+            $r->filename( LJ::resolve_file( "htdocs/$uuri" ) );
+            return OK;
+        }
 
         # see if there is a modular handler for this URI
         my $ret = LJ::URI->handle($uuri, $r);
@@ -851,7 +862,11 @@ sub trans
         } elsif ($func eq "journal") {
 
             unless ($uri =~ m!^/(\w{1,25})(/.*)?$!) {
-                return DECLINED if $uri eq "/favicon.ico";
+                if ( $uri eq "/favicon.ico" ) {
+                    $r->filename( LJ::resolve_file( "htdocs/$uri" ) );
+                    return OK;
+                }
+
                 my $redir = LJ::Hooks::run_hook("journal_subdomain_redirect_url",
                                          $host, $uri);
                 return redir($r, $redir) if $redir;
@@ -936,6 +951,14 @@ sub trans
     $ret = DW::Routing->call( ssl => $is_ssl ) unless defined $ret;
     return $ret if defined $ret;
 
+    # now check for BML pages
+    my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $r, $uri );
+    if ( $alt_path ) {
+        $r->uri( $alt_uri );
+        $r->filename( $alt_path );
+        return OK;
+    }
+
     # protocol support
     if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
         my $int = $1;
@@ -984,13 +1007,6 @@ sub trans
 
         my $view = $determine_view->($user, $vhost, $rest);
         return $view if defined $view;
-    }
-
-    my ( $alt_uri, $alt_path ) = resolve_path_for_uri($uri);
-    if ( $alt_path ) {
-        $r->uri( $alt_uri );
-        $r->filename( $alt_path );
-        return OK;
     }
 
     # customview (get an S1 journal by number)

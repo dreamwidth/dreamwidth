@@ -84,15 +84,15 @@ sub preview_as_html {
         $maxcheck ||= 255;
 
         if ($mincheck > 0 && $mincheck eq $maxcheck ) {
-            $ret .= "<i>". LJ::Lang::ml( "poll.checkexact", { options => $mincheck } ). "</i><br />\n";
+            $ret .= "<i>". LJ::Lang::ml( "poll.checkexact2", { options => $mincheck } ). "</i><br />\n";
         }
         else {
             if ($mincheck > 0) {
-                $ret .= "<i>". LJ::Lang::ml( "poll.checkmin", { options => $mincheck } ). "</i><br />\n";
+                $ret .= "<i>". LJ::Lang::ml( "poll.checkmin2", { options => $mincheck } ). "</i><br />\n";
             }
 
             if ($maxcheck < 255) {
-                $ret .= "<i>". LJ::Lang::ml( "poll.checkmax", { options => $maxcheck } ). "</i><br />\n";
+                $ret .= "<i>". LJ::Lang::ml( "poll.checkmax2", { options => $maxcheck } ). "</i><br />\n";
             }
         }
     }

@@ -34,12 +34,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- userpic_class = 'header-userpic' -%]
 
 [%- BLOCK block.page -%]
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
     [% PROCESS block.head %]
     <body [% sections.bodyopts %]>
         <div id="canvas">
             <div id="page">
+                [%# Not using the HTML 5 <header> element for now
+                because of incompatibilities with JAWS and
+                Firefox %]
                 <div id="masthead" role="banner">
                         [% PROCESS block.logo %]
                 </div><!-- end masthead-->
@@ -53,17 +56,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 <div id="account-links" role="navigation">
                     [% PROCESS block.accountlinks %]
                 </div><!-- end account links-->
-                <div id="sidebar" role="navigation">
+                <nav role="navigation">
                     [% PROCESS block.userpic %]
                     [% PROCESS block.menunav %]
-                </div>
+                </nav>
                 <div id="header-divider"> <div id="header-divider-insert"></div></div>
                 <div id="header-search" role="search">
                     [% dw_scheme.search_render %]
                 </div><!-- end header-search-->
-                <div id="footer" role="contentinfo">
+                <footer role="contentinfo">
                     [% PROCESS block.footer %]
-                </div>
+                </footer>
         </div> <!-- end canvas-->
         [% dw_scheme.final_body_html %]
     </body>

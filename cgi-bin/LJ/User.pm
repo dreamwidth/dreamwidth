@@ -7543,7 +7543,7 @@ sub load_user_or_identity {
 # des-userid: Userid of user to load.
 # des-force: if set to true, won't return cached user object and will
 #            query a dbh
-# returns: Hashref with keys being columns of [dbtable[user]] table.
+# returns: LJ::User object.
 # </LJFUNC>
 sub load_userid {
     my ($userid, $force) = @_;
@@ -9558,7 +9558,10 @@ sub make_journal {
 
         # there are no BML handlers for these views, so force s2
         # FIXME: Temporaray until talkread/talkpost/month views are converted
-        if ( !( { entry => 1, reply => 1, month => 1 }->{$view} ) ) {
+
+        if ( !( {   entry => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+        reply => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+        month => 1 }->{$view} ) ) {
             $fallback = "s2";
         }
 
@@ -9760,7 +9763,10 @@ sub make_journal {
 
         # intercept flag to handle_with_bml_ref and instead use siteviews
         # FIXME: Temporary, till everything is converted.
-        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || { icons => 1, tag => 1 }->{$view} ) ) {
+        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || {
+                entry => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+                reply => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+                icons => 1, tag => 1 }->{$view} ) ) {
             $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
         }
 

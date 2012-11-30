@@ -5,8 +5,9 @@ layerinfo redist_uniq = "headsup/caturdaygreytabby";
 layerinfo author_name = "momijizukamori";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
+
 set color_page_background = "#999";
 set color_page_link = "#2b8024";
 set color_page_link_active = "#2b8024";
@@ -19,34 +20,33 @@ set color_userpic_background = "#000";
 ##===============================
 ## Entry
 ##===============================
+
 set color_entry_background = "#fff";
 set color_entry_title_border = "#000";
-
-##===============================
-## Comments
-##===============================
 set color_comment_title_background = "#fff";
 set color_comment_title_border = "#000";
 
 ##===============================
 ## Modules
 ##===============================
+
 set color_module_background = "#E0E0E0";
 set color_module_title_border = "#000";
 
 ##===============================
 ## Images
 ##===============================
-set image_foreground_header_alignment = "right";
-set image_foreground_header_alt = "Happy grey cartoon tabby cat";
-set image_foreground_header_height = 288;
-set image_foreground_header_url = "headsup/caturdaygreytabby.png";
-set image_foreground_header_width = 300;
-set image_foreground_header_position = "inline";
+
 set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat-x";
 set image_background_header_url = "headsup/caturday_bg.png";
+set image_foreground_header_alignment = "right";
+set image_foreground_header_alt = "Happy grey cartoon tabby cat";
+set image_foreground_header_height = 288;
+set image_foreground_header_position = "inline";
+set image_foreground_header_url = "headsup/caturdaygreytabby.png";
+set image_foreground_header_width = 300;
 
 
 #NEWLAYER: headsup/caturdaylonghair
@@ -56,8 +56,9 @@ layerinfo redist_uniq = "headsup/caturdaylonghair";
 layerinfo author_name = "momijizukamori";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
+
 set color_page_background = "#999";
 set color_page_link = "#2b8024";
 set color_page_link_active = "#2b8024";
@@ -70,34 +71,33 @@ set color_userpic_background = "#000";
 ##===============================
 ## Entry
 ##===============================
+
 set color_entry_background = "#fff";
 set color_entry_title_border = "#000";
-
-##===============================
-## Comments
-##===============================
 set color_comment_title_background = "#fff";
 set color_comment_title_border = "#000";
 
 ##===============================
 ## Modules
 ##===============================
+
 set color_module_background = "#E0E0E0";
 set color_module_title_border = "#000";
 
 ##===============================
 ## Images
 ##===============================
-set image_foreground_header_alignment = "right";
-set image_foreground_header_alt = "Happy grey cartoon white longhair cat";
-set image_foreground_header_height = 288;
-set image_foreground_header_url = "headsup/caturdaylonghair.png";
-set image_foreground_header_width = 300;
-set image_foreground_header_position = "inline";
+
 set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat-x";
 set image_background_header_url = "headsup/caturday_bg.png";
+set image_foreground_header_alignment = "right";
+set image_foreground_header_alt = "Happy grey cartoon white longhair cat";
+set image_foreground_header_height = 288;
+set image_foreground_header_position = "inline";
+set image_foreground_header_url = "headsup/caturdaylonghair.png";
+set image_foreground_header_width = 300;
 
 
 #NEWLAYER: headsup/caturdayorangelonghair
@@ -107,8 +107,9 @@ layerinfo redist_uniq = "headsup/caturdayorangelonghair";
 layerinfo author_name = "momijizukamori";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
+
 set color_page_background = "#999";
 set color_page_link = "#2b8024";
 set color_page_link_active = "#2b8024";
@@ -121,33 +122,32 @@ set color_userpic_background = "#000";
 ##===============================
 ## Entry
 ##===============================
-set color_entry_background = "#fff";
-set color_comment_title_background = "#000";
 
-##===============================
-## Comments
-##===============================
+set color_entry_background = "#fff";
+set color_entry_title_border = "#000";
 set color_comment_title_background = "#fff";
 set color_comment_title_border = "#000";
 
 ##===============================
 ## Modules
 ##===============================
+
 set color_module_background = "#E0E0E0";
 
 ##===============================
 ## Images
 ##===============================
-set image_foreground_header_alignment = "right";
-set image_foreground_header_alt = "Happy orange cartoon longhair cat";
-set image_foreground_header_height = 288;
-set image_foreground_header_url = "headsup/caturdayorangelonghair.png";
-set image_foreground_header_width = 300;
-set image_foreground_header_position = "inline";
+
 set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat-x";
 set image_background_header_url = "headsup/caturday_bg.png";
+set image_foreground_header_alignment = "right";
+set image_foreground_header_alt = "Happy orange cartoon longhair cat";
+set image_foreground_header_height = 288;
+set image_foreground_header_position = "inline";
+set image_foreground_header_url = "headsup/caturdayorangelonghair.png";
+set image_foreground_header_width = 300;
 
 
 #NEWLAYER: headsup/caturdayorangetabby
@@ -157,8 +157,9 @@ layerinfo redist_uniq = "headsup/caturdayorangetabby";
 layerinfo author_name = "momijizukamori";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
+
 set color_page_background = "#999";
 set color_page_link = "#2b8024";
 set color_page_link_active = "#2b8024";
@@ -171,34 +172,33 @@ set color_userpic_background = "#000";
 ##===============================
 ## Entry
 ##===============================
+
 set color_entry_background = "#fff";
 set color_entry_title_border = "#000";
-
-##===============================
-## Comments
-##===============================
 set color_comment_title_background = "#fff";
 set color_comment_title_border = "#000";
 
 ##===============================
 ## Modules
 ##===============================
+
 set color_module_background = "#E0E0E0";
 set color_module_title_border = "#000";
 
 ##===============================
 ## Images
 ##===============================
-set image_foreground_header_alignment = "right";
-set image_foreground_header_alt = "Happy orange cartoon tabby cat";
-set image_foreground_header_height = 288;
-set image_foreground_header_url = "headsup/caturdayorangetabby.png";
-set image_foreground_header_width = 300;
-set image_foreground_header_position = "inline";
+
 set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat-x";
 set image_background_header_url = "headsup/caturday_bg.png";
+set image_foreground_header_alignment = "right";
+set image_foreground_header_alt = "Happy orange cartoon tabby cat";
+set image_foreground_header_height = 288;
+set image_foreground_header_position = "inline";
+set image_foreground_header_url = "headsup/caturdayorangetabby.png";
+set image_foreground_header_width = 300;
 
 
 #NEWLAYER: headsup/midnight
@@ -208,14 +208,9 @@ layerinfo redist_uniq = "headsup/midnight";
 layerinfo author_name = "momijizukamori";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
-set color_footer_background = "#05033e";
-set color_footer_link = "#d3d3d3";
-set color_footer_link_active = "#d3d3d3";
-set color_footer_link_hover = "#bdbdbd";
-set color_footer_link_visited = "#c2bee9";
-set color_header_background = "#05033e";
+
 set color_page_background = "#000";
 set color_page_link = "#05033e";
 set color_page_link_active = "#05033e";
@@ -223,21 +218,29 @@ set color_page_link_hover = "#231082";
 set color_page_link_visited = "#5c5895";
 set color_page_text = "#333";
 set color_page_title = "#ddd";
+set color_header_background = "#05033e";
+set color_footer_background = "#05033e";
+set color_footer_link = "#d3d3d3";
+set color_footer_link_active = "#d3d3d3";
+set color_footer_link_hover = "#bdbdbd";
+set color_footer_link_visited = "#c2bee9";
 set color_userpic_background = "#05033e";
 
 ##===============================
 ## Entry
 ##===============================
-set color_comment_title = "#ddd";
-set color_comment_title_background = "#05033e";
-set color_comment_title_background_even = "#05033e";
-set color_comment_title_even = "#ddd";
+
 set color_entry_background = "#eee";
 set color_entry_text = "#333";
+set color_comment_title = "#ddd";
+set color_comment_title_even = "#ddd";
+set color_comment_title_background = "#05033e";
+set color_comment_title_background_even = "#05033e";
 
 ##===============================
 ## Modules
 ##===============================
+
 set color_module_background = "#231082";
 set color_module_link = "#d3d3d3";
 set color_module_link_active = "#d3d3d3";
@@ -248,14 +251,14 @@ set color_module_text = "#eee";
 ##===============================
 ## Images
 ##===============================
-set image_foreground_header_alignment = "right";
-set image_foreground_header_alt = "a crescent moon";
-set image_foreground_header_height = 200;
-set image_foreground_header_url = "headsup/midnight_moon.png";
-set image_foreground_header_width = 200;
-set image_foreground_header_position = "inline";
+
 set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "headsup/midnight_star.png";
-
+set image_foreground_header_alignment = "right";
+set image_foreground_header_alt = "a crescent moon";
+set image_foreground_header_height = 200;
+set image_foreground_header_position = "inline";
+set image_foreground_header_url = "headsup/midnight_moon.png";
+set image_foreground_header_width = 200;

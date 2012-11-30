@@ -154,45 +154,51 @@ a:active,
 /**
  * Menu
  */
-#menu { position: absolute;
+nav { position: absolute;
     top: 100px;
     left: 0;
     width: 9.25em;
     background-color: #3960A0;
     z-index: 100; /*to cover the search-border in the sidebar*/
     }
-    #menu ul { margin-left: 5px;
+    nav ul { margin-left: 5px;
         margin-right: 3px;
         margin-top: 3em;
         padding-left: 0;
         font-size: small;
         list-style: none;
         }
-        #menu ul ul { margin-left: 1em;
+        nav ul ul { margin-left: 1em;
             margin-right: 0;
             margin-top: 0;
         }
-    #menu li { padding: .15em 0; }
-    #menu a {color: #EFF6FF; }
-        #menu .topnav a {font-weight: bold;}
-        #menu .subnav a {font-weight: normal; }
+    nav li { padding: .15em 0; }
+    nav a {color: #EFF6FF; }
+nav .topnav a {
+         font-weight: bold;
+         color: #EFF6FF;
+         }
+nav .subnav a {
+         font-weight: normal;
+         color: #EFF6FF;
+         }
 
 
 /**
  * Footer
  */
-#footer {
+footer {
     margin: 1em;
     text-align: center;
     border-top: 1px solid #002A82;
     }
-    #footer ul { list-style: none;
+    footer ul { list-style: none;
         margin: .25em 0;
         margin-left: 0;
         padding-left: 0;
         }
-    #footer li { display: inline; }
-    #footer p { margin: .25em 0;
+    footer li { display: inline; }
+    footer p { margin: .25em 0;
         padding: 0;
         font-size: small;
         color: #666666;

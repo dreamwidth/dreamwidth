@@ -4,6 +4,11 @@
 <?p To add the journal entry you were just viewing to your memorable entries, fill out the form below. p?>
 .
 
+.add_previous2<<
+<?h1 Add to Memories... h1?>
+<?p To add the journal or community entry you were just viewing to your memorable entries, fill out the form below. p?>
+.
+
 .body.added.header=Success
 
 .body.added.next.entry=Go back to the entry
@@ -25,6 +30,11 @@
   To delete this entry from your list of memorable entries, enter a blank description.
 .
 
+.description.text2<<
+  Give this entry a description.  
+  To delete this entry from your list of memorable entries, enter a blank description.
+.
+
 .edit_previous<<
 <?h1 Edit Memorable Entry... h1?>
 <?p To edit the settings for this memorable entry, fill out the form below. p?>
@@ -32,11 +42,15 @@
 
 .error.deleted.body=The journal entry "[[desc]]" has been removed from your list of memorable entries.
 
+.error.deleted.body2=The entry "[[desc]]" has been removed from your list of memorable entries.
+
 .error.deleted.next=View all your memorable entries
 
 .error.deleted.title=Memory deleted
 
 .error.entry_deleted=Journal entry no longer exists. Memory deleted.
+
+.error.entry_deleted2=Journal or community entry no longer exists. Memory deleted.
 
 .error.fivekeywords=Only 5 keywords or categories are allowed per memorable entry.
 
@@ -45,6 +59,8 @@
 .error.maxsize=This keyword exceeds the maximum size allowed: "[[keyword]]"
 
 .error.nodescription.body=To add a journal entry to your list of memories, you must provide a description.  To delete a memorable entry you can remove the description; however, this entry wasn't in your memorable entries.
+
+.error.nodescription.body2=To add a journal or community entry to your list of memories, you must provide a description.  To delete a memorable entry you can remove the description; however, this entry wasn't in your memorable entries.
 
 .error.nodescription.title=No description
 

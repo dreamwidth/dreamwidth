@@ -226,11 +226,11 @@ sub do_sync {
 
         # push this info, set lastsync
         foreach my $item (@{$hash->{syncitems} || []}) {
+            $lastsync = $item->{'time'}
+                if $item->{'time'} gt $lastsync;
             next unless $item->{item} =~ /L-(\d+)/;
             $synccount++;
             $sync{$1} = [ $item->{action}, $item->{'time'} ];
-            $lastsync = $item->{'time'}
-                if $item->{'time'} gt $lastsync;
             $bak{"event:realtime:$1"} = $item->{'time'};
         }
         $bak{'event:lastsync'} = $lastsync;

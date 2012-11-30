@@ -1,0 +1,1520 @@
+layerinfo type = "layout";
+layerinfo name = "Summertime";
+layerinfo redist_uniq = "summertime/layout";
+layerinfo author_name = "ninetydegrees";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
+
+##===============================
+## Presentation 
+##===============================
+
+set layout_type = "two-columns-right";
+set sidebar_width = "17em";
+set sidebar_width_doubled = "34em";
+set all_commentsubjects = true;
+set entry_date_format = "short_dayfirst";
+set entry_time_format = "short_24";
+set comment_date_format = "short_dayfirst";
+set comment_time_format = "short_24";
+set comment_userpic_style = "small";
+set userpics_position = "right";
+set userlite_interaction_links = "text";
+set entry_management_links = "text";
+set comment_management_links = "text";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_module_background_shadow { des = "Module background shadow color"; }
+
+    property Color color_module_top_background { des = "Top module section background color"; }
+    property Color color_module_top_text { des = "Top module section text color"; }
+    property Color color_module_top_link { des = "Top module section link color"; }
+    property Color color_module_top_link_active { des = "Top module section active link color"; }
+    property Color color_module_top_link_hover { des = "Top module section hover link color"; }
+    property Color color_module_top_link_visited { des = "Top module section visited link color"; }
+    property Color color_module_top_title_background { des = "Top module section title background color"; }
+    property Color color_module_top_title { des = "Top module section title color"; }
+    property Color color_module_top_border { des = "Top module section border color"; }
+    property Color color_module_top_background_shadow { des = "Top module section background shadow color"; }
+
+    property Color color_module_bottom_background { des = "Bottom module section background color"; }
+    property Color color_module_bottom_text { des = "Bottom module section text color"; }
+    property Color color_module_bottom_link { des = "Bottom module section link color"; }
+    property Color color_module_bottom_link_active { des = "Bottom module section active link color"; }
+    property Color color_module_bottom_link_hover { des = "Bottom module section hover link color"; }
+    property Color color_module_bottom_link_visited { des = "Bottom module section visited link color"; }
+    property Color color_module_bottom_title_background { des = "Bottom module section title background color"; }
+    property Color color_module_bottom_title { des = "Bottom module section title color"; }
+    property Color color_module_bottom_border { des = "Bottom module section border color"; }
+    property Color color_module_bottom_background_shadow { des = "Bottom module section background shadow color"; }
+
+    property Color color_header_background_shadow { des = "Page header background shadow color"; }
+    property Color color_page_title_shadow { des = "Page header title shadow color"; }
+    property Color color_header_icons_background { des = "Page header icon background color"; }
+    property Color color_header_icons_background_alt { des = "Page header icon alternate background color"; }
+    property Color color_header_icons_shadow { des = "Page header icon shadow color"; }
+    property Color color_footer_link_shadow { des = "Page footer link shadow color"; }
+    property Color color_footer_icon_background { des = "Page footer icon background color"; }
+    property Color color_footer_icon_shadow { des = "Page footer icon shadow color"; }
+    property Color color_footer_background_shadow { des = "Page footer background shadow color"; }
+    property Color color_entry_background_shadow { des = "Entry background shadow color"; }
+
+}
+
+##===============================
+## Fonts 
+##===============================
+
+propgroup fonts_child {
+    property string font_journal_footer {
+        des = "Preferred font for the journal footer";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+    }
+    property string font_journal_footer_size {
+        des = "Size of footer font";
+        size = 3;
+    }
+    property string font_journal_footer_units {
+        des = "Units for footer size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+    }
+}
+
+set font_base = "'Trebuchet MS'";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_module_heading = "Impact";
+set font_module_heading_size = "1.5";
+set font_module_heading_units = "em";
+set font_journal_title = "Impact";
+set font_journal_title_size = "2.875";
+set font_journal_title_units ="em";
+set font_journal_subtitle = "Impact";
+set font_journal_subtitle_size = "1.375";
+set font_journal_subtitle_units = "em";
+set font_journal_footer = "Impact";
+set font_journal_footer_size = "1";
+set font_journal_footer_units = "em";
+set font_entry_title = "Impact";
+set font_entry_title_size = "1.175";
+set font_entry_title_units ="em";
+set font_comment_title = "Impact";
+set font_comment_title_size = "1.175";
+set font_comment_title_units ="em";
+
+##===============================
+## Images
+##===============================
+
+propgroup images_child {
+    property string image_recent {
+        des = "Header icon for 'Recent Entries'";
+    }
+    property string image_recent_alt {
+        des = "Header alternate icon for 'Recent Entries'";
+        note = "Default will be used if blank.";
+    }
+    property string image_archive {
+        des = "Header icon for 'Archive'";
+    }
+    property string image_archive_alt {
+        des = "Header alternate icon for 'Archive'";
+        note = "Default will be used if blank.";
+    }
+    property string image_reading {
+        des = "Header icon for 'Reading'";
+    }
+    property string image_reading_alt {
+        des = "Header alternate icon for 'Reading'";
+        note = "Default will be used if blank.";
+    }
+    property string image_network {
+        des = "Header icon for 'Network'";
+    }
+    property string image_network_alt {
+        des = "Header alternate icon for 'Network'";
+        note = "Default will be used if blank.";
+    }
+    property string image_tags {
+        des = "Header icon for 'Tags'";
+    }
+    property string image_tags_alt {
+        des = "Header alternate icon for 'Tags'";
+        note = "Default will be used if blank.";
+    }
+    property string image_memories {
+        des = "Header icon for 'Memories'";
+    }
+    property string image_memories_alt {
+        des = "Header alternate icon for 'Memories'";
+        note = "Default will be used if blank.";
+    }
+    property string image_profile {
+        des = "Header icon for 'Profile'";
+    }
+    property string image_profile_alt {
+        des = "Header alternate icon for 'Profile'";
+        note = "Default will be used if blank.";
+    }
+
+    property string image_poweredby {
+        des = "Footer 'Powered By' icon";
+    }
+}
+
+##===============================
+## Modules
+##===============================
+
+propgroup modules_child {
+    property string module_navlinks_section_override {
+       values = "none|(none)|header|Header|one|Group One|two|Group Two";
+       grouped = 1;
+       }
+    property string module_poweredby_section_override {
+       values = "none|(none)|footer|Footer";
+       grouped = 1;
+       }
+    }
+
+set grouped_property_override =
+    {
+        "module_navlinks_section" => "module_navlinks_section_override",
+        "module_poweredby_section" => "module_poweredby_section_override"
+    };
+
+set module_navlinks_section = "header";
+set module_time_section = "one";
+set module_poweredby_section = "footer";
+set module_poweredby_order = 30;
+set module_tags_opts_type = "multi";
+
+##===============================
+## Text
+##===============================
+
+set text_default_separator = ". ";
+set text_meta_music = "Music";
+set text_meta_mood = "Mood";
+set text_meta_location = "Location";
+set text_meta_groups = "Access Groups";
+set text_comment_from = "Posted by";
+set text_comment_date = "";
+set text_comment_ipaddr = "IP:";
+set text_entry_prev = "Previous";
+set text_entry_next = "Next";
+set text_tell_friend = "Share";
+set text_mem_add = "Memory";
+
+##===============================
+## Functions
+##===============================
+
+## Don't make us type all _alt URLs if there's no use for them
+
+function prop_init () {
+    $*image_recent = generate_image_url($*image_recent);
+    $*image_archive = generate_image_url($*image_archive);
+    $*image_reading = generate_image_url($*image_reading);
+    $*image_network = generate_image_url($*image_network);
+    $*image_tags = generate_image_url($*image_tags);
+    $*image_memories = generate_image_url($*image_memories);
+    $*image_profile = generate_image_url($*image_profile);
+    $*image_poweredby = generate_image_url($*image_poweredby);
+
+    $*image_recent_alt = generate_image_url($*image_recent_alt);
+    $*image_archive_alt = generate_image_url($*image_archive_alt);
+    $*image_reading_alt = generate_image_url($*image_reading_alt);
+    $*image_network_alt = generate_image_url($*image_network_alt);
+    $*image_tags_alt = generate_image_url($*image_tags_alt);
+    $*image_memories_alt = generate_image_url($*image_memories_alt);
+    $*image_profile_alt = generate_image_url($*image_profile_alt);
+
+    $*image_recent_alt = ($*image_recent_alt != "") ? $*image_recent_alt : $*image_recent;
+    $*image_archive_alt = ($*image_archive_alt != "") ? $*image_archive_alt : $*image_archive;
+    $*image_reading_alt = ($*image_reading_alt != "") ? $*image_reading_alt : $*image_reading;
+    $*image_network_alt = ($*image_network_alt != "") ? $*image_network_alt : $*image_network;
+    $*image_tags_alt = ($*image_tags_alt != "") ? $*image_tags_alt : $*image_tags;
+    $*image_memories_alt = ($*image_memories_alt != "") ? $*image_memories_alt : $*image_memories;
+    $*image_profile_alt = ($*image_profile_alt != "") ? $*image_profile_alt : $*image_profile;
+}
+
+## Move link text to title and alt in header
+
+function print_module_navlinks() {
+    var Page p = get_page();
+    var string title = $*module_navlinks_section != "header" ? "Navigation" : "";
+    open_module("navlinks", $title, "");
+
+    if ( $*module_navlinks_section != "header" ) {
+        var string[] links = [];
+        foreach var string k ($p.views_order) {
+            var string css = """ class="$k" """;
+            if ($p.view == $k) { $css = """ class="current $k" """; }
+            $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+
+        }
+        print_module_list($links);
+    } else {
+        var string[] links = [];
+        foreach var string k ($p.views_order) {
+            var string class = $k;
+            var string css = """ class="$k" """;
+            var string text = lang_viewname($k);
+            if ($p.view == $k) { $css = """ class="current $k" """; }
+            $links[size $links] = """<a href="$p.view_url{$k}" title="$text" alt="$text"$css></a>""";
+        }
+        print_module_list($links);
+    }
+    close_module();
+}
+
+## Add class for circle
+
+function server_sig(){
+    """<span id="circle-poweredby"></span><span id="site-branding">$*text_powered_by <a href="$*SITEROOT/">$*SITENAME</a></span>""";
+}
+
+## Move tags to contents for spacing issues
+
+function Page::print_entry(Entry e) {
+    ## For most styles, this will be overridden by FriendsPage::print_entry and such.
+    $e->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $e->print_subject();
+    $e->print_metatypes();
+    $e->print_time();
+    """</div>\n""";
+    """</div>\n""";
+    """<div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $e->print_userpic();
+    $e->print_poster();
+    if ($*entry_metadata_position == "top") { $e->print_metadata(); }
+    $e->print_text();
+    if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
+    $e->print_tags();
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $this->print_entry_footer($e);
+    "</div>\n</div>\n";
+    $e->print_wrapper_end();
+}
+
+## Add header and footer sections
+## Add various containers
+
+function Page::print() {
+
+var bool modules_in_two = (
+    $*module_userprofile_section == "two" or
+    $*module_navlinks_section == "two" or
+    $*module_calendar_section == "two" or
+    $*module_links_section == "two" or
+    $*module_active_section == "two" or
+    $*module_syndicate_section == "two" or
+    $*module_tags_section == "two" or
+    $*module_pagesummary_section == "two" or
+    $*module_time_section == "two" or
+    $*module_poweredby_section == "two" or
+    $*module_customtext_section == "two" or
+    $*module_credit_section == "two" or
+    $*module_search_section == "two" or
+    $*module_cuttagcontrols_section == "two"
+    )
+    ? true : false;
+
+"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n
+    <head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+        $this->print_head();
+        $this->print_stylesheets();
+        $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    <div id="header-canvas"><div class="inner">
+                        <div id="header-primary"><div class="inner">
+    """;
+                            $this->print_global_title();
+                            $this->print_global_subtitle();
+                            $this->print_title();
+    """
+                        </div></div><!-- end header-primary and >inner -->
+                        <div id="header-secondary"><div class="inner">
+    """;
+                            $this->print_module_section("header");
+    """
+                        </div></div><!--  end header-secondary and >inner -->
+                        <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    </div></div><!--  end header-canvas and >inner -->
+                    <div id="header-footer"></div>
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="secondary-container"><div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+                    """<div id="secondary"><div class="inner">""";
+                    $this->print_module_section("one");
+                    """</div></div><!--  end secondary and secondary>inner -->""";
+                }
+    """
+            </div></div><!--  end secondary-container and >inner -->
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+    """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                    if ($*layout_type != "one-column-split") {
+                        """<div id="secondary"><div class="inner">""";
+                            $this->print_module_section("one");
+                        """</div></div><!--  end secondary and secondary>inner -->""";
+                    }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+    """;
+                    if (($*layout_type == "three-columns-left") or ($*layout_type == "three-columns-right") or ($*layout_type == "three-columns-sides")) {
+                        """<div id="tertiary"><div class="inner">""";
+                            $this->print_module_section("two");
+                        """</div></div><!-- end tertiary and tertiary>inner -->""";
+                    }
+    """
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+            <div id="tertiary-container"><div class="inner">
+    """;
+                if (($*layout_type != "three-columns-left") and ($*layout_type != "three-columns-right") and ($*layout_type != "three-columns-sides") and $modules_in_two) {
+                    """<div id="tertiary"><div class="inner">""";
+                            $this->print_module_section("two");
+                    """</div></div><!-- end tertiary and tertiary>inner -->""";
+                }
+    """
+            </div></div><!--  end tertiary-container and >inner -->
+        </div> <!-- end canvas>inner --> 
+        <div id="footer">
+            <div class="inner">
+                <div id="footer-shadow-left"></div><div id="footer-shadow-right"></div>
+                """;
+                print safe """<div class="page-top"><a href="#">$*text_page_top</a></div>""";
+                $this->print_module_section("footer");
+                """
+            </div><!-- end footer>inner -->
+        </div><!-- end footer -->
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+"""</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+
+var string top_module_colors = generate_color_css($*color_module_top_text, new Color, $*color_module_top_border);
+var string top_module_title_colors = generate_color_css($*color_module_top_title, $*color_module_top_title_background, new Color);
+var string top_module_link_colors = generate_color_css($*color_module_top_link, new Color, new Color);
+var string top_module_link_active_colors = generate_color_css($*color_module_top_link_active, new Color, new Color);
+var string top_module_link_hover_colors = generate_color_css($*color_module_top_link_hover, new Color, new Color);
+var string top_module_link_visited_colors = generate_color_css($*color_module_top_link_visited, new Color, new Color);
+
+var string bottom_module_colors = generate_color_css($*color_module_bottom_text, new Color, $*color_module_bottom_border);
+var string bottom_module_title_colors = generate_color_css($*color_module_bottom_title, $*color_module_bottom_title_background, new Color);
+var string bottom_module_link_colors = generate_color_css($*color_module_bottom_link, new Color, new Color);
+var string bottom_module_link_active_colors = generate_color_css($*color_module_bottom_link_active, new Color, new Color);
+var string bottom_module_link_hover_colors = generate_color_css($*color_module_bottom_link_hover, new Color, new Color);
+var string bottom_module_link_visited_colors = generate_color_css($*color_module_bottom_link_visited, new Color, new Color);
+
+var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+var string popup_colors = generate_color_css($*color_module_top_text, $*color_module_top_background, new Color);
+
+var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+var string page_footer_font = generate_font_css($*font_journal_footer, $*font_base, $*font_fallback, $*font_journal_footer_size, $*font_journal_footer_units);
+
+
+var string entry_header_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_header_margin = "105px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_header_margin = "85px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_header_margin = "55px"; }
+
+var string comment_header_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_header_margin = "105px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_header_margin = "85px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_header_margin = "55px"; }
+
+var string userpic_css = "";
+if ($*userpics_position == "left") {
+$userpic_css = """
+.has-userpic .entry .header {
+    margin-left: $entry_header_margin;
+}
+
+.has-userpic .comment .header {
+    margin-left: $comment_header_margin;
+}
+
+.has-userpic .entry .userpic,
+.has-userpic .comment .userpic {
+    float: left;
+    margin-right: 10px;
+}
+""";
+}
+elseif ($*userpics_position == "right") {
+$userpic_css = """
+
+.has-userpic .entry .header {
+    margin-right: $entry_header_margin;
+}
+.has-userpic .comment .header {
+    margin-right: $comment_header_margin;
+}
+
+.has-userpic .entry .userpic,
+.has-userpic .comment .userpic {
+    float: right;
+    margin-left: 10px;
+}
+""";
+}
+
+var string header_css = "";
+if ($*module_navlinks_section == "header") {
+$header_css = """
+#header-primary {
+    float: left;
+}
+
+#header-secondary {
+    float: right;
+    width: 355px;
+    text-align: right;
+}
+""";
+}
+
+"""
+
+/* Summertime
+/* by ninetydegrees
+******************************/
+
+/* General
+******************************/
+
+body {
+    line-height: 1.4em;
+    margin: 0;
+}
+
+a {
+   text-underline: none;
+}
+
+a:hover {
+    border-bottom: 1px dotted;
+}
+
+.userpic a:hover,
+#header li a:hover,
+.month td a:hover,
+.module-calendar a:hover {
+    border-bottom: none;
+}
+
+.separator {
+    display: none;
+}
+
+blockquote {
+    border: 1px dotted;
+    padding: 15px;
+}
+
+pre {
+    overflow: auto;
+}
+
+img, embed {
+    max-width: 100%;
+    max-height: auto;
+}
+
+/* Header
+******************************/
+
+#header {
+    box-shadow: 3px 3px 3px $*color_header_background_shadow;
+    margin: 0;
+    min-height: 150px;
+    padding: 0;
+    text-shadow: 3px 3px 5px $*color_page_title_shadow;
+    text-transform: uppercase;
+}
+
+#header-canvas {
+    margin: 0 65px;
+    padding-top: 52.5px;
+}
+
+$header_css
+
+h1#title {
+    font-weight: normal;
+    line-height: 1em;
+    margin: 0;
+    padding: 0;
+}
+
+h2#subtitle {
+    font-weight: normal;
+    line-height: 1em;
+    margin: 0 0 0 41px;
+    padding: 0;
+}
+
+h2#pagetitle {
+    font-weight: normal;
+    line-height: 1em;
+    margin: 0 0 0 85px;
+    padding: 0;
+}
+
+#header .module {
+    background: none;
+}
+
+#header .module-content {
+    padding: 0;
+}
+
+#header ul {
+     margin: 0;
+}
+
+#header li {
+    display: inline;
+    margin: 0 -.25em 0 0;
+    padding: 0 1.5px 0;
+}
+
+#header a {
+    background-color: $*color_header_icons_background;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    box-shadow: 3px 3px 5px $*color_header_icons_shadow;
+    display: inline-block;
+    height: 45px;
+    transition: all .65s ease-out;
+    -moz-transition: all .65s ease-out;
+    -o-transition: all .65s ease-out;
+    -webkit-transition: all .65s ease-out;
+    width: 45px;
+}
+
+#header a.current,
+#header a:hover {
+    background-color: $*color_header_icons_background_alt;
+    transition: all .65s ease-out;
+    -moz-transition: all .65s ease-out;
+    -o-transition: all .65s ease-out;
+    -webkit-transition: all .65s ease-out;
+}
+
+#header a:hover {
+    transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+}
+
+#header a.recent {
+    background-image: url($*image_recent) ;
+}
+
+#header a.current.recent,
+#header a.recent:hover {
+    background-image: url($*image_recent_alt);
+}
+
+#header a.archive {
+    background-image: url($*image_archive);
+}
+
+#header a.current.archive,
+#header a.archive:hover {
+    background-image: url($*image_archive_alt);
+}
+
+#header a.read {
+    background-image: url($*image_reading);
+}
+
+#header a.current.read,
+#header a.read:hover {
+    background-image: url($*image_reading_alt);
+}
+
+#header a.network {
+    background-image: url($*image_network);
+}
+
+#header a.current.network,
+#header a.network:hover {
+    background-image: url($*image_network_alt);
+}
+
+#header a.tags {
+    background-image: url($*image_tags);
+}
+
+#header a.current.tags,
+#header a.tags:hover {
+    background-image: url($*image_tags_alt);
+}
+
+#header a.memories {
+    background-image: url($*image_memories);
+}
+
+#header a.current.memories,
+#header a.memories:hover {
+    background-image: url($*image_memories_alt);
+}
+
+#header a.userinfo {
+    background-image: url($*image_profile);
+}
+
+#header a.current.userinfo,
+#header a.userinfo:hover {
+    background-image: url($*image_profile_alt);
+}
+
+#header-footer {
+    clear: both;
+}
+
+/* Content Containers
+******************************/
+
+#content {
+    clear: both;
+    margin: 0 150px;
+}
+
+.page-entry #primary,
+.page-reply #primary,
+.page-tags #primary,
+.page-icons #primary {
+    margin-bottom: 40px;
+    margin-top: 40px;
+    padding: 1.4em 0;
+    }
+
+#primary > .inner:first-child { padding: 0; }
+
+.two-columns-left #primary > .inner:first-child,
+.three-columns.column-left #primary > .inner:first-child {
+    margin-left: 25px;
+}
+
+.two-columns-right #primary > .inner:first-child,
+.three-columns.column-right #primary > .inner:first-child {
+    margin-right: 25px;
+}
+
+#secondary-container {
+    background-color: $*color_module_top_background;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 3px 3px 3px $*color_module_top_background_shadow;
+    clear: both;
+    margin: 0 150px;
+    min-height: 32px;
+}
+
+#tertiary-container {
+    background-color: $*color_module_bottom_background;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 3px -3px 3px $*color_module_bottom_background_shadow;
+    margin: 0 150px;
+    min-height: 32px;
+}
+
+.two-columns #secondary,
+.three-columns #secondary,
+.three-columns #tertiary {
+    margin-top: 40px;
+    padding-top: 1.4em;
+    }
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+    padding: 0;
+}
+
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child {
+    margin-right: 12.5px;
+}
+
+.two-columns-left #tertiary { margin-left: 0; }
+.two-columns-right #tertiary { margin-right: 0; }
+
+.three-columns-left #tertiary > .inner:first-child,
+.three-columns-right #tertiary > .inner:first-child {
+    margin-left: 12.5px;
+}
+
+/* Navigation
+******************************/
+
+.navigation {
+    min-height: 60px;
+}
+
+.navigation ul {
+    margin: 0;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.navigation li {
+    padding: 0;
+}
+
+.page-archive .navigation li::after {
+    content: " ." ;
+}
+
+.page-archive .navigation li:last-child::after {
+    content: "" ;
+}
+
+/* Entries & Comments
+******************************/
+
+.entry-wrapper {
+    margin-bottom: 25px;
+}
+
+.entry {
+    border-radius: 20px 20px;
+    box-shadow: 3px 3px 5px $*color_entry_background_shadow;
+    padding: 1.5625em;
+}
+
+.entry-title {
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+.datetime {
+    $entry_title_font
+}
+
+.entry .time::before {
+    content: "# ";
+}
+
+.entry .contents {
+    margin: 1em 0;
+}
+
+.poster {
+    display: block;
+    font-style: italic;
+    margin-bottom: 1em;
+}
+
+.entry .poster::before {
+    content: 'Posted by ';
+}
+
+.poster.empty {
+    display: none;
+}
+
+$userpic_css
+
+.has-userpic .entry .userpic,
+.has-userpic .comment .userpic {
+    border: 1px dotted;
+    margin-top: -3.5625em;
+    padding: 2px;
+    }
+
+.has-userpic .entry .userpic:hover,
+.has-userpic .comment .userpic:hover {
+    border: 1px solid;
+    }
+
+.entry-content {
+    min-height: 100px;
+}
+
+.entry-content,
+.comment-content {
+    margin-bottom: 1em;
+    text-align: justify;
+}
+
+.metadata {
+    clear: both;
+}
+
+.metadata.top-metadata {
+    margin-bottom: 1em;
+}
+
+.metadata-label,
+.tag-text {
+    font-style: italic;
+}
+
+.metadata ul,
+.metadata li,
+.tag ul,
+.tag ul li {
+    margin: 0;
+    padding: 0;
+    }
+
+.footer {
+    clear: both;
+    text-align: right;
+}
+
+.tag {
+    text-align: left;
+}
+
+ul.entry-interaction-links,
+ul.entry-management-links,
+ul.comment-interaction-links,
+ul.comment-management-links {
+    display: inline;
+    margin: 0;
+    font-style: italic;
+    text-transform: lowercase;
+}
+
+ul.entry-interaction-links li,
+ul.entry-management-links li,
+ul.comment-interaction-links li,
+ul.comment-management-links li {
+    padding: 0;
+}
+
+ul.entry-interaction-links li::after,
+ul.entry-management-links li::after,
+ul.comment-interaction-links li::after,
+ul.comment-management-links li::after {
+    content: " .";
+}
+
+ul.entry-interaction-links li:last-child::after,
+ul.comment-interaction-links li:last-child::after,
+ul.comment-interaction-links li.cmt_hide::after {
+    content: "";
+}
+
+.comment-pages.toppages {
+    margin-bottom: 25px;
+}
+
+.comment-pages.toppages + .comment-pages.toppages {
+    margin-top: -20px;
+}
+
+.comment-pages.bottompages {
+    margin: 25px 0;
+}
+
+.comment-pages.bottompages + .comment-pages.bottompages {
+    margin-top: -20px;
+}
+
+.comment-wrapper {
+    padding: 0;
+}
+
+.comment {
+    $entry_background
+    border-radius: 20px 20px;
+    box-shadow: 3px 3px 5px $*color_entry_background_shadow;
+    $entry_colors
+    padding: 1.5625em;
+    margin-bottom: 25px;
+}
+
+.comment a { color: $*color_entry_link; }
+.comment a:visited, .comment a:visited { color: $*color_entry_link_visited; }
+.comment a:hover, .comment a:hover { color: $*color_entry_link_hover; }
+.comment a:active, .comment a:active { color: $*color_entry_link_active; }
+
+.comment-title {
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+.comment .contents {
+    margin: 1em 0;
+}
+
+.partial .comment-poster { display: inline; }
+
+.poster-ip {
+    display: block;
+    margin-bottom: 1em;
+}
+
+.edittime { margin-top: 1em; }
+
+.edittime .datetime { font: inherit; }
+
+.multiform-checkbox { display: block; }
+
+.bottomcomment {
+    $entry_background
+    border-radius: 20px 20px;
+    box-shadow: 3px 3px 5px $*color_entry_background_shadow;
+    $entry_colors
+    padding: 1.5625em;
+    text-align: right;
+}
+
+.bottomcomment a { color: $*color_entry_link; }
+.bottomcomment a:visited { color: $*color_entry_link_visited; }
+.bottomcomment a:hover { color: $*color_entry_link_hover; }
+.bottomcomment a:active { color: $*color_entry_link_active; }
+
+.bottomcomment label {
+    display: block;
+    margin-top: 25px;
+}
+
+.bottomcomment input[type='button'],
+.bottomcomment input[type='submit'] {
+    background: transparent;
+    border: 1px dotted;
+    margin: .1em;
+}
+
+.bottomcomment input[type='submit']:hover {
+    border: 1px solid;
+}
+
+/* Reply Forms
+******************************/
+
+#qrdiv a { color: $*color_entry_link; }
+#qrdiv a:visited { color: $*color_entry_link_visited; }
+#qrdiv a:hover { color: $*color_entry_link_hover; }
+#qrdiv a:active { color: $*color_entry_link_active; }
+
+#qrdiv input[type='button'],
+#qrdiv input[type='submit'] {
+    background: transparent;
+    border: 1px dotted;
+    margin: .1em;
+}
+
+#qrformdiv #subject {
+    border: none;
+    width: 100%;
+}
+
+#qrdiv input[type='button']:hover,
+#qrdiv input[type='submit']:hover {
+    border: 1px solid;
+}
+
+#qrdiv textarea {
+    border: none;
+    padding: .2em;
+}
+
+#qrdiv td[align='center'] {
+    padding-bottom: 0 !important;
+    width: 100% !important;
+    text-align: right !important;
+}
+
+#qrformdiv label {
+    color: $*color_entry_text;
+    display: inline;
+    text-align: left;
+}
+
+#postform {
+    $entry_background
+    border-radius: 20px 20px;
+    box-shadow: 3px 3px 5px $*color_entry_background_shadow;
+    $entry_colors
+    padding: 1.5625em;
+}
+
+#postform a { color: $*color_entry_link; }
+#postform a:visited { color: $*color_entry_link_visited; }
+#postform a:hover { color: $*color_entry_link_hover; }
+#postform a:active { color: $*color_entry_link_active; }
+
+#postform #subject,
+#postform textarea {
+    width: 80%;
+}
+
+#postform input,
+#postform textarea {
+    border-color: transparent;
+}
+
+#postform input[type="button"],
+#postform input[type='submit'] {
+    background: transparent;
+    border: 1px dotted;
+}
+
+#postform input[type='button']:hover,
+#postform input[type='submit']:hover {
+    border: 1px solid;
+}
+
+#postform input[type='button'],
+#postform input[type='submit'] {
+    margin: .2em .1em;
+    }
+
+/* Other Pages
+******************************/
+
+.month,
+.tags-container,
+.icons-container {
+    $entry_background
+    border-radius: 20px 20px;
+    box-shadow: 3px 3px 5px $*color_entry_background_shadow;
+    $entry_colors
+    padding: 25px;
+    }
+
+.month { margin-bottom: 25px; }
+
+.month .month {
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+.month a, .tags-container a, .icons-container a { color: $*color_entry_link; }
+.month a:visited, .tags-container a:visited, .icons-container a:visited { color: $*color_entry_link_visited; }
+.month a:hover, .tags-container a:hover, .icons-container a:hover { color: $*color_entry_link_hover; }
+.month a:active, .tags-container a:active, .icons-container a:active { color: $*color_entry_link_active; }
+
+.month h3,
+.tags-container h2,
+.icons-container h2 {
+    $entry_title_colors
+    $entry_title_font
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+.month .contents,
+.tags-container .contents,
+.icons-container .contents  {
+    margin: 15px 0;
+}
+
+.page-archive caption { display: none; }
+
+.page-archive .month table { width: 60%; }
+
+table.month th {
+    border: none;
+    border-bottom: 1px solid;
+    border-top: 1px solid;
+    padding: 2px;
+    text-align: center;
+}
+
+.page-archive .month td {
+    border: none;
+    vertical-align: top;
+    width: 14%;
+}
+
+table.month td.day {
+    padding: 2px 0;
+    text-align: center;
+}
+
+table.month td.day-has-entries { font-weight: bold;}
+
+table.month td.day-has-entries p { border: 1px dotted; }
+
+table.month td.day-has-entries p:hover { border: 1px solid; }
+
+.sorting-options ul {
+    margin: 0 0 1em;
+    padding: 0;
+    text-align: center;
+}
+
+.icon-pages { text-align: center; }
+
+.icon-pages b { font-weight: normal; }
+
+.icons-container .icon { margin-bottom: 1.25em; }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+}
+
+.icon-image img {
+    border: 1px dotted;
+    padding: 2px;
+}
+
+.icon-image img:hover { border: 1px solid; }
+
+.icon-info { min-height: 100px; }
+
+.icon-info span { font-style: italic; }
+
+.icon-info .default { font-weight: bold; }
+
+.icon-keywords ul { margin: 0; }
+
+.icon-keywords ul li { padding: 0; }
+
+/* Modules
+******************************/
+
+.one-column #secondary .module-wrapper,
+.one-column #tertiary .module-wrapper,
+.two-columns #tertiary .module-wrapper {
+    padding: 25px;
+    text-align: center;
+}
+
+.one-column #secondary .module,
+.one-column #tertiary .module,
+.two-columns #tertiary .module {
+    display: inline-block;
+    float: none;
+    margin: 12.5px;
+    vertical-align: top;
+    width: $*sidebar_width;
+    text-align: left;
+}
+
+.one-column #secondary .calendar-horizontal.module,
+.one-column #tertiary .calendar-horizontal.module,
+.two-columns #tertiary .calendar-horizontal.module {
+    display: block;
+    width: 100%;
+    }
+
+.one-column-split #secondary .module,
+.one-column #tertiary .module,
+.two-columns #tertiary .module {
+    background: none;
+}
+
+.one-column #secondary .module,
+.two-columns #secondary .module,
+.three-columns #secondary .module,
+.three-columns #tertiary .module {
+    border-radius: 0 20px;
+    box-shadow: 3px 3px 5px $*color_module_background_shadow;
+    margin-bottom: 25px;
+}
+
+.one-column-split #secondary .module {
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+.module-header {
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+.one-column #secondary .module-header,
+.two-columns #secondary .module-header,
+.three-columns .module-header {
+    padding: 25px 25px 0 50px;
+    text-align: right;
+}
+
+.one-column-split #secondary .module-header {
+    padding: 0;
+    text-align: left;
+}
+
+.one-column-split #secondary .module {
+    $top_module_colors
+}
+
+.one-column-split #secondary .module a { $top_module_link_colors }
+.one-column-split #secondary .module a:visited { $top_module_link_visited_colors; }
+.one-column-split #secondary .module a:hover { $top_module_link_hover_colors; }
+.one-column-split #secondary .module a:active { $top_module_link_active_colors; }
+
+.one-column-split #secondary .module h2 {
+    $top_module_title_colors
+}
+
+.one-column #tertiary .module,
+.two-columns #tertiary .module {
+    $bottom_module_colors
+}
+
+.one-column #tertiary .module a, .two-columns #tertiary .module a { $bottom_module_link_colors }
+.one-column #tertiary .modulea:visited, .two-columns #tertiary .module a { $bottom_module_link_visited_colors; }
+.one-column #tertiary .module a:hover, .two-columns #tertiary .module a { $bottom_module_link_hover_colors; }
+.one-column #tertiary .module a:active, .two-columns #tertiary .module a { $bottom_module_link_active_colors; }
+
+.one-column #tertiary .module h2,
+.two-columns #tertiary .module h2 {
+    $bottom_module_title_colors
+}
+
+.module-content {
+    padding: 1.5625em;
+}
+
+.one-column #secondary .module-time,
+.two-columns #secondary .module-time,
+.three-columns .module-time,
+.one-column #secondary .module-calendar.calendar-horizontal,
+.two-columns #secondary .module-calendar.calendar-horizontal,
+.three-columns .module-calendar.calendar-horizontal {
+    padding-left: 35px;
+}
+
+.one-column-split #secondary .module-time,
+.one-column-split #secondary .module-calendar.calendar-horizontal {
+    padding-left: 0;
+}
+
+.module-content ul {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0;
+}
+
+.module-content ul ul {
+    margin-left: 25px;
+}
+
+.module-content li {
+    margin: 2px;
+}
+
+.module-userprofile {
+    text-align: center;
+}
+
+.module-userprofile .userpic {
+    display: inline-block;
+}
+
+.module-userprofile .journal-name,
+.module-userprofile .journal-website-name {
+    font-style: italic;
+}
+
+.module-userprofile .userlite-interaction-links {
+    margin-top: 15px;
+}
+
+.module-calendar table {
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+.module-calendar th,
+.module-calendar td {
+    width: 14%;
+}
+
+.module-calendar .entry-day { border: 1px dotted; }
+
+.module-calendar .entry-day:hover {border: 1px solid; }
+
+.module-calendar.calendar-horizontal .module-content { text-align: center; }
+
+.calendar-horizontal .module-content > a:first-child {
+    margin-right: .5em; font-weight: bold;
+}
+
+.calendar-horizontal .module-content > a:last-child {
+    margin-left: .5em; font-weight: bold;
+}
+
+.module-calendar.calendar-horizontal .entry-day,
+.module-calendar.calendar-horizontal .entry-day:hover {
+    border: none;
+    font-weight: bold;
+}
+
+.module-search .module-content { text-align: center; }
+
+.search-box {
+    border: none;
+    margin: 0 auto .3em;
+    width: 90%;
+}
+
+.search-button {
+    background-color: transparent;
+    border: 1px dotted;
+    color: $*color_module_text;
+}
+
+.search-button:hover { border: 1px solid; }
+
+/* Footer
+******************************/
+
+#footer {
+    $page_footer_font
+    margin: 0;
+    min-height: 100px;
+    padding: 0;
+    text-shadow: 3px 3px 5px $*color_footer_link_shadow;
+    text-transform: uppercase;
+}
+
+#footer-shadow-left {
+    width: 150px;
+    box-shadow: 0 -3px 3px $*color_footer_background_shadow;
+    height: 3px;
+}
+
+#footer-shadow-right {
+    box-shadow: 0 -6px 3px $*color_footer_background_shadow;
+    height: 3px;
+    margin-right: 0;
+    margin-left: auto;
+    width: 150px;
+}
+
+.page-top {
+    margin: 42px 65px 0;
+    text-align: center;
+}
+
+#footer .module-wrapper {
+    margin-right: 65px;
+}
+
+#footer .module {
+    background: none;
+    $page_footer_font
+    text-align: right;
+}
+
+#footer .module-content {
+    $page_footer_font
+    padding: 10px 0;
+}
+
+#circle-poweredby {
+    background: $*color_footer_icon_background url($*image_poweredby) no-repeat center;
+    border-radius: 50%;
+    box-shadow: 3px 3px 5px $*color_footer_icon_shadow;
+    display: inline-block;
+    height: 25px;
+    margin-right: 3px;
+    vertical-align: middle;
+    width: 25px;
+}
+
+/* Contextual Pop-ups
+******************************/
+
+div.ContextualPopup {
+    font-size: 1em !important;
+}
+
+div.ContextualPopup div.Inner {
+    border: none;
+    border-radius: 20px 20px;
+    box-shadow: 3px 3px 3px $*color_entry_background_shadow;
+    padding: 4px;
+}
+
+div.ContextualPopup div.Inner a,
+div.ContextualPopup div.Inner a:visited {
+    font-weight: normal;
+    text-decoration: none !important;
+}
+
+/* Navigation Strip
+******************************/
+
+#lj_controlstrip {
+    background-image: url();
+    border: none;
+    padding: 4px;
+    }
+
+#lj_controlstrip select,
+#lj_controlstrip input,
+#lj_controlstrip input#xc_user,
+#lj_controlstrip input#xc_password,
+#lj_controlstrip input#xc_remember {
+    border: 1px solid;
+    padding: 1px 0;
+    }
+
+#lj_controlstrip input#search {
+    border: none;
+    padding: 2px;
+    }
+
+""";
+}

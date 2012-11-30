@@ -14,6 +14,8 @@
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { require 'ljlib.pl'; }
+
 use LJ::Protocol;
 use LJ::Worker::TheSchwartz;
 use LJ::MassPrivacy;

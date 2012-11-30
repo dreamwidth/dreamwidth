@@ -155,7 +155,20 @@ sub _getType {
             unless ($nc) {
                 S2::error($this, "Can't instantiate unknown class.");
             }
-            return new S2::Type $clas;
+            $this->{funcID} = S2::Checker::functionID( $clas, $clas,
+                ( $this->{funcArgs} ? $this->{funcArgs}->typeList($ck) : undef ) );
+            $this->{funcBuiltin} = $ck->isFuncBuiltin( $this->{funcID} );
+
+            my $t = $ck->functionType($this->{funcID});
+            my $clasType = S2::Type->new( $clas );
+
+            S2::error($this, "Unknown constructor '$this->{funcID}'")
+                if $this->{funcArgs} && ! $t;
+            S2::error($this, "Constructor '$this->{funcID}' returns '" . $t->toString() . "', expected '$clas'")
+                if $t && ! $t->equals( $clasType );
+            $this->{funcID} = undef unless $t;
+
+            return $clasType;
         }
         else {
             if (defined($wanted) && !$wanted->isPrimitive()) {
@@ -438,7 +451,12 @@ sub parse {
         # the 'null' keyword, but it is no longer required and it is ignored.
         my $nextToken = $toker->peek;
         if (UNIVERSAL::isa($nextToken, 'S2::TokenIdent')) {
-            $nt->{'newClass'} = $nt->getIdent($toker);
+            $nt->{newClass} = $nt->getIdent($toker);
+            $nextToken = $toker->peek;
+            if ( $nextToken == $S2::TokenPunct::LPAREN ) {
+                $nt->{funcArgs} = parse S2::NodeArguments $toker;
+                $nt->addNode($nt->{funcArgs});
+            }
         }
         elsif ($t == $S2::TokenKeyword::NEW) {
             # A type is *required* for new, but not for null
@@ -536,9 +554,22 @@ sub asPerl {
     }
 
     if ($type == $NEW) {
-        $o->write("S2::Object->new(" .
+        if ( $this->{funcID} && $this->{funcBuiltin} ) {
+            my $pkg = $bp->getBuiltinPackage() || "S2::Builtin";
+            my $clas = $this->{newClass}->getIdent();
+            $o->write($pkg . '::' . $clas . '__' . $clas);
+
+            # FIXME: I think S2 builtin constructors should at least get $ctx.
+            $o->write("(");
+            $this->{funcArgs}->asPerl($bp, $o, 0) if $this->{funcArgs};
+            $o->write(")");
+        } elsif ( $this->{funcID} ) {
+            S2::error($this, "Can't use non-builtin constructor '$this->{funcID}'");
+        } else {
+            $o->write("S2::Object->new(" .
                   $bp->quoteString($this->{'newClass'}->getIdent()) .
                   ")");
+        }
         return;
     }
 

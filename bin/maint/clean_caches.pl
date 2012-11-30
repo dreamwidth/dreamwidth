@@ -207,6 +207,21 @@ $maint{'clean_caches'} = sub
                           $yr, $mo,
                           $yr                );
 
+        # This is kind of a hack. We have a situation right now where we allow
+        # imports to override the userpic quota for a user, because we want to
+        # import everything we can. But we need a way to, later, go through
+        # and deactivate those userpics. We are doing that here so that the
+        # problem only lasts for a day or so.
+        my $sth = $dbcm->prepare(
+            "SELECT DISTINCT userid FROM active_user $where");
+        $sth->execute(@where_vals);
+        unless ($dbcm->err) {
+            while (my ($uid) = $sth->fetchrow_array) {
+                my $u = LJ::load_userid($uid) or next; # Best effort.
+                $u->activate_userpics;
+            }
+        }
+
         # don't need to check for distinct userid in the count here
         # because y,m,d,h,uid is the primary key so we know it's
         # unique for this hour anyway

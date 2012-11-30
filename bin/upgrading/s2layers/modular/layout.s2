@@ -183,19 +183,15 @@ a:hover { text-decoration: none; }
 .bottomcomment,
 .tags-container,
 table.talkform,
-.comment-pages { border-radius: 1em;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
+.comment-pages {
+    border-radius: 1em;
     }
 
 .entry .header,
 .comment .header,
 .module-header,
-.month .header { border-radius: 1em 1em 0 0;
-    -moz-border-radius: 1em 1em 0 0;
-    -webkit-border-radius: 1em 1em 0 0;
-    -khtml-border-radius: 1em 1em 0 0;
+.month .header {
+    border-radius: 1em 1em 0 0;
     }
 
 body { margin: 0; }

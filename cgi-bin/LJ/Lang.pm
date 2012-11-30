@@ -575,7 +575,7 @@ sub get_text
 
         foreach my $tf (@files) {
             $tf = LJ::resolve_file( $tf );
-            next unless -e $tf;
+            next unless defined $tf && -e $tf;
 
             # compare file modtime to when the string was updated in the DB.
             # whichever is newer is authoritative
