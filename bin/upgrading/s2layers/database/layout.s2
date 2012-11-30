@@ -1840,11 +1840,6 @@ span.de {
     padding: .2em;
     }
 
-#postform input,
-#postform select {
-    margin: .1em;
-    }
-
 #postform #subject,
 #postform textarea {
     width: 80%;
@@ -1854,6 +1849,11 @@ span.de {
 #postform textarea:focus,
 #postform input.textbox:focus {
     border: 1px solid $*color_entry_text;
+    }
+
+#postform input[type='button'],
+#postform input[type='submit'] {
+    margin: .2em .1em;
     }
 
 #postform input[type='button']:hover,

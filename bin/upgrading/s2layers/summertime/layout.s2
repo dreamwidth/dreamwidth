@@ -1109,10 +1109,10 @@ ul.comment-interaction-links li.cmt_hide::after {
     border: 1px solid;
 }
 
-#postform input,
-#postform select {
-    margin: .1em;
-}
+#postform input[type='button'],
+#postform input[type='submit'] {
+    margin: .2em .1em;
+    }
 
 /* Other Pages
 ******************************/
