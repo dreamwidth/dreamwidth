@@ -3736,15 +3736,17 @@ register_alter(sub {
     }
 
     if ( column_type( "random_user_set", "journaltype") eq '' ) {
-
-        # We're changing the primary key, so we need to make sure we don't have
-        # any duplicates of the old primary key lying around to trip us up.
-        my $sth = $dbh->prepare("SELECT posttime, userid FROM random_user_set ORDER BY posttime desc");
-        $sth->execute();
-        my %found = ();
-        while (my $rowh = $sth->fetchrow_hashref) {
-            $dbh->do("DELETE FROM random_user_set WHERE userid=? AND posttime=?", undef, $rowh->{'userid'}, $rowh->{'posttime'}) if  $found{$rowh->{'userid'}}++;
-        }
+        do_code("changing random_user_set primary key",sub {
+            # We're changing the primary key, so we need to make sure we don't have
+            # any duplicates of the old primary key lying around to trip us up.
+            my $sth = $dbh->prepare("SELECT posttime, userid FROM random_user_set ORDER BY posttime desc");
+            $sth->execute();
+            my %found = ();
+            while (my $rowh = $sth->fetchrow_hashref) {
+                $dbh->do("DELETE FROM random_user_set WHERE userid=? AND posttime=?", undef,
+                    $rowh->{'userid'}, $rowh->{'posttime'}) if  $found{$rowh->{'userid'}}++;
+            }
+        });
 
         do_alter("random_user_set",
                  "ALTER TABLE random_user_set ADD COLUMN journaltype CHAR(1) NOT NULL DEFAULT 'P'");
@@ -3836,6 +3838,9 @@ register_alter(sub {
                   q{ALTER TABLE syndicated_hubbub2 ADD COLUMN timespinged INT UNSIGNED NOT NULL DEFAULT '0'} );
     }
 
+    # FIXME: This should be moved into a maint script or something,
+    #   but if someone ever does remove the " 0 && " from here, this whole body needs to be wrapped
+    #   in a do_code block ( To prevent the warning message from delaying things )
     if ( 0 && table_relevant( "logkwsum" ) && ! check_dbnote( "logkwsum_fix_filtered_counts_2010" ) ) {
         # this is a very, very racy situation ... we want to do an update of this data, but if anybody
         # else is actively using this table, they're going to be inserting bad data on top of us which
