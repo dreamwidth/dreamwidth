@@ -872,6 +872,8 @@ textarea.textbox  { width: 90%!important; }
     margin: 0;
     }
 
+.comment-posted { font-weight:bold; }
+
 .comment-wrapper { margin: 20px 0; padding: 0; }
 .comment-content { margin: 10px 0; }
 

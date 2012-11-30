@@ -562,6 +562,10 @@ h2.module-header a {
     min-width: 15em;
 }
 
+.comment-posted {
+    font-weight:bold;
+}
+
 .comment-title {
     $comment_title_font
     margin: 0;

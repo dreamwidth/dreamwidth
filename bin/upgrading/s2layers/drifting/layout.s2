@@ -767,6 +767,10 @@ function Page::print_default_stylesheet()
         overflow: auto;
     }
 
+    .comment-posted {
+        font-weight:bold;
+    }
+
     .full .comment .poster {
        display: block;
        width: auto;
@@ -1151,7 +1155,9 @@ function EntryPage::print_comment (Comment c)
             println "<div class=\"datetime-container\">";
                 $c->print_time("long_day", "");
             println "</div>";
-
+             if ( $c.comment_posted ) {
+                 print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+             }
             $c->print_metadata();
 
             println "<div class=\"comment-text\">";

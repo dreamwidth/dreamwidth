@@ -348,6 +348,9 @@ function EntryPage::print_comment (Comment c) {
             print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
         "</span>";
         }
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     """</div>\n""";
     """</div>\n""";
