@@ -174,7 +174,8 @@ min-height: 150px; padding: 1em 0;
 .entry-title, .module-header {
     font-weight: normal;
     text-transform: uppercase;
-    padding: 3px;
+    margin: 0.25em -0.25em;
+    padding: 0.25em;
 }
 
 .datetime { text-transform: uppercase; }

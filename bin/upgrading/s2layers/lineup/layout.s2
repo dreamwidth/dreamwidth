@@ -297,13 +297,13 @@ h2#pagetitle {
 .entry .header {
     background-color: $*color_entry_background;
     margin: 0;
-    padding: 5px 10px;
+    padding: 0;
     }
 
 h3.entry-title {
     font-weight: normal;
     margin: 0;
-    padding: 0;
+    padding: 3px;
     text-transform: uppercase;
     }
 
@@ -315,6 +315,7 @@ h3.entry-title {
     color: $*color_entry_link;
     font-size: .75em;
     text-transform: uppercase;
+    left-padding: .5em;
     }
 
 .has-userpic .entry .userpic {
