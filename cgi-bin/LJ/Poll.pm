@@ -950,13 +950,13 @@ sub render {
         $ret .= LJ::html_hidden('id', $pollid);    #for the ajax request
     }
 
-    $ret .= "<div class='poll-title'><b><a href='$LJ::SITEROOT/poll/?id=$pollid'>" . LJ::Lang::ml('poll.pollnum', { 'num' => $pollid }) . "</a></b> ";
+    $ret .= "<div class='poll-title'><b><a href='$LJ::SITEROOT/poll/?id=$pollid'>" . LJ::Lang::ml('poll.pollnum', { 'num' => $pollid }) . "</a></b></div>";
     if ($self->name) {
         my $name = $self->name;
         LJ::Poll->clean_poll(\$name);
-        $ret .= "<i>$name</i></div>\n";
+        $ret .= " <i>$name</i></div>\n";
     }
-	$ret .= "<div class='poll-status'>";
+    $ret .= "<div class='poll-status'>";
     $ret .= "<span style='font-family: monospace; font-weight: bold; font-size: 1.2em;'>" .
             LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
         if ($self->is_closed);
@@ -972,7 +972,7 @@ sub render {
                                        'whoview' => LJ::Lang::ml('poll.security.'.$whoview) });
 
     $ret .= LJ::Lang::ml('poll.participants', { 'total' => $self->num_participants });
-	$ret .= "</div>";
+    $ret .= "</div>";
     if ( $mode eq 'enter' && $self->can_view( $remote ) ) {
         $ret .= "<div class='poll-control'>[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results' class='LJ_PollDisplayLink'
             id='LJ_PollDisplayLink_${pollid}' lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.seeresults' ) . "</a> ]  ";
@@ -1017,7 +1017,7 @@ sub render {
                 }
             }
         }
-		
+        
         $results_table .= "<div style='margin: 10px 0 10px 40px' class='poll-response'>";
 
         ### get statistics, for scale questions
