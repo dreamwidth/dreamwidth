@@ -760,6 +760,15 @@ sub do_sql
     }
 }
 
+sub do_code {
+    my ( $what, $code ) = @_;
+    print "Code block: $what\n";
+    if ( $opt_sql ) {
+        print "# Running...\n";
+        $code->();
+    }
+}
+
 sub try_sql
 {
     my $sql = shift;
