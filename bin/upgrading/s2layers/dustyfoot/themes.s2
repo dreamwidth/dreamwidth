@@ -183,7 +183,7 @@ set color_module_title_background = "#f7f9fe";
 
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "dustyfoot/argyle.png";
+set image_background_header_url = "commons/argyle.png";
 
 ##===============================
 ## Stylesheet
@@ -341,7 +341,7 @@ set color_module_title_background = "#4b598a";
 
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "dustyfoot/bluedays.png";
+set image_background_header_url = "commons/bluedays.png";
 
 ##===============================
 ## Stylesheet
@@ -493,7 +493,7 @@ set color_module_title_background = "#ceff7a";
 
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "dustyfoot/certainfrogs.png";
+set image_background_header_url = "commons/certainfrogs.png";
 
 ##===============================
 ## Stylesheet
@@ -741,7 +741,7 @@ set color_module_title_background = "#d5cfc2";
 
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "dustyfoot/dependable.png";
+set image_background_header_url = "commons/dependable.png";
 
 ##===============================
 ## Stylesheet
@@ -982,7 +982,7 @@ set color_module_title_background = "#60513f";
 
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "dustyfoot/elegantbrown.png";
+set image_background_header_url = "commons/elegantbrown.png";
 
 ##===============================
 ## Stylesheet
@@ -2181,7 +2181,7 @@ set color_module_title_background = "#c9e3f5";
 
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "dustyfoot/rocket.png";
+set image_background_header_url = "commons/rocket.png";
 
 ##===============================
 ## Stylesheet

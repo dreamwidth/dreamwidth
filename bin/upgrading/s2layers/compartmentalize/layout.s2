@@ -155,14 +155,12 @@ blockquote {
     }
 
 ul {
-    list-style-type: square;
-    list-style-position: inside;
+    list-style: square inside;
     margin: .5em 1em;
     }
 
 ol {
-    list-style-type: decimal;
-    list-style-position: inside;
+    list-style: decimal inside;
     margin: .5em 1.5em;
     }
 
@@ -280,7 +278,6 @@ ul.userlite-interaction-links.icon-links li {
 
 ul.userlite-interaction-links.text-links li {
     padding: 0 0 0 .5em;
-    list-style: none;
     }
 
 ul.module-list {
@@ -289,7 +286,6 @@ ul.module-list {
 
 ul.module-list li {
     padding: 0 0 0 .5em;
-    list-style: none;
     }
 
 .module-navlinks, .module-navlinks a {
@@ -301,7 +297,6 @@ ul.module-list li {
 
 .module-navlinks ul.module-list {
     color: $*color_module_title;
-    list-style: none;
     text-transform: uppercase;
     }
 

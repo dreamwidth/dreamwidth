@@ -41,9 +41,13 @@
 
 .nosubjecthtml=HTML doesn't work in the subject.
 
+.nosubject=(no subject)
+
 .opt.anonymous=Anonymous
 
 .opt.bannedfrom= - you have been banned from commenting in this journal.
+
+.opt.bannedfrom.comm= - you have been banned from commenting in this community.
 
 .opt.defpic=(default)
 

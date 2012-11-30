@@ -55,7 +55,7 @@ sub theschwartz {
 
     my $dbh = DBI->connect($fakedsn,
                            '', '', { RaiseError => 1, PrintError => 0 });
-    my @sql = $load_sql->("$LJ::HOME/cvs/TheSchwartz/t/schema-sqlite.sql");
+    my @sql = $load_sql->("$LJ::HOME/t/data/schema-sqlite.sql");
     for my $sql (@sql) {
         $dbh->do($sql);
     }
@@ -412,6 +412,7 @@ sub t_enter_comment {
     die "Could not post comment: $err" unless $jtalkid;
 
     delete $entry->{_loaded_comments};
+    delete $entry->{_loaded_talkdata};
 
     return LJ::Comment->new($entryu, jtalkid => $jtalkid);
 }

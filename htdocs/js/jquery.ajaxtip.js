@@ -18,7 +18,9 @@ $.widget("dw.ajaxtip", {
                         .click(function(e) {e.stopPropagation()})
 
         if ( self.options.persist ) {
-            $(self.element).attr("type", "persistent")
+            $(self.element).attr("type", "persistent").bind("mouseout"+self._namespace(), function(e) {
+                self.element.trigger("tooltipout" + self._namespace());
+            } )
         }
 
         self.element
@@ -35,7 +37,7 @@ $.widget("dw.ajaxtip", {
                     // just fade away after a preset period
                     def       : "ajaxstart"+ns+", tooltipout"+ns+" ajaxresult"+ns,
                     // persist until the user takes some action (including moving the mouse away from trigger)
-                    persistent: "ajaxstart"+ns+", tooltipout"+ns+" mouseout"+ns,
+                    persistent: "ajaxstart"+ns+", tooltipout"+ns,
                     widget    : "ajaxstart"+ns+", ajaxresult"+ns,
                     tooltip   : "mouseover,mouseleave"
                 },

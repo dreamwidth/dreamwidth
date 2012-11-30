@@ -690,6 +690,7 @@ sub asJS {
         return;
     }
 
+    # FIXME: Fix for S2 Constructors
     if ($type == $NEW) {
         $o->write("{\".type\": ".
                   $bp->quoteString($this->{'newClass'}->getIdent()) .

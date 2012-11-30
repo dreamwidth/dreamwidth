@@ -3,3 +3,5 @@
 /extlib
 /ext
 /etc/config*.pl
+/build
+*.sw?

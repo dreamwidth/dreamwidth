@@ -185,7 +185,7 @@ layerinfo name = "Aurora";
 layerinfo redist_uniq = "abstractia/aurora";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -263,13 +263,101 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+#NEWLAYER: abstractia/awakening
+layerinfo type = "theme";
+layerinfo name = "Awakening";
+layerinfo redist_uniq = "abstractia/awakening";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#ddb67f";
+set color_page_link = "#703305";
+set color_page_link_active = "#501103";
+set color_page_link_hover = "#ddb67f";
+set color_page_link_visited = "#703305";
+set color_page_text = "#000";
+set color_page_title = "#040100";
+set color_footer_link = "#703305";
+set color_footer_link_active = "#501103";
+set color_footer_link_hover = "#ddb67f";
+set color_footer_link_visited = "#703305";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#703305";
+set color_module_link_active = "#501103";
+set color_module_link_hover = "#ddb67f";
+set color_module_link_visited = "#703305";
+set color_module_text = "#351e0c";
+set color_module_title = "#351e0c";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#703305";
+set color_entry_interaction_links = "#703305";
+set color_entry_link = "#703305";
+set color_entry_link_active = "#501103";
+set color_entry_link_hover = "#ddb67f";
+set color_entry_link_visited = "#5b2400";
+set color_entry_text = "#351e0c";
+set color_entry_title = "#703305";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/awakening_bg2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/awakening_bg1.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/awakening_bg1.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/awakening_bg1.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/awakening_bg2.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/awakening.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/awakening_bg2.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/awakening_bg1.png";
+
+
 #NEWLAYER: abstractia/battleraven
 layerinfo type = "theme";
 layerinfo name = "Battle Raven";
 layerinfo redist_uniq = "abstractia/battleraven";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -348,13 +436,102 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+#NEWLAYER: abstractia/battleravenii
+layerinfo type = "theme";
+layerinfo name = "Battle Raven II";
+layerinfo redist_uniq = "abstractia/battleravenii";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#1a3440";
+set color_page_link_active = "#1a3440";
+set color_footer_link = "#357381";
+set color_footer_link_hover = "#1a3440";
+set color_footer_link_visited = "#488191";
+set color_page_link = "#357381";
+set color_page_link_hover = "#1a3440";
+set color_page_link_visited = "#488191";
+set color_page_text = "#d3e3e2";
+set color_page_title = "#d3e3e2";
+set color_footer_link_active = "#1a3440";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#357381";
+set color_module_link_active = "#1a3440";
+set color_module_link_hover = "#1a3440";
+set color_module_link_visited = "#488191";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#357381";
+set color_entry_interaction_links = "#488191";
+set color_entry_link = "#357381";
+set color_entry_link_hover = "#1a3440";
+set color_entry_link_visited = "#488191";
+set color_entry_text = "#d3e3e2";
+set color_entry_title = "#357381";
+set color_entry_link_active = "#1a3440";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/battleravenii.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
 #NEWLAYER: abstractia/blacklace
 layerinfo type = "theme";
 layerinfo name = "Black Lace";
 layerinfo redist_uniq = "abstractia/blacklace";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -429,6 +606,92 @@ set image_background_header_repeat = "repeat";
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
 set image_background_page_url = "abstractia/blacklace.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/bluedragon
+layerinfo type = "theme";
+layerinfo name = "Blue Dragon";
+layerinfo redist_uniq = "abstractia/bluedragon";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#06587a";
+set color_page_link = "#07759d";
+set color_page_link_active = "#0997bf";
+set color_page_link_hover = "#0997bf";
+set color_page_link_visited = "#07759d";
+set color_page_text = "#eee";
+set color_page_title = "#FEFEFE";
+set color_footer_link = "#07759d";
+set color_footer_link_active = "#0997bf";
+set color_footer_link_hover = "#0997bf";
+set color_footer_link_visited = "#07759d";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#07759d";
+set color_module_link_active = "#0997bf";
+set color_module_link_hover = "#0997bf";
+set color_module_link_visited = "#07759d";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#07759d";
+set color_entry_interaction_links = "#07759d";
+set color_entry_link = "#07759d";
+set color_entry_link_active = "#0997bf";
+set color_entry_link_hover = "#0997bf";
+set color_entry_link_visited = "#05556c";
+set color_entry_text = "#eee";
+set color_entry_title = "#07759d";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_page_position = "top center";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/bluedragon.jpg";
 set image_background_sidebar_position = "top left";
 set image_background_sidebar_repeat = "repeat";
 set image_background_sidebar_url = "abstractia/sidebar.png";
@@ -541,7 +804,7 @@ layerinfo name = "Bubbles";
 layerinfo redist_uniq = "abstractia/bubbles";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -703,6 +966,93 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
+#NEWLAYER: abstractia/catchthesun
+layerinfo type = "theme";
+layerinfo name = "Catch the Sun";
+layerinfo redist_uniq = "abstractia/catchthesun";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#948972";
+set color_page_link = "#703305";
+set color_page_link_active = "#501103";
+set color_page_link_hover = "#501103";
+set color_page_link_visited = "#703305";
+set color_page_text = "#351e0c";
+set color_page_title = "#361E0D";
+set color_footer_link = "#703305";
+set color_footer_link_active = "#501103";
+set color_footer_link_hover = "#501103";
+set color_footer_link_visited = "#703305";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#703305";
+set color_module_link_active = "#501103";
+set color_module_link_hover = "#501103";
+set color_module_link_visited = "#703305";
+set color_module_text = "#351e0c";
+set color_module_title = "#351e0c";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#703305";
+set color_entry_interaction_links = "#703305";
+set color_entry_link = "#703305";
+set color_entry_link_active = "#501103";
+set color_entry_link_hover = "#501103";
+set color_entry_link_visited = "#5b2400";
+set color_entry_text = "#351e0c";
+set color_entry_title = "#703305";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/catchthesun_bg2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/catchthesun_bg1.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/catchthesun_bg1.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/catchthesun_bg1.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/catchthesun_bg2.png";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/catchthesun.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/catchthesun_bg2.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/catchthesun_bg1.png";
+
+
 #NEWLAYER: abstractia/darkcarnival
 layerinfo type = "theme";
 layerinfo name = "Dark Carnival";
@@ -786,13 +1136,167 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
+#NEWLAYER: abstractia/darkromance
+layerinfo type = "theme";
+layerinfo name = "Dark Romance";
+layerinfo redist_uniq = "abstractia/darkromance";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#820205";
+set color_page_link = "#981212";
+set color_page_link_active = "#ba3434";
+set color_page_link_hover = "#ba3434";
+set color_page_link_visited = "#981212";
+set color_page_text = "#eee";
+set color_page_title = "#ba3434";
+set color_footer_link = "#981212";
+set color_footer_link_active = "#ba3434";
+set color_footer_link_hover = "#ba3434";
+set color_footer_link_visited = "#981212";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#981212";
+set color_module_link_active = "#ba3434";
+set color_module_link_hover = "#ba3434";
+set color_module_link_visited = "#981212";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#981212";
+set color_entry_interaction_links = "#981212";
+set color_entry_link = "#981212";
+set color_entry_link_active = "#ba3434";
+set color_entry_link_hover = "#ba3434";
+set color_entry_link_visited = "#6f0e0d";
+set color_entry_text = "#eee";
+set color_entry_title = "#981212";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/darkromance.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/daydream
+layerinfo type = "theme";
+layerinfo name = "Daydream";
+layerinfo redist_uniq = "abstractia/daydream";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#b67585";
+set color_page_link_active = "#ac1454";
+set color_page_link_hover = "#ac1454";
+set color_page_link_visited = "#9d6173";
+set color_page_title = "#9d6173";
+set color_footer_link = "#b67585";
+set color_footer_link_active = "#ac1454";
+set color_footer_link_hover = "#ac1454";
+set color_footer_link_visited = "#9d6173";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#b67585";
+set color_module_link_active = "#ac1454";
+set color_module_link_hover = "#ac1454";
+set color_module_link_visited = "#9d6173";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#ac1454";
+set color_entry_interaction_links = "#b67585";
+set color_entry_link = "#b67585";
+set color_entry_link_active = "#ac1454";
+set color_entry_link_hover = "#ac1454";
+set color_entry_link_visited = "#9d6173";
+set color_entry_title = "#9d6173";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_url = "abstractia/daydream_bg2.png";
+set image_background_calendar_and_form_url = "abstractia/daydream_bg1.png";
+set image_background_content_footer_url = "abstractia/daydream_bg1.png";
+set image_background_content_header_url = "abstractia/daydream_bg1.png";
+set image_background_content_url = "abstractia/daydream_bg2.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/daydream.jpg";
+set image_background_sidebar_url = "abstractia/daydream_bg2.png";
+set image_background_userpic_url = "abstractia/daydream_bg2.png";
+
+
 #NEWLAYER: abstractia/deepforest
 layerinfo type = "theme";
 layerinfo name = "Deep Forest";
 layerinfo redist_uniq = "abstractia/deepforest";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -871,13 +1375,252 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+#NEWLAYER: abstractia/dreamscape
+layerinfo type = "theme";
+layerinfo name = "Dreamscape";
+layerinfo redist_uniq = "abstractia/dreamscape";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#b67585";
+set color_page_link_active = "#ac1454";
+set color_page_link_hover = "#ac1454";
+set color_page_link_visited = "#9d6173";
+set color_page_title = "#9d6173";
+set color_footer_link = "#b67585";
+set color_footer_link_active = "#ac1454";
+set color_footer_link_hover = "#ac1454";
+set color_footer_link_visited = "#9d6173";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#b67585";
+set color_module_link_active = "#ac1454";
+set color_module_link_hover = "#ac1454";
+set color_module_link_visited = "#9d6173";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#ac1454";
+set color_entry_interaction_links = "#b67585";
+set color_entry_link = "#b67585";
+set color_entry_link_active = "#ac1454";
+set color_entry_link_hover = "#ac1454";
+set color_entry_link_visited = "#9d6173";
+set color_entry_title = "#9d6173";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_url = "abstractia/abstractia_transparency2.png";
+set image_background_calendar_and_form_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_footer_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_header_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_url = "abstractia/abstractia_transparency3.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/dreamscape.jpg";
+set image_background_sidebar_url = "abstractia/abstractia_transparency3.png";
+set image_background_userpic_url = "abstractia/abstractia_transparency2.png";
+
+
+#NEWLAYER: abstractia/duskmagic
+layerinfo type = "theme";
+layerinfo name = "Dusk Magic";
+layerinfo redist_uniq = "abstractia/duskmagic";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#728294";
+set color_page_link = "#054aa2";
+set color_page_link_active = "#021770";
+set color_page_link_hover = "#021770";
+set color_page_link_visited = "#054aa2";
+set color_page_text = "#0c1d36";
+set color_page_title = "#1d4070";
+set color_footer_link = "#054aa2";
+set color_footer_link_active = "#021770";
+set color_footer_link_hover = "#021770";
+set color_footer_link_visited = "#054aa2";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#054aa2";
+set color_module_link_active = "#021770";
+set color_module_link_hover = "#021770";
+set color_module_link_visited = "#054aa2";
+set color_module_text = "#0c1d36";
+set color_module_title = "#0c1d36";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#054aa2";
+set color_entry_link = "#054aa2";
+set color_entry_link_active = "#021770";
+set color_entry_link_hover = "#021770";
+set color_entry_link_visited = "#032880";
+set color_entry_text = "#0c1d36";
+set color_entry_title = "#054aa2";
+set color_comment_title = "#054aa2";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/duskmagic.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/duskmagic_bg1.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/duskmagic_bg2.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/duskmagic_bg1.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/duskmagic_bg2.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/duskmagic_bg2.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/duskmagic_bg2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/duskmagic_bg1.png";
+
+
+#NEWLAYER: abstractia/ecstasy
+layerinfo type = "theme";
+layerinfo name = "Ecstasy";
+layerinfo redist_uniq = "abstractia/ecstasy";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#948972";
+set color_page_link = "#703305";
+set color_page_link_active = "#501103";
+set color_page_link_hover = "#501103";
+set color_page_link_visited = "#703305";
+set color_page_text = "#351e0c";
+set color_page_title = "#71411d";
+set color_footer_link = "#703305";
+set color_footer_link_active = "#501103";
+set color_footer_link_hover = "#501103";
+set color_footer_link_visited = "#703305";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#703305";
+set color_module_link_active = "#501103";
+set color_module_link_hover = "#501103";
+set color_module_link_visited = "#703305";
+set color_module_text = "#351e0c";
+set color_module_title = "#351e0c";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#703305";
+set color_entry_link = "#703305";
+set color_entry_link_active = "#501103";
+set color_entry_link_hover = "#501103";
+set color_entry_link_visited = "#5b2400";
+set color_entry_text = "#351e0c";
+set color_entry_title = "#703305";
+set color_comment_title = "#703305";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/ecstasy.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/ecstasy_bg1.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/ecstasy_bg2.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/ecstasy_bg1.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/ecstasy_bg1.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/ecstasy_bg2.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/ecstasy_bg2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/ecstasy_bg1.png";
+
+
 #NEWLAYER: abstractia/electricmayhem
 layerinfo type = "theme";
 layerinfo name = "Electric Mayhem";
 layerinfo redist_uniq = "abstractia/electricmayhem";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -962,7 +1705,7 @@ layerinfo name = "Electric Mayhem II";
 layerinfo redist_uniq = "abstractia/electricmayhemii";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -1040,13 +1783,307 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/abstractia_transparency2.png";
 
 
+#NEWLAYER: abstractia/fae
+layerinfo type = "theme";
+layerinfo name = "Fae";
+layerinfo redist_uniq = "abstractia/fae";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#ba8066";
+set color_page_link = "#3F0670";
+set color_page_link_active = "#2E044F";
+set color_page_link_hover = "#2E044F";
+set color_page_link_visited = "#390470";
+set color_page_text = "#2c0c36";
+set color_page_title = "#5d1d70";
+set color_footer_link = "#3F0670";
+set color_footer_link_active = "#2E044F";
+set color_footer_link_hover = "#2E044F";
+set color_footer_link_visited = "#390470";
+set color_module_link = "#3F0670";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link_active = "#2E044F";
+set color_module_link_hover = "#2E044F";
+set color_module_link_visited = "#390470";
+set color_module_text = "#2c0c36";
+set color_module_title = "#2c0c36";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#390470";
+set color_entry_interaction_links = "#3F0670";
+set color_entry_link = "#3F0670";
+set color_entry_link_active = "#2E044F";
+set color_entry_link_hover = "#2E044F";
+set color_entry_link_visited = "#390470";
+set color_entry_text = "#2c0c36";
+set color_entry_title = "#390470";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/twinkle-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/twinkle-calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/twinkle-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/twinkle-content.png";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/fae.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/twinkle-sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/twinkle-userpic.png";
+
+
+#NEWLAYER: abstractia/greendragon
+layerinfo type = "theme";
+layerinfo name = "Green Dragon";
+layerinfo redist_uniq = "abstractia/greendragon";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#47700a";
+set color_page_link = "#6fac07";
+set color_page_link_active = "#8fce09";
+set color_page_link_hover = "#8fce09";
+set color_page_link_visited = "#6fac07";
+set color_page_text = "#eee";
+set color_page_title = "#000";
+set color_footer_link = "#6fac07";
+set color_footer_link_active = "#8fce09";
+set color_footer_link_hover = "#8fce09";
+set color_footer_link_visited = "#6fac07";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#6fac07";
+set color_module_link_active = "#8fce09";
+set color_module_link_hover = "#8fce09";
+set color_module_link_visited = "#6fac07";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_interaction_links = "#6fac07";
+set color_entry_link = "#6fac07";
+set color_entry_link_active = "#8fce09";
+set color_entry_link_hover = "#8fce09";
+set color_entry_link_visited = "#4c7205";
+set color_entry_text = "#eee";
+set color_entry_title = "#6fac07";
+set color_comment_title = "#6fac07";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/greendragon.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+
+
+#NEWLAYER: abstractia/hazyautumn
+layerinfo type = "theme";
+layerinfo name = "Hazy Autumn";
+layerinfo redist_uniq = "abstractia/hazyautumn";
+layerinfo author_name = "anthologia";
+
+set theme_authors = [ { "name" => "anthologia", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffa773";
+set color_page_border = "#a63e00";
+set color_page_link = "#a63e00";
+set color_page_link_active = "#a63100";
+set color_page_link_hover = "#a63100";
+set color_page_link_visited = "#a62000";
+set color_page_text = "#000";
+set color_page_title = "#a30008";
+set color_userpic_background = "#ff6140";
+set color_sidebar_background = "#ffbc73";
+set color_content_background = "#ffbc73";
+set color_content_footer_background = "#ffbc73";
+set color_content_header_background = "#ffbc73";
+set color_archive_calendar_background = "#ffbc73";
+set color_calendar_and_form_background = "#ffbc73";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#a63100";
+
+
+#NEWLAYER: abstractia/joy
+layerinfo type = "theme";
+layerinfo name = "Joy";
+layerinfo redist_uniq = "abstractia/joy";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#ba6a66";
+set color_page_link = "#70211d";
+set color_page_link_active = "#700702";
+set color_page_link_hover = "#700702";
+set color_page_link_visited = "#6B3B3A";
+set color_page_text = "#360e0c";
+set color_page_title = "#70211d";
+set color_footer_link = "#70211d";
+set color_footer_link_active = "#700702";
+set color_footer_link_hover = "#700702";
+set color_footer_link_visited = "#6B3B3A";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#70211d";
+set color_module_link_active = "#700702";
+set color_module_link_hover = "#700702";
+set color_module_link_visited = "#6B3B3A";
+set color_module_text = "#360e0c";
+set color_module_title = "#360e0c";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#70211d";
+set color_entry_interaction_links = "#70211d";
+set color_entry_link = "#70211d";
+set color_entry_link_active = "#700702";
+set color_entry_link_hover = "#700702";
+set color_entry_link_visited = "#6B3B3A";
+set color_entry_text = "#360e0c";
+set color_entry_title = "#6B3B3A";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/joy_bg2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/joy_bg1.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/joy_bg1.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/joy_bg1.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/joy_bg1.png";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/joy.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/joy_bg2.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/joy_bg1.png";
+
+
 #NEWLAYER: abstractia/loveless
 layerinfo type = "theme";
 layerinfo name = "Loveless";
 layerinfo redist_uniq = "abstractia/loveless";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -1405,6 +2442,88 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
+#NEWLAYER: abstractia/morningdew
+layerinfo type = "theme";
+layerinfo name = "Morning Dew";
+layerinfo redist_uniq = "abstractia/morningdew";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#4a574c";
+set color_page_link_hover = "#3c4b40";
+set color_page_link_visited = "#334037";
+set color_page_text = "#1c1e1d";
+set color_page_title = "#334037";
+set color_footer_link = "#4a574c";
+set color_footer_link_hover = "#47594d";
+set color_footer_link_visited = "#334037";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#4a574c";
+set color_module_link_hover = "#3c4b40";
+set color_module_link_visited = "#334037";
+set color_module_text = "#1c1e1d";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#334037";
+set color_entry_interaction_links = "#4a574c";
+set color_entry_link = "#4a574c";
+set color_entry_link_hover = "#3c4b40";
+set color_entry_link_visited = "#334037";
+set color_entry_text = "#1c1e1d";
+set color_entry_title = "#334037";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/morningdew_bg2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/morningdew_bg1.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/morningdew_bg1.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/morningdew_bg1.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/morningdew_bg2.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/morningdew.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/morningdew_bg2.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/morningdew_bg1.png";
+
+
 #NEWLAYER: abstractia/oceanfloor
 layerinfo type = "theme";
 layerinfo name = "Ocean Floor";
@@ -1494,7 +2613,7 @@ layerinfo name = "Peacock Fringe";
 layerinfo redist_uniq = "abstractia/peacockfringe";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -1733,6 +2852,354 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
+#NEWLAYER: abstractia/rainbowinthedark
+layerinfo type = "theme";
+layerinfo name = "Rainbow in the Dark";
+layerinfo redist_uniq = "abstractia/rainbowinthedark";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#08000d";
+set color_page_link = "#7009a0";
+set color_page_link_active = "#900bc0";
+set color_page_link_hover = "#900bc0";
+set color_page_link_visited = "#7009a0";
+set color_page_text = "#eee";
+set color_page_title = "#fcfcfc";
+set color_footer_link = "#7009a0";
+set color_footer_link_active = "#900bc0";
+set color_footer_link_hover = "#900bc0";
+set color_footer_link_visited = "#7009a0";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#7009a0";
+set color_module_link_active = "#900bc0";
+set color_module_link_hover = "#900bc0";
+set color_module_link_visited = "#7009a0";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#7009a0";
+set color_entry_interaction_links = "#7009a0";
+set color_entry_link = "#7009a0";
+set color_entry_link_active = "#900bc0";
+set color_entry_link_hover = "#900bc0";
+set color_entry_link_visited = "#540680";
+set color_entry_text = "#eee";
+set color_entry_title = "#7009a0";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/rainbowinthedark.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/seelie
+layerinfo type = "theme";
+layerinfo name = "Seelie";
+layerinfo redist_uniq = "abstractia/seelie";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#0c1ea2";
+set color_page_link_active = "#1818fd";
+set color_page_link_hover = "#046dc7";
+set color_page_link_visited = "#1d1dbf";
+set color_page_text = "#ddd";
+set color_page_title = "#fff";
+set color_footer_link = "#0c1ea2";
+set color_footer_link_active = "#1818fd";
+set color_footer_link_hover = "#046dc7";
+set color_footer_link_visited = "#1d1dbf";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#0c1ea2";
+set color_module_link_active = "#1818fd";
+set color_module_link_hover = "#046dc7";
+set color_module_link_visited = "#1d1dbf";
+set color_module_text = "#ddd";
+set color_module_title = "#1d1dbf";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#1d1dbf";
+set color_entry_interaction_links = "#0c1ea2";
+set color_entry_link = "#0c1ea2";
+set color_entry_link_active = "#1818fd";
+set color_entry_link_hover = "#046dc7";
+set color_entry_link_visited = "#1d1dbf";
+set color_entry_text = "#ddd";
+set color_entry_title = "#1d1dbf";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/content.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-header.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/seelie.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/content.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/content.png";
+
+
+#NEWLAYER: abstractia/shadowfire
+layerinfo type = "theme";
+layerinfo name = "Shadowfire";
+layerinfo redist_uniq = "abstractia/shadowfire";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#aaa";
+set color_page_link = "#777";
+set color_page_link_active = "#ccc";
+set color_page_link_hover = "#ccc";
+set color_page_link_visited = "#777";
+set color_page_text = "#eee";
+set color_page_title = "#eee";
+set color_footer_link = "#777";
+set color_footer_link_active = "#ccc";
+set color_footer_link_hover = "#ccc";
+set color_footer_link_visited = "#777";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#777";
+set color_module_link_active = "#ccc";
+set color_module_link_hover = "#ccc";
+set color_module_link_visited = "#777";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#777";
+set color_entry_interaction_links = "#777";
+set color_entry_link = "#777";
+set color_entry_link_active = "#ccc";
+set color_entry_link_hover = "#ccc";
+set color_entry_link_visited = "#555";
+set color_entry_text = "#eee";
+set color_entry_title = "#777";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_page_position = "bottom right";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/shadowfire.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/sidhe
+layerinfo type = "theme";
+layerinfo name = "Sidhe";
+layerinfo redist_uniq = "abstractia/sidhe";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_border = "#552102";
+set color_page_link = "#a23105";
+set color_page_link_active = "#875b4f";
+set color_page_link_hover = "#875b4f";
+set color_page_link_visited = "#a23105";
+set color_page_text = "#ddd";
+set color_page_title = "#fff";
+set color_footer_link = "#a23105";
+set color_footer_link_active = "#875b4f";
+set color_footer_link_hover = "#875b4f";
+set color_footer_link_visited = "#a23105";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#a23105";
+set color_module_link_active = "#701f03";
+set color_module_link_hover = "#701f03";
+set color_module_link_visited = "#a23105";
+set color_module_text = "#ddd";
+set color_module_title = "#a23105";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#a23105";
+set color_entry_interaction_links = "#a23105";
+set color_entry_link = "#a23105";
+set color_entry_link_active = "#875b4f";
+set color_entry_link_hover = "#875b4f";
+set color_entry_link_visited = "#a23105";
+set color_entry_text = "#ddd";
+set color_entry_title = "#a23105";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/sidhe.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
 #NEWLAYER: abstractia/sky
 layerinfo type = "theme";
 layerinfo name = "Sky";
@@ -1935,7 +3402,7 @@ layerinfo name = "Sylph";
 layerinfo redist_uniq = "abstractia/sylph";
 layerinfo author_name = "nornoriel";
 
-set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -2293,6 +3760,78 @@ var string calendar_and_form_image = generate_background_css ($*image_background
 }
 
 
+#NEWLAYER: abstractia/unseelie
+layerinfo type = "theme";
+layerinfo name = "Unseelie";
+layerinfo redist_uniq = "abstractia/unseelie";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_footer_link = "#006d24";
+set color_footer_link_hover = "#037c03";
+set color_footer_link_visited = "#0e592c";
+set color_page_link = "#006d24";
+set color_page_link_hover = "#037c03";
+set color_page_link_visited = "#0e592c";
+set color_page_text = "#ddd";
+set color_page_title = "#001F0A";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#006d24";
+set color_entry_interaction_links = "#0e592c";
+set color_entry_link = "#006d24";
+set color_entry_link_hover = "#037c03";
+set color_entry_link_visited = "#0e592c";
+set color_entry_text = "#ddd";
+set color_entry_title = "#006d24";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/content.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-header.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/unseelie.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/content.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/content.png";
+
+
 #NEWLAYER: abstractia/valentine
 layerinfo type = "theme";
 layerinfo name = "Valentine";
@@ -2389,3 +3928,341 @@ var string calendar_and_form_image = generate_background_css ($*image_background
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
+
+#NEWLAYER: abstractia/veili
+layerinfo type = "theme";
+layerinfo name = "Veil I";
+layerinfo redist_uniq = "abstractia/veili";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#06587a";
+set color_page_link = "#07759d";
+set color_page_link_active = "#0997bf";
+set color_page_link_hover = "#0997bf";
+set color_page_link_visited = "#07759d";
+set color_page_text = "#eee";
+set color_page_title = "#eee";
+set color_footer_link = "#07759d";
+set color_footer_link_active = "#0997bf";
+set color_footer_link_hover = "#0997bf";
+set color_footer_link_visited = "#07759d";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#07759d";
+set color_module_link_active = "#0997bf";
+set color_module_link_hover = "#0997bf";
+set color_module_link_visited = "#07759d";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#07759d";
+set color_entry_interaction_links = "#07759d";
+set color_entry_link = "#07759d";
+set color_entry_link_active = "#0997bf";
+set color_entry_link_hover = "#0997bf";
+set color_entry_link_visited = "#05556c";
+set color_entry_text = "#eee";
+set color_entry_title = "#07759d";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top center";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/veili.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/veilii
+layerinfo type = "theme";
+layerinfo name = "Veil II";
+layerinfo redist_uniq = "abstractia/veilii";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#47700a";
+set color_page_link = "#6fac07";
+set color_page_link_active = "#8fce09";
+set color_page_link_hover = "#8fce09";
+set color_page_link_visited = "#6fac07";
+set color_page_text = "#eee";
+set color_page_title = "#eee";
+set color_footer_link = "#6fac07";
+set color_footer_link_active = "#8fce09";
+set color_footer_link_hover = "#8fce09";
+set color_footer_link_visited = "#6fac07";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#6fac07";
+set color_module_link_active = "#8fce09";
+set color_module_link_hover = "#8fce09";
+set color_module_link_visited = "#6fac07";
+set color_module_text = "#eee";
+set color_module_title = "#eee";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#6fac07";
+set color_entry_interaction_links = "#6fac07";
+set color_entry_link = "#6fac07";
+set color_entry_link_active = "#8fce09";
+set color_entry_link_hover = "#8fce09";
+set color_entry_link_visited = "#4c7205";
+set color_entry_text = "#eee";
+set color_entry_title = "#6fac07";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/veilii.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+#NEWLAYER: abstractia/whitelace
+layerinfo type = "theme";
+layerinfo name = "White Lace";
+layerinfo redist_uniq = "abstractia/whitelace";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#b48690";
+set color_page_link_hover = "#90605f";
+set color_page_link_visited = "#a99797";
+set color_page_text = "#7b4e51";
+set color_page_title = "#a99797";
+set color_footer_link = "#b48690";
+set color_footer_link_hover = "#90605f";
+set color_footer_link_visited = "#a99797";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#b48690";
+set color_module_link_hover = "#90605f";
+set color_module_link_visited = "#a99797";
+set color_module_title = "#a99797";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#a99797";
+set color_entry_interaction_links = "#b48690";
+set color_entry_link = "#b48690";
+set color_entry_link_hover = "#90605f";
+set color_entry_link_visited = "#a99797";
+set color_entry_text = "#7b4e51";
+set color_entry_title = "#a99797";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/whitelace.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/whitelace.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/whitelace.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/abstractia_transparency2.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/whitelace.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/abstractia_transparency2.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/abstractia_transparency2.png";
+
+
+#NEWLAYER: abstractia/winterborn
+layerinfo type = "theme";
+layerinfo name = "Winterborn";
+layerinfo redist_uniq = "abstractia/winterborn";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_link = "#353c40";
+set color_page_link_hover = "#4d5f68";
+set color_page_link_visited = "#444d52";
+set color_page_text = "#111211";
+set color_page_title = "#030403";
+set color_footer_link = "#353c40";
+set color_footer_link_hover = "#4d5f68";
+set color_footer_link_visited = "#444d52";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link = "#353c40";
+set color_module_link_hover = "#4d5f68";
+set color_module_link_visited = "#444d52";
+set color_module_text = "#111211";
+set color_module_title = "#5f6b72";
+
+##===============================
+## Entry
+##===============================
+
+set color_comment_title = "#5f6b72";
+set color_entry_interaction_links = "#353c40";
+set color_entry_link = "#353c40";
+set color_entry_link_hover = "#4d5f68";
+set color_entry_link_visited = "#444d52";
+set color_entry_text = "#111211";
+set color_entry_title = "#5f6b72";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/winterborn.jpg";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/abstractia_transparency2.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/abstractia_transparency2.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/abstractia_transparency3.png";
+set image_background_header_height = 0;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/abstractia_transparency3.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/abstractia_transparency2.png";

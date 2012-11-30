@@ -34,8 +34,6 @@ my %form_to_props = (
     current_mood_other  => "current_mood",
     current_music       => "current_music",
     current_location    => "current_location",
-
-    taglist             => "taglist",
 );
 
 
@@ -57,7 +55,7 @@ Handlers for creating and editing entries
 =cut
 
 DW::Routing->register_string( '/entry/new', \&new_handler, app => 1 );
-DW::Routing->register_regex( '/entry/([^/]+)/new', \&new_handler, app => 1 );
+DW::Routing->register_regex( '^/entry/([^/]+)/new$', \&new_handler, app => 1 );
 
 DW::Routing->register_string( '/entry/preview', \&preview_handler, app => 1, methods => { POST => 1 } );
 
@@ -86,8 +84,11 @@ Handles posting a new entry
 sub new_handler {
     my ( $call_opts, $usejournal ) = @_;
 
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
     my $r = DW::Request->get;
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
 
     return error_ml( "/entry/form.tt.beta.off", { aopts => "href='$LJ::SITEROOT/betafeatures'" } )
         unless $remote && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
@@ -100,8 +101,8 @@ sub new_handler {
     if ( $r->did_post ) {
         $post = $r->post_args;
 
-        my $mode_preview = $post->{"action:preview"};
-        my $mode_spellcheck = $post->{"action:spellcheck"};
+        my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
+        my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -211,14 +212,13 @@ sub new_handler {
     $usejournal ||= $get->{usejournal};
     my $vars = _init( { usejournal  => $usejournal,
                         altlogin    => $get->{altlogin},
+                        remote      => $remote,
 
                         datetime    => $datetime || "",
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
                       }, @_ );
-
-    return $vars->{ret} if $vars->{handled};
 
     # these kinds of errors prevent us from initializing the form at all
     # so abort and return it without the form
@@ -248,7 +248,6 @@ sub new_handler {
     }
 
     $vars->{show_unimplemented} = $get->{highlight} ? 1 : 0;
-    $vars->{betacommunity} = LJ::load_user( "dw_beta" );
 
     $vars->{action} = {
         url  => LJ::create_url( undef, keep_args => 1 ),
@@ -270,11 +269,8 @@ sub new_handler {
 sub _init {
     my ( $form_opts, $call_opts ) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
-    return { handled => 1, ret => $rv } unless $ok;
-
     my $post_as_other = $form_opts->{altlogin} ? 1 : 0;
-    my $u = $post_as_other ? undef : $rv->{remote};
+    my $u = $post_as_other ? undef : $form_opts->{remote};
     my $vars = {};
 
     my @icons;
@@ -436,6 +432,9 @@ sub _init {
         panels      => $panels,
         formwidth   => $formwidth eq "P" ? "narrow" : "wide",
         min_animation => $min_animation ? 1 : 0,
+
+        # TODO: Remove this when beta is over
+        betacommunity => LJ::load_user( "dw_beta" ),
     };
 
     return $vars;
@@ -458,7 +457,7 @@ sub _edit {
 
     my $r = DW::Request->get;
 
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
     my $journal = defined $username ? LJ::load_user( $username ) : $remote;
 
     return error_ml( 'error.invalidauth' ) unless $journal;
@@ -477,8 +476,9 @@ sub _edit {
         $post->remove( 'usejournal' );
 
 
-        my $mode_preview = $post->{"action:preview"};
-        my $mode_spellcheck = $post->{"action:spellcheck"};
+        my $mode_preview    = $post->{"action:preview"} ? 1 :0;
+        my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
+        my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -511,6 +511,19 @@ sub _edit {
 
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( @error_list ) {
+
+                if ( $mode_delete ) {
+                    $form_req->{event} = "";
+
+                    # now log the event created above
+                    $journal->log_event('delete_entry', {
+                            remote => $remote,
+                            actiontarget => $ditemid,
+                            method => 'web',
+                    });
+
+                }
+
                 my %edit_res = _do_edit(
                         $ditemid,
                         $form_req,
@@ -553,6 +566,7 @@ sub _edit {
     }
 
     my $vars = _init( { usejournal  => $journal->username,
+                        remote      => $remote,
 
                         datetime => $entry_obj->eventtime_mysql,
                         trust_datetime_value => $trust_datetime_value,
@@ -584,7 +598,6 @@ sub _edit {
 
     # this can't be edited after posting
     delete $editable{journal};
-
 
     $vars->{action} = {
         edit => 1,
@@ -677,6 +690,7 @@ sub _form_to_backend {
         $props->{$propname} = $post->{$formname}
             if defined $post->{$formname};
     }
+    $props->{taglist} = $post->{taglist} if defined $post->{taglist};
     $props->{picture_keyword} = $post->{icon} if defined $post->{icon};
     $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
     # FIXME
@@ -788,6 +802,8 @@ sub _backend_to_form {
 
     # some properties aren't in the hash above, so go through them manually
     my %otherprops = (
+        taglist => join( ', ', $entry->tags ),
+
         entrytime_outoforder => $entry->prop( "opt_backdated" ),
 
         age_restriction     =>  {
@@ -818,7 +834,7 @@ sub _backend_to_form {
             $security = "access";
         } else {
             $security = "custom";
-            @custom_groups = ( map { $_ => 1 } grep { $amask & ( 1 << $_ ) } 1..60 );
+            @custom_groups = grep { $amask & ( 1 << $_ ) } 1..60;
         }
     }
 
@@ -1014,7 +1030,6 @@ sub _save_editted_entry {
         %$form_req
     };
 
-
     my $err = 0;
     my $res = LJ::Protocol::do_request( "editevent", $req, \$err, {
             noauth => 1,
@@ -1034,7 +1049,7 @@ sub _do_edit {
     my $remote = $auth->{remote};
     my $journal = $auth->{journal};
 
-    my $deleted = 0;
+    my $deleted = $form_req->{event} ? 0 : 1;
 
     # post succeeded, time to do some housecleaning
     _persist_props( $remote, $form_req );
@@ -1057,7 +1072,7 @@ sub _do_edit {
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
     if ( $deleted ) {
-
+        $ret .= LJ::Lang::ml( '/editjournal.bml.success.delete' );
     } else {
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );
 

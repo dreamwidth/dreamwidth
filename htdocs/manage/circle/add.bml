@@ -566,7 +566,8 @@ _c?>
 
    } # end is_visible if statement
 
-   $body .= "<br />\n <?p ";
+    $body .= "<div id='add_button_bottom'>\n";
+    $body .= "<br />\n <?p ";
     # Form submit buttons
     if ($u->is_visible) {
         my $btn = ( $watched || $trusted ) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $u->display_name } );
@@ -580,8 +581,7 @@ _c?>
     $body .= "<script type='text/javascript' language='Javascript'> \n <!-- \n
        document.write(\"<input type='button' value='$cancel_btn' onclick='history.go(-1); return false;'>\");
         \n // -->\n ";
-    $body .= '</script> p?>';
-
+    $body .= '</script> p?></div>';
 
     $body .= "</form>";
 

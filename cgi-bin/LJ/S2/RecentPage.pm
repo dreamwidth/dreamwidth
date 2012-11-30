@@ -132,7 +132,7 @@ sub RecentPage
 
     my $posteru_filter;
     if ( defined( $get->{poster} ) ) {
-        $posteru_filter = LJ::load_user( $get->{poster} );
+        $posteru_filter = LJ::load_user_or_identity( $get->{poster} );
     }
 
     ## load the itemids

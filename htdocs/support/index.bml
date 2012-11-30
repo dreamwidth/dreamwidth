@@ -37,6 +37,7 @@ body<=
     $ret .= "<div class='green box'>";
     $ret .= "<?h1 $ML{'.ask.head'} h1?>";
     $ret .= "<?p " . BML::ml('.ask.text', { 'aopts' => "href='$LJ::SITEROOT/support/submit'" }) . " p?>";
+    $ret .= "<?p " . BML::ml('.search.text', { 'aopts' => "href='$LJ::SITEROOT/support/history'" }) . " p?>";
     $ret .= "</div>";
 
     $ret .= "</div>";

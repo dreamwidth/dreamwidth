@@ -231,7 +231,6 @@ else {
             .module-navlinks ul {
                 font-family: $*font_journal_title;
                 font-size: small;
-                list-style: none;
                 margin: .25em auto;
                 }
 

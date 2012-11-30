@@ -28,8 +28,11 @@ set custom_colors_template = "%%new%% .entry .userpic img {
 propgroup colors_child {
     property Color color_entry_date { des = "Entry and comment date color"; }
     property Color color_entry_title_border { des = "Entry title border color"; }
+    property Color color_entry_userpic_border { des = "Entry userpic border color"; }
     property Color color_comment_title_border { des = "Comment title border color"; }
+    property Color color_comment_userpic_border { des = "Comment userpic border color"; }
     property Color color_module_title_border { des = "Module title border color"; }
+    property Color color_module_profile_userpic_border { des = "Profile module userpic border color"; }
     property Color color_calendar_background { des = "Calendar background color"; }
     property Color color_calendar_link { des = "Calendar link color"; }
     property Color color_calendar_link_active { des = "Calendar active link color"; }
@@ -164,7 +167,8 @@ input, textarea {
     border-radius: 5px;
     }
 
-::-moz-selection {
+::-moz-selection,
+::selection {
     background-color:$*color_calendar_background;
     color: $*color_calendar_text;
     }
@@ -179,14 +183,12 @@ blockquote {
     }
 
 ul {
-    list-style-position: inside;
-    list-style-type: circle;
+    list-style: circle inside;
     margin: 5px 0 5px 15px;
     }
 
 ol {
-    list-style-position: inside;
-    list-style-type: decimal;
+    list-style: decimal inside;
     margin: 5px 0 5px 35px;
     }
 
@@ -295,7 +297,7 @@ h2#pagetitle {
     }
 
 .entry .userpic img {
-    background-color: $*color_entry_text;
+    background-color: $*color_entry_userpic_border;
     border-radius: 5px;
     padding: 15px;
     }
@@ -392,7 +394,7 @@ ul.entry-interaction-links li {
     }
 
 .comment .userpic img {
-    background-color: $*color_entry_text;
+    background-color: $*color_comment_userpic_border;
     border-radius: 5px;
     padding: 10px;
     }
@@ -661,7 +663,7 @@ li.module-list-item {
     }
 
 .module-userprofile .userpic img {
-    background-color: $*color_module_link;
+    background-color: $*color_module_profile_userpic_border;
     padding: 10px;
     }
 
@@ -690,13 +692,11 @@ ul.userlite-interaction-links.icon-links li {
 
 .module-navlinks {
     font-size: $*font_module_heading_size$*font_module_heading_units;
-    list-style: none;
     text-transform: uppercase;
     text-align: right;
     }
 
 .module-navlinks .module-list {
-    list-style: none;
     margin: 0;
     }
 

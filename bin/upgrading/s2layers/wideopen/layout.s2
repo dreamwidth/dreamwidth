@@ -604,7 +604,6 @@ $header_modulewrapper
     display: inline; 
     font-variant: small-caps;
     line-height: 1em;
-    list-style: none;
     margin: 0;
     padding: 0 7.5px 0;
     position: relative;
@@ -945,6 +944,12 @@ $userpic_css
 .icon-info .default {
     text-decoration: underline;
     }
+
+.icon-keywords ul,
+.icon-keywords ul li {
+    margin: 0;
+    padding: 0;
+}
 
 /* Modules
 ******************************/

@@ -88,6 +88,7 @@
 .fn.viewingadult=Viewing Age Limited Content
 
 .form.confirm=Save your changes?
+.form.confirm1=Save your changes? Click OK to save changes or Cancel to discard them.
 
 .imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
 

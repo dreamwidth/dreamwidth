@@ -152,7 +152,7 @@ sub insert_comment {
     # load the data we need to make this comment
     my $jitem = $EntryCache->{$cmt->{jitemid}} ||
         LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
-    my $source = ( $cmt->{entry_source} || $jitem->prop( "import_source" ) ) . "?thread=" . ( $cmt->{orig_id} << 8 );
+    my $source = ( $cmt->{entry_source} || $jitem->prop( "import_source" ) ) . "/" . ( $cmt->{orig_id} << 8 );
     my $user = $cmt->{posterid} ? ( $UserCache->{$cmt->{posterid}} || LJ::load_userid( $cmt->{posterid} ) ) : undef;
 
     # fix the XML timestamp to a useful timestamp

@@ -94,7 +94,7 @@
 
 .label.keywords=Keywords:
 
-.label.keywords.desc=Comma-separated list of terms you'll use to select this icon. 
+.label.keywords.desc=Comma-separated list of up to 10 terms you'll use to select this icon. Keywords over 40 characters will be truncated.
 
 .label.rename=Rename Keywords
 

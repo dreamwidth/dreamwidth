@@ -20,7 +20,9 @@ use lib "$ENV{LJHOME}/cgi-bin";
 
 use Time::HiRes qw/ gettimeofday tv_interval /;
 
-require 'ljlib.pl';
+BEGIN {
+    require 'ljlib.pl';
+}
 use LJ::Sendmail;
 use LJ::Lang;
 use DW::Shop;

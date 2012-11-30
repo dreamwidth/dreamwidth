@@ -169,7 +169,6 @@ function print_stylesheet () {
                 }
 
             .module-navlinks ul {
-                list-style: none;
                 margin: 0;
                 padding: 0;
                 }
@@ -431,6 +430,11 @@ text-align: center; }
 .icon-info .default {
     text-decoration: underline;
     }
+
+.icon-keywords ul li {
+    margin-left: 0;
+    padding: .25em .10em;
+}
 
 /* sidebars */
 

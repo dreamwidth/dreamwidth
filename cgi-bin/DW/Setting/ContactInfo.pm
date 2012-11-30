@@ -35,7 +35,17 @@ sub option {
 
     my $contactinfo = $class->get_arg( $args, "contactinfo" ) || $u->opt_showcontact;
 
-    my @options = (
+    my $iscomm = $u->is_community ? '.comm' : '';
+
+    my @options = $iscomm ? 
+    (
+        "Y" => $class->ml( 'setting.usermessaging.opt.a' ),
+        "R" => $class->ml( 'setting.usermessaging.opt.y' ),
+        "F" => $class->ml( 'setting.usermessaging.opt.members' ),
+        "N" => $class->ml( 'setting.usermessaging.opt.admins' ),
+    )
+    :
+    (
         "Y" => $class->ml( 'setting.usermessaging.opt.a' ),
         "R" => $class->ml( 'setting.usermessaging.opt.y' ),
         "F" => $class->ml( 'setting.usermessaging.opt.f' ),
@@ -45,7 +55,7 @@ sub option {
     my $ret;
 
     $ret .= " <label for='${key}contactinfo'>";
-    $ret .= $class->ml( 'setting.contactinfo.option' );
+    $ret .= $class->ml( "setting.contactinfo.option$iscomm" );
     $ret .= "</label> ";
 
     $ret .= LJ::html_select( {
@@ -55,7 +65,7 @@ sub option {
     }, @options );
     
     $ret .= "<p class='details'>";
-    $ret .= $class->ml( 'setting.contactinfo.option.note' );
+    $ret .= $class->ml( "setting.contactinfo.option.note$iscomm" );
     $ret .= "</p>";
 
 

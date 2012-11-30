@@ -64,36 +64,35 @@ sub render_body {
         }
     }
 
-    $ret .= "<table summary=''>";
-    $ret .= "<tr><td valign='top'>" . $class->html_check(
+    $ret .= "<div class='option'>" . $class->html_check(
         type => "radio",
         name => "control_strip_color",
         id => "control_strip_color_dark",
         value => "dark",
         selected => $color_selected eq "dark" ? 1 : 0,
-    ) . "</td>";
-    $ret .= "<td><label for='control_strip_color_dark' class='color-dark'><strong>" . $class->ml('widget.navstripchooser.option.color.dark') . "</strong></label></td></tr>";
+    ) . "</div>";
+    $ret .= "<div><label for='control_strip_color_dark' class='color-dark'><strong>" . $class->ml('widget.navstripchooser.option.color.dark') . "</strong></label></div>";
 
-    $ret .= "<tr><td valign='top'>" . $class->html_check(
+    $ret .= "<div class='option'>" . $class->html_check(
         type => "radio",
         name => "control_strip_color",
         id => "control_strip_color_light",
         value => "light", 
         selected => $color_selected eq "light" ? 1 : 0,
-    ) . "</td>";
-    $ret .= "<td><label for='control_strip_color_light' class='color-light'><strong>" . $class->ml('widget.navstripchooser.option.color.light') . "</strong></label></td></tr>";
+    ) . "</div>";
+    $ret .= "<div><label for='control_strip_color_light' class='color-light'><strong>" . $class->ml('widget.navstripchooser.option.color.light') . "</strong></label></div>";
 
     if ($u->prop('stylesys') == 2 && $prop_is_used{custom_control_strip_colors}) {
         my $no_gradient = $colors_values{override} eq "on_no_gradient" ? 1 : 0;
 
-        $ret .= "<tr><td valign='top'>" . $class->html_check(
+        $ret .= "<div class='option'>" . $class->html_check(
             type => "radio",
             name => "control_strip_color",
             id => "control_strip_color_layout_default",
             value => "layout_default",
             selected => $color_selected eq "layout_default" ? 1 : 0,
-        ) . "</td>";
-        $ret .= "<td><label for='control_strip_color_layout_default'><strong>" . $class->ml('widget.navstripchooser.option.color.layout_default') . "</strong></label><br />";
+        ) . "</div>";
+        $ret .= "<div><label for='control_strip_color_layout_default'><strong>" . $class->ml('widget.navstripchooser.option.color.layout_default') . "</strong></label><br />";
 
         $ret .= "<div id='layout_default_subdiv'>";
         $ret .= $class->html_check(
@@ -101,17 +100,17 @@ sub render_body {
             id => "control_strip_gradient_default",
             selected => $no_gradient,
         );
-        $ret .= " <label for='control_strip_gradient_default'>" . $class->ml('widget.navstripchooser.option.color.no_gradient') . "</label></td></tr>";
+        $ret .= " <label for='control_strip_gradient_default'>" . $class->ml('widget.navstripchooser.option.color.no_gradient') . "</label></div>";
         $ret .= "</div>";
 
-        $ret .= "<tr><td valign='top'>" . $class->html_check(
+        $ret .= "<div class='option'>" . $class->html_check(
             type => "radio",
             name => "control_strip_color",
             id => "control_strip_color_custom",
             value => "custom",
             selected => $color_selected eq "custom" ? 1 : 0,
-        ) . "</td>";
-        $ret .= "<td><label for='control_strip_color_custom'><strong>" . $class->ml('widget.navstripchooser.option.color.custom') . "</strong></label><br />";
+        ) . "</div>";
+        $ret .= "<div><label for='control_strip_color_custom'><strong>" . $class->ml('widget.navstripchooser.option.color.custom') . "</strong></label><br />";
 
         $ret .= "<div id='custom_subdiv'>";
         $ret .= $class->html_check(
@@ -119,7 +118,7 @@ sub render_body {
             id => "control_strip_gradient_custom",
             selected => $no_gradient,
         );
-        $ret .= " <label for='control_strip_gradient_custom'>" . $class->ml('widget.navstripchooser.option.color.no_gradient') . "</label><br />";
+        $ret .= " <label for='control_strip_gradient_custom'>" . $class->ml('widget.navstripchooser.option.color.no_gradient') . "</label><br/>";
 
         my $count = 0;
         $ret .= "<table summary='' class='color-picker'>";
@@ -152,10 +151,9 @@ sub render_body {
             $ret .= "</tr>" if $count % 2 == 1;
             $count++;
         }
-        $ret .= "</table></td></tr>";
-        $ret .= "</div>";
+        $ret .= "</table></div></div>";
     }
-    $ret .= "</table>";
+    $ret .= "<div class='option'></div>";
 
     return $ret;
 }

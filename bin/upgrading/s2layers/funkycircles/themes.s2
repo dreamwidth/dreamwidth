@@ -1,6 +1,3 @@
-;; -*- coding: utf-8 -*-
-# hint for text-encoding
-
 #NEWLAYER: funkycircles/atomicorange
 layerinfo type = "theme";
 layerinfo name = "Atomic Orange";
@@ -1504,6 +1501,42 @@ set color_specificmodule_text_hover = "#fbf5e2";
 set color_specificmodule_text_visited = "#000";
 
 
+#NEWLAYER: funkycircles/lamer
+layerinfo type = "theme";
+layerinfo name = "La Mer";
+layerinfo redist_uniq = "funkycircles/lamer";
+layerinfo author_name = "anthologia";
+
+set theme_authors = [ { "name" => "anthologia", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#5ccccc";
+set color_page_border = "#006363";
+set color_page_link = "#006363";
+set color_page_link_active = "#00733c";
+set color_page_link_hover = "#007929";
+set color_page_link_visited = "#053f6d";
+set color_page_subtitle = "#5ccccc";
+set color_page_subtitle_background = "#006363";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_page_title_background = "#00b358";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#006363";
+set color_module_link = "#60b9ce";
+set color_module_link_active = "#fff";
+set color_module_link_hover = "#fff";
+set color_module_link_visited = "#62d99c";
+set color_module_text = "#fff";
+
+
 #NEWLAYER: funkycircles/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light On Dark";
@@ -2563,8 +2596,6 @@ function Page::print_theme_stylesheet() {
     .footer,
     .bottomcomment, .comments-message {
         box-shadow: .067em .067em .667em #433d46;
-        -khtml-box-shadow: .067em .067em .667em #433d46;
-        -webkit-box-shadow: .067em .067em .667em #433d46;
         }
 
     a:hover,

@@ -582,6 +582,7 @@ sub comment_info {
         ( $journal->{opt_showtalklinks} eq "Y" && !$self->comments_disabled ) ) ? 1 : 0;
     my $has_screened = ( $self->props->{hasscreened} && $remote && $journal
                          && $remote->can_manage( $journal ) ) ? 1 : 0;
+    my $screenedcount = $has_screened ? LJ::Talk::get_screenedcount( $u, $self->jitemid ) : 0;
     my $replycount = $comments_enabled ? $self->reply_count : 0;
     my $nc = "";
     $nc .= "nc=$replycount" if $replycount && $remote && $remote->{opt_nctalklinks};
@@ -595,6 +596,7 @@ sub comment_info {
         enabled => $comments_enabled,
         comments_disabled_maintainer => $self->comments_disabled_maintainer,
         screened => $has_screened,
+        screened_count => $screenedcount,
         show_readlink => $comments_enabled && ( $replycount || $has_screened ),
         show_postlink => $comments_enabled,
     };

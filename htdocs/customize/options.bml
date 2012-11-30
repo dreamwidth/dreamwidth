@@ -20,8 +20,6 @@ body<=
     use vars qw(%GET %POST $title $headextra @errors @warnings);
     LJ::need_res(qw( stc/customize.css js/customize.js stc/select-list.css));
 
-    $title = $ML{'.title'};
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
@@ -29,6 +27,8 @@ body<=
     my $u = LJ::get_authas_user($authas);
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
+
+    $title = $u->is_community ? $ML{'.title.comm'} : $ML{'.title'};
 
     # extra arguments for get requests
     my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";

@@ -1282,10 +1282,12 @@ CREATE TABLE syndicated (
     lastcheck  DATETIME,
     lastmod    INT UNSIGNED, # unix time
     etag       VARCHAR(80),
+    fuzzy_token  VARCHAR(255),
 
     PRIMARY KEY (userid),
     UNIQUE (synurl),
-    INDEX (checknext)
+    INDEX (checknext),
+    INDEX (fuzzy_token)
 )
 EOC
 
@@ -1552,6 +1554,7 @@ CREATE TABLE links (
     parentnum tinyint(4) unsigned NOT NULL default '0',
     url varchar(255) default NULL,
     title varchar(255) NOT NULL default '',
+    hover varchar(255) default NULL,
 
     KEY  (journalid)
 )
@@ -4036,7 +4039,12 @@ EOF
     unless ( column_type( 'acctcode_promo', 'paid_class' ) =~ /^\Qvarchar(100)\E/ ) {
         do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo MODIFY COLUMN paid_class varchar(100)" );
     }
+# Add the hover text field in 'links' for existing installations
 
+    unless ( column_type( 'links', 'hover' ) ) {
+        do_alter( 'links', "ALTER TABLE links ADD COLUMN hover varchar(255) default NULL" );
+    }
+ 
     if ( table_relevant( "wt_edges" ) && ! check_dbnote( "fix_redirect_edges" ) ) {
         warn "fixing edges leading to a redirect account";
         my $sth = $dbh->prepare(
@@ -4091,6 +4099,12 @@ EOF
             "ALTER TABLE pollquestion2 MODIFY COLUMN opts VARCHAR(255) DEFAULT NULL");
     }
 
+    if (column_type("syndicated", "fuzzy_token") eq '') {
+        do_alter( 'syndicated',
+            "ALTER TABLE syndicated ".
+            "ADD COLUMN fuzzy_token VARCHAR(255), " .
+            "ADD INDEX (fuzzy_token);" );
+    }
 });
 
 

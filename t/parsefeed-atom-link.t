@@ -3,7 +3,7 @@ use strict;
 use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 
 my $testfeed = sub {
     my $link_content = shift;

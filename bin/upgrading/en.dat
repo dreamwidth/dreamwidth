@@ -1443,14 +1443,14 @@ esn.security_attribute_changed.account_activated.email_subject=Your account has 
 
 esn.security_attribute_changed.account_activated.email_text<<
 Dear [[username]],
- 
+
 On [[date]] at [[time]] your journal was undeleted. The journal activation took place from the following IP address: [[ip]].
-  
+
 If you made this change yourself, this email serves as a confirmation of your change.
-   
+
 If you didn't undelete your journal, your journal's security was compromised. Please contact Support to learn what steps you should take to resecure your journal.
 
-This letter was sent out automatically to help you keep your account secure. You can't opt-out of receiving these letters. 
+This letter was sent out automatically to help you keep your account secure. You can't opt-out of receiving these letters.
 .
 
 
@@ -1458,14 +1458,14 @@ esn.security_attribute_changed.account_deleted.email_subject=Your account has be
 
 esn.security_attribute_changed.account_deleted.email_text<<
 Dear [[username]],
- 
+
 On [[date]] at [[time]] your journal was deleted. The journal deletion took place from the following IP address: [[ip]].
-  
+
 If you made this change yourself, this email serves as a confirmation of your change.
-   
+
 If you didn't delete your journal, your journal's security has been compromised. Please contact Support to learn what steps you should take to resecure your journal.
 
-This letter was sent out automatically to help you keep your account secure. You can't opt-out of receiving these letters. 
+This letter was sent out automatically to help you keep your account secure. You can't opt-out of receiving these letters.
 .
 
 esn.security_attribute_changed.account_renamed.email_subject=Your account has been renamed
@@ -2086,11 +2086,11 @@ Password=Password
 
 poll.changevote=Change Your Vote
 
-poll.checkexact=You must choose exactly <b>[[options]]</b> responses.
+poll.checkexact2=You must choose exactly <b>[[options]]</b> [[?options|response|responses]].
 
-poll.checkmin=You must choose at least <b>[[options]]</b> responses.
+poll.checkmin2=You must choose at least <b>[[options]]</b> [[?options|response|responses]].
 
-poll.checkmax=You can choose up to <b>[[options]]</b> responses.
+poll.checkmax2=You can choose up to <b>[[options]]</b> [[?options|response|responses]].
 
 poll.clear=Clear Answers
 
@@ -2104,19 +2104,19 @@ poll.error.alreadyvoted=You've already voted in this poll as [[user]].
 
 poll.error.badmaxlength=Maxlength attribute on lj-pq text tags must be an integer from 1-255.
 
-poll.error.badsize=Size attribute on lj-pq text tags must be an integer from 1-100.
+poll.error.badsize2=Size attribute on poll-question (or lj-pq) text tags must be an integer from 1-100.
 
 poll.error.cantview=Error: you don't have access to these poll results.
 
 poll.error.cantvote=Sorry, you don't have permission to vote in this particular poll.
 
-poll.error.checkfewoptions2=You must select at least <b>[[options]]</b> responses in question <b>#[[question]]</b>, or you can choose to skip it.
+poll.error.checkfewoptions3=You must select at least <b>[[options]]</b> [[?options|response|responses]] in question <b>#[[question]]</b>, or you can choose to skip it.
 
 poll.error.checkmaxtoolow=Checkmax attribute must be higher than Checkmin attribute.
 
 poll.error.checkmintoolow=Checkmin attribute must be positive.
 
-poll.error.checktoomuchoptions2=You can only select up to <b>[[options]]</b> responses in question <b>#[[question]]</b>.
+poll.error.checktoomuchoptions3=You can only select up to <b>[[options]]</b> [[?options|response|responses]] in question <b>#[[question]]</b>.
 
 poll.error.deletedowner=Error: poll owner has been deleted
 
@@ -2130,13 +2130,13 @@ poll.error.noentry=Error: this poll isn't attached to this journal entry
 
 poll.error.noitems=You must include at least one item in a non-text poll question.
 
-poll.error.noitemstext=lj-pq tags of type 'text' cannot have poll items in them.
+poll.error.noitemstext2=poll-question (or lj-pq) tags of type 'text' cannot have poll items in them.
 
 poll.error.nopollid=pollid parameter is missing.
 
 poll.error.noquestions=You must have at least one question in a poll.
 
-poll.error.notext=You need to have text inside an lj-pq tag to say what the question is about.
+poll.error.notext2=You need to have text inside an poll-question (or lj-pq) tag to say what the question is about.
 
 poll.error.notvalidated2=You must <a [[aopts]]>confirm your email address</a> before you can vote in this poll.
 
@@ -2163,6 +2163,8 @@ poll.error.truncated=... truncated
 poll.error.unknownpqtype=Unknown type on lj-pq tag.
 
 poll.error.unlockedtag=Unlocked [[tag]] tag.
+
+poll.vote=Fill out Poll
 
 poll.error.whoview=whoview must be 'all', 'friends', or 'none'.
 
@@ -2348,7 +2350,7 @@ rename.error.tokeninvalid=The provided token is not a valid token.
 
 rename.error.tokentoofew=Too few tokens; you need two to perform a swap.
 
-rename.error.unauthorized=[[to]] is not under your control.
+rename.error.unauthorized2=[[to]] is not under your control. Both accounts need to have the same verified email address and the same password for this operation.
 
 rename.error.unauthorized.forcomm=The community [[comm]] must have no members, and must be under your control.
 
@@ -2357,8 +2359,8 @@ rename.error.unknown=Cannot rename to "[[to]]".
 rename.ex.toomanytries=We had some trouble trying to move aside the account you are trying to rename to ([[tousername]]). Please try again.
 
 s2theme.autogenerated.warning<<
-## Important note: Hand-edited changes to this layer have a high risk of 
-## being erased the next time you use the wizard. Setting properties is 
+## Important note: Hand-edited changes to this layer have a high risk of
+## being erased the next time you use the wizard. Setting properties is
 ## usually safe, but if you put entire functions, they *will* be overwritten.
 
 
@@ -2500,7 +2502,11 @@ setting.contactinfo.label=Contact Info Security
 
 setting.contactinfo.option=Who can view your contact info?
 
+setting.contactinfo.option.comm=Who can view this community's contact info?
+
 setting.contactinfo.option.note=This setting controls who can view your contact information for any external services, in addition to your selected email address(es), on your profile page.
+
+setting.contactinfo.option.note.comm=This setting controls who can view the contact information and external services on this community's profile page.
 
 setting.ctxpopup.label=Hover Menu
 
@@ -2592,9 +2598,15 @@ setting.display.emails.option=View past email addresses
 
 setting.display.journalentrystyle.label=Journal Entry Style
 
+setting.display.journalentrystyle.label2=Entry Style
+
 setting.display.journalentrystyle.note=Note: this setting affects everyone who views your journal who has not chosen a different Entry View Style.
 
+setting.display.journalentrystyle.note.comm=Note: this setting affects everyone who views this community who has not chosen a different Entry View Style.
+
 setting.display.journalentrystyle.option=Show my journal's entry pages in my chosen style instead of the site layout
+
+setting.display.journalentrystyle.option.comm=Show this community's entry pages in its chosen style instead of the site layout
 
 setting.display.logins.label=Logins
 
@@ -2749,7 +2761,11 @@ setting.globalsearch.label=Site-Wide Search Inclusion
 
 setting.globalsearch.sel.no=No, do not allow my content to be included in site searches
 
+setting.globalsearch.sel.no.comm=Do not allow this community's content to be included in site searches
+
 setting.globalsearch.sel.yes=Yes, include my public content in site search results (default)
+
+setting.globalsearch.sel.yes.comm=Include this community's public content in site search results (default)
 
 setting.googleanalytics.error.invalid=Invalid Google Analytics ID entered, must be of the format: UA-NNNNNNN-NN (where N represents numbers).
 
@@ -2835,9 +2851,15 @@ setting.randompaidgifts.label=Random Paid Gifts
 
 setting.randompaidgifts.option=Include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
+setting.randompaidgifts.option.comm=Include this community in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
+
 setting.randompaidgifts.option.note=You may receive a paid account from someone you do not know.
 
+setting.randompaidgifts.option.note.comm=The community may receive paid time from someone you do not know.
+
 setting.randompaidgifts.option.paid=If your paid account expires, include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
+
+setting.randompaidgifts.option.paid.comm=If this community's paid account expires, include it in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
 setting.safesearch.error.invalid=Invalid safe search setting.
 
@@ -2867,7 +2889,7 @@ setting.sitescheme.label=Site Skin
 
 setting.sitescheme.label=Site Scheme
 
-setting.stickyentry.error.invalid=Invalid Dreamwidth entry ID or URL entered. 
+setting.stickyentry.error.invalid=Invalid Dreamwidth entry ID or URL entered.
 
 setting.stickyentry.label=ID or URL of entry to make sticky
 
@@ -2879,7 +2901,9 @@ setting.synlevel.error.invalid=Invalid syndication level.
 
 setting.synlevel.label=Syndication Level
 
-setting.synlevel.option=Display the following level of content in my journal's feed: 
+setting.synlevel.option=Display the following level of content in my journal's feed:
+
+setting.synlevel.option.comm=Display the following level of content in this community's feed:
 
 setting.synlevel.option.note=(Feed links: <a [[aopts_atom]]>Atom</a> <a [[aopts_rss]]>RSS</a>)
 
@@ -2936,6 +2960,10 @@ setting.usermessaging.opt.m=Only Mutually Trusted
 setting.usermessaging.opt.n=Nobody
 
 setting.usermessaging.opt.y=Registered Accounts
+
+setting.usermessaging.opt.members=Members
+
+setting.usermessaging.opt.admins=Administrators
 
 setting.usermessaging.option=Receive messages from:
 
@@ -3415,16 +3443,16 @@ shop.expiration.3.subject=[[sitename]] Account Expiration
 shop.expiration.comm.0.body<<
 Dear [[touser]],
 
-We wanted to let you know that your [[sitename]] community 
+We wanted to let you know that your [[sitename]] community
 [[commname]]'s paid time has now expired.
 
 You can add more paid time to the community in the [[sitename]] shop:
 
   [[shopurl]]
 
-If you don't renew your community's paid time, don't worry -- the 
+If you don't renew your community's paid time, don't worry -- the
 community will still be there for you and your members to post in.
-You just won't have access to the paid account features anymore. 
+You just won't have access to the paid account features anymore.
 
 Even if you decide not to renew your paid [[sitename]] account,
 we're still really glad to have you here. Thanks for your support.
@@ -3439,7 +3467,7 @@ shop.expiration.comm.14.body<<
 Dear [[touser]],
 
 We wanted to let you know that your paid [[sitename]] community,
-[[commname]], will be expiring in two weeks. 
+[[commname]], will be expiring in two weeks.
 
 If you'd like, you can add more paid time to your community account
 here:
@@ -3467,8 +3495,8 @@ You can renew your paid account in our Shop:
 
   [[shopurl]]
 
-This is the last reminder we'll send you -- we don't want to nag! 
-Your community will automatically revert to a free account in 
+This is the last reminder we'll send you -- we don't want to nag!
+Your community will automatically revert to a free account in
 another three days if you don't renew. If that happens, you'll still
 be able to use it; you just won't have access to our paid features
 anymore.
@@ -3491,9 +3519,9 @@ You can add more paid time to your account in the [[sitename]] shop:
 
   [[shopurl]]
 
-If you don't renew your paid time, don't worry -- your account is 
+If you don't renew your paid time, don't worry -- your account is
 still there, and you can keep using all of the basic features.
-You just won't have access to the paid account features anymore. 
+You just won't have access to the paid account features anymore.
 
 Even if you decide not to renew your paid [[sitename]] account,
 we're still really glad to have you here. Thanks for your support.
@@ -3507,15 +3535,15 @@ shop.expiration.user.0.subject=[[sitename]] Account Expired
 shop.expiration.user.14.body<<
 Dear [[touser]],
 
-We wanted to let you know that your paid [[sitename]] account will be 
-expiring in two weeks. 
+We wanted to let you know that your paid [[sitename]] account will be
+expiring in two weeks.
 
 If you'd like, you can add more paid time to your account here:
 
   [[shopurl]]
 
 If you don't want to renew your paid account, don't worry -- you can
-still keep using the site. You just won't have access to all of the 
+still keep using the site. You just won't have access to all of the
 paid account features.
 
 Thank you so much for supporting [[sitename]].
@@ -3536,8 +3564,8 @@ You can renew your paid account in our Shop:
 
   [[shopurl]]
 
-This is the last reminder we'll send you -- we don't want to nag! 
-Your account will automatically revert to a free account in 
+This is the last reminder we'll send you -- we don't want to nag!
+Your account will automatically revert to a free account in
 another three days if you don't renew. If that happens, you'll still
 be able to use it; you just won't have access to our paid features
 anymore.
@@ -3730,7 +3758,7 @@ subscribe_interface.nosubs.title2=You aren't tracking any items
 
 subscribe_interface.notify_me=Notify me when...
 
-subscribe_interface.notify_me2=Notify me in my [[sitenameabbrev]] Inbox when: 
+subscribe_interface.notify_me2=Notify me in my [[sitenameabbrev]] Inbox when:
 
 subscribe_interface.save=Save
 
@@ -4166,9 +4194,7 @@ web.ads.search=Sponsored Search Links
 
 web.authas.btn=Switch
 
-web.authas.label=Work as account:
-
-web.authas.label.comm=Work as community:
+web.authas.select=Work as [[menu]] instead of current [[username]]
 
 web.controlstrip.btn.go=Go
 
@@ -4296,7 +4322,7 @@ web.controlstrip.status.mutualtrust=[[user]] and you have mutual access
 
 web.controlstrip.status.mutualtrust_mutualwatch=[[user]] and you have mutual access and mutual subscriptions
 
-web.controlstrip.status.mutualtrust_watch=[[user]] and you have mutual access and you subscribe to [[user]] 
+web.controlstrip.status.mutualtrust_watch=[[user]] and you have mutual access and you subscribe to [[user]]
 
 web.controlstrip.status.mutualtrust_watchedby=[[user]] and you have mutual access and [[user]] subscribes to you
 
@@ -4387,6 +4413,21 @@ Currently beta-testing the new JS behavior on journals.
 .
 
 widget.betafeature.journaljquery.title=New JS on Journals
+
+widget.betafeature.s2comments.off<<
+<p>Activate the testing version of the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
+
+<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?></p>.
+.
+
+widget.betafeature.s2comments.on<<
+<p>You are currently testing the the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
+
+<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?></p>.
+.
+
+widget.betafeature.s2comments.title=New S2 Comment Pages
+
 
 widget.betafeature.updatepage.off<<
 <p>Activate the testing version of the new Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
@@ -4806,7 +4847,11 @@ widget.inbox.menu.delete.btn=Delete Selected
 
 widget.inbox.menu.delete_all.btn=Delete All
 
+widget.inbox.menu.delete_all.subfolder.btn=Delete All in Subfolder
+
 widget.inbox.menu.mark_all_read.btn=Mark All Read
+
+widget.inbox.menu.mark_all_read.subfolder.btn=Mark Subfolder Read
 
 widget.inbox.menu.mark_read.btn=Mark Read
 
@@ -4832,15 +4877,25 @@ widget.journaltitles.cancel=Cancel
 
 widget.journaltitles.desc=These titles appear in your journal and on your profile.
 
+widget.journaltitles.desc.comm=These titles appear in your community and on its profile.
+
 widget.journaltitles.edit=Edit
 
 widget.journaltitles.friendspagesubtitle=Reading Page Subtitle:
 
+widget.journaltitles.friendspagesubtitle.comm=Reading Page Subtitle:
+
 widget.journaltitles.friendspagetitle=Reading Page Title:
+
+widget.journaltitles.friendspagetitle.comm=Reading Page Title:
 
 widget.journaltitles.journalsubtitle=Journal Subtitle:
 
+widget.journaltitles.journalsubtitle.comm=Community Subtitle:
+
 widget.journaltitles.journaltitle=Journal Title:
+
+widget.journaltitles.journaltitle.comm=Community Title:
 
 widget.journaltitles.title=1. Edit Titles
 
@@ -4876,13 +4931,17 @@ widget.linkslist.about.blank=Enter a "-" for the title to create a blank line (n
 
 widget.linkslist.about.heading=Enter a title with no URL to create a heading.
 
+widget.linkslist.about.hover=You can add optional extra text to your links, which will pop up when someone hovers their mouse over the link without clicking.
+
+widget.linkslist.about.hoverhead=Headings do not allow hover text.
+
 widget.linkslist.about.reorder=Modify the order number to reorder your links.
 
 widget.linkslist.table.more=More
 
 widget.linkslist.table.order=Order
 
-widget.linkslist.table.title=Title/URL
+widget.linkslist.table.title=Link Details
 
 widget.linkslist.tips=Tips for the Links List:
 
@@ -5271,4 +5330,3 @@ xpost.request.success2=Crosspost requested to [[account]].  You will be notified
 xpost.respected=This will respect your default <a [[aopts]]>crosspost settings</a>, so make sure you have them set properly before you do this.
 
 xpost.success=Crosspost to [[username]]@[[server]] successful.  You can view this entry <a href = "[[xpostlink]]">here</a>.
-

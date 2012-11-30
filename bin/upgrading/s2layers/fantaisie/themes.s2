@@ -1,0 +1,506 @@
+#NEWLAYER: fantaisie/earlymorning
+layerinfo type = "theme";
+layerinfo name = "Early Morning";
+layerinfo redist_uniq = "fantaisie/earlymorning";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Omnibus-Type and Sideshow's fonts", "url" => "http://www.google.com/webfonts/" },
+    { "name" => "Pehaa's graphics", "url" => "http://pehaa.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#6c856e";
+set color_page_link = "#2f210f";
+set color_page_link_hover = "#fceec1";
+set color_page_link_visited = "#2f210f";
+set color_page_text = "#010101";
+set color_page_title = "#fceec1";
+set color_header_background = "#0e2111";
+set color_header_image_border = "#594a42";
+set color_header_image_shadow = "#313c31";
+set color_header_link = "#fceec1";
+set color_footer_background = "#0e2111";
+set color_footer_link = "#fceec1";
+set color_footer_text = "#fceec1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_link = "#fceec1";
+set color_entry_link_hover = "#2C2727";
+set color_entry_link_visited = "#fceec1";
+set color_entry_title = "#2C2727";
+set color_comment_title = "#2C2727";
+set color_calendar_header_background = "#0e2111";
+set color_calendar_header_text ="#fceec1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#2C2727";
+set color_module_calendar_background = "#8F796D";
+set color_module_calendar_background_hover ="#fceec1";
+set color_module_calendar_link ="#2f210f";
+set color_module_calendar_link_hover ="#2C2727";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "fantaisie/page_earlymorning.jpg";
+set image_background_header_height = 240;
+set image_background_header_position = "center";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "fantaisie/header_earlymorning.jpg";
+set image_background_header_secondary_height = 24;
+set image_background_header_secondary_width = 23;
+set image_background_header_secondary_url = "fantaisie/coffeebean-brown_reversed.png";
+set image_background_footer_height = 80;
+set image_background_footer_width = 80;
+set image_background_footer_url = "fantaisie/coffeecup-yellow.png";
+
+set image_background_navigation_height = 25;
+set image_background_navigation_width = 101;
+set image_background_navigation_url = "fantaisie/spoon-yellow.png";
+set image_background_navigation_url_alt = "fantaisie/spoon-yellow_reversed.png";
+
+set image_background_entry_title_height = 24;
+set image_background_entry_title_width = 23;
+set image_background_entry_title_url = "fantaisie/coffeebean-brown.png";
+
+set image_background_module_title_height = 24;
+set image_background_module_title_width = 23;
+set image_background_module_title_url = "fantaisie/coffeebean-brown.png";
+set image_background_module_footer_height = 39;
+set image_background_module_footer_url = "fantaisie/croissant-yellow.png";
+
+
+#NEWLAYER: fantaisie/guiltypleasure
+layerinfo type = "theme";
+layerinfo name = "Guilty Pleasure";
+layerinfo redist_uniq = "fantaisie/guiltypleasure";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Omnibus-Type and Sideshow's fonts", "url" => "http://www.google.com/webfonts/" },
+    { "name" => "Pehaa's graphics", "url" => "http://pehaa.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#615455";
+set color_page_link = "#f7c4c4";
+set color_page_link_hover = "#f2e7cc";
+set color_page_link_visited = "#f7c4c4";
+set color_page_text = "#010101";
+set color_page_title = "#f2e7cc";
+set color_header_background = "#2c2727";
+set color_header_image_border = "#be1e2d";
+set color_header_image_shadow = "#231e1e";
+set color_header_link = "#f2e7cc"; 
+set color_footer_background = "#2c2727";
+set color_footer_link = "#f2e7cc";
+set color_footer_text = "#f2e7cc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_link = "#f7c4c4";
+set color_entry_link_hover = "#f2e7cc";
+set color_entry_link_visited = "#f7c4c4";
+set color_entry_title = "#2c2727";
+set color_comment_title = "#2c2727";
+set color_calendar_header_background = "#2c2727";
+set color_calendar_header_text ="#f2e7cc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#2c2727";
+set color_module_calendar_background = "#f7c4c4";
+set color_module_calendar_background_hover ="#f2e7cc";
+set color_module_calendar_link ="#2c2727";
+set color_module_calendar_link_hover ="#2c2727";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "fantaisie/page_guiltypleasure.jpg";
+set image_background_header_height = 240;
+set image_background_header_position = "center";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "fantaisie/header_guiltypleasure.jpg";
+set image_background_header_secondary_height = 44;
+set image_background_header_secondary_width = 44;
+set image_background_header_secondary_url = "fantaisie/icecreambar-brown_reversed.png";
+set image_background_footer_height = 90;
+set image_background_footer_width = 32;
+set image_background_footer_url = "fantaisie/footer_guiltypleasure.png";
+
+set image_background_navigation_height = 24;
+set image_background_navigation_width = 66;
+set image_background_navigation_url = "fantaisie/navigation_guiltypleasure.png";
+set image_background_navigation_url_alt = "fantaisie/navigation_guiltypleasure_reversed.png";
+
+set image_background_entry_title_height = 44;
+set image_background_entry_title_width = 44;
+set image_background_entry_title_url = "fantaisie/icecreambar-brown.png";
+
+set image_background_module_title_height = 44;
+set image_background_module_title_width = 44;
+set image_background_module_title_url = "fantaisie/icecreambar-brown.png";
+set image_background_module_footer_height = 46;
+set image_background_module_footer_url = "fantaisie/icecreamcone-yellowbrown.png";
+
+
+#NEWLAYER: fantaisie/nostalgia
+layerinfo type = "theme";
+layerinfo name = "Nostalgia";
+layerinfo redist_uniq = "fantaisie/nostalgia";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Omnibus-Type and Sideshow's fonts", "url" => "http://www.google.com/webfonts/" },
+    { "name" => "Pehaa's graphics", "url" => "http://pehaa.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#9f7878";
+set color_page_link = "#f2e7cc";
+set color_page_link_hover = "#f7c4c4";
+set color_page_link_visited = "#f2e7cc";
+set color_page_text = "#010101";
+set color_page_title = "#f2e7cc";
+set color_header_background = "#3f2424";
+set color_header_image_border = "#f7c4c4";
+set color_header_image_shadow = "#4c3b3b";
+set color_header_link = "#f2e7cc"; 
+set color_footer_background = "#3f2424";
+set color_footer_link = "#f2e7cc";
+set color_footer_text = "#f2e7cc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_link = "#f2e7cc";
+set color_entry_link_hover = "#f7c4c4";
+set color_entry_link_visited = "#f2e7cc";
+set color_entry_title = "#3f2424";
+set color_comment_title = "#3f2424";
+set color_calendar_header_background = "#3f2424";
+set color_calendar_header_text ="#f2e7cc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#3f2424";
+set color_module_calendar_background = "#f2e7cc";
+set color_module_calendar_background_hover ="#f7c4c4";
+set color_module_calendar_link ="#000";
+set color_module_calendar_link_hover ="#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "fantaisie/page_nostalgia.jpg";
+set image_background_header_height = 240;
+set image_background_header_position = "center";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "fantaisie/header_nostalgia.jpg";
+set image_background_header_secondary_height = 44;
+set image_background_header_secondary_width = 44;
+set image_background_header_secondary_url = "fantaisie/icecreambar-brown_reversed.png";
+set image_background_footer_height = 90;
+set image_background_footer_width = 32;
+set image_background_footer_url = "fantaisie/footer_nostalgia.png";
+
+set image_background_navigation_height = 24;
+set image_background_navigation_width = 66;
+set image_background_navigation_url = "fantaisie/navigation_nostalgia.png";
+set image_background_navigation_url_alt = "fantaisie/navigation_nostalgia_reversed.png";
+
+set image_background_entry_title_height = 44;
+set image_background_entry_title_width = 44;
+set image_background_entry_title_url = "fantaisie/icecreambar-brown.png";
+
+set image_background_module_title_height = 44;
+set image_background_module_title_width = 44;
+set image_background_module_title_url = "fantaisie/icecreambar-brown.png";
+set image_background_module_footer_height = 46;
+set image_background_module_footer_url = "fantaisie/icecreamcone-pinkbrown.png";
+
+
+#NEWLAYER: fantaisie/pinkexplosion
+layerinfo type = "theme";
+layerinfo name = "Pink Explosion";
+layerinfo redist_uniq = "fantaisie/pinkexplosion";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Omnibus-Type and Sideshow's fonts", "url" => "http://www.google.com/webfonts/" },
+    { "name" => "Pehaa's graphics", "url" => "http://pehaa.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#beab92";
+set color_page_link = "#2f210f";
+set color_page_link_hover = "#010101";
+set color_page_link_visited = "#2f210f";
+set color_page_text = "#010101";
+set color_page_title = "#2b231d";
+set color_header_background = "#f19d8c";
+set color_header_image_border = "#eed9a7";
+set color_header_image_shadow = "#665e52";
+set color_footer_background = "#f19d8c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_link = "#b9090e";
+set color_entry_link_hover = "#010101";
+set color_entry_link_visited = "#b9090e";
+set color_entry_title = "#2C2727";
+set color_comment_title = "#2C2727";
+set color_calendar_header_background = "#8F796D";
+set color_calendar_header_text ="#2f210f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#2C2727";
+set color_module_calendar_background = "#8F796D";
+set color_module_calendar_background_hover ="#54443B";
+set color_module_calendar_link ="#2f210f";
+set color_module_calendar_link_hover ="#F2EBDC";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "fantaisie/page_pinkexplosion.jpg";
+set image_background_header_height = 240;
+set image_background_header_position = "center";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "fantaisie/header_pinkexplosion.jpg";
+set image_background_header_secondary_height = 24;
+set image_background_header_secondary_width = 23;
+set image_background_header_secondary_url = "fantaisie/coffeebean-brown_reversed.png";
+set image_background_footer_height = 80;
+set image_background_footer_width = 80;
+set image_background_footer_url = "fantaisie/coffeecup-yellow.png";
+
+set image_background_navigation_height = 25;
+set image_background_navigation_width = 101;
+set image_background_navigation_url = "fantaisie/spoon-yellow.png";
+set image_background_navigation_url_alt = "fantaisie/spoon-yellow_reversed.png";
+
+set image_background_entry_title_height = 24;
+set image_background_entry_title_width = 23;
+set image_background_entry_title_url = "fantaisie/coffeebean-brown.png";
+
+set image_background_module_title_height = 24;
+set image_background_module_title_width = 23;
+set image_background_module_title_url = "fantaisie/coffeebean-brown.png";
+set image_background_module_footer_height = 39;
+set image_background_module_footer_url = "fantaisie/croissant-yellow.png";
+
+
+#NEWLAYER: fantaisie/unrelentingroutine
+layerinfo type = "theme";
+layerinfo name = "Unrelenting Routine";
+layerinfo redist_uniq = "fantaisie/unrelentingroutine";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Omnibus-Type and Sideshow's fonts", "url" => "http://www.google.com/webfonts/" },
+    { "name" => "Pehaa's graphics", "url" => "http://pehaa.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#615b56";
+set color_page_link = "#f2e7cc";
+set color_page_link_hover = "#fbb040";
+set color_page_link_visited = "#f2e7cc";
+set color_page_text = "#010101";
+set color_page_title = "#f2e7cc";
+set color_header_background = "#23211d";
+set color_header_image_border = "#fbb040";
+set color_header_image_shadow = "#3e3b37";
+set color_header_link = "#f2e7cc"; 
+set color_footer_background = "#23211d";
+set color_footer_link = "#f2e7cc";
+set color_footer_text = "#f2e7cc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_link = "#f2e7cc";
+set color_entry_link_hover = "#fbb040";
+set color_entry_link_visited = "#f2e7cc";
+set color_entry_title = "#23211d";
+set color_comment_title = "#23211d";
+set color_calendar_header_background = "#23211d";
+set color_calendar_header_text ="#f2e7cc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#23211d";
+set color_module_calendar_background = "#f2e7cc";
+set color_module_calendar_background_hover ="#fbb040";
+set color_module_calendar_link ="#23211d";
+set color_module_calendar_link_hover ="#23211d";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "fantaisie/page_unrelentingroutine.jpg";
+set image_background_header_height = 240;
+set image_background_header_position = "center";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "fantaisie/header_unrelentingroutine.jpg";
+set image_background_header_secondary_height = 44;
+set image_background_header_secondary_width = 44;
+set image_background_header_secondary_url = "fantaisie/icecreambar-brown_reversed.png";
+set image_background_footer_height = 90;
+set image_background_footer_width = 32;
+set image_background_footer_url = "fantaisie/footer_unrelentingroutine.png";
+
+set image_background_navigation_height = 24;
+set image_background_navigation_width = 66;
+set image_background_navigation_url = "fantaisie/navigation_unrelentingroutine.png";
+set image_background_navigation_url_alt = "fantaisie/navigation_unrelentingroutine_reversed.png";
+
+set image_background_entry_title_height = 44;
+set image_background_entry_title_width = 44;
+set image_background_entry_title_url = "fantaisie/icecreambar-brown.png";
+
+set image_background_module_title_height = 44;
+set image_background_module_title_width = 44;
+set image_background_module_title_url = "fantaisie/icecreambar-brown.png";
+set image_background_module_footer_height = 46;
+set image_background_module_footer_url = "fantaisie/icecreamcone-yellowbrown.png";
+
+
+#NEWLAYER: fantaisie/warmwelcome
+layerinfo type = "theme";
+layerinfo name = "Warm Welcome";
+layerinfo redist_uniq = "fantaisie/warmwelcome";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Omnibus-Type and Sideshow's fonts", "url" => "http://www.google.com/webfonts/" },
+    { "name" => "Pehaa's graphics", "url" => "http://pehaa.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#637396";
+set color_page_link = "#2f210f";
+set color_page_link_hover = "#fceec1";
+set color_page_link_visited = "#2f210f";
+set color_page_text = "#010101";
+set color_page_title = "#fceec1";
+set color_header_background = "#141927";
+set color_header_image_border = "#594a42";
+set color_header_image_shadow = "#2f3847";
+set color_header_link = "#fceec1";
+set color_footer_background = "#141927";
+set color_footer_link = "#fceec1";
+set color_footer_text = "#fceec1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_link = "#fceec1";
+set color_entry_link_hover = "#2C2727";
+set color_entry_link_visited = "#fceec1";
+set color_entry_title = "#2C2727";
+set color_comment_title = "#2C2727";
+set color_calendar_header_background = "#141927";
+set color_calendar_header_text ="#fceec1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#2C2727";
+set color_module_calendar_background = "#8F796D";
+set color_module_calendar_background_hover ="#fceec1";
+set color_module_calendar_link ="#2f210f";
+set color_module_calendar_link_hover ="#2C2727";
+set color_module_calendar_shadow = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "fantaisie/page_warmwelcome.jpg";
+set image_background_header_height = 240;
+set image_background_header_position = "center";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "fantaisie/header_warmwelcome.jpg";
+set image_background_header_secondary_height = 24;
+set image_background_header_secondary_width = 23;
+set image_background_header_secondary_url = "fantaisie/coffeebean-brown_reversed.png";
+set image_background_footer_height = 80;
+set image_background_footer_width = 80;
+set image_background_footer_url = "fantaisie/coffeecup-yellow.png";
+
+set image_background_navigation_height = 25;
+set image_background_navigation_width = 101;
+set image_background_navigation_url = "fantaisie/spoon-yellow.png";
+set image_background_navigation_url_alt = "fantaisie/spoon-yellow_reversed.png";
+
+set image_background_entry_title_height = 24;
+set image_background_entry_title_width = 23;
+set image_background_entry_title_url = "fantaisie/coffeebean-brown.png";
+
+set image_background_module_title_height = 24;
+set image_background_module_title_width = 23;
+set image_background_module_title_url = "fantaisie/coffeebean-brown.png";
+set image_background_module_footer_height = 39;
+set image_background_module_footer_url = "fantaisie/croissant-yellow.png";

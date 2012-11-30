@@ -3,7 +3,7 @@ use strict;
 use Test::More tests => 24;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 
 use LJ::SynSuck;
 

@@ -502,9 +502,8 @@ h2.module-header {
 }
 
 /* make lists prettier */
-.module-content li {
-    list-style-position: inside;
-    list-style-type: none;
+.module-content ul {
+    list-style: none;
     text-align: left;
 }
 

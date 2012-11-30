@@ -2,7 +2,7 @@
 use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::Console;
 use LJ::Test qw (temp_user temp_comm temp_feed memcache_stress);
 local $LJ::T_NO_COMMAND_PRINT = 1;

@@ -3,8 +3,8 @@
 use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { require 'ljlib.pl'; }
 use LJ::Test;
-require 'ljlib.pl';
 use LJ::Protocol;
 
 plan tests => 10;
