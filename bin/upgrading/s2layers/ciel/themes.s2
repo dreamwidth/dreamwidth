@@ -563,6 +563,14 @@ set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
 set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "ciel/battleraven.png";
+
 
 #NEWLAYER: ciel/blackforestcake
 layerinfo type = "theme";
@@ -4699,3 +4707,11 @@ set font_management = "'Palatino Linotype', Georgia, Palatino";
 set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
 set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/winterborn.jpg";
