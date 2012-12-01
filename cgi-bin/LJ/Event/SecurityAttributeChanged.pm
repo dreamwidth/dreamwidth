@@ -204,7 +204,7 @@ sub _as_email {
             " FROM userlog".
             " WHERE userid=$userid AND logtime=$logtime LIMIT 1");
         return undef unless $remoteid;
-        my $remoteuser = LJ::get_username($remoteid);
+        my $remoteuser = LJ::get_username( $remoteid );
         return (
             datetime    => $datetime,
             remoteid    => $remoteid,
