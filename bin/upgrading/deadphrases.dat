@@ -1511,3 +1511,12 @@ general web.authas.label
 general web.authas.label.comm
 
 general /community/settings.bml.label.commheader
+
+general esn.security_attribute_changed.account_activated.email_subject
+general esn.security_attribute_changed.account_activated.email_text
+general esn.security_attribute_changed.account_deleted.email_subject
+general esn.security_attribute_changed.account_deleted.email_text
+general esn.security_attribute_changed.account_renamed.email_subject
+general esn.security_attribute_changed.account_renamed.email_text
+
+
