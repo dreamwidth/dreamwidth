@@ -431,6 +431,7 @@ CREATE TABLE support (
     subject varchar(80) default NULL,
     timecreate int(10) unsigned default NULL,
     timetouched int(10) unsigned default NULL,
+    timemodified int(10) unsigned default NULL,
     timeclosed int(10) unsigned default NULL,
 
     PRIMARY KEY  (spid),
@@ -4118,6 +4119,10 @@ EOF
             "ALTER TABLE syndicated ".
             "ADD COLUMN fuzzy_token VARCHAR(255), " .
             "ADD INDEX (fuzzy_token);" );
+    }
+
+    if ( column_type( "support", "timemodified" ) eq '' ) {
+        do_alter( 'support', "ALTER TABLE support ADD COLUMN timemodified int(10) unsigned default NULL" );
     }
 });
 

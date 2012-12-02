@@ -157,11 +157,11 @@ body<=
 
     ## touch/untouch request
     if ($FORM{'touch'}) {
-        $dbh->do("UPDATE support SET state='open', timetouched=UNIX_TIMESTAMP(), timeclosed=0 WHERE spid=$spid");
+        $dbh->do("UPDATE support SET state='open', timetouched=UNIX_TIMESTAMP(), timeclosed=0, timemodified=UNIX_TIMESTAMP() WHERE spid=$spid");
         $status .= "(Inserting request into queue)\n\n";
     }
     if ($FORM{'untouch'}) {
-        $dbh->do("UPDATE support SET timelasthelp=UNIX_TIMESTAMP() WHERE spid=$spid");
+        $dbh->do("UPDATE support SET timelasthelp=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP() WHERE spid=$spid");
         $status .= "(Removing request from queue)\n\n";
     }
 
@@ -222,14 +222,14 @@ body<=
         });
 
         # close request, nobody gets credited
-        $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP() WHERE spid=?",
+        $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP() WHERE spid=?",
                  undef, $sp->{'spid'});
 
         return BML::ml('.bounced.success', { 'addresslist' => "<strong>".join(', ', @emails)."</strong>" })
             .$successlinks;
     }
 
-    $dbh->do("UPDATE support SET state='open', timetouched=UNIX_TIMESTAMP(), timeclosed=0 WHERE spid=$spid")
+    $dbh->do("UPDATE support SET state='open', timetouched=UNIX_TIMESTAMP(), timeclosed=0, timemodified=UNIX_TIMESTAMP() WHERE spid=$spid")
         if LJ::Support::is_poster($sp, $remote, $FORM{'auth'});
 
     ## change category
