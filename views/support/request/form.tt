@@ -11,16 +11,186 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [% CALL dw.ml_scope( "/support/see_request.bml" ) %]
-<form method='post' action='[% site.root%]/append_request' name='supportForm'>
+<form method='post' action='[% site.root%]/support/append_request' name='supportForm' class='simple-form'>
 
-Reply:
-<textarea></textarea>
+[%- form.hidden(
+        name = 'spid'
+        value = spid
+    );
 
-Manage:
-<textarea></textarea>
-
-[%- form.submit( value = dw.ml( ".postbutton" )
-             name = "submitpost"
-             id = "submitpost" )
+    form.hidden(
+        name = 'auth'
+        value = auth
+    );
 -%]
+
+<fieldset class='external'>
+<legend><span>Reply</span></legend>
+<ul>
+<li><label>[% '.from' | ml %]</label> [% from %]</li>
+
+[%- IF faqlist.size -%]
+<li><label>[% dw.ml( ".reference") _ " <a href='faq'>" _ dw.ml( ".faq" ) _ "</a>" %]:</label>
+    [%-
+    form.select(
+            name = "faqid"
+
+            items = faqlist
+        )
+    -%]
+</li>
+[%- END -%]
+
+[%- IF can.use_stock_answers -%]
+<li>
+    [%- stock_answers -%]
+</li>
+[%- END -%]
+
+[%- IF userfacing_actions_list.size > 2 %]
+<li>
+    [%- form.select( label = dw.ml( ".reply.type" )
+            name = "replytype"
+
+            items = userfacing_actions_list
+        )
+    -%]
+</li>[%- ELSE;
+    form.hidden( name = "replytype"
+        value = userfacing_actions_list.first
+    );
+END -%]
+
+<li>
+[%- form.textarea( label = dw.ml( ".message" ) _ ":"
+                id = "body"
+                name = "body"
+
+                rows = 15
+                cols = 100
+                wrap = "virtual"
+
+                value = reply.initial_text
+    )
+-%]
+</li>
+<li>
+<p style='padding-left: 12em'>[%- '.no.html.allowed' | ml -%]</p></li>
+</ul>
+</fieldset>
+
+[%- IF can.do_internal_actions -%]
+    <fieldset class='internal'>
+    <legend><span>Internal</span></legend>
+    <ul>
+    [%- IF internal_actions_list.size > 2 %]
+    <li>
+        [%- form.select( label = dw.ml( ".reply.type" )
+                name = "internaltype"
+                id = "internaltype"
+
+                items = internal_actions_list
+            )
+        -%]
+
+        <div id='bounce_email' style='display: none'>
+        [%- form.textbox( label = dw.ml( '.email.user' )
+                name = 'bounce_email'
+                size = 25
+        )
+        -%]
+        </div>
+    </li>[%- ELSE;
+        form.hidden( name = "internaltype"
+            value = internal_actions_list.first
+        );
+    END -%]
+
+    <li>
+        [%- form.select( label = dw.ml( '.change.cat' )
+                name = "changecat"
+
+                items = catlist
+            )
+        -%]
+    </li>
+
+    [%- IF can.approve_answers -%]
+    <li>
+        [%- form.select( label = dw.ml( '.approve.screened' )
+                name = "approveans"
+                id = "approveans"
+
+                items = screenedlist
+        )
+        -%]
+
+        [%- form.select(
+                name = 'approveas'
+                items = approve_actions_list
+        )
+        -%]
+    </li>
+    [%- END -%]
+
+    [%- IF can.put_in_queue -%]
+    <li>
+        [%- form.checkbox( label = dw.ml( ".put.in.queue" )
+                name = "touch"
+                id = "touch"
+        ) -%]
+        [%- '.use.this.to.re-open' | ml -%]
+    </li>
+    [%- END -%]
+
+    [%- IF can.take_out_of_queue -%]
+    <li>
+        [%- form.checkbox( label = dw.ml( '.take.out.of.queue' )
+                name = "untouch"
+                id = "untouch"
+        ) -%]
+        [%- '.use.this.to.change.awaiting' | ml -%]
+    </li>
+    [%- END -%]
+
+    [%- IF can.change_summary -%]
+    <li>
+        [%- form.checkbox( label = dw.ml( '.change.summary' )
+                name = "changesum"
+                id = "changesum"
+        ) -%]
+
+        [%- form.textbox(
+                name = "summary"
+
+                size = 50
+                maxlength = 80
+
+                value = request.summary
+        ) -%]
+    </li>
+    [%- END -%]
+
+    <li>
+    [%- form.textarea( label = "Notes:"
+                    id = "comment"
+                    name = "comment"
+
+                    rows = 8
+                    cols = 100
+                    wrap = "virtual"
+        )
+    -%]
+    </li>
+    </fieldset>
+[%- END -%]
+
+<fieldset class='submit'>
+[%- form.submit( value = dw.ml( is_poster ? ".postbuttoninfo" : ".postbutton" )
+             name = "submitpost"
+             id = "submitpost"
+    )
+-%]
+</fieldset>
+
 </form>

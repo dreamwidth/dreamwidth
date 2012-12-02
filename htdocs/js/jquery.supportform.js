@@ -2,7 +2,7 @@
 
 $.supportform = {
     init: function() {
-        $( "select[name=faqid]" ).change( function() {
+        $( "select[name=faqid]" ).after(" <a href='#' id='faqlink'>View FAQ</a>").change( function() {
             var $link = $("#faqlink");
             if ( this.value === "0" ) {
                 $link.hide();
@@ -12,20 +12,12 @@ $.supportform = {
         } ).triggerHandler( "change" );
 
 
-        $( "#replytype" ).change( function(e) {
+        $( "#internaltype" ).change( function(e) {
             $( "#bounce_email" ).toggle( this.value == "bounce" );
-
-            var $tier = $("#tier_cell");
-            var $approveans = $("#approveans");
-            if ( $tier.length > 0 && $approveans.length === 0 ) {
-                $tier.toggle( this.value === "answer" || this.value === "internal" );
-            }
-
-            e.stopPropagation();
         }).triggerHandler( "change" );
 
 
-        $( "select, input" ).filter( "[name=changecat], [name=changelanguage], [name=touch], [name=untouch], [name=approveans]" )
+        $( "select, input" ).filter( "[name=changecat], [name=touch], [name=untouch], [name=approveans]" )
             .change( function() {
                 $.supportform.makeInternal();
             });
@@ -39,18 +31,10 @@ $.supportform = {
             $( "#changesum" ).attr( "checked", "checked" );
             $.supportform.makeInternal();
         } );
-
-
-        $( "#clear" ).click(function(e) {
-            $("#body").val( "" ).focus();
-            e.preventDefault();
-        }).focus(function() {
-            $("#submitpost").focus();
-        });
     },
 
     makeInternal: function() {
-        $( "#replytype" ).val( "internal" ).triggerHandler( "change" );
+        $( "#internaltype" ).val( "internal" ).triggerHandler( "change" );
     }
 };
 
