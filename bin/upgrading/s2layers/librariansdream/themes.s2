@@ -1,3 +1,47 @@
+#NEWLAYER: librariansdream/athousandrubies
+layerinfo type = "theme";
+layerinfo name = "A Thousand Rubies";
+layerinfo redist_uniq = "librariansdream/athousandrubies";
+layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#D93D4A";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#bbb";
+set color_page_text = "#eee";
+set color_header_background = "#6d0009";
+set color_primary_background = "#ba000f";
+set color_sidebars_background = "#ba000f";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#6d0009";
+set color_entry_border = "#ad000e";
+set color_entry_management_background = "#93000c";
+set color_entry_title_background = "#ad000e";
+set color_entry_title = "#eee";
+set color_comment_title_background = "#ad000e";
+
+##===============================
+## Module
+##===============================
+
+set color_module_border = "#93000c";
+set color_module_link_background = "#6d0009";
+set color_module_link_border = "#93000c";
+set color_module_link_hover_border = "#d93d4a";
+set color_module_title_background = "#ad000e";
+set color_module_title = "#eee";
+
+
 #NEWLAYER: librariansdream/altair
 layerinfo type = "theme";
 layerinfo name = "Altair";
@@ -140,6 +184,59 @@ set color_module_title = "#171614";
 set color_module_title_background = "#bfbfbf";
 
 
+#NEWLAYER: librariansdream/angelcake
+layerinfo type = "theme";
+layerinfo name = "Angel Cake";
+layerinfo redist_uniq = "librariansdream/angelcake";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#ff9bcc";
+set color_page_link_hover = "#de8fce";
+set color_page_link_visited = "#c86c95";
+set color_page_text = "#000";
+set color_page_title = "#c86c95";
+set color_sidebars_background = "#c86c95";
+set color_primary_background = "#c86c95";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fafbd8";
+set color_entry_border = "#ffcdf8";
+set color_entry_management_background = "#ff9bcc";
+set color_entry_interaction_links = "#fff";
+set color_entry_title = "#c86c95";
+set color_entry_title_background = "#ffcdf8";
+set color_comment_title = "#c86c95";
+set color_comment_title_background = "#ffcdf8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link_background = "#fafbd8";
+set color_module_border = "#ffcdf8";
+set color_module_link_border = "#ffcdf8";
+set color_module_link_hover_border = "#ff9bcc";
+set color_module_title = "#c86c95";
+set color_module_title_background = "#ffcdf8";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "strata/angelcake.png";
+
+
 #NEWLAYER: librariansdream/antares
 layerinfo type = "theme";
 layerinfo name = "Antares";
@@ -264,6 +361,50 @@ set color_module_link_hover_border = "#e2560f";
 set color_module_text = "#5f3003";
 set color_module_title = "#773d04";
 set color_module_title_background = "#e5c194";
+
+
+#NEWLAYER: librariansdream/blackforestcake
+layerinfo type = "theme";
+layerinfo name = "Black Forest Cake";
+layerinfo redist_uniq = "librariansdream/blackforestcake";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0f0800";
+set color_page_link = "#f70000";
+set color_page_link_hover = "#c73e3e";
+set color_page_link_visited = "#c21300";
+set color_page_text = "#fff9e5";
+set color_page_title = "#f70000";
+set color_header_background = "#331003";
+set color_primary_background = "#f70000";
+set color_sidebars_background = "#f70000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#170d00";
+set color_entry_border = "#331003";
+set color_entry_management_background = "#080400";
+set color_entry_title_background = "#331003";
+set color_comment_title_background = "#331003";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link_background = "#170d00";
+set color_module_border = "#331003";
+set color_module_link_border = "#331003";
+set color_module_link_hover_border = "#0f0800";
+set color_module_title = "#f70000";
+set color_module_title_background = "#331003";
 
 
 #NEWLAYER: librariansdream/bluedays
@@ -500,10 +641,73 @@ set color_module_title = "#98d2ce";
 set color_module_title_background = "#281133";
 
 
-#NEWLAYER: librariansdream/cvětý
+#NEWLAYER: librariansdream/chrome
+layerinfo type = "theme";
+layerinfo name = "Chrome";
+layerinfo redist_uniq = "librariansdream/chrome";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#888";
+set color_page_link = "#ddd";
+set color_page_link_active = "#ddd";
+set color_page_link_hover = "#aaa";
+set color_page_link_visited = "#777";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#555";
+set color_footer_background = "#555";
+set color_footer_link = "#ddd";
+set color_footer_link_active = "#ddd";
+set color_footer_link_hover = "#aaa";
+set color_footer_link_visited = "#777";
+set color_primary_background = "#333";
+set color_sidebars_background = "#333";
+
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#454545";
+set color_entry_management_background = "#666";
+set color_entry_link = "#ddd";
+set color_entry_link_active = "#ddd";
+set color_entry_link_hover = "#bbb";
+set color_entry_link_visited = "#aaa";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#454545";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#454545";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link_background = "#000";
+set color_module_border = "#555";
+set color_module_link_background = "#000";
+set color_module_link_hover_border = "#555";
+set color_module_link = "#ddd";
+set color_module_link_active = "#ddd";
+set color_module_link_hover = "#aaa";
+set color_module_link_visited = "#777";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#454545";
+
+
+#NEWLAYER: librariansdream/cvety
 layerinfo type = "theme";
 layerinfo name = "Cvětý";
-layerinfo redist_uniq = "librariansdream/cvětý";
+layerinfo redist_uniq = "librariansdream/cvety";
 layerinfo author_name = "rising";
 
 set theme_authors = [ { "name" => "rising", "type" => "user" } ];
@@ -572,6 +776,49 @@ set color_module_link_visited = "#56205f";
 set color_module_text = "#131313";
 set color_module_title = "#14a3a5";
 set color_module_title_background = "#dde7b6";
+
+
+#NEWLAYER: librariansdream/deepseas
+layerinfo type = "theme";
+layerinfo name = "Deep Seas";
+layerinfo redist_uniq = "librariansdream/deepseas";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#087ec3";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ccc";
+set color_page_link_visited = "#777";
+set color_page_text = "#eee";
+set color_header_background = "#211f27";
+set color_primary_background = "#1c6996";
+set color_sidebars_background = "#1c6996";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#211f27";
+set color_entry_border = "#103e70";
+set color_entry_management_background = "#102749";
+set color_entry_title_background = "#103e70";
+set color_comment_title_background = "#103e70";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link_background = "#211f27";
+set color_module_border = "#1c6996";
+set color_module_link_border = "#102749";
+set color_module_link_hover_border = "#087ec3";
+set color_module_link_hover_background = "#102749";
+set color_module_title_background = "#103e70";
 
 
 #NEWLAYER: librariansdream/driedflowers
@@ -1148,6 +1395,52 @@ set color_module_title = "#fff";
 set color_module_title_background = "#99b3ba";
 
 
+#NEWLAYER: librariansdream/moss
+layerinfo type = "theme";
+layerinfo name = "Moss";
+layerinfo redist_uniq = "librariansdream/moss";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#358c64";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#bbb";
+set color_page_text = "#eee";
+set color_header_background = "#3a7755";
+set color_primary_background = "#0C944E";
+set color_sidebars_background = "#0C944E";
+
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3a7755";
+set color_entry_border = "#096B38";
+set color_entry_management_background = "#003127";
+set color_entry_title = "#eee";
+set color_entry_title_background = "#096B38";
+set color_comment_title_background = "#096B38";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link_background = "#3a7755";
+set color_module_border = "#0C944E";
+set color_module_link_border = "#003127";
+set color_module_link_hover_border = "#358c64";
+set color_module_link_hover_background = "#003127";
+set color_module_title = "#eee";
+set color_module_title_background = "#096B38";
+
+
 #NEWLAYER: librariansdream/newocean
 layerinfo type = "theme";
 layerinfo name = "New Ocean";
@@ -1445,6 +1738,51 @@ set color_module_link_visited = "#19223f";
 set color_module_text = "#020920";
 set color_module_title = "#babdc4";
 set color_module_title_background = "#020920";
+
+
+#NEWLAYER: librariansdream/pumpkinpie
+layerinfo type = "theme";
+layerinfo name = "Pumpkin Pie";
+layerinfo redist_uniq = "librariansdream/pumpkinpie";
+layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#E67A12";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#bbb";
+set color_page_text = "#eee";
+set color_header_background = "#592F07";
+set color_primary_background = "#BF650F";
+set color_sidebars_background = "#BF650F";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#592F07";
+set color_entry_border = "#D97311";
+set color_entry_management_background = "#99510C";
+set color_entry_title_background = "#D97311";
+set color_entry_title = "#eee";
+set color_comment_title_background = "#D97311";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link_background = "#592F07";
+set color_module_border = "#BF650F";
+set color_module_link_border = "#99510C";
+set color_module_link_hover_border = "#E67A12";
+set color_module_link_hover_background = "#99510C";
+set color_module_title_background = "#D97311";
+set color_module_title = "#eee";
 
 
 #NEWLAYER: librariansdream/quasar
@@ -1818,6 +2156,53 @@ set color_module_title = "#c7ccab";
 set color_module_title_background = "#3d443d";
 
 
+#NEWLAYER: librariansdream/sandstone
+layerinfo type = "theme";
+layerinfo name = "Sandstone";
+layerinfo redist_uniq = "librariansdream/sandstone";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#bf9169";
+set color_page_link = "#f2ca6d";
+set color_page_link_hover = "#F9EA64";
+set color_page_link_visited = "#DBC158";
+set color_page_text = "#fff";
+set color_page_title = "#c76c58";
+set color_header_background = "#f2ca6d";
+set color_primary_background = "#c76c58";
+set color_sidebars_background = "#c76c58";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#bf9169";
+set color_entry_border = "#c76c58";
+set color_entry_management_background = "#f4e2b7";
+set color_entry_interaction_links = "#bf7315";
+set color_entry_title = "#fff2b0";
+set color_entry_title_background = "#c76c58";
+set color_comment_title = "#fff2b0";
+set color_comment_title_background = "#c76c58";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link_background = "#bf9169";
+set color_module_border = "#c76c58";
+set color_module_link_border = "#f4e2b7";
+set color_module_link_hover_border = "#f2ca6d";
+set color_module_title = "#fff2b0";
+set color_module_title_background = "#c76c58";
+
+
 #NEWLAYER: librariansdream/seaserpent
 layerinfo type = "theme";
 layerinfo name = "Sea Serpent";
@@ -1964,6 +2349,57 @@ set color_module_link_visited = "#222c2d";
 set color_module_text = "#222c2d";
 set color_module_title = "#9e5c1f";
 set color_module_title_background = "#222c2d";
+
+
+#NEWLAYER: librariansdream/sunshine
+layerinfo type = "theme";
+layerinfo name = "Sunshine";
+layerinfo redist_uniq = "librariansdream/sunshine";
+layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#fff266";
+set color_page_link = "#777";
+set color_page_link_hover = "#999";
+set color_page_link_visited = "#555";
+set color_page_text = "#eee";
+set color_header_background = "#827a1f";
+set color_primary_background = "#e5d737";
+set color_sidebars_background = "#e5d737";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#827a1f";
+set color_entry_border = "#ffef3d";
+set color_entry_management_background = "#bfb32e";
+set color_entry_link = "#666";
+set color_entry_link_hover = "#999";
+set color_entry_link_visited = "#bbb";
+set color_entry_title = "#777";
+set color_entry_title_background = "#ffef3d";
+set color_comment_title_background = "#ffef3d";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link_background = "#827a1f";
+set color_module_border = "#e5d737";
+set color_module_link_border = "#bfb32e";
+set color_module_link_hover_border = "#fff266";
+set color_module_link_hover_background = "#bfb32e";
+set color_module_link = "#ddd";
+set color_module_link_hover = "#ccc";
+set color_module_link_visited = "#aaa";
+set color_module_title = "#777";
+set color_module_title_background = "#ffef3d";
 
 
 #NEWLAYER: librariansdream/toxicity
@@ -2113,6 +2549,51 @@ set color_module_link_visited = "#8c2318";
 set color_module_text = "#2a2a2a";
 set color_module_title = "#2a2a2a";
 set color_module_title_background = "#fae9c8";
+
+
+#NEWLAYER: librariansdream/violets
+layerinfo type = "theme";
+layerinfo name = "Violets";
+layerinfo redist_uniq = "librariansdream/violets";
+layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#8907E5";
+set color_page_link = "#aaa";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#bbb";
+set color_page_text = "#eee";
+set color_header_background = "#25023d";
+set color_primary_background = "#7c07cf";
+set color_sidebars_background = "#7c07cf";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#25023d";
+set color_entry_border = "#6d06b5";
+set color_entry_management_background = "#56058f";
+set color_entry_title_background = "#6d06b5";
+set color_entry_title = "#eeeeee";
+set color_comment_title_background = "#6d06b5";
+
+##===============================
+## Module
+##===============================
+
+set color_module_link_background = "#25023d";
+set color_module_border = "#7c07cf";
+set color_module_link_border = "#56058f";
+set color_module_link_hover_border = "#8907E5";
+set color_module_link_hover_background = "#56058f";
+set color_module_title_background = "#6d06b5";
+set color_module_title = "#eee";
 
 
 #NEWLAYER: librariansdream/wonderland

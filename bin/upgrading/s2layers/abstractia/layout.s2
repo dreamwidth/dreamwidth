@@ -72,7 +72,7 @@ propgroup colors {
     property use color_page_link_visited;
     property use color_page_text;
     property use color_page_title;
-    
+
     property use color_header_background;
     property use color_footer_link;
     property use color_footer_link_active;
@@ -156,6 +156,7 @@ propgroup fonts {
     property use font_module_text;
     property use font_module_text_size;
     property use font_module_text_units;
+    property use font_sources;
 }
 
 set font_base = "Verdana, Tahoma, Arial, Helvetica";
@@ -371,6 +372,7 @@ propgroup text {
 
     property use text_view_recent;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_archive;
     property use text_view_userinfo;
@@ -386,6 +388,8 @@ propgroup text {
     property use text_read_comments;
     property use text_post_comment_friends;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
 
     property use text_skiplinks_back;
     property use text_skiplinks_forward;
@@ -463,6 +467,9 @@ function ReplyPage::print_comment (Comment c) {
     $c->print_metatypes();
     $c->print_time();
     if ($*entry_poster_position == "header") { $c->print_poster(); }
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
@@ -531,7 +538,7 @@ function Page::print_default_stylesheet() {
             $header_background
             height: """ + $*image_background_header_height + """px;""";
     }
-    
+
     var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
     var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
     var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
@@ -770,7 +777,7 @@ q {
 /* Content & Sidebars
 ***************************************************************************/
 
-#primary, 
+#primary,
 #secondary,
 #tertiary {
     float: left;
@@ -1110,6 +1117,10 @@ q {
     $comment_title_colors
 }
 
+.comment-posted {
+    font-weight:bold;
+}
+
 .datetime {
     font-size: .85em
 }
@@ -1235,12 +1246,12 @@ q {
     display: none;
 }
 
-.entry-interaction-links, 
+.entry-interaction-links,
 .comment-interaction-links {
     float: right;
 }
-.entry-interaction-links li, 
-.comment-interaction-links li, 
+.entry-interaction-links li,
+.comment-interaction-links li,
 .bottomcomment .entry-interaction-links li {
     display: inline;
     margin: 0;
@@ -1675,10 +1686,9 @@ blockquote {
 .topnav li, .bottomnav li,
 .page-archive #primary table th, .page-archive #primary table td,
 .page-month #primary dl dt a,
-.page-tags .tags-container .manage-tags-link a, 
+.page-tags .tags-container .manage-tags-link a,
 .page-icons .icons-container .manage-icons-link a, blockquote {
     border-color: rgba($border_r,$border_g,$border_b,.15);
 }
      """;
 }
-

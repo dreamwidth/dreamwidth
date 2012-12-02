@@ -62,7 +62,7 @@ sub render_body {
         $ret .= "<table summary='' cellspacing='0' class='prop-list first' id='proplist__presentation__basic'>";
         $ret .= $class->language_chooser($u) if $opts{show_lang_chooser};
         foreach my $prop_name (@basic_props) {
-            next if $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme);
+            next if $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme, user => $u );
 
             if ($opts{show_lang_chooser}) {
                 # start on gray, since the language chooser will be white
@@ -78,7 +78,7 @@ sub render_body {
         $count = 1; # reset counter
         my $header_printed = 0;
         foreach my $prop_name (@$groupprops) {
-            next if $class->skip_prop($props->{$prop_name}, $prop_name, props_to_skip => \%is_basic_prop, theme => $theme);
+            next if $class->skip_prop($props->{$prop_name}, $prop_name, props_to_skip => \%is_basic_prop, theme => $theme, user => $u );
 
             # need to print the header inside the foreach because we don't want it printed if
             # there's no props in this group that are also in this subheader
@@ -314,6 +314,14 @@ sub skip_prop {
     if ($theme) {
         return 1 if $prop_name eq $theme->layout_prop;
         return 1 if $prop_name eq $theme->show_sidebar_prop;
+    }
+
+    if ( $opts{user}->is_community ) {
+        return 1 if $prop_name eq "text_view_network";
+        return 1 if $prop_name eq "text_view_friends";
+        return 1 if $prop_name eq "text_view_friends_filter";
+    } else {
+        return 1 if $prop_name eq "text_view_friends_comm"
     }
 
     return 1 if $prop_name eq "custom_control_strip_colors";
@@ -583,7 +591,7 @@ sub group_exists_with_props {
 
     my $theme = LJ::Customize->get_current_theme($u);
     foreach my $prop_name (@$groupprops) {
-        return 1 unless $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme);
+        return 1 unless $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme, user => $u );
     }
 
     return 0;

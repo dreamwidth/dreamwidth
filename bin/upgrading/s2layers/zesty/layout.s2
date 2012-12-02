@@ -183,12 +183,13 @@ propgroup Text {
     property use text_meta_mood;
     property use text_meta_music;
 
-        set text_meta_mood = "Mood";
-        set text_meta_music = "Music";
+        set text_meta_mood = "Mood:";
+        set text_meta_music = "Music:";
 
     property use text_view_archive;
     property use text_view_recent;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_month;
     property use text_view_userinfo;
 

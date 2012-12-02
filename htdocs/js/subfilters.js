@@ -149,12 +149,18 @@ function cfPopulateLists(selectValue) {
     if ($.browser.msie && parseInt($.browser.version, 10) <= 8) $('#cf-in-list, #cf-notin-list').css('width', 'auto').css('width', '100%'); // set #cf-in-list and #cf-notin-list width (IE n..7 bug)
 }
 
+function cfPopulateOptions( ) {
+    $('#cf-public').val( cfFilters[cfSelectedFilterId]['public'] );
+    $('#cf-sortorder').val( String( cfFilters[cfSelectedFilterId]['sortorder'] ) );
+    $('#cf-foname').text( cfFilters[cfSelectedFilterId]['name'] );
+    $('#cf-filtopts').show();
+}
 
 function cfSelectedFilter() {
     // filter options are not implemented yet, so don't show that box :)
-    //$('#cf-filtopts').show();
 
     cfPopulateLists();
+    cfPopulateOptions();
 }
 
 
@@ -542,8 +548,23 @@ function cfRenameFilter() {
 
     // and now update the select dialog
     cfUpdateFilterSelect();
+    // and any labeling
+    $('#cf-foname').text( cfFilters[cfSelectedFilterId]['name'] );
 
     // kick off a saaaaaaaave!
+    cfSaveChanges();
+}
+
+function cfSortOrder() {
+    cfFilters[cfSelectedFilterId]['sortorder'] = parseInt( $('#cf-sortorder').val(), 10 );
+
+    cfSaveChanges();
+    cfUpdateFilterSelect();
+}
+
+function cfPublic( sel ) {
+    cfFilters[cfSelectedFilterId]['public'] = sel === "1" ? 1 : 0;
+
     cfSaveChanges();
 }
 
@@ -560,12 +581,30 @@ function cfViewFilter() {
     );
 }
 
+// function used for sorting filters -- compares based on sort order, then name
+function compareFilters( a, b ) {
+    if ( a.sortorder == b.sortorder ) {
+        return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
+    }
+
+    return a.sortorder > b.sortorder ? 1 : -1;
+}
+
 function cfUpdateFilterSelect() {
     // regenerate HTML for the Filter: dropdown
     var options = '<option value="0">( select filter )</option><option value="0"></option>';
+
+    // sort by sortorder, then name
+    var sortedFilters = [];
     for ( i in cfFilters ) {
-        cfFilters[i]['members'] = null;
-        options += '<option value="' + i + '">' + cfFilters[i].name + '</option>';
+        sortedFilters.push(cfFilters[i]);
+    }
+    sortedFilters.sort(compareFilters);
+
+    for ( var i = 0; i < sortedFilters.length; i++ ) {
+        var id = sortedFilters[i]['id'];
+        cfFilters[id]['members'] = null;
+        options += '<option value="' + id + '">' + cfFilters[id].name + '</option>';
     }
     $('#cf-filters').html( options );
 
@@ -634,6 +673,9 @@ jQuery( function($) {
     $('#cf-view').bind( 'click', function(e) { cfViewFilter(); } );
     $('#cf-delete').bind( 'click', function(e) { cfDeleteFilter(); } );
     $('#cf-showtypes').bind( 'change', function(e) { cfShowTypes( $(e.target).val() ); } );
+    $('#cf-public').bind( 'change', function(e) { cfPublic( $(e.target).val() ); } );
+    // not working on the input element? put the function in directly as onChange
+    //$('#cf-sortorder').bind( 'change', function(e) { cfSortOrder( $(e.target).val() ); } );
 
     // if the user is paid, we bind these.  note that even if someone goes through the
     // trouble of hacking up the form and submitting data, the server won't actually give

@@ -134,6 +134,7 @@ propgroup fonts
     property use font_module_text;
     property use font_module_text_size;
     property use font_module_text_units;
+    property use font_sources;
 }
 
 set font_base         = "Arial";
@@ -222,6 +223,8 @@ propgroup text
     property use text_read_comments;
     property use text_post_comment_friends;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
 
     property use text_skiplinks_back;
     property use text_skiplinks_forward;
@@ -764,6 +767,10 @@ function Page::print_default_stylesheet()
         overflow: auto;
     }
 
+    .comment-posted {
+        font-weight:bold;
+    }
+
     .full .comment .poster {
        display: block;
        width: auto;
@@ -1148,7 +1155,9 @@ function EntryPage::print_comment (Comment c)
             println "<div class=\"datetime-container\">";
                 $c->print_time("long_day", "");
             println "</div>";
-
+             if ( $c.comment_posted ) {
+                 print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+             }
             $c->print_metadata();
 
             println "<div class=\"comment-text\">";

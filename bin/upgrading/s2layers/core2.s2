@@ -925,6 +925,7 @@ class ReplyPage extends Page
     var Entry entry "The journal entry for this talk page";
     var EntryLite replyto "The object which is being replied to, either the entry or a comment";
     var ReplyForm form "The reply form.";
+    var bool isedit "True if we are editing a comment, false if writing a new one";
 
     function print_comment(Comment comment) "Prints a full comment";
 }
@@ -1554,7 +1555,7 @@ set custom_control_strip_colors = "off";
 
 property string font_base {
     des = "Preferred journal font";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1574,7 +1575,7 @@ property string font_base_units {
 
 property string font_module_heading {
     des = "Preferred font for module headings";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1589,7 +1590,7 @@ property string font_module_heading_units {
 
 property string font_module_text {
     des = "Preferred font for module text";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1604,7 +1605,7 @@ property string font_module_text_units {
 
 property string font_journal_title {
     des = "Preferred font for journal titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1619,7 +1620,7 @@ property string font_journal_title_units {
 
 property string font_journal_subtitle {
     des = "Preferred font for journal subtitles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1634,7 +1635,7 @@ property string font_journal_subtitle_units {
 
 property string font_entry_title {
     des = "Preferred font for entry titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1649,7 +1650,7 @@ property string font_entry_title_units {
 
 property string font_comment_title {
     des = "Preferred font for comment titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1663,8 +1664,8 @@ property string font_comment_title_units {
 }
 
 property string font_sources {
-    des = "Embedded fonts source URL";
-    note = "Embedded fonts can slow page loading time. Blank the field to stop using them.";
+    des = "Embedded fonts stylesheet URL";
+    note = "The URL must point to a font stylesheet such as 'http://fonts.googleapis.com/css?family=Average+Sans' and not directly at the font file. Embedded fonts can slow page loading time. Blank the field to stop using them.";
 }
 
 set font_base = "";     # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
@@ -2293,11 +2294,11 @@ property string text_tags {
 
 property string text_stickyentry_subject { des = "Text that appears before the subject of the sticky entry"; }
 
-set text_meta_groups = "Custom Access Groups";
-set text_meta_location = "Current Location";
-set text_meta_mood = "Current Mood";
-set text_meta_music = "Current Music";
-set text_meta_xpost = "Crossposts";
+set text_meta_groups = "Custom Access Groups:";
+set text_meta_location = "Current Location:";
+set text_meta_mood = "Current Mood:";
+set text_meta_music = "Current Music:";
+set text_meta_xpost = "Crossposts:";
 set text_tags = "Tags:";
 set text_stickyentry_subject = "Sticky: ";
 
@@ -2348,9 +2349,20 @@ set text_unwatch_comments = "Untrack This";
 ##=======================================
 
 property string text_read_comments {
-    des = "Link text to read comments";
+    des = "Text to read comments";
     format = "plurals";
     example = "1 comment // # comments";
+}
+
+property string text_read_comments_friends {
+    des = "Text to read comments from your Reading page";
+    format = "plurals";
+    example = "1 comment // # comments";
+}
+
+property string text_read_comments_screened_visible {
+    des = "Text for number of unscreened comments on an entry with screened comments";
+    example = "1 visible // # visible";
 }
 
 property string text_read_comments_screened {
@@ -2359,23 +2371,12 @@ property string text_read_comments_screened {
     example = "1 screened comment // # screened comments";
 }
 
-property string text_read_comments_screened_visible {
-    des = "Text for number of unscreened comments on an entry with screened comments";
-    example = "visible";
-}
-
-property string text_read_comments_friends {
-    des = "Link text to read comments from your Reading page";
-    format = "plurals";
-    example = "1 comment // # comments";
-}
-
 property string text_post_comment {
-    des = "Link text to leave a comment";
+    des = "Text to leave a comment";
     example = "Reply";
 }
 property string text_post_comment_friends {
-    des = "Link text to leave a comment from your Reading page";
+    des = "Text to leave a comment from your Reading page";
     example = "Reply";
 }
 property string text_max_comments {
@@ -2392,7 +2393,7 @@ property string text_permalink {
 
 set text_read_comments = "1 comment // # comments";
 set text_read_comments_friends = "1 comment // # comments";
-set text_read_comments_screened_visible = " visible";
+set text_read_comments_screened_visible = "1 visible // # visible";
 set text_read_comments_screened = "1 screened comment // # screened comments";
 set text_post_comment = "Reply";
 set text_post_comment_friends = "Reply";
@@ -2830,6 +2831,10 @@ property string text_multiform_opt_edit { des = "Text for the comment editing ac
 
 property string text_replyform_header { des = "Text for the heading above the form on the reply page"; }
 
+property string text_new_comment_title { des = "Text for the page title when writing a new comment"; }
+
+property string text_edit_comment_title { des = "Text for the page title when editing an existing comment"; }
+
 set text_nosubject = "(no subject)";
 set text_nosubject_screenreader = "no subject";
 
@@ -2886,6 +2891,9 @@ set text_multiform_opt_delete = "Delete";
 set text_multiform_opt_deletespam = "Delete as Spam";
 
 set text_replyform_header = "Comment Form";
+
+set text_new_comment_title = "Reply";
+set text_edit_comment_title = "Edit reply";
 
 ##=======================================
 ## Display properties - Text
@@ -3722,15 +3730,18 @@ function EntryPage::view_title() : string {
     return $.entry.subject ? $.entry->get_plain_subject() : $*text_nosubject;
 }
 function ReplyPage::view_title() : string {
+var string suffix = $.isedit ?
+    " (" + $*text_edit_comment_title + ")" :
+    " (" + $*text_new_comment_title + ")";
 if ($.replyto isa Comment) {
         var Comment c = $.replyto as Comment;
-        return $c->get_plain_subject() + " (" + $*text_comment_reply + ")";
+        return $c->get_plain_subject() + $suffix;
     }
     else {
         var Entry e = $.replyto as Entry;
         return $e.subject ?
-          $e->get_plain_subject() + " (" + $*text_comment_reply + ")" :
-          $*text_nosubject + " (" + $*text_comment_reply + ")";
+          $e->get_plain_subject() + $suffix :
+          $*text_nosubject + $suffix;
     }
 }
 function Page::title() [notags] : string {
@@ -4903,7 +4914,7 @@ function Entry::print_metadata() {
         """<div class="metadata$position">\n<ul>\n""";
         foreach var string m ( keys_alpha( $.metadata ) ) {
             var string metadata_name = lang_metadata_title($m);
-            """<li><span class="metadata-label metadata-label-$m">$metadata_name: </span>""";
+            """<li><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
             if ($m == "mood") {
                 " $.mood_icon ";
             }
@@ -5747,17 +5758,18 @@ function DayPage::print_navigation( string{} opts ) [fixed] {
 
 function CommentInfo::print_readlink {
     var Page p = get_page();
-    if ($.screened) {
-        print safe "<a href=\"$.read_url#comments\">"+ $.count + $*text_read_comments_screened_visible + " | " +
-                get_plural_phrase($.screened_count, "text_read_comments_screened")+
-            "</a>";
+    var string text_visible = get_plural_phrase($.count, "text_read_comments_screened_visible");
+    var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
+    var string text_both = $text_visible + $*text_default_separator + $text_screened;
+    var string text_total = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+
+    if ($.screened) { # show visible count and screened count
+        print safe """<a href="$.read_url#comments">"""+ $text_both + """</a>""";
     } else {
-        print safe "<a href=\"$.read_url#comments\">"+
-            get_plural_phrase($.count, ( $p.view == "read" or $p.view == "network" ) ?
-                              "text_read_comments_friends" : "text_read_comments")+
-        "</a>";
+        print safe """<a href="$.read_url#comments">"""+ $text_total + """</a>""";
+    }
 }
-}
+
 function CommentInfo::print_postlink() {
     var Page p = get_page();
     if ($.maxcomments) {
@@ -5918,6 +5930,9 @@ function EntryPage::print_comment (Comment c) {
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
@@ -5986,6 +6001,9 @@ function EntryPage::print_comment_partial (Comment c) {
         var Link expand_link = $c->get_link("expand_comments");
         if (defined $expand_link) {
             " - "; $c->print_expand_link();
+    if ( $c.comment_posted ) {
+         print safe " <span class='comment-posted'>$*text_comment_posted</span>";
+     }
         }
     }
     $c->print_wrapper_end();

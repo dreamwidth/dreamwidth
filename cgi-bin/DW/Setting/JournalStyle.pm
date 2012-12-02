@@ -68,9 +68,9 @@ sub option {
         value => 1,
         selected => $use_s2 ? 1 : 0,
     } );
-    $ret .= " <label for='${key}style'>" . $class->option_ml . "</label>";
+    $ret .= " <label for='${key}style'>" . $class->option_ml( $u ) . "</label>";
 
-    my $note = $class->note_ml;
+    my $note = $class->note_ml( $u );
     $ret .= "<br /><i>$note</i>" if $note;
 
     return $ret;

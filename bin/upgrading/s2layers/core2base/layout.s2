@@ -119,6 +119,7 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
+    property use font_sources;
 }
 
 set font_base = "";
@@ -185,6 +186,7 @@ propgroup text {
     property use text_view_recent;
     property use text_view_archive;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_tags;
     property use text_view_memories;
@@ -201,6 +203,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
     property use text_permalink;
@@ -550,6 +554,8 @@ ul.entry-interaction-links li {
 }
 
 /* comments */
+
+.comment-posted {font-weight:bold;}
 
 .comment-wrapper {
     padding: .5em 0;

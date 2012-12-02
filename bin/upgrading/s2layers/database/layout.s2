@@ -8,7 +8,7 @@ set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
 set layout_resources = [ { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" } ];
 
 ##===============================
-## Presentation 
+## Presentation
 ##===============================
 
 propgroup presentation_child {
@@ -102,7 +102,7 @@ propgroup colors_child {
 }
 
 ##===============================
-## Fonts 
+## Fonts
 ##===============================
 
 propgroup fonts_child {
@@ -126,7 +126,7 @@ set font_module_heading_size = "1.25";
 set font_module_heading_units = "em";
 
 ##===============================
-## Images 
+## Images
 ##===============================
 
 propgroup images_child {
@@ -182,6 +182,7 @@ propgroup images_child {
     property string image_edittags { des = "Edit tags icon"; noui = 1; }
     property string image_expand { des = "Expand thread icon"; noui = 1; }
     property string image_freeze { des = "Freeze comment icon"; noui = 1; }
+    property string image_hide { des = "Hide comments icon"; noui = 1; }
     property string image_giveaccess { des = "Give access icon"; noui = 1; }
     property string image_join { des = "Join community icon"; noui = 1; }
     property string image_link { des = "Post link icon"; noui = 1; }
@@ -192,6 +193,7 @@ propgroup images_child {
     property string image_prev { des = "Previous entry icon"; noui = 1; }
     property string image_reply { des = "Reply to post icon"; noui = 1; }
     property string image_screen { des = "Screen comment icon"; noui = 1; }
+    property string image_show { des = "Show comments icon"; noui = 1; }
     property string image_subscribe { des = "Subscribe to journal icon"; noui = 1; }
     property string image_tellafriend { des = "Tell a friend icon"; noui = 1; }
     property string image_thread { des = "Comment thread icon"; noui = 1; }
@@ -254,11 +256,11 @@ set module_tags_opts_type = "multi";
 
 set text_default_separator = " &#9726; ";
 set text_posting_in = " in ";
-set text_meta_music = "&#9726; Current Music";
-set text_meta_mood = "&#9726; Current Mood";
-set text_meta_location = "&#9726; Current Location";
-set text_meta_groups = "&#9726; Custom Access Groups";
-set text_meta_xpost = "&#9642; Crossposts";
+set text_meta_music = "&#9726; Current Music:";
+set text_meta_mood = "&#9726; Current Mood:";
+set text_meta_location = "&#9726; Current Location:";
+set text_meta_groups = "&#9726; Custom Access Groups:";
+set text_meta_xpost = "&#9642; Crossposts:";
 set text_tags = "&#9726; Tags:";
 set text_comment_from = "Posted by:";
 set text_comment_date = "Date/Time:";
@@ -269,6 +271,7 @@ set text_tell_friend = "Share";
 set text_mem_add = "Memory";
 set text_generated_on = "Page generated on";
 set text_page_top = "Top of Page";
+set text_read_comments_screened_visible = "1 visible comment // # visible comments";
 
 ##===============================
 ## Functions
@@ -287,6 +290,7 @@ function prop_init () {
     $*image_expand = $*default_icons ? "" : generate_image_url($*image_expand);
     $*image_freeze = $*default_icons ? "$*IMGDIR/silk/comments/freeze.png" : generate_image_url($*image_freeze);
     $*image_giveaccess = $*default_icons ? "$*IMGDIR/silk/profile/access_give.png" : generate_image_url($*image_giveaccess);
+    $*image_hide = $*default_icons ? "" : generate_image_url($*image_hide);
     $*image_join = $*default_icons ? "$*IMGDIR/silk/profile/community_join.png" : generate_image_url($*image_join);
     $*image_link = $*default_icons ? "" : generate_image_url($*image_link);
     $*image_maxcomments = $*default_icons ? "" : generate_image_url($*image_maxcomments);
@@ -301,6 +305,7 @@ function prop_init () {
     $*image_track = $*default_icons ? "$*IMGDIR/silk/entry/track.png" : generate_image_url($*image_track);
     $*image_tracked = $*default_icons ? "$*IMGDIR/silk/entry/untrack.png" : generate_image_url($*image_tracked);
     $*image_screen = $*default_icons ? "$*IMGDIR/silk/comments/screen.png" : generate_image_url($*image_screen);
+    $*image_show = $*default_icons ? "" : generate_image_url($*image_show);
     $*image_subscribe = $*default_icons ? "$*IMGDIR/silk/profile/subscription_add.png" : generate_image_url($*image_subscribe);
     $*image_unfreeze = $*default_icons ? "$*IMGDIR/silk/comments/unfreeze.png" : generate_image_url($*image_unfreeze);
     $*image_unscreen = $*default_icons ? "$*IMGDIR/silk/comments/unscreen.png" : generate_image_url($*image_unscreen);
@@ -346,10 +351,6 @@ function UserLite::print_interaction_links() {
     };
 
     var string display_type = ($*userlite_interaction_links == "text") ? " text-links" : " icon-links";
-
-    """<ul class="userlite-interaction-links$display_type">""";
-    # FIXME: HTML is not valid if there are no items inside a list, so there should be a
-    # check that there are user interaction links before opening the ul class.
     var Link link;
     var string icon_url;
     var int count;
@@ -359,6 +360,9 @@ function UserLite::print_interaction_links() {
         $icon_url = $interaction_icons{$k};
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="userlite-interaction-links$display_type">""";
+            }
             if ($*userlite_interaction_links == "text") {
                 """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
             }
@@ -367,7 +371,9 @@ function UserLite::print_interaction_links() {
             }
         }
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 
 ## Replace manage/interaction links with icons.
@@ -393,7 +399,7 @@ function Entry::print_link_prev() {
 }
 
 function Entry::print_management_links() {
-    var string{} manage_icons = { 
+    var string{} manage_icons = {
         "edit_entry" => $*image_edit,
         "edit_tags" => $*image_edittags,
         "mem_add" => $*image_addmemories,
@@ -411,10 +417,12 @@ function Entry::print_management_links() {
     var int count;
     var string extras;
     $count = 0;
-    """<ul class="entry-management-links$display_type">""";
     var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
     if ($show_interentry) {
         $count ++;
+        if ($count == 1) {
+            """<ul class="entry-management-links$display_type">""";
+        }
         """<li class="link link_prev first-item">""";
         $this->print_link_prev();
         """</li>\n""";
@@ -426,6 +434,9 @@ function Entry::print_management_links() {
         $icon_url = $manage_icons{$k};
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="entry-management-links$display_type">""";
+            }
             if ($*entry_management_links == "text") {
                 foreach var string extra ( $link.extra ) {
                     var string value = $link.extra{$extra};
@@ -440,24 +451,41 @@ function Entry::print_management_links() {
         }
     }
     if ($show_interentry) {
+        if ($count == 1) {
+            """<ul class="entry-management-links$display_type">""";
+        }
         """<li class="link link_next">""";
         $this->print_link_next();
         """</li>\n""";
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 
 function CommentInfo::print_readlink {
     var Page p = get_page();
-    var string alt = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
-    if ($*entry_interaction_links == "text") {
-            print safe "<a href=\"$.read_url#comments\">"+ 
-        get_plural_phrase($.count, $p.view == "read" ?
-                          "text_read_comments_friends" : "text_read_comments")+
-    "</a>";
+    var string text_visible = get_plural_phrase($.count, "text_read_comments_screened_visible");
+    var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
+    var string text_both = $text_visible + $*text_default_separator + $text_screened;
+    var string text_total = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
 
+    if ($.screened) {
+        if ($*entry_interaction_links == "text") {
+            print safe """<a href="$.read_url#comments">"""+ $text_visible + $*text_default_separator + $text_screened + """</a>""";
+        } else {
+            print safe """<a href="$.read_url#comments" alt="$text_both" title="$text_both">$.count <img src="$*image_comments" />"""
+                + """ + $.screened_count <img src="$*image_screen" />"""
+                + "</a>";
+        }
+
+    } else {
+        if ($*entry_interaction_links == "text") {
+            print safe """<a href="$.read_url#comments">"""+ $text_total + """</a>""";
+        } else {
+            print safe """<a href="$.read_url#comments" alt="$text_total" title="$text_total">$.count <img src="$*image_comments" /></a>""";
+        }
     }
-    else { print safe """<a href="$.read_url#comments" alt="$alt" title="$alt">$.count <img src="$*image_comments" /></a>"""; }
 }
 
 function CommentInfo::print_postlink() {
@@ -480,23 +508,23 @@ function CommentInfo::print_postlink() {
 function CommentInfo::print() {
     var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
 
-        """<ul class="entry-interaction-links$display_type">""";
-        if ($*entry_interaction_links == "text") {
-            """<li class="entry-permalink first-item"><a href="$.read_url">$*text_permalink</a></li>\n""";
-        } else {
+    """<ul class="entry-interaction-links$display_type">""";
+    if ($*entry_interaction_links == "text") {
+        """<li class="entry-permalink first-item"><a href="$.read_url">$*text_permalink</a></li>\n""";
+    } else {
         """<li class="entry-permalink first-item"><a href="$.read_url"><img src="$*image_link" alt="$*text_permalink" title="$*text_permalink" /></a></li>""";
-        }
-         if ($.show_readlink) {
-            """<li class="entry-readlink first-item">""";
-            $this->print_readlink();
+    }
+    if ($.show_readlink) {
+        """<li class="entry-readlink first-item">""";
+        $this->print_readlink();
         "</li>";
-       }
-        if ($.show_postlink and $.enabled) {
-            """<li class="entry-replylink">""";
-            $this->print_postlink();
+    }
+    if ($.show_postlink and $.enabled) {
+        """<li class="entry-replylink">""";
+        $this->print_postlink();
         "</li>";
-        }
-        "</ul>";
+    }
+    "</ul>";
 }
 
 function Entry::print_interaction_links(string target) {
@@ -506,26 +534,41 @@ function Entry::print_interaction_links(string target) {
     var int count;
     $count = 0;
         if ($p isa EntryPage) {
-        """<ul class="entry-interaction-links$display_type">""";
             var EntryPage ep = $p as EntryPage;
         if ($.comments.enabled and $ep.comment_pages.total_subitems > 0) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="entry-interaction-links$display_type">""";
+            }
             """<li class="entry-readlink first-item">""";
                 $this.comments->print_readlink();
             "</li>";
             }
         if ($.comments.enabled) {
-            $count ++;
-            """<li class="entry-replylink""" + ( $count == 1 ? " first-item" : "" ) + """">""";
-            if ($*entry_interaction_links == "text") {
-                $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
+            if ($.comments.maxcomments) {
+                if ($*entry_interaction_links == "text") {
+                    print safe "$*text_max_comments";
+                } else {
+                    print safe """<img src="$*image_maxcomments" alt="$*text_max_comments" title="$*text_max_comments" />""";
+                }
             } else {
-                $ep->print_reply_link({ "target" => $target, "img_url" => "$*image_reply",
+                $count ++;
+                if ($count == 1) {
+                    """<ul class="entry-interaction-links$display_type">""";
+                }
+                """<li class="entry-replylink""" + ( $count == 1 ? " first-item" : "" ) + """">""";
+                if ($*entry_interaction_links == "text") {
+                    $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
+                } else {
+                    $ep->print_reply_link({ "target" => $target, "img_url" => "$*image_reply",
                                     "alt" => $*text_post_comment, "title" => $*text_post_comment });
+                }
+                "</li>";
             }
-            "</li>";
         }
-        "</ul>";
+        if ($count > 0) {
+            "</ul>";
+        }
     } else {
             $this.comments->print();
         }
@@ -544,9 +587,6 @@ function Comment::print_management_links() {
         "edit_comment" => $*image_edit,
     };
 
-    # FIXME: HTML is not valid if there are no items inside a list, so there should
-    # be a check that there are comment management links before opening the ul class.
-
     var string display_type = ($*comment_management_links == "text") ? " text-links" : " icon-links";
 
     """<ul class="comment-management-links$display_type">""";
@@ -560,6 +600,9 @@ function Comment::print_management_links() {
         $icon_url = $manage_icons{$k};
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="comment-management-links$display_type">""";
+            }
             if ($*comment_management_links == "text") {
                 foreach var string extra ( $link.extra ) {
                     var string value = $link.extra{$extra};
@@ -572,7 +615,9 @@ function Comment::print_management_links() {
             }
         }
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 
 function Comment::print_interaction_links() {
@@ -586,16 +631,16 @@ function Comment::print_interaction_links() {
     }
     if ($this.frozen) {
         if ($*comment_interaction_links == "text") {
-            print safe """<li class="link frozen first-item">$*text_comment_frozen</li>\n""";
+            print safe """<li class="frozen first-item">$*text_comment_frozen</li>\n""";
         } else {
-            print safe """<li class="link frozen first-item"><img src="$*image_freeze" alt="$*text_comment_frozen" title="$*text_comment_frozen" /></li>""";
+            print safe """<li class="frozen first-item"><img src="$*image_freeze" alt="$*text_comment_frozen" title="$*text_comment_frozen" /></li>""";
         }
     } else {
         """<li class="link reply first-item">""";
         if ($*comment_interaction_links == "text") {
             $this->print_reply_link({"linktext" => $*text_comment_reply});
         } else {
-            $this->print_reply_link({ "img_url" => "$*image_reply", "alt" => $*text_comment_reply, "title" => $*text_comment_reply });
+            $this->print_reply_link({ "img_url" => $*image_reply, "alt" => $*text_comment_reply, "title" => $*text_comment_reply });
         }
         """</li>""";
     }
@@ -603,14 +648,16 @@ function Comment::print_interaction_links() {
         if ($*comment_interaction_links == "text") {
             print safe """<li class="link threadroot"><a href="$this.threadroot_url">$*text_comment_threadroot</a></li>\n""";
         } else {
-            print safe """<li class="link threadroot"><a href="$this.threadroot_url"><img src="$*image_threadroot" alt="$*text_comment_threadroot" title="$*text_comment_threadroot" /></a></li>""";}
+            print safe """<li class="link threadroot"><a href="$this.threadroot_url"><img src="$*image_threadroot" alt="$*text_comment_threadroot" title="$*text_comment_threadroot" /></a></li>""";
         }
+    }
     if ($this.parent_url != "") {
         if ($*comment_interaction_links == "text") {
             print safe """<li class="link commentparent"><a href="$this.parent_url">$*text_comment_parent</a></li>\n""";
         } else {
-            print safe """<li class="link commentparent"><a href="$this.parent_url"><img src="$*image_parent" alt="$*text_comment_parent" title="$*text_comment_parent" /></a></li>"""; }
+            print safe """<li class="link commentparent"><a href="$this.parent_url"><img src="$*image_parent" alt="$*text_comment_parent" title="$*text_comment_parent" /></a></li>""";
         }
+    }
     if ($this.thread_url != "") {
         if ($*comment_interaction_links == "text") {
             print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>\n""";
@@ -624,9 +671,34 @@ function Comment::print_interaction_links() {
         if ($*comment_interaction_links == "text") {
             $this->print_expand_link();
         } else {
-            $this->print_expand_link({ "img_url" => "$*image_expand" });
+            $this->print_expand_link({ "img_url" => $*image_expand, "alt" => $*text_comment_expand, "title" => $*text_comment_expand });
         }
         """</li>""";
+    }
+    var Link hide_link = $this->get_link("hide_comments");
+    if (defined $hide_link) {
+        var string show_hide = "";
+        if (not $this.hide_children) {
+            $show_hide = " cmt_show_hide_default";
+        }
+        """<li class="link cmt_hide$show_hide" style="display:none;" id="cmt${this.talkid}_hide">""";
+        if ($*comment_interaction_links == "text") {
+            $this->print_hide_link();
+        } else {
+        $this->print_hide_link({ "img_url" => $*image_hide, "alt" => $*text_comment_hide, "title" => $*text_comment_hide });
+        }
+        """</li>\n""";
+    }
+    var Link unhide_link = $this->get_link("unhide_comments");
+    if (defined $unhide_link) {
+        var string show_hide = "";
+        """<li class="link cmt_unhide$show_hide" style="display: none;" id="cmt${this.talkid}_unhide">""";
+        if ($*comment_interaction_links == "text") {
+            $this->print_unhide_link();
+        } else {
+            $this->print_unhide_link({ "img_url" => $*image_show, "alt" => $*text_comment_unhide, "title" => $*text_comment_unhide });
+        }
+        """</li>\n""";
     }
     """</ul>""";
 }
@@ -680,6 +752,9 @@ function EntryPage::print_comment_partial (Comment c) {
             }
         }
     }
+     if ( $c.comment_posted ) {
+         print safe "<span class='comment-posted'>$*text_comment_posted</span>";
+     }
     $c->print_wrapper_end();
 }
 
@@ -782,6 +857,9 @@ function EntryPage::print_comment (Comment c) {
     $c->print_time();
     $c->print_poster();
     $c->print_metatypes();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     $c->print_userpic();
     """<div class="contents">\n""";
@@ -995,8 +1073,21 @@ function EntryPage::view_title() : string {
     return $*text_default_separator + ($.entry.subject ? $.entry->get_plain_subject() : $*text_nosubject);
 }
 function ReplyPage::view_title() : string {
-    return $*text_default_separator + $.entry->get_plain_subject() + " (" + $*text_comment_reply + ")";
+if ($.replyto isa Comment) {
+        var Comment c = $.replyto as Comment;
+        var string suffix = $.isedit ?
+            " (" + $*text_edit_comment_title + ")" :
+            " (" + $*text_new_comment_title + ")";
+        return $*text_default_separator + $c->get_plain_subject() + $suffix;
+    }
+    else {
+        var Entry e = $.replyto as Entry;
+        return $*text_default_separator + $e.subject ?
+          $e->get_plain_subject() + " (" + $*text_comment_reply + ")" :
+          $*text_nosubject + " (" + $*text_comment_reply + ")";
+    }
 }
+
 function Page::title() [notags] : string {
     return $*text_default_separator + $this->view_title();
 }
@@ -1051,7 +1142,7 @@ function Page::print() {
                     }
                 """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
                         """
                     </div></div><!-- end primary and primary>inner -->
@@ -1464,7 +1555,7 @@ h2#pagetitle {
     clear: both;
     margin: 1em 0;
     }
-    
+
 .entry-content {
     margin-bottom: 1em;
     text-align: $*post_text_align;
@@ -1749,11 +1840,6 @@ span.de {
     padding: .2em;
     }
 
-#postform input,
-#postform select {
-    margin: .1em;
-    }
-
 #postform #subject,
 #postform textarea {
     width: 80%;
@@ -1763,6 +1849,11 @@ span.de {
 #postform textarea:focus,
 #postform input.textbox:focus {
     border: 1px solid $*color_entry_text;
+    }
+
+#postform input[type='button'],
+#postform input[type='submit'] {
+    margin: .2em .1em;
     }
 
 #postform input[type='button']:hover,

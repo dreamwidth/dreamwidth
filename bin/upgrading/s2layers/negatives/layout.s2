@@ -114,6 +114,7 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
+    property use font_sources;
 }
 
 set font_base = "Georgia";
@@ -207,6 +208,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
 
@@ -498,6 +501,9 @@ function Page::print_default_stylesheet()
     }
     .comment-poster .anonymous {
         font-weight: bold;
+    }
+    .comment-posted {
+        font-weight:bold;
     }
     .comment-management-links {
         display: inline;
@@ -934,6 +940,9 @@ function EntryPage::print_comment (Comment c)
     println "<div class='datetime'><a href='$c.permalink_url' title='Permalink'>";
     $c->print_time();
     println "</a>";
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     print "</div>";
 
     if ($this.multiform_on)

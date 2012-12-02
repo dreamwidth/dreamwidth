@@ -121,6 +121,7 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
+    property use font_sources;
 }
 
 set font_base = "Tahoma, Verdana, Arial";
@@ -295,6 +296,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
 
@@ -811,6 +814,9 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
     padding: 0;
     }
 
+.comment-posted {
+    font-weight:bold;
+}
 .comment-wrapper {
     min-width: 15em;
 }

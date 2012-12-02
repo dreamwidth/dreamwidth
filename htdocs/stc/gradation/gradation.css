@@ -456,7 +456,7 @@ textarea, input {
     text-align: center;
     background-color: #666666;
 }
-.action-box .inner {
+.action-box .inner, .comment-page-list {
     color: #eee;
     border: 1px solid #555555;
     background-color: #333333;

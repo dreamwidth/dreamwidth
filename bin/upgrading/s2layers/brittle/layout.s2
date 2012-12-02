@@ -90,6 +90,7 @@ propgroup fonts {
     property use font_module_heading;
     property use font_module_heading_size;
     property use font_module_heading_units;
+    property use font_sources;
     property string font_navigation_module_text {
         des = "Preferred font for navigation module text";
         maxlength = 50;
@@ -255,6 +256,7 @@ propgroup text {
     property use text_view_recent;
     property use text_view_archive;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_tags;
     property use text_view_memories;
@@ -271,6 +273,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
     property use text_permalink;
@@ -867,6 +871,8 @@ textarea.textbox  { width: 90%!important; }
     padding: 20px;
     margin: 0;
     }
+
+.comment-posted { font-weight:bold; }
 
 .comment-wrapper { margin: 20px 0; padding: 0; }
 .comment-content { margin: 10px 0; }

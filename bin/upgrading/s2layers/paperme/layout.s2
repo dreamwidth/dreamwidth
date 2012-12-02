@@ -6,7 +6,6 @@ layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "cimorene", "type" => "user" } ];
 set layout_type = "two-columns-right";
-set use_journalstyle_icons_page = true; #FIXME: remove before commit
 
 ##===============================
 ## Presentation

@@ -51,6 +51,7 @@ sub default_themes {
         drifting => 'drifting/blue',
         dustyfoot => 'dustyfoot/dreamer',
         easyread => 'easyread/green',
+        fantaisie => 'fantaisie/unrelentingroutine',
         fiveam => 'fiveam/earlyedition',
         fluidmeasure => 'fluidmeasure/spice',
         forthebold => 'forthebold/tealeaves',
@@ -70,6 +71,7 @@ sub default_themes {
         skittlishdreams => 'skittlishdreams/orange',
         steppingstones => 'steppingstones/purple',
         strata => 'strata/springmorning',
+        summertime => 'summertime/tenniscourt',
         tranquilityiii => 'tranquilityiii/nightsea',
         wideopen => 'wideopen/koi',
         zesty => 'zesty/white',
@@ -1026,6 +1028,8 @@ sub entry_props {
         text_unwatch_comments
         text_read_comments
         text_read_comments_friends
+        text_read_comments_screened_visible
+        text_read_comments_screened
         text_post_comment
         text_post_comment_friends
         text_permalink

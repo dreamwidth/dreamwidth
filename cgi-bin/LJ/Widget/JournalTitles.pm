@@ -34,15 +34,20 @@ sub render_body {
     $ret .= "<h2 class='widget-header'>";
     $ret .= $no_theme_chooser ? $class->ml('widget.journaltitles.title_nonum') : $class->ml('widget.journaltitles.title');
     $ret .= "</h2>";
-    $ret .= "<div class='theme-titles-content'>";
-    $ret .= "<p class='detail'>" . $class->ml('widget.journaltitles.desc') . " " . LJ::help_icon('journal_titles') . "</p>";
+    $ret .= "<div class='theme-titles-content'><p class='detail'>";
+    $ret .= $u->is_community ?
+        $class->ml('widget.journaltitles.desc.comm') :
+        $class->ml('widget.journaltitles.desc');
+    $ret .= " " . LJ::help_icon('journal_titles') . "</p>";
 
     foreach my $id (qw( journaltitle journalsubtitle friendspagetitle friendspagesubtitle )) {
         my $eprop = LJ::ehtml( $u->prop( $id ) ) || '';
         $ret .= $class->start_form( id => "${id}_form" );
 
         $ret .= "<p>";
-        $ret .= "<label>" . $class->ml("widget.journaltitles.$id") . "</label> ";
+        $ret .= ( $u->is_community ) ?
+            "<label>" . $class->ml("widget.journaltitles.$id.comm") . "</label> " :
+            "<label>" . $class->ml("widget.journaltitles.$id") . "</label> ";
         $ret .= "<span id='${id}_view'>";
         $ret .= "<strong>$eprop</strong> ";
         $ret .= "<a href='' class='theme-title-control' id='${id}_edit'>" . $class->ml('widget.journaltitles.edit') . "</a>";

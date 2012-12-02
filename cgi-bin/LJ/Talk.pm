@@ -1553,7 +1553,8 @@ sub talkform {
         $other_user = '' unless $other_user;
         my $ml_loggedin =
             BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } );
-        my $ml_bannedfrom =
+        my $ml_bannedfrom = $journalu->is_community ?
+            BML::ml( ".opt.bannedfrom.comm", { journal => $journalu->user } ) :
             BML::ml( ".opt.bannedfrom", { journal => $journalu->user } );
         return qq{
     <td align='center'><img src='$LJ::IMGPREFIX/silk/identity/$type.png' /></td>
@@ -3416,6 +3417,7 @@ sub init {
     }
 
     my $userpost = lc($form->{'userpost'});
+    my $iscomm = $journalu->is_community ? '.comm' : '';
     my $up;             # user posting
     my $exptype;        # set to long if ! after username
     my $ipfixed;        # set to remote  ip if < after username
@@ -3433,7 +3435,7 @@ sub init {
             $up = LJ::load_user($form->{'userpost'});
             if ($up) {
                 ### see if the user is banned from posting here
-                $mlerr->("$SC.error.banned") if $journalu->has_banned( $up );
+                $mlerr->("$SC.error.banned$iscomm") if $journalu->has_banned( $up );
 
                 # TEMP until we have better openid support
                 if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg") {
@@ -3487,7 +3489,7 @@ sub init {
         } elsif ($journalu->{'opt_whocanreply'} eq "all") {
             $mlerr->( "$SC.error.nousername", { sitename => $LJ::SITENAMESHORT } );
         } else {
-            $mlerr->( "$SC.error.nousername.noanon", { sitename => $LJ::SITENAMESHORT } );
+            $mlerr->( "$SC.error.nousername.noanon$iscomm", { sitename => $LJ::SITENAMESHORT } );
         }
     }
 
@@ -3625,7 +3627,7 @@ sub init {
     if (($form->{'usertype'} ne "user" && $form->{'usertype'} ne 'openid' && $form->{'usertype'} ne 'openid_cookie')
         && $journalu->{'opt_whocanreply'} ne "all")
     {
-        $mlerr->("$SC.error.noanon");
+        $mlerr->("$SC.error.noanon$iscomm");
     }
 
     if ( $ent->comments_disabled ) {

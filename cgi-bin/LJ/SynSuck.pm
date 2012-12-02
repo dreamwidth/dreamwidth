@@ -218,7 +218,7 @@ sub process_content {
             }
             return;
         } elsif ( $rv->{type} eq "noitems" ) {
-            return delay( $userid, 3*60, "noitems" );
+            return delay( $userid, 3*60, "noitems", $synurl );
         } else {
             print "Unknown error type!\n" if $verbose;
             return delay( $userid, 3*60, "unknown" );
