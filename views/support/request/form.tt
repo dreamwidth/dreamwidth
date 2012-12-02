@@ -1,0 +1,26 @@
+[%# support/request/form.tt
+
+Form to manage and append information to a support request
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% CALL dw.ml_scope( "/support/see_request.bml" ) %]
+<form method='post' action='[% site.root%]/append_request' name='supportForm'>
+
+Reply:
+<textarea></textarea>
+
+Manage:
+<textarea></textarea>
+
+[%- form.submit( value = dw.ml( ".postbutton" )
+             name = "submitpost"
+             id = "submitpost" )
+-%]
+</form>

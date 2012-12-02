@@ -23,6 +23,7 @@ body<=
 {
     use strict;
     use vars qw(%FORM);
+    use DW::Template;
 
     LJ::set_dynamic_crumb('Request #' . ($FORM{'id'}+0), 'supporthelp');
 
@@ -540,6 +541,12 @@ body<=
     }
 
     # append_request form
+
+    $ret .= DW::Template->template_string( 'support/request/form.tt', {
+
+    } );
+
+    $ret .= '<div style="height: 1009px"></div>';
 
     $ret .= "<br /><form method='post' action='append_request' name='supportForm'>\n";
 
