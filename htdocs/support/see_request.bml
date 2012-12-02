@@ -16,160 +16,18 @@ _c?>
 title=><?_code return BML::ml('.title', { 'reqid' => $FORM{'id'}+0 }); _code?>
 head<=
 <?_code return LJ::robot_meta_tags(); _code?>
-<script language="JavaScript"><!--
-    var tier_cell = document.getElementById('tier_cell');
-    var approveans = document.getElementById('approveans');
-
-    if (tier_cell && !approveans) {
-        tier_cell.style.display = 'none';
-    }
-
-    function check_replytype (e) {
-        if (! e) var e = window.event;
-        if (! document.getElementById) return false;
-
-        f = document.supportForm;
-        if (! f) return false;
-
-        var replytype = f.replytype;
-        if (! replytype) return false;
-
-        var bounce_email = document.getElementById('bounce_email');
-        if (! bounce_email) return false;
-
-        if (replytype.value == 'bounce')
-            bounce_email.style.display = 'inline';
-        else
-            bounce_email.style.display = 'none';
-
-        var tier_cell = document.getElementById('tier_cell');
-        var approveans = document.getElementById('approveans');
-
-        if (tier_cell && !approveans) {
-            if (replytype.value == 'answer' || replytype.value == 'internal')
-                tier_cell.style.display = 'block';
-            else
-                tier_cell.style.display = 'none';
-        }
-
-        if (e) {
-            e.cancelBubble = true;
-            if (e.stopPropagation) e.stopPropagation();
-        }
-
-        return false;
-    }
-
-    function updateFaqLink () {
-        if (! document.getElementById) return false;
-
-        f = document.supportForm;
-        if (! f) return false;
-
-        var faqDropdown = f.faqid;
-        if (! faqDropdown) return false;
-
-        var faqUrl = document.getElementById('faqlink');
-        if (! faqUrl) return false;
-
-        if (faqDropdown.value == 0)
-            faqUrl.style.display = 'none';
-        else
-        {
-            faqUrl.style.display = 'inline';
-            faqUrl.href = 'faqbrowse?faqid=' + faqDropdown.value + '&view=full';
-        }
-        return false;
-    }
-
-    function doSummaryChanged () {
-        if (! document.getElementById) return false;
-
-        var summaryBox = document.getElementById('changesum');
-        if (! summaryBox) return false;
-
-        summaryBox.checked = true;
-
-        return doSetReplyType('internal');
-    }
-
-    function doSetReplyType (replytype) {
-        if (! document.getElementById) return false;
-
-        var replytypeBox = document.getElementById('replytype');
-        if (! replytypeBox) return false;
-
-        replytypeBox.value = replytype;
-        return false;
-    }
-
-    function doChangeCategory () {
-        return doSetReplyType('internal');
-    }
-
-    function doChangeLanguage () {
-        return doSetReplyType('internal');
-    }
-
-    function doDegreen () {
-        return doSetReplyType('internal');
-    }
-
-    function doRegreen () {
-        return doSetReplyType('internal');
-    }
-
-    function doApproveAnswer () {
-        return doSetReplyType('internal');
-    }
-
-    function doSummaryClick () {
-        if (! document.getElementById) return false;
-
-        var summaryBox = document.getElementById('changesum');
-        if (! summaryBox) return false;
-
-        if (summaryBox.checked) {
-            doSetReplyType('internal');
-        }
-
-        return false;
-    }
-
-    function doClearMessage () {
-        if (! document.getElementById) return false;
-
-        var bodyBox = document.getElementById('body');
-        if (! bodyBox) return false;
-
-        bodyBox.value = "";
-
-        return false;
-    }
-
-    function doClearFocus () {
-        if (! document.getElementById) return false;
-
-        var submitBox = document.getElementById('submitpost');
-        if (! submitBox) return false;
-
-        submitBox.focus();
-
-        return false;
-    }
-
-// -->
-</script>
 <=head
-bodyopts=>onLoad="check_replytype();updateFaqLink();"
 body<=
 
 <?_code
 {
     use strict;
     use vars qw(%FORM);
-        
+
     LJ::set_dynamic_crumb('Request #' . ($FORM{'id'}+0), 'supporthelp');
+
+    LJ::need_res( { group => "jquery" }, "js/jquery.supportform.js" );
+    LJ::set_active_resource_group( "jquery" );
 
     my $spid = $FORM{'id'}+0;
     my $sp = LJ::Support::load_request($spid);
@@ -752,7 +610,7 @@ body<=
                 push @faqlist, ( $faq->faqid, $q );
             }
         }
-        $ret .= LJ::html_select({ 'name' => 'faqid', 'onchange' => 'updateFaqLink()' }, @faqlist) . "\n";
+        $ret .= LJ::html_select({ 'name' => 'faqid' }, @faqlist) . "\n";
         $ret .= qq(<script language="JavaScript"><!--
             if (document.getElementById)
                 document.write("<a href='faq' id='faqlink'>View FAQ</a>");
@@ -768,8 +626,7 @@ body<=
         # so all they can do is add more info
         if (@ans_type > 2) {
             $ret .= LJ::html_select({ 'name' => 'replytype',
-                                      'id' => 'replytype',
-                                      'onchange' => "check_replytype()" },
+                                      'id' => 'replytype' },
                                     @ans_type) . "\n";
             $ret .= "<div id='bounce_email' style='display:none'>";
             $ret .= "&nbsp;$ML{'.email.user'} " . LJ::html_text({ 'name' => 'bounce_email', 'size' => '25' });
@@ -789,8 +646,7 @@ body<=
         $ret .= "<table summary='' cellpadding='5'>";
 
         $ret .= "<tr><td>$ML{'.change.cat'}:<br />";
-        $ret .= LJ::html_select({ 'name' => 'changecat',
-                                  'onchange' => 'doChangeCategory();' },
+        $ret .= LJ::html_select({ 'name' => 'changecat' },
                                 ('', $sp->{'_cat'}->{'catname'}),
                                 map { $_->{'spcatid'}, "---> $_->{'catname'}" }
                                 LJ::Support::sorted_cats($cats));
@@ -799,8 +655,7 @@ body<=
         if (@screened && $helper_mode) {
             $ret .= "<td>$ML{'.approve.screened'}:<br />";
             $ret .= LJ::html_select({ 'name' => 'approveans',
-                                      'id' => 'approveans',
-                                      'onclick' => 'return doApproveAnswer();' },
+                                      'id' => 'approveans' },
                                     ('', ''),
                                     map { $_->{'splid'}, "\#$_->{'splid'} (" . LJ::get_username($_->{'userid'}) . ")" }
                                     @screened);
@@ -830,8 +685,7 @@ body<=
         my $current_lang = $props->{language} ? "[$props->{language}] $langs{$props->{language}}" : $ML{'.change.language.nolang'};
 
         $lang_ret .= "<td>$ML{'.change.language'}<br />";
-        $lang_ret .= LJ::html_select({ 'name' => 'changelanguage',
-                                  'onchange' => 'doChangeLanguage();' },
+        $lang_ret .= LJ::html_select({ 'name' => 'changelanguage' },
                                 ('', $current_lang),
                                 map { $_, "---> [$_] $langs{$_}" }
                                 @lang_codes);
@@ -864,21 +718,19 @@ body<=
     if (LJ::Support::can_perform_actions($sp, $remote) && ! $is_poster) {
         if ($sp->{'timelasthelp'} > ($sp->{'timetouched'}+5)) {
             $ret .= "<tr><td align='right'>$ML{'.put.in.queue'}:</td><td>";
-            $ret .= LJ::html_check({ 'type' => 'checkbox', 'name' => 'touch',
-                                     'onclick' => 'doRegreen();' });
+            $ret .= LJ::html_check({ 'type' => 'checkbox', 'name' => 'touch' });
             $ret .= "<?de $ML{'.use.this.to.re-open'} de?>\n";
             $ret .= "</td></tr>\n";
         } else {
             $ret .= "<tr><td align='right'>$ML{'.take.out.of.queue'}</td><td>";
-            $ret .= LJ::html_check({ 'type' => 'checkbox', 'name' => 'untouch',
-                                     'onclick' => 'doDegreen();' });
+            $ret .= LJ::html_check({ 'type' => 'checkbox', 'name' => 'untouch' });
             $ret .= "<?de $ML{'.use.this.to.change.awaiting'} de?>\n";
             $ret .= "</td></tr>\n";
         }
         if (LJ::Support::can_change_summary($sp, $remote)) {
             $ret .= "<tr><td align='right'>$ML{'.change.summary'}:</td><td>";
-            $ret .= LJ::html_check({ 'type' => 'checkbox', 'name' => 'changesum', id => 'changesum', 'onClick' => 'doSummaryClick();' });
-            $ret .= LJ::html_text({ 'type' => 'text', 'name' => 'summary', 'size' => '50', 'maxlength' => '80', 'value' => $sp->{'subject'}, 'onChange' => 'doSummaryChanged();' });
+            $ret .= LJ::html_check({ 'type' => 'checkbox', 'name' => 'changesum', id => 'changesum'});
+            $ret .= LJ::html_text({ 'type' => 'text', 'name' => 'summary', 'size' => '50', 'maxlength' => '80', 'value' => $sp->{'subject'} });
             $ret .= "</td></tr>\n";
             $ret .= "<tr><td>&nbsp;</td><td>";
             $ret .= "<?de $ML{'.use.this.to.summary'} de?>\n";
@@ -933,7 +785,7 @@ body<=
     # textarea for their message body
     $ret .= "<tr valign='top'><td align='right'>$ML{'.message'}:</td><td colspan='2'>";
     $ret .= LJ::html_textarea({ 'rows' => '12', 'cols' => '80', 'wrap' => 'virtual', 'id' => 'body', 'name' => 'body', 'value' => $validationnag }) . "<br />";
-    $ret .= "<div style='float: right; font-size: smaller;'><a href='javascript://' onClick='doClearMessage();' onFocus='doClearFocus();'>$ML{'.clear'}</a></div>";
+    $ret .= "<div style='float: right; font-size: smaller;'><a href='#' id='clear'>$ML{'.clear'}</a></div>";
     $ret .= "<?de $ML{'.no.html.allowed'} de?><br />";
     if ($is_poster) {
         $ret .= LJ::html_submit('submitpost', $ML{'.postbuttoninfo'}, { id => 'submitpost' });
