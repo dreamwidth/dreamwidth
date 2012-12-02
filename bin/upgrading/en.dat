@@ -1439,12 +1439,12 @@ esn.reply_to_message=[[openlink]]Reply to this message[[closelink]]
 
 esn.screened=This comment was screened.
 
-esn.security_attribute_changed.account_activated.email_subject=Your account has been activated
+esn.security_attribute_changed.account_activated.email_subject2=Your account [[user]] has been activated
 
-esn.security_attribute_changed.account_activated.email_text<<
+esn.security_attribute_changed.account_activated.email_text2<<
 Dear [[username]],
 
-On [[date]] at [[time]] your journal was undeleted. The journal activation took place from the following IP address: [[ip]].
+On [[date]] at [[time]] UTC your journal [[user]] was undeleted. The journal activation took place from the following IP address: [[ip]].
 
 If you made this change yourself, this email serves as a confirmation of your change.
 
@@ -1453,13 +1453,25 @@ If you didn't undelete your journal, your journal's security was compromised. Pl
 This letter was sent out automatically to help you keep your account secure. You can't opt-out of receiving these letters.
 .
 
+esn.security_attribute_changed.account_activated.email_text2.comm<<
+Dear owner of [[username]],
 
-esn.security_attribute_changed.account_deleted.email_subject=Your account has been deleted
+On [[date]] at [[time]] UTC the community [[user]] was undeleted. The reactivation was apparently by user [[remoteuser]] and took place from the following IP address: [[ip]].
 
-esn.security_attribute_changed.account_deleted.email_text<<
+If you made this change yourself, of if this was a planned action by another administrator, this email serves as a confirmation of the change.
+
+If [[remoteuser]] didn't undelete this community, then this community's security was compromised. Please contact Support to learn what steps you should take to resecure the community.
+
+This letter was sent out automatically to help you keep your community secure. You can't opt-out of receiving these letters.
+.
+
+
+esn.security_attribute_changed.account_deleted.email_subject2=Your account [[user]] has been deleted
+
+esn.security_attribute_changed.account_deleted.email_text2<<
 Dear [[username]],
 
-On [[date]] at [[time]] your journal was deleted. The journal deletion took place from the following IP address: [[ip]].
+On [[date]] at [[time]] UTC your journal [[user]] was deleted. The deletion took place from the following IP address: [[ip]].
 
 If you made this change yourself, this email serves as a confirmation of your change.
 
@@ -1468,16 +1480,30 @@ If you didn't delete your journal, your journal's security has been compromised.
 This letter was sent out automatically to help you keep your account secure. You can't opt-out of receiving these letters.
 .
 
-esn.security_attribute_changed.account_renamed.email_subject=Your account has been renamed
+esn.security_attribute_changed.account_deleted.email_text2.comm<<
+Dear owner of [[username]],
 
-esn.security_attribute_changed.account_renamed.email_text<<
-Dear [[user]],
+On [[date]] at [[time]] UTC the community [[user]] was deleted. The deletion was apparently by user [[remoteuser]] and took place from the following IP address: [[ip]].
 
-On [[date]] at [[time]] your username was changed from [[oldname]] to [[user]]. The change was made from the following IP-address: [[ip]].
+If you made this change yourself, or if this was a planned action by another administrator, this email serves as a confirmation of the change.
+
+If [[remoteuser]] didn't delete this community, then the community's security has been compromised. Please contact Support to learn what steps you should take to resecure this community.
+
+This letter was sent out automatically to help you keep your community secure. You can't opt-out of receiving these letters.
+.
+
+
+
+esn.security_attribute_changed.account_renamed.email_subject2=Your account has been renamed
+
+esn.security_attribute_changed.account_renamed.email_text2.comm<<
+Dear owner of [[username]],
+
+On [[date]] at [[time]] your community's name was changed from [[oldname]] to [[user]]. The change was made from the following IP-address: [[ip]].
 
 If you made this change yourself, this email serves as a confirmation of your change.
 
-If you did not change your username, it means that your journal's security was compromised. Please contact Support [[[siteroot]]/support] to learn what steps you should take to resecure your journal.
+If you did not change your username, it means that your community's security was compromised. Please contact Support [[[siteroot]]/support] to learn what steps you should take to resecure the community.
 
 This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters.
 .
