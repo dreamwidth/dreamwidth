@@ -172,6 +172,8 @@ CLUSTER: foreach my $cluster (@clusters) {
         print "# Warning: unknown live table: $t\n";
     }
 
+    my $run_alter = $table_exists{dbnotes};
+
     ## create tables
     foreach my $t (keys %table_create)
     {
@@ -186,10 +188,14 @@ CLUSTER: foreach my $cluster (@clusters) {
         drop_table($t);
     }
 
-    ## do all the alters
-    foreach my $s (@alters)
-    {
-        $s->($dbh, $opt_sql);
+    if ( $run_alter ) {
+        ## do all the alters
+        foreach my $s (@alters)
+        {
+            $s->($dbh, $opt_sql);
+        }
+    } else {
+        print "## Skipping alters this pass, please re-run once the 'dbnotes' table exists."
     }
 
     $status{$cluster} = "OKAY";
@@ -973,7 +979,7 @@ sub set_dbnote
     my ($key, $value) = @_;
     return unless $opt_sql && $key && $value;
 
-    return $dbh->do("REPLACE INTO blobcache (bckey, dateupdate, value) VALUES (?,NOW(),?)",
+    return $dbh->do("REPLACE INTO dbnotes (dbnote, value) VALUES (?,?)",
                     undef, $key, $value);
 }
 
@@ -981,7 +987,7 @@ sub check_dbnote
 {
     my $key = shift;
 
-    return $dbh->selectrow_array("SELECT value FROM blobcache WHERE bckey=?",
+    return $dbh->selectrow_array("SELECT value FROM dbnotes WHERE dbnote=?",
                                  undef, $key);
 }
 
