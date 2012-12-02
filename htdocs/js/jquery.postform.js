@@ -355,8 +355,9 @@ init: function(formData) {
             var $security = $("#security");
             if ( $security.length > 0 ) {
               if ( anon ) {
+                // no custom groups
                 adjustSecurityDropdown({})
-              } else {
+              } else if ( ! formData.edit ) {
                 $.getJSON( Site.siteroot + "/tools/endpoints/getsecurityoptions",
                     { "user": journal.name }, adjustSecurityDropdown);
             }
@@ -414,6 +415,10 @@ init: function(formData) {
 
         $("#delete_entry").click(function(e) {
             $(this.form).data("skipchecks", "delete");
+            var conf = confirm(formData.strings.delete_confirm);
+            if ( ! conf ) {
+                e.preventDefault();
+            }
         });
 
         $("#post_options").click(function(e){

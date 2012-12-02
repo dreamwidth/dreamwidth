@@ -67,7 +67,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     );
 END -%]
 
-[% sections.title = '.title' | ml %]
+[% sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) %]
 [% sections.contentopts = '' %]
 
 [% sections.head = BLOCK %]
@@ -96,6 +96,7 @@ END -%]
 
 <script type="text/javascript">
 var postFormInitData = new Object();
+postFormInitData.edit = [% action.edit ? "true" : "false" %];
 postFormInitData.icons = [
     [%- FOREACH icon = icons %]
         { 'src': '[% icon.userpic.url %]', 'alt': [% icon.userpic.description | js %] }
@@ -120,6 +121,11 @@ postFormInitData.panels = {
 };
 
 postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
+
+postFormInitData.strings = {
+  "delete_confirm" : [%- dw.ml("entryform.delete.confirm") | js -%],
+};
+
 </script>
 [% END  # sections.head %]
 

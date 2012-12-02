@@ -6088,7 +6088,7 @@ function CommentNav::print(string{} opts) {
     }
 
     if ( $.show_expand_all ) {
-        print "<span class='expand_all'> | $links{"expand_all"}</span>";
+        print " | <span class='expand_all'>$links{"expand_all"}</span>";
     }
     print "</div>";
 }
