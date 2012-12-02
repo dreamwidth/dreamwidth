@@ -277,10 +277,13 @@ sub create_personal {
                 # now add paid time to the user
                 my $from_u = $item->from_userid ? LJ::load_userid( $item->from_userid ) : undef;
                 if ( DW::Pay::add_paid_time( $u, $item->class, $item->months ) ) {
-                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', "Created new '" . $item->class . "' account." );
+                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite',
+                            sprintf( "Created new '%s' from order #%d.", $item->class, $item->cartid ) );
                 } else {
                     my $paid_error = DW::Pay::error_text() || $@ || 'unknown error';
-                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', "Failed to create new '" . $item->class . "' account: $paid_error" );
+                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite',
+                            sprintf( "Failed to create new '%s' account from order #%d: %s",
+                                $item->class, $item->cartid, $paid_error ) );
                 }
             }
         }
