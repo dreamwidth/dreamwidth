@@ -24,7 +24,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     );
 -%]
 
-<fieldset class='external'>
+<fieldset class='external odd'>
 <legend><span>Reply</span></legend>
 <ul>
 <li><label>[% '.from' | ml %]</label> [% from %]</li>
@@ -80,7 +80,7 @@ END -%]
 </fieldset>
 
 [%- IF can.do_internal_actions -%]
-    <fieldset class='internal'>
+    <fieldset class='internal even'>
     <legend><span>Internal</span></legend>
     <ul>
     [%- IF internal_actions_list.size > 2 %]
