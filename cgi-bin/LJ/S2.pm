@@ -114,7 +114,7 @@ sub make_journal
             return;
         }
 
-        if ( ! $ctx->[S2::PROPS]->{use_journalstyle_icons_page} && ( $view eq "icons" ) ) {
+        if ( ! LJ::S2::use_journalstyle_icons_page( $style_u, $ctx ) && ( $view eq "icons" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -1813,6 +1813,14 @@ sub tracking_popup_js {
     ) ): ();
 }
 
+
+sub use_journalstyle_icons_page {
+    my ( $u, $ctx ) = @_;
+    return 0 if !$u || $u->is_syndicated;  # see sitefeeds/layout.s2
+    return 0 unless exists $ctx->[S2::CLASSES]->{IconsPage}; # core1 doesn't support IconsPage
+
+    return $u->prop( 'use_journalstyle_icons_page' ) ? 1 : 0;
+}
 
 ## S2 object constructors
 

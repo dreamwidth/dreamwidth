@@ -884,6 +884,7 @@ sub display_option_props {
     qw(
         num_items_recent
         num_items_reading
+        num_items_icons
         page_recent_items
         page_friends_items
         view_entry_disabled
