@@ -1,5 +1,15 @@
 (function($) {
 
+function approve(e) {
+    e.preventDefault();
+
+    var id = $(this.parentNode).data( 'dw-screened' );
+    var y_pos = $("#approveans").val( id )
+        .offset().top;
+
+    scrollTo( 0, y_pos );
+}
+
 $.supportform = {
     init: function() {
         $( "select[name=faqid]" ).after(" <a href='#' id='faqlink'>View FAQ</a>").change( function() {
@@ -31,6 +41,8 @@ $.supportform = {
             $( "#changesum" ).attr( "checked", "checked" );
             $.supportform.makeInternal();
         } );
+
+        $(".approve").append($("<a href='#''>approve this answer</a>").click(approve));
     },
 
     makeInternal: function() {
