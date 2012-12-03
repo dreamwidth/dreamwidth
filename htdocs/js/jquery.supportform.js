@@ -12,14 +12,21 @@ function approve(e) {
 
 $.supportform = {
     init: function() {
-        $( "select[name=faqid]" ).after(" <a href='#' id='faqlink'>View FAQ</a>").change( function() {
+        var $faq_ref = $("<input type='text' size='3' />").change(function() {
+            $("#faqid").val(this.value).triggerHandler("change");
+        });
+
+        $("#faqid").after(" <a href='#' id='faqlink'>View FAQ</a>").change( function() {
             var $link = $("#faqlink");
             if ( this.value === "0" ) {
                 $link.hide();
             } else {
                 $link.show().attr( "href", 'faqbrowse?faqid=' + this.value + '&view=full' );
             }
-        } ).triggerHandler( "change" );
+        } )
+        .after(" or enter FAQ id ", $faq_ref)
+        .triggerHandler( "change" );
+
 
 
         $( "#internaltype" ).change( function(e) {
