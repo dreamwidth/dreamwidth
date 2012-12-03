@@ -37,3 +37,9 @@
     padding: 1em;
 }
 
+fieldset.internal {
+    padding: 1em;
+}
+fieldset.internal legend span {
+    padding-left: 1em;
+}
