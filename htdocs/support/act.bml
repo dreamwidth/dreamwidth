@@ -146,7 +146,7 @@ body<=
                  LJ::Support::set_points($spid, $userid, $points);
              }
          }
-         $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP() WHERE spid=$spid");
+         $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP() WHERE spid=$spid");
      }
 
      my $remote = LJ::get_remote();
