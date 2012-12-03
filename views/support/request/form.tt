@@ -106,6 +106,7 @@ END -%]
         );
     END -%]
 
+    [%- IF can.change_category -%]
     <li>
         [%- form.select( label = dw.ml( '.change.cat' )
                 name = "changecat"
@@ -114,6 +115,7 @@ END -%]
             )
         -%]
     </li>
+    [%- END -%]
 
     [%- IF can.approve_answers -%]
     <li>

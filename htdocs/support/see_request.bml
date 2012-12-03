@@ -614,6 +614,7 @@ body<=
     }
 
 
+    my $can_move_touch = LJ::Support::can_perform_actions($sp, $remote) && ! $is_poster;
     $ret .= DW::Template->template_string( 'support/request/form.tt', {
         spid => $spid,
         auth => $auth,
@@ -641,13 +642,14 @@ body<=
         approve_actions_list => [ "answer" => "as answer", "comment" => "as comment" ],
 
         can => {
-            do_internal_actions => LJ::Support::can_perform_actions($sp, $remote) && ! $is_poster,
+            do_internal_actions => LJ::Support::can_make_internal( $sp, $remote ) && ! $is_poster,
 
             use_stock_answers => 1, #$stock_mode && ! $is_poster && $stocks_html,
             approve_answers => @screened && $helper_mode,
 
-            put_in_queue => $sp->{timelasthelp} > ( $sp->{timetouched} + 5 ),
-            take_out_of_queue => $sp->{timelasthelp} <= ( $sp->{timetouched} + 5 ),
+            change_category => $can_move_touch,
+            put_in_queue => $can_move_touch && $sp->{timelasthelp} > ( $sp->{timetouched} + 5 ),
+            take_out_of_queue => $can_move_touch && $sp->{timelasthelp} <= ( $sp->{timetouched} + 5 ),
 
             change_summary => LJ::Support::can_change_summary( $sp, $remote ),
         },
