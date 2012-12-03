@@ -74,7 +74,9 @@ body<=
     my $userfacing_action_type = $FORM{replytype};
     my $internal_action_type = $FORM{internaltype};
     return LJ::bad_input($ML{'.invalid.type'})
-        unless defined $answer_types{$userfacing_action_type} && defined $answer_types{$internal_action_type};
+        if ! $userfacing_action_type && ! $internal_action_type # we need at least one of these to be defined
+            || $userfacing_action_type && ! defined $answer_types{$userfacing_action_type}
+            || $internal_action_type && ! defined $answer_types{$internal_action_type};
 
     ## can we do the action we want?
     return LJ::bad_input($ML{'.internal.approve'})
