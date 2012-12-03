@@ -492,7 +492,7 @@ sub load_requests {
     my $requests = $dbr->selectall_arrayref(
         "SELECT spid, reqtype, requserid, reqname, reqemail, state," .
         " authcode, spcatid, subject, timecreate, timetouched, timeclosed," .
-        " timelasthelp FROM support WHERE spid IN ($list)",
+        " timelasthelp, timemodified FROM support WHERE spid IN ($list)",
         { Slice => {} }, map { $_ + 0 } @$spids
     );
     die $dbr->errstr if $dbr->err;
@@ -777,6 +777,9 @@ sub append_request
     $dbh->do($sql);
     my $splid = $dbh->{'mysql_insertid'};
 
+    # mark this as an interesting update
+    $dbh->do( 'UPDATE support SET timemodified=UNIX_TIMESTAMP() WHERE spid=?', undef, $spid );
+
     if ($posterid) {
         # add to our index of recently replied to support requests per-user.
         $dbh->do("INSERT IGNORE INTO support_youreplied (userid, spid) VALUES (?, ?)", undef,
@@ -841,7 +844,7 @@ sub close_request_with_points {
 
     # close the request
     $dbh->do( 'UPDATE support SET state="closed", '.
-              'timeclosed=UNIX_TIMESTAMP() WHERE spid=?', undef, $spid );
+              'timeclosed=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP() WHERE spid=?', undef, $spid );
     die $dbh->errstr if $dbh->err;
 
     # check to see who should get the points
@@ -894,7 +897,7 @@ sub touch_request
     my $dbh = LJ::get_db_writer();
 
     $dbh->do("UPDATE support".
-             "   SET state='open', timeclosed=0, timetouched=UNIX_TIMESTAMP()".
+             "   SET state='open', timeclosed=0, timetouched=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP()".
              " WHERE spid=?",
              undef, $spid)
       or return 0;
@@ -1005,7 +1008,7 @@ sub mail_response_to_user
         });
 
     if ($type eq "answer") {
-        $dbh->do("UPDATE support SET timelasthelp=UNIX_TIMESTAMP() WHERE spid=$spid");
+        $dbh->do("UPDATE support SET timelasthelp=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP() WHERE spid=$spid");
     }
 }
 
