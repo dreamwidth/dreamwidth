@@ -570,8 +570,7 @@ body<=
 
     # Prefill an e-mail validation reminder, if needed.
     my $reminder;
-    if ( ! ( LJ::isu( $u ) && ( $u->{status} eq 'T' ) )
-        && ( $u->{status} eq "N" || $u->{status} eq "T" )
+    if ( ( $u->{status} eq "N" || $u->{status} eq "T" )
         && ! $u->is_identity
         && ! $is_poster ) {
         $reminder = LJ::load_include( 'validationreminder' );
