@@ -205,24 +205,20 @@ sub js {
         initWidget: function () {
             var self = this;
 
-            if (!$('control_strip_color_layout_default')) return;
+            if (!$('control_strip_color_custom')) return;
 
             self.hideSubDivs();
-            if ($('control_strip_color_layout_default').checked) this.showSubDiv("layout_default_subdiv");
             if ($('control_strip_color_custom').checked) this.showSubDiv("custom_subdiv");
 
             DOM.addEventListener($('control_strip_color_dark'), "click", function (evt) { self.hideSubDivs() });
             DOM.addEventListener($('control_strip_color_light'), "click", function (evt) { self.hideSubDivs() });
-            DOM.addEventListener($('control_strip_color_layout_default'), "click", function (evt) { self.showSubDiv("layout_default_subdiv") });
-            DOM.addEventListener($('control_strip_color_custom'), "click", function (evt) { self.showSubDiv("custom_subdiv") });
+            DOM.addEventListener($('control_strip_color_custom'), "click", function (evt) { self.showSubDiv() });
         },
         hideSubDivs: function () {
-            $('layout_default_subdiv').style.display = "none";
             $('custom_subdiv').style.display = "none";
         },
-        showSubDiv: function (div) {
-            this.hideSubDivs();
-            $(div).style.display = "block";
+        showSubDiv: function () {
+            $('custom_subdiv').style.display = "block";
         },
         onRefresh: function (data) {
             this.initWidget();
