@@ -481,6 +481,9 @@ body<=
         if ($can_close && $sp->{'state'} eq "open" && $le->{'type'} eq "answer") {
             $header .= ", <a href='act?close;$sp->{'spid'};$sp->{'authcode'};$le->{'splid'}'><b>$ML{'.credit.fix'}</b></a>";
         }
+        if ( $helper_mode && $le->{type} eq "screened" ) {
+            $header .= " <span class='approve' data-dw-screened='$le->{splid}'></span>";
+        }
 
         my $bordercolor = "default";
         if ($le->{'type'} eq "internal") { $bordercolor = "internal"; }
