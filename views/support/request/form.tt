@@ -63,8 +63,8 @@ END -%]
 
 <li>
 [%- form.textarea( label = dw.ml( ".message" ) _ ":"
-                id = "body"
-                name = "body"
+                id = "reply"
+                name = "reply"
 
                 rows = 15
                 cols = 100
@@ -173,8 +173,8 @@ END -%]
 
     <li>
     [%- form.textarea( label = "Notes:"
-                    id = "comment"
-                    name = "comment"
+                    id = "internal"
+                    name = "internal"
 
                     rows = 8
                     cols = 100
