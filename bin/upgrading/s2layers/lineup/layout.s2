@@ -315,7 +315,7 @@ h3.entry-title {
     color: $*color_entry_link;
     font-size: .75em;
     text-transform: uppercase;
-    left-padding: .5em;
+    padding-left: .5em;
     }
 
 .has-userpic .entry .userpic {
