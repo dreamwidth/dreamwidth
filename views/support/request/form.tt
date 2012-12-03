@@ -30,10 +30,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <li><label>[% '.from' | ml %]</label> [% from %]</li>
 
 [%- IF faqlist.size -%]
-<li><label>[% dw.ml( ".reference") _ " <a href='faq'>" _ dw.ml( ".faq" ) _ "</a>" %]:</label>
+<li><label for='faqid'>[% dw.ml( ".reference") _ " <a href='faq'>" _ dw.ml( ".faq" ) _ "</a>" %]:</label>
     [%-
     form.select(
             name = "faqid"
+            id = "faqid"
 
             items = faqlist
         )
