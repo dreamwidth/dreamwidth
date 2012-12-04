@@ -6051,6 +6051,7 @@ sub viewing_style {
     my %view_props = (
         entry => 'opt_viewentrystyle',
         reply => 'opt_viewentrystyle',
+        icons => 'opt_viewiconstyle',
     );
 
     my $prop = $view_props{ $view } || 'opt_viewjournalstyle';
