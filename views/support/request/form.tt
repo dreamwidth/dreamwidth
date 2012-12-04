@@ -81,6 +81,14 @@ END -%]
 </fieldset>
 
 [%- IF can.do_internal_actions -%]
+    <fieldset>
+    [%- form.submit( value = "Quick Submit"
+                 name = "submitpost"
+                 id = "submitpost"
+        )
+    -%]
+    </fieldset>
+
     <fieldset class='internal even'>
     <legend><span>Internal</span></legend>
     <ul>
