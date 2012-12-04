@@ -2074,7 +2074,7 @@ property string text_view_monthpage {
     maxlength = 40;
     "size" = 15;
     example = "Month";
-    "note" = "$*text_view_month is already used";
+    "note" = "\$*text_view_month is already used";
 }
 property string text_view_day {
     des = "Text used to link to a 'Day' page";
@@ -5345,7 +5345,9 @@ function EntryLite::time_display(string datefmt, string timefmt) : string {
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -5380,7 +5382,9 @@ function Entry::time_display(string datefmt, string timefmt) : string {
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -5421,7 +5425,9 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string tooltip = "";
