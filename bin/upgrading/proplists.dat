@@ -958,6 +958,14 @@ userproplist.opt_viewentrystyle:
   multihomed: 0
   prettyname: View Entry Style
 
+userproplist.opt_viewiconstyle:
+  cldversion: 4
+  datatype: char
+  des: Preference for the default style for viewing icons pages. O for original, S for site, M for mine, L for light.
+  indexed: 0
+  multihomed: 0
+  prettyname: View Icon Style
+
 userproplist.opt_viewjournalstyle:
   cldversion: 4
   datatype: char
@@ -1245,6 +1253,14 @@ userproplist.use_journalstyle_entry_page:
   indexed: 0
   multihomed: 0
   prettyname: Use Journal Entry Style
+
+userproplist.use_journalstyle_icons_page:
+  cldversion: 4
+  datatype: bool
+  des: Choice regarding whether selected S2 style should be used on journal icons pages.
+  indexed: 0
+  multihomed: 0
+  prettyname: Use Journal Icons Style
 
 userproplist.who_invited:
   cldversion: 4

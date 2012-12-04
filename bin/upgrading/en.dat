@@ -2634,6 +2634,12 @@ setting.display.journalentrystyle.option=Show my journal's entry pages in my cho
 
 setting.display.journalentrystyle.option.comm=Show this community's entry pages in its chosen style instead of the site layout
 
+setting.display.journaliconstyle.label=Journal Icons Style
+
+setting.display.journaliconstyle.note=Note: this setting affects everyone who views your journal who has not chosen a different Icons View Style.
+
+setting.display.journaliconstyle.option=Show my journal's icons pages in my chosen style instead of the site layout
+
 setting.display.logins.label=Logins
 
 setting.display.logins.option=Manage login sessions
@@ -2661,6 +2667,10 @@ setting.display.username.option.openidusername=(internal username: [[user]])
 setting.display.viewentrystyle.label=Entry View Style
 
 setting.display.viewentrystyle.option=When viewing entry pages (including yours), use this style:
+
+setting.display.viewiconstyle.label=Icons View Style
+
+setting.display.viewiconstyle.option=When viewing icons pages (including yours), use this style:
 
 setting.display.viewjournalstyle.label=Journal View Style
 
