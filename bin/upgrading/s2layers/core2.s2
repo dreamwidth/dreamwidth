@@ -2069,6 +2069,25 @@ property string text_view_memories {
     "size" = 15;
     example = "Memories";
 }
+property string text_view_monthpage {
+    des = "Text used to link to a 'Month' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Month";
+    "note" = "$*text_view_month is already used";
+}
+property string text_view_day {
+    des = "Text used to link to a 'Day' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Day";
+}
+property string text_view_entry {
+    des = "Text used to link to an 'Entry' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Entry";
+}
 property string text_view_userinfo {
     des = "Text used to link to the 'Profile' page";
     maxlength = 40;
@@ -2112,6 +2131,9 @@ set text_view_network = "Network";
 set text_view_network_filter = "Network (Custom filter)";
 set text_view_tags = "Tags";
 set text_view_memories = "Memories";
+set text_view_monthpage = "Month";
+set text_view_day = "Day";
+set text_view_entry = "Entry";
 set text_view_userinfo = "Profile";
 set text_view_icons = "Icons";
 set text_skiplinks_back = "Previous #";
@@ -2202,6 +2224,12 @@ property string text_module_search {
     size = 20;
     example = "Search";
 }
+property string text_module_search_btn {
+    des = "Text for the 'Search' button";
+    maxlength = 50;
+    size = 20;
+    example = "Search";
+}
 
 # Modules without titles: navlinks, time, poweredby
 # Calendar uses month and year
@@ -2219,6 +2247,7 @@ set text_module_customtext_content = "";
 set text_module_credit = "Style Credit";
 set text_module_cuttagcontrols = "Expand Cut Tags";
 set text_module_search = "Search";
+set text_module_search_btn = "Search";
 
 ##=======================================
 ## Display properties - Text
@@ -2450,6 +2479,21 @@ property string text_comment_unhide {
     example = "Show 1 comment // Show # comments";
     maxlength = "50";
 }
+property string text_commentview_flat {
+   des = "Text to show comments in flat view";
+   example = "Flat";
+   maxlength = "50";
+}
+property string text_commentview_threaded {
+   des = "Text to show comments in threaded view";
+   example = "Threaded";
+   maxlength = "50";
+}
+property string text_commentview_toponly {
+   des = "Text to show only top-level comments";
+   example = "Top-Level Comments Only";
+   maxlength = "50";
+}
 set text_comment_link = "Link";
 set text_comment_reply = "Reply";
 set text_comment_frozen = "Frozen";
@@ -2459,6 +2503,9 @@ set text_comment_thread = "Thread";
 set text_comment_expand = "Expand";
 set text_comment_hide = "Hide 1 comment // Hide # comments";
 set text_comment_unhide = "Show 1 comment // Show # comments";
+set text_commentview_flat = "Flat";
+set text_commentview_threaded = "Threaded";
+set text_commentview_toponly = "Top-Level Comments Only";
 
 ##=======================================
 ## Display properties - Text
@@ -3217,12 +3264,12 @@ function lang_viewname(string viewid) [notags] : string
     }
     if ($viewid == "icons") { return $*text_view_icons; }
     if ($viewid == "network") { return $*text_view_network; }
-    if ($viewid == "day") { return "Day"; }
-    if ($viewid == "month") { return "Month"; }
+    if ($viewid == "day") { return $*text_view_day; }
+    if ($viewid == "month") { return $*text_view_monthpage; }
     if ($viewid == "userinfo") { return $*text_view_userinfo; }
-    if ($viewid == "entry") { return "Read Comments"; }
-    if ($viewid == "reply") { return "Post Comment"; }
-    if ($viewid == "tags") { return "$*text_view_tags"; }
+    if ($viewid == "entry") { return $*text_read_comments; }
+    if ($viewid == "reply") { return $*text_post_comment; }
+    if ($viewid == "tags") { return $*text_view_tags; }
     if ($viewid == "memories") { return $*text_view_memories; }
     return "Unknown View";
 }
@@ -4048,7 +4095,7 @@ function print_module_search() {
         var Page p = get_page();
 
         open_module("search", $*text_module_search, "$*SITEROOT/search?user=" + $p.journal.username);
-        print_search_form("Search");
+        print_search_form($*text_module_search_btn);
         close_module();
     }
 }
@@ -6061,22 +6108,22 @@ function CommentNav::print(string{} opts) {
     print "<div class='$class'>";
 
     var string{} links = {
-        "flat"      => """<span class="view-flat"><a href="$.url${sep}view=flat#comments">Flat</a></span>""",
-        "threaded"  => """<span class="view-threaded"><a href="$.url#comments">Threaded</a></span>""",
-        "top-only"  => """<span class="view-top-only"><a href="$.url${sep}view=top-only#comments">Top-Level Comments Only</a></span>""",
+        "flat"      => """<span class="view-flat"><a href="$.url${sep}view=flat#comments">$*text_commentview_flat</a></span>""",
+        "threaded"  => """<span class="view-threaded"><a href="$.url#comments">$*text_commentview_threaded</a></span>""",
+        "top-only"  => """<span class="view-top-only"><a href="$.url${sep}view=top-only#comments">$*text_commentview_toponly</a></span>""",
         "expand_all"  => """<a href="$.url${sep}expand_all=1${page_arg}#comments" onClick="Expander.make(this,'$.url${sep}expand_all=1${page_arg}#comments',-1,false,false);return false;">Expand All</a>"""
     };
 
     if ( $.view_mode == "threaded" ) {
-        print "$links{"flat"} | $links{"top-only"}";
+        print "$links{"flat"}${*text_default_separator}$links{"top-only"}";
     } elseif ( $.view_mode == "flat" ) {
-        print "$links{"threaded"} | $links{"top-only"}";
+        print "$links{"threaded"}${*text_default_separator}$links{"top-only"}";
     } elseif ( $.view_mode == "top-only" ) {
-        print "$links{"threaded"} | $links{"flat"}";
+        print "$links{"threaded"}${*text_default_separator}$links{"flat"}";
     }
 
     if ( $.show_expand_all ) {
-        print " | <span class='expand_all'>$links{"expand_all"}</span>";
+        print "${*text_default_separator}<span class='expand_all'>$links{"expand_all"}</span>";
     }
     print "</div>";
 }
