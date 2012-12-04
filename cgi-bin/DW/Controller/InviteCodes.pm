@@ -38,8 +38,6 @@ sub management_handler {
     # check whether we requested more invite codes
     if ( $r->did_post ) {
         my $args = $r->post_args;
-        return error_ml( 'error.invalidform' )
-            unless LJ::check_form_auth( $args->{lj_form_auth} );
 
         if ( DW::InviteCodeRequests->create( userid => $remote->id, reason => $args->{reason} ) ) {
             $rv->{req_yes} = 1;

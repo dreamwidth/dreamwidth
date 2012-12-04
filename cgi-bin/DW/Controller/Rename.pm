@@ -49,7 +49,7 @@ sub rename_handler {
 
     my $r = DW::Request->get;
 
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     my $remote = LJ::get_remote();

@@ -29,7 +29,7 @@ DW::Routing->register_string( '/openid/claim_confirm', \&openid_claim_confirm_ha
 sub openid_claim_handler {
     my $opts = shift;
     my $r = DW::Request->get;
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     my $err = sub {
@@ -75,7 +75,7 @@ sub openid_claim_handler {
 sub openid_claimed_handler {
     my $opts = shift;
     my $r = DW::Request->get;
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     my $err = sub {
@@ -141,7 +141,7 @@ sub openid_claimed_handler {
 sub openid_claim_confirm_handler {
     my $opts = shift;
     my $r = DW::Request->get;
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     my $err = sub {

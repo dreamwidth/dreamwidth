@@ -35,7 +35,7 @@ DW::Controller::Admin->register_admin_page( '/',
 );
 
 sub index_controller {
-    my ( $ok, $rv ) = controller( privcheck => [ "admin:capedit", "payments" ] );
+    my ( $ok, $rv ) = controller( privcheck => [ "admin:capedit", "payments" ], form_auth => 0 );
     return $rv unless $ok;
 
     my $vars = {%$rv};

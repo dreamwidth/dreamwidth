@@ -1435,7 +1435,7 @@ Show the entry options page in a separate page
 
 =cut
 sub options_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     return DW::Template->render_template( 'entry/options.tt', _options( $rv->{remote} ) );
@@ -1448,7 +1448,7 @@ Show the entry options page in a form suitable for loading via JS
 
 =cut
 sub options_rpc_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     my $vars = _options( $rv->{remote} );
@@ -1466,7 +1466,7 @@ Load or save entry form module header settings
 
 =cut
 sub collapse_rpc_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     my $u = $rv->{remote};

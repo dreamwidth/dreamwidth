@@ -33,7 +33,7 @@ sub multisearch_handler {
     my $q      = lc $args->{'q'}      || '';
     my $output = lc $args->{'output'} || '';
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 0 );
     return $rv unless $ok;
 
     my $tpl = 'multisearch.tt';

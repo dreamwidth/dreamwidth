@@ -41,7 +41,7 @@ sub event_output {
     # on a site with actual user data.
     return $r->NOT_FOUND unless $LJ::IS_DEV_SERVER;
 
-    my ( $ok, $rv ) = controller( authas => 1 );
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 0 );
     return $rv unless $ok;
 
     if ( $r->method eq "POST" ) {

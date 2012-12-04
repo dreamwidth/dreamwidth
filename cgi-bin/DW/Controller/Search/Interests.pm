@@ -31,8 +31,6 @@ sub interest_handler {
     my $did_post = $r->did_post;
     my $args = $did_post ? $r->post_args : $r->get_args;
     return error_ml( 'bml.badinput.body' ) unless LJ::text_in( $args );
-    return error_ml( 'error.invalidform' )
-        if $did_post && ! LJ::check_form_auth( $args->{lj_form_auth} );
 
     # do mode logic first, to save typing later
     my $mode = '';

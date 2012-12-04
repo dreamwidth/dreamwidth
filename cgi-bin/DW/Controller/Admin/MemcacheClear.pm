@@ -62,10 +62,9 @@ sub index_controller {
         clear_options => [ map { { %$_ } } values %clear ],
     };
 
-    if ( $r->method eq 'POST' ) {
+    if ( $r->did_post ) {
         eval {
-            die "Invalid form auth" unless LJ::check_form_auth( $args->{lj_form_auth} );
-
+            # FIXME: Proper error returns, do not die.
             my $u = LJ::load_user( $args->{username} );
             die "Invalid username" unless $u;
 
