@@ -27,6 +27,10 @@ $.supportform = {
         .after(" or enter FAQ id ", $faq_ref)
         .triggerHandler( "change" );
 
+        $("#canned").change(function() {
+            if ( this.value != -1 )
+                $("#reply").val( $("#reply").val() + canned[this.value] );
+        });
 
 
         $( "#internaltype" ).change( function(e) {
