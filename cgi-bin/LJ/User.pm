@@ -2510,6 +2510,47 @@ sub hide_join_post_link {
     return $u->prop( 'hide_join_post_link' );
 }
 
+=head3 C<< $self->iconbrowser_metatext( [ $arg ] ) >>
+
+If no argument, returns whether to show meta text in the icon browser or not.
+Default is to show meta text (true)
+
+If argument is passed in, acts as setter. Argument can be "Y" / "N"
+
+=cut
+
+sub iconbrowser_metatext {
+    my $u = $_[0];
+
+    if ( $_[1] ) {
+        my $newval = $_[1] eq "N" ? "N": undef;
+        $u->set_prop( iconbrowser_metatext => $newval );
+    }
+
+    return  ( $_[1] || $u->prop( 'iconbrowser_metatext' ) || "Y" ) eq 'Y' ? 1 : 0;
+}
+
+
+=head3 C<< $self->iconbrowser_smallicons( [ $small_icons ] ) >>
+
+If no argument, returns whether to show small icons in the icon browser or large.
+Default is large.
+
+If argument is passed in, acts as setter. Argument can be "Y" / "N"
+
+=cut
+
+sub iconbrowser_smallicons {
+    my $u = $_[0];
+
+    if ( $_[1] ) {
+        my $newval = $_[1] eq "Y" ? "Y" : undef;
+        $u->set_prop( iconbrowser_smallicons => $newval );
+    }
+
+    return  ( $_[1] || $u->prop( 'iconbrowser_smallicons' ) || "N" ) eq 'Y' ? 1 : 0;
+}
+
 # whether to respect cut tags in the inbox
 sub cut_inbox {
     my $u = $_[0];

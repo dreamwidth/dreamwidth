@@ -25,6 +25,7 @@ use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
 use LJ::S2;
 use DW::Captcha;
+use JSON;
 
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";
@@ -2203,13 +2204,18 @@ sub init_iconbrowser_js {
 
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
-    return LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" )
+    my $remote = LJ::get_remote();
+    my $iconbrowser_opts = JSON::objToJson({
+        selectorButtons => "#lj_userpicselect",
+        metatext => $remote->iconbrowser_metatext ? "true" : "false",
+        smallicons => $remote->iconbrowser_smallicons ? "true" : "false"
+    });
+
+    return LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" )
     ?   qq {
         <script type="text/javascript">
         jQuery(function(jQ){
-            jQ("#prop_picture_keyword").iconselector({
-                selectorButtons: "#lj_userpicselect"
-            });
+            jQ("#prop_picture_keyword").iconselector($iconbrowser_opts);
         })
         </script>
     } : qq {
