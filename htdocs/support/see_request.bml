@@ -587,21 +587,15 @@ body<=
 
         if ($rows && @$rows) {
             $stocks_html .= "<script type='text/javascript'>\n";
-            $stocks_html .= "var Iarr = new Array();\n";
+            $stocks_html .= "var canned = new Array();\n";
             my $i = 0;
             foreach my $row (@$rows) {
-                $stocks_html .= "Iarr[$i] = '" . LJ::ejs($row->[1]) . "';\n";
+                $stocks_html .= "canned[$i] = '" . LJ::ejs($row->[1]) . "';\n";
                 $i++;
             }
-            $stocks_html .= "function insertCanned(i) {\n";
-            $stocks_html .= "    var obj = document.getElementById('body');\n";
-            $stocks_html .= "    var canned = document.getElementById('canned');\n";
-            $stocks_html .= "    if (canned && canned.value > -1 && obj) {\n";
-            $stocks_html .= "        obj.value = obj.value + Iarr[canned.value];\n";
-            $stocks_html .= "    }\n";
-            $stocks_html .= "}\n";
             $stocks_html .= "</script>\n";
-            $stocks_html .= "<label for='canned'>Stock Answers:</label><select id='canned' onChange='insertCanned();'>\n";
+
+            $stocks_html .= "<label for='canned'><a href='$LJ::SITEROOT/support/stock_answers?spcatid=$stock_spcatid'>Stock Answers</a>:</label><select id='canned'>\n";
             $stocks_html .= "<option value='-1' selected>( $ML{'.select.canned.to.insert'} )</option>\n";
             $i = 0;
             foreach my $row (@$rows) {
