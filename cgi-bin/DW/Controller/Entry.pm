@@ -433,6 +433,10 @@ sub _init {
         formwidth   => $formwidth eq "P" ? "narrow" : "wide",
         min_animation => $min_animation ? 1 : 0,
 
+        limits => {
+            subject_length => LJ::CMAX_SUBJECT,
+        },
+
         # TODO: Remove this when beta is over
         betacommunity => LJ::load_user( "dw_beta" ),
     };
