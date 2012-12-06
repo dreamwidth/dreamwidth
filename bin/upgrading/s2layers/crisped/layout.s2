@@ -15,6 +15,7 @@ set layout_type = "two-columns-left";
 set userpics_position = "right";
 set sidebar_width = "20em";
 set sidebar_width_doubled = "40em";
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -98,7 +99,7 @@ function print_stylesheet () {
 
 body {
     margin: 30px 0 0 0;
-    } 
+    }
 
 a, a:link, a:visited {
     text-decoration: none;
@@ -205,8 +206,8 @@ h2#pagetitle {
 /* Navigation
 ***************************************************************************/
 
-.navigation { 
-    margin: 5px 0; 
+.navigation {
+    margin: 5px 0;
     font-size: $*font_entry_title_size$*font_entry_title_units;
     text-transform: uppercase;
     }
@@ -756,44 +757,6 @@ div.ContextualPopup div.Inner a:link {
 div.ContextualPopup .Relation {
     color: $*color_entry_text;
     text-transform: uppercase;
-    }
-
-/* Navigation Strip
-***************************************************************************/
-
-#lj_controlstrip td {
-    background-color: $*color_entry_background;
-    border: 1px solid $*color_entry_border;
-    color: $*color_entry_text;
-    text-transform: uppercase;
-    }
-
-#lj_controlstrip_statustext{
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip input {
-    background-color: $*color_entry_background;
-    border: 1px solid $*color_entry_text;
-    color: $*color_entry_text;
-    padding: 0 5px;
-    text-transform: uppercase;
-    }
-
-#lj_controlstrip a {
-    color: $*color_entry_link;
-    }
-
-#lj_controlstrip a:visited {
-    color: $*color_entry_link_visited ;
-    }
-
-#lj_controlstrip a:hover {
-    color: $*color_entry_link_hover;
-    }
-
-#lj_controlstrip a:active {
-    color: $*color_entry_link_active;
     }
 
 $userpic_css

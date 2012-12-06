@@ -9,7 +9,7 @@
 
 .requests.type=requests of type
 
-.showonlyhelp=Show only 
+.showonlyhelp=Show only
 
 .state.closed=Closed
 
@@ -46,6 +46,8 @@
 .th.posted=Posted
 
 .th.problemarea=Problem Area
+
+.th.recent=Updated
 
 .th.status=Status
 

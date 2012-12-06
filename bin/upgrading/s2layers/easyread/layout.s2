@@ -35,6 +35,8 @@ propgroup presentation {
     property use comment_datetime_format_group;
     property use all_entrysubjects;
     property use all_commentsubjects;
+    property use custom_control_strip_colors;
+
 }
 
 set layout_type = "one-column-split";
@@ -59,6 +61,11 @@ propgroup colors {
 
     property use color_entry_background;
     property use color_entry_text;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 
 }
 
@@ -385,6 +392,7 @@ function Page::print_default_stylesheet {
         """;
     }
 
+    print_custom_control_strip_css();
 
 """/* Globals */
 ul {

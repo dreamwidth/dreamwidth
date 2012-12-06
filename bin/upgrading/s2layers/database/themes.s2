@@ -21,6 +21,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#93bc0d";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -137,6 +141,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#112e2d";
+set control_strip_linkcolor = "#89bb31";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -253,6 +261,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#2f2221";
+set control_strip_linkcolor = "#d75124";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -369,6 +381,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#006fbf";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -485,6 +501,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#112e2d";
+set control_strip_linkcolor = "#ddb61a";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -601,6 +621,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#2f2221";
+set control_strip_linkcolor = "#48a4c3";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -717,6 +741,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#2f141f";
+set control_strip_linkcolor = "#cb4473";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -833,6 +861,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#2f141f";
+set control_strip_linkcolor = "#48a4c3";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -949,6 +981,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#b20da8";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1064,6 +1100,10 @@ set color_page_link_visited = "#a6a6a6";
 set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#3b3b3b";
+set control_strip_bordercolor = "#3b3b3b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#5f5f5f";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1180,6 +1220,10 @@ set color_page_link_visited = "#79a362";
 set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#3ea308";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1297,6 +1341,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#1d1f33";
+set control_strip_linkcolor = "#d75124";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1413,6 +1461,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#2f2221";
+set control_strip_linkcolor = "#cb4473";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1529,6 +1581,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#112e2d";
+set control_strip_linkcolor = "#cb4473";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1645,6 +1701,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#1d1f33";
+set control_strip_linkcolor = "#48a4c3";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1761,6 +1821,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#ed5d0f";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1877,6 +1941,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#ed0f77";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -1964,6 +2032,10 @@ set color_page_link_visited = "#9160bf";
 set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#6200bf";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -2080,6 +2152,10 @@ set color_page_link_visited = "#bf6060";
 set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#bf0000";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -2197,6 +2273,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#2f141f";
+set control_strip_linkcolor = "#89bb31";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -2313,6 +2393,10 @@ set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
 set color_userpic_shadow = "#ddd";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#1d1f33";
+set control_strip_linkcolor = "#ddb61a";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -2428,6 +2512,10 @@ set color_page_link_visited = "#7db3b3";
 set color_page_text = "#fefefe";
 set color_page_title_shadow = "#555";
 set color_elements_border = "#1b1b1b";
+set control_strip_bordercolor = "#1b1b1b";
+set control_strip_bgcolor = "#0e0e0e";
+set control_strip_linkcolor = "#0db1b2";
+set control_strip_fgcolor = "#fefefe";
 
 ##===============================
 ## Entry Colors
@@ -2452,6 +2540,7 @@ set color_calendar_link_visited = "#0e0e0e";
 set color_comment_title = "#0db1b2";
 set color_comment_title_shadow = "#333";
 set color_userpic_shadow = "#ddd";
+
 
 ##===============================
 ## Module Colors

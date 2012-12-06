@@ -20,6 +20,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use margins_size;
     property use margins_unit;
+    property use custom_control_strip_colors;
 
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
@@ -91,6 +92,11 @@ propgroup colors {
     property use color_entry_interaction_links_hover;
     property use color_entry_interaction_links_visited;
     property use color_entry_border;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -285,6 +291,8 @@ function Page::print_default_stylesheet()
         }
         """;
     }
+
+    print_custom_control_strip_css();
 
     """
     body {

@@ -188,7 +188,7 @@ body<=
     $ret .= "<form method='post' action='accountstatus$getextra'>\n";
     $ret .= LJ::form_auth();
 
-    if $u->is_community {
+    if ($u->is_community) {
         $ret .= "<p>" . BML::ml( '.journalstatus.about.comm', 
             { sitenameshort => $LJ::SITENAMESHORT,
               commname => LJ::ljuser( $u->{user} )} ) . "</p>\n";
