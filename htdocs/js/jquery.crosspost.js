@@ -266,6 +266,17 @@ toggle: function(why, allowThisCrosspost, animate) {
         $("#crosspost_accounts, #crosspost_component h4").hide()
             .siblings("p").slideDown();
     }
+},
+
+confirmDelete: function( message ) {
+    var do_delete = true;
+
+    // check to see if we have any crossposts selected
+    if ( $("#crosspost_entry").is( ":checked" ) && $( "input[name=crosspost]" ).is( ":checked" ) ) {
+        do_delete = confirm( message );
+    }
+
+    return do_delete;
 }
 
 });

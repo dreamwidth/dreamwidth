@@ -123,7 +123,8 @@ postFormInitData.panels = {
 postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 
 postFormInitData.strings = {
-  "delete_confirm" : [%- dw.ml("entryform.delete.confirm") | js -%],
+  "delete_confirm" : [%- "entryform.delete.confirm" | ml | js -%],
+  "delete_xposts_confirm": [%- "entryform.delete.xposts.confirm" | ml | js  -%]
 };
 
 </script>

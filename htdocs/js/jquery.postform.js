@@ -420,11 +420,16 @@ init: function(formData) {
 
         $("#delete_entry").click(function(e) {
             $(this.form).data("skipchecks", "delete");
-            var conf = confirm(formData.strings.delete_confirm);
-            if ( ! conf ) {
+            var do_delete = confirm(formData.strings.delete_confirm);
+            if ( do_delete ) {
+                do_delete = $("#crosspost_component").crosspost( "confirmDelete", formData.strings.delete_xposts_confirm );
+            }
+
+            if ( ! do_delete ) {
                 e.preventDefault();
             }
         });
+
 
         $("#post_options").click(function(e){
             e.preventDefault();
