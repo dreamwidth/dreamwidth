@@ -29,7 +29,11 @@
         height: $(window).height() * 0.8,
         selectedClass: "iconselector_selected",
         onSelect: function() {},
-        selectorButtons: null
+        selectorButtons: null,
+
+        // user options
+        metatext: true,
+        smallicons: false
     };
 
     function _dialogHTML() {
@@ -158,6 +162,14 @@
             _selectContainer($visible, null, true);
     };
 
+    function _persist( option, value ) {
+        var params = {};
+        params[option] = value;
+
+        // this is a best effort thing, so be silent about success/error
+        $.post( $.endpoint( "iconbrowser_save" ) , params );
+    }
+
     function _open () {
         if ( ! $.fn.iconselector.instance ) {
             $.fn.iconselector.instance = $(_dialogHTML());
@@ -175,31 +187,37 @@
             .keydown(_selectByEnter);
 
 
-            $("#iconselector_image_size_toggle a").click(function() {
+            $("#iconselector_image_size_toggle a").click(function(e, init) {
                 if ($(this).hasClass("half_image") ) {
                     $("#iconselector_icons, #iconselector_image_size_toggle, #iconselector_icons_list").addClass("half_icons");
+                    if ( ! init ) _persist( "smallicons", true );
                 } else {
                     $("#iconselector_icons, #iconselector_image_size_toggle, #iconselector_icons_list").removeClass("half_icons");
+                    if ( ! init ) _persist( "smallicons", false );
                 }
 
                 //refocus
                 $("#iconselector_image_size_toggle a:visible:first").focus();
 
                 return false;
-            });
+            }).filter( opts.smallicons ? ".half_image" : ":not(.half_image)" )
+                    .triggerHandler("click", true);
 
-            $("#iconselector_image_text_toggle a").click(function() {
+            $("#iconselector_image_text_toggle a").click(function(e, init) {
                 if ($(this).hasClass("no_meta_text") ) {
                     $("#iconselector_icons, #iconselector_image_text_toggle, #iconselector_icons_list").addClass("no_meta");
+                    if ( ! init ) _persist( "metatext", false );
                 } else {
                     $("#iconselector_icons, #iconselector_image_text_toggle, #iconselector_icons_list").removeClass("no_meta");
+                    if ( ! init ) _persist( "metatext", true );
                 }
 
                 // refocus because we just hid the link we clicked on
                 $("#iconselector_image_text_toggle a:visible:first").focus();
 
                 return false;
-            });
+            }).filter( opts.metatext ? ":not(.no_meta_text)" : ".no_meta_text" )
+                    .triggerHandler("click", true);
 
             $("#iconselector_icons").height(
                 $.fn.iconselector.instance.height() -

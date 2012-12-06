@@ -34,7 +34,14 @@ init: function(formData) {
             }
         }
         if ( $.fn.iconselector ) {
-            $select.iconselector( { onSelect: update_icon_preview, selectorButtons: "#icon_preview .icon img, #icon_browser_link" } );
+            var browser_opts = formData.iconBrowser;
+            if ( ! browser_opts ) browser_opts = {};
+            $select.iconselector( {
+                onSelect: update_icon_preview,
+                selectorButtons: "#icon_preview .icon img, #icon_browser_link",
+                metatext: browser_opts.metatext,
+                smallicons: browser_opts.smallicons
+            } );
         } else {
             $("#icon_browser_link").remove();
         }

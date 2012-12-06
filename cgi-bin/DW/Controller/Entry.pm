@@ -408,6 +408,11 @@ sub _init {
         icons       => @icons ? [ { userpic => $defaulticon }, @icons ] : [],
         defaulticon => $defaulticon,
 
+        icon_browser => {
+                metatext => $u->iconbrowser_metatext,
+                smallicons => $u->iconbrowser_smallicons,
+        },
+
         moodtheme => \%moodtheme,
         moods     => \@moodlist,
 
