@@ -430,6 +430,22 @@ userproplist.icbm:
   multihomed: 0
   prettyname: ICBM Address
 
+userproplist.iconbrowser_metatext:
+  cldversion: 4
+  datatype: bool
+  des: Whether or not to show the meta text in the icon browser
+  indexed: 0
+  multihomed: 0
+  prettyname: Icon browser meta text
+
+userproplist.iconbrowser_smallicons:
+  cldversion: 4
+  datatype: bool
+  des: Whether to show small or large images in the icon browser
+  indexed: 0
+  multihomed: 0
+  prettyname: Icon browser small icons
+
 userproplist.icq:
   cldversion: 0
   datatype: char

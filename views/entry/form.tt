@@ -127,6 +127,13 @@ postFormInitData.strings = {
   "delete_xposts_confirm": [%- "entryform.delete.xposts.confirm" | ml | js  -%]
 };
 
+[%- IF remote && remote.can_use_userpic_select -%]
+    postFormInitData.iconBrowser = {
+        "metatext": [%- icon_browser.metatext ? "true" : "false" -%],
+        "smallicons": [%- icon_browser.smallicons ? "true": "false" -%]
+    };
+[%- END -%]
+
 </script>
 [% END  # sections.head %]
 
