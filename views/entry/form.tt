@@ -213,7 +213,7 @@ postFormInitData.strings = {
                             id = "subject"
                             name = "subject"
 
-                            maxlength = "255"
+                            maxlength = limits.subject_length
                             size = "50"
 
                             labelclass = "invisible"
