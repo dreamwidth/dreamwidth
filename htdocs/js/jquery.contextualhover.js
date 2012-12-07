@@ -93,21 +93,18 @@ _create: function() {
         timeout: 1500,
 
         over: function() {
-            // if ( self.cachedResults ) {
-            //     self._renderPopup();
-            //     self._trigger("complete");
-            //     return;
-            // }
+            if ( self.cachedResults ) {
+                self._renderPopup();
+                return;
+            }
 
             trigger.ajaxtip({
-                content: function ( callback ) {
-                    callback("Hover Menu");
-                },
                 // called after the popup is opened
                 open: function(event, ui) {
                     var ns = event.handleObj.namespace;
                     var $trigger = $(this);
-                    ui.tooltip.promise().done(function() {
+                    var $tooltip = ui.tooltip;
+                    $tooltip.promise().done(function() {
                         // turn off the mouseleave/focusout events which close the popup immediately
                         // but only once fade in is done and popup is fully visible
                         // this is both a technical limitation
@@ -122,49 +119,58 @@ _create: function() {
                     // this is to prevent the annoying behavior of the popup never going away
                     // HOWEVER we want to ignore the timeout if we've moused over the popup at any point
                     // so record if this has happened
-                    ui.tooltip.one( "mouseover." +ns, function() {
+                    $tooltip.one( "mouseover." +ns, function() {
                         // event from $.fn.hoverIntent
                         $trigger.data( "popup-persist", true );
-                    } );
+                    } )
+
+                    // attach listeners to links for dynamic actions
+                    .on( "click", "a[data-dw-ctx-action]", function(e){
+                        e.stopPropagation();
+                        e.preventDefault();
+
+                        self._changeRelation( $(this) );
+                    });
                 },
                 // called after the popup has closed
                 close: function(event, ui) {
                     // cleanup
                     ui.tooltip.off( "mouseover." + event.handleObj.namespace );
                 }
-            }).ajaxtip( "open" );
+            }).ajaxtip( "load", {
 
-                // .ajaxtip( "load", {
-                //     endpoint: "ctxpopup",
+                endpoint: "ctxpopup",
 
-                //     ajax: {
-                //         context: self,
+                ajax: {
+                    context: self,
 
-                //         data: {
-                //             "user": opts.username || "",
-                //             "userid": opts.userid || 0,
-                //             "userpic_url": opts.icon_url || "",
-                //             "mode": "getinfo"
-                //         },
+                    data: {
+                        "user": opts.username || "",
+                        "userid": opts.userid || 0,
+                        "userpic_url": opts.icon_url || "",
+                        "mode": "getinfo"
+                    },
 
-                //         success: function( data, status, jqxhr ) {
-                //             if ( data.error ) {
-                //                 if ( data.noshow )
-                //                     trigger.ajaxtip( "close" );
-                //                 else
-                //                     trigger.ajaxtip( "error", data.error )
-                //             } else {
-                //                 this.cachedResults = data;
-                //                 this._renderPopup();
+                    success: function( data, status, jqxhr ) {
+                        if ( data.error ) {
+                            if ( data.noshow ) {
+                                trigger.ajaxtip( "close" );
+                            } else {
+                                trigger.ajaxtip( "error", data.error );
+                            }
+                        } else {
+                            this.cachedResults = data;
+                            this._renderPopup();
 
-                //                 // expire cache after 5 minutes
-                //                 setTimeout(function() {
-                //                     self.cachedResults = null;
-                //                 }, 60 * 5 * 1000);
-                //             }
-                //         }
-                //     }
-                // });
+                            // expire cache after 5 minutes
+                            setTimeout(function() {
+                                self.cachedResults = null;
+                            }, 60 * 5 * 1000);
+
+                        }
+                    }
+                }
+            });
         },
         out: function(e) {
             var persist = trigger.data("popup-persist");
@@ -176,18 +182,26 @@ _create: function() {
     } );
 },
 
+_addAction: function( url, text, action ) {
+    action = !! action ? ' data-dw-ctx-action="' + action + '"' : "";
+    this._actions_html.push( '<span><a href="' + url+ '"' + action + '>' + text + '</a></span>' );
+},
+_addText: function( text ) {
+    this._actions_html.push( '<span>' + text + '</span>' );
+},
+
 _renderPopup: function() {
     var self = this;
     var $trigger = this.element;
     var opts = self.options;
     var data = self.cachedResults;
+    this._actions_html = [];
 
     if ( data && ( !data.username || !data.success || data.noshow ) ) {
         return undefined;
     }
 
     var userpic_html = "";
-    var content_html = [];
 
     if ( data.url_userpic ) {
         userpic_html = '<div class="Userpic">' +
@@ -200,231 +214,165 @@ _renderPopup: function() {
                         '</div>';
     }
 
-    // var username = data.display_username;
-    // var $relation = $("<div class='Relation'></div>");
-    // var strings = {
-    //     member: "You are a member of " + username,
-    //     watching: "You have subscribed to " + username,
-    //     watched_by: username + " has subscribed to you",
-    //     mutual_watch: username + " and you have mutual subscriptions",
-    //     trusting: "You have granted access to " + username,
-    //     trusted_by: username + " has granted access to you",
-    //     mutual_trust: username + " and you have mutual access",
-    //     self: "This is you"
-    // };
-    // if ( data.is_comm ) {
-    //     var rels = [];
-    //     if (data.is_member) rels.push(strings.member);
-    //     if (data.is_watching) rels.push(strings.watching);
+    var username = data.display_username;
+    var rel_html = [];
+    var rel_strings = {
+        member: "You are a member of " + username,
+        watching: "You have subscribed to " + username,
+        watched_by: username + " has subscribed to you",
+        mutual_watch: username + " and you have mutual subscriptions",
+        trusting: "You have granted access to " + username,
+        trusted_by: username + " has granted access to you",
+        mutual_trust: username + " and you have mutual access",
+        self: "This is you"
+    };
 
-    //     $relation.html(rels.length > 0 ? rels.join("<br />") : username);
-    // } else if (data.is_syndicated ) {
-    //     $relation.html(data.is_watching ? strings.watching : username);
-    // } else if (data.is_requester) {
-    //     $relation.html( strings.self );
-    // } else {
-    //     var rels = [];
-    //     if ( data.is_trusting && data.is_trusted_by )
-    //         rels.push(strings.mutual_trust);
-    //     else if ( data.is_trusting )
-    //         rels.push(strings.trusting);
-    //     else if ( data.is_trusted_by )
-    //         rels.push(strings.trusted_by);
+    if ( data.is_comm ) {
+        if (data.is_member) rel_html.push(rel_strings.member);
+        if (data.is_watching) rel_html.push(rel_strings.watching);
 
-    //     if ( data.is_watching && data.is_watched_by )
-    //         rels.push(strings.mutual_watch);
-    //     else if ( data.is_watching )
-    //         rels.push(strings.watching);
-    //     else if ( data.is_watched_by )
-    //         rels.push(strings.watched_by);
+        if ( ! rel_html.length )
+            rel_html.push( username );
+    } else if (data.is_syndicated ) {
+        rel_html.push( data.is_watching ? rel_strings.watching : username );
+    } else if (data.is_requester) {
+        rel_html.push( rel_strings.self );
+    } else {
+        if ( data.is_trusting && data.is_trusted_by )
+            rel_html.push( rel_strings.mutual_trust );
+        else if ( data.is_trusting )
+            rel_html.push( rel_strings.trusting );
+        else if ( data.is_trusted_by )
+            rel_html.push( rel_strings.trusted_by );
 
-    //     $relation.html(rels.length > 0 ? rels.join("<br />") : username);
-    // }
-    // $content.append($relation);
+        if ( data.is_watching && data.is_watched_by )
+            rel_html.push( rel_strings.mutual_watch );
+        else if ( data.is_watching )
+            rel_html.push( rel_strings.watching );
+        else if ( data.is_watched_by )
+            rel_html.push( rel_strings.watched_by );
 
-    // if ( data.is_logged_in && data.is_comm ) {
-    //     var $membership = $("<span></span>");
-    //     if ( ! data.is_closed_membership || data.is_member ) {
-    //         var $membershiplink = $("<a></a>");
-    //         var membership_action = data.is_member ? "leave" : "join";
+        if ( ! rel_html.length )
+            rel_html.push( username );
+    }
 
-    //         if ( data.is_member )
-    //             $membershiplink.attr("href" , data.url_leavecomm ).html("Leave");
-    //         else
-    //             $membershiplink.attr("href", data.url_joincomm ).html("Join community");
+    if ( data.is_logged_in && data.is_comm ) {
+        if ( ! data.is_closed_membership || data.is_member ) {
+            if ( data.is_member )
+                this._addAction( data.url_leavecomm, "Leave", "leave" );
+            else
+                this._addAction( data.url_joincomm, "Join community", "join" );
+        } else {
+            this._addText( "Community closed" );
+        }
+    }
 
-    //         if ( ! opts.disableAJAX ) {
-    //             $membershiplink.click(function(e) {
-    //                 e.stopPropagation(); e.preventDefault();
-    //                 self._changeRelation(data, membership_action, this, e);
-    //             });
-    //         }
+    if ( data.is_logged_in && ( data.is_person || data.is_identity ) && data.can_message ) {
+        this._addAction( data.url_message, "Send message" );
+    }
 
-    //         $membership.append($membershiplink);
-    //     } else {
-    //         $membership.html("Community closed");
-    //     }
-    //     $content.append($membership, "<br />"   );
-    // }
+    // relationships
+    if ( data.is_logged_in && ! data.is_requester ) {
+        if ( ! data.is_trusting ) {
+            if ( data.is_person || data.other_is_identity ) {
+                this._addAction( data.url_addtrust, "Grant access", "addTrust" );
+            }
+        } else {
+            if ( data.is_person || data.other_is_identity ) {
+                this._addAction( data.url_addtrust, "Remove access", "removeTrust" );
+            }
+        }
 
-    // var links = [];
-    // if ( data.is_logged_in && ( data.is_person || data.is_identity ) && data.can_message ) {
-    //     var $sendmessage = $("<a></a>", { href: data.url_message }).html("Send message");
-    //     links.push($("<span></span>").append($sendmessage));
-    // }
+        if ( !data.is_watching && !data.other_is_identity ) {
+            this._addAction( data.url_addwatch, "Subscribe", "addWatch" );
+        } else if ( data.is_watching ) {
+            this._addAction( data.url_addwatch, "Remove subscription", "removeWatch" );
+        }
+    }
 
-    // // relationships
-    // if ( data.is_logged_in && ! data.is_requester ) {
-    //     if ( ! data.is_trusting ) {
-    //         if ( data.is_person || data.other_is_identity ) {
-    //             var $addtrust = $("<a></a>", { href: data.url_addtrust } ).html("Grant access");
-    //             links.push($("<span class='AddTrust'></span>").append($addtrust));
+    // FIXME: double-check this when vgifts come out
+    if ( ( data.is_person || data.is_comm ) && ! data.is_requester && data.can_receive_vgifts ) {
+        this._addAction( Site.siteroot + "/shop/vgift?to=" + data.username, "Send a virtual gift" );
+    }
 
-    //             if( ! opts.disableAJAX ) {
-    //                 $addtrust.click(function(e) {
-    //                     e.stopPropagation(); e.preventDefault();
-    //                     self._changeRelation(data, "addTrust", this, e);
-    //                 });
-    //             }
-    //         }
-    //     } else {
-    //         if ( data.is_person || data.other_is_identity ) {
-    //             var $removetrust = $("<a></a>", { href: data.url_addtrust } ).html("Remove access");
-    //             links.push($("<span class='RemoveTrust'></span>").append($removetrust));
+    if ( data.is_logged_in && ! data.is_requester && ! data.is_syndicated ) {
+        if ( data.is_banned ) {
+            this._addAction( Site.siteroot + "/manage/banusers",
+                data.is_comm ? "Unban community" : "Unban user", "setUnban" );
+        } else {
+            this._addAction( Site.siteroot + "/manage/banusers",
+                data.is_comm ? "Ban community" : "Ban user", "setBan" );
+            var $banlink = $("<a></a>", { href: Site.siteroot + "/manage/banusers" });
+        }
+    }
 
-    //             if( ! opts.disableAJAX ) {
-    //                 $removetrust.click(function(e) {
-    //                     e.stopPropagation(); e.preventDefault();
-    //                     self._changeRelation(data, "removeTrust", this, e);
-    //                 });
-    //             }
-    //         }
-    //     }
+    this._addText( "View: " );
+    if ( data.is_person || data.is_comm || data.is_syndicated ) {
+        var journal_text = "";
+        if (data.is_person)
+            journal_text ="Journal";
+        else if ( data.is_comm )
+            journal_text = "Community";
+        else if ( data.is_syndicated )
+            journal_text = "Feed";
 
-    //     if ( !data.is_watching && !data.other_is_identity ) {
-    //         var $addwatch = $("<a></a>", { href: data.url_addwatch } ).html("Subscribe");
-    //         links.push($("<span class='AddWatch'></span>").append($addwatch));
+        this._addAction( data.url_journal, journal_text );
+        this._addText( " | " );
+        this._addAction( data.url_profile, "Profile" );
+    }
 
-    //         if( ! opts.disableAJAX ) {
-    //             $addwatch.click(function(e) {
-    //                 e.stopPropagation(); e.preventDefault();
-    //                 self._changeRelation(data, "addWatch", this, e);
-    //             });
-    //         }
-    //     } else if ( data.is_watching ) {
-    //         var $removewatch = $("<a></a>", { href: data.url_addwatch } ).html("Remove subscription");
-    //         links.push($("<span class='RemoveWatch'></span>").append($removewatch));
-
-    //         if( ! opts.disableAJAX ) {
-    //             $removewatch.click(function(e) {
-    //                 e.stopPropagation(); e.preventDefault();
-    //                 self._changeRelation(data, "removeWatch", this, e);
-    //             });
-    //         }
-    //     }
-    //     $relation.addClass("RelationshipStatus");
-    // }
-
-    // // FIXME: double-check this when vgifts come out
-    // if ( ( data.is_person || data.is_comm ) && ! data.is_requester && data.can_receive_vgifts ) {
-    //     var $sendvgift = $("<a></a>", { href: Site.siteroot + "/shop/vgift?to=" + data.username })
-    //         .html("Send a virtual gift");
-    //     links.push($("<span></span").append($sendvgift));
-    // }
-
-    // if ( data.is_logged_in && ! data.is_requester && ! data.is_syndicated ) {
-    //     if ( data.is_banned ) {
-    //         var $unbanlink = $("<a></a>", { href: Site.siteroot + "/manage/banusers" });
-    //         $unbanlink.html( data.is_comm ? "Unban community" : "Unban user" );
-    //         if( ! opts.disableAJAX ) {
-    //             $unbanlink.click(function(e) {
-    //                 e.stopPropagation(); e.preventDefault();
-    //                 self._changeRelation(data, "setUnban", this, e);
-    //             });
-    //         }
-    //         links.push($("<span class='SetUnban'></span>").append($unbanlink));
-
-    //     } else {
-    //         var $banlink = $("<a></a>", { href: Site.siteroot + "/manage/banusers" });
-    //         $banlink.html( data.is_comm ? "Ban community" : "Ban user" );
-    //         if( ! opts.disableAJAX ) {
-    //             $banlink.click(function(e) {
-    //                 e.stopPropagation(); e.preventDefault();
-    //                 self._changeRelation(data, "setBan", this, e);
-    //             });
-    //         }
-    //         links.push($("<span class='SetBan'></span>").append($banlink));
-    //     }
-    // }
-
-    // var linkslength = links.length;
-    // $.each(links,function(index) {
-    //     $content.append(this);
-    //     $content.append("<br>");
-    // });
-
-    // $("<span>View: </span>").appendTo($content);
-    // if ( data.is_person || data.is_comm || data.is_syndicated ) {
-    //     var $journallink = $("<a></a>", {href: data.url_journal});
-    //     if (data.is_person)
-    //         $journallink.html("Journal");
-    //     else if ( data.is_comm )
-    //         $journallink.html("Community");
-    //     else if ( data.is_syndicated )
-    //         $journallink.html("Feed");
-
-    //     $content.append(
-    //             $journallink,
-    //             $("<span> | </span>"),
-    //             $("<a></a>", { href: data.url_profile} ).html("Profile")
-    //     );
-    // }
-
-    // $content.append($("<div class='ljclear'>&nbsp;</div>"));
-
-    var content = '<div class="Content"></div>';
+    var content = '<div class="Content">' +
+                    '<div class="Relation">' + rel_html.join( "<br />" ) + '</div>' +
+                    this._actions_html.join("<br />") +
+                    "<div class='ljclear'>&nbsp;</div>" +
+                  '</div>';
     var inner = '<div class="Inner">' + userpic_html + content + '</div>';
 
     this.element
-        .ajaxtip( "open" )
-        .ajaxtip( "option", "content", inner );
-    // this.element.ajaxtip("show")
-    // this.element
-    //     .ajaxtip("widget")
-    //         .addClass("ContextualPopup")
-    //         .empty().append($inner);
+        .ajaxtip( "option", "tooltipClass", "ContextualPopup" )
+        .ajaxtip( "option", "content", inner )
+        .ajaxtip( "open" );
 },
 
-_changeRelation: function(info, action, link, e) {
-    if ( !info ) return;
-    var self = this;
-    var $link = $(link);
+_changeRelation: function($link) {
 
-    $link.ajaxtip({namespace: "changerelation"}).ajaxtip("load", {
+    var self = this;
+    var info = self.cachedResults;
+    if ( !info ) return;
+
+    var action = $link.data( "dw-ctx-action" );
+
+    $link.ajaxtip() // init
+    .ajaxtip( "load", {
         endpoint: "changerelation",
-        context: self,
-        data: {
-            target: info.username,
-            action: action,
-            auth_token: info[action+"_authtoken"]
-        },
-        success: function( data, status, jqxhr ) {
-            if ( data.error ) {
-                $link.ajaxtip( "error", data.error )
-            } else if ( ! data.success ) {
-                $link.ajaxtip( "error", "Did not change relation successfully" );
-                self._renderPopup(data);
-            } else {
-                if ( self.cachedResults ) {
-                    var updatedProps = [ "is_trusting", "is_watching", "is_member", "is_banned" ];
-                    $.each(updatedProps,function(){
-                        self.cachedResults[this]=data[this];
-                    });
+
+        ajax: {
+            type: "POST",
+
+            context: self,
+
+            data: {
+                target: info.username,
+                action: action,
+                auth_token: info[action+"_authtoken"]
+            },
+
+            success: function( data, status, jqxhr ) {
+                if ( data.error ) {
+                    $link.ajaxtip( "error", data.error );
+                } else if ( ! data.success ) {
+                    $link.ajaxtip( "error", "Did not change relation successfully" );
+                    self._renderPopup();
+                } else {
+                    if ( self.cachedResults ) {
+                        var updatedProps = [ "is_trusting", "is_watching", "is_member", "is_banned" ];
+                        $.each(updatedProps,function(){
+                            self.cachedResults[this] = data[this];
+                        });
+                    }
+                    self._renderPopup();
                 }
-                $link.ajaxtip( "cancel" );
-                self._renderPopup();
             }
-            self._trigger("complete");
         }
     });
 }
