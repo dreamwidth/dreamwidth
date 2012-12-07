@@ -99,6 +99,10 @@ _create: function() {
             }
 
             trigger.ajaxtip({
+                tooltipClass: "ContextualPopup",
+                loadingContent: "Loading...", // positioning the automatically disappearing throbber was tricky
+                                              // let's just start with some text
+
                 // called after the popup is opened
                 open: function(event, ui) {
                     var ns = event.handleObj.namespace;
@@ -329,7 +333,6 @@ _renderPopup: function() {
     var inner = '<div class="Inner">' + userpic_html + content + '</div>';
 
     this.element
-        .ajaxtip( "option", "tooltipClass", "ContextualPopup" )
         .ajaxtip( "option", "content", inner )
         .ajaxtip( "open" );
 },

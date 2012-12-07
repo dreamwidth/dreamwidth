@@ -4,6 +4,8 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         content: undefined,
         items: "*",
 
+        loadingContent: undefined,
+
         tooltipClass: "ajaxtip",
         position: {
             my: "left top+10",
@@ -80,6 +82,11 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
             self.requests = [];
         }
 
+        if ( self.options.loadingContent ) {
+            self.option("content", self.options.loadingContent);
+            self.open();
+        }
+
         $.each( $.isArray( args ) ? args : [ args ], function (i, opts) {
             var endpoint_url = $.endpoint( opts["endpoint"] );
 
@@ -91,15 +98,17 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
             }, opts.ajax ));
             self.requests.push( deferred );
 
-            // now add the throbber. It will be removed automatically
-            $(self.element).throbber( deferred );
-
             deferred.fail(function(jqxhr, status, error) {
                 // "abort" status means we cancelled the ajax request
                 if ( status !== "abort" ) {
                     self.error( "Error contacting server: " + error );
                 }
             });
+
+            if ( ! self.options.loadingContent ) {
+                 // now add the throbber. It will be removed automatically
+                $(self.element).throbber( deferred );
+            }
         } );
 
         // clean out requests queue once all requests have successfully completed
