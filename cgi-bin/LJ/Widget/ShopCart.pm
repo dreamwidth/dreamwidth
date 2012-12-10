@@ -41,6 +41,8 @@ sub render_body {
         unless $cart->state == $DW::Shop::STATE_OPEN;
     $opts{receipt} = 1
         if $opts{admin};
+    $opts{receipt} = 1
+        if $opts{confirm};
 
     # if we're not doing a receipt load, then we should balance the points.  this
     # fixes situations where the user gets gifted points while they're shopping.
