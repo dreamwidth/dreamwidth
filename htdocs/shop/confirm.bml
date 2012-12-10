@@ -70,7 +70,7 @@ body<=
             if $payerid;
 
         my $ret = '';
-        $ret .= LJ::Widget::ShopCart->render( receipt => 1, cart => $cart );
+        $ret .= LJ::Widget::ShopCart->render( confirm => 1, cart => $cart );
         $ret .= "<form method='post' action='$LJ::SITEROOT/shop/confirm?ordernum=$ordernum'>\n";
         $ret .= LJ::form_auth();
         if ( $cart->total_cash > 0.00 ) {
