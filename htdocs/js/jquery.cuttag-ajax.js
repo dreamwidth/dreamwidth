@@ -191,7 +191,7 @@ $.widget("dw.cuttag_controls", {
         var aria_closed = "";
 
         cuttags.each(function (_,element) {
-            var el = $(element).data("cuttag");
+            var el = $(element).data("dw-cuttag");
             if ( el.isOpen() ) {
                 aria_open += " div-cuttag_" + el.identifier;
             } else {
@@ -224,7 +224,7 @@ $.widget("dw.cuttag_controls", {
                 isExpandingAll = 1;
                 var cuttags = $("span.cuttag");
                 cuttags.each(function (_,element) {
-                    $(element).data("cuttag").open();
+                    $(element).data("dw-cuttag").open();
                 });
             });
         }
@@ -246,7 +246,7 @@ $.widget("dw.cuttag_controls", {
                 isExpandingAll = 0;
                 to_do = 1;
                 cuttags.each(function (_,element) {
-                    var widget = $(element).data("cuttag");
+                    var widget = $(element).data("dw-cuttag");
                     if ( widget )
                         widget.close();
                 });
@@ -268,7 +268,7 @@ $.extend( $.dw.cuttag_controls, {
         var controls = $(".cutTagControls");
 
         controls.each(function (_,element) {
-            $(element).data("cuttag_controls").update();
+            $(element).data("dw-cuttag_controls").update();
         });
     }
 });

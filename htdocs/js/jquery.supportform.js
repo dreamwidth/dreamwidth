@@ -49,7 +49,7 @@ $.supportform = {
         });
 
         $( "input[name=summary]").change( function(){
-            $( "#changesum" ).attr( "checked", "checked" );
+            $( "#changesum" ).prop( "checked", true );
             $.supportform.makeInternal();
         } );
 

@@ -955,7 +955,7 @@ sub start_request
 
         LJ::need_res( { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
             # jquery library is the big one, load first
-            'js/jquery/jquery-1.5.2.js',
+            'js/jquery/jquery-1.8.3.js',
 
             # the rest of the libraries
             qw(
@@ -983,7 +983,7 @@ sub start_request
 
         # contextual popup JS
         if ( $LJ::CTX_POPUP ) {
-            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
+            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw(
                             js/6alib/ippu.js
                             js/lj_ippu.js
                             js/6alib/hourglass.js
@@ -995,14 +995,15 @@ sub start_request
                 qw(
                     js/jquery/jquery.ui.widget.js
 
+                    js/jquery/jquery.ui.tooltip.js
                     js/jquery.ajaxtip.js
-                    js/tooltip.js
                     js/jquery/jquery.ui.position.js
-                    stc/ajaxtip.css
+                    stc/jquery/jquery.ui.tooltip.css
+                    stc/jquery/jquery.ui.theme.smoothness.css
 
                     js/jquery.hoverIntent.js
                     js/jquery.contextualhover.js
-                    stc/contextualhover.css
+                    stc/jquery.contextualhover.css
                 ));
         }
 

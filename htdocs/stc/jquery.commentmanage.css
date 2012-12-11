@@ -1,0 +1,17 @@
+/* delete dialog */
+.popdel ul {
+    list-style: none;
+    margin: 0;
+}
+
+.popdel li {
+    margin-bottom: 0.5em;
+}
+
+.popdel .detail {
+    margin: 1.2em 0 0.3em 0;
+}
+
+.popdel .ui-dialog-buttonpane {
+    padding: 0;
+}

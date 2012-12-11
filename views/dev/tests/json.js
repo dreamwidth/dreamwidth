@@ -114,7 +114,7 @@ function jquery_getjson_fail( url ) {
         },
         error: function(jqxhr, status, error) {
             start();
-            ok( error.indexOf("Invalid JSON") == 0, "expected fail. js_dumper output not strict JSON, doesn't actually work with jquery" );
+            ok( error.name == "SyntaxError", "expected fail. js_dumper output not strict JSON, doesn't actually work with jquery" );
         }
     });
 }

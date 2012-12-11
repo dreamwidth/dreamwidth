@@ -157,33 +157,25 @@
 
 /* UI overrides */
 
-.ui-dialog {
+.iconselector .ui-dialog {
   padding:0;
 }
 
-.ui-dialog .ui-dialog-content {
+.iconselector .ui-dialog .ui-dialog-content {
   padding:.5em;
 }
 
-.ui-widget-content {
-  border-width:1px;
-  border-style:solid;
-}
-
-.ui-widget-header {
-  border:0;
-}
-.ui-dialog .ui-dialog-titlebar {
+.iconselector .ui-dialog .ui-dialog-titlebar {
   padding:.3em;
 }
 
-.ui-dialog .ui-dialog-buttonpane {
+.iconselector .ui-dialog .ui-dialog-buttonpane {
   padding:.3em 0;
   text-align:center;
   margin:0;
 }
 
-.ui-dialog .ui-dialog-buttonpane button {
+.iconselector .ui-dialog .ui-dialog-buttonpane button {
   margin:0;
   padding:0;
   float:none;
