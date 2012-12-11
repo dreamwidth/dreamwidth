@@ -33,7 +33,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 
     # jquery utility plugins
-    #"js/jquery.ultrafocus.js"
     "js/jquery.radioreveal.js"
 
     # icons
@@ -42,9 +41,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
     # tags
     "js/jquery.vertigro.js"
     "js/jquery.tagselector.js"
+    "js/jquery/jquery.ui.menu.js"
     "js/jquery/jquery.ui.autocomplete.js"
     "js/jquery.autocompletewithunknown.js"
     "stc/jquery.tagselector.css"
+    "stc/jquery/jquery.ui.menu.css"
     "stc/jquery/jquery.ui.autocomplete.css"
     "stc/jquery.autocompletewithunknown.css"
 

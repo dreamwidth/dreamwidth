@@ -54,7 +54,7 @@ $inputs
         .error(function(response) {
             $("#settings-tools").html(response.responseText)
         });
-    $(this).throbber( "before", jqxhr );
+    $(this).throbber( jqxhr );
 })
     .parent().after($cancel_button).end()
 .end()

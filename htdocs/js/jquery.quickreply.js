@@ -70,7 +70,7 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         e.stopPropagation();
 
-        $("#submitmoreopts, #submitpview, #submitpost").attr("disabled", "disabled");
+        $("#submitmoreopts, #submitpview, #submitpost").prop("disabled", true);
 
         var dtid = $("#dtid");
         if ( ! Number(dtid.val()) )
