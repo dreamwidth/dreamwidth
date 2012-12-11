@@ -81,9 +81,9 @@
             $(".iconselector_top .keywords", $.fn.iconselector.instance)
                 .replaceWith($keywords.clone());
             if ($keywords.length > 0)
-                $("#iconselector_select").removeAttr("disabled");
+                $("#iconselector_select").prop("disabled", false);
             else
-                $("#iconselector_select").attr("disabled", "disabled");
+                $("#iconselector_select").prop("disabled", true);
         } else {
             $(".iconselector_top .selected", $.fn.iconselector.instance)
                 .removeClass("selected");
@@ -225,8 +225,8 @@
                 - 5
             );
 
-            $("button", $.fn.iconselector.instance.siblings()).attr("disabled", "true");
-            $(":input", $.fn.iconselector.instance).attr("disabled", "true");
+            $("button", $.fn.iconselector.instance.siblings()).prop("disabled", true);
+            $(":input", $.fn.iconselector.instance).prop("disabled", true);
             $("#iconselector_search", $.fn.iconselector.instance).bind("keyup click", _filterPics);
 
             var url = Site.currentJournalBase ? "/" + Site.currentJournal + "/__rpc_userpicselect" : "/__rpc_userpicselect";
@@ -277,8 +277,8 @@
 
                     $("#iconselector_icons").empty().append($iconslist);
 
-                    $("button", $.fn.iconselector.instance.siblings()).removeAttr("disabled");
-                    $(":input:not([id='iconselector_select'])", $.fn.iconselector.instance).removeAttr("disabled");
+                    $("button", $.fn.iconselector.instance.siblings()).prop("disabled", false);
+                    $(":input:not([id='iconselector_select'])", $.fn.iconselector.instance).prop("disabled", false);
                     $("#iconselector_icons_list")
                         .click(_selectByClick)
                         .dblclick(function(e) {

@@ -77,10 +77,10 @@ init: function(formData) {
             var fields = "#entrytime, #entrytime_hr, #entrytime_min, #entrytime_display_container button, #entrytime_container button";
             var containers = "#entrytime_display_container, #entrytime_container";
             if ( $(this).is(":checked") ) {
-                $(fields).attr("disabled", true);
+                $(fields).prop("disabled", true);
                 $(containers).addClass("ui-state-disabled");
             } else {
-                $(fields).attr("disabled", false);
+                $(fields).prop("disabled", false);
                 $(containers).removeClass("ui-state-disabled");
             }
         });
@@ -343,10 +343,10 @@ init: function(formData) {
                 // select the minsecurity value and disable the values with lesser security
                 $security.val(rank[oldval] >= rank[data.ret['minsecurity']] ? oldval : data.ret['minsecurity']);
                 if ( data.ret['minsecurity'] == 'access' ) {
-                    $security.find("option[value='public']").attr("disabled", "disabled");
+                    $security.find("option[value='public']").prop("disabled", true);
                 } else if ( data.ret['minsecurity'] == 'private' ) {
                     $security.find("option[value='public'],option[value='access'],option[value='custom']")
-                        .attr("disabled", "disabled");
+                        .prop("disabled", true);
                 }
             } else {
                 // user is not known. no custom groups, no minsecurity
@@ -408,7 +408,7 @@ init: function(formData) {
             var target = form.target;
 
             var $password = $(form).find("input[type='password']:enabled");
-            $password.attr("disabled","disabled");
+            $password.prop("disabled",true);
 
             form.action = "/entry/preview";
             form.target = 'preview';
@@ -417,7 +417,7 @@ init: function(formData) {
 
             form.action = action;
             form.target = target;
-            $password.removeAttr("disabled");
+            $password.prop("disabled", false);
             e.preventDefault();
         });
 
