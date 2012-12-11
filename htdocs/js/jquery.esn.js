@@ -261,11 +261,12 @@ _create: function() {
 
         $dlg.dialog({
             title: "Email me when",
+            dialogClass: "track-dialog",
             position: {
-                my: "right bottom+10",
-                at: "left center",
+                my: "center bottom",
+                at: "right top",
                 of: this,
-                collision: "flipfit flipfit"
+                collision: "fit fit"
             },
             buttons: {
                 "Save Changes": function() {

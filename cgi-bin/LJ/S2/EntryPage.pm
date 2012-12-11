@@ -419,7 +419,6 @@ sub EntryPage
             stc/jquery/jquery.ui.tooltip.css
             stc/jquery/jquery.ui.button.css
             stc/jquery/jquery.ui.dialog.css
-            stc/ajaxtip.css
             stc/jquery.commentmanage.css
         ) );
     LJ::need_res( LJ::S2::tracking_popup_js() );

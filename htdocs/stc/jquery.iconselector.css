@@ -165,14 +165,6 @@
   padding:.5em;
 }
 
-.iconselector .ui-widget-content {
-  border-width:1px;
-  border-style:solid;
-}
-
-.iconselector .ui-widget-header {
-  border:0;
-}
 .iconselector .ui-dialog .ui-dialog-titlebar {
   padding:.3em;
 }

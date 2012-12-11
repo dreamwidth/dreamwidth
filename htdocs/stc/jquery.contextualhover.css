@@ -1,0 +1,48 @@
+/* HTML structure:
+
+<div class="ui-tooltip ui-widget ... ContextualPopup">
+    <div class="ui-tooltip-content">
+            <div class="Userpic">
+                <a href=""><img src="" alt=""></a>
+            </div>
+            <div class="Content">
+                <div class="Relation">Current relationship status</div>
+                <div class="Actions">
+                    <div><a href="">Action 1</a></div>
+                    <div><a href="">Action 2</a></div>
+                    <div><a href="">Action 3</a></div>
+                </div>
+            </div>
+    </div>
+</div>
+
+ */
+
+.ContextualPopup {
+    width: 20em;
+    text-align: left;
+}
+
+.ContextualPopup .Userpic img {
+    float: right;
+    max-height: 75px;
+    max-width: 75px;
+    width:expression(this.width > 75 ? "75px" : this.width); /*IE Max-width */
+    border: 9;
+}
+
+.ContextualPopup a {
+    text-decoration: none;
+    border-bottom: none;
+}
+
+.ContextualPopup .Relation {
+    font-weight: bold;
+    font-size: 0.8em;
+    line-height: 1.2;
+    margin-bottom: 1.2em;
+}
+
+.ContextualPopup .Actions {
+    line-height: 1.4;
+}

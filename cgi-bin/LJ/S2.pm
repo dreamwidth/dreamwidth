@@ -211,9 +211,6 @@ sub make_journal
         stc/jquery/jquery.ui.tooltip.css
         stc/jquery/jquery.ui.button.css
         stc/jquery/jquery.ui.dialog.css
-        stc/jquery/jquery.ui.theme.smoothness.css
-        stc/base-colors-light.css
-        stc/ajaxtip.css
 
         js/jquery.poll.js
 
@@ -1818,10 +1815,8 @@ sub tracking_popup_js {
         js/jquery.ajaxtip.js
         js/jquery/jquery.ui.position.js
         stc/jquery/jquery.ui.tooltip.css
-        stc/ajaxtip.css
 
         js/jquery.esn.js
-        stc/esn.css
     ) ): ();
 }
 

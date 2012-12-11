@@ -853,7 +853,6 @@ body<=
                             stc/jquery/jquery.ui.tooltip.css
                             stc/jquery/jquery.ui.button.css
                             stc/jquery/jquery.ui.dialog.css
-                            stc/ajaxtip.css
                             stc/jquery.commentmanage.css
                 ) );
                 my $js_screen_color = "\"" . LJ::ejs(BML::get_template_def("screenedbarcolor") || BML::get_template_def("emcolor")) . "\"";

@@ -34,7 +34,7 @@
 }
 .ui-widget-header {
   background-color:#F2F2F2;
-  background-image: url();
+  background-image: none;
 }
 .ui-widget-content, .ui-sortable {
   border-color: #ccc

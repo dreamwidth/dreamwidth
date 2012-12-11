@@ -256,10 +256,10 @@ $.widget("dw.delcomment", {
             $deleteDialog.dialog({
                 title: "Delete Comment",
                 position: {
-                    my: "right bottom+10",
-                    at: "left center",
+                    my: "center bottom",
+                    at: "right top",
                     of: this,
-                    collision: "flipfit flipfit"
+                    collision: "fit fit"
                 },
                 buttons: {
                     "Delete": function() {

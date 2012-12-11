@@ -86,7 +86,7 @@ _create: function() {
     }
 
     var trigger = self.element;
-    trigger.addClass("ContextualPopup");
+    trigger.addClass("ContextualPopup-trigger");
 
     trigger.hoverIntent( {
         // how long before the popup fades out automatically once you've moved away
@@ -100,8 +100,7 @@ _create: function() {
 
             trigger.ajaxtip({
                 tooltipClass: "ContextualPopup",
-                loadingContent: "Loading...", // positioning the automatically disappearing throbber was tricky
-                                              // let's just start with some text
+                loadingContent: "<img src='" + $.throbber.src + "' alt='Loading' />",
 
                 // called after the popup is opened
                 open: function(event, ui) {
@@ -186,12 +185,16 @@ _create: function() {
     } );
 },
 
+_addRelationStatus: function( string ) {
+    this._rel_html.push( "<div>" + string + "</div>");
+},
+
 _addAction: function( url, text, action ) {
     action = !! action ? ' data-dw-ctx-action="' + action + '"' : "";
-    this._actions_html.push( '<span><a href="' + url+ '"' + action + '>' + text + '</a></span>' );
+    this._actions_html.push( '<div><a href="' + url+ '"' + action + '>' + text + '</a></div>' );
 },
 _addText: function( text ) {
-    this._actions_html.push( '<span>' + text + '</span>' );
+    this._actions_html.push( '<div>' + text + '</div>' );
 },
 
 _renderPopup: function() {
@@ -200,6 +203,7 @@ _renderPopup: function() {
     var opts = self.options;
     var data = self.cachedResults;
     this._actions_html = [];
+    this._rel_html = [];
 
     if ( data && ( !data.username || !data.success || data.noshow ) ) {
         return undefined;
@@ -211,7 +215,7 @@ _renderPopup: function() {
         userpic_html = '<div class="Userpic">' +
                         '<a href="' + data.url_allpics + '">'  +
                             '<img src="' + data.url_userpic + '"' +
-                                ' width="' + data.usepric_w + '"' +
+                                ' width="' + data.userpic_w + '"' +
                                 ' height="' + data.userpic_h + '"' +
                                 ' />' +
                         '</a>' +
@@ -219,7 +223,6 @@ _renderPopup: function() {
     }
 
     var username = data.display_username;
-    var rel_html = [];
     var rel_strings = {
         member: "You are a member of " + username,
         watching: "You have subscribed to " + username,
@@ -232,32 +235,47 @@ _renderPopup: function() {
     };
 
     if ( data.is_comm ) {
-        if (data.is_member) rel_html.push(rel_strings.member);
-        if (data.is_watching) rel_html.push(rel_strings.watching);
+        if (data.is_member) this._addRelationStatus(rel_strings.member);
+        if (data.is_watching) this._addRelationStatus(rel_strings.watching);
 
-        if ( ! rel_html.length )
-            rel_html.push( username );
     } else if (data.is_syndicated ) {
-        rel_html.push( data.is_watching ? rel_strings.watching : username );
+        this._addRelationStatus( data.is_watching ? rel_strings.watching : username );
     } else if (data.is_requester) {
-        rel_html.push( rel_strings.self );
+        this._addRelationStatus( rel_strings.self );
     } else {
         if ( data.is_trusting && data.is_trusted_by )
-            rel_html.push( rel_strings.mutual_trust );
+            this._addRelationStatus( rel_strings.mutual_trust );
         else if ( data.is_trusting )
-            rel_html.push( rel_strings.trusting );
+            this._addRelationStatus( rel_strings.trusting );
         else if ( data.is_trusted_by )
-            rel_html.push( rel_strings.trusted_by );
+            this._addRelationStatus( rel_strings.trusted_by );
 
         if ( data.is_watching && data.is_watched_by )
-            rel_html.push( rel_strings.mutual_watch );
+            this._addRelationStatus( rel_strings.mutual_watch );
         else if ( data.is_watching )
-            rel_html.push( rel_strings.watching );
+            this._addRelationStatus( rel_strings.watching );
         else if ( data.is_watched_by )
-            rel_html.push( rel_strings.watched_by );
+            this._addRelationStatus( rel_strings.watched_by );
+    }
 
-        if ( ! rel_html.length )
-            rel_html.push( username );
+    if ( ! this._rel_html.length )
+        this._addRelationStatus( username );
+
+    if ( data.is_person || data.is_comm || data.is_syndicated ) {
+        var journal_text = "";
+        if (data.is_person)
+            journal_text ="View journal";
+        else if ( data.is_comm )
+            journal_text = "View community";
+        else if ( data.is_syndicated )
+            journal_text = "View feed";
+
+        this._addAction( data.url_journal, journal_text );
+        this._addAction( data.url_profile, "View profile" );
+    }
+
+    if ( data.is_logged_in && ( data.is_person || data.is_identity ) && data.can_message ) {
+        this._addAction( data.url_message, "Send message" );
     }
 
     if ( data.is_logged_in && data.is_comm ) {
@@ -267,15 +285,10 @@ _renderPopup: function() {
             else
                 this._addAction( data.url_joincomm, "Join community", "join" );
         } else {
-            this._addText( "Community closed" );
+            this._addRelationStatus( "Community closed" );
         }
     }
 
-    if ( data.is_logged_in && ( data.is_person || data.is_identity ) && data.can_message ) {
-        this._addAction( data.url_message, "Send message" );
-    }
-
-    // relationships
     if ( data.is_logged_in && ! data.is_requester ) {
         if ( ! data.is_trusting ) {
             if ( data.is_person || data.other_is_identity ) {
@@ -310,30 +323,13 @@ _renderPopup: function() {
         }
     }
 
-    this._addText( "View: " );
-    if ( data.is_person || data.is_comm || data.is_syndicated ) {
-        var journal_text = "";
-        if (data.is_person)
-            journal_text ="Journal";
-        else if ( data.is_comm )
-            journal_text = "Community";
-        else if ( data.is_syndicated )
-            journal_text = "Feed";
-
-        this._addAction( data.url_journal, journal_text );
-        this._addText( " | " );
-        this._addAction( data.url_profile, "Profile" );
-    }
-
     var content = '<div class="Content">' +
-                    '<div class="Relation">' + rel_html.join( "<br />" ) + '</div>' +
-                    this._actions_html.join("<br />") +
-                    "<div class='ljclear'>&nbsp;</div>" +
+                    '<div class="Relation">' + this._rel_html.join( "" ) + '</div>' +
+                    '<div class="Actions">' + this._actions_html.join("") + '</div>' +
                   '</div>';
-    var inner = '<div class="Inner">' + userpic_html + content + '</div>';
 
     this.element
-        .ajaxtip( "option", "content", inner )
+        .ajaxtip( "option", "content", userpic_html + content )
         .ajaxtip( "open" );
 },
 
@@ -344,6 +340,14 @@ _changeRelation: function($link) {
     if ( !info ) return;
 
     var action = $link.data( "dw-ctx-action" );
+
+    // stop the popup from wiggling around when a status is removed
+    var $popup = $link.closest(".ContextualPopup");
+    var $r = $popup.find(".Relation");
+    var relheight = $r.height();
+    var oldheight = $popup.data( "relheight" );
+    if ( ! oldheight ) oldheight = 0;
+    if ( relheight > oldheight ) $popup.data("relheight", relheight);
 
     $link.ajaxtip() // init
     .ajaxtip( "load", {
@@ -374,6 +378,7 @@ _changeRelation: function($link) {
                         });
                     }
                     self._renderPopup();
+                    $popup.find(".Relation").css( "min-height", $popup.data( "relheight" ) );
                 }
             }
         }

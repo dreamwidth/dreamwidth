@@ -983,7 +983,7 @@ sub start_request
 
         # contextual popup JS
         if ( $LJ::CTX_POPUP ) {
-            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
+            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw(
                             js/6alib/ippu.js
                             js/lj_ippu.js
                             js/6alib/hourglass.js
@@ -999,11 +999,11 @@ sub start_request
                     js/jquery.ajaxtip.js
                     js/jquery/jquery.ui.position.js
                     stc/jquery/jquery.ui.tooltip.css
-                    stc/ajaxtip.css
+                    stc/jquery/jquery.ui.theme.smoothness.css
 
                     js/jquery.hoverIntent.js
                     js/jquery.contextualhover.js
-                    stc/contextualhover.css
+                    stc/jquery.contextualhover.css
                 ));
         }
 
