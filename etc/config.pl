@@ -743,7 +743,7 @@
     # gathered information will be appended to requests that the user opens
     # through the web interface.
     %SUPPORT_DIAGNOSTICS = (
-    #    'track_useragent' => 1,
+        'track_useragent' => 1,
     );
 
     # If you want to change the limit on how many bans a user can make, uncomment
@@ -752,13 +752,17 @@
 
     # If you are using MogileFS on your site for userpics or other purposes, you
     # will need to define the following hash and complete the information in it.
-    #%MOGILEFS_CONFIG = (
-    #    hosts => [ '10.0.0.1:6001' ],
-    #    root => '/mnt/mogdata',
+    %MOGILEFS_CONFIG = (
+        hosts => [ '127.0.0.1:7001' ],
+        domain => 'dreamwidth',
+    #    root => '/var/mogdata',
     #    classes => {
     #        'your_class' => 3,  # define any special MogileFS classes you need
     #    },
-    #);
+    );
+
+    $USERPIC_MOGILEFS = 1;
+    $CAPTCHA_MOGILEFS = 1;
 
     # If you have multiple internal networks and would like the MogileFS libraries
     # to pick one network over the other, you can set the preferred IP list...
@@ -770,7 +774,8 @@
 
     # In addition to setting up MogileFS above, you need to enable some options
     # if you want to use MogileFS.
-    #$USERPIC_MOGILEFS = 1; # uncomment to put new userpics in MogileFS
+    $USERPIC_MOGILEFS = 1; # uncomment to put new userpics in MogileFS
+    $CAPTCHA_MOGILEFS = 1;
 
     # if you are using Perlbal to balance your web site, by default it uses
     # reproxying to distribute the files itself.  however, in some situations
