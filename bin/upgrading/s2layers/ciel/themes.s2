@@ -3516,6 +3516,86 @@ set color_navlinks_link_background = "#515151";
 set color_navlinks_link_hover_background = "#33332f";
 
 
+#NEWLAYER: ciel/oloriel
+layerinfo type = "theme";
+layerinfo name = "Oloriel";
+layerinfo redist_uniq = "ciel/oloriel";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#9DA8D5";
+set color_page_link = "#6672A5";
+set color_page_link_hover = "#7F7BC4";
+set color_page_link_visited = "#787BBA";
+set color_page_subtitle = "#DDD7D3";
+set color_page_text = "#4D4D53";
+set color_page_title = "#F2E7D2";
+set color_footer_link = "#6672A5";
+set color_footer_link_hover = "#7F7BC4";
+set color_footer_link_visited = "#787BBA";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#C7C7D3";
+set color_entry_border = "#F2E7D2";
+set color_entry_interaction_links = "#787BBA";
+set color_entry_link = "#6672A5";
+set color_entry_link_hover = "#7F7BC4";
+set color_entry_link_visited = "#787BBA";
+set color_entry_metadata_label = "#7F7BC4";
+set color_entry_text = "#4D4D53";
+set color_entry_title = "#787BBA";
+set color_entry_title_background = "#B2B8D4";
+set color_calendar_entryday_background = "#DDD7D3";
+set color_comment_title = "#787BBA";
+set color_comment_title_background = "#B2B8D4";
+set color_interaction_links_background = "#F2E7D2";
+set color_management_links_background = "#DDD7D3";
+set color_userpic_border = "#DDD7D3";
+set color_userpic_border_alt = "#F2E7D2";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#C7C7D3";
+set color_module_border = "#F2E7D2";
+set color_module_link = "#6672A5";
+set color_module_link_hover = "#7F7BC4";
+set color_module_link_visited = "#787BBA";
+set color_module_text = "#4D4D53";
+set color_module_title = "#787BBA";
+set color_module_title_background = "#B2B8D4";
+set color_navlinks_link = "#787BBA";
+set color_navlinks_link_background = "#B2B8D4";
+set color_navlinks_link_hover_background = "#DDD7D3";
+set color_navlinks_link_visited_background = "#B2B8D4";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_metadata = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_management = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
+
+
+
 #NEWLAYER: ciel/persephone
 layerinfo type = "theme";
 layerinfo name = "Persephone";
