@@ -321,8 +321,10 @@ sub skip_prop {
         return 1 if $prop_name eq "text_view_friends";
         return 1 if $prop_name eq "text_view_friends_filter";
     } else {
-        return 1 if $prop_name eq "text_view_friends_comm"
+        return 1 if $prop_name eq "text_view_friends_comm";
     }
+
+    return 1 if $prop_name eq "text_module_active_entries" and ( not ($opts{user}->is_paid) or not ($opts{user}->is_perm) );
 
     return 1 if $prop_name eq "custom_control_strip_colors";
     return 1 if $prop_name eq "control_strip_bgcolor";
