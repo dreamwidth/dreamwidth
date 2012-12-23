@@ -2019,7 +2019,7 @@ property string text_view_recent_tagged {
     des = "Text used to link to a tag-filtered version of the 'Recent Entries' page";
     maxlength = 40;
     "size" = 15;
-    example = "Entries tagged with ";
+    example = "Entries tagged with";
 }
 property string text_view_archive {
     des = "Text used to link to the 'Archive' page";
@@ -2122,7 +2122,7 @@ property string text_page_top {
 }
 
 set text_view_recent = "Recent Entries";
-set text_view_recent_tagged = "Entries tagged with ";
+set text_view_recent_tagged = "Entries tagged with";
 set text_view_archive = "Archive";
 set text_view_friends = "Reading";
 set text_view_friends_comm = "Member Posts";
@@ -2329,7 +2329,7 @@ set text_meta_mood = "Current Mood:";
 set text_meta_music = "Current Music:";
 set text_meta_xpost = "Crossposts:";
 set text_tags = "Tags:";
-set text_stickyentry_subject = "Sticky: ";
+set text_stickyentry_subject = "Sticky:";
 
 ##=======================================
 ## Display properties - Text
@@ -2742,7 +2742,7 @@ property string text_icon_alt_sticky_entry        { noui = 1; des = "Alternative
 
 property string text_posting_in {
     des = "Text when user is posting in a community";
-    example = "posting in ";
+    example = " posting in ";
 }
 
 property string text_view_month {
@@ -2783,7 +2783,7 @@ property string comment_page_next {
 
 property string text_screened {
    des = "The text used when a comment is screened";
-   example = "(screened comment) ";
+   example = "(screened comment)";
 }
 property string text_deleted {
    des = "The text used when a comment has been deleted";
@@ -2795,7 +2795,7 @@ property string text_fromsuspended {
 }
 property string text_frozen {
    des = "The text used when a comment is frozen";
-   example = "(frozen) ";
+   example = "(frozen)";
 }
 property string text_poster_anonymous {
     des = "The placeholder used when something is posted by an anonymous user";
@@ -2902,10 +2902,10 @@ set text_comments_disabled_maintainer = "Comments disabled by a maintainer of th
 set comment_page_prev = "&lt;&lt";
 set comment_page_next = "&gt;&gt";
 
-set text_screened = "(screened comment) ";
+set text_screened = "(screened comment)";
 set text_deleted = "(deleted comment)";
 set text_fromsuspended = "(reply from suspended user)";
-set text_frozen = "(frozen) ";
+set text_frozen = "(frozen)";
 set text_poster_anonymous = "(Anonymous)";
 
 set text_comment_posted = "Comment successfully posted.";
@@ -3725,7 +3725,7 @@ function Page::view_title() [notags] : string {
 function RecentPage::view_title() : string {
     if ($.filter_active) {
         if ($.filter_tags) {
-            return $*text_view_recent_tagged + $.filter_name;
+            return $*text_view_recent_tagged + " " + $.filter_name;
         } else {
             return "(" + $.filter_name + ")";
         }
@@ -4852,10 +4852,10 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
         var Comment c = $this as Comment;
         """<h4 class="comment-title">""";
         if ($c.screened) {
-            print $*text_screened;
+            print $*text_screened + " ";
         }
         if ($c.frozen) {
-            print $*text_frozen;
+            print $*text_frozen + " ";
         }
         if ($c.echi) {
             print "<span class='echi'>${c.echi}.</span> ";
@@ -4868,7 +4868,8 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
             var StickyEntry s = $this as StickyEntry;
             """<h3 class="sticky-entry-title entry-title">""";
             $s->print_sticky_icon();
-            print $*text_stickyentry_subject + $this->formatted_subject( $opts );
+            if ($*text_stickyentry_subject != "") { print $*text_stickyentry_subject + " "; }
+            print $this->formatted_subject( $opts );
             "</h3>";
         }
         else {
