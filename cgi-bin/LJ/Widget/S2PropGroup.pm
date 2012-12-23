@@ -431,7 +431,7 @@ sub output_prop_element {
             }
             my $note = "";
             $note .= LJ::eall( $prop->{note} ) if $prop->{note};
-            $ret .= "<ul class=''><li>$note</li></ul>" if $note;
+            $ret .= "<ul class='prop-note'><li>$note</li></ul>" if $note;
             $ret .= "</td>";
 
         }
