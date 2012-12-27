@@ -126,7 +126,7 @@ sub error_check {
         if ( $provider || $number ) {
             # check for something that looks like a phone number
             $class->errors( txtmsg_number => $class->ml( 'setting.txtmsgsetup.error.number' ) )
-                    unless ( $number && $number =~ /^[-+0-9]{9,}$/ );
+                    unless ( $number && $number =~ /^[-+0-9]{9,}$/ || $provider == 'lmt' && $number && ( $number =~ /^[0-9]{8}$/ || $number =~ /^[a-z_]{3,}$/ ) );
             # check for valid provider
             my %valid = map { $_ => 1 } LJ::TextMessage::providers();
             $class->errors( txtmsg_provider => $class->ml( 'setting.txtmsgsetup.error.provider' ) )
