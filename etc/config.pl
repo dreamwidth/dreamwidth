@@ -761,9 +761,6 @@
     #    },
     );
 
-    $USERPIC_MOGILEFS = 1;
-    $CAPTCHA_MOGILEFS = 1;
-
     # If you have multiple internal networks and would like the MogileFS libraries
     # to pick one network over the other, you can set the preferred IP list...
     #%MOGILEFS_PREF_IP = (
