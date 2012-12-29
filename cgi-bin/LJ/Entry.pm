@@ -115,7 +115,7 @@ sub new
         if %opts;
 
     if ($self->{ditemid}) {
-        $self->{anum}    = $self->{ditemid} & 255;
+        $self->{_untrusted_anum} = $self->{ditemid} & 255;
         $self->{jitemid} = $self->{ditemid} >> 8;
     }
 
@@ -283,9 +283,14 @@ sub anum {
 #   $entry->correct_anum
 #   $entry->correct_anum($given_anum)
 # if no given anum, gets it from the provided ditemid to constructor
+# Note: an anum parsed from the ditemid cannot be trusted which is what we're verifying here
 sub correct_anum {
     my ( $self, $given ) = @_;
-    $given = defined $given ? int( $given ) : $self->{anum};
+
+    $given = defined $given ? int( $given ) :
+           $self->{ditemid} ? $self->{_untrusted_anum} :
+                              $self->{anum};
+
     return 0 unless $self->valid;
     return 0 unless defined $self->{anum} && defined $given;
     return $self->{anum} == $given;
