@@ -176,11 +176,11 @@ propgroup modules {
 }
 
 property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Group One";
+    values = "none|(none)|header|Header|one|Sidebar";
     grouped = 1;
 }
 
-set module_layout_sections = "none|(none)|one|Group One";
+set module_layout_sections = "none|(none)|one|Sidebar";
 set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
 set module_navlinks_section = "header";
 
