@@ -1935,6 +1935,7 @@ property string{}[] layout_resources { noui = 1; des = "Resources used in the la
 
 property string[] module_search_group {
     des = "Search";
+    note = "This can only be displayed on other users' journals viewed in your own style if you have a free account.";
     grouptype = "module";
 }
 set module_search_group = ["module_search_show", "module_search_order", "module_search_section"];
@@ -2220,6 +2221,7 @@ property string text_module_cuttagcontrols {
 }
 property string text_module_search {
     des = "Text for the 'Search' heading";
+    note = "This can only be displayed on other users' journals viewed in your own style if you have a free account.";
     maxlength = 50;
     size = 20;
     example = "Search";

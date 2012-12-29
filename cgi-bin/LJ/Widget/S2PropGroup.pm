@@ -429,7 +429,11 @@ sub output_prop_element {
             foreach my $prop_in_group ( @$override ) {
                 $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
             }
+            my $note = "";
+            $note .= LJ::eall( $prop->{note} ) if $prop->{note};
+            $ret .= "<ul class='prop-note'><li>$note</li></ul>" if $note;
             $ret .= "</td>";
+
         }
     } elsif ( $prop->{values} ) {
         $ret .= "<td class='prop-input'>" unless $is_group;
