@@ -1886,8 +1886,8 @@ property bool module_pagesummary_opts_comments_tooltip {
 
 property string[] module_active_group {
     des = "Recent active entries";
+    note = "This is only visible on paid journals.";
     grouptype = "module";
-    requires_cap = "activeentries";
 }
 set module_active_group = ["module_active_show", "module_active_order", "module_active_section"];
 property bool module_active_show { grouped = 1; }
@@ -1935,6 +1935,7 @@ property string{}[] layout_resources { noui = 1; des = "Resources used in the la
 
 property string[] module_search_group {
     des = "Search";
+    note = "This is only visible on paid journals.";
     grouptype = "module";
 }
 set module_search_group = ["module_search_show", "module_search_order", "module_search_section"];
@@ -2184,6 +2185,7 @@ property string text_module_pagesummary {
 }
 property string text_module_active_entries {
     des = "Text for the 'Active Entries' heading";
+    note = "This is only visible on paid journals.";
     maxlength = 50;
     size = 20;
     example = "Active Entries";
@@ -2220,6 +2222,7 @@ property string text_module_cuttagcontrols {
 }
 property string text_module_search {
     des = "Text for the 'Search' heading";
+    note = "This is only visible on paid journals.";
     maxlength = 50;
     size = 20;
     example = "Search";
@@ -4306,6 +4309,7 @@ function print_module_tags() {
 
 function print_module_active() {
     var Page p = get_page();
+    # only print this module if the viewer can have active entries
     if ( $p.has_activeentries and not $p isa FriendsPage ) {
         var Entry[] activeentries = $p.activeentries;
         var string[] subjects;
