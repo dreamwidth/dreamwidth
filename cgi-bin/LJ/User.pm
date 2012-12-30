@@ -5856,14 +5856,52 @@ sub display_journal_deleted {
         $extra->{scope_data} = $opts{journal_opts};
     }
 
+    #get information on who deleted the account
+    my $userid=$u->userid;
+    my $logtime=$u->statusvisdate_unix;
+    my $dbr = LJ::get_cluster_reader( $u );
+    my ( $deleter_id ) = $dbr->selectrow_array(
+        "SELECT remoteid FROM userlog" .
+        " WHERE userid=$userid AND logtime=$logtime LIMIT 1");
+    my $deleter_name = LJ::get_username( $deleter_id );
+    my $deleter_name_html = $deleter_name ? 
+        LJ::ljuser( $deleter_name ) : 'Unknown'; 
+
+    #Information to pass to the "deleted account" template
     my $data = {
         reason => $u->prop( 'delete_reason' ),
         u => $u,
+        purge_date => LJ::mysql_date( 
+            $u->statusvisdate_unix + ( 29*24*3600 ), 0 ),
+        #Showing an earliest purge date of 29 days after deletion, not 30,
+        # to be safe with time zones.
+        deleter_name_html => $deleter_name_html,
 
-        is_member_of => $u->is_community && $u->trusts_or_has_member( $remote ),
-        is_protected => LJ::User->is_protected_username( $u->user ),
+        is_comm => $u->is_community,
     };
 
+    if ( $remote ) {
+        $data = {
+            %$data,
+
+            logged_in => 1,
+
+            #booleans for comms
+            is_admin => $u->is_community && $remote->can_manage( $u ),
+            is_sole_admin => $u->is_community && $remote->can_manage ( $u ) &&
+                scalar( $u->maintainer_userids ) == 1,
+            is_member_or_watcher => $u->is_community && 
+                ( $remote->member_of( $u ) || $remote->watches( $u ) ),
+
+            #booleans for personal journals
+            is_remote => $u->equals( $remote ),
+            has_relationship => $remote->watches( $u ) || $remote->trusts( $u ),
+
+            is_protected => LJ::User->is_protected_username( $u->user ),
+        };
+    }
+
+warn LJ::D($data);
     return DW::Template->render_template_misc( "journal/deleted.tt", $data, $extra );
 }
 # returns undef on error, or otherwise arrayref of arrayrefs,
