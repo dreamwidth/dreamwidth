@@ -501,7 +501,8 @@ body<=
     my @ans_type = LJ::Support::get_answer_types($sp, $remote, $auth);
     my %ans_type = @ans_type;
 
-    if ($ans_type{'answer'} || $ans_type{'screened'})
+
+    if ( not LJ::Support::can_read_internal( $sp, $remote ) and ( $ans_type{'answer'} || $ans_type{'screened'} ))
     {
         $ret .= "<div class='highlight-box'>";
         $ret .= BML::ml('.important.notes.text2', {
