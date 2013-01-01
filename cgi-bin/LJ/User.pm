@@ -5878,6 +5878,7 @@ sub display_journal_deleted {
         deleter_name_html => $deleter_name_html,
 
         is_comm => $u->is_community,
+        is_protected => LJ::User->is_protected_username( $u->user ),
     };
 
     if ( $remote ) {
@@ -5896,8 +5897,6 @@ sub display_journal_deleted {
             #booleans for personal journals
             is_remote => $u->equals( $remote ),
             has_relationship => $remote->watches( $u ) || $remote->trusts( $u ),
-
-            is_protected => LJ::User->is_protected_username( $u->user ),
         };
     }
 

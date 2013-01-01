@@ -27,6 +27,6 @@
     <p>[% '.text.reason' | ml %] [% reason %]</p>
 [% END %]
 
-[% IF logged_in && !is_admin && !is_remote %]
+[% IF logged_in && !is_admin && !is_remote && !is_protected %]
     <p>[% '.purgenotification' | ml( aopts = "href='$site.root/manage/tracking/user?journal=$u.user'" ) %]</p>
 [% END %]
