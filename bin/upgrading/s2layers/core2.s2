@@ -1775,8 +1775,8 @@ property string separator_image_position {
 ##=======================================
 
 property string module_layout_sections {
-    des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
-    example = "none|(none)|one|Left Sidebar|two|Right Sidebar";
+    des = "Map module sections to user-friendly names for the wizard. Designers may want to override this.";
+    example = "none|(none)|one|Main Module Section|two|Secondary Module Section";
     noui = 1;
 }
 
@@ -1952,7 +1952,7 @@ property bool module_cuttagcontrols_show { grouped = 1; }
 property int  module_cuttagcontrols_order { grouped = 1; }
 property string module_cuttagcontrols_section { grouped = 1; }
 
-set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 set module_userprofile_show = true;
 set module_userprofile_order = 1;
 set module_userprofile_section = "one";

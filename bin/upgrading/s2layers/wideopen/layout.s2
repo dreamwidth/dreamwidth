@@ -166,19 +166,19 @@ propgroup images_child {
 
 propgroup modules_child {
     property string module_navlinks_section_override {
-        values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+        values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
         grouped = 1;
         }
     property string module_search_section_override {
-        values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+        values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
         grouped = 1;
         }
     property string module_poweredby_section_override {
-        values = "none|(none)|one|Main Module Section|two|Second Module Section|footer|Footer";
+        values = "none|(none)|one|Main Module Section|two|Secondary Module Section|footer|Footer";
         grouped = 1;
         }
     property string module_credit_section_override {
-        values = "none|(none)|one|Main Module Section|two|Second Module Section|footer|Footer";
+        values = "none|(none)|one|Main Module Section|two|Secondary Module Section|footer|Footer";
         grouped = 1;
         }
     }
