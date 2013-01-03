@@ -21,6 +21,7 @@ fi
 perl -e '
 use strict;
 
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require "ljlib.pl"; }
 use LJ::Directories;
