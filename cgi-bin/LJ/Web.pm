@@ -3160,7 +3160,7 @@ LOGIN_BAR
     };
 
     # cycle through all possibilities, add the valid ones
-    foreach my $view_type qw( mine site light original ) {
+    foreach my $view_type (qw( mine site light original )) {
         # only want to offer this option if user is logged in and it's not their own journal, since
         # original will take care of that
         if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {
