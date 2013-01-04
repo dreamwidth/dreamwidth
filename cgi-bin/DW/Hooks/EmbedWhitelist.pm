@@ -54,6 +54,8 @@ my %host_path_match = (
     "www.dailymotion.com"   => qr!^/embed/video/!,
     "dotsub.com"            => qr!^/media/!,
 
+    "www.goodreads.com"     => qr!^/widgets/!,
+
     "maps.google.com"       => qr!^/maps!,
     "www.google.com"        => qr!^/calendar/!,
 
