@@ -93,6 +93,18 @@ sub new_handler {
     return error_ml( "/entry/form.tt.beta.off", { aopts => "href='$LJ::SITEROOT/betafeatures'" } )
         unless $remote && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
+    # these kinds of errors prevent us from initializing the form at all
+    # so abort and return it without the form
+    return error_ml( "/update.bml.error.nonusercantpost", { sitename => $LJ::SITENAME } )
+            if $remote->is_identity;
+
+    return error_ml( "/update.bml.error.cantpost" )
+            unless $remote->can_post;
+
+    return error_ml( '/update.bml.error.disabled' )
+            if $remote->can_post_disabled;
+
+
     my @error_list;
     my @warnings;
     my $post;
@@ -220,12 +232,6 @@ sub new_handler {
                         crosspost => \%crosspost,
                       }, @_ );
 
-    # these kinds of errors prevent us from initializing the form at all
-    # so abort and return it without the form
-    return error_ml( $vars->{abort}, $vars->{args} )
-        if $vars->{abort};
-
-
     # now look for errors that we still want to recover from
     push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
         if defined $usejournal && ! $vars->{usejournal};
@@ -297,16 +303,6 @@ sub _init {
     my $formwidth;
     my $min_animation;
     if ( $u ) {
-        return { abort => "/update.bml.error.nonusercantpost", args => { sitename => $LJ::SITENAME } }
-            if $u->is_identity;
-
-        return { abort => '/update.bml.error.cantpost' }
-            unless $u->can_post;
-
-        return { abort => '/update.bml.error.disabled' }
-            if $u->can_post_disabled;
-
-
         # icons
         @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
         @icons = LJ::Userpic->separate_keywords( \@icons )
@@ -582,11 +578,6 @@ sub _edit {
 
                         crosspost => \%crosspost,
                       }, @_ );
-
-    # these kinds of errors prevent us from initiating the form at all
-    # so abort and return it without the form
-    return error_ml( $vars->{abort}, $vars->{args} )
-        if $vars->{abort};
 
     # now look for errors that we still want to recover from
     my $get = $r->get_args;
