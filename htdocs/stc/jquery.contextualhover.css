@@ -21,14 +21,18 @@
 .ContextualPopup {
     width: 20em;
     text-align: left;
+    overflow: auto;
+}
+
+.ContextualPopup .Userpic {
+    float: right;
 }
 
 .ContextualPopup .Userpic img {
-    float: right;
     max-height: 75px;
     max-width: 75px;
     width:expression(this.width > 75 ? "75px" : this.width); /*IE Max-width */
-    border: 9;
+    border: 0;
 }
 
 .ContextualPopup a {
