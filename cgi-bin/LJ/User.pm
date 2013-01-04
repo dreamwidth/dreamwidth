@@ -5876,6 +5876,7 @@ sub display_journal_deleted {
         #Showing an earliest purge date of 29 days after deletion, not 30,
         # to be safe with time zones.
         deleter_name_html => $deleter_name_html,
+        u_name_html => LJ::ljuser( $u ),
 
         is_comm => $u->is_community,
         is_protected => LJ::User->is_protected_username( $u->user ),
@@ -5889,7 +5890,7 @@ sub display_journal_deleted {
 
             #booleans for comms
             is_admin => $u->is_community && $remote->can_manage( $u ),
-            is_sole_admin => $u->is_community && $remote->can_manage ( $u ) &&
+            is_sole_admin => $u->is_community && $remote->can_manage( $u ) &&
                 scalar( $u->maintainer_userids ) == 1,
             is_member_or_watcher => $u->is_community && 
                 ( $remote->member_of( $u ) || $remote->watches( $u ) ),
@@ -5898,9 +5899,68 @@ sub display_journal_deleted {
             is_remote => $u->equals( $remote ),
             has_relationship => $remote->watches( $u ) || $remote->trusts( $u ),
         };
+
+        #construct relationship description & link
+        my $relationship_ml;
+        my @relationship_links;
+        if ( $u->is_community && !( $remote->can_manage( $u ) && scalar( $u->maintainer_userids ) == 1 ) ) {
+         #don't offer the last admin of a deleted community a link to leave it
+             my $watching = $remote->watches( $u );
+             my $memberof = $remote->member_of( $u );
+
+             if ( $watching && $memberof ) {
+                 $relationship_ml = 'web.controlstrip.status.memberwatcher';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.leavecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}" 
+                     } );
+             } elsif ( $watching ) {
+                 $relationship_ml = 'web.controlstrip.status.watcher';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.removecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}" 
+                     } );
+             } elsif ( $memberof ) {
+                 $relationship_ml = 'web.controlstrip.status.member';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.leavecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}" 
+                     } );
+             }
+        }
+        
+        if ( !$u->is_community && !$remote->equals( $u ) ) {
+            #Check that it isn't the deleted account's owner, otherwise we'd
+            #tell them that they had granted access to themselves!
+            my $trusts = $remote->trusts( $u );
+            my $watches = $remote->watches( $u );
+
+            if ( $trusts && $watches ) {
+                $relationship_ml = 'web.controlstrip.status.trust_watch';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            } elsif ( $trusts ) { 
+                $relationship_ml = 'web.controlstrip.status.trusted';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            } elsif ( $watches ) {
+                $relationship_ml = 'web.controlstrip.status.watched';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            }
+        }
+
+    $data->{relationship_ml} = $relationship_ml if $relationship_ml;
+    $data->{relationship_links} = \@relationship_links if @relationship_links;
+
     }
 
-warn LJ::D($data);
     return DW::Template->render_template_misc( "journal/deleted.tt", $data, $extra );
 }
 # returns undef on error, or otherwise arrayref of arrayrefs,

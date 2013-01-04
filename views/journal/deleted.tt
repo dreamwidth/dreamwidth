@@ -2,9 +2,9 @@
     [%- sections.title = '.title.comm' | ml -%]
     <p>
     [% IF is_sole_admin %]
-        [% '.text.comm.soleadmin' | ml( url = "$site.root/accountstatus", date = purge_date ) %] 
+        [% '.text.comm.soleadmin' | ml( url = "$site.root/accountstatus?authas=$u.user", date = purge_date ) %] 
     [% ELSIF is_admin %]
-        [% '.text.comm.admin' | ml( url = "$site.root/accountstatus", date = purge_date, user = deleter_name_html ) %] 
+        [% '.text.comm.admin' | ml( url = "$site.root/accountstatus?authas=$u.user", date = purge_date, user = deleter_name_html ) %] 
     [% ELSIF is_member_or_watcher %]
         [% '.text.comm.notadmin' | ml( user = deleter_name_html ) %]
     [% ELSE %]
@@ -25,6 +25,14 @@
 
 [% IF reason %]
     <p>[% '.text.reason' | ml %] [% reason %]</p>
+[% END %]
+
+[% IF relationship_ml %]
+    <p>[% relationship_ml | ml( user = u_name_html ) %]<br />
+    [% FOREACH relationship_link IN relationship_links %]
+        <a href="[% relationship_link.url %]">
+        [% relationship_link.ml | ml %]</a>&nbsp;
+    [% END %]</p>
 [% END %]
 
 [% IF logged_in && !is_admin && !is_remote && !is_protected %]
