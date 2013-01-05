@@ -635,6 +635,9 @@ table.month caption { display: none; }
 
 /* Extra specificity needed to override .module a */
 .module .module-header a { color: $*color_module_title; }
+.module .module-header a:visited { color: $*color_module_title; }
+.module .module-header a:hover { color: $*color_module_link_hover; }
+.module .module-header a:active { color: $*color_module_link_active; }
 
 .module-content ul,
 .module-list,
