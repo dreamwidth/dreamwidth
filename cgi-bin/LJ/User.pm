@@ -5912,23 +5912,23 @@ sub display_journal_deleted {
                  $relationship_ml = 'web.controlstrip.status.memberwatcher';
                  @relationship_links = (
                      { ml => 'web.controlstrip.links.leavecomm',
-                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}" 
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
                      } );
              } elsif ( $watching ) {
                  $relationship_ml = 'web.controlstrip.status.watcher';
                  @relationship_links = (
                      { ml => 'web.controlstrip.links.removecomm',
-                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}" 
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
                      } );
              } elsif ( $memberof ) {
                  $relationship_ml = 'web.controlstrip.status.member';
                  @relationship_links = (
                      { ml => 'web.controlstrip.links.leavecomm',
-                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}" 
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
                      } );
              }
         }
-        
+
         if ( !$u->is_community && !$remote->equals( $u ) ) {
             #Check that it isn't the deleted account's owner, otherwise we'd
             #tell them that they had granted access to themselves!
@@ -5956,8 +5956,8 @@ sub display_journal_deleted {
             }
         }
 
-    $data->{relationship_ml} = $relationship_ml if $relationship_ml;
-    $data->{relationship_links} = \@relationship_links if @relationship_links;
+        $data->{relationship_ml} = $relationship_ml if $relationship_ml;
+        $data->{relationship_links} = \@relationship_links if @relationship_links;
 
     }
 
