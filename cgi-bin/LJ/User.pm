@@ -5856,25 +5856,34 @@ sub display_journal_deleted {
         $extra->{scope_data} = $opts{journal_opts};
     }
 
-    #get information on who deleted the account
-    my $userid=$u->userid;
-    my $logtime=$u->statusvisdate_unix;
-    my $dbr = LJ::get_cluster_reader( $u );
-    my ( $deleter_id ) = $dbr->selectrow_array(
-        "SELECT remoteid FROM userlog" .
-        " WHERE userid=$userid AND logtime=$logtime LIMIT 1");
-    my $deleter_name = LJ::get_username( $deleter_id );
-    my $deleter_name_html = $deleter_name ? 
-        LJ::ljuser( $deleter_name ) : 'Unknown'; 
+    #get information on who deleted the account.
+    my $deleter_name_html;
+    if ( $u->is_community ) {
+        my $userid = $u->userid;
+        my $logtime = $u->statusvisdate_unix;
+        my $dbcr = LJ::get_cluster_reader( $u );
+        my ( $deleter_id ) = $dbcr->selectrow_array(
+            "SELECT remoteid FROM userlog" .
+            " WHERE userid=$userid AND logtime=$logtime LIMIT 1");
+        my $deleter_name = LJ::get_username( $deleter_id );
+        $deleter_name_html = $deleter_name ? 
+            LJ::ljuser( $deleter_name ) : 'Unknown'; 
+    } else {
+        #If this isn't a community, it can only have been deleted by the 
+        # journal owner.
+        $deleter_name_html = LJ::ljuser( $u );
+    }
 
     #Information to pass to the "deleted account" template
     my $data = {
         reason => $u->prop( 'delete_reason' ),
         u => $u,
-        purge_date => LJ::mysql_date( 
-            $u->statusvisdate_unix + ( 29*24*3600 ), 0 ),
+
         #Showing an earliest purge date of 29 days after deletion, not 30,
         # to be safe with time zones.
+        purge_date => LJ::mysql_date( 
+            $u->statusvisdate_unix + ( 29*24*3600 ), 0 ),
+
         deleter_name_html => $deleter_name_html,
         u_name_html => LJ::ljuser( $u ),
 

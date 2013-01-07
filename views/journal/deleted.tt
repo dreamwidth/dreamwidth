@@ -27,14 +27,16 @@
     <p>[% '.text.reason' | ml %] [% reason %]</p>
 [% END %]
 
+<ul>
 [% IF relationship_ml %]
-    <p>[% relationship_ml | ml( user = u_name_html ) %]<br />
+    <li>[% relationship_ml | ml( user = u_name_html ) %]. 
     [% FOREACH relationship_link IN relationship_links %]
         <a href="[% relationship_link.url %]">
         [% relationship_link.ml | ml %]</a>&nbsp;
-    [% END %]</p>
+    [% END %]</li>
 [% END %]
 
 [% IF logged_in && !is_admin && !is_remote && !is_protected %]
-    <p>[% '.purgenotification' | ml( aopts = "href='$site.root/manage/tracking/user?journal=$u.user'" ) %]</p>
+    <li>[% '.purgenotification' | ml( aopts = "href='$site.root/manage/tracking/user?journal=$u.user'" ) %]</li>
 [% END %]
+</ul>
