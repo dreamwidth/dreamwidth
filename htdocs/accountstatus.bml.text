@@ -22,6 +22,13 @@ You can restore your deleted [[sitenameshort]] account at any point within 30 da
 
 .
 
+.journalstatus.about.comm<<
+You can delete or restore the [[commname]] community on this page.
+
+You, or another administrator, can restore the community at any point within 30 days of the deletion date.  After 30 days the community will be entirely removed from [[sitenameshort]] and you won't be able to restore it.
+
+.
+
 .journalstatus.head=Account Status
 
 .journalstatus.select.activated=Active
@@ -34,13 +41,21 @@ You can restore your deleted [[sitenameshort]] account at any point within 30 da
 
 .message.deleted2=You can return to this page at any point within the next 30 days to restore your deleted [[sitenameshort]] account.
 
+.message.deleted.comm=You, or another administrator, can return to this page at any point within the next 30 days to restore the community.
+
 .message.nochange=Your journal status has been left as <b>[[statusvis]]</b>.
+
+.message.nochange.comm=The community's status has been left as <b>[[statusvis]]</b>.
 
 .message.noothermaintainer=If you delete your journal,  [[commlist]] won't have an active administrator.  If you'd like to appoint an additional administrator now, please visit the <a [[aopts]]>[[pagetitle]]</a> page.
 
 .message.success=You've successfully changed your journal status to <b>[[statusvis]]</b>.
 
+.message.success.comm=You've successfully changed your community's status to <b>[[statusvis]]</b>.
+
 .reason.about=The reason you're deleting your journal, to display on your deleted journal (optional)
+
+.reason.about.comm=The reason you're deleting this community, to display on the deleted community's page (optional)
 
 .reason.head=Reason:
 

@@ -64,6 +64,9 @@ dustyfoot/themes         theme+                      dustyfoot/layout
 easyread/layout          layout                      core2
 easyread/themes          theme+                      easyread/layout
 
+fantaisie/layout         layout(core2base/layout)    core2
+fantaisie/themes         theme+                      fantaisie/layout
+
 fiveam/layout            layout(core2base/layout)    core2
 fiveam/themes            theme+                      fiveam/layout
 
@@ -123,6 +126,9 @@ steppingstones/themes    theme+                      steppingstones/layout
 
 strata/layout            layout(core2base/layout)    core2
 strata/themes            theme+                      strata/layout
+
+summertime/layout        layout(core2base/layout)    core2
+summertime/themes        theme+                      summertime/layout
 
 tranquilityiii/layout    layout(core2base/layout)    core2
 tranquilityiii/themes    theme+                      tranquilityiii/layout

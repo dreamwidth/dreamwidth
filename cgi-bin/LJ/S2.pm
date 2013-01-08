@@ -114,7 +114,7 @@ sub make_journal
             return;
         }
 
-        if ( ! $ctx->[S2::PROPS]->{use_journalstyle_icons_page} && ( $view eq "icons" ) ) {
+        if ( ! LJ::S2::use_journalstyle_icons_page( $style_u, $ctx ) && ( $view eq "icons" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -199,10 +199,18 @@ sub make_journal
     }
 
     LJ::need_res( { group => "jquery" }, qw(
+        js/jquery/jquery.ui.core.js
         js/jquery/jquery.ui.widget.js
+        js/jquery/jquery.ui.tooltip.js
+        js/jquery/jquery.ui.button.js
+        js/jquery/jquery.ui.dialog.js
+        js/jquery/jquery.ui.position.js
         js/jquery.ajaxtip.js
-        js/tooltip.js
-        stc/ajaxtip.css
+
+        stc/jquery/jquery.ui.core.css
+        stc/jquery/jquery.ui.tooltip.css
+        stc/jquery/jquery.ui.button.css
+        stc/jquery/jquery.ui.dialog.css
 
         js/jquery.poll.js
 
@@ -1803,16 +1811,23 @@ sub tracking_popup_js {
         { group => 'jquery' }, qw(
         js/jquery/jquery.ui.widget.js
 
+        js/jquery/jquery.ui.tooltip.js
         js/jquery.ajaxtip.js
-        js/tooltip.js
         js/jquery/jquery.ui.position.js
-        stc/ajaxtip.css
+        stc/jquery/jquery.ui.tooltip.css
 
         js/jquery.esn.js
-        stc/esn.css
     ) ): ();
 }
 
+
+sub use_journalstyle_icons_page {
+    my ( $u, $ctx ) = @_;
+    return 0 if !$u || $u->is_syndicated;  # see sitefeeds/layout.s2
+    return 0 unless exists $ctx->[S2::CLASSES]->{IconsPage}; # core1 doesn't support IconsPage
+
+    return $u->prop( 'use_journalstyle_icons_page' ) ? 1 : 0;
+}
 
 ## S2 object constructors
 
@@ -1909,10 +1924,7 @@ sub Tag
     my ($u, $kwid, $kw) = @_;
     return undef unless $u && $kwid && $kw;
 
-    my $url = LJ::eurl( $kw );
-    $url = ( $url =~ m![\\\/]! )
-            ? $u->journal_base . '?tag=' . $url
-            : $u->journal_base . '/tag/' . $url;
+    my $url = LJ::Tags::tag_url( $u, $kw );
 
     my $t = {
         _type => 'Tag',
@@ -1933,7 +1945,7 @@ sub TagDetail
         _type => 'TagDetail',
         _id => $kwid,
         name => LJ::ehtml( $tag->{name} ),
-        url => $u->journal_base . '/tag/' . LJ::eurl( $tag->{name} ),
+        url => LJ::Tags::tag_url( $u, $tag->{name} ),
         visibility => $tag->{security_level},
     };
 

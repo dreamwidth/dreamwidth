@@ -365,7 +365,7 @@ footer { border-top: 4px double #999966;
     text-align: center;
     background-color: #EEEECC;
 }
-.action-box .inner {
+.action-box .inner, .comment-page-list {
     color: #000;
     border: 1px solid #555555;
     background-color: #DDDDAA;

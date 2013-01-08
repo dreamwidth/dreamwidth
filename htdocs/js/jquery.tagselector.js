@@ -84,8 +84,8 @@
     }
 
     function _initTags() {
-        $("button", $.fn.tagselector.instance.siblings()).attr("disabled", "true");
-        $(":input", $.fn.tagselector.instance).attr("disabled", "true");
+        $("button", $.fn.tagselector.instance.siblings()).prop("disabled", true);
+        $(":input", $.fn.tagselector.instance).prop("disabled", true);
 
         var data = _tags();
         if ( !data ) {
@@ -107,8 +107,8 @@
 
         $("#tagselector_tags").empty().append($tagslist);
 
-        $("button", $.fn.tagselector.instance.siblings()).removeAttr("disabled");
-        $(":input", $.fn.tagselector.instance).removeAttr("disabled");
+        $("button", $.fn.tagselector.instance.siblings()).prop("disabled", false);
+        $(":input", $.fn.tagselector.instance).prop("disabled", false);
     }
 
     function _save() {

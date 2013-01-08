@@ -84,11 +84,26 @@ Handles posting a new entry
 sub new_handler {
     my ( $call_opts, $usejournal ) = @_;
 
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
     my $r = DW::Request->get;
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
 
     return error_ml( "/entry/form.tt.beta.off", { aopts => "href='$LJ::SITEROOT/betafeatures'" } )
         unless $remote && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
+
+    # these kinds of errors prevent us from initializing the form at all
+    # so abort and return it without the form
+    return error_ml( "/update.bml.error.nonusercantpost", { sitename => $LJ::SITENAME } )
+            if $remote->is_identity;
+
+    return error_ml( "/update.bml.error.cantpost" )
+            unless $remote->can_post;
+
+    return error_ml( '/update.bml.error.disabled' )
+            if $remote->can_post_disabled;
+
 
     my @error_list;
     my @warnings;
@@ -209,20 +224,13 @@ sub new_handler {
     $usejournal ||= $get->{usejournal};
     my $vars = _init( { usejournal  => $usejournal,
                         altlogin    => $get->{altlogin},
+                        remote      => $remote,
 
                         datetime    => $datetime || "",
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
                       }, @_ );
-
-    return $vars->{ret} if $vars->{handled};
-
-    # these kinds of errors prevent us from initializing the form at all
-    # so abort and return it without the form
-    return error_ml( $vars->{abort}, $vars->{args} )
-        if $vars->{abort};
-
 
     # now look for errors that we still want to recover from
     push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
@@ -267,11 +275,8 @@ sub new_handler {
 sub _init {
     my ( $form_opts, $call_opts ) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
-    return { handled => 1, ret => $rv } unless $ok;
-
     my $post_as_other = $form_opts->{altlogin} ? 1 : 0;
-    my $u = $post_as_other ? undef : $rv->{remote};
+    my $u = $post_as_other ? undef : $form_opts->{remote};
     my $vars = {};
 
     my @icons;
@@ -298,16 +303,6 @@ sub _init {
     my $formwidth;
     my $min_animation;
     if ( $u ) {
-        return { abort => "/update.bml.error.nonusercantpost", args => { sitename => $LJ::SITENAME } }
-            if $u->is_identity;
-
-        return { abort => '/update.bml.error.cantpost' }
-            unless $u->can_post;
-
-        return { abort => '/update.bml.error.disabled' }
-            if $u->can_post_disabled;
-
-
         # icons
         @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
         @icons = LJ::Userpic->separate_keywords( \@icons )
@@ -409,6 +404,11 @@ sub _init {
         icons       => @icons ? [ { userpic => $defaulticon }, @icons ] : [],
         defaulticon => $defaulticon,
 
+        icon_browser => {
+                metatext => $u->iconbrowser_metatext,
+                smallicons => $u->iconbrowser_smallicons,
+        },
+
         moodtheme => \%moodtheme,
         moods     => \@moodlist,
 
@@ -434,6 +434,10 @@ sub _init {
         formwidth   => $formwidth eq "P" ? "narrow" : "wide",
         min_animation => $min_animation ? 1 : 0,
 
+        limits => {
+            subject_length => LJ::CMAX_SUBJECT,
+        },
+
         # TODO: Remove this when beta is over
         betacommunity => LJ::load_user( "dw_beta" ),
     };
@@ -458,7 +462,7 @@ sub _edit {
 
     my $r = DW::Request->get;
 
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
     my $journal = defined $username ? LJ::load_user( $username ) : $remote;
 
     return error_ml( 'error.invalidauth' ) unless $journal;
@@ -567,17 +571,13 @@ sub _edit {
     }
 
     my $vars = _init( { usejournal  => $journal->username,
+                        remote      => $remote,
 
                         datetime => $entry_obj->eventtime_mysql,
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
                       }, @_ );
-
-    # these kinds of errors prevent us from initiating the form at all
-    # so abort and return it without the form
-    return error_ml( $vars->{abort}, $vars->{args} )
-        if $vars->{abort};
 
     # now look for errors that we still want to recover from
     my $get = $r->get_args;

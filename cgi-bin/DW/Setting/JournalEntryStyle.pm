@@ -23,16 +23,23 @@ use strict;
 use LJ::S2;
 
 sub label {
-    return $_[0]->ml( 'setting.display.journalentrystyle.label' );
+    return $_[0]->ml( 'setting.display.journalentrystyle.label2' );
 }
 
 sub option_ml {
+    my ( $class, $u ) = @_;
+    return $_[0]->ml('setting.display.journalentrystyle.option.comm')
+        if $u && $u->is_community;
     return $_[0]->ml('setting.display.journalentrystyle.option');
 }
 
 sub note_ml {
+    my ( $class, $u ) = @_;
+    return $_[0]->ml('setting.display.journalentrystyle.note.comm')
+        if $u && $u->is_community; 
     return $_[0]->ml('setting.display.journalentrystyle.note');
 }
+
 sub current_value {
     return LJ::S2::use_journalstyle_entry_page( $_[1] );
 }

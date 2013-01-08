@@ -30,10 +30,12 @@
 .recententry=Most recent entry
 
 .success.delete=Journal entry was deleted.
+.success.delete.comm=Community entry was deleted.
 
 .success.deletespam=Additionally, the entry was marked as spam.  Thank you for your report.
 
 .success.edited=Journal entry was edited.
+.success.edited.comm=Community entry was edited.
 
 .success.editedstillsuspended=Please note that your entry is still suspended.
 
@@ -46,6 +48,7 @@
 .success.fromhere.manageentries=Manage your journal entries
 
 .success.fromhere.viewentries=View your journal entries
+.success.fromhere.viewentries.comm=View community
 
 .success.fromhere.viewentry=View this entry
 

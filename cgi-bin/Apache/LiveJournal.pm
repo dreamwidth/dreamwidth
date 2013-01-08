@@ -41,6 +41,7 @@ use LJ::URI;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
+use DW::Auth;
 use Cwd qw/abs_path/;
 
 BEGIN {
@@ -242,7 +243,7 @@ sub blocked_anon
     my $message = $LJ::BLOCKED_ANON_MESSAGE;
 
     unless ( $message ) {
-        $message = "You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?usescheme=lynx'>log in</a>.";
+        $message = "You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?skin=lynx'>log in</a>.";
 
         if ( $LJ::BLOCKED_ANON_URI ) {
             $message .= " <a href='$LJ::BLOCKED_ANON_URI'>Why can't I access the site without logging in?</a>";
@@ -1318,8 +1319,9 @@ sub journal_content
     # handle HTTP digest authentication
     if ($GET{'auth'} eq 'digest' ||
         $r->headers_in->{"Authorization"} =~ /^Digest/) {
-        my $res = LJ::auth_digest($r);
+        my ($res) = DW::Auth::authenticate( digest => 1 );
         unless ($res) {
+            $r->status_line("401 Authentication required");
             $r->content_type("text/html");
             $r->print("<b>Digest authentication failed.</b>");
             return OK;

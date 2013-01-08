@@ -35,6 +35,8 @@ propgroup presentation {
     property use comment_datetime_format_group;
     property use all_entrysubjects;
     property use all_commentsubjects;
+    property use custom_control_strip_colors;
+
 }
 
 set layout_type = "one-column-split";
@@ -59,6 +61,11 @@ propgroup colors {
 
     property use color_entry_background;
     property use color_entry_text;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 
 }
 
@@ -89,6 +96,7 @@ propgroup fonts {
     property use font_module_text;
     property use font_module_text_size;
     property use font_module_text_units;
+    property use font_sources;
 }
 set font_base = """APHont, "Helvetica Neue", Arial, Helvetica, Geneva""";
 set font_base_size = "1";
@@ -159,6 +167,7 @@ propgroup text {
 
     property use text_view_recent;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_archive;
     property use text_view_userinfo;
@@ -174,6 +183,8 @@ propgroup text {
     property use text_read_comments;
     property use text_post_comment_friends;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
 
     property use text_skiplinks_back;
     property use text_skiplinks_forward;
@@ -381,6 +392,7 @@ function Page::print_default_stylesheet {
         """;
     }
 
+    print_custom_control_strip_css();
 
 """/* Globals */
 ul {
@@ -556,6 +568,10 @@ h2.module-header a {
 
 .comment-wrapper {
     min-width: 15em;
+}
+
+.comment-posted {
+    font-weight:bold;
 }
 
 .comment-title {

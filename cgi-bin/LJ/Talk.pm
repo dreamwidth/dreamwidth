@@ -25,6 +25,7 @@ use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
 use LJ::S2;
 use DW::Captcha;
+use JSON;
 
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";
@@ -1553,7 +1554,8 @@ sub talkform {
         $other_user = '' unless $other_user;
         my $ml_loggedin =
             BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } );
-        my $ml_bannedfrom =
+        my $ml_bannedfrom = $journalu->is_community ?
+            BML::ml( ".opt.bannedfrom.comm", { journal => $journalu->user } ) :
             BML::ml( ".opt.bannedfrom", { journal => $journalu->user } );
         return qq{
     <td align='center'><img src='$LJ::IMGPREFIX/silk/identity/$type.png' /></td>
@@ -2202,13 +2204,18 @@ sub init_iconbrowser_js {
 
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
-    return LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" )
+    my $remote = LJ::get_remote();
+    my $iconbrowser_opts = JSON::objToJson({
+        selectorButtons => "#lj_userpicselect",
+        metatext => $remote->iconbrowser_metatext ? "true" : "false",
+        smallicons => $remote->iconbrowser_smallicons ? "true" : "false"
+    });
+
+    return LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" )
     ?   qq {
         <script type="text/javascript">
         jQuery(function(jQ){
-            jQ("#prop_picture_keyword").iconselector({
-                selectorButtons: "#lj_userpicselect"
-            });
+            jQ("#prop_picture_keyword").iconselector($iconbrowser_opts);
         })
         </script>
     } : qq {
@@ -3416,6 +3423,7 @@ sub init {
     }
 
     my $userpost = lc($form->{'userpost'});
+    my $iscomm = $journalu->is_community ? '.comm' : '';
     my $up;             # user posting
     my $exptype;        # set to long if ! after username
     my $ipfixed;        # set to remote  ip if < after username
@@ -3433,7 +3441,7 @@ sub init {
             $up = LJ::load_user($form->{'userpost'});
             if ($up) {
                 ### see if the user is banned from posting here
-                $mlerr->("$SC.error.banned") if $journalu->has_banned( $up );
+                $mlerr->("$SC.error.banned$iscomm") if $journalu->has_banned( $up );
 
                 # TEMP until we have better openid support
                 if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg") {
@@ -3487,7 +3495,7 @@ sub init {
         } elsif ($journalu->{'opt_whocanreply'} eq "all") {
             $mlerr->( "$SC.error.nousername", { sitename => $LJ::SITENAMESHORT } );
         } else {
-            $mlerr->( "$SC.error.nousername.noanon", { sitename => $LJ::SITENAMESHORT } );
+            $mlerr->( "$SC.error.nousername.noanon$iscomm", { sitename => $LJ::SITENAMESHORT } );
         }
     }
 
@@ -3625,7 +3633,7 @@ sub init {
     if (($form->{'usertype'} ne "user" && $form->{'usertype'} ne 'openid' && $form->{'usertype'} ne 'openid_cookie')
         && $journalu->{'opt_whocanreply'} ne "all")
     {
-        $mlerr->("$SC.error.noanon");
+        $mlerr->("$SC.error.noanon$iscomm");
     }
 
     if ( $ent->comments_disabled ) {

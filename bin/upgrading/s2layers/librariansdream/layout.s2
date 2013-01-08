@@ -51,7 +51,7 @@ set userpics_position = "right";
 ##===============================
 
 property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
     grouped = 1;
 }
 
@@ -632,6 +632,12 @@ table.month caption { display: none; }
     padding: .25em;
     margin: 0;
 }
+
+/* Extra specificity needed to override .module a */
+.module .module-header a { color: $*color_module_title; }
+.module .module-header a:visited { color: $*color_module_title; }
+.module .module-header a:hover { color: $*color_module_link_hover; }
+.module .module-header a:active { color: $*color_module_link_active; }
 
 .module-content ul,
 .module-list,

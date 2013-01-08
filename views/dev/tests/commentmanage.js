@@ -4,7 +4,9 @@ old: js/6alib/commentmanage.js
 jquery: js/jquery/jquery.ui.widget.js
 jquery: js/jquery.ajaxtip.js
 jquery: js/jquery.commentmanage.js
-jquery: js/tooltip.js
+jquery: js/jquery/jquery.ui.core.js
+jquery: js/jquery/jquery.ui.dialog.js
+jquery: js/jquery/jquery.ui.tooltip.js
 jquery: js/jquery/jquery.ui.position.js
 */
 
@@ -178,7 +180,7 @@ function _check_link(linkid, oldstate, newstate) {
             equal($link.attr("href"), newstate.url, linkid + " - new url" );
             equal($link.text(), newstate.text, linkid + " - new text" );
 
-            equals($link.ajaxtip("widget").html(), newstate.msg, linkid + " - did action");
+            equals($link.ajaxtip("option", "content"), newstate.msg, linkid + " - did action");
         })
         .trigger("click");
     this.server.respond();
@@ -188,7 +190,7 @@ function _check_link(linkid, oldstate, newstate) {
             equal($link.attr("href"), oldstate.url, linkid + " - changed back to old url");
             equal($link.text(), oldstate.text, linkid + " - changed back to old text");
 
-            equals($link.ajaxtip("widget").html(), oldstate.msg, linkid + " - did action");
+            equals($link.ajaxtip("option", "content"), oldstate.msg, linkid + " - did action");
         })
         .trigger("click");
     this.server.respond();
@@ -209,7 +211,7 @@ function _check_link_with_image(linkid, oldstate, newstate) {
             equal($img.attr("alt"), newstate.text, linkid + " - new alt" );
             equal($img.attr("title"), newstate.text, linkid + " - new title" );
 
-            equals($link.ajaxtip("widget").html(), newstate.msg, linkid + " - did action");
+            equals($link.ajaxtip("option", "content"), newstate.msg, linkid + " - did action");
         })
         .trigger("click");
     this.server.respond();
@@ -220,7 +222,7 @@ function _check_link_with_image(linkid, oldstate, newstate) {
             equal($img.attr("alt"), oldstate.text, linkid + " - changed back to old alt");
             equal($img.attr("title"), oldstate.text, linkid + " - changed back to old title" );
 
-            equals($link.ajaxtip("widget").html(), oldstate.msg, linkid + " - did action");
+            equals($link.ajaxtip("option", "content"), oldstate.msg, linkid + " - did action");
         })
         .trigger("click");
         this.server.respond();
@@ -279,13 +281,14 @@ test( "delete all children (has children)", 4, function() {
             ok( ! parent.is(":visible"), "Parent comment successfully hidden after delete" );
             ok( ! child.is(":visible"), "Child comment successfully hidden after delete" );
         })
-        .trigger("click")
-        .ajaxtip("widget")
-            .find("input[value='thread']")
-                .attr("checked", "checked")
-                .end()
-            .find("input[value='Delete']")
-                .click()
+        .trigger("click");
+
+    $(".popdel")
+        .find("input[value='thread']")
+            .attr("checked", "checked")
+            .end()
+        .find("button")
+            .click();
 
     this.server.respond();
 } );
@@ -306,13 +309,15 @@ test( "delete all children (has no children)", 4, function() {
             ok(   parent.is(":visible"), "Parent comment not deleted" );
             ok( ! child.is(":visible"), "Child comment successfully hidden after delete" );
         })
-        .trigger("click")
-        .ajaxtip("widget")
-            .find("input[value='thread']")
-                .attr("checked", "checked")
-                .end()
-            .find("input[value='Delete']")
-                .click();
+        .trigger("click");
+
+    $(".popdel")
+        .find("input[value='thread']")
+            .attr("checked", "checked")
+            .end()
+        .find("button")
+            .click();
+
     this.server.respond();
 } );
 
@@ -332,10 +337,11 @@ test( "delete no children (has children)", 4, function() {
             ok( ! parent.is(":visible"), "Parent comment successfully hidden after delete" );
             ok(   child.is(":visible"), "Child comment not deleted, still visible" );
         })
-        .trigger("click")
-        .ajaxtip("widget")
-            .find("input[value='Delete']")
-                .click();
+        .trigger("click");
+
+    $(".popdel")
+        .find("button")
+            .click();
 
     this.server.respond();
 } );
@@ -356,10 +362,11 @@ test( "delete no children (has no children)", 4, function() {
             ok(   parent.is(":visible"), "Parent comment not deleted, still visible" );
             ok( ! child.is(":visible"), "Child comment successfully hidden after delete" );
         })
-        .trigger("click")
-        .ajaxtip("widget")
-            .find("input[value='Delete']")
-                .click();
+        .trigger("click");
+
+    $(".popdel")
+        .find("button")
+            .click();
 
     this.server.respond();
 } );
@@ -382,10 +389,12 @@ test( "failed delete: no hiding", 4, function() {
             ok( parent.is(":visible"), "Parent comment not deleted, still visible" );
             ok( child.is(":visible"), "Child comment not deleted, still visible" );
         })
-        .trigger("click")
-        .ajaxtip("widget")
-            .find("input[value='Delete']")
-                .click();
+        .trigger("click");
+
+    $(".popdel")
+        .find("button")
+            .click();
+
 
     this.server.respond();
 
@@ -398,7 +407,7 @@ test( "invalid moderate link", 1, function() {
         .trigger("click")
     this.server.respond()
 
-    equals($("#invalid_moderate_link").ajaxtip("widget").text(),
+    equals($("#invalid_moderate_link").ajaxtip("option","content"),
             "Error moderating comment #. Not enough context available.");
 });
 
@@ -408,7 +417,7 @@ test( "invalid delete link", 1, function() {
         .trigger({ type: "click", shiftKey: true })
     this.server.respond();
 
-    equals($("#invalid_delete_link").ajaxtip("widget").text(),
+    equals($("#invalid_delete_link").ajaxtip("option","content"),
             "Error deleting comment #. Comment is not visible on this page.");
 } );
 
@@ -419,7 +428,7 @@ test( "no such comment for moderation", 1, function() {
         .trigger("click")
     this.server.respond();
 
-    equals($("#mismatched_moderate_link").ajaxtip("widget").text(),
+    equals($("#mismatched_moderate_link").ajaxtip("option","content"),
             "Error moderating comment #999. Cannot moderate comment which is not visible on this page.")
 } );
 
@@ -429,7 +438,7 @@ test( "mismatched journal for deletion", 1, function() {
         .trigger({ type: "click", shiftKey: true })
     this.server.respond();
 
-    equals($("#mismatched_journal_delete_link").ajaxtip("widget").text(),
+    equals($("#mismatched_journal_delete_link").ajaxtip("option","content"),
             "Error deleting comment #123. Journal in link does not match expected journal.")
 } );
 
@@ -439,7 +448,7 @@ test( "no such comment for moderation", 1, function() {
         .trigger("click")
     this.server.respond();
 
-    equals($("#mismatched_journal_moderate_link").ajaxtip("widget").text(),
+    equals($("#mismatched_journal_moderate_link").ajaxtip("option","content"),
             "Error moderating comment #123. Journal in link does not match expected journal.")
 } );
 
@@ -449,7 +458,7 @@ test( "no such comment for deletion", 1, function() {
         .trigger({ type: "click", shiftKey: true })
     this.server.respond();
 
-    equals($("#mismatched_delete_link").ajaxtip("widget").text(),
+    equals($("#mismatched_delete_link").ajaxtip("option","content"),
             "Error deleting comment #999. Comment is not visible on this page.")
 } );
 
@@ -460,7 +469,7 @@ test( "lacking arguments for moderate: form_auth", 1, function() {
         .trigger("click");
     this.server.respond();
 
-    equals($("#freeze_link").ajaxtip("widget").text(),
+    equals($("#freeze_link").ajaxtip("option","content"),
             "Error moderating comment #123. Not enough context available.")
 } );
 
@@ -471,7 +480,7 @@ test( "lacking arguments for moderate: journal", 1, function() {
         .trigger("click");
     this.server.respond();
 
-    equals($("#freeze_link").ajaxtip("widget").text(),
+    equals($("#freeze_link").ajaxtip("option","content"),
             "Error moderating comment #123. Not enough context available.")
 } );
 
@@ -482,7 +491,7 @@ test( "lacking arguments for delete: cmtinfo", 1, function() {
         .trigger({ type: "click", shiftKey: true })
     this.server.respond();
 
-    equals($("#delete_link").ajaxtip("widget").text(),
+    equals($("#delete_link").ajaxtip("option","content"),
             "Error deleting comment #123. Not enough context available.")
 } );
 
@@ -493,7 +502,7 @@ test( "lacking arguments for delete: journal", 1, function() {
         .trigger({ type: "click", shiftKey: true })
     this.server.respond();
 
-    equals($("#delete_link").ajaxtip("widget").text(),
+    equals($("#delete_link").ajaxtip("option","content"),
             "Error deleting comment #123. Not enough context available.")
 } );
 
@@ -504,7 +513,7 @@ test( "lacking arguments for delete: form_auth", 1, function() {
         .trigger({ type: "click", shiftKey: true })
     this.server.respond();
 
-    equals($("#delete_link").ajaxtip("widget").text(),
+    equals($("#delete_link").ajaxtip("option","content"),
             "Error deleting comment #123. Not enough context available.")
 } );
 

@@ -157,7 +157,7 @@
                         if ( self.cache[self.currentCache] != null )
                             return response( self._filterTags( self.cache[self.currentCache], request.term ) );
                     },
-
+                    autoFocus: true,
                     select: _handleComplete
                 }).bind("keydown.autocompleteselect", function( event ) {
                     var keyCode = $.ui.keyCode;
@@ -170,22 +170,12 @@
                             _handleComplete.apply( $input,
                                     [event, { item: { value: $input.val() } } ]);
                             self.justCompleted = true;
+                            $input.autocomplete("close");
                             event.preventDefault();
-
-                            var $menu = $input.data("autocomplete").menu;
-                            $menu.deactivate();
 
                             return;
                         case keyCode.TAB:
-                            var $menu = $input.data("autocomplete").menu;
-                            if ( $menu.element.is(":visible")) {
-                                if ( !$menu.active ) {
-                                    $menu.next(event);
-                                    $menu.select();
-                                    self.justCompleted = true;
-                                }
-                                event.preventDefault();
-                            } else if ($input.val()) {
+                            if ($input.val()) {
                                 _handleComplete.apply( $input,
                                     [event, { item: { value: $input.val() } } ]);
                                 self.justCompleted = true;
@@ -205,7 +195,7 @@
                         _handleComplete.apply( $input, [event, { item: { value: $input.val() } } ]);
                 }).change(function(event){
                     // if we have the menu open, let that handle the autocomplete
-                    var $menu = $(this).data("autocomplete").menu;
+                    var $menu = $(this).data("ui-autocomplete").menu;
                     if ( $menu.element.is(":visible") ) return;
 
                     _handleComplete.apply( $(this), [event, { item: { value: $(event.currentTarget).val() } } ]);
@@ -216,9 +206,9 @@
                         self.justCompleted = false;
                     }
                 })
-                .data("autocomplete")._renderItem = function( ul, item ) {
+                .data("ui-autocomplete")._renderItem = function( ul, item ) {
                         return $( "<li></li>" )
-                            .data( "item.autocomplete", item )
+                            .data( "ui-autocomplete-item", item )
                             .append( "<a>" + item.label + "</a>" )
                             .appendTo( ul );
                 };

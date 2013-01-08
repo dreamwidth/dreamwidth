@@ -54,7 +54,7 @@ $LJ::DBIRole = new DBI::Role {
                     "logtags", "logtagsrecent", "logkwsum",
                     "recentactions", "usertags", "pendcomments",
                     "loginlog", "active_user", "bannotes",
-                    "notifyqueue", "cprod", "blobcache",
+                    "notifyqueue", "cprod", "dbnotes",
                     "jabroster", "jablastseen", "random_user_set",
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2",

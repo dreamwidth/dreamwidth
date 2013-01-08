@@ -38,6 +38,8 @@ sub option {
     $sel = $u->include_in_global_search ? 'N' : 'Y'
         unless defined $sel && length $sel;
 
+    my $iscomm = $u->is_community ? '.comm' : '';
+
     my $ret .= LJ::html_select(
         {
             id       => "${key}globalsearch",
@@ -45,8 +47,8 @@ sub option {
             selected => $sel,
         },
 
-        'N' => $class->ml( 'setting.globalsearch.sel.yes' ),
-        'Y' => $class->ml( 'setting.globalsearch.sel.no' ),
+        'N' => $class->ml( "setting.globalsearch.sel.yes$iscomm" ),
+        'Y' => $class->ml( "setting.globalsearch.sel.no$iscomm" ),
     );
 
     my $errdiv = $class->errdiv( $errs, 'globalsearch' );

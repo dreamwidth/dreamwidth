@@ -23,7 +23,6 @@ set layout_resources           = [ { "name" => "OSWD design", "url" => "http://w
 ################################################################################
 propgroup presentation
 {
-    property use show_userpics_recent;
     property use num_items_recent;
     property use num_items_reading;
     property use num_items_icons;
@@ -45,10 +44,10 @@ propgroup presentation
     property use comment_datetime_format_group;
     property use all_entrysubjects;
     property use all_commentsubjects;
+    property use custom_control_strip_colors;
 }
 
 set layout_type            = "two-columns-left";
-set show_userpics_recent   = true;
 set userpics_position = "right";
 set num_items_recent       = 20;
 set num_items_reading      = 20;
@@ -80,6 +79,11 @@ propgroup colors
     property use color_entry_background;
     property use color_entry_title;
     property use color_entry_text;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 
     property Color color_page_subtitle
     {
@@ -136,6 +140,7 @@ propgroup fonts
     property use font_module_text;
     property use font_module_text_size;
     property use font_module_text_units;
+    property use font_sources;
 }
 
 set font_base         = "Arial";
@@ -224,6 +229,8 @@ propgroup text
     property use text_read_comments;
     property use text_post_comment_friends;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
 
     property use text_skiplinks_back;
     property use text_skiplinks_forward;
@@ -339,6 +346,8 @@ function Page::print_default_stylesheet()
             }
         """;
     }
+
+    print_custom_control_strip_css();
 
     """
     /* Main layout
@@ -766,6 +775,10 @@ function Page::print_default_stylesheet()
         overflow: auto;
     }
 
+    .comment-posted {
+        font-weight:bold;
+    }
+
     .full .comment .poster {
        display: block;
        width: auto;
@@ -1150,7 +1163,9 @@ function EntryPage::print_comment (Comment c)
             println "<div class=\"datetime-container\">";
                 $c->print_time("long_day", "");
             println "</div>";
-
+             if ( $c.comment_posted ) {
+                 print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+             }
             $c->print_metadata();
 
             println "<div class=\"comment-text\">";

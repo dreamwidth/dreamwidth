@@ -211,8 +211,7 @@ body<=
     # Returns true if the user is not struck out or if mode is full
     my $includeuser = sub {
         # I've repeated the logic in strikeuser so we don't do another function call
-        return $_[0]->is_individual && ( $is_full || ! $_[0]->is_inactive );
-        # added is_individual because all previous tests were checking for both
+        return $is_full || ! $_[0]->is_inactive;
     };
 
     my $format_userlink = sub {
@@ -972,7 +971,8 @@ body<=
         my ( $member_of_body, $admin_of_body, $posting_access_to_body, $watched_body );
 
         if ( $u->is_personal ) {
-            my @member_of_list = map { $us->{$_} } @member_of_userids;
+            my @member_of_list = grep { $includeuser->( $_ ) }
+                map { $us->{$_} } @member_of_userids; 
             $member_of_body = $content_inner_block->(
                 section_name    => 'member_of_comms',
                 section_name_ml => $mlsn->( '.comms.member_of', \@member_of_list ),
@@ -982,7 +982,8 @@ body<=
                 hidable         => 1,
             );
 
-            my @admin_of_list = map { $us->{$_} } @admin_of_userids;
+            my @admin_of_list = grep { $includeuser->( $_ ) }
+                map { $us->{$_} } @admin_of_userids;
             $admin_of_body = $content_inner_block->(
                 section_name    => 'admin_of_comms',
                 section_name_ml => $mlsn->( '.comms.admin_of', \@admin_of_list ),
@@ -991,7 +992,8 @@ body<=
                 hidable         => 1,
             );
 
-            my @posting_access_to_list = map { $us->{$_} } @posting_access_to_userids;
+            my @posting_access_to_list = grep { $includeuser->( $_ ) }
+                map { $us->{$_} } @posting_access_to_userids;
             $posting_access_to_body = $content_inner_block->(
                 section_name    => 'posting_access_to_comms',
                 section_name_ml => $mlsn->( '.comms.posting_access_to', \@posting_access_to_list ),
@@ -1001,7 +1003,7 @@ body<=
             );
         }
 
-        my @watched_list = grep { $_->is_community }
+        my @watched_list = grep { $includeuser->( $_ ) } grep { $_->is_community }
             map { $us->{$_} } @watched_userids;
         $watched_body = $content_inner_block->(
             section_name    => 'watched_comms',

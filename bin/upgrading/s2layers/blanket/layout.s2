@@ -17,6 +17,8 @@ propgroup presentation {
     property use use_custom_friend_colors;
     property use use_shared_pic;
     property use use_journalstyle_entry_page;
+    property use custom_control_strip_colors;
+
 
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
@@ -78,6 +80,11 @@ propgroup colors {
 
     property Color color_header_footer_border { des = "Header and footer border color"; }
     property Color color_entry_accent { des = "Entry and comment accent color"; }
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -107,6 +114,7 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
+    property use font_sources;
 }
 
 set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
@@ -185,6 +193,7 @@ propgroup text {
     property use text_view_recent;
     property use text_view_archive;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_tags;
     property use text_view_memories;
@@ -201,6 +210,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
     property use text_permalink;
@@ -290,6 +301,8 @@ function Page::print_default_stylesheet () {
             }
         """;
     }
+
+    print_custom_control_strip_css();
 
 """
 /* Blanket */
@@ -773,6 +786,10 @@ ul.entry-interaction-links li {
 .no-subject .comment .comment-title {
     background: none;
     }
+
+.comment-posted {
+    font-weight:bold;
+}
 
 hr.above-entry-interaction-links,
 hr.below-reply-container {

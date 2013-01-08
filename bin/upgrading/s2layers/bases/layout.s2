@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_custom_friend_colors;
     property use use_shared_pic;
     property use use_journalstyle_entry_page;
+    property use custom_control_strip_colors;
 
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
@@ -42,6 +43,7 @@ set num_items_reading = 10;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
 set userpics_position = "right";
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -82,6 +84,11 @@ propgroup colors {
     property use color_entry_interaction_links;
     property use color_entry_border;
     property use color_comment_title_background;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -110,6 +117,7 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
+    property use font_sources;
 }
 
 set font_base = "Arial";
@@ -168,11 +176,11 @@ propgroup modules {
 }
 
 property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Group One";
+    values = "none|(none)|header|Header|one|Sidebar";
     grouped = 1;
 }
 
-set module_layout_sections = "none|(none)|one|Group One";
+set module_layout_sections = "none|(none)|one|Sidebar";
 set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
 set module_navlinks_section = "header";
 
@@ -198,6 +206,7 @@ propgroup text {
     property use text_view_recent;
     property use text_view_archive;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_tags;
     property use text_view_memories;
@@ -214,6 +223,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
     property use text_permalink;
@@ -409,6 +420,7 @@ var Color element_background = $*color_page_background->lighter();
         else {
             $navlinks_css = "";
         }
+    print_custom_control_strip_css();
 
     """
 /* DREAMWIDTH :--- Bases. ---
@@ -812,6 +824,8 @@ li.first-item {margin-left: 0;}
 
 .comment-title a {display: block; }
 
+.comment-posted { font-weight:bold; }
+
 .full .comment .datetime { border-top: .083em solid $*color_entry_border;}
 .full .comment-poster, .poster-ip { border-bottom: .083em solid $*color_entry_border; display: block; padding: 0 .5em; }
 
@@ -989,18 +1003,6 @@ table.month {width: 100%; text-align: center; }
 #archive-month ul {border-top: 0.083em solid $*color_page_border;}
 
 /* ====================== EXTRAS ======================= */
-
-#lj_controlstrip {width: 100%; }
-
-#lj_controlstrip td{border-right: 0.083em solid $*color_page_border; background: $*color_module_background; color: $*color_page_text; font-size: 1em; border-bottom: 0.083em solid $*color_page_border;}
-#lj_controlstrip a {color: $*color_page_link;}
-#lj_controlstrip a:visited {color: $*color_page_link_visited;}
-#lj_controlstrip a:active {color: $*color_page_link_active;}
-#lj_controlstrip a:hover, #lj_controlstrip a:visited:hover, #lj_controlstrip a:active:hover { color: $*color_page_link_hover; }
-
-#lj_controlstrip_statustext {color: $*color_page_text; }
-
-#lj_controlstrip table td {border: 0;}
 
 div.ContextualPopup {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0.583em;}
 div.ContextualPopup div.Inner {border: 0; }

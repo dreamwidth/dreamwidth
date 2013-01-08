@@ -182,8 +182,8 @@ body<=
      }
  }
 
- my $sort = $FORM{sort};
- $sort = 'date' unless $sort =~ /^id|summary|area|date$/;
+ my $sort = lc $FORM{sort} || '';
+ $sort = 'date' unless grep { $_ eq $sort } qw( id summary area recent );
 
  if ($append) {
      # Counts of requests in differing states
@@ -204,6 +204,19 @@ body<=
      $ret .= "<b>$aacct</b> $ML{'.status.awaitingclose'}, <b>$rct</b> $ML{'.status.totalopen'} ]</p>";
  }
 
+ my $can_view_nonpublic_modtime = $remote && ( $remote->has_priv( 'supportviewinternal' )  || $remote->has_priv( 'supporthelp' ) );
+ my $time_active =  sub {
+
+    # timemodified is updated when ICs/screened answers are made, so first check priv
+     return $_[0]->{timemodified}
+        if $can_view_nonpublic_modtime && $_[0]->{timemodified};
+
+     my $touched  = $_[0]->{timetouched};
+     my $lasthelp = $_[0]->{timelasthelp};
+
+     return $lasthelp > $touched ? $lasthelp : $touched;
+ };
+
  if ($sort eq 'id') {
     @support_log = sort { $a->{spid} <=> $b->{spid} } @support_log;
  } elsif ($sort eq 'date') {
@@ -212,6 +225,8 @@ body<=
     @support_log = sort { $a->{subject} cmp $b->{subject} } @support_log;
  } elsif ($sort eq 'area') {
     @support_log = sort { $cats->{$a->{spcatid}}->{catname} cmp $cats->{$b->{spcatid}}->{catname} } @support_log;
+ } elsif ( $sort eq 'recent' ) {
+    @support_log = sort { $time_active->($b) <=> $time_active->($a) } @support_log;
  }
 
  # filter line:
@@ -263,7 +278,11 @@ body<=
     my $link = "$uri&sort=$sort&closeall=" . ( $GET{closeall} ? 0 : 1 );
     $ret .= "<th>&nbsp;<a href='$link'>X</a></th>\n";
  }
- my @headers = ( id => "ID#", summary => $ML{'.th.summary'}, area => $ML{'.th.problemarea'}, date => $ML{'.th.posted'} );
+
+ my @headers = ( id => "ID#", summary => $ML{'.th.summary'},
+                 area => $ML{'.th.problemarea'}, date => $ML{'.th.posted'},
+                 recent => $ML{'.th.recent'} );
+
  while (my ($sorttype, $desc) = splice(@headers, 0, 2)) {
      if ($sort eq $sorttype) {
          $ret .= "<th>$desc</th>\n";
@@ -326,12 +345,17 @@ body<=
 
      # other content for this request
      my $summary = LJ::ehtml($sp->{'subject'});
-     my $secold = time() - $sp->{'timecreate'};
-     my $age = $GET{rawdates} ? LJ::mysql_time( $sp->{timecreate} ) : LJ::ago_text( $secold || 1 );
+     my $secs = sub { return time() - $_[0] };
+     my $time_display = sub {
+         return LJ::mysql_time( $_[0] ) if $GET{rawdates};
+         return LJ::ago_text( $secs->( $_[0] ) || 1 );
+     };
+     my $age = $time_display->( $sp->{timecreate} );
+     my $untouched = $time_display->( $time_active->( $sp ) );
      my $probarea = $sp->{_cat}->{'catname'};
-     my $points = LJ::Support::calc_points($sp, $secold);
 
      unless ($status eq "closed") {
+         my $points = LJ::Support::calc_points( $sp, $secs->( $sp->{timecreate} ) );
          $status .= "<br />($points point";
          if ($points > 1) { $status .= "s"; }
          $status .= ")";
@@ -358,6 +382,7 @@ body<=
      $ret .= "<td><b>$summary</b>$des</td>\n";
      $ret .= "<td>$probarea</td>\n";
      $ret .= "<td nowrap='nowrap'><font size='-1'>$age</font></td>\n";
+     $ret .= "<td nowrap='nowrap'><font size='-1'>$untouched</font></td>\n";
      $ret .= "<td nowrap='nowrap'><font size='-1'>$status</font></td>\n";
      $ret .= "</tr>";
 

@@ -1,0 +1,46 @@
+[%# erase.tt
+
+Allows you to erase your imported entries and comments.
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+<style type='text/css'>
+.form-error {
+    color: red;
+    font-weight: bold;
+}
+</style>
+
+[% IF confirmed %]
+
+    <h2>[% '.heading' | ml %]</h2>
+    <p>[% '.confirmed' | ml(ljuser = u.ljuser_display) %]</p>
+
+[% ELSE %]
+    <form method="get">
+        [% authas_html %]
+    </form>
+
+    <h2>[% '.heading' | ml %]</h2>
+
+    <p>[% '.about1' | ml(sitename = site.name) %]</p>
+
+    <p>[% '.about2' | ml %]</p>
+
+    <form method="POST" id="renameform">
+        [%- dw.form_auth # hidden input field HTML -%]
+
+        <p>[% '.admonition' | ml %] <input type="text" name="confirm" />
+            [% IF notconfirmed %]<span class='form-error'>[% '.error.noconfirm' | ml %]</span>[% END %]</p>
+
+        <input type="submit" value="[% '.commit' | ml %]" /> [% '.in' | ml(ljuser = u.ljuser_display) %]
+    </form>
+[% END %]
