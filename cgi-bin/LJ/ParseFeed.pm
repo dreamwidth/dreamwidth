@@ -381,10 +381,7 @@ sub StartTag {
             }
             last TAGS;
         }
-        if ($tag eq 'atom:id') {
-                startaccum($tag);
-        }
-        if ($tag eq 'id') {
+        if ($tag eq 'atom:id' || $tag eq 'id') {
             startaccum($tag);
             last TAGS;
         }
