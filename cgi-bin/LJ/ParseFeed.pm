@@ -83,6 +83,8 @@ sub parse_feed
     # custom LJ/DW namespaces
     $parser->add_module( prefix => 'nslj',
                          uri => 'http://www.livejournal.org/rss/lj/1.0/' );
+    $parser->add_module( prefix => 'atom',
+                         uri => 'http://www.w3.org/2005/Atom' );
 
     eval {
         $parser->parse($content);
@@ -100,6 +102,7 @@ sub parse_feed
         $feed->{$_} = $parser->{'channel'}->{$_}
             if $parser->{'channel'}->{$_};
     }
+    $feed->{'atom:id'} = $parser->{channel}->{atom}->{id} if defined $parser->{channel}->{atom};
     
     $feed->{'items'} = [];
 
@@ -378,12 +381,8 @@ sub StartTag {
             }
             last TAGS;
         }
-        if ($tag eq 'id') {
-            unless ($item) {
-                swallow(); # we don't need feed-level <id>
-            } else {
-                startaccum($tag);
-            }
+        if ($tag eq 'atom:id' || $tag eq 'id') {
+            startaccum($tag);
             last TAGS;
         }
 

@@ -1233,6 +1233,7 @@ If specified, path must begin with a /
 
 args being a list of arguments to create.
 opts can contain:
+proto -- specify a protocol
 host -- link to different domains
 args -- get arguments to add
 ssl -- use ssl
@@ -1255,7 +1256,8 @@ sub create_url {
     # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
     $opts{ssl} = $LJ::IS_SSL unless $opts{host} || exists $opts{ssl};
 
-    my $url = ( $opts{ssl} ? "https" : "http" ) . "://$host$path";
+    my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
+    my $url = $proto . "://$host$path";
 
     my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
 
