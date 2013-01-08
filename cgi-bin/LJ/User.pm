@@ -5864,7 +5864,7 @@ sub display_journal_deleted {
         my $dbcr = LJ::get_cluster_reader( $u );
         my ( $deleter_id ) = $dbcr->selectrow_array(
             "SELECT remoteid FROM userlog" .
-            " WHERE userid=$userid AND logtime=$logtime LIMIT 1");
+            " WHERE userid=? AND logtime=? LIMIT 1", undef, $userid, $logtime );
         my $deleter_name = LJ::get_username( $deleter_id );
         $deleter_name_html = $deleter_name ? 
             LJ::ljuser( $deleter_name ) : 'Unknown'; 
