@@ -1203,7 +1203,7 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
     float: left;
     clear: left;
     margin-bottom: .25em;
-    min-width: 100px;
+    min-width: 106px;
     padding-right: 1em;
 }
 
