@@ -9,8 +9,10 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      idonotlikepeas <peasbugs@gmail.com>
+#      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -28,6 +30,8 @@ use DW::Template;
 DW::Routing->register_string( '/misc/whereami', \&whereami_handler, app => 1 );
 DW::Routing->register_string( '/pubkey',        \&pubkey_handler,   app => 1 );
 DW::Routing->register_string( '/guidelines',    \&community_guidelines, user => 1 );
+DW::Routing->register_string( "/random/index", \&random_personal_handler, app => 1 );
+DW::Routing->register_string( "/community/random/index", \&random_community_handler, app => 1 );
 
 # handles the /misc/whereami page
 sub whereami_handler {
@@ -69,6 +73,29 @@ sub community_guidelines {
         unless $guidelines_entry;
 
     return $r->redirect( $guidelines_entry->url );
+}
+
+
+sub random_community_handler {
+    return _random_handler( journaltype => "C" );
+}
+
+sub random_personal_handler {
+    return _random_handler( journaltype => "P" );
+}
+
+sub _random_handler {
+    my ( %opts ) = @_;
+    my $journaltype = $opts{journaltype};
+
+    my $r = DW::Request->get;
+
+    my $u = LJ::User->load_random_user( $journaltype );
+    return $r->redirect( $u->journal_base . "/" ) if $u;
+
+    # if we are unable to load a random journal / community, ask to try again
+    my $ml_string = $journaltype eq "C" ? "random.retry.community" : "random.retry.personal";
+    return error_ml( $ml_string, { aopts => "href='$LJ::SITEROOT" . $r->uri . "'" } );
 }
 
 1;
