@@ -215,6 +215,9 @@ _create: function() {
         // don't show the popup if we want to open it in a new tab (ctrl+click or cmd+click)
         if (e.ctrlKey || e.metaKey) return;
 
+        // e.which == 1 is a left click. We don't want to handle anything else
+        if (e.which != 1) return;
+
         e.preventDefault();
         e.stopPropagation();
 
