@@ -1507,15 +1507,15 @@ q {
     text-align: left;
 }
 
-.icon-image,
-.icon-info {
-    display: inline-block;
-    vertical-align: top;
-}
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: .5em;
+    }
 
-.icon-info {
-    margin-left: .5em;
-}
+.icon-info { min-height: 100px; }
 
 .icon-info .label,
 .icon-info span {
