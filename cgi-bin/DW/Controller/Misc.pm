@@ -90,8 +90,12 @@ sub _random_handler {
 
     my $r = DW::Request->get;
 
-    my $u = LJ::User->load_random_user( $journaltype );
-    return $r->redirect( $u->journal_base . "/" ) if $u;
+    # repeat thrice just in case (may try a different cluster second time, or pull up a different set of users)
+    my $u;
+    foreach ( 1...3 ) {
+        $u = LJ::User->load_random_user( $journaltype );
+        return $r->redirect( $u->journal_base . "/" ) if $u;
+    }
 
     # if we are unable to load a random journal / community, ask to try again
     my $ml_string = $journaltype eq "C" ? "random.retry.community" : "random.retry.personal";
