@@ -3104,7 +3104,9 @@ shop.  For adjusting points on a user, please see C<<$self->give_shop_points>>.
 =cut
 
 sub shop_points {
-    return $_[0]->prop( 'shop_points' ) // 0;
+    # force false value to be 0 instead of any other false value
+    # useful to make sure this gets printed out as "0" in the frontend
+    return $_[0]->prop( 'shop_points' ) || 0;
 }
 
 
