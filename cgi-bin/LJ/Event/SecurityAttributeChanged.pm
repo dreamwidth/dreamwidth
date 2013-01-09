@@ -34,8 +34,8 @@ sub new {
         # $action == 1 -- deleted
         my $extra = (1 == $action) ? 'new=D&old=V' : 'new=V&old=D';
 
-        my $dbr = LJ::get_cluster_reader($u);
-        my $sth = $dbr->prepare(
+        my $dbcr = LJ::get_cluster_reader($u);
+        my $sth = $dbcr->prepare(
             "SELECT logtime, ip".
             " FROM userlog".
             " WHERE userid=? AND extra=?".
@@ -198,11 +198,11 @@ sub _as_email {
         my ($u, $logtime) = @_;
 
         my $userid = $u->{userid};
-        my $dbr = LJ::get_cluster_reader($u);
-        my ($datetime, $remoteid, $ip, $uniq) = $dbr->selectrow_array(
+        my $dbcr = LJ::get_cluster_reader($u);
+        my ($datetime, $remoteid, $ip, $uniq) = $dbcr->selectrow_array(
             "SELECT FROM_UNIXTIME(logtime), remoteid, ip, uniq".
             " FROM userlog".
-            " WHERE userid=$userid AND logtime=$logtime LIMIT 1");
+            " WHERE userid=? AND logtime=? LIMIT 1", undef, $userid, $logtime );
         return undef unless $remoteid;
         my $remoteuser = LJ::get_username( $remoteid );
         return (

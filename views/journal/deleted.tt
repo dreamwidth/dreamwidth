@@ -1,22 +1,42 @@
-[%- sections.title = '.title' | ml -%]
-<p>
-[%- IF reason -%]
-  [%- IF u.is_community -%]
-    [%- '.text.withreason.comm' | ml( reason = reason ) -%]
-  [%- ELSE -%]
-    [%- '.text.withreason' | ml( user = u.display_name, reason = reason ) -%]
-  [%- END -%]
-[%- ELSE -%]
-  [%- IF u.is_community -%]
-    [%- '.text.comm' | ml -%]
-  [%- ELSE -%]
-    [%- '.text' | ml( user = u.display_name ) -%]
-  [%- END -%]
-[%- END -%]
-[%- IF is_member_of -%]
-    [% '.leavecomm' | ml( aopts = "href='$site.root/community/leave?comm=$u.user'" ) -%]
-[%- END -%]
+[% IF is_comm %]
+    [%- sections.title = '.title.comm' | ml -%]
+    <p>
+    [% IF is_sole_admin %]
+        [% '.text.comm.soleadmin' | ml( url = "$site.root/accountstatus?authas=$u.user", date = purge_date ) %] 
+    [% ELSIF is_admin %]
+        [% '.text.comm.admin' | ml( url = "$site.root/accountstatus?authas=$u.user", date = purge_date, user = deleter_name_html ) %] 
+    [% ELSIF is_member_or_watcher %]
+        [% '.text.comm.notadmin' | ml( user = deleter_name_html ) %]
+    [% ELSE %]
+        [% '.text.comm.notadmin' | ml( user = deleter_name_html ) %]
+    [% END %]
+[% ELSE %]
+    [%- sections.title = '.title.personal' | ml -%]
+    <p>
+    [% IF is_remote %]
+        [% '.text.personal.owner' | ml( url = "$site.root/accountstatus", date = purge_date ) %] 
+    [% ELSIF has_relationship %]
+        [% '.text.personal.notowner' | ml( user = deleter_name_html ) %]
+    [% ELSE %]
+        [% '.text.personal.notowner' | ml( user = deleter_name_html ) %]
+    [% END %]
+[% END %]
 </p>
-[%- UNLESS is_protected -%]
-    <p>[% '.purgenotification' | ml( aopts = "href='$site.root/manage/tracking/user?journal=$u.user'" ) -%]</p>
-[%- END -%]
+
+[% IF reason %]
+    <p>[% '.text.reason' | ml %] [% reason %]</p>
+[% END %]
+
+<ul>
+[% IF relationship_ml %]
+    <li>[% relationship_ml | ml( user = u_name_html ) %]. 
+    [% FOREACH relationship_link IN relationship_links %]
+        <a href="[% relationship_link.url %]">
+        [% relationship_link.ml | ml %]</a>&nbsp;
+    [% END %]</li>
+[% END %]
+
+[% IF logged_in && !is_admin && !is_remote && !is_protected %]
+    <li>[% '.purgenotification' | ml( aopts = "href='$site.root/manage/tracking/user?journal=$u.user'" ) %]</li>
+[% END %]
+</ul>
