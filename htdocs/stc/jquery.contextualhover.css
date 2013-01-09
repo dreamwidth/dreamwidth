@@ -29,6 +29,8 @@
 }
 
 .ContextualPopup .Userpic img {
+    height: auto;
+    width: auto;
     max-height: 75px;
     max-width: 75px;
     width:expression(this.width > 75 ? "75px" : this.width); /*IE Max-width */
