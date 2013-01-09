@@ -4966,7 +4966,7 @@ function Entry::print_metadata() {
     if (size $.metadata) {
         var string position = ($*entry_metadata_position == "top") ? " top-metadata" : " bottom-metadata";
         """<div class="metadata$position">\n<ul>\n""";
-        foreach var string m ( ["mood", "location", "music"] ) {
+        foreach var string m ( [ "mood", "location", "music", "groups", "xpost" ] ) {
             if ($.metadata{$m}) {
                 var string metadata_name = lang_metadata_title($m);
                 """<li><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
