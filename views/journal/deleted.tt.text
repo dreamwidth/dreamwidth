@@ -2,12 +2,18 @@
 
 .purgenotification=If you'd like to rename your account with this account name, <a [[aopts]]>you can be notified</a> when the account is purged.
 
-.text=Deleted journal.  If you're [[user]], you have 30 days from the date of deletion to restore the journal.  After 30 days we'll delete all content permanently from our servers.
+.title.personal=Deleted Account
 
-.text.comm=Deleted community.  If you're an administrator of this community, you have 30 days from the date of deletion to restore the journal.  After 30 days we'll delete all content permenently from our servers.
+.title.comm=Deleted Community
 
-.text.withreason=This journal has been deleted by [[user]], with a reason of: "[[reason]]".  If you are [[user]], you have a period of 30 days from the deletion time to undelete the journal.  After 30 days we will delete all content permanently from our servers.
+.text.comm.soleadmin=You have deleted your community. You have at least 30 days from the date of deletion to <a href="[[url]]">undelete the community</a>. After [[date]], we may remove the community during server maintenance at any time.
 
-.text.withreason.comm=This community has been deleted by its administrator, with a reason of: "[[reason]]". If you are an administrator of this community, you have a period of 30 days from the deletion time to undelete the journal. After 30 days we will delete all content permanently from our servers.
+.text.comm.admin=An administrator of this community (Name: [[user]]) has deleted it. You or another administrator have at least 30 days from the date of deletion to <a href="[[url]]">undelete the community</a>. After [[date]], we may remove the community during server maintenance at any time.
 
-.title=Deleted Account
+.text.comm.notadmin=This community has been deleted by [[user]].
+
+.text.personal.owner=You have deleted your account. You have at least 30 days from the date of deletion to <a href="[[url]]">undelete the account</a>. After [[date]], we may remove the account during server maintenance at any time.
+
+.text.personal.notowner=This journal has been deleted by [[user]].
+
+.text.reason=The reason given for deletion was:
