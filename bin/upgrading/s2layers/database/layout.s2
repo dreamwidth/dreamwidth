@@ -1307,11 +1307,15 @@ a:hover { text-decoration: underline; }
 .ljuser { font-style: italic; }
 
 .has-userpic .userpic,
-.module .userpic {
+.module .userpic,
+.icon-image {
     box-shadow: -.1em -.1em .4em $*color_userpic_shadow;
      }
 
-.userpic img { box-shadow: .1em .1em .4em $*color_userpic_shadow; }
+.userpic img,
+.icon-image img {
+    box-shadow: .1em .1em .4em $*color_userpic_shadow;
+    }
 
 .has-userpic .userpic:hover,
 .module .userpic:hover {
@@ -2007,11 +2011,12 @@ span.de {
     float: left;
     clear: left;
     margin-bottom: .25em;
-    min-width: 100px;
-    padding-right: 1em;
     }
 
-.icon-info { min-height: 100px; }
+.icon-info {
+    min-height: 100px;
+    padding-left: 120px;
+    }
 
 .icon-info span { font-style: italic; }
 
