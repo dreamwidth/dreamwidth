@@ -297,6 +297,8 @@ init: function(formData) {
     // access
     function initAccess() {
         $("#custom_access_groups").hide();
+
+        var rememberInitialValue = !formData.did_spellcheck;
         $("#security").change( function(e, init) {
             var $this = $(this);
             if ( $this.val() == "custom" )
@@ -307,7 +309,7 @@ init: function(formData) {
             if ( ! init ) {
                 $this.data("lastselected",$this.val())
             }
-        }).triggerHandler("change", true)
+        }).triggerHandler("change", rememberInitialValue);
 
         function adjustSecurityDropdown(data) {
             if ( ! data ) return;
