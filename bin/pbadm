@@ -22,6 +22,11 @@ use Date::Format ('time2str');
 use Term::ANSIColor ('color');
 
 ### USER CHANGEABLE CONSTANTS ###
+my $summary = 0;
+if ($ARGV[0] eq '-s') {
+    $summary = 1;
+    shift;
+}
 my $refresh = shift() || 10; # polling interval in seconds
 my $timeout = 5;  # max time to connect in seconds
 
@@ -33,8 +38,8 @@ my $sev3 = 1000; my $sev3_color = 'red';
                  my $sev4_color = 'bold red'; # anything above sev3
 
 ### READ CONFIG INFO ###
-require "$ENV{LJHOME}/etc/config-private.pl";
-my %hostinfo = %LJ::PERLBAL_SERVERS;
+require "$ENV{LJHOME}/ext/local/etc/config-private.pl";
+my %hostinfo = eval "return %LJ::PERLBAL_SERVERS;"; # to suppress the warning
 die "\%LJ::PERLBAL_SERVERS not found, please check config" unless %hostinfo;
 my @servers = sort keys %hostinfo;
 
@@ -48,6 +53,16 @@ foreach (@servers)
     $tcp{$_}->errmode('return'); # don't die on connfail
     $tcp{$_}->prompt('/\.$/'); # Perlbal end-of-data marker
     $tcp{$_}->open(); # should stay open
+}
+
+sub color_for {
+    my $n = $_[0]+0;
+    return color $sev4_color if ($n > $sev3);
+    return color $sev3_color if ($n > $sev2 && $n <= $sev3);
+    return color $sev2_color if ($n > $sev1 && $n <= $sev2);
+    return color $sev1_color if ($n > $sev0 && $n <= $sev1);
+    return color $sev0_color if ($n == $sev0);
+    return color $sev4_color; # Makes no sense.
 }
 
 ### INFINITE POLLING LOOP ###
@@ -74,19 +89,35 @@ until (0 > 1)
         $s1{$server} = sprintf("%03d", $bh_xfer + $bh_wait);
         $s2{$server} = sprintf("%04d", $backend);
     }
-    print "$timestr: ";
-    foreach (@servers)
-    {
-        my $n = ($s2{$_} eq 'DOWN') ? $sev3 * 10 : $s2{$_};
-        print color $sev4_color if ($n > $sev3);
-        print color $sev3_color if ($n > $sev2 && $n <= $sev3);
-        print color $sev2_color if ($n > $sev1 && $n <= $sev2);
-        print color $sev1_color if ($n > $sev0 && $n <= $sev1);
-        print color $sev0_color if ($n == $sev0);
-        print "[$_ - $s1{$_}, $s2{$_}] ";
-        print color 'reset';
+
+    if ($summary) {
+        my ($ts1, $ts2, $td) = (0, 0, 0); # totals of
+        foreach (@servers)
+        {
+            $ts1 += $s1{$_} || 0;
+            $ts2 += $s2{$_} || 0;
+            $td++ if $s1{$_} eq 'DWN';
+        }
+
+        my $cr = color 'reset';
+        my $cw = color 'white';
+        my $down = $td ? sprintf('  %s** %d DOWN **%s', color($sev4_color), $td, $cr) : '';
+        printf '%s%2d%s%s IF  %s%d%s%s Q%s%s',
+            color($sev0_color), $ts1, $cr, $cw, color_for($ts2), $ts2, $cr, $cw, $down, $cr;
+        print "\n";
+
+        last; # only run once
+
+    } else {
+        print "$timestr: ";
+        foreach (@servers)
+        {
+            my $n = ($s2{$_} eq 'DOWN') ? $sev3 * 10 : $s2{$_};
+            print color_for($n) . "[$_ - $s1{$_}, $s2{$_}] ";
+            print color 'reset';
+        }
+        print "\n";
     }
-    print "\n";
     sleep $refresh;
 }
 
