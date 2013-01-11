@@ -128,6 +128,8 @@ postFormInitData.strings = {
   "delete_xposts_confirm": [%- "entryform.delete.xposts.confirm" | ml | js  -%]
 };
 
+postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false" %];
+
 [%- IF remote && remote.can_use_userpic_select -%]
     postFormInitData.iconBrowser = {
         "metatext": [%- icon_browser.metatext ? "true" : "false" -%],
