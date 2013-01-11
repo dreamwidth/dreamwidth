@@ -77,15 +77,15 @@ _c?>
     # expand the embedded content for reals
     LJ::EmbedModule->expand_entry($u, \$event, preview => 1,);
 
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
     my $ctx;
 
     # Get the preview message to hand to S2 or use in $ret.
     my $preview_warn_text = $ML{".entry.preview_warn_text"};
 
     if ($u && $up) {
-        $r->notes->{_journal} = $u->{user};
-        $r->notes->{journalid} = $u->{userid};
+        $apache_r->notes->{_journal} = $u->{user};
+        $apache_r->notes->{journalid} = $u->{userid};
 
         ### Load necessary props
         my @needed_props = qw( stylesys s2_style url urlname
@@ -226,7 +226,7 @@ _c?>
     } else {
         $LJ::S2::ret_ref = \$ret;
         my $opts;
-        $opts->{'r'} = $r;
+        $opts->{'r'} = $apache_r;
 
         $u->{'_s2styleid'} = $styleid + 0;
         $u->{'_journalbase'} = $u->journal_base;
@@ -346,7 +346,7 @@ _c?>
             '_url_of' => sub { return "#"; },
         });
 
-        LJ::S2::s2_run($r, $ctx, $opts, "EntryPage::print()", $p);
+        LJ::S2::s2_run($apache_r, $ctx, $opts, "EntryPage::print()", $p);
         BML::ebml(\$ret);
     }
     return $ret;

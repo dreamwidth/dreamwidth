@@ -171,9 +171,9 @@ sub do_request
     $flags ||= {};
     my @args = ($req, $err, $flags);
 
-    my $r = eval { BML::get_request() };
-    $r->notes->{codepath} = "protocol.$method"
-        if $r && ! $r->notes->{codepath};
+    my $apache_r = eval { BML::get_request() };
+    $apache_r->notes->{codepath} = "protocol.$method"
+        if $apache_r && ! $apache_r->notes->{codepath};
 
     if ($method eq "login")            { return login(@args);            }
     if ($method eq "getfriendgroups")  { return getfriendgroups(@args);  }
@@ -203,8 +203,8 @@ sub do_request
     if ($method eq "setmessageread")   { return setmessageread(@args);   }
     if ($method eq "addcomment")       { return addcomment(@args);   }
 
-    $r->notes->{codepath} = ""
-        if $r;
+    $apache_r->notes->{codepath} = ""
+        if $apache_r;
 
     return fail($err,201);
 }
@@ -633,8 +633,8 @@ sub login
 
     if ($req->{'clientversion'} =~ /^\S+\/\S+$/) {
         eval {
-            my $r = BML::get_request();
-            $r->notes->{clientver} = $req->{'clientversion'};
+            my $apache_r = BML::get_request();
+            $apache_r->notes->{clientver} = $req->{'clientversion'};
         };
     }
 
@@ -2202,8 +2202,8 @@ sub getevents
 
     my $reject_code = $LJ::DISABLE_PROTOCOL{getevents};
     if (ref $reject_code eq "CODE") {
-        my $r = eval { BML::get_request() };
-        my $errmsg = $reject_code->($req, $flags, $r);
+        my $apache_r = eval { BML::get_request() };
+        my $errmsg = $reject_code->($req, $flags, $apache_r);
         if ($errmsg) { return fail($err, "311", $errmsg); }
     }
 
@@ -3191,9 +3191,9 @@ sub check_altusage
     # we are going to load the alt user
     $flags->{u_owner} = LJ::load_user( $alt );
     $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;
-    my $r = eval { BML::get_request() };
-    $r->notes->{journalid} = $flags->{ownerid}
-        if $r && !$r->notes->{journalid};
+    my $apache_r = eval { BML::get_request() };
+    $apache_r->notes->{journalid} = $flags->{ownerid}
+        if $apache_r && !$apache_r->notes->{journalid};
 
     # allow usage if we're told explicitly that it's okay
     if ( $flags->{usejournal_okay} ) {

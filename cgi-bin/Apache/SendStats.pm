@@ -28,11 +28,11 @@ our %udp_sock;
 
 sub handler
 {
-    my $r = shift;
-    return OK if $r->main;
+    my $apache_r = shift;
+    return OK if $apache_r->main;
     return OK unless $LJ::HAVE_AVAIL && $LJ::FREECHILDREN_BCAST;
 
-    my $callback = $r ? $r->current_callback() : "";
+    my $callback = $apache_r ? $apache_r->current_callback() : "";
     my $cleanup = $callback eq "PerlCleanupHandler";
     my $childinit = $callback eq "PerlChildInitHandler";
 
@@ -42,7 +42,7 @@ sub handler
         if ($cleanup) {
             LJ::MemCache::delete($key);
         } else {
-            LJ::MemCache::set($key, $r->header_in("Host") . $r->uri . "(" . $r->method . "/" . scalar($r->args) . ")");
+            LJ::MemCache::set($key, $apache_r->header_in("Host") . $apache_r->uri . "(" . $apache_r->method . "/" . scalar($apache_r->args) . ")");
           }
     }
 
@@ -66,7 +66,7 @@ sub handler
                 $sock->sockopt(SO_BROADCAST, 1)
                     if $LJ::SENDSTATS_BCAST;
             } else {
-                $r->log_error("SendStats: couldn't create socket: $host");
+                $apache_r->log_error("SendStats: couldn't create socket: $host");
                 next;
             }
         }
@@ -75,7 +75,7 @@ sub handler
         my $portaddr = sockaddr_in($port, $ipaddr);
         my $message = "bcast_ver=1\nfree=$free\nactive=$active\n";
         my $res = $sock->send($message, 0, $portaddr);
-        $r->log_error("SendStats: couldn't broadcast")
+        $apache_r->log_error("SendStats: couldn't broadcast")
             unless $res;
     }
 

@@ -470,8 +470,8 @@ sub EntryPage_entry
 
     my $get = $opts->{'getargs'};
 
-    my $r = $opts->{'r'};
-    my $uri = $r->uri;
+    my $apache_r = $opts->{'r'};
+    my $uri = $apache_r->uri;
 
     my ($ditemid, $itemid);
     my $entry = $opts->{ljentry};  # only defined in named-URI case.  otherwise undef.
@@ -524,21 +524,21 @@ sub EntryPage_entry
             my $journal = $entry->journal;
 
             if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $entry->security ne "private" ) {
-                $r->notes->{error_key} = ".comm.open";
-                $r->notes->{journalname} = $journal->username;
+                $apache_r->notes->{error_key} = ".comm.open";
+                $apache_r->notes->{journalname} = $journal->username;
             } elsif ( $journal->is_community && $journal->is_closed_membership ) {
-                $r->notes->{error_key} = ".comm.closed";
-                $r->notes->{journalname} = $journal->username;
+                $apache_r->notes->{error_key} = ".comm.closed";
+                $apache_r->notes->{journalname} = $journal->username;
             }
         }
 
-        my $host = $r->headers_in->{Host};
-        my $args = scalar $r->args;
+        my $host = $apache_r->headers_in->{Host};
+        my $args = scalar $apache_r->args;
         my $querysep = $args ? "?" : "";
         my $redir = "http://$host$uri$querysep$args";
         $opts->{internal_redir} = "/protected";
-        $r->notes->{journalid} = $entry->journalid;
-        $r->notes->{returnto} = $redir;
+        $apache_r->notes->{journalid} = $entry->journalid;
+        $apache_r->notes->{returnto} = $redir;
         return;
     }
 

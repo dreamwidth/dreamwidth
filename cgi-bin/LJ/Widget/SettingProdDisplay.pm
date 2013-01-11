@@ -26,9 +26,9 @@ sub render_body {
 
     my $body;
     my $title = LJ::ejs( $class->ml('setting.prod.display.title') );
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
     foreach my $prod (@LJ::SETTING_PROD) {
-        if ($r->notes->{codepath} =~ $prod->{codepaths} && $prod->{should_show}->($remote)) {
+        if ($apache_r->notes->{codepath} =~ $prod->{codepaths} && $prod->{should_show}->($remote)) {
             $body .= "\n<script language='javascript'>setTimeout(\"displaySettingProd('" .
                     $prod->{setting} . "', '" . $prod->{field} . "', '" . $title . "')\", 400)</script>\n";
             last;

@@ -36,7 +36,7 @@ $LJ::HOME = $ENV{LJHOME};
 #Apache2::ServerUtil->server->add_config( [ 'PerlResponseHandler LJ::ModPerl', 'SetHandler perl-script' ] );
 
 #sub handler {
-#    my $r = shift;
+#    my $apache_r = shift;
 #
 #    print STDERR Dumper(\@_);
 #    print STDERR Dumper(\%ENV);
