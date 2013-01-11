@@ -338,7 +338,6 @@ sub _init {
             foreach my $acct ( @accounts ) {
                 my $id = $acct->acctid;
 
-                # FIXME:  spellcheck
                 my $selected = $crosspost_selected{$id};
 
                 push @crosspost_list, {
@@ -791,7 +790,6 @@ sub _backend_to_form {
 #             my $entry = {
 #                 'usejournal' => $usejournal,
 #                 'auth' => $auth,
-#                 'spellcheck_html' => $spellcheck_html,
 #                 'richtext' => LJ::is_enabled('richtext'),
 #                 'suspended' => $suspend_msg,
 #                 'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0,
