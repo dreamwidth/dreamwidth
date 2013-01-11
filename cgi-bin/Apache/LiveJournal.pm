@@ -206,6 +206,7 @@ sub totally_down_content
 
     # set to 500 so people don't cache this error message
     my $body = "<h1>$LJ::SERVER_DOWN_SUBJECT</h1>$LJ::SERVER_DOWN_MESSAGE<!-- " . ("x" x 1024) . " -->";
+    $apache_r->status( 503 );
     $apache_r->status_line("503 Server Maintenance");
     $apache_r->content_type("text/html");
     $apache_r->headers_out->{"Content-length"} = length $body;
@@ -218,6 +219,7 @@ sub blocked_bot
 {
     my $apache_r = shift;
 
+    $apache_r->status( 403 );
     $apache_r->status_line("403 Denied");
     $apache_r->content_type("text/html");
     my $subject = $LJ::BLOCKED_BOT_SUBJECT || "403 Denied";
@@ -236,6 +238,7 @@ sub blocked_bot
 sub blocked_anon
 {
     my $apache_r = shift;
+    $apache_r->status( 403 );
     $apache_r->status_line( "403 Denied" );
     $apache_r->content_type( "text/html" );
 
@@ -1339,6 +1342,7 @@ sub journal_content
 
     # check for faked cookies here, since this is pretty central.
     if ($criterr) {
+        $apache_r->status( 500 );
         $apache_r->status_line("500 Invalid Cookies");
         $apache_r->content_type("text/html");
 
@@ -1509,6 +1513,7 @@ sub journal_content
         $generate_iejunk = 1;
     }
 
+    $apache_r->status( $status =~ m/^(\d+)/ );
     $apache_r->status_line($status);
     foreach my $hname (keys %headers) {
         if (ref($headers{$hname}) && ref($headers{$hname}) eq "ARRAY") {
