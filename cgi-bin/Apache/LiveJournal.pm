@@ -1316,11 +1316,14 @@ sub journal_content
         return OK;
     }
 
+
     # handle HTTP digest authentication
     if ($GET{'auth'} eq 'digest' ||
         $r->headers_in->{"Authorization"} =~ /^Digest/) {
-        my ($res) = DW::Auth::authenticate( digest => 1 );
+        my ( $res ) = DW::Auth->authenticate( digest => 1 );
         unless ($res) {
+            # FIXME: won't need to set $r->status when this is a DW::Request object
+            $r->status( 401 );
             $r->status_line("401 Authentication required");
             $r->content_type("text/html");
             $r->print("<b>Digest authentication failed.</b>");
