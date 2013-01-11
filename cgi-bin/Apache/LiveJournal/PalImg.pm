@@ -28,11 +28,11 @@ sub load { 1 }
 
 sub handler
 {
-    my $r = shift;
-    my $uri = $r->uri;
+    my $apache_r = shift;
+    my $uri = $apache_r->uri;
 
     my ($base, $ext, $extra) = $uri =~ m!^/palimg/(.+)\.(\w+)(.*)$!;
-    $r->notes->{codepath} = "img.palimg";
+    $apache_r->notes->{codepath} = "img.palimg";
     return 404 unless $base && $base !~ m!\.\.!;
 
     my $disk_file = "$LJ::HOME/htdocs/palimg/$base.$ext";
@@ -57,7 +57,7 @@ sub handler
         }
     }
 
-    return send_file($r, $disk_file, {
+    return send_file($apache_r, $disk_file, {
         'mime' => $mime,
         'etag' => $etag,
         'palspec' => $palspec,
@@ -74,7 +74,7 @@ sub parse_hex_color
 
 sub send_file
 {
-    my ($r, $disk_file, $opts) = @_;
+    my ($apache_r, $disk_file, $opts) = @_;
 
     my $etag = $opts->{'etag'};
 
@@ -125,21 +125,21 @@ sub send_file
     }
 
     $etag = '"' . $etag . '"';
-    my $ifnonematch = $r->headers_in->{'If-None-Match'};
+    my $ifnonematch = $apache_r->headers_in->{'If-None-Match'};
     return HTTP_NOT_MODIFIED if
         defined $ifnonematch && $etag eq $ifnonematch;
 
     # send the file
-    $r->content_type($opts->{'mime'});
-    $r->headers_out->{'Content-length'} = $opts->{'size'};
-    $r->headers_out->{ETag} = $etag;
+    $apache_r->content_type($opts->{'mime'});
+    $apache_r->headers_out->{'Content-length'} = $opts->{'size'};
+    $apache_r->headers_out->{ETag} = $etag;
     if ($opts->{'modtime'}) {
-        $r->update_mtime($opts->{'modtime'});
-        $r->set_last_modified();
+        $apache_r->update_mtime($opts->{'modtime'});
+        $apache_r->set_last_modified();
     }
 
     # HEAD request?
-    return OK if $r->method eq "HEAD";
+    return OK if $apache_r->method eq "HEAD";
 
     open my ( $fh ), $disk_file;
     return 404 unless $fh;
@@ -158,11 +158,11 @@ sub send_file
         }
     }
 
-    $r->print($palette) if $palette; # when palette modified.
+    $apache_r->print($palette) if $palette; # when palette modified.
 
     # now read the rest of the file, but let's max on a 1MB image for sanity
     read $fh, my $buf, 1024*1024;
-    $r->print( $buf ) if $buf;
+    $apache_r->print( $buf ) if $buf;
     
     $fh->close();
     return OK;

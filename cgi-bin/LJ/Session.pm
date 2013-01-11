@@ -720,7 +720,7 @@ sub session_length {
     }->{$exptype};
 }
 
-# given an Apache $r object, returns the URL to go to after setting the domain cookie
+# returns the URL to go to after setting the domain cookie
 sub setdomsess_handler {
     my ($class) = @_;
 
@@ -775,11 +775,11 @@ sub setdomsess_handler {
 ############################################################################
 
 sub _current_url {
-    my $r = BML::get_request();
-    my $args = $r->args;
+    my $apache_r = BML::get_request();
+    my $args = $apache_r->args;
     my $args_wq = $args ? "?$args" : "";
-    my $host = $r->headers_in->{Host} || '';
-    my $uri = $r->uri;
+    my $host = $apache_r->headers_in->{Host} || '';
+    my $uri = $apache_r->uri;
     return "http://$host$uri$args_wq";
 }
 

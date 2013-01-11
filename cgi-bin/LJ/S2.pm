@@ -50,7 +50,7 @@ sub make_journal
 {
     my ($u, $styleid, $view, $remote, $opts) = @_;
 
-    my $r = $opts->{'r'};
+    my $apache_r = $opts->{'r'};
     my $ret;
     $LJ::S2::ret_ref = \$ret;
 
@@ -91,7 +91,7 @@ sub make_journal
     # instead.  Unless we are using siteviews, because that is what
     # will be handling the "BML" views.
     if ( $styleid && $styleid eq "siteviews" ) {
-        $r->notes->{ 'no_control_strip' } = 1;
+        $apache_r->notes->{ 'no_control_strip' } = 1;
 
         # kill the flag
         ${$opts->{'handle_with_bml_ref'}} = 0;
@@ -233,7 +233,7 @@ sub make_journal
     $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user, jquery => $beta_jquery )
         if $show_control_strip;
 
-    s2_run($r, $ctx, $opts, $entry, $page);
+    s2_run($apache_r, $ctx, $opts, $entry, $page);
 
     if (ref $opts->{'errors'} eq "ARRAY" && @{$opts->{'errors'}}) {
         return join('',
@@ -257,7 +257,7 @@ sub make_journal
 
 sub s2_run
 {
-    my ($r, $ctx, $opts, $entry, $page) = @_;
+    my ($apache_r, $ctx, $opts, $entry, $page) = @_;
     $opts ||= {};
 
     local $LJ::S2::CURR_CTX  = $ctx;
@@ -270,9 +270,9 @@ sub s2_run
         # expand lj-embed tags
         if ($text =~ /lj\-embed/i) {
             # find out what journal we're looking at
-            my $r = eval { BML::get_request() };
-            if ($r && $r->notes->{journalid}) {
-                my $journal = LJ::load_userid($r->notes->{journalid});
+            my $apache_r = eval { BML::get_request() };
+            if ($apache_r && $apache_r->notes->{journalid}) {
+                my $journal = LJ::load_userid($apache_r->notes->{journalid});
                 # expand tags
                 LJ::EmbedModule->expand_entry($journal, \$text)
                     if $journal;
@@ -291,10 +291,10 @@ sub s2_run
 
     my $send_header = sub {
         my $status = $ctx->[S2::SCRATCH]->{'status'} || 200;
-        $r->status($status);
-        $r->content_type($ctx->[S2::SCRATCH]->{'ctype'} || $ctype);
+        $apache_r->status($status);
+        $apache_r->content_type($ctx->[S2::SCRATCH]->{'ctype'} || $ctype);
         # FIXME: not necessary in ModPerl 2.0?
-        #$r->send_http_header();
+        #$apache_r->send_http_header();
     };
 
     my $need_flush;
@@ -2098,7 +2098,7 @@ sub Entry
     $e->{metadata}->{lc $_} = $current{$_} foreach keys %current;
     $e->{mood_icon} = Image( @$img_arg ) if defined $img_arg;
 
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
 
     # custom friend groups
     my $group_names = $arg->{group_names};
@@ -2912,7 +2912,7 @@ sub viewer_can_manage_tags {
 sub viewer_sees_control_strip {
     return 0 unless $LJ::USE_CONTROL_STRIP;
 
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
     return LJ::Hooks::run_hook( 'show_control_strip' );
 }
 
@@ -2958,8 +2958,8 @@ sub Entry__viewer_sees_ebox { 0 }
 
 sub control_strip_logged_out_userpic_css
 {
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
+    my $apache_r = BML::get_request();
+    my $u = LJ::load_userid($apache_r->notes->{journalid});
     return '' unless $u;
 
     return LJ::Hooks::run_hook('control_strip_userpic', $u);
@@ -2967,8 +2967,8 @@ sub control_strip_logged_out_userpic_css
 
 sub control_strip_logged_out_full_userpic_css
 {
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
+    my $apache_r = BML::get_request();
+    my $u = LJ::load_userid($apache_r->notes->{journalid});
     return '' unless $u;
 
     return LJ::Hooks::run_hook('control_strip_loggedout_userpic', $u);
@@ -2985,8 +2985,8 @@ sub journal_current_datetime {
 
     my $ret = { '_type' => 'DateTime' };
 
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
+    my $apache_r = BML::get_request();
+    my $u = LJ::load_userid($apache_r->notes->{journalid});
     return $ret unless $u;
 
     # turn the timezone offset number into a four character string (plus '-' if negative)

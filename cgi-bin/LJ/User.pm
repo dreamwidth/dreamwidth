@@ -7990,8 +7990,8 @@ sub get_remote
     };
 
     # can't have a remote user outside of web context
-    my $r = eval { BML::get_request(); };
-    return $no_remote->() unless $r;
+    my $apache_r = eval { BML::get_request(); };
+    return $no_remote->() unless $apache_r;
 
     my $criterr = $opts->{criterr} || do { my $d; \$d; };
     $$criterr = 0;
@@ -8032,7 +8032,7 @@ sub get_remote
     }
 
     LJ::User->set_remote($u);
-    $r->notes->{ljuser} = $u->user;
+    $apache_r->notes->{ljuser} = $u->user;
     return $u;
 }
 

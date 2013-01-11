@@ -18,11 +18,11 @@ use strict;
 use LJ::Hooks;
 
 LJ::Hooks::register_hook( 'ssl_check', sub {
-    my $r = $_[0]->{r}
+    my $apache_r = $_[0]->{r}
         or return 0;
 
     return 1 if $LJ::SSL_HEADER &&
-                $r->headers_in->{$LJ::SSL_HEADER} == 1;
+                $apache_r->headers_in->{$LJ::SSL_HEADER} == 1;
     return 0;
 } );
 
