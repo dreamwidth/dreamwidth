@@ -369,6 +369,11 @@ layerinfo name = "Tennis Court";
 layerinfo redist_uniq = "summertime/tenniscourt";
 layerinfo author_name = "ninetydegrees";
 
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" }
+];
+
 ##===============================
 ## Page Colors
 ##===============================
