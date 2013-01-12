@@ -407,7 +407,7 @@ body<=
         # special case: original request
         if ($le->{'type'} eq "req") {
             # insert support diagnostics from props
-            $message .= "<?hr?><strong>$ML{'.diagnostics'}:</strong> " . LJ::ehtml($props->{useragent}) if $props->{useragent};
+            $message .= "<?hr?><strong>$ML{'.diagnostics'}</strong> " . LJ::ehtml($props->{useragent}) if $props->{useragent};
 
             $ret .= "<div style='margin-top: 15px;'>\n";
             $ret .= "<b>$ML{'.original.request'}:</b><br />\n";
