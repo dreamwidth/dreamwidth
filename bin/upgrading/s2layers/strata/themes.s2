@@ -127,7 +127,7 @@ set image_background_page_repeat = "repeat";
 set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "strata/angelcake.png";
+set image_background_header_url = "commons/angelcake.png";
 
 
 #NEWLAYER: strata/athousandrubies
