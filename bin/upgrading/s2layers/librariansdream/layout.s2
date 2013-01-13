@@ -345,12 +345,12 @@ body {
     background: $*color_page_background;
 }
 
-#header {
-    background:  transparent;
-    padding: 1px; }
-#header .inner { padding: 1px 1em;
+#header { padding: 1px; }
+
+#header .inner {
     margin-top: -1px;
-    background:  $*color_header_background; }
+    padding: 1px 1em;
+    }
 
 #content { border-color: $*color_page_background !important; }
 #content-footer { clear: both; }
