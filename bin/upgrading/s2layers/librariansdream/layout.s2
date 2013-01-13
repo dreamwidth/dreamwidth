@@ -333,7 +333,6 @@ dl dt { font-weight: bold; }
 a:hover { text-decoration: none; }
 
 body {
-    background:  $*color_page_background;
     padding: 0;
     margin: 0;
 }
