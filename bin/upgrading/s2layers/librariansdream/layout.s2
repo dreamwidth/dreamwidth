@@ -360,8 +360,8 @@ body {
 
 .navigation a { color: $*color_navigation_link; }
 .navigation a:visited { color: $*color_navigation_link_visited; }
-.navigation a:active { color: $*color_navigation_link_active; }
 .navigation a:hover { color: $*color_navigation_link_hover; }
+.navigation a:active { color: $*color_navigation_link_active; }
 
 #title,
 #pagetitle,
@@ -515,16 +515,45 @@ $userpic_css
     margin: 0;
 }
 
-.tags-container, .icons-container, #archive-year .month, #comments, #archive-month .month { $entry_colors }
+.tags-container,
+.icons-container,
+#archive-year .month,
+#comments,
+#archive-month .month {
+    $entry_colors
+}
 
-.tags-container a, .icons-container a, #archive-year a, #comments a, #archive-month a { color:$*color_entry_link; }
+.tags-container a,
+.icons-container a,
+#archive-year .month a,
+#comments a,
+#archive-month a {
+    color:$*color_entry_link;
+}
 
-.tags-container a:active, .icons-container a:active, #archive-year a:active, #comments a:active, #archive-month a:active { color:$*color_entry_link_active; }
+.tags-container a:visited,
+.icons-container a:visited,
+#archive-year .month a:visited,
+#comments a:visited,
+#archive-month .month a:visited {
+    color:$*color_entry_link_visited;
+}
 
-.tags-container a:hover, .icons-container a:hover, #archive-year a:hover, #comments a:hover, #archive-month a:hover { color:$*color_entry_link_hover; }
+.tags-container a:hover,
+.icons-container a:hover,
+#archive-year .month a:hover,
+#comments a:hover,
+#archive-month .month a:hover {
+    color:$*color_entry_link_hover;
+}
 
-.tags-container a:visited, .icons-container a:visited, #archive-year a:visited, #comments a:visited, #archive-month a:visited { color:$*color_entry_link_visited; }
-
+.tags-container a:active,
+.icons-container a:active,
+#archive-year .month a:active,
+#comments a:active,
+#archive-month .month a:active {
+    color:$*color_entry_link_active;
+}
 
 /* Archive */
 
