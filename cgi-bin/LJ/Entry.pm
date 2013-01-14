@@ -575,19 +575,20 @@ sub comment_info {
     return unless exists $opts{remote};
     return unless exists $opts{style_args};
 
-    my $u = $opts{u};
-    my $remote = $opts{remote};
+    my $u = $opts{u};                                               # the journal being viewed
+    my $remote = $opts{remote};                                     # the person viewing the page
     my $style_args = $opts{style_args};
     my $viewall = $opts{viewall};
 
-    my $journal = exists $opts{journal} ? $opts{journal} : $u;
+    my $journal = exists $opts{journal} ? $opts{journal} : $u;      # journal entry was posted in
+                                                                    # may be different from $u on a read page
 
     my $permalink = $self->url;
     my $comments_enabled = ( $viewall ||
         ( $journal->{opt_showtalklinks} eq "Y" && !$self->comments_disabled ) ) ? 1 : 0;
     my $has_screened = ( $self->props->{hasscreened} && $remote && $journal
                          && $remote->can_manage( $journal ) ) ? 1 : 0;
-    my $screenedcount = $has_screened ? LJ::Talk::get_screenedcount( $u, $self->jitemid ) : 0;
+    my $screenedcount = $has_screened ? LJ::Talk::get_screenedcount( $journal, $self->jitemid ) : 0;
     my $replycount = $comments_enabled ? $self->reply_count : 0;
     my $nc = "";
     $nc .= "nc=$replycount" if $replycount && $remote && $remote->{opt_nctalklinks};
