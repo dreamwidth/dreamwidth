@@ -234,7 +234,7 @@ set color_module_title_background = "#ffcdf8";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "strata/angelcake.png";
+set image_background_page_url = "commons/angelcake.png";
 
 
 #NEWLAYER: librariansdream/antares
@@ -484,7 +484,7 @@ set color_module_title_background = "#4e5c91";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/bluedays.png";
+set image_background_page_url = "commons/bluedays.png";
 
 
 #NEWLAYER: librariansdream/certainfrogs
@@ -564,7 +564,7 @@ set color_module_title_background = "#d1ff8b";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "brittle/certainfrogs.png";
+set image_background_page_url = "commons/certainfrogs.png";
 
 
 #NEWLAYER: librariansdream/colouredglass
@@ -1048,7 +1048,7 @@ set color_module_title_background = "#655643";
 set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
-set image_background_header_url = "dustyfoot/elegantbrown.png";
+set image_background_header_url = "commons/elegantbrown.png";
 
 
 #NEWLAYER: librariansdream/fullsky
