@@ -217,6 +217,7 @@ sub warn_user {
 
     my $u = LJ::load_userid( $uid )
         or return 0;
+    return 0 unless $u->is_visible;
 
     my $mail;
     if ( $timeleft < 86400*3 && ( ! defined $lastmail || $lastmail == 14 ) ) {
