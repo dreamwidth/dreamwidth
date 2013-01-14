@@ -1,0 +1,524 @@
+/*
+ * Web Fonts from fontspring.com
+ *
+ * All OpenType features and all extended glyphs have been removed.
+ * Fully installable fonts can be purchased at http://www.fontspring.com
+ *
+ * The fonts included in this stylesheet are subject to the End User License you purchased
+ * from Fontspring. The fonts are protected under domestic and international trademark and
+ * copyright law. You are prohibited from modifying, reverse engineering, duplicating, or
+ * distributing this font software.
+ *
+ * (c) 2010-2012 Fontspring
+ *
+ *
+ *
+ *
+ * The fonts included are copyrighted by the vendor listed below.
+ *
+ * Vendor:      Typodermic Fonts Inc.
+ * License URL: http://www.fontspring.com/fflicense/typodermic
+ *
+ *
+ */
+
+@font-face {
+    font-family: 'SteelfishRgRegular';
+    src: url('fonts/steelfish_rg-webfont.eot');
+    src: url('fonts/steelfish_rg-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/steelfish_rg-webfont.woff') format('woff'),
+         url('fonts/steelfish_rg-webfont.ttf') format('truetype'),
+         url('fonts/steelfish_rg-webfont.svg#SteelfishRgRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SteelfishRgBold';
+    src: url('fonts/steelfish_bd-webfont.eot');
+    src: url('fonts/steelfish_bd-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/steelfish_bd-webfont.woff') format('woff'),
+         url('fonts/steelfish_bd-webfont.ttf') format('truetype'),
+         url('fonts/steelfish_bd-webfont.svg#SteelfishRgBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* * */
+
+body {
+	margin: 0;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	line-height: 20px;
+	color: #333;
+	background-color: #fff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 10px 0;
+  font-family: inherit;
+  font-weight: normal;
+  line-height: 20px;
+  color: inherit;
+  text-rendering: optimizelegibility;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 40px;
+}
+
+h1 {
+  font-size: 38px;
+}
+
+h2 {
+  font-size: 38px;
+}
+
+h3 {
+  font-size: 24.5px !important;
+}
+
+h4 {
+  font-size: 17.5px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  font-size: 11.9px;
+}
+
+h1 {
+	font-family: 'SteelfishRgBold';
+}
+
+h2, h3, h4, h5, h6 {
+	font-family: 'SteelfishRgRegular';
+}
+
+p {
+	margin: 3px 0 7px;
+}
+
+.tagcloud {
+	font-family: 'SteelfishRgRegular';
+	font-size: 100%;
+}
+
+input,
+input[type="text"],
+input[type="password"],
+textarea {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #fefefe;
+	color: #222;
+}
+
+input[type="button"] {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #eee;
+	color: #222;
+}
+
+.action-bar input[type="submit"] {
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background: #fff;
+	color: #333;
+	font-weight: bold;
+	padding: 5px 8px;
+}
+
+.tablist {
+	margin-left: 20px !important;
+	margin-top: 20px !important;
+}
+
+.tab a {
+	font-family: 'SteelfishRgRegular';
+	border-radius: 3px 3px 0 0;
+	border-color: #888 !important;
+	font-size: 21px;
+	font-weight: normal !important;
+}
+
+.tab a.active {
+	color: #000;
+	background: #fff;
+	border: none !important;
+	box-shadow: 0 -1px 2px #333;
+	position: relative;
+	bottom: -1px;
+}
+
+.cf:before,
+.cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}
+
+/**
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+.cf {
+    *zoom: 1;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #079;
+	text-decoration: underline;
+}
+
+a:hover i {
+	text-decoration: none;
+}
+
+#canvas {
+	position: relative;
+	background: #fff;
+}
+
+h1#logo {
+	line-height: 38px;
+	margin: 0 10px 0 0;
+	display: inline-block;
+	vertical-align: middle;
+	float: left;
+}
+
+h1#logo a {
+	color: #333;
+	text-shadow: 0 1px 1px #fff;
+	position: relative;
+	display: inline-block;
+
+	-webkit-transition: color 0.5s ease;
+	-moz-transition: color 0.5s ease;
+	-o-transition: color 0.5s ease;
+	transition: color 0.5s ease;
+}
+
+#masthead {
+	background: -moz-linear-gradient(top,  										#fff 0%, 					#efefef 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,	#fff), color-stop(100%,		#efefef));
+	background: -webkit-linear-gradient(top,  									#fff 0%,					#efefef 100%);
+	background: -o-linear-gradient(top,  										#fff 0%,					#efefef 100%);
+	background: -ms-linear-gradient(top,  										#fff 0%,					#efefef 100%);
+	background: linear-gradient(to bottom,  									#fff 0%,					#efefef 100%);
+	box-shadow: 0 0 8px #888;
+	padding: 5px 10px;
+	z-index: 5;
+	position: fixed;
+	left: 0;
+	top: 0;
+	right: 0;
+}
+
+#content,
+.wrap {
+	max-width: 1200px;
+}
+
+#content {
+	margin: 115px auto 10px auto;
+}
+
+#content a {
+	color: #057;
+}
+
+.wrap {
+	margin: 0 auto;
+	position: relative;
+}
+
+footer {
+	margin: 20px 0;
+	text-align: center;
+	font-family: 'SteelfishRgRegular';
+	font-size: 20px;
+	color: #777;
+}
+
+footer ul,
+footer ul li {
+	display: inline;
+}
+
+footer li {
+	margin: 0 7px;
+}
+
+footer a:hover {
+	text-decoration: none;
+}
+
+h1#logo a:hover {
+	color: #222;
+	text-decoration: none;
+}
+
+#masthead nav {
+	float: left;
+}
+
+#masthead nav,
+#masthead nav ul,
+#masthead nav ul li,
+#masthead nav ul li a {
+	display: inline-block;
+	text-decoration: none;
+}
+
+#masthead nav li.topnav {
+	margin: 0 7px;
+	position: relative;
+}
+
+#masthead nav li.topnav:first-of-type>a {
+	color: #058;
+	text-shadow: 0px 0px 1px #fff, 0px 0px 10px #fff;
+}
+
+#masthead nav a {
+	font-family: 'SteelfishRgRegular';
+	text-shadow: 0px 1px 1px rgba(255,255,255,0.9);
+}
+
+#masthead nav a i {
+	font-size: 0.8em;
+	margin-right: 5px;
+	position: relative;
+	top: -3px;
+}
+
+#masthead nav li.topnav>a {
+	color: #444;
+	font-size: 26px;
+	line-height: 38px;
+	vertical-align: middle;
+}
+
+#masthead nav li.topnav>a:hover {
+	color: #888;
+}
+
+#masthead nav ul.subnav_container {
+	display: block;
+	visibility: hidden;
+	position: absolute;
+	z-index: -1;
+	top: 32px;
+	left: -11px;
+	background: #efefef;
+	white-space: nowrap;
+	border-radius: 0 0 5px 5px;
+	box-shadow: 0 1px 1px #ccc;
+	padding: 2px 5px;
+	opacity: 0;
+	pointer-events: none;
+	-webkit-transition: opacity 0.2s ease, z-index 0.2s ease, top 0.2s ease;
+	-moz-transition: opacity 0.2s ease, z-index 0.2s ease, top 0.2s ease;
+	-o-transition: opacity 0.2s ease, z-index 0.2s ease, top 0.2s ease;
+	transition: opacity 0.2s ease, z-index 0.2s ease, top 0.2s ease;
+}
+
+#masthead nav ul.subnav_container li {
+	display: inline;
+	padding: 1px 1px;
+}
+
+#masthead nav ul.subnav_container a {
+	color: #999;
+	font-size: 18.5px;
+	line-height: 22px;
+}
+
+#masthead nav ul.subnav_container li a:hover,
+#masthead nav ul.subnav_container li.important a {
+	color: #079;
+}
+
+#masthead nav li.topnav.hover ul.subnav_container {
+	z-index: 3;
+	opacity: 1;
+	top: 38px;
+	visibility: visible;
+	pointer-events: all;
+}
+
+#masthead nav ul.subnav_container li {
+	margin: 0 3px;
+}
+
+#account-links {
+	position: absolute;
+	top: -65px;
+	right: 0;
+	display: block;
+	background: #efefef;
+	border-radius: 0 0 5px 5px;
+	box-shadow: 0 1px 1px #ccc;
+	padding: 5px;
+	font-size: 12px;
+	z-index: 3;
+}
+
+#account-links-userpic {
+	float: left;
+	margin-right: 5px;
+}
+
+#account-links-text form {
+	display: block;
+	margin-top: 5px;
+}
+
+#account-links-text ul {
+	display: block;
+	float: left;
+}
+
+#account-links-text ul li {
+	display: inline-block;
+	margin: 0 7px;
+}
+
+#account-links-text ul li a {
+	text-shadow: 0px 1px 1px rgba(255,255,255,1);
+	-webkit-transition: color 0.2s ease;
+	-moz-transition: color 0.2s ease;
+	-o-transition: color 0.2s ease;
+	transition: color 0.2s ease;
+}
+
+#account-links-text ul li a:hover {
+	color: #079;
+}
+
+#account-links-text ul li a.red:hover {
+	color: #b33;
+}
+
+#mast-search {
+	float: right;
+}
+
+#mast-search .appwidget-search {
+	margin: 7px 0 0 0;
+}
+
+#mast-search form {
+	margin: 0;
+}
+
+#mast-search .appwidget-search input[type="text"] {
+	background: transparent;
+	border: none;
+	box-shadow: 0 1px 0px #ccc;
+	outline: none;
+}
+
+/**
+ * Layouts! :)
+ */
+
+.layout-wide-right-sidebar {
+
+}
+
+.layout-wide-right-sidebar #primary {
+	float: left;
+	width: 74%;
+	margin-right: 1%;
+}
+.layout-wide-right-sidebar #secondary {
+	float: left;
+	width: 24%;
+	margin-left: 1%;
+}
+
+/**
+ * Widgets
+ */
+
+.appwidget-latestinbox .item {
+	margin: 10px 0;
+	padding: 10px 0 !important;
+}
+
+.submit {
+	clear: both;
+}

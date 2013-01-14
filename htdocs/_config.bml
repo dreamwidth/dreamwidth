@@ -1,10 +1,9 @@
 LookRoot $LJHOME/cgi-bin/bml/scheme
-DefaultLanguage en
-DefaultScheme blueshift
+DefaultLanguage lv
+DefaultScheme grab-common
 IncludePath inc/
 
 AllowOldSyntax 0
-ExtraConfig _config-local.bml, $LJHOME/cgi-bin/LJ/Global/BMLInit.pm
 AllowCode 1
 AllowTemplateCode 1
 MildXSSProtection 1

@@ -182,7 +182,7 @@ _code?>
 <div style='clear: both;'>
 <br />
 <?hr?>
-<?p 
+<?p
 <?_ml .footer _ml?>
 p?>
 </div>

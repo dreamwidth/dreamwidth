@@ -114,7 +114,7 @@ sub as_html {
     $ret .= "<div class='pkg'><div style='width: 60px; float: left;'>";
     $ret .= $pichtml . "</div><div>";
     $ret .= $subject;
-    $ret .= "<br />from " . $other_u->ljuser_display . "</div>";
+    $ret .= "<br />no " . $other_u->ljuser_display . "</div>";
     $ret .= "</div>";
 
     return $ret;
@@ -128,10 +128,10 @@ sub as_html_actions {
     my $u = LJ::want_user($msg->journalid);
 
     my $ret = "<div class='actions'>";
-    $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Reply</a>";
-    $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add?user=". $msg->other_u->user ."&action=subscribe'>Subscribe to ". $msg->other_u->user ."</a>"
+    $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Atbildēt</a>";
+    $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add?user=". $msg->other_u->user ."&action=subscribe'>Sekot ". $msg->other_u->user ."</a>"
         unless $u->watches( $msg->other_u );
-    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Mark as Spam</a>"
+    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Atzīmēt kā mēstuli</a>"
         unless LJ::sysban_check( 'spamreport', $u->user );
     $ret .= "</div>";
 

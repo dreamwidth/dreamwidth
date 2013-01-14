@@ -264,7 +264,7 @@ sub handler
 
     # parse in data
     parse_inputs( $r );
-    
+
     %BMLCodeBlock::GET_POTENTIAL_XSS = ();
     if ($env->{MildXSSProtection}) {
         foreach my $k (keys %BMLCodeBlock::GET) {
@@ -314,7 +314,7 @@ sub handler
     # now we've made the decision about what scheme to use
     # -- does a hook want to translate this into another scheme?
     if ($env->{'HOOK-scheme_translation'}) {
-        my $newscheme = eval { 
+        my $newscheme = eval {
             $env->{'HOOK-scheme_translation'}->($scheme);
         };
         $scheme = $newscheme if $newscheme;
