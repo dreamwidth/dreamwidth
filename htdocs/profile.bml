@@ -36,13 +36,13 @@ body<=
 ################################################################################
 ##### INITIALIZE PROFILE PAGE
 
-    my $r = BML::get_request();
-    $r->notes->{codepath} = "bml.profile";
+    my $apache_r = BML::get_request();
+    $apache_r->notes->{codepath} = "bml.profile";
 
     # if new-style URLs, get the GET{user} arg from the request notes,
     # which was set by LiveJournal.pm
     unless ( $GET{user} ) {
-        $GET{user} = $r->notes->{_journal};
+        $GET{user} = $apache_r->notes->{_journal};
     }
 
     my $u;

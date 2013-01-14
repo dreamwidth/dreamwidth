@@ -37,8 +37,8 @@ body<=
         $GET{'thread'} =~ s/^3D//;
     }
 
-    my $r = BML::get_request();
-    $r->notes->{codepath} = "bml.talkread";
+    my $apache_r = BML::get_request();
+    $apache_r->notes->{codepath} = "bml.talkread";
 
     my $uri = BML::get_uri();
     my $itemid;
@@ -47,7 +47,7 @@ body<=
     if ($uri =~ m!/(\d+)\.html$!) {
         $itemid = $1;
         $GET{'itemid'} = $itemid;
-        $GET{'journal'} = $r->notes->{_journal};
+        $GET{'journal'} = $apache_r->notes->{_journal};
         BML::set_language_scope("/talkread.bml");
     } else {
         $old_url = 1;
@@ -107,7 +107,7 @@ body<=
     # FIXME: Only gets past here if handle_with_bml has been set
     # to 1. (eg. format=light, lynx site scheme)
 
-    $r->notes->{journalid} = $u->{userid};
+    $apache_r->notes->{journalid} = $u->{userid};
 
     my $thread = $init->{'thread'};
     my $dthread = $init->{'dthread'};

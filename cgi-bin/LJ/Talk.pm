@@ -283,7 +283,7 @@ sub check_viewable
         or die "Unable to construct entry object.\n";
     return 1 if $ent->visible_to( $remote );
 
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
 
     # this checks to see why the logged-in user is not allowed to see
     # the given content.
@@ -292,20 +292,20 @@ sub check_viewable
         my $journalname = $journal->username;
 
         if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $item->{security} ne "private" ) {
-            $r->notes->{error_key} = ".comm.open";
-            $r->notes->{journalname} = $journalname;
+            $apache_r->notes->{error_key} = ".comm.open";
+            $apache_r->notes->{journalname} = $journalname;
         } elsif ( $journal->is_community && $journal->is_closed_membership ) {
-            $r->notes->{error_key} = ".comm.closed";
-            $r->notes->{journalname} = $journalname;
+            $apache_r->notes->{error_key} = ".comm.closed";
+            $apache_r->notes->{journalname} = $journalname;
         }
     }
 
-    my $host = $r->headers_in->{Host};
-    my $args = scalar $r->args;
+    my $host = $apache_r->headers_in->{Host};
+    my $args = scalar $apache_r->args;
     my $querysep = $args ? "?" : "";
-    my $returnto = "http://" . $host . $r->uri . $querysep . $args;
-    $r->notes->{internal_redir} = "/protected";
-    $r->notes->{returnto} = $returnto;
+    my $returnto = "http://" . $host . $apache_r->uri . $querysep . $args;
+    $apache_r->notes->{internal_redir} = "/protected";
+    $apache_r->notes->{returnto} = $returnto;
     return 0;
 
 }

@@ -17,7 +17,7 @@ _c?>
         LJ::set_active_crumb('export');
 
         my $req = shift;
-        my $r = $req->{'r'};
+        my $apache_r = $req->{'r'};
 
         my $remote = LJ::get_remote();
         return "<?needlogin?>"
@@ -80,19 +80,19 @@ _c?>
 
         if ($POST{'format'} eq "csv") {
             $opts->{'format'} = "csv";
-            $r->content_type("text/plain");
+            $apache_r->content_type("text/plain");
             my $filename = "$u->{user}-$year-$month.csv";
-            $r->headers_out->{'Content-Disposition'} = "attachment; filename=$filename";
+            $apache_r->headers_out->{'Content-Disposition'} = "attachment; filename=$filename";
             if ($POST{'header'}) {
-                $r->print(join(",",@fields) . "\n");
+                $apache_r->print(join(",",@fields) . "\n");
             }
         }
         if ($POST{'format'} eq "xml") {
             $opts->{'format'} = "xml";
             my $lenc = lc($encoding);
-            $r->content_type("text/xml; charset=$lenc");
-            $r->print("<?xml version=\"1.0\" encoding='$lenc'?>\n");
-            $r->print("<livejournal>\n");
+            $apache_r->content_type("text/xml; charset=$lenc");
+            $apache_r->print("<?xml version=\"1.0\" encoding='$lenc'?>\n");
+            $apache_r->print("<livejournal>\n");
         }
 
         $opts->{'fields'} = \@fields;
@@ -103,7 +103,7 @@ _c?>
         $sth = $dbcr->prepare("SELECT jitemid, anum, eventtime, logtime, security, allowmask FROM log2 ".
                               "WHERE journalid=$u->{'userid'} AND year=$year AND month=$month");
         $sth->execute;
-        if ($dbcr->err) { $r->print($dbcr->errstr); return; }
+        if ($dbcr->err) { $apache_r->print($dbcr->errstr); return; }
         my @buffer;
         while ($_ = $sth->fetchrow_hashref) {
             $_->{'ritemid'} = $_->{'jitemid'} || $_->{'itemid'};
@@ -118,7 +118,7 @@ _c?>
         load_and_dump_buffer($u, \@buffer, $opts);
 
         if ($opts->{'format'} eq "xml") {
-            $r->print("</livejournal>\n");
+            $apache_r->print("</livejournal>\n");
         }
         return;
 
@@ -168,7 +168,7 @@ _c?>
                                                           -charset=>$opts->{'encoding'}});
                 }
 
-                $r->print($entry);
+                $apache_r->print($entry);
             }
         }
 
