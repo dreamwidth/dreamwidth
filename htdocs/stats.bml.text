@@ -27,13 +27,21 @@
 
 .gender.unspecified=Rather not say
 
-.new.desc=These are the 10 most recently created accounts.  Their creators probably haven't made many entries in them yet.
+.new.desc.community=These are the 10 most recently created community accounts.  Their creators probably haven't made many entries in them yet.
+
+.new.desc.feeds=These are the 10 most recently created feeds.
+
+.new.desc.personal=These are the 10 most recently created personal accounts.  Their creators probably haven't made many entries in them yet.
 
 .new.header=New Accounts
 
 .notavailable=Statistics not available
 
-.recent.desc=The 10 most recently active accounts:
+.recent.desc.community=The 10 most recently active community accounts:
+
+.recent.desc.feeds=The 10 most recently active feeds:
+
+.recent.desc.personal=The 10 most recently active personal accounts:
 
 .recent.header=Recently Active
 

@@ -14,7 +14,8 @@ h3.entry-title {
     font-size:1.5em;
     font-style: italic;
     font-weight: bold;
-    margin: 10px 0;}
+    margin: 10px 0;
+    display:inline;}
 
 .entry .header {background:none; border:0;}
 .entry .datetime:before { content:"@ ";} /*add the talkread-style elements to the date and time*/
@@ -40,6 +41,7 @@ hr.above-entry-interaction-links, hr.below-entry-interaction-links {margin: 1em 
 .entry-interaction-links, .comment-pages {text-align: center; font-weight:bold; float:none;}
 .entry-interaction-links li {display:inline;}
 ul.entry-interaction-links {list-style: none outside none; display: inline; text-align: center; padding: 0.5em 0; margin:0;}
+.comment-page-list {max-width: 28em; margin-left:auto; margin-right: auto;}
 
 /* give talkread styling to management links without S2 overrides*/
 .entry-interaction-links li:before, .comment-interaction-links li:before, .view-flat:before, .view-threaded:before, .view-top-only:before, .expand_all:before {content:"(";}
@@ -47,7 +49,7 @@ ul.entry-interaction-links {list-style: none outside none; display: inline; text
 
 /*Comment header and content styling*/
 .comment .userpic {display:table-cell; max-width:100px;}
-.comment .userpic img {display:block;}
+.comment .userpic img {display:table;}
 .comment-info {display: table-cell; vertical-align: top; padding-left:10px;}
 .poster {display: block;}
 .commentpermalink, .comment .poster-ip  {margin-left:1em;}
@@ -55,6 +57,7 @@ ul.entry-interaction-links {list-style: none outside none; display: inline; text
 .comment .datetime {font-size:smaller;}
 .no-userpic .comment-info {padding-left:10px;}
 .edittime {padding-top:1em;}
+.comment-posted {font-weight:bold;}
 
 /*Styling for comment links*/
 ul.comment-management-links {display: inline;}
@@ -70,6 +73,7 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 .bottompages { margin-bottom: 1em;}
 .bottomcomment {text-align: center;}
 
+
 /*Styling for collapsed comments*/
 .partial h4.comment-title {font-size: 1em; display:inline; font-weight:normal;}
 .partial h4.comment-title a {font-size: 1em; display:inline; font-weight:normal;}
@@ -80,4 +84,5 @@ ul.comment-interaction-links {display: inline; margin: 0; }
 
 /*Styling for quick-reply box*/
 #qrform table {margin: 0 auto;}
+.comment #qrform table {margin-left:0;}
 #qrform td {vertical-align:top;}

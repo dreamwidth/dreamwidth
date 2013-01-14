@@ -16,6 +16,7 @@ set comment_userpic_style = "small";
 set userpics_position = "right";
 set entry_management_links = "text";
 set comment_management_links = "text";
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -34,7 +35,7 @@ propgroup colors_child {
 ##===============================
 
 property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
     grouped = 1;
     }
 
@@ -184,7 +185,7 @@ function Page::print() {
                 }
     """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -208,9 +209,9 @@ function Page::print() {
                     <div id="content-footer"></div>
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -219,7 +220,7 @@ function Page::print() {
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -458,7 +459,7 @@ h2#pagetitle {
     }
 
 .datetime {
-    font-size: .8em; 
+    font-size: .8em;
     color: $*color_entry_date;
     text-transform: uppercase;
     }
@@ -697,7 +698,7 @@ h2#pagetitle {
 
 .month .day {
     border: 1px solid $*color_entry_border;
-    padding: 5px; 
+    padding: 5px;
     }
 
 .day-has-entries {
@@ -867,7 +868,7 @@ h2#pagetitle {
     }
 
 .module-userprofile .icon-links li {
-    padding: 5px; 
+    padding: 5px;
     }
 
 .module-credit .module-content {
@@ -891,12 +892,12 @@ h2#pagetitle {
     padding: 5px;
     }
 
-#content .entry-day a { 
+#content .entry-day a {
     color: $*color_header_link;
     text-decoration: none;
     }
 
-#content .entry-day a:visited { 
+#content .entry-day a:visited {
     color: $*color_header_link_visited;
     }
 
@@ -958,26 +959,6 @@ div.ContextualPopup .Relation {
     text-transform: lowercase;
     }
 
-/* Navigation Strip
-***************************************************************************/
-
-#lj_controlstrip td {
-    background: $*color_entry_background;
-    color: $*color_entry_text;
-    border: solid 0px;
-    }
-
-#lj_controlstrip input {
-    background: $*color_page_background;
-    border: 1px solid $*color_header_background;
-    color: $*color_page_text;
-    }
-
-#lj_controlstrip a,
-#lj_controlstrip_statustext,
-#lj_controlstrip .ljuser a b {
-    color: $*color_entry_link;
-    }
 
 $userpic_css
 

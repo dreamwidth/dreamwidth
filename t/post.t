@@ -53,7 +53,7 @@ note( "Logged in - init" );
     LJ::set_remote( $u );
 
     my $vars;
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
 
     ok( $u->equals( $vars->{remote} ), "Post done as currently logged in user." );
 
@@ -68,7 +68,7 @@ note( "Logged in - init" );
     $icon1->set_keywords( "b, z" );
     $icon2->set_keywords( "a, c, y" );
 
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( @{$vars->{icons}}, 6, "Has icons (including a blank one in the list for default)" );
     ok( ! $vars->{defaulticon}, "No default icon." );
 
@@ -95,7 +95,7 @@ note( "Logged in - init" );
 
     note( "  with default icon" );
     $icon1->make_default;
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     ok( $vars->{defaulticon}, "Has default icon." );
 
     $icon_order[0] = [ undef, $icon1 ];
@@ -109,7 +109,7 @@ note( "Logged in - init" );
 
     note( "# Moodtheme" );
     note( "  default mood theme" );
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     my $moods = DW::Mood->get_moods;
 
     ok( $vars->{moodtheme}->{id} == $LJ::USER_INIT{moodthemeid}, "Default mood theme." );
@@ -133,7 +133,7 @@ note( "Logged in - init" );
     my $err;
     $customtheme->set_picture( $testmoodid, { picurl => "http://example.com/moodpic", width => 10, height => 20 }, \$err );
 
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( $vars->{moodtheme}->{id}, $customtheme->id, "Custom mood theme." );
     is( scalar keys %{$vars->{moodtheme}->{pics}}, 1, "Only provide picture information for moods with valid pictures." );
     is( $vars->{moodtheme}->{pics}->{$testmoodid}->{pic}, "http://example.com/moodpic", "Confirm picture URL matches." );
@@ -142,7 +142,7 @@ note( "Logged in - init" );
     is( $vars->{moodtheme}->{pics}->{$testmoodid}->{name}, $moods->{$testmoodid}->{name}, "Confirm mood name matches.");
 
     note( "Security levels ");
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( scalar @{$vars->{security}}, 3, "Basic security levels" );
     is( $vars->{security}->[0]->{label}, LJ::Lang::ml( 'label.security.public2' ), "Public security" );
     is( $vars->{security}->[0]->{value}, "public", "Public security" );
@@ -152,7 +152,7 @@ note( "Logged in - init" );
     is( $vars->{security}->[2]->{value}, "private", "Private security" );
 
     $u->create_trust_group( groupname => "test" );
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( scalar @{$vars->{security}}, 4, "Security with custom groups" );
     is( $vars->{security}->[0]->{label}, LJ::Lang::ml( 'label.security.public2' ), "Public security" );
     is( $vars->{security}->[0]->{value}, "public", "Public security" );
@@ -168,7 +168,7 @@ note( "Logged in - init" );
 
     note( "# Usejournal" );
     note( "  No communities." );
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( scalar @{$vars->{journallist}}, 1,  "One journal (yourself)" );
     ok( $vars->{journallist}->[0]->equals( $u ), "First journal in the list is yourself." );
 
@@ -179,7 +179,7 @@ note( "Logged in - init" );
     $u->join_community( $comm_nopost, 1, 0 );
 
     note( "  With communities." );
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( scalar @{$vars->{journallist}}, 2,  "Yourself and one community." );
     ok( $vars->{journallist}->[0]->equals( $u ), "First journal in the list is yourself." );
     ok( $vars->{journallist}->[1]->equals( $comm_canpost ), "Second journal in the list is a community you can post to." );
@@ -196,7 +196,7 @@ note( " Usejournal - init" );
     $u->join_community( $comm_nopost, 1, 0 );
 
     note( "  With usejournal argument (can post)" );
-    my $vars = DW::Controller::Entry::_init( { usejournal => $comm_canpost->user } );
+    my $vars = DW::Controller::Entry::_init( { usejournal => $comm_canpost->user, remote => $u } );
     is( scalar @{$vars->{journallist}}, 1,  "Usejournal." );
     ok( $vars->{journallist}->[0]->equals( $comm_canpost ), "Only item in the list is usejournal value." );
     ok( $vars->{usejournal}->equals( $comm_canpost ), "Usejournal argument." );
@@ -219,7 +219,7 @@ note( " Usejournal - init" );
 
     # allow this, because the user can still log in as another user in order to complete the post
     note( "  With usejournal argument (cannot post)" );
-    $vars = DW::Controller::Entry::_init( { usejournal => $comm_nopost->user } );
+    $vars = DW::Controller::Entry::_init( { usejournal => $comm_nopost->user, remote => $u } );
     is( scalar @{$vars->{journallist}}, 1,  "Usejournal." );
     ok( $vars->{journallist}->[0]->equals( $comm_nopost ), "Only item in the list is usejournal value." );
     ok( $vars->{usejournal}->equals( $comm_nopost ), "Usejournal argument." );
@@ -585,7 +585,7 @@ TODO: {
     LJ::set_remote( $u );
 
     my $vars;
-    $vars = DW::Controller::Entry::_init();
+    $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( $vars->{abort}, "/update.bml.error.nonusercantpost" );
 }
 

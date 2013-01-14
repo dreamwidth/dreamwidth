@@ -599,24 +599,6 @@ set image_blockquote_background_position = "top left";
 set image_blockquote_background_repeat = "no-repeat";
 set image_blockquote_background_url = "fiveam/earlyedition-blockquote.png";
 
-function Page::print_theme_stylesheet() {
-    """
-    #lj_controlstrip {
-       background: #000;
-       border-bottom: 1px solid #878080;
-    }
-
-    #lj_controlstrip a {
-       color: #f1f1f1;
-    }
-
-    #lj_controlstrip_statustext, #lj_controlstrip .ljuser a {
-       color: #c33;
-    }
-
-    """;
-}
-
 
 #NEWLAYER: fiveam/hesperides
 layerinfo type = "theme";
@@ -2164,7 +2146,7 @@ function Page::print_theme_stylesheet() {
 }
 
 
-#NEWLAYER: fiveam/rambling 
+#NEWLAYER: fiveam/rambling
 layerinfo type = "theme";
 layerinfo name = "Rambling ";
 layerinfo redist_uniq = "fiveam/rambling";

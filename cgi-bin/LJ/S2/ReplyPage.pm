@@ -62,10 +62,19 @@ sub ReplyPage
 
     LJ::need_res('stc/display_none.css');
     LJ::need_res( LJ::S2::tracking_popup_js() );
-    
+
     # libs for userpicselect
     my $beta = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
-    LJ::need_res( LJ::Talk::init_iconbrowser_js( $beta, $beta ? 'stc/jquery/jquery.ui.theme.smoothness.css' : 'stc/lj_base.css' ) )
+    my @iconbrowser_extra_stylesheet;
+    if ( $beta ) {
+        # if we're using the site skin, don't override the jquery-ui theme, as that's already included
+        @iconbrowser_extra_stylesheet = ( 'stc/jquery/jquery.ui.theme.smoothness.css' )
+            unless $opts->{handle_with_siteviews_ref} && ${$opts->{handle_with_siteviews_ref}};
+    } else {
+        @iconbrowser_extra_stylesheet = ( 'stc/lj_base.css' );
+    }
+
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( $beta, @iconbrowser_extra_stylesheet ) )
         if $remote && $remote->can_use_userpic_select;
 
     if ($u->should_block_robots || $entry->should_block_robots) {
@@ -259,6 +268,8 @@ sub ReplyPage
         '_values' => \%comment_values,
         '_styleopts' => $p->{_styleopts},
     };
+
+    $p->{'isedit'} = $editid ? 1 : 0;
 
     return $p;
 }

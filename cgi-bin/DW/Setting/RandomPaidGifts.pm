@@ -36,6 +36,8 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
+    my $iscomm = $u->is_community ? '.comm' : '';
+
     my $randompaidgifts = $class->get_arg( $args, "randompaidgifts" ) || $u->prop( "opt_randompaidgifts" ) || 'Y';
 
     my $ret = LJ::html_check({
@@ -45,8 +47,10 @@ sub option {
         selected => $randompaidgifts eq 'N' ? 0 : 1,
     });
     $ret .= " <label for='${key}randompaidgifts'>";
-    $ret .= $u->is_paid ? $class->ml( 'setting.randompaidgifts.option.paid' ) : $class->ml( 'setting.randompaidgifts.option' );
-    $ret .= "<p class='details'>" . $class->ml( 'setting.randompaidgifts.option.note' ) . "</p>";
+    $ret .= $u->is_paid ? 
+        $class->ml( "setting.randompaidgifts.option.paid$iscomm" ) : 
+        $class->ml( "setting.randompaidgifts.option$iscomm" );
+    $ret .= "<p class='details'>" . $class->ml( "setting.randompaidgifts.option.note$iscomm" ) . "</p>";
     $ret .= "</label>";
 
     return $ret;

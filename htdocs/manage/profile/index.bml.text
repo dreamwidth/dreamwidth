@@ -67,6 +67,8 @@
 
 .fn.bio=Tell others about yourself or your journal. If you want to display graphics, counters, or other HTML, you can enter it here.
 
+.fn.bio.comm=Tell others about this community. If you want to display graphics, counters, or other HTML, you can enter it here.
+
 .fn.bio.openid=Tell others about yourself. No HTML is allowed.
 
 .fn.birthday=Birthday
@@ -100,6 +102,8 @@
 .fn.gender1=Gender<br /> (for statistics)
 
 .fn.interests=List all your interests, separated by commas, to allow other users to find you using the Interest Search.
+
+.fn.interests.comm=List interests relevant to this community, separated by commas, to allow users to find it using the Interest Search.
 
 .fn.link2=Link URL
 
@@ -147,6 +151,8 @@
 
 .intro1=This is where you fill in your Profile.  You don't have to display all of your information to everyone; you can set options below.  You may also want to edit your <a [[aopts1]]>comment settings</a> or your <a [[aopts2]]>viewing options</a>.
 
+.intro1.comm=This is where you fill in your community's profile.  You don't have to display all of the information to everyone; you can set options below.  You may also want to edit the community's <a [[aopts1]]>comment settings</a> or <a [[aopts2]]>viewing options</a>.
+
 .jumpto=Jump to:
 
 .mutualfriends3=Split access list into "mutual access", "also has access to", and "also gives access to". <br />Split subscriptions into "mutual subscriptions", "other subscriptions", and "other subscribers".
@@ -188,6 +194,10 @@
 .security.visibility.regusers=Registered Accounts
 
 .security.visibility.same=Same as above
+
+.security.visibility.members=Members
+
+.security.visibility.admins=Administrators
 
 .select.provider=-- Select Carrier --
 
@@ -235,7 +245,11 @@
 
 .success.editicons=Manage your icons
 
+.success.editicons.comm=Manage this community's icons
+
 .success.editprofile=Edit your profile
+
+.success.editprofile.comm=Edit this community's profile
 
 .success.gonext=What would you like to do next?
 
@@ -243,7 +257,11 @@
 
 .success.text=Your profile has been revised.
 
+.success.text.comm=The profile for your community [[commname]] has been revised.
+
 .success.viewprofile=View your profile
+
+.success.viewprofile.comm=View this community's profile
 
 .timezone.select=(Select your timezone)
 
@@ -252,6 +270,8 @@
 .txt.details=(<a [[aopts]]>details</a>)
 
 .userpic=This is the icon that will be displayed on your profile.  It will also be displayed on your entries and comments unless you select a different one at the time you post your entry or comment.
+
+.userpic.comm=This is the icon that will be displayed on the community's profile.
 
 .userpic.change=Change default icon
 

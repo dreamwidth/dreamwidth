@@ -97,6 +97,9 @@ sub _apply_userid {
         or return 0;
 
     # try to add the paid time to the user
+    LJ::statushistory_add( $u->id, $self->from_userid, 'paidstatus',
+            sprintf( 'Order #%d: applied %d months of %s.', $self->cartid,
+                $self->months, $self->class_name ) );
     DW::Pay::add_paid_time( $u, $self->class, $self->months )
         or return 0;
 

@@ -11,23 +11,23 @@ old: js/6alib/selectable_table.js
 old: js/6alib/checkallbutton.js
 
 old: js/6alib/progressbar.js
-old: js/6alib/ljprogressbar.js
+old: js/ljprogressbar.js
 
 old: js/6alib/ippu.js
 old: js/6alib/lj_ippu.js
 old: js/6alib/template.js
-old: js/6alib/userpicselect.js
+old: js/userpicselect.js
 
 old: js/6alib/view.js
-old: js/6alib/directorysearch.js
-old: js/6alib/directorysearchconstraints.js
-old: js/6alib/directorysearchresults.js
+old: js/directorysearch.js
+old: js/directorysearchconstraints.js
+old: js/directorysearchresults.js
 
-old: js/6alib/esnmanager.js
+old: js/esnmanager.js
 
-old: js/6alib/ljwidget.js
-old: js/6alib/ljwidget_ippu.js
-old: js/6alib/widget_ippu/settingprod.js
+old: js/ljwidget.js
+old: js/ljwidget_ippu.js
+old: js/widget_ippu/settingprod.js
 */
 
 module( "old" );

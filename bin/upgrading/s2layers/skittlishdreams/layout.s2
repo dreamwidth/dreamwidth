@@ -22,6 +22,7 @@ propgroup presentation {
     property use use_custom_friend_colors;
     property use use_shared_pic;
     property use use_journalstyle_entry_page;
+    property use custom_control_strip_colors;
 
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
@@ -95,6 +96,11 @@ propgroup colors {
     property Color color_entry_title_border { des = "Entry title border color"; }
     property Color color_entry_title_border_alt { des = "Alternate entry title border color"; }
     property Color color_entry_metadata_text { des = "Entry metadata color"; }
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -121,6 +127,7 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
+    property use font_sources;
 }
 
 set font_base = "Tahoma, Verdana, Arial";
@@ -295,6 +302,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
 
@@ -616,6 +625,8 @@ function Page::print_default_stylesheet () {
             """;
         }
 
+    print_custom_control_strip_css();
+
     """
 /*
 Theme Name:    Skittlish Dreams, a DW port of Skittlish
@@ -811,6 +822,9 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
     padding: 0;
     }
 
+.comment-posted {
+    font-weight:bold;
+}
 .comment-wrapper {
     min-width: 15em;
 }

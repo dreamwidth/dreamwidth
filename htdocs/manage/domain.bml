@@ -123,8 +123,9 @@ body<=
 
     my $has_cap = $u->can_map_domains;
     my $has_dom = $u->{journaldomain} ? 1 : 0;
+    my $is_comm = $u->is_community ? '.comm' : '';
     if ($LJ::OTHER_VHOSTS && ($has_cap || $has_dom)) {
-        $ret .= "<?h2 $ML{'.domainalias.head'} h2?><?p $ML{'.domainalias.about'} p?>\n";
+        $ret .= "<?h2 $ML{'.domainalias.head'} h2?><?p $ML{'.domainalias.about' . $is_comm} p?>\n";
 
         $ret .= "<div style='margin: 20px 0 20px 30px'>";
         $ret .= "<table summary=''><tr><td align='left'><b>$ML{'.domainalias.domainname'}</b></td><td>";
@@ -133,7 +134,7 @@ body<=
                                 'disabled' => ! $has_cap });
         $ret .= LJ::html_submit('journaldomain_del' => "Remove") unless $has_cap;
         $ret .= "</td></tr>";
-        $ret .= "<tr><td>&nbsp;</td><td>$ML{'.domainalias.example'}</td></tr></table>";
+        $ret .= "<tr><td>&nbsp;</td><td>$ML{'.domainalias.example' . $is_comm}</td></tr></table>";
         $ret .= "<?p " . BML::ml(".domainalias.helptext", {'sitename' => $LJ::SITENAME})." p?></div>\n\n";
     }
 

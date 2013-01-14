@@ -45,7 +45,9 @@ sub option {
     my $ret;
 
     $ret .= " <label for='${key}synlevel'>";
-    $ret .= $class->ml( 'setting.synlevel.option' );
+    $ret .= $u->is_community ? 
+        $class->ml( 'setting.synlevel.option.comm' ) : 
+        $class->ml( 'setting.synlevel.option' );
     $ret .= "</label>";
 
     $ret .= LJ::html_select( {

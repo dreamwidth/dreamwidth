@@ -19,9 +19,10 @@ package DW::Controller::Shop;
 use strict;
 use warnings;
 use DW::Controller;
+use DW::Pay;
 use DW::Routing;
-use DW::Template;
 use DW::Shop;
+use DW::Template;
 use JSON;
 
 # routing directions
@@ -29,6 +30,7 @@ DW::Routing->register_string( '/shop', \&shop_index_handler, app => 1 );
 DW::Routing->register_string( '/shop/points', \&shop_points_handler, app => 1 );
 DW::Routing->register_string( '/shop/icons', \&shop_icons_handler, app => 1 );
 DW::Routing->register_string( '/shop/transferpoints', \&shop_transfer_points_handler, app => 1 );
+DW::Routing->register_string( '/shop/refundtopoints', \&shop_refund_to_points_handler, app => 1 );
 
 # our basic shop controller, this does setup that is unique to all shop
 # pages and everybody should call this first.  returns the same tuple as
@@ -294,6 +296,53 @@ sub shop_icons_handler {
     }
 
     return DW::Template->render_template( 'shop/icons.tt', $rv );
+}
+
+# if someone wants to refund their account back to points
+sub shop_refund_to_points_handler {
+    my ( $ok, $rv ) = _shop_controller();
+    return $rv unless $ok;
+
+    $rv->{status} = DW::Pay::get_paid_status( $rv->{remote} );
+    $rv->{rate} = DW::Pay::get_refund_points_rate( $rv->{remote} );
+    $rv->{type} = DW::Pay::get_account_type_name( $rv->{remote} );
+
+    if ( ref $rv->{status} eq 'HASH' && $rv->{rate} > 0 ) {
+        $rv->{blocks} = int($rv->{status}->{expiresin} / (86400 * 30));
+        $rv->{days} = $rv->{blocks} * 30;
+        $rv->{points} = $rv->{blocks} * $rv->{rate};
+    }
+
+    my $r = DW::Request->get;
+    return DW::Template->render_template( 'shop/refundtopoints.tt', $rv )
+        unless $r->did_post;
+
+    # User posted, so let's refund them if we can.
+    die "Should never get here in a normal flow.\n"
+        unless $rv->{points} > 0;
+
+    # This should never expire the user. Let's sanity check that though, and
+    # error if they're within 5 minutes of 30 day boundary.
+    my $expiretime = $rv->{status}->{expiretime} - ($rv->{days} * 86400);
+    die "Your account is just under 30 days and can't be converted.\n"
+        if $expiretime - time() < 300;
+
+    $rv->{remote}->give_shop_points( amount => $rv->{points},
+            reason => sprintf('refund %d days of %s time', $rv->{days}, $rv->{type}) )
+        or die "Failed to refund points.\n";
+    DW::Pay::update_paid_status( $rv->{remote}, expiretime =>
+            $rv->{status}->{expiretime} - ($rv->{days} * 86400) );
+
+    # This is a hack, so that when the user lands on the page that says they
+    # were successful, it updates the number of points they have. It's just a nice
+    # visual indicator of success.
+    $rv->{shop} = DW::Shop->get;
+    $rv->{cart} = $r->get_args->{newcart} ? DW::Shop::Cart->new_cart( $rv->{u} ) : $rv->{shop}->cart;
+    $rv->{cart_display} = DW::Template->template_string( 'shop/cartdisplay.tt', $rv );
+
+    # Return the OK to the user.
+    $rv->{refunded} = 1;
+    return DW::Template->render_template( 'shop/refundtopoints.tt', $rv );
 }
 
 

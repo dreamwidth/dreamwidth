@@ -62,7 +62,8 @@ _c?>
 
         if ($lrow) {
             my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
-            my $url = "$LJ::SITEROOT/users/$ju->{user}/$lrow->{ditemid}.html?thread=$talkid" . LJ::Talk::comment_anchor( $talkid );
+            my $talkurl = $ju->journal_base . "/$lrow->{ditemid}.html";
+            my $url = LJ::Talk::talkargs($talkurl, "thread=$talkid") . LJ::Talk::comment_anchor( $talkid );
             $ret .= "$hr_ago hr ago in " . LJ::ljuser($ju) . ": <a href='$url'>$url</a><br />\n";
         } else {
             $ret .= "$hr_ago hr ago in " . LJ::ljuser($ju) . ": link unavailable<br />";

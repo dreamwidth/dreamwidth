@@ -56,9 +56,13 @@ _c?>
             #        ( no code ref will be required )
             # we don't want the full version of alttext here, because the keywords, etc
             # will already likely be displayed by the icon
-            alt => sub { LJ::ehtml($upic->description)  . "" }, # force to string
 
-            comment => LJ::strip_html($upic->comment),
+            # We don't want to use ehtml, because we want the JSON converter
+            # handle escaping ", ', etc. We just escape the < and > ourselves
+            alt => sub { LJ::etags($upic->description) . "" }, # force to string
+
+            comment => sub { LJ::strip_html($upic->comment) . "" } , # force to string
+
             id => $id,
             keywords => [ map { LJ::strip_html($_) } $upic->keywords],
         };

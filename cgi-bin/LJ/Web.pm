@@ -1233,6 +1233,7 @@ If specified, path must begin with a /
 
 args being a list of arguments to create.
 opts can contain:
+proto -- specify a protocol
 host -- link to different domains
 args -- get arguments to add
 ssl -- use ssl
@@ -1255,7 +1256,8 @@ sub create_url {
     # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
     $opts{ssl} = $LJ::IS_SSL unless $opts{host} || exists $opts{ssl};
 
-    my $url = ( $opts{ssl} ? "https" : "http" ) . "://$host$path";
+    my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
+    my $url = $proto . "://$host$path";
 
     my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
 
@@ -2484,17 +2486,13 @@ sub need_res {
     foreach my $reskey (@_) {
         die "Bogus reskey $reskey" unless $reskey =~ m!^(js|stc)/!;
 
-        my $resinclude;
-        $resinclude = $LJ::MINIFY{$reskey} unless $LJ::IS_DEV_SERVER;
-        $resinclude ||= $reskey;
-
         # we put javascript in the 'default' group and CSS in the 'all' group
         # since we need CSS everywhere and we are switching JS groups
         my $lgroup = $group || ( $reskey =~ /^js/ ? 'default' : 'all' );
         unless ($LJ::NEEDED_RES{"$lgroup-$reskey"}++) {
             $LJ::NEEDED_RES[$priority] ||= [];
 
-            push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $resinclude ];
+            push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $reskey ];
         }
     }
 }
@@ -3153,18 +3151,18 @@ LOGIN_BAR
     # a quick little routine to use when cycling through the options
     # to create the style links for the nav bar
     my $make_style_link = sub {
-        return create_url( $uri,
+        return LJ::ehtml( create_url( $uri,
             host => $host,
             cur_args => $argshash,
             # change the style arg
             'args' => { 'style' => $_[0] },
             # keep any other existing arguments
             'keep_args' => 1,
-        );
+        ) );
     };
 
     # cycle through all possibilities, add the valid ones
-    foreach my $view_type qw( mine site light original ) {
+    foreach my $view_type (qw( mine site light original )) {
         # only want to offer this option if user is logged in and it's not their own journal, since
         # original will take care of that
         if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {

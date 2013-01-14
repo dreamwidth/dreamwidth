@@ -67,8 +67,11 @@ body<=
             unless $statusvis eq 'D' || $statusvis eq 'V';
 
         # no need to change?
-        return $ok->(BML::ml('.message.nochange', {'statusvis' => $statusvis{$statusvis} }))
-            if $u->statusvis eq $statusvis;
+        if ( $u->statusvis eq $statusvis ) {
+            my $text = $u->is_community ?
+                '.message.nochange.comm' : '.message.nochange';
+            return $ok->(BML::ml( $text, {'statusvis' => $statusvis{$statusvis} }));
+        }
 
         my $res = 0;
 
@@ -123,10 +126,14 @@ body<=
             unless $res;
 
         # success
-        $ret .= $ok->(BML::ml('.message.success', {'statusvis' => $statusvis{$statusvis} }));
+        $ret .= $u->is_community ? 
+            $ok->(BML::ml('.message.success.comm', {'statusvis' => $statusvis{$statusvis} })) :
+            $ok->(BML::ml('.message.success', {'statusvis' => $statusvis{$statusvis} }));
 
         if ( $statusvis eq 'D' ) {
-            $ret .= "<p>" . BML::ml( '.message.deleted2', {
+            $ret .= $u->is_community ? 
+                "<p>$ML{'.message.deleted.comm'}</p>" :
+                "<p>" . BML::ml( '.message.deleted2', {
                                 sitenameshort => $LJ::SITENAMESHORT
                             } ) . "</p>";
 
@@ -181,7 +188,13 @@ body<=
     $ret .= "<form method='post' action='accountstatus$getextra'>\n";
     $ret .= LJ::form_auth();
 
-    $ret .= "<p>" . BML::ml( '.journalstatus.about2', { sitenameshort => $LJ::SITENAMESHORT } ) . "</p>\n";
+    if ($u->is_community) {
+        $ret .= "<p>" . BML::ml( '.journalstatus.about.comm', 
+            { sitenameshort => $LJ::SITENAMESHORT,
+              commname => LJ::ljuser( $u->{user} )} ) . "</p>\n";
+    } else {
+        $ret .= "<p>" . BML::ml( '.journalstatus.about2', { sitenameshort => $LJ::SITENAMESHORT } ) . "</p>\n";
+    }
 
     # only show this text to not-deleted OpenID accounts
     $ret .= "<?p $ML{'.delete.openid'} 'p?>"
@@ -202,7 +215,8 @@ body<=
                             size => 50,
                             maxlength => 255,
                          }) . "<br />";
-    $ret .= "<span style='font-size:smaller; font-style:italic;'>$ML{'.reason.about'}<br /><br />\n";
+    my $text = $u->is_community ? '.reason.about.comm' : '.reason.about';
+    $ret .= "<span style='font-size:smaller; font-style:italic;'>$ML{$text}<br /><br />\n";
 
     $ret .= LJ::html_submit(undef, $ML{'.btn.status'},
                             { 'disabled' => $u->is_suspended }) . "\n";

@@ -49,6 +49,8 @@ body<=
 
         if ($u->is_identity) {
             $ret .= "<?p $ML{'.instructions.identity'} p?>";
+        } elsif ($u->is_community) {
+            $ret .= "<?p $ML{'.instructions.comm'} p?>";
         } else {
             $ret .= '<?p ' . BML::ml('.instructions', { sitename => $LJ::SITENAMESHORT }) . ' p?>';
         }
