@@ -158,7 +158,11 @@ Remaps a remote user to local userids.
 =cut
 
 sub get_remapped_userids {
-    my ( $class, $data, $user ) = @_;
+    my ( $class, $data, $user, $log ) = @_;
+
+    $log ||= sub {
+        warn @_;
+    };
 
     # some users we can't map, because the process of loading their FOAF data or journal
     # does really weird things (DNS!)
@@ -176,18 +180,18 @@ sub get_remapped_userids {
     );
 
     unless ( defined $oid ) {
-        warn "[$$] Remapping identity userid of $data->{hostname}:$user\n";
+        $log->( "[$$] Remapping identity userid of $data->{hostname}:$user" );
         $oid = $class->remap_username_friend( $data, $user );
-        warn "     IDENTITY USERID IS STILL UNDEFINED\n"
+        $log->( "     IDENTITY USERID IS STILL UNDEFINED" )
             unless defined $oid;
     }
 
 # FIXME: this is temporarily disabled while we hash out exactly how we want
 # this functionality to work.
 #    unless ( defined $fid ) {
-#        warn "[$$] Remapping feed userid of $data->{hostname}:$user\n";
+#        $log->( "[$$] Remapping feed userid of $data->{hostname}:$user" );
 #        $fid = $class->remap_username_feed( $data, $user );
-#        warn "     FEED USERID IS STILL UNDEFINED\n"
+#        $log->( "     FEED USERID IS STILL UNDEFINED" )
 #            unless defined $fid;
 #    }
 
