@@ -43,7 +43,7 @@ DW::Routing->register_string( "/admin/importer/history/index", \&history_control
 DW::Controller::Admin->register_admin_page( '/', ,
     path => 'importer/history',
     ml_scope => '/admin/importer/history.tt',
-    privs => [ 'supporthelp' ]
+    privs => [ 'siteadmin:importhistory' ]
 );
 
 sub queue_controller {
@@ -104,7 +104,7 @@ sub detail_controller {
 }
 
 sub history_controller {
-    my ( $ok, $rv ) = controller( privcheck => [ "supporthelp" ] );
+    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:importhistory" ] );
     return $rv unless $ok;
 
     my $r = DW::Request->get;
