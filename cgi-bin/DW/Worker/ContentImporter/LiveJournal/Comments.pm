@@ -235,7 +235,7 @@ sub try_work {
             $meta{$temp{id}} = new_comment( $temp{id}, $temp{posterid}+0, $temp{state} || 'A' );
 
         } elsif ( $lasttag eq 'usermap' && ! exists $identity_map{$temp{id}} ) {
-            my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user} );
+            my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user}, $log );
             $identity_map{$temp{id}} = $local_oid;
             $was_external_user{$temp{id}} = 1
                 if $temp{user} =~ m/^ext_/; # If the remote username starts with ext_ flag it as external
