@@ -147,6 +147,11 @@ sub get_menu_navigation {
                     text => "menunav.organize.customizestyle",
                     display => $loggedin,
                 },
+                {
+                    url => "$LJ::SITEROOT/beta",
+                    text => "menunav.organize.beta",
+                    display => $loggedin,
+                },
             ],
         },
         {
