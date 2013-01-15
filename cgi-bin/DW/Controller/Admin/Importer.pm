@@ -25,16 +25,28 @@ use DW::Controller::Admin;
 
 use DW::Logic::Importer;
 
-DW::Routing->register_string( "/admin/importer/index", \&index_controller );
+
+# viewing the queue and details for a specific import
+DW::Routing->register_string( "/admin/importer/queue/index", \&queue_controller );
 DW::Routing->register_string( "/admin/importer/details/index", \&detail_controller );
 
 DW::Controller::Admin->register_admin_page( '/',
-    path => 'importer/',
+    path => 'importer/queue',
     ml_scope => '/admin/importer.tt',
     privs => [ 'siteadmin:theschwartz' ]
 );
 
-sub index_controller {
+
+# view overall import history
+DW::Routing->register_string( "/admin/importer/history/index", \&history_controller );
+
+DW::Controller::Admin->register_admin_page( '/', ,
+    path => 'importer/history',
+    ml_scope => '/admin/importer/history.tt',
+    privs => [ 'supporthelp' ]
+);
+
+sub queue_controller {
     my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:theschwartz" ] );
     return $rv unless $ok;
 
@@ -89,6 +101,28 @@ sub detail_controller {
     }
 
     return DW::Template->render_template( 'admin/importer/detail.tt', $vars );
+}
+
+sub history_controller {
+    my ( $ok, $rv ) = controller( privcheck => [ "supporthelp" ] );
+    return $rv unless $ok;
+
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+    my $user = $get->{user};
+
+    my $vars = {};
+
+    if ( defined $user ) {
+        my $u = LJ::load_user( $user );
+        return error_ml( "error.invaliduser" ) unless $u;
+
+        $vars->{username} = $u->ljuser_display;
+        $vars->{import_items} = DW::Logic::Importer->get_all_import_items( $u );
+        $vars->{formdata} = $r->get_args;
+    }
+
+    return DW::Template->render_template( 'admin/importer/history.tt', $vars );
 }
 
 1;
