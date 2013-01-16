@@ -116,7 +116,7 @@ sub post_args {
     foreach my $key ( keys %$data ) {
         my @val = $data->get( $key );
         next unless @val;
-        push @out, map { $key => $_ } @val;
+        push @out, map { lc $key => $_ } @val;
     }
 
     return $self->{post_args} = Hash::MultiValue->new( @out );
