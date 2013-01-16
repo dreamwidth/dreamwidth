@@ -7,6 +7,8 @@ body<=
     use strict;
     use vars qw(%POST);
 
+    use URI;
+
     my $dbh = LJ::get_db_writer();
     my $u = LJ::get_remote();
 
@@ -44,16 +46,20 @@ body<=
             $acct .= "_feed";
         }
         if ($url ne "") {
+            my $uri = URI->new( $url );
             return $error->($ML{'.invalid.url'})
-                unless $url =~ m!^https?://([^:/]+)(?::(\d+))?!;
-            my $hostname = $1;
-            my $port = $2;
+                unless $uri->scheme ~~ [ qw/ http https / ] && $uri->host;
+
+            my $hostname = $uri->host;
+            my $port = $uri->port;
+
             return $error->($ML{'.invalid.cantadd'})
                 if $hostname =~ /\Q$LJ::DOMAIN\E/i;
 
             return $error->($ML{'.invalid.port'})
-                if defined $port && $port != 80 && $port < 1024;
-            $url =~ s/:80// if $port == 80;
+                if defined $port && $port != $uri->default_port && $port < 1024;
+
+            $url = $uri->canonical;
         }
 
         my $su;  # account to add
