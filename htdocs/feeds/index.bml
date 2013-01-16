@@ -59,6 +59,11 @@ body<=
             return $error->($ML{'.invalid.port'})
                 if defined $port && $port != $uri->default_port && $port < 1024;
 
+            if ( $uri->userinfo ) {
+                $uri->userinfo( undef );
+                BML::redirect( LJ::create_url( "/feeds", args => { url => $uri->canonical, had_credentials => 1 } ) );
+            }
+
             $url = $uri->canonical;
         }
 
@@ -77,6 +82,7 @@ body<=
                 # for the url, just pass that through (we'll recheck it anyway, though)
                 unless ($acct) {
                     my $ret .= "<?h1 $ML{'.create'} h1?><?p " . BML::ml( '.create.name2', { 'feedurl' => LJ::eurl( $url ) } ) . " p?>";
+                    $ret .= qq{<div class="message-box warning-box"><p>$ML{'.warn.had_credentials'}</p></div>} if $GET{had_credentials};
                     $ret .= "<form method='post' action='./'>";
                     $ret .= LJ::html_hidden("userid", $u->{'userid'}, 'synurl', $url);
                     $ret .= "<blockquote>";
