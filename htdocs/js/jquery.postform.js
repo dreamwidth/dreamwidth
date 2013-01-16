@@ -159,7 +159,7 @@ init: function(formData) {
                     $(this).siblings(".hasDatepicker").data("customized", true);
                 })
                 .change(function() {
-                    var val = parseInt($(this).val());
+                    var val = parseInt($(this).val(), 10);
                     if ( isNaN(val) || val != $(this).val() || val <= 0 ) $(this).val("0");
                     else if ( val > 23 ) $(this).val(23);
                 })
@@ -169,7 +169,7 @@ init: function(formData) {
                     $(this).siblings(".hasDatepicker").data("customized", true);
                 })
                 .change(function() {
-                    var val = parseInt($(this).val());
+                    var val = parseInt($(this).val(), 10);
                     if ( isNaN(val) || val != $(this).val() || val <= 0 ) $(this).val("00");
                     else if ( val > 59 ) $(this).val(59);
                 });
