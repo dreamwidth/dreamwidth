@@ -117,7 +117,7 @@ foreach my $scope ( "general", "local" ) {
                     parenttype => 'diff',
                 };
                 $lang->{'parenttype'} = $vals[3] if defined $vals[3];
-                if (defined $vals[4]) {
+                if (defined $vals[4] && $vals[0] != '') { #asd
                     unless (exists $lang_code{$vals[4]}) {
                         die "Can't declare language $lang->{'lncode'} with missing parent language $vals[4].\n";
                     }
@@ -128,7 +128,7 @@ foreach my $scope ( "general", "local" ) {
             }
 
             # domain declaration
-            if ($what eq "domain") {
+            if ($what eq "domain" && $vals[0] != '') { #asd
                 my $dcode = $vals[1];
                 my ($type, $args) = split(m!/!, $dcode);
                 my $dom = {
@@ -144,7 +144,7 @@ foreach my $scope ( "general", "local" ) {
             }
 
             # langdomain declaration
-            if ($what eq "langdomain") {
+            if ($what eq "langdomain" && $vals[0] != '') { #asd
                 my $ld = {
                     lnid =>
                         (exists $lang_code{$vals[0]}
@@ -446,6 +446,7 @@ sub poptext {
                 if $code =~ /^\./;
 
             # load existing items for target language
+            if( length $l->{'lnid'} ) { #####
             unless (exists $existing_item{$l->{'lnid'}}) {
                 $existing_item{$l->{'lnid'}} = {};
                 my $sth = $dbh->prepare(qq{
@@ -485,6 +486,7 @@ sub poptext {
                     $out->('x', "ERROR: " . LJ::Lang::last_error());
                 }
             }
+            } #####
         });
         $out->("added: $addcount", '-');
     }
@@ -548,13 +550,21 @@ sub dumptext {
         my $l = $lang_code{$lang};
 
         my %fh_map = (); # filename => filehandle
+	if( length $l->{'lnid'} ) { ####
+	$out->("---$l->{'lnid'}---");
+	$out->("SELECT i.itcode, t.text, l.staleness, i.notes FROM ".
+                                "ml_items i, ml_latest l, ml_text t ".
+                                "WHERE l.lnid=$l->{'lnid'} AND l.dmid=1 ".
+                                "AND i.dmid=1 AND l.itid=i.itid AND ".
+                                "t.dmid=1 AND t.txtid=l.txtid AND ".
+                                "t.lnid=$l->{'lnid'} ".
+                                "ORDER BY i.itcode");
 
         my $sth = $dbh->prepare("SELECT i.itcode, t.text, l.staleness, i.notes FROM ".
                                 "ml_items i, ml_latest l, ml_text t ".
                                 "WHERE l.lnid=$l->{'lnid'} AND l.dmid=1 ".
                                 "AND i.dmid=1 AND l.itid=i.itid AND ".
                                 "t.dmid=1 AND t.txtid=l.txtid AND ".
-                                # only export mappings that aren't inherited:
                                 "t.lnid=$l->{'lnid'} ".
                                 "ORDER BY i.itcode");
         $sth->execute;
@@ -612,6 +622,8 @@ sub dumptext {
         foreach my $file (keys %fh_map) {
             close $fh_map{$file} or die "unable to close: $file ($!)";
         }
+
+	} ####
     }
     $out->('-', 'done.');
 }

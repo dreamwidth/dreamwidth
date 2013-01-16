@@ -828,7 +828,7 @@ sub preload_props {
         foreach (@props) {
             next if exists $u->{$_};
             my $p = LJ::get_prop("user", $_);
-            die "Invalid userprop $_ passed to preload_props." unless $p;
+###            die "Invalid userprop $_ passed to preload_props." unless $p;
             push @keys, [$uid,"uprop:$uid:$p->{'id'}"];
         }
         $mem = LJ::MemCache::get_multi(@keys) || {};
@@ -856,7 +856,7 @@ sub preload_props {
         foreach (@props) {
             next if exists $u->{$_};
             my $p = LJ::get_prop("user", $_);
-            die "Invalid userprop $_ passed to preload_props." unless $p;
+###            die "Invalid userprop $_ passed to preload_props." unless $p;
             if (defined $mem->{"uprop:$uid:$p->{'id'}"}) {
                 $u->{$_} = $mem->{"uprop:$uid:$p->{'id'}"};
                 next;
