@@ -2352,6 +2352,10 @@ protocol.parseerror=Your entry has invalid HTML and cannot be displayed properly
 
 protocol.readonly=Your account is temporarily in read-only mode.  Some actions won't work for a few minutes.
 
+random.retry.community=We couldn't find a random community. <a [[aopts]]>Try again</a>?
+
+random.retry.personal=We couldn't find a random journal. <a [[aopts]]>Try again</a>?
+
 rename.error.invalidaccounttype=Only personal journals can own rename tokens.
 
 rename.error.invalidfrom=Tried to rename an invalid journal.
