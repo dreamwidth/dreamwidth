@@ -173,7 +173,7 @@ sub _call_hash {
     #  cannot do the redirect safely for non-GET/HEAD requests.
     return $r->redirect( LJ::create_url($r->uri, keep_args => 1, ssl => 1) )
         if $opts->prefer_ssl && $LJ::USE_SSL && $opts->role eq 'app' &&
-            ! $opts->ssl && $r->method eq 'GET' || $r->method eq 'HEAD';
+            ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
     # apply default content type if it exists
     $r->content_type( $default_content_types->{$format} )
