@@ -259,7 +259,7 @@ for (var i=1; i<=2; i++) {
         DOM.addEventListener($("Page_Next_"+i), "click", Page_Next);
 }
 
-if ($("pageNum")) pageNum = parseInt($("pageNum").value);
+if ($("pageNum")) pageNum = parseInt($("pageNum").value, 10);
 }
 
 function xtra_args () {

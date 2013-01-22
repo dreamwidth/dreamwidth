@@ -56,7 +56,7 @@ _toggleSubscription: function(subInfo, type) {
         // get necessary AJAX parameters
         $.each(param_keys,(function (index,param) {
             if (Number(subInfo[param]))
-                params[param] = parseInt(subInfo[param]);
+                params[param] = parseInt(subInfo[param], 10);
         }));
     }
     params.action = action;

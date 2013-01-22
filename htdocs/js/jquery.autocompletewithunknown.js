@@ -51,7 +51,7 @@
         $(this).val("");
         if ( self.options.grow ) {
             // shrink
-            $(this).height((parseInt($(this).css('lineHeight').replace(/px$/,''))||20) + 'px');
+            $(this).height((parseInt($(this).css('lineHeight').replace(/px$/,''), 10)||20) + 'px');
             if ( self.options.maxlength )
                 $("#"+self.options.id+"_count").text(self.options.maxlength);
         }
