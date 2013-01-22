@@ -509,7 +509,7 @@ sub _edit {
                 if $journal && $journal->readonly;
 
             my $form_req = {};
-            my %status = _form_to_backend( $form_req, $post );
+            my %status = _form_to_backend( $form_req, $post, allow_empty => $mode_delete );
             push @error_list, @{$status{errors}}
                 if exists $status{errors};
 
@@ -669,7 +669,7 @@ sub _auth {
 # decodes the posted form into a hash suitable for use with the protocol
 # $post is expected to be an instance of Hash::MultiValue
 sub _form_to_backend {
-    my ( $req, $post ) = @_;
+    my ( $req, $post, %opts ) = @_;
 
     my @errors;
 
@@ -678,7 +678,7 @@ sub _form_to_backend {
     $req->{event} = $post->{event} || "";
 
     push @errors, LJ::Lang::ml( "/update.bml.error.noentry" )
-        if $req->{event} eq "";
+        if $req->{event} eq "" && ! $opts{allow_empty};
 
 
     # initialize props hash
