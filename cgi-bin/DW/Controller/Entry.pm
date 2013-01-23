@@ -41,7 +41,7 @@ my %form_to_props = (
 my @modules = qw(
     tags currents displaydate
     access journal comments
-    age_restriction icons crosspost
+    age_restriction icons crosspost sticky
 );
 
 
@@ -116,6 +116,7 @@ sub new_handler {
 
         my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
+        my $sticky_select = $post->{sticky_select};
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -181,7 +182,7 @@ sub new_handler {
 
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( @error_list ) {
-                my %post_res = _do_post( $form_req, $flags, \%auth, warnings => \@warnings );
+                my %post_res = _do_post( $form_req, $flags, $sticky_select, \%auth, warnings => \@warnings );
                 return $post_res{render} if $post_res{status} eq "ok";
 
                 # oops errors when posting: show error, fall through to show form
@@ -231,6 +232,7 @@ sub new_handler {
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
+                        issticky => 0,
                       }, @_ );
 
     # now look for errors that we still want to recover from
@@ -286,6 +288,9 @@ sub _init {
     my %moodtheme;
     my @moodlist;
     my $moods = DW::Mood->get_moods;
+
+    my @stickylist;
+    my $this_issticky = $form_opts->{issticky};
 
     # we check whether the user can actually post to this journal on form submission
     # journal we explicitly say we want to post to
@@ -361,6 +366,20 @@ sub _init {
     push @moodlist, { id => $_, name => $moods->{$_}->{name} }
         foreach sort { $moods->{$a}->{name} cmp $moods->{$b}->{name} } keys %$moods;
 
+    my @stickies = $u->sticky_entry;
+    my $checked = 0;
+    for ( my $i = 0; $i < $u->count_max_stickies; $i++ ) {
+        my $sticky = $u->get_sticky_entry( $i );
+        if ( $sticky ) {
+            my $subject = $sticky->subject_html;
+            $checked = 1 if ( $sticky->ditemid == $this_issticky );
+            push @stickylist, { name => $subject, number => $sticky->ditemid, position => $i + 1, issticky => 1, checked => $checked };
+            $checked = 0;
+        } else {
+            push @stickylist, { name => "", number => 0, position => $i + 1, issticky => 0, checked => 0 }
+        }
+    }
+
     my ( @security, @custom_groups );
     if ( $journalu && $journalu->is_community ) {
         @security = (
@@ -411,6 +430,9 @@ sub _init {
 
         moodtheme => \%moodtheme,
         moods     => \@moodlist,
+
+        stickies => \@stickylist,
+        is_sticky => 0,
 
         journallist => \@journallist,
         usejournal  => $usejournal,
@@ -484,6 +506,7 @@ sub _edit {
         my $mode_preview    = $post->{"action:preview"} ? 1 :0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
         my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
+        my $sticky_select   = $post->{sticky_select};
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -532,6 +555,7 @@ sub _edit {
                 my %edit_res = _do_edit(
                         $ditemid,
                         $form_req,
+                        $sticky_select,
                         { remote => $remote, journal => $journal },
                         warnings => \@warnings
                         );
@@ -570,6 +594,9 @@ sub _edit {
         %crosspost = map { $_ => 1 } keys %{ $xposthash || {} };
     }
 
+     my $issticky = 0;
+     $issticky = $ditemid if $remote->is_sticky_entry( $ditemid );
+
     my $vars = _init( { usejournal  => $journal->username,
                         remote      => $remote,
 
@@ -577,6 +604,7 @@ sub _edit {
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
+                        issticky => $issticky,
                       }, @_ );
 
     # now look for errors that we still want to recover from
@@ -837,6 +865,9 @@ sub _backend_to_form {
         }
     }
 
+    my $user = $entry->poster;
+    my $is_sticky = $user->is_sticky_entry( $entry->{ditemid} );
+
     return {
         subject => $entry->subject_raw,
         event   => $entry->event_raw,
@@ -844,6 +875,7 @@ sub _backend_to_form {
         icon        => $entry->userpic_kw,
         security    => $security,
         custom_bit  => \@custom_groups,
+        is_sticky   => $is_sticky,
 
         %formprops,
         %otherprops,
@@ -921,10 +953,12 @@ sub _save_new_entry {
 }
 
 sub _do_post {
-    my ( $form_req, $flags, $auth, %opts ) = @_;
+    my ( $form_req, $flags, $sticky_select, $auth, %opts ) = @_;
+
 
     my $res = _save_new_entry( $form_req, $flags, $auth );
     return %$res if $res->{errors};
+
 
     # post succeeded, time to do some housecleaning
     _persist_props( $auth->{poster}, $form_req );
@@ -969,6 +1003,8 @@ sub _do_post {
         my $itemlink = $res->{url};
         my $edititemlink = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
+        $ju->make_sticky_entry( $ditemid, $sticky_select )  unless ( $sticky_select == 0 );
+
         my @links = (
             { url => $itemlink,
                 ml_string => "/update.bml.success.links.view" }
@@ -1003,6 +1039,8 @@ sub _do_post {
                 ditemid => $ditemid,
         );
 
+
+        push @warnings, { type=>"warning", message => "message" };
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
                 poststatus  => $ret,        # did the update succeed or fail?
@@ -1040,7 +1078,7 @@ sub _save_editted_entry {
 }
 
 sub _do_edit {
-    my ( $ditemid, $form_req, $auth, %opts ) = @_;
+    my ( $ditemid, $form_req, $sticky_select, $auth, %opts ) = @_;
 
     my $res = _save_editted_entry( $ditemid, $form_req, $auth );
     return %$res if $res->{errors};
@@ -1069,8 +1107,17 @@ sub _do_edit {
     my $juser = $journal->user;
     my $entry_url = $res->{url};
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
+    my $u = $auth->{poster};
+    my $ju = $auth->{journal} || $auth->{poster};
+    if ( $sticky_select == 0 && $journal->is_sticky_entry( $ditemid ) ) {
+        $journal->remove_sticky_entry( $ditemid );
+    } else {
+        $journal->make_sticky_entry( $ditemid, $sticky_select ) unless $sticky_select == 0;
+    }
 
     if ( $deleted ) {
+        $journal->remove_sticky_entry( $ditemid ) unless ( $sticky_select == 0 );
+
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.delete' );
     } else {
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );
