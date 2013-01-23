@@ -2325,6 +2325,10 @@ sub count_max_mod_queue_per_poster {
     return $_[0]->get_cap( 'mod_queue_per_poster' );
 }
 
+sub count_max_stickies {
+    return $_[0]->get_cap( 'stickies' );
+}
+
 sub count_max_subscriptions {
     return $_[0]->get_cap( 'subscriptions' );
 }
@@ -2614,6 +2618,43 @@ sub invalidate_directory_record {
              undef, $u->id);
 }
 
+# checks whether an entry id corresponds to that of a sticky entry which is under user's max_sticky_count.
+sub is_sticky_entry {
+    my ( $u, $ditemid ) = @_;
+    
+    my @stickies = $u->sticky_entry;
+
+    for ( my $i = 1; $i<=$u->count_max_stickies; $i++ ) {
+        return 1 if ( $ditemid == $stickies[$i-1] );
+    }
+    return 0;
+}
+
+# Checks if some input is a valid URL or ID for an entry in the users journal, returns
+# the entry itemid if it is valid.
+#
+# NB. Created to support multiple stickies but can probably replace duplicate code
+# in several over places.
+sub is_valid_entry {
+    my ( $u, $input ) = @_;
+
+    # Get the item ID number from the input.
+    my $ditemid;
+    if ( $input =~ m!/(\d+)\.html! ) {
+        $ditemid = $1;
+    } elsif ( $input =~ m!(\d+)! ) {
+        $ditemid = $1;
+    } else {
+        return undef;
+    }
+
+    # Validate the entry
+    my $item = LJ::Entry->new( $u, ditemid => $ditemid );
+    return undef unless $item && $item->valid;
+
+    return $ditemid;
+}
+
 
 # <LJFUNC>
 # name: LJ::User::large_journal_icon
@@ -2641,6 +2682,20 @@ sub large_journal_icon {
     return $wrap_img->( "user" );
 }
 
+# Make a particular entry into a particular sticky.
+sub make_sticky_entry {
+    my ( $u, $ditemid, $sticky_id ) = @_;
+
+    return undef if $sticky_id > $u->count_max_stickies;
+
+    my @stickies = $u->sticky_entry;
+
+    $stickies[$sticky_id-1] = $ditemid;
+    my $sticky_entry = join( ',', @stickies );
+    $u->set_prop( sticky_entry => $sticky_entry );
+
+    return 1;
+}
 
 # des: Given a list of caps to add and caps to remove, updates a user's caps.
 # args: cap_add, cap_del, res
@@ -2952,6 +3007,23 @@ sub remove_from_class {
     return $u->modify_caps( [], [$bit] );
 }
 
+# Remove a particular entry from the sticky list
+sub remove_sticky_entry {
+    my ( $u, $ditemid ) = @_;
+
+    my @stickies = $u->sticky_entry;
+    my @new_stickies;
+
+    foreach my $sticky ( @stickies ) {
+        push @new_stickies, $sticky unless ( $sticky == $ditemid ) 
+    }
+
+    my $sticky_entry = join( ',', @new_stickies );
+    $u->set_prop( sticky_entry => $sticky_entry );
+
+    return 1;
+}
+
 
 # Sets/deletes userprop(s) by name for a user.
 # This adds or deletes from the [dbtable[userprop]]/[dbtable[userproplite]]
@@ -3172,40 +3244,80 @@ sub thread_expand_all {
 }
 
 #get/set Sticky Entry parent ID for settings menu
+# Expects an array of entries as input
+# Returns an array of entries
+# NB.  This assumes that the inputs have already been validated as actual journal entries otherwise bad things
+# will happen.
 sub sticky_entry {
-    my ( $u, $input ) = @_;
+    my ( $u, @input ) = @_;
 
-    if ( defined $input ) {
-        unless ( $input ) {
+    # The user may have previously had an account type that allowed more stickes.
+    # we want to preserve a record of these additional stickes in case they once
+    # more upgrade their account.  This means we must first extract these
+    # if they exist.
+    my $sticky_entries =  $u->prop( 'sticky_entry' );
+    my @entries = split( /,/, $sticky_entries );
+
+    my $max_sticky_count = $u->count_max_stickies;
+    my $max_sticky_count_from_zero = $max_sticky_count - 1;
+    my $entry_length = @entries;
+
+    my @currently_unused_stickies = @entries[$max_sticky_count..$entry_length];
+
+    # Check we've been sent input and it isn't empty.  If so we need to alter the sticky entries stored.
+    if ( defined $input[0] ) {
+        unless ( $input[0] ) {
             $u->set_prop( sticky_entry => '' );
             return 1;
         }
-        #also takes URL
-        my $ditemid;
-        if ( $input =~ m!/(\d+)\.html! ) {
-            $ditemid = $1;
-        } elsif ( $input =~ m!(\d+)! ) {
-            $ditemid = $1;
-        } else {
-            return 0;
+
+        # sanity check the elements of the input array of candidate stickies.
+        my $new_sticky_count = 0;
+        foreach my $stickyid ( @input ) {
+            $new_sticky_count++;
+            return undef unless ( defined $u->is_valid_entry( $stickyid ) );
         }
 
-        # Validate the entry
-        my $item = LJ::Entry->new( $u, ditemid => $ditemid );
-        return 0 unless $item && $item->valid;
+        # The user may have reused a sticky from before their account was downgraded.  To keep
+        # stickies unique we should remove this from the list of unused stickies.
+        my @new_unused_stickies;
+        # We create a hash from the input for quick membership checking.
+        my %sticky_hash = map { $_, 1 } @input;
+        foreach my $unused_sticky ( @currently_unused_stickies ) {
+            push @new_unused_stickies, $unused_sticky unless ( exists $sticky_hash{ $unused_sticky } ) 
+        }
+ 
+        # This shouldn't happen but, just in case, we check the number of new stickies and
+        # if we have more than we're allowed we trim the input array accordingly.
+        @input = @input[0..$max_sticky_count-1] unless ( $new_sticky_count < $max_sticky_count );
 
-        $u->set_prop( sticky_entry => $ditemid );
+        # We add the currently_unused_stickies onto the end of the new stickies
+        # NB.  This has the side effect that, if the user hasn't allocated all their
+        # sticky quota but has previously used more than their quota that some of their
+        # old stickies will "shuffle up" to fill in the space.  I think this is 
+        # desirable behaviour, but it may surprise some users and should probably
+        # be documented somewhere.
+        my $sticky_entry = join( ',', ( @input, @new_unused_stickies ) );
+
+        $u->set_prop( sticky_entry => $sticky_entry );
         return 1;
     }
-    return $u->prop( 'sticky_entry' );
+
+    my @current_entries = @entries[0..$max_sticky_count-1];
+    return @current_entries;
 }
 
+# Get's ith sticky entry from list
 sub get_sticky_entry {
-    my $u = shift;
+    my ( $u, $i ) = @_;
 
-    if ( my $ditemid = $u->sticky_entry ) {
-        my $item = LJ::Entry->new( $u, ditemid => $ditemid );
-        return $item if $item->valid;
+    return undef unless ( defined $i );
+
+    if ( my @stickies = $u->sticky_entry ) {
+        if ( my $ditemid = $stickies[$i] ) {
+            my $item = LJ::Entry->new( $u, ditemid => $ditemid );
+            return $item if $item->valid;
+        }
     }
     return undef;
 }
@@ -4896,7 +5008,7 @@ sub entryform_panels {
                    [ "access", "journal", "currents", "comments", "age_restriction" ],
 
                    # FIXME: should be [ "icons" "crosspost" "scheduled" ]
-                   [ "icons", "crosspost" ],
+                   [ "icons", "crosspost", "sticky" ],
                 ],
         show => {
             "tags"          => 1,
@@ -4908,6 +5020,7 @@ sub entryform_panels {
             "age_restriction" => 0,
             "icons"         => 1,
             "crosspost"     => 0,
+            "sticky"        => 1,
 
             #"scheduled"     => 0,
             #"status"        => 1,
