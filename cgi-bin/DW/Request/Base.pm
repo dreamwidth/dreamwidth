@@ -99,7 +99,7 @@ sub _string_to_multivalue {
     my @out;
     foreach my $key ( keys %gets ) {
         my @parts = split(/\0/, $gets{$key});
-        push @out, map { $key => $_ } @parts;
+        push @out, map { lc $key => $_ } @parts;
     }
 
     return Hash::MultiValue->new( @out );

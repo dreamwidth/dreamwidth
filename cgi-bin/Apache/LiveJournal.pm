@@ -1378,7 +1378,6 @@ sub journal_content
         'r'         => $apache_r,
         'headers'   => \%headers,
         'args'      => $RQ{'args'},
-        'getargs'   => \%GET,
         'vhost'     => $RQ{'vhost'},
         'pathextra' => $RQ{'pathextra'},
         'header'    => {
