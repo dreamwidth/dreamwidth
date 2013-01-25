@@ -179,20 +179,20 @@ sub get_remapped_userids {
         undef, $data->{hostname}, $user
     );
 
-    unless ( defined $oid ) {
+    unless ( $oid ) {
         $log->( "[$$] Remapping identity userid of $data->{hostname}:$user" );
         $oid = $class->remap_username_friend( $data, $user );
-        $log->( "     IDENTITY USERID IS STILL UNDEFINED" )
-            unless defined $oid;
+        $log->( "     IDENTITY USERID STILL DOESN'T EXIST" )
+            unless $oid;
     }
 
 # FIXME: this is temporarily disabled while we hash out exactly how we want
 # this functionality to work.
-#    unless ( defined $fid ) {
+#    unless ( $fid ) {
 #        $log->( "[$$] Remapping feed userid of $data->{hostname}:$user" );
 #        $fid = $class->remap_username_feed( $data, $user );
-#        $log->( "     FEED USERID IS STILL UNDEFINED" )
-#            unless defined $fid;
+#        $log->( "     FEED USERID STILL DOESN'T EXIST" )
+#            unless $fid;
 #    }
 
     $dbh->do( 'REPLACE INTO import_usermap (hostname, username, identity_userid, feed_userid) VALUES (?, ?, ?, ?)',
@@ -201,8 +201,10 @@ sub get_remapped_userids {
     # load this user and determine if they've been claimed. if so, we want to post
     # all content as from the claimant.
     my $ou = LJ::load_userid( $oid );
-    if ( my $cu = $ou->claimed_by ) {
-        $oid = $cu->id;
+    if ( defined $ou ) {
+        if ( my $cu = $ou->claimed_by ) {
+            $oid = $cu->id;
+        }
     }
 
     $MAPS{$data->{hostname}}->{$user} = [ $oid, $fid ];
@@ -290,6 +292,8 @@ sub remap_username_friend {
             or return undef;
         return $iu->id;
     }
+
+    return undef;
 }
 
 =head2 C<< $class->remap_lj_user( $data, $event ) >>
