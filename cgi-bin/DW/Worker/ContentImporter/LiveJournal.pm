@@ -197,7 +197,7 @@ sub get_remapped_userids {
     # load this user and determine if they've been claimed. if so, we want to post
     # all content as from the claimant.
     my $ou = LJ::load_userid( $oid );
-    if ( my $cu = $ou->claimed_by ) {
+    if ( defined $ou && my $cu = $ou->claimed_by ) {
         $oid = $cu->id;
     }
 
