@@ -59,6 +59,8 @@ my %host_path_match = (
     "maps.google.com"       => qr!^/maps!,
     "www.google.com"        => qr!^/calendar/!,
 
+    "www.kickstarter.com"   => qr!/widget/video.html$!,
+
     "ext.nicovideo.jp"      => qr!^/thumb/!,
 
     "www.sbs.com.au"        => qr!/player/embed/!,  # best guess; language parameter before /player may vary
