@@ -214,7 +214,7 @@ sub try_work {
         # now try to determine if we need to post this as a user
         my $posteru;
         if ( $data->{usejournal} ) {
-            my ( $posterid, $fid ) = $class->get_remapped_userids( $data, $evt->{poster} );
+            my ( $posterid, $fid ) = $class->get_remapped_userids( $data, $evt->{poster}, $log );
 
             unless ( $posterid ) {
                 # FIXME: need a better way of totally dying...
