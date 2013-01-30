@@ -11,7 +11,7 @@ use LJ::Test;
 
 my $fakeanswers_single = {
     question => 'The white bank is what colour?',
-    answer   => 'd508fe45cecaf653904a0e774084bb5c',
+    answer   => [ 'd508fe45cecaf653904a0e774084bb5c' ],
 };
 
 my $fakeanswers_multiple = {
