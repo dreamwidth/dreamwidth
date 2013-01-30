@@ -30,9 +30,9 @@ sub _memcache_key_prefix            { "acct" }
 sub _memcache_stored_props          {
     # first element of props is a VERSION
     # next - allowed object properties
-    return qw/ 3
+    return qw/ 4
                userid acctid
-               siteid username password servicename servicetype serviceurl xpostbydefault recordlink options
+               siteid username password servicename servicetype serviceurl xpostbydefault recordlink options active
                /;
 }
 sub _memcache_hashref_to_object {
@@ -62,12 +62,15 @@ sub _skeleton {
     };
 }
 
-# class method.  returns the External Accounts for a User.
+# class method.  returns active External Accounts for a User.
+# optional: show_inactive => 1 returns inactive accounts as well
 sub get_external_accounts {
-    my ($class, $u) = @_;
+    my ($class, $u, %opts) = @_;
 
     # we require a user here.
     $u = LJ::want_user($u) or LJ::throw("no user");
+
+    my $show_inactive = $opts{show_inactive};
 
     my @accounts;
 
@@ -76,19 +79,19 @@ sub get_external_accounts {
     if ($acctlist) {
         foreach my $acctid (@$acctlist) {
             my $account = $class->get_external_account($u, $acctid);
-            push @accounts, $account;
+            push @accounts, $account if $show_inactive || $account->active;
         }
         return @accounts;
     }
 
-    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options FROM externalaccount WHERE userid=?" );
-    $sth->execute($u->userid);
+    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active FROM externalaccount WHERE userid=?" );
+    $sth->execute($u->userid, );
     LJ::throw($u->errstr) if $u->err;
 
     my @acctids;
     while (my $row = $sth->fetchrow_hashref) {
         my $account = $class->new_from_row($u, $row);
-        push @accounts, $account;
+        push @accounts, $account if $show_inactive || $account->active;
         $account->_store_to_memcache;
         push @acctids, $account->acctid;
     }
@@ -107,7 +110,7 @@ sub get_external_account {
         return $cached_value;
     }
 
-    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options FROM externalaccount WHERE userid=? and acctid=?" );
+    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active FROM externalaccount WHERE userid=? and acctid=?" );
     $sth->execute($u->userid, $acctid);
     LJ::throw($u->err) if ($u->err);
 
@@ -164,7 +167,7 @@ sub xpost_string_to_hash {
 # instance methods
 sub absorb_row {
     my ($self, $row) = @_;
-    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink options ) ) {
+    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink options active ) ) {
         $self->{$f} = $row->{$f};
     }
     return $self;
@@ -187,7 +190,7 @@ sub create {
     # convert the options hashref to a single field
     my $options_blob = $class->xpost_hash_to_string( $opts->{options} );
 
-    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $options_blob );
+    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1 )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $options_blob );
     
     LJ::throw($u->errstr) if $u->err;
 
@@ -227,17 +230,19 @@ sub _clear_items {
 }
 
 
-# deletes this external account
+# marks this external account as deleted
+# we keep around the actual row for data integrity
+# but get rid of sensitive information (password)
 sub delete {
     my ($self) = @_;
     my $u = $self->owner;
 
-    $u->do("DELETE FROM externalaccount WHERE userid=? AND acctid=?",
-           undef, $u->{userid}, $self->acctid);
-    
+    $u->do( "UPDATE externalaccount set active=0, password=NULL WHERE userid=? AND acctid=?",
+           undef, $u->{userid}, $self->acctid );
 
     # clear the cache.
     $self->_clear_items($u);
+    $self->_remove_from_memcache($self->_memcache_id);
 
     return 1;
 }
@@ -397,6 +402,10 @@ sub xpostbydefault {
 
 sub recordlink {
     return $_[0]->{recordlink};
+}
+
+sub active {
+    return $_[0]->{active};
 }
 
 # returns the (protocol-specific) options as a hash ref

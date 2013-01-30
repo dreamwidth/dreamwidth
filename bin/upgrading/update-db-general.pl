@@ -2869,6 +2869,7 @@ CREATE table externalaccount (
     serviceurl varchar(128),
     xpostbydefault enum('1','0') NOT NULL default '0',
     recordlink enum('1','0') NOT NULL default '0',
+    active enum('1', '0') NOT NULL default '1',
     options blob,
     primary key (userid, acctid),
     index (userid)
@@ -4123,6 +4124,12 @@ EOF
 
     if ( column_type( "support", "timemodified" ) eq '' ) {
         do_alter( 'support', "ALTER TABLE support ADD COLUMN timemodified int(10) unsigned default NULL" );
+    }
+
+    if ( column_type( "externalaccount", "active" ) eq '' ) {
+        do_alter( 'externalaccount',
+            "ALTER TABLE externalaccount " .
+            "ADD COLUMN active enum('1', '0') NOT NULL default '1'" );
     }
 });
 
