@@ -3193,6 +3193,18 @@ CREATE TABLE dbnotes (
 )
 EOC
 
+register_tablecreate("captcha_cache", <<'EOC');
+CREATE TABLE captcha_cache (
+    `captcha_id` INT UNSIGNED NOT NULL auto_increment,
+    `question`   VARCHAR(255) NOT NULL,
+    `answer`     VARCHAR(255) NOT NULL,
+    `issuetime`  INT UNSIGNED NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`captcha_id`),
+    INDEX(`issuetime`)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes

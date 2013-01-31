@@ -11,7 +11,7 @@ use LJ::Test;
 
 my $fakeanswers_single = {
     question => 'The white bank is what colour?',
-    answer   => 'd508fe45cecaf653904a0e774084bb5c',
+    answer   => [ 'd508fe45cecaf653904a0e774084bb5c' ],
 };
 
 my $fakeanswers_multiple = {
@@ -46,7 +46,7 @@ sub _get_answers {
 note( "single answer" );
 {
     LJ::start_request();
-    my $content = XML::Simple::XMLout( $fakeanswers_single, NoAttr => 1 );
+    my $content = $fakeanswers_single;
     my $auth = LJ::form_auth( 1 );
     my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
 
@@ -76,7 +76,7 @@ note( "single answer" );
 note( "multiple valid answers" );
 {
     LJ::start_request();
-    my $content = XML::Simple::XMLout( $fakeanswers_multiple, NoAttr => 1 );
+    my $content = $fakeanswers_multiple;
     my $auth = LJ::form_auth( 1 );
     my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
 
@@ -100,7 +100,7 @@ note( "multiple valid answers" );
 
 note( "no form auth passed in" );
 {
-    my $content = XML::Simple::XMLout( $fakeanswers_single, NoAttr => 1 );
+    my $content = $fakeanswers_single;
     my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, "" );
     my $captcha_auth = $captcha->{chal};
 
@@ -116,7 +116,7 @@ note( "no form auth passed in" );
 note( "tried to reuse captcha + form_auth" );
 {
     LJ::start_request();
-    my $content = XML::Simple::XMLout( $fakeanswers_single, NoAttr => 1 );
+    my $content = $fakeanswers_single;
     my $auth = LJ::form_auth( 1 );
     my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
     my $captcha_auth = $captcha->{chal};
