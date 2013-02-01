@@ -335,6 +335,13 @@ sub try_work {
         undef, $u->id, $opts->{import_data_id}
     );
 
+    # Kick off a indexing job for this user
+    if ( @LJ::SPHINX_SEARCHD ) {
+        LJ::theschwartz()->insert_jobs(
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } )
+        );
+    }
+
     return $ok->();
 }
 
