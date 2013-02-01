@@ -16,6 +16,7 @@
 #
 
 use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::Worker::TheSchwartz;
 
@@ -49,7 +50,7 @@ sub work {
 
     # figure out which posts the search db knows
     my $sphinx_times = $dbto->selectall_hashref(
-        'SELECT jitemid, revtime FROM posts_raw WHERE journal_id = ?',
+        'SELECT id, jitemid, revtime FROM posts_raw WHERE journal_id = ?',
         'jitemid', undef, $u->id
     );
     die $dbto->errstr if $dbto->err;
@@ -68,7 +69,7 @@ sub work {
     die $dbfrom->errstr if $dbfrom->err;
 
     # three doors: ignore, copy, delete
-    my ( @copy_jitemids, @delete_jitemids );
+    my ( @copy_jitemids, @delete_jitemids, %sphinx_ids );
 
     # now iterate through and find entirely NEW and EDITED posts
     foreach my $jitemid ( keys %$db_times ) {
@@ -76,7 +77,10 @@ sub work {
         # we have to decide which time to use.  we want the edit time if one is available,
         # but we'll use the createtime if not
         $db_times->{$jitemid} = $db_times->{$jitemid}->{edittime} || $db_times->{$jitemid}->{createtime};
-        $sphinx_times->{$jitemid} = $sphinx_times->{$jitemid}->{revtime};
+        if (exists $sphinx_times->{$jitemid}) {
+            $sphinx_ids{$jitemid} = $sphinx_times->{$jitemid}->{id};
+            $sphinx_times->{$jitemid} = $sphinx_times->{$jitemid}->{revtime};
+        }
 
         next if exists $sphinx_times->{$jitemid} &&
                 $sphinx_times->{$jitemid} == $db_times->{$jitemid};
@@ -137,16 +141,18 @@ sub work {
         }
 
         # insert
+        my $id = $sphinx_ids{$jitemid} // LJ::alloc_global_counter('X');
         $dbto->do(
-            q{REPLACE INTO posts_raw (id, journal_id, jitemid, poster_id, security_bits, allow_global_search, date_posted,
-                                      title, data, revtime)
-              VALUES (NULL, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?)},
-            undef, map { $row->{$_} } qw/ journalid jitemid posterid allowmask allowpublic logtime subject event edittime /
+            q{REPLACE INTO posts_raw (id, journal_id, jitemid, poster_id,
+                security_bits, allow_global_search, date_posted, title, data, revtime)
+              VALUES (?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, COMPRESS(?), ?)},
+            undef, $id, map { $row->{$_} } qw/ journalid jitemid posterid
+                allowmask allowpublic logtime subject event edittime /
         );
         die $dbto->errstr if $dbto->err;
 
         # let the viewer know what they missed
-        warn "[$$] Inserted post #$jitemid for " . $u->user . "(" . $u->id . ").\n";
+        warn "[$$] Inserted post #$jitemid for " . $u->user . "(" . $u->id . ") as Sphinx id $id.\n";
     }
 
     # all good

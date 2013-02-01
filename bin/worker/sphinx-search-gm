@@ -16,6 +16,7 @@
 #
 
 use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN {
     require "ljlib.pl";
@@ -60,7 +61,6 @@ sub _run_search {
 
     # we don't want items marked deleted (user is not visible)
     $sx->SetFilter( 'is_deleted', [ 0 ] );
-
 
     # security filtering is a dangerous game.  basically, the caller tells us whether to
     # ignore security or gives us a mask of bits to work with.  from that we intuit what
@@ -124,9 +124,8 @@ sub _build_output {
             push @out, $match;
         }
 
-        # FIXME: this should use some other index name than 'test1' heh, and we should probably
-        # try to figure out the language of the journal being searched (or the searcher?) and use
-        # an appropriate stemming library?  (future expansion opportunity)
+        # FIXME: We are using English stemming in this index. We could try to build separate
+        # stemmed indices for other languages, if we want.
         my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1stemmed', $query, {} ) || [];
         my $subj = $sx->BuildExcerpts( [ map { $_->{subject} } @out ], 'dw1stemmed', $query, {} ) || [];
 

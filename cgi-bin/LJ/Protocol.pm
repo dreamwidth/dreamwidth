@@ -1742,7 +1742,7 @@ sub postevent
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 
     # update the sphinx search engine
-    if ( @LJ::SPHINX_SEARCHD ) {
+    if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
         push @jobs, TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $uowner->id } );
     }
 
