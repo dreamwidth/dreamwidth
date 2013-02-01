@@ -1002,7 +1002,7 @@ sub _do_post {
         my $itemlink = $res->{url};
         my $edititemlink = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
-        $ju->make_sticky_entry( $ditemid, $sticky_select );
+        $ju->make_sticky_entry( $ditemid, $sticky_select )  unless ( $sticky_select == 0 );
 
         my @links = (
             { url => $itemlink,
@@ -1108,14 +1108,14 @@ sub _do_edit {
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
     my $u = $auth->{poster};
     my $ju = $auth->{journal} || $auth->{poster};
-    if ( !$sticky_select && $journal->is_sticky_entry( $ditemid ) ) {
+    if ( $sticky_select == 0 && $journal->is_sticky_entry( $ditemid ) ) {
 	$journal->remove_sticky_entry( $ditemid );
     } else {
-        $journal->make_sticky_entry( $ditemid, $sticky_select );
+        $journal->make_sticky_entry( $ditemid, $sticky_select ) unless $sticky_select == 0;
     }
 
     if ( $deleted ) {
-        $journal->remove_sticky_entry( $ditemid ) if ( $sticky_select );
+        $journal->remove_sticky_entry( $ditemid ) unless ( $sticky_select == 0 );
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.delete' );
     } else {
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );

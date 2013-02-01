@@ -47,17 +47,18 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [% END %]
             [% END %]
         [% END %]
+        [% label_no = ".label_no" | ml %]
         [% IF not_sticky == 1;
-               form.radio( label = "no"
+               form.radio( label = label_no
                    name = "sticky_select"
-                   id = "sticky_select_no"
+                   id = "sticky_select_0"
                    checked = 1
                    value=0
                );
            ELSE %]
-           [%    form.radio( label = "no"
+           [%    form.radio( label = label_no
                    name = "sticky_select"
-                   id = "sticky_select_no"
+                   id = "sticky_select_0"
 
                    value=0
                );

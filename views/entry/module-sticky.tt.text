@@ -2,6 +2,7 @@
 .header=Make Sticky
 
 .label=Sticky 
+.label_no=Not a Sticky
 .itemid=Currently: 
 .title= (
 .close=)
