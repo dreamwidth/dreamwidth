@@ -247,7 +247,7 @@ sub try_work {
                 if $temp{user} =~ m/^ext_/; # If the remote username starts with ext_ flag it as external
 
             $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid )
-                unless $local_oid;
+                if $local_oid;
         }
     };
     my $meta_closer = sub {
