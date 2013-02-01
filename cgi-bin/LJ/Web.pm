@@ -2464,7 +2464,7 @@ sub js_dumper {
             return $mtime;
         };
 
-        my $file = "$LJ::HOME/htdocs/$key";
+        my $file = LJ::resolve_file("htdocs/$key");
         my $mtime = (stat($file))[9];
         return $set->($mtime);
     }

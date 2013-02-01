@@ -83,6 +83,7 @@ propgroup colors {
     property use color_entry_title;
     property use color_entry_interaction_links;
     property use color_entry_border;
+    property Color color_comment_screened { des = "Screened comment background color"; }
     property use color_comment_title_background;
 
     property use control_strip_bgcolor;
@@ -836,7 +837,7 @@ li.first-item {margin-left: 0;}
 
 .has-userpic .comment .userpic {border: 0.083em solid $*color_entry_border; margin: 0.5em; padding: 0.2em; }
 
-.screened .comment-content {background: $element_background; padding: 0.833em; }
+.screened .comment-content {background: $*color_comment_screened; padding: 0.833em; }
 
 .partial .comment {color: transparent; padding: 0 0 0.5em 0; min-width: 16.667em; background: $*color_entry_background;}
 .partial .comment-title { font-size: 1.166em; font-weight: bold; }
@@ -887,6 +888,7 @@ li.frozen {font-size: 0.75em; text-transform: uppercase; padding: 0.5em 0.833em 
 #qrform > table { border: 0 !important; border-spacing: 0 !important; width: 100%; margin: 0 0 1em 0; border-bottom: 0.083em solid $*color_page_border !important;}
 #qrform td { border-right: 0.083em solid $*color_page_border; border-top: 0.083em solid $*color_page_border !important; padding: 0.5em; font-size: 1em; }
 #qrform td + td { border-right: 0; font-size: 1em; }
+#qrformdiv {color: $*color_entry_text; background: $*color_entry_background;}
 #subject {width: 80% !important; }
 .textbox {width: 94% !important; font-size: 1em;}
 

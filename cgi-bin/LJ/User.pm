@@ -9590,7 +9590,8 @@ sub make_journal {
     my ($user, $view, $remote, $opts) = @_;
 
     my $r = DW::Request->get;
-    my $geta = $opts->{'getargs'};
+    my $geta = $r->get_args;
+    $opts->{getargs} = $geta;
 
     my $u = $opts->{'u'} || LJ::load_user($user);
     unless ($u) {

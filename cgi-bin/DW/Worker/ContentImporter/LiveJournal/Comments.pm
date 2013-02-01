@@ -221,6 +221,7 @@ sub try_work {
     # parameters for below
     my ( %meta, %identity_map, %was_external_user );
     my ( $maxid, $server_max_id, $server_next_id, $lasttag ) = ( 0, 0, 1, '' );
+    my @fail_errors;
 
     # setup our parsing function
     my $meta_handler = sub {
@@ -235,12 +236,18 @@ sub try_work {
             $meta{$temp{id}} = new_comment( $temp{id}, $temp{posterid}+0, $temp{state} || 'A' );
 
         } elsif ( $lasttag eq 'usermap' && ! exists $identity_map{$temp{id}} ) {
-            my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user} );
+            my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user}, $log );
+
+            # we want to fail if we weren't able to create a local user, because this would otherwise be mistakenly posted as anonymous
+            push @fail_errors, "Unable to map comment poster from $data->{hostname} user '$temp{user}' to local user"
+                unless $local_oid;
+
             $identity_map{$temp{id}} = $local_oid;
             $was_external_user{$temp{id}} = 1
                 if $temp{user} =~ m/^ext_/; # If the remote username starts with ext_ flag it as external
 
-            $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid );
+            $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid )
+                unless $local_oid;
         }
     };
     my $meta_closer = sub {
@@ -285,6 +292,9 @@ sub try_work {
             }
         );
         $parser->parse( $content );
+
+        return $temp_fail->( join( "\n", map { " * $_" } @fail_errors ) )
+            if @fail_errors;
 
         # this is the best place to test for too many comments. if this site is limiting
         # the comment imports for some reason or another, we can bail here.

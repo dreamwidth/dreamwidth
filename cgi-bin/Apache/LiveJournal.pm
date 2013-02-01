@@ -1378,7 +1378,6 @@ sub journal_content
         'r'         => $apache_r,
         'headers'   => \%headers,
         'args'      => $RQ{'args'},
-        'getargs'   => \%GET,
         'vhost'     => $RQ{'vhost'},
         'pathextra' => $RQ{'pathextra'},
         'header'    => {
@@ -1628,7 +1627,6 @@ sub customview_content
                    "styleid" => $styleid,
                    "saycharset" => $charset,
                    "args" => scalar $apache_r->args,
-                   "getargs" => \%FORM,
                    "r" => $apache_r,
                })
           || "<b>[$LJ::SITENAME: Bad username, styleid, or style definition]</b>");
