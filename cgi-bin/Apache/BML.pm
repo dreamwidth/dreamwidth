@@ -666,11 +666,11 @@ sub deleteglob
     {
         undef $entry;
     }
-    if ($key !~ /^_</ and defined @entry)
+    if ($key !~ /^_</ and @entry)
     {
         undef @entry;
     }
-    if ($key ne "main::" && $key ne "DB::" && defined %entry
+    if ($key ne "main::" && $key ne "DB::" && scalar(keys %entry)
         && $key !~ /::$/
         && $key !~ /^_</ && $val ne "*BML::COOKIE")
     {
