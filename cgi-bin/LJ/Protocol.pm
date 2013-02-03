@@ -1743,7 +1743,10 @@ sub postevent
 
     # update the sphinx search engine
     if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
-        push @jobs, TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $uowner->id } );
+        push @jobs, TheSchwartz::Job->new_from_array(
+                'DW::Worker::Sphinx::Copier',
+                { userid => $uowner->id, jitemid => $jitemid }
+            );
     }
 
     my $sclient = LJ::theschwartz();
@@ -2157,7 +2160,11 @@ sub editevent
 
     # fired to copy the post over to the Sphinx search database
     if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
-        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $ownerid } ) );
+        $sclient->insert_jobs( TheSchwartz::Job->new_from_array(
+                'DW::Worker::Sphinx::Copier',
+                { userid => $ownerid, jitemid => $itemid }
+            )
+        );
     }
 
     # PubSubHubbub Support

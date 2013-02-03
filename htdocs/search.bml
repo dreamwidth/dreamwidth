@@ -164,8 +164,8 @@ body<=
     # now we can process the results and do something fascinating!
     my $matches = '<br /><br />';
     foreach my $match ( @{ $result->{matches} } ) {
-        my $mu = LJ::load_userid( $match->{journal_id} );
-        my $pu = $mu->is_comm ? LJ::load_userid( $match->{poster_id} ) : undef;
+        my $mu = LJ::load_userid( $match->{journalid} );
+        my $pu = LJ::load_userid( $match->{poster_id} );
 
         # Do not show filtered icon for other users
         $match->{security} = 'access'
@@ -182,9 +182,19 @@ body<=
         $tags = "<br />Tags: $tags"
             if $tags;
 
-        my $attribution = $mu->is_comm
+        my $attribution;
+        if ( $match->{jtalkid} > 0 ) {
+            if ( $match->{poster_id} > 0 ) {
+                $attribution = BML::ml( '.attribution.comment', { journal => $mu->ljuser_display,
+                        poster => $pu->ljuser_display } );
+            } else {
+                $attribution = BML::ml( '.attribution.comment.anon', { journal => $mu->ljuser_display } );
+            }
+        } else {
+            $attribution = $mu->is_comm
                             ? BML::ml( '.attribution.comm', { journal => $mu->ljuser_display, poster => $pu->ljuser_display } )
                             : BML::ml( '.attribution', { journal => $mu->ljuser_display } );
+        }
 
         my $html = qq(<div class='searchres'>$attribution: $icon <a href="$match->{url}">$match->{subject}</a><br />
                       <span class='exc'>$match->{excerpt}</span>$tags<br />Posted: <strong>$match->{eventtime}</strong><br /><br />
