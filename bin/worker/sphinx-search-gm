@@ -62,6 +62,10 @@ sub _run_search {
     # we don't want items marked deleted (user is not visible)
     $sx->SetFilter( 'is_deleted', [ 0 ] );
 
+    # filter in/out comments
+    $sx->SetFilter( 'jitemid', [ 0 ], 1 )
+        if $args->{include_comments} == 0;
+
     # security filtering is a dangerous game.  basically, the caller tells us whether to
     # ignore security or gives us a mask of bits to work with.  from that we intuit what
     # security options to enable on our filters to Sphinx.
