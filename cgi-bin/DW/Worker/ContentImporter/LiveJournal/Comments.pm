@@ -544,6 +544,13 @@ sub try_work {
     $post_comments->();
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
+    # Kick off an indexing job for this user
+    if ( @LJ::SPHINX_SEARCHD ) {
+        LJ::theschwartz()->insert_jobs(
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } )
+        );
+    }
+
     return $ok->();
 }
 
