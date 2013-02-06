@@ -141,7 +141,7 @@ sub copy_comment {
         if ( $state eq 'D' ) {
             push @delete_jtalkids, int($jtalkid);
             next;
-        } elsif ( $state eq 'S' || $state ne 'A' ) {
+        } elsif ( $state eq 'S' || ( $state ne 'A' && $state ne 'F' ) ) {
             # If it's screened or in an unexpected state, make it private so
             # only owners can see it.
             $force_private = 1;
@@ -164,15 +164,18 @@ sub copy_comment {
         );
         croak $dbsx->errstr if $dbsx->err;
 
+        my $allowmask = $entries->{$comments->{$jtalkid}->{nodeid}}->{allowmask};
+        $allowmask = '101' if $force_private;
+
         my $id = $old_id || LJ::alloc_global_counter('X');
         $dbsx->do(
-            q{REPLACE INTO items_raw (id, journalid, jitemid, jtalkid, poster_id,
+            q{REPLACE INTO items_raw (id, journalid, jtalkid, jitemid, poster_id,
                 date_posted, title, data, security_bits, allow_global_search)
-              VALUES (?, ?, 0, ?, ?, ?, ?, COMPRESS(?), ?, ?)},
+              VALUES (?, ?, ?, ?, ?, ?, ?, COMPRESS(?), ?, ?)},
             undef, $id, $u->id, $jtalkid,
-                (map { $comments->{$jtalkid}->{$_} } qw/ posterid datepost /),
-                $subj, $text,
-                (map { $entries->{$comments->{$jtalkid}->{nodeid}}->{$_} } qw/ allowmask allowpublic /),
+                (map { $comments->{$jtalkid}->{$_} } qw/ nodeid posterid datepost /),
+                $subj, $text, $allowmask,
+                (map { $entries->{$comments->{$jtalkid}->{nodeid}}->{$_} } qw/ allowpublic /),
         );
         croak $dbsx->errstr if $dbsx->err;
 
@@ -182,7 +185,7 @@ sub copy_comment {
 
     # deletes are easy...
     if ( @delete_jtalkids ) {
-        my $ct = $dbsx->do( 'DELETE FROM items_raw WHERE journalid = ? AND jitemid = 0 AND jtalkid IN (' .
+        my $ct = $dbsx->do( 'DELETE FROM items_raw WHERE journalid = ? AND jtalkid IN (' .
                             join( ',', @delete_jtalkids ) . ')', undef, $u->id ) + 0;
         croak $dbsx->errstr if $dbsx->err;
 
@@ -199,7 +202,7 @@ sub copy_entry {
 
     # If we're being asked to look at one post, that simplifies our processing
     # quite a bit.
-    my ( $sphinx_times, $db_times );
+    my ( $sphinx_times, $db_times, %comment_jitemids );
     my ( @copy_jitemids, @delete_jitemids, %sphinx_ids );
 
     if ( $only_jitemid ) {
@@ -230,11 +233,13 @@ sub copy_entry {
         croak $dbfrom->errstr if $dbfrom->err;
     }
 
-    # now iterate through and find entirely NEW and EDITED posts
+    # This mostly just keeps track of the internal Sphinx document ID. We need to
+    # keep that as stable as we can.
     foreach my $jitemid ( keys %$db_times ) {
         $sphinx_ids{$jitemid} = $sphinx_times->{$jitemid}->{id}
             if exists $sphinx_times->{$jitemid};
         push @copy_jitemids, $jitemid;
+        $comment_jitemids{$jitemid} = 1;
     }
 
     # now find deleted posts
@@ -243,6 +248,7 @@ sub copy_entry {
 
         warn "[$$] Deleting post #$jitemid.\n";
         push @delete_jitemids, $jitemid;
+        $comment_jitemids{$jitemid} = 1;
     }
 
     # deletes are easy...
@@ -306,6 +312,35 @@ sub copy_entry {
         # let the viewer know what they missed
         warn "[$$] Inserted post #$jitemid for " . $u->user . "(" . $u->id . ") as Sphinx id $id.\n";
     }
+
+    my %commentids;
+    foreach my $jitemid ( keys %comment_jitemids ) {
+        # Comments we know about (we do this so that we can delete them if they've
+        # been removed).
+        my $jtalkids = $dbsx->selectcol_arrayref(
+            q{SELECT jtalkid FROM items_raw WHERE journalid = ? AND jitemid = ? AND jtalkid > 0},
+            undef, $u->id, $jitemid
+        );
+        croak $dbsx->errstr if $dbsx->err;
+
+        if ( $jtalkids && ref $jtalkids eq 'ARRAY' ) {
+            $commentids{$_} = 1
+                foreach @$jtalkids;
+        }
+
+        # And this catches comments that we don't know about yet.
+        my $jtalkids2 = $dbfrom->selectcol_arrayref(
+            q{SELECT jtalkid FROM talk2 WHERE journalid = ? AND nodetype = 'L' AND nodeid = ?},
+            undef, $u->id, $jitemid
+        );
+        croak $dbsx->errstr if $dbsx->err;
+
+        if ( $jtalkids2 && ref $jtalkids2 eq 'ARRAY' ) {
+            $commentids{$_} = 1
+                foreach @$jtalkids2;
+        }
+    }
+    copy_comment( $u, $_ ) foreach keys %commentids;
 }
 
 sub keep_exit_status_for { 0 }

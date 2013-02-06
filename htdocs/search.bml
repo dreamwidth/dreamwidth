@@ -64,7 +64,7 @@ body<=
         );
         $ret .= '<br />';
         $ret .= LJ::html_check({ id => 'with_comments', name => 'with_comments',
-                checked => $wc, label => 'Include comments in search results' });
+                selected => $wc, label => 'Include comments in search results' });
         $ret .= '</form>';
 
         return $ret;

@@ -63,7 +63,7 @@ sub _run_search {
     $sx->SetFilter( 'is_deleted', [ 0 ] );
 
     # filter in/out comments
-    $sx->SetFilter( 'jitemid', [ 0 ], 1 )
+    $sx->SetFilterRange( 'jtalkid', 0, 0 )
         if $args->{include_comments} == 0;
 
     # security filtering is a dangerous game.  basically, the caller tells us whether to
@@ -95,7 +95,7 @@ sub _build_output {
         my @out;
 
         foreach my $match ( @{ $res->{matches} } ) {
-            if ( $match->{jitemid} > 0 ) {
+            if ( $match->{jtalkid} == 0 ) {
                 my $entry = LJ::Entry->new( $match->{journalid}, jitemid => $match->{jitemid} );
                 my $remote = LJ::load_userid( $remoteid );
 
@@ -135,10 +135,11 @@ sub _build_output {
                 # check for validity and for security
                 # we filtered by security earlier, but there's a chance it was changed
                 # but not yet indexed
-                if ( $entry && $entry->valid && $entry->visible_to( $remote ) ) {
+                if ( $entry && $entry->valid && $entry->visible_to( $remote ) &&
+                        $cmt && $cmt->valid && $cmt->visible_to( $remote ) ) {
                     # use text only version of event for excerpt purposes.  best effort.
                     $match->{entry} = $cmt->body_text;
-                    $match->{entry} ||= "(this entry only contains html content)";
+                    $match->{entry} ||= "(this comment only contains html content)";
 
                     # we don't munge the subject... just clean it
                     $match->{subject} = $cmt->subject_text || '(no subject)';
