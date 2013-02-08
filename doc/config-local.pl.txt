@@ -150,7 +150,8 @@
 
     #Twitter config
    
-    #Enabled: If this is false, Twitter accounts cannot be created. Do not
+    #Enabled: If this is false, Twitter accounts cannot be created and 
+    # crossposts to Twitter will fail before touching Twitter. Do not
     # set it to 1 until you have a consumer key.
     #Consumer key & secret: Set the actual values in config-private.pl.
     # These are the "API key", obtainable by creating an Application on

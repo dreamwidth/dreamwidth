@@ -135,6 +135,13 @@ sub crosspost {
 
     my ($self, $extacct, $auth, $entry, $itemid, $delete) = @_;
 
+    unless ( $LJ::TWITTER{enabled} ) {
+        return {
+            success => 0,
+            error => LJ::Lang::ml( 'twitter.twitter_disabled' )
+        }
+    }
+
     my $twitter = _get_net_twitter( $extacct ); 
 
     my $status = undef;
