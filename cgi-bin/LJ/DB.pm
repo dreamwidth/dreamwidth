@@ -712,7 +712,7 @@ sub alloc_global_counter
     } elsif ( $dom eq 'X' ) {
         my $dbsx = LJ::get_dbh( 'sphinx_search' )
             or die "Unable to allocate counter type X unless Sphinx is configured.\n";
-        $newmax = $dbsx->selectrow_array( 'SELECT MAX(id) FROM posts_raw' );
+        $newmax = $dbsx->selectrow_array( 'SELECT MAX(id) FROM items_raw' );
     } else {
         $newmax = LJ::Hooks::run_hook('global_counter_init_value', $dom);
         die "No alloc_global_counter initalizer for domain '$dom'"
