@@ -51,6 +51,8 @@ sub work {
 
     # annotate copier is going
     warn "[$$] Sphinx copier started for " . $u->user . "(" . $u->id . ").\n";
+    $0 = sprintf( 'sphinx-copier [%s(%d) - %d, %d]', $u->user, $u->id,
+            $a->{jitemid} // 0, $a->{jtalkid} // 0 );
 
     # There are several modes. Either we can do a full import (no arguments),
     # we can import a particular entry (edited or something), or we can import
@@ -189,7 +191,7 @@ sub copy_comment {
                             join( ',', @delete_jtalkids ) . ')', undef, $u->id ) + 0;
         croak $dbsx->errstr if $dbsx->err;
 
-        warn "[$$] Actually deleted $ct comments.\n";
+        warn "[$$] Actually deleted $ct comments.\n" if $ct > 0;
     }
 }
 
