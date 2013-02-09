@@ -4833,6 +4833,8 @@ widget.customizetheme.btn.reset=Reset to Default
 
 widget.customizetheme.btn.save=Save Changes
 
+widget.customizetheme.customstyle=You are currently editing your saved style <a [[aopts]]>#[[id]]: [[name]]</a>. <ul><li><a href='/customize/options'>Go back to editing your current style.</a></li><li><a href='/customize/advanced/styles'>Customize other styles.</a></li></ul>
+
 widget.customizetheme.nav.display=Display
 
 widget.customizetheme.nav.display.moodthemes=Mood Themes

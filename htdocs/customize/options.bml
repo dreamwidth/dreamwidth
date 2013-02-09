@@ -30,9 +30,6 @@ body<=
 
     $title = $u->is_community ? $ML{'.title.comm'} : $ML{'.title'};
 
-    # extra arguments for get requests
-    my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
-
     # if using s1, switch them to s2
     unless ($u->prop('stylesys') == 2) {
         $u->set_prop( stylesys => 2 );
@@ -40,17 +37,30 @@ body<=
 
     my $group = $GET{group} ? $GET{group} : "presentation";
 
+    # only accept valid s2id arguments, or use the s2_style userprop
+    my $s2id = undef;
+    $s2id = $GET{s2id} if $GET{s2id};   # need to be able to accept GET or
+    $s2id = $POST{s2id} if $POST{s2id}; # POST style requests
+    my $styleid = $s2id =~ /[0-9]+/ ? $s2id : $u->prop( 's2_style' );
+
     # make sure there's a style set and load it
-    my $style = LJ::Customize->verify_and_load_style($u);
+    my $style = LJ::Customize->verify_and_load_style( $u, $styleid );
 
     # lazy migration of style name
-    LJ::Customize->migrate_current_style($u);
+    LJ::Customize->migrate_current_style( $u, $styleid );
 
     my $ret;
 
     if (LJ::did_post()) {
-        my @errors = LJ::Widget->handle_post(\%POST, qw(CustomizeTheme CustomTextModule JournalTitles MoodThemeChooser NavStripChooser S2PropGroup LinksList LayoutChooser));
-        $ret .= LJ::bad_input(@errors) if @errors;
+        my @errors = LJ::Widget->handle_post( \%POST,
+            "CustomizeTheme",
+            "JournalTitles",
+            "MoodThemeChooser",
+            "NavStripChooser",
+            "S2PropGroup", { "styleid" => $styleid },
+            "LinksList",
+            "LayoutChooser", { "styleid" => $styleid } );
+        $ret .= LJ::bad_input( @errors ) if @errors;
     }
 
     $ret .= "<form action='$LJ::SITEROOT/customize/options' method='get' class='theme-switcher'>";
@@ -77,6 +87,7 @@ body<=
         group => $group,
         headextra => \$headextra,
         post => \%POST,
+        styleid => $styleid,
     );
     $ret .= "</div><!-- end .customize-wrapper -->";
 
@@ -87,6 +98,7 @@ body<=
     $ret .= $layout_chooser->render(
         headextra => \$headextra,
         no_theme_chooser => 1,
+        styleid => $styleid,
     );
     $ret .= "</div><!-- end .layout-selector-wrapper' -->";
 

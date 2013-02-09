@@ -38,12 +38,12 @@ _c?>
         $body = '';
         $authasform->() if $remote;
         $body .= "<?p $_[0] p?>";
-        return;        
+        return;
     };
 
     # authenticate user
     $remote = LJ::get_remote();
-    return $err->($ML{'.error.notloggedin'}) 
+    return $err->($ML{'.error.notloggedin'})
         unless $remote;
 
     my $authas = $GET{'authas'} || $remote->{'user'};
@@ -121,6 +121,16 @@ _c?>
             return BML::redirect("styles$getextra");
         }
 
+        if ($POST{'action:customize'} && !$noactions) {
+            return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+            my $opts;
+            $opts->{args}->{s2id} = $id;
+            $opts->{args}->{authas} = $GET{'authas'} if $GET{'authas'};
+
+            return BML::redirect( LJ::create_url( "/customize/options", %$opts ) );
+        }
+
         # get public layers
         $pub = LJ::S2::get_public_layers();
 
@@ -144,7 +154,7 @@ _c?>
         $POST{core} ||= $POST{core_hidden};
         $core = defined $POST{core} ? $POST{core} : $style->{layer}->{core};
         my $highest_core;
-        map { $highest_core = $_ if $pub->{$_}->{type} eq 'core' && /^\d+$/ && 
+        map { $highest_core = $_ if $pub->{$_}->{type} eq 'core' && /^\d+$/ &&
                 $pub->{$_}->{majorversion} > $pub->{$highest_core}->{majorversion} } keys %$pub;
         unless ( $core ) {
             $core = $highest_core;
@@ -152,7 +162,7 @@ _c?>
             # update in POST to keep things in sync
             $POST{core} = $highest_core;
         }
-        $style->{layer}->{core} = $highest_core unless $style->{layer}->{core}; 
+        $style->{layer}->{core} = $highest_core unless $style->{layer}->{core};
 
         # layout lid
         $layout = $POST{'action:change'} ? $eff_layer{'layout'} : $style->{'layer'}->{'layout'};
@@ -314,10 +324,11 @@ _c?>
                 $body .= $b[1];
                 $body .= "</td><td>";
                 $body .= LJ::html_submit('action:edit', $ML{'.btn.edit'}) . " ";
+                $body .= LJ::html_submit('action:customize', $ML{'.btn.customize'}) . " ";
 
                 my $confirm_msg = LJ::ejs(BML::ml('.delete.confirm', {'id' => $styleid}));
 
-                $body .= LJ::html_submit('action:delete', $ML{'.btn.delete'}, 
+                $body .= LJ::html_submit('action:delete', $ML{'.btn.delete'},
                                          { 'onclick' => "return confirm('$confirm_msg')", disabled => $noactions }) . " ";
                 $body .= LJ::html_submit('action:usestyle', $ML{'.btn.use'}, { 'disabled' => $styleid == $u->{'s2_style'} || $noactions }),
                 $body .= "</form></td></tr>\n";
@@ -439,8 +450,8 @@ _c?>
     my $coresel = $layerselect->('core', 0);
     $body .= $coresel->[0];
     $body .= LJ::html_hidden('core_hidden', $core);
-    my $dis = $coresel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
-    $body .= " " . LJ::html_submit('action:change', $ML{'.btn.change'}, $dis) . "</td></tr>\n";
+    my $coredis = $coresel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
+    $body .= " " . LJ::html_submit('action:change', $ML{'.btn.change'}, $coredis) . "</td></tr>\n";
     $body .= "</table>\n";
 
     ### i18nc / layout
@@ -458,8 +469,8 @@ _c?>
     my $layoutsel = $layerselect->('layout', $core);
     $body .= $layoutsel->[0];
     $body .= $layerother->('layout');
-    my $dis = $layoutsel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
-    $body .= " " . LJ::html_submit("action:change", $ML{'.btn.change'}, $dis) . " </td></tr>\n";
+    my $laydis = $layoutsel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
+    $body .= " " . LJ::html_submit("action:change", $ML{'.btn.change'}, $laydis) . " </td></tr>\n";
     $body .= "</table>\n";
 
     # do we need to show the rest of the form?
