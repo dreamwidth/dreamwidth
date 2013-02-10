@@ -342,6 +342,8 @@ var string module_background = generate_background_css ($*image_background_modul
     $*image_background_module_position, $*color_module_background );
 var Color element_background = $*color_page_background->lighter();
 
+var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+
     var string header_background_height = "";
 
     if ($*image_background_header_height > 0) {
@@ -1006,9 +1008,22 @@ table.month {width: 100%; text-align: center; }
 
 /* ====================== EXTRAS ======================= */
 
-div.ContextualPopup {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0.583em;}
-div.ContextualPopup div.Inner {border: 0; }
-div.ContextualPopup .Userpic {border: 0.083em solid $*color_page_border; padding: 0.25em; }
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: .083em solid $*color_page_border !important;
+    border-radius: 0;
+    color: $*color_entry_text;
+}
+
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
+
+.ContextualPopup .Userpic {
+    border: .083em solid $*color_page_border;
+    padding: .25em;
+}
 
 $userpic_css
 
