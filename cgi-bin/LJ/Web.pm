@@ -1658,7 +1658,7 @@ MOODS
             };
 
             my $nocomments_display = $opts->{prop_opt_nocomments_maintainer} ?
-                'entryform.comment.settings.nocomments.maintainer' : 'entryform.comment.settings.nocomments';
+                'entryform.comment.settings.nocomments.admin' : 'entryform.comment.settings.nocomments';
 
             my $comment_settings_default = BML::ml('entryform.comment.settings.default5', {'aopts' => $comment_settings_journaldefault->()});
             $out .= LJ::html_select({ 'name' => "comment_settings", 'id' => 'comment_settings', 'class' => 'select', 'selected' => $comment_settings_selected->(),

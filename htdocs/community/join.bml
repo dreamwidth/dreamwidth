@@ -64,7 +64,7 @@ body<=
     unless ($remote->can_join_adult_comm( comm => $cu, adultref => \$adult_content )) {
         my $adult_err;
         if ( $adult_content eq "explicit" ) {
-            $adult_err = BML::ml('.error.isminor', {'comm' => $cu->ljuser_display});
+            $adult_err = BML::ml('.error.isminor2', {'comm' => $cu->ljuser_display});
         }
 
         unless ($remote->best_guess_age) {

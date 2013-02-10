@@ -77,7 +77,7 @@ sub render_body {
     }
     my $remote = LJ::get_remote(); 
     $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/community/create'" } );
-    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout', { aopts => "href='$LJ::SITEROOT/community/create'" } ) unless $remote;
+    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout2', { aopts => "href='$LJ::SITEROOT/community/create'" } ) unless $remote;
         
     $ret .= "</p>";
 

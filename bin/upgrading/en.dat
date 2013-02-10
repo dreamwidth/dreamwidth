@@ -689,7 +689,7 @@ entryform.comment.settings.default5=Journal Default
 
 entryform.comment.settings.nocomments=Disabled
 
-entryform.comment.settings.nocomments.maintainer=Disabled by maintainer
+entryform.comment.settings.nocomments.admin=Disabled by administrator
 
 entryform.comment.settings.noemail=Don't Email
 
@@ -3944,7 +3944,7 @@ talk.comments.counted=[[replycount]] [[?replycount|comment|comments]]
 
 talk.comments.counted.screened=[[replycount]] visible | [[screenedcount]] screened [[?screenedcount|comment|comments]]
 
-talk.comments.disabled_maintainer=Comments disabled by a maintainer of this community
+talk.comments.disabled_admin=Comments disabled by an administrator of this community
 
 talk.commentsread=Read comments
 
@@ -4597,7 +4597,7 @@ widget.createaccountentercode.code=Code:
 
 widget.createaccountentercode.comm=If you'd like to <a [[aopts]]>create a community</a> instead, you don't need an account creation code.
 
-widget.createaccountentercode.comm.loggedout=You should create or log into a personal account to be the maintainer. If you don't have a personal account yet, you will need a code to create that account, but you don't need one for the community itself.
+widget.createaccountentercode.comm.loggedout2=You should create or log into a personal account to be the administrator. If you don't have a personal account yet, you will need a code to create that account, but you don't need one for the community itself.
 
 widget.createaccountentercode.error.invalidcode=Invite code is not valid or has already been used.
 
