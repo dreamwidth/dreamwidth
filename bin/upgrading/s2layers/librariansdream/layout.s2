@@ -347,7 +347,6 @@ body {
 #header { padding: 1px; }
 
 #header .inner {
-    margin-top: -1px;
     padding: 1px 1em;
     }
 
