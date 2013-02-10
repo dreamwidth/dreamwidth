@@ -13,7 +13,7 @@
 
 .email.del.body2=[[admin]] has removed you as an administrator of the community [[comm]].
 
-.email.del.subject2=Administratorship removal: [[comm]]
+.email.del.subject2=You have been removed as an administrator of [[comm]]
 
 .email.hello=Dear [[site]] user [[user]],
 
