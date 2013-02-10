@@ -342,8 +342,6 @@ var string module_background = generate_background_css ($*image_background_modul
     $*image_background_module_position, $*color_module_background );
 var Color element_background = $*color_page_background->lighter();
 
-var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
-
     var string header_background_height = "";
 
     if ($*image_background_header_height > 0) {

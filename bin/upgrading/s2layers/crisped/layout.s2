@@ -54,8 +54,6 @@ function print_stylesheet () {
 
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
-    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
-
     var string userpic_css = "";
 
     if($*userpics_position == "left") {
