@@ -235,7 +235,7 @@ body<=
         # go back and decide who to keep
         if (! $other_maints && $maints < 1) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p ";
-            $ret .= BML::ml( '.error.nomaint',
+            $ret .= BML::ml( '.error.nomaint2',
                 {
                     comm  => LJ::ljuser( $cname, { 'type' => 'C' } ),
                     aopts => "href='" . BML::get_uri() . "?authas=$cname'",
@@ -314,9 +314,9 @@ body<=
             $html .= BML::ml( '.email.hello', { site => $LJ::SITENAMESHORT, user => $mailusername } );
             $html .= "</p>\n<p>";
             if ( $ml_str eq 'del' ) {
-                $html .= BML::ml( ".email.$ml_str.body", { admin => $remote->user, comm => qq(<a href="$mailclink">$mailusercname</a>) } );
+                $html .= BML::ml( ".email.$ml_str.body2", { admin => $remote->user, comm => qq(<a href="$mailclink">$mailusercname</a>) } );
             } else {  # add
-                $html .= BML::ml( ".email.$ml_str.body1", { comm => qq(<a href="$mailclink">$mailusercname</a>) } );
+                $html .= BML::ml( ".email.$ml_str.body2", { comm => qq(<a href="$mailclink">$mailusercname</a>) } );
                 $html .= "</p>\n<p>";
                 $html .= BML::ml( ".email.$ml_str.body2.html", { aopts => "href='" . $mailcommanlink . "'" } );
             }
@@ -329,16 +329,16 @@ body<=
             $plain .= BML::ml( '.email.hello', { site => $LJ::SITENAMESHORT, user => $mailusername } );
             $plain .= "\n\n";
             if ( $ml_str eq 'del' ) {
-                $plain .= BML::ml( ".email.$ml_str.body", { admin => $remote->user, comm => $mailusercname } );
+                $plain .= BML::ml( ".email.$ml_str.body2", { admin => $remote->user, comm => $mailusercname } );
             } else {  # add
-                $plain .= BML::ml( ".email.$ml_str.body1", { comm => $mailusercname } );
+                $plain .= BML::ml( ".email.$ml_str.body2", { comm => $mailusercname } );
                 $plain .= "\n\n" . $ML{".email.$ml_str.body2.plain"} . "\n\n$mailcommanlink";
             }
             $plain .= "\n\n$ML{'.email.close'}\n";
             $plain .= BML::ml( '.email.signed', { site => $LJ::SITENAME } );
             $plain .= "\n$LJ::SITEROOT\n";
 
-            my $subject = BML::ml( ".email.$ml_str.subject", { comm => $mailusercname } );
+            my $subject = BML::ml( ".email.$ml_str.subject2", { comm => $mailusercname } );
             $sendmail->( $maint_u, $html, $plain, $subject );
         };
 
