@@ -34,7 +34,7 @@ DW::Routing->register_regex( '^/captcha/text/(.*)$', \&iframe_captcha_handler, a
 sub captcha_handler {
     my ( $call_opts, $auth ) = @_;
 
-    my $from_textcaptcha = DW::Captcha::textCAPTCHA::Logic->fetch;
+    my $from_textcaptcha = DW::Captcha::textCAPTCHA::Logic->get_captcha;
     my ( $captcha ) = DW::Captcha::textCAPTCHA::Logic::form_data( $from_textcaptcha,  $auth );
 
     if ( $call_opts->format eq "json" ) {
@@ -62,7 +62,7 @@ sub iframe_captcha_handler {
         return DW::Template->render_template( 'textcaptcha-response.tt', { response => DW::Captcha::textCAPTCHA::Logic::to_form_string( $captcha_object ) }, { fragment => 1 } );
     }
 
-    my $from_textcaptcha = DW::Captcha::textCAPTCHA::Logic->fetch;
+    my $from_textcaptcha = DW::Captcha::textCAPTCHA::Logic->get_captcha;
     my ( $captcha ) = DW::Captcha::textCAPTCHA::Logic::form_data( $from_textcaptcha,  $auth );
 
     return DW::Template->render_template( 'textcaptcha.tt', {
