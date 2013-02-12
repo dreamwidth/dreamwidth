@@ -141,7 +141,7 @@ sub try_work {
     # No idea what the actual latest entry is. Give up now, tell the user to fix it
     unless ( $maxid ) {
         $log->( 'Got %d entries but all were DOOO.', scalar @{$last->{events}} );
-        $fail->( "We weren't able to find your latest entry because you have several entries that are dated out of order (DOOO, or backdated). " .
+        return $fail->( "We weren't able to find your latest entry because you have several entries that are dated out of order (DOOO, or backdated). " .
             "Please edit all the entries on %s that are DOOO and set their date to one that's earlier than your latest non-DOOO entry. " .
             "Then try your import again." , $data->{hostname} );
     }
