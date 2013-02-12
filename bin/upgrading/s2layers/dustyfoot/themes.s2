@@ -197,30 +197,6 @@ set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "commons/argyle.png";
 
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
-
 
 #NEWLAYER: dustyfoot/battleraven
 layerinfo type = "theme";
@@ -363,30 +339,6 @@ set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "commons/bluedays.png";
 
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
-
 
 #NEWLAYER: dustyfoot/bolddances
 layerinfo type = "theme";
@@ -513,30 +465,6 @@ set color_module_title_background = "#ceff7a";
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "commons/certainfrogs.png";
-
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
 
 
 #NEWLAYER: dustyfoot/comfortzone
@@ -778,30 +706,6 @@ set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "commons/dependable.png";
 
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
-
 
 #NEWLAYER: dustyfoot/diditagain
 layerinfo type = "theme";
@@ -1035,30 +939,6 @@ set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "commons/elegantbrown.png";
 
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
-
 
 #NEWLAYER: dustyfoot/elmar
 layerinfo type = "theme";
@@ -1133,30 +1013,6 @@ set color_module_title_background = "#e5edda";
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "dustyfoot/elmar.png";
-
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
 
 
 #NEWLAYER: dustyfoot/emergingdiscoveries
@@ -2090,30 +1946,6 @@ set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "dustyfoot/radiant.png";
 
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
-
 
 #NEWLAYER: dustyfoot/raspberrykiss
 layerinfo type = "theme";
@@ -2314,30 +2146,6 @@ set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "commons/rocket.png";
 
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
-
 
 #NEWLAYER: dustyfoot/strangerdays
 layerinfo type = "theme";
@@ -2405,30 +2213,6 @@ set color_module_link_visited = "#df231a";
 set color_module_text = "#faf1dc";
 set color_module_title = "#faf1dc";
 set color_module_title_background = "#210504";
-
-##===============================
-## Stylesheet
-##===============================
-
-function Page::print_theme_stylesheet() {
-"""
-    div.ContextualPopup div.Inner a {
-        color: $*color_entry_link;
-        }
-
-    div.ContextualPopup div.Inner a:visited {
-        color: $*color_entry_link_visited;
-        }
-
-    div.ContextualPopup div.Inner a:hover {
-        color: $*color_entry_link_hover;
-        }
-
-    div.ContextualPopup div.Inner a:active {
-        color: $*color_entry_link_hover;
-        }
-""";
-}
 
 
 #NEWLAYER: dustyfoot/sunnyblush

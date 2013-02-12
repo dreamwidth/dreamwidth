@@ -1308,12 +1308,14 @@ a:hover { text-decoration: underline; }
 
 .has-userpic .userpic,
 .module .userpic,
-.icon-image {
+.icon-image,
+.ContextualPopup .Userpic {
     box-shadow: -.1em -.1em .4em $*color_userpic_shadow;
      }
 
 .userpic img,
-.icon-image img {
+.icon-image img,
+.ContextualPopup .Userpic img {
     box-shadow: .1em .1em .4em $*color_userpic_shadow;
     }
 
@@ -2255,28 +2257,26 @@ ul.userlite-interaction-links.icon-links img:hover {
 /* Contextual Pop-ups
 ******************************/
 
-div.ContextualPopup {
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: none !important;
+    border-radius: .6em;
+    color: $*color_entry_text;
     $page_font_popup
     font-size: 1em !important;
+    padding: .6em;
     }
 
-div.ContextualPopup div.Inner {
-    $page_colors
-    border: 1px solid $*color_elements_border;
-    border-radius: .6em;
-    padding:.1em;
-    }
-
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:visited {
+.ContextualPopup a,
+.ContextualPopup a:visited {
     font-weight: normal;
-    text-decoration: none !important;
+    text-decoration: none;
     }
 
-div.ContextualPopup div.Inner a { color: $*color_page_link_hover; }
-div.ContextualPopup div.Inner a:visited { color: $*color_page_link_visited; }
-div.ContextualPopup div.Inner a:hover { text-decoration: underline !important; }
-div.ContextualPopup div.Inner a:active { color: $*color_page_link_active; }
+.ContextualPopup a { color: $*color_page_link_hover; }
+.ContextualPopup a:visited { color: $*color_page_link_visited; }
+.ContextualPopup a:hover { text-decoration: underline !important; }
+.ContextualPopup a:active { color: $*color_page_link_active; }
 
 """;
 }

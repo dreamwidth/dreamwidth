@@ -326,11 +326,11 @@ function Page::print_theme_stylesheet () {
           $*color_entry_background 30px); /* Opera 11.10+ */
     }
 
-    div.ContextualPopup .Inner {
-        border: 1px solid $*color_entry_title_background;
+    .ContextualPopup {
+        border: 1px solid $*color_entry_title_background !important;
     }
 
-    div.ContextualPopup .Userpic {
+    .ContextualPopup .Userpic {
         background-color: $*color_entry_title_background;
         box-shadow: 1px 2px 3px $*color_entry_border;
     }
@@ -946,11 +946,11 @@ function Page::print_theme_stylesheet () {
           $*color_entry_background 30px); /* Opera 11.10+ */
     }
 
-    div.ContextualPopup .Inner {
-        border: 1px solid $*color_entry_title_background;
+    .ContextualPopup {
+        border: 1px solid $*color_entry_title_background !important;
     }
 
-    div.ContextualPopup .Userpic {
+    .ContextualPopup .Userpic {
         background-color: $*color_entry_title_background;
         box-shadow: 1px 2px 3px $*color_entry_border;
     }
@@ -1746,11 +1746,11 @@ function Page::print_theme_stylesheet () {
           $*color_entry_background 30px); /* Opera 11.10+ */
     }
 
-    div.ContextualPopup .Inner {
-        border: 1px solid $*color_entry_title_background;
+    .ContextualPopup {
+        border: 1px solid $*color_entry_title_background !important;
     }
 
-    div.ContextualPopup .Userpic {
+    .ContextualPopup .Userpic {
         background-color: $*color_entry_title_background;
         box-shadow: 1px 2px 3px $*color_entry_border;
     }

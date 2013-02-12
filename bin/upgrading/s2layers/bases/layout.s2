@@ -1006,9 +1006,22 @@ table.month {width: 100%; text-align: center; }
 
 /* ====================== EXTRAS ======================= */
 
-div.ContextualPopup {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0.583em;}
-div.ContextualPopup div.Inner {border: 0; }
-div.ContextualPopup .Userpic {border: 0.083em solid $*color_page_border; padding: 0.25em; }
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: .083em solid $*color_page_border !important;
+    border-radius: 0;
+    color: $*color_entry_text;
+}
+
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
+
+.ContextualPopup .Userpic {
+    border: .083em solid $*color_page_border;
+    padding: .25em;
+}
 
 $userpic_css
 
