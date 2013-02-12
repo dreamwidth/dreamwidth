@@ -746,7 +746,7 @@ function Page::print_default_stylesheet()
         display: inline;
         margin 0px;
         padding: 0px;
-        padding-left: 5px;
+        padding-left: 0;
     }
 
     .entry-management-links,
@@ -1016,7 +1016,7 @@ function Page::print_default_stylesheet()
     .icon-keywords ul {
         display: inline;
         margin 0;
-        padding-left: 5px;
+        padding-left: 0;
     }
 
     .icon-keywords ul li {
