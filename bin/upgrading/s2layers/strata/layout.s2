@@ -478,7 +478,7 @@ table.month td.day-has-entries {
     word-wrap: break-word;
     }
 
-.label, .comment-text, .description-text, .default {
+.label, .icon-info span {
     font-weight: bold;
     }
 
