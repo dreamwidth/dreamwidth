@@ -592,7 +592,7 @@ sub start_log {
     mkdir "$LJ::HOME/logs/imports/$userid";
     open $logfile, ">>$LJ::HOME/logs/imports/$userid/$import_data_id.$import_type.$$"
         or return undef;
-    print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(gmtime()) . ".\n";
+    print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(undef, 1) . ".\n";
 
     return $logfile;
 }
