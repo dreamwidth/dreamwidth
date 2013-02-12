@@ -861,38 +861,27 @@ textarea.textbox {
 
 /*--- Contextual Pop-ups ---*/
 
-div.ContextualPopup {
-    color: $*color_entry_text;
-    margin: auto;
-    }
-
-div.ContextualPopup div.Inner {
+.ContextualPopup {
     background: $*color_entry_background;
-    border: 1px solid $*color_entry_border;
+    border: 1px solid $*color_entry_border !important;
+    border-radius: 0;
     color: $*color_entry_text;
     }
 
-div.ContextualPopup .Userpic {
-    border: 5px solid $*color_header_background;
-    margin: .5em;
-    padding: 0;
-    }
-
-div.ContextualPopup .Content {
-    border: 0;
-    color: $*color_entry_text;
-    }
-
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:link,
-div.ContextualPopup div.Inner a:visited,
-div.ContextualPopup div.Inner a:active {
-    color: $*color_entry_link;
+.ContextualPopup div.Inner a,
+.ContextualPopup div.Inner a:visited,
+.ContextualPopup div.Inner a:active {
     text-decoration: none;
     }
 
-div.ContextualPopup .Relation {
-    color: $*color_entry_text;
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
+
+.ContextualPopup .Userpic {
+    border: 5px solid $*color_header_background;
+    margin: .5em;
     }
 
 $userpic_css
