@@ -580,6 +580,23 @@ sub get_foaf_from {
     return ( \%items, \@interests, \@schools );
 }
 
+sub start_log {
+    my ( $class, $import_type, %opts ) = @_;
+
+    my $userid = $opts{userid};
+    my $import_data_id = $opts{import_data_id};
+
+    my $logfile;
+
+    mkdir "$LJ::HOME/logs/imports";
+    mkdir "$LJ::HOME/logs/imports/$userid";
+    open $logfile, ">>$LJ::HOME/logs/imports/$userid/$import_data_id.$import_type.$$"
+        or return undef;
+    print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(gmtime()) . ".\n";
+
+    return $logfile;
+}
+
 =head1 AUTHORS
 
 =over
