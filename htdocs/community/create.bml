@@ -210,7 +210,7 @@ SUBMIT:
         $ret .= "<label for='postopen'> $ML{'.label.anybodycan'}</label></p><p>";
         $ret .= LJ::html_check({ type => 'radio', name => 'postlevel', id => 'postclosed',
                 value => 'select', selected => ($POST{postlevel} eq 'select' ? 1 : 0)});
-        $ret .= "<label for='postclosed'> $ML{'.label.selcan'}</label></p>";
+        $ret .= "<label for='postclosed'> $ML{'.label.selcan2'}</label></p>";
         $ret .= "</div></div></li>";
 
         # moderated options
