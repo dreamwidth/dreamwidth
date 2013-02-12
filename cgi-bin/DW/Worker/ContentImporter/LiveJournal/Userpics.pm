@@ -57,16 +57,11 @@ sub try_work {
 
     # logging sub
     my ( $logfile, $last_log_time );
+    $logfile = $class->start_log( "lj_userpics", userid => $opts->{userid}, import_data_id => $opts->{import_data_id} )
+        or return $temp_fail->( 'Internal server error creating log.' );
+
     my $log = sub {
         $last_log_time ||= [ gettimeofday() ];
-
-        unless ( $logfile ) {
-            mkdir "$LJ::HOME/logs/imports";
-            mkdir "$LJ::HOME/logs/imports/$opts->{userid}";
-            open $logfile, ">>$LJ::HOME/logs/imports/$opts->{userid}/$opts->{import_data_id}.lj_userpics.$$"
-                or return $temp_fail->( 'Internal server error creating log.' );
-            print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(gmtime()) . ".\n";
-        }
 
         my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
         my $msg = sprintf( $fmt, tv_interval( $last_log_time ), tv_interval( $begin_time), @_ );
