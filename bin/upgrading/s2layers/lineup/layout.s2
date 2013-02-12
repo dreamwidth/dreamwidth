@@ -379,7 +379,6 @@ h3.entry-title {
 
 .tag ul li {
     font-weight: normal;
-    margin: 5px 5px 0 0;
     padding: 0;
     }
 
@@ -737,7 +736,6 @@ table.month td {
     }
 
 .icon-keywords ul li {
-    margin-right: 5px;
     padding: 0;
     }
 
