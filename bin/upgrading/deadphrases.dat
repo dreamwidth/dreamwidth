@@ -1519,4 +1519,7 @@ general esn.security_attribute_changed.account_deleted.email_text
 general esn.security_attribute_changed.account_renamed.email_subject
 general esn.security_attribute_changed.account_renamed.email_text
 
-
+general /manage/circle/edit.bml.circle.maintainer
+general /community/leave.bml.label.lastmaintainer.deletedcomm
+general entryform.comment.settings.nocomments.maintainer
+genereal talk.comments.disabled_maintainer
