@@ -4767,7 +4767,9 @@ widget.importchoosedata.btn.continue=Continue &rarr;
 
 widget.importchoosedata.error.noitemsselected=You did not select any content to import.
 
-widget.importchoosedata.header=What would you like to import?
+widget.importchoosedata.header2=Choose Imports
+
+widget.importchoosedata.header.fixup=Adjust Imports
 
 widget.importchoosedata.item.lj_bio.desc=This includes your basic info, bio, and interests.
 
@@ -4775,7 +4777,7 @@ widget.importchoosedata.item.lj_comments.desc=Imports <em>all</em> comments on y
 
 widget.importchoosedata.item.lj_entries.desc=Imports <em>all</em> your journal entries, whether they're friends-only, private or public. This will automatically import your tags and custom security groups.
 
-widget.importchoosedata.item.lj_entries_remap_icon.desc=Updates icons on previously imported entries. Has no effect for new imports. Reimports your journal entries, your tags, and your custom security groups.
+widget.importchoosedata.item.lj_entries_remap_icon.desc=Update icons on previously-imported entries. Only necessary if you had more icons on the other site than icon slots on Dreamwidth during your last import. This reimports your journal entries, your tags, and your custom security groups.
 
 widget.importchoosedata.item.lj_friendgroups.desc=Imports your friend groups as [[sitename]] access filters.
 
