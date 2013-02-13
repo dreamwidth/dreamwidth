@@ -249,7 +249,7 @@ class CommentInfo
     var int screened_count "Current number of screened comments (only visible if remote user can view screened comments)";
     var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
     var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
-    var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community maintainer";
+    var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community administrator.";
     var bool maxcomments "Set to true if entry has reached a comment maximum.";
     var bool show_postlink "Indicates whether the Post Comment link for this entry should be shown.";
     var bool show_readlink "Indicates whether the Read Comments link for this entry should be shown.";
@@ -2771,8 +2771,8 @@ property string text_reply_nocomments {
     maxlength = "100";
 }
 property string text_comments_disabled_maintainer {
-    des = "Text shown instead of comments if a community maintainer has disabled comments";
-    example = "Comments disabled by a maintainer of this community";
+    des = "Text shown instead of comments if a community administrator has disabled comments";
+    example = "Comments disabled by an administrator of this community";
 }
 
 property string comment_page_prev {
@@ -2900,7 +2900,7 @@ set text_posting_in = " posting in ";
 set text_reply_back = "Read Comments";
 set text_reply_nocomments_header = "Comments Disabled:";
 set text_reply_nocomments = "Comments have been disabled for this post.";
-set text_comments_disabled_maintainer = "Comments disabled by a maintainer of this community";
+set text_comments_disabled_maintainer = "Comments disabled by an administrator of this community";
 
 set comment_page_prev = "&lt;&lt";
 set comment_page_next = "&gt;&gt";
