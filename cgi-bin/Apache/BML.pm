@@ -670,9 +670,11 @@ sub deleteglob
     {
         undef @entry;
     }
-    if ($key ne "main::" && $key ne "DB::" && scalar(keys %entry)
-        && $key !~ /::$/
-        && $key !~ /^_</ && $val ne "*BML::COOKIE")
+
+    if ( $key eq "ML" ||
+        ( $key ne "main::" && $key ne "DB::" && scalar(keys %entry)
+            && $key !~ /::$/
+            && $key !~ /^_</ && $val ne "*BML::COOKIE" ) )
     {
         undef %entry;
     }
