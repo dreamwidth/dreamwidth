@@ -2211,7 +2211,7 @@ sub js_iconbrowser_button {
         smallicons => $remote->iconbrowser_smallicons ? "true" : "false"
     });
 
-    return LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" )
+    return ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" )
     ?   qq {
         <script type="text/javascript">
         jQuery(function(jQ){
@@ -2294,7 +2294,7 @@ sub js_quote_button {
     }
 QUOTE
 
-    if ( LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" ) ) {
+    if ( ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" ) ) {
         return <<"QQ";
 jQuery(function(jQ){
     $quote_func
