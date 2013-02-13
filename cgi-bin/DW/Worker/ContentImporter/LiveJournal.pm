@@ -285,6 +285,7 @@ sub remap_username_friend {
         # in that case, we pretend.
         my $ident =
             exists $foaf_items->{identity} ? $foaf_items->{identity}->{url} : undef;
+        $username =~ s/_/-/g; # URL domains have dashes.
         $ident ||= "http://$username.$data->{hostname}/";
 
         # build the identity account (or return it if it exists)

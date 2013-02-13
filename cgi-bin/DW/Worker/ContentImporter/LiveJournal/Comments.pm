@@ -242,7 +242,7 @@ sub try_work {
                 if $temp{user} =~ m/^ext_/; # If the remote username starts with ext_ flag it as external
 
             $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid )
-                unless $local_oid;
+                if $local_oid;
         }
     };
     my $meta_closer = sub {
@@ -538,6 +538,13 @@ sub try_work {
     # now we have the final post loop...
     $post_comments->();
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    # Kick off an indexing job for this user
+    if ( @LJ::SPHINX_SEARCHD ) {
+        LJ::theschwartz()->insert_jobs(
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } )
+        );
+    }
 
     return $ok->();
 }
