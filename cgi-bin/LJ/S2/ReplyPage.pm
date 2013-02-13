@@ -64,7 +64,7 @@ sub ReplyPage
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
     # libs for userpicselect
-    my $beta = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     my @iconbrowser_extra_stylesheet;
     if ( $beta ) {
         # if we're using the site skin, don't override the jquery-ui theme, as that's already included

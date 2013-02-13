@@ -76,7 +76,7 @@ sub EntryPage
     $p->{head_content} .= LJ::canonical_link( $permalink, $get->{thread} );
 
     # quickreply js libs
-    my $beta = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
 
     my @iconbrowser_extra_stylesheet;
     if ( $beta ) {
