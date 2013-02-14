@@ -77,7 +77,6 @@ body<=
             my $ago_ra = LJ::diff_ago_text( $r_ra );
 
             my $state;
-            warn "[$r_ra, $r_gu]\n";
             if ( !$r_ra && !$r_gu ) {
                 $state = 'queued';
             } elsif ( $r_gu ) {
