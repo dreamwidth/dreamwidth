@@ -20,7 +20,8 @@ use strict;
 use base qw/ LJ::Widget /;
 use Carp qw/ croak /;
 
-sub need_res { qw( stc/importer.css ) }
+sub need_res { qw( stc/importer.css js/jquery.importer.js ) }
+sub need_res_opts { group => "jquery" }
 
 sub render_body {
     my ( $class, %opts ) = @_;
@@ -56,15 +57,6 @@ sub render_body {
             desc => $class->ml( 'widget.importchoosedata.item.lj_entries.desc' ),
             selected => 0,
             comm_okay => 1,
-
-            suboptions => [
-                {
-                    name => 'lj_entries_remap_icon',
-                    display_name => $class->ml( 'widget.importstatus.item.lj_entries_remap_icon' ),
-                    desc => $class->ml( 'widget.importchoosedata.item.lj_entries_remap_icon.desc' ),
-                    selected => 0,
-                }
-            ]
         },
         {
             name => 'lj_comments',
@@ -89,9 +81,18 @@ sub render_body {
         },
     );
 
+    my @fixup_options = (
+        {
+            name => 'lj_entries_remap_icon',
+            display_name => $class->ml( 'widget.importstatus.item.lj_entries_remap_icon' ),
+            desc => $class->ml( 'widget.importchoosedata.item.lj_entries_remap_icon.desc' ),
+            selected => 0,
+        },
+    );
+
     my $ret;
 
-    $ret .= "<h2 class='gradient'>" . $class->ml( 'widget.importchoosedata.header' ) . "</h2>";
+    $ret .= "<h2 class='gradient'>" . $class->ml( 'widget.importchoosedata.header2' ) . "</h2>";
 
     $ret .= $class->start_form;
     $ret .= "<div class='importoptions'>";
@@ -108,28 +109,30 @@ sub render_body {
         );
         $ret .= " <label for='$option->{name}'>$option->{display_name}</label>";
         $ret .= "<?p $option->{desc} p?>";
-
-        if ( my @suboptions = @{ $option->{suboptions} || [] } ) {
-            $ret .= "<ul class='importsuboptions'>";
-            foreach my $suboption ( @suboptions ) {
-                $ret .= "<li>";
-                $ret .= $class->html_check(
-                    name => $suboption->{name},
-                    id => $suboption->{name},
-                    value => 1,
-                    selected => $suboption->{selected},
-                );
-                $ret .= " <label for='$suboption->{name}'>$suboption->{display_name}</label>";
-                $ret .= "<?p $suboption->{desc} p?>";
-                $ret .= "</li>";
-            }
-            $ret .= "</ul>";
-        }
-
         $ret .= "</div>";
     }
 
     $ret .= "</div>";
+
+    if ( @fixup_options ) {
+        $ret .= "<h2 class='gradient'>" . $class->ml( 'widget.importchoosedata.header.fixup' ) . "</h2>";
+        $ret .= "<div class='importoptions'>";
+
+        foreach my $option ( @fixup_options ) {
+            $ret .= "<div class='importoption'>";
+            $ret .= $class->html_check(
+                name => $option->{name},
+                id => $option->{name},
+                value => 1,
+                selected => $option->{selected},
+            );
+            $ret .= " <label for='$option->{name}'>$option->{display_name}</label>";
+            $ret .= "<?p $option->{desc} p?>";
+            $ret .= "</div>";
+        }
+
+        $ret .= "</div>";
+    }
 
     $ret .= $class->html_submit( submit => $class->ml( 'widget.importchoosedata.btn.continue' ) );
     $ret .= $class->end_form;
