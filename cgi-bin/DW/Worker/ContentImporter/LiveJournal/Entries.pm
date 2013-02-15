@@ -144,44 +144,11 @@ sub try_work {
             "Then try your import again." , $data->{hostname} );
     }
 
-    # this is an optimization.  since we never do an edit event (only post!) we will
-    # never get changes anyway.  so let's remove from the list of things to sync any
-    # post that we already know about.  (not that we really care, but it's much nicer
-    # on people we're pulling from.)
-    my %has; # jitemids we have
-    foreach my $url ( keys %$entry_map ) {
-
-        # but first, let's skip anything that isn't from the server we are importing
-        # from.  this assumes URLs never have other hostnames, so if someone were to
-        # register testlivejournal.com and do an import, they will have trouble
-        # importing.  if they want to do that to befunge this logic, more power to them.
-        $url =~ s/-/_/g; # makes \b work below
-        next unless $url =~ /\Q$data->{hostname}\E/ &&
-                    $url =~ /\b$data->{username}\b/;
-
-        unless ( $url =~ m!/(\d+)(?:\.html)?$! ) {
-            $log->( 'URL %s not of expected format in prune.', $url );
-            next;
-        }
-
-        # if we want a paid user or someone to get their picture keyword updated,
-        # skip them here.
-        next if $data->{options}->{lj_entries_remap_icon};
-
-        # yes, we can has this jitemid from the remote side
-        $has{$1 >> 8} = 1;
-    }
-    $log->( 'Identified %d items we already know about (first pass).', scalar( keys %has ) );
-    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
-
-    # this is another optimization.  we know crossposted entries can be removed from
-    # the list of things we will import, as we generated them to begin with.
-    foreach my $itemid ( keys %$xpost_map ) {
-        $has{$itemid} = 1;
-    }
-    $log->( 'Identified %d items we already know about (second pass).', scalar( keys %has ) );
-    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
-
+    my ( $duplicates_map, %has ) = $class->find_prunable_items( $u, $entry_map, $xpost_map,
+                        hostname => $data->{hostname},
+                        username => $data->{username},
+                        log_sub => $log,
+                        force_reimport => $data->{options}->{lj_entries_remap_icon} );
     $title->( 'post-prune' );
 
     # this is a useful helper sub we use
@@ -211,6 +178,12 @@ sub try_work {
                 $entry->set_prop( picture_keyword => $kw );
             }
         }
+
+        # try to detect suspiciously similar entries
+        # but first clean subject to make sure it matches what we actually inserted into the db
+        $evt->{subject} = $class->remap_lj_user( $data, $evt->{subject} || "" );
+        $has{$evt->{itemid}} = 1
+            if $duplicates_map->{ LJ::mysqldate_to_time($evt->{logtime}) . "-$evt->{subject}" };
 
         # now try to skip it if we already have it
         return if $entry_map->{$evt->{key}} || $xpost_map->{$evt->{itemid}} || $has{$evt->{itemid}};
@@ -264,7 +237,6 @@ sub try_work {
         }
 
         $evt->{event} = $class->remap_lj_user( $data, $event );
-        $evt->{subject} = $class->remap_lj_user( $data, $evt->{subject} || "" );
 
         # actually post it
         my ( $ok, $res ) =
@@ -341,6 +313,60 @@ sub try_work {
     }
 
     return $ok->();
+}
+
+sub find_prunable_items {
+    my ( $class, $u, $entry_map, $xpost_map, %opts ) = @_;
+
+    my $log = $opts{log_sub} || sub { warn @_ };
+    my $force_reimport = $opts{force_reimport};
+    my $hostname = $opts{hostname};
+    my $username = $opts{username};
+
+    # this is an optimization.  since we never do an edit event (only post!) we will
+    # never get changes anyway.  so let's remove from the list of things to sync any
+    # post that we already know about.  (not that we really care, but it's much nicer
+    # on people we're pulling from.)
+    my %has; # jitemids we have
+    foreach my $url ( keys %$entry_map ) {
+
+        # but first, let's skip anything that isn't from the server we are importing
+        # from.  this assumes URLs never have other hostnames, so if someone were to
+        # register testlivejournal.com and do an import, they will have trouble
+        # importing.  if they want to do that to befunge this logic, more power to them.
+        $url =~ s/-/_/g; # makes \b work below
+        next unless $url =~ /\Q$hostname\E/ &&
+                    $url =~ /\b$username\b/;
+
+        unless ( $url =~ m!/(\d+)(?:\.html)?$! ) {
+            $log->( 'URL %s not of expected format in prune.', $url );
+            next;
+        }
+
+        # if we want a paid user or someone to get their picture keyword updated,
+        # skip them here.
+        next if $force_reimport;
+
+        # yes, we can has this jitemid from the remote side
+        $has{$1 >> 8} = 1;
+    }
+    $log->( 'Identified %d items we already know about (first pass).', scalar( keys %has ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    # this is another optimization.  we know crossposted entries can be removed from
+    # the list of things we will import, as we generated them to begin with.
+    foreach my $itemid ( keys %$xpost_map ) {
+        $has{$itemid} = 1;
+    }
+
+    $log->( 'Identified %d items we already know about (second pass).', scalar( keys %has ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    my $duplicates_map = DW::Worker::ContentImporter::Local::Entries->get_duplicates_map( $u, \%has ) || {};
+    $log->( 'Found %d items to check for duplicates.', scalar( keys %$duplicates_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    return ( $duplicates_map, %has );
 }
 
 1;
