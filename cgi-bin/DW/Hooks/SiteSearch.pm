@@ -70,7 +70,7 @@ LJ::Hooks::register_hook( 'purged_user', sub {
 
     # queue up a copier job, which will notice that the entries by this user have been deleted...
     $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-                                { userid => $u->id } ) );
+                                { userid => $u->id, source => "purghook" } ) );
 
 });
 
