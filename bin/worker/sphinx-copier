@@ -20,6 +20,8 @@ use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::Worker::TheSchwartz;
 
+$LJ::LOG_GTOP = 1;
+
 schwartz_decl( 'DW::Worker::Sphinx::Copier' );
 schwartz_work();
 
@@ -44,13 +46,16 @@ sub sphinx_db {
 sub work {
     my ( $class, $job ) = @_;
     my $a = $job->arg;
+    $job->grabbed_until( time() + 3600*12 );
+    $job->save;
 
     my $u = LJ::load_userid( $a->{userid} )
         or croak "Invalid userid: $a->{userid}.";
+    warn "[$$] Sphinx copier started for " . $u->user . "(" . $u->id . "), source " .
+        ( $a->{source} // 'unknown' ) . ".\n";
     return $job->completed unless $u->is_person || $u->is_community;
 
     # annotate copier is going
-    warn "[$$] Sphinx copier started for " . $u->user . "(" . $u->id . ").\n";
     $0 = sprintf( 'sphinx-copier [%s(%d) - %d, %d]', $u->user, $u->id,
             $a->{jitemid} // 0, $a->{jtalkid} // 0 );
 
@@ -69,10 +74,23 @@ sub work {
         copy_comment( $u, $a->{jtalkid} );
     } else {
         warn "[$$] * Requested complete recopy of user.\n";
-        copy_entry( $u );
+        my $time = LJ::MemCache::get( [ $u->id, "sphinx-copy-full:" . $u->id ] );
+        if ( $time > time() - 86400 ) {
+            warn "[$$] * Copied less than a day ago. Skipping.\n";
+            $job->completed;
+            return;
+        }
+        LJ::MemCache::set( [ $u->id, "sphinx-copy-full:" . $u->id ], time() );
+        copy_entry( $u, undef, 1 );
         copy_comment( $u );
     }
-    return $job->completed;
+
+    $0 = 'sphinx-copier [bored]';
+    $job->completed;
+
+    # If memory usage is over 300MB after a job finishes, terminate.
+    my $rssmb = LJ::gtop()->proc_mem($$)->resident/1024/1024;
+    exit 0 if $rssmb > 300;
 }
 
 sub copy_comment {
@@ -82,26 +100,45 @@ sub copy_comment {
     my $dbfrom = LJ::get_cluster_master( $u->clusterid )
         or croak "User cluster master not available.";
 
-    # If we're being asked to look at one post, that simplifies our processing
-    # quite a bit.
+    # If the parameter is not an arrayref, then make it one if it's defined.
+    $only_jtalkid = [ $only_jtalkid ]
+        if defined $only_jtalkid && !ref $only_jtalkid;
+
+    # A full comment import. We slice it by 1000 comment groups to make the
+    # memory usage something that isn't insane. (This codepath exists because
+    # of cfud and sixwordstories. Congrats!)
+    if ( !defined $only_jtalkid ) {
+        my $maxid = $dbfrom->selectrow_array(
+            'SELECT MAX(jtalkid) FROM talk2 WHERE journalid = ?',
+            undef, $u->id
+        );
+        croak $dbfrom->errstr if $dbfrom->err;
+
+        my $n = 0;
+        while ( $n < $maxid ) {
+            my $m = $n + 1000;
+            $m = $maxid if $m > $maxid;
+
+            $0 = sprintf( 'sphinx-copier [%s(%d) - comments: %0.2f%% of %d]',
+                    $u->user, $u->id, $m / $maxid * 100, $maxid );
+            copy_comment( $u, [ $n+1..$m ] );
+            $n = $m;
+        }
+        warn "[$$] Done with mass-copy.\n";
+        return;
+    }
+
     my ( $entries, $comments );
     my ( @copy_jitemids, @delete_jtalkids );
+    my $allowpublic = $u->include_in_global_search ? 1 : 0;
 
-    if ( $only_jtalkid ) {
-        $comments = $dbfrom->selectall_hashref(
-            q{SELECT jtalkid, nodeid, state, posterid, UNIX_TIMESTAMP(datepost) AS 'datepost'
-              FROM talk2 WHERE journalid = ? AND jtalkid = ?},
-            'jtalkid', undef, $u->id, $only_jtalkid
-        );
-        croak $dbfrom->errstr if $dbfrom->err;
-    } else {
-        $comments = $dbfrom->selectall_hashref(
-            q{SELECT jtalkid, nodeid, state, posterid, UNIX_TIMESTAMP(datepost) AS 'datepost'
-              FROM talk2 WHERE journalid = ?},
-            'jtalkid', undef, $u->id
-        );
-        croak $dbfrom->errstr if $dbfrom->err;
-    }
+    my $in = join ',', @$only_jtalkid;
+    $comments = $dbfrom->selectall_hashref(
+        qq{SELECT jtalkid, nodeid, state, posterid, UNIX_TIMESTAMP(datepost) AS 'datepost'
+           FROM talk2 WHERE journalid = ? AND jtalkid IN ($in)},
+        'jtalkid', undef, $u->id
+    );
+    croak $dbfrom->errstr if $dbfrom->err;
     return unless ref $comments eq 'HASH' && %$comments;
 
     # Now we have some comments, get data we need to build security for the
@@ -131,11 +168,11 @@ sub copy_comment {
 
             # have to do some more munging
             $row->{allowmask} = join ',', LJ::bit_breakdown( $row->{allowmask} ), @extrabits;
-            $row->{allowpublic} = $u->include_in_global_search ? 1 : 0;
         }
     }
 
     # Comment loop.
+    my @jtalkids;
     foreach my $jtalkid ( keys %$comments ) {
         my $state = $comments->{$jtalkid}->{state};
         my $force_private = 0; # Override security to private.
@@ -149,40 +186,55 @@ sub copy_comment {
             $force_private = 1;
         }
 
-        my ( $subj, $text ) = $dbfrom->selectrow_array(
-            'SELECT subject, body FROM talktext2 WHERE journalid = ? AND jtalkid = ?',
-            undef, $u->id, $jtalkid
+        push @jtalkids, [ $jtalkid, $force_private ];
+    }
+
+    while (my @items = splice(@jtalkids, 0, 1000)) {
+        last unless @items;
+
+        my @l_jtalkids = map { $_->[0] } @items;
+        my %private = map { $_->[0] => $_->[1] } @items;
+        my $in = join ',', @l_jtalkids;
+
+        my $text = $dbfrom->selectall_hashref(
+            qq{SELECT jtalkid, subject, body
+               FROM talktext2 WHERE journalid = ? AND jtalkid IN ($in)},
+            'jtalkid', undef, $u->id
         );
         croak $dbfrom->errstr if $dbfrom->err;
 
-        LJ::text_uncompress( \$subj );
-        $subj = Encode::decode( 'utf8', $subj );
-        LJ::text_uncompress( \$text );
-        $text = Encode::decode( 'utf8', $text );
+        foreach my $jtd ( keys %$text ) {
+            my ( $subj, $body ) = ( $text->{$jtd}->{subject}, $text->{$jtd}->{body} );
+            LJ::text_uncompress( \$subj );
+            $text->{$jtd}->{subject} = Encode::decode( 'utf8', $subj );
+            LJ::text_uncompress( \$body );
+            $text->{$jtd}->{body} = Encode::decode( 'utf8', $body );
+        }
 
-        my $old_id = $dbsx->selectrow_array(
-            'SELECT id FROM items_raw WHERE journalid = ? AND jtalkid = ?',
-            undef, $u->id, $jtalkid
+        my $old_ids = $dbsx->selectall_hashref(
+            qq{SELECT jtalkid, id FROM items_raw WHERE journalid = ? AND jtalkid IN ($in)},
+            'jtalkid', undef, $u->id
         );
         croak $dbsx->errstr if $dbsx->err;
 
-        my $allowmask = $entries->{$comments->{$jtalkid}->{nodeid}}->{allowmask};
-        $allowmask = '101' if $force_private;
+        foreach my $jid ( keys %$text ) {
+            my $allowmask = $entries->{$comments->{$jid}->{nodeid}}->{allowmask} // '101';
+            $allowmask = '101' if $private{$jid};
 
-        my $id = $old_id || LJ::alloc_global_counter('X');
-        $dbsx->do(
-            q{REPLACE INTO items_raw (id, journalid, jtalkid, jitemid, poster_id,
-                date_posted, title, data, security_bits, allow_global_search)
-              VALUES (?, ?, ?, ?, ?, ?, ?, COMPRESS(?), ?, ?)},
-            undef, $id, $u->id, $jtalkid,
-                (map { $comments->{$jtalkid}->{$_} } qw/ nodeid posterid datepost /),
-                $subj, $text, $allowmask,
-                (map { $entries->{$comments->{$jtalkid}->{nodeid}}->{$_} } qw/ allowpublic /),
-        );
-        croak $dbsx->errstr if $dbsx->err;
+            my $id = $old_ids->{$jid}->{id} || LJ::alloc_global_counter('X');
+            $dbsx->do(
+                q{REPLACE INTO items_raw (id, journalid, jtalkid, jitemid, poster_id,
+                    date_posted, title, data, security_bits, allow_global_search)
+                VALUES (?, ?, ?, ?, ?, ?, ?, COMPRESS(?), ?, ?)},
+                undef, $id, $u->id, $jid,
+                    (map { $comments->{$jid}->{$_} } qw/ nodeid posterid datepost /),
+                    $text->{$jid}->{subject}, $text->{$jid}->{body}, $allowmask, $allowpublic,
+            );
+            croak $dbsx->errstr if $dbsx->err;
 
-        # let the viewer know what they missed
-        warn "[$$] Inserted comment #$jtalkid for " . $u->user . "(" . $u->id . ") as Sphinx id $id.\n";
+            # let the viewer know what they missed
+#            warn "[$$] Inserted comment #$jid for " . $u->user . "(" . $u->id . ") as Sphinx id $id.\n";
+        }
     }
 
     # deletes are easy...
@@ -196,7 +248,7 @@ sub copy_comment {
 }
 
 sub copy_entry {
-    my ( $u, $only_jitemid ) = @_;
+    my ( $u, $only_jitemid, $skip_comments ) = @_;
     my $dbsx = sphinx_db()
         or croak "Sphinx database not available.";
     my $dbfrom = LJ::get_cluster_master( $u->clusterid )
@@ -312,37 +364,39 @@ sub copy_entry {
         croak $dbsx->errstr if $dbsx->err;
 
         # let the viewer know what they missed
-        warn "[$$] Inserted post #$jitemid for " . $u->user . "(" . $u->id . ") as Sphinx id $id.\n";
+        #warn "[$$] Inserted post #$jitemid for " . $u->user . "(" . $u->id . ") as Sphinx id $id.\n";
     }
 
-    my %commentids;
-    foreach my $jitemid ( keys %comment_jitemids ) {
-        # Comments we know about (we do this so that we can delete them if they've
-        # been removed).
-        my $jtalkids = $dbsx->selectcol_arrayref(
-            q{SELECT jtalkid FROM items_raw WHERE journalid = ? AND jitemid = ? AND jtalkid > 0},
-            undef, $u->id, $jitemid
-        );
-        croak $dbsx->errstr if $dbsx->err;
+    unless ( $skip_comments ) {
+        my %commentids;
+        foreach my $jitemid ( keys %comment_jitemids ) {
+            # Comments we know about (we do this so that we can delete them if they've
+            # been removed).
+            my $jtalkids = $dbsx->selectcol_arrayref(
+                q{SELECT jtalkid FROM items_raw WHERE journalid = ? AND jitemid = ? AND jtalkid > 0},
+                undef, $u->id, $jitemid
+            );
+            croak $dbsx->errstr if $dbsx->err;
 
-        if ( $jtalkids && ref $jtalkids eq 'ARRAY' ) {
-            $commentids{$_} = 1
-                foreach @$jtalkids;
+            if ( $jtalkids && ref $jtalkids eq 'ARRAY' ) {
+                $commentids{$_} = 1
+                    foreach @$jtalkids;
+            }
+
+            # And this catches comments that we don't know about yet.
+            my $jtalkids2 = $dbfrom->selectcol_arrayref(
+                q{SELECT jtalkid FROM talk2 WHERE journalid = ? AND nodetype = 'L' AND nodeid = ?},
+                undef, $u->id, $jitemid
+            );
+            croak $dbsx->errstr if $dbsx->err;
+
+            if ( $jtalkids2 && ref $jtalkids2 eq 'ARRAY' ) {
+                $commentids{$_} = 1
+                    foreach @$jtalkids2;
+            }
         }
-
-        # And this catches comments that we don't know about yet.
-        my $jtalkids2 = $dbfrom->selectcol_arrayref(
-            q{SELECT jtalkid FROM talk2 WHERE journalid = ? AND nodetype = 'L' AND nodeid = ?},
-            undef, $u->id, $jitemid
-        );
-        croak $dbsx->errstr if $dbsx->err;
-
-        if ( $jtalkids2 && ref $jtalkids2 eq 'ARRAY' ) {
-            $commentids{$_} = 1
-                foreach @$jtalkids2;
-        }
+        copy_comment( $u, $_ ) foreach keys %commentids;
     }
-    copy_comment( $u, $_ ) foreach keys %commentids;
 }
 
 sub keep_exit_status_for { 0 }
