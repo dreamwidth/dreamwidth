@@ -176,6 +176,7 @@ propgroup modules
     property use module_credit_group;
     property use module_search_group;
     property use module_cuttagcontrols_group;
+    property use module_readfilters_group;
 }
 
 set module_layout_sections     = "none|(none)|one|Sidebar|two|Footer";

@@ -521,6 +521,15 @@ class User extends UserLite
 
 }
 
+class SubscriptionFilter
+{
+    var int id "The numeric ID of the filter.";
+    var string name "The name of the filter.";
+    var bool public "Whether the filter is publicly accessible.";
+    var int sortorder "Which order this filter is in compared to others.";
+    var string link "A link to the filtered reading page.";
+}
+
 ### Other
 
 class Redirector
@@ -1069,6 +1078,9 @@ function builtin end_css () "Declare that you're done printing CSS and the outpu
 
 function builtin journal_current_datetime() : DateTime
 "Returns the current datetime in the timezone of the journal being viewed.";
+
+function builtin journal_subscription_filters() : SubscriptionFilter[]
+"Returns the subscription filters for the journal being viewed, in sort order.";
 
 function builtin style_is_active() : bool
 "Returns if the style (layout and theme) calling it is active based on a hook.  If hook isn't defined, returns true always.";
@@ -1952,6 +1964,15 @@ property bool module_cuttagcontrols_show { grouped = 1; }
 property int  module_cuttagcontrols_order { grouped = 1; }
 property string module_cuttagcontrols_section { grouped = 1; }
 
+property string[] module_readfilters_group {
+    des = "Reading Filters";
+    grouptype = "module";
+}
+set module_readfilters_group = ["module_readfilters_show", "module_readfilters_order", "module_readfilters_section"];
+property bool module_readfilters_show { grouped = 1; }
+property int module_readfilters_order { grouped = 1; }
+property string module_readfilters_section { grouped = 1; }
+
 set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 set module_userprofile_show = true;
 set module_userprofile_order = 1;
@@ -2004,6 +2025,9 @@ set module_search_section = "one";
 set module_cuttagcontrols_show = true;
 set module_cuttagcontrols_order = 16;
 set module_cuttagcontrols_section = "one";
+set module_readfilters_show = false;
+set module_readfilters_order = 17;
+set module_readfilters_section = "one";
 
 ##=======================================
 ## Display properties - Text
@@ -2233,6 +2257,12 @@ property string text_module_search_btn {
     size = 20;
     example = "Search";
 }
+property string text_module_readfilters {
+    des = "Text for the 'Reading Filters' box";
+    maxlength = 50;
+    size = 20;
+    example = "Reading Filters";
+}
 
 # Modules without titles: navlinks, time, poweredby
 # Calendar uses month and year
@@ -2251,6 +2281,7 @@ set text_module_credit = "Style Credit";
 set text_module_cuttagcontrols = "Expand Cut Tags";
 set text_module_search = "Search";
 set text_module_search_btn = "Search";
+set text_module_readfilters = "Reading Filters";
 
 ##=======================================
 ## Display properties - Text
@@ -3102,6 +3133,7 @@ function modules_init()
     if ( $*module_credit_show ) { $*module_sections{$*module_credit_section}[$*module_credit_order]=["credit"]; }
     if ( $*module_search_show ) { $*module_sections{$*module_search_section}[$*module_search_order]=["search"]; }
     if ( $*module_cuttagcontrols_show ) { $*module_sections{$*module_cuttagcontrols_section}[$*module_cuttagcontrols_order]=["cuttagcontrols"]; }
+    if ( $*module_readfilters_show ) { $*module_sections{$*module_readfilters_section}[$*module_readfilters_order]=["readfilters"]; }
 
     #if ( $*module_%%mod%%_show ) { $*module_sections{$*module_%%mod%%_section }[$*module_%%mod%%_order]=["%%mod%%"]; }
 }
@@ -4527,6 +4559,25 @@ function print_module_cuttagcontrols() {
 
 }
 
+function print_module_readfilters() {
+
+    open_module("readfilters", $*text_module_readfilters, "");
+
+    var SubscriptionFilter[] filters = journal_subscription_filters();
+    var string{}[] filter_list;
+
+    var int pos = 0;
+    foreach var SubscriptionFilter filter ( $filters ) {
+        var string filter_class = $filter.public ? "public" : "private";
+        $filter_list[$pos] = { "class" => "$filter_class", "item" => """<a href="$filter.link">$filter.name</a>""" };
+        $pos++;
+    }
+
+    print_module_list($filter_list);
+
+    close_module();
+}
+
 function handle_module_group_array(string[][] list) {
     foreach var string[] item ($list) {
         var string module = $item[0];
@@ -4576,6 +4627,9 @@ function handle_module_group_array(string[][] list) {
         }
         elseif ($module == "cuttagcontrols") {
             print_module_cuttagcontrols();
+        }
+        elseif ($module == "readfilters") {
+            print_module_readfilters();
         }
     }
 }
