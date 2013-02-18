@@ -99,8 +99,10 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
             self.requests.push( deferred );
 
             deferred.fail(function(jqxhr, status, error) {
-                // "abort" status means we cancelled the ajax request
-                if ( status !== "abort" ) {
+                if ( status !== "abort" &&          // "abort" status means we cancelled the ajax request
+                        ( error && jqxhr.status )   // empty error / status means we probably cilcked
+                                                    // away from the page before the ajax request was completed
+                    ) {
                     self.error( "Error contacting server: " + error );
                 }
             });
