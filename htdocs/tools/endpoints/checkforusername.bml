@@ -21,6 +21,6 @@ _c?>
 
     my $error = LJ::CreatePage->verify_username($GET{user});
 
-    return JSON::objToJson({ error => $error ? $error : "" });
+    return to_json({ error => $error ? $error : "" });
 }
 _code?>

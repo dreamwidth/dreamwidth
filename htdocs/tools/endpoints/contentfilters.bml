@@ -20,7 +20,7 @@
     use vars qw/ %GET /;
 
     my $err = sub {
-        return JSON::objToJson( {
+        return to_json( {
             alert => $_[0],
             error => 1,
         } );
@@ -180,6 +180,6 @@
         $ret{url} = $u->journal_base . "/read/" . $GET{name};
     }
 
-    return JSON::objToJson( \%ret );
+    return to_json( \%ret );
 }
 _code?>

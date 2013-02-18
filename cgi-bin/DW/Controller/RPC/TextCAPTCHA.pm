@@ -42,7 +42,7 @@ sub captcha_handler {
         my $captcha_html = DW::Template->template_string( 'textcaptcha.tt', { captcha => $captcha }, { fragment => 1 } );
 
         my $r = DW::Request->get;
-        $r->print( objToJson( { captcha => $captcha_html } ) );
+        $r->print( to_json( { captcha => $captcha_html } ) );
         return $r->OK;
     } else {
         return DW::Template->render_template( 'textcaptcha.tt', { captcha => $captcha }, { fragment => 1 } );

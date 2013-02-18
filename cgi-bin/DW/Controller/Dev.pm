@@ -128,7 +128,7 @@ sub testhelper_json_handler {
         if ( $args->{function} eq "js_dumper" ) {
             $r->print( LJ::js_dumper( $ret ) );
         } elsif ( $args->{function} eq "json" ) {
-            $r->print( JSON::objToJson( $ret ) );
+            $r->print( to_json( $ret ) );
         }
 
         return $r->OK;

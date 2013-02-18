@@ -37,7 +37,7 @@ sub iconbrowser_save {
         $remote->iconbrowser_smallicons( $post->{smallicons} eq "true" ? "Y" : "N" );
     }
 
-    $r->print( objToJson( { success => 1 } ) );
+    $r->print( to_json( { success => 1 } ) );
     return $r->OK;
 }
 

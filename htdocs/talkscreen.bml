@@ -19,6 +19,7 @@ _info?><?_code
     use strict;
     use vars qw(%GET %POST);
     use vars qw($body);
+    use JSON;
 
     my $jsmode = !!$GET{jsmode};
     $body = "";
@@ -32,7 +33,7 @@ _info?><?_code
             BML::finish();
             # FIXME: remove once we've switched over completely to jquery
             if ( !!$GET{json} ) {
-                return JSON::objToJson( { error => $_[0] } );
+                return to_json( { error => $_[0] } );
             } else {
                 return "alert('" . LJ::ejs($_[0]) . "'); 0;";
             }
@@ -53,8 +54,6 @@ _info?><?_code
     my $dtalkid = $qtalkid;   # display talkid, for use in URL later
 
     my $jsres = sub {
-        use JSON;
-
         my ( $mode, $message ) = @_;
 
         # flip case of 'un'
@@ -83,7 +82,7 @@ _info?><?_code
         sleep 1 if $LJ::IS_DEV_SERVER;
 
         BML::finish();
-        return JSON::objToJson( \%ret );
+        return to_json( \%ret );
     };
 
     my $remote = LJ::get_remote();

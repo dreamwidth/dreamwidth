@@ -20,7 +20,7 @@ _c?>
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             'alert' => $msg,
         });
     };
@@ -51,7 +51,7 @@ _c?>
 
     sleep 1 if $LJ::IS_DEV_SERVER;
 
-    return JSON::objToJson({ 'themes' => \@themes,
+    return to_json({ 'themes' => \@themes,
                              'langs'  => \@langs, });
 }
 _code?>

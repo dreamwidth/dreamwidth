@@ -22,7 +22,7 @@ _c?>
     # error method
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             error => $msg
         });
     };
@@ -48,6 +48,6 @@ _c?>
     return $err->(BML::ml('/tools/endpoints/extacct_auth.bml.error.authfailed', { account => $account->displayname } )) unless $challenge;
 
     # return the challenge
-    return JSON::objToJson( { challenge => $challenge, success => 1 } );
+    return to_json( { challenge => $challenge, success => 1 } );
 }
 _code?>

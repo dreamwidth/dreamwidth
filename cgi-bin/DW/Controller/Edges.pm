@@ -28,7 +28,7 @@ use JSON;
 DW::Routing->register_string(  "/data/edges", \&edges_handler, user => 1, format => 'json' );
 
 my $formats = {
-    'json' => sub { $_[0]->print( objToJson( $_[1] ) ); },
+    'json' => sub { $_[0]->print( to_json( $_[1] ) ); },
 };
 
 sub edges_handler {
@@ -61,7 +61,7 @@ sub edges_handler {
     unless ( $renamed_u && $u->equals( $renamed_u ) ) {
         $r->header_out("Location", $renamed_u->journal_base . "/data/edges");
         $r->status( $r->REDIRECT );
-        $r->print( objToJson( { error => 'moved', moved_to => $renamed_u->journal_base . "/data/edges" } ) );
+        $r->print( to_json( { error => 'moved', moved_to => $renamed_u->journal_base . "/data/edges" } ) );
         return $r->OK;
     }
 

@@ -46,7 +46,7 @@ _c?>
             $remote->set_prop( profile_collapsed_headers => join(",", keys %is_collapsed) );
         }
     } else { # load
-        return JSON::objToJson({ headers => [ split(/,/, $remote->prop("profile_collapsed_headers")) ] });
+        return to_json({ headers => [ split(/,/, $remote->prop("profile_collapsed_headers")) ] });
     }
 
     return;

@@ -2205,7 +2205,7 @@ sub init_iconbrowser_js {
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
     my $remote = LJ::get_remote();
-    my $iconbrowser_opts = JSON::objToJson({
+    my $iconbrowser_opts = to_json({
         selectorButtons => "#lj_userpicselect",
         metatext => $remote->iconbrowser_metatext ? "true" : "false",
         smallicons => $remote->iconbrowser_smallicons ? "true" : "false"

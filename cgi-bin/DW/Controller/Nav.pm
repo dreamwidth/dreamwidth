@@ -51,7 +51,7 @@ sub nav_handler {
     my $format = $opts->format;
     if ( $format eq 'json' ) {
         # this prints out the menu navigation as JSON and returns
-        $r->print( JSON::objToJson( $menu_nav ) );
+        $r->print( to_json( $menu_nav ) );
         return $r->OK;
     } elsif ( $format eq 'html' ) {
         # these variables will get passed to the template

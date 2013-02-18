@@ -21,13 +21,13 @@ _c?>
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             error => "Error: $msg",
         });
     };
 
     my $nop = sub {
-        return JSON::objToJson({
+        return to_json({
             success => 0,
         });
     };
@@ -120,7 +120,7 @@ _c?>
         };
     }
 
-    return JSON::objToJson({
+    return to_json({
         success => $success,
         unread_all => $inbox->all_event_count,
         unread_usermsg_recvd => $inbox->usermsg_recvd_event_count,

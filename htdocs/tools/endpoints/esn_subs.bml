@@ -21,13 +21,13 @@ _c?>
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             error => "Error: $msg",
         });
     };
 
     my $nop = sub {
-        return JSON::objToJson({
+        return to_json({
             success => 0,
         });
     };
@@ -134,7 +134,7 @@ _c?>
         return $err->("Invalid action $action");
     }
 
-    return JSON::objToJson({
+    return to_json({
         success => $success,
         %ret,
     });

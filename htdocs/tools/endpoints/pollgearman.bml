@@ -22,7 +22,7 @@ _c?>
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             error => "Error: $msg",
             meta  => $POST{meta},
         });
@@ -55,6 +55,6 @@ _c?>
 
     sleep(1.5) if $LJ::IS_DEV_SERVER;
 
-    return JSON::objToJson( $ret );
+    return to_json( $ret );
 }
 _code?>

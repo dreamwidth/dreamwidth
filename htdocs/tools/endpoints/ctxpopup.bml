@@ -22,7 +22,7 @@ _c?>
     my $err = sub {
         my $msg = shift;
         my %extra = @_;
-        return JSON::objToJson({
+        return to_json({
             error => "$msg",
             %extra,
         });
@@ -143,6 +143,6 @@ _c?>
     $ret{is_banned} = $remote->has_banned( $u ) ? 1 : 0 if $remote;
 
     $ret{success} = 1;
-    return JSON::objToJson( \%ret );
+    return to_json( \%ret );
 }
 _code?>

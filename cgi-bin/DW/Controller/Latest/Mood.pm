@@ -33,7 +33,7 @@ sub mood_handler {
         },
         json => sub {
             $r->status( 503 ) if $_[0]->{no_data};
-            $r->print( objToJson( $_[0] ) );
+            $r->print( to_json( $_[0] ) );
             return $r->OK;
         },
     };
