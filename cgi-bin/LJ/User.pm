@@ -2688,7 +2688,8 @@ sub make_sticky_entry {
 
     return undef if $sticky_id > $u->count_max_stickies;
 
-    my @stickies = $u->sticky_entry;
+    my $sticky_entries =  $u->prop( 'sticky_entry' );
+    my @stickies = split( /,/, $sticky_entries );
 
     $stickies[$sticky_id-1] = $ditemid;
     my $sticky_entry = join( ',', @stickies );
@@ -3011,7 +3012,9 @@ sub remove_from_class {
 sub remove_sticky_entry {
     my ( $u, $ditemid ) = @_;
 
-    my @stickies = $u->sticky_entry;
+    my $sticky_entries =  $u->prop( 'sticky_entry' );
+    my @stickies = split( /,/, $sticky_entries );
+
     my @new_stickies;
 
     foreach my $sticky ( @stickies ) {
