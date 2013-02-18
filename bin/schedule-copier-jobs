@@ -36,5 +36,5 @@ while ( my ( $userid ) = $sth->fetchrow_array ) {
     warn "Scheduling $userid ...\n";
     $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
                 { userid => $userid, source => "schedule" } ) );
-    select undef, undef, undef, 0.5;
+    select undef, undef, undef, 0.02;
 }

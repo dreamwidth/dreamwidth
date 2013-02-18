@@ -59,6 +59,10 @@ sub work {
     $0 = sprintf( 'sphinx-copier [%s(%d) - %d, %d]', $u->user, $u->id,
             $a->{jitemid} // 0, $a->{jtalkid} // 0 );
 
+    # We copy comments for paid users, allowing them to search through the
+    # comments to their journal.
+    my $copy_comments = $u->is_paid ? 1 : 0;
+
     # There are several modes. Either we can do a full import (no arguments),
     # we can import a particular entry (edited or something), or we can import
     # a specific comment (again, edited or posted).
@@ -68,21 +72,21 @@ sub work {
     # up fixing up whatever was forgotten.
     if ( exists $a->{jitemid} ) {
         warn "[$$] * Requested copy of only entry $a->{jitemid}.\n";
-        copy_entry( $u, $a->{jitemid} );
+        copy_entry( $u, $a->{jitemid}, !$copy_comments );
     } elsif ( exists $a->{jtalkid} ) {
         warn "[$$] * Requested copy of only comment $a->{jtalkid}.\n";
-        copy_comment( $u, $a->{jtalkid} );
+        copy_comment( $u, $a->{jtalkid} ) if $copy_comments;
     } else {
         warn "[$$] * Requested complete recopy of user.\n";
-        my $time = LJ::MemCache::get( [ $u->id, "sphinx-copy-full:" . $u->id ] );
+        my $time = LJ::MemCache::get( [ $u->id, "sphinx-copy-full2:" . $u->id ] );
         if ( $time > time() - 86400 ) {
             warn "[$$] * Copied less than a day ago. Skipping.\n";
             $job->completed;
             return;
         }
-        LJ::MemCache::set( [ $u->id, "sphinx-copy-full:" . $u->id ], time() );
+        LJ::MemCache::set( [ $u->id, "sphinx-copy-full2:" . $u->id ], time() );
         copy_entry( $u, undef, 1 );
-        copy_comment( $u );
+        copy_comment( $u ) if $copy_comments;
     }
 
     $0 = 'sphinx-copier [bored]';
@@ -224,8 +228,8 @@ sub copy_comment {
             my $id = $old_ids->{$jid}->{id} || LJ::alloc_global_counter('X');
             $dbsx->do(
                 q{REPLACE INTO items_raw (id, journalid, jtalkid, jitemid, poster_id,
-                    date_posted, title, data, security_bits, allow_global_search)
-                VALUES (?, ?, ?, ?, ?, ?, ?, COMPRESS(?), ?, ?)},
+                    date_posted, title, data, security_bits, allow_global_search, touchtime)
+                VALUES (?, ?, ?, ?, ?, ?, ?, COMPRESS(?), ?, ?, UNIX_TIMESTAMP())},
                 undef, $id, $u->id, $jid,
                     (map { $comments->{$jid}->{$_} } qw/ nodeid posterid datepost /),
                     $text->{$jid}->{subject}, $text->{$jid}->{body}, $allowmask, $allowpublic,
@@ -356,8 +360,8 @@ sub copy_entry {
         my $id = $sphinx_ids{$jitemid} // LJ::alloc_global_counter('X');
         $dbsx->do(
             q{REPLACE INTO items_raw (id, journalid, jitemid, jtalkid, poster_id,
-                security_bits, allow_global_search, date_posted, title, data)
-              VALUES (?, ?, ?, 0, ?, ?, ?, UNIX_TIMESTAMP(?), ?, COMPRESS(?))},
+                security_bits, allow_global_search, date_posted, title, data, touchtime)
+              VALUES (?, ?, ?, 0, ?, ?, ?, UNIX_TIMESTAMP(?), ?, COMPRESS(?), UNIX_TIMESTAMP())},
             undef, $id, map { $row->{$_} } qw/ journalid jitemid posterid
                 allowmask allowpublic logtime subject event /
         );

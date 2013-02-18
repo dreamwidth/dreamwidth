@@ -63,8 +63,14 @@ body<=
             rel => "Relevance to search terms",
         );
         $ret .= '<br />';
-        $ret .= LJ::html_check({ id => 'with_comments', name => 'with_comments',
-                selected => $wc, label => 'Include comments in search results' });
+        if ( !$tu || $tu->is_paid ) {
+            $ret .= LJ::html_check({ id => 'with_comments', name => 'with_comments',
+                    selected => $wc, label => 'Include comments in search results' });
+        } else {
+            $ret .= LJ::html_check({ id => 'with_comments', name => 'with_comments',
+                    label => 'Include comments in search results (disabled; account is not paid)',
+                    disabled => 1 });
+        }
         $ret .= '</form>';
 
         return $ret;
@@ -222,6 +228,7 @@ body<=
                 "<input type='hidden' name='query' value='" . LJ::ehtml( $q ) . "'>" .
                 "<input type='hidden' name='mode' value='" . ( $su ? $su->user : '' ) . "'>" .
                 "<input type='hidden' name='sort_by' value='" . $sby . "'>" .
+                "<input type='hidden' name='with_comments' value='" . $wc . "'>" .
                 "<input type='submit' value='More Results...' />" .
                 "</form>";
     }
