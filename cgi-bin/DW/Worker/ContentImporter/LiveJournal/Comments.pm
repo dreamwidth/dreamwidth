@@ -118,16 +118,11 @@ sub try_work {
 
     # logging sub
     my ( $logfile, $last_log_time );
+    $logfile = $class->start_log( "lj_comments", userid => $opts->{userid}, import_data_id => $opts->{import_data_id} )
+        or return $temp_fail->( 'Internal server error creating log.' );
+
     my $log = sub {
         $last_log_time ||= [ gettimeofday() ];
-
-        unless ( $logfile ) {
-            mkdir "$LJ::HOME/logs/imports";
-            mkdir "$LJ::HOME/logs/imports/$opts->{userid}";
-            open $logfile, ">>$LJ::HOME/logs/imports/$opts->{userid}/$opts->{import_data_id}.lj_comments.$$"
-                or return $temp_fail->( 'Internal server error creating log.' );
-            print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(gmtime()) . ".\n";
-        }
 
         my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
         my $msg = sprintf( $fmt, tv_interval( $last_log_time ), tv_interval( $begin_time), @_ );
@@ -247,7 +242,7 @@ sub try_work {
                 if $temp{user} =~ m/^ext_/; # If the remote username starts with ext_ flag it as external
 
             $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid )
-                unless $local_oid;
+                if $local_oid;
         }
     };
     my $meta_closer = sub {
@@ -543,6 +538,13 @@ sub try_work {
     # now we have the final post loop...
     $post_comments->();
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    # Kick off an indexing job for this user
+    if ( @LJ::SPHINX_SEARCHD ) {
+        LJ::theschwartz()->insert_jobs(
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } )
+        );
+    }
 
     return $ok->();
 }

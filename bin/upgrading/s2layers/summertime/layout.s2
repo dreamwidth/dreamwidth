@@ -1476,21 +1476,17 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
 /* Contextual Pop-ups
 ******************************/
 
-div.ContextualPopup {
-    font-size: 1em !important;
-}
-
-div.ContextualPopup div.Inner {
+.ContextualPopup {
     border: none;
     border-radius: 20px 20px;
-    box-shadow: 3px 3px 3px $*color_entry_background_shadow;
-    padding: 4px;
+    font-size: 1em !important;
+    padding: 8px;
 }
 
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:visited {
+.ContextualPopup a,
+.ContextualPopup a:visited {
     font-weight: normal;
-    text-decoration: none !important;
+    text-decoration: none;
 }
 
 /* Navigation Strip

@@ -579,9 +579,9 @@ h3.entry-title a { color: $*color_entry_title; }
     }
 
 .tag ul {
-    padding: 0 0 0 13px;
-    margin: 0;
     display: inline;
+    margin: 0;
+    padding: 0;
     }
 
 .tag ul li {
@@ -816,7 +816,7 @@ td.day {
 .icon-keywords ul {
     display: inline;
     margin: 0;
-    padding: 0 0 0 13px;
+    padding: 0;
     }
 
 .icon-keywords ul li {
@@ -1066,46 +1066,31 @@ ul.userlite-interaction-links.icon-links li {
 
 /*-- extras --*/
 
-div.ContextualPopup {
-    position: relative;
-    margin: 0;
-    text-align: justify;
-    font-weight: normal;
-    $input_textarea_font
-    font-size: 50%;
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: 1px dotted $bottom_border !important;
+    border-radius: 0;
     color: $*color_entry_title;
+    $input_textarea_font
+    font-weight: normal;
     line-height: 1.8em;
-    }
-
-div.ContextualPopup div.Inner {
-    color: $*color_entry_title !important;
-    border: 1px dotted $bottom_border;
-    background: $*color_entry_background !important;
+    margin: 0;
     padding: 10px;
+    position: relative;
+    text-align: justify;
     }
 
-div.ContextualPopup div.Inner a {
-    color: $*color_entry_link;
-    }
-
-div.ContextualPopup div.Inner a:visited {
-    color: $*color_entry_link_visited;
-    }
-
-div.ContextualPopup div.Inner a:hover {
-    color: $*color_entry_link_hover;
-    }
-
-div.ContextualPopup div.Inner a:active {
-    color: $*color_entry_link_active;
-    }
-
-div.ContextualPopup .Userpic {
+.ContextualPopup .Userpic {
     margin: 5px;
     border: 1px dotted $bottom_border;
     background: $*color_entry_background !important;
     padding: 5px;
     }
+
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
 
 blockquote {
     background: $blockquote_background;

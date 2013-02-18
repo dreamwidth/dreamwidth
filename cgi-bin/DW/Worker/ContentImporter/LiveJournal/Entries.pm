@@ -62,16 +62,11 @@ sub try_work {
 
     # logging sub
     my ( $logfile, $last_log_time );
+    $logfile = $class->start_log( "lj_entries", userid => $opts->{userid}, import_data_id => $opts->{import_data_id} )
+        or return $temp_fail->( 'Internal server error creating log.' );
+
     my $log = sub {
         $last_log_time ||= [ gettimeofday() ];
-
-        unless ( $logfile ) {
-            mkdir "$LJ::HOME/logs/imports";
-            mkdir "$LJ::HOME/logs/imports/$opts->{userid}";
-            open $logfile, ">>$LJ::HOME/logs/imports/$opts->{userid}/$opts->{import_data_id}.lj_entries.$$"
-                or return $temp_fail->( 'Internal server error creating log.' );
-            print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(gmtime()) . ".\n";
-        }
 
         my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
         my $msg = sprintf( $fmt, tv_interval( $last_log_time ), tv_interval( $begin_time), @_ );
@@ -113,19 +108,38 @@ sub try_work {
     my $last = $class->call_xmlrpc( $data, 'getevents',
         {
             ver         => 1,
-            selecttype  => 'one',
-            itemid      => -1,
+            selecttype  => 'lastn',
+            howmany     => 5,
             lineendings => 'unix',
         }
     );
+
     return $temp_fail->( 'XMLRPC failure: ' . $last->{faultString} )
         if ! $last || $last->{fault};
-    return $temp_fail->( 'Failed to fetch the most recent entry.' )
-        unless ref $last->{events} eq 'ARRAY' && scalar @{$last->{events}} == 1;
 
-    # extract the maximum jitemid from this event
-    my $maxid = $last->{events}->[0]->{itemid};
-    $log->( 'Discovered that the maximum jitemid on the remote is %d.', $maxid );
+    # we weren't able to get any data. Maybe weren't able to connect to remote server?
+    # we want to try again
+    return $temp_fail->( 'Failed to fetch the most recent entry.' )
+        unless ref $last->{events} eq 'ARRAY';
+
+    # look for the latest non-DOOO entry
+    my $maxid;
+    foreach my $event ( @{$last->{events}} ) {
+        unless ( $event->{props}->{opt_backdated} ) {
+            $maxid = $event->{itemid};
+            $log->( 'Discovered that the maximum jitemid on the remote is %d.', $maxid );
+            last;
+        }
+    }
+
+    # we got entries but weren't able to find a single *non*-DOOO entry.
+    # No idea what the actual latest entry is. Give up now, tell the user to fix it
+    unless ( $maxid ) {
+        $log->( 'Got %d entries but all were DOOO.', scalar @{$last->{events}} );
+        return $fail->( "We weren't able to find your latest entry because you have several entries that are dated out of order (DOOO, or backdated). " .
+            "Please edit all the entries on %s that are DOOO and set their date to one that's earlier than your latest non-DOOO entry. " .
+            "Then try your import again." , $data->{hostname} );
+    }
 
     # this is an optimization.  since we never do an edit event (only post!) we will
     # never get changes anyway.  so let's remove from the list of things to sync any
@@ -315,6 +329,13 @@ sub try_work {
           AND import_data_id = ? AND status = 'init'},
         undef, $u->id, $opts->{import_data_id}
     );
+
+    # Kick off a indexing job for this user
+    if ( @LJ::SPHINX_SEARCHD ) {
+        LJ::theschwartz()->insert_jobs(
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } )
+        );
+    }
 
     return $ok->();
 }

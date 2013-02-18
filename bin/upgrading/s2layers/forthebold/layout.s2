@@ -765,43 +765,31 @@ ul.userlite-interaction-links.icon-links li {
 /* Contextual Pop-ups
 ******************************/
 
-div.ContextualPopup {
-    margin: auto;
-    text-align: left;
-    }
-
-div.ContextualPopup .Content {
-    background-color: $*color_entry_background;
-    border: none;
-    color: $*color_entry_text;
-    font-weight: lighter;
-    margin: auto;
-    }
-
-div.ContextualPopup div.Inner {
-    background-color: $*color_entry_background;
-    border: 1px solid $*color_entry_text;
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: 1px solid $*color_entry_text !important;
+    border-radius: 0;
     color: $*color_entry_text;
     font-weight: lighter;
     }
 
-div.ContextualPopup .Userpic {
+.ContextualPopup a,
+.ContextualPopup a:visited {
+    font-weight: lighter;
+    text-decoration: none ;
+    }
+
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
+
+.ContextualPopup .Userpic {
     background-color: $*color_entry_text;
-    border: 0;
     margin: 5px;
-    padding: 5px;
     }
 
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:visited {
-    font-weight: lighter;
-    text-decoration: none !important; /* !important needed */
-    }
-
-div.ContextualPopup div.Inner a { color: $*color_entry_link; }
-div.ContextualPopup div.Inner a:visited { color: $*color_entry_link_visited; }
-div.ContextualPopup div.Inner a:hover { color: $*color_entry_link_hover; }
-div.ContextualPopup div.Inner a:active { color: $*color_entry_link_active; }
+.ContextualPopup .Userpic img { padding: 5px; }
 
 """;
 }

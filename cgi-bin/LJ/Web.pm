@@ -916,7 +916,7 @@ sub create_qr_div {
     $qrhtml .= LJ::ljuser($remote->{'user'});
     $qrhtml .= "</td><td align='center'>";
 
-    my $beta_jquery = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta_jquery = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     # Userpic selector
     {
         my %res;
@@ -1019,7 +1019,7 @@ sub create_qr_div {
                                       {'name' => 'saved_ptid', 'id' => 'saved_ptid'},
                                       ));
 
-    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
         # FIXME: figure out how to fix the saving of the qr entry stuff
         $ret .= qq{jQuery(function(jQ){
                 jQ("body").append(jQ("<div id='qrdiv'></div>").html("$qrhtml").hide());
@@ -1658,7 +1658,7 @@ MOODS
             };
 
             my $nocomments_display = $opts->{prop_opt_nocomments_maintainer} ?
-                'entryform.comment.settings.nocomments.maintainer' : 'entryform.comment.settings.nocomments';
+                'entryform.comment.settings.nocomments.admin' : 'entryform.comment.settings.nocomments';
 
             my $comment_settings_default = BML::ml('entryform.comment.settings.default5', {'aopts' => $comment_settings_journaldefault->()});
             $out .= LJ::html_select({ 'name' => "comment_settings", 'id' => 'comment_settings', 'class' => 'select', 'selected' => $comment_settings_selected->(),

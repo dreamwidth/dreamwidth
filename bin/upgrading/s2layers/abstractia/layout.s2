@@ -1573,15 +1573,21 @@ q {
 /* Contextual Popup
 ***************************************************************************/
 
-.ContextualPopup .Inner{
+.ContextualPopup {
     background: $*color_page_background;
+    border-radius: 0;
     color: $*color_page_text;
 }
-.ContextualPopup .Inner a, .ContextualPopup .Inner a:visited {
-    text-decoration: underline !important;
+.ContextualPopup a,
+.ContextualPopup a:visited {
+    text-decoration: underline;
     font-weight: bold;
-    color: $*color_page_text;
 }
+
+.ContextualPopup a { color: $*color_page_link_hover; }
+.ContextualPopup a:visited { color: $*color_page_link_visited; }
+.ContextualPopup a:hover { color: $*color_page_link_hover; }
+.ContextualPopup a:active { color: $*color_page_link_active; }
 
 /* Borders & Images
 ***************************************************************************/

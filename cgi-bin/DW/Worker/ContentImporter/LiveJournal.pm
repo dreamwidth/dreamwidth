@@ -285,6 +285,7 @@ sub remap_username_friend {
         # in that case, we pretend.
         my $ident =
             exists $foaf_items->{identity} ? $foaf_items->{identity}->{url} : undef;
+        $username =~ s/_/-/g; # URL domains have dashes.
         $ident ||= "http://$username.$data->{hostname}/";
 
         # build the identity account (or return it if it exists)
@@ -578,6 +579,23 @@ sub get_foaf_from {
     }
 
     return ( \%items, \@interests, \@schools );
+}
+
+sub start_log {
+    my ( $class, $import_type, %opts ) = @_;
+
+    my $userid = $opts{userid};
+    my $import_data_id = $opts{import_data_id};
+
+    my $logfile;
+
+    mkdir "$LJ::HOME/logs/imports";
+    mkdir "$LJ::HOME/logs/imports/$userid";
+    open $logfile, ">>$LJ::HOME/logs/imports/$userid/$import_data_id.$import_type.$$"
+        or return undef;
+    print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(undef, 1) . ".\n";
+
+    return $logfile;
 }
 
 =head1 AUTHORS

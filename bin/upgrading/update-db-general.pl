@@ -2869,6 +2869,7 @@ CREATE table externalaccount (
     serviceurl varchar(128),
     xpostbydefault enum('1','0') NOT NULL default '0',
     recordlink enum('1','0') NOT NULL default '0',
+    active enum('1', '0') NOT NULL default '1',
     options blob,
     primary key (userid, acctid),
     index (userid)
@@ -3190,6 +3191,18 @@ CREATE TABLE dbnotes (
     dbnote VARCHAR(40) NOT NULL,
     PRIMARY KEY (dbnote),
     value VARCHAR(255)
+)
+EOC
+
+register_tablecreate("captcha_cache", <<'EOC');
+CREATE TABLE captcha_cache (
+    `captcha_id` INT UNSIGNED NOT NULL auto_increment,
+    `question`   VARCHAR(255) NOT NULL,
+    `answer`     VARCHAR(255) NOT NULL,
+    `issuetime`  INT UNSIGNED NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`captcha_id`),
+    INDEX(`issuetime`)
 )
 EOC
 
@@ -4123,6 +4136,12 @@ EOF
 
     if ( column_type( "support", "timemodified" ) eq '' ) {
         do_alter( 'support', "ALTER TABLE support ADD COLUMN timemodified int(10) unsigned default NULL" );
+    }
+
+    if ( column_type( "externalaccount", "active" ) eq '' ) {
+        do_alter( 'externalaccount',
+            "ALTER TABLE externalaccount " .
+            "ADD COLUMN active enum('1', '0') NOT NULL default '1'" );
     }
 });
 
