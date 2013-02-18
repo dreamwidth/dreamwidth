@@ -84,7 +84,7 @@ _c?>
         # initiate search
 
         # build list of search constraints from post/get args
-        my $constraint_strings = JSON::jsonToObj($FORM{constraints}) || [];
+        my $constraint_strings = from_json($FORM{constraints}) || [];
         my @constraints;
         foreach my $constraint_string (@$constraint_strings) {
             my @constraint_params = split('&',  $constraint_string);

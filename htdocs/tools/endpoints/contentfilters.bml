@@ -113,8 +113,7 @@
 
     # save incoming changes
     } elsif ( $mode eq 'save_filters' ) {
-        local $JSON::UnMapping = 1;
-        my $obj = JSON::jsonToObj( $POST{json} );
+        my $obj = from_json( $POST{json} );
 
         foreach my $fid ( keys %$obj ) {
             my $filt = $obj->{$fid};
