@@ -102,6 +102,7 @@ sub testhelper_json_handler {
     my $hash = {
         string => "string",
         num    => 42,
+        numdot => "42.",
         array  => [ "a", "b", 2 ],
         hash   => { a => "apple", b => "bazooka" },
         nil    => undef,
@@ -112,7 +113,7 @@ sub testhelper_json_handler {
         html    => qq{<a href="#">blah</a>}
     };
 
-    my $array = [ 7, "string", "123", { "foo" => "bar" }, undef, $undef, "", 0, qq{"',;:}, qq{<a href="#">blah</a>} ];
+    my $array = [ 7, "string", "123", "123.", { "foo" => "bar" }, undef, $undef, "", 0, qq{"',;:}, qq{<a href="#">blah</a>} ];
 
     if ( $r->method eq "GET" ) {
         my $args = $r->get_args;
