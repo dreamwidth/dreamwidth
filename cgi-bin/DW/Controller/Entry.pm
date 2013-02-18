@@ -24,7 +24,7 @@ use DW::Template;
 
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
-use JSON;
+use LJ::JSON;
 
 use DW::External::Account;
 

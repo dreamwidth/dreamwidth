@@ -21,7 +21,7 @@ use warnings;
 use DW::Routing;
 use DW::SiteScheme;
 
-use JSON;
+use LJ::JSON;
 
 DW::Routing->register_static( '/dev/classes', 'dev/classes.tt', app => 1 );
 
@@ -110,10 +110,11 @@ sub testhelper_json_handler {
         blank  => "",
         zero   => 0,
         symbols => qq{"',;:},
-        html    => qq{<a href="#">blah</a>}
+        html    => qq{<a href="#">blah</a>},
+        utf8    => "テスト",
     };
 
-    my $array = [ 7, "string", "123", "123.", { "foo" => "bar" }, undef, $undef, "", 0, qq{"',;:}, qq{<a href="#">blah</a>} ];
+    my $array = [ 7, "string", "123", "123.", { "foo" => "bar" }, undef, $undef, "", 0, qq{"',;:}, qq{<a href="#">blah</a>}, "テスト" ];
 
     if ( $r->method eq "GET" ) {
         my $args = $r->get_args;

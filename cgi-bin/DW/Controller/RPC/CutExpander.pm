@@ -19,7 +19,7 @@ package DW::Controller::RPC::CutExpander;
 use strict;
 use warnings;
 use DW::Routing;
-use JSON;
+use LJ::JSON;
 
 DW::Routing->register_string( "/__rpc_cuttag", \&cutexpander_handler, app => 1, user => 1, format => 'json' );
 

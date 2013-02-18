@@ -20,7 +20,7 @@ use DW::Routing;
 use DW::Template;
 use DW::Request;
 use DW::Mood;
-use JSON;
+use LJ::JSON;
 
 DW::Routing->register_string( "/latest/mood", \&mood_handler, formats => [ 'html', 'json' ] );
 

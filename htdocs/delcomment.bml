@@ -19,7 +19,7 @@ _info?><?_code
     use strict;
     use vars qw(%GET %POST);
     use vars qw($body);
-    use JSON;
+    use LJ::JSON;
 
     BML::set_language_scope("/delcomment.bml");
 

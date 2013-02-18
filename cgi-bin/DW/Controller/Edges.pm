@@ -23,7 +23,7 @@ use strict;
 use warnings;
 use DW::Routing;
 use DW::Request;
-use JSON;
+use LJ::JSON;
 
 DW::Routing->register_string(  "/data/edges", \&edges_handler, user => 1, format => 'json' );
 

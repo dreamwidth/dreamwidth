@@ -25,7 +25,7 @@ use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
 use LJ::S2;
 use DW::Captcha;
-use JSON;
+use LJ::JSON;
 
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";

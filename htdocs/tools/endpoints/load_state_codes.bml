@@ -16,7 +16,7 @@ _c?>
 {
     use strict;
     use vars qw(%POST);
-    use JSON;
+    use LJ::JSON;
     BML::finish();
 
     my $country = $POST{'country'} or return to_json({ error => "no country parameter" });

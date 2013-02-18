@@ -18,7 +18,7 @@
 var expected_results = {
     setup: function() {
         this.js_dumper = {
-            array: [ 7, "string", 123, "123.", { foo: "bar" }, "", "", "", 0, "\"',;:", "<a href=\"#\">blah</a>" ],
+            array: [ 7, "string", 123, "123.", { foo: "bar" }, "", "", "", 0, "\"',;:", "<a href=\"#\">blah</a>", "テスト" ],
             hash: {
                 string: "string",
                 num   : 42,
@@ -31,11 +31,12 @@ var expected_results = {
                 zero  : 0,
                 symbols: "\"',;:",
                 html  : "<a href=\"#\">blah</a>",
+                utf8  : "テスト"
             }
         };
 
         this.json = {
-            array: [ 7, "string", "123", "123.", { foo: "bar" }, null, null, "", 0, "\"',;:", "<a href=\"#\">blah</a>" ],
+            array: [ 7, "string", "123", "123.", { foo: "bar" }, null, null, "", 0, "\"',;:", "<a href=\"#\">blah</a>", "テスト" ],
             hash: {
                 string: "string",
                 num   : 42,
@@ -47,7 +48,8 @@ var expected_results = {
                 blank : "",
                 zero  : 0,
                 symbols: "\"',;:",
-                html  : "<a href=\"#\">blah</a>"
+                html  : "<a href=\"#\">blah</a>",
+                utf8  : "テスト"
             }
         };
     }

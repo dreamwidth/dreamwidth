@@ -18,7 +18,7 @@ _c?>
 {
     use strict;
     use vars qw(%POST);
-    use JSON;
+    use LJ::JSON;
 
     my $ret = {};
 

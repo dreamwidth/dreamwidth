@@ -15,7 +15,7 @@ _c?>
 <?_code
 {
     use strict;
-    use JSON;
+    use LJ::JSON;
     use vars qw(%FORM);
 
     my $max_users = 100;

@@ -20,7 +20,7 @@ package DW::Controller::RPC::TextCAPTCHA;
 use strict;
 
 use DW::Routing;
-use JSON;
+use LJ::JSON;
 use DW::Captcha::textCAPTCHA;
 
 DW::Routing->register_regex( '/__rpc_captcha/(.*)$',

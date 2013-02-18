@@ -18,7 +18,7 @@ _c?>
     use vars qw(%POST);
     use DW::External::User;
     use LJ::Auth;
-    use JSON;
+    use LJ::JSON;
 
     my $err = sub {
         my $msg = shift;

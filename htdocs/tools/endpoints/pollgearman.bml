@@ -17,7 +17,7 @@ _c?>
     use strict;
     use vars qw(%POST);
     use LJ::Auth;
-    use JSON;
+    use LJ::JSON;
     use Gearman::Client;
 
     my $err = sub {

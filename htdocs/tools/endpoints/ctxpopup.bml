@@ -17,7 +17,7 @@ _c?>
     use strict;
     use vars qw(%GET);
     use LJ::Auth;
-    use JSON;
+    use LJ::JSON;
 
     my $err = sub {
         my $msg = shift;

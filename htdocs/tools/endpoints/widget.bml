@@ -18,7 +18,7 @@ _c?>
     use vars qw(%GET %POST @errors);
 
     use LJ::Auth;
-    use JSON;
+    use LJ::JSON;
     use LJ::Widget::IPPU;
 
     my $err = sub {

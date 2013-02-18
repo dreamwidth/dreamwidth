@@ -20,7 +20,7 @@ use strict;
 
 use LJ::ModuleLoader;
 use DW::Template;
-use JSON;
+use LJ::JSON;
 use DW::Request;
 use DW::Routing::CallInfo;
 use Carp qw/croak/;

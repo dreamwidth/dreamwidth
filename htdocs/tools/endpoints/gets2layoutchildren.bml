@@ -15,7 +15,7 @@ _c?>
 <?_code # -*-bml-*-
 {
     use strict;
-    use JSON;
+    use LJ::JSON;
     use vars qw(%GET);
 
     my $err = sub {
