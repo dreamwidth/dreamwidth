@@ -19,6 +19,7 @@ _info?><?_code
     use strict;
     use vars qw(%GET %POST);
     use vars qw($body);
+    use LJ::JSON;
 
     BML::set_language_scope("/delcomment.bml");
 
@@ -31,7 +32,7 @@ _info?><?_code
             # FIXME: remove once we've switched over completely to jquery
             if ( !!$GET{json} ) {
                 sleep 1 if $LJ::IS_DEV_SERVER;
-                return JSON::objToJson( { error => $_[0] } );
+                return to_json( { error => $_[0] } );
             } else {
                 return "alert('" . LJ::ejs($_[0]) . "'); 0;";
             }
@@ -154,7 +155,7 @@ _info?><?_code
             BML::finish();
             if ( !!$GET{json} ) {
                 sleep 1 if $LJ::IS_DEV_SERVER;
-                return JSON::objToJson( { msg => LJ::strip_html( $msg ) } );
+                return to_json( { msg => LJ::strip_html( $msg ) } );
             } else {
                 return "1;";
             }

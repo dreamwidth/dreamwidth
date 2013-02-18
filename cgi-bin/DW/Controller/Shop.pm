@@ -23,7 +23,7 @@ use DW::Pay;
 use DW::Routing;
 use DW::Shop;
 use DW::Template;
-use JSON;
+use LJ::JSON;
 
 # routing directions
 DW::Routing->register_string( '/shop', \&shop_index_handler, app => 1 );

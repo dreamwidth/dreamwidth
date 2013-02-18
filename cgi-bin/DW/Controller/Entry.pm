@@ -24,6 +24,7 @@ use DW::Template;
 
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
+use LJ::JSON;
 
 use DW::External::Account;
 
@@ -1475,7 +1476,7 @@ sub collapse_rpc_handler {
     my $expand = $args->{expand} && $args->{expand} eq "true" ? 1 : 0;
 
     my $show = sub {
-        $r->print( JSON::objToJson( $u->entryform_panels_collapsed ) );
+        $r->print( to_json( $u->entryform_panels_collapsed ) );
         return $r->OK;
     };
 
