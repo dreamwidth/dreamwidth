@@ -23,7 +23,7 @@ body<=
     # this is how you include custom CSS/JS/etc
     LJ::set_active_resource_group( 'jquery' );
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, qw# stc/subfilters.css # );
-    LJ::need_res( { group => 'jquery' }, qw# js/subfilters.js js/json2.js # );
+    LJ::need_res( { group => 'jquery' }, qw# js/subfilters.js # );
 
     # for pages that require authentication
     my $remote = LJ::get_remote();

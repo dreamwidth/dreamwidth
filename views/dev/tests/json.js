@@ -1,6 +1,3 @@
-/* INCLUDE:
-jquery: js/json2.js
-*/
 /* defined as
     my $hash = {
         string => "string",
