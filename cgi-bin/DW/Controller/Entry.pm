@@ -404,8 +404,8 @@ sub _init {
         defaulticon => $defaulticon,
 
         icon_browser => {
-                metatext => $u->iconbrowser_metatext,
-                smallicons => $u->iconbrowser_smallicons,
+            metatext => $u ? $u->iconbrowser_metatext : "",
+            smallicons => $u ? $u->iconbrowser_smallicons : "",
         },
 
         moodtheme => \%moodtheme,

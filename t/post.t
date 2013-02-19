@@ -586,7 +586,6 @@ TODO: {
 
     my $vars;
     $vars = DW::Controller::Entry::_init( { remote => $u } );
-    is( $vars->{abort}, "/update.bml.error.nonusercantpost" );
 }
 
 note( "openid - edit" );
