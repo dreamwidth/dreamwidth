@@ -4022,7 +4022,7 @@ sub make_preview {
     if ($form->{'usertype'} eq 'cookieuser' || $form->{'usertype'} eq 'openid_cookie') {
         $ret .= $remote->ljuser_display;
     } elsif ($form->{'usertype'} eq 'openid') {
-        $ret .= $form->{'oidurl'} . " " . "$BML::ML{'/talkpost_do.bml.preview.unauthenticated'}";
+        $ret .= $form->{'oidurl'} . "$BML::ML{'/talkpost_do.bml.preview.unauthenticated'}";
     } elsif ($form->{'usertype'} eq 'anonymous') {
         $ret .= "$BML::ML{'/talkpost_do.bml.preview.anonymous'}";
     }
