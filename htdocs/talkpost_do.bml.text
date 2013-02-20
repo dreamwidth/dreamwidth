@@ -71,6 +71,9 @@
 
 .preview.entry.journal=[[user]] posting in [[journal]]
 
+.preview.poster=<strong>Posted by: </strong>
+.preview.anonymous=Anonymous
+.preview.unauthenticated=(not yet authenticated)
 .preview.subject=<strong>Subject: </strong>
 
 .preview.submit=Submit
