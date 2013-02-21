@@ -1043,7 +1043,7 @@ sub common_event_validation
 
     $did_trim = 0;
     $req->{'subject'} = LJ::text_trim( $req->{'subject'}, LJ::BMAX_SUBJECT, LJ::CMAX_SUBJECT, \$did_trim );
-    return fail( $err, 411 ) if $did_trim;
+    return fail( $err, 411 ) if $did_trim && ! $flags->{allow_truncated_subject};
 
     foreach (keys %{$req->{'props'}}) {
         # do not trim this property, as it's magical and handled later

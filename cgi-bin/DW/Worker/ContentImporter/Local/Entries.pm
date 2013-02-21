@@ -164,6 +164,7 @@ sub post_event {
             u => $posteru || $u,
             u_owner => $u,
             importer_bypass => 1,
+            allow_truncated_subject => 1,
         }
     );
 
