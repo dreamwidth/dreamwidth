@@ -46,7 +46,7 @@ sub start_oauth {
 
     #create a new Net::Twitter object
     my $twitter = Net::Twitter->new( {
-        traits => ['API::REST', 'OAuth'],
+        traits => ['API::RESTv1_1', 'OAuth'],
         consumer_key => $LJ::TWITTER{consumer_key},
         consumer_secret => $LJ::TWITTER{consumer_secret}
     } );
@@ -132,7 +132,7 @@ sub oauth_callback {
     # XPostprotocol::Twitter, so that this can be generalised later to any
     # OAuth.
     my $twitter = Net::Twitter->new( {
-        traits => ['API::REST', 'OAuth'],
+        traits => ['API::RESTv1_1', 'OAuth'],
         consumer_key => $LJ::TWITTER{consumer_key},
         consumer_secret => $LJ::TWITTER{consumer_secret},
         request_token => $extacct_options->{request_token},
