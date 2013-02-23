@@ -18,12 +18,12 @@ _c?>
     use vars qw(%POST);
     use DW::External::User;
     use LJ::Auth;
-    use JSON;
+    use LJ::JSON;
 
     my $err = sub {
         my $msg = shift;
         my %extra = @_;
-        return JSON::objToJson({
+        return to_json({
             error => "Error: $msg",
             %extra,
         });
@@ -64,6 +64,6 @@ _c?>
 
     $ret{success} = 1;
 
-    return JSON::objToJson( \%ret );
+    return to_json( \%ret );
 }
 _code?>

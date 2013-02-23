@@ -16,14 +16,14 @@ _c?>
 {
     use strict;
     use vars qw(%FORM);
-    use JSON;
+    use LJ::JSON;
     use LJ::Directory::Search;
     use LJ::WorkerResultStorage;
     use Storable;
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             error => "$msg",
         });
     };
@@ -84,7 +84,7 @@ _c?>
         # initiate search
 
         # build list of search constraints from post/get args
-        my $constraint_strings = JSON::jsonToObj($FORM{constraints}) || [];
+        my $constraint_strings = from_json($FORM{constraints}) || [];
         my @constraints;
         foreach my $constraint_string (@$constraint_strings) {
             my @constraint_params = split('&',  $constraint_string);
@@ -117,6 +117,6 @@ _c?>
 
     sleep(1) if $LJ::IS_DEV_SERVER;
 
-    return JSON::objToJson( \%ret );
+    return to_json( \%ret );
 }
 _code?>

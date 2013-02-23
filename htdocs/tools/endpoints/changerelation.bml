@@ -17,11 +17,11 @@ _c?>
     use strict;
     use vars qw(%POST);
     use LJ::Auth;
-    use JSON;
+    use LJ::JSON;
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             error => "Error: $msg",
         });
     };
@@ -103,7 +103,7 @@ _c?>
 
     sleep 1 if $LJ::IS_DEV_SERVER;
 
-    return JSON::objToJson({
+    return to_json({
         success     => $success,
         is_trusting => $remote->trusts( $targetu ),
         is_watching => $remote->watches( $targetu ),

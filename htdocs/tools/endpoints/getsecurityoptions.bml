@@ -20,7 +20,7 @@ _c?>
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             'alert' => $msg,
         });
     };
@@ -29,14 +29,14 @@ _c?>
     my $user = $GET{user};
     my $u = LJ::load_user($user);
 
-    return JSON::objToJson({}) unless $u;
+    return to_json({}) unless $u;
 
     my %ret = (
         is_comm => $u->is_comm ? 1 : 0,
         can_manage =>  $remote && $remote->can_manage( $u ) ? 1 : 0,
     );
 
-    return JSON::objToJson({ ret => \%ret }) unless $remote && $remote->can_post_to($u);
+    return to_json({ ret => \%ret }) unless $remote && $remote->can_post_to($u);
 
     unless ($ret{is_comm}) {
         my $friend_groups = $u->trust_groups;
@@ -45,6 +45,6 @@ _c?>
 
     $ret{minsecurity} = $u->newpost_minsecurity;
 
-    return JSON::objToJson({ ret => \%ret });
+    return to_json({ ret => \%ret });
 }
 _code?>

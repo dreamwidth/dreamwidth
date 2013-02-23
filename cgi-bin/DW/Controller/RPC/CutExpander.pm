@@ -19,7 +19,7 @@ package DW::Controller::RPC::CutExpander;
 use strict;
 use warnings;
 use DW::Routing;
-use JSON;
+use LJ::JSON;
 
 DW::Routing->register_string( "/__rpc_cuttag", \&cutexpander_handler, app => 1, user => 1, format => 'json' );
 
@@ -36,7 +36,7 @@ sub cutexpander_handler {
     my $error_out = sub {
        my ( $code, $message ) = @_;
        $r->status( $code );
-       $r->print( objToJson( { error => $message } ) );
+       $r->print( to_json( { error => $message } ) );
 
        return $r->OK;
     };
@@ -55,9 +55,9 @@ sub cutexpander_handler {
             my $text = load_cuttext( $entry, $remote, $args->{cutid} );
             # FIXME: temporary fix.
             # remove some unicode characters that could cause the returned JSON to break
-            # like in LJ::ejs, but we don't need to escape quotes, etc (objToJson does that)
+            # like in LJ::ejs, but we don't need to escape quotes, etc (to_json does that)
             $text =~ s/\xE2\x80[\xA8\xA9]//gs;
-            $r->print( objToJson( { text => $text } ) );
+            $r->print( to_json( { text => $text } ) );
             return $r->OK;
         }
     }
