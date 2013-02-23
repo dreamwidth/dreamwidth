@@ -44,7 +44,7 @@ sub _get_net_twitter {
         unless $extacct->siteid == 9;
 
     my $twitter = Net::Twitter->new( {
-            traits => ['API::REST', 'OAuth'],
+            traits => ['API::RESTv1_1', 'OAuth'],
             consumer_key => $LJ::TWITTER{consumer_key},
             consumer_secret => $LJ::TWITTER{consumer_secret},
             access_token => $extacct->options->{access_token},
