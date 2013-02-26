@@ -2688,8 +2688,12 @@ sub make_sticky_entry {
 
     return undef if $sticky_id > $u->count_max_stickies;
 
+<<<<<<< Updated upstream
     my $sticky_entries =  $u->prop( 'sticky_entry' );
     my @stickies = split( /,/, $sticky_entries );
+=======
+    my @stickies = $u->sticky_entry;
+>>>>>>> Stashed changes
 
     $stickies[$sticky_id-1] = $ditemid;
     my $sticky_entry = join( ',', @stickies );
@@ -3012,9 +3016,13 @@ sub remove_from_class {
 sub remove_sticky_entry {
     my ( $u, $ditemid ) = @_;
 
+<<<<<<< Updated upstream
     my $sticky_entries =  $u->prop( 'sticky_entry' );
     my @stickies = split( /,/, $sticky_entries );
 
+=======
+    my @stickies = $u->sticky_entry;
+>>>>>>> Stashed changes
     my @new_stickies;
 
     foreach my $sticky ( @stickies ) {
@@ -3253,6 +3261,7 @@ sub thread_expand_all {
 # will happen.
 sub sticky_entry {
     my ( $u, @input ) = @_;
+<<<<<<< Updated upstream
 
     # The user may have previously had an account type that allowed more stickes.
     # we want to preserve a record of these additional stickes in case they once
@@ -3261,6 +3270,16 @@ sub sticky_entry {
     my $sticky_entries =  $u->prop( 'sticky_entry' );
     my @entries = split( /,/, $sticky_entries );
 
+=======
+
+    # The user may have previously had an account type that allowed more stickes.
+    # we want to preserve a record of these additional stickes in case they once
+    # more upgrade their account.  This means we must first extract these
+    # if they exist.
+    my $sticky_entries =  $u->prop( 'sticky_entry' );
+    my @entries = split( /,/, $sticky_entries );
+
+>>>>>>> Stashed changes
     my $max_sticky_count = $u->count_max_stickies;
     my $max_sticky_count_from_zero = $max_sticky_count - 1;
     my $entry_length = @entries;
@@ -3313,9 +3332,15 @@ sub sticky_entry {
 # Get's ith sticky entry from list
 sub get_sticky_entry {
     my ( $u, $i ) = @_;
+<<<<<<< Updated upstream
 
     return undef unless ( defined $i );
 
+=======
+
+    return undef unless ( defined $i );
+
+>>>>>>> Stashed changes
     if ( my @stickies = $u->sticky_entry ) {
         if ( my $ditemid = $stickies[$i] ) {
             my $item = LJ::Entry->new( $u, ditemid => $ditemid );
