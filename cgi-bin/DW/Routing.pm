@@ -20,7 +20,7 @@ use strict;
 
 use LJ::ModuleLoader;
 use DW::Template;
-use JSON;
+use LJ::JSON;
 use DW::Request;
 use DW::Routing::CallInfo;
 use Carp qw/croak/;
@@ -207,7 +207,7 @@ sub _call_hash {
         $text = "$msg" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
 
         $r->status( 500 );
-        $r->print(objToJson( { error => $text } ));
+        $r->print(to_json( { error => $text } ));
         return $r->OK;
     # default error rendering
     } elsif ( $format eq "html" ) {

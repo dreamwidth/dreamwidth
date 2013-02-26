@@ -17,11 +17,11 @@ _c?>
     use strict;
     use vars qw(%POST);
     use Storable;
-    use JSON;
+    use LJ::JSON;
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             'alert' => $msg,
         });
     };
@@ -46,7 +46,7 @@ _c?>
         BML::set_content_type('text/javascript; charset=utf-8');
         BML::finish();
 
-        return JSON::objToJson( $rv );
+        return to_json( $rv );
     }
         
 
@@ -123,6 +123,6 @@ _c?>
     BML::set_content_type('text/javascript; charset=utf-8');
     BML::finish();
 
-    return JSON::objToJson( $ret );
+    return to_json( $ret );
 }
 _code?>

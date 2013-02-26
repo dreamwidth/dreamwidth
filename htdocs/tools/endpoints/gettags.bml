@@ -15,12 +15,12 @@ _c?>
 <?_code # -*-bml-*-
 {
     use strict;
-    use JSON;
+    use LJ::JSON;
     use vars qw(%GET);
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             'alert' => $msg,
         });
     };
@@ -37,11 +37,8 @@ _c?>
     if (keys %$tags) {
         @tag_names = map { $_->{name} } values %$tags;
         @tag_names = sort { lc $a cmp lc $b } @tag_names;
-        @tag_names = map { my $tag = $_;
-                            $tag =~ /^\d+$/ ? sub { $tag . "" } : $tag } @tag_names;
     }
 
-    local $JSON::ExecCoderef = 1;
-    return JSON::objToJson({ tags => \@tag_names });
+    return to_json({ tags => \@tag_names });
 }
 _code?>

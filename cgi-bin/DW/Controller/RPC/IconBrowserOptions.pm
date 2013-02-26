@@ -17,7 +17,7 @@ package DW::Controller::RPC::IconBrowserOptions;
 
 use strict;
 use DW::Routing;
-use JSON;
+use LJ::JSON;
 
 DW::Routing->register_string( "/__rpc_iconbrowser_save", \&iconbrowser_save, app => 1,  format => 'json' );
 
@@ -37,7 +37,7 @@ sub iconbrowser_save {
         $remote->iconbrowser_smallicons( $post->{smallicons} eq "true" ? "Y" : "N" );
     }
 
-    $r->print( objToJson( { success => 1 } ) );
+    $r->print( to_json( { success => 1 } ) );
     return $r->OK;
 }
 

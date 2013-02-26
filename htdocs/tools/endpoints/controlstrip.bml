@@ -16,7 +16,7 @@ _c?>
 {
     use strict;
     use vars qw(%GET);
-    use JSON;
+    use LJ::JSON;
 
     my $control_strip;
     my $user = $GET{'user'};
@@ -29,6 +29,6 @@ _c?>
 
     sleep 1 if $LJ::IS_DEV_SERVER;
 
-    return JSON::objToJson( { control_strip => $control_strip } );
+    return to_json( { control_strip => $control_strip } );
 }
 _code?>
