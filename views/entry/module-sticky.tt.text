@@ -2,10 +2,7 @@
 .header=Make Sticky
 
 .label=Sticky 
-<<<<<<< Updated upstream
 .label_no=Not a Sticky
-=======
->>>>>>> Stashed changes
 .itemid=Currently: 
 .title= (
 .close=)

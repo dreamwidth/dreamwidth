@@ -597,12 +597,8 @@ sub _edit {
      my $issticky = 0;
      $issticky = $ditemid if $remote->is_sticky_entry( $ditemid );
 
-<<<<<<< Updated upstream
     my $vars = _init( { usejournal  => $journal->username,
                         remote      => $remote,
-=======
-     my $vars = _init( { usejournal  => $journal->username,
->>>>>>> Stashed changes
 
                         datetime => $entry_obj->eventtime_mysql,
                         trust_datetime_value => $trust_datetime_value,
@@ -1007,11 +1003,7 @@ sub _do_post {
         my $itemlink = $res->{url};
         my $edititemlink = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
-<<<<<<< Updated upstream
         $ju->make_sticky_entry( $ditemid, $sticky_select )  unless ( $sticky_select == 0 );
-=======
-        $ju->make_sticky_entry( $ditemid, $sticky_select );
->>>>>>> Stashed changes
 
         my @links = (
             { url => $itemlink,
@@ -1117,7 +1109,6 @@ sub _do_edit {
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
     my $u = $auth->{poster};
     my $ju = $auth->{journal} || $auth->{poster};
-<<<<<<< Updated upstream
     if ( $sticky_select == 0 && $journal->is_sticky_entry( $ditemid ) ) {
 	$journal->remove_sticky_entry( $ditemid );
     } else {
@@ -1126,16 +1117,7 @@ sub _do_edit {
 
     if ( $deleted ) {
         $journal->remove_sticky_entry( $ditemid ) unless ( $sticky_select == 0 );
-=======
-    if ( !$sticky_select && $journal->is_sticky_entry( $ditemid ) ) {
-	$journal->remove_sticky_entry( $ditemid );
-    } else {
-        $journal->make_sticky_entry( $ditemid, $sticky_select );
-    }
 
-    if ( $deleted ) {
-        $journal->remove_sticky_entry( $ditemid ) if ( $sticky_select );
->>>>>>> Stashed changes
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.delete' );
     } else {
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );
