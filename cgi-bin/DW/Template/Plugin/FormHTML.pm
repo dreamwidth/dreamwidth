@@ -51,7 +51,7 @@ sub new {
     my $self = bless {
         _CONTEXT => $context,
         data     => $data,
-        did_post => $r->did_post,
+        did_post => $r && $r->did_post,
     }, $class;
 
     return $self;
