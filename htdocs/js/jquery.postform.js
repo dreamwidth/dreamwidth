@@ -389,6 +389,16 @@ init: function(formData) {
         });
     }
 
+    function initSticky() {
+        $("#sticky_component").sticky();
+        $("#post_entry").bind("journalselect", function(e, journal) {
+            if ( journal.name && journal.isremote )
+                $("#sticky_component").sticky("toggle", "community", ! journal.iscomm, true);
+            else
+                $("#sticky_component").sticky("toggle", "unknown", false, true);
+        });
+    }
+
     function initPostButton() {
         $("#submit_entry").data("label",$("#submit_entry").val());
         $("#post_entry").bind("journalselect", function(e, journal) {
