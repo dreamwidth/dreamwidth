@@ -142,7 +142,10 @@ _c?>
     });
     $ret .= "</span>";
     $ret .= "</p>\n";
-    my $faq = LJ::Hooks::run_hook( 'faqlink', '207', $ML{'.insertimage.alt.faqlink'} );
+    my $faq;
+    unless ( $faq = LJ::Hooks::run_hook( 'faqlink', '207', $ML{'/imgupload.bml.insertimage.alt.faqlink'} ) ) {
+            $faq = $ML{'/imgupload.bml.insertimage.alt.faqlink'}; 
+    }
     $ret .= "<p class='ex'>$ML{'.insertimage.alt.body'}$faq.</p>";
 
     $ret .= "</div><!-- end #formcontent -->";

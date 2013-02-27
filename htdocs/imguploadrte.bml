@@ -68,7 +68,10 @@ _c?>
     #taken from the original fck_image.html    
     #insert HTML for an image tag, given an image URL and assorted metadata (alt text, dimensions, etc)
     # get the link to the alt text faq
-    my $faq = LJ::Hooks::run_hook( 'faqlink', '207', $ML{'/imgupload.bml.insertimage.alt.faqlink'} );
+    my $faq;
+    unless ( $faq = LJ::Hooks::run_hook( 'faqlink', '207', $ML{'/imgupload.bml.insertimage.alt.faqlink'} ) ) {
+            $faq = $ML{'/imgupload.bml.insertimage.alt.faqlink'}; 
+    }
     $ret .= qq{
                 <div id="divInfo">
                         <table summary='' cellspacing="1" cellpadding="1" border="0" width="99%" height="99%">
