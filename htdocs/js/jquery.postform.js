@@ -390,12 +390,12 @@ init: function(formData) {
     }
 
     function initSticky() {
-        $("#sticky_component").sticky();
+	$("#sticky_component").sticky();
         $("#post_entry").bind("journalselect", function(e, journal) {
             if ( journal.name && journal.isremote )
-                $("#sticky_component").sticky("toggle", "community", ! journal.iscomm, true);
+               $("#sticky_component").sticky("toggle", "community", ! journal.iscomm, true);
             else
-                $("#sticky_component").sticky("toggle", "unknown", false, true);
+               $("#sticky_component").sticky("toggle", "unknown", false, true);
         });
     }
 
@@ -404,7 +404,7 @@ init: function(formData) {
         $("#post_entry").bind("journalselect", function(e, journal) {
             var $submit = $("#submit_entry");
             if ( journal.iscomm && journal.name )
-                $submit.val( $submit.data("label") + ": " + journal.name);
+	        $submit.val( $submit.data("label") + ": " + journal.name);
             else
                 $submit.val($submit.data("label"));
         });
@@ -479,6 +479,7 @@ init: function(formData) {
     initAccess();
     initPostButton();
     initCrosspost();
+    initSticky();
     initToolbar();
 
     $.getJSON("/__rpc_entryformcollapse", null, function(data) {
