@@ -2621,7 +2621,7 @@ sub invalidate_directory_record {
 # checks whether an entry id corresponds to that of a sticky entry which is under user's max_sticky_count.
 sub is_sticky_entry {
     my ( $u, $ditemid ) = @_;
-    
+
     my @stickies = $u->sticky_entry;
 
     for ( my $i = 1; $i<=$u->count_max_stickies; $i++ ) {

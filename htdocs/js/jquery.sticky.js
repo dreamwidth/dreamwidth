@@ -1,6 +1,6 @@
 (function($){
 
-$.widget("dw.sticky", {
+$.widget( "dw.sticky", {
 options: {
     strings: {
         stickyDisabled: {
@@ -11,20 +11,20 @@ options: {
 },
 
 // to display or not to display the sticky options
-toggle: function(why, allowThisSticky, animate) {
+toggle: function( why, allowThisSticky ) {
     var self = this;
 
     var msg_class = "sticky_msg";
     var msg_id = msg_class + "_" + why;
-    var $msg = $("#"+msg_id);
+    var $msg = $( "#"+msg_id );
 
     if( allowThisSticky ) {
         $msg.remove();
-	$("#sticky_options").slideDown();
+        $( "#sticky_options" ).slideDown();
     } else if ( $msg.length == 0 && self.options.strings.stickyDisabled[why] ) {
-        var $p = $("<p></p>", { "class": msg_class, "id": msg_id }).text(self.options.strings.stickyDisabled[why]);
-        $p.insertBefore("#sticky_options");
-	$("#sticky_options").hide();
+        var $p = $( "<p></p>", { "class": msg_class, "id": msg_id } ).text( self.options.strings.stickyDisabled[why] );
+        $p.insertBefore( "#sticky_options" );
+	$( "#sticky_options" ).hide();
   }
 
 }

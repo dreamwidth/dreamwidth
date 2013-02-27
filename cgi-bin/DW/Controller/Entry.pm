@@ -370,7 +370,7 @@ sub _init {
     my $checked = 0;
     for ( my $i = 0; $i < $u->count_max_stickies; $i++ ) {
         my $sticky = $u->get_sticky_entry( $i );
-        if ($sticky) {
+        if ( $sticky ) {
             my $subject = $sticky->subject_html;
             $checked = 1 if ( $sticky->ditemid == $this_issticky );
             push @stickylist, { name => $subject, number => $sticky->ditemid, position => $i + 1, issticky => 1, checked => $checked };
@@ -593,7 +593,7 @@ sub _edit {
 
         %crosspost = map { $_ => 1 } keys %{ $xposthash || {} };
     }
-    
+
      my $issticky = 0;
      $issticky = $ditemid if $remote->is_sticky_entry( $ditemid );
 
@@ -958,7 +958,7 @@ sub _do_post {
 
     my $res = _save_new_entry( $form_req, $flags, $auth );
     return %$res if $res->{errors};
-    
+
 
     # post succeeded, time to do some housecleaning
     _persist_props( $auth->{poster}, $form_req );
@@ -1039,8 +1039,8 @@ sub _do_post {
                 ditemid => $ditemid,
         );
 
-      
-	push @warnings, { type=>"warning", message => "message" };
+
+        push @warnings, { type=>"warning", message => "message" };
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
                 poststatus  => $ret,        # did the update succeed or fail?
@@ -1110,7 +1110,7 @@ sub _do_edit {
     my $u = $auth->{poster};
     my $ju = $auth->{journal} || $auth->{poster};
     if ( $sticky_select == 0 && $journal->is_sticky_entry( $ditemid ) ) {
-	$journal->remove_sticky_entry( $ditemid );
+        $journal->remove_sticky_entry( $ditemid );
     } else {
         $journal->make_sticky_entry( $ditemid, $sticky_select ) unless $sticky_select == 0;
     }

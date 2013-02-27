@@ -168,9 +168,9 @@ sub RecentPage
     my $stickyentry;
     if ( $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids} ) {
         for ( my $i = 0; $i < $u->count_max_stickies; $i++ ) {
-        # only show if visible to user
-        $stickyentry = $u->get_sticky_entry( $i );
-        if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
+            # only show if visible to user
+            $stickyentry = $u->get_sticky_entry( $i );
+            if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
                 # create S2 entry object and show first on page
                 my $entry = Entry_from_entryobj( $u, $stickyentry, $opts ); 
                 # sticky entry specific things
@@ -179,10 +179,10 @@ sub RecentPage
                 $entry->{sticky_entry_icon} = $sticky_icon;
                 # show on top of page
                 push @{$p->{entries}}, $entry;
-	   }
-	}
+            }
+        }
     }
-    
+
     my $lastdate = "";
     my $itemnum = 0;
     my $lastentry = undef;
