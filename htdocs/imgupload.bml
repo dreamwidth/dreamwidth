@@ -43,10 +43,11 @@ _c?>
                 $js .= "InOb.onUpload(\"$esurl\", \"$eppurl\", $swidth, $sheight);\n";
             }
 
-        # From URL
+        # From URL, with optional alt text
         } else {
             my $img = LJ::ejs($POST{'url'});
-            $js = "InOb.onInsURL(\"$img\")\n";
+            my $alt = LJ::ejs($POST{'alt'});
+            $js = "InOb.onInsURL(\"$img\", 0, 0, \"$alt\")\n";
         }
 
         my $ret = qq{
@@ -92,7 +93,7 @@ _c?>
         </script>
         ~;
 
-    $ret .= "<div class='insob-wrapper'>";
+    $ret .= "<div class='insob-wrapper' role='dialog' aria-label='Insert Image'>";
     $ret .= "<div class='insobjOuter' id='insobjOuter'>";
     $ret .= "<form id='insobjform' enctype='multipart/form-data' action='imgupload' method='post' onsubmit='return window.parent.InOb.onSubmit()' >";
     $ret .= "<div class='tabs'><ul><li id='tabInsert' class='on'><a href='javascript: void(0);' onclick='window.parent.InOb.showSelectorPage();setTab(\"tabInsert\");return false;'>Insert Image</a></li>";
@@ -128,7 +129,24 @@ _c?>
     });
     $ret .= "</span>";
     $ret .= "</p>";
-    $ret .= "<p class='ex'><strong>Example:</strong> http://www.example.com/some-picture.jpg</p>";
+    $ret .= "<p class='ex'><strong>$ML{'.insertimage.example'}:</strong> http://www.example.com/some-picture.jpg</p>";
+
+    # alt. Indented by 1.5em so in most browsers that lines it up with the form element above.
+    $ret .= "<p style='margin-left: 1.5em;' class='inputs pkg'>\n";
+    $ret .= "<label for='alt' class='left'>$ML{'.insertimage.alt.label'}:</label>";
+    $ret .= "<span class='inputcontainer'>";
+    $ret .= LJ::html_text({
+        'name'    => 'alt',
+        'id'      => 'alttext',
+        'size'    => '50',
+    });
+    $ret .= "</span>";
+    $ret .= "</p>\n";
+    my $faq;
+    unless ( $faq = LJ::Hooks::run_hook( 'faqlink', 'alttext', $ML{'/imgupload.bml.insertimage.alt.faqlink'} ) ) {
+            $faq = $ML{'/imgupload.bml.insertimage.alt.faqlink'}; 
+    }
+    $ret .= "<p class='ex'>$ML{'.insertimage.alt.body'}$faq.</p>";
 
     $ret .= "</div><!-- end #formcontent -->";
     $ret .= "<div class='insobjNav' id='insobjNav'>";

@@ -88,6 +88,8 @@
 
 .label.description.desc=This is an optional description of the picture that will be displayed for people who can't view it, e.g. visually-impaired people using screen readers. Example: "Photo of me in the mirror, holding up camera."
 
+.label.description.faq=Read more about good descriptions.
+
 .label.formats.desc=Acceptable formats are GIF, JPG, and PNG.
 
 .label.keepdefault=Keep existing default icon.
