@@ -54,6 +54,11 @@ div.tabs li.on {
     color: #333;
 }
 
+.ex a {
+    display: inline;
+    padding: 0;
+}
+
 form {
     margin: 0px;
     padding: 0px;

@@ -407,7 +407,10 @@ use strict;
             $body .= LJ::help_icon_html('upic_descriptions') . "\n";
             $body .= "</span>";
             $body .= "</p>\n";
-            $body .= "<p class='detail'>$ML{'.label.description.desc'}</p>\n";
+            # link to the alt text faq; long and useful
+            my $faq = LJ::Hooks::run_hook( 'faqlink', '207', $ML{'.label.description.faq'} );
+            $body .= "<p
+            class='detail'>$ML{'.label.description.desc'} $faq</p>";
 
             $body .= "<p class='pkg'>\n";
             $body .= "<span id='main_make_default'>";
