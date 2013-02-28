@@ -57,7 +57,7 @@
     #taken from the original fck_image.html    
     # get the link to the alt text faq
     my $faq;
-    unless ( $faq = LJ::Hooks::run_hook( 'faqlink', '207', $ML{'/imgupload.bml.insertimage.alt.faqlink'} ) ) {
+    unless ( $faq = LJ::Hooks::run_hook( 'faqlink', 'alttext', $ML{'/imgupload.bml.insertimage.alt.faqlink'} ) ) {
             $faq = $ML{'/imgupload.bml.insertimage.alt.faqlink'}; 
     }
     $ret .= qq{

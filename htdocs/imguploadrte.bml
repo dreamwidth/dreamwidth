@@ -69,7 +69,7 @@ _c?>
     #insert HTML for an image tag, given an image URL and assorted metadata (alt text, dimensions, etc)
     # get the link to the alt text faq
     my $faq;
-    unless ( $faq = LJ::Hooks::run_hook( 'faqlink', '207', $ML{'/imgupload.bml.insertimage.alt.faqlink'} ) ) {
+    unless ( $faq = LJ::Hooks::run_hook( 'faqlink', 'alttext', $ML{'/imgupload.bml.insertimage.alt.faqlink'} ) ) {
             $faq = $ML{'/imgupload.bml.insertimage.alt.faqlink'}; 
     }
     $ret .= qq{
