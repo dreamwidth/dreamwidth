@@ -523,11 +523,10 @@ class User extends UserLite
 
 class SubscriptionFilter
 {
-    var int id "The numeric ID of the filter.";
     var string name "The name of the filter.";
     var bool public "Whether the filter is publicly accessible.";
     var int sortorder "Which order this filter is in compared to others.";
-    var string link "A link to the filtered reading page.";
+    var string url "A link to the filtered reading page.";
 }
 
 ### Other
@@ -1964,14 +1963,14 @@ property bool module_cuttagcontrols_show { grouped = 1; }
 property int  module_cuttagcontrols_order { grouped = 1; }
 property string module_cuttagcontrols_section { grouped = 1; }
 
-property string[] module_readfilters_group {
-    des = "Reading Filters";
+property string[] module_subscriptionfilters_group {
+    des = "Subscription Filters";
     grouptype = "module";
 }
-set module_readfilters_group = ["module_readfilters_show", "module_readfilters_order", "module_readfilters_section"];
-property bool module_readfilters_show { grouped = 1; }
-property int module_readfilters_order { grouped = 1; }
-property string module_readfilters_section { grouped = 1; }
+set module_subscriptionfilters_group = ["module_subscriptionfilters_show", "module_subscriptionfilters_order", "module_subscriptionfilters_section"];
+property bool module_subscriptionfilters_show { grouped = 1; }
+property int module_subscriptionfilters_order { grouped = 1; }
+property string module_subscriptionfilters_section { grouped = 1; }
 
 set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 set module_userprofile_show = true;
@@ -2025,9 +2024,9 @@ set module_search_section = "one";
 set module_cuttagcontrols_show = true;
 set module_cuttagcontrols_order = 16;
 set module_cuttagcontrols_section = "one";
-set module_readfilters_show = false;
-set module_readfilters_order = 17;
-set module_readfilters_section = "one";
+set module_subscriptionfilters_show = false;
+set module_subscriptionfilters_order = 17;
+set module_subscriptionfilters_section = "one";
 
 ##=======================================
 ## Display properties - Text
@@ -2257,11 +2256,11 @@ property string text_module_search_btn {
     size = 20;
     example = "Search";
 }
-property string text_module_readfilters {
-    des = "Text for the 'Reading Filters' box";
+property string text_module_subscriptionfilters {
+    des = "Text for the 'Subscription Filters' box";
     maxlength = 50;
     size = 20;
-    example = "Reading Filters";
+    example = "Subscription Filters";
 }
 
 # Modules without titles: navlinks, time, poweredby
@@ -2281,7 +2280,7 @@ set text_module_credit = "Style Credit";
 set text_module_cuttagcontrols = "Expand Cut Tags";
 set text_module_search = "Search";
 set text_module_search_btn = "Search";
-set text_module_readfilters = "Reading Filters";
+set text_module_subscriptionfilters = "Subscription Filters";
 
 ##=======================================
 ## Display properties - Text
@@ -3133,7 +3132,7 @@ function modules_init()
     if ( $*module_credit_show ) { $*module_sections{$*module_credit_section}[$*module_credit_order]=["credit"]; }
     if ( $*module_search_show ) { $*module_sections{$*module_search_section}[$*module_search_order]=["search"]; }
     if ( $*module_cuttagcontrols_show ) { $*module_sections{$*module_cuttagcontrols_section}[$*module_cuttagcontrols_order]=["cuttagcontrols"]; }
-    if ( $*module_readfilters_show ) { $*module_sections{$*module_readfilters_section}[$*module_readfilters_order]=["readfilters"]; }
+    if ( $*module_subscriptionfilters_show ) { $*module_sections{$*module_subscriptionfilters_section}[$*module_subscriptionfilters_order]=["subscriptionfilters"]; }
 
     #if ( $*module_%%mod%%_show ) { $*module_sections{$*module_%%mod%%_section }[$*module_%%mod%%_order]=["%%mod%%"]; }
 }
@@ -4559,9 +4558,9 @@ function print_module_cuttagcontrols() {
 
 }
 
-function print_module_readfilters() {
+function print_module_subscriptionfilters() {
 
-    open_module("readfilters", $*text_module_readfilters, "");
+    open_module("subscriptionfilters", $*text_module_subscriptionfilters, "");
 
     var SubscriptionFilter[] filters = journal_subscription_filters();
     var string{}[] filter_list;
@@ -4569,7 +4568,7 @@ function print_module_readfilters() {
     var int pos = 0;
     foreach var SubscriptionFilter filter ( $filters ) {
         var string filter_class = $filter.public ? "public" : "private";
-        $filter_list[$pos] = { "class" => "$filter_class", "item" => """<a href="$filter.link">$filter.name</a>""" };
+        $filter_list[$pos] = { "class" => "$filter_class", "item" => """<a href="$filter.url">$filter.name</a>""" };
         $pos++;
     }
 
@@ -4628,8 +4627,8 @@ function handle_module_group_array(string[][] list) {
         elseif ($module == "cuttagcontrols") {
             print_module_cuttagcontrols();
         }
-        elseif ($module == "readfilters") {
-            print_module_readfilters();
+        elseif ($module == "subscriptionfilters") {
+            print_module_subscriptionfilters();
         }
     }
 }

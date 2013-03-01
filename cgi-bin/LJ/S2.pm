@@ -3023,14 +3023,13 @@ sub journal_current_datetime {
 
 sub SubscriptionFilter
 {
-    my ( $id, $name, $sortorder, $public, $link ) = @_;
+    my ( $name, $sortorder, $public, $url ) = @_;
     return {
         '_type' => 'SubscriptionFilter',
-        'id' => $id,
         'name' => $name,
         'public' => $public ? 1 : 0,
         'sortorder' => $sortorder,
-        'link' => $link,
+        'url' => $url,
     };
 }
 
@@ -3045,9 +3044,10 @@ sub journal_subscription_filters
     # automatically gets the content filters in the right order
     my @filters = $LJ::S2::CURR_PAGE->{_u}->content_filters;
     foreach my $filter ( @filters ) {
-        my $filterlink = $LJ::S2::CURR_PAGE->{_u}->journal_base() . "/read/$filter->{name}";
-        my $subfilter = SubscriptionFilter( $filter->id, $filter->name, $filter->sortorder, $filter->public, $filterlink );
-        push @ret, $subfilter unless ( $public_only && not $filter->public );
+        my $filterurl = $LJ::S2::CURR_PAGE->{_u}->journal_base() . "/read/$filter->{name}";
+        my $subfilter = SubscriptionFilter( $filter->name, $filter->sortorder,
+          $filter->public, $filterurl );
+        push @ret, $subfilter if ( $filter->public || ! $public_only );
     }
 
     return \@ret;
