@@ -993,11 +993,13 @@ sub start_request
 
             LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'jquery' },
                 qw(
+                    js/jquery/jquery.ui.core.js
                     js/jquery/jquery.ui.widget.js
 
                     js/jquery/jquery.ui.tooltip.js
                     js/jquery.ajaxtip.js
                     js/jquery/jquery.ui.position.js
+                    stc/jquery/jquery.ui.core.css
                     stc/jquery/jquery.ui.tooltip.css
                     stc/jquery/jquery.ui.theme.smoothness.css
 
