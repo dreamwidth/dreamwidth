@@ -1809,11 +1809,14 @@ sub use_journalstyle_entry_page {
 sub tracking_popup_js {
     return LJ::is_enabled( 'esn_ajax' ) ? (
         { group => 'jquery' }, qw(
+        js/jquery/jquery.ui.core.js
         js/jquery/jquery.ui.widget.js
 
         js/jquery/jquery.ui.tooltip.js
         js/jquery.ajaxtip.js
         js/jquery/jquery.ui.position.js
+
+        stc/jquery/jquery.ui.core.css
         stc/jquery/jquery.ui.tooltip.css
 
         js/jquery.esn.js
