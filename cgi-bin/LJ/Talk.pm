@@ -2207,8 +2207,8 @@ sub js_iconbrowser_button {
     my $remote = LJ::get_remote();
     my $iconbrowser_opts = to_json({
         selectorButtons => "#lj_userpicselect",
-        metatext => $remote->iconbrowser_metatext ? "true" : "false",
-        smallicons => $remote->iconbrowser_smallicons ? "true" : "false"
+        metatext => LJ::JSON->to_boolean( $remote->iconbrowser_metatext ),
+        smallicons => LJ::JSON->to_boolean( $remote->iconbrowser_smallicons ),
     });
 
     return ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" )
