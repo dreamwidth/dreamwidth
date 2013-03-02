@@ -1,20 +1,13 @@
 [%# legal/privacy.tt
   #
   # Privacy Policy
-  #
-  # Authors:
-  #     Janine Smith <janine@netrophic.com>
-  #
-  # Copyright (c) 2009 by Dreamwidth Studios, LLC.
-  #
-  # This program is free software; you may redistribute it and/or modify it
-  # under the same terms as Perl itself.  For a copy of the license, please
-  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
-  #
 %]
 
-[%- sections.title='Privacy Policy' -%]
+[%- sections.title='Privātuma politika' -%]
 
+<p>Nepieciešams pārcelt datus no vecās grab.lv instalācijas - pa šo laiku, ja rodas kāds jautājums, iespējams sazināties epasta veidā.</p>
+
+<!--
 <p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='[% site.root %]/support/submit'>ask us</a>, and we'll do our best to answer.</p>
 
 <p>This privacy statement ("Privacy Policy") covers all websites (such as [% site.domainweb %]) owned and operated by [% site.company %] ("we", "us", "our") and all associated services.</p>
@@ -170,3 +163,5 @@
 <p>This privacy policy is based on one developed by Automattic (http://automattic.com/privacy/) and is licensed under a Creative Commons Attribution-ShareAlike 2.5 License.</p>
 
 <p class='note'>Last revised June 6, 2010</p>
+
+-->

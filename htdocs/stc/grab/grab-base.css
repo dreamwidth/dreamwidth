@@ -325,6 +325,16 @@ footer a:hover {
 	text-decoration: none;
 }
 
+footer #social div {
+	display: inline-block;
+	vertical-align: middle !important;
+	height: 24px;
+}
+
+footer #social .fb_iframe_widget {
+	top: -2px;
+}
+
 h1#logo a:hover {
 	color: #222;
 	text-decoration: none;

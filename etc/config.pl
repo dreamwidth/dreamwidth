@@ -2,7 +2,7 @@
 # -*-perl-*-
 
 # LiveJournal configuration file.
-
+# ŠIS TIEK LIETOTS
 {
     package LJ;
 
@@ -32,14 +32,14 @@
     $COOKIE_DOMAIN = ".$DOMAIN";
 
     # email addresses
-    $ADMIN_EMAIL = "webmaster\@$DOMAIN";
-    $ABUSE_EMAIL = "abuse\@$DOMAIN";
+    $ADMIN_EMAIL = "grab\@$DOMAIN";
+    $ABUSE_EMAIL = "support\@$DOMAIN";
     $SUPPORT_EMAIL = "support\@$DOMAIN";
-    $COMMUNITY_EMAIL = "community_invitation\@$DOMAIN";
+    $COMMUNITY_EMAIL = "support\@$DOMAIN";
     $BOGUS_EMAIL = "dw_null\@$DOMAIN";
-    $COPPA_EMAIL = "coppa\@$DOMAIN";
-    $PRIVACY_EMAIL = "privacy\@$DOMAIN";
-    $ACCOUNTS_EMAIL = "accounts\@$DOMAIN";
+    $COPPA_EMAIL = "support\@$DOMAIN";
+    $PRIVACY_EMAIL = "support\@$DOMAIN";
+    $ACCOUNTS_EMAIL = "support\@$DOMAIN";
 
     # news site support. if set, that journal loads on the main page.
     #$FRONTPAGE_JOURNAL = "news";
@@ -71,7 +71,7 @@
     #             );
 
     # require new free acounts to be referred by an existing user?
-    $USE_ACCT_CODES = 1;
+    $USE_ACCT_CODES = 0;
 
     #$EVERYONE_VALID = 1; # are all users validated by default?
 
@@ -94,7 +94,7 @@
 
     # to save bandwidth, should we compress pages before they go out?
     # require Compress::Zlib to be installed
-    #$DO_GZIP = 1;
+    $DO_GZIP = 1;
 
     # Support signed PGP email for email posting?
     # Requires GnuPG::Interface and Mail::GnuPG to be installed.
@@ -146,14 +146,14 @@
                  esn_archive => 1,
                  eventlogrecord => 1,
                  feedster_search => 0,
-                 free_create => 1,
+                 free_create => 0,
                  googlecheckout => 1,
                  icon_renames => 0,
                  importing => 0,
                  'interests-findsim' => 0,
                  memories => 0,
-                 opt_findbyemail => 1,
-                 payments => 0,
+                 opt_findbyemail => 0,
+                 payments => 1,
                  'show-talkleft' => 0,
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
@@ -174,6 +174,7 @@
     #   return 0;
     #};
 
+    $DEFAULT_CAPTCHA_TYPE = 'I'; # magic switch
 
     # turn $SERVER_DOWN on while you do any maintenance
     $SERVER_TOTALLY_DOWN = 0;
@@ -200,7 +201,7 @@
     # but the first item in the array is the default scheme
     # 'title' is the printed name, while 'scheme' is the scheme name.
     @SCHEMES = (
-                { scheme => 'blueshift', title => 'Blueshift' },
+                { scheme => 'blueshift', title => 'Blueshift' }, # wat
                );
 
     # supported languages (defaults to qw(en) if none given)
@@ -248,7 +249,7 @@
 
     # initial friends for new accounts.
     # leave undefined if you don't want to use it.
-    @INITIAL_SUBSCRIPTIONS = qw(news);
+    @INITIAL_SUBSCRIPTIONS = qw(grab_news);
 
     # initial optional friends
     #@LJ::INITIAL_OPTIONAL_SUBSCRIPTIONS = qw(news);
@@ -281,16 +282,16 @@
             'friendsviewupdate' => 30,
             'interests' => 150,
             'makepoll' => 0,
-            'maxfriends' => 500,
+            'maxfriends' => 75,
             'moodthemecreate' => 0,
-            'directorysearch' => 0,
+            'directorysearch' => 1,
             'styles' => 0,
             's2styles' => 0,
             's2viewentry' => 1,
             's2viewreply' => 1,
             's2stylesmax' => 0,
             's2layersmax' => 0,
-            'textmessage' => 1,
+            'textmessage' => 0,
             'userdomain' => 1,
             'useremail' => 1,
             'userpics' => 5,
@@ -303,7 +304,7 @@
             'mod_queue' => 50,
             'mod_queue_per_poster' => 5,
             'hide_email_after' => 60,
-            'userlinks' => 10,
+            'userlinks' => 5,
             'maxcomments' => 10000,
             'rateperiod-lostinfo' => 60*60*24, # 24 hours
             'rateallowed-lostinfo' => 3,
@@ -352,22 +353,22 @@
             google_analytics => 0,
             'inbox_max' => 2000,
             'interests' => 150,
-            'makepoll' => 0,
+            'makepoll' => 1,
             'mass_privacy' => 0,
-            'maxfriends' => 1000,
+            'maxfriends' => 75,
             'mod_queue' => 50,
             'mod_queue_per_poster' => 3,
             'moodthemecreate' => 0,
             popsubscriptions => 0,
-            's2layersmax' => 0,
-            's2props' => 0,
-            's2styles' => 0,
-            's2stylesmax' => 0,
+            's2layersmax' => 10,
+            's2props' => 1,
+            's2styles' => 1,
+            's2stylesmax' => 40,
             'security_filter' => 0,
-            'subscriptions' => 25,
+            'subscriptions' => 50,
             'synd_create' => 1,
             'tags_max' => 1000,
-            'textmessaging' => 1,
+            'textmessaging' => 0,
             thread_expand_all => 0,
             thread_expander => 0,
             'tools_recent_comments_display' => 10,
@@ -412,7 +413,7 @@
             'interests' => 200,
             'makepoll' => 1,
             'mass_privacy' => 1,
-            'maxfriends' => 1500,
+            'maxfriends' => 150,
             'mod_queue' => 100,
             'mod_queue_per_poster' => 5,
             'moodthemecreate' => 1,
@@ -513,7 +514,7 @@
             '_visible_name' => 'Seed Account',
             '_account_type' => 'seed',
             'activeentries' => 1,
-            'bookmark_max' => 1000,
+            'bookmark_max' => 150,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
             'directory' => 1,
@@ -531,17 +532,17 @@
             'interests' => 250,
             'makepoll' => 1,
             'mass_privacy' => 1,
-            'maxfriends' => 2000,
+            'maxfriends' => 200,
             'mod_queue' => 100,
             'mod_queue_per_poster' => 5,
             'moodthemecreate' => 1,
             popsubscriptions => 1,
-            's2layersmax' => 300,
+            's2layersmax' => 50,
             's2props' => 1,
             's2styles' => 1,
-            's2stylesmax' => 100,
+            's2stylesmax' => 150,
             'security_filter' => 1,
-            'subscriptions' => 1000,
+            'subscriptions' => 150,
             'synd_create' => 1,
             'tags_max' => 2000,
             'textmessaging' => 1,
@@ -554,9 +555,9 @@
             'track_thread' => 1,
             'track_user_newuserpic' => 1,
             'useremail' => 1,
-            'userlinks' => 50,
+            'userlinks' => 15,
             'usermessage_length' => 10000,
-            'userpics' => 150,
+            'userpics' => 50,
             'userpicselect' => 1,
             'viewmailqueue' => 1,
             'xpost_accounts' => 5,
@@ -624,7 +625,7 @@
 
     # default capability class mask for new users:
     # (16 bit unsigned int ... each bit is capability class flag)
-    $NEWUSER_CAPS = 2;
+    $NEWUSER_CAPS = 0x40;
 
     # by default, give users a style
     $DEFAULT_STYLE = {
@@ -755,7 +756,7 @@
     %MOGILEFS_CONFIG = (
         hosts => [ '127.0.0.1:7001' ],
         domain => 'dreamwidth',
-    #    root => '/var/mogdata',
+    #    root => '/var/mogdata', # kādreiz bija atkomentēts..?
     #    classes => {
     #        'your_class' => 3,  # define any special MogileFS classes you need
     #    },
@@ -807,7 +808,7 @@
     # how many days to store random users for; after this many days they fall out of the table.
     # high traffic sites probably want a reasonably low number, whereas lower traffic sites might
     # want to set this higher to give a larger sample of users to select from.
-    $RANDOM_USER_PERIOD = 7;
+    $RANDOM_USER_PERIOD = 30;
 
     # turn on control/nav strip
     $USE_CONTROL_STRIP = 1;
@@ -850,10 +851,10 @@
 
     # pages where we want to see captcha
     %CAPTCHA_FOR = (
-        create   => 0,               # account creation
+        create   => 1,               # account creation
         lostinfo => 1,               # forgotten password/username
-        validate_openid => 1,        # confirming email address of openid acc
-        support_submit_anon => 0,    # support request without logged-in user
+        validate_openid => 0,        # confirming email address of openid acc
+        support_submit_anon => 1,    # support request without logged-in user
         anonpost => 1,               # rate-limiting on anon posts
         authpost => 0,               # rate-limiting on non-anon posts
         comment_html_anon => 1,      # HTML comments from anon commenters?
