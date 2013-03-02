@@ -4578,10 +4578,18 @@ function print_module_cuttagcontrols() {
 }
 
 function print_module_subscriptionfilters() {
+    var Page p = get_page();
+
+    if ( $p.journal.journal_type == "C" or $p.journal.journal_type == "Y" ) {
+        return;
+    }
+
+    var SubscriptionFilter[] filters = journal_subscription_filters();
+
+    if ( ( size $filters ) < 1 ) { return; }
 
     open_module("subscriptionfilters", $*text_module_subscriptionfilters, "");
 
-    var SubscriptionFilter[] filters = journal_subscription_filters();
     var string{}[] filter_list;
 
     var int pos = 0;
