@@ -1745,7 +1745,7 @@ sub postevent
     if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
         push @jobs, TheSchwartz::Job->new_from_array(
                 'DW::Worker::Sphinx::Copier',
-                { userid => $uowner->id, jitemid => $jitemid }
+                { userid => $uowner->id, jitemid => $jitemid, source => "entrynew" }
             );
     }
 
@@ -2162,7 +2162,7 @@ sub editevent
     if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
         $sclient->insert_jobs( TheSchwartz::Job->new_from_array(
                 'DW::Worker::Sphinx::Copier',
-                { userid => $ownerid, jitemid => $itemid }
+                { userid => $ownerid, jitemid => $itemid, source => "entryedt" }
             )
         );
     }

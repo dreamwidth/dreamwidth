@@ -2049,7 +2049,8 @@ sub delete_entry
 
     # fired to delete the post from the Sphinx search database
     if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
-        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } ) );
+        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+                    { userid => $u->id, jitemid => $jitemid, source => "entrydel" } ) );
     }
 
     return 1;

@@ -123,14 +123,17 @@ sub try_work {
         unless ref $last->{events} eq 'ARRAY';
 
     # look for the latest non-DOOO entry
+    # first entry may be a sticky entry (can't tell via props)
+    #   so we guess by taking the max non-DOOO entry on this list
     my $maxid;
     foreach my $event ( @{$last->{events}} ) {
-        unless ( $event->{props}->{opt_backdated} ) {
-            $maxid = $event->{itemid};
-            $log->( 'Discovered that the maximum jitemid on the remote is %d.', $maxid );
-            last;
+        if ( $event->{props}->{opt_backdated} ) {
+            $log->( 'Skipping %d -- backdated', $event->{itemid } );
+        } else {
+            $maxid = $event->{itemid} > $maxid ? $event->{itemid} : $maxid;
         }
     }
+    $log->( 'Discovered that the maximum jitemid on the remote is %d.', $maxid ) if $maxid;
 
     # we got entries but weren't able to find a single *non*-DOOO entry.
     # No idea what the actual latest entry is. Give up now, tell the user to fix it
@@ -333,7 +336,7 @@ sub try_work {
     # Kick off a indexing job for this user
     if ( @LJ::SPHINX_SEARCHD ) {
         LJ::theschwartz()->insert_jobs(
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } )
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "importen" } )
         );
     }
 

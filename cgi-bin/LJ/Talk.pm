@@ -3188,7 +3188,7 @@ sub enter_comment {
         if ( @LJ::SPHINX_SEARCHD ) {
             push @jobs, TheSchwartz::Job->new_from_array(
                     'DW::Worker::Sphinx::Copier',
-                    { userid => $journalu->id, jtalkid => $jtalkid }
+                    { userid => $journalu->id, jtalkid => $jtalkid, source => "commtnew" }
                 );
         }
 
@@ -3995,7 +3995,7 @@ sub edit_comment {
         if ( @LJ::SPHINX_SEARCHD ) {
             push @jobs, TheSchwartz::Job->new_from_array(
                     'DW::Worker::Sphinx::Copier',
-                    { userid => $journalu->id, jtalkid => $comment->{talkid} }
+                    { userid => $journalu->id, jtalkid => $comment->{talkid}, source => "commtedt" }
                 );
         }
 

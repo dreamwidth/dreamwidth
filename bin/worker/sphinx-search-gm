@@ -163,8 +163,8 @@ sub _build_output {
 
         # FIXME: We are using English stemming in this index. We could try to build separate
         # stemmed indices for other languages, if we want.
-        my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1stemmed', $query, {} ) || [];
-        my $subj = $sx->BuildExcerpts( [ map { $_->{subject} } @out ], 'dw1stemmed', $query, {} ) || [];
+        my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1delta', $query, {} ) || [];
+        my $subj = $sx->BuildExcerpts( [ map { $_->{subject} } @out ], 'dw1delta', $query, {} ) || [];
 
         # if we have a matching number of excerpts to events, then we can determine
         # which one goes with which post.

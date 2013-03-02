@@ -30,8 +30,11 @@ LJ::Hooks::register_hook( 'setprop', sub {
     return unless $opts{prop} eq 'opt_blockglobalsearch';
 
     my $dbh = _sphinx_db() or return 0;
-    $dbh->do( 'UPDATE items_raw SET allow_global_search = ? WHERE journalid = ?',
-              undef, $opts{value} eq 'Y' ? 0 : 1, $opts{u}->id );
+    $dbh->do(
+        q{UPDATE items_raw SET allow_global_search = ?, touchtime = UNIX_TIMESTAMP()
+          WHERE journalid = ?},
+        undef, $opts{value} eq 'Y' ? 0 : 1, $opts{u}->id
+    );
     die $dbh->errstr if $dbh->err;
 
     # looks good
@@ -46,8 +49,11 @@ sub _mark_deleted {
     my ( $u, $is_deleted ) = @_;
 
     my $dbh = _sphinx_db() or return 0;
-    $dbh->do( 'UPDATE items_raw SET is_deleted = ? where journalid = ?',
-              undef, $is_deleted, $u->id );
+    $dbh->do(
+        q{UPDATE items_raw SET is_deleted = ?, touchtime = UNIX_TIMESTAMP()
+          WHERE journalid = ?},
+        undef, $is_deleted, $u->id
+    );
     die $dbh->errstr if $dbh->err;
 
     return 1;
@@ -70,7 +76,7 @@ LJ::Hooks::register_hook( 'purged_user', sub {
 
     # queue up a copier job, which will notice that the entries by this user have been deleted...
     $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-                                { userid => $u->id } ) );
+                                { userid => $u->id, source => "purghook" } ) );
 
 });
 
