@@ -294,6 +294,7 @@ class UserLite
     function linklist_manage_url () : string "Returns URL to user's tag management page.";
     function tag_manage_url () : string "Returns URL to user's tag management page.";
     function icon_manage_url () : string "Returns URL to user's icon management page.";
+    function subscriptionfilters_manage_url () : string "Returns URL to user's subscription filter page.";
     function print_interaction_links() "Print the interaction links for this user/journal.";
     function as_string() : string;
     function print ();
@@ -2654,6 +2655,11 @@ property string text_tags_manage {
     example = "Manage Tags";
 }
 
+property string text_subscriptionfilters_manage {
+    des = "Text to use to link to this journal's subscription filter management page.";
+    example = "Manage Filters";
+}
+
 property string text_read_comments_threads {
     des = "Link text to read comment threads from an entry";
     format = "plurals";
@@ -2686,6 +2692,7 @@ set text_website_default_name = "My Website";
 set text_calendar_num_entries = "1 entry // # entries";
 set text_linklist_manage = "Manage Links";
 set text_tags_manage = "Manage Tags";
+set text_subscriptionfilters_manage = "Manage Filters";
 set text_read_comments_threads = "1 response // # responses";
 set text_generated_on = "Page generated";
 set text_powered_by = "Powered by";
@@ -3448,6 +3455,12 @@ function UserLite::icon_manage_url() [fixed] : string
     return "$*SITEROOT/editicons?authas=$.username";
 }
 
+function UserLite::subscriptionfilters_manage_url() [fixed] : string
+"Returns a link to the user's subscription filter management page.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
+    return "$*SITEROOT/manage/subscriptions/filters";
+}
+
 function UserLite::as_string() [fixed] : string
 "Use UserLite::print instead in most cases. Returns a DW user tag for the user. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
@@ -3893,6 +3906,12 @@ function print_tag_manage_link() "Prints out a link to the tag management page, 
 function IconsPage::print_icon_manage_link() "Prints out a link to the icon management page, if the viewer can manage icons."
 {
     print ($.can_manage) ? "<div class=\"manage-link manage-icons-link\"><a href=\"" + $.journal->icon_manage_url() + "\">$*text_icon_manage</a></div>\n" : "";
+}
+
+function print_subscriptionfilters_manage_link() "Prints out a link to the subscription filter management page, if the viewer can manage them."
+{
+    var Page p = get_page();
+    print "<div class=\"manage-link manage-subfilters-link\"><a href=\"" + $p.journal->subscriptionfilters_manage_url() + "\">$*text_subscriptionfilters_manage</a></div>";
 }
 
 function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to full text"
@@ -4573,6 +4592,8 @@ function print_module_subscriptionfilters() {
     }
 
     print_module_list($filter_list);
+
+    print_subscriptionfilters_manage_link();
 
     close_module();
 }
