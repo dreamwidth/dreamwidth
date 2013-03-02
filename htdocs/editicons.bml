@@ -408,7 +408,7 @@ use strict;
             $body .= "</span>";
             $body .= "</p>\n";
             # link to the alt text faq; long and useful
-            my $faq = LJ::Hooks::run_hook( 'faqlink', '207', $ML{'.label.description.faq'} );
+            my $faq = LJ::Hooks::run_hook( 'faqlink', 'alttext', $ML{'.label.description.faq'} );
             $body .= "<p
             class='detail'>$ML{'.label.description.desc'} $faq</p>";
 
