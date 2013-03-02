@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2012 by Dreamwidth Studios, LLC.
+# Copyright (c) 2012-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -19,7 +19,10 @@ use strict;
 use DW::Routing;
 use LJ::JSON;
 
-DW::Routing->register_string( "/__rpc_iconbrowser_save", \&iconbrowser_save, app => 1,  format => 'json' );
+DW::Routing->register_string( "/__rpc_iconbrowser_save", \&iconbrowser_save,
+                                app => 1,
+                                user => 1,
+                                format => 'json' );
 
 # saves the metatext / smallicons options (Y/N)
 sub iconbrowser_save {
