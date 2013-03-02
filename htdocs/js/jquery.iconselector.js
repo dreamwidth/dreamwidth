@@ -167,7 +167,7 @@
         params[option] = value;
 
         // this is a best effort thing, so be silent about success/error
-        $.post( $.endpoint( "iconbrowser_save" ) , params );
+        $.post( "/__rpc_iconbrowser_save", params );
     }
 
     function _open () {
