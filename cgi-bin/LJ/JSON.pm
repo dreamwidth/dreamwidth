@@ -25,7 +25,12 @@ LJ::JSON - Wrapper for JSON which handles text encoding
 
   use LJ::JSON; # never use JSON! That could introduce subtle encoding issues
 
-  my $json_string = to_json( { a => "apple" } );
+  my $is_yummy = 1;
+  my $json_string = to_json( { a => "apple",
+                        yummy  => LJ::JSON->to_boolean( $is_yummy ) # true/false
+                        yummy2 => $is_yummy                         # 1/0
+                                                                    # both can work in JS, but prefer true/false
+                    } );
   my $object      = from_json( q!{ "a": "apple" }! );
 
 =cut
