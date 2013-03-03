@@ -1,3 +1,66 @@
+#NEWLAYER: modish/argyle
+layerinfo type = "theme";
+layerinfo name = "Argyle";
+layerinfo redist_uniq = "modish/argyle";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#f7f9fe";
+set color_footer_link = "#5b7882";
+set color_footer_link_active = "#5b7882";
+set color_footer_link_hover = "#4a99b4";
+set color_footer_link_visited = "#3b4e55";
+set color_header_background = "#cbdbe0";
+set color_page_border = "#cbdbe0";
+set color_page_details_text = "#2d2d2d";
+set color_page_link = "#5b7882";
+set color_page_link_active = "#5b7882";
+set color_page_link_hover = "#4a99b4";
+set color_page_link_visited = "#3b4e55";
+set color_page_text = "#2d2d2d";
+set color_page_title = "#2d2d2d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#2d2d2d";
+set color_comment_title_background = "#f7f9fe";
+set color_entry_background = "#f7f9fe";
+set color_entry_border = "#cbdbe0";
+set color_entry_interaction_links = "#4a99b4";
+set color_entry_link = "#5b7882";
+set color_entry_link_active = "#5b7882";
+set color_entry_link_hover = "#4a99b4";
+set color_entry_link_visited = "#3b4e55";
+set color_entry_text = "#2d2d2d";
+set color_entry_title = "#2d2d2d";
+set color_entry_title_background = "#f7f9fe";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7f9fe";
+set color_module_border = "#cbdbe0";
+set color_module_link_hover = "#cbdbe0";
+set color_module_text = "#2d2d2d";
+set color_module_title = "#2d2d2d";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "commons/argyle.png";
+
+
 #NEWLAYER: modish/badfairy
 layerinfo type = "theme";
 layerinfo name = "Bad Fairy";
@@ -220,6 +283,67 @@ set color_entry_border = "#1b1bb3";
 ##===============================
 
 set color_module_link_hover ="#B31B1B";
+
+
+#NEWLAYER: modish/dependable
+layerinfo type = "theme";
+layerinfo name = "Dependable";
+layerinfo redist_uniq = "modish/dependable";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#d5cebe";
+set color_footer_link = "#568E82";
+set color_footer_link_active = "#568E82";
+set color_footer_link_hover = "#2F9653";
+set color_footer_link_visited = "#4e5364";
+set color_header_background = "#d5cebe";
+set color_page_background = "#cbc5ae";
+set color_page_text = "#1e1e1e";
+set color_page_title = "#1e1e1e";
+set color_page_border = "#cbc5ae";
+set color_page_details_text = "#1e1e1e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#1e1e1e";
+set color_entry_background = "#cbc5ae";
+set color_entry_border = "#d5cebe";
+set color_entry_interaction_links = "#1f2f64";
+set color_entry_link = "#568E82";
+set color_entry_link_active = "#568E82";
+set color_entry_link_hover = "#2F9653";
+set color_entry_link_visited = "#4e5364";
+set color_entry_text = "#1e1e1e";
+set color_entry_title = "#1e1e1e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d5cebe";
+set color_module_border = "#cbc5ae";
+set color_module_link = "#568E82";
+set color_module_link_active = "#568E82";
+set color_module_link_hover = "#2F9653";
+set color_module_link_visited = "#4e5364";
+set color_module_text = "#1e1e1e";
+set color_module_title = "#1e1e1e";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_header_url = "commons/dependable.png";
 
 
 #NEWLAYER: modish/greyscale
