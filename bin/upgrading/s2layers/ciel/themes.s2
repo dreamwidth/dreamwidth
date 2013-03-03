@@ -931,7 +931,7 @@ layerinfo author_name = "rising";
 set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_page_background = "#050505";
@@ -942,7 +942,7 @@ set color_page_text = "#f4f4f4";
 set color_page_title = "#9bd5ff";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_entry_interaction_links = "#9bd5ff";
@@ -975,7 +975,7 @@ layerinfo author_name = "rising";
 set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_page_background = "#f4f4f4";
@@ -986,7 +986,7 @@ set color_page_text = "#050505";
 set color_page_title = "#9bd5ff";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_entry_interaction_links = "#9bd5ff";
@@ -1838,7 +1838,7 @@ layerinfo author_name = "dancing_serpent";
 set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_calendar_entryday_background = "#f0e5af";
@@ -1860,7 +1860,7 @@ set color_userpic_border = "#d8b362";
 set color_userpic_border_alt = "#d8b362";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_comment_title = "#6c4130";
@@ -1882,7 +1882,7 @@ set color_navlinks_link_background = "#d8b362";
 set color_navlinks_link_hover_background = "#f0e5af";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#f0e5af";
@@ -1904,7 +1904,7 @@ layerinfo author_name = "rising";
 set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_footer_background = "#fff";
@@ -1920,7 +1920,7 @@ set color_userpic_border = "#efadab";
 set color_userpic_border_alt = "#dc9f9d";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_comment_title = "#282828";
@@ -1933,7 +1933,7 @@ set color_entry_title = "#282828";
 set color_management_links = "#282828";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#fff";
@@ -3183,7 +3183,7 @@ layerinfo author_name = "dancing_serpent";
 set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_calendar_entryday_background = "#dedbca";
@@ -3205,7 +3205,7 @@ set color_userpic_border = "#966d6f";
 set color_userpic_border_alt = "#99b3ba";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_comment_title = "#1f080b";
@@ -3223,7 +3223,7 @@ set color_management_links = "#2e5e73";
 set color_management_links_background = "#966d6f";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#99b3ba";
@@ -3886,7 +3886,7 @@ layerinfo author_name = "rising";
 set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_footer_background = "#f4f0f6";
@@ -3904,7 +3904,7 @@ set color_userpic_border = "#959296";
 set color_userpic_border_alt = "#adaaaf";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_comment_title = "#ad1429";
@@ -3920,7 +3920,7 @@ set color_entry_title = "#ad1429";
 set color_management_links = "#c1162e";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#f4f0f6";
