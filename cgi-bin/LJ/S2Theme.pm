@@ -66,6 +66,7 @@ sub default_themes {
         nouveauoleanders => 'nouveauoleanders/sienna',
         paletteable => 'paletteable/descending',
         paperme => 'paperme/newleaf',
+        planetcaravan => 'planetcaravan/cheerfully',
         practicality => 'practicality/warmth',
         refriedtablet => 'refriedtablet/refriedclassic',
         skittlishdreams => 'skittlishdreams/orange',
