@@ -1,0 +1,695 @@
+layerinfo type = "layout";
+layerinfo name = "Planet Caravan";
+layerinfo redist_uniq = "planetcaravan/layout";
+layerinfo author_name = "momijizukamori";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set layout_type = "one-column";
+
+##===============================
+## Presentation
+##===============================
+propgroup presentation_child {
+    property string margins_module_size {
+        des = "Size of module margins in one-column";
+        size = 5;
+    }
+    property string margins_module_unit {
+        des = "Unit for module margins in one-column";
+        values = "em|em|%|%|px|px";
+    }
+}
+
+set userpics_position = "left";
+set font_fallback = "sans-serif";
+set font_base = "Helvetica, Verdana, Arial";
+set font_module_heading_size = "1.3";
+set font_module_heading_units = "em";
+set font_entry_title_size = "1.3";
+set font_entry_title_units = "em";
+set font_journal_subtitle_size = "1.1";
+set font_journal_subtitle_units = "em";
+set margins_module_size = "10";
+set margins_module_unit = "%";
+set margins_size = "15";
+set margins_unit = "%";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_entry_footer_links { des = "Entry management and interaction link color"; }
+    property Color color_entry_footer_background { des = "Entry footer background color"; }
+    property Color color_navlinks_current { des = "Color of navlink for current page"; }
+    property Color color_journal_subtitle { des = "Journal subtitle color"; }
+    property Color color_userpic_border { des = "Userpic border color"; }
+    property Color color_alternate_entry_border { des = "Alternate entry border color"; }
+    property Color color_alternate2_entry_border { des = "Second alternate entry border color"; }
+    property Color color_alternate3_entry_border { des = "Third alternate entry border color"; }
+    }
+
+##===============================
+## Modules
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    grouped = 1;
+    }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "header";
+
+##===============================
+## Functions
+##===============================
+
+# Give a title to the navlinks module
+function print_module_navlinks() {
+    var Page p = get_page();
+    var string title = "Navigation";
+    open_module("navlinks", "$title", "");
+    var string[] links = [];
+    foreach var string k ($p.views_order) {
+        var string css = """ class="$k" """;
+        if ($p.view == $k) { $css = """ class="current $k" """; }
+        $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+    }
+    print_module_list($links);
+    close_module();
+}
+
+# Add section for navlinks module
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+                    $this->print_module_section("header");
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+    """;
+
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+
+    """
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if (($*layout_type != "one-column-split") and ($*layout_type != "one-column")) {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+
+                if ($*layout_type->contains("three")) {
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+    """;
+                }
+    """
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+
+
+    """;
+
+                if ($*layout_type == "one-column") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+
+                if (($*layout_type->contains("two")) or ($*layout_type->contains("one"))) {
+    """
+                    <div id="tertiary"><div class="inner">
+    """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+    """;
+                }
+
+    """
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+
+function print_stylesheet () {
+
+    var string entry_userpic_margin = "";
+    if ( $*entry_userpic_style == "" ) {$entry_userpic_margin = "-160px"; }
+    elseif ( $*entry_userpic_style == "small" ) {$entry_userpic_margin = "-135px";}
+    elseif ( $*entry_userpic_style == "smaller" ) {$entry_userpic_margin = "-110px";}
+
+    var string comment_userpic_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_userpic_margin = "-160px"; }
+    elseif ( $*comment_userpic_style == "small" ) {$comment_userpic_margin = "-135px";}
+    elseif ( $*comment_userpic_style == "smaller" ) {$comment_userpic_margin = "-110px";}
+
+var string userpic_css = "";
+    if ($*userpics_position == "right") {
+        $userpic_css = """
+        .entry .userpic {
+            float: right;
+            margin-right: $entry_userpic_margin;
+            }
+
+        .comment .userpic {
+            float: right;
+            margin-right: $comment_userpic_margin;
+            }
+        .entry, .comment, .tags-container, .icons-container, .month, #archive-month {border-width: 0 75px 0 0;
+            border-color: $*color_entry_border;
+            border-style: solid;}
+
+        .entry .header, .comment .header, #archive-month .navigation  {margin-right:5px;}
+
+        .entry .footer, .comment .footer {
+            clear: both;
+            padding-right: 5px;
+            }
+
+        """;
+    }
+    else {
+        $userpic_css = """
+        .entry .userpic {
+            float: left;
+            margin-left: $entry_userpic_margin;
+            }
+
+        .comment .userpic {
+            float: left;
+            margin-left: $comment_userpic_margin;
+            }
+
+        .entry, .comment, .tags-container, .icons-container, .month, #archive-month {border-width: 0 0 0 75px;
+            border-color: $*color_entry_border;
+            border-style: solid;}
+
+        .entry .header, .comment .header, #archive-month .navigation  {margin-left:5px;}
+
+        .entry .footer, .comment .footer {
+            clear: both;
+            padding-left: 5px;
+            }
+        """;
+    }
+
+var string navlinks_css = "";
+    if ($*module_navlinks_section == "header") {
+        $navlinks_css = """
+            .module-navlinks {
+                background-color: transparent;
+                border: none;
+                margin: .1em 0;
+                text-align: center;
+        		width: 100%;
+                }
+
+            .module-navlinks li {
+                display: inline;
+                padding-left: 2em;
+                margin: 1em 0;
+                }
+
+            .module-navlinks .module-header {
+                display: none;
+                }
+
+            .module-navlinks a {
+                color: $*color_page_title;
+                text-decoration:none;
+                text-transform:lowercase;
+                font-weight:normal;
+                letter-spacing: -.05em;
+                font-size:$*font_module_heading_size$*font_module_heading_units;
+                }
+
+            .module-navlinks a:hover {text-decoration:underline;}
+
+            .module-navlinks a.current {
+                color: $*color_navlinks_current;
+                text-decoration:none;
+                }
+
+        """;
+    }
+    else {
+        $navlinks_css = """
+                .module-navlinks {
+                border: none;
+                margin: .1em 0;
+                text-align: center;
+        		width: 100%;
+                }
+
+            .module-navlinks .module-header {
+                display: none;
+                }
+
+            .module-navlinks a {
+                text-decoration:none;
+                text-transform:lowercase;
+                font-weight:normal;
+                letter-spacing: -.05em;
+                font-size:$*font_module_heading_size$*font_module_heading_units;
+                }
+
+            .module-navlinks a:hover {text-decoration:underline;}
+
+            .module-navlinks a.current {
+                color: $*color_navlinks_current;
+                text-decoration:none;
+                }
+    """;
+    }
+
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+
+
+    """
+
+/*--- Main ---*/
+
+
+
+html body {
+    margin:0; }
+
+blockquote {
+    font-style: italic;
+    padding: 1em 1em .5em 2em;
+    border-size: 0 0 0 10px; border-color: $*color_entry_text; border-style:solid;}
+    }
+
+blockquote > p:first-child {
+    margin-top: 0;
+    }
+
+dl dt {
+    font-weight: bold;
+    }
+
+a {text-decoration: none; font-weight: bold;}
+a:hover {text-decoration:underline;}
+
+/*--- Main Containers ---*/
+
+
+#content {margin:0 $*margins_size$*margins_unit; padding:0;}
+
+#primary {box-sizing: border-box;
+-moz-box-sizing: border-box;
+-webkit-box-sizing: border-box;
+    padding: 0 100px;}
+
+#primary > .inner:first-child {margin: 5px 0; padding: 0;}
+
+
+.column-left #content, .column-right #content {
+    border-color: $*color_module_background;
+    }
+
+/*---------inline-block one-column mode-----*/
+
+.one-column #secondary, .one-column #tertiary, .two-columns #tertiary {
+    background-color: $*color_module_background;
+    margin: 0;
+    padding: 0 $*margins_module_size$*margins_module_unit;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    text-align:center;
+    }
+
+.one-column #secondary, .one-column #tertiary { width: 100%; }
+.one-column .module, .two-columns #tertiary .module {
+    display: inline-block;
+    vertical-align: top;
+    width: $*sidebar_width;
+    text-align: left;
+    float: none;
+    }
+
+.one-column .module-navlinks {width: 100%; text-align:center; margin: 1em 0;}
+
+/*--- Journal Header ---*/
+
+#header {
+    padding: .5em 1em;
+    text-align:center;
+    }
+
+h1#title {font-weight: normal; letter-spacing: .1em;}
+
+h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: $*color_journal_subtitle; letter-spacing: .1em;}
+
+/*--- Journal Navigation ---*/
+
+.navigation {
+    background: $*color_entry_footer_background;
+    color: $*color_entry_footer_links;
+    text-align: center;
+    padding: .25em 0;
+    text-transform:lowercase;
+    }
+
+
+.navigation a {color: $*color_entry_footer_links; font-weight:normal;}
+
+.empty {display:none;}
+
+/*--- Entries & Comments ---*/
+
+.entry-wrapper {
+    margin-bottom: 5px;
+    }
+
+.entry .userpic{
+    border: 20px solid $*color_userpic_border;
+    margin-top: -2em;
+    }
+
+.comment .userpic {border: 20px solid $*color_userpic_border;}
+
+$userpic_css
+
+.no-userpic .userpic {border: 0;}
+
+.datetime, .poster-ip {
+    font-size: small;
+    text-align: right;
+    float: right;
+    padding-right: .5em;
+    }
+
+.datetime a {color:$*color_entry_text;}
+
+.restrictions, .access-filter {float: right;}
+
+.poster {margin-left: 1em;}
+
+.entry-wrapper-even .entry, .comment-wrapper-even .comment, div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(2n) div.month {border-color: $*color_alternate_entry_border;}
+
+div#entries > div.inner > div.entry-wrapper:nth-of-type(4n) div.entry,
+div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(4n-1) div.month {border-color: $*color_alternate2_entry_border;}
+
+div#entries > div.inner > div.entry-wrapper:nth-of-type(4n+1) div.entry,
+div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(4n) div.month {border-color: $*color_alternate3_entry_border;}
+
+.entry-title {padding-left: .5em;}
+.entry-title a, .comment-title a {text-decoration: none; font-weight: normal; letter-spacing: -.05em;}
+.entry-title a:hover, .comment-title a:hover {text-decoration: underline;}
+
+.entry-content, .comment-content {
+    margin: 2em;
+    }
+
+.entry .metadata {
+    padding-left: 4em;
+    font-size: smaller;
+    }
+
+.metadata-label, .tag-text {font-weight:bold;}
+
+.entry .metadata.bottom-metadata {
+    margin-bottom: 0;
+    }
+
+.entry .tag {
+    margin-bottom: 2.5em;
+    padding-left: 4em;
+    font-size: smaller;
+    margin-left: -5px;
+    }
+
+ul.entry-management-links, .comment-management-links {
+    float: left;
+    color: $*color_entry_footer_links;
+    padding-left: .5em;
+    font-size: smaller;
+    text-transform:lowercase;
+    margin: .75em 0 0;
+    }
+
+ul.entry-interaction-links, .comment-interaction-links {
+    text-align: right;
+    color: $*color_entry_footer_links;
+    background: $*color_entry_footer_background;
+    padding: .75em;
+    margin: 2em 0 0;
+    font-size: smaller;
+    text-transform:lowercase;
+    }
+
+.text-links a {    color: $*color_entry_footer_links; text-decoration: none; font-weight:normal;}
+.text-links a:hover {text-decoration: underline;}
+
+.comment-wrapper {padding: 0;}
+.comment-title {padding: .25em}
+
+.multiform-checkbox {
+    clear: both;
+    display: block;
+    }
+
+.partial .comment {
+    padding: .25em .5em;
+    border:0;
+    }
+
+.partial .comment-title a{
+    display: inline;
+    font-size: medium;
+    margin-bottom: 0;
+    letter-spacing: normal;
+    }
+
+.bottomcomment, .comment-pages {
+    background-color: $*color_entry_footer_background;
+    color: $*color_entry_footer_links;
+    margin-top: 5px;
+    text-align: center;
+    padding: .25em;
+    }
+
+.bottomcomment a, .comment-pages a{
+    color: $*color_entry_footer_links;
+    }
+
+/*--- Archive Pages ---*/
+#archive-year .header h3, .tags-container .header h2, .icons-container .header h2 {
+    $entry_title_font
+    $entry_title_colors;
+    text-decoration: none;
+    font-weight: normal;
+    letter-spacing: .1em;
+    padding-left: .5em;
+}
+
+.tags-container, .icons-container, .month, #archive-month, .comment, #postform {  color: $*color_entry_text; border-color: $*color_entry_border; background: $*color_entry_background }
+
+.tags-container a, .icons-container a, #archive-year a, #comments a, #archive-month a, #postform a { color:$*color_entry_link; }
+
+.tags-container a:active, .icons-container a:active, #archive-year a:active, #comments a:active, #archive-month a:active, #postform a:active { color:$*color_entry_link_active; }
+
+.tags-container a:hover, .icons-container a:hover, #archive-year a:hover, #comments a:hover, #archive-month a:hover, #postform a:hover { color:$*color_entry_link_hover; }
+
+.tags-container a:visited, .icons-container a:visited, #archive-year a:visited, #comments a:visited, #archive-month a:visited, #postform  a:visited { color:$*color_entry_link_visited; }
+
+#archive-month .month {border:0;}
+
+.tags-container .contents, .tags-container .footer {margin: 2em;}
+
+.month {
+    margin-bottom: 5px;
+    }
+
+.month .contents {
+    padding: 1em .5em 0;
+    }
+
+.month .entry-title a {letter-spacing: normal;}
+
+table.month {border: 0;}
+
+.month .footer {
+    padding: 0 .5em 1em;
+    text-align: center;
+    }
+
+table.month td, table.month th {
+    vertical-align: top;
+    padding: .25em .5em;
+    }
+
+#archive-month .month {
+    padding: 0 1em;
+    }
+
+#archive-month .entry-title {
+    font-weight: bold;
+    }
+
+h3.day-date {
+    display:none;
+    }
+
+/*Icons Page*/
+
+.icons-container .icon {
+    float: left;
+    margin-bottom: 15px;
+    min-width: 350px;
+    vertical-align: bottom;
+    width: 50%;
+}
+
+.icon-image {
+    display: inline;
+    float: left;
+    margin-right: 1em;
+    min-width: 100px;
+}
+
+.icon-info {
+    overflow: auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+}
+
+.icon-info .label,
+.icon-info span {
+    font-weight: bold;
+}
+
+.icons-container .inner .footer, .icon-pages {
+    clear: both;
+    text-align: center;
+}
+
+/*--- Sidebars ---*/
+
+.module {
+    border: none;
+    margin-bottom: 1em;
+    }
+
+.module-content ul, .module-list, .module-credit dl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    }
+
+.module-content ul ul {
+    margin-left: 1em;
+    }
+
+.module-header {
+    text-decoration:none;
+    text-transform:lowercase;
+    letter-spacing: .1em;
+    }
+
+.module-header a {
+    color: $*color_module_title;
+    text-decoration:none;
+    }
+
+.module-header a:hover {
+    text-decoration:underline;
+    }
+
+.module .userlite-interaction-links {
+    margin-top: .5em;
+    }
+
+.module-navlinks a.current {
+    color: $*color_module_text;
+    text-decoration: none;
+    }
+
+.module-calendar .module-content {
+    text-align: left;
+    }
+
+.module-calendar table {
+    margin: 0;
+    }
+
+$navlinks_css
+
+/*--- Footer ---*/
+
+#footer {
+    text-align: center;
+    }
+
+    """;
+}
