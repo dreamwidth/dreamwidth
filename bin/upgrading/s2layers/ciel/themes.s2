@@ -4403,7 +4403,7 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/seelie.jpg";
+set image_background_page_url = "commons/seelie.jpg";
 
 
 #NEWLAYER: ciel/silentnight
@@ -4990,7 +4990,7 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/unseelie.jpg";
+set image_background_page_url = "commons/unseelie.jpg";
 
 
 #NEWLAYER: ciel/warmembrace
@@ -5146,4 +5146,4 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/winterborn.jpg";
+set image_background_page_url = "commons/winterborn.jpg";
