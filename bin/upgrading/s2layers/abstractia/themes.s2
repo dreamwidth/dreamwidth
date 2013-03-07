@@ -1285,7 +1285,7 @@ set image_background_content_url = "abstractia/daydream_bg2.png";
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/daydream.jpg";
+set image_background_page_url = "commons/daydream.jpg";
 set image_background_sidebar_url = "abstractia/daydream_bg2.png";
 set image_background_userpic_url = "abstractia/daydream_bg2.png";
 
@@ -1437,7 +1437,7 @@ set image_background_content_url = "abstractia/abstractia_transparency3.png";
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/dreamscape.jpg";
+set image_background_page_url = "commons/dreamscape.jpg";
 set image_background_sidebar_url = "abstractia/abstractia_transparency3.png";
 set image_background_userpic_url = "abstractia/abstractia_transparency2.png";
 
