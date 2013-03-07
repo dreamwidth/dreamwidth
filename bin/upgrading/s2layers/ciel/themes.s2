@@ -1517,7 +1517,7 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/daydream.jpg";
+set image_background_page_url = "commons/daydream.jpg";
 
 
 #NEWLAYER: ciel/decadence
@@ -1826,7 +1826,7 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/dreamscape.jpg";
+set image_background_page_url = "commons/dreamscape.jpg";
 
 
 #NEWLAYER: ciel/dune
