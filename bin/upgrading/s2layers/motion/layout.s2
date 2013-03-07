@@ -4,8 +4,6 @@ layerinfo author_name = "wiring";
 layerinfo redist_uniq = "motion/layout";
 
 set layout_authors = [ { "name" => "wiring", "type" => "user" } ];
-set use_journalstyle_icons_page = true; #FIXME REMOVE THIS LINE BEFORE COMMIT
-
 
 ##===============================
 ## Images
