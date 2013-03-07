@@ -314,7 +314,6 @@ function print_stylesheet() {
 * Resets *
 ************************************************/
 div, p, span, h1, h2, h3, h4, h5, h6, img, ul, ol, dl, li, dt, dd, blockquote, pre, form, fieldset, label, input, table, th, td, a{margin:0; padding:0; border:0; vertical-align:baseline;}
-:focus{outline:0}
 body{line-height:1}
 ul, ol{list-style:none}
 h1, h2, h3, h4, h5, h6{font-size:1em}
