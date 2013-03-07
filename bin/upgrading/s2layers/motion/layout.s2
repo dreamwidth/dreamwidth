@@ -168,7 +168,7 @@ set layout_type = "two-columns-right";
 ##===============================
 
 property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
     grouped = 1;
     }
 
