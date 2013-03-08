@@ -145,7 +145,7 @@
                   LJ[cmtId].full = true;
                 }
               } else {
-                if (newComment.find(".full")) {
+                if (newComment.find(".full").length > 0) {
                   LJ[cmtId].full = true;
                   setFull(cmtElement, true);
                 }
