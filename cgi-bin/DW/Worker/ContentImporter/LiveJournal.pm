@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -412,7 +412,7 @@ sub xmlrpc_call_helper {
         return
             {
                 fault => 1,
-                faultString => 'Exceeded XMLRPC recursion limit.',
+                faultString => 'Failed to connect to the server too many times.',
             };
     }
 
