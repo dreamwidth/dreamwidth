@@ -18,13 +18,13 @@ _c?>
     use vars qw(%GET %POST @errors);
 
     use LJ::Auth;
-    use JSON;
+    use LJ::JSON;
     use LJ::Widget::IPPU;
 
     my $err = sub {
         my $msg = shift;
         my %extra = @_;
-        return JSON::objToJson({
+        return to_json({
             error => "$msg",
         });
     };
@@ -111,6 +111,6 @@ _c?>
 
 #    sleep(2) if $LJ::IS_DEV_SERVER;
 
-    return JSON::objToJson( \%ret );
+    return to_json( \%ret );
 }
 _code?>

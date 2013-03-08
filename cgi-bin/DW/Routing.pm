@@ -20,7 +20,7 @@ use strict;
 
 use LJ::ModuleLoader;
 use DW::Template;
-use JSON;
+use LJ::JSON;
 use DW::Request;
 use DW::Routing::CallInfo;
 use Carp qw/croak/;
@@ -173,7 +173,7 @@ sub _call_hash {
     #  cannot do the redirect safely for non-GET/HEAD requests.
     return $r->redirect( LJ::create_url($r->uri, keep_args => 1, ssl => 1) )
         if $opts->prefer_ssl && $LJ::USE_SSL && $opts->role eq 'app' &&
-            ! $opts->ssl && $r->method eq 'GET' || $r->method eq 'HEAD';
+            ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
     # apply default content type if it exists
     $r->content_type( $default_content_types->{$format} )
@@ -207,7 +207,7 @@ sub _call_hash {
         $text = "$msg" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
 
         $r->status( 500 );
-        $r->print(objToJson( { error => $text } ));
+        $r->print(to_json( { error => $text } ));
         return $r->OK;
     # default error rendering
     } elsif ( $format eq "html" ) {

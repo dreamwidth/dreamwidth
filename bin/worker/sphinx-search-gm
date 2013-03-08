@@ -8,7 +8,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -16,6 +16,7 @@
 #
 
 use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN {
     require "ljlib.pl";
@@ -53,7 +54,7 @@ sub _run_search {
     }
 
     # filter to a journal if we have a userid set; else, filter on allow_global_search items
-    $sx->SetFilter( 'journal_id', [ $args->{userid} ] )
+    $sx->SetFilter( 'journalid', [ $args->{userid} ] )
         if $args->{userid};
     $sx->SetFilter( 'allow_global_search', [ 1 ] )
         unless $args->{userid};
@@ -61,6 +62,9 @@ sub _run_search {
     # we don't want items marked deleted (user is not visible)
     $sx->SetFilter( 'is_deleted', [ 0 ] );
 
+    # filter in/out comments
+    $sx->SetFilterRange( 'jtalkid', 0, 0 )
+        if $args->{include_comments} == 0;
 
     # security filtering is a dangerous game.  basically, the caller tells us whether to
     # ignore security or gives us a mask of bits to work with.  from that we intuit what
@@ -91,44 +95,76 @@ sub _build_output {
         my @out;
 
         foreach my $match ( @{ $res->{matches} } ) {
-            my $entry = LJ::Entry->new( $match->{journal_id}, jitemid => $match->{jitemid} );
-            my $remote = LJ::load_userid( $remoteid );
+            if ( $match->{jtalkid} == 0 ) {
+                my $entry = LJ::Entry->new( $match->{journalid}, jitemid => $match->{jitemid} );
+                my $remote = LJ::load_userid( $remoteid );
 
-            # check for validity and for security
-            # we filtered by security earlier, but there's a chance it was changed
-            # but not yet indexed
-            if ( $entry && $entry->valid && $entry->visible_to( $remote ) ) {
-                # use text only version of event for excerpt purposes.  best effort.
-                $match->{entry} = $entry->event_text;
-                $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
-                $match->{entry} = LJ::strip_html( $match->{entry} );
-                $match->{entry} ||= "(this entry only contains html content)";
+                # check for validity and for security
+                # we filtered by security earlier, but there's a chance it was changed
+                # but not yet indexed
+                if ( $entry && $entry->valid && $entry->visible_to( $remote ) ) {
+                    # use text only version of event for excerpt purposes.  best effort.
+                    $match->{entry} = $entry->event_text;
+                    $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
+                    $match->{entry} = LJ::strip_html( $match->{entry} );
+                    $match->{entry} ||= "(this entry only contains html content)";
 
-                # we don't munge the subject... just clean it
-                $match->{subject} = $entry->subject_text || '(no subject)';
+                    # we don't munge the subject... just clean it
+                    $match->{subject} = $entry->subject_text || '(no subject)';
 
-                # also useful information that we want for later
-                $match->{url} = $entry->url;
-                $match->{tags} = $entry->tag_map;
-                $match->{security} = $entry->security;
-                $match->{security} = 'access'
-                    if $match->{security} eq 'usemask' &&
-                       $entry->allowmask == 1;
-                $match->{eventtime} = $entry->eventtime_mysql;
+                    # also useful information that we want for later
+                    $match->{url} = $entry->url;
+                    $match->{tags} = $entry->tag_map;
+                    $match->{security} = $entry->security;
+                    $match->{security} = 'access'
+                        if $match->{security} eq 'usemask' &&
+                            $entry->allowmask == 1;
+                    $match->{eventtime} = $entry->eventtime_mysql;
 
-            } else {
-                # something happened, couldn't get the entry
-                $match->{entry} = '(sorry, this entry has been deleted or is otherwise unavailable)';
-                $match->{subject} = 'Entry deleted or unavailable.';
+                } else {
+                    # something happened, couldn't get the entry
+                    $match->{entry} = '(sorry, this entry has been deleted or is otherwise unavailable)';
+                    $match->{subject} = 'Entry deleted or unavailable.';
+                }
+                push @out, $match;
+            } elsif ( $match->{jtalkid} > 0 ) {
+                my $cmt = LJ::Comment->new( $match->{journalid}, jtalkid => $match->{jtalkid} );
+                my $entry = $cmt->entry;
+                my $remote = LJ::load_userid( $remoteid );
+
+                # check for validity and for security
+                # we filtered by security earlier, but there's a chance it was changed
+                # but not yet indexed
+                if ( $entry && $entry->valid && $entry->visible_to( $remote ) &&
+                        $cmt && $cmt->valid && $cmt->visible_to( $remote ) ) {
+                    # use text only version of event for excerpt purposes.  best effort.
+                    $match->{entry} = $cmt->body_text;
+                    $match->{entry} ||= "(this comment only contains html content)";
+
+                    # we don't munge the subject... just clean it
+                    $match->{subject} = $cmt->subject_text || '(no subject)';
+
+                    # also useful information that we want for later
+                    $match->{url} = $cmt->url;
+                    $match->{security} = $entry->security;
+                    $match->{security} = 'access'
+                        if $match->{security} eq 'usemask' &&
+                            $entry->allowmask == 1;
+                    $match->{eventtime} = $cmt->{datepost};
+
+                } else {
+                    # something happened, couldn't get the comment
+                    $match->{entry} = '(sorry, this coment has been deleted or is otherwise unavailable)';
+                    $match->{subject} = 'Comment deleted or unavailable.';
+                }
+                push @out, $match;
             }
-            push @out, $match;
         }
 
-        # FIXME: this should use some other index name than 'test1' heh, and we should probably
-        # try to figure out the language of the journal being searched (or the searcher?) and use
-        # an appropriate stemming library?  (future expansion opportunity)
-        my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1stemmed', $query, {} ) || [];
-        my $subj = $sx->BuildExcerpts( [ map { $_->{subject} } @out ], 'dw1stemmed', $query, {} ) || [];
+        # FIXME: We are using English stemming in this index. We could try to build separate
+        # stemmed indices for other languages, if we want.
+        my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1delta', $query, {} ) || [];
+        my $subj = $sx->BuildExcerpts( [ map { $_->{subject} } @out ], 'dw1delta', $query, {} ) || [];
 
         # if we have a matching number of excerpts to events, then we can determine
         # which one goes with which post.

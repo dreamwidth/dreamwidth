@@ -689,7 +689,7 @@ entryform.comment.settings.default5=Journal Default
 
 entryform.comment.settings.nocomments=Disabled
 
-entryform.comment.settings.nocomments.maintainer=Disabled by maintainer
+entryform.comment.settings.nocomments.admin=Disabled by administrator
 
 entryform.comment.settings.noemail=Don't Email
 
@@ -2044,6 +2044,8 @@ menunav.explore.sitesearch=Site and Journal Search
 
 menunav.organize=Organize
 
+menunav.organize.beta=Test Beta Features
+
 menunav.organize.customizestyle=Customize Style
 
 menunav.organize.importcontent=Import Content
@@ -2352,6 +2354,10 @@ protocol.parseerror=Your entry has invalid HTML and cannot be displayed properly
 
 protocol.readonly=Your account is temporarily in read-only mode.  Some actions won't work for a few minutes.
 
+random.retry.community=We couldn't find a random community. <a [[aopts]]>Try again</a>?
+
+random.retry.personal=We couldn't find a random journal. <a [[aopts]]>Try again</a>?
+
 rename.error.invalidaccounttype=Only personal journals can own rename tokens.
 
 rename.error.invalidfrom=Tried to rename an invalid journal.
@@ -2634,6 +2640,12 @@ setting.display.journalentrystyle.option=Show my journal's entry pages in my cho
 
 setting.display.journalentrystyle.option.comm=Show this community's entry pages in its chosen style instead of the site layout
 
+setting.display.journaliconstyle.label=Journal Icons Style
+
+setting.display.journaliconstyle.note=Note: this setting affects everyone who views your journal who has not chosen a different Icons View Style.
+
+setting.display.journaliconstyle.option=Show my journal's icons pages in my chosen style instead of the site layout
+
 setting.display.logins.label=Logins
 
 setting.display.logins.option=Manage login sessions
@@ -2661,6 +2673,10 @@ setting.display.username.option.openidusername=(internal username: [[user]])
 setting.display.viewentrystyle.label=Entry View Style
 
 setting.display.viewentrystyle.option=When viewing entry pages (including yours), use this style:
+
+setting.display.viewiconstyle.label=Icons View Style
+
+setting.display.viewiconstyle.option=When viewing icons pages (including yours), use this style:
 
 setting.display.viewjournalstyle.label=Journal View Style
 
@@ -3928,7 +3944,7 @@ talk.comments.counted=[[replycount]] [[?replycount|comment|comments]]
 
 talk.comments.counted.screened=[[replycount]] visible | [[screenedcount]] screened [[?screenedcount|comment|comments]]
 
-talk.comments.disabled_maintainer=Comments disabled by a maintainer of this community
+talk.comments.disabled_admin=Comments disabled by an administrator of this community
 
 talk.commentsread=Read comments
 
@@ -4440,6 +4456,20 @@ Currently beta-testing the new JS behavior on journals.
 
 widget.betafeature.journaljquery.title=New JS on Journals
 
+widget.betafeature.journaljquery_optout.on<<
+Start using the new scripting behavior on journals.
+
+.
+
+widget.betafeature.journaljquery_optout.off<<
+<p>We're currently in the last stages of testing the new scripting behavior on journals, so you might notice that some things have changed.</p>
+
+<p>If you choose to stop using the new JS behavior, please leave a comment in <?ljuser dw_beta ljuser?>. Let us know why, so we can fix it before we switch over permanently.</p>
+
+.
+
+widget.betafeature.journaljquery_optout.title=New JS on Journals
+
 widget.betafeature.s2comments.off<<
 <p>Activate the testing version of the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
 
@@ -4581,7 +4611,7 @@ widget.createaccountentercode.code=Code:
 
 widget.createaccountentercode.comm=If you'd like to <a [[aopts]]>create a community</a> instead, you don't need an account creation code.
 
-widget.createaccountentercode.comm.loggedout=You should create or log into a personal account to be the maintainer. If you don't have a personal account yet, you will need a code to create that account, but you don't need one for the community itself.
+widget.createaccountentercode.comm.loggedout2=You should create or log into a personal account to be the administrator. If you don't have a personal account yet, you will need a code to create that account, but you don't need one for the community itself.
 
 widget.createaccountentercode.error.invalidcode=Invite code is not valid or has already been used.
 
@@ -4751,7 +4781,9 @@ widget.importchoosedata.btn.continue=Continue &rarr;
 
 widget.importchoosedata.error.noitemsselected=You did not select any content to import.
 
-widget.importchoosedata.header=What would you like to import?
+widget.importchoosedata.header2=Choose Imports
+
+widget.importchoosedata.header.fixup=Adjust Imports
 
 widget.importchoosedata.item.lj_bio.desc=This includes your basic info, bio, and interests.
 
@@ -4759,7 +4791,7 @@ widget.importchoosedata.item.lj_comments.desc=Imports <em>all</em> comments on y
 
 widget.importchoosedata.item.lj_entries.desc=Imports <em>all</em> your journal entries, whether they're friends-only, private or public. This will automatically import your tags and custom security groups.
 
-widget.importchoosedata.item.lj_entries_remap_icon.desc=Updates icons on previously imported entries. Has no effect for new imports. Reimports your journal entries, your tags, and your custom security groups.
+widget.importchoosedata.item.lj_entries_remap_icon.desc=Update icons on previously-imported entries. Only necessary if you had more icons on the other site than icon slots on Dreamwidth during your last import. This reimports your journal entries, your tags, and your custom security groups.
 
 widget.importchoosedata.item.lj_friendgroups.desc=Imports your friend groups as [[sitename]] access filters.
 
@@ -5037,7 +5069,7 @@ widget.navstripchooser.option.color.control_strip_fgcolor=Text color:
 
 widget.navstripchooser.option.color.control_strip_linkcolor=Link color:
 
-widget.navstripchooser.option.color.custom=Custom colors
+widget.navstripchooser.option.color.custom=Use custom colors on this journal.
 
 widget.navstripchooser.option.color.dark=Dark gray gradient
 

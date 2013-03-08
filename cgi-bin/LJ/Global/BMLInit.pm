@@ -30,13 +30,13 @@ BML::set_config( "CookieDomain" => $LJ::COOKIE_DOMAIN );
 BML::set_config( "CookiePath"   => "/" );
 
 BML::register_hook("startup", sub {
-    my $r = BML::get_request();
-    my $uri = "bml" . $r->uri;
+    my $apache_r = BML::get_request();
+    my $uri = "bml" . $apache_r->uri;
     unless ($uri =~ s/\.bml$//) {
         $uri .= ".index";
     }
     $uri =~ s!/!.!g;
-    $r->notes->{"codepath"} = $uri;
+    $apache_r->notes->{"codepath"} = $uri;
 });
 
 BML::register_hook("codeerror", sub {

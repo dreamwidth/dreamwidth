@@ -170,7 +170,7 @@ propgroup Text {
     property use text_post_comment_friends;
 
         set text_permalink = "permalink";
-        set text_stickyentry_subject = "Sticky: ";
+        set text_stickyentry_subject = "Sticky:";
         set text_post_comment = "reply";
         set text_post_comment_friends = "reply";
 

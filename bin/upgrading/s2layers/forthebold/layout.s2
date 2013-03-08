@@ -20,6 +20,7 @@ set custom_colors_template = "%%new%% .entry .userpic img {
     border: 7.5px solid %%background%%;
     padding: 7.5px;
     }";
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -137,7 +138,7 @@ function print_stylesheet () {
 
 """;
 
-/* For the Bold 
+/* For the Bold
 /* by timeasmymeasure
 ******************************/
 
@@ -214,7 +215,7 @@ ol {
 
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child {
-    padding: 2px 10px;
+    padding: 5px;
     }
 
 .two-columns #tertiary > .inner:first-child {
@@ -283,7 +284,7 @@ h2#pagetitle {
     border: none;
     font-weight: lighter;
     margin: 0;
-    padding: 0;
+    padding: 3px;
     text-transform: uppercase;
     }
 
@@ -493,7 +494,7 @@ table.month {
 
 table.month td,
 table.month th {
-    border: 1px solid $*color_entry_date; 
+    border: 1px solid $*color_entry_date;
     height: auto;
     padding: 0;
     }
@@ -630,8 +631,9 @@ h3.day-date {
 h2.module-header {
     border-bottom: 1px solid $*color_module_title_border;
     font-weight: lighter;
-    margin: 0 0 5px;
+    margin: 5px 0;
     text-transform: uppercase;
+    padding: 5px;
     }
 
 h2.module-header a,
@@ -763,68 +765,31 @@ ul.userlite-interaction-links.icon-links li {
 /* Contextual Pop-ups
 ******************************/
 
-div.ContextualPopup {
-    margin: auto;
-    text-align: left;
-    }
-
-div.ContextualPopup .Content {
-    background-color: $*color_entry_background;
-    border: none;
-    color: $*color_entry_text;
-    font-weight: lighter;
-    margin: auto;
-    }
-
-div.ContextualPopup div.Inner {
-    background-color: $*color_entry_background;
-    border: 1px solid $*color_entry_text;
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: 1px solid $*color_entry_text !important;
+    border-radius: 0;
     color: $*color_entry_text;
     font-weight: lighter;
     }
 
-div.ContextualPopup .Userpic {
+.ContextualPopup a,
+.ContextualPopup a:visited {
+    font-weight: lighter;
+    text-decoration: none ;
+    }
+
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
+
+.ContextualPopup .Userpic {
     background-color: $*color_entry_text;
-    border: 0;
     margin: 5px;
-    padding: 5px;
     }
 
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:visited {
-    font-weight: lighter;
-    text-decoration: none !important; /* !important needed */
-    }
-
-div.ContextualPopup div.Inner a { color: $*color_entry_link; }
-div.ContextualPopup div.Inner a:visited { color: $*color_entry_link_visited; }
-div.ContextualPopup div.Inner a:hover { color: $*color_entry_link_hover; }
-div.ContextualPopup div.Inner a:active { color: $*color_entry_link_active; }
-
-/* Navigation Strip
-******************************/
-
-table#lj_controlstrip td {
-    background-color: $*color_entry_background;
-    color: $*color_entry_text;
-    border: none;
-    }
-
-#lj_controlstrip_statustext,
-#lj_controlstrip .ljuser a b {
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip input {
-    background-color: $*color_calendar_background;
-    border: 1px solid $*color_calendar_text;
-    color: $*color_calendar_text;
-    }
-
-#lj_controlstrip a { color: $*color_entry_link; }
-#lj_controlstrip a:visited { color: $*color_entry_link_visited; }
-#lj_controlstrip a:hover { color: $*color_entry_link_hover; }
-#lj_controlstrip a:active { color: $*color_entry_link_active; }
+.ContextualPopup .Userpic img { padding: 5px; }
 
 """;
 }

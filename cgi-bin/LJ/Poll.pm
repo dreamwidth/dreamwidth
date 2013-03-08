@@ -950,13 +950,13 @@ sub render {
         $ret .= LJ::html_hidden('id', $pollid);    #for the ajax request
     }
 
-    $ret .= "<div class='poll-title'><b><a href='$LJ::SITEROOT/poll/?id=$pollid'>" . LJ::Lang::ml('poll.pollnum', { 'num' => $pollid }) . "</a></b></div>";
+    $ret .= "<div class='poll-title'><b><a href='$LJ::SITEROOT/poll/?id=$pollid'>" . LJ::Lang::ml('poll.pollnum', { 'num' => $pollid }) . "</a></b>";
     if ($self->name) {
         my $name = $self->name;
         LJ::Poll->clean_poll(\$name);
-        $ret .= " <i>$name</i></div>\n";
+        $ret .= " <i>$name</i>\n";
     }
-    $ret .= "<div class='poll-status'>";
+    $ret .= "</div><div class='poll-status'>";
     $ret .= "<span style='font-family: monospace; font-weight: bold; font-size: 1.2em;'>" .
             LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
         if ($self->is_closed);

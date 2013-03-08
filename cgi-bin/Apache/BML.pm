@@ -66,7 +66,7 @@ use vars qw(%CodeBlockOpts);
 my ($SchemeData, $SchemeFlags);
 
 # keyed by domain:
-my $ML_SCOPE;              # generally the $r->uri, auto set on each request (unless overridden)
+my $ML_SCOPE;              # generally the $apache_r->uri, auto set on each request (unless overridden)
 my (%SchemeData, %SchemeFlags); # domain -> scheme -> key -> scalars (data has {s} blocks expanded)
 
 # safely global:
@@ -98,22 +98,22 @@ tie %BML::COOKIE, 'BML::Cookie';
 sub handler
 {
     # get request and store for later
-    my $r = shift;
-    $Apache::BML::r = $r;
+    my $apache_r = shift;
+    $Apache::BML::r = $apache_r;
 
     # determine what file we're supposed to work with:
-    my $file = Apache::BML::decide_file_and_stat($r);
+    my $file = Apache::BML::decide_file_and_stat($apache_r);
 
     # $file was stat'd by decide_file_and_stat above, so use '_'
     # FIXME: ModPerl: this is not true in ModPerl 2.0, so we are using $file.
     unless (-e $file) {
-        $r->log_error("File does not exist: $file");
+        $apache_r->log_error("File does not exist: $file");
         return NOT_FOUND;
     }
 
     # second time we can use _ though...
     unless (-r _) {
-        $r->log_error("File permissions deny access: $file");
+        $apache_r->log_error("File permissions deny access: $file");
         return FORBIDDEN;
     }
 
@@ -124,14 +124,14 @@ sub handler
     return FORBIDDEN if $file =~ /\b_config/;
 
     # create new request
-    my $req = Apache::BML::initialize_cur_req($r, $file);
+    my $req = Apache::BML::initialize_cur_req($apache_r, $file);
 
     # setup env
     my $env = $req->{env};
 
     # walk up directories, looking for _config.bml files, populating env
     my $dir = $file;
-    my $docroot = $r->document_root(); $docroot =~ s!/$!!;
+    my $docroot = $apache_r->document_root(); $docroot =~ s!/$!!;
     my @dirconfs;
     my %confwant;  # file -> 1, if applicable config
 
@@ -174,7 +174,7 @@ sub handler
     # wrapped in eval because Apache::FakeRequest doesn't have
     # pnotes support (as of 2004-04-26 at least)
     eval {
-        if (my $or = $r->pnotes('BMLEnvOverride')) {
+        if (my $or = $apache_r->pnotes('BMLEnvOverride')) {
             while (my ($k, $v) = each %$or) {
                 $env->{$k} = $v;
             }
@@ -190,9 +190,9 @@ sub handler
     }
 
     if (exists $env->{'HOOK-force_redirect'}) {
-        my $redirect_page = eval { $env->{'HOOK-force_redirect'}->($r->uri); };
+        my $redirect_page = eval { $env->{'HOOK-force_redirect'}->($apache_r->uri); };
         if (defined $redirect_page) {
-            $r->headers_out->{Location} = $redirect_page;
+            $apache_r->headers_out->{Location} = $redirect_page;
             $Apache::BML::r = undef;  # no longer valid
             return REDIRECT;
         }
@@ -234,7 +234,7 @@ sub handler
 
     # Read the source of the file
     unless (open F, $file) {
-        $r->log_error("Couldn't open $file for reading: $!");
+        $apache_r->log_error("Couldn't open $file for reading: $!");
         $Apache::BML::r = undef;  # no longer valid
         return SERVER_ERROR;
     }
@@ -263,7 +263,7 @@ sub handler
     *BMLCodeBlock::ML = *BML::ML;
 
     # parse in data
-    parse_inputs( $r );
+    parse_inputs( $apache_r );
     
     %BMLCodeBlock::GET_POTENTIAL_XSS = ();
     if ($env->{MildXSSProtection}) {
@@ -279,7 +279,7 @@ sub handler
         eval {
             $env->{'HOOK-startup'}->();
         };
-        return report_error($r, "<b>Error running startup hook:</b><br />\n$@")
+        return report_error($apache_r, "<b>Error running startup hook:</b><br />\n$@")
             if $@;
     }
 
@@ -289,10 +289,10 @@ sub handler
     $BML::CODE_INIT_PERL = "";
     if ($env->{'HOOK-codeblock_init_perl'}) {
         $BML::CODE_INIT_PERL = eval { $env->{'HOOK-codeblock_init_perl'}->(); };
-        return report_error($r, "<b>Error running codeblock_init_perl hook:</b><br />\n$@") if $@;
+        return report_error($apache_r, "<b>Error running codeblock_init_perl hook:</b><br />\n$@") if $@;
     }
 
-    my $scheme = $r->notes->{'bml_use_scheme'} ||
+    my $scheme = $apache_r->notes->{'bml_use_scheme'} ||
         $env->{'ForceScheme'} ||
         $BMLCodeBlock::GET{skin} ||
         $BMLCodeBlock::GET{'usescheme'} ||
@@ -307,7 +307,7 @@ sub handler
         $default_scheme_override = eval {
             $env->{'HOOK-default_scheme_override'}->( $scheme || DW::SiteScheme->default );
         };
-        return report_error($r, "<b>Error running scheme override hook:</b><br />\n$@") if $@;
+        return report_error($apache_r, "<b>Error running scheme override hook:</b><br />\n$@") if $@;
     }
 
     $scheme ||= $default_scheme_override || DW::SiteScheme->default;
@@ -327,8 +327,8 @@ sub handler
         BML::set_scheme($scheme);
     }
 
-    my $uri = $r->uri;
-    my $path_info = $r->path_info;
+    my $uri = $apache_r->uri;
+    my $path_info = $apache_r->path_info;
     my $lang_scope = $uri;
     $lang_scope =~ s/$path_info$//;
     BML::set_language_scope($lang_scope);
@@ -340,7 +340,7 @@ sub handler
 
     if ($env->{'HOOK-before_decode'}) {
         eval { $env->{'HOOK-before_decode'}->(); };
-        return report_error($r, "<b>Error running before_decode hook:</b><br />\n$@") if $@;
+        return report_error($apache_r, "<b>Error running before_decode hook:</b><br />\n$@") if $@;
     }
 
     bml_decode($req, \$bmlsource, \$html, { DO_CODE => $env->{'AllowCode'} })
@@ -349,15 +349,15 @@ sub handler
     # force out any cookies we have set
     BML::send_cookies($req);
 
-    $r->pool->cleanup_register(\&reset_codeblock) if $req->{'clean_package'};
+    $apache_r->pool->cleanup_register(\&reset_codeblock) if $req->{'clean_package'};
 
     # internal redirect, if set previously
-    if ( $r->notes->{internal_redir} ) {
-        my $int_redir = DW::Routing->call( uri => $r->notes->{internal_redir} );
+    if ( $apache_r->notes->{internal_redir} ) {
+        my $int_redir = DW::Routing->call( uri => $apache_r->notes->{internal_redir} );
         if ( defined $int_redir ) {
             # we got a match; remove the internal_redir setting, clear the
             # request cache, and return DECLINED.
-            $r->notes->{internal_redir} = undef;
+            $apache_r->notes->{internal_redir} = undef;
             LJ::start_request();
             return DECLINED;
         }
@@ -365,7 +365,7 @@ sub handler
 
     # redirect, if set previously
     if ($req->{'location'}) {
-        $r->headers_out->{Location} = $req->{'location'};
+        $apache_r->headers_out->{Location} = $req->{'location'};
         $Apache::BML::r = undef;  # no longer valid
         return REDIRECT;
     }
@@ -379,7 +379,7 @@ sub handler
     }
     $etag = '"' . $etag . '"' if defined $etag;
 
-    my $ifnonematch = $r->headers_in->{"If-None-Match"};
+    my $ifnonematch = $apache_r->headers_in->{"If-None-Match"};
     if (defined $ifnonematch && defined $etag && $etag eq $ifnonematch) {
         $Apache::BML::r = undef;  # no longer valid
         return HTTP_NOT_MODIFIED;
@@ -389,7 +389,7 @@ sub handler
     unless ($env->{'NoHeaders'}) {
         eval {
             # this will fail while using Apache::FakeRequest, but that's okay.
-            $r->content_languages([ $rootlang ]);
+            $apache_r->content_languages([ $rootlang ]);
         };
     }
 
@@ -401,7 +401,7 @@ sub handler
 
     unless ($env->{'NoHeaders'})
     {
-        my $ims = $r->headers_in->{"If-Modified-Since"};
+        my $ims = $apache_r->headers_in->{"If-Modified-Since"};
         if ($ims && ! $env->{'NoCache'} &&
             $ims eq $modtime_http)
         {
@@ -409,40 +409,40 @@ sub handler
             return HTTP_NOT_MODIFIED;
         }
 
-        $r->content_type($content_type);
+        $apache_r->content_type($content_type);
 
         if ($env->{'NoCache'}) {
-            $r->headers_out->{"Cache-Control"} = "no-cache";
-            $r->no_cache(1);
+            $apache_r->headers_out->{"Cache-Control"} = "no-cache";
+            $apache_r->no_cache(1);
         }
 
-        $r->headers_out->{"Last-Modified"} = $modtime_http
+        $apache_r->headers_out->{"Last-Modified"} = $modtime_http
             if $env->{'Static'} || $req->{'want_last_modified'};
 
-        $r->headers_out->{"Cache-Control"} = "private, proxy-revalidate";
-        $r->headers_out->{"ETag"} = $etag if defined $etag;
+        $apache_r->headers_out->{"Cache-Control"} = "private, proxy-revalidate";
+        $apache_r->headers_out->{"ETag"} = $etag if defined $etag;
 
         # gzip encoding
         my $do_gzip = $env->{'DoGZIP'} && $Apache::BML::HAVE_ZLIB;
         $do_gzip = 0 if $do_gzip && $content_type !~ m!^text/html!;
-        $do_gzip = 0 if $do_gzip && $r->headers_in->{"Accept-Encoding"} !~ /gzip/;
+        $do_gzip = 0 if $do_gzip && $apache_r->headers_in->{"Accept-Encoding"} !~ /gzip/;
         my $length = length($html);
         $do_gzip = 0 if $length < 500;
         if ($do_gzip) {
             my $pre_len = $length;
-            $r->notes->{"bytes_pregzip"} = $pre_len;
+            $apache_r->notes->{"bytes_pregzip"} = $pre_len;
             $html = Compress::Zlib::memGzip($html);
             $length = length($html);
-            $r->headers_out->{'Content-Encoding'} = 'gzip';
-            $r->headers_out->{'Vary'} = 'Accept-Encoding';
+            $apache_r->headers_out->{'Content-Encoding'} = 'gzip';
+            $apache_r->headers_out->{'Vary'} = 'Accept-Encoding';
         }
-        $r->headers_out->{'Content-length'} = $length;
+        $apache_r->headers_out->{'Content-length'} = $length;
 
         # FIXME: removed in ModPerl 2.0 is that okay?  replacement function?
-        #$r->send_http_header();
+        #$apache_r->send_http_header();
     }
 
-    $r->print($html) unless $env->{'NoContent'} || $r->header_only;
+    $apache_r->print($html) unless $env->{'NoContent'} || $apache_r->header_only;
 
     $Apache::BML::r = undef;  # no longer valid
     return OK;
@@ -450,20 +450,20 @@ sub handler
 
 sub decide_file_and_stat
 {
-    my $r = shift;
+    my $apache_r = shift;
     my $file;
-    if (ref $r eq "Apache::FakeRequest") {
+    if (ref $apache_r eq "Apache::FakeRequest") {
         # for testing.  FakeRequest's 'notes' method is busted, always returning
         # true.
-        $file = $r->filename;
+        $file = $apache_r->filename;
         stat($file);
-    } elsif ($file = $r->notes->{"bml_filename"}) {
+    } elsif ($file = $apache_r->notes->{"bml_filename"}) {
         # when another handler needs to invoke BML directly
         stat($file);
     } else {
-        # normal case - $r->filename is already stat'd
-        $file = $r->filename;
-        $r->finfo;
+        # normal case - $apache_r->filename is already stat'd
+        $file = $apache_r->filename;
+        $apache_r->finfo;
     }
 
     return $file;
@@ -476,12 +476,12 @@ sub is_initialized
 
 sub initialize_cur_req
 {
-    my $r = shift;
+    my $apache_r = shift;
     my $file = shift;
 
     my $req = $cur_req = fields::new('BML::Request');
-    $req->{file} = $file || Apache::BML::decide_file_and_stat($r);
-    $req->{r}    = $r;
+    $req->{file} = $file || Apache::BML::decide_file_and_stat($apache_r);
+    $req->{r}    = $apache_r;
     $req->{BlockStack} = [""];
     $req->{scratch}    = {};  # _CODE blocks can play
     $req->{cookies} = {};
@@ -496,13 +496,13 @@ sub clear_cur_req {
 
 sub report_error
 {
-    my $r = shift;
+    my $apache_r = shift;
     my $err = shift;
 
-    $r->content_type("text/html");
+    $apache_r->content_type("text/html");
     # FIXME: ModPerl: doesn't seem to be used/required anymore
-    #$r->send_http_header();
-    $r->print($err);
+    #$apache_r->send_http_header();
+    $apache_r->print($err);
 
     return OK;  # TODO: something else?
 }
@@ -528,10 +528,10 @@ sub load_conffile
     my ($volume,$dirs,$file) = File::Spec->splitpath($ffile);
 
     # see which configs are denied
-    my $r = $Apache::BML::r;
-    if ($r->dir_config("BML_denyconfig") && ! %DenyConfig) {
-        my $docroot = $r->document_root();
-        my $deny = $r->dir_config("BML_denyconfig");
+    my $apache_r = $Apache::BML::r;
+    if ($apache_r->dir_config("BML_denyconfig") && ! %DenyConfig) {
+        my $docroot = $apache_r->document_root();
+        my $deny = $apache_r->dir_config("BML_denyconfig");
         $deny =~ s/^\s+//; $deny =~ s/\s+$//;
         my @denydir = split(/\s*\,\s*/, $deny);
         foreach $deny (@denydir) {
@@ -584,7 +584,7 @@ sub load_conffile
             foreach my $k (qw(ExtraConfig)) {
                 next unless exists $sconf->{$k};
                 $sconf->{$k} =~ s/\$(\w+)/$1 eq "HTTP_HOST" ? clean_http_host() : $ENV{$1}/eg;
-                $sconf->{$k} = [ map { dir_rel2abs($dirs, $_) } grep { $_ }
+                $sconf->{$k} = [ map { LJ::resolve_file( $_ ) } grep { $_ }
                                  split(/\s*,\s*/, $sconf->{$k}) ];
             }
 
@@ -666,13 +666,15 @@ sub deleteglob
     {
         undef $entry;
     }
-    if ($key !~ /^_</ and defined @entry)
+    if ($key !~ /^_</ and @entry)
     {
         undef @entry;
     }
-    if ($key ne "main::" && $key ne "DB::" && defined %entry
-        && $key !~ /::$/
-        && $key !~ /^_</ && $val ne "*BML::COOKIE")
+
+    if ( $key eq "ML" ||
+        ( $key ne "main::" && $key ne "DB::" && scalar(keys %entry)
+            && $key !~ /::$/
+            && $key !~ /^_</ && $val ne "*BML::COOKIE" ) )
     {
         undef %entry;
     }
@@ -1292,23 +1294,23 @@ sub parse_inputs {
 
     # we expect as input a typical request object, we will upgrade it to a proper
     # request object
-    my $r = Apache2::Request->new( shift );
+    my $apache_r = Apache2::Request->new( shift );
 
     # dig out the POST stuff in the new ModPerl 2 way, note that we have to do this
     # to get multiple parameters in the \0 separated way we expect
     # Additionally: certain things (editpics.bml, for one) expect %POST to be empty
     # for multipart POSTs, so don't populate if the content type is 'multipart/form-data'
     my %posts;
-    unless ($r->headers_in()->get("Content-Type") =~ m!^multipart/form-data!) {
-        foreach my $arg ( $r->body ) {
-            $posts{$arg} = join( "\0", $r->body( $arg ) )
+    unless ($apache_r->headers_in()->get("Content-Type") =~ m!^multipart/form-data!) {
+        foreach my $arg ( $apache_r->body ) {
+            $posts{$arg} = join( "\0", $apache_r->body( $arg ) )
                 if ! exists $posts{$arg};
         }
     }
 
     # and now the GET stuff
     my %gets;
-    foreach my $pair ( split /&/, $r->args ) {
+    foreach my $pair ( split /&/, $apache_r->args ) {
         my ($name, $value) = split /=/, $pair;
 
         $value =~ tr/+/ /;
@@ -1326,7 +1328,7 @@ sub parse_inputs {
     %BMLCodeBlock::FORM = ();  # whatever request method is
     my %input_target = ( GET  => [ \%BMLCodeBlock::GET  ],
                          POST => [ \%BMLCodeBlock::POST ], );
-    push @{$input_target{$r->method}}, \%BMLCodeBlock::FORM;
+    push @{$input_target{$apache_r->method}}, \%BMLCodeBlock::FORM;
     foreach my $id ([ [ %gets  ] => $input_target{'GET'}  ],
                     [ [ %posts ] => $input_target{'POST'} ])
     {
@@ -1494,10 +1496,10 @@ sub get_template_def
 sub parse_multipart
 {
     my ($dest, $error, $max_size) = @_;
-    my $r = $Apache::BML::r;
+    my $apache_r = $Apache::BML::r;
     my $err = sub { $$error = $_[0]; return 0; };
 
-    my $size = $r->headers_in->{"Content-length"};
+    my $size = $apache_r->headers_in->{"Content-length"};
     unless ($size) {
         return $err->("No content-length header: can't parse");
     }
@@ -1506,13 +1508,13 @@ sub parse_multipart
     }
 
     my $sep;
-    unless ($r->headers_in->{"Content-Type"} =~ m!^multipart/form-data;\s*boundary=(\S+)!) {
+    unless ($apache_r->headers_in->{"Content-Type"} =~ m!^multipart/form-data;\s*boundary=(\S+)!) {
         return $err->("[unknowntype] Unknown content type");
     }
     $sep = $1;
 
     my $content;
-    $r->read($content, $size);
+    $apache_r->read($content, $size);
     my @lines = split(/\r\n/, $content);
     my $line = shift @lines;
     return $err->("[parse] Error parsing upload") unless $line eq "--$sep";
@@ -1543,7 +1545,7 @@ sub parse_multipart
 # FIXME: document the hooks
 sub parse_multipart_interactive {
     my ($errref, $hooks) = @_;
-    my $r = $Apache::BML::r;
+    my $apache_r = $Apache::BML::r;
 
     # subref to set $@ and $$errref, then return false
     my $err = sub { $$errref = $@ = $_[0], return 0 };
@@ -1561,14 +1563,14 @@ sub parse_multipart_interactive {
     };
 
     # size hook is optional
-    my $size = $r->headers_in->{"Content-length"};
+    my $size = $apache_r->headers_in->{"Content-length"};
     if ($hooks->{size}) {
         $run_hook->('size', $size)
             or return 0;
     }
 
-    unless ($r->headers_in->{"Content-Type"} =~ m!^multipart/form-data;\s*boundary=(\S+)!) {
-        return $err->("No MIME boundary.  Bogus Content-type? " . $r->headers_in->{"Content-Type"});
+    unless ($apache_r->headers_in->{"Content-Type"} =~ m!^multipart/form-data;\s*boundary=(\S+)!) {
+        return $err->("No MIME boundary.  Bogus Content-type? " . $apache_r->headers_in->{"Content-Type"});
     }
     my $sep = "--$1";
     my $seplen = length($sep) + 2;  # plus \r\n
@@ -1588,7 +1590,7 @@ sub parse_multipart_interactive {
     while (1) {
         my $read = -1;
         if ($to_read) {
-            $read = $r->read($window,
+            $read = $apache_r->read($window,
                              $to_read < $max_read ? $to_read : $max_read,
                              length($window));
             $to_read -= $read;
@@ -1868,67 +1870,67 @@ sub get_request
     # callers sometimes use %BML::COOKIE, so $Apache::BML::r isn't set.
     # the cookie FETCH below calls this function to try and use BML::get_request(),
     # else fall back to the global one (for use in profiling/debugging)
-    my $r;
+    my $apache_r;
     eval {
-        $r = Apache2::RequestUtil->request;
+        $apache_r = Apache2::RequestUtil->request;
     };
-    $r ||= $Apache::BML::r;
-    return $r;
+    $apache_r ||= $Apache::BML::r;
+    return $apache_r;
 }
 
 sub get_query_string
 {
-    my $r = BML::get_request();
-    return scalar($r->args);
+    my $apache_r = BML::get_request();
+    return scalar($apache_r->args);
 }
 
 sub get_uri
 {
-    my $r = BML::get_request();
-    return $r->uri;
+    my $apache_r = BML::get_request();
+    return $apache_r->uri;
 }
 
 sub get_hostname
 {
-    my $r = BML::get_request();
-    return $r->hostname;
+    my $apache_r = BML::get_request();
+    return $apache_r->hostname;
 }
 
 sub get_method
 {
-    my $r = BML::get_request();
-    return $r->method;
+    my $apache_r = BML::get_request();
+    return $apache_r->method;
 }
 
 sub get_path_info
 {
-    my $r = BML::get_request();
-    return $r->path_info;
+    my $apache_r = BML::get_request();
+    return $apache_r->path_info;
 }
 
 sub get_remote_ip
 {
-    my $r = BML::get_request();
-    return $r->connection()->remote_ip;
+    my $apache_r = BML::get_request();
+    return $apache_r->connection()->remote_ip;
 }
 
 sub get_remote_host
 {
-    my $r = BML::get_request();
-    return $r->connection()->remote_host;
+    my $apache_r = BML::get_request();
+    return $apache_r->connection()->remote_host;
 }
 
 sub get_remote_user
 {
-    my $r = BML::get_request();
-    return $r->connection()->user;
+    my $apache_r = BML::get_request();
+    return $apache_r->connection()->user;
 }
 
 sub get_client_header
 {
     my $hdr = shift;
-    my $r = BML::get_request();
-    return $r->headers_in->{$hdr};
+    my $apache_r = BML::get_request();
+    return $apache_r->headers_in->{$hdr};
 }
 
 # <LJFUNC>
@@ -1964,10 +1966,10 @@ sub http_response
 {
     my ($code, $msg) = @_;
 
-    my $r = $Apache::BML::r;
-    $r->status($code);
-    $r->content_type('text/html');
-    $r->print($msg);
+    my $apache_r = $Apache::BML::r;
+    $apache_r->status($code);
+    $apache_r->content_type('text/html');
+    $apache_r->print($msg);
     finish_suppress_all();
     return;
 }
@@ -2074,8 +2076,8 @@ sub set_language
 {
     my ($lang, $getter) = @_;  # getter is optional
     my BML::Request $req = $Apache::BML::cur_req;
-    my $r = BML::get_request();
-    $r->notes->{'langpref'} = $lang;
+    my $apache_r = BML::get_request();
+    $apache_r->notes->{'langpref'} = $lang;
 
     # don't rely on $req (the current BML request) being defined, as
     # we allow callers to use this interface directly from non-BML
@@ -2357,9 +2359,9 @@ sub FETCH {
     my ($t, $key) = @_;
     # we do this, and not use $Apache::BML::r directly because some non-BML
     # callers sometimes use %BML::COOKIE.
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
     unless ($BML::COOKIES_PARSED) {
-        foreach (split(/;\s+/, $r->headers_in->{"Cookie"})) {
+        foreach (split(/;\s+/, $apache_r->headers_in->{"Cookie"})) {
             next unless ($_ =~ /(.*)=(.*)/);
             my ($name, $value) = ($1, $2);
             my $dname  = BML::durl($name);

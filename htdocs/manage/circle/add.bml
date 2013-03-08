@@ -250,7 +250,7 @@ _c?>
 
     if ( $remote->can_trust( $u ) && @trust_groups || $remote->can_watch( $u ) && @content_filters ) {
         # extra add and cancel buttons
-        $body .= "<br /><br />";
+        $body .= "<br /><br /><div id='add_button_extra'>\n";
         if ($u->is_visible) {
             my $btn = ( $watched || $trusted ) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $u->display_name } );
             $body .= "<input type='submit' value=\"$btn\"> ";
@@ -264,6 +264,7 @@ _c?>
        document.write(\"<input type='button' value='$cancel_btn' onclick='history.go(-1); return false;'>\");
         \n // -->\n ";
         $body .= '</script>';
+        $body .= '</div>';
     }
 
     # trust group buttons
@@ -286,7 +287,7 @@ _c?>
     # content filter buttons
     if ( $remote->can_watch( $u ) && @content_filters ) {
         $body .= "<div class='add_watch' style='float: left; width: 45%; padding: 1em;'><?p &nbsp;<br />";
-        $body .= $u->is_syndicated ? "$ML{'.groups.reading.feed'} p?>\n" : "$ML{'.groups.reading'} p?>\n";
+        $body .= $u->is_syndicated ? "$ML{'.groups.reading.feed1'} p?>\n" : "$ML{'.groups.reading'} p?>\n";
         my @sorted_content_filters = sort { $a->{sortorder} <=> $b->{sortorder} } @content_filters;
         foreach my $filter ( @sorted_content_filters ) {
             my $ck = ( $filter->contains_userid( $u->userid ) )
@@ -566,7 +567,6 @@ _c?>
 
    } # end is_visible if statement
 
-    $body .= "<div id='add_button_bottom'>\n";
     $body .= "<br />\n <?p ";
     # Form submit buttons
     if ($u->is_visible) {
@@ -581,7 +581,7 @@ _c?>
     $body .= "<script type='text/javascript' language='Javascript'> \n <!-- \n
        document.write(\"<input type='button' value='$cancel_btn' onclick='history.go(-1); return false;'>\");
         \n // -->\n ";
-    $body .= '</script> p?></div>';
+    $body .= '</script> p?>';
 
     $body .= "</form>";
 

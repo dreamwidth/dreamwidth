@@ -157,6 +157,49 @@ set color_module_text = "#deccd5";
 set color_module_title = "#ffcaae";
 
 
+#NEWLAYER: blanket/doma
+layerinfo type = "theme";
+layerinfo name = "Dóma";
+layerinfo redist_uniq = "blanket/doma";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#e6dec6";
+set color_header_footer_border = "#d9d3b2";
+set color_page_background = "#cfc7a2";
+set color_page_border = "#d9d3b2";
+set color_page_link = "#a11f16";
+set color_page_link_active = "#a11f16";
+set color_page_link_hover = "#6e8276";
+set color_page_link_visited = "#4e5d54";
+set color_page_text = "#08070a";
+set color_page_title = "#322938";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_accent = "#44770e";
+set color_entry_background = "#e6dec6";
+set color_entry_border = "#d9d3b2";
+set color_entry_text = "#08070a";
+set color_entry_title = "#322938";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#c5bc9a";
+set color_module_border = "#d9d3b2";
+set color_module_text = "#08070a";
+set color_module_title = "#322938";
+
+
 #NEWLAYER: blanket/forest
 layerinfo type = "theme";
 layerinfo name = "Forest";
@@ -284,6 +327,47 @@ set color_module_background = "#012409";
 set color_module_border = "#0f6832";
 set color_module_text = "#000";
 set color_module_title = "#000";
+
+
+#NEWLAYER: blanket/greentomatoes
+layerinfo type = "theme";
+layerinfo name = "Green Tomatoes";
+layerinfo redist_uniq = "blanket/greentomatoes";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#f5f5f5";
+set color_header_footer_border = "#e1f0d3";
+set color_page_background = "#98c663";
+set color_page_border = "#e1f0d3";
+set color_page_link = "#2e6a06";
+set color_page_link_visited = "#0e3100";
+set color_page_text = "#1e1e1e";
+set color_page_title = "#1e1e1e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_accent = "#77af36";
+set color_entry_background = "#f5f5f5";
+set color_entry_border = "#e1f0d3";
+set color_entry_text = "#1e1e1e";
+set color_entry_title = "#1e1e1e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d3e6c1";
+set color_module_border = "#e1f0d3";
+set color_module_text = "#1e1e1e";
+set color_module_title = "#1e1e1e";
 
 
 #NEWLAYER: blanket/heartofdarkness
@@ -655,6 +739,48 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: blanket/outerrings
+layerinfo type = "theme";
+layerinfo name = "Outer Rings";
+layerinfo redist_uniq = "blanket/outerrings";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#fbfcf0";
+set color_header_footer_border = "#c3e9ca";
+set color_page_background = "#b2d5b9";
+set color_page_border = "#c3e9ca";
+set color_page_link = "#218581";
+set color_page_link_hover = "#12beb7";
+set color_page_link_visited = "#605063";
+set color_page_text = "#161616";
+set color_page_title = "#161616";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_accent = "#12beb7";
+set color_entry_background = "#fbfcf0";
+set color_entry_border = "#c3e9ca";
+set color_entry_text = "#161616";
+set color_entry_title = "#161616";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#c3e9ca";
+set color_module_border = "#c3e9ca";
+set color_module_text = "#161616";
+set color_module_title = "#161616";
+
+
 #NEWLAYER: blanket/peach
 layerinfo type = "theme";
 layerinfo name = "Peach";
@@ -694,6 +820,49 @@ set color_module_background = "#f2ebd7";
 set color_module_border = "#c7bfa6";
 set color_module_text = "#888";
 set color_module_title = "#099aaf";
+
+
+#NEWLAYER: blanket/pebbledark
+layerinfo type = "theme";
+layerinfo name = "Pebble Dark";
+layerinfo redist_uniq = "blanket/pebbledark";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#333a44";
+set color_header_footer_border = "#242930";
+set color_page_background = "#1c2026";
+set color_page_border = "#242930";
+set color_page_link = "#fd68ae";
+set color_page_link_active = "#fdd199";
+set color_page_link_hover = "#fdbf68";
+set color_page_link_visited = "#fd99c8";
+set color_page_text = "#f3f5f8";
+set color_page_title = "#f3f5f8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_accent = "#FDD8AD";
+set color_entry_background = "#333a44";
+set color_entry_border = "#242930";
+set color_entry_text = "#f3f5f8";
+set color_entry_title = "#f3f5f8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2b313a";
+set color_module_border = "#242930";
+set color_module_text = "#f3f5f8";
+set color_module_title = "#f3f5f8";
 
 
 #NEWLAYER: blanket/pigeonblue
@@ -1309,6 +1478,49 @@ set color_module_text = "#fdffff";
 set color_module_title = "#c8bdc1";
 
 
+#NEWLAYER: blanket/wetsand
+layerinfo type = "theme";
+layerinfo name = "Wet Sand";
+layerinfo redist_uniq = "blanket/wetsand";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#eee";
+set color_header_footer_border = "#c7a066";
+set color_page_background = "#a98051";
+set color_page_border = "#c7a066";
+set color_page_link = "#2f965f";
+set color_page_link_active = "#2f965f";
+set color_page_link_hover = "#38b475";
+set color_page_link_visited = "#2f8f96";
+set color_page_text = "#282828";
+set color_page_title = "#4b3221";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_accent = "#2f5f96";
+set color_entry_background = "#eee";
+set color_entry_border = "#c7a066";
+set color_entry_text = "#282828";
+set color_entry_title = "#4b3221";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d1bb9f";
+set color_module_border = "#c7a066";
+set color_module_text = "#282828";
+set color_module_title = "#4b3221";
+
+
 #NEWLAYER: blanket/wolfhood
 layerinfo type = "theme";
 layerinfo name = "Wolfhood";
@@ -1349,4 +1561,3 @@ set color_module_background = "#b0bcbf";
 set color_module_border = "#a3abad";
 set color_module_text = "#333";
 set color_module_title = "#0e0e2f";
-

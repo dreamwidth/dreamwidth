@@ -40,7 +40,7 @@ sub render_body {
         ? $u->prop( 'control_strip_color' )
         : "dark";
 
-    my ($theme, @props, %prop_is_used, %colors_values, %bgcolor_values, %fgcolor_values, %bordercolor_values, %linkcolor_values);
+    my ($theme, @props, %prop_is_used, %colors_values, %bgcolor_values, %fgcolor_values, %bordercolor_values, %linkcolor_values, $color_custom);
     if ($u->prop('stylesys') == 2) {
         $theme = LJ::Customize->get_current_theme($u);
         @props = S2::get_properties($theme->layoutid);
@@ -55,12 +55,9 @@ sub render_body {
         %bordercolor_values = LJ::Customize->get_s2_prop_values("control_strip_bordercolor", $u, $style);
         %linkcolor_values = LJ::Customize->get_s2_prop_values("control_strip_linkcolor", $u, $style);
 
+        $color_custom = 0;
         unless ($colors_values{override} eq "off") {
-            $color_selected = "layout_default";
-            unless ($bgcolor_values{override} eq "" && $fgcolor_values{override} eq "" &&
-                    $bordercolor_values{override} eq "" && $linkcolor_values{override} eq "") {
-                $color_selected = "custom";
-            }
+            $color_custom = 1;
         }
     }
 
@@ -77,7 +74,7 @@ sub render_body {
         type => "radio",
         name => "control_strip_color",
         id => "control_strip_color_light",
-        value => "light", 
+        value => "light",
         selected => $color_selected eq "light" ? 1 : 0,
     ) . "</div>";
     $ret .= "<div><label for='control_strip_color_light' class='color-light'><strong>" . $class->ml('widget.navstripchooser.option.color.light') . "</strong></label></div>";
@@ -86,33 +83,14 @@ sub render_body {
         my $no_gradient = $colors_values{override} eq "on_no_gradient" ? 1 : 0;
 
         $ret .= "<div class='option'>" . $class->html_check(
-            type => "radio",
-            name => "control_strip_color",
-            id => "control_strip_color_layout_default",
-            value => "layout_default",
-            selected => $color_selected eq "layout_default" ? 1 : 0,
-        ) . "</div>";
-        $ret .= "<div><label for='control_strip_color_layout_default'><strong>" . $class->ml('widget.navstripchooser.option.color.layout_default') . "</strong></label><br />";
-
-        $ret .= "<div id='layout_default_subdiv'>";
-        $ret .= $class->html_check(
-            name => "control_strip_no_gradient_default",
-            id => "control_strip_gradient_default",
-            selected => $no_gradient,
-        );
-        $ret .= " <label for='control_strip_gradient_default'>" . $class->ml('widget.navstripchooser.option.color.no_gradient') . "</label></div>";
-        $ret .= "</div>";
-
-        $ret .= "<div class='option'>" . $class->html_check(
-            type => "radio",
-            name => "control_strip_color",
+            name => "control_strip_custom",
             id => "control_strip_color_custom",
             value => "custom",
-            selected => $color_selected eq "custom" ? 1 : 0,
+            selected => $color_custom,
         ) . "</div>";
-        $ret .= "<div><label for='control_strip_color_custom'><strong>" . $class->ml('widget.navstripchooser.option.color.custom') . "</strong></label><br />";
+        $ret .= "<div><label for='control_strip_color_custom'><strong>" . $class->ml('widget.navstripchooser.option.color.custom') . "</strong></label><br /></div>";
 
-        $ret .= "<div id='custom_subdiv'>";
+        $ret .= "<div id='custom_subdiv' class='option'>";
         $ret .= $class->html_check(
             name => "control_strip_no_gradient_custom",
             id => "control_strip_gradient_custom",
@@ -151,9 +129,8 @@ sub render_body {
             $ret .= "</tr>" if $count % 2 == 1;
             $count++;
         }
-        $ret .= "</table></div></div>";
+        $ret .= "</table></div>";
     }
-    $ret .= "<div class='option'></div>";
 
     return $ret;
 }
@@ -168,39 +145,29 @@ sub handle_post {
 
     my %override;
     my $post_fields_of_parent = LJ::Widget->post_fields_of_widget("CustomizeTheme");
-    my ( $given_control_strip_color, $props );
+    my ( $given_control_strip_color, $props, $given_control_strip_custom);
+
     if ($post_fields_of_parent->{reset}) {
-        $given_control_strip_color = "";
-        $override{control_strip_bgcolor} = "";
-        $override{control_strip_fgcolor} = "";
-        $override{control_strip_bordercolor} = "";
-        $override{control_strip_linkcolor} = "";
+
+        my $style = LJ::S2::load_style($u->prop('s2_style'));
+        die "Style not found." unless $style && $style->{userid} == $u->id;
+        LJ::Customize->save_s2_props($u, $style, \%$post, reset => 1);
+
+
     } else {
         $given_control_strip_color = $post->{control_strip_color};
+        $given_control_strip_custom = $post->{control_strip_custom};
     }
 
-    my $color = $given_control_strip_color;
-
     # we only want to store dark or light in the user props
-    $props->{control_strip_color} = $color if $color eq 'light' || $color eq 'dark';
+    $props->{control_strip_color} = $given_control_strip_color;
 
     $u->set_prop( 'control_strip_color', $props->{control_strip_color} );
 
-    if ($color ne "layout_default" && $color ne "custom") {
+    if ($given_control_strip_custom ne "custom") {
         $override{custom_control_strip_colors} = "off";
     } else {
-        if ($color eq "layout_default") {
-            if ($post->{control_strip_no_gradient_default}) {
-                $override{custom_control_strip_colors} = "on_no_gradient";
-            } else {
-                $override{custom_control_strip_colors} = "on_gradient";
-            }
-
-            $override{control_strip_bgcolor} = "";
-            $override{control_strip_fgcolor} = "";
-            $override{control_strip_bordercolor} = "";
-            $override{control_strip_linkcolor} = "";
-        } elsif ($color eq "custom") {
+        if ($given_control_strip_custom eq "custom") {
             if ($post->{control_strip_no_gradient_custom}) {
                 $override{custom_control_strip_colors} = "on_no_gradient";
             } else {
@@ -235,24 +202,20 @@ sub js {
         initWidget: function () {
             var self = this;
 
-            if (!$('control_strip_color_layout_default')) return;
+            if (!$('control_strip_color_custom')) return;
 
             self.hideSubDivs();
-            if ($('control_strip_color_layout_default').checked) this.showSubDiv("layout_default_subdiv");
             if ($('control_strip_color_custom').checked) this.showSubDiv("custom_subdiv");
 
             DOM.addEventListener($('control_strip_color_dark'), "click", function (evt) { self.hideSubDivs() });
             DOM.addEventListener($('control_strip_color_light'), "click", function (evt) { self.hideSubDivs() });
-            DOM.addEventListener($('control_strip_color_layout_default'), "click", function (evt) { self.showSubDiv("layout_default_subdiv") });
-            DOM.addEventListener($('control_strip_color_custom'), "click", function (evt) { self.showSubDiv("custom_subdiv") });
+            DOM.addEventListener($('control_strip_color_custom'), "click", function (evt) { self.showSubDiv() });
         },
         hideSubDivs: function () {
-            $('layout_default_subdiv').style.display = "none";
             $('custom_subdiv').style.display = "none";
         },
-        showSubDiv: function (div) {
-            this.hideSubDivs();
-            $(div).style.display = "block";
+        showSubDiv: function () {
+            $('custom_subdiv').style.display = "block";
         },
         onRefresh: function (data) {
             this.initWidget();

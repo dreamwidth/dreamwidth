@@ -1,11 +1,4 @@
 (function($) {
-$.fn.ultrafocus = function( focus, blur ) {
-    return $(this)
-        .focus(focus)
-        .blur(blur)
-        .hover(focus, blur);
-}
-
 $.widget("ui.collapsible", {
     _init: function() {
         var self = this;
@@ -23,11 +16,10 @@ $.widget("ui.collapsible", {
         self._trigger.attr("aria-controls", self._target.attr("id"))
         self.element.data("collapsibleid", $.proxy(opts.parseid, self.element)());
 
-        $trigger.ultrafocus(function() {
-            $(this).addClass(opts.triggerHoverClass);
-        }, function() {
-            $(this).removeClass(opts.triggerHoverClass);
-        })
+        self._hoverable( $trigger );
+        self._focusable( $trigger );
+
+        $trigger
         .addClass(opts.triggerClass)
         .append("<span class='ui-icon'></span>")
         .wrapInner($("<a href='#'></a>").attr({ href: "#" }))

@@ -88,17 +88,21 @@ body<=
     # determine what the options in "Show to:" dropdowns should be, depending
     #  on user or community
 
-    my %showtoopts;
+    my @showtoopts;
+    my $showtoopts_everybody_string = $ML{'.security.visibility.everybody2'};
+    # the first option varies between places @showtoopts is used, so let the caller prepend
     if ( $iscomm ) {
-        $showtoopts{A} = $ML{'.security.visibility.everybody2'};
-        $showtoopts{R} = $ML{'.security.visibility.regusers'};
-        $showtoopts{F} = $ML{'.security.visibility.members'};
-        $showtoopts{N} = $ML{'.security.visibility.admins'};
+        @showtoopts = (
+            R => $ML{'.security.visibility.regusers'},
+            F => $ML{'.security.visibility.members'},
+            N => $ML{'.security.visibility.admins'},
+        );
     } else {
-        $showtoopts{A} = $ML{'.security.visibility.everybody2'};
-        $showtoopts{R} = $ML{'.security.visibility.regusers'};
-        $showtoopts{F} = $ML{'.security.visibility.access'};
-        $showtoopts{N} = $ML{'.security.visibility.nobody'};
+        @showtoopts = (
+            R => $ML{'.security.visibility.regusers'},
+            F => $ML{'.security.visibility.access'},
+            N => $ML{'.security.visibility.nobody'},
+        );
     }
 
     ###
@@ -251,7 +255,7 @@ body<=
                                    title => BML::ml( '.privacy.title',
                                             { name => $ML{'.fn.birthday'} } ),
                                    selected => $opt_sharebday },
-                                   %showtoopts );
+                                   ( A => $showtoopts_everybody_string, @showtoopts ) );
         $ret .= "</td></tr>\n";
 
         #location
@@ -264,7 +268,7 @@ body<=
                                    title => BML::ml( '.privacy.title',
                                             { name => $ML{'.fn.location'} } ),
                                    selected => $u->opt_showlocation },
-                                   %showtoopts );
+                                   ( Y => $showtoopts_everybody_string, @showtoopts ) );
         $ret .= "</td></tr>\n";
 
         ## CONTACT INFO

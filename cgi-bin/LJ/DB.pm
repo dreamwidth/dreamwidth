@@ -646,7 +646,8 @@ sub get_cluster_master
 #        'E' == external user, 'V' == vgifts,
 #        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart,
 #        'F' == PubSubHubbub subscription id (F for Fred),
-#        'K' == sitekeyword, 'I' == shopping cart Item
+#        'K' == sitekeyword, 'I' == shopping cart Item,
+#        'X' == sphinX id
 #
 sub alloc_global_counter
 {
@@ -656,7 +657,7 @@ sub alloc_global_counter
 
     # $dom can come as a direct argument or as a string to be mapped via hook
     my $dom_unmod = $dom;
-    unless ( $dom =~ /^[ESLPAHCMFKIV]$/ ) {
+    unless ( $dom =~ /^[ESLPAHCMFKIVX]$/ ) {
         $dom = LJ::Hooks::run_hook('map_global_counter_domain', $dom);
     }
     return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
@@ -708,6 +709,10 @@ sub alloc_global_counter
         # if we have no counter, start at 0, as we have no way of determining what
         # the maximum used item id is
         $newmax = 0;
+    } elsif ( $dom eq 'X' ) {
+        my $dbsx = LJ::get_dbh( 'sphinx_search' )
+            or die "Unable to allocate counter type X unless Sphinx is configured.\n";
+        $newmax = $dbsx->selectrow_array( 'SELECT MAX(id) FROM items_raw' );
     } else {
         $newmax = LJ::Hooks::run_hook('global_counter_init_value', $dom);
         die "No alloc_global_counter initalizer for domain '$dom'"

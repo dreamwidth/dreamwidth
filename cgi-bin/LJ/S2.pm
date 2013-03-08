@@ -50,7 +50,7 @@ sub make_journal
 {
     my ($u, $styleid, $view, $remote, $opts) = @_;
 
-    my $r = $opts->{'r'};
+    my $apache_r = $opts->{'r'};
     my $ret;
     $LJ::S2::ret_ref = \$ret;
 
@@ -91,7 +91,7 @@ sub make_journal
     # instead.  Unless we are using siteviews, because that is what
     # will be handling the "BML" views.
     if ( $styleid && $styleid eq "siteviews" ) {
-        $r->notes->{ 'no_control_strip' } = 1;
+        $apache_r->notes->{ 'no_control_strip' } = 1;
 
         # kill the flag
         ${$opts->{'handle_with_bml_ref'}} = 0;
@@ -114,7 +114,7 @@ sub make_journal
             return;
         }
 
-        if ( ! $ctx->[S2::PROPS]->{use_journalstyle_icons_page} && ( $view eq "icons" ) ) {
+        if ( ! LJ::S2::use_journalstyle_icons_page( $style_u, $ctx ) && ( $view eq "icons" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -172,7 +172,7 @@ sub make_journal
     # like print_stylesheet() won't run, which don't have an method invocant
     return $page if $page && ref $page ne 'HASH';
 
-    my $beta_jquery = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta_jquery = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     LJ::set_active_resource_group( 'jquery' )
         if $beta_jquery;
 
@@ -199,10 +199,18 @@ sub make_journal
     }
 
     LJ::need_res( { group => "jquery" }, qw(
+        js/jquery/jquery.ui.core.js
         js/jquery/jquery.ui.widget.js
+        js/jquery/jquery.ui.tooltip.js
+        js/jquery/jquery.ui.button.js
+        js/jquery/jquery.ui.dialog.js
+        js/jquery/jquery.ui.position.js
         js/jquery.ajaxtip.js
-        js/tooltip.js
-        stc/ajaxtip.css
+
+        stc/jquery/jquery.ui.core.css
+        stc/jquery/jquery.ui.tooltip.css
+        stc/jquery/jquery.ui.button.css
+        stc/jquery/jquery.ui.dialog.css
 
         js/jquery.poll.js
 
@@ -225,7 +233,7 @@ sub make_journal
     $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user, jquery => $beta_jquery )
         if $show_control_strip;
 
-    s2_run($r, $ctx, $opts, $entry, $page);
+    s2_run($apache_r, $ctx, $opts, $entry, $page);
 
     if (ref $opts->{'errors'} eq "ARRAY" && @{$opts->{'errors'}}) {
         return join('',
@@ -249,7 +257,7 @@ sub make_journal
 
 sub s2_run
 {
-    my ($r, $ctx, $opts, $entry, $page) = @_;
+    my ($apache_r, $ctx, $opts, $entry, $page) = @_;
     $opts ||= {};
 
     local $LJ::S2::CURR_CTX  = $ctx;
@@ -262,9 +270,9 @@ sub s2_run
         # expand lj-embed tags
         if ($text =~ /lj\-embed/i) {
             # find out what journal we're looking at
-            my $r = eval { BML::get_request() };
-            if ($r && $r->notes->{journalid}) {
-                my $journal = LJ::load_userid($r->notes->{journalid});
+            my $apache_r = eval { BML::get_request() };
+            if ($apache_r && $apache_r->notes->{journalid}) {
+                my $journal = LJ::load_userid($apache_r->notes->{journalid});
                 # expand tags
                 LJ::EmbedModule->expand_entry($journal, \$text)
                     if $journal;
@@ -283,10 +291,10 @@ sub s2_run
 
     my $send_header = sub {
         my $status = $ctx->[S2::SCRATCH]->{'status'} || 200;
-        $r->status($status);
-        $r->content_type($ctx->[S2::SCRATCH]->{'ctype'} || $ctype);
+        $apache_r->status($status);
+        $apache_r->content_type($ctx->[S2::SCRATCH]->{'ctype'} || $ctype);
         # FIXME: not necessary in ModPerl 2.0?
-        #$r->send_http_header();
+        #$apache_r->send_http_header();
     };
 
     my $need_flush;
@@ -1801,18 +1809,28 @@ sub use_journalstyle_entry_page {
 sub tracking_popup_js {
     return LJ::is_enabled( 'esn_ajax' ) ? (
         { group => 'jquery' }, qw(
+        js/jquery/jquery.ui.core.js
         js/jquery/jquery.ui.widget.js
 
+        js/jquery/jquery.ui.tooltip.js
         js/jquery.ajaxtip.js
-        js/tooltip.js
         js/jquery/jquery.ui.position.js
-        stc/ajaxtip.css
+
+        stc/jquery/jquery.ui.core.css
+        stc/jquery/jquery.ui.tooltip.css
 
         js/jquery.esn.js
-        stc/esn.css
     ) ): ();
 }
 
+
+sub use_journalstyle_icons_page {
+    my ( $u, $ctx ) = @_;
+    return 0 if !$u || $u->is_syndicated;  # see sitefeeds/layout.s2
+    return 0 unless exists $ctx->[S2::CLASSES]->{IconsPage}; # core1 doesn't support IconsPage
+
+    return $u->prop( 'use_journalstyle_icons_page' ) ? 1 : 0;
+}
 
 ## S2 object constructors
 
@@ -2083,7 +2101,7 @@ sub Entry
     $e->{metadata}->{lc $_} = $current{$_} foreach keys %current;
     $e->{mood_icon} = Image( @$img_arg ) if defined $img_arg;
 
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
 
     # custom friend groups
     my $group_names = $arg->{group_names};
@@ -2897,7 +2915,7 @@ sub viewer_can_manage_tags {
 sub viewer_sees_control_strip {
     return 0 unless $LJ::USE_CONTROL_STRIP;
 
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
     return LJ::Hooks::run_hook( 'show_control_strip' );
 }
 
@@ -2943,8 +2961,8 @@ sub Entry__viewer_sees_ebox { 0 }
 
 sub control_strip_logged_out_userpic_css
 {
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
+    my $apache_r = BML::get_request();
+    my $u = LJ::load_userid($apache_r->notes->{journalid});
     return '' unless $u;
 
     return LJ::Hooks::run_hook('control_strip_userpic', $u);
@@ -2952,8 +2970,8 @@ sub control_strip_logged_out_userpic_css
 
 sub control_strip_logged_out_full_userpic_css
 {
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
+    my $apache_r = BML::get_request();
+    my $u = LJ::load_userid($apache_r->notes->{journalid});
     return '' unless $u;
 
     return LJ::Hooks::run_hook('control_strip_loggedout_userpic', $u);
@@ -2970,8 +2988,8 @@ sub journal_current_datetime {
 
     my $ret = { '_type' => 'DateTime' };
 
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
+    my $apache_r = BML::get_request();
+    my $u = LJ::load_userid($apache_r->notes->{journalid});
     return $ret unless $u;
 
     # turn the timezone offset number into a four character string (plus '-' if negative)
@@ -3457,7 +3475,7 @@ sub _Comment__get_link
     if ($key eq "hide_comments") {
         ## show "Hide/Show" link if the comment has any children
         # only show hide/show comments if using jquery
-        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) && @{ $this->{replies} } > 0 ) {
+        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} } > 0 ) {
             return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                                 $ctx->[S2::PROPS]->{"text_comment_hide"});
         } else {
@@ -3467,7 +3485,7 @@ sub _Comment__get_link
     if ($key eq "unhide_comments") {
         ## show "Hide/Unhide" link if the comment has any children
         # only show hide/show comments if using jquery
-        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) && @{ $this->{replies} } > 0 ) {
+        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} } > 0 ) {
             return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                                 $ctx->[S2::PROPS]->{"text_comment_unhide"});
         } else {
@@ -3654,7 +3672,7 @@ sub Comment__expand_link
 
         # unhide only works with jquery; if the user isn't in the jquery
         # beta, drop back down to the no-javascript option
-        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
             $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false, true); return false;\"";
         }
     } else {

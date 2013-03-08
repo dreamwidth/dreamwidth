@@ -17,6 +17,7 @@ propgroup presentation {
     property use margins_unit;
     property use sidebar_width;
     property use sidebar_width_doubled;
+    property use custom_control_strip_colors;
 
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
@@ -90,6 +91,11 @@ propgroup colors {
 
     property use color_comment_title_background;
     property use color_comment_title;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -161,7 +167,7 @@ propgroup modules {
 }
 
 # Explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 
 ##===============================
 ## Text
@@ -293,6 +299,7 @@ function Page::print_default_stylesheet() {
                  }
              """;
          }
+    print_custom_control_strip_css();
 
     """
 H1, H2, H3 {
@@ -523,12 +530,12 @@ h2#pagetitle {
 
 .tag ul {
     display: inline;
-    margin-left: .5em;
+    margin-left: 0;
     padding-left: 0;
 }
+
 .tag ul li {
     display: inline;
-    padding: .25em;
 } /* same for month view */
 
 ul.entry-management-links {
@@ -647,13 +654,12 @@ table.month td p {
 
 .icon-keywords ul {
     display: inline;
-    margin-left: .5em;
+    margin-left: 0;
     padding-left: 0;
 }
 
 .icon-keywords ul li {
     display: inline;
-    padding: .25em;
 }
 
 /* modules */

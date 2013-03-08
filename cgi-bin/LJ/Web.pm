@@ -916,7 +916,7 @@ sub create_qr_div {
     $qrhtml .= LJ::ljuser($remote->{'user'});
     $qrhtml .= "</td><td align='center'>";
 
-    my $beta_jquery = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta_jquery = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     # Userpic selector
     {
         my %res;
@@ -1019,7 +1019,7 @@ sub create_qr_div {
                                       {'name' => 'saved_ptid', 'id' => 'saved_ptid'},
                                       ));
 
-    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
         # FIXME: figure out how to fix the saving of the qr entry stuff
         $ret .= qq{jQuery(function(jQ){
                 jQ("body").append(jQ("<div id='qrdiv'></div>").html("$qrhtml").hide());
@@ -1233,6 +1233,7 @@ If specified, path must begin with a /
 
 args being a list of arguments to create.
 opts can contain:
+proto -- specify a protocol
 host -- link to different domains
 args -- get arguments to add
 ssl -- use ssl
@@ -1255,7 +1256,8 @@ sub create_url {
     # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
     $opts{ssl} = $LJ::IS_SSL unless $opts{host} || exists $opts{ssl};
 
-    my $url = ( $opts{ssl} ? "https" : "http" ) . "://$host$path";
+    my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
+    my $url = $proto . "://$host$path";
 
     my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
 
@@ -1656,7 +1658,7 @@ MOODS
             };
 
             my $nocomments_display = $opts->{prop_opt_nocomments_maintainer} ?
-                'entryform.comment.settings.nocomments.maintainer' : 'entryform.comment.settings.nocomments';
+                'entryform.comment.settings.nocomments.admin' : 'entryform.comment.settings.nocomments';
 
             my $comment_settings_default = BML::ml('entryform.comment.settings.default5', {'aopts' => $comment_settings_journaldefault->()});
             $out .= LJ::html_select({ 'name' => "comment_settings", 'id' => 'comment_settings', 'class' => 'select', 'selected' => $comment_settings_selected->(),
@@ -2462,7 +2464,7 @@ sub js_dumper {
             return $mtime;
         };
 
-        my $file = "$LJ::HOME/htdocs/$key";
+        my $file = LJ::resolve_file("htdocs/$key");
         my $mtime = (stat($file))[9];
         return $set->($mtime);
     }
@@ -3160,7 +3162,7 @@ LOGIN_BAR
     };
 
     # cycle through all possibilities, add the valid ones
-    foreach my $view_type qw( mine site light original ) {
+    foreach my $view_type (qw( mine site light original )) {
         # only want to offer this option if user is logged in and it's not their own journal, since
         # original will take care of that
         if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {

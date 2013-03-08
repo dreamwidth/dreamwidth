@@ -12,6 +12,7 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 set layout_type = "two-columns-left";
 set userpics_position = "right";
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Fonts
@@ -49,7 +50,7 @@ set module_time_section = "two";
 set module_poweredby_section = "two";
 
     property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
        grouped = 1;
        }
 
@@ -92,7 +93,7 @@ function Page::print() {
                 }
     """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -116,9 +117,9 @@ function Page::print() {
                     <div id="content-footer"></div>
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -127,7 +128,7 @@ function Page::print() {
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -636,7 +637,7 @@ table.month td, table.month th {
 
 .month h3 {
     color: $*color_entry_title;
-    font-size: 1.2em; 
+    font-size: 1.2em;
     font-weight: normal;
     }
 
@@ -762,7 +763,7 @@ td.day {
 /*--- Comments ---*/
 
 hr.above-entry-interaction-links, hr.below-reply-container {
-    display: none; 
+    display: none;
     }
 
 .comment {
@@ -860,64 +861,27 @@ textarea.textbox {
 
 /*--- Contextual Pop-ups ---*/
 
-div.ContextualPopup {
-    color: $*color_entry_text;
-    margin: auto;
-    }
-
-div.ContextualPopup div.Inner {
+.ContextualPopup {
     background: $*color_entry_background;
-    border: 1px solid $*color_entry_border;
+    border: 1px solid $*color_entry_border !important;
+    border-radius: 0;
     color: $*color_entry_text;
     }
 
-div.ContextualPopup .Userpic {
-    border: 5px solid $*color_header_background;
-    margin: .5em;
-    padding: 0;
-    }
-
-div.ContextualPopup .Content {
-    border: 0;
-    color: $*color_entry_text;
-    }
-
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:link,
-div.ContextualPopup div.Inner a:visited,
-div.ContextualPopup div.Inner a:active {
-    color: $*color_entry_link;
+.ContextualPopup div.Inner a,
+.ContextualPopup div.Inner a:visited,
+.ContextualPopup div.Inner a:active {
     text-decoration: none;
     }
 
-div.ContextualPopup .Relation {
-    color: $*color_entry_text;
-    }
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
 
-/*--- Navigation Bar ---*/
-
-table#lj_controlstrip td {
-    background: $*color_entry_background;
-    border: none;
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip input {
-    background: $*color_entry_background;
-    border: 1px solid $*color_page_text;
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip a {
-    color: $*color_entry_link;
-    }
-
-#lj_controlstrip_statustext {
-    color: $*color_entry_title;
-    }
-
-#lj_controlstrip .ljuser a b {
-    color: $*color_entry_title;
+.ContextualPopup .Userpic {
+    border: 5px solid $*color_header_background;
+    margin: .5em;
     }
 
 $userpic_css

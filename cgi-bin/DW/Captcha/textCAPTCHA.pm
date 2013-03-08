@@ -149,16 +149,110 @@ sub captcha_auth { return $_[0]->{captcha_auth} }
 
 package DW::Captcha::textCAPTCHA::Logic;
 
-# this is an internal class which shouldn't be called directly by anything else
-# (except maybe tests)
+sub get_captcha {
+    my $class = $_[0];
+    return $class->get_from_db || $class->get_from_remote_server;
+}
 
-sub fetch {
-    my ( $class ) = $_[0];
+sub get_from_db {
+    my $dbh = LJ::get_db_writer()
+        or die "unable to contact global db master";
+
+    my $captcha;
+
+    # select the first unused captcha and lock the captcha table
+    $dbh->selectrow_array( "SELECT GET_LOCK('get_captcha', 10)" ) or return;
+
+    my ( $id, $question, $answer ) = $dbh->selectrow_array(
+                        qq{ SELECT captcha_id, question, answer
+                            FROM captcha_cache
+                            WHERE issuetime = 0
+                            LIMIT 1
+                        }  );
+
+    if ( $id ) {
+        $captcha = {
+            question => $question,
+            answer   => [ split( ",", $answer ) ],
+        };
+        $dbh->do( 'UPDATE captcha_cache SET issuetime = ? WHERE captcha_id = ?', undef, time(), $id );
+    }
+
+    # done working on the captcha table
+    # clean up lock whether we got something or not
+    $dbh->do( "DO RELEASE_LOCK('get_captcha')" );
+
+    return $captcha;
+}
+
+sub get_from_remote_server {
+    my $class = $_[0];
 
     my $ua = LJ::get_useragent( role => 'textcaptcha', timeout => $LJ::TEXTCAPTCHA{timeout} );
     $ua->agent("$LJ::SITENAME ($LJ::ADMIN_EMAIL; captcha request)");
     my $res = $ua->get( "http://api.textcaptcha.com/" . DW::Captcha::textCAPTCHA::_api_key() );
-    return $res && $res->is_success ? $res->content : "";
+    my $content = $res && $res->is_success ? $res->content : "";
+
+    my $fetched_captcha = eval { XML::Simple::XMLin( $content, ForceArray => [ 'answer' ] ); };
+}
+
+sub save_multi {
+    my ( $class, @captchas ) = @_;
+
+    return unless @captchas;
+
+    my $dbh = LJ::get_db_writer()
+        or die "unable to contact global db master";
+
+    my $sth = $dbh->prepare( "INSERT INTO captcha_cache ( question, answer ) VALUES ( ?, ? )" );
+
+    # textcaptcha.com gives us one or two. We can hold up to 7 safely
+    foreach my $captcha ( @captchas ) {
+        $sth->execute( $captcha->{question}, join( ",", @{$captcha->{answer}} ) );
+        die $dbh->errstr if $dbh->err;
+    }
+
+    return 1;
+}
+
+sub unused_count {
+    my $class = $_[0];
+
+    # count the number of unused captchas
+    my $dbr = LJ::get_db_reader()
+        or die "Unable to get global db reader";
+
+    my $count = $dbr->selectrow_array( q{SELECT COUNT(*) FROM captcha_cache WHERE issuetime = 0} );
+    die $dbr->errstr if $dbr->err;
+
+    return $count;
+}
+
+sub cleanup {
+    my $class = $_[0];
+
+    my $dbh = LJ::get_db_writer()
+        or die "Unable to get global db master";
+
+    my $used = $dbh->selectcol_arrayref( q{
+        SELECT captcha_id FROM captcha_cache
+        WHERE issuetime <> 0 AND issuetime < ?
+        LIMIT 2500
+    }, undef, time() - ( 2 * 60 ) ); # just put a little leeway
+    my @used = @$used;
+
+    unless ( @used ) {
+        print "Done: no captchas to delete.\n";
+        return;
+    }
+
+    print "found ", scalar @used, " captchas to delete.\n";
+
+    my $qs = join ",", map { "?" } @used;
+    $dbh->do( "DELETE FROM captcha_cache WHERE captcha_id IN ( $qs )", undef, @used );
+    die $dbh->errstr if $dbh->err;
+
+    return scalar @used;
 }
 
 # arguments:
@@ -171,8 +265,7 @@ sub fetch {
 # * answers (salted)
 # * captcha auth
 sub form_data {
-    my ( $captcha_data_string, $auth ) = @_;
-    my $captcha = eval { XML::Simple::XMLin( $captcha_data_string, ForceArray => [ 'answer' ] ); };
+    my ( $captcha, $auth ) = @_;
 
     # get the timestamp
     my $secret = LJ::get_secret( (split( /:/, $auth ))[1] );

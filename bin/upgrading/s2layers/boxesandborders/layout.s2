@@ -39,7 +39,7 @@ set color_page_details_text = "#999";
 ##===============================
 
     property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
        grouped = 1;
        }
 
@@ -326,7 +326,7 @@ margin: .5em 0; }
 .entry .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
 
 .entry .tag { margin-left: .25em; }
-.entry .tag li { margin-left: 0; padding: .25em .10em; }
+.entry .tag li { margin-left: 0; padding: .25em 0; }
 .entry .tag-text { font-weight: bold; }
 
 ul.entry-management-links { float: left;
@@ -452,7 +452,7 @@ text-align: center; }
 
 .icon-keywords ul li {
     margin-left: 0;
-    padding: .25em .10em;
+    padding: .25em 0;
 }
 
 /* sidebars */

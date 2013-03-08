@@ -420,6 +420,7 @@ sub process_content {
 
         my $flags = {
             'nopassword' => 1,
+            'allow_truncated_subject' => 1,
         };
 
         # if the post contains html linebreaks, assume it's preformatted.

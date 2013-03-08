@@ -17,8 +17,8 @@
 package LJ::ModPerl;
 
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
 use lib "$ENV{LJHOME}/extlib/lib/perl5";
+use lib "$ENV{LJHOME}/cgi-bin";
 
 # very important that this is done early!  everything else in the LJ
 # setup relies on $LJ::HOME being set...
@@ -36,7 +36,7 @@ $LJ::HOME = $ENV{LJHOME};
 #Apache2::ServerUtil->server->add_config( [ 'PerlResponseHandler LJ::ModPerl', 'SetHandler perl-script' ] );
 
 #sub handler {
-#    my $r = shift;
+#    my $apache_r = shift;
 #
 #    print STDERR Dumper(\@_);
 #    print STDERR Dumper(\%ENV);

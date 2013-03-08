@@ -34,7 +34,14 @@ init: function(formData) {
             }
         }
         if ( $.fn.iconselector ) {
-            $select.iconselector( { onSelect: update_icon_preview, selectorButtons: "#icon_preview .icon img, #icon_browser_link" } );
+            var browser_opts = formData.iconBrowser;
+            if ( ! browser_opts ) browser_opts = {};
+            $select.iconselector( {
+                onSelect: update_icon_preview,
+                selectorButtons: "#icon_preview .icon img, #icon_browser_link",
+                metatext: browser_opts.metatext,
+                smallicons: browser_opts.smallicons
+            } );
         } else {
             $("#icon_browser_link").remove();
         }
@@ -70,10 +77,10 @@ init: function(formData) {
             var fields = "#entrytime, #entrytime_hr, #entrytime_min, #entrytime_display_container button, #entrytime_container button";
             var containers = "#entrytime_display_container, #entrytime_container";
             if ( $(this).is(":checked") ) {
-                $(fields).attr("disabled", true);
+                $(fields).prop("disabled", true);
                 $(containers).addClass("ui-state-disabled");
             } else {
-                $(fields).attr("disabled", false);
+                $(fields).prop("disabled", false);
                 $(containers).removeClass("ui-state-disabled");
             }
         });
@@ -152,7 +159,7 @@ init: function(formData) {
                     $(this).siblings(".hasDatepicker").data("customized", true);
                 })
                 .change(function() {
-                    var val = parseInt($(this).val());
+                    var val = parseInt($(this).val(), 10);
                     if ( isNaN(val) || val != $(this).val() || val <= 0 ) $(this).val("0");
                     else if ( val > 23 ) $(this).val(23);
                 })
@@ -162,7 +169,7 @@ init: function(formData) {
                     $(this).siblings(".hasDatepicker").data("customized", true);
                 })
                 .change(function() {
-                    var val = parseInt($(this).val());
+                    var val = parseInt($(this).val(), 10);
                     if ( isNaN(val) || val != $(this).val() || val <= 0 ) $(this).val("00");
                     else if ( val > 59 ) $(this).val(59);
                 });
@@ -290,6 +297,8 @@ init: function(formData) {
     // access
     function initAccess() {
         $("#custom_access_groups").hide();
+
+        var rememberInitialValue = !formData.did_spellcheck;
         $("#security").change( function(e, init) {
             var $this = $(this);
             if ( $this.val() == "custom" )
@@ -300,7 +309,7 @@ init: function(formData) {
             if ( ! init ) {
                 $this.data("lastselected",$this.val())
             }
-        }).triggerHandler("change", true)
+        }).triggerHandler("change", rememberInitialValue);
 
         function adjustSecurityDropdown(data) {
             if ( ! data ) return;
@@ -336,10 +345,10 @@ init: function(formData) {
                 // select the minsecurity value and disable the values with lesser security
                 $security.val(rank[oldval] >= rank[data.ret['minsecurity']] ? oldval : data.ret['minsecurity']);
                 if ( data.ret['minsecurity'] == 'access' ) {
-                    $security.find("option[value='public']").attr("disabled", "disabled");
+                    $security.find("option[value='public']").prop("disabled", true);
                 } else if ( data.ret['minsecurity'] == 'private' ) {
                     $security.find("option[value='public'],option[value='access'],option[value='custom']")
-                        .attr("disabled", "disabled");
+                        .prop("disabled", true);
                 }
             } else {
                 // user is not known. no custom groups, no minsecurity
@@ -401,7 +410,7 @@ init: function(formData) {
             var target = form.target;
 
             var $password = $(form).find("input[type='password']:enabled");
-            $password.attr("disabled","disabled");
+            $password.prop("disabled",true);
 
             form.action = "/entry/preview";
             form.target = 'preview';
@@ -410,7 +419,7 @@ init: function(formData) {
 
             form.action = action;
             form.target = target;
-            $password.removeAttr("disabled");
+            $password.prop("disabled", false);
             e.preventDefault();
         });
 
@@ -420,11 +429,16 @@ init: function(formData) {
 
         $("#delete_entry").click(function(e) {
             $(this.form).data("skipchecks", "delete");
-            var conf = confirm(formData.strings.delete_confirm);
-            if ( ! conf ) {
+            var do_delete = confirm(formData.strings.delete_confirm);
+            if ( do_delete ) {
+                do_delete = $("#crosspost_component").crosspost( "confirmDelete", formData.strings.delete_xposts_confirm );
+            }
+
+            if ( ! do_delete ) {
                 e.preventDefault();
             }
         });
+
 
         $("#post_options").click(function(e){
             e.preventDefault();

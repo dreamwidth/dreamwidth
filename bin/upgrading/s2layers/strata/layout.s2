@@ -15,7 +15,7 @@ set sidebar_width_doubled = "30em";
 ##===============================
 
     property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
        grouped = 1;
        }
 
@@ -55,6 +55,15 @@ function print_stylesheet () {
     var Color days_with_entries = $*color_entry_title_background -> lighter(30);
     var Color days_without_entries= $*color_entry_footer_background -> lighter(15);
     var string module_outer_colors = generate_color_css($*color_module_text, $*color_module_border, $*color_module_border);
+
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    if ($*image_background_header_height > 0) {
+        $header_background = """
+            $header_background
+            height: """ + $*image_background_header_height + """px;""";
+    }
 
 var string userpic_css = "";
     if ($*userpics_position == "left") {
@@ -112,10 +121,12 @@ h1#title, h2#subtitle, h2#pagetitle {
 
 #primary {    margin-bottom: 20px; }
 
+#header { background: $*color_header_background; height: auto;}
+
 #header > .inner:first-child {
-    background-color: $*color_header_background;
-    padding: 5px 0;
-    margin: 0;
+    $header_background
+    margin: 5px 0;
+    padding: 0;
 }
 
 #primary > .inner:first-child {
@@ -182,7 +193,7 @@ h3.entry-title {
 }
 
 .entry-content {
-    background-color: $*color_entry_background;
+    $entry_background
     padding: 10px 10px 25px 10px;
 
 }
@@ -467,7 +478,7 @@ table.month td.day-has-entries {
     word-wrap: break-word;
     }
 
-.label, .comment-text, .description-text, .default {
+.label, .icon-info span {
     font-weight: bold;
     }
 
@@ -675,9 +686,11 @@ function Page::print() {
                     $this->print_global_title();
                     $this->print_global_subtitle();
                     $this->print_title();
-                    $this->print_module_section("header");
     """
                 </div><!-- end header>inner -->
+    """;
+                    $this->print_module_section("header");
+    """
             </div><!-- end header -->
             <div id="content">
                 <div class="inner">

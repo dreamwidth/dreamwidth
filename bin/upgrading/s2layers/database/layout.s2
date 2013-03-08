@@ -54,6 +54,7 @@ set all_commentsubjects = true;
 set post_title_align = "right";
 set post_text_align = "justify";
 set default_icons = false;
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -210,15 +211,15 @@ propgroup images_child {
 
 propgroup modules_child {
     property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
        grouped = 1;
        }
     property string module_time_section_override {
-       values = "none|(none)|one|Main Module Section|two|Second Module Section|footer|Footer";
+       values = "none|(none)|one|Main Module Section|two|Secondary Module Section|footer|Footer";
        grouped = 1;
        }
     property string module_poweredby_section_override {
-       values = "none|(none)|one|Main Module Section|two|Second Module Section|footer|Footer";
+       values = "none|(none)|one|Main Module Section|two|Secondary Module Section|footer|Footer";
        grouped = 1;
        }
     }
@@ -465,6 +466,7 @@ function Entry::print_management_links() {
 
 function CommentInfo::print_readlink {
     var Page p = get_page();
+
     var string text_visible = get_plural_phrase($.count, "text_read_comments_screened_visible");
     var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
     var string text_both = $text_visible + $*text_default_separator + $text_screened;
@@ -478,7 +480,6 @@ function CommentInfo::print_readlink {
                 + """ + $.screened_count <img src="$*image_screen" />"""
                 + "</a>";
         }
-
     } else {
         if ($*entry_interaction_links == "text") {
             print safe """<a href="$.read_url#comments">"""+ $text_total + """</a>""";
@@ -1306,11 +1307,17 @@ a:hover { text-decoration: underline; }
 .ljuser { font-style: italic; }
 
 .has-userpic .userpic,
-.module .userpic {
+.module .userpic,
+.icon-image,
+.ContextualPopup .Userpic {
     box-shadow: -.1em -.1em .4em $*color_userpic_shadow;
      }
 
-.userpic img { box-shadow: .1em .1em .4em $*color_userpic_shadow; }
+.userpic img,
+.icon-image img,
+.ContextualPopup .Userpic img {
+    box-shadow: .1em .1em .4em $*color_userpic_shadow;
+    }
 
 .has-userpic .userpic:hover,
 .module .userpic:hover {
@@ -2006,11 +2013,12 @@ span.de {
     float: left;
     clear: left;
     margin-bottom: .25em;
-    min-width: 100px;
-    padding-right: 1em;
     }
 
-.icon-info { min-height: 100px; }
+.icon-info {
+    min-height: 100px;
+    padding-left: 120px;
+    }
 
 .icon-info span { font-style: italic; }
 
@@ -2249,87 +2257,26 @@ ul.userlite-interaction-links.icon-links img:hover {
 /* Contextual Pop-ups
 ******************************/
 
-div.ContextualPopup {
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: none !important;
+    border-radius: .6em;
+    color: $*color_entry_text;
     $page_font_popup
     font-size: 1em !important;
+    padding: .6em;
     }
 
-div.ContextualPopup div.Inner {
-    $page_colors
-    border: 1px solid $*color_elements_border;
-    border-radius: .6em;
-    padding:.1em;
-    }
-
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:visited {
+.ContextualPopup a,
+.ContextualPopup a:visited {
     font-weight: normal;
-    text-decoration: none !important;
+    text-decoration: none;
     }
 
-div.ContextualPopup div.Inner a { color: $*color_page_link_hover; }
-div.ContextualPopup div.Inner a:visited { color: $*color_page_link_visited; }
-div.ContextualPopup div.Inner a:hover { text-decoration: underline !important; }
-div.ContextualPopup div.Inner a:active { color: $*color_page_link_active; }
-
-/* Navigation Strip
-******************************/
-
-#lj_controlstrip {
-    $entry_colors
-    background-image: url();
-    border-radius: .6em;
-    padding: .2em 0;
-    }
-
-#lj_controlstrip td {
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip a {
-    color: $*color_entry_link;
-    }
-
-#lj_controlstrip a:visited { color: $*color_entry_link_visited; }
-
-#lj_controlstrip a:hover {
-    color: $*color_entry_link_hover;
-    text-decoration: underline;
-    }
-
-#lj_controlstrip a:active { color: $*color_entry_link_active; }
-
-#lj_controlstrip select,
-#lj_controlstrip input,
-#lj_controlstrip input#xc_user,
-#lj_controlstrip input#xc_password,
-#lj_controlstrip input#xc_remember,
-#lj_controlstrip input#search {
-    $page_colors
-    border: 1px solid $*color_elements_border;
-    border-radius: .6em;
-    padding: .2em;
-    }
-
-#lj_controlstrip input#search:focus { border: 1px solid $*color_entry_text; }
-
-#lj_controlstrip input[type='button']:hover,
-#lj_controlstrip input[type='submit']:hover {
-    background-color: $*color_calendar_background;
-    border-color: transparent;
-    color: $*color_calendar_link;
-    }
-
-#lj_controlstrip_statustext {
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip_user,
-#lj_controlstrip_login,
-#lj_controlstrip_loggedout_userpic,
-#lj_controlstrip_actionlinks {
-    border-right: 1px solid $*color_elements_border;
-    }
+.ContextualPopup a { color: $*color_page_link_hover; }
+.ContextualPopup a:visited { color: $*color_page_link_visited; }
+.ContextualPopup a:hover { text-decoration: underline !important; }
+.ContextualPopup a:active { color: $*color_page_link_active; }
 
 """;
 }

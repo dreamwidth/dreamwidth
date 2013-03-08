@@ -65,6 +65,7 @@
     text-align: right;
     padding: 1em 0;
     margin:0 2em;
+    max-width: 80em;
 }
 .simple-form fieldset.destructive {
    clear: none;

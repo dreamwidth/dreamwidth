@@ -921,6 +921,95 @@ set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
 set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
+
+#NEWLAYER: ciel/chelseablue
+layerinfo type = "theme";
+layerinfo name = "Chelsea Blue";
+layerinfo redist_uniq = "ciel/chelseablue";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#050505";
+set color_page_link = "#5bbaff";
+set color_page_link_hover = "#c088ff";
+set color_page_link_visited = "#6077ff";
+set color_page_text = "#f4f4f4";
+set color_page_title = "#9bd5ff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#9bd5ff";
+set color_entry_metadata_label = "#9bd5ff";
+set color_management_links = "#9bd5ff";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Noticia Text'";
+set font_comment_title = "'Noticia Text'";
+set font_entry_metadata = "'Noticia Text'";
+set font_entry_title = "'Chelsea Market'";
+set font_journal_subtitle = "'Noticia Text'";
+set font_journal_title = "'Chelsea Market'";
+set font_management = "'Noticia Text'";
+set font_module_heading = "'Chelsea Market'";
+set font_module_text = "'Noticia Text'";
+set font_navlinks = "'Noticia Text'";
+set font_sources = "http://fonts.googleapis.com/css?family=Noticia+Text:400,400italic|Chelsea+Market";
+
+
+#NEWLAYER: ciel/chelsealight
+layerinfo type = "theme";
+layerinfo name = "Chelsea Light";
+layerinfo redist_uniq = "ciel/chelsealight";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f4f4f4";
+set color_page_link = "#5bbaff";
+set color_page_link_hover = "#c088ff";
+set color_page_link_visited = "#6077ff";
+set color_page_text = "#050505";
+set color_page_title = "#9bd5ff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#9bd5ff";
+set color_entry_metadata_label = "#9bd5ff";
+set color_management_links = "#9bd5ff";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Noticia Text'";
+set font_comment_title = "'Noticia Text'";
+set font_entry_metadata = "'Noticia Text'";
+set font_entry_title = "'Chelsea Market'";
+set font_journal_subtitle = "'Noticia Text'";
+set font_journal_title = "'Chelsea Market'";
+set font_management = "'Noticia Text'";
+set font_module_heading = "'Chelsea Market'";
+set font_module_text = "'Noticia Text'";
+set font_navlinks = "'Noticia Text'";
+set font_sources = "http://fonts.googleapis.com/css?family=Noticia+Text:400,400italic|Chelsea+Market";
+
+
 #NEWLAYER: ciel/chocolatemint
 layerinfo type = "theme";
 layerinfo name = "Chocolate Mint";
@@ -1428,7 +1517,7 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/daydream.jpg";
+set image_background_page_url = "commons/daydream.jpg";
 
 
 #NEWLAYER: ciel/decadence
@@ -1737,7 +1826,136 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/dreamscape.jpg";
+set image_background_page_url = "commons/dreamscape.jpg";
+
+
+#NEWLAYER: ciel/dune
+layerinfo type = "theme";
+layerinfo name = "Dune";
+layerinfo redist_uniq = "ciel/dune";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_entryday_background = "#f0e5af";
+set color_footer_background = "#d8b362";
+set color_footer_link = "#6c4130";
+set color_footer_link_active = "#6c4130";
+set color_footer_link_hover = "#381100";
+set color_footer_link_visited = "#6c4130";
+set color_header_background = "#b28238";
+set color_page_background = "#b28238";
+set color_page_link = "#6c4130";
+set color_page_link_active = "#6c4130";
+set color_page_link_hover = "#381100";
+set color_page_link_visited = "#6c4130";
+set color_page_subtitle = "#fff";
+set color_page_text = "#000";
+set color_page_title = "#f0e5af";
+set color_userpic_border = "#d8b362";
+set color_userpic_border_alt = "#d8b362";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#6c4130";
+set color_comment_title_background = "#fff";
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#6c4130";
+set color_entry_link = "#6c4130";
+set color_entry_link_active = "#6c4130";
+set color_entry_link_hover = "#381100";
+set color_entry_link_visited = "#6c4130";
+set color_entry_text = "#000";
+set color_entry_title = "#6c4130";
+set color_entry_title_background = "#fff";
+set color_interaction_links_background = "#f0e5af";
+set color_management_links = "#6c4130";
+set color_management_links_background = "#d8b362";
+set color_navlinks_link = "#6c4130";
+set color_navlinks_link_background = "#d8b362";
+set color_navlinks_link_hover_background = "#f0e5af";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f0e5af";
+set color_module_link = "#6c4130";
+set color_module_link_active = "#6c4130";
+set color_module_link_hover = "#381100";
+set color_module_link_visited = "#6c4130";
+set color_module_text = "#000";
+set color_module_title = "#000";
+set color_module_title_background = "#f0e5af";
+
+
+#NEWLAYER: ciel/enamelteapot
+layerinfo type = "theme";
+layerinfo name = "Enamel Teapot";
+layerinfo redist_uniq = "ciel/enamelteapot";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#fff";
+set color_page_background = "#efdbda";
+set color_page_link = "#d24735";
+set color_page_link_active = "#d24735";
+set color_page_link_hover = "#fb5d48";
+set color_page_link_visited = "#d24735";
+set color_page_subtitle = "#282828";
+set color_page_text = "#282828";
+set color_page_title = "#282828";
+set color_userpic_border = "#efadab";
+set color_userpic_border_alt = "#dc9f9d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#282828";
+set color_entry_background = "#fff";
+set color_entry_border = "#efadab";
+set color_entry_interaction_links = "#282828";
+set color_entry_metadata_label = "#282828";
+set color_entry_text = "#282828";
+set color_entry_title = "#282828";
+set color_management_links = "#282828";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#efadab";
+set color_module_text = "#282828";
+set color_module_title = "#282828";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_comment_title = "'News Gothic MT'";
+set font_entry_metadata = "'News Gothic MT'";
+set font_entry_title = "'Germania One'";
+set font_journal_subtitle = "'News Gothic MT'";
+set font_journal_title = "'Germania One'";
+set font_management = "'News Gothic MT'";
+set font_module_heading = "'Germania One'";
+set font_module_text = "'News Gothic MT'";
+set font_navlinks = "'News Gothic MT'";
+set font_sources = "http://fonts.googleapis.com/css?family=Germania+One";
 
 
 #NEWLAYER: ciel/enchantedforest
@@ -2956,6 +3174,70 @@ set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 
+#NEWLAYER: ciel/milkshakesandrocknroll
+layerinfo type = "theme";
+layerinfo name = "Milkshakes & Rock 'n' Roll";
+layerinfo redist_uniq = "ciel/milkshakesandrocknroll";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_entryday_background = "#dedbca";
+set color_footer_background = "#966d6f";
+set color_footer_link = "#3d1e21";
+set color_footer_link_active = "#3d1e21";
+set color_footer_link_hover = "#2e5e73";
+set color_footer_link_visited = "#3d1e21";
+set color_header_background = "#dedbca";
+set color_page_background = "#dedbca";
+set color_page_link = "#2e5e73";
+set color_page_link_active = "#2e5e73";
+set color_page_link_hover = "#3d1e21";
+set color_page_link_visited = "#2e5e73";
+set color_page_subtitle = "#fff";
+set color_page_text = "#1f080b";
+set color_page_title = "#966d6f";
+set color_userpic_border = "#966d6f";
+set color_userpic_border_alt = "#99b3ba";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#1f080b";
+set color_comment_title_background = "#fff";
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#2e5e73";
+set color_entry_link = "#2e5e73";
+set color_entry_link_active = "#2e5e73";
+set color_entry_link_hover = "#3d1e21";
+set color_entry_link_visited = "#2e5e73";
+set color_entry_text = "#1f080b";
+set color_entry_title_background = "#fff";
+set color_interaction_links_background = "#99b3ba";
+set color_management_links = "#2e5e73";
+set color_management_links_background = "#966d6f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#99b3ba";
+set color_module_link = "#3d1e21";
+set color_module_link_active = "#3d1e21";
+set color_module_link_hover = "#2e5e73";
+set color_module_link_visited = "#3d1e21";
+set color_module_text = "#1f080b";
+set color_module_title = "#2e5e73";
+set color_module_title_background = "#99b3ba";
+set color_navlinks_link_background = "#966d6f";
+set color_navlinks_link_hover_background = "#dedbca";
+
+
 #NEWLAYER: ciel/mintchocolatechip
 layerinfo type = "theme";
 layerinfo name = "Mint Chocolate Chip";
@@ -3516,6 +3798,156 @@ set color_navlinks_link_background = "#515151";
 set color_navlinks_link_hover_background = "#33332f";
 
 
+#NEWLAYER: ciel/oloriel
+layerinfo type = "theme";
+layerinfo name = "Oloriel";
+layerinfo redist_uniq = "ciel/oloriel";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+
+set color_page_background = "#9DA8D5";
+set color_page_link = "#6672A5";
+set color_page_link_hover = "#7F7BC4";
+set color_page_link_visited = "#787BBA";
+set color_page_subtitle = "#DDD7D3";
+set color_page_text = "#4D4D53";
+set color_page_title = "#F2E7D2";
+set color_footer_link = "#6672A5";
+set color_footer_link_hover = "#7F7BC4";
+set color_footer_link_visited = "#787BBA";
+
+##===============================
+## Entry
+##===============================
+
+set color_entry_background = "#C7C7D3";
+set color_entry_border = "#F2E7D2";
+set color_entry_interaction_links = "#787BBA";
+set color_entry_link = "#6672A5";
+set color_entry_link_hover = "#7F7BC4";
+set color_entry_link_visited = "#787BBA";
+set color_entry_metadata_label = "#7F7BC4";
+set color_entry_text = "#4D4D53";
+set color_entry_title = "#787BBA";
+set color_entry_title_background = "#B2B8D4";
+set color_calendar_entryday_background = "#DDD7D3";
+set color_comment_title = "#787BBA";
+set color_comment_title_background = "#B2B8D4";
+set color_interaction_links_background = "#F2E7D2";
+set color_management_links_background = "#DDD7D3";
+set color_userpic_border = "#DDD7D3";
+set color_userpic_border_alt = "#F2E7D2";
+
+##===============================
+## Module
+##===============================
+
+set color_module_background = "#C7C7D3";
+set color_module_border = "#F2E7D2";
+set color_module_link = "#6672A5";
+set color_module_link_hover = "#7F7BC4";
+set color_module_link_visited = "#787BBA";
+set color_module_text = "#4D4D53";
+set color_module_title = "#787BBA";
+set color_module_title_background = "#B2B8D4";
+set color_navlinks_link = "#787BBA";
+set color_navlinks_link_background = "#B2B8D4";
+set color_navlinks_link_hover_background = "#DDD7D3";
+set color_navlinks_link_visited_background = "#B2B8D4";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_metadata = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_management = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
+
+
+#NEWLAYER: ciel/party
+layerinfo type = "theme";
+layerinfo name = "Party";
+layerinfo redist_uniq = "ciel/party";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#f4f0f6";
+set color_footer_link = "#3474a2";
+set color_footer_link_hover = "#1c967d";
+set color_footer_link_visited = "#162c43";
+set color_page_background = "#eee9ef";
+set color_page_link = "#3474a2";
+set color_page_link_hover = "#1c967d";
+set color_page_link_visited = "#162c43";
+set color_page_subtitle = "#c1162e";
+set color_page_text = "#1e1e1e";
+set color_page_title = "#ad1429";
+set color_userpic_border = "#959296";
+set color_userpic_border_alt = "#adaaaf";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#ad1429";
+set color_entry_background = "#f4f0f6";
+set color_entry_border = "#e9e4ea";
+set color_entry_interaction_links = "#c1162e";
+set color_entry_link = "#3474a2";
+set color_entry_link_hover = "#1c967d";
+set color_entry_link_visited = "#162c43";
+set color_entry_metadata_label = "#3c3c3c";
+set color_entry_text = "#1e1e1e";
+set color_entry_title = "#ad1429";
+set color_management_links = "#c1162e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f4f0f6";
+set color_module_border = "#e9e4ea";
+set color_module_link = "#3474a2";
+set color_module_link_hover = "#1c967d";
+set color_module_link_visited = "#162c43";
+set color_module_text = "#1e1e1e";
+set color_module_title = "#ad1429";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Helvetica";
+set font_comment_title = "'Text Me One'";
+set font_entry_metadata = "'Text Me One'";
+set font_entry_title = "'Text Me One'";
+set font_journal_subtitle = "Helvetica";
+set font_journal_title = "'Text Me One'";
+set font_management = "Helvetica";
+set font_module_heading = "'Text Me One'";
+set font_module_text = "Helvetica";
+set font_navlinks = "Helvetica";
+set font_sources = "http://fonts.googleapis.com/css?family=Text+Me+One&subset=latin,latin-ext";
+
+
 #NEWLAYER: ciel/persephone
 layerinfo type = "theme";
 layerinfo name = "Persephone";
@@ -3971,7 +4403,7 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/seelie.jpg";
+set image_background_page_url = "commons/seelie.jpg";
 
 
 #NEWLAYER: ciel/silentnight
@@ -4558,7 +4990,7 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/unseelie.jpg";
+set image_background_page_url = "commons/unseelie.jpg";
 
 
 #NEWLAYER: ciel/warmembrace
@@ -4714,4 +5146,4 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/winterborn.jpg";
+set image_background_page_url = "commons/winterborn.jpg";

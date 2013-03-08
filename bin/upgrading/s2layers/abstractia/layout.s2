@@ -46,6 +46,7 @@ propgroup presentation {
     property use comment_management_links;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use custom_control_strip_colors;
 }
 
 set layout_type = "two-columns-right";
@@ -96,6 +97,10 @@ propgroup colors {
     property use color_module_text;
     property use color_module_title;
 
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 propgroup colors_child {
@@ -337,7 +342,7 @@ propgroup modules {
 }
 
 # explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 
 ##===============================
 ## Custom CSS
@@ -650,6 +655,8 @@ function Page::print_default_stylesheet() {
              $userpic_css = """margin-right: .833em;
     float: left;""";
          }
+    print_custom_control_strip_css();
+
      """
 /************************************************
 * Resets *
@@ -752,6 +759,7 @@ q {
 ***************************************************************************/
 
 #header {
+    $header_background
     margin-bottom: 1.25em;
 }
 
@@ -1500,15 +1508,15 @@ q {
     text-align: left;
 }
 
-.icon-image,
-.icon-info {
-    display: inline-block;
-    vertical-align: top;
-}
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: .5em;
+    }
 
-.icon-info {
-    margin-left: .5em;
-}
+.icon-info { min-height: 100px; }
 
 .icon-info .label,
 .icon-info span {
@@ -1565,15 +1573,21 @@ q {
 /* Contextual Popup
 ***************************************************************************/
 
-.ContextualPopup .Inner{
+.ContextualPopup {
     background: $*color_page_background;
+    border-radius: 0;
     color: $*color_page_text;
 }
-.ContextualPopup .Inner a, .ContextualPopup .Inner a:visited {
-    text-decoration: underline !important;
+.ContextualPopup a,
+.ContextualPopup a:visited {
+    text-decoration: underline;
     font-weight: bold;
-    color: $*color_page_text;
 }
+
+.ContextualPopup a { color: $*color_page_link_hover; }
+.ContextualPopup a:visited { color: $*color_page_link_visited; }
+.ContextualPopup a:hover { color: $*color_page_link_hover; }
+.ContextualPopup a:active { color: $*color_page_link_active; }
 
 /* Borders & Images
 ***************************************************************************/

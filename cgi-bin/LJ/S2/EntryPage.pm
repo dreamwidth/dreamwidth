@@ -76,7 +76,7 @@ sub EntryPage
     $p->{head_content} .= LJ::canonical_link( $permalink, $get->{thread} );
 
     # quickreply js libs
-    my $beta = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
 
     my @iconbrowser_extra_stylesheet;
     if ( $beta ) {
@@ -98,6 +98,8 @@ sub EntryPage
                     ));
 
     LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.core.js
+            stc/jquery/jquery.ui.core.css
             js/jquery/jquery.ui.widget.js
             js/jquery.quickreply.js
             js/jquery.threadexpander.js
@@ -410,12 +412,18 @@ sub EntryPage
 
     LJ::need_res( "js/commentmanage.js" );
     LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.core.js
+            js/jquery/jquery.ui.tooltip.js
             js/jquery.ajaxtip.js
+            js/jquery/jquery.ui.button.js
+            js/jquery/jquery.ui.dialog.js
             js/jquery.commentmanage.js
-            js/tooltip.js
             js/jquery/jquery.ui.position.js
-            stc/ajaxtip.css
-            stc/popup-form.css
+            stc/jquery/jquery.ui.core.css
+            stc/jquery/jquery.ui.tooltip.css
+            stc/jquery/jquery.ui.button.css
+            stc/jquery/jquery.ui.dialog.css
+            stc/jquery.commentmanage.css
         ) );
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
@@ -466,8 +474,8 @@ sub EntryPage_entry
 
     my $get = $opts->{'getargs'};
 
-    my $r = $opts->{'r'};
-    my $uri = $r->uri;
+    my $apache_r = $opts->{'r'};
+    my $uri = $apache_r->uri;
 
     my ($ditemid, $itemid);
     my $entry = $opts->{ljentry};  # only defined in named-URI case.  otherwise undef.
@@ -520,21 +528,21 @@ sub EntryPage_entry
             my $journal = $entry->journal;
 
             if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $entry->security ne "private" ) {
-                $r->notes->{error_key} = ".comm.open";
-                $r->notes->{journalname} = $journal->username;
+                $apache_r->notes->{error_key} = ".comm.open";
+                $apache_r->notes->{journalname} = $journal->username;
             } elsif ( $journal->is_community && $journal->is_closed_membership ) {
-                $r->notes->{error_key} = ".comm.closed";
-                $r->notes->{journalname} = $journal->username;
+                $apache_r->notes->{error_key} = ".comm.closed";
+                $apache_r->notes->{journalname} = $journal->username;
             }
         }
 
-        my $host = $r->headers_in->{Host};
-        my $args = scalar $r->args;
+        my $host = $apache_r->headers_in->{Host};
+        my $args = scalar $apache_r->args;
         my $querysep = $args ? "?" : "";
         my $redir = "http://$host$uri$querysep$args";
         $opts->{internal_redir} = "/protected";
-        $r->notes->{journalid} = $entry->journalid;
-        $r->notes->{returnto} = $redir;
+        $apache_r->notes->{journalid} = $entry->journalid;
+        $apache_r->notes->{returnto} = $redir;
         return;
     }
 

@@ -25,6 +25,8 @@
 
 .circle.access.y=Gives you access
 
+.circle.admin=Administrator
+
 .circle.header=Current Relationships
 
 .circle.header.comms=Communities ([[num]])
@@ -46,8 +48,6 @@
 .circle.join.moderated=(Moderated)
 
 .circle.join.open=(Open)
-
-.circle.maintainer=Maintainer
 
 .circle.member=Member
 

@@ -6,6 +6,8 @@
 # By Ricky Buchanan and Momijizukamori
 #
 
+use strict;
+
 my ( $author_name, $layout_human, $is_nonfree ) = @ARGV;
 
 sub diehelp {

@@ -249,7 +249,7 @@ class CommentInfo
     var int screened_count "Current number of screened comments (only visible if remote user can view screened comments)";
     var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
     var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
-    var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community maintainer";
+    var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community administrator.";
     var bool maxcomments "Set to true if entry has reached a comment maximum.";
     var bool show_postlink "Indicates whether the Post Comment link for this entry should be shown.";
     var bool show_readlink "Indicates whether the Read Comments link for this entry should be shown.";
@@ -1775,8 +1775,8 @@ property string separator_image_position {
 ##=======================================
 
 property string module_layout_sections {
-    des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
-    example = "none|(none)|one|Left Sidebar|two|Right Sidebar";
+    des = "Map module sections to user-friendly names for the wizard. Designers may want to override this.";
+    example = "none|(none)|one|Main Module Section|two|Secondary Module Section";
     noui = 1;
 }
 
@@ -1886,8 +1886,8 @@ property bool module_pagesummary_opts_comments_tooltip {
 
 property string[] module_active_group {
     des = "Recent active entries";
+    note = "This is only visible on paid journals.";
     grouptype = "module";
-    requires_cap = "activeentries";
 }
 set module_active_group = ["module_active_show", "module_active_order", "module_active_section"];
 property bool module_active_show { grouped = 1; }
@@ -1935,6 +1935,7 @@ property string{}[] layout_resources { noui = 1; des = "Resources used in the la
 
 property string[] module_search_group {
     des = "Search";
+    note = "This is only visible on paid journals.";
     grouptype = "module";
 }
 set module_search_group = ["module_search_show", "module_search_order", "module_search_section"];
@@ -1951,7 +1952,7 @@ property bool module_cuttagcontrols_show { grouped = 1; }
 property int  module_cuttagcontrols_order { grouped = 1; }
 property string module_cuttagcontrols_section { grouped = 1; }
 
-set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 set module_userprofile_show = true;
 set module_userprofile_order = 1;
 set module_userprofile_section = "one";
@@ -2019,7 +2020,7 @@ property string text_view_recent_tagged {
     des = "Text used to link to a tag-filtered version of the 'Recent Entries' page";
     maxlength = 40;
     "size" = 15;
-    example = "Entries tagged with ";
+    example = "Entries tagged with";
 }
 property string text_view_archive {
     des = "Text used to link to the 'Archive' page";
@@ -2069,6 +2070,25 @@ property string text_view_memories {
     "size" = 15;
     example = "Memories";
 }
+property string text_view_monthpage {
+    des = "Text used to link to a 'Month' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Month";
+    "note" = "\$*text_view_month is already used";
+}
+property string text_view_day {
+    des = "Text used to link to a 'Day' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Day";
+}
+property string text_view_entry {
+    des = "Text used to link to an 'Entry' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Entry";
+}
 property string text_view_userinfo {
     des = "Text used to link to the 'Profile' page";
     maxlength = 40;
@@ -2103,7 +2123,7 @@ property string text_page_top {
 }
 
 set text_view_recent = "Recent Entries";
-set text_view_recent_tagged = "Entries tagged with ";
+set text_view_recent_tagged = "Entries tagged with";
 set text_view_archive = "Archive";
 set text_view_friends = "Reading";
 set text_view_friends_comm = "Member Posts";
@@ -2112,6 +2132,9 @@ set text_view_network = "Network";
 set text_view_network_filter = "Network (Custom filter)";
 set text_view_tags = "Tags";
 set text_view_memories = "Memories";
+set text_view_monthpage = "Month";
+set text_view_day = "Day";
+set text_view_entry = "Entry";
 set text_view_userinfo = "Profile";
 set text_view_icons = "Icons";
 set text_skiplinks_back = "Previous #";
@@ -2162,6 +2185,7 @@ property string text_module_pagesummary {
 }
 property string text_module_active_entries {
     des = "Text for the 'Active Entries' heading";
+    note = "This is only visible on paid journals.";
     maxlength = 50;
     size = 20;
     example = "Active Entries";
@@ -2198,6 +2222,13 @@ property string text_module_cuttagcontrols {
 }
 property string text_module_search {
     des = "Text for the 'Search' heading";
+    note = "This is only visible on paid journals.";
+    maxlength = 50;
+    size = 20;
+    example = "Search";
+}
+property string text_module_search_btn {
+    des = "Text for the 'Search' button";
     maxlength = 50;
     size = 20;
     example = "Search";
@@ -2219,6 +2250,7 @@ set text_module_customtext_content = "";
 set text_module_credit = "Style Credit";
 set text_module_cuttagcontrols = "Expand Cut Tags";
 set text_module_search = "Search";
+set text_module_search_btn = "Search";
 
 ##=======================================
 ## Display properties - Text
@@ -2300,7 +2332,7 @@ set text_meta_mood = "Current Mood:";
 set text_meta_music = "Current Music:";
 set text_meta_xpost = "Crossposts:";
 set text_tags = "Tags:";
-set text_stickyentry_subject = "Sticky: ";
+set text_stickyentry_subject = "Sticky:";
 
 ##=======================================
 ## Display properties - Text
@@ -2450,6 +2482,21 @@ property string text_comment_unhide {
     example = "Show 1 comment // Show # comments";
     maxlength = "50";
 }
+property string text_commentview_flat {
+   des = "Text to show comments in flat view";
+   example = "Flat";
+   maxlength = "50";
+}
+property string text_commentview_threaded {
+   des = "Text to show comments in threaded view";
+   example = "Threaded";
+   maxlength = "50";
+}
+property string text_commentview_toponly {
+   des = "Text to show only top-level comments";
+   example = "Top-Level Comments Only";
+   maxlength = "50";
+}
 set text_comment_link = "Link";
 set text_comment_reply = "Reply";
 set text_comment_frozen = "Frozen";
@@ -2459,6 +2506,9 @@ set text_comment_thread = "Thread";
 set text_comment_expand = "Expand";
 set text_comment_hide = "Hide 1 comment // Hide # comments";
 set text_comment_unhide = "Show 1 comment // Show # comments";
+set text_commentview_flat = "Flat";
+set text_commentview_threaded = "Threaded";
+set text_commentview_toponly = "Top-Level Comments Only";
 
 ##=======================================
 ## Display properties - Text
@@ -2695,7 +2745,7 @@ property string text_icon_alt_sticky_entry        { noui = 1; des = "Alternative
 
 property string text_posting_in {
     des = "Text when user is posting in a community";
-    example = "posting in ";
+    example = " posting in ";
 }
 
 property string text_view_month {
@@ -2721,8 +2771,8 @@ property string text_reply_nocomments {
     maxlength = "100";
 }
 property string text_comments_disabled_maintainer {
-    des = "Text shown instead of comments if a community maintainer has disabled comments";
-    example = "Comments disabled by a maintainer of this community";
+    des = "Text shown instead of comments if a community administrator has disabled comments";
+    example = "Comments disabled by an administrator of this community";
 }
 
 property string comment_page_prev {
@@ -2736,7 +2786,7 @@ property string comment_page_next {
 
 property string text_screened {
    des = "The text used when a comment is screened";
-   example = "(screened comment) ";
+   example = "(screened comment)";
 }
 property string text_deleted {
    des = "The text used when a comment has been deleted";
@@ -2748,7 +2798,7 @@ property string text_fromsuspended {
 }
 property string text_frozen {
    des = "The text used when a comment is frozen";
-   example = "(frozen) ";
+   example = "(frozen)";
 }
 property string text_poster_anonymous {
     des = "The placeholder used when something is posted by an anonymous user";
@@ -2850,15 +2900,15 @@ set text_posting_in = " posting in ";
 set text_reply_back = "Read Comments";
 set text_reply_nocomments_header = "Comments Disabled:";
 set text_reply_nocomments = "Comments have been disabled for this post.";
-set text_comments_disabled_maintainer = "Comments disabled by a maintainer of this community";
+set text_comments_disabled_maintainer = "Comments disabled by an administrator of this community";
 
 set comment_page_prev = "&lt;&lt";
 set comment_page_next = "&gt;&gt";
 
-set text_screened = "(screened comment) ";
+set text_screened = "(screened comment)";
 set text_deleted = "(deleted comment)";
 set text_fromsuspended = "(reply from suspended user)";
-set text_frozen = "(frozen) ";
+set text_frozen = "(frozen)";
 set text_poster_anonymous = "(Anonymous)";
 
 set text_comment_posted = "Comment successfully posted.";
@@ -3217,12 +3267,12 @@ function lang_viewname(string viewid) [notags] : string
     }
     if ($viewid == "icons") { return $*text_view_icons; }
     if ($viewid == "network") { return $*text_view_network; }
-    if ($viewid == "day") { return "Day"; }
-    if ($viewid == "month") { return "Month"; }
+    if ($viewid == "day") { return $*text_view_day; }
+    if ($viewid == "month") { return $*text_view_monthpage; }
     if ($viewid == "userinfo") { return $*text_view_userinfo; }
-    if ($viewid == "entry") { return "Read Comments"; }
-    if ($viewid == "reply") { return "Post Comment"; }
-    if ($viewid == "tags") { return "$*text_view_tags"; }
+    if ($viewid == "entry") { return $*text_read_comments; }
+    if ($viewid == "reply") { return $*text_post_comment; }
+    if ($viewid == "tags") { return $*text_view_tags; }
     if ($viewid == "memories") { return $*text_view_memories; }
     return "Unknown View";
 }
@@ -3678,7 +3728,7 @@ function Page::view_title() [notags] : string {
 function RecentPage::view_title() : string {
     if ($.filter_active) {
         if ($.filter_tags) {
-            return $*text_view_recent_tagged + $.filter_name;
+            return $*text_view_recent_tagged + " " + $.filter_name;
         } else {
             return "(" + $.filter_name + ")";
         }
@@ -4048,7 +4098,7 @@ function print_module_search() {
         var Page p = get_page();
 
         open_module("search", $*text_module_search, "$*SITEROOT/search?user=" + $p.journal.username);
-        print_search_form("Search");
+        print_search_form($*text_module_search_btn);
         close_module();
     }
 }
@@ -4259,6 +4309,7 @@ function print_module_tags() {
 
 function print_module_active() {
     var Page p = get_page();
+    # only print this module if the viewer can have active entries
     if ( $p.has_activeentries and not $p isa FriendsPage ) {
         var Entry[] activeentries = $p.activeentries;
         var string[] subjects;
@@ -4805,10 +4856,10 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
         var Comment c = $this as Comment;
         """<h4 class="comment-title">""";
         if ($c.screened) {
-            print $*text_screened;
+            print $*text_screened + " ";
         }
         if ($c.frozen) {
-            print $*text_frozen;
+            print $*text_frozen + " ";
         }
         if ($c.echi) {
             print "<span class='echi'>${c.echi}.</span> ";
@@ -4821,7 +4872,8 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
             var StickyEntry s = $this as StickyEntry;
             """<h3 class="sticky-entry-title entry-title">""";
             $s->print_sticky_icon();
-            print $*text_stickyentry_subject + $this->formatted_subject( $opts );
+            if ($*text_stickyentry_subject != "") { print $*text_stickyentry_subject + " "; }
+            print $this->formatted_subject( $opts );
             "</h3>";
         }
         else {
@@ -4909,16 +4961,20 @@ function Comment::print_wrapper_end() {
 function EntryLite::print_metadata() {
 }
 function Entry::print_metadata() {
+# If new entry metadata types are added, they must be explicitly called by key here
+
     if (size $.metadata) {
         var string position = ($*entry_metadata_position == "top") ? " top-metadata" : " bottom-metadata";
         """<div class="metadata$position">\n<ul>\n""";
-        foreach var string m ( keys_alpha( $.metadata ) ) {
-            var string metadata_name = lang_metadata_title($m);
-            """<li><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
-            if ($m == "mood") {
-                " $.mood_icon ";
+        foreach var string m ( [ "mood", "location", "music", "groups", "xpost" ] ) {
+            if ($.metadata{$m}) {
+                var string metadata_name = lang_metadata_title($m);
+                """<li><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
+                if ($m == "mood") {
+                    " $.mood_icon ";
+                }
+                """<span class="metadata-item metadata-item-$m">$.metadata{$m}</span></li>\n""";
             }
-            """<span class="metadata-item metadata-item-$m">$.metadata{$m}</span></li>\n""";
         }
         "</ul>\n</div>\n";
     }
@@ -5298,7 +5354,9 @@ function EntryLite::time_display(string datefmt, string timefmt) : string {
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -5333,7 +5391,9 @@ function Entry::time_display(string datefmt, string timefmt) : string {
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -5374,7 +5434,9 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string tooltip = "";
@@ -6061,22 +6123,22 @@ function CommentNav::print(string{} opts) {
     print "<div class='$class'>";
 
     var string{} links = {
-        "flat"      => """<span class="view-flat"><a href="$.url${sep}view=flat#comments">Flat</a></span>""",
-        "threaded"  => """<span class="view-threaded"><a href="$.url#comments">Threaded</a></span>""",
-        "top-only"  => """<span class="view-top-only"><a href="$.url${sep}view=top-only#comments">Top-Level Comments Only</a></span>""",
+        "flat"      => """<span class="view-flat"><a href="$.url${sep}view=flat#comments">$*text_commentview_flat</a></span>""",
+        "threaded"  => """<span class="view-threaded"><a href="$.url#comments">$*text_commentview_threaded</a></span>""",
+        "top-only"  => """<span class="view-top-only"><a href="$.url${sep}view=top-only#comments">$*text_commentview_toponly</a></span>""",
         "expand_all"  => """<a href="$.url${sep}expand_all=1${page_arg}#comments" onClick="Expander.make(this,'$.url${sep}expand_all=1${page_arg}#comments',-1,false,false);return false;">Expand All</a>"""
     };
 
     if ( $.view_mode == "threaded" ) {
-        print "$links{"flat"} | $links{"top-only"}";
+        print "$links{"flat"}${*text_default_separator}$links{"top-only"}";
     } elseif ( $.view_mode == "flat" ) {
-        print "$links{"threaded"} | $links{"top-only"}";
+        print "$links{"threaded"}${*text_default_separator}$links{"top-only"}";
     } elseif ( $.view_mode == "top-only" ) {
-        print "$links{"threaded"} | $links{"flat"}";
+        print "$links{"threaded"}${*text_default_separator}$links{"flat"}";
     }
 
     if ( $.show_expand_all ) {
-        print " | <span class='expand_all'>$links{"expand_all"}</span>";
+        print "${*text_default_separator}<span class='expand_all'>$links{"expand_all"}</span>";
     }
     print "</div>";
 }

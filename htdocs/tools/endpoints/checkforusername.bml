@@ -16,11 +16,11 @@ _c?>
 {
     use strict;
     use vars qw(%GET);
-    use JSON;
+    use LJ::JSON;
     use LJ::CreatePage;
 
     my $error = LJ::CreatePage->verify_username($GET{user});
 
-    return JSON::objToJson({ error => $error ? $error : "" });
+    return to_json({ error => $error ? $error : "" });
 }
 _code?>

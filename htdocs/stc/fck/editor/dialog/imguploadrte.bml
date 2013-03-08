@@ -55,6 +55,11 @@
         };
 
     #taken from the original fck_image.html    
+    # get the link to the alt text faq
+    my $faq;
+    unless ( $faq = LJ::Hooks::run_hook( 'faqlink', 'alttext', $ML{'/imgupload.bml.insertimage.alt.faqlink'} ) ) {
+            $faq = $ML{'/imgupload.bml.insertimage.alt.faqlink'}; 
+    }
     $ret .= qq{
                 <div id="divInfo">
                         <table cellspacing="1" cellpadding="1" border="0" width="99%" height="99%">
@@ -69,8 +74,10 @@
                        </table>
                        </td></tr>
                        <tr>
+
                        <td><span fckLang="DlgImgAlt">Short Description</span><br />
                        <input id="txtAlt" style="WIDTH: 9%" type="text"><br />
+                       $ML{'/imgupload.bml.insertimage.alt.body'} $faq.<br />
                        </td></tr>
                        <tr height="100%">
                        <td valign="top">

@@ -255,6 +255,10 @@ my %modules = (
                "File::Type" => {
                    deb => 'libfile-type-perl',
                    opt => 'For media storage',
+               },
+               "JSON" => {
+                   deb => 'libjson-perl',
+                   ver => '2.53',
                }
               );
 

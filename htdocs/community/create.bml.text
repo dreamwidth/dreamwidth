@@ -41,7 +41,7 @@
 
 .label.postaccess=Member Posting Restrictions
 
-.label.selcan=<b>Select Members</b><br />Only some members are able to post, once a maintainer gives them access.
+.label.selcan2=<b>Select Members</b><br />Only some members are able to post, once an administrator gives them access.
 
 .label.whocanpost=Do you want to allow only certain members the ability to post?
 

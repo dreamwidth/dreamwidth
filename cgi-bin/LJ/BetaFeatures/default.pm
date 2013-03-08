@@ -98,6 +98,11 @@ sub is_expired {
     return 1;
 }
 
+# are we opt-in, or opt-out?
+sub is_optout {
+    return $_[0]->key =~ /_optout$/ ? 1 : 0;
+}
+
 # any arguments to pass to the translation string to describe this feature?
 sub args_list {
     return ();

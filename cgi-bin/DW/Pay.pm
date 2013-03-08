@@ -266,6 +266,24 @@ sub get_account_type {
 }
 
 ################################################################################
+# DW::Pay::get_refund_points_rate
+#
+# ARGUMENTS: uuserid
+#
+#   uuserid     required    user object or userid to get paid status of
+#
+# RETURN: value defined as _refund_points in %LJ::CAP.
+#
+sub get_refund_points_rate {
+    my $typeid = DW::Pay::get_current_account_status( @_ );
+    confess 'account has no valid typeid'
+        unless $typeid && $typeid > 0;
+    confess "typeid $typeid not a valid account level"
+        unless DW::Pay::type_is_valid( $typeid );
+    return $LJ::CAP{$typeid}->{_refund_points} || 0;
+}
+
+################################################################################
 # DW::Pay::get_account_type_name
 #
 # ARGUMENTS: uuserid
@@ -601,7 +619,10 @@ sub update_paid_status {
     # and now, at this last step, we kick off a job to check if this user
     # needs to have their search index setup/messed with.
     if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
-        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } ) );
+        $sclient->insert_jobs(
+                TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+                    { userid => $u->id, source => "paidstat" } )
+        );
     }
 
     return 1;

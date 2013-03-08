@@ -60,8 +60,8 @@ LJ::Hooks::register_hook( 'show_control_strip', sub {
             || $remote->watches( $journal ) || $remote->trusts( $journal );
 
         return $display & $pagemask{'journal.norelationship'};
-            
-    } else {    
+
+    } else {
         my $display = $journal->control_strip_display;
         return undef unless $display;
 
@@ -81,9 +81,7 @@ LJ::Hooks::register_hook( 'control_strip_stylesheet_link', sub {
     LJ::need_res('stc/controlstrip.css');
 
     my $color;
-    my %GET = LJ::parse_args( $r->query_string );
-    my $style = $GET{style} || '';
-    $color = $style eq 'mine' && $remote
+    $color = $remote
         ? $remote->prop( 'control_strip_color' )
         : $journal->prop( 'control_strip_color' );
     $color = $color || 'dark';

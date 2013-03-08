@@ -5,3 +5,8 @@
 
 .size=When uploading from a file or from a gallery, the image will display as 320 x 240 (medium) and will link to the image in the gallery.
 
+.insertimage.url=Image from URL
+.insertimage.example=Example
+.insertimage.alt.label=Short Description
+.insertimage.alt.body=This description is used by screenreaders, some mobile devices, and when images are turned off in your browser. Please fill it out! We have 
+.insertimage.alt.faqlink=tips on writing good descriptions

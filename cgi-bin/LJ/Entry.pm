@@ -115,7 +115,7 @@ sub new
         if %opts;
 
     if ($self->{ditemid}) {
-        $self->{anum}    = $self->{ditemid} & 255;
+        $self->{_untrusted_anum} = $self->{ditemid} & 255;
         $self->{jitemid} = $self->{ditemid} >> 8;
     }
 
@@ -283,9 +283,14 @@ sub anum {
 #   $entry->correct_anum
 #   $entry->correct_anum($given_anum)
 # if no given anum, gets it from the provided ditemid to constructor
+# Note: an anum parsed from the ditemid cannot be trusted which is what we're verifying here
 sub correct_anum {
     my ( $self, $given ) = @_;
-    $given = defined $given ? int( $given ) : $self->{anum};
+
+    $given = defined $given ? int( $given ) :
+           $self->{ditemid} ? $self->{_untrusted_anum} :
+                              $self->{anum};
+
     return 0 unless $self->valid;
     return 0 unless defined $self->{anum} && defined $given;
     return $self->{anum} == $given;
@@ -570,19 +575,20 @@ sub comment_info {
     return unless exists $opts{remote};
     return unless exists $opts{style_args};
 
-    my $u = $opts{u};
-    my $remote = $opts{remote};
+    my $u = $opts{u};                                               # the journal being viewed
+    my $remote = $opts{remote};                                     # the person viewing the page
     my $style_args = $opts{style_args};
     my $viewall = $opts{viewall};
 
-    my $journal = exists $opts{journal} ? $opts{journal} : $u;
+    my $journal = exists $opts{journal} ? $opts{journal} : $u;      # journal entry was posted in
+                                                                    # may be different from $u on a read page
 
     my $permalink = $self->url;
     my $comments_enabled = ( $viewall ||
         ( $journal->{opt_showtalklinks} eq "Y" && !$self->comments_disabled ) ) ? 1 : 0;
     my $has_screened = ( $self->props->{hasscreened} && $remote && $journal
                          && $remote->can_manage( $journal ) ) ? 1 : 0;
-    my $screenedcount = $has_screened ? LJ::Talk::get_screenedcount( $u, $self->jitemid ) : 0;
+    my $screenedcount = $has_screened ? LJ::Talk::get_screenedcount( $journal, $self->jitemid ) : 0;
     my $replycount = $comments_enabled ? $self->reply_count : 0;
     my $nc = "";
     $nc .= "nc=$replycount" if $replycount && $remote && $remote->{opt_nctalklinks};
@@ -2043,7 +2049,8 @@ sub delete_entry
 
     # fired to delete the post from the Sphinx search database
     if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
-        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } ) );
+        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+                    { userid => $u->id, jitemid => $jitemid, source => "entrydel" } ) );
     }
 
     return 1;

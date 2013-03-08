@@ -51,7 +51,7 @@ set userpics_position = "right";
 ##===============================
 
 property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
     grouped = 1;
 }
 
@@ -333,7 +333,6 @@ dl dt { font-weight: bold; }
 a:hover { text-decoration: none; }
 
 body {
-    background:  $*color_page_background;
     padding: 0;
     margin: 0;
 }
@@ -345,12 +344,11 @@ body {
     background: $*color_page_background;
 }
 
-#header {
-    background:  transparent;
-    padding: 1px; }
-#header .inner { padding: 1px 1em;
-    margin-top: -1px;
-    background:  $*color_header_background; }
+#header { padding: 1px; }
+
+#header .inner {
+    padding: 1px 1em;
+    }
 
 #content { border-color: $*color_page_background !important; }
 #content-footer { clear: both; }
@@ -360,8 +358,8 @@ body {
 
 .navigation a { color: $*color_navigation_link; }
 .navigation a:visited { color: $*color_navigation_link_visited; }
-.navigation a:active { color: $*color_navigation_link_active; }
 .navigation a:hover { color: $*color_navigation_link_hover; }
+.navigation a:active { color: $*color_navigation_link_active; }
 
 #title,
 #pagetitle,
@@ -515,16 +513,45 @@ $userpic_css
     margin: 0;
 }
 
-.tags-container, .icons-container, #archive-year .month, #comments, #archive-month .month { $entry_colors }
+.tags-container,
+.icons-container,
+#archive-year .month,
+#comments,
+#archive-month .month {
+    $entry_colors
+}
 
-.tags-container a, .icons-container a, #archive-year a, #comments a, #archive-month a { color:$*color_entry_link; }
+.tags-container a,
+.icons-container a,
+#archive-year .month a,
+#comments a,
+#archive-month .month a {
+    color:$*color_entry_link;
+}
 
-.tags-container a:active, .icons-container a:active, #archive-year a:active, #comments a:active, #archive-month a:active { color:$*color_entry_link_active; }
+.tags-container a:visited,
+.icons-container a:visited,
+#archive-year .month a:visited,
+#comments a:visited,
+#archive-month .month a:visited {
+    color:$*color_entry_link_visited;
+}
 
-.tags-container a:hover, .icons-container a:hover, #archive-year a:hover, #comments a:hover, #archive-month a:hover { color:$*color_entry_link_hover; }
+.tags-container a:hover,
+.icons-container a:hover,
+#archive-year .month a:hover,
+#comments a:hover,
+#archive-month .month a:hover {
+    color:$*color_entry_link_hover;
+}
 
-.tags-container a:visited, .icons-container a:visited, #archive-year a:visited, #comments a:visited, #archive-month a:visited { color:$*color_entry_link_visited; }
-
+.tags-container a:active,
+.icons-container a:active,
+#archive-year .month a:active,
+#comments a:active,
+#archive-month .month a:active {
+    color:$*color_entry_link_active;
+}
 
 /* Archive */
 
@@ -556,12 +583,17 @@ table.month caption { display: none; }
 
 /* Icons */
 
+div.icons-container div.icon:nth-of-type(2n) {
+    clear: both;
+}
+
 .icons-container .icon {
     float: left;
     margin-bottom: 15px;
     min-width: 350px;
     vertical-align: bottom;
     width: 50%;
+    display:table;
 }
 
 .icon-image {
@@ -569,12 +601,15 @@ table.month caption { display: none; }
     float: left;
     margin-right: 1em;
     min-width: 100px;
+    margin-top: 0;
 }
 
 .icon-info {
     overflow: auto;
     vertical-align: bottom;
     word-wrap: break-word;
+    display:table-cell;
+    width:100%;
 }
 
 .icon-info .label,
@@ -586,7 +621,6 @@ table.month caption { display: none; }
     clear: both;
     text-align: center;
 }
-
 .userprofile-userinfo {
     border-left: .5em solid $*color_module_link_border;
     background:  $*color_module_link_background;
@@ -635,6 +669,9 @@ table.month caption { display: none; }
 
 /* Extra specificity needed to override .module a */
 .module .module-header a { color: $*color_module_title; }
+.module .module-header a:visited { color: $*color_module_title; }
+.module .module-header a:hover { color: $*color_module_link_hover; }
+.module .module-header a:active { color: $*color_module_link_active; }
 
 .module-content ul,
 .module-list,

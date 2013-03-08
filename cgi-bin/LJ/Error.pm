@@ -199,30 +199,30 @@ sub log {
                   'usercaused'  => $err->user_caused, # 0, 1 or NULL
                   );
 
-    if (my $r = eval {BML::get_request()}) {
-        my $rl = $r->last;
+    if (my $apache_r = eval {BML::get_request()}) {
+        my $apache_rl = $apache_r->last;
 
-        my $remote = eval { LJ::load_user($rl->notes('ljuser')) };
+        my $remote = eval { LJ::load_user($apache_rl->notes('ljuser')) };
         my $remotecaps = $remote ? $remote->{caps} : undef;
         my $remoteid   = $remote ? $remote->{userid} : 0;
-        my $ju = eval { LJ::load_userid($rl->notes('journalid')) };
-        my $uri = $r->uri;
+        my $ju = eval { LJ::load_userid($apache_rl->notes('journalid')) };
+        my $uri = $apache_r->uri;
 
         my %insert_r = (
-                        'addr'        => $r->connection->remote_ip,
-                        'remote'      => $rl->notes('ljuser'),
+                        'addr'        => $apache_r->connection->remote_ip,
+                        'remote'      => $apache_rl->notes('ljuser'),
                         'remotecaps'  => $remotecaps,
                         'remoteid'    => $remoteid,
-                        'journalid'   => $rl->notes('journalid'),
+                        'journalid'   => $apache_rl->notes('journalid'),
                         'journaltype' => $ju ? $ju->{journaltype} : "",
-                        'codepath'    => $rl->notes('codepath'),
-                        'langpref'    => $rl->notes('langpref'),
-                        'clientver'   => $rl->notes('clientver'),
-                        'method'      => $r->method,
+                        'codepath'    => $apache_rl->notes('codepath'),
+                        'langpref'    => $apache_rl->notes('langpref'),
+                        'clientver'   => $apache_rl->notes('clientver'),
+                        'method'      => $apache_r->method,
                         'uri'         => $uri,
-                        'args'        => scalar $r->args,
-                        'browser'     => $r->header_in("User-Agent"),
-                        'ref'         => $r->header_in("Referer"),
+                        'args'        => scalar $apache_r->args,
+                        'browser'     => $apache_r->header_in("User-Agent"),
+                        'ref'         => $apache_r->header_in("Referer"),
                         );
 
         while ( my ($k,$v) = each %insert_r ) {

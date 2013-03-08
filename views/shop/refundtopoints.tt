@@ -1,0 +1,37 @@
+[%- sections.title = '.title' | ml(sitename = site.nameshort) -%]
+
+[% cart_display %]
+
+[% IF refunded %]
+
+<p>[% '.complete' | ml %]</p>
+
+<p>[% '.refunded' | ml(sitename = site.nameshort, points = points, days = days, type = type) %]</p>
+
+[% ELSE %]
+
+<p>[% '.about' | ml(sitename = site.nameshort) %]</p>
+
+<p>[% '.about2' | ml %]</p>
+
+[% IF rate == 0 %]
+
+<p><strong>[% '.noteligible' | ml %]</strong></p>
+
+[% ELSIF points == 0 %]
+
+<p><strong>[% '.toofew' | ml %]</strong><p>
+
+[% ELSE %]
+
+<p>[% '.refund' | ml(sitename = site.nameshort, points = points, days = days, type = type) %]</p>
+
+<p>[% '.areyousure' | ml %]</p>
+
+<form method='post'>
+[% dw.form_auth %]
+<input type='submit' value='[% '.addtocart' | ml(points = points) %]' />
+</form>
+
+[% END %]
+[% END %]

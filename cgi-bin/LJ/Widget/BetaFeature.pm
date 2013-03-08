@@ -37,14 +37,16 @@ sub render_body {
         if $handler->is_active;
 
     if ($handler->is_active && $handler->user_can_add($u)) {
+        my @submit_actions = $handler->is_optout ? ( "on", "off" ) : ( "off", "on" );
+
         $ret .= "<div class='simple-form'>";
         $ret .= $class->start_form;
         if ($u->is_in_beta($feature)) {
             $ret .= "<?p " . $class->ml("widget.betafeature.$feature.on", { $handler->args_list } ) . " p?>";
-            $ret .= "<fieldset class='submit'>" . $class->html_submit("off", $class->ml('widget.betafeature.btn.off')) . "</fieldset>";
+            $ret .= "<fieldset class='submit'>" . $class->html_submit("off", $class->ml("widget.betafeature.btn.$submit_actions[0]")) . "</fieldset>";
         } else {
             $ret .= "<?p " . $class->ml("widget.betafeature.$feature.off", { $handler->args_list } ) . " p?>";
-            $ret .= "<fieldset class='submit'>" . $class->html_submit("on", $class->ml('widget.betafeature.btn.on')) . "</fieldset>";
+            $ret .= "<fieldset class='submit'>" . $class->html_submit("on", $class->ml("widget.betafeature.btn.$submit_actions[1]")) . "</fieldset>";
         }
         $ret .= $class->html_hidden( feature => $feature, user => $u->user );
         $ret .= $class->end_form;

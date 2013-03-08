@@ -107,6 +107,36 @@ sub get_import_items {
     return \%ret;
 }
 
+=head2 C<<DW::Logic::Importer->get_all_import_items( $u )>>
+
+Get all import items for this user
+
+=cut
+sub get_all_import_items {
+    my ( $class, $u ) = @_;
+
+    my $dbh = LJ::get_db_writer()
+        or die "No database.";
+
+    my $import_items = $dbh->selectall_arrayref(
+        "SELECT import_data_id, item, status, created, last_touch FROM import_items WHERE userid = ?",
+        undef, $u->id
+    );
+
+    my %ret;
+    foreach my $import_item ( @$import_items ) {
+        my ( $id, $item, $status, $created, $last_touch ) = @$import_item;
+        $ret{$id}->{$item} = {
+            status => $status,
+            created => $created,
+            last_touch => $last_touch,
+        };
+    }
+
+    return \%ret;
+}
+
+
 =head2 C<<DW::Logic::Importer->get_import_items_for_user( $u, id1, [ id2, id3... ] )>>
 
 Get latest import item for this user. Includes import data.

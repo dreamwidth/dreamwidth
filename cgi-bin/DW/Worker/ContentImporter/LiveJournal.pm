@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -158,7 +158,11 @@ Remaps a remote user to local userids.
 =cut
 
 sub get_remapped_userids {
-    my ( $class, $data, $user ) = @_;
+    my ( $class, $data, $user, $log ) = @_;
+
+    $log ||= sub {
+        warn @_;
+    };
 
     # some users we can't map, because the process of loading their FOAF data or journal
     # does really weird things (DNS!)
@@ -175,20 +179,20 @@ sub get_remapped_userids {
         undef, $data->{hostname}, $user
     );
 
-    unless ( defined $oid ) {
-        warn "[$$] Remapping identity userid of $data->{hostname}:$user\n";
+    unless ( $oid ) {
+        $log->( "[$$] Remapping identity userid of $data->{hostname}:$user" );
         $oid = $class->remap_username_friend( $data, $user );
-        warn "     IDENTITY USERID IS STILL UNDEFINED\n"
-            unless defined $oid;
+        $log->( "     IDENTITY USERID STILL DOESN'T EXIST" )
+            unless $oid;
     }
 
 # FIXME: this is temporarily disabled while we hash out exactly how we want
 # this functionality to work.
-#    unless ( defined $fid ) {
-#        warn "[$$] Remapping feed userid of $data->{hostname}:$user\n";
+#    unless ( $fid ) {
+#        $log->( "[$$] Remapping feed userid of $data->{hostname}:$user" );
 #        $fid = $class->remap_username_feed( $data, $user );
-#        warn "     FEED USERID IS STILL UNDEFINED\n"
-#            unless defined $fid;
+#        $log->( "     FEED USERID STILL DOESN'T EXIST" )
+#            unless $fid;
 #    }
 
     $dbh->do( 'REPLACE INTO import_usermap (hostname, username, identity_userid, feed_userid) VALUES (?, ?, ?, ?)',
@@ -197,8 +201,10 @@ sub get_remapped_userids {
     # load this user and determine if they've been claimed. if so, we want to post
     # all content as from the claimant.
     my $ou = LJ::load_userid( $oid );
-    if ( my $cu = $ou->claimed_by ) {
-        $oid = $cu->id;
+    if ( defined $ou ) {
+        if ( my $cu = $ou->claimed_by ) {
+            $oid = $cu->id;
+        }
     }
 
     $MAPS{$data->{hostname}}->{$user} = [ $oid, $fid ];
@@ -279,6 +285,7 @@ sub remap_username_friend {
         # in that case, we pretend.
         my $ident =
             exists $foaf_items->{identity} ? $foaf_items->{identity}->{url} : undef;
+        $username =~ s/_/-/g; # URL domains have dashes.
         $ident ||= "http://$username.$data->{hostname}/";
 
         # build the identity account (or return it if it exists)
@@ -286,6 +293,8 @@ sub remap_username_friend {
             or return undef;
         return $iu->id;
     }
+
+    return undef;
 }
 
 =head2 C<< $class->remap_lj_user( $data, $event ) >>
@@ -403,7 +412,7 @@ sub xmlrpc_call_helper {
         return
             {
                 fault => 1,
-                faultString => 'Exceeded XMLRPC recursion limit.',
+                faultString => 'Failed to connect to the server too many times.',
             };
     }
 
@@ -570,6 +579,23 @@ sub get_foaf_from {
     }
 
     return ( \%items, \@interests, \@schools );
+}
+
+sub start_log {
+    my ( $class, $import_type, %opts ) = @_;
+
+    my $userid = $opts{userid};
+    my $import_data_id = $opts{import_data_id};
+
+    my $logfile;
+
+    mkdir "$LJ::HOME/logs/imports";
+    mkdir "$LJ::HOME/logs/imports/$userid";
+    open $logfile, ">>$LJ::HOME/logs/imports/$userid/$import_data_id.$import_type.$$"
+        or return undef;
+    print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(undef, 1) . ".\n";
+
+    return $logfile;
 }
 
 =head1 AUTHORS

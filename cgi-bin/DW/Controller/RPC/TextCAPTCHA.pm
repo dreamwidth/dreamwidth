@@ -20,7 +20,7 @@ package DW::Controller::RPC::TextCAPTCHA;
 use strict;
 
 use DW::Routing;
-use JSON;
+use LJ::JSON;
 use DW::Captcha::textCAPTCHA;
 
 DW::Routing->register_regex( '/__rpc_captcha/(.*)$',
@@ -34,7 +34,7 @@ DW::Routing->register_regex( '^/captcha/text/(.*)$', \&iframe_captcha_handler, a
 sub captcha_handler {
     my ( $call_opts, $auth ) = @_;
 
-    my $from_textcaptcha = DW::Captcha::textCAPTCHA::Logic->fetch;
+    my $from_textcaptcha = DW::Captcha::textCAPTCHA::Logic->get_captcha;
     my ( $captcha ) = DW::Captcha::textCAPTCHA::Logic::form_data( $from_textcaptcha,  $auth );
 
     if ( $call_opts->format eq "json" ) {
@@ -42,7 +42,7 @@ sub captcha_handler {
         my $captcha_html = DW::Template->template_string( 'textcaptcha.tt', { captcha => $captcha }, { fragment => 1 } );
 
         my $r = DW::Request->get;
-        $r->print( objToJson( { captcha => $captcha_html } ) );
+        $r->print( to_json( { captcha => $captcha_html } ) );
         return $r->OK;
     } else {
         return DW::Template->render_template( 'textcaptcha.tt', { captcha => $captcha }, { fragment => 1 } );
@@ -62,7 +62,7 @@ sub iframe_captcha_handler {
         return DW::Template->render_template( 'textcaptcha-response.tt', { response => DW::Captcha::textCAPTCHA::Logic::to_form_string( $captcha_object ) }, { fragment => 1 } );
     }
 
-    my $from_textcaptcha = DW::Captcha::textCAPTCHA::Logic->fetch;
+    my $from_textcaptcha = DW::Captcha::textCAPTCHA::Logic->get_captcha;
     my ( $captcha ) = DW::Captcha::textCAPTCHA::Logic::form_data( $from_textcaptcha,  $auth );
 
     return DW::Template->render_template( 'textcaptcha.tt', {

@@ -11,7 +11,7 @@ use LJ::Test;
 
 my $fakeanswers_single = {
     question => 'The white bank is what colour?',
-    answer   => 'd508fe45cecaf653904a0e774084bb5c',
+    answer   => [ 'd508fe45cecaf653904a0e774084bb5c' ],
 };
 
 my $fakeanswers_multiple = {
@@ -32,23 +32,28 @@ sub _run_test {
         # generate new captcha auth for each, because we can't reuse captcha on this form
         # note: we can reuse the form auth! might have a need to pull in alternate captcha for same form
         my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
-        my $checked = DW::Captcha::textCAPTCHA::Logic::check_answer( $captcha->{answers}, $answer, $auth, $captcha->{chal} );
+        my $checked = DW::Captcha::textCAPTCHA::Logic::check_answer( _get_answers( $captcha ), $answer, $auth, $captcha->{chal} );
 
         $fail ? ok( ! $checked, $testmsg ) : ok( $checked, $testmsg );
     }
 }
 
+sub _get_answers {
+    my $captcha = $_[0];
+    return [ split( ":", $captcha->{answers} ) ];
+}
+
 note( "single answer" );
 {
     LJ::start_request();
-    my $content = XML::Simple::XMLout( $fakeanswers_single, NoAttr => 1 );
+    my $content = $fakeanswers_single;
     my $auth = LJ::form_auth( 1 );
     my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
 
     # we want the question to be the same
     # but we know the answer will be different -- we don't know and don't care what it will be though
     is( $captcha->{question}, $fakeanswers_single->{question}, "got back the question for use in a form" );
-    isnt( $captcha->{answers}->[0], $fakeanswers_single->{answer}, "got back an answer for use in a form (which does not look like what we put in)" );
+    isnt( _get_answers( $captcha )->[0], $fakeanswers_single->{answer}, "got back an answer for use in a form (which does not look like what we put in)" );
 
     isnt( $captcha->{chal}, $auth, "Form auth and captcha auth are not the same" );
 
@@ -65,20 +70,20 @@ note( "single answer" );
 
     LJ::start_request();
     $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
-    ok( ! DW::Captcha::textCAPTCHA::Logic::check_answer( $captcha->{answers}, "white", LJ::form_auth( 1 ), $captcha->{chal} ), "incorrect (auth; tried to submit captcha on a different form?)" );
+    ok( ! DW::Captcha::textCAPTCHA::Logic::check_answer( _get_answers( $captcha ), "white", LJ::form_auth( 1 ), $captcha->{chal} ), "incorrect (auth; tried to submit captcha on a different form?)" );
 }
 
 note( "multiple valid answers" );
 {
     LJ::start_request();
-    my $content = XML::Simple::XMLout( $fakeanswers_multiple, NoAttr => 1 );
+    my $content = $fakeanswers_multiple;
     my $auth = LJ::form_auth( 1 );
     my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
 
     my %original_answers = map { $_ => 1 } @{$fakeanswers_multiple->{answer}};
     is( $captcha->{question}, $fakeanswers_multiple->{question}, "got back the question for use in a form" );
 
-    foreach ( @{ $captcha->{answers} } ) {
+    foreach ( @{ _get_answers( $captcha ) } ) {
         ok( !$original_answers{$_}, "one ofs multiple answers for use in a form (which does not look like what we put in)" );
     }
 
@@ -95,23 +100,23 @@ note( "multiple valid answers" );
 
 note( "no form auth passed in" );
 {
-    my $content = XML::Simple::XMLout( $fakeanswers_single, NoAttr => 1 );
+    my $content = $fakeanswers_single;
     my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, "" );
     my $captcha_auth = $captcha->{chal};
 
     # we want the question to be the same
     # but we know the answer will be different -- we don't know and don't care what it will be though
     is( $captcha->{question}, $fakeanswers_single->{question}, "got back the question for use in a form" );
-    isnt( $captcha->{answers}->[0], $fakeanswers_single->{answer}, "got back an answer for use in a form (which does not look like what we put in)" );
+    isnt( _get_answers( $captcha )->[0], $fakeanswers_single->{answer}, "got back an answer for use in a form (which does not look like what we put in)" );
 
     # now validate user response
-    ok( ! DW::Captcha::textCAPTCHA::Logic::check_answer( $captcha->{answers}, "white", "", $captcha_auth ), "correct answer, but we have no auth" );
+    ok( ! DW::Captcha::textCAPTCHA::Logic::check_answer( _get_answers( $captcha ), "white", "", $captcha_auth ), "correct answer, but we have no auth" );
 };
 
 note( "tried to reuse captcha + form_auth" );
 {
     LJ::start_request();
-    my $content = XML::Simple::XMLout( $fakeanswers_single, NoAttr => 1 );
+    my $content = $fakeanswers_single;
     my $auth = LJ::form_auth( 1 );
     my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
     my $captcha_auth = $captcha->{chal};
@@ -119,15 +124,15 @@ note( "tried to reuse captcha + form_auth" );
     # we want the question to be the same
     # but we know the answer will be different -- we don't know and don't care what it will be though
     is( $captcha->{question}, $fakeanswers_single->{question}, "got back the question for use in a form" );
-    isnt( $captcha->{answers}->[0], $fakeanswers_single->{answer}, "got back an answer for use in a form (which does not look like what we put in)" );
+    isnt( _get_answers( $captcha )->[0], $fakeanswers_single->{answer}, "got back an answer for use in a form (which does not look like what we put in)" );
 
     # now validate user response
-    ok( DW::Captcha::textCAPTCHA::Logic::check_answer( $captcha->{answers}, "white", $auth, $captcha_auth ), "correct" );
+    ok( DW::Captcha::textCAPTCHA::Logic::check_answer( _get_answers( $captcha ), "white", $auth, $captcha_auth ), "correct" );
 
     # whoo captcha succeeded! let's try to reuse it
     SKIP: {
         skip "Memcache configured but not active.", 1 unless LJ::Test::check_memcache;
         LJ::start_request();
-        ok( ! DW::Captcha::textCAPTCHA::Logic::check_answer( $captcha->{answers}, "white", $auth, $captcha_auth ), "tried to reuse captcha results" );
+        ok( ! DW::Captcha::textCAPTCHA::Logic::check_answer( _get_answers( $captcha ), "white", $auth, $captcha_auth ), "tried to reuse captcha results" );
     }
 };

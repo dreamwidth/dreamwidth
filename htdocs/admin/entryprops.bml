@@ -84,7 +84,7 @@ body<=
             
             # render xpost prop into human readable form
             if ( $prop eq "xpost" || $prop eq "xpostdetail" ) {
-                my %external_accounts_map = map { $_->acctid => $_->servername } DW::External::Account->get_external_accounts( $pu );
+                my %external_accounts_map = map { $_->acctid => $_->servername . ( $_->active ? "" : " (deleted)" ) } DW::External::Account->get_external_accounts( $pu, show_inactive => 1 );
 
                 # FIXME: temporary; trying to figure out when this is undef
                 my $xpost_prop = $props{$prop};
