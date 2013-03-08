@@ -147,7 +147,7 @@ body<=
 
                 $ret .= "<h2><?_ml .editcat.title _ml?></h2>\n";
                 $ret .= "<?p <?_ml .editcat.intro _ml?> p?>\n";
-                $ret .= "<form method='POST' action='faqcat.bml'>\n";
+                $ret .= "<form method='POST' action='faqcat'>\n";
                 $ret .= LJ::form_auth();
                 $ret .= LJ::html_hidden( { name => "faqcat", value => $faqcatdata->{faqcat} } ) . "\n";
                 $ret .= LJ::html_hidden( { name => "action", value => 'save' } ) . "\n";
@@ -164,7 +164,7 @@ body<=
                                    undef, $faqcat );
 
                 if ( $ct ) {
-                    $ret .= "<?p <strong><?_ml .deletecat.success _ml?></strong> p?>";
+                    $ret .= "<?p <strong><?_ml .deletecat.success2 _ml?></strong> p?>";
                 } else {
                     $ret .= "<?p <strong><?_ml .error.unknowncatkey _ml?></strong> p?>";
                 }
@@ -207,7 +207,7 @@ body<=
             my $faqcount = 0;
             my $confirm_delete = LJ::ejs( $ML{'.deletecat.confirm'} );
 
-            $ret .= "<form action='faqcat.bml' method='post'>\n";
+            $ret .= "<form action='faqcat' method='post'>\n";
             $ret .= LJ::form_auth();
             $ret .= LJ::html_hidden( 'faqcats' => join ( ",", map { $faqcat{$_}->{faqcat} } keys %faqcat ) );
             $ret .= "<table><thead><tr><th style='padding: 5px'><?_ml .label.catname _ml?></th><th style='padding: 5px'><?_ml .label.catkey _ml?></th><th style='padding: 5px'><?_ml .label.catorder _ml?></th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp</th></tr></thead>";
@@ -236,7 +236,7 @@ body<=
         # Form to add a new category
         $ret .= "<h2><?_ml .addcat.title _ml?></h2>\n";
         $ret .= "<?p <?_ml .addcat.intro _ml?> p?>\n";
-        $ret .= "<form method='POST' action='faqcat.bml'>\n";
+        $ret .= "<form method='POST' action='faqcat'>\n";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden( { name => 'action', value => 'add' } ) . "\n";
         $ret .= "<?p <strong><?_ml .label.catkey _ml?>:</strong> " . LJ::html_text( { name => 'faqcat', size => '10', maxlength => '150' } ) . " p?>\n";
