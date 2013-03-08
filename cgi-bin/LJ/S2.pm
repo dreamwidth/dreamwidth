@@ -3923,8 +3923,9 @@ sub UserLite__get_link
         return undef unless $link;
 
         my $caption = $ctx->[S2::PROPS]->{userlite_interaction_links} eq "text"
-            ? $ctx->[S2::PROPS]->{"text_user_$key"}
+            ? $link->{text}
             : $link->{title};
+
         return LJ::S2::Link( $link->{url}, $caption, LJ::S2::Image( $link->{image}, $link->{width} || 20, $link->{height} || 18 ) );
     };
 
