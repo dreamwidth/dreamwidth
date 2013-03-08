@@ -584,7 +584,7 @@ sub load_conffile
             foreach my $k (qw(ExtraConfig)) {
                 next unless exists $sconf->{$k};
                 $sconf->{$k} =~ s/\$(\w+)/$1 eq "HTTP_HOST" ? clean_http_host() : $ENV{$1}/eg;
-                $sconf->{$k} = [ map { dir_rel2abs($dirs, $_) } grep { $_ }
+                $sconf->{$k} = [ map { LJ::resolve_file( $_ ) } grep { $_ }
                                  split(/\s*,\s*/, $sconf->{$k}) ];
             }
 
