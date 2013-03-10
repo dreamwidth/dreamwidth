@@ -86,7 +86,6 @@ use Pod::Usage qw{pod2usage};
 use IO::Socket::INET;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-use LJ::Cmdbuffer;
 
 # NOTE: these options are used both by Getopt::Long for command-line parsing
 # in single user move move, and also set by hand when in --jobserver mode,
@@ -132,6 +131,7 @@ sub multiMove {
     # the job server can keep giving us new jobs to move (or a stop command)
     # over and over, so we avoid perl exec times
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+    eval "use LJ::Cmdbuffer; 1;" or die $@;
 
     my $sock;
   ITER:
@@ -260,6 +260,7 @@ sub singleMove {
     abortWithUsage() unless defined $user && defined $dclust;
 
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+    eval "use LJ::Cmdbuffer; 1;" or die $@;
 
     $user = LJ::canonical_username($user);
     abortWithUsage("Invalid username") unless length($user);
@@ -688,8 +689,8 @@ sub moveUser {
                       "pendcomments" => 1,    # don't need to copy these
                       "active_user"  => 1,    # don't need to copy these
                       "random_user_set" => 1, # "
-                      "blobcache" => 1,       # No need to handle this, used for database migrations
-                      );
+                      "dbnotes" => 1,         # No need to handle this, used for database migrations
+                     );
 
     $skip_table{'inviterecv'} = 1 unless $u->is_person; # if not person, skip invites received
     $skip_table{'invitesent'} = 1 unless $u->is_community; # if not community, skip invites sent
@@ -1030,7 +1031,7 @@ sub fetchTableInfo
     my $memkey = "moveucluster:" . Digest::MD5::md5_hex(join(",",@tables));
     my $tinfo = LJ::MemCache::get($memkey) || {};
     foreach my $table (@tables) {
-        next if grep { $_ eq $table } qw(events cmdbuffer recentactions pendcomments active_user random_user_set blobcache);
+        next if grep { $_ eq $table } qw(events cmdbuffer recentactions pendcomments active_user random_user_set dbnotes);
         next if $tinfo->{$table};  # no need to load this one
 
         # find the index we'll use

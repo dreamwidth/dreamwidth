@@ -47,7 +47,7 @@ body<=
         # now close all of these requests
         my $dbh = LJ::get_db_writer();
         my $in = join ',', @ids;
-        $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP() " .
+        $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP() " .
                  "WHERE spid IN ($in) AND spcatid = ?", undef, $spcatid);
 
         # and now insert a log comment for all of these... note that we're not using

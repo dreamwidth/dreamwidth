@@ -1,0 +1,9 @@
+;; -*- coding: utf-8 -*-
+
+.admin.link=Importer History
+
+.admin.text=View a user's entire import history
+
+.form.submit=View Import History
+
+.title=User Import History

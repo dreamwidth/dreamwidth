@@ -1,4 +1,8 @@
 ;; -*- coding: utf-8 -*-
-.attribution=[[journal]]
+.attribution=Post in [[journal]]
 
-.attribution.comm=[[journal]] by [[poster]]
+.attribution.comm=Post in [[journal]] by [[poster]]
+
+.attribution.comment=Comment in [[journal]] by [[poster]]
+
+.attribution.comment.anon=Comment in [[journal]] by an anonymous person

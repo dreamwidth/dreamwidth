@@ -37,8 +37,8 @@ body<=
         $GET{'thread'} =~ s/^3D//;
     }
 
-    my $r = BML::get_request();
-    $r->notes->{codepath} = "bml.talkread";
+    my $apache_r = BML::get_request();
+    $apache_r->notes->{codepath} = "bml.talkread";
 
     my $uri = BML::get_uri();
     my $itemid;
@@ -47,7 +47,7 @@ body<=
     if ($uri =~ m!/(\d+)\.html$!) {
         $itemid = $1;
         $GET{'itemid'} = $itemid;
-        $GET{'journal'} = $r->notes->{_journal};
+        $GET{'journal'} = $apache_r->notes->{_journal};
         BML::set_language_scope("/talkread.bml");
     } else {
         $old_url = 1;
@@ -107,7 +107,7 @@ body<=
     # FIXME: Only gets past here if handle_with_bml has been set
     # to 1. (eg. format=light, lynx site scheme)
 
-    $r->notes->{journalid} = $u->{userid};
+    $apache_r->notes->{journalid} = $u->{userid};
 
     my $thread = $init->{'thread'};
     my $dthread = $init->{'dthread'};
@@ -214,7 +214,7 @@ body<=
                 ) );
 
     LJ::set_active_resource_group( "jquery" )
-        if LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+        if ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
 
     if ( ( $remote && ! $remote->prop( "opt_no_quickreply" ) ) && ! $nocomments ) {
        # quickreply js libs
@@ -228,7 +228,7 @@ body<=
                         js/jquery.quickreply.js
                     ) );
 
-        LJ::need_res( LJ::Talk::init_iconbrowser_js( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ), 'stc/lj_base.css' ) )
+        LJ::need_res( LJ::Talk::init_iconbrowser_js( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ), 'stc/lj_base.css' ) )
             if $remote->can_use_userpic_select;
     }
 
@@ -245,9 +245,9 @@ body<=
     LJ::expand_embedded($u, $ditemid, $remote, \$event);
     BML::ebml(\$event);
 
-    # make the title
+    # make the title, which should be "(no subject)" if there isn't one
     {
-        my $subject = $item->{'subject'} || $event;
+        my $subject = $item->{'subject'} || BML::ml('.nosubject');
         # yes, the 3 param to text_trim is chars, and length returns bytes, but
         # it works, as bytes >= chars:
         $subject = LJ::CleanHTML::clean_and_trim_subject(\$subject, length($item->{'subject'}) || 40);
@@ -441,7 +441,7 @@ body<=
                     # if we're in top-only mode, then we display the
                     # expand link as the unhide ('show x comments')
                     # message
-                    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+                    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
                         $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
                         $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
                         $ret .= qq[</a>)</span>];
@@ -469,7 +469,7 @@ body<=
                     # if we're in top-only mode, then we display the
                     # expand link as the unhide ('show x comments')
                     # message
-                    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+                    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
                         $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
                         $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
                         $ret .= qq[</a>)</span>];
@@ -672,7 +672,7 @@ body<=
                             # if we're in top-only mode, then we display the
                             # expand link as the unhide ('show x comments')
                             # message
-                            if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+                            if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
                                 $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
                                 $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
                                 $ret .= qq[</a>)</span>];
@@ -689,7 +689,7 @@ body<=
                         }
                     }
                     if ( $show_thread_expander ) {
-                        if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+                        if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
                             my $hideclass = $post->{'hide_children'} ? "" : " cmt_show_hide_default";
 
                             $ret .= qq[ <span id="cmt${dtid}_hide" class="cmt_hide$hideclass" style="display:none;">(<a href='#' onClick="Expander.hideComments(this,'$dtid',true);return false;">];
@@ -743,7 +743,7 @@ body<=
     # Display comment threads and commenting UI
     #
     if ( $nocomments ) {
-        $ret .= BML::ml( "talk.comments.disabled_maintainer" ) if $entry->comments_disabled_maintainer;
+        $ret .= BML::ml( "talk.comments.disabled_admin" ) if $entry->comments_disabled_maintainer;
     } else {
         $ret .= "<div id='Comments'>";
         $ret .= "<a name='comments'></a>";
@@ -844,13 +844,18 @@ body<=
             if ($do_commentmanage_js) {
                 LJ::need_res('js/commentmanage.js');
                 LJ::need_res( { group => "jquery" }, qw(
-                            js/jquery/jquery.ui.widget.js
+                            js/jquery/jquery.ui.core.js
+                            js/jquery/jquery.ui.tooltip.js
                             js/jquery.ajaxtip.js
+                            js/jquery/jquery.ui.button.js
+                            js/jquery/jquery.ui.dialog.js
                             js/jquery.commentmanage.js
                             js/jquery/jquery.ui.position.js
-                            js/tooltip.js
-                            stc/ajaxtip.css
-                            stc/popup-form.css
+                            stc/jquery/jquery.ui.core.css
+                            stc/jquery/jquery.ui.tooltip.css
+                            stc/jquery/jquery.ui.button.css
+                            stc/jquery/jquery.ui.dialog.css
+                            stc/jquery.commentmanage.css
                 ) );
                 my $js_screen_color = "\"" . LJ::ejs(BML::get_template_def("screenedbarcolor") || BML::get_template_def("emcolor")) . "\"";
                 my $js_normal_color = "\"" . LJ::ejs(BML::get_template_def("emcolor")) . "\"";

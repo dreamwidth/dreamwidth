@@ -62,16 +62,11 @@ sub try_work {
 
     # logging sub
     my ( $logfile, $last_log_time );
+    $logfile = $class->start_log( "lj_entries", userid => $opts->{userid}, import_data_id => $opts->{import_data_id} )
+        or return $temp_fail->( 'Internal server error creating log.' );
+
     my $log = sub {
         $last_log_time ||= [ gettimeofday() ];
-
-        unless ( $logfile ) {
-            mkdir "$LJ::HOME/logs/imports";
-            mkdir "$LJ::HOME/logs/imports/$opts->{userid}";
-            open $logfile, ">>$LJ::HOME/logs/imports/$opts->{userid}/$opts->{import_data_id}.lj_entries.$$"
-                or return $temp_fail->( 'Internal server error creating log.' );
-            print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(gmtime()) . ".\n";
-        }
 
         my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
         my $msg = sprintf( $fmt, tv_interval( $last_log_time ), tv_interval( $begin_time), @_ );
@@ -113,19 +108,41 @@ sub try_work {
     my $last = $class->call_xmlrpc( $data, 'getevents',
         {
             ver         => 1,
-            selecttype  => 'one',
-            itemid      => -1,
+            selecttype  => 'lastn',
+            howmany     => 5,
             lineendings => 'unix',
         }
     );
+
     return $temp_fail->( 'XMLRPC failure: ' . $last->{faultString} )
         if ! $last || $last->{fault};
-    return $temp_fail->( 'Failed to fetch the most recent entry.' )
-        unless ref $last->{events} eq 'ARRAY' && scalar @{$last->{events}} == 1;
 
-    # extract the maximum jitemid from this event
-    my $maxid = $last->{events}->[0]->{itemid};
-    $log->( 'Discovered that the maximum jitemid on the remote is %d.', $maxid );
+    # we weren't able to get any data. Maybe weren't able to connect to remote server?
+    # we want to try again
+    return $temp_fail->( 'Failed to fetch the most recent entry.' )
+        unless ref $last->{events} eq 'ARRAY';
+
+    # look for the latest non-DOOO entry
+    # first entry may be a sticky entry (can't tell via props)
+    #   so we guess by taking the max non-DOOO entry on this list
+    my $maxid;
+    foreach my $event ( @{$last->{events}} ) {
+        if ( $event->{props}->{opt_backdated} ) {
+            $log->( 'Skipping %d -- backdated', $event->{itemid } );
+        } else {
+            $maxid = $event->{itemid} > $maxid ? $event->{itemid} : $maxid;
+        }
+    }
+    $log->( 'Discovered that the maximum jitemid on the remote is %d.', $maxid ) if $maxid;
+
+    # we got entries but weren't able to find a single *non*-DOOO entry.
+    # No idea what the actual latest entry is. Give up now, tell the user to fix it
+    unless ( $maxid ) {
+        $log->( 'Got %d entries but all were DOOO.', scalar @{$last->{events}} );
+        return $fail->( "We weren't able to find your latest entry because you have several entries that are dated out of order (DOOO, or backdated). " .
+            "Please edit all the entries on %s that are DOOO and set their date to one that's earlier than your latest non-DOOO entry. " .
+            "Then try your import again." , $data->{hostname} );
+    }
 
     # this is an optimization.  since we never do an edit event (only post!) we will
     # never get changes anyway.  so let's remove from the list of things to sync any
@@ -142,7 +159,7 @@ sub try_work {
         next unless $url =~ /\Q$data->{hostname}\E/ &&
                     $url =~ /\b$data->{username}\b/;
 
-        unless ( $url =~ m!/(\d+)\.html$! ) {
+        unless ( $url =~ m!/(\d+)(?:\.html)?$! ) {
             $log->( 'URL %s not of expected format in prune.', $url );
             next;
         }
@@ -171,7 +188,12 @@ sub try_work {
     my $count = 0;
     my $process_entry = sub {
         my $evt = $_[0];
-        $evt->{key} = $evt->{url};
+
+        # URL remapping. We know the username and the site, so we set this to
+        # something that is dependable.
+        $evt->{key} = $evt->{url} = $data->{hostname} . '/' . $data->{username} . '/' .
+            ( $evt->{itemid} * 256 + $evt->{anum} );
+
         $count++;
         $log->( '    %d %s %s; mapped = %d (import_source) || %d (xpost).',
                 $evt->{itemid}, $evt->{url}, $evt->{logtime}, $entry_map->{$evt->{key}},
@@ -209,7 +231,7 @@ sub try_work {
         # now try to determine if we need to post this as a user
         my $posteru;
         if ( $data->{usejournal} ) {
-            my ( $posterid, $fid ) = $class->get_remapped_userids( $data, $evt->{poster} );
+            my ( $posterid, $fid ) = $class->get_remapped_userids( $data, $evt->{poster}, $log );
 
             unless ( $posterid ) {
                 # FIXME: need a better way of totally dying...
@@ -263,6 +285,10 @@ sub try_work {
 
     # helper to load some events
     my $fetch_events = sub {
+        # let them know we're still working
+        $job->grabbed_until( time() + 3600 );
+        $job->save;
+
         $log->( 'Fetching %d items.', scalar @_ );
         $title->( 'getevents - %d to %d', $_[0], $_[-1] );
 
@@ -306,6 +332,13 @@ sub try_work {
           AND import_data_id = ? AND status = 'init'},
         undef, $u->id, $opts->{import_data_id}
     );
+
+    # Kick off a indexing job for this user
+    if ( @LJ::SPHINX_SEARCHD ) {
+        LJ::theschwartz()->insert_jobs(
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "importen" } )
+        );
+    }
 
     return $ok->();
 }

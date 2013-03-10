@@ -3,8 +3,8 @@
 use strict;
 use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { require 'ljlib.pl'; }
 use LJ::Test qw(temp_user memcache_stress);
-require 'ljlib.pl';
 
 sub run_tests {
     {

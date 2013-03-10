@@ -1,0 +1,18 @@
+;; -*- coding: utf-8 -*-
+.about1=This page allows you to permanently erase entries (and comments that you have imported into your [[sitename]] account. <strong>This action is irrevocable.</strong>
+
+.about2=Once you click the button below, a job will be scheduled to delete the posts. When the job is done, you will see that the posts have been deleted.
+
+.admonition=Please type <strong>DELETE</strong> in this box:
+
+.commit=Erase All Imported Entries
+
+.confirmed=The job has been scheduled for [[ljuser]]. Entries that have been imported from a remote site will now be deleted. This job may take some time depending on how many other jobs are in the queue.
+
+.error.noconfirm=<strong>Please type "DELETE" in this box.</strong>
+
+.heading=Delete Entries
+
+.in=in [[ljuser]]
+
+.title=Imported Entry Eraser

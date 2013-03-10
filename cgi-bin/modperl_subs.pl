@@ -162,7 +162,7 @@ ErrorDocument 500 /500-error.html
     UserDir disabled
 </IfModule>
 
-# required for the $r we use
+# required for the $apache_r we use
 PerlOptions +GlobalRequest
 
 PerlInitHandler Apache::LiveJournal

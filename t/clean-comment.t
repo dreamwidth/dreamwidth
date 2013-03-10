@@ -5,7 +5,7 @@ use Test::More;
 plan tests => 19;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::CleanHTML;
 
 my $orig_comment;

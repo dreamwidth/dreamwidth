@@ -25,6 +25,7 @@ use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
 use LJ::S2;
 use DW::Captcha;
+use LJ::JSON;
 
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";
@@ -282,7 +283,7 @@ sub check_viewable
         or die "Unable to construct entry object.\n";
     return 1 if $ent->visible_to( $remote );
 
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
 
     # this checks to see why the logged-in user is not allowed to see
     # the given content.
@@ -291,20 +292,20 @@ sub check_viewable
         my $journalname = $journal->username;
 
         if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $item->{security} ne "private" ) {
-            $r->notes->{error_key} = ".comm.open";
-            $r->notes->{journalname} = $journalname;
+            $apache_r->notes->{error_key} = ".comm.open";
+            $apache_r->notes->{journalname} = $journalname;
         } elsif ( $journal->is_community && $journal->is_closed_membership ) {
-            $r->notes->{error_key} = ".comm.closed";
-            $r->notes->{journalname} = $journalname;
+            $apache_r->notes->{error_key} = ".comm.closed";
+            $apache_r->notes->{journalname} = $journalname;
         }
     }
 
-    my $host = $r->headers_in->{Host};
-    my $args = scalar $r->args;
+    my $host = $apache_r->headers_in->{Host};
+    my $args = scalar $apache_r->args;
     my $querysep = $args ? "?" : "";
-    my $returnto = "http://" . $host . $r->uri . $querysep . $args;
-    $r->notes->{internal_redir} = "/protected";
-    $r->notes->{returnto} = $returnto;
+    my $returnto = "http://" . $host . $apache_r->uri . $querysep . $args;
+    $apache_r->notes->{internal_redir} = "/protected";
+    $apache_r->notes->{returnto} = $returnto;
     return 0;
 
 }
@@ -1553,7 +1554,8 @@ sub talkform {
         $other_user = '' unless $other_user;
         my $ml_loggedin =
             BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } );
-        my $ml_bannedfrom =
+        my $ml_bannedfrom = $journalu->is_community ?
+            BML::ml( ".opt.bannedfrom.comm", { journal => $journalu->user } ) :
             BML::ml( ".opt.bannedfrom", { journal => $journalu->user } );
         return qq{
     <td align='center'><img src='$LJ::IMGPREFIX/silk/identity/$type.png' /></td>
@@ -2202,13 +2204,18 @@ sub init_iconbrowser_js {
 
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
-    return LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" )
+    my $remote = LJ::get_remote();
+    my $iconbrowser_opts = to_json({
+        selectorButtons => "#lj_userpicselect",
+        metatext => LJ::JSON->to_boolean( $remote->iconbrowser_metatext ),
+        smallicons => LJ::JSON->to_boolean( $remote->iconbrowser_smallicons ),
+    });
+
+    return ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" )
     ?   qq {
         <script type="text/javascript">
         jQuery(function(jQ){
-            jQ("#prop_picture_keyword").iconselector({
-                selectorButtons: "#lj_userpicselect"
-            });
+            jQ("#prop_picture_keyword").iconselector($iconbrowser_opts);
         })
         </script>
     } : qq {
@@ -2287,7 +2294,7 @@ sub js_quote_button {
     }
 QUOTE
 
-    if ( LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" ) ) {
+    if ( ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" ) ) {
         return <<"QQ";
 jQuery(function(jQ){
     $quote_func
@@ -3168,17 +3175,24 @@ sub enter_comment {
     LJ::Talk::update_commentalter($journalu, $itemid);
 
     # fire events
-    if ( LJ::is_enabled('esn') ) {
-        my $cmtobj = LJ::Comment->new($journalu, jtalkid => $jtalkid);
+    if ( my $sclient = LJ::theschwartz() ) {
         my @jobs;
 
-        push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
-        push @jobs, LJ::EventLogRecord::NewComment->new($cmtobj)->fire_job;
+        if ( LJ::is_enabled('esn') ) {
+            my $cmtobj = LJ::Comment->new($journalu, jtalkid => $jtalkid);
+            push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
+            push @jobs, LJ::EventLogRecord::NewComment->new($cmtobj)->fire_job;
 
-        my $sclient = LJ::theschwartz();
-        if ($sclient && @jobs) {
-            my @handles = $sclient->insert_jobs(@jobs);
         }
+
+        if ( @LJ::SPHINX_SEARCHD ) {
+            push @jobs, TheSchwartz::Job->new_from_array(
+                    'DW::Worker::Sphinx::Copier',
+                    { userid => $journalu->id, jtalkid => $jtalkid, source => "commtnew" }
+                );
+        }
+
+        $sclient->insert_jobs( @jobs );
     }
 
     return $jtalkid;
@@ -3416,6 +3430,7 @@ sub init {
     }
 
     my $userpost = lc($form->{'userpost'});
+    my $iscomm = $journalu->is_community ? '.comm' : '';
     my $up;             # user posting
     my $exptype;        # set to long if ! after username
     my $ipfixed;        # set to remote  ip if < after username
@@ -3433,7 +3448,7 @@ sub init {
             $up = LJ::load_user($form->{'userpost'});
             if ($up) {
                 ### see if the user is banned from posting here
-                $mlerr->("$SC.error.banned") if $journalu->has_banned( $up );
+                $mlerr->("$SC.error.banned$iscomm") if $journalu->has_banned( $up );
 
                 # TEMP until we have better openid support
                 if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg") {
@@ -3487,7 +3502,7 @@ sub init {
         } elsif ($journalu->{'opt_whocanreply'} eq "all") {
             $mlerr->( "$SC.error.nousername", { sitename => $LJ::SITENAMESHORT } );
         } else {
-            $mlerr->( "$SC.error.nousername.noanon", { sitename => $LJ::SITENAMESHORT } );
+            $mlerr->( "$SC.error.nousername.noanon$iscomm", { sitename => $LJ::SITENAMESHORT } );
         }
     }
 
@@ -3625,7 +3640,7 @@ sub init {
     if (($form->{'usertype'} ne "user" && $form->{'usertype'} ne 'openid' && $form->{'usertype'} ne 'openid_cookie')
         && $journalu->{'opt_whocanreply'} ne "all")
     {
-        $mlerr->("$SC.error.noanon");
+        $mlerr->("$SC.error.noanon$iscomm");
     }
 
     if ( $ent->comments_disabled ) {
@@ -3969,16 +3984,22 @@ sub edit_comment {
     LJ::mark_user_active($pu, 'comment');
 
     # fire events
-    if ( LJ::is_enabled('esn') ) {
+    if ( my $sclient = LJ::theschwartz() ) {
         my @jobs;
 
-        push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj)->fire_job;
-        push @jobs, LJ::EventLogRecord::NewComment->new($comment_obj)->fire_job;
-
-        my $sclient = LJ::theschwartz();
-        if ($sclient && @jobs) {
-            my @handles = $sclient->insert_jobs(@jobs);
+        if ( LJ::is_enabled('esn') ) {
+            push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj)->fire_job;
+            push @jobs, LJ::EventLogRecord::NewComment->new($comment_obj)->fire_job;
         }
+
+        if ( @LJ::SPHINX_SEARCHD ) {
+            push @jobs, TheSchwartz::Job->new_from_array(
+                    'DW::Worker::Sphinx::Copier',
+                    { userid => $journalu->id, jtalkid => $comment->{talkid}, source => "commtedt" }
+                );
+        }
+
+        $sclient->insert_jobs( @jobs );
     }
 
     # send some emails

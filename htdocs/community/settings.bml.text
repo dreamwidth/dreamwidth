@@ -43,11 +43,9 @@
 
 .label.commchanged=You've changed your community settings.
 
-.label.commcreate2=This is the account that you want to turn into a community. It must <a [[aopts]]>already be created</a>, but shouldn't already be in use by an individual, because after this many different people might be able to post in it.
+.label.commcreate3=Enter the name and password of the personal account you want to turn into a community in the fields below. This personal account must <a [[aopts]]>already be created</a>, but shouldn't already be in use because many different users might be able to post in it once it's become a community. It shouldn't have any entries in it either.
 
 .label.commcreated=You've successfully invited these people to this community and given them the listed privileges:
-
-.label.commheader=Community Account
 
 .label.comminfo=Community Information
 
@@ -55,7 +53,7 @@
 
 .label.commsite=Community Website
 
-.label.community=Community:
+.label.community2=Account to convert:
 
 .label.entrypostingguidelines=<strong>In an entry:</strong><br />The community posting guidelines can be found in an entry (details below).
 
@@ -63,9 +61,9 @@
 
 .label.howoperates=Choose the settings for your community journal.  You can make changes to these settings at any time you want.
 
-.label.maintainer=Administrator:
+.label.maintainer2=Community administrator:
 
-.label.maintainer.login2=If this isn't the adminstrator account, please <a [[aopts]]>log in</a> as somebody else.
+.label.maintainer.login3=If this isn't the administrator account, please <a [[aopts]]>log in</a> as another user.
 
 .label.managepage=<a [[aopts]]>Community Administration</a>: you can add members, grant posting access, appoint administrators, and perform other functions of community administration here.
 
@@ -81,7 +79,7 @@
 
 .label.openmemb=<STRONG>Open Membership</STRONG><br />Anyone can join this community.
 
-.label.password=Password:
+.label.password2=Account password:
 
 .label.postingaccess=Posting Access
 
@@ -117,7 +115,7 @@
 
 .success=Success.
 
-.title.create=Create Community
+.title.create2=Turn Personal Account Into Community
 
 .title.modify=Community Settings
 

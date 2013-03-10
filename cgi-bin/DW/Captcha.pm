@@ -60,15 +60,13 @@ foreach my $class ( @CLASSES ) {
 # class methods
 =head1 API
 
-=head2 C<< DW::Captcha->new( $implementation, $page, %opts ) >>
+=head2 C<< DW::Captcha->new( $page, %opts ) >>
 
 Arguments:
 
 =over
 
 =item page - the page we're going to display this CAPTCHA on
-
-=item implementation - which CAPTCHA implementation we'd like to use
 
 =item a hash of additional options, including the request/response from a form post
 

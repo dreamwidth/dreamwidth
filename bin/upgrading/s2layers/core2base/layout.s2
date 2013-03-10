@@ -17,7 +17,10 @@ propgroup presentation {
     property use margins_unit;
     property use sidebar_width;
     property use sidebar_width_doubled;
+    property use custom_control_strip_colors;
 
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property use num_items_icons;
     property use icons_page_sort;
@@ -33,7 +36,6 @@ propgroup presentation {
     property use entry_management_links;
     property use comment_management_links;
 
-    property use reg_firstdayofweek;
 }
 
 set layout_type = "one-column";
@@ -89,6 +91,11 @@ propgroup colors {
 
     property use color_comment_title_background;
     property use color_comment_title;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -118,6 +125,7 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
+    property use font_sources;
 }
 
 set font_base = "";
@@ -159,7 +167,7 @@ propgroup modules {
 }
 
 # Explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 
 ##===============================
 ## Text
@@ -184,6 +192,7 @@ propgroup text {
     property use text_view_recent;
     property use text_view_archive;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_tags;
     property use text_view_memories;
@@ -200,6 +209,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
     property use text_permalink;
@@ -288,6 +299,7 @@ function Page::print_default_stylesheet() {
                  }
              """;
          }
+    print_custom_control_strip_css();
 
     """
 H1, H2, H3 {
@@ -457,7 +469,6 @@ h2#pagetitle {
 }
 
 .navigation ul {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -519,17 +530,15 @@ h2#pagetitle {
 
 .tag ul {
     display: inline;
-    list-style: none;
-    margin-left: .5em;
+    margin-left: 0;
     padding-left: 0;
 }
+
 .tag ul li {
     display: inline;
-    padding: .25em;
 } /* same for month view */
 
 ul.entry-management-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -539,7 +548,6 @@ ul.entry-management-links li {
 }
 
 ul.entry-interaction-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     text-align: right;
@@ -553,6 +561,8 @@ ul.entry-interaction-links li {
 }
 
 /* comments */
+
+.comment-posted {font-weight:bold;}
 
 .comment-wrapper {
     padding: .5em 0;
@@ -574,7 +584,6 @@ ul.entry-interaction-links li {
 }
 
 ul.comment-management-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
     text-align: right;
@@ -585,7 +594,6 @@ ul.comment-management-links li {
 }
 
 ul.comment-interaction-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -637,7 +645,6 @@ table.month td p {
 /* icons */
 
 .sorting-options ul {
-    list-style: none;
     margin-left: 0;
 }
 
@@ -647,14 +654,12 @@ table.month td p {
 
 .icon-keywords ul {
     display: inline;
-    list-style: none;
-    margin-left: .5em;
+    margin-left: 0;
     padding-left: 0;
 }
 
 .icon-keywords ul li {
     display: inline;
-    padding: 0 .25em 0 0;
 }
 
 /* modules */
@@ -688,7 +693,6 @@ table.month td p {
 }
 
 ul.userlite-interaction-links.icon-links {
-    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
@@ -748,8 +752,7 @@ ul.userlite-interaction-links.text-links {
     margin-right: 0.5em;
 }
 
-.tags_cloud li, .module-tags_cloud li { display: inline;
-    list-style-type: none; }
+.tags_cloud li, .module-tags_cloud li { display: inline; }
 
 .module-syndicate .module-content {
     text-align: center;

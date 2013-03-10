@@ -15,11 +15,10 @@
 
 use strict;
 
-unless (-d $ENV{'LJHOME'}) {
-    die "\$LJHOME not set.\n";
+BEGIN {
+    die "\$LJHOME not set.\n" unless ( -d $ENV{'LJHOME'} );
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
 }
-
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
 
 my $db = LJ::get_dbh("logs");
 unless ($db) {

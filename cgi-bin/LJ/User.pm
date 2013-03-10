@@ -277,10 +277,13 @@ sub create_personal {
                 # now add paid time to the user
                 my $from_u = $item->from_userid ? LJ::load_userid( $item->from_userid ) : undef;
                 if ( DW::Pay::add_paid_time( $u, $item->class, $item->months ) ) {
-                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', "Created new '" . $item->class . "' account." );
+                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite',
+                            sprintf( "Created new '%s' from order #%d.", $item->class, $item->cartid ) );
                 } else {
                     my $paid_error = DW::Pay::error_text() || $@ || 'unknown error';
-                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', "Failed to create new '" . $item->class . "' account: $paid_error" );
+                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite',
+                            sprintf( "Failed to create new '%s' account from order #%d: %s",
+                                $item->class, $item->cartid, $paid_error ) );
                 }
             }
         }
@@ -2507,6 +2510,47 @@ sub hide_join_post_link {
     return $u->prop( 'hide_join_post_link' );
 }
 
+=head3 C<< $self->iconbrowser_metatext( [ $arg ] ) >>
+
+If no argument, returns whether to show meta text in the icon browser or not.
+Default is to show meta text (true)
+
+If argument is passed in, acts as setter. Argument can be "Y" / "N"
+
+=cut
+
+sub iconbrowser_metatext {
+    my $u = $_[0];
+
+    if ( $_[1] ) {
+        my $newval = $_[1] eq "N" ? "N": undef;
+        $u->set_prop( iconbrowser_metatext => $newval );
+    }
+
+    return  ( $_[1] || $u->prop( 'iconbrowser_metatext' ) || "Y" ) eq 'Y' ? 1 : 0;
+}
+
+
+=head3 C<< $self->iconbrowser_smallicons( [ $small_icons ] ) >>
+
+If no argument, returns whether to show small icons in the icon browser or large.
+Default is large.
+
+If argument is passed in, acts as setter. Argument can be "Y" / "N"
+
+=cut
+
+sub iconbrowser_smallicons {
+    my $u = $_[0];
+
+    if ( $_[1] ) {
+        my $newval = $_[1] eq "Y" ? "Y" : undef;
+        $u->set_prop( iconbrowser_smallicons => $newval );
+    }
+
+    return  ( $_[1] || $u->prop( 'iconbrowser_smallicons' ) || "N" ) eq 'Y' ? 1 : 0;
+}
+
 # whether to respect cut tags in the inbox
 sub cut_inbox {
     my $u = $_[0];
@@ -3060,7 +3104,9 @@ shop.  For adjusting points on a user, please see C<<$self->give_shop_points>>.
 =cut
 
 sub shop_points {
-    return $_[0]->prop( 'shop_points' ) // 0;
+    # force false value to be 0 instead of any other false value
+    # useful to make sure this gets printed out as "0" in the frontend
+    return $_[0]->prop( 'shop_points' ) || 0;
 }
 
 
@@ -5812,13 +5858,119 @@ sub display_journal_deleted {
         $extra->{scope_data} = $opts{journal_opts};
     }
 
+    #get information on who deleted the account.
+    my $deleter_name_html;
+    if ( $u->is_community ) {
+        my $userid = $u->userid;
+        my $logtime = $u->statusvisdate_unix;
+        my $dbcr = LJ::get_cluster_reader( $u );
+        my ( $deleter_id ) = $dbcr->selectrow_array(
+            "SELECT remoteid FROM userlog" .
+            " WHERE userid=? AND logtime=? LIMIT 1", undef, $userid, $logtime );
+        my $deleter_name = LJ::get_username( $deleter_id );
+        $deleter_name_html = $deleter_name ? 
+            LJ::ljuser( $deleter_name ) : 'Unknown'; 
+    } else {
+        #If this isn't a community, it can only have been deleted by the 
+        # journal owner.
+        $deleter_name_html = LJ::ljuser( $u );
+    }
+
+    #Information to pass to the "deleted account" template
     my $data = {
         reason => $u->prop( 'delete_reason' ),
         u => $u,
 
-        is_member_of => $u->is_community && $u->trusts_or_has_member( $remote ),
+        #Showing an earliest purge date of 29 days after deletion, not 30,
+        # to be safe with time zones.
+        purge_date => LJ::mysql_date( 
+            $u->statusvisdate_unix + ( 29*24*3600 ), 0 ),
+
+        deleter_name_html => $deleter_name_html,
+        u_name_html => LJ::ljuser( $u ),
+
+        is_comm => $u->is_community,
         is_protected => LJ::User->is_protected_username( $u->user ),
     };
+
+    if ( $remote ) {
+        $data = {
+            %$data,
+
+            logged_in => 1,
+
+            #booleans for comms
+            is_admin => $u->is_community && $remote->can_manage( $u ),
+            is_sole_admin => $u->is_community && $remote->can_manage( $u ) &&
+                scalar( $u->maintainer_userids ) == 1,
+            is_member_or_watcher => $u->is_community && 
+                ( $remote->member_of( $u ) || $remote->watches( $u ) ),
+
+            #booleans for personal journals
+            is_remote => $u->equals( $remote ),
+            has_relationship => $remote->watches( $u ) || $remote->trusts( $u ),
+        };
+
+        #construct relationship description & link
+        my $relationship_ml;
+        my @relationship_links;
+        if ( $u->is_community && !( $remote->can_manage( $u ) && scalar( $u->maintainer_userids ) == 1 ) ) {
+         #don't offer the last admin of a deleted community a link to leave it
+             my $watching = $remote->watches( $u );
+             my $memberof = $remote->member_of( $u );
+
+             if ( $watching && $memberof ) {
+                 $relationship_ml = 'web.controlstrip.status.memberwatcher';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.leavecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                     } );
+             } elsif ( $watching ) {
+                 $relationship_ml = 'web.controlstrip.status.watcher';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.removecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                     } );
+             } elsif ( $memberof ) {
+                 $relationship_ml = 'web.controlstrip.status.member';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.leavecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                     } );
+             }
+        }
+
+        if ( !$u->is_community && !$remote->equals( $u ) ) {
+            #Check that it isn't the deleted account's owner, otherwise we'd
+            #tell them that they had granted access to themselves!
+            my $trusts = $remote->trusts( $u );
+            my $watches = $remote->watches( $u );
+
+            if ( $trusts && $watches ) {
+                $relationship_ml = 'web.controlstrip.status.trust_watch';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            } elsif ( $trusts ) { 
+                $relationship_ml = 'web.controlstrip.status.trusted';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            } elsif ( $watches ) {
+                $relationship_ml = 'web.controlstrip.status.watched';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            }
+        }
+
+        $data->{relationship_ml} = $relationship_ml if $relationship_ml;
+        $data->{relationship_links} = \@relationship_links if @relationship_links;
+
+    }
 
     return DW::Template->render_template_misc( "journal/deleted.tt", $data, $extra );
 }
@@ -6051,6 +6203,7 @@ sub viewing_style {
     my %view_props = (
         entry => 'opt_viewentrystyle',
         reply => 'opt_viewentrystyle',
+        icons => 'opt_viewiconstyle',
     );
 
     my $prop = $view_props{ $view } || 'opt_viewjournalstyle';
@@ -7837,8 +7990,8 @@ sub get_remote
     };
 
     # can't have a remote user outside of web context
-    my $r = eval { BML::get_request(); };
-    return $no_remote->() unless $r;
+    my $apache_r = eval { BML::get_request(); };
+    return $no_remote->() unless $apache_r;
 
     my $criterr = $opts->{criterr} || do { my $d; \$d; };
     $$criterr = 0;
@@ -7879,7 +8032,7 @@ sub get_remote
     }
 
     LJ::User->set_remote($u);
-    $r->notes->{ljuser} = $u->user;
+    $apache_r->notes->{ljuser} = $u->user;
     return $u;
 }
 
@@ -9324,7 +9477,8 @@ sub make_journal {
     my ($user, $view, $remote, $opts) = @_;
 
     my $r = DW::Request->get;
-    my $geta = $opts->{'getargs'};
+    my $geta = $r->get_args;
+    $opts->{getargs} = $geta;
 
     my $u = $opts->{'u'} || LJ::load_user($user);
     unless ($u) {
@@ -9558,7 +9712,10 @@ sub make_journal {
 
         # there are no BML handlers for these views, so force s2
         # FIXME: Temporaray until talkread/talkpost/month views are converted
-        if ( !( { entry => 1, reply => 1, month => 1 }->{$view} ) ) {
+
+        if ( !( {   entry => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+        reply => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+        month => 1 }->{$view} ) ) {
             $fallback = "s2";
         }
 
@@ -9760,7 +9917,10 @@ sub make_journal {
 
         # intercept flag to handle_with_bml_ref and instead use siteviews
         # FIXME: Temporary, till everything is converted.
-        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || { icons => 1, tag => 1 }->{$view} ) ) {
+        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || {
+                entry => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+                reply => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
+                icons => 1, tag => 1 }->{$view} ) ) {
             $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
         }
 

@@ -4,7 +4,7 @@ DefaultScheme blueshift
 IncludePath inc/
 
 AllowOldSyntax 0
-ExtraConfig _config-local.bml, $LJHOME/cgi-bin/LJ/Global/BMLInit.pm
+ExtraConfig htdocs/_config-local.bml, cgi-bin/LJ/Global/BMLInit.pm
 AllowCode 1
 AllowTemplateCode 1
 MildXSSProtection 1

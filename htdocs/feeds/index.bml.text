@@ -75,3 +75,5 @@
 
 .using.title=Adding feeds on [[sitename]].
 
+.warn.had_credentials=The feed URL contained text that looked like a username and password. For your safety, we have removed that text. Please double-check the URL above to make sure that it no longer contains any sensitive information.
+

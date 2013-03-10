@@ -246,9 +246,10 @@ class CommentInfo
     var readonly string post_url "URL pointer to the 'Post Comments' view.";
     var readonly string permalink_url "Permanent URL for the entry.";
     var int count "Current number of comments available to be read by the viewer.";
+    var int screened_count "Current number of screened comments (only visible if remote user can view screened comments)";
     var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
     var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
-    var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community maintainer";
+    var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community administrator.";
     var bool maxcomments "Set to true if entry has reached a comment maximum.";
     var bool show_postlink "Indicates whether the Post Comment link for this entry should be shown.";
     var bool show_readlink "Indicates whether the Read Comments link for this entry should be shown.";
@@ -267,6 +268,7 @@ class UserLink
     var readonly bool is_heading "Is this link a heading or category name?  If so, it has no url and a list of children.";
     var readonly string title "The title or label for the link";
     var readonly string url "The url to which the link points";
+    var readonly string hover "The hover text for the link";
     var readonly UserLink[] children "Not Implemented: An array of child UserLink objects.";
 }
 
@@ -307,9 +309,9 @@ class Tag
 class TagDetail extends Tag
 "A rich structure with lots of information about a Tag."
 {
-    var readonly int use_count "Count of how many times this tag has been used.";
-    var readonly string visibility "The visibility level for this tag.  Based on the entries it's used on.  Can be one of: public, private, friends, group.";
-    var readonly int{} security_counts "How many times this tag has used this security.  The keys are which security, one of: public, private, friends, group.  The value is the count of times the tag is used on entries with that security level.";
+    var readonly int use_count "Count of approximately how many times this tag has been used in posts that the viewer has access to.";
+    var readonly string visibility "The visibility level for this tag. Equal to the least restrictive security level that it's used on.  Can be one of: public, protected, private, group.";
+    var readonly int{} security_counts "How many times this tag has used this security.  The keys are which security, one of: public, protected, private, group. The value is the count of times the tag is used on entries with that security level. If the current user does not have access to that security level, the value is undefined. The group level is only available if the current user is the journal owner.";
 }
 
 class EntryLite
@@ -923,6 +925,7 @@ class ReplyPage extends Page
     var Entry entry "The journal entry for this talk page";
     var EntryLite replyto "The object which is being replied to, either the entry or a comment";
     var ReplyForm form "The reply form.";
+    var bool isedit "True if we are editing a comment, false if writing a new one";
 
     function print_comment(Comment comment) "Prints a full comment";
 }
@@ -1110,6 +1113,11 @@ property builtin string IMGDIR {
     doc_flags = "[sys]";
     des = "The base URL of the current Dreamwidth site's image directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/img\".";
 }
+property builtin string STYLES_IMGDIR {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The base URL of the current Dreamwidth site's style image directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/img/styles\".";
+}
 property builtin string STATDIR {
     noui = 1;
     doc_flags = "[sys]";
@@ -1215,8 +1223,35 @@ set sidebar_width_doubled = "";
 
 ##=======================================
 ## Display properties - Presentation
-## Tags page & Icons page
+## Specific pages
 ##=======================================
+
+property string[] reverse_sortorder_group {
+    des = "Display content in reverse-chronological order on:";
+    grouptype = "viewslist";
+}
+set reverse_sortorder_group = [ "reverse_sortorder_year", "reverse_sortorder_month", "reverse_sortorder_day"];
+property bool reverse_sortorder_year {
+    des = "Display months in reverse-chronological order on the archive page";
+    label = "the archive page";
+    grouped = 1;
+}
+property bool reverse_sortorder_month {
+    des = "Display days and entries in reverse-chronological order on the month page";
+    label = "the month page";
+    grouped = 1;
+}
+property bool reverse_sortorder_day {
+    des = "Display entries in reverse-chronological order on the day page";
+    label = "the day page";
+    grouped = 1;
+}
+
+property string reg_firstdayofweek {
+    des = "Day the calendar week starts on";
+    doc_flags = "[construct]";
+    values = "sunday|Sunday|monday|Monday";
+}
 
 property string tags_page_type {
     des = "Type of tags display on the tags page. For the tag module, see the Modules section.";
@@ -1232,9 +1267,13 @@ property string icons_page_sort {
     values="upload|Upload Order|keyword|Keyword Order";
 }
 
+set reverse_sortorder_year = false;
+set reverse_sortorder_month = false;
+set reverse_sortorder_day = false;
+set reg_firstdayofweek = "sunday";
+set tags_page_type = "multi";
 set num_items_icons = 0;
 set icons_page_sort = "upload";
-set tags_page_type = "multi";
 
 ##=======================================
 ## Display properties - Presentation
@@ -1313,9 +1352,19 @@ property string entry_management_links {
     des = "Select whether entry management links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
 }
+property string entry_interaction_links {
+    des = "Select whether entry interaction links are printed as text or using the available icons";
+    values = "icons|icons|text|text-only|";
+    noui = 1; # FIXME: no icons made yet
+}
 property string comment_management_links {
     des = "Select whether comment management links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
+}
+property string comment_interaction_links {
+    des = "Select whether comment interaction links are printed as text or using the available icons";
+    value = "icons|icons|text|text-only|";
+    noui = 1; # FIXME: no icons made yet
 }
 
 property bool all_entrysubjects {
@@ -1338,17 +1387,11 @@ set userpics_position = "left";
 set entry_metadata_position = "bottom";
 set userlite_interaction_links = "icons";
 set entry_management_links = "icons";
+set entry_interaction_links = "text";
 set comment_management_links = "icons";
+set comment_interaction_links = "text";
 set all_entrysubjects = true;
 set all_commentsubjects = false;
-
-property string reg_firstdayofweek {
-    des = "Day the calendar week starts on";
-    doc = "The day of the week the calendar weeks starts on.  Either 'sunday' or 'monday'. Not currently implemented";
-    doc_flags = "[construct]";
-    values = "sunday|Sunday|monday|Monday";
-}
-set reg_firstdayofweek = "sunday";
 
 ##=======================================
 ## Display properties - Presentation
@@ -1380,62 +1423,14 @@ set module_tags_opts_count_type = "";
 
 ##=======================================
 ## Display properties - Presentation
-## Misc. options - not implemented
+## Misc. options - not implemented yet
 ##=======================================
 
-property string[] reverse_sortorder_group {
-    des = "Display entries in reverse-chronological order on my:";
-    grouptype = "viewslist";
-}
-set reverse_sortorder_group = [ "reverse_sortorder_day", "reverse_sortorder_year" ];
 property bool reverse_sortorder_recent    { des = "Display entries in reverse-chronological order on my recent entries page"; }
-property bool reverse_sortorder_day {
-    des = "Display entries in reverse-chronological order on my day page";
-    label = "Day Page";
-    grouped = 1;
-}
-property bool reverse_sortorder_year {
-    des = "Display entries in reverse-chronological order on my year archive";
-    label = "Year Archive";
-    grouped = 1;
-}
 property bool reverse_sortorder_reading   { des = "Display entries in reverse-chronological order on my reading page"; }
 
-property string[] show_userpics_group {
-    des = "Display userpics on my:";
-    grouptype = "viewslist";
-}
-set show_userpics_group = [ "show_userpics_recent", "show_userpics_reading", "show_userpics_entry", "show_userpics_comments" ];
-property bool show_userpics_recent {
-    des = "Display userpics on my recent entries";
-    label = "Recent Entries";
-    grouped = 1;
-}
-property bool show_userpics_reading {
-    des = "Display userpics on my reading page";
-    label = "Reading Page";
-    grouped = 1;
-}
-property bool show_userpics_entry {
-    des = "Display userpics on my entry pages";
-    label = "Entry Pages";
-    grouped = 1;
-}
-property bool show_userpics_comments {
-    des = "Display userpics on my comments";
-    label = "Comments";
-    grouped = 1;
-}
-
 set reverse_sortorder_recent = true;
-set reverse_sortorder_day = false;
-set reverse_sortorder_year = false;
 set reverse_sortorder_reading = true;
-
-set show_userpics_recent = true;
-set show_userpics_reading = true;
-set show_userpics_entry = true;
-set show_userpics_comments = true;
 
 ##=======================================
 ## Display properties - Basic colors
@@ -1560,7 +1555,7 @@ set custom_control_strip_colors = "off";
 
 property string font_base {
     des = "Preferred journal font";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1580,7 +1575,7 @@ property string font_base_units {
 
 property string font_module_heading {
     des = "Preferred font for module headings";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1595,7 +1590,7 @@ property string font_module_heading_units {
 
 property string font_module_text {
     des = "Preferred font for module text";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1610,7 +1605,7 @@ property string font_module_text_units {
 
 property string font_journal_title {
     des = "Preferred font for journal titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1625,7 +1620,7 @@ property string font_journal_title_units {
 
 property string font_journal_subtitle {
     des = "Preferred font for journal subtitles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1640,7 +1635,7 @@ property string font_journal_subtitle_units {
 
 property string font_entry_title {
     des = "Preferred font for entry titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1655,7 +1650,7 @@ property string font_entry_title_units {
 
 property string font_comment_title {
     des = "Preferred font for comment titles";
-    maxlength = 50;
+    maxlength = 100;
     size = 25;
     note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
@@ -1669,8 +1664,8 @@ property string font_comment_title_units {
 }
 
 property string font_sources {
-    des = "Embedded fonts source URL";
-    note = "Embedded fonts can slow page loading time. Blank the field to stop using them.";
+    des = "Embedded fonts stylesheet URL";
+    note = "The URL must point to a font stylesheet such as 'http://fonts.googleapis.com/css?family=Average+Sans' and not directly at the font file. Embedded fonts can slow page loading time. Blank the field to stop using them.";
 }
 
 set font_base = "";     # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
@@ -1780,8 +1775,8 @@ property string separator_image_position {
 ##=======================================
 
 property string module_layout_sections {
-    des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
-    example = "none|(none)|one|Left Sidebar|two|Right Sidebar";
+    des = "Map module sections to user-friendly names for the wizard. Designers may want to override this.";
+    example = "none|(none)|one|Main Module Section|two|Secondary Module Section";
     noui = 1;
 }
 
@@ -1891,8 +1886,8 @@ property bool module_pagesummary_opts_comments_tooltip {
 
 property string[] module_active_group {
     des = "Recent active entries";
+    note = "This is only visible on paid journals.";
     grouptype = "module";
-    requires_cap = "activeentries";
 }
 set module_active_group = ["module_active_show", "module_active_order", "module_active_section"];
 property bool module_active_show { grouped = 1; }
@@ -1940,6 +1935,7 @@ property string{}[] layout_resources { noui = 1; des = "Resources used in the la
 
 property string[] module_search_group {
     des = "Search";
+    note = "This is only visible on paid journals.";
     grouptype = "module";
 }
 set module_search_group = ["module_search_show", "module_search_order", "module_search_section"];
@@ -1956,7 +1952,7 @@ property bool module_cuttagcontrols_show { grouped = 1; }
 property int  module_cuttagcontrols_order { grouped = 1; }
 property string module_cuttagcontrols_section { grouped = 1; }
 
-set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 set module_userprofile_show = true;
 set module_userprofile_order = 1;
 set module_userprofile_section = "one";
@@ -2024,7 +2020,7 @@ property string text_view_recent_tagged {
     des = "Text used to link to a tag-filtered version of the 'Recent Entries' page";
     maxlength = 40;
     "size" = 15;
-    example = "Entries tagged with ";
+    example = "Entries tagged with";
 }
 property string text_view_archive {
     des = "Text used to link to the 'Archive' page";
@@ -2074,6 +2070,25 @@ property string text_view_memories {
     "size" = 15;
     example = "Memories";
 }
+property string text_view_monthpage {
+    des = "Text used to link to a 'Month' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Month";
+    "note" = "\$*text_view_month is already used";
+}
+property string text_view_day {
+    des = "Text used to link to a 'Day' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Day";
+}
+property string text_view_entry {
+    des = "Text used to link to an 'Entry' page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Entry";
+}
 property string text_view_userinfo {
     des = "Text used to link to the 'Profile' page";
     maxlength = 40;
@@ -2108,7 +2123,7 @@ property string text_page_top {
 }
 
 set text_view_recent = "Recent Entries";
-set text_view_recent_tagged = "Entries tagged with ";
+set text_view_recent_tagged = "Entries tagged with";
 set text_view_archive = "Archive";
 set text_view_friends = "Reading";
 set text_view_friends_comm = "Member Posts";
@@ -2117,6 +2132,9 @@ set text_view_network = "Network";
 set text_view_network_filter = "Network (Custom filter)";
 set text_view_tags = "Tags";
 set text_view_memories = "Memories";
+set text_view_monthpage = "Month";
+set text_view_day = "Day";
+set text_view_entry = "Entry";
 set text_view_userinfo = "Profile";
 set text_view_icons = "Icons";
 set text_skiplinks_back = "Previous #";
@@ -2167,6 +2185,7 @@ property string text_module_pagesummary {
 }
 property string text_module_active_entries {
     des = "Text for the 'Active Entries' heading";
+    note = "This is only visible on paid journals.";
     maxlength = 50;
     size = 20;
     example = "Active Entries";
@@ -2203,6 +2222,13 @@ property string text_module_cuttagcontrols {
 }
 property string text_module_search {
     des = "Text for the 'Search' heading";
+    note = "This is only visible on paid journals.";
+    maxlength = 50;
+    size = 20;
+    example = "Search";
+}
+property string text_module_search_btn {
+    des = "Text for the 'Search' button";
     maxlength = 50;
     size = 20;
     example = "Search";
@@ -2224,6 +2250,7 @@ set text_module_customtext_content = "";
 set text_module_credit = "Style Credit";
 set text_module_cuttagcontrols = "Expand Cut Tags";
 set text_module_search = "Search";
+set text_module_search_btn = "Search";
 
 ##=======================================
 ## Display properties - Text
@@ -2299,13 +2326,13 @@ property string text_tags {
 
 property string text_stickyentry_subject { des = "Text that appears before the subject of the sticky entry"; }
 
-set text_meta_groups = "Custom Access Groups";
-set text_meta_location = "Current Location";
-set text_meta_mood = "Current Mood";
-set text_meta_music = "Current Music";
-set text_meta_xpost = "Crossposts";
+set text_meta_groups = "Custom Access Groups:";
+set text_meta_location = "Current Location:";
+set text_meta_mood = "Current Mood:";
+set text_meta_music = "Current Music:";
+set text_meta_xpost = "Crossposts:";
 set text_tags = "Tags:";
-set text_stickyentry_subject = "Sticky: ";
+set text_stickyentry_subject = "Sticky:";
 
 ##=======================================
 ## Display properties - Text
@@ -2354,22 +2381,34 @@ set text_unwatch_comments = "Untrack This";
 ##=======================================
 
 property string text_read_comments {
-    des = "Link text to read comments";
-    format = "plurals";
-    example = "1 comment // # comments";
-}
-property string text_read_comments_friends {
-    des = "Link text to read comments from your Reading page";
+    des = "Text to read comments";
     format = "plurals";
     example = "1 comment // # comments";
 }
 
+property string text_read_comments_friends {
+    des = "Text to read comments from your Reading page";
+    format = "plurals";
+    example = "1 comment // # comments";
+}
+
+property string text_read_comments_screened_visible {
+    des = "Text for number of unscreened comments on an entry with screened comments";
+    example = "1 visible // # visible";
+}
+
+property string text_read_comments_screened {
+    des = "Text for number of screened comments on an entry";
+    format = "plurals";
+    example = "1 screened comment // # screened comments";
+}
+
 property string text_post_comment {
-    des = "Link text to leave a comment";
+    des = "Text to leave a comment";
     example = "Reply";
 }
 property string text_post_comment_friends {
-    des = "Link text to leave a comment from your Reading page";
+    des = "Text to leave a comment from your Reading page";
     example = "Reply";
 }
 property string text_max_comments {
@@ -2386,6 +2425,8 @@ property string text_permalink {
 
 set text_read_comments = "1 comment // # comments";
 set text_read_comments_friends = "1 comment // # comments";
+set text_read_comments_screened_visible = "1 visible // # visible";
+set text_read_comments_screened = "1 screened comment // # screened comments";
 set text_post_comment = "Reply";
 set text_post_comment_friends = "Reply";
 set text_max_comments = "Maximum comments reached";
@@ -2441,6 +2482,21 @@ property string text_comment_unhide {
     example = "Show 1 comment // Show # comments";
     maxlength = "50";
 }
+property string text_commentview_flat {
+   des = "Text to show comments in flat view";
+   example = "Flat";
+   maxlength = "50";
+}
+property string text_commentview_threaded {
+   des = "Text to show comments in threaded view";
+   example = "Threaded";
+   maxlength = "50";
+}
+property string text_commentview_toponly {
+   des = "Text to show only top-level comments";
+   example = "Top-Level Comments Only";
+   maxlength = "50";
+}
 set text_comment_link = "Link";
 set text_comment_reply = "Reply";
 set text_comment_frozen = "Frozen";
@@ -2450,6 +2506,9 @@ set text_comment_thread = "Thread";
 set text_comment_expand = "Expand";
 set text_comment_hide = "Hide 1 comment // Hide # comments";
 set text_comment_unhide = "Show 1 comment // Show # comments";
+set text_commentview_flat = "Flat";
+set text_commentview_threaded = "Threaded";
+set text_commentview_toponly = "Top-Level Comments Only";
 
 ##=======================================
 ## Display properties - Text
@@ -2686,7 +2745,7 @@ property string text_icon_alt_sticky_entry        { noui = 1; des = "Alternative
 
 property string text_posting_in {
     des = "Text when user is posting in a community";
-    example = "posting in ";
+    example = " posting in ";
 }
 
 property string text_view_month {
@@ -2712,8 +2771,8 @@ property string text_reply_nocomments {
     maxlength = "100";
 }
 property string text_comments_disabled_maintainer {
-    des = "Text shown instead of comments if a community maintainer has disabled comments";
-    example = "Comments disabled by a maintainer of this community";
+    des = "Text shown instead of comments if a community administrator has disabled comments";
+    example = "Comments disabled by an administrator of this community";
 }
 
 property string comment_page_prev {
@@ -2727,7 +2786,7 @@ property string comment_page_next {
 
 property string text_screened {
    des = "The text used when a comment is screened";
-   example = "(screened comment) ";
+   example = "(screened comment)";
 }
 property string text_deleted {
    des = "The text used when a comment has been deleted";
@@ -2739,7 +2798,7 @@ property string text_fromsuspended {
 }
 property string text_frozen {
    des = "The text used when a comment is frozen";
-   example = "(frozen) ";
+   example = "(frozen)";
 }
 property string text_poster_anonymous {
     des = "The placeholder used when something is posted by an anonymous user";
@@ -2822,6 +2881,10 @@ property string text_multiform_opt_edit { des = "Text for the comment editing ac
 
 property string text_replyform_header { des = "Text for the heading above the form on the reply page"; }
 
+property string text_new_comment_title { des = "Text for the page title when writing a new comment"; }
+
+property string text_edit_comment_title { des = "Text for the page title when editing an existing comment"; }
+
 set text_nosubject = "(no subject)";
 set text_nosubject_screenreader = "no subject";
 
@@ -2837,15 +2900,15 @@ set text_posting_in = " posting in ";
 set text_reply_back = "Read Comments";
 set text_reply_nocomments_header = "Comments Disabled:";
 set text_reply_nocomments = "Comments have been disabled for this post.";
-set text_comments_disabled_maintainer = "Comments disabled by a maintainer of this community";
+set text_comments_disabled_maintainer = "Comments disabled by an administrator of this community";
 
 set comment_page_prev = "&lt;&lt";
 set comment_page_next = "&gt;&gt";
 
-set text_screened = "(screened comment) ";
+set text_screened = "(screened comment)";
 set text_deleted = "(deleted comment)";
 set text_fromsuspended = "(reply from suspended user)";
-set text_frozen = "(frozen) ";
+set text_frozen = "(frozen)";
 set text_poster_anonymous = "(Anonymous)";
 
 set text_comment_posted = "Comment successfully posted.";
@@ -2878,6 +2941,9 @@ set text_multiform_opt_delete = "Delete";
 set text_multiform_opt_deletespam = "Delete as Spam";
 
 set text_replyform_header = "Comment Form";
+
+set text_new_comment_title = "Reply";
+set text_edit_comment_title = "Edit reply";
 
 ##=======================================
 ## Display properties - Text
@@ -3201,12 +3267,12 @@ function lang_viewname(string viewid) [notags] : string
     }
     if ($viewid == "icons") { return $*text_view_icons; }
     if ($viewid == "network") { return $*text_view_network; }
-    if ($viewid == "day") { return "Day"; }
-    if ($viewid == "month") { return "Month"; }
+    if ($viewid == "day") { return $*text_view_day; }
+    if ($viewid == "month") { return $*text_view_monthpage; }
     if ($viewid == "userinfo") { return $*text_view_userinfo; }
-    if ($viewid == "entry") { return "Read Comments"; }
-    if ($viewid == "reply") { return "Post Comment"; }
-    if ($viewid == "tags") { return "$*text_view_tags"; }
+    if ($viewid == "entry") { return $*text_read_comments; }
+    if ($viewid == "reply") { return $*text_post_comment; }
+    if ($viewid == "tags") { return $*text_view_tags; }
     if ($viewid == "memories") { return $*text_view_memories; }
     return "Unknown View";
 }
@@ -3368,10 +3434,6 @@ function UserLite::print_interaction_links()
 {
 
     var string display_type = ($*userlite_interaction_links == "text") ? " text-links" : " icon-links";
-
-    """<ul class="userlite-interaction-links$display_type">""";
-    # FIXME: HTML is not valid if there are no items inside a list, so there should be a
-    # check that there are user interaction links before opening the ul class.
     var Link link;
     var int count;
     $count = 0;
@@ -3379,6 +3441,9 @@ function UserLite::print_interaction_links()
         $link = $this->get_link($k);
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="userlite-interaction-links$display_type">""";
+            }
             if ($*userlite_interaction_links == "text") {
                 """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
             }
@@ -3387,7 +3452,9 @@ function UserLite::print_interaction_links()
             }
         }
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 
 function Friend::print() {
@@ -3522,10 +3589,10 @@ function FriendsPage::print_stylesheets() {
 }
 
 function generate_image_url ( string image_path ) : string
-"Take an image property and append static diretory path if not given absolute path"
+"Take an image property and append style image directory path if not given absolute path"
 {
     if ( $image_path != "" and not $image_path->starts_with("http://") ) {
-        $image_path = "$*STATDIR/$image_path";
+        $image_path = "$*STYLES_IMGDIR/$image_path";
     }
 
     return $image_path;
@@ -3661,7 +3728,7 @@ function Page::view_title() [notags] : string {
 function RecentPage::view_title() : string {
     if ($.filter_active) {
         if ($.filter_tags) {
-            return $*text_view_recent_tagged + $.filter_name;
+            return $*text_view_recent_tagged + " " + $.filter_name;
         } else {
             return "(" + $.filter_name + ")";
         }
@@ -3713,12 +3780,23 @@ function EntryPage::view_title() : string {
     return $.entry.subject ? $.entry->get_plain_subject() : $*text_nosubject;
 }
 function ReplyPage::view_title() : string {
-    return $.entry->get_plain_subject() + " (" + $*text_comment_reply + ")";
+var string suffix = $.isedit ?
+    " (" + $*text_edit_comment_title + ")" :
+    " (" + $*text_new_comment_title + ")";
+if ($.replyto isa Comment) {
+        var Comment c = $.replyto as Comment;
+        return $c->get_plain_subject() + $suffix;
+    }
+    else {
+        var Entry e = $.replyto as Entry;
+        return $e.subject ?
+          $e->get_plain_subject() + $suffix :
+          $*text_nosubject + $suffix;
+    }
 }
 function Page::title() [notags] : string {
     return $this->view_title();
 }
-
 function Page::print_wrapper_start()
 "This function adds standard classes to the body of a page.  Pass extra options to it if necessary.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
@@ -4020,7 +4098,7 @@ function print_module_search() {
         var Page p = get_page();
 
         open_module("search", $*text_module_search, "$*SITEROOT/search?user=" + $p.journal.username);
-        print_search_form("Search");
+        print_search_form($*text_module_search_btn);
         close_module();
     }
 }
@@ -4034,18 +4112,19 @@ function print_module_userprofile() {
         if (defined $p.journal.default_pic) {
             """<div class="userpic">""";
             $p.journal->print_userpic();
-             """</div>""";
+             "</div>";
         }
     }
-    if ($*module_userprofile_opts_name or $*module_userprofile_opts_website) {
-        if ($*module_userprofile_opts_name) {
-            println "<div class='journal-name'>"+$p.journal.name+"</div>";
-        }
-        if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
-            var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
-            println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
-        }
+
+    if ($*module_userprofile_opts_name) {
+        println "<div class='journal-name'>" + $p.journal.name + "</div>";
     }
+
+    if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
+        var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
+        println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
+    }
+
     $p.journal->print_interaction_links();
     close_module();
 }
@@ -4230,6 +4309,7 @@ function print_module_tags() {
 
 function print_module_active() {
     var Page p = get_page();
+    # only print this module if the viewer can have active entries
     if ( $p.has_activeentries and not $p isa FriendsPage ) {
         var Entry[] activeentries = $p.activeentries;
         var string[] subjects;
@@ -4237,7 +4317,7 @@ function print_module_active() {
         var int i = 1;
                 foreach var Entry activeentry ( $activeentries ) {
                     var string subject = ( $activeentry.subject != "" ? striphtml($activeentry.subject) : "$*text_nosubject" );
-                    $subjects[size $subjects] = """$i: <a href="$activeentry.permalink_url">$subject</a>""";
+                    $subjects[size $subjects] = """<span class='active-entry-label active-entry-$i'>$i:</span> <a href="$activeentry.permalink_url">$subject</a>""";
                     $i++;
                  }
         print_module_list( $subjects );
@@ -4347,7 +4427,7 @@ function print_module_links() {
              $items = [];
         }
         if (not $link.is_heading and $link.title != "") {
-            $items[size $items] = """<a href="$link.url">$link.title</a>""";
+            $items[size $items] = """<a href="$link.url" title="$link.hover">$link.title</a>""";
         }
     }
     if ($box_open) {
@@ -4681,7 +4761,7 @@ function Comment::print_poster() {
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
     if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
 
-    print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster</span>\n";
+    print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster</span>\n";
 }
 
 
@@ -4776,10 +4856,10 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
         var Comment c = $this as Comment;
         """<h4 class="comment-title">""";
         if ($c.screened) {
-            print $*text_screened;
+            print $*text_screened + " ";
         }
         if ($c.frozen) {
-            print $*text_frozen;
+            print $*text_frozen + " ";
         }
         if ($c.echi) {
             print "<span class='echi'>${c.echi}.</span> ";
@@ -4792,7 +4872,8 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
             var StickyEntry s = $this as StickyEntry;
             """<h3 class="sticky-entry-title entry-title">""";
             $s->print_sticky_icon();
-            print $*text_stickyentry_subject + $this->formatted_subject( $opts );
+            if ($*text_stickyentry_subject != "") { print $*text_stickyentry_subject + " "; }
+            print $this->formatted_subject( $opts );
             "</h3>";
         }
         else {
@@ -4880,23 +4961,27 @@ function Comment::print_wrapper_end() {
 function EntryLite::print_metadata() {
 }
 function Entry::print_metadata() {
+# If new entry metadata types are added, they must be explicitly called by key here
+
     if (size $.metadata) {
         var string position = ($*entry_metadata_position == "top") ? " top-metadata" : " bottom-metadata";
         """<div class="metadata$position">\n<ul>\n""";
-        foreach var string m ( keys_alpha( $.metadata ) ) {
-            var string metadata_name = lang_metadata_title($m);
-            """<li><span class="metadata-label metadata-label-$m">$metadata_name: </span>""";
-            if ($m == "mood") {
-                " $.mood_icon ";
+        foreach var string m ( [ "mood", "location", "music", "groups", "xpost" ] ) {
+            if ($.metadata{$m}) {
+                var string metadata_name = lang_metadata_title($m);
+                """<li><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
+                if ($m == "mood") {
+                    " $.mood_icon ";
+                }
+                """<span class="metadata-item metadata-item-$m">$.metadata{$m}</span></li>\n""";
             }
-            """<span class="metadata-item metadata-item-$m">$.metadata{$m}</span></li>\n""";
         }
         "</ul>\n</div>\n";
     }
 }
 function Comment::print_metadata() {
     if ($.metadata{"poster_ip"}) {
-        print safe "<span class=\"poster-ip\">$*text_comment_ipaddr (" + $.metadata{"poster_ip"} + ")</span>";
+        print safe "<span class=\"poster-ip\"><span class=\"comment-ip-text\">$*text_comment_ipaddr</span> (" + $.metadata{"poster_ip"} + ")</span>";
     }
 }
 
@@ -4973,10 +5058,6 @@ function Comment::print_management_links()
 {
 
     var string display_type = ($*comment_management_links == "text") ? " text-links" : " icon-links";
-
-    # FIXME: HTML is not valid if there are no items inside a list, so there should
-    # be a check that there are comment management links before opening the ul class.
-    """<ul class="comment-management-links$display_type">""";
     var Link link;
     var int count;
     var string extras;
@@ -4985,6 +5066,9 @@ function Comment::print_management_links()
         $link = $this->get_link($k);
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="comment-management-links$display_type">""";
+            }
             if ($*comment_management_links == "text") {
                 foreach var string extra ( $link.extra ) {
                     var string value = $link.extra{$extra};
@@ -4997,17 +5081,21 @@ function Comment::print_management_links()
             }
         }
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 
 function EntryLite::print_interaction_links() {}
 function Comment::print_interaction_links()
 "Prints comment interaction links, aka reply/thread/parent/expand."
 {
-    """<ul class="comment-interaction-links">""";
+    var string display_type = ($*comment_interaction_links == "text") ? " text-links" : " icon-links";
+
+    """<ul class="comment-interaction-links$display_type">""";
     print safe """<li class="link commentpermalink"><a href="$this.permalink_url">$*text_comment_link</a></li>\n""";
     if ($this.frozen) {
-        print safe """<li class="link frozen first-item">$*text_comment_frozen</li>\n""";
+        print safe """<li class="frozen first-item">$*text_comment_frozen</li>\n""";
     } else {
         """<li class="link reply first-item">""";
         $this->print_reply_link({"linktext" => $*text_comment_reply});
@@ -5074,10 +5162,12 @@ function Entry::print_management_links()
     var int count;
     var string extras;
     $count = 0;
-    """<ul class="entry-management-links$display_type">""";
     var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
     if ($show_interentry) {
         $count ++;
+        if ($count == 1) {
+            """<ul class="entry-management-links$display_type">""";
+        }
         """<li class="link link_prev first-item">""";
         $this->print_link_prev();
         """</li>\n""";
@@ -5087,6 +5177,9 @@ function Entry::print_management_links()
         $link = $this->get_link($k);
         if ($link.url) {
             $count ++;
+            if ($count == 1) {
+                """<ul class="entry-management-links$display_type">""";
+            }
             if ($*entry_management_links == "text") {
                 foreach var string extra ( $link.extra ) {
                     var string value = $link.extra{$extra};
@@ -5100,11 +5193,17 @@ function Entry::print_management_links()
         }
     }
     if ($show_interentry) {
+        $count ++;
+        if ($count == 1) {
+            """<ul class="entry-management-links$display_type">""";
+        }
         """<li class="link link_next">""";
         $this->print_link_next();
         """</li>\n""";
     }
-    """</ul>""";
+    if ($count > 0) {
+        """</ul>""";
+    }
 }
 function Entry::print_interaction_links() {
     $this->print_interaction_links( "" );
@@ -5113,29 +5212,38 @@ function Entry::print_interaction_links() {
 function Entry::print_interaction_links(string target)
 "Prints entry interaction links, aka # comments/leave a comment, with standardized CSS."
 {
+    var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
+
     var Page p = get_page();
     var int count;
     $count = 0;
-        if ($p isa EntryPage) {
-        """<ul class="entry-interaction-links">""";
-            var EntryPage ep = $p as EntryPage;
+    if ($p isa EntryPage) {
+        var EntryPage ep = $p as EntryPage;
         if ($.comments.enabled and $ep.comment_pages.total_subitems > 0) {
             $count ++;
-            """<li class="entry-readlink first-item">""";
-                $this.comments->print_readlink();
-            "</li>\n";
+            if ($count == 1) {
+                """<ul class="entry-interaction-links$display_type">""";
             }
+            """<li class="entry-readlink first-item">""";
+            $this.comments->print_readlink();
+            "</li>\n";
+        }
         if ($.comments.enabled) {
             if ($.comments.maxcomments) {
                 print safe "$*text_max_comments";
             } else {
                 $count ++;
+                if ($count == 1) {
+                    """<ul class="entry-interaction-links$display_type">""";
+                }
                 """<li class="entry-replylink""" + ( $count == 1 ? " first-item" : "" ) + """">""";
                 $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
                 "</li>\n";
             }
         }
-        "</ul>";
+        if ($count > 0) {
+            "</ul>";
+        }
     } else {
             $this.comments->print();
         }
@@ -5160,7 +5268,7 @@ function RecentPage::print_body {
             $this->print_sticky_entry($s);
         }
         else {
-	    $this->print_entry($e);
+            $this->print_entry($e);
         }
     }
 
@@ -5246,7 +5354,9 @@ function EntryLite::time_display(string datefmt, string timefmt) : string {
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -5281,7 +5391,9 @@ function Entry::time_display(string datefmt, string timefmt) : string {
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -5322,7 +5434,9 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
         }
 
     } else {
-        $timefmt = "short";
+        if ($timefmt != "none") {
+            $timefmt = "short";
+        }
     }
 
     var string tooltip = "";
@@ -5367,7 +5481,7 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
     if ($datefmt != "none" and $timefmt != "none") { $main = $main + " "; }
     if ($timefmt != "none") { $main = $main + $display_time; }
 
-    return "<span class=\"datetime\">" + $*text_comment_date + " <span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span></span>";
+    return "<span class=\"datetime\"><span class=\"comment-date-text\">" + $*text_comment_date + " </span> <span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span></span>";
 }
 
 function Comment::print_time (string datefmt, string timefmt) {
@@ -5406,6 +5520,7 @@ function Comment::edittime_display (string datefmt, string timefmt) : string {
 ### Year view
 
 function YearPage::print_body {
+var YearMonth[] months = $*reverse_sortorder_year ? reverse $.months : $.months;
     """
     <div id="archive-year">
         <div class="inner">
@@ -5415,7 +5530,7 @@ function YearPage::print_body {
             <div class="year">
                 <div class="inner">
                     """;
-                    foreach var YearMonth m ($.months) {
+                    foreach var YearMonth m ($months) {
                         $this->print_month($m);
                     }
                     """
@@ -5537,6 +5652,7 @@ function MonthPage::view_title : string {
 }
 
 function MonthPage::print_body {
+var MonthDay[] days = $*reverse_sortorder_month ? reverse $.days : $.days;
     """
     <div id="archive-month">
         <div class="inner">
@@ -5549,7 +5665,7 @@ function MonthPage::print_body {
                     <dl>
                     """;
 
-    foreach var MonthDay d ($.days) {
+    foreach var MonthDay d ($days) {
         if ($d.has_entries) {
             """<dt><a href="$d.url">""";
                 if ($*entry_date_format == "med" or $*entry_date_format == "med_day" or $*entry_date_format == "long" or $*entry_date_format == "long_day") {
@@ -5615,10 +5731,11 @@ function MonthPage::print_navigation( string{} opts ) [fixed] {
 }
 
 function MonthDay::print_subjectlist() {
+var Entry[] entries = $*reverse_sortorder_month ? reverse $.entries : $.entries;
     # Too many tables...
     var Page p = get_page();
 
-    foreach var Entry e ($.entries) {
+    foreach var Entry e ($entries) {
         $e->print_time("none", "");
         $e->print_poster();
         $e->print_metatypes();
@@ -5638,6 +5755,7 @@ function MonthDay::print_subjectlist() {
 ### Day view
 
 function DayPage::print_body() {
+var Entry[] entries = $*reverse_sortorder_day ? reverse $.entries : $.entries;
     """
     <div id="archive-day">
         <div class="inner">
@@ -5651,7 +5769,7 @@ function DayPage::print_body() {
                     """;
                     print "<h3 class='day-date'>" + $.date->date_format($*entry_date_format) + "</h3>";
                     if ($.has_entries) {
-                        foreach var Entry e ($.entries) {
+                        foreach var Entry e ($entries) {
                             $this->print_entry($e);
                         }
                     } else {
@@ -5702,11 +5820,18 @@ function DayPage::print_navigation( string{} opts ) [fixed] {
 
 function CommentInfo::print_readlink {
     var Page p = get_page();
-    print safe "<a href=\"$.read_url#comments\">"+
-        get_plural_phrase($.count, ( $p.view == "read" or $p.view == "network" ) ?
-                          "text_read_comments_friends" : "text_read_comments")+
-    "</a>";
+    var string text_visible = get_plural_phrase($.count, "text_read_comments_screened_visible");
+    var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
+    var string text_both = $text_visible + $*text_default_separator + $text_screened;
+    var string text_total = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+
+    if ($.screened) { # show visible count and screened count
+        print safe """<a href="$.read_url#comments">"""+ $text_both + """</a>""";
+    } else {
+        print safe """<a href="$.read_url#comments">"""+ $text_total + """</a>""";
+    }
 }
+
 function CommentInfo::print_postlink() {
     var Page p = get_page();
     if ($.maxcomments) {
@@ -5716,19 +5841,20 @@ function CommentInfo::print_postlink() {
     }
 }
 function CommentInfo::print() {
-        """<ul class="entry-interaction-links">\n""";
-        """<li class="entry-permalink first-item"><a href="$.permalink_url">$*text_permalink</a></li>\n""";
-        if ($.show_readlink) {
-            """<li class="entry-readlink">""";
-            $this->print_readlink();
-            "</li>\n";
-        }
-        if ($.show_postlink and $.enabled) {
-            """<li class="entry-replylink">""";
-            $this->print_postlink();
-            "</li>\n";
-        }
-        "</ul>";
+    var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
+    """<ul class="entry-interaction-links$display_type">\n""";
+    """<li class="entry-permalink first-item"><a href="$.permalink_url">$*text_permalink</a></li>\n""";
+    if ($.show_readlink) {
+        """<li class="entry-readlink">""";
+        $this->print_readlink();
+        "</li>\n";
+    }
+    if ($.show_postlink and $.enabled) {
+        """<li class="entry-replylink">""";
+        $this->print_postlink();
+        "</li>\n";
+    }
+    "</ul>";
 }
 
 
@@ -5866,6 +5992,9 @@ function EntryPage::print_comment (Comment c) {
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
@@ -5934,6 +6063,9 @@ function EntryPage::print_comment_partial (Comment c) {
         var Link expand_link = $c->get_link("expand_comments");
         if (defined $expand_link) {
             " - "; $c->print_expand_link();
+    if ( $c.comment_posted ) {
+         print safe " <span class='comment-posted'>$*text_comment_posted</span>";
+     }
         }
     }
     $c->print_wrapper_end();
@@ -5958,10 +6090,10 @@ function ItemRange::print(string{} opts) {
         print " $*comment_page_prev ";
     }
     foreach var int i (1..$.total) {
-        if ($i == $.current) { "<b>[$i]</b> "; }
+        if ($i == $.current) { "<span class=\"comment-page-$i comment-page-current\"><b>[$i]</b></span> "; }
         else {
             var string url_of = $this->url_of($i);
-            "<a href='$url_of$anchor'><b>[$i]</b></a> ";
+            "<a href='$url_of$anchor' class=\"comment-page\"><b>[$i]</b></a> ";
         }
     }
     var string url_next = $this->url_of($.current + 1);
@@ -5991,22 +6123,22 @@ function CommentNav::print(string{} opts) {
     print "<div class='$class'>";
 
     var string{} links = {
-        "flat"      => """<a href="$.url${sep}view=flat#comments">Flat</a>""",
-        "threaded"  => """<a href="$.url#comments">Threaded</a>""",
-        "top-only"  => """<a href="$.url${sep}view=top-only#comments">Top-Level Comments Only</a>""",
+        "flat"      => """<span class="view-flat"><a href="$.url${sep}view=flat#comments">$*text_commentview_flat</a></span>""",
+        "threaded"  => """<span class="view-threaded"><a href="$.url#comments">$*text_commentview_threaded</a></span>""",
+        "top-only"  => """<span class="view-top-only"><a href="$.url${sep}view=top-only#comments">$*text_commentview_toponly</a></span>""",
         "expand_all"  => """<a href="$.url${sep}expand_all=1${page_arg}#comments" onClick="Expander.make(this,'$.url${sep}expand_all=1${page_arg}#comments',-1,false,false);return false;">Expand All</a>"""
     };
 
     if ( $.view_mode == "threaded" ) {
-        print "$links{"flat"} | $links{"top-only"}";
+        print "$links{"flat"}${*text_default_separator}$links{"top-only"}";
     } elseif ( $.view_mode == "flat" ) {
-        print "$links{"threaded"} | $links{"top-only"}";
+        print "$links{"threaded"}${*text_default_separator}$links{"top-only"}";
     } elseif ( $.view_mode == "top-only" ) {
-        print "$links{"threaded"} | $links{"flat"}";
+        print "$links{"threaded"}${*text_default_separator}$links{"flat"}";
     }
 
     if ( $.show_expand_all ) {
-        print "<span class='expand_all'> | $links{"expand_all"}</span>";
+        print "${*text_default_separator}<span class='expand_all'>$links{"expand_all"}</span>";
     }
     print "</div>";
 }
@@ -6085,14 +6217,14 @@ function Icon::print {
     if ($.keywords) {
         """<div class="icon-keywords">""";
         var int keyword_count = 0;
-        print safe "<span class='keywords-label'>$*text_icons_keywords</span> ";
-        """<ul>""";
+        print safe "<span class='keywords-label'>$*text_icons_keywords</span>";
+        """<ul>\n""";
         foreach var string kw ($.keywords) {
             $keyword_count++;
             """<li>""";
             print safe $kw;
             if ($keyword_count < size $.keywords) { print $*text_icons_keyword_sep; }
-            """</li>""";
+            """</li>\n""";
         }
         """</ul></div>\n""";
     }

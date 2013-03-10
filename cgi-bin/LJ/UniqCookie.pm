@@ -453,8 +453,8 @@ sub sysban_should_block {
     my $class = shift;
     return 0 unless LJ::is_web_context();
 
-    my $r = BML::get_request();
-    my $uri = $r->uri;
+    my $apache_r = BML::get_request();
+    my $uri = $apache_r->uri;
     return 0 if $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0;
 
     # if cookie exists, check for sysban
@@ -515,13 +515,13 @@ sub current_uniq {
     # otherwise, legacy place is in $r->notes
     return unless LJ::is_web_context();
 
-    my $r = BML::get_request();
+    my $apache_r = BML::get_request();
 
     # see if a uniq is set for this request
     # -- this accounts for cases when the cookie was initially
     #    set in this request, so it wasn't received in an
     #    incoming headerno cookie was sent in
-    return $r->notes->{uniq};
+    return $apache_r->notes->{uniq};
 }
 
 1;

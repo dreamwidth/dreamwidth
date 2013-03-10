@@ -19,7 +19,10 @@ propgroup presentation {
     property use margins_size;
     property use margins_unit;
     property use sidebar_width;
+    property use custom_control_strip_colors;
 
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property use num_items_icons;
     property use icons_page_sort;
@@ -37,8 +40,6 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-
-    property use reg_firstdayofweek;
 }
 
 set layout_type = "two-columns-right";
@@ -76,6 +77,11 @@ propgroup colors {
     property use color_entry_link_hover;
     property use color_entry_link_visited;
     property use color_entry_title;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -90,6 +96,7 @@ propgroup fonts {
     property use font_module_heading;
     property use font_module_heading_size;
     property use font_module_heading_units;
+    property use font_sources;
     property string font_navigation_module_text {
         des = "Preferred font for navigation module text";
         maxlength = 50;
@@ -209,7 +216,7 @@ propgroup modules {
 }
 
 # explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 
 set module_userprofile_section = "two";
 set module_userprofile_order = 3;
@@ -255,6 +262,7 @@ propgroup text {
     property use text_view_recent;
     property use text_view_archive;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_tags;
     property use text_view_memories;
@@ -271,6 +279,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
     property use text_permalink;
@@ -376,6 +386,8 @@ function Page::print_default_stylesheet() {
         """;
     }
 
+    print_custom_control_strip_css();
+
     """
 body {
     padding: 0;
@@ -462,7 +474,6 @@ q { font-style: italic; }
 
 li.page-back, li.page-forward {
     display: inline;
-    list-style: none;
     padding: 0;
     margin: 0;
     }
@@ -548,12 +559,12 @@ h3.entry-title a { color: $*color_entry_title; }
 .metadata.top-metadata { margin: 10px 0 1.25em 0; }
 
 .metadata ul {
+    list-style: none;
     padding: 0;
     margin: 0;
     }
 
 .metadata ul li {
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -568,14 +579,13 @@ h3.entry-title a { color: $*color_entry_title; }
     }
 
 .tag ul {
-    padding: 0 0 0 13px;
-    margin: 0;
     display: inline;
+    margin: 0;
+    padding: 0;
     }
 
 .tag ul li {
     display: inline;
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -591,7 +601,6 @@ ul.entry-management-links {
 
 ul.entry-management-links li {
     display: inline;
-    list-style: none;
     font-size: 60%;
     font-weight: normal;
     text-transform: lowercase;
@@ -608,7 +617,6 @@ ul.entry-interaction-links {
 
 ul.entry-interaction-links li {
     display: inline;
-    list-style: none;
     font-size: 65%;
     font-weight: normal;
     text-transform: uppercase;
@@ -621,7 +629,6 @@ ul.entry-interaction-links li {
 /*-- archive --*/
 
 li.active {
-    list-style: none;
     display: inline;
     padding: 0;
     margin: 10px;
@@ -657,7 +664,7 @@ li.active {
     }
 
 .navigation ul { display: inline; }
-.navigation li { display: inline; list-style: none; }
+.navigation li { display: inline; }
 
 table.month { border: 0; }
 .month caption { display: none; }
@@ -716,13 +723,12 @@ td.day {
     color: $*color_entry_title;
     }
 
-.page-tags .ljtaglist { margin: 0; padding: 0; }
+.page-tags .ljtaglist { list-style: none; margin: 0; padding: 0; }
 .page-tags .ljtaglist li {
     padding: 0 0 0 10px;
     margin: 0;
     text-transform: lowercase;
     letter-spacing: 0;
-    list-style: none;
     }
 
 .page-tags .tags-container a {
@@ -780,7 +786,6 @@ td.day {
 
 .sorting-options ul li {
     display: inline;
-    list-style: none;
     margin: 0;
     }
 
@@ -810,13 +815,13 @@ td.day {
 
 .icon-keywords ul {
     display: inline;
-    padding: 0 0 0 13px;
+    margin: 0;
+    padding: 0;
     }
 
 .icon-keywords ul li {
     display: inline;
-    list-style: none;
-    padding: 0 .25em 0 0;
+    padding: 0;
     }
 
 /*--- comments ---*/
@@ -875,6 +880,8 @@ textarea.textbox  { width: 90%!important; }
     margin: 0;
     }
 
+.comment-posted { font-weight:bold; }
+
 .comment-wrapper { margin: 20px 0; padding: 0; }
 .comment-content { margin: 10px 0; }
 
@@ -900,7 +907,7 @@ textarea.textbox  { width: 90%!important; }
     color: $*color_entry_link_hover;
     }
 
-.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; }
 .comment-management-links li, .comment-interaction-links li { display: inline; }
 
 #qrform table { border: 0!important; }
@@ -911,7 +918,7 @@ textarea.textbox  { width: 90%!important; }
     color: $*color_entry_title;
     }
 
-.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; }
 .comment-management-links li, .comment-interaction-links li { display: inline; }
 
 table.talkform {
@@ -966,14 +973,13 @@ table.talkform a:hover {
     }
 
 .module-navlinks ul.module-list {
+    list-style: none;
     padding: 0;
     margin: 0;
-    list-style: none;
     }
 .module-navlinks ul.module-list li {
     padding: 0;
     margin: 0;
-    list-style: none;
     }
 .module-navlinks ul.module-list li a, .module-navlinks ul.module-list li a:link { color: $*color_navigation_module_link; }
 .module-navlinks ul.module-list li a:visited { color: $*color_navigation_module_link_visited; }
@@ -1013,9 +1019,6 @@ table.talkform a:hover {
 .module-userprofile .userpic img { border:5px solid $*color_navigation_module_background; }
 
 ul.userlite-interaction-links.icon-links {
-    list-style-image: none;
-    list-style-position: outside;
-    list-style-type: none;
     margin-left: 0;
     padding-left: 0;
     text-align: center;
@@ -1028,8 +1031,7 @@ ul.userlite-interaction-links.icon-links li {
 
 .module-tags_cloud, .module-time, .module-powered { width: 90%; }
 
-.tags_cloud li, .module-tags_cloud li { display: inline;
-    list-style-type: none; }
+.tags_cloud li, .module-tags_cloud li { display: inline; }
 
 .manage-link {
     font-size: smaller;
@@ -1051,9 +1053,7 @@ ul.userlite-interaction-links.icon-links li {
 .module-search .search-box { margin: .2em; max-width:100%; }
 
 #tertiary .module-content ul {
-    list-style-image: none;
-    list-style-position: outside;
-    list-style-type: disc;
+    list-style-position: disc outside;
     margin-left: 1em;
     padding-left: 0;
     }
@@ -1066,46 +1066,31 @@ ul.userlite-interaction-links.icon-links li {
 
 /*-- extras --*/
 
-div.ContextualPopup {
-    position: relative;
-    margin: 0;
-    text-align: justify;
-    font-weight: normal;
-    $input_textarea_font
-    font-size: 50%;
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: 1px dotted $bottom_border !important;
+    border-radius: 0;
     color: $*color_entry_title;
+    $input_textarea_font
+    font-weight: normal;
     line-height: 1.8em;
-    }
-
-div.ContextualPopup div.Inner {
-    color: $*color_entry_title !important;
-    border: 1px dotted $bottom_border;
-    background: $*color_entry_background !important;
+    margin: 0;
     padding: 10px;
+    position: relative;
+    text-align: justify;
     }
 
-div.ContextualPopup div.Inner a {
-    color: $*color_entry_link;
-    }
-
-div.ContextualPopup div.Inner a:visited {
-    color: $*color_entry_link_visited;
-    }
-
-div.ContextualPopup div.Inner a:hover {
-    color: $*color_entry_link_hover;
-    }
-
-div.ContextualPopup div.Inner a:active {
-    color: $*color_entry_link_active;
-    }
-
-div.ContextualPopup .Userpic {
+.ContextualPopup .Userpic {
     margin: 5px;
     border: 1px dotted $bottom_border;
     background: $*color_entry_background !important;
     padding: 5px;
     }
+
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
 
 blockquote {
     background: $blockquote_background;

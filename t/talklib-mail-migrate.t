@@ -10,7 +10,7 @@ plan tests => 1;
 
 package LJ;
 
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::HTMLControls;
 use LJ::Talk;
 

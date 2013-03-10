@@ -3,3 +3,7 @@
 /extlib
 /ext
 /etc/config*.pl
+/build
+/locks
+/var
+*.sw?

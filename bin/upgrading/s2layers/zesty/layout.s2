@@ -170,7 +170,7 @@ propgroup Text {
     property use text_post_comment_friends;
 
         set text_permalink = "permalink";
-        set text_stickyentry_subject = "Sticky: ";
+        set text_stickyentry_subject = "Sticky:";
         set text_post_comment = "reply";
         set text_post_comment_friends = "reply";
 
@@ -183,12 +183,13 @@ propgroup Text {
     property use text_meta_mood;
     property use text_meta_music;
 
-        set text_meta_mood = "Mood";
-        set text_meta_music = "Music";
+        set text_meta_mood = "Mood:";
+        set text_meta_music = "Music:";
 
     property use text_view_archive;
     property use text_view_recent;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_month;
     property use text_view_userinfo;
 
@@ -1055,7 +1056,6 @@ h3 {
 
 .module-tags_cloud li, .tags_cloud li {
     display: inline;
-    list-style-type: none;
 }
 
 
@@ -1105,8 +1105,6 @@ h3 {
 
 .icon-keywords ul li {
     display: inline;
-    list-style: none;
-    padding: 0 .25em 0 0;
     }
 
 /* ReplyPage reply box */

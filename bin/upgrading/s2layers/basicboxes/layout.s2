@@ -27,7 +27,7 @@ set font_journal_subtitle = "'Book Antiqua', Palatino, 'Times New Roman', serif"
 ##===============================
 
     property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
        grouped = 1;
        }
 
@@ -169,7 +169,6 @@ function print_stylesheet () {
                 }
 
             .module-navlinks ul {
-                list-style: none;
                 margin: 0;
                 padding: 0;
                 }
@@ -284,7 +283,7 @@ margin: .5em 0; }
 .entry .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
 
 .entry .tag { margin-left: .25em; }
-.entry .tag li { margin-left: 0; padding: .25em .10em; }
+.entry .tag li { margin-left: 0; padding: .25em 0; }
 .entry .tag-text { font-weight: bold; }
 
 ul.entry-management-links { float: left;
@@ -431,6 +430,11 @@ text-align: center; }
 .icon-info .default {
     text-decoration: underline;
     }
+
+.icon-keywords ul li {
+    margin-left: 0;
+    padding: .25em 0;
+}
 
 /* sidebars */
 

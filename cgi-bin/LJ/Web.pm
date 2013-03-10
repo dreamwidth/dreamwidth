@@ -916,7 +916,7 @@ sub create_qr_div {
     $qrhtml .= LJ::ljuser($remote->{'user'});
     $qrhtml .= "</td><td align='center'>";
 
-    my $beta_jquery = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    my $beta_jquery = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     # Userpic selector
     {
         my %res;
@@ -1019,7 +1019,7 @@ sub create_qr_div {
                                       {'name' => 'saved_ptid', 'id' => 'saved_ptid'},
                                       ));
 
-    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
         # FIXME: figure out how to fix the saving of the qr entry stuff
         $ret .= qq{jQuery(function(jQ){
                 jQ("body").append(jQ("<div id='qrdiv'></div>").html("$qrhtml").hide());
@@ -1212,6 +1212,7 @@ sub viewing_style_opts {
     my $valid_style_args = {
         style  => { light => 1, site => 1, mine => 1, original => 1 },
         format => { light => 1 },
+        fallback => { s2 => 1, bml => 1 },
     };
 
     my %ret;
@@ -1232,6 +1233,7 @@ If specified, path must begin with a /
 
 args being a list of arguments to create.
 opts can contain:
+proto -- specify a protocol
 host -- link to different domains
 args -- get arguments to add
 ssl -- use ssl
@@ -1254,7 +1256,8 @@ sub create_url {
     # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
     $opts{ssl} = $LJ::IS_SSL unless $opts{host} || exists $opts{ssl};
 
-    my $url = ( $opts{ssl} ? "https" : "http" ) . "://$host$path";
+    my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
+    my $url = $proto . "://$host$path";
 
     my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
 
@@ -1655,7 +1658,7 @@ MOODS
             };
 
             my $nocomments_display = $opts->{prop_opt_nocomments_maintainer} ?
-                'entryform.comment.settings.nocomments.maintainer' : 'entryform.comment.settings.nocomments';
+                'entryform.comment.settings.nocomments.admin' : 'entryform.comment.settings.nocomments';
 
             my $comment_settings_default = BML::ml('entryform.comment.settings.default5', {'aopts' => $comment_settings_journaldefault->()});
             $out .= LJ::html_select({ 'name' => "comment_settings", 'id' => 'comment_settings', 'class' => 'select', 'selected' => $comment_settings_selected->(),
@@ -2461,7 +2464,7 @@ sub js_dumper {
             return $mtime;
         };
 
-        my $file = "$LJ::HOME/htdocs/$key";
+        my $file = LJ::resolve_file("htdocs/$key");
         my $mtime = (stat($file))[9];
         return $set->($mtime);
     }
@@ -2483,17 +2486,13 @@ sub need_res {
     foreach my $reskey (@_) {
         die "Bogus reskey $reskey" unless $reskey =~ m!^(js|stc)/!;
 
-        my $resinclude;
-        $resinclude = $LJ::MINIFY{$reskey} unless $LJ::IS_DEV_SERVER;
-        $resinclude ||= $reskey;
-
         # we put javascript in the 'default' group and CSS in the 'all' group
         # since we need CSS everywhere and we are switching JS groups
         my $lgroup = $group || ( $reskey =~ /^js/ ? 'default' : 'all' );
         unless ($LJ::NEEDED_RES{"$lgroup-$reskey"}++) {
             $LJ::NEEDED_RES[$priority] ||= [];
 
-            push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $resinclude ];
+            push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $reskey ];
         }
     }
 }
@@ -2511,19 +2510,21 @@ sub res_includes {
     my $do_concat = $LJ::IS_SSL ? $LJ::CONCAT_RES_SSL : $LJ::CONCAT_RES;
 
     # use correct root and prefixes for SSL pages
-    my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix);
+    my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix, $iconprefix);
     if ($LJ::IS_SSL) {
         $siteroot = $LJ::SSLROOT;
         $imgprefix = $LJ::SSLIMGPREFIX;
         $statprefix = $LJ::SSLSTATPREFIX;
         $jsprefix = $LJ::SSLJSPREFIX;
         $wstatprefix = $LJ::SSLWSTATPREFIX;
+        $iconprefix = $LJ::USERPIC_ROOT;
     } else {
         $siteroot = $LJ::SITEROOT;
         $imgprefix = $LJ::IMGPREFIX;
         $statprefix = $LJ::STATPREFIX;
         $jsprefix = $LJ::JSPREFIX;
         $wstatprefix = $LJ::WSTATPREFIX;
+        $iconprefix = $LJ::USERPIC_ROOT;
     }
 
     if ( $include_js ) {
@@ -2565,6 +2566,7 @@ sub res_includes {
                     imgprefix => "$imgprefix",
                     siteroot => "$siteroot",
                     statprefix => "$statprefix",
+                    iconprefix => "$iconprefix",
                     currentJournalBase => "$journal_base",
                     currentJournal => "$journal",
                     has_remote => $hasremote,
@@ -3149,18 +3151,18 @@ LOGIN_BAR
     # a quick little routine to use when cycling through the options
     # to create the style links for the nav bar
     my $make_style_link = sub {
-        return create_url( $uri,
+        return LJ::ehtml( create_url( $uri,
             host => $host,
             cur_args => $argshash,
             # change the style arg
             'args' => { 'style' => $_[0] },
             # keep any other existing arguments
             'keep_args' => 1,
-        );
+        ) );
     };
 
     # cycle through all possibilities, add the valid ones
-    foreach my $view_type qw( mine site light original ) {
+    foreach my $view_type (qw( mine site light original )) {
         # only want to offer this option if user is logged in and it's not their own journal, since
         # original will take care of that
         if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {

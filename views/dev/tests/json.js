@@ -1,6 +1,3 @@
-/* INCLUDE:
-jquery: js/json2.js
-*/
 /* defined as
     my $hash = {
         string => "string",
@@ -21,10 +18,11 @@ jquery: js/json2.js
 var expected_results = {
     setup: function() {
         this.js_dumper = {
-            array: [ 7, "string", 123, { foo: "bar" }, "", "", "", 0, "\"',;:", "<a href=\"#\">blah</a>" ],
+            array: [ 7, "string", 123, "123.", { foo: "bar" }, "", "", "", 0, "\"',;:", "<a href=\"#\">blah</a>", "テスト" ],
             hash: {
                 string: "string",
                 num   : 42,
+                numdot: "42.",
                 array : [ "a", "b", 2 ],
                 hash  : { a: "apple", b: "bazooka" },
                 nil   : "",
@@ -33,14 +31,16 @@ var expected_results = {
                 zero  : 0,
                 symbols: "\"',;:",
                 html  : "<a href=\"#\">blah</a>",
+                utf8  : "テスト"
             }
         };
 
         this.json = {
-            array: [ 7, "string", 123, { foo: "bar" }, null, null, "", 0, "\"',;:", "<a href=\"#\">blah</a>" ],
+            array: [ 7, "string", "123", "123.", { foo: "bar" }, null, null, "", 0, "\"',;:", "<a href=\"#\">blah</a>", "テスト" ],
             hash: {
                 string: "string",
                 num   : 42,
+                numdot: "42.",
                 array : [ "a", "b", 2 ],
                 hash  : { a: "apple", b: "bazooka" },
                 nil   : null,
@@ -48,7 +48,8 @@ var expected_results = {
                 blank : "",
                 zero  : 0,
                 symbols: "\"',;:",
-                html  : "<a href=\"#\">blah</a>"
+                html  : "<a href=\"#\">blah</a>",
+                utf8  : "テスト"
             }
         };
     }
@@ -114,7 +115,7 @@ function jquery_getjson_fail( url ) {
         },
         error: function(jqxhr, status, error) {
             start();
-            ok( error.indexOf("Invalid JSON") == 0, "expected fail. js_dumper output not strict JSON, doesn't actually work with jquery" );
+            ok( error.name == "SyntaxError", "expected fail. js_dumper output not strict JSON, doesn't actually work with jquery" );
         }
     });
 }

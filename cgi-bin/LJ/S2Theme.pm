@@ -41,31 +41,38 @@ sub default_themes {
         blanket => 'blanket/peach',
         boxesandborders => 'boxesandborders/gray',
         brittle => 'brittle/rust',
+        ciel => 'ciel/cloudydays',
         compartmentalize => 'compartmentalize/poppyfields',
         core2base => 'core2base/testing',
+        corinthian => 'corinthian/deepseas',
         crisped => 'crisped/freshcotton',
         crossroads => 'crossroads/lettuce',
         database => 'database/blue',
         drifting => 'drifting/blue',
         dustyfoot => 'dustyfoot/dreamer',
         easyread => 'easyread/green',
+        fantaisie => 'fantaisie/unrelentingroutine',
         fiveam => 'fiveam/earlyedition',
         fluidmeasure => 'fluidmeasure/spice',
         forthebold => 'forthebold/tealeaves',
         funkycircles => 'funkycircles/darkpurple',
         hibiscus => 'hibiscus/tropical',
         headsup => 'headsup/caturdaygreytabby',
+        librariansdream => 'librariansdream/grayscalelight',
         lineup => 'lineup/modernity',
         marginless => 'marginless/mars',
         modular => 'modular/mediterraneanpeach',
+        motion => 'motion/bluemotion',
         negatives => 'negatives/black',
         nouveauoleanders => 'nouveauoleanders/sienna',
         paletteable => 'paletteable/descending',
+        paperme => 'paperme/newleaf',
         practicality => 'practicality/warmth',
         refriedtablet => 'refriedtablet/refriedclassic',
         skittlishdreams => 'skittlishdreams/orange',
         steppingstones => 'steppingstones/purple',
         strata => 'strata/springmorning',
+        summertime => 'summertime/tenniscourt',
         tranquilityiii => 'tranquilityiii/nightsea',
         wideopen => 'wideopen/koi',
         zesty => 'zesty/white',
@@ -878,6 +885,7 @@ sub display_option_props {
     qw(
         num_items_recent
         num_items_reading
+        num_items_icons
         page_recent_items
         page_friends_items
         view_entry_disabled
@@ -1022,6 +1030,8 @@ sub entry_props {
         text_unwatch_comments
         text_read_comments
         text_read_comments_friends
+        text_read_comments_screened_visible
+        text_read_comments_screened
         text_post_comment
         text_post_comment_friends
         text_permalink

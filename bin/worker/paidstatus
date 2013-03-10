@@ -20,7 +20,9 @@ use lib "$ENV{LJHOME}/cgi-bin";
 
 use Time::HiRes qw/ gettimeofday tv_interval /;
 
-require 'ljlib.pl';
+BEGIN {
+    require 'ljlib.pl';
+}
 use LJ::Sendmail;
 use LJ::Lang;
 use DW::Shop;
@@ -215,6 +217,7 @@ sub warn_user {
 
     my $u = LJ::load_userid( $uid )
         or return 0;
+    return 0 unless $u->is_visible;
 
     my $mail;
     if ( $timeleft < 86400*3 && ( ! defined $lastmail || $lastmail == 14 ) ) {

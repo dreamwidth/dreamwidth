@@ -22,7 +22,10 @@ propgroup presentation {
     property use use_custom_friend_colors;
     property use use_shared_pic;
     property use use_journalstyle_entry_page;
+    property use custom_control_strip_colors;
 
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property use num_items_icons;
     property use icons_page_sort;
@@ -40,8 +43,6 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-
-    property use reg_firstdayofweek;
 
     property bool use_action_links_images {
         des = "Theme has images for the entry/comment links";
@@ -95,6 +96,11 @@ propgroup colors {
     property Color color_entry_title_border { des = "Entry title border color"; }
     property Color color_entry_title_border_alt { des = "Alternate entry title border color"; }
     property Color color_entry_metadata_text { des = "Entry metadata color"; }
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 ##===============================
@@ -121,6 +127,7 @@ propgroup fonts {
     property use font_comment_title;
     property use font_comment_title_size;
     property use font_comment_title_units;
+    property use font_sources;
 }
 
 set font_base = "Tahoma, Verdana, Arial";
@@ -295,6 +302,8 @@ propgroup text {
 
     property use text_read_comments;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
     property use text_post_comment;
     property use text_post_comment_friends;
 
@@ -616,6 +625,8 @@ function Page::print_default_stylesheet () {
             """;
         }
 
+    print_custom_control_strip_css();
+
     """
 /*
 Theme Name:    Skittlish Dreams, a DW port of Skittlish
@@ -724,7 +735,6 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .module-section-one li {
     display: inline;
     line-height: 2.2em;
-    list-style: none;
     }
 
 .module-section-one li a {text-decoration: none; padding-top: 0.5em; padding-right: 20px; padding-bottom: 0.5em; padding-left: 20px; $header_colors }
@@ -732,13 +742,13 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .module-section-two a { $module_link_colors }
 .module-section-two .module-header a {text-decoration: none; }
 .module-section-two h2 {margin: 0; margin-bottom: 7px; padding: 0.2em; $module_title_colors }
-.module-section-two ul {list-style-type: none; margin-left: 0.5em; padding: 0; }
-.module-section-two ul ul {list-style-type: none; margin-left: 0.5em; padding: 0.5em; }
+.module-section-two ul {list-style: none; margin-left: 0.5em; padding: 0; }
+.module-section-two ul ul { margin-left: 0.5em; padding: 0.5em; }
 .module-userprofile .userpic img {border: none; margin: 20px; }
 .module-userprofile .userpic {text-align: center; }
 .module-userprofile ul {margin: 0px; padding: 0px; text-align: center; margin-top: 5px; }
 .module-userprofile p {margin-top: 0px; margin-bottom: 0px; }
-.module-userprofile li {display: inline; padding: 5px; list-style: none; }
+.module-userprofile li {display: inline; padding: 5px; }
 .module-calendar .module-content {text-align: center; }
 .module-calendar table {margin-left: auto; margin-right: auto; }
 
@@ -812,6 +822,9 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
     padding: 0;
     }
 
+.comment-posted {
+    font-weight:bold;
+}
 .comment-wrapper {
     min-width: 15em;
 }
@@ -852,31 +865,30 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 .tag {font-weight: bold; text-align: left; }
 .tag a {font-weight: normal; }
 .tag ul {display: inline; margin: 0; padding: 0; }
-.tag li {display: inline; list-style: none; padding: 0px; }
+.tag li {display: inline; padding: 0px; }
 *+html .tag li {padding: 0 5px; }
 
 .entry .metadata.top-metadata { padding-top: 10px; }
-.entry .metadata ul {margin: 0px; padding: 0px; }
-.entry .metadata li {list-style: none; }
+.entry .metadata ul {list-style: none; margin: 0px; padding: 0px; }
 .entry .footer .inner, .comment .footer .inner {text-align: right; }
 .entry .footer a {white-space: nowrap; }
 
 .entry-management-links, .entry-interaction-links, .comment-management-links, .comment-interaction-links {text-align: right; margin: 0; padding: 0; display: inline; }
-.entry-management-links li, .entry-interaction-links li,  .comment-management-links li, .comment-interaction-links li {display: inline; list-style: none; margin: 0; padding: 5px; }
+.entry-management-links li, .entry-interaction-links li,  .comment-management-links li, .comment-interaction-links li {display: inline; margin: 0; padding: 5px; }
 .comment-management-links li.unscreen_comment a, .comment-management-links li.screen_comment a, .comment-management-links li.freeze_thread a { padding-left: 0; }""";
 
 if ( $*use_action_links_images ) {
 """.entry-management-links li a, .comment-management-links li a, .comment-interaction-links .thread a {background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px; }
 
-.entry-management-links .edit_entry a, .comment-management-links .delete_comment a, .comment-management-links .edit_comment a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_edit.png); }
-.entry-management-links .edit_tags a, .comment-interaction-links .parent a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_tag.png); }
-.entry-management-links .mem_add a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_add.png); }
-.entry-management-links .watch_comments a, .comment-management-links .watch_thread a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_track.png); }
-.entry-management-links .link_prev a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_arrow_left.png); }
-.entry-management-links .link_next a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_arrow_right.png); }
-.entry-management-links .tell_friend a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_tell.png);}
-.entry-interaction-links .entry-readlink a, .entry-interaction-links .entry-permalink a { background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_comments.png); }
-.entry-interaction-links li a, .comment-interaction-links li a { background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_comment.png); background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px;  display: inline; }""";
+.entry-management-links .edit_entry a, .comment-management-links .delete_comment a, .comment-management-links .edit_comment a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_edit.png); }
+.entry-management-links .edit_tags a, .comment-interaction-links .parent a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_tag.png); }
+.entry-management-links .mem_add a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_add.png); }
+.entry-management-links .watch_comments a, .comment-management-links .watch_thread a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_track.png); }
+.entry-management-links .link_prev a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_arrow_left.png); }
+.entry-management-links .link_next a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_arrow_right.png); }
+.entry-management-links .tell_friend a {background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_tell.png);}
+.entry-interaction-links .entry-readlink a, .entry-interaction-links .entry-permalink a { background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_comments.png); }
+.entry-interaction-links li a, .comment-interaction-links li a { background-image: url($*STYLES_IMGDIR/skittlishdreams/${theme_base_color}_comment.png); background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px;  display: inline; }""";
 }
 
 """
@@ -915,7 +927,7 @@ if ( $*use_action_links_images ) {
     text-align: right;
     }
 
-.module-tags_cloud li, .tags_cloud li { display: inline; list-style-type: none; }
+.module-tags_cloud li, .tags_cloud li { display: inline; }
 
 .hfeed .navigation, #archive-year .navigation,  #archive-month .navigation, #archive-day .navigation  {height:61px; margin-bottom:-20px; }
 .two-columns-right .hfeed .navigation,
@@ -1029,7 +1041,6 @@ if ( $*use_action_links_images ) {
 /*--- Icons Page ---*/
 
 .sorting-options ul {
-    list-style: none;
     padding-left: 0;
     text-align: center;
     }
@@ -1064,13 +1075,13 @@ if ( $*use_action_links_images ) {
 
 .icon-keywords ul {
     display: inline;
-    list-style: none;
-    padding-left: 0;
+    margin: 0;
+    padding: 0;
     }
 
 .icon-keywords ul li {
     display: inline;
-    padding: 0 .25em 0 0;
+    padding: 0;
     }
 
 $entryicon_css

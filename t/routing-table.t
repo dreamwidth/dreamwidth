@@ -16,5 +16,5 @@
 use strict;
 use Test::More tests => 6;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 require $LJ::HOME . "/t/bin/routing-table-helper.pl";

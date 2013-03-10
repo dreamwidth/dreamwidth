@@ -47,18 +47,29 @@ sub match_full_path {
 }
 
 my %host_path_match = (
+    "8tracks.com"           => qr!^/mixes/!,
     "bandcamp.com"          => qr!^/EmbeddedPlayer/!,
     "blip.tv"               => qr!^/play/!,
 
     "www.dailymotion.com"   => qr!^/embed/video/!,
     "dotsub.com"            => qr!^/media/!,
 
+    "www.goodreads.com"     => qr!^/widgets/!,
+
     "maps.google.com"       => qr!^/maps!,
+    "www.google.com"        => qr!^/calendar/!,
+
+    "www.kickstarter.com"   => qr!/widget/video.html$!,
+
     "ext.nicovideo.jp"      => qr!^/thumb/!,
 
-    "www.sbs.com.au"         => qr!/player/embed/!,  # best guess; language parameter before /player may vary
+    "www.sbs.com.au"        => qr!/player/embed/!,  # best guess; language parameter before /player may vary
     "www.scribd.com"        => qr!^/embeds/!,
     "www.slideshare.net"    => qr!^/slideshow/embed_code/!,
+    "w.soundcloud.com"      => qr!^/player/!,
+    "embed.spotify.com"     => qr!^/$!,
+
+    "www.twitvid.com"       => qr!^/embed.php$!,
 
     "player.vimeo.com"      => qr!^/video/\d+$!,
 );

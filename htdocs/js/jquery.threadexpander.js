@@ -46,7 +46,7 @@
 
   // shows an error.  just uses alert() for now.
   function showExpanderError(element,error) {
-    $(element).ajaxtip({namespace:"threadexpander", content: " ", persist: true }).ajaxtip("error", error);
+    $(element).ajaxtip().ajaxtip( "error", error );
   }
 
   // ajax expands the comments for the given talkid
@@ -63,10 +63,8 @@
 
     element.addClass("disabled");
     element.fadeTo("fast", 0.5);
-    var img = $("<img>", { src: Site.imgprefix+"/ajax-loader.gif"});
-    element.append(img);
 
-    $.ajax( { url: expand_url,
+    var xhr = $.ajax( { url: expand_url,
           datatype: "html",
           timeout: 30000,
           success: function(data) {
@@ -74,7 +72,6 @@
             // if we didn't update any comments, something must have gone wrong
             if (updateCount == 0) {
               showExpanderError(element,$.threadexpander.config.text.error_nomatches);
-              img.remove();
               element.removeClass("disabled").fadeTo("fast", 1.0);
             } else if (unhide) {
               element.unhideComments(LJ, talkid, isS1);
@@ -86,18 +83,18 @@
               if (getUnexpandedComments(LJ).length == 0) {
                 expand_all_span.fadeOut('fast');
               } else if (talkid < 0) {
-                img.remove();
                 element.removeClass("disabled").fadeTo("fast", 1.0);
               }
             }
           },
           error: function(jqXHR, textStatus, errorThrown) {
-            img.remove();
             element.removeClass("disabled");
             element.fadeTo("fast", 1.0);
             showExpanderError(element,$.threadexpander.config.text.error);
           }
       } );
+
+    $(element).throbber( xhr );
   };
 
   // callback to handle comment expansion
@@ -148,7 +145,7 @@
                   LJ[cmtId].full = true;
                 }
               } else {
-                if (newComment.parent().hasClass("full")) {
+                if (newComment.find(".full").length > 0) {
                   LJ[cmtId].full = true;
                   setFull(cmtElement, true);
                 }

@@ -51,32 +51,34 @@ $.extractParams = function(url) {
 
 $.throbber = {
   src: Site.imgprefix + "/ajax-loader.gif",
-  image: function() { return $("<img>", { src:  $.throbber.src } ) }
+  error: Site.imgprefix + "/silk/site/error.png"
 };
 
 $.endpoint = function(action){
-  return Site && Site.currentJournal ? "/" + Site.currentJournal + "/__rpc_" + action : "/__rpc_" + action;
+  return ( Site && Site.currentJournal ) ? "/" + Site.currentJournal + "/__rpc_" + action : "/__rpc_" + action;
 };
 
-// position is an optional first argument
-$.fn.throbber = function(position, jqxhr) {
+$.fn.throbber = function(jqxhr) {
     var $this = $(this);
 
-    if ( $this.data("throbber") )
-        $this.data("throbber").remove();
-
-    if ( jqxhr === undefined ) jqxhr = position;
-    if ( position != "before" && position != "after" && position != "prepend" && position != "append" ) {
-        if ( $this.is(":input") )
-            position = "after"
-        else
-            position = "append"
+    if ( ! $this.data( "throbber" ) ) {
+        $this.css( "padding-right", "+=18px" );
     }
 
-    var $img = $.throbber.image();
-    $this[position]($img);
-    $this.data("throbber", $img);
-    jqxhr.complete(function() { $img.remove(); $this.removeData("throbber") });
+    $this
+        .css( "background", "url('" + $.throbber.src + "') center right no-repeat" )
+        .data("throbber", true);
+
+    jqxhr.then(function() {
+        $this.css( {
+            "paddingRight": "-=18px",
+            "backgroundImage": "none"
+        }).data("throbber", false);
+    });
+
+    jqxhr.fail(function() {
+        $this.css( "backgroundImage", "url('" + $.throbber.error + "')" );
+    });
 
     return $this;
 };

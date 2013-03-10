@@ -49,10 +49,10 @@ ContextualPopup.setup = function () {
     // attach to all userpics
     if (Site.ctx_popup_icons) {
         var images = document.getElementsByTagName("img") || [];
+        var re = new RegExp( "^" + Site.iconprefix + "/\\d+\/\\d+$" );
         Array.prototype.forEach.call(images, function (image) {
             // if the image url matches a regex for userpic urls then attach to it
-            if (image.src.match(/userpic\..+\/\d+\/\d+/) ||
-                image.src.match(/\/userpic\/\d+\/\d+/)) {
+            if (image.src.match(re)) {
                 image.up_url = image.src;
                 DOM.addClassName(image, "ContextualPopup");
                 userElements.push(image);

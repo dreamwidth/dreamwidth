@@ -103,7 +103,7 @@ if (-e "$ENV{HOME}/.jbackup") {
 }
 
 # setup some nice, sane defaults
-$opts{server} ||= 'www.livejournal.com';
+$opts{server} ||= 'www.dreamwidth.org';
 $opts{port} += 0;
 $opts{verbose} = $opts{quiet} ? 0 : 1;
 $opts{server} = "$opts{server}:$opts{port}"
@@ -128,7 +128,7 @@ jbackup.pl -- journal database generator and formatter
     --md5pass=X     Alternately, provide the MD5 digest of the password.
     --journal=X     Specify an alternate journal to use.
                     NOTE: You must be maintainer of the journal.
-    --server=X      Use a different server.  (Default: www.livejournal.com)
+    --server=X      Use a different server.  (Default: www.dreamwidth.org)
     --port=X        Use a non-default port.  (Default: 80)
 
   Data update options:
@@ -226,11 +226,11 @@ sub do_sync {
 
         # push this info, set lastsync
         foreach my $item (@{$hash->{syncitems} || []}) {
+            $lastsync = $item->{'time'}
+                if $item->{'time'} gt $lastsync;
             next unless $item->{item} =~ /L-(\d+)/;
             $synccount++;
             $sync{$1} = [ $item->{action}, $item->{'time'} ];
-            $lastsync = $item->{'time'}
-                if $item->{'time'} gt $lastsync;
             $bak{"event:realtime:$1"} = $item->{'time'};
         }
         $bak{'event:lastsync'} = $lastsync;
@@ -856,7 +856,7 @@ sub dump_xml {
 
     # dump xml formatted comments
     $ret .= "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-    $ret .= "<livejournal>\n\t<events>\n";
+    $ret .= "<dreamwidth>\n\t<events>\n";
 
     # now start iterating
     my $tree = make_tree($comments);
@@ -895,7 +895,7 @@ sub dump_xml {
     d("100.00% ..."); # spit and polish
 
     # close out, we're done
-    $ret .= "\t</events>\n</livejournal>\n";
+    $ret .= "\t</events>\n</dreamwidth>\n";
     d("dump_xml: done.");
     return $ret;
 }

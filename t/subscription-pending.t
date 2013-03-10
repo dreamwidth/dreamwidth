@@ -3,7 +3,7 @@
 use strict;
 use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::Subscription::Pending;
 use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);

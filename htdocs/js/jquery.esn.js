@@ -1,13 +1,17 @@
-(function($,Site,cmtinfo){
+(function($,Site){
+
+if ( ! window.LJ_cmtinfo ) LJ_cmtinfo = {};
+
 $.widget("dw.trackbutton", {
 options: {},
 _toggleSubscriptions: function(subInfo,subs) {
     var self = this;
     subInfo["subid"] = Number(subInfo["subid"]);
 
+    var data = [];
     if ((subInfo["subid"] && ! subs["newComments"])
         || (! subInfo["subid"] && subs["newComments"])) {
-        self._toggleSubscription(subInfo, "newComments");
+        data.push( self._toggleSubscription(subInfo, "newComments") );
     }
 
     subInfo["newentry_subid"] = Number(subInfo["newentry_subid"]);
@@ -16,7 +20,12 @@ _toggleSubscriptions: function(subInfo,subs) {
 
         var newEntrySubInfo = new Object(subInfo);
         newEntrySubInfo["subid"] = Number(subInfo["newentry_subid"]);
-        self._toggleSubscription(newEntrySubInfo, "newEntry");
+        data.push(self._toggleSubscription(newEntrySubInfo, "newEntry"));
+    }
+
+    if ( data.length ) {
+        self.element.ajaxtip() // init
+        .ajaxtip("load", data );
     }
 },
 
@@ -47,18 +56,21 @@ _toggleSubscription: function(subInfo, type) {
         // get necessary AJAX parameters
         $.each(param_keys,(function (index,param) {
             if (Number(subInfo[param]))
-                params[param] = parseInt(subInfo[param]);
+                params[param] = parseInt(subInfo[param], 10);
         }));
     }
     params.action = action;
 
     var $clicked = self.element;
-    $clicked.ajaxtip({namespace: "trackbutton"})
-        .ajaxtip("load", {
-            endpoint: "esn_subs",
+    return {
+        endpoint: "esn_subs",
+        ajax: {
+            type: "POST",
+
             context: self,
+
             data: params,
-            multiple: true,
+
             success: function( data, status, jqxhr ) {
                 if (data.error) {
                     $clicked.ajaxtip("error", data.error);
@@ -96,7 +108,7 @@ _toggleSubscription: function(subInfo, type) {
                                 // otherwise set state to "parent", which is equivalent to "on"
                                 var $parentBtn;
                                 var parent_dtalkid = dtalkid;
-                                var cmtInfo = cmtinfo[dtalkid+""];
+                                var cmtInfo = LJ_cmtinfo[dtalkid+""];
 
                                 while ( $parentBtn = self._getParentButton(parent_dtalkid) ) {
                                     parent_dtalkid = $parentBtn.attr("lj_dtalkid");
@@ -107,22 +119,20 @@ _toggleSubscription: function(subInfo, type) {
                                     break;
                                 }
                             }
-                            self._updateThread(dtalkid, state);
+                            this._updateThread(dtalkid, state);
                         } else {
-                            self._updateButton(self.element,state);
+                            this._updateButton(self.element,state);
                         }
                     }
                 }
-
-                self._trigger( "complete" );
             }
-        });
-
+        }
+    };
 },
 
 // given a dtalkid, find the track button for its parent comment (if any)
 _getParentButton: function(dtalkid) {
-    var cmt = cmtinfo[dtalkid+""];
+    var cmt = LJ_cmtinfo[dtalkid+""];
     if ( ! cmt ) return null;
 
     var parent_dtalkid = cmt.parent;
@@ -160,7 +170,7 @@ _updateThread: function(dtalkid, state) {
     var $btn = $("#lj_track_btn_" + dtalkid);
     if ( ! $btn.length ) return;
 
-    var cmtInfo = cmtinfo[dtalkid + ""];
+    var cmtInfo = LJ_cmtinfo[dtalkid + ""];
     if (! cmtInfo) return;
 
     // subscription already exists on this button, don't mess with it
@@ -205,6 +215,9 @@ _create: function() {
         // don't show the popup if we want to open it in a new tab (ctrl+click or cmd+click)
         if (e.ctrlKey || e.metaKey) return;
 
+        // e.which == 1 is a left click. We don't want to handle anything else
+        if (e.which != 1) return;
+
         e.preventDefault();
         e.stopPropagation();
 
@@ -215,71 +228,70 @@ _create: function() {
             btnInfo[arg] = $ele.attr("lj_" + arg);
         });
 
-        // show the menu
-        $ele.ajaxtip({
-            namespace:"trackbutton",
-            content: function() {
 
-            // the dialog we will show later
-            var $dlg = $("<div class='trackdialog'><div class='track_title'>Email me when</div></div>");
+        var $dlg = $("<div class='trackdialog'></div>");
+        var TrackCheckbox = function (title, checked) {
+            var uniqueid = "newentrytrack" + Unique.id();
+            var $checkbox = $("<input></input>",
+                { "type": "checkbox", "id": uniqueid, "checked": checked });
+            var $checkContainer = $("<div></div>")
+                .append( $checkbox, $("<label></label>", { "for": uniqueid }).html(title) )
+                .appendTo( $dlg );
 
-            // this creates a new checkbox for a notification option with a specified name
-            // and default check option
-            var TrackCheckbox = function (title, checked) {
-                var uniqueid = "newentrytrack" + Unique.id();
-                var $checkbox = $("<input></input>",
-                    { "type": "checkbox", "id": uniqueid, "checked": checked });
-                var $checkContainer = $("<div></div>")
-                    .append( $checkbox, $("<label></label>", { "for": uniqueid }).html(title) )
-                    .appendTo( $dlg );
+            return $checkbox;
+        };
 
-                return $checkbox;
-            };
+        // is the user already tracking new entries by this user / new comments on this entry?
+        var trackingNewEntries  = Number(btnInfo['newentry_subid']) ? true : false;
+        var trackingNewComments = Number(btnInfo['subid']) ? true : false;
 
-            // is the user already tracking new entries by this user / new comments on this entry?
-            var trackingNewEntries  = Number(btnInfo['newentry_subid']) ? true : false;
-            var trackingNewComments = Number(btnInfo['subid']) ? true : false;
+        var $newEntryTrackBtn;
+        var $commentsTrackBtn;
 
-            var $newEntryTrackBtn;
-            var $commentsTrackBtn;
-
-            if (Number($ele.attr("lj_dtalkid"))) {
-                // this is a thread tracking button
-                // always checked: either because they're subscribed, or because
-                // they're going to subscribe.
-                $commentsTrackBtn = TrackCheckbox("someone replies in this comment thread", true);
-            } else {
-                // entry tracking button
-                var journal = cmtinfo["journal"] || $ele.attr("journal") || Site.currentJournal;
-                if ( journal ) {
-                    $newEntryTrackBtn = TrackCheckbox( journal + " posts a new entry", trackingNewEntries );
-                }
-                $commentsTrackBtn = TrackCheckbox("someone comments on this post", trackingNewComments);
+        if (Number($ele.attr("lj_dtalkid"))) {
+            // this is a thread tracking button
+            // always checked: either because they're subscribed, or because
+            // they're going to subscribe.
+            $commentsTrackBtn = TrackCheckbox("someone replies in this comment thread", true);
+        } else {
+            // entry tracking button
+            var journal = LJ_cmtinfo["journal"] || $ele.attr("journal") || Site.currentJournal;
+            if ( journal ) {
+                $newEntryTrackBtn = TrackCheckbox( journal + " posts a new entry", trackingNewEntries );
             }
+            $commentsTrackBtn = TrackCheckbox("someone comments on this post", trackingNewComments);
+        }
 
-            var $savebutton = $("<input type='button' class='track_savechanges' value='Save Changes'></input>")
-                .click(function() {
+        $dlg.dialog({
+            title: "Email me when",
+            dialogClass: "track-dialog",
+            position: {
+                my: "center bottom",
+                at: "right top",
+                of: this,
+                collision: "fit fit"
+            },
+            buttons: {
+                "Save Changes": function() {
+                    $(this).dialog( "close" );
                     self._toggleSubscriptions(btnInfo,{
                         newEntry: $newEntryTrackBtn ? $newEntryTrackBtn.is(":checked") : false,
                         newComments: $commentsTrackBtn.is(":checked")
                     });
-                });
-            var $btnsContainer = $("<div class='track_btncontainer'></div>")
-                .append( $savebutton,
-                    $("<a></a>", {"href": $ele.attr("href"), "class": "track_moreopts"}).html("More Options")
-                ).appendTo($dlg);
-
-            return $dlg;
-            }
-
-        })
+                },
+                "More Options": function() {
+                    document.location = $ele.attr("href");
+                }
+            },
+            maxWidth: "80%",
+            width: 500
+        });
     });
-
 }
+
 });
 
-
-})(jQuery,window.Site||{},window.LJ_cmtinfo||{});
+})(jQuery,window.Site||{});
 
 jQuery(function($){
     $("a.TrackButton").trackbutton();

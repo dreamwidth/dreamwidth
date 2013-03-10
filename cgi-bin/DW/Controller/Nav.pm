@@ -22,7 +22,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Logic::MenuNav;
-use JSON;
+use LJ::JSON;
 
 # Defines the URL for routing.  I could use register_string( '/nav' ... ) if I didn't want to capture arguments
 # This is an application page, not a user styled page, and the default format is HTML (ie, /nav gives /nav.html)
@@ -51,7 +51,7 @@ sub nav_handler {
     my $format = $opts->format;
     if ( $format eq 'json' ) {
         # this prints out the menu navigation as JSON and returns
-        $r->print( JSON::objToJson( $menu_nav ) );
+        $r->print( to_json( $menu_nav ) );
         return $r->OK;
     } elsif ( $format eq 'html' ) {
         # these variables will get passed to the template

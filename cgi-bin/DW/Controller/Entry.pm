@@ -24,6 +24,7 @@ use DW::Template;
 
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
+use LJ::JSON;
 
 use DW::External::Account;
 
@@ -34,8 +35,6 @@ my %form_to_props = (
     current_mood_other  => "current_mood",
     current_music       => "current_music",
     current_location    => "current_location",
-
-    taglist             => "taglist",
 );
 
 
@@ -57,7 +56,7 @@ Handlers for creating and editing entries
 =cut
 
 DW::Routing->register_string( '/entry/new', \&new_handler, app => 1 );
-DW::Routing->register_regex( '/entry/([^/]+)/new', \&new_handler, app => 1 );
+DW::Routing->register_regex( '^/entry/([^/]+)/new$', \&new_handler, app => 1 );
 
 DW::Routing->register_string( '/entry/preview', \&preview_handler, app => 1, methods => { POST => 1 } );
 
@@ -86,11 +85,26 @@ Handles posting a new entry
 sub new_handler {
     my ( $call_opts, $usejournal ) = @_;
 
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
     my $r = DW::Request->get;
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
 
     return error_ml( "/entry/form.tt.beta.off", { aopts => "href='$LJ::SITEROOT/betafeatures'" } )
         unless $remote && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
+
+    # these kinds of errors prevent us from initializing the form at all
+    # so abort and return it without the form
+    return error_ml( "/update.bml.error.nonusercantpost", { sitename => $LJ::SITENAME } )
+            if $remote->is_identity;
+
+    return error_ml( "/update.bml.error.cantpost" )
+            unless $remote->can_post;
+
+    return error_ml( '/update.bml.error.disabled' )
+            if $remote->can_post_disabled;
+
 
     my @error_list;
     my @warnings;
@@ -100,8 +114,8 @@ sub new_handler {
     if ( $r->did_post ) {
         $post = $r->post_args;
 
-        my $mode_preview = $post->{"action:preview"};
-        my $mode_spellcheck = $post->{"action:spellcheck"};
+        my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
+        my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -211,20 +225,13 @@ sub new_handler {
     $usejournal ||= $get->{usejournal};
     my $vars = _init( { usejournal  => $usejournal,
                         altlogin    => $get->{altlogin},
+                        remote      => $remote,
 
                         datetime    => $datetime || "",
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
                       }, @_ );
-
-    return $vars->{ret} if $vars->{handled};
-
-    # these kinds of errors prevent us from initializing the form at all
-    # so abort and return it without the form
-    return error_ml( $vars->{abort}, $vars->{args} )
-        if $vars->{abort};
-
 
     # now look for errors that we still want to recover from
     push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
@@ -248,7 +255,6 @@ sub new_handler {
     }
 
     $vars->{show_unimplemented} = $get->{highlight} ? 1 : 0;
-    $vars->{betacommunity} = LJ::load_user( "dw_beta" );
 
     $vars->{action} = {
         url  => LJ::create_url( undef, keep_args => 1 ),
@@ -270,11 +276,8 @@ sub new_handler {
 sub _init {
     my ( $form_opts, $call_opts ) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
-    return { handled => 1, ret => $rv } unless $ok;
-
     my $post_as_other = $form_opts->{altlogin} ? 1 : 0;
-    my $u = $post_as_other ? undef : $rv->{remote};
+    my $u = $post_as_other ? undef : $form_opts->{remote};
     my $vars = {};
 
     my @icons;
@@ -301,16 +304,6 @@ sub _init {
     my $formwidth;
     my $min_animation;
     if ( $u ) {
-        return { abort => "/update.bml.error.nonusercantpost", args => { sitename => $LJ::SITENAME } }
-            if $u->is_identity;
-
-        return { abort => '/update.bml.error.cantpost' }
-            unless $u->can_post;
-
-        return { abort => '/update.bml.error.disabled' }
-            if $u->can_post_disabled;
-
-
         # icons
         @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
         @icons = LJ::Userpic->separate_keywords( \@icons )
@@ -346,7 +339,6 @@ sub _init {
             foreach my $acct ( @accounts ) {
                 my $id = $acct->acctid;
 
-                # FIXME:  spellcheck
                 my $selected = $crosspost_selected{$id};
 
                 push @crosspost_list, {
@@ -412,6 +404,11 @@ sub _init {
         icons       => @icons ? [ { userpic => $defaulticon }, @icons ] : [],
         defaulticon => $defaulticon,
 
+        icon_browser => {
+            metatext => $u ? $u->iconbrowser_metatext : "",
+            smallicons => $u ? $u->iconbrowser_smallicons : "",
+        },
+
         moodtheme => \%moodtheme,
         moods     => \@moodlist,
 
@@ -436,6 +433,13 @@ sub _init {
         panels      => $panels,
         formwidth   => $formwidth eq "P" ? "narrow" : "wide",
         min_animation => $min_animation ? 1 : 0,
+
+        limits => {
+            subject_length => LJ::CMAX_SUBJECT,
+        },
+
+        # TODO: Remove this when beta is over
+        betacommunity => LJ::load_user( "dw_beta" ),
     };
 
     return $vars;
@@ -458,7 +462,7 @@ sub _edit {
 
     my $r = DW::Request->get;
 
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
     my $journal = defined $username ? LJ::load_user( $username ) : $remote;
 
     return error_ml( 'error.invalidauth' ) unless $journal;
@@ -477,8 +481,9 @@ sub _edit {
         $post->remove( 'usejournal' );
 
 
-        my $mode_preview = $post->{"action:preview"};
-        my $mode_spellcheck = $post->{"action:spellcheck"};
+        my $mode_preview    = $post->{"action:preview"} ? 1 :0;
+        my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
+        my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -505,12 +510,25 @@ sub _edit {
                 if $journal && $journal->readonly;
 
             my $form_req = {};
-            my %status = _form_to_backend( $form_req, $post );
+            my %status = _form_to_backend( $form_req, $post, allow_empty => $mode_delete );
             push @error_list, @{$status{errors}}
                 if exists $status{errors};
 
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( @error_list ) {
+
+                if ( $mode_delete ) {
+                    $form_req->{event} = "";
+
+                    # now log the event created above
+                    $journal->log_event('delete_entry', {
+                            remote => $remote,
+                            actiontarget => $ditemid,
+                            method => 'web',
+                    });
+
+                }
+
                 my %edit_res = _do_edit(
                         $ditemid,
                         $form_req,
@@ -553,17 +571,13 @@ sub _edit {
     }
 
     my $vars = _init( { usejournal  => $journal->username,
+                        remote      => $remote,
 
                         datetime => $entry_obj->eventtime_mysql,
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
                       }, @_ );
-
-    # these kinds of errors prevent us from initiating the form at all
-    # so abort and return it without the form
-    return error_ml( $vars->{abort}, $vars->{args} )
-        if $vars->{abort};
 
     # now look for errors that we still want to recover from
     my $get = $r->get_args;
@@ -584,7 +598,6 @@ sub _edit {
 
     # this can't be edited after posting
     delete $editable{journal};
-
 
     $vars->{action} = {
         edit => 1,
@@ -657,7 +670,7 @@ sub _auth {
 # decodes the posted form into a hash suitable for use with the protocol
 # $post is expected to be an instance of Hash::MultiValue
 sub _form_to_backend {
-    my ( $req, $post ) = @_;
+    my ( $req, $post, %opts ) = @_;
 
     my @errors;
 
@@ -666,7 +679,7 @@ sub _form_to_backend {
     $req->{event} = $post->{event} || "";
 
     push @errors, LJ::Lang::ml( "/update.bml.error.noentry" )
-        if $req->{event} eq "";
+        if $req->{event} eq "" && ! $opts{allow_empty};
 
 
     # initialize props hash
@@ -677,6 +690,7 @@ sub _form_to_backend {
         $props->{$propname} = $post->{$formname}
             if defined $post->{$formname};
     }
+    $props->{taglist} = $post->{taglist} if defined $post->{taglist};
     $props->{picture_keyword} = $post->{icon} if defined $post->{icon};
     $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
     # FIXME
@@ -777,7 +791,6 @@ sub _backend_to_form {
 #             my $entry = {
 #                 'usejournal' => $usejournal,
 #                 'auth' => $auth,
-#                 'spellcheck_html' => $spellcheck_html,
 #                 'richtext' => LJ::is_enabled('richtext'),
 #                 'suspended' => $suspend_msg,
 #                 'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0,
@@ -788,6 +801,8 @@ sub _backend_to_form {
 
     # some properties aren't in the hash above, so go through them manually
     my %otherprops = (
+        taglist => join( ', ', $entry->tags ),
+
         entrytime_outoforder => $entry->prop( "opt_backdated" ),
 
         age_restriction     =>  {
@@ -818,7 +833,7 @@ sub _backend_to_form {
             $security = "access";
         } else {
             $security = "custom";
-            @custom_groups = ( map { $_ => 1 } grep { $amask & ( 1 << $_ ) } 1..60 );
+            @custom_groups = grep { $amask & ( 1 << $_ ) } 1..60;
         }
     }
 
@@ -1014,7 +1029,6 @@ sub _save_editted_entry {
         %$form_req
     };
 
-
     my $err = 0;
     my $res = LJ::Protocol::do_request( "editevent", $req, \$err, {
             noauth => 1,
@@ -1034,7 +1048,7 @@ sub _do_edit {
     my $remote = $auth->{remote};
     my $journal = $auth->{journal};
 
-    my $deleted = 0;
+    my $deleted = $form_req->{event} ? 0 : 1;
 
     # post succeeded, time to do some housecleaning
     _persist_props( $remote, $form_req );
@@ -1057,7 +1071,7 @@ sub _do_edit {
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
     if ( $deleted ) {
-
+        $ret .= LJ::Lang::ml( '/editjournal.bml.success.delete' );
     } else {
         $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );
 
@@ -1462,7 +1476,7 @@ sub collapse_rpc_handler {
     my $expand = $args->{expand} && $args->{expand} eq "true" ? 1 : 0;
 
     my $show = sub {
-        $r->print( JSON::objToJson( $u->entryform_panels_collapsed ) );
+        $r->print( to_json( $u->entryform_panels_collapsed ) );
         return $r->OK;
     };
 

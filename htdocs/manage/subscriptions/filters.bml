@@ -23,7 +23,7 @@ body<=
     # this is how you include custom CSS/JS/etc
     LJ::set_active_resource_group( 'jquery' );
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, qw# stc/subfilters.css # );
-    LJ::need_res( { group => 'jquery' }, qw# js/subfilters.js js/json2.js # );
+    LJ::need_res( { group => 'jquery' }, qw# js/subfilters.js # );
 
     # for pages that require authentication
     my $remote = LJ::get_remote();
@@ -64,9 +64,17 @@ body<=
 </div>
 
 <div id='cf-filtopts'>
-    Options for <span id='cf-foname'>selected filter</span>:<br /><br />
+    <h4>Options for "<span id='cf-foname'>selected filter</span>"</h4> 
 
-    (filter options are not implemented yet, sorry!)
+    <p><label for='cf-public'>Visibility:</label>
+    <select id='cf-public'>
+       <option value='0'>Private</option>
+       <option value='1'>Public</option>
+    </select></p>
+
+    <p><label for="cf-sortorder">Order:</label>
+    <input id="cf-sortorder" onchange="cfSortOrder()" size="2" /></p>
+
 </div>
 
 <div id='cf-intro'>

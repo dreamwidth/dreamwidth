@@ -192,7 +192,7 @@ body<=
 
                         # check membership
                         if ( $is_member_of_userid{$uid} ) {
-                            $jointext = $ML{'.circle.maintainer'}
+                            $jointext = $ML{'.circle.admin'}
                                 if $u->can_manage( $other_u );
                             $joinvals->{selected} = 1;
                             $joinvals->{disabled} =

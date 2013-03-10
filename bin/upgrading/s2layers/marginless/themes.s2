@@ -816,6 +816,68 @@ set color_module_title = "#242424";
 set color_module_title_background = "#c3d9d5";
 
 
+#NEWLAYER: marginless/wetsand
+layerinfo type = "theme";
+layerinfo name = "Wet Sand";
+layerinfo redist_uniq = "marginless/wetsand";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+# Only on Archive page
+set color_calendar_background = "#ebe4dd";
+set color_calendar_entry = "#ebdfd3";
+set color_footer_background = "#f3f3f3";
+set color_footer_link = "#2f965f";
+set color_footer_link_active = "#2f965f";
+set color_footer_link_hover = "#38b475";
+set color_footer_link_visited = "#2f8f96";
+set color_header_background = "#8f5f3f";
+set color_page_background = "#996644";
+set color_page_link = "#2f965f";
+set color_page_link_active = "#2f965f";
+set color_page_link_hover = "#38b475";
+set color_page_link_visited = "#2f8f96";
+set color_page_text = "#282828";
+set color_page_title = "#4b3221";
+set color_userpic_background = "#a98051";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#4b3221";
+set color_comment_title_background = "#f3f3f3";
+set color_comment_title_background_even = "#f3f3f3";
+set color_comment_title_even = "#4b3221";
+set color_entry_background = "#f3f3f3";
+set color_entry_interaction_links = "#2f5f96";
+set color_entry_link = "#2f965f";
+set color_entry_link_active = "#2f965f";
+set color_entry_link_hover = "#38b475";
+set color_entry_link_visited = "#2f8f96";
+set color_entry_text = "#282828";
+set color_entry_title = "#4b3221";
+set color_entry_title_background = "#f3f3f3";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#c7a066";
+set color_module_link = "#1f643e";
+set color_module_link_active = "#1f643e";
+set color_module_link_hover = "#2f965f";
+set color_module_link_visited = "#1f5f64";
+set color_module_text = "#282828";
+set color_module_title = "#4b3221";
+set color_module_title_background = "#ebe4dd";
+
+
 #NEWLAYER: marginless/zeljonyj
 layerinfo type = "theme";
 layerinfo name = "Zeljónyj";

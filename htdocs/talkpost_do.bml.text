@@ -5,6 +5,8 @@
 
 .error.banned=You are not allowed to post in this user's journal.
 
+.error.banned.comm=You are not allowed to post in this community.
+
 .error.blankmessage=Your message is blank.  Please enter something in the message field.
 
 .error.confused_identity=You entered an account name but selected "post anonymously" or as the currently logged in account.  Please clear the textbox or select the correct posting mode and try again.
@@ -29,6 +31,8 @@
 
 .error.noanon=You can't post anonymously in this journal.
 
+.error.noanon.comm=You can't post anonymously in this community.
+
 .error.noauth=You aren't authorized to reply to this protected entry.
 
 .error.nocomments=Comments are disabled on this entry.
@@ -44,6 +48,8 @@
 .error.nousername=You did not enter your [[sitename]] username.  You can choose to post as "Anonymous" if you don't have a [[sitename]] user account, or log in via OpenID.
 
 .error.nousername.noanon=You did not enter your [[sitename]] username and this user does not allow anonymous commenting. Please go back and enter your [[sitename]] username and password to comment.
+
+.error.nousername.noanon.comm=You did not enter your [[sitename]] username and this community does not allow anonymous commenting. Please go back and enter your [[sitename]] username and password to comment.
 
 .error.noverify2=You can't post comments until your email address has been confirmed. If you've lost the confirmation email, you can <a [[aopts]]>have it re-sent</a>.
 

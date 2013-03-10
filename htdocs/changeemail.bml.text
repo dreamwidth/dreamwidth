@@ -17,6 +17,8 @@
 
 .instructions.identity=To set an email address for your OpenID account, fill out the form below.
 
+.instructions.comm=To change the email address associated with this community, fill out the form below.
+
 .label.newemail=New email address:
 
 .label.oldemail=Old email address:

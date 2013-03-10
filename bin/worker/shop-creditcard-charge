@@ -17,7 +17,9 @@
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
-require "ljlib.pl";
+BEGIN {
+    require "ljlib.pl";
+}
 
 use Gearman::Worker;
 use Storable qw/ thaw /;

@@ -16,11 +16,11 @@
     #
 
     use strict;
-    use JSON;
+    use LJ::JSON;
     use vars qw/ %GET /;
 
     my $err = sub {
-        return JSON::objToJson( {
+        return to_json( {
             alert => $_[0],
             error => 1,
         } );
@@ -113,8 +113,7 @@
 
     # save incoming changes
     } elsif ( $mode eq 'save_filters' ) {
-        local $JSON::UnMapping = 1;
-        my $obj = JSON::jsonToObj( $POST{json} );
+        my $obj = from_json( $POST{json} );
 
         foreach my $fid ( keys %$obj ) {
             my $filt = $obj->{$fid};
@@ -163,6 +162,10 @@
                 delete $data->{$uid} unless exists $filt->{members}->{$uid};
             }
 
+            # save public and sortorder preferences
+            $cf->_getset( 'sortorder', $filt->{sortorder} + 0 ) unless $filt->{sortorder} == $cf->{sortorder};
+            $cf->_getset( 'public', $filt->{public} ? 1 : 0 ) unless $filt->{public} == $cf->{public};
+
             # save the filter, very important...
             $cf->_save;
         }
@@ -176,6 +179,6 @@
         $ret{url} = $u->journal_base . "/read/" . $GET{name};
     }
 
-    return JSON::objToJson( \%ret );
+    return to_json( \%ret );
 }
 _code?>

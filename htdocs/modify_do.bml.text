@@ -21,9 +21,13 @@
 
 .domainalias.about=If you have a domain name already registered (or which you're planning on registering) and would like it to automatically load your <?sitename?>, enter it here:
 
+.domainalias.about.comm=If you have a domain name already registered (or which you're planning on registering) and would like it to automatically load this <?sitename?> community, enter it here:
+
 .domainalias.domainname=Domain name:
 
 .domainalias.example=Example: <i>my-journal.com</i>
+
+.domainalias.example.comm=Example: <i>my-community.com</i>
 
 .domainalias.head=Domain Aliasing
 

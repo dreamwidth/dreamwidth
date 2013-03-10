@@ -55,7 +55,9 @@ unless (($list   && (($banid && ! $an_opt) || (! $banid && $an_opt)) ||
         }
 
 # now load in the beast
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+}
 use LJ::Sysban;
 my $dbh = LJ::get_db_writer();
 

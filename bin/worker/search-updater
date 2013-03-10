@@ -16,7 +16,9 @@ package LJ::Worker::UserSearch::Updater;
 use strict;
 use warnings;
 use lib "$ENV{LJHOME}/cgi-bin";
-require "ljlib.pl";
+BEGIN {
+    require "ljlib.pl";
+}
 use base 'LJ::Worker::Manual';
 use LJ::UserSearch::MetaUpdater;
 use Carp;

@@ -1157,7 +1157,7 @@ sub display_vieweditlinks {
     delete $modes{delete} if $self->is_active;
 
     my $text = "";
-    foreach my $mode qw( view review delete ) {
+    foreach my $mode (qw( view review delete )) {
         next unless $modes{$mode};
         $text .= ' | ' if $text;
         $text .= "<a href='$linkroot?mode=$mode&id=$id'>$modes{$mode}</a>";

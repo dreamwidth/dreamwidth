@@ -17,6 +17,8 @@ propgroup presentation {
     property use num_items_reading;
     property use use_journalstyle_entry_page;
     property use layout_type;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
     property use tags_page_type;
     property string sidebar_width {
         des = "Set the percentage width of a single sidebar, without the % symbol.";
@@ -42,9 +44,9 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use custom_control_strip_colors;
 }
 
 set layout_type = "two-columns-right";
@@ -71,7 +73,7 @@ propgroup colors {
     property use color_page_link_visited;
     property use color_page_text;
     property use color_page_title;
-    
+
     property use color_header_background;
     property use color_footer_link;
     property use color_footer_link_active;
@@ -95,6 +97,10 @@ propgroup colors {
     property use color_module_text;
     property use color_module_title;
 
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
 }
 
 propgroup colors_child {
@@ -155,6 +161,7 @@ propgroup fonts {
     property use font_module_text;
     property use font_module_text_size;
     property use font_module_text_units;
+    property use font_sources;
 }
 
 set font_base = "Verdana, Tahoma, Arial, Helvetica";
@@ -335,7 +342,7 @@ propgroup modules {
 }
 
 # explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 
 ##===============================
 ## Custom CSS
@@ -370,6 +377,7 @@ propgroup text {
 
     property use text_view_recent;
     property use text_view_friends;
+    property use text_view_friends_comm;
     property use text_view_network;
     property use text_view_archive;
     property use text_view_userinfo;
@@ -385,6 +393,8 @@ propgroup text {
     property use text_read_comments;
     property use text_post_comment_friends;
     property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
 
     property use text_skiplinks_back;
     property use text_skiplinks_forward;
@@ -462,6 +472,9 @@ function ReplyPage::print_comment (Comment c) {
     $c->print_metatypes();
     $c->print_time();
     if ($*entry_poster_position == "header") { $c->print_poster(); }
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
@@ -530,7 +543,7 @@ function Page::print_default_stylesheet() {
             $header_background
             height: """ + $*image_background_header_height + """px;""";
     }
-    
+
     var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
     var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
     var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
@@ -642,6 +655,8 @@ function Page::print_default_stylesheet() {
              $userpic_css = """margin-right: .833em;
     float: left;""";
          }
+    print_custom_control_strip_css();
+
      """
 /************************************************
 * Resets *
@@ -696,11 +711,11 @@ img {
 }
 
 ul {
-    list-style-type: square;
+    list-style: square;
 }
 
 ul ul {
-    list-style-type: circle;
+    list-style: circle;
 }
 
 blockquote {
@@ -744,6 +759,7 @@ q {
 ***************************************************************************/
 
 #header {
+    $header_background
     margin-bottom: 1.25em;
 }
 
@@ -769,7 +785,7 @@ q {
 /* Content & Sidebars
 ***************************************************************************/
 
-#primary, 
+#primary,
 #secondary,
 #tertiary {
     float: left;
@@ -977,14 +993,13 @@ q {
 }
 
 .module-userprofile li {
-    list-style-type: none;
     display: inline;
 }
 
 .module-navlinks ul,
 .module-typelist ul,
 .module-active ul {
-    list-style-type: none;
+    list-style: none;
 }
 
 .module-navlinks a {
@@ -1018,7 +1033,6 @@ q {
 }
 .module-tags_cloud li {
     display: inline;
-    list-style-type: none;
 }
 
 .module-search input.search-box {
@@ -1111,6 +1125,10 @@ q {
     $comment_title_colors
 }
 
+.comment-posted {
+    font-weight:bold;
+}
+
 .datetime {
     font-size: .85em
 }
@@ -1142,12 +1160,12 @@ q {
 }
 
 .metadata ul {
+    list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
 
 .metadata li {
-    list-style-type: none;
     font-size: .9em;
 }
 
@@ -1236,12 +1254,12 @@ q {
     display: none;
 }
 
-.entry-interaction-links, 
+.entry-interaction-links,
 .comment-interaction-links {
     float: right;
 }
-.entry-interaction-links li, 
-.comment-interaction-links li, 
+.entry-interaction-links li,
+.comment-interaction-links li,
 .bottomcomment .entry-interaction-links li {
     display: inline;
     margin: 0;
@@ -1445,7 +1463,6 @@ q {
 }
 .page-tags .tags-container .tags_cloud li {
     display: inline;
-    list-style-type: none;
 }
 .page-tags .tags-container .manage-tags-link {
     margin: 1em 0;
@@ -1484,7 +1501,6 @@ q {
 
 .sorting-options ul li {
     display: inline;
-    list-style-type: none;
 }
 
 .icons-container .icon {
@@ -1492,15 +1508,15 @@ q {
     text-align: left;
 }
 
-.icon-image,
-.icon-info {
-    display: inline-block;
-    vertical-align: top;
-}
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: .5em;
+    }
 
-.icon-info {
-    margin-left: .5em;
-}
+.icon-info { min-height: 100px; }
 
 .icon-info .label,
 .icon-info span {
@@ -1520,7 +1536,6 @@ q {
 
 .icon-keywords ul li {
     display: inline;
-    list-style-type: none;
 }
 
 .icons-container .manage-link {
@@ -1558,15 +1573,21 @@ q {
 /* Contextual Popup
 ***************************************************************************/
 
-.ContextualPopup .Inner{
+.ContextualPopup {
     background: $*color_page_background;
+    border-radius: 0;
     color: $*color_page_text;
 }
-.ContextualPopup .Inner a, .ContextualPopup .Inner a:visited {
-    text-decoration: underline !important;
+.ContextualPopup a,
+.ContextualPopup a:visited {
+    text-decoration: underline;
     font-weight: bold;
-    color: $*color_page_text;
 }
+
+.ContextualPopup a { color: $*color_page_link_hover; }
+.ContextualPopup a:visited { color: $*color_page_link_visited; }
+.ContextualPopup a:hover { color: $*color_page_link_hover; }
+.ContextualPopup a:active { color: $*color_page_link_active; }
 
 /* Borders & Images
 ***************************************************************************/
@@ -1679,10 +1700,9 @@ blockquote {
 .topnav li, .bottomnav li,
 .page-archive #primary table th, .page-archive #primary table td,
 .page-month #primary dl dt a,
-.page-tags .tags-container .manage-tags-link a, 
+.page-tags .tags-container .manage-tags-link a,
 .page-icons .icons-container .manage-icons-link a, blockquote {
     border-color: rgba($border_r,$border_g,$border_b,.15);
 }
      """;
 }
-

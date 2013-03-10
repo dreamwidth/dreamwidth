@@ -415,15 +415,15 @@ function changeSecurityOptions(defaultjournal) {
                 if (data.ret) {
                     // give the appropriate security options for the account type
                     if (data.ret['is_comm']) {
-                        $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                        $('security').options[0] = new Option(UpdateFormStrings["public"], 'public');
                         $('security').options[1] = new Option(UpdateFormStrings.friends_comm, 'friends');
                         if ( data.ret['can_manage'] ) {
                             $('security').options[2] = new Option(UpdateFormStrings.admin, 'private');
                         }
                     } else {
-                        $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                        $('security').options[0] = new Option(UpdateFormStrings["public"], 'public');
                         $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');
-                        $('security').options[2] = new Option(UpdateFormStrings.private, 'private');
+                        $('security').options[2] = new Option(UpdateFormStrings["private"], 'private');
                         if (data.ret['friend_groups_exist']) {
                             $('security').options[3] = new Option(UpdateFormStrings.custom, 'custom');
                         }
@@ -452,9 +452,9 @@ function changeSecurityOptions(defaultjournal) {
                 // if the user is not known
                 } else {
                     // personal journal, but no custom option, and no minsecurity
-                    $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                    $('security').options[0] = new Option(UpdateFormStrings["public"], 'public');
                     $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');
-                    $('security').options[2] = new Option(UpdateFormStrings.private, 'private');
+                    $('security').options[2] = new Option(UpdateFormStrings["private"], 'private');
                     $('security').selectedIndex = 0;
                     _changeOptionState($('security').options[0], true);
                     _changeOptionState($('security').options[1], true);
@@ -497,7 +497,7 @@ InOb.onUpload = function (surl, furl, swidth, sheight) {
 };
 
 
-InOb.onInsURL = function (url, width, height) {
+InOb.onInsURL = function (url, width, height, alttext) {
         var ta = $("updateForm");
         var fail = function (msg) {
             alert("FAIL: " + msg);
@@ -506,10 +506,12 @@ InOb.onInsURL = function (url, width, height) {
         if (! ta) return fail("no updateform");
         var w = '';
         var h = '';
+        var alt = '';
         if (width > 0) w = " width='" + width + "'";
         if (height > 0) h = " height='" + height + "'";
+        if (alttext.length > 0) alt = " alt='" + alttext + "'";
         ta = ta.event;
-        ta.value = ta.value + "\n<img src=\"" + url + "\"" + w + h + " />";
+        ta.value = ta.value + "\n<img src=\"" + url + "\"" + w + h + alt + " />";
         return true;
 };
 
@@ -528,6 +530,10 @@ function onInsertObject (include) {
     iframe.style.border = "0";
     iframe.style.backgroundColor = "#fff";
     iframe.style.overflow = "hidden";
+    // move the keyboard focus to the dialog
+    iframe.tabIndex = -1;
+    // wai-aria support
+    iframe.role = 'dialog';
 
     //iframe.src = include;
     iframe.innerHTML = "<iframe id='popupsIframe' style='border:none' frameborder='0' width='100%' height='100%' src='" + include + "'></iframe>";
@@ -536,6 +542,8 @@ function onInsertObject (include) {
     currentPopup = iframe;
     setTimeout(function () { document.getElementById('popupsIframe').setAttribute('src', include); }, 500);
     InOb.smallCenter();
+    // move the keyboard focus to the dialog
+    iframe.focus();
 }
 // the select's onchange:
 InOb.handleInsertSelect = function () {
@@ -616,7 +624,6 @@ InOb.setupIframeHandlers = function () {
     if (el) el.onclick = function () { return InOb.selectRadio("fromfb"); };
     el = ifw.document.getElementById("btnPrev");
     if (el) el.onclick = InOb.onButtonPrevious;
-
 };
 
 InOb.selectRadio = function (which) {
@@ -679,7 +686,11 @@ InOb.onSubmit = function () {
     if (! form) return InOb.fail('no form');
 
     var div_err = InOb.popid('img_error');
-    if (div_err) { div_err.style.display = 'block'; }
+    if (div_err) { 
+            div_err.style.display = 'block'; 
+            // add wai-aria roles
+            div_err.setAttribute("role", "alert");
+    }
     if (! div_err) return InOb.fail('Unable to get error div');
 
     var setEnc = function (vl) {

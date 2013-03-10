@@ -118,16 +118,11 @@ sub try_work {
 
     # logging sub
     my ( $logfile, $last_log_time );
+    $logfile = $class->start_log( "lj_comments", userid => $opts->{userid}, import_data_id => $opts->{import_data_id} )
+        or return $temp_fail->( 'Internal server error creating log.' );
+
     my $log = sub {
         $last_log_time ||= [ gettimeofday() ];
-
-        unless ( $logfile ) {
-            mkdir "$LJ::HOME/logs/imports";
-            mkdir "$LJ::HOME/logs/imports/$opts->{userid}";
-            open $logfile, ">>$LJ::HOME/logs/imports/$opts->{userid}/$opts->{import_data_id}.lj_comments.$$"
-                or return $temp_fail->( 'Internal server error creating log.' );
-            print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time(gmtime()) . ".\n";
-        }
 
         my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
         my $msg = sprintf( $fmt, tv_interval( $last_log_time ), tv_interval( $begin_time), @_ );
@@ -158,11 +153,6 @@ sub try_work {
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
-    # and xpost map
-    my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
-    $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
-    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
-
     # now backfill into jitemid_map
     my ( %entry_source, %jitemid_map );
     $log->( 'Filtering parameters: hostname=[%s], username=[%s].', $data->{hostname}, $data->{username} );
@@ -175,13 +165,18 @@ sub try_work {
                     ( $turl =~ /\b$data->{username}\b/ ||
                         ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
 
-        if ( $url =~ m!/(\d+)\.html$! ) {
+        if ( $url =~ m!/(\d+)(?:\.html)?$! ) {
             my $jitemid = $1 >> 8;
             $jitemid_map{$jitemid} = $entry_map->{$url};
             $entry_source{$jitemid_map{$jitemid}} = $url;
         }
     }
     $log->( 'Entry map has %d entries post-prune.', scalar( keys %$entry_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    # now prepare the xpost map
+    my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
+    $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     foreach my $jitemid ( keys %$xpost_map ) {
@@ -205,7 +200,7 @@ sub try_work {
                     ( $turl =~ /\b$data->{username}\b/ ||
                         ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
 
-        if ( $url =~ m!thread=(\d+)$! ) {
+        if ( $url =~ m!(?:thread=|/)(\d+)$! ) {
             my $jtalkid = $1 >> 8;
             $jtalkid_map->{$jtalkid} = $talk_map->{$url};
         }
@@ -221,6 +216,7 @@ sub try_work {
     # parameters for below
     my ( %meta, %identity_map, %was_external_user );
     my ( $maxid, $server_max_id, $server_next_id, $lasttag ) = ( 0, 0, 1, '' );
+    my @fail_errors;
 
     # setup our parsing function
     my $meta_handler = sub {
@@ -235,12 +231,18 @@ sub try_work {
             $meta{$temp{id}} = new_comment( $temp{id}, $temp{posterid}+0, $temp{state} || 'A' );
 
         } elsif ( $lasttag eq 'usermap' && ! exists $identity_map{$temp{id}} ) {
-            my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user} );
+            my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user}, $log );
+
+            # we want to fail if we weren't able to create a local user, because this would otherwise be mistakenly posted as anonymous
+            push @fail_errors, "Unable to map comment poster from $data->{hostname} user '$temp{user}' to local user"
+                unless $local_oid;
+
             $identity_map{$temp{id}} = $local_oid;
             $was_external_user{$temp{id}} = 1
                 if $temp{user} =~ m/^ext_/; # If the remote username starts with ext_ flag it as external
 
-            $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid );
+            $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid )
+                if $local_oid;
         }
     };
     my $meta_closer = sub {
@@ -261,6 +263,10 @@ sub try_work {
 
     # hit up the server for metadata
     while ( defined $server_next_id && $server_next_id =~ /^\d+$/ ) {
+        # let them know we're still working
+        $job->grabbed_until( time() + 3600 );
+        $job->save;
+
         $log->( 'Fetching metadata; max_id = %d, next_id = %d.', $server_max_id || 0, $server_next_id || 0 );
 
         $title->( 'meta-fetch from id %d', $server_next_id );
@@ -281,6 +287,9 @@ sub try_work {
             }
         );
         $parser->parse( $content );
+
+        return $temp_fail->( join( "\n", map { " * $_" } @fail_errors ) )
+            if @fail_errors;
 
         # this is the best place to test for too many comments. if this site is limiting
         # the comment imports for some reason or another, we can bail here.
@@ -459,6 +468,10 @@ sub try_work {
 
     # start looping to fetch all of the comment bodies
     while ( $lastid < $server_max_id ) {
+        # let them know we're still working
+        $job->grabbed_until( time() + 3600 );
+        $job->save;
+
         $log->( 'Fetching bodydata; last_id = %d, max_id = %d.', $lastid || 0, $server_max_id || 0 );
 
         my ( $reset_lastid, $reset_curid ) = ( $lastid, $curid );
@@ -525,6 +538,13 @@ sub try_work {
     # now we have the final post loop...
     $post_comments->();
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    # Kick off an indexing job for this user
+    if ( @LJ::SPHINX_SEARCHD ) {
+        LJ::theschwartz()->insert_jobs(
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "importcm" } )
+        );
+    }
 
     return $ok->();
 }

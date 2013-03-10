@@ -431,6 +431,7 @@ CREATE TABLE support (
     subject varchar(80) default NULL,
     timecreate int(10) unsigned default NULL,
     timetouched int(10) unsigned default NULL,
+    timemodified int(10) unsigned default NULL,
     timeclosed int(10) unsigned default NULL,
 
     PRIMARY KEY  (spid),
@@ -1282,10 +1283,12 @@ CREATE TABLE syndicated (
     lastcheck  DATETIME,
     lastmod    INT UNSIGNED, # unix time
     etag       VARCHAR(80),
+    fuzzy_token  VARCHAR(255),
 
     PRIMARY KEY (userid),
     UNIQUE (synurl),
-    INDEX (checknext)
+    INDEX (checknext),
+    INDEX (fuzzy_token)
 )
 EOC
 
@@ -1552,6 +1555,7 @@ CREATE TABLE links (
     parentnum tinyint(4) unsigned NOT NULL default '0',
     url varchar(255) default NULL,
     title varchar(255) NOT NULL default '',
+    hover varchar(255) default NULL,
 
     KEY  (journalid)
 )
@@ -2865,6 +2869,7 @@ CREATE table externalaccount (
     serviceurl varchar(128),
     xpostbydefault enum('1','0') NOT NULL default '0',
     recordlink enum('1','0') NOT NULL default '0',
+    active enum('1', '0') NOT NULL default '1',
     options blob,
     primary key (userid, acctid),
     index (userid)
@@ -3178,6 +3183,26 @@ CREATE TABLE `collection_items` (
   PRIMARY KEY (`userid`,`colid`,`colitemid`),
   UNIQUE (`userid`,`colid`,`itemtype`,`itemownerid`,`itemid`),
   INDEX (`itemtype`,`itemownerid`,`itemid`)
+)
+EOC
+
+register_tablecreate("dbnotes", <<'EOC');
+CREATE TABLE dbnotes (
+    dbnote VARCHAR(40) NOT NULL,
+    PRIMARY KEY (dbnote),
+    value VARCHAR(255)
+)
+EOC
+
+register_tablecreate("captcha_cache", <<'EOC');
+CREATE TABLE captcha_cache (
+    `captcha_id` INT UNSIGNED NOT NULL auto_increment,
+    `question`   VARCHAR(255) NOT NULL,
+    `answer`     VARCHAR(255) NOT NULL,
+    `issuetime`  INT UNSIGNED NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`captcha_id`),
+    INDEX(`issuetime`)
 )
 EOC
 
@@ -3733,15 +3758,17 @@ register_alter(sub {
     }
 
     if ( column_type( "random_user_set", "journaltype") eq '' ) {
-
-        # We're changing the primary key, so we need to make sure we don't have
-        # any duplicates of the old primary key lying around to trip us up.
-        my $sth = $dbh->prepare("SELECT posttime, userid FROM random_user_set ORDER BY posttime desc");
-        $sth->execute();
-        my %found = ();
-        while (my $rowh = $sth->fetchrow_hashref) {
-            $dbh->do("DELETE FROM random_user_set WHERE userid=? AND posttime=?", undef, $rowh->{'userid'}, $rowh->{'posttime'}) if  $found{$rowh->{'userid'}}++;
-        }
+        do_code("changing random_user_set primary key",sub {
+            # We're changing the primary key, so we need to make sure we don't have
+            # any duplicates of the old primary key lying around to trip us up.
+            my $sth = $dbh->prepare("SELECT posttime, userid FROM random_user_set ORDER BY posttime desc");
+            $sth->execute();
+            my %found = ();
+            while (my $rowh = $sth->fetchrow_hashref) {
+                $dbh->do("DELETE FROM random_user_set WHERE userid=? AND posttime=?", undef,
+                    $rowh->{'userid'}, $rowh->{'posttime'}) if  $found{$rowh->{'userid'}}++;
+            }
+        });
 
         do_alter("random_user_set",
                  "ALTER TABLE random_user_set ADD COLUMN journaltype CHAR(1) NOT NULL DEFAULT 'P'");
@@ -3833,6 +3860,9 @@ register_alter(sub {
                   q{ALTER TABLE syndicated_hubbub2 ADD COLUMN timespinged INT UNSIGNED NOT NULL DEFAULT '0'} );
     }
 
+    # FIXME: This should be moved into a maint script or something,
+    #   but if someone ever does remove the " 0 && " from here, this whole body needs to be wrapped
+    #   in a do_code block ( To prevent the warning message from delaying things )
     if ( 0 && table_relevant( "logkwsum" ) && ! check_dbnote( "logkwsum_fix_filtered_counts_2010" ) ) {
         # this is a very, very racy situation ... we want to do an update of this data, but if anybody
         # else is actively using this table, they're going to be inserting bad data on top of us which
@@ -4036,46 +4066,52 @@ EOF
     unless ( column_type( 'acctcode_promo', 'paid_class' ) =~ /^\Qvarchar(100)\E/ ) {
         do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo MODIFY COLUMN paid_class varchar(100)" );
     }
+# Add the hover text field in 'links' for existing installations
 
+    unless ( column_type( 'links', 'hover' ) ) {
+        do_alter( 'links', "ALTER TABLE links ADD COLUMN hover varchar(255) default NULL" );
+    }
+ 
     if ( table_relevant( "wt_edges" ) && ! check_dbnote( "fix_redirect_edges" ) ) {
-        warn "fixing edges leading to a redirect account";
-        my $sth = $dbh->prepare(
+        do_code("fixing edges leading to a redirect account", sub {
+            my $sth = $dbh->prepare(
                               qq{ SELECT from_userid, to_userid FROM wt_edges INNER JOIN user
                                     ON user.journaltype="R" AND user.userid=wt_edges.to_userid;
                                     } );
-        $sth->execute();
-        die $sth->errstr if $sth->err;
+            $sth->execute();
+            die $sth->errstr if $sth->err;
 
-        while ( my ( $from_userid, $to_userid ) = $sth->fetchrow_array ) {
-            my $from_u = LJ::load_userid( $from_userid );
-            my $to_u = LJ::load_userid( $to_userid );
+            while ( my ( $from_userid, $to_userid ) = $sth->fetchrow_array ) {
+                my $from_u = LJ::load_userid( $from_userid );
+                my $to_u = LJ::load_userid( $to_userid );
 
-            my $redir_u = $to_u->get_renamed_user;
+                my $redir_u = $to_u->get_renamed_user;
 
-            warn "transferring edge of $from_u->{user}=>$to_u->{user} to $from_u->{user}=>$redir_u->{user}";
-            if ( $from_u->trusts( $to_u ) ) {
-                if ( $from_u->trusts( $redir_u ) ) {
-                    warn "...already trusted";
-                } else {
-                    warn "...adding trust edge";
-                    $from_u->add_edge( $redir_u, trust => { nonotify => 1 } )
+                warn "transferring edge of $from_u->{user}=>$to_u->{user} to $from_u->{user}=>$redir_u->{user}";
+                if ( $from_u->trusts( $to_u ) ) {
+                    if ( $from_u->trusts( $redir_u ) ) {
+                        warn "...already trusted";
+                    } else {
+                        warn "...adding trust edge";
+                        $from_u->add_edge( $redir_u, trust => { nonotify => 1 } )
+                     }
+
+                    $from_u->remove_edge( $to_u, trust => { nonotify => 1 } );
                 }
+                if ( $from_u->watches( $to_u ) ) {
+                    if ( $from_u->watches( $redir_u ) ) {
+                        warn "...already watched";
+                    } else {
+                        warn "...adding trust edge";
+                       $from_u->add_edge( $redir_u, watch => { nonotify => 1 } )
+                    }
 
-                $from_u->remove_edge( $to_u, trust => { nonotify => 1 } );
-            }
-            if ( $from_u->watches( $to_u ) ) {
-                if ( $from_u->watches( $redir_u ) ) {
-                    warn "...already watched";
-                } else {
-                    warn "...adding trust edge";
-                    $from_u->add_edge( $redir_u, watch => { nonotify => 1 } )
+                     $from_u->remove_edge( $to_u, watch => { nonotify => 1 } );
                 }
-
-                $from_u->remove_edge( $to_u, watch => { nonotify => 1 } );
             }
-        }
 
-        set_dbnote( "fix_redirect_edges", 1 );
+            set_dbnote( "fix_redirect_edges", 1 );
+        });
     }
 
     # accommodate more poll answers by widening value
@@ -4091,6 +4127,22 @@ EOF
             "ALTER TABLE pollquestion2 MODIFY COLUMN opts VARCHAR(255) DEFAULT NULL");
     }
 
+    if (column_type("syndicated", "fuzzy_token") eq '') {
+        do_alter( 'syndicated',
+            "ALTER TABLE syndicated ".
+            "ADD COLUMN fuzzy_token VARCHAR(255), " .
+            "ADD INDEX (fuzzy_token);" );
+    }
+
+    if ( column_type( "support", "timemodified" ) eq '' ) {
+        do_alter( 'support', "ALTER TABLE support ADD COLUMN timemodified int(10) unsigned default NULL" );
+    }
+
+    if ( column_type( "externalaccount", "active" ) eq '' ) {
+        do_alter( 'externalaccount',
+            "ALTER TABLE externalaccount " .
+            "ADD COLUMN active enum('1', '0') NOT NULL default '1'" );
+    }
 });
 
 

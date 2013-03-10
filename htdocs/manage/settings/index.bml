@@ -77,7 +77,9 @@ body<=
                 LJ::Setting::EmailFormat
                 LJ::Setting::EntryEditor
                 DW::Setting::JournalEntryStyle
+                DW::Setting::JournalIconsStyle
                 DW::Setting::ViewEntryStyle
+                DW::Setting::ViewIconsStyle
                 DW::Setting::ViewJournalStyle
                 LJ::Setting::NavStrip
                 LJ::Setting::NCTalkLinks
@@ -424,7 +426,7 @@ body<=
     $ret .= "</p></div>";
 
     if ($cats_with_settings{$given_cat}->{form}) {
-        my $confirm_msg = LJ::ejs($ML{'.form.confirm'});
+        my $confirm_msg = LJ::ejs($ML{'.form.confirm1'});
         $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
         $ret .= "<form class='table-form' id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
         $ret .= LJ::form_auth();

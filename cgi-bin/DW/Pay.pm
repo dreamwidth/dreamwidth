@@ -21,6 +21,7 @@ use strict;
 use Carp qw/ confess /;
 use HTTP::Request;
 use LWP::UserAgent;
+use DW::BusinessRules::Pay;
 
 our $error_code = undef;
 our $error_text = undef;
@@ -265,6 +266,24 @@ sub get_account_type {
 }
 
 ################################################################################
+# DW::Pay::get_refund_points_rate
+#
+# ARGUMENTS: uuserid
+#
+#   uuserid     required    user object or userid to get paid status of
+#
+# RETURN: value defined as _refund_points in %LJ::CAP.
+#
+sub get_refund_points_rate {
+    my $typeid = DW::Pay::get_current_account_status( @_ );
+    confess 'account has no valid typeid'
+        unless $typeid && $typeid > 0;
+    confess "typeid $typeid not a valid account level"
+        unless DW::Pay::type_is_valid( $typeid );
+    return $LJ::CAP{$typeid}->{_refund_points} || 0;
+}
+
+################################################################################
 # DW::Pay::get_account_type_name
 #
 # ARGUMENTS: uuserid
@@ -446,16 +465,23 @@ sub add_paid_time {
                 my $from_type = $LJ::CAP{$ps->{typeid}}->{_account_type};
                 my $to_type = $LJ::CAP{$typeid}->{_account_type};
 
-                # paid->premium, we convert at a rate of 0.7
+                # paid->premium, we convert any existing time to premium
+                #   ($amonths are already premium and are added later)
                 if ( $from_type eq 'paid' && $to_type eq 'premium' ) {
-                    $asecs = int( $ps->{expiresin} * 0.7 );
+                    $asecs = DW::BusinessRules::Pay::convert( $from_type, $to_type, undef, undef, $ps->{expiresin} );
 
-                # premium->paid, upgrade the new buy to premium.  we give them 21.28
-                # days of premium time for every month of paid time they were buying.
+                # premium->paid, upgrade the new buy to premium.  we give them 21
+                #   days of premium time for every month of paid time they were buying.
+                #   We also need to convert any day value provided, for use from /admin/pay
                 } elsif ( $from_type eq 'premium' && $to_type eq 'paid' ) {
                     $newtypeid = $ps->{typeid};
-                    $asecs = $ps->{expiresin} + ( $amonths * 21 * 86400 );
+
+                    # we are not sending their current time to the conversion function
+                    #   because it is already premium. just convert the newly purchased time.
+                    #   But, we do include any value in $adays to accomodate arbitrary additions.
+                    $asecs = $ps->{expiresin} + DW::BusinessRules::Pay::convert( $to_type, $from_type, $amonths, $adays, undef );
                     $amonths = 0;
+                    $adays = 0;
 
                 } else {
                     return error( ERR_FATAL, 'Invalid conversion.' )
@@ -593,7 +619,10 @@ sub update_paid_status {
     # and now, at this last step, we kick off a job to check if this user
     # needs to have their search index setup/messed with.
     if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
-        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } ) );
+        $sclient->insert_jobs(
+                TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+                    { userid => $u->id, source => "paidstat" } )
+        );
     }
 
     return 1;

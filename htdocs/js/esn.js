@@ -242,7 +242,7 @@ ESN.toggleSubscription = function (subInfo, evt, btn, sub) {
 
         param_keys.forEach(function (param) {
             if (Number(subInfo[param]))
-                params[param] = parseInt(subInfo[param]);
+                params[param] = parseInt(subInfo[param], 10);
         });
     }
 

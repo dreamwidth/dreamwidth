@@ -21,7 +21,9 @@
 use strict;
 use warnings;
 use lib "$ENV{'LJHOME'}/cgi-bin";
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+BEGIN {
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+}
 use LJ::Poll;
 
 my $id = $ARGV[0] or die "Usage: $0 <poll_id>";

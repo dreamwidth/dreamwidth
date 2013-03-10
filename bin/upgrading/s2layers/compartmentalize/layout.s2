@@ -155,14 +155,12 @@ blockquote {
     }
 
 ul {
-    list-style-type: square;
-    list-style-position: inside;
+    list-style: square inside;
     margin: .5em 1em;
     }
 
 ol {
-    list-style-type: decimal;
-    list-style-position: inside;
+    list-style: decimal inside;
     margin: .5em 1.5em;
     }
 
@@ -280,7 +278,6 @@ ul.userlite-interaction-links.icon-links li {
 
 ul.userlite-interaction-links.text-links li {
     padding: 0 0 0 .5em;
-    list-style: none;
     }
 
 ul.module-list {
@@ -289,7 +286,6 @@ ul.module-list {
 
 ul.module-list li {
     padding: 0 0 0 .5em;
-    list-style: none;
     }
 
 .module-navlinks, .module-navlinks a {
@@ -301,7 +297,6 @@ ul.module-list li {
 
 .module-navlinks ul.module-list {
     color: $*color_module_title;
-    list-style: none;
     text-transform: uppercase;
     }
 
@@ -667,42 +662,32 @@ hr.above-entry-interaction-links, hr.below-reply-container {
 
 /*--- Contextual Pop-up ---*/
 
-div.ContextualPopup {
-    color: $*color_page_text;
-    margin: auto;
-    text-align: left;
-    text-transform: uppercase;
-    }
-
-div.ContextualPopup div.Inner {
-    $entry_colors
-    border-top: 10px solid $*color_entry_border;
-    }
-
-div.ContextualPopup .Userpic {
-    $entry_colors
-    border-top: 5px solid $*color_entry_border;
-    margin:  5px;
-    padding: 5px;
-    }
-
-div.ContextualPopup .Content {
-    $entry_colors
-    color: $*color_entry_text;
-    margin: auto;
-    }
-
-div.ContextualPopup .Relation {
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: 1px solid $*color_entry_border !important;
+    border-top-width: 10px !important;
+    border-radius: 0;
     color: $*color_entry_text;
     text-transform: uppercase;
     }
 
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:visited,
-div.ContextualPopup div.Inner a:link {
-    color: $*color_entry_link;
-    text-decoration: none !important;
+.ContextualPopup a,
+.ContextualPopup a:visited {
+    text-decoration: none;
     }
+
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
+
+.ContextualPopup .Userpic {
+    border: 1px solid $*color_entry_border;
+    border-top-width: 5px;
+    margin: 5px;
+    }
+
+.ContextualPopup .Userpic img { padding: 5px; }
 
 $userpic_css
 

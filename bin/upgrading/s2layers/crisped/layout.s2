@@ -15,6 +15,7 @@ set layout_type = "two-columns-left";
 set userpics_position = "right";
 set sidebar_width = "20em";
 set sidebar_width_doubled = "40em";
+set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
 ## Colors
@@ -98,7 +99,7 @@ function print_stylesheet () {
 
 body {
     margin: 30px 0 0 0;
-    } 
+    }
 
 a, a:link, a:visited {
     text-decoration: none;
@@ -129,15 +130,13 @@ blockquote {
     }
 
 ul {
+    list-style: square inside;
     margin: 5px 0 5px 15px;
-    list-style-position: inside;
-    list-style-type: square;
     }
 
 ol {
+    list-style: decimal inside;
     margin: 5px 0 5px 15px;
-    list-style-position: inside;
-    list-style-type: decimal;
     }
 
 .poster {
@@ -207,8 +206,8 @@ h2#pagetitle {
 /* Navigation
 ***************************************************************************/
 
-.navigation { 
-    margin: 5px 0; 
+.navigation {
+    margin: 5px 0;
     font-size: $*font_entry_title_size$*font_entry_title_units;
     text-transform: uppercase;
     }
@@ -615,8 +614,7 @@ h2.module-header a {
     padding: 15px;
     }
 
-ul.module-list,
-ul.module-list-item {
+ul.module-list {
     list-style: none;
     }
 
@@ -726,77 +724,31 @@ ul.userlite-interaction-links.icon-links li {
 /* Contextual Pop-ups
 ***************************************************************************/
 
-div.ContextualPopup {
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: 1px solid $*color_entry_title !important;
+    border-radius: 0;
+    color: $*color_entry_text;
     text-transform: uppercase;
     }
 
-div.ContextualPopup div.Inner {
-    background-color: $*color_entry_background;
-    color: $*color_entry_text;
-    border: 1px solid $*color_entry_title;
-    }
-
-div.ContextualPopup .Userpic {
-    background-color: $*color_entry_border;
-    margin: 5px;
-    padding: 5px;
-    }
-
-div.ContextualPopup .Content {
-    background-color: $*color_entry_background;
-    color: $*color_entry_text;
-    border: none;
-    margin: auto;
-    }
-
-div.ContextualPopup div.Inner a,
-div.ContextualPopup div.Inner a:visited,
-div.ContextualPopup div.Inner a:link {
-    color: $*color_entry_link;
+.ContextualPopup a,
+.ContextualPopup a:visited {
     text-decoration: none;
     }
 
-div.ContextualPopup .Relation {
-    color: $*color_entry_text;
-    text-transform: uppercase;
+.ContextualPopup a { color: $*color_entry_link; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_hover; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
+
+.ContextualPopup .Userpic {
+    background-color: $*color_entry_border;
+    margin: 5px;
     }
 
-/* Navigation Strip
-***************************************************************************/
-
-#lj_controlstrip td {
-    background-color: $*color_entry_background;
-    border: 1px solid $*color_entry_border;
-    color: $*color_entry_text;
-    text-transform: uppercase;
-    }
-
-#lj_controlstrip_statustext{
-    color: $*color_entry_text;
-    }
-
-#lj_controlstrip input {
-    background-color: $*color_entry_background;
-    border: 1px solid $*color_entry_text;
-    color: $*color_entry_text;
-    padding: 0 5px;
-    text-transform: uppercase;
-    }
-
-#lj_controlstrip a {
-    color: $*color_entry_link;
-    }
-
-#lj_controlstrip a:visited {
-    color: $*color_entry_link_visited ;
-    }
-
-#lj_controlstrip a:hover {
-    color: $*color_entry_link_hover;
-    }
-
-#lj_controlstrip a:active {
-    color: $*color_entry_link_active;
+.ContextualPopup .Userpic img {
+    padding: 5px;
     }
 
 $userpic_css

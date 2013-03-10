@@ -255,7 +255,6 @@ function Page::print_theme_stylesheet() {
     .module ul {
         display: inline;
         font-variant: small-caps;
-        list-style: none;
         }
 
     .two-columns-right #secondary .module ul {

@@ -16,7 +16,7 @@ _c?>
 title<=
 <?_code
  if ($GET{'mode'} eq 'create') {
-    return $ML{'.title.create'};
+    return $ML{'.title.create2'};
  }
  else {
     return $ML{'.title.modify'};
@@ -61,9 +61,12 @@ body<=
     my $mode = "modify";
     $mode = "create" if $GET{'mode'} eq 'create';
 
-    $ret .= "<form action='$LJ::SITEROOT/community/settings' method='get'>";
-    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => "C" });
-    $ret .= "</form>";
+    # if we're changing rather than creating, show the work as menu
+    if ( $mode eq 'modify') {
+        $ret .= "<form action='$LJ::SITEROOT/community/settings' method='get'>";
+        $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => "C" });
+        $ret .= "</form>";
+    }
 
     if (LJ::did_post())
     {
@@ -264,14 +267,13 @@ body<=
 
     if ($mode eq 'create') {
         LJ::set_active_crumb('createcommunity');
-          $ret .= "<?h2 $ML{'.label.commheader'} h2?>" .
-              ($mode eq 'modify' ? "<?p $ML{'.label.commchange'} p?>" : "<?p " . BML::ml('.label.commcreate2', {'aopts' => "href='$LJ::SITEROOT/create'"}) . " p?>");
-          $ret .= "<div class='highlight-box'><table summary='' width='350' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer'}</b></td>";
-          $ret .= "<td><?ljuser $remote->{'user'} ljuser?><br />" . BML::ml('.label.maintainer.login2', {'aopts' => "href='$LJ::SITEROOT/login?ret=1'"}) . "</td></tr>";
-          $ret .= "<tr valign='top'><td><b>$ML{'.label.community'}</b></td>";
+          $ret .= "<?p " . BML::ml('.label.commcreate3', {'aopts' => "href='$LJ::SITEROOT/create'"}) . " p?>";
+          $ret .= "<div class='highlight-box'><table summary='' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer2'}</b></td>";
+          $ret .= "<td><?ljuser $remote->{'user'} ljuser?><br />" . BML::ml('.label.maintainer.login3', {'aopts' => "href='$LJ::SITEROOT/login?ret=1'"}) . "</td></tr>";
+          $ret .= "<tr valign='top'><td><b>$ML{'.label.community2'}</b></td>";
           $ret .= "<td>$ML{'.label.username'}<br /><input name='cuser' maxlength='25' value='$cname' /><br />";
           $ret .= "<?inerr $errors{'username'} inerr?><br />";
-          $ret .= "$ML{'.label.password'}<br /><input name='cpassword' type='password' /><br />";
+          $ret .= "$ML{'.label.password2'}<br /><input name='cpassword' type='password' /><br />";
           $ret .= "<?inerr $errors{'password'} inerr?></td></tr></table> </div>";
     } else {
         LJ::set_active_crumb('commsettings');

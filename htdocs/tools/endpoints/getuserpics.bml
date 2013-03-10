@@ -15,17 +15,25 @@ _c?>
 <?_code # -*-bml-*-
 {
     use strict;
-    use JSON;
+    use LJ::JSON;
+
+    use vars qw( %GET );
 
     my $err = sub {
         my $msg = shift;
-        return JSON::objToJson({
+        return to_json({
             'alert' => $msg,
         });
     };
 
+    my $remote = LJ::get_remote();
+
+    my $alt_u;
+    $alt_u = LJ::load_user( $GET{user} )
+        if $GET{user} && $remote->has_priv( "supporthelp" );
+
     # get user
-    my $u = LJ::get_remote()
+    my $u = ( $alt_u || $remote )
         or return $err->("Sorry, you must be logged in to use this feature.");
 
     # get userpics
@@ -44,22 +52,23 @@ _c?>
             width => $upic->width,
             height => $upic->height,
 
-            # FIXME: update to a simple . "" conversion when we have a newer JSON version
-            #        ( no code ref will be required )
             # we don't want the full version of alttext here, because the keywords, etc
             # will already likely be displayed by the icon
-            alt => sub { LJ::ehtml($upic->description)  . "" }, # force to string
 
-            comment => LJ::strip_html($upic->comment),
+            # We don't want to use ehtml, because we want the JSON converter
+            # handle escaping ", ', etc. We just escape the < and > ourselves
+            alt => LJ::etags( $upic->description ),
+
+            comment => LJ::strip_html( $upic->comment ),
+
             id => $id,
-            keywords => [ map { LJ::strip_html($_) } $upic->keywords],
+            keywords => [ map { LJ::strip_html( $_ ) } $upic->keywords],
         };
     }
 
     $upics{ids} = [sort { $a <=> $b } keys %{$upics{pics}}];
     sleep 1 if $LJ::IS_DEV_SERVER;
 
-    local $JSON::ExecCoderef = 1;
-    return JSON::objToJson(\%upics);
+    return to_json( \%upics );
 }
 _code?>

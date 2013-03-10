@@ -296,7 +296,7 @@ dl dt { font-weight: bold; }
 
 .entry .tag li {
     margin-left: 0;
-    padding: .25em .10em;
+    padding: .25em 0;
     }
 
 ul.entry-management-links {
@@ -497,6 +497,8 @@ table.month th {
 .icon-info span { font-weight: bold; }
 
 .icon-info .default { text-decoration: underline; }
+
+.icon-keywords ul li { padding: .25em 0; }
 
 /* Sidebars
 ******************************/

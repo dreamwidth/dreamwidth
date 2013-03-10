@@ -146,18 +146,24 @@ _create: function() {
         var $crosspost_entry = $("#crosspost_entry");
         var allUnchecked = ! $accounts.is(":checked");
         if ( allUnchecked ) {
-            $crosspost_entry.removeAttr("checked").attr("disabled","disabled");
+            $crosspost_entry.prop({
+                "checked": false,
+                "disabled": true
+            });
         } else {
-            $crosspost_entry.removeAttr("disabled").attr("checked","checked");
+            $crosspost_entry.prop({
+                "checked": true,
+                "disabled": false
+            });
         }
-    };
+    }
 
     $accounts = $("#crosspost_accounts input[name='crosspost']")
         .crosspostaccount({ mainCheckbox: "#crosspost_entry" })
         .change(crosspostAccountUpdated)
         .bind("crosspostaccountcancel", function() {
             $(this).closest("form").find("input[type='submit']")
-                .removeAttr("disabled").removeClass("ui-state-disabled");
+                .prop("disabled", false).removeClass("ui-state-disabled");
         })
         .bind("crosspostaccountchalrespcomplete", function () {
             // use an array intead of $.each so that we can return out of the function
@@ -182,7 +188,7 @@ _create: function() {
             }
 
             $form.find("input[type='submit']")
-                .removeAttr("disabled").removeClass("ui-state-disabled");
+                .prop("disabled", false).removeClass("ui-state-disabled");
         })
 
     crosspostAccountUpdated();
@@ -192,13 +198,13 @@ _create: function() {
         var $inputs = $("#crosspost_accounts").find("input");
 
         if ( do_crosspost_entry ) {
-            $inputs.removeAttr("disabled")
+            $inputs.prop("disabled", false)
 
             var $checkboxes = $inputs.filter("[name='crosspost']");
             if ( ! $checkboxes.is(":checked") )
-                $checkboxes.attr("checked", "checked")
+                $checkboxes.prop("checked", true)
         } else {
-            $inputs.attr("disabled", "disabled")
+            $inputs.prop("disabled", true)
         }
     });
 
@@ -209,7 +215,7 @@ _create: function() {
 _checkSubmit: function (e) {
     var $target = $(e.target);
     if ( ! skipChecks && ! $target.data("preventedby") && ! $target.data("skipchecks") ) {
-        $(this).find("input[type='submit']").attr("disabled","disabled").addClass("ui-state-disabled");
+        $(this).find("input[type='submit']").prop("disabled",true).addClass("ui-state-disabled");
 
         var needChalResp = false;
         $accounts.each(function() {
@@ -246,16 +252,16 @@ toggle: function(why, allowThisCrosspost, animate) {
     // preserve existing disabled state if crosspost allowed
     var allUnchecked = ! $accounts.is(":checked")
     if ( ! allowCrosspost || allUnchecked )
-        $crosspost_entry.attr("disabled", "disabled")
+        $crosspost_entry.prop("disabled", true)
     else
-        $crosspost_entry.removeAttr("disabled")
+        $crosspost_entry.prop("disabled", false)
 
     var enableAccountCheckboxes = allowCrosspost && ( allUnchecked || $crosspost_entry.is(":checked") );
 
     if (enableAccountCheckboxes)
-        $accounts.removeAttr("disabled");
+        $accounts.prop("disabled",false);
     else
-        $accounts.attr("disabled", "disabled");
+        $accounts.prop("disabled", true);
 
     if ( allowCrosspost ) {
         skipChecks = false;
@@ -266,6 +272,17 @@ toggle: function(why, allowThisCrosspost, animate) {
         $("#crosspost_accounts, #crosspost_component h4").hide()
             .siblings("p").slideDown();
     }
+},
+
+confirmDelete: function( message ) {
+    var do_delete = true;
+
+    // check to see if we have any crossposts selected
+    if ( $("#crosspost_entry").is( ":checked" ) && $( "input[name=crosspost]" ).is( ":checked" ) ) {
+        do_delete = confirm( message );
+    }
+
+    return do_delete;
 }
 
 });

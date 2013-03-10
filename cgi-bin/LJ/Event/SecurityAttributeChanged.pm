@@ -34,8 +34,8 @@ sub new {
         # $action == 1 -- deleted
         my $extra = (1 == $action) ? 'new=D&old=V' : 'new=V&old=D';
 
-        my $dbr = LJ::get_cluster_reader($u);
-        my $sth = $dbr->prepare(
+        my $dbcr = LJ::get_cluster_reader($u);
+        my $sth = $dbcr->prepare(
             "SELECT logtime, ip".
             " FROM userlog".
             " WHERE userid=? AND extra=?".
@@ -180,7 +180,7 @@ sub _arg1_to_mlkey {
 sub as_email_subject {
     my ($self, $u) = @_;
     my $lang    = $u->prop('browselang');
-    return LJ::Lang::get_text($lang, _arg1_to_mlkey($self->arg1) . 'email_subject',
+    return LJ::Lang::get_text($lang, _arg1_to_mlkey($self->arg1) . 'email_subject2',
         undef,
         {
             'user' => $u->{user}
@@ -198,15 +198,17 @@ sub _as_email {
         my ($u, $logtime) = @_;
 
         my $userid = $u->{userid};
-        my $dbr = LJ::get_cluster_reader($u);
-        my ($datetime, $remoteid, $ip, $uniq) = $dbr->selectrow_array(
+        my $dbcr = LJ::get_cluster_reader($u);
+        my ($datetime, $remoteid, $ip, $uniq) = $dbcr->selectrow_array(
             "SELECT FROM_UNIXTIME(logtime), remoteid, ip, uniq".
             " FROM userlog".
-            " WHERE userid=$userid AND logtime=$logtime LIMIT 1");
+            " WHERE userid=? AND logtime=? LIMIT 1", undef, $userid, $logtime );
         return undef unless $remoteid;
+        my $remoteuser = LJ::get_username( $remoteid );
         return (
             datetime    => $datetime,
             remoteid    => $remoteid,
+            remoteuser  => $remoteuser,
             ip          => $ip,
             uniq        => $uniq,
             userid      => $userid,
@@ -266,7 +268,10 @@ sub _as_email {
             %logparams,
     };
 
-    return LJ::Lang::get_text($lang, _arg1_to_mlkey($action) . 'email_text', undef, $vars);
+    my $iscomm = $u->is_community ? '.comm' : '';
+
+    return LJ::Lang::get_text($lang, _arg1_to_mlkey($action) .
+        'email_text2' . $iscomm, undef, $vars);
 }
 
 sub as_email_string {

@@ -156,7 +156,7 @@ Get the user's current sitescheme, using the following in order:
 
 =item bml_use_scheme note
 
-=item usescheme GET argument
+=item skin / usescheme GET argument
 
 =item BMLschemepref cookie
 
@@ -176,6 +176,7 @@ sub current {
 
     if ( defined $r ) {
         $rv = $r->note( 'bml_use_scheme' ) ||
+            $r->get_args->{skin} ||
             $r->get_args->{usescheme} ||
             $r->cookie( 'BMLschemepref' );
     }

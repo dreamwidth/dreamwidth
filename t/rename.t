@@ -6,7 +6,7 @@ use Test::More;
 plan tests => 152;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+BEGIN { require 'ljlib.pl'; }
 use LJ::Test qw( temp_user temp_comm );
 use DW::User::Rename;
 use DW::RenameToken;

@@ -1,4 +1,7 @@
 ;; -*- coding: utf-8 -*-
+
+.adult.reason=Reason for restriction: [[reason]]
+
 .approve.button=Yes, approve it.
 
 .approve.header=Approve this entry?

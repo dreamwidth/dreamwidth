@@ -31,3 +31,7 @@
 .cf-tag-on { font-weight: bold; }
 .cf-tag { text-decoration: underline; margin: 3px; }
 .cf-tag:hover { background-color: #ccc; }
+
+#cf-filtopts { padding: 5px; }
+#cf-filtopts h4, #cf-filtopts p, #cf-filtopts label { display: inline; margin-right: 1em;}
+#cf-filtopts input { text-align: right; }

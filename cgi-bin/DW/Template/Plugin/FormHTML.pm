@@ -46,9 +46,12 @@ sub new {
         $data = ref $formdata eq "Hash::MultiValue" ? $formdata : Hash::MultiValue->from_mixed( $formdata );
     }
 
+    my $r = DW::Request->get;
+
     my $self = bless {
         _CONTEXT => $context,
         data     => $data,
+        did_post => $r && $r->did_post,
     }, $class;
 
     return $self;
@@ -62,6 +65,8 @@ sub new {
 
 All methods which generate an HTML element can accept the following optional arguments:
 =item default - default value to use. Does not override the value of a previous form submission
+                The default value will most likely come from settings stored in the DB.
+                It may also be a hardcoded initial value.
 =item value - value to apply to the form element. Does override any previous form submissions
 =item selected - (for checkbox, radio) - whether the form element was selected or not
                - (for select) - the selected option in the dropdown
@@ -258,7 +263,7 @@ sub _process_value_and_label {
         }
 
         # no data source, value not set explicitly, use a default if provided
-        $args->{$valuekey} ||= $default;
+        $args->{$valuekey} ||= $default unless $self->{did_post};
     }
 
     my $label_html = "";

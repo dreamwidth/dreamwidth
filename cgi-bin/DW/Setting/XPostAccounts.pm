@@ -258,7 +258,7 @@ sub option {
       </script>
     ];
     $ret .= "<p style='font-size: smaller;'>" . $class->ml('setting.xpost.option.footer.vars') . "<br/>";
-    foreach my $var qw (url reply_url comment_url comment_image) {
+    foreach my $var (qw(url reply_url comment_url comment_image)) {
         $ret .= "<b>%%$var%%</b>: " . $class->ml("setting.xpost.option.footer.vars.$var") . "<br/>\n";
     }
     $ret .= "<br/>" . $class->ml("setting.xpost.footer.default.label") .  "<br/>" . LJ::ehtml($default_comment) . "\n";
