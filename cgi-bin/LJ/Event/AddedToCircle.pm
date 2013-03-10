@@ -89,7 +89,7 @@ sub _as_email {
 
     if ( $self->trusted ) {
         if ( $self->fromuser->is_identity ) {
-            return LJ::Lang::get_text( $lang, 'esn.addedtocircle.trusted.email_text', undef, $vars ) .
+            return LJ::Lang::get_text( $lang, 'esn.addedtocircle.trusted.openid.email_text', undef, $vars ) .
                 $self->format_options( $is_html, $lang, $vars,
                 {
                     'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=access" ],
