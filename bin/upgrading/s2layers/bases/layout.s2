@@ -60,6 +60,12 @@ propgroup colors {
 
     property use color_header_background;
 
+    property use color_footer_background;
+    property use color_footer_link;
+    property use color_footer_link_active;
+    property use color_footer_link_hover;
+    property use color_footer_link_visited;
+
     property use color_module_background;
     property use color_module_text;
     property use color_module_link;
@@ -298,6 +304,13 @@ function Page::print()
                         """;
                         $this->print_body();
     """
+                        <div id="primary-footer">
+                            <div class="inner">
+    """;
+                            print safe """
+                                <div class="page-top"><a href="#">$*text_page_top</a></div>
+                            </div><!-- end primary-footer>inner -->
+                        </div><!-- end primary-footer -->
                     </div></div><!-- end primary and primary>inner -->
                     <div id="secondary"><div class="inner">
                         """;
@@ -341,6 +354,12 @@ var string entry_background = generate_background_css ($*image_background_entry_
 var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat,
     $*image_background_module_position, $*color_module_background );
 var Color element_background = $*color_page_background->lighter();
+
+    var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
+    var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
+    var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
+    var string footer_link_hover_colors = generate_color_css( $*color_footer_link_hover, new Color, new Color );
+    var string footer_link_visited_colors = generate_color_css( $*color_footer_link_visited, new Color, new Color );
 
     var string header_background_height = "";
 
@@ -1003,6 +1022,19 @@ table.month {width: 100%; text-align: center; }
 #archive-month dt {border-top: 0.083em solid $*color_page_border; font-size: 1.667em; padding: 0 0 0 0.833em; }
 
 #archive-month ul {border-top: 0.083em solid $*color_page_border;}
+
+/* ====================== FOOTER ======================= */
+
+#primary-footer {
+    $footer_background
+    border-top: 0.083em solid $*color_page_border;
+    text-align: center;
+}
+
+#primary-footer a { $footer_link_colors }
+#primary-footer a:visited { $footer_link_visited_colors }
+#primary-footer a:hover { $footer_link_hover_colors }
+#primary-footer a:active { $footer_link_active_colors }
 
 /* ====================== EXTRAS ======================= */
 
