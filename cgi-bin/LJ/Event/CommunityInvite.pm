@@ -39,7 +39,7 @@ my @_ml_strings = (
                                     # [[maintainer]] has invited you to join the community [[community]]!
                                     #
                                     # You can:'
-    'esn.manage_invitations',       # '[[openlink]]Manage your invitations[[closelink]]'
+    'esn.manage_invitations2',       # '[[openlink]]Accept or decline the invitation[[closelink]]'
     'esn.read_last_comm_entries',   # '[[openlink]]Read the latest entries in [[journal]][[closelink]]'
     'esn.view_profile',             # '[[openlink]]View [[postername]]'s profile[[closelink]]',
     'esn.add_watch',                # '[[openlink]]Subscribe to [[journal]][[closelink]]',
@@ -83,7 +83,7 @@ sub _as_email {
     return LJ::Lang::get_text($lang, 'esn.comm_invite.email', undef, $vars) .
         $self->format_options($is_html, $lang, $vars,
         {
-            'esn.manage_invitations'        => [ 1, "$LJ::SITEROOT/manage/invites" ],
+            'esn.manage_invitations2'       => [ 1, "$LJ::SITEROOT/manage/invites" ],
             'esn.read_last_comm_entries'    => [ 2, $community_url ],
             'esn.view_profile'              => [ 3, $community_profile ],
             'esn.add_watch'                 => [ $u->watches( $self->comm ) ? 0 : 4,
@@ -126,7 +126,7 @@ sub as_html_actions {
 
     my $ret .= "<div class='actions'>";
     $ret .= " <a href='" . $self->comm->profile_url . "'>View Profile</a>";
-    $ret .= " | <a href='$LJ::SITEROOT/manage/invites'>Join Community</a>"
+    $ret .= " | <a href='$LJ::SITEROOT/manage/invites'>Accept or Decline</a>"
         unless $self->u->member_of( $self->comm );
     $ret .= "</div>";
 
