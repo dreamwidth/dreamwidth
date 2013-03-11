@@ -4102,7 +4102,7 @@ userlinkbar.joincomm.title.loggedout=You must be logged in to join this communit
 
 userlinkbar.joincomm.title.open=Join this community
 
-userlinkbar.leavecomm=Leave
+userlinkbar.leavecomm2=Leave Community
 
 userlinkbar.leavecomm.title=Leave this community
 
@@ -4148,7 +4148,7 @@ userlinkbar.sendmessage.title.loggedout=You must be logged in to send a private 
 
 userlinkbar.sendmessage.title.self=Send a private message to yourself
 
-userlinkbar.tellafriend=Tell someone about this
+userlinkbar.tellafriend2=Tell Someone
 
 userlinkbar.tellafriend.title.other=Tell someone about this journal
 
