@@ -59,6 +59,7 @@ function _initIcons(context) {
         - if you move the mouse from the trigger to the contextual popup
         - as long as the mouse is over the tooltip
         - NOT if you move the mouse away from the trigger before the popup is fully visible
+        - NOT if you move the mouse away from the trigger before the ajax request is done
 
     disappears:
         - when you move the mouse over then out of the contextual popup
@@ -178,6 +179,7 @@ _create: function() {
         out: function(e) {
             var persist = trigger.data("popup-persist");
             if ( ! persist ) {
+                trigger.ajaxtip( "abort" );
                 trigger.ajaxtip( "close" );
             }
             trigger.removeData("popup-persist");
