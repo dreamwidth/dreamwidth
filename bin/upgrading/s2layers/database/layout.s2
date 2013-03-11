@@ -1570,8 +1570,8 @@ h2#pagetitle {
 
 .entry a { color: $*color_entry_text; }
 .entry-content a { color: $*color_entry_link; }
-.entry-content a:hover { color: $*color_entry_link_hover; }
 .entry-content a:visited { color: $*color_entry_link_visited; }
+.entry-content a:hover { color: $*color_entry_link_hover; }
 .entry-content a:active { color: $*color_entry_link_active; }
 
 .metadata,
