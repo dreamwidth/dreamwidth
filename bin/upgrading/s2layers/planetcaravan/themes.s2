@@ -4,10 +4,10 @@ layerinfo name = "Cheerfully";
 layerinfo redist_uniq = "planetcaravan/cheerfully";
 layerinfo author_name = "momijizukamori";
 
-set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set layout_authors = [ { "name" => "daemon @ LJ" }, { "name" => "momijizukamori", "type" => "user" } ];
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_header_background = "#000";
@@ -17,11 +17,12 @@ set color_journal_subtitle = "#fff";
 set color_page_background = "#fff";
 set color_page_title = "#fff";
 set color_userpic_border = "#000";
+set color_page_text = "#000";
 set color_page_link = "#ED303C";
 set color_page_link_hover = "#FF9C5B";
 set color_page_link_visited = "#FAE589";
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
@@ -38,7 +39,7 @@ set color_comment_title = "#000";
 set color_comment_title_background = "#fff";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#000";
@@ -53,10 +54,8 @@ layerinfo name = "Oceanic";
 layerinfo redist_uniq = "planetcaravan/oceanic";
 layerinfo author_name = "momijizukamori";
 
-set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
-
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_header_background = "#000";
@@ -68,10 +67,11 @@ set color_page_link = "#62a8de";
 set color_page_link_hover = "#5965ff";
 set color_page_link_visited = "#a4d5e6";
 set color_page_title = "#fff";
+set color_page_text = "#000";
 set color_userpic_border = "#000";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
@@ -88,7 +88,7 @@ set color_comment_title = "#000";
 set color_comment_title_background = "#fff";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#000";
@@ -103,10 +103,8 @@ layerinfo name = "Starry Sky";
 layerinfo redist_uniq = "planetcaravan/starrysky";
 layerinfo author_name = "momijizukamori";
 
-set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
-
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_footer_background = "#000";
@@ -116,10 +114,11 @@ set color_page_background = "#333";
 set color_page_link = "#fbffa6";
 set color_page_link_visited = "#D3D8A2";
 set color_page_title = "#fbffa6";
+set color_page_text = "#eee";
 set color_userpic_border = "#000";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#333";
@@ -129,7 +128,7 @@ set color_entry_footer_links = "#fbffa6";
 set color_entry_text = "#eee";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#000";
@@ -150,10 +149,8 @@ layerinfo name = "Sunrise";
 layerinfo redist_uniq = "planetcaravan/sunrise";
 layerinfo author_name = "momijizukamori";
 
-set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
-
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_header_background = "#333";
@@ -161,10 +158,11 @@ set color_footer_background = "#333";
 set color_footer_link = "#fff";
 set color_page_background = "#fff";
 set color_page_title = "#fff";
+set color_page_text = "#000";
 set color_userpic_border = "#333";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
 set color_entry_border = "#ffc8d4";
@@ -182,7 +180,7 @@ set color_entry_title = "#333";
 set color_comment_title = "#333";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#333";

@@ -16,10 +16,11 @@ sub module_props {
 sub entry_props {
     my $self = shift;
     my @props = qw(
-    color_entry_footer_links
+    color_entry_interaction_links
+    color_entry_interaction_links_active
+    color_entry_interaction_links_hover
+    color_entry_interaction_links_visited
     color_entry_footer_background
-    property Color color_journal_subtitle
-    property Color color_userpic_border
     color_alternate_entry_border
     color_alternate2_entry_border
     color_alternate3_entry_border
@@ -27,6 +28,14 @@ sub entry_props {
     return $self->_append_props( "entry_props", @props );
 }
 
+sub page_props {
+    my $self = shift;
+    my @props = qw(
+    color_journal_subtitle
+    color_userpic_border
+    );
+    return $self->_append_props( "page_props", @props );
+}
 
 
 1;

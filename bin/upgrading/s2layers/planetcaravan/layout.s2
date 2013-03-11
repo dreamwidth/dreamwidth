@@ -4,7 +4,7 @@ layerinfo redist_uniq = "planetcaravan/layout";
 layerinfo author_name = "momijizukamori";
 layerinfo lang = "en";
 
-set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+set layout_authors = [ { "name" => "daemon @ LJ" }, { "name" => "momijizukamori", "type" => "user" } ];
 set layout_type = "one-column";
 
 ##===============================
@@ -40,7 +40,10 @@ set margins_unit = "%";
 ##===============================
 
 propgroup colors_child {
-    property Color color_entry_footer_links { des = "Entry management and interaction link color"; }
+    property Color color_entry_interaction_links { des = "Entry management and interaction link color"; }
+    property Color color_entry_interaction_links_active { des = "Entry management and interaction active link color"; }
+    property Color color_entry_interaction_links_hover { des = "Entry management and interaction hover link color"; }
+    property Color color_entry_interaction_links_visited { des = "Entry management and interaction visited link color"; }
     property Color color_entry_footer_background { des = "Entry footer background color"; }
     property Color color_navlinks_current { des = "Color of navlink for current page"; }
     property Color color_journal_subtitle { des = "Journal subtitle color"; }
@@ -55,7 +58,7 @@ propgroup colors_child {
 ##===============================
 
 property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
     grouped = 1;
     }
 
@@ -414,14 +417,14 @@ h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: 
 
 .navigation {
     background: $*color_entry_footer_background;
-    color: $*color_entry_footer_links;
+    color: $*color_entry_interaction_links;
     text-align: center;
     padding: .25em 0;
     text-transform:lowercase;
     }
 
 
-.navigation a {color: $*color_entry_footer_links; font-weight:normal;}
+.navigation a {color: $*color_entry_interaction_links; font-weight:normal;}
 
 .empty {display:none;}
 
@@ -491,7 +494,7 @@ div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-t
 
 ul.entry-management-links, .comment-management-links {
     float: left;
-    color: $*color_entry_footer_links;
+    color: $*color_entry_interaction_links;
     padding-left: .5em;
     font-size: smaller;
     text-transform:lowercase;
@@ -500,7 +503,7 @@ ul.entry-management-links, .comment-management-links {
 
 ul.entry-interaction-links, .comment-interaction-links {
     text-align: right;
-    color: $*color_entry_footer_links;
+    color: $*color_interaction_footer_links;
     background: $*color_entry_footer_background;
     padding: .75em;
     margin: 2em 0 0;
@@ -508,7 +511,7 @@ ul.entry-interaction-links, .comment-interaction-links {
     text-transform:lowercase;
     }
 
-.text-links a {    color: $*color_entry_footer_links; text-decoration: none; font-weight:normal;}
+.text-links a {    color: $*color_interaction_footer_links; text-decoration: none; font-weight:normal;}
 .text-links a:hover {text-decoration: underline;}
 
 .comment-wrapper {padding: 0;}
@@ -533,14 +536,14 @@ ul.entry-interaction-links, .comment-interaction-links {
 
 .bottomcomment, .comment-pages {
     background-color: $*color_entry_footer_background;
-    color: $*color_entry_footer_links;
+    color: $*color_entry_interaction_links;
     margin-top: 5px;
     text-align: center;
     padding: .25em;
     }
 
 .bottomcomment a, .comment-pages a{
-    color: $*color_entry_footer_links;
+    color: $*color_entry_interaction_links;
     }
 
 /*--- Archive Pages ---*/
@@ -601,7 +604,11 @@ h3.day-date {
     display:none;
     }
 
-/*Icons Page*/
+/*--- Icon Page ---*/
+
+div.icons-container div.icon:nth-of-type(2n) {
+    clear: both;
+}
 
 .icons-container .icon {
     float: left;
@@ -609,6 +616,7 @@ h3.day-date {
     min-width: 350px;
     vertical-align: bottom;
     width: 50%;
+    display:table;
 }
 
 .icon-image {
@@ -616,12 +624,15 @@ h3.day-date {
     float: left;
     margin-right: 1em;
     min-width: 100px;
+    margin-top: 0;
 }
 
 .icon-info {
     overflow: auto;
     vertical-align: bottom;
     word-wrap: break-word;
+    display:table-cell;
+    width:100%;
 }
 
 .icon-info .label,
@@ -632,7 +643,6 @@ h3.day-date {
 .icons-container .inner .footer, .icon-pages {
     clear: both;
     text-align: center;
-}
 
 /*--- Sidebars ---*/
 
