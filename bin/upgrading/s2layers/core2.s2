@@ -294,6 +294,7 @@ class UserLite
     function linklist_manage_url () : string "Returns URL to user's tag management page.";
     function tag_manage_url () : string "Returns URL to user's tag management page.";
     function icon_manage_url () : string "Returns URL to user's icon management page.";
+    function subscriptionfilters_manage_url () : string "Returns URL to user's subscription filter page.";
     function print_interaction_links() "Print the interaction links for this user/journal.";
     function as_string() : string;
     function print ();
@@ -519,6 +520,14 @@ class User extends UserLite
     var readonly string website_name "'pretty' name of user's website";
     function print_userpic() "Print the userpic for this user";
 
+}
+
+class SubscriptionFilter
+{
+    var string name "The name of the filter.";
+    var bool public "Whether the filter is publicly accessible.";
+    var int sortorder "Which order this filter is in compared to others.";
+    var string url "A link to the filtered reading page.";
 }
 
 ### Other
@@ -1069,6 +1078,9 @@ function builtin end_css () "Declare that you're done printing CSS and the outpu
 
 function builtin journal_current_datetime() : DateTime
 "Returns the current datetime in the timezone of the journal being viewed.";
+
+function builtin journal_subscription_filters() : SubscriptionFilter[]
+"Returns the subscription filters for the journal being viewed, in sort order.";
 
 function builtin style_is_active() : bool
 "Returns if the style (layout and theme) calling it is active based on a hook.  If hook isn't defined, returns true always.";
@@ -1952,6 +1964,15 @@ property bool module_cuttagcontrols_show { grouped = 1; }
 property int  module_cuttagcontrols_order { grouped = 1; }
 property string module_cuttagcontrols_section { grouped = 1; }
 
+property string[] module_subscriptionfilters_group {
+    des = "Subscription Filters";
+    grouptype = "module";
+}
+set module_subscriptionfilters_group = ["module_subscriptionfilters_show", "module_subscriptionfilters_order", "module_subscriptionfilters_section"];
+property bool module_subscriptionfilters_show { grouped = 1; }
+property int module_subscriptionfilters_order { grouped = 1; }
+property string module_subscriptionfilters_section { grouped = 1; }
+
 set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
 set module_userprofile_show = true;
 set module_userprofile_order = 1;
@@ -2004,6 +2025,9 @@ set module_search_section = "one";
 set module_cuttagcontrols_show = true;
 set module_cuttagcontrols_order = 16;
 set module_cuttagcontrols_section = "one";
+set module_subscriptionfilters_show = false;
+set module_subscriptionfilters_order = 17;
+set module_subscriptionfilters_section = "one";
 
 ##=======================================
 ## Display properties - Text
@@ -2233,6 +2257,12 @@ property string text_module_search_btn {
     size = 20;
     example = "Search";
 }
+property string text_module_subscriptionfilters {
+    des = "Text for the 'Subscription Filters' box";
+    maxlength = 50;
+    size = 20;
+    example = "Subscription Filters";
+}
 
 # Modules without titles: navlinks, time, poweredby
 # Calendar uses month and year
@@ -2251,6 +2281,7 @@ set text_module_credit = "Style Credit";
 set text_module_cuttagcontrols = "Expand Cut Tags";
 set text_module_search = "Search";
 set text_module_search_btn = "Search";
+set text_module_subscriptionfilters = "Subscription Filters";
 
 ##=======================================
 ## Display properties - Text
@@ -2624,6 +2655,11 @@ property string text_tags_manage {
     example = "Manage Tags";
 }
 
+property string text_subscriptionfilters_manage {
+    des = "Text to use to link to this journal's subscription filter management page.";
+    example = "Manage Filters";
+}
+
 property string text_read_comments_threads {
     des = "Link text to read comment threads from an entry";
     format = "plurals";
@@ -2656,6 +2692,7 @@ set text_website_default_name = "My Website";
 set text_calendar_num_entries = "1 entry // # entries";
 set text_linklist_manage = "Manage Links";
 set text_tags_manage = "Manage Tags";
+set text_subscriptionfilters_manage = "Manage Filters";
 set text_read_comments_threads = "1 response // # responses";
 set text_generated_on = "Page generated";
 set text_powered_by = "Powered by";
@@ -3102,6 +3139,7 @@ function modules_init()
     if ( $*module_credit_show ) { $*module_sections{$*module_credit_section}[$*module_credit_order]=["credit"]; }
     if ( $*module_search_show ) { $*module_sections{$*module_search_section}[$*module_search_order]=["search"]; }
     if ( $*module_cuttagcontrols_show ) { $*module_sections{$*module_cuttagcontrols_section}[$*module_cuttagcontrols_order]=["cuttagcontrols"]; }
+    if ( $*module_subscriptionfilters_show ) { $*module_sections{$*module_subscriptionfilters_section}[$*module_subscriptionfilters_order]=["subscriptionfilters"]; }
 
     #if ( $*module_%%mod%%_show ) { $*module_sections{$*module_%%mod%%_section }[$*module_%%mod%%_order]=["%%mod%%"]; }
 }
@@ -3415,6 +3453,12 @@ function UserLite::icon_manage_url() [fixed] : string
 "Returns a link to the user's icon management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     return "$*SITEROOT/editicons?authas=$.username";
+}
+
+function UserLite::subscriptionfilters_manage_url() [fixed] : string
+"Returns a link to the user's subscription filter management page.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
+    return "$*SITEROOT/manage/subscriptions/filters";
 }
 
 function UserLite::as_string() [fixed] : string
@@ -3862,6 +3906,12 @@ function print_tag_manage_link() "Prints out a link to the tag management page, 
 function IconsPage::print_icon_manage_link() "Prints out a link to the icon management page, if the viewer can manage icons."
 {
     print ($.can_manage) ? "<div class=\"manage-link manage-icons-link\"><a href=\"" + $.journal->icon_manage_url() + "\">$*text_icon_manage</a></div>\n" : "";
+}
+
+function print_subscriptionfilters_manage_link() "Prints out a link to the subscription filter management page, if the viewer can manage them."
+{
+    var Page p = get_page();
+    print "<div class=\"manage-link manage-subfilters-link\"><a href=\"" + $p.journal->subscriptionfilters_manage_url() + "\">$*text_subscriptionfilters_manage</a></div>";
 }
 
 function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to full text"
@@ -4527,6 +4577,35 @@ function print_module_cuttagcontrols() {
 
 }
 
+function print_module_subscriptionfilters() {
+    var Page p = get_page();
+
+    if ( $p.journal.journal_type == "C" or $p.journal.journal_type == "Y" ) {
+        return;
+    }
+
+    var SubscriptionFilter[] filters = journal_subscription_filters();
+
+    if ( ( size $filters ) < 1 ) { return; }
+
+    open_module("subscriptionfilters", $*text_module_subscriptionfilters, "");
+
+    var string{}[] filter_list;
+
+    var int pos = 0;
+    foreach var SubscriptionFilter filter ( $filters ) {
+        var string filter_class = $filter.public ? "public" : "private";
+        $filter_list[$pos] = { "class" => "$filter_class", "item" => """<a href="$filter.url">$filter.name</a>""" };
+        $pos++;
+    }
+
+    print_module_list($filter_list);
+
+    print_subscriptionfilters_manage_link();
+
+    close_module();
+}
+
 function handle_module_group_array(string[][] list) {
     foreach var string[] item ($list) {
         var string module = $item[0];
@@ -4576,6 +4655,9 @@ function handle_module_group_array(string[][] list) {
         }
         elseif ($module == "cuttagcontrols") {
             print_module_cuttagcontrols();
+        }
+        elseif ($module == "subscriptionfilters") {
+            print_module_subscriptionfilters();
         }
     }
 }

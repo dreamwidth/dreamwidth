@@ -129,6 +129,7 @@ propgroup modules {
     property use module_credit_group;
     property use module_search_group;
     property use module_cuttagcontrols_group;
+    property use module_subscriptionfilters_group;
 }
 
 # explicitly define what sections the layout has available
@@ -243,6 +244,7 @@ set module_time_order = 16;
 set module_poweredby_order = 17;
 set module_search_order = 19;
 set module_cuttagcontrols_order = 20;
+set module_subscriptionfilters_order = 21;
 
 set module_calendar_order = 18;
 
