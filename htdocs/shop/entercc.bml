@@ -129,6 +129,7 @@ body<=
         }
         $out .= "</table><br /><?p ";
         $out .= BML::ml( '.confirm.para', { amount => $cart->display_total_cash, sitename => $LJ::SITECOMPANY } );
+        $out .= LJ::Hooks::run_hook( 'cc_charge_from' );
         $out .= " p?><br /><input type='submit' value='";
         $out .= BML::ml( '.confirm.button', { amount => $cart->display_total_cash } );
         $out .= "' /></form>";
