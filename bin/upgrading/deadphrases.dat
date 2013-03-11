@@ -1525,3 +1525,5 @@ general entryform.comment.settings.nocomments.maintainer
 general talk.comments.disabled_maintainer
 
 general /manage/circle/add.bml.groups.reading.feed1
+
+general /manage/invites.bml.fromline

@@ -48,6 +48,8 @@
 
 .error.badaccounttype=You must be logged in to a personal account to access this page.
 
+.invite.text=You can <a [[aopts]]>view any pending invitations</a> you've received to join communities.
+
 .joinmail.body2=For communities with moderated membership, you can <a [[aopts]]>be notified</a> when anyone requests membership.
 
 .joinmail.email.all=Email me every time someone requests to join.
