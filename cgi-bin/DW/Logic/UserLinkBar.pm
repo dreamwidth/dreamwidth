@@ -143,7 +143,7 @@ sub manage_membership {
                 url      => "community/leave?comm=$user",
                 title_ml => 'userlinkbar.leavecomm.title',
                 image    => 'community_leave.png',
-                text_ml  => 'userlinkbar.leavecomm',
+                text_ml  => 'userlinkbar.leavecomm2',
                 class    => "leave",
             } );
 
@@ -419,7 +419,7 @@ sub tellafriend {
             image => "$LJ::IMGPREFIX/silk/profile/tellafriend.png",
             width => 16,
             height => 16,
-            text_ml => 'userlinkbar.tellafriend',
+            text_ml => 'userlinkbar.tellafriend2',
             class => 'tellafriend',
         };
 
