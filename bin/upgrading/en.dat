@@ -2931,9 +2931,19 @@ setting.sitescheme.label=Site Skin
 
 setting.sitescheme.label=Site Scheme
 
+setting.stickyentry.details.label=<i>Note: blank entries will be ignored.</i>
+
 setting.stickyentry.error.invalid=Invalid Dreamwidth entry ID or URL entered.
 
+setting.stickyentry.error.invalid2=Invalid Dreamwidth entry ID or URL entered for Sticky.
+
+setting.stickyentry.error.duplicate=Duplicate ID or URL entered for Sticky
+
 setting.stickyentry.label=ID or URL of entry to make sticky
+
+setting.stickyentry.label2=IDs or URLs of Sticky Entries
+
+setting.stickyentryi.label=Sticky
 
 setting.stylemine.label=Comment Pages
 

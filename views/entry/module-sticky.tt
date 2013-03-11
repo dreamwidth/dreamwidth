@@ -1,0 +1,70 @@
+[%# views/entry/module-sticky.tt
+
+Module for sticky / metadata in the entry form
+
+Authors: Louise Dennis
+    
+Copyright (c) 2012 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+  <fieldset>
+    <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
+    <div class='inner' id='sticky_options'>
+      <p>
+        [% show = 1; not_sticky = 1; FOREACH sticky IN stickies %]
+            <p>[%- IF show == 1;
+                label = ".label" | ml ; 
+                IF sticky.checked ==1 ;
+                    form.radio( label = label _ sticky.position
+
+                        name = "sticky_select"
+                        id = "sticky_select_" _ sticky.position
+                        checked = sticky.checked
+                        value=sticky.position
+                    );
+                not_sticky = 0;
+                ELSE %]
+                [%# I have no idea why this syntax works when not putting a close after ELSE does not, but there you go -%]
+                [%
+                  form.radio( label = label _ sticky.position
+                        name = "sticky_select"
+                        id = "sticky_select_" _ sticky.position
+
+                        value=sticky.position
+                    );
+                %]
+                [% END -%]
+            </p>
+                [% IF sticky.issticky == 1 %]
+                    <div class='info'>
+                    <p> [% title = ".title" | ml ; number = ".itemid" | ml ; close = ".close" | ml;
+                           number _ sticky.number _ title _ sticky.name _ close %]</p>
+                    </div>
+                [% ELSE %]
+                    [% show = 0 %] 
+                [% END %]
+            [% END %]
+        [% END %]
+        [% label_no = ".label_no" | ml %]
+        [% IF not_sticky == 1;
+               form.radio( label = label_no
+                   name = "sticky_select"
+                   id = "sticky_select_0"
+                   checked = 1
+                   value=0
+               );
+           ELSE %]
+           [%    form.radio( label = label_no
+                   name = "sticky_select"
+                   id = "sticky_select_0"
+
+                   value=0
+               );
+           END
+        %]
+      </p>
+    </div>
+  </fieldset>
