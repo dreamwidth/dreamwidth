@@ -834,9 +834,8 @@ line-height: 120%;
 .ContextualPopup .Userpic {
     background-color: $*color_entry_border;
     margin: 5px;
+    padding: 5px;
     }
-
-.ContextualPopup .Userpic img { padding: 5px; }
 
 .ContextualPopup .Relation { text-transform: lowercase; }
 

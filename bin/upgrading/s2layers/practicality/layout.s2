@@ -882,6 +882,7 @@ textarea.textbox {
 .ContextualPopup .Userpic {
     border: 5px solid $*color_header_background;
     margin: .5em;
+    padding: 0;
     }
 
 $userpic_css

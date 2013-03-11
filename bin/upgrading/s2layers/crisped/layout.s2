@@ -744,10 +744,8 @@ ul.userlite-interaction-links.icon-links li {
 
 .ContextualPopup .Userpic {
     background-color: $*color_entry_border;
+    border: none;
     margin: 5px;
-    }
-
-.ContextualPopup .Userpic img {
     padding: 5px;
     }
 
