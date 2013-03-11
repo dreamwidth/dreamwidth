@@ -151,6 +151,7 @@ propgroup modules {
     property use module_credit_group;
     property use module_search_group;
     property use module_cuttagcontrols_group;
+    property use module_subscriptionfilters_group;
 }
 
 set module_layout_sections = "none|(none)|one|Column";
@@ -170,6 +171,7 @@ set module_time_order = 6;
 set module_poweredby_section = "one";
 set module_poweredby_order = 7;
 set module_credit_order = 3;
+set module_subscriptionfilters_order = 21;
 
 ##===============================
 ## Text
