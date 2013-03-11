@@ -1,27 +1,29 @@
 ;; -*- coding: utf-8 -*-
-.abilities.title=Abilities
+.abilities.title2=Relationships and Abilities
 
 .accept=Accept
 
-.accepted.body=You've joined the following communities, with the listed capabilities:
+.accepted.body2=You've joined the following communities, with the listed relationships and abilities:
 
 .accepted.title=Invitations Accepted
 
-.actions.title=Actions
+.answer.title=Answer
 
 .back=Manage invites
 
 .community.title=Community
 
+.date=([[date]])
+
 .decline=Decline
 
-.fromline=From [[user]] ([[date]])
+.from=from [[user]]
 
 .label.admin=Administrator
 
-.label.member=Member
+.label.member=Subscriber, Member
 
-.label.moderate=Administrator
+.label.moderate=Moderator
 
 .label.post=Can Post
 
@@ -33,15 +35,29 @@
 
 .none.title=Nothing Pending
 
-.rejected.body=You've rejected the following community invitations:
+.pending.body=You've been invited to join the following communities. You can either accept or decline each invitation. To leave an invitation pending don't select any answer.
+
+.rejected.body2=You've rejected invitations to the following communities:
 
 .rejected.title=Invitations Rejected
 
-.submit=Submit Selections
+.submit2=Submit Answers
 
-.title=Manage Community Invitations
+.success.fromhere=From here, you can:
 
-.undecided.body=You haven't decided on actions for the following invitations:
+.success.head=Success
+
+.success.manageinvites=Answer your community invitations
+
+.success.managecircle=Manage your Circle
+
+.success.managecomm=Manage your communities
+
+.success.readingpage=View your Reading Page
+
+.title2=Answer Community Invitations
+
+.undecided.body2=You haven't answered invitations to the following communities:
 
 .undecided.title=Invitations Still Pending
 

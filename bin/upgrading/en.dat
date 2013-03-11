@@ -1277,7 +1277,7 @@ esn.mail_comments.subject.reply_to_your_entry=Reply to your entry.
 
 esn.manage_community=[[openlink]]Manage your communities[[closelink]]
 
-esn.manage_invitations=[[openlink]]Manage your invitations[[closelink]]
+esn.manage_invitations2=[[openlink]]Accept or decline the invitation[[closelink]]
 
 esn.manage_membership_reqs=[[openlink]]Manage [[communityname]]'s membership requests[[closelink]]
 

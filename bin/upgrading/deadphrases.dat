@@ -1522,4 +1522,6 @@ general esn.security_attribute_changed.account_renamed.email_text
 general /manage/circle/edit.bml.circle.maintainer
 general /community/leave.bml.label.lastmaintainer.deletedcomm
 general entryform.comment.settings.nocomments.maintainer
-genereal talk.comments.disabled_maintainer
+general talk.comments.disabled_maintainer
+
+general /manage/invites.bml.fromline
