@@ -108,7 +108,8 @@ body<=
      $sth->execute;
      my $ct;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         $ret .= "<li><a href='/users/$iuser/'><?_eh $iname _eh?></a>, $itime</li>\n";
+         my $u = LJ::load_user($iuser); 
+         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
          $ct++;
      }
      $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
@@ -119,7 +120,8 @@ body<=
      $sth->execute;
      my $ct = 0;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         $ret .= "<li><a href='/users/$iuser/'><?_eh $iname _eh?></a>, $itime</li>\n";
+         my $u = LJ::load_user($iuser); 
+         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
          $ct++;
      }
      $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;	
@@ -130,7 +132,8 @@ body<=
      $sth->execute;
      my $ct = 0;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         $ret .= "<li><a href='/users/$iuser/'><?_eh $iname _eh?></a>, $itime</li>\n";
+         my $u = LJ::load_user($iuser); 
+         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
          $ct++;
      }
      $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
@@ -146,7 +149,8 @@ body<=
      $sth->execute;
      my $ct;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         $ret .= "<li><a href='/users/$iuser/'><?_eh $iname _eh?></a>, $itime</li>\n";
+         my $u = LJ::load_user($iuser); 
+         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
          $ct++;
      }
      $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
@@ -157,7 +161,8 @@ body<=
      $sth->execute;
      my $ct;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         $ret .= "<li><a href='/users/$iuser/'><?_eh $iname _eh?></a>, $itime</li>\n";
+         my $u = LJ::load_user($iuser); 
+         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
          $ct++;
      }
      $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
@@ -168,7 +173,8 @@ body<=
      $sth->execute;
      my $ct;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         $ret .= "<li><a href='/users/$iuser/'><?_eh $iname _eh?></a>, $itime</li>\n";
+         my $u = LJ::load_user($iuser); 
+         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
          $ct++;
      }
      $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
