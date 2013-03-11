@@ -1,10 +1,9 @@
-#NEWLAYER: motion/bluemotion
+#NEWLAYER: motion/blue
 layerinfo "type" = "theme";
-layerinfo "name" = "Blue Motion";
-layerinfo "redist_uniq" = "motion/bluemotion";
+layerinfo "name" = "Blue";
+layerinfo "redist_uniq" = "motion/blue";
 layerinfo "author_name" = "wiring";
 
-set theme_authors = [ { "name" => "wiring", "type" => "user" } ];
 set layout_resources = [ { "name" => "Wordpress Motion", "url" => "http://www.webdesigncompany.net/motion/" } ];
 
 
