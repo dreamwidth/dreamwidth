@@ -794,7 +794,7 @@ margin-left: 1em;
 
 .page-month .month .entry-title {
 display: inline;
-margin-left: 0.5em;
+margin-left: 0.5em; }
 
 /*--- Icon Page ---*/
 
