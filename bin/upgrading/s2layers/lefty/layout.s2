@@ -4,7 +4,6 @@ layerinfo redist_uniq = "lefty/layout";
 layerinfo author_name = "sarken";
 layerinfo lang = "en";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
 set layout_type = "two-columns-left";
 set entry_management_links = "text";
 set margins_size = "4";
@@ -46,7 +45,7 @@ propgroup fonts_child {
 ##===============================
 
 property string module_navlinks_section_override {
- values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+ values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
  grouped = 1;
  }
 
@@ -246,17 +245,16 @@ var string navlinks_css = "";
  """
 /*
 Layout: LEFTY
-Theme: GREEN PARTY
 
 CREDITS
 CSS: Sarken @ rentals - http://rentals.dreamwidth.org/945.html
 */
 
 * {
-box-sizing: border-box;
 -moz-box-sizing: border-box;
 -ms-box-sizing: border-box;
 -webkit-box-sizing: border-box;
+box-sizing: border-box;
 }
 
 
@@ -277,10 +275,6 @@ li {
 display: inline;
 }
 
-big {
-font-size: 1.25em;
-}
-
 code {
 font-family: monospace;
 }
@@ -289,11 +283,7 @@ hr {
 display: none;
 }
 
-small {
-font-size: 0.75em;
-}
-
-.content blockquote, .poll-container {
+#content blockquote, .poll-container {
 background: $*color_entry_background_accent;
 border: 1px solid $*color_entry_titleuserpic_border;
 margin: 0.875em auto;
@@ -357,7 +347,6 @@ color: #FAFCFC;
 }
 
 .module-section-header ul {
-font-size: 0.9375em;
 letter-spacing: 0.1em;
 padding:.5em 0;
 text-transform: lowercase;
@@ -402,7 +391,7 @@ padding: 0 0.5em;
 
 .navigation .page-back, .navigation .page-forward {
 display: inline-block;
-padding: 0 0 0 0;
+padding: 0;
 width: auto;
 }
 
@@ -415,8 +404,8 @@ font-weight: bold;
 
 .navigation .page-back a:before {
 content: "<<";
-font-family: 'Chalkboard','Comic Sans MS';
-font-size: 48px;
+font-family: Chalkboard,'Comic Sans MS';
+font-size: 4em;
 }
 
 .navigation .page-forward {
@@ -425,8 +414,8 @@ text-align: right;
 
 .navigation .page-forward a:after {
 content: ">>";
-font-family: 'Chalkboard','Comic Sans MS';
-font-size: 48px;
+font-family: Chalkboard,'Comic Sans MS';
+font-size: 4em;
 }
 
 .navigation .page-separator {
@@ -438,6 +427,7 @@ display: none;
 .entry-wrapper, .comment-wrapper {
 margin-bottom: 3.5em;
 position: relative;
+color: $*color_entry_text;
 }
 
 
@@ -450,13 +440,8 @@ border-bottom: 1px solid $*color_entry_titleuserpic_border;;
 padding-right: 0.875em;
 }
 
-.entry .entry-title a, .comment .comment-title a {
-font-size: 1.25em;
-}
-
 .datetime, .poster {
-font: 0.8125em $*font_entry_footer;
-color: $*color_entry_footer_text;
+font: smaller $*font_entry_footer $*color_entry_footer_text;
 text-transform: uppercase;
 }
 
@@ -485,10 +470,10 @@ content: " NSFW";
 }
 
 .entry .userpic img, .comment .userpic img {
-box-sizing: content-box;
 -moz-box-sizing: content-box;
 -ms-box-sizing: content-box;
 -webkit-box-sizing: content-box;
+box-sizing: content-box;
 padding: 5px;
 border: 1px solid $*color_entry_titleuserpic_border;
 }
@@ -545,7 +530,7 @@ display: block;
 }
 
 .entry .metadata span {
-font-size: 0.875em;
+font-size: smaller;
 text-transform: lowercase;
 }
 
@@ -566,7 +551,7 @@ color: $*color_comment_footer_text;
 }
 
 .tag {
-font-size: 0.875em;
+font-size: smaller;
 text-align: left;
 text-transform: lowercase;
 }
@@ -611,10 +596,6 @@ padding-left: 0.1875em;
 }
 
 #comments .comment-pages {
-color: ;
-border: 1px solid #ccc;
-border-left: none;
-border-right: none;
 margin-bottom: 3.5em;
 padding: 0.5em;
 text-align: center;
@@ -627,10 +608,6 @@ text-transform: uppercase;
 
 #comments .bottompages {
 margin-top: 3.5em;
-}
-
-.comment .comment-title {
-font-size: 1em;
 }
 
 /* module section two */
@@ -656,7 +633,6 @@ margin-bottom: 1em;
 
 .module-section-one h2, .module-section-two h2 {
 border-bottom: 1px solid $*color_module_titlelist_border;
-font-size: 1.25em;
 margin-bottom: 0.625em;
 padding-left: 1em;
 }
@@ -684,7 +660,7 @@ margin: 0 auto;
 }
 
 .module-calendar table th, .module-calendar table td {
-font-size: 0.8125em;
+font-size: smaller;
 }
 
 .module-calendar table .entry-day, .module-calendar table .empty-day {
@@ -736,18 +712,17 @@ vertical-align: top;
 }
 
 .module-section-one input, .module-section-one select {
-background: ;
 border: 1px solid $*color_module_titlelist_border;
-font-size: 0.875em;
+font-size: smaller;
 }
 
-.content input, .content select {
+#content input, #content select {
 border: 1px solid $*color_entry_titleuserpic_border;
-font-size: 0.875em;
+font-size: smaller;
 }
 
 input[type="submit"], input[type="button"], input[type="search"], input[type="text"], input[type="password"] {
-padding: 0.25em 0.5em 0.25em 0.5em;
+padding: 0.25em 0.5em;
 }
 
 .search-box { width: 80%; }
@@ -756,8 +731,7 @@ padding: 0.25em 0.5em 0.25em 0.5em;
 border: 1px solid $*color_module_titlelist_border;
 }
 
-.content textarea {
-background: ;
+#content textarea {
 border: 1px solid $*color_entry_titleuserpic_border;
 }
 
@@ -788,7 +762,6 @@ margin: 1.25em 0;
 
 .page-archive .month .header {
 border-bottom: 1px solid $*color_entry_titleuserpic_border;
-font-size: 1.25em;
 }
 
 .page-archive .month table {
@@ -831,7 +804,6 @@ margin-top: 0.875em;
 
 .page-icons .icons-container h2 {
 border-bottom: 1px solid $*color_entry_titleuserpic_border;
-font-size: 1.25em;
 margin-bottom: 0.625em;
 }
 
@@ -883,7 +855,6 @@ margin-top: 0.875em;
 
 .page-tags .tags-container h2 {
 border-bottom: 1px solid $*color_entry_titleuserpic_border;
-font-size: 1.25em;
 margin-bottom: 0.625em;
 }
 
@@ -973,7 +944,7 @@ width: $*sidebar_width;
 
 .two-columns .module-section-one .journal-name, .two-columns .module-section-one .journal-website-name {
 line-height: 1.25;
-font-size: 0.75em;
+font-size: smaller;
 }
 
 .two-columns .module-section-one .module-userprofile .userpic {

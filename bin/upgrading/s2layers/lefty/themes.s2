@@ -5,7 +5,7 @@ layerinfo redist_uniq = "lefty/greenmachine";
 layerinfo author_name = "Sarken";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 set color_page_background = "#4bb5bd";
 set color_page_left_border = "#62942f";
@@ -23,7 +23,7 @@ set color_headernav_hover_background = "#4bb5bd";
 set color_headernav_text = "#fafcfc";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 set color_entry_background = "#fafcfc";
 set color_entry_background_accent = "#f5f7f7";
@@ -34,13 +34,13 @@ set color_entry_title = "#000";
 set color_entry_titleuserpic_border = "#c7c9c9";
 
 ##===============================
-## Comments
+## Comments Colors
 ##===============================
 set color_comment_title = "#000";
 set color_comment_footer_text = "#666";
 
 ##===============================
-## Modules
+## Modules Colors
 ##===============================
 set color_module_background = "#fafcfc";
 set color_module_background_accent = "#f5f7f7";
@@ -50,12 +50,12 @@ set color_module_titlelist_border = "#c7c9c9";
 ##===============================
 ## Fonts
 ##===============================
-set font_base = "Georgia, Times New Roman, serif";
+set font_base = "Georgia, 'Times New Roman', serif";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_journal_subtitle_size = "1";
 set font_journal_subtitle_units = "em";
-set font_journal_title = "Georgia, Times New Roman, serif";
+set font_journal_title = "Georgia, 'Times New Roman', serif";
 set font_journal_title_size = "1";
 set font_journal_title_units = "em";
 
@@ -67,7 +67,7 @@ layerinfo redist_uniq = "lefty/militant";
 layerinfo author_name = "Sarken";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 set color_page_background = "#80805B";
 set color_page_left_border = "#914930";
@@ -85,7 +85,7 @@ set color_headernav_hover_background = "#80805B";
 set color_headernav_text = "#EDEDE3";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 set color_entry_background = "#EDEDE3";
 set color_entry_background_accent = "#E1E1D1";
@@ -96,13 +96,13 @@ set color_entry_title = "#000";
 set color_entry_titleuserpic_border = "#C3C3A2";
 
 ##===============================
-## Comments
+## Comments Colors
 ##===============================
 set color_comment_title = "#000";
 set color_comment_footer_text = "#666";
 
 ##===============================
-## Modules
+## Modules Colors
 ##===============================
 set color_module_background = "#EDEDE3";
 set color_module_background_accent = "#E1E1D1";
@@ -112,12 +112,12 @@ set color_module_titlelist_border = "#C3C3A2";
 ##===============================
 ## Fonts
 ##===============================
-set font_base = "Georgia, Times New Roman, serif";
+set font_base = "Georgia, 'Times New Roman', serif";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_journal_subtitle_size = "1";
 set font_journal_subtitle_units = "em";
-set font_journal_title = "Georgia, Times New Roman, serif";
+set font_journal_title = "Georgia, 'Times New Roman', serif";
 set font_journal_title_size = "1";
 set font_journal_title_units = "em";
 
@@ -129,7 +129,7 @@ layerinfo redist_uniq = "lefty/pinkpanther";
 layerinfo author_name = "Sarken";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 set color_page_background = "#727CA2";
 set color_page_left_border = "#9B314F";
@@ -147,7 +147,7 @@ set color_headernav_hover_background = "#727CA2";
 set color_headernav_text = "#FEFEFB";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 set color_entry_background = "#FEFEFB";
 set color_entry_background_accent = "#EEEEEE";
@@ -158,13 +158,13 @@ set color_entry_title = "#000";
 set color_entry_titleuserpic_border = "#c7c9c9";
 
 ##===============================
-## Comments
+## Comments Colors
 ##===============================
 set color_comment_title = "#000";
 set color_comment_footer_text = "#666";
 
 ##===============================
-## Modules
+## Modules Colors
 ##===============================
 set color_module_background = "#FEFEFB";
 set color_module_background_accent = "#EEEEEE";
@@ -174,11 +174,11 @@ set color_module_titlelist_border = "#c7c9c9";
 ##===============================
 ## Fonts
 ##===============================
-set font_base = "Georgia, Times New Roman, serif";
+set font_base = "Georgia, 'Times New Roman', serif";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_journal_subtitle_size = "1";
 set font_journal_subtitle_units = "em";
-set font_journal_title = "Georgia, Times New Roman, serif";
+set font_journal_title = "Georgia, 'Times New Roman', serif";
 set font_journal_title_size = "1";
 set font_journal_title_units = "em";
