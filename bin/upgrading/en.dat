@@ -1008,6 +1008,14 @@ Hi [[user]],
 You can:
 .
 
+esn.addedtocircle.trusted.openid.email_text<<
+Hi [[user]],
+
+[[poster]] has granted you access; you'll now be able to view [[poster]]'s protected information.
+
+You can:
+.
+
 esn.addedtocircle.trusted.subject=[[who]] granted you access.
 
 esn.addedtocircle.watched.email_text<<
