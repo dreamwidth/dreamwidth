@@ -3165,8 +3165,6 @@ settings.state=State
 
 settings.state.us=US States
 
-settings.usermessaging.obsolete=OBSOLETE: this option has been moved to Account Settings.
-
 settings.yearofbirth=Year of Birth
 
 shop.email.accounttype=[[type]] for [[nummonths]] [[?nummonths|month|months]]
