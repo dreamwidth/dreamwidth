@@ -1,0 +1,184 @@
+#NEWLAYER: lefty/greenmachine
+layerinfo type = "theme";
+layerinfo name = "Green Machine";
+layerinfo redist_uniq = "lefty/greenmachine";
+layerinfo author_name = "Sarken";
+
+##===============================
+## Page Colors
+##===============================
+set color_page_background = "#4bb5bd";
+set color_page_left_border = "#62942f";
+set color_page_link = "#919c2c";
+set color_page_link_hover = "#cddc3e";
+set color_page_link_visited = "#62942f";
+set color_page_right_border = "#325a6d";
+set color_page_text = "#333";
+set color_page_title = "#fafcfc";
+set color_header_background = "#cddc3e";
+set color_header_title_background = "#62942f";
+set color_headernav_background = "#325a6d";
+set color_headernav_current_background = "#cddc3e";
+set color_headernav_hover_background = "#4bb5bd";
+set color_headernav_text = "#fafcfc";
+
+##===============================
+## Entry Colors
+##===============================
+set color_entry_background = "#fafcfc";
+set color_entry_background_accent = "#f5f7f7";
+set color_entry_footer_text = "#666";
+set color_entry_link = "#407b80";
+set color_entry_link_visited = "#62942f";
+set color_entry_title = "#000";
+set color_entry_titleuserpic_border = "#c7c9c9";
+
+##===============================
+## Comments Colors
+##===============================
+set color_comment_title = "#000";
+set color_comment_footer_text = "#666";
+
+##===============================
+## Modules Colors
+##===============================
+set color_module_background = "#fafcfc";
+set color_module_background_accent = "#f5f7f7";
+set color_module_title = "#000";
+set color_module_titlelist_border = "#c7c9c9";
+
+##===============================
+## Fonts
+##===============================
+set font_base = "Georgia, 'Times New Roman', serif";
+set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
+set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Georgia, 'Times New Roman', serif";
+set font_journal_title_size = "1";
+set font_journal_title_units = "em";
+
+
+#NEWLAYER: lefty/militant
+layerinfo type = "theme";
+layerinfo name = "Militant";
+layerinfo redist_uniq = "lefty/militant";
+layerinfo author_name = "Sarken";
+
+##===============================
+## Page Colors
+##===============================
+set color_page_background = "#80805B";
+set color_page_left_border = "#914930";
+set color_page_link = "#B15B3E";
+set color_page_link_hover = "#80805B";
+set color_page_link_visited = "#914930";
+set color_page_right_border = "#4B4B35";
+set color_page_text = "#333";
+set color_page_title = "#EDEDE3";
+set color_header_background = "#B15B3E";
+set color_header_title_background = "#914930";
+set color_headernav_background = "#4B4B35";
+set color_headernav_current_background = "#B15B3E";
+set color_headernav_hover_background = "#80805B";
+set color_headernav_text = "#EDEDE3";
+
+##===============================
+## Entry Colors
+##===============================
+set color_entry_background = "#EDEDE3";
+set color_entry_background_accent = "#E1E1D1";
+set color_entry_footer_text = "#666";
+set color_entry_link = "#565F80";
+set color_entry_link_visited = "#914930";
+set color_entry_title = "#000";
+set color_entry_titleuserpic_border = "#C3C3A2";
+
+##===============================
+## Comments Colors
+##===============================
+set color_comment_title = "#000";
+set color_comment_footer_text = "#666";
+
+##===============================
+## Modules Colors
+##===============================
+set color_module_background = "#EDEDE3";
+set color_module_background_accent = "#E1E1D1";
+set color_module_title = "#000";
+set color_module_titlelist_border = "#C3C3A2";
+
+##===============================
+## Fonts
+##===============================
+set font_base = "Georgia, 'Times New Roman', serif";
+set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
+set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Georgia, 'Times New Roman', serif";
+set font_journal_title_size = "1";
+set font_journal_title_units = "em";
+
+
+#NEWLAYER: lefty/pinkpanther
+layerinfo type = "theme";
+layerinfo name = "Pink Panther";
+layerinfo redist_uniq = "lefty/pinkpanther";
+layerinfo author_name = "Sarken";
+
+##===============================
+## Page Colors
+##===============================
+set color_page_background = "#727CA2";
+set color_page_left_border = "#9B314F";
+set color_page_link = "#D93361";
+set color_page_link_hover = "#D93361";
+set color_page_link_visited = "#9B314F";
+set color_page_right_border = "#483A5F";
+set color_page_text = "#333";
+set color_page_title = "#FEFEFB";
+set color_header_background = "#D93361";
+set color_header_title_background = "#9B314F";
+set color_headernav_background = "#483A5F";
+set color_headernav_current_background = "#D93361";
+set color_headernav_hover_background = "#727CA2";
+set color_headernav_text = "#FEFEFB";
+
+##===============================
+## Entry Colors
+##===============================
+set color_entry_background = "#FEFEFB";
+set color_entry_background_accent = "#EEEEEE";
+set color_entry_footer_text = "#666";
+set color_entry_link = "#565F80";
+set color_entry_link_visited = "#9B314F";
+set color_entry_title = "#000";
+set color_entry_titleuserpic_border = "#c7c9c9";
+
+##===============================
+## Comments Colors
+##===============================
+set color_comment_title = "#000";
+set color_comment_footer_text = "#666";
+
+##===============================
+## Modules Colors
+##===============================
+set color_module_background = "#FEFEFB";
+set color_module_background_accent = "#EEEEEE";
+set color_module_title = "#000";
+set color_module_titlelist_border = "#c7c9c9";
+
+##===============================
+## Fonts
+##===============================
+set font_base = "Georgia, 'Times New Roman', serif";
+set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
+set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Georgia, 'Times New Roman', serif";
+set font_journal_title_size = "1";
+set font_journal_title_units = "em";
