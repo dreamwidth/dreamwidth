@@ -24,12 +24,12 @@ propgroup colors_child {
     property Color color_navlinks_link { des = "The link color of the nav links (used when those appear in the header)."; }
     property Color color_navlinks_link_hover { des = "The hover link color of the nav links (used when those appear in the header)."; }
     property Color color_navlinks_link_visited { des = "The visited link color of the nav links (used when those appear in the header)."; }
-    property Color color_calender_header_background { des = "The background color of the calender header entries"; }
-    property Color color_calender_entryday_background { des = "The background color of the calender days with entries"; }
+    property Color color_calendar_header_background { des = "The background color of the calendar header entries"; }
+    property Color color_calendar_entryday_background { des = "The background color of the calendar days with entries"; }
 }
 
 property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
     grouped = 1;
     }
 
@@ -224,15 +224,11 @@ if ( ($*comment_userpic_style == "" and $*entry_userpic_style == "small") or ($*
 
 /*------------------------------------- basics -------------------------------------*/
 
-* { margin: 0; padding: 0; }
-
 html { font-size: 100%; }
 
 body {line-height: 1.8em; text-align: center; margin: 0; }
 
-a, a:link, a:visited { text-decoration: none; }
-
-a:hover { text-decoration: none; }
+a { text-decoration: none; }
 
 #canvas {
     text-align: justify;
@@ -244,9 +240,10 @@ a:hover { text-decoration: none; }
 #primary {
     background: $*color_entry_background;
     color: $*color_entry_text;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
     -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 #primary > .inner:first-child { padding:0;}
@@ -405,7 +402,7 @@ ul.entry-interaction-links li {
 .entry {background:none;}
 
 
-/*------------------------------------- archive & calender page -------------------------------------*/
+/*------------------------------------- archive & calendar page -------------------------------------*/
 
 li.active { list-style: none; display: inline; padding: 0; margin: 10px; }
 
@@ -436,12 +433,12 @@ table.month { border: 0; }
     margin: 0 2px;
     text-transform: lowercase;
     font-weight: normal;
-    background: $*color_calender_header_background;
+    background: $*color_calendar_header_background;
     }
 
 .month td.day { font-weight: normal; }
 
-.month td.day-has-entries { font-weight: normal; background: $*color_calender_entryday_background }
+.month td.day-has-entries { font-weight: normal; background: $*color_calendar_entryday_background }
 
 .month td.day-has-entries p { padding: 0 0 0 5px; margin: 0; }
 
@@ -625,7 +622,7 @@ ul.module-list-item li {
 
 .module-calendar th {
     text-transform: uppercase;
-    background: $*color_calender_header_background;
+    background: $*color_calendar_header_background;
     margin: 0 1px;
     padding: 3px 8px;
     border: 1px solid $*color_entry_text;
@@ -637,7 +634,7 @@ ul.module-list-item li {
     border: 1px solid $*color_entry_text;
     }
 
-.module-calendar td.entry-day {background: $*color_calender_entryday_background; }
+.module-calendar td.entry-day {background: $*color_calendar_entryday_background; }
 
 
 

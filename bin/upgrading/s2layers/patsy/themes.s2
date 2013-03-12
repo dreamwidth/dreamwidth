@@ -4,13 +4,11 @@ layerinfo name = "Retro";
 layerinfo redist_uniq = "patsy/retro";
 layerinfo author_name = "renoir";
 
-set theme_authors = [ { "name" => "renoir", "type" => "user" } ];
-
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
-set color_calender_header_background = "#ddd";
+set color_calendar_header_background = "#ddd";
 set color_content_border = "#472b1b";
 set color_footer_background = "#f0c048";
 set color_footer_border = "#f0a830";
@@ -27,17 +25,17 @@ set color_page_text = "#aaa";
 set color_page_title = "#f2ebd7";
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
 set color_module_title = "#d9d0bd";
 set color_module_background = "#fff";
 
 ##===============================
-## Entry
+## Entry Colors/Style
 ##===============================
 
-set color_calender_entryday_background = "#eee";
+set color_calendar_entryday_background = "#eee";
 set color_entry_background = "#fff";
 set color_entry_border = "#f2ebd7";
 set color_entry_title = "#099aaf";

@@ -7,7 +7,7 @@ sub layout_prop { "layout_type" }
 
 sub page_props {
     my $self = shift;
-    my @props = qw( color_content_border color_calender_header_background color_calender_entryday_background );
+    my @props = qw( color_content_border color_calendar_header_background color_calendar_entryday_background );
     return $self->_append_props( "page_props", @props );
 }
 
@@ -19,7 +19,7 @@ sub header_props {
 
 sub footer_props {
     my $self = shift;
-    my @props = qw( color_header_border );
+    my @props = qw( color_footer_border );
     return $self->_append_props( "footer_props", @props );
 }
 
