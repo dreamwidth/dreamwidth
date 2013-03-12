@@ -267,10 +267,6 @@ var string navlinks_css = "";
         $navlinks_css = """
             .module-navlinks {
                 background-color: transparent;
-                border: none;
-                margin: .1em 0;
-                text-align: center;
-        		width: 100%;
                 }
 
             .module-navlinks li {
@@ -279,57 +275,13 @@ var string navlinks_css = "";
                 margin: 1em 0;
                 }
 
-            .module-navlinks .module-header {
-                display: none;
-                }
-
             .module-navlinks a {
                 color: $*color_page_title;
-                text-decoration:none;
-                text-transform:lowercase;
-                font-weight:normal;
-                letter-spacing: -.05em;
-                font-size:$*font_module_heading_size$*font_module_heading_units;
-                }
-
-            .module-navlinks a:hover {text-decoration:underline;}
-
-            .module-navlinks a.current {
-                color: $*color_navlinks_current;
-                text-decoration:none;
                 }
 
         """;
     }
-    else {
-        $navlinks_css = """
-                .module-navlinks {
-                border: none;
-                margin: .1em 0;
-                text-align: center;
-        		width: 100%;
-                }
 
-            .module-navlinks .module-header {
-                display: none;
-                }
-
-            .module-navlinks a {
-                text-decoration:none;
-                text-transform:lowercase;
-                font-weight:normal;
-                letter-spacing: -.05em;
-                font-size:$*font_module_heading_size$*font_module_heading_units;
-                }
-
-            .module-navlinks a:hover {text-decoration:underline;}
-
-            .module-navlinks a.current {
-                color: $*color_navlinks_current;
-                text-decoration:none;
-                }
-    """;
-    }
 
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
@@ -425,6 +377,9 @@ h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: 
 
 
 .navigation a {color: $*color_entry_interaction_links; font-weight:normal;}
+.navigation a:active {color: $*color_entry_interaction_links_active; font-weight:normal;}
+.navigation a:visited {color: $*color_entry_interaction_links_visited; font-weight:normal;}
+.navigation a:hover {color: $*color_entry_interaction_links_hover; font-weight:normal;}
 
 .empty {display:none;}
 
@@ -494,7 +449,6 @@ div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-t
 
 ul.entry-management-links, .comment-management-links {
     float: left;
-    color: $*color_entry_interaction_links;
     padding-left: .5em;
     font-size: smaller;
     text-transform:lowercase;
@@ -503,7 +457,6 @@ ul.entry-management-links, .comment-management-links {
 
 ul.entry-interaction-links, .comment-interaction-links {
     text-align: right;
-    color: $*color_interaction_footer_links;
     background: $*color_entry_footer_background;
     padding: .75em;
     margin: 2em 0 0;
@@ -511,8 +464,10 @@ ul.entry-interaction-links, .comment-interaction-links {
     text-transform:lowercase;
     }
 
-.text-links a {    color: $*color_interaction_footer_links; text-decoration: none; font-weight:normal;}
-.text-links a:hover {text-decoration: underline;}
+.text-links a {    color: $*color_entry_interaction_links; text-decoration: none; font-weight:normal;}
+.text-links a:hover {text-decoration: underline; color: $*color_entry_interaction_links_hover;}
+.text-links a:active {    color: $*color_entry_interaction_links_active; text-decoration: none; font-weight:normal;}
+.text-links a:visited {    color: $*color_entry_interaction_links:visited; text-decoration: none; font-weight:normal;}
 
 .comment-wrapper {padding: 0;}
 .comment-title {padding: .25em}
@@ -544,6 +499,18 @@ ul.entry-interaction-links, .comment-interaction-links {
 
 .bottomcomment a, .comment-pages a{
     color: $*color_entry_interaction_links;
+    }
+
+.bottomcomment a, .comment-pages a:active{
+    color: $*color_entry_interaction_links_active;
+    }
+
+.bottomcomment a, .comment-pages a:hover{
+    color: $*color_entry_interaction_links_hover;
+    }
+
+.bottomcomment a, .comment-pages a:visted{
+    color: $*color_entry_interaction_links_visited;
     }
 
 /*--- Archive Pages ---*/
@@ -643,6 +610,7 @@ div.icons-container div.icon:nth-of-type(2n) {
 .icons-container .inner .footer, .icon-pages {
     clear: both;
     text-align: center;
+}
 
 /*--- Sidebars ---*/
 
@@ -691,6 +659,32 @@ div.icons-container div.icon:nth-of-type(2n) {
 
 .module-calendar table {
     margin: 0;
+    }
+
+.module-navlinks {
+    border: none;
+    margin: .1em 0;
+    text-align: center;
+	width: 100%;
+    }
+
+.module-navlinks .module-header {
+    display: none;
+    }
+
+.module-navlinks a {
+    text-decoration:none;
+    text-transform:lowercase;
+    font-weight:normal;
+    letter-spacing: -.05em;
+    font-size:$*font_module_heading_size$*font_module_heading_units;
+    }
+
+.module-navlinks a:hover {text-decoration:underline;}
+
+.module-navlinks a.current {
+    color: $*color_navlinks_current;
+    text-decoration:none;
     }
 
 $navlinks_css

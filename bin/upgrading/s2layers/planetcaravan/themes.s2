@@ -4,8 +4,6 @@ layerinfo name = "Cheerfully";
 layerinfo redist_uniq = "planetcaravan/cheerfully";
 layerinfo author_name = "momijizukamori";
 
-set layout_authors = [ { "name" => "daemon @ LJ" }, { "name" => "momijizukamori", "type" => "user" } ];
-
 ##===============================
 ## Page Colors
 ##===============================
@@ -27,7 +25,7 @@ set color_page_link_visited = "#FAE589";
 
 set color_entry_background = "#fff";
 set color_entry_footer_background = "#000";
-set color_entry_footer_links = "#fff";
+set color_entry_interaction_links = "#fff";
 set color_entry_text = "#000";
 set color_entry_title = "#000";
 set color_entry_title_background = "#fff";
@@ -53,6 +51,8 @@ layerinfo type = "theme";
 layerinfo name = "Oceanic";
 layerinfo redist_uniq = "planetcaravan/oceanic";
 layerinfo author_name = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -80,7 +80,7 @@ set color_alternate2_entry_border = "#62a8de";
 set color_alternate3_entry_border = "#31698d";
 set color_alternate_entry_border = "#5965ff";
 set color_entry_footer_background = "#000";
-set color_entry_footer_links = "#fff";
+set color_entry_interaction_links = "#fff";
 set color_entry_text = "#000";
 set color_entry_title = "#000";
 set color_entry_title_background = "#fff";
@@ -103,6 +103,8 @@ layerinfo name = "Starry Sky";
 layerinfo redist_uniq = "planetcaravan/starrysky";
 layerinfo author_name = "momijizukamori";
 
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
 ##===============================
 ## Page Colors
 ##===============================
@@ -124,7 +126,7 @@ set color_userpic_border = "#000";
 set color_entry_background = "#333";
 set color_entry_border = "#fbffa6";
 set color_entry_footer_background = "#000";
-set color_entry_footer_links = "#fbffa6";
+set color_entry_interaction_links = "#fbffa6";
 set color_entry_text = "#eee";
 
 ##===============================
@@ -149,6 +151,8 @@ layerinfo name = "Sunrise";
 layerinfo redist_uniq = "planetcaravan/sunrise";
 layerinfo author_name = "momijizukamori";
 
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
 ##===============================
 ## Page Colors
 ##===============================
@@ -170,7 +174,7 @@ set color_alternate2_entry_border = "#f2daff";
 set color_alternate3_entry_border = "#faffd3";
 set color_alternate_entry_border = "#fff1d7";
 set color_entry_footer_background = "#333";
-set color_entry_footer_links = "#fff";
+set color_entry_interaction_links = "#fff";
 set color_entry_link = "#B78F98";
 set color_entry_link_active = "#C3B7A4";
 set color_entry_link_hover = "#9B8CA4";
