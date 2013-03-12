@@ -7,13 +7,28 @@ sub layout_prop { "layout_type" }
 
 sub page_props {
     my $self = shift;
-    my @props = qw( color_content_border color_calendar_header_background color_calendar_entryday_background );
+    my @props = qw( color_content_border );
     return $self->_append_props( "page_props", @props );
+}
+
+sub archive_props {
+    my $self = shift;
+    my @props = qw(
+    color_calendar_header_background
+    color_calendar_entryday_background
+    color_calendar_header_text );
+    return $self->_append_props( "archive_props", @props );
 }
 
 sub header_props {
     my $self = shift;
-    my @props = qw( color_header_border color_navlinks_current color_navlinks_link color_navlinks_link_hover color_navlinks_link_visited);
+    my @props = qw(
+    color_header_border
+    color_navlinks_current
+    color_header_link
+    color_header_link_hover
+    color_header_link_active
+    color_header_link_visited);
     return $self->_append_props( "header_props", @props );
 }
 

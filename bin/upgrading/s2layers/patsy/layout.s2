@@ -20,12 +20,14 @@ propgroup colors_child {
     property Color color_header_border { des = "Header border color"; }
     property Color color_footer_border { des = "Footer border color"; }
     property Color color_content_border { des = "Content border color"; }
-    property Color color_navlinks_current { des = "The color of the nav link for the page you are currently on."; }
-    property Color color_navlinks_link { des = "The link color of the nav links (used when those appear in the header)."; }
-    property Color color_navlinks_link_hover { des = "The hover link color of the nav links (used when those appear in the header)."; }
-    property Color color_navlinks_link_visited { des = "The visited link color of the nav links (used when those appear in the header)."; }
-    property Color color_calendar_header_background { des = "The background color of the calendar header entries"; }
-    property Color color_calendar_entryday_background { des = "The background color of the calendar days with entries"; }
+    property Color color_navlinks_current { des = "Current navigation link color"; }
+    property Color color_header_link { des = "Header navigation link color"; }
+    property Color color_header_link_hover { des = "Header navigation link hover color"; }
+    property Color color_header_link_active { des = "Header navigation link active color"; }
+    property Color color_header_link_visited { des = "Header navigation link visited color"; }
+    property Color color_calendar_header_background { des = "Calender header entries background color"; }
+    property Color color_calendar_header_text { des = "Calender header entries text color"; }
+    property Color color_calendar_entryday_background { des = "Calender days with entries background color"; }
 }
 
 property string module_navlinks_section_override {
@@ -327,9 +329,13 @@ h2#subtitle {
     padding: 0 5px 0 0;
     }
 
-#header .module-navlinks a { color: $*color_navlinks_link; }
+#header .module-navlinks a { color: $*color_header_link; }
 
-#header .module-navlinks a:hover { color: $*color_navlinks_link_hover; }
+#header .module-navlinks a:hover { color: $*color_header_link_hover; }
+#header .module-navlinks a:active { color: $*color_header_link_active; }
+#header .module-navlinks a:visited { color: $*color_header_link_visited; }
+
+#header .module-navlinks .current, .module-navlinks .current {color: $*color_navlinks_current;}
 
 /*------------------------------------- entry -------------------------------------*/
 .entry {  padding: 20px;  border-left: 20px solid $*color_entry_border;  border-bottom: 20px solid $*color_entry_border; border-top:0; border-right:0;}
@@ -362,7 +368,6 @@ $userpic_css
     }
 
 .tag ul li {
-    display: inline;
     list-style: none;
     font-weight: normal;
     padding: 0;
@@ -379,14 +384,13 @@ ul.entry-management-links {
 ul.entry-management-links li {
     padding: 0;
     margin: 0 auto;
-    display: inline;
     list-style: none;
     text-align: center;
     }
 
 ul.entry-interaction-links {
     padding: 0;
-    margin: 10px 0 0 0;
+    margin: 10px 0;
     text-align: center;
     }
 
@@ -434,6 +438,7 @@ table.month { border: 0; }
     text-transform: lowercase;
     font-weight: normal;
     background: $*color_calendar_header_background;
+    color: $*color_calendar_header_text;
     }
 
 .month td.day { font-weight: normal; }
@@ -503,7 +508,6 @@ div.icons-container div.icon:nth-of-type(2n) {
     clear: both;
     text-align: center;
 }
-
 /*------------------------------------- read comments & write a comment -------------------------------------*/
 
 hr.above-entry-interaction-links, hr.below-reply-container { display: none; }
@@ -623,6 +627,7 @@ ul.module-list-item li {
 .module-calendar th {
     text-transform: uppercase;
     background: $*color_calendar_header_background;
+    color: $*color_calendar_header_text;
     margin: 0 1px;
     padding: 3px 8px;
     border: 1px solid $*color_entry_text;
