@@ -58,6 +58,7 @@ sub default_themes {
         funkycircles => 'funkycircles/darkpurple',
         hibiscus => 'hibiscus/tropical',
         headsup => 'headsup/caturdaygreytabby',
+        leftovers => 'leftovers/fruitsalad',
         lefty => 'lefty/greenmachine',
         librariansdream => 'librariansdream/grayscalelight',
         lineup => 'lineup/modernity',
