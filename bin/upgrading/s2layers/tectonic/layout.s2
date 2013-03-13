@@ -834,33 +834,44 @@ table.talkform {
     padding: 1em;
     }
 
-.sorting-options ul {
-    padding-left: 0;
-    }
-
-.sorting-options ul li {
-    margin: .5em .2em 0 0;
-    }
+div.icons-container div.icon:nth-of-type(2n) {
+    clear: both;
+}
 
 .icons-container .icon {
-    margin: 1em 0;
-    }
+    float: left;
+    margin-bottom: 15px;
+    min-width: 350px;
+    vertical-align: bottom;
+    width: 50%;
+    display:table;
+}
 
 .icon-image {
+    display: inline;
     float: left;
-    clear: left;
-    margin-bottom: .25em;
+    margin-right: 1em;
     min-width: 100px;
-    padding-right: 1em;
-    }
+    margin-top: 0;
+}
 
 .icon-info {
-    min-height: 100px;
-    }
+    overflow: auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+    display:table-cell;
+    width:100%;
+}
 
-.icon-info .default {
-    text-decoration: underline;
-    }
+.icon-info .label,
+.icon-info span {
+    font-weight: bold;
+}
+
+.icons-container .inner .footer, .icon-pages {
+    clear: both;
+    text-align: center;
+}
 
 $userpic_css
 
