@@ -6,10 +6,9 @@ layerinfo author_name = "renoir";
 
 
 ##===============================
-## Page
+## Page Colors
 ##===============================
 
-set color_calender_header_background = "#f9f9f9";
 set color_footer_background = "#fff";
 set color_navlinks_archive_background = "#f29f05";
 set color_navlinks_archive_hover_background = "#fab433";
@@ -34,18 +33,19 @@ set color_page_link_visited = "#0396a6";
 set color_page_text = "#aaa";
 set color_page_title = "#d90404";
 set color_userpic_border = "#f29f05";
+set color_calendar_header_background = "#f9f9f9";
+set color_calendar_entryday_background = "#f6f6f6";
 
 ##===============================
-## Entry
+## Entry Colors
 ##===============================
 
-set color_calender_entryday_background = "#f6f6f6";
 set color_entry_background = "#fff";
 set color_entry_title = "#79a617";
 set color_entry_title_border = "#d3d3d3";
 
 ##===============================
-## Module
+## Module Colors
 ##===============================
 
 set color_module_background = "#fff";
