@@ -121,6 +121,9 @@ paletteable/themes       theme+                      paletteable/layout
 paperme/layout           layout(core2base/layout)    core2
 paperme/themes           theme+                      paperme/layout
 
+patsy/layout             layout(core2base/layout)    core2
+patsy/themes             theme+                      patsy/layout
+
 planetcaravan/layout     layout(core2base/layout)    core2
 planetcaravan/themes     theme+                      planetcaravan/layout
 

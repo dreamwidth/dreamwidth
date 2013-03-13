@@ -1,0 +1,48 @@
+#NEWLAYER: patsy/retro
+layerinfo type = "theme";
+layerinfo name = "Retro";
+layerinfo redist_uniq = "patsy/retro";
+layerinfo author_name = "renoir";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_header_background = "#ddd";
+set color_content_border = "#472b1b";
+set color_footer_background = "#f0c048";
+set color_footer_border = "#f0a830";
+set color_footer_link = "#f2ebd7";
+set color_footer_link_active = "#51a3b0";
+set color_header_background = "#f0c048";
+set color_header_border = "#f0a830";
+set color_header_link = "#f2ebd7";
+set color_header_link_hover = "#51a3b0";
+set color_page_background = "#7dc1cd";
+set color_page_link = "#51a3b0";
+set color_page_link_hover = "#f0a830";
+set color_page_text = "#aaa";
+set color_page_title = "#f2ebd7";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_module_title = "#d9d0bd";
+set color_module_background = "#fff";
+
+##===============================
+## Entry Colors/Style
+##===============================
+
+set color_calendar_entryday_background = "#eee";
+set color_entry_background = "#fff";
+set color_entry_border = "#f2ebd7";
+set color_entry_title = "#099aaf";
+set entry_userpic_style = "small";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
