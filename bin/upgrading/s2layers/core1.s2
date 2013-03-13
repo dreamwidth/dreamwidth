@@ -1680,10 +1680,12 @@ property bool use_shared_pic {
 }
 set use_shared_pic = false;
 
+ # No longer displayed as obsolete in UI
 property bool view_entry_disabled {
     des = "Disable customized comment pages for your journal";
     note = "OBSOLETE: This option has been moved to Account Settings";
     obsolete = 1;
+    noui = 1; # No longer displayed in UI
 }
 set view_entry_disabled = false;
 
