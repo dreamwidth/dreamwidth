@@ -35,8 +35,11 @@ propgroup colors_child {
     property Color color_navlinks_memories_hover_background { des = "Memories hover link background color"; }
     property Color color_navlinks_userinfo_background { des = "Profile link background color"; }
     property Color color_navlinks_userinfo_hover_background { des = "Profile hover link background color"; }
-    property Color color_calender_header_background { des = "The background color of the calender header entries"; }
-    property Color color_calender_entryday_background { des = "The background color of the calender days with entries"; }
+    property Color color_calendar_header_background { des = "Calendar header entry background color"; }
+    property Color color_calendar_header_text { des = "Calendar header entry text color"; }
+    property Color color_calendar_entryday_background { des = "Calendar days with entries background color"; }
+    property Color color_calendar_entryday_link { des = "Calendar days with entries link color"; }
+    property Color color_calendar_entryday_text { des = "Calendar days with entries text color"; }
 }
 
 function print_stylesheet () {
@@ -87,9 +90,6 @@ function print_stylesheet () {
 
 /*------------------------------------- basics -------------------------------------*/
 
-* { margin: 0; padding: 0; }
-html { font-size: 100%; }
-
 body { line-height: 1.8em; text-align: center; margin: 60px 0; }
 
 a, a:link, a:visited {text-decoration: none; }
@@ -106,7 +106,7 @@ a:hover { text-decoration: underline; }
     clear: both;
     text-align: right;
     text-transform: uppercase;
-    margin: 0 0 20px 0;
+    margin: 0 0 20px;
 }
 
 li.page-back, li.page-forward { display: inline; list-style: none; padding: 0; margin: 0; }
@@ -241,7 +241,6 @@ div.metadata ul li {
 .tag ul {  padding: 0 0 0 15px; margin: 0; display: inline; }
 
 .tag ul li {
-    display: inline;
     list-style: none;
     font-weight: normal;
     padding: 0;
@@ -281,13 +280,13 @@ ul.entry-interaction-links li {
 $userpic_css
 
 /*-------------------------------Secondary Pages----------------------------*/
-.month a, .icons-container a, .tags-container a {color: $*color_entry_link;}
+.month a, .icons-container a, .tags-container a, .comment a {color: $*color_entry_link;}
 
-.month a:active, .icons-container a:active, .tags-container a:active {color: $*color_entry_link_active;}
+.month a:active, .icons-container a:active, .tags-container a:active, .comment a:active {color: $*color_entry_link_active;}
 
-.month a:hover, .icons-container a:hover, .tags-container a:hover {color: $*color_entry_link_hover;}
+.month a:hover, .icons-container a:hover, .tags-container a:hover, .comment a:hover {color: $*color_entry_link_hover;}
 
-.month a:visited, .icons-container a:visited, .tags-container a:visited {color: $*color_entry_link_visited;}
+.month a:visited, .icons-container a:visited, .tags-container a:visited, .comment a:visited {color: $*color_entry_link_visited;}
 
 .month, .icons-container, .tags-container {
     $entry_colors
@@ -306,7 +305,7 @@ $userpic_css
     border-bottom: 1px dotted $*color_entry_title_border;
 }
 
-/*------------------- archive & calender page ---------------------------*/
+/*------------------- archive & calendar page ---------------------------*/
 
 li.active {
     list-style: none;
@@ -326,12 +325,15 @@ table.month { border: 0; }
     margin: 0 2px;
     text-transform: lowercase;
     font-weight: normal;
-    background: $*color_calender_header_background;
+    background: $*color_calendar_header_background;
+    color: $*color_calendar_header_text;
 }
 
 .month td.day { font-weight: normal; }
 
-.month td.day-has-entries { font-weight: normal; background:$*color_calender_entryday_background;}
+.month td.day-has-entries { font-weight: normal; background:$*color_calendar_entryday_background; color: $*color_calendar_entryday_text;}
+
+.month td.day-has-entries a {color:$*color_calendar_entryday_link;}
 
 .month table { width: 100%; border: 0; margin: auto; }
 
@@ -500,7 +502,8 @@ ul.module-list-item li { padding: 0 0 0 9px; margin: 0; list-style: none;  }
 
 .module-calendar th {
     text-transform: uppercase;
-    background: $*color_calender_header_background;
+    background: $*color_calendar_header_background;
+    color: $*color_calendar_header_text;
     margin: 0 1px;
     padding: 3px 8px;
     border: 1px solid $*color_module_text;
@@ -513,11 +516,13 @@ ul.module-list-item li { padding: 0 0 0 9px; margin: 0; list-style: none;  }
 
 .module-calendar td.entry-day {
     text-transform: uppercase;
-    background: $*color_calender_entryday_background;
+    background: $*color_calendar_entryday_background;
+    color: $*color_calendar_entryday_text;
     margin: 0 1px;
     border: 1px solid $*color_module_text;
 }
 
+.module-calendar td.entry-day a {color:$*color_calendar_entryday_link;}
 
 /*------------------------------------- extras  -------------------------------------*/
 
