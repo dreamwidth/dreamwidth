@@ -142,6 +142,9 @@ strata/themes            theme+                      strata/layout
 summertime/layout        layout(core2base/layout)    core2
 summertime/themes        theme+                      summertime/layout
 
+tectonic/layout          layout(core2base/layout)    core2
+tectonic/themes          theme+                      tectonic/layout
+
 tranquilityiii/layout    layout(core2base/layout)    core2
 tranquilityiii/themes    theme+                      tranquilityiii/layout
 
