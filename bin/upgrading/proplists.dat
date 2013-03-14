@@ -1142,6 +1142,14 @@ userproplist.shop_points:
   multihomed: 0
   prettyname: How many shop points the user has available
 
+userproplist.shop_refund_time:
+  cldversion: 0
+  datatype: num
+  des: Unix time at which a refund to points was last applied to this account
+  indexed: 0
+  multihomed: 0
+  prettyname: Last refund time
+
 userproplist.sidx_bdate:
   cldversion: 0
   datatype: char
