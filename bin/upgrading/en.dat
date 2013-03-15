@@ -1536,7 +1536,9 @@ esn.unscreen_comment=[[openlink]]Unscreen the comment[[closelink]]
 
 esn.view_comments=[[openlink]]View all comments[[closelink]] to this entry
 
-esn.view_entry=[[openlink]]View the entry[[closelink]]
+esn.view_entry.nosubject=[[openlink]]View entry [[ditemid]][[closelink]]
+
+esn.view_entry.subject=[[openlink]]View entry titled "[[subject]]"[[closelink]]
 
 esn.view_poll_status=[[openlink]]View the poll's status[[closelink]]
 
