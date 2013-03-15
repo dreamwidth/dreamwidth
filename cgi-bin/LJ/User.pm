@@ -2633,7 +2633,7 @@ sub is_sticky_entry {
 # Checks if some input is a valid URL or ID for an entry in the users journal, returns
 # the entry itemid if it is valid.
 #
-# NB. Created to support multiple stickies but can probably replace duplicate code
+# Created to support multiple stickies but can probably replace duplicate code
 # in several over places.
 sub is_valid_entry {
     my ( $u, $input ) = @_;
@@ -2691,7 +2691,7 @@ sub make_sticky_entry {
     my $sticky_entries =  $u->prop( 'sticky_entry' );
     my @stickies = split( /,/, $sticky_entries );
 
-    $stickies[$sticky_id-1] = $ditemid;
+    $stickies[$sticky_id-1] = int( $ditemid );
     my $sticky_entry = join( ',', @stickies );
     $u->set_prop( sticky_entry => $sticky_entry );
 
@@ -3017,9 +3017,7 @@ sub remove_sticky_entry {
 
     my @new_stickies;
 
-    foreach my $sticky ( @stickies ) {
-        push @new_stickies, $sticky unless ( $sticky == $ditemid ) 
-    }
+    @new_stickies  = grep { !/$ditemid/ } @stickies;
 
     my $sticky_entry = join( ',', @new_stickies );
     $u->set_prop( sticky_entry => $sticky_entry );
@@ -3285,7 +3283,7 @@ sub sticky_entry {
         # stickies unique we should remove this from the list of unused stickies.
         my @new_unused_stickies;
         # We create a hash from the input for quick membership checking.
-        my %sticky_hash = map { $_, 1 } @input;
+        my %sticky_hash = map { $_ =>  1 }  @input;
         foreach my $unused_sticky ( @currently_unused_stickies ) {
             push @new_unused_stickies, $unused_sticky unless ( exists $sticky_hash{ $unused_sticky } ) 
         }
