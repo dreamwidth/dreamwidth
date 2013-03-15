@@ -296,7 +296,7 @@ body<=
 #--------------------------------------------------------------------------
 
     # Update settings
-    if (LJ::did_post()) {
+    if (LJ::did_post() && ! $POST{"action:token"}) {
         my @errors;
 
         push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
@@ -360,9 +360,18 @@ body<=
 
 #--------------------------------------------------------------------------
 
+    my $ret;
+
+    # if we just reset the token, add a header but show the original page still
+    if ( LJ::did_post() && $POST{"action:token"}) {
+        $ret .= $u->generate_emailpost_auth
+                    ? "<div class='highlight-box'>$ML{'.reply.status.success'}</div>"
+                    : "<div class='error-box'>$ML{'.reply.status.error'}</div>";
+    }
+
     # Initial page
     my $addrlist = LJ::Emailpost::Web::get_allowed_senders( $u );
-    my (@address, $res, $ret);
+    my (@address, $res);
     push @address, $_ foreach sort keys %$addrlist;
 
     # get userpics and friendgroups
@@ -420,6 +429,10 @@ body<=
     $ret .= "<div style='margin-left:40px;'>";
     $ret .= LJ::html_text({name=>'pin', type=>'password', value=>$u->{emailpost_pin}, maxlength=>20});
     $ret .= '</div><br />';
+
+    $ret .= "<h1>$ML{'.reply.header'}</h1>";
+    $ret.= "<p>$ML{'.reply.text'}</p>";
+    $ret .= "<input type='submit' value='$ML{'.reply.button'}' name='action:token'></input>";
 
     $ret .= "<?h1 $ML{'.settings.header'} h1?>";
     $ret .= "<?p " . BML::ml('.settings.text', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";

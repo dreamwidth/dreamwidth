@@ -645,6 +645,8 @@ Enjoy!
 [[siteroot]]/
 .
 
+emailpost.reply.address=Reply as [[user]]
+
 entryform.adultcontent=Age Restriction
 
 entryform.adultcontent.concepts=Viewer Discretion Advised
@@ -1446,6 +1448,8 @@ esn.remove_trust=[[openlink]]Remove access from [[postername]][[closelink]]
 esn.remove_watch=[[openlink]]Unsubscribe from [[postername]][[closelink]]
 
 esn.reply_at_webpage=[[openlink]]Reply[[closelink]] at the webpage
+
+esn.reply_to_email=You can reply to this comment by replying to this email. Your comment needs to be the very first thing in the reply email and appear before all other text.  Do not change the reply-to address, as it uses a secret address to post your reply. You should <a [[aopts]]>reset the secret address</a> if you've accidentally shared it with anyone else.
 
 esn.reply_to_message=[[openlink]]Reply to this message[[closelink]]
 

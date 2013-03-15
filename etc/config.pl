@@ -126,6 +126,10 @@
     # Users can post to user@$EMAIL_POST_DOMAIN.
     $EMAIL_POST_DOMAIN = "post.$DOMAIN";
 
+    # Support replying to comments via email?
+    # We set the reply-to for the user in the form of user.$auth@EMAIL_REPLY_DOMAIN
+    $EMAIL_REPLY_DOMAIN = "replies.$DOMAIN";
+
     # This should be a path to a Maildir, matching the delivery
     # location of your MTA.
     # If you are using sendmail, you should deliver with procmail

@@ -18,7 +18,7 @@ use LJ::Worker::TheSchwartz;
 BEGIN {
     require "ljlib.pl";
 }
-use LJ::Emailpost;
+use DW::EmailPost;
 use LJ::Support;
 use LJ::Sysban;
 
@@ -156,28 +156,22 @@ sub work {
     }
 
     # see if it's a post-by-email
-    if (my $dest = journal_destination($head)) {
-        my $post_rv;
+    my $email_post = DW::EmailPost->get_handler( $entity );
+    if ( $email_post ) {
+        my ( $ok, $status_msg ) = $email_post->process;
 
-        # post_rv means "should dequeue"
-        # -- set to: 0 if we should retry
-        #            1 if no retry requested
-        my $post_msg = LJ::Emailpost::process( $entity, $dest, \$post_rv );
+        # on success: $status_msg eq 'Post success"
+        # on failure: $status_msg is something else
+        #             -- then we check $email_post->dequeue
+        return completed() if $ok;
 
-        # on success: $post_msg eq 'Post success"
-        # on failure: $post_msg is something else
-        #             -- then we check $post_rv to see if we should dequeue
-        if ($post_msg =~ /success/i) {
-            return completed();
-        }
-
-        # failure, do we retry?
-        return $post_rv ? dequeue($post_msg) : retry($post_msg);
+        # failure. do we retry?
+        return $email_post->dequeue ? dequeue( $status_msg ) : retry( $status_msg );
     }
 
     # stop more spam, based on body text checks
-    my $tent = LJ::Emailpost::get_entity($entity);
-    $tent = LJ::Emailpost::get_entity( $entity, 'html' ) unless $tent;
+    my $tent = DW::EmailPost->get_entity( $entity );
+    $tent ||= DW::EmailPost->get_entity( $entity, 'html' );
     return dequeue("Can't find text or html entity") unless $tent;
     my $body = $tent->bodyhandle->as_string;
     $body = LJ::trim($body);
@@ -346,7 +340,7 @@ sub virus_check {
     my $entity = shift;
     return unless $entity;
 
-    my @exe = LJ::Emailpost::get_entity( $entity, 'all' );
+    my @exe = DW::EmailPost->get_entity( $entity, 'all' );
     return unless scalar @exe;
 
     # If an attachment's encoding begins with one of these strings,
@@ -393,15 +387,4 @@ sub subject_is_bogus {
         || $subject =~ /^don\'t be late! ([\w\-]{1,25})$/i
         || $subject =~ /^your account ([\w\-]{1,25})$/i
         || $subject =~ /Message Undeliverable/i;
-}
-
-# given a mime entity $head object, return the scalar $user journal
-# (or undef) that this email is destined to post to...
-sub journal_destination {
-    my $head = shift;
-    foreach my $dest (Mail::Address->parse($head->get('To'))) {
-        next unless $dest->address =~ /^(\S+?)\@\Q$LJ::EMAIL_POST_DOMAIN\E$/i;
-        return $1;
-    }
-    return;
 }
