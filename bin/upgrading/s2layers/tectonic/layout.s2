@@ -70,13 +70,19 @@ propgroup colors_child {
     property Color color_module_calendar_background { des = "Calendar module background color"; }
     property Color color_module_calendar_text { des = "Calendar module text color"; }
     property Color color_module_calendar_link { des = "Calendar module link color"; }
+    property Color color_module_calendar_link_hover { des = "Calendar module link hover color"; }
     property Color color_calendar_background { des = "Archive calendar background color"; }
     property Color color_calendar_text { des = "Archive calendar text color"; }
     property Color color_calendar_link { des = "Archive calendar link color"; }
-    property Color color_entry_interaction_links_hover { des = "Entry interaction link hover color"; }
+    property Color color_calendar_link_hover { des = "Archive calendar link hover color"; }
     property Color color_entry_footer_background { des = "Entry footer background color"; }
     property Color color_entry_interaction_links_background { des = "Entry interaction links background color"; }
+    property Color color_entry_interaction_links_hover { des = "Entry interaction link hover color"; }
     property Color color_entry_interaction_links_background_hover { des = "Entry interaction links hover background color"; }
+    property Color color_entry_interaction_links_active { des = "Entry interaction link active color"; }
+    property Color color_entry_interaction_links_background_active { des = "Entry interaction links active background color"; }
+    property Color color_entry_interaction_links_visited { des = "Entry interaction link visited color"; }
+    property Color color_entry_interaction_links_background_visited { des = "Entry interaction links visited background color"; }
     property Color color_userpic_border { des = "User icon border color"; }
     }
 
@@ -85,7 +91,7 @@ propgroup colors_child {
 ##===============================
 
     property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
        grouped = 1;
        }
 
@@ -176,7 +182,7 @@ function Page::print() {
 
 
 function Page::print_entry(Entry e)
-"The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
+"This re-sorts the header so time and metatype are printed before subject, and tags are printed as part of the main entry contents instead of as part of the footer."
 {
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
     $e->print_wrapper_start();
@@ -210,7 +216,7 @@ function Page::print_entry(Entry e)
 
 
 function EntryPage::print_comment (Comment c) {
-# ReplyPage and EntryPage work nicest if they output the same structure for printing comments and entries, but this requires to manually change both ReplyPage::print_comment and EntryPage::print_entry.  Layout authors can also choose to override separately for different structures.
+# re-sorts time to print before subject and metatypes
 
     $c->print_wrapper_start();
     """<div class="header">\n""";
@@ -218,6 +224,10 @@ function EntryPage::print_comment (Comment c) {
     $c->print_time();
     $c->print_subject();
     $c->print_metatypes();
+    $c->print_time();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
     """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
@@ -299,8 +309,7 @@ function print_stylesheet () {
     var string navlinks_css = "";
         if ($*module_navlinks_section == "header") {
             $navlinks_css = """
-            .module-navlinks, .one-column .module-navlinks, .two-columns-right .module-navlinks,
-            .three-columns-right .module-navlinks {
+            .module-navlinks.module {
                 background: none;
                 border: none;
                 margin: 0;
@@ -319,24 +328,21 @@ function print_stylesheet () {
                 display: inline;
                 }
 
-            .module-navlinks li {
+            .module-navlinks.module li {
                 background: $*color_header_links_background;
                 font-size:smaller;
                 padding: 0.5em !important;
                 display: inline;
                 margin: 0 -5px 0 0 !important;
-                border-bottom: 5px solid $*color_header_links_border !important;}
+                border-bottom: 5px solid $*color_header_links_border;}
 
-            .module-navlinks li:hover {
-                border-color:$*color_header_links_border_hover !important;
-                background: $*color_header_links_background!important;}
+            .module-navlinks.module li:hover {
+                border-color:$*color_header_links_border_hover;
+                background: $*color_header_links_background;}
 
             .module-navlinks a {font-size: smaller; color: $*color_header_links}
             .module-navlinks a:hover {color: $*color_header_links; text-decoration:none;}
             """;
-        }
-        else {
-            $navlinks_css = "";
         }
 
 """
@@ -436,9 +442,6 @@ h2#subtitle {
     margin: 0 0 1em 0;
     }
 
-.navigation a {
-    color: $*color_entry_title;
-    }
 
 .navigation.empty {
     display: none;
@@ -449,12 +452,7 @@ h2#subtitle {
     padding: 1em;
     }
 
-.page-read .navigation.empty ul {
-    margin: 0;
-    padding: 0;
-    }
-
-.page-read .navigation.empty ul li {
+.page-read .navigation.empty ul, .page-read .navigation.empty ul li {
     margin: 0;
     padding: 0;
     }
@@ -605,7 +603,6 @@ $navlinks_css
     }
 
 h3.entry-title {
-    color: $*color_entry_title;
     text-transform: lowercase;
     font-weight: bold;
     padding:.5em ;
@@ -620,10 +617,9 @@ h3.entry-title {
     margin: 0 0 -.75em;
     text-transform: uppercase;
     font-style: italic;
-    color: $*color_entry_title;
     }
 
-.datetime a {    color: $*color_entry_title;}
+.datetime a {color: $*color_entry_title;}
 
 .poster {
     display: inline-block;
@@ -655,21 +651,15 @@ ul.comment-interaction-links, ul.comment-management-links {
 .text-links li:hover a {color: $*color_entry_interaction_links_hover !important; text-decoration: none;}
 
 /*--- Comments ---*/
-.comment, #qrform, #postform, .bottomcomment, .comment-pages { color: $*color_entry_text;
-    background: $*color_entry_background;
-}
+.comment, #qrform, #postform, .bottomcomment, .comment-pages { $entry_colors border: none }
 
 .comment-pages {text-align:center; font-weight:bold; padding: .5em; margin-bottom: .5em;}
 
 #qrform {border-top: .25em solid $*color_entry_footer_background;}
 
-#comments a { color: $*color_entry_link; }
-#comments a:visited { color: $*color_entry_link_visited; }
-#comments a:hover { color: $*color_entry_link_hover; }
-#comments a:active { color: $*color_entry_link_active; }
 
-h4.comment-title, h4.comment-title a {
-    color: $*color_comment_title !important;
+#comments h4.comment-title,  #comments h4.comment-title a {
+    color: $*color_comment_title;
     text-transform: lowercase;
     font-weight: bold;
     padding:.5em ;
@@ -744,13 +734,13 @@ table.talkform {
     padding: .5em;
 }
 
-.tags-container a, .icons-container a, #archive-year a, #comments a, #archive-month a { color:$*color_entry_link; }
+.tags-container a, .icons-container a, #archive-year a, #comments a, #archive-month a, .navigation a { color:$*color_entry_link; }
 
-.tags-container a:active, .icons-container a:active, #archive-year a:active, #comments a:active, #archive-month a:active { color:$*color_entry_link_active; }
+.tags-container a:active, .icons-container a:active, #archive-year a:active, #comments a:active, #archive-month a:active, .navigation:active { color:$*color_entry_link_active; }
 
-.tags-container a:hover, .icons-container a:hover, #archive-year a:hover, #comments a:hover, #archive-month a:hover { color:$*color_entry_link_hover; }
+.tags-container a:hover, .icons-container a:hover, #archive-year a:hover, #comments a:hover, #archive-month a:hover, .navigation a:hover { color:$*color_entry_link_hover; }
 
-.tags-container a:visited, .icons-container a:visited, #archive-year a:visited, #comments a:visited, #archive-month a:visited { color:$*color_entry_link_visited; }
+.tags-container a:visited, .icons-container a:visited, #archive-year a:visited, #comments a:visited, #archive-month a:visited, .navigation a:visited { color:$*color_entry_link_visited; }
 
 
 /*--- Archive Page ---*/
@@ -773,15 +763,12 @@ table.talkform {
     }
 
 .month th {
-    background: $*color_entry_background;
-    color: $*color_entry_title;
     font-weight: bold;
     text-align: center;
     text-transform: lowercase;
-    border: 0.2em solid $*color_entry_background !important;
     }
 
-.month td {border: 0.2em solid $*color_entry_background !important;}
+table.month th, table.month td, table.month td.day-empty {border: 0.2em solid $*color_entry_background;}
 
 .month td.day {
     background: $*color_calendar_background;
@@ -793,9 +780,6 @@ table.talkform {
     width: 4em;
     }
 
-.month td.day-empty {
-    $entry_colors
-    }
 
 .month td.day-has-entries p {
     padding: 0 0 0 .5em;
