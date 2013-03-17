@@ -1,0 +1,278 @@
+#NEWLAYER: tectonic/citydragon
+layerinfo type = "theme";
+layerinfo name = "City Dragon";
+layerinfo redist_uniq = "tectonic/citydragon";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#333";
+set color_page_title = "#069";
+set color_page_text = "#000";
+set color_userpic_border = "#000";
+set color_page_background = "#333";
+set color_page_title = "#069";
+set color_userpic_border = "#000";
+set color_calendar_background = "#eee";
+set color_footer_link = "#eee";
+set color_header_links = "#eee";
+set color_header_links_background = "#111";
+set color_header_links_border = "#000";
+set color_header_links_border_hover = "#069";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#000";
+set color_entry_footer_background = "#eee";
+set color_entry_interaction_links = "#eee";
+set color_entry_interaction_links_background = "#111";
+set color_entry_interaction_links_background_hover = "#069";
+set color_entry_interaction_links_hover = "#111";
+set color_entry_link = "#069";
+set color_entry_link_hover = "#666";
+set color_entry_title = "#000";
+set color_comment_title = "#000";
+set color_comment_title_background = "#069";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#000";
+set color_module_calendar_background = "#eee";
+set color_module_link = "#069";
+set color_module_link_hover = "#666";
+set color_module_list_background_hover = "#eee";
+set color_module_list_border = "#666";
+set color_module_title = "#111";
+set color_module_title_background = "#069";
+
+
+#NEWLAYER: tectonic/cloudy
+layerinfo type = "theme";
+layerinfo name = "Cloudy";
+layerinfo redist_uniq = "tectonic/cloudy";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3f5f72";
+set color_page_text = "#000";
+set color_page_title = "#ffec6f";
+set color_userpic_border = "#000";
+set color_calendar_background = "#eee";
+set color_footer_link = "#444";
+set color_footer_link_hover = "#666";
+set color_header_links = "#eee";
+set color_header_links_background = "#111";
+set color_header_links_border = "#000";
+set color_header_links_border_hover = "#ffec6f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#000";
+set color_entry_footer_background = "#ddd";
+set color_entry_interaction_links = "#eee";
+set color_entry_interaction_links_background = "#111";
+set color_entry_interaction_links_background_hover = "#ffec6f";
+set color_entry_interaction_links_hover = "#111";
+set color_entry_link = "#3f5f72";
+set color_entry_link_hover = "#444";
+set color_entry_title = "#000";
+set color_entry_title_background = "#ffec6f";
+set color_comment_title = "#000";
+set color_comment_title_background = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#000";
+set color_module_calendar_background = "#eee";
+set color_module_link = "#3f5f72";
+set color_module_link_hover = "#444";
+set color_module_list_background_hover = "#eee";
+set color_module_list_border = "#666";
+set color_module_title = "#111";
+set color_module_title_background = "#ffec6f";
+
+
+#NEWLAYER: tectonic/corporateassets
+layerinfo type = "theme";
+layerinfo name = "Corporate Assets";
+layerinfo redist_uniq = "tectonic/corporateassets";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#efefef";
+set color_page_text = "#000";
+set color_page_title = "#111";
+set color_calendar_background = "#eee";
+set color_footer_link = "#444";
+set color_footer_link_hover = "#666";
+set color_header_links = "#eee";
+set color_header_links_background = "#111";
+set color_header_links_border = "#000";
+set color_header_links_border_hover = "#ddd";
+set color_userpic_border = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#000";
+set color_entry_footer_background = "#ddd";
+set color_entry_interaction_links = "#eee";
+set color_entry_interaction_links_background = "#111";
+set color_entry_interaction_links_background_hover = "#666";
+set color_entry_interaction_links_hover = "#111";
+set color_entry_link = "#444";
+set color_entry_link_hover = "#666";
+set color_entry_title = "#000";
+set color_comment_title = "#000";
+set color_comment_title_background = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#000";
+set color_module_calendar_background = "#eee";
+set color_module_link = "#444";
+set color_module_link_hover = "#666";
+set color_module_list_background_hover = "#eee";
+set color_module_list_border = "#666";
+set color_module_title = "#111";
+set color_module_title_background = "#ddd";
+
+
+#NEWLAYER: tectonic/fission
+layerinfo type = "theme";
+layerinfo name = "Fission";
+layerinfo redist_uniq = "tectonic/fission";
+layerinfo author_name = "momijizukamori";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#4580ff";
+set color_page_title = "#000";
+set color_page_text = "#000";
+set color_userpic_border = "#000";
+set color_calendar_background = "#ddd";
+set color_header_links = "#ddd";
+set color_header_links_background = "#333";
+set color_header_links_border = "#000";
+set color_header_links_border_hover = "#faa906";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#000";
+set color_entry_footer_background = "#ddd";
+set color_entry_interaction_links = "#eee";
+set color_entry_interaction_links_background = "#333";
+set color_entry_interaction_links_background_hover = "#faa906";
+set color_entry_interaction_links_hover = "#333";
+set color_entry_link = "#4580ff";
+set color_entry_link_hover = "#666";
+set color_entry_title = "#000";
+set color_entry_title_background = "#faa906";
+set color_comment_title = "#000";
+set color_comment_title_background = "#faa906";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#000";
+set color_module_calendar_background = "#ddd";
+set color_module_link = "#4580ff";
+set color_module_link_hover = "#666";
+set color_module_list_background_hover = "#ddd";
+set color_module_list_border = "#666";
+set color_module_title = "#974f02";
+set color_module_title_background = "#faa906";
+
+
+#NEWLAYER: tectonic/memoryofflowers
+layerinfo type = "theme";
+layerinfo name = "Memory of Flowers";
+layerinfo redist_uniq = "tectonic/memoryofflowers";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d6efbe";
+set color_page_title = "#111";
+set color_page_text = "#000";
+set color_userpic_border = "#000";
+set color_calendar_background = "#eee";
+set color_footer_link = "#444";
+set color_footer_link_hover = "#666";
+set color_header_links = "#eee";
+set color_header_links_background = "#111";
+set color_header_links_border = "#ffceda";
+set color_header_links_border_hover = "#e41111";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#ffceda";
+set color_entry_footer_background = "#ffceda";
+set color_entry_interaction_links = "#eee";
+set color_entry_interaction_links_background = "#111";
+set color_entry_interaction_links_background_hover = "#e41111";
+set color_entry_interaction_links_hover = "#111";
+set color_entry_link = "#444";
+set color_entry_link_hover = "#e41111";
+set color_entry_title = "#000";
+set color_comment_title = "#000";
+set color_comment_title_background = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#ffceda";
+set color_module_calendar_background = "#eee";
+set color_module_link = "#444";
+set color_module_link_hover = "#e41111";
+set color_module_list_background_hover = "#eee";
+set color_module_list_border = "#666";
+set color_module_title = "#111";
+set color_module_title_background = "#ffceda";
