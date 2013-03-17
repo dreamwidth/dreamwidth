@@ -12,6 +12,7 @@ set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 set color_page_background = "#333";
 set color_page_title = "#069";
+set color_page_text = "#000";
 set color_userpic_border = "#000";
 set color_page_background = "#333";
 set color_page_title = "#069";
@@ -68,6 +69,7 @@ set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ##===============================
 
 set color_page_background = "#3f5f72";
+set color_page_text = "#000";
 set color_page_title = "#ffec6f";
 set color_userpic_border = "#000";
 set color_calendar_background = "#eee";
@@ -124,6 +126,7 @@ set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ##===============================
 
 set color_page_background = "#efefef";
+set color_page_text = "#000";
 set color_page_title = "#111";
 set color_calendar_background = "#eee";
 set color_footer_link = "#444";
@@ -178,6 +181,7 @@ layerinfo author_name = "momijizukamori";
 
 set color_page_background = "#4580ff";
 set color_page_title = "#000";
+set color_page_text = "#000";
 set color_userpic_border = "#000";
 set color_calendar_background = "#ddd";
 set color_header_links = "#ddd";
@@ -232,6 +236,7 @@ set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 
 set color_page_background = "#d6efbe";
 set color_page_title = "#111";
+set color_page_text = "#000";
 set color_userpic_border = "#000";
 set color_calendar_background = "#eee";
 set color_footer_link = "#444";
