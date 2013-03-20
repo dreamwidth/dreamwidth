@@ -1516,6 +1516,30 @@ If you did not change your username, it means that your community's security was
 This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters.
 .
 
+esn.sentpoints.body.noreason<<
+
+Hi [[from]],
+
+You have just sent [[points]] [[?points|point|points]] to [[to]].
+
+Regards,
+  The [[sitename]] Team
+.
+
+esn.sentpoints.body.reason<<
+
+Hi [[from]],
+
+You have just sent [[points]] [[?points|point|points]] to [[to]], with the following message:
+
+    [[reason]]
+
+Regards,
+  The [[sitename]] Team
+.
+
+esn.sentpoints.subject=[[sitename]] Points sent to [[to]]
+
 esn.shop_for_gift=[[openlink]]Buy a gift from our shop[[closelink]]
 
 esn.supofficialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
