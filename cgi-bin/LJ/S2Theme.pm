@@ -77,6 +77,7 @@ sub default_themes {
         steppingstones => 'steppingstones/purple',
         strata => 'strata/springmorning',
         summertime => 'summertime/tenniscourt',
+        tectonic => 'tectonic/fission',
         tranquilityiii => 'tranquilityiii/nightsea',
         wideopen => 'wideopen/koi',
         zesty => 'zesty/white',
