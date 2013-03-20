@@ -1311,7 +1311,9 @@ a:hover { text-decoration: underline; }
 .icon-image,
 .ContextualPopup .Userpic {
     box-shadow: -.1em -.1em .4em $*color_userpic_shadow;
-     }
+    border: none;
+    padding: 0;
+    }
 
 .userpic img,
 .icon-image img,

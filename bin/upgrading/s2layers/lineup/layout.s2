@@ -875,9 +875,8 @@ ul.userlite-interaction-links li {
     background-color: $*color_entry_userpic_background;
     border: 2px solid $*color_entry_userpic_border;
     margin: 5px;
+    padding: 3px;
     }
-
-.ContextualPopup .Userpic img { padding: 3px; }
 
 $userpic_css
 

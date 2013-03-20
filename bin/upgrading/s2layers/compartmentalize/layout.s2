@@ -685,9 +685,8 @@ hr.above-entry-interaction-links, hr.below-reply-container {
     border: 1px solid $*color_entry_border;
     border-top-width: 5px;
     margin: 5px;
+    padding: 5px;
     }
-
-.ContextualPopup .Userpic img { padding: 5px; }
 
 $userpic_css
 
