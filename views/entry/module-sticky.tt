@@ -21,7 +21,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     form.radio( label = label _ sticky.position
 
                         name = "sticky_select"
-                        id = "sticky_select_" _ sticky.position
+                        id = sticky.position _ "_sticky_select"
                         checked = sticky.checked
                         value=sticky.position
                     );
@@ -31,7 +31,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [%
                   form.radio( label = label _ sticky.position
                         name = "sticky_select"
-                        id = "sticky_select_" _ sticky.position
+                        id = sticky.position _ "_sticky_select"
 
                         value=sticky.position
                     );
@@ -40,8 +40,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
             </p>
                 [% IF sticky.issticky == 1 %]
                     <div class='info'>
-                    <p> [% title = ".title" | ml ; number = ".itemid" | ml ; close = ".close" | ml;
-                           number _ sticky.number _ title _ sticky.name _ close %]</p>
+                    <p> [% title = ".title" | ml ; ditemid = ".itemid" | ml ; close = ".close" | ml;
+                           ditemid _ sticky.ditemid _ title _ sticky.name _ close %]</p>
                     </div>
                 [% ELSE %]
                     [% show = 0 %] 
@@ -52,14 +52,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% IF not_sticky == 1;
                form.radio( label = label_no
                    name = "sticky_select"
-                   id = "sticky_select_0"
+                   id = "0_sticky_select"
                    checked = 1
                    value=0
                );
            ELSE %]
            [%    form.radio( label = label_no
                    name = "sticky_select"
-                   id = "sticky_select_0"
+                   id = "0_sticky_select"
 
                    value=0
                );

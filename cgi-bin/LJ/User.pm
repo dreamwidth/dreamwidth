@@ -2618,14 +2618,14 @@ sub invalidate_directory_record {
              undef, $u->id);
 }
 
-# checks whether an entry id corresponds to that of a sticky entry which is under user's max_sticky_count.
+# checks whether an entry id corresponds to that of a sticky entry which is under user's max_sticky_count.  Returns the position of the sticky if it is one.
 sub is_sticky_entry {
     my ( $u, $ditemid ) = @_;
 
     my @stickies = $u->sticky_entry;
 
     for ( my $i = 1; $i<=$u->count_max_stickies; $i++ ) {
-        return 1 if ( $ditemid == $stickies[$i-1] );
+        return $i if ( $ditemid == $stickies[$i-1] );
     }
     return 0;
 }
@@ -2693,6 +2693,7 @@ sub make_sticky_entry {
 
     $stickies[$sticky_id-1] = int( $ditemid );
     my $sticky_entry = join( ',', @stickies );
+
     $u->set_prop( sticky_entry => $sticky_entry );
 
     return 1;
