@@ -280,7 +280,7 @@ sub strip_html {
     my $str = $_[0];
     return '' unless defined $str;
 
-    $str =~ s/\<(lj user|user name)\=['"]?([\w-]+)['"]?\>/$2/g;   # "
+    $str =~ s/\<(?:lj(?: site=[^\s]+)? user|user(?: site=[^\s]+)? name)\=['"]?([\w-]+)['"]?[^>]*\>/$1/g;
     $str =~ s/\<([^\<])+\>//g;
     return $str;
 }
