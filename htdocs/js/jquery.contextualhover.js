@@ -191,7 +191,7 @@ _addRelationStatus: function( string ) {
 
 _addAction: function( url, text, action ) {
     action = !! action ? ' data-dw-ctx-action="' + action + '"' : "";
-    this._actions_html.push( '<div><a href="' + url+ '"' + action + '>' + text + '</a></div>' );
+    this._actions_html.push( '<li><a href="' + url+ '"' + action + '>' + text + '</a></li>' );
 },
 _addText: function( text ) {
     this._actions_html.push( '<div>' + text + '</div>' );
@@ -325,7 +325,7 @@ _renderPopup: function() {
 
     var content = '<div class="Content">' +
                     '<div class="Relation">' + this._rel_html.join( "" ) + '</div>' +
-                    '<div class="Actions">' + this._actions_html.join("") + '</div>' +
+                    '<div class="Actions"><ul>' + this._actions_html.join("") + '</ul></div>' +
                   '</div>';
 
     this.element

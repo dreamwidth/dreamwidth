@@ -26,6 +26,9 @@
 
 .ContextualPopup .Userpic {
     float: right;
+    padding: 2px;
+    border-style: solid;
+    border-width: 1px;
 }
 
 .ContextualPopup .Userpic img {
@@ -46,9 +49,15 @@
     font-weight: bold;
     font-size: 0.8em;
     line-height: 1.2;
-    margin-bottom: 1.2em;
+    margin-bottom: 1em;
 }
 
 .ContextualPopup .Actions {
     line-height: 1.4;
+}
+
+.ContextualPopup .Actions ul {
+    list-style-position: inside;
+    margin: 0;
+    padding-left: .5em;
 }
