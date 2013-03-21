@@ -55,6 +55,15 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         // this is only a confirmation message. We can fade away quickly
         window.setTimeout( function() { self.close(); }, 1500 );
     },
+    abort: function () {
+        var self = this;
+        if ( self.requests.length ) {
+            $.each( self.requests, function (i, req) {
+                req.abort();
+            });
+            self.requests = [];
+        }
+    },
     load: function(args) {
         /* opts is an object (or array of objects) containing overrides:
          *
@@ -75,12 +84,7 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         var self = this;
 
         // abort and remove any old requests
-        if ( self.requests.length ) {
-            $.each( self.requests, function (i, req) {
-                req.abort();
-            });
-            self.requests = [];
-        }
+        self.abort();
 
         if ( self.options.loadingContent ) {
             self.option("content", self.options.loadingContent);
