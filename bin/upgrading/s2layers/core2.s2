@@ -4216,12 +4216,12 @@ function print_module_pagesummary() {
     if ( $p isa EntryPage ) {
         var EntryPage cp = $p as EntryPage;
         foreach var Comment c ( $cp.comments ) {
-            var int count = print_module_pagesummary_comment_count($c);
-            var string comment_display =
-                print_module_pagesummary_comments($c.subject, $count, "text_read_comments_threads", "");
-            var string poster = isnull $c.poster ? $*text_poster_anonymous : $c.poster->ljuser();
-
-            $links[size $links] = """<span class="pagesummary-poster">$poster</span> - <span class="pagesummary-subject"><a href="#$c.anchor" $comment_display""";
+            if (not $c.deleted and not $c.fromsuspended and not $c.screened_noshow) {
+                var int count = print_module_pagesummary_comment_count($c);
+                var string comment_display = print_module_pagesummary_comments($c.subject, $count, "text_read_comments_threads", "");
+                var string poster = isnull $c.poster ? $*text_poster_anonymous : $c.poster->ljuser();
+                $links[size $links] = """<span class="pagesummary-poster">$poster</span> - <span class="pagesummary-subject"><a href="#$c.anchor" $comment_display""";
+            }
         }
     }
 
