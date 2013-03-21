@@ -7,7 +7,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2008-2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2008-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -281,6 +281,24 @@ sub get_refund_points_rate {
     confess "typeid $typeid not a valid account level"
         unless DW::Pay::type_is_valid( $typeid );
     return $LJ::CAP{$typeid}->{_refund_points} || 0;
+}
+
+
+################################################################################
+# DW::Pay::can_refund_points
+#
+# ARGUMENTS: uuserid
+#
+#   uuserid     required    user object or userid to get refundable status of
+#
+# RETURN: 1/0
+#
+sub can_refund_points {
+    my $u = LJ::want_user( $_[0] );
+    return 0 unless LJ::isu( $u );
+
+    my $secs_since_refund = time() - ( $u->prop( "shop_refund_time" ) || 0 );
+    return $secs_since_refund > 86400 * 30 ? 1 : 0;
 }
 
 ################################################################################
