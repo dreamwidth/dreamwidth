@@ -22,7 +22,7 @@ use LJ::Global::Constants;
 sub should_render {
     my ( $class, $u ) = @_;
 
-    return $u && $u->can_use_page_statistics ? 1 : 0;
+    return $u && $u->can_use_page_statistics && $u->is_individual ? 1 : 0;
 }
 
 sub label {
