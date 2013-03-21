@@ -23,6 +23,7 @@ use lib "$LJ::HOME/cgi-bin";
 use LJ::Global::Crumbs;
 
 use Carp;
+use POSIX;
 use DW::External::Site;
 use DW::Request;
 use LJ::Event;
@@ -3303,6 +3304,8 @@ sub subscribe_interface {
     my $def_notes    = delete $opts{'default_selected_notifications'} || [];
     my $settings_page= delete $opts{'settings_page'} || 0;
     my $post_to_settings_page = delete $opts{'post_to_settings_page'} || 0;
+    my $num_per_page = delete $opts{num_per_page} || 250;
+    my $page         = delete $opts{page} || 1;
 
     croak "Invalid user object passed to subscribe_interface" unless LJ::isu($journalu);
 
@@ -3369,6 +3372,11 @@ sub subscribe_interface {
     my %shown_subids = ();
     # ( LJ::NotificationMethod::Inbox => {active => x, total => y }, LJ::NotificationMethod::Email => ...)
     my %num_subs_by_type = ();
+
+    my $displayed_tracking_start = ( $page - 1 ) * $num_per_page;
+    my $displayed_tracking_end = $displayed_tracking_start + $num_per_page - 1;
+    my $displayed_tracking_count = 0;
+
     foreach my $cat_hash (@categories) {
         my ($category, $cat_events) = %$cat_hash;
 
@@ -3408,7 +3416,7 @@ sub subscribe_interface {
         my $first_class = $catid == 0 ? " CategoryRowFirst" : "";
         $cat_html .= qq {
             <div class="CategoryRow-$catid">
-                <tr class="CategoryRow$first_class">
+                <tr class="CategoryRow$first_class" id="category-$cat_title_key">
                 <td>
                 <span class="CategoryHeading">$cat_title</span><br />
                 <span class="CategoryHeadingNote">$ui_notify</span>
@@ -3559,9 +3567,20 @@ sub subscribe_interface {
             my $disabledclass = $pending_sub->enabled ? '' : 'disabled';
             my $altrowclass = $sub_count % 2 == 1 ? "odd" : "even";
 
-            $cat_html  .= "<tr class='$inactiveclass $disabledclass $altrowclass'><td>";
+            # it could be cleaner to do this by splicing pending_subs
+            # but then you wouldn't be able to count how many active subs there are
+            # one of the many ways in which ESN is painful
+            my $do_show = 1;
+            if ( $is_tracking_category ) {
+                $do_show = 0 unless $displayed_tracking_count >= $displayed_tracking_start
+                                 && $displayed_tracking_count <= $displayed_tracking_end;
+                $displayed_tracking_count++;
+            }
 
-            if ($is_tracking_category && ! $pending_sub->pending) {
+            $cat_html  .= "<tr class='$inactiveclass $disabledclass $altrowclass'><td>"
+                if $do_show;
+
+            if ( $do_show && $is_tracking_category && ! $pending_sub->pending) {
                 my $subid = $pending_sub->id;
                 my $auth_token = $u->ajax_auth_token( "/__rpc_esn_subs",
                     subid => $subid,
@@ -3574,24 +3593,26 @@ sub subscribe_interface {
             my $always_checked = eval { "$evt_class"->always_checked; };
             my $disabled = $always_checked ? 1 : !$pending_sub->enabled;
 
-            $cat_html  .= LJ::html_check({
-                id       => $input_name,
-                name     => $input_name,
-                class    => "SubscriptionInboxCheck",
-                selected => $selected,
-                noescape => 1,
-                label    => $title,
-                disabled => $disabled,
-            }) .  "</td>";
+            if ( $do_show ) {
+                $cat_html  .= LJ::html_check({
+                    id       => $input_name,
+                    name     => $input_name,
+                    class    => "SubscriptionInboxCheck",
+                    selected => $selected,
+                    noescape => 1,
+                    label    => $title,
+                    disabled => $disabled,
+                }) .  "</td>";
 
-            unless ($pending_sub->pending) {
-                $cat_html .= LJ::html_hidden({
-                    name  => "${input_name}-old",
-                    value => $subscribed,
-                });
+                unless ($pending_sub->pending) {
+                    $cat_html .= LJ::html_hidden({
+                        name  => "${input_name}-old",
+                        value => $subscribed,
+                    });
+                }
+                $shown_subids{$pending_sub->id}++ unless $pending_sub->pending;
             }
 
-            $shown_subids{$pending_sub->id}++ unless $pending_sub->pending;
             # for the inbox
             # "total" includes default subs (those at the top) which are active
             #   and any subs for tracking an entry/comment, whether active or inactive
@@ -3605,7 +3626,7 @@ sub subscribe_interface {
             $cat_empty = 0;
 
             # print out notification options for this subscription (hidden if not subscribed)
-            $cat_html .= "<td>&nbsp;</td>";
+            $cat_html .= "<td>&nbsp;</td>" if $do_show;
             my $hidden = ($special_selected || $pending_sub->default_selected || ($subscribed && $pending_sub->active)) ? '' : 'style="visibility: hidden;"';
 
             # is there an inbox notification for this?
@@ -3652,13 +3673,13 @@ sub subscribe_interface {
                         selected => $note_selected,
                         noescape => 1,
                         disabled => $disabled,
-                    }) . '</td>';
+                    }) . '</td>' if $do_show;
 
                 unless ($note_pending->pending) {
                     $cat_html .= LJ::html_hidden({
                         name  => "${notify_input_name}-old",
                         value => (scalar @subs) ? 1 : 0,
-                    });
+                    }) if $do_show;
                 }
 
                 # for other notification methods
@@ -3674,7 +3695,7 @@ sub subscribe_interface {
 
             }
 
-            $cat_html .= "</tr>";
+            $cat_html .= "</tr>" if $do_show;
             $sub_count++;
         }
 
@@ -3702,6 +3723,15 @@ sub subscribe_interface {
     }
 
     $events_table .= '</table>';
+
+    my $pagination = "";
+    $pagination = LJ::paging_bar( $page, ceil( $displayed_tracking_count / $num_per_page ), { self_link => sub {
+        return LJ::create_url( undef, args => { page => $_[0] },
+                                keep_args => 1, no_blank => 1,
+                                fragment => "category-subscription-tracking" );
+        }
+    }) if $settings_page;
+
 
     # pass some info to javascript
     my $catids = LJ::html_hidden({
@@ -3750,6 +3780,7 @@ sub subscribe_interface {
         $ntypeids
             $catids
             $events_table
+            $pagination
             $subscription_stats
         };
 
