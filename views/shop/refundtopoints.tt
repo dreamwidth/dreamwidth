@@ -12,15 +12,19 @@
 
 <p>[% '.about' | ml(sitename = site.nameshort) %]</p>
 
-<p>[% '.about2' | ml %]</p>
+<p>[% '.about3' | ml %]</p>
 
-[% IF rate == 0 %]
+[% IF NOT rate %]
 
 <p><strong>[% '.noteligible' | ml %]</strong></p>
 
-[% ELSIF points == 0 %]
+[% ELSIF NOT points %]
 
 <p><strong>[% '.toofew' | ml %]</strong><p>
+
+[% ELSIF NOT can_refund %]
+
+<p><strong>[% '.toosoon' | ml %]</strong></p>
 
 [% ELSE %]
 

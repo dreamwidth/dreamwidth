@@ -334,8 +334,9 @@ sub shop_refund_to_points_handler {
     $rv->{status} = DW::Pay::get_paid_status( $rv->{remote} );
     $rv->{rate} = DW::Pay::get_refund_points_rate( $rv->{remote} );
     $rv->{type} = DW::Pay::get_account_type_name( $rv->{remote} );
+    $rv->{can_refund} = DW::Pay::can_refund_points( $rv->{remote} );
 
-    if ( ref $rv->{status} eq 'HASH' && $rv->{rate} > 0 ) {
+    if ( $rv->{can_refund} && ref $rv->{status} eq 'HASH' && $rv->{rate} > 0 ) {
         $rv->{blocks} = int($rv->{status}->{expiresin} / (86400 * 30));
         $rv->{days} = $rv->{blocks} * 30;
         $rv->{points} = $rv->{blocks} * $rv->{rate};
@@ -343,7 +344,7 @@ sub shop_refund_to_points_handler {
 
     my $r = DW::Request->get;
     return DW::Template->render_template( 'shop/refundtopoints.tt', $rv )
-        unless $r->did_post;
+        unless $r->did_post && $rv->{can_refund};
 
     # User posted, so let's refund them if we can.
     die "Should never get here in a normal flow.\n"
@@ -358,6 +359,7 @@ sub shop_refund_to_points_handler {
     $rv->{remote}->give_shop_points( amount => $rv->{points},
             reason => sprintf('refund %d days of %s time', $rv->{days}, $rv->{type}) )
         or die "Failed to refund points.\n";
+    $rv->{remote}->set_prop( "shop_refund_time", time() );
     DW::Pay::update_paid_status( $rv->{remote}, expiretime =>
             $rv->{status}->{expiretime} - ($rv->{days} * 86400) );
 
