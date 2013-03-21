@@ -32,9 +32,8 @@ use warnings;
 
 sub should_render {
     my ( $class, $u ) = @_;
-    return 0 unless $u;
+    return $u && $u->is_individual;
 }
-
 sub label {
     my $class = shift;
     return $class->ml( 'setting.nctalklinks.header' );
