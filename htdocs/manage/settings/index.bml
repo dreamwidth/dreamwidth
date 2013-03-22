@@ -543,6 +543,8 @@ body<=
             categories    => \@categories,
             showtracking  => 1,
             settings_page => 1,
+            num_per_page  => 250,
+            page          => int( $GET{page} || 0 ),
         ) . "<br />";
 
     } else {
