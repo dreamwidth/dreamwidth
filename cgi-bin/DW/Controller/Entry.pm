@@ -376,10 +376,10 @@ sub _init {
         if ( $sticky ) {
             my $subject = $sticky->subject_html;
             $checked = 1 if ( $i + 1 == $sticky_pos );
-            push @stickylist, { name => $subject, ditemid => $sticky->ditemid, position => $sticky_pos, issticky => 1, checked => $checked };
+            push @stickylist, { name => $subject, ditemid => $sticky->ditemid, position => $i + 1, issticky => 1, checked => $checked };
             $checked = 0;
         } else {
-            push @stickylist, { name => "", ditemid => 0, position => $sticky_pos, issticky => 0, checked => 0 }
+            push @stickylist, { name => "", ditemid => 0, position => $i + 1, issticky => 0, checked => 0 }
         }
     }
 

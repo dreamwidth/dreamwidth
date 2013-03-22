@@ -3251,7 +3251,8 @@ sub thread_expand_all {
 # NB.  This assumes that the inputs have already been validated as actual journal entries otherwise bad things
 # will happen.
 sub sticky_entry {
-    my ( $u, @input ) = @_;
+    my ( $u, $input_ref ) = @_;
+
 
     # The user may have previously had an account type that allowed more stickes.
     # we want to preserve a record of these additional stickes in case they once
@@ -3267,7 +3268,9 @@ sub sticky_entry {
     my @currently_unused_stickies = @entries[$max_sticky_count..$entry_length];
 
     # Check we've been sent input and it isn't empty.  If so we need to alter the sticky entries stored.
-    if ( defined $input[0] ) {
+    if ( defined $input_ref ) {
+        my @input = @$input_ref;
+
         unless ( $input[0] ) {
             $u->set_prop( sticky_entry => '' );
             return 1;

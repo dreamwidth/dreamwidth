@@ -31,15 +31,19 @@ sub option {
     my $ret;
 
     my @stickies = $u->sticky_entry;
+    my $username = $u->user;
 
-    for ( my $i = 1; $i<=$u->count_max_stickies; $i++ ) {
+    foreach my $i ( 1... $u->count_max_stickies ) {
+        my $url = "http://$username.dreamwidth.org/$stickies[$i - 1].html" if $stickies[$i - 1];
+        my $textentry = $errs ? $class->get_arg( $args, "stickyid${i}" ) : $url;
+
         $ret .= "<label for='${key}stickyid${i}'>" . $class->ml( 'setting.stickyentryi.label' ) . " $i </label>";
         $ret .= LJ::html_text({
             name  => "${key}stickyid${i}",
             id    => "${key}stickyid${i}",
             class => "text",
-            value => $errs ? $class->get_arg( $args, "stickyid${i}" ) : $stickies[$i - 1],
-            size  => 25,
+            value => "$textentry",
+            size  => 50,
             maxlength => 100,
         });
         $ret .= "<br />";
@@ -85,12 +89,10 @@ sub save {
         }
     }
 
-    # if the user has blanked all their stickies we need to enter one entry into the array otherwise the
-    # change will be ignored.  Inelegant but I couldn't think of a better way to let $u->sticky_entry
-    # distinguish between a change to empty and a simple request for stickies.
-    push( @stickies, '' ) unless ( defined $stickies[0] );
-
-    $u->sticky_entry ( @stickies );
+    # We pass in a reference to the array - which will be a reference to an empty array if the user has
+    # blanked all their stickies.  In User.pm sticky_entry is called without an argument just to
+    # get the list of current stickies, in that case the parameter will be undefined.
+    $u->sticky_entry ( \@stickies );
     return 1;
 }
 
