@@ -220,7 +220,7 @@ function Page::print_entry(Entry e)
     $e->print_tags();
     """</div>\n""";
     """<div>\n""";
-    """<div class="contents">\n""";
+    """<div class="contents usercontent">\n""";
     """<div class="inner">\n""";
     $e->print_metatypes();
     $e->print_subject();
@@ -354,7 +354,7 @@ function EntryPage::print_comment (Comment c) {
     """</div>\n""";
     """</div>\n""";
     """</div>\n""";
-    """<div class="contents">\n""";
+    """<div class="contents usercontent">\n""";
     """<div class="inner">\n""";
     $c->print_text();
     """</div>\n""";
@@ -382,7 +382,7 @@ function ReplyPage::print_comment (Comment c) {
     """</div>\n""";
     """</div>\n""";
     """<div>\n""";
-    """<div class="contents">\n""";
+    """<div class="contents usercontent">\n""";
     """<div class="inner">\n""";
     $c->print_subject();
     $c->print_text();
