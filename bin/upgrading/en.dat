@@ -2867,6 +2867,8 @@ setting.imageplaceholders.option.select.large=large images (over [[width]]x[[hei
 
 setting.imageplaceholders.option.select.medium=medium images (over [[width]]x[[height]])
 
+setting.imageplaceholders.option.select.xlarge=extra large images (over [[width]]x[[height]])
+
 setting.imageplaceholders.option.select.none=nothing (display all images)
 
 setting.imageplaceholders.option.undef2=Replace images of unknown size with a placeholder

@@ -48,6 +48,7 @@ sub option {
     my $is_stock = {
         "320|240" => 1,
         "640|480" => 1,
+        "800|600" => 1,
         "0|0" => 1,
         "" => 1,
     }->{$imgplaceholders};
@@ -60,6 +61,7 @@ sub option {
         "0|0" => $class->ml('setting.imageplaceholders.option.select.all'),
         "320|240" => $class->ml('setting.imageplaceholders.option.select.medium', { width => 320, height => 240 }),
         "640|480" => $class->ml('setting.imageplaceholders.option.select.large', { width => 640, height => 480 }),
+        "800|600" => $class->ml('setting.imageplaceholders.option.select.xlarge', { width => 800, height => 600 }),
         $extra ? ("$maxwidth|$maxheight" => $extra) : ()
     );
 
