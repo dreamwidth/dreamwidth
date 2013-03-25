@@ -92,11 +92,12 @@ sub render_body {
     $body .= $subfolder_link->( "pollvote", "inbox.menu.poll_votes", "subs", $unread_html->( $inbox->pollvote_event_count ) );
     $body .= $subfolder_link->( "communitymembership", "inbox.menu.community_membership", "subs", $unread_html->( $inbox->communitymembership_event_count ) );
     $body .= $subfolder_link->( "sitenotices", "inbox.menu.site_notices", "subs", $unread_html->( $inbox->sitenotices_event_count ) );
-    $body .= qq{<span class="subs">---</span>\n};
+    $body .= qq{<span class="subs">&nbsp;</span>\n};
     $body .= $subfolder_link->( "unread", "inbox.menu.unread", "subs", $unread_all_html );
-    $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", "", LJ::img( 'flag', '' ) );
     $body .= $subfolder_link->( "usermsg_sent", "inbox.menu.sent", "subs", 
         $unread_html->( $inbox->usermsg_sent_event_count ) ) if LJ::is_enabled( 'user_messaging' );
+    $body .= qq{<span class="subs">&nbsp;</span>\n};
+    $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", "", LJ::img( 'flag', '' ) );
     $body .= $subfolder_link->( "archived", "inbox.menu.archive", "subs" ) if LJ::is_enabled( 'esn_archive' );
     $body .= qq{
             </p></div>&nbsp;<br />
