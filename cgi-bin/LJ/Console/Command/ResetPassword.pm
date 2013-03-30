@@ -22,7 +22,7 @@ sub cmd { "reset_password" }
 sub desc { "Resets the password for a given account" }
 
 sub args_desc { [
-                 'user' => "The account to reset the email address for.",
+                 'user' => "The account to reset the password for.",
                  'reason' => "Reason for the password reset.",
                  ] }
 
