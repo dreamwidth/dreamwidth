@@ -166,39 +166,60 @@ body<=
      $ret .= "<h1>$ML{'.new.header'}</h1>";
 	 # Personal accounts
      $ret .= "<p>$ML{'.new.desc.personal'}<ul>";
-     $sth = $dbr->prepare("SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'P' ORDER BY uu.timecreate DESC LIMIT 10");
+     $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'P' ORDER BY uu.timecreate DESC LIMIT 10");
      $sth->execute;
-     my $ct;
-     while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         my $u = LJ::load_user($iuser); 
-         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
-         $ct++;
+     my $accounts = $sth->fetchall_arrayref({});
+
+     if (scalar @$accounts == 0) {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
-     $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
+     else {
+         my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
+
+         foreach my $account (@$accounts) {
+             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
+                     ", $account->{timeupdate}</li>\n";
+         }
+     }
+
      $ret .= "</ul> </p>";
 	 # Community accounts
      $ret .= "<p>$ML{'.new.desc.community'}<ul>";
-     $sth = $dbr->prepare("SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'C' ORDER BY uu.timecreate DESC LIMIT 10");
+     $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'C' ORDER BY uu.timecreate DESC LIMIT 10");
      $sth->execute;
-     my $ct;
-     while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         my $u = LJ::load_user($iuser); 
-         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
-         $ct++;
+     my $accounts = $sth->fetchall_arrayref({});
+
+     if (scalar @$accounts == 0) {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
-     $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
+     else {
+         my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
+
+         foreach my $account (@$accounts) {
+             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
+                     ", $account->{timeupdate}</li>\n";
+         }
+     }
+
      $ret .= "</ul> </p>";
 	 # Feeds
      $ret .= "<p>$ML{'.new.desc.feeds'}</p><ul>";
-     $sth = $dbr->prepare("SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'Y' ORDER BY uu.timecreate DESC LIMIT 10");
+     $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'Y' ORDER BY uu.timecreate DESC LIMIT 10");
      $sth->execute;
-     my $ct;
-     while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
-         my $u = LJ::load_user($iuser); 
-         $ret .= "<li>". $u->ljuser_display() . ", $itime</li>\n";
-         $ct++;
+     my $accounts = $sth->fetchall_arrayref({});
+
+     if (scalar @$accounts == 0) {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
-     $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
+     else {
+         my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
+
+         foreach my $account (@$accounts) {
+             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
+                     ", $account->{timeupdate}</li>\n";
+         }
+     }
+
      $ret .= "</ul> \n";
  }
 
