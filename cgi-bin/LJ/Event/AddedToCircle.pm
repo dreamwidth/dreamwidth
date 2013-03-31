@@ -89,7 +89,7 @@ sub _as_email {
 
     if ( $self->trusted ) {
         if ( $self->fromuser->is_identity ) {
-            return LJ::Lang::get_text( $lang, 'esn.addedtocircle.trusted.email_text', undef, $vars ) .
+            return LJ::Lang::get_text( $lang, 'esn.addedtocircle.trusted.openid.email_text', undef, $vars ) .
                 $self->format_options( $is_html, $lang, $vars,
                 {
                     'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=access" ],
@@ -116,9 +116,10 @@ sub _as_email {
                 $self->format_options( $is_html, $lang, $vars,
                 {
                     'esn.add_watch'       => [ $u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe" ],
-                    'esn.view_profile'    => [ 2, $journal_profile ],
-                    'esn.edit_friends'    => [ 3, "$LJ::SITEROOT/manage/circle/edit" ],
-                    'esn.edit_groups'     => [ 4, "$LJ::SITEROOT/manage/circle/editfilters" ],
+                    'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 2, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=access" ],
+                    'esn.view_profile'    => [ 3, $journal_profile ],
+                    'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
+                    'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
                 }
             );
         } else {
@@ -126,10 +127,11 @@ sub _as_email {
                 $self->format_options( $is_html, $lang, $vars,
                 {
                     'esn.add_watch'       => [ $u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe" ],
-                    'esn.read_journal'    => [ 2, $journal_url ],
-                    'esn.view_profile'    => [ 3, $journal_profile ],
-                    'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
-                    'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
+                    'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 2, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=access" ],
+                    'esn.read_journal'    => [ 3, $journal_url ],
+                    'esn.view_profile'    => [ 4, $journal_profile ],
+                    'esn.edit_friends'    => [ 5, "$LJ::SITEROOT/manage/circle/edit" ],
+                    'esn.edit_groups'     => [ 6, "$LJ::SITEROOT/manage/circle/editfilters" ],
                 }
             );
         }
@@ -190,7 +192,8 @@ sub as_html_actions {
     } else { # watched
         $ret .= $u->watches( $fromuser ) ?
             " <a href='" . $fromuser->profile_url . "'>View Profile</a>" :
-            " <a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "&action=subscribe'>Subscribe</a>";
+            " <a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "&action=subscribe'>Subscribe</a>" .
+            " | <a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "&action=access'>Grant Access</a>";
     }
     $ret .= "</div>";
 

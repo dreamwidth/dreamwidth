@@ -3021,6 +3021,38 @@ sub journal_current_datetime {
     return $ret;
 }
 
+sub SubscriptionFilter
+{
+    my ( $name, $sortorder, $public, $url ) = @_;
+    return {
+        '_type' => 'SubscriptionFilter',
+        'name' => $name,
+        'public' => $public ? 1 : 0,
+        'sortorder' => $sortorder,
+        'url' => $url,
+    };
+}
+
+sub journal_subscription_filters
+{
+    my ( $ctx ) = @_;
+
+    # only owners can see non-public filters
+    my $public_only = not viewer_is_owner();
+    my @ret;
+
+    # automatically gets the content filters in the right order
+    my @filters = $LJ::S2::CURR_PAGE->{_u}->content_filters;
+    foreach my $filter ( @filters ) {
+        my $filterurl = $LJ::S2::CURR_PAGE->{_u}->journal_base() . "/read/$filter->{name}";
+        my $subfilter = SubscriptionFilter( $filter->name, $filter->sortorder,
+          $filter->public, $filterurl );
+        push @ret, $subfilter if ( $filter->public || ! $public_only );
+    }
+
+    return \@ret;
+}
+
 sub style_is_active {
     my ($ctx) = @_;
     my $layoutid = $ctx->[S2::LAYERLIST]->[1];
@@ -3923,8 +3955,9 @@ sub UserLite__get_link
         return undef unless $link;
 
         my $caption = $ctx->[S2::PROPS]->{userlite_interaction_links} eq "text"
-            ? $ctx->[S2::PROPS]->{"text_user_$key"}
+            ? $link->{text}
             : $link->{title};
+
         return LJ::S2::Link( $link->{url}, $caption, LJ::S2::Image( $link->{image}, $link->{width} || 20, $link->{height} || 18 ) );
     };
 

@@ -68,6 +68,7 @@ body<=
    <li><a href='/shop'><?_ml .maplinks.upgrade _ml?></a></li>
    <li><a href='/changepassword'><?_ml .maplinks.changepassword _ml?></a></li>
    <li><a href='/accountstatus'><?_ml .maplinks.changestatus _ml?></a></li>
+   <li><a href='/beta'><?_ml .maplinks.beta _ml?></a></li>
   </ul></dd>
  </dt></dl>
 

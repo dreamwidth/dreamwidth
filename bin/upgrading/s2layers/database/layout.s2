@@ -1311,7 +1311,9 @@ a:hover { text-decoration: underline; }
 .icon-image,
 .ContextualPopup .Userpic {
     box-shadow: -.1em -.1em .4em $*color_userpic_shadow;
-     }
+    border: none;
+    padding: 0;
+    }
 
 .userpic img,
 .icon-image img,
@@ -1570,8 +1572,8 @@ h2#pagetitle {
 
 .entry a { color: $*color_entry_text; }
 .entry-content a { color: $*color_entry_link; }
-.entry-content a:hover { color: $*color_entry_link_hover; }
 .entry-content a:visited { color: $*color_entry_link_visited; }
+.entry-content a:hover { color: $*color_entry_link_hover; }
 .entry-content a:active { color: $*color_entry_link_active; }
 
 .metadata,

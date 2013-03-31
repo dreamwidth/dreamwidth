@@ -320,6 +320,7 @@ sub skip_prop {
         return 1 if $prop_name eq "text_view_network";
         return 1 if $prop_name eq "text_view_friends";
         return 1 if $prop_name eq "text_view_friends_filter";
+        return 1 if $prop_name eq "module_subscriptionfilters_group";
     } else {
         return 1 if $prop_name eq "text_view_friends_comm"
     }

@@ -873,7 +873,7 @@ sub parse_post_uploads
 
                 if (! $POST{$userpic_key}) {
                     $current_upload{error} = $ML{'.error.nourl'};
-                } elsif ($POST{$userpic_key} !~ /^http:\/\//) {
+                } elsif ($POST{$userpic_key} !~ /^https?:\/\//) {
                     $current_upload{error} = $ML{'.error.badurl'};
                 } else {
                     my $ua = LJ::get_useragent(

@@ -41,8 +41,10 @@ hr.above-entry-interaction-links, hr.below-entry-interaction-links {margin: 1em 
 .entry-interaction-links, .comment-pages {text-align: center; font-weight:bold; float:none;}
 .entry-interaction-links li {display:inline;}
 ul.entry-interaction-links {list-style: none outside none; display: inline; text-align: center; padding: 0.5em 0; margin:0;}
-.comment-page-list {max-width: 28em; margin-left:auto; margin-right: auto;}
-
+.comment-page-list { margin: 1em auto; padding: .5em;display:inline-block;}
+.page-prev, .page-next, .page-links {display: table-cell;}
+.page-prev, .page-next { vertical-align: middle; padding:0 .5em;}
+.commment-pages-wrapper {text-align: center;}
 /* give talkread styling to management links without S2 overrides*/
 .entry-interaction-links li:before, .comment-interaction-links li:before, .view-flat:before, .view-threaded:before, .view-top-only:before, .expand_all:before {content:"(";}
 .entry-interaction-links li:after, .comment-interaction-links li:after, .view-flat:after, .view-threaded:after, .view-top-only:after, .expand_all:after {content:")";}

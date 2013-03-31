@@ -1008,6 +1008,14 @@ Hi [[user]],
 You can:
 .
 
+esn.addedtocircle.trusted.openid.email_text<<
+Hi [[user]],
+
+[[poster]] has granted you access; you'll now be able to view [[poster]]'s protected information.
+
+You can:
+.
+
 esn.addedtocircle.trusted.subject=[[who]] granted you access.
 
 esn.addedtocircle.watched.email_text<<
@@ -1277,7 +1285,7 @@ esn.mail_comments.subject.reply_to_your_entry=Reply to your entry.
 
 esn.manage_community=[[openlink]]Manage your communities[[closelink]]
 
-esn.manage_invitations=[[openlink]]Manage your invitations[[closelink]]
+esn.manage_invitations2=[[openlink]]Accept or decline the invitation[[closelink]]
 
 esn.manage_membership_reqs=[[openlink]]Manage [[communityname]]'s membership requests[[closelink]]
 
@@ -1508,6 +1516,30 @@ If you did not change your username, it means that your community's security was
 This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters.
 .
 
+esn.sentpoints.body.noreason<<
+
+Hi [[from]],
+
+You have just sent [[points]] [[?points|point|points]] to [[to]].
+
+Regards,
+  The [[sitename]] Team
+.
+
+esn.sentpoints.body.reason<<
+
+Hi [[from]],
+
+You have just sent [[points]] [[?points|point|points]] to [[to]], with the following message:
+
+    [[reason]]
+
+Regards,
+  The [[sitename]] Team
+.
+
+esn.sentpoints.subject=[[sitename]] Points sent to [[to]]
+
 esn.shop_for_gift=[[openlink]]Buy a gift from our shop[[closelink]]
 
 esn.supofficialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
@@ -1528,7 +1560,9 @@ esn.unscreen_comment=[[openlink]]Unscreen the comment[[closelink]]
 
 esn.view_comments=[[openlink]]View all comments[[closelink]] to this entry
 
-esn.view_entry=[[openlink]]View the entry[[closelink]]
+esn.view_entry.nosubject=[[openlink]]View entry [[ditemid]][[closelink]]
+
+esn.view_entry.subject=[[openlink]]View entry titled "[[subject]]"[[closelink]]
 
 esn.view_poll_status=[[openlink]]View the poll's status[[closelink]]
 
@@ -3157,8 +3191,6 @@ settings.state=State
 
 settings.state.us=US States
 
-settings.usermessaging.obsolete=OBSOLETE: this option has been moved to Account Settings.
-
 settings.yearofbirth=Year of Birth
 
 shop.email.accounttype=[[type]] for [[nummonths]] [[?nummonths|month|months]]
@@ -4102,7 +4134,7 @@ userlinkbar.joincomm.title.loggedout=You must be logged in to join this communit
 
 userlinkbar.joincomm.title.open=Join this community
 
-userlinkbar.leavecomm=Leave
+userlinkbar.leavecomm2=Leave Community
 
 userlinkbar.leavecomm.title=Leave this community
 
@@ -4148,7 +4180,7 @@ userlinkbar.sendmessage.title.loggedout=You must be logged in to send a private 
 
 userlinkbar.sendmessage.title.self=Send a private message to yourself
 
-userlinkbar.tellafriend=Tell someone about this
+userlinkbar.tellafriend2=Tell Someone
 
 userlinkbar.tellafriend.title.other=Tell someone about this journal
 

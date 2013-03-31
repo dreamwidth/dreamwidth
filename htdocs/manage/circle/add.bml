@@ -287,7 +287,7 @@ _c?>
     # content filter buttons
     if ( $remote->can_watch( $u ) && @content_filters ) {
         $body .= "<div class='add_watch' style='float: left; width: 45%; padding: 1em;'><?p &nbsp;<br />";
-        $body .= $u->is_syndicated ? "$ML{'.groups.reading.feed1'} p?>\n" : "$ML{'.groups.reading'} p?>\n";
+        $body .= $u->is_syndicated || $u->is_community ? "$ML{'.groups.reading.short'} p?>\n" : "$ML{'.groups.reading'} p?>\n";
         my @sorted_content_filters = sort { $a->{sortorder} <=> $b->{sortorder} } @content_filters;
         foreach my $filter ( @sorted_content_filters ) {
             my $ck = ( $filter->contains_userid( $u->userid ) )
@@ -307,11 +307,13 @@ _c?>
     my $color_switch_checked = $custom_colors ?  "checked=\"checked\"" : "";
 
     $body .= "<div class='add_watch'>";
+
+    my $disclaimer_ejs = LJ::ejs( $ML{".colors.disclaimer" } );
     ## let them pick the colors
     my $color_text = "<?p <table summary=\\'\\'><tr><td valign=\"top\"><i>$ML{'.optional'}:</i> ".
              "<input type=\"checkbox\" id=\"color_switch\" name=\"color_switch\" onClick=\"color_display(this);\" $color_switch_checked> </td><td><label for=\"color_switch\">" .
              BML::ml( '.colors.text', { user => $username } ) .
-             "</label><br /><span style=\"font-size: 7pt;\">($ML{'.colors.disclaimer'})</span></td></tr></table> p?>";
+             "</label><br /><span style=\"font-size: 7pt;\">($disclaimer_ejs)</span></td></tr></table> p?>";
     $body .= "<script>\n";
     $body .= "function color_display(check) {\n";
     $body .= "  if (check.checked) {\n";

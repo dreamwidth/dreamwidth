@@ -15,7 +15,7 @@
 
 .curpics.desc2=These are your current icons. You can choose which icon to use as your default, add new icons, and delete icons you no longer want. If you assign keywords to your icons, you can select them by keyword for entries and comments. You can also assign a description to each icon. To upload a new icon, use the form at the left.
 
-.error.badurl=Please double-check the address for the icon to be uploaded; it should start with <strong>http://</strong>
+.error.badurl=Please double-check the address for the icon to be uploaded; it should start with <strong>http://</strong> or <strong>https://</strong>
 
 .error.filetoolarge=The icon you tried to upload is too large.  File size can't exceed [[maxsize]] KB.
 

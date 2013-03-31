@@ -56,27 +56,31 @@ function ItemRange::print(string{} opts) {
     """<div class="$class">""";
     print """<p style="font-weight: bolder; margin: 0 0 .5em 0;">""" + lang_page_of_pages($.current, $.total) + "</p>";
     var string url_prev = $this->url_of($.current - 1);
+    """<span class="page-prev">""";
     if ($.current != 1) {
         print " <b><a href='$url_prev$anchor'>$*comment_page_prev</a></b> ";
     } else {
         print " <b>$*comment_page_prev</b> ";
     }
-    """<span style="text-align: center">""";
+    """</span>
+    <span style="text-align: center" class="page-links">""";
     foreach var int i (1..$.total) {
         if ($i == $.current) { "<b>[$i]</b> "; }
         else {
             var string url_of = $this->url_of($i);
             "<a href='$url_of$anchor'><b>[$i]</b></a> ";
         }
-    }
+        if ($i % 10 == 0){ """<br />"""; }
+        }
     """</span>""";
     var string url_next = $this->url_of($.current + 1);
+    """<span class="page-next">""";
     if ($.current != $.total) {
          print " <b><a href='$url_next$anchor'>$*comment_page_next</a></b> ";
     } else {
          print " <b>$*comment_page_next</b> ";
     }
-
+    """</span>""";
     if ( $.url_all != "" ) {
         """<p><a href="$.url_all">View All</a></p>""";
     }
@@ -220,7 +224,7 @@ function Page::print_entry(Entry e)
     $e->print_tags();
     """</div>\n""";
     """<div>\n""";
-    """<div class="contents">\n""";
+    """<div class="contents usercontent">\n""";
     """<div class="inner">\n""";
     $e->print_metatypes();
     $e->print_subject();
@@ -275,9 +279,11 @@ if ($p isa ReplyPage) {
 
 }
 function EntryPage::print_entry_footer(Entry e) {
-    """<hr class="above-entry-interaction-links" />""";
+    """<hr class="above-entry-interaction-links" />
+    <div class="comment-pages-wrapper">""";
+    $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages comment-page-list" });
+    """</div>""";
     $e->print_interaction_links("topcomment");
-   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages comment-page-list" });
 }
 
 function EntryPage::print_comment_section(Entry e) {
@@ -296,14 +302,15 @@ function EntryPage::print_comment_section(Entry e) {
         $e->print_interaction_links("bottomcomment");
         "</div>";
    }
-   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages bottompages comment-page-list" });
    if ($.comment_pages.total_subitems > 0) {
         $.comment_nav->print({ "class" => "comment-pages bottompages" });
         $this->print_reply_container({ "target" => "bottomcomment" });
         $this->print_multiform_actionline();
         $this->print_multiform_end();
    }
-    "</div></div>";
+    """<div class="commment-pages-wrapper">""";
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages bottompages comment-page-list" });
+    "</div></div></div>";
 }
 
 function EntryPage::print_comments (Comment[] cs) {
@@ -354,7 +361,7 @@ function EntryPage::print_comment (Comment c) {
     """</div>\n""";
     """</div>\n""";
     """</div>\n""";
-    """<div class="contents">\n""";
+    """<div class="contents usercontent">\n""";
     """<div class="inner">\n""";
     $c->print_text();
     """</div>\n""";
@@ -382,7 +389,7 @@ function ReplyPage::print_comment (Comment c) {
     """</div>\n""";
     """</div>\n""";
     """<div>\n""";
-    """<div class="contents">\n""";
+    """<div class="contents usercontent">\n""";
     """<div class="inner">\n""";
     $c->print_subject();
     $c->print_text();

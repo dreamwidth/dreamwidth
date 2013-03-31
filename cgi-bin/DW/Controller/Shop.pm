@@ -7,7 +7,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -139,26 +139,54 @@ sub shop_transfer_points_handler {
 
             my $get_text = sub { LJ::Lang::get_text( $u->prop( 'browselang' ), $_[0], undef, $_[1] ) };
 
-            # send notification ...
-            my $e = $rv->{anon} ? 'anon' : 'user';
-            my $reason = ( $rv->{reason} && $rv->{can_have_reason} ) ? $get_text->( "esn.receivedpoints.reason", { reason => $rv->{reason} } ) : '';
-            my $body = $get_text->( "esn.receivedpoints.$e.body", {
-                    user => $u->display_username,
-                    points => $points,
-                    from => $remote->display_username,
-                    sitename => $LJ::SITENAMESHORT,
-                    store => "$LJ::SITEROOT/shop/",
-                    reason => $reason,
-                } );
+            # send notification to person transferring the points...
+            {
+                my $reason = $rv->{reason};
+                my $vars = {
+                    from        => $remote->display_username,
+                    points      => $points,
+                    to          => $u->display_username,
+                    reason      => $reason,
+                    sitename    => $LJ::SITENAMESHORT,
+                    reason      => $reason,
+                };
+                my $body = $reason ? $get_text->( 'esn.sentpoints.body.reason', $vars )
+                                   : $get_text->( 'esn.sentpoints.body.noreason', $vars );
 
-            # FIXME: esnify the notification
-            LJ::send_mail( {
-                to => $u->email_raw,
-                from => $LJ::ACCOUNTS_EMAIL,
-                fromname => $LJ::SITENAME,
-                subject => $get_text->( 'esn.receivedpoints.subject', { sitename => $LJ::SITENAMESHORT } ),
-                body => $body,
-            } );
+                LJ::send_mail( {
+                    to          => $remote->email_raw,
+                    from        => $LJ::ACCOUNTS_EMAIL,
+                    fromname    => $LJ::SITENAME,
+                    subject     => $get_text->( 'esn.sentpoints.subject', {
+                                        sitename => $LJ::SITENAMESHORT,
+                                        to       => $u->display_username,
+                                    } ),
+                    body        => $body,
+                } );
+            }
+
+            # send notification to person receiving the points...
+            {
+                my $e = $rv->{anon} ? 'anon' : 'user';
+                my $reason = ( $rv->{reason} && $rv->{can_have_reason} ) ? $get_text->( "esn.receivedpoints.reason", { reason => $rv->{reason} } ) : '';
+                my $body = $get_text->( "esn.receivedpoints.$e.body", {
+                        user => $u->display_username,
+                        points => $points,
+                        from => $remote->display_username,
+                        sitename => $LJ::SITENAMESHORT,
+                        store => "$LJ::SITEROOT/shop/",
+                        reason => $reason,
+                    } );
+
+                # FIXME: esnify the notification
+                LJ::send_mail( {
+                    to => $u->email_raw,
+                    from => $LJ::ACCOUNTS_EMAIL,
+                    fromname => $LJ::SITENAME,
+                    subject => $get_text->( 'esn.receivedpoints.subject', { sitename => $LJ::SITENAMESHORT } ),
+                    body => $body,
+                } );
+            }
 
             # happy times ...
             $rv->{transferred} = 1;
@@ -306,8 +334,9 @@ sub shop_refund_to_points_handler {
     $rv->{status} = DW::Pay::get_paid_status( $rv->{remote} );
     $rv->{rate} = DW::Pay::get_refund_points_rate( $rv->{remote} );
     $rv->{type} = DW::Pay::get_account_type_name( $rv->{remote} );
+    $rv->{can_refund} = DW::Pay::can_refund_points( $rv->{remote} );
 
-    if ( ref $rv->{status} eq 'HASH' && $rv->{rate} > 0 ) {
+    if ( $rv->{can_refund} && ref $rv->{status} eq 'HASH' && $rv->{rate} > 0 ) {
         $rv->{blocks} = int($rv->{status}->{expiresin} / (86400 * 30));
         $rv->{days} = $rv->{blocks} * 30;
         $rv->{points} = $rv->{blocks} * $rv->{rate};
@@ -315,7 +344,7 @@ sub shop_refund_to_points_handler {
 
     my $r = DW::Request->get;
     return DW::Template->render_template( 'shop/refundtopoints.tt', $rv )
-        unless $r->did_post;
+        unless $r->did_post && $rv->{can_refund};
 
     # User posted, so let's refund them if we can.
     die "Should never get here in a normal flow.\n"
@@ -330,6 +359,7 @@ sub shop_refund_to_points_handler {
     $rv->{remote}->give_shop_points( amount => $rv->{points},
             reason => sprintf('refund %d days of %s time', $rv->{days}, $rv->{type}) )
         or die "Failed to refund points.\n";
+    $rv->{remote}->set_prop( "shop_refund_time", time() );
     DW::Pay::update_paid_status( $rv->{remote}, expiretime =>
             $rv->{status}->{expiretime} - ($rv->{days} * 86400) );
 

@@ -941,9 +941,8 @@ div.ContextualPopup div.Inner a:visited {
 .ContextualPopup .Userpic {
     background: $*color_header_background;
     margin:  5px;
+    padding: 5px;
     }
-
-.ContextualPopup .Userpic img { padding: 5px; }
 
 .ContextualPopup .Relation { text-transform: lowercase; }
 

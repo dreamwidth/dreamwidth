@@ -4038,6 +4038,16 @@ sub make_preview {
         # second arg '1' means don't escape the HTML
     }
 
+    $ret .= "$BML::ML{'/talkpost_do.bml.preview.poster'} ";
+    # displays the username or openid url of the commenter, or anonymous otherwise
+    if ($form->{'usertype'} eq 'cookieuser' || $form->{'usertype'} eq 'openid_cookie') {
+        $ret .= $remote->ljuser_display;
+    } elsif ($form->{'usertype'} eq 'openid') {
+        $ret .= BML::ml( ".preview.unauthenticated_openid", { openid => $form->{oidurl} } );
+    } elsif ($form->{'usertype'} eq 'anonymous') {
+        $ret .= $BML::ML{'/talkpost_do.bml.preview.anonymous'};
+    }
+    $ret .= "<br />";
     $ret .= "$BML::ML{'/talkpost_do.bml.preview.subject'} " . LJ::ehtml($cleansubject) . "<hr />\n";
 
     my $icon_kw = "";

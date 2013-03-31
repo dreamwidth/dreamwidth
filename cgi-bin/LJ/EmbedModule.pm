@@ -336,10 +336,6 @@ sub module_iframe_tag {
                 }
             }
         }
-
-        # add padding
-        $width += 50 if $width && ! $width_unit;
-        $height += 50 if $height && ! $height_unit;
     }
 
     # use explicit values if we have them

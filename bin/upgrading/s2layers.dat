@@ -85,6 +85,12 @@ hibiscus/themes          theme+                      hibiscus/layout
 headsup/layout           layout(core2base/layout)    core2
 headsup/themes           theme+                      headsup/layout
 
+leftovers/layout         layout(core2base/layout)    core2
+leftovers/themes         theme+                      leftovers/layout
+
+lefty/layout             layout(core2base/layout)    core2
+lefty/themes             theme+                      lefty/layout
+
 librariansdream/layout   layout(core2base/layout)    core2
 librariansdream/themes   theme+                      librariansdream/layout
 
@@ -115,6 +121,12 @@ paletteable/themes       theme+                      paletteable/layout
 paperme/layout           layout(core2base/layout)    core2
 paperme/themes           theme+                      paperme/layout
 
+patsy/layout             layout(core2base/layout)    core2
+patsy/themes             theme+                      patsy/layout
+
+planetcaravan/layout     layout(core2base/layout)    core2
+planetcaravan/themes     theme+                      planetcaravan/layout
+
 practicality/layout      layout(core2base/layout)    core2
 practicality/themes      theme+                      practicality/layout
 
@@ -132,6 +144,9 @@ strata/themes            theme+                      strata/layout
 
 summertime/layout        layout(core2base/layout)    core2
 summertime/themes        theme+                      summertime/layout
+
+tectonic/layout          layout(core2base/layout)    core2
+tectonic/themes          theme+                      tectonic/layout
 
 tranquilityiii/layout    layout(core2base/layout)    core2
 tranquilityiii/themes    theme+                      tranquilityiii/layout

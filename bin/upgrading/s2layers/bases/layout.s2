@@ -180,6 +180,7 @@ propgroup modules {
     property use module_credit_group;
     property use module_search_group;
     property use module_cuttagcontrols_group;
+    property use module_subscriptionfilters_group;
 }
 
 property string module_navlinks_section_override {
@@ -561,11 +562,6 @@ ul ul {list-style: circle;}
 
 $navlinks_css
 
-.entry-interaction-links li {display: inline; padding: 0.583em 0 0.583em 0 !important; border-left: 0.083em solid $*color_entry_background; border-right: 0.083em solid $*color_entry_background; }
-.entry-interaction-links li + li {border-left: 0; margin: 0 0 0 -0.25em;}
-.entry-interaction-links a {color: $*color_entry_interaction_links !important; padding: 0.583em 0.833em 0.583em 0.833em; font-weight: bold;}
-.entry-interaction-links a:hover{background: $*color_module_link_hover; text-decoration: underline; }
-
 /* ====================== SIDEBAR ======================= */
 
 .module { color: $*color_module_text; }
@@ -694,8 +690,8 @@ li.page-separator {display: none;}
 
 #primary a { color: $*color_entry_link; }
 #primary a:visited {color: $*color_entry_link_visited; }
+#primary a:hover {color: $*color_entry_link_hover; }
 #primary a:active {color: $*color_entry_link_active; }
-#primary a:hover, #primary a:visited:hover, #primary a:active:hover {color: $*color_entry_link_hover; }
 
 #primary { color: $*color_entry_text; }
 
@@ -770,15 +766,52 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 
 /* ====================== ENTRY TOOLS ======================= */
 
-.entry .footer { overflow: auto; background:  $*color_module_title_background; border-bottom: 0.083em solid $*color_entry_background;}
-.entry-interaction-links {margin: 0; padding: 0.583em; border-top: 0.083em solid $*color_entry_background;}
-.entry-interaction-links li {display: inline; padding: 0.583em 0 0.583em 0 !important; border-left: 0.083em solid $*color_entry_background; border-right: 0.083em solid $*color_entry_background; }
-.entry-interaction-links li + li {border-left: 0; margin: 0 0 0 -0.25em;}
-.entry-interaction-links a {color: $*color_entry_interaction_links !important; padding: 0.583em 0.833em 0.583em 0.833em; font-weight: bold;}
-.entry-interaction-links a:hover{background: $*color_module_link_hover; text-decoration: underline; }
+.entry .footer {
+    background:  $*color_module_title_background;
+    border-bottom: .083em solid $*color_entry_background;
+    overflow: auto;
+    }
 
-.entry-management-links { margin: 0.583em 0.583em 0 0; display: inline; float: right;}
-.entry-management-links li {display: inline; margin: 0 0.25em 0 0.25em; }
+.entry-interaction-links {
+    border-top: .083em solid $*color_entry_background;
+    margin: 0;
+    padding: .583em;
+    }
+
+.entry-interaction-links li {
+    border-left: .083em solid $*color_entry_background;
+    border-right: .083em solid $*color_entry_background;
+    display: inline;
+    padding: .583em 0;
+    }
+
+.entry-interaction-links li + li {
+    border-left: 0;
+    margin: 0 0 0 -.25em;
+    }
+
+/* Use higher specificity to override earlier setting */
+#primary .entry-interaction-links a {
+    color: $*color_entry_interaction_links;
+    padding: .583em .833em;
+    font-weight: bold;
+    }
+
+.entry-interaction-links a:hover {
+    background: $*color_module_link_hover;
+    text-decoration: underline;
+    }
+
+.entry-management-links {
+    margin: .583em .583em 0 0;
+    display: inline;
+    float: right;
+    }
+
+.entry-management-links li {
+    display: inline;
+    margin: 0 .25em;
+    }
 
 .entry-management-links.text-links {
     border-top: .083em solid $*color_entry_background;
@@ -869,7 +902,23 @@ li.first-item {margin-left: 0;}
 }
 
 .bottomcomment, .comments-message {padding-bottom: 0.833em; text-align: center; margin: 0.833em 0 0 0; }
-.bottomcomment .entry-interaction-links {margin-bottom: 0.833em; text-align: left;}
+
+.bottomcomment .entry-interaction-links {
+    color: $*color_entry_text;
+    margin-bottom: .833em;
+    text-align: left;
+    }
+
+/* Use higher specificity to override earlier setting */
+#primary .bottomcomment .entry-interaction-links a { color: $*color_entry_link; }
+#primary .bottomcomment .entry-interaction-links a:visited {color: $*color_entry_link_visited; }
+
+#primary .bottomcomment .entry-interaction-links a:hover {
+    background: none;
+    color: $*color_entry_link_hover;
+    }
+
+#primary .bottomcomment .entry-interaction-links a:active {color: $*color_entry_link_active; }
 
 .ljcmtmanage, .Note .Inner {border: 0.083em solid $*color_page_border !important; background: $*color_entry_background !important; }
 .ljcmtmanage b {color: $*color_page_text; }

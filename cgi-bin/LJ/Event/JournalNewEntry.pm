@@ -203,7 +203,8 @@ my @_ml_strings_en = (
     'esn.journal_new_entry.head_comm',              # 'There is a new entry by [[poster]][[about]] in [[journal]]![[tags]]',
     'esn.journal_new_entry.head_user',              # '[[poster]] has posted a new entry[[about]].[[tags]]',
     'esn.you_can',                                  # 'You can:',
-    'esn.view_entry',                               # '[[openlink]]View the entry[[closelink]]',
+    'esn.view_entry.nosubject',                     # '[[openlink]]View entry [[ditemid]][[closelink]]'
+    'esn.view_entry.subject',                       # '[[openlink]]View entry titled [[subject]][[closelink]]',
     'esn.read_recent_entries',                      # '[[openlink]]Read the recent entries in [[journal]][[closelink]]',
     'esn.join_community',                           # '[[openlink]]Join [[journal]] to read Members-only entries[[closelink]]',
     'esn.read_user_entries',                        # '[[openlink]]Read [[poster]]\'s recent entries[[closelink]]',
@@ -250,12 +251,14 @@ sub _as_email {
     my $entry_url   = $self->entry->url;
     my $journal_url = $self->entry->journal->journal_base;
 
+    my $subject_text = $self->entry->subject_text;
+
     # Precache text lines
     my $lang = $u->prop('browselang');
     LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
 
     my $email = LJ::Lang::get_text($lang, 'esn.hi', undef, { username    => $username }) . "\n\n";
-    my $about = $self->entry->subject_text ?
+    my $about = $subject_text ?
         (LJ::Lang::get_text($lang, 'esn.journal_new_entry.about', undef, { title => $self->entry->subject_text })) : '';
 
     my $tags = '';
@@ -280,12 +283,15 @@ sub _as_email {
     my $vars = {
                 poster  => $poster_text,
                 journal => $journal_text,
+                ditemid => $self->entry->ditemid,
+                subject => $subject_text,
             };
 
+    my $has_subject = $subject_text ? "subject" : "nosubject";
     $email .= LJ::Lang::get_text($lang, 'esn.you_can', undef) .
         $self->format_options($is_html, $lang, $vars,
             {
-                'esn.view_entry'            => [ 1, $entry_url ],
+                "esn.view_entry.$has_subject" => [ 1, $entry_url ],
                 'esn.read_recent_entries'   => [ $self->entry->journal->is_comm ? 2 : 0,
                                                     $journal_url ],
                 'esn.join_community'        => [ ($self->entry->journal->is_comm && !$u->member_of( $self->entry->journal )) ? 3 : 0,

@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
 .about=This page allows you to convert your personal account's paid time back to [[sitename]] Points.
 
-.about2=Exchanges can only be done if you have at least 30 days of paid time. We will only convert time in multiples of 30 days. In other words, if your account has 40 days of paid time left, this page will let you get an exchange for only 30 days of that.
+.about3=Exchanges can only be done if you have at least 30 days of paid time, and can only be done once every 30 days. We will only convert time in multiples of 30 days. In other words, if your account has 40 days of paid time left, this page will let you get an exchange for only 30 days of that.
 
 .addtocart=Convert Paid Time to [[points]] Points
 
@@ -18,3 +18,5 @@
 .title=[[sitename]] Convert to Points Tool
 
 .toofew=Sorry, you have less than 30 days of paid time on your account.
+
+.toosoon=Sorry, you can only refund paid time once every thirty days.
