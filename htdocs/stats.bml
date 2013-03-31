@@ -115,8 +115,11 @@ body<=
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
-             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
-                     ", $account->{timeupdate}</li>\n";
+             $ret .= sprintf("<li>%s - %s, %s</li>\n",
+                 $userobj_for->{$account->{userid}}->ljuser_display(),
+                 $userobj_for->{$account->{userid}}->name_html(),
+                 $account->{timeupdate}
+             );
          }
      }
 
@@ -134,8 +137,11 @@ body<=
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
-             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
-                     ", $account->{timeupdate}</li>\n";
+             $ret .= sprintf("<li>%s - %s, %s</li>\n",
+                 $userobj_for->{$account->{userid}}->ljuser_display(),
+                 $userobj_for->{$account->{userid}}->name_html(),
+                 $account->{timeupdate}
+             );
          }
      }
 
@@ -153,8 +159,11 @@ body<=
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
-             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
-                     ", $account->{timeupdate}</li>\n";
+             $ret .= sprintf("<li>%s - %s, %s</li>\n",
+                 $userobj_for->{$account->{userid}}->ljuser_display(),
+                 $userobj_for->{$account->{userid}}->name_html(),
+                 $account->{timeupdate}
+             );
          }
      }
 
@@ -177,8 +186,11 @@ body<=
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
-             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
-                     ", $account->{timeupdate}</li>\n";
+             $ret .= sprintf("<li>%s - %s, %s</li>\n",
+                 $userobj_for->{$account->{userid}}->ljuser_display(),
+                 $userobj_for->{$account->{userid}}->name_html(),
+                 $account->{timeupdate}
+             );
          }
      }
 
@@ -196,8 +208,11 @@ body<=
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
-             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
-                     ", $account->{timeupdate}</li>\n";
+             $ret .= sprintf("<li>%s - %s, %s</li>\n",
+                 $userobj_for->{$account->{userid}}->ljuser_display(),
+                 $userobj_for->{$account->{userid}}->name_html(),
+                 $account->{timeupdate}
+             );
          }
      }
 
@@ -215,8 +230,11 @@ body<=
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
-             $ret .= "<li>" . $userobj_for->{$account->{userid}}->ljuser_display() .
-                     ", $account->{timeupdate}</li>\n";
+             $ret .= sprintf("<li>%s - %s, %s</li>\n",
+                 $userobj_for->{$account->{userid}}->ljuser_display(),
+                 $userobj_for->{$account->{userid}}->name_html(),
+                 $account->{timeupdate}
+             );
          }
      }
 
