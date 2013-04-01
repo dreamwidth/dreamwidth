@@ -3773,8 +3773,12 @@ sub placeholder_link {
     my $width_unit  = delete $opts{width_unit}  || "px";
     my $height_unit = delete $opts{height_unit} || "px";
     my $link   = delete $opts{link}   || '';
+    my $url   = delete $opts{url}   || '';
+    my $linktext   = delete $opts{linktext}   || '';
     my $img    = delete $opts{img}    || "$LJ::IMGPREFIX/videoplaceholder.png";
 
+    my $direct_link = defined $url
+                    ? '<div class="embed_link"><a href="' . $url . '">' .  $linktext . '</a></div>' : '';
     return qq {
             <div class="LJ_Placeholder_Container" style="width: ${width}${width_unit}; height: ${height}${height_unit};">
                 <div class="LJ_Placeholder_HTML" style="display: none;">$placeholder_html</div>
@@ -3782,6 +3786,7 @@ sub placeholder_link {
                 <a href="$link">
                     <img src="$img" class="LJ_Placeholder" title="Click to show embedded content" />
                 </a>
+                $direct_link
             </div>
         };
 }

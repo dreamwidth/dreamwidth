@@ -86,6 +86,18 @@
     #        email     => $DW::PRIVATE::PAYPAL{email},
     #    );
 
+
+    # YouTube configuration.
+    # To get access  to YouTube APIs, you will need to create a Google API key.
+    # Uncomment this section and make sure to fill in the fields at the bottom of config-private.pl.
+    #%YOUTUBE_CONFIG = (
+    #        # api URL, the token gets appended to this
+    #        api_url   =>        'https://www.googleapis.com/youtube/v3/videos?id=',
+    #
+    #        # credentials for the API
+    #        apikey      => $DW::PRIVATE::YOUTUBE{apikey},
+    #);
+
     # if you define these, little help bubbles appear next to common
     # widgets to the URL you define:
     %HELPURL = (
