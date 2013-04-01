@@ -2508,6 +2508,8 @@ CREATE TABLE embedcontent (
     userid     INT UNSIGNED NOT NULL,
     moduleid   INT UNSIGNED NOT NULL,
     content    TEXT,
+    linktext   VARCHAR(255),
+    url        VARCHAR(255),
 
     PRIMARY KEY  (userid, moduleid)
 )
@@ -2655,9 +2657,11 @@ EOC
 ## --
 register_tablecreate("embedcontent_preview", <<'EOC');
 CREATE TABLE embedcontent_preview (
-    userid int(10) unsigned NOT NULL default '0',
-    moduleid int(10) NOT NULL default '0',
-    content text,
+    userid      int(10) unsigned NOT NULL default '0',
+    moduleid    int(10) NOT NULL default '0',
+    content     text,
+    linktext    VARCHAR(255),
+    url         VARCHAR(255),
 
     PRIMARY KEY  (userid,moduleid)
 ) ENGINE=InnoDB
@@ -4146,12 +4150,28 @@ EOF
             "ADD COLUMN active enum('1', '0') NOT NULL default '1'" );
     }
 
+
     if ( column_type( "spamreports", "client" ) eq '' ) {
         do_alter( "spamreports",
             "ALTER TABLE spamreports " .
             "ADD COLUMN client VARCHAR(255), " .
             "ADD INDEX (client)"
         );
+
+    # Needed to cache embed titles to minimize external API calls
+    if ( column_type( "embedcontent", "title" ) eq '' ) {
+        do_alter( 'embedcontent', 
+                  "ALTER TABLE embedcontent "
+                . "ADD COLUMN linktext VARCHAR(255), "
+                . "ADD COLUMN url VARCHAR(255);" );
+    }
+
+    if ( column_type( "embedcontent_preview", "title" ) eq '' ) {
+        do_alter( 'embedcontent_preview', 
+                  "ALTER TABLE embedcontent_preview "
+                . "ADD COLUMN linktext VARCHAR(255), "
+                . "ADD COLUMN url VARCHAR(255);" );
+
     }
 });
 

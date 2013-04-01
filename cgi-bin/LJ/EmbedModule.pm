@@ -17,6 +17,7 @@ use strict;
 use Carp qw (croak);
 use LJ::Auth;
 use HTML::TokeParser;
+use LJ::JSON;
 
 # states for a finite-state machine we use in parse()
 use constant {
@@ -40,6 +41,7 @@ my %embeddable_tags = map { $_ => 1 } qw( object embed iframe );
 sub save_module {
     my ($class, %opts) = @_;
 
+
     my $contents = $opts{contents} || '';
     my $id       = $opts{id};
     my $journal  = $opts{journal}
@@ -49,8 +51,7 @@ sub save_module {
     my $need_new_id = !defined $id;
 
     if (defined $id) {
-        my $old_content = $class->module_content( moduleid => $id,
-            journalid => LJ::want_userid($journal) ) || '';
+        my $old_content = $class->module_content( moduleid => $id, journalid => LJ::want_userid($journal))->{'content'} || '';
         my $new_content = $contents;
 
         # old content is cleaned by module_content(); new is not
@@ -70,16 +71,25 @@ sub save_module {
 
     my $cmptext = 'C-' . LJ::text_compress($contents);
 
-    ## embeds for preview are stored in a special table,
+    # get a direct link to the object if possible
+    my $src_info = $class->extract_src_info($contents);
+
+    ## embeds for journal entry pre-post preview are stored in a special table,
     ## where new items overwrites old ones
     my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
-    $journal->do("REPLACE INTO $table_name (userid, moduleid, content) VALUES ".
-                "(?, ?, ?)", undef, $journal->userid, $id, $cmptext);
+    $journal->do( "REPLACE INTO $table_name " .
+                  "(userid, moduleid, content, linktext, url) " .
+                  "VALUES (?, ?, ?, ?, ?)", 
+                   undef, $journal->userid, $id, $cmptext, $src_info->{'linktext'}, $src_info->{'url'} );
     die $journal->errstr if $journal->err;
 
     # save in memcache
     my $memkey = $class->memkey($journal->userid, $id, $preview);
-    LJ::MemCache::set($memkey, $contents);
+    my $cref   = { content      => $cmptext,
+                   linktext     => $src_info->{'linktext'},
+                   url          => $src_info->{'url'},
+                 };
+    LJ::MemCache::set($memkey, $cref);
 
     return $id;
 }
@@ -115,10 +125,10 @@ sub _expand_tag {
     return '[invalid site-embed, id is missing]' unless $attrs{id};
 
     if ($opts{expand_full}){
-        return $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id);
+        return $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id)->{'content'};
     } elsif ($edit) {
         return '<site-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">" .
-                 $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id) .
+                 $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id)->{'content'} .
                  "<\/site-embed>";
     } else {
         @opts{qw /width height/} = @attrs{qw/width height/};
@@ -257,6 +267,101 @@ sub _extract_num_unit {
     return ( $num, "%" );
 }
 
+# extract src info if useful
+# returns a hash of link text, url
+# currently handles: YouTube, Vimeo
+sub extract_src_info {
+    my ($class, $content) = @_;
+    my ($url, $site, $href, $linktext);
+
+    if ( $content =~ /src="http:\/\/.*youtube\.com/ ) {
+        # YouTube
+
+        my $host = "https://www.youtube.com/";
+        my $prefix = "watch?v=";
+
+        # get the video ID
+        $content =~ /.*src="[^"]*embed\/([^"]*)".*/;
+        my $vid_id = $1;
+        $url = $host . $prefix . $vid_id;
+
+        # Get our YouTube API variables and set up the variables
+        # for constructing a YouTube URL. If we don't have an API
+        # key, then just link with generic text
+        if ( $LJ::YOUTUBE_CONFIG{apikey} ) {
+            my $api_url = $LJ::YOUTUBE_CONFIG{api_url};
+            my $apikey = $LJ::YOUTUBE_CONFIG{apikey};
+    
+            # put together the  GET request to get the video title
+            my $ua = LJ::get_useragent( role => 'youtube', timeout => 60 );
+            my $queryurl = $api_url 
+                         . $vid_id
+                         . "&key="
+                         . $apikey
+                         . "&part=snippet";
+            # Pass request to the user agent and get a response back
+            my $request = HTTP::Request->new(GET => $queryurl);
+            my $res = $ua->request($request);
+    
+            # Check the outcome of the response
+            if ($res->is_success) {
+                my $obj = from_json( $res->content );
+                $linktext = '"'
+                          . ${$obj}{'items'}[0]{'snippet'}{'title'}
+                          . '" (' 
+                          . BML::ml('embedmedia.youtube')
+                          . ")";
+            } else {
+                warn "error getting video info from youtube: ", $res->status_line, "\n";
+                $linktext = BML::ml('embedmedia.youtube');
+            }
+        } else {
+            # no API key; use generic text
+            $linktext = BML::ml('embedmedia.youtube');
+        }
+    } elsif ( $content =~ /src="http:\/\/.*vimeo\.com/ ) {
+        # Vimeo's default c/p embed code contains a link to the
+        # video by title. If that's present, don't build a link.
+        unless ( $content =~ /<p><a href="http:\/\/vimeo.com\// ) {
+            my $host = "http://vimeo.com/";
+    
+            # get the video ID
+            $content =~ /.*src="[^"]*vimeo\.com\/video\/([^"]*)".*/;
+            my $vid_id = $1;
+            $url = $host . $vid_id;
+    
+            # put together the  GET request to get the video title
+            my $ua = LJ::get_useragent( role => 'vimeo', timeout => 60 );
+            my $api_url = "http://vimeo.com/api/v2/video/"
+                        . $vid_id
+                        . ".json";
+    
+            # Pass request to the user agent and get a response back
+            my $request = HTTP::Request->new(GET => $api_url);
+            my $res = $ua->request($request);
+    
+            # Check the outcome of the response
+            if ($res->is_success) {
+                my $obj = from_json( $res->content );
+                $linktext = '"'
+                          . ${$obj}[0]{'title'}
+                          . '" '
+                          . BML::ml('embedmedia.vimeo')
+                          . ")";
+            } else {
+                warn "error getting video info from Vimeo: ", $res->status_line, "\n";
+                $linktext = BML::ml('embedmedia.vimeo');
+            }
+        }
+     } else {
+        # Not one of our known embed types
+        $linktext = "";
+        $url = "";
+    }
+
+    return { linktext => $linktext, url => $url };
+}
+
 sub module_iframe_tag {
     my ($class, $u, $moduleid, %opts) = @_;
 
@@ -267,10 +372,13 @@ sub module_iframe_tag {
     my $preview = defined $opts{preview} ? $opts{preview} : '';
 
     # parse the contents of the module and try to come up with a guess at the width and height of the content
-    my $content = $class->module_content( moduleid => $moduleid, journalid => $journalid, preview => $preview );
-    my $width = 0;
-    my $height = 0;
-    my $width_unit = "";
+    my $embed_details = $class->module_content( moduleid => $moduleid, journalid => $journalid, preview => $preview );
+    my $content  = $embed_details->{'content'};
+    my $linktext = $embed_details->{'linktext'};
+    my $url      = $embed_details->{'url'};
+    my $width    = 0;
+    my $height   = 0;
+    my $width_unit  = "";
     my $height_unit = "";
     my $p = HTML::TokeParser->new(\$content);
     my $embedcodes;
@@ -366,12 +474,14 @@ sub module_iframe_tag {
     # append a random string to the name so it can't be targetted by links
     my $id = "embed_${journalid}_$moduleid";
     my $name = "${id}_" . LJ::make_auth_code( 5 );
-
+    my $direct_link = defined $url 
+                    ? '<div><a href="' . $url . '">' .  $linktext . '</a></div>' : '';
     my $auth_token = LJ::eurl(LJ::Auth->sessionless_auth_token('embedcontent', moduleid => $moduleid, journalid => $journalid, preview => $preview,));
     my $iframe_link = qq{http://$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token};
-    my $iframe_tag = qq {<iframe src="$iframe_link" } .
-        qq{width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0" class="lj_embedcontent" id="$id" name="$name"></iframe>};
-
+    my $iframe_tag = qq {<iframe src="$iframe_link" }
+        . qq{width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0" class="lj_embedcontent" id="$id" name="$name"></iframe>} 
+        . qq{$direct_link};
+ 
     my $remote = LJ::get_remote();
     return $iframe_tag unless $remote;
     return $iframe_tag if $opts{edit};
@@ -401,6 +511,8 @@ sub module_iframe_tag {
                                 height           => $height,
                                 height           => $height_unit,
                                 img              => "$LJ::IMGPREFIX/videoplaceholder.png",
+                                url              => $url,
+                                linktext         => $linktext,
                                 );
 }
 
@@ -418,13 +530,18 @@ sub module_content {
 
     # try memcache
     my $memkey = $class->memkey($journalid, $moduleid, $preview);
-    my $content = LJ::MemCache::get($memkey);
+    my ($content, $linktext, $url); # for direct linking
+    my $cref = LJ::MemCache::get($memkey);
+    $content  = $cref->{'content'};
+    $linktext = $cref->{'linktext'};
+    $url      = $cref->{'url'};
     my ($dbload, $dbid); # module id from the database
     unless (defined $content) {
         my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
-        ($content, $dbid) = $journal->selectrow_array("SELECT content, moduleid FROM $table_name WHERE " .
-                                                      "moduleid=? AND userid=?",
-                                                      undef, $moduleid, $journalid);
+        ($content, $dbid, $linktext, $url) = $journal->selectrow_array("SELECT " .
+                                             "content, moduleid, linktext, url FROM $table_name " .
+                                             "WHERE moduleid=? AND userid=?",
+                                             undef, $moduleid, $journalid);
         die $journal->errstr if $journal->err;
         $dbload = 1;
     }
@@ -436,17 +553,29 @@ sub module_content {
     # clean js out of content
     LJ::CleanHTML::clean_embed( \$content );
 
+    my $return_content;
+
     # if we got stuff out of database
     if ($dbload) {
-        # save in memcache
-        LJ::MemCache::set($memkey, $content);
-
         # if we didn't get a moduleid out of the database then this entry is not valid
-        return defined $dbid ? $content : "[Invalid lj-embed id $moduleid]";
+        $return_content = {
+            content => defined $dbid ? $content : "[Invalid lj-embed id $moduleid]",
+            linktext => $linktext,
+            url => $url,
+        };
+
+        # save in memcache
+        LJ::MemCache::set($memkey, $return_content);
+    } else {
+        # get rid of whitespace around the content
+        $return_content = {
+            content => LJ::trim($content) || '',
+            linktext => $linktext,
+            url => $url,
+        };
     }
 
-    # get rid of whitespace around the content
-    return LJ::trim($content) || '';
+    return $return_content;
 }
 
 sub memkey {
@@ -472,7 +601,7 @@ sub reconstruct {
                 next;
             }
 
-            # FIXME: ultra ghetto.
+            # FIXME: not the right way to do this.
             $attr->{$name} = LJ::no_utf8_flag($attr->{$name});
 
             $txt .= " $name=\"" . LJ::ehtml($attr->{$name}) . "\"";
