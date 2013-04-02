@@ -45,7 +45,7 @@ sub render_body {
 
     my $tip_birthdate = LJ::ejs($class->ml('widget.createaccount.tip.birthdate2'));
     my $tip_email = LJ::ejs($class->ml('widget.createaccount.tip.email'));
-    my $tip_password = LJ::ejs($class->ml('widget.createaccount.tip.password'));
+    my $tip_password = LJ::ejs($class->ml('widget.createaccount.tip.password2'));
     my $tip_username = LJ::ejs($class->ml('widget.createaccount.tip.username'));
 
     $ret .= "<script type='text/javascript'>\n";
