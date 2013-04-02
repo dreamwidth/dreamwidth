@@ -9,7 +9,7 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      Janine Smith <janine@netrophic.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -444,10 +444,11 @@ sub _basic_info_location {
             my %countries = ();
             LJ::load_codes( { country => \%countries } );
 
-            $country_ret = LJ::is_enabled( 'directory' ) ?
-                { url => "$dirurl&amp;loc_cn=$ecountry",
-                  text => $countries{ $country } } : $countries{ $country };
-            $country_ret->{secimg} = $secimg if ! $state && ! $city && ref $country_ret eq "HASH";
+            $country_ret = {};
+            $country_ret->{url} = "$dirurl&amp;loc_cn=$ecountry"
+                if LJ::is_enabled( 'directory' );
+            $country_ret->{text} = $countries{$country};
+            $country_ret->{secimg} = $secimg if ! $state && ! $city;
         }
 
         if ( $state ) {
@@ -458,18 +459,22 @@ sub _basic_info_location {
             $state = LJ::ehtml( $state );
             $state = $states{$state} if $states_type && $states{$state};
             $estate = LJ::eurl( $state );
-            $state_ret = $country && LJ::is_enabled( 'directory' ) ?
-                { url => "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate",
-                  text => LJ::ehtml( $state ) } : LJ::ehtml( $state );
-            $state_ret->{secimg} = $secimg if !$city && ref $state_ret eq "HASH";
+
+            $state_ret = {};
+            $state_ret->{url} = "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate"
+                if $country && LJ::is_enabled( 'directory' );
+            $state_ret->{text} = LJ::ehtml( $state );
+            $state_ret->{secimg} = $secimg if ! $city;
         }
 
         if ( $city ) {
             $city = LJ::ehtml( $city );
-            $city_ret = $country && LJ::is_enabled( 'directory' ) ?
-                { url => "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity",
-                  text => $city } : $city;
-            $city_ret->{secimg} = $secimg if ref $city_ret eq "HASH";
+
+            $city_ret = {};
+            $city_ret->{url} = "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity"
+                if $country && LJ::is_enabled( 'directory' );
+            $city_ret->{text} = $city;
+            $city_ret->{secimg} = $secimg;
         }
 
         push @$ret, $city_ret, $state_ret, $country_ret;
