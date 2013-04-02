@@ -257,13 +257,13 @@ span.Pages input {
     font-weight: bold;
 }
 .folders a.subs {
-    padding-left: 1em;
+    padding-left: 2em;
 }
 .folders .subs {
-    padding-left: 1em;
+    padding-left: 2em;
 }
 .folders a.subsubs {
-    padding-left: 2em;
+    padding-left: 3.5em;
 }
 
 
