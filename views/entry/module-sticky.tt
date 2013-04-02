@@ -12,59 +12,76 @@ the same terms as Perl itself.  For a copy of the license, please reference
 -%]
   <fieldset>
     <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
-    <div class='inner' id='sticky_options'>
-      <p>
-        [% show = 1; not_sticky = 1; FOREACH sticky IN stickies %]
-            <p>[%- IF show == 1;
-                label = ".label" | ml ; 
-                IF sticky.checked ==1 ;
-                    form.radio( label = label _ sticky.position
+    <div class='inner'>
 
-                        name = "sticky_select"
-                        id = sticky.position _ "_sticky_select"
-                        checked = sticky.checked
-                        value=sticky.position
-                    );
-                not_sticky = 0;
-                ELSE %]
-                [%# I have no idea why this syntax works when not putting a close after ELSE does not, but there you go -%]
-                [%
-                  form.radio( label = label _ sticky.position
-                        name = "sticky_select"
-                        id = sticky.position _ "_sticky_select"
+    <div id='sticky_options'>
+        <div>
+        [% label_yes = ".label_yes" | ml %]
+        [% IF is_sticky;
+               form.checkbox( label = label_yes
+                   name = "issticky"
+                   id = "issticky"
+                   checked = 1
+                   value=1
+               );
+           ELSE;
+               form.checkbox( label = label_yes
+                   name = "issticky"
+                   id = "issticky"
 
-                        value=sticky.position
-                    );
-                %]
-                [% END -%]
-            </p>
-                [% IF sticky.issticky == 1 %]
-                    <div class='info'>
-                    <p> [% title = ".title" | ml ; ditemid = ".itemid" | ml ; close = ".close" | ml;
-                           ditemid _ sticky.ditemid _ title _ sticky.name _ close %]</p>
-                    </div>
-                [% ELSE %]
-                    [% show = 0 %] 
+                   value=1
+               );
+           END;
+        %]
+        </div>
+        <div id='sticky_positions'>
+        [%# first_unused_sticky = 0  if there are no free sticky options
+            otherwise it shows the first.  If it equals 1 we assume there
+            are no choices of sticky position (the entry will become the first
+            sticky so we don't bother to display the options) %]
+        [% show = 1; not_sticky = 1; IF first_unused_sticky != 1 %]
+            [% IF first_unused_sticky == 0 && ! is_sticky %]
+                <p>[% ".sticky_position_req" | ml %]</p>
+            [% END %]
+            [% IF is_sticky %]
+                <p>[% ".is_sticky_warning" | ml %]</p>
+            [% END %]
+            <legend><span>[% ".label.sticky_pos" | ml %]</span></legend>
+            <dl>
+            [% FOREACH sticky IN stickies %]
+                <dt>[%- IF show;
+                    label = ".label" | ml ; 
+                    IF sticky.checked ;
+                        form.radio( label = label _ sticky.position
+
+                            name = "sticky_select"
+                            id = sticky.position _ "_sticky_select"
+                            checked = sticky.checked
+                            value=sticky.position
+                        );
+                        not_sticky = 0;
+                    ELSE;
+                        form.radio( label = dw.ml( ".label", { position = sticky.position } )
+                            name = "sticky_select"
+                            id = sticky.position _ "_sticky_select"
+
+                            value=sticky.position
+                        );
+                    END -%]
+                </dt>
+                    [% IF sticky.issticky %]
+                        <div class='info'>
+                        <dd> [% ".sticky_label" | ml ( num = sticky.ditemid, name = sticky.name ) %]</dd>
+                        </div>
+                    [% ELSE;
+                        show = 0;
+                    END %]
                 [% END %]
             [% END %]
+            </dl>
         [% END %]
-        [% label_no = ".label_no" | ml %]
-        [% IF not_sticky == 1;
-               form.radio( label = label_no
-                   name = "sticky_select"
-                   id = "0_sticky_select"
-                   checked = 1
-                   value=0
-               );
-           ELSE %]
-           [%    form.radio( label = label_no
-                   name = "sticky_select"
-                   id = "0_sticky_select"
-
-                   value=0
-               );
-           END
-        %]
-      </p>
+        [%  form.hidden( name="first_unset_sticky", id="first_unset_sticky", value=first_unused_sticky ); %]
+        </div>
+    </div>
     </div>
   </fieldset>

@@ -34,7 +34,12 @@ sub option {
     my $username = $u->user;
 
     foreach my $i ( 1... $u->count_max_stickies ) {
-        my $url = "http://$username.dreamwidth.org/$stickies[$i - 1].html" if $stickies[$i - 1];
+        my $url = "";
+        if ( $stickies[$i - 1] ) {
+            $url = "http://$username.dreamwidth.org/$stickies[$i - 1].html";
+        } else {
+            $url = "http://$username.dreamwidth.org/(Entry Number).html" if ( $i == 1 || $stickies [$i - 2] );
+        }
         my $textentry = $errs ? $class->get_arg( $args, "stickyid${i}" ) : $url;
 
         $ret .= "<label for='${key}stickyid${i}'>" . $class->ml( 'setting.stickyentryi.label' ) . " $i </label>";
@@ -66,10 +71,12 @@ sub save {
     my @stickies;
     # Create a hash that we will use to check for duplicate entries.
     my %unique = ();
+    my $username = $u->user;
+    my $defaulturl = "http://$username.dreamwidth.org/(Entry Number).html";
     for ( my $i=1; $i<=$max_sticky_count; $i++ ) {
         my $stickyi = $class->get_arg( $args, "stickyid${i}" ) || '';
         # Unless this is a blank form entry...
-        unless ( $stickyi eq '' ) {
+        unless ( $stickyi eq '' || $stickyi eq $defaulturl ) {
             $stickyi = LJ::text_trim( $stickyi, 0, 100 );
             my $ditemid = $u->is_valid_entry( $stickyi );
             # is_valid_entry will return the correct itemid if a URL has been given.  It will be

@@ -1,8 +1,9 @@
 ;; -*- coding: utf-8 -*-
-.header=Make Sticky
+.header=Sticky Entries
 
-.label=Sticky 
-.label_no=Not a Sticky
-.itemid=Currently: 
-.title= (
-.close=)
+.label=Sticky [[position]]
+.label.sticky_pos=Sticky Position:
+.label_yes=Make Sticky Entry
+.sticky_label=Currently: [[num]] ([[name]])
+.sticky_position_req=All possible stickies are used.  Please select one to replace.
+.is_sticky_warning=Please note altering the position of an existing sticky may cause the positions of other stickies to change.
