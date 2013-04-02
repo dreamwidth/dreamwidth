@@ -371,6 +371,7 @@ propgroup text {
     property use text_module_credit;
     property use text_module_search;
     property use text_module_cuttagcontrols;
+    property use text_module_subscriptionfilters;
 
 ##===============================
 ## Text - main navigation

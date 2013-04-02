@@ -210,6 +210,7 @@ propgroup text {
     property use text_module_credit;
     property use text_module_search;
     property use text_module_cuttagcontrols;
+    property use text_module_subscriptionfilters;
 
     property use text_view_recent;
     property use text_view_archive;
