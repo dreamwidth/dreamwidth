@@ -4635,7 +4635,7 @@ widget.createaccount.tip.captcha=If you can't read the text, type "audio" to tak
 
 widget.createaccount.tip.email=We need your email address to send you important information. We'll never give your email address to anyone else.
 
-widget.createaccount.tip.password=Choose a secure password that's at least 6 characters long. Passwords can't be based on your account name, your real name, or your email address for security reasons.
+widget.createaccount.tip.password2=Choose a secure password that's between 6 and 30 characters long with at least 4 unique characters and one non-letter character (digit or symbol). Passwords can't be based on your account name, your real name, or your email address for security reasons.
 
 widget.createaccount.tip.username=Your account name is used in your journal URL. Use lower-case letters (a-z), digits (0-9), and underscores (_), and choose a name between 2 and 25 characters long. You can't start or end your account name with an underscore, nor have two consecutive underscores.
 
