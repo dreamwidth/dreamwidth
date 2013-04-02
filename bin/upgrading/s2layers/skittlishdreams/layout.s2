@@ -280,6 +280,7 @@ propgroup text {
     property use text_module_customtext;
     property use text_module_customtext_url;
     property use text_module_customtext_content;
+    property use text_module_subscriptionfilters;
 
     property use text_view_recent;
     property use text_view_archive;

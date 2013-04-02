@@ -955,6 +955,7 @@ sub module_props {
         text_module_credit
         text_module_search
         text_module_cuttagcontrols
+        text_module_subscriptionfilters
     )
 }
 
