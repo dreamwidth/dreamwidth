@@ -15,7 +15,7 @@
 
 .licensing.main=Our FAQs and Guides are released under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution Share-Alike 3.0 license</a> where indicated. If you're using our documentation, please credit us as <strong>Dreamwidth Studios, LLC</strong> and provide a link to this <a href="http://www.dreamwidth.org/site/opensource.bml">Open Source</a> page.
 
-.os.dw=[[sitenameshort]] uses the Dreamwidth Studios codebase provided by Dreamwidth Studios, LLC. The source repository is located at <a href="https://github.com/dreamwidth/">Dreamwidth's GitHub Repositories</a>.
+.os.dw2=[[sitenameshort]] uses the Dreamwidth Studios codebase provided by Dreamwidth Studios, LLC. The source repository is located at <a href="https://github.com/dreamwidth/">Dreamwidth's GitHub Repositories</a>.
 
 .os.header=Open Source
 

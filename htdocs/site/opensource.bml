@@ -20,7 +20,7 @@ body<=
 
 <p><?_ml .os.intro _ml?></p>
 
-<p><?_code return BML::ml ('.os.dw', {'sitenameshort' => $LJ::SITENAMESHORT}); _code?></p>
+<p><?_code return BML::ml ('.os.dw2', {'sitenameshort' => $LJ::SITENAMESHORT}); _code?></p>
 
 <p><?_ml .os.lj _ml?></p>
 
