@@ -190,7 +190,7 @@ body<=
             # As the idea is to limit spam to one e-mail address, if any of their username's are
             # over the limit, then don't send them any more e-mail.
             return LJ::bad_input($ML{'.error.toofrequent'}) unless $u->rate_log( "lostinfo", 1 );
-            push @users, $u->{user};
+            push @users, $u->display_name;
         }
 
         return LJ::bad_input(BML::ml('/lostinfo_do.bml.error.no_usernames_for_email',
