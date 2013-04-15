@@ -3507,7 +3507,7 @@ sub _Comment__get_link
     if ($key eq "hide_comments") {
         ## show "Hide/Show" link if the comment has any children
         # only show hide/show comments if using jquery
-        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} } > 0 ) {
+        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} || [] } > 0 ) {
             return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                                 $ctx->[S2::PROPS]->{"text_comment_hide"});
         } else {
@@ -3517,7 +3517,7 @@ sub _Comment__get_link
     if ($key eq "unhide_comments") {
         ## show "Hide/Unhide" link if the comment has any children
         # only show hide/show comments if using jquery
-        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} } > 0 ) {
+        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} || [] } > 0 ) {
             return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                                 $ctx->[S2::PROPS]->{"text_comment_unhide"});
         } else {
