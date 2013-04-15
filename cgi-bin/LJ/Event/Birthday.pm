@@ -70,9 +70,13 @@ sub as_html {
 sub as_html_actions {
     my ($self) = @_;
 
-    my $gifturl = $self->bdayuser->gift_url;
+    my $journalurl = $self->bdayuser->journal_base;
+    my $pmurl = $self->bdayuser->gift_url;
+    my $gifturl = $self->bdayuser->message_url;
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='$gifturl'>Send a Gift</a>";
+    $ret .= "<a href='$journalurl'>View Journal</a>";
+    $ret .= " | <a href='$pmurl'>Send a Message</a>";
+    $ret .= " | <a href='$gifturl'>Send a Gift</a>";
     $ret .= "</div>";
 
     return $ret;
@@ -136,8 +140,10 @@ sub _as_email {
         }) .
         $self->format_options($is_html, $lang, undef,
             {
-                'esn.post_happy_bday'   => [ 1, "$LJ::SITEROOT/update" ],
-                'esn.shop_for_gift'     => [ LJ::is_enabled( 'payments' ) ? 2 : 0, $self->bdayuser->gift_url ],
+                'esn.post_happy_bday'       => [ 1, "$LJ::SITEROOT/update" ],
+                'esn.go_journal_happy_bday' => [ 2, $self->bdayuser->journal_base ],
+                'esn.pm_happy_bday'         => [ 3, $self->bdayuser->message_url ],
+                'esn.shop_for_gift'         => [ LJ::is_enabled( 'payments' ) ? 4 : 0, $self->bdayuser->gift_url ],
             },
             LJ::Hooks::run_hook('birthday_notif_extra_' . ($is_html ? 'html' : 'plaintext'), $u)
         );

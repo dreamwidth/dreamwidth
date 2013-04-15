@@ -1128,6 +1128,8 @@ esn.footer.text2<<
 If you'd rather not get these updates, you can change your preferences at [[siteroot]]/manage/settings/?cat=notifications
 .
 
+esn.go_journal_happy_bday=[[openlink]]Go to their journal to wish them a happy birthday[[closelink]]
+
 esn.here_you_can=From here you can:
 
 esn.hi=Hi [[username]],
@@ -1348,6 +1350,8 @@ esn.officialpost.string2=[[poster]] made a new announcement in [[username]] at [
 esn.officialpost.subject=[[sitenameshort]] Announcement: [[subject]]
 
 esn.officialpost.subscribtion.html=[[sitename]] makes a new announcement
+
+esn.pm_happy_bday=[[openlink]]Send them a message to wish them a happy birthday[[closelink]]
 
 esn.poll_vote.email_text<<
 Hi [[user]],
