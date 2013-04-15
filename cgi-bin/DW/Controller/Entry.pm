@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2011-2012 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -1218,6 +1218,9 @@ sub preview_handler {
 
         $event =~ s/<poll-placeholder>/$poll_preview->()/eg;
     }
+
+    # expand existing polls (for editing, or when transferring polls to another entry)
+    LJ::Poll->expand_entry( \$event );
 
     # parse out embed tags from the RTE
     $event = LJ::EmbedModule->transform_rte_post( $event );
