@@ -64,6 +64,9 @@ _c?>
         $event =~ s/<poll-placeholder>/$poll_preview->()/eg;
     }
 
+    # existing polls
+    LJ::Poll->expand_entry( \$event );
+
     # parse out embed tags from the RTE
     $event = LJ::EmbedModule->transform_rte_post($event);
     # do first expand_embedded pass with the preview flag to extract
