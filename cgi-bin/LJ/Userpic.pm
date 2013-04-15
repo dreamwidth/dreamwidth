@@ -1060,9 +1060,8 @@ sub set_keywords {
     } else {
         @keywords = split(',', $_[0]);
     }
-
-    map { s/^\s+//; s/\s+$//; } @keywords;
-    @keywords = grep { !/^pic\#\d+$/ } @keywords;
+    
+    @keywords = grep { !/^pic\#\d+$/ } map { s/(^\s+|\s+$)//; $_ } @keywords;
 
     my $u = $self->owner;
     my $have_mapid = $u->userpic_have_mapid;
@@ -1106,8 +1105,9 @@ sub set_keywords {
             next;
         }
 
-        unless (exists $exist_kwids{$kwid}) {
+        if ( exists $exist_kwids{$kwid} ) {
             delete $exist_kwids{$kwid};
+        } else {
             if ( $have_mapid ) {
                 $kwid_to_mapid{$kwid} ||= LJ::alloc_user_counter( $u, 'Y' );
 
