@@ -1529,3 +1529,6 @@ general /manage/circle/add.bml.groups.reading.feed1
 general /manage/invites.bml.fromline
 
 general settings.usermessaging.obsolete
+
+general /support/see_request.bml.error.text2
+general /support/see_request.bml.incat
