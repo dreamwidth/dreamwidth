@@ -994,7 +994,7 @@ sub _do_post {
         );
 
         push @links, { url => $ju->journal_base . "?poster=" . $auth->{poster}->user,
-                        ml_string => "/update.bml.success.links.myentries" } if ($ju->is_community);
+                        ml_string => "/update.bml.success.links.myentries" } if $ju->is_community;
 
 
         # crosspost!
