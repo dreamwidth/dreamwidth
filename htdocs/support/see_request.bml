@@ -64,10 +64,10 @@ body<=
         if ($foundspid) {
             return BML::redirect("see_request?id=$foundspid");
         } else {
+            my $extra = $find eq "cnext" || $find eq "cprev" ? "_cat" : "" ;
+            my $text = $find eq 'next' || $find eq 'cnext' ? BML::ml('.error.nonext' . $extra) : BML::ml('.error.noprev' . $extra);
             my $goback = $sp ? BML::ml('.goback.text', {request_link=>"href='see_request?id=$spid'", spid=>$spid}) : undef;
-            my $what = $find eq 'next' || $find eq 'cnext' ? $ML{'.next'} : $ML{'.previous'};
-            my $cat = $find eq 'cnext' || $find eq 'cprev' ? $ML{'.incat'} : undef;
-            return "<?h1 $ML{'.error'} h1?>".BML::ml('.error.text2', {what=>$what, cat=>$cat})." $goback";
+            return "<?h1 $ML{'.error'} h1?>" . $text . $goback;
         }
     }
 

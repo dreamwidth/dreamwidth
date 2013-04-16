@@ -45,7 +45,13 @@
 
 .error.text1=You don't have permission to read any support categories.
 
-.error.text2=<?p No [[what]] open request [[cat]] found. p?>
+.error.nonext=<?p No next open request found. p?>
+
+.error.nonext_cat=<?p No next open request in the same category found. p?>
+
+.error.noprev=<?p No previous open request found. p?>
+
+.error.noprev_cat=<?p No previous open request in the same category found. p?>
 
 .faq=FAQ
 
@@ -66,8 +72,6 @@
 
 <?p Thank you! p?>
 .
-
-.incat=This request is in the same category
 
 .internal.comment=Internal Comment
 
