@@ -1061,7 +1061,7 @@ sub set_keywords {
         @keywords = split(',', $_[0]);
     }
     
-    @keywords = grep { !/^pic\#\d+$/ } map { s/(^\s+|\s+$)//; $_ } @keywords;
+    @keywords = grep { !/^pic\#\d+$/ } map { s/^\s+//; s/\s+$//; $_ } @keywords;
 
     my $u = $self->owner;
     my $have_mapid = $u->userpic_have_mapid;
