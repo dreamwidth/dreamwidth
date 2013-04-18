@@ -116,8 +116,8 @@ body<=
 
          foreach my $account (@$accounts) {
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display(),
-                 $userobj_for->{$account->{userid}}->name_html(),
+                 $userobj_for->{$account->{userid}}->ljuser_display,
+                 $userobj_for->{$account->{userid}}->name_html,
                  $account->{timeupdate}
              );
          }
@@ -138,8 +138,8 @@ body<=
 
          foreach my $account (@$accounts) {
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display(),
-                 $userobj_for->{$account->{userid}}->name_html(),
+                 $userobj_for->{$account->{userid}}->ljuser_display,
+                 $userobj_for->{$account->{userid}}->name_html,
                  $account->{timeupdate}
              );
          }
@@ -160,8 +160,8 @@ body<=
 
          foreach my $account (@$accounts) {
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display(),
-                 $userobj_for->{$account->{userid}}->name_html(),
+                 $userobj_for->{$account->{userid}}->ljuser_display,
+                 $userobj_for->{$account->{userid}}->name_html,
                  $account->{timeupdate}
              );
          }
@@ -187,8 +187,8 @@ body<=
 
          foreach my $account (@$accounts) {
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display(),
-                 $userobj_for->{$account->{userid}}->name_html(),
+                 $userobj_for->{$account->{userid}}->ljuser_display,
+                 $userobj_for->{$account->{userid}}->name_html,
                  $account->{timeupdate}
              );
          }
@@ -209,8 +209,8 @@ body<=
 
          foreach my $account (@$accounts) {
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display(),
-                 $userobj_for->{$account->{userid}}->name_html(),
+                 $userobj_for->{$account->{userid}}->ljuser_display,
+                 $userobj_for->{$account->{userid}}->name_html,
                  $account->{timeupdate}
              );
          }
@@ -231,8 +231,8 @@ body<=
 
          foreach my $account (@$accounts) {
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display(),
-                 $userobj_for->{$account->{userid}}->name_html(),
+                 $userobj_for->{$account->{userid}}->ljuser_display,
+                 $userobj_for->{$account->{userid}}->name_html,
                  $account->{timeupdate}
              );
          }
