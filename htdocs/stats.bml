@@ -108,10 +108,7 @@ body<=
      $sth->execute;
      my $accounts = $sth->fetchall_arrayref({});
 
-     if (scalar @$accounts == 0) {
-         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
-     }
-     else {
+     if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
@@ -121,6 +118,9 @@ body<=
                  $account->{timeupdate}
              );
          }
+     }
+     else {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
 
      $ret .= "</ul>\n";
@@ -130,10 +130,7 @@ body<=
      $sth->execute;
      my $accounts = $sth->fetchall_arrayref({});
 
-     if (scalar @$accounts == 0) {
-         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
-     }
-     else {
+     if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
@@ -143,6 +140,9 @@ body<=
                  $account->{timeupdate}
              );
          }
+     }
+     else {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
 
      $ret .= "</ul>\n";
@@ -152,10 +152,7 @@ body<=
      $sth->execute;
      my $accounts = $sth->fetchall_arrayref({});
 
-     if (scalar @$accounts == 0) {
-         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
-     }
-     else {
+     if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
@@ -165,6 +162,9 @@ body<=
                  $account->{timeupdate}
              );
          }
+     }
+     else {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
 
      $ret .= "</ul>\n";
@@ -179,10 +179,7 @@ body<=
      $sth->execute;
      my $accounts = $sth->fetchall_arrayref({});
 
-     if (scalar @$accounts == 0) {
-         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
-     }
-     else {
+     if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
@@ -192,6 +189,9 @@ body<=
                  $account->{timeupdate}
              );
          }
+     }
+     else {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
 
      $ret .= "</ul>\n";
@@ -201,10 +201,7 @@ body<=
      $sth->execute;
      my $accounts = $sth->fetchall_arrayref({});
 
-     if (scalar @$accounts == 0) {
-         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
-     }
-     else {
+     if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
@@ -214,6 +211,9 @@ body<=
                  $account->{timeupdate}
              );
          }
+     }
+     else {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
 
      $ret .= "</ul>\n";
@@ -223,10 +223,7 @@ body<=
      $sth->execute;
      my $accounts = $sth->fetchall_arrayref({});
 
-     if (scalar @$accounts == 0) {
-         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
-     }
-     else {
+     if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
          foreach my $account (@$accounts) {
@@ -236,6 +233,9 @@ body<=
                  $account->{timeupdate}
              );
          }
+     }
+     else {
+         $ret .= "<li><i>$ML{'.notavailable'}</i></li>";
      }
 
      $ret .= "</ul>\n";
