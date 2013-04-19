@@ -201,7 +201,7 @@ _c?>
             if $state eq 'open' && $by eq 'posterid';
 
         # now the general info gathering
-        my $res = $dbr->selectall_arrayref('SELECT reporttime, journalid, subject, body, ip, posttime, report_type, srid ' .
+        my $res = $dbr->selectall_arrayref('SELECT reporttime, journalid, subject, body, ip, posttime, report_type, srid, client ' .
                                            "FROM spamreports WHERE state=? AND $by=? ORDER BY reporttime DESC LIMIT 1000",
                                             undef, $state, $what);
         unless ($res && @$res) {
@@ -218,9 +218,10 @@ _c?>
             my $spamlocation = ucfirst($_->[6]);
             my $srid = $_->[7];
             $body .= '<tr><td>' .  ($state eq 'open' ? $dellink->([$srid], BML::ml('.report.individual.close')) : '') . '</td><td>' .
-                     "<strong>" . BML::ml(".report.individual.in", { spamlocation => $spamlocation } ) . "</strong>" . LJ::ljuser($u2) . '<br ƒ/>' .
+                     "<strong>" . BML::ml(".report.individual.in", { spamlocation => $spamlocation } ) . "</strong>" . LJ::ljuser($u2) . '<br />' .
                      '<strong>'. BML::ml(".report.individual.reporttime") . '</strong> ' . LJ::mysql_time($_->[0]) . '<br />' .
                      "<strong>" . BML::ml(".report.individual.spamtime", { spamlocation => $spamlocation } ) . "</strong> " .  ($_->[5] ? LJ::mysql_time($_->[5]) : BML::ml(".report.individual.spamtime.notrecorded")) . '<br />' .
+                     '<strong>' . '<?_ml.report.individual.client _ml?>' . '</strong> ' . LJ::ehtml( $_->[8] || "" ) . '<br />' .
                      '<strong>' . '<?_ml .report.individual.subject _ml?>' . '</strong> ' . LJ::ehtml($_->[2] || BML::ml('.report.individual.subject.none')) . '<br />' .
                      '<strong>' . '<?_ml .report.individual.body _ml?>' . '</strong> ' . LJ::ehtml($comment_body || BML::ml('.report.individual.body.none')) . '<br />' .
                      '</td></tr><tr><td>&nbsp;</td></tr>';

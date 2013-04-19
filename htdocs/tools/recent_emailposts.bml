@@ -77,6 +77,7 @@ body<=
         <table class="grid" cellspacing="0">
             <thead><tr>
                 <th>When</th>
+                <th>Type</th>
                 <th>Subject</th>
                 <th>Error?</th>
                 <th>Server Message</th>
@@ -87,8 +88,10 @@ body<=
         my $row = {};
         LJ::decode_url_string( $data->{$_}->{extra}, $row );
         $ret .= $row->{e} ? "<tr class='error-box'>" : "<tr class='ok'>";
+        my $type = $row->{t} || "entry";
         $ret .= qq{
             <td nowrap="1">$data->{$_}->{ftime}</td>
+            <td nowrap="1">$type</td>
             <td nowrap="1"><em>$row->{s}</em></td>
             <td nowrap="1">
         };

@@ -1669,10 +1669,12 @@ CREATE TABLE spamreports (
     posterid    INT(10) UNSIGNED NOT NULL DEFAULT 0,
     subject     VARCHAR(255) BINARY,
     body        BLOB NOT NULL,
+    client      VARCHAR(255),
 
     PRIMARY KEY (reporttime, journalid),
     INDEX       (ip),
-    INDEX       (posterid)
+    INDEX       (posterid),
+    INDEX       (client)
 )
 EOC
 
@@ -4142,6 +4144,14 @@ EOF
         do_alter( 'externalaccount',
             "ALTER TABLE externalaccount " .
             "ADD COLUMN active enum('1', '0') NOT NULL default '1'" );
+    }
+
+    if ( column_type( "spamreports", "client" ) eq '' ) {
+        do_alter( "spamreports",
+            "ALTER TABLE spamreports " .
+            "ADD COLUMN client VARCHAR(255) " .
+            "ADD INDEX (client)"
+        );
     }
 });
 

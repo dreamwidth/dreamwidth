@@ -22,6 +22,7 @@
 
 .report.individual.body=Body:
 .report.individual.body.none=no body
+.report.individual.client=Client Info:
 .report.individual.close=Close
 .report.individual.in=[[spamlocation]] in:
 .report.individual.reporttime=Report Time:

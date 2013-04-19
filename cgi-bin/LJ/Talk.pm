@@ -15,6 +15,7 @@ package LJ::Talk;
 use strict;
 
 use MIME::Words;
+use MIME::Lite;
 use Carp qw(croak);
 
 use LJ::Global::Constants;
@@ -26,6 +27,8 @@ use LJ::OpenID;
 use LJ::S2;
 use DW::Captcha;
 use LJ::JSON;
+
+use DW::EmailPost::Comment;
 
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";
@@ -2398,10 +2401,14 @@ sub mark_comment_as_spam {
         LJ::MemCache::set("spamreports:anon:$ip", $rates);
     }
 
+    my %props;
+    LJ::load_talk_props2( $dbcr, $journalu->{userid}, [ $jtalkid ], \%props);
+
     # step 3: insert into spamreports
-    $dbh->do('INSERT INTO spamreports (reporttime, posttime, ip, journalid, posterid, subject, body) ' .
-             'VALUES (UNIX_TIMESTAMP(), UNIX_TIMESTAMP(?), ?, ?, ?, ?, ?)',
-             undef, $row->{datepost}, $ip, $journalu->{userid}, $posterid, $subject, $body);
+    $dbh->do('INSERT INTO spamreports (reporttime, posttime, ip, journalid, posterid, subject, body, client) ' .
+             'VALUES (UNIX_TIMESTAMP(), UNIX_TIMESTAMP(?), ?, ?, ?, ?, ?, ?)',
+             undef, $row->{datepost}, $ip, $journalu->{userid}, $posterid,
+             $subject, $body, $props{$jtalkid}->{useragent});
     return 0 if $dbh->err;
     return 1;
 }
@@ -2834,6 +2841,7 @@ sub mail_comments {
 
                 ($headersubject, $fromname) = _format_headers( $lang, $encoding, $comment, $paru, $edited, $parent, $paru, $item );
 
+                my $replyto_address = DW::EmailPost::Comment->replyto_address_header( $paru, $journalu, $ditemid, $dtalkid );
                 my $msg =  new MIME::Lite ('From' => "\"$fromname\" <$LJ::BOGUS_EMAIL>",
                                            'To' => $paru->email_raw,
                                            'Subject' => $headersubject,
@@ -2841,6 +2849,7 @@ sub mail_comments {
                                            'Message-Id' => $this_msgid,
                                            'In-Reply-To:' => $par_msgid,
                                            'References' => "$top_msgid $par_msgid",
+                                           'Reply-To' => $replyto_address,
                                            );
                 $msg->add('X-JOURNAL-USER' => $journalu->{'user'}); # for mail filters
 
@@ -2897,6 +2906,7 @@ sub mail_comments {
         $encoding = $entryu->mailencoding || "UTF-8";
         ($headersubject, $fromname) = _format_headers( $lang, $encoding, $comment, $entryu, $edited, $parent, $paru, $item );
 
+        my $replyto_address = DW::EmailPost::Comment->replyto_address_header( $entryu, $journalu, $ditemid, $dtalkid );
         my $msg =  new MIME::Lite ('From' => "\"$fromname\" <$LJ::BOGUS_EMAIL>",
                                    'To' => $entryu->email_raw,
                                    'Subject' => $headersubject,
@@ -2904,6 +2914,7 @@ sub mail_comments {
                                    'Message-Id' => $this_msgid,
                                    'In-Reply-To:' => $par_msgid,
                                    'References' => "$top_msgid $par_msgid",
+                                   'Reply-To' => $replyto_address,
                                    );
         $msg->add('X-JOURNAL-USER' => $journalu->{'user'}); # for mail filters
 
@@ -2967,6 +2978,7 @@ sub mail_comments {
         $encoding = $u->mailencoding || "UTF-8";
         ($headersubject, $fromname) = _format_headers( $lang, $encoding, $comment, $u, $edited, $parent, $paru, $item );
 
+        my $replyto_address = DW::EmailPost::Comment->replyto_address_header( $u, $journalu, $ditemid, $dtalkid );
         my $msg = new MIME::Lite ('From' => "\"$fromname\" <$LJ::BOGUS_EMAIL>",
                                   'To' => $u->email_raw,
                                   'Subject' => $headersubject,
@@ -2974,6 +2986,7 @@ sub mail_comments {
                                   'Message-Id' => $this_msgid,
                                   'In-Reply-To:' => $par_msgid,
                                   'References' => "$top_msgid $par_msgid",
+                                  'Reply-To' => $replyto_address,
                                   );
         $msg->add('X-JOURNAL-USER' => $journalu->{'user'}); # for mail filters
 

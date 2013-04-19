@@ -230,6 +230,14 @@ userproplist.emailpost_allowfrom:
   multihomed: 0
   prettyname: Allowed addresses to post via email
 
+userproplist.emailpost_auth:
+  cldversion: 4
+  datatype: char
+  des: Automatically generated auth used for posting comments
+  indexed: 0
+  multihomed: 0
+  prettyname: System-generated reply-to-email auth
+
 userproplist.emailpost_comments:
   cldversion: 4
   datatype: char
@@ -1356,6 +1364,11 @@ talkproplist.unknown8bit:
   datatype: bool
   des: True if text has 8-bit data that's not in UTF-8
   prettyname: Unknown 8-bit text
+
+talkproplist.useragent:
+  datatype: char
+  des: Name of web/mobile/sip/etc client used to post
+  prettyname: User Agent
 
 logproplist.adult_content:
   datatype: char

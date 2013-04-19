@@ -15,6 +15,7 @@ package LJ::Event::JournalNewComment;
 use strict;
 use Scalar::Util qw(blessed);
 use LJ::Comment;
+use DW::EmailPost::Comment;
 use Carp qw(croak);
 use base 'LJ::Event';
 
@@ -94,6 +95,11 @@ sub as_email_headers {
         'In-Reply-To'  => $par_msgid,
         'References'   => "$top_msgid $par_msgid",
         'X-Journal-Name' => $journalu->user,
+        'Reply-To'     => DW::EmailPost::Comment->replyto_address_header(
+                            $u, $journalu,
+                            $self->comment->entry->ditemid,
+                            $self->comment->dtalkid
+                          ),
     };
 
     return $headers;
