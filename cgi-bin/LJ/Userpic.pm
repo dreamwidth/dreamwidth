@@ -1060,7 +1060,8 @@ sub set_keywords {
     } else {
         @keywords = split(',', $_[0]);
     }
-    @keywords = grep { !/^pic\#\d+$/ } grep { s/^\s+//; s/\s+$//; $_; } @keywords;
+    
+    @keywords = grep { !/^pic\#\d+$/ } map { s/^\s+//; s/\s+$//; $_ } @keywords;
 
     my $u = $self->owner;
     my $have_mapid = $u->userpic_have_mapid;
@@ -1096,6 +1097,7 @@ sub set_keywords {
 
     foreach my $kw (@keywords) {
         my $kwid = $u->get_keyword_id( $kw );
+
         next unless $kwid; # TODO: fire some warning that keyword was bogus
 
         if (++$c > $LJ::MAX_USERPIC_KEYWORDS) {
@@ -1103,7 +1105,9 @@ sub set_keywords {
             next;
         }
 
-        unless (delete $exist_kwids{$kwid}) {
+        if ( exists $exist_kwids{$kwid} ) {
+            delete $exist_kwids{$kwid};
+        } else {
             if ( $have_mapid ) {
                 $kwid_to_mapid{$kwid} ||= LJ::alloc_user_counter( $u, 'Y' );
 
