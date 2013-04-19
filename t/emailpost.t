@@ -1,10 +1,13 @@
 # -*-perl-*-
 
 use strict;
-use Test::More tests => 13;
+use Test::More tests => 17;
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
-use LJ::Emailpost;  # includes LJ::Emailpost::Web
+
+use DW::EmailPost;
+use LJ::Emailpost::Web;
+
 use LJ::Test;
 use FindBin qw($Bin);
 use File::Temp;
@@ -24,30 +27,45 @@ my $mime = get_mime("delspyes", {
 });
 ok($mime, "got delspyes MIME");
 
-my ($msg, $dequeue);
+my ( $email_post, $ok, $msg );
 my $user = $u->user;
 
-$msg = LJ::Emailpost::process( $mime, $user, \$dequeue );
+$email_post = DW::EmailPost->get_handler( $mime );
+$email_post->destination( $user );
+( $ok, $msg ) = $email_post->process;
+ok( ! $ok, "not posted" );
 like($msg, qr/No allowed senders have been saved for your account/, "rejected due to no allowed senders");
-is($dequeue, 1, "and it's deqeueued");
+is( $email_post->dequeue, 1, "and it's deqeueued" );
+
 
 LJ::Emailpost::Web::set_allowed_senders( $u, { 'foo@example.com' => { get_errors => 1 } } );
-
 is($u->prop("emailpost_allowfrom"), "foo\@example.com(E)", "allowed sender set correctly");
 
-$msg = LJ::Emailpost::process( $mime, $user, \$dequeue );
-like($msg, qr/Unable to locate your PIN/, "rejected due to no PIN");
-is($dequeue, 1, "and it's deqeueued");
 
-$msg = LJ::Emailpost::process( $mime, "$user+$emailpin", \$dequeue );
+$email_post = DW::EmailPost->get_handler( $mime );
+$email_post->destination( $user );
+( $ok, $msg ) = $email_post->process;
+ok( ! $ok, "not posted" );
+like($msg, qr/Unable to locate your PIN/, "rejected due to no PIN");
+is( $email_post->dequeue, 1, "and it's deqeueued" );
+
+
+$email_post = DW::EmailPost->get_handler( $mime );
+$email_post->destination( "$user+$emailpin" );
+( $ok, $msg ) = $email_post->process;
+ok( ! $ok, "not posted" );
 like($msg, qr/Invalid PIN/, "rejected due to invalid PIN");
-is($dequeue, 1, "and it's deqeueued");
+is( $email_post->dequeue, 1, "and it's deqeueued" );
+
 
 $u->set_prop("emailpost_pin", $emailpin);
 
-$msg = LJ::Emailpost::process( $mime, "$user+$emailpin", \$dequeue );
+$email_post = DW::EmailPost->get_handler( $mime );
+$email_post->destination( "$user+$emailpin" );
+( $ok, $msg ) = $email_post->process;
+ok( $ok, "posted" );
 like($msg, qr/Post success/, "posted!");
-is($dequeue, 1, "and it's deqeueued");
+is( $email_post->dequeue, 1, "and it's deqeueued" );
 
 my $entry = LJ::Entry->new($u, jitemid => 1);
 ok($entry->valid, "Entry is valid");

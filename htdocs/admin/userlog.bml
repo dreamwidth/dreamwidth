@@ -106,6 +106,8 @@ FORM
             $action = "Removed maintainer " . LJ::ljuser($u) if $u;
         } elsif ($row->{action} eq 'emailpost') {
             $action = "User posted via email gateway";
+        } elsif ($row->{action} eq 'emailpost_auth') {
+            $action = "Generated new emailpost_auth. Auth revoked for older emails."
         } elsif ($row->{action} eq 'accountstatus') {
             my $path = "$extra->{old} -> $extra->{new}";
             $action = {

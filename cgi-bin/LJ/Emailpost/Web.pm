@@ -21,11 +21,15 @@ use strict;
 # Returns a hashref with addresses / flags.
 # Used for ljemailgateway and manage/emailpost.bml
 sub get_allowed_senders {
-    my $u = shift;
+    my ( $u, $include_user_email ) = @_;
     return undef unless LJ::isu( $u );
     my (%addr, @address);
 
     @address = split( /\s*,\s*/, $u->prop( 'emailpost_allowfrom' ) );
+
+    # add their personal email, and assume we want to receive errors here
+    unshift @address, $u->email_raw . "(E)" if $include_user_email;
+
     return undef unless scalar(@address) > 0;
 
     my %flag_english = ( 'E' => 'get_errors' );

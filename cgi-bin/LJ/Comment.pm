@@ -1536,30 +1536,11 @@ sub _format_mail_both {
             'esn.view_thread'       => [ 7, $self->thread_url ],
         });
 
-    my $want_form = $is_html && ($self->is_active || $can_unscreen);  # this should probably be a preference, or maybe just always off.
-    if ($want_form) {
-        $body .= LJ::Lang::get_text($lang, 'esn.if_suport_form', undef) . "\n";
-        $body .= "<blockquote><form method='post' target='ljreply' action=\"$LJ::SITEROOT/talkpost_do\">\n";
+    $body .= "\n" . LJ::Lang::get_text( $lang, 'esn.reply_to_email', undef,
+                            { aopts =>  "href='$LJ::SITEROOT/manage/emailpost'" }
+                    ) . "\n";
 
-        $body .= LJ::html_hidden
-            ( usertype     =>  "user",
-              parenttalkid =>  $self->jtalkid,
-              itemid       =>  $entry->ditemid,
-              journal      =>  $entry->journal->{user},
-              userpost     =>  $targetu->{user},
-              ecphash      =>  LJ::Talk::ecphash($entry->jitemid, $self->jtalkid, $targetu->password)
-              );
-
-        $body .= "<input type='hidden' name='encoding' value='$encoding' />" unless $encoding eq "UTF-8";
-        my $newsub = $self->subject_html($targetu);
-        unless (!$newsub || $newsub =~ /^Re:/) { $newsub = "Re: $newsub"; }
-        $body .= "<b>".LJ::Lang::get_text($lang, $ml_prefix . 'subject', undef)."</b> <input name='subject' size='40' maxlength='100' value=\"" . LJ::ehtml($newsub) . "\" />";
-        $body .= "<p><b>".LJ::Lang::get_text($lang, $ml_prefix . 'message', undef, $vars)."</b><br /><textarea rows='10' cols='50' wrap='soft' name='body'></textarea>";
-        $body .= "<br /><input type='submit' value='" . LJ::Lang::get_text($lang, $ml_prefix . 'post_reply', undef) . "' />";
-        $body .= "</form></blockquote>\n";
-    }
-
-    $body .= "</body>\n" if $is_html;
+    $body .= "<br></body>\n" if $is_html;
 
     return $body;
 }
