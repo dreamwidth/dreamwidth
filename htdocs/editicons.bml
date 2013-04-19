@@ -297,7 +297,8 @@ use strict;
                         if ($current_upload{make_default}) {
                             $userpic->make_default;
                         }
-                        $userpic->set_keywords($current_upload{keywords}) if $current_upload{keywords};
+
+                        $userpic->set_keywords($current_upload{keywords}) if defined ($current_upload{keywords});
                         $userpic->set_comment($current_upload{comments})  if $current_upload{comments};
                         $userpic->set_description($current_upload{descriptions}) if $current_upload{descriptions};
                         $userpic->set_fullurl($current_upload{url})       if $POST{url};
