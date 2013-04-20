@@ -4149,7 +4149,7 @@ EOF
     if ( column_type( "spamreports", "client" ) eq '' ) {
         do_alter( "spamreports",
             "ALTER TABLE spamreports " .
-            "ADD COLUMN client VARCHAR(255) " .
+            "ADD COLUMN client VARCHAR(255), " .
             "ADD INDEX (client)"
         );
     }
