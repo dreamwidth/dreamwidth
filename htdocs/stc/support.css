@@ -18,7 +18,7 @@
 }
 
 .support-requesttable-internal td {
-    border: 3px solid #ff0000;
+    border: 3px dotted #ff0000;
     padding: 1em;
 }
 
@@ -28,7 +28,7 @@
 }
 
 .support-requesttable-screened td {
-    border: 3px solid #afaf00;
+    border: 3px dashed #afaf00;
     padding: 1em;
 }
 
