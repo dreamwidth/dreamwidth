@@ -1,7 +1,7 @@
 # -*-perl-*-
 
 use strict;
-use Test::More tests => 6;
+use Test::More tests => 12;
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use DW::CleanEmail;
@@ -50,6 +50,82 @@ testing 123
 foo bar
 
 baaaaz}, "got nonquoted text from an email without any quoted text");
+}
+
+# gmail fixes
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+On Tue, Apr 23, 2013 at 2:39 PM, ExampleUser
+<test@example.com> wrote:
+> blah blah
+});
+    is( $nonquoted, q{
+foo}, "got nonquoted text from email, replied via gmail web mail" );
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+On 23/04/2013 at 2:39 PM, ExampleUser
+<test@example.com> wrote:
+> blah blah
+});
+    is( $nonquoted, q{
+foo}, "got nonquoted text from email, replied via android");
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+On Apr 22, 2013 11:22 PM, ExampleUser <test@example.com>
+wrote:
+> blah blah
+});
+    is( $nonquoted, q{
+foo}, "got nonquoted text from email, other date format");
+}
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+abc
+def
+On Monday, someone wrote:
+tuv
+wxyz});
+    is( $nonquoted, q{
+abc
+def}, "'On wrote...' separator a few lines back - cut back to that point" );
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+abc
+def
+On Monday, someone wrote:
+qrs
+tuv
+wxyz});
+    is( $nonquoted, q{
+abc
+def
+On Monday, someone wrote:
+qrs
+tuv
+wxyz}, "'On wrote...' separator too many lines back - don't count as end of the message" );
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+---Original Message---
+From: etc
+Reply-To: etc
+some original text here
+});
+
+    # blackberry
+    is( $nonquoted, q{
+foo}, "---Original Message--- separator")
 }
 
 {

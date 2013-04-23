@@ -31,25 +31,36 @@ sub nonquoted_text {
 
     my @lines = split /$/m, $text;
 
-    my $count = 0;
+    my $num_lines = 0;
 
     # remove all quoted lines, nice and easy
     foreach ( @lines ) {
         last if m/^\s*>/;
-        $count++;
+        last if m/^\s*-*Original Message-*/;
+        $num_lines++;
     }
-    @lines = splice @lines, 0, $count;
+
+    @lines = splice @lines, 0, $num_lines;
+
+    # go back through the last few lines
+    # look for something that looks like:
+    #       On (date), someone wrote:
+    my $max_backtrack = 3;
+    my $backtrack = 0;
 
     foreach ( reverse @lines ) {
-        $count--;
+        $backtrack++;
+        last if $backtrack > $max_backtrack;
 
-        # look for something that looks like: "On ... wrote:"
         last if m/^\s*On.+wrote:\s*$/i;
 
-        # sometimes that gets split across two lines, so this too
-        last if m/^\s*On (Mon|Tue|Wed|Thu|Fri|Sat|Sun)/i;
+        # sometimes that gets split across two lines
+        # so look for date-like things toomail
+        last if m!^\s*On (Mon|Tue|Wed|Thu|Fri|Sat|Sun|(?:\d{2}/\d{2}/\d{4})|(?:[a-z]{3,4} \d{1,2}, \d{4}))!i;
     }
-    @lines = splice @lines, 0, $count unless $count == 0;
+
+    @lines = splice @lines, 0, $num_lines - $backtrack
+        unless $backtrack > $max_backtrack || $backtrack >= $num_lines;
 
     return join "", @lines;
 }
