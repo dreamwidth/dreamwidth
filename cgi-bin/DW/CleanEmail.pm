@@ -36,6 +36,7 @@ sub nonquoted_text {
     # remove all quoted lines, nice and easy
     foreach ( @lines ) {
         last if m/^\s*>/;
+        last if m/^\s*-*Original Message-*/;
         $num_lines++;
     }
 
@@ -46,6 +47,7 @@ sub nonquoted_text {
     #       On (date), someone wrote:
     my $max_backtrack = 3;
     my $backtrack = 0;
+
     foreach ( reverse @lines ) {
         $backtrack++;
         last if $backtrack > $max_backtrack;
