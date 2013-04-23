@@ -53,8 +53,8 @@ sub nonquoted_text {
         last if m/^\s*On.+wrote:\s*$/i;
 
         # sometimes that gets split across two lines
-        # so look for date-like things too
-        last if m!^\s*On (Mon|Tue|Wed|Thu|Fri|Sat|Sun|(?:\d{2}/\d{2}/\d{4}))!i;
+        # so look for date-like things toomail
+        last if m!^\s*On (Mon|Tue|Wed|Thu|Fri|Sat|Sun|(?:\d{2}/\d{2}/\d{4})|(?:[a-z]{3,4} \d{1,2}, \d{4}))!i;
     }
 
     @lines = splice @lines, 0, $num_lines - $backtrack
