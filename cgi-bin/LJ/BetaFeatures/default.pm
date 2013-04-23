@@ -103,6 +103,14 @@ sub is_optout {
     return $_[0]->key =~ /_optout$/ ? 1 : 0;
 }
 
+sub is_sitewide_beta {
+    my $self = $_[0];
+
+    my $conf = $self->conf;
+    return 0 unless $conf;
+    return 1 if $conf->{sitewide};
+}
+
 # any arguments to pass to the translation string to describe this feature?
 sub args_list {
     return ();

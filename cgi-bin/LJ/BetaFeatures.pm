@@ -111,6 +111,8 @@ sub user_in_beta {
     my $class = shift;
     my ($u, $key) = @_;
 
+    my $key_handler = $class->get_handler( $key );
+    return 1 if $key_handler->is_sitewide_beta;
     return 0 unless $u;
 
     # is the cap set?
