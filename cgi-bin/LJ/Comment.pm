@@ -1536,8 +1536,17 @@ sub _format_mail_both {
             'esn.view_thread'       => [ 7, $self->thread_url ],
         });
 
-    $body .= "\n" . LJ::Lang::get_text( $lang, 'esn.reply_to_email', undef,
-                            { aopts =>  "href='$LJ::SITEROOT/manage/emailpost'" }
+    my $open_link = "";
+    my $close_link = "";
+    my $reset_link = "$LJ::SITEROOT/manage/emailpost";
+    if ( $is_html ) {
+        $open_link = qq{<a href="$reset_link">};
+        $close_link = q{</a>};
+    } else {
+        $close_link = " ($reset_link)";
+    }
+    $body .= "\n" . LJ::Lang::get_text( $lang, 'esn.reply_to_email2', undef,
+                            { openlink => $open_link, closelink => $close_link }
                     ) . "\n";
 
     $body .= "<br></body>\n" if $is_html;
