@@ -62,6 +62,7 @@ my %e = (
      "154" => [ E_PERM, "Can't add a redirected account as a friend" ],
      "155" => [ E_TEMP, "Non-authenticated email address" ],
      "157" => [ E_TEMP, "Tags error" ],
+     "158" => [ E_PERM, "Comment error" ],
 
      # Client Errors
      "200" => [ E_PERM, "Missing required argument(s)" ],
@@ -113,6 +114,7 @@ my %e = (
      "409" => [ E_PERM, "Post too large." ],
      "410" => [ E_PERM, "Your trial account has expired.  Posting now disabled." ],
      "411" => [ E_PERM, "Subject too long." ],
+     "412" => [ E_PERM, "Maximum number of comments reached" ],
 
      # Server Errors
      "500" => [ E_TEMP, "Internal server error" ],
@@ -230,6 +232,7 @@ sub addcomment
     }
 
     # create
+    my $comment_err;
     my $comment = LJ::Comment->create(
                         journal      => $journal,
                         ditemid      => $req->{ditemid},
@@ -240,8 +243,24 @@ sub addcomment
                         body         => $req->{body},
                         subject      => $req->{subject},
 
-                        props        => { picture_keyword => $req->{prop_picture_keyword} }
+                        props        => { picture_keyword => $req->{prop_picture_keyword} },
+
+                        err_ref      => \$comment_err,
                         );
+
+    my $err_code_mapping = {
+        bad_journal     => 206,     # authenticate() takes care of this
+        bad_poster      => 100,     # authenticate() takes care of this
+        bad_args        => 202,
+
+        too_many_comments => 412,
+
+        init_comment    => 158,
+        frozen          => 158,
+        post_comment    => 158,
+    }->{$comment_err->{code}} if $comment_err;
+
+    return fail( $err, $err_code_mapping, $comment_err->{msg} ) if $comment_err;
 
     $comment->set_prop( useragent => $req->{useragent} ) if $req->{useragent};
 
