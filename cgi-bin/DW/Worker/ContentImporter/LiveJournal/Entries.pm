@@ -191,7 +191,7 @@ sub try_work {
 
         # URL remapping. We know the username and the site, so we set this to
         # something that is dependable.
-        $evt->{key} = $evt->{url} = $data->{hostname} . '/' . $data->{username} . '/' .
+        $evt->{key} = $evt->{url} = $data->{hostname} . '/' . ( $data->{usejournal} // $data->{username} ) . '/' .
             ( $evt->{itemid} * 256 + $evt->{anum} );
 
         $count++;
