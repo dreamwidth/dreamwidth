@@ -84,7 +84,7 @@ CutTagHandler = new Class(Object, {
 
         var closeEnd = document.createElement("span");
 
-        closeEnd.innerHTML = ' <a href="#span-'+this.identifier+'" onclick=" CutTagHandler.toggleCutTag(\''+this.data.journal+'\', \''+this.data.ditemid+'\', \''+this.data.cutid+'\');"><img style="border: 0;" src="' + Site.imgprefix + '/collapse-end.gif" aria-controls="div-cuttag_' + this.identifier + '" alt="' + expanded + '" title="' + expanded + '"/></a>';
+        closeEnd.innerHTML = ' <a href="#span-'+this.identifier+'" onclick=" CutTagHandler.toggleCutTag(\''+this.data.journal+'\', \''+this.data.ditemid+'\', \''+this.data.cutid+'\');"><img style="border: 0; max-width: 100%; width: 0.7em; padding: 0.2em;" src="' + Site.imgprefix + '/collapse-end.gif" aria-controls="div-cuttag_' + this.identifier + '" alt="' + expanded + '" title="' + expanded + '"/></a>';
         replaceDiv.appendChild(closeEnd);
 
         DOM.addClassName(replaceDiv, "cuttag-open");
@@ -123,7 +123,7 @@ CutTagHandler.toggleCutTag = function(journal, ditemid, cutid) {
 CutTagHandler.writeExpandTag = function(tag, journal, ditemid, cutid) {
   var identifier = journal + '_' + ditemid + '_' + cutid;
   tag.style.display = 'inline'
-  tag.innerHTML = '<a href="#" onclick="return CutTagHandler.toggleCutTag(\'' + journal + '\', \'' + ditemid + '\', \'' + cutid + '\');" id="cuttag_' + identifier +'" ><img style="border: 0;" id="img-cuttag_' + identifier + '" src="' + Site.imgprefix + '/collapse.gif" aria-controls="div-cuttag_' + identifier + '" alt="' + collapsed + '" title="' + collapsed + '"/></a>';
+  tag.innerHTML = '<a href="#" onclick="return CutTagHandler.toggleCutTag(\'' + journal + '\', \'' + ditemid + '\', \'' + cutid + '\');" id="cuttag_' + identifier +'" ><img style="border: 0; max-width: 100%; width: 0.7em; padding: 0.2em;" id="img-cuttag_' + identifier + '" src="' + Site.imgprefix + '/collapse.gif" aria-controls="div-cuttag_' + identifier + '" alt="' + collapsed + '" title="' + collapsed + '"/></a>';
 }
 
 
