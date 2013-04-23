@@ -40,10 +40,14 @@ sub nonquoted_text {
     }
     @lines = splice @lines, 0, $count;
 
-    # look for something that looks like: "On ... wrote:"
     foreach ( reverse @lines ) {
         $count--;
+
+        # look for something that looks like: "On ... wrote:"
         last if m/^\s*On.+wrote:\s*$/i;
+
+        # sometimes that gets split across two lines, so this too
+        last if m/^\s*On (Mon|Tue|Wed|Thu|Fri|Sat|Sun)/i;
     }
     @lines = splice @lines, 0, $count unless $count == 0;
 
