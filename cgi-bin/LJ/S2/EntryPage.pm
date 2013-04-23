@@ -161,6 +161,7 @@ sub EntryPage
 
             LJ::CleanHTML::clean_comment( \$text, { preformatted => $com->{props}->{opt_preformatted},
                                                     anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
+                                                    editor => $com->{props}->{editor}
                                                   } );
 
             # local time in mysql format to gmtime

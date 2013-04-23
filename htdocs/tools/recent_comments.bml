@@ -238,6 +238,7 @@ body<=
 
             my $comment = $comment_text->{$r->{jtalkid}}[1];
             LJ::CleanHTML::clean_comment( \$comment, { preformatted => $r->{props}->{opt_preformatted},
+                                                       editor => $r->{props}->{editor},
                                                        anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
                                                        nocss => 1,
                                                      } );

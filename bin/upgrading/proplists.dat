@@ -1325,6 +1325,11 @@ talkproplist.deleted_poster:
   des: If the comment poster's account is deleted, this field gets added to all of their posts, so the UI can show something besides 'anonymous' when posterid gets set to 0
   prettyname: Username of deleted poster
 
+talkproplist.editor:
+  datatype: char
+  des: Type of editor used when making this content. Values: "markdown" or undefined (plain/raw html)
+  prettyname: Comment editor
+
 talkproplist.import_source:
   datatype: char
   des: Where this comment was imported from

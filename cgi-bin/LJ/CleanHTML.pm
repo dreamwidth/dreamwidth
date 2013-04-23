@@ -1478,24 +1478,7 @@ sub clean_event
 
     # this is the hack to make markdown work. really.
     if ($$ref =~ s/^\s*!markdown\s*\r?\n//s) {
-        my $rv = eval "use Text::Markdown; 1;";
-        die "Attempted to use Markdown without the Text::Markdown module.\n"
-            unless $rv;
-
-        # first, markdown-ize the world
-        $$ref = Text::Markdown::markdown( $$ref );
-        $opts->{preformatted} = 1;
-
-        # second, convert @-style addressing to user tags
-        my $usertag = sub {
-            my ($user, $site) = ($1, $2 || 'dreamwidth.org');
-            if (my $siteobj = DW::External::Site->get_site( site => $site )) {
-                return qq|<user name="$user" site="$siteobj->{domain}" />|;
-            } else {
-                return qq|\@$user.$site|;
-            }
-        };
-        $$ref =~ s/(?<=\W)\@([\w\d_]+)(?:\.([\w\d\.]+))?(?=$|\W)/$usertag->($1, $2)/mge;
+        clean_as_markdown( $ref, $opts );
     }
 
     my $wordlength = defined $opts->{'wordlength'} ? $opts->{'wordlength'} : 40;
@@ -1586,6 +1569,11 @@ sub clean_comment
 
     $opts = { preformatted => $opts } unless ref $opts;
     return 0 unless defined $$ref;
+
+    # preprocess with markdown if desired
+    if ( $opts->{editor} && $opts->{editor} eq "markdown" ) {
+        clean_as_markdown( $ref, $opts );
+    }
 
     # fast path:  no markup or URLs to linkify
     if ($$ref !~ /\<|\>|http/ && ! $opts->{preformatted}) {
@@ -1685,4 +1673,28 @@ sub quote_html {
     return $string;
 }
 
+sub clean_as_markdown {
+    my ( $ref, $opts ) = @_;
+
+    my $rv = eval "use Text::Markdown; 1;";
+    die "Attempted to use Markdown without the Text::Markdown module.\n"
+        unless $rv;
+
+    # first, markdown-ize the world
+    $$ref = Text::Markdown::markdown( $$ref );
+    $opts->{preformatted} = 1;
+
+    # second, convert @-style addressing to user tags
+    my $usertag = sub {
+        my ($user, $site) = ($1, $2 || 'dreamwidth.org');
+        if (my $siteobj = DW::External::Site->get_site( site => $site )) {
+            return qq|<user name="$user" site="$siteobj->{domain}" />|;
+        } else {
+            return qq|\@$user.$site|;
+        }
+    };
+    $$ref =~ s/(?<=\W)\@([\w\d_]+)(?:\.([\w\d\.]+))?(?=$|\W)/$usertag->($1, $2)/mge;
+
+    return 1;
+}
 1;
