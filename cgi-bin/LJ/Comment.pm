@@ -144,6 +144,15 @@ sub create {
     my ( $class, %opts ) = @_;
 
     my $need_captcha = delete($opts{ need_captcha }) || 0;
+    my $err_ref = delete $opts{err_ref};
+
+    my $err = sub {
+        $$err_ref = {
+            code => $_[0],
+            msg => $_[1]
+        };
+        return undef;
+    };
 
     # %talk_opts emulates parameters received from web form.
     # Fill it with nessesary options.
@@ -153,11 +162,11 @@ sub create {
     # poster and journal should be $u objects,
     # but talklib wants usernames... we'll map here
     my $journalu = delete $opts{journal};
-    croak "invalid journal for new comment: $journalu"
+    return $err->( "bad_journal", "invalid journal for new comment: $journalu" )
         unless LJ::isu($journalu);
 
     my $posteru = delete $opts{poster};
-    croak "invalid poster for new comment: $posteru"
+    return $err->( "bad_poster", "invalid poster for new comment: $posteru" )
         unless LJ::isu($posteru);
 
     # LJ::Talk::init uses 'itemid', not 'ditemid'.
@@ -167,7 +176,7 @@ sub create {
     $talk_opts{journal} = $journalu->user;
 
     # Strictly parameters check. Do not allow any unused params to be passed in.
-    croak (__PACKAGE__ . "->create: Unsupported params: " . join " " => keys %opts )
+    return $err->( "bad_args", __PACKAGE__ . "->create: Unsupported params: " . join " " => keys %opts )
         if %opts;
 
     # Move props values to the talk_opts hash.
@@ -191,24 +200,24 @@ sub create {
     ## init.  this handles all the error-checking, as well.
     my @errors       = ();
     my $init = LJ::Talk::Post::init(\%talk_opts, $posteru, \$need_captcha, \@errors);
-    croak( join "\n" => @errors )
+    return $err->( "init_comment", join "\n" => @errors )
         unless defined $init;
 
     # check max comments
-    croak ("Sorry, this entry already has the maximum number of comments allowed.")
+    return $err->( "too_many_comments", "Sorry, this entry already has the maximum number of comments allowed." )
         if LJ::Talk::Post::over_maxcomments($init->{journalu}, $init->{item}->{'jitemid'});
 
     # no replying to frozen comments
-    croak('No reply to frozen thread')
+    return $err->( "frozen", "Can't reply to frozen thread." )
         if $init->{parent}->{state} eq 'F';
 
     ## insertion
     my $wasscreened = ($init->{parent}->{state} eq 'S');
-    my $err;
-    croak ($err)
+    my $post_err_ref;
+    return $err->( "post_comment", $post_err_ref )
         unless LJ::Talk::Post::post_comment($init->{entryu},  $init->{journalu},
                                             $init->{comment}, $init->{parent},
-                                            $init->{item},   \$err,
+                                            $init->{item},   \$post_err_ref,
                                             );
 
     return
