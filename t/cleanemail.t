@@ -1,7 +1,7 @@
 # -*-perl-*-
 
 use strict;
-use Test::More tests => 9;
+use Test::More tests => 10;
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use DW::CleanEmail;
@@ -83,8 +83,37 @@ wrote:
 > blah blah
 });
     is( $nonquoted, q{
-foo}, "got nonquoted text from email, from something");
+foo}, "got nonquoted text from email, other date format");
 }
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+abc
+def
+On Monday, someone wrote:
+tuv
+wxyz});
+    is( $nonquoted, q{
+abc
+def}, "'On wrote...' separator a few lines back - cut back to that point" );
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+abc
+def
+On Monday, someone wrote:
+qrs
+tuv
+wxyz});
+    is( $nonquoted, q{
+abc
+def
+On Monday, someone wrote:
+qrs
+tuv
+wxyz}, "'On wrote...' separator too many lines back - don't count as end of the message" );
+}
+
 {
     my $subject = DW::CleanEmail->reply_subject;
     is( $subject, "", "no subject" );
