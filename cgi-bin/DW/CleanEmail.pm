@@ -46,8 +46,9 @@ sub nonquoted_text {
         # look for something that looks like: "On ... wrote:"
         last if m/^\s*On.+wrote:\s*$/i;
 
-        # sometimes that gets split across two lines, so this too
-        last if m/^\s*On (Mon|Tue|Wed|Thu|Fri|Sat|Sun)/i;
+        # sometimes that gets split across two lines
+        # so look for date-like things too
+        last if m!^\s*On (Mon|Tue|Wed|Thu|Fri|Sat|Sun|(?:\d{2}/\d{2}/\d{4}))!i;
     }
     @lines = splice @lines, 0, $count unless $count == 0;
 

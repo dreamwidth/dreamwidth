@@ -1,7 +1,7 @@
 # -*-perl-*-
 
 use strict;
-use Test::More tests => 6;
+use Test::More tests => 9;
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use DW::CleanEmail;
@@ -52,6 +52,39 @@ foo bar
 baaaaz}, "got nonquoted text from an email without any quoted text");
 }
 
+# gmail fixes
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+On Tue, Apr 23, 2013 at 2:39 PM, ExampleUser
+<test@example.com> wrote:
+> blah blah
+});
+    is( $nonquoted, q{
+foo}, "got nonquoted text from email, replied via gmail web mail" );
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+On 23/04/2013 at 2:39 PM, ExampleUser
+<test@example.com> wrote:
+> blah blah
+});
+    is( $nonquoted, q{
+foo}, "got nonquoted text from email, replied via android");
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+On Apr 22, 2013 11:22 PM, ExampleUser <test@example.com>
+wrote:
+> blah blah
+});
+    is( $nonquoted, q{
+foo}, "got nonquoted text from email, from something");
+}
 {
     my $subject = DW::CleanEmail->reply_subject;
     is( $subject, "", "no subject" );
