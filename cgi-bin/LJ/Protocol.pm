@@ -262,7 +262,10 @@ sub addcomment
 
     return fail( $err, $err_code_mapping, $comment_err->{msg} ) if $comment_err;
 
-    $comment->set_prop( useragent => $req->{useragent} ) if $req->{useragent};
+    my %props = ();
+    $props{useragent} = $req->{useragent} if $req->{useragent};
+    $props{editor} = $req->{editor} if $req->{editor};
+    $comment->set_props( %props );
 
     # OK
     return {

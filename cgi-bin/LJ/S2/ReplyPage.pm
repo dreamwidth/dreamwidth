@@ -203,6 +203,7 @@ sub ReplyPage
                                      {
                                          preformatted => $parpost->{props}->{opt_preformatted},
                                          anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
+                                         editor => $parpost->{props}->{editor},
                                      });
 
 
