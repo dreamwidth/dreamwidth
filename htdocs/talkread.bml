@@ -203,7 +203,6 @@ body<=
     # See if we should inject QuickReply javascript
     LJ::Hooks::run_hooks("need_res_for_journals", $u);
     LJ::need_res( qw(
-                    js/thread_expander.js
                     stc/talkpage.css
                 ) );
     LJ::need_res( { group => "jquery" }, qw(
@@ -213,22 +212,16 @@ body<=
                     stc/talkpage.css
                 ) );
 
-    LJ::set_active_resource_group( "jquery" )
-        if ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
+    LJ::set_active_resource_group( "jquery" );
 
     if ( ( $remote && ! $remote->prop( "opt_no_quickreply" ) ) && ! $nocomments ) {
        # quickreply js libs
-        LJ::need_res( qw(
-                         js/x_core.js
-                         js/quickreply.js
-                        ) );
-
         LJ::need_res( { group => "jquery" }, qw(
                         js/jquery/jquery.ui.widget.js
                         js/jquery.quickreply.js
                     ) );
 
-        LJ::need_res( LJ::Talk::init_iconbrowser_js( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ), 'stc/lj_base.css' ) )
+        LJ::need_res( LJ::Talk::init_iconbrowser_js( 1, 'stc/lj_base.css' ) )
             if $remote->can_use_userpic_select;
     }
 
@@ -441,18 +434,9 @@ body<=
                     # if we're in top-only mode, then we display the
                     # expand link as the unhide ('show x comments')
                     # message
-                    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
-                        $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
-                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
-                        $ret .= qq[</a>)</span>];
-                    } else {
-                        # unhide only works with jquery; if the user
-                        # isn't in the jquery beta, drop back down to
-                        # the no-javascript option
-                        $ret .= qq[(<a href='$url'>];
-                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
-                        $ret .= qq[</a>)</span>];
-                    }
+                    $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
+                    $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                    $ret .= qq[</a>)</span>];
                     $ret .= "</td>";
                 }
             }
@@ -469,18 +453,9 @@ body<=
                     # if we're in top-only mode, then we display the
                     # expand link as the unhide ('show x comments')
                     # message
-                    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
-                        $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
-                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
-                        $ret .= qq[</a>)</span>];
-                    } else {
-                        # unhide only works with jquery; if the user
-                        # isn't in the jquery beta, drop back down to
-                        # the no-javascript option
-                        $ret .= qq[(<a href='$url'>];
-                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
-                        $ret .= qq[</a>)</span>];
-                    }
+                    $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
+                    $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                    $ret .= qq[</a>)</span>];
                     $ret .= "</td>";
                 }
             }
@@ -673,33 +648,22 @@ body<=
                             # if we're in top-only mode, then we display the
                             # expand link as the unhide ('show x comments')
                             # message
-                            if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
-                                $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
-                                $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
-                                $ret .= qq[</a>)</span>];
-                            } else {
-                                # unhide only works with jquery; if the user
-                                # isn't in the jquery beta, drop back down to
-                                # the no-javascript option
-                                $ret .= qq[(<a href='$url'>];
-                                $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
-                                $ret .= qq[</a>)</span>];
-                            }
+                            $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
+                            $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                            $ret .= qq[</a>)</span>];
                         } else {
                             $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)];
                         }
                     }
                     if ( $show_thread_expander ) {
-                        if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
-                            my $hideclass = $post->{'hide_children'} ? "" : " cmt_show_hide_default";
+                        my $hideclass = $post->{'hide_children'} ? "" : " cmt_show_hide_default";
 
-                            $ret .= qq[ <span id="cmt${dtid}_hide" class="cmt_hide$hideclass" style="display:none;">(<a href='#' onClick="Expander.hideComments(this,'$dtid',true);return false;">];
-                            $ret .= BML::ml( 'talk.hide', { num => $post->{'showable_children'} } );
-                            $ret .= qq[</a>)</span>];
-                            $ret .= qq[ <span id="cmt${dtid}_unhide" style="display: none;" class="cmt_unhide">(<a href='#' onClick="Expander.unhideComments(this,'$dtid',true);return false;">];
-                            $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
-                            $ret .= qq[</a>)</span>];
-                        }
+                        $ret .= qq[ <span id="cmt${dtid}_hide" class="cmt_hide$hideclass" style="display:none;">(<a href='#' onClick="Expander.hideComments(this,'$dtid',true);return false;">];
+                        $ret .= BML::ml( 'talk.hide', { num => $post->{'showable_children'} } );
+                        $ret .= qq[</a>)</span>];
+                        $ret .= qq[ <span id="cmt${dtid}_unhide" style="display: none;" class="cmt_unhide">(<a href='#' onClick="Expander.unhideComments(this,'$dtid',true);return false;">];
+                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                        $ret .= qq[</a>)</span>];
                     }
                 }
 
@@ -843,7 +807,6 @@ body<=
             my $do_commentmanage_js = LJ::is_enabled('commentmanage', $remote);
 
             if ($do_commentmanage_js) {
-                LJ::need_res('js/commentmanage.js');
                 LJ::need_res( { group => "jquery" }, qw(
                             js/jquery/jquery.ui.core.js
                             js/jquery/jquery.ui.tooltip.js
