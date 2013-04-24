@@ -31,6 +31,8 @@ sub render_body {
     return "" unless LJ::isu($u);
 
     my $handler = LJ::BetaFeatures->get_handler($feature);
+    return "" if $handler->is_sitewide_beta;
+
     my $ret;
 
     $ret .= "<h2>" . $class->ml("widget.betafeature.$feature.title") . "</h2>"
