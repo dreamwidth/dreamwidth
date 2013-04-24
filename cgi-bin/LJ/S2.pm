@@ -172,24 +172,12 @@ sub make_journal
     # like print_stylesheet() won't run, which don't have an method invocant
     return $page if $page && ref $page ne 'HASH';
 
-    my $beta_jquery = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
-    LJ::set_active_resource_group( 'jquery' )
-        if $beta_jquery;
+    LJ::set_active_resource_group( 'jquery' );
 
     # Control strip
     my $show_control_strip = LJ::Hooks::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
         LJ::Hooks::run_hook( 'control_strip_stylesheet_link' );
-
-        # used if we're using our old library
-        LJ::need_res(qw(
-                    js/6alib/core.js
-                    js/6alib/dom.js
-                    js/6alib/httpreq.js
-                    js/livejournal.js
-                    js/md5.js
-                    js/login.js
-                    ));
 
         # used if we're using our jquery library
         LJ::need_res( { group => "jquery" }, qw(
@@ -230,7 +218,7 @@ sub make_journal
     $page->{head_content} .= LJ::PageStats->new->render_head( 'journal' );
 
     # inject the control strip JS, but only after any libraries have been injected
-    $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user, jquery => $beta_jquery )
+    $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user )
         if $show_control_strip;
 
     s2_run($apache_r, $ctx, $opts, $entry, $page);
@@ -3507,7 +3495,7 @@ sub _Comment__get_link
     if ($key eq "hide_comments") {
         ## show "Hide/Show" link if the comment has any children
         # only show hide/show comments if using jquery
-        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} || [] } > 0 ) {
+        if  ( @{ $this->{replies} || [] } > 0 ) {
             return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                                 $ctx->[S2::PROPS]->{"text_comment_hide"});
         } else {
@@ -3517,7 +3505,7 @@ sub _Comment__get_link
     if ($key eq "unhide_comments") {
         ## show "Hide/Unhide" link if the comment has any children
         # only show hide/show comments if using jquery
-        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) && @{ $this->{replies} || [] } > 0 ) {
+        if  ( @{ $this->{replies} || [] } > 0 ) {
             return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                                 $ctx->[S2::PROPS]->{"text_comment_unhide"});
         } else {
@@ -3702,11 +3690,7 @@ sub Comment__expand_link
         $text = LJ::ehtml( get_plural_phrase( $ctx, $comment_count, "text_comment_unhide" ) );
         my $remote = LJ::get_remote();
 
-        # unhide only works with jquery; if the user isn't in the jquery
-        # beta, drop back down to the no-javascript option
-        if  ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
-            $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false, true); return false;\"";
-        }
+        $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false, true); return false;\"";
     } else {
         $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false); return false;\"";
     }

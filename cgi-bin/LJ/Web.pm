@@ -917,7 +917,6 @@ sub create_qr_div {
     $qrhtml .= LJ::ljuser($remote->{'user'});
     $qrhtml .= "</td><td align='center'>";
 
-    my $beta_jquery = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
     # Userpic selector
     {
         my %res;
@@ -944,8 +943,7 @@ sub create_qr_div {
             # userpic browse button
             $qrhtml .= qq {<input type="button" id="lj_userpicselect" value="Browse" />} if $remote->can_use_userpic_select;
 
-            my $onclick = $beta_jquery ? "" : "onclick='randomIcon();'";
-            $qrhtml .= "<input type='button' $onclick id='randomicon' value='" . BML::ml('/talkpost.bml.userpic.random2') . "' />";
+            $qrhtml .= "<input type='button' id='randomicon' value='" . BML::ml('/talkpost.bml.userpic.random2') . "' />";
 
             $qrhtml .= LJ::help_icon_html("userpics", " ");
         }
@@ -971,20 +969,17 @@ sub create_qr_div {
 
     $qrhtml .= LJ::html_submit('submitpost', BML::ml('/talkread.bml.button.post'),
                                { 'id' => 'submitpost',
-                                 'raw' => $beta_jquery ? "" : 'onclick="if (checkLength()) {submitform();}"'
-                                 });
+                               });
 
     $qrhtml .="&nbsp;" . LJ::html_submit('submitpview', BML::ml('talk.btn.preview'),
                                { 'id' => 'submitpview',
-                                 'raw' => $beta_jquery ? "" : 'onclick="preview()"'
-                                 });
+                               });
 
     $qrhtml .= LJ::html_hidden('submitpreview', '0');
 
     $qrhtml .= "&nbsp;" . LJ::html_submit('submitmoreopts', BML::ml('/talkread.bml.button.more'),
                                           { 'id' => 'submitmoreopts',
-                                            'raw' => $beta_jquery ? "" : 'onclick="if (moreopts()) {submitform();}"'
-                                            });
+                                          });
     if ($LJ::SPELLER) {
         $qrhtml .= "&nbsp;<input type='checkbox' name='do_spellcheck' value='1' id='do_spellcheck' /> <label for='do_spellcheck'>";
         $qrhtml .= BML::ml('/talkread.bml.qr.spellcheck');
@@ -1020,30 +1015,11 @@ sub create_qr_div {
                                       {'name' => 'saved_ptid', 'id' => 'saved_ptid'},
                                       ));
 
-    if ( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) {
-        # FIXME: figure out how to fix the saving of the qr entry stuff
-        $ret .= qq{jQuery(function(jQ){
-                jQ("body").append(jQ("<div id='qrdiv'></div>").html("$qrhtml").hide());
-            });
-        };
-    } else {
-        $ret .= qq{
-               var de;
-               if (document.createElement && document.body.insertBefore && !(xMac && xIE4Up)) {
-                   document.write("$qrsaveform");
-                   de = document.createElement("div");
-
-                   if (de) {
-                       de.id = "qrdiv";
-                       de.innerHTML = "$qrhtml";
-                       var bodye = document.getElementsByTagName("body");
-                       if (bodye[0])
-                           bodye[0].insertBefore(de, bodye[0].firstChild);
-                       de.style.display = 'none';
-                   }
-               }
-           };
-    }
+    # FIXME: figure out how to fix the saving of the qr entry stuff
+    $ret .= qq{jQuery(function(jQ){
+            jQ("body").append(jQ("<div id='qrdiv'></div>").html("$qrhtml").hide());
+        });
+    };
 
     # quick quote button
     $ret .= LJ::Talk::js_quote_button( 'body' );
@@ -3199,7 +3175,6 @@ sub control_strip_js_inject
 {
     my %opts = @_;
     my $user = delete $opts{user} || '';
-    my $jquery = delete $opts{jquery};
 
     my $ret;
 
@@ -3209,43 +3184,18 @@ sub control_strip_js_inject
     my $args = LJ::eurl( $r->query_string ) || '';
     my $view = $r->note( 'view' ) || '';
 
-    # FIXME: remove argument
-    if ( $jquery ) {
-        $ret .= qq{
-    <script type='text/javascript'>
-    jQuery(function(jQ){
-        if (jQ("#lj_controlstrip").length == 0) {
-            jQ.getJSON("/$user/__rpc_controlstrip?user=$user&host=$host&uri=$uri&args=$args&view=$view", {},
-                function(data) {
-                    jQ("<div></div>").html(data.control_strip).appendTo("body");
-                }
-            );
-        }
-    })
-    </script>
-        };
-
-    } else {
-        $ret .= qq{
-    <script type='text/javascript'>
-        function controlstrip_init() {
-            if (! \$('lj_controlstrip') ){
-                HTTPReq.getJSON({
-                  url: "/$user/__rpc_controlstrip?user=$user&host=$host&uri=$uri&args=$args&view=$view",
-                  onData: function (data) {
-                      var body = document.getElementsByTagName("body")[0];
-                      var div = document.createElement("div");
-                      div.innerHTML = data.control_strip;
-                          body.appendChild(div);
-                  },
-                  onError: function (msg) { }
-                });
+    $ret .= qq{
+<script type='text/javascript'>
+jQuery(function(jQ){
+    if (jQ("#lj_controlstrip").length == 0) {
+        jQ.getJSON("/$user/__rpc_controlstrip?user=$user&host=$host&uri=$uri&args=$args&view=$view", {},
+            function(data) {
+                jQ("<div></div>").html(data.control_strip).appendTo("body");
             }
-        }
-        DOM.addEventListener(window, "load", controlstrip_init);
-    </script>
-        };
+        );
     }
+})
+</script>};
 
     return $ret;
 }

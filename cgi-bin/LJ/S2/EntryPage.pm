@@ -76,26 +76,13 @@ sub EntryPage
     $p->{head_content} .= LJ::canonical_link( $permalink, $get->{thread} );
 
     # quickreply js libs
-    my $beta = ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
-
+    # if we're using the site skin, don't override the jquery-ui theme, as that's already included
     my @iconbrowser_extra_stylesheet;
-    if ( $beta ) {
-        # if we're using the site skin, don't override the jquery-ui theme, as that's already included
-        @iconbrowser_extra_stylesheet = ( 'stc/jquery/jquery.ui.theme.smoothness.css' )
-            unless $opts->{handle_with_siteviews_ref} && ${$opts->{handle_with_siteviews_ref}};
-    } else {
-        @iconbrowser_extra_stylesheet = ( 'stc/lj_base.css' );
-    }
+    @iconbrowser_extra_stylesheet = ( 'stc/jquery/jquery.ui.theme.smoothness.css' )
+        unless $opts->{handle_with_siteviews_ref} && ${$opts->{handle_with_siteviews_ref}};
 
-    LJ::need_res( LJ::Talk::init_iconbrowser_js( $beta, @iconbrowser_extra_stylesheet ) )
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( 1, @iconbrowser_extra_stylesheet ) )
         if $remote && $remote->can_use_userpic_select;
-
-    LJ::need_res(qw(
-                    js/x_core.js
-                    js/quickreply.js
-                    js/browserdetect.js
-                    js/thread_expander.js
-                    ));
 
     LJ::need_res( { group => "jquery" }, qw(
             js/jquery/jquery.ui.core.js
@@ -410,7 +397,6 @@ sub EntryPage
         $p->{'head_content'} .= $js;
     }
 
-    LJ::need_res( "js/commentmanage.js" );
     LJ::need_res( { group => "jquery" }, qw(
             js/jquery/jquery.ui.core.js
             js/jquery/jquery.ui.tooltip.js

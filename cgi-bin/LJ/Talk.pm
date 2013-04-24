@@ -2158,9 +2158,9 @@ sub icon_dropdown {
 # args: names of any additional files to load
 # returns: full list of arguments to pass to LJ::need_res
 sub init_iconbrowser_js {
-    my ( $beta, @additional ) = @_;
+    my ( $jquery, @additional ) = @_;
 
-    my @list = $beta
+    my @list = $jquery
     ? (
         { group => 'jquery' },
         # base libraries
@@ -2214,44 +2214,11 @@ sub js_iconbrowser_button {
         smallicons => LJ::JSON->to_boolean( $remote->iconbrowser_smallicons ),
     });
 
-    return ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" )
-    ?   qq {
+    return qq {
         <script type="text/javascript">
         jQuery(function(jQ){
             jQ("#prop_picture_keyword").iconselector($iconbrowser_opts);
         })
-        </script>
-    } : qq {
-        <script type="text/javascript" language="JavaScript">
-        DOM.addEventListener(window, "load", function (evt) {
-            // attach userpicselect code to userpicbrowse button
-            var ups_btn = \$("lj_userpicselect");
-            if (ups_btn) {
-                DOM.addEventListener(ups_btn, "click", function (evt) {
-                 var ups = new UserpicSelect();
-                 ups.init();
-                 ups.setPicSelectedCallback(function (picid, keywords) {
-                     var kws_dropdown = \$("prop_picture_keyword");
-
-                     if (kws_dropdown) {
-                         var items = kws_dropdown.options;
-
-                         // select the keyword in the dropdown
-                         keywords.forEach(function (kw) {
-                             for (var i = 0; i < items.length; i++) {
-                                 var item = items[i];
-                                 if (item.value == kw) {
-                                     kws_dropdown.selectedIndex = i;
-                                     return;
-                                 }
-                             }
-                         });
-                     }
-                 });
-                 ups.show();
-             });
-            }
-        });
         </script>
     };
 }
@@ -2297,8 +2264,7 @@ sub js_quote_button {
     }
 QUOTE
 
-    if ( ! LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery_optout" ) ) {
-        return <<"QQ";
+    return <<"QQ";
 jQuery(function(jQ){
     $quote_func
 
@@ -2306,23 +2272,6 @@ jQuery(function(jQ){
         .appendTo("#quotebuttonspan")
         .click(quote);
     });
-QQ
-    }
-    # else
-
-    my $button = LJ::ejs( '<input type="button" value="Quote"'
-                        . 'onclick="quote();" />' );
-
-    my $buttontext = "document.write('&nbsp;&nbsp;$button')";
-    if ( $element eq 'body' ) {
-        my $span = "document.getElementById('quotebuttonspan').innerHTML";
-        $buttontext = "$span = $span + '$button'";
-    }
-    return <<"QQ";
-    $quote_func
-    if (document.getElementById && (document.getSelection || document.selection || window.getSelection)) {
-        $buttontext;
-    }
 QQ
 }
 
