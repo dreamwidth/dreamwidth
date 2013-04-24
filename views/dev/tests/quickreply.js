@@ -1,6 +1,4 @@
 /* INCLUDE:
-old: js/x_core.js
-old: js/quickreply.js
 jquery: js/jquery/jquery.ui.widget.js
 jquery: js/jquery.quickreply.js
 */
@@ -68,89 +66,6 @@ var lifecycle = {
         }
     }
 }
-
-module( "old", lifecycle );
-test( "quickreply to entry", 20, function() {
-    ok( ! this.has_qr("replyto_entry_top"), "no qrdiv here yet" );
-    this.check_values({
-        subject : ["", "Empty subject"],
-        body    : ["", "Empty body"],
-        parenttalkid: ["0", "No parent"],
-        dtid    : ["", "No dtid"],
-        replyto : ["0", "No replyto"]
-    });
-
-    QUnit.triggerEvent($("replyto_entry_top"), "click");
-    ok(   this.has_qr("replyto_entry_top"), "qrdiv shows up when clicking link to reply to entry (top)" );
-    $("body").value = "foo";
-    this.check_values({
-        subject : ["", "Empty subject"],
-        body    : ["foo", "Contains body"],
-        parenttalkid: ["0", "No parent"],
-        dtid    : ["topcomment", "No dtid"],
-        replyto : ["0", "No replyto"]
-    });
-
-
-    ok( ! this.has_qr("replyto_entry_bottom"), "no qrdiv here yet" );
-
-    QUnit.triggerEvent($("replyto_entry_bottom"), "click");
-    ok(   this.has_qr("replyto_entry_bottom"), "qrdiv shows up after clicking link to reply to entry (bottom)" );
-    ok( ! this.has_qr("replyto_entry_top"), "previous qr container no longer has contains the qr" );
-    this.check_values({
-        subject : ["", "Empty subject"],
-        body    : ["foo", "Keep existing body"],
-        parenttalkid: ["0", "No parent"],
-        dtid    : ["bottomcomment", "No dtid"],
-        replyto : ["0", "No replyto"]
-    });
-
-});
-
-test( "quickreply to comments", 20, function() {
-    ok( ! this.has_qr("existing_comment"), "no qrdiv here yet" );
-    this.check_values({
-        subject : ["", "Empty subject"],
-        body    : ["", "Empty body"],
-        parenttalkid: ["0", "No parent"],
-        dtid    : ["", "No dtid"],
-        replyto : ["0", "No replyto"]
-    });
-
-
-    QUnit.triggerEvent($("existing_comment"), "click");
-    ok(   this.has_qr("existing_comment"), "qrdiv shows up when clicking link to reply to existing toplevel comment" );
-    $("body").value = "bar";
-    this.check_values({
-        subject : ["", "Empty subject"],
-        body    : ["bar", "Contains body"],
-        parenttalkid: ["1", "Parent is existing comment"],
-        dtid    : ["1", "Dtid is existing comment"],
-        replyto : ["1", "Replyto is existing comment"]
-    });
-
-
-    ok( ! this.has_qr("child_of_existing_comment"), "no qrdiv here yet" );
-
-    QUnit.triggerEvent($("child_of_existing_comment"), "click");
-    ok(   this.has_qr("child_of_existing_comment"), "qrdiv shows up after clicking link to reply to existing secondlevel comment" );
-    ok( ! this.has_qr("existing_comment"), "previous qr container no longer has contains the qr" );
-    this.check_values({
-        subject : ["", "Empty subject"],
-        body    : ["bar", "Keep existing body"],
-        parenttalkid: ["2", "Parent is existing secondlevel comment"],
-        dtid    : ["2", "Dtid is existing secondlevel comment"],
-        replyto : ["2", "Replyto is existing secondlevel comment"]
-    });
-});
-
-test( "class names", 1, function() {
-    QUnit.triggerEvent($("hasclass"), "click");
-    // this puts the container class onto #qrdiv
-    ok( $("qrformdiv").className == "container_class", "#qrdiv is now assigned the container class");
-});
-
-
 
 module( "jquery", lifecycle );
 test( "quickreply to entry", 25, function() {

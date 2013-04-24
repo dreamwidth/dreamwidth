@@ -27,10 +27,9 @@ body<=
     my $errtxt;
 
     # libs for userpicselect
-    LJ::need_res( LJ::Talk::init_iconbrowser_js( ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" ) ) )
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( 1 ) )
         if $remote && $remote->can_use_userpic_select;
-    LJ::set_active_resource_group( "jquery" )
-        if ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery_optout" );
+    LJ::set_active_resource_group( "jquery" );
 
 
     my $pics = LJ::Talk::get_subjecticons();
