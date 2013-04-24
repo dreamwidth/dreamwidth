@@ -248,6 +248,13 @@ $img{nouserpic_sitescheme} = {
     alt => 'sitescheme.accountlinks.userpic.alt',
 };
 
+$img{icon_ssl_sitescheme}= {
+    src => '/icon_padlock.png',
+    width => 80,
+    height => 80,
+    alt => 'sitescheme.accountlinks.userpic.alt',
+};
+
 $img{circle_yes} = {
     src => '/silk/site/tick.png',
     width => 16,
