@@ -2274,6 +2274,21 @@ sub Page
         $args{$k} = $v;
     }
 
+    my $layoutname;
+    my $themename;
+    my $layouturl;
+
+    if ( $styleid ) {
+        my $style = load_style($styleid);
+        my $theme;
+        if ( $style && $style->{layer}->{theme} ) {
+            $theme = LJ::S2Theme->new(themeid => $style->{layer}->{theme} );
+        }
+        $layoutname = $theme->layout_name if $theme->is_system_layout;
+        $themename = $theme->name if $theme->is_system_layout;
+        $layouturl = "$LJ::SITEROOT/customize/?layoutid=". $theme->layoutid;
+    }
+
     # get MAX(modtime of style layers)
     my $stylemodtime = S2::get_style_modtime($opts->{'ctx'});
     if ( $styleid ) {
@@ -2298,6 +2313,9 @@ sub Page
         'args' => \%args,
         'journal' => User($u),
         'journal_type' => $u->{'journaltype'},
+        'layout_name' => $layoutname,
+        'theme_name' => $themename,
+        'layout_url' => $layouturl,
         'time' => DateTime_unix(time),
         'local_time' => $tz_remote ? DateTime_tz( time, $tz_remote ) : DateTime_unix(time),
         'base_url' => $base_url,
