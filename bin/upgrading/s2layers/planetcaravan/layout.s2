@@ -448,18 +448,18 @@ div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-t
     }
 
 ul.entry-management-links, .comment-management-links {
-    float: left;
-    padding-left: .5em;
+    text-align: left;
+    background: $*color_entry_footer_background;
+    padding: .75em;
     font-size: smaller;
     text-transform:lowercase;
     margin: .75em 0 0;
     }
 
 ul.entry-interaction-links, .comment-interaction-links {
-    text-align: right;
-    background: $*color_entry_footer_background;
+    float:right;
     padding: .75em;
-    margin: 2em 0 0;
+    margin: -2.75em 0 0;
     font-size: smaller;
     text-transform:lowercase;
     }
