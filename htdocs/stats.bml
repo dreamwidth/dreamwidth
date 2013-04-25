@@ -111,10 +111,15 @@ body<=
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
+         ACCOUNT:
          foreach my $account (@$accounts) {
+             my $u = $userobj_for->{$account->{userid}};
+
+             next ACCOUNT unless $u && $u->is_visible;
+
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display,
-                 $userobj_for->{$account->{userid}}->name_html,
+                 $u->ljuser_display,
+                 $u->name_html,
                  $account->{timeupdate}
              );
          }
@@ -133,10 +138,15 @@ body<=
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
+         ACCOUNT:
          foreach my $account (@$accounts) {
+             my $u = $userobj_for->{$account->{userid}};
+
+             next ACCOUNT unless $u && $u->is_visible;
+
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display,
-                 $userobj_for->{$account->{userid}}->name_html,
+                 $u->ljuser_display,
+                 $u->name_html,
                  $account->{timeupdate}
              );
          }
@@ -154,11 +164,15 @@ body<=
 
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
-
+         ACCOUNT:
          foreach my $account (@$accounts) {
+             my $u = $userobj_for->{$account->{userid}};
+
+             next ACCOUNT unless $u && $u->is_visible;
+
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display,
-                 $userobj_for->{$account->{userid}}->name_html,
+                 $u->ljuser_display,
+                 $u->name_html,
                  $account->{timeupdate}
              );
          }
@@ -182,10 +196,15 @@ body<=
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
+         ACCOUNT:
          foreach my $account (@$accounts) {
+             my $u = $userobj_for->{$account->{userid}};
+
+             next ACCOUNT unless $u && $u->is_visible;
+
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display,
-                 $userobj_for->{$account->{userid}}->name_html,
+                 $u->ljuser_display,
+                 $u->name_html,
                  $account->{timeupdate}
              );
          }
@@ -204,10 +223,15 @@ body<=
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
+         ACCOUNT:
          foreach my $account (@$accounts) {
+             my $u = $userobj_for->{$account->{userid}};
+
+             next ACCOUNT unless $u && $u->is_visible;
+
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display,
-                 $userobj_for->{$account->{userid}}->name_html,
+                 $u->ljuser_display,
+                 $u->name_html,
                  $account->{timeupdate}
              );
          }
@@ -226,10 +250,15 @@ body<=
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
 
+         ACCOUNT:
          foreach my $account (@$accounts) {
+             my $u = $userobj_for->{$account->{userid}};
+
+             next ACCOUNT unless $u && $u->is_visible;
+
              $ret .= sprintf("<li>%s - %s, %s</li>\n",
-                 $userobj_for->{$account->{userid}}->ljuser_display,
-                 $userobj_for->{$account->{userid}}->name_html,
+                 $u->ljuser_display,
+                 $u->name_html,
                  $account->{timeupdate}
              );
          }
