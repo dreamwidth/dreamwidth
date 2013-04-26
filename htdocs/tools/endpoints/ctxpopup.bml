@@ -59,6 +59,8 @@ _c?>
 
     my $u = $get_user->();
     my %ret = $u ? $u->info_for_js : ();
+    my $reason = $u->prop( 'delete_reason' );
+    $reason = $reason ? "Reason given: " . $reason : "No reason given.";
 
     BML::set_content_type('text/javascript; charset=utf-8');
     BML::finish();
@@ -67,7 +69,7 @@ _c?>
         unless $GET{mode} eq 'getinfo';
     return $err->("No such user", noshow => 1)
         unless $u;
-    return $err->("This user's account is deleted.")
+    return $err->("This user's account is deleted.<br />" . $reason)
         if $u->is_deleted;
     return $err->("This user's account is deleted and purged.")
         if $u->is_expunged;
