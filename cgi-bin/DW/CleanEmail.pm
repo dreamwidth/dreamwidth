@@ -36,7 +36,11 @@ sub nonquoted_text {
     # remove all quoted lines, nice and easy
     foreach ( @lines ) {
         last if m/^\s*>/;
-        last if m/^\s*-*Original Message-*/;
+
+        # e.g., --- Original Message ---
+        # but this can be in various languages, so  not hardcoding the text
+        last if m/^\s*-{3,}[^-]+-{3,}\s*$/;
+
         $num_lines++;
     }
 
