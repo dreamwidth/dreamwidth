@@ -2653,10 +2653,10 @@ set text_subscriptionfilters_manage = "Manage Filters";
 set text_read_comments_threads = "1 response // # responses";
 set text_generated_on = "Page generated";
 set text_powered_by = "Powered by";
-set text_layout_authors = "Style: ";
-set text_base_layout_authors = "Base style: ";
-set text_theme_authors = "Theme: ";
-set text_layout_resources = "Resources: ";
+set text_layout_authors = "Style:";
+set text_base_layout_authors = "Base style:";
+set text_theme_authors = "Theme:";
+set text_layout_resources = "Resources:";
 set text_cuttagcontrols_nocuttags = "No cut tags";
 
 ##=======================================
@@ -4458,7 +4458,7 @@ function print_module_credit() {
 
         # Print category title.
 
-        $ret = $ret + "<li class='module-list-item'><span class='category-title'>$text_style_authors</span>";
+        $ret = $ret + "<li class='module-list-item'><span class='category-title'>$text_style_authors </span>";
 
         # If theme name exists and style author and theme author are the same print it first.
 
@@ -4512,7 +4512,7 @@ function print_module_credit() {
 
         # Print category title.
 
-        $ret = $ret  + "<li class='module-list-item'><span class='category-title'>$*text_theme_authors</span>";
+        $ret = $ret  + "<li class='module-list-item'><span class='category-title'>$*text_theme_authors </span>";
 
         # Print theme name if it exists.
 
@@ -4549,7 +4549,7 @@ function print_module_credit() {
 
     var int resources_size = size $*layout_resources;
     if ( $resources_size > 0 ) {
-        $ret = $ret + "<li class='module-list-item'><span class='category-title'>$*text_layout_resources</span>";
+        $ret = $ret + "<li class='module-list-item'><span class='category-title'>$*text_layout_resources </span>";
 
         var int count = 0;
         foreach var string{} resource ( $*layout_resources ) {
