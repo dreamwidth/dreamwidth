@@ -2278,6 +2278,8 @@ sub Page
     my $themename;
     my $layouturl;
 
+    $layouturl = "";
+
     if ( $styleid ) {
         my $style = load_style($styleid);
         my $theme;
