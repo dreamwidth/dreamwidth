@@ -1,7 +1,7 @@
 # -*-perl-*-
 
 use strict;
-use Test::More tests => 12;
+use Test::More tests => 13;
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use DW::CleanEmail;
@@ -114,6 +114,7 @@ tuv
 wxyz}, "'On wrote...' separator too many lines back - don't count as end of the message" );
 }
 
+# blackberry, etc
 {
     my $nonquoted = DW::CleanEmail->nonquoted_text(q{
 foo
@@ -123,9 +124,20 @@ Reply-To: etc
 some original text here
 });
 
-    # blackberry
     is( $nonquoted, q{
 foo}, "---Original Message--- separator")
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+------Message d'origine------
+De: etc
+some original text here
+});
+
+    is( $nonquoted, q{
+foo}, "------Message d'origine------ separator")
 }
 
 {
