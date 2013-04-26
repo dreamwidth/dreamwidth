@@ -54,7 +54,7 @@ sub option {
     $ret .= "<table summary='' class='setting_table' cellspacing='5' cellpadding='0'>";
 
     if ( $can_emailpost ) {
-        foreach my $i (0..2) {
+        foreach my $i (0..4) {
             $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_addr$i'>";
             $ret .= $class->ml( 'setting.emailposting.option.addr' ) . "</label></td>";
             $ret .= "<td>" . LJ::html_text({
@@ -122,15 +122,13 @@ sub option {
 sub save {
     my ($class, $u, $args) = @_;
 
-    my $addr0_val = $class->get_arg($args, "emailposting_addr0");
-    my $addr1_val = $class->get_arg($args, "emailposting_addr1");
-    my $addr2_val = $class->get_arg($args, "emailposting_addr2");
+    my @addr_val = map { $class->get_arg( $args, "emailposting_addr$_") } ( 0...4 );
     my $pin_val = $class->get_arg($args, "emailposting_pin");
 
     my %allowed;
     my $addrcount = 0;
     my @send_helpmessage;
-    foreach my $addr ($addr0_val, $addr1_val, $addr2_val) {
+    foreach my $addr (@addr_val) {
         $addr =~ s/\s+//g;
         next unless $addr;
         next if length $addr > 80;
