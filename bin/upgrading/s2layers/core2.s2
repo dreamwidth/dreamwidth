@@ -1,4 +1,4 @@
-## -*-s2-*-
+po## -*-s2-*-
 
 ##[ layerinfo ]
 
@@ -2653,10 +2653,10 @@ set text_subscriptionfilters_manage = "Manage Filters";
 set text_read_comments_threads = "1 response // # responses";
 set text_generated_on = "Page generated";
 set text_powered_by = "Powered by";
-set text_layout_authors = "Style:";
-set text_base_layout_authors = "Base style:";
-set text_theme_authors = "Theme:";
-set text_layout_resources = "Resources:";
+set text_layout_authors = "Style: ";
+set text_base_layout_authors = "Base style: ";
+set text_theme_authors = "Theme: ";
+set text_layout_resources = "Resources: ";
 set text_cuttagcontrols_nocuttags = "No cut tags";
 
 ##=======================================
