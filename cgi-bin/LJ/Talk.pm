@@ -3992,7 +3992,9 @@ sub make_preview {
     my $u = LJ::load_user( $form->{journal} );
     my $cleanok = LJ::CleanHTML::clean_comment( \$event,
                   { anon_comment => LJ::Talk::treat_as_anon( $remote, $u ),
-                    preformatted => $form->{prop_opt_preformatted} } );
+                    preformatted => $form->{prop_opt_preformatted},
+                    editor       => $form->{editor}, # no form option yet
+                  } );
     if (defined($cleanok) && $LJ::SPELLER && $form->{'do_spellcheck'}) {
         my $s = new LJ::SpellCheck { 'spellcommand' => $LJ::SPELLER,
                                      'color' => '<?hotcolor?>', };
