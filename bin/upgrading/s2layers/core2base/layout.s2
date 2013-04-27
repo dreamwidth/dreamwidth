@@ -744,14 +744,9 @@ ul.userlite-interaction-links.text-links {
 .module-pagesummary .module-content {
     word-wrap: break-word;
 }
-.module-credit dt, .module-credit dd {
-    display: inline;
-    margin: 0;
-    padding: 0;
-}
-.module-credit dt {
+
+.module-credit .category-title {
     font-weight: bold;
-    margin-right: 0.5em;
 }
 
 .tags_cloud li, .module-tags_cloud li { display: inline; }

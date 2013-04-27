@@ -1941,7 +1941,7 @@ sub TagDetail
     };
 
     # Work out how many uses of the tag the current remote (if any)
-    # should be able to see. This is easy for public & protected 
+    # should be able to see. This is easy for public & protected
     # entries, but gets tricky with group filters because a post can
     # be visible to >1 of them. Instead of working it out accurately
     # every time, we give an approximation that will either be accurate
@@ -1974,7 +1974,7 @@ sub TagDetail
             my $maxgroupsize = 0;
             foreach ( LJ::bit_breakdown ( $grpmask ) ) {
                 $maxgroupsize = $tag->{security}->{groups}->{$_}
-                    if $tag->{security}->{groups}->{$_} 
+                    if $tag->{security}->{groups}->{$_}
                     && $tag->{security}->{groups}->{$_} > $maxgroupsize;
             }
             $count += $maxgroupsize;
@@ -1984,7 +1984,7 @@ sub TagDetail
         $count = $tag->{security}->{public};
         $t->{security_counts}->{public} = $tag->{security}->{public};
     }
-    
+
     $t->{use_count} = $count;
 
     return $t;
@@ -2262,6 +2262,28 @@ sub Page
         $args{$k} = $v;
     }
 
+    my $layoutname;
+    my $themename;
+    my $layouturl;
+
+    $layouturl = "";
+
+    if ( $styleid ) {
+        my $style = load_style($styleid);
+        my $theme;
+
+        if ( $style && $style->{layer}->{theme} ) {
+            $theme = LJ::S2Theme->new(themeid => $style->{layer}->{theme}, user => $u );
+
+            $layoutname = $theme->layout_name;
+            $themename = $theme->name;
+            $layouturl = "$LJ::SITEROOT/customize/?layoutid=". $theme->layoutid if $theme->is_system_layout;
+        } else {
+            $layoutname = S2::get_layer_info($style-> {layer}->{layout}, 'name');
+            $themename = LJ::Lang::ml("s2theme.themename.notheme");
+        }
+    }
+
     # get MAX(modtime of style layers)
     my $stylemodtime = S2::get_style_modtime($opts->{'ctx'});
     if ( $styleid ) {
@@ -2286,6 +2308,9 @@ sub Page
         'args' => \%args,
         'journal' => User($u),
         'journal_type' => $u->{'journaltype'},
+        'layout_name' => $layoutname,
+        'theme_name' => $themename,
+        'layout_url' => $layouturl,
         'time' => DateTime_unix(time),
         'local_time' => $tz_remote ? DateTime_tz( time, $tz_remote ) : DateTime_unix(time),
         'base_url' => $base_url,
