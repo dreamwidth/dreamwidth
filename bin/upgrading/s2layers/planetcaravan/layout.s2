@@ -447,19 +447,19 @@ div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-t
     margin-left: -5px;
     }
 
-ul.entry-management-links, .comment-management-links {
-    float: left;
-    padding-left: .5em;
-    font-size: smaller;
-    text-transform:lowercase;
-    margin: .75em 0 0;
-    }
-
-ul.entry-interaction-links, .comment-interaction-links {
-    text-align: right;
+ul.entry-management-links, ul.comment-management-links {
+    text-align: left;
     background: $*color_entry_footer_background;
     padding: .75em;
-    margin: 2em 0 0;
+    font-size: smaller;
+    text-transform:lowercase;
+    margin: 0;
+    }
+
+ul.entry-interaction-links, ul.comment-interaction-links {
+    float:right;
+    padding: .75em;
+    margin: -2.9em 0 0;
     font-size: smaller;
     text-transform:lowercase;
     }
