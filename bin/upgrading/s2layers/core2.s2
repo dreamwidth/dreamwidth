@@ -680,6 +680,9 @@ class Page
     function print_default_stylesheets
     "Prints stylesheets defined by the layout, including any additional CSS defined by the theme.";
 
+    function print_contextual_stylesheet
+    "Prints the layout's default stylesheet for contextual popups.";
+
     function print_default_stylesheet
     "Prints the layout's base default stylesheet.";
 
@@ -3476,6 +3479,22 @@ function Page::print_default_stylesheet()
 
 }
 
+function Page::print_contextual_stylesheet()
+"Adds CSS for contextual popups to ensure readability. Style tags will be automatically added around it. Overriding this function is NOT RECOMMENDED. Use Page::print_default_stylesheet or print_stylesheet instead."
+{
+"""
+.ContextualPopup {
+    background: $*color_page_background;
+    color: $*color_page_text;
+    }
+
+.ContextualPopup a { color: $*color_page_link_hover; }
+.ContextualPopup a:visited { color: $*color_page_link_visited; }
+.ContextualPopup a:hover { color: $*color_page_link_hover; }
+.ContextualPopup a:active { color: $*color_page_link_active; }
+""";
+}
+
 function Page::print_theme_stylesheet()
 "Prints theme-specific CSS. Should be overwritten by themes that include CSS not part of the layout's default stylesheet."
 {
@@ -3495,6 +3514,7 @@ function Page::print_default_stylesheets()
     else {
         println """<style type="text/css">""";
         start_css();
+        $this->print_contextual_stylesheet();
         $this->print_default_stylesheet();
         print_stylesheet();
         $this->print_theme_stylesheet();
