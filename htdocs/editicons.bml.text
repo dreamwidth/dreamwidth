@@ -49,7 +49,7 @@
 
 .error.toolarge.separately=Image is too large; please submit it separately to resize.
 
-.error.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]]'nt been saved as [[?numwords|its|their]] icon already has [[max]] keywords.
+.error.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]] not been saved as [[?numwords|its|their]] icon already has [[max]] keywords.
 
 .error.toomanypics4=You're already at your limit of [[num]] [[?num|icon|icons]]. You can't upload this icon until you delete <a [[aopts]]>one of your existing ones</a>.
 
