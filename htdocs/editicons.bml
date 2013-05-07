@@ -684,7 +684,7 @@ sub update_userpics
             } else {
                 eval {
                     $up->set_keywords($kws);
-                } or push @errors, $@;
+                } or push @errors, $@->as_html;
             }
         }
         
