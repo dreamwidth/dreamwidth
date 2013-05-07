@@ -1,0 +1,27 @@
+;; -*- coding: utf-8 -*-
+
+.title=Edit Twitter Account
+
+.username.label=Username
+
+.is_authorized.label=[[sitename]] access to Twitter account
+
+.is_authorized.yes=Authorized
+
+.is_authorized.no=Not authorized
+
+.authorize=Authorize
+
+.reauthorize=Re-authorize
+
+.tweetbydefault.label=Tweet about new posts by default
+
+.tweetbydefault.note=([[sitename]] will only tweet about public posts)
+
+.prefix_text.label=Prefix text
+
+.prefix_text.default=New [[siteabbrev]] post:
+
+.prefix_text.note=(may be left blank for no prefix)
+
+.tweet_layout_explanation=Tweets will be of the form "Prefix text Title of post URL". If you want a seperator after the prefix (e.g. :) you need to include it. If the total length is more than 140 characters, the title will be shortened. Note that the longer the prefix text, the more frequently this is likely to occur.

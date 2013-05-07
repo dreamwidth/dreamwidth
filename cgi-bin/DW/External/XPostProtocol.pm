@@ -20,7 +20,10 @@ use LJ::ModuleLoader;
 LJ::ModuleLoader->require_subclasses( "DW::External::XPostProtocol" );
 
 my %protocols;
-eval { $protocols{"lj"} = DW::External::XPostProtocol::LJXMLRPC->new; };
+eval { 
+    $protocols{"lj"} = DW::External::XPostProtocol::LJXMLRPC->new;
+    $protocols{"Twitter"} = DW::External::XPostProtocol::Twitter->new;
+};
 
 # returns the given protocol, if configured.
 sub get_protocol {
@@ -167,6 +170,19 @@ sub supports_challenge {
 # returns the options for this protocol
 sub protocol_options {
     return ();
+}
+
+# checks to see whether this account should only receive xposts of public 
+#  entries (e.g. if it posts somewhere public such as Twitter)
+sub public_posts_only {
+    # Allow all posts by default. Subclasses should override if necessary.
+    return 0;
+}
+
+# returns true if this protocol uses oauth. Default to false, override in 
+# oauth-using subclasses.
+sub uses_oauth {
+    return 0;
 }
 
 1;

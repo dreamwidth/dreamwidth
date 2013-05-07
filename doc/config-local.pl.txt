@@ -126,6 +126,28 @@
     $COMMENT_IMPORT_MAX = undef;
     $COMMENT_IMPORT_ERROR = "Importing more than 10,000 comments is currently disabled.";
 
+    #Twitter config
+   
+    #Enabled: If this is false, Twitter accounts cannot be created and 
+    # crossposts to Twitter will fail before touching Twitter. Do not
+    # set it to 1 until you have a consumer key.
+    #Consumer key & secret: Set the actual values in config-private.pl.
+    # These are the "API key", obtainable by creating an Application on
+    # dev.twitter.com.
+    #t_co_urllength: This is the number of characters that Twitter considers
+    #links to take up. It changes occasionally. If this site uses memcache
+    #then leave that line commented out and it will be pulled automagically
+    #from Twitter. If the site isn't using memcache, or if an override is
+    #needed, it must be specified here.
+    %TWITTER = (
+        enabled => 0,
+        consumer_key => $DW::PRIVATE::TWITTER{consumer_key},
+        consumer_secret => $DW::PRIVATE::TWITTER{consumer_secret},
+        #t_co_urllength => 22,
+    );
+
+
+
 }
 
 1;
