@@ -3868,7 +3868,7 @@ function IconsPage::print_icon_manage_link() "Prints out a link to the icon mana
 function print_subscriptionfilters_manage_link() "Prints out a link to the subscription filter management page, if the viewer can manage them."
 {
     var Page p = get_page();
-    print "<div class=\"manage-link manage-subfilters-link\"><a href=\"" + $p.journal->subscriptionfilters_manage_url() + "\">$*text_subscriptionfilters_manage</a></div>";
+    print viewer_is_owner() ? "<div class=\"manage-link manage-subfilters-link\"><a href=\"" + $p.journal->subscriptionfilters_manage_url() + "\">$*text_subscriptionfilters_manage</a></div>" : "";
 }
 
 function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to full text"
