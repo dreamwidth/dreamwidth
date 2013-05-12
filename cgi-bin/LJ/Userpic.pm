@@ -1184,7 +1184,8 @@ sub set_and_rename_keywords {
     my @orig_keywords = split(',', $orig_keyword_string);
 
     # don't allow renames involving no-keyword (pic#0001) values
-    if ( grep ( /^\s*pic\#\d+\s*$/, @orig_keywords ) || grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
+#    if ( grep ( /^\s*pic\#\d+\s*$/, @orig_keywords ) || grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
+    if ( grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
         LJ::errobj("Userpic::RenameBlankKeywords",
                    origkw    => $orig_keyword_string,
                    newkw     => $new_keyword_string)->throw;
@@ -1228,6 +1229,7 @@ sub set_and_rename_keywords {
 
             # if it does, we have to remap it
             if ( $mapid ) {
+                die('here');
                 my $oldid = $u->get_mapid_from_keyword( $origkw );
 
                 # redirect the old mapid to the new mapid
@@ -1246,9 +1248,15 @@ sub set_and_rename_keywords {
                 die $u->errstr if $u->err;
 
             } else {
-                $u->do( "UPDATE userpicmap3 SET kwid = ? WHERE kwid = ? AND userid = ?",
-                        undef, $u->get_keyword_id( $newkw ), $u->get_keyword_id( $origkw ), $u->id );
-                die $u->errstr if $u->err;
+                if ( $origkw !~ /^\s*pic\#\d+\s*$/ ) {
+                    $u->do( "UPDATE userpicmap3 SET kwid = ? WHERE kwid = ? AND userid = ?",
+                            undef, $u->get_keyword_id( $newkw ), $u->get_keyword_id( $origkw ), $u->id );
+                    die $u->errstr if $u->err;
+                } else {
+                    $u->do( "REPLACE INTO userpicmap3 (userid, kwid, picid) VALUES (?, ?, ?)",
+                            undef, $u->id, $u->get_keyword_id( $newkw ), $self->picid );
+                    die $u->errstr if $u->err;
+                }
             }
         }
         LJ::Userpic->delete_cache($u);
