@@ -51,7 +51,7 @@ sub save_module {
     my $need_new_id = !defined $id;
 
     if (defined $id) {
-        my $old_content = $class->module_content( moduleid => $id, journalid => LJ::want_userid($journal))->{'content'} || '';
+        my $old_content = $class->module_content( moduleid => $id, journalid => LJ::want_userid($journal))->{content} || '';
         my $new_content = $contents;
 
         # old content is cleaned by module_content(); new is not
@@ -80,14 +80,14 @@ sub save_module {
     $journal->do( "REPLACE INTO $table_name " .
                   "(userid, moduleid, content, linktext, url) " .
                   "VALUES (?, ?, ?, ?, ?)", 
-                   undef, $journal->userid, $id, $cmptext, $src_info->{'linktext'}, $src_info->{'url'} );
+                   undef, $journal->userid, $id, $cmptext, $src_info->{linktext}, $src_info->{url} );
     die $journal->errstr if $journal->err;
 
     # save in memcache
     my $memkey = $class->memkey($journal->userid, $id, $preview);
     my $cref   = { content      => $cmptext,
-                   linktext     => $src_info->{'linktext'},
-                   url          => $src_info->{'url'},
+                   linktext     => $src_info->{linktext},
+                   url          => $src_info->{url},
                  };
     LJ::MemCache::set($memkey, $cref);
 
@@ -125,10 +125,10 @@ sub _expand_tag {
     return '[invalid site-embed, id is missing]' unless $attrs{id};
 
     if ($opts{expand_full}){
-        return $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id)->{'content'};
+        return $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id)->{content};
     } elsif ($edit) {
         return '<site-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">" .
-                 $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id)->{'content'} .
+                 $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id)->{content} .
                  "<\/site-embed>";
     } else {
         @opts{qw /width height/} = @attrs{qw/width height/};
@@ -307,17 +307,17 @@ sub extract_src_info {
             if ($res->is_success) {
                 my $obj = from_json( $res->content );
                 $linktext = '"'
-                          . ${$obj}{'items'}[0]{'snippet'}{'title'}
+                          . ${$obj}{items}[0]{snippet}{title}
                           . '" (' 
-                          . BML::ml('embedmedia.youtube')
+                          . LJ::Lang::ml('embedmedia.youtube')
                           . ")";
             } else {
-                warn "error getting video info from youtube: ", $res->status_line, "\n";
-                $linktext = BML::ml('embedmedia.youtube');
+                # error getting video info from youtube
+                $linktext = LJ::Lang::ml('embedmedia.youtube');
             }
         } else {
             # no API key; use generic text
-            $linktext = BML::ml('embedmedia.youtube');
+            $linktext = LJ::Lang::ml('embedmedia.youtube');
         }
     } elsif ( $content =~ /src="http:\/\/.*vimeo\.com/ ) {
         # Vimeo's default c/p embed code contains a link to the
@@ -344,13 +344,13 @@ sub extract_src_info {
             if ($res->is_success) {
                 my $obj = from_json( $res->content );
                 $linktext = '"'
-                          . ${$obj}[0]{'title'}
+                          . ${$obj}[0]{title}
                           . '" '
-                          . BML::ml('embedmedia.vimeo')
+                          . LJ::Lang::ml('embedmedia.vimeo')
                           . ")";
             } else {
-                warn "error getting video info from Vimeo: ", $res->status_line, "\n";
-                $linktext = BML::ml('embedmedia.vimeo');
+                # error getting video info from Vimeo
+                $linktext = LJ::Lang::ml('embedmedia.vimeo');
             }
         }
      } else {
@@ -373,9 +373,9 @@ sub module_iframe_tag {
 
     # parse the contents of the module and try to come up with a guess at the width and height of the content
     my $embed_details = $class->module_content( moduleid => $moduleid, journalid => $journalid, preview => $preview );
-    my $content  = $embed_details->{'content'};
-    my $linktext = $embed_details->{'linktext'};
-    my $url      = $embed_details->{'url'};
+    my $content  = $embed_details->{content};
+    my $linktext = $embed_details->{linktext};
+    my $url      = $embed_details->{url};
     my $width    = 0;
     my $height   = 0;
     my $width_unit  = "";
@@ -532,9 +532,9 @@ sub module_content {
     my $memkey = $class->memkey($journalid, $moduleid, $preview);
     my ($content, $linktext, $url); # for direct linking
     my $cref = LJ::MemCache::get($memkey);
-    $content  = $cref->{'content'};
-    $linktext = $cref->{'linktext'};
-    $url      = $cref->{'url'};
+    $content  = $cref->{content};
+    $linktext = $cref->{linktext};
+    $url      = $cref->{url};
     my ($dbload, $dbid); # module id from the database
     unless (defined $content) {
         my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';

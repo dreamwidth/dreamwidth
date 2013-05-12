@@ -4158,15 +4158,15 @@ EOF
             "ADD INDEX (client)"
         );
 
-    # Needed to cache embed titles to minimize external API calls
-    if ( column_type( "embedcontent", "title" ) eq '' ) {
+    # Needed to cache embed linktext to minimize external API calls
+    if ( column_type( "embedcontent", "linktext" ) eq '' ) {
         do_alter( 'embedcontent', 
                   "ALTER TABLE embedcontent "
                 . "ADD COLUMN linktext VARCHAR(255), "
                 . "ADD COLUMN url VARCHAR(255);" );
     }
 
-    if ( column_type( "embedcontent_preview", "title" ) eq '' ) {
+    if ( column_type( "embedcontent_preview", "linktext" ) eq '' ) {
         do_alter( 'embedcontent_preview', 
                   "ALTER TABLE embedcontent_preview "
                 . "ADD COLUMN linktext VARCHAR(255), "
