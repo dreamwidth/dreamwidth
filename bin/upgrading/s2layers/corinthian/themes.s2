@@ -103,7 +103,7 @@ set color_module_title_background = "#4c6089";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -182,7 +182,7 @@ set color_module_title_background = "#292929";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -317,7 +317,7 @@ set color_module_title_background = "#b6c48e";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -396,7 +396,7 @@ set color_module_title_background = "#331640";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -475,7 +475,7 @@ set color_module_title_background = "#ab4a24";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -588,7 +588,7 @@ set color_module_title = "#1e1e1e";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -667,7 +667,7 @@ set color_module_title_background = "#6f5c49";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -847,7 +847,7 @@ set color_module_title_background = "#e9f0de";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -922,7 +922,7 @@ set color_module_title = "#141414";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1039,7 +1039,7 @@ set color_module_title_background = "#292929";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1118,7 +1118,7 @@ set color_module_title_background = "#d7d7d7";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1192,7 +1192,7 @@ set color_module_title = "#404a45";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1270,7 +1270,7 @@ set color_module_title_background = "#fdc1c2";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1349,7 +1349,7 @@ set color_module_title_background = "#e4f0c5";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1420,7 +1420,7 @@ set color_module_title = "#fffb91";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1490,7 +1490,7 @@ set color_module_title_background = "#411725";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1569,7 +1569,7 @@ set color_module_title_background = "#fce2d4";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1647,7 +1647,7 @@ set color_module_title_background = "#b4d2de";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
@@ -1722,7 +1722,7 @@ set color_module_title = "#1b1b1b";
 ##===============================
 
 set font_base = "Verdana, Helvetica, Arial";
-set font_fallback = "Sans-serif";
+set font_fallback = "sans-serif";
 set font_journal_title = "'Arial Black', Impact";
 
 function Page::print_theme_stylesheet() { """
