@@ -141,14 +141,14 @@ set color_page_link = "#c02948";
 set color_page_link_active = "#c02948";
 set color_page_link_hover = "#489ca0";
 set color_page_link_visited = "#442432";
-set color_page_text = "#0A0A0A";
+set color_page_text = "#0a0a0a";
 set color_page_title = "#f5fcf5";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_comment_title = "#0A0A0A";
+set color_comment_title = "#0a0a0a";
 set color_entry_background = "#f5fcf5";
 set color_entry_border = "#eb7967";
 set color_entry_interaction_links = "#f06280";
@@ -156,8 +156,8 @@ set color_entry_link = "#c02948";
 set color_entry_link_active = "#c02948";
 set color_entry_link_hover = "#489ca0";
 set color_entry_link_visited = "#442432";
-set color_entry_text = "#0A0A0A";
-set color_entry_title = "#0A0A0A";
+set color_entry_text = "#0a0a0a";
+set color_entry_title = "#0a0a0a";
 
 ##===============================
 ## Module Colors
@@ -168,14 +168,14 @@ set color_module_link = "#c02948";
 set color_module_link_active = "#c02948";
 set color_module_link_hover = "#489ca0";
 set color_module_link_visited = "#442432";
-set color_module_text = "#0A0A0A";
-set color_module_title = "#0A0A0A";
+set color_module_text = "#0a0a0a";
+set color_module_title = "#0a0a0a";
 
 ##===============================
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_base_size = "1";
 set font_base_units = "em";
 set font_comment_title = "Metamorphous";
