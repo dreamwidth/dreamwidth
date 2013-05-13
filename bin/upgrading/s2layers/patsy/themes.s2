@@ -70,7 +70,7 @@ set entry_userpic_style = "small";
 ## Page Colors
 ##===============================
 
-set color_calendar_entryday_background = "#EEEBF5";
+set color_calendar_entryday_background = "#eeebf5";
 set color_calendar_header_background = "#e4e1eb";
 set color_calendar_header_text = "#0f0f0f";
 set color_comment_title = "#0f0f0f";
@@ -114,7 +114,7 @@ set color_module_title = "#0f0f0f";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_base_size = "1";
 set font_base_units = "em";
 set font_comment_title = "Metamorphous";
