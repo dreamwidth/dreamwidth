@@ -127,7 +127,7 @@ set color_module_title_background = "#d7eadc";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_base_size = "1";
 set font_base_units = "em";
 set font_comment_title = "Metamorphous";
