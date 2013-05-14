@@ -179,3 +179,148 @@ set entry_userpic_style = "small";
 ##===============================
 
 set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
+
+
+#NEWLAYER: patsy/todayimhappy
+layerinfo "type" = "theme";
+layerinfo "name" = "Today I'm happy";
+layerinfo redist_uniq = "patsy/todayimhappy";
+layerinfo author_name = "renoir";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+function Page::print_theme_stylesheet() { 
+"""
+    /* Today I'm happy
+    /* by rising
+    ******************************/
+
+    /* Text effects
+    ******************************/
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    blockquote {
+        background: $*color_entry_background !important;
+        border: none; 
+        color: inherit; 
+        font-style: normal; 
+        font-size: inherit; 
+        margin-top: .5em; 
+        margin-bottom: .5em; 
+        padding: .5em;         
+    }
+
+    code { 
+        font-family: 'Courier New', monospace; 
+        font-size: .9em;
+    }
+    
+    /* Text placement
+    ******************************/
+
+    #primary,
+    #secondary,
+    #tertiary,
+    #comment,
+    #footer,
+    .module-content {
+        text-align: left; 
+        line-height: 1.2em;
+    }
+
+"""; 
+}
+
+##===============================
+## Presentation
+##===============================
+
+set all_entrysubjects = true;
+set comment_date_format = "med_dayfirst";
+set comment_management_links = "text";
+set comment_time_format = "short_24";
+set entry_date_format = "long_day_dayfirst";
+set entry_management_links = "text";
+set entry_metadata_position = "top";
+set entry_time_format = "short_24";
+set entry_userpic_style = "small";
+set userlite_interaction_links = "text";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_entryday_background = "#fce8ec";
+set color_calendar_header_background = "#fcd4dd";
+set color_calendar_header_text = "#f06280";
+set color_content_border = "#ecd079";
+set color_footer_background = "#f5fcf5";
+set color_footer_border = "#eb7967";
+set color_footer_link = "#c02948";
+set color_footer_link_active = "#c02948";
+set color_footer_link_hover = "#489ca0";
+set color_footer_link_visited = "#442432";
+set color_header_background = "#c02948";
+set color_header_border = "#d95b45";
+set color_header_link = "#f5fcf5";
+set color_header_link_active = "#f5fcf5";
+set color_header_link_hover = "#f5fcf5";
+set color_header_link_visited = "#fcd4dd";
+set color_page_background = "#442432";
+set color_page_link = "#c02948";
+set color_page_link_active = "#c02948";
+set color_page_link_hover = "#489ca0";
+set color_page_link_visited = "#442432";
+set color_page_text = "#0a0a0a";
+set color_page_title = "#f5fcf5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#0a0a0a";
+set color_entry_background = "#f5fcf5";
+set color_entry_border = "#eb7967";
+set color_entry_interaction_links = "#f06280";
+set color_entry_link = "#c02948";
+set color_entry_link_active = "#c02948";
+set color_entry_link_hover = "#489ca0";
+set color_entry_link_visited = "#442432";
+set color_entry_text = "#0a0a0a";
+set color_entry_title = "#0a0a0a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f5fcf5";
+set color_module_link = "#c02948";
+set color_module_link_active = "#c02948";
+set color_module_link_hover = "#489ca0";
+set color_module_link_visited = "#442432";
+set color_module_text = "#0a0a0a";
+set color_module_title = "#0a0a0a";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_comment_title = "Metamorphous";
+set font_comment_title_units = "em";
+set font_entry_title = "Metamorphous";
+set font_entry_title_units = "em";
+set font_fallback = "sans-serif";
+set font_journal_subtitle = "Metamorphous";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Metamorphous";
+set font_journal_title_units = "em";
+set font_module_heading = "Metamorphous";
+set font_module_heading_units = "em";
+set font_module_text_units = "em";
+set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
