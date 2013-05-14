@@ -1,3 +1,150 @@
+#NEWLAYER: patsy/hollowsilence
+layerinfo "type" = "theme";
+layerinfo "name" = "Hollow Silence";
+layerinfo redist_uniq = "patsy/hollowsilence";
+layerinfo author_name = "renoir";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+function Page::print_theme_stylesheet() { 
+"""
+    /* Hollow Silence
+    /* by rising
+    ******************************/
+
+    /* Text effects
+    ******************************/
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    blockquote {
+        background: $*color_entry_background !important;
+        border: none; 
+        color: inherit; 
+        font-style: normal; 
+        font-size: inherit; 
+        margin-top: .5em; 
+        margin-bottom: .5em; 
+        padding: .5em;         
+    }
+
+    code { 
+        font-family: 'Courier New', monospace; 
+        font-size: .9em;
+    }
+    
+    /* Text placement
+    ******************************/
+
+    #primary,
+    #secondary,
+    #tertiary,
+    #comment,
+    #footer,
+    .module-content {
+        text-align: left; 
+        line-height: 1.2em;
+    }
+
+"""; 
+}
+
+##===============================
+## Presentation
+##===============================
+
+set all_entrysubjects = true;
+set comment_date_format = "med_dayfirst";
+set comment_management_links = "text";
+set comment_time_format = "short_24";
+set entry_date_format = "long_day_dayfirst";
+set entry_management_links = "text";
+set entry_metadata_position = "top";
+set entry_time_format = "short_24";
+set entry_userpic_style = "small";
+set userlite_interaction_links = "text";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_entryday_background = "#d7eadc";
+set color_calendar_header_background = "#c8ead2";
+set color_calendar_header_text = "#1d1919";
+set color_content_border = "#d8f0df";
+set color_footer_background = "#fdfdfd";
+set color_footer_border = "#beeacc";
+set color_footer_link = "#518c80";
+set color_footer_link_active = "#406e65";
+set color_footer_link_hover = "#7762c8";
+set color_footer_link_visited = "#4b4543";
+set color_header_background = "#aed6bb";
+set color_header_border = "#beeacc";
+set color_header_link = "#fdfdfd";
+set color_header_link_active = "#fdfdfd";
+set color_header_link_hover = "#fdfdfd";
+set color_header_link_visited = "#fdfad5";
+set color_navlinks_current = "#fdfad5";
+set color_page_background = "#87b899";
+set color_page_link = "#518c80";
+set color_page_link_active = "#406e65";
+set color_page_link_hover = "#7762c8";
+set color_page_link_visited = "#4b4543";
+set color_page_text = "#1d1919";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#1d1919";
+set color_entry_background = "#fdfdfd";
+set color_entry_border = "#c8ead2";
+set color_entry_interaction_links = "#988dc8";
+set color_entry_link = "#518c80";
+set color_entry_link_active = "#406e65";
+set color_entry_link_hover = "#7762c8";
+set color_entry_link_visited = "#4b4543";
+set color_entry_text = "#1d1919";
+set color_entry_title = "#1d1919";
+set color_entry_title_background = "#d7eadc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fdfdfd";
+set color_module_link = "#518c80";
+set color_module_link_active = "#406e65";
+set color_module_link_hover = "#7762c8";
+set color_module_link_visited = "#4b4543";
+set color_module_text = "#1d1919";
+set color_module_title = "#1d1919";
+set color_module_title_background = "#d7eadc";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_comment_title = "Metamorphous";
+set font_comment_title_units = "em";
+set font_entry_title = "Metamorphous";
+set font_entry_title_units = "em";
+set font_fallback = "sans-serif";
+set font_journal_subtitle = "Metamorphous";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Metamorphous";
+set font_journal_title_units = "em";
+set font_module_heading = "Metamorphous";
+set font_module_heading_units = "em";
+set font_module_text_units = "em";
+set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+
+
 #NEWLAYER: patsy/retro
 layerinfo type = "theme";
 layerinfo name = "Retro";
