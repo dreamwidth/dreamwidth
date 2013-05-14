@@ -197,6 +197,8 @@ general /multisearch.bml.region.head
 general /multisearch.bml.region.text
 general /multisearch.bml.title.results
 
+general /profile.bml.label.feedchange
+
 general /register.bml.new.body
 general /register.bml.new.modify2
 
