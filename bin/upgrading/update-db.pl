@@ -331,6 +331,19 @@ sub populate_s2 {
             # we're going to go ahead and build it.
             $layer{$base}->{'built'} = 1;
 
+            # Since we might fork, we disconnect here and then people can get a new one.
+            LJ::DB::disconnect_dbs();
+
+            # Fork out a child so it can compile. This saves us the memory usage.
+            if ( my $pid = fork ) {
+                $dbh = LJ::get_db_writer();
+                waitpid $pid, 0;
+                die if $? >> 8 != 0;
+                return;
+            } else {
+                $dbh = LJ::get_db_writer();
+            }
+
             # compile!
             my $lay = {
                 's2lid' => $id,
@@ -368,6 +381,9 @@ sub populate_s2 {
 
             # put raw S2 in database.
             LJ::S2::set_layer_source($id, \$s2source);
+
+            # We are the child, so we can exit here.
+            exit;
         };
 
         my @layerfiles = LJ::get_all_files("bin/upgrading/s2layers.dat", home_first => 1);
