@@ -569,7 +569,7 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
-set image_background_page_url = "ciel/battleraven.png";
+set image_background_page_url = "commons/battleraven.png";
 
 
 #NEWLAYER: ciel/blackforestcake
