@@ -1053,7 +1053,7 @@ body<=
             if ( $remote && $remote->can_manage( $u ) ) {
                 push @$links, { url => "$LJ::SITEROOT/manage/circle/edit#editfeeds", text => $ML{'.section.edit'} };
             }
-            push @$links, { url => $u->journal_base . "/read?show=Y", text => $ML{'.feeds.viewentries'} };
+            push @$links, { url => $u->journal_base . "/read?show=F", text => $ML{'.feeds.viewentries'} };
 
             $ret .= $content_block->(
                 section_name    => 'feeds',
