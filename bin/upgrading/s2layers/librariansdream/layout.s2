@@ -721,7 +721,6 @@ div.icons-container div.icon:nth-of-type(2n) {
 .module .manage-link a:hover,
 .module-calendar td a:hover,
 .journal-website-name a:hover,
-.module-credit dd:hover,
 .module-search input.search-button:hover,
 .module-search input.search-box:focus {
     background:  $*color_module_link_hover_background;

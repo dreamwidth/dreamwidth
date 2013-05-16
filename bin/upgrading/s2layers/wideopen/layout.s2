@@ -1146,14 +1146,6 @@ $userpic_css
      padding-right: .5em;
      }
 
-.module-section-footer .module-credit dt {
-    margin-right: 0;
-    }
-
-.module-section-footer .module-credit dd {
-    margin-right: .5em;
-    }
-
 
 """;
 }

@@ -567,14 +567,7 @@ ul.userlite-interaction-links.icon-links li {
     padding: 2px;
     }
 
-.module-credit dt,
-.module-credit dd {
-    display: inline;
-    margin: 0;
-    padding: 0;
-    }
-
-.module-credit dt {
+.module-credit .category-title {
     font-weight: bold;
     margin-right: .5em;
     }
