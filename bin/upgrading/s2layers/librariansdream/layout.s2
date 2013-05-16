@@ -696,8 +696,7 @@ div.icons-container div.icon:nth-of-type(2n) {
 .module .manage-link a,
 .module-calendar td a,
 .journal-website-name a,
-.module-credit dt,
-.module-credit dd,
+.module-credit li,
 .module-search input {
     display: block;
     padding: .25em .5em;
@@ -705,6 +704,12 @@ div.icons-container div.icon:nth-of-type(2n) {
     border-left: .5em solid $*color_module_link_border;
     color: $*color_module_link;
 }
+
+.module-credit .module-list-item a, .module-credit .module-content li a, .module-credit .module-content li a:hover {
+    display: inline;
+    background: none;
+    border: none;
+    padding: 0; }
 
 .module-calendar td { font-size: small; }
 .module-calendar td.empty-day { padding: .25em; }

@@ -1027,7 +1027,8 @@ q {
 
 .module-tags_list ul,
 .module-tags_multilevel ul,
-.module-pagesummary ul {
+.module-pagesummary ul,
+.module-credit ul {
     padding-left: 1.15em;
 }
 .module-tags_cloud ul {
