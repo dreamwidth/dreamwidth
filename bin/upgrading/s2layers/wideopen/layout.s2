@@ -215,6 +215,10 @@ function print_module_poweredby() {
 }
 
 function print_module_credit() {
+    var Page p = get_page();
+    var string layoutname = $p.layout_name;
+    var string themename = $p.theme_name;
+    var string styleurl = $p.layout_url;
     var string ret = "";
     var string sep = "";
     var int layout_authors_size = size $*layout_authors;
@@ -225,33 +229,74 @@ function print_module_credit() {
         $sep = """<span class="footer-module-separator">$*footer_module_separator</span>""";
     }
 
-    if ( $layout_authors_size > 0) {
-        var int count = 0;
-        $ret = $ret + $sep + "<dt>$text_style_authors</dt> ";
-        foreach var string{} author ( $*layout_authors ) {
-            var string item;
-            if ( $author{"url"} != "" ) {
-                $item = "<a href='" + $author{"url"} + "'>" + $author{"name"} + "</a>";
-            } elseif ( $author{"type"} == "user" ) {
-                var UserLite u = UserLite( $author{"name"} );
-                if ( defined $u ) {
-                    $item = $u->ljuser();
+    if ( ($layoutname != "") or ($layout_authors_size > 0) ) {
+
+        # Print category title.
+
+        $ret = $ret + $sep + "<li class='module-list-item'><span class='category-title'>$text_style_authors</span> ";
+
+        # If theme name exists and style author and theme author are the same print it first.
+
+        if ( ($themename != "") and ($theme_authors_size == 0) ) {
+            $ret = $ret + "<span class='theme-name'>$themename</span> for ";
+        }
+
+        # If layout name exists print it.
+
+        if ($layoutname != "") {
+            $ret = $ret + "<span class='style-name'>";
+            if ($styleurl != "") { $ret = $ret + """<a href="$styleurl">"""; }
+            $ret = $ret + "$layoutname";
+            if ($styleurl !="") { $ret = $ret + "</a>"; }
+            $ret = $ret + "</span>";
+        }
+
+
+        if ($layout_authors_size > 0) {
+            $ret = $ret + " by ";
+
+            var int count = 0;
+
+            foreach var string{} author ( $*layout_authors ) {
+                var string item;
+                if ( $author{"url"} != "" ) {
+                        $item = "<a href='" + $author{"url"} + "'>" + $author{"name"} + "</a>";
+                } elseif ( $author{"type"} == "user" ) {
+                    var UserLite u = UserLite( $author{"name"} );
+                    if ( defined $u ) {
+                        $item = $u->ljuser();
+                    }
+                }
+                if ( $item == "" ) {
+                    $item = $author{"name"};
+                }
+
+                $ret = $ret + "<span class='style-author'>$item</span>";
+                $count++;
+                if ( $count < $layout_authors_size ) {
+                    if ( $count == ($layout_authors_size -1) ) { $ret = $ret + " and "; }
+                    else { $ret = $ret + ","; }
                 }
             }
-            if ( $item == "" ) {
-                $item = $author{"name"};
-            }
-
-            $ret = $ret + "<dd>$item";
-            $count++;
-            if ($count < $layout_authors_size ) { $ret = $ret + ","; }
-            $ret = $ret + "</dd>\n";
         }
+
+        $ret = $ret + "</li>\n";
     }
 
-    if ( $theme_authors_size > 0) {
+    if ($theme_authors_size > 0) {
+
+        # Print category title.
+
+        $ret = $ret + $sep + "<li class='module-list-item'><span class='category-title'>$*text_theme_authors</span> ";
+
+        # Print theme name if it exists.
+
+        if ($themename != "") {
+            $ret = $ret + "<span class='theme-name'>$themename</span> by ";
+        }
+
         var int count = 0;
-        $ret = $ret + $sep + "<dt>$*text_theme_authors</dt> ";
+
         foreach var string{} author ( $*theme_authors ) {
             var string item;
             if ( $author{"url"} != "" ) {
@@ -266,17 +311,22 @@ function print_module_credit() {
                 $item = $author{"name"};
             }
 
-            $ret = $ret + "<dd>$item";
+            $ret = $ret + "<span class='style-author'>$item</span>";
             $count++;
-            if ($count < $theme_authors_size ) { $ret = $ret + ","; }
-            $ret = $ret + "</dd>\n";
+            if ( $count < $theme_authors_size ) {
+                if ( $count == ($theme_authors_size -1) ) { $ret = $ret + " and "; }
+                else { $ret = $ret + ","; }
+            }
         }
+
+        $ret = $ret + "</li>\n";
     }
 
     var int resources_size = size $*layout_resources;
     if ( $resources_size > 0 ) {
+        $ret = $ret + $sep + "<li class='module-list-item'><span class='category-title'>$*text_layout_resources</span> ";
+
         var int count = 0;
-        $ret = $ret + $sep + "<dt>$*text_layout_resources</dt> ";
         foreach var string{} resource ( $*layout_resources ) {
             var string item;
             if ( $resource{"url"} != "" ) {
@@ -285,16 +335,19 @@ function print_module_credit() {
                 $item = $resource{"name"};
             }
 
-            $ret = $ret + "<dd>$item";
+            $ret = $ret + "<span class='resource-name'>$item</span>";
             $count++;
-            if ($count < $resources_size ) { $ret = $ret + ","; }
-            $ret = $ret + "</dd>\n";
+            if ( $count < $resources_size ) {
+                if ( $count == ($resources_size -1) ) { $ret = $ret + " and "; }
+                else { $ret = $ret + ","; }
+            }
+            $ret = $ret + "</li>\n";
         }
     }
 
     if ( $ret != "" ) {
         open_module("credit", $*text_module_credit, "");
-        print safe "<dl>$ret</dl>";
+        print safe "<ul class='module-list'>$ret</ul>";
         close_module();
     }
 }
