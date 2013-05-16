@@ -611,17 +611,8 @@ function Page::print_default_stylesheet()
 
     /* Credit
     ***************************************************************************/
-    .module-credit dl {
-        padding: 0 0 0 20px;
-    }
-    .module-credit dt, .module-credit dd {
-        display: inline;
-        margin: 0;
-        padding: 0;
-    }
-    .module-credit dt {
+    .module-credit .category-title {
         font-weight: bold;
-        margin-right: 0.5em;
     }
 
     /* Page Summary
