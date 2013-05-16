@@ -744,11 +744,6 @@ ul.comment-interaction-links li, ul.comment-management-links li {
  * page footer
  */
 
-.module-credit .module-content dl dt, .module-credit .module-content dl dd {
-       display: inline;
-       margin-left: 0;
-}
-
 .module-section-one {
     padding-top: 1em;
 }

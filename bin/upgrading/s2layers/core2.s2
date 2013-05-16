@@ -4566,8 +4566,8 @@ function print_module_credit() {
                 if ( $count == ($resources_size -1) ) { $ret = $ret + " and "; }
                 else { $ret = $ret + ","; }
             }
-            $ret = $ret + "</li>\n";
         }
+        $ret = $ret + "</li>\n";
     }
 
     if ( $ret != "" ) {

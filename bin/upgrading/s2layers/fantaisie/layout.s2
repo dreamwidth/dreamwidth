@@ -8,7 +8,7 @@ set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
 set layout_resources = [ { "name" => "Omnibus-Type and Sideshow's fonts", "url" => "http://www.google.com/webfonts/" } ];
 
 ##===============================
-## Presentation 
+## Presentation
 ##===============================
 
 set layout_type = "two-columns-right";
@@ -48,7 +48,7 @@ propgroup colors_child {
     }
 
 ##===============================
-## Fonts 
+## Fonts
 ##===============================
 
 propgroup fonts_child {
@@ -1120,7 +1120,7 @@ ul.comment-interaction-links li.cmt_hide::after {
 
 .page-top { margin: 1em 14% 0; }
 
-.page-top .inner { 
+.page-top .inner {
     $navigation_css
 }
 
@@ -1163,26 +1163,17 @@ ul.comment-interaction-links li.cmt_hide::after {
 
 #footer .module-credit h2 { display: none; }
 
-#footer .module-credit dl { margin: 0; }
+#footer .module-credit li { display: inline; }
 
-#footer .module-credit dt {
-    font-weight: normal;
-    margin: 0;
-}
-
-#footer .module-credit dd { display: inline; }
-
-#footer .module-credit dd b { font-weight: normal; }
+#footer .module-credit .category-title { font-weight: normal; }
 
 #footer .module-credit dd img { vertical-align: middle !important; }
 
-#footer dd:last-child::after,
-#footer #site-branding::after {
+#footer .module-credit li:after,
+#footer #site-branding:after {
     content: ".";
     padding-right: 2px;
 }
-
-#footer dd .ljuser::after { content: "."; }
 
 """;
 }

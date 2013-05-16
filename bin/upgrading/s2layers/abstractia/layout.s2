@@ -1046,20 +1046,6 @@ q {
     margin-left: .5em !important;
 }
 
-.module-credit dl {
-    overflow: hidden;
-}
-.module-credit dt {
-    clear: both;
-}
-.module-credit dt,.module-credit dd {
-    float: left;
-}
-.module-credit dd {
-    margin: 0 0 0 .5em;
-}
-
-
 /************************************************
 * Footer *
 ************************************************/
