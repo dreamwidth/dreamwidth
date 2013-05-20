@@ -14,6 +14,8 @@ set margins_unit = "%";
 ##===============================
 
 set userpics_position = "right";
+set text_skiplinks_back = "";
+set text_skiplinks_forward = "";
 
 ##===============================
 ## Colors
@@ -29,6 +31,10 @@ propgroup colors_child {
  property Color color_entry_background_accent { des = "Entry background accent color for blocks"; }
  property Color color_page_left_border { des = "Page left border color"; }
  property Color color_page_right_border { des = "Page right border color"; }
+ property Color color_page_navigation_link { des = "Page navigation link color"; }
+ property Color color_page_navigation_link_hover { des = "Page navigation link hover color"; }
+ property Color color_page_navigation_link_active { des = "Page navigation link active color"; }
+ property Color color_page_navigation_link_visited { des = "Page navigation link visited color"; }
  property Color color_module_titlelist_border { des = "Module title and list border color"; }
  property Color color_entry_titleuserpic_border { des = "Entry and comment title and userpic border color"; }
  property Color color_comment_footer_text { des = "Comment footer text color"; }
@@ -38,6 +44,7 @@ propgroup colors_child {
 propgroup fonts_child {
  property string font_comment_footer { des = "Comment footer text font"; }
  property string font_entry_footer { des = "Entry footer text font"; }
+ property string font_page_navigation { des = "Page navigation text font"; }
 }
 
 ##===============================
@@ -397,15 +404,27 @@ width: auto;
 
 .navigation .page-back a, .navigation .page-forward a {
 display: block;
-font-size: 1px;
 font-style: italic;
 font-weight: bold;
+color: $*color_page_navigation_link;
+font-family: $*font_page_navigation;
+font-size: 4em;
+}
+
+.navigation .page-back a:hover, .navigation .page-forward a:hover {
+color: $*color_page_navigation_link_hover;
+}
+
+.navigation .page-back a:active, .navigation .page-forward a:active {
+color: $*color_page_navigation_link_active;
+}
+
+.navigation .page-back a:visited, .navigation .page-forward a:visited {
+color: $*color_page_navigation_link_hover;
 }
 
 .navigation .page-back a:before {
 content: "<<";
-font-family: Chalkboard,'Comic Sans MS';
-font-size: 4em;
 }
 
 .navigation .page-forward {
@@ -414,13 +433,13 @@ text-align: right;
 
 .navigation .page-forward a:after {
 content: ">>";
-font-family: Chalkboard,'Comic Sans MS';
-font-size: 4em;
 }
 
 .navigation .page-separator {
 display: none;
 }
+
+.two-columns-left #entries .bottomnav {left: 0 !important;}
 
 /* entries and comments */
 

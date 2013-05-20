@@ -15,6 +15,9 @@ set color_page_link_visited = "#62942f";
 set color_page_right_border = "#325a6d";
 set color_page_text = "#333";
 set color_page_title = "#fafcfc";
+set color_page_navigation_link = "#325A6D";
+set color_page_navigation_link_hover = "#62942F";
+set color_page_navigation_link_visited = "#325A6D";
 set color_header_background = "#cddc3e";
 set color_header_title_background = "#62942f";
 set color_headernav_background = "#325a6d";
@@ -51,6 +54,7 @@ set color_module_titlelist_border = "#c7c9c9";
 ## Fonts
 ##===============================
 set font_base = "Georgia, 'Times New Roman', serif";
+set font_page_navigation = "Chalkboard, 'Comic Sans MS'";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_journal_subtitle_size = "1";
@@ -77,6 +81,9 @@ set color_page_link_visited = "#914930";
 set color_page_right_border = "#4B4B35";
 set color_page_text = "#333";
 set color_page_title = "#EDEDE3";
+set color_page_navigation_link = "#4B4B35";
+set color_page_navigation_link_hover = "#914930";
+set color_page_navigation_link_visited = "#4B4B35";
 set color_header_background = "#B15B3E";
 set color_header_title_background = "#914930";
 set color_headernav_background = "#4B4B35";
@@ -113,6 +120,7 @@ set color_module_titlelist_border = "#C3C3A2";
 ## Fonts
 ##===============================
 set font_base = "Georgia, 'Times New Roman', serif";
+set font_page_navigation = "Chalkboard, 'Comic Sans MS'";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_journal_subtitle_size = "1";
@@ -139,6 +147,9 @@ set color_page_link_visited = "#9B314F";
 set color_page_right_border = "#483A5F";
 set color_page_text = "#333";
 set color_page_title = "#FEFEFB";
+set color_page_navigation_link = "#483A5F";
+set color_page_navigation_link_hover = "#9B314F";
+set color_page_navigation_link_visited = "#483A5F";
 set color_header_background = "#D93361";
 set color_header_title_background = "#9B314F";
 set color_headernav_background = "#483A5F";
@@ -175,6 +186,7 @@ set color_module_titlelist_border = "#c7c9c9";
 ## Fonts
 ##===============================
 set font_base = "Georgia, 'Times New Roman', serif";
+set font_page_navigation = "Chalkboard, 'Comic Sans MS'";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_entry_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
 set font_journal_subtitle_size = "1";
