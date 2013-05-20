@@ -389,7 +389,6 @@ text-align: center;
 
 .navigation ul {
 position: relative;
-padding: 0 1.25em;
 }
 
 .navigation li {
@@ -428,7 +427,7 @@ content: "<<";
 }
 
 .navigation .page-forward {
-text-align: right;
+padding-left: 2em;
 }
 
 .navigation .page-forward a:after {
@@ -439,7 +438,6 @@ content: ">>";
 display: none;
 }
 
-.two-columns-left #entries .bottomnav {left: 0 !important;}
 
 /* entries and comments */
 
@@ -904,10 +902,6 @@ text-align: center;
 
 /* one column */
 
-.one-column #footer {
-float: left;
-}
-
 .one-column .module-section-one {
 padding: 3.5em 1.25em 0;
 width: 100%;
@@ -1025,9 +1019,12 @@ float: right;
 border-left: none;
 }
 
-.two-columns-left #entries .navigation {
-padding-left: 1.25em;
+.two-columns-left #entries .topnav {
+padding-left: 0;
 left: -$*sidebar_width;
+}
+
+.two-columns-left #entries .navigation {
 text-align: left;
 }
 
@@ -1038,10 +1035,13 @@ text-align: left;
 float: left;
 }
 
-.two-columns-right #entries .navigation {
-padding-right: 1.25em;
+.two-columns-right #entries .topnav {
+padding-right: 0;
 right: -$*sidebar_width;
-text-align: right;
+}
+
+.two-columns-right #entries .navigation {
+    text-align: right;
 }
 
 .two-columns-right .module-section-one .module-userprofile .module-content {
