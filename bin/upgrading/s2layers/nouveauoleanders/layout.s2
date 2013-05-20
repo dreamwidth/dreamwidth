@@ -255,7 +255,7 @@ function Page::print() {
                 }
     """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -279,9 +279,9 @@ function Page::print() {
                     <div id="content-footer"></div>
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -290,7 +290,7 @@ function Page::print() {
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -706,7 +706,7 @@ body {
 .entry .footer > .inner:first-child {
     font-size: small;
     padding: 1px; /*float uneveness fix */
-    } 
+    }
 
 .entry .tag {
     padding: 0 .5em 1em 0;
@@ -1051,8 +1051,7 @@ table.month th {
     }
 
 .module-content ul,
-.module-list,
-.module-credit dl {
+.module-list {
     margin-top: 0;
     padding-top: 0;
     }
