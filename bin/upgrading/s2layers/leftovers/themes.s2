@@ -1,3 +1,81 @@
+#NEWLAYER: leftovers/elegantbrown
+layerinfo "type" = "theme";
+layerinfo "name" = "Elegant Brown";
+layerinfo redist_uniq = "leftovers/elegantbrown";
+layerinfo author_name = "renoir";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set comment_date_format = "med_dayfirst";
+set comment_management_links = "text";
+set comment_time_format = "short_24";
+set entry_date_format = "long_dayfirst";
+set entry_management_links = "text";
+set entry_time_format = "short_24";
+set userlite_interaction_links = "text";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_entryday_link = "#e6ac27";
+set color_calendar_entryday_text = "#f4f7d0";
+set color_calendar_header_text = "#f6f7e8";
+set color_footer_background = "#655643";
+set color_footer_link = "#e6ac27";
+set color_footer_link_active = "#e6ac27";
+set color_footer_link_hover = "#96dcbd";
+set color_footer_link_visited = "#80bca3";
+set color_header_background = "#655643";
+set color_navlinks_link = "#f6f7e8";
+set color_page_link = "#e6ac27";
+set color_page_link_active = "#e6ac27";
+set color_page_link_hover = "#96dcbd";
+set color_page_link_visited = "#80bca3";
+set color_page_text = "#f6f7e8";
+set color_page_title = "#fac452";
+set color_userpic_border = "#f4f7d0";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#fac452";
+set color_entry_background = "#655643";
+set color_entry_border = "#6f5c49";
+set color_entry_interaction_links = "#fad897";
+set color_entry_link = "#e6ac27";
+set color_entry_link_active = "#e6ac27";
+set color_entry_link_hover = "#96dcbd";
+set color_entry_link_visited = "#80bca3";
+set color_entry_text = "#f6f7e8";
+set color_entry_title = "#fac452";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#655643";
+set color_module_link = "#e6ac27";
+set color_module_link_active = "#e6ac27";
+set color_module_link_hover = "#96dcbd";
+set color_module_link_visited = "#80bca3";
+set color_module_text = "#f6f7e8";
+set color_module_title = "#fac452";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "commons/elegantbrown.png";
+
+
 #NEWLAYER: leftovers/fruitsalad
 layerinfo type = "theme";
 layerinfo name = "Fruit Salad";
