@@ -410,16 +410,16 @@ font-family: $*font_page_navigation;
 font-size: 4em;
 }
 
+.navigation .page-back a:visited, .navigation .page-forward a:visited {
+color: $*color_page_navigation_link_visited;
+}
+
 .navigation .page-back a:hover, .navigation .page-forward a:hover {
 color: $*color_page_navigation_link_hover;
 }
 
 .navigation .page-back a:active, .navigation .page-forward a:active {
 color: $*color_page_navigation_link_active;
-}
-
-.navigation .page-back a:visited, .navigation .page-forward a:visited {
-color: $*color_page_navigation_link_hover;
 }
 
 .navigation .page-back a:before {
