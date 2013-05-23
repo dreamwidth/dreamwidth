@@ -150,6 +150,42 @@ function Page::print() {
  """</html>""";
 }
 
+## Shrink icons in two-columns mode
+function print_module_userprofile() {
+    var Page p = get_page();
+
+    open_module("userprofile", $*text_module_userprofile, $p.view_url{"userinfo"});
+
+    if ($*module_userprofile_opts_userpic or $*module_userprofile_opts_name) {
+        """<div class="userprofile-userinfo">""";
+        if ($*module_userprofile_opts_userpic) {
+            if (defined $p.journal.default_pic) {
+                if ($*layout_type == "two-columns-right" or $*layout_type == "two-columns-left" ) {
+                $p.journal.default_pic.width  = $p.journal.default_pic.width  / 2;
+                $p.journal.default_pic.height = $p.journal.default_pic.height / 2;
+                }
+                """<div class="userpic">""";
+                $p.journal->print_userpic();
+                """</div>""";
+            }
+        }
+    }
+
+    if ($*module_userprofile_opts_name) {
+        println "<div class='journal-name'>" + $p.journal.name + "</div>";
+    }
+
+    if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
+        var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
+        println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
+    }
+    $p.journal->print_interaction_links();
+    """</div>""";
+    close_module();
+}
+
+
+
 ##===============================
 ## Stylesheet
 ##===============================
@@ -952,11 +988,9 @@ display: inline-block;
 float: left;
 }
 
-.two-columns .module-section-one .module-userprofile .userpic img {
+.module-userprofile .userpic img {
 border: 1px solid $*color_entry_titleuserpic_border;
-height: 54px;
 padding: 3px;
-width: 54px;
 }
 
 .two-columns .module-section-one .module-userprofile ul {
