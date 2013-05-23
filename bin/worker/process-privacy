@@ -13,8 +13,11 @@
 # part of this distribution.
 
 use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN {
+    require 'ljlib.pl';
+}
 
 use LJ::Protocol;
 use LJ::Worker::TheSchwartz;

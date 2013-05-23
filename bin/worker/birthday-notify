@@ -15,7 +15,12 @@
 package LJ::Worker::BirthdayNotify;
 
 use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN {
+    require 'ljlib.pl';
+}
+
 use base 'LJ::Worker::Manual';
 use LJ::Event::Birthday;
 use List::Util ();

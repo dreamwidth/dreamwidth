@@ -16,13 +16,13 @@
 #
 
 use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
-
-use Time::HiRes qw/ gettimeofday tv_interval /;
-
 BEGIN {
     require 'ljlib.pl';
 }
+
+use Time::HiRes qw/ gettimeofday tv_interval /;
 use LJ::Sendmail;
 use LJ::Lang;
 use DW::Shop;
