@@ -794,7 +794,7 @@ EOC
 register_tablecreate("talk2", <<'EOC');
 CREATE TABLE talk2 (
     journalid INT UNSIGNED NOT NULL,
-    jtalkid MEDIUMINT UNSIGNED NOT NULL,
+    jtalkid INT UNSIGNED NOT NULL,
     nodetype CHAR(1) NOT NULL DEFAULT '',
     nodeid INT UNSIGNED NOT NULL default '0',
     parenttalkid MEDIUMINT UNSIGNED NOT NULL,
@@ -812,7 +812,7 @@ EOC
 register_tablecreate("talkprop2", <<'EOC');
 CREATE TABLE talkprop2 (
     journalid INT UNSIGNED NOT NULL,
-    jtalkid MEDIUMINT UNSIGNED NOT NULL,
+    jtalkid INT UNSIGNED NOT NULL,
     tpropid TINYINT UNSIGNED NOT NULL,
     value VARCHAR(255) DEFAULT NULL,
 
@@ -823,7 +823,7 @@ EOC
 register_tablecreate("talktext2", <<'EOC');
 CREATE TABLE talktext2 (
     journalid INT UNSIGNED NOT NULL,
-    jtalkid MEDIUMINT UNSIGNED NOT NULL,
+    jtalkid INT UNSIGNED NOT NULL,
     subject VARCHAR(100) DEFAULT NULL,
     body TEXT,
 
@@ -840,7 +840,7 @@ CREATE TABLE talkleft (
     nodetype   CHAR(1) NOT NULL,
     nodeid     INT UNSIGNED NOT NULL,
     INDEX (journalid, nodetype, nodeid),
-    jtalkid    MEDIUMINT UNSIGNED NOT NULL,
+    jtalkid    INT UNSIGNED NOT NULL,
     publicitem   ENUM('1','0') NOT NULL DEFAULT '1'
 )
 EOC
@@ -854,7 +854,7 @@ CREATE TABLE talkleft_xfp (
     nodetype   CHAR(1) NOT NULL,
     nodeid     INT UNSIGNED NOT NULL,
     INDEX (journalid, nodetype, nodeid),
-    jtalkid    MEDIUMINT UNSIGNED NOT NULL,
+    jtalkid    INT UNSIGNED NOT NULL,
     publicitem   ENUM('1','0') NOT NULL DEFAULT '1'
 )
 EOC
@@ -1522,7 +1522,7 @@ CREATE TABLE counter (
     journalid  INT UNSIGNED NOT NULL,
     area       CHAR(1) NOT NULL,
     PRIMARY KEY (journalid, area),
-    max        MEDIUMINT UNSIGNED NOT NULL
+    max        INT UNSIGNED NOT NULL
 )
 EOC
 
@@ -1683,7 +1683,7 @@ CREATE TABLE tempanonips (
     reporttime  INT(10) UNSIGNED NOT NULL,
     ip          VARCHAR(15) NOT NULL,
     journalid   INT(10) UNSIGNED NOT NULL,
-    jtalkid     MEDIUMINT(8) UNSIGNED NOT NULL,
+    jtalkid     INT(10) UNSIGNED NOT NULL,
 
     PRIMARY KEY (journalid, jtalkid),
     INDEX       (reporttime)
