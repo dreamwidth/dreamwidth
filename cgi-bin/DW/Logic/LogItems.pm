@@ -534,7 +534,7 @@ sub recent_items
             $$err = "wrong date: " . $args{'ymd'};
             return ();
         }
-        $sql_limit  = "LIMIT 200";
+        $sql_limit  = "LIMIT 2000";
         $sql_select = "AND year=$year AND month=$month AND day=$day";
         $extra_sql .= "allowmask, ";
     } else {

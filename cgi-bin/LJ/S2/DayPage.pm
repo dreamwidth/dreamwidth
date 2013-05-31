@@ -106,7 +106,7 @@ sub DayPage
                              "DATE_FORMAT(logtime, \"$dateformat\") AS 'system_alldatepart' ".
                              "FROM log2 " .
                              "WHERE journalid=$u->{'userid'} AND year=$year AND month=$month AND day=$day $secwhere " .
-                             "ORDER BY eventtime, logtime LIMIT 200");
+                             "ORDER BY eventtime, logtime LIMIT 2000");
     $sth->execute;
 
     my @items;
