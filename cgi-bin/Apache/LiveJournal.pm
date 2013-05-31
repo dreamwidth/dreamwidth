@@ -814,13 +814,17 @@ sub trans
 
     # user domains
     if (($LJ::USER_VHOSTS || $LJ::ONLY_USER_VHOSTS) &&
-        $host =~ /^([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/ &&
-        $1 ne "www" &&
+        $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/ &&
+        $2 ne "www" &&
 
         # 1xx: info, 2xx: success, 3xx: redirect, 4xx: client err, 5xx: server err
         # let the main server handle any errors
         $apache_r->status < 400)
     {
+        # Per bug 3734: users sometimes type 'www.username.USER_DOMAIN'.
+        return redir( $apache_r, "http://$2.$LJ::USER_DOMAIN$uri$args_wq" )
+            if $1 eq 'www.';
+
         if ( $is_ssl ) {
             # FIXME: Remove when we are ready for SSL in userspace
             return redir($apache_r, LJ::create_url( undef, ssl => 0, keep_args => 1 ) )
@@ -828,7 +832,7 @@ sub trans
             return 404;
         }
 
-        my $user = $1;
+        my $user = $2;
 
         # see if the "user" is really functional code
         my $func = $LJ::SUBDOMAIN_FUNCTION{$user};
