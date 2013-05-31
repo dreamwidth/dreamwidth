@@ -4,6 +4,8 @@ layerinfo redist_uniq = "lefty/layout";
 layerinfo author_name = "sarken";
 layerinfo lang = "en";
 
+set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+
 set layout_type = "two-columns-left";
 set entry_management_links = "text";
 set margins_size = "4";
