@@ -71,8 +71,8 @@ sub as_html_actions {
     my ($self) = @_;
 
     my $journalurl = $self->bdayuser->journal_base;
-    my $pmurl = $self->bdayuser->gift_url;
-    my $gifturl = $self->bdayuser->message_url;
+    my $pmurl = $self->bdayuser->message_url;
+    my $gifturl = $self->bdayuser->gift_url;
     my $ret .= "<div class='actions'>";
     $ret .= "<a href='$journalurl'>View Journal</a>";
     $ret .= " | <a href='$pmurl'>Send a Message</a>";
