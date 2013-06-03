@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 33;
+use Test::More tests => 34;
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 
@@ -87,6 +87,8 @@ note( "misc" );
 
     test_good_url( "http://commons.wikimedia.org/wiki/File:somethingsomethingsomething.ogv?withJS=MediaWiki:MwEmbed.js&embedplayer=yes" );
     test_bad_url( "http://commons.wikimedia.org/wiki/File:1903_Burnley_Ironworks_company_steam_engine_in_use.ogv?withJS=MediaWiki:MwEmbed.js" );
+
+    test_good_url( "http://www.plurk.com/getWidget?uid=123123123&h=375&w=200&u_info=2&bg=cf682f&tl=cae7fd" );
 }
 
 
