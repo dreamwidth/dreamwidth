@@ -1,0 +1,31 @@
+[%# mobile/index.tt
+
+Mobile index page.
+
+Authors:
+    foxfirefey <foxfirefey@gmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dreamwidth Home -- [% remote.username %]</title>
+    [% INCLUDE "mobile/head.tt" %]
+</head>
+<body>
+<div data-role="page">
+	<div data-role="header">
+	<h1>Dreamwidth Home | [% remote.username %]</h1>
+	</div>
+<div data-role="content">
+<ul data-role="listview">
+<li><a href="[% siteroot %]/mobile/reading">Reading Page</a></li>
+<li><a href="[% siteroot %]/mobile/network">Network Page</a></li>
+</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+[% USE day = date( format => '%l:%M%p %d-%b-%Y') %]
+<div data-role="content">
+[% IF entries.size == 0 %]
+<p>Sorry, there are no entries to display.</p>
+[% ELSE %]
+<ul data-role="listview">
+[% FOREACH entry IN entries %]
+<li>
+<a href="[% siteroot %]/mobile/user/[% entry.journal.username %]/entry/[% entry.ditemid %]" data-transition="slide">
+[% IF display_icons %]
+[%# does not work? entry.userpic.url %]
+<img src="[% entry.userpic_url %]" />
+[% END %]
+<h3>[% IF entry.security_icon %]<img src="[% site.imgroot %][% entry.security_icon.src %]" >[% END %]
+[% IF entry.adult_content_icon %]<img src="[% site.imgroot %][% entry.adult_content_icon.src %]" >[% END %]
+[% entry.subject_html %]</h3>
+<p><b>[% entry.poster.user %]</b>[% IF entry.journal.userid != entry.poster.userid %] in <b>[% entry.journal.user %]</b></p>[% END %]
+<p>[% day.format( entry.eventtime ) %]</p>
+[% IF entry.reply_count %]<span class="ui-li-count comment-count">[% entry.reply_count %][% END %]</span>
+</a>
+</li>
+[% END %]
+</ul>
+[% END %]
+</div>
+
+[% IF backcount or forwardcount >= 0 %]
+<div data-role="footer" class="ui-bar" data-position="fixed">
+[% IF backcount %]<a href="[% siteroot %]/[% skipurl %]?skip=[% backcount %]" data-role="button" data-icon="arrow-l" data-iconpos="left"  data-mini="true">Earlier</a>[% END %]
+[% IF forwardcount >= 0 %]<a href="[% siteroot %]/[% skipurl %]?skip=[% forwardcount %]" data-role="button" data-icon="arrow-r" data-iconpos="right"  data-mini="true">Later</a>
+<a href="[% siteroot %]/[% skipurl %]" data-role="button" data-icon="arrow-u" data-iconpos="right"  data-mini="true">Most recent</a>[% END %]
+</div>
+[% END %]
+</div>

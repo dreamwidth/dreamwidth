@@ -1,0 +1,30 @@
+[%# mobile/reading.tt
+
+Mobile reading and network page.
+
+Authors:
+    foxfirefey <foxfirefey@gmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+<!DOCTYPE html>
+<html>
+<head>
+<title>[% IF view == "network" %]Network[% ELSE %]Reading[% END %] Page: [% u.username %]</title>
+    [% INCLUDE "mobile/head.tt" %]
+</head>
+<body>
+<div class="reading-page entries-page" data-role="page">
+	<div data-role="header">
+	<h1>[% IF view == "network" %]Network[% ELSE %]Reading[% END %] Page | [% u.username %]</h1>
+	</div>
+	[% INCLUDE "mobile/entry-list.tt"
+	    entries = entries,
+	    backcount = backcount,
+	    forwardcount = forwardcount,
+	    itemsperpage = itemsperpage
+	    %]
+</body>
+</html>

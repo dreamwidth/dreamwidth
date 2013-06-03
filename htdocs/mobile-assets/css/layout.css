@@ -1,0 +1,16 @@
+.entry-page .userpic { float: right; margin-right: 1em; margin-bottom: 1em; }
+.entry-page .entry-content { margin-bottom: 1em; }
+
+.ui-content .ui-listview.padded-list { margin-top: 5px; margin-bottom: 5px; }
+
+.ui-header .ui-title, .ui-footer .ui-title {
+    text-overflow: clip;
+    white-space: normal;
+}
+
+.no-text-collapse .ui-btn-inner {
+    text-overflow: clip;
+    white-space: normal;
+}
+
+
