@@ -72,6 +72,8 @@ my %host_path_match = (
     "www.twitvid.com"       => qr!^/embed.php$!,
 
     "player.vimeo.com"      => qr!^/video/\d+$!,
+
+    "www.plurk.com"         => qr!^/getWidget$!,
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
