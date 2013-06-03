@@ -374,8 +374,7 @@ div.icons-container div.icon:nth-of-type(2n) {
 .module-content { padding: 0 .5em 0 1em; }
 
 .module-content ul,
-.module-list,
-.module-credit dl { list-style: none;
+.module-list { list-style: none;
     margin: 0;
     padding: 0; }
 

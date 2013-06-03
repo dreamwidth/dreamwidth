@@ -617,7 +617,7 @@ h3.day-date {Den
     margin-bottom: 1em;
     }
 
-.module-content ul, .module-list, .module-credit dl {
+.module-content ul, .module-list {
     list-style: none;
     margin: 0;
     padding: 0;

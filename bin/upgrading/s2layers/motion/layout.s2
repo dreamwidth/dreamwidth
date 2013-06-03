@@ -680,8 +680,6 @@ $userpic_css
 
 .module-syndicate ul li span {padding: .15em .5em}
 
-.module-credit dd { padding-left: 0; margin-right: 1.5em; }
-
 .module-search .search-button{
     $link_background_image
     color: $*color_module_text;

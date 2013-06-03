@@ -83,7 +83,7 @@ function Page::print() {
                 }
     """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -107,9 +107,9 @@ function Page::print() {
                     <div id="content-footer"></div>
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -118,7 +118,7 @@ function Page::print() {
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -150,7 +150,7 @@ var string userpic_css = "";
 /* Modular  */
 
 blockquote { padding: 1em 1em .5em 2em;
-    font-style: italic;  } 
+    font-style: italic;  }
 blockquote > p:first-child { margin-top: 0; }
 dl dt { font-weight: bold; }
 
@@ -216,7 +216,7 @@ body { margin: 0; }
 .tags-container,
 table.talkform,
 .comment-pages { background-color: $*color_entry_background;
-    border: 1px solid $*color_page_border; 
+    border: 1px solid $*color_page_border;
     padding: .5em;
     }
 
@@ -229,7 +229,7 @@ table.talkform,
 .tags-container { padding: .5em 1em; }
 
 table.talkform { padding: 1em;
-    width: 100%; 
+    width: 100%;
     }
 
 .topnav ul { margin-bottom: 1.5em; }
@@ -272,9 +272,9 @@ table.talkform { padding: 1em;
 .entry .header .datetime { color: $*color_entry_title; }
 .entry .header .datetime a { color: $*color_entry_title; }
 
-$userpic_css 
+$userpic_css
 
-.entry .userpic { 
+.entry .userpic {
     margin: -2em 10px .5em 10px;
     padding: 0 8px 8px 8px;
     background-color: $*color_entry_title_background;
@@ -306,7 +306,7 @@ ul.entry-management-links,
     }
 
 ul.entry-interaction-links,
-.comment-interaction-links { text-align: right; 
+.comment-interaction-links { text-align: right;
     margin-right: .5em;
     margin-top: .5em;
     margin-bottom: .5em;
@@ -321,7 +321,7 @@ ul.entry-interaction-links,
 .comment-thread { margin-left: 1.5em; }
 .comment-depth-1 { margin-left: 0; }
 
-.comment { border-color: $*color_entry_border; 
+.comment { border-color: $*color_entry_border;
     border-width: 1px;
     border-style: solid;
     background-color: $*color_entry_background;
@@ -380,7 +380,7 @@ ul.entry-interaction-links,
 .month .footer { padding: 0 .5em 1em .5em;
     }
 
-.month .header { background-color: $*color_entry_title_background; 
+.month .header { background-color: $*color_entry_title_background;
     color: $*color_entry_title;
     padding: 1px .25em;
     }
@@ -490,8 +490,7 @@ table.month caption { color: $*color_entry_background; }
 .module-content { padding: .5em; }
 
 .module-content ul,
-.module-list,
-.module-credit dl { list-style: none;
+.module-list { list-style: none;
     margin: 0; padding: 0;
     }
 
