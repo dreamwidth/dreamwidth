@@ -361,6 +361,7 @@ sub render_scheme {
     $opts->{content} = $body;
     $opts->{is_ssl} = $LJ::IS_SSL;
     $opts->{get} = $r->get_args;
+    $opts->{resource_group} = $LJ::ACTIVE_RES_GROUP;
 
     $scheme_engine->process( "_init.tt", $opts, \$out )
         or die $scheme_engine->error->as_string;

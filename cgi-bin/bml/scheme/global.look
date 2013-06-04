@@ -285,7 +285,7 @@ menunav<=
 
     my $ret;
 
-    $ret .= "<ul>\n";
+    $ret .= "<ul class="left">\n";
 
     my $nav_links = DW::Logic::MenuNav->get_menu_navigation;   # defaults to remote
 
@@ -297,8 +297,8 @@ menunav<=
             push @displayed, "<li class='subnav'><a href='$item->{url}'>" . BML::ml( "$item->{text}", $item->{text_opts} ) . "</a></li>" if $item->{display};
         }
         if ( @displayed ) {   # only display a top-level menu if any of its items are displayed
-            $ret .= "<li id='${cat}_topnav' class='topnav'><a href='$LJ::SITEROOT/nav/$cat'>$ML{\"menunav.$cat\"}</a>\n";
-            $ret .= "<ul id='${cat}_subnav' class='subnav_container'>\n";
+            $ret .= "<li id='${cat}_topnav' class='topnav has-dropdown'><a href='$LJ::SITEROOT/nav/$cat'>$ML{\"menunav.$cat\"}</a>\n";
+            $ret .= "<ul id='${cat}_subnav' class='subnav_container dropdown'>\n";
             $ret .= join( "\n", @displayed ) . "\n";
             $ret .= "</ul>\n";
             $ret .= "</li>\n";

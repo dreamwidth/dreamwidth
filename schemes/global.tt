@@ -1,5 +1,5 @@
 [%- BLOCK block.menunav -%]
-<ul>[%- nav_links = dw_scheme.menu_nav -%]
+<ul class="left">[%- nav_links = dw_scheme.menu_nav -%]
 [% FOREACH cathash IN nav_links -%]
     [%- cat = cathash.name -%][%- submenu = cathash.items -%]
     [%- displayed = [] -%]
@@ -11,8 +11,8 @@
         [%- END -%]
     [%- END -%]
     [%- IF displayed.size -%]
-<li id='[% cat %]_topnav' class='topnav'><a href='[% site.root %]/nav/[% cat %]'>[% "menunav.$cat" | ml %]</a>
-<ul id='[% cat %]_subnav' class='subnav_container'>
+<li id='[% cat %]_topnav' class='topnav has-dropdown'><a href='[% site.root %]/nav/[% cat %]'>[% "menunav.$cat" | ml %]</a>
+<ul id='[% cat %]_subnav' class='subnav_container dropdown'>
 [% displayed.join("\n") %]
 </ul>
 </li>
