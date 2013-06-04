@@ -25,6 +25,15 @@ label.left {
     display: block;
     float: left;
 }
+
+label.emphasis {
+    font-weight: bold;
+}
+.compressed {
+    padding: 0em;
+    margin: 0em;
+    font-size: 0.9em;
+}
 input.text,
 textarea.text,
 select.select {
