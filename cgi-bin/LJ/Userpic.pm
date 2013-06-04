@@ -1229,7 +1229,6 @@ sub set_and_rename_keywords {
 
             # if it does, we have to remap it
             if ( $mapid ) {
-                die('here');
                 my $oldid = $u->get_mapid_from_keyword( $origkw );
 
                 # redirect the old mapid to the new mapid
