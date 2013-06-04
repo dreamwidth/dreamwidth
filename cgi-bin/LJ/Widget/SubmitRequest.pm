@@ -44,16 +44,16 @@ sub render_body {
         unless ($remote) {
             $ret .= "<?p <em>" . $class->ml('widget.support.submit.login.note', {sitename=>$LJ::SITENAMESHORT, loginlink=>"href='$LJ::SITEROOT/login?ret=1'"}) . "</em> p?>";
 
-            $ret .= "<h5>" . $class->ml('widget.support.submit.yourname') . "</h5>";
+            $ret .= "<p><label class='emphasis' for='yourname'>" . $class->ml('widget.support.submit.yourname') . "</label></p>";
             $ret .= "<div style='margin-left: 30px'><p>";
-            $ret .= $class->html_text(name => 'reqname', size => '40', maxlength => '50', value => $post->{reqname});
+            $ret .= $class->html_text(id => 'yourname', name => 'reqname', size => '40', maxlength => '50', value => $post->{reqname});
             $ret .= "</p></div>";
         }
 
-        $ret .= "<h5>" . $class->ml('widget.support.submit.yourmail') . "</h5>";
+        $ret .= "<p><label class='emphasis' for='yourmail'>" . $class->ml('widget.support.submit.yourmail') . "</label></p>";
         $ret .= "<div style='margin-left: 30px'><p>";
-        $ret .= $class->html_text(name => 'email', size => '30', maxlength => '70', value => $post->{email});
-        $ret .= "<br /><?de " . $class->ml('widget.support.submit.notshow') . " de?></p></div>";
+        $ret .= $class->html_text('aria-describedby' => 'notshow', id => 'yourmail', name => 'email', size => '30', maxlength => '70', value => $post->{email});
+        $ret .= "</p><p id='notshow' class='compressed'><?de " . $class->ml('widget.support.submit.notshow') . " de?></p></div>";
      };
 
     my $cats = LJ::Support::load_cats();
@@ -63,15 +63,15 @@ sub render_body {
 
     # shown with no choices if passed in as an opt
     } elsif (($cat = LJ::Support::get_cat_by_key($cats, $opts{category})) && $cat->{is_selectable}) {
-        $ret .= "<h5>" . $class->ml('widget.support.submit.category') . "</h5>";
+        $ret .= "<p><label class='emphasis' for='category'>" . $class->ml('widget.support.submit.category') . "</label></p>";
         $ret .= "<div style='margin-left: 30px'><p>";
         $ret .= $cat->{catname};
         $ret .= "</p></div>";
-        $ret .= $class->html_hidden("spcatid" => $cat->{spcatid});
+        $ret .= $class->html_hidden(id => 'category', "spcatid" => $cat->{spcatid});
 
     # dropdown, otherwise
     } else {
-        $ret .= "<h5>" . $class->ml('widget.support.submit.category') . "</h5>";
+        $ret .= "<p><label class='emphasis' for='category'>" . $class->ml('widget.support.submit.category') . "</label></p>";
         $ret .= "<div style='margin-left: 30px'><p>";
 
         my @choices;
@@ -89,7 +89,7 @@ sub render_body {
             push @choices, $_->{spcatid}, $catname;
         }
 
-        $ret .= $class->html_select(name => 'spcatid', list => \@choices, selected => $post->{spcatid});
+        $ret .= $class->html_select(id => 'category', name => 'spcatid', list => \@choices, selected => $post->{spcatid});
         $ret .= LJ::Hooks::run_hook("support_request_cat_extra_text") || '';
         $ret .= "</p>";
         $ret .= "<p class='note'>" . $class->ml( 'widget.support.submit.nonpublic' ) . "</p>" if $has_nonpublic;
@@ -107,28 +107,28 @@ sub render_body {
 
         if ($lang_list) {
             push @$lang_list, ( xx => $class->ml('widget.support.submit.language.other') );
-            $ret .= "<h5>" . $class->ml('widget.support.submit.language') . "</h5>";
-            $ret .= "<div style='margin-left: 30px'><p>";
-            $ret .= "<?de " . $class->ml('widget.support.submit.language.note') . " de?><br />";
-            $ret .= $class->html_select(name => 'language', list => $lang_list, selected => $post->{language} || "en_LJ");
+            $ret .= "<p><label class='emphasis' for='lang'>" . $class->ml('widget.support.submit.language') . "</label></p>";
+            $ret .= "<p id='lang_note' class='compressed'><?de " .  $class->ml('widget.support.submit.language.note') . " de?></p>";
+            $ret .= "<div style='margin-left: 30px'>";
+            $ret .= "<p>" .  $class->html_select('aria-describedby' => 'lang_note', id => 'lang', name => 'language', list => $lang_list, selected => $post->{language} || "en_LJ");
             $ret .= "</p></div>";
         }
     }
 
-    $ret .= "<h5>" . $class->header_summary(%opts) . "</h5>";
+    $ret .= "<p><label class='emphasis' for='summary'>" . $class->header_summary(%opts) . "</label></p>";
     $ret .= "<div style='margin-left: 30px'><p>";
-    $ret .= $class->html_text(name => 'subject', size => '40', maxlength => '80', value => $post->{subject});
+    $ret .= $class->html_text(id => 'summary', name => 'subject', size => '40', maxlength => '80', value => $post->{subject});
     $ret .= "</p></div>";
 
-    $ret .= "<h5>" . $class->header_question(%opts) . "</h5>";
+    $ret .= "<p><label class='emphasis' for='question'>" . $class->header_question(%opts) . "</label></p>";
+    $ret .= "<p id='question_note' class='compressed'><?de " .  $class->text_question(%opts) . " de?></p>";
     $ret .= "<div style='margin-left: 30px'><p>";
-    $ret .= "<?de " . $class->text_question(%opts) . " de?><br />";
-    $ret .= $class->html_textarea(name => 'message', rows => '15', cols => '70', wrap => 'soft', value => $post->{message});
+    $ret .= $class->html_textarea('aria-describedby' => 'question_note', id => 'question', name => 'message', rows => '15', cols => '70', wrap => 'soft', value => $post->{message});
     $ret .= "</p></div>";
 
     my $captcha = DW::Captcha->new( 'support_submit_anon' );
     if ( ! $remote && $captcha->enabled ) {
-        $ret .= "<h5>" . $class->ml( 'captcha.title' ) . "</h5>";
+        $ret .= "<p><label class='emphasis' for='captcha'>" . $class->ml( 'captcha.title' ) . "</label></p>";
         $ret .= "<div style='margin-left: 30px'>";
         $ret .= $captcha->print;
         $ret .= "</div>";
