@@ -1065,12 +1065,13 @@ sub set_keywords {
 
     my $u = $self->owner;
     my $have_mapid = $u->userpic_have_mapid;
+    warn "here $have_mapid";
 
     my $sth;
     my $dbh;
 
     if ( $have_mapid ) {
-        $sth = $u->prepare( "SELECT kwid FROM userpicmap3 WHERE userid=? AND picid=? AND kwid IS NOT NULL" );
+        $sth = $u->prepare( "SELECT kwid FROM userpicmap3 WHERE userid=? AND picid=?" );
     } else {
         $sth = $u->prepare( "SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?" );
     }
@@ -1078,6 +1079,14 @@ sub set_keywords {
 
     my %exist_kwids;
     while (my ($kwid) = $sth->fetchrow_array) {
+
+        # This is an edge case to catch keyword changes where the existing keyword
+        # is in the pic#  format.  In this case kwid is NULL and we want to 
+        # delete any records from userpicmap3 that involve it.
+        unless ( $kwid ) {
+           $u->do("DELETE FROM userpicmap3 WHERE userid=? AND picid=?", undef, $u->id, $self->id);
+        }
+
         $exist_kwids{$kwid} = 1;
     }
 
