@@ -1065,7 +1065,6 @@ sub set_keywords {
 
     my $u = $self->owner;
     my $have_mapid = $u->userpic_have_mapid;
-    warn "here $have_mapid";
 
     my $sth;
     my $dbh;
@@ -1084,7 +1083,7 @@ sub set_keywords {
         # is in the pic#  format.  In this case kwid is NULL and we want to 
         # delete any records from userpicmap3 that involve it.
         unless ( $kwid ) {
-           $u->do("DELETE FROM userpicmap3 WHERE userid=? AND picid=?", undef, $u->id, $self->id);
+           $u->do( "DELETE FROM userpicmap3 WHERE userid=? AND picid=?", undef, $u->id, $self->id );
         }
 
         $exist_kwids{$kwid} = 1;
@@ -1192,8 +1191,6 @@ sub set_and_rename_keywords {
     my @keywords = split(',', $new_keyword_string);
     my @orig_keywords = split(',', $orig_keyword_string);
 
-    # don't allow renames involving no-keyword (pic#0001) values
-#    if ( grep ( /^\s*pic\#\d+\s*$/, @orig_keywords ) || grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
     if ( grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
         LJ::errobj("Userpic::RenameBlankKeywords",
                    origkw    => $orig_keyword_string,
