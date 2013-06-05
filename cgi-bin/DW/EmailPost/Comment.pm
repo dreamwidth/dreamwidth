@@ -109,6 +109,7 @@ sub _process {
         prop_picture_keyword => $self->{props}->{picture_keyword},
 
         useragent => "emailpost",
+        editor    => "markdown",
     };
 
     # post!

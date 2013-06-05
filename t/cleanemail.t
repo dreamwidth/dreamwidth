@@ -1,7 +1,7 @@
 # -*-perl-*-
 
 use strict;
-use Test::More tests => 12;
+use Test::More tests => 15;
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use DW::CleanEmail;
@@ -83,8 +83,20 @@ wrote:
 > blah blah
 });
     is( $nonquoted, q{
-foo}, "got nonquoted text from email, other date format");
+foo}, "got nonquoted text from email, Jan 31, 2013 date format");
 }
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+On 29 Apr 2013 11:22 PM, ExampleUser <test@example.com>
+wrote:
+> blah blah
+});
+    is( $nonquoted, q{
+foo}, "got nonquoted text from email, 31 Jan 2013 date format");
+}
+
 {
     my $nonquoted = DW::CleanEmail->nonquoted_text(q{
 abc
@@ -114,6 +126,7 @@ tuv
 wxyz}, "'On wrote...' separator too many lines back - don't count as end of the message" );
 }
 
+# blackberry, etc
 {
     my $nonquoted = DW::CleanEmail->nonquoted_text(q{
 foo
@@ -123,9 +136,34 @@ Reply-To: etc
 some original text here
 });
 
-    # blackberry
     is( $nonquoted, q{
 foo}, "---Original Message--- separator")
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+foo
+------Message d'origine------
+De: etc
+some original text here
+});
+
+    is( $nonquoted, q{
+foo}, "------Message d'origine------ separator")
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(qq{
+foo
+--- etc - DW Comment <$LJ::BOGUS_EMAIL> schrieb am Do, 25.4.2013:
+
+Von: etc - DW Comment <dw_null\@dreamwidth.org>
+Betreff: Reply to your comment. [ exampleusername - 12345 ]
+Datum: Donnerstag, 25. April, 2013 21:15 Uhr
+});
+
+    is( $nonquoted, q{
+foo}, "\$LJ::BOGUS_EMAIL")
 }
 
 {

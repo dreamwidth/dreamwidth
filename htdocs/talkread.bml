@@ -603,6 +603,7 @@ body<=
                 $ret .= "</td></tr><tr><td class='commentbody usercontent'>";
 
                 LJ::CleanHTML::clean_comment( \$post->{body}, { preformatted => $post->{'props'}->{'opt_preformatted'},
+                                                                editor => $post->{props}->{editor},
                                                                 anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
                                                               } );
                 BML::ebml(\$post->{'body'});
