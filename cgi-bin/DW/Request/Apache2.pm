@@ -113,7 +113,9 @@ sub post_args {
     my $data = $tmp_r->body;
 
     my @out;
+    my %seen_keys;
     foreach my $key ( keys %$data ) {
+        next if $seen_keys{$key}++;
         my @val = $data->get( $key );
         next unless @val;
         push @out, map { $key => $_ } @val;
