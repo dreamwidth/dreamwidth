@@ -14,7 +14,6 @@
 # the same terms as Perl itself.  For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
-
 package DW::Routing;
 use strict;
 
@@ -25,6 +24,13 @@ use DW::Request;
 use DW::Routing::CallInfo;
 use Carp qw/croak/;
 
+# IMPORTANT!
+#
+# If we change the internal representation here, the code in
+# bin/dev/lookup-routing must also be updated.
+#
+# Thank you.
+#
 our %string_choices;
 our %regex_choices = (
     app  => [],
