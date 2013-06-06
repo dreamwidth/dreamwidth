@@ -3977,6 +3977,7 @@ talk.anonwrote=Someone wrote,
 talk.anonwrote_comm=Someone wrote in [[commlink]],
 
 talk.btn.preview=Preview
+talk.btn.preview.moreopts=More Options
 
 talk.commentpermlink=link
 
