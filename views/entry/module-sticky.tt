@@ -1,0 +1,87 @@
+[%# views/entry/module-sticky.tt
+
+Module for sticky / metadata in the entry form
+
+Authors: Louise Dennis
+    
+Copyright (c) 2012 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+  <fieldset>
+    <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
+    <div class='inner'>
+
+    <div id='sticky_options'>
+        <div>
+        [% label_yes = ".label_yes" | ml %]
+        [% IF is_sticky;
+               form.checkbox( label = label_yes
+                   name = "issticky"
+                   id = "issticky"
+                   checked = 1
+                   value=1
+               );
+           ELSE;
+               form.checkbox( label = label_yes
+                   name = "issticky"
+                   id = "issticky"
+
+                   value=1
+               );
+           END;
+        %]
+        </div>
+        <div id='sticky_positions'>
+        [%# first_unused_sticky = 0  if there are no free sticky options
+            otherwise it shows the first.  If it equals 1 we assume there
+            are no choices of sticky position (the entry will become the first
+            sticky so we don't bother to display the options) %]
+        [% show = 1; not_sticky = 1; IF first_unused_sticky != 1 %]
+            [% IF first_unused_sticky == 0 && ! is_sticky %]
+                <p>[% ".sticky_position_req" | ml %]</p>
+            [% END %]
+            [% IF is_sticky %]
+                <p>[% ".is_sticky_warning" | ml %]</p>
+            [% END %]
+            <legend><span>[% ".label.sticky_pos" | ml %]</span></legend>
+            <dl>
+            [% FOREACH sticky IN stickies %]
+                <dt>[%- IF show;
+                    label = ".label" | ml ; 
+                    IF sticky.checked ;
+                        form.radio( label = label _ sticky.position
+
+                            name = "sticky_select"
+                            id = sticky.position _ "_sticky_select"
+                            checked = sticky.checked
+                            value=sticky.position
+                        );
+                        not_sticky = 0;
+                    ELSE;
+                        form.radio( label = dw.ml( ".label", { position = sticky.position } )
+                            name = "sticky_select"
+                            id = sticky.position _ "_sticky_select"
+
+                            value=sticky.position
+                        );
+                    END -%]
+                </dt>
+                    [% IF sticky.issticky %]
+                        <div class='info'>
+                        <dd> [% ".sticky_label" | ml ( num = sticky.ditemid, name = sticky.name ) %]</dd>
+                        </div>
+                    [% ELSE;
+                        show = 0;
+                    END %]
+                [% END %]
+            [% END %]
+            </dl>
+        [% END %]
+        [%  form.hidden( name="first_unset_sticky", id="first_unset_sticky", value=first_unused_sticky ); %]
+        </div>
+    </div>
+    </div>
+  </fieldset>

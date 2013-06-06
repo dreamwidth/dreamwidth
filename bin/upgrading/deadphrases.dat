@@ -1194,6 +1194,8 @@ general setting.sms.option.advanced
 general setting.sms.option.carrier
 general setting.sms.option.carrier.selectone
 general setting.sms.option.phone
+general setting.stickyentry.error.invalid
+general setting.stickyentry.label
 general setting.stylealwaysmine.label
 general setting.stylealwaysmine.option
 general setting.xpost.option.footer.vars.comment_image.alttext

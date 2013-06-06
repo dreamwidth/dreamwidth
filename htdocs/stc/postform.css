@@ -337,6 +337,21 @@ ul.icon-functions li {
   margin-bottom:.3em;
 }
 
+/* Stickies */
+
+#sticky_component .info {
+  margin-left: 1em;
+}
+
+#sticky_component dl {
+  margin-left: 35%;
+}
+
+#sticky_component legend {
+  float: left;
+  width: 35%;
+}
+
 /* Publishing */
 #post_as fieldset legend {
   float: left;

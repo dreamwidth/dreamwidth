@@ -26,6 +26,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
       [%- END -%]
       [%# helper fields for JS #%]
       [%- form.hidden( name = "usejournal", id = "usejournal", value = journalu.user ) -%]
+      [%- form.hidden( name = "canmanage_usejournal", id = "canmanage_usejournal", value=journallist.first.administrator ) -%]
       [%- form.hidden( name = "poster_remote", id="poster_remote", value = remote.user ) %]
     </ul>
 

@@ -160,23 +160,29 @@ sub RecentPage
 
     die $err if $err;
 
-    # prepare sticky entry for S2 - only show sticky entry on first page of Recent Entries, not on skip= pages
-    # or tag and security subfilters
+    # Prepare sticky entries for S2. 
+    # Only show sticky entry on first page of Recent Entries.
+    # Do not show stickies unless they have the relevant permissions.  
+    # Do not sticky posts on tagged view but display in place.  
+    # On skip pages show sticky entries in place.
     my $stickyentry;
-    $stickyentry = $u->get_sticky_entry
-        if $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
-    # only show if visible to user
-    if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
-        # create S2 entry object and show first on page
-        my $entry = Entry_from_entryobj( $u, $stickyentry, $opts ); 
-        # sticky entry specific things
-        my $sticky_icon = Image_std( 'sticky-entry' );
-        $entry->{_type} = 'StickyEntry';
-        $entry->{sticky_entry_icon} = $sticky_icon;
-        # show on top of page
-        push @{$p->{entries}}, $entry;
+    if ( $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids} ) {
+        for ( my $i = 0; $i < $u->count_max_stickies; $i++ ) {
+            # only show if visible to user
+            $stickyentry = $u->get_sticky_entry( $i );
+            if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
+                # create S2 entry object and show first on page
+                my $entry = Entry_from_entryobj( $u, $stickyentry, $opts ); 
+                # sticky entry specific things
+                my $sticky_icon = Image_std( 'sticky-entry' );
+                $entry->{_type} = 'StickyEntry';
+                $entry->{sticky_entry_icon} = $sticky_icon;
+                # show on top of page
+                push @{$p->{entries}}, $entry;
+            }
+        }
     }
-    
+
     my $lastdate = "";
     my $itemnum = 0;
     my $lastentry = undef;
@@ -193,7 +199,7 @@ sub RecentPage
         $itemnum++;
 
         my $ditemid = $itemid * 256 + $anum;
-        next if $itemnum > 0 && $stickyentry && $stickyentry->ditemid == $ditemid;
+        next if $itemnum > 0 && $stickyentry && $u->is_sticky_entry( $ditemid );
 
         my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 

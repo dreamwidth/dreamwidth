@@ -52,26 +52,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
    <div id="post_to"  class="posting_settings">
        <label for="usejournal">[%- ".label.post_to" | ml %]</label>
         [%- IF journallist.size > 1 %]
-            [%-
-                journalselect = [];
-                FOREACH journal IN journallist;
-                    IF journal.equals( remote );
-                        journalselect.push( "", journal.user );
-                    ELSE;
-                        journalselect.push( journal.user, journal.user );
-                    END;
-                END
-            -%]
-
-            [% form.select(
-                name = "usejournal"
-                id = "usejournal"
-
-                items = journalselect
-            ) -%]
+            <select name="usejournal" class="select" id="usejournal">
+            [% FOREACH journal = journallist %]
+                <option value="[%- journal.value | html %]" data-administrator="[%- journal.administrator %]">
+                    [%- journal.label | html %]</option>
+            [% END %]
+            </select>
         [% ELSE %]
-            [% journallist.first.ljuser_display%]</span>
-            [% form.hidden( name = "usejournal", id = "usejournal", value = journallist.first.user ) %]
+            <span>[% journallist.first.value.ljuser_display%]</span>
+            [% form.hidden( name = "usejournal", id = "usejournal", value = journallist.first.label );
+            form.hidden( name = "canmanage_usejournal", id = "canmanage_usejournal", value = journallist.first.administrator ) %]
         [% END %]
    </div>
    [% END %]

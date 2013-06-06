@@ -265,27 +265,29 @@ init: function(formData) {
     function initJournalSelect() {
         $("#usejournal").change(function() {
             var $this = $(this);
-            var journal, iscomm;
+            var journal, iscomm, has_admin;
             if ( $this.is("select") ) {
                 var $option = $("option:selected", this);
                 journal = $option.text();
                 iscomm  = $option.val() !== "";
+                has_admin = $option.data("administrator") == 1;
             } else {
                 journal = $this.val();
                 iscomm = journal !== $("#poster_remote").val();
+                has_admin = $("#canmanage_usejournal").val() == 1;
             }
-            $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: true});
+            $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: true, "has_admin":has_admin});
         });
         $("#postas_usejournal, #post_username").change(function() {
-            var journal, iscomm;
+            var journal, iscomm, has_admin;
             var postas = $.trim($("#post_username").val());
             journal = $.trim($("#postas_usejournal").val()) || postas;
             iscomm = journal !== postas;
             console.log(journal, postas)
-            $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: false});
+            $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: false, "has_admin": false});
         });
         $("#post_as_other").click(function() {
-            $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false, isremote: true } );
+            $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false, isremote: true, has_admin: false } );
         })
         $("#post_as_remote").click(function() {
             $("#usejournal").triggerHandler("change");
@@ -389,6 +391,45 @@ init: function(formData) {
         });
     }
 
+    function initSticky() {
+        $( "#sticky_component" ).sticky();
+        if ( !$( "#issticky" ).is(":checked") )
+            $( "#sticky_positions" ).hide();
+
+        $( "#post_entry" ).bind( "journalselect", function(e, journal ) {
+            var warning_class = "sticky_msg_warning";
+            var $warning = $( "#"+warning_class );
+            var $posting_as_other = $( "#post_as_other").is(":checked");
+            
+            if ( journal.name && journal.isremote && !$posting_as_other) {
+                $( "#sticky_component" ).sticky( "toggle", "community", ! journal.iscomm || journal.has_admin);
+                if ( $( "#usejournal").is("select") && journal.iscomm && journal.has_admin ) {
+                    // In this situation although the user has sticky privileges for the journal they  have
+                    // not been pre-loaded onto the page.
+                    if ( $warning.length == 0) {
+                        $( "#sticky_component" ).sticky( "toggle_sticky_checked_options", false );
+                        var $p = $( "<p></p>", { "class": warning_class, "id": warning_class } ).text( "WARNING: Unable to determine sticky settings for this community from this page.  Checking Make Sticky Entry will make this entry into the first sticky on the journal and replace that sticky if it is already set.  If that is not the desired behaviour please edit from either Account Settings->Display or by posting to the community directly" );
+                        $p.insertBefore( "#sticky_options" );
+                    }
+                } else  {
+                    $warning.remove();
+                    if ( $( "#issticky" ).is(":checked") )
+                        $( "#sticky_component" ).sticky( "toggle_sticky_checked_options", true );
+                }
+            } else if ( $posting_as_other ) {
+                $warning.remove();
+                $( "#sticky_component" ).sticky( "toggle", "unknown", false );
+            } else {
+                $warning.remove();
+                $( "#sticky_component" ).sticky( "toggle", "unknown", journal.has_admin );
+            }
+        });
+
+        $( "#issticky" ).click(function() {
+            $( "#sticky_component" ).sticky( "toggle_sticky_checked_options", $(this).is(":checked") );
+        });
+    }
+
     function initPostButton() {
         $("#submit_entry").data("label",$("#submit_entry").val());
         $("#post_entry").bind("journalselect", function(e, journal) {
@@ -469,6 +510,7 @@ init: function(formData) {
     initAccess();
     initPostButton();
     initCrosspost();
+    initSticky();
     initToolbar();
 
     $.getJSON("/__rpc_entryformcollapse", null, function(data) {
