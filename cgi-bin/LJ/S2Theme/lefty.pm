@@ -19,6 +19,11 @@ sub page_props {
     my @props = qw(
         color_page_left_border
         color_page_right_border
+        color_page_navigation_link
+        color_page_navigation_link_hover
+        color_page_navigation_link_active
+        color_page_navigation_link_visited
+        font_page_navigation
     );
     return $self->_append_props( "page_props", @props );
 }
