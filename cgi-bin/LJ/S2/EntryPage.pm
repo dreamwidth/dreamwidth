@@ -180,6 +180,7 @@ sub EntryPage
                 }
 
                 $threadroot_url = $comment->threadroot_url( $style_arg ) if $com->{parenttalkid};
+                $com->{admin_post} = $comment->admin_post;
             }
 
 
@@ -290,6 +291,7 @@ sub EntryPage
                 'hide_children' => $com->{'hide_children'},
                 'hidden_child' => $com->{'hidden_child'},
                 'echi' => $com->{echi},
+                admin_post => $com->{'admin_post'} ? 1 : 0,
             };
 
             # don't show info from suspended users
@@ -587,6 +589,7 @@ sub EntryPage_entry
         userpic_style => S2::get_property_value( $opts->{ctx}, 'entry_userpic_style' ),
         permalink_url => $entry->url,
         timeformat24 => $remote && $remote->use_24hour_time,
+        admin_post => $entry->admin_post
     } );
 
     return ($entry, $s2entry);

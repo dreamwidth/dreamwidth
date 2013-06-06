@@ -2015,7 +2015,8 @@ sub Entry
         'metadata' => {},
     };
     foreach ( qw( subject text journal poster new_day end_day
-                comments userpic permalink_url itemid tags timeformat24 ) ) {
+                comments userpic permalink_url itemid tags timeformat24
+                admin_post ) ) {
         $e->{$_} = $arg->{$_};
     }
 
@@ -2223,7 +2224,8 @@ sub Entry_from_entryobj
         tags => $taglist,
         permalink_url => $entry_obj->url,
         moodthemeid => $moodthemeid,
-        timeformat24 => $remote && $remote->use_24hour_time
+        timeformat24 => $remote && $remote->use_24hour_time,
+        admin_post => $entry_obj->admin_post,
         } );
 
     return $entry;
@@ -2435,6 +2437,7 @@ sub Image_std
             'adult-nsfw' => 'text_icon_alt_nsfw',
             'adult-18' => 'text_icon_alt_18',
             'sticky-entry' => 'text_icon_alt_sticky_entry',
+            'admin-post' => 'text_icon_alt_admin_post',
         };
         foreach ( keys %$textmap ) {
             my $i = $LJ::Img::img{$_};

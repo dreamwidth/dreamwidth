@@ -458,6 +458,13 @@ $img{post} = {
     alt => '',
 };
 
+$img{'admin-post'} = {
+    src => '/silk/entry/admin_post.png',
+    width => 16,
+    height => 16,
+    alt => '',  # S2::PROPS
+};
+
 # load the site-local version, if it's around.
 eval "use LJ::Local::Img;";
 
