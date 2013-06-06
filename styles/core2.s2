@@ -1171,14 +1171,6 @@ property builtin string PALIMGROOT {
     des = "The base URL of palimg files, without a trailing slash.  Example: \"http://www.dreamwidth.com/palimg\".";
 }
 
-##==============================
-## Shared images
-##==============================
-
-property builtin Image IMG_MODERATOR_POST {
-
-}
-
 ##=======================================
 ## Display properties - Presentation
 ## Basic options
