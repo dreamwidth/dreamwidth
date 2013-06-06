@@ -1083,7 +1083,7 @@ sub set_keywords {
         # is in the pic#  format.  In this case kwid is NULL and we want to 
         # delete any records from userpicmap3 that involve it.
         unless ( $kwid ) {
-           $u->do( "DELETE FROM userpicmap3 WHERE userid=? AND picid=?", undef, $u->id, $self->id );
+           $u->do( "DELETE FROM userpicmap3 WHERE userid=? AND picid=?", undef, $u->id, $self->id, " AND keyword IS NULL" );
         }
 
         $exist_kwids{$kwid} = 1;
