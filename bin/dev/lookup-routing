@@ -1,0 +1,568 @@
+#!/usr/bin/perl
+#
+# lookup-routing
+#
+# Commandline tool to map a path to a routing Controller
+#
+# Authors:
+#      Andrea Nall <anall@andreanall.com>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+use strict;
+use Data::Dumper;
+use IO::Dir;
+use Storable;
+use Getopt::Long;
+use B;
+use Pod::Usage;
+
+# IMPORTANT!
+#
+# Please be careful about use/including anything DW related here
+# This tool is designed to be *fast*, and having to load in
+# the Dreamwidth codebase would not satisfy that expectation.
+#
+# See below in the load_cache sub for where the DW-related
+# stuff is actually loaded.
+#
+
+die "LJHOME is not set" unless $ENV{LJHOME};
+
+my $role = "all";
+my $verbose = 0;
+
+my $stats = 0;
+my $list = 0;
+my $regex = 0;
+my $string = 0;
+
+my $help = 0;
+
+# these are for the "patched" method.
+my $the_caller;
+my $internal_reg;
+my $ignore_next;
+
+my $HOME = $ENV{LJHOME};
+
+my $result = GetOptions(
+    "role=s"  => \$role,      # role
+    "app"     => sub { $role = 'app' },
+    "user"    => sub { $role = 'user' },
+    "stats"   => \$stats,
+    "verbose" => \$verbose,
+    "list"    => \$list,
+    "regex"   => \$regex,
+    "string"  => \$string,
+    "help"    => \$help,
+);
+
+my $ct = 0;
+$ct++ if $list;
+$ct++ if $stats;
+$ct++ if @ARGV;
+
+if ( $help || $ct > 1 ) {
+    help();
+    exit();
+}
+
+my @all_roles = ( 'app', 'user' );
+my $data = undef;
+my $cache_file = $HOME . "/logs/.cached_routing";
+#              YYYYMMDDVVV
+my $version = "20120615001";
+my $dirty = 1;
+
+if ( -e $cache_file ) {
+    $data = Storable::retrieve( $cache_file );
+    $dirty = ! verify_cache();
+}
+
+if ( $dirty ) {
+    $data = load_cache( $version );
+    Storable::nstore( $data, $cache_file );
+}
+
+if ( !$string && !$regex ) {
+    $string = 1;
+    $regex = 1;
+}
+
+my @roles = ( $role );
+if ( $role eq 'all' ) {
+    @roles = @all_roles;
+}
+
+if ( $list ) {
+    foreach my $role ( @roles ) {
+        my $ct = 0;
+        if ( $string ) {
+            my %choices = %{ $data->{string} };
+            foreach my $key ( sort { $choices{$a}->{path} cmp $choices{$b}->{path} } grep { m/^$role\// } keys %choices ) {
+                $ct++;
+                print_for_hash($choices{$key},undef,$role);
+            }
+        }
+        if ( $regex ) {
+            foreach my $choice ( sort { $a->{regex} cmp $b->{regex} } @{ $data->{regex}->{$role} } ) {
+                $ct++;
+                print_for_hash($choice,undef,$role);
+            }
+        }
+        print "\n\n\n" if $ct;
+    }
+} elsif ( $stats ) {
+    my $cts = $data->{stats}->{string};
+    my $ct = scalar keys %{ $data->{string} };
+    my $tct = $ct;
+
+    print "String routing table:\n";
+    print_stats_for( $ct, $cts );
+
+    $ct = 0;
+    $cts = {};
+    foreach my $role ( keys %{ $data->{regex} } ) {
+        my $cur = scalar @{ $data->{regex}->{$role} };
+        next if ! $cur;
+        $cts->{$role} = $cur;
+        $ct += $cur;
+    }
+    $tct += $ct;
+
+    print "Regex routing table:\n";
+    print_stats_for( $ct, $cts );
+
+    printf "Total entries: %i\n", $tct;
+} else {
+    if ( scalar @ARGV ) {
+        handle_path($_) foreach ( @ARGV );
+    } else {
+        help();
+    }
+}
+
+sub help {
+    pod2usage( -verbose => $verbose );
+}
+
+sub print_stats_for {
+    my ( $ct, $cts ) = @_;
+
+    printf("    %4i - %s\n", $cts->{$_}, $_)
+        foreach ( sort { $cts->{$b} <=> $cts->{$a} } keys %$cts );
+    printf("    %4i - TOTAL\n", $ct);
+}
+
+# This is duplicated code from DW::Routing
+# I *cannot* use the version there, to reduce load time of this script.
+sub run_lookup {
+    my ( $role, $uri ) = @_;
+    my $format = undef;
+
+    ( $uri, $format ) = ( $1, $2 )
+        if $uri =~ m/^(.+?)\.([a-z]+)$/;
+
+    my $hash = $data->{string}->{$role . $uri};
+    if ( defined $hash ) {
+        return [$hash,[]];
+    }
+
+    my @args;
+    foreach $hash ( @{ $data->{regex}->{$role} } ) {
+        if ( ( @args = $uri =~ $hash->{regex} ) ) {
+            return [$hash,\@args];
+        }
+    }
+}
+
+sub handle_path {
+    my $path = shift;
+
+    my $ct = 0;
+    foreach my $role ( @roles ) {
+        my $data = run_lookup( $role, $path );
+        unless ( $data ) {
+            next;
+        }
+        $ct++;
+        print_for_hash($data->[0],$path,$role,$data->[1]);
+    }
+
+    unless ( $ct ) {
+        print "$path is not defined\n";
+        print "\n\n" if $verbose;
+    }
+}
+
+sub print_for_hash {
+    my $hash = shift;
+    my $path = shift || $hash->{path} || $hash->{regex};
+    my $role = shift;
+    my $args = shift;
+
+    my $defloc = undef;
+    if ( $hash->{caller} ) {
+        my ($package,$filename,$line) = @{$hash->{caller}};
+        $filename =~ s!^\Q$ENV{LJHOME}\E/?!!;
+        $defloc = "$filename ( ln $line )";
+    }
+
+    my $def_printed = 0;
+
+    if ( $hash->{_static} ) {
+        my $fn = $hash->{fn};
+        print "$role: $path is a controller-less template: views/$fn\n";
+        print " * Defined at $defloc\n" if $defloc;
+        $def_printed = 1;
+    } elsif ( $hash->{_redirect} ) {
+        my $dest = $hash->{data}->{dest};
+        print "$role: $path is a" .
+            ( $hash->{internal} ? "n automatic" : "" ) . " redirect to $dest";
+        if ( $hash->{data}->{full_uri} ) {
+            printf ", full URI";
+        } elsif ( $hash->{data}->{keep_args} == 0 ) {
+
+        } elsif ( $hash->{data}->{keep_args} == 1 ) {
+            print ", preserving all arguments";
+        } else {
+            print ", preserving some arguments";
+        }
+        print "\n";
+        print " * Defined at $defloc\n" if $defloc;
+        $def_printed = 1;
+    } else {
+        my $package = $hash->{_package};
+        my $name = $hash->{_name};
+
+        print "$role: $path is defined" .
+            ( $defloc ? " in $defloc, and" : " in $package" )
+            . " using the handler sub $name\n";
+    }
+
+    if ( $verbose ) {
+        print " * Default Format: $hash->{format}\n";
+        if ( $hash->{formats} == 1 ) {
+            print " * Enabled for all formats\n";
+        } elsif ( scalar(keys %{$hash->{formats}}) == 0 ) {
+            print " * Enabled for *no* formats\n";
+        } elsif ( scalar(keys %{$hash->{formats}}) == 1 && $hash->{formats}->{$hash->{format}} ) {
+            print " * Enabled for default format only\n";
+        } else {
+            print " * Enabled for formats: " . join(", ",( sort keys %{$hash->{formats}} )) . "\n";
+        }
+        print " * Enabled For: " . join(", ",(grep { $_ } map { $_ if $hash->{$_} } @all_roles)) . "\n";
+        if ( $hash->{regex} && $args ) {
+            print " * Regex: $hash->{regex}\n";
+            print " * Matched Subpatterns:\n";
+            my $d = Data::Dumper->new($args);
+            $d->Terse(1)->Pad("      ");
+            print $d->Dump;
+        }
+        if ( $hash->{_redirect} && $hash->{data}->{keep_args} ) {
+            print " * Keeping arguments:";
+            if ( $hash->{data}->{keep_args} == 1 ) {
+                print " all\n";
+            } elsif ( $hash->{data}->{keep_args} == 0 ) {
+                print " none\n";
+            } else {
+                my $d = Data::Dumper->new( [ $hash->{data}->{keep_args} ] );
+                $d->Terse(1)->Pad("      ");
+                print "\n" . $d->Dump;
+            }
+        }
+    }
+    print "\n\n" if $verbose;
+
+    if ( $hash->{_redirect} && ! $hash->{data}->{full_uri} ) {
+        my $dest = $hash->{data}->{dest};
+
+        my $data = run_lookup( $role, $dest );
+        if ( $data ) {
+            print_for_hash($data->[0],$dest,$role,$data->[1]);
+        }
+    }
+}
+
+sub data_for_hash {
+    my $hash = shift;
+    my $path = shift;
+    my $role = shift;
+
+    my $subref = $hash->{sub};
+
+    my $data;
+
+    if ( !defined $subref ) {
+    } elsif ( $subref == \&DW::Routing::_static_helper ) {
+        my $fn = $hash->{'args'};
+
+        $data = {
+            _static => 1,
+            fn => $fn,
+        };
+    } elsif ( $subref == \&DW::Routing::_redirect_helper ) {
+        $data = {
+            _redirect => 1,
+            data => $hash->{'args'},
+        };
+    } else {
+        $data = {
+            _package => B::svref_2object($subref)->GV->STASH->NAME,
+            _name => B::svref_2object($subref)->GV->NAME
+        };
+    }
+
+    $data->{path} = $path;
+
+    $data->{regex} = ( $hash->{regex} . "" ) if exists $hash->{regex};
+    foreach my $key ( @all_roles, qw(hash format formats) ) {
+        $data->{$key} = $hash->{$key} if exists $hash->{$key};
+    }
+
+    $data->{caller} = $hash->{__caller};
+    $data->{internal} = $hash->{__internal};
+
+    return $data;
+}
+
+sub get_mtime {
+    return (stat($_[0]))[9];
+}
+
+sub get_all_subfiles {
+    my $base_path = $_[0];
+
+    my @dirs = $base_path;
+    my @files;
+    while (@dirs) {
+        my $dir = shift @dirs;
+        my $d = IO::Dir->new($dir);
+        while (my $file = $d->read) {
+            if ($file =~ /^\./) {
+                next;
+            }
+            elsif ($file =~ /\.pm$/) {
+                push @files, "$dir/$file";
+            }
+            elsif (-d "$dir/$file") {
+                push @dirs, "$dir/$file";
+            }
+        }
+        $d->close;
+    }
+
+    return map {
+        s!$HOME/*!!;
+        $_;
+    } @files;
+}
+
+sub verify_cache {
+    return 0 if $data->{version} ne $version;
+
+    my @all_files = (
+        'cgi-bin/DW/Routing.pm',
+        get_all_subfiles("$HOME/cgi-bin/DW/Controller")
+    );
+
+    my $old_times = $data->{changed};
+    my $new_times = { map { $_ => get_mtime("$HOME/$_") } @all_files };
+
+    foreach my $kv ( keys %$new_times ) {
+        return 0 if ! exists $old_times->{$kv};
+        return 0 if $new_times->{$kv} > $old_times->{$kv};
+    }
+
+    foreach my $kv ( keys %$old_times ) {
+        return 0 if ! exists $new_times->{$kv};
+    }
+
+    return 1;
+}
+
+# IMPORTANT: This uses require/import for a
+# very good reason. Please do not change.
+sub load_cache {
+    my ( $version ) = @_;
+    print "Please wait, updating cache...\n";
+
+    require $ENV{LJHOME} . '/cgi-bin/ljlib.pl';
+
+    # Do not load in any LJ-related modules before this point.
+    # If we load anything else before, we may not get the
+    # required functions monkeypatched in time, which will break
+    # this script.
+
+    require LJ::ModuleLoader; LJ::ModuleLoader->import();
+    patch_moduleloader();
+
+    require DW::Routing; DW::Routing->import();
+
+    # If we need anything else loaded, we can do it after this point.
+
+    my $data = { version => $version };
+
+    my @all_files = (
+        'cgi-bin/DW/Routing.pm',
+        get_all_subfiles("$HOME/cgi-bin/DW/Controller")
+    );
+
+    $data->{changed} = { map { $_ => get_mtime("$HOME/$_") } @all_files };
+
+    my %str_choices = %DW::Routing::string_choices;
+
+    foreach my $role ( @all_roles ) {
+        my @regex_data = ();
+        foreach my $key ( sort { $str_choices{$a}->{path} cmp $str_choices{$b}->{path} } grep { m/^$role\// } keys %str_choices ) {
+            my ( $path ) = $key =~ m/^$role(\/.+)$/;
+            $data->{string}->{$key} = data_for_hash($str_choices{$key},$path,$role);
+            $data->{stats}->{string}->{$role}++;
+        }
+        foreach my $choice ( sort { $a->{regex} cmp $b->{regex} } @{ $DW::Routing::regex_choices{$role} } ) {
+            push @regex_data, data_for_hash($choice,undef,$role);
+        }
+        $data->{regex}->{$role} = \@regex_data;
+    }
+
+    print "Done!\n";
+    return $data;
+}
+
+sub patch_moduleloader {
+    my $orig_method = \&LJ::ModuleLoader::require_subclasses;
+    *LJ::ModuleLoader::require_subclasses = sub {
+        patch_routing_methods();
+        *LJ::ModuleLoader::require_subclasses = $orig_method;
+        return $orig_method->(@_);
+    }
+}
+
+sub patch_wrap {
+    my ( $orig, $ign_n ) = @_;
+
+    return sub {
+        if ( $ignore_next ) {
+            $ignore_next = 0;
+            return $orig->(@_);
+            $ignore_next = 1;
+        } else {
+            my $caller_set = defined $the_caller;
+
+            $the_caller = [ caller ] unless ( $caller_set );
+            $internal_reg = $caller_set;
+            $ignore_next = $ign_n;
+
+            my $dv = $orig->(@_);
+            $the_caller = undef unless $caller_set;
+            $ignore_next = 0;
+
+            return $dv;
+        }
+    }
+}
+
+sub patch_routing_methods {
+    *DW::Routing::register_string = patch_wrap( \&DW::Routing::register_string );
+    *DW::Routing::register_regex = patch_wrap( \&DW::Routing::register_regex );
+
+    *DW::Routing::register_static = patch_wrap( \&DW::Routing::register_static, 1 );
+    *DW::Routing::register_redirect = patch_wrap( \&DW::Routing::register_redirect, 1 );
+
+    my $orig_apply = \&DW::Routing::_apply_defaults;
+    *DW::Routing::_apply_defaults = sub {
+        my $hash = $orig_apply->(@_);
+        $hash->{__caller} = $the_caller;
+        $hash->{__internal} = $internal_reg;
+        return $hash;
+    }
+}
+
+=head1 NAME
+
+lookup-routing - Look up the file of the controller which handles a particular URL
+
+=head1 SYNOPSIS
+
+ lookup-routing [--role=app|user|all | --app | --user ] (--list)
+                [--regex | --string] (--list)
+                [--help]
+                [--verbose]
+                --list | --stats | <PATH>
+
+At least one of C<--list>, C<--stats>, or C<<PATH>> is required. All other arguments are optional. Examples:
+
+=over 8
+
+=item lookup-routing --list
+
+=item lookup-routing --list --regex --user
+
+=item lookup-routing --stats
+
+=item lookup-routing /post
+
+=back
+
+=head1 ARGUMENTS
+
+=over 8
+
+=item B<--list>
+
+List everything in the routing table, optionally filtered by role and whether it's registered as a regex or string
+
+=over 16
+
+=item B<--role=ROLE> One of "app", "user", "all"
+
+Filters the list down to pages that are in user-space (USERNAME.dreamwidth.org) or app-space (www.dreamwidth.org). Default is to show all. Only one role can be active at a time.
+
+
+=item B<--app>
+
+Same as C<--role=app>
+
+
+=item B<--user>
+
+Same as C<--role=user>
+
+=item B<--regex>
+
+Filter the list down to handlers which match using regex
+
+
+=item B<--string>
+
+Filter the list down to handlers which use plain string matches
+
+=back
+
+
+=item B<--stats>
+
+Summarize the routing table contents
+
+=item B<<PATH>>
+
+Show routing information for only this path. e.g., "/index"
+
+
+=item B<--verbose>
+
+Print out more detailed help and path information
+
+
+=item B<--help>
+
+This help message
+
+=back
+
+=cut
