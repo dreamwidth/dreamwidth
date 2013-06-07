@@ -211,21 +211,21 @@ sub _set_props {
     $security = lc $post_headers{security} ||
         $u->emailpost_security;
 
-    if ( $post_headers{security} =~ /^(public|private|friends|access)$/ ) {
+    if ( $security =~ /^(public|private|friends|access)$/ ) {
         if ( $1 eq 'friends' or $1 eq 'access' ) {
             $security = 'usemask';
             $amask = 1;
         }
-    } elsif ($post_headers{security}) { # Assume a friendgroup if unknown security mode.
+    } elsif ( $security ) { # Assume a friendgroup if unknown security mode.
         # Get the mask for the requested friends group, or default to private.
-        my $group = $u->trust_groups( name => $post_headers{security} );
+        my $group = $u->trust_groups( name => $security );
         if ($group) {
             $amask = (1 << $group->{groupnum});
             $security = 'usemask';
         } else {
             # send the error, but not shortcircuiting the posting process
             # probably the only time that we call $self->send_error inside of a convenience sub
-            $self->send_error( "Access group \"$post_headers{security}\" not found.  Your journal entry was posted privately.",
+            $self->send_error( "Access group \"$security\" not found.  Your journal entry was posted privately.",
                    { nolog => 1 }
             );
             $security = 'private';
