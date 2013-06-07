@@ -20,7 +20,7 @@ td, th { padding: 4px; }
 <ul>
 [%- FOREACH merge IN merge_plan %]
     <li>synmerge <strong>[% merge.0.user %]</strong> to <strong>[% merge.1.user %]</strong> using
-        <strong>[% url_to %]</strong>
+        <strong>[% url_to | html %]</strong>
         [% IF merge.2 %][% ELSE %]<strong>[ failure: [% merge.3 %] ]</strong>[% END %]
     </li>
 [% END -%]
@@ -91,7 +91,7 @@ td, th { padding: 4px; }
     <td><label for="dest_feed_[% feed.userid %]">[% feed.user.ljuser_display %]</label></td>
     <td><input type="radio" name="dest_url" id="dest_url_[% feed.userid %]" value="[% feed.userid %]"
             [%- ( (feed.userid == best.scoring) ? " checked=''" : "" ) %] />
-    <td><label for="dest_url_[% feed.userid %]"><a href="[% feed.url | url %]">[% feed.url %]</a></label></td>
+    <td><label for="dest_url_[% feed.userid %]"><a href="[% feed.url | url %]">[% feed.url | html %]</a></label></td>
     <td>[% feed.readers %]</td>
 [%- IF tokens.size > 1 %]
     <td>[% feed.token %]</td>

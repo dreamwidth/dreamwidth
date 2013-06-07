@@ -158,8 +158,6 @@ sub merge_controller {
         readers => ( ( sort { $data->{$b}->{readers} <=> $data->{$a}->{readers} } @userids )[0] || undef ),
     };
 
-    print STDERR Data::Dumper::Dumper($data);
-
     return DW::Template->render_template( "admin/feeds/merge.tt", $vars );
 }
 
