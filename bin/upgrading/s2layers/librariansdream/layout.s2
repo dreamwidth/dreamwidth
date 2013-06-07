@@ -825,16 +825,24 @@ ul.userlite-interaction-links li {
 
 /* Footer */
 
+#footer .inner {
+    background: $*color_footer_background;
+    padding: .5em;
+}
+
+#footer {border: none; background: none; padding: 0;
+}
+
 .two-columns-left #footer,
 .three-columns-sides #footer { margin-left: $*sidebar_width;
-    border-left: .25em solid $*color_page_background; }
+    padding-left: .25em; }
 .two-columns-right #footer,
 .three-columns-sides #footer { margin-right: $*sidebar_width;
-    border-right: .25em solid $*color_page_background; }
+    padding-right: .25em; }
 .three-columns-left #footer { margin-left: $*sidebar_width_doubled;
-    border-left: .25em solid $*color_page_background; }
+    padding-left: .25em; }
 .three-columns-right #footer { margin-right: $*sidebar_width_doubled;
-    border-right: .25em solid $*color_page_background; }
+    padding-right: .25em; }
 
 
 
