@@ -48,7 +48,7 @@ sub match_full_path {
 
 my %host_path_match = (
     "8tracks.com"           => qr!^/mixes/!,
-    "rcm.amazon.com"        => qr!^/e/cm/!,
+    "rcm.amazon.com"        => qr!^/e/cm!,
     "bandcamp.com"          => qr!^/EmbeddedPlayer/!,
     "blip.tv"               => qr!^/play/!,
 
