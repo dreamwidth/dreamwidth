@@ -15,15 +15,13 @@
 
 
 use strict;
-our ( %maint, %maintinfo, $VERBOSE );
-
-unless (-d $ENV{'LJHOME'}) {
-    die "\$LJHOME not set.\n";
-}
-
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
+use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN {
-    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+    require 'ljlib.pl';
 }
+
+our ( %maint, %maintinfo, $VERBOSE );
 
 unless ( LJ::is_enabled('ljmaint_tasks') ) {
     print "ljmaint.pl tasks disabled, exiting\n";

@@ -23,3 +23,6 @@ comm_promo_list.pl:
 captcha.pl:
   cache_textcaptcha - Generates textcaptcha instances
   clean_captchas - Clean out captchas that have been used
+
+search.pl:
+  copy_supportlog - Puts supportlog data into the Sphinx database

@@ -1,0 +1,59 @@
+[%# support/search.tt
+
+Search frontend for support requests.
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2013 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.  For a copy of the license, please
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[% sections.title = 'Support Request Search' %]
+
+[% IF error %]
+<div class='error-box message-box'>
+<div class='title'>[% 'error' | ml %]</div>
+<ul class='error-list'>
+    <li>[% error %] </li>
+</ul>
+</div>
+[% END %]
+
+<p>Please enter your search term(s) below to search through support content that you are
+authorized to see.</p>
+
+<form method="post" action="/support/search">
+    [% dw.form_auth %]
+    <input type="text" name="query" maxlength="255" size="60" value="[% query %]" />
+    <input type="submit" value="Search" />
+</form>
+
+[% IF result and result.total > 0 %]
+[% IF result.matches and result.matches.size > 0 %]
+    <br />
+    <ul>
+    [% FOR match IN result.matches %]
+        <li><strong>[% match.type %]</strong> in <strong>[% match.category %]</strong>:
+            <a href="[% match.url %]">#[% match.spid %] [%match.subject %]</a><br />
+        <em>[% match.excerpt %]</em><br /><br /></li>
+    [% END %]
+    </ul>
+[% ELSE %]
+    [%# A degenerate case where they couldn't see anything on this page. %]
+    <br />
+    <p><strong>None of the results on this page are visible to you, but you can
+    continue paging.</strong></p>
+[% END %]
+
+    <form method="post">
+        [% dw.form_auth %]
+        <input type="hidden" name="query" value="[% query %]" />
+        <input type="hidden" name="offset" value="[% offset + 20 %]" />
+        <input type="submit" value="Next Page" />
+    </form>
+[% END %]
