@@ -1,0 +1,108 @@
+[%- sections.title = '.admin.link' | ml -%]
+[%- sections.head = BLOCK -%]
+<style type="text/css">
+td, th { padding: 4px; }
+</style>
+[%- END -%]
+
+[% IF errors.size > 0 %]
+<div class="error-box message-box">
+<ul>
+[%- FOREACH error IN errors %]
+    <li>[% error %]</li>
+[% END -%]
+</ul>
+</div>
+[% END %]
+
+[%- IF merge_plan -%]
+<h2>[% '.hdr.plan' | ml %]</h2>
+<ul>
+[%- FOREACH merge IN merge_plan %]
+    <li>synmerge <strong>[% merge.0.user %]</strong> to <strong>[% merge.1.user %]</strong> using
+        <strong>[% url_to %]</strong>
+        [% IF merge.2 %][% ELSE %]<strong>[ failure: [% merge.3 %] ]</strong>[% END %]
+    </li>
+[% END -%]
+</ul>
+
+[%- END -%]
+
+[%- IF merge_ok -%]
+<p>[% '.complete' | ml %]</p>
+<p><a href="/admin/feeds/duplicate">[% '.link.back.dupes' | ml %]</a>|
+<a href="/admin/feeds/merge">[% '.link.back.merge' | ml %]</a></p>
+[%- ELSIF need_confirm -%]
+<form method="post" action="[% dw.create_url %]">
+[% dw.form_auth %]
+<input type="hidden" name="dest_feed" value="[% dest_feed | url %]" \>
+<input type="hidden" name="dest_url" value="[% dest_url | url %]" \>
+[%- FOREACH id IN to_include %]
+<input type="hidden" name="include" value="[% id | url %]" \>
+[% END -%]
+<input type="hidden" name="confirmed" value="1" \>
+<input type="submit" value="[% '.btn.confirm' | ml | url %]" \>
+</form>
+[%- ELSIF data.size == 0 -%]
+<h2>[% '.hdr.settings' | ml %]</h2>
+<p><a href="/admin/feeds/duplicate">[% '.link.back.dupes' | ml %]</a></p>
+<form method="get">
+<p><label for="feeds">[% '.lbl.usernames' | ml %]</label><input id="feeds" name="feeds" />[% '.lbl.usernames.comma' | ml %]</p>
+<p><label for="token">[% '.lbl.token' | ml %]</label><input id="token" name="token" /></p>
+<p><input type="submit" value="[% '.btn.load' | ml %]"></p>
+</form>
+[%- ELSE -%]
+<p><a href="/admin/feeds/duplicate">[% '.link.back.dupes' | ml %]</a>|
+<a href="/admin/feeds/merge">[% '.link.back.merge' | ml %]</a></p>
+[%- IF tokens.size > 1 -%]
+<p>[% '.tokens.multiple' | ml %]</p>
+[%- ELSE -%]
+<p>[% '.tokens.shared' | ml( token = tokens.0 ) %]</p>
+[%- END -%]
+<form method="post" action="[% dw.create_url %]">
+[% dw.form_auth %]
+[%- IF feeds -%]
+<input type="hidden" name="feeds" value="[% feeds | html %]"/>
+[%- ELSIF token -%]
+<input type="hidden" name="token" value="[% token | html %]"/>
+[%- END -%]
+<table summary=''>
+<thead>
+<tr>
+    <th></th>
+    <th></th>
+    <th>[% '.hdr.name' | ml %]</th>
+    <th></th>
+    <th>[% '.hdr.url' | ml %]</th>
+    <th>[% '.hdr.readers' | ml %]</th>
+[%- IF tokens.size > 1 -%]
+    <th>[% '.hdr.token' | ml %]</th>
+[%- END -%]
+</tr>
+<tbody id="table_data">
+[%- FOREACH feed IN data.values -%]
+<tr>
+    <td><input type="checkbox" name="include" value="[% feed.userid %]"
+            checked="" />
+    </td>
+    <td><input type="radio" name="dest_feed" id="dest_feed_[% feed.userid %]" value="[% feed.userid %]"
+            [%- ( (feed.userid == best.readers) ? " checked=''" : "" ) %] />
+    </td>
+    <td><label for="dest_feed_[% feed.userid %]">[% feed.user.ljuser_display %]</label></td>
+    <td><input type="radio" name="dest_url" id="dest_url_[% feed.userid %]" value="[% feed.userid %]"
+            [%- ( (feed.userid == best.scoring) ? " checked=''" : "" ) %] />
+    <td><label for="dest_url_[% feed.userid %]"><a href="[% feed.url | url %]">[% feed.url %]</a></label></td>
+    <td>[% feed.readers %]</td>
+[%- IF tokens.size > 1 %]
+    <td>[% feed.token %]</td>
+[% END -%]
+</tr>
+[%- END -%]
+</tbody>
+</table>
+[%- IF data.size > 1 -%]
+<input type='submit' value="[% '.btn.merge' | ml | html %]" />
+[%- END -%]
+</form>
+[%- END -%]
+

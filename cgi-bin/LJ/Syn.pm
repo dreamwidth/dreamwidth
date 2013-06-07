@@ -129,16 +129,12 @@ sub merge_feed {
     my $url = LJ::CleanHTML::canonical_url( $args{url} )
         or return (0, "Invalid URL.");
 
-    # Make sure URL is one of the two
+
+    return (1,"Everything seems okay") if $args{pretend};
+
     my $dbh = LJ::get_db_writer();
     my $from_oldurl = $dbh->selectrow_array("SELECT synurl FROM syndicated WHERE userid=?", undef, $from_u->id);
     my $to_oldurl = $dbh->selectrow_array("SELECT synurl FROM syndicated WHERE userid=?", undef, $to_u->id);
-
-    my $id_url = $dbh->selectrow_array("SELECT userid FROM syndicated WHERE synurl=?", undef, $url);
-
-    return (0,"URL is in use by another feed") unless $id_url eq $from_u->id || $id_url eq $to_u->id;
-
-    return (1,"Everything seems okay") if $args{pretend};
 
     # 1) set up redirection for 'from_user' -> 'to_user'
     $from_u->update_self( { journaltype => 'R', statusvis => 'R' } );
