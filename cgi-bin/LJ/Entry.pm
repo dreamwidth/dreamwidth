@@ -1706,11 +1706,11 @@ sub get_itemid_near2 {
 
     $jitemid += 0;
 
-    my ($order, $cmp1, $cmp2, $cmp3);
+    my ( $order, $cmp1, $cmp2, $cmp3, $cmp4 );
     if ($after_before eq "after") {
-        ($order, $cmp1, $cmp2, $cmp3) = ("DESC", "<=", ">", sub {$a->[0] <=> $b->[0]} );
+        ( $order, $cmp1, $cmp2, $cmp3, $cmp4 ) = ( "DESC", "<=", ">", sub { $a->[0] <=> $b->[0] }, sub { $b->[2] <=> $a->[2] } );
     } elsif ($after_before eq "before") {
-        ($order, $cmp1, $cmp2, $cmp3) = ("ASC",  ">=", "<", sub {$b->[0] <=> $a->[0]} );
+        ( $order, $cmp1, $cmp2, $cmp3, $cmp4 ) = ("ASC",  ">=", "<", sub { $b->[0] <=> $a->[0] }, sub { $a->[2] <=> $b->[2] } );
     } else {
         return 0;
     }
@@ -1754,7 +1754,7 @@ sub get_itemid_near2 {
     foreach my $limit (2, 10, 50, 100) {
         $result_ref = $dbr->selectall_arrayref(
             "SELECT jitemid, anum, $field FROM log2 use index (rlogtime,revttime) ".
-                "WHERE journalid=? AND $field $cmp1 ? AND jitemid $cmp2 ? ".
+                "WHERE journalid=? AND $field $cmp1 ? AND jitemid <> ? " .
                 $secwhere. " ".
                 "ORDER BY $field $order LIMIT $limit",
             undef, $jid, $stime, $jitemid
@@ -1766,8 +1766,21 @@ sub get_itemid_near2 {
         # If we has one the only 'time' in $limit fetched rows,
         # may be $limit cuts off our record. Increase the limit and repeat.
         if (((scalar keys %hash_times) > 1) || (scalar @$result_ref) < $limit) {
+            my @result;
+
+            # Remove results with the same time but the jitemid is too high or low
+            if ( $after_before eq "after" ) {
+                @result = grep { $_->[2] != $stime || $_->[0] > $jitemid } @$result_ref;
+            } elsif ( $after_before eq "before" ) {
+                @result = grep { $_->[2] != $stime || $_->[0] < $jitemid } @$result_ref;
+            }
+
             # Sort result by jitemid and get our id from a top.
-            my @result =  sort $cmp3 @$result_ref;
+            @result =  sort $cmp3 @result;
+
+            # Sort result by revttime
+            @result =  sort $cmp4 @result;
+
             my ($id, $anum) = ($result[0]->[0], $result[0]->[1]);
             return 0 unless $id;
             return wantarray() ? ($id, $anum) : ($id*256 + $anum);
