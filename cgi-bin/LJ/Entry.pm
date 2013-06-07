@@ -1706,11 +1706,11 @@ sub get_itemid_near2 {
 
     $jitemid += 0;
 
-    my ( $order, $cmp1, $cmp2, $cmp3, $cmp4 );
+    my ( $order, $cmp1, $cmp3, $cmp4 );
     if ($after_before eq "after") {
-        ( $order, $cmp1, $cmp2, $cmp3, $cmp4 ) = ( "DESC", "<=", ">", sub { $a->[0] <=> $b->[0] }, sub { $b->[2] <=> $a->[2] } );
+        ( $order, $cmp1, $cmp3, $cmp4 ) = ( "DESC", "<=", sub { $a->[0] <=> $b->[0] }, sub { $b->[2] <=> $a->[2] } );
     } elsif ($after_before eq "before") {
-        ( $order, $cmp1, $cmp2, $cmp3, $cmp4 ) = ("ASC",  ">=", "<", sub { $b->[0] <=> $a->[0] }, sub { $a->[2] <=> $b->[2] } );
+        ( $order, $cmp1, $cmp3, $cmp4 ) = ("ASC",  ">=", sub { $b->[0] <=> $a->[0] }, sub { $a->[2] <=> $b->[2] } );
     } else {
         return 0;
     }
