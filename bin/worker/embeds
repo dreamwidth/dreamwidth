@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+#
+# bin/worker/embeds
+#
+# TheSchwartz worker for crossposting
+#
+# Authors:
+#       Deborah Kaplan <deborah@dreamwidth.org>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
+use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN {
+    require 'ljlib.pl';
+}
+
+use LJ::Worker::TheSchwartz;
+use DW::Worker::EmbedWorker;
+
+schwartz_decl( $_ )
+    foreach (DW::Worker::EmbedWorker->schwartz_capabilities);
+
+schwartz_work(); # Never returns.

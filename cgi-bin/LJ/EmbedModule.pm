@@ -18,6 +18,7 @@ use Carp qw (croak);
 use LJ::Auth;
 use HTML::TokeParser;
 use LJ::JSON;
+use TheSchwartz;
 
 # states for a finite-state machine we use in parse()
 use constant {
@@ -71,8 +72,13 @@ sub save_module {
 
     my $cmptext = 'C-' . LJ::text_compress($contents);
 
-    # get a direct link to the object if possible
-    my $src_info = $class->extract_src_info($contents);
+    # construct a direct link to the object if possible
+    my $src_info = $class->extract_src_info({ contents => $contents,
+                                             cmptext  => $cmptext,
+                                             journal  => $journal,
+                                             preview  => $preview,
+                                             id       => $id,
+                                           });
 
     ## embeds for journal entry pre-post preview are stored in a special table,
     ## where new items overwrites old ones
@@ -267,27 +273,103 @@ sub _extract_num_unit {
     return ( $num, "%" );
 }
 
-# extract src info if useful
-# returns a hash of link text, url
-# currently handles: YouTube, Vimeo
+# Returns a hash of link text, url
+# Provides the fallback link text for when host API has not been contacted for title
+# Currently handles: YouTube, Vimeo
 sub extract_src_info {
-    my ($class, $content) = @_;
-    my ($url, $site, $href, $linktext);
+    my ($class, $args) = @_;
+    my ($site, $href);
 
-    if ( $content =~ /src="http:\/\/.*youtube\.com/ ) {
+
+    my ($contents, $cmptext, $journal, $id, $preview, $vid_id, $host, $linktext, $url) 
+       = map { delete $args->{$_} } qw( contents cmptext journal id preview vid_id host linktext url );
+
+    if ( $contents =~ /src="http:\/\/.*youtube\.com/ ) {
         # YouTube
 
         my $host = "https://www.youtube.com/";
         my $prefix = "watch?v=";
 
-        # get the video ID
-        $content =~ /.*src="[^"]*embed\/([^"]*)".*/;
+        # construct the URL and link text
+        $contents =~ /.*src="[^"]*embed\/([^"]*)".*/;
         my $vid_id = $1;
         $url = $host . $prefix . $vid_id;
+        $linktext = LJ::Lang::ml('embedmedia.youtube');
+
+        # Fire off the worker to get the correct title
+        my $sclient = LJ::theschwartz(); 
+        die "Can't get TheSchwartz client" unless $sclient;
+        my $job = TheSchwartz::Job->new_from_array("DW::Worker::EmbedWorker",
+                  { vid_id  => $vid_id,
+                    host    => 'youtube',
+                    preview => $preview,
+                    contents => $contents,
+                    cmptext  => $cmptext,
+                    journalid  => $journal->id,
+                    preview  => $preview,
+                    id       => $id,
+                    linktext => $linktext,
+                    url      => $url,
+                  });
+        die "Can't create job" unless $job;
+        $sclient->insert($job) or die ("Can't queue youtube api job: $@");
+
+    } elsif ( $contents =~ /src="http:\/\/.*vimeo\.com/ ) {
+        # Vimeo's default c/p embed code contains a link to the
+        # video by title. If that's present, don't build a link.
+        warn "$contents";
+        my $host = "http://vimeo.com/";
+
+        # get the video ID
+        $contents =~ /.*src="[^"]*vimeo\.com\/video\/([^"]*)".*/;
+        my $vid_id = $1;
+
+        $url = $host . $vid_id;
+
+        # error getting video info from Vimeo
+        $linktext = LJ::Lang::ml('embedmedia.vimeo');
+
+        # Fire off the worker to get the correct title
+        my $sclient = LJ::theschwartz(); 
+        die "Can't get TheSchwartz client" unless $sclient;
+        my $job = TheSchwartz::Job->new_from_array("DW::Worker::EmbedWorker",
+                  { vid_id  => $vid_id,
+                    host    => 'vimeo',
+                    preview => $preview,
+                    contents => $contents,
+                    cmptext  => $cmptext,
+                    journalid  => $journal->id,
+                    preview  => $preview,
+                    id       => $id,
+                    linktext => $linktext,
+                    url      => $url,
+                  });
+        die "Can't create job" unless $job;
+        $sclient->insert($job) or die ("Can't queue vimeo api job: $@");
+     } else {
+        # Not one of our known embed types
+        $linktext = "";
+        $url = "";
+    }
+
+    return { linktext => $linktext, url => $url };
+}
+
+# Used by TheSchwartz to contact external embed site APIs
+sub contact_external_sites {
+    my ($class, $args) = @_;
+
+    my ($vid_id, $host, $contents, $preview, $journalid, $id, $cmptext, $linktext, $url) 
+       = map { delete $args->{$_} } qw( vid_id host contents preview journalid id cmptext linktext url );
+
+    my ($site, $href);
+    my $journal =  LJ::want_user($journalid);
+
+    if ( $host eq 'youtube' ) {
 
         # Get our YouTube API variables and set up the variables
         # for constructing a YouTube URL. If we don't have an API
-        # key, then just link with generic text
+        # key, we shouldn't be here
         if ( $LJ::YOUTUBE_CONFIG{apikey} ) {
             my $api_url = $LJ::YOUTUBE_CONFIG{api_url};
             my $apikey = $LJ::YOUTUBE_CONFIG{apikey};
@@ -313,53 +395,59 @@ sub extract_src_info {
                           . ")";
             } else {
                 # error getting video info from youtube
-                $linktext = LJ::Lang::ml('embedmedia.youtube');
+                return 'warn';
             }
         } else {
             # no API key; use generic text
-            $linktext = LJ::Lang::ml('embedmedia.youtube');
+            return 'fail';
         }
-    } elsif ( $content =~ /src="http:\/\/.*vimeo\.com/ ) {
-        # Vimeo's default c/p embed code contains a link to the
-        # video by title. If that's present, don't build a link.
-        unless ( $content =~ /<p><a href="http:\/\/vimeo.com\// ) {
-            my $host = "http://vimeo.com/";
-    
-            # get the video ID
-            $content =~ /.*src="[^"]*vimeo\.com\/video\/([^"]*)".*/;
-            my $vid_id = $1;
-            $url = $host . $vid_id;
-    
-            # put together the  GET request to get the video title
-            my $ua = LJ::get_useragent( role => 'vimeo', timeout => 60 );
-            my $api_url = "http://vimeo.com/api/v2/video/"
-                        . $vid_id
-                        . ".json";
-    
-            # Pass request to the user agent and get a response back
-            my $request = HTTP::Request->new(GET => $api_url);
-            my $res = $ua->request($request);
-    
-            # Check the outcome of the response
-            if ($res->is_success) {
-                my $obj = from_json( $res->content );
-                $linktext = '"'
-                          . ${$obj}[0]{title}
-                          . '" '
-                          . LJ::Lang::ml('embedmedia.vimeo')
-                          . ")";
-            } else {
-                # error getting video info from Vimeo
-                $linktext = LJ::Lang::ml('embedmedia.vimeo');
-            }
+    } elsif ( $host eq 'vimeo' ) {
+        
+        # put together the  GET request to get the video title
+        my $ua = LJ::get_useragent( role => 'vimeo', timeout => 60 );
+        my $api_url = "http://vimeo.com/api/v2/video/"
+                    . $vid_id
+                    . ".json";
+
+        # Pass request to the user agent and get a response back
+        my $request = HTTP::Request->new(GET => $api_url);
+        my $res = $ua->request($request);
+
+        # Check the outcome of the response
+        if ($res->is_success) {
+            my $obj = from_json( $res->content );
+            $linktext = '"'
+                      . ${$obj}[0]{title}
+                      . '" ('
+                      . LJ::Lang::ml('embedmedia.vimeo')
+                      . ")";
+        } else {
+            # error getting video info from Vimeo
+            $linktext = LJ::Lang::ml('embedmedia.vimeo');
         }
      } else {
         # Not one of our known embed types
-        $linktext = "";
-        $url = "";
-    }
+        return 'fail';
+     }
 
-    return { linktext => $linktext, url => $url };
+    ## embeds for journal entry pre-post preview are stored in a special table,
+    ## where new items overwrites old ones
+    my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
+    $journal->do( "REPLACE INTO $table_name " .
+                  "(userid, moduleid, content, linktext, url) " .
+                  "VALUES (?, ?, ?, ?, ?)", 
+                   undef, $journal->userid, $id, $cmptext, $linktext, $url );
+    die $journal->errstr if $journal->err;
+
+    # save in memcache
+    my $memkey = $class->memkey($journal->userid, $id, $preview);
+    my $cref   = { content      => $cmptext,
+                   linktext     => $linktext,
+                   url          => $url,
+                 };
+    LJ::MemCache::set($memkey, $cref);
+
+
 }
 
 sub module_iframe_tag {
