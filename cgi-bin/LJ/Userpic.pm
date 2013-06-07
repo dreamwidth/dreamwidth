@@ -1070,7 +1070,7 @@ sub set_keywords {
     my $dbh;
 
     if ( $have_mapid ) {
-        $sth = $u->prepare( "SELECT kwid FROM userpicmap3 WHERE userid=? AND picid=? AND kwid IS NOT NULL" );
+        $sth = $u->prepare( "SELECT kwid FROM userpicmap3 WHERE userid=? AND picid=?" );
     } else {
         $sth = $u->prepare( "SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?" );
     }
@@ -1078,6 +1078,14 @@ sub set_keywords {
 
     my %exist_kwids;
     while (my ($kwid) = $sth->fetchrow_array) {
+
+        # This is an edge case to catch keyword changes where the existing keyword
+        # is in the pic#  format.  In this case kwid is NULL and we want to 
+        # delete any records from userpicmap3 that involve it.
+        unless ( $kwid ) {
+           $u->do( "DELETE FROM userpicmap3 WHERE userid=? AND picid=? AND kwid IS NULL", undef, $u->id, $self->id );
+        }
+
         $exist_kwids{$kwid} = 1;
     }
 
@@ -1183,8 +1191,7 @@ sub set_and_rename_keywords {
     my @keywords = split(',', $new_keyword_string);
     my @orig_keywords = split(',', $orig_keyword_string);
 
-    # don't allow renames involving no-keyword (pic#0001) values
-    if ( grep ( /^\s*pic\#\d+\s*$/, @orig_keywords ) || grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
+    if ( grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
         LJ::errobj("Userpic::RenameBlankKeywords",
                    origkw    => $orig_keyword_string,
                    newkw     => $new_keyword_string)->throw;
@@ -1246,9 +1253,15 @@ sub set_and_rename_keywords {
                 die $u->errstr if $u->err;
 
             } else {
-                $u->do( "UPDATE userpicmap3 SET kwid = ? WHERE kwid = ? AND userid = ?",
-                        undef, $u->get_keyword_id( $newkw ), $u->get_keyword_id( $origkw ), $u->id );
-                die $u->errstr if $u->err;
+                if ( $origkw !~ /^\s*pic\#\d+\s*$/ ) {
+                    $u->do( "UPDATE userpicmap3 SET kwid = ? WHERE kwid = ? AND userid = ?",
+                            undef, $u->get_keyword_id( $newkw ), $u->get_keyword_id( $origkw ), $u->id );
+                    die $u->errstr if $u->err;
+                } else {
+                    $u->do( "REPLACE INTO userpicmap3 (userid, kwid, picid) VALUES (?, ?, ?)",
+                            undef, $u->id, $u->get_keyword_id( $newkw ), $self->picid );
+                    die $u->errstr if $u->err;
+                }
             }
         }
         LJ::Userpic->delete_cache($u);
