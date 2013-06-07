@@ -947,6 +947,7 @@ register_tabledrop("captcha_session");
 register_tabledrop("qotd");
 register_tabledrop("zip");
 register_tabledrop("openid_external");
+register_tabledrop("site_messages");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -2522,20 +2523,6 @@ CREATE TABLE jobstatus (
     status ENUM('running', 'success', 'error'),
 
     KEY (end_time)
-)
-EOC
-
-register_tablecreate("site_messages", <<'EOC');
-CREATE TABLE site_messages (
-    mid           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    time_start    INT UNSIGNED NOT NULL DEFAULT '0',
-    time_end      INT UNSIGNED NOT NULL DEFAULT '0',
-    active        ENUM('Y','N') NOT NULL DEFAULT 'Y',
-    text          TEXT NOT NULL DEFAULT '',
-
-    PRIMARY KEY (mid),
-    INDEX (time_start),
-    INDEX (time_end)
 )
 EOC
 

@@ -122,7 +122,6 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         navtag         => "Access to /admin/navtag",
         propedit       => "Allow to change userprops for other users",
         rename         => "Access to rename_opts console command",
-        sitemessages   => "Access to /admin/sitemessages",
         spamreports    => "Access to /admin/spamreports",
         themes         => "Access to /admin/themes",
         theschwartz    => "Access to /admin/theschwartz",

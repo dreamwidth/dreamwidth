@@ -1534,3 +1534,8 @@ general settings.usermessaging.obsolete
 
 general /support/see_request.bml.error.text2
 general /support/see_request.bml.incat
+
+general /views/admin/index.tt.admin.sitemessages_add.link
+general /views/admin/index.tt.admin.sitemessages_add.text
+general /views/admin/index.tt.admin.sitemessages_manage.link
+general /views/admin/index.tt.admin.sitemessages_manage.text

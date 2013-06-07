@@ -62,7 +62,6 @@ sub init {
         "DW::Widget::ReadingList",
         "LJ::Widget::FriendBirthdays",
         "DW::Widget::AccountStatistics",
-        "LJ::Widget::SiteMessages",
         "DW::Widget::UserTagCloud",
         "DW::Widget::CommunityManagement",
         "LJ::Widget::CurrentTheme",
