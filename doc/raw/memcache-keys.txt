@@ -132,7 +132,6 @@ jabclusterid:<id> == address of server
 # Widgets
 
 qotd:<type> == QotDs of the type <type> ('current' or 'old')
-sitemessages == site messages
 
 blockwatch_ids   == hash of blockwatch ids mapped to names
 blockwatch_names == hash of blockwatch names mapped to ids

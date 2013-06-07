@@ -67,14 +67,6 @@
 
 .admin.recent_comments.text=Allows you to view a user's recent comments.
 
-.admin.sitemessages_add.link=Site Messages - Add
-
-.admin.sitemessages_add.text=Add new site-wide messages.
-
-.admin.sitemessages_manage.link=Site Messages - Manage
-
-.admin.sitemessages_manage.text=View and manipulate site-wide messages.
-
 .admin.spamreports.link=Spam Reports
 
 .admin.spamreports.text=View and handle reports of spam.

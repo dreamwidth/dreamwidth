@@ -77,14 +77,6 @@ DW::Controller::Admin->_register_admin_pages_legacy( '/',
         '.admin.propedit.link', '.admin.propedit.text', [ 'canview:userprops', 'canview:*' ] ],
     [ 'recent_comments',
         '.admin.recent_comments.link', '.admin.recent_comments.text', [ 'siteadmin:commentview', 'siteadmin:*' ] ],
-    [ 'sitemessages/add',
-        '.admin.sitemessages_add.link', '.admin.sitemessages_add.text', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
-            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-        } ] ],
-    [ 'sitemessages/manage',
-        '.admin.sitemessages_manage.link', '.admin.sitemessages_manage.text', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
-            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-        } ] ],
     [ 'spamreports',
         '.admin.spamreports.link', '.admin.spamreports.text', [ 'siteadmin:spamreports', 'siteadmin:*' ] ],
     [ 'statushistory',
