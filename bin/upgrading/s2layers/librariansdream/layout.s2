@@ -283,14 +283,14 @@ else { $navlinks_css = ""; }
 
 .two-columns-left #header,
 .three-columns-sides #header { margin-left: $*sidebar_width;
-    border-left: .25em solid $*color_page_background; }
+    padding-left: .25em; border: none;}
 .three-columns-left #header { margin-left: $*sidebar_width_doubled;
-    border-left: .25em solid $*color_page_background; }
+    padding-left: .25em; border: none;}
 .two-columns-right #header,
 .three-columns-sides #header { margin-right: $*sidebar_width;
-    border-right: .25em solid $*color_page_background; }
+    padding-right: .25em; border: none;}
 .three-columns-right #header { margin-right: $*sidebar_width_doubled;
-    border-right: .25em solid $*color_page_background; }
+    padding-right: .25em; border: none;}
 
 #secondary,
 .three-columns-left #tertiary,
@@ -344,10 +344,13 @@ body {
     background: $*color_page_background;
 }
 
-#header { padding: 1px; }
+#header {
+    padding: 1px;
+    background: none;}
 
 #header .inner {
     padding: 1px 1em;
+    background: $*color_header_background;
     }
 
 #content { border-color: $*color_page_background !important; }
