@@ -1,0 +1,26 @@
+[%- sections.title = '.admin.link' | ml -%]
+[%- sections.head = BLOCK -%]
+<style type="text/css">
+td, th { padding: 4px; }
+</style>
+[%- END -%]
+
+[%- IF data.size == 0 -%]
+<p>[% '.noduplicates' | ml %]</p>
+[%- ELSE -%]
+<table summary=''>
+<thead>
+<tr>
+    <th>Count</th>
+    <th>Token</th>
+</tr>
+<tbody id="table_data">
+[%- FOREACH feed IN data -%]
+<tr>
+    <td>[% feed.0 %]</td>
+    <td><a href="/admin/feeds/merge?token=[% feed.1 | url %]">[% feed.1 %]</a></td>
+</tr>
+[%- END -%]
+</tbody>
+</table>
+[%- END -%]

@@ -1,0 +1,38 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Merge Feeds
+
+.admin.text=Merge Feeds
+
+.btn.confirm=Confirm
+
+.btn.load=Load
+
+.btn.merge=Merge
+
+.complete=Feed Merged
+
+.hdr.settings=Settings
+
+.hdr.plan=Merge Plan
+
+.hdr.name=Name
+
+.hdr.url=URL
+
+.hdr.readers=Readers
+
+.hdr.token=Token
+
+.lbl.usernames=Usernames:
+
+.lbl.usernames.comma=(comma seperated)
+
+.lbl.token=Token:
+
+.link.back.dupes=<< Back to Duplicates
+
+.link.back.merge=<< Back to Merge
+
+.tokens.multiple=Note: These feeds have different tokens.
+
+.tokens.shared=These feeds share the token [[token]].
