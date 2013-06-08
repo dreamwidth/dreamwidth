@@ -3491,7 +3491,7 @@ function Page::print_contextual_stylesheet()
     color: $*color_page_text;
     }
 
-.ContextualPopup a { color: $*color_page_link_hover; }
+.ContextualPopup a { color: $*color_page_link; }
 .ContextualPopup a:visited { color: $*color_page_link_visited; }
 .ContextualPopup a:hover { color: $*color_page_link_hover; }
 .ContextualPopup a:active { color: $*color_page_link_active; }
