@@ -160,6 +160,13 @@ sub EntryPage
             my $threadroot_url;
 
             my ($edited, $edit_url, $editreason, $edittime, $edittime_remote, $edittime_poster);
+
+
+            # in flat mode, promote the parenttalkid_actual
+            if ($flat_mode) {
+                $com->{'parenttalkid'} ||= $com->{'parenttalkid_actual'};
+            }
+
             if ($com->{_loaded}) {
                 my $comment = LJ::Comment->new($u, jtalkid => $com->{talkid});
 
@@ -174,6 +181,7 @@ sub EntryPage
 
                 $threadroot_url = $comment->threadroot_url( $style_arg ) if $com->{parenttalkid};
             }
+
 
             my $subject_icon = undef;
             if (my $si = $com->{'props'}->{'subjecticon'}) {
@@ -207,11 +215,6 @@ sub EntryPage
             my $reply_url = LJ::Talk::talkargs($permalink, "replyto=$dtalkid", $style_arg);
 
             my $par_url;
-
-            # in flat mode, promote the parenttalkid_actual
-            if ($flat_mode) {
-                $com->{'parenttalkid'} ||= $com->{'parenttalkid_actual'};
-            }
 
             if ($com->{'parenttalkid'}) {
                 my $dparent = ($com->{'parenttalkid'} << 8) + $entry->anum;
