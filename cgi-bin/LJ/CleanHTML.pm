@@ -1073,6 +1073,10 @@ sub clean
 
                             # closing tag within current table
                             } elsif (@tablescope) {
+                                # If this tag was not opened inside this table, then
+                                # do not close it! (This let's the auto-closer clean
+                                # up later.)
+                                next TOKEN unless $tablescope[-1]->{$tag};
                                 $tablescope[-1]->{$tag}--;
                             }
                         }
