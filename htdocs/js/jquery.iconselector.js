@@ -263,7 +263,7 @@
                             });
                         }
 
-                        var $comment = ( icon.comment != "" ) ? $("<div class='comment'></div>").text( icon.comment ) : "";
+                        var $comment = ( icon.comment != "" ) ? $("<div class='icon-comment'></div>").text( icon.comment ) : "";
 
                         var $meta = $("<div class='meta_wrapper'></div>").append($keywords).append($comment);
                         var $item = $("<div class='iconselector_item'></div>").append($img).append($meta);
