@@ -3195,7 +3195,7 @@ CREATE TABLE captcha_cache (
 )
 EOC
 
-register_tablecreate("logslogs", <<'EOC');
+register_tablecreate("logslugs", <<'EOC');
 CREATE TABLE `logslugs` (
   `journalid` int(10) unsigned NOT NULL DEFAULT '0',
   `jitemid` mediumint(8) unsigned NOT NULL,
