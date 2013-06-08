@@ -1487,7 +1487,7 @@ sub talkform {
     $opts->{styleopts} ||= LJ::viewing_style_opts( %$form );
     my %styleoptshash = %{$opts->{styleopts}};
     my $stylemineuri = %{$opts->{styleopts}} ? LJ::viewing_style_args( %{$opts->{styleopts}} ) . "&" : "";
-    my $basepath = $journalu->journal_base . "/" . $opts->{ditemid} . ".html?" . $stylemineuri;
+    my $basepath = $entry->url . "?" . $stylemineuri;
 
     # hidden values
     my $parent = $opts->{replyto}+0;
