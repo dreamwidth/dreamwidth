@@ -7,7 +7,7 @@
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -114,7 +114,7 @@ sub template_string {
 
     my $out;
     $view_engine->process( $filename, $opts, \$out )
-        or die Template->error();
+        or die $view_engine->error->as_string;
 
     # now revert the scope if we had one
     $r->note( ml_scope => $oldscope ) if $oldscope;
@@ -363,7 +363,7 @@ sub render_scheme {
     $opts->{get} = $r->get_args;
 
     $scheme_engine->process( "_init.tt", $opts, \$out )
-        or die Template->error();
+        or die $scheme_engine->error->as_string;
 
     return $out;
 }
