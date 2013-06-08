@@ -1485,6 +1485,9 @@ sub talkform {
     }
 
     $opts->{styleopts} ||= LJ::viewing_style_opts( %$form );
+    my %styleoptshash = %{$opts->{styleopts}};
+    my $stylemineuri = %{$opts->{styleopts}} ? LJ::viewing_style_args( %{$opts->{styleopts}} ) . "&" : "";
+    my $basepath = $entry->url . "?" . $stylemineuri;
 
     # hidden values
     my $parent = $opts->{replyto}+0;
@@ -1492,6 +1495,7 @@ sub talkform {
                             "parenttalkid", $parent,
                             "itemid", $opts->{ditemid},
                             "journal", $journalu->{'user'},
+                            "basepath", $basepath,
                             %{$opts->{styleopts}},
                             );
 
@@ -3978,6 +3982,8 @@ sub make_preview {
     my ($talkurl, $cookie_auth, $form) = @_;
     my $ret = "";
 
+    # Adding in the relevant Javascript file to process the More Options button
+    LJ::need_res({group => 'jquery'}, 'js/jquery.commentpreview.js');
     # preview form
 
     $ret .= "<?h2 $BML::ML{'/talkpost_do.bml.preview.title'} h2?><?p $BML::ML{'/talkpost_do.bml.preview'} p?><?hr?>";
@@ -4033,7 +4039,7 @@ sub make_preview {
     # While it may seem like we need form auth for this form, the form for
     # actually composing a comment includes it.  It is then put into this
     # form about 20 lines below: foreach (keys %$form).
-    $ret .= "<div style='width: 90%'><form method='post'><p>\n";
+    $ret .= "<div style='width: 90%'><form id='previewform' method='post'><p>\n";
     $ret .= "<label for='subject'>$BML::ML{'/talkpost_do.bml.preview.edit.subject'}</label>";
     $ret .= "<input name='subject' size='50' maxlength='100' value='" . LJ::ehtml($form->{'subject'}) . "' /><br />";
     $ret .= "<div class='userpics'>" . LJ::Talk::icon_dropdown( $remote, $icon_kw ) . "</div>"
@@ -4063,6 +4069,7 @@ sub make_preview {
 
     $ret .= "<br /><input type='submit' value='$BML::ML{'/talkpost_do.bml.preview.submit'}' />\n";
     $ret .= "<input type='submit' name='submitpreview' value='$BML::ML{'talk.btn.preview'}' />\n";
+    $ret .= "<span id='moreoptions-container'></span>\n";
     if ($LJ::SPELLER) {
         $ret .= "<input type='checkbox' name='do_spellcheck' value='1' id='spellcheck' /> <label for='spellcheck'>$BML::ML{'talk.spellcheck'}</label>";
     }
