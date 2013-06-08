@@ -39,7 +39,7 @@ my %form_to_props = (
 
 
 my @modules = qw(
-    tags currents displaydate
+    slug tags currents displaydate
     access journal comments
     age_restriction icons crosspost
 );
@@ -713,7 +713,6 @@ sub _form_to_backend {
         }
     }
 
-
     # nuke taglists that are just blank
     $props->{taglist} = "" unless $props->{taglist} && $props->{taglist} =~ /\S/;
 
@@ -728,6 +727,8 @@ sub _form_to_backend {
         $props->{adult_content_reason} = $post->{age_restriction_reason} || "";
     }
 
+    # Set entry slug if it's been specified
+    $req->{slug} = LJ::canonicalize_slug( $post->{entry_slug} // '' );
 
     # entry security
     my $sec = "public";
@@ -812,6 +813,8 @@ sub _backend_to_form {
                                     'explicit'  => 'restricted',
                                 }->{ $entry->prop( "adult_content" ) || '' },
         age_restriction_reason => $entry->prop( "adult_content_reason" ),
+
+        entry_slug => $entry->slug,
 
         # FIXME:
         # ...       => $entry->prop( "opt_preformatted" )

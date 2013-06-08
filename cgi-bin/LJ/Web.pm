@@ -2553,6 +2553,7 @@ sub res_includes {
                     inbox_update_poll => $inbox_update_poll,
                     media_embed_enabled => $embeds_enabled,
                     esn_async => $esn_async,
+                    user_domain => $LJ::USER_DOMAIN,
                     );
 
         my $site_params = LJ::js_dumper(\%site);
@@ -3914,6 +3915,23 @@ sub canonical_link {
     }
     return qq{<link rel="canonical" href="$url" />\n};
 
+}
+
+# Takes a string as input and returns a canonicalized slug. This is used in
+# the logslugs table for URL generation.
+sub canonicalize_slug {
+    return undef unless defined $_[0];
+
+    # If you change this, please update htdocs/stc/js/jquery.postform.js
+    # to keep the regular expressions in the toSlug function in sync.
+    my $str = LJ::trim( lc shift );
+    $str =~ s/\s+/-/g;
+    $str =~ s/[^a-z0-9_-]//gi;
+    $str =~ s/-+/-/g;
+    $str =~ s/^-|-$//g;
+    $str = LJ::text_trim( $str, 255, 100 );
+
+    return $str;
 }
 
 1;

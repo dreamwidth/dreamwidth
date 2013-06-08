@@ -1711,6 +1711,17 @@ sub postevent
     # note this post in recentactions table
     LJ::DB::note_recent_action($uowner, 'post');
 
+    # Insert the slug (try to, this will fail if this slug is already used)
+    my $slug = LJ::canonicalize_slug( $req->{slug} );
+    if ( defined $slug && length $slug > 0 ) {
+        $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+                undef, $ownerid, $jitemid, $slug );
+        if ( $u->err ) {
+            $res->{message} ||= 'Sorry, it looks like that slug has already been used. ' .
+                'Your entry has been posted without a slug, but you can still edit it to add a unique slug.';
+        }
+    }
+
     # if the post was public, and the user has not opted out, try to insert into the random table;
     # We're doing a REPLACE INTO because chances are the user will already
     # be in there (having posted less than 7 days ago).
@@ -2177,6 +2188,25 @@ sub editevent
     if (defined $oldevent->{'anum'}) {
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'} = LJ::item_link($uowner, $itemid, $oldevent->{'anum'});
+    }
+
+    # Update the slug (try to, this will fail if this slug is already used). To
+    # delete or change the slug, you must pass this parameter in. If it is not
+    # present, we leave the slug alone.
+    if ( exists $req->{slug} ) {
+        LJ::MemCache::delete( [ $ownerid, "logslug:$ownerid:$itemid" ] );
+        $uowner->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
+                     undef, $ownerid, $itemid );
+
+        my $slug = LJ::canonicalize_slug( $req->{slug} );
+        if ( defined $slug && length $slug > 0 ) {
+            $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+                    undef, $ownerid, $itemid, $slug );
+            if ( $u->err ) {
+                $res->{message} ||= 'Sorry, it looks like that slug has already been used. ' .
+                    'Your entry has been updated, but you can still edit it again to add a unique slug.';
+            }
+        }
     }
 
     my $entry = LJ::Entry->new($ownerid, jitemid => $itemid);

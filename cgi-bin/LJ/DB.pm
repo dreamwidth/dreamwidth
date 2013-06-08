@@ -62,7 +62,7 @@ $LJ::DBIRole = new DBI::Role {
                     "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
                     "logprop_history", "import_status", "externalaccount",
                     "content_filters", "content_filter_data", "userpicmap3",
-                    "media", "collections", "collection_items",
+                    "media", "collections", "collection_items", "logslugs",
                     );
 
 # keep track of what db locks we have out

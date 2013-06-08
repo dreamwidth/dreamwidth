@@ -1,0 +1,34 @@
+[%# views/entry/module-slug.tt
+
+Module for setting and previewing the entry slug.
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2013 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+ <fieldset>
+   <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
+   <div class="inner">
+
+   <div id="entry_slug_box">
+        [% label = ".label.post_slug" | ml;
+           form.textbox( label = label
+                name = "entry_slug"
+                id = "entry_slug"
+
+                size = "30"
+                maxlength = "80"
+        ) %]
+
+        <br /><br />
+        <span id="slug_preview">[% ".label.preview" | ml %]</span>
+   </div>
+
+   </div>
+ </fieldset>

@@ -708,6 +708,23 @@ sub trans
             } else {
                 $mode = "entry";
             }
+        } elsif ($uuri =~ m#^/(\d\d\d\d/\d\d/\d\d)/([a-z0-9_-]+)\.html$#) {
+            my $u = LJ::load_user($user)
+                or return 404;
+
+            # This hack validates that the YYYY/MM/DD given to us is correct.
+            my $date = $1;
+            $ljentry = LJ::Entry->new( $u, slug => $2 );
+            if ( defined $ljentry ) {
+                my $dt = join( '/', split( '-', substr( $ljentry->eventtime_mysql, 0, 10 ) ) );
+                return 404 unless $dt eq $date;
+            }
+
+            if ($GET{'mode'} eq "reply" || $GET{'replyto'} || $GET{'edit'}) {
+                $mode = "reply";
+            } else {
+                $mode = "entry";
+            }
         } elsif ($uuri =~ m#^/(\d\d\d\d)(?:/(\d\d)(?:/(\d\d))?)?(/?)$#) {
             my ($year, $mon, $day, $slash) = ($1, $2, $3, $4);
             unless ($slash) {
@@ -1399,7 +1416,8 @@ sub journal_content
     my $html = LJ::make_journal($user, $RQ{'mode'}, $remote, $opts);
 
     # Allow to add extra http-header or even modify html
-    LJ::Hooks::run_hooks("after_journal_content_created", $opts, \$html) unless $handle_with_siteviews;
+    LJ::Hooks::run_hooks("after_journal_content_created", $opts, \$html)
+        unless $handle_with_siteviews;
 
     # check for redirects
     if ( $opts->{internal_redir} ) {

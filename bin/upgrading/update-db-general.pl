@@ -3195,6 +3195,16 @@ CREATE TABLE captcha_cache (
 )
 EOC
 
+register_tablecreate("logslogs", <<'EOC');
+CREATE TABLE `logslugs` (
+  `journalid` int(10) unsigned NOT NULL DEFAULT '0',
+  `jitemid` mediumint(8) unsigned NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  PRIMARY KEY (`journalid`,`jitemid`),
+  UNIQUE KEY `journalid` (`journalid`,`slug`)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes

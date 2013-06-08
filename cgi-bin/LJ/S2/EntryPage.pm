@@ -458,29 +458,25 @@ sub EntryPage
 sub EntryPage_entry
 {
     my ($u, $remote, $opts) = @_;
-
-    my $get = $opts->{'getargs'};
-
-    my $apache_r = $opts->{'r'};
-    my $uri = $apache_r->uri;
-
-    my ($ditemid, $itemid);
     my $entry = $opts->{ljentry};  # only defined in named-URI case.  otherwise undef.
 
-    unless ($entry || $uri =~ /(\d+)\.html/) {
+    my $apache_r = $opts->{r};
+    my $uri = $apache_r->uri;
+    my $ditemid_uri = ( $uri =~ /^\/(\d+)\.html$/ ) ? 1 : 0;
+
+    unless ($entry || $ditemid_uri) {
         $opts->{'handler_return'} = 404;
         return;
     }
 
     $entry ||= LJ::Entry->new($u, ditemid => $1);
-
-    unless ($entry->correct_anum) {
+    if ($ditemid_uri && !$entry->correct_anum) {
         $opts->{'handler_return'} = 404;
         return;
     }
 
-    $ditemid = $entry->ditemid;
-    $itemid  = $entry->jitemid;
+    my $ditemid = $entry->ditemid;
+    my $itemid  = $entry->jitemid;
 
     my $pu = $entry->poster;
 
@@ -488,6 +484,7 @@ sub EntryPage_entry
     my $userlite_poster  = UserLite($pu);
 
     # do they have the viewall priv?
+    my $get = $opts->{'getargs'};
     my $canview = $get->{viewall} && $remote && $remote->has_priv( "canview" );
     my ($viewall, $viewsome) = (0, 0);
     if ($canview) {

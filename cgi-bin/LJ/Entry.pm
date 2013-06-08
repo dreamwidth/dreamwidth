@@ -75,6 +75,7 @@ sub reset_singletons {
 #           'ditemid' => display itemid (a jitemid << 8 + anum)
 #           'anum'    => the id passed was an ditemid, use the anum
 #                        to create a proper jitemid.
+#           'slug'    => the slug in the URL to load from
 # returns: A new LJ::Entry object.  undef on failure.
 # </LJFUNC>
 sub new
@@ -95,6 +96,9 @@ sub new
     croak("can't supply both itemid and ditemid")
         if defined $opts{ditemid} && defined $opts{jitemid};
 
+    croak("can't supply slug with anything else")
+        if defined $opts{slug} && (defined $opts{jitemid} || defined $opts{ditemid});
+
     # FIXME: don't store $u in here, or at least call LJ::load_userids() on all singletons
     #        if LJ::want_user() would have been called
     $self->{u}       = LJ::want_user($uuserid) or croak("invalid user/userid parameter: $uuserid");
@@ -102,14 +106,16 @@ sub new
     $self->{anum}    = delete $opts{anum};
     $self->{ditemid} = delete $opts{ditemid};
     $self->{jitemid} = delete $opts{jitemid};
+    $self->{slug}    = LJ::canonicalize_slug( delete $opts{slug} );
 
     # make arguments numeric
     for my $f (qw(ditemid jitemid anum)) {
         $self->{$f} = int($self->{$f}) if defined $self->{$f};
     }
 
-    croak("need to supply either a jitemid or ditemid")
-        unless defined $self->{ditemid} || defined $self->{jitemid};
+    croak("need to supply either a jitemid or ditemid or slug")
+        unless defined $self->{ditemid} || defined $self->{jitemid}
+                || defined $self->{slug};
 
     croak("Unknown parameters: " . join(", ", keys %opts))
         if %opts;
@@ -117,6 +123,19 @@ sub new
     if ($self->{ditemid}) {
         $self->{_untrusted_anum} = $self->{ditemid} & 255;
         $self->{jitemid} = $self->{ditemid} >> 8;
+    }
+
+    # If specified by slug, look it up in the database.
+    # FIXME: This should be memcached in some efficient method. By slug?
+    if ( defined $self->{slug} ) {
+        my $jitemid = $self->{u}->selectrow_array(
+            q{SELECT jitemid FROM logslugs WHERE journalid = ? AND slug = ?},
+            undef, $self->{u}->id, $self->{slug}
+        );
+        croak $self->{u}->errstr if $self->{u}->err;
+
+        return undef unless $jitemid;
+        return LJ::Entry->new( $self->{u}, jitemid => $jitemid );
     }
 
     # do we have a singleton for this entry?
@@ -243,7 +262,14 @@ sub url {
     my $override = LJ::Hooks::run_hook("entry_permalink_override", $self, %opts);
     return $override if $override;
 
-    my $url = $u->journal_base . "/" . $self->ditemid . ".html";
+    my $base_url = $self->ditemid;
+
+    if ( my $slug = $self->slug ) {
+        my $ymd = join( '/', split( '-', substr( $self->eventtime_mysql, 0, 10 ) ) );
+        $base_url = $ymd . "/" . $slug;
+    }
+
+    my $url = $u->journal_base . "/" . $base_url . ".html";
     delete $args{anchor};
     if (%args) {
         $url .= "?";
@@ -448,6 +474,67 @@ sub _load_text {
 
     $self->{_loaded_text} = 1;
     return 1;
+}
+
+sub slug {
+    my $self = $_[0];
+    my $u = $self->{u};
+    my $jid = $u->id;
+
+    # Get the slug from ourself, memcache, or the database. Populate both if
+    # we do get the data.
+    if (scalar @_ == 1) {
+        return $self->{slug}
+            if $self->{_loaded_slug};
+        $self->{_loaded_slug} = 1;
+
+        my $mc = LJ::MemCache::get( [ $jid, "logslug:$jid:$self->{jitemid}" ] );
+        return $self->{slug} = $mc
+            if defined $mc;
+
+        my $db = $u->selectrow_array(
+            q{SELECT slug FROM logslugs WHERE journalid = ? AND jitemid = ?},
+            undef, $jid, $self->{jitemid}
+        ) || '';
+        croak $u->errstr if $u->err;
+
+        LJ::MemCache::set( [ $jid, "logslug:$jid:$self->{jitemid}" ], $db );
+        return $self->{slug} = $db;
+    }
+
+    # If deletion...
+    if ( ! defined $_[1] ) {
+        $u->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
+                undef, $jid, $self->{jitemid} );
+        croak $u->errstr if $u->err;
+
+        LJ::MemCache::set( [ $jid, "logslug:$jid:$self->{jitemid}" ], '' );
+
+        $self->{_loaded_slug} = 1;
+        return $self->{slug} = undef;
+    }
+
+    # Set it...
+    my $slug = LJ::canonicalize_slug( $_[1] );
+    croak 'Invalid slug'
+        unless defined $slug && length $slug > 0;
+    return $self->{slug}
+        if defined $self->{slug} && $self->{slug} eq $slug;
+
+    # Ensure this slug isn't already used...
+    my $et = LJ::Entry->new( $u, slug => $slug );
+    croak 'Slug already in use'
+        if defined $et;
+
+    # Looks good, now update our slug database (REPLACE since we're updating)
+    $u->do( 'REPLACE INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+            undef, $jid, $self->{jitemid}, $slug );
+    croak $u->errstr if $u->err;
+
+    LJ::MemCache::set( [ $jid, "logslug:$jid:$self->{jitemid}" ], $slug );
+    
+    $self->{_loaded_slug} = 1;
+    return $self->{slug} = $slug;
 }
 
 sub prop {
@@ -2052,7 +2139,7 @@ sub delete_entry
     }
 
     # delete from clusters
-    foreach my $t (qw(logtext2 logprop2 logsec2)) {
+    foreach my $t (qw(logtext2 logprop2 logsec2 logslugs)) {
         $u->do("DELETE FROM $t WHERE journalid=$jid AND jitemid=$jitemid");
     }
     $u->dudata_set('L', $jitemid, 0);

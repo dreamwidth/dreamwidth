@@ -1,0 +1,6 @@
+;; -*- coding: utf-8 -*-
+.header=Entry Link
+
+.label.post_slug=Entry slug:
+
+.label.preview=Enter a slug to preview the link.

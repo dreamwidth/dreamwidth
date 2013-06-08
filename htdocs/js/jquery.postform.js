@@ -460,6 +460,50 @@ init: function(formData) {
         $.fx.off = formData.minAnimation;
     }
 
+    function initSlug() {
+        var slug = $('#entry_slug').val(), base_url = '';
+        var default_slug = $('#slug_preview').text(); // Capture i18n.
+
+        // Takes an input string and sluggifies it. If you update this, please
+        // also update LJ::canonicalize_slug in cgi-bin/LJ/Web.pm.
+        function toSlug(inp) {
+            return inp
+                    .trim()
+                    .replace(/\s+/g, "-")
+                    .replace(/[^a-z0-9_-]/gi, "")
+                    .replace(/-+/g, "-")
+                    .replace(/^-|-$/g, "")
+                    .toLowerCase();
+        }
+
+        function updateSlugPreview() {
+            if (slug == "") {
+                $('#slug_preview').text(default_slug);
+                return;
+            }
+
+            var dval = $('#entrytime').val().replace(/-/g, '/');
+            var url = [base_url, dval, slug].join('/') + '.html';
+            $('#slug_preview').text(url);
+        }
+
+        $('#entry_slug').change(function(evt) {
+            slug = toSlug($('#entry_slug').val());
+            $('#entry_slug').val(slug);
+
+            updateSlugPreview();
+            evt.preventDefault();
+        });
+
+        $('#post_entry').bind('journalselect', function(evt, journal) {
+            base_url = 'http://' + journal.name + '.' + Site.user_domain;
+            if (slug != "")
+                updateSlugPreview();
+        });
+
+        updateSlugPreview();
+    }
+
     // set up...
     initIcons();
     initDisplayDate();
@@ -470,6 +514,7 @@ init: function(formData) {
     initPostButton();
     initCrosspost();
     initToolbar();
+    initSlug();
 
     $.getJSON("/__rpc_entryformcollapse", null, function(data) {
         var xhr = this;

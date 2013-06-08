@@ -120,6 +120,7 @@
 .age_level_reason label,
 .posting_settings label,
 .comments_settings label,
+#entry_slug_box label,
 #security_group label {
   float:left;
   display:block;

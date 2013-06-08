@@ -4890,7 +4890,7 @@ sub entryform_panels {
 
     my $prop = $u->prop( "entryform_panels" );
     my $default = {
-        order => [ [ "tags", "displaydate" ],
+        order => [ [ "tags", "displaydate", "slug" ],
 
                    # FIXME: should be [ "status"  "journal" "comments" "age_restriction" ] %]
                    [ "access", "journal", "currents", "comments", "age_restriction" ],
@@ -4901,6 +4901,7 @@ sub entryform_panels {
         show => {
             "tags"          => 1,
             "currents"      => 1,
+            "slug"          => 1,
             "displaydate"   => 0,
             "access"        => 1,
             "journal"       => 1,

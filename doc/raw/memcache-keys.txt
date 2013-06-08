@@ -23,6 +23,7 @@
 <uid> log2ct:<uid> == # of rows for user
 <uid> log2lt:<uid> == packed data: array of recent log2 entries in rlogtime order, last 2 weeks by default
 <uid> rp:<uid>:<jitemid> == scalar, the replycount value
+<uid> logslug:<uid>:<jitemid> == scalar, the slug for this entry
 
 <uid> memkwid:<uid> == hashref of 'memories' keyword ids to keywords.
 <uid> memkwcnt:<uid>:<w|t>:<f|v|u> == hashref of 'memories' keyword ids to keyword counts.  <w|t> is filter oWner|oTher.  <f|v|u> is security Friends|priVate|pUblic
