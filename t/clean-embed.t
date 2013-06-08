@@ -474,7 +474,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
 
         # check the iframe contents
         # LJ::EmbedModule takes the content and cleans it
-        my $got_embed = LJ::EmbedModule->module_content( journalid => $u->userid, moduleid => 1 )->{'content'};
+        my $got_embed = LJ::EmbedModule->module_content( journalid => $u->userid, moduleid => 1 )->{content};
         if( ref $expected_iframe && ref $expected_iframe eq "Regexp" ) {
             like( $got_embed, $expected_iframe, "clean_embed: $title" );
         } else {

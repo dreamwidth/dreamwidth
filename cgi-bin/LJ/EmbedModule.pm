@@ -52,7 +52,8 @@ sub save_module {
     my $need_new_id = !defined $id;
 
     if (defined $id) {
-        my $old_content = $class->module_content( moduleid => $id, journalid => LJ::want_userid($journal))->{content} || '';
+        my $old_content = $class->module_content( moduleid => $id, 
+            journalid => LJ::want_userid($journal))->{content} || '';
         my $new_content = $contents;
 
         # old content is cleaned by module_content(); new is not
@@ -293,12 +294,12 @@ sub extract_src_info {
         # construct the URL and link text
         $contents =~ /.*src="[^"]*embed\/([^"]*)".*/;
         my $vid_id = $1;
-        $url = $host . $prefix . $vid_id;
+        $url = LJ::ehtml($host . $prefix . $vid_id);
         $linktext = LJ::Lang::ml('embedmedia.youtube');
 
         # Fire off the worker to get the correct title
-        my $sclient = LJ::theschwartz(); 
-        die "Can't get TheSchwartz client" unless $sclient;
+        my $sclient = LJ::theschwartz()
+                or croak "Can't get TheSchwartz client";
         my $job = TheSchwartz::Job->new_from_array("DW::Worker::EmbedWorker",
                   { vid_id  => $vid_id,
                     host    => 'youtube',
@@ -312,26 +313,24 @@ sub extract_src_info {
                     url      => $url,
                   });
         die "Can't create job" unless $job;
-        $sclient->insert($job) or die ("Can't queue youtube api job: $@");
+        $sclient->insert($job) 
+                or croak "Can't queue youtube api job: $@";
 
     } elsif ( $contents =~ /src="http:\/\/.*vimeo\.com/ ) {
         # Vimeo's default c/p embed code contains a link to the
         # video by title. If that's present, don't build a link.
-        warn "$contents";
         my $host = "http://vimeo.com/";
 
         # get the video ID
         $contents =~ /.*src="[^"]*vimeo\.com\/video\/([^"]*)".*/;
         my $vid_id = $1;
 
-        $url = $host . $vid_id;
-
-        # error getting video info from Vimeo
+        $url = LJ::ehtml($host . $vid_id);
         $linktext = LJ::Lang::ml('embedmedia.vimeo');
 
         # Fire off the worker to get the correct title
-        my $sclient = LJ::theschwartz(); 
-        die "Can't get TheSchwartz client" unless $sclient;
+        my $sclient = LJ::theschwartz()
+                or croak "Can't get TheSchwartz client";
         my $job = TheSchwartz::Job->new_from_array("DW::Worker::EmbedWorker",
                   { vid_id  => $vid_id,
                     host    => 'vimeo',
@@ -345,7 +344,8 @@ sub extract_src_info {
                     url      => $url,
                   });
         die "Can't create job" unless $job;
-        $sclient->insert($job) or die ("Can't queue vimeo api job: $@");
+        $sclient->insert($job) 
+                or croak "Can't queue vimeo api job: $@";
      } else {
         # Not one of our known embed types
         $linktext = "";
@@ -365,12 +365,14 @@ sub contact_external_sites {
     my ($site, $href);
     my $journal =  LJ::want_user($journalid);
 
+    warn "FOO";
     if ( $host eq 'youtube' ) {
 
         # Get our YouTube API variables and set up the variables
         # for constructing a YouTube URL. If we don't have an API
         # key, we shouldn't be here
         if ( $LJ::YOUTUBE_CONFIG{apikey} ) {
+    warn "FOO1";
             my $api_url = $LJ::YOUTUBE_CONFIG{api_url};
             my $apikey = $LJ::YOUTUBE_CONFIG{apikey};
     
@@ -382,18 +384,21 @@ sub contact_external_sites {
                          . $apikey
                          . "&part=snippet";
             # Pass request to the user agent and get a response back
+    warn "FOO $queryurl";
             my $request = HTTP::Request->new(GET => $queryurl);
             my $res = $ua->request($request);
     
             # Check the outcome of the response
             if ($res->is_success) {
+    warn "FOO2";
                 my $obj = from_json( $res->content );
                 $linktext = '"'
-                          . ${$obj}{items}[0]{snippet}{title}
+                          .  LJ::ehtml(${$obj}{items}[0]{snippet}{title})
                           . '" (' 
                           . LJ::Lang::ml('embedmedia.youtube')
                           . ")";
             } else {
+    warn "FOO3";
                 # error getting video info from youtube
                 return 'warn';
             }
@@ -417,13 +422,13 @@ sub contact_external_sites {
         if ($res->is_success) {
             my $obj = from_json( $res->content );
             $linktext = '"'
-                      . ${$obj}[0]{title}
+                      . LJ::ehtml(${$obj}[0]{title})
                       . '" ('
                       . LJ::Lang::ml('embedmedia.vimeo')
                       . ")";
         } else {
             # error getting video info from Vimeo
-            $linktext = LJ::Lang::ml('embedmedia.vimeo');
+            return 'warn';
         }
      } else {
         # Not one of our known embed types
@@ -432,11 +437,13 @@ sub contact_external_sites {
 
     ## embeds for journal entry pre-post preview are stored in a special table,
     ## where new items overwrites old ones
-    my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
-    $journal->do( "REPLACE INTO $table_name " .
-                  "(userid, moduleid, content, linktext, url) " .
-                  "VALUES (?, ?, ?, ?, ?)", 
-                   undef, $journal->userid, $id, $cmptext, $linktext, $url );
+    my $table_name = $preview ? 'embedcontent_preview' : 'embedcontent';
+    $journal->do( 
+        qq{REPLACE INTO $table_name 
+                (userid, moduleid, content, linktext, url)
+           VALUES (?, ?, ?, ?, ?)}, 
+        undef, $journal->userid, $id, $cmptext, $linktext, $url
+    );
     die $journal->errstr if $journal->err;
 
     # save in memcache
@@ -611,7 +618,8 @@ sub module_content {
     croak "No moduleid" unless defined $moduleid;
     $moduleid += 0;
 
-    my $journalid = $opts{journalid}+0 or croak "No journalid";
+    my $journalid = $opts{journalid}+0 
+        or croak "No journalid";
     my $journal = LJ::load_userid($journalid) or die "Invalid userid $journalid";
     return '' if ($journal->is_expunged);
     my $preview = $opts{preview};
@@ -668,7 +676,7 @@ sub module_content {
 
 sub memkey {
     my ($class, $journalid, $moduleid, $preview) = @_;
-    my $pfx = $preview ? 'embedcontpreview' : 'embedcont';
+    my $pfx = $preview ? 'embedcontpreview2' : 'embedcont2';
     return [$journalid, "$pfx:$journalid:$moduleid"];
 }
 

@@ -61,7 +61,6 @@ sub work {
                     linktext => $linktext,
                     url       => $url,
                   });
-    my $sclient = LJ::theschwartz();
     if ( $result eq 'fail' ) {
             return $job->permanent_failure("Unknown failure");
     } elsif ( $result eq 'warn' ) {
