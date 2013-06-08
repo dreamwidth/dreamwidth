@@ -370,7 +370,7 @@ HEAD
 
     $ret .= "<div class='tagsec'> "
         . LJ::html_select({ name => 'control_level', selected => $security->{control} }, @control_groups)
-        . " $ML{'.setting.desc.control'} </div>";
+        . " $ML{'.setting.desc.control2'} </div>";
 
     $ret .= "<div class='tagsec'>"
             . LJ::html_select({ name => 'add_level', selected => $security->{add} }, @add_groups)

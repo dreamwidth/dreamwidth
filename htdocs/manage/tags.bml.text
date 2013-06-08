@@ -60,6 +60,7 @@
 .setting.desc.add=Who can add existing tags to entries?
 
 .setting.desc.control=Who can create new tags and add or remove tags from entries?
+.setting.desc.control2=Who can create new tags, add tags to entries, and remove tags from entries?
 
 .setting.maintainers=Administrators only
 
