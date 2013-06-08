@@ -58,6 +58,13 @@ $clean_post = qq{<div><span></span></div>};
 $clean->();
 is( $orig_post, $clean_post, "Wrong closing tag order" );
 
+# if we open a tag, then a table, then let auto-close happen, verify that
+# we close tags in the correct order
+$orig_post  = qq{<strike><table>};
+$clean_post = qq{<strike><table></table></strike>};
+$clean->();
+is( $orig_post, $clean_post, "Wrong closing tag order in table" );
+
 note("unwanted tags and attributes");
 # remove header tags
 $orig_post = qq{<h1>test</h1>testing this<h2>testing again</h2>};

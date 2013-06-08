@@ -1447,12 +1447,12 @@ sub clean_and_trim_subject {
 }
 
 my @comment_close = qw(
+    table tr td th tbody tfoot thead colgroup caption
     a sub sup xmp bdo q span
     b i u tt s strike big small font
     abbr acronym cite code dfn em kbd samp strong var del ins
     h1 h2 h3 h4 h5 h6 div blockquote address pre center
     ul ol li dl dt dd
-    table tr td th tbody tfoot thead colgroup caption
     area map form textarea
 );
 my @comment_all = ( @comment_close, qw( img br hr p col ) );
