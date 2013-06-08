@@ -52,6 +52,9 @@ sub _run_search {
         # handled at the viewing layer.
         $index = 'dwsupport';
 
+        # Sort newest content first.
+        $sx->SetSortMode( SPH_SORT_ATTR_DESC, 'touchtime' );
+
     # ENTRY/COMMENT SEARCH OPTIONS
     } else {
         $index = 'dw1,dw1delta';
