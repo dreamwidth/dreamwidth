@@ -1166,6 +1166,7 @@ Takes a list of viewing styles arguments from a list, makes sure they are valid 
 and returns them as a string that can be appended to the URL. Looks for "s2id", "format", "style"
 =cut
 sub viewing_style_args {
+    #fixme - this should be modernised to take a hashref rather than a hash
     my ( %args ) = @_;
 
     %args = %{ LJ::viewing_style_opts( %args ) };
@@ -1183,6 +1184,7 @@ Takes a list of viewing styles arguments from a list, and returns a hashref of v
 =cut
 
 sub viewing_style_opts {
+    #fixme - this should be modernised to take a hashref rather than a hash
     my ( %args ) = @_;
     return {} unless %args;
 

@@ -3586,7 +3586,6 @@ sub _print_quickreply_link
     # and add the text after the image if they specified it as well
     if ($opt_img) {
         # hella robust img options. (width,height,align,alt,title)
-        # s2quickreply does it all. like whitaker's mom.
         my $width = $opts->{'img_width'} + 0;
         my $height = $opts->{'img_height'} + 0;
         my $align = $opts->{'img_align'};
