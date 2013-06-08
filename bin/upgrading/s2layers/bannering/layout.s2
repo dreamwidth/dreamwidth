@@ -366,14 +366,8 @@ $header_spacing_css
 
 .has-userpic .entry .userpic,
 .has-userpic .comment .userpic {
-    height: 20px;
-    width: 100px;
-    margin: 0 1em 1em 1em; }
+    margin: -4.5em 1em 1em; }
 .has-userpic .comment .userpic { height: 40px; }
-
-.entry .userpic img,
-.comment .userpic img { position: absolute;
-     top: 0; }
 
 $userpic_css
 
