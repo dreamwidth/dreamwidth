@@ -9,7 +9,15 @@ var loadPending = 0;
 // If we expand SVG usage on the site this function should get
 // pulled out of this file.
 function supportsSVG() {
-            return !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect;
+            return !!document.createElementNS 
+         && !!document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect
+         // FF 3.6.8 supports SVG but not inline
+         && !isOldFirefox();
+}
+
+function isOldFirefox () {
+           // check for 3.6.8 or older (hardware limitations cap some users here)
+           return !!(jQuery.browser.mozilla && jQuery.browser.version < '1.9.3')
 }
 
 if ( supportsSVG() ) {
