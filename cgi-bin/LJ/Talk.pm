@@ -1485,10 +1485,8 @@ sub talkform {
     }
 
     $opts->{styleopts} ||= LJ::viewing_style_opts( %$form );
-    warn($opts->{styleopts});
     my %styleoptshash = %{$opts->{styleopts}};
     my $stylemineuri = %{$opts->{styleopts}} ? LJ::viewing_style_args( %{$opts->{styleopts}} ) . "&" : "";
-    warn("stylemineuri = $stylemineuri");
     my $basepath = $journalu->journal_base . "/" . $opts->{ditemid} . ".html?" . $stylemineuri;
 
     # hidden values
@@ -4070,8 +4068,8 @@ sub make_preview {
     }
 
     $ret .= "<br /><input type='submit' value='$BML::ML{'/talkpost_do.bml.preview.submit'}' />\n";
-    $ret .= "<span id='moreoptions-container'></span>\n";
     $ret .= "<input type='submit' name='submitpreview' value='$BML::ML{'talk.btn.preview'}' />\n";
+    $ret .= "<span id='moreoptions-container'></span>\n";
     if ($LJ::SPELLER) {
         $ret .= "<input type='checkbox' name='do_spellcheck' value='1' id='spellcheck' /> <label for='spellcheck'>$BML::ML{'talk.spellcheck'}</label>";
     }
