@@ -2,54 +2,9 @@
 layerinfo "type" = "theme";
 layerinfo "name" = "Evening";
 layerinfo redist_uniq = "patsy/evening";
-layerinfo author_name = "renoir";
+layerinfo author_name = "rising";
 
 set theme_authors = [ { "name" => "rising", "type" => "user" } ];
-
-function Page::print_theme_stylesheet() {
-"""
-    /* Evening
-    /* by rising
-    ******************************/
-
-    /* Text effects
-    ******************************/
-
-    a:hover {
-        text-decoration: underline;
-    }
-
-    blockquote {
-        background: $*color_entry_background !important;
-        border: none;
-        color: inherit;
-        font-style: normal;
-        font-size: inherit;
-        margin-top: .5em;
-        margin-bottom: .5em;
-        padding: .5em;
-    }
-
-    code {
-        font-family: 'Courier New', monospace;
-        font-size: .9em;
-    }
-    
-    /* Text placement
-    ******************************/
-
-    #primary,
-    #secondary,
-    #tertiary,
-    #comment,
-    #footer,
-    .module-content {
-        text-align: left;
-        line-height: 1.2em;
-    }
-
-""";
-}
 
 ##===============================
 ## Presentation
@@ -92,7 +47,6 @@ set color_page_link_visited = "#339690";
 set color_page_text = "#0f0f0f";
 set color_page_title = "#0f0f0f";
 
-
 ##===============================
 ## Entry Colors
 ##===============================
@@ -118,34 +72,15 @@ set font_base = "'News Gothic MT'";
 set font_base_size = "1";
 set font_base_units = "em";
 set font_comment_title = "Metamorphous";
-set font_comment_title_units = "em";
 set font_entry_title = "Metamorphous";
-set font_entry_title_units = "em";
 set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
-set font_journal_subtitle_units = "em";
 set font_journal_title = "Metamorphous";
-set font_journal_title_units = "em";
 set font_module_heading = "Metamorphous";
-set font_module_heading_units = "em";
-set font_module_text_units = "em";
 set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
-
-
-#NEWLAYER: patsy/hollowsilence
-layerinfo "type" = "theme";
-layerinfo "name" = "Hollow Silence";
-layerinfo redist_uniq = "patsy/hollowsilence";
-layerinfo author_name = "renoir";
-
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 function Page::print_theme_stylesheet() {
 """
-    /* Hollow Silence
-    /* by rising
-    ******************************/
-
     /* Text effects
     ******************************/
 
@@ -184,6 +119,15 @@ function Page::print_theme_stylesheet() {
 
 """;
 }
+
+
+#NEWLAYER: patsy/hollowsilence
+layerinfo "type" = "theme";
+layerinfo "name" = "Hollow Silence";
+layerinfo redist_uniq = "patsy/hollowsilence";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -265,18 +209,53 @@ set font_base = "'News Gothic MT'";
 set font_base_size = "1";
 set font_base_units = "em";
 set font_comment_title = "Metamorphous";
-set font_comment_title_units = "em";
 set font_entry_title = "Metamorphous";
-set font_entry_title_units = "em";
 set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
-set font_journal_subtitle_units = "em";
 set font_journal_title = "Metamorphous";
-set font_journal_title_units = "em";
 set font_module_heading = "Metamorphous";
-set font_module_heading_units = "em";
-set font_module_text_units = "em";
 set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+
+function Page::print_theme_stylesheet() {
+"""
+    /* Text effects
+    ******************************/
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    blockquote {
+        background: $*color_entry_background !important;
+        border: none;
+        color: inherit;
+        font-style: normal;
+        font-size: inherit;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+    }
+
+    code {
+        font-family: 'Courier New', monospace;
+        font-size: .9em;
+    }
+    
+    /* Text placement
+    ******************************/
+
+    #primary,
+    #secondary,
+    #tertiary,
+    #comment,
+    #footer,
+    .module-content {
+        text-align: left;
+        line-height: 1.2em;
+    }
+
+""";
+}
 
 
 #NEWLAYER: patsy/retro
@@ -333,54 +312,9 @@ set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
 layerinfo "type" = "theme";
 layerinfo "name" = "Today I'm happy";
 layerinfo redist_uniq = "patsy/todayimhappy";
-layerinfo author_name = "renoir";
+layerinfo author_name = "rising";
 
 set theme_authors = [ { "name" => "rising", "type" => "user" } ];
-
-function Page::print_theme_stylesheet() {
-"""
-    /* Today I'm happy
-    /* by rising
-    ******************************/
-
-    /* Text effects
-    ******************************/
-
-    a:hover {
-        text-decoration: underline;
-    }
-
-    blockquote {
-        background: $*color_entry_background !important;
-        border: none;
-        color: inherit;
-        font-style: normal;
-        font-size: inherit;
-        margin-top: .5em;
-        margin-bottom: .5em;
-        padding: .5em;
-    }
-
-    code {
-        font-family: 'Courier New', monospace;
-        font-size: .9em;
-    }
-    
-    /* Text placement
-    ******************************/
-
-    #primary,
-    #secondary,
-    #tertiary,
-    #comment,
-    #footer,
-    .module-content {
-        text-align: left;
-        line-height: 1.2em;
-    }
-
-""";
-}
 
 ##===============================
 ## Presentation
@@ -460,15 +394,50 @@ set font_base = "'News Gothic MT'";
 set font_base_size = "1";
 set font_base_units = "em";
 set font_comment_title = "Metamorphous";
-set font_comment_title_units = "em";
 set font_entry_title = "Metamorphous";
-set font_entry_title_units = "em";
 set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
-set font_journal_subtitle_units = "em";
 set font_journal_title = "Metamorphous";
-set font_journal_title_units = "em";
 set font_module_heading = "Metamorphous";
-set font_module_heading_units = "em";
-set font_module_text_units = "em";
 set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+
+function Page::print_theme_stylesheet() {
+"""
+    /* Text effects
+    ******************************/
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    blockquote {
+        background: $*color_entry_background !important;
+        border: none;
+        color: inherit;
+        font-style: normal;
+        font-size: inherit;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+    }
+
+    code {
+        font-family: 'Courier New', monospace;
+        font-size: .9em;
+    }
+    
+    /* Text placement
+    ******************************/
+
+    #primary,
+    #secondary,
+    #tertiary,
+    #comment,
+    #footer,
+    .module-content {
+        text-align: left;
+        line-height: 1.2em;
+    }
+
+""";
+}
