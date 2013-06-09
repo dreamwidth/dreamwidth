@@ -685,7 +685,7 @@ sub get_talk_data
     # check for data in memcache
     my $DATAVER = "3";  # single character
     my $PACK_FORMAT = "NNNNC"; ## $talkid, $parenttalkid, $poster, $time, $state
-    my $RECORD_SIZE = 17;   
+    my $RECORD_SIZE = 17;
 
     my $memkey = [$u->{'userid'}, "talk2:$u->{'userid'}:$nodetype:$nodeid"];
     my $lockkey = $memkey->[1];
@@ -4272,4 +4272,3 @@ EOM
 }
 
 1;
-
