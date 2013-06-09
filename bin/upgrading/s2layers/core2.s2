@@ -3485,16 +3485,24 @@ function Page::print_default_stylesheet()
 function Page::print_contextual_stylesheet()
 "Adds CSS for contextual popups to ensure readability. Style tags will be automatically added around it. Overriding this function is NOT RECOMMENDED. Use Page::print_default_stylesheet or print_stylesheet instead."
 {
+
+var Color background = isnull $*color_entry_background ? $*color_page_background : $*color_entry_background;
+var Color text = isnull $*color_entry_text ? $*color_page_text : $*color_entry_text;
+var Color link = isnull $*color_entry_link ? $*color_page_link : $*color_entry_link;
+var Color visited = isnull $*color_entry_link_visited ? $*color_page_link_visited : $*color_entry_link_visited;
+var Color hover = isnull $*color_entry_link_hover ? $*color_page_link_hover : $*color_entry_link_hover;
+var Color active = isnull $*color_entry_link_active ? $*color_page_link_active : $*color_entry_link_active;
+
 """
 .ContextualPopup {
-    background: $*color_page_background;
-    color: $*color_page_text;
+    background: $background;
+    color: $text;
     }
 
-.ContextualPopup a { color: $*color_page_link; }
-.ContextualPopup a:visited { color: $*color_page_link_visited; }
-.ContextualPopup a:hover { color: $*color_page_link_hover; }
-.ContextualPopup a:active { color: $*color_page_link_active; }
+.ContextualPopup a { color: $link; }
+.ContextualPopup a:visited { color: $visited; }
+.ContextualPopup a:hover { color: $hover; }
+.ContextualPopup a:active { color: $active; }
 """;
 }
 
