@@ -120,6 +120,11 @@ $clean_comment = qq{pre<b> post</b> ()};
 $clean->({ anon_comment => 1 });
 is( $orig_comment, $clean_comment, "Empty href bold escape" );
 
+# another table exploit involving a tags.
+$orig_comment  = q{<a href=mailto:blah@blah.com><table>};
+$clean_comment = q{<b></b> (mailto:blah@blah.com)};
+$clean->({ anon_comment => 1 });
+is( $orig_comment, $clean_comment, "Anonymous comment bold escape" );
 
 note( "various allowed/disallowed tags" );
 {

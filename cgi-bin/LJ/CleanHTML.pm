@@ -152,11 +152,11 @@ sub clean
     my @canonical_urls; # extracted links
     my %action = ();
     my %remove = ();
-    if (ref $opts->{'eat'} eq "ARRAY") {
-        foreach (@{$opts->{'eat'}}) { $action{$_} = "eat"; }
-    }
     if (ref $opts->{'allow'} eq "ARRAY") {
         foreach (@{$opts->{'allow'}}) { $action{$_} = "allow"; }
+    }
+    if (ref $opts->{'eat'} eq "ARRAY") {
+        foreach (@{$opts->{'eat'}}) { $action{$_} = "eat"; }
     }
     if (ref $opts->{'deny'} eq "ARRAY") {
         foreach (@{$opts->{'deny'}}) { $action{$_} = "deny"; }
@@ -1450,8 +1450,13 @@ sub clean_and_trim_subject {
     $$ref = LJ::text_trim($$ref, 0, $length, $truncated);
 }
 
+my @comment_eat = qw( head title style layer iframe applet object );
+my @comment_anon_eat = ( @comment_eat, qw(
+    table tbody thead tfoot tr td th caption colgroup col
+) );
+
 my @comment_close = qw(
-    table tr td th tbody tfoot thead colgroup caption
+    table tr td th tbody tfoot thead colgroup caption col
     a sub sup xmp bdo q span
     b i u tt s strike big small font
     abbr acronym cite code dfn em kbd samp strong var del ins
@@ -1591,7 +1596,7 @@ sub clean_comment
         'linkify' => 1,
         'wordlength' => 40,
         'addbreaks' => $opts->{preformatted} ? 0 : 1,
-        'eat' => [qw[head title style layer iframe applet object]],
+        'eat' => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
         'mode' => 'deny',
         'allow' => \@comment_all,
         'autoclose' => \@comment_close,
