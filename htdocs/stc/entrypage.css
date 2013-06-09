@@ -15,7 +15,7 @@ h3.entry-title {
     font-style: italic;
     font-weight: bold;
     margin: 10px 0;
-    display:inline;}
+    display:inline-block;}
 
 .entry .header {background:none; border:0;}
 .entry .datetime:before { content:"@ ";} /*add the talkread-style elements to the date and time*/
