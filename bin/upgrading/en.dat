@@ -645,7 +645,12 @@ Enjoy!
 [[siteroot]]/
 .
 
+
 emailpost.reply.address=Reply as [[user]]
+
+embedmedia.vimeo=Watch on Vimeo
+
+embedmedia.youtube=Watch on YouTube
 
 entryform.adultcontent=Age Restriction
 
