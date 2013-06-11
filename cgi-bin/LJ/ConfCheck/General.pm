@@ -456,14 +456,6 @@ add_conf('$FRONTPAGE_JOURNAL',
          des => "Username of journal to show on the front page (usually news)."
          );
 
-add_conf('@DINSERTD_HOSTS',
-         des => "See LJ/AccessLogSink/DInsertd.pm."
-         );
-
-add_conf('%DB_REPORT_HANDLES',
-         des => "See cgi-bin/LJ/AccessLogSink/DBIProfile.pm."
-         );
-
 add_conf('$FREECHILDREN_BCAST',
          des => "See Apache/SendStats.pm."
          );

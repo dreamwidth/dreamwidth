@@ -29,11 +29,6 @@ use LJ::S2;
 use Apache::LiveJournal::Interface::Blogger;
 use Apache::LiveJournal::PalImg;
 use LJ::ModuleCheck;
-use LJ::AccessLogSink;
-use LJ::AccessLogRecord;
-use LJ::AccessLogSink::Database;
-use LJ::AccessLogSink::DInsertd;
-use LJ::AccessLogSink::DBIProfile;
 use Compress::Zlib;
 use XMLRPC::Transport::HTTP;
 use LJ::PageStats;
@@ -95,7 +90,6 @@ sub handler
     # only perform this once in case of internal redirects
     if ($apache_r->is_initial_req) {
         $apache_r->push_handlers(PerlCleanupHandler => sub { %RQ = () });
-        $apache_r->push_handlers(PerlCleanupHandler => "Apache::LiveJournal::db_logger");
         $apache_r->push_handlers(PerlCleanupHandler => "LJ::end_request");
         $apache_r->push_handlers(PerlCleanupHandler => "Apache::DebateSuicide");
 
@@ -1707,43 +1701,6 @@ sub interface_content
     $apache_r->content_type("text/plain");
     $apache_r->print("Unknown interface.");
     return OK;
-}
-
-sub db_logger
-{
-    # FIXME: ModPerl 2.0: how to get last item, bucket brigade? ->last here bad
-    return;
-
-    my $apache_r = shift;
-    my $apache_rl = $apache_r->last;
-
-    $apache_r->pnotes->{did_lj_logging} = 1;
-
-    # these are common enough, it's worth doing it here, early, before
-    # constructing the accesslogrecord.
-    if ($LJ::DONT_LOG_IMAGES) {
-        my $uri = $apache_r->uri;
-        my $ctype = $apache_rl->content_type;
-        $ctype =~ s/;.*//;  # strip charset
-        return if $ctype =~ m!^image/!;
-        return if $uri =~ m!^/(img|userpic)/!;
-    }
-
-    my $rec = LJ::AccessLogRecord->new($apache_r);
-    my @sinks = (
-                 LJ::AccessLogSink::Database->new,
-                 LJ::AccessLogSink::DInsertd->new,
-                 LJ::AccessLogSink::DBIProfile->new,
-                 );
-
-    if (@LJ::EXTRA_ACCESS_LOG_SINKS) {
-        # will convert them to objects from class/ctor-arg arrayrefs
-        push @sinks, LJ::AccessLogSink->extra_log_sinks;
-    }
-
-    foreach my $sink (@sinks) {
-        $sink->log($rec);
-    }
 }
 
 sub mogile_fetch {

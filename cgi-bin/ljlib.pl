@@ -76,7 +76,6 @@ use TheSchwartz::Job;
 use LJ::Comment;
 use LJ::ExternalSite;
 use LJ::Message;
-use LJ::AccessLogSink;
 use LJ::ConvUTF8;
 use LJ::Userpic;
 use LJ::ModuleCheck;
