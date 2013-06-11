@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 34;
+use Test::More tests => 35;
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 
@@ -50,6 +50,9 @@ note( "youtube" );
 note( "misc" );
 {
     test_good_url( "http://8tracks.com/mixes/878698/player_v3_universal" );
+
+    test_good_url( "http://rcm.amazon.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=ksl0c-20&o=1&p=8&l=as4&m=amazon&f=ifr&ref=ss_til&asins=B0083SBJXS" );
+
     test_good_url( "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123/size=venti/bgcol=FFFFFF/linkcol=4285BB/" );
     test_good_url( "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123" );
 
@@ -90,5 +93,3 @@ note( "misc" );
 
     test_good_url( "http://www.plurk.com/getWidget?uid=123123123&h=375&w=200&u_info=2&bg=cf682f&tl=cae7fd" );
 }
-
-
