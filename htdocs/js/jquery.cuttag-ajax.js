@@ -140,7 +140,7 @@ $.widget("dw.cuttag", {
         i.attr("src",Site.imgprefix + path);
         i.attr("alt",str);
         i.attr("title",str);
-        i.attr("style","max-width: 100%; width: 0.7em; padding: 0.2em;");
+        i.attr("style","max-width: 100%; width: 1.0em; padding: 0.2em;");
     },
     handleError: function(error) {
         this._setArrow(collapse_img, this.config.text.expand);
@@ -161,7 +161,7 @@ $.widget("dw.cuttag", {
                 "class": "cuttag-action cuttag-action-after"
             });
             var img = $("<img>",{
-                style: "border: 0; max-width: 100%; width: 0.7em; padding: 0.2em;",
+                style: "border: 0; max-width: 100%; width: 1.0em; padding: 0.2em;",
                 src: Site.imgprefix + collapseend_img,
                 "aria-controls": 'div-cuttag_' + self.identifier,
                 alt: self.config.text.collapse,

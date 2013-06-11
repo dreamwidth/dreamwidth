@@ -85,6 +85,7 @@ use Getopt::Long;
 use Pod::Usage qw{pod2usage};
 use IO::Socket::INET;
 
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 
 # NOTE: these options are used both by Getopt::Long for command-line parsing

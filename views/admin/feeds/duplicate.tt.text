@@ -3,5 +3,7 @@
 
 .admin.text=Manage Duplicate Feeds
 
+.feedcount=[[count]] duplicate [[?count|feed|feeds]].
+
 .noduplicates=No duplicate feeds! Yay!
 

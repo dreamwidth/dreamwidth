@@ -152,11 +152,11 @@ sub clean
     my @canonical_urls; # extracted links
     my %action = ();
     my %remove = ();
-    if (ref $opts->{'eat'} eq "ARRAY") {
-        foreach (@{$opts->{'eat'}}) { $action{$_} = "eat"; }
-    }
     if (ref $opts->{'allow'} eq "ARRAY") {
         foreach (@{$opts->{'allow'}}) { $action{$_} = "allow"; }
+    }
+    if (ref $opts->{'eat'} eq "ARRAY") {
+        foreach (@{$opts->{'eat'}}) { $action{$_} = "eat"; }
     }
     if (ref $opts->{'deny'} eq "ARRAY") {
         foreach (@{$opts->{'deny'}}) { $action{$_} = "deny"; }
@@ -1073,6 +1073,10 @@ sub clean
 
                             # closing tag within current table
                             } elsif (@tablescope) {
+                                # If this tag was not opened inside this table, then
+                                # do not close it! (This let's the auto-closer clean
+                                # up later.)
+                                next TOKEN unless $tablescope[-1]->{$tag};
                                 $tablescope[-1]->{$tag}--;
                             }
                         }
@@ -1193,8 +1197,8 @@ sub clean
 
     # finish up open links if we're extracting them
     if ($extractlinks && @canonical_urls) {
-        while (my $url = LJ::ehtml(pop @canonical_urls)) {
-            $newdata .= "</b> ($url)";
+        foreach my $url ( @canonical_urls ) {
+            $newdata .= "</b> (" . LJ::ehtml( $url ) . ")";
             $opencount{'a'}--;
         }
     }
@@ -1446,13 +1450,18 @@ sub clean_and_trim_subject {
     $$ref = LJ::text_trim($$ref, 0, $length, $truncated);
 }
 
+my @comment_eat = qw( head title style layer iframe applet object );
+my @comment_anon_eat = ( @comment_eat, qw(
+    table tbody thead tfoot tr td th caption colgroup col
+) );
+
 my @comment_close = qw(
+    table tr td th tbody tfoot thead colgroup caption col
     a sub sup xmp bdo q span
     b i u tt s strike big small font
     abbr acronym cite code dfn em kbd samp strong var del ins
     h1 h2 h3 h4 h5 h6 div blockquote address pre center
     ul ol li dl dt dd
-    table tr td th tbody tfoot thead colgroup caption
     area map form textarea
 );
 my @comment_all = ( @comment_close, qw( img br hr p col ) );
@@ -1587,7 +1596,7 @@ sub clean_comment
         'linkify' => 1,
         'wordlength' => 40,
         'addbreaks' => $opts->{preformatted} ? 0 : 1,
-        'eat' => [qw[head title style layer iframe applet object]],
+        'eat' => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
         'mode' => 'deny',
         'allow' => \@comment_all,
         'autoclose' => \@comment_close,

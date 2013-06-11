@@ -132,6 +132,8 @@ package umover;
 use strict;
 use warnings qw{all};
 
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
+use lib "$ENV{LJHOME}/cgi-bin";
 
 ###############################################################################
 ###  I N I T I A L I Z A T I O N

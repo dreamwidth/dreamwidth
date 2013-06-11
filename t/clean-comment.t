@@ -2,7 +2,7 @@
 
 use strict;
 use Test::More;
-plan tests => 19;
+plan tests => 21;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -110,6 +110,21 @@ $clean_comment = qq{<span style="background:\\s*;\\s*"><\\/span>};
 $clean->({ anon_comment => 1 });
 ok($orig_comment =~ /^$clean_comment$/, "Background URL removed: anonymous comment");
 
+$orig_comment = qq{pre<a href="asdf"> post};
+$clean_comment = qq{pre<b> post</b> (asdf)};
+$clean->({ anon_comment => 1 });
+is( $orig_comment, $clean_comment, "Full href bold escape" );
+
+$orig_comment = qq{pre<a href=""> post};
+$clean_comment = qq{pre<b> post</b> ()};
+$clean->({ anon_comment => 1 });
+is( $orig_comment, $clean_comment, "Empty href bold escape" );
+
+# another table exploit involving a tags.
+$orig_comment  = q{<a href=mailto:blah@blah.com><table>};
+$clean_comment = q{<b></b> (mailto:blah@blah.com)};
+$clean->({ anon_comment => 1 });
+is( $orig_comment, $clean_comment, "Anonymous comment bold escape" );
 
 note( "various allowed/disallowed tags" );
 {

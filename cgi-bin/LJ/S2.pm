@@ -2273,7 +2273,7 @@ sub Page
         my $theme;
 
         if ( $style && $style->{layer}->{theme} ) {
-            $theme = LJ::S2Theme->new(themeid => $style->{layer}->{theme}, user => $u );
+            $theme = LJ::S2Theme->new(themeid => $style->{layer}->{theme}, user => $opts->{style_u} || $u );
 
             $layoutname = $theme->layout_name;
             $themename = $theme->name;
