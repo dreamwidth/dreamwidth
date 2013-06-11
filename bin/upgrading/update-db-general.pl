@@ -4154,6 +4154,7 @@ EOF
             "ADD COLUMN client VARCHAR(255), " .
             "ADD INDEX (client)"
         );
+    }
 
     # Needed to cache embed linktext to minimize external API calls
     if ( column_type( "embedcontent", "linktext" ) eq '' ) {
