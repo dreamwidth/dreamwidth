@@ -588,6 +588,11 @@ use strict;
             $body .= "<label for='del_$pid'>$ML{'.label.delete'}</label>"; 
             if ($pic->inactive) {
                 $body .= " &nbsp;<i>[$ML{'userpic.inactive'}]</i> " . LJ::help_icon('userpic_inactive');
+                # we need to indicate explicitly that this is disabled due to
+                # being inactive, in case it becomes active again between page
+                # render and page submit
+                $body .= LJ::html_hidden({ 'name' => "pic_inactive_$pid",
+                                           'value' => "1" }) . "\n";
             }
             $body .= "</div>";
             $body .= "</div>";
@@ -661,7 +666,7 @@ sub update_userpics
         }
         
         # we're only going to modify keywords/comments on active pictures
-        if ($up->inactive) {
+        if ($up->inactive || $POST{"pic_inactive_$picid"}) {
             # use 'orig' because we don't POST disabled fields
             $count_keywords->($POST{"kw_orig_$picid"});
             next;
