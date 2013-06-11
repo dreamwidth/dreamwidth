@@ -46,7 +46,6 @@ BEGIN {
 }
 
 my %RQ;       # per-request data
-my %USERPIC;  # conf related to userpics
 my %REDIR;
 my ( $TOR_UPDATE_TIME, %TOR_EXITS );
 
@@ -58,10 +57,6 @@ my %MimeTypeMapd6 = (
     'J' => 'jpg',
     'P' => 'png',
 );
-
-$USERPIC{'cache_dir'} = "$LJ::HOME/htdocs/userpics";
-$USERPIC{'use_disk_cache'} = -d $USERPIC{'cache_dir'};
-$USERPIC{'symlink'} = eval { symlink('',''); 1; };
 
 # redirect data.
 foreach my $file ('redirect.dat', 'redirect-local.dat') {
@@ -1099,32 +1094,6 @@ sub userpic_trans
     $RQ{'picid'} = $picid;
     $RQ{'pic-userid'} = $userid;
 
-    if ($USERPIC{'use_disk_cache'}) {
-        my @dirs_make;
-        my $file;
-
-        if ($picid =~ /^\d*(\d\d)(\d\d\d)$/) {
-            push @dirs_make, ("$USERPIC{'cache_dir'}/$2",
-                              "$USERPIC{'cache_dir'}/$2/$1");
-            $file = "$USERPIC{'cache_dir'}/$2/$1/$picid-$userid";
-        } else {
-            my $mod = sprintf("%03d", $picid % 1000);
-            push @dirs_make, "$USERPIC{'cache_dir'}/$mod";
-            $file = "$USERPIC{'cache_dir'}/$mod/p$picid-$userid";
-        }
-
-        foreach (@dirs_make) {
-            next if -d $_;
-            mkdir $_, 0777;
-        }
-
-        # set both, so we can compared later if they're the same,
-        # and thus know if directories were created (if not,
-        # apache will give us a pathinfo)
-        $RQ{'userpicfile'} = $file;
-        $apache_r->filename($file);
-    }
-
     $apache_r->handler("perl-script");
     $apache_r->push_handlers(PerlResponseHandler => \&userpic_content);
     return OK;
@@ -1138,12 +1107,7 @@ sub userpic_content
     my $picid = $RQ{'picid'};
     my $userid = $RQ{'pic-userid'}+0;
 
-    # will we try to use disk cache?
-    my $disk_cache = $USERPIC{'use_disk_cache'} &&
-        $file eq $RQ{'userpicfile'};
-
     my ($data, $lastmod);
-    my $need_cache;
 
     my $mime = "image/jpeg";
     my $set_mime = sub {
@@ -1180,26 +1144,6 @@ sub userpic_content
         return OK;
     }
 
-    # try to get it from disk if in disk-cache mode
-    if ($disk_cache) {
-        if (-s $apache_r->finfo) {
-            die "Reimplement me please.\n";
-#            $lastmod = (stat _)[9];
-#            $size = -s _;
-#            my $fh = Apache::File->new($file);
-#            my $magic;
-#            read($fh, $magic, 4);
-#            $set_mime->($magic);
-#            $send_headers->();
-#            $apache_r->print($magic);
-#            $apache_r->send_fd($fh);
-#            $fh->close();
-#            return OK;
-        } else {
-            $need_cache = 1;
-        }
-    }
-
     # else, get it from db.
     unless ($data) {
         $lastmod = $pic->pictime;
@@ -1211,26 +1155,6 @@ sub userpic_content
     }
 
     return NOT_FOUND unless $data;
-
-    if ($need_cache) {
-        # make $realfile /userpic-userid, and $file /userpic
-        my $realfile = $file;
-        unless ($file =~ s/-\d+$//) {
-            $realfile .= "-$userid";
-        }
-
-        # delete short file on Unix if it exists
-        unlink $file if $USERPIC{'symlink'} && -f $file;
-
-        # write real file.
-        open (F, ">$realfile"); print F $data; close F;
-
-        # make symlink, or duplicate file (if on Windows)
-        my $symtarget = $realfile;  $symtarget =~ s!.+/!!;
-        unless (eval { symlink($symtarget, $file) }) {
-            open (F, ">$file"); print F $data; close F;
-        }
-    }
 
     $set_mime->($data);
     $size = length($data);
