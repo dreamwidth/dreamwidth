@@ -188,10 +188,6 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
             <fieldset>
                 <legend></legend>
 
-                <!-- FIXME: TODO
-                <div class="permalink unimplemented">permalink: <span class="url">http://long-username-is-long.dreamwidth.org/12345.html</span></div>
-                -->
-
                 <!-- TODO make this only take up one tab area? -->
                 <div class="toolbar">
                     <div id="main-tools" class='subtoolbar'>
