@@ -241,7 +241,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{<site-embed id="1"><object width="80%" height="200"></object></site-embed>},
             qq{<site-embed id="1"/>},
             qq{<site-embed id="1"><object width="80%" height="200"></object></site-embed>},
-            qr{width="80%" height="250"},
+            qr{width="80%" height="200"},
             qq{<object width="80%" height="200"></object>},
         ],
 
