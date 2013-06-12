@@ -2,7 +2,7 @@
 
 use strict;
 use Test::More;
-plan tests => 21;
+plan tests => 22;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
