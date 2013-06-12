@@ -241,7 +241,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{<site-embed id="1"><object width="80%" height="200"></object></site-embed>},
             qq{<site-embed id="1"/>},
             qq{<site-embed id="1"><object width="80%" height="200"></object></site-embed>},
-            qr{width="80%" height="250"},
+            qr{width="80%" height="200"},
             qq{<object width="80%" height="200"></object>},
         ],
 
@@ -320,7 +320,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{foo <site-embed id="1"/>baz},
             qq{foo <site-embed id="1"><iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe></site-embed>baz},
             # site-embed iframe
-            qr{foo ${iframe}baz},
+            qr{foo <iframe ([^>]+)></iframe><div><a href="https://www.youtube.com/watch\?v=ABC123abc_-">(?:[^<]+)</a></div>\s*baz},
             # ...which contains the nested iframe with a URL from a trusted source
             qq{<iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>},
         ],
@@ -332,7 +332,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{foo <site-embed id="1"/> baz},
             qq{foo <site-embed id="1"><iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe></site-embed> baz},
             # site-embed iframe
-            qr{foo $iframe baz},
+            qr{foo <iframe ([^>]+)></iframe><div><a href="https://www.youtube.com/watch\?v=ABC123abc_-">(?:[^<]+)</a></div>\s*baz},
             # ...which contains the nested iframe with a URL from a trusted source
             qq{<iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>},
         ],

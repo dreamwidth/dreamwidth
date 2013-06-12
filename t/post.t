@@ -259,6 +259,7 @@ my $postdata = {
 my $postdecoded_bare = {
     event   => $postdata->{event},
     subject => undef,
+    slug    => '',
 
     security    => 'public',
     allowmask   => 0,
