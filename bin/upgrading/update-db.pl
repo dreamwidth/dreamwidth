@@ -270,8 +270,6 @@ sub populate_s2 {
     # S2
     print "Populating public system styles (S2):\n";
     {
-        my $LD_NAME = "s2layers"; # layers dir
-
         my $sysid = $su->{'userid'};
 
         # find existing re-distributed layers that are in the database
@@ -279,7 +277,7 @@ sub populate_s2 {
         my $existing = LJ::S2::get_public_layers({ force => 1 }, $sysid);
 
         my %known_id;
-        chdir "$ENV{'LJHOME'}/bin/upgrading" or die;
+        chdir "$ENV{'LJHOME'}/bin/" or die;
         my %layer;    # maps redist_uniq -> { 'type', 'parent' (uniq), 'id' (s2lid) }
 
         my $has_new_layer = 0;
@@ -386,13 +384,13 @@ sub populate_s2 {
             exit;
         };
 
-        my @layerfiles = LJ::get_all_files("bin/upgrading/s2layers.dat", home_first => 1);
+        my @layerfiles = LJ::get_all_files("bin/styles/s2layers.dat", home_first => 1);
         while (@layerfiles)
         {
             my $file = abs_path( shift @layerfiles );
             next unless -e $file;
             open (SL, $file) or die;
-            my $LD = dirname( $file ) . "/$LD_NAME";
+            my $LD = dirname( $file );
             my $d_file = $file;
             my $d_LD = $LD;
 
