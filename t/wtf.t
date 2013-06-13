@@ -1,13 +1,26 @@
-#!/usr/bin/perl
+# t/wtf.t
+#
+# Test TODO WTF system - what aspects?
+#
+# Authors:
+#      Jen Griffin <kareila@livejournal.com>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
-use Test::More;
+use warnings;
+
+use Test::More tests => 67;
+
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use LJ::Community;
 use LJ::Test qw (temp_user temp_comm);
-
-plan tests => 67;
 
 my $u1 = temp_user();
 my $u2 = temp_user();

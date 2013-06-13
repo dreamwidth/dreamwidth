@@ -1,13 +1,26 @@
-#!/usr/bin/perl
+# t/TODO.t
+#
+# Test TODO
+#
+# Authors:
+#      Jen Griffin <kareila@livejournal.com>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
-use Test::More;
+use warnings;
+
+use Test::More tests => 8;
+
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use DW::Pay;
 use LJ::Test qw (temp_user);
-
-plan tests => 8;
 
 my $u1 = temp_user();
 my $paidmos = 0;

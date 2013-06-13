@@ -1,8 +1,22 @@
-# -*-perl-*-
+# t/template-plugin-formhtml.t
+#
+# Test DW::Template::Plugin::FormHTML.
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
 use warnings;
-use Test::More;
+
+use Test::More tests => 7;
+
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 
@@ -173,5 +187,3 @@ is_deeply( \@options, [
 ] );
 
 }
-
-done_testing();

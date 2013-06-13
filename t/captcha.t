@@ -1,7 +1,23 @@
-# -*-perl-*-
+# t/captcha.t
+#
+# Test DW::Captcha
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#      Jen Griffin <kareila@livejournal.com>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
-use Test::More;
+use warnings;
+
+use Test::More tests => TODO;
+
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 
