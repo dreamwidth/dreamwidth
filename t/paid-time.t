@@ -1,6 +1,6 @@
-# t/TODO.t
+# t/paid-time.t
 #
-# Test TODO
+# Test DW::Pay::add_paid_time.
 #
 # Authors:
 #      Jen Griffin <kareila@livejournal.com>

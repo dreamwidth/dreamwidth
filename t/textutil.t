@@ -1,12 +1,25 @@
-# -*-perl-*-
+# t/textutil.t
+#
+# Test LJ::TextUtil.
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#      Aaron Isaac <wyntarvox@dreamwidth.org>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
-use Test::More;
+use warnings;
+
+use Test::More tests => 22;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::TextUtil;
-
-plan tests => 22;
 
 note("html breaks");
 ok(   LJ::has_too_many( "abcdn<br />" x 1, linebreaks => 0 ), "0 max, 1 break" );

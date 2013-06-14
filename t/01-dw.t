@@ -1,3 +1,4 @@
+# t/01-dw.t
 #
 # Test to make sure the DW->home directory exists
 #

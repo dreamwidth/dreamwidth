@@ -1,4 +1,4 @@
-# t/routing-formats.t
+# t/routing-indexes.t
 #
 # Routing tests: /index pages
 #

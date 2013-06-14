@@ -1,7 +1,24 @@
-# -*-perl-*-
+# t/clean-event.t
+#
+# Test LJ::CleanHTML::clean_event.
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#      Mark Smith <mark@dwscoalition.org>
+#      Allen Petersen <allen@suberic.net>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
-use Test::More 'no_plan';
+use warnings;
+
+use Test::More tests => 41;
+
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use LJ::CleanHTML;
