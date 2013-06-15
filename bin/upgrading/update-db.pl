@@ -277,7 +277,7 @@ sub populate_s2 {
         my $existing = LJ::S2::get_public_layers({ force => 1 }, $sysid);
 
         my %known_id;
-        chdir "$ENV{'LJHOME'}/bin/" or die;
+        chdir "$ENV{'LJHOME'}/" or die;
         my %layer;    # maps redist_uniq -> { 'type', 'parent' (uniq), 'id' (s2lid) }
 
         my $has_new_layer = 0;
@@ -384,7 +384,7 @@ sub populate_s2 {
             exit;
         };
 
-        my @layerfiles = LJ::get_all_files("bin/styles/s2layers.dat", home_first => 1);
+        my @layerfiles = LJ::get_all_files("styles/s2layers.dat", home_first => 1);
         while (@layerfiles)
         {
             my $file = abs_path( shift @layerfiles );
