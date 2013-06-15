@@ -1,6 +1,4 @@
-#!/usr/bin/perl
-#
-# t/routing-formats.t
+# t/routing-indexes.t
 #
 # Routing tests: /index pages
 #
@@ -14,6 +12,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 use strict;
+use warnings;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 use DW::Routing::Test tests => 6;

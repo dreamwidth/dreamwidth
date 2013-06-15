@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-#
 # t/routing-errors.t
 #
 # Routing tests: Error pages
@@ -14,6 +12,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 use strict;
+use warnings;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 use DW::Routing::Test tests => 4;
