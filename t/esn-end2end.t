@@ -1,15 +1,32 @@
-# -*-perl-*-
+# t/est-end2end.t
+#
+# Test ESN system end to end TODO?
+#
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
-use Test::More;
+use warnings;
+
+use Test::More tests => 12;
+
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use LJ::Protocol;
 use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);
-
-plan tests => 12;
 
 unless ( LJ::is_enabled('esn') ) {
     plan skip_all => "ESN is disabled: set $LJ::DISABLED{esn}=0 to run this test.";

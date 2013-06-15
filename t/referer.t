@@ -1,12 +1,25 @@
-# -*-perl-*-
+# t/referer.t
+#
+# Test LJ::check_referer.
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
-use Test::More;
+use warnings;
+
+use Test::More tests => 25;
+
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use LJ::Web;
-
-plan tests => 25;
 
 {
     note( '$LJ::SITEROOT not set up. Setting up for the test.' ) unless $LJ::SITEROOT;

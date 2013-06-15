@@ -1,8 +1,22 @@
-# -*-perl-*-
+# t/clean-comment.t
+#
+# Test LJ::CleanHTML::clean_comment.
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#      Jen Griffin <kareila@livejournal.com>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
-use Test::More;
-plan tests => 22;
+use warnings;
+
+use Test::More tests => 22;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
