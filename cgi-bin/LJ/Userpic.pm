@@ -1065,7 +1065,8 @@ sub set_keywords {
 
     my $u = $self->owner;
     my $have_mapid = $u->userpic_have_mapid;
-
+    warn($have_mapid);
+    warn("a");
     my $sth;
     my $dbh;
 
@@ -1258,8 +1259,9 @@ sub set_and_rename_keywords {
                             undef, $u->get_keyword_id( $newkw ), $u->get_keyword_id( $origkw ), $u->id );
                     die $u->errstr if $u->err;
                 } else {
-                    $u->do( "REPLACE INTO userpicmap3 (userid, kwid, picid) VALUES (?, ?, ?)",
-                            undef, $u->id, $u->get_keyword_id( $newkw ), $self->picid );
+                    my $new_mapid = LJ::alloc_user_counter( $u, 'Y' );
+                    $u->do( "INSERT INTO userpicmap3 SET mapid = ?, kwid = ?, userid = ?, picid = ?",
+                            undef, $new_mapid, $u->get_keyword_id( $newkw ), $u->id, $self->picid );
                     die $u->errstr if $u->err;
                 }
             }
