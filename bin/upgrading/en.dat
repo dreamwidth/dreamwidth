@@ -5396,6 +5396,8 @@ xpost.redirect=<span style="font-size: smaller;">This entry was originally poste
 
 xpost.redirect.comment=<span style="font-size: smaller;">This entry was originally posted at <a href = "[[postlink]]">[[postlink]]</a>. Please comment there using OpenID.</span>
 
+xpost.redirect.comment2=<span style="font-size: smaller;">This entry was originally posted at <a href = "[[postlink]]">[[postlink]]</a>. Please comment there using <a href="[[siteroot]]/openid/">OpenID</a>.</span>
+
 xpost.request.failed=Failed to crosspost to [[account]].  You may go <a href = "[[editurl]]">here</a> to attempt to crosspost this entry again.
 
 xpost.request.success2=Crosspost requested to [[account]].  You will be notified in your [[sitenameshort]] Inbox when this attempt has completed.
