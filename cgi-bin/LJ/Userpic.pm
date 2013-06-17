@@ -1065,8 +1065,7 @@ sub set_keywords {
 
     my $u = $self->owner;
     my $have_mapid = $u->userpic_have_mapid;
-    warn($have_mapid);
-    warn("a");
+
     my $sth;
     my $dbh;
 
