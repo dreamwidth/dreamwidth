@@ -196,9 +196,20 @@ sub new_from_item_hash {
 sub new_from_url {
     my ($class, $url) = @_;
 
-    if ($url =~ m!(.+)/(\d+)\.html!) {
+    if ($url =~ m!^(.+)/(\d+)\.html$!) {
         my $u = LJ::User->new_from_url($1) or return undef;
         return LJ::Entry->new($u, ditemid => $2);
+    } elsif ( $url =~ m!^(.+)/(\d\d\d\d/\d\d/\d\d)/([a-z0-9_-]+)\.html$! ) {
+        my $u = LJ::User->new_from_url( $1 ) or return undef;
+
+        # This hack validates that the YYYY/MM/DD given to us is correct.
+        my $date = $2;
+        my $ljentry = LJ::Entry->new( $u, slug => $3 );
+        if ( defined $ljentry ) {
+            my $dt = join( '/', split( '-', substr( $ljentry->eventtime_mysql, 0, 10 ) ) );
+            return undef unless $dt eq $date;
+            return $ljentry;
+        }
     }
 
     return undef;
