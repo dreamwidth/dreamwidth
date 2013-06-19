@@ -55,6 +55,16 @@
             delete $val->{security};
             delete $val->{display};
         }
+        
+    # get the list of members of an access filter
+    } elsif ( $mode eq 'list_filter_members' ) {
+        my $filterid = $GET{filterid};
+        $ret{filter_members}->{filterusers} = $u->trust_group_members(id=>$filterid);
+        $ret{filter_members}->{filtername} = $u->trust_groups(id=>$filterid);
+        my $uobjs = LJ::load_userids( keys %{ $ret{filter_members}->{filterusers} } );
+        foreach my $userid (keys %$uobjs) {
+            $ret{filter_members}->{filterusers}->{$userid}->{fancy_username} = $uobjs->{$userid}->ljuser_display;
+        }
 
     # problems
     } else {

@@ -297,12 +297,16 @@ init: function(formData) {
     // access
     function initAccess() {
         $("#custom_access_groups").hide();
+        $("#custom_access_group_members").hide();
+
+        var rememberInitialValue = !formData.did_spellcheck;
         $("#security").change( function(e, init) {
             var $this = $(this);
             if ( $this.val() == "custom" )
                 $("#custom_access_groups").slideDown();
             else
                 $("#custom_access_groups").slideUp();
+                $("#custom_access_group_members").hide();
 
             if ( ! init ) {
                 $this.data("lastselected",$this.val())
@@ -373,7 +377,32 @@ init: function(formData) {
                 $.getJSON( Site.siteroot + "/tools/endpoints/getsecurityoptions",
                     { "user": journal.name }, adjustSecurityDropdown);
             }
+            $(this).data("journal",journal.name);
           }
+        });
+
+        $("#custom_access_groups input[name=custom_bit]").click(function(e) {
+            var members_data = []
+            $(this).parent().parent().find(":checkbox").each(function() {
+                if (this.checked) {
+                    $.ajax("/__rpc_general?mode=list_filter_members&user=" + $("#post_entry").data("journal") + "&filterid=" + this.value, { dataType: "json", async: false }).success(function(data) {
+                        for ( member in data.filter_members.filterusers) {
+                            var the_name = data.filter_members.filterusers[member].fancy_username;
+                            var position = members_data.indexOf(the_name);
+                            if( position == -1) {
+                                members_data.push(the_name);
+                            }
+                        }
+                    });
+                }
+            });
+
+            var members_data_list = "<div id=\"custom_access_group_members_body\">";
+            for (member in members_data) {
+                members_data_list = members_data_list + "<li>" + members_data[member] + "</li>";
+            }
+            $("#custom_access_group_members_body").replaceWith(members_data_list+"</div>");
+            $("#custom_access_group_members").slideDown();
         });
     }
 

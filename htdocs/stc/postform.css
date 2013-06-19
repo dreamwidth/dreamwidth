@@ -337,6 +337,16 @@ ul.icon-functions li {
   margin-bottom:.3em;
 }
 
+#custom_access_group_members {
+  clear: left;
+}
+
+#custom_access_group_members_body li {
+  float:left;
+  width:50%;
+  margin-bottom:.3em;
+}
+
 /* Publishing */
 #post_as fieldset legend {
   float: left;
