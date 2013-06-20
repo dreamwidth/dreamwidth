@@ -20,12 +20,15 @@ use strict;
 use warnings;
 use DW::Routing;
 use DW::Request;
-
 use DW::Controller;
 
-DW::Routing->register_regex( qr|^/file/(\d+)$|, \&media_handler, user => 1, formats => 1 );
-DW::Routing->register_string( '/file/list', \&media_manage_handler, app => 1 );
+my %VALID_SIZES = ( map { $_ => 1 } ( 320, 200, 640, 480, 1024, 768, 1280,
+            800, 600, 720, 1600, 1200 ) );
 
+DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler, user => 1, formats => 1 );
+DW::Routing->register_regex( qr!^/file/(\d+x\d+|full)(/\w:[\d\w]+)*/(\d+)$!,
+        \&media_handler, user => 1, formats => 1 );
+DW::Routing->register_string( '/file/list', \&media_manage_handler, app => 1 );
 DW::Routing->register_string( '/file/edit', \&media_bulkedit_handler, app => 1 );
 
 sub media_manage_handler {
@@ -99,21 +102,47 @@ sub media_handler {
        return $r->OK;
     };
 
-    # get the media id
-    my ( $id, $ext ) = ( $opts->subpatterns->[0], $opts->{format} );
-    $error_out->( 404, 'Not found' )
+    # Old format or new format detection
+    my ( $size, $extra, $id ) = @{$opts->subpatterns};
+    my ( $width, $height );
+    if ( $size =~ /^(\d+)x(\d+)$/ ) {
+        ( $width, $height ) = ( $1, $2 );
+    } elsif ( $size eq 'full' ) {
+        # Do nothing, leave width/height undef
+    } elsif ( $size =~ /^\d+$/ ) {
+        # Should be old style format, so let's assume
+        ( $id, $size, $extra ) = ( $size + 0, undef, undef );
+    } else {
+        return $error_out->( 404, 'Not found' );
+    }
+
+    # Ensure if a width or height are given, BOTH are given
+    return $error_out->( 404, 'Not found' )
+        if defined $width xor defined $height;
+
+    # Constrain widths and heights to certain valid sets
+    if ( defined $width ) {
+        return $error_out->( 404, 'Not found' )
+            unless exists $VALID_SIZES{$width} &&
+                   exists $VALID_SIZES{$height};
+    }
+
+    # Finalize id and extension checking
+    my $ext = $opts->{format};
+    return $error_out->( 404, 'Not found' )
         unless $id && $ext;
     my $anum = $id % 256;
     $id = ($id - $anum) / 256;
 
     # Load the account or error
-    return $error_out->(404, 'Need account name as user parameter')
+    return $error_out->( 404, 'Need account name as user parameter' )
         unless $opts->username;
     my $u = LJ::load_user_or_identity( $opts->username )
         or return $error_out->( 404, 'Invalid account' );
 
     # try to get the media object
-    my $obj = DW::Media->new( user => $u, mediaid => $id )
+    my $obj = DW::Media->new( user => $u, mediaid => $id,
+            width => $width, height => $height )
         or return $error_out->( 404, 'Not found' );
     return $error_out->( 404, 'Not found' )
         unless $obj->is_active && $obj->anum == $anum && $obj->ext eq $ext;

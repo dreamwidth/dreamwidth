@@ -3147,6 +3147,29 @@ CREATE TABLE `media` (
 )
 EOC
 
+# versionid = is a mediaid, same numberspace
+register_tablecreate("media_versions", <<'EOC');
+CREATE TABLE `media_versions` (
+  `userid` int(10) unsigned NOT NULL,
+  `mediaid` int(10) unsigned NOT NULL,
+  `versionid` int(10) unsigned NOT NULL,
+  `width` smallint(5) unsigned NOT NULL,
+  `height` smallint(5) unsigned NOT NULL,
+  `filesize` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`userid`,`mediaid`,`versionid`)
+)
+EOC
+
+register_tablecreate("media_props", <<'EOC');
+CREATE TABLE `media_props` (
+  `userid` int(10) unsigned NOT NULL,
+  `mediaid` int(10) unsigned NOT NULL,
+  `propid` tinyint(3) unsigned NOT NULL,
+  `value` MEDIUMBLOB NOT NULL,
+  PRIMARY KEY (`userid`, `mediaid`, `propid`)
+)
+EOC
+
 register_tablecreate("collections", <<'EOC');
 CREATE TABLE `collections` (
   `userid` int(10) unsigned NOT NULL,
