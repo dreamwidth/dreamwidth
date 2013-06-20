@@ -23,6 +23,7 @@ package DW::Media;
 use strict;
 use Carp qw/ croak confess /;
 use File::Type;
+use Image::Size;
 
 use DW::Media::Photo;
 
@@ -41,8 +42,28 @@ sub new {
     );
     return if $opts{user}->err || ! $hr;
 
-    return DW::Media::Photo->new_from_row( %$hr )
-        if $hr->{mediatype} == TYPE_PHOTO;
+    # Calculate displayid here so it ends up in the object early.
+    $hr->{displayid} = $hr->{mediaid} * 256 + $hr->{anum};
+
+    # Set version to the original, since we always load that by default.
+    $hr->{versionid} = $hr->{mediaid};
+
+    # Metadata information, including height and width for a given image and
+    # all of the alternates we have.
+    my $vers = $opts{user}->selectall_hashref(
+        q{SELECT versionid, height, width, filesize
+          FROM media_versions WHERE userid = ? AND mediaid = ?},
+        'versionid', undef, $opts{user}->id, $opts{mediaid}
+    );
+    return if $opts{user}->err || ! $vers;
+
+    # Photo types can be instantiated and also support height and width.
+    if ( $hr->{mediatype} == TYPE_PHOTO ) {
+        my $self = DW::Media::Photo->new_from_row( %$hr, versions => $vers,
+                height => $opts{height}, width => $opts{width} )
+            or croak 'Failed to construct a photo object.';
+        return $self;
+    }
 
     croak 'Got an invalid row, or a type we do not support yet.';
 }
@@ -65,6 +86,7 @@ sub upload_media {
         { local $/ = undef; $opts{data} = <FILE>; }
         close FILE;
     }
+    my $size = length $opts{data};
 
     # if no data then die
     croak 'Found no data to store.' unless $opts{data};
@@ -77,6 +99,11 @@ sub upload_media {
     my ( $type, $ext ) = DW::Media->get_upload_type( $mime );
     croak 'Sorry, that file type is not currently allowed.'
         unless $type && $ext;
+
+    # Now get the size information for this file, and fail if we can't
+    my ( $width, $height ) = Image::Size::imgsize( \$opts{data} );
+    croak 'Sorry, unable to get the image size.'
+        unless defined $width && $width > 0 && defined $height && $height > 0;
 
     # set the security
     my $sec = $opts{security} || 'public';
@@ -91,9 +118,17 @@ sub upload_media {
         q{INSERT INTO media (userid, mediaid, anum, ext, state, mediatype, security, allowmask,
             logtime, mimetype, filesize) VALUES (?, ?, ?, ?, 'A', ?, ?, ?, UNIX_TIMESTAMP(), ?, ?)},
         undef, $opts{user}->id, $id, int(rand(256)), $ext, $type, $sec, $opts{allowmask},
-        $mime, length $opts{data}
+        $mime, $size
     );
     croak "Failed to insert media row: " . $opts{user}->errstr . "."
+        if $opts{user}->err;
+
+    $opts{user}->do(
+        q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesize)
+          VALUES (?, ?, ?, ?, ?, ?)},
+        undef, $opts{user}->id, $id, $id, $width, $height, $size
+    );
+    croak "Failed to insert version row: " . $opts{user}->errstr . "."
         if $opts{user}->err;
 
     # now get this back as an object

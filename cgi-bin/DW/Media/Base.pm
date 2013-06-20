@@ -21,14 +21,7 @@ use strict;
 use Carp qw/ croak confess /;
 
 sub new_from_row {
-    my ( $class, %opts ) = @_;
-
-    # if the class is base, intuit something...
-    confess 'Please do not build the base class.'
-        if $class eq 'DW::Media::Base';
-
-    # simply bless and return then, we don't do anything smart here yet
-    return bless \%opts, $class;
+    croak "Children must override this method.";
 }
 
 # accessors for our internal data
@@ -36,31 +29,39 @@ sub u { LJ::load_userid( $_[0]->{userid} ) }
 sub userid { $_[0]->{userid} }
 sub id { $_[0]->{mediaid} }
 sub anum { $_[0]->{anum} }
-sub displayid { $_[0]->{mediaid} * 256 + $_[0]->{anum} }
+sub displayid { $_[0]->{displayid} }
 sub state { $_[0]->{state} }
 sub mediatype { $_[0]->{mediatype} }
 sub security { $_[0]->{security} }
 sub allowmask { $_[0]->{allowmask} }
 sub logtime { $_[0]->{logtime} }
 sub mimetype { $_[0]->{mimetype} }
-sub size { $_[0]->{filesize} }
-sub mogkey { "media:$_[0]->{userid}:$_[0]->{mediaid}" }
+sub mogkey { "media:$_[0]->{userid}:$_[0]->{versionid}" }
 sub ext { $_[0]->{ext} }
 
+# These change depending on the version we're showing.
+sub versionid { $_[0]->{versionid} }
+sub size { $_[0]->{filesize} }
+sub width { $_[0]->{width} }
+sub height { $_[0]->{height} }
+
 # helper state subs
-sub is_active { $_[0]->state eq 'A' }
-sub is_deleted { $_[0]->state eq 'D' }
+sub is_active { $_[0]->{state} eq 'A' }
+sub is_deleted { $_[0]->{state} eq 'D' }
 
 # construct a URL for this resource
 sub url {
-    my ( $self, $extra ) = ( $_[0], '' );
-    if ( $_[1] && ref $_[1] eq 'HASH' ) {
-        # If either width or height is specified, add the extra output
-        my ( $w, $h ) = ( $_[1]->{width}||'', $_[1]->{height}||'' );
-        $extra = $w . 'x' . $h . '/'
-            if $w || $h;
+    my $self = $_[0];
+
+    # If we're using a version (versionid defined) then we want to insert the
+    # width and height to the URL.
+    my $extra = '';
+    if ( $self->{mediaid} != $self->{versionid} ) {
+        $extra = $self->{width} . 'x' . $self->{height} . '/';
     }
-    return $self->u->journal_base . '/file/' . $extra . $self->displayid . '.' . $self->ext;
+
+    return $self->u->journal_base . '/file/' . $extra . $self->{displayid} .
+        '.' . $self->{ext};
 }
 
 # if user can see this
