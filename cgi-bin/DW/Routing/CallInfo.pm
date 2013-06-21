@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2012 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -126,9 +126,17 @@ sub method_valid {
     return $methods->{$_[1]} || 0;
 }
 
+=head2 C<< $self->apiver >>
+
+Returns the API version requested.
+
+=cut
+
+sub apiver { return $_[0]->{apiver}; }
+
 =head2 C<< $self->role >>
 
-Current mode: 'app' or 'user' or 'ssl'
+Current mode: 'app' or 'user' or 'ssl' or 'api'
 
 =cut
 
@@ -176,7 +184,7 @@ sub username { return $_[0]->{username}; }
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

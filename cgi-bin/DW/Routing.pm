@@ -8,12 +8,13 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2012 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
+
 package DW::Routing;
 use strict;
 
@@ -36,18 +37,19 @@ our %regex_choices = (
     app  => [],
     user => []
 );
+our %api_endpoints; # ver => { string => hash }
 
 our $T_TESTING_ERRORS;
 
 my $default_content_types = {
-    'html' => "text/html; charset=utf-8",
-    'json' => "application/json; charset=utf-8",
-    'plain' => "text/plain; charset=utf-8",
-    'png' => "image/png",
-    'atom' => "application/atom+xml; charset=utf-8",
+    atom  => 'application/atom+xml; charset=utf-8',
+    html  => 'text/html; charset=utf-8',
+    json  => 'application/json; charset=utf-8',
+    plain => 'text/plain; charset=utf-8',
+    png   => 'image/png',
 };
 
-LJ::ModuleLoader->require_subclasses( "DW::Controller" )
+LJ::ModuleLoader->require_subclasses( 'DW::Controller' )
     unless $DW::Routing::DONT_LOAD;  # for testing
 
 =head1 NAME
@@ -75,7 +77,7 @@ This method should be directly returned by the caller if defined.
 
 sub call {
     my $class = shift;
-    my $call_opts = $class->get_call_opts(@_);
+    my $call_opts = $class->get_call_opts( @_ );
 
     return $class->call_hash( $call_opts ) if defined $call_opts;
     return undef;
@@ -102,10 +104,19 @@ sub get_call_opts {
     my ( $class, %opts ) = @_;
     my $r = DW::Request->get;
 
-    my $uri = $opts{uri} ||  $r->uri;
+    my $uri = $opts{uri} || $r->uri;
     my $format = undef;
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
+
+    # Role determination: if the URL starts with '/api/vX' then it's an API
+    # call, and we should extract that information for our call options.
+    if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
+        $opts{role}   = 'api';
+        $opts{apiver} = $1 + 0;
+        $format = 'json';
+        $uri = $2;
+    }
 
     # add more data to the options hash, we'll need it
     $opts{role} ||= $opts{username} ? 'user' : 'app';
@@ -116,11 +127,18 @@ sub get_call_opts {
     # us accessors.
     my $call_opts = DW::Routing::CallInfo->new( \%opts );
 
-    my $hash;
-    my $role = $call_opts->role;
+    # APIs are versioned, so we only want to check for endpoints that match
+    # the version the user is requesting.
+    if ( $call_opts->role eq 'api' ) {
+        return unless exists $api_endpoints{$call_opts->apiver};
+        my $hash = $api_endpoints{$call_opts->apiver}->{$uri}
+            or return;
+        $call_opts->init_call_opts( $hash );
+        return $call_opts;
+    }
 
     # try the string options first as they're fast
-    $hash = $string_choices{$role . $uri};
+    my $hash = $string_choices{$call_opts->role . $uri};
     if ( defined $hash ) {
         $call_opts->init_call_opts( $hash );
         return $call_opts;
@@ -154,7 +172,7 @@ sub call_hash {
     my $hash = $opts->call_opts;
     return undef unless $hash && $hash->{sub};
 
-    $r->pnote(routing_opts => $opts);
+    $r->pnote( routing_opts => $opts );
     return $r->call_response_handler( \&_call_hash );
 }
 
@@ -170,18 +188,18 @@ sub _call_hash {
     my $method = uc( $r->method );
     return $r->HTTP_METHOD_NOT_ALLOWED unless $opts->method_valid( $method );
 
-    my $format = $opts->format;
     # check for format validity
     return $r->NOT_FOUND unless $opts->format_valid;
 
     # prefer SSL if wanted and possible
     #  cannot do SSL on userspace, cannot do SSL if it's not set up
     #  cannot do the redirect safely for non-GET/HEAD requests.
-    return $r->redirect( LJ::create_url($r->uri, keep_args => 1, ssl => 1) )
+    return $r->redirect( LJ::create_url( $r->uri, keep_args => 1, ssl => 1 ) )
         if $opts->prefer_ssl && $LJ::USE_SSL && $opts->role eq 'app' &&
             ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
     # apply default content type if it exists
+    my $format = $opts->format;
     $r->content_type( $default_content_types->{$format} )
         if $default_content_types->{$format};
 
@@ -213,7 +231,7 @@ sub _call_hash {
         $text = "$msg" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
 
         $r->status( 500 );
-        $r->print(to_json( { error => $text } ));
+        $r->print(to_json( { success => 0, error => $text } ));
         return $r->OK;
     # default error rendering
     } elsif ( $format eq "html" ) {
@@ -409,27 +427,69 @@ sub register_regex {
     push @{$regex_choices{user}}, $hash if $hash->{user};
 }
 
+=head2 C<< $class->register_api_endpoint( $string, $sub, %opts ) >>
+
+=over
+
+=item string
+
+=item sub - sub
+
+=item opts (see register_string)
+
+=back
+
+=cut
+
+sub register_api_endpoint {
+    my ( $class, $string, $sub, %opts ) = @_;
+    croak 'register_api_endpoint must have version option'
+        unless exists $opts{version};
+
+    my $hash = _apply_defaults( \%opts, {
+        sub    => $sub,
+        format => 'json',
+    });
+
+    my $vers = ref $opts{version} eq 'ARRAY' ? $opts{version} :
+        [ $opts{version} + 0 ];
+    croak 'register_api_version requires all versions >= 1'
+        if grep { $_ <= 0 } @$vers;
+
+    # Now register this string at all versions that they gave us.
+    $api_endpoints{$_}->{$string} = $hash
+        foreach @$vers;
+}
+
+# internal helper for speed construction ...
+sub register_api_endpoints {
+    my $class = shift;
+    foreach my $row ( @_ ) {
+        $class->register_api_endpoint( $row->[0], $row->[1], version => $row->[2] );
+    }
+}
+
 # internal method, intentionally no POD
 # applies default for opts and hash
 sub _apply_defaults {
     my ( $opts, $hash ) = @_;
 
     $hash ||= {};
-    $opts->{app} = 1 if ! defined $opts->{app} && !$opts->{user};
-    $hash->{args} = $opts->{args};
-    $hash->{app} = $opts->{app} || 0;
-    $hash->{user} = $opts->{user} || 0;
-    $hash->{format} = $opts->{format} || 'html';
-    $hash->{prefer_ssl} = $opts->{prefer_ssl} || 0;
-
+    $opts->{app}          = 1 if ! defined $opts->{app} && ! $opts->{user};
+    $hash->{args}         = $opts->{args};
+    $hash->{app}          = $opts->{app} || 0;
+    $hash->{user}         = $opts->{user} || 0;
+    $hash->{format}     ||= $opts->{format} || 'html';
+    $hash->{prefer_ssl}   = $opts->{prefer_ssl} || 0;
 
     my $formats = $opts->{formats} || [ $hash->{format} ];
-    $formats = { map { ( $_, 1 ) } @$formats } if ( ref($formats) eq 'ARRAY' );
+    $formats = { map { ( $_, 1 ) } @$formats } if ref $formats eq 'ARRAY';
 
     $hash->{formats} = $formats;
     $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1 };
 
-    croak "Cannot register with prefer_ssl without app role" if ( $hash->{prefer_ssl} && ! $hash->{app} );
+    croak 'Cannot register with prefer_ssl without app role'
+        if $hash->{prefer_ssl} && ! $hash->{app};
 
     return $hash;
 }
@@ -446,7 +506,7 @@ sub _apply_defaults {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

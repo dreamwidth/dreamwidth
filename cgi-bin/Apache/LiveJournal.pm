@@ -960,9 +960,10 @@ sub trans
         return $inthandle if defined $inthandle;
     }
 
-    # see if there is a modular handler for this URI
-    my $ret = LJ::URI->handle( $uri, $apache_r );
-    $ret = DW::Routing->call( ssl => $is_ssl ) unless defined $ret;
+    # Attempt to handle a URI given the old-style LJ handler, falling back to
+    # the new style Dreamwidth routing system.
+    my $ret = LJ::URI->handle( $uri, $apache_r ) //
+        DW::Routing->call( ssl => $is_ssl );
     return $ret if defined $ret;
 
     # now check for BML pages
