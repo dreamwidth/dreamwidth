@@ -444,40 +444,41 @@ sub make_auth_code
     return $auth;
 }
 
-# <LJFUNC>
-# name: LJ::load_props
-# des: Loads and caches one or more of the various *proplist tables:
-#      [dbtable[logproplist]], [dbtable[talkproplist]], and [dbtable[userproplist]], which describe
-#      the various meta-data that can be stored on log (journal) items,
-#      comments, and users, respectively.
-# args: dbarg?, table*
-# des-table: a list of tables' proplists to load. Can be one of
-#            "log", "talk", "user", or "rate".
-# </LJFUNC>
-sub load_props
-{
-    my $dbarg = ref $_[0] ? shift : undef;
-    my @tables = @_;
-    my $dbr;
-    my %keyname = qw(log  propid
-                     talk tpropid
-                     user upropid
-                     rate rlid
-                     );
+# Loads and caches one or more of the various *proplist (and ratelist)
+# tables, which describe the various meta-data that can be stored on log
+# (journal) items, comments, users, media, etc.
+#
+# Please use LJ::get_prop to actually retrieve properties. You probably
+# don't want to call this function directly.
+sub load_props {
+    my %keyname = (
+        log   => [ 'propid',  'logproplist'     ],
+        media => [ 'propid',  'media_prop_list' ],
+        rate  => [ 'rlid',    'ratelist'        ],
+        talk  => [ 'tpropid', 'talkproplist'    ],
+        user  => [ 'upropid', 'userproplist'    ],
+    );
 
-    foreach my $t (@tables) {
-        next unless defined $keyname{$t};
+    my $dbr = LJ::get_db_reader()
+        or croak 'Failed to get database reader handle';
+
+    foreach my $t ( @_ ) {
+        confess 'Attempted to load invalid property list'
+            unless exists $keyname{$t};
         next if defined $LJ::CACHE_PROP{$t};
-        my $tablename = $t eq "rate" ? "ratelist" : "${t}proplist";
-        $dbr ||= LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT * FROM $tablename");
-        $sth->execute;
-        # check error in case table does not exist
-        warn "Error loading $tablename: $sth->errstr" and next if $sth->err;
-        while (my $p = $sth->fetchrow_hashref) {
-            $p->{'id'} = $p->{$keyname{$t}};
-            $LJ::CACHE_PROP{$t}->{$p->{'name'}} = $p;
-            $LJ::CACHE_PROPID{$t}->{$p->{'id'}} = $p;
+
+        my ( $key, $table ) = @{$keyname{$t}};
+        my $res = $dbr->selectall_hashref( "SELECT * FROM $table", $key );
+        croak $dbr->errstr if $dbr->err;
+        croak 'Failed to load properties from list'
+            unless $res && ref $res eq 'HASH';
+
+        foreach my $id ( keys %$res ) {
+            my $p = $res->{$id};
+
+            $p->{id} = $id;
+            $LJ::CACHE_PROP{$t}->{$p->{name}} = $p;
+            $LJ::CACHE_PROPID{$t}->{$p->{id}} = $p;
         }
     }
 }

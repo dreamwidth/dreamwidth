@@ -3170,6 +3170,19 @@ CREATE TABLE `media_props` (
 )
 EOC
 
+register_tablecreate("media_prop_list", <<'EOC');
+CREATE TABLE `media_prop_list` (
+  `propid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  `prettyname` varchar(60) DEFAULT NULL,
+  `ownership` enum('system','user') NOT NULL DEFAULT 'user',
+  `scope` enum('general','local') NOT NULL DEFAULT 'general',
+  `des` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`propid`),
+  UNIQUE KEY `name` (`name`)
+)
+EOC
+
 register_tablecreate("collections", <<'EOC');
 CREATE TABLE `collections` (
   `userid` int(10) unsigned NOT NULL,
