@@ -119,7 +119,6 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         memcacheclear  => "Access to /admin/memcache_clear",
         memcacheview   => "Access to /admin/memcache",
         mysqlstatus    => "Access to /admin/mysql_status",
-        navtag         => "Access to /admin/navtag",
         propedit       => "Allow to change userprops for other users",
         rename         => "Access to rename_opts console command",
         spamreports    => "Access to /admin/spamreports",

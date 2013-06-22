@@ -1539,3 +1539,6 @@ general /views/admin/index.tt.admin.sitemessages_add.link
 general /views/admin/index.tt.admin.sitemessages_add.text
 general /views/admin/index.tt.admin.sitemessages_manage.link
 general /views/admin/index.tt.admin.sitemessages_manage.text
+
+general /views/admin/index.tt.admin.navtag.link
+general /views/admin/index.tt.admin.navtag.text
