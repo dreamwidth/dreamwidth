@@ -100,6 +100,9 @@ lineup/themes            theme+                      lineup/layout
 marginless/layout        layout(core2base/layout)    core2
 marginless/themes        theme+                      marginless/layout
 
+mobility/layout          layout                      core2
+mobility/themes          theme+                      mobility/layout
+
 modish/layout            layout(core2base/layout)    core2
 modish/themes            theme+                      modish/layout
 
