@@ -123,6 +123,12 @@ sub response_as_string {
     return $self->{res}->as_string;
 }
 
+# Not implemented yet, this is stubbed out to be implemented for when we drop
+# support for Apache. :)
+sub uploads {
+    confess 'Not implemented yet.';
+}
+
 sub post_args {
     my DW::Request::Standard $self = $_[0];
 

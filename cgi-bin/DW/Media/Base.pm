@@ -49,15 +49,25 @@ sub height { $_[0]->{height} }
 sub is_active { $_[0]->{state} eq 'A' }
 sub is_deleted { $_[0]->{state} eq 'D' }
 
+# property helper, loads our properties and fetches one when called
+sub _prop {
+    my ( $self, $prop, $val ) = @_;
+
+    
+    my $pobj = LJ::get_prop( media => $prop )
+        or confess 'Attempted to get/set invalid media property';
+
+}
+
 # construct a URL for this resource
 sub url {
-    my $self = $_[0];
+    my ( $self, %opts ) = @_;
 
     # If we're using a version (versionid defined) then we want to insert the
     # width and height to the URL.
-    my $extra = '';
+    my $extra = $opts{extra} // '';
     if ( $self->{mediaid} != $self->{versionid} ) {
-        $extra = $self->{width} . 'x' . $self->{height} . '/';
+        $extra .= $self->{width} . 'x' . $self->{height} . '/';
     }
 
     return $self->u->journal_base . '/file/' . $extra . $self->{displayid} .

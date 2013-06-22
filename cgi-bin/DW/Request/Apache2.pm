@@ -8,7 +8,7 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2008 by Dreamwidth Studios, LLC.
+# Copyright (c) 2008-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -29,6 +29,7 @@ use Apache2::RequestUtil ();
 use Apache2::RequestIO ();
 use Apache2::SubProcess ();
 use Hash::MultiValue;
+use Carp qw/ croak confess /;
 
 use fields (
             'r',         # The Apache2::Request object
@@ -36,6 +37,7 @@ use fields (
             # these are mutually exclusive; if you use one you can't use the other
             'content',   # raw content
             'post_args', # hashref of POST arguments
+            'uploads',   # arrayref of hashrefs of uploaded files
         );
 
 # creates a new DW::Request object, based on what type of server environment we
@@ -264,9 +266,52 @@ sub call_bml {
 
 # simply sets the location header and returns REDIRECT
 sub redirect {
-    my $self = $_[0];
+    my DW::Request::Apache2 $self = $_[0];
     $self->header_out( Location => $_[1] );
     return $self->REDIRECT;
+}
+
+# Returns an array of uploads that were received in this request. Each upload
+# is a hashref of certain data.
+sub uploads {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{uploads} if defined $self->{uploads};
+
+    my $body = $self->content;
+    return $self->{uploads} = []
+        unless $body && $self->method eq 'POST';
+
+    my $sep = ( $self->header_in( 'Content-Type' ) =~ m!^multipart/form-data;\s*boundary=(\S+)! ) ? $1 : undef;
+    croak 'Unknown content type in upload.' unless defined $sep;
+
+    my @lines = split /\r\n/, $body;
+    my $line = shift @lines;
+    croak 'Error parsing upload, it looks invalid.'
+        unless $line eq "--$sep";
+
+    my $ret = [];
+    while ( @lines ) {
+        $line = shift @lines;
+
+        my %h;
+        while (defined $line && $line ne "") {
+            $line =~ /^(\S+?):\s*(.+)/;
+            $h{lc($1)} = $2;
+            $line = shift @lines;
+        }
+        while (defined $line && $line ne "--$sep") {
+            last if $line eq "--$sep--";
+            $h{body} .= "\r\n" if $h{body};
+            $h{body} .= $line;
+            $line = shift @lines;
+        }
+        if ($h{'content-disposition'} =~ /name="(\S+?)"/) {
+            $h{name} = $1 || $2;
+            push @$ret, \%h;
+        }
+    }
+
+    return $self->{uploads} = $ret;
 }
 
 # constants

@@ -22,12 +22,12 @@ use DW::Routing;
 use DW::Request;
 use DW::Controller;
 use DW::Controller::API;
+use DW::Media;
 use LJ::JSON;
 
 DW::Routing->register_api_endpoints(
         [ '/file/edit',   \&file_edit_handler,   1 ],
         [ '/file/new',    \&file_new_handler,    1 ],
-        [ '/file/upload', \&file_upload_handler, 1 ],
 );
 
 #{
@@ -45,37 +45,64 @@ DW::Routing->register_api_endpoints(
 #    ]
 #}
 
-# Used when requesting an id for a new file. Allocates a unique media ID and
-# returns it for use in the upload handler.
+# Allows uploading a file. Allocates and returns a unique media ID for the upload.
 sub file_new_handler {
-    my ( $ok, $rv ) = controller();
+    # we want to handle the not logged in case ourselves
+    my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
+
+    $r->did_post
+        or return api_error( $r->HTTP_METHOD_NOT_ALLOWED, 'Needs a POST request' );
+
     LJ::isu( $rv->{u} )
         or return api_error( $r->HTTP_UNAUTHORIZED, 'Not logged in' );
-    my $id = LJ::alloc_user_counter( $rv->{u}, 'A' )
-        or return api_error( $r->SERVER_ERROR, 'Failed to allocate counter' );
 
-    # FIXME: rate limit users so they can't spin the counter (it's per-user,
-    # so they only hurt themselves, but why let it?)
+    my $uploads = $r->uploads;
+    return api_error( $r->HTTP_BAD_REQUEST, 'No uploads found' )
+        unless ref $uploads eq 'ARRAY' && scalar @$uploads;
 
-    return api_ok( { id => $id } );
-}
+    foreach my $upload ( @$uploads ) {
+        my ( $type, $ext ) = DW::Media->get_upload_type( $upload->{'content-type' } );
+        next unless $type == DW::Media::TYPE_PHOTO;
 
-# Allows uploading a file. You give us the ID and file contents. You must have
-# called /api/file/new first to get an upload ID.
-sub file_upload_handler {
-    my ( $ok, $rv ) = controller();
-    return $rv unless $ok;
+        # Try to upload this item since we know it's a photo.
+        my $obj = DW::Media->upload_media(
+            user     => $rv->{u},
+            data     => $upload->{body},
+            security => $rv->{u}->newpost_minsecurity,
+        );
+        return api_error( $r->SERVER_ERROR, 'Failed to upload media' )
+            unless $obj;
 
-    return api_ok( 1 );
+        # For now, we only support a single upload per call, so finish now.
+        return api_ok( {
+            id => $obj->id,
+            url => $obj->url,
+            thumbnail_url => $obj->url( extra => '100x100/' ),
+            name => "image",
+            type => $obj->mimetype,
+            size => $obj->size,
+        } );
+    }
+
+    return api_error( $r->HTTP_BAD_REQUEST, 'No uploads found' );
 }
 
 # Allows editing the metadata and security on a media object.
 sub file_edit_handler {
-    my ( $ok, $rv ) = controller();
+    # we want to handle the not logged in case ourselves
+    my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
+
+    my $r = $rv->{r};
+
+    $r->did_post
+        or return api_error( $r->HTTP_METHOD_NOT_ALLOWED, 'Needs a POST request' );
+
+    LJ::isu( $rv->{u} )
+        or return api_error( $r->HTTP_UNAUTHORIZED, 'Not logged in' );
 
     return api_ok( 1 );
 
