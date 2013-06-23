@@ -5,9 +5,8 @@ layerinfo name = "Ivory Alcea";
 layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "mobility/ivoryalcea";
 
-set theme_authors = [ { "name" => "branchandroot", "type" => "user" } ];
-
-set layout_resources = [ { "name" => "Vintage Christmas 6", "url" => "http://www.colourlovers.com/palette/221715/Vintage_Christmas_6", "name" => "Mitsuba Aoi", "url" => "http://openclipart.org/detail/1405/mitsubaaoi-by-zeimusu"} ];
+set layout_resources = [ { "name" => "Vintage Christmas 6", "url" => "http://www.colourlovers.com/palette/221715/Vintage_Christmas_6", 
+"name" => "Mitsuba Aoi", "url" => "http://openclipart.org/detail/1405/mitsubaaoi-by-zeimusu"} ];
 
 ##===============================
 ## Page Colors
@@ -53,9 +52,9 @@ layerinfo name = "Starflower";
 layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "mobility/starflower";
 
-set theme_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
-set layout_resources = [ { "name" => "Dire Side of Blue", "url" => "http://www.colourlovers.com/palette/363737/dire_side_of_blue", "name" => "Rounded Star 005", "url" => "http://openclipart.org/user-detail/rosros"} ];
+set layout_resources = [ { "name" => "Dire Side of Blue", "url" => "http://www.colourlovers.com/palette/363737/dire_side_of_blue", 
+"name" => "Rounded Star 005", "url" => "http://openclipart.org/user-detail/rosros"} ];
 
 ##===============================
 ## Page Colors

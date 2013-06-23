@@ -7,100 +7,17 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
 ##===============================
-## Functions
-##===============================
-
-function Page::print() {
-# Generate a page suitable for use on mobile devices
-
-    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    """<meta name="viewport" content="width=device-width; maximum-scale=1"/>""";
-    $this->print_head();
-    $this->print_stylesheets();
-    $this->print_head_title();
-    """</head>""";
-    $this->print_wrapper_start();
-    $this->print_control_strip();
-    """
-    <div id="canvas">
-        <div class="inner">
-            <div id="header">
-                <div class="inner">
-                    """;
-                    print """<h2>""" + $this.journal.username + """</h2>""" + """<h2>""" + $*text_default_separator + """</h2>""";
-                    $this->print_title();
-                    if ($*layout_type == "one-column-split") { """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>"""; }
-                    if ($*layout_type == "one-column") { """<div id="module-jump-link"><a href="#secondary"title="Jump to modules below the entries">Modules</a></div>"""; }
-    """
-                </div><!-- end header>inner -->
-            </div><!-- end header -->
-            <div id="content">
-                <div class="inner">
-    """;
-                if ($*layout_type == "one-column-split") {
-    """
-                    <div id="secondary"><div class="inner">
-    """;
-                        $this->print_module_section("one");
-    """
-                    </div></div><!--  end secondary and secondary>inner -->
-    """;
-                }
-    """
-                    <div id="primary"><div class="inner">
-                        """;
-                        $this->print_body();
-    """
-                    </div></div><!-- end primary and primary>inner -->
-    """;
-                if ($*layout_type != "one-column-split") {
-    """
-                    <div id="secondary"><div class="inner">
-    """;
-                        $this->print_module_section("one");
-    """
-                    </div></div><!--  end secondary and secondary>inner -->
-    """;
-                }
-    """
-                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
-                    <div id="tertiary"><div class="inner">
-                        """;
-                        $this->print_module_section("two");
-    """
-                    </div></div><!-- end tertiary and tertiary>inner -->
-                    <div id="content-footer"></div>
-                </div><!-- end content>inner -->
-            </div> <!-- end content -->
-        </div> <!-- end canvas>inner -->
-    """;
-
-    """
-    <div id="footer">
-        <div class="inner">
-            """;
-            print safe """
-                <div class="page-top"><a href="#">$*text_page_top</a></div>
-        </div><!-- end footer>inner -->
-    </div><!-- end footer -->
-
-    </div> <!-- end canvas -->
-    """;
-    $this->print_wrapper_end();
-    """</html>""";
-}
-
-##===============================
 ## Presentation
 ##===============================
 
 property string content_width {
-    des = "Set the maximum width of the page content.  Ensure that the value is given in em or px.";
+    des = "Maximum width of the page content.  Ensure that the value is given in em or px.";
+    note = "Use this option to restrict the width so that the page can be viewed on small screens without scrolling";
     example = "50em";
 }
 
 property bool control_strip_reduced {
-    des = "Reduce nav strip to icon and common links only.";
+    des = "Reduce navigation strip to icon and common links only.";
 }
 
 propgroup presentation {
@@ -365,6 +282,90 @@ propgroup customcss {
     property use custom_css;
 }
 
+##===============================
+## Functions
+##===============================
+
+function Page::print() {
+# Generate a page suitable for use on mobile devices
+
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width; maximum-scale=1"/>""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    print """<h2>""" + $this.journal.username + """</h2>""" + """<h2>""" + $*text_default_separator + """</h2>""";
+                    $this->print_title();
+                    if ($*layout_type == "one-column-split") { """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>"""; }
+                    if ($*layout_type == "one-column") { """<div id="module-jump-link"><a href="#secondary"title="Jump to modules below the entries">Modules</a></div>"""; }
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
 function Page::print_default_stylesheet() {
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
@@ -450,6 +451,7 @@ function Page::print_default_stylesheet() {
 
 
     """
+    /* Page properties */ 
     h1, h2, h3 {
         margin: .25em 0;
         padding: .25em 0;
@@ -513,7 +515,8 @@ function Page::print_default_stylesheet() {
         border-left: 2px solid;
         padding: 0 1em; 
     }
-
+    
+    /* Page element positioning */
     #canvas {
         margin: 0 auto; 
         max-width: $*content_width;
@@ -553,6 +556,7 @@ function Page::print_default_stylesheet() {
         height: 0; 
     }
 
+    /* Header and footer */
     #header, 
     #footer {
         border-color: $*color_header_footer_border;
@@ -606,6 +610,7 @@ function Page::print_default_stylesheet() {
         $footer_link_active_colors 
     }
 
+    /* Module positioning */
     #primary {
         float: left;
         margin-left: 0;
@@ -713,8 +718,7 @@ function Page::print_default_stylesheet() {
 
     .navigation,
     .talkform {
-        background-color: $*color_entry_background;
-        border-color: $*color_entry_border;
+        $entry_colors
         border-style: solid;
         border-width: .5em .25em;
         margin: 1em 0; 
@@ -894,7 +898,6 @@ function Page::print_default_stylesheet() {
 
 
     /* comments */
-
     .talkform { 
         width: 100%; 
     }
@@ -919,8 +922,7 @@ function Page::print_default_stylesheet() {
     .toppages,
     .bottompages,
     .bottomcomment {
-        background-color: $*color_entry_background;
-        border-color: $*color_entry_border;
+        $entry_colors
         border-style: solid;
         border-width: .5em .25em;
         margin-top: 0;
@@ -985,7 +987,6 @@ function Page::print_default_stylesheet() {
     }
 
     /* archive */
-
     table.month {
        border-collapse: collapse; 
        margin: 0 auto;
@@ -1007,8 +1008,7 @@ function Page::print_default_stylesheet() {
     }
 
     .month {
-        background-color: $*color_entry_background;
-        border-color: $*color_entry_border;
+        $entry_colors
         border-style: solid;
         border-width: .5em .25em;
         margin: 1em 0; 
@@ -1037,10 +1037,8 @@ function Page::print_default_stylesheet() {
     }
 
     /* tags */
-
    .tags-container {
-        background-color: $*color_entry_background;
-        border-color: $*color_entry_border;
+        $entry_colors
         border-style: solid;
         border-width: .5em .25em;
         padding: .5em;
@@ -1048,7 +1046,6 @@ function Page::print_default_stylesheet() {
     }
 
     /* icons */
-
     .sorting-options ul {
         margin-left: 0;
     }
@@ -1069,14 +1066,13 @@ function Page::print_default_stylesheet() {
     }
 
     /* modules */
-
     .module {
         $module_background
         $module_colors
-    border-width: .5em .25em;
-    clear: both;
-    margin: 1em 0;
-    padding: .5em;
+        border-width: .5em .25em;
+        clear: both;
+        margin: 1em 0;
+        padding: .5em;
     }
 
     .module a { 
