@@ -1,0 +1,1234 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Mobility";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "mobility/layout";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+property string content_width {
+    des = "Maximum width of the page content.  Ensure that the value is given in em or px.";
+    note = "Use this option to restrict the width so that the page can be viewed on small screens without scrolling";
+    example = "50em";
+}
+
+property bool control_strip_reduced {
+    des = "Reduce navigation strip to icon and common links only.";
+}
+
+propgroup presentation {
+    property use control_strip_reduced;
+    property use layout_type;
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use use_journalstyle_entry_page;
+    property use margins_size;
+    property use margins_unit;
+    property use content_width;
+    property use sidebar_width;
+    property use sidebar_width_doubled;
+
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
+    property use tags_page_type;
+    property use num_items_icons;
+    property use icons_page_sort;
+
+    property use all_entrysubjects;
+    property use all_commentsubjects;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
+    property use userpics_style_group;
+    property use userpics_position;
+    property use entry_metadata_position;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use entry_interaction_links;
+    property use comment_management_links;
+    property use comment_interaction_links;
+
+}
+
+set layout_type = "one-column-split";
+set control_strip_reduced = true;
+set content_width = "55em";
+set sidebar_width = "10em";
+set sidebar_width_doubled = "20em";
+set userpics_position = "left";
+set entry_userpic_style = "small";
+set comment_userpic_style = "smaller";
+set use_custom_friend_colors = false;
+set custom_foreground_element = "userpic_border";
+set custom_background_element = "userpic_background";
+set entry_interaction_links = "icon";
+set entry_management_links = "icon";
+set comment_interaction_links = "icon";
+set comment_management_links = "icon";
+
+
+##===============================
+## Colors
+##===============================
+
+property Color color_header_footer_border { des = "Header and footer border color"; }
+property Color color_module_highlight { des = "Highlight color in modules, as for calendar days with entries"; }
+
+propgroup colors {
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_link_active;
+    property use color_page_link_hover;
+    property use color_page_link_visited;
+    property use color_page_border;
+
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_link;
+    property use color_module_link_active;
+    property use color_module_link_hover;
+    property use color_module_link_visited;
+    property use color_module_title_background;
+    property use color_module_title;
+    property use color_module_border;
+    property use color_module_highlight;
+
+    property use color_header_background;
+    property use color_page_title;
+    property use color_header_footer_border;
+
+    property use color_footer_background;
+    property use color_footer_link;
+    property use color_footer_link_active;
+    property use color_footer_link_hover;
+    property use color_footer_link_visited;
+
+    property use color_entry_background;
+    property use color_entry_text;
+    property use color_entry_link;
+    property use color_entry_link_active;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
+    property use color_entry_title_background;
+    property use color_entry_title;
+    property use color_entry_interaction_links;
+    property use color_entry_border;
+
+    property use color_comment_title_background;
+    property use color_comment_title;
+}
+
+##===============================
+## Fonts
+##===============================
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
+}
+
+set font_base = "";
+set font_fallback = "";
+set font_base_size = "100";
+set font_base_units = "%";
+
+##===============================
+## Images
+##===============================
+
+propgroup images {
+    property use image_background_page_group;
+    property use image_background_module_group;
+    property use image_background_header_group;
+    property use image_background_header_height;
+    property use image_background_entry_group;
+}
+
+##===============================
+## Modules
+##===============================
+
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    property use module_calendar_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_tags_group;
+    property use module_pagesummary_group;
+    property use module_active_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+    property use module_customtext_group;
+    property use module_credit_group;
+    property use module_search_group;
+    property use module_cuttagcontrols_group;
+}
+
+# Explicitly define what sections the layout has available
+set module_layout_sections = "none|(none)|one|First Module Section|two|Second Module Section";
+
+set module_navlinks_section = "one";
+set module_cuttagcontrols_section = "one";
+
+set module_userprofile_section = "two";
+set module_calendar_section = "two";
+set module_links_section = "two";
+set module_syndicate_section = "two";
+set module_tags_section = "two";
+set module_pagesummary_section = "two";
+set module_active_section = "two";
+set module_customtext_section = "two";
+set module_credit_section = "two";
+set module_search_section = "two";
+
+set module_syndicate_order = 13;
+set module_customtext_order = 5;
+set module_search_order = 9;
+set module_time_order = 18;
+set module_poweredby_order = 19;
+
+
+##===============================
+## Text
+##===============================
+
+propgroup text {
+
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
+
+    property use text_view_recent;
+    property use text_view_archive;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_tags;
+    property use text_view_memories;
+    property use text_view_userinfo;
+
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_mem_add;
+    property use text_tell_friend;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+
+    property use text_read_comments;
+    property use text_read_comments_friends;
+    property use text_post_comment;
+    property use text_post_comment_friends;
+    property use text_permalink;
+
+    property use text_meta_location;
+    property use text_meta_mood;
+    property use text_meta_music;
+    property use text_meta_xpost;
+    property use text_tags;
+
+    property use text_stickyentry_subject;
+
+    property use text_max_comments;
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+}
+
+##===============================
+## Custom CSS
+##===============================
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+##===============================
+## Functions
+##===============================
+
+function Page::print() {
+# Generate a page suitable for use on mobile devices
+
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width; maximum-scale=1"/>""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    print """<h2>""" + $this.journal.username + """</h2>""" + """<h2>""" + $*text_default_separator + """</h2>""";
+                    $this->print_title();
+                    if ($*layout_type == "one-column-split") { """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>"""; }
+                    if ($*layout_type == "one-column") { """<div id="module-jump-link"><a href="#secondary"title="Jump to modules below the entries">Modules</a></div>"""; }
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+function Page::print_default_stylesheet() {
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    if ($*image_background_header_height > 0) {
+        $header_background = """
+            $header_background
+            height: """ + $*image_background_header_height + """px;""";
+    }
+
+    var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
+    var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
+    var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
+    var string footer_link_hover_colors = generate_color_css( $*color_footer_link_hover, new Color, new Color );
+    var string footer_link_visited_colors = generate_color_css( $*color_footer_link_visited, new Color, new Color );
+
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
+
+    var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
+
+    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string comment_title_colors = generate_color_css($*color_comment_title, $*color_comment_title_background, new Color);
+    var string module_title_colors = generate_color_css($*color_module_title, $*color_module_title_background, new Color);
+
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+
+    var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
+    var string entry_link_active_colors = generate_color_css($*color_entry_link_active, new Color, new Color);
+    var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, new Color, new Color);
+    var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);
+    var string entry_interaction_link_colors = generate_color_css($*color_entry_interaction_links, new Color, new Color);
+
+    var string module_link_colors = generate_color_css($*color_module_link, new Color, new Color);
+    var string module_link_active_colors = generate_color_css($*color_module_link_active, new Color, new Color);
+    var string module_link_hover_colors = generate_color_css($*color_module_link_hover, new Color, new Color);
+    var string module_link_visited_colors = generate_color_css($*color_module_link_visited, new Color, new Color);
+
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+     var string userpic_css = "";
+         if ($*userpics_position == "right") {
+             $userpic_css = """
+             .entry .userpic,
+             .comment .userpic {
+                 float: right;
+                margin: .5em 0 .5em .5em;
+             """;
+                 }
+         else {
+             $userpic_css = """
+             .entry .userpic,
+             .comment .userpic {
+                 float: left;
+                margin: .5em .5em .5em 0;
+                 }
+             """;
+         }
+
+    var string navstrip_css = "";
+        if ($*control_strip_reduced == true) {
+            $navstrip_css = """
+                td#lj_controlstrip_actionlinks,
+                td#lj_controlstrip_search { display: none; }
+            """;
+        }
+        else {
+            $navstrip_css = """
+                #lj_controlstrip td { float: left; }
+            """;
+        }
+
+
+    """
+    /* Page properties */ 
+    h1, h2, h3 {
+        margin: .25em 0;
+        padding: .25em 0;
+    }
+
+    img {
+        border: none;
+    }
+
+    hr {
+        display: none;
+    }
+
+    .entry-content hr,
+    .comment-content hr {
+        display: block;
+        margin: 1em 10%;
+    }
+
+    body {
+        $page_background
+        $page_colors
+        $page_font
+        padding: 0;
+        text-align: center; /* needed for IE */
+        word-wrap: break-word;
+    }
+
+    html body {
+        margin-left: $*margins_size$*margins_unit;
+        margin-right: $*margins_size$*margins_unit;
+        margin-top: 0;
+        padding-top: 0;        
+    }
+
+    #lj_controlstrip {
+        margin-bottom: 1em;  
+        position: relative;
+    }
+
+    $navstrip_css
+
+    a { 
+        $page_link_colors 
+    }
+    a:visited { 
+        $page_link_visited_colors 
+    }
+    a:hover { 
+        $page_link_hover_colors 
+    }
+    a:active { 
+        $page_link_active_colors 
+    }
+
+    q { 
+        font-style: italic; 
+    }
+
+    blockquote { 
+        border-left: 2px solid;
+        padding: 0 1em; 
+    }
+    
+    /* Page element positioning */
+    #canvas {
+        margin: 0 auto; 
+        max-width: $*content_width;
+        text-align: left; 
+    }
+
+    .one-column #content,
+    .one-column-split #content { 
+        float: none; 
+    }
+
+    .two-columns-left #content,
+    .three-columns-sides #content {
+        border-left: $*sidebar_width solid transparent;
+    }
+
+    .two-columns-right #content,
+    .three-columns-sides #content {
+        border-right: $*sidebar_width solid transparent;
+    }
+
+    .three-columns-left #content {
+        border-left: $*sidebar_width_doubled solid transparent;
+    }
+
+    .three-columns-right #content {
+        border-right: $*sidebar_width_doubled solid transparent;
+    }
+
+    .column-right #content {
+        min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
+    }
+
+    #content-footer {
+        clear: both;
+        font-size: 0; /*to make IE happy*/
+        height: 0; 
+    }
+
+    /* Header and footer */
+    #header, 
+    #footer {
+        border-color: $*color_header_footer_border;
+        border-style: solid;
+        border-width: .5em .25em;
+        clear: both;
+        margin: 0;
+        padding: .5em;
+    }
+
+    #header {
+        $header_background
+        $page_title_colors
+        text-align: center;
+    }
+
+    h1#title {
+        $page_title_font
+    }
+
+    h2#subtitle,
+    h2#pagetitle {
+        $page_subtitle_font
+    }
+
+    #header h2 { 
+        display: inline; 
+    }
+
+    #module-jump-link { 
+        text-align: right; 
+    }
+
+    #footer {
+        $footer_background
+    }
+
+    #footer a { 
+        $footer_link_colors 
+    }
+
+    #footer a:visited { 
+        $footer_link_visited_colors 
+    }
+
+    #footer a:hover { 
+        $footer_link_hover_colors 
+    }
+
+    #footer a:active { 
+        $footer_link_active_colors 
+    }
+
+    /* Module positioning */
+    #primary {
+        float: left;
+        margin-left: 0;
+        margin-right:-100%;
+        width:100%;
+    }
+
+    .one-column #primary,
+    .one-column-split #primary { 
+        float: none; 
+    }
+
+    #primary > .inner:first-child {
+        padding: 0;
+    }
+
+    .one-column #secondary,
+    .one-column-split #secondary { 
+        width: auto; 
+    }
+
+    .two-columns-left #secondary,
+    .three-columns-sides #secondary {
+        float: left;
+        margin-left: -$*sidebar_width;
+        width: $*sidebar_width;
+    }
+
+    .two-columns-right #secondary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;
+    }
+
+    .three-columns-left #secondary {
+        float: left;
+        margin-left: -$*sidebar_width_doubled;
+        width: $*sidebar_width;        
+    }
+
+    .three-columns-right #secondary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;    
+    }
+
+    #secondary > .inner:first-child {
+        padding: 1em;
+    }
+
+    .one-column-split #secondary > .inner:first-child { 
+        padding: 0; 
+    }
+
+    .one-column #tertiary,
+    .one-column-split #tertiary { 
+        width: auto; 
+    }
+
+    .two-columns-left #tertiary,
+    .two-columns-right #tertiary {
+         clear: both;
+    }
+
+    .two-columns-left #tertiary { 
+        margin-left: -$*sidebar_width; 
+    }
+
+    .two-columns-right #tertiary { 
+        margin-right: -$*sidebar_width; 
+    }
+     
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module {
+        float: left;
+        width: $*sidebar_width;
+    }
+
+    .three-columns-left #tertiary {
+         float: left;
+         margin-left: -$*sidebar_width;
+         width: $*sidebar_width;         
+    }
+
+    .three-columns-right #tertiary {
+        float: right;
+        margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
+        margin-right: -$*sidebar_width_doubled;
+        width: $*sidebar_width;
+    }
+
+    .three-columns-sides #tertiary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;
+    }
+
+    #tertiary > .inner:first-child {
+        padding: 1em;
+    }
+
+    .one-column-split #tertiary > .inner:first-child { 
+        padding: 0; 
+    }
+
+    .navigation,
+    .talkform {
+        $entry_colors
+        border-style: solid;
+        border-width: .5em .25em;
+        margin: 1em 0; 
+        padding: .5em;        
+    } /*yes, reply form is out of order, this is easier*/
+
+    .navigation ul {
+        margin: 0;
+        padding-left: 0;
+    }
+
+    .navigation li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+   .noentries {
+        padding: 0 .5em;
+    }
+
+    /* entries */
+    .entry,
+    .comment {
+        position: relative;
+    }
+
+    .topnav,
+    .bottomnav { 
+       margin: 1em 0; 
+       text-align: center;        
+    }
+
+    $userpic_css
+
+    .entry {
+         $entry_background
+         $entry_colors
+         border-width: .5em .25em;
+         margin: 1em 0;
+         overflow: auto;
+         padding: 1em;    
+    }
+
+    .entry .header {
+         margin-bottom: 1em;
+         margin-right: 50px; /*function this to match alignment*/
+         min-height: 50px;
+    }
+
+    h3.entry-title { 
+        margin: 0; 
+    }
+
+    .entry .entry-title {
+        $entry_title_font
+    }
+
+    .entry .entry-title, 
+    .entry .entry-title a {
+        $entry_title_colors
+    }
+
+    .no-subject .entry .entry-title {
+        background: none;
+        border: none;
+    }
+
+    .entry a { 
+        $entry_link_colors 
+    }
+ 
+    .entry a:visited { 
+        $entry_link_visited_colors 
+    }
+
+    .entry a:hover { 
+        $entry_link_hover_colors 
+    }
+
+    .entry a:active { 
+        $entry_link_active_colors 
+    }
+
+    .entry-poster { 
+        display: block;
+        margin-bottom: 1em; 
+    }
+
+    .entry-content { 
+        display: inline; 
+    } /* to make float work properly in mobile views*/
+
+    /* To prevent overlapping when icon's on the left */
+    /* and list is the first thing in content */
+    .entry-content li,
+    .comment-content li {
+         list-style-position: inside;
+    }
+
+    .entry-content img {
+        max-height: 100%; 
+        max-width: 100%;  
+    }
+
+    .bottom-metadata { 
+         margin-top: 1em; 
+    }
+
+    .top-metadata { 
+         margin-bottom: 1em; 
+    }
+
+    .metadata ul {
+        display: inline;
+        list-style: none;
+        margin-left: .5em;
+        padding-left: 0;
+    }
+
+    .metadata li {
+        margin-bottom: .5em;
+    }
+
+    .metadata.top-metadata ul {
+        margin: 0;
+    }
+
+    .metadata.top-metadata {
+        margin-bottom: 1em;
+    }
+
+    .entry .footer { 
+        text-align: right; 
+    }
+
+    .entry .tag { 
+        margin: 1em 0; 
+        text-align: left;
+    }
+
+    .tag ul {
+        display: inline;
+        margin-left: .5em;
+        padding-left: 0;
+    }
+
+   .tag ul li {
+        display: inline;
+        padding: .25em;
+    } /* same for month view */
+
+    ul.entry-management-links {
+        display: inline;
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    ul.entry-management-links li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+    ul.entry-interaction-links {
+        display: inline; 
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    .entry-interaction-links a { 
+        $entry_interaction_link_colors 
+    }
+
+    ul.entry-interaction-links li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+
+    /* comments */
+    .talkform { 
+        width: 100%; 
+    }
+
+    .comment-wrapper {
+        padding: .5em 0;
+        min-width: 15em;
+    }
+
+    .toppages,
+    .bottompages { 
+        margin: 1em 0; 
+        text-align: center;
+     }
+
+    .bottomcomment { 
+        margin: 1em 0; 
+        text-align: right;
+    }
+
+    .comment,
+    .toppages,
+    .bottompages,
+    .bottomcomment {
+        $entry_colors
+        border-style: solid;
+        border-width: .5em .25em;
+        margin-top: 0;
+        padding: .5em;    
+    }
+
+    .comment .comment-title {
+        $comment_title_font
+        margin: 0;
+    }
+
+    .comment .comment-title, 
+    .comment .comment-title a {
+        $comment_title_colors
+    }
+
+    .no-subject .comment .comment-title {
+        background: none;
+        border: none;
+    }
+
+    .comment-content { 
+        margin: 1em 0; 
+    }
+
+    .comment .footer { 
+        text-align: right; 
+    }
+
+    ul.comment-management-links {
+        display: inline;
+        margin-left: 0;
+        padding-left: 0;
+    }
+  
+    ul.comment-management-links li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+    ul.comment-interaction-links {
+        display: inline;
+        margin-left: 0;
+        padding-left: 0;    
+    }
+
+    ul.comment-interaction-links li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+    textarea#commenttext {
+        width: 100%; /* fix for FF form width glitch */
+    }
+
+    .bottomcomment { 
+        margin-top: 1em; 
+    }
+
+    .bottomcomment label { 
+        display: block; 
+    }
+
+    /* archive */
+    table.month {
+       border-collapse: collapse; 
+       margin: 0 auto;
+    }
+
+    table.month td {
+       height: 3.25em;
+    } 
+
+    table.month td,
+    table.month th {
+       border: 1px solid;
+       padding: .25em .5em;
+    }
+
+    table.month td p {
+        margin: 0;
+        padding: 3px;
+    }
+
+    .month {
+        $entry_colors
+        border-style: solid;
+        border-width: .5em .25em;
+        margin: 1em 0; 
+        padding: .5em;
+    }
+
+    .month dl dt {
+        font-weight: bold;
+    }
+
+    .month dl .time {
+        padding-right: .5em;
+    }
+
+    .month dl h3 {
+        display: inline;
+        font-size: medium;
+    }
+
+    .page-month .month .entry-poster {
+        margin-right: .5em;
+    }
+
+   .month dl .tag ul {
+        margin-top: 0;
+    }
+
+    /* tags */
+   .tags-container {
+        $entry_colors
+        border-style: solid;
+        border-width: .5em .25em;
+        padding: .5em;
+        margin: 1em 0; 
+    }
+
+    /* icons */
+    .sorting-options ul {
+        margin-left: 0;
+    }
+
+    .sorting-options ul li {
+        display: inline;
+    }
+
+    .icon-keywords ul {
+        display: inline;
+        margin-left: .5em;
+        padding-left: 0;
+    }
+
+    .icon-keywords ul li {
+        display: inline;
+        padding: .25em;
+    }
+
+    /* modules */
+    .module {
+        $module_background
+        $module_colors
+        border-width: .5em .25em;
+        clear: both;
+        margin: 1em 0;
+        padding: .5em;
+    }
+
+    .module a { 
+        $module_link_colors 
+    }
+
+    .module a:visited { 
+        $module_link_visited_colors 
+    }
+
+    .module a:hover { 
+        $module_link_hover_colors 
+    }
+
+    .module a:active { 
+        $module_link_active_colors 
+    }
+
+    .module h2 {
+        $module_title_colors
+        $module_title_font
+    }
+
+    h2.module-header { 
+        margin: 0;
+    }
+
+    .module-content {
+        $module_font
+    }
+
+    .module-content ul {
+        list-style: outside;
+        margin-left: 1em;
+        padding-left: 0;
+    }
+
+    .module-content li {
+        margin: .5em 0;
+    }
+
+    .one-column-split .module-navlinks li,
+    .one-column-split .module-cuttagcontrols .module-header,
+    .one-column-split .module-cuttagcontrols .module-content {
+        display: inline;
+    }
+
+    .one-column-split .module-navlinks ul { 
+        margin: .5em 0;
+        text-align: center; 
+    }
+
+    .module-navlinks ul {
+        list-style: none;
+        margin-left: 0;
+        padding-left: 0;    
+    }
+
+    .module-navlinks li {
+        padding-right: 1.5em;
+    }
+
+    .one-column-split .module-cuttagcontrols h2.module-header {
+        font-size: medium;
+        margin: 0;
+        padding: 0 1em 0 0;    
+    }
+
+    .cutTagControls img {
+        margin: .25em 1em;
+    }
+
+    ul.userlite-interaction-links.icon-links {
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    ul.userlite-interaction-links.icon-links li {
+        display: inline;
+        padding: 0 .20em;
+    }
+
+    ul.userlite-interaction-links.text-links {
+        text-align: left;
+    }
+
+    .module-calendar .module-content {
+        text-align: center;
+    }
+
+    .one-column .module-calendar .module-content {
+        text-align: left;
+    }
+
+    .module-calendar table {
+        margin: 0 auto;
+    }
+
+    .one-column .module-calendar table {
+        margin: 0;
+    }
+
+    .module-calendar td {
+        padding: 3px;
+    }
+
+    .module-calendar td a {
+        display: block;
+        padding: 2px;
+    }  
+
+    .module-calendar .entry-day { 
+        background-color: $*color_module_highlight; 
+    }
+
+    .search-box {
+        margin: .2em auto;
+        max-width: 100%;
+    }
+
+    /* wrap long content, particularly openid usernames */
+    .module-pagesummary .ljuser {
+        white-space: normal !important;
+    }
+
+    .module-pagesummary .module-content {
+        word-wrap: break-word;
+    }
+
+    .module-credit dt, .module-credit dd {
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+
+    .module-credit dt {
+        font-weight: bold;
+        margin-right: 0.5em;
+    }
+
+    .module-credit dd { 
+        margin-right: .5em; 
+    }
+
+    .tags_cloud li, 
+    .module-tags_cloud li { 
+    display: inline; 
+    }
+
+    .module-syndicate .module-content {
+        text-align: center;
+    }
+
+    .one-column .module-syndicate .module-content {
+        text-align: left;
+    }
+
+    """;
+}
