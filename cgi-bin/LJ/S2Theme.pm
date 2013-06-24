@@ -63,6 +63,7 @@ sub default_themes {
         librariansdream => 'librariansdream/grayscalelight',
         lineup => 'lineup/modernity',
         marginless => 'marginless/mars',
+        mobility => 'mobility/ivoryalcea',
         modular => 'modular/mediterraneanpeach',
         motion => 'motion/blue',
         negatives => 'negatives/black',
