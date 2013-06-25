@@ -21,7 +21,7 @@ use warnings;
 use DW::Routing;
 use LJ::JSON;
 
-DW::Routing->register_string( "/__rpc_cuttag", \&cutexpander_handler, app => 1, user => 1, format => 'json' );
+DW::Routing->register_rpc( "cuttag", \&cutexpander_handler, format => 'json' );
 
 sub cutexpander_handler {
     my $opts = shift;

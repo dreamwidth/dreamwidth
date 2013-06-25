@@ -42,6 +42,7 @@ our $T_TESTING_ERRORS;
 my $default_content_types = {
     'html' => "text/html; charset=utf-8",
     'json' => "application/json; charset=utf-8",
+    'js' => "application/javascript; charset=utf-8",
     'plain' => "text/plain; charset=utf-8",
     'png' => "image/png",
     'atom' => "application/atom+xml; charset=utf-8",
@@ -408,6 +409,32 @@ sub register_regex {
     push @{$regex_choices{app}}, $hash if $hash->{app};
     push @{$regex_choices{user}}, $hash if $hash->{user};
 }
+
+=head2 C<< $class->register_rpc( $name, $sub, %opts ) >>
+
+Register a RPC call
+
+=over
+
+=item name - RPC call name
+
+=item sub - sub
+
+=item Opts ( see register_string )
+
+=back
+
+=cut
+
+sub register_rpc {
+    my ( $class, $string, $sub, %opts ) = @_;
+
+    delete $opts{app};
+    delete $opts{user};
+    $class->register_string( "/__rpc_$string", $sub, app => 1, user => 1, %opts );
+    $class->register_regex( qr!^/[^/]+/\Q__rpc_$string\E$!, $sub, user => 1, %opts );
+}
+
 
 # internal method, intentionally no POD
 # applies default for opts and hash
