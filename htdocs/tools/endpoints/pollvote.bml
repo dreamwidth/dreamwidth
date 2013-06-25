@@ -67,7 +67,7 @@ _c?>
         }
 
         unless (LJ::check_form_auth()) {
-            return $err->("Form is invalid");
+            return $err->("Form is invalid; reload and try again");
         }
     
         my $error;
