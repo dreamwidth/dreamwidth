@@ -42,7 +42,7 @@ set color_module_highlight = "#e8e4ce";
 ## Images
 ##===============================
 
-set image_background_page_url = "mobility/mitsubaaoi-tan.png";
+set image_background_page_url = "mobility/ivoryalcea.png";
 
 
 #NEWLAYER: mobility/starflower
@@ -90,4 +90,4 @@ set color_module_highlight = "#000";
 ## Images
 ##===============================
 
-set image_background_page_url = "mobility/roundedstar.png";
+set image_background_page_url = "mobility/starflower.png";
