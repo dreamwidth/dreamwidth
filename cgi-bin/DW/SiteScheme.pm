@@ -32,7 +32,7 @@ my %sitescheme_data = (
     'gradation-horizontal' => { parent => 'common', title => "Gradation Horizontal" },
     'gradation-vertical' => { parent => 'common', title => "Gradation Vertical" },
     lynx => { parent => 'common', title => "Lynx (light mode)" },
-    global => { engine => 'bml' },
+    global => { engine => 'current' },
     tt_runner => { engine => 'bml', internal => 1 },
 );
 
@@ -65,7 +65,12 @@ sub new {
     return bless { scheme => $scheme }, $class;
 }
 
+sub name {
+    return $_[0]->{scheme};
+}
+
 sub tt_file {
+    return undef unless $_[0]->supports_tt;
     return $_[0]->{scheme} . '.tt';
 }
 
@@ -73,6 +78,14 @@ sub engine {
     $_[0]->__load_data;
 
     return $sitescheme_data{$_[0]->{scheme}}->{engine} || 'tt';
+}
+
+sub supports_tt {
+    return $_[0]->engine eq 'tt' || $_[0]->engine eq 'current';
+}
+
+sub supports_bml {
+    return $_[0]->engine eq 'bml' || $_[0]->engine eq 'current';
 }
 
 =head2 C<< DW::SiteScheme->inheritance( $scheme ) >>
