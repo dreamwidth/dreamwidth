@@ -2273,13 +2273,18 @@ sub Page
         my $theme;
 
         if ( $style && $style->{layer}->{theme} ) {
-            $theme = LJ::S2Theme->new(themeid => $style->{layer}->{theme}, user => $opts->{style_u} || $u );
+            $theme = LJ::S2Theme->new(
+                themeid => $style->{layer}->{theme},
+                user => $opts->{style_u} || $u,
+                undef_if_missing => 1 );
+        }
 
+        if ( $theme ) {
             $layoutname = $theme->layout_name;
             $themename = $theme->name;
             $layouturl = "$LJ::SITEROOT/customize/?layoutid=". $theme->layoutid if $theme->is_system_layout;
         } else {
-            $layoutname = S2::get_layer_info($style-> {layer}->{layout}, 'name');
+            $layoutname = S2::get_layer_info($style->{layer}->{layout}, 'name');
             $themename = LJ::Lang::ml("s2theme.themename.notheme");
         }
     }
