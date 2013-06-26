@@ -47,10 +47,6 @@
 
 .admin.mysql.text=Shows current MySQL status.
 
-.admin.navtag.link=Navtag Edit
-
-.admin.navtag.text=Allows you to tag pages for navigation.
-
 .admin.pay.link=Payment Managements
 
 .admin.pay.text=Review payment details.
