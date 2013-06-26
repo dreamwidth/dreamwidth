@@ -76,7 +76,7 @@ my @all_roles = ( 'app', 'user' );
 my $data = undef;
 my $cache_file = $HOME . "/logs/.cached_routing";
 #              YYYYMMDDVVV
-my $version = "20120615001";
+my $version = "20130625001";
 my $dirty = 1;
 
 if ( -e $cache_file ) {
@@ -473,6 +473,7 @@ sub patch_routing_methods {
 
     *DW::Routing::register_static = patch_wrap( \&DW::Routing::register_static, 1 );
     *DW::Routing::register_redirect = patch_wrap( \&DW::Routing::register_redirect, 1 );
+    *DW::Routing::register_rpc = patch_wrap( \&DW::Routing::register_rpc, 1 );
 
     my $orig_apply = \&DW::Routing::_apply_defaults;
     *DW::Routing::_apply_defaults = sub {

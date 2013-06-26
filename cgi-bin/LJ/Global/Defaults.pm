@@ -269,8 +269,6 @@ no strict "vars";
                        esn_subs       => "tools/endpoints/esn_subs.bml",
                        trans_save     => "tools/endpoints/trans_save.bml",
                        dirsearch      => "tools/endpoints/directorysearch.bml",
-                       poll           => "tools/endpoints/poll.bml",
-                       pollvote       => "tools/endpoints/pollvote.bml",
                        jobstatus      => "tools/endpoints/jobstatus.bml",
                        widget         => "tools/endpoints/widget.bml",
                        multisearch    => "tools/endpoints/multisearch.bml",
