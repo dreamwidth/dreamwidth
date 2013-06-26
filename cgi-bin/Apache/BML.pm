@@ -1419,9 +1419,14 @@ sub set_scheme
 
     my $dw_scheme = DW::SiteScheme->get($scheme);
 
-    if ( $dw_scheme && $dw_scheme->engine eq 'tt' ) {
-        $scheme = 'tt_runner';
-        DW::Request->get->pnote( actual_scheme => $dw_scheme );
+    if ( $dw_scheme ) {
+        my $engine = $dw_scheme->engine;
+        if ( $engine eq 'tt' ) {
+            $scheme = 'tt_runner';
+            DW::Request->get->pnote( actual_scheme => $dw_scheme );
+        } elsif ( ! $dw_scheme->supports_bml ) {
+            die "Unknown scheme engine $engine for $scheme";
+        }
     }
 
     my $file = "$req->{env}{LookRoot}/$scheme.look";

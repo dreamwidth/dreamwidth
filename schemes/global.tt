@@ -20,3 +20,17 @@
 [%- END %]
 </ul>
 [%- END -%]
+[%- BLOCK block.page -%]
+<html>
+<head>
+<title>[% sections.title %]</title>
+[%- dw_scheme.need_res("stc/lj_base-app.css") -%]
+[% dw_scheme.res_includes %]
+[% sections.head %]
+[% dw_scheme.final_head_html %]
+</head>
+<body [% section.bodyopts %]>
+[% content %]
+</body>
+</html>
+[%- END -%]
