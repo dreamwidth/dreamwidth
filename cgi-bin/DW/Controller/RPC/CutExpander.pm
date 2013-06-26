@@ -17,7 +17,6 @@
 package DW::Controller::RPC::CutExpander;
 
 use strict;
-use warnings;
 use DW::Routing;
 use LJ::JSON;
 

@@ -432,6 +432,9 @@ sub register_rpc {
     delete $opts{app};
     delete $opts{user};
     $class->register_string( "/__rpc_$string", $sub, app => 1, user => 1, %opts );
+
+    # FIXME: per Bug 4900, this line is temporary and can go away as soon as
+    #  all the javascript is updated
     $class->register_regex( qr!^/[^/]+/\Q__rpc_$string\E$!, $sub, user => 1, %opts );
 }
 

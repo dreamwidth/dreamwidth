@@ -19,7 +19,7 @@ use strict;
 use DW::Routing;
 use LJ::JSON;
 
-DW::Routing->register_rpc( "/__rpc_iconbrowser_save", \&iconbrowser_save, format => 'json' );
+DW::Routing->register_rpc( "iconbrowser_save", \&iconbrowser_save, format => 'json' );
 
 # saves the metatext / smallicons options (Y/N)
 sub iconbrowser_save {
