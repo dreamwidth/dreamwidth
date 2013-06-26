@@ -1663,7 +1663,7 @@ sub get_policy
     local $_;
 
     foreach my $infix ("", "-local") {
-        my $file = "$LJ::HOME/bin/upgrading/s2layers/policy${infix}.dat";
+        my $file = "$LJ::HOME/styles/policy${infix}.dat";
         my $layer = undef;
         open (P, $file) or next;
         while (<P>) {
