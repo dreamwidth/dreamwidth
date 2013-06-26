@@ -110,6 +110,10 @@ sub as_html {
     my $pichtml = display_pic($msg, $other_u);
     my $subject = $msg->subject;
 
+    if ( $other_u->is_suspended ) { 
+        $subject = "(Reply from suspended user)";
+    }
+
     my $ret;
     $ret .= "<div class='pkg'><div style='width: 60px; float: left;'>";
     $ret .= $pichtml . "</div><div>";
@@ -126,13 +130,16 @@ sub as_html_actions {
     my $msg = $self->load_message;
     my $msgid = $msg->msgid;
     my $u = LJ::want_user($msg->journalid);
+    my $other_u = $msg->other_u;
 
     my $ret = "<div class='actions'>";
-    $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Reply</a>";
-    $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add?user=". $msg->other_u->user ."&action=subscribe'>Subscribe to ". $msg->other_u->user ."</a>"
-        unless $u->watches( $msg->other_u );
-    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Mark as Spam</a>"
-        unless LJ::sysban_check( 'spamreport', $u->user );
+    if (! $other_u->is_suspended ) {
+        $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Reply</a>";
+        $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add?user=". $msg->other_u->user ."&action=subscribe'>Subscribe to ". $msg->other_u->user ."</a>"
+            unless $u->watches( $msg->other_u );
+        $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Mark as Spam</a>"
+            unless LJ::sysban_check( 'spamreport', $u->user );
+    }
     $ret .= "</div>";
 
     return $ret;
@@ -165,6 +172,11 @@ sub content {
     my $msg = $self->load_message;
 
     my $body = $msg->body;
+    my $other_u = $msg->other_u;
+
+    if ( $other_u->is_suspended ) {
+        $body = "(Reply from suspended user)";
+    }
     $body = LJ::html_newlines($body);
     $body = "<div class='actions_top'>" . $self->as_html_actions . "</div>" . $body
         if LJ::has_too_many( $body, linebreaks => 10, characters => 2000 );
