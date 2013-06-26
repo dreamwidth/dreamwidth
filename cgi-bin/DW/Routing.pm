@@ -199,7 +199,7 @@ sub _call_hash {
         or die "LJ::errobj didn't return anything.";
     unless ( $T_TESTING_ERRORS ) {
         $err->log;
-        warn "$msg";
+        warn $msg;
     }
 
     # JSON error rendering
@@ -230,7 +230,29 @@ sub _call_hash {
         $text = "<b>[Error: $msg]</b>" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
         $opts->{no_sitescheme} = 1 if $T_TESTING_ERRORS;
 
-        return DW::Template->render_string( $text, $opts );
+        $ret = eval { return DW::Template->render_string( $text, $opts ); };
+        return $ret unless $@;
+
+        my $msg2 = $@;
+        my $err2 = LJ::errobj( $msg2 )
+            or die "LJ::errobj didn't return anything.";
+        unless ( $T_TESTING_ERRORS ) {
+            $err2->log;
+            warn $msg2;
+        }
+
+        if ( ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER ) {
+            $msg2 = $err2->as_html;
+            $msg2 .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
+
+            $text .= "\n<br/><br/>Additionally, while trying to render this error page:";
+            $text .= "\n<b>[Error 2: $msg2]</b>";
+        }
+
+        $r->status( 500 );
+        $r->content_type( 'text/html' );
+        $r->print( $text );
+        return $r->OK;
     } else {
         $msg = $err->as_string;
         chomp $msg;
