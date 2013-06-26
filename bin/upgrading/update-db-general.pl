@@ -948,6 +948,7 @@ register_tabledrop("qotd");
 register_tabledrop("zip");
 register_tabledrop("openid_external");
 register_tabledrop("site_messages");
+register_tabledrop("navtag");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
