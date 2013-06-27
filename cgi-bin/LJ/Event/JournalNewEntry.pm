@@ -42,6 +42,8 @@ sub entry {
 sub matches_filter {
     my ($self, $subscr) = @_;
 
+    return 0 unless $subscr->available_for_user;
+
     my $ditemid = $self->arg1;
     my $evtju = $self->event_journal;
     return 0 unless $evtju && $ditemid; # TODO: throw error?
