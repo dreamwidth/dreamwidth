@@ -33,8 +33,10 @@ sub arg_list {
     return ( "Comment jtalkid" );
 }
 
-sub related_events {
-    return map { $_->etypeid } ( $_[0], "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited" );
+sub related_event_classes {
+    return (
+        $_[0], "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited",
+            "LJ::Event::JournalNewComment::Reply" );
 }
 
 sub is_common { 1 }

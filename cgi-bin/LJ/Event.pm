@@ -34,6 +34,8 @@ foreach my $event (@EVENTS) {
 #                                   ($ju,$jtalkid)   # TODO: should probably be ($ju,$jitemid,$jtalkid)
 #    LJ::Event::JournalNewComment::TopLevel -- a journal has a new top-level comment in it
 #                                   ($ju,$jitemid)
+#    LJ::Event::JournalNewComment::Reply -- a journal has a new top-level comment in it
+#                                   ($ju,$jitemid)
 #    LJ::Event::AddedToCircle      -- user $fromuserid added $u to their circle; $actionid is 1 (trust) or 2 (watch)
 #                                   ($u,$fromuserid,$actionid)
 #    LJ::Event::RemovedFromCircle  -- user $fromuserid removed $u to their circle; $actionid is 1 (trust) or 2 (watch)
@@ -219,6 +221,13 @@ sub available_for_user  {
 # override for very hard events
 sub schwartz_role { 'default' }
 
+# additional SQL for subscriptions
+#  does not need to be prefixed with 'AND'
+sub additional_subscriptions_sql {
+    return ('');
+}
+
+
 ############################################################################
 #            Don't override
 ############################################################################
@@ -286,6 +295,8 @@ sub subscriptions {
 
     my $allmatch = 0;
     my $zeromeans = $self->zero_journalid_subs_means;
+    my ( $addl_sql, @addl_args ) = $self->additional_subscriptions_sql;
+    $addl_sql = " AND ( $addl_sql )" if $addl_sql;
 
     my @wildcards_from; # used to hold the trusted and/or watched by lists for $self->u
     if ( $zeromeans eq 'trusted' ) {
@@ -320,14 +331,14 @@ sub subscriptions {
         my $limit_sql = ($limit && $limit_remain) ? "LIMIT $limit_remain" : '';
         my $sql = "SELECT userid, subid, is_dirty, journalid, etypeid, " .
             "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
-            "FROM subs WHERE etypeid IN ($events_list) $journal_match $and_enabled $limit_sql";
+            "FROM subs WHERE etypeid IN ($events_list) $journal_match $and_enabled $addl_sql $limit_sql";
 
         my $sth = $udbh->prepare($sql);
         my @args;
         push @args, $self->u->id unless $allmatch;
-        $sth->execute(@args);
+        $sth->execute(@args,@addl_args);
         if ($sth->err) {
-            warn "SQL: [$sql], args=[@args]\n";
+            warn "SQL: [$sql], args=[@args], addl_args=[@addl_args]\n";
             die $sth->errstr;
         }
 
@@ -343,10 +354,10 @@ sub subscriptions {
             my $sth = $udbh->prepare(
                                      "SELECT userid, subid, is_dirty, journalid, etypeid, " .
                                      "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
-                                     "FROM subs USE INDEX(PRIMARY) WHERE etypeid IN ($events_list) AND journalid=0 $and_enabled AND userid IN ($jidlist)"
+                                     "FROM subs USE INDEX(PRIMARY) WHERE etypeid IN ($events_list) AND journalid=0 $and_enabled AND userid IN ($jidlist) $addl_sql"
                                      );
 
-            $sth->execute;
+            $sth->execute(@addl_args);
             die $sth->errstr if $sth->err;
 
             while (my $row = $sth->fetchrow_hashref) {
@@ -437,8 +448,12 @@ sub etypeid {
 # return a list of related events, for considering as one group
 # to avoid dupes when processing subs
 # list includes your own etypeid
+sub related_event_classes {
+    return $_[0];
+}
+
 sub related_events {
-    return $_[0]->etypeid;
+    return return map { $_->etypeid } $_[0]->related_event_classes;
 }
 
 # Class method

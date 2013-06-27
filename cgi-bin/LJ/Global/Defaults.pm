@@ -230,6 +230,7 @@ no strict "vars";
                                JournalNewComment
                                JournalNewComment::TopLevel
                                JournalNewComment::Edited
+                               JournalNewComment::Reply
                                JournalNewEntry
                                NewUserpic
                                OfficialPost
