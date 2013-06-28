@@ -35,7 +35,9 @@ sub arg_list {
 }
 
 sub matches_filter {
-    my $self = shift;
+    my ($self,$subscr) = @_;
+
+    return 0 unless $subscr->available_for_user;
 
     # don't notify voters of their own answers
     return $self->voter->equals($self->event_journal) ? 0 : 1;

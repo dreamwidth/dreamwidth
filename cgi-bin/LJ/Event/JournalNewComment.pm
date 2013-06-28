@@ -177,6 +177,7 @@ sub _can_view_content {
 
     return 1;
 }
+
 sub content {
     my ($self, $target) = @_;
 
@@ -456,9 +457,10 @@ sub subscription_as_html {
 sub matches_filter {
     my ($self, $subscr) = @_;
 
-    my $sjid = $subscr->journalid;
-    my $ejid = $self->event_journal->{userid};
+    return 0 unless $subscr->available_for_user;
 
+    my $sjid = $subscr->journalid;
+    my $ejid = $self->event_journal->userid;
     # if subscription is for a specific journal (not a wildcard like 0
     # for all friends) then it must match the event's journal exactly.
     return 0 if $sjid && $sjid != $ejid;
@@ -534,9 +536,17 @@ sub comment {
 sub available_for_user  {
     my ($class, $u, $subscr) = @_;
 
+    my $journal = $subscr->journal;
+
+    my ($sarg1, $sarg2) = ($subscr->arg1, $subscr->arg2);
+
     # not allowed to track replies to comments
-    return 0 if ! $u->can_track_thread &&
-        $subscr->arg2;
+    return 0
+        if ! $u->can_track_thread && $sarg2;
+
+    return 0
+        if ( $sarg1 == 0 && $sarg2 == 0 ) &&
+            $journal->is_community && ! $u->can_track_all_community_comments( $journal );
 
     return 1;
 }
