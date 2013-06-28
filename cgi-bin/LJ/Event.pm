@@ -366,6 +366,8 @@ sub zero_journalid_subs_means { "" }
 # INSTANCE METHOD: SHOULD OVERRIDE if the subscriptions support filtering
 sub matches_filter {
     my ($self, $subsc) = @_;
+
+    return 0 unless $subsc->available_for_user;
     return 1;
 }
 
