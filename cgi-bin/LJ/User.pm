@@ -3379,10 +3379,6 @@ sub ljuser_display {
             $height = 16;
         }
 
-        if (my $site = LJ::ExternalSite->find_matching_site($url)) {
-            $imgurl = $site->icon_url;
-        }
-
         my $profile = $profile_url ne '' ? $profile_url :
             "$LJ::SITEROOT/profile?userid=" . $u->userid . "&amp;t=I$andfull";
 
