@@ -300,7 +300,13 @@ sub get_chgtime_unix
 
     $dmid = int($dmid || 1);
 
-    my $l = get_lang($lncode) or return "No lang info for lang $lncode";
+    my $l = get_lang( $lncode );
+    unless ( $l ) {
+        warn "No lang info for lang $lncode. Make sure you've run\n"
+           . "    bin/upgrading/texttool.pl load";
+        return 0;
+    }
+
     my $lnid = $l->{'lnid'}
         or die "Could not get lang_id for lang $lncode";
 
