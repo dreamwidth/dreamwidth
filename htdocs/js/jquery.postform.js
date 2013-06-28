@@ -399,7 +399,7 @@ init: function(formData) {
             });
 
             $.when.apply($, requests).done(function() {
-                var members_data_list = "<div id=\"custom_access_group_members_body\">";
+                var members_data_list = "";
                 members_data.sort();
                 for (member in members_data) {
                     members_data_list = members_data_list + "<li>" + members_data[member] + "</li>";
