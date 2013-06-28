@@ -498,7 +498,7 @@ body<=
                     LJ::Subscription::Pending->new($u,
                         event => 'JournalNewComment::Reply',
                     ),
-                    #"LJ::Setting::CommentEmailNotify",
+                    "LJ::Setting::CommentEmailNotify",
                     "LJ::Setting::SelfCommentEmail",
                     LJ::Subscription::Pending->new($u,
                         event => 'PollVote',

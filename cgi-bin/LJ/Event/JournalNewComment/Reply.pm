@@ -27,15 +27,26 @@ sub subscription_as_html {
     return BML::ml( $key . ".reply" );
 }
 
-sub additional_subscriptions_sql {
+sub _shared_checks {
     my $comment = $_[0]->comment;
     my $parent = $comment->parent;
 
-    # FIXME: Early bail?
-    return ('0 = 1') unless $parent;
-    return ('0 = 1') unless $parent->posterid;
+    return ('userid = ?', $parent->posterid)
+        if ( $parent && $parent->posterid );
 
-    return ('userid = ?', $parent->posterid);
+    my $entry = $comment->entry;
+    return (undef) unless $entry;
+
+    return ('userid = ?', $entry->posterid);
+}
+
+sub early_filter_event {
+    my ($v,@args) = _shared_checks($_[1]);
+    return ( defined $v ) ? 1 : 0;
+}
+
+sub additional_subscriptions_sql {
+    return _shared_checks($_[1]);
 }
 
 sub matches_filter {
@@ -45,8 +56,12 @@ sub matches_filter {
     my $ejid = $self->event_journal->{userid};
 
     my $comment = $self->comment;
+    my $parent = $comment->parent;
+    return 0 if $parent && $comment->posterid == $parent->posterid;
+
     my $entry = $comment->entry;
     return 0 unless $entry;
+    return 0 if $comment->posterid == $entry->posterid;
 
     my $watcher = $subscr->owner;
     return 0 unless $comment->visible_to( $watcher );

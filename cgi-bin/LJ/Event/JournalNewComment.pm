@@ -35,7 +35,7 @@ sub arg_list {
 
 sub related_event_classes {
     return (
-        $_[0], "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited",
+        "LJ::Event::JournalNewComment", "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited",
             "LJ::Event::JournalNewComment::Reply" );
 }
 
@@ -97,6 +97,7 @@ sub as_email_headers {
         'In-Reply-To'  => $par_msgid,
         'References'   => "$top_msgid $par_msgid",
         'X-Journal-Name' => $journalu->user,
+        'X-From-Esn'    => 1,
         'Reply-To'     => DW::EmailPost::Comment->replyto_address_header(
                             $u, $journalu,
                             $self->comment->entry->ditemid,

@@ -221,12 +221,24 @@ sub available_for_user  {
 # override for very hard events
 sub schwartz_role { 'default' }
 
+# Quick way to bypass during subscription lookup
+sub early_filter_event {
+    # arguments: ($class,$evt) = @_;
+    return 1;
+}
+
 # additional SQL for subscriptions
 #  does not need to be prefixed with 'AND'
 sub additional_subscriptions_sql {
+    # arguments: ($class,$evt) = @_;
     return ('');
 }
 
+# valid values are nothing ("" or undef), "all", or "friends"
+sub zero_journalid_subs_means {
+    # arguments: ($class,$evt) = @_;
+    return '';
+}
 
 ############################################################################
 #            Don't override
@@ -292,87 +304,94 @@ sub subscriptions {
 
     # allsubs
     my @subs;
-
-    my $allmatch = 0;
-    my $zeromeans = $self->zero_journalid_subs_means;
-    my ( $addl_sql, @addl_args ) = $self->additional_subscriptions_sql;
-    $addl_sql = " AND ( $addl_sql )" if $addl_sql;
-
-    my @wildcards_from; # used to hold the trusted and/or watched by lists for $self->u
-    if ( $zeromeans eq 'trusted' ) {
-        @wildcards_from = $self->u->trusted_by_userids;
-    } elsif ( $zeromeans eq 'watched' ) {
-        @wildcards_from = $self->u->watched_by_userids;
-    } elsif ( $zeromeans eq 'trusted_or_watched' ) {
-        my %unique_ids = map { $_ => 1 } ( $self->u->trusted_by_userids, $self->u->watched_by_userids );
-        @wildcards_from = keys %unique_ids;
-    } elsif ( $zeromeans eq 'all' ) {
-        $allmatch = 1;
-    }
-
+    
+    my @event_classes = $self->related_event_classes;
     my $limit_remain = $limit;
 
-    # SQL to match only on active and enabled subs
-    my $and_enabled = "AND flags & " .
-        (LJ::Subscription->INACTIVE | LJ::Subscription->DISABLED) . " = 0";
-
-    # TODO: gearman parallelize:
-    foreach my $cid ($cid ? ($cid) : @LJ::CLUSTERS) {
+    foreach my $class ( @event_classes ) {
         # we got enough subs
         last if $limit && $limit_remain <= 0;
+        my $etypeid = $class->etypeid;
 
-        my $udbh = LJ::get_cluster_master($cid)
-            or die;
+        next unless $class->early_filter_event( $self );
 
-        my $events_list = join( ",", $self->related_events );
+        my $allmatch = 0;
+        my $zeromeans = $class->zero_journalid_subs_means( $self );
+        my ( $addl_sql, @addl_args ) = $class->additional_subscriptions_sql( $self );
+        $addl_sql = " AND ( $addl_sql )" if $addl_sql;
 
-        # first we find exact matches (or all matches)
-        my $journal_match = $allmatch ? "" : "AND journalid=?";
-        my $limit_sql = ($limit && $limit_remain) ? "LIMIT $limit_remain" : '';
-        my $sql = "SELECT userid, subid, is_dirty, journalid, etypeid, " .
-            "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
-            "FROM subs WHERE etypeid IN ($events_list) $journal_match $and_enabled $addl_sql $limit_sql";
-
-        my $sth = $udbh->prepare($sql);
-        my @args;
-        push @args, $self->u->id unless $allmatch;
-        $sth->execute(@args,@addl_args);
-        if ($sth->err) {
-            warn "SQL: [$sql], args=[@args], addl_args=[@addl_args]\n";
-            die $sth->errstr;
+        my @wildcards_from; # used to hold the trusted and/or watched by lists for $self->u
+        if ( $zeromeans eq 'trusted' ) {
+            @wildcards_from = $self->u->trusted_by_userids;
+        } elsif ( $zeromeans eq 'watched' ) {
+            @wildcards_from = $self->u->watched_by_userids;
+        } elsif ( $zeromeans eq 'trusted_or_watched' ) {
+            my %unique_ids = map { $_ => 1 } ( $self->u->trusted_by_userids, $self->u->watched_by_userids );
+            @wildcards_from = keys %unique_ids;
+        } elsif ( $zeromeans eq 'all' ) {
+            $allmatch = 1;
         }
 
-        while (my $row = $sth->fetchrow_hashref) {
-            push @subs, LJ::Subscription->new_from_row($row);
-        }
 
-        # then we find wildcard matches.
-        if (@wildcards_from) {
-            # FIXME: journals are only on one cluster! split jidlist based on cluster
-            my $jidlist = join(",", @wildcards_from);
+        # SQL to match only on active and enabled subs
+        my $and_enabled = "AND flags & " .
+            (LJ::Subscription->INACTIVE | LJ::Subscription->DISABLED) . " = 0";
 
-            my $sth = $udbh->prepare(
-                                     "SELECT userid, subid, is_dirty, journalid, etypeid, " .
-                                     "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
-                                     "FROM subs USE INDEX(PRIMARY) WHERE etypeid IN ($events_list) AND journalid=0 $and_enabled AND userid IN ($jidlist) $addl_sql"
-                                     );
+        # TODO: gearman parallelize:
+        foreach my $cid ($cid ? ($cid) : @LJ::CLUSTERS) {
+            # we got enough subs
+            last if $limit && $limit_remain <= 0;
 
-            $sth->execute(@addl_args);
-            die $sth->errstr if $sth->err;
+            my $udbh = LJ::get_cluster_master($cid)
+                or die;
+
+
+            # first we find exact matches (or all matches)
+            my $journal_match = $allmatch ? "" : "AND journalid=?";
+            my $limit_sql = ($limit && $limit_remain) ? "LIMIT $limit_remain" : '';
+            my $sql = "SELECT userid, subid, is_dirty, journalid, etypeid, " .
+                "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
+                "FROM subs WHERE etypeid = ? $journal_match $and_enabled $addl_sql $limit_sql";
+
+            my $sth = $udbh->prepare($sql);
+            my @args = ($etypeid);
+            push @args, $self->u->id unless $allmatch;
+            $sth->execute(@args,@addl_args);
+            if ($sth->err) {
+                warn "SQL: [$sql], args=[@args], addl_args=[@addl_args]\n";
+                die $sth->errstr;
+            }
 
             while (my $row = $sth->fetchrow_hashref) {
                 push @subs, LJ::Subscription->new_from_row($row);
             }
-        }
 
-        $limit_remain = $limit - @subs;
+            # then we find wildcard matches.
+            if (@wildcards_from) {
+                # FIXME: journals are only on one cluster! split jidlist based on cluster
+                my $jidlist = join(",", @wildcards_from);
+
+                my $sth = $udbh->prepare(
+                                         "SELECT userid, subid, is_dirty, journalid, etypeid, " .
+                                         "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
+                                         "FROM subs USE INDEX(PRIMARY) WHERE etypeid = ? AND journalid=0 $and_enabled AND userid IN ($jidlist) $addl_sql"
+                                         );
+
+                $sth->execute($etypeid,@addl_args);
+                die $sth->errstr if $sth->err;
+
+                while (my $row = $sth->fetchrow_hashref) {
+                    push @subs, LJ::Subscription->new_from_row($row);
+                }
+            }
+
+            $limit_remain = $limit - @subs;
+        }
     }
 
     return @subs;
 }
 
-# valid values are nothing ("" or undef), "all", or "friends"
-sub zero_journalid_subs_means { "" }
 
 # INSTANCE METHOD: SHOULD OVERRIDE if the subscriptions support filtering
 sub matches_filter {
