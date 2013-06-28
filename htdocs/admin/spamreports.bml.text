@@ -67,4 +67,6 @@
 .view.closedreports=View Closed Reports
 .view.noreports=No reports found.
 .view.openreports=View Open Reports
-
+.view.poster.comments.posted=[[posted_comma]] [[?posted_raw|comment|comments]] posted
+.view.poster.comments.received=[[received_comma]] [[?received_raw|comment|comments]] received
+.view.poster.entries.posted=[[entries_comma]] [[?entries_raw|entry|entries]] posted
