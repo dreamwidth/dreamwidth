@@ -3786,8 +3786,8 @@ sub placeholder_link {
                 <a href="$link">
                     <img src="$img" class="LJ_Placeholder" title="Click to show embedded content" />
                 </a>
-                $direct_link
             </div>
+            $direct_link
         };
 }
 
