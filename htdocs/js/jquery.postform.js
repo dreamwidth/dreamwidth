@@ -383,9 +383,10 @@ init: function(formData) {
 
         $("#custom_access_groups input[name=custom_bit]").click(function(e) {
             var members_data = []
+            var requests = []
             $(this).parent().parent().find(":checkbox").each(function() {
                 if (this.checked) {
-                    $.ajax("/__rpc_general?mode=list_filter_members&user=" + $("#post_entry").data("journal") + "&filterid=" + this.value, { dataType: "json", async: false }).success(function(data) {
+                    requests.push($.getJSON("/__rpc_general?mode=list_filter_members&user=" + $("#post_entry").data("journal") + "&filterid=" + this.value, function(data) {
                         for ( member in data.filter_members.filterusers) {
                             var the_name = data.filter_members.filterusers[member].fancy_username;
                             var position = members_data.indexOf(the_name);
@@ -393,16 +394,19 @@ init: function(formData) {
                                 members_data.push(the_name);
                             }
                         }
-                    });
+                    }))
                 }
             });
 
-            var members_data_list = "<div id=\"custom_access_group_members_body\">";
-            for (member in members_data) {
-                members_data_list = members_data_list + "<li>" + members_data[member] + "</li>";
-            }
-            $("#custom_access_group_members_body").replaceWith(members_data_list+"</div>");
-            $("#custom_access_group_members").slideDown();
+            $.when.apply($, requests).done(function() {
+                var members_data_list = "<div id=\"custom_access_group_members_body\">";
+                members_data.sort();
+                for (member in members_data) {
+                    members_data_list = members_data_list + "<li>" + members_data[member] + "</li>";
+                }
+                $("#custom_access_group_members_body").html(members_data_list);
+                $("#custom_access_group_members").slideDown();
+            });
         });
     }
 
