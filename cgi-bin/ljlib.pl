@@ -74,7 +74,6 @@ use DW::Request;
 use TheSchwartz;
 use TheSchwartz::Job;
 use LJ::Comment;
-use LJ::ExternalSite;
 use LJ::Message;
 use LJ::ConvUTF8;
 use LJ::Userpic;
