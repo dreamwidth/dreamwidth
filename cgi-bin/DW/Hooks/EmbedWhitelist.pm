@@ -81,6 +81,11 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
 
     return 0 unless $embed_url;
 
+    # the URI module hates network-relative URIs, eg '//youtube.com'
+    if ( substr($embed_url, 0,2) eq '//' ) {
+        $embed_url = 'http:' . $embed_url;
+    }
+
     my $parsed_uri = URI->new( $embed_url );
 
     my $uri_scheme = $parsed_uri->scheme;

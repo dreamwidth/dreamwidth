@@ -285,7 +285,15 @@ sub extract_src_info {
     my ($contents, $cmptext, $journal, $id, $preview, $vid_id, $host, $linktext, $url)
        = map { delete $args->{$_} } qw( contents cmptext journal id preview vid_id host linktext url );
 
-    if ( $contents =~ /src="http:\/\/.*youtube\.com/ ) {
+    my $youtube_uri = qr{    # match...
+        src=["']             # src=" or src='
+        (?:                  # ...then, as a (non-capturing) group:
+            https?:          #     either http: or https:
+        )?                   # ...but matching the group is optional
+        //.*youtube\.com     # //youtube.com, //www.youtube.com, etc
+    }xi ;
+
+    if ( $contents =~ /$youtube_uri/ ) {
         # YouTube
 
         my $host = "https://www.youtube.com/";
