@@ -148,25 +148,30 @@ sub available_for_user  {
 
 # override parent class sbuscriptions method to always return
 # a subscription object for the user
-sub subscriptions {
-    my ( $self, %args ) = @_;
-    my $cid   = delete $args{'cluster'};  # optional
-    my $limit = delete $args{'limit'};    # optional
+sub raw_subscriptions {
+    my ($class, $self, %args) = @_;
+    my $cid   = delete $args{'cluster'};
+    croak("Cluser id (cluster) must be provided") unless defined $cid;
+
+    my $scratch = delete $args{'scratch'}; # optional
+
     croak("Unknown options: " . join(', ', keys %args)) if %args;
     croak("Can't call in web context") if LJ::is_web_context();
 
     my @subs;
     my $u = $self->u;
-    return unless $cid == $u->clusterid;
+    return unless ( $cid == $u->clusterid );
 
-    my $row = { userid  => $self->u->id,
+    my $row = { userid  => $self->u->{userid},
                 ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
+                etypeid => $class->etypeid,
               };
 
     push @subs, LJ::Subscription->new_from_row($row);
 
-    push @subs, eval { $self->SUPER::subscriptions(cluster => $cid,
-                                                   limit   => $limit) };
+    push @subs, eval { LJ::Event::raw_subscriptions($class, $self,
+        cluster => $cid ) };
+
 
     return @subs;
 }

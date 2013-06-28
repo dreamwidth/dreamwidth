@@ -37,6 +37,9 @@ sub _shared_checks {
     my $entry = $comment->entry;
     return (undef) unless $entry;
 
+    # Replies to your own entries are handled by a different event
+    return (undef) unless $entry->journal->is_community;
+
     return ('userid = ?', $entry->posterid);
 }
 

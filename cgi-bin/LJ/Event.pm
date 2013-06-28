@@ -299,28 +299,71 @@ sub subscriptions {
     my ($self, %args) = @_;
     my $cid   = delete $args{'cluster'};  # optional
     my $limit = delete $args{'limit'};    # optional
+    my $scratch = {};
+    croak("Unknown options: " . join(', ', keys %args)) if %args;
+    croak("Can't call in web context") if LJ::is_web_context();
+
+    $scratch->{limit_remain} = $limit;
+
+    my @subs;
+
+    my @event_classes = grep { $_->early_filter_event( $self ) }
+        $self->related_event_classes;
+
+    foreach my $cid ($cid ? ($cid) : @LJ::CLUSTERS) {
+        last if $limit && $scratch->{limit_remain} <= 0;
+        foreach my $class ( @event_classes ) {
+            last if $limit && $scratch->{limit_remain} <= 0;
+            my $etypeid = $class->etypeid;
+            $scratch->{"evt:$etypeid"} //= {};
+            push @subs, $class->raw_subscriptions($self, scratch => $scratch, cluster => $cid);
+        }
+    }
+
+    print Data::Dumper::Dumper($scratch);
+
+    return @subs;
+}
+
+sub raw_subscriptions {
+    my ($class, $self, %args) = @_;
+    my $cid   = delete $args{'cluster'};
+    croak("Cluser id (cluster) must be provided") unless defined $cid;
+
+    my $scratch = delete $args{'scratch'} || {}; # optional
+
     croak("Unknown options: " . join(', ', keys %args)) if %args;
     croak("Can't call in web context") if LJ::is_web_context();
 
     # allsubs
     my @subs;
-    
-    my @event_classes = $self->related_event_classes;
-    my $limit_remain = $limit;
 
-    foreach my $class ( @event_classes ) {
-        # we got enough subs
-        last if $limit && $limit_remain <= 0;
-        my $etypeid = $class->etypeid;
+    my $etypeid = $class->etypeid;
+    my $evt_scratch = $scratch->{"evt:$etypeid"} // {};
 
-        next unless $class->early_filter_event( $self );
+    my $limit_remain = $scratch->{limit_remain};
+    my $and_enabled = "AND flags & " .
+        (LJ::Subscription->INACTIVE | LJ::Subscription->DISABLED) . " = 0";
 
-        my $allmatch = 0;
-        my $zeromeans = $class->zero_journalid_subs_means( $self );
-        my ( $addl_sql, @addl_args ) = $class->additional_subscriptions_sql( $self );
+    return if defined $limit_remain && $limit_remain <= 0;
+
+    my $allmatch = 0;
+    my $zeromeans;
+    my ( $addl_sql, @addl_args );
+    my @wildcards_from;
+
+    if ( defined $evt_scratch->{allmatch} ) {
+        $zeromeans      = $evt_scratch->{zeromeans};
+        $allmatch       = $evt_scratch->{allmatch};
+        @wildcards_from = @{ $evt_scratch->{wildcards_from} };
+        $addl_sql       = $evt_scratch->{addl_sql};
+        @addl_args      = @{ $evt_scratch->{addl_args} };
+    } else {
+        $zeromeans = $class->zero_journalid_subs_means( $self );
+
+        ( $addl_sql, @addl_args ) = $class->additional_subscriptions_sql( $self );
         $addl_sql = " AND ( $addl_sql )" if $addl_sql;
 
-        my @wildcards_from; # used to hold the trusted and/or watched by lists for $self->u
         if ( $zeromeans eq 'trusted' ) {
             @wildcards_from = $self->u->trusted_by_userids;
         } elsif ( $zeromeans eq 'watched' ) {
@@ -332,62 +375,61 @@ sub subscriptions {
             $allmatch = 1;
         }
 
+        $evt_scratch->{zeromeans}       = $zeromeans;
+        $evt_scratch->{allmatch}        = $allmatch;
+        $evt_scratch->{wildcards_from}  = \@wildcards_from;
+        $evt_scratch->{addl_sql}        = $addl_sql;
+        $evt_scratch->{addl_args}       = \@addl_args;
+    }
 
-        # SQL to match only on active and enabled subs
-        my $and_enabled = "AND flags & " .
-            (LJ::Subscription->INACTIVE | LJ::Subscription->DISABLED) . " = 0";
-
-        # TODO: gearman parallelize:
-        foreach my $cid ($cid ? ($cid) : @LJ::CLUSTERS) {
-            # we got enough subs
-            last if $limit && $limit_remain <= 0;
-
-            my $udbh = LJ::get_cluster_master($cid)
-                or die;
+    my $udbh = LJ::get_cluster_master($cid)
+        or die;
 
 
-            # first we find exact matches (or all matches)
-            my $journal_match = $allmatch ? "" : "AND journalid=?";
-            my $limit_sql = ($limit && $limit_remain) ? "LIMIT $limit_remain" : '';
-            my $sql = "SELECT userid, subid, is_dirty, journalid, etypeid, " .
-                "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
-                "FROM subs WHERE etypeid = ? $journal_match $and_enabled $addl_sql $limit_sql";
+    # first we find exact matches (or all matches)
+    my $journal_match = $allmatch ? "" : "AND journalid=?";
+    my $limit_sql = $limit_remain ? "LIMIT $limit_remain" : '';
+    my $sql = "SELECT userid, subid, is_dirty, journalid, etypeid, " .
+        "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
+        "FROM subs WHERE etypeid = ? $journal_match $and_enabled $addl_sql $limit_sql";
 
-            my $sth = $udbh->prepare($sql);
-            my @args = ($etypeid);
-            push @args, $self->u->id unless $allmatch;
-            $sth->execute(@args,@addl_args);
-            if ($sth->err) {
-                warn "SQL: [$sql], args=[@args], addl_args=[@addl_args]\n";
-                die $sth->errstr;
-            }
+    my $sth = $udbh->prepare($sql);
+    my @args = ($etypeid);
+    push @args, $self->u->id unless $allmatch;
+    print Data::Dumper::Dumper([$sql,[@args,@addl_args]]);
+    $sth->execute(@args,@addl_args);
+    if ($sth->err) {
+        warn "SQL: [$sql], args=[@args], addl_args=[@addl_args]\n";
+        die $sth->errstr;
+    }
 
-            while (my $row = $sth->fetchrow_hashref) {
-                push @subs, LJ::Subscription->new_from_row($row);
-            }
+    while (my $row = $sth->fetchrow_hashref) {
+        push @subs, LJ::Subscription->new_from_row($row);
+    }
 
-            # then we find wildcard matches.
-            if (@wildcards_from) {
-                # FIXME: journals are only on one cluster! split jidlist based on cluster
-                my $jidlist = join(",", @wildcards_from);
+    # then we find wildcard matches.
+    if (@wildcards_from) {
+        # FIXME: journals are only on one cluster! split jidlist based on cluster
+        my $jidlist = join(",", @wildcards_from);
 
-                my $sth = $udbh->prepare(
-                                         "SELECT userid, subid, is_dirty, journalid, etypeid, " .
-                                         "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
-                                         "FROM subs USE INDEX(PRIMARY) WHERE etypeid = ? AND journalid=0 $and_enabled AND userid IN ($jidlist) $addl_sql"
-                                         );
+        my $sth = $udbh->prepare(
+                                 "SELECT userid, subid, is_dirty, journalid, etypeid, " .
+                                 "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
+                                 "FROM subs USE INDEX(PRIMARY) WHERE etypeid = ? AND journalid=0 $and_enabled AND userid IN ($jidlist) $addl_sql"
+                                 );
 
-                $sth->execute($etypeid,@addl_args);
-                die $sth->errstr if $sth->err;
+        $sth->execute($etypeid,@addl_args);
+        die $sth->errstr if $sth->err;
 
-                while (my $row = $sth->fetchrow_hashref) {
-                    push @subs, LJ::Subscription->new_from_row($row);
-                }
-            }
-
-            $limit_remain = $limit - @subs;
+        while (my $row = $sth->fetchrow_hashref) {
+            push @subs, LJ::Subscription->new_from_row($row);
         }
     }
+
+    $limit_remain -= @subs;
+
+    $scratch->{limit_remain} = $limit_remain
+        if defined $scratch->{limit_remain};
 
     return @subs;
 }
