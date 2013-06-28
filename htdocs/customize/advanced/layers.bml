@@ -62,7 +62,7 @@ _c?>
 
     # if we don't have a u, maybe they're an admin and can view stuff anyway?
     my $noactions = 0;
-    my $viewall = $remote && $remote->has_priv( 'canview', 'styles' );
+    my $viewall = $remote && $remote->has_priv( 'siteadmin', 'styleview' );
 
     if ($GET{user} && $viewall) {
         return $err->($ML{'.error.cantuseonsystem'})
