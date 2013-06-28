@@ -320,8 +320,6 @@ sub subscriptions {
         }
     }
 
-    print Data::Dumper::Dumper($scratch);
-
     return @subs;
 }
 
@@ -396,7 +394,6 @@ sub raw_subscriptions {
     my $sth = $udbh->prepare($sql);
     my @args = ($etypeid);
     push @args, $self->u->id unless $allmatch;
-    print Data::Dumper::Dumper([$sql,[@args,@addl_args]]);
     $sth->execute(@args,@addl_args);
     if ($sth->err) {
         warn "SQL: [$sql], args=[@args], addl_args=[@addl_args]\n";

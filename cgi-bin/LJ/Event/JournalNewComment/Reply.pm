@@ -69,14 +69,15 @@ sub raw_subscriptions {
     my $userid = _relevant_userid( $_[1] );
 
     return eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid ) } unless $userid;
+        cluster => $cid, scratch => $scratch ) } unless $userid;
 
 
     my $u = LJ::load_userid($userid);
     return unless ( $cid == $u->clusterid );
 
     return eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid ) } if $u->prop('opt_gettalkemail') eq 'X';
+        cluster => $cid, scratch => $scratch ) }
+            if $u->prop('opt_gettalkemail') eq 'X';
 
     return () if $u->prop('opt_gettalkemail') ne 'Y';
 

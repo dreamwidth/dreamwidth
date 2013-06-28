@@ -170,7 +170,7 @@ sub raw_subscriptions {
     push @subs, LJ::Subscription->new_from_row($row);
 
     push @subs, eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid ) };
+        cluster => $cid, scratch => $scratch ) };
 
 
     return @subs;
