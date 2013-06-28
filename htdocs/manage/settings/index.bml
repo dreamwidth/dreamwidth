@@ -484,6 +484,26 @@ body<=
 
             $_->commit foreach @default_subscriptions;
         }
+        {
+            my @pending_subscriptions;
+            if ( $u->prop('opt_gettalkemail') ne 'X' ) {
+                if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
+                    push @pending_subscriptions, (
+                        # FIXME(dre): Remove when ESN can bypass inbox
+                        LJ::Subscription::Pending->new($u,
+                            event => 'JournalNewComment::Reply',
+                            method => 'Inbox',
+                        ),
+                        LJ::Subscription::Pending->new($u,
+                            event => 'JournalNewComment::Reply',
+                            method => 'Email',
+                        ),
+                    );
+                }
+                $u->update_self( { 'opt_gettalkemail' => 'X' } );
+            }
+            $_->commit foreach @pending_subscriptions;
+        }
 
         my @categories = (
             {

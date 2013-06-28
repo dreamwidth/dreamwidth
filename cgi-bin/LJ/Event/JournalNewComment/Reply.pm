@@ -27,29 +27,74 @@ sub subscription_as_html {
     return BML::ml( $key . ".reply" );
 }
 
-sub _shared_checks {
+sub _relevant_userid {
     my $comment = $_[0]->comment;
     my $parent = $comment->parent;
 
-    return ('userid = ?', $parent->posterid)
+    return $parent->posterid
         if ( $parent && $parent->posterid );
 
     my $entry = $comment->entry;
-    return (undef) unless $entry;
+    return undef unless $entry;
 
     # Replies to your own entries are handled by a different event
-    return (undef) unless $entry->journal->is_community;
+    return undef unless $entry->journal->is_community;
 
-    return ('userid = ?', $entry->posterid);
+    return $entry->posterid;
 }
 
 sub early_filter_event {
-    my ($v,@args) = _shared_checks($_[1]);
-    return ( defined $v ) ? 1 : 0;
+    my $userid = _relevant_userid( $_[1] );
+    return ( $userid ) ? 1 : 0;
 }
 
 sub additional_subscriptions_sql {
-    return _shared_checks($_[1]);
+    my $userid = _relevant_userid( $_[1] );
+    return ('userid = ?', $userid) if $userid;
+    return undef;
+}
+
+# override parent class sbuscriptions method to
+# convert opt_gettalkemail to a subscription
+sub raw_subscriptions {
+    my ($class, $self, %args) = @_;
+    my $cid   = delete $args{'cluster'};
+    croak("Cluser id (cluster) must be provided") unless defined $cid;
+
+    my $scratch = delete $args{'scratch'}; # optional
+
+    croak("Unknown options: " . join(', ', keys %args)) if %args;
+    croak("Can't call in web context") if LJ::is_web_context();
+
+    my $userid = _relevant_userid( $_[1] );
+
+    return eval { LJ::Event::raw_subscriptions($class, $self,
+        cluster => $cid ) } unless $userid;
+
+
+    my $u = LJ::load_userid($userid);
+    return unless ( $cid == $u->clusterid );
+
+    return eval { LJ::Event::raw_subscriptions($class, $self,
+        cluster => $cid ) } if $u->prop('opt_gettalkemail') eq 'X';
+
+    return () if $u->prop('opt_gettalkemail') ne 'Y';
+
+    my @rows = (
+            # FIXME(dre): Remove when ESN can bypass inbox
+            {
+                userid  => $userid,
+                ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
+                etypeid => $class->etypeid,
+            },
+            {
+                userid  => $userid,
+                ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
+                etypeid => $class->etypeid,
+            },
+        );
+
+    return map{ LJ::Subscription->new_from_row($_) } @rows;
 }
 
 sub matches_filter {
