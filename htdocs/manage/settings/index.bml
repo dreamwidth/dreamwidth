@@ -103,7 +103,6 @@ body<=
             form => 1,
             desc => BML::ml( '.cat.notifications.desc', { aopts => "href='$LJ::SITEROOT/manage/circle/edit'" } ),
             settings => [qw(
-                LJ::Setting::CommentEmailNotify
                 LJ::Setting::SelfCommentEmail
             )],
         },
@@ -518,7 +517,6 @@ body<=
                     LJ::Subscription::Pending->new($u,
                         event => 'JournalNewComment::Reply',
                     ),
-                    "LJ::Setting::CommentEmailNotify",
                     "LJ::Setting::SelfCommentEmail",
                     LJ::Subscription::Pending->new($u,
                         event => 'PollVote',

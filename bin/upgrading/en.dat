@@ -2544,10 +2544,6 @@ setting.commentcaptcha.option.select.nonfriends=people not on your Access List
 
 setting.commentcaptcha.option.select.nonmembers=non-members
 
-setting.commentemailnotify.label=Comment Email Notification
-
-setting.commentemailnotify.option=Someone replies to any comment I make
-
 setting.commentip.label=IP Address Logging
 
 setting.commentip.option=Log IP addresses of
