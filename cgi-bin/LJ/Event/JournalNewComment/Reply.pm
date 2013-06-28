@@ -18,6 +18,15 @@ use base 'LJ::Event::JournalNewComment';
 
 sub zero_journalid_subs_means { return 'all'; }
 
+sub subscription_as_html {
+    my ( $class, $subscr, $key_prefix ) = @_;
+
+
+    my $key = $key_prefix || 'event.journal_new_comment';
+
+    return BML::ml( $key . ".reply" );
+}
+
 sub additional_subscriptions_sql {
     my $comment = $_[0]->comment;
     my $parent = $comment->parent;
