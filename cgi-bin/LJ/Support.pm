@@ -1056,9 +1056,16 @@ sub work {
     my @emails;
 
     if ($type eq 'new') {
-        $body = LJ::Lang::ml( "support.email.notif.new.body", {
+        my $show_name = $sp->{reqname};
+        if ( $sp->{reqtype} eq 'user' ) {
+           my $u = LJ::load_userid( $sp->{requserid} );
+           $show_name = $u->display_name if $u;
+          }
+
+        $body = LJ::Lang::ml( "support.email.notif.new.body2", {
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
+                username => LJ::trim( $show_name ),
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",
                 text => $sp->{body}
             } );
@@ -1081,10 +1088,20 @@ sub work {
             $dbr->selectrow_array("SELECT message, type, userid FROM supportlog WHERE spid = ? AND splid = ?",
                                   undef, $sp->{spid}, $a->{splid}+0);
 
+        # set up $show_name for this environment
+        my $show_name;
+        if ( $posterid ) {
+            my $u = LJ::load_userid ( $posterid );
+            $show_name = $u->display_name if $show_name;
+        }
+
+           $show_name ||= $sp->{reqname};
+
         # build body
-        $body = LJ::Lang::ml( "support.email.notif.update.body", {
+        $body = LJ::Lang::ml( "support.email.notif.update.body2", {
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
+                username => LJ::trim( $show_name ),
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",
                 text => $resp
             } );
