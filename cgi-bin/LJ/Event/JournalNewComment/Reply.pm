@@ -13,6 +13,7 @@
 #
 package LJ::Event::JournalNewComment::Reply;
 use strict;
+use List::MoreUtils qw/uniq/;
 
 use base 'LJ::Event::JournalNewComment';
 
@@ -27,34 +28,40 @@ sub subscription_as_html {
     my %key_suffixes = (
         0 => '.comment',
         1 => '.community',
+        2 => '.mycomment',
     );
 
     return BML::ml( $key . $key_suffixes{$arg2} );
 }
 
-sub _relevant_userid {
+sub _relevant_userids {
     my $comment = $_[0]->comment;
+    return () unless $comment;
+
+    my @prepart;
+    push @prepart, $comment->posterid if $comment->posterid;
+
     my $parent = $comment->parent;
 
-    return $parent->posterid
+    return uniq ( @prepart, $parent->posterid )
         if ( $parent && $parent->posterid );
 
     my $entry = $comment->entry;
-    return undef unless $entry;
+    return () unless $entry;
 
-    return undef unless $entry->journal->is_community;
+    return uniq ( @prepart ) unless $entry->journal->is_community;
 
-    return $entry->posterid;
+    return uniq ( @prepart, $entry->posterid );
 }
 
 sub early_filter_event {
-    my $userid = _relevant_userid( $_[1] );
-    return ( $userid ) ? 1 : 0;
+    my @userids = _relevant_userids( $_[1] );
+    return ( scalar @userids ) ? 1 : 0;
 }
 
 sub additional_subscriptions_sql {
-    my $userid = _relevant_userid( $_[1] );
-    return ('userid = ?', $userid) if $userid;
+    my @userids = _relevant_userids( $_[1] );
+    return ('userid IN (' . join(",", map { '?' } @userids) . ')', @userids) if scalar @userids;
     return undef;
 }
 
@@ -70,38 +77,57 @@ sub raw_subscriptions {
     croak("Unknown options: " . join(', ', keys %args)) if %args;
     croak("Can't call in web context") if LJ::is_web_context();
 
-    my $userid = _relevant_userid( $_[1] );
+    my @userids = _relevant_userids( $_[1] );
 
     return eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid, scratch => $scratch ) } unless $userid;
+        cluster => $cid, scratch => $scratch ) } unless scalar @userids;
 
+    my @rows = eval { LJ::Event::raw_subscriptions($class, $self,
+        cluster => $cid, scratch => $scratch ) };
 
-    my $u = LJ::load_userid($userid);
-    return unless ( $cid == $u->clusterid );
+    foreach my $userid ( @userids ) {
+        my $u = LJ::load_userid($userid);
+        next unless $u;
+        next unless ( $cid == $u->clusterid );
 
-    return eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid, scratch => $scratch ) }
-            if $u->prop('opt_gettalkemail') eq 'X';
+        if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
+            push @rows, map{ LJ::Subscription->new_from_row($_) } map { (
+                # FIXME(dre): Remove when ESN can bypass inbox
+                {
+                    userid  => $userid,
+                    ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
+                    etypeid => $class->etypeid,
+                    arg2 => $_,
+                },
+                {
+                    userid  => $userid,
+                    ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
+                    etypeid => $class->etypeid,
+                    arg2 => $_,
+                },
+            ) } ( 0, 1 );
+        }
 
-    return () if $u->prop('opt_gettalkemail') ne 'Y';
+        if ( $u->prop('opt_getselfemail') eq '1' ) {
+            push @rows, map{ LJ::Subscription->new_from_row($_) } (
+                # FIXME(dre): Remove when ESN can bypass inbox
+                {
+                    userid  => $userid,
+                    ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
+                    etypeid => $class->etypeid,
+                    arg2 => 2,
+                },
+                {
+                    userid  => $userid,
+                    ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
+                    etypeid => $class->etypeid,
+                    arg2 => 2,
+                },
+            );
+        }
+    }
 
-    my @rows = map { (
-        # FIXME(dre): Remove when ESN can bypass inbox
-        {
-            userid  => $userid,
-            ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-            etypeid => $class->etypeid,
-            arg2 => $_,
-        },
-        {
-            userid  => $userid,
-            ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
-            etypeid => $class->etypeid,
-            arg2 => $_,
-        },
-    ) } ( 0, 1 );
-
-    return map{ LJ::Subscription->new_from_row($_) } @rows;
+    return @rows;
 }
 
 sub matches_filter {
@@ -115,27 +141,41 @@ sub matches_filter {
     my $comment = $self->comment;
 
     # Do not send on own comments
-    return 0 if $comment->posterid == $watcher->id;
+
     return 0 unless $comment->visible_to( $watcher );
 
     my $parent = $comment->parent;
 
-    print STDERR Data::Dumper::Dumper([$sjid,$ejid,$watcher->user,$arg2]);
-
-    if ( $parent ) {
-        # Make sure the parent is posted by the watcher
-        return 0 if $parent && $parent->posterid != $watcher->id;
-        return 0 unless $arg2 == 0;
-    } else {
+    if ( $arg2 == 0 ) {
+        # Someone replies to my comment
+        return 0 unless $parent;
+        return 0 unless $parent->posterid == $watcher->id;
+        
+        # Make sure we didn't post the comment
+        return 1 unless $comment->posterid == $watcher->id;
+    } elsif ( $arg2 == 1 ) {
+        # Someone replies to my entry in a community
         my $entry = $comment->entry;
         return 0 unless $entry;
 
         # Make sure the entry is posted by the watcher
-        return 0 if $entry->posterid != $watcher->id;
-        return 0 unless $arg2 == 1;
+        return 0 unless $entry->posterid == $watcher->id;
+
+        # Make sure we didn't post the comment
+        return 1 unless $comment->posterid == $watcher->id;
+    } elsif ( $arg2 == 2 ) {
+        # I comment on any entry in someone else's journal
+        my $entry = $comment->entry;
+        return 0 unless $entry;
+
+        # This is in my own journal
+        return 0 if $entry->journalid == $watcher->id;
+
+        # Make sure we posted the comment
+        return 1 if $comment->posterid == $watcher->id;
     }
 
-    return 1;
+    return 0;
 }
 
 1;

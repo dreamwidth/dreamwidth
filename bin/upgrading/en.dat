@@ -1610,6 +1610,8 @@ event.journal_new_comment.reply.comment=Someone replies to my comment
 
 event.journal_new_comment.reply.community=Someone replies to my entry in a community
 
+event.journal_new_comment.reply.mycomment=I comment on any entry in someone else's journal
+
 event.journal_new_comment.my_journal=Someone comments on any entry in my journal
 
 event.journal_new_comment.my_journal.deleted=Someone comments on a deleted entry in my journal
