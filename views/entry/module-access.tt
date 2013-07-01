@@ -45,5 +45,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
           </ul>
         </div>
         [% END %]
+        
+        [% IF customgroups.size > 0 %]
+        <div id="custom_access_group_members">
+          <h4>[% ".header.custom_member" | ml %]</h4>
+          <ul id="custom_access_group_members_body">
+          </ul>
+        </div>
+        [% END %]
+        
         </div>
     </fieldset>

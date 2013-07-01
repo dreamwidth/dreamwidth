@@ -48,6 +48,8 @@ sub bday {
 sub matches_filter {
     my ($self, $subscr) = @_;
 
+    return 0 unless $subscr->available_for_user;
+
     return $self->bdayuser->can_notify_bday(to => $subscr->owner) ? 1 : 0;
 }
 

@@ -1,0 +1,710 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Mobility";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "mobility/layout";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+property string content_width {
+    des = "Maximum width of the page content.  Ensure that the value is given in em or px.";
+    note = "Use this option to restrict the width so that the page can be viewed on small screens without scrolling";
+    example = "50em";
+}
+
+property bool control_strip_reduced {
+    des = "Reduce navigation strip to icon and common links only.";
+}
+
+propgroup presentation_child {
+    property use control_strip_reduced;
+    property use entry_interaction_links;
+    property use comment_interaction_links;
+}
+
+set layout_type = "one-column-split";
+set control_strip_reduced = true;
+set content_width = "55em";
+set sidebar_width = "10em";
+set sidebar_width_doubled = "20em";
+set entry_userpic_style = "small";
+set comment_userpic_style = "smaller";
+set entry_interaction_links = "icon";
+set entry_management_links = "icon";
+set comment_interaction_links = "icon";
+set comment_management_links = "icon";
+
+##===============================
+## Colors
+##===============================
+
+property Color color_header_footer_border { des = "Header and footer border color"; }
+property Color color_module_highlight { des = "Highlight color in modules, as for calendar days with entries"; }
+
+propgroup colors_child {
+    property use color_module_highlight;
+    property use color_header_footer_border;
+}
+
+##===============================
+## Modules
+##===============================
+
+# Explicitly define what sections the layout has available
+set module_layout_sections = "none|(none)|one|First Module Section|two|Second Module Section";
+
+set module_navlinks_section = "one";
+set module_cuttagcontrols_section = "one";
+
+set module_userprofile_section = "two";
+set module_calendar_section = "two";
+set module_links_section = "two";
+set module_syndicate_section = "two";
+set module_tags_section = "two";
+set module_pagesummary_section = "two";
+set module_active_section = "two";
+set module_customtext_section = "two";
+set module_credit_section = "two";
+set module_search_section = "two";
+
+set module_syndicate_order = 13;
+set module_customtext_order = 5;
+set module_search_order = 9;
+set module_time_order = 18;
+set module_poweredby_order = 19;
+
+##===============================
+## Functions
+##===============================
+
+function Page::print() {
+# Generate a page suitable for use on mobile devices
+
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width; maximum-scale=1"/>""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    print """<h2>""" + $this.journal.username + """</h2>""" + """<h2>""" + $*text_default_separator + """</h2>""";
+                    $this->print_title();
+                    if ($*layout_type == "one-column-split") { """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>"""; }
+                    if ($*layout_type == "one-column") { """<div id="module-jump-link"><a href="#secondary"title="Jump to modules below the entries">Modules</a></div>"""; }
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+function print_stylesheet () {
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    if ($*image_background_header_height > 0) {
+        $header_background = """
+            $header_background
+            height: """ + $*image_background_header_height + """px;""";
+    }
+
+    var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
+    var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
+    var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
+    var string footer_link_hover_colors = generate_color_css( $*color_footer_link_hover, new Color, new Color );
+    var string footer_link_visited_colors = generate_color_css( $*color_footer_link_visited, new Color, new Color );
+
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
+
+    var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
+
+    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string comment_title_colors = generate_color_css($*color_comment_title, $*color_comment_title_background, new Color);
+    var string module_title_colors = generate_color_css($*color_module_title, $*color_module_title_background, new Color);
+
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+
+    var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
+    var string entry_link_active_colors = generate_color_css($*color_entry_link_active, new Color, new Color);
+    var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, new Color, new Color);
+    var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);
+    var string entry_interaction_link_colors = generate_color_css($*color_entry_interaction_links, new Color, new Color);
+
+    var string module_link_colors = generate_color_css($*color_module_link, new Color, new Color);
+    var string module_link_active_colors = generate_color_css($*color_module_link_active, new Color, new Color);
+    var string module_link_hover_colors = generate_color_css($*color_module_link_hover, new Color, new Color);
+    var string module_link_visited_colors = generate_color_css($*color_module_link_visited, new Color, new Color);
+
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+     var string userpic_css = "";
+         if ($*userpics_position == "right") {
+             $userpic_css = """
+             .entry .userpic,
+             .comment .userpic {
+                float: right;
+                margin: .5em 0 .5em .5em;
+            }
+             """;
+        }
+         else {
+             $userpic_css = """
+             .entry .userpic,
+             .comment .userpic {
+                 float: left;
+                margin: .5em .5em .5em 0;
+                 }
+             """;
+        } 
+
+    var string navstrip_css = "";
+        if ($*control_strip_reduced == true) {
+            $navstrip_css = """
+                td#lj_controlstrip_actionlinks,
+                td#lj_controlstrip_search { display: none; }
+            """;
+        }
+        else {
+            $navstrip_css = """
+                #lj_controlstrip td { float: left; }
+            """;
+        }
+
+    """
+    /* Page properties */
+    body {
+        $page_background
+        $page_colors
+        $page_font
+        padding: 0;
+        text-align: center; /* needed for IE */
+        word-wrap: break-word;
+    }
+    
+    html body {
+        margin-top: 0;
+        padding-top: 0;        
+    }
+
+    #lj_controlstrip {
+        margin-bottom: 1em;  
+        position: relative;
+    }
+
+    $navstrip_css
+
+    blockquote { 
+        border-left: 2px solid;
+        padding: 0 1em; 
+    }
+    
+    /* Page element positioning */
+    #canvas {
+        margin: 0 auto; 
+        max-width: $*content_width;
+        text-align: left; 
+    }
+
+    .one-column #content,
+    .one-column-split #content { 
+        float: none; 
+    }
+
+    .two-columns-left #content,
+    .three-columns-sides #content {
+        border-left: $*sidebar_width solid transparent;
+    }
+
+    .two-columns-right #content,
+    .three-columns-sides #content {
+        border-right: $*sidebar_width solid transparent;
+    }
+
+    .three-columns-left #content {
+        border-left: $*sidebar_width_doubled solid transparent;
+    }
+
+    .three-columns-right #content {
+        border-right: $*sidebar_width_doubled solid transparent;
+    }
+
+    .column-right #content {
+        min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
+    }
+
+    /* Header and footer */
+    #header, 
+    #footer {
+        border-color: $*color_header_footer_border;
+        border-style: solid;
+        border-width: .5em .25em;
+        clear: both;
+        margin: 0;
+        padding: .5em;
+    }
+
+    #header {
+        $header_background
+        $page_title_colors
+        text-align: center;
+    }
+
+    #header h2 { 
+        display: inline; 
+    }
+
+    #module-jump-link { 
+        text-align: right; 
+    }
+
+    /* Module positioning */
+    .one-column #primary,
+    .one-column-split #primary { 
+        float: none; 
+    }
+
+    #primary > .inner:first-child {
+        padding: 0;
+    }
+
+    .one-column #secondary,
+    .one-column-split #secondary { 
+        width: auto; 
+    }
+
+    .two-columns-left #secondary,
+    .three-columns-sides #secondary {
+        float: left;
+        margin-left: -$*sidebar_width;
+        width: $*sidebar_width;
+    }
+
+    .two-columns-right #secondary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;
+    }
+
+    .three-columns-left #secondary {
+        float: left;
+        margin-left: -$*sidebar_width_doubled;
+        width: $*sidebar_width;        
+    }
+
+    .three-columns-right #secondary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;    
+    }
+
+    #secondary > .inner:first-child {
+        padding: 1em;
+    }
+
+    .one-column-split #secondary > .inner:first-child { 
+        padding: 0; 
+    }
+
+    .one-column #tertiary,
+    .one-column-split #tertiary { 
+        width: auto; 
+    }
+
+    .two-columns-left #tertiary,
+    .two-columns-right #tertiary {
+         clear: both;
+    }
+
+    .two-columns-left #tertiary { 
+        margin-left: -$*sidebar_width; 
+    }
+
+    .two-columns-right #tertiary { 
+        margin-right: -$*sidebar_width; 
+    }
+     
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module {
+        float: left;
+        width: $*sidebar_width;
+    }
+
+    .three-columns-left #tertiary {
+         float: left;
+         margin-left: -$*sidebar_width;
+         width: $*sidebar_width;         
+    }
+
+    .three-columns-right #tertiary {
+        float: right;
+        margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
+        margin-right: -$*sidebar_width_doubled;
+        width: $*sidebar_width;
+    }
+
+    .three-columns-sides #tertiary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;
+    }
+
+    #tertiary > .inner:first-child {
+        padding: 1em;
+    }
+
+    .one-column-split #tertiary > .inner:first-child { 
+        padding: 0; 
+    }
+
+    .navigation,
+    .talkform {
+        $entry_colors
+        border-style: solid;
+        border-width: .5em .25em;
+        margin: 1em 0; 
+        padding: .5em;        
+    } /*yes, reply form is out of order, this is easier*/
+
+
+    .navigation ul {
+        margin: 0;
+        padding-left: 0;
+    }
+
+    /* entries */
+    .entry,
+    .comment {
+        position: relative;
+    }
+
+    .topnav,
+    .bottomnav { 
+       margin: 1em 0; 
+       text-align: center;        
+    }
+
+    $userpic_css
+
+    .entry {
+         border-width: .5em .25em;
+         margin: 1em 0;
+         overflow: auto;
+         padding: 1em;    
+    }
+
+    .entry .header {
+         margin-bottom: 1em;
+         margin-right: 50px; /*function this to match alignment*/
+         min-height: 50px;
+    }
+
+    h3.entry-title { 
+        margin: 0; 
+    }
+
+    .entry-content img {
+        max-height: 100%; 
+        max-width: 100%;  
+    }
+
+    .bottom-metadata { 
+         margin-top: 1em; 
+    }
+
+    .top-metadata { 
+         margin-bottom: 1em; 
+    }
+    .entry .footer { 
+        text-align: right; 
+    }
+
+    .entry .tag { 
+        margin: 1em 0; 
+        text-align: left;
+    }
+
+    .tag ul {
+        display: inline;
+        margin-left: .5em;
+        padding-left: 0;
+    }
+    
+    .tag ul li {
+        display: inline;
+        padding: .25em;
+    } /* same for month view */
+
+    ul.entry-management-links {
+        display: inline;
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    ul.entry-management-links li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+    ul.entry-interaction-links {
+        display: inline; 
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    ul.entry-interaction-links li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+    /* comments */
+    .talkform { 
+        width: 100%; 
+    }
+
+    .comment-wrapper {
+        padding: .5em 0;
+        min-width: 15em;
+    }
+
+    .toppages,
+    .bottompages { 
+        margin: 1em 0; 
+        text-align: center;
+     }
+
+    .bottomcomment { 
+        margin: 1em 0; 
+        text-align: right;
+    }
+
+    .comment,
+    .toppages,
+    .bottompages,
+    .bottomcomment {
+        $entry_colors
+        border-style: solid;
+        border-width: .5em .25em;
+        margin-top: 0;
+        padding: .5em;    
+    }
+
+    .comment .comment-title {
+        $comment_title_font
+        margin: 0;
+    }
+
+    .comment .comment-title, 
+    .comment .comment-title a {
+        $comment_title_colors
+    }
+
+    .no-subject .comment .comment-title {
+        background: none;
+        border: none;
+    }
+
+    .comment-content { 
+        margin: 1em 0; 
+    }
+
+    .comment .footer { 
+        text-align: right; 
+    }
+    
+    ul.comment-management-links {
+        display: inline;
+        margin-left: 0;
+        padding-left: 0;
+    }
+  
+    ul.comment-management-links li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+    ul.comment-interaction-links {
+        display: inline;
+        margin-left: 0;
+        padding-left: 0;    
+    }
+
+    ul.comment-interaction-links li {
+        display: inline;
+        padding: 0 .5em;
+    }
+
+    .bottomcomment { 
+        margin-top: 1em; 
+    }
+
+    .bottomcomment label { 
+        display: block; 
+    }
+
+    /* Archive */
+
+    table.month td,
+    table.month th {
+       border: 1px solid;
+       padding: .25em .5em;
+    }
+
+    .month {
+        $entry_colors
+        border-style: solid;
+        border-width: .5em .25em;
+        margin: 1em 0; 
+        padding: .5em;
+    }
+
+    /* icons */
+    .icon-keywords ul {
+        display: inline;
+        margin-left: .5em;
+        padding-left: 0;
+    }
+
+    .icon-keywords ul li {
+        display: inline;
+        padding: .25em;
+    }
+
+    /* modules */
+    .module {
+        border-width: .5em .25em;
+        clear: both;
+        margin: 1em 0;
+        padding: .5em;
+    }
+
+    .one-column-split .module-navlinks li,
+    .one-column-split .module-cuttagcontrols .module-header,
+    .one-column-split .module-cuttagcontrols .module-content {
+        display: inline;
+    }
+
+    .one-column-split .module-navlinks ul { 
+        margin: .5em 0;
+        text-align: center; 
+    }
+    
+    .module-navlinks ul {
+        list-style: none;
+        margin-left: 0;
+        padding-left: 0;    
+    }
+
+    .module-navlinks li {
+        padding-right: 1.5em;
+    }
+
+    .one-column-split .module-cuttagcontrols h2.module-header {
+        font-size: medium;
+        margin: 0;
+        padding: 0 1em 0 0;    
+    }
+
+    .cutTagControls img {
+        margin: .25em 1em;
+    }
+
+    .module-calendar td {
+        padding: 3px;
+    }
+
+    .module-calendar .entry-day { 
+        background-color: $*color_module_highlight; 
+    }
+
+    .module-credit dt, .module-credit dd {
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+
+    .module-credit dt {
+        font-weight: bold;
+        margin-right: 0.5em;
+    }
+
+    .module-credit dd { 
+        margin-right: .5em; 
+    }
+
+    """;
+}
