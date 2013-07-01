@@ -478,11 +478,8 @@ sub matches_filter {
     return 0 unless $comment->visible_to($watcher);
 
     if ( $watcher ) {
-        # not a match if this user posted the comment and they don't
-        # want to be notified of their own posts
-        if ( $watcher->equals( $comment->poster ) ) {
-            return 0 unless $watcher->can_get_self_email && $watcher->prop('opt_getselfemail');
-        }
+        # not a match if this user posted the comment
+        return 0 if ( $watcher->equals( $comment->poster ) );
 
         # not a match if this user posted the entry and they don't want comments emailed,
         # unless it is a reply to one of their comments or they posted it. (don't need to check again for the cap, since we did above.)

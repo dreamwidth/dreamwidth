@@ -168,9 +168,6 @@ sub matches_filter {
         my $entry = $comment->entry;
         return 0 unless $entry;
 
-        # This is in my own journal
-        return 0 if $entry->journalid == $watcher->id;
-
         # Make sure we posted the comment
         return 1 if $comment->posterid == $watcher->id;
     }
