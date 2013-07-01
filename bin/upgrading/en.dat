@@ -2969,10 +2969,6 @@ setting.searchinclusion.option.comm=Attempt to block outside search engines from
 
 setting.searchinclusion.option.self=Attempt to block outside search engines from indexing my journal
 
-setting.selfcommentemail.label=Self Comment Email Notification
-
-setting.selfcommentemail.option=I comment on any entry in someone else's journal
-
 setting.sitescheme.error.invalid=Invalid site skin.
 
 setting.sitescheme.journal.style=Would you like to select your journal style?
