@@ -21,10 +21,15 @@ sub zero_journalid_subs_means { return 'all'; }
 sub subscription_as_html {
     my ( $class, $subscr, $key_prefix ) = @_;
 
+    my $key = $key_prefix || 'event.journal_new_comment.reply';
+    my $arg2 = $subscr->arg2;
 
-    my $key = $key_prefix || 'event.journal_new_comment';
+    my %key_suffixes = (
+        0 => '.comment',
+        1 => '.community',
+    );
 
-    return BML::ml( $key . ".reply" );
+    return BML::ml( $key . $key_suffixes{$arg2} );
 }
 
 sub _relevant_userid {
@@ -36,6 +41,8 @@ sub _relevant_userid {
 
     my $entry = $comment->entry;
     return undef unless $entry;
+
+    return undef unless $entry->journal->is_community;
 
     return $entry->posterid;
 }
@@ -78,19 +85,21 @@ sub raw_subscriptions {
 
     return () if $u->prop('opt_gettalkemail') ne 'Y';
 
-    my @rows = (
-            # FIXME(dre): Remove when ESN can bypass inbox
-            {
-                userid  => $userid,
-                ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-                etypeid => $class->etypeid,
-            },
-            {
-                userid  => $userid,
-                ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
-                etypeid => $class->etypeid,
-            },
-        );
+    my @rows = map { (
+        # FIXME(dre): Remove when ESN can bypass inbox
+        {
+            userid  => $userid,
+            ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
+            etypeid => $class->etypeid,
+            arg2 => $_,
+        },
+        {
+            userid  => $userid,
+            ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
+            etypeid => $class->etypeid,
+            arg2 => $_,
+        },
+    ) } ( 0, 1 );
 
     return map{ LJ::Subscription->new_from_row($_) } @rows;
 }
@@ -100,17 +109,31 @@ sub matches_filter {
 
     my $sjid = $subscr->journalid;
     my $ejid = $self->event_journal->{userid};
+    my $watcher = $subscr->owner;
+    my $arg2 = $subscr->arg2;
 
     my $comment = $self->comment;
-    my $parent = $comment->parent;
-    return 0 if $parent && $comment->posterid == $parent->posterid;
 
-    my $entry = $comment->entry;
-    return 0 unless $entry;
-    return 0 if $comment->posterid == $entry->posterid;
-
-    my $watcher = $subscr->owner;
+    # Do not send on own comments
+    return 0 if $comment->posterid == $watcher->id;
     return 0 unless $comment->visible_to( $watcher );
+
+    my $parent = $comment->parent;
+
+    print STDERR Data::Dumper::Dumper([$sjid,$ejid,$watcher->user,$arg2]);
+
+    if ( $parent ) {
+        # Make sure the parent is posted by the watcher
+        return 0 if $parent && $parent->posterid != $watcher->id;
+        return 0 unless $arg2 == 0;
+    } else {
+        my $entry = $comment->entry;
+        return 0 unless $entry;
+
+        # Make sure the entry is posted by the watcher
+        return 0 if $entry->posterid != $watcher->id;
+        return 0 unless $arg2 == 1;
+    }
 
     return 1;
 }

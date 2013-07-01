@@ -1606,7 +1606,9 @@ event.invited_friend_joins=Someone I invited creates a new journal
 
 event.journal_new_comment.friend=Someone comments in any journal on my friends page
 
-event.journal_new_comment.reply=Someone replies to any comment or community post I make
+event.journal_new_comment.reply.comment=Someone replies to my comment
+
+event.journal_new_comment.reply.community=Someone replies to my entry in a community
 
 event.journal_new_comment.my_journal=Someone comments on any entry in my journal
 

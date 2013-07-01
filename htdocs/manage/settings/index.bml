@@ -487,17 +487,19 @@ body<=
             my @pending_subscriptions;
             if ( $u->prop('opt_gettalkemail') ne 'X' ) {
                 if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
-                    push @pending_subscriptions, (
+                    push @pending_subscriptions, map { (
                         # FIXME(dre): Remove when ESN can bypass inbox
                         LJ::Subscription::Pending->new($u,
                             event => 'JournalNewComment::Reply',
                             method => 'Inbox',
+                            arg2 => $_,
                         ),
                         LJ::Subscription::Pending->new($u,
                             event => 'JournalNewComment::Reply',
                             method => 'Email',
+                            arg2 => $_,
                         ),
-                    );
+                    ) } ( 0, 1 );
                 }
                 $u->update_self( { 'opt_gettalkemail' => 'X' } );
             }
@@ -514,9 +516,16 @@ body<=
                         event => 'JournalNewComment',
                         journal => $u,
                     ),
+
                     LJ::Subscription::Pending->new($u,
                         event => 'JournalNewComment::Reply',
+                        arg2 => 0,
                     ),
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment::Reply',
+                        arg2 => 1,
+                    ),
+
                     "LJ::Setting::SelfCommentEmail",
                     LJ::Subscription::Pending->new($u,
                         event => 'PollVote',
