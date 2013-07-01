@@ -1,7 +1,8 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 34;
+use Test::More tests => 37;
+
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 
@@ -45,6 +46,11 @@ note( "youtube" );
 
     test_bad_url( "http://www.youtube.com/notreallyembed/x1xx2xxxxxX", "wrong path");
     test_bad_url( "http://www.youtube.com/embed/x1xx2xxxxxX/butnotreally", "wrong path");
+
+    # network-relative URLs
+    test_good_url( "//www.youtube.com/embed/uzmR-Ru_P8Y", "network-relative url (//)" );
+    test_bad_url( "/www.youtube.com/embed/uzmR-Ru_P8Y", "mis-pasted local-relative url" );
+    test_bad_url( "ttp://www.youtube.com/embed/uzmR-Ru_P8Y", "mis-pasted url /w bad scheme" );
 }
 
 note( "misc" );
