@@ -7,7 +7,7 @@
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -53,7 +53,7 @@ sub get {
 
     $scheme ||= $class->current;
 
-    $scheme = $sitescheme_order[0] unless exists $sitescheme_data{$scheme};
+    $scheme = $class->default unless exists $sitescheme_data{$scheme};
 
     return $class->new($scheme);
 }
@@ -103,11 +103,13 @@ sub inheritance {
     $self->__load_data;
 
     $scheme = $self->{scheme} if ref $self;
-
     $scheme ||= $self->current;
+
     my @scheme;
     push @scheme, $scheme;
-    push @scheme, $scheme while ( $scheme = $sitescheme_data{$scheme}->{parent} );
+    push @scheme, $scheme
+        while exists $sitescheme_data{$scheme}
+              && ( $scheme = $sitescheme_data{$scheme}->{parent} );
     return @scheme;
 }
 
@@ -194,7 +196,7 @@ sub current {
             $r->cookie( 'BMLschemepref' );
     }
 
-    return $rv || $_[0]->default;
+    return defined $sitescheme_data{$rv} ? $rv : $_[0]->default;
 }
 
 =head2 C<< DW::SiteScheme->default >>
