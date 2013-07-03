@@ -1,0 +1,242 @@
+/** Celerity CSS
+ *
+ * Authors:
+ *     Emily Ravenwood <ravenwood@alltrees.org>
+ *
+ * Copyright (c) 2009 by Dreamwidth Studios, LLC.
+ *
+ * This program is free software; you may redistribute it and/or modify it under
+ * the same terms as Perl itself.  For a copy of the license, please reference
+ * 'perldoc perlartistic' or 'perldoc perlgpl'.
+ */
+
+ /*  Colors:
+    text dkgrn=#777711
+    vryltgrn=#EEEECC
+    grygrn=#EEEEDD
+    dkgrygrn=#DDDDCC
+
+ *  Colors for template:
+    oddcomment=#EEEECC
+    evencomment=#DDDDBB
+*/
+
+$primary-color: #999966;
+$neutral-primary-color: #c29b9b;  // not done
+$muted-neutral-primary-color: #d1ced2;  // not done
+$dark-primary-color: #666611;
+$muted-dark-primary-color: #bb6666;  // not done
+$muted2-dark-primary-color: #b63333;  // not done
+
+$muted-primary-color: #ddddaa;
+$light-primary-color: #ffd8d8;  // not done
+$muted-light-primary-color: #ffafb6;  // not done
+
+$opposite-color: #c7e0f6;  // not done
+$light-opposite-color: #ecf6ff;  // not done
+
+$error-color: #ff0000;  // not done
+$light-alternate: #fcf6db;  // not done
+$muted-light-alternate: #ffdfc0;  // not done
+
+$text-color: #222211;
+$page-background: #ffffff;
+$link-color: #888833;
+$link-visited-color: $dark-primary-color;
+$link-hover-color: $link-color;
+
+@import "foundation";
+@import "schemes/skin-colors";
+
+// scheme-specific element colors
+$accent-image-color: #999966;
+
+body {
+    font-family: Arial, Verdana, sans-serif;
+    line-height: 1.4;
+}
+
+a:hover,
+a:active,
+.link:hover {
+    text-decoration: none;
+}
+
+h1, h2, #content h2, h3, h4, table caption { font-family: "Century Gothic", Verdana, sans-serif;
+    font-weight: normal;
+    padding: .5em 0;
+    line-height: 1.5;
+    }
+h1 { font-size: 175%; }
+h2 { font-size: 150%; }
+#content h2, table caption { font-size: 125%; }
+h3 { font-size: 125%; }
+h4 { font-size: 100%; }
+
+ul { list-style: square;}
+
+#canvas {
+    padding-top: 1px;  /*to ensure margin*/
+}
+#page {
+    margin-bottom: 2em;
+    padding-top: 1px;  /*to ensure margin*/
+}
+
+/*Scheme specific div to contain sidebar stripes*/
+#page-decoration { background-image: url("/img/celerity/lt-stripe.jpg");
+    background-repeat: repeat-x;
+    background-position: top;
+    width: 9em;
+    height: 50px;
+    margin-left: 1em;
+    margin-top: -50px;
+    float: left;
+    display: inline; /* to defeat the IE double-margin bug */
+}
+
+/**
+ * Header
+ */
+#masthead { position: absolute;
+    top: 50px;
+    right: 25px;
+    }
+    #sitename { font-family: "Century Gothic", Verdana, sans-serif;
+        font-weight: normal;
+        font-size: 175%;
+
+        a {
+            color: $primary-color + #000011;
+        }
+        }
+
+#account-links {
+    position: absolute;
+    top: 3px;
+    left: 13em;
+    text-align: left;
+
+    ul {
+        list-style: none;
+        margin-left: 0;
+        padding-left: 0;
+        margin-top: 5px;
+        white-space: nowrap; /* to make sure the links don't wrap under short usernames */
+    }
+
+    li { display: inline; }
+
+    #login-table td {
+        padding: 3px;
+        text-align: left;
+    }
+    #login-table td.input-cell,
+    #login-table td.remember-me-cell {
+        text-align: left;
+    }
+}
+
+/*Scheme specific divs to contain header stripes*/
+#header-divider { position: absolute;
+    top: 110px;
+    left: 0;
+    background-color: $accent-image-color;
+    background-image: url("/img/celerity/dk-stripe.jpg");
+    background-position: right;
+    background-repeat: repeat-y;
+    width: 100%;
+    }
+    #header-divider-insert { margin-left: 1em;
+        height: 20px;
+        width: 9em;
+        background: url("/img/celerity/stripes.jpg");
+        background-position: center;
+        }
+
+#header-search { position: absolute;
+    top: 140px;
+    right: 22px;
+    text-align: right;
+    }
+
+/**
+ * Sidebar and Menu
+ */
+nav { position: absolute;
+    top: 0;
+    left: 1em;
+    width: 9em;
+    }
+nav ul { margin-left: 5px;
+        margin-right: 3px;
+        margin-top: 40px;
+        padding-left: 0;
+        font-size: small;
+        list-style: none;
+        }
+nav ul ul { margin-left: 1em;
+            margin-right: 0;
+            margin-top: 0;
+        }
+nav li { padding: .15em 0; }
+nav .subnav a,
+nav .topnav a {color: #222200; }
+
+#header-userpic { text-align: center;
+    height: 100px;
+    background-image: url("/img/celerity/square.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    }
+    #header-userpic img { margin-top: 10px;
+        border: none;
+        background-color: $muted-primary-color; /*so the square doesn't show behind transparent icons */
+        }
+
+/**
+ * Footer
+ */
+footer { border-top: 4px double $accent-image-color;
+    border-bottom: 4px double $accent-image-color;
+    margin: 1em;
+    text-align: center;
+
+    ul { list-style: none;
+        margin: .25em 0;
+        margin-left: 0;
+        padding-left: 0;
+        }
+    li { display: inline; }
+    p { margin: .25em 0;
+        padding: 0;
+        font-size: small;
+        color: adjust-lightness( $text-color, 20 );
+        }
+    }
+
+/**
+ * #content
+ */
+#content {
+    margin-left: 1em;
+    border-left: 9em solid $muted-primary-color;
+    margin-top: 170px;
+    padding: 1px 1em 1em 1.5em;
+    min-height: 65em;
+    height: auto !important; /*these two lines are a min-height hack that fixes it in IE6*/
+    height: 65em;
+}
+
+#content p {
+    margin-bottom: 1em;
+}
+#content p.note {
+    font-style: italic;
+    font-size: 0.8em;
+}
+#content ul.bullet-list {
+    list-style: square outside;
+    margin-left: 2em;
+    margin-bottom: 1em;
+}
