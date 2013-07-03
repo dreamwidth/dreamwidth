@@ -26,7 +26,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "js/vendor/jquery.fileupload-process.js"
     "js/vendor/jquery.fileupload-image.js"
 
-    "stc/fileupload.css"
+    "stc/css/page/fileupload.css"
 ) -%]
 
 
@@ -49,7 +49,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         <div class="row">
             <div class="large-12 columns">
-                <input type="submit" value="Upload" />
+                [% form.submit(
+                    name = "upload"
+                    value = "Upload"
+                ) %]
             </div>
         </div>
     </form>
