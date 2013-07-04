@@ -215,7 +215,7 @@ sub try_work {
 
     # parameters for below
     my ( %meta, %identity_map, %was_external_user );
-    my ( $maxid, $server_max_id, $server_next_id, $lasttag ) = ( 0, 0, 1, '' );
+    my ( $maxid, $server_max_id, $server_next_id, $nextid, $lasttag ) = ( 0, undef, 1, 0, '' );
     my @fail_errors;
 
     # setup our parsing function
@@ -229,6 +229,10 @@ sub try_work {
         if ( $lasttag eq 'comment' ) {
             # get some data on a comment
             $meta{$temp{id}} = new_comment( $temp{id}, $temp{posterid}+0, $temp{state} || 'A' );
+
+            # Some servers have old code and don't return the nextid tag, so
+            # we have to track the best ID we've seen and use it later.
+            $nextid = $temp{id} if $temp{id} > $nextid;
 
         } elsif ( $lasttag eq 'usermap' && ! exists $identity_map{$temp{id}} ) {
             my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user}, $log );
@@ -262,7 +266,8 @@ sub try_work {
     };
 
     # hit up the server for metadata
-    while ( defined $server_next_id && $server_next_id =~ /^\d+$/ ) {
+    while ( defined $server_next_id && $server_next_id =~ /^\d+$/ &&
+            ( ! defined $server_max_id || $server_next_id <= $server_max_id ) ) {
         # let them know we're still working
         $job->grabbed_until( time() + 3600 );
         $job->save;
@@ -296,6 +301,11 @@ sub try_work {
         return $fail->( $LJ::COMMENT_IMPORT_ERROR || 'Too many comments to import.' )
             if defined $LJ::COMMENT_IMPORT_MAX && defined $server_max_id &&
                 $server_max_id > $LJ::COMMENT_IMPORT_MAX;
+
+        # Now we need to ensure that we get a proper nextid. If it's an old
+        # remote, then they won't send <nextid> in the metadata. :-(
+        $server_next_id = $nextid + 1
+            if defined $nextid && $nextid > 0 && ! defined $server_next_id;
     }
     $log->( 'Finished fetching metadata.' );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
@@ -435,6 +445,7 @@ sub try_work {
         if ( $lasttag eq 'comment' ) {
             # get some data on a comment
             $curid = $temp{id}+0;
+            $lastid = $curid if $curid > $lastid;
             $meta{$curid}->[C_remote_parentid] = $temp{parentid}+0;
             $meta{$curid}->[C_remote_jitemid] = $temp{jitemid}+0;
         } elsif ( $lasttag eq 'property' ) {
@@ -525,10 +536,12 @@ sub try_work {
             }
         }
 
-        # the exporter should always return the maximum number of items, so loop again.  of course,
-        # this will fail nicely as soon as some site we're importing from reduces the max items
-        # they return due to load.  http://community.livejournal.com/changelog/5907095.html
-        $lastid += $COMMENTS_FETCH_BODY;
+        # We increment lastid during our fetches so we should walk nicely, but
+        # if we didn't move at least N comments forward, then increment by
+        # that value so we can keep walking.
+        $log->( 'lastid = %d, reset_lastid = %d', $lastid, $reset_lastid );
+        $lastid = $reset_lastid + $COMMENTS_FETCH_BODY
+            if $lastid - $reset_lastid < $COMMENTS_FETCH_BODY;
 
         # now we've got some body text, try to post these comments. if we can do that, we can clear
         # them from memory to reduce how much we're storing.

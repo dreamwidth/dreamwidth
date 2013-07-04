@@ -109,7 +109,7 @@ sub try_work {
         {
             ver         => 1,
             selecttype  => 'lastn',
-            howmany     => 5,
+            howmany     => 15,
             lineendings => 'unix',
         }
     );
