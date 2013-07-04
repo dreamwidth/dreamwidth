@@ -1,7 +1,3 @@
-# Require any additional compass plugins here.
-# ...
-require 'zurb-foundation'
-
 # Set this to the root of your project when deployed:
 http_path = "/"
 css_dir = "htdocs/stc/css"
@@ -16,4 +12,4 @@ javascripts_dir = "htdocs/js"
 # relative_assets = true
 
 # To disable debugging comments that display the original location of your selectors. Uncomment:
-line_comments = false
+# line_comments = false
