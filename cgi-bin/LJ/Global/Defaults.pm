@@ -349,6 +349,9 @@ no strict "vars";
 
     # Userpic maximum. No user can have more than this.
     $USERPIC_MAXIMUM ||= 500;
+
+    # number of days to display virtual gifts on the profile - default to two weeks
+    $VGIFT_EXPIRE_DAYS ||= 14;
 }
 
 
