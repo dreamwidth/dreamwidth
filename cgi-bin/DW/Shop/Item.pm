@@ -62,8 +62,8 @@ sub new {
     my ( $class, %args ) = @_;
     return undef unless exists $LJ::SHOP{$args{type}};
 
-    # from_userid will be 0 if the sender isn't logged in
-    return undef unless $args{from_userid} == 0 || LJ::load_userid( $args{from_userid} );
+    # from_userid will be 0 or undef if the sender isn't logged in
+    return undef unless ! $args{from_userid} || LJ::load_userid( $args{from_userid} );
 
     # now do validation.  since new is only called when the item is being added
     # to the shopping cart, then we are comfortable doing all of these checks
@@ -377,20 +377,38 @@ sub t_userid {
 
 =head2 C<< $self->from_html >>
 
-Display who this is from.
+Display who this is from, using ljuser_display.
+
+=head2 C<< $self->from_text >>
+
+Display who this is from, using display_name.
 
 =cut
 
 sub from_html {
     my $self = $_[0];
 
-    return $self->{from_name} if $self->{from_name};
+    my $from = $self->_from_other;
+    return LJ::isu( $from ) ? $from->ljuser_display : LJ::ehtml( $from );
+}
+
+sub from_text {
+    my $self = $_[0];
+
+    my $from = $self->_from_other;
+    return LJ::isu( $from ) ? $from->display_name : $from;
+}
+
+sub _from_other {
+    my $self = $_[0];
+
+    return LJ::Lang::ml( 'widget.shopcart.anonymous' ) if $self->anonymous;
+    return $self->from_name if $self->from_name;
 
     my $from_u = LJ::load_userid( $self->from_userid );
-    return LJ::Lang::ml( 'widget.shopcart.anonymous' )
-        if $self->anonymous || ! LJ::isu( $from_u );
+    return LJ::Lang::ml( 'error.nojournal' ) unless LJ::isu( $from_u );
 
-    return $from_u->ljuser_display;
+    return $from_u;
 }
 
 =head2 C<< $self->paid_cash >>
