@@ -81,7 +81,6 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
     $hr = {
         entryprops => "Access to /admin/entryprops",
         sessions   => "Access to admin mode on /manage/logins",
-        styles     => "Access to private styles on /customize/advanced",
         suspended  => "Access to suspended journal content",
         userlog    => "Access to /admin/userlog",
         userprops  => "Access to /admin/propedit",
@@ -122,6 +121,7 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         propedit       => "Allow to change userprops for other users",
         rename         => "Access to rename_opts console command",
         spamreports    => "Access to /admin/spamreports",
+        styleview      => "Access to private styles on /customize/advanced",
         themes         => "Access to /admin/themes",
         theschwartz    => "Access to /admin/theschwartz",
         usernames      => "Bypasses is_protected_username check",
