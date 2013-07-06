@@ -504,9 +504,9 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 // if user no banned - show ban link
                 var setBan = document.createElement("span");
                 var setBanLink = document.createElement("a");
-                
+
                 setBanLink.href = window.Site.siteroot + '/manage/banusers';
-                
+
                 if (data.is_comm) {
                     setBanLink.innerHTML = 'Ban community';
                 } else {
@@ -527,7 +527,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 ban.appendChild(setBan);
 
 
-                
+
             } else {
                 // if use banned - show unban link
                 var setUnban = document.createElement("span");
@@ -546,12 +546,12 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 }
 
                 ban.appendChild(setUnban);
- 
+
             }
         }
-        
+
         if(ban) {
-            content.appendChild(document.createElement("br"));    
+            content.appendChild(document.createElement("br"));
             content.appendChild(ban);
         }
 
@@ -586,8 +586,8 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         profileLink.innerHTML = "Profile";
         content.appendChild(profileLink);
 
-        
-        
+
+
         // clearing div
         var clearingDiv = document.createElement("div");
         DOM.addClassName(clearingDiv, "ljclear");
@@ -718,7 +718,7 @@ ContextualPopup.getInfo = function (target) {
     // needed on journal subdomains
     var url = LiveJournal.getAjaxUrl("ctxpopup");
     var url = Site.currentJournal ? "/" + Site.currentJournal + "/__rpc_ctxpopup" : "/__rpc_ctxpopup";
-    
+
     // got data callback
     var gotInfo = function (data) {
         if (ContextualPopup && ContextualPopup.hourglass) ContextualPopup.hideHourglass();

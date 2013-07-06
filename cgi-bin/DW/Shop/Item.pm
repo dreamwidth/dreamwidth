@@ -33,7 +33,7 @@ DW::Shop::Item - base class containing basic behavior for items to be sold in th
 
 =head2 C<< $class->new(  [ $opts ] ) >>
 
-Instantiates an item to be purchased in the shop. The item must be defined in the 
+Instantiates an item to be purchased in the shop. The item must be defined in the
 %LJ::SHOP hash in your config file.
 
 Arguments:
@@ -50,10 +50,10 @@ Arguments:
 =item reason => personal note from sender to target
 
 The type is required. Also, one target_* argument is required; it may be either
-a target_userid or a target_email. All other arguments are optional. 
+a target_userid or a target_email. All other arguments are optional.
 
-Subclasses must override this function to set the type. Subclasses may also do any 
-other modifications necessary when instantiating itself. See DW::Shop::Item::Account 
+Subclasses must override this function to set the type. Subclasses may also do any
+other modifications necessary when instantiating itself. See DW::Shop::Item::Account
 for an example.
 
 =cut
@@ -117,7 +117,7 @@ sub new {
 
 =head2 C<< $self->apply_automatically >>
 
-True if you want the item to be applied via the paidstatus worker, and false 
+True if you want the item to be applied via the paidstatus worker, and false
 if you wish to apply the item yourself (usually triggered by a user action).
 
 Subclasses may override.
@@ -128,10 +128,10 @@ sub apply_automatically { 1 }
 
 =head2 C<< $self->apply >>
 
-Called when we are told we need to apply this item, i.e., turn it on. Note that we 
+Called when we are told we need to apply this item, i.e., turn it on. Note that we
 update ourselves, but it's up to the cart to make sure that it saves.
 
-Subclasses may override this method, but a better approach would be to override the 
+Subclasses may override this method, but a better approach would be to override the
 internal $self->_apply method.
 
 =cut
@@ -486,8 +486,8 @@ Returns whether this item should be gifted anonymously, or credited to the sende
 
 =head2 C<< $self->noremove >>
 
-Returns whether this item may or may not be removed from the cart. May be used by 
-promotions which automatically add a promo item to a user's cart, to prevent the 
+Returns whether this item may or may not be removed from the cart. May be used by
+promotions which automatically add a promo item to a user's cart, to prevent the
 promo item from being removed
 
 =head2 C<< $self->from_name >>
