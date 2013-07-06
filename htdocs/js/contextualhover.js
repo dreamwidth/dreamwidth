@@ -371,6 +371,21 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 content.appendChild(document.createElement("br"));
         }
 
+        if ((data.is_person || data.is_comm) && !data.is_requester && data.can_receive_vgifts) {
+            var vgift = document.createElement("span");
+
+            var sendvgift = document.createElement("a");
+            sendvgift.href = data.url_vgift;
+            sendvgift.innerHTML = "Send virtual gift";
+
+            vgift.appendChild(sendvgift);
+
+            if ( (data.is_logged_in && data.is_comm) || message )
+                content.appendChild(document.createElement("br"));
+
+            content.appendChild(vgift);
+        }
+
         // relationships
         var trust;
         var watch;
@@ -479,21 +494,6 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         if (watch)
             content.appendChild(watch);
 
-        if ((data.is_person || data.is_comm) && !data.is_requester && data.can_receive_vgifts) {
-            var vgift = document.createElement("span");
-
-            var sendvgift = document.createElement("a");
-            sendvgift.href = window.Site.siteroot + "/shop/vgift?to=" + data.username;
-            sendvgift.innerHTML = "Send a virtual gift";
-
-            vgift.appendChild(sendvgift);
-
-            if (trust || watch)
-                content.appendChild(document.createElement("br"));
-
-            content.appendChild(vgift);
-        }
-
         // ban / unban
 
         var ban;
@@ -557,7 +557,8 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
 
 
         // break
-        if ((data.is_logged_in && !data.is_requester) || vgift) content.appendChild(document.createElement("br"));
+        if ( (data.is_logged_in && !data.is_requester) || trust || watch )
+            content.appendChild(document.createElement("br"));
 
         // view label
         var viewLabel = document.createElement("span");

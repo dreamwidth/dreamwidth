@@ -113,6 +113,8 @@ _c?>
         $ret{self_is_identity} = $remote->is_identity;
         $ret{can_message} = $u->can_receive_message( $remote );
         $ret{url_message} = $u->message_url;
+        $ret{can_receive_vgifts} = $u->can_receive_vgifts_from( $remote );
+        $ret{url_vgift} = $u->virtual_gift_url;
     }
 
     $ret{is_logged_in}  = $remote ? 1 : 0;

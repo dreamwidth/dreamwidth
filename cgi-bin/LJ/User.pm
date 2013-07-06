@@ -2033,10 +2033,16 @@ sub can_import_comm {
 sub can_receive_vgifts_from {
     my ( $u, $remote, $is_anon ) = @_;
     $remote ||= LJ::get_remote();
-    my $valid_remote = LJ::isu( $remote ) ? 1 : 0;
+    my $valid_remote = LJ::isu( $remote ) && $remote->is_personal ? 1 : 0;
+
+    # no virtual gifts for syndicated accounts
+    return 0 if $u->is_syndicated;
 
     # check for shop status
     return 0 unless exists $LJ::SHOP{vgifts};
+
+    # check for journal ban
+    return 0 if $remote && $u->has_banned( $remote );
 
     # check for anonymous
     return 0 if $is_anon && $u->prop( 'opt_anonvgift_optout' );
@@ -2414,6 +2420,12 @@ sub gift_points_url {
 sub transfer_points_url {
     my ( $u ) = @_;
     return "$LJ::SITEROOT/shop/transferpoints?for=" . $u->user;
+}
+
+# returns the shop URL to buy a virtual gift for that user
+sub virtual_gift_url {
+    my ( $u ) = @_;
+    return "$LJ::SITEROOT/shop/vgift?user=" . $u->user;
 }
 
 =head3 C<< $self->give_shop_points( %options ) >>

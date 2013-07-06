@@ -291,6 +291,10 @@ _renderPopup: function() {
         }
     }
 
+    if ( ( data.is_person || data.is_comm ) && ! data.is_requester && data.can_receive_vgifts ) {
+        this._addAction( data.url_vgift, "Send virtual gift" );
+    }
+
     if ( data.is_logged_in && ! data.is_requester ) {
         if ( ! data.is_trusting ) {
             if ( data.is_person || data.other_is_identity ) {
@@ -307,11 +311,6 @@ _renderPopup: function() {
         } else if ( data.is_watching ) {
             this._addAction( data.url_addwatch, "Remove subscription", "removeWatch" );
         }
-    }
-
-    // FIXME: double-check this when vgifts come out
-    if ( ( data.is_person || data.is_comm ) && ! data.is_requester && data.can_receive_vgifts ) {
-        this._addAction( Site.siteroot + "/shop/vgift?to=" + data.username, "Send a virtual gift" );
     }
 
     if ( data.is_logged_in && ! data.is_requester && ! data.is_syndicated ) {
