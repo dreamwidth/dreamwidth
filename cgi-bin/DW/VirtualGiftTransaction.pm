@@ -278,5 +278,48 @@ sub notify_delivered {
     LJ::Event::VgiftDelivered->new( @args )->fire;
 }
 
+sub url {
+    my ( $self ) = @_;
+    return unless LJ::isu( $self->u );
+    return $self->u->journal_base . "/vgifts/" . $self->id;
+}
+
+sub view {
+    # print mini view for profile page; standalone page should be TT
+    # (expects virtualgift class in htdocs/stc/profile.css)
+
+    my ( $self ) = @_;
+    my $vg = $self->{vgift};
+    return '' unless $vg && $vg->id;
+
+    my $disp = $vg->img_small_html;
+    # substitute the gift name if no image is set
+    $disp = $vg->name_ehtml unless $disp =~ /^<img/i;
+
+    my $url = $self->url;
+    $disp = "<a href='$url'>$disp</a>" if $url;
+
+    my $ret = "<div class='virtualgift'>$disp<br />";
+
+    my $from_word = LJ::Lang::ml( 'widget.shopcart.header.from' );
+    my $anon_word = LJ::Lang::ml( 'widget.shopcart.anonymous' );
+
+    if ( $self->{anon} ) {
+        $ret .= $from_word . " " . $anon_word;
+    } elsif ( $self->{from} ) {
+        # show the cached result of the cart item's from_html method
+        $ret .= $from_word . " " . $self->{from};
+    } elsif ( LJ::isu( $self->{buyer} ) ) {
+        $ret .= $from_word . " " . $self->{buyer}->ljuser_display;
+    } else {
+        # if we can't show a user name, just print anonymous
+        $ret .= $from_word . " " . $anon_word;
+    }
+
+    $ret .= "</div>\n";
+
+    return $ret;
+}
+
 
 1;
