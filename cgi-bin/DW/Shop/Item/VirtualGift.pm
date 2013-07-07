@@ -121,7 +121,7 @@ sub _apply {
     return 0 unless $trans->deliver;
 
     # notify the user about this gift
-    $trans->notify_delivered;
+    $trans->notify_delivered unless $LJ::T_SUPPRESS_EMAIL;
 
     return $self->{applied} = 1;
 }
