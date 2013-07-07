@@ -5,7 +5,7 @@
 # Authors:
 #      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -33,7 +33,12 @@ sub _memcache_stored_props { return ( '1', PROPLIST ) }  #
 
 use Digest::MD5 qw/ md5_hex /;
 use LJ::Global::Constants;
-use LJ::Event::VgiftApproved;
+
+# Because events use this module, Perl warns about redefined subroutines.
+{
+    no warnings 'redefine';
+    use LJ::Event::VgiftApproved;
+}
 
 
 # TABLE OF CONTENTS
@@ -45,6 +50,8 @@ use LJ::Event::VgiftApproved;
 # 5. Aggregate methods (for mass lookups)
 # 6. End-user display methods (making things look purty)
 # 7. Notification methods (let people know about things)
+
+# Transaction methods moved to DW::VirtualGiftTransaction
 
 
 
