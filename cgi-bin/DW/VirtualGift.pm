@@ -701,7 +701,7 @@ sub _expire_relevant_keys {
         # expire memcache for img_large (set in Apache::LiveJournal)
         LJ::MemCache::delete( $self->img_memkey( 'large' ) );
     }
-    
+
     return $self->_expire_aggregate_keys( @props );
 }
 
@@ -717,12 +717,12 @@ sub _expire_aggregate_keys {
         # expire memcache for list_created_by
         LJ::MemCache::delete( $self->created_by_memkey );
     }
-    
+
     if ( $prop{creatorid} || $prop{active} || $prop{approved} ) {
         # expire memcache for fetch_creatorcounts
         LJ::MemCache::delete( $self->creatorcounts_memkey );
     }
-    
+
     return $self;
 }
 
@@ -830,7 +830,7 @@ sub _valid_name {
     my ( $self, $name, $err ) = @_;
 
     return 1 unless $name;
-    
+
     if ( $name !~ /\S/ || $name =~ /[\r\n\t\0]/ ) {
         $$err = LJ::Lang::ml('vgift.error.validate.name');
         return 0;
@@ -1005,7 +1005,7 @@ sub _fetch_tagcounts {
             "(SELECT DISTINCT tagid FROM vgift_tagpriv WHERE tagid NOT IN ".
             "(SELECT DISTINCT tagid FROM vgift_tags)) ORDER BY keyword ASC" );
         die $dbr->errstr if $dbr->err;
-        
+
         $counts->{$_} = 0 foreach @$privempty;
 
         LJ::MemCache::set( $memkey, $counts, 24*3600 );
