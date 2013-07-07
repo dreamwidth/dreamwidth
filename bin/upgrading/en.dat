@@ -3745,6 +3745,12 @@ shop.item.rename.name.notoken=[[points]] points for a Rename Token
 
 shop.item.rename.note=Tokens can be used at the <a [[aopts]]>rename page</a>.
 
+shop.item.vgift.canbeadded.noanon=You cannot send an anonymous virtual gift to this user.
+
+shop.item.vgift.canbeadded.refused=You cannot send a virtual gift to this user.
+
+shop.item.vgift.name.notfound=(name not found)
+
 shop.unavailable=The shop is currently disabled.
 
 sitescheme.accountlinks.account=Account Settings

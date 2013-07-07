@@ -163,15 +163,15 @@ sub _search_cart {
     my $found_item;
 
     foreach my $item ( @$cart_items ) {
-        next unless ref $item eq 'DW::Shop::Item::VirtualGift';  # FIXME: this class doesn't exist yet
+        next unless ref $item eq 'DW::Shop::Item::VirtualGift';
         next unless $data->{rcptid} == $item->t_userid;
-        next unless $data->{transid} == $item->vgift_transid;  # FIXME: add this to nonexistent class
+        next unless $data->{transid} == $item->vgift_transid;
         # if we get here, it's the right item
         $found_item = $item;
         last;
     }
 
-    return $found_item;  # FIXME: this will always be undef until new class is done
+    return $found_item;
 }
 
 sub transaction_load_memkey {
