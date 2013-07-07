@@ -70,6 +70,24 @@ CREATE TABLE vgift_tagpriv (
 )
 EOC
 
+register_tablecreate("vgift_trans", <<'EOC');
+CREATE TABLE vgift_trans (
+    transid    INT UNSIGNED NOT NULL,
+    buyerid    INT UNSIGNED NOT NULL DEFAULT 0,
+    rcptid     INT UNSIGNED NOT NULL,
+    vgiftid    INT UNSIGNED NOT NULL,
+    cartid     INT UNSIGNED,
+    delivery_t INT UNSIGNED NOT NULL,  #unixtime
+    delivered  ENUM('Y','N') NOT NULL DEFAULT 'N',
+    accepted   ENUM('Y','N') NOT NULL DEFAULT 'N',
+    expired    ENUM('Y','N') NOT NULL DEFAULT 'N',
+
+    PRIMARY KEY (rcptid, transid),
+    INDEX (delivery_t),
+    INDEX (vgiftid)
+)
+EOC
+
 register_tablecreate("authactions", <<'EOC');
 CREATE TABLE authactions (
     aaid int(10) unsigned NOT NULL auto_increment,

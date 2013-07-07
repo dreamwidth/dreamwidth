@@ -57,7 +57,7 @@ $LJ::DBIRole = new DBI::Role {
                     "notifyqueue", "cprod", "dbnotes",
                     "jabroster", "jablastseen", "random_user_set",
                     "poll2", "pollquestion2", "pollitem2",
-                    "pollresult2", "pollsubmission2",
+                    "pollresult2", "pollsubmission2", "vgift_trans",
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
                     "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
                     "logprop_history", "import_status", "externalaccount",
@@ -835,7 +835,7 @@ sub alloc_user_counter
         $newmax = $u->selectrow_array("SELECT MAX(pendcid) FROM pendcomments WHERE jid=?",
                                       undef, $uid);
     } elsif ($dom eq "V") {
-        $newmax = $u->selectrow_array("SELECT MAX(giftid) FROM vgifts WHERE userid=?",
+        $newmax = $u->selectrow_array("SELECT MAX(transid) FROM vgift_trans WHERE rcptid=?",
                                       undef, $uid);
     } elsif ($dom eq "E") {
         $newmax = $u->selectrow_array("SELECT MAX(subid) FROM subs WHERE userid=?",
