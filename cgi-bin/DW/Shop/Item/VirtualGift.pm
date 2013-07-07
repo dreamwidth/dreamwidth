@@ -120,7 +120,8 @@ sub _apply {
     #  that the delivery date isn't in the future
     return 0 unless $trans->deliver;
 
-    # FIXME: notify the user about this gift
+    # notify the user about this gift
+    $trans->notify_delivered;
 
     return $self->{applied} = 1;
 }

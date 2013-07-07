@@ -19,6 +19,12 @@ use warnings;
 use DW::Shop::Cart;
 use DW::VirtualGift;
 
+# Because events use this module, Perl warns about redefined subroutines.
+{
+    no warnings 'redefine';
+    use LJ::Event::VgiftDelivered;
+}
+
 # IMPLEMENTATION: a blessed hashref with some or all of the following keys:
 #
 # From database: transid, rcptid, vgiftid, buyerid, cartid, delivery_t,
@@ -259,6 +265,17 @@ sub deliver {
     return 1 if $self->is_delivered;  # already delivered
     $self->{delivered} = 'Y';  # update object in memory
     return $self->_update( 'UPDATE vgift_trans SET delivered="Y", delivery_t=UNIX_TIMESTAMP()', 1 );
+}
+
+sub notify_delivered {
+    my ( $self ) = @_;
+
+    # make sure the gift was actually delivered
+    return unless $self->is_delivered;
+
+    # notify the user (no opt-out)
+    my @args = ( $self->u, $self->id );
+    LJ::Event::VgiftDelivered->new( @args )->fire;
 }
 
 
