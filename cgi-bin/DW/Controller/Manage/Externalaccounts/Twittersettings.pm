@@ -69,14 +69,13 @@ sub twittersettings_handler {
             password => 'dummy', #dummy password. OAuth accounts don't use it.
             xpostbydefault => 0,
             recordlink => 0,
+            oauth_authorized => 0,
             savepassword => 1, #so that the user isn't asked for a
                                # non-existant password all the time
             siteid => 9,       #This is a twitter account.
         );
 
-        $opts{options} = { prefix_text => BML::ml( 'twitter.prefix_text.default', { siteabbrev => $LJ::SITENAMEABBREV } ),
-                             is_authorized => 0,
-                         };
+        $opts{options} = { prefix_text => BML::ml( 'twitter.prefix_text.default', { siteabbrev => $LJ::SITENAMEABBREV } ) };
                                  
         #make the account
         my $extacct = DW::External::Account->create( $u, \%opts );
@@ -160,9 +159,9 @@ sub twittersettings_handler {
 
     #It's possible for verify_auth to fail and return an error for reasons that
     #aren't to do with OAuth (e.g. twitter is down). In this case, it should
-    #have left is_authorized alone - so we'll check that rather than assuming
+    #have left oauth_authorized alone - so we'll check that rather than assuming
     #anything from the above.
-    $vars->{is_authorized} = $extacct_opts->{is_authorized};
+    $vars->{is_authorized} = $extacct->oauth_authorized;
 
     #If verify_auth failed then this username may be out of date, but even an 
     #old username can be helpful in identifying an account to the user.

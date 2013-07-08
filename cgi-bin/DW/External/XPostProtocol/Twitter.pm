@@ -69,8 +69,8 @@ sub verify_auth {
     LJ::throw( 'Not a Twitter account' )
         unless $extacct->siteid == 9;
 
-    #check the account's is_authorized flag - if already false, we can just fail
-    unless ( $extacct->is_authorized ) {
+    #check the account's oauth_authorized flag - if already false, we can just fail
+    unless ( $extacct->oauth_authorized ) {
         return { error => LJ::Lang::ml( 'twitter.auth.please_reauth', 
                 { sitename => $LJ::SITENAMESHORT, 
                   url => "$LJ::SITEROOT/manage/externalaccounts/twittersettings?acctid=$extacct->{acctid}" } ) };
@@ -104,14 +104,14 @@ sub verify_auth {
 sub _check_twitter_error {
 # Internal function. Takes a Net::Twitter::Error object and an extacct. Returns
 # text for an  appropriate error message. If the error is invalid auth, sets
-# is_authorized to 0 for the extacct.
+# oauth_authorized to 0 for the extacct.
 
     my ( $err, $extacct ) = @_;
     $err ||= 'No error object.';
 
     #HTTP code 401 means invalid auth.
     if ( $err->http_response->{_rc} == 401 ) {
-        $extacct->set_is_authorized( 0 ) if $extacct;
+        $extacct->set_oauth_authorized( 0 ) if $extacct;
         return LJ::Lang::ml( 'twitter.auth.please_reauth', 
                 { sitename => $LJ::SITENAMESHORT, 
                   url => "$LJ::SITEROOT/manage/externalaccounts/twittersettings?acctid=$extacct->{acctid}" } );

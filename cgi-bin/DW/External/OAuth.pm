@@ -63,9 +63,10 @@ sub start_oauth {
     #We have been issued a temporary token representing this authentication
     # request. We need to store this to use when twitter redirects the user
     # back to us.
+    $extacct->set_oauth_authorized( 0 );
+
     my $extacct_options = $extacct->options;
 
-    $extacct_options->{is_authorized} = 0;
     $extacct_options->{request_token} = $twitter->request_token;
     $extacct_options->{request_token_secret} = $twitter->request_token_secret;
 
@@ -151,12 +152,12 @@ sub oauth_callback {
     #Save the new access token
     $extacct_options->{access_token} = $access_token;
     $extacct_options->{access_token_secret} = $access_token_secret;
-    $extacct_options->{is_authorized} = 1;
 
     #Get rid of the temporary token
     delete @$extacct_options{ qw( request_token request_token_secret ) };
     
     $extacct->set_options( $extacct_options );
+    $extacct->set_oauth_authorized( 1 );
 
     return { success => 1 };
 }
