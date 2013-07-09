@@ -207,9 +207,9 @@ ul.entry-management-links {
     background: $*color_management_links_background;
 }
 ul.entry-management-links a { color: $*color_management_links; }
-ul.entry-management-links a:active { color: $*color_entry_management_links_active; }
-ul.entry-management-links a:hover { color: $*color_entry_management_links_hover; }
 ul.entry-management-links a:visited { color: $*color_entry_management_links_visited; }
+ul.entry-management-links a:hover { color: $*color_entry_management_links_hover; }
+ul.entry-management-links a:active { color: $*color_entry_management_links_active; }
 
 .entry-interaction-links a, .entry-management-links a {
     font-family: $*font_management;
@@ -226,9 +226,9 @@ ul.entry-interaction-links {
     background: $*color_interaction_links_background;
 }
 
-ul.entry-interaction-links a:active { color: $*color_entry_interaction_links_active; }
-ul.entry-interaction-links a:hover { color: $*color_entry_interaction_links_hover; }
 ul.entry-interaction-links a:visited { color: $*color_entry_interaction_links_visited; }
+ul.entry-interaction-links a:hover { color: $*color_entry_interaction_links_hover; }
+ul.entry-interaction-links a:active { color: $*color_entry_interaction_links_active; }
 
 .entry .userpic img {
     margin: 10px;
@@ -398,21 +398,23 @@ div.icons-container div.icon:nth-of-type(2n) {
     display: block;
 }
 
-.module-navlinks a:active {
-    color: $*color_navlinks_link_active;
-    background: $*color_navlinks_link_active_background;
-    text-decoration: none;
+.module-navlinks a:visited {
+    color: $*color_navlinks_link_visited;
+    background: $*color_navlinks_link_visited_background;
 }
+
 .module-navlinks a:hover {
     color: $*color_navlinks_link_hover;
     background: $*color_navlinks_link_hover_background;
     text-decoration: none;
 }
 
-.module-navlinks a:visited {
-    color: $*color_navlinks_link_visited;
-    background: $*color_navlinks_link_visited_background;
+.module-navlinks a:active {
+    color: $*color_navlinks_link_active;
+    background: $*color_navlinks_link_active_background;
+    text-decoration: none;
 }
+
 
  """;
 }
