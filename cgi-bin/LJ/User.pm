@@ -9531,8 +9531,8 @@ sub make_journal {
 
         my $get_styleinfo = sub {
 
-            # forced s2 style id
-            if ($geta->{'s2id'}) {
+            # forced s2 style id (must be numeric)
+            if ($geta->{s2id} && $geta->{s2id} =~ /^\d+$/) {
 
                 # get the owner of the requested style
                 my $style = LJ::S2::load_style( $geta->{s2id} );
