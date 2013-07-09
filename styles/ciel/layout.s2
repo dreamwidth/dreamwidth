@@ -22,11 +22,20 @@ set margins_unit = "%";
 propgroup colors_child {
     property Color color_page_subtitle { des = "Page header subtitle color "; }
     property Color color_management_links { des = "Entry management links color"; }
+    property Color color_management_links_active { des = "Entry management links active color"; }
+    property Color color_management_links_hover { des = "Entry management links hover color"; }
+    property Color color_management_links_visited { des = "Entry management links visited color"; }
     property Color color_management_links_background { des = "Entry management links background color"; }
+    property Color color_interaction_links_active { des = "Entry interaction links active color"; }
+    property Color color_interaction_links_hover { des = "Entry interaction links hover color"; }
+    property Color color_interaction_links_visited { des = "Entry interaction links visited color"; }
     property Color color_interaction_links_background { des = "Entry interaction links background color"; }
     property Color color_userpic_border { des = "Userpic border color in entries"; }
     property Color color_userpic_border_alt { des = "Userpic border color in alternating entries"; }
     property Color color_navlinks_link { des = "Navigation module link text color"; }
+    property Color color_navlinks_link_active { des = "Navigation module active link text color"; }
+    property Color color_navlinks_link_hover { des = "Navigation module hover link text color"; }
+    property Color color_navlinks_link_visited { des = "Navigation module visited link text color"; }
     property Color color_navlinks_link_background { des = "Navigation module link background color"; }
     property Color color_navlinks_link_active_background { des = "Navigation module active link background color"; }
     property Color color_navlinks_link_hover_background { des = "Navigation module hover link background color"; }
@@ -197,7 +206,10 @@ ul.entry-management-links {
     color: $*color_management_links;
     background: $*color_management_links_background;
 }
-.entry-management-links a { color: $*color_management_links; }
+ul.entry-management-links a { color: $*color_management_links; }
+ul.entry-management-links a:active { color: $*color_management_links_active; }
+ul.entry-management-links a:hover { color: $*color_management_links_hover; }
+ul.entry-management-links a:visited { color: $*color_management_links_visited; }
 
 .entry-interaction-links a, .entry-management-links a {
     font-family: $*font_management;
@@ -213,6 +225,10 @@ ul.entry-interaction-links {
     padding: 6px;
     background: $*color_interaction_links_background;
 }
+
+ul.entry-interaction-links a:active { color: $*color_interaction_links_active; }
+ul.entry-interaction-links a:hover { color: $*color_interaction_links_hover; }
+ul.entry-interaction-links a:visited { color: $*color_interaction_links_visited; }
 
 .entry .userpic img {
     margin: 10px;
@@ -383,15 +399,18 @@ div.icons-container div.icon:nth-of-type(2n) {
 }
 
 .module-navlinks a:active {
+    color: $*color_navlinks_link_active;
     background: $*color_navlinks_link_active_background;
     text-decoration: none;
 }
 .module-navlinks a:hover {
+    color: $*color_navlinks_link_hover;
     background: $*color_navlinks_link_hover_background;
     text-decoration: none;
 }
 
 .module-navlinks a:visited {
+    color: $*color_navlinks_link_visited;
     background: $*color_navlinks_link_visited_background;
 }
 
