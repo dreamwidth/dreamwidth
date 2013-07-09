@@ -69,6 +69,8 @@ sub merge_controller {
     my $args = $r->did_post ? $r->post_args : $r->get_args;
     my $dbr = LJ::get_db_reader();
     my $vars = { data => {} };
+    $vars->{errors} = [];
+
     if ( $r->did_post ) {
         my $dest_feed = $args->{dest_feed};
         my $dest_url  = $args->{dest_url};
@@ -82,7 +84,6 @@ sub merge_controller {
         unshift @userids, $dest_url if $contains_dest_url;
         @userids = uniq grep { $_ != $dest_feed } @userids;
 
-        $vars->{errors} = [];
         if ( scalar @userids == 0 ) {
             push @{$vars->{errors}}, "No feeds to consider";
         } elsif ( ! $contains_dest_feed ) {
@@ -146,7 +147,7 @@ sub merge_controller {
         $vars->{token} = $args->{token};
     } else {
     }
-    
+
     my $data = $vars->{data};
     my @userids = keys %$data;
     my $users = LJ::load_userids( @userids );
