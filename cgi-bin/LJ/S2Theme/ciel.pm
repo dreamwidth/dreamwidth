@@ -43,12 +43,12 @@ sub entry_props {
                     font_management
                     font_metadata
                     color_management_links
-                    color_management_links_active
-                    color_management_links_hover
-                    color_management_links_visited
-                    color_interaction_links_active
-                    color_interaction_links_hover
-                    color_interaction_links_visited
+                    color_entry_management_links_active
+                    color_entry_management_links_hover
+                    color_entry_management_links_visited
+                    color_entry_interaction_links_active
+                    color_entry_interaction_links_hover
+                    color_entry_interaction_links_visited
     );
     return $self->_append_props( "entry_props", @props );
 }
