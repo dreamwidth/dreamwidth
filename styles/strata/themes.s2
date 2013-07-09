@@ -81,18 +81,24 @@ set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
 ## Page Colors
 ##===============================
 
-set color_page_link = "#ff9bcc";
-set color_page_link_hover = "#de8fce";
-set color_page_link_visited = "#c86c95";
+set color_page_link = "#fff";
+set color_page_link_hover = "#fafbd8";
+set color_page_link_visited = "#ddd";
 set color_page_text = "#000";
 set color_page_title = "#c86c95";
 set color_header_navlinks_current_background = "#ffcdf8";
+set color_footer_link = "#ffffff";
+set color_footer_link_active = "#fafbd8";
+set color_footer_link_hover = "#ddd";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#fafbd8";
+set color_entry_link = "#ff9bcc";
+set color_entry_link_hover = "#de8fce";
+set color_entry_link_visited = "#c86c95";
 set color_entry_border = "#fafbd8";
 set color_entry_footer_background = "#ff9bcc";
 set color_entry_interaction_links = "#fff";
@@ -110,6 +116,9 @@ set color_comment_title_background = "#ffcdf8";
 ##===============================
 
 set color_module_background = "#fafbd8";
+set color_module_link = "#ff9bcc";
+set color_module_link_hover = "#de8fce";
+set color_module_link_visited = "#c86c95";
 set color_module_footer_background = "#ff9bcc";
 set color_module_title = "#c86c95";
 set color_module_title_background = "#ffcdf8";
