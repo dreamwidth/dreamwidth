@@ -46,11 +46,11 @@ propgroup colors_child {
     property Color color_entry_interaction_links_visited { des = "Entry management and interaction visited link color"; }
     property Color color_entry_footer_background { des = "Entry footer background color"; }
     property Color color_navlinks_current { des = "Color of navlink for current page"; }
-    property Color color_journal_subtitle { des = "Journal subtitle color"; }
+    property Color color_page_subtitle { des = "Journal subtitle color"; }
     property Color color_userpic_border { des = "Userpic border color"; }
-    property Color color_alternate_entry_border { des = "Alternate entry border color"; }
-    property Color color_alternate2_entry_border { des = "Second alternate entry border color"; }
-    property Color color_alternate3_entry_border { des = "Third alternate entry border color"; }
+    property Color color_entry_border_alternate { des = "Alternate entry border color"; }
+    property Color color_entry_border_alternate_second { des = "Second alternate entry border color"; }
+    property Color color_entry_border_alternate_third { des = "Third alternate entry border color"; }
     }
 
 ##===============================
@@ -363,7 +363,7 @@ a:hover {text-decoration:underline;}
 
 h1#title {font-weight: normal; letter-spacing: .1em;}
 
-h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: $*color_journal_subtitle; letter-spacing: .1em;}
+h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: $*color_page_subtitle; letter-spacing: .1em;}
 
 /*--- Journal Navigation ---*/
 
@@ -413,13 +413,13 @@ $userpic_css
 
 .poster {margin-left: 1em;}
 
-.entry-wrapper-even .entry, .comment-wrapper-even .comment, div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(2n) div.month {border-color: $*color_alternate_entry_border;}
+.entry-wrapper-even .entry, .comment-wrapper-even .comment, div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(2n) div.month {border-color: $*color_entry_border_alternate;}
 
 div#entries > div.inner > div.entry-wrapper:nth-of-type(4n) div.entry,
-div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(4n-1) div.month {border-color: $*color_alternate2_entry_border;}
+div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(4n-1) div.month {border-color: $*color_entry_border_alternate_second;}
 
 div#entries > div.inner > div.entry-wrapper:nth-of-type(4n+1) div.entry,
-div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(4n) div.month {border-color: $*color_alternate3_entry_border;}
+div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-type(4n) div.month {border-color: $*color_entry_border_alternate_third;}
 
 .entry-title {padding-left: .5em;}
 .entry-title a, .comment-title a {text-decoration: none; font-weight: normal; letter-spacing: -.05em;}
