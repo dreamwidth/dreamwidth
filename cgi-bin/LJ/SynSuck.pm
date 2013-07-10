@@ -84,6 +84,8 @@ sub get_content {
     print "[$$] Synsuck: $user ($synurl)\n" if $verbose;
 
     my $req = HTTP::Request->new("GET", $synurl);
+    my $can_accept = HTTP::Message::decodable;
+    $req->header('Accept-Encoding', $can_accept);
     $req->header('If-Modified-Since', LJ::time_to_http($lastmod))
         if $lastmod;
     $req->header('If-None-Match', $etag)
@@ -103,6 +105,11 @@ sub get_content {
     };
     if ($@)       { return delay($userid, 120, "lwp_death"); }
     if ($too_big) { return delay($userid, 60, "toobig");     }
+
+    # Since we are treating content specially above, we have to recreate
+    #   the HTTP::Message with it to get the decoded content.
+    my $message = HTTP::Message->new( $res->headers, $content );
+    $content = $message->decoded_content(charset => 'none');
 
     if ($res->is_error()) {
         # http error
