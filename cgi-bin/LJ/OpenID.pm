@@ -36,11 +36,12 @@ sub server_enabled {
 }
 
 sub server {
-    my ($get) = @_;
+    my ($get, $post) = @_;
 
     return Net::OpenID::Server->new(
                                     compat       => $LJ::OPENID_COMPAT,
-                                    args         => $get  || {},
+                                    get_args     => $get  || {},
+                                    post_args    => $post || {},
 
                                     get_user     => \&LJ::get_remote,
                                     is_identity  => sub {
