@@ -2441,9 +2441,15 @@ set color_page_title = "#c9794a";
 
 set color_entry_background = "#fffef9";
 set color_entry_interaction_links = "#fff";
+set color_entry_interaction_links_active = "#fff";
+set color_entry_interaction_links_hover = "#fff";
+set color_entry_interaction_links_visited = "#fff";
 set color_entry_title = "#46221a";
 set color_comment_title = "#46221a";
 set color_management_links = "#fff";
+set color_entry_management_links_active = "#fff";
+set color_entry_management_links_hover = "#fff";
+set color_entry_management_links_visited = "#fff";
 set color_interaction_links_background = "#c9794a";
 set color_management_links_background = "#c9794a";
 set color_userpic_border = "#46221a";
