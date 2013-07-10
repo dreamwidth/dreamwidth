@@ -8,7 +8,7 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2008 by Dreamwidth Studios, LLC.
+# Copyright (c) 2008-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -154,6 +154,12 @@ sub header_in {
     }
 }
 
+# Do not want to return an APR::Table here
+sub headers_in {
+    my DW::Request::Apache2 $self = $_[0];
+    return %{$self->{r}->headers_in};
+}
+
 # searches for a given header and returns the value, or sets it
 sub header_out {
     my DW::Request::Apache2 $self = $_[0];
@@ -162,6 +168,12 @@ sub header_out {
     } else {
         return $self->{r}->headers_out->{$_[1]} = $_[2];
     }
+}
+
+# Do not want to return an APR::Table here
+sub headers_out {
+    my DW::Request::Apache2 $self = $_[0];
+    return %{$self->{r}->headers_out};
 }
 
 # appends a value to a header
