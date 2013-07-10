@@ -977,7 +977,7 @@ sub trans
     if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
         my $int = $1;
         $apache_r->handler("perl-script");
-        if ($int =~ /^xmlrpc|blogger|elsewhere_info$/) {
+        if ($int =~ /^blogger|elsewhere_info$/) {
             $RQ{'interface'} = $int;
             $RQ{'is_ssl'} = $is_ssl;
             $apache_r->push_handlers(PerlResponseHandler => \&interface_content);
@@ -1600,14 +1600,6 @@ sub interface_content
 {
     my $apache_r = shift;
     my $args = $apache_r->args;
-
-    if ($RQ{'interface'} eq "xmlrpc") {
-        my $server = DW::Request::XMLRPCTransport
-            -> on_action(sub { die "Access denied\n" if $_[2] =~ /:|\'/ })
-            -> dispatch_to('LJ::XMLRPC')
-            -> handle;
-        return OK;
-    }
 
     if ($RQ{'interface'} eq "blogger") {
         Apache::LiveJournal::Interface::Blogger->load;
