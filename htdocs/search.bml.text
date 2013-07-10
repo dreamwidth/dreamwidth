@@ -6,3 +6,57 @@
 .attribution.comment=Comment in [[journal]] by [[poster]]
 
 .attribution.comment.anon=Comment in [[journal]] by an anonymous person
+
+.blurb=[[site]] content search. Please select where to search and enter your search terms.
+
+.button.more=More Results...
+
+.button.search=Search
+
+.comments.disabled=Also search in comments made on paid journals (disabled; this account is not paid)
+
+.comments.include=Also search in comments made on paid journals
+
+.date=Posted:
+
+.error=Error:
+
+.error.forbidden=You can't search that journal.
+
+.error.longquery=Query must be shorter than 255 characters, sorry!
+
+.error.noquery=Please enter a search query.
+
+.error.noresults=Sorry, we didn't find any matches for the search <strong>[[query]]</strong>. We looked for [[time]] seconds, too!
+
+.error.notconfigured=Sorry, content searching is not configured on this server.
+
+.error.refresh=Did you leave this window open too long? Please refresh and try again.
+
+.error.timedout=Sorry, we were unable to find a result in the time allotted. This may mean that the server is busy or down. Please try your query again later.
+
+.error.wrongoffset=Hey, that offset is nonsensical... :(
+
+.label.journalsearch=Journal Search:
+
+.label.sitesearch=Site Search (Public Entries)
+
+.results.displayed=[[results]] results displayed out of [[total]] hits total[[skipped]] for <strong>[[query]]</strong>.
+
+.results.skipped=([[offset]] skipped)
+
+.results.time=Search performed in [[time]] seconds.
+
+.sortby=Sort results by:
+
+.sort.date.new=Date, newest posts first
+
+.sort.date.old=Date, oldest posts first
+
+.sort.relevance=Relevance to search terms
+
+.security.setting=To control who can search your journal, and whether or not your public entries appear in global search results, please adjust your <a [[aopts]]>account privacy settings</a>.
+
+.tags=Tags:
+
+.title=Content Search
