@@ -63,7 +63,8 @@ sub new {
     return undef unless exists $LJ::SHOP{$args{type}};
 
     # from_userid will be 0 or undef if the sender isn't logged in
-    return undef unless ! $args{from_userid} || LJ::load_userid( $args{from_userid} );
+    # but if we have a userid, and it doesn't load properly, bail out here.
+    return undef if $args{from_userid} && ! LJ::load_userid( $args{from_userid} );
 
     # now do validation.  since new is only called when the item is being added
     # to the shopping cart, then we are comfortable doing all of these checks
