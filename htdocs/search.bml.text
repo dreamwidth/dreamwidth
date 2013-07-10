@@ -7,15 +7,19 @@
 
 .attribution.comment.anon=Comment in [[journal]] by an anonymous person
 
-.blurb=[[site]] content search. Please select where to search and enter your search terms.
+.blurb=[[sitename]] content search. Please select where to search and enter your search terms.
 
 .button.more=More Results...
 
 .button.search=Search
 
-.comments.disabled=Also search in comments made on paid journals (disabled; this account is not paid)
+.comments.disabled=Also search in comments
 
-.comments.include=Also search in comments made on paid journals
+.comments.disabled.note=Disabled: your account type or the account type of the journal you're searching doesn't permit you to use this feature.
+
+.comments.include=Also search in comments
+
+.comments.include.note=Note: only comments made in paid journals can be searched.
 
 .date=Posted:
 
