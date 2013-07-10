@@ -33,7 +33,7 @@ DW::Shop::Item - base class containing basic behavior for items to be sold in th
 
 =head2 C<< $class->new(  [ $opts ] ) >>
 
-Instantiates an item to be purchased in the shop. The item must be defined in the 
+Instantiates an item to be purchased in the shop. The item must be defined in the
 %LJ::SHOP hash in your config file.
 
 Arguments:
@@ -50,10 +50,10 @@ Arguments:
 =item reason => personal note from sender to target
 
 The type is required. Also, one target_* argument is required; it may be either
-a target_userid or a target_email. All other arguments are optional. 
+a target_userid or a target_email. All other arguments are optional.
 
-Subclasses must override this function to set the type. Subclasses may also do any 
-other modifications necessary when instantiating itself. See DW::Shop::Item::Account 
+Subclasses must override this function to set the type. Subclasses may also do any
+other modifications necessary when instantiating itself. See DW::Shop::Item::Account
 for an example.
 
 =cut
@@ -62,8 +62,9 @@ sub new {
     my ( $class, %args ) = @_;
     return undef unless exists $LJ::SHOP{$args{type}};
 
-    # from_userid will be 0 if the sender isn't logged in
-    return undef unless $args{from_userid} == 0 || LJ::load_userid( $args{from_userid} );
+    # from_userid will be 0 or undef if the sender isn't logged in
+    # but if we have a userid, and it doesn't load properly, bail out here.
+    return undef if $args{from_userid} && ! LJ::load_userid( $args{from_userid} );
 
     # now do validation.  since new is only called when the item is being added
     # to the shopping cart, then we are comfortable doing all of these checks
@@ -117,7 +118,7 @@ sub new {
 
 =head2 C<< $self->apply_automatically >>
 
-True if you want the item to be applied via the paidstatus worker, and false 
+True if you want the item to be applied via the paidstatus worker, and false
 if you wish to apply the item yourself (usually triggered by a user action).
 
 Subclasses may override.
@@ -128,10 +129,10 @@ sub apply_automatically { 1 }
 
 =head2 C<< $self->apply >>
 
-Called when we are told we need to apply this item, i.e., turn it on. Note that we 
+Called when we are told we need to apply this item, i.e., turn it on. Note that we
 update ourselves, but it's up to the cart to make sure that it saves.
 
-Subclasses may override this method, but a better approach would be to override the 
+Subclasses may override this method, but a better approach would be to override the
 internal $self->_apply method.
 
 =cut
@@ -377,20 +378,38 @@ sub t_userid {
 
 =head2 C<< $self->from_html >>
 
-Display who this is from.
+Display who this is from, using ljuser_display.
+
+=head2 C<< $self->from_text >>
+
+Display who this is from, using display_name.
 
 =cut
 
 sub from_html {
     my $self = $_[0];
 
-    return $self->{from_name} if $self->{from_name};
+    my $from = $self->_from_other;
+    return LJ::isu( $from ) ? $from->ljuser_display : LJ::ehtml( $from );
+}
+
+sub from_text {
+    my $self = $_[0];
+
+    my $from = $self->_from_other;
+    return LJ::isu( $from ) ? $from->display_name : $from;
+}
+
+sub _from_other {
+    my $self = $_[0];
+
+    return LJ::Lang::ml( 'widget.shopcart.anonymous' ) if $self->anonymous;
+    return $self->from_name if $self->from_name;
 
     my $from_u = LJ::load_userid( $self->from_userid );
-    return LJ::Lang::ml( 'widget.shopcart.anonymous' )
-        if $self->anonymous || ! LJ::isu( $from_u );
+    return LJ::Lang::ml( 'error.nojournal' ) unless LJ::isu( $from_u );
 
-    return $from_u->ljuser_display;
+    return $from_u;
 }
 
 =head2 C<< $self->paid_cash >>
@@ -486,8 +505,8 @@ Returns whether this item should be gifted anonymously, or credited to the sende
 
 =head2 C<< $self->noremove >>
 
-Returns whether this item may or may not be removed from the cart. May be used by 
-promotions which automatically add a promo item to a user's cart, to prevent the 
+Returns whether this item may or may not be removed from the cart. May be used by
+promotions which automatically add a promo item to a user's cart, to prevent the
 promo item from being removed
 
 =head2 C<< $self->from_name >>

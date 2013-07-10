@@ -1040,6 +1040,14 @@ esn.add_trust=[[openlink]]Grant access to [[journal]][[closelink]]
 
 esn.add_watch=[[openlink]]Subscribe to [[journal]][[closelink]]
 
+esn.bday.act.givepaid=Give Paid Time
+
+esn.bday.act.givevgift=Send Virtual Gift
+
+esn.bday.act.sendmsg=Send Message
+
+esn.bday.act.viewjournal=View Journal
+
 esn.bday.email<<
 Hi [[user]],
 
@@ -1552,7 +1560,9 @@ Regards,
 
 esn.sentpoints.subject=[[sitename]] Points sent to [[to]]
 
-esn.shop_for_gift=[[openlink]]Buy a gift from our shop[[closelink]]
+esn.shop_for_paid_time=[[openlink]]Give them some paid account time[[closelink]]
+
+esn.shop_for_virtual_gift=[[openlink]]Buy a virtual gift from our shop[[closelink]]
 
 esn.supofficialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
 
