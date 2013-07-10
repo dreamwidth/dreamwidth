@@ -196,7 +196,7 @@ sub work {
         my $address = $a->address;
         my $arg;
         if ( $address =~ /^(.+)\+(.*)\@(.+)$/ ) {
-            ( $address, $arg ) = ( "$1\@$3", $2 );
+            ( $address, $arg ) = ( lc "$1\@$3", $2 );
         }
         if ( defined $LJ::ALIAS_TO_SUPPORTCAT{$address} ) {
             $address = $LJ::ALIAS_TO_SUPPORTCAT{$address};

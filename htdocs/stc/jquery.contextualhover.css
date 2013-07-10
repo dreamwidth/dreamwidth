@@ -25,10 +25,11 @@
 }
 
 .ContextualPopup .Userpic {
-    float: right;
-    padding: 2px;
     border-style: solid;
     border-width: 1px;
+    float: right;
+    margin-left: 2px;
+    padding: 2px;
 }
 
 .ContextualPopup .Userpic img {

@@ -23,6 +23,8 @@ sub subscription_as_html {
 sub matches_filter {
     my ($self, $subscr) = @_;
 
+    return 0 unless $subscr->available_for_user;
+
     my $sjid = $subscr->journalid;
     my $ejid = $self->event_journal->{userid};
 

@@ -63,6 +63,7 @@ sub default_themes {
         librariansdream => 'librariansdream/grayscalelight',
         lineup => 'lineup/modernity',
         marginless => 'marginless/mars',
+        mobility => 'mobility/ivoryalcea',
         modular => 'modular/mediterraneanpeach',
         motion => 'motion/blue',
         negatives => 'negatives/black',
@@ -439,6 +440,7 @@ sub new {
             $layers = LJ::S2::get_layers_of_user($u);
             unless (ref $layers->{$themeid}) {
                 LJ::S2::load_layer_info(\%outhash, [ $themeid ]);
+                return undef if $opts{undef_if_missing} && ! exists $outhash{$themeid};
 
                 die "Given theme id does not correspond to a layer usable by the given user." unless $outhash{$themeid}->{is_public};
             }
@@ -449,6 +451,11 @@ sub new {
     }
 
     my $using_layer_info = scalar keys %outhash;
+
+    if ( $opts{undef_if_missing} ) {
+        return undef
+            unless $using_layer_info ? exists $outhash{$themeid} : exists $layers->{$themeid}->{type};
+    }
 
     die "Given theme id does not correspond to a theme."
         unless $using_layer_info ? $outhash{$themeid}->{type} eq "theme" : $layers->{$themeid}->{type} eq "theme";

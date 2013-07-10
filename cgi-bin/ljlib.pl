@@ -74,7 +74,6 @@ use DW::Request;
 use TheSchwartz;
 use TheSchwartz::Job;
 use LJ::Comment;
-use LJ::ExternalSite;
 use LJ::Message;
 use LJ::ConvUTF8;
 use LJ::Userpic;
@@ -910,8 +909,9 @@ sub start_request
     $LJ::ADV_PER_PAGE = 0;            # Counts ads displayed on a page
     $LJ::ACTIVE_RES_GROUP = undef;    # use whatever is current site default
 
-
     %LJ::PAID_STATUS = ();            # per-request paid status
+
+    %LJ::REQUEST_CACHE = ();          # request cached items ( longterm goal, store everything in here )
 
     $LJ::CACHE_REMOTE_BOUNCE_URL = undef;
     LJ::Userpic->reset_singletons;
@@ -1347,13 +1347,20 @@ sub urandom_int {
     return unpack('N', LJ::urandom( size => 4 ));
 }
 
-sub rand_chars
-{
-    my $length = shift;
+my %RAND_CHARSETS = (
+    default => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    urlsafe_b64 => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_",
+);
+
+sub rand_chars {
+    my ( $length, $charset ) = @_;
     my $chal = "";
-    my $digits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    my $digits = $RAND_CHARSETS{ $charset || 'default' };
+    my $digit_len = length( $digits );
+    die "Invalid charset $charset" unless $digits && ( $digit_len > 0 );
+
     for (1..$length) {
-        $chal .= substr($digits, int(rand(62)), 1);
+        $chal .= substr($digits, int(rand($digit_len)), 1);
     }
     return $chal;
 }

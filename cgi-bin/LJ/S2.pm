@@ -1663,7 +1663,7 @@ sub get_policy
     local $_;
 
     foreach my $infix ("", "-local") {
-        my $file = "$LJ::HOME/bin/upgrading/s2layers/policy${infix}.dat";
+        my $file = "$LJ::HOME/styles/policy${infix}.dat";
         my $layer = undef;
         open (P, $file) or next;
         while (<P>) {
@@ -2273,13 +2273,18 @@ sub Page
         my $theme;
 
         if ( $style && $style->{layer}->{theme} ) {
-            $theme = LJ::S2Theme->new(themeid => $style->{layer}->{theme}, user => $opts->{style_u} || $u );
+            $theme = LJ::S2Theme->new(
+                themeid => $style->{layer}->{theme},
+                user => $opts->{style_u} || $u,
+                undef_if_missing => 1 );
+        }
 
+        if ( $theme ) {
             $layoutname = $theme->layout_name;
             $themename = $theme->name;
             $layouturl = "$LJ::SITEROOT/customize/?layoutid=". $theme->layoutid if $theme->is_system_layout;
         } else {
-            $layoutname = S2::get_layer_info($style-> {layer}->{layout}, 'name');
+            $layoutname = S2::get_layer_info($style->{layer}->{layout}, 'name');
             $themename = LJ::Lang::ml("s2theme.themename.notheme");
         }
     }
@@ -2353,7 +2358,8 @@ sub Page
 
     # other useful link rels
     $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
-
+    $p->{head_content} .= qq{<link rel="apple-touch-icon" href="$LJ::APPLE_TOUCH_ICON" />\n} 
+         if $LJ::APPLE_TOUCH_ICON;
     # Identity (type I) accounts only have read views
     $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
     # feed accounts only have recent entries views

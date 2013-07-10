@@ -115,6 +115,72 @@ set color_module_text = "#1e2329";
 set color_module_title = "#fff";
 set color_module_title_background = "#657c82";
 
+#NEWLAYER: librariansdream/amaranth
+layerinfo "type" = "theme";
+layerinfo "name" = "Amaranth";
+layerinfo redist_uniq = "librariansdream/amaranth";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3e1027";
+set color_page_link = "#fafafa";
+set color_page_link_visited = "#603048";
+set color_page_text = "#000000";
+set color_primary_background = "#a28f99";
+set color_sidebars_background = "#a28f99";
+set color_header_background = "#a28f99";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fafafa";
+set color_entry_link = "#3e1027";
+set color_entry_link_visited = "#603048";
+set color_entry_management_background = "#3e1027";
+set color_entry_text = "#000000";
+set color_entry_title = "#fafafa";
+set color_entry_title_background = "#3e1027";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fafafa";
+set color_module_link = "#3e1027";
+set color_module_link_background = "#fafafa";
+set color_module_link_border = "#3e1027";
+set color_module_link_hover = "#fafafa";
+set color_module_link_hover_background = "#3e1027";
+set color_module_link_hover_border = "#fafafa";
+set color_module_link_visited = "#603048";
+set color_module_text = "#000000";
+set color_module_title = "#fafafa";
+set color_module_title_background = "#3e1027";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+
+    .module-header a, .module-header a:visited {
+    $*color_module_title;
+    }
+
+    .entry-title a:visited {
+    $*color_module_title;
+    }
+""";
+}
+
+
 
 #NEWLAYER: librariansdream/anightin
 layerinfo type = "theme";
@@ -211,7 +277,6 @@ set color_primary_background = "#c86c95";
 set color_entry_background = "#fafbd8";
 set color_entry_border = "#ffcdf8";
 set color_entry_management_background = "#ff9bcc";
-set color_entry_interaction_links = "#fff";
 set color_entry_title = "#c86c95";
 set color_entry_title_background = "#ffcdf8";
 set color_comment_title = "#c86c95";
@@ -311,6 +376,181 @@ set color_module_title = "#e0d5b7";
 set color_module_title_background = "#340004";
 
 
+#NEWLAYER: librariansdream/bananasplitsville
+layerinfo type = "theme";
+layerinfo name = "Banana Splitsville";
+layerinfo redist_uniq = "librariansdream/bananasplitsville";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#422100";
+set color_page_link_active = "#ffff66";
+set color_page_link_hover = "#ffff66";
+set color_page_link_visited = "#ffff66";
+set color_page_text = "#c40000";
+set color_page_title = "#422100";
+set color_footer_background = "#ffff66";
+set color_header_background = "#ffff66";
+set color_primary_background = "#ffff66";
+set color_sidebars_background = "#ffff66";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#feffc6";
+set color_entry_link = "#c40000";
+set color_entry_management_background = "#422100";
+set color_entry_text = "#422100";
+set color_entry_title = "#feffc6";
+set color_entry_title_background = "#422100";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#feffc6";
+set color_module_link = "#ffff66";
+set color_module_link_active = "#422100";
+set color_module_link_background = "#c40000";
+set color_module_link_border = "#422100";
+set color_module_link_hover = "#ffff66";
+set color_module_link_hover_background = "#422100";
+set color_module_link_hover_border = "#c40000";
+set color_module_link_visited = "#ffff66";
+set color_module_text = "#422100";
+set color_module_title = "#ffff66";
+set color_module_title_background = "#422100";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#422100";
+set color_navigation_link_active = "#422100";
+set color_navigation_link_hover = "#422100";
+set color_navigation_link_visited = "#422100";
+set color_page_background = "#422100";
+
+
+#NEWLAYER: librariansdream/battleraven
+layerinfo type = "theme";
+layerinfo name = "Battle Raven";
+layerinfo redist_uniq = "librariansdream/battleraven";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#357381";
+set color_page_link_hover = "#5f2e76";
+set color_page_link_visited = "#488191";
+set color_page_text = "#aebbb9";
+set color_page_title = "#357381";
+set color_primary_background = "#030305";
+set color_sidebars_background = "#0d0c14";
+set color_footer_background = "#000000";
+set color_footer_link = "#357381";
+set color_footer_link_hover = "#5f2e76";
+set color_footer_link_visited = "#488191";
+set color_header_background = "#000000";
+set color_header_link = "#357381";
+set color_header_link_hover = "#5f2e76";
+set color_header_link_visited = "#488191";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#357381";
+set color_comment_title_background = "#030305";
+set color_entry_background = "#0d0c14";
+set color_entry_border = "#1b1b2e";
+set color_entry_interaction_links = "#357381";
+set color_entry_link = "#357381";
+set color_entry_link_hover = "#5f2e76";
+set color_entry_link_visited = "#488191";
+set color_entry_management_background = "#000000";
+set color_entry_text = "#aebbb9";
+set color_entry_title = "#357381";
+set color_entry_title_background = "#030305";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#0d0c14";
+set color_module_border = "#1b1b2e";
+set color_module_link = "#357381";
+set color_module_link_background = "#0d0c14";
+set color_module_link_border = "#357381";
+set color_module_link_hover = "#5f2e76";
+set color_module_link_hover_background = "#000000";
+set color_module_link_hover_border = "#5f2e76";
+set color_module_link_visited = "#488191";
+set color_module_text = "#aebbb9";
+set color_module_title = "#357381";
+set color_module_title_background = "#030305";
+
+##===============================
+## Nav Colors
+##===============================
+
+set color_navigation_link = "#357381";
+set color_navigation_link_hover = "#5f2e76";
+set color_navigation_link_visited = "#488191";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "11";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "10";
+set font_module_text_units = "pt";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "commons/battleravenii.jpg";
+
+
 #NEWLAYER: librariansdream/bitwarmer
 layerinfo type = "theme";
 layerinfo name = "Bit Warmer";
@@ -406,6 +646,70 @@ set color_module_link_hover_border = "#0f0800";
 set color_module_title = "#f70000";
 set color_module_title_background = "#331003";
 
+#NEWLAYER: librariansdream/blacklily
+layerinfo type = "theme";
+layerinfo name = "Black Lily";
+layerinfo redist_uniq = "librariansdream/blacklily";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#ffffff";
+set color_page_link_active = "#ffffff";
+set color_page_link_hover = "#ffffff";
+set color_page_link_visited = "#ffffff";
+set color_page_text = "#ffffff";
+set color_page_title = "#ffffff";
+set color_primary_background = "#000000";
+set color_sidebars_background = "#000000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#22142a";
+set color_entry_link = "#87629c";
+set color_entry_link_hover = "#87629c";
+set color_entry_link_visited = "#87629c";
+set color_entry_management_background = "#190624";
+set color_entry_text = "#ffffff";
+set color_entry_title = "#ffffff";
+set color_entry_title_background = "#190624";
+set color_footer_background = "#000000";
+set color_footer_link = "#ffffff";
+set color_header_background = "#000000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#190624";
+set color_module_link = "#ffffff";
+set color_module_link_active = "#ffffff";
+set color_module_link_background = "#190624";
+set color_module_link_border = "#190624";
+set color_module_link_hover = "#ffffff";
+set color_module_link_hover_background = "#87629c";
+set color_module_link_hover_border = "#ffffff";
+set color_module_link_visited = "#ffffff";
+set color_module_text = "#ffffff";
+set color_module_title = "#ffffff";
+set color_module_title_background = "#190624";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#ffffff";
+set color_navigation_link_active = "#ffffff";
+set color_navigation_link_hover = "#ffffff";
+set color_navigation_link_visited = "#ffffff";
+set color_page_background = "#000000";
+
 
 #NEWLAYER: librariansdream/bluedays
 layerinfo type = "theme";
@@ -487,6 +791,107 @@ set image_background_page_repeat = "repeat";
 set image_background_page_url = "commons/bluedays.png";
 
 
+#NEWLAYER: librariansdream/calima
+layerinfo type = "theme";
+layerinfo name = "Calima";
+layerinfo redist_uniq = "librariansdream/calima";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e73449";
+set color_page_link = "#480b15";
+set color_page_link_hover = "#6b0e18";
+set color_page_link_visited = "#3d0910";
+set color_page_text = "#060101";
+set color_page_title = "#f1bb8d";
+set color_primary_background = "#e73449";
+set color_sidebars_background = "#fee39e";
+set color_footer_link = "#480b15";
+set color_footer_link_hover = "#6b0e18";
+set color_footer_link_visited = "#3d0910";
+set color_header_link = "#e73449";
+set color_header_link_active = "#ef2853";
+set color_header_link_hover = "#ef2853";
+set color_header_link_visited = "#db2e4a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#e73449";
+set color_comment_title_background = "#f7a27d";
+set color_entry_background = "#fee39e";
+set color_entry_border = "#f7a27d";
+set color_entry_interaction_links = "#e73449";
+set color_entry_link = "#e73449";
+set color_entry_link_hover = "#ef2853";
+set color_entry_link_visited = "#db2e4a";
+set color_entry_management_background = "#f7a27d";
+set color_entry_text = "#060101";
+set color_entry_title = "#e73449";
+set color_entry_title_background = "#f7a27d";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fee39e";
+set color_module_border = "#f7a27d";
+set color_module_link = "#e73449";
+set color_module_link_background = "#fee39e";
+set color_module_link_border = "#e73449";
+set color_module_link_hover = "#ef2853";
+set color_module_link_hover_background = "#f7a27d";
+set color_module_link_hover_border = "#ef2853";
+set color_module_link_visited = "#db2e4a";
+set color_module_text = "#060101";
+set color_module_title = "#e73449";
+set color_module_title_background = "#f7a27d";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#e73449";
+set color_navigation_link_active = "#ef2853";
+set color_navigation_link_hover = "#ef2853";
+set color_navigation_link_visited = "#db2e4a";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
 #NEWLAYER: librariansdream/certainfrogs
 layerinfo type = "theme";
 layerinfo name = "Certain Frogs";
@@ -566,6 +971,270 @@ set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
 set image_background_page_url = "commons/certainfrogs.png";
 
+#NEWLAYER: librariansdream/chocolatemint
+layerinfo type = "theme";
+layerinfo name = "Chocolate Mint";
+layerinfo redist_uniq = "librariansdream/chocolatemint";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+set color_page_background = "#30261c";
+set color_page_link = "#60958d";
+set color_page_link_hover = "#72aaa7";
+set color_page_link_visited = "#70afaa";
+set color_page_text = "#988878";
+set color_page_title = "#0b8185";
+set color_primary_background = "#30261c";
+set color_sidebars_background = "#36544f";
+
+
+set color_footer_link = "#60958d";
+set color_footer_link_hover = "#72aaa7";
+set color_footer_link_visited = "#70afaa";
+set color_header_link = "#60958d";
+set color_header_link_active = "#72aaa7";
+set color_header_link_hover = "#72aaa7";
+set color_header_link_visited = "#70afaa";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#60958d";
+set color_comment_title_background = "#403831";
+set color_entry_background = "#36544f";
+set color_entry_border = "#403831";
+set color_entry_interaction_links = "#60958d";
+set color_entry_link = "#60958d";
+set color_entry_link_hover = "#72aaa7";
+set color_entry_link_visited = "#70afaa";
+set color_entry_management_background = "#403831";
+set color_entry_text = "#988878";
+set color_entry_title = "#60958d";
+set color_entry_title_background = "#403831";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#36544f";
+set color_module_border = "#403831";
+set color_module_link = "#60958d";
+set color_module_link_background = "#36544f";
+set color_module_link_border = "#60958d";
+set color_module_link_hover = "#72aaa7";
+set color_module_link_hover_background = "#403831";
+set color_module_link_hover_border = "#72aaa7";
+set color_module_link_visited = "#70afaa";
+set color_module_text = "#988878";
+set color_module_title = "#60958d";
+set color_module_title_background = "#403831";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#60958d";
+set color_navigation_link_active = "#72aaa7";
+set color_navigation_link_hover = "#72aaa7";
+set color_navigation_link_visited = "#70afaa";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/chocolatestrawberry
+layerinfo type = "theme";
+layerinfo name = "Chocolate Strawberry";
+layerinfo redist_uniq = "librariansdream/chocolatestrawberry";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#281602";
+set color_page_link = "#d97476";
+set color_page_link_hover = "#e86d7b";
+set color_page_link_visited = "#ff5e71";
+set color_page_text = "#916b3a";
+set color_page_title = "#a61515";
+set color_primary_background = "#281602";
+set color_sidebars_background = "#522c08";
+set color_footer_link = "#d97476";
+set color_footer_link_hover = "#e86d7b";
+set color_footer_link_visited = "#ff5e71";
+set color_header_link = "#d97476";
+set color_header_link_active = "#e86d7b";
+set color_header_link_hover = "#e86d7b";
+set color_header_link_visited = "#ff5e71";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#f49dad";
+set color_comment_title_background = "#961613";
+set color_entry_background = "#522c08";
+set color_entry_border = "#6c0104";
+set color_entry_interaction_links = "#f49dad";
+set color_entry_link = "#d97476";
+set color_entry_link_hover = "#e86d7b";
+set color_entry_link_visited = "#ff5e71";
+set color_entry_management_background = "#6c0104";
+set color_entry_text = "#916b3a";
+set color_entry_title = "#f49dad";
+set color_entry_title_background = "#870205";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#522c08";
+set color_module_border = "#6c0104";
+set color_module_link = "#d97476";
+set color_module_link_background = "#522c08";
+set color_module_link_border = "#d97476";
+set color_module_link_hover = "#e86d7b";
+set color_module_link_hover_background = "#870205";
+set color_module_link_hover_border = "#e86d7b";
+set color_module_link_visited = "#ff5e71";
+set color_module_text = "#916b3a";
+set color_module_title = "#f49dad";
+set color_module_title_background = "#870205";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#d97476";
+set color_navigation_link_active = "#e86d7b";
+set color_navigation_link_hover = "#e86d7b";
+set color_navigation_link_visited = "#ff5e71";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/chrome
+layerinfo type = "theme";
+layerinfo name = "Chrome";
+layerinfo redist_uniq = "librariansdream/chrome";
+layerinfo author_name = "momijizukamori";
+
+set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#888";
+set color_page_link = "#ddd";
+set color_page_link_active = "#ddd";
+set color_page_link_hover = "#aaa";
+set color_page_link_visited = "#777";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#555";
+set color_footer_background = "#555";
+set color_footer_link = "#ddd";
+set color_footer_link_active = "#ddd";
+set color_footer_link_hover = "#aaa";
+set color_footer_link_visited = "#777";
+set color_primary_background = "#333";
+set color_sidebars_background = "#333";
+
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#454545";
+set color_entry_management_background = "#666";
+set color_entry_link = "#ddd";
+set color_entry_link_active = "#ddd";
+set color_entry_link_hover = "#bbb";
+set color_entry_link_visited = "#aaa";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#454545";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#454545";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link_background = "#000";
+set color_module_border = "#555";
+set color_module_link_background = "#000";
+set color_module_link_hover_border = "#555";
+set color_module_link = "#ddd";
+set color_module_link_active = "#ddd";
+set color_module_link_hover = "#aaa";
+set color_module_link_visited = "#777";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#454545";
+
 
 #NEWLAYER: librariansdream/colouredglass
 layerinfo type = "theme";
@@ -641,67 +1310,187 @@ set color_module_title = "#98d2ce";
 set color_module_title_background = "#281133";
 
 
-#NEWLAYER: librariansdream/chrome
-layerinfo type = "theme";
-layerinfo name = "Chrome";
-layerinfo redist_uniq = "librariansdream/chrome";
-layerinfo author_name = "momijizukamori";
 
-set theme_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+#NEWLAYER: librariansdream/cornflowerblue
+layerinfo type = "theme";
+layerinfo name = "Cornflower Blue";
+layerinfo redist_uniq = "librariansdream/cornflowerblue";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
-set color_page_background = "#888";
-set color_page_link = "#ddd";
-set color_page_link_active = "#ddd";
-set color_page_link_hover = "#aaa";
-set color_page_link_visited = "#777";
-set color_page_text = "#fff";
-set color_page_title = "#fff";
-set color_header_background = "#555";
-set color_footer_background = "#555";
-set color_footer_link = "#ddd";
-set color_footer_link_active = "#ddd";
-set color_footer_link_hover = "#aaa";
-set color_footer_link_visited = "#777";
-set color_primary_background = "#333";
-set color_sidebars_background = "#333";
+set color_page_background = "#022b5c";
+set color_page_link = "#53c2e2";
+set color_page_link_active = "#122945";
+set color_page_link_visited = "#000000";
+set color_page_text = "#000000";
+set color_page_title = "#fafafa";
+set color_header_background = "#87afdc";
+set color_footer_link = "#00313f";
+set color_footer_link_active = "#022b5c";
+set color_footer_link_visited = "#022b5c";
+set color_primary_background = "#87afdc";
+set color_sidebars_background = "#87afdc";
+set color_footer_background = "#87afdc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fafafa";
+set color_entry_link = "#122945";
+set color_entry_link_visited = "#2e68ae";
+set color_entry_management_background = "#022b5c";
+set color_entry_title = "#fafafa";
+set color_entry_title_background = "#022b5c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#00313f";
+set color_module_link_active = "#022b5c";
+set color_module_link_background = "#fafafa";
+set color_module_link_border = "#022b5c";
+set color_module_link_hover = "#fafafa";
+set color_module_link_hover_background = "#022b5c";
+set color_module_link_hover_border = "#fafafa";
+set color_module_link_visited = "#2e68ae";
+set color_module_text = "#022b5c";
+set color_module_title = "#fafafa";
+set color_module_title_background = "#022b5c";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#fafafa";
+set color_navigation_link_active = "#fafafa";
+set color_navigation_link_visited = "#fafafa";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+
+    .module-header a, .module-header a:visited {
+ $*color_module_title;
+     }
+
+    .entry-title a:visited {
+ $*color_module_title;
+ }
+""";
+}
+
+
+
+
+#NEWLAYER: librariansdream/cosmos
+layerinfo type = "theme";
+layerinfo name = "Cosmos";
+layerinfo redist_uniq = "librariansdream/cosmos";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#17013f";
+set color_page_link = "#ffcaae";
+set color_page_link_hover = "#deccd5";
+set color_page_link_visited = "#b2889c";
+set color_page_text = "#deccd5";
+set color_page_title = "#ffcaae";
+set color_primary_background = "#17013f";
+set color_sidebars_background = "#663974";
+set color_footer_link = "#ffcaae";
+set color_footer_link_hover = "#deccd5";
+set color_footer_link_visited = "#b2889c";
+set color_header_link = "#ffcaae";
+set color_header_link_active = "#deccd5";
+set color_header_link_hover = "#deccd5";
+set color_header_link_visited = "#b2889c";
 
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#000";
-set color_entry_border = "#454545";
-set color_entry_management_background = "#666";
-set color_entry_link = "#ddd";
-set color_entry_link_active = "#ddd";
-set color_entry_link_hover = "#bbb";
-set color_entry_link_visited = "#aaa";
-set color_entry_text = "#fff";
-set color_entry_title = "#fff";
-set color_entry_title_background = "#454545";
-set color_comment_title = "#fff";
-set color_comment_title_background = "#454545";
+set color_comment_title = "#b2889c";
+set color_comment_title_background = "#12041f";
+set color_entry_background = "#400f68";
+set color_entry_border = "#12041f";
+set color_entry_interaction_links = "#b2889c";
+set color_entry_link = "#ffcaae";
+set color_entry_link_hover = "#deccd5";
+set color_entry_link_visited = "#b2889c";
+set color_entry_management_background = "#12041f";
+set color_entry_text = "#deccd5";
+set color_entry_title = "#ffcaae";
+set color_entry_title_background = "#12041f";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_link_background = "#000";
-set color_module_border = "#555";
-set color_module_link_background = "#000";
-set color_module_link_hover_border = "#555";
-set color_module_link = "#ddd";
-set color_module_link_active = "#ddd";
-set color_module_link_hover = "#aaa";
-set color_module_link_visited = "#777";
-set color_module_text = "#fff";
-set color_module_title = "#fff";
-set color_module_title_background = "#454545";
+set color_module_background = "#663974";
+set color_module_border = "#12041f";
+set color_module_link = "#ffcaae";
+set color_module_link_background = "#663974";
+set color_module_link_border = "#b2889c";
+set color_module_link_hover = "#deccd5";
+set color_module_link_hover_background = "#12041f";
+set color_module_link_hover_border = "#ffcaae";
+set color_module_link_visited = "#b2889c";
+set color_module_text = "#deccd5";
+set color_module_title = "#ffcaae";
+set color_module_title_background = "#12041f";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#ffcaae";
+set color_navigation_link_active = "#deccd5";
+set color_navigation_link_hover = "#deccd5";
+set color_navigation_link_visited = "#b2889c";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
 
 
 #NEWLAYER: librariansdream/cvety
@@ -777,6 +1566,430 @@ set color_module_text = "#131313";
 set color_module_title = "#14a3a5";
 set color_module_title_background = "#dde7b6";
 
+#NEWLAYER: librariansdream/dandeliongreens
+layerinfo type = "theme";
+layerinfo name = "Dandelion Greens";
+layerinfo redist_uniq = "librariansdream/dandeliongreens";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a9eb5e";
+set color_page_link = "#a9eb5e";
+set color_page_link_hover = "#a9eb5e";
+set color_page_link_visited = "#a9eb5e";
+set color_page_text = "#8bb061";
+set color_page_title = "#a9eb5e";
+set color_header_background = "#8bb061";
+set color_primary_background = "#8bb061";
+set color_sidebars_background = "#8bb061";
+set color_footer_background = "#8bb061";
+set color_footer_link = "#a9eb5e";
+set color_footer_link_hover = "#a9eb5e";
+set color_footer_link_visited = "#a9eb5e";
+set color_header_link = "#a9eb5e";
+set color_header_link_hover = "#a9eb5e";
+set color_header_link_visited = "#a9eb5e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#cff5a4";
+set color_entry_link = "#8bb061";
+set color_entry_link_visited = "#8bb061";
+set color_entry_management_background = "#a9eb5e";
+set color_entry_text = "#8bb061";
+set color_entry_title = "#8bb061";
+set color_entry_title_background = "#a9eb5e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_module_background = "#8bb061";
+set color_module_link = "#c2f587";
+set color_module_link_background = "#8bb061";
+set color_module_link_border = "#a9eb5e";
+set color_module_link_hover = "#8bb061";
+set color_module_link_hover_background = "#a9eb5e";
+set color_module_link_hover_border = "#cff5a4";
+set color_module_link_visited = "#c2f587";
+set color_module_text = "#c2f587";
+set color_module_title_background = "#8bb061";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#a9eb5e";
+set color_navigation_link_active = "#a9eb5e";
+set color_navigation_link_hover = "#a9eb5e";
+set color_navigation_link_visited = "#a9eb5e";
+
+
+
+#NEWLAYER: librariansdream/darkviolets
+layerinfo type = "theme";
+layerinfo name = "Dark Violets";
+layerinfo redist_uniq = "librariansdream/darkviolets";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#603048";
+set color_page_link = "#3e1027";
+set color_page_link_active = "#603048";
+set color_page_link_hover = "#3e1027";
+set color_page_link_visited = "#a28f99";
+set color_page_text = "#3e1027";
+set color_page_title = "#3e1027";
+set color_primary_background = "#dad3d6";
+set color_sidebars_background = "#dad3d6";
+set color_footer_background = "#dad3d6";
+set color_footer_link = "#3e1027";
+set color_footer_link_active = "#3e1027";
+set color_footer_link_visited = "#3e1027";
+set color_header_background = "#dad3d6";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f8f8f8";
+set color_entry_management_background = "#603048";
+set color_entry_title = "#f8f8f8";
+set color_entry_title_background = "#3e1027";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#603048";
+set color_module_link_active = "#603048";
+set color_module_link_background = "#f8f8f8";
+set color_module_link_border = "#603048";
+set color_module_link_hover = "#f8f8f8";
+set color_module_link_hover_background = "#482d3b";
+set color_module_link_hover_border = "#b06e8f";
+set color_module_link_visited = "#a28f99";
+set color_module_text = "#3e1027";
+set color_module_title = "#f8f8f8";
+set color_module_title_background = "#3e1027";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#b06e8f";
+set color_navigation_link_active = "#603048";
+set color_navigation_link_visited = "#a28f99";
+
+
+#NEWLAYER: librariansdream/daydream
+layerinfo type = "theme";
+layerinfo name = "Daydream";
+layerinfo redist_uniq = "librariansdream/daydream";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#b67585";
+set color_page_link_active = "#ac1454";
+set color_page_link_hover = "#ac1454";
+set color_page_link_visited = "#9d6173";
+set color_page_text = "#14130b";
+set color_page_title = "#9d6173";
+set color_sidebars_background = "#e3dca9";
+set color_footer_link = "#b67585";
+set color_footer_link_active = "#ac1454";
+set color_footer_link_hover = "#ac1454";
+set color_footer_link_visited = "#9d6173";
+set color_header_link = "#b67585";
+set color_header_link_hover = "#ac1454";
+set color_header_link_visited = "#9d6173";
+
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#ac1454";
+set color_comment_title_background = "#d5c39f";
+set color_entry_background = "#e3dca9";
+set color_entry_border = "#d5c39f";
+set color_entry_interaction_links = "#ac1454";
+set color_entry_link = "#b67585";
+set color_entry_link_active = "#ac1454";
+set color_entry_link_hover = "#ac1454";
+set color_entry_link_visited = "#9d6173";
+set color_entry_management_background = "#c5c9a4";
+set color_entry_text = "#14130b";
+set color_entry_title = "#ac1454";
+set color_entry_title_background = "#d5c39f";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e3dca9";
+set color_module_border = "#d5c39f";
+set color_module_link = "#b67585";
+set color_module_link_active = "#ac1454";
+set color_module_link_background = "#e3dca9";
+set color_module_link_border = "#c5c9a4";
+set color_module_link_hover = "#ac1454";
+set color_module_link_hover_background = "#d5c39f";
+set color_module_link_hover_border = "#c7d5a4";
+set color_module_link_visited = "#9d6173";
+set color_module_text = "#14130b";
+set color_module_title = "#ac1454";
+set color_module_title_background = "#d5c39f";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#b67585";
+set color_navigation_link_active = "#ac1454";
+set color_navigation_link_hover = "#ac1454";
+set color_navigation_link_visited = "#9d6173";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Palatino, Georgia";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "commons/daydream.jpg";
+
+
+#NEWLAYER: librariansdream/decadence
+layerinfo type = "theme";
+layerinfo name = "Decadence";
+layerinfo redist_uniq = "librariansdream/decadence";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#291418";
+set color_page_link = "#b35f77";
+set color_page_link_hover = "#cf0030";
+set color_page_link_visited = "#ee7298";
+set color_page_text = "#ffffff";
+set color_page_title = "#cf0030";
+set color_primary_background = "#291418";
+set color_sidebars_background = "#401e26";
+set color_footer_background = "#6b0d2b";
+set color_footer_link = "#b35f77";
+set color_footer_link_hover = "#cf0030";
+set color_footer_link_visited = "#ee7298";
+set color_header_link = "#b35f77";
+set color_header_link_active = "#cf0030";
+set color_header_link_hover = "#cf0030";
+set color_header_link_visited = "#ee7298";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#ee7298";
+set color_comment_title_background = "#66132a";
+set color_entry_background = "#401e26";
+set color_entry_border = "#291418";
+set color_entry_interaction_links = "#ee7298";
+set color_entry_link = "#b35f77";
+set color_entry_link_hover = "#cf0030";
+set color_entry_link_visited = "#ee7298";
+set color_entry_management_background = "#6b0d2b";
+set color_entry_text = "#ffffff";
+set color_entry_title = "#ee7298";
+set color_entry_title_background = "#6b0d2b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#401e26";
+set color_module_border = "#291418";
+set color_module_link = "#b35f77";
+set color_module_link_background = "#401e26";
+set color_module_link_border = "#b35f77";
+set color_module_link_hover = "#cf0030";
+set color_module_link_hover_background = "#6b0d2b";
+set color_module_link_hover_border = "#cf0030";
+set color_module_link_visited = "#ee7298";
+set color_module_text = "#ffffff";
+set color_module_title = "#b35f77";
+set color_module_title_background = "#6b0d2b";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#b35f77";
+set color_navigation_link_active = "#cf0030";
+set color_navigation_link_hover = "#cf0030";
+set color_navigation_link_visited = "#ee7298";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12.5";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/deepforest
+layerinfo "type" = "theme";
+layerinfo "name" = "Deep Forest";
+layerinfo redist_uniq = "librariansdream/deepforest";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000000";
+set color_page_link = "#3d8944";
+set color_page_link_hover = "#54be5c";
+set color_page_link_visited = "#3d8944";
+set color_page_text = "#a0a0a0";
+set color_page_title = "#388943";
+set color_primary_background = "#000000";
+set color_sidebars_background = "#021406";
+set color_footer_link = "#3d8944";
+set color_footer_link_hover = "#54be5c";
+set color_footer_link_visited = "#3d8944";
+set color_header_link = "#388943";
+set color_header_link_active = "#54be5c";
+set color_header_link_hover = "#54be5c";
+set color_header_link_visited = "#388943";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#3d8944";
+set color_comment_title_background = "#093514";
+set color_entry_background = "#021406";
+set color_entry_border = "#000000";
+set color_entry_interaction_links = "#3d8944";
+set color_entry_link = "#3d8944";
+set color_entry_link_hover = "#54be5c";
+set color_entry_link_visited = "#3d8944";
+set color_entry_management_background = "#000A00";
+set color_entry_text = "#a0a0a0";
+set color_entry_title = "#3d8944";
+set color_entry_title_background = "#000A00";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_module_background = "#021406";
+set color_module_border = "#021406";
+set color_module_link = "#3d8944";
+set color_module_link_background = "#021406";
+set color_module_link_border = "#3d8944";
+set color_module_link_hover = "#54be5c";
+set color_module_link_hover_background = "#000000";
+set color_module_link_hover_border = "#54be5c";
+set color_module_link_visited = "#3d8944";
+set color_module_text = "#a0a0a0";
+set color_module_title = "#3d8944";
+set color_module_title_background = "#000000";
+set color_navigation_link = "#3d8944";
+set color_navigation_link_active = "#54be5c";
+set color_navigation_link_hover = "#54be5c";
+set color_navigation_link_visited = "#3d8944";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Palatino, Georgia";
+set font_base_size = "10";
+set font_base_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "2.5";
+
 
 #NEWLAYER: librariansdream/deepseas
 layerinfo type = "theme";
@@ -819,6 +2032,212 @@ set color_module_link_border = "#102749";
 set color_module_link_hover_border = "#087ec3";
 set color_module_link_hover_background = "#102749";
 set color_module_title_background = "#103e70";
+
+#NEWLAYER: librariansdream/delicate
+layerinfo type = "theme";
+layerinfo name = "Delicate";
+layerinfo redist_uniq = "librariansdream/delicate";
+layerinfo author_name = "nornoriel";
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e4cbcb";
+set color_page_link = "#b48690";
+set color_page_link_hover = "#90605f";
+set color_page_link_visited = "#a99797";
+set color_page_text = "#7b4e51";
+set color_page_title = "#b48690";
+set color_primary_background = "#e4cbcb";
+set color_sidebars_background = "#f2dadc";
+set color_footer_background = "#f0e6e6";
+set color_footer_link = "#b48690";
+set color_footer_link_hover = "#90605f";
+set color_footer_link_visited = "#a99797";
+set color_header_link = "#b48690";
+set color_header_link_hover = "#90605f";
+set color_header_link_visited = "#a99797";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#b48690";
+set color_comment_title_background = "#f0e6e6";
+set color_entry_background = "#f8f8f8";
+set color_entry_border = "#a99797";
+set color_entry_interaction_links = "#a99797";
+set color_entry_link = "#b48690";
+set color_entry_link_hover = "#90605f";
+set color_entry_link_visited = "#a99797";
+set color_entry_management_background = "#f0e6e6";
+set color_entry_text = "#7b4e51";
+set color_entry_title = "#b48690";
+set color_entry_title_background = "#f0e6e6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f2dadc";
+set color_module_border = "#a99797";
+set color_module_link = "#b48690";
+set color_module_link_background = "#f2dadc";
+set color_module_link_border = "#b48690";
+set color_module_link_hover = "#90605f";
+set color_module_link_hover_background = "#ebd3d6";
+set color_module_link_hover_border = "#90605f";
+set color_module_link_visited = "#a99797";
+set color_module_text = "#7b4e51";
+set color_module_title = "#b48690";
+set color_module_title_background = "#ebd3d6";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#b48690";
+set color_navigation_link_hover = "#90605f";
+set color_navigation_link_visited = "#a99797";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/dreamscape
+layerinfo type = "theme";
+layerinfo name = "Dreamscape";
+layerinfo redist_uniq = "librariansdream/dreamscape";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#b67585";
+set color_page_link_hover = "#ac1454";
+set color_page_link_visited = "#9d6173";
+set color_page_text = "#2d2b27";
+set color_page_title = "#9d6173";
+set color_sidebars_background = "#fff7eb";
+set color_footer_link = "#b67585";
+set color_footer_link_hover = "#ac1454";
+set color_footer_link_visited = "#9d6173";
+set color_header_link_hover = "#ac1454";
+set color_header_link_visited = "#9d6173";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_comment_title = "#ac1454";
+set color_comment_title_background = "#e3f3ec";
+set color_entry_background = "#fff7eb";
+set color_entry_border = "#ede7e3";
+set color_entry_interaction_links = "#ac1454";
+set color_entry_link = "#b67585";
+set color_entry_link_hover = "#ac1454";
+set color_entry_link_visited = "#9d6173";
+set color_entry_management_background = "#e3eff3";
+set color_entry_text = "#2d2b27";
+set color_entry_title = "#ac1454";
+set color_entry_title_background = "#e3f3ec";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff7eb";
+set color_module_border = "#ede7e3";
+set color_module_link = "#b67585";
+set color_module_link_background = "#fff7eb";
+set color_module_link_border = "#e3eff3";
+set color_module_link_hover = "#ac1454";
+set color_module_link_hover_background = "#f3e3eb";
+set color_module_link_hover_border = "#e3f3ec";
+set color_module_link_visited = "#9d6173";
+set color_module_text = "#2d2b27";
+set color_module_title = "#ac1454";
+set color_module_title_background = "#f3e3eb";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#b67585";
+set color_navigation_link_hover = "#ac1454";
+set color_navigation_link_visited = "#9d6173";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "commons/dreamscape.jpg";
 
 
 #NEWLAYER: librariansdream/driedflowers
@@ -1050,6 +2469,483 @@ set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "commons/elegantbrown.png";
 
+#NEWLAYER: librariansdream/enchantedforest
+layerinfo type = "theme";
+layerinfo name = "Enchanted Forest";
+layerinfo redist_uniq = "librariansdream/enchantedforest";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#063435";
+set color_page_link = "#469e2c";
+set color_page_link_hover = "#58aa19";
+set color_page_link_visited = "#62902d";
+set color_page_text = "#b7d698";
+set color_page_title = "#62902d";
+set color_sidebars_background = "#005049";
+set color_footer_background = "#063435";
+set color_footer_link = "#469e2c";
+set color_footer_link_hover = "#58aa19";
+set color_footer_link_visited = "#62902d";
+set color_header_background = "#063435";
+set color_header_link_hover = "#58aa19";
+set color_header_link_visited = "#62902d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#58aa19";
+set color_comment_title_background = "#022f2e";
+set color_entry_background = "#005049";
+set color_entry_border = "#007250";
+set color_entry_interaction_links = "#58aa19";
+set color_entry_link = "#469e2c";
+set color_entry_link_hover = "#58aa19";
+set color_entry_link_visited = "#62902d";
+set color_entry_management_background = "#022f2e";
+set color_entry_text = "#b7d698";
+set color_entry_title = "#62902d";
+set color_entry_title_background = "#022f2e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#005049";
+set color_module_border = "#007250";
+set color_module_link = "#469e2c";
+set color_module_link_background = "#005049";
+set color_module_link_border = "#469e2c";
+set color_module_link_hover = "#58aa19";
+set color_module_link_hover_background = "#022f2e";
+set color_module_link_hover_border = "#58aa19";
+set color_module_link_visited = "#62902d";
+set color_module_text = "#b7d698";
+set color_module_title = "#62902d";
+set color_module_title_background = "#022f2e";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#469e2c";
+set color_navigation_link_hover = "#58aa19";
+set color_navigation_link_visited = "#62902d";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12.5";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/eresse
+layerinfo type = "theme";
+layerinfo name = "Eressë";
+layerinfo redist_uniq = "librariansdream/eresse";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000156";
+set color_page_link = "#746df7";
+set color_page_link_hover = "#45a8f9";
+set color_page_link_visited = "#5979f9";
+set color_page_text = "#dddddd";
+set color_page_title = "#746df7";
+set color_header_link_hover = "#45a8f9";
+set color_header_link_visited = "#5979f9";
+set color_footer_link = "#746df7";
+set color_footer_link_hover = "#45a8f9";
+set color_footer_link_visited = "#5979f9";
+set color_navigation_link = "#746df7";
+set color_navigation_link_hover = "#45a8f9";
+set color_navigation_link_visited = "#5979f9";
+set color_sidebars_background = "#00088d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#00088d";
+set color_entry_border = "#030677";
+set color_entry_interaction_links = "#746df7";
+set color_entry_link = "#746df7";
+set color_entry_link_hover = "#45a8f9";
+set color_entry_link_visited = "#5979f9";
+set color_entry_management_background = "#030677";
+set color_entry_text = "#dddddd";
+set color_entry_title = "#746df7";
+set color_entry_title_background = "#030677";
+set color_comment_title = "#5979f9";
+set color_comment_title_background = "#030677";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#00088d";
+set color_module_border = "#030677";
+set color_module_link = "#746df7";
+set color_module_link_background = "#00088d";
+set color_module_link_border = "#746df7";
+set color_module_link_hover = "#45a8f9";
+set color_module_link_hover_background = "#030677";
+set color_module_link_hover_border = "#45a8f9";
+set color_module_link_visited = "#5979f9";
+set color_module_text = "#dddddd";
+set color_module_title = "#746df7";
+set color_module_title_background = "#030677";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/eruanne
+layerinfo type = "theme";
+layerinfo name = "Eruanne";
+layerinfo redist_uniq = "librariansdream/eruanne";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#657379";
+set color_page_link = "#384842";
+set color_page_link_hover = "#e8d2a6";
+set color_page_link_visited = "#3e5650";
+set color_page_text = "#030504";
+set color_page_title = "#e8d2a6";
+set color_sidebars_background = "#83968f";
+set color_footer_link = "#384842";
+set color_footer_link_hover = "#355b50";
+set color_footer_link_visited = "#3e5650";
+set color_header_link = "#384842";
+set color_header_link_hover = "#355b50";
+set color_header_link_visited = "#3e5650";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#3e5650";
+set color_comment_title_background = "#a9b39c";
+set color_entry_background = "#83968f";
+set color_entry_border = "#a9b39c";
+set color_entry_interaction_links = "#3e5650";
+set color_entry_link = "#384842";
+set color_entry_link_hover = "#355b50";
+set color_entry_link_visited = "#3e5650";
+set color_entry_management_background = "#c7c4a2";
+set color_entry_text = "#030504";
+set color_entry_title = "#3e5650";
+set color_entry_title_background = "#a9b39c";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#83968f";
+set color_module_border = "#a9b39c";
+set color_module_link = "#384842";
+set color_module_link_background = "#83968f";
+set color_module_link_border = "#c7c4a2";
+set color_module_link_hover = "#355b50";
+set color_module_link_hover_background = "#a9b39c";
+set color_module_link_hover_border = "#e8d2a6";
+set color_module_link_visited = "#3e5650";
+set color_module_text = "#030504";
+set color_module_title = "#3e5650";
+set color_module_title_background = "#a9b39c";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#384842";
+set color_navigation_link_hover = "#355b50";
+set color_navigation_link_visited = "#3e5650";
+
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/evergreenyule
+layerinfo type = "theme";
+layerinfo name = "Evergreen Yule";
+layerinfo redist_uniq = "librariansdream/evergreenyule";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#122817";
+set color_page_link = "#941f1f";
+set color_page_link_hover = "#ce6b5d";
+set color_page_link_visited = "#7a0d11";
+set color_page_text = "#7b9971";
+set color_page_title = "#941f1f";
+set color_sidebars_background = "#192d21";
+set color_footer_link = "#941f1f";
+set color_footer_link_hover = "#ce6b5d";
+set color_footer_link_visited = "#7a0d11";
+set color_header_link = "#ae2424";
+set color_header_link_hover = "#ce6b5d";
+set color_header_link_visited = "#921016";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#7a0d11";
+set color_comment_title_background = "#091411";
+set color_entry_background = "#192d21";
+set color_entry_border = "#091411";
+set color_entry_interaction_links = "#941f1f";
+set color_entry_link = "#a82323";
+set color_entry_link_hover = "#ce6b5d";
+set color_entry_link_visited = "#921016";
+set color_entry_management_background = "#300a0a";
+set color_entry_text = "#7b9971";
+set color_entry_title = "#7b9971";
+set color_entry_title_background = "#091411";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#192d21";
+set color_module_border = "#18352d";
+set color_module_link = "#ae2424";
+set color_module_link_background = "#192d21";
+set color_module_link_border = "#921016";
+set color_module_link_hover = "#ce6b5d";
+set color_module_link_hover_background = "#18352d";
+set color_module_link_hover_border = "#ae2424";
+set color_module_link_visited = "#921016";
+set color_module_text = "#7b9971";
+set color_module_title = "#921016";
+set color_module_title_background = "#091411";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#ae2424";
+set color_navigation_link_hover = "#ce6b5d";
+set color_navigation_link_visited = "#921016";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12.5";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/fanya
+layerinfo type = "theme";
+layerinfo name = "Fanya";
+layerinfo redist_uniq = "librariansdream/fanya";
+layerinfo author_name = "nornoriel";
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d3e2dc";
+set color_page_link = "#c6a399";
+set color_page_link_hover = "#9db0aa";
+set color_page_link_visited = "#bf9d8f";
+set color_page_text = "#42342e";
+set color_page_title = "#a5877b";
+set color_sidebars_background = "#e4f3ed";
+set color_footer_link = "#c6a399";
+set color_footer_link_hover = "#9db0aa";
+set color_footer_link_visited = "#bf9d8f";
+set color_header_link = "#c6a399";
+set color_header_link_hover = "#9db0aa";
+set color_header_link_visited = "#bf9d8f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#bf9d8f";
+set color_comment_title_background = "#dae8e0";
+set color_entry_background = "#e4f3ed";
+set color_entry_border = "#d7e8e2";
+set color_entry_interaction_links = "#bf9d8f";
+set color_entry_link = "#c6a399";
+set color_entry_link_hover = "#9db0aa";
+set color_entry_link_visited = "#bf9d8f";
+set color_entry_management_background = "#dae8e0";
+set color_entry_text = "#42342e";
+set color_entry_title = "#bf9d8f";
+set color_entry_title_background = "#dae8e0";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e4f3ed";
+set color_module_border = "#dae8e0";
+set color_module_link = "#c6a399";
+set color_module_link_background = "#e4f3ed";
+set color_module_link_border = "#9db0aa";
+set color_module_link_hover = "#9db0aa";
+set color_module_link_hover_background = "#dae8e0";
+set color_module_link_hover_border = "#97a9a3";
+set color_module_link_visited = "#bf9d8f";
+set color_module_title = "#bf9d8f";
+set color_module_title_background = "#dae8e0";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#c6a399";
+set color_navigation_link_hover = "#9db0aa";
+set color_navigation_link_visited = "#bf9d8f";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
 
 #NEWLAYER: librariansdream/fullsky
 layerinfo type = "theme";
@@ -1246,6 +3142,219 @@ set color_navigation_link = "#6cc";
 set color_navigation_link_visited = "#9cc";
 set color_navigation_link_active = "#900";
 
+#NEWLAYER: librariansdream/hulahoop
+layerinfo type = "theme";
+layerinfo name = "Hula Hoop";
+layerinfo redist_uniq = "librariansdream/hulahoop";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#7c1427";
+set color_page_link = "#bf3f56";
+set color_page_link_active = "#bf3f56";
+set color_page_link_hover = "#bf3f56";
+set color_page_link_visited = "#bf3f56";
+set color_page_text = "#f3ecf4";
+set color_page_title = "#f3ecf4";
+set color_primary_background = "#df8d9b";
+set color_sidebars_background = "#df8d9b";
+set color_footer_background = "#df8d9b";
+set color_header_background = "#df8d9b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f3ecf4";
+set color_entry_interaction_links = "#7c1427";
+set color_entry_management_background = "#7c1427";
+set color_entry_text = "#111111";
+set color_entry_title = "#f3ecf4";
+set color_entry_title_background = "#7c1427";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#7c1427";
+set color_module_link = "#f3ecf4";
+set color_module_link_active = "#f3ecf4";
+set color_module_link_background = "#7c1427";
+set color_module_link_border = "#bf3f56";
+set color_module_link_hover = "#f3ecf4";
+set color_module_link_hover_background = "#bf3f56";
+set color_module_link_hover_border = "#7c1427";
+set color_module_link_visited = "#f3ecf4";
+set color_module_text = "#f3ecf4";
+set color_module_title_background = "#7c1427";
+
+
+#NEWLAYER: librariansdream/indil
+layerinfo type = "theme";
+layerinfo name = "Indil";
+layerinfo redist_uniq = "librariansdream/indil";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f9f8ea";
+set color_page_link = "#66761d";
+set color_page_link_hover = "#4c5b08";
+set color_page_link_visited = "#2d3500";
+set color_page_text = "#0f1102";
+set color_page_title = "#4c5b08";
+set color_sidebars_background = "#f9f9e3";
+set color_footer_link = "#66761d";
+set color_footer_link_hover = "#4c5b08";
+set color_footer_link_visited = "#2d3500";
+set color_header_background = "#efeeda";
+set color_header_link = "#66761d";
+set color_header_link_hover = "#4c5b08";
+set color_header_link_visited = "#2d3500";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#66761d";
+set color_comment_title_background = "#f4f3e3";
+set color_entry_background = "#f9f9e3";
+set color_entry_border = "#efeeda";
+set color_entry_interaction_links = "#66761d";
+set color_entry_link = "#66761d";
+set color_entry_link_hover = "#4c5b08";
+set color_entry_link_visited = "#2d3500";
+set color_entry_management_background = "#efeeda";
+set color_entry_text = "#0f1102";
+set color_entry_title = "#66761d";
+set color_entry_title_background = "#efeeda";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f9f9e3";
+set color_module_border = "#efeeda";
+set color_module_link = "#66761d";
+set color_module_link_background = "#f9f9e3";
+set color_module_link_border = "#66761d";
+set color_module_link_hover = "#4c5b08";
+set color_module_link_hover_background = "#efeeda";
+set color_module_link_hover_border = "#4c5b08";
+set color_module_link_visited = "#2d3500";
+set color_module_text = "#0f1102";
+set color_module_title = "#2d3500";
+set color_module_title_background = "#efeeda";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#66761d";
+set color_navigation_link_hover = "#4c5b08";
+set color_navigation_link_visited = "#2d3500";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
+#NEWLAYER: librariansdream/lilacpetals
+layerinfo type = "theme";
+layerinfo name = "Lilac Petals";
+layerinfo redist_uniq = "librariansdream/lilacpetals";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#332230";
+set color_page_link = "#91758c";
+set color_page_text = "#342832";
+set color_page_title = "#dddddd";
+set color_primary_background = "#91758c";
+set color_sidebars_background = "#91758c";
+set color_footer_background = "#91758c";
+set color_footer_link = "#342832";
+set color_footer_link_active = "#342832";
+set color_footer_link_hover = "#342832";
+set color_footer_link_visited = "#342832";
+set color_header_background = "#91758c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#dddddd";
+set color_entry_interaction_links = "#342832";
+set color_entry_link = "#342832";
+set color_entry_link_active = "#342832";
+set color_entry_link_hover = "#342832";
+set color_entry_link_visited = "#91758c";
+set color_entry_management_background = "#332230";
+set color_entry_text = "#332230";
+set color_entry_title = "#dddddd";
+set color_entry_title_background = "#332230";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#dddddd";
+set color_module_link = "#dddddd";
+set color_module_link_background = "#91758c";
+set color_module_link_border = "#dddddd";
+set color_module_link_hover = "#dddddd";
+set color_module_link_hover_background = "#332230";
+set color_module_link_hover_border = "#342832";
+set color_module_link_visited = "#dddddd";
+set color_module_title = "#dddddd";
+set color_module_title_background = "#332230";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#342832";
+set color_navigation_link_active = "#342832";
+set color_navigation_link_hover = "#342832";
+set color_navigation_link_visited = "#342832";
+
 
 #NEWLAYER: librariansdream/marble
 layerinfo type = "theme";
@@ -1319,6 +3428,56 @@ set color_module_link_visited = "#101413";
 set color_module_text = "#101413";
 set color_module_title = "#d2cdc7";
 set color_module_title_background = "#233535";
+
+#NEWLAYER: librariansdream/midcenturymodern
+layerinfo type = "theme";
+layerinfo name = "Mid-Century Modern";
+layerinfo redist_uniq = "librariansdream/midcenturymodern";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#121115";
+set color_page_link = "#e1c2a4";
+set color_page_link_active = "#cccccc";
+set color_page_link_hover = "#cccccc";
+set color_page_link_visited = "#c39363";
+set color_page_text = "#c39363";
+set color_page_title = "#c39363";
+set color_footer_background = "#653b2d";
+set color_footer_link = "#c39363";
+set color_footer_link_active = "#c39363";
+set color_footer_link_hover = "#c39363";
+set color_footer_link_visited = "#c39363";
+set color_header_background = "#653b2d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#121115";
+set color_comment_title_background = "#c39363";
+set color_entry_background = "#653b2d";
+set color_entry_link_active = "#121115";
+set color_entry_link_hover = "#121115";
+set color_entry_management_background = "#c39363";
+set color_entry_title = "#121115";
+set color_entry_title_background = "#c39363";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#653b2d";
+set color_module_link_active = "#121115";
+set color_module_link_hover = "#121115";
+set color_module_link_hover_background = "#c39363";
+set color_module_title = "#c39363";
+set color_module_title_background = "#653b2d";
 
 
 #NEWLAYER: librariansdream/milkshakesrocknroll
@@ -1439,6 +3598,63 @@ set color_module_link_hover_border = "#358c64";
 set color_module_link_hover_background = "#003127";
 set color_module_title = "#eee";
 set color_module_title_background = "#096B38";
+
+#NEWLAYER: librariansdream/mountaindevil
+layerinfo type = "theme";
+layerinfo name = "Mountain Devil";
+layerinfo redist_uniq = "librariansdream/mountaindevil";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#010f21";
+set color_page_link = "#00f3e1";
+set color_page_link_active = "#646d72";
+set color_page_link_hover = "#646d72";
+set color_page_link_visited = "#077495";
+set color_page_text = "#cee3eb";
+set color_page_title = "#00f3e1";
+set color_footer_background = "#010f21";
+set color_footer_link = "#00f3e1";
+set color_footer_link_hover = "#646d72";
+set color_footer_link_visited = "#077495";
+set color_header_background = "#010f21";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#00f3e1";
+set color_comment_title_background = "#010f21";
+set color_entry_background = "#010f21";
+set color_entry_link = "#00f3e1";
+set color_entry_link_hover = "#646d72";
+set color_entry_link_visited = "#077495";
+set color_entry_management_background = "#cee3eb";
+set color_entry_text = "#cee3eb";
+set color_entry_title = "#010f21";
+set color_entry_title_background = "#00f3e1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#010f21";
+set color_module_link = "#00f3e1";
+set color_module_link_active = "#646d72";
+set color_module_link_background = "#010f21";
+set color_module_link_border = "#cee3eb";
+set color_module_link_hover = "#077495";
+set color_module_link_hover_background = "#cee3eb";
+set color_module_link_hover_border = "#00f3e1";
+set color_module_link_visited = "#077495";
+set color_module_text = "#cee3eb";
+set color_module_title = "#010f21";
+set color_module_title_background = "#00f3e1";
 
 
 #NEWLAYER: librariansdream/newocean
@@ -1590,6 +3806,83 @@ set color_module_link_visited = "#a7581d";
 set color_module_text = "#c83";
 set color_module_title = "#c83";
 set color_module_title_background = "#000";
+
+#NEWLAYER: librariansdream/oldlavender
+layerinfo type = "theme";
+layerinfo name = "Old Lavender";
+layerinfo redist_uniq = "librariansdream/oldlavender";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#60575f";
+set color_page_link = "#190117";
+set color_page_link_active = "#8b9a4c";
+set color_page_link_visited = "#bfadbe";
+set color_page_title = "#60575f";
+set color_primary_background = "#bfadbe";
+set color_sidebars_background = "#bfadbe";
+set color_footer_background = "#fcfcfc";
+set color_footer_link = "#260323";
+set color_footer_link_active = "#8b9a4c";
+set color_footer_link_visited = "#260323";
+set color_header_background = "#fcfcfc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fafafa";
+set color_entry_management_background = "#60575f";
+set color_entry_title = "#fcfcfc";
+set color_entry_title_background = "#60575f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fcfcfc";
+set color_module_link = "#111111";
+set color_module_link_active = "#8b9a4c";
+set color_module_link_background = "#fcfcfc";
+set color_module_link_border = "#60575f";
+set color_module_link_hover_background = "#bfadbe";
+set color_module_link_hover_border = "#fcfcfc";
+set color_module_link_visited = "#111111";
+set color_module_text = "#111111";
+set color_module_title = "#fcfcfc";
+set color_module_title_background = "#60575f";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#60575f";
+set color_navigation_link_active = "#8b9a4c";
+set color_navigation_link_visited = "#60575f";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+
+      .module-header a, .module-header a:visited {
+   $*color_module_title;
+      }
+
+
+      .entry-title a:visited {
+   $*color_module_title;
+      }
+""";
+}
+
 
 
 #NEWLAYER: librariansdream/peacefuldreams
@@ -1858,6 +4151,57 @@ set color_module_link_visited = "#a60a43";
 set color_module_text = "#e0bea5";
 set color_module_title = "#e0bea5";
 set color_module_title_background = "#401435";
+
+#NEWLAYER: librariansdream/queenanneslace
+layerinfo type = "theme";
+layerinfo name = "Queen Anne's Lace";
+layerinfo redist_uniq = "librariansdream/queenanneslace";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffffff";
+set color_page_link = "#536435";
+set color_page_link_active = "#536435";
+set color_page_link_hover = "#536435";
+set color_page_link_visited = "#536435";
+set color_page_text = "#536435";
+set color_page_title = "#536435";
+set color_primary_background = "#fff";
+set color_sidebars_background = "#fff";
+set color_footer_background = "#ffffff";
+set color_header_background = "#ffffff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_link = "#424B31";
+set color_entry_link_visited = "#a1b284";
+set color_entry_management_background = "#a1b284";
+set color_entry_text = "#536435";
+set color_entry_title = "#ffffff";
+set color_entry_title_background = "#a1b284";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffffff";
+set color_module_link = "#424B31";
+set color_module_link_background = "#ffffff";
+set color_module_link_border = "#424B31";
+set color_module_link_hover_background = "#9bb273";
+set color_module_link_hover_border = "#a1b284";
+set color_module_link_visited = "#536435";
+set color_module_text = "#536435";
+set color_module_title = "#536435";
+set color_module_title_background = "#ffffff";
 
 
 #NEWLAYER: librariansdream/rosegardeni
@@ -2276,6 +4620,103 @@ set color_module_text = "#cfd8ad";
 set color_module_title = "#cfd8ad";
 set color_module_title_background = "#000";
 
+#NEWLAYER: librariansdream/silentnight
+layerinfo type = "theme";
+layerinfo name = "Silent Night";
+layerinfo redist_uniq = "librariansdream/silentnight";
+layerinfo author_name = "nornoriel";
+
+set layout_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#070719";
+set color_page_link = "#a29bff";
+set color_page_link_hover = "#7785ea";
+set color_page_link_visited = "#8c89f4";
+set color_page_text = "#dde2fc";
+set color_page_title = "#a29bff";
+set color_primary_background = "#080a20";
+set color_sidebars_background = "#0e0e2f";
+set color_footer_link = "#a29bff";
+set color_footer_link_hover = "#7785ea";
+set color_footer_link_visited = "#8c89f4";
+set color_header_background = "#0e0e2f";
+set color_header_link = "#a29bff";
+set color_header_link_hover = "#7785ea";
+set color_header_link_visited = "#8c89f4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#8c89f4";
+set color_comment_title_background = "#0a0c28";
+set color_entry_background = "#0e0e2f";
+set color_entry_border = "#080a20";
+set color_entry_interaction_links = "#a29bff";
+set color_entry_link = "#a29bff";
+set color_entry_link_hover = "#7785ea";
+set color_entry_link_visited = "#8c89f4";
+set color_entry_management_background = "#0a0c28";
+set color_entry_text = "#dde2fc";
+set color_entry_title = "#a29bff";
+set color_entry_title_background = "#0a0c28";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#0e0e2f";
+set color_module_border = "#080a20";
+set color_module_link = "#a29bff";
+set color_module_link_background = "#0e0e2f";
+set color_module_link_border = "#8c89f4";
+set color_module_link_hover = "#7785ea";
+set color_module_link_hover_background = "#0a0c28";
+set color_module_link_hover_border = "#dde2fc";
+set color_module_link_visited = "#8c89f4";
+set color_module_text = "#dde2fc";
+set color_module_title = "#8c89f4";
+set color_module_title_background = "#0a0c28";
+
+##===============================
+## Navigation Colors
+##===============================
+
+set color_navigation_link = "#a29bff";
+set color_navigation_link_hover = "#7785ea";
+set color_navigation_link_visited = "#8c89f4";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_base_size = "10.5";
+set font_base_units = "pt";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
 
 #NEWLAYER: librariansdream/sleepingwarrior
 layerinfo type = "theme";
@@ -2400,6 +4841,55 @@ set color_module_link_hover = "#ccc";
 set color_module_link_visited = "#aaa";
 set color_module_title = "#777";
 set color_module_title_background = "#ffef3d";
+
+#NEWLAYER: librariansdream/tigerlilies
+layerinfo type = "theme";
+layerinfo name = "Tiger Lilies";
+layerinfo redist_uniq = "librariansdream/tigerlilies";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#444444";
+set color_page_link = "#ff5300";
+set color_page_link_visited = "#ffa073";
+set color_page_text = "#ffffff";
+set color_page_title = "#ff5300";
+set color_primary_background = "#111111";
+set color_sidebars_background = "#111111";
+set color_footer_background = "#444444";
+set color_header_background = "#444444";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#444444";
+set color_entry_link = "#ff5300";
+set color_entry_link_visited = "#ffa073";
+set color_entry_management_background = "#ff5300";
+set color_entry_text = "#ffffff";
+set color_entry_title = "#444444";
+set color_entry_title_background = "#ff5300";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#444444";
+set color_module_link = "#ffffff";
+set color_module_link_background = "#ff5300";
+set color_module_link_border = "#ffa073";
+set color_module_link_hover_background = "#ffa073";
+set color_module_link_hover_border = "#ff5300";
+set color_module_link_visited = "#111111";
+set color_module_text = "#ffffff";
+set color_module_title = "#ffffff";
+set color_module_title_background = "#ff5300";
 
 
 #NEWLAYER: librariansdream/toxicity
@@ -2668,3 +5158,66 @@ set color_module_link_visited = "#755b96";
 set color_module_text = "#333";
 set color_module_title = "#333";
 set color_module_title_background = "#fff1d7";
+
+
+#NEWLAYER: librariansdream/yellowmoons
+layerinfo type = "theme";
+layerinfo name = "Yellow Moons";
+layerinfo redist_uniq = "librariansdream/yellowmoons";
+layerinfo author_name = "musyc";
+
+set theme_authors = [ { "name" => "Musyc"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#8b8878";
+set color_page_link = "#ffcc00";
+set color_page_link_active = "#ffcc00";
+set color_page_link_hover = "#333333";
+set color_page_link_visited = "#ffff99";
+set color_page_text = "#f3f3f3";
+set color_page_title = "#ffcc00";
+set color_primary_background = "#333333";
+set color_sidebars_background = "#333333";
+set color_footer_background = "#ffcc00";
+set color_footer_link = "#333333";
+set color_footer_link_active = "#f3f3f3";
+set color_footer_link_hover = "#333333";
+set color_footer_link_visited = "#333333";
+set color_header_background = "#333333";
+
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#ffcc00";
+set color_comment_title_background = "#333333";
+set color_entry_background = "#333333";
+set color_entry_link = "#ffcc00";
+set color_entry_link_active = "#ffcc00";
+set color_entry_link_hover = "#f3f3f3";
+set color_entry_link_visited = "#ffff99";
+set color_entry_management_background = "#8b8878";
+set color_entry_text = "#f3f3f3";
+set color_entry_title = "#ffcc00";
+set color_entry_title_background = "#8b8878";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#333333";
+set color_module_link = "#ffcc00";
+set color_module_link_active = "#ffcc00";
+set color_module_link_background = "#8b8878";
+set color_module_link_border = "#ffcc00";
+set color_module_link_hover = "#f3f3f3";
+set color_module_link_hover_background = "#333333";
+set color_module_link_hover_border = "#ffff99";
+set color_module_link_visited = "#ffff99";
+set color_module_text = "#f3f3f3";
+set color_module_title = "#ffcc00";
+set color_module_title_background = "#333333";

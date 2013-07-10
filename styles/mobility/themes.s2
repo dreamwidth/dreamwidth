@@ -1,0 +1,93 @@
+#NEWLAYER: mobility/ivoryalcea
+
+layerinfo type = "theme";
+layerinfo name = "Ivory Alcea";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "mobility/ivoryalcea";
+
+set layout_resources = [ { "name" => "Vintage Christmas 6", "url" => "http://www.colourlovers.com/palette/221715/Vintage_Christmas_6", 
+"name" => "Mitsuba Aoi", "url" => "http://openclipart.org/detail/1405/mitsubaaoi-by-zeimusu"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e8e4ce";
+set color_page_link = "#a80008";
+set color_page_link_active = "#c00";
+set color_page_link_hover = "#c00";
+set color_page_link_visited = "#8d1009";
+set color_page_text = "#000";
+
+set color_header_background = "#fbf9f0";
+set color_header_footer_border = "#d6ccb1";
+set color_footer_background = "#fbf9f0";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fbf9f0";
+set color_entry_border = "#d6ccb1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fbf9f0";
+set color_module_border = "#d6ccb1";
+set color_module_highlight = "#e8e4ce";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "mobility/ivoryalcea.png";
+
+
+#NEWLAYER: mobility/starflower
+
+layerinfo type = "theme";
+layerinfo name = "Starflower";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "mobility/starflower";
+
+
+set layout_resources = [ { "name" => "Dire Side of Blue", "url" => "http://www.colourlovers.com/palette/363737/dire_side_of_blue", 
+"name" => "Rounded Star 005", "url" => "http://openclipart.org/user-detail/rosros"} ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0d3d70";
+set color_page_text = "#fcfcff";
+set color_page_link = "#80b1e5";
+set color_page_link_active = "#0cc";
+set color_page_link_hover = "#0cc";
+set color_page_link_visited = "#5285bC";
+
+set color_header_background = "#022245";
+set color_header_footer_border = "#36689e";
+set color_footer_background = "#022245";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#022245";
+set color_entry_border = "#36689e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#022245";
+set color_module_border = "#36689e";
+set color_module_highlight = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "mobility/starflower.png";

@@ -111,7 +111,7 @@ body<=
          $sth = $dbr->prepare("SELECT s.*, SUBSTRING(sl.message, 1, 200) AS 'message' " .
                               "FROM support s, supportlog sl " .
                               "WHERE s.state='closed' AND s.spid = sl.spid AND sl.type = 'req' " .
-                              "AND s.timeclosed > (UNIX_TIMESTAMP() - (3600*24)) " .
+                              "AND s.timeclosed > (UNIX_TIMESTAMP() - (3600*168)) " .
                               "AND s.spcatid = ?");
      } else { # triggers on green, open
          $sth = $dbr->prepare("SELECT s.*, SUBSTRING(sl.message, 1, 200) AS 'message' " .

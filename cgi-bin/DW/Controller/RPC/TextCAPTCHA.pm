@@ -23,6 +23,7 @@ use DW::Routing;
 use LJ::JSON;
 use DW::Captcha::textCAPTCHA;
 
+# Special case, not using register_rpc here.
 DW::Routing->register_regex( '/__rpc_captcha/(.*)$',
         \&captcha_handler, app  => 1, format => 'html', formats => [qw( html json )] );
 DW::Routing->register_regex( '^/[^/]+/__rpc_captcha/(.*)$',

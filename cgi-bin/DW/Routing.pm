@@ -42,6 +42,7 @@ our $T_TESTING_ERRORS;
 my $default_content_types = {
     'html' => "text/html; charset=utf-8",
     'json' => "application/json; charset=utf-8",
+    'js' => "application/javascript; charset=utf-8",
     'plain' => "text/plain; charset=utf-8",
     'png' => "image/png",
     'atom' => "application/atom+xml; charset=utf-8",
@@ -199,7 +200,7 @@ sub _call_hash {
         or die "LJ::errobj didn't return anything.";
     unless ( $T_TESTING_ERRORS ) {
         $err->log;
-        warn "$msg";
+        warn $msg;
     }
 
     # JSON error rendering
@@ -230,7 +231,29 @@ sub _call_hash {
         $text = "<b>[Error: $msg]</b>" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
         $opts->{no_sitescheme} = 1 if $T_TESTING_ERRORS;
 
-        return DW::Template->render_string( $text, $opts );
+        $ret = eval { return DW::Template->render_string( $text, $opts ); };
+        return $ret unless $@;
+
+        my $msg2 = $@;
+        my $err2 = LJ::errobj( $msg2 )
+            or die "LJ::errobj didn't return anything.";
+        unless ( $T_TESTING_ERRORS ) {
+            $err2->log;
+            warn $msg2;
+        }
+
+        if ( ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER ) {
+            $msg2 = $err2->as_html;
+            $msg2 .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
+
+            $text .= "\n<br/><br/>Additionally, while trying to render this error page:";
+            $text .= "\n<b>[Error 2: $msg2]</b>";
+        }
+
+        $r->status( 500 );
+        $r->content_type( 'text/html' );
+        $r->print( $text );
+        return $r->OK;
     } else {
         $msg = $err->as_string;
         chomp $msg;
@@ -408,6 +431,35 @@ sub register_regex {
     push @{$regex_choices{app}}, $hash if $hash->{app};
     push @{$regex_choices{user}}, $hash if $hash->{user};
 }
+
+=head2 C<< $class->register_rpc( $name, $sub, %opts ) >>
+
+Register a RPC call
+
+=over
+
+=item name - RPC call name
+
+=item sub - sub
+
+=item Opts ( see register_string )
+
+=back
+
+=cut
+
+sub register_rpc {
+    my ( $class, $string, $sub, %opts ) = @_;
+
+    delete $opts{app};
+    delete $opts{user};
+    $class->register_string( "/__rpc_$string", $sub, app => 1, user => 1, %opts );
+
+    # FIXME: per Bug 4900, this line is temporary and can go away as soon as
+    #  all the javascript is updated
+    $class->register_regex( qr!^/[^/]+/\Q__rpc_$string\E$!, $sub, user => 1, %opts );
+}
+
 
 # internal method, intentionally no POD
 # applies default for opts and hash

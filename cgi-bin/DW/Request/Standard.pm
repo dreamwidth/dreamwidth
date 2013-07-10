@@ -167,6 +167,11 @@ sub header_in {
     }
 }
 
+sub headers_in {
+    my DW::Request::Standard $self = $_[0];
+    return $self->{req}->headers;
+}
+
 # searches for a given header and returns the value, or sets it
 sub header_out {
     my DW::Request::Standard $self = $_[0];
@@ -175,6 +180,11 @@ sub header_out {
     } else {
         return $self->{res}->header( $_[1] => $_[2] );
     }
+}
+
+sub headers_out {
+    my DW::Request::Standard $self = $_[0];
+    return $self->{res}->headers;
 }
 
 # appends a value to a header

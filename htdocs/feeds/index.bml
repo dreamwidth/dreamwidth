@@ -8,6 +8,7 @@ body<=
     use vars qw(%POST);
 
     use URI;
+    use HTTP::Message;
 
     my $dbh = LJ::get_db_writer();
     my $u = LJ::get_remote();
@@ -102,8 +103,11 @@ body<=
                                            );
                 $ua->agent("$LJ::SITENAME ($LJ::ADMIN_EMAIL; Initial check)");
 
-                my $res = $ua->get($url);
-                my $content = $res && $res->is_success ? $res->content : undef;
+                my $can_accept = HTTP::Message::decodable;
+                my $res = $ua->get($url,
+                    'Accept-Encoding' => $can_accept
+                );
+                my $content = $res && $res->is_success ? $res->decoded_content(charset => 'none') : undef;
 
                 unless ($content) {
                     my $msg = $u->show_raw_errors ? $res->status_line : $ML{'.invalid.http.text'};

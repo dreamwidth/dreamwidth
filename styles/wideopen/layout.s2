@@ -1112,7 +1112,7 @@ $userpic_css
 .page-top {
     display: inline-block;
     font: .9em/1em $*font_base;
-    margin: $footer_margintop .5em 40px 0;
+    margin: $footer_margintop 0 40px;
     }
 
 .page-top + .module-wrapper {
@@ -1133,7 +1133,7 @@ $userpic_css
     display: inline-block;
     float: none;
     font: .9em/1em $*font_base;
-    margin: 0 .5em 0 0;
+    margin: 0;
     width: auto;
     }
 
@@ -1142,8 +1142,12 @@ $userpic_css
 .module-section-footer .module a:hover { color: $*color_footer_link_hover; }
 .module-section-footer .module a:active { color: $*color_footer_link_active; }
 
+.module-section-footer .module li {
+    display: inline;
+    }
+
 .footer-module-separator {
-     padding-right: .5em;
+     padding: 0 .5em;
      }
 
 

@@ -131,7 +131,7 @@ _c?>
         $layerinfo->{$id}->{'source_viewable'} : undef;
 
     # do they have access?
-    my $isadmin = ! defined $pub->{$id} && $remote && $remote->has_priv( 'canview', 'styles' );
+    my $isadmin = ! defined $pub->{$id} && $remote && $remote->has_priv( 'siteadmin', 'styleview' );
     my $can_manage = $remote && $remote->can_manage( LJ::load_userid( $layer->{userid} ) );
     # public styles are pulled from the system account, so we don't
     # want to check privileges in case they're private styles

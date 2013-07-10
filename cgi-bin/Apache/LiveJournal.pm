@@ -30,13 +30,13 @@ use Apache::LiveJournal::Interface::Blogger;
 use Apache::LiveJournal::PalImg;
 use LJ::ModuleCheck;
 use Compress::Zlib;
-use XMLRPC::Transport::HTTP;
 use LJ::PageStats;
 use LJ::URI;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
 use DW::Auth;
+use DW::Request::XMLRPCTransport;
 use Cwd qw/abs_path/;
 
 BEGIN {
@@ -977,7 +977,7 @@ sub trans
     if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
         my $int = $1;
         $apache_r->handler("perl-script");
-        if ($int =~ /^xmlrpc|blogger|elsewhere_info$/) {
+        if ($int =~ /^blogger|elsewhere_info$/) {
             $RQ{'interface'} = $int;
             $RQ{'is_ssl'} = $is_ssl;
             $apache_r->push_handlers(PerlResponseHandler => \&interface_content);
@@ -1601,24 +1601,14 @@ sub interface_content
     my $apache_r = shift;
     my $args = $apache_r->args;
 
-    if ($RQ{'interface'} eq "xmlrpc") {
-        return 404 unless LJ::ModuleCheck->have('XMLRPC::Transport::HTTP');
-        my $server = XMLRPC::Transport::HTTP::Apache
-            -> on_action(sub { die "Access denied\n" if $_[2] =~ /:|\'/ })
-            -> dispatch_to('LJ::XMLRPC')
-            -> handle($apache_r);
-        return OK;
-    }
-
     if ($RQ{'interface'} eq "blogger") {
         Apache::LiveJournal::Interface::Blogger->load;
-        return 404 unless LJ::ModuleCheck->have('XMLRPC::Transport::HTTP');
         my $pkg = "Apache::LiveJournal::Interface::Blogger";
-        my $server = XMLRPC::Transport::HTTP::Apache
+        my $server = DW::Request::XMLRPCTransport
             -> on_action(sub { die "Access denied\n" if $_[2] =~ /:|\'/ })
             -> dispatch_with({ 'blogger' => $pkg })
             -> dispatch_to($pkg)
-            -> handle($apache_r);
+            -> handle;
         return OK;
     }
 

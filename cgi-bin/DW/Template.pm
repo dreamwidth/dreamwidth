@@ -322,16 +322,13 @@ sub render_string {
         $r->print( $out );
 
         return $r->OK;
-    } elsif ( $scheme->engine eq 'tt' ) {
+    } elsif ( $scheme->supports_tt ) {
         $r->content_type("text/html; charset=utf-8");
         $r->print( $class->render_scheme( $scheme, $out, $extra ) );
 
         return $r->OK;
     } else {
-        $r->pnote(render_sitescheme_code => $out);
-        $r->pnote(render_sitescheme_extra => $extra || {});
-
-        return $r->call_bml("$LJ::HOME/htdocs/misc/render_sitescheme.bml");
+        die "Can not use invalid/unknown engine " . $scheme->engine . " for scheme " . $scheme->name;
     }
 }
 

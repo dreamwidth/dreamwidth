@@ -948,6 +948,7 @@ register_tabledrop("qotd");
 register_tabledrop("zip");
 register_tabledrop("openid_external");
 register_tabledrop("site_messages");
+register_tabledrop("navtag");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -2002,24 +2003,6 @@ CREATE TABLE priv_packages_content (
     privarg varchar(40),
 
     PRIMARY KEY (pkgid, privname, privarg)
-)
-EOC
-
-#
-# tag is lowercase UTF-8
-# dest_type:dest is like:
-#   PAGE:/partial/path/to/file.bml  (non-SSL)
-#   SSL:/pay/foo.bml                (ssl partial path)
-#   LJUSER:lj_nifty                 (link to local user account)
-#   FAQ:234                         (link to FAQ #234)
-
-register_tablecreate("navtag", <<'EOC');
-CREATE TABLE navtag (
-    tag       VARCHAR(128) BINARY NOT NULL,
-    dest_type VARCHAR(20)  NOT NULL,
-    dest      VARCHAR(255) NOT NULL,
-
-    PRIMARY KEY (tag, dest_type, dest)
 )
 EOC
 
