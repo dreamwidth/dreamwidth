@@ -1346,13 +1346,20 @@ sub urandom_int {
     return unpack('N', LJ::urandom( size => 4 ));
 }
 
-sub rand_chars
-{
-    my $length = shift;
+my %RAND_CHARSETS = (
+    default => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    urlsafe_b64 => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_",
+);
+
+sub rand_chars {
+    my ( $length, $charset ) = @_;
     my $chal = "";
-    my $digits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    my $digits = $RAND_CHARSETS{ $charset || 'default' };
+    my $digit_len = length( $digits );
+    die "Invalid charset $charset" unless $digits && ( $digit_len > 0 );
+
     for (1..$length) {
-        $chal .= substr($digits, int(rand(62)), 1);
+        $chal .= substr($digits, int(rand($digit_len)), 1);
     }
     return $chal;
 }
