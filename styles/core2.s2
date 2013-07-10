@@ -5089,7 +5089,7 @@ function Entry::print_metadata() {
         """<div class="metadata$position">\n<ul>\n""";
         foreach var string m ( keys_alpha( $.metadata )  ) {
                 var string metadata_name = lang_metadata_title($m);
-                """<li id="metadata-$m"><span class="metadata-label metadata-label-$m">$metadata_name: </span> """;
+                """<li id="metadata-$m"><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
                 if ($m == "mood") {
                     " $.mood_icon ";
                 }
