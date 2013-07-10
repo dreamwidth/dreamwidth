@@ -195,6 +195,7 @@ h3.entry-title {
 .entry-content {
     $entry_background
     padding: 10px 10px 25px 10px;
+    min-height: 100px;
 
 }
 
