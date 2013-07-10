@@ -561,10 +561,10 @@ ul.entry-interaction-links {
     text-align: right;
 }
 
-.entry-interaction-links a { $entry_interaction_link_colors }
-.entry-interaction-links a:visited { $entry_interaction_link_visited_colors }
-.entry-interaction-links a:active { $entry_interaction_link_active_colors }
-.entry-interaction-links a:hover { $entry_interaction_link_hover_colors }
+.entry-interaction-links a, .entry-management-links a { $entry_interaction_link_colors }
+.entry-interaction-links a:visited, .entry-management-links a:visited { $entry_interaction_link_visited_colors }
+.entry-interaction-links a:active, .entry-management-links a:active { $entry_interaction_link_active_colors }
+.entry-interaction-links a:hover, .entry-management-links a:hover { $entry_interaction_link_hover_colors }
 
 ul.entry-interaction-links li {
     display: inline;
