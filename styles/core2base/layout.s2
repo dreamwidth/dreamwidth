@@ -87,6 +87,9 @@ propgroup colors {
     property use color_entry_title_background;
     property use color_entry_title;
     property use color_entry_interaction_links;
+    property use color_entry_interaction_links_active;
+    property use color_entry_interaction_links_hover;
+    property use color_entry_interaction_links_visited;
     property use color_entry_border;
 
     property use color_comment_title_background;
@@ -278,6 +281,9 @@ function Page::print_default_stylesheet() {
     var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, new Color, new Color);
     var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);
     var string entry_interaction_link_colors = generate_color_css($*color_entry_interaction_links, new Color, new Color);
+    var string entry_interaction_link_active_colors = generate_color_css($*color_entry_interaction_links_active, new Color, new Color);
+    var string entry_interaction_link_visited_colors = generate_color_css($*color_entry_interaction_links_visited, new Color, new Color);
+    var string entry_interaction_link_hover_colors = generate_color_css($*color_entry_interaction_links_hover, new Color, new Color);
 
     var string module_link_colors = generate_color_css($*color_module_link, new Color, new Color);
     var string module_link_active_colors = generate_color_css($*color_module_link_active, new Color, new Color);
@@ -556,6 +562,9 @@ ul.entry-interaction-links {
 }
 
 .entry-interaction-links a { $entry_interaction_link_colors }
+.entry-interaction-links a:visited { $entry_interaction_link_visited_colors }
+.entry-interaction-links a:active { $entry_interaction_link_active_colors }
+.entry-interaction-links a:hover { $entry_interaction_link_hover_colors }
 
 ul.entry-interaction-links li {
     display: inline;
