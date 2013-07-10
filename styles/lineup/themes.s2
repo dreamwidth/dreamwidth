@@ -69,7 +69,6 @@ set color_navigation_border = "#ffcdf8";
 
 set color_entry_background = "#fafbd8";
 set color_entry_border = "#000";
-set color_entry_interaction_links = "#fff";
 set color_entry_title = "#c86c95";
 set color_entry_title_background = "#ffcdf8";
 set color_entry_userpic_background = "#ff9bcc";
