@@ -1356,6 +1356,7 @@ sub rand_chars {
     my $chal = "";
     my $digits = $RAND_CHARSETS{ $charset || 'default' };
     my $digit_len = length( $digits );
+    die "Invalid charset $charset" unless $digits && ( $digit_len > 0 );
 
     for (1..$length) {
         $chal .= substr($digits, int(rand($digit_len)), 1);
