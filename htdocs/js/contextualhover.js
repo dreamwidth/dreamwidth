@@ -501,7 +501,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
             ban = document.createElement("span");
 
             if(!data.is_banned) {
-                // if user no banned - show ban link
+                // if user not banned - show ban link
                 var setBan = document.createElement("span");
                 var setBanLink = document.createElement("a");
                 
@@ -529,7 +529,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
 
                 
             } else {
-                // if use banned - show unban link
+                // if user banned - show unban link
                 var setUnban = document.createElement("span");
                 var setUnbanLink = document.createElement("a");
                 setUnbanLink.href = window.Site.siteroot + '/manage/banusers';
@@ -617,6 +617,15 @@ ContextualPopup.changeRelation = function (info, ctxPopupId, action, evt) {
 
     // callback from changing relation request
     var changedRelation = function (data) {
+        if ( action == "setBan" || action == "setUnban" ) {
+           var username = info.username;
+           var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
+                                              : "Are you sure you wish to ban " + username + "?";
+           if ( confirm( message ) ) {
+              return action;
+           } else { return false; };
+        };
+
         if (ContextualPopup.hourglass) ContextualPopup.hideHourglass();
 
         if (data.error) {

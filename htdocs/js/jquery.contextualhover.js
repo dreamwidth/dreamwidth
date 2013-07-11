@@ -366,6 +366,17 @@ _changeRelation: function($link) {
                 auth_token: info[action+"_authtoken"]
             },
 
+            beforeSend: function ( jqxhr, data ) {
+                if ( action == "setBan" || action == "setUnban" ) {
+                    var username = info.username;
+                    var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
+                                                       : "Are you sure you wish to ban " + username + "?";
+                    if ( confirm( message ) ) {
+                        return action;
+                    } else { return false };
+                  };
+            },
+
             success: function( data, status, jqxhr ) {
                 if ( data.error ) {
                     $link.ajaxtip( "error", data.error );
