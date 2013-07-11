@@ -131,6 +131,8 @@ sub post_event {
         personifi_tags => 1,
         give_features => 1,
         spam_counter => 1,
+        poster_ip => 1,
+        uniq => 1,
     );
     foreach my $prop ( keys %$props ) {
         next if $bad_props{$prop};
