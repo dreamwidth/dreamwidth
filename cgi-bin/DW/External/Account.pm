@@ -484,7 +484,6 @@ sub displayname {
 
 # returns the oauth_authorized value for an OAuth account
 sub oauth_authorized {
-    warn LJ::D($_[0]);
     return $_[0]->{oauth_authorized};
 }
 

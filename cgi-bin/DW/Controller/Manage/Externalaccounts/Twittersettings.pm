@@ -44,7 +44,7 @@ sub twittersettings_handler {
     my @error_list;     #error messages to show at the top of the form
     my $vars;        #hashref for outputs to the template;
 
-    my $acctid = $get_args->{acctid} || $post_args->{acctid};
+    my $acctid = $post_args->{acctid} || $get_args->{acctid};
     #$acctid should indicate which of the user's accounts is being
     # edited. If undef, we are creating a new account.
 
@@ -75,7 +75,7 @@ sub twittersettings_handler {
             siteid => 9,       #This is a twitter account.
         );
 
-        $opts{options} = { prefix_text => BML::ml( 'twitter.prefix_text.default', { siteabbrev => $LJ::SITENAMEABBREV } ) };
+        $opts{options} = { prefix_text => LJ::Lang::ml( 'twitter.prefix_text.default', { siteabbrev => $LJ::SITENAMEABBREV } ) };
                                  
         #make the account
         my $extacct = DW::External::Account->create( $u, \%opts );
@@ -93,14 +93,14 @@ sub twittersettings_handler {
         # We need to complete the OAuth process, and show the success or error.
         my $res = DW::External::OAuth::oauth_callback ( $u, $get_args );
         
-        push( @message_list, BML::ml( 'twitter.auth.success', 
-                { sitename => $LJ::SITENAMESHORT } ) )
+        push @message_list, LJ::Lang::ml( 'twitter.auth.success', 
+                { sitename => $LJ::SITENAMESHORT } )
             if $res->{success};
 
-        push( @error_list, $res->{error} ) if $res->{error};
+        push @error_list, $res->{error} if $res->{error};
     }
 
-    my $extacct ||= DW::External::Account->get_external_account( $u, $acctid );
+    my $extacct = DW::External::Account->get_external_account( $u, $acctid );
     LJ::throw( 'Could not retrieve external account object' ) unless $extacct;
     LJ::throw( 'Not an Twitter account' ) unless $extacct->siteid == 9;
 
@@ -116,7 +116,7 @@ sub twittersettings_handler {
         # happen.
         my ( $bl, $prefixlength ) = LJ::text_length( $post_args->{prefix_text});
         if ( $prefixlength > 100 ) {
-            push( @error_list, BML::ml( 'twitter.settings.prefix_too_long' ) );
+            push @error_list, LJ::Lang::ml( 'twitter.settings.prefix_too_long' ) ;
             $form_ok = 0;
         }
 
@@ -146,10 +146,10 @@ sub twittersettings_handler {
 
     if ( $res->{success} && $res->{username} ne $extacct->username ) {
         $extacct->set_username( $res->{username} );
-        push( @message_list, BML::ml( 'twitter.username_updated' ) );
+        push @message_list, LJ::Lang::ml( 'twitter.username_updated' );
     }
 
-    push( @error_list, $res->{error} ) if $res->{error};
+    push @error_list, $res->{error} if $res->{error};
 
     my $extacct_opts = $extacct->options;
 

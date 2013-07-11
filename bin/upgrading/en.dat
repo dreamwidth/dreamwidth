@@ -5432,7 +5432,7 @@ xpost.error.nonpublic=This is not a public entry. Only public entries may be pos
 
 twitter.prefix_text.default=New [[siteabbrev]] post:
 
-twitter.auth.please_reauth=[[sitename]] does not seem to have access to your Twitter account. Please (re)authorize from the <a href="[[url]]">Twitter account settings page</a>.
+twitter.auth.please_reauth=[[sitename]] does not seem to have access to your Twitter account. Please <a href="[[url]]">(re)authorize</a>.
 
 twitter.auth.success=[[sitename]] access to your Twitter account was successfully authorized!
 
@@ -5446,11 +5446,9 @@ oauth.callback.wronguser=The account you are attempting to authorize is not for 
 
 oauth.start.fail=There was an error trying to connect to the OAuth provider: [[error]]
 
-twitter.username_updated=Your Twitter username was retreived.
+twitter.username_updated=Your Twitter username was retreived or updated.
 
-twitter.maxaccounts.plural=You are already at your limit of [[max_accts]] accounts.
-
-twitter.maxaccounts.singular=You are already at your limit of [[max_accts]] account.
+twitter.maxaccounts=You are already at your limit of [[max_accts]] [[?max_accts|account|accounts]].
 
 twitter.settings.prefix_too_long=Please reduce the length of the prefix text to 100 characters or less.
 

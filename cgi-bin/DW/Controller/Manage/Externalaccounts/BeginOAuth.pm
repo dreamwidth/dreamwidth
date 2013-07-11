@@ -38,8 +38,11 @@ sub beginoauth_handler {
 
     my $extacct = DW::External::Account->get_external_account( 
         $rv->{u}, $acctid );
+    LJ::throw( 'Could not retrieve extacct' ) unless $extacct;
     my $res = DW::External::OAuth::start_oauth( $extacct );
 
+    LJ::throw( 'Unexpected return from start_oauth' )
+        unless ref $res eq 'HASH';
     return error_ml( 'oauth.start.fail', { error => $res->{error} } )
         if $res->{error};
 

@@ -37,21 +37,24 @@ sub _skeleton {
 sub _get_net_twitter {
 #Internal function. Takes an ExternalAccount object. Returns a Net::Twitter
 #object with auth set up for that ExternalAccount.
+# NB no check is done here that the access token is valid, etc, because
+#  the route needed for the error would change depending on where it's
+#  called from (worker or web).
+#  I recommend checking that $twitter->authorized is true after using 
+#  this to get $twitter.
 
     my ( $extacct ) = @_;
 
     LJ::throw( 'Not a Twitter account' )
         unless $extacct->siteid == 9;
 
-    my $twitter = Net::Twitter->new( {
+    return $twitter = Net::Twitter->new( {
             traits => ['API::RESTv1_1', 'OAuth'],
             consumer_key => $LJ::TWITTER{consumer_key},
             consumer_secret => $LJ::TWITTER{consumer_secret},
             access_token => $extacct->options->{access_token},
             access_token_secret => $extacct->options->{access_token_secret}
         } );
-
-    return $twitter;
 }
 
 sub verify_auth {
@@ -73,7 +76,7 @@ sub verify_auth {
     unless ( $extacct->oauth_authorized ) {
         return { error => LJ::Lang::ml( 'twitter.auth.please_reauth', 
                 { sitename => $LJ::SITENAMESHORT, 
-                  url => "$LJ::SITEROOT/manage/externalaccounts/twittersettings?acctid=$extacct->{acctid}" } ) };
+                  url => "$LJ::SITEROOT/manage/externalaccounts/begin_oauth?acctid=$extacct->{acctid}" } ) };
     }
 
     # get a net::twitter object
@@ -84,7 +87,7 @@ sub verify_auth {
     unless ( $twitter->authorized ) {
         return { error => LJ::Lang::ml( 'twitter.auth.please_reauth', 
                 { sitename => $LJ::SITENAMESHORT, 
-                  url => "$LJ::SITEROOT/manage/externalaccounts/twittersettings?acctid=$extacct->{acctid}" } ) };
+                  url => "$LJ::SITEROOT/manage/externalaccounts/begin_oauth?acctid=$extacct->{acctid}" } ) };
     }
 
     #Check with Twitter that the credentials are valid
@@ -114,7 +117,7 @@ sub _check_twitter_error {
         $extacct->set_oauth_authorized( 0 ) if $extacct;
         return LJ::Lang::ml( 'twitter.auth.please_reauth', 
                 { sitename => $LJ::SITENAMESHORT, 
-                  url => "$LJ::SITEROOT/manage/externalaccounts/twittersettings?acctid=$extacct->{acctid}" } );
+                  url => "$LJ::SITEROOT/manage/externalaccounts/begin_oauth?acctid=$extacct->{acctid}" } );
     }
 
     #FIXME do we also want to look out for any other error codes?
@@ -143,8 +146,18 @@ sub crosspost {
     }
 
     my $twitter = _get_net_twitter( $extacct ); 
+    unless ( $twitter->authorized ) {
+        #This doesn't actually check that we are authorized - but it checks
+        # that we at least have all the necessary credentials.
+        return {
+            success => 0,
+            error => LJ::Lang::ml( 'twitter.auth.please_reauth',
+                { sitename => $LJ::SITENAMESHORT,
+                  url => "$LJ::SITEROOT/manage/externalaccounts/begin_oauth?acctid=$extacct->{acctid}" } )
+        }
+    }
 
-    my $status = undef;
+    my $status;
 
     if ( $delete ) {
         unless ( $itemid ) {

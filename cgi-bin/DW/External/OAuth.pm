@@ -6,6 +6,8 @@
 ##  sites. Currently they're specific to Twitter, but it should be 
 ##  reasonably straightforward to swap from Net::Twitter to Net::Simple::OAuth
 ##  to generalise.
+## N.B. for *incoming* OAuth (other sites authenticating with this one)
+##  see DW::OAuth (planned at the time of this comment)
 ##
 ## Authors:
 ##      Simon Waldman <swaldman@firecloud.org.uk>
@@ -34,6 +36,9 @@ sub start_oauth {
 
     #this shouldn't happen
     return { error => "Not an OAuth account" } unless $extacct->uses_oauth;
+    #This will need changing when things are generalised beyond Twitter
+    return { error => "Posting to Twitter is disabled on this site" } 
+        unless $LJ::TWITTER{enabled};
 
     my $userid = $extacct->userid;
     my $acctid = $extacct->acctid;
@@ -58,7 +63,7 @@ sub start_oauth {
     #NB $authurl is a URI object, not simple text. It is the currently correct
     # URL for Twitter authorisation with the request_token as a parameter.
 
-    return { error => $@ } unless $authurl;
+    return { error => $@ } if $@ || ! defined $authurl;
 
     #We have been issued a temporary token representing this authentication
     # request. We need to store this to use when twitter redirects the user
@@ -71,9 +76,8 @@ sub start_oauth {
     $extacct_options->{request_token_secret} = $twitter->request_token_secret;
 
     #Since we are (re-)authorizing, throw away any existing access token.
-    foreach ( qw/access_token access_token_secret/ ) {
-        delete $extacct_options->{$_} if $extacct_options->{$_};
-    }
+    delete $extacct_options->{access_token};
+    delete $extacct_options->{access_token_secret};
 
     $extacct->set_options( $extacct_options );
 
@@ -90,6 +94,10 @@ sub oauth_callback {
     my ( $remote, $get_args ) = @_;
     #get_args may have: userid, acctid, denied, oauth_token, oauth_verifier
 
+    # This will need to be changed when things are generalised beyond Twitter.
+    return { error => "Posting to Twitter is disabled on this site" } 
+        unless $LJ::TWITTER{enabled};
+
     #make sure we have everything we should have
     unless ( $remote && $get_args->{userid} && $get_args->{acctid} &&
         ( ( $get_args->{oauth_token} && $get_args->{oauth_verifier} ) || 
@@ -98,22 +106,23 @@ sub oauth_callback {
     }
 
     #check that this callback relates to the current user 
-    my $get_user = LJ::load_userid( $get_args->{userid} );
-    LJ::throw( "Invalid userid" ) unless $get_user;
-    return { error => 'oauth.callback.wronguser' }
-        unless $remote->equals( $get_user );
-
-    my $u = $get_user;
+    my $u = LJ::load_userid( $get_args->{userid} )
+        or die( "Invalid userid" );
+    return { error => LJ::Lang::ml('oauth.callback.wronguser') }
+        unless $remote->equals( $u );
 
     #find the extacct in question
     my $extacct = DW::External::Account->get_external_account( $u,
-        $get_args->{acctid} );
-    LJ::throw( "Invalid acctid" ) unless $extacct;
+        $get_args->{acctid} )
+        or die( "Invalid acctid" );
 
     my $extacct_options = $extacct->options;
 
     #Does the request token coming back from the provider match the one
     # stored for this account?
+    # Note: Twitter returns "Denied" with the token if the user clicks
+    #  cancel to deny authorization. In this case we need to distinguish
+    #  between denied auth for this account or another account.
     my $received_token = $get_args->{oauth_token} || $get_args->{denied};
     return { error => BML::ml( 'oauth.callback.tokenmismatch' ) }
         unless $received_token eq $extacct_options->{request_token};
@@ -123,10 +132,9 @@ sub oauth_callback {
             { service => 'Twitter', sitename => $LJ::SITENAMESHORT } ) }
         if $get_args->{denied};
 
-    #At this point we're fairly sure that this is a real callback, that it
+    #At this point we've established that this is a real callback, that it
     #relates to the most recent authorization request for this user and
-    #extacct, and that it's been authorized. Unless there's something I haven't
-    #thought of.
+    #extacct, and that it's been authorized.
 
     #Create a Net::Twitter object.
     #Doing this seperately here rather than combining with the same code in
@@ -141,20 +149,21 @@ sub oauth_callback {
     } );
 
     #Ask the provider to give us a long-term access token
-    my ( $access_token, $access_token_secret, $user_id, $display_name ) = undef;
+    my ( $access_token, $access_token_secret, $user_id, $display_name );
     eval {
         ( $access_token, $access_token_secret, $user_id, $display_name )
             = $twitter->request_access_token( 
                 verifier => $get_args->{oauth_verifier} );
     };
-    return { error => $@ } unless $access_token;
+    return { error => $@ } if $@ || ! defined $access_token;
 
     #Save the new access token
     $extacct_options->{access_token} = $access_token;
     $extacct_options->{access_token_secret} = $access_token_secret;
 
     #Get rid of the temporary token
-    delete @$extacct_options{ qw( request_token request_token_secret ) };
+    delete $extacct_options->{request_token};
+    delete $extacct_options->{request_token_secret};
     
     $extacct->set_options( $extacct_options );
     $extacct->set_oauth_authorized( 1 );
