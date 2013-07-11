@@ -2033,10 +2033,16 @@ sub can_import_comm {
 sub can_receive_vgifts_from {
     my ( $u, $remote, $is_anon ) = @_;
     $remote ||= LJ::get_remote();
-    my $valid_remote = LJ::isu( $remote ) ? 1 : 0;
+    my $valid_remote = LJ::isu( $remote ) && $remote->is_personal ? 1 : 0;
+
+    # no virtual gifts for syndicated accounts
+    return 0 if $u->is_syndicated;
 
     # check for shop status
     return 0 unless exists $LJ::SHOP{vgifts};
+
+    # check for journal ban
+    return 0 if $remote && $u->has_banned( $remote );
 
     # check for anonymous
     return 0 if $is_anon && $u->prop( 'opt_anonvgift_optout' );
@@ -2414,6 +2420,12 @@ sub gift_points_url {
 sub transfer_points_url {
     my ( $u ) = @_;
     return "$LJ::SITEROOT/shop/transferpoints?for=" . $u->user;
+}
+
+# returns the shop URL to buy a virtual gift for that user
+sub virtual_gift_url {
+    my ( $u ) = @_;
+    return "$LJ::SITEROOT/shop/vgift?user=" . $u->user;
 }
 
 =head3 C<< $self->give_shop_points( %options ) >>
@@ -5865,10 +5877,10 @@ sub display_journal_deleted {
             "SELECT remoteid FROM userlog" .
             " WHERE userid=? AND logtime=? LIMIT 1", undef, $userid, $logtime );
         my $deleter_name = LJ::get_username( $deleter_id );
-        $deleter_name_html = $deleter_name ? 
-            LJ::ljuser( $deleter_name ) : 'Unknown'; 
+        $deleter_name_html = $deleter_name ?
+            LJ::ljuser( $deleter_name ) : 'Unknown';
     } else {
-        #If this isn't a community, it can only have been deleted by the 
+        #If this isn't a community, it can only have been deleted by the
         # journal owner.
         $deleter_name_html = LJ::ljuser( $u );
     }
@@ -5880,7 +5892,7 @@ sub display_journal_deleted {
 
         #Showing an earliest purge date of 29 days after deletion, not 30,
         # to be safe with time zones.
-        purge_date => LJ::mysql_date( 
+        purge_date => LJ::mysql_date(
             $u->statusvisdate_unix + ( 29*24*3600 ), 0 ),
 
         deleter_name_html => $deleter_name_html,
@@ -5900,7 +5912,7 @@ sub display_journal_deleted {
             is_admin => $u->is_community && $remote->can_manage( $u ),
             is_sole_admin => $u->is_community && $remote->can_manage( $u ) &&
                 scalar( $u->maintainer_userids ) == 1,
-            is_member_or_watcher => $u->is_community && 
+            is_member_or_watcher => $u->is_community &&
                 ( $remote->member_of( $u ) || $remote->watches( $u ) ),
 
             #booleans for personal journals
@@ -5949,7 +5961,7 @@ sub display_journal_deleted {
                     { ml => 'web.controlstrip.links.modifycircle',
                       url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
                     } );
-            } elsif ( $trusts ) { 
+            } elsif ( $trusts ) {
                 $relationship_ml = 'web.controlstrip.status.trusted';
                 @relationship_links = (
                     { ml => 'web.controlstrip.links.modifycircle',

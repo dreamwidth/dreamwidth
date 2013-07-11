@@ -354,6 +354,7 @@ general /community/settings.bml.label.createtext
 general /community/settings.bml.label.maintainer.login
 
 general esn.approve_join_request
+general esn.shop_for_gift
 
 general /friends/add.bml.error1.header
 general /friends/add.bml.error1.text
