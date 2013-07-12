@@ -951,6 +951,12 @@ sub start_request
 
         # note that we're calling need_res and advising that these items
         # are the new style global items
+        LJ::need_res( { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
+            'js/jquery/jquery-1.8.3.js',
+            'js/foundation/vendor/custom.modernizr.js',
+            'js/foundation/foundation/foundation.js',
+            'js/foundation/foundation/foundation.topbar.js'
+        );
 
         LJ::need_res( { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
             # jquery library is the big one, load first
@@ -970,6 +976,12 @@ sub start_request
                         js/6alib/dom.js
                         js/6alib/httpreq.js
                         js/livejournal.js
+                        ));
+
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw (
+                        stc/lj_base.css
+                        ));
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => "jquery" }, qw (
                         stc/lj_base.css
                         ));
 
