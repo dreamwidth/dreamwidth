@@ -20,3 +20,35 @@
 [%- END %]
 </ul>
 [%- END -%]
+
+
+[%- BLOCK block.search -%]
+<ul class="right" role="search">
+<li class="has-form">
+<form action="[% site.root %]/multisearch" method="post">
+<div class="row collapse">
+<div class="columns large-6">
+    <input name="q" id="search" type="text" title="[% 'widget.search.title' | ml %]" size="20" />
+</div>
+<div class="columns large-4">
+<select name="type">
+[% FOREACH option = [
+    [ "int", "interest" ]
+    [ "region", "region" ]
+    [ "nav_and_user", "siteuser" ]
+    [ "faq", "faq"]
+    [ "email", "email" ]
+    [ "im", "iminfo" ]
+] ~%]
+    <option name="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
+[%- END -%]
+</select>
+</div>
+<div class="columns large-2">
+    <input type="submit" value="[% 'widget.search.btn.go' | ml %]" />
+</div>
+</div></div>
+</form>
+</li>
+</ul>
+[%- END -%]
