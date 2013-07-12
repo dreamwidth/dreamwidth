@@ -36,9 +36,6 @@ sub media_manage_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
-    # Foundation demo!
-    LJ::set_active_resource_group( 'foundation' );
-
     # load all of a user's media.  this is inefficient and won't be like this forever,
     # but it's simple for now...
     $rv->{media} = [ DW::Media->get_active_for_user( $rv->{remote} ) ];
