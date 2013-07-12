@@ -13,8 +13,7 @@
 // very strong color, for emphasis. use sparingly
 // be careful if editing this, it's meant to match the color of the image
 $strong-accent-color: #999966;
-$nav-bg: #ddddaa;
-
+$topbar-bg: #ddddaa;
 
 // foundation global variables
 $body-bg: #ffffff;
@@ -23,7 +22,7 @@ $body-font-family: Arial, Verdana, sans-serif;
 $base-line-height: 1.4;
 
 // background colors for various components
-$primary-color: lighten( $nav-bg, 15% );
+$primary-color: lighten( $topbar-bg, 15% );
 $secondary-color: #e9e9e9;
 $alert-color: #d75759;
 $success-color: #7bb74b;
@@ -40,7 +39,6 @@ $anchor-text-decoration:               "underline";
 $anchor-font-color:                    #999966;
 $anchor-font-color-visited:            shade( $anchor-font-color, 30% );
 $anchor-font-color-hover:              lighten( $anchor-font-color, 30% );
-
 
 $include-html-classes: true;
 @import "foundation";
@@ -171,7 +169,7 @@ nav .topnav a {color: #222200; }
     }
     #header-userpic img { margin-top: 10px;
         border: none;
-        background-color: $nav-bg; /*so the square doesn't show behind transparent icons */
+        background-color: $topbar-bg; /*so the square doesn't show behind transparent icons */
         }
 
 /**
@@ -201,7 +199,7 @@ footer { border-top: 4px double $strong-accent-color;
 #content {
     @include grid-row(false);
     margin-left: 1em;
-    border-left: 9em solid $nav-bg;
+    border-left: 9em solid $topbar-bg;
     margin-top: 170px;
     padding: 1px 1em 1em 1.5em;
     min-height: 65em;

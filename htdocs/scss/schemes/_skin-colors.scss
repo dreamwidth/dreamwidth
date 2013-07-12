@@ -1,7 +1,7 @@
 /**
 * CSS colors site-wide
 * Set the color variables in the scheme-specific CSS file
-* THen include this
+* Then @import _skin_colors.scss
 */
 
 /**
@@ -20,22 +20,5 @@ a:hover, a:active {
  */
 
 nav {
-    background-color: $nav-bg;
-}
-
-/* TODO: fix top nav imagery */
-nav .topnav a {
-    // background: transparent url(/img/tropo-red/icon_menu_swirl.png) 0.833333em 0.916667em no-repeat;
-    color: #111;
-}
-/* .hover is a class added by js for the currently hovered/focused menu */
-nav .hover a {
-    // background: $muted-primary-color url(/img/tropo-red/icon_menu_swirl_dropdown.png) 0.833333em 0.916667em no-repeat;
-    color: #fff;
-}
-nav .hover a:hover {
-    background-color: $primary-color;
-}
-nav .hover ul {
-    background-color: $secondary-color;
+    background-color: $topbar-bg;
 }
