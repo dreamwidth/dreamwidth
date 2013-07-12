@@ -688,7 +688,10 @@ sub trans
             return redir($apache_r, "/archive$1");
         }
 
-        if ($uuri =~ m#^/(\d+)\.html$#) {
+        if ($uuri =~ m#^/(\d+)(\.html?)$#i) {
+            return redir($apache_r, "/$1.html$args_wq")
+                unless $2 eq '.html';
+
             my $u = LJ::load_user($user)
                 or return 404;
 
