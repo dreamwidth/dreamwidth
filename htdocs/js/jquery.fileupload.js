@@ -88,7 +88,9 @@ $(function() {
                 // update the form field names to use this image id
                 .find(":input").attr( "data-file-id", function(i, name){
                     return file_id;
-                });
+                })
+                .end()
+                .find(".progress").toggleClass( "secondary success" );
         } else {
             $(data.context).trigger( "uploaderror", [ { error : data.error } ] );
         }

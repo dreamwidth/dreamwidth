@@ -1,5 +1,11 @@
 [%- sections.title = '.title' | ml -%]
 
+[%-
+  # non skin-specific css files
+  dw.need_res( { group => "foundation" },
+      "stc/css/components/progress-bars.css"
+  );
+-%]
 [% CALL dw.active_resource_group( "foundation" ) %]
 
   <div class="large-12 columns">
