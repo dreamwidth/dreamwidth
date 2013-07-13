@@ -104,6 +104,8 @@ sub file_edit_handler {
     LJ::isu( $rv->{u} )
         or return api_error( $r->HTTP_UNAUTHORIZED, 'Not logged in' );
 
+    warn Data::Dumper::Dumper( from_json( $r->content ) );
+
     return api_ok( 1 );
 
 }

@@ -9,13 +9,30 @@ $(function() {
     // hide the upload button, we'll have another one for saving descriptions
     $("input[type=submit]").hide();
 
-    var _doEditRequest = function( formFields ) {
-        // handle submit via ajax instead
+    var _doEditRequest = function( form_fields ) {
+        // form fields are the actual input fields
+        // we need to extract them into the form of:
+        // {
+        //     mediaid: { propname => value, propname => value },
+        //     mediaid: { propname => vaule, propname => value }
+        // }
+
+        var data = {};
+        $.each( form_fields, function( i, form_field ) {
+            var file_id = form_field.getAttribute("data-file-id");
+
+            if ( ! data[file_id] )
+                data[file_id] = {};
+
+            data[file_id][form_field.name] = form_field.value;
+        });
+
         $.ajax( Site.siteroot + '/api/v1/file/edit', {
             'type'      : 'POST',
             'dataType'  : 'json',
+            'contentType': 'application/json',
 
-            'data'      : formFields
+            'data'      : JSON.stringify( data )
         } );
     };
 
@@ -46,10 +63,10 @@ $(function() {
 
             data.context
                 .find("label").attr( "for", function() {
-                    return $(this).data("original-name") + _uiCounter;
+                    return $(this).data("for-name") + _uiCounter;
                 }).end()
                 .find(":input").attr( "id", function() {
-                    return $(this).data("original-name") + _uiCounter;
+                    return this.name + _uiCounter;
                 })
 
             _uiCounter++;
@@ -65,17 +82,13 @@ $(function() {
         var response = data.result;
 
         if ( response.success ) {
-            var fileid = response.result.id;
+            var file_id = response.result.id;
 
             data.context
                 // update the form field names to use this image id
-                .find(":input").prop( "name", function(i, name){
-                    this.name = name + "_" + fileid;
-                }).attr( 'data-has-id', true )
-
-                // and make it easier for us to figure out the form fields we expect to work with
-                // (we don't want fileids_### on this one)
-                .end().append( "<input type='hidden' name='fileids' value='" + fileid +"' />");
+                .find(":input").attr( "data-file-id", function(i, name){
+                    return file_id;
+                });
         } else {
             $(data.context).trigger( "uploaderror", [ { error : data.error } ] );
         }
@@ -112,7 +125,7 @@ $(function() {
     .on( 'fileuploadstop', function(data) {
         if ( _metadataInProgress ) {
             // now submit all form fields...
-            _doEditRequest( $('.upload-form').serializeArray() );
+            _doEditRequest( $('.upload-form :input') );
             _metadataInProgress = false;
         }
 
@@ -123,8 +136,8 @@ $(function() {
         e.preventDefault();
         e.stopPropagation();
 
-        var formFields = $(':input[data-has-id]', this).serializeArray();
-        if ( formFields.length < $(this).serializeArray().length ) {
+        var formFields = $(':input[data-file-id]', this);
+        if ( formFields.length < $("input[type=text], select", this).length ) {
             _metadataInProgress = true;
         }
 

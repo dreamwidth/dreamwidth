@@ -69,18 +69,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class="row">
     <div class="large-[% labelSize %] columns">
         [%-# "for" will be added by JS -%]
-        <label class="inline right" data-original-name=[% name %]>[% label %]</label>
+        <label class="inline right" data-for-name="[% name %]">[% label %]</label>
     </div>
     <div class="large-[% fieldSize %] columns">
         [%-# "id" will be added by JS -%]
         [% IF type == "text" %]
-            [%- form.textbox( "name" = name
-                          "data-original-name" = name
-            ) -%]
+            [%- form.textbox( "name" = name ) -%]
         [% ELSIF type == "select" %]
             [%- form.select( "items"   = items
                              "name"    = name
-                             "data-original-name" = name )
+                           )
             -%]
         [% END %]
     </div>
