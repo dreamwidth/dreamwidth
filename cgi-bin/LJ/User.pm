@@ -9697,39 +9697,26 @@ sub make_journal {
     # FIXME: Make this properly invoke siteviews all the time -- once all the views are ready.
     # Most of this if and tons of messy conditionals can go away once all views are done.
     if ( $stylesys == 1 || $stylearg eq 'site' || $stylearg eq 'light' ) {
-        my $fallback = "bml"; # FIXME: Should be S2 once everything's done
-
-        # if we are in this path, and they have style=mine set, it means
-        # they either think they can get a S2 styled page but their account
-        # type won't let them, or they really want this to fallback to bml
-        if ( $remote && ( $stylearg eq 'mine' ) ) {
-            $fallback = 'bml';
-        }
+        # FIXME: The month view is currently not styled in siteviews
+        my $fallback = $view eq 'month' ? 'bml' : 's2';
 
         # If they specified ?format=light, it means they want a page easy
         # to deal with text-only or on a mobile device.  For now that means
         # render it in the lynx site scheme.
-        if ( $stylearg eq 'light' ) {
-            $fallback = 'bml';
-            DW::SiteScheme->set_for_request( 'lynx' );
-        }
+        DW::SiteScheme->set_for_request( 'lynx' )
+            if $stylearg eq 'light';
 
         # but if the user specifies which they want, override the fallback we picked
         if ($geta->{'fallback'} && $geta->{'fallback'} =~ /^s2|bml$/) {
             $fallback = $geta->{'fallback'};
         }
 
-        # there are no BML handlers for these views, so force s2
-        # FIXME: Temporaray until talkread/talkpost/month views are converted
+        # Only the month view has a BML version.
+        $fallback = 's2'
+            if $view ne 'month';
 
-        if ( !( {   entry => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
-        reply => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
-        month => 1 }->{$view} ) ) {
-            $fallback = "s2";
-        }
-
-        # fall back to legacy BML unless we're using BML-wrapped s2
-        if ($fallback eq "bml") {
+        # fall back to legacy BML unless we're using siteviews
+        if ($fallback eq 'bml') {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -9920,7 +9907,9 @@ sub make_journal {
 
         my $mj;
 
-        unless ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} ) {
+        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} ) {
+            $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
+        } else {
             eval {
                 $mj = LJ::S2::make_journal($u, $styleid, $view, $remote, $opts);
             };
@@ -9935,15 +9924,6 @@ sub make_journal {
                     die $@;
                 }
             }
-        }
-
-        # intercept flag to handle_with_bml_ref and instead use siteviews
-        # FIXME: Temporary, till everything is converted.
-        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || {
-                entry => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
-                reply => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
-                icons => 1, tag => 1 }->{$view} ) ) {
-            $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
         }
 
         return $mj;
