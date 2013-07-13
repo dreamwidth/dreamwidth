@@ -1,6 +1,3 @@
-$include-html-classes: false;
-@import "foundation/variables", "foundation/components/global", "foundation/components/buttons";
-
 .preview {
   max-height: 75px;
   display: inline-block;
@@ -30,9 +27,4 @@ $include-html-classes: false;
 
 .image-preview canvas {
   margin-bottom: 1em;
-}
-
-// TODO: this should be in lj_base-app.css
-.submit {
-  @include button;
 }

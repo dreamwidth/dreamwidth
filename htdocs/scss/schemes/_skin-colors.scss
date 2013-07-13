@@ -22,3 +22,11 @@ a:hover, a:active {
 nav {
     background-color: $topbar-bg;
 }
+
+/**
+ * Buttons
+ */
+
+ .submit {
+    @extend .button;
+ }
