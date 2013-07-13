@@ -237,8 +237,9 @@ _c?>
              $entrylink = LJ::item_link( $mem_u, $itemid, $anum );
              $editlink = "/tools/memadd?journal=$memuser&amp;itemid=$mem->{ditemid}$authasarge";
          } else {
-             $entrylink = "/talkread?itemid=$mem->{ditemid}";
-             $editlink = "/tools/memadd?itemid=$mem->{ditemid}$authasarge";
+             # This used to be the path when we supported old style talkread global itemid entries,
+             # but Dreamwidth never had those.
+             next;
          }
 
          my $edit = "";
