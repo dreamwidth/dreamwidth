@@ -7,7 +7,7 @@ $(function() {
     var _metadataInProgress = false;
 
     // hide the upload button, we'll have another one for saving descriptions
-    $("input[type=submit]").hide();
+    $(".upload-form input[type=submit], .upload-form .log").hide();
 
     var _doEditRequest = function( form_fields ) {
         // form fields are the actual input fields
@@ -33,7 +33,19 @@ $(function() {
             'contentType': 'application/json',
 
             'data'      : JSON.stringify( data )
-        } );
+        } )
+        .done(function() {
+            if ( ! _metadataInProgress ) {
+                $(".upload-form .log")
+                    .addClass( "success" )
+                    .removeClass( "error" )
+                    .text( "Your descriptions have been saved." )
+                    .fadeIn().delay(3000).fadeOut();
+                $(".upload-form input[type=submit]").val(function() {
+                    return $(this).data("original-text");
+                });
+            }
+        });
     };
 
     $(".upload-form-file-inputs")
@@ -76,7 +88,15 @@ $(function() {
         }
 
         // and then add a button to save metadata
-        $("input[type=submit]").val( "Save Descriptions" ).show();
+        $(".upload-form input[type=submit]")
+            .val( "Save Descriptions" ).show()
+            .click(function() {
+                var $this = $(this);
+                if ( ! $this.data("original-text" ) ) {
+                    $this.data( "original-text", $this.val())
+                }
+                $this.val( "Saving..." );
+            });
     })
     .on( 'fileuploaddone', function( e, data ) {
         var response = data.result;
