@@ -49,7 +49,7 @@ sub media_bulkedit_handler {
 
     my @security = (
             { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },
-            { value => "usemask",  text => LJ::Lang::ml( 'label.security.accesslist' ) },
+            { value => "usemask", text => LJ::Lang::ml( 'label.security.accesslist' ) },
             { value => "private", text => LJ::Lang::ml( 'label.security.private2' ) },
         );
     $rv->{security} = \@security;
@@ -57,7 +57,8 @@ sub media_bulkedit_handler {
     my $r = DW::Request->get;
     if ( $r->did_post ) {
         my $post_args = $r->post_args;
-        return error_ml( 'error.invalidauth' ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+        return error_ml( 'error.invalidauth' )
+            unless LJ::check_form_auth( $post_args->{lj_form_auth} );
 
         if ( $post_args->{"action:edit"} ) {
             my %post = %{$post_args->as_hashref||{}};
@@ -70,6 +71,7 @@ sub media_bulkedit_handler {
                 my $amask = $secval eq "usemask" ? 1 : 0;
                 $media->set_security( security => $secval, allowmask => $amask );
             }
+
         } elsif ( $post_args->{"action:delete"} ) {
             # FIXME: update with more efficient mass loader
             my @to_delete = $post_args->get_all( "delete" );
@@ -171,10 +173,11 @@ sub media_new_handler {
 
     $rv->{security} = [
         { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },
-        { value => "usemask",  text => LJ::Lang::ml( 'label.security.accesslist' ) },
+        { value => "usemask", text => LJ::Lang::ml( 'label.security.accesslist' ) },
         { value => "private", text => LJ::Lang::ml( 'label.security.private2' ) },
     ];
 
     return DW::Template->render_template( 'media/new.tt', $rv );
 }
+
 1;

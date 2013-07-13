@@ -8,7 +8,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -49,14 +49,50 @@ sub height { $_[0]->{height} }
 sub is_active { $_[0]->{state} eq 'A' }
 sub is_deleted { $_[0]->{state} eq 'D' }
 
-# property helper, loads our properties and fetches one when called
-sub _prop {
+# Property method, loads our properties and fetches one when called, also
+# handles updating and deleting them.
+sub prop {
     my ( $self, $prop, $val ) = @_;
 
-    
+    my $u = $self->u;
     my $pobj = LJ::get_prop( media => $prop )
         or confess 'Attempted to get/set invalid media property';
+    my $propid = $pobj->{id};
 
+    unless ( $self->{_loaded_props} ) {
+        my $props = $u->selectall_hashref(
+            q{SELECT propid, value FROM media_props WHERE userid = ? AND mediaid = ?},
+            'propid', undef, $self->{userid}, $self->{mediaid}
+        );
+        confess $u->errstr if $u->err;
+
+        $self->{_props} = {
+            map { $_->{propid} => $_->{value} } values %$props
+        };
+        $self->{_loaded_props} = 1;
+    }
+
+    # Getting an argument if they didn't provide a third. If they did, however,
+    # then this fails and we go into the set logic.
+    return $self->{_props}->{$propid} if scalar @_ == 2;
+
+    # Setting logic. Delete vs update.
+    if ( defined $val ) {
+        $u->do(q{REPLACE INTO media_props (userid, mediaid, propid, value)
+                 VALUES (?, ?, ?, ?)},
+               undef, $self->{userid}, $self->{mediaid}, $propid, $val);
+        confess $u->errstr if $u->err;
+
+        return $self->{_props}->{$propid} = $val;
+    } else {
+        $u->do(q{DELETE FROM media_props WHERE userid = ? AND mediaid = ?
+                   AND propid = ?},
+               undef, $self->{userid}, $self->{mediaid}, $propid);
+        confess $u->errstr if $u->err;
+
+        delete $self->{_props}->{$propid};
+        return undef;
+    }
 }
 
 # construct a URL for this resource
