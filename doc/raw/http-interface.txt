@@ -274,27 +274,11 @@ POST
         journal
         ditemid
 
-talkpost.bml
-Form
-        itemid
-        replyto
-        journal
-        prop_picture_keyword
-
 talkpost_do.bml
 FORM
         body
         submitpreview
         usertype
-
-talkread.bml
-GET
-        itemid
-        journal
-        thread
-        viewall
-        page
-        view
 
 talkscreen.bml 11/25
 GET
