@@ -38,6 +38,7 @@ use DW::VirtualGift;
 use DW::Auth;
 use DW::Request::XMLRPCTransport;
 use Cwd qw/abs_path/;
+use Carp qw/ croak confess /;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -1372,12 +1373,7 @@ sub journal_content
         }
 
         if ($RQ{'mode'} eq "entry" || $RQ{'mode'} eq "reply") {
-            my $filename = $RQ{'mode'} eq "entry" ?
-                "$LJ::HOME/htdocs/talkread.bml" :
-                "$LJ::HOME/htdocs/talkpost.bml";
-            $apache_r->notes->{_journal} = $RQ{user};
-            $apache_r->notes->{bml_filename} = $filename;
-            return Apache::BML::handler($apache_r);
+            confess 'Old talkread/talkpost path hit. Please fix.';
         }
 
         if ($RQ{'mode'} eq "month") {
