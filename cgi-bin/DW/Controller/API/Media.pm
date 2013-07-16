@@ -78,7 +78,7 @@ sub file_new_handler {
 
         # For now, we only support a single upload per call, so finish now.
         return api_ok( {
-            id => $obj->id,
+            id => $obj->displayid,
             url => $obj->url,
             thumbnail_url => $obj->url( extra => '100x100/' ),
             name => "image",

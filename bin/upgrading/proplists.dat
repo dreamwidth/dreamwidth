@@ -1624,3 +1624,18 @@ media_prop_list.description:
   des: Long description of this object
   prettyname: Description
   ownership: user
+
+media_prop_list.alttext:
+  des: Alternative Text
+  prettyname: Alt Text
+  ownership: user
+
+media_prop_list.source:
+  des: Source
+  prettyname: Source
+  ownership: user
+
+media_prop_list.comment:
+  des: Comment
+  prettyname: Comment
+  ownership: user
