@@ -32,10 +32,6 @@ use fields (
             'notes',
             'pnotes',
 
-            # these are mutually exclusive; if you use one you can't use the other
-            'content',   # raw content
-            'post_args', # hashref of POST arguments
-
             # we have to parse these out ourselves
             'uri',
             'querystring',
@@ -53,8 +49,6 @@ sub new {
     # setup object
     $self->{req}         = $_[1];
     $self->{res}         = HTTP::Response->new( 200 );
-    $self->{post_args}   = undef;
-    $self->{content}     = undef;
     $self->{uri}         = $self->{req}->uri;
     $self->{notes}       = {};
     $self->{pnotes}      = {};
@@ -87,9 +81,11 @@ sub uri {
     return $self->{uri}->path;
 }
 
+# This sets the content-type on the response. This is NOT a request method. For
+# that, use the header_in method and check Content-Type.
 sub content_type {
     my DW::Request::Standard $self = $_[0];
-    return $self->{req}->content_type( $_[1] );
+    return $self->{res}->content_type( $_[1] );
 }
 
 # returns the query string
@@ -102,9 +98,6 @@ sub query_string {
 # slow, so you should only call this if you really need it...
 sub content {
     my DW::Request::Standard $self = $_[0];
-
-    die "already loaded post_args\n"
-        if defined $self->{post_args};
 
     # keep a local copy ... bloats memory, and useless, why?
     return $self->{content} if defined $self->{content};
@@ -121,26 +114,6 @@ sub response_content {
 sub response_as_string {
     my DW::Request::Standard $self = $_[0];
     return $self->{res}->as_string;
-}
-
-# Not implemented yet, this is stubbed out to be implemented for when we drop
-# support for Apache. :)
-sub uploads {
-    confess 'Not implemented yet.';
-}
-
-sub post_args {
-    my DW::Request::Standard $self = $_[0];
-
-    die "already loaded content\n"
-        if defined $self->{content};
-
-    return $self->{post_args} if defined $self->{post_args};
-
-    # get the content and parse it.  I would have expected there to be some
-    # official method of doing this on HTTP::Request?  guess not.
-    return $self->{post_args} =
-        $self->_string_to_multivalue( $self->{req}->content );
 }
 
 # searches for a given note and returns the value, or sets it
@@ -296,7 +269,7 @@ sub read {
 # is probably an old Apache style caller that needs updating
 sub r {
     my DW::Request::Standard $self = $_[0];
-    cluck "DW::Request::Standard->r called, please update the caller.\n";
+    cluck "DW::Request::Standard->r called, please update the caller.";
     return $self;
 }
 
@@ -306,37 +279,12 @@ sub call_response_handler {
 }
 
 sub call_bml {
-    confess "call_bml not (yet) supported\n";
+    confess "call_bml not (yet) supported";
 }
-
-# constants sometimes used
-
-# indicates that this request has been handled
-sub OK        { return 0; }
-
-# HTTP status codes
-sub HTTP_OK { return 200; }
-sub HTTP_CREATED { return 201; }
-sub REDIRECT  { return 302; }
-sub NOT_FOUND { return 404; }
-sub SERVER_ERROR { return 500; }
-sub HTTP_UNAUTHORIZED { return 401; }
-sub HTTP_BAD_REQUEST { return 400; }
-sub HTTP_UNSUPPORTED_MEDIA_TYPE { return 415; }
-sub HTTP_SERVER_ERROR { return 500; }
-sub HTTP_METHOD_NOT_ALLOWED { return 405; }
-sub FORBIDDEN { return 403; }
 
 # spawn a process for an external program
 sub spawn {
-    confess "Sorry, spawning not implemented.\n";
-}
-
-# simply sets the location header and returns REDIRECT
-sub redirect {
-    my $self = $_[0];
-    $self->header_out( Location => $_[1] );
-    return $self->REDIRECT;
+    confess "Sorry, spawning not implemented.";
 }
 
 1;
