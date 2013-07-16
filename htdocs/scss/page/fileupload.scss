@@ -1,3 +1,5 @@
+@import "foundation/variables", "foundation/components/global";
+
 .preview {
   max-height: 75px;
   display: inline-block;
@@ -7,10 +9,16 @@
 .drop_zone {
   filter: alpha(opacity=50);
   opacity: 0.2;
-  font-size: 6em;
+  font-size: 3em;
   padding: 20px;
   border: 3px dashed;
   text-align: center;
+}
+
+@media (min-width:$medium-screen) {
+  .drop_zone {
+    font-size: 6em;
+  }
 }
 
 .upload-form output {
