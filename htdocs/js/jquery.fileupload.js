@@ -38,14 +38,25 @@ $(function() {
             if ( ! _metadataInProgress ) {
                 $(".upload-form .log")
                     .addClass( "success" )
-                    .removeClass( "error" )
+                    .removeClass( "alert" )
                     .text( "Your descriptions have been saved." )
                     .fadeIn().delay(3000).fadeOut();
                 $(".upload-form input[type=submit]").val(function() {
                     return $(this).data("original-text");
                 });
             }
-        });
+        })
+        .fail(function(jqXHR) {
+            var response = JSON.parse(jqXHR.responseText);
+            $(".upload-form .log")
+                .addClass( "alert" )
+                .removeClass( "success" )
+                .text( "Unable to save: " + response.error )
+                .fadeIn();
+            $(".upload-form input[type=submit]").val(function() {
+                    return $(this).data("original-text");
+            });
+        })
     };
 
     $(".upload-form-file-inputs")
