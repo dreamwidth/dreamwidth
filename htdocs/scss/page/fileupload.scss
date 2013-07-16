@@ -15,7 +15,7 @@
   text-align: center;
 }
 
-@media (min-width:$medium-screen) {
+@media #{$small} {
   .drop_zone {
     font-size: 6em;
   }

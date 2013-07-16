@@ -81,33 +81,42 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- account_link_options = {} -%]
 [%- BLOCK block.accountlinks -%]
+[%- IF resource_group == "foundation" %]<div class="row"><div class="columns large-8 right small-12">[%- END -%]
 [%- IF remote -%]
     [%- IF ! account_link_options.no_userpic -%]
+    [%- IF resource_group == "foundation" %]<div class="right">[%- END -%]
         [%- PROCESS block.userpic -%]
+    [%- IF resource_group == "foundation" %]</div>[%- END -%]
     [%- END -%]
     [%- inbox = remote.notification_inbox -%]
     [%- unread = inbox.unread_count -%]
     [%- identity = remote.is_identity -%]
-    [%- -%]<div id='account-links-text'>
+    [%- -%]<div id='account-links-text' class='right'>
     [%- IF dw_scheme.show_logout_button -%]
+    [%- IF resource_group == "foundation" %]<div class='row'><div class='small-12 large-12 columns'>[%- END -%]
     [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/logout?ret=1' method='post'>
     [%- remote.ljuser_display -%]
     [%- -%]<input type='hidden' name='user' value='[% remote.user %]' />
     [%- -%]<input type='hidden' name='sessid' value='[% remote.session.sessid %]' />
     [%- -%]<input type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     [%- -%]</form>
+    [%- IF resource_group == "foundation" %]</div></div>[%- END -%]
     [%- END -%]
+    <div class='row'><div class='small-12 large-12 columns'>
     [%- -%]<ul>
-    [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a> &bull; </li>[%- END -%]
-    [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a> &bull; </li>
+    [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
+    [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
     [%- -%]<li><a href='[% site.root %]/inbox/'>[% 'sitescheme.accountlinks.inbox' | ml %]
     [%- IF unread -%] <span id='Inbox_Unread_Count'>([% unread %])</span>[%- END -%]
-    [%- -%]</a> &bull; </li>
-    [%- -%]<li><a href='[% site.root %]/manage/settings/'>[% 'sitescheme.accountlinks.account' | ml %]</a></li><br />
-    [%- IF ! identity AND dw_scheme.show_invite_link -%]<li><a href='[% site.root %]/manage/circle/invite'>[% 'sitescheme.accountlinks.invitefriend' | ml %]</a> &bull; </li>[%- END -%]
+    [%- -%]</a></li>
+    [%- -%]</ul>
+    [%- -%]<ul>
+    [%- -%]<li><a href='[% site.root %]/manage/settings/'>[% 'sitescheme.accountlinks.account' | ml %]</a></li>
+    [%- IF ! identity AND dw_scheme.show_invite_link -%]<li><a href='[% site.root %]/manage/circle/invite'>[% 'sitescheme.accountlinks.invitefriend' | ml %]</a></li>[%- END -%]
     [%- -%]<li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
     [%- -%]</ul>
     [%- -%]</div>
+    [%- IF resource_group == "foundation" %]</div></div>[%- END -%]
 [%- ELSE -%]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/login?ret=1' method='post' class='lj_login_form'>
@@ -140,9 +149,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- -%]<div class="columns large-7 small-12"><label for='login_remember_me'>[% 'sitescheme.accountlinks.login.rememberme' | ml %]</label>
     [%- -%]<input type="checkbox" name="remember_me" id="login_remember_me" value="1" tabindex="3" /></div>
     [%- -%]<div class="columns large-5 small-12"><input type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/></div></div>
-    [%- -%]</div></form>
+    [%- -%]</div>
+    [%- -%]</form>
 [%- END -%]
 [%- END -%]
+</div></div>
 [%- END -%]
 
 [%- BLOCK block.pagediv -%]
