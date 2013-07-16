@@ -44,7 +44,7 @@ sub _relevant_userids {
     my $parent = $comment->parent;
 
     return uniq ( @prepart, $parent->posterid )
-        if ( $parent && $parent->posterid );
+        if $parent && $parent->posterid;
 
     my $entry = $comment->entry;
     return () unless $entry;
@@ -56,7 +56,7 @@ sub _relevant_userids {
 
 sub early_filter_event {
     my @userids = _relevant_userids( $_[1] );
-    return ( scalar @userids ) ? 1 : 0;
+    return scalar @userids ? 1 : 0;
 }
 
 sub additional_subscriptions_sql {

@@ -160,9 +160,9 @@ sub raw_subscriptions {
 
     my @subs;
     my $u = $self->u;
-    return unless ( $cid == $u->clusterid );
+    return unless $cid == $u->clusterid;
 
-    my $row = { userid  => $self->u->{userid},
+    my $row = { userid  => $self->u->id,
                 ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
                 etypeid => $class->etypeid,
               };

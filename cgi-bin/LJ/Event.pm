@@ -34,8 +34,8 @@ foreach my $event (@EVENTS) {
 #                                   ($ju,$jtalkid)   # TODO: should probably be ($ju,$jitemid,$jtalkid)
 #    LJ::Event::JournalNewComment::TopLevel -- a journal has a new top-level comment in it
 #                                   ($ju,$jitemid)
-#    LJ::Event::JournalNewComment::Reply -- a journal has a new top-level comment in it
-#                                   ($ju,$jitemid)
+#    LJ::Event::JournalNewComment::Reply -- reply to your own comment/entry or reply by you
+#                                   ($ju,$jtalkid)
 #    LJ::Event::AddedToCircle      -- user $fromuserid added $u to their circle; $actionid is 1 (trust) or 2 (watch)
 #                                   ($u,$fromuserid,$actionid)
 #    LJ::Event::RemovedFromCircle  -- user $fromuserid removed $u to their circle; $actionid is 1 (trust) or 2 (watch)
@@ -297,8 +297,8 @@ sub fire_job {
 
 sub subscriptions {
     my ($self, %args) = @_;
-    my $cid   = delete $args{'cluster'};  # optional
-    my $limit = delete $args{'limit'};    # optional
+    my $cid_in = delete $args{'cluster'};  # optional
+    my $limit  = delete $args{'limit'};    # optional
     my $scratch = {};
     croak("Unknown options: " . join(', ', keys %args)) if %args;
     croak("Can't call in web context") if LJ::is_web_context();
@@ -310,7 +310,7 @@ sub subscriptions {
     my @event_classes = grep { $_->early_filter_event( $self ) }
         $self->related_event_classes;
 
-    foreach my $cid ($cid ? ($cid) : @LJ::CLUSTERS) {
+    foreach my $cid ( $cid_in ? ( $cid_in ) : @LJ::CLUSTERS ) {
         last if $limit && $scratch->{limit_remain} <= 0;
         foreach my $class ( @event_classes ) {
             last if $limit && $scratch->{limit_remain} <= 0;
@@ -380,7 +380,7 @@ sub raw_subscriptions {
         $evt_scratch->{addl_args}       = \@addl_args;
     }
 
-    my $udbh = LJ::get_cluster_master($cid)
+    my $dbcm = LJ::get_cluster_master($cid)
         or die;
 
 
@@ -391,7 +391,7 @@ sub raw_subscriptions {
         "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
         "FROM subs WHERE etypeid = ? $journal_match $and_enabled $addl_sql $limit_sql";
 
-    my $sth = $udbh->prepare($sql);
+    my $sth = $dbcm->prepare($sql);
     my @args = ($etypeid);
     push @args, $self->u->id unless $allmatch;
     $sth->execute(@args,@addl_args);
@@ -409,7 +409,7 @@ sub raw_subscriptions {
         # FIXME: journals are only on one cluster! split jidlist based on cluster
         my $jidlist = join(",", @wildcards_from);
 
-        my $sth = $udbh->prepare(
+        my $sth = $dbcm->prepare(
                                  "SELECT userid, subid, is_dirty, journalid, etypeid, " .
                                  "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
                                  "FROM subs USE INDEX(PRIMARY) WHERE etypeid = ? AND journalid=0 $and_enabled AND userid IN ($jidlist) $addl_sql"

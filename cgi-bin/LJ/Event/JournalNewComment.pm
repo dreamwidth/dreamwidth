@@ -97,7 +97,6 @@ sub as_email_headers {
         'In-Reply-To'  => $par_msgid,
         'References'   => "$top_msgid $par_msgid",
         'X-Journal-Name' => $journalu->user,
-        'X-From-Esn'    => 1,
         'Reply-To'     => DW::EmailPost::Comment->replyto_address_header(
                             $u, $journalu,
                             $self->comment->entry->ditemid,
@@ -479,7 +478,7 @@ sub matches_filter {
 
     if ( $watcher ) {
         # not a match if this user posted the comment
-        return 0 if ( $watcher->equals( $comment->poster ) );
+        return 0 if $watcher->equals( $comment->poster );
 
         # not a match if this user posted the entry and they don't want comments emailed,
         # unless it is a reply to one of their comments or they posted it. (don't need to check again for the cap, since we did above.)
