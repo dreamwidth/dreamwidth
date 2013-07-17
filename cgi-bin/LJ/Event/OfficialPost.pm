@@ -15,49 +15,20 @@ package LJ::Event::OfficialPost;
 use strict;
 use LJ::Entry;
 use Carp qw(croak);
-use base 'LJ::Event';
-
-sub new {
-    my ($class, $entry) = @_;
-    croak "No entry" unless $entry;
-
-    return $class->SUPER::new($entry->journal, $entry->ditemid);
-}
-
-sub arg_list {
-    return ( "Entry ditemid" );
-}
-
-sub entry {
-    my $self = shift;
-    my $ditemid = $self->arg1;
-    return LJ::Entry->new($self->event_journal, ditemid => $ditemid);
-}
+use base 'LJ::Event::JournalNewEntry';
 
 sub content {
     my ( $self, $target, %opts ) = @_;
     # force uncut for certain views (e-mail)
-    my $args = $opts{full} 
-            ? {} 
+    my $args = $opts{full}
+            ? {}
             : { # double negatives, ouch!
                 ljcut_disable => ! $target->cut_inbox,
-                cuturl => $self->entry->url 
+                cuturl => $self->entry->url
               };
 
     return $self->entry->event_html( $args );
 }
-
-sub content_summary {
-    my $entry = $_[0]->entry;
-    my $entry_summary = $entry->event_html_summary( 300 );
-
-    my $ret = $entry_summary;
-    $ret .= "..." if $entry->event_html ne $entry_summary;
-
-    return $ret;
-}
-
-sub is_common { 1 }
 
 sub zero_journalid_subs_means { 'all' }
 
@@ -66,6 +37,13 @@ sub _construct_prefix {
     return $self->{'prefix'} if $self->{'prefix'};
     my ($classname) = (ref $self) =~ /Event::(.+?)$/;
     return $self->{'prefix'} = 'esn.' . lc($classname);
+}
+
+sub matches_filter {
+    my ($self, $subscr) = @_;
+
+    return 0 unless $subscr->available_for_user;
+    return 1;
 }
 
 sub as_email_subject {
