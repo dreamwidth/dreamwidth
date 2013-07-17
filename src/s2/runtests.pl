@@ -85,7 +85,6 @@ foreach my $f (@files)
         };
         if ($@) {
             $cerr = $@;
-            push @errors, [ $f, "Failed to compile" ];
             print "$cerr\n" if $opt_verbose;
         }
 

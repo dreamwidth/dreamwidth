@@ -1,0 +1,4 @@
+p isa Parent
+p isa Child
+p isa Grandchild
+p instanceof Grandchild
