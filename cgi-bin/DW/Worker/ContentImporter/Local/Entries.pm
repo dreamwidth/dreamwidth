@@ -66,15 +66,19 @@ to identify duplicates
 sub get_duplicates_map {
     my ( $class, $u ) = @_;
 
-    my $dbr = LJ::get_cluster_reader( $u );
-    my $sth;
-    my %dupes_map;
+    my $dbr = LJ::get_cluster_reader( $u )
+        or croak 'unable to connect to database';
 
-    $sth = $dbr->prepare(
+    my $sth = $dbr->prepare(
             "SELECT l.jitemid, UNIX_TIMESTAMP(l.logtime), lt.subject"
             . " FROM log2 l LEFT JOIN logtext2 lt ON ( l.jitemid = lt.jitemid  AND l.journalid=lt.journalid )"
-            . " WHERE l.journalid=?" );
+            . " WHERE l.journalid=?" )
+            or croak 'unable to prepare SQL';
     $sth->execute( $u->id );
+    croak 'database error: ' . $sth->errstr
+        if $sth->err;
+
+    my %dupes_map;
     while ( my ( $id, $logtime, $subject ) = $sth->fetchrow_array ) {
         $dupes_map{"$logtime-$subject"} = $id;
     }
@@ -84,7 +88,7 @@ sub get_duplicates_map {
 
 =head2 C<< $class->post_event( $hashref, $u, $event, $item_errors ) >>
 
-$event is a hashref representation of a single entry, with the following format:
+$event is a hashref representation of a single entry, with the followinginx.confng format:
 
   {
     # standard event values

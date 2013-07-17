@@ -179,14 +179,25 @@ sub try_work {
             }
         }
 
-        # try to detect suspiciously similar entries
-        # but first clean subject to make sure it matches what we actually inserted into the db
-        $evt->{subject} = $class->remap_lj_user( $data, $evt->{subject} || "" );
-        $has{$evt->{itemid}} = 1
-            if $duplicates_map->{ LJ::mysqldate_to_time($evt->{logtime}) . "-$evt->{subject}" };
-
         # now try to skip it if we already have it
         return if $entry_map->{$evt->{key}} || $xpost_map->{$evt->{itemid}} || $has{$evt->{itemid}};
+
+        # try to detect suspiciously similar entries
+        # but first clean subject to make sure it matches what we actually inserted into the db
+        # separate condition from above so that we can log that we guessed these are similar
+        $evt->{subject} = $class->remap_lj_user( $data, $evt->{subject} || "" );
+        my $dupecheck_key = LJ::mysqldate_to_time($evt->{logtime}) . "-$evt->{subject}";
+        if ( $duplicates_map->{$dupecheck_key} ) {
+            $log->( "Skipping import of '%s' posted on %d. Remote entry jitemid %d looks similar to local entry jitemid %d.",
+                        $evt->{subject}, $evt->{logtime},
+                        $evt->{itemid}, $duplicates_map->{$dupecheck_key}
+                    );
+            $has{$evt->{itemid}} = 1;
+
+            return;
+        }
+
+
 
         # clean up event for LJ and remap friend groups
         my @item_errors;
