@@ -181,7 +181,7 @@ sub option {
 
     my $baseurl = $LJ::SITEROOT;
     my $alttext = $class->ml('setting.xpost.option.footer.vars.comment_image.alt');
-    my $default_comment = $class->ml('xpost.redirect.comment', { postlink => "%%url%%" });
+    my $default_comment = $class->ml('xpost.redirect.comment2', { postlink => "%%url%%", openidlink => "$LJ::SITEROOT/openid/" });
     my $default_nocomments = $class->ml('xpost.redirect', { postlink => "%%url%%" });
 
     # the javascript.  we have to do some special magic to get the lengths
