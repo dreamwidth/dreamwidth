@@ -6,6 +6,10 @@ layerinfo "majorversion" = 0;
 function builtin string(int i) : string;
 function builtin int(string s) : int;
 
+class Dog
+{
+}
+
 function main ()
 {
     var int[] iarray;
@@ -27,6 +31,29 @@ function main ()
     $poptest = pop $iarray;
     println "Popped = " + string($poptest);
     println "Size now = " + string(size $iarray);
+
+    push $iarray, 4;
+    println "Pushed = " + $iarray[3];
+    println "Size now = " + string(size $iarray);
+
+    push $iarray, 18 + 1;
+    println "Pushed = " + $iarray[4];
+    println "Size now = " + string(size $iarray);
+
+    push $iarray, pop $iarray;
+    println "Size still = " + string(size $iarray);
+
+    var Dog d1 = new Dog;
+    var Dog[] dogs;
+
+    push $dogs, $d1;
+    println "Dog size = " + string(size $dogs);
+
+    var Dog d2 = pop $dogs;
+    println "Dog size = " + string(size $dogs);
+
+    pop $dogs;
+    println "Dog size = " + string(size $dogs);
 
     println "Done.";
 }

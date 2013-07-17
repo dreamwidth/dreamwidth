@@ -14,6 +14,7 @@ use S2::NodeForeachStmt;
 use S2::NodeWhileStmt;
 use S2::NodeForStmt;
 use S2::NodeVarDeclStmt;
+use S2::NodePushStmt;
 use S2::NodeExprStmt;
 use vars qw($VERSION @ISA);
 
@@ -29,6 +30,7 @@ sub canStart {
         S2::NodeDeleteStmt->canStart($toker) ||
         S2::NodeForeachStmt->canStart($toker) ||
         S2::NodeVarDeclStmt->canStart($toker) ||
+        S2::NodePushStmt->canStart($toker) ||
         S2::NodeExprStmt->canStart($toker);
 }
 
@@ -61,6 +63,9 @@ sub parse {
 
     return S2::NodeVarDeclStmt->parse($toker)
         if S2::NodeVarDeclStmt->canStart($toker);
+
+    return S2::NodePushStmt->parse($toker)
+        if S2::NodePushStmt->canStart($toker);
     
     # important that this is last:
     # (otherwise idents would be seen as function calls)
