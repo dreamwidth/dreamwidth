@@ -107,7 +107,7 @@ sub create_footer {
             # did we disable comments on the local entry? tweak language string to match
             my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment2';
 
-            return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url, siteroot => $LJ::SITEROOT } );
+            return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url, openidlink => "$LJ::SITEROOT/openid/" } );
         }
     } elsif ( ( $xpostfootprop eq "N" ) || ( ( $xpostfootprop eq "D" ) && ( ! $disabling_remote_comments ) )  ) {
         return "";
@@ -116,7 +116,7 @@ sub create_footer {
         # some crazy reason, let's assume the old behavior.
         my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment2';
 
-        return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url, siteroot => $LJ::SITEROOT } );
+        return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url, openidlink => "$LJ::SITEROOT/openid/" } );
     }
 }
 
