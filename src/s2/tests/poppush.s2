@@ -1,0 +1,32 @@
+#-*-perl-*-
+
+layerinfo type = core;
+layerinfo "majorversion" = 0;
+
+function builtin string(int i) : string;
+function builtin int(string s) : int;
+
+function main ()
+{
+    var int[] iarray;
+    $iarray[0] = 0;
+    $iarray[1] = 1;
+    $iarray[2] = 2;
+    $iarray[3] = 3;
+    $iarray[4] = 4;
+    $iarray[5] = 5;
+
+    var int poptest = pop $iarray;
+    println "Popped = " + string($poptest);
+    println "Size now = " + string(size $iarray);
+
+    $poptest = pop $iarray;
+    println "Popped = " + string($poptest);
+    println "Size now = " + string(size $iarray);
+
+    $poptest = pop $iarray;
+    println "Popped = " + string($poptest);
+    println "Size now = " + string(size $iarray);
+
+    println "Done.";
+}
