@@ -84,11 +84,8 @@ propgroup colors_child {
     property Color color_calendar_link_visited { des = "Archive calendar link visited color"; }
     property Color color_entry_footer_background { des = "Entry footer background color"; }
     property Color color_entry_interaction_links_background { des = "Entry interaction links background color"; }
-    property Color color_entry_interaction_links_hover { des = "Entry interaction link hover color"; }
     property Color color_entry_interaction_links_background_hover { des = "Entry interaction links hover background color"; }
-    property Color color_entry_interaction_links_active { des = "Entry interaction link active color"; }
     property Color color_entry_interaction_links_background_active { des = "Entry interaction links active background color"; }
-    property Color color_entry_interaction_links_visited { des = "Entry interaction link visited color"; }
     property Color color_entry_interaction_links_background_visited { des = "Entry interaction links visited background color"; }
     property Color color_userpic_border { des = "User icon border color"; }
     }

@@ -1495,10 +1495,10 @@ property Color color_entry_link_visited { des = "Entry visited link color"; }
 property Color color_entry_title_background { des = "Entry title background color"; }
 property Color color_entry_title { des = "Entry title color"; }
 property Color color_entry_interaction_links_background { des = "Entry interaction links background color"; }
-property Color color_entry_interaction_links { des = "Entry interaction links color"; }
-property Color color_entry_interaction_links_active { des = "Entry active interaction links color"; }
-property Color color_entry_interaction_links_hover { des = "Entry hover interaction links color"; }
-property Color color_entry_interaction_links_visited { des = "Entry visited interaction links color"; }
+property Color color_entry_interaction_links { des = "Entry footer links color"; }
+property Color color_entry_interaction_links_active { des = "Entry active footer links color"; }
+property Color color_entry_interaction_links_hover { des = "Entry hover footer links color"; }
+property Color color_entry_interaction_links_visited { des = "Entry visited footer links color"; }
 property Color color_entry_border { des = "Entry border color"; }
 
 property Color color_comment_title_background { des = "Comment title background color"; }

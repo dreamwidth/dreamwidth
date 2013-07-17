@@ -40,10 +40,6 @@ set margins_unit = "%";
 ##===============================
 
 propgroup colors_child {
-    property Color color_entry_interaction_links { des = "Entry management and interaction link color"; }
-    property Color color_entry_interaction_links_active { des = "Entry management and interaction active link color"; }
-    property Color color_entry_interaction_links_hover { des = "Entry management and interaction hover link color"; }
-    property Color color_entry_interaction_links_visited { des = "Entry management and interaction visited link color"; }
     property Color color_entry_footer_background { des = "Entry footer background color"; }
     property Color color_navlinks_current { des = "Color of navlink for current page"; }
     property Color color_journal_subtitle { des = "Journal subtitle color"; }
