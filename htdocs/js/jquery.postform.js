@@ -535,6 +535,26 @@ init: function(formData) {
         updateSlugPreview();
     }
 
+    function initCommunity() {
+        // Create "not a community" div.
+        var notDiv = $("<div class='inner' style='display: none'>Can only use community settings when posting to community.</div>");
+        var realDiv = $("#community_component fieldset .inner");
+        $("#community_component fieldset").append( notDiv );
+        $("#post_entry").bind("journalselect", function(e, journal) {
+            if ( journal.name && journal.isremote ) {
+                if ( journal.iscomm ) {
+                    notDiv.hide();
+                    realDiv.show();
+                    // FIXME: Refactor so we can get canmanage
+                } else {
+                    notDiv.show();
+                    realDiv.hide();
+                }
+            }
+        });
+
+    }
+
     // set up...
     initIcons();
     initDisplayDate();
@@ -546,6 +566,7 @@ init: function(formData) {
     initCrosspost();
     initToolbar();
     initSlug();
+    initCommunity();
 
     $.getJSON("/__rpc_entryformcollapse", null, function(data) {
         var xhr = this;
