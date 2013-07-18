@@ -1543,3 +1543,8 @@ general /views/admin/index.tt.admin.sitemessages_manage.text
 
 general /views/admin/index.tt.admin.navtag.link
 general /views/admin/index.tt.admin.navtag.text
+
+general setting.commentemailnotify.label
+general setting.commentemailnotify.option
+general setting.selfcommentemail.label
+general setting.selfcommentemail.option

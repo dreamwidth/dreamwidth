@@ -102,10 +102,7 @@ body<=
             disabled => !$u || $u->is_community ? 1 : 0,
             form => 1,
             desc => BML::ml( '.cat.notifications.desc', { aopts => "href='$LJ::SITEROOT/manage/circle/edit'" } ),
-            settings => [qw(
-                LJ::Setting::CommentEmailNotify
-                LJ::Setting::SelfCommentEmail
-            )],
+            settings => [],
         },
         mobile => {
             name => $ML{'.cat.mobile'},
@@ -485,6 +482,48 @@ body<=
             $_->commit foreach @default_subscriptions;
         }
 
+        # Transalte legacy pre-ESN notifs to ESN notifs
+        {
+            my @pending_subscriptions;
+            if ( $u->prop('opt_gettalkemail') ne 'X' ) {
+                if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
+                    push @pending_subscriptions, map { (
+                        # FIXME(dre): Remove when ESN can bypass inbox
+                        LJ::Subscription::Pending->new($u,
+                            event => 'JournalNewComment::Reply',
+                            method => 'Inbox',
+                            arg2 => $_,
+                        ),
+                        LJ::Subscription::Pending->new($u,
+                            event => 'JournalNewComment::Reply',
+                            method => 'Email',
+                            arg2 => $_,
+                        ),
+                    ) } ( 0, 1 );
+                }
+                $u->update_self( { 'opt_gettalkemail' => 'X' } );
+            }
+            if ( $u->prop('opt_getselfemail') ne 'X' ) {
+                if ( $u->prop('opt_getselfemail') eq '1' ) {
+                    push @pending_subscriptions, (
+                        # FIXME(dre): Remove when ESN can bypass inbox
+                        LJ::Subscription::Pending->new($u,
+                            event => 'JournalNewComment::Reply',
+                            method => 'Inbox',
+                            arg2 => 2,
+                        ),
+                        LJ::Subscription::Pending->new($u,
+                            event => 'JournalNewComment::Reply',
+                            method => 'Email',
+                            arg2 => 2,
+                        ),
+                    );
+                }
+                $u->update_self( { 'opt_getselfemail' => 'X' } );
+            }
+            $_->commit foreach @pending_subscriptions;
+        }
+
         my @categories = (
             {
                 "My Account" => [
@@ -495,8 +534,21 @@ body<=
                         event => 'JournalNewComment',
                         journal => $u,
                     ),
-                    "LJ::Setting::CommentEmailNotify",
-                    "LJ::Setting::SelfCommentEmail",
+
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment::Reply',
+                        arg2 => 0,
+                    ),
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment::Reply',
+                        arg2 => 1,
+                    ),
+    
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment::Reply',
+                        arg2 => 2,
+                    ),
+
                     LJ::Subscription::Pending->new($u,
                         event => 'PollVote',
                         journal => $u,
