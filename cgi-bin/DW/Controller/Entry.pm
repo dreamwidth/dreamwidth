@@ -42,7 +42,7 @@ my @modules = qw(
     slug tags currents displaydate
     access journal comments
     age_restriction icons crosspost
-    community
+    flags
 );
 
 
@@ -732,7 +732,7 @@ sub _form_to_backend {
     $req->{slug} = LJ::canonicalize_slug( $post->{entry_slug} // '' );
 
     # Check if this is a community.
-    $req->{admin_post} = $post->{community_adminpost} || 0;
+    $props->{admin_post} = $post->{flags_adminpost} || 0;
         
     # entry security
     my $sec = "public";
@@ -820,7 +820,7 @@ sub _backend_to_form {
 
         entry_slug => $entry->slug,
 
-        community_adminpost => $entry->prop("admin_post"),
+        flags_adminpost => $entry->prop("admin_post"),
 
         # FIXME:
         # ...       => $entry->prop( "opt_preformatted" )

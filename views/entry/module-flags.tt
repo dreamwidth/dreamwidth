@@ -15,11 +15,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <fieldset>
     <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
     <div class="inner">
-        [%- form.checkbox( label = dw.ml(".label.adminpost")
-            name ="community_adminpost"
-            name ="community_adminpost"
+        <div class="content">
+            [%- form.checkbox( label = dw.ml(".label.adminpost")
+                name = "flags_adminpost"
+                id   = "flags_adminpost"
 
-            value = "1"
-        ) -%]
+                value = "1"
+            ) -%]
+        </div>
     </div>
 </fieldset>
