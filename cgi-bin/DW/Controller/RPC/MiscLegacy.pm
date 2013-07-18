@@ -19,6 +19,7 @@ use LJ::CreatePage;
 
 # do not put any endpoints that do not have the "forked from LJ" header in this file
 DW::Routing->register_rpc( "checkforusername", \&check_username_handler, format => 'json' );
+DW::Routing->register_rpc( "controlstrip", \&control_strip_handler, format => 'json' );
 DW::Routing->register_rpc( "getsecurityoptions", \&get_security_options_handler, format => 'json' );
 DW::Routing->register_rpc( "gettags", \&get_tags_handler, format => 'json' );
 
@@ -28,6 +29,23 @@ sub check_username_handler {
     my $error = LJ::CreatePage->verify_username( $args->{user} );
 
     $r->print( to_json({ error => $error ? $error : "" }) );
+    return $r->OK;
+}
+
+sub control_strip_handler {
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+
+    my $control_strip;
+    my $user = $args->{user};
+    if (defined $user) {
+        unless (defined LJ::get_active_journal()) {
+            LJ::set_active_journal(LJ::load_user($user));
+        }
+        $control_strip = LJ::control_strip( user => $user, host => $args->{host}, uri => $args->{uri}, args => $args->{args}, view => $args->{view} );
+    }
+
+    $r->print( to_json( { control_strip => $control_strip } ) );
     return $r->OK;
 }
 
