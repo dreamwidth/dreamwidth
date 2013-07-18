@@ -102,7 +102,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- -%]</form>
     [%- IF resource_group == "foundation" %]</div></div>[%- END -%]
     [%- END -%]
-    <div class='row'><div class='small-12 large-12 columns'>
+    [%- IF resource_group == "foundation" %]<div class='row'><div class='small-12 large-12 columns'>[%- END -%]
     [%- -%]<ul>
     [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
     [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
@@ -153,7 +153,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- -%]</form>
 [%- END -%]
 [%- END -%]
-</div></div>
+[%- IF resource_group == "foundation" %]</div></div>[%- END -%]
 [%- END -%]
 
 [%- BLOCK block.pagediv -%]
