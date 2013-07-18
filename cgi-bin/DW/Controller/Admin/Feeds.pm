@@ -120,7 +120,7 @@ sub merge_controller {
     
     if ( $args->{feeds} ) {
         $vars->{raw_feeds} = $args->{feeds};
-        my @names = uniq map { s/^\s+//; s/\s+$//; $_; } split ',', $args->{feeds};
+        my @names = uniq map { s/^\s+//; s/\s+$//; LJ::canonical_username( $_ ); } split ',', $args->{feeds};
         my $marks = join ',', map { '?' } @names;
         $vars->{feeds} = join ',', @names;
         $vars->{names} = \@names;
