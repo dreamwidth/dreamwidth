@@ -87,9 +87,21 @@ sub make_journal
     # have been served from this Apache process yet
     BML::set_language($lang, \&LJ::Lang::get_text);
 
-    # let layouts disable EntryPage / ReplyPage, using the BML version
-    # instead.  Unless we are using siteviews, because that is what
-    # will be handling the "BML" views.
+    # let layouts disable EntryPage / ReplyPage, using the siteviews version
+    # instead.  We may also have explicitly asked to use siteviews by the caller
+    my $style_u = $opts->{style_u} || $u;
+
+    if ( ! LJ::S2::use_journalstyle_entry_page( $style_u, $ctx ) && ( $view eq "entry" || $view eq "reply" )  # reply / entry page
+         || ! LJ::S2::use_journalstyle_icons_page( $style_u, $ctx ) && ( $view eq "icons" )                   # icons
+         || ( ($view eq "entry" || $view eq "reply")                                                          # make sure capability supports it
+                && ! LJ::get_cap(($opts->{'checkremote'} ? $remote : $u), "s2view$view"))
+    ) {
+        $styleid = "siteviews";
+
+        # we changed the styleid, so generate a new context
+        $ctx = s2_context( "siteviews", use_modtime => $use_modtime, u => $u, style_u => $opts->{style_u} );
+    }
+
     if ( $styleid && $styleid eq "siteviews" ) {
         $apache_r->notes->{ 'no_control_strip' } = 1;
 
@@ -106,25 +118,6 @@ sub make_journal
 
         $ctx->[S2::SCRATCH]->{siteviews_enabled} = 1;
         $ctx->[S2::PROPS]->{SITEVIEWS} = $siteviews_class;
-    } else {
-        my $style_u = $opts->{style_u} || $u;
-
-        if ( ! LJ::S2::use_journalstyle_entry_page( $style_u, $ctx ) && ( $view eq "entry" || $view eq "reply" ) ) {
-            ${$opts->{'handle_with_bml_ref'}} = 1;
-            return;
-        }
-
-        if ( ! LJ::S2::use_journalstyle_icons_page( $style_u, $ctx ) && ( $view eq "icons" ) ) {
-            ${$opts->{'handle_with_bml_ref'}} = 1;
-            return;
-        }
-
-        # make sure capability supports it
-        if (($view eq "entry" || $view eq "reply") &&
-            ! LJ::get_cap(($opts->{'checkremote'} ? $remote : $u), "s2view$view")) {
-            ${$opts->{'handle_with_bml_ref'}} = 1;
-            return;
-        }
     }
 
     # setup tags backwards compatibility
