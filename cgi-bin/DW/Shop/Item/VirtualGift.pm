@@ -76,8 +76,8 @@ sub conflicts {
 
 # override
 sub name_text {
-    return LJ::Lang::ml( 'shop.item.vgift.name.notfound' )
-        unless my $vg = $_[0]->vgift;
+    my $vg = $_[0]->vgift
+        or return LJ::Lang::ml( 'shop.item.vgift.name.notfound' );
     return $vg->name;
     # FIXME: syntax below looks to come from short_desc instead;
     # need to hook into shop before determining how to best display these
@@ -88,8 +88,8 @@ sub name_text {
 
 # override
 sub name_html {
-    return LJ::Lang::ml( 'shop.item.vgift.name.notfound' )
-        unless my $vg = $_[0]->vgift;
+    my $vg = $_[0]->vgift
+        or return LJ::Lang::ml( 'shop.item.vgift.name.notfound' );
     return $vg->name_ehtml;
 #     return ( my $u = LJ::load_userid( $_[0]->t_userid ) )
 #         ? LJ::Lang::ml( 'shop.item.vgift.name.foruser.html', { name => $vg->name_ehtml, user => $u->ljuser_display } )
@@ -99,7 +99,7 @@ sub name_html {
 # override
 sub note {
     # show the mini image
-    return '' unless my $vg = $_[0]->vgift;
+    my $vg = $_[0]->vgift or return '';
     return $vg->img_small_html;
 }
 
@@ -111,7 +111,8 @@ sub _apply {
     my ( $self, %opts ) = @_;
     my %args = ( user => $self->t_userid, id => $self->vgift_transid );
 
-    return 0 unless my $trans = DW::VirtualGiftTransaction->load( %args );
+    my $trans = DW::VirtualGiftTransaction->load( %args )
+        or return 0;
 
     # abort if already delivered
     return $self->{applied} = 1 if $trans->is_delivered;
@@ -137,31 +138,30 @@ sub can_be_added {
     my $anon     = $self->anonymous;
 
     # check the preferences of the receiving user
-    if ( ! LJ::isu( $target_u ) || ! $target_u->can_receive_vgifts_from( $from_u, $anon ) ) {
-        $$errref = $anon ? LJ::Lang::ml( 'shop.item.vgift.canbeadded.noanon' )
-                         : LJ::Lang::ml( 'shop.item.vgift.canbeadded.refused' );
-        return 0;
-    }
+    return 1 if LJ::isu( $target_u ) && $target_u->can_receive_vgifts_from( $from_u, $anon );
 
-    return 1;
+    # not allowed; error message depends on anonymity
+    $$errref = $anon ? LJ::Lang::ml( 'shop.item.vgift.canbeadded.noanon' )
+                     : LJ::Lang::ml( 'shop.item.vgift.canbeadded.refused' );
+    return 0;
 }
 
 # override
 sub cart_state_changed {
     my ( $self, $newstate ) = @_;
+    return unless $newstate == $DW::Shop::STATE_PAID  && ! $self->vgift_transid;
 
-    # create a new transaction row once the cart has been paid for
-    if ( $newstate == $DW::Shop::STATE_PAID  && ! $self->vgift_transid ) {
-        my $u = LJ::load_userid( $self->t_userid )
-            or return 0;
+    # cart has just been paid for, so we need to create a new transaction row
 
-        my %opts = ( user => $u, vgift => $self->vgift,
-                     buyer => $self->from_userid, cartid => $self->cartid );
-        my $transid = DW::VirtualGiftTransaction->save( %opts );
-        return undef unless $transid;
+    my $u = LJ::load_userid( $self->t_userid ) or return 0;
 
-        return $self->{vgift_transid} = $transid;
-    }
+    my %opts = ( user => $u, vgift => $self->vgift,
+                 buyer => $self->from_userid, cartid => $self->cartid );
+
+    my $transid = DW::VirtualGiftTransaction->save( %opts );
+    return undef unless $transid;
+
+    return $self->{vgift_transid} = $transid;
 }
 
 
@@ -175,9 +175,9 @@ Returns the transaction ID associated with this purchase.
 
 =cut
 
-sub vgift { return DW::VirtualGift->new( $_[0]->{vgiftid} ) }
+sub vgift { DW::VirtualGift->new( $_[0]->{vgiftid} ) }
 
-sub vgift_transid { return $_[0]->{vgift_transid} }
+sub vgift_transid { $_[0]->{vgift_transid} }
 
 
 1;

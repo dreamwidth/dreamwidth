@@ -66,7 +66,7 @@ sub save {
     #       buyer => (u or userid) - optional
     #       time => (epoch seconds) - optional (defaults to current time)
 
-    return unless my $vg = $opts{vgift};
+    my $vg = $opts{vgift} or return;
     my $vgift = ref $vg ? $vg : DW::VirtualGift->new( $vg );
     return unless $vgift && $vgift->id;
 
@@ -85,7 +85,7 @@ sub save {
     $vgift->mark_sold;
 
     # memcache expiration for list of all transactions
-    LJ::MemCache::delete( $class->transaction_list_memkey( $u ) );
+    LJ::MemCache::delete( $class->_transaction_list_memkey( $u ) );
 
     return $id;  # not object
 }
@@ -94,20 +94,20 @@ sub list {
     my ( $class, %opts ) = @_;
     my $u = LJ::want_user( $opts{user} ) or return;
 
-    my $memkey = $class->transaction_list_memkey( $u );
+    my $memkey = $class->_transaction_list_memkey( $u );
     my $data = LJ::MemCache::get( $memkey );
 
     unless ( defined $data ) {
         # Note: we pretend undelivered gifts don't exist yet.
-        $data = $u->selectall_arrayref( "SELECT transid FROM vgift_trans" .
+        $data = $u->selectcol_arrayref( "SELECT transid FROM vgift_trans" .
                 " WHERE rcptid=? AND delivered='Y' ORDER BY delivery_t DESC, " .
                 " transid DESC", undef, $u->id ) || [];
         die $u->errstr if $u->err;
-        LJ::MemCache::set( $memkey, $data, 3600*24 );
+        LJ::MemCache::set( $memkey, $data );
     }
 
     # transform transaction IDs to objects
-    my @loaded = grep { defined } map { $class->load( user => $u, id => $_->[0] ) } @$data;
+    my @loaded = grep { defined } map { $class->load( user => $u, id => $_ ) } @$data;
 
     # do any further filtering of results in caller
     return @loaded unless $opts{profile};
@@ -126,7 +126,7 @@ sub load {
     my $id = $opts{id} + 0;
     my $u = LJ::want_user( $opts{user} ) or return;
 
-    my $memkey = $class->transaction_load_memkey( $u, $id );
+    my $memkey = $class->_transaction_load_memkey( $u, $id );
     my $data = LJ::MemCache::get( $memkey );
 
     unless ( defined $data ) {
@@ -147,7 +147,7 @@ sub load {
                                ? $item->from_text : undef;
         }
 
-        LJ::MemCache::set( $memkey, $data, 3600*24 );
+        LJ::MemCache::set( $memkey, $data );
     }
 
     return {} unless %$data;
@@ -164,29 +164,28 @@ sub load {
 
 sub _search_cart {
     my ( $class, $data ) = @_;
-    my $cart = DW::Shop::Cart->get_from_cartid( $data->{cartid} );
-    my $cart_items = $cart ? $cart->items : [];
-    my $found_item;
+    my $cart = DW::Shop::Cart->get_from_cartid( $data->{cartid} )
+        or return;
 
-    foreach my $item ( @$cart_items ) {
+    foreach my $item ( @{ $cart->items } ) {
         next unless ref $item eq 'DW::Shop::Item::VirtualGift';
         next unless $data->{rcptid} == $item->t_userid;
         next unless $data->{transid} == $item->vgift_transid;
         # if we get here, it's the right item
-        $found_item = $item;
-        last;
+        return $item;
     }
 
-    return $found_item;
+    # we didn't find it - sadness
+    return undef;
 }
 
-sub transaction_load_memkey {
+sub _transaction_load_memkey {
     my ( $class, $u, $id )  = @_;
     my $uid = $u->id or return;
     return [$uid, "vgift.trans.$id"];  # caches database row
 }
 
-sub transaction_list_memkey {
+sub _transaction_list_memkey {
     my ( $class, $u )  = @_;
     my $uid = $u->id or return;
     return [$uid, "vgift.translist.$uid"];  # caches list of transids
@@ -194,11 +193,11 @@ sub transaction_list_memkey {
 
 sub new {
     my ( $class, $self ) = @_;
-    $class = ref $class ? ref $class : $class;
+    $class = ref $class if ref $class;
     return $self if ref $self eq $class;  # already blessed
 
     my ( $id, $uid ) = ( $self->{transid}, $self->{rcptid} );
-    return if !$id || $id !~ /^\d+$/ || !$uid || $uid !~ /^\d+$/;
+    return unless ( $id && $id =~ /^\d+$/ ) && ( $uid && $uid =~ /^\d+$/ );
 
     bless $self, $class;
     return $self;
@@ -210,22 +209,24 @@ sub new {
 sub id { $_[0]->{id} }
 sub u  { $_[0]->{user} }
 
-sub is_delivered { return $_[0]->{delivered} eq 'Y' }
-sub is_accepted  { return $_[0]->{accepted}  eq 'Y' }
-sub is_expired   { return $_[0]->{expired}   eq 'Y' }
+sub is_delivered { $_[0]->{delivered} eq 'Y' }
+sub is_accepted  { $_[0]->{accepted}  eq 'Y' }
+sub is_expired   { $_[0]->{expired}   eq 'Y' }
 
-sub is_anonymous { return $_[0]->{anon} ? 1 : 0 }
+sub is_anonymous { $_[0]->{anon} ? 1 : 0 }
 
 sub from_html {
     my ( $self ) = @_;
     return $self->{from} if defined $self->{from};
     return $self->{buyer}->ljuser_display if LJ::isu( $self->{buyer} );
+    # undefined if neither of these is valid
 }
 
 sub from_text {
     my ( $self ) = @_;
     return $self->{from_text} if defined $self->{from_text};
     return $self->{buyer}->display_name if LJ::isu( $self->{buyer} );
+    # undefined if neither of these is valid
 }
 
 sub _update {
@@ -238,11 +239,11 @@ sub _update {
     die $u->errstr if $u->err;
 
     # memcache expiration for this one transaction
-    LJ::MemCache::delete( $self->transaction_load_memkey( $u, $id ) );
+    LJ::MemCache::delete( $self->_transaction_load_memkey( $u, $id ) );
 
     # memcache expiration for list of all transactions
     # only needed for deliveries and deletions
-    LJ::MemCache::delete( $self->transaction_list_memkey( $u ) )
+    LJ::MemCache::delete( $self->_transaction_list_memkey( $u ) )
         if $expire;
 
     return 1;
@@ -264,7 +265,8 @@ sub deliver {
     my ( $self ) = @_;
     return 1 if $self->is_delivered;  # already delivered
     $self->{delivered} = 'Y';  # update object in memory
-    return $self->_update( 'UPDATE vgift_trans SET delivered="Y", delivery_t=UNIX_TIMESTAMP()', 1 );
+    return $self->_update( 'UPDATE vgift_trans SET delivered="Y", ' .
+                           'delivery_t=UNIX_TIMESTAMP()', 1 );
 }
 
 sub notify_delivered {

@@ -38,10 +38,9 @@ sub transid { return $_[0]->arg1 }
 
 sub trans {
     my ( $self ) = @_;
+    return $self->{trans} if $self->{trans};
     my %args = ( user => $self->u, id => $self->transid );
-    $self->{trans} = DW::VirtualGiftTransaction->load( %args )
-        unless $self->{trans};
-    return $self->{trans};
+    return $self->{trans} = DW::VirtualGiftTransaction->load( %args );
 }
 
 sub vgift { return $_[0]->trans->{vgift} }
