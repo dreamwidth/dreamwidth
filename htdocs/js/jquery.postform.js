@@ -241,7 +241,7 @@ init: function(formData) {
             }
 
             if ( journal.name ) {
-                options.populateSource = Site.siteroot + "/tools/endpoints/gettags?user=" + journal.name;
+                options.populateSource = Site.siteroot + "/__rpc_gettags?user=" + journal.name;
                 options.populateId = journal.name;
             }
 
@@ -253,7 +253,7 @@ init: function(formData) {
             $("#post_entry").bind("journalselect", function(e, journal) {
                 if ( journal.name ) {
                     $taglist.autocompletewithunknown( "populate",
-                        Site.siteroot + "/tools/endpoints/gettags?user=" + journal.name, journal.name );
+                        Site.siteroot + "/__rpc_gettags?user=" + journal.name, journal.name );
                 } else {
                     $taglist.autocompletewithunknown( "clear" )
                 }
@@ -374,7 +374,7 @@ init: function(formData) {
                 // no custom groups
                 adjustSecurityDropdown({})
               } else if ( ! formData.edit ) {
-                $.getJSON( Site.siteroot + "/tools/endpoints/getsecurityoptions",
+                $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions",
                     { "user": journal.name }, adjustSecurityDropdown);
             }
             $(this).data("journal",journal.name);

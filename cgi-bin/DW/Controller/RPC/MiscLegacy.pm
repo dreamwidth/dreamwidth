@@ -19,6 +19,8 @@ use LJ::CreatePage;
 
 # do not put any endpoints that do not have the "forked from LJ" header in this file
 DW::Routing->register_rpc( "checkforusername", \&check_username_handler, format => 'json' );
+DW::Routing->register_rpc( "getsecurityoptions", \&get_security_options_handler, format => 'json' );
+DW::Routing->register_rpc( "gettags", \&get_tags_handler, format => 'json' );
 
 sub check_username_handler {
     my $r = DW::Request->get;
@@ -26,5 +28,74 @@ sub check_username_handler {
     my $error = LJ::CreatePage->verify_username( $args->{user} );
 
     $r->print( to_json({ error => $error ? $error : "" }) );
+    return $r->OK;
+}
+
+sub get_security_options_handler {
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+
+    my $ret = sub {
+        $r->print( to_json( $_[0] ) );
+        return $r->OK;
+    };
+
+    my $err = sub {
+        return $ret->( { 'alert' => $_[0] } );
+    };
+
+
+    my $remote = LJ::get_remote();
+    my $user = $args->{user};
+    my $u = LJ::load_user($user);
+
+    return $ret->( {} )
+        unless $u;
+
+    my %ret = (
+        is_comm => $u->is_comm ? 1 : 0,
+        can_manage =>  $remote && $remote->can_manage( $u ) ? 1 : 0,
+    );
+
+    return $ret->( { ret => \%ret } )
+        unless $remote && $remote->can_post_to($u);
+
+    unless ( $ret{is_comm} ) {
+        my $friend_groups = $u->trust_groups;
+        $ret{friend_groups_exist} = keys %$friend_groups ? 1 : 0;
+    }
+
+    $ret{minsecurity} = $u->newpost_minsecurity;
+
+    return $ret->( { ret => \%ret } );
+}
+
+sub get_tags_handler {
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+
+    my $err = sub {
+        my $msg = shift;
+        $r->print( to_json({
+            'alert' => $msg,
+        }) );
+        return $r->OK;
+    };
+
+    my $remote = LJ::get_remote();
+    my $user = $args->{user};
+    my $u = LJ::load_user($user);
+    my $tags = $u ? $u->tags : {};
+
+    return $err->("You cannot view this journal's tags.") unless $remote && $remote->can_post_to($u);
+    return $err->("You cannot use this journal's tags.") unless $remote->can_add_tags_to($u);
+
+    my @tag_names;
+    if (keys %$tags) {
+        @tag_names = map { $_->{name} } values %$tags;
+        @tag_names = sort { lc $a cmp lc $b } @tag_names;
+    }
+
+    $r->print( to_json({ tags => \@tag_names }) );
     return $r->OK;
 }
