@@ -90,8 +90,11 @@ sub setup_transaction {
     die "Unable to insert Gearman job.\n"
         unless $ref;
 
-    # update our row from above so we have it later
-    $dbh->do( 'UPDATE cc_trans SET gctaskref = ?, dispatchtime = UNIX_TIMESTAMP(), jobstate = ? WHERE cctransid = ?',
+    # update our row from above so we have it later, avoiding columns
+    # the worker may have already updated.
+    $dbh->do( 'UPDATE cc_trans SET dispatchtime = UNIX_TIMESTAMP() WHERE cctransid = ?',
+              undef, $in{cctransid} );
+    $dbh->do( 'UPDATE cc_trans SET gctaskref = ?, jobstate = ? WHERE cctransid = ? AND jobstate IS NULL',
               undef, $ref, 'queued', $in{cctransid} );
     return $in{cctransid};
 }
