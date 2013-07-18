@@ -87,7 +87,6 @@ use LJ::Keywords;
 ###  16. (( there is no section 16 ))
 ###  18. Jabber-Related Functions
 ###  19. OpenID and Identity Functions
-###  20. Page Notices Functions
 ###  21. Password Functions
 ###  22. Priv-Related Functions
 ###  24. Styles and S2-Related Functions
@@ -5592,74 +5591,6 @@ sub rename_identity {
 
     return 1;
 }
-
-
-########################################################################
-###  20. Page Notices Functions
-
-=head2 Page Notices Functions
-=cut
-
-sub dismissed_page_notices {
-    my $u = shift;
-
-    my $val = $u->prop("dismissed_page_notices");
-    my @notices = split(",", $val);
-
-    return @notices;
-}
-
-
-# add a page notice to a user's dismissed page notices list
-sub dismissed_page_notices_add {
-    my ( $u, $notice_string ) = @_;
-
-    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
-
-    # is it already there?
-    return 1 if $u->has_dismissed_page_notice($notice_string);
-
-    # create the new list of dismissed page notices
-    my @cur_notices = $u->dismissed_page_notices;
-    push @cur_notices, $notice_string;
-    my $cur_notices_string = join(",", @cur_notices);
-
-    # remove the oldest notice if the list is too long
-    if (length $cur_notices_string > 255) {
-        shift @cur_notices;
-        $cur_notices_string = join(",", @cur_notices);
-    }
-
-    # set it
-    $u->set_prop("dismissed_page_notices", $cur_notices_string);
-
-    return 1;
-}
-
-
-# remove a page notice from a user's dismissed page notices list
-sub dismissed_page_notices_remove {
-    my ( $u, $notice_string ) = @_;
-
-    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
-
-    # is it even there?
-    return 0 unless $u->has_dismissed_page_notice($notice_string);
-
-    # remove it
-    $u->set_prop("dismissed_page_notices", join(",", grep { $_ ne $notice_string } $u->dismissed_page_notices));
-
-    return 1;
-}
-
-
-sub has_dismissed_page_notice {
-    my ( $u, $notice_string ) = @_;
-
-    return 1 if grep { $_ eq $notice_string } $u->dismissed_page_notices;
-    return 0;
-}
-
 
 ########################################################################
 ###  21. Password Functions

@@ -190,14 +190,6 @@ userproplist.disable_comm_promo:
   multihomed: 0
   prettyname: Administratively disable community promo features for a user
 
-userproplist.dismissed_page_notices:
-  cldversion: 4
-  datatype: char
-  des: Comma-separated list of defined keys for page notices that the user has seen and dismissed
-  indexed: 0
-  multihomed: 0
-  prettyname: Dismissed Page Notices
-
 userproplist.dogeartime:
   cldversion: 4
   datatype: num
