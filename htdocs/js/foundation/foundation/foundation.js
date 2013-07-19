@@ -82,7 +82,7 @@ if (typeof jQuery === "undefined" &&
 
       var t = Object(this),
           len = t.length >>> 0;
-      if (typeof fun != "function") {
+      if (typeof fun !== "function") {
           return;
       }
 
@@ -166,7 +166,7 @@ if (typeof jQuery === "undefined" &&
   window.Foundation = {
     name : 'Foundation',
 
-    version : '4.2.0',
+    version : '4.2.2',
 
     cache : {},
 
@@ -267,7 +267,7 @@ if (typeof jQuery === "undefined" &&
     },
 
     random_str : function (length) {
-      var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
+      var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
 
       if (!length) {
         length = Math.floor(Math.random() * chars.length);

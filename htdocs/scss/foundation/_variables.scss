@@ -2,9 +2,6 @@
 // Foundation Variables
 //
 
-// We set a lot of skin-specific variables (colors, etc) in the respective $skinname.scss files
-// so this likely is not want what you want to include
-
 // The default font-size is set to 100% of the browser style sheet (usually 16px)
 // for compatibility with browser-based text zoom or user-set defaults.
 $base-font-size: 100% !default;
@@ -25,7 +22,7 @@ $em-base: 16px !default;
 }
 
 // Change whether or not you include browser prefixes
-$experimental: true !default;
+// $experimental: true;
 
 // Various global styles
 
@@ -65,13 +62,10 @@ $default-float: left;
 
 // Control whether or not CSS classes come through in the CSS files.
 
-
-// most of the time, we'll just want the mixins or variables
-// and not the styles themselves
-$include-html-classes: false !default;
-
-$include-print-styles: true;
+// $include-html-classes: true;
+// $include-print-styles: true;
 // $include-html-global-classes: $include-html-classes;
+// $include-html-inline-list-classes: $include-html-classes;
 // $include-html-type-classes: $include-html-classes;
 // $include-html-grid-classes: $include-html-classes;
 // $include-html-visibility-classes: $include-html-classes;
@@ -120,7 +114,7 @@ $include-print-styles: true;
 // Grid Variables
 //
 
-$row-width: 80em;
+// $row-width: emCalc(1000px);
 // $column-gutter: emCalc(30px);
 // $total-columns: 12;
 
@@ -461,41 +455,41 @@ $row-width: 80em;
 
 // Alert padding
 
-// $alert-padding-top:                emCalc(11px);
-// $alert-padding-default-float:      $alert-padding-top;
+// $alert-padding-top: emCalc(11px);
+// $alert-padding-default-float: $alert-padding-top;
 // $alert-padding-opposite-direction: $alert-padding-top + emCalc(10px);
-// $alert-padding-bottom:             $alert-padding-top + emCalc(1px);
+// $alert-padding-bottom: $alert-padding-top + emCalc(1px);
 
 // Text style
 
-// $alert-font-weight:                bold;
-// $alert-font-size:                  emCalc(14px);
-// $alert-font-color:                 #fff;
-// $alert-font-color-alt:             darken($secondary-color, 60%);
+// $alert-font-weight: bold;
+// $alert-font-size: emCalc(14px);
+// $alert-font-color: #fff;
+// $alert-font-color-alt: darken($secondary-color, 60%);
 
 // Hover effect
 
-// $alert-function-factor:            10%;
+// $alert-function-factor: 10%;
 
 // Border Styles
 
-// $alert-border-style:               solid;
-// $alert-border-width:               1px;
-// $alert-border-color:               darken($primary-color, $alert-function-factor);
-// $alert-bottom-margin:              emCalc(20px);
+// $alert-border-style: solid;
+// $alert-border-width: 1px;
+// $alert-border-color: darken($primary-color, $alert-function-factor);
+// $alert-bottom-margin: emCalc(20px);
 
 // Close Button style
 
-// $alert-close-color:                #333;
-// $alert-close-position:             emCalc(5px);
-// $alert-close-font-size:            emCalc(22px);
-// $alert-close-opacity:              0.3;
-// $alert-close-opacity-hover:        0.5;
-// $alert-close-padding:              5px 4px 4px;
+// $alert-close-color: #333;
+// $alert-close-position: emCalc(5px);
+// $alert-close-font-size: emCalc(22px);
+// $alert-close-opacity: 0.3;
+// $alert-close-opacity-hover: 0.5;
+// $alert-close-padding: 5px 4px 4px;
 
 // Border radius
 
-// $alert-radius:                     $global-radius;
+// $alert-radius: $global-radius;
 
 
 //
@@ -875,6 +869,7 @@ $row-width: 80em;
 
 // $panel-font-color: #333;
 // $panel-font-color-alt: #fff;
+// $panel-header-adjust: true; // Set to false to keep default header styles
 
 //
 // Pricing Table Variables
@@ -1209,68 +1204,68 @@ $row-width: 80em;
 
 // Background color for the top bar
 
-// $topbar-bg:                            #111 !default;
+// $topbar-bg: #111 !default;
 
 // Height and margin
 
-// $topbar-height:                        45px;
-// $topbar-margin-bottom:                 emCalc(30px);
+// $topbar-height: 45px;
+// $topbar-margin-bottom: emCalc(30px);
 
 // Control Input height for top bar
 
-// $topbar-input-height:                  2.45em;
+// $topbar-input-height: 2.45em;
 
 // Controlling the styles for the title in the top bar
 
-// $topbar-title-weight:                  bold;
-// $topbar-title-font-size:               emCalc(17px);
+// $topbar-title-weight: bold;
+// $topbar-title-font-size: emCalc(17px);
 
 // Style the top bar dropdown elements
 
-// $topbar-dropdown-bg:                   #222;
-// $topbar-dropdown-link-color:           #fff;
-// $topbar-dropdown-link-bg:              lighten($topbar-bg, 5%);
-// $topbar-dropdown-toggle-size:          5px;
-// $topbar-dropdown-toggle-color:         #fff;
-// $topbar-dropdown-toggle-alpha:         0.5;
+// $topbar-dropdown-bg: #222;
+// $topbar-dropdown-link-color: #fff;
+// $topbar-dropdown-link-bg: lighten($topbar-bg, 5%);
+// $topbar-dropdown-toggle-size: 5px;
+// $topbar-dropdown-toggle-color: #fff;
+// $topbar-dropdown-toggle-alpha: 0.5;
 
 // Set the link colors and styles for top-level nav
 
-// $topbar-link-color:                    #fff;
-// $topbar-link-color-hover:              #fff;
-// $topbar-link-color-active:             #fff;
-// $topbar-link-weight:                   bold;
-// $topbar-link-font-size:                emCalc(13px);
-// $topbar-link-hover-lightness:          -30%; // Darken by 30%
-// $topbar-link-bg-hover:                 darken($topbar-bg, 3%);
-// $topbar-link-bg-active:                darken($topbar-bg, 3%);
+// $topbar-link-color: #fff;
+// $topbar-link-color-hover: #fff;
+// $topbar-link-color-active: #fff;
+// $topbar-link-weight: bold;
+// $topbar-link-font-size: emCalc(13px);
+// $topbar-link-hover-lightness: -30%; // Darken by 30%
+// $topbar-link-bg-hover: darken($topbar-bg, 3%);
+// $topbar-link-bg-active: darken($topbar-bg, 3%);
 
-// $topbar-dropdown-label-color:          #555;
+// $topbar-dropdown-label-color: #555;
 // $topbar-dropdown-label-text-transform: uppercase;
-// $topbar-dropdown-label-font-weight:    bold;
-// $topbar-dropdown-label-font-size:      emCalc(10px);
+// $topbar-dropdown-label-font-weight: bold;
+// $topbar-dropdown-label-font-size: emCalc(10px);
 
 // Top menu icon styles
 
-// $topbar-menu-link-transform:           uppercase;
-// $topbar-menu-link-font-size:           emCalc(13px);
-// $topbar-menu-link-weight:              bold;
-// $topbar-menu-link-color:               #fff;
-// $topbar-menu-icon-color:               #fff;
-// $topbar-menu-link-color-toggled:       #888;
-// $topbar-menu-icon-color-toggled:       #888;
+// $topbar-menu-link-transform: uppercase;
+// $topbar-menu-link-font-size: emCalc(13px);
+// $topbar-menu-link-weight: bold;
+// $topbar-menu-link-color: #fff;
+// $topbar-menu-icon-color: #fff;
+// $topbar-menu-link-color-toggled: #888;
+// $topbar-menu-icon-color-toggled: #888;
 
 // Transitions and breakpoint styles
 
-// $topbar-transition-speed:              300ms;
-// $topbar-breakpoint:                    emCalc(940px); // Change to 9999px for always mobile layout
-// $topbar-media-query:                   "only screen and (min-width: #{$topbar-breakpoint})";
+// $topbar-transition-speed: 300ms;
+// $topbar-breakpoint: emCalc(940px); // Change to 9999px for always mobile layout
+// $topbar-media-query: "only screen and (min-width: #{$topbar-breakpoint})";
 
 // Divider Styles
 
-// $topbar-divider-border-bottom:         solid 1px lighten($topbar-bg, 10%);
-// $topbar-divider-border-top:            solid 1px darken($topbar-bg, 10%);
+// $topbar-divider-border-bottom: solid 1px lighten($topbar-bg, 10%);
+// $topbar-divider-border-top: solid 1px darken($topbar-bg, 10%);
 
 // Sticky Class
 
-// $topbar-sticky-class:                  ".sticky";
+// $topbar-sticky-class: ".sticky";

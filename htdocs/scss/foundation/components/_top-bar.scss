@@ -4,62 +4,62 @@
 $include-html-top-bar-classes: $include-html-classes !default;
 
 // Background color for the top bar
-$topbar-bg:                            #111 !default;
+$topbar-bg: #111 !default;
 
 // Height and margin
-$topbar-height:                        45px !default;
-$topbar-margin-bottom:                 emCalc(30px) !default;
+$topbar-height: 45px !default;
+$topbar-margin-bottom: emCalc(30px) !default;
 
 // Control Input height for top bar
-$topbar-input-height:                  2.45em !default;
+$topbar-input-height: 2.45em !default;
 
 // Controlling the styles for the title in the top bar
-$topbar-title-weight:                  bold !default;
-$topbar-title-font-size:               emCalc(17px) !default;
+$topbar-title-weight: bold !default;
+$topbar-title-font-size: emCalc(17px) !default;
 
 // Style the top bar dropdown elements
-$topbar-dropdown-bg:                   #222 !default;
-$topbar-dropdown-link-color:           #fff !default;
-$topbar-dropdown-link-bg:              lighten($topbar-bg, 5%) !default;
-$topbar-dropdown-toggle-size:          5px !default;
-$topbar-dropdown-toggle-color:         #fff !default;
-$topbar-dropdown-toggle-alpha:         0.5 !default;
+$topbar-dropdown-bg: #222 !default;
+$topbar-dropdown-link-color: #fff !default;
+$topbar-dropdown-link-bg: lighten($topbar-bg, 5%) !default;
+$topbar-dropdown-toggle-size: 5px !default;
+$topbar-dropdown-toggle-color: #fff !default;
+$topbar-dropdown-toggle-alpha: 0.5 !default;
 
 // Set the link colors and styles for top-level nav
-$topbar-link-color:                    #fff !default;
-$topbar-link-color-hover:              #fff !default;
-$topbar-link-color-active:             #fff !default;
-$topbar-link-weight:                   bold !default;
-$topbar-link-font-size:                emCalc(13px) !default;
-$topbar-link-hover-lightness:          -30% !default; // Darken by 30%
-$topbar-link-bg-hover:                 darken($topbar-bg, 3%) !default;
-$topbar-link-bg-active:                darken($topbar-bg, 3%) !default;
+$topbar-link-color: #fff !default;
+$topbar-link-color-hover: #fff !default;
+$topbar-link-color-active: #fff !default;
+$topbar-link-weight: bold !default;
+$topbar-link-font-size: emCalc(13px) !default;
+$topbar-link-hover-lightness: -30% !default; // Darken by 30%
+$topbar-link-bg-hover: darken($topbar-bg, 3%) !default;
+$topbar-link-bg-active: darken($topbar-bg, 3%) !default;
 
-$topbar-dropdown-label-color:          #555 !default;
+$topbar-dropdown-label-color: #555 !default;
 $topbar-dropdown-label-text-transform: uppercase !default;
-$topbar-dropdown-label-font-weight:    bold !default;
-$topbar-dropdown-label-font-size:      emCalc(10px) !default;
+$topbar-dropdown-label-font-weight: bold !default;
+$topbar-dropdown-label-font-size: emCalc(10px) !default;
 
 // Top menu icon styles
-$topbar-menu-link-transform:           uppercase !default;
-$topbar-menu-link-font-size:           emCalc(13px) !default;
-$topbar-menu-link-weight:              bold !default;
-$topbar-menu-link-color:               #fff !default;
-$topbar-menu-icon-color:               #fff !default;
-$topbar-menu-link-color-toggled:       #888 !default;
-$topbar-menu-icon-color-toggled:       #888 !default;
+$topbar-menu-link-transform: uppercase !default;
+$topbar-menu-link-font-size: emCalc(13px) !default;
+$topbar-menu-link-weight: bold !default;
+$topbar-menu-link-color: #fff !default;
+$topbar-menu-icon-color: #fff !default;
+$topbar-menu-link-color-toggled: #888 !default;
+$topbar-menu-icon-color-toggled: #888 !default;
 
 // Transitions and breakpoint styles
-$topbar-transition-speed:              300ms !default;
-$topbar-breakpoint:                    emCalc(940px) !default; // Change to 9999px for always mobile layout
-$topbar-media-query:                   "only screen and (min-width: #{$topbar-breakpoint})" !default;
+$topbar-transition-speed: 300ms !default;
+$topbar-breakpoint: emCalc(940px) !default; // Change to 9999px for always mobile layout
+$topbar-media-query: "only screen and (min-width: #{$topbar-breakpoint})" !default;
 
 // Divider Styles
-$topbar-divider-border-bottom:         solid 1px lighten($topbar-bg, 10%) !default;
-$topbar-divider-border-top:            solid 1px darken($topbar-bg, 10%) !default;
+$topbar-divider-border-bottom: solid 1px lighten($topbar-bg, 10%) !default;
+$topbar-divider-border-top: solid 1px darken($topbar-bg, 10%) !default;
 
 // Sticky Class
-$topbar-sticky-class:                  ".sticky" !default;
+$topbar-sticky-class: ".sticky" !default;
 
 @if $include-html-top-bar-classes != false {
 
@@ -218,7 +218,7 @@ $topbar-sticky-class:                  ".sticky" !default;
       width: 100%;
       height: auto;
       display: block;
-      background: $topbar-bg;
+      background: $topbar-dropdown-bg;
       font-size: $em-base;
       margin: 0;
     }
@@ -242,12 +242,6 @@ $topbar-sticky-class:                  ".sticky" !default;
         font-size: $topbar-link-font-size;
         font-weight: $topbar-link-weight;
         background: $topbar-dropdown-bg;
-
-        &.hover {
-          background: $topbar-link-bg-hover;
-          color: $topbar-link-color-hover;
-        }
-
 
         &.button {
           background: $primary-color;
@@ -275,6 +269,12 @@ $topbar-sticky-class:                  ".sticky" !default;
           }
         }
 
+      }
+
+      // Apply the hover link color when it has that class
+      &.hover > a {
+        background: $topbar-link-bg-hover;
+        color: $topbar-link-color-hover;
       }
 
       // Apply the active link color when it has that class
@@ -367,8 +367,7 @@ $topbar-sticky-class:                  ".sticky" !default;
       .name h1 a { width: auto; }
 
       input,
-      .button,
-      %top-bar-form-element {
+      .button {
         line-height: 2em;
         font-size: emCalc(14px);
         height: 2em;
@@ -497,9 +496,33 @@ $topbar-sticky-class:                  ".sticky" !default;
           li .dropdown { right: 100%; }
         }
       }
-
     }
+    
+    // Degrade gracefully when Javascript is disabled. Displays dropdown and changes 
+    // background & text color on hover.
+    .no-js .top-bar-section {
+	  ul li {    
+        // Apply the hover link color when it has that class
+        &:hover > a {
+          background: $topbar-link-bg-hover;
+          color: $topbar-link-color-hover;
+        }
 
+        // Apply the active link color when it has that class
+        &:active > a {
+          background: $topbar-link-bg-active;
+          color: $topbar-link-color-active;
+        }
+      }    
+      
+	  .has-dropdown {
+        &:hover {
+          & > .dropdown {
+            visibility: visible;
+          }
+        }
+	  }
+	}    
   }
 
 }
