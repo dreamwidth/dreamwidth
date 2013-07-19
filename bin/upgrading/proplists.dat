@@ -1310,6 +1310,11 @@ userproplist.yahoo:
   multihomed: 1
   prettyname: Yahoo ID
 
+talkproplist.admin_post:
+  datatype: bool
+  des: Set to true if this is an official community administrator post.
+  prettyname: Administrator post
+
 talkproplist.edit_reason:
   datatype: char
   des: Reason for the last edit.
@@ -1374,6 +1379,14 @@ talkproplist.useragent:
   datatype: char
   des: Name of web/mobile/sip/etc client used to post
   prettyname: User Agent
+
+logproplist.admin_post:
+  datatype: bool
+  des: Set to true if this is an official community administrator post.
+  prettyname: Administrator post
+  datatype: bool
+  sortorder: 99
+  ownership: user
 
 logproplist.adult_content:
   datatype: char

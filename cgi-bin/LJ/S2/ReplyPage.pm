@@ -241,6 +241,7 @@ sub ReplyPage
             'deleted' => $parpost->{'state'} eq "D" ? 1 : 0,
             'full' => 1,
             timeformat24 => $remote && $remote->use_24hour_time,
+            admin_post => $cmtobj->admin_post ? 1 : 0,
         };
 
         # Conditionally add more links to the keyseq

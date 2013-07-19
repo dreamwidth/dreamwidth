@@ -2018,6 +2018,17 @@ sub talkform {
         }
     }
 
+    if ( $journalu->is_community && $remote && $remote->can_manage( $journalu ) ) {
+        $ret .=
+            LJ::html_check({
+                name  => 'prop_admin_post',
+                id    => 'prop_admin_post',
+                value => 1,
+                selected => $form->{'prop_admin_post'}
+            }) . "<label for='prop_admin_post'>Admin Post</label>";
+    }
+
+
     $ret .= "</div>";
     $ret .= "</td></tr>\n";
 
@@ -3090,7 +3101,9 @@ sub enter_comment {
         $talkprop{picture_keyword} = $comment->{picture_keyword};
     }
 
+    $talkprop{admin_post} = $comment->{admin_post} ? 1 : 0;
     $talkprop{'opt_preformatted'} = $comment->{preformat} ? 1 : 0;
+
     if ($journalu->opt_logcommentips eq "A" ||
         ($journalu->opt_logcommentips eq "S" && $comment->{usertype} ne "user"))
     {
@@ -3701,6 +3714,7 @@ sub init {
         unknown8bit     => $init->{unknown8bit},
         subjecticon     => $subjecticon,
         preformat       => $form->{'prop_opt_preformatted'},
+        admin_post      => $form->{'prop_admin_post'},
         picture_keyword => $form->{'prop_picture_keyword'},
         state           => $state,
         editid          => $form->{editid},
@@ -3855,7 +3869,7 @@ sub post_comment {
     my $memkey;
     if (@LJ::MEMCACHE_SERVERS) {
         # avoid warnings FIXME this should be done elsewhere
-        foreach my $field (qw(body subject subjecticon preformat picture_keyword)) {
+        foreach my $field (qw(body subject subjecticon preformat admin_post picture_keyword)) {
             $comment->{$field} = '' if not defined $comment->{$field};
         }
         my $md5_b64 = Digest::MD5::md5_base64(
@@ -3915,6 +3929,7 @@ sub edit_comment {
     my %props = (
         subjecticon => $comment->{subjecticon},
         opt_preformatted => $comment->{preformat} ? 1 : 0,
+        admin_post => $comment->{admin_post} ? 1 : 0,
         edit_reason => $comment->{editreason},
     );
 
@@ -3999,6 +4014,7 @@ sub make_preview {
     my $cleanok = LJ::CleanHTML::clean_comment( \$event,
                   { anon_comment => LJ::Talk::treat_as_anon( $remote, $u ),
                     preformatted => $form->{prop_opt_preformatted},
+                    admin_post   => $form->{prop_admin_post},
                     editor       => $form->{editor}, # no form option yet
                   } );
     if (defined($cleanok) && $LJ::SPELLER && $form->{'do_spellcheck'}) {
@@ -4042,8 +4058,18 @@ sub make_preview {
     $ret .= "<div style='width: 90%'><form id='previewform' method='post'><p>\n";
     $ret .= "<label for='subject'>$BML::ML{'/talkpost_do.bml.preview.edit.subject'}</label>";
     $ret .= "<input name='subject' size='50' maxlength='100' value='" . LJ::ehtml($form->{'subject'}) . "' /><br />";
-    $ret .= "<div class='userpics'>" . LJ::Talk::icon_dropdown( $remote, $icon_kw ) . "</div>"
-        if $cookie_auth;    # we're commenting as currently logged-in user
+    if ( $cookie_auth ) {
+        $ret .= "<div class='userpics'>" . LJ::Talk::icon_dropdown( $remote, $icon_kw ) . "</div>";
+        if ( $u->is_community && $remote && $remote->can_manage( $u ) ) {
+            $ret .= "<div class='admin_post'>" .
+                LJ::html_check({
+                    name  => 'prop_admin_post',
+                    id    => 'prop_admin_post',
+                    value => 1,
+                    selected => $form->{'prop_admin_post'}
+                }) . "<label for='prop_admin_post'>Admin Post</label></div>";
+        }
+    }
     $ret .= "<label for='body'>$BML::ML{'/talkpost_do.bml.preview.edit.body'}</label>";
     $ret .= "<textarea class='textbox' rows='10' cols='50' wrap='soft' name='body' style='width: 100%'>";
     $ret .= LJ::ehtml($form->{'body'});
