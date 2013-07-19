@@ -367,7 +367,8 @@ $topbar-sticky-class: ".sticky" !default;
       .name h1 a { width: auto; }
 
       input,
-      .button {
+      .button,
+      %top-bar-form-element {
         line-height: 2em;
         font-size: emCalc(14px);
         height: 2em;

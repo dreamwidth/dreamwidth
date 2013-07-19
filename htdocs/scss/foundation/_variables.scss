@@ -2,6 +2,9 @@
 // Foundation Variables
 //
 
+// We set a lot of skin-specific variables (colors, etc) in the respective $skinname.scss files
+// so this likely is not want what you want to include
+
 // The default font-size is set to 100% of the browser style sheet (usually 16px)
 // for compatibility with browser-based text zoom or user-set defaults.
 $base-font-size: 100% !default;
@@ -22,7 +25,7 @@ $em-base: 16px !default;
 }
 
 // Change whether or not you include browser prefixes
-// $experimental: true;
+$experimental: true !default;
 
 // Various global styles
 
@@ -62,8 +65,12 @@ $default-float: left;
 
 // Control whether or not CSS classes come through in the CSS files.
 
-// $include-html-classes: true;
-// $include-print-styles: true;
+
+// most of the time, we'll just want the mixins or variables
+// and not the styles themselves
+$include-html-classes: false !default;
+
+$include-print-styles: true;
 // $include-html-global-classes: $include-html-classes;
 // $include-html-inline-list-classes: $include-html-classes;
 // $include-html-type-classes: $include-html-classes;
@@ -114,7 +121,7 @@ $default-float: left;
 // Grid Variables
 //
 
-// $row-width: emCalc(1000px);
+$row-width: 80em;
 // $column-gutter: emCalc(30px);
 // $total-columns: 12;
 
