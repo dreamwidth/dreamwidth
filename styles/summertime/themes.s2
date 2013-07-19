@@ -13,7 +13,7 @@ set layout_resources = [
 ## Page Colors
 ##===============================
 
-set color_page_background = "#e0dac9";
+set color_page_background = "#AAC7C3";
 set color_page_link = "#105F64";
 set color_page_link_hover = "#4c6310";
 set color_page_link_visited = "#105F64";
