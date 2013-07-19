@@ -603,6 +603,14 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
 ContextualPopup.changeRelation = function (info, ctxPopupId, action, evt) {
     if (!info) return true;
 
+    if ( action == "setBan" || action == "setUnban" ) {
+       var username = info.username;
+       var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
+                                          : "Are you sure you wish to ban " + username + "?";
+       if ( ! confirm( message ) )
+           return false;
+    };
+
     var postData = {
         "target": info.username,
         "action": action
