@@ -81,7 +81,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- account_link_options = {} -%]
 [%- BLOCK block.accountlinks -%]
-[%- IF resource_group == "foundation" %]<div class="row"><div class="columns large-8 right small-12">[%- END -%]
+[%- IF resource_group == "foundation" %]<div class="row"><div class="columns large-5 right small-12">[%- END -%]
 [%- IF remote -%]
     [%- IF ! account_link_options.no_userpic -%]
     [%- IF resource_group == "foundation" %]<div class="right">[%- END -%]
@@ -138,17 +138,21 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- -%]<td><input type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/></td>
     [%- -%]</tr></table></form>
 [%- ELSE -%]
-    <div id='nav-login-form' style="font-size: .8em">
-    [%- -%]<div class="row"><div class="columns large-3 small-12"><label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label></div>
-    [%- -%]<div class="columns large-4 small-12"><td class='input-cell' colspan='2'><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" type="text" /></div>
-    [%- %]<div class="columns large-5 small-12"><a href='[% is_ssl ? site.ssl.root : site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></div></div>
-    [%- -%]<div class="row"><div class="columns large-3 small-12"><label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label></div>
-    [%- -%]<div class="columns large-4 small-12"><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true" class="lj_login_password"></div>
-    [%- %]<div class="columns large-5 small-12"><a href='[% is_ssl ? site.ssl.root : site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></div></div>
+    <div id='nav-login-form'>
     [%- -%]<div class="row">
-    [%- -%]<div class="columns large-7 small-12"><label for='login_remember_me'>[% 'sitescheme.accountlinks.login.rememberme' | ml %]</label>
-    [%- -%]<input type="checkbox" name="remember_me" id="login_remember_me" value="1" tabindex="3" /></div>
-    [%- -%]<div class="columns large-5 small-12"><input type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/></div></div>
+    [%- -%]  <div class="columns large-3 small-12"><label for='login_user' class='inline'>[% 'sitescheme.accountlinks.login.username' | ml %]</label></div>
+    [%- -%]  <div class="columns large-5 small-12"><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" type="text" /></div>
+    [%- -%]  <div class="columns large-4 small-12"><a href='[% is_ssl ? site.ssl.root : site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></div></div>
+    [%- -%]<div class="row">
+    [%- -%]  <div class="columns large-3 small-12"><label for='login_password' class='inline'>[% 'sitescheme.accountlinks.login.password' | ml %]</label></div>
+    [%- -%]  <div class="columns large-5 small-12"><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true" class="lj_login_password"></div>
+    [%- -%]  <div class="columns large-4 small-12"><a href='[% is_ssl ? site.ssl.root : site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></div></div>
+    [%- -%]<div class="row">
+    [%- -%]  <div class="columns large-3 hide-for-small">&nbsp;</div>
+    [%- -%]  <div class="columns large-5 small-12">
+    [%- -%]    <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" tabindex="3" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %] </label>
+    [%- -%]  </div>
+    [%- -%]  <div class="columns large-4 small-12"><input type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/></div></div>
     [%- -%]</div>
     [%- -%]</form>
 [%- END -%]
