@@ -1663,6 +1663,25 @@ sub userpic_kw {
     }
 }
 
+=head2 C<< $cmt->admin_post
+
+Returns true if this comment is an official administrator comment.
+
+=cut
+sub admin_post {
+    my $self = $_[0];
+
+    return 0 unless $self->journal->is_community;
+    return 0
+        unless $self->poster && $self->poster->can_manage( $self->journal );
+
+    if ( exists $_[1] ) {
+        $_[0]->set_prop( 'admin_post', $_[1] ? 1 : 0 );
+    } else {
+        return $_[0]->prop('admin_post') ? 1 : 0;
+    }
+}
+
 sub poster_ip {
     return $_[0]->prop("poster_ip");
 }

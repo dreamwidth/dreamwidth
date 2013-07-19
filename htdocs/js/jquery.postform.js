@@ -535,6 +535,21 @@ init: function(formData) {
         updateSlugPreview();
     }
 
+    function initFlags() {
+        var realDiv = $("#flags_component");
+        $("#post_entry").bind("journalselect", function(e, journal) {
+            if ( journal.name && journal.isremote ) {
+                if ( journal.iscomm ) {
+                    // FIXME: Refactor so we can get canmanage
+                    realDiv.show();
+                } else {
+                    realDiv.hide();
+                }
+            }
+        });
+
+    }
+
     // set up...
     initIcons();
     initDisplayDate();
@@ -546,6 +561,7 @@ init: function(formData) {
     initCrosspost();
     initToolbar();
     initSlug();
+    initFlags();
 
     $.getJSON("/__rpc_entryformcollapse", null, function(data) {
         var xhr = this;
