@@ -16,7 +16,7 @@ package LJ::Console::Command::SynMerge;
 use strict;
 use base qw(LJ::Console::Command);
 use Carp qw(croak);
-use LJ::Syn;
+use LJ::Feed;
 
 sub cmd { "syn_merge" }
 
@@ -47,7 +47,7 @@ sub execute {
     return $self->error("Fourth argument must be 'using'.")
         if $using ne 'using';
 
-    my ($ok,$msg) = LJ::Syn::merge_feed( from_name => $from_user, to_name => $to_user, url => $url );
+    my ( $ok,$msg ) = LJ::Feed::merge_feed( from_name => $from_user, to_name => $to_user, url => $url );
     return $self->error($msg) unless $ok;
     return $self->print($msg);
 }

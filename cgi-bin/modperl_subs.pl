@@ -85,7 +85,6 @@ BEGIN { $LJ::HAVE_DBI_PROFILE = eval "use DBI::Profile (); 1;" }
 
 use LJ::Lang;
 use LJ::Links;
-use LJ::Syn;
 use LJ::HTMLControls;
 use LJ::Web;
 use LJ::Support;

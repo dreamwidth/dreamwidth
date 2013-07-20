@@ -183,7 +183,7 @@ body<=
     }
 
     # get most popular feeds from memcache
-    my $popsyn = LJ::Syn::get_popular_feeds();
+    my $popsyn = LJ::Feed::get_popular_feeds();
 
     # load user's watch list so we can strip feeds they already watch
     my %watched = map { $_ => 1 } $u->watched_userids;

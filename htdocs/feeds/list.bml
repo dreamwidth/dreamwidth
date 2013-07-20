@@ -7,7 +7,7 @@ body<=
 
  my $ret;
 
- my $popsyn = LJ::Syn::get_popular_feeds();
+ my $popsyn = LJ::Feed::get_popular_feeds();
 
  my @data;
  foreach (@$popsyn) { 
