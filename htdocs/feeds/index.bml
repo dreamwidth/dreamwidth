@@ -10,7 +10,6 @@ body<=
     use URI;
     use HTTP::Message;
 
-    my $dbh = LJ::get_db_writer();
     my $u = LJ::get_remote();
 
     unless ($u) {
@@ -70,9 +69,7 @@ body<=
 
         my $su;  # account to add
         if ($url) {
-            $su = $dbh->selectrow_hashref("SELECT u.user, s.* FROM syndicated s, useridmap u ".
-                                          "WHERE s.synurl=? AND s.userid=u.userid",
-                                          undef, $url);
+            $su = LJ::Feed::synrow_select( url => $url );
 
             unless ($su) {
                 # check cap to create new feeds
@@ -139,9 +136,8 @@ body<=
                 # Did we find a link to the real feed?  If so,
                 # grab it
                 if ($syn_url ne $url) {
-                    my $adu = $dbh->selectrow_hashref("SELECT u.user FROM syndicated s, useridmap u ".
-                                                      "WHERE s.synurl=? AND s.userid=u.userid",
-                                                      undef, $syn_url);
+                    my $adu = LJ::Feed::synrow_select( url => $syn_url );
+
                     if ($adu) {
                         return BML::redirect("$LJ::SITEROOT/manage/circle/add?user=$adu->{user}&action=subscribe");
                     } else {
@@ -164,16 +160,13 @@ body<=
                     return "<?h1 $ML{'.invalid.inuse.title'} h1?><?p " . BML::ml( '.invalid.inuse.text2', { 'user' => $u->ljuser_display } ) . " p?>"
                 }
 
-                $su = $dbh->selectrow_hashref("SELECT u.user, s.* FROM syndicated s, useridmap u ".
-                                              "WHERE s.userid=? AND s.userid=u.userid",
-                                              undef, $synfeed->id);
+                $su = LJ::Feed::synrow_select( userid => $synfeed->id );
             }
 
         } elsif ($acct) {
             # account but no URL, we can add this in any case
-            $su = $dbh->selectrow_hashref("SELECT u.user, s.* FROM syndicated s, useridmap u ".
-                                          "WHERE u.userid=s.userid AND u.user=?",
-                                          undef, $acct);
+            $su = LJ::Feed::synrow_select( user => $acct );
+
             unless ($su) {
                 return $error->($ML{'.invalid.notexist'});
             }

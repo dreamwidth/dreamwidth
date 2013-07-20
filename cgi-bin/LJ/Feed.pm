@@ -297,7 +297,10 @@ sub make_feed
     }
 
     # fix up the build date to use entry-time
-    $journalinfo->{'builddate'} = LJ::time_to_http($LJ::EndOfTime - $items[0]->{'rlogtime'}),
+    my $createtime = $items[0]->{rlogtime}
+                   ? $LJ::EndOfTime - $items[0]->{rlogtime}
+                   : $LJ::EndOfTime;
+    $journalinfo->{builddate} = LJ::time_to_http( $createtime );
 
     return $viewfunc->{handler}->($journalinfo, $u, $opts, \@cleanitems, \@entries);
 }
@@ -1029,6 +1032,33 @@ sub generate_hubbub_jobs {
         push @$joblist, $make_hubbub_job->("rss");
         push @$joblist, $make_hubbub_job->("atom");
     }
+}
+
+# refactored from feeds/index
+
+sub synrow_select {
+    my %opts = @_;   # a single key => val pair
+    my ( $q, $x );   # what we're looking for
+
+    my %optcols = ( url    => 's.synurl',
+                    userid => 's.userid',
+                    user   => 'u.user',
+                  );
+
+    foreach my $k ( keys %optcols ) {
+        if ( exists $opts{$k} ) {
+            $x = $opts{$k};     # the data passed in
+            $q = $optcols{$k};  # the relevant DB column
+            last;
+        }
+    }
+
+    die 'LJ::Feed::synrow_select called with invalid arguments' unless $q;
+
+    my $dbr = LJ::get_db_reader() or die "No DB";
+    return $dbr->selectrow_hashref(
+        "SELECT u.user, s.* FROM syndicated s, useridmap u ".
+        "WHERE u.userid=s.userid AND $q=?", undef, $x );
 }
 
 
