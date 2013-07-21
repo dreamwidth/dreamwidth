@@ -41,8 +41,11 @@ propgroup colors_child {
     property Color color_module_title_link_visited {des = "Module title visited link color";}
     property Color color_module_footer_background {des = "Module footer color";}
     property Color color_navlinks_current { des = "The color of the nav link for the page you are currently on."; }
-    property Color color_navlinks_link { des = "The link color of the nav links (used when those appear in the header)."; }
-    property Color color_navlinks_link_visited { des = "The visited link color of the nav links (used when those appear in the header)."; }
+    # Used instead of color_header_link:
+    property Color color_navlinks_link { des = "Page header link color"; }
+    property Color color_navlinks_link_active { des = "Page header active link color"; }
+    property Color color_navlinks_link_hover { des = "Page header hover link color"; }
+    property Color color_navlinks_link_visited { des = "Page header visited link color"; }
 }
 
 
@@ -552,6 +555,8 @@ table.month td.day-has-entries {
 }
 #header .module-navlinks a { color: $*color_navlinks_link; }
 #header .module-navlinks a:visited { color: $*color_navlinks_link_visited; }
+#header .module-navlinks a:hover { color: $*color_navlinks_link_hover; }
+#header .module-navlinks a:active { color: $*color_navlinks_link_active; }
 
 .module-list-item a.current {
     color: $*color_module_text

@@ -21,10 +21,10 @@ propgroup colors_child {
     property Color color_footer_border { des = "Footer border color"; }
     property Color color_content_border { des = "Content border color"; }
     property Color color_navlinks_current { des = "Current navigation link color"; }
-    property Color color_header_link { des = "Header navigation link color"; }
-    property Color color_header_link_hover { des = "Header navigation link hover color"; }
-    property Color color_header_link_active { des = "Header navigation link active color"; }
-    property Color color_header_link_visited { des = "Header navigation link visited color"; }
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
     property Color color_calendar_header_background { des = "Calender header entries background color"; }
     property Color color_calendar_header_text { des = "Calender header entries text color"; }
     property Color color_calendar_entryday_background { des = "Calender days with entries background color"; }
@@ -330,9 +330,8 @@ h2#subtitle {
     }
 
 #header .module-navlinks a { color: $*color_header_link; }
-
-#header .module-navlinks a:hover { color: $*color_header_link_hover; }
 #header .module-navlinks a:active { color: $*color_header_link_active; }
+#header .module-navlinks a:hover { color: $*color_header_link_hover; }
 #header .module-navlinks a:visited { color: $*color_header_link_visited; }
 
 #header .module-navlinks .current, .module-navlinks .current {color: $*color_navlinks_current;}

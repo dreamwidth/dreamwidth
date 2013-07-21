@@ -61,11 +61,12 @@ set modules_per_row = "24%";
 ##===============================
 
 propgroup colors_child {
-    property Color color_header_links { des = "Page header link color"; }
-    property Color color_header_links_hover { des = "Page header link hover color"; }
-    property Color color_header_links_active { des = "Page header link active color"; }
-    property Color color_header_links_visited { des = "Page header link visited color"; }
+    # Used instead of color_header_link:
     property Color color_header_links_background { des = "Page header link background color"; }
+    property Color color_header_links { des = "Page header link color"; }
+    property Color color_header_links_active { des = "Page header link active color"; }
+    property Color color_header_links_hover { des = "Page header link hover color"; }
+    property Color color_header_links_visited { des = "Page header link visited color"; }
     property Color color_header_links_border { des = "Page header link border color"; }
     property Color color_header_links_border_hover { des = "Page header link hover border color"; }
     property Color color_module_list_border { des = "Module list items border color"; }
@@ -362,8 +363,8 @@ function print_stylesheet () {
 
             .module-navlinks a {font-size: smaller; color: $*color_header_links}
             .module-navlinks a:visited {font-size: smaller; color: $*color_header_links_visited}
-            .module-navlinks a:active {font-size: smaller; color: $*color_header_links_active}
             .module-navlinks a:hover {color: $*color_header_links_hover; text-decoration:none;}
+            .module-navlinks a:active {font-size: smaller; color: $*color_header_links_active}
             """;
         }
 
