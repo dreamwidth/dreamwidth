@@ -1,8 +1,6 @@
 ;; -*- coding: utf-8 -*-
 .advanced=Advanced Customization
 
-.customize.feedback=Customize Area Feedback
-
 .title=Customize Journal Style
 
 .title.comm=Customize Community Style
