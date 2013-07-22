@@ -1543,3 +1543,6 @@ general /views/admin/index.tt.admin.sitemessages_manage.text
 
 general /views/admin/index.tt.admin.navtag.link
 general /views/admin/index.tt.admin.navtag.text
+
+general /customize/index.bml.admin.customize_area_feedback
+general /customize/options.bml.customize.feedback
