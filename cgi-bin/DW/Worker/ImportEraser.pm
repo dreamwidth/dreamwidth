@@ -58,7 +58,7 @@ sub work {
     return $job->failed( "Database error: " . $u->errstr )
         if $u->err;
 
-    my ($ct, $max) = ( 0, scalar @$rows );
+    ( $ct, $max ) = ( 0, scalar @$rows );
     foreach my $row ( @$rows ) {
         my ( $jtalkid, $value ) = @$row;
 
