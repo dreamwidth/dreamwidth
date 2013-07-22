@@ -39,6 +39,7 @@ use DW::Auth;
 use DW::Request::XMLRPCTransport;
 use Cwd qw/abs_path/;
 use Carp qw/ croak confess /;
+use DW::Debug;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -348,6 +349,7 @@ sub trans
     LJ::start_request();
     LJ::Procnotify::check();
     S2::set_domain('LJ');
+    DW::Debug->mark_time("Start");
 
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
     BML::set_language($lang, \&LJ::Lang::get_text);
