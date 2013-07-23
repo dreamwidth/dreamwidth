@@ -1894,7 +1894,7 @@ sub add_to_class {
 }
 
 
-# 1/0 whether the argument is allowed to search this journal
+# 1/0 whether the argument is allowed to search this journal or not
 sub allow_search_by {
     my ( $u, $by ) = @_;
     return 0 unless LJ::isu( $u ) && LJ::isu( $by );
@@ -1918,6 +1918,20 @@ sub allow_search_by {
     return 0;
 }
 
+# 1/0 whether the argument is allowed to search comments
+sub allow_comment_search {
+    my ( $u, $by )= @_;
+
+    # if the person is not allowed to search at all, they also can't search comments
+    my $maysearch = $by->allow_search_by ( $by );
+    return 0 unless $maysearch = 1;
+
+    # only paid accounts may search comments, even on paid journals
+    return 1 if $by->is_paid;
+
+    # if the above two criteria aren't satisfied, no comment search
+    return 0;
+}
 
 sub caps {
     my $u = shift;
