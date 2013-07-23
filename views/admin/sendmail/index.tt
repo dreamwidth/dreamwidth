@@ -1,0 +1,58 @@
+[%# Send emails from site accounts.
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2012-2014 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+<p>[% '.intro' | ml %]</p>
+
+<form method="POST">
+
+[%- IF has_menu -%]
+    [% dw.form_auth %]<p>
+    [%- label_a = ".select.account.label" | ml;
+        form.select( label = label_a, name = "account", id = "account",
+                     items = account_menu );
+    -%]</p><p>
+    [%- label_t = ".input.sendto.label" | ml;
+        form.textbox( label = label_t, name = "sendto", id = "sendto",
+                      maxlength = "255", size = "50", autocomplete = "off" );
+    -%]&nbsp;&nbsp;&nbsp;[% ".input.sendto.note" |ml %]</p><p>
+    [%- label_s = ".input.subject.label" | ml;
+        form.textbox( label = label_s, name = "subject", id = "subject",
+                      maxlength = "255", size = "50", autocomplete = "off" );
+    -%]</p><p>
+    [%- label_m = ".input.message.label" | ml;
+        form.textarea( label = label_m, name = "message", id = "message",
+                       rows = '30', cols = '80', wrap = 'soft',
+                       style = 'vertical-align: top' );
+    -%]</p><p>
+    [%- label_r = ".input.supportreq.label" | ml;
+        form.textbox( label = label_r, name = "request", id = "request",
+                      maxlength = "10", size = "10", autocomplete = "off" );
+    -%]&nbsp;&nbsp;&nbsp;
+    [%- label_c = ".check.supportreq.label" | ml;
+        form.checkbox( label = label_c, selected = 1, value = 1,
+                       name = "reqsubj", id = "reqsubj" );
+    -%]</p><p>[%- ".input.notes.label" | ml -%]<br />
+    [%- form.textarea( name = "notes", id = "notes",
+                       rows = '6', cols = '60', wrap = 'soft',
+                       style = 'vertical-align: top' );
+    -%]</p><p>
+    [%- submit_label = ".submit" | ml;
+        form.submit( value = submit_label );
+    -%]</p>
+[%- ELSE -%]
+    <div class='error-box message-box'>[% '.noaddresses' | ml %]</div>
+[%- END -%]
+
+</form>

@@ -648,7 +648,7 @@ sub get_cluster_master
 #        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart,
 #        'F' == PubSubHubbub subscription id (F for Fred),
 #        'K' == sitekeyword, 'I' == shopping cart Item,
-#        'X' == sphinX id, 'U' == OAuth ConsUmer, 
+#        'X' == sphinX id, 'U' == OAuth ConsUmer, 'N' == seNdmail history
 #
 sub alloc_global_counter
 {
@@ -658,7 +658,7 @@ sub alloc_global_counter
 
     # $dom can come as a direct argument or as a string to be mapped via hook
     my $dom_unmod = $dom;
-    unless ( $dom =~ /^[ESLPAHCMFKIVXU]$/ ) {
+    unless ( $dom =~ /^[ESLPAHCMFKIVXUN]$/ ) {
         $dom = LJ::Hooks::run_hook('map_global_counter_domain', $dom);
     }
     return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
@@ -703,6 +703,8 @@ sub alloc_global_counter
         $newmax = $dbh->selectrow_array( "SELECT MAX(consumer_id) FROM oauth_consumer" );
     } elsif ( $dom eq 'V' ) {
         $newmax = $dbh->selectrow_array( "SELECT MAX(vgiftid) FROM vgift_ids" );
+    } elsif ( $dom eq 'N' ) {
+        $newmax = $dbh->selectrow_array( "SELECT MAX(msgid) FROM siteadmin_email_history" );
     } elsif ( $dom eq 'K' ) {
         # pick maximum id from sitekeywords & interests
         my $max_sitekeys  = $dbh->selectrow_array( "SELECT MAX(kwid) FROM sitekeywords" );

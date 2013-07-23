@@ -1,0 +1,57 @@
+;; -*- coding: utf-8 -*-
+
+.check.supportreq.label=Include in email subject?
+
+.error.badacct=That is not a valid from address.
+
+.error.badrcpt=That is not a valid recipient - make sure you are sending to either an existing username, or an email address.
+
+.error.badreq=The support request field must contain a number, not a URL.
+
+.error.noacct=You must select an account to email from.
+
+.error.nomulti=You can only send messages to one account or email address at a time.
+
+.error.nomsg=The message text cannot be blank.
+
+.error.norcpt=You must specify a recipient, either an account name or an email address.
+
+.error.nosubj=The message subject cannot be blank.
+
+.error.nouseremail=The message could not be sent because the journal you specified did not have an associated email address.
+
+.error.sendfailed=The message could not be sent at this time because of a database error.  Please try again later.
+
+.input.message.label=Message:
+
+.input.notes.label=(Optional) Private notes only visible to other team members:
+
+.input.sendto.label=Send to:
+
+.input.sendto.note=(account name or email address)
+
+.input.subject.label=Subject:
+
+.input.supportreq.label=(Optional) Support Request #:
+
+.intro=This is a convenience form for sending emails to users from registered site addresses.  You can only send messages from these addresses if you have the appropriate privileges.
+
+.noaddresses=Sorry, you don't have privileges for any of the currently configured accounts.
+
+.select.account.choose=(choose one)
+
+.select.account.label=Accounts:
+
+.select.form.label=Use form message:
+
+.select.form.none=(none available)
+
+.submit=Send Message
+
+.success.linktext.a=Compose another email message
+
+.success.linktext.b=Search sent email messages
+
+.success.msgtext=Your email message was sent.
+
+.title=Send Email From Site Accounts
