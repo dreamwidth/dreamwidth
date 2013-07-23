@@ -178,7 +178,7 @@ CLUSTER: foreach my $cluster (@clusters) {
                                 file_to_delete2 checksum note error job
                                 funcmap exitstatus );
         print "# Warning: unknown live table: $t\n"
-            unless $LJ::IS_DEV_SERVER && $t ~~ @mogile_tables;
+            unless $LJ::IGNORE_MOGILE_TABLES && $t ~~ @mogile_tables;
     }
 
     my $run_alter = $table_exists{dbnotes};
