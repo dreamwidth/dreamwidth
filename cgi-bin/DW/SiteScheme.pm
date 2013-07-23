@@ -196,7 +196,8 @@ sub current {
             $r->cookie( 'BMLschemepref' );
     }
 
-    return defined $sitescheme_data{$rv} ? $rv : $_[0]->default;
+    return $rv if defined $rv and defined $sitescheme_data{$rv};
+    return $_[0]->default;
 }
 
 =head2 C<< DW::SiteScheme->default >>
