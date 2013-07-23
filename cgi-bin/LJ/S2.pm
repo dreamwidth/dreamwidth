@@ -58,7 +58,7 @@ sub make_journal
 
     if ($view eq "res") {
         if ($opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) {
-            $styleid = $1 unless $styleid eq "sitefeeds";
+            $styleid = $1 unless $styleid && $styleid eq "sitefeeds";
 
             $entry = [ qw( Page::print_contextual_stylesheet() Page::print_default_stylesheet() print_stylesheet() Page::print_theme_stylesheet() ) ];
             $opts->{'contenttype'} = 'text/css';
@@ -1233,8 +1233,8 @@ sub set_style_layers
     return 0 unless $dbh && $u->writer;
 
     $u->do("REPLACE INTO s2stylelayers2 (userid,styleid,type,s2lid) VALUES ".
-           join(",", map { sprintf("(%d,%d,%s,%d)", $u->{userid}, $styleid,
-                                   $dbh->quote($_), $newlay{$_}) }
+           join(",", map { sprintf( "(%d,%d,%s,%d)", $u->id, $styleid,
+                                    $dbh->quote($_), $newlay{$_} // 0 ) }
                 keys %newlay));
     return 0 if $u->err;
 
@@ -2774,6 +2774,7 @@ sub get_page
 sub get_plural_phrase
 {
     my ($ctx, $n, $prop) = @_;
+    $n = 0 unless defined $n;
     my $form = S2::run_function($ctx, "lang_map_plural(int)", $n);
     my $a = $ctx->[S2::PROPS]->{"_plurals_$prop"};
     unless (ref $a eq "ARRAY") {
