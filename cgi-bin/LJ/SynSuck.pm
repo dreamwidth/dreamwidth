@@ -233,6 +233,13 @@ sub process_content {
     }
 
     my $feed = $rv->{feed};
+
+    # Eval'd so this failing for some reason doesn't break
+    #   the feed
+    my $final_url = eval { return $res->request->uri; };
+    $feed->{final_url} = $final_url->as_string
+        if $final_url;
+
     $fuzzy_token = DW::FeedCanonicalizer::canonicalize( $synurl, $feed );
   
     # register feeds that can support hubbub.
