@@ -51,6 +51,7 @@ bail_on_fail;
 my $out = "$dir/out";
 my $err = "$dir/err";
 my $lib = File::Spec->catdir(dirname(dirname($0)), 'cgi-bin');
+unshift @INC, $lib;
 
 foreach my $file (@modules) {
     my $warnings = '';
