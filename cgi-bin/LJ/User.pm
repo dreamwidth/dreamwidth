@@ -1918,6 +1918,17 @@ sub allow_search_by {
     return 0;
 }
 
+# whether comments are indexed in this journal
+sub allow_comments_indexed {
+    my ( $u ) = @_;
+    return 0 unless LJ::isu( $u );
+
+    # Comments are indexed in paid accounts only
+    return 1 if $u->is_paid;
+
+    # Otherwise comments aren't indexed
+    return 0;
+}
 
 sub caps {
     my $u = shift;
