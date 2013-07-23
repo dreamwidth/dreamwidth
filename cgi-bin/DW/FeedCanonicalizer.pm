@@ -51,16 +51,16 @@ sub canonicalize {
 
     given ( $uri_str ) {
         # Let's see if this looks "LJ-ish".
-        when( m!^https?://([a-z0-9\-_]+)\.([^/]+)/+$LJISH_URL_PART$!i ) {
-            my ( $sub, $host, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
-            continue if $sub eq 'www';
+        when( m!^https?://(?:users|community|syndicated)\.([^/]+)/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
+            my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
             continue if $feed ~~ m/^rss/i && ! $LJISH_SITES{$host};
             continue if $spare && ! $LJISH_SITES{$host};
             return make_ljish( $host, $sub, $feed, $orig_uri, $extra );
         }
-        
-        when( m!^https?://(?:users|community|syndicated)\.([^/]+)/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
-            my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 ); 
+
+        when( m!^https?://([a-z0-9\-_]+)\.([^/]+)/+$LJISH_URL_PART$!i ) {
+            my ( $sub, $host, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
+            continue if $sub eq 'www';
             continue if $feed ~~ m/^rss/i && ! $LJISH_SITES{$host};
             continue if $spare && ! $LJISH_SITES{$host};
             return make_ljish( $host, $sub, $feed, $orig_uri, $extra );
