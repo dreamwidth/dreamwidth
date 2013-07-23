@@ -31,7 +31,7 @@ DW::Routing->register_string( '/feeds/index', \&index_handler, app => 1 );
 DW::Routing->register_string( '/feeds/list', \&list_handler, app => 1 );
 
 sub index_handler {
-    my ( $ok, $rv ) = controller( form_auth => 0 );
+    my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;
 
     my $remote = $rv->{remote};
@@ -39,18 +39,17 @@ sub index_handler {
 
     my $r = DW::Request->get;
     my $did_post = $r->did_post;
-    my $args = $did_post ? $r->post_args : $r->get_args;
-    return error_ml( 'bml.badinput.body' ) unless LJ::text_in( $args );
-    return error_ml( 'error.invalidform' )
-        if $did_post && ! LJ::check_form_auth( $args->{lj_form_auth} );
+    my $post_args = $r->post_args;
+    my $get_args = $r->get_args;
+
     return error_ml( '/feeds/index.tt.user.nomatch' )
-        if $did_post && $args->{userid} != $remote->id;
+        if $did_post && $post_args->{userid} != $remote->id;
 
     # see if the user is trying to create a new feed
 
-    if ( $args->{'action:addcustom'} || $args->{url} ) {
-        my $acct = LJ::trim( $args->{acct} );
-        my $url = LJ::trim( $args->{synurl} || $args->{url} );
+    if ( $post_args->{'action:addcustom'} || $get_args->{url} ) {
+        my $acct = LJ::trim( $post_args->{acct} );
+        my $url = LJ::trim( $post_args->{synurl} || $get_args->{url} );
         $url =~ s!^feed://!http://!;  # eg, feed://www.example.com/
         $url =~ s/^feed://;           # eg, feed:http://www.example.com/
 
@@ -106,7 +105,7 @@ sub index_handler {
                 # for the url, just pass that through (we'll recheck it anyway, though)
                 unless ( $acct ) {
                     $rv->{synurl} = $url;
-                    $rv->{had_credentials} = $args->{had_credentials};
+                    $rv->{had_credentials} = $get_args->{had_credentials};
                     return DW::Template->render_template( 'feeds/name.tt', $rv );
                 }
 
@@ -212,7 +211,7 @@ sub index_handler {
 
     # populate @pop and subscribe to any popular feeds they've chosen
     for ( 0 .. 99 ) {
-        next if not defined $popsyn->[$_];
+        next unless defined $popsyn->[$_];
         my ( $user, $name, $suserid, $url, $count ) = @{ $popsyn->[$_] };
 
         my $suser = LJ::load_userid( $suserid ) or next;
@@ -220,7 +219,7 @@ sub index_handler {
         # skip suspended/deleted accounts & already watched feeds
         next if $watched{$suserid} || ! $suser->is_visible;
 
-        if ( $args->{'action:add'} && $args->{"add_$user"} ) {
+        if ( $post_args->{'action:add'} && $post_args->{"add_$user"} ) {
             $remote->add_edge( $suser, watch => {} );
         } else {
             # @pop only holds the top 20 unsubscribed feeds
@@ -245,31 +244,31 @@ sub list_handler {
     my $r = DW::Request->get;
     my $args = $r->get_args;  # no posting
 
-     my $popsyn = LJ::Feed::get_popular_feeds();
-     my @data;
+    my $popsyn = LJ::Feed::get_popular_feeds();
+    my @data;
 
-     foreach ( @$popsyn ) {
-         my ( $user, $name, $userid, $url, $count ) = @$_;
-         push @data, { user => $user, name => $name,
-                       numreaders => $count, synurl => $url };
-     }
+    foreach ( @$popsyn ) {
+        my ( $user, $name, $userid, $url, $count ) = @$_;
+        push @data, { user => $user, name => $name,
+                      numreaders => $count, synurl => $url };
+    }
 
-     return error_ml( '/feeds/list.tt.error.nofeeds' ) unless @data;
+    return error_ml( '/feeds/list.tt.error.nofeeds' ) unless @data;
 
     # $popsyn already defaults to "numreaders" sort
+    my $sort = $args->{sort} || 'numreaders';
 
-     if ( $args->{sort} eq "username" ) {
-         @data = sort { $a->{user} cmp $b->{user} } @data;
-     }
-     if ( $args->{sort} eq "feeddesc" ) {
-         @data = sort { $a->{name} cmp $b->{name} } @data;
-     }
+    if ( $sort eq "username" ) {
+        @data = sort { $a->{user} cmp $b->{user} } @data;
+    } elsif ( $sort eq "feeddesc" ) {
+        @data = sort { $a->{name} cmp $b->{name} } @data;
+    }
 
     # pagination
     my $curpage = $args->{page} || 1;
     my %items = LJ::paging( \@data, $curpage, 100 );
 
-    $rv->{sort} = $args->{sort};
+    $rv->{sort} = $sort;
     $rv->{data} = $items{items};  # subset of accounts to display on this page
     $rv->{navbar} = LJ::paging_bar( $items{page}, $items{pages} );
     $rv->{resort} = sub { LJ::page_change_getargs( sort => $_[0] ) };

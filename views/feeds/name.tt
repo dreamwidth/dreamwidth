@@ -16,7 +16,7 @@
 <p>[% url = synurl | url; '.create.name2' | ml(feedurl = url) %]</p>
 
 [%- IF had_credentials -%]
-<div class="message-box warning-box"><p>[% '.warn.had_credentials' | ml %]</p></div>
+<div class="message-box warning-box">[% '.warn.had_credentials' | ml %]</div>
 [%- END -%]
 
 <form method='post' action='./'><blockquote>
