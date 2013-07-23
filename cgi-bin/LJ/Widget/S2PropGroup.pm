@@ -124,7 +124,8 @@ sub render_body {
 
             # module_*_section_override overrides module_*_section;
             # for use in child layouts since they cannot redefine an existing property
-            my $prop_name_section_override = $props->{$overriding_prop_name}->{values};
+            my $prop_name_section_override = defined $overriding_prop_name
+                ? $props->{$overriding_prop_name}->{values} : undef;
 
             # put this property under the proper subheader (this is the original; may be overriden)
             my %prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
@@ -180,7 +181,7 @@ sub render_body {
                 next if $class->skip_prop( $props->{$prop_name}, $prop_name, theme => $theme, user => $u, style => $style );
 
                 unless ($header_printed) {
-                    my $prop_list_class;
+                    my $prop_list_class = '';
                     $prop_list_class = " first" if $subheader_counter == 1;
 
                     $ret .= "<div class='subheader subheader-modules collapsible expanded' id='subheader__modules__${subheader}'><div class='collapse-button'>"

@@ -66,7 +66,7 @@ sub IconsPage {
     my $page_size = S2::get_property_value($opts->{'ctx'}, "num_items_icons")+0 || $LJ::MAX_ICONS_PER_PAGE || 0;
 
     $page_size = $LJ::MAX_ICONS_PER_PAGE if ( $LJ::MAX_ICONS_PER_PAGE && $page_size > $LJ::MAX_ICONS_PER_PAGE );
-    $page_size = 0 if $get->{view} eq 'all';
+    $page_size = 0 if $get->{view} && $get->{view} eq 'all';
 
     $p->{pages} = ItemRange_fromopts({
         items => \@pics,
