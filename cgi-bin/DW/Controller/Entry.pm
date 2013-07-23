@@ -42,6 +42,7 @@ my @modules = qw(
     slug tags currents displaydate
     access journal comments
     age_restriction icons crosspost
+    flags
 );
 
 
@@ -730,6 +731,9 @@ sub _form_to_backend {
     # Set entry slug if it's been specified
     $req->{slug} = LJ::canonicalize_slug( $post->{entry_slug} // '' );
 
+    # Check if this is a community.
+    $props->{admin_post} = $post->{flags_adminpost} || 0;
+        
     # entry security
     my $sec = "public";
     my $amask = 0;
@@ -815,6 +819,8 @@ sub _backend_to_form {
         age_restriction_reason => $entry->prop( "adult_content_reason" ),
 
         entry_slug => $entry->slug,
+
+        flags_adminpost => $entry->prop("admin_post"),
 
         # FIXME:
         # ...       => $entry->prop( "opt_preformatted" )

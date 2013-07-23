@@ -19,7 +19,8 @@ td, th { padding: 4px; }
 <h2>[% '.hdr.plan' | ml %]</h2>
 <ul>
 [%- FOREACH merge IN merge_plan %]
-    <li>synmerge <strong>[% merge.0.user %]</strong> to <strong>[% merge.1.user %]</strong> using
+[%# This is not stripped, as it is supposed to match the console command %] 
+    <li>syn_merge <strong>[% merge.0.user %]</strong> to <strong>[% merge.1.user %]</strong> using
         <strong>[% url_to | html %]</strong>
         [% IF merge.2 %][% ELSE %]<strong>[ failure: [% merge.3 %] ]</strong>[% END %]
     </li>
