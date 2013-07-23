@@ -170,7 +170,15 @@ CLUSTER: foreach my $cluster (@clusters) {
 
     foreach my $t (keys %table_unknown)
     {
-        print "# Warning: unknown live table: $t\n";
+        # dreamhacks use the same database for website and mogilefs
+        my @mogile_tables = qw( domain class file tempfile file_to_delete
+                                unreachable_fids file_on file_on_corrupt
+                                host device server_settings file_to_replicate
+                                file_to_delete_later fsck_log file_to_queue
+                                file_to_delete2 checksum note error job
+                                funcmap exitstatus );
+        print "# Warning: unknown live table: $t\n"
+            unless $LJ::IS_DEV_SERVER && $t ~~ @mogile_tables;
     }
 
     my $run_alter = $table_exists{dbnotes};
