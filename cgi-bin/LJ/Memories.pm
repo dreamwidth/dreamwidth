@@ -408,7 +408,7 @@ sub _memory_getter {
 
     # Specify filter/security by pair, or individually
     my $secwhere = '';
-    my $extrawhere;
+    my $extrawhere = '';
     if ($opts->{filter_security_pairs}) {
         my @pairs;
         foreach my $filter_security_pair (@{$opts->{filter_security_pairs}}) {
@@ -432,7 +432,7 @@ sub _memory_getter {
     }
 
     my $des = $opts->{notext} ? '' : 'des, ';
-    my $selwhere;
+    my $selwhere = '';
     if (@{$opts->{byid} || []}) {
         # they want to get some explicit memories by memid
         my $in = join ',', map { $_+0 } @{$opts->{byid}};
