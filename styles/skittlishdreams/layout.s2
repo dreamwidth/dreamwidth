@@ -121,6 +121,9 @@ propgroup fonts {
     property use font_journal_title;
     property use font_journal_title_size;
     property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
     property use font_entry_title;
     property use font_entry_title_size;
     property use font_entry_title_units;
@@ -368,6 +371,7 @@ function Page::print()
                 <a name="top">
     """;
     $this->print_global_title();
+    $this->print_global_subtitle();
     """
                 </a>
             </div>
@@ -502,6 +506,7 @@ function Page::print_default_stylesheet () {
 
     var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units );
     var string journal_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string journal_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
     var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
@@ -669,7 +674,7 @@ html body {
 .two-columns-left #container { $container_background_redux }
 .two-columns-right #container, .two-columns-left #container { $container_colors margin: 0 4%; }
 
-#header { $header_background $header_footer_colors  padding: 0; }
+#header { $header_background $header_footer_colors padding: 0; }
 .two-columns-right #header { margin: 0 5px 0 0; }
 .two-columns-left #header { margin: 0 0 0 5px; text-align: right; }
 #footer {margin: 0 4%; padding: 0; background:transparent;}
@@ -678,8 +683,8 @@ html body {
 #header a, #footer a { $header_footer_colors text-decoration: none; }
 
 h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; }
-#header h1 {margin: 0; padding: 20px  20px  0  2em; $journal_title_font font-weight: lighter; font-variant: normal; text-transform: lowercase; letter-spacing: 0.2em; }
-#header h2 {padding: 0 2em; $page_title_colors }
+#header h1 {margin: 0; padding: 20px  20px  0  2em; $page_title_colors $journal_title_font font-weight: lighter; font-variant: normal; text-transform: lowercase; letter-spacing: 0.2em; }
+#header h2 {padding: 0 20px 0 2.7em; $page_title_colors $journal_subtitle_font}
 
 #wrap { $page_text_colors }
 .two-columns-right #wrap {padding-right: $*sidebar_width; padding-top: 20px; padding-left:  20px;}
