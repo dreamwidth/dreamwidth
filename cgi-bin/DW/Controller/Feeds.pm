@@ -221,6 +221,7 @@ sub index_handler {
 
         if ( $post_args->{'action:add'} && $post_args->{"add_$user"} ) {
             $remote->add_edge( $suser, watch => {} );
+            $remote->add_to_default_filters( $suser );
         } else {
             # @pop only holds the top 20 unsubscribed feeds
             push @pop, { user => $user, url => $url, count => $count,
