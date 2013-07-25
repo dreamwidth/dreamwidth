@@ -91,7 +91,6 @@ if ( -e $cache_file ) {
 if ( $dirty || $regen ) {
     $data = load_cache( $version );
     Storable::nstore( $data, $cache_file );
-    print Dumper( $data );
 }
 
 if ( !$string && !$regex ) {
