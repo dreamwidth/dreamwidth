@@ -159,6 +159,7 @@ footer { border-top: 4px double $strong-accent-color;
  */
 
 #content {
+    @include grid-row(false);
     padding-top: $masthead-height + 4em;
 }
 
@@ -276,8 +277,7 @@ footer { border-top: 4px double $strong-accent-color;
      * #content
      */
     #content {
-        @include grid-row(false);
-        margin-top: $masthead-height + 2em;
+        margin-top: $masthead-height + 4em;
         margin-left: 1em;
         border-left: 9em solid $topbar-bg;
         padding: 1px 1em 1em 1.5em;
