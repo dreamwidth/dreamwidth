@@ -159,8 +159,7 @@ footer { border-top: 4px double $strong-accent-color;
  */
 
 #content {
-    position: relative;
-    top: $masthead-height + 4em;
+    padding-top: $masthead-height + 4em;
 }
 
 #content p {
