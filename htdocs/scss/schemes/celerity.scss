@@ -128,7 +128,9 @@ ul { list-style: square;}
     }
 }
 
-#header-userpic {
+// TODO: fix this along with account links
+// should be revealable by a click rather than just gone
+#header-userpic, #header-search {
     display: none;
 }
 
@@ -203,11 +205,19 @@ footer { border-top: 4px double $strong-accent-color;
      * Header
      */
 
-    #header-search { position: absolute;
-        top: 140px;
-        right: 22px;
-        text-align: right;
+    #header-search {
+        position: absolute;
+        top: $masthead-height + 2em;
+        right: 0;
+
+        ul {
+            list-style: none;
         }
+
+        input {
+            margin: 0;
+        }
+    }
 
     #header-userpic {
         display: inherit;

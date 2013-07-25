@@ -84,7 +84,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             </nav>
             <div id="header-divider"> <div id="header-divider-insert"></div></div>
             <div id="header-search" role="search">
-                [% dw_scheme.search_render %]
+                [% PROCESS block.search %]
             </div><!-- end header-search-->
             <footer role="contentinfo">
                 [% PROCESS block.footer %]

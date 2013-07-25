@@ -28,7 +28,7 @@
 <form action="[% site.root %]/multisearch" method="post">
 <div class="row collapse">
 <div class="columns large-6">
-    <input name="q" id="search" type="text" title="[% 'widget.search.title' | ml %]" size="20" />
+    <input name="q" id="search" type="search" title="[% 'widget.search.title' | ml %]" size="20" />
 </div>
 <div class="columns large-4">
 <select name="type">
