@@ -40,10 +40,17 @@ $anchor-font-color:                    #999966;
 $anchor-font-color-visited:            shade( $anchor-font-color, 30% );
 $anchor-font-color-hover:              lighten( $anchor-font-color, 30% );
 
+
+
+
 $include-html-classes: true;
 @import "foundation";
 
-@import "schemes/skin-colors";
+// celerity-specific measurements
+$sidebar-width:                        9em;
+$masthead-height:                      6.875em;
+
+@import "schemes/skin-colors", "schemes/nav";
 
 a:hover,
 a:active,
@@ -65,7 +72,7 @@ ul { list-style: square;}
 #page-decoration { background-image: url("/img/celerity/lt-stripe.jpg");
     background-repeat: repeat-x;
     background-position: top;
-    width: 9em;
+    width: $sidebar-width;
     height: 50px;
     margin-left: 1em;
     margin-top: -30px;
@@ -76,48 +83,33 @@ ul { list-style: square;}
 /**
  * Header
  */
-#masthead { position: absolute;
-    top: 50px;
+
+@include header-nav( left, $masthead-height, 1em, $sidebar-width + 1em );
+
+#masthead {
+    position: absolute;
+    top: 0;
     right: 25px;
+    height: $masthead-height;
+
+    #logo {
+        line-height: $masthead-height - 1em;
     }
-    #sitename { font-family: "Century Gothic", Verdana, sans-serif;
+
+    #sitename {
+        font-family: "Century Gothic", Verdana, sans-serif;
         font-weight: normal;
         font-size: 175%;
 
         a {
             color: $strong-accent-color;
         }
-        }
-
-#account-links {
-    position: absolute;
-    top: 3px;
-    left: 13em;
-    text-align: left;
-
-    ul {
-        list-style: none;
-        margin-left: 0;
-        padding-left: 0;
-        margin-top: 5px;
-        white-space: nowrap; /* to make sure the links don't wrap under short usernames */
-    }
-
-    li { display: inline; }
-
-    #login-table td {
-        padding: 3px;
-        text-align: left;
-    }
-    #login-table td.input-cell,
-    #login-table td.remember-me-cell {
-        text-align: left;
     }
 }
 
 /*Scheme specific divs to contain header stripes*/
 #header-divider { position: absolute;
-    top: 110px;
+    top: $masthead-height;
     left: 0;
     background-color: $strong-accent-color;
     background-image: url("/img/celerity/dk-stripe.jpg");

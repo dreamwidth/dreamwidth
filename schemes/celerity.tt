@@ -43,63 +43,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- BLOCK block.page -%]
 [%# so far failed attempt to move the menu to the top of the screen to match tropo -%]
-[%- IF resource_group == "foundation" AND 0 -%]
-<!DOCTYPE html>
-<html lang="en">
-    [% PROCESS block.head %]
-    <body [% sections.bodyopts %]>
-        <div id="canvas">
-            <div id="page">
-                [%# Not using the HTML 5 <header> element for now
-                because of incompatibilities with JAWS and
-                Firefox %]
-                <div id="masthead" class="row">
-                    <div class="columns large-4 small-12" role="banner">
-                        <span id="logo">
-                            [% PROCESS block.logo %]
-                        </span>
-                    </div>
-
-                    <div class="columns large-8 small-12">
-                    <div id="account-links" role="navigation">
-                        [% PROCESS block.accountlinks %]
-                    </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <nav role="navigation" class="top-bar">
-                        <ul class="title-area">
-
-                        <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>
-                        </ul>
-                        <section class="top-bar-section">
-                        [% PROCESS block.userpic %]
-                        [% PROCESS block.menunav %]
-                        <ul class="right" role="search">
-                        <li class="has-form">
-                        [% dw_scheme.search_render %]
-                        </li>
-                        </ul>
-                        </section>
-                    </nav>
-                </div>
-
-                <div id="content" role="main" [% sections.contentopts %]>
-                <h1>[% sections.title %]</h1>
-                [% content %]
-                </div><!--end content-->
-                <div id="page-decoration"></div>
-                </div><!-- end page-->
-
-                <footer role="contentinfo" class="row">
-                    [% PROCESS block.footer %]
-                </footer>
-        </div> <!-- end canvas-->
-        [% dw_scheme.final_body_html %]
-    </body>
-</html>
-[%- ELSIF resource_group == "foundation" %]
+[%- IF resource_group == "foundation" -%]
 <!DOCTYPE html>
 <html lang="en">
     [% PROCESS block.head %]
@@ -110,7 +54,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 because of incompatibilities with JAWS and
                 Firefox %]
                 <div id="masthead" role="banner">
+                    <span id="logo">
                         [% PROCESS block.logo %]
+                    </span>
                 </div><!-- end masthead-->
 
                 <div id="content" role="main" [% sections.contentopts %]>
@@ -119,7 +65,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 </div><!--end content-->
                 </div><!-- end page-->
                 <div id="page-decoration"></div>
-                <div id="account-links" role="navigation">
+                <div id="account-links" role="navigation" class="hide-for-small">
                     [% PROCESS block.accountlinks %]
                 </div><!-- end account links-->
                 <nav role="navigation">
