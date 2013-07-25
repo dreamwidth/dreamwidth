@@ -40,7 +40,17 @@ $anchor-font-color:                    #999966;
 $anchor-font-color-visited:            shade( $anchor-font-color, 30% );
 $anchor-font-color-hover:              lighten( $anchor-font-color, 30% );
 
+// navigation
+$topbar-link-weight:                   normal;
+$topbar-link-color:                    #222200;
+$topbar-link-color-hover:              $topbar-link-color;
 
+$topbar-dropdown-bg:                   $topbar-bg;
+$topbar-dropdown-link-color:           $topbar-link-color;
+$topbar-dropdown-link-bg:              $topbar-bg;
+
+$topbar-menu-link-color:               $topbar-link-color;
+$topbar-menu-icon-color:               $topbar-link-color;
 
 
 $include-html-classes: true;
@@ -60,31 +70,22 @@ a:active,
 
 ul { list-style: square;}
 
-#canvas {
-    padding-top: 1px;  /*to ensure margin*/
-}
-#page {
-    margin-bottom: 2em;
-    padding-top: 1px;  /*to ensure margin*/
-}
-
-/*Scheme specific div to contain sidebar stripes*/
-#page-decoration { background-image: url("/img/celerity/lt-stripe.jpg");
-    background-repeat: repeat-x;
-    background-position: top;
-    width: $sidebar-width;
-    height: 50px;
-    margin-left: 1em;
-    margin-top: -30px;
-    float: left;
-    display: inline; /* to defeat the IE double-margin bug */
-}
-
 /**
  * Header
  */
 
-@include header-nav( left, $masthead-height, 1em, $sidebar-width + 1em );
+@include header-nav( left, $masthead-height, 1em );
+
+.main-nav {
+    position: absolute;
+    top: $masthead-height + 1em;
+    left: 0;
+    right: 0;
+
+    .has-dropdown a {
+        text-decoration: none;
+    }
+}
 
 #masthead {
     position: absolute;
@@ -107,62 +108,30 @@ ul { list-style: square;}
     }
 }
 
-/*Scheme specific divs to contain header stripes*/
-#header-divider { position: absolute;
-    top: $masthead-height;
-    left: 0;
-    background-color: $strong-accent-color;
-    background-image: url("/img/celerity/dk-stripe.jpg");
-    background-position: right;
-    background-repeat: repeat-y;
-    width: 100%;
-    }
-    #header-divider-insert { margin-left: 1em;
-        height: 20px;
-        width: 9em;
-        background: url("/img/celerity/stripes.jpg");
-        background-position: center;
-        }
+ /*Scheme specific divs to contain header stripes*/
+#header-divider {
+     position: absolute;
+     top: $masthead-height;
+     left: 0;
+     background-color: $strong-accent-color;
+     background-image: url("/img/celerity/dk-stripe.jpg");
+     background-position: right;
+     background-repeat: repeat-y;
+     width: 100%;
 
-#header-search { position: absolute;
-    top: 140px;
-    right: 22px;
-    text-align: right;
+     #header-divider-insert {
+         margin-left: 1em;
+         height: 20px;
+         width: 9em;
+         background: url("/img/celerity/stripes.jpg");
+         background-position: center;
     }
+}
 
-/**
- * Sidebar and Menu
- */
-nav { position: absolute;
-    top: 0;
-    left: 1em;
-    width: 9em;
-    }
-nav ul { margin-left: 5px;
-        margin-right: 3px;
-        margin-top: 40px;
-        padding-left: 0;
-        font-size: small;
-        list-style: none;
-        }
-nav ul ul { margin-left: 1em;
-            margin-right: 0;
-            margin-top: 0;
-        }
-nav li { padding: .15em 0; }
-nav .subnav a,
-nav .topnav a {color: #222200; }
+#header-userpic {
+    display: none;
+}
 
-#header-userpic { text-align: center;
-    height: 100px;
-    background-image: url("/img/celerity/square.jpg");
-    background-repeat: no-repeat;
-    background-position: center;
-    }
-    #header-userpic img { margin-top: 10px;
-        border: none;
-        background-color: $topbar-bg; /*so the square doesn't show behind transparent icons */
-        }
 
 /**
  * Footer
@@ -188,15 +157,10 @@ footer { border-top: 4px double $strong-accent-color;
 /**
  * #content
  */
+
 #content {
-    @include grid-row(false);
-    margin-left: 1em;
-    border-left: 9em solid $topbar-bg;
-    margin-top: 170px;
-    padding: 1px 1em 1em 1.5em;
-    min-height: 65em;
-    height: auto !important; /*these two lines are a min-height hack that fixes it in IE6*/
-    height: 65em;
+    position: relative;
+    top: $masthead-height + 4em;
 }
 
 #content p {
@@ -210,4 +174,116 @@ footer { border-top: 4px double $strong-accent-color;
     list-style: square outside;
     margin-left: 2em;
     margin-bottom: 1em;
+}
+
+@media #{$topbar-media-query} {
+    #canvas {
+        padding-top: 1px;  /*to ensure margin*/
+    }
+
+    #page {
+        margin-bottom: 2em;
+        padding-top: 1px;  /*to ensure margin*/
+    }
+
+    /*Scheme specific div to contain sidebar stripes*/
+    #page-decoration {
+        background-image: url("/img/celerity/lt-stripe.jpg");
+        background-repeat: repeat-x;
+        background-position: top;
+        width: $sidebar-width;
+        height: 50px;
+        margin-left: 1em;
+        margin-top: -30px;
+        float: left;
+        display: inline; /* to defeat the IE double-margin bug */
+    }
+
+    /**
+     * Header
+     */
+
+    #header-search { position: absolute;
+        top: 140px;
+        right: 22px;
+        text-align: right;
+        }
+
+    #header-userpic {
+        display: inherit;
+    }
+
+    /**
+     * Sidebar and Menu
+     */
+     #account-links {
+        left: $sidebar-width + 1em;
+     }
+
+    .main-nav {
+        position: absolute;
+        top: 0;
+        left: 1em;
+        width: 9em;
+
+        ul {
+            margin-left: 5px;
+            margin-right: 3px;
+            margin-top: 40px;
+            padding-left: 0;
+            font-size: small;
+            list-style: none;
+        }
+
+        ul ul {
+            margin-left: 1em;
+            margin-right: 0;
+            margin-top: 0;
+        }
+
+        li {
+            padding: .15em 0;
+        }
+
+        .subnav a,
+        .topnav a {
+            color: $topbar-link-color;
+        }
+    }
+
+    #header-userpic { text-align: center;
+        height: 100px;
+        background-image: url("/img/celerity/square.jpg");
+        background-repeat: no-repeat;
+        background-position: center;
+        }
+        #header-userpic img { margin-top: 10px;
+            border: none;
+            background-color: $topbar-bg; /*so the square doesn't show behind transparent icons */
+            }
+
+    /**
+     * Reset top-bar styles so they don't apply to the sidebar
+     */
+    .top-bar {
+        height: auto;
+
+        .js-generated {
+            display: none;
+        }
+    }
+
+    /**
+     * #content
+     */
+    #content {
+        @include grid-row(false);
+        margin-top: $masthead-height + 2em;
+        margin-left: 1em;
+        border-left: 9em solid $topbar-bg;
+        padding: 1px 1em 1em 1.5em;
+        min-height: 65em;
+        height: auto !important; /*these two lines are a min-height hack that fixes it in IE6*/
+        height: 65em;
+    }
 }

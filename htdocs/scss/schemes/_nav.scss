@@ -1,8 +1,7 @@
-@mixin header-nav( $side: left, $height: 7em, $top: 0, $side-position: 0 ) {
+@mixin header-nav( $side: left, $height: 7em, $top: 0 ) {
     #account-links {
         position: absolute;
         top: $top;
-        #{$side}: $side-position;
 
         width: 50%;
         white-space: nowrap;
@@ -73,6 +72,10 @@
         a {
             line-height: 2em;
         }
+    }
+
+    #masthead {
+        height: $height;
     }
 
     #logo {

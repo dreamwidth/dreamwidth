@@ -23,7 +23,7 @@
 
 
 [%- BLOCK block.search -%]
-<ul class="right" role="search">
+<ul class="right nav-search" role="search">
 <li class="has-form">
 <form action="[% site.root %]/multisearch" method="post">
 <div class="row collapse">
