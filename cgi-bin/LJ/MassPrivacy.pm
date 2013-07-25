@@ -65,12 +65,12 @@ sub handle {
     croak "missing options argument" unless $opts;
 
     my $u =  LJ::load_userid($opts->{'userid'});
-    # we only handle changes to or from friends-only security
-    # Allowmask for friends-only is 1, public and private are 0.
+    # we only handle changes to or from locked security
+    # Allowmask for locked is 1, public and private are 0.
     my $s_allowmask = ($opts->{s_security} eq 'usemask') ? 1 :0;
     my $e_allowmask = ($opts->{e_security} eq 'usemask') ? 1 :0;
     my %privacy = ( private => 'private',
-                    usemask => 'friends-only',
+                    usemask => 'locked',
                     public  => 'public',
                   );
 
@@ -134,17 +134,17 @@ sub handle {
         die $errmsg;
     }
 
-    my $subject = "We've updated the privacy of your entries";
-    my $msg = "Hi " . $u->user . ",\n\n" .
-              "$okay_ct " . $privacy{$opts->{s_security}} . " entries " .
-              $timeframe . "have now " .
-              "been changed to be " . $privacy{$opts->{e_security}} . ".\n\n" .
-              "If you made this change by mistake, or if you want to change " .
-              "the security on more of your entries, you can do so at " .
-              "$LJ::SITEROOT/editprivacy\n\n" .
-              "Thanks!\n\n" .
-              "$LJ::SITENAME Team\n" .
-              "$LJ::SITEROOT";
+    my $subject = LJ::Lang::ml( 'email.massprivacy.subject', { user => $u->user } );
+    my $msg = LJ::Lang::ml( 'email.massprivacy.body', {
+        user => $u->user,
+        sitenameshort => $LJ::SITENAMESHORT,
+        siteroot => $LJ::SITEROOT,
+        count => $okay_ct,
+        timeframe => $timeframe,
+        oldsecurity => $privacy{$opts->{s_security}},
+        newsecurity => $privacy{$opts->{e_security}},
+        privacy => '$LJ::SITEROOT/editprivacy',
+    } );
 
     LJ::send_mail({
         'to' => $u->email_raw,

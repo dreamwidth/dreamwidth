@@ -645,6 +645,21 @@ Enjoy!
 [[siteroot]]/
 .
 
+email.massprivacy.subject=Updated entry security for [[user]]
+
+email.massprivacy.body<<
+Dear [[user]],
+
+At your request, [[count]] [[oldsecurity]] [[?count|entry|entries]] [[timeframe]] have now been changed to [[newsecurity]].
+
+If you want to change the security on more of your entries, you can do so at:
+
+    [[privacyurl]]
+
+[[sitenameshort]] Team
+[[siteroot]]/
+.
+
 emailpost.reply.address=Reply as [[user]]
 
 embedmedia.vimeo=Watch on Vimeo
