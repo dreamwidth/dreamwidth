@@ -21,6 +21,8 @@ $(function() {
         $.each( form_fields, function( i, form_field ) {
             var file_id = form_field.getAttribute("data-file-id");
 
+            if (form_field.name == "generated-code") return;
+
             if ( ! data[file_id] )
                 data[file_id] = {};
 
@@ -34,7 +36,7 @@ $(function() {
 
             'data'      : JSON.stringify( data )
         } )
-        .done(function() {
+        .done(function(data) {
             if ( ! _metadataInProgress ) {
                 $(".upload-form .log")
                     .addClass( "success" )
@@ -45,6 +47,11 @@ $(function() {
                     return $(this).data("original-text");
                 });
             }
+
+            $.each(data.result, function( element_id, element_attributes ) {
+                $("#file_" + element_id + " input[name=generated-code]")
+                    .trigger( "imagecodeupdate", [ element_attributes ] );
+            });
         })
         .fail(function(jqXHR) {
             var response = JSON.parse(jqXHR.responseText);
@@ -116,12 +123,13 @@ $(function() {
             var file_id = response.result.id;
 
             data.context
+                .attr( "id", "file_" + file_id )
                 // update the form field names to use this image id
                 .find(":input").attr( "data-file-id", function(i, name){
                     return file_id;
-                })
-                .end()
-                .find(".progress").toggleClass( "secondary success" );
+                }).end()
+                .find(".progress").toggleClass( "secondary success" ).end()
+                .find("input[name=generated-code]").trigger("imagecodeupdate", [ response.result ]).end();
         } else {
             $(data.context).trigger( "uploaderror", [ { error : data.error } ] );
         }
@@ -189,6 +197,22 @@ $(function() {
                 .addClass( "disabled" )
                 .attr( "aria-invalid", true );
 
+    }).on("imagecodeupdate", function(e, data) {
+        var $field = $(e.target);
+
+        var image = $field.data( "image-attributes" );
+        if ( ! image ) image = {};
+        $.extend( image, data );
+        $field.data( "image-attributes", image );
+
+        var text = [];
+        text.push( "<figure>", "<a href='" + image.url + "'><img src='" + image.thumbnail_url + "'" );
+        if ( image.title ) text.push( " alt='" + image.title + "' " );
+        text.push( " /></a>" );
+        if ( image.description ) text.push("<figcaption>" + image.description + "</figcaption>");
+        text.push( "</figure>" );
+
+        $field.val(text.join(""));
     });
 
     $(window).on('beforeunload', function(e) {

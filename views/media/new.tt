@@ -78,7 +78,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="large-[% fieldSize %] columns">
         [%-# "id" will be added by JS -%]
         [% IF type == "text" %]
-            [%- form.textbox( "name" = name ) -%]
+            [%- form.textbox( "name" = name, "data-generated" = "true" ) -%]
         [% ELSIF type == "textarea" %]
             [%- form.textarea( "name" = name, rows = 3 ) -%]
         [% ELSIF type == "select" %]
@@ -119,6 +119,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
 
         [%- INCLUDE row_with_field( label = dw.ml( ".label.description" ), name = "description", type = "textarea" ) %]
+        [%- INCLUDE row_with_field( label = "Image Code", name="generated-code" ) -%]
     </div>
 </li>
 </script>

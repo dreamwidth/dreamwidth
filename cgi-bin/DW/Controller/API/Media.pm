@@ -166,7 +166,7 @@ sub file_edit_handler {
         }
     }
 
-    return api_ok( 1 );
+    return api_ok( $args );
 }
 
 1;
