@@ -4900,16 +4900,14 @@ function Comment::print_poster() {
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
     if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
 
-    print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster ";
+    print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster";
     if ( $this.admin_post ) {
-        """<span class="admin-poster">(""";
+        """<span class="admin-poster">( """;
         $this->print_admin_post_icon();
         print $*text_admin_post_note;
         """)</span>""";
     }
     """</span>\n""";
-
-
 }
 
 
