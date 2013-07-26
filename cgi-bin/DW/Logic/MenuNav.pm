@@ -98,6 +98,11 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
+                    url => "$LJ::SITEROOT/file/new",
+                    text => "menunav.create.uploadimages",
+                    display => $loggedin,
+                },
+                {
                     url => "$LJ::SITEROOT/community/create",
                     text => "menunav.create.createcommunity",
                     display => $loggedin_canjoincomms,

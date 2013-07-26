@@ -2068,6 +2068,8 @@ menunav.create.editprofile=Edit Profile
 
 menunav.create.updatejournal=Post Entry
 
+menunav.create.uploadimages=Upload Images
+
 menunav.create.uploaduserpics=Upload Icons ([[num]] of [[max]])
 
 menunav.explore=Explore
