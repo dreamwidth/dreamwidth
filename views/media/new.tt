@@ -35,7 +35,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="large-12 columns">
     <form enctype="multipart/form-data" method="POST" class='upload-form'>
         <fieldset class="upload-form-file-inputs">
-        <legend>Upload</legend>
+        <legend>[% '.upload.legend' | ml %]</legend>
         <div class="row">
             <div class="large-12 columns">
                 <input type="file" id="files" name="files" />
@@ -52,7 +52,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <div class="large-3 columns">
                 [% form.submit(
                     name = "upload"
-                    value = "Upload"
+                    value = dw.ml( ".upload.submit" )
                 ) %]
             </div>
             <div class="large-9 columns">
@@ -79,6 +79,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%-# "id" will be added by JS -%]
         [% IF type == "text" %]
             [%- form.textbox( "name" = name ) -%]
+        [% ELSIF type == "textarea" %]
+            [%- form.textarea( "name" = name, rows = 3 ) -%]
         [% ELSIF type == "select" %]
             [%- form.select( "items"   = items
                              "name"    = name
@@ -97,7 +99,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div class="row">
             <div class="large-8 columns">
                 [%- INCLUDE row_with_field(
-                        label = "Title"
+                        label = dw.ml( ".label.title" )
                         name  = "title"
 
                         labelSize = 3
@@ -105,7 +107,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             </div>
             <div class="large-4 columns">
                 [%- INCLUDE row_with_field(
-                    label = "Security"
+                    label = dw.ml( ".label.security" )
                     name  = "security"
 
                     type  = "select"
@@ -116,16 +118,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             </div>
         </div>
 
-        <div class="row">
-            <div class="large-8 columns">
-                [%- INCLUDE row_with_field( label = "Alt Text", name = "alttext", labelSize = 3 ) -%]
-            </div>
-            <div class="large-4 columns">
-                [%- INCLUDE row_with_field( label = "Source", name = "source", labelSize = 4 ) -%]
-            </div>
-        </div>
-
-        [%- INCLUDE row_with_field( label = "Comment", name = "comment") -%]
+        [%- INCLUDE row_with_field( label = dw.ml( ".label.description" ), name = "description", type = "textarea" ) %]
     </div>
 </li>
 </script>
