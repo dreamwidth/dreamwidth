@@ -2757,6 +2757,7 @@ sub control_strip
     }
 
     my $view = delete $opts{view} || $r->note( 'view' );
+    my $view_is = sub { defined $view && $view eq $_[0] };
 
     my $baseuri = "http://$host$uri";
 
@@ -2891,15 +2892,15 @@ sub control_strip
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
         if ( $remote->equals( $journal ) ) {
-            if ( $view eq "read" ) {
+            if ( $view_is->( "read" ) ) {
                 $ret .= $statustext{'yourfriendspage'};
-            } elsif ( $view eq "network" ) {
+            } elsif ( $view_is->( "network" ) ) {
                 $ret .= $statustext{'yourfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'yourjournal'};
             }
             $ret .= "<br />";
-            if ( $view eq "read" || $view eq "network" ) {
+            if ( $view_is->( "read" ) || $view_is->( "network" ) ) {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
                 # content_filters returns an array of content filters this user had, sorted by sortorder
                 # since this is only shown if $remote->equals( $journal ) , we don't have to care whether a filter is public or not
@@ -2984,9 +2985,9 @@ sub control_strip
                 $ret .= "$statustext{watched_by}<br />";
                 $ret .= "$links{add_friend}";
             } else {
-                if ( $view eq "read" ) {
+                if ( $view_is->( "read" ) ) {
                     $ret .= $statustext{'personalfriendspage'};
-                } elsif ( $view eq "network" ) {
+                } elsif ( $view_is->( "network" ) ) {
                     $ret .= $statustext{'personalfriendsfriendspage'};
                 } else {
                     $ret .= $statustext{'personal'};
@@ -3100,9 +3101,9 @@ LOGIN_BAR
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
 
         if ($journal->is_personal || $journal->is_identity) {
-            if ( $view eq "read" ) {
+            if ( $view_is->( "read" ) ) {
                 $ret .= $statustext{'personalfriendspage'};
-            } elsif ( $view eq "network" ) {
+            } elsif ( $view_is->( "network" )  ){
                 $ret .= $statustext{'personalfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'personal'};
@@ -3148,7 +3149,7 @@ LOGIN_BAR
         if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {
             push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle2' ) . "</a>";
-        } elsif ( $view_type eq "site" and $current_style ne $view_type and {
+        } elsif ( $view_type eq "site" and $current_style ne $view_type and defined $view and {
                 entry => 1,
                 reply => 1,
                 icons => 1,

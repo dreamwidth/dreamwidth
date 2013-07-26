@@ -1033,7 +1033,9 @@ sub load_comments
         }
 
         # explicit comment hierarchy indicator generation
-        if ( ( ! $opts->{'flat'} ) && $remote && $remote->prop( "opt_echi_display" ) eq "Y" ) {
+        my $echi_display = '';
+        $echi_display = $remote->prop( "opt_echi_display" ) || '' if $remote;
+        if ( ! $opts->{flat} && $echi_display eq "Y" ) {
 
             my @alpha = ( "a".."z" );
 
