@@ -93,7 +93,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <li class='row'>
     <div class="large-3 columns image-preview">
-        <div class="progress large-8 secondary"><span class="meter" style="width:0"></span></div>
+        <div class="progress secondary"><span class="meter" style="width:0"></span></div>
     </div>
     <div class="large-9 columns">
         <div class="row">

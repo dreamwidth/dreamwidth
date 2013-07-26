@@ -24,7 +24,7 @@
 }
 
 .upload-form output li.row {
-  padding-top: 2em;
+  margin-bottom: 2em;
 }
 
 .upload-form output textarea {
@@ -32,6 +32,11 @@
 }
 
 .image-preview canvas {
+  margin-bottom: 1em;
+  max-width: 100%;
+}
+
+.image-preview {
   margin-bottom: 1em;
 }
 
