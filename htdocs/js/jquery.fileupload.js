@@ -181,7 +181,7 @@ $(function() {
     $(".upload-form-preview ul").on( 'uploaderror', function(e, data) {
         $(e.target)
             // error message
-            .find( ".progress.success" )
+            .find( ".progress .meter" )
                 .replaceWith( "<small class='error' role='alert'>" + data.error + "</small>")
             .end()
             // dim text fields (don't actually disable though, may still want the text inside)
