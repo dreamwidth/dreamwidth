@@ -72,7 +72,7 @@ $(function() {
 
         autoUpload: false,
 
-        previewMaxWidth: 800,
+        previewMaxWidth: 300,
         previewMaxHeight: 800
     })
     .on( 'fileuploadadd', function(e, data) {
