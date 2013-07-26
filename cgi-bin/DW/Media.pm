@@ -95,6 +95,10 @@ sub upload_media {
     my $mime = File::Type->new->mime_type( $opts{data} )
         or croak 'Unable to get MIME-type for uploaded file.';
 
+    # File::Type still returns image/x-png even though image/png was made
+    # standard in 1996.
+    $mime = 'image/png' if $mime eq 'image/x-png';
+
     # now get what type this is, from allowed mime types
     my ( $type, $ext ) = DW::Media->get_upload_type( $mime );
     croak 'Sorry, that file type is not currently allowed.'
