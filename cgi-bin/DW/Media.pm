@@ -162,7 +162,7 @@ sub get_upload_type {
 }
 
 sub get_active_for_user {
-    my ( $class, $u ) = @_;
+    my ( $class, $u, %opts ) = @_;
     confess 'Invalid user' unless LJ::isu( $u );
 
     # get all active rows for this user
@@ -175,7 +175,7 @@ sub get_active_for_user {
 
     # construct media objects for each of the items and return that
     return sort { $b->logtime <=> $a->logtime }
-           map { DW::Media->new( user => $u, mediaid => $_ ) } @$rows;
+           map { DW::Media->new( user => $u, mediaid => $_, %opts ) } @$rows;
 }
 
 

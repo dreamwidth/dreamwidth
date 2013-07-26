@@ -86,7 +86,9 @@ sub media_bulkedit_handler {
         }
     }
 
-    $rv->{media} = [ DW::Media->get_active_for_user( $rv->{remote} ) ];
+    $rv->{media} = [
+        DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 )
+    ];
 
     return DW::Template->render_template( 'media/edit.tt', $rv );
 }

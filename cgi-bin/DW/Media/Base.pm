@@ -103,7 +103,8 @@ sub url {
     # width and height to the URL.
     my $extra = $opts{extra} // '';
     if ( $self->{mediaid} != $self->{versionid} ) {
-        $extra .= $self->{width} . 'x' . $self->{height} . '/';
+        $extra .= ( $self->{url_width} // $self->{width} ) . 'x' .
+            ( $self->{url_height} // $self->{height} ) . '/';
     }
 
     return $self->u->journal_base . '/file/' . $extra . $self->{displayid} .
