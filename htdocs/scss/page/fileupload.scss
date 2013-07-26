@@ -1,4 +1,4 @@
-@import "foundation/variables", "foundation/components/global";
+@import "foundation/variables", "foundation/components/global", "foundation/components/forms";
 
 .preview {
   max-height: 75px;
@@ -35,4 +35,11 @@
 
 .image-preview canvas {
   margin-bottom: 1em;
+}
+
+@media #{$small} {
+  .upload-form-preview label {
+    @include form-label(right,false);
+    @include form-label(inline,false);
+  }
 }

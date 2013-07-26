@@ -73,7 +73,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class="row">
     <div class="large-[% labelSize %] columns">
         [%-# "for" will be added by JS -%]
-        <label class="inline right" data-for-name="[% name %]">[% label %]</label>
+        <label data-for-name="[% name %]">[% label %]</label>
     </div>
     <div class="large-[% fieldSize %] columns">
         [%-# "id" will be added by JS -%]
