@@ -320,6 +320,8 @@ function print_stylesheet () {
             .has-userpic .entry-content, .has-userpic .metadata, .has-userpic .tag{
                 margin-right: $entry_margin;}
 
+            .has-userpic .poster {padding-left: 1em;}
+
             .has-userpic .comment-content {margin-right: $comment_margin;}
             """;
         }
@@ -721,6 +723,8 @@ textarea.textbox {
     margin: 0;
     padding: 0;
 }
+
+.no-userpic .comment-poster { padding-left: 1em;}
 
 table.talkform {
     margin: 0 0 .5em 0;
