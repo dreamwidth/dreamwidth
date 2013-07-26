@@ -4902,7 +4902,7 @@ function Comment::print_poster() {
 
     print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster";
     if ( $this.admin_post ) {
-        """<span class="admin-poster"> (""";
+        """ <span class="admin-poster">(""";
         $this->print_admin_post_icon();
         print $*text_admin_post_note;
         """)</span>""";
