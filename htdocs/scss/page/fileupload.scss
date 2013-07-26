@@ -15,12 +15,6 @@
   text-align: center;
 }
 
-@media #{$small} {
-  .drop_zone {
-    font-size: 6em;
-  }
-}
-
 .upload-form output {
   margin-top: 1.5em;
 }
@@ -42,6 +36,10 @@
 }
 
 @media #{$small} {
+  .drop_zone {
+    font-size: 6em;
+  }
+
   .upload-form-preview label {
     @include form-label(right,false);
     @include form-label(inline,false);
