@@ -2255,7 +2255,7 @@ sub clear_daycounts
         push @memkind, "p" if $security eq 'public'; # public
         push @memkind, "g$security" if $security =~ /^\d+/;
 
-        $access++ if $security eq 'public' || ( $security != 1 &&  $security =~ /^\d+/ );
+        $access++ if $security eq 'public' || ( $security =~ /^\d+/ && $security != 1 );
     }
     # clear access only security, but does not cover custom groups
     push @memkind, "g1" if $access;
