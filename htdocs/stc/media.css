@@ -17,7 +17,7 @@
     display: block;
 }
 
-#media-grid .media-item p {
+#media-grid .media-item div {
     margin: 0; padding: 0;
     text-align: center;
 }
@@ -40,7 +40,7 @@
     padding: 1em 0;
 }
 
-#media-list .media-item p, #media-list .media-item select, #media-list .media-item img {
+#media-list .media-item div, #media-list .media-item select, #media-list .media-item img {
     display: inline-block;
     margin: 0 1em;
 }
@@ -50,14 +50,10 @@
     padding: 0 1em 0 0;
 }
 
-#media-list .media-item img {
-    max-width: 200px;
-    max-height: 200px;
-}
-
 #media-list .details {
     width: 10em;
 }
+
 #media-list .filesize {
     font-size: smaller;
     font-style: italic;
@@ -71,6 +67,7 @@
 fieldset.submit {
     text-align: right;
 }
+
 fieldset.submit input {
   margin-top: 2em;
   border-width: 1px;

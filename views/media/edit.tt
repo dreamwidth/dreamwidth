@@ -7,6 +7,7 @@
 ) %]
 
 <p>[% ".intro" | ml %]</p>
+
 [% IF media.size %]
 <form id="media-manage" method="POST" action="[%site.root%]/file/edit">
 [%- dw.form_auth -%]
@@ -15,12 +16,15 @@
     [%- FOREACH obj IN media -%]
         <li class='media-item [% loop.count % 2 ? 'even' : 'odd' %]'>
         <div class='inner'>
-            <p class='media'><img src="[% obj.url %]" /></p>
-            <p class='details'><span class='name '>[%obj.displayid%]</span><br /><span class='filesize'>[% obj.size / 1000 %] kb</span></p>
+            <div class='media'><img src="[% obj.url %]" /></div>
+            <div class='details'><span class='name '>[%obj.displayid%]</span>
+                <br /><span class='filesize'>[% obj.size / 1000 %] kb</span></div>
             [%- form.select( name="security-$obj.displayid"
                 items = security
                 selected = obj.security ) -%]
-            <p><label for="delete_[% obj.displayid %]">Delete?</label> <input type="checkbox" name="delete" id="delete_[% obj.displayid %]" value="[% obj.displayid %]" /></p>
+            <div><label for="delete_[% obj.displayid %]">Delete?</label>
+                <input type="checkbox" name="delete" id="delete_[% obj.displayid %]" value="[% obj.displayid %]" />
+            </div>
         </div>
         </li>
     [%- END -%]
