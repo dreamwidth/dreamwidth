@@ -12,7 +12,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[% sections.title = "Image Uploads" %]
+[% sections.title = ".title" | ml %]
 
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
