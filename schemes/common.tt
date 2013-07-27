@@ -26,8 +26,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <title>[% sections.windowtitle || sections.title %]</title>
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    [%- IF resource_group == "foundation" -%]
     <meta name="viewport" content="width=device-width" />
-  
+    [% END %]
+
     [%- # block.need_res below includes files for the individual pages
         # this need_res is for the sake of the login form on the theme
         dw.need_res( "js/md5.js"
