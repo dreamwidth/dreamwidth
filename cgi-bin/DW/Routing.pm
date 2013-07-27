@@ -35,9 +35,9 @@ use Carp qw/croak/;
 our %string_choices;
 our %regex_choices = (
     app  => [],
-    user => []
+    user => [],
+    api  => []
 );
-our %api_endpoints; # ver => { string => hash }
 
 our $T_TESTING_ERRORS;
 
@@ -110,15 +110,6 @@ sub get_call_opts {
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
 
-    # Role determination: if the URL starts with '/api/vX' then it's an API
-    # call, and we should extract that information for our call options.
-    if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
-        $opts{role}   = 'api';
-        $opts{apiver} = $1 + 0;
-        $format = 'json';
-        $uri = $2;
-    }
-
     # add more data to the options hash, we'll need it
     $opts{role} ||= $opts{username} ? 'user' : 'app';
     $opts{uri}    = $uri;
@@ -127,17 +118,7 @@ sub get_call_opts {
     # we construct this object as an easy way to get options later, it gives
     # us accessors.
     my $call_opts = DW::Routing::CallInfo->new( \%opts );
-
-    # APIs are versioned, so we only want to check for endpoints that match
-    # the version the user is requesting.
-    if ( $call_opts->role eq 'api' ) {
-        return unless exists $api_endpoints{$call_opts->apiver};
-        my $hash = $api_endpoints{$call_opts->apiver}->{$uri}
-            or return;
-        $call_opts->init_call_opts( $hash );
-        return $call_opts;
-    }
-
+    
     # try the string options first as they're fast
     my $hash = $string_choices{$call_opts->role . $uri};
     if ( defined $hash ) {
@@ -448,6 +429,7 @@ sub register_regex {
     });
     push @{$regex_choices{app}}, $hash if $hash->{app};
     push @{$regex_choices{user}}, $hash if $hash->{user};
+    push @{$regex_choices{api}}, $hash if $hash->{api};
 }
 
 =head2 C<< $class->register_rpc( $name, $sub, %opts ) >>
@@ -497,6 +479,11 @@ sub register_api_endpoint {
     croak 'register_api_endpoint must have version option'
         unless exists $opts{version};
 
+    # Ensure these opts are correct
+    $opts{api} = 1;
+    $opts{app} = 0;
+    $opts{user} = 0;
+
     my $hash = _apply_defaults( \%opts, {
         sub    => $sub,
         format => 'json',
@@ -507,8 +494,10 @@ sub register_api_endpoint {
     croak 'register_api_version requires all versions >= 1'
         if grep { $_ <= 0 } @$vers;
 
+    $hash->{api_versions} = $vers;
+
     # Now register this string at all versions that they gave us.
-    $api_endpoints{$_}->{$string} = $hash
+    $string_choices{"api/v$_$string"} = $hash
         foreach @$vers;
 }
 
@@ -526,10 +515,11 @@ sub _apply_defaults {
     my ( $opts, $hash ) = @_;
 
     $hash ||= {};
-    $opts->{app}          = 1 if ! defined $opts->{app} && ! $opts->{user};
+    $opts->{app}          = 1 if ! defined $opts->{app} && ! $opts->{user} && ! $opts->{api};
     $hash->{args}         = $opts->{args};
-    $hash->{app}          = $opts->{app} || 0;
+    $hash->{app}          = $opts->{app}  || 0;
     $hash->{user}         = $opts->{user} || 0;
+    $hash->{api}          = $opts->{api}  || 0;
     $hash->{format}     ||= $opts->{format} || 'html';
     $hash->{prefer_ssl}   = $opts->{prefer_ssl} || 0;
 

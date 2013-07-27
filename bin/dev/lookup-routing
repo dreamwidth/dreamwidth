@@ -80,7 +80,7 @@ my @all_roles = ( 'app', 'user', 'api' );
 my $data = undef;
 my $cache_file = $HOME . "/logs/.cached_routing";
 #              YYYYMMDDVVV
-my $version = "20130722001";
+my $version = "20130726001";
 my $dirty = 1;
 
 if ( -e $cache_file ) {
@@ -119,6 +119,7 @@ if ( $list ) {
                 print_for_hash($choice,undef,$role);
             }
         }
+        print " -- Also all in api role, prepended with '/api'\n" if $role eq 'app';
         print "\n\n\n" if $ct;
     }
 } elsif ( $stats ) {
@@ -128,8 +129,6 @@ if ( $list ) {
     print "Regex routing table:\n";
     $tct += print_stats_for( $data->{stats}->{regex} );
 
-    print "API table:\n";
-    $tct += print_stats_for( $data->{stats}->{api}, "v" );
     printf "Total entries: %i\n", $tct;
 } else {
     if ( scalar @ARGV ) {
@@ -163,6 +162,12 @@ sub run_lookup {
 
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
+
+    if ( $uri =~ m!^/api(/.+)$! && $role eq 'app' ) {
+        print " -- Assuming API role\n";
+        $role = 'api';
+        $uri = $1;
+    }
 
     my $hash = $data->{string}->{$role . $uri};
     if ( defined $hash ) {
@@ -253,6 +258,11 @@ sub print_for_hash {
             print " * Enabled for formats: " . join(", ",( sort keys %{$hash->{formats}} )) . "\n";
         }
         print " * Enabled For: " . join(", ",(grep { $_ } map { $_ if $hash->{$_} } @all_roles)) . "\n";
+
+        if ( scalar @{ $hash->{api_versions} // [] } ) {
+            print " * API Versions: " . join(", ",sort @{ $hash->{api_versions} }) . "\n";
+        }
+
         if ( $hash->{regex} && $args ) {
             print " * Regex: $hash->{regex}\n";
             print " * Matched Subpatterns:\n";
@@ -320,6 +330,8 @@ sub data_for_hash {
     foreach my $key ( @all_roles, qw(hash format formats) ) {
         $data->{$key} = $hash->{$key} if exists $hash->{$key};
     }
+
+    $data->{api_versions} = $hash->{api_versions};
 
     $data->{caller} = $hash->{__caller};
     $data->{internal} = $hash->{__internal};
@@ -428,18 +440,6 @@ sub load_cache {
         $data->{regex}->{$role} = \@regex_data;
     }
 
-    my %api_endpoints = %DW::Routing::api_endpoints;
-    print Dumper(\%api_endpoints);
-
-    foreach my $apiVer ( keys %api_endpoints ) {
-        my $raw_data = $api_endpoints{$apiVer};
-
-        foreach my $path ( keys %$raw_data ) {
-            my $full_path = "/api/v$apiVer$path"; 
-            $data->{string}->{'api' . $full_path} = data_for_hash($raw_data->{$path},$full_path,'api');
-            $data->{stats}->{api}->{$apiVer}++;
-        }
-    }
     print "Done!\n";
     return $data;
 }
