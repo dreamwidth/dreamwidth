@@ -1,0 +1,52 @@
+@import "foundation/variables", "foundation/components/global", "foundation/components/forms";
+
+.preview {
+  max-height: 75px;
+  display: inline-block;
+  margin: 10px 5px 0 0;
+}
+
+.drop_zone {
+  filter: alpha(opacity=50);
+  opacity: 0.2;
+  font-size: 3em;
+  padding: 20px;
+  border: 3px dashed;
+  text-align: center;
+}
+
+.upload-form output {
+  margin-top: 1.5em;
+}
+
+.upload-form output ul {
+  list-style: none;
+}
+
+.upload-form output li.row {
+  margin-bottom: 2em;
+}
+
+.upload-form output textarea {
+  height: auto;
+}
+
+.image-preview canvas {
+  margin-bottom: 1em;
+  max-width: 100%;
+}
+
+.image-preview {
+  margin-bottom: 1em;
+}
+
+@media #{$small} {
+  .drop_zone {
+    font-size: 6em;
+  }
+
+  .upload-form-preview label {
+    @include form-label(right,false);
+    @include form-label(inline,false);
+  }
+}

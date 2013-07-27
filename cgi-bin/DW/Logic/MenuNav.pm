@@ -97,6 +97,11 @@ sub get_menu_navigation {
                     text_opts => { num => $userpic_count, max => $userpic_max },
                     display => $loggedin,
                 },
+#                {
+#                    url => "$LJ::SITEROOT/file/new",
+#                    text => "menunav.create.uploadimages",
+#                    display => $loggedin,
+#                },
                 {
                     url => "$LJ::SITEROOT/community/create",
                     text => "menunav.create.createcommunity",

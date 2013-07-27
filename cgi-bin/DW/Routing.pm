@@ -38,6 +38,7 @@ our %regex_choices = (
     user => [],
     api  => []
 );
+our %api_endpoints; # ver => { string => hash }
 
 our $T_TESTING_ERRORS;
 
@@ -110,6 +111,15 @@ sub get_call_opts {
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
 
+    # Role determination: if the URL starts with '/api/vX' then it's an API
+    # call, and we should extract that information for our call options.
+    if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
+        $opts{role}   = 'api';
+        $opts{apiver} = $1 + 0;
+        $format = 'json';
+        $uri = $2;
+    }
+
     # add more data to the options hash, we'll need it
     $opts{role} ||= $opts{username} ? 'user' : 'app';
     $opts{uri}    = $uri;
@@ -118,7 +128,17 @@ sub get_call_opts {
     # we construct this object as an easy way to get options later, it gives
     # us accessors.
     my $call_opts = DW::Routing::CallInfo->new( \%opts );
-    
+
+    # APIs are versioned, so we only want to check for endpoints that match
+    # the version the user is requesting.
+    if ( $call_opts->role eq 'api' ) {
+        return unless exists $api_endpoints{$call_opts->apiver};
+        my $hash = $api_endpoints{$call_opts->apiver}->{$uri}
+            or return;
+        $call_opts->init_call_opts( $hash );
+        return $call_opts;
+    }
+
     # try the string options first as they're fast
     my $hash = $string_choices{$call_opts->role . $uri};
     if ( defined $hash ) {
@@ -498,6 +518,48 @@ sub register_api_endpoint {
 
     # Now register this string at all versions that they gave us.
     $string_choices{"api/v$_$string"} = $hash
+        foreach @$vers;
+}
+
+# internal helper for speed construction ...
+sub register_api_endpoints {
+    my $class = shift;
+    foreach my $row ( @_ ) {
+        $class->register_api_endpoint( $row->[0], $row->[1], version => $row->[2] );
+    }
+}
+
+=head2 C<< $class->register_api_endpoint( $string, $sub, %opts ) >>
+
+=over
+
+=item string
+
+=item sub - sub
+
+=item opts (see register_string)
+
+=back
+
+=cut
+
+sub register_api_endpoint {
+    my ( $class, $string, $sub, %opts ) = @_;
+    croak 'register_api_endpoint must have version option'
+        unless exists $opts{version};
+
+    my $hash = _apply_defaults( \%opts, {
+        sub    => $sub,
+        format => 'json',
+    });
+
+    my $vers = ref $opts{version} eq 'ARRAY' ? $opts{version} :
+        [ $opts{version} + 0 ];
+    croak 'register_api_version requires all versions >= 1'
+        if grep { $_ <= 0 } @$vers;
+
+    # Now register this string at all versions that they gave us.
+    $api_endpoints{$_}->{$string} = $hash
         foreach @$vers;
 }
 

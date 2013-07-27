@@ -31,6 +31,10 @@ sub new_from_row {
     my ( $width, $height ) = ( delete $opts{width}, delete $opts{height} );
     my $self = bless \%opts, $class;
 
+    # Save the URL width/height, since we'll need that for later.
+    $self->{url_width} = $width;
+    $self->{url_height} = $height;
+
     # Now pull out width and height for the default version.
     foreach my $vid ( keys %{$self->{versions}} ) {
         if ( $vid == $self->id ) {
@@ -70,8 +74,8 @@ sub _resize {
     my ( $horiz_ratio, $vert_ratio ) = ( $want_width / $width,
             $want_height / $height );
     my $ratio = $horiz_ratio < $vert_ratio ? $horiz_ratio : $vert_ratio;
-    ( $width, $height ) = ( $width * $ratio, $height * $ratio );
-    # FIXME: check off-by-one errors?
+    ( $width, $height ) = ( int($width * $ratio + 0.5),
+        int($height * $ratio + 0.5) );
 
     # Load the image data, then scale it.
     my $dataref = LJ::mogclient()->get_file_data( $self->mogkey );

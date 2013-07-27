@@ -1,5 +1,5 @@
 [%- BLOCK block.menunav -%]
-<ul>[%- nav_links = dw_scheme.menu_nav -%]
+<ul class="left">[%- nav_links = dw_scheme.menu_nav -%]
 [% FOREACH cathash IN nav_links -%]
     [%- cat = cathash.name -%][%- submenu = cathash.items -%]
     [%- displayed = [] -%]
@@ -11,13 +11,43 @@
         [%- END -%]
     [%- END -%]
     [%- IF displayed.size -%]
-<li id='[% cat %]_topnav' class='topnav'><a href='[% site.root %]/nav/[% cat %]'>[% "menunav.$cat" | ml %]</a>
-<ul id='[% cat %]_subnav' class='subnav_container'>
+<li id='[% cat %]_topnav' class='topnav has-dropdown'><a href='[% site.root %]/nav/[% cat %]'>[% "menunav.$cat" | ml %]</a>
+<ul id='[% cat %]_subnav' class='subnav_container dropdown'>
 [% displayed.join("\n") %]
 </ul>
 </li>
     [%- END -%]
 [%- END %]
+</ul>
+[%- END -%]
+[%- BLOCK block.search -%]
+<ul class="right nav-search" role="search">
+<li class="has-form">
+<form action="[% site.root %]/multisearch" method="post">
+<div class="row collapse">
+<div class="columns large-6">
+    <input name="q" id="search" type="search" title="[% 'widget.search.title' | ml %]" size="20" />
+</div>
+<div class="columns large-4">
+<select name="type">
+[% FOREACH option = [
+    [ "int", "interest" ]
+    [ "region", "region" ]
+    [ "nav_and_user", "siteuser" ]
+    [ "faq", "faq"]
+    [ "email", "email" ]
+    [ "im", "iminfo" ]
+] ~%]
+    <option name="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
+[%- END -%]
+</select>
+</div>
+<div class="columns large-2">
+    <input type="submit" value="[% 'widget.search.btn.go' | ml %]" />
+</div>
+</div></div>
+</form>
+</li>
 </ul>
 [%- END -%]
 [%- BLOCK block.page -%]

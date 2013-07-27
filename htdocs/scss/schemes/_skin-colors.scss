@@ -1,0 +1,32 @@
+/**
+* CSS colors site-wide
+* Set the color variables in the scheme-specific CSS file
+* Then @import _skin_colors.scss
+*/
+
+/**
+ * Links and a pseudo link class
+ */
+
+a:visited {
+    color: $anchor-font-color-visited;
+}
+a:hover, a:active {
+    color: $anchor-font-color-hover;
+}
+
+/**
+ * Menu navigation
+ */
+
+nav {
+    background-color: $topbar-bg;
+}
+
+/**
+ * Buttons
+ */
+
+ .submit {
+    @extend .button;
+ }

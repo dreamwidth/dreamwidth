@@ -7,7 +7,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -22,7 +22,7 @@ use DW::Routing;
 use DW::Request;
 use DW::Controller;
 
-my %VALID_SIZES = ( map { $_ => 1 } ( 320, 200, 640, 480, 1024, 768, 1280,
+my %VALID_SIZES = ( map { $_ => 1 } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
             800, 600, 720, 1600, 1200 ) );
 
 DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler, user => 1, formats => 1 );
@@ -30,6 +30,7 @@ DW::Routing->register_regex( qr!^/file/(\d+x\d+|full)(/\w:[\d\w]+)*/(\d+)$!,
         \&media_handler, user => 1, formats => 1 );
 DW::Routing->register_string( '/file/list', \&media_manage_handler, app => 1 );
 DW::Routing->register_string( '/file/edit', \&media_bulkedit_handler, app => 1 );
+DW::Routing->register_string( '/file/new', \&media_new_handler, app => 1  );
 
 sub media_manage_handler {
     my ( $ok, $rv ) = controller();
@@ -48,7 +49,7 @@ sub media_bulkedit_handler {
 
     my @security = (
             { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },
-            { value => "usemask",  text => LJ::Lang::ml( 'label.security.accesslist' ) },
+            { value => "usemask", text => LJ::Lang::ml( 'label.security.accesslist' ) },
             { value => "private", text => LJ::Lang::ml( 'label.security.private2' ) },
         );
     $rv->{security} = \@security;
@@ -56,7 +57,8 @@ sub media_bulkedit_handler {
     my $r = DW::Request->get;
     if ( $r->did_post ) {
         my $post_args = $r->post_args;
-        return error_ml( 'error.invalidauth' ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+        return error_ml( 'error.invalidauth' )
+            unless LJ::check_form_auth( $post_args->{lj_form_auth} );
 
         if ( $post_args->{"action:edit"} ) {
             my %post = %{$post_args->as_hashref||{}};
@@ -69,6 +71,7 @@ sub media_bulkedit_handler {
                 my $amask = $secval eq "usemask" ? 1 : 0;
                 $media->set_security( security => $secval, allowmask => $amask );
             }
+
         } elsif ( $post_args->{"action:delete"} ) {
             # FIXME: update with more efficient mass loader
             my @to_delete = $post_args->get_all( "delete" );
@@ -83,7 +86,9 @@ sub media_bulkedit_handler {
         }
     }
 
-    $rv->{media} = [ DW::Media->get_active_for_user( $rv->{remote} ) ];
+    $rv->{media} = [
+        DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 )
+    ];
 
     return DW::Template->render_template( 'media/edit.tt', $rv );
 }
@@ -162,6 +167,19 @@ sub media_handler {
     $r->content_type( $obj->mimetype );
     $r->print( $$dataref );
     return $r->OK;
+}
+
+sub media_new_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    $rv->{security} = [
+        { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },
+        { value => "usemask", text => LJ::Lang::ml( 'label.security.accesslist' ) },
+        { value => "private", text => LJ::Lang::ml( 'label.security.private2' ) },
+    ];
+
+    return DW::Template->render_template( 'media/new.tt', $rv );
 }
 
 1;

@@ -95,6 +95,10 @@ sub upload_media {
     my $mime = File::Type->new->mime_type( $opts{data} )
         or croak 'Unable to get MIME-type for uploaded file.';
 
+    # File::Type still returns image/x-png even though image/png was made
+    # standard in 1996.
+    $mime = 'image/png' if $mime eq 'image/x-png';
+
     # now get what type this is, from allowed mime types
     my ( $type, $ext ) = DW::Media->get_upload_type( $mime );
     croak 'Sorry, that file type is not currently allowed.'
@@ -158,7 +162,7 @@ sub get_upload_type {
 }
 
 sub get_active_for_user {
-    my ( $class, $u ) = @_;
+    my ( $class, $u, %opts ) = @_;
     confess 'Invalid user' unless LJ::isu( $u );
 
     # get all active rows for this user
@@ -171,7 +175,7 @@ sub get_active_for_user {
 
     # construct media objects for each of the items and return that
     return sort { $b->logtime <=> $a->logtime }
-           map { DW::Media->new( user => $u, mediaid => $_ ) } @$rows;
+           map { DW::Media->new( user => $u, mediaid => $_, %opts ) } @$rows;
 }
 
 

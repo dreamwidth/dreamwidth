@@ -17,14 +17,23 @@
 package DW::Request::Base;
 
 use strict;
-use Carp qw/ confess cluck /;
+use Carp qw/ croak confess cluck /;
 use CGI::Cookie;
 use CGI::Util qw( unescape );
+use LJ::JSON;
 
 use fields (
             'cookies_in',
             'cookies_in_multi',
 
+            # If you use post_args, then you must not use content. If you use
+            # content, you must not use post_args. Mutually exclusive.
+            'content',   # raw content of the request (POST only!)
+            'post_args', # hashref of POST arguments (form encoding)
+            'json_obj',  # JSON object that was posted (application/json)
+            'uploads',   # arrayref of hashrefs of uploaded files
+
+            # Query string arguments, every request might have these.
             'get_args',
         );
 
@@ -33,14 +42,17 @@ sub new {
     confess "This is a base class, you can't use it directly."
         unless ref $self;
 
-    $self->{cookies_in} = undef;
+    $self->{cookies_in}       = undef;
     $self->{cookies_in_multi} = undef;
-
-    $self->{get_args} = undef;
+    $self->{post_args}        = undef;
+    $self->{content}          = undef;
+    $self->{get_args}         = undef;
+    $self->{json_obj}         = undef;
+    $self->{uploads}          = undef;
 }
 
 sub host {
-    return lc( $_[0]->header_in("Host") );
+    return lc $_[0]->header_in("Host");
 }
 
 sub cookie {
@@ -84,10 +96,103 @@ sub delete_cookie {
     return $self->add_cookie( %args );
 }
 
+# Per RFC, method must be GET, POST, etc. We don't allow lowercase or any other
+# presentation of the method to count as a post.
 sub did_post {
     my DW::Request::Base $self = $_[0];
-    my $method = $self->method || '';
-    return uc $method eq 'POST';
+    return $self->method eq 'POST';
+}
+
+# Returns an array of uploads that were received in this request. Each upload
+# is a hashref of certain data: body, name.
+sub uploads {
+    my DW::Request::Base $self = $_[0];
+    return $self->{uploads} if defined $self->{uploads};
+
+    my $body = $self->content;
+    return $self->{uploads} = []
+        unless $body && $self->method eq 'POST';
+
+    my $sep = ( $self->header_in( 'Content-Type' ) =~ m!^multipart/form-data;\s*boundary=(\S+)! ) ? $1 : undef;
+    croak 'Unknown content type in upload.' unless defined $sep;
+
+    my @lines = split /\r\n/, $body;
+    my $line = shift @lines;
+    croak 'Error parsing upload, it looks invalid.'
+        unless $line eq "--$sep";
+
+    my $ret = [];
+    while ( @lines ) {
+        $line = shift @lines;
+
+        my %h;
+        while (defined $line && $line ne "") {
+            $line =~ /^(\S+?):\s*(.+)/;
+            $h{lc($1)} = $2;
+            $line = shift @lines;
+        }
+        while (defined $line && $line ne "--$sep") {
+            last if $line eq "--$sep--";
+            $h{body} .= "\r\n" if $h{body};
+            $h{body} .= $line;
+            $line = shift @lines;
+        }
+        if ($h{'content-disposition'} =~ /name="(\S+?)"/) {
+            $h{name} = $1 || $2;
+            push @$ret, \%h;
+        }
+    }
+
+    return $self->{uploads} = $ret;
+}
+
+# returns a Hash::MultiValue object containing the post arguments if this is a
+# valid request, or it returns undef.
+sub post_args {
+    my DW::Request::Base $self = $_[0];
+    return $self->{post_args} if defined $self->{post_args};
+
+    # Requires a POST with the proper content type for us to parse it, else just
+    # bail and return empty.
+    return undef
+        unless $self->method eq 'POST' &&
+               $self->header_in( 'Content-Type' ) =~ m!^application/x-www-form-urlencoded(?:;.+)?$!;
+
+    return $self->{post_args} =
+        $self->_string_to_multivalue( $self->content );
+}
+
+# returns a Hash::MultiValue of query string arguments
+sub get_args {
+    my DW::Request $self = $_[0];
+    return $self->{get_args} if defined $self->{get_args};
+
+    return $self->{get_args} =
+        $self->_string_to_multivalue( $self->query_string );
+}
+
+# Returns a JSON object contained in the body of this request if and only if
+# this request contains a JSON object.
+sub json {
+    my DW::Request $self = $_[0];
+    return $self->{json_obj} if defined $self->{json_obj};
+
+    # Content type must start with "application/json" and may have a semi-colon
+    # followed by charset, etc. It must also be a POST.
+    return undef
+        unless $self->method eq 'POST' &&
+               $self->header_in( 'Content-Type' ) =~ m!^application/json(?:;.+)?$!;
+
+    # If they submit bad JSON, we want to ignore the error and not crash. Just
+    # let the caller know it wasn't a valid input.
+    my $obj;
+    eval {
+        $obj = from_json( $self->content );
+    };
+    return undef if $@;
+
+    # Temporarily caches it, in case someone tries to ask for it again.
+    return $self->{json_obj} = $obj;
 }
 
 # FIXME: This relies on the behavior parse_args
@@ -105,20 +210,50 @@ sub _string_to_multivalue {
     return Hash::MultiValue->new( @out );
 }
 
-sub get_args {
+# simply sets the location header and returns REDIRECT
+sub redirect {
     my DW::Request $self = $_[0];
-    return $self->{get_args} if defined $self->{get_args};
-
-    return $self->{get_args} =
-        $self->_string_to_multivalue( $self->query_string );
+    $self->header_out( Location => $_[1] );
+    return $self->REDIRECT;
 }
+
+# indicates that this request has been handled
+sub OK { return 0; }
+
+# HTTP status codes that we return in other methods
+sub HTTP_OK { return 200; }
+sub HTTP_CREATED { return 201; }
+sub REDIRECT  { return 302; }
+sub NOT_FOUND { return 404; }
+sub SERVER_ERROR { return 500; }
+sub HTTP_UNAUTHORIZED { return 401; }
+sub HTTP_BAD_REQUEST { return 400; }
+sub HTTP_UNSUPPORTED_MEDIA_TYPE { return 415; }
+sub HTTP_SERVER_ERROR { return 500; }
+sub HTTP_METHOD_NOT_ALLOWED { return 405; }
+sub FORBIDDEN { return 403; }
+
+# Unimplemented method block. These are things that the derivative classes must
+# implement. In the future, it'd be nice to roll as many of these up to the base
+# as we can, but that's in the post-Apache days.
+sub header_out {
+    confess 'Unimplemented call on base class.';
+}
+*header_out_add = \&header_out;
+*err_header_out = \&header_out;
+*err_header_out_add = \&header_out;
+*header_in = \&header_out;
+*header_in_add = \&header_out;
+*err_header_in = \&header_out;
+*err_header_in_add = \&header_out;
+*method = \&header_out;
 
 #
 # Following sub was copied from CGI::Cookie and modified.
 #
 # Copyright 1995-1999, Lincoln D. Stein.  All rights reserved.
 # It may be used and modified freely, but I do request that this copyright
-# notice remain attached to the file.  You may modify this module as you 
+# notice remain attached to the file.  You may modify this module as you
 # wish, but if you redistribute a modified version, please attach a note
 # listing the modifications you have made.
 #
@@ -131,7 +266,7 @@ sub parse {
     foreach ( @pairs ) {
         $_ =~ s/\s*(.*?)\s*/$1/;
         my ( $key, $value ) = split( "=", $_, 2 );
-        
+
         # Some foreign cookies are not in name=value format, so ignore
         # them.
         next unless defined( $value );
