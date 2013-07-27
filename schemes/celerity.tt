@@ -110,6 +110,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <body [% sections.bodyopts %]>
         <div id="canvas">
             <div id="page">
+                [%# Visible only with screenreader or keyboard, per css %]
+                <div id="skip">
+                    <a href="#content" tabindex="1">Skip to Main Content</a>
+                </div>
                 [%# Not using the HTML 5 <header> element for now
                 because of incompatibilities with JAWS and
                 Firefox %]
@@ -118,8 +122,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 </div><!-- end masthead-->
 
                 <div id="content" role="main" [% sections.contentopts %]>
-                <h1>[% sections.title %]</h1>
-                [% content %]
+                    <h1>[% sections.title %]</h1>
+                    [% content %]
                 </div><!--end content-->
                 <div id="page-decoration"></div>
             </div><!-- end page-->
