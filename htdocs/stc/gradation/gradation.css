@@ -98,7 +98,17 @@ a:active,
         margin-top: 5px;
         white-space: nowrap; /* to make sure the links don't wrap under short usernames */
         }
-#account-links li { display: inline; }
+#account-links li { display: inline; margin-right: 0.5em;}
+
+#account-links li:after {
+    content: "•";
+    margin-left: 0.5em;
+}
+#account-links li:last-child:after {
+    content:"";
+    margin-left: 0;
+}
+
 #account-links a {color: #ffffff; }
 
 #account-links-text { margin-left: 100px; }
