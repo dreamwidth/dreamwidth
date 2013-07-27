@@ -217,5 +217,28 @@ div.columns-2-r300 .columns-2-right {
     margin-bottom: 1em;
 }
 
+/* allow hidden skip links */
+#skip a, #skip a:hover, #skip a:visited
+{
+    position:absolute;
+    left:0px;
+    top:-500px;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+}
+
+#skip a:active, #skip a:focus
+{
+    position:fixed;
+    top:.25em;
+    left:.25em;
+    width:auto;
+    height:auto;
+    background: #ffffff;
+    z-index: 500;
+    font-weight: bold;
+} 
+
 /* clearing element at the foot of Support index */
 .clear-floats { clear: both; }
