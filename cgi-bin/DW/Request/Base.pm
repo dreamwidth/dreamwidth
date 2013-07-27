@@ -167,8 +167,10 @@ sub get_args {
     my DW::Request $self = $_[0];
     return $self->{get_args} if defined $self->{get_args};
 
+    # We lowercase GET arguments because these are often typed by users, and
+    # that's nicer on them.
     return $self->{get_args} =
-        $self->_string_to_multivalue( $self->query_string );
+        $self->_string_to_multivalue( $self->query_string, lowercase => 1 );
 }
 
 # Returns a JSON object contained in the body of this request if and only if
@@ -199,12 +201,13 @@ sub json {
 #   and the \0 seperated arguments. This should be cleaned
 #   up at the same point parse_args is.
 sub _string_to_multivalue {
-    my %gets = LJ::parse_args( $_[1] );
+    my ( $class, $input, %opts ) = @_;
+    my %gets = LJ::parse_args( $input );
 
     my @out;
     foreach my $key ( keys %gets ) {
         my @parts = split(/\0/, $gets{$key});
-        push @out, map { lc $key => $_ } @parts;
+        push @out, map { $opts{lowercase} ? lc $key : $key => $_ } @parts;
     }
 
     return Hash::MultiValue->new( @out );
