@@ -28,3 +28,5 @@ sub check_username_handler {
     $r->print( to_json({ error => $error ? $error : "" }) );
     return $r->OK;
 }
+
+1;
