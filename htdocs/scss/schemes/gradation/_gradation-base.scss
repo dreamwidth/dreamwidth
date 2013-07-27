@@ -1,0 +1,49 @@
+
+// very strong color, for emphasis. use sparingly
+$strong-accent-color: #E9E9E0;
+
+
+// foundation global variables
+$body-bg: #111111;
+$body-font-color: #e9e9e0;
+$body-font-family: Verdana, Helvetica, Arial, sans-serif;
+$base-line-height: 1.5;
+
+// background colors for various components
+$primary-color: #999966;
+$secondary-color: #666666;
+$alert-color: #5a2d2e;
+$success-color: #2B5229;
+
+// foundation type variables
+// We use these to control header font styles
+$header-font-family:                   Arial, sans-serif;
+$header-font-color:                    $strong-accent-color;
+
+// override colors based on $header-font-color
+$small-font-color:                     $body-font-color;
+$code-color:                           lighten( $body-font-color, 30% );
+
+// We use these to style anchors
+$anchor-text-decoration:               "underline";
+$anchor-font-color:                    #999966;
+$anchor-font-color-visited:            shade( $anchor-font-color, 30% );
+$anchor-font-color-hover:              lighten( $anchor-font-color, 30% );
+
+// navigation
+$topbar-bg:                            #444444;
+$topbar-link-weight:                   normal;
+$topbar-link-color:                    #FFFFFF;
+$topbar-link-bg-hover:                 $strong-accent-color;
+$topbar-link-bg-active:                $strong-accent-color;
+
+$topbar-dropdown-bg:                   $topbar-bg;
+$topbar-dropdown-link-color:           #fff;
+$topbar-dropdown-link-bg:              #333333;
+
+$topbar-menu-link-color:               $topbar-link-color;
+$topbar-menu-icon-color:               $topbar-link-color;
+
+$topbar-bgimage:                       "/img/tropo-red/icon_menu_swirl_dropdown.png";
+$topbar-bgimage-hover:                 "/img/tropo-red/icon_menu_swirl_dropdown.png";
+

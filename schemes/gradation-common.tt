@@ -1,0 +1,101 @@
+[%# so far failed attempt to move the menu to the top of the screen to match tropo -%]
+[%- IF resource_group == "foundation" -%]
+<!DOCTYPE html>
+<html lang="en">
+    [% PROCESS block.head %]
+    <body [% sections.bodyopts %]>
+        <div id="canvas">
+            <div id="page">
+                [%# Not using the HTML 5 <header> element for now
+                because of incompatibilities with JAWS and
+                Firefox %]
+                <div id="masthead" role="banner">
+                    <span id="logo">
+                        [% PROCESS block.logo %]
+                    </span>
+                </div><!-- end masthead-->
+
+                <div id="content" role="main" [% sections.contentopts %]>
+                <div class="row"><div class="large-12 columns">
+                    <h1>[% sections.title %]</h1>
+                </div></div>
+                [% content %]
+                </div><!--end content-->
+                <div id="page-decoration"></div>
+            </div><!-- end page-->
+            <div id="account-links" role="navigation" class="hide-for-small">
+                [% PROCESS block.accountlinks %]
+            </div><!-- end account links-->
+            <nav role="navigation"  class="main-nav top-bar contain-to-grid">
+                [% PROCESS block.userpic %]
+
+                <ul class="title-area">
+                <li class="name"></li>
+                <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>
+                </ul>
+
+                <section class="top-bar-section">
+                [% PROCESS block.menunav %]
+                </section>
+            </nav>
+            <div id="header-divider"> <div id="header-divider-insert"></div></div>
+            <div id="header-search" role="search">
+                [% PROCESS block.search %]
+            </div><!-- end header-search-->
+            <footer role="contentinfo">
+                [% PROCESS block.footer %]
+            </footer>
+        </div> <!-- end canvas-->
+        [% dw_scheme.final_body_html %]
+        <script>
+          $(function() {
+            if ( $(".main-nav .toggle-topbar:visible").length == 0 ) {
+                $(".main-nav")
+                    .find(".has-dropdown").removeClass( "has-dropdown" ).end()
+                    .find(".top-bar-section").removeClass( "top-bar-section" ).end()
+            }
+          });
+          $(document).foundation();
+        </script>
+    </body>
+</html>
+[%- ELSE -%]
+<!DOCTYPE html>
+<html lang="en">
+    [% PROCESS block.head %]
+    <body [% sections.bodyopts %]>
+        <div id="canvas">
+            <div id="page">
+                [%# Not using the HTML 5 <header> element for now
+                because of incompatibilities with JAWS and
+                Firefox %]
+                <div id="masthead" role="banner">
+                        [% PROCESS block.logo %]
+                </div><!-- end masthead-->
+
+                <div id="content" role="main" [% sections.contentopts %]>
+                <h1>[% sections.title %]</h1>
+                [% content %]
+                </div><!--end content-->
+                <div id="page-decoration"></div>
+            </div><!-- end page-->
+            <div id="account-links" role="navigation">
+                [% PROCESS block.accountlinks %]
+            </div><!-- end account links-->
+            <nav role="navigation">
+                [% PROCESS block.userpic %]
+                [% PROCESS block.menunav %]
+            </nav>
+            <div id="header-divider"> <div id="header-divider-insert"></div></div>
+            <div id="header-search" role="search">
+                [% dw_scheme.search_render %]
+            </div><!-- end header-search-->
+            <footer role="contentinfo">
+                [% PROCESS block.footer %]
+            </footer>
+        </div> <!-- end canvas-->
+        [% dw_scheme.final_body_html %]
+    </body>
+</html>
+[%- END -%]
+[%- END -%]
