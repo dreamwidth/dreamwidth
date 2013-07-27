@@ -1,0 +1,1046 @@
+layerinfo type = "layout";
+layerinfo name = "Snakes & Boxes";
+layerinfo redist_uniq = "snakesandboxes/layout";
+layerinfo author_name = "pari";
+layerinfo lang = "en";
+
+set layout_authors = [ {"name" => "pari", "type" => "user"} ];
+
+##===============================
+## Presentation
+##===============================
+
+propgroup presentation_child {
+    property string poster_position {
+        des = "Place of poster and journal usernames in entries and comments";
+        values = "left|Left|right|Right";
+        noui = 1;
+    }
+}
+
+set layout_type = "two-columns-left";
+set margins_size = "5";
+set margins_unit = "%";
+set userpics_position = "right";
+set poster_position =  "right";
+set custom_colors_template = "
+%%new%% .entry .userpic img { border: 20px solid %%background%%; }
+%%new%% .entry .entry-poster a { color: %%foreground%%; }";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_elements_background { des = "Misc. elements background color"; }
+    property Color color_elements_border { des = "Misc. elements border color"; }
+    property Color color_elements_text { des = "Misc. elements text color"; }
+
+    property Color color_entry_userpic_border { des = "Entry icon border color"; }
+    property Color color_entry_accent { des = "Entry accent color"; }
+
+    property Color color_module_calendar_border { des = "Calendar module border color"; }
+    property Color color_module_calendar_link { des = "Calendar module link color"; }
+    property Color color_module_calendar_link_background { des = "Calendar module link background color"; }
+
+    property Color color_calendar_border { des = "Archive calendar border color"; }
+}
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Arial";
+set font_fallback = "sans-serif";
+set font_journal_title_size = "1.2";
+set font_journal_title_units ="em";
+set font_journal_subtitle_size = "1.2";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.2";
+set font_entry_title_units ="em";
+set font_comment_title_size = "1";
+set font_comment_title_units ="em";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+
+##===============================
+## Text
+##===============================
+
+# set text_posting_in = "";
+
+##===============================
+## Functions
+##===============================
+
+## Place poster.
+
+function prop_init () {
+
+$*poster_position = $*userpics_position;
+
+  if ($*userpics_position == "none") {
+    if ( $*layout_type->contains("left") or $*layout_type->contains("sides") or $*layout_type->contains("one") ) { $*poster_position = "right"; }
+    elseif ( $*layout_type->contains("right") ) { $*poster_position = "left"; }
+  }
+}
+
+## Put userpic and poster in their own block.
+
+function Page::print_entry(Entry e) {
+    $e->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+        $e->print_subject();
+        $e->print_metatypes();
+        $e->print_time();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="userpic-block">\n""";
+    $e->print_userpic();
+    $e->print_poster();
+    """</div>\n""";
+    """<div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    if ($*entry_metadata_position == "top") { $e->print_metadata(); }
+    $e->print_text();
+    if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $e->print_tags();
+    $this->print_entry_footer($e);
+    "</div>\n</div>\n";
+
+    $e->print_wrapper_end();
+
+}
+
+function ReplyPage::print_comment (Comment c) {
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+        $c->print_subject();
+        $c->print_metatypes();
+        $c->print_time();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="userpic-block">\n""";
+    $c->print_userpic();
+    $c->print_poster();
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $c->print_metadata();
+    $c->print_text();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+    var string elements_colors = generate_color_css($*color_elements_text, $*color_elements_background, $*color_elements_border);
+
+    var string entry_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_margin = "155px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "130px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "105px"; }
+
+    var string comment_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_margin = "155px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_margin = "130px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_margin = "105px"; }
+
+    var string userpic_css = "";
+
+if($*poster_position == "left") {
+    $userpic_css = """
+    .navigation,
+    #comments,
+    #postform,
+    h3.day-date {
+        margin: 0 0 1em $entry_margin;
+    }
+
+    .entry,
+    .page-reply .comment {
+        border-left: $entry_margin solid transparent;
+    }
+
+    .entry .header,
+    .page-reply .comment .header {
+        float: right;
+        margin-left: -100%;
+        margin-right: 0;
+        width: 100%;
+    }
+
+    .userpic-block {
+        float: left;
+        margin-left: -$entry_margin;
+        width: $entry_margin;
+    }
+
+    .has-userpic .entry .userpic,
+    .entry .poster,
+    .page-reply .has-userpic .comment .userpic,
+    .page-reply .comment .poster {
+        margin-right: 15px;
+    }
+
+    .entry-content,
+    .top-metadata,
+    .page-reply .comment-content {
+        clear: right;
+    }
+    """;
+
+} elseif($*poster_position == "right") {
+    $userpic_css = """
+    .navigation,
+    #comments,
+    #postform,
+    h3.day-date {
+        margin: 0 $entry_margin 1em 0;
+    }
+
+    .entry,
+    .page-reply .comment {
+        border-right: $entry_margin solid transparent;
+    }
+
+    .entry .header,
+    .page-reply .comment .header {
+        float: left;
+        margin-left: 0;
+        margin-right:-100%;
+        width: 100%;
+    }
+
+    .userpic-block {
+        float: right;
+        margin-right: -$entry_margin;
+        width: $entry_margin;
+    }
+
+    .has-userpic .entry .userpic,
+    .entry .poster,
+    .page-reply .has-userpic .comment .userpic,
+    .page-reply .comment .poster {
+        margin-left: 15px;
+    }
+
+    .entry-content,
+    .top-metadata,
+    .page-reply .comment-content {
+        clear: left;
+    }
+    """;
+}
+
+"""
+
+/* Snakes & Boxes
+/* by pari
+******************************/
+
+/* Main
+******************************/
+
+body {
+    margin: 0;
+    }
+
+hr {
+    border: .1em solid;
+    height: .1em;
+}
+
+a {
+    text-decoration: none;
+}
+
+h1, h2, h3, h4 {
+    font-size: 1em;
+    font-weight: normal;
+}
+
+.ljuser a, .ljuser b {
+    font-weight: normal;
+}
+
+.entry-content i, .entry-content em,
+.entry-content u, .entry-content s,
+.entry-content b, .entry-content strong,
+.comment-content i, .comment-content em,
+.comment-content u, .comment-content s,
+.comment-content b, .comment-content strong {
+    color: $*color_entry_accent;
+}
+
+.entry-content code, .entry-content pre,
+.entry-content kbd, .entry-content tt,
+.comment-content code, .comment-content pre,
+.comment-content kbd, .comment-content tt {
+    color: $*color_entry_accent;
+}
+
+/* Make sure content isn't bigger than container */
+pre {
+    white-space: pre-line;
+    word-wrap: break-word;
+}
+
+/* Noting that this can distort or cut off content */
+.entry-content .lj_embedcontent,
+.entry-content img,
+.comment-content img {
+     max-width: 100%;
+}
+
+blockquote {
+    border: 1px dotted $*color_elements_border;
+    margin: 2em;
+    padding: 1em 2em;
+}
+
+input, select, textarea {
+    $elements_colors
+    padding: .5em;
+}
+
+input, select {
+    padding: .1em;
+}
+
+.entry-content ul,
+.entry-content ol {
+    margin: 0 2em;
+    padding: 0;
+}
+
+.entry-content ul li {
+    list-style-type: circle;
+}
+
+/* Header
+******************************/
+
+#header {
+    margin: 0 0 1em;
+    padding: 1em;
+}
+
+h1#title,
+h2#pagetitle,
+h2#subtitle {
+    margin: 0;
+    padding: .5em 0;
+}
+
+h2#pagetitle,
+h2#subtitle {
+    color: $*color_page_title;
+}
+
+/* Containers
+******************************/
+
+#canvas {
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
+
+#primary > .inner:first-child {
+    padding: 0;
+}
+
+.column-left #primary > .inner:first-child {
+    padding-left: 1em;
+}
+
+.column-right #primary > .inner:first-child {
+    padding-right: 1em;
+}
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+    padding: 0;
+}
+
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child {
+    padding-right: .5em;
+}
+
+.three-columns-left #tertiary > .inner:first-child,
+.three-columns-right #tertiary > .inner:first-child {
+    padding-left: .5em;
+}
+
+/* Navigation 
+******************************/
+
+.navigation {
+    $entry_colors
+    $entry_title_font
+    padding: 1em;
+}
+
+.page-archive .navigation,
+.page-month .navigation {
+    margin: 0 0 1em;
+}
+
+.navigation a { color: $*color_entry_link; }
+.navigation a:visited { color: $*color_entry_link_visited; }
+.navigation a:hover { color: $*color_entry_link_hover; }
+.navigation a:active { color: $*color_entry_link_active; }
+
+.navigation ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.page-archive .navigation ul,
+.page-month .navigation ul {
+    text-align: center;
+}
+
+.navigation li {
+    padding: 0;
+}
+
+.navigation .page-back a:before,
+.navigation .page-forward a:after {
+    padding: .2em;
+}
+
+.navigation.empty,
+li.page-separator {
+    display: none;
+}
+
+/* Entries & Reply to Comment
+******************************/
+
+.entry-wrapper {
+    margin: 0 0 1em;
+}
+
+.entry {
+    background: none;
+}
+
+.entry .header,
+.entry-content,
+.metadata,
+.entry .footer {
+    $entry_background
+    $entry_colors
+}
+
+.entry .header,
+.page-reply .comment .header {
+    margin-bottom: 1em;
+}
+
+.entry .header .inner,
+.page-reply .comment .header .inner {
+    padding: 1.5em 2em;
+}
+
+.entry .entry-title {
+    margin: 0;
+    padding: 0;
+}
+
+.entry .time,
+.entry .date {
+    display: inline-block;
+    padding: .2em 0;
+}
+
+.has-userpic .entry .userpic,
+.page-reply .has-userpic .comment .userpic {
+    text-align: center;
+}
+
+.entry .userpic img,
+.page-reply .comment .userpic img {
+    border: 20px solid $*color_entry_userpic_border;
+    margin-bottom: 2px;
+}
+
+.entry .poster,
+.page-reply .comment .poster {
+    color: $*color_page_text;
+    display: block;
+    text-align: center;
+}
+
+.entry .poster span,
+.page-reply .comment .poster span {
+    display: block;
+}
+
+/* Force username to break */
+.entry .poster a + a,
+.page-reply .comment .poster a + a {
+    color: $*color_page_link;
+    white-space: pre-line;
+    word-wrap: break-word;
+}
+
+.entry .poster a:visited, .page-reply .comment .poster a:visited { color: $*color_page_link_visited; }
+.entry .poster a:hover, .page-reply .comment .poster a:hover { color: $*color_page_link_hover; }
+.entry .poster a:active, .page-reply .comment .poster a:active { color: $*color_page_link_active; }
+
+.entry .poster-empty {
+    display: none;
+}
+
+$userpic_css
+
+.entry-content {
+    padding: 1.5em 2em;
+    text-align: justify;
+}
+
+.metadata {
+    margin: 1em 0 0;
+    padding: 1em 2em;
+}
+
+.metadata ul, .metadata li:last-child {
+    margin: 0;
+    padding: 0;
+}
+
+.entry .footer,
+.page-reply .comment .footer {
+    clear: both;
+    margin-top: 1em;
+    padding: 1em 2em;
+}
+
+.tag {
+    margin: 0 0 .3em;
+}
+
+.tag ul { 
+    margin: 0; 
+    padding: 0; 
+    }
+
+.tag li {
+    padding: 0;
+}
+
+ul.entry-management-links,
+ul.entry-interaction-links {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.entry .footer a {
+    white-space: nowrap;
+}
+
+hr.above-entry-interaction-links,
+hr.below-reply-container {
+    display: none;
+}
+
+/* Comments
+******************************/
+
+.comment-wrapper {
+    margin: 0 0 1em;
+    padding: 0;
+}
+
+.comment {
+    background: none;
+}
+
+.comment .header,
+.page-entry .comment .contents,
+.page-reply .comment-content,
+.comment .footer,
+.partial {
+    $entry_background
+    $entry_colors
+}
+
+.partial {
+    margin: 1em 0;
+    padding: 1em 2em;
+}
+
+.comment a, .partial a { color: $*color_entry_link; }
+.comment a:visited, .partial a:visited { color: $*color_entry_link_visited; }
+.comment a:hover, .partial a:hover { color: $*color_entry_link_hover; }
+.comment a:active, .partial a:active { color: $*color_entry_link_active; }
+
+.comment .header,
+.comment .poster,
+.comment .poster-ip {
+    color: $*color_comment_title;
+}
+
+.page-entry .comment .header {
+    padding: 1em 2em 0;
+}
+
+.comment .datetime {
+    display: block;
+    margin: 0;
+}
+
+.partial .comment-title,
+.partial .comment-poster,
+.partial .datetime {
+     border: none;
+     display: inline;
+     margin: 0;
+     padding: 0;
+}
+
+.partial .comment-poster::before {
+     content: " - ";
+}
+
+.page-entry .has-userpic .comment .userpic {
+    border: 1.3em solid $*color_entry_text;
+    float: right;
+    clear: right;
+    margin: 4.8em 1.5em 0;
+}
+
+.page-entry .full .comment-poster {
+    display: block;
+    padding: 0 2em 1em;
+    border-bottom: 1em solid $*color_entry_text;
+}
+
+.poster-ip {
+    display: block;
+    padding: 1em 2em 0;
+}
+
+.comment-content {
+    padding: 1em 2em;
+    text-align: justify;
+}
+
+.page-entry .has-userpic .comment-content {
+    min-height: 9em;
+}
+
+.edittime {
+     padding-top: 1em;
+}
+
+.comment .footer {
+    padding: 0 2em 1em;
+}
+
+ul.comment-management-links,
+ul.comment-interaction-links {
+     display: inline;
+     margin: 0;
+     padding: 0;
+}
+
+.bottomcomment {
+    $entry_background
+    $entry_colors
+    padding: 1em 2em;
+}
+
+.bottomcomment a { color: $*color_entry_link; }
+.bottomcomment a:visited { color: $*color_entry_link_visited; }
+.bottomcomment a:hover { color: $*color_entry_link_hover; }
+.bottomcomment a:active { color: $*color_entry_link_active; }
+
+
+.comment-pages.toppages {
+    margin-bottom: 1em;
+}
+
+.comment-pages.bottompages {
+    margin-top: 1em;
+}
+
+/* Reply Forms
+******************************/
+
+#qrform {
+    padding: .5em 0 0;
+}
+
+#qrform table { 
+    margin: 0 1.5em 0;
+    padding: .5em 1em 1em;
+}
+
+#qrform td:first-child {
+    padding: 0;
+}
+
+#qrform textarea.textbox {
+    margin: .2em 0;
+    width: 95% !important; /* !important needed */
+}
+
+#qrform #subject {
+    width: 97.2%;
+}
+
+#postform {
+    $entry_background
+    $entry_colors
+    padding: 1em 2em;
+}
+
+.postform a { color: $*color_entry_link; }
+.postform a:visited { color: $*color_entry_link_visited; }
+.postform a:hover { color: $*color_entry_link_hover; }
+.postform a:active { color: $*color_entry_link_active; }
+
+#postform div#userpics {
+    padding: .7em 0 .3em;
+}
+
+#postform textarea.textbox {
+    margin-bottom: .7em;
+    width: 95%;
+}
+
+#postform #subject {
+    width: 96.5%;
+}
+
+/* Other Pages
+******************************/
+
+.month-wrapper {
+    margin: 0 0 1em;
+}
+
+.month {
+    $entry_background
+    $entry_colors
+    padding: 1.5em 2em;
+}
+
+.month a { color: $*color_entry_link; }
+.month a:visited { color: $*color_entry_link_visited; }
+.month a:hover { color: $*color_entry_link_hover; }
+.month a:active { color: $*color_entry_link_active; }
+
+.month-wrapper h3 {
+    $entry_title_font
+    padding: .5em 0 .7em;
+    text-align: center;
+}
+
+table.month {
+    border: .1em solid $*color_calendar_border;
+    margin: 0 auto;
+    min-width: 70%;
+}
+
+.month caption {
+    display: none;
+}
+
+table.month th,
+table.month td {
+    border: .1em solid $*color_calendar_border;
+    padding: .5em;
+}
+
+table.month th {
+    font-weight: normal;
+    text-align: center;
+}
+
+table.month td {
+    height: auto;
+    width: 14.285%;
+}
+
+table.month td p {
+    display: inline;
+    padding: 0 0 0 .5em;
+    margin: 0;
+}
+
+.month .footer {
+    $entry_title_font
+    margin: .7em 0 0;
+    text-align: center;
+}
+
+.page-month .month dl {
+    margin: 1em 0;
+    padding: 0;
+}
+
+.page-month .month dt {
+    $entry_title_font
+}
+
+.page-month .month dt,
+.page-month .month dd {
+    font-weight: normal;
+}
+
+.page-month .month h3 {
+    $entry_title_font
+}
+
+.page-month .month span {
+    display: inline;
+}
+
+.page-month .month .time {
+    padding: 0;
+}
+
+.page-month .month .entry-poster {
+    margin: 0 .5em;
+}
+
+.page-month .month .entry-title {
+    display: inline;
+    margin: 0 0 0 .5em;
+    padding: 0;
+}
+
+h3.day-date {
+    $entry_background
+    $entry_colors
+    $entry_title_font
+    padding: 1em;
+}
+
+.tags-container {
+    $entry_background
+    $entry_colors
+    margin-bottom: 1em;
+    padding: 1.5em 2em;
+}
+
+.tags-container a { color: $*color_entry_link; }
+.tags-container a:visited { color: $*color_entry_link_visited; }
+.tags-container a:hover { color: $*color_entry_link_hover; }
+.tags-container a:active { color: $*color_entry_link_active; }
+
+.tags-container h2 {
+    $entry_title_font
+    margin: 0 0 1em;
+    padding: 0;
+}
+
+.tags-container ul {
+    list-style: none;
+    margin: 0;
+}
+
+.tags-container ul:first-child {
+    padding: 0;
+}
+
+.tags-container .manage-link {
+    margin-top: 1em;
+}
+
+.icons-container {
+    $entry_background
+    $entry_colors
+    margin-bottom: 1em;
+    padding: 1.5em 2em;
+}
+
+.icons-container a { color: $*color_entry_link; }
+.icons-container a:visited { color: $*color_entry_link_visited; }
+.icons-container a:hover { color: $*color_entry_link_hover; }
+.icons-container a:active { color: $*color_entry_link_active; }
+
+.icons-container h2 {
+    $entry_title_font
+    margin: 0 0 1em;
+    padding: 0;
+}
+
+.sorting-options ul {
+    padding-left: 0;
+    }
+
+.icons-container .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+.icons-container .manage-link {
+    margin-top: 1em;
+}
+
+/* Footer
+******************************/
+
+#footer {
+    margin: 0;
+    padding: 1em;
+}
+
+/* Modules
+******************************/
+
+.module {
+    margin-bottom: 1em;
+    padding: 1em;
+}
+
+.two-columns #tertiary .module {
+    margin-right: 1em;
+}
+
+.module ul {
+    list-style: none;
+    padding: 0;
+}
+
+.module li {
+    margin: 0;
+    padding: 0;
+}
+
+.module ul:first-child {
+    margin: 0;
+}
+
+h2.module-header {
+    margin: 0;
+    padding: 0 0 .5em;
+    text-align: center;
+}
+
+.module .manage-link {
+    margin-top: 1em;
+}
+
+.module-userprofile {
+    text-align: center;
+}
+
+.module-userprofile ul {
+    margin: .5em 0 0;
+}
+
+.journal-name {
+    padding: .5em 0 0;
+}
+
+
+.module-navlinks {
+    $module_title_font
+}
+
+.module-calendar table {
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+}
+
+.module-calendar th {
+    border: .1em solid $*color_module_calendar_border;
+    font-weight: normal;
+    padding: .1em;
+}
+
+.module-calendar td {
+    padding: .1em;
+}
+
+.module-calendar td.empty-day {
+    border: .1em solid $*color_module_calendar_border;
+}
+
+.module-calendar td.entry-day {
+    background-color: $*color_module_calendar_link_background;
+    border: .1em solid transparent;
+}
+
+.module-calendar td.entry-day a {
+    color: $*color_module_calendar_link;
+}
+
+/* Contextual Popups
+******************************/
+
+.ContextualPopup {
+    background: $*color_entry_background;
+    border: 1px solid $*color_entry_text;
+    color: $*color_entry_text; 
+    font-size: 1em;
+}
+
+.ContextualPopup .Userpic { 
+    border: none;
+}
+
+.ContextualPopup .Relation { 
+    font-weight: normal;
+}
+
+.ContextualPopup a { color: $*color_entry_link_hover; }
+.ContextualPopup a:visited { color: $*color_entry_link_visited; }
+.ContextualPopup a:hover { color: $*color_entry_link_active; }
+.ContextualPopup a:active { color: $*color_entry_link_active; }
+
+""";
+}

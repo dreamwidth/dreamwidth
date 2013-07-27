@@ -1,0 +1,51 @@
+#NEWLAYER: snakesandboxes/pinkedout
+layerinfo type = "theme";
+layerinfo name = "Pinked Out";
+layerinfo redist_uniq = "snakesandboxes/pinkedout";
+layerinfo author_name = "pari";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_border = "#8D7A9E";
+set color_elements_background = "#fff";
+set color_elements_border = "#8D7A9E";
+set color_elements_text = "#4E4357";
+set color_header_background = "#fff";
+set color_footer_background = "#fff";
+set color_footer_link = "#E8005D";
+set color_footer_link_hover = "#E87DA8";
+set color_footer_link_visited = "#E8005D";
+set color_page_background = "#4E4357";
+set color_page_link = "#E87DA8";
+set color_page_link_hover = "#D7B9ED";
+set color_page_text = "#D7B9ED";
+set color_page_title = "#4E4357";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#8D7A9E";
+set color_entry_accent = "#8D7A9E";
+set color_entry_background = "#fff";
+set color_entry_link = "#E8005D";
+set color_entry_link_hover = "#E87DA8";
+set color_entry_link_visited = "#E8005D";
+set color_entry_text = "#4E4357";
+set color_entry_userpic_border = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_calendar_border ="#8D7A9E";
+set color_module_calendar_link = "#D7B9ED";
+set color_module_calendar_link_background = "#4E4357";
+set color_module_link = "#E8005D";
+set color_module_link_hover = "#E87DA8";
+set color_module_link_visited = "#E8005D";
+set color_module_text = "#4E4357";
+set color_module_title = "#4E4357";
