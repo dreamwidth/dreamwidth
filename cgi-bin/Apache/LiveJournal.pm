@@ -970,6 +970,13 @@ sub trans
         DW::Routing->call( ssl => $is_ssl );
     return $ret if defined $ret;
 
+    # API role
+    if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
+        my $ver = $1 + 0;
+        $ret = DW::Routing->call( ssl => $is_ssl, api_version => $ver, uri => "/v$ver$2", role => 'api' );
+        return $ret if defined $ret;
+    }
+
     # now check for BML pages
     my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $apache_r, $uri );
     if ( $alt_path ) {
