@@ -10,18 +10,15 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 ## Presentation
 ##===============================
 
-property string content_width {
-    des = "Maximum width of the page content.  Ensure that the value is given in em or px.";
-    note = "Use this option to restrict the width so that the page can be viewed on small screens without scrolling";
-    example = "50em";
-}
-
-property bool control_strip_reduced {
-    des = "Reduce navigation strip to icon and common links only.";
-}
-
 propgroup presentation_child {
-    property use control_strip_reduced;
+    property string content_width {
+        des = "Set the maximum width of the page content. Ensure that the value is given in em or px.";
+        note = "This restricts the page width so it can be viewed on small screens without scrolling.";
+        example = "50em";
+    }
+    property bool control_strip_reduced {
+        des = "Reduce the navigation strip to icon and common links only";
+    }
     property use entry_interaction_links;
     property use comment_interaction_links;
 }
@@ -42,12 +39,13 @@ set comment_management_links = "icon";
 ## Colors
 ##===============================
 
-property Color color_header_footer_border { des = "Header and footer border color"; }
-property Color color_module_highlight { des = "Highlight color in modules, as for calendar days with entries"; }
-
 propgroup colors_child {
-    property use color_module_highlight;
-    property use color_header_footer_border;
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+    property Color color_header_footer_border { des = "Page header and page footer border color"; }
+    property Color color_module_highlight { des = " Calendar module background color on days with entries"; }
 }
 
 ##===============================
@@ -331,6 +329,11 @@ function print_stylesheet () {
     #module-jump-link { 
         text-align: right; 
     }
+
+    #module-jump-link a { color: $*color_header_link; }
+    #module-jump-link a:visited { color: $*color_header_link_visited; }
+    #module-jump-link a:hover { color: $*color_header_link_hover; }
+    #module-jump-link a:active { color: $*color_header_link_active; }
 
     /* Module positioning */
     .one-column #primary,
