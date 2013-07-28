@@ -586,8 +586,9 @@ hr.below-reply-container {
 }
 
 .comment .header,
-.page-entry .comment .contents,
-.page-reply .comment-content,
+.page-entry .comment-poster,
+.poster-ip,
+.comment-content,
 .comment .footer,
 .partial {
     $entry_background
@@ -641,8 +642,8 @@ hr.below-reply-container {
 
 .page-entry .full .comment-poster {
     display: block;
+    margin-bottom: 1em;
     padding: 0 2em 1em;
-    border-bottom: 1em solid $*color_entry_text;
 }
 
 .poster-ip {
@@ -985,7 +986,6 @@ h2.module-header {
     padding: .5em 0 0;
 }
 
-
 .module-navlinks {
     $module_title_font
 }
@@ -1029,11 +1029,11 @@ h2.module-header {
     font-size: 1em;
 }
 
-.ContextualPopup .Userpic { 
+.ContextualPopup .Userpic {
     border: none;
 }
 
-.ContextualPopup .Relation { 
+.ContextualPopup .Relation {
     font-weight: normal;
 }
 
