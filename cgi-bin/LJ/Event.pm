@@ -431,6 +431,40 @@ sub raw_subscriptions {
     return @subs;
 }
 
+# helper method to be called when overriding parent's raw_subscriptions
+# method to always return a subscription object for the user
+sub _raw_always_subscribed {
+    my ( $class, $self, %args ) = @_;
+    my $cid = delete $args{'cluster'};
+    croak("Cluser id (cluster) must be provided") unless defined $cid;
+
+    my $scratch = delete $args{'scratch'}; # optional
+
+    # hash keys specific to this helper method
+    my $skip_parent = delete $args{'skip_parent'}; # optional
+    my $ntypeid = delete $args{'ntypeid'};
+    croak("Failed to provide ntypeid") unless defined $ntypeid;
+
+    croak("Unknown options: " . join(', ', keys %args)) if %args;
+    croak("Can't call in web context") if LJ::is_web_context();
+
+    my @subs;
+    my $u = $self->u;
+    return unless $cid == $u->clusterid;
+
+    my $row = { userid  => $self->u->id,
+                ntypeid => $ntypeid,
+                etypeid => $class->etypeid,
+              };
+
+    push @subs, LJ::Subscription->new_from_row($row);
+
+    push @subs, eval { LJ::Event::raw_subscriptions( $class, $self,
+        cluster => $cid, scratch => $scratch ) } unless $skip_parent;
+
+    return @subs;
+}
+
 
 # INSTANCE METHOD: SHOULD OVERRIDE if the subscriptions support filtering
 sub matches_filter {

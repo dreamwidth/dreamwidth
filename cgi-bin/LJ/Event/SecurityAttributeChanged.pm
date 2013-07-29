@@ -131,29 +131,10 @@ sub is_significant { 1 }
 # a subscription object for the user
 sub raw_subscriptions {
     my ( $class, $self, %args ) = @_;
-    my $cid = delete $args{'cluster'};
-    croak("Cluser id (cluster) must be provided") unless defined $cid;
 
-    my $scratch = delete $args{'scratch'}; # optional
+    $args{ntypeid} = LJ::NotificationMethod::Email->ntypeid; # Email
 
-    croak("Unknown options: " . join(', ', keys %args)) if %args;
-    croak("Can't call in web context") if LJ::is_web_context();
-
-    my @subs;
-    my $u = $self->u;
-    return unless $cid == $u->clusterid;
-
-    my $row = { userid  => $self->u->id,
-                ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
-                etypeid => $class->etypeid,
-              };
-
-    push @subs, LJ::Subscription->new_from_row($row);
-
-    push @subs, eval { LJ::Event::raw_subscriptions( $class, $self,
-        cluster => $cid, scratch => $scratch ) };
-
-    return @subs;
+    return $class->_raw_always_subscribed( $self, %args );
 }
 
 sub get_subscriptions {
