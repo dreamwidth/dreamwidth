@@ -1057,7 +1057,15 @@ ul.userlite-interaction-links.icon-links li {
     padding: 0 0.2em;
     }
 
-.module-tags_cloud, .module-time, .module-powered { width: 90%; }
+.module-powered, .module-tags_cloud, .module-time { width: 90%; }
+
+#tertiary .module-powered,
+#tertiary .module-tags_cloud,
+#tertiary .module-time {
+  clear: both;
+  float: none;
+  width: auto;
+}
 
 .tags_cloud li, .module-tags_cloud li { display: inline; }
 
