@@ -1,0 +1,316 @@
+#NEWLAYER: snakesandboxes/bluesy
+layerinfo type = "theme";
+layerinfo name = "Bluesy";
+layerinfo redist_uniq = "snakesandboxes/bluesy";
+layerinfo author_name = "pari";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_border = "#145D73";
+set color_elements_background = "#F2FCFF";
+set color_elements_border = "#145D73";
+set color_elements_text = "#0B3340";
+set color_header_background = "#F2FCFF";
+set color_footer_background = "#F2FCFF";
+set color_footer_link = "#1C86A6";
+set color_footer_link_hover = "#27B9E6";
+set color_footer_link_visited = "#1C86A6";
+set color_page_background = "#0B3340";
+set color_page_link = "#27B9E6";
+set color_page_link_hover = "#1C86A6";
+set color_page_text = "#1C86A6";
+set color_page_title = "#0B3340";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#145D73";
+set color_entry_accent = "#145D73";
+set color_entry_background = "#F2FCFF";
+set color_entry_link = "#1C86A6";
+set color_entry_link_hover = "#27B9E6";
+set color_entry_link_visited = "#1C86A6";
+set color_entry_text = "#0B3340";
+set color_entry_userpic_border = "#F2FCFF";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#F2FCFF";
+set color_module_calendar_border ="#0B3340";
+set color_module_calendar_link = "#1C86A6";
+set color_module_calendar_link_background = "#0B3340";
+set color_module_link = "#1C86A6";
+set color_module_link_hover = "#1C86A6";
+set color_module_link_visited = "#1C86A6";
+set color_module_text = "#0B3340";
+set color_module_title = "#0B3340";
+
+
+#NEWLAYER: snakesandboxes/glittergrass
+layerinfo type = "theme";
+layerinfo name = "Glitter Grass";
+layerinfo redist_uniq = "snakesandboxes/glittergrass";
+layerinfo author_name = "pari";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_border = "#899C76";
+set color_elements_background = "#EEF2EB";
+set color_elements_border = "#899C76";
+set color_elements_text = "#29381A";
+set color_header_background = "#EEF2EB";
+set color_footer_background = "#EEF2EB";
+set color_footer_link = "#55B000";
+set color_footer_link_hover = "#CF0053";
+set color_footer_link_visited = "#55B000";
+set color_page_background = "#29381A";
+set color_page_link = "#55B000";
+set color_page_link_hover = "#CF0053";
+set color_page_text = "#CF0053";
+set color_page_title = "#29381A";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#899C76";
+set color_entry_accent = "#899C76";
+set color_entry_background = "#EEF2EB";
+set color_entry_link = "#55B000";
+set color_entry_link_hover = "#CF0053";
+set color_entry_link_visited = "#55B000";
+set color_entry_text = "#29381A";
+set color_entry_userpic_border = "#EEF2EB";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#EEF2EB";
+set color_module_calendar_border ="#899C76";
+set color_module_calendar_link = "#55B000";
+set color_module_calendar_link_background = "#29381A";
+set color_module_link = "#55B000";
+set color_module_link_hover = "#CF0053";
+set color_module_link_visited = "#55B000";
+set color_module_text = "#29381A";
+set color_module_title = "#29381A";
+
+
+#NEWLAYER: snakesandboxes/midnight
+layerinfo type = "theme";
+layerinfo name = "Midnight";
+layerinfo redist_uniq = "snakesandboxes/midnight";
+layerinfo author_name = "pari";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_border = "#8F8F8F";
+set color_elements_background = "#000";
+set color_elements_border = "#8F8F8F";
+set color_elements_text = "#636363";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#fff";
+set color_footer_link_hover = "#C2C2C2";
+set color_footer_link_visited = "#fff";
+set color_page_background = "#636363";
+set color_page_link = "#C2C2C2";
+set color_page_link_hover = "#fff";
+set color_page_text = "#fff";
+set color_page_title = "#636363";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#8F8F8F";
+set color_entry_accent = "#8F8F8F";
+set color_entry_background = "#000";
+set color_entry_link = "#fff";
+set color_entry_link_hover = "#C2C2C2";
+set color_entry_link_visited = "#fff";
+set color_entry_text = "#636363";
+set color_entry_userpic_border = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#000";
+set color_module_calendar_border ="#8F8F8F";
+set color_module_calendar_link = "#fff";
+set color_module_calendar_link_background = "#636363";
+set color_module_link = "#fff";
+set color_module_link_hover = "#C2C2C2";
+set color_module_link_visited = "#fff";
+set color_module_text = "#636363";
+set color_module_title = "#636363";
+
+
+#NEWLAYER: snakesandboxes/newspaper
+layerinfo type = "theme";
+layerinfo name = "Newspaper";
+layerinfo redist_uniq = "snakesandboxes/newspaper";
+layerinfo author_name = "pari";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_border = "#BFBFBF";
+set color_elements_background = "#fff";
+set color_elements_border = "#BFBFBF";
+set color_elements_text = "#000";
+set color_header_background = "#fff";
+set color_footer_background = "#fff";
+set color_footer_link = "#ED0C00";
+set color_footer_link_hover = "#800600";
+set color_footer_link_visited = "#ED0C00";
+set color_page_background = "#E8E8E8";
+set color_page_link = "#800600";
+set color_page_link_hover = "#ED0C00";
+set color_page_text = "#ED0C00";
+set color_page_title = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#6E6E6E";
+set color_entry_accent = "#6E6E6E";
+set color_entry_background = "#fff";
+set color_entry_link = "#ED0C00";
+set color_entry_link_hover = "#800600";
+set color_entry_link_visited = "#ED0C00";
+set color_entry_text = "#000";
+set color_entry_userpic_border = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_calendar_border ="#BFBFBF";
+set color_module_calendar_link = "#ED0C00";
+set color_module_calendar_link_background = "#E8E8E8";
+set color_module_link = "#ED0C00";
+set color_module_link_hover = "#800600";
+set color_module_link_visited = "#ED0C00";
+set color_module_text = "#000";
+set color_module_title = "#000";
+
+
+#NEWLAYER: snakesandboxes/pinkedout
+layerinfo type = "theme";
+layerinfo name = "Pinked Out";
+layerinfo redist_uniq = "snakesandboxes/pinkedout";
+layerinfo author_name = "pari";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_border = "#8D7A9E";
+set color_elements_background = "#fff";
+set color_elements_border = "#8D7A9E";
+set color_elements_text = "#4E4357";
+set color_header_background = "#fff";
+set color_footer_background = "#fff";
+set color_footer_link = "#E8005D";
+set color_footer_link_hover = "#E87DA8";
+set color_footer_link_visited = "#E8005D";
+set color_page_background = "#4E4357";
+set color_page_link = "#E87DA8";
+set color_page_link_hover = "#D7B9ED";
+set color_page_text = "#D7B9ED";
+set color_page_title = "#4E4357";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#8D7A9E";
+set color_entry_accent = "#8D7A9E";
+set color_entry_background = "#fff";
+set color_entry_link = "#E8005D";
+set color_entry_link_hover = "#E87DA8";
+set color_entry_link_visited = "#E8005D";
+set color_entry_text = "#4E4357";
+set color_entry_userpic_border = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_calendar_border ="#8D7A9E";
+set color_module_calendar_link = "#D7B9ED";
+set color_module_calendar_link_background = "#4E4357";
+set color_module_link = "#E8005D";
+set color_module_link_hover = "#E87DA8";
+set color_module_link_visited = "#E8005D";
+set color_module_text = "#4E4357";
+set color_module_title = "#4E4357";
+
+
+#NEWLAYER: snakesandboxes/wildthing
+layerinfo type = "theme";
+layerinfo name = "Wild Thing";
+layerinfo redist_uniq = "snakesandboxes/wildthing";
+layerinfo author_name = "pari";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_border = "#40875D";
+set color_elements_background = "#EBF5B0";
+set color_elements_border = "#40875D";
+set color_elements_text = "#1C3B29";
+set color_header_background = "#EBF5B0";
+set color_footer_background = "#EBF5B0";
+set color_footer_link = "#E65800";
+set color_footer_link_hover = "#40875D";
+set color_footer_link_visited = "#E65800";
+set color_page_background = "#1C3B29";
+set color_page_link = "#E65800";
+set color_page_link_hover = "#40875D";
+set color_page_text = "#40875D";
+set color_page_title = "#1C3B29";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#40875D";
+set color_entry_accent = "#40875D";
+set color_entry_background = "#EBF5B0";
+set color_entry_link = "#E65800";
+set color_entry_link_hover = "#40875D";
+set color_entry_link_visited = "#E65800";
+set color_entry_text = "#1C3B29";
+set color_entry_userpic_border = "#EBF5B0";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#EBF5B0";
+set color_module_calendar_border ="#40875D";
+set color_module_calendar_link = "#E65800";
+set color_module_calendar_link_background = "#1C3B29";
+set color_module_link = "#E65800";
+set color_module_link_hover = "#40875D";
+set color_module_link_visited = "#E65800";
+set color_module_text = "#1C3B29";
+set color_module_title = "#1C3B29";
