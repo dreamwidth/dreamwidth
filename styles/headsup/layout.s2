@@ -28,6 +28,10 @@ property string margins_unit { noui = 1; }
 ##===============================
 
 propgroup colors_child {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
     property Color color_comment_title_even { des = "Comment title alternate color"; }
     property Color color_comment_title_background_even { des = "Comment title alternate background color"; }
     property Color color_comment_title_border { des = "Border color for comment titles"; }
@@ -274,8 +278,11 @@ var string navlinks_css = "";
                 }
 
             .module-navlinks a, .module-navlinks a.current {
-                color: $*color_page_title;
+                color: $*color_header_link;
                 }
+            .module-navlinks a:visited { color: $*color_header_link_visited; }
+            .module-navlinks a:hover { color: $*color_header_link_hover; }
+            .module-navlinks a:active { color: $*color_header_link_active; }
         """;
     }
     else {

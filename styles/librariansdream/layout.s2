@@ -246,15 +246,20 @@ if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
        display: inline !important;
        background:  transparent !important;
        border-left: none !important; }
-    .module-navlinks a {
-       color: $*color_header_link !important; }
-    .module-navlinks a:visited {
-       color: $*color_header_link_visited !important; }
-    .module-navlinks a:hover {
-       color: $*color_header_link_hover !important; }
-    .module-navlinks a.current {
-       color: $*color_page_title !important;
-       text-decoration: none; }
+
+    /* Above standard link colors so hover and active still work */
+    .module-navlinks .module-content li a.current,
+    .module-navlinks .module-content li a.current:visited {
+        color: $*color_page_title;
+        text-decoration: none;
+    }
+
+    /* Extra specificity needed to override code below */
+    .module-navlinks .module-content li a { color: $*color_header_link; }
+    .module-navlinks .module-content li a:visited { color: $*color_header_link_visited; }
+    .module-navlinks .module-content li a:hover { color: $*color_header_link_hover; }
+    .module-navlinks .module-content li a:active { color: $*color_header_link_active; }
+
     .module-navlinks .module-header { display: none !important; }
     """; }
 else { $navlinks_css = ""; }

@@ -8,6 +8,17 @@ set layout_type = "two-columns-left";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
 ##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+}
+
+##===============================
 ##Text
 ##===============================
 
@@ -216,7 +227,7 @@ else {
             $navlinks_css = """
             .module-navlinks {
                 background-color: transparent;
-                color: $*color_page_title;
+                color: $*color_header_link;
                 padding-bottom: .5em;
                 }
 
@@ -245,10 +256,10 @@ else {
                 padding-left: 0;
                 }
 
-            .module-navlinks a,
-            .module-navlinks a:visited {
-                color: $*color_page_title !important;
-                }
+            .module-navlinks a { color: $*color_header_link; }
+            .module-navlinks a:visited { color: $*color_header_link_visited; }
+            .module-navlinks a:hover { color: $*color_header_link_hover; }
+            .module-navlinks a:active { color: $*color_header_link_active; }
             """;
         }
         else {
