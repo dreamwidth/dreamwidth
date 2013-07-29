@@ -3505,15 +3505,6 @@ sub subscribe_interface {
             }
 
             my $special_selected = 0;
-            if ($settings_page) {
-                # if non-ESN comment notifications are turned on, then check the box for
-                # the JournalNewComment event as well, since JournalNewComment notifications
-                # are a subset of the non-ESN notifications
-                my $etypeid = $pending_sub->etypeid;
-                if (!$is_tracking_category && LJ::Event->class($etypeid) =~ /JournalNewComment/ && LJ::Setting::CommentEmailNotify->selected($u)) {
-                    $special_selected = 1;
-                }
-            }
 
             my $selected = $special_selected || $pending_sub->default_selected;
 

@@ -33,8 +33,10 @@ sub arg_list {
     return ( "Comment jtalkid" );
 }
 
-sub related_events {
-    return map { $_->etypeid } ( $_[0], "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited" );
+sub related_event_classes {
+    return (
+        "LJ::Event::JournalNewComment", "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited",
+            "LJ::Event::JournalNewComment::Reply" );
 }
 
 sub is_common { 1 }
@@ -475,11 +477,8 @@ sub matches_filter {
     return 0 unless $comment->visible_to($watcher);
 
     if ( $watcher ) {
-        # not a match if this user posted the comment and they don't
-        # want to be notified of their own posts
-        if ( $watcher->equals( $comment->poster ) ) {
-            return 0 unless $watcher->can_get_self_email && $watcher->prop('opt_getselfemail');
-        }
+        # not a match if this user posted the comment
+        return 0 if $watcher->equals( $comment->poster );
 
         # not a match if this user posted the entry and they don't want comments emailed,
         # unless it is a reply to one of their comments or they posted it. (don't need to check again for the cap, since we did above.)

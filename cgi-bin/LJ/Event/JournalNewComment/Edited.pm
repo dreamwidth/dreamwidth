@@ -16,10 +16,6 @@ use strict;
 
 use base 'LJ::Event::JournalNewComment';
 
-sub related_events {
-    return map { $_->etypeid } ( $_[0], "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment" );
-}
-
 sub content {
     my ($self, $target) = @_;
 
