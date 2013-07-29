@@ -8,6 +8,10 @@ layerinfo author_name = "momijizukamori";
 ## Page Colors
 ##===============================
 
+set color_header_link = "#000";
+set color_header_link_active = "#000";
+set color_header_link_hover = "#000";
+set color_header_link_visited = "#000";
 set color_page_background = "#999";
 set color_page_link = "#2b8024";
 set color_page_link_active = "#2b8024";
@@ -59,6 +63,10 @@ layerinfo author_name = "momijizukamori";
 ## Page Colors
 ##===============================
 
+set color_header_link = "#000";
+set color_header_link_active = "#000";
+set color_header_link_hover = "#000";
+set color_header_link_visited = "#000";
 set color_page_background = "#999";
 set color_page_link = "#2b8024";
 set color_page_link_active = "#2b8024";
@@ -110,6 +118,10 @@ layerinfo author_name = "momijizukamori";
 ## Page Colors
 ##===============================
 
+set color_header_link = "#000";
+set color_header_link_active = "#000";
+set color_header_link_hover = "#000";
+set color_header_link_visited = "#000";
 set color_page_background = "#999";
 set color_page_link = "#2b8024";
 set color_page_link_active = "#2b8024";
@@ -160,6 +172,10 @@ layerinfo author_name = "momijizukamori";
 ## Page Colors
 ##===============================
 
+set color_header_link = "#000";
+set color_header_link_active = "#000";
+set color_header_link_hover = "#000";
+set color_header_link_visited = "#000";
 set color_page_background = "#999";
 set color_page_link = "#2b8024";
 set color_page_link_active = "#2b8024";
@@ -219,6 +235,10 @@ set color_page_link_visited = "#5c5895";
 set color_page_text = "#333";
 set color_page_title = "#ddd";
 set color_header_background = "#05033e";
+set color_header_link = "#ddd";
+set color_header_link_active = "#ddd";
+set color_header_link_hover = "#ddd";
+set color_header_link_visited = "#ddd";
 set color_footer_background = "#05033e";
 set color_footer_link = "#d3d3d3";
 set color_footer_link_active = "#d3d3d3";

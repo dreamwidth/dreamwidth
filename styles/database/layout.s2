@@ -80,15 +80,16 @@ propgroup colors_child {
     property Color color_calendar_link_visited { des = "Calendar visited link color"; }
 
     property Color color_module_title_shadow { des = "Module title shadow color"; }
-    property Color color_module_header_background { des = "Header module background color"; }
-    property Color color_module_header_link { des = "Header module link color"; }
-    property Color color_module_header_background_active { des = "Header module active background color"; }
-    property Color color_module_header_link_active { des = "Header module active color"; }
-    property Color color_module_header_background_hover { des = "Header module hover background color"; }
-    property Color color_module_header_link_hover { des = "Header module hover link color"; }
-    property Color color_module_header_background_visited { des = "Header module visited background color"; }
-    property Color color_module_header_link_visited { des = "Header module visited color"; }
-    property Color color_module_header_border { des = "Header module border color"; }
+    # Used instead of color_header_link:
+    property Color color_module_header_background { des = "Page header module link background color"; }
+    property Color color_module_header_link { des = "Page header link color"; }
+    property Color color_module_header_background_active { des = "Page header active link background color"; }
+    property Color color_module_header_link_active { des = "Page header active link color"; }
+    property Color color_module_header_background_hover { des = "Page header hover link background color"; }
+    property Color color_module_header_link_hover { des = "Page header hover link color"; }
+    property Color color_module_header_background_visited { des = "Page header visited link background color"; }
+    property Color color_module_header_link_visited { des = "Page header visited link color"; }
+    property Color color_module_header_border { des = "Page header border color"; }
     property Color color_module_calendar_header_background { des = "Calendar module header background color"; }
     property Color color_module_calendar_header_text { des = "Calendar module header color"; }
     property Color color_module_calendar_background { des = "Calendar module background color"; }

@@ -665,7 +665,7 @@ $header_modulewrapper
     letter-spacing: -.02em;
     }
 
-#header .module-navlinks li a;visited { color: $*color_header_link_visited; }
+#header .module-navlinks li a:visited { color: $*color_header_link_visited; }
 #header .module-navlinks li a:hover { color: $*color_header_link_hover; }
 #header .module-navlinks li a:active,
 #header .module-navlinks a.current {

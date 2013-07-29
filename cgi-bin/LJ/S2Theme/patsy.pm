@@ -22,13 +22,7 @@ sub archive_props {
 
 sub header_props {
     my $self = shift;
-    my @props = qw(
-    color_header_border
-    color_navlinks_current
-    color_header_link
-    color_header_link_hover
-    color_header_link_active
-    color_header_link_visited);
+    my @props = qw( color_header_border color_navlinks_current );
     return $self->_append_props( "header_props", @props );
 }
 

@@ -10,7 +10,10 @@ set layout_resources = [ { "name" => "Passion", "url" => "http://www.colourlover
 ## Page Colors
 ##===============================
 
-set color_page_background = "fff9e9";
+set color_header_link = "#fff9e9";
+set color_header_link_hover = "#000";
+set color_header_link_hover_background = "#fff9e9";
+set color_page_background = "#fff9e9";
 set color_page_border = "#968D85";
 set color_page_link = "#B20C17";
 set color_page_link_active = "#009";
@@ -52,7 +55,10 @@ set layout_resources = [ { "name" => "Spring Hike", "url" => "http://www.colourl
 ## Page Colors
 ##===============================
 
-set color_page_background = "fafffb";
+set color_header_link = "#fafffb";
+set color_header_link_hover = "#000";
+set color_header_link_hover_background = "#fafffb";
+set color_page_background = "#fafffb";
 set color_page_border = "#AEBAA6";
 set color_page_link = "#D25A2B";
 set color_page_link_active = "#c00";
@@ -92,6 +98,9 @@ layerinfo author_name = "branchandroot";
 ## Page Colors
 ##===============================
 
+set color_header_link = "#fff";
+set color_header_link_hover = "#222";
+set color_header_link_hover_background = "#fff";
 set color_page_background = "#fff";
 set color_page_border = "#ccc";
 set color_page_link = "#69c";
@@ -143,6 +152,9 @@ set color_page_link_visited = "#ffc";
 set color_page_text = "#fff";
 set color_page_title = "#fff";
 set color_header_background = "#666";
+set color_header_link = "#000";
+set color_header_link_hover = "#fff";
+set color_header_link_hover_background = "#000";
 set color_footer_background = "#666";
 set color_footer_link = "#ddf";
 set color_footer_link_active = "#fcc";
@@ -211,6 +223,9 @@ set color_page_link_visited = "#ef4921";
 set color_page_text = "#fff";
 set color_page_title = "#ef8229";
 set color_header_background = "#ffefbd";
+set color_header_link = "#000";
+set color_header_link_hover = "#fff";
+set color_header_link_hover_background = "#000";
 set color_footer_background = "#ffefbd";
 set color_footer_link = "#ef8229";
 
@@ -237,6 +252,9 @@ set layout_resources = [ { "name" => "Beyond", "url" => "http://www.colourlovers
 ## Page Colors
 ##===============================
 
+set color_header_link = "#FFFcdf";
+set color_header_link_hover = "#34302D";
+set color_header_link_hover_background = "#FFFcdf";
 set color_page_background = "#FFFcdf";
 set color_page_border = "#B64533";
 set color_page_link = "#66c";
@@ -279,7 +297,10 @@ set layout_resources = [ { "name" => "Salmon Spawn", "url" => "http://www.colour
 ## Page Colors
 ##===============================
 
-set color_page_background = "373026";
+set color_header_link = "#373026";
+set color_header_link_hover = "#fff";
+set color_header_link_hover_background = "#373026";
+set color_page_background = "#373026";
 set color_page_border = "#B48889";
 set color_page_link = "#F8E2B1";
 set color_page_link_active = "#009";
@@ -329,6 +350,9 @@ set color_page_link_visited = "#d92300";
 set color_page_text = "#473b26";
 set color_page_title = "#473b26";
 set color_header_background = "#d8d8a8";
+set color_header_link = "#fdfbee";
+set color_header_link_hover = "#473b26";
+set color_header_link_hover_background = "#fdfbee";
 
 ##===============================
 ## Entry Colors
@@ -365,7 +389,10 @@ set layout_resources = [ { "name" => "Evening Softly Lit 2", "url" => "http://ww
 ## Page Colors
 ##===============================
 
-set color_page_background = "fafcff";
+set color_header_link = "#fafcff";
+set color_header_link_hover = "#000";
+set color_header_link_hover_background = "#fafcff";
+set color_page_background = "#fafcff";
 set color_page_border = "#7C86A6";
 set color_page_link = "#933";
 set color_page_link_active = "#c33";
@@ -415,6 +442,9 @@ set color_page_link_visited = "#c77864";
 set color_page_text = "#003048";
 set color_page_title = "#003048";
 set color_header_background = "#f0c060";
+set color_header_link = "#f4d59a";
+set color_header_link_hover = "#003048";
+set color_header_link_hover_background = "#f4d59a";
 
 ##===============================
 ## Entry Colors
@@ -459,6 +489,9 @@ set color_page_link_visited = "#3f3f3f";
 set color_page_text = "#6d6d6d";
 set color_page_title = "#616161";
 set color_header_background = "#c9c9c9";
+set color_header_link = "#ebebeb";
+set color_header_link_hover = "#6d6d6d";
+set color_header_link_hover_background = "#ebebeb";
 
 ##===============================
 ## Entry Colors
@@ -498,6 +531,9 @@ set color_page_link_hover = "#f0a800";
 set color_page_link_visited = "#18a8f0";
 set color_page_text = "#222";
 set color_header_background = "#f0c018";
+set color_header_link = "#f4f4f4";
+set color_header_link_hover = "#222";
+set color_header_link_hover_background = "#f4f4f4";
 
 ##===============================
 ## Entry Colors

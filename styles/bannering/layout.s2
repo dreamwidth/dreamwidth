@@ -59,8 +59,11 @@ set header_title_spacing_side = "0em";
 propgroup colors_child {
     property Color color_navlinks_link_current { des = "Navigation module current link color"; }
     property Color color_header_inner_background { des = "Page header inner background color"; }
-    property Color color_navlinks_link { des = "Header navigation module link color"; }
-    property Color color_navlinks_link_visited { des = "Header navigation module visited link color"; }
+    # Used instead of color_header_link:
+    property Color color_navlinks_link { des = "Page header link color"; }
+    property Color color_navlinks_link_active { des = "Page header active link color"; }
+    property Color color_navlinks_link_hover { des = "Page header hover link color"; }
+    property Color color_navlinks_link_visited { des = "Page header visited link color"; }
     property Color color_header_border { des = "Header border color"; }
 }
 
@@ -272,7 +275,8 @@ var string header_spacing_css = "";
 
 var string navlinks_css = "";
     if ($*module_navlinks_section == "header") {
-        $navlinks_css = ".module-navlinks {
+        $navlinks_css = """
+            .module-navlinks {
                 margin-bottom: -3em;
                 padding-right: 2em;
                 padding-top: 1em;
@@ -284,7 +288,10 @@ var string navlinks_css = "";
             .module-navlinks ul > li:first-child { border-left: none; }
             .module-navlinks .module-header { display: none; }
             .module-navlinks a { color: $*color_navlinks_link; }
-            .module-navlinks a:visited { color: $*color_navlinks_link_visited; }";
+            .module-navlinks a:visited { color: $*color_navlinks_link_visited; }
+            .module-navlinks a:hover { color: $*color_navlinks_link_hover; }
+            .module-navlinks a:active { color: $*color_navlinks_link_active; }
+        """;
     }
     else {
         $navlinks_css = "";
