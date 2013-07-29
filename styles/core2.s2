@@ -5451,26 +5451,31 @@ function RecentPage::print_body {
 }
 
 function RecentPage::print_navigation( string{} opts ) [fixed] {
-    var bool empty = $.nav.backward_url == "" and $.nav.forward_url == "";
-    var string emptyclass = $empty ? "empty" : "";
+    var bool noentries = $this isa FriendsPage and $.nav.backward_url == "" and $opts{"class"} == "bottomnav";
+    # Navigation is empty if there are no links or text to show
+    var bool empty = $.nav.backward_url == "" and $.nav.forward_url == "" and not $noentries;
+    var string emptyclass = $empty ? " empty" : "";
     """
-    <div class="navigation $opts{"class"} $emptyclass">
+    <div class="navigation $opts{"class"}$emptyclass">
         <div class="inner">
     """;
 
-    if ( not $empty ) { "<ul>"; }
-    if ( $.nav.backward_url != "" ) {
-        print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
+    if (not $empty) {
+        if ( $.nav.backward_url != "" or $.nav.forward_url != "" ) {
+            "<ul>";
+            if ( $.nav.backward_url != "" ) {
+                print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
+            }
+            if ( $.nav.backward_url != "" and $.nav.forward_url != "" ) {
+                print safe """<li class="page-separator">$*text_default_separator</li>""";
+            }
+            if ( $.nav.forward_url != "" ) {
+                print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
+            }
+            "</ul>";
+        }
     }
-    if ( $.nav.backward_url != "" and $.nav.forward_url != "" ) {
-        print safe """<li class="page-separator">$*text_default_separator</li>""";
-    }
-    if ( $.nav.forward_url != "" ) {
-        print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
-    }
-    if ( not $empty ) { "</ul>"; }
-
-    if ( $this isa FriendsPage and $.nav.backward_url == "" and $opts{"class"} == "bottomnav" ) {
+    if ($noentries) {
         print safe """<p class="noentries">$*text_noentries_read</p>""";
     }
 
