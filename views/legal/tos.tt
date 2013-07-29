@@ -67,10 +67,9 @@ any kind incurred as a result of such acts or omissions.</p>
 
 <p>[% site.name %] currently has a tiered account structure.</p>
 
-<ul><li><em>Free Accounts</em> are available free of charge. To create a
-free account, you will need an invitation ("invite code") from an
-existing [% site.name %] user. Free accounts can access basic site
-functions, but do not receive access to all extended site features.</li>
+<ul><li><em>Free Accounts</em> can be registered free of charge.
+Free accounts can access basic site features, but do not receive access
+to all of the extended site features.</li>
 
 <li><em>Paid Accounts</em> are available for term-based fee and receive
 access to all extended site features.</li>
