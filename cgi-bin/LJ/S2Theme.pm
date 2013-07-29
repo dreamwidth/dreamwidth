@@ -75,6 +75,7 @@ sub default_themes {
         practicality => 'practicality/warmth',
         refriedtablet => 'refriedtablet/refriedclassic',
         skittlishdreams => 'skittlishdreams/orange',
+        snakesandboxes => 'snakesandboxes/pinkedout',
         steppingstones => 'steppingstones/purple',
         strata => 'strata/springmorning',
         summertime => 'summertime/tenniscourt',
