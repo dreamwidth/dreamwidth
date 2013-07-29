@@ -1,0 +1,90 @@
+@mixin header-nav( $side: left, $height: 7em, $top: 0 ) {
+    #account-links {
+        position: absolute;
+        top: $top;
+
+        width: 60%;
+        white-space: nowrap;
+
+        #account-links-text, .account-links-in-header, #nav-login-form {
+            float: $side;
+        }
+
+        ul {
+            float: $side;
+            clear: both;
+            margin: 0;
+        }
+
+        li {
+            list-style: none;
+            float: left;
+            margin: 0 .5em;
+
+            &:after {
+                content: "•";
+                margin-left: .5em;
+            }
+            &:last-child:after {
+                content: "";
+                margin-left: 0;
+            }
+        }
+
+        .ljuser {
+            font-size: 1.5em;
+            line-height: 1;
+        }
+
+        .ljuser img {
+            vertical-align: middle !important;
+        }
+
+        form {
+            margin-bottom: 0;
+        }
+
+         label.inline {
+            text-align: right;
+        }
+    }
+
+    #account-links-userpic {
+        max-height: 7em;
+        margin-left: 1em;
+    }
+
+    #account-links-text {
+        text-align: $side;
+    }
+
+    #nav-login-form, #account-links-text {
+        font-size: emCalc(14px);
+    }
+
+    #nav-login-form {
+        line-height: 1;
+
+        label, input {
+            margin-bottom: 0.5em;
+        }
+
+        a {
+            line-height: 2em;
+        }
+    }
+
+    #masthead {
+        height: $height;
+    }
+
+    #logo {
+        line-height: $height - 1em;
+    }
+
+    .nav-search {
+        input, select {
+            display: inline-block;
+        }
+    }
+}

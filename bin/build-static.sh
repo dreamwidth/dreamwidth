@@ -17,6 +17,18 @@ then
     uncompressed_dir=""
 fi
 
+# if compass is installed, build that first
+compass=$(which compass)
+if [ "$compass" != "" ]; then
+    echo "* Building SCSS..."
+    cd $LJHOME
+    $compass compile
+    if [ -d "$LJHOME/ext/dw-nonfree" ]; then
+        cd $LJHOME/ext/dw-nonfree
+        $compass compile
+    fi
+fi
+
 # check the relevant paths using the same logic as the codebase
 perl -e '
 use strict;

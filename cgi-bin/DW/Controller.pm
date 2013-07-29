@@ -109,6 +109,7 @@ sub controller {
     $vars->{u} = $vars->{remote} = LJ::get_remote();
     
     my $r = DW::Request->get;
+    $vars->{r} = $r;
 
     # check to see if we need to do a bounce to set the domain cookie
     unless ( $r->did_post || $args{skip_domsess} ) {
@@ -178,7 +179,9 @@ sub controller {
 
     if ( $r->did_post && $args{form_auth} ) {
         my $post_args = $r->post_args || {};
-        return $fail->( error_ml( 'error.invalidform' ) ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+        return $fail->( error_ml( 'error.invalidform' ) )
+            unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+        $vars->{post_args} = $post_args;
     }
 
     # everything good... let the caller know they can continue

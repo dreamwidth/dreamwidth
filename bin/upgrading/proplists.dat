@@ -1619,3 +1619,23 @@ pollproplist2.unique:
 
 pollproplist2.createdate:
   des: The voter must have created their account by the date specified (Pacific time) in order to vote.  Must be in format YYYY-MM-DD, otherwise there will be no restriction.
+
+media_prop_list.title:
+  des: Title of this object
+  prettyname: Title
+  ownership: user
+
+media_prop_list.description:
+  des: Long description of this object
+  prettyname: Description
+  ownership: user
+
+media_prop_list.alttext:
+  des: Alternative Text
+  prettyname: Alt Text
+  ownership: user
+
+media_prop_list.source:
+  des: Source
+  prettyname: Source
+  ownership: user

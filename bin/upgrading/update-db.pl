@@ -528,6 +528,7 @@ sub populate_proplist_file {
     my %pk = (
         'userproplist' => 'name',
         'logproplist'  => 'name',
+        'media_prop_list' => 'name',
         'talkproplist' => 'name',
         'usermsgproplist' => 'name',
         'pollproplist2'   => 'name',
@@ -535,6 +536,7 @@ sub populate_proplist_file {
     my %id = (
         'userproplist' => 'upropid',
         'logproplist'  => 'propid',
+        'media_prop_list' => 'propid',
         'talkproplist' => 'tpropid',
         'usermsgproplist' => 'propid',
         'pollproplist2'   => 'propid',

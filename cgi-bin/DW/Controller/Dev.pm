@@ -24,6 +24,7 @@ use DW::SiteScheme;
 use LJ::JSON;
 
 DW::Routing->register_static( '/dev/classes', 'dev/classes.tt', app => 1 );
+DW::Routing->register_static( '/dev/kitchensink', 'dev/kitchensink.tt', app => 1 );
 
 if ( $LJ::IS_DEV_SERVER ) {
     DW::Routing->register_string( '/dev/tests/index', \&tests_index_handler, app => 1 );

@@ -56,8 +56,21 @@ sub duplicate_controller {
 
 sub _score_url {
     my $url = $_[0];
-    return 10 if $url =~ m/atom/i;
-    return 5 if $url =~ m/rss/i;
+    my $score = 0;
+
+    # Twitter feeds are gone for good
+    return -1000
+        if $url =~ m/twitter\.com/i;
+
+    # If they are using feedburner
+    #   this is likely the correct url
+    $score += 20
+        if $url =~ m/feedburner\.com/i;
+
+    return $score + 10
+        if $url =~ m/atom/i;
+    return $score + 5
+        if $url =~ m/rss/i;
     return 0;
 }
 

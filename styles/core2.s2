@@ -4292,7 +4292,7 @@ function print_module_pagesummary() {
             var string comment_display =
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
-    
+
             var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
 
             if ( not $e.poster->equals($e.journal) ) {
@@ -4900,14 +4900,14 @@ function Comment::print_poster() {
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
     if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
 
-    print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster</span>\n";
-
+    print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster";
     if ( $this.admin_post ) {
-        """<span>(""";
+        """ <span class="admin-poster">(""";
         $this->print_admin_post_icon();
         print $*text_admin_post_note;
         """)</span>""";
     }
+    """</span>\n""";
 }
 
 
@@ -5033,7 +5033,7 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
             if ( $this.admin_post ) {
                 $this->print_admin_post_icon();
                 print $*text_admin_post_subject;
-            } 
+            }
             print $this->formatted_subject( $opts );
             "</h3>";
         }

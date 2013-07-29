@@ -32,10 +32,6 @@ use Hash::MultiValue;
 
 use fields (
             'r',         # The Apache2::Request object
-
-            # these are mutually exclusive; if you use one you can't use the other
-            'content',   # raw content
-            'post_args', # hashref of POST arguments
         );
 
 # creates a new DW::Request object, based on what type of server environment we
@@ -47,8 +43,6 @@ sub new {
 
     # setup object
     $self->{r}         = $_[1];
-    $self->{post_args} = undef;
-    $self->{content}   = undef;
 
     # done
     return $self;
@@ -72,9 +66,11 @@ sub uri {
     return $self->{r}->uri;
 }
 
+# This sets the content-type on the response. This is NOT a request method. For
+# that, use the header_in method and check Content-Type.
 sub content_type {
     my DW::Request::Apache2 $self = $_[0];
-    return $self->{r}->content_type($_[1]);
+    return $self->{r}->content_type( $_[1] );
 }
 
 # returns the query string
@@ -87,10 +83,6 @@ sub query_string {
 # slow, so you should only call this if you really need it...
 sub content {
     my DW::Request::Apache2 $self = $_[0];
-
-    die "already loaded post_args\n"
-        if defined $self->{post_args};
-
     return $self->{content} if defined $self->{content};
 
     my $buff = '';
@@ -99,29 +91,6 @@ sub content {
         last if $ct < 65536;
     }
     return $self->{content} = $buff;
-}
-
-sub post_args {
-    my DW::Request::Apache2 $self = $_[0];
-
-    die "already loaded content\n"
-        if defined $self->{content};
-
-    return $self->{post_args} if defined $self->{post_args};
-
-    my $tmp_r = Apache2::Request->new( $self->{r} );
-    my $data = $tmp_r->body;
-
-    my @out;
-    my %seen_keys;
-    foreach my $key ( keys %$data ) {
-        next if $seen_keys{$key}++;
-        my @val = $data->get( $key );
-        next unless @val;
-        push @out, map { $key => $_ } @val;
-    }
-
-    return $self->{post_args} = Hash::MultiValue->new( @out );
 }
 
 # searches for a given note and returns the value, or sets it
@@ -272,13 +241,6 @@ sub call_bml {
     $self->note(bml_filename => $_[0]);
 
     return Apache::BML::handler($self->{r});
-}
-
-# simply sets the location header and returns REDIRECT
-sub redirect {
-    my $self = $_[0];
-    $self->header_out( Location => $_[1] );
-    return $self->REDIRECT;
 }
 
 # constants
