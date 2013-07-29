@@ -532,7 +532,7 @@ sub comment {
     return LJ::Comment->new($self->event_journal, jtalkid => $self->jtalkid);
 }
 
-sub available_for_user  {
+sub available_for_user {
     my ($class, $u, $subscr) = @_;
 
     my $journal = $subscr->journal;
@@ -545,7 +545,7 @@ sub available_for_user  {
 
     return 0
         if ( $sarg1 == 0 && $sarg2 == 0 ) &&
-            $journal->is_community && ! $u->can_track_all_community_comments( $journal );
+            $journal && $journal->is_community && ! $u->can_track_all_community_comments( $journal );
 
     return 1;
 }

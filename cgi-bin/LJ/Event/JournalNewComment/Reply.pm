@@ -34,6 +34,10 @@ sub subscription_as_html {
     return BML::ml( $key . $key_suffixes{$arg2} );
 }
 
+sub available_for_user {
+    return 1;
+}
+
 sub _relevant_userids {
     my $comment = $_[0]->comment;
     return () unless $comment;
