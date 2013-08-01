@@ -26,4 +26,5 @@ the same terms as Perl itself.  For a copy of the license, please reference
             'stc/gradation/gradation.css'); -%]
 [%- END -%]
 
+[%# TODO: remove once we're all foundation %]
 [%- canvas_opts='class="vertical-nav"' -%]

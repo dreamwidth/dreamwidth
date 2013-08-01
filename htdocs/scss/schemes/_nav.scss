@@ -1,9 +1,8 @@
-@mixin header-nav( $side: left, $height: 7em, $top: 0 ) {
+@mixin header-nav( $nav-orientation: vertical, $side: left, $header-height: 7em, $accountlinks-offset: 0, $search-offset: 0 ) {
     #account-links {
         position: absolute;
-        top: $top;
+        top: $accountlinks-offset + 1em;
 
-        width: 60%;
         white-space: nowrap;
 
         #account-links-text, .account-links-in-header, #nav-login-form {
@@ -51,7 +50,12 @@
 
     #account-links-userpic {
         max-height: 7em;
-        margin-left: 1em;
+        float: $side;
+        @if $side == left {
+            margin-right: 1em;
+        } @else {
+            margin-left: 1em;
+        }
     }
 
     #account-links-text {
@@ -75,16 +79,53 @@
     }
 
     #masthead {
-        height: $height;
+        height: $header-height;
     }
 
     #logo {
-        line-height: $height - 1em;
+        line-height: $header-height - $base-line-height;
     }
 
     .nav-search {
         input, select {
             display: inline-block;
+        }
+    }
+
+    #header-search {
+        position: absolute;
+        top: $header-height + $search-offset;
+        right: 0;
+
+        ul {
+            list-style: none;
+        }
+
+        input {
+            margin: 0;
+        }
+    }
+
+    /**
+     * #content
+     */
+    #content {
+        margin-top: $header-height + $search-offset + 2 * $base-line-height !important;
+    }
+
+    .main-nav {
+        .has-dropdown a {
+            text-decoration: none;
+        }
+    }
+
+    @if $nav-orientation == vertical {
+    } @else {
+        .main-nav {
+            position: absolute;
+            top: $header-height;
+            left: 0;
+            right: 0;
         }
     }
 }

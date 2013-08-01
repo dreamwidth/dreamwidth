@@ -42,7 +42,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- userpic_class = 'header-userpic' -%]
 
 [%- BLOCK block.page -%]
-[%# so far failed attempt to move the menu to the top of the screen to match tropo -%]
 [%- IF resource_group == "foundation" -%]
 <!DOCTYPE html>
 <html lang="en">
@@ -70,9 +69,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <div id="account-links" role="navigation" class="hide-for-small">
                 [% PROCESS block.accountlinks %]
             </div><!-- end account links-->
+
             <nav role="navigation"  class="main-nav top-bar contain-to-grid">
                 [% PROCESS block.userpic %]
-
                 <ul class="title-area">
                 <li class="name"></li>
                 <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>

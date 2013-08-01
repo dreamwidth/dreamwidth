@@ -30,9 +30,26 @@
  * @copyright       Copyright (c) 2009 by Dreamwidth Studios, LLC
  *
  */
+/** Gradation Horizontal CSS
+ *
+ * Authors:
+ *     Emily Ravenwood <ravenwood@alltrees.org>
+ *
+ * Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
+ *
+ * This program is free software; you may redistribute it and/or modify it under
+ * the same terms as Perl itself.  For a copy of the license, please reference
+ * 'perldoc perlartistic' or 'perldoc perlgpl'.
+ */
 
-
-$include-html-classes: true;
+// Shared stylesheets
 @import "schemes/gradation/gradation-base";
-@import "foundation";
-@import "schemes/skin-colors";
+
+// Skin-specific styles
+@include header-nav( horizontal, left, $masthead-height );
+
+.main-nav {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    height: auto;
+}

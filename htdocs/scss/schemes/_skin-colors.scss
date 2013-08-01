@@ -1,7 +1,11 @@
 /**
-* CSS colors site-wide
+* Site-wide skin-specific CSS colors
 * Set the color variables in the scheme-specific CSS file
 * Then @import _skin_colors.scss
+*
+* Only use mixins (@include), or variables
+* so that we pick up the colors / settings from the site skin
+* rather than hardcoding random colors here
 */
 
 /**
@@ -24,9 +28,13 @@ nav {
 }
 
 /**
- * Buttons
+ * Form elements
  */
 
- .submit {
+select {
+    @include form-element;
+}
+
+.submit {
     @extend .button;
  }
