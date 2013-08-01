@@ -201,9 +201,17 @@ sub content {
             if $reason;
     }
 
+    my $admin_post = "";
+
+    if ( $comment->admin_post ) {
+        $admin_post = '<div class="AdminPost">' .
+            LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.admin_post", undef, { img => LJ::img('admin-post') } ) . '</div>';
+    }
+
     my $ret = qq {
         <div id="$htmlid" class="JournalNewComment">
             <div class="ManageButtons">$buttons</div>
+            $admin_post
             <div class="Body">$comment_body</div>
         </div>
     };
