@@ -49,6 +49,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <body [% sections.bodyopts %]>
         <div id="canvas">
             <div id="page">
+                [%- PROCESS block.skiplink -%]
+
                 [%# Not using the HTML 5 <header> element for now
                 because of incompatibilities with JAWS and
                 Firefox %]
@@ -109,6 +111,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <body [% sections.bodyopts %]>
         <div id="canvas">
             <div id="page">
+                [%- PROCESS block.skiplink -%]
+
                 [%# Visible only with screenreader or keyboard, per css %]
                 <div id="skip">
                     <a href="#content" tabindex="1">Skip to Main Content</a>

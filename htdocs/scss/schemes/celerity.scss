@@ -61,7 +61,7 @@ $sidebar-width:                        9em;
 $masthead-height:                      6.875em;
 $header-offset-height:                 2em;
 
-@import "schemes/skin-colors", "schemes/nav";
+@import "schemes/skin-colors", "schemes/nav", "schemes/skiplink";
 
 a:hover,
 a:active {

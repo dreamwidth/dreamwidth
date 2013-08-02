@@ -64,3 +64,10 @@
 </body>
 </html>
 [%- END -%]
+
+[%- BLOCK block.skiplink -%]
+[%# Visible only with screenreader or keyboard, per css %]
+<div id="skip">
+     <a href="#content" tabindex="1">Skip to Main Content</a>
+</div>
+[%- END -%]
