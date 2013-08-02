@@ -194,13 +194,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 [%- END -%]
 
+[%- canvas_opts = "" -%]
 [%- BLOCK block.page -%]
 [%- IF resource_group == "foundation" -%]
 <!DOCTYPE html>
 <html lang="en">
     [% PROCESS block.head %]
     <body [% sections.bodyopts %]>
-        <div id="canvas">
+        <div id="canvas" [% canvas_opts %]>
             <div id="page">
 
                 [%# Not using the HTML 5 <header> element for now
@@ -244,6 +245,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div> <!-- end canvas-->
         [% dw_scheme.final_body_html %]
         <script>
+          $(function() {
+            if ( $("#canvas").hasClass("vertical-nav") && $(".main-nav .toggle-topbar:visible").length == 0 ) {
+                $(".main-nav")
+                    .find(".has-dropdown").removeClass( "has-dropdown" ).end()
+                    .find(".top-bar-section").removeClass( "top-bar-section" ).end()
+            }
+          });
           $(document).foundation();
         </script>
     </body>

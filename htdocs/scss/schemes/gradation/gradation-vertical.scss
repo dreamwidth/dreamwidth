@@ -42,15 +42,45 @@
  * 'perldoc perlartistic' or 'perldoc perlgpl'.
  */
 
+// variables
+$sidebar-width: 8.25em;
+$topbar-bg: #222;
+
 // Shared stylesheets
 @import "schemes/gradation/gradation-base";
 
 // Skin-specific styles
-@include main-nav( horizontal, left, $masthead-height );
+@include main-nav( vertical, left, $masthead-height, 0, 0, 0, $sidebar-width );
 
 @media #{$topbar-media-query} {
     .main-nav {
-        border-top: 1px solid #000;
-        border-bottom: 1px solid #000;
+        a {
+            text-decoration: none;
+            display: block;
+
+            &:hover {
+                background-color: $topbar-link-bg-hover;
+            }
+        }
+
+        .topnav a {
+            font-weight: bold;
+            padding: .20em 0.2em;
+        }
+
+        .subnav a {
+            font-weight: normal;
+            padding: .20em 1em;
+        }
+
+        section {
+            margin-top: 3.5em; /* to clear search bar */
+        }
+    }
+
+    #header-search {
+        width: 100%;
+        background-color: $topbar-link-bg-hover;
+        height: 2.5em;
     }
 }

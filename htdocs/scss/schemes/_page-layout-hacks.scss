@@ -1,5 +1,9 @@
 #canvas {
     padding-top: 1px;  /*to ensure margin*/
+
+    &.vertical-nav {
+        padding-bottom: 1px; /* to ensure margin*/
+    }
 }
 
 #page {

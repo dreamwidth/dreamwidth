@@ -18,7 +18,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 %][%- BLOCK block.need_res -%]
-    
+
     [%- old_css_files = [
             'stc/reset.css',
             'stc/jquery/jquery.ui.theme.dark-hive.css',
@@ -35,5 +35,4 @@ the same terms as Perl itself.  For a copy of the license, please reference
     -%]
 [%- END -%]
 
-[%# TODO: remove once we're all foundation %]
 [%- canvas_opts='class="horizontal-nav"' -%]

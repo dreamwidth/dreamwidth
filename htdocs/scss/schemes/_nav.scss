@@ -1,4 +1,11 @@
-@mixin header-nav( $nav-orientation: vertical, $side: left, $header-height: 7em, $accountlinks-offset: 0, $search-offset: 0 ) {
+@mixin main-nav(  $nav-orientation: vertical,
+                    $side: left,
+                    $header-height: 7em,
+                    $accountlinks-offset: 0,
+                    $search-offset: 0,
+                    $topbar-offset: 0,
+                    $sidebar-width: 0
+                  ) {
     #account-links {
         position: absolute;
         top: $accountlinks-offset + 1em;
@@ -120,6 +127,53 @@
     }
 
     @if $nav-orientation == vertical {
+        .main-nav {
+            position: absolute;
+            top: $masthead-height + $topbar-offset;
+            left: 0;
+            right: 0;
+        }
+
+        @media #{$topbar-media-query} {
+            .main-nav {
+                width: $sidebar-width;
+
+                section {
+                    font-size: small;
+                }
+
+                ul {
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .subnav a {
+                    padding-left: 1em;
+                }
+
+                .subnav a,
+                .topnav a {
+                    color: $topbar-link-color;
+                }
+            }
+
+            /**
+             * Reset top-bar styles so they don't apply to the sidebar
+             */
+            .top-bar {
+                height: auto;
+
+                .js-generated {
+                    display: none;
+                }
+            }
+
+            #content {
+                border-left: $sidebar-width solid $topbar-bg;
+                margin-left: 0; // so that it doesn't try to center the content on the page
+                min-height: 65em;
+            }
+        }
     } @else {
         .main-nav {
             position: absolute;

@@ -74,18 +74,7 @@ ul { list-style: square;}
  * Header
  */
 
-@include header-nav( vertical, left, $masthead-height, 0, 2em );
-
-.main-nav {
-    position: absolute;
-    top: $masthead-height + 1em;
-    left: 0;
-    right: 0;
-
-    .has-dropdown a {
-        text-decoration: none;
-    }
-}
+@include main-nav( vertical, left, $masthead-height, 0, 2em, 1em, 9em );
 
 #masthead {
     position: absolute;
@@ -175,15 +164,10 @@ footer { border-top: 4px double $strong-accent-color;
     /**
      * Sidebar and Menu
      */
-     #account-links {
-        left: $sidebar-width + 1em;
-     }
 
     .main-nav {
-        position: absolute;
         top: 0;
         left: 1em;
-        width: 9em;
 
         ul {
             margin-left: 5px;
@@ -203,11 +187,10 @@ footer { border-top: 4px double $strong-accent-color;
         li {
             padding: .15em 0;
         }
+    }
 
-        .subnav a,
-        .topnav a {
-            color: $topbar-link-color;
-        }
+    #account-links {
+       left: $sidebar-width + 1em;
     }
 
     #header-userpic { text-align: center;
@@ -222,23 +205,10 @@ footer { border-top: 4px double $strong-accent-color;
             }
 
     /**
-     * Reset top-bar styles so they don't apply to the sidebar
-     */
-    .top-bar {
-        height: auto;
-
-        .js-generated {
-            display: none;
-        }
-    }
-
-    /**
      * #content
      */
     #content {
         margin-left: 1em;
-        border-left: 9em solid $topbar-bg;
         padding: 1px 1em 1em 1.5em;
-        min-height: 65em;
     }
 }
