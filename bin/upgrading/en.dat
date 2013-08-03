@@ -5436,7 +5436,7 @@ twitter.auth.please_reauth=[[sitename]] does not seem to have access to your Twi
 
 twitter.auth.success=[[sitename]] access to your Twitter account was successfully authorized!
 
-twitter.unknown_error=There was an unknown error when trying to access Twitter. If this error persists, please contact Support. The error given was:
+twitter.unknown_error=There was an unknown error when trying to access Twitter. If this error persists, please contact Support. The error given was: [[err]]
 
 oauth.callback.authdenied=[[service]] denied authorization for [[sitename]] to post. Maybe you clicked "cancel", or maybe something went wrong. You can try again if this was not intended.
 

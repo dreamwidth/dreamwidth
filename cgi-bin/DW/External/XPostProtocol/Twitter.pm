@@ -48,7 +48,7 @@ sub _get_net_twitter {
     LJ::throw( 'Not a Twitter account' )
         unless $extacct->siteid == 9;
 
-    return $twitter = Net::Twitter->new( {
+    return Net::Twitter->new( {
             traits => ['API::RESTv1_1', 'OAuth'],
             consumer_key => $LJ::TWITTER{consumer_key},
             consumer_secret => $LJ::TWITTER{consumer_secret},
@@ -99,9 +99,7 @@ sub verify_auth {
         if $twitteruser;
     
     #If we're here it didn't work, so why not?
-    my $err = _check_twitter_error( $@, $extacct );
-
-    return { error => $err };
+    return { error => _check_twitter_error( $@, $extacct ) };
 }
 
 sub _check_twitter_error {
@@ -110,22 +108,30 @@ sub _check_twitter_error {
 # oauth_authorized to 0 for the extacct.
 
     my ( $err, $extacct ) = @_;
-    $err ||= 'No error object.';
 
-    #HTTP code 401 means invalid auth.
-    if ( $err->http_response->{_rc} == 401 ) {
-        $extacct->set_oauth_authorized( 0 ) if $extacct;
-        return LJ::Lang::ml( 'twitter.auth.please_reauth', 
-                { sitename => $LJ::SITENAMESHORT, 
-                  url => "$LJ::SITEROOT/manage/externalaccounts/begin_oauth?acctid=$extacct->{acctid}" } );
+    if( $err && $err->isa('Net::Twitter::Error') ) {
+
+        #HTTP code 401 means invalid auth.
+        if ( $err->http_response->{_rc} == 401 ) {
+            $extacct->set_oauth_authorized( 0 );
+            return LJ::Lang::ml( 'twitter.auth.please_reauth', 
+                    { sitename => $LJ::SITENAMESHORT, 
+                      url => "$LJ::SITEROOT/manage/externalaccounts/begin_oauth?acctid=$extacct->{acctid}" } );
+        }
+
+        #FIXME do we also want to look out for any other error codes?
+        #eg 429 for rate-limiting, or 50x for errors at twitter's end?
+        #see https://dev.twitter.com/docs/error-codes-responses
+
+    } else {
+        # If $err is not a Net::Twitter::Error object, 
+        #  keep it if it says something, but otherwise insert a 
+        #  "huh, I dunno?" string ;-)
+        $err ||= 'No error object.';
     }
 
-    #FIXME do we also want to look out for any other error codes?
-    #eg 429 for rate-limiting, or 50x for errors at twitter's end?
-    #see https://dev.twitter.com/docs/error-codes-responses
-
     #To have got this far, it's an error we're not specifically looking out for.
-    return LJ::Lang::ml( 'twitter.unknown_error' ) . "\n" . $err;
+    return LJ::Lang::ml( 'twitter.unknown_error', {err => $err} );
 }
 
 
@@ -149,6 +155,8 @@ sub crosspost {
     unless ( $twitter->authorized ) {
         #This doesn't actually check that we are authorized - but it checks
         # that we at least have all the necessary credentials.
+        # If we're not authorised we'll find out anyway when we try to 
+        # tweet, so no need for an extra connection to Twitter to check.
         return {
             success => 0,
             error => LJ::Lang::ml( 'twitter.auth.please_reauth',
@@ -167,6 +175,7 @@ sub crosspost {
             }
         }
         eval { $status = $twitter->destroy_status( $itemid ); }
+        #note - error checking for this happens below.
 
     } elsif ( $itemid ) {
         #Not $delete, but with an $itemid, means we're editing.
@@ -185,6 +194,7 @@ sub crosspost {
         #The entry has been edited and the security changed so that it is no
         #longer public. We should delete the tweet.
         eval { $status = $twitter->destroy_status( $itemid ); };
+        #note - error checking for this happens below.
         $delete = 1;
 
     } else {
@@ -203,6 +213,8 @@ sub crosspost {
         eval { $status = $twitter->update( $tweettext ); };
     }
 
+    # Any of the operations above will have left either a non-empty $status 
+    # (if successful) or a $@ (if not successful).
     if ( $status ) {
         #If we've deleted we want to avoid returning the id of the deleted
         # tweet.
