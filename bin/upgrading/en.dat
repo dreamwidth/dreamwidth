@@ -3093,7 +3093,7 @@ setting.viewingadultcontent.reason=(To change this option, you must <a [[aopts]]
 
 setting.xpost.accounts=Accounts
 
-setting.xpost.btn.add=Add New LiveJournal-style Account
+setting.xpost.btn.add.LJstyle=Add New LiveJournal-style Account
 
 setting.xpost.btn.add.twitter=Add New Twitter Account
 

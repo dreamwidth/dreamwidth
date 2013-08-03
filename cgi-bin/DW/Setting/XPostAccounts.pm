@@ -127,7 +127,7 @@ sub option {
 
     # add account
     if (scalar @accounts < $max_accounts) {
-        $ret .= "<div class='xpost_add'><a href='$LJ::SITEROOT/manage/externalaccount'>" . $class->ml('setting.xpost.btn.add') . "</a>"; 
+        $ret .= "<div class='xpost_add'><a href='$LJ::SITEROOT/manage/externalaccount'>" . $class->ml('setting.xpost.btn.add.LJstyle') . "</a>"; 
         if ( $LJ::TWITTER{enabled} ) {
             $ret .= "&nbsp;&nbsp;&nbsp;&nbsp;<a href='$LJ::SITEROOT/manage/externalaccounts/twittersettings'>" . $class->ml('setting.xpost.btn.add.twitter') . "</a>";
         }
