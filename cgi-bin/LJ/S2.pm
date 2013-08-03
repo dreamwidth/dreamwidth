@@ -2957,9 +2957,9 @@ sub print_search_form {
     $search_form .= '<form method="post" action="'. $LJ::SITEROOT. '/search?user=' . $ju->user . '">';
     $search_form .= LJ::form_auth();
     $search_form .= '<input class="search-box" type="text" name="query" maxlength="255">';
-    if ( $ju->allow_comments_indexed() ) {
+    if ( $ju->allow_comments_indexed ) {
         $search_form .= '<br/><input class="comment_search_checkbox" name="with_comments" id="with_comments" type="checkbox">';
-        $search_form .= '<label for="with_comments">Include comments in search results</label>'; 
+        $search_form .= '<label for="with_comments">Include comments</label></br>';
     }
     $search_form .= '<input class="search-button" type="submit" value="' . $_[1] . '" />';
     $search_form .= '</form></div>';
