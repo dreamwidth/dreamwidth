@@ -108,7 +108,12 @@ sub content {
         if LJ::has_too_many( $entry_body, linebreaks => 10, chars => 2000 );
     $entry_body .= $self->as_html_actions;
 
-    return $entry_body;
+    my $admin_post = "";
+    if ( $entry->admin_post ) {
+        $admin_post = '<div class="AdminPost">' . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_entry.admin_post", undef, { img => LJ::img('admin-post') } ) . '</div>';
+    }
+
+    return $admin_post . $entry_body;
 }
 
 sub as_html_tags {
@@ -269,9 +274,17 @@ sub _as_email {
         $tags = ' ' . LJ::Lang::get_text($lang, 'esn.tags', undef, { tags => join(', ', $self->entry->tags ) });
     }
 
-    $email .= LJ::Lang::get_text($lang,
-        $self->entry->journal->is_comm ? 'esn.journal_new_entry.head_comm' : 'esn.journal_new_entry.head_user',
-        undef,
+    my $head_ml = 'esn.journal_new_entry.head_user';
+    my $entry = $self->entry;
+    if ( $entry->journal->is_comm ) {
+        $head_ml = 'esn.journal_new_entry.head_comm';
+
+        $head_ml .= '.admin_post'
+            if $entry->admin_post;
+    }
+
+    $email .= LJ::Lang::get_text($lang, $head_ml,
+            undef,
             {
                 poster  => $poster,
                 about   => $about,

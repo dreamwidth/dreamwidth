@@ -1164,6 +1164,10 @@ esn.invite_another_friend=[[openlink]]Invite someone else[[closelink]]
 
 esn.join_community=[[openlink]]Join [[journal]] to read Members-only entries[[closelink]]
 
+esn.journal_new_comment.admin_post=[ [[img]] as admin ]
+
+esn.journal_new_comment.admin_post.text=[ as admin ]
+
 esn.journal_new_comment.anonymous.comment=The reply was:
 
 esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post2=Somebody replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
@@ -1267,7 +1271,11 @@ esn.journal_new_comment.your.new_comment=Your new reply is:
 
 esn.journal_new_entry.about= titled "[[title]]"
 
+esn.journal_new_entry.admin_post=[ [[img]] as admin ]
+
 esn.journal_new_entry.head_comm=There is a new entry by [[poster]][[about]] in [[journal]].[[tags]]
+
+esn.journal_new_entry.head_comm.admin_post=There is a new admin entry by [[poster]][[about]] in [[journal]].[[tags]]
 
 esn.journal_new_entry.head_user=[[poster]] has posted a new entry[[about]].[[tags]]
 
