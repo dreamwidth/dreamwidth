@@ -19,8 +19,6 @@ use strict;
 use warnings;
 use DW::Routing;
 use DW::Request;
-use Net::OAuth;
-$Net::OAuth::PROTOCOL_VERSION = Net::OAuth::PROTOCOL_VERSION_1_0A;
 
 use DW::OAuth;
 use DW::OAuth::Consumer;
@@ -28,6 +26,8 @@ use DW::OAuth::Request;
 use DW::OAuth::Access;
 
 use LJ::JSON;
+
+use DW::Controller;
 
 # User facing
 DW::Routing->register_string(
@@ -74,6 +74,7 @@ sub request_token_handler {
             token => $request_token->token,
             token_secret => $request_token->secret,
             callback_confirmed => 'true',
+            protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
         );
 
         # FIXME: Callbacks here
@@ -110,6 +111,7 @@ sub access_token_handler {
             token => $access->token,
             token_secret => $access->secret,
             callback_confirmed => 'true',
+            protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
             extra_params => {
                 dw_username => $access->user->username,
                 dw_userid => $access->user->id,
@@ -160,6 +162,7 @@ sub authorize_handler {
             my $response = Net::OAuth->response("user auth")->new(
                 token => $request->token,
                 verifier => '',
+                protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
             );
 
             $r->content_type("text/html");

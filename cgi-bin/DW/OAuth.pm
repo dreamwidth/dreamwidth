@@ -19,7 +19,6 @@ use strict;
 use warnings;
 use DW::Request;
 use Net::OAuth;
-$Net::OAuth::PROTOCOL_VERSION = Net::OAuth::PROTOCOL_VERSION_1_0A;
 
 use DW::OAuth::Consumer;
 use DW::OAuth::Request;
@@ -30,14 +29,14 @@ use MIME::Base64::URLSafe;
 
 use Carp qw/ croak /;
 
+use DW::OAuth::LocalProtectedResourceRequest;
+use Net::OAuth::V1_0A::AccessTokenRequest;
+use Net::OAuth::V1_0A::RequestTokenRequest;
+
 my %TOKEN_LENGTHS = (
     default => 16,
     access => 20,
 );
-
-use DW::OAuth::LocalProtectedResourceRequest;
-use Net::OAuth::V1_0A::AccessTokenRequest;
-use Net::OAuth::V1_0A::RequestTokenRequest;
 
 my %CLASSES = (
     'protected resource' => 'DW::OAuth::LocalProtectedResourceRequest',
@@ -139,9 +138,15 @@ sub get_request_raw {
     eval {
         if ( $authorization_header ) {
             $params->{callback} ||= $args->{oauth_callback};
-            $result = $oa_class->from_authorization_header($authorization_header, %$params);
+            $result = $oa_class->from_authorization_header(
+                $authorization_header,
+                protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
+                %$params);
         } elsif ( defined $args->{oauth_signature} ) {
-            $result = $oa_class->from_hash($args, %$params);
+            $result = $oa_class->from_hash(
+                $args,
+                protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
+                %$params);
         }
     };
     if ( $@ ) {
