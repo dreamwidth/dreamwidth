@@ -1,0 +1,35 @@
+[%# oauth/token.tt
+
+Information on a specific token.
+
+Authors:
+      Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2013 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% IF viewother %]
+<p>Viewing BLAH BLAH for [% view_u.ljuser_display %].</p>
+[% END %]
+
+[% consumer = token.consumer %]
+<p>Consumer: <a href="[% consumer.website | url %]">[% consumer.name | html %]</a> [% IF view_consumer -%]
+<strong><a href="/admin/oauth/consumer/[% consumer.id %]">[ Edit Consumer ]</a></strong>
+[%- END %]</p>
+[% UNLESS token.usable %]
+<p><strong>This token is currently inactive!</strong></p>
+[% END %]
+<p>Created: [% token.createtime | time_to_http %]</p>
+<p>Last Used: [% token.lastaccess | time_to_http %]</p>
+[% UNLESS viewother %]
+<div>
+<form method="POST" action="[% dw.create_url("/oauth/token/$consumer.id/deauthorize") %]">
+[% dw.form_auth %]
+<input type="submit" value="Deauthorize"/>
+</form>
+</div>
+[% END %]

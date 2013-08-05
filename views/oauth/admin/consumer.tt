@@ -1,0 +1,66 @@
+[%# oauth/admin/consumer.tt
+
+Information on a specific consumer
+
+Authors:
+      Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2013 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = "View Consumer" -%]
+[% IF view_other %]
+<p>Viewing BLAH BLAH for [% view_u.ljuser_display %].</p>
+[% END %]
+
+[%- IF view_other -%]
+    [%data_readonly = 'readonly="" disabled="" '%]
+[%- ELSE -%]
+    [%data_readonly = ''%]
+[%- END -%]
+
+[%- IF edit_consumer %]
+    [%approved_readonly = ''%]
+[%- ELSE -%]
+    [%approved_readonly = 'readonly="" disabled="" '%]
+[%- END -%]
+
+<form method="POST" action="[% dw.create_url() %]">
+[% dw.form_auth %]
+[%- IF view_other %]
+<p><strong>Owner:</strong> [% consumer.owner.ljuser_display %]</p>
+[%- END -%]
+[%- IF save_error %]
+<p><strong>ERROR! [% save_error %]</strong></p>
+[%- END %]
+<p><label for="consumer_name">Consumer Name: </label>
+    <input name="name" id="consumer_name" [% data_readonly %] value="[% consumer.name | html %]" size="50"/></p>
+<p><label for="consumer_website">Consumer Website: </label>
+    <input name="website" id="consumer_website" [% data_readonly %] value="[% consumer.website | html %]" size="50"/></p>
+<p>Created: [% consumer.createtime | time_to_http %]</p>
+[% IF consumer.updatetime %]
+<p>Updated: [% consumer.updatetime | time_to_http %]</p>
+[% END %]
+[% IF consumer.invalidatetime  %]
+<p>Last Invalidated: [% consumer.invalidatetime | time_to_http %]</p>
+[% END %]
+<p>Token: [% consumer.token | html %]</p>
+[% UNLESS view_other %]
+[%# Maybe this could load AJAX-y too? %]
+<p>Secret: <a href="/admin/oauth/consumer/[% consumer.id %]/secret" target="_blank">[ View Secret ]</a></p>
+[% END %]
+<p><label for="consumer_active">Active: </label>
+    <input name="active" type="checkbox" id="consumer_active" [% data_readonly %]
+        [% ( consumer.active ? 'checked="" ' : '' ) %]/></p>
+<p><label for="consumer_approved">Approved: </label>
+    <input name="approved" type="checkbox" id="consumer_approved" [% approved_readonly %]
+        [% ( consumer.approved ? 'checked="" ' : '' ) %]/></p>
+<p><input type="submit" value="Save"/>
+[%- UNLESS view_other -%]
+<a href="/admin/oauth/consumer/[% consumer.id %]/reissue">[ Reissue Tokens ]</a>
+<a href="/admin/oauth/consumer/[% consumer.id %]/delete">[ Delete ]</a></p>
+[%- END -%]
+</form>

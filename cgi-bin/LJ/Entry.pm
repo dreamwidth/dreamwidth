@@ -774,11 +774,9 @@ sub atom_entry {
     # a lack of a content element is allowed,  as long
     # as we maintain a proper 'alternate' link (above)
     if ( $syn_level eq 'full' || $syn_level eq 'cut' ) {
-        $atom_entry->content( $self->event_html );
-        $atom_entry->content->type( "html" );
+        $atom_entry->content( $self->event_raw );
     } elsif ( $syn_level eq 'summary' ) {
         $atom_entry->summary( $self->event_summary );
-        $atom_entry->summary->type( "html" );
     }
 
     return $atom_entry;

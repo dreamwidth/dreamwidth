@@ -128,6 +128,7 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         userpics       => "Access to expunge_userpic console command",
         users          => "Access to change_journal_status console command",
         vgifts         => "Access to approval functions on /admin/vgifts",
+        oauth          => "Modify some settings on OAuth consumers",
     } if $priv eq 'siteadmin';
 
     $hr = {
@@ -136,24 +137,25 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
 
     # extracted from LJ::Sysban::validate
     $hr = {
-        email         => "Can ban specific email addresses",
-        email_domain  => "Can ban entire email domains",
-        invite_email  => "Can ban invites for email addresses",
-        invite_user   => "Can ban invites for users",
-        ip            => "Can ban connections from specific IPs",
-        lostpassword  => "Can ban requests for lost passwords",
-        noanon_ip     => "Can ban anonymous comments from specific IPs",
-        pay_cc        => "Can ban payments from specific credit cards",
-        pay_email     => "Can ban payments from specific emails",
-        pay_uniq      => "Can ban payments from specific sessions",
-        pay_user      => "Can ban payments from specific users",
-        spamreport    => "Can ban spam reports from specific users",
-        support_email => "Can ban support requests from emails",
-        support_uniq  => "Can ban support requests from sessions",
-        support_user  => "Can ban support requests from users",
-        talk_ip_test  => "Can force IPs to complete CAPTCHA to leave comments",
-        uniq          => "Can ban specific browser sessions",
-        user          => "Can ban specific users",
+        email           => "Can ban specific email addresses",
+        email_domain    => "Can ban entire email domains",
+        invite_email    => "Can ban invites for email addresses",
+        invite_user     => "Can ban invites for users",
+        ip              => "Can ban connections from specific IPs",
+        lostpassword    => "Can ban requests for lost passwords",
+        noanon_ip       => "Can ban anonymous comments from specific IPs",
+        pay_cc          => "Can ban payments from specific credit cards",
+        pay_email       => "Can ban payments from specific emails",
+        pay_uniq        => "Can ban payments from specific sessions",
+        pay_user        => "Can ban payments from specific users",
+        spamreport      => "Can ban spam reports from specific users",
+        support_email   => "Can ban support requests from emails",
+        support_uniq    => "Can ban support requests from sessions",
+        support_user    => "Can ban support requests from users",
+        talk_ip_test    => "Can force IPs to complete CAPTCHA to leave comments",
+        uniq            => "Can ban specific browser sessions",
+        user            => "Can ban specific users",
+        oauth_consumer  => "Can ban specific users from having OAuth consumers",
     } if $priv eq 'sysban';
 
     return $hr;

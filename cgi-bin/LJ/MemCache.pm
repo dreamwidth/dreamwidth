@@ -38,6 +38,9 @@ our $GET_DISABLED = 0;
                           'userpic2' => [qw[2 picid fmt width height state pictime md5base64 comment description flags location url]],
                           'talk2row' => [qw[1 nodetype nodeid parenttalkid posterid datepost state]],
                           'usermsg' => [qw[1 journalid parent_msgid otherid timesent type]],
+                          'oauth_consumer' => [qw[1 consumer_id userid token secret name website createtime updatetime invalidatetime approved active]],
+                          'oauth_request' => [qw[1 consumer_id userid token secret createtime verifier callback]],
+                          'oauth_access' => [qw[1 consumer_id userid token secret createtime]],
                           );
 
 

@@ -1,0 +1,20 @@
+;; -*- coding: utf-8 -*-
+
+.btn.accept=Accept
+
+.btn.cancel=Cancel
+
+.expired=Your token appears to have expired.  Please return to the place that sent you here and try again.
+
+.enter_verifier=Please enter the following code in the client or page that sent you here.
+
+.warning<<
+The site <a href="[[href]]">[[name]]</a> has requested to access your account information.
+If you choose "Accept", they will have access to all of your account, including the ability to
+make posts, make comments, and view your private data, although they will not have access to
+your password. If you trust <strong>[[name]]</strong> and want to allow them to access your account, choose Accept.
+If you've changed your mind, choose "Cancel."
+.
+
+.warning.future=You can change the permissions you've authorized at any time by visiting the <a href="[[href]]">OAuth Authorizations</a> page.
+

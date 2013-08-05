@@ -1,0 +1,45 @@
+[%# oauth/authorize.tt
+
+Page for authorize step of OAuth initial setup
+
+Authors:
+      Andrea Nall <anall@andreanall.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[% IF args.deny %]
+    You many return to <a href="[% consumer.website %]">[% consumer.name %]</a> now.<br/>
+[% ELSIF consumer && args.allow %]
+    <p>[% '.enter_verifier' | ml %]</p>
+    <div><input value="[% request.verifier %]" enabled="false" /></div>
+[% ELSIF consumer %]
+
+[%- name_safe = consumer.name | html -%]
+[%- website_safe = consumer.name | url -%]
+<p>[% '.warning' | ml( href = website_safe, name = name_safe ) %]</p>
+<p>[% '.warning.future' | ml( href = "/oauth/") %]</p>
+
+  [% IF u %]
+<form action='[% roots.site %]/oauth/authorize' method='POST'>
+    [% dw.form_auth %]
+    <input type="hidden" name="oauth_token" value="[% oauth_token %]"/>
+    <input type="submit" name="allow" value="[% '.btn.accept' | ml %]" />
+    <input type="submit" name="deny" value="[% '.btn.cancel' | ml %]" />
+</form>
+  [% ELSE %]
+  Please log in above to continue the authorization process.
+  [% END %]
+[% ELSIF oauth_token %]
+  [% '.expired' | ml %]
+[% ELSE %]
+  [% IF u %]
+<form action='[% roots.site %]/oauth/authorize' method='GET'>
+    <label for="token">Enter provided token:</label><input name="oauth_token" id="token" /><input type="submit" value="Continue" />
+</form>
+  [% ELSE %]
+  Please log in above to continue the authorization process.
+  [% END %]
+[% END %]
+

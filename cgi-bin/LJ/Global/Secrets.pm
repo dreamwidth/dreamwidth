@@ -35,3 +35,19 @@ $secret{invite_img_auth} = {
     desc => "Auth code for invite code status images",
     rec_len => 64,
 };
+
+$secret{oauth_consumer} = {
+    desc => "Sign consumer token to make secret token",
+    rec_len => 64,
+};
+
+$secret{oauth_access} = {
+    desc => "Sign access token to make secret token",
+    rec_len => 64,
+};
+
+$secret{oauth_request} = {
+    desc => "Sign request token to make secret token",
+    rec_len => 64,
+};
+

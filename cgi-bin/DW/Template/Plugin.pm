@@ -41,6 +41,7 @@ sub new {
 
     $context->define_filter( 'ml', [ \&DW::Template::Filters::ml, 1 ] );
     $context->define_filter( 'js', [ \&DW::Template::Filters::js, 1 ] );
+    $context->define_filter( 'time_to_http', [ \&DW::Template::Filters::time_to_http ] );
 
     return $self;
 }

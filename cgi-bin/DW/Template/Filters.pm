@@ -102,4 +102,8 @@ sub _decide_language {
     return 'en';
 }
 
+sub time_to_http {
+    return LJ::time_to_http( $_[0] );
+}
+
 1;
