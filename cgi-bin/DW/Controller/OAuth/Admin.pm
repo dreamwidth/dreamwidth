@@ -62,7 +62,7 @@ sub index_handler {
 
     my $view_other = DW::OAuth->can_view_other( $u );
     $view_u = LJ::load_user( $args->{user} )
-        if ( $view_other && $args->{user} );
+        if $view_other && $args->{user};
     my $tokens = DW::OAuth::Consumer->tokens_for_user( $view_u );
 
     return DW::Template->render_template( 'oauth/admin/index.tt', {

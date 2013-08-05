@@ -1986,8 +1986,8 @@ EOC
 
 register_tablecreate("oauth_consumer", <<'EOC');
 CREATE TABLE oauth_consumer (
-    consumer_id int(10) UNSIGNED NOT NULL DEFAULT '0',
-    userid int(10) UNSIGNED NOT NULL DEFAULT '0',
+    consumer_id int(10) UNSIGNED NOT NULL,
+    userid int(10) UNSIGNED NOT NULL,
 
     communityid int(10) UNSIGNED NULL,
 
@@ -2012,8 +2012,8 @@ EOC
 
 register_tablecreate("oauth_access_token", <<'EOC');
 CREATE TABLE oauth_access_token (
-    consumer_id int(10) UNSIGNED NOT NULL DEFAULT '0',
-    userid int(10) UNSIGNED NOT NULL DEFAULT '0',
+    consumer_id int(10) UNSIGNED NOT NULL,
+    userid int(10) UNSIGNED NOT NULL,
 
     token VARCHAR(20) NULL,
     secret VARCHAR(50) NULL,

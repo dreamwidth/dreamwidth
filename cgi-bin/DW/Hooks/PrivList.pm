@@ -144,6 +144,7 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         ip              => "Can ban connections from specific IPs",
         lostpassword    => "Can ban requests for lost passwords",
         noanon_ip       => "Can ban anonymous comments from specific IPs",
+        oauth_consumer  => "Can ban specific users from having OAuth consumers",
         pay_cc          => "Can ban payments from specific credit cards",
         pay_email       => "Can ban payments from specific emails",
         pay_uniq        => "Can ban payments from specific sessions",
@@ -155,7 +156,6 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         talk_ip_test    => "Can force IPs to complete CAPTCHA to leave comments",
         uniq            => "Can ban specific browser sessions",
         user            => "Can ban specific users",
-        oauth_consumer  => "Can ban specific users from having OAuth consumers",
     } if $priv eq 'sysban';
 
     return $hr;
