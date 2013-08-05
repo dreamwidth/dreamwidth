@@ -154,7 +154,7 @@ sub post_args {
 
     # Requires a POST with the proper content type for us to parse it, else just
     # bail and return empty.
-    return undef
+    return Hash::MultiValue->new
         unless $self->method eq 'POST' &&
                $self->header_in( 'Content-Type' ) =~ m!^application/x-www-form-urlencoded(?:;.+)?$!;
 
