@@ -589,7 +589,7 @@ sub populate_proplist_file {
             $vals{"scope"} = $scope;
             next;
         }
-        if (/^\s+(\w+)\s*:\s*(.+)/) {
+        if (/^\s+(\w+)\s*:\s*(.*)/) {
             die "Unexpected line: $_ when not in a block" unless $table;
             $vals{$1} = $2;
             next;
