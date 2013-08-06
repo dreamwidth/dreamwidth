@@ -93,23 +93,24 @@
         line-height: $header-height - $base-line-height;
     }
 
-    .nav-search {
-        input, select {
-            display: inline-block;
-        }
-    }
-
     #header-search {
         position: absolute;
         top: $header-height + $search-offset;
-        right: 0;
+        right: 2em;
 
         ul {
             list-style: none;
+            margin-bottom: 0;
         }
+    }
 
-        input {
+    .nav-search {
+        input, select {
             margin: 0;
+            padding: 0;
+            height: auto;
+            width: auto;
+            display: inline-block;
         }
     }
 

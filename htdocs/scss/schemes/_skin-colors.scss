@@ -31,10 +31,6 @@ nav {
  * Form elements
  */
 
-select {
-    @include form-element;
-}
-
 .submit {
     @extend .button;
  }
