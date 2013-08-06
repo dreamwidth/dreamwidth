@@ -156,9 +156,9 @@ sub consumer_secret_handler {
         unless $view_u->equals( $u );
 
     return DW::Template->render_template( 'oauth/admin/consumer_secret.tt', {
-            %$rv,
-            consumer        => $token,
-        });
+        %$rv,
+        consumer        => $token,
+    });
 }
 
 sub consumer_reissue_handler {
@@ -187,10 +187,10 @@ sub consumer_reissue_handler {
     }
 
     return DW::Template->render_template( 'oauth/admin/consumer_reissue.tt', {
-            %$rv,
-            consumer        => $token,
-            done            => $done,
-        });
+        %$rv,
+        consumer        => $token,
+        done            => $done,
+    });
 }
 
 sub consumer_delete_handler {
@@ -218,9 +218,9 @@ sub consumer_delete_handler {
     }
 
     return DW::Template->render_template( 'oauth/admin/consumer_delete.tt', {
-            %$rv,
-            consumer        => $token,
-        });
+        %$rv,
+        consumer        => $token,
+    });
 }
 
 sub consumer_create_handler {
@@ -231,43 +231,37 @@ sub consumer_create_handler {
     my $u = $rv->{u};
     my $can_create = DW::OAuth->can_create_consumer( $u );
 
-    if ( $r->did_post && $can_create ) {
-        my $args = $r->post_args;
+    return DW::Template->render_template( 'oauth/admin/consumer_create.tt', {
+        %$rv,
+        can_create      => $can_create,
+    }) unless $r->did_post && $can_create;
 
-        my $name = $args->{name};
-        my $website = $args->{website};
-        my $uri = URI->new($website);
-        my $scheme = $uri->scheme;
+    my $args = $r->post_args;
 
-        unless ( $name && $scheme =~ m!^https?$! ) {
-            return DW::Template->render_template( 'oauth/admin/consumer_create.tt', {
-                %$rv,
-                can_create      => $can_create,
-                name => $name,
-                website => $website,
-                error => "Name or website invalid",
-            });
-        }
-
-        my $token = DW::OAuth::Consumer->new(
-            %$rv,
-            name => $name,
-            website => $website
-        );
-
-        return DW::Template->render_template( 'oauth/admin/consumer_secret.tt', {
-                %$rv,
-                consumer    => $token,
-                new         => 1,
-            });
-    }
+    my $name = $args->{name};
+    my $website = $args->{website};
+    my $uri = URI->new($website);
+    my $scheme = $uri->scheme;
 
     return DW::Template->render_template( 'oauth/admin/consumer_create.tt', {
-            %$rv,
-            can_create      => $can_create,
-        });
+        %$rv,
+        can_create      => $can_create,
+        name => $name,
+        website => $website,
+        error => "Name or website invalid",
+    }) unless $name && $scheme =~ m!^https?$!;
 
+    my $token = DW::OAuth::Consumer->new(
+        %$rv,
+        name => $name,
+        website => $website
+    );
 
+    return DW::Template->render_template( 'oauth/admin/consumer_secret.tt', {
+        %$rv,
+        consumer    => $token,
+        new         => 1,
+    });
 }
 
 1;

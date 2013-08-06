@@ -51,7 +51,7 @@ sub request_token_handler {
 
     $r->content_type( "text/plain" );
 
-    my $args = $r->did_post ? { %{$r->post_args->as_hashref}, %{$r->get_args->as_hashref} } : { %{$r->get_args->as_hashref} };
+    my $args = $r->did_post ? $r->post_args : $r->get_args;
 
     my ($request,$consumer) = DW::OAuth->get_request( 'request token' );
 
