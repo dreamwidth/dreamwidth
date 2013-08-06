@@ -149,6 +149,7 @@ sub authorize_handler {
             my $response = Net::OAuth->response("user auth")->new(
                 token => $request->token,
                 verifier => $request->verifier,
+                protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
             );
 
             $r->content_type("text/html");
