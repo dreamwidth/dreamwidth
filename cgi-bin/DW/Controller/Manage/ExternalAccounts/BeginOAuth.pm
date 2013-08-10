@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ##
-## DW::Controller::Manage::Externalaccounts::BeginOAuth
+## DW::Controller::Manage::ExternalAccounts::BeginOAuth
 ##
 ## /manage/externalaccounts/beginoauth
 ##
@@ -16,7 +16,7 @@
 #
 
 
-package DW::Controller::Manage::Externalaccounts::BeginOAuth;
+package DW::Controller::Manage::ExternalAccounts::BeginOAuth;
 
 use strict;
 use warnings;

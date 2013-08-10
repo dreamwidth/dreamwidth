@@ -3159,7 +3159,7 @@ setting.xpost.preview=Preview
 
 setting.xpost.settings=Crosspost Settings
 
-setting.xpost.settings.note=The settings below only apply to Livejournal-style accounts.
+setting.xpost.settings.note=The settings below only apply to LiveJournal-style accounts.
 
 setting.xpostcomments.about=When Crossposting to LJ-based accounts, disable comments on the other posts.
 
@@ -5446,7 +5446,7 @@ oauth.callback.wronguser=The account you are attempting to authorize is not for 
 
 oauth.start.fail=There was an error trying to connect to the OAuth provider: [[error]]
 
-twitter.username_updated=Your Twitter username was retreived or updated.
+twitter.username_updated=Your Twitter username was retrieved or updated.
 
 twitter.maxaccounts=You are already at your limit of [[max_accts]] [[?max_accts|account|accounts]].
 

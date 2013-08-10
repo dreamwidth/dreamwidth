@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ##
-## DW::Controller::Manage::Externalaccounts::twittersettings
+## DW::Controller::Manage::ExternalAccounts::TwitterSettings
 ##
 ## /manage/externalaccounts/twittersettings
 ##
@@ -16,7 +16,7 @@
 #
 
 
-package DW::Controller::Manage::Externalaccounts::Twittersettings;
+package DW::Controller::Manage::ExternalAccounts::TwitterSettings;
 
 use strict;
 use warnings;

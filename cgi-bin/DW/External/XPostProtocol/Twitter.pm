@@ -209,6 +209,13 @@ sub crosspost {
             }
 
         my $tweettext = tweettext_from_entry( $self, $extacct, $entry );
+        unless ( $tweettext ) {
+            return {
+                success => 0,
+                error => "Error generating tweet text. Please try again later.
+                If the problem persists, please contact Support."
+            }
+        }
 
         eval { $status = $twitter->update( $tweettext ); };
     }
@@ -239,7 +246,8 @@ sub crosspost {
 
 sub tweettext_from_entry {
 # Takes an extacct and an entry object. Returns the correct text to tweet about
-# that entry.
+# that entry. Returns undef on error (which is probably a difficulty getting
+#  the url length from Twitter)
 # Everything in here needs to be careful about using character lengths rather
 # than byte lengths. Twitter supports unicode & it counts characters, not bytes.
 
@@ -248,12 +256,16 @@ sub tweettext_from_entry {
 
     #Find out how many characters the link takes up
     my $urllength = _t_co_urllength( $extacct );
+    #If the urllength wasn't cached and couldn't be retrieved from twitter,
+    # this will have returned undef.
+    return undef unless $urllength;
 
     my $prefix = $extacct->options->{prefix_text};
+    my $entry_subject = $entry->subject_text;
 
     #We don't want the byte lengths below; $bl and $bl1 are throwaways. We 
     # want the char lengths, which are the 2nd return value from text_length.
-    my ( $bl, $subjlength ) = LJ::text_length( $entry->subject_text );
+    my ( $bl, $subjlength ) = LJ::text_length( $entry_subject );
     my ( $bl1, $prefixlength ) = LJ::text_length( $prefix );
 
     #The -2 on the end of this is to allow for spaces after prefix & subject.
@@ -267,16 +279,16 @@ sub tweettext_from_entry {
 
         #\N{U+2026} represents the Unicode elipsis (...) character.
         my $subjecttext = $subjlength > $maxsubjlength ?
-            LJ::text_trim( $entry->subject_text, 0, ( $maxsubjlength - 1 )) . 
+            LJ::text_trim( $entry_subject, 0, ( $maxsubjlength - 1 )) . 
                 "\N{U+2026}" :
-            $entry->subject_text;
+            $entry_subject;
 
         $tweettext = $prefix . ' ' . $subjecttext . ' ' . $entry->url;
 
     } else {
 
         my $maxprefixlength = 140 - $urllength - 1;
-        my $truncatedprefix = $prefix > $maxprefixlength ?
+        my $truncatedprefix = $prefixlength > $maxprefixlength ?
             LJ::text_trim( $prefix, 0, ( $maxprefixlength - 1 )) . 
                 "\N{U+2026}" :
             $prefix;
@@ -305,23 +317,23 @@ sub _t_co_urllength {
 
     #First, see whether it's set manually
     return $LJ::TWITTER{t_co_urllength} 
-        if defined( $LJ::TWITTER{t_co_urllength} );
+        if defined $LJ::TWITTER{t_co_urllength};
 
     #If it hasn't been set manually and we're not using memcache, we have a 
     # problem.
     LJ::throw( 'If Memcache is not in use, t_co_urllength must be set in config-local.pl' ) 
-        unless defined( @LJ::MEMCACHE_SERVERS );
+        unless @LJ::MEMCACHE_SERVERS;
 
     #see whether Memcache already knows it.
     my $urllength = LJ::MemCache::get( 'twitter:t_co_urllength' );
-    return $urllength if defined( $urllength );
+    return $urllength if defined $urllength;
 
     #It seems that we don't know it at present. So find out from Twitter.
     my $twitter = _get_net_twitter( $extacct );
     my $config;
     eval { $config = $twitter->get_configuration; };
     $urllength = $config->{short_url_length};
-    #FIXME what if get_configuration fails? How to handle errors here?
+    return undef unless $urllength;
 
     #save this to memcache for the next 2 days
     LJ::MemCache::set( 'twitter:t_co_urllength', $urllength, 48*60*60 );
