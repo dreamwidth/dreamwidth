@@ -260,7 +260,10 @@ my %modules = (
                "JSON" => {
                    deb => 'libjson-perl',
                    ver => '2.53',
-               }
+               },
+               "Image::ExifTool" => {
+                   deb => 'libimage-exiftool-perl',
+               },
               );
 
 

@@ -99,13 +99,12 @@ sub upload_media {
     # standard in 1996.
     $mime = 'image/png' if $mime eq 'image/x-png';
 
-    # now get what type this is, from allowed mime types
-    my ( $type, $ext ) = DW::Media->get_upload_type( $mime );
+    # The preprocess step figures out what the type is, the extension, and
+    # does any preprocessing that needs to happen. Right now this is image
+    # specific, until we support other media types.
+    my ( $type, $ext, $width, $height ) = DW::Media->preprocess( $mime, \$opts{data} );
     croak 'Sorry, that file type is not currently allowed.'
         unless $type && $ext;
-
-    # Now get the size information for this file, and fail if we can't
-    my ( $width, $height ) = Image::Size::imgsize( \$opts{data} );
     croak 'Sorry, unable to get the image size.'
         unless defined $width && $width > 0 && defined $height && $height > 0;
 
@@ -150,13 +149,33 @@ sub upload_media {
     return $obj;
 }
 
+sub preprocess {
+    my ( $class, $mime, $dataref ) = @_;
+
+    # We trust the MIME since we extracted that from File::Type, not from
+    # user submitted information.
+    my ( $type, $ext ) = $class->get_upload_type( $mime );
+    return unless defined $type && defined $ext;
+
+    # If not an image, return type/ext and be done.
+    return ( $type, $ext )
+        unless $type == TYPE_PHOTO;
+
+    # Now preprocess and extract size (required).
+    DW::Media::Photo->preprocess( $ext, $dataref );
+    my ( $width, $height ) = Image::Size::imgsize( $dataref );
+    return unless defined $width && defined $height;
+
+    # Any changes to the image are in the dataref.
+    return ( $type, $ext, $width, $height );
+}
+
 sub get_upload_type {
     my ( $class, $mime ) = @_;
 
-    # FIXME: This may not cover everything. :-)
     return (TYPE_PHOTO, 'jpg') if $mime eq 'image/jpeg';
     return (TYPE_PHOTO, 'gif') if $mime eq 'image/gif';
-    return (TYPE_PHOTO, 'png') if $mime eq 'image/png' || $mime eq 'image/x-png';
+    return (TYPE_PHOTO, 'png') if $mime eq 'image/png';
 
     return (undef, undef);
 }

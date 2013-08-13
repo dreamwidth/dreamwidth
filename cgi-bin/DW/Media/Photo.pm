@@ -18,6 +18,8 @@ package DW::Media::Photo;
 
 use strict;
 use Carp qw/ croak confess /;
+use Image::Magick;
+use Image::ExifTool qw/ :Public /;
 
 use DW::Media::Base;
 use base 'DW::Media::Base';
@@ -50,6 +52,27 @@ sub new_from_row {
     return $self;
 }
 
+# Called with the file extension (one of our well known file types) and a
+# reference to the image data, which is updated if necessary.
+sub preprocess {
+    my ( $class, $ext, $dataref ) = @_;
+
+    # For now, we only care about jpegs since they need to be reoriented.
+    return unless $ext eq 'jpg';
+
+    # Extract EXIF orientation data to calculate our operations.
+    my $timage = Image::Magick->new()
+        or croak 'Failed to instantiate Image::Magick object.';
+    $timage->BlobToImage( $$dataref );
+    $timage->AutoOrient();
+    $$dataref = $timage->ImageToBlob;
+
+    # The orientation should now be reset to 1 to prevent browser rotating.
+    my $exif = Image::ExifTool->new;
+    $exif->SetNewValue( Orientation => 1, Type => 'Raw' );
+    $exif->WriteInfo( $dataref );
+}
+
 sub _resize {
     my ( $self, %opts ) = @_;
     my ( $want_width, $want_height ) =
@@ -59,11 +82,6 @@ sub _resize {
     # Do not allow resizing of scaled images.
     croak 'Attempted to resize already resized image.'
         if $self->{mediaid} != $self->{versionid};
-
-    # We evaluate this so that we only load Image::Magick in the context that
-    # we need to use it. Saves us from loading it on webservers.
-    eval "use Image::Magick (); 1;"
-        or croak 'Failed to load Image::Magick for resize.';
 
     # Allocate new version ID.
     my $versionid = LJ::alloc_user_counter( $self->u, 'A' )
