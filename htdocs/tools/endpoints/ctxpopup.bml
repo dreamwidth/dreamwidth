@@ -59,7 +59,7 @@ _c?>
 
     my $u = $get_user->();
     my %ret = $u ? $u->info_for_js : ();
-    my $reason = $u->prop( 'delete_reason' );
+    my $reason = $u ? $u->prop( 'delete_reason' ) : '';
     $reason = $reason ? "Reason given: " . $reason : "No reason given.";
 
     BML::set_content_type('text/javascript; charset=utf-8');
