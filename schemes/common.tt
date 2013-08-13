@@ -86,9 +86,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- IF resource_group == "foundation" %]<div class="row"><div class="columns large-12 small-12 account-links-in-header">[%- END -%]
 [%- IF remote -%]
     [%- IF ! account_link_options.no_userpic -%]
-    [%- IF resource_group == "foundation" %]<div class="right">[%- END -%]
         [%- PROCESS block.userpic -%]
-    [%- IF resource_group == "foundation" %]</div>[%- END -%]
     [%- END -%]
     [%- inbox = remote.notification_inbox -%]
     [%- unread = inbox.unread_count -%]
@@ -198,6 +196,67 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- canvas_opts = "" -%]
 [%- BLOCK block.page -%]
+[%- IF resource_group == "foundation" -%]
+<!DOCTYPE html>
+<html lang="en">
+    [% PROCESS block.head %]
+    <body [% sections.bodyopts %]>
+        <div id="canvas" [% canvas_opts %]>
+            <div id="page">
+
+                [%# Not using the HTML 5 <header> element for now
+                because of incompatibilities with JAWS and
+                Firefox %]
+                <div id="masthead">
+                    <span id="logo">
+                        [% PROCESS block.logo %]
+                    </span>
+                </div><!-- end masthead -->
+
+                <div id="content" role="main" [% sections.contentopts %]>
+                <div class="row"><div class="large-12 columns">
+                    <h1>[% sections.title %]</h1>
+                </div></div>
+                [% content %]
+                </div><!--end content-->
+            </div><!-- end page-->
+
+            <div id="account-links" role="navigation" class="hide-for-small">
+                [% PROCESS block.accountlinks %]
+            </div><!-- end account links-->
+
+            <nav role="navigation"  class="main-nav top-bar contain-to-grid">
+
+                <ul class="title-area">
+                <li class="name"></li>
+                <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>
+                </ul>
+
+                <section class="top-bar-section">
+                [% PROCESS block.menunav %]
+                </section>
+            </nav>
+            <div id="header-search" role="search">
+                [% PROCESS block.search %]
+            </div><!-- end header-search-->
+            <footer role="contentinfo">
+                [% PROCESS block.footer %]
+            </footer>
+        </div> <!-- end canvas-->
+        [% dw_scheme.final_body_html %]
+        <script>
+          $(function() {
+            if ( $("#canvas").hasClass("vertical-nav") && $(".main-nav .toggle-topbar:visible").length == 0 ) {
+                $(".main-nav")
+                    .find(".has-dropdown").removeClass( "has-dropdown" ).end()
+                    .find(".top-bar-section").removeClass( "top-bar-section" ).end()
+            }
+          });
+          $(document).foundation();
+        </script>
+    </body>
+</html>
+[%- ELSE -%]
 <!DOCTYPE html>
 <html lang="en">
     [% PROCESS block.head %]
@@ -208,4 +267,5 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% dw_scheme.final_body_html %]
     </body>
 </html>
+[%- END -%]
 [%- END -%]
