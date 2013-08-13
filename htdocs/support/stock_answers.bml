@@ -58,7 +58,7 @@ body<=
 
     my $ansid = ($GET{ansid} || 0) + 0;
 
-    my $ret = "<?h1 $ML{'.stock.answers'} h1?>";
+    my $ret = "<?p?>";
     my $self = "$LJ::SITEROOT/support/stock_answers";
 
     if ($POST{'action:delete'}) {
