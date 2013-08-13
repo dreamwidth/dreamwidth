@@ -1,9 +1,15 @@
-@mixin header-nav( $side: left, $height: 7em, $top: 0 ) {
+@mixin main-nav(  $nav-orientation: vertical,
+                    $side: left,
+                    $header-height: 7em,
+                    $accountlinks-offset: 0,
+                    $search-offset: 0,
+                    $topbar-offset: 0,
+                    $sidebar-width: 0
+                  ) {
     #account-links {
         position: absolute;
-        top: $top;
+        top: $accountlinks-offset + 1em;
 
-        width: 60%;
         white-space: nowrap;
 
         #account-links-text, .account-links-in-header, #nav-login-form {
@@ -51,7 +57,12 @@
 
     #account-links-userpic {
         max-height: 7em;
-        margin-left: 1em;
+        float: $side;
+        @if $side == left {
+            margin-right: 1em;
+        } @else {
+            margin-left: 1em;
+        }
     }
 
     #account-links-text {
@@ -75,16 +86,100 @@
     }
 
     #masthead {
-        height: $height;
+        height: $header-height;
     }
 
     #logo {
-        line-height: $height - 1em;
+        line-height: $header-height - $base-line-height;
     }
 
     .nav-search {
         input, select {
             display: inline-block;
+        }
+    }
+
+    #header-search {
+        position: absolute;
+        top: $header-height + $search-offset;
+        right: 0;
+
+        ul {
+            list-style: none;
+        }
+
+        input {
+            margin: 0;
+        }
+    }
+
+    /**
+     * #content
+     */
+    #content {
+        margin-top: $header-height + $search-offset + 2 * $base-line-height !important;
+    }
+
+    .main-nav {
+        .has-dropdown a {
+            text-decoration: none;
+        }
+    }
+
+    @if $nav-orientation == vertical {
+        .main-nav {
+            position: absolute;
+            top: $masthead-height + $topbar-offset;
+            left: 0;
+            right: 0;
+        }
+
+        @media #{$topbar-media-query} {
+            .main-nav {
+                width: $sidebar-width;
+
+                section {
+                    font-size: small;
+                }
+
+                ul {
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .subnav a {
+                    padding-left: 1em;
+                }
+
+                .subnav a,
+                .topnav a {
+                    color: $topbar-link-color;
+                }
+            }
+
+            /**
+             * Reset top-bar styles so they don't apply to the sidebar
+             */
+            .top-bar {
+                height: auto;
+
+                .js-generated {
+                    display: none;
+                }
+            }
+
+            #content {
+                border-left: $sidebar-width solid $topbar-bg;
+                margin-left: 0; // so that it doesn't try to center the content on the page
+                min-height: 65em;
+            }
+        }
+    } @else {
+        .main-nav {
+            position: absolute;
+            top: $header-height;
+            left: 0;
+            right: 0;
         }
     }
 }
