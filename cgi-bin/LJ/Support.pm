@@ -1092,10 +1092,10 @@ sub work {
         my $show_name;
         if ( $posterid ) {
             my $u = LJ::load_userid ( $posterid );
-            $show_name = $u->display_name if $show_name;
+            $show_name = $u->display_name if $u;
         }
 
-           $show_name ||= $sp->{reqname};
+        $show_name ||= $sp->{reqname};
 
         # build body
         $body = LJ::Lang::ml( "support.email.notif.update.body2", {
