@@ -64,7 +64,7 @@ $include-html-classes: true;
 // gradation-specific variables
 $masthead-height: 7.5em;
 
-@import "schemes/skin-colors", "schemes/nav";
+@import "schemes/skin-colors", "schemes/nav", "schemes/skiplink";
 
 a:active, a:hover {
     text-decoration: none;
@@ -96,6 +96,10 @@ ul { list-style: circle; }
     a, label {
         color: $strong-accent-color;
     }
+}
+
+.nav-search {
+    line-height: $topbar-height;
 }
 
 /**

@@ -61,7 +61,7 @@ $sidebar-width:                        9em;
 $masthead-height:                      6.875em;
 $header-offset-height:                 2em;
 
-@import "schemes/skin-colors", "schemes/nav";
+@import "schemes/skin-colors", "schemes/nav", "schemes/skiplink";
 
 a:hover,
 a:active {
@@ -95,7 +95,7 @@ ul { list-style: square;}
  /*Scheme specific divs to contain header stripes*/
 #header-divider {
      position: absolute;
-     top: $masthead-height;
+     top: $nav-small-screen-header-height;
      left: 0;
      background-color: $strong-accent-color;
      background-image: url("/img/celerity/dk-stripe.jpg");
@@ -109,6 +109,12 @@ ul { list-style: square;}
          width: 9em;
          background: url("/img/celerity/stripes.jpg");
          background-position: center;
+    }
+}
+
+@media #{$small} {
+    #header-divider {
+        top: $masthead-height;
     }
 }
 

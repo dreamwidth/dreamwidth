@@ -66,13 +66,16 @@ $(function() {
         })
     };
 
+    if ( ! Modernizr.touch ) {
+        $(".upload-form-file-inputs")
+            .find('.row')
+                .append('<div class="large-12 columns"><div class="drop_zone">or drop images here</div></div>')
+            .end()
+    }
     $(".upload-form-file-inputs")
-        .find('input[type=file]')
-            .attr( 'multiple', 'multiple' )
-        .end()
-        .find('.row')
-            .append('<div class="large-12 columns"><div class="drop_zone">or drop images here</div></div>')
-        .end()
+    .find('input[type=file]')
+        .attr( 'multiple', 'multiple' )
+    .end()
     .fileupload({
         dataType: 'json',
         url: Site.siteroot + '/api/v1/file/new',

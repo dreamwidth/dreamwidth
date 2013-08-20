@@ -52,6 +52,16 @@ $topbar-bg: #222;
 // Skin-specific styles
 @include main-nav( vertical, left, $masthead-height, 0, 0, 0, $sidebar-width );
 
+.main-nav {
+    top: $nav-small-screen-header-height + 1.5em;
+}
+
+@media #{$small} {
+    .main-nav {
+        top: $masthead-height;
+    }
+}
+
 @media #{$topbar-media-query} {
     .main-nav {
         a {
