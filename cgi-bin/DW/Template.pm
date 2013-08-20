@@ -318,7 +318,7 @@ sub render_string {
         return $r->OK;
     } elsif ( $extra->{fragment} ) {
         LJ::set_active_resource_group( "fragment" );
-        $out .= LJ::res_includes( nojs => 1, nolib => 1 );
+        $out .= LJ::res_includes( nojs => 1, nolib => 1, script_tags => 1 );
         $r->print( $out );
 
         return $r->OK;
