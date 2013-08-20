@@ -24,11 +24,7 @@
 <ul class="right nav-search" role="search">
 <li class="has-form">
 <form action="[% site.root %]/multisearch" method="post">
-<div class="row collapse">
-<div class="columns large-6">
-    <input name="q" id="search" type="search" title="[% 'widget.search.title' | ml %]" size="20" />
-</div>
-<div class="columns large-4">
+<input name="q" id="search" type="search" title="[% 'widget.search.title' | ml %]" size="20" />
 <select name="type">
 [% FOREACH option = [
     [ "int", "interest" ]
@@ -41,11 +37,7 @@
     <option name="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
 [%- END -%]
 </select>
-</div>
-<div class="columns large-2">
     <input type="submit" value="[% 'widget.search.btn.go' | ml %]" />
-</div>
-</div></div>
 </form>
 </li>
 </ul>
@@ -63,4 +55,11 @@
 [% content %]
 </body>
 </html>
+[%- END -%]
+
+[%- BLOCK block.skiplink -%]
+[%# Visible only with screenreader or keyboard, per css %]
+<div id="skip">
+     <a href="#content" tabindex="1">Skip to Main Content</a>
+</div>
 [%- END -%]

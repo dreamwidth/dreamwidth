@@ -1,0 +1,24 @@
+/* allow hidden skip links */
+#skip a, #skip a:hover, #skip a:visited
+{
+    position:absolute;
+    left:0px;
+    top:-500px;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+    padding: 0.5em 1em;
+}
+
+#skip a:active, #skip a:focus
+{
+    position:fixed;
+    top:.25em;
+    left:.25em;
+    width:auto;
+    height:auto;
+    z-index: 500;
+    font-weight: bold;
+    color: $topbar-dropdown-link-color;
+    background-color: $topbar-dropdown-link-bg;
+}
