@@ -12,23 +12,56 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
+[% USE date %]
+
 <fieldset>
-  <h3 class='ui-corner-top'>Scheduled Publishing</h3>
+  <h3 class='ui-corner-top'>[%- '.header' | ml %]</h3>
     <div class="inner">
+
     <div class='time_container' id="publishingtime_container">
-      <input type="text" name="publishingtime" id="publishingtime" value="2010-04-10" maxlength="10" size="10" />
-      <input type="text" name="publishingtime_hr" id="publishingtime_hr" value="03" maxlength="2" size="2" class='time_hr' />:<input type="text" name="publishingtime_min" id="publishingtime_min" value="15" maxlength="2" size="2" class='time_min' />
+        [% label = ".date" | ml;
+           form.textbox( label = label
+                name = "publishingtime_date"
+                id = "publishingtime_date"
+                size = "10"
+                maxlength = "10"
+                placeholder = "2010-04-10"
+        );
+           form.textbox(
+                name = "publishingtime_hr"
+                id = "publishintime_hr"
+                size = "2"
+                maxlength = "2"
+                placeholder = "03"
+        );
+           form.textbox(
+                name = "publishingtime_min"
+                id = "publishingdate_min"
+                size = "2"
+                maxlength = "2"
+                placeholder = "15"
+        );
+
+         %]
       <div class="dateformat">(e.g. 2010-01-30 23:45)</div>
     </div>
 
     <div class="recurring_container">
-      <label for="recurring_period">Recurring:</label>
-      <select name="recurring_period" class="select" id="recurring_period">
-        <option value="never">never</option>
-        <option value="day">every day</option>
-        <option value="week">every week</option>
-        <option value="month">every month</option>
-      </select>
+     [%- label = ".recurring" | ml;
+         rec_never = '.recurring.never' | ml;
+         rec_day = '.recurring.day' | ml;
+         rec_week = '.recurring.week' | ml;
+         rec_month = '.recurring.month' | ml;
+        form.select( label = label
+            name = "recurring_period"
+            id = "recurring_period"
+            items = [
+            "never"    rec_never
+            "day"      rec_day
+            "week"     rec_week
+            "month"    rec_month
+            ]
+        ) -%]
     </div>
   </div>
 </fieldset>

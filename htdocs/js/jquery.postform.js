@@ -281,7 +281,6 @@ init: function(formData) {
             var postas = $.trim($("#post_username").val());
             journal = $.trim($("#postas_usejournal").val()) || postas;
             iscomm = journal !== postas;
-            console.log(journal, postas)
             $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: false});
         });
         $("#post_as_other").click(function() {
@@ -458,6 +457,14 @@ init: function(formData) {
             $(this.form).data("skipchecks", "spellcheck");
         });
 
+        // note if we're doing a draft or schedule
+        $("input[type='submit'].submit_draft").click(function(e) { 
+            $(this.form).data("skipchecks", "draft");
+        });
+        $("input[type='submit'].submit_schedule").click(function(e) { 
+            $(this.form).data("skipchecks", "schedule");
+        });
+
         $("#delete_entry").click(function(e) {
             $(this.form).data("skipchecks", "delete");
             var do_delete = confirm(formData.strings.delete_confirm);
@@ -467,8 +474,13 @@ init: function(formData) {
 
             if ( ! do_delete ) {
                 e.preventDefault();
+                return false;
+            } else {
+                // we've already confirmed, so do a post instead of a get
+                $(this).attr("formmethod", "post");
             }
         });
+
 
 
         $("#post_options").click(function(e){

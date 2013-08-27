@@ -68,7 +68,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     );
 END -%]
 
-[% sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) %]
+[% sections.title = action.edit ? dw.ml( '.title.edit' ) : action.editdraft ? dw.ml( '.title.draft.edit') : action.editscheduled ? dw.ml( '.title.scheduled.edit' ) : dw.ml( '.title' ) %]
 [% sections.contentopts = '' %]
 
 [% sections.head = BLOCK %]
@@ -97,7 +97,7 @@ END -%]
 
 <script type="text/javascript">
 var postFormInitData = new Object();
-postFormInitData.edit = [% action.edit ? "true" : "false" %];
+postFormInitData.edit = [% ( action.edit || action.editdraft || action.editscheduled ) ? "true" : "false" %];
 postFormInitData.icons = [
     [%- FOREACH icon = icons %]
         { 'src': '[% icon.userpic.url %]', 'alt': [% icon.userpic.description | js %] }
@@ -124,7 +124,11 @@ postFormInitData.panels = {
 postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 
 postFormInitData.strings = {
+    [% IF draftid %]
+  "delete_confirm" : [%- "entryform.delete.draft.confirm" | ml | js -%],
+    [% ELSE %]
   "delete_confirm" : [%- "entryform.delete.confirm" | ml | js -%],
+    [% END %]
   "delete_xposts_confirm": [%- "entryform.delete.xposts.confirm" | ml | js  -%]
 };
 
@@ -183,6 +187,9 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
     [%- dw.form_auth -%]
 
+    [% IF draftid %]
+        <input type="hidden" id="draftid" name="draftid" value="[%- draftid -%]" />
+    [% END %]
     <div id="primary"><!-- Start main column sub & entry -->
         <div id="current_entry">
             <fieldset>
@@ -251,6 +258,24 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                 </div>
             </fieldset>
             <fieldset class='submit'>
+                [%- IF ! action.edit -%]
+                [%- IF ! action.editscheduled -%]
+                [%- draft_label = '.button.save.draft' | ml;
+                    form.submit( value = draft_label
+                                 name = "action:draft"
+                                 class = "submit_draft"
+                                 formaction = action.draft_url )
+                -%]
+                [% END %]
+                [%- schedule_label = '.button.schedule' | ml;
+                    form.submit( value = schedule_label
+                                 name = "action:schedule"
+                                 class = "submit_schedule"
+                                 formaction = action.schedule_url )
+
+               -%]
+                [% END %]
+
                 [%- preview_label = 'talk.btn.preview' | ml;
                     form.submit( value = preview_label
                                  name = "action:preview"
@@ -267,7 +292,8 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                 [%- post_label = action.edit ? '.button.edit' : '.button.post' | ml;
                     form.submit( value = post_label
                                  name = "action:post"
-                                 id = "submit_entry" )
+                                 id = "submit_entry"
+                                 formaction = action.post_url )
                 -%]
             </fieldset>
         </div>
@@ -301,15 +327,35 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         <span id="actions">
             [%- form.submit( value = post_label
                              name = "action:post"
-                             id = "submit_entry_large" )
+                             id = "submit_entry_large"
+                             formaction = action.post_url )
             -%]
+                [%- IF ! action.edit -%]
+                [%- schedule_label = '.button.schedule' | ml;
+                    form.submit( value = schedule_label
+                                 name = "action:schedule"
+                                 class = "submit_schedule",
+                                 formaction = action.schedule_url )
+
+                -%]
+                [%- IF ! action.editscheduled -%]
+                [%- draft_label = '.button.save.draft' | ml;
+                    form.submit( value = draft_label
+                                 name = "action:draft"
+                                 class = "submit_draft",
+                                 formaction = action.draft_url )
+                -%]
+                [% END %]
+                [% END %]
         </span>
 
-        [% IF action.edit %]
+        [% IF action.edit || action.editdraft || action.editscheduled %]
         <span class="destructive">
             [%- form.submit( value = dw.ml( '.button.delete' )
                              name  = "action:delete"
-                             id    = "delete_entry" )
+                             id    = "delete_entry",
+                             formaction = action.delete_url,
+                             formmethod = "get" )
             -%]
         </span>
         [% END %]

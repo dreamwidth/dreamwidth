@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+#
+# bin/worker/scheduled-posts
+#
+# Worker that handles scheduled posts
+#
+# Authors:
+#       Allen Petersen <allen@suberic.net>
+#
+# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+package DW::Worker::ScheduledPosts;
+
+use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
+use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN {
+    require 'ljlib.pl';
+}
+
+use DW::Draft;
+
+sub work {
+    my $class = shift;
+    my @uids = @_;
+
+    # pick a cluster to work on, get a lock
+    my $lock;
+    foreach my $cid ( @LJ::CLUSTERS ) {
+        last if @uids;
+
+        next unless ($cid);
+
+        $lock = LJ::locker()->trylock("scheduled-post:" . $cid);
+        next unless $lock;
+
+        # got a lock; post all the scheduled posts from there
+        DW::Draft->post_by_cluster( $cid );
+
+        last;
+    }
+
+    # when we return 0 here, we'll be considered idle
+    return 0 unless @uids;
+    return 1;
+}
+work();
+1;

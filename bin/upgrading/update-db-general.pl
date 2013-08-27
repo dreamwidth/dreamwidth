@@ -3228,6 +3228,30 @@ CREATE TABLE `logslugs` (
 )
 EOC
 
+register_tablecreate("draft", <<'EOC');
+CREATE TABLE `draft` (
+    `userid` INT(10) UNSIGNED NOT NULL,
+    `id` MEDIUMINT UNSIGNED NOT NULL,
+    `subject` VARCHAR(255) DEFAULT NULL,
+    `summary` VARCHAR(255) DEFAULT NULL,
+    `createtime` DATETIME NOT NULL,
+    `modtime` DATETIME DEFAULT NULL,
+    `recurring_period` VARCHAR(255) DEFAULT NULL,
+    `nextscheduletime` DATETIME DEFAULT NULL,
+    `status` char(1) NOT NULL DEFAULT 'D',
+    PRIMARY KEY  (`userid`, `id`)
+)
+EOC
+
+register_tablecreate("draftblob", <<'EOC');
+CREATE TABLE `draftblob` (
+    `userid` INT(10) UNSIGNED NOT NULL,
+    `id` MEDIUMINT UNSIGNED NOT NULL,
+    `req_stor` MEDIUMBLOB,
+    PRIMARY KEY (`userid`, `id`)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes
