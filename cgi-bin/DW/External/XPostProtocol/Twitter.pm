@@ -145,12 +145,13 @@ sub crosspost {
 
     my ($self, $extacct, $auth, $entry, $itemid, $delete) = @_;
 
-    unless ( $LJ::TWITTER{enabled} ) {
-        return {
-            success => 0,
-            error => LJ::Lang::ml( 'twitter.twitter_disabled' )
-        }
-    }
+    my $ret = sub {
+        my $rv = shift;
+        return { success => $rv, @_ };
+    };
+
+    return $ret->( 0, error => LJ::Lang::ml( 'twitter.twitter_disabled' ) )
+        unless $LJ::TWITTER{enabled};
 
     my $twitter = _get_net_twitter( $extacct ); 
     unless ( $twitter->authorized ) {
@@ -158,23 +159,17 @@ sub crosspost {
         # that we at least have all the necessary credentials.
         # If we're not authorised we'll find out anyway when we try to 
         # tweet, so no need for an extra connection to Twitter to check.
-        return {
-            success => 0,
-            error => LJ::Lang::ml( 'twitter.auth.please_reauth',
+        return $ret->( 0, error => LJ::Lang::ml( 'twitter.auth.please_reauth',
                 { sitename => $LJ::SITENAMESHORT,
-                  url => "$LJ::SITEROOT/manage/externalaccounts/begin_oauth?acctid=$extacct->{acctid}" } )
-        }
-    }
+                  url => "$LJ::SITEROOT/manage/externalaccounts/begin_oauth?acctid=$extacct->{acctid}" } ) );
+  }
 
     my $status;
 
     if ( $delete ) {
-        unless ( $itemid ) {
-            return {
-                success => 0,
-                error => "Attempt to delete tweet without giving a tweet id."
-            }
-        }
+        return $ret->( 0, error => "Attempt to delete tweet without giving a tweet id." )
+            unless $itemid;
+
         eval { $status = $twitter->destroy_status( $itemid ); }
         #note - error checking for this happens below.
 
@@ -185,12 +180,8 @@ sub crosspost {
         # FIXME: Shoudln't really call this a success, it's confusing. Need 
         #  a third return status???
        
-        if( $entry->security eq 'public' ) {
-            return {
-                success => 1,
-                reference => { itemid => $itemid }
-            };
-        }
+        return $ret->( 1, reference => { itemid => $itemid } )
+            if $entry->security eq 'public';
 
         #The entry has been edited and the security changed so that it is no
         #longer public. We should delete the tweet.
@@ -203,20 +194,17 @@ sub crosspost {
 
         # Don't post for non-public entries
         unless( $entry->security eq 'public' ) {
-            return {
-                success => 0,
+            return $ret->( 0, 
                 error => LJ::Lang::ml( 'xpost.error.nonpublic', {
-                        service => 'Twitter' } ) };
+                        service => 'Twitter' } ) ); 
             }
+            # (not done as postfix because it would be confusing)
 
         my $tweettext = tweettext_from_entry( $self, $extacct, $entry );
-        unless ( $tweettext ) {
-            return {
-                success => 0,
-                error => "Error generating tweet text. Please try again later.
-                If the problem persists, please contact Support."
-            }
-        }
+        return $ret->( 0,
+            error => "Error generating tweet text. Please try again later.
+            If the problem persists, please contact Support." )
+            unless $tweettext;
 
         eval { $status = $twitter->update( $tweettext ); };
     }
@@ -226,22 +214,12 @@ sub crosspost {
     if ( $status ) {
         #If we've deleted we want to avoid returning the id of the deleted
         # tweet.
-        if ( $delete ) {
-            return {
-                success => 1,
-                reference => {itemid => undef }
-            }
-        }
-        return {
-            success => 1,
-            reference => { itemid => $status->{id_str} }
-        }
+        return $ret->( 1, reference => {itemid => undef } )
+            if $delete;
+
+        return $ret->( 1, reference => { itemid => $status->{id_str} } );
     } else {
-        my $err = _check_twitter_error( $@, $extacct );
-        return {
-            success => 0,
-            error => $err,
-        }
+        return $ret->( 0, error => _check_twitter_error( $@, $extacct ) );
     }
 }
 
