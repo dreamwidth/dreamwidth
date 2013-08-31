@@ -79,7 +79,7 @@ sub twittersettings_handler {
                                  
         #make the account
         my $extacct = DW::External::Account->create( $u, \%opts );
-        LJ::throw( 'Failed to create new external account' )
+        die( 'Failed to create new external account' )
             unless $extacct;
 
         #now start OAuth on the new account
@@ -101,8 +101,8 @@ sub twittersettings_handler {
     }
 
     my $extacct = DW::External::Account->get_external_account( $u, $acctid );
-    LJ::throw( 'Could not retrieve external account object' ) unless $extacct;
-    LJ::throw( 'Not an Twitter account' ) unless $extacct->siteid == 9;
+    die( 'Could not retrieve external account object' ) unless $extacct;
+    die( 'Not an Twitter account' ) unless $extacct->siteid == 9;
 
     if ( $r->did_post ) {
     # Somebody pushed "Update" on the form.

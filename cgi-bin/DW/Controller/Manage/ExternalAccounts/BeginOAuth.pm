@@ -34,14 +34,14 @@ sub beginoauth_handler {
 
     my $r = DW::Request->get;
     my $acctid = $r->get_args->{acctid};
-    LJ::throw( 'Required parameter missing' ) unless $acctid;
+    die( 'Required parameter missing' ) unless $acctid;
 
     my $extacct = DW::External::Account->get_external_account( 
         $rv->{u}, $acctid );
-    LJ::throw( 'Could not retrieve extacct' ) unless $extacct;
+    die( 'Could not retrieve extacct' ) unless $extacct;
     my $res = DW::External::OAuth::start_oauth( $extacct );
 
-    LJ::throw( 'Unexpected return from start_oauth' )
+    die( 'Unexpected return from start_oauth' )
         unless ref $res eq 'HASH';
     return error_ml( 'oauth.start.fail', { error => $res->{error} } )
         if $res->{error};

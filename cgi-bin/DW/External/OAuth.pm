@@ -23,6 +23,7 @@ package DW::External::OAuth;
 use strict;
 use warnings;
 use Net::Twitter;
+use Carp;
 
 sub start_oauth {
 # Function to begin the OAuth process. Requests a request_token, stores this
@@ -102,7 +103,7 @@ sub oauth_callback {
     unless ( $remote && $get_args->{userid} && $get_args->{acctid} &&
         ( ( $get_args->{oauth_token} && $get_args->{oauth_verifier} ) || 
         $get_args->{denied} ) ) {
-            LJ::throw( "Required parameter(s) missing" );
+        Carp::croak( "Required parameter(s) missing" );
     }
 
     #check that this callback relates to the current user 

@@ -21,6 +21,7 @@ use warnings;
 
 use Net::Twitter;
 use LJ::MemCache;
+use Carp;
 
 sub instance {
     my ($class) = @_;
@@ -45,7 +46,7 @@ sub _get_net_twitter {
 
     my ( $extacct ) = @_;
 
-    LJ::throw( 'Not a Twitter account' )
+    Carp::croak( 'Not a Twitter account' )
         unless $extacct->siteid == 9;
 
     return Net::Twitter->new( {
@@ -64,12 +65,12 @@ sub verify_auth {
 # {error => error }.
 
     my ( $self, $extacct ) = @_;
-    LJ::throw( 'Required parameter missing' ) unless $extacct;
-    LJ::throw( 'Not a DW::External::Account object' )
+    Carp::croak( 'Required parameter missing' ) unless $extacct;
+    Crap:croak( 'Not a DW::External::Account object' )
         unless $extacct->isa( 'DW::External::Account' );
 
     #check that this is a Twitter account.
-    LJ::throw( 'Not a Twitter account' )
+    Carp::croak( 'Not a Twitter account' )
         unless $extacct->siteid == 9;
 
     #check the account's oauth_authorized flag - if already false, we can just fail
@@ -313,7 +314,7 @@ sub _t_co_urllength {
     #We only need the extacct because Twitter won't let you do *anything*
     #without authenticating at present.
     my $extacct = shift;
-    LJ::throw( 'Need an extacct' ) unless $extacct;
+    Carp::croak( 'Need an extacct' ) unless $extacct;
 
     #First, see whether it's set manually
     return $LJ::TWITTER{t_co_urllength} 
@@ -321,7 +322,7 @@ sub _t_co_urllength {
 
     #If it hasn't been set manually and we're not using memcache, we have a 
     # problem.
-    LJ::throw( 'If Memcache is not in use, t_co_urllength must be set in config-local.pl' ) 
+    Carp::croak( 'If Memcache is not in use, t_co_urllength must be set in config-local.pl' ) 
         unless @LJ::MEMCACHE_SERVERS;
 
     #see whether Memcache already knows it.
