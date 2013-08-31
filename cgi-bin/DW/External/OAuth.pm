@@ -125,11 +125,11 @@ sub oauth_callback {
     #  cancel to deny authorization. In this case we need to distinguish
     #  between denied auth for this account or another account.
     my $received_token = $get_args->{oauth_token} || $get_args->{denied};
-    return { error => BML::ml( 'oauth.callback.tokenmismatch' ) }
-        unless $received_token eq $extacct_options->{request_token};
+    return { error => LJ::Lang::ml( 'oauth.callback.tokenmismatch' ) }
+        unless $received_token eq ( $extacct_options->{request_token} // '' );
 
     #did the OAuth provider deny authorization?
-    return { error => BML::ml( 'oauth.callback.authdenied', 
+    return { error => LJ::Lang::ml( 'oauth.callback.authdenied', 
             { service => 'Twitter', sitename => $LJ::SITENAMESHORT } ) }
         if $get_args->{denied};
 
