@@ -102,7 +102,7 @@ sub twittersettings_handler {
 
     my $extacct = DW::External::Account->get_external_account( $u, $acctid );
     die( 'Could not retrieve external account object' ) unless $extacct;
-    die( 'Not an Twitter account' ) unless $extacct->siteid == 9;
+    die( 'Not a Twitter account' ) unless $extacct->siteid == 9;
 
     if ( $r->did_post ) {
     # Somebody pushed "Update" on the form.
