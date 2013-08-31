@@ -84,16 +84,8 @@ sub get_external_accounts {
         return @accounts;
     }
 
-<<<<<<< HEAD
-    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active FROM externalaccount WHERE userid=?" );
-    $sth->execute($u->userid, );
-||||||| merged common ancestors
-    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options FROM externalaccount WHERE userid=?" );
+    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options, active FROM externalaccount WHERE userid=?" );
     $sth->execute($u->userid);
-=======
-    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options FROM externalaccount WHERE userid=?" );
-    $sth->execute($u->userid);
->>>>>>> (Bug 4504) : Put the oauth authorization flag into its own column
     LJ::throw($u->errstr) if $u->err;
 
     my @acctids;
@@ -118,13 +110,7 @@ sub get_external_account {
         return $cached_value;
     }
 
-<<<<<<< HEAD
-    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active FROM externalaccount WHERE userid=? and acctid=?" );
-||||||| merged common ancestors
-    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options FROM externalaccount WHERE userid=? and acctid=?" );
-=======
-    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options FROM externalaccount WHERE userid=? and acctid=?" );
->>>>>>> (Bug 4504) : Put the oauth authorization flag into its own column
+    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options, active FROM externalaccount WHERE userid=? and acctid=?" );
     $sth->execute($u->userid, $acctid);
     LJ::throw($u->err) if ($u->err);
 
@@ -181,13 +167,7 @@ sub xpost_string_to_hash {
 # instance methods
 sub absorb_row {
     my ($self, $row) = @_;
-<<<<<<< HEAD
-    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink options active ) ) {
-||||||| merged common ancestors
-    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink options ) ) {
-=======
-    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink oauth_authorized options ) ) {
->>>>>>> (Bug 4504) : Put the oauth authorization flag into its own column
+    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink oauth_authorized options active ) ) {
         $self->{$f} = $row->{$f};
     }
     return $self;
@@ -210,13 +190,7 @@ sub create {
     # convert the options hashref to a single field
     my $options_blob = $class->xpost_hash_to_string( $opts->{options} );
 
-<<<<<<< HEAD
-    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1 )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $options_blob );
-||||||| merged common ancestors
-    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $options_blob );
-=======
-    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $opts->{oauth_authorized} ? '1' : '0', $options_blob );
->>>>>>> (Bug 4504) : Put the oauth authorization flag into its own column
+    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options, active ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1 )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $opts->{oauth_authorized} ? '1' : '0', $options_blob );
     
     LJ::throw($u->errstr) if $u->err;
 
