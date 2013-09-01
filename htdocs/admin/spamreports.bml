@@ -72,35 +72,54 @@ _c?>
     return $error->("Unable to get database reader handle.") unless $dbr;
     my @rows;
     my @headers;
+    my $count = 0;
     if ($mode eq 'top10ip') {
-        # top 10 by ip
-        $title = "<?_ml .top10ip.title _ml?>";
         @headers = ('<?_ml .header.numreports _ml?>', '<?_ml .header.ipaddress _ml?>', '<?_ml .header.mostrecentreport _ml?>');
         my $res = $dbr->selectall_arrayref('SELECT COUNT(ip) AS num, ip, MAX(reporttime) FROM spamreports ' .
                                            "WHERE state = 'open' AND ip IS NOT NULL " .
                                            'GROUP BY ip ORDER BY num DESC LIMIT 10');
+        # top 10 by ip
+        $count = scalar @$res;
+        $title = BML::ml( ".top10ip.title2", { count => $count} );
+
+        unless (@$res) {
+            $body .= "<?_ml .view.noreports _ml?>";
+            return undef;
+        }
         foreach (@$res) {
             push @rows, [ $_->[0], $_->[1], $makelink->('ip', $_->[1], 'open', $_->[2]) ];
         }
  
     } elsif ($mode eq 'top10user') {
-        # top 10 by user
-        $title = "<?_ml .top10user.title _ml?>";
         @headers = ('<?_ml .header.numreports _ml?>', '<?_ml .header.postedbyuser _ml?>', '<?_ml .header.mostrecentreport _ml?>');
         my $res = $dbr->selectall_arrayref('SELECT COUNT(posterid) AS num, posterid, MAX(reporttime) FROM spamreports ' .
                                            "WHERE state = 'open' AND posterid > 0 " .
                                            'GROUP BY posterid ORDER BY num DESC LIMIT 10');
+        # top 10 by user
+        $count = scalar @$res;
+        $title = BML::ml( ".top10user.title2", { count => $count} );
+
+        unless (@$res) {
+            $body .= "<?_ml .view.noreports _ml?>";
+            return undef;
+        }
         foreach (@$res) {
             my $u = LJ::load_userid($_->[1]);
             push @rows, [ $_->[0], LJ::ljuser($u), $makelink->('posterid', $_->[1], 'open', $_->[2]) ];
         }
  
     } elsif ($mode eq 'tlast10') {
-        # most recent 10 reports
-        $title = "<?_ml .tlast10.title _ml?>$extratitle";
         @headers = ('<?_ml .header.postedby _ml?>', '<?_ml .header.postedin _ml?>', '<?_ml .header.reporttime _ml?>');
         my $res = $dbr->selectall_arrayref('SELECT posterid, ip, journalid, reporttime FROM spamreports ' .
                                            "WHERE state = 'open' AND $extrawhere ORDER BY reporttime DESC LIMIT 10");
+        # most recent 10 reports
+        $count = scalar @$res;
+        $title = BML::ml( ".top10user.title2", { extratext =>, $extratitle, count => $count} );
+
+        unless (@$res) {
+            $body .= "<?_ml .view.noreports _ml?>";
+            return undef;
+        }
         foreach (@$res) {
             my $u2 = LJ::load_userid($_->[2]);
             if ($_->[0] > 0) {
@@ -115,10 +134,18 @@ _c?>
         # reports in last X hours
         my $hours = $1+0;
         my $secs = $hours * 3600; # seconds in an hour
-        $title = BML::ml(".tlasthrs.title", { hours => $hours } ) . $extratitle;
         @headers = ('<?_ml .tlasthrs.numreports _ml?>', '<?_ml .tlasthrs.postedby _ml?>', '<?_ml .tlasthrs.reporttime _ml?>');
         my $res = $dbr->selectall_arrayref('SELECT journalid, ip, posterid, reporttime FROM spamreports ' .
                                            "WHERE $extrawhere AND reporttime > (UNIX_TIMESTAMP() - $secs) LIMIT 1000");
+
+        $count = scalar @$res;
+        $extratitle .= " (results: ".$count.")";
+        $title = BML::ml(".tlasthrs.title", { hours => $hours } ) . $extratitle;
+
+        unless (@$res) {
+            $body .= "<?_ml .view.noreports _ml?>";
+            return undef;
+        }
 
         # count up items and their most recent report
         my %hits;
@@ -180,7 +207,6 @@ _c?>
             return $error->('<?_ml .error.noposterid _ml?>') unless $u;
             $title = BML::ml( ".view.byposterid.title", { user => $u->ljuser_display } );
             $title .= " (" . $u->{user} . ")" if $u->is_identity;
-            $title .= " ($state)";
 
             # build some basic stats on what the account's activity
             # looks like, as requested by the antispam team
@@ -189,15 +215,15 @@ _c?>
             my $num_comments_posted = $u->num_comments_posted;
             my $num_entries_posted = $u->number_of_posts;
 
-            $title .= "<br /><h6> ";
+            $extratitle .= "<br /><h6> ";
 
-            $title .= BML::ml( '.view.poster.comments.posted', { posted_raw => $num_comments_posted, posted_comma => LJ::commafy( $num_comments_posted ) } ) . ", "
+            $extratitle .= BML::ml( '.view.poster.comments.posted', { posted_raw => $num_comments_posted, posted_comma => LJ::commafy( $num_comments_posted ) } ) . ", "
                 if LJ::is_enabled( 'show-talkleft' ) && ( $u->is_personal || $u->is_identity );
-            $title .= BML::ml( '.view.poster.comments.received', { received_raw => $num_comments_received, received_comma => LJ::commafy( $num_comments_received ) } ) . ", "
+            $extratitle .= BML::ml( '.view.poster.comments.received', { received_raw => $num_comments_received, received_comma => LJ::commafy( $num_comments_received ) } ) . ", "
                 unless $u->is_identity;
-            $title .= BML::ml( '.view.poster.entries.posted', { entries_raw => $num_entries_posted, entries_comma => LJ::commafy( $num_entries_posted ) } )
+            $extratitle .= BML::ml( '.view.poster.entries.posted', { entries_raw => $num_entries_posted, entries_comma => LJ::commafy( $num_entries_posted ) } )
                 unless $u->is_identity;
-            $title .= "</h6><br />";
+            $extratitle .= "</h6><br />";
 
         } elsif ($by eq 'poster') {
             my $u = LJ::load_user($what);
@@ -211,7 +237,6 @@ _c?>
         } elsif ($by eq 'ip') {
             # check for right format x.x.x.x, not necessarily a valid IP
             return $error->('<?_ml .error.noip _ml?>') if $what !~ /^\d+\.\d+\.\d+\.\d+$/ or length $what > 15;
-            $title = BML::ml( ".view.byip.title", { ip => $what, state => $state} );
         }
 
         # see if we should call a hook for extra actions?
@@ -222,7 +247,15 @@ _c?>
         my $res = $dbr->selectall_arrayref('SELECT reporttime, journalid, subject, body, ip, posttime, report_type, srid, client ' .
                                            "FROM spamreports WHERE state=? AND $by=? ORDER BY reporttime DESC LIMIT 1000",
                                             undef, $state, $what);
-        unless ($res && @$res) {
+        # setup title and verify that the data is right
+        $count = scalar @$res;
+        if ($by eq 'posterid') {
+            $title .= " ($state: $count)$extratitle";
+        } elsif ($by eq 'ip') {
+            $title = BML::ml( ".view.byip.title2", { ip => $what, state => $state, count => $count} );
+        }
+
+        unless (@$res) {
             $body .= "<?_ml .view.noreports _ml?>";
             return undef;
         }
@@ -262,12 +295,13 @@ _c?>
         }
 
         $body .= "</table><br />" . ($state eq 'open' ? $dellink->(\@srids, 'Close All', $extra) : $extra);
+        $body .= $count > 0 ? "<br>$count reports found.<br>" : "";
 
     } elsif ($mode =~ /^del/) {
         # figure out our combination
         my $dbh =  LJ::get_db_writer();
         return $error->("Unable to get database writer handle.") unless $dbh;
-        my ($sql, $count, $backlink);
+        my ($sql, $backlink);
 
         my @srids = split(',', $POST{srids});
         my $in = join("','", map { $_+0 } @srids);
@@ -323,6 +357,7 @@ _c?>
         $body .= "</tr>\n";
     }
     $body .= "</table>\n";
+    $body .= $count > 0 ? "<br>$count reports found.<br>" : "";
 
     return;
 }
