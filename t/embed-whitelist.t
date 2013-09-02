@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 37;
+use Test::More tests => 42;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -78,6 +78,8 @@ note( "misc" );
     test_good_url( "http://www.dailymotion.com/embed/video/x1xx11x" );
 
     test_good_url( "http://dotsub.com/media/9db493c6-6168-44b0-89ea-e33a31db48db/e/m" );
+
+    test_good_url( "//instagram.com/p/cA1pRXKGBT/embed/" );
 
     test_good_url( "http://www.goodreads.com/widgets/user_update_widget?height=400&num_updates=3&user=12345&width=250" );
 
