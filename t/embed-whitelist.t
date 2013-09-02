@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 37;
+use Test::More tests => 38;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -85,6 +85,7 @@ note( "misc" );
     test_good_url( "https://www.google.com/calendar/b/0/embed?showPrint=0&showTabs=0&showCalendars=0&showTz=0&height=600&wkst=1&bgcolor=%23FFFFFF&src=foo%40group.calendar.google.com" );
 
     test_good_url( "http://www.kickstarter.com/projects/25352323/arrival-a-short-film-by-alex-myung/widget/video.html" );
+    test_good_url( "http://www.kickstarter.com/projects/25352323/arrival-a-short-film-by-alex-myung/widget/card.html" );
 
     test_good_url( "http://ext.nicovideo.jp/thumb/sm123123123" );
     test_good_url( "http://ext.nicovideo.jp/thumb/nm123123123" );
