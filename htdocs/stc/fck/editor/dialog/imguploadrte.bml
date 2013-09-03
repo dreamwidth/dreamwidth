@@ -262,7 +262,7 @@
             };
 
         $$body = $ret;
-        $$head .= LJ::res_includes();
+        $$head .= LJ::res_includes( script_tags => 1 );
         return;
 }
 _code?>

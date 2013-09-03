@@ -2482,6 +2482,7 @@ sub res_includes {
     my $include_js = ! $opts{nojs};
     my $include_links = ! $opts{nolinks};
     my $include_libs = ! $opts{nolib};
+    my $include_script_tags = $opts{script_tags};
 
     # TODO: automatic dependencies from external map and/or content of files,
     # currently it's limited to dependencies on the order you call LJ::need_res();
@@ -2668,14 +2669,21 @@ sub res_includes {
             }
         };
 
-        $tags->("js",      "<script type=\"text/javascript\" src=\"$jsprefix/___\"></script>\n");
         $tags->("stccss",  "<link rel=\"stylesheet\" type=\"text/css\" href=\"$statprefix/___\" />\n");
         $tags->("wstccss", "<link rel=\"stylesheet\" type=\"text/css\" href=\"$wstatprefix/___\" />\n");
-        $tags->("stcjs",   "<script type=\"text/javascript\" src=\"$statprefix/___\"></script>\n");
-        $tags->("wstcjs",  "<script type=\"text/javascript\" src=\"$wstatprefix/___\"></script>\n");
+
+        if ( $include_script_tags ) {
+            $tags->("js",      "<script type=\"text/javascript\" src=\"$jsprefix/___\"></script>\n");
+            $tags->("stcjs",   "<script type=\"text/javascript\" src=\"$statprefix/___\"></script>\n");
+            $tags->("wstcjs",  "<script type=\"text/javascript\" src=\"$wstatprefix/___\"></script>\n");
+        }
     }
 
     return $ret;
+}
+
+sub res_includes_body {
+    return LJ::res_includes( nojs => 1, script_tags => 1 );
 }
 
 # called to set the active resource group
@@ -3869,6 +3877,7 @@ sub final_body_html {
     my $before_body_close = "";
     LJ::Hooks::run_hooks('insert_html_before_body_close', \$before_body_close);
 
+    $before_body_close .= LJ::res_includes_body();
     if ( my $pagestats_obj = LJ::PageStats->new ) {
         $before_body_close .= $pagestats_obj->render;
     }
