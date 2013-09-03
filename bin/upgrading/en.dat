@@ -1471,6 +1471,8 @@ esn.reply_at_webpage=[[openlink]]Reply[[closelink]] at the webpage
 
 esn.reply_to_email2=You can reply to this comment by replying to this email. Your comment needs to be the very first thing in the reply email and appear before all other text.  Do not change the reply-to address, as it uses a secret address to post your reply. You should [[openlink]]reset the secret address[[closelink]] if you've accidentally shared it with anyone else.
 
+esn.reply_to_entry=[[openlink]]Leave a reply to this entry[[closelink]]
+
 esn.reply_to_message=[[openlink]]Reply to this message[[closelink]]
 
 esn.screened=This comment was screened.
