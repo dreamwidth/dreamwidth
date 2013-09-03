@@ -162,7 +162,7 @@ _c?>
         $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb';";
         $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
     }
-    $$head .= LJ::res_includes();
+    $$head .= LJ::res_includes( script_tags => 1 );
     return;
 }
 _code?>
