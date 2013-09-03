@@ -77,6 +77,8 @@ my %host_path_match = (
     "player.vimeo.com"      => qr!^/video/\d+$!,
 
     "www.plurk.com"         => qr!^/getWidget$!,
+
+    "instagram.com"         => qr!^/p/.*/embed/$!,
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
