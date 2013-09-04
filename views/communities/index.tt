@@ -59,7 +59,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <ul>
         <li><a href="[% site.root %]/community/create">[% '.manage.create' | ml %]</a></li>
         [% IF remote_admins_communities %]
-            <li><a href="[% site.root %]/community/manage">[% '.manage.yours' | ml %]</a></li>
+            <li><a href="[% site.root %]/communities/list">[% '.manage.yours' | ml %]</a></li>
         [% END %]
         [% community_manage_links %]
         </ul>

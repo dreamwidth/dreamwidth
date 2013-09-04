@@ -4355,6 +4355,39 @@ sub can_post_to {
     return 0;
 }
 
+# list of communities that $u manages
+sub communities_managed_list {
+    my ( $u ) = @_;
+
+    croak "Invalid users passed to LJ::User->communities_managed_list"
+        unless LJ::isu( $u );
+
+    my $cids = LJ::load_rel_target( $u, 'A' );
+    return undef unless $cids;
+
+    my %users = %{ LJ::load_userids( @$cids ) };
+
+    return  map { $_ }
+                grep { $_ && ( $_->is_visible || $_->is_readonly ) }
+            values %users;
+}
+
+# list of communities that $u moderates
+sub communities_moderated_list {
+    my ( $u ) = @_;
+
+    croak "Invalid users passed to LJ::User->communities_moderated_list"
+        unless LJ::isu( $u );
+
+    my $cids = LJ::load_rel_target( $u, 'M' );
+    return undef unless $cids;
+
+    my %users = %{ LJ::load_userids( @$cids ) };
+
+    return  map { $_ }
+                grep { $_ && ( $_->is_visible || $_->is_readonly ) }
+            values %users;
+}
 
 # Get an array of usernames a given user can authenticate as.
 # Valid keys for opts hashref:

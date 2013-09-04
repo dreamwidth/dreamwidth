@@ -135,7 +135,7 @@ sub _as_email {
             'esn.manage_request_approve'  => [ 1, $auth_url ],
             'esn.manage_request_reject'   => [ 2, $rej_url ],
             'esn.manage_membership_reqs'  => [ 3, "$LJ::SITEROOT/community/pending?authas=$communityname&jumpto=$user" ],
-            'esn.manage_community'        => [ 4, "$LJ::SITEROOT/community/manage" ],
+            'esn.manage_community'        => [ 4, "$LJ::SITEROOT/communities/list" ],
         }
     );
 }
