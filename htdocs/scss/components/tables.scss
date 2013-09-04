@@ -6,3 +6,11 @@ $include-html-classes: false;
 
 $include-html-table-classes: true;
 @import "foundation/components/tables";
+
+th[scope="row"] {
+    text-align: left;
+}
+
+table ul {
+    list-style-position: inside;
+}

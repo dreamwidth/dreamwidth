@@ -6,14 +6,3 @@ $include-html-classes: false;
 
 $include-html-label-classes: true;
 @import "foundation/components/labels";
-
-/* highlighted counters, e.g., unread messages */
-.notify-count {
-    a {
-        float: left;
-    }
-
-    .label {
-        margin-left: 0.5em;
-    }
-}

@@ -26,10 +26,14 @@
 
 .actions.tracking=Tracking
 
-.table.header.actions=Actions
+.table.header.community=Community
+
+.table.header.entries=Entries
+
+.table.header.members=Members
 
 .table.header.moderation=Moderation Queue
 
-.table.header.community=Community
+.table.header.settings=Settings
 
 .title=Manage Communities
