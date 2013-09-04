@@ -144,7 +144,7 @@ footer { border-top: 4px double $strong-accent-color;
  */
 
 #content {
-    @include grid-row(false);
+    @include grid-row( nest-collapse );
 }
 
 @import "schemes/page-layout-hacks";
