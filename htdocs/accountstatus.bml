@@ -161,8 +161,8 @@ body<=
                         $commlist .= '</ul>';
 
                         $ret .= '<?p ' . BML::ml( '.message.noothermaintainer',
-                                { commlist => $commlist, aopts => "href='$LJ::SITEROOT/community/manage'",
-                                  pagetitle => BML::ml( '/community/manage.bml.title2' ) } ) . 'p?>';
+                                { commlist => $commlist, aopts => "href='$LJ::SITEROOT/communities/list'",
+                                  pagetitle => LJ::Lang::ml( '/communities/list.tt.title' ) } ) . 'p?>';
                     }
                 }
             }

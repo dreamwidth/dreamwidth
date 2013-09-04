@@ -1,0 +1,19 @@
+// set the variables for labels here
+// and then import the foundation labels
+
+$include-html-classes: false;
+@import "foundation/variables", "foundation/components/global";
+
+$include-html-label-classes: true;
+@import "foundation/components/labels";
+
+/* highlighted counters, e.g., unread messages */
+.notify-count {
+    a {
+        float: left;
+    }
+
+    .label {
+        margin-left: 0.5em;
+    }
+}
