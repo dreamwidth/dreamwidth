@@ -1,0 +1,45 @@
+[%# birthdays.tt
+
+Birthdays page
+
+Authors:
+    hotlevel4 <hotlevel4@hotmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[% IF otheruser %]
+    <p>[% '.description.others' | ml(user = u.ljuser_display) %]</p>
+[% ELSE %]
+    <p>[% '.description' | ml %]</p>
+[% END %]
+
+[% IF nobirthdays && otheruser %]
+    <p>[% '.nobirthdays.otheruser' | ml(user = u.ljuser_display) %]</p>
+[% ELSIF nobirthdays %]
+    <p>[% '.nobirthdays' | ml %]</p>
+[% END %]
+
+<form method='GET' action='[% site.root %]/birthdays'>
+    [%- form.textbox( label = dw.ml( '.findothers' )
+        name = 'user'
+        maxlength = 25
+        size = 15
+    )
+    -%]
+
+    <input type="submit" value="[% '.view' | ml %]" />
+</form>
+
+[% FOREACH month = bdaymonths %]
+    <h1> [% month %] </h1>
+    [% FOREACH bdayuser = bdays.$month %]
+        <ul>[% bdayuser.day %]:
+            [% bdayuser.ljname %] - [% bdayuser.name %]</ul>
+    [% END %]
+[% END %]
