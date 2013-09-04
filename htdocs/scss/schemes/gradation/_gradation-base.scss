@@ -107,7 +107,7 @@ ul { list-style: circle; }
  */
 
 #content {
-    @include grid-row(false);
+    @include grid-row( nested-collapse );
     padding-top: 1.5em;
 }
 
