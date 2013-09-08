@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 36;
+use Test::More tests => 35;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -38,136 +38,124 @@ sub run_tests {
 
     # rename unamed unused userpic
     {
-        my $up = eval { LJ::Userpic->create($u, data => file_contents("good.jpg")); };
-        ok( $up, "created userpic: no keyword" );
-        my $pic_num_keyword = $up->keywords;
-        ok( $pic_num_keyword =~ /^\s*pic\#(\d+)\s*$/, "userpic has blank (pic\#num) keyword" );
-        $up->set_and_rename_keywords( "keyword", $pic_num_keyword );
-        my $new_keyword = $up->keywords;
-        ok( $new_keyword eq "keyword", "userpic now has keyword: keyword - $new_keyword" );
+        my $up_t1 = eval { LJ::Userpic->create($u, data => file_contents("good.jpg")); };
+        ok( $up_t1, "created userpic: no keyword" );
+        my $pic_num_keyword_t1 = $up_t1->keywords;
+        ok( $pic_num_keyword_t1 =~ /^\s*pic\#(\d+)\s*$/, "userpic has blank (pic\#num) keyword" );
+        $up_t1->set_and_rename_keywords( "keyword", $pic_num_keyword_t1 );
+        my $new_keyword_t1 = $up_t1->keywords;
+        ok( $new_keyword_t1 eq "keyword", "userpic now has keyword: keyword - $new_keyword_t1" );
 
         # rename second unamed unused userpic
         # check first userpic still renamed
-        my $up2 = eval { LJ::Userpic->create($u, data => file_contents("good.png")); };
-        ok( $up2, "created second userpic: no keyword" );
-        my $pic_num_keyword2 = $up2->keywords;
-        ok( $pic_num_keyword2 =~ /^\s*pic\#(\d+)\s*$/, "userpic 2 has blank keyword" );
-        $up2->set_and_rename_keywords( "keyword2", $pic_num_keyword2 );
-        my $new_keyword2 = $up2->keywords;
-        ok( $new_keyword2 eq "keyword2", "userpic 2 now has keyword: keyword2 - $new_keyword2" );
-        ok( $new_keyword eq "keyword", "userpic 1 still has keyword: keyword - $new_keyword" );
+        my $up2_t1 = eval { LJ::Userpic->create($u, data => file_contents("good.png")); };
+        ok( $up2_t1, "created second userpic: no keyword" );
+        my $pic_num_keyword2_t1 = $up2_t1->keywords;
+        ok( $pic_num_keyword2_t1 =~ /^\s*pic\#(\d+)\s*$/, "userpic 2 has blank keyword" );
+        $up2_t1->set_and_rename_keywords( "keyword2", $pic_num_keyword2_t1 );
+        my $new_keyword2_t1 = $up2_t1->keywords;
+        ok( $new_keyword2_t1 eq "keyword2", "userpic 2 now has keyword: keyword2 - $new_keyword2_t1" );
+        ok( $new_keyword_t1 eq "keyword", "userpic 1 still has keyword: keyword - $new_keyword_t1" );
 
-        $up->delete;
-        $up2->delete;
+        $up_t1->delete;
+        $up2_t1->delete;
     }
 
     # checking post and comments with renaming
     # rename userpic - check userpic still attached to post
     {
-        my $up = eval { LJ::Userpic->create($u, data => file_contents("good.jpg")); };
-        ok( $up, "created userpic: no keyword" );
-        my $pic_num_keyword = $up->keywords;
-        ok( $pic_num_keyword =~ /^\s*pic\#(\d+)\s*$/, "userpic has blank keyword" );
+        my $up_t2 = eval { LJ::Userpic->create($u, data => file_contents("good.jpg")); };
+        ok( $up_t2, "created userpic: no keyword" );
+        my $pic_num_keyword_t2 = $up_t2->keywords;
+        ok( $pic_num_keyword_t2 =~ /^\s*pic\#(\d+)\s*$/, "userpic has blank keyword" );
 
-        my %entry_props = ( picture_keyword=>$pic_num_keyword );
-        my %requests = ( tz => "guess", subject => "post subject", event => "test post", username=>$u->user, props=>\%entry_props );
-        my $req = \%requests;
-        my $err = 0;
-        my %flags = %{ delete $requests{flags} || {} };
-        my $res = LJ::Protocol::do_request( "postevent", $req, \$err, { noauth => 1, nocheckcap => 1, %flags } );
-        my $ditemid = $res->{'itemid'};
-        my $entry_obj = LJ::Entry->new( $u, jitemid => $ditemid );
-        my $initial_entry_keyword = $entry_obj->userpic_kw;
-        ok( $res, "successfully made a post ($ditemid) with keyword $pic_num_keyword = $initial_entry_keyword" );
+        my $entry_obj_t2 = $u->t_post_fake_entry;
+        $entry_obj_t2->set_prop( 'picture_mapid', $u->get_mapid_from_keyword( $pic_num_keyword_t2 ) );
+        my $entry_keyword_t2 = $entry_obj_t2->userpic_kw;
+        ok( $entry_obj_t2, "successfully made a post with keyword $pic_num_keyword_t2 - $entry_keyword_t2" );
 
-        $up->set_and_rename_keywords( "keyword", $pic_num_keyword );
-        my $new_keyword = $up->keywords;
-        ok( $new_keyword eq "keyword", "userpic now has keyword: keyword - $new_keyword" );
-        ok( $entry_obj, "re-accessed entry" );
-        my $entry_keyword = $entry_obj->userpic_kw;
-        ok( $entry_keyword eq "keyword", "entry now has keyword: keyword -  $entry_keyword" );
+        $up_t2->set_and_rename_keywords( "keyword", $pic_num_keyword_t2 );
+        my $new_keyword_t2 = $up_t2->keywords;
+        ok( $new_keyword_t2 eq "keyword", "userpic now has keyword: keyword - $new_keyword_t2" );
+        my $check_entry_keyword_t2 = $entry_obj_t2->userpic_kw;
+        ok( $check_entry_keyword_t2 eq "keyword", "entry now has keyword: keyword -  $check_entry_keyword_t2" );
         
 
         # make a comment with an unamed userpic
         # rename userpic - check userpic still attached to comment
 
-        my $up2 = eval { LJ::Userpic->create($u, data => file_contents("good.png")); };
-        ok( $up2, "created second userpic: no keyword" );
-        my $pic_num_keyword2 = $up2->keywords;
-        ok( $pic_num_keyword2 =~ /^\s*pic\#(\d+)\s*$/, "userpic 2 has blank keyword" );
+        my $up2_t2 = eval { LJ::Userpic->create($u, data => file_contents("good.png")); };
+        ok( $up2_t2, "created second userpic: no keyword" );
+        my $pic_num_keyword2_t2 = $up2_t2->keywords;
+        ok( $pic_num_keyword2_t2 =~ /^\s*pic\#(\d+)\s*$/, "userpic 2 has blank keyword" );
 
-	my $fake_comment = $entry_obj->t_enter_comment( u => $u );
-        ok( $fake_comment, "created a fake comment" );
+	my $fake_comment_t2 = $entry_obj_t2->t_enter_comment( u => $u );
+        ok( $fake_comment_t2, "created a fake comment" );
 
-        $fake_comment->set_prop( 'picture_mapid', $u->get_mapid_from_keyword($pic_num_keyword2) );
-	my $comment_kw = $fake_comment->userpic_kw;
-        ok( $comment_kw, "Comment has keyword $comment_kw" );
+        $fake_comment_t2->set_prop( 'picture_mapid', $u->get_mapid_from_keyword( $pic_num_keyword2_t2 ) );
+	my $comment_kw_t2 = $fake_comment_t2->userpic_kw;
+        ok( $comment_kw_t2, "Comment has keyword $comment_kw_t2" );
 
-        $up2->set_and_rename_keywords( "keyword2", $pic_num_keyword2 );
-        my $new_keyword2 = $up2->keywords;
-        ok( $new_keyword2 eq "keyword2", "userpic 2 now has keyword: keyword2 - $new_keyword2" );
-        my $comment_keyword = $fake_comment->userpic_kw;
-        ok( $comment_keyword eq "keyword2", "comment now has keyword: keyword2 - $comment_keyword" );
-        ok( $entry_keyword eq "keyword", "entry still has keyword: keyword -  $entry_keyword" );
+        $up2_t2->set_and_rename_keywords( "keyword2", $pic_num_keyword2_t2 );
+        my $new_keyword2_t2 = $up2_t2->keywords;
+        ok( $new_keyword2_t2 eq "keyword2", "userpic 2 now has keyword: keyword2 - $new_keyword2_t2" );
+        my $comment_keyword_t2 = $fake_comment_t2->userpic_kw;
+        ok( $comment_keyword_t2 eq "keyword2", "comment now has keyword: keyword2 - $comment_keyword_t2" );
+        my $entry_keyword2_t2 = $entry_obj_t2->userpic_kw;
+        ok( $entry_keyword2_t2 eq "keyword", "entry still has keyword: keyword -  $entry_keyword2_t2" );
 
-        my $dres = LJ::delete_entry($u, $ditemid);
-        ok($dres, "successfully deleted $ditemid");
-        $up->delete;
-        $up2->delete;
-
+        my $dres_t2 = LJ::delete_entry($u, $entry_obj_t2->jitemid);
+        ok($dres_t2, "successfully deleted entry");
+        $up_t2->delete;
+        $up2_t2->delete;
     }
+
 
     # posting and commenting where keywords are changed but not renamed
     # change usepic keyword without renaming - check userpic no longer attached to post
     {
-        my $up = eval { LJ::Userpic->create($u, data => file_contents("good.jpg")); };
-        ok( $up, "created userpic: no keyword" );
-        my $pic_num_keyword = $up->keywords;
-        ok( $pic_num_keyword =~ /^\s*pic\#(\d+)\s*$/, "userpic has blank keyword" );
+        my $up_t3 = eval { LJ::Userpic->create($u, data => file_contents("good.jpg")); };
+        ok( $up_t3, "created userpic: no keyword" );
+        my $pic_num_keyword_t3 = $up_t3->keywords;
+        ok( $pic_num_keyword_t3 =~ /^\s*pic\#(\d+)\s*$/, "userpic has blank keyword" );
 
-        my %entry_props = ( picture_keyword=>$pic_num_keyword );
-        my %requests = ( tz => "guess", subject => "post subject", event => "test post", username=>$u->user, props=>\%entry_props );
-        my $req = \%requests;
-        my $err = 0;
-        my %flags = %{ delete $requests{flags} || {} };
-        my $res = LJ::Protocol::do_request( "postevent", $req, \$err, { noauth => 1, nocheckcap => 1, %flags } );
-        my $ditemid = $res->{'itemid'};
-        ok( $res, "successfully made a post ($ditemid) with keyword $pic_num_keyword" );
+        my $entry_obj_t3 = $u->t_post_fake_entry;
+        $entry_obj_t3->set_prop( 'picture_mapid', $u->get_mapid_from_keyword( $pic_num_keyword_t3 ) );
+        my $entry_keyword3_t3 = $entry_obj_t3->userpic_kw;
+        ok( $entry_obj_t3, "successfully made a post with keyword $pic_num_keyword_t3 - $entry_keyword3_t3" );
 
-        $up->set_keywords( "keyword", $pic_num_keyword );
-        my $new_keyword = $up->keywords;
-        ok( $new_keyword eq "keyword", "userpic now has keyword: keyword - $new_keyword" );
-        my $entry_obj = LJ::Entry->new( $u, jitemid => $ditemid );
-        my $entry_keyword = $entry_obj->userpic_kw;
-        ok( $entry_keyword eq $pic_num_keyword, "entry still has pic num keyword: $entry_keyword" );
+        $up_t3->set_keywords( "keyword", $pic_num_keyword_t3 );
+        my $new_keyword_t3 = $up_t3->keywords;
+        ok( $new_keyword_t3 eq "keyword", "userpic now has keyword: keyword - $new_keyword_t3" );
+        ok( $entry_keyword3_t3 eq $pic_num_keyword_t3, "entry still has pic num keyword: $entry_keyword3_t3" );
         
         # make a comment with an unamed userpic
         # change userpic keyword without renaming - check userpic no longer attached to comment
 
-        my $up2 = eval { LJ::Userpic->create($u, data => file_contents("good.png")); };
-        ok( $up2, "created second userpic: no keyword" );
-        my $pic_num_keyword2 = $up2->keywords;
-        ok( $pic_num_keyword2 =~ /^\s*pic\#(\d+)\s*$/, "userpic 2 has blank keyword" );
+        my $up2_t3 = eval { LJ::Userpic->create($u, data => file_contents("good.png")); };
+        ok( $up2_t3, "created second userpic: no keyword" );
+        my $pic_num_keyword2_t3 = $up2_t3->keywords;
+        ok( $pic_num_keyword2_t3 =~ /^\s*pic\#(\d+)\s*$/, "userpic 2 has blank keyword" );
 
-	my $fake_comment = $entry_obj->t_enter_comment( u=>$u );
-        ok( $fake_comment, "created a fake comment" );
+	my $fake_comment_t3 = $entry_obj_t3->t_enter_comment( u=>$u );
+        ok( $fake_comment_t3, "created a fake comment" );
 
-        $fake_comment->set_prop( 'picture_mapid', $u->get_mapid_from_keyword($pic_num_keyword2) );
-	my $comment_kw = $fake_comment->userpic_kw;
-        ok( $comment_kw, "Comment has keyword $comment_kw" );
+        $fake_comment_t3->set_prop( 'picture_mapid', $u->get_mapid_from_keyword( $pic_num_keyword2_t3 ) );
+	my $comment_kw_t3 = $fake_comment_t3->userpic_kw;
+        ok( $comment_kw_t3, "Comment has keyword $comment_kw_t3" );
 
-        $up2->set_keywords("keyword2", $pic_num_keyword2);
-        my $new_keyword2 = $up2->keywords;
-        ok( $new_keyword2 eq "keyword2", "userpic 2 now has keyword: keyword2 - $new_keyword2" );
-        my $comment_keyword = $fake_comment->userpic_kw;
-        ok( $comment_keyword eq $pic_num_keyword2, "comment still has pic num keyword: $comment_keyword" );
-        ok( $entry_keyword eq $pic_num_keyword, "entry still has pic num keyword: $entry_keyword" );
+        $up2_t3->set_keywords( "keyword2", $pic_num_keyword2_t3 );
+        my $new_keyword2_t3 = $up2_t3->keywords;
+        ok( $new_keyword2_t3 eq "keyword2", "userpic 2 now has keyword: keyword2 - $new_keyword2_t3" );
+        my $comment_keyword_t3 = $fake_comment_t3->userpic_kw;
+        ok( !$comment_keyword_t3, "comment still has no keyword" );
+        ok( $entry_keyword3_t3 eq $pic_num_keyword_t3, "entry still has pic num keyword: $entry_keyword3_t3" );
 
-        my $dres = LJ::delete_entry($u, $ditemid);
-        ok( $dres, "successfully deleted $ditemid" );
+        my $dres = LJ::delete_entry($u, $entry_obj_t3->jitemid);
+        ok( $dres, "successfully deleted entry" );
 
-        $up->delete;
-        $up2->delete;
+        $up_t3->delete;
+        $up2_t3->delete;
     }
 }
 
