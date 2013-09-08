@@ -8,9 +8,16 @@ set layout_type = "three-columns-sides";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set userpics_position = "right";
 
-propgroup colors_child {
+##===============================
+## Colors
+##===============================
 
+propgroup colors_child {
     property use color_page_details_text;
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
 }
 
 set color_page_details_text = "#999";
@@ -182,9 +189,13 @@ function print_stylesheet () {
                 }
 
             .module-navlinks ul li a {
+                color: $*color_header_link;
                 font-size: small;
                 padding: .15em .5em;
                 }
+            .module-navlinks a:visited { color: $*color_header_link_visited; }
+            .module-navlinks a:hover { color: $*color_header_link_hover; }
+            .module-navlinks a:active { color: $*color_header_link_active; }
             """;
         }
         else {

@@ -190,14 +190,6 @@ userproplist.disable_comm_promo:
   multihomed: 0
   prettyname: Administratively disable community promo features for a user
 
-userproplist.dismissed_page_notices:
-  cldversion: 4
-  datatype: char
-  des: Comma-separated list of defined keys for page notices that the user has seen and dismissed
-  indexed: 0
-  multihomed: 0
-  prettyname: Dismissed Page Notices
-
 userproplist.dogeartime:
   cldversion: 4
   datatype: num
@@ -1310,6 +1302,11 @@ userproplist.yahoo:
   multihomed: 1
   prettyname: Yahoo ID
 
+talkproplist.admin_post:
+  datatype: bool
+  des: Set to true if this is an official community administrator post.
+  prettyname: Administrator post
+
 talkproplist.edit_reason:
   datatype: char
   des: Reason for the last edit.
@@ -1374,6 +1371,14 @@ talkproplist.useragent:
   datatype: char
   des: Name of web/mobile/sip/etc client used to post
   prettyname: User Agent
+
+logproplist.admin_post:
+  datatype: bool
+  des: Set to true if this is an official community administrator post.
+  prettyname: Administrator post
+  datatype: bool
+  sortorder: 99
+  ownership: user
 
 logproplist.adult_content:
   datatype: char
@@ -1614,3 +1619,23 @@ pollproplist2.unique:
 
 pollproplist2.createdate:
   des: The voter must have created their account by the date specified (Pacific time) in order to vote.  Must be in format YYYY-MM-DD, otherwise there will be no restriction.
+
+media_prop_list.title:
+  des: Title of this object
+  prettyname: Title
+  ownership: user
+
+media_prop_list.description:
+  des: Long description of this object
+  prettyname: Description
+  ownership: user
+
+media_prop_list.alttext:
+  des: Alternative Text
+  prettyname: Alt Text
+  ownership: user
+
+media_prop_list.source:
+  des: Source
+  prettyname: Source
+  ownership: user

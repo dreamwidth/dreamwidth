@@ -39,8 +39,6 @@
 
 .save_changes=Save Changes
 
-.stock.answers=Stock Answers
-
 .subject=Subject:
 
 .unable.allocate.counter=Unable to allocate counter. Please try again.

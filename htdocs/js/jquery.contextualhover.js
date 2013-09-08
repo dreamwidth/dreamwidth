@@ -291,6 +291,10 @@ _renderPopup: function() {
         }
     }
 
+    if ( ( data.is_person || data.is_comm ) && ! data.is_requester && data.can_receive_vgifts ) {
+        this._addAction( data.url_vgift, "Send virtual gift" );
+    }
+
     if ( data.is_logged_in && ! data.is_requester ) {
         if ( ! data.is_trusting ) {
             if ( data.is_person || data.other_is_identity ) {
@@ -307,11 +311,6 @@ _renderPopup: function() {
         } else if ( data.is_watching ) {
             this._addAction( data.url_addwatch, "Remove subscription", "removeWatch" );
         }
-    }
-
-    // FIXME: double-check this when vgifts come out
-    if ( ( data.is_person || data.is_comm ) && ! data.is_requester && data.can_receive_vgifts ) {
-        this._addAction( Site.siteroot + "/shop/vgift?to=" + data.username, "Send a virtual gift" );
     }
 
     if ( data.is_logged_in && ! data.is_requester && ! data.is_syndicated ) {
@@ -364,6 +363,17 @@ _changeRelation: function($link) {
                 target: info.username,
                 action: action,
                 auth_token: info[action+"_authtoken"]
+            },
+
+            beforeSend: function ( jqxhr, data ) {
+                if ( action == "setBan" || action == "setUnban" ) {
+                    var username = info.username;
+                    var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
+                                                       : "Are you sure you wish to ban " + username + "?";
+                    if ( confirm( message ) ) {
+                        return action;
+                    } else { return false };
+                  };
             },
 
             success: function( data, status, jqxhr ) {

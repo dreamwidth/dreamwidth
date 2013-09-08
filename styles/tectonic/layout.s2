@@ -61,11 +61,12 @@ set modules_per_row = "24%";
 ##===============================
 
 propgroup colors_child {
-    property Color color_header_links { des = "Page header link color"; }
-    property Color color_header_links_hover { des = "Page header link hover color"; }
-    property Color color_header_links_active { des = "Page header link active color"; }
-    property Color color_header_links_visited { des = "Page header link visited color"; }
+    # Used instead of color_header_link:
     property Color color_header_links_background { des = "Page header link background color"; }
+    property Color color_header_links { des = "Page header link color"; }
+    property Color color_header_links_active { des = "Page header link active color"; }
+    property Color color_header_links_hover { des = "Page header link hover color"; }
+    property Color color_header_links_visited { des = "Page header link visited color"; }
     property Color color_header_links_border { des = "Page header link border color"; }
     property Color color_header_links_border_hover { des = "Page header link hover border color"; }
     property Color color_module_list_border { des = "Module list items border color"; }
@@ -84,11 +85,8 @@ propgroup colors_child {
     property Color color_calendar_link_visited { des = "Archive calendar link visited color"; }
     property Color color_entry_footer_background { des = "Entry footer background color"; }
     property Color color_entry_interaction_links_background { des = "Entry interaction links background color"; }
-    property Color color_entry_interaction_links_hover { des = "Entry interaction link hover color"; }
     property Color color_entry_interaction_links_background_hover { des = "Entry interaction links hover background color"; }
-    property Color color_entry_interaction_links_active { des = "Entry interaction link active color"; }
     property Color color_entry_interaction_links_background_active { des = "Entry interaction links active background color"; }
-    property Color color_entry_interaction_links_visited { des = "Entry interaction link visited color"; }
     property Color color_entry_interaction_links_background_visited { des = "Entry interaction links visited background color"; }
     property Color color_userpic_border { des = "User icon border color"; }
     }
@@ -323,6 +321,8 @@ function print_stylesheet () {
             .has-userpic .entry-content, .has-userpic .metadata, .has-userpic .tag{
                 margin-right: $entry_margin;}
 
+            .has-userpic .poster {padding-left: 1em;}
+
             .has-userpic .comment-content {margin-right: $comment_margin;}
             """;
         }
@@ -365,8 +365,8 @@ function print_stylesheet () {
 
             .module-navlinks a {font-size: smaller; color: $*color_header_links}
             .module-navlinks a:visited {font-size: smaller; color: $*color_header_links_visited}
-            .module-navlinks a:active {font-size: smaller; color: $*color_header_links_active}
             .module-navlinks a:hover {color: $*color_header_links_hover; text-decoration:none;}
+            .module-navlinks a:active {font-size: smaller; color: $*color_header_links_active}
             """;
         }
 
@@ -470,16 +470,6 @@ h2#subtitle {
 
 .navigation.empty {
     display: none;
-    }
-
-.page-read .navigation.empty {
-    display: block;
-    padding: 1em;
-    }
-
-.page-read .navigation.empty ul, .page-read .navigation.empty ul li {
-    margin: 0;
-    padding: 0;
     }
 
 .page-read .noentries {
@@ -724,6 +714,8 @@ textarea.textbox {
     margin: 0;
     padding: 0;
 }
+
+.no-userpic .comment-poster { padding-left: 1em;}
 
 table.talkform {
     margin: 0 0 .5em 0;

@@ -562,13 +562,13 @@ function Page::print_default_stylesheet()
         background: $*color_page_background;
         margin-bottom: 5px;
         border: 1px solid $*color_module_border;
+        text-align: center;
     }
 
     .friends-color-wrapper .poster,
     .comment-userpic .poster {
        display: block;
        width: auto;
-       text-align: center;
        font-size: .9em;
     }
 
@@ -578,7 +578,7 @@ function Page::print_default_stylesheet()
         padding: 0px;
     }
 
-    .friends-color-wrapper .ljuser {
+    .friends-color-wrapper .ljuser, .comment-userpic .ljuser {
         display: block;
     }
     /* Calendar

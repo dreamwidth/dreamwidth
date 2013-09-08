@@ -20,6 +20,7 @@ use Storable;
 use Getopt::Long;
 use B;
 use Pod::Usage;
+use List::Util qw/sum/;
 
 # IMPORTANT!
 #
@@ -42,6 +43,7 @@ my $regex = 0;
 my $string = 0;
 
 my $help = 0;
+my $regen = 0;
 
 # these are for the "patched" method.
 my $the_caller;
@@ -54,12 +56,14 @@ my $result = GetOptions(
     "role=s"  => \$role,      # role
     "app"     => sub { $role = 'app' },
     "user"    => sub { $role = 'user' },
+    "api"     => sub { $role = 'api' },
     "stats"   => \$stats,
     "verbose" => \$verbose,
     "list"    => \$list,
     "regex"   => \$regex,
     "string"  => \$string,
     "help"    => \$help,
+    "regen"   => \$regen,
 );
 
 my $ct = 0;
@@ -72,11 +76,11 @@ if ( $help || $ct > 1 ) {
     exit();
 }
 
-my @all_roles = ( 'app', 'user' );
+my @all_roles = ( 'app', 'user', 'api' );
 my $data = undef;
 my $cache_file = $HOME . "/logs/.cached_routing";
 #              YYYYMMDDVVV
-my $version = "20130625001";
+my $version = "20130726001";
 my $dirty = 1;
 
 if ( -e $cache_file ) {
@@ -84,7 +88,7 @@ if ( -e $cache_file ) {
     $dirty = ! verify_cache();
 }
 
-if ( $dirty ) {
+if ( $dirty || $regen ) {
     $data = load_cache( $version );
     Storable::nstore( $data, $cache_file );
 }
@@ -115,28 +119,15 @@ if ( $list ) {
                 print_for_hash($choice,undef,$role);
             }
         }
+        print " -- Also all in api role, prepended with '/api'\n" if $role eq 'app';
         print "\n\n\n" if $ct;
     }
 } elsif ( $stats ) {
-    my $cts = $data->{stats}->{string};
-    my $ct = scalar keys %{ $data->{string} };
-    my $tct = $ct;
-
     print "String routing table:\n";
-    print_stats_for( $ct, $cts );
-
-    $ct = 0;
-    $cts = {};
-    foreach my $role ( keys %{ $data->{regex} } ) {
-        my $cur = scalar @{ $data->{regex}->{$role} };
-        next if ! $cur;
-        $cts->{$role} = $cur;
-        $ct += $cur;
-    }
-    $tct += $ct;
+    my $tct = print_stats_for( $data->{stats}->{string} );
 
     print "Regex routing table:\n";
-    print_stats_for( $ct, $cts );
+    $tct += print_stats_for( $data->{stats}->{regex} );
 
     printf "Total entries: %i\n", $tct;
 } else {
@@ -152,11 +143,15 @@ sub help {
 }
 
 sub print_stats_for {
-    my ( $ct, $cts ) = @_;
+    my ( $cts, $prefix ) = @_;
 
-    printf("    %4i - %s\n", $cts->{$_}, $_)
+    $prefix //= "";
+
+    printf("    %4i - %s\n", $cts->{$_}, "$prefix$_")
         foreach ( sort { $cts->{$b} <=> $cts->{$a} } keys %$cts );
-    printf("    %4i - TOTAL\n", $ct);
+    my $tct = sum values %$cts;
+    printf("    %4i - TOTAL\n", $tct );
+    return $tct;
 }
 
 # This is duplicated code from DW::Routing
@@ -167,6 +162,12 @@ sub run_lookup {
 
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
+
+    if ( $uri =~ m!^/api(/.+)$! && $role eq 'app' ) {
+        print " -- Assuming API role\n";
+        $role = 'api';
+        $uri = $1;
+    }
 
     my $hash = $data->{string}->{$role . $uri};
     if ( defined $hash ) {
@@ -257,6 +258,11 @@ sub print_for_hash {
             print " * Enabled for formats: " . join(", ",( sort keys %{$hash->{formats}} )) . "\n";
         }
         print " * Enabled For: " . join(", ",(grep { $_ } map { $_ if $hash->{$_} } @all_roles)) . "\n";
+
+        if ( scalar @{ $hash->{api_versions} // [] } ) {
+            print " * API Versions: " . join(", ",sort @{ $hash->{api_versions} }) . "\n";
+        }
+
         if ( $hash->{regex} && $args ) {
             print " * Regex: $hash->{regex}\n";
             print " * Matched Subpatterns:\n";
@@ -324,6 +330,8 @@ sub data_for_hash {
     foreach my $key ( @all_roles, qw(hash format formats) ) {
         $data->{$key} = $hash->{$key} if exists $hash->{$key};
     }
+
+    $data->{api_versions} = $hash->{api_versions};
 
     $data->{caller} = $hash->{__caller};
     $data->{internal} = $hash->{__internal};
@@ -415,7 +423,8 @@ sub load_cache {
 
     $data->{changed} = { map { $_ => get_mtime("$HOME/$_") } @all_files };
 
-    my %str_choices = %DW::Routing::string_choices;
+    my %str_choices   = %DW::Routing::string_choices;
+    my %regex_choices = %DW::Routing::regex_choices;
 
     foreach my $role ( @all_roles ) {
         my @regex_data = ();
@@ -424,8 +433,9 @@ sub load_cache {
             $data->{string}->{$key} = data_for_hash($str_choices{$key},$path,$role);
             $data->{stats}->{string}->{$role}++;
         }
-        foreach my $choice ( sort { $a->{regex} cmp $b->{regex} } @{ $DW::Routing::regex_choices{$role} } ) {
+        foreach my $choice ( sort { $a->{regex} cmp $b->{regex} } @{ $regex_choices{$role} || [] } ) {
             push @regex_data, data_for_hash($choice,undef,$role);
+            $data->{stats}->{regex}->{$role}++;
         }
         $data->{regex}->{$role} = \@regex_data;
     }
@@ -470,10 +480,12 @@ sub patch_wrap {
 sub patch_routing_methods {
     *DW::Routing::register_string = patch_wrap( \&DW::Routing::register_string );
     *DW::Routing::register_regex = patch_wrap( \&DW::Routing::register_regex );
+    *DW::Routing::register_api_endpoint = patch_wrap( \&DW::Routing::register_api_endpoint );
 
     *DW::Routing::register_static = patch_wrap( \&DW::Routing::register_static, 1 );
     *DW::Routing::register_redirect = patch_wrap( \&DW::Routing::register_redirect, 1 );
     *DW::Routing::register_rpc = patch_wrap( \&DW::Routing::register_rpc, 1 );
+    *DW::Routing::register_api_endpoints = patch_wrap( \&DW::Routing::register_api_endpoints, 1 );
 
     my $orig_apply = \&DW::Routing::_apply_defaults;
     *DW::Routing::_apply_defaults = sub {
@@ -490,11 +502,12 @@ lookup-routing - Look up the file of the controller which handles a particular U
 
 =head1 SYNOPSIS
 
- lookup-routing [--role=app|user|all | --app | --user ] (--list)
+ lookup-routing [--role=app|user|api|all | --app | --user | --api ] (--list)
                 [--regex | --string] (--list)
                 [--help]
                 [--verbose]
                 --list | --stats | <PATH>
+                --regen
 
 At least one of C<--list>, C<--stats>, or C<<PATH>> is required. All other arguments are optional. Examples:
 
@@ -534,6 +547,10 @@ Same as C<--role=app>
 
 Same as C<--role=user>
 
+=item B<--api>
+
+Same as C<--role=api>
+
 =item B<--regex>
 
 Filter the list down to handlers which match using regex
@@ -563,6 +580,10 @@ Print out more detailed help and path information
 =item B<--help>
 
 This help message
+
+=item B<--regen>
+
+Force regenerate cache
 
 =back
 

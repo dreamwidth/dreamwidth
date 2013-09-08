@@ -73,12 +73,19 @@ sub as_html_actions {
     my ($self) = @_;
 
     my $journalurl = $self->bdayuser->journal_base;
+    my $journaltext = LJ::Lang::ml( 'esn.bday.act.viewjournal' );
     my $pmurl = $self->bdayuser->message_url;
+    my $pmtext = LJ::Lang::ml( 'esn.bday.act.sendmsg' );
     my $gifturl = $self->bdayuser->gift_url;
+    my $gifttext = LJ::Lang::ml( 'esn.bday.act.givepaid' );
+    my $vgifturl = $self->bdayuser->virtual_gift_url;
+    my $vgifttext = LJ::Lang::ml( 'esn.bday.act.givevgift' );
+
     my $ret .= "<div class='actions'>";
-    $ret .= "<a href='$journalurl'>View Journal</a>";
-    $ret .= " | <a href='$pmurl'>Send a Message</a>";
-    $ret .= " | <a href='$gifturl'>Send a Gift</a>";
+    $ret .= "<a href='$journalurl'>$journaltext</a>";
+    $ret .= " | <a href='$pmurl'>$pmtext</a>";
+    $ret .= " | <a href='$gifturl'>$gifttext</a>";
+    $ret .= " | <a href='$vgifturl'>$vgifttext</a>" if exists $LJ::SHOP{vgifts};
     $ret .= "</div>";
 
     return $ret;
@@ -145,7 +152,8 @@ sub _as_email {
                 'esn.post_happy_bday'       => [ 1, "$LJ::SITEROOT/update" ],
                 'esn.go_journal_happy_bday' => [ 2, $self->bdayuser->journal_base ],
                 'esn.pm_happy_bday'         => [ 3, $self->bdayuser->message_url ],
-                'esn.shop_for_gift'         => [ LJ::is_enabled( 'payments' ) ? 4 : 0, $self->bdayuser->gift_url ],
+                'esn.shop_for_paid_time'    => [ LJ::is_enabled( 'payments' ) ? 4 : 0, $self->bdayuser->gift_url ],
+                'esn.shop_for_virtual_gift' => [ exists $LJ::SHOP{vgifts} ? 5 : 0, $self->bdayuser->virtual_gift_url ],
             },
             LJ::Hooks::run_hook('birthday_notif_extra_' . ($is_html ? 'html' : 'plaintext'), $u)
         );
@@ -167,11 +175,11 @@ sub subscription_as_html {
     my ($class, $subscr) = @_;
     my $journal = $subscr->journal;
 
-    return BML::ml('event.birthday.me') # "One of the people on my access or subscription lists has an upcoming birthday"
+    return LJ::Lang::ml('event.birthday.me') # "One of the people on my access or subscription lists has an upcoming birthday"
         unless $journal;
 
     my $ljuser = $journal->ljuser_display;
-    return BML::ml('event.birthday.user', { user => $ljuser } ); # "$ljuser\'s birthday is coming up";
+    return LJ::Lang::ml('event.birthday.user', { user => $ljuser } ); # "$ljuser\'s birthday is coming up";
 }
 
 sub content {

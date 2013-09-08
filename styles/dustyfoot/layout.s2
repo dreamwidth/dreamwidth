@@ -24,10 +24,10 @@ set custom_control_strip_colors = "on_no_gradient";
 
 propgroup colors_child {
     property Color color_entry_date { des = "Entry/Comment date color"; }
-    property Color color_header_link { des = "Header link color"; }
-    property Color color_header_link_active { des = "Header link active color"; }
-    property Color color_header_link_visited { des = "Header link visited color"; }
-    property Color color_header_link_hover { des = "Header link hover color"; }
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_visited;
+    property use color_header_link_hover;
 }
 
 ##===============================

@@ -351,6 +351,8 @@ class EntryLite
     var readonly bool hide_children "Indicates we are hiding the children of this comment";
     var readonly string echi "The Explicit Comment Hierarchy Indicator, if enabled by user.";
 
+    var readonly bool admin_post "Indicates if this is an official post to this community";
+
     function print_wrapper_start() "Start the wrapper for this entry or comment; includes anchor and classes";
     function print_wrapper_end() "End the wrapper for this entry or comment.";
     function print_metatypes() "Print the metatype icons for this entry (security, age restriction) or comment (subject icon)";
@@ -371,6 +373,8 @@ class EntryLite
     function print_subject () [fixed] "Print the formatted subject for this entry or comment";
     function print_subject (string{} opts) [fixed] "Print the formatted subject for this entry or comment, gets hash of attributes - class and(or) style ";
     function print_poster () "Print the poster of the entry or comment (user or user in journal, etc)";
+
+    function print_admin_post_icon () "prints the icon into the subject line";
 }
 
 class Entry extends EntryLite
@@ -1495,10 +1499,10 @@ property Color color_entry_link_visited { des = "Entry visited link color"; }
 property Color color_entry_title_background { des = "Entry title background color"; }
 property Color color_entry_title { des = "Entry title color"; }
 property Color color_entry_interaction_links_background { des = "Entry interaction links background color"; }
-property Color color_entry_interaction_links { des = "Entry interaction links color"; }
-property Color color_entry_interaction_links_active { des = "Entry active interaction links color"; }
-property Color color_entry_interaction_links_hover { des = "Entry hover interaction links color"; }
-property Color color_entry_interaction_links_visited { des = "Entry visited interaction links color"; }
+property Color color_entry_interaction_links { des = "Entry footer links color"; }
+property Color color_entry_interaction_links_active { des = "Entry active footer links color"; }
+property Color color_entry_interaction_links_hover { des = "Entry hover footer links color"; }
+property Color color_entry_interaction_links_visited { des = "Entry visited footer links color"; }
 property Color color_entry_border { des = "Entry border color"; }
 
 property Color color_comment_title_background { des = "Comment title background color"; }
@@ -2316,6 +2320,8 @@ property string text_tags {
 }
 
 property string text_stickyentry_subject { des = "Text that appears before the subject of the sticky entry"; }
+property string text_admin_post_subject { des = "Text that appears before the subject of a administrator post"; }
+property string text_admin_post_note { des = "Text that appears before the subject of a administrator post"; }
 
 set text_meta_groups = "Custom Access Groups:";
 set text_meta_location = "Current Location:";
@@ -2324,6 +2330,8 @@ set text_meta_music = "Current Music:";
 set text_meta_xpost = "Crossposts:";
 set text_tags = "Tags:";
 set text_stickyentry_subject = "Sticky:";
+set text_admin_post_subject = "Admin Post: ";
+set text_admin_post_note = "as admin";
 
 ##=======================================
 ## Display properties - Text
@@ -2739,6 +2747,7 @@ property string text_icon_alt_groups    { noui = 1; des = "Alternative text for 
 property string text_icon_alt_nsfw      { noui = 1; des = "Alternative text for icons of NSFW entries"; }
 property string text_icon_alt_18        { noui = 1; des = "Alternative text for icons of 18+ entries"; }
 property string text_icon_alt_sticky_entry        { noui = 1; des = "Alternative text for icons of sticky entries"; }
+property string text_icon_alt_admin_post        { noui = 1; des = "Alternative text for icons of administrator posts"; }
 
 property string text_posting_in {
     des = "Text when user is posting in a community";
@@ -2891,6 +2900,7 @@ set text_icon_alt_groups = "[custom friends groups post]";
 set text_icon_alt_nsfw = "[NSFW]";
 set text_icon_alt_18 = "[18+]";
 set text_icon_alt_sticky_entry = "[sticky entry]";
+set text_icon_alt_admin_post = "[admin post]";
 
 set text_posting_in = " posting in ";
 
@@ -4243,6 +4253,7 @@ function print_module_pagesummary_comments(string esubject, int count, string pr
 function print_module_pagesummary() {
     var Page p = get_page();
     var string[] links = [];
+    var Image admin_post_image = get_image("admin-post");
 
     if ( $p isa EntryPage ) {
         var EntryPage cp = $p as EntryPage;
@@ -4251,7 +4262,9 @@ function print_module_pagesummary() {
                 var int count = print_module_pagesummary_comment_count($c);
                 var string comment_display = print_module_pagesummary_comments($c.subject, $count, "text_read_comments_threads", "");
                 var string poster = isnull $c.poster ? $*text_poster_anonymous : $c.poster->ljuser();
-                $links[size $links] = """<span class="pagesummary-poster">$poster</span> - <span class="pagesummary-subject"><a href="#$c.anchor" $comment_display""";
+                var string prefix_icon = $c.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+
+                $links[size $links] = """<span class="pagesummary-poster">$poster</span> - <span class="pagesummary-subject">$prefix_icon<a href="#$c.anchor" $comment_display""";
             }
         }
     }
@@ -4267,7 +4280,9 @@ function print_module_pagesummary() {
                 $poster = "$poster in <span class='pagesummary-community'>$e.journal</span>";
             }
 
-            $links[size $links] = """$poster - <span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
+            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+
+            $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
         }
     }
 
@@ -4278,11 +4293,13 @@ function print_module_pagesummary() {
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
 
+            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+
             if ( not $e.poster->equals($e.journal) ) {
-                $links[size $links] = """$poster - <span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
+                $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
             }
             else {
-                $links[size $links] = """<span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
+                $links[size $links] = """<span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
             }
         }
     }
@@ -4293,12 +4310,13 @@ function print_module_pagesummary() {
             var string comment_display =
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
+            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
 
             if ( not $e.poster->equals($e.journal) ) {
-                $links[size $links] = """$poster - <span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
+                $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
             }
             else {
-                $links[size $links] = """<span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
+                $links[size $links] = """<span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
             }
         }
     }
@@ -4882,7 +4900,14 @@ function Comment::print_poster() {
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
     if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
 
-    print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster</span>\n";
+    print safe "<span class=\"poster comment-poster\"><span class=\"comment-from-text\">$*text_comment_from</span> $poster";
+    if ( $this.admin_post ) {
+        """ <span class="admin-poster">(""";
+        $this->print_admin_post_icon();
+        print $*text_admin_post_note;
+        """)</span>""";
+    }
+    """</span>\n""";
 }
 
 
@@ -4992,13 +5017,23 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
         if ($this isa StickyEntry) {
             var StickyEntry s = $this as StickyEntry;
             """<h3 class="sticky-entry-title entry-title">""";
+            if ( $this.admin_post ) {
+                $this->print_admin_post_icon();
+            }
             $s->print_sticky_icon();
+            if ( $this.admin_post ) {
+                print $*text_admin_post_subject;
+            }
             if ($*text_stickyentry_subject != "") { print $*text_stickyentry_subject + " "; }
             print $this->formatted_subject( $opts );
             "</h3>";
         }
         else {
             """<h3 class="entry-title">""";
+            if ( $this.admin_post ) {
+                $this->print_admin_post_icon();
+                print $*text_admin_post_subject;
+            }
             print $this->formatted_subject( $opts );
             "</h3>";
         }
@@ -5008,6 +5043,14 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
 function StickyEntry::print_sticky_icon() {
     """<span class="sticky-entry-icon">""";
     $this.sticky_entry_icon->print($*text_icon_alt_sticky_entry);
+    """</span>\n""";
+}
+
+function EntryLite::print_admin_post_icon() {
+    var Image img = get_image("admin-post");
+
+    """<span class="admin-post-icon">""";
+    $img->print($*text_icon_alt_admin_post);
     """</span>\n""";
 }
 
@@ -5022,6 +5065,8 @@ function Entry::print_wrapper_start() {
     var string journal_type = "journal-type-$this.journal.journal_type";
     var string poster;
     var string journal;
+    var string mod_post = $this.admin_post ? "admin-post" : "";
+
     if ($this.journal.journal_type != "I") {
         $poster = clean_css_classname( "poster-$this.poster.username" );
         $journal = clean_css_classname( "journal-$this.journal.username" );
@@ -5032,7 +5077,7 @@ function Entry::print_wrapper_start() {
 
     #additional classes for sticky entries added
     if ($this isa StickyEntry) {
-        """<div class="sticky-entry-wrapper entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic $entrysubject" id="sticky-entry-wrapper-$this.itemid">\n""";
+        """<div class="sticky-entry-wrapper entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic $mod_post $entrysubject" id="sticky-entry-wrapper-$this.itemid">\n""";
         """<div class="separator separator-before"><div class="inner"></div></div>\n""";
         """<div class="sticky-entry entry" id="sticky-entry-$this.itemid">\n""";
     }
@@ -5043,6 +5088,7 @@ function Entry::print_wrapper_start() {
     }
     """<div class="inner">\n""";
 }
+
 function Comment::print_wrapper_start() {
     var EntryPage ep = get_page() as EntryPage;
     var string alternate = alternate ("comment-wrapper-odd", "comment-wrapper-even");
@@ -5053,6 +5099,8 @@ function Comment::print_wrapper_start() {
     var string poster = defined $this.poster ? "poster-" + $this.poster.user : "poster-anonymous";
     if ($this.deleted or $this.fromsuspended or $this.screened_noshow) { $poster =  "poster-hidden"; }
     var string full = $this.full ? "full" : "partial";
+    var string mod_post = $this.admin_post ? "admin-post" : "";
+
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
     var bool commenthassubject = ($.screened or $.frozen or $.echi != "" or $.subject != "") ? true : false;
     var string commentsubject = (not $*all_commentsubjects and not $commenthassubject and $.full) ? "no-subject" : "has-subject";
@@ -5060,7 +5108,7 @@ function Comment::print_wrapper_start() {
     if (not isnull $ep and defined $this.poster and $this.poster.username == $ep.entry.poster.username) {
         $entryauthor = "entry-author";
     }
-    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $suspendedstate $poster $entryauthor $full $userpic $commentsubject">\n""";
+    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $suspendedstate $poster $entryauthor $full $userpic $mod_post $commentsubject">\n""";
     """<div class="separator separator-before"><div class="inner"></div></div>\n""";
     """<div class="comment" id="comment-$this.dom_id">\n""";
     """<div class="inner">\n""";
@@ -5088,15 +5136,15 @@ function Entry::print_metadata() {
         var string position = ($*entry_metadata_position == "top") ? " top-metadata" : " bottom-metadata";
         """<div class="metadata$position">\n<ul>\n""";
         foreach var string m ( [ "mood", "location", "music", "groups", "xpost" ] ) {
-            if ($.metadata{$m}) {
+                if ($.metadata{$m}) {
                 var string metadata_name = lang_metadata_title($m);
-                """<li><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
+                """<li id="metadata-$m"><span class="metadata-label metadata-label-$m">$metadata_name</span> """;
                 if ($m == "mood") {
                     " $.mood_icon ";
                 }
                 """<span class="metadata-item metadata-item-$m">$.metadata{$m}</span></li>\n""";
             }
-        }
+         }
         "</ul>\n</div>\n";
     }
 }
@@ -5403,26 +5451,31 @@ function RecentPage::print_body {
 }
 
 function RecentPage::print_navigation( string{} opts ) [fixed] {
-    var bool empty = $.nav.backward_url == "" and $.nav.forward_url == "";
-    var string emptyclass = $empty ? "empty" : "";
+    var bool noentries = $this isa FriendsPage and $.nav.backward_url == "" and $opts{"class"} == "bottomnav";
+    # Navigation is empty if there are no links or text to show
+    var bool empty = $.nav.backward_url == "" and $.nav.forward_url == "" and not $noentries;
+    var string emptyclass = $empty ? " empty" : "";
     """
-    <div class="navigation $opts{"class"} $emptyclass">
+    <div class="navigation $opts{"class"}$emptyclass">
         <div class="inner">
     """;
 
-    if ( not $empty ) { "<ul>"; }
-    if ( $.nav.backward_url != "" ) {
-        print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
+    if (not $empty) {
+        if ( $.nav.backward_url != "" or $.nav.forward_url != "" ) {
+            "<ul>";
+            if ( $.nav.backward_url != "" ) {
+                print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
+            }
+            if ( $.nav.backward_url != "" and $.nav.forward_url != "" ) {
+                print safe """<li class="page-separator">$*text_default_separator</li>""";
+            }
+            if ( $.nav.forward_url != "" ) {
+                print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
+            }
+            "</ul>";
+        }
     }
-    if ( $.nav.backward_url != "" and $.nav.forward_url != "" ) {
-        print safe """<li class="page-separator">$*text_default_separator</li>""";
-    }
-    if ( $.nav.forward_url != "" ) {
-        print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
-    }
-    if ( not $empty ) { "</ul>"; }
-
-    if ( $this isa FriendsPage and $.nav.backward_url == "" and $opts{"class"} == "bottomnav" ) {
+    if ($noentries) {
         print safe """<p class="noentries">$*text_noentries_read</p>""";
     }
 

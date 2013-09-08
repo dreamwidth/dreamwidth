@@ -1508,6 +1508,12 @@ sub _format_mail_both {
         $heading .= $icon;
         $heading .= "<br />" if $heading;
         # this needs to be one string so blockquote handles it properly.
+        
+        if ( $self->admin_post ) {
+            $body .= '<br/>' . LJ::Lang::get_text( $lang, "esn.journal_new_entry.admin_post", undef, { img => LJ::img('admin-post') } ) . '<br/>';
+        }
+
+
         $body .= blockquote("$heading" . $self->body_html);
 
         $body .= "<br />";
@@ -1515,6 +1521,11 @@ sub _format_mail_both {
         if (my $subj = $self->subject_raw) {
             $body .= Text::Wrap::wrap(" " . LJ::Lang::get_text($lang, $ml_prefix . 'subject', undef) . " ", "", $subj) . "\n\n";
         }
+        
+        if ( $self->admin_post ) {
+            $body .= LJ::Lang::get_text( $lang, "esn.journal_new_entry.admin_post.text" ) . "\n\n";
+        }
+
         $body .= indent($self->body_raw) . "\n\n";
 
         # Don't wrap options, only text.
@@ -1660,6 +1671,25 @@ sub userpic_kw {
         return $up->get_keyword_from_mapid( $mapid ) if $mapid;
     } else {
         return $self->prop('picture_keyword');
+    }
+}
+
+=head2 C<< $cmt->admin_post
+
+Returns true if this comment is an official administrator comment.
+
+=cut
+sub admin_post {
+    my $self = $_[0];
+
+    return 0 unless $self->journal->is_community;
+    return 0
+        unless $self->poster && $self->poster->can_manage( $self->journal );
+
+    if ( exists $_[1] ) {
+        $_[0]->set_prop( 'admin_post', $_[1] ? 1 : 0 );
+    } else {
+        return $_[0]->prop('admin_post') ? 1 : 0;
     }
 }
 

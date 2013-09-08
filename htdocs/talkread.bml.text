@@ -1,4 +1,9 @@
 ;; -*- coding: utf-8 -*-
+
+.admin.comment=as admin
+
+.admin.post=Admin Post
+
 .anonuser=<i>(Anonymous)</i>
 
 .button.more=More Options

@@ -139,6 +139,9 @@ refriedtablet/themes     theme+                      refriedtablet/layout
 skittlishdreams/layout   layout                      core2
 skittlishdreams/themes   theme+                      skittlishdreams/layout
 
+snakesandboxes/layout    layout(core2base/layout)    core2
+snakesandboxes/themes    theme+                      snakesandboxes/layout
+
 steppingstones/layout    layout(core2base/layout)    core2
 steppingstones/themes    theme+                      steppingstones/layout
 

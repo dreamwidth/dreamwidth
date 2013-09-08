@@ -108,7 +108,12 @@ sub content {
         if LJ::has_too_many( $entry_body, linebreaks => 10, chars => 2000 );
     $entry_body .= $self->as_html_actions;
 
-    return $entry_body;
+    my $admin_post = "";
+    if ( $entry->admin_post ) {
+        $admin_post = '<div class="AdminPost">' . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_entry.admin_post", undef, { img => LJ::img('admin-post') } ) . '</div>';
+    }
+
+    return $admin_post . $entry_body;
 }
 
 sub as_html_tags {
@@ -207,6 +212,7 @@ my @_ml_strings_en = (
     'esn.you_can',                                  # 'You can:',
     'esn.view_entry.nosubject',                     # '[[openlink]]View entry [[ditemid]][[closelink]]'
     'esn.view_entry.subject',                       # '[[openlink]]View entry titled [[subject]][[closelink]]',
+    'esn.reply_to_entry',                           # '[[openlink]]Leave a reply to this entry[[closelink]]',
     'esn.read_recent_entries',                      # '[[openlink]]Read the recent entries in [[journal]][[closelink]]',
     'esn.join_community',                           # '[[openlink]]Join [[journal]] to read Members-only entries[[closelink]]',
     'esn.read_user_entries',                        # '[[openlink]]Read [[poster]]\'s recent entries[[closelink]]',
@@ -269,9 +275,17 @@ sub _as_email {
         $tags = ' ' . LJ::Lang::get_text($lang, 'esn.tags', undef, { tags => join(', ', $self->entry->tags ) });
     }
 
-    $email .= LJ::Lang::get_text($lang,
-        $self->entry->journal->is_comm ? 'esn.journal_new_entry.head_comm' : 'esn.journal_new_entry.head_user',
-        undef,
+    my $head_ml = 'esn.journal_new_entry.head_user';
+    my $entry = $self->entry;
+    if ( $entry->journal->is_comm ) {
+        $head_ml = 'esn.journal_new_entry.head_comm';
+
+        $head_ml .= '.admin_post'
+            if $entry->admin_post;
+    }
+
+    $email .= LJ::Lang::get_text($lang, $head_ml,
+            undef,
             {
                 poster  => $poster,
                 about   => $about,
@@ -294,13 +308,14 @@ sub _as_email {
         $self->format_options($is_html, $lang, $vars,
             {
                 "esn.view_entry.$has_subject" => [ 1, $entry_url ],
-                'esn.read_recent_entries'   => [ $self->entry->journal->is_comm ? 2 : 0,
+                'esn.reply_to_entry'        => [ 2, "$entry_url?mode=reply" ],
+                'esn.read_recent_entries'   => [ $self->entry->journal->is_comm ? 3 : 0,
                                                     $journal_url ],
-                'esn.join_community'        => [ ($self->entry->journal->is_comm && !$u->member_of( $self->entry->journal )) ? 3 : 0,
+                'esn.join_community'        => [ ($self->entry->journal->is_comm && !$u->member_of( $self->entry->journal )) ? 4 : 0,
                                                     "$LJ::SITEROOT/community/join?comm=$journal_user" ],
-                'esn.read_user_entries'     => [ ($self->entry->journal->is_comm) ? 0 : 4,
+                'esn.read_user_entries'     => [ ($self->entry->journal->is_comm) ? 0 : 5,
                                                     $journal_url ],
-                'esn.add_watch'             => [ $u->watches( $self->entry->journal ) ? 0 : 5,
+                'esn.add_watch'             => [ $u->watches( $self->entry->journal ) ? 0 : 6,
                                                     "$LJ::SITEROOT/manage/circle/add?user=$journal_user&action=subscribe" ],
             });
 
@@ -326,7 +341,7 @@ sub subscription_applicable {
 
     return 1 unless $subscr->arg1;
 
-    # subscription is for entries with tsgs.
+    # subscription is for entries with tags.
     # not applicable if user has no tags
     my $journal = $subscr->journal;
 

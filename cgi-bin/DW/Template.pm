@@ -318,7 +318,7 @@ sub render_string {
         return $r->OK;
     } elsif ( $extra->{fragment} ) {
         LJ::set_active_resource_group( "fragment" );
-        $out .= LJ::res_includes( nojs => 1, nolib => 1 );
+        $out .= LJ::res_includes( nojs => 1, nolib => 1, script_tags => 1 );
         $r->print( $out );
 
         return $r->OK;
@@ -358,6 +358,7 @@ sub render_scheme {
     $opts->{content} = $body;
     $opts->{is_ssl} = $LJ::IS_SSL;
     $opts->{get} = $r->get_args;
+    $opts->{resource_group} = $LJ::ACTIVE_RES_GROUP;
 
     $scheme_engine->process( "_init.tt", $opts, \$out )
         or die $scheme_engine->error->as_string;

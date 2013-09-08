@@ -53,6 +53,7 @@ set custom_colors_template = "%%new%% div.footer, %%new%% div.footer ul, %%new%%
 propgroup colors {
     property use color_page_background;
     property use color_page_text;
+    property use color_page_title;
     property use color_page_link;
     property use color_page_link_active;
     property use color_page_link_hover;
@@ -108,6 +109,12 @@ propgroup fonts {
     property use font_fallback;
     property use font_base_size;
     property use font_base_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
     property use font_module_heading;
     property use font_module_heading_units;
     property use font_module_heading_size;
@@ -270,6 +277,8 @@ function Page::print_default_stylesheet()
         $header_background = $header_background + "\n        height: " + $*image_background_header_height + "px;";
     }
     var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string journal_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string journal_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
     var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
@@ -333,7 +342,16 @@ function Page::print_default_stylesheet()
     #header {
         border-top: 0!important;
         border-bottom: 5px double $*color_module_border;
+        color: $*color_page_title;
         $header_background
+    }
+    #header h1 {
+        $journal_title_font
+        padding: 0 1.25em;
+    }
+    #header h2 {
+        $journal_subtitle_font
+        padding: 0 1.7em;
     }
     #header a {
         color: $*color_header_link;
@@ -995,7 +1013,10 @@ function Page::print()
         $this->print_wrapper_start();
         $this->print_control_strip();
         println "<div id=\"header\">";
-        $this->print_module_section("two");
+            println "<a name=\"top\"></a>";
+            $this->print_global_title();
+            $this->print_global_subtitle();
+            $this->print_module_section("two");
         println "</div>";
         if ($*layout_type == "one-column-split") {
             println "<div id=\"secondary\">";

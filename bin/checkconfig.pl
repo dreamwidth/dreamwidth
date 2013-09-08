@@ -84,7 +84,7 @@ my %modules = (
                "Class::Autouse" => { 'deb' => 'libclass-autouse-perl', },
                "Digest::MD5" => { 'deb' => 'libmd5-perl', },
                "Digest::SHA1" => { 'deb' => 'libdigest-sha1-perl', },
-               "Digest::SHA256" => { 'deb' =>'libdigest-sha-perl' },
+               "Digest::SHA" => { 'deb' =>'libdigest-sha-perl' },
                "Image::Size" => { 'deb' => 'libimage-size-perl', },
                "MIME::Lite" => { 'deb' => 'libmime-lite-perl', },
                "MIME::Words" => { 'deb' => 'libmime-perl', },
@@ -260,7 +260,10 @@ my %modules = (
                "JSON" => {
                    deb => 'libjson-perl',
                    ver => '2.53',
-               }
+               },
+               "Image::ExifTool" => {
+                   deb => 'libimage-exiftool-perl',
+               },
               );
 
 

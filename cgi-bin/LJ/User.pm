@@ -87,7 +87,6 @@ use LJ::Keywords;
 ###  16. (( there is no section 16 ))
 ###  18. Jabber-Related Functions
 ###  19. OpenID and Identity Functions
-###  20. Page Notices Functions
 ###  21. Password Functions
 ###  22. Priv-Related Functions
 ###  24. Styles and S2-Related Functions
@@ -2033,10 +2032,16 @@ sub can_import_comm {
 sub can_receive_vgifts_from {
     my ( $u, $remote, $is_anon ) = @_;
     $remote ||= LJ::get_remote();
-    my $valid_remote = LJ::isu( $remote ) ? 1 : 0;
+    my $valid_remote = LJ::isu( $remote ) && $remote->is_personal ? 1 : 0;
+
+    # no virtual gifts for syndicated accounts
+    return 0 if $u->is_syndicated;
 
     # check for shop status
     return 0 unless exists $LJ::SHOP{vgifts};
+
+    # check for journal ban
+    return 0 if $remote && $u->has_banned( $remote );
 
     # check for anonymous
     return 0 if $is_anon && $u->prop( 'opt_anonvgift_optout' );
@@ -2250,7 +2255,7 @@ sub clear_daycounts
         push @memkind, "p" if $security eq 'public'; # public
         push @memkind, "g$security" if $security =~ /^\d+/;
 
-        $access++ if $security eq 'public' || ( $security != 1 &&  $security =~ /^\d+/ );
+        $access++ if $security eq 'public' || ( $security =~ /^\d+/ && $security != 1 );
     }
     # clear access only security, but does not cover custom groups
     push @memkind, "g1" if $access;
@@ -2414,6 +2419,12 @@ sub gift_points_url {
 sub transfer_points_url {
     my ( $u ) = @_;
     return "$LJ::SITEROOT/shop/transferpoints?for=" . $u->user;
+}
+
+# returns the shop URL to buy a virtual gift for that user
+sub virtual_gift_url {
+    my ( $u ) = @_;
+    return "$LJ::SITEROOT/shop/vgift?user=" . $u->user;
 }
 
 =head3 C<< $self->give_shop_points( %options ) >>
@@ -4892,7 +4903,7 @@ sub entryform_panels {
                    [ "access", "journal", "currents", "comments", "age_restriction" ],
 
                    # FIXME: should be [ "icons" "crosspost" "scheduled" ]
-                   [ "icons", "crosspost" ],
+                   [ "icons", "crosspost", "flags" ],
                 ],
         show => {
             "tags"          => 1,
@@ -4905,7 +4916,7 @@ sub entryform_panels {
             "age_restriction" => 0,
             "icons"         => 1,
             "crosspost"     => 0,
-
+            "flags"     => 1,
             #"scheduled"     => 0,
             #"status"        => 1,
         },
@@ -5581,74 +5592,6 @@ sub rename_identity {
     return 1;
 }
 
-
-########################################################################
-###  20. Page Notices Functions
-
-=head2 Page Notices Functions
-=cut
-
-sub dismissed_page_notices {
-    my $u = shift;
-
-    my $val = $u->prop("dismissed_page_notices");
-    my @notices = split(",", $val);
-
-    return @notices;
-}
-
-
-# add a page notice to a user's dismissed page notices list
-sub dismissed_page_notices_add {
-    my ( $u, $notice_string ) = @_;
-
-    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
-
-    # is it already there?
-    return 1 if $u->has_dismissed_page_notice($notice_string);
-
-    # create the new list of dismissed page notices
-    my @cur_notices = $u->dismissed_page_notices;
-    push @cur_notices, $notice_string;
-    my $cur_notices_string = join(",", @cur_notices);
-
-    # remove the oldest notice if the list is too long
-    if (length $cur_notices_string > 255) {
-        shift @cur_notices;
-        $cur_notices_string = join(",", @cur_notices);
-    }
-
-    # set it
-    $u->set_prop("dismissed_page_notices", $cur_notices_string);
-
-    return 1;
-}
-
-
-# remove a page notice from a user's dismissed page notices list
-sub dismissed_page_notices_remove {
-    my ( $u, $notice_string ) = @_;
-
-    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
-
-    # is it even there?
-    return 0 unless $u->has_dismissed_page_notice($notice_string);
-
-    # remove it
-    $u->set_prop("dismissed_page_notices", join(",", grep { $_ ne $notice_string } $u->dismissed_page_notices));
-
-    return 1;
-}
-
-
-sub has_dismissed_page_notice {
-    my ( $u, $notice_string ) = @_;
-
-    return 1 if grep { $_ eq $notice_string } $u->dismissed_page_notices;
-    return 0;
-}
-
-
 ########################################################################
 ###  21. Password Functions
 
@@ -5712,11 +5655,6 @@ sub grant_priv {
     my $dbh = LJ::get_db_writer();
 
     return 1 if $u->has_priv( $priv, $arg );
-
-    if ( $arg && $arg ne '*' && $priv !~ /^support/ ) {
-        my $valid_args = LJ::list_valid_args( $priv );
-        return 0 if $valid_args and not $valid_args->{$arg};
-    }
 
     my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
                                        " WHERE privcode = ?", undef, $priv);
@@ -5865,10 +5803,10 @@ sub display_journal_deleted {
             "SELECT remoteid FROM userlog" .
             " WHERE userid=? AND logtime=? LIMIT 1", undef, $userid, $logtime );
         my $deleter_name = LJ::get_username( $deleter_id );
-        $deleter_name_html = $deleter_name ? 
-            LJ::ljuser( $deleter_name ) : 'Unknown'; 
+        $deleter_name_html = $deleter_name ?
+            LJ::ljuser( $deleter_name ) : 'Unknown';
     } else {
-        #If this isn't a community, it can only have been deleted by the 
+        #If this isn't a community, it can only have been deleted by the
         # journal owner.
         $deleter_name_html = LJ::ljuser( $u );
     }
@@ -5880,7 +5818,7 @@ sub display_journal_deleted {
 
         #Showing an earliest purge date of 29 days after deletion, not 30,
         # to be safe with time zones.
-        purge_date => LJ::mysql_date( 
+        purge_date => LJ::mysql_date(
             $u->statusvisdate_unix + ( 29*24*3600 ), 0 ),
 
         deleter_name_html => $deleter_name_html,
@@ -5900,7 +5838,7 @@ sub display_journal_deleted {
             is_admin => $u->is_community && $remote->can_manage( $u ),
             is_sole_admin => $u->is_community && $remote->can_manage( $u ) &&
                 scalar( $u->maintainer_userids ) == 1,
-            is_member_or_watcher => $u->is_community && 
+            is_member_or_watcher => $u->is_community &&
                 ( $remote->member_of( $u ) || $remote->watches( $u ) ),
 
             #booleans for personal journals
@@ -5949,7 +5887,7 @@ sub display_journal_deleted {
                     { ml => 'web.controlstrip.links.modifycircle',
                       url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
                     } );
-            } elsif ( $trusts ) { 
+            } elsif ( $trusts ) {
                 $relationship_ml = 'web.controlstrip.status.trusted';
                 @relationship_links = (
                     { ml => 'web.controlstrip.links.modifycircle',
@@ -6310,35 +6248,6 @@ sub esn_inbox_default_expand {
     my $prop = $u->raw_prop('esn_inbox_default_expand');
     return $prop ne 'N';
 }
-
-
-# interim solution while legacy/ESN notifications are both happening:
-# checks possible subscriptions to see if user will get an ESN notification
-# THIS IS TEMPORARY. FIXME. Should only be called by talklib.
-# params: journal, arg1 (entry ditemid), arg2 (comment talkid)
-sub gets_notified {
-    my ($u, %params) = @_;
-
-    $params{event} = "LJ::Event::JournalNewComment";
-    $params{method} = "LJ::NotificationMethod::Email";
-
-    my $has_sub;
-
-    # did they subscribe to the parent comment?
-    $has_sub = LJ::Subscription->find($u, %params);
-    return $has_sub if $has_sub;
-
-    # remove the comment-specific parameter, then check for an entry subscription
-    $params{arg2} = 0;
-    $has_sub = LJ::Subscription->find($u, %params);
-    return $has_sub if $has_sub;
-
-    # remove the entry-specific parameter, then check if they're subscribed to the entire journal
-    $params{arg1} = 0;
-    $has_sub = LJ::Subscription->find($u, %params);
-    return $has_sub;
-}
-
 
 # search for a subscription
 *find_subscriptions = \&has_subscription;
@@ -9685,39 +9594,26 @@ sub make_journal {
     # FIXME: Make this properly invoke siteviews all the time -- once all the views are ready.
     # Most of this if and tons of messy conditionals can go away once all views are done.
     if ( $stylesys == 1 || $stylearg eq 'site' || $stylearg eq 'light' ) {
-        my $fallback = "bml"; # FIXME: Should be S2 once everything's done
-
-        # if we are in this path, and they have style=mine set, it means
-        # they either think they can get a S2 styled page but their account
-        # type won't let them, or they really want this to fallback to bml
-        if ( $remote && ( $stylearg eq 'mine' ) ) {
-            $fallback = 'bml';
-        }
+        # FIXME: The month view is currently not styled in siteviews
+        my $fallback = $view eq 'month' ? 'bml' : 's2';
 
         # If they specified ?format=light, it means they want a page easy
         # to deal with text-only or on a mobile device.  For now that means
         # render it in the lynx site scheme.
-        if ( $stylearg eq 'light' ) {
-            $fallback = 'bml';
-            DW::SiteScheme->set_for_request( 'lynx' );
-        }
+        DW::SiteScheme->set_for_request( 'lynx' )
+            if $stylearg eq 'light';
 
         # but if the user specifies which they want, override the fallback we picked
         if ($geta->{'fallback'} && $geta->{'fallback'} =~ /^s2|bml$/) {
             $fallback = $geta->{'fallback'};
         }
 
-        # there are no BML handlers for these views, so force s2
-        # FIXME: Temporaray until talkread/talkpost/month views are converted
+        # Only the month view has a BML version.
+        $fallback = 's2'
+            if $view ne 'month';
 
-        if ( !( {   entry => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
-        reply => ! LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
-        month => 1 }->{$view} ) ) {
-            $fallback = "s2";
-        }
-
-        # fall back to legacy BML unless we're using BML-wrapped s2
-        if ($fallback eq "bml") {
+        # fall back to legacy BML unless we're using siteviews
+        if ($fallback eq 'bml') {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -9908,7 +9804,9 @@ sub make_journal {
 
         my $mj;
 
-        unless ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} ) {
+        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} ) {
+            $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
+        } else {
             eval {
                 $mj = LJ::S2::make_journal($u, $styleid, $view, $remote, $opts);
             };
@@ -9923,15 +9821,6 @@ sub make_journal {
                     die $@;
                 }
             }
-        }
-
-        # intercept flag to handle_with_bml_ref and instead use siteviews
-        # FIXME: Temporary, till everything is converted.
-        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || {
-                entry => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
-                reply => LJ::BetaFeatures->user_in_beta( $remote => "s2comments" ),
-                icons => 1, tag => 1 }->{$view} ) ) {
-            $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
         }
 
         return $mj;

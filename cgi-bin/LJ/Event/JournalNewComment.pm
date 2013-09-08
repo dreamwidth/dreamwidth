@@ -33,8 +33,10 @@ sub arg_list {
     return ( "Comment jtalkid" );
 }
 
-sub related_events {
-    return map { $_->etypeid } ( $_[0], "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited" );
+sub related_event_classes {
+    return (
+        "LJ::Event::JournalNewComment", "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited",
+            "LJ::Event::JournalNewComment::Reply" );
 }
 
 sub is_common { 1 }
@@ -199,9 +201,17 @@ sub content {
             if $reason;
     }
 
+    my $admin_post = "";
+
+    if ( $comment->admin_post ) {
+        $admin_post = '<div class="AdminPost">' .
+            LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.admin_post", undef, { img => LJ::img('admin-post') } ) . '</div>';
+    }
+
     my $ret = qq {
         <div id="$htmlid" class="JournalNewComment">
             <div class="ManageButtons">$buttons</div>
+            $admin_post
             <div class="Body">$comment_body</div>
         </div>
     };
@@ -475,11 +485,8 @@ sub matches_filter {
     return 0 unless $comment->visible_to($watcher);
 
     if ( $watcher ) {
-        # not a match if this user posted the comment and they don't
-        # want to be notified of their own posts
-        if ( $watcher->equals( $comment->poster ) ) {
-            return 0 unless $watcher->can_get_self_email && $watcher->prop('opt_getselfemail');
-        }
+        # not a match if this user posted the comment
+        return 0 if $watcher->equals( $comment->poster );
 
         # not a match if this user posted the entry and they don't want comments emailed,
         # unless it is a reply to one of their comments or they posted it. (don't need to check again for the cap, since we did above.)
@@ -533,7 +540,7 @@ sub comment {
     return LJ::Comment->new($self->event_journal, jtalkid => $self->jtalkid);
 }
 
-sub available_for_user  {
+sub available_for_user {
     my ($class, $u, $subscr) = @_;
 
     my $journal = $subscr->journal;
@@ -546,7 +553,7 @@ sub available_for_user  {
 
     return 0
         if ( $sarg1 == 0 && $sarg2 == 0 ) &&
-            $journal->is_community && ! $u->can_track_all_community_comments( $journal );
+            $journal && $journal->is_community && ! $u->can_track_all_community_comments( $journal );
 
     return 1;
 }

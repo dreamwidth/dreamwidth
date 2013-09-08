@@ -15,11 +15,22 @@ propgroup presentation_child {
 
 set display_header_decoration = true;
 
+##===============================
+## Colors
+##===============================
+
 propgroup colors_child {
 
     property Color color_navigation_module_background {
-        des = "Navigation module background color when in header";
+        des = "Header navigation module background color";
     }
+    property use color_header_link;
+    property use color_header_link_active;
+    property Color color_header_link_hover_background {
+        des = "Page header hover link background color";
+    }
+    property use color_header_link_hover;
+    property use color_header_link_visited;
 
     property Color color_calendar_module_emptyday_background {
         des = "Calendar module background color on empty days";
@@ -148,8 +159,6 @@ function print_stylesheet() {
     var string bottomcomment_colors = generate_color_css( new Color, $*color_page_border, new Color );
 
     var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
-    var string module_link_colors = generate_color_css( $*color_page_background, new Color, new Color );
-    var string module_link_hover_colors = generate_color_css( $*color_page_text, $*color_page_background, new Color );
 
     var string calendar_colors = generate_color_css( $*color_page_title, $*color_calendar_module_emptyday_background, new Color );
     var string calendar_link_colors = generate_color_css( $*color_page_background, $*color_calendar_module_hasday_background, new Color );
@@ -197,17 +206,22 @@ function print_stylesheet() {
                 padding: .25em .5em;
                 }
 
-            .module-navlinks ul li a {
+            .module-navlinks a {
+                color: $*color_header_link;
                 font-size: small;
                 padding: .15em .5em;
                 text-decoration: none;
-                $module_link_colors
                 }
 
-            .module-navlinks ul li a:hover {
+            .module-navlinks a:visited { color: $*color_header_link_visited; }
+
+            .module-navlinks a:hover {
+                background-color: $*color_header_link_hover_background;
+                color: $*color_header_link_hover;
                 text-decoration: underline;
-                $module_link_hover_colors
                 }
+
+            .module-navlinks a:active { color: $*color_header_link_active; }
             """;
         }
         else {

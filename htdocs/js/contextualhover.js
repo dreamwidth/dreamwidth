@@ -371,6 +371,21 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 content.appendChild(document.createElement("br"));
         }
 
+        if ((data.is_person || data.is_comm) && !data.is_requester && data.can_receive_vgifts) {
+            var vgift = document.createElement("span");
+
+            var sendvgift = document.createElement("a");
+            sendvgift.href = data.url_vgift;
+            sendvgift.innerHTML = "Send virtual gift";
+
+            vgift.appendChild(sendvgift);
+
+            if ( (data.is_logged_in && data.is_comm) || message )
+                content.appendChild(document.createElement("br"));
+
+            content.appendChild(vgift);
+        }
+
         // relationships
         var trust;
         var watch;
@@ -479,21 +494,6 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         if (watch)
             content.appendChild(watch);
 
-        if ((data.is_person || data.is_comm) && !data.is_requester && data.can_receive_vgifts) {
-            var vgift = document.createElement("span");
-
-            var sendvgift = document.createElement("a");
-            sendvgift.href = window.Site.siteroot + "/shop/vgift?to=" + data.username;
-            sendvgift.innerHTML = "Send a virtual gift";
-
-            vgift.appendChild(sendvgift);
-
-            if (trust || watch)
-                content.appendChild(document.createElement("br"));
-
-            content.appendChild(vgift);
-        }
-
         // ban / unban
 
         var ban;
@@ -501,12 +501,12 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
             ban = document.createElement("span");
 
             if(!data.is_banned) {
-                // if user no banned - show ban link
+                // if user not banned - show ban link
                 var setBan = document.createElement("span");
                 var setBanLink = document.createElement("a");
-                
+
                 setBanLink.href = window.Site.siteroot + '/manage/banusers';
-                
+
                 if (data.is_comm) {
                     setBanLink.innerHTML = 'Ban community';
                 } else {
@@ -527,9 +527,9 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 ban.appendChild(setBan);
 
 
-                
+
             } else {
-                // if use banned - show unban link
+                // if user banned - show unban link
                 var setUnban = document.createElement("span");
                 var setUnbanLink = document.createElement("a");
                 setUnbanLink.href = window.Site.siteroot + '/manage/banusers';
@@ -546,18 +546,19 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 }
 
                 ban.appendChild(setUnban);
- 
+
             }
         }
-        
+
         if(ban) {
-            content.appendChild(document.createElement("br"));    
+            content.appendChild(document.createElement("br"));
             content.appendChild(ban);
         }
 
 
         // break
-        if ((data.is_logged_in && !data.is_requester) || vgift) content.appendChild(document.createElement("br"));
+        if ( (data.is_logged_in && !data.is_requester) || trust || watch )
+            content.appendChild(document.createElement("br"));
 
         // view label
         var viewLabel = document.createElement("span");
@@ -586,8 +587,8 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         profileLink.innerHTML = "Profile";
         content.appendChild(profileLink);
 
-        
-        
+
+
         // clearing div
         var clearingDiv = document.createElement("div");
         DOM.addClassName(clearingDiv, "ljclear");
@@ -601,6 +602,14 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
 // ajax request to change relation
 ContextualPopup.changeRelation = function (info, ctxPopupId, action, evt) {
     if (!info) return true;
+
+    if ( action == "setBan" || action == "setUnban" ) {
+       var username = info.username;
+       var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
+                                          : "Are you sure you wish to ban " + username + "?";
+       if ( ! confirm( message ) )
+           return false;
+    };
 
     var postData = {
         "target": info.username,
@@ -617,6 +626,15 @@ ContextualPopup.changeRelation = function (info, ctxPopupId, action, evt) {
 
     // callback from changing relation request
     var changedRelation = function (data) {
+        if ( action == "setBan" || action == "setUnban" ) {
+           var username = info.username;
+           var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
+                                              : "Are you sure you wish to ban " + username + "?";
+           if ( confirm( message ) ) {
+              return action;
+           } else { return false; };
+        };
+
         if (ContextualPopup.hourglass) ContextualPopup.hideHourglass();
 
         if (data.error) {
@@ -718,7 +736,7 @@ ContextualPopup.getInfo = function (target) {
     // needed on journal subdomains
     var url = LiveJournal.getAjaxUrl("ctxpopup");
     var url = Site.currentJournal ? "/" + Site.currentJournal + "/__rpc_ctxpopup" : "/__rpc_ctxpopup";
-    
+
     // got data callback
     var gotInfo = function (data) {
         if (ContextualPopup && ContextualPopup.hourglass) ContextualPopup.hideHourglass();

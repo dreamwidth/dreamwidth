@@ -51,16 +51,16 @@ sub canonicalize {
 
     given ( $uri_str ) {
         # Let's see if this looks "LJ-ish".
-        when( m!^https?://([a-z0-9\-_]+)\.([^/]+)/+$LJISH_URL_PART$!i ) {
-            my ( $sub, $host, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
-            continue if $sub eq 'www';
+        when( m!^https?://(?:users|community|syndicated)\.([^/]+)/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
+            my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
             continue if $feed ~~ m/^rss/i && ! $LJISH_SITES{$host};
             continue if $spare && ! $LJISH_SITES{$host};
             return make_ljish( $host, $sub, $feed, $orig_uri, $extra );
         }
-        
-        when( m!^https?://(?:users|community|syndicated)\.([^/]+)/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
-            my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 ); 
+
+        when( m!^https?://([a-z0-9\-_]+)\.([^/]+)/+$LJISH_URL_PART$!i ) {
+            my ( $sub, $host, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
+            continue if $sub eq 'www';
             continue if $feed ~~ m/^rss/i && ! $LJISH_SITES{$host};
             continue if $spare && ! $LJISH_SITES{$host};
             return make_ljish( $host, $sub, $feed, $orig_uri, $extra );
@@ -186,13 +186,7 @@ sub canonicalize {
             return "wordpress://$username/$datepart/$article";
         }
 
-        when ( m!^https?://(?:www\.)?twitter\.com/+([a-z][a-z0-9\-_]*)/?$!i && $src eq 'link' ) {
-            my $username = lc($1);
-            $username =~ s/-/_/g;
-
-            return "twitter://$username";
-        }
-        
+        # Unfortunately, these two twitter ones cannot go away (yet)
         when ( m!^https?://(?:www\.)?twitter\.com/+statuses/user_timeline/([a-z][a-z0-9\-_]*)\.rss$!i ) {
             my $username = lc($1);
             $username =~ s/-/_/g;
@@ -214,20 +208,14 @@ sub canonicalize {
             return "twitter://$username";
         }
 
-        when ( m!^https?://(?:www\.)?twitter\.com/+([a-z][a-z0-9\-_]*)/favorites/?$!i && $src eq 'link' ) {
+        # twfeed.com replacement feed service
+        when ( m!^https?://(?:www\.)twfeed\.com/+(?:rss|atom)/([a-z][a-z0-9\-_]*)$!i ) {
             my $username = lc($1);
             $username =~ s/-/_/g;
 
-            return "twitter://$username/favorites";
+            return "twitter://$username";
         }
 
-        when ( m!^https?://(?:www\.)?twitter\.com/+favorites/([a-z][a-z0-9\-_]*)\.rss$!i ) {
-            my $username = lc($1);
-            $username =~ s/-/_/g;
-
-            return "twitter://$username/favorites";
-        }
-        
         when ( m!^https?://blog\.myspace\.com/+([a-z][a-z0-9\-_]*)/?!i && $src eq 'link' ) {
             my $username = lc($1);
             $username =~ s/-/_/g;

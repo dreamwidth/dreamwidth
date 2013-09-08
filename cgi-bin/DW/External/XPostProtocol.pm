@@ -105,18 +105,18 @@ sub create_footer {
             return $self->create_footer_text($entry, $custom_footer_template);
         } else {
             # did we disable comments on the local entry? tweak language string to match
-            my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment';
+            my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment2';
 
-            return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url } );
+            return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url, openidlink => "$LJ::SITEROOT/openid/" } );
         }
     } elsif ( ( $xpostfootprop eq "N" ) || ( ( $xpostfootprop eq "D" ) && ( ! $disabling_remote_comments ) )  ) {
         return "";
     } else {
         # fallthrough. shouldn't get here, but in case we do for
         # some crazy reason, let's assume the old behavior.
-        my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment';
+        my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment2';
 
-        return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url } );
+        return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url, openidlink => "$LJ::SITEROOT/openid/" } );
     }
 }
 

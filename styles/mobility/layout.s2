@@ -10,18 +10,15 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 ## Presentation
 ##===============================
 
-property string content_width {
-    des = "Maximum width of the page content.  Ensure that the value is given in em or px.";
-    note = "Use this option to restrict the width so that the page can be viewed on small screens without scrolling";
-    example = "50em";
-}
-
-property bool control_strip_reduced {
-    des = "Reduce navigation strip to icon and common links only.";
-}
-
 propgroup presentation_child {
-    property use control_strip_reduced;
+    property string content_width {
+        des = "Set the maximum width of the page content. Ensure that the value is given in em or px.";
+        note = "This restricts the page width so it can be viewed on small screens without scrolling.";
+        example = "50em";
+    }
+    property bool control_strip_reduced {
+        des = "Reduce the navigation strip to icon and common links only";
+    }
     property use entry_interaction_links;
     property use comment_interaction_links;
 }
@@ -42,12 +39,13 @@ set comment_management_links = "icon";
 ## Colors
 ##===============================
 
-property Color color_header_footer_border { des = "Header and footer border color"; }
-property Color color_module_highlight { des = "Highlight color in modules, as for calendar days with entries"; }
-
 propgroup colors_child {
-    property use color_module_highlight;
-    property use color_header_footer_border;
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+    property Color color_header_footer_border { des = "Page header and page footer border color"; }
+    property Color color_module_highlight { des = " Calendar module background color on days with entries"; }
 }
 
 ##===============================
@@ -332,6 +330,11 @@ function print_stylesheet () {
         text-align: right; 
     }
 
+    #module-jump-link a { color: $*color_header_link; }
+    #module-jump-link a:visited { color: $*color_header_link_visited; }
+    #module-jump-link a:hover { color: $*color_header_link_hover; }
+    #module-jump-link a:active { color: $*color_header_link_active; }
+
     /* Module positioning */
     .one-column #primary,
     .one-column-split #primary { 
@@ -437,9 +440,28 @@ function print_stylesheet () {
         border-style: solid;
         border-width: .5em .25em;
         margin: 1em 0; 
-        padding: .5em;        
+        padding: .5em;
     } /*yes, reply form is out of order, this is easier*/
 
+.navigation a,
+.talkform a {
+    color: $*color_entry_link;
+}
+
+.navigation a:visited,
+.talkform a:visited {
+    color: $*color_entry_link_visited;
+}
+
+.navigation a:hover,
+.talkform a:hover {
+    color: $*color_entry_link_hover;
+}
+
+.navigation a:active,
+.talkform a:active {
+    color: $*color_entry_link_active;
+}
 
     .navigation ul {
         margin: 0;
@@ -560,8 +582,36 @@ function print_stylesheet () {
         border-style: solid;
         border-width: .5em .25em;
         margin-top: 0;
-        padding: .5em;    
+        padding: .5em;
     }
+
+.comment a,
+.toppages a,
+.bottompages a,
+.bottomcomment a {
+    color: $*color_entry_link;
+}
+
+.comment a:visited,
+.toppages a:visited,
+.bottompages a:visited,
+.bottomcomment a:visited {
+    color: $*color_entry_link_visited;
+}
+
+.comment a:hover,
+.toppages a:hover,
+.bottompages a:hover,
+.bottomcomment a:hover {
+    color: $*color_entry_link_hover;
+}
+
+.comment a:active,
+.toppages a:active,
+.bottompages a:active,
+.bottomcomment a:active {
+    color: $*color_entry_link_active;
+}
 
     .comment .comment-title {
         $comment_title_font
@@ -632,19 +682,69 @@ function print_stylesheet () {
         padding: .5em;
     }
 
-    /* icons */
-    .icon-keywords ul {
-        display: inline;
-        margin-left: .5em;
-        padding-left: 0;
-    }
+    /* Icons */
 
-    .icon-keywords ul li {
-        display: inline;
-        padding: .25em;
-    }
+.icons-container {
+    $entry_colors
+    border-width: .5em .25em;
+    margin: 1em 0;
+    overflow: auto;
+    padding: 1em;
+}
 
-    /* modules */
+.sorting-options ul {
+    padding-left: 0;
+    text-align: center;
+}
+
+.icons-container .icon {
+    margin: 1em 0;
+}
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+}
+
+.icon-info {
+    min-height: 100px;
+}
+
+.icon-info span {
+    font-weight: bold;
+}
+
+.icon-info .default {
+    text-decoration: underline;
+}
+
+.icon-keywords ul li {
+    margin-left: 0;
+    padding: .25em 0;
+}
+
+/* Tags */
+
+.tags-container {
+    $entry_colors
+    border-width: .5em .25em;
+    margin: 1em 0;
+    overflow: auto;
+    padding: 1em;
+}
+
+/* Link Colors for Archive, Icons and Tags */
+
+.month a, .tags-container a, .icons-container a { color: $*color_entry_link; }
+.month a:visited, .tags-container a:visited, .icons-container a:visited { color: $*color_entry_link_visited; }
+.month a:hover, .tags-container a:hover, .icons-container a:hover { color: $*color_entry_link_hover; }
+.month a:active, .tags-container a:active, .icons-container a:active { color: $*color_entry_link_active; }
+
+    /* Modules */
+
     .module {
         border-width: .5em .25em;
         clear: both;

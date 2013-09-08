@@ -354,6 +354,7 @@ general /community/settings.bml.label.createtext
 general /community/settings.bml.label.maintainer.login
 
 general esn.approve_join_request
+general esn.shop_for_gift
 
 general /friends/add.bml.error1.header
 general /friends/add.bml.error1.text
@@ -1542,3 +1543,11 @@ general /views/admin/index.tt.admin.sitemessages_manage.text
 
 general /views/admin/index.tt.admin.navtag.link
 general /views/admin/index.tt.admin.navtag.text
+
+general /customize/index.bml.admin.customize_area_feedback
+general /customize/options.bml.customize.feedback
+
+general setting.commentemailnotify.label
+general setting.commentemailnotify.option
+general setting.selfcommentemail.label
+general setting.selfcommentemail.option

@@ -58,8 +58,11 @@ my %host_path_match = (
 
     "maps.google.com"       => qr!^/maps!,
     "www.google.com"        => qr!^/calendar/!,
+    # drawings do not need to be whitelisted as they are images.
+    # forms arent being allowed for security concerns.
+    "docs.google.com"       => qr!^/(document|spreadsheet|presentation)/!,
 
-    "www.kickstarter.com"   => qr!/widget/video.html$!,
+    "www.kickstarter.com"   => qr!/widget/[a-zA-Z]+\.html$!,
 
     "ext.nicovideo.jp"      => qr!^/thumb/!,
 
@@ -74,6 +77,8 @@ my %host_path_match = (
     "player.vimeo.com"      => qr!^/video/\d+$!,
 
     "www.plurk.com"         => qr!^/getWidget$!,
+
+    "instagram.com"         => qr!^/p/.*/embed/$!,
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {

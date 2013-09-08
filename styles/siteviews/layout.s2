@@ -265,18 +265,35 @@ function Entry::print_poster {
 function Comment::print_poster() {
     var Page p = get_page();
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
-    if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
-if ($p isa ReplyPage) {
-    if (defined $this.poster) {
-        print safe "<span class=\"poster comment-poster\">$*text_comment_from $this.poster.name ($poster) wrote</span>"; }
-    else { print safe "Someone wrote"; }
-    if (not $this.poster->equals($this.journal)) {
-                print safe " in ";
-                $this.journal->print();
-            }
-} else {     print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster</span>\n"; }
-
-
+    if ($this.metadata{"imported_from"}) {
+        $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>";
+    }
+    if ($p isa ReplyPage) {
+        if (defined $this.poster) {
+            print safe "<span class=\"poster comment-poster\">$*text_comment_from $this.poster.name ($poster) wrote</span>"; }
+        else {
+            print safe "Someone wrote";
+        }
+        if (not $this.poster->equals($this.journal)) {
+            print safe " in ";
+            $this.journal->print();
+        }
+        if ( $this.admin_post ) {
+            """<span>(""";
+            $this->print_admin_post_icon();
+            print safe $*text_admin_post_note;
+            """)</span>""";
+        }
+    } else {
+        print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster";
+        if ( $this.admin_post ) {
+            """<span>(""";
+            $this->print_admin_post_icon();
+            print safe $*text_admin_post_note;
+            """)</span>""";
+        }
+        print "</span>\n";
+    }
 }
 function EntryPage::print_entry_footer(Entry e) {
     """<hr class="above-entry-interaction-links" />

@@ -36,6 +36,8 @@ sub header_props {
         color_header_navlinks_current_background
         color_navlinks_current
         color_navlinks_link
+        color_navlinks_link_active
+        color_navlinks_link_hover
         color_navlinks_link_visited
     );
     return $self->_append_props( "header_props", @props );

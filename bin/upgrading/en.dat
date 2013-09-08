@@ -1040,6 +1040,14 @@ esn.add_trust=[[openlink]]Grant access to [[journal]][[closelink]]
 
 esn.add_watch=[[openlink]]Subscribe to [[journal]][[closelink]]
 
+esn.bday.act.givepaid=Give Paid Time
+
+esn.bday.act.givevgift=Send Virtual Gift
+
+esn.bday.act.sendmsg=Send Message
+
+esn.bday.act.viewjournal=View Journal
+
 esn.bday.email<<
 Hi [[user]],
 
@@ -1156,6 +1164,10 @@ esn.invite_another_friend=[[openlink]]Invite someone else[[closelink]]
 
 esn.join_community=[[openlink]]Join [[journal]] to read Members-only entries[[closelink]]
 
+esn.journal_new_comment.admin_post=[ [[img]] as admin ]
+
+esn.journal_new_comment.admin_post.text=[ as admin ]
+
 esn.journal_new_comment.anonymous.comment=The reply was:
 
 esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post2=Somebody replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
@@ -1259,7 +1271,11 @@ esn.journal_new_comment.your.new_comment=Your new reply is:
 
 esn.journal_new_entry.about= titled "[[title]]"
 
+esn.journal_new_entry.admin_post=[ [[img]] as admin ]
+
 esn.journal_new_entry.head_comm=There is a new entry by [[poster]][[about]] in [[journal]].[[tags]]
+
+esn.journal_new_entry.head_comm.admin_post=There is a new admin entry by [[poster]][[about]] in [[journal]].[[tags]]
 
 esn.journal_new_entry.head_user=[[poster]] has posted a new entry[[about]].[[tags]]
 
@@ -1455,6 +1471,8 @@ esn.reply_at_webpage=[[openlink]]Reply[[closelink]] at the webpage
 
 esn.reply_to_email2=You can reply to this comment by replying to this email. Your comment needs to be the very first thing in the reply email and appear before all other text.  Do not change the reply-to address, as it uses a secret address to post your reply. You should [[openlink]]reset the secret address[[closelink]] if you've accidentally shared it with anyone else.
 
+esn.reply_to_entry=[[openlink]]Leave a reply to this entry[[closelink]]
+
 esn.reply_to_message=[[openlink]]Reply to this message[[closelink]]
 
 esn.screened=This comment was screened.
@@ -1552,7 +1570,9 @@ Regards,
 
 esn.sentpoints.subject=[[sitename]] Points sent to [[to]]
 
-esn.shop_for_gift=[[openlink]]Buy a gift from our shop[[closelink]]
+esn.shop_for_paid_time=[[openlink]]Give them some paid account time[[closelink]]
+
+esn.shop_for_virtual_gift=[[openlink]]Buy a virtual gift from our shop[[closelink]]
 
 esn.supofficialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
 
@@ -1605,6 +1625,12 @@ event.comm_invite=I receive an invitation to join a community
 event.invited_friend_joins=Someone I invited creates a new journal
 
 event.journal_new_comment.friend=Someone comments in any journal on my friends page
+
+event.journal_new_comment.reply.comment=Someone replies to my comment
+
+event.journal_new_comment.reply.community=Someone replies to my entry in a community
+
+event.journal_new_comment.reply.mycomment=I comment on any entry or comment
 
 event.journal_new_comment.my_journal=Someone comments on any entry in my journal
 
@@ -2067,6 +2093,8 @@ menunav.create.editjournal=Edit Entries
 menunav.create.editprofile=Edit Profile
 
 menunav.create.updatejournal=Post Entry
+
+menunav.create.uploadimages=Upload Images
 
 menunav.create.uploaduserpics=Upload Icons ([[num]] of [[max]])
 
@@ -2542,10 +2570,6 @@ setting.commentcaptcha.option.select.nonfriends=people not on your Access List
 
 setting.commentcaptcha.option.select.nonmembers=non-members
 
-setting.commentemailnotify.label=Comment Email Notification
-
-setting.commentemailnotify.option=Someone replies to any comment I make
-
 setting.commentip.label=IP Address Logging
 
 setting.commentip.option=Log IP addresses of
@@ -2966,10 +2990,6 @@ setting.searchinclusion.label=Off-Site Search Engines
 setting.searchinclusion.option.comm=Attempt to block outside search engines from indexing my community
 
 setting.searchinclusion.option.self=Attempt to block outside search engines from indexing my journal
-
-setting.selfcommentemail.label=Self Comment Email Notification
-
-setting.selfcommentemail.option=I comment on any entry in someone else's journal
 
 setting.sitescheme.error.invalid=Invalid site skin.
 
@@ -3972,7 +3992,7 @@ taglib.error.mergenoname=You did not provide a tag name you want to merge to.
 
 taglib.error.mergetoexisting=The tag name '[[tagname]]' is already in use, but you did not select it. Please select the tag or merge to a different tag name.
 
-taglib.error.toomany2=Adding this tag would exceed your maximum of [[max]] tags.  Please remove at least [[excess]] of the following new tags: [[tags]].
+taglib.error.toomany3=Adding this tag would exceed your maximum of [[max]] tags.  You will not be able to add new tags until you delete [[excess]] existing [[?excess|tag|tags]].
 
 talk.agerestriction.18plus=18+
 
@@ -5395,6 +5415,8 @@ xpost.poll.view=View poll: [[name]]
 xpost.redirect=<span style="font-size: smaller;">This entry was originally posted at <a href = "[[postlink]]">[[postlink]]</a></span>
 
 xpost.redirect.comment=<span style="font-size: smaller;">This entry was originally posted at <a href = "[[postlink]]">[[postlink]]</a>. Please comment there using OpenID.</span>
+
+xpost.redirect.comment2=<span style="font-size: smaller;">This entry was originally posted at <a href = "[[postlink]]">[[postlink]]</a>. Please comment there using <a href="[[openidlink]]">OpenID</a>.</span>
 
 xpost.request.failed=Failed to crosspost to [[account]].  You may go <a href = "[[editurl]]">here</a> to attempt to crosspost this entry again.
 

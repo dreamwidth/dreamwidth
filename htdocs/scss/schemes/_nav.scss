@@ -1,0 +1,219 @@
+$nav-small-screen-header-height: 3em;
+@mixin main-nav(  $nav-orientation: vertical,
+                    $side: left,
+                    $header-height: 7em,
+                    $accountlinks-offset: 0,
+                    $search-offset: 0,
+                    $topbar-offset: 0,
+                    $sidebar-width: 0
+                  ) {
+    #account-links {
+        position: absolute;
+        top: $accountlinks-offset + 1em;
+
+        white-space: nowrap;
+
+        #account-links-text, .account-links-in-header, #nav-login-form {
+            float: $side;
+        }
+
+        ul {
+            float: $side;
+            clear: both;
+            margin: 0;
+        }
+
+        li {
+            list-style: none;
+            float: left;
+            margin: 0 .5em;
+
+            &:after {
+                content: "•";
+                margin-left: .5em;
+            }
+            &:last-child:after {
+                content: "";
+                margin-left: 0;
+            }
+        }
+
+        .ljuser {
+            font-size: 1.5em;
+            line-height: 1;
+        }
+
+        .ljuser img {
+            vertical-align: middle !important;
+        }
+
+        form {
+            margin-bottom: 0;
+        }
+
+         label.inline {
+            text-align: right;
+        }
+    }
+
+    #account-links-userpic {
+        max-height: 7em;
+        float: $side;
+        @if $side == left {
+            margin-right: 1em;
+        } @else {
+            margin-left: 1em;
+        }
+    }
+
+    #account-links-text {
+        text-align: $side;
+    }
+
+    #nav-login-form, #account-links-text {
+        font-size: emCalc(14px);
+    }
+
+    #nav-login-form {
+        line-height: 1;
+
+        label, input {
+            margin-bottom: 0.5em;
+        }
+
+        a {
+            line-height: 2em;
+        }
+    }
+
+    #header-search {
+        position: absolute;
+        top: $header-height + $search-offset;
+        right: 0;
+        padding-right: 2em;
+
+        ul {
+            list-style: none;
+            margin-bottom: 0;
+        }
+    }
+
+    .nav-search {
+        input, select {
+            margin: 0;
+            padding: 0;
+            height: auto;
+            width: auto;
+            display: inline-block;
+        }
+    }
+
+    /**
+     * Header space
+     */
+    #masthead {
+        height: $nav-small-screen-header-height + 1em;
+    }
+
+    #logo img {
+        height: $nav-small-screen-header-height;
+    }
+
+    #content {
+        margin-top: $nav-small-screen-header-height + $topbar-offset + 2 * $base-line-height !important;
+    }
+
+    @media #{$small} {
+        #masthead {
+            height: $header-height;
+        }
+
+        #logo {
+            line-height: $header-height - $base-line-height;
+        }
+
+        #logo img {
+            height: auto;
+        }
+
+        #content {
+            margin-top: $header-height + $search-offset + 2 * $base-line-height !important;
+        }
+    }
+
+
+    .main-nav {
+        .has-dropdown a {
+            text-decoration: none;
+        }
+    }
+
+    @if $nav-orientation == vertical {
+        .main-nav {
+            position: absolute;
+            top: $nav-small-screen-header-height + $topbar-offset;
+            left: 0;
+            right: 0;
+        }
+
+        @media #{$small} {
+            .main-nav {
+                top: $header-height + $topbar-offset;
+            }
+        }
+
+        @media #{$topbar-media-query} {
+            .main-nav {
+                width: $sidebar-width;
+
+                section {
+                    font-size: small;
+                }
+
+                ul {
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .subnav a {
+                    padding-left: 1em;
+                }
+
+                .subnav a,
+                .topnav a {
+                    color: $topbar-link-color;
+                }
+            }
+
+            /**
+             * Reset top-bar styles so they don't apply to the sidebar
+             */
+            .top-bar {
+                height: auto;
+
+                .js-generated {
+                    display: none;
+                }
+            }
+
+            #content {
+                border-left: $sidebar-width solid $topbar-bg;
+                margin-left: 0; // so that it doesn't try to center the content on the page
+                min-height: 65em;
+            }
+        }
+    } @else {
+        .main-nav {
+            position: absolute;
+            top: $nav-small-screen-header-height + $base-line-height;
+            left: 0;
+            right: 0;
+        }
+
+        @media #{$small} {
+            .main-nav {
+                top: $header-height;
+            }
+        }
+    }
+}

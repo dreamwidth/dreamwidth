@@ -38,6 +38,7 @@ use DW::VirtualGift;
 use DW::Auth;
 use DW::Request::XMLRPCTransport;
 use Cwd qw/abs_path/;
+use Carp qw/ croak confess /;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -687,7 +688,10 @@ sub trans
             return redir($apache_r, "/archive$1");
         }
 
-        if ($uuri =~ m#^/(\d+)\.html$#) {
+        if ($uuri =~ m#^/(\d+)(\.html?)$#i) {
+            return redir($apache_r, "/$1.html$args_wq")
+                unless $2 eq '.html';
+
             my $u = LJ::load_user($user)
                 or return 404;
 
@@ -960,10 +964,18 @@ sub trans
         return $inthandle if defined $inthandle;
     }
 
-    # see if there is a modular handler for this URI
-    my $ret = LJ::URI->handle( $uri, $apache_r );
-    $ret = DW::Routing->call( ssl => $is_ssl ) unless defined $ret;
+    # Attempt to handle a URI given the old-style LJ handler, falling back to
+    # the new style Dreamwidth routing system.
+    my $ret = LJ::URI->handle( $uri, $apache_r ) //
+        DW::Routing->call( ssl => $is_ssl );
     return $ret if defined $ret;
+
+    # API role
+    if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
+        my $ver = $1 + 0;
+        $ret = DW::Routing->call( ssl => $is_ssl, api_version => $ver, uri => "/v$ver$2", role => 'api' );
+        return $ret if defined $ret;
+    }
 
     # now check for BML pages
     my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $apache_r, $uri );
@@ -1372,12 +1384,7 @@ sub journal_content
         }
 
         if ($RQ{'mode'} eq "entry" || $RQ{'mode'} eq "reply") {
-            my $filename = $RQ{'mode'} eq "entry" ?
-                "$LJ::HOME/htdocs/talkread.bml" :
-                "$LJ::HOME/htdocs/talkpost.bml";
-            $apache_r->notes->{_journal} = $RQ{user};
-            $apache_r->notes->{bml_filename} = $filename;
-            return Apache::BML::handler($apache_r);
+            confess 'Old talkread/talkpost path hit. Please fix.';
         }
 
         if ($RQ{'mode'} eq "month") {

@@ -1,3 +1,377 @@
+#NEWLAYER: summertime/atlantic
+layerinfo type = "theme";
+layerinfo name = "Atlantic";
+layerinfo redist_uniq = "summertime/atlantic";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Sans Olive", "url" => "http://www.colourlovers.com/palette/414686/Sans_Olive" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#b6cbdb";
+set color_footer_background_shadow = "#929797";
+set color_footer_icon_background = "#fff";
+set color_footer_icon_shadow = "#798791";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#183360";
+set color_footer_link_shadow = "#9fb2c0";
+set color_header_background = "#aca191";
+set color_header_background_shadow = "#929797";
+set color_header_icons_background = "#fff";
+set color_header_icons_background_alt = "#3a352f";
+set color_header_icons_shadow = "#716a60";
+set color_page_background = "#CDD2D5";
+set color_page_link = "#111";
+set color_page_link_hover = "#183360";
+set color_page_text = "#111";
+set color_page_title = "#111";
+set color_page_title_shadow = "#908679";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#aab0b0";
+set color_entry_link = "#183360";
+set color_entry_link_hover = "#3A352F";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b6cbdb";
+set color_module_background_shadow = "#909596";
+set color_module_bottom_background = "#cad7e0";
+set color_module_bottom_background_shadow = "#929797";
+set color_module_link = "#111";
+set color_module_link_hover = "#183360";
+set color_module_text = "#111";
+set color_module_title = "#111";
+set color_module_top_background = "#C4BEB5";
+set color_module_top_background_shadow = "#929797";
+set color_module_top_link_hover = "#3A352F";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_atlantic.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_atlantic.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/birthdaycake
+layerinfo type = "theme";
+layerinfo name = "Birthday Cake";
+layerinfo redist_uniq = "summertime/birthdaycake";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Melon Heart", "url" => "http://www.colourlovers.com/palette/2392121/Melon_Heart" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#FF7673";
+set color_footer_background_shadow = "#af8876";
+set color_footer_icon_background = "#fefefe";
+set color_footer_icon_shadow = "#a74d4b";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#fefefe";
+set color_footer_link_shadow = "#dc6663";
+set color_header_background = "#9a202e";
+set color_header_background_shadow = "#af8876";
+set color_header_icons_background = "#fefefe";
+set color_header_icons_background_alt = "#4E0911";
+set color_header_icons_shadow = "#65151e";
+set color_page_background = "#EBB7A1";
+set color_page_link = "#802200";
+set color_page_link_hover = "#64000C";
+set color_page_text = "#111";
+set color_page_title = "#fefefe";
+set color_page_title_shadow = "#801b26";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#cc9d8b";
+set color_entry_link = "#802200";
+set color_entry_link_hover = "#64000C";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f79f9b";
+set color_module_background_shadow = "#a78071";
+set color_module_bottom_background = "#f79f9b";
+set color_module_bottom_background_shadow = "#af8876";
+set color_module_link = "#111";
+set color_module_link_hover = "#64000C";
+set color_module_text = "#111";
+set color_module_title = "#111";
+set color_module_top_background = "#e64c52";
+set color_module_top_background_shadow = "#af8876";
+set color_module_top_link_hover = "#fefefe";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_birthdaycake.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_birthdaycake.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/bliss
+layerinfo type = "theme";
+layerinfo name = "Bliss";
+layerinfo redist_uniq = "summertime/bliss";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Fargo", "url" => "http://www.colourlovers.com/palette/307038/Fargo" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#BFC7C5";
+set color_footer_background_shadow = "#9a9e9b";
+set color_footer_icon_background = "#fff";
+set color_footer_icon_shadow = "#7f8483";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#E4DA9B";
+set color_footer_link_shadow = "#a4aba9";
+set color_header_background = "#96A3A1";
+set color_header_background_shadow = "#9a9e9b";
+set color_header_icons_background = "#fff";
+set color_header_icons_background_alt = "#343837";
+set color_header_icons_shadow = "#636b6a";
+set color_page_background = "#D1D6D0";
+set color_page_link = "#222827";
+set color_page_link_hover = "#004F43";
+set color_page_text = "#111";
+set color_page_title = "#111";
+set color_page_title_shadow = "#7d8886";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#babdba";
+set color_entry_link = "#222827";
+set color_entry_link_hover = "#004F43";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#BFC7C5";
+set color_module_background_shadow = "#969996";
+set color_module_bottom_background = "#E4DA9B";
+set color_module_bottom_background_shadow = "#9a9e9b";
+set color_module_link = "#111";
+set color_module_link_hover = "#4A4A4A";
+set color_module_text = "#111";
+set color_module_title = "#111";
+set color_module_top_background = "#E4DA9B";
+set color_module_top_background_shadow = "#9a9e9b";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_bliss.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_bliss.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/dinnerwithfriends
+layerinfo type = "theme";
+layerinfo name = "Dinner with Friends";
+layerinfo redist_uniq = "summertime/dinnerwithfriends";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Summer Night Makeout", "url" => "http://www.colourlovers.com/palette/79908/Summer_Night_Makeout" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#b2cb88";
+set color_footer_background_shadow = "#9a957d";
+set color_footer_icon_background = "#fff";
+set color_footer_icon_shadow = "#76875a";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#365400";
+set color_footer_link_shadow = "#9cb277";
+set color_header_background = "#8D2036";
+set color_header_background_shadow = "#9a957d";
+set color_header_icons_background = "#fff";
+set color_header_icons_background_alt = "#34030d";
+set color_header_icons_shadow = "#5d1524";
+set color_page_background = "#D1CBAB";
+set color_page_link = "#365400";
+set color_page_link_hover = "#8D0F29";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_page_title_shadow = "#771b2e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#bbb49a";
+set color_entry_link = "#365400";
+set color_entry_link_hover = "#8D0F29";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b2cb88";
+set color_module_background_shadow = "#99947d";
+set color_module_bottom_background = "#d9eeb6";
+set color_module_bottom_background_shadow = "#9a957d";
+set color_module_link = "#111";
+set color_module_link_hover = "#365400";
+set color_module_text = "#111";
+set color_module_title = "#111";
+set color_module_top_background = "#B15468";
+set color_module_top_background_shadow = "#9a957d";
+set color_module_top_link = "#fff";
+set color_module_top_link_hover = "#FFDCE4";
+set color_module_top_text = "#fff";
+set color_module_top_title = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_dinnerwithfriends.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_dinnerwithfriends.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
 #NEWLAYER: summertime/freshair
 layerinfo type = "theme";
 layerinfo name = "Fresh Air";
@@ -13,7 +387,7 @@ set layout_resources = [
 ## Page Colors
 ##===============================
 
-set color_page_background = "#e0dac9";
+set color_page_background = "#AAC7C3";
 set color_page_link = "#105F64";
 set color_page_link_hover = "#4c6310";
 set color_page_link_visited = "#105F64";
@@ -173,6 +547,281 @@ set image_recent = "summertime/icon-recent_black.png";
 set image_tags = "summertime/icon-tags_black.png";
 
 
+#NEWLAYER: summertime/morningdew
+layerinfo type = "theme";
+layerinfo name = "Morning Dew";
+layerinfo redist_uniq = "summertime/morningdew";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#ecedd2";
+set color_footer_background_shadow = "#7f7a68";
+set color_footer_icon_background = "#111";
+set color_footer_icon_shadow = "#9c9d8b";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#41403B";
+set color_footer_link_shadow = "#cecfb8";
+set color_header_background = "#90b361";
+set color_header_background_shadow = "#7f7a68";
+set color_header_icons_background = "#fefefe";
+set color_header_icons_background_alt = "#2b3a17";
+set color_header_icons_shadow = "#5f7640";
+set color_page_background = "#A6A289";
+set color_page_link = "#111";
+set color_page_link_hover = "#363636";
+set color_page_text = "#111";
+set color_page_title = "#111";
+set color_page_title_shadow = "#779450";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#908b77";
+set color_entry_link = "#41403B";
+set color_entry_link_hover = "#111";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ecedd2";
+set color_module_background_shadow = "#6f6b5a";
+set color_module_bottom_background = "#fbfbee";
+set color_module_bottom_background_shadow = "#7f7a68";
+set color_module_bottom_link_hover ="#616059";
+set color_module_link = "#111";
+set color_module_link_hover = "#41403B";
+set color_module_text = "#111";
+set color_module_title = "#111";
+set color_module_top_background = "#cedfb9";
+set color_module_top_background_shadow = "#7f7a68";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_morningdew.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_morningdew.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_white.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/nightatsea
+layerinfo type = "theme";
+layerinfo name = "Night at Sea";
+layerinfo redist_uniq = "summertime/nightatsea";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#151a3a";
+set color_footer_background_shadow = "#9d998b";
+set color_footer_icon_background = "#fefefe";
+set color_footer_icon_shadow = "#151a3a";
+set color_footer_link = "#fefefe";
+set color_footer_link_hover = "#D4D2CE";
+set color_footer_link_shadow = "#151a3a";
+set color_header_background = "#030715";
+set color_header_background_shadow = "#9d998b";
+set color_header_icons_background = "#fefefe";
+set color_header_icons_background_alt = "#434a76";
+set color_header_icons_shadow = "#2d313c";
+set color_page_background = "#A6A39E";
+set color_page_link = "#111";
+set color_page_link_hover = "#313131";
+set color_page_text = "#111";
+set color_page_title = "#fefefe";
+set color_page_title_shadow = "#171a27";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#827e7b";
+set color_entry_link = "#313131";
+set color_entry_link_hover = "#242C64";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#151a3a";
+set color_module_background_shadow = "#726f6d";
+set color_module_bottom_background = "#434a76";
+set color_module_bottom_background_shadow = "#9d998b";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#D4D2CE";
+set color_module_text = "#fefefe";
+set color_module_title = "#fefefe";
+set color_module_top_background = "#434a76";
+set color_module_top_background_shadow = "#9d998b";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_gray.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_gray.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/nightout
+layerinfo type = "theme";
+layerinfo name = "Night Out";
+layerinfo redist_uniq = "summertime/nightout";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Timeslip", "url" => "http://www.colourlovers.com/palette/1352114/timeslip" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#36153b";
+set color_footer_background_shadow = "#9d998b";
+set color_footer_icon_background = "#fefefe";
+set color_footer_icon_shadow = "#36153b";
+set color_footer_link = "#fefefe";
+set color_footer_link_hover = "#D4D2CE";
+set color_footer_link_shadow = "#36153b";
+set color_header_background = "#110415";
+set color_header_background_shadow = "#9d998b";
+set color_header_icons_background = "#fefefe";
+set color_header_icons_background_alt = "#704376";
+set color_header_icons_shadow = "#3a2f3d";
+set color_page_background = "#A6A39E";
+set color_page_link = "#111";
+set color_page_link_hover = "#313131";
+set color_page_text = "#111";
+set color_page_title = "#fefefe";
+set color_page_title_shadow = "#261a29";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#827e7b";
+set color_entry_link = "#313131";
+set color_entry_link_hover = "#54215C";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#36153b";
+set color_module_background_shadow = "#726f6d";
+set color_module_bottom_background = "#704376";
+set color_module_bottom_background_shadow = "#9d998b";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#D4D2CE";
+set color_module_text = "#fefefe";
+set color_module_title = "#fefefe";
+set color_module_top_background = "#704376";
+set color_module_top_background_shadow = "#9d998b";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_gray.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_gray.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
 #NEWLAYER: summertime/regatta
 layerinfo type = "theme";
 layerinfo name = "Regatta";
@@ -250,6 +899,283 @@ set image_background_entry_url = "summertime/entry-bkg_white.png";
 set image_background_module_position = "15px 15px";
 set image_background_module_repeat = "no-repeat";
 set image_background_module_url = "summertime/sidebar_sand.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/regrets
+layerinfo type = "theme";
+layerinfo name = "Regrets";
+layerinfo redist_uniq = "summertime/regrets";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Contractor_1", "url" => "http://www.colourlovers.com/palette/2703765/Contractor_1" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#a99191";
+set color_footer_background_shadow = "#716159";
+set color_footer_icon_background = "#fff";
+set color_footer_icon_shadow = "#6f6060";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#cebebe";
+set color_footer_link_shadow = "#937e7e";
+set color_header_background = "#a99191";
+set color_header_background_shadow = "#716159";
+set color_header_icons_background = "#fefefe";
+set color_header_icons_background_alt = "#2a2020";
+set color_header_icons_shadow = "#6f6060";
+set color_page_background = "#A38F86";
+set color_page_link = "#111";
+set color_page_link_hover = "#cebebe";
+set color_page_text = "#111";
+set color_page_title = "#111";
+set color_page_title_shadow = "#8d7979";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#827168";
+set color_entry_link = "#383030";
+set color_entry_link_hover = "#111";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e4dbd4";
+set color_module_background_shadow = "#766761";
+set color_module_bottom_background = "#cebebe";
+set color_module_bottom_background_shadow = "#716159";
+set color_module_link = "#111";
+set color_module_link_hover = "#4D4242";
+set color_module_text = "#111";
+set color_module_title = "#111";
+set color_module_top_background = "#cebebe";
+set color_module_top_background_shadow = "#716159";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_regrets.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_regrets.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/sorbet
+layerinfo type = "theme";
+layerinfo name = "Sorbet";
+layerinfo redist_uniq = "summertime/sorbet";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Lemon Sorbet", "url" => "http://www.colourlovers.com/palette/1148698/Lemon_Sorbet" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#f5b680";
+set color_footer_background_shadow = "#aa927b";
+set color_footer_icon_background = "#fefefe";
+set color_footer_icon_shadow = "#a77a53";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#922900";
+set color_footer_link_shadow = "#d29c6e";
+set color_header_background = "#e47270";
+set color_header_background_shadow = "#aa927b";
+set color_header_icons_background = "#fefefe";
+set color_header_icons_background_alt = "#111";
+set color_header_icons_shadow = "#954b49";
+set color_page_background = "#E8C7A8";
+set color_page_link = "#111";
+set color_page_link_hover = "#AC3937";
+set color_page_text = "#111";
+set color_page_title = "#111";
+set color_page_title_shadow = "#be5f5d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#c5a78d";
+set color_entry_link = "#AC3937";
+set color_entry_link_hover = "#111";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f5b680";
+set color_module_background_shadow = "#a78e78";
+set color_module_bottom_background = "#f8cea9";
+set color_module_bottom_background_shadow = "#aa927b";
+set color_module_link = "#111";
+set color_module_link_hover = "#922900";
+set color_module_text = "#111";
+set color_module_title = "#111";
+set color_module_top_background = "#f6b6a4";
+set color_module_top_background_shadow = "#aa927b";
+set color_module_top_link_hover ="#830200";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_sorbet.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_sorbet.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/sunset
+layerinfo type = "theme";
+layerinfo name = "Sunset";
+layerinfo redist_uniq = "summertime/sunset";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Circular Staircase", "url" => "http://www.colourlovers.com/palette/193049/Circular_Staircase" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#d88e7f";
+set color_footer_background_shadow = "#825b4e";
+set color_footer_icon_background = "#fff";
+set color_footer_icon_shadow = "#a07754";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#FFEFE9";
+set color_footer_link_shadow = "#d29c6e";
+set color_header_background = "#9b7673";
+set color_header_background_shadow = "#825b4e";
+set color_header_icons_background = "#fff";
+set color_header_icons_background_alt = "#413130";
+set color_header_icons_shadow = "#664d4b";
+set color_page_background = "#BD8876";
+set color_page_link = "#111";
+set color_page_link_hover = "#FFEFE9";
+set color_page_text = "#111";
+set color_page_title = "#111";
+set color_page_title_shadow = "#816260";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#9c705e";
+set color_entry_link = "#4A4747";
+set color_entry_link_hover = "#111";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d88e7f";
+set color_module_background_shadow = "#855d50";
+set color_module_bottom_background = "#d8a59a";
+set color_module_bottom_background_shadow = "#825b4e";
+set color_module_link = "#111";
+set color_module_link_hover = "#FFEFE9";
+set color_module_text = "#111";
+set color_module_title = "#111";
+set color_module_top_background = "#b39290";
+set color_module_top_background_shadow = "#825b4e";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_sunset.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_sunset.png";
 
 set image_archive = "summertime/icon-archive_black.png";
 set image_archive_alt = "summertime/icon-archive_white.png";
@@ -441,6 +1367,195 @@ set image_background_entry_url = "summertime/entry-bkg_white.png";
 set image_background_module_position = "15px 15px";
 set image_background_module_repeat = "no-repeat";
 set image_background_module_url = "summertime/sidebar_sand.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/toomuchwine
+layerinfo type = "theme";
+layerinfo name = "Too Much Wine";
+layerinfo redist_uniq = "summertime/toomuchwine";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#39141B";
+set color_footer_background_shadow = "#9d998b";
+set color_footer_icon_background = "#fefefe";
+set color_footer_icon_shadow = "#39141b";
+set color_footer_link = "#fefefe";
+set color_footer_link_hover = "#D4D2CE";
+set color_footer_link_shadow = "#39141b";
+set color_header_background = "#150409";
+set color_header_background_shadow = "#9d998b";
+set color_header_icons_background = "#fefefe";
+set color_header_icons_background_alt = "#76434c";
+set color_header_icons_shadow = "#3d2f33";
+set color_page_background = "#A6A39E";
+set color_page_link = "#111";
+set color_page_link_hover = "#313131";
+set color_page_text = "#111";
+set color_page_title = "#fefefe";
+set color_page_title_shadow = "#2a1b1f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#827e7b";
+set color_entry_link = "#313131";
+set color_entry_link_hover = "#61222E";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#39141b";
+set color_module_background_shadow = "#726f6d";
+set color_module_bottom_background = "#76434c";
+set color_module_bottom_background_shadow = "#9d998b";
+set color_module_link = "#fefefe";
+set color_module_link_hover = "#D4D2CE";
+set color_module_text = "#fefefe";
+set color_module_title = "#fefefe";
+set color_module_top_background = "#76434c";
+set color_module_top_background_shadow = "#9d998b";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_gray.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_gray.png";
+
+set image_archive = "summertime/icon-archive_black.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_black.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_black.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_black.png";
+set image_profile = "summertime/icon-profile_black.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_black.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_black.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_black.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/whenwewerekids
+layerinfo type = "theme";
+layerinfo name = "When We Were Kids";
+layerinfo redist_uniq = "summertime/whenwewerekids";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Texture by Design Shard", "url" => "http://www.designshard.com/" },
+    { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+    { "name" => "Linsomnia", "url" => "http://www.colourlovers.com/palette/167006/Linsomnia" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#444a6d";
+set color_footer_background_shadow = "#9d957a";
+set color_footer_icon_background = "#fff";
+set color_footer_icon_shadow = "#2d3148";
+set color_footer_link = "#fff";
+set color_footer_link_hover = "#E4E8FD";
+set color_footer_link_shadow = "#3c4160";
+set color_header_background = "#deb740";
+set color_header_background_shadow = "#9d957a";
+set color_header_icons_background = "#fefefe";
+set color_header_icons_background_alt = "#444A6D";
+set color_header_icons_shadow = "#91782a";
+set color_page_background = "#EAE4C0";
+set color_page_link = "#1E2A6E";
+set color_page_link_hover = "#111";
+set color_page_text = "#111";
+set color_page_title = "#111";
+set color_page_title_shadow = "#b89735";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#111";
+set color_entry_background_shadow = "#bfb496";
+set color_entry_link = "#1E2A6E";
+set color_entry_link_hover = "#111";
+set color_entry_text = "#111";
+set color_entry_title = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#444a6d";
+set color_module_background_shadow = "#999176";
+set color_module_bottom_background = "#8b90ae";
+set color_module_bottom_background_shadow = "#9d957a";
+set color_module_bottom_link_hover = "#111";
+set color_module_link = "#fff";
+set color_module_link_hover = "#1E2A6E";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_top_background = "#E4DA9B";
+set color_module_top_background_shadow = "#9d957a";
+set color_module_top_link = "#111";
+set color_module_top_link_hover = "#fefefe";
+set color_module_top_text = "#111";
+set color_module_top_title = "#111";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/bkg_whenwewerekids.jpg";
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_entry_url = "summertime/entry-bkg_white.png";
+set image_background_module_position = "15px 15px";
+set image_background_module_repeat = "no-repeat";
+set image_background_module_url = "summertime/sidebar_whenwewerekids.png";
 
 set image_archive = "summertime/icon-archive_black.png";
 set image_archive_alt = "summertime/icon-archive_white.png";

@@ -51,22 +51,18 @@ bail_on_fail;
 my $out = "$dir/out";
 my $err = "$dir/err";
 my $lib = File::Spec->catdir(dirname(dirname($0)), 'cgi-bin');
+unshift @INC, $lib;
 
 foreach my $file (@modules) {
-    my $module = substr $file, 0, -3;
-    $module =~ s{/}{::}g;
+    my $warnings = '';
+    local $SIG{__WARN__} = sub { $warnings = $_[0] || '' };
 
     if ($SKIP{$file}) {
         Test::More->builder->skip($SKIP{$file}) for 1..2;
-        next;
+    } else {
+        require_ok($file);
+        is( $warnings, '', "no warnings for $file" );
     }
-
-    system qq($^X -I$lib -e "require 'ljlib.pl'; require( $module ); print 'ok';" > $out 2>$err);
-    my $err_data = slurp($err);
-    is($err_data, '', "STDERR of $file");
-
-    my $out_data = slurp($out);
-    is($out_data, 'ok', "STDOUT of $file");
 }
 
 foreach my $file (@scripts) {
