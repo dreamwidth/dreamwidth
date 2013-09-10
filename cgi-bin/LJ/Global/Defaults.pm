@@ -262,7 +262,6 @@ no strict "vars";
     my %ajaxmapping = (
                        delcomment     => "delcomment.bml",
                        talkscreen     => "talkscreen.bml",
-                       controlstrip   => "tools/endpoints/controlstrip.bml",
                        ctxpopup       => "tools/endpoints/ctxpopup.bml",
                        changerelation => "tools/endpoints/changerelation.bml",
                        userpicselect  => "tools/endpoints/getuserpics.bml",

@@ -364,7 +364,7 @@ function getUserTags(defaultjournal) {
     }
 
     HTTPReq.getJSON({
-        url: "/tools/endpoints/gettags?user=" + user,
+        url: "/__rpc_gettags?user=" + user,
         method: "GET",
         onData: function (data) {
             // disable any InputComplete objects that are already on the tag field
@@ -402,7 +402,7 @@ function changeSecurityOptions(defaultjournal) {
     }
 
     HTTPReq.getJSON({
-        url: "/tools/endpoints/getsecurityoptions?user=" + user,
+        url: "/__rpc_getsecurityoptions?user=" + user,
         method: "GET",
         onData: function (data) {
             if ($('security')) {
