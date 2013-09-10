@@ -82,7 +82,7 @@ sub check_post {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     my $rq = HTTP::Request->new(POST => "http://www.example.com/test");
-    $rq->header( 'Content-Type' => 'multipart/form-data' );
+    $rq->header( 'Content-Type' => 'application/x-www-form-urlencoded' );
     $rq->add_content_utf8( $args );
 
     DW::Request->reset;
