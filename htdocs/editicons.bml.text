@@ -117,6 +117,8 @@
 
 .piclimitstatus=Currently uploaded: [[current]] out of [[max]]. 
 
+.profile.edit=<a [[aopts]]>Edit your profile.</a>
+
 .restriction.fileformat=File format must be either PNG, GIF, or JPG
 
 .restriction.filesize=File size must be less than 40k

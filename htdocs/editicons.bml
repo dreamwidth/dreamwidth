@@ -334,6 +334,9 @@ use strict;
     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $body .= "</form>\n\n";
 
+    # link back to edit profile
+    $body .= BML::ml( '.profile.edit', { aopts => "href='$LJ::SITEROOT/manage/profile$getextra'" } ) . "</p>";
+
     # if we're disabling media, say so
     $body .= "<?warningbar $ML{'error.mediauploadsdisabled'} warningbar?>"
         if $LJ::DISABLE_MEDIA_UPLOADS;
