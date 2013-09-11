@@ -45,7 +45,7 @@
 .reports.users=users
 
 .tlast10.label=Last 10 Reports
-.tlast10.title=Spam Reports - Last 10
+.tlast10.title2=Spam Reports - Last 10 [[extratext]] (results: [[count]])
 
 .tlasthrs.01.label=Last 1 Hour
 .tlasthrs.06.label=Last 6 Hours
@@ -56,12 +56,12 @@
 .tlasthrs.title=Spam Reports - Last [[hours]] [[?num|Hour|Hours]]
 
 .top10ip.label=Top 10 by IP Address
-.top10ip.title=Spam Reports - Top 10 by IP Address
+.top10ip.title2=Spam Reports - Top 10 by IP Address (results: [[count]])
 
 .top10user.label=Top 10 by User
-.top10user.title=Spam Reports - Top 10 by User
+.top10user.title2=Spam Reports - Top 10 by User (results: [[count]])
 
-.view.byip.title=Spam Reports - By IP [[ip]] ([[state]])
+.view.byip.title2=Spam Reports - By IP [[ip]] ([[state]]: [[count]])
 .view.byposterid.title=Spam Reports - By [[user]]
 .view.byposter.title=Spam Reports - Comments By [[user]]
 .view.closedreports=View Closed Reports
