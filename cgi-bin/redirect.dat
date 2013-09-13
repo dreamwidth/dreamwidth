@@ -36,8 +36,10 @@
 /syn/index.bml                      /feeds
 /syn/list                           /feeds/list
 /syn/list.bml                       /feeds/list
-/syn/raw                            /feeds/raw
-/syn/raw.bml                        /feeds/raw
+/syn/raw                            /feeds/list
+/syn/raw.bml                        /feeds/list
+/feeds/raw                          /feeds/list
+/feeds/raw.bml                      /feeds/list
 /editpics                           /editicons
 /editpics.bml                       /editicons
 /userinfo                           /profile

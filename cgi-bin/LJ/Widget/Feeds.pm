@@ -32,7 +32,7 @@ sub render_body {
              $class->ml('widget.feeds.viewall') . "</a>";
 
     # get user IDs of most popular feeds
-    my $popsyn = LJ::Syn::get_popular_feed_ids();
+    my $popsyn = LJ::Feed::get_popular_feed_ids();
     my @rand = BML::randlist(@$popsyn);
 
     my $feednum = 10;

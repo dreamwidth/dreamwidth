@@ -18,7 +18,7 @@ use strict;
 sub applicable {
     my ($class, $u) = @_;
 
-    my $popsyn = LJ::Syn::get_popular_feeds();
+    my $popsyn = LJ::Feed::get_popular_feeds();
 
     my %friends = map { $_ => 1 } $u->watched_userids;
 

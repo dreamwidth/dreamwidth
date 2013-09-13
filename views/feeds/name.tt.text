@@ -1,0 +1,8 @@
+;; -*- coding: utf-8 -*-
+.account=Account:
+
+.create=Create Feed Account
+
+.create.name2=A feed account for that URL ([[feedurl]]) isn't set up yet on this site. Please enter an account name to use with the feed. "_feed" will automatically be added to the end of the account name, so don't include that. After you create the feed account, it may take up to a day to start updating.
+
+.warn.had_credentials=The feed URL contained text that looked like a username and password. For your safety, we have removed that text. Please double-check the URL above to make sure that it no longer contains any sensitive information.
