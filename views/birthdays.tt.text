@@ -5,11 +5,13 @@
 
 .error.badstatus=[[user]] isn't an active account.
 
-.error.invaliduser=Invalid account name: the specified account doesn't exist.
+.error.invaliduser1=Invalid account name: [[user]] doesn't exist.
 
-.findothers=To display the birthdays of people in someone else's Circle, enter the account name below:
+.findothers=To display the birthdays of people in someone else's Circle, enter the account name:
 
 .nobirthdays=There aren't any birthdays to display. This happens when you don't have anyone added to your Circle or if none of your Circle's birthdays are visible to you.
+
+.nobirthdays.otheruser=There aren't any birthdays to display. This happens when there are no users added to [[user]]'s Circle or if none of [[user]]'s Circle's birthdays are visible to you.
 
 .title=Birthdays
 
