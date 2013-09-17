@@ -53,8 +53,6 @@ body<=
         $ret .= LJ::bad_input(@errors) if @errors;
     }
 
-    warn LJ::D(\%POST);
-
     $ret .= "<form action='$LJ::SITEROOT/customize/options' method='get' class='theme-switcher'>";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
     $ret .= "</form>";
