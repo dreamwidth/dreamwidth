@@ -1,0 +1,156 @@
+[%# communities/new.tt
+
+Conversion of htdocs/community/create.bml
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+    "js/jquery.validation.js"
+    "js/jquery.checkusername.js"
+    "js/page/jquery.communities-new.js"
+    "stc/css/page/communities-new.css"
+) -%]
+
+<div class="row"><div class="columns large-6 large-centered">
+<form action="[% site.root %]/communities/new" method="POST">
+    [% dw.form_auth %]
+    <fieldset>
+        <legend>[% '.form.comminfo.legend' | ml %]</legend>
+        <div class="row collapse"><div class="columns">
+            <label for="user">[% '.form.comminfo.user.label' | ml %]</label>
+            <div class="small-7 large-8 columns">
+            [%- form.textbox(
+                name = "user"
+                id   = "user"
+                maxlength = 25
+                class = "journaltype-textbox community-textbox"
+            ) -%]
+            </div>
+            <div class="small-5 large-4 columns"><span class="postfix">.[% site.domain %]</span></div>
+        </div></div>
+
+        <div class="row"><div class="columns">
+            [%- form.textbox(
+                label = dw.ml( '.form.comminfo.title.label' )
+                hint = dw.ml( '.form.comminfo.title.hint' )
+                name  = "title"
+                id    = "title"
+                maxlength = 80
+            ) -%]
+        </div></div>
+    </fieldset>
+
+    <fieldset>
+        <legend>[% '.form.membership.legend' | ml %]</legend>
+        <div class="subheader">[% '.form.membership.subhead' | ml %]</div>
+        [%- form.radio_nested(
+            label = dw.ml( '.form.membership.open.label' )
+            name  = "membership"
+            id    = "membership_open"
+            value = "open"
+        ) -%]
+        [%- form.radio_nested(
+            label = dw.ml( '.form.membership.moderated.label' )
+            name  = "membership"
+            id    = "membership_moderated"
+            value = "moderated"
+        ) -%]
+        [%- form.radio_nested(
+            label = dw.ml( '.form.membership.closed.label' )
+            name  = "membership"
+            id    = "membership_closed"
+            value = "closed"
+        ) -%]
+    </fieldset>
+
+    <fieldset>
+        <legend>[% '.form.postlevel.legend' | ml %]</legend>
+        <div class="subheader">[% '.form.postlevel.subhead' | ml %]</div>
+        [%- form.radio_nested(
+            label = dw.ml( '.form.postlevel.members.label' )
+            name  = "postlevel"
+            id    = "postlevel_members"
+            value = "members"
+        ) -%]
+        [%- form.radio_nested(
+            label = dw.ml( '.form.postlevel.select.label' )
+            name  = "postlevel"
+            id    = "postlevel_select"
+            value = "select"
+        ) -%]
+    </fieldset>
+
+    <fieldset>
+        <legend>[% '.form.nonmember_posting.legend' | ml %]</legend>
+        <div class="subheader">[% '.form.nonmember_posting.subhead' | ml %]</div>
+        [%- form.radio_nested(
+            label = dw.ml( '.form.nonmember_posting.closed.label' )
+            name  = "nonmember_posting"
+            id    = "nonmember_closed"
+            value = 0
+        ) -%]
+        [%- form.radio_nested(
+            label = dw.ml( '.form.nonmember_posting.open.label' )
+            name  = "nonmember_posting"
+            id    = "nonmember_open"
+            value = 1
+        ) -%]
+    </fieldset>
+
+    <fieldset>
+        <legend>[% '.form.moderated.legend' | ml %]</legend>
+        <div class="subheader">[% '.form.moderated.subhead' | ml %]</div>
+        [%- form.radio_nested(
+            label = dw.ml( '.form.moderated.no.label' )
+            name  = "moderated"
+            id    = "moderated_no"
+            value = 0
+        ) -%]
+        [%- form.radio_nested(
+            label = dw.ml( '.form.moderated.yes.label' )
+            name  = "moderated"
+            id    = "moderated_yes"
+            value = 1
+        ) -%]
+    </fieldset>
+
+    [%- IF age_restriction_enabled -%]
+    <fieldset>
+        <legend>[% '.form.age_restriction.legend' | ml %]</legend>
+        <div class="subheader">[% '.form.age_restriction.subhead' | ml %]</div>
+        [%- form.radio_nested(
+            label = dw.ml( '.form.age_restriction.none.label' )
+            name  = "age_restriction"
+            id    = "age_restriction_none"
+            value = "none"
+        ) -%]
+        [%- form.radio_nested(
+            label = dw.ml( '.form.age_restriction.concepts.label' )
+            name  = "age_restriction"
+            id    = "age_restriction_concepts"
+            value = "concepts"
+        ) -%]
+        [%- form.radio_nested(
+            label = dw.ml( '.form.age_restriction.explicit.label' )
+            name  = "age_restriction"
+            id    = "age_restriction_explicit"
+            value = "explicit"
+        ) -%]
+    </fieldset>
+    [%- END -%]
+
+    <div class="row"><div class="columns large-12">
+        [% form.submit( value = dw.ml( '.form.submit.create' ) ) %]
+    </div></div>
+
+</form>
+</div></div>

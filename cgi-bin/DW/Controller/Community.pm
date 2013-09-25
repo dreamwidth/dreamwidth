@@ -9,6 +9,7 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
+
 package DW::Controller::Community;
 
 use strict;
@@ -24,9 +25,12 @@ DW::Controller::Community - Community management pages
 
 DW::Routing->register_string( "/communities/index", \&index_handler, app => 1 );
 DW::Routing->register_string( "/communities/list", \&list_handler, app => 1 );
+DW::Routing->register_string( "/communities/new", \&new_handler, app => 1 );
+
 
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
 DW::Routing->register_redirect( "/community/manage", "/communities/list" );
+DW::Routing->register_redirect( "/community/create", "/communities/new" );
 
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
@@ -112,6 +116,134 @@ sub list_handler {
     };
 
     return DW::Template->render_template( 'communities/list.tt', $vars );
+}
+
+sub new_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $remote = $rv->{remote};
+    my $r = $rv->{r};
+    my $post;
+    my $get;
+
+    return error_ml( 'bml.badinput.body' ) unless LJ::text_in( $post );
+    return error_ml( '/communities/new.tt.error.notactive' ) unless $remote->is_visible;
+    return error_ml( '/communities/new.tt.error.notconfirmed', {
+            confirm_url => "$LJ::SITEROOT/register",
+        }) unless $remote->is_validated;
+
+    my %default_options = (
+        membership  => 'open',
+        postlevel   => 'members',
+        moderated   => '0',
+        nonmember_posting   => '0',
+        age_restriction     => 'none'
+    );
+
+    my @errors;
+    if ( $r->did_post ) {
+        $post = $r->post_args;
+
+        # checks that the POSTed option is valid
+        # if not, force it to the default option
+        my $validate = sub {
+            my ( $key, $regex ) = @_;
+
+            $post->set( $key, $default_options{$key} )
+                unless $post->{$key} =~ $regex;
+        };
+
+        $validate->( "membership",          qr/^(?:open|moderated|closed)$/ );
+        $validate->( "postlevel",           qr/^(?:members|select)$/ );
+        $validate->( "nonmember_posting",   qr/^[01]$/ );
+        $validate->( "moderated",           qr/^[01]$/ );
+        $validate->( "age_restriction",     qr/^(?:none|concepts|explicit)$/ );
+
+
+        my $new_user = LJ::canonical_username( $post->{user} );
+        my $title = $post->{title} || $new_user;
+
+        if ( LJ::sysban_check( 'email', $remote->email_raw ) ) {
+            LJ::Sysban::block( 0, "Create user blocked based on email",
+                        { new_user => $new_user, email => $remote->email_raw, name => $new_user } );
+            return $r->HTTP_SERVICE_UNAVAILABLE;
+        }
+
+        if ( ! $post->{user} ) {
+            push @errors, [ "user", ".error.user.mustenter" ];
+        } elsif( ! $new_user ) {
+            push @errors, [ "user", "error.usernameinvalid" ];
+        } elsif ( length $new_user > 25 ) {
+            push @errors, [ "user", "error.usernamelong" ];
+        }
+
+        # disallow creating communities matched against the deny list
+        push @errors, [ "user", ".error.user.reserved" ]
+            if LJ::User->is_protected_username( $new_user );
+
+        # now try to actually create the community
+        my $second_submit;
+        my $cu = LJ::load_user( $new_user );
+
+        if ( $cu && $cu->is_expunged ) {
+            push @errors, [ "user", "widget.createaccount.error.username.purged",
+                                    { aopts => "href='$LJ::SITEROOT/rename/'" } ],
+        } elsif ( $cu ) {
+            # community was created in the last 10 minutes?
+            my $recent_create = ( $cu->timecreate > (time() - (10*60)) ) ? 1 : 0;
+            $second_submit = ( $cu->is_community && $recent_create
+                                && $remote->can_manage_other( $cu ) ) ? 1 : 0;
+            push @errors, [ "user", ".error.user.inuse" ] unless $second_submit;
+        }
+
+        unless ( $errors->exist ) {
+            # rate limit
+            return error_ml( "/communities/new.tt.error.ratelimited" )
+                unless $remote->rate_log( 'commcreate', 1 );
+
+            $cu = LJ::User->create_community (
+                    user        => $new_user,
+                    status      => $remote->email_status,
+                    name        => $title,
+                    email       => $remote->email_raw,
+                    membership  => $post->{membership},
+                    postlevel   => $post->{postlevel},
+                    moderated   => $post->{moderated},
+                    nonmember_posting       => $post->{nonmember_posting},
+                    journal_adult_settings  => $post->{age_restriction},
+                ) unless $second_submit;
+
+            return DW::Template->render_template( 'communities/new-success.tt', {
+                community => {
+                    ljuser  => $cu->ljuser_display,
+                    user    => $cu->user,
+                }
+            }) if $cu;
+        }
+    } else {
+        $get = $r->get_args;
+    }
+
+    my $vars = {
+        age_restriction_enabled => LJ::is_enabled( 'adult_content' ),
+
+        # a list of errors, in a specific order
+        errors => [ map { { ml => $_->[1], args => $_->[2] } } @errors ],
+
+        # form field name => error
+        formdata_errors => { map { $_[0] => { ml => $_[1], args => $_->[2]} } @errors },
+    };
+
+    $vars->{formdata} = $post || {
+                                user => $get->{user},
+                                title => $get->{title},
+
+                                # initial radio button selection
+                                %default_options
+                            };
+
+    return DW::Template->render_template( 'communities/new.tt', $vars );
 }
 
 1;
