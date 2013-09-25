@@ -103,7 +103,7 @@ sub get_menu_navigation {
 #                    display => $loggedin,
 #                },
                 {
-                    url => "$LJ::SITEROOT/community/create",
+                    url => "$LJ::SITEROOT/communities/new",
                     text => "menunav.create.createcommunity",
                     display => $loggedin_canjoincomms,
                 },

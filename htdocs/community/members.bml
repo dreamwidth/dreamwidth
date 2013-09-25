@@ -37,7 +37,7 @@ body<=
     }
 
     my $cname = $GET{authas};
-    return BML::redirect("$LJ::SITEROOT/community/manage") unless $cname;
+    return BML::redirect("$LJ::SITEROOT/communities/list") unless $cname;
 
     $ret .= "<form action='members' method='GET'>\n";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => 'C' });
@@ -306,7 +306,7 @@ body<=
             my $mailusername = $maint_u->user;
             my $mailusercname = $c->name_raw;
             my $mailclink = $c->journal_base( ['community'] );
-            my $mailcommanlink = "$LJ::SITEROOT/community/manage";
+            my $mailcommanlink = "$LJ::SITEROOT/communities/list";
 
             my $html;
 

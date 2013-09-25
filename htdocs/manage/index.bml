@@ -264,8 +264,8 @@ block?>
 header=><?_ml .communities.header _ml?>
 about=><?_ml .communities        _ml?>
 list<=
-<li><a href="/community/create" title="<?_ml .communities.create.about _ml?>"><?_ml /community/create.bml.title _ml?></a></li>
-<li><a href="/community/manage" title="<?_ml .communities.manage.about _ml?>"><?_ml /community/manage.bml.title2 _ml?></a></li>
+<li><a href="/communities/new" title="<?_ml .communities.create.about _ml?>"><?_ml /communities/new.tt.title _ml?></a></li>
+<li><a href="/communities/list" title="<?_ml .communities.manage.about _ml?>"><?_ml /communities/list.tt.title _ml?></a></li>
 <li><a href="/manage/invites" title="<?_ml .communities.invites.about _ml?>"><?_ml /manage/invites.bml.title2 _ml?></a></li>
 <=list
 block?>

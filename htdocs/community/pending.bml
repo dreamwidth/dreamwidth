@@ -32,7 +32,7 @@ body<=
     }
 
     my $cname = $GET{authas};
-    return BML::redirect("$LJ::SITEROOT/community/manage") unless $cname;
+    return BML::redirect("$LJ::SITEROOT/communities/list") unless $cname;
 
     my $ret;
     $ret .= "<form action='pending' method='GET'>\n";
@@ -206,7 +206,7 @@ body<=
     $ret .= $navbar;
 
     $ret .= BML::ml('Backlink', {
-        'link' => '/community/manage',
+        'link' => '/communities/list',
         'text' => $ML{'/community/members.bml.manage2'},
     });
 

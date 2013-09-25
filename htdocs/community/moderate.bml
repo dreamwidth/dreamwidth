@@ -199,7 +199,7 @@ body<=
         } else {
             $ret .= "<p>";
             $ret .= BML::ml('Backlink', {
-                'link'=>'/community/manage',
+                'link'=>'/communities/list',
                 'text'=>$ML{'.manage'},
                 }) . "<br />";
             $ret .= BML::ml('Backlink', {
@@ -215,7 +215,7 @@ body<=
     my $modid = $saved_modid || ($mode eq 'action' ? $POST{'modid'} : $GET{'modid'});
     $modid += 0;
 
-    # redirect to community/manage if a GET request with no arg
+    # redirect to communities/list if a GET request with no arg
     return BML::redirect("manage") unless $comm;
 
     my $c = LJ::load_user($comm);
@@ -355,7 +355,7 @@ body<=
         }
         $ret .= "</div>";
         $ret .= BML::ml('Backlink', {
-            'link'=>'/community/manage',
+            'link'=>'/communities/list',
             'text'=>$ML{'.manage'},
         }) . "<br />";
 
@@ -413,7 +413,7 @@ body<=
 
         $ret .= "<p>";
         $ret .= BML::ml('Backlink', {
-            'link'=>'/community/manage',
+            'link'=>'/communities/list',
             'text'=>$ML{'.manage'},
         }) . "<br />";
         $ret .= BML::ml('Backlink', {

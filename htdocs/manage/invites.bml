@@ -110,7 +110,7 @@ body<=
             }
         $ret .= "<li><a href='" . $u->journal_base . "/read'>$ML{'.success.readingpage'}</a></li>";
         $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/edit'>$ML{'.success.managecircle'}</a></li>";
-        $ret .= "<li><a href='$LJ::SITEROOT/community/manage'>$ML{'.success.managecomm'}</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/communities/list'>$ML{'.success.managecomm'}</a></li>";
         $ret .= "</ul>";
         return $ret;
     }

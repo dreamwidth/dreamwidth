@@ -3,7 +3,7 @@
   # Authors:
   #      Jen Griffin <kareila@livejournal.com>
   #
-  # Copyright (c) 2010 by Dreamwidth Studios, LLC.
+  # Copyright (c) 2010-2013 by Dreamwidth Studios, LLC.
   #
   # This program is free software; you may redistribute it and/or modify it
   # under the same terms as Perl itself. For a copy of the license, please
@@ -61,7 +61,7 @@
     [%- END -%]
     [%- UNLESS comm_count -%]
         <p class='interestinfo'>
-        [%- '.nocomms2' | ml(aopts = "href='$site.root/community/create'", num = query_count) %]</p>
+        [%- '.nocomms2' | ml(aopts = "href='$site.root/communities/new'", num = query_count) %]</p>
     [%- END -%]
     <p class='interestinfo'>
     [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
@@ -96,7 +96,7 @@
     [%- END -%]
 [%- ELSE -%]
     <p class='interestinfo'>
-    [%- '.nocomms2' | ml(aopts = "href='$site.root/community/create'", num = query_count) %]</p>
+    [%- '.nocomms2' | ml(aopts = "href='$site.root/communities/new'", num = query_count) %]</p>
     <p class='interestinfo'>
     [%- IF no_users -%]
         [%- '.nousers3' | ml(aopts = "href='$site.root/interests?mode=addnew&amp;keyword=$no_users'", num = no_users_count, interests = no_users ) %]</p>

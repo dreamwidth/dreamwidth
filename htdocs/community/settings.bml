@@ -199,7 +199,7 @@ body<=
 
             $ret .= "<?p $ML{'.label.rellinks'} <ul><li><a href='" . $cu->journal_base . "'>$ML{'.label.commsite'}</a></li>";
             $ret .= "<li><a href='" . $cu->profile_url() . "'>$ML{'.label.comminfo'}</a></li>"
-                . "<li>" . BML::ml('.label.managepage', { aopts => 'href="/community/manage"' }) . "</li>";
+                . "<li>" . BML::ml('.label.managepage', { aopts => 'href="/communities/list"' }) . "</li>";
 
             my $posting_guidelines_url = $cu->posting_guidelines_url;
             $ret .= "<li>" . BML::ml('.label.guidelines', { aopts => "href='$posting_guidelines_url'"} ) . "</li>"
@@ -238,7 +238,7 @@ body<=
         $c = LJ::load_user($cname);
         unless ($c) {
             # if no community was specified, redirect to manage
-            return BML::redirect("$LJ::SITEROOT/community/manage");
+            return BML::redirect("$LJ::SITEROOT/communities/list");
         }
 
         unless ( $c->is_community ) {
