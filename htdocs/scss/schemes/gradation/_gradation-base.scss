@@ -20,6 +20,7 @@ $success-color: #2B5229;
 // We use these to control header font styles
 $header-font-family:                   Arial, sans-serif;
 $header-font-color:                    $strong-accent-color;
+$list-side-margin:                     1em;
 
 // override colors based on $header-font-color
 $small-font-color:                     $body-font-color;

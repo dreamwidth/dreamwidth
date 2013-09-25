@@ -3,7 +3,7 @@
  * Authors:
  *     Emily Ravenwood <ravenwood@alltrees.org>
  *
- * Copyright (c) 2009 by Dreamwidth Studios, LLC.
+ * Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
  *
  * This program is free software; you may redistribute it and/or modify it under
  * the same terms as Perl itself.  For a copy of the license, please reference
@@ -32,6 +32,7 @@ $success-color: #7bb74b;
 // We use these to control header font styles
 $header-font-family:                   "Century Gothic", Verdana, sans-serif;
 $header-font-color:                    $body-font-color;
+$list-side-margin:                     1em;
 
 
 // We use these to style anchors
