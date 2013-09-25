@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -153,6 +153,33 @@ sub radio {
 
 }
 
+=head2 [% form.radio( label = ... ) %]
+
+Return a radiobutton nested within a label, if provided. Values are prepopulated by the plugin's datasource.
+
+=cut
+
+sub radio_nested {
+    my ( $self, $args ) = @_;
+
+    $args->{type} = "radio";
+
+    my $ret = "";
+    if ( ! defined $args->{selected} && $self->{data} ) {
+        my %selected = map { $_ => 1 } $self->{data}->get_all( $args->{name} );
+        $args->{selected} = $selected{$args->{value}};
+    }
+
+    $args->{class} ||= "radio";
+
+    my $label = delete $args->{label};
+
+    # makes the form element use the default or an explicit value...
+    $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
+
+    $ret .= "<label for='$args->{id}'>" . LJ::html_check( $args ) . " $label</label>";
+}
+
 =head2 [% form.select( label="A Label", id="elementid", name="elementname", items=[array of items], ... ) %]
 
 Return a select dropdown with a list of options, and matching label if provided. Values are prepopulated
@@ -221,6 +248,12 @@ sub textbox {
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args );
     $ret .= LJ::html_text( $args );
+
+    if ( $args->{hint} ) {
+        my $describedby = $args->{id} ? "$args->{id}-hint" : "";
+        $ret .= qq{<span class="form-hint" id='$describedby'>$args->{hint}</span>};
+        $args->{"aria-describedby"} = $describedby;
+    }
 
     return $ret;
 }

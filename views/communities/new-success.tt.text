@@ -1,0 +1,9 @@
+;; -*- coding: utf-8 -*-
+
+.success.created=[[user]] has been created. You're currently its only administrator.
+
+.success.enter_info.button=Edit Community Information
+
+.success.enter_info.prompt=You may now fill in more information about your community to let other people know what this community is about.
+
+.title=Community Created

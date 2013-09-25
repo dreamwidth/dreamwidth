@@ -1,7 +1,7 @@
 /**
 * Site-wide skin-specific CSS colors
 * Set the color variables in the scheme-specific CSS file
-* Then @import _skin_colors.scss
+* Then @import _skin-colors.scss
 *
 * Only use mixins (@include), or variables
 * so that we pick up the colors / settings from the site skin
@@ -27,10 +27,4 @@ nav {
     background-color: $topbar-bg;
 }
 
-/**
- * Form elements
- */
-
-.submit {
-    @extend .button;
- }
+@import "schemes/form-elements";

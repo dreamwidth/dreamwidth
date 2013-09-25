@@ -1,4 +1,4 @@
-[%# community/index.tt
+[%# communities/index.tt
 
 Provides a "landing page" for communities and community-related
 stuff, including links for both comm members and admins.
