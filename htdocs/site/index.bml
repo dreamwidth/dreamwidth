@@ -86,8 +86,8 @@ body<=
 
  <dl><dt><?_code return BML::ml('.maplinks.community-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/community/create'><?_ml .maplinks.create-comm _ml?></a></li>
-   <li><a href='/community/manage'><?_ml .maplinks.manage-comm _ml?></a></li>
+   <li><a href='/communities/new'><?_ml .maplinks.create-comm _ml?></a></li>
+   <li><a href='/communities/list'><?_ml .maplinks.manage-comm _ml?></a></li>
    <li><a href='/manage/invites'><?_ml .maplinks.manage-invites _ml?></a></li>
    <li><a href='/community/search'><?_ml .maplinks.search-comm _ml?></a></li>
   </ul></dd></dl>

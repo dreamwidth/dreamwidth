@@ -194,7 +194,7 @@ body<=
     $ret .= "<div class='columns-2-right'>";
 
     $ret .= "<?h1 $ML{'.create.header'} h1?>";
-    $ret .= "<?p " . BML::ml('.create.text2', {'aopts' => "href='$LJ::SITEROOT/community/create'"}) . " p?>";
+    $ret .= "<?p " . BML::ml('.create.text2', {'aopts' => "href='$LJ::SITEROOT/communities/new'"}) . " p?>";
 
     $ret .= "<?h1 $ML{'/manage/invites.bml.title2'} h1?>";
     $ret .= "<?p " . BML::ml('.invite.text', {'aopts' => "href='$LJ::SITEROOT/manage/invites'"}) . " p?>";
