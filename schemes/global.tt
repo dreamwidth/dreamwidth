@@ -63,3 +63,20 @@
      <a href="#content" tabindex="1">Skip to Main Content</a>
 </div>
 [%- END -%]
+
+[%- BLOCK block.errors -%]
+
+[%# sections.errors are instances of DW::FormErrors %]
+[%- IF sections.errors.exist -%]
+<div class="row"><div class="large-12 columns">
+    <div class="panel">
+    <ol>
+    [%- FOREACH err = sections.errors.get_all -%]
+        <li>[%- err.message | ml( err.args ) -%]</li>
+    [%- END -%]
+    </ol>
+    </div>
+</div></div>
+[%- END -%]
+
+[%- END -%]

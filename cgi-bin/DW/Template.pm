@@ -107,6 +107,7 @@ sub template_string {
     my $r = DW::Request->get;
 
     $opts->{sections} = $extra;
+    $opts->{sections}->{errors} = $opts->{errors};
 
     # now we have to save the scope and update it for this rendering
     my $oldscope = $r->note( 'ml_scope' );
