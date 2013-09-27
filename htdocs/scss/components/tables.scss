@@ -10,11 +10,3 @@ $include-html-table-classes: true;
 th[scope="row"] {
     text-align: left;
 }
-
-table ul {
-    // so that the bullet points don't spill out of the table cell
-    // `list-style-position: inside` causes issues in chrome
-    //      the table cell is too narrow (possibly same width allocated as
-    //      if it was list-style-position: outside)
-    margin-left: 1em;
-}
