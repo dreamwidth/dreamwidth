@@ -6,7 +6,7 @@
             var $element = $(this);
 
             // insert error message (into new or existing element)
-            var $error = $element.next( ".error.js-generated" );
+            var $error = $element.next( ".error" );
             if ( $error.length == 0 ) {
                 $error = $("<small class='error js-generated'></small>")
                             .insertAfter( $element );
@@ -27,7 +27,7 @@
             var $element = $(this);
 
             // remove error message
-            $element.next( ".error.js-generated" ).remove();
+            $element.next( ".error" ).remove();
 
             // remove the error class
             $element.removeClass( "error" );
