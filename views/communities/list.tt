@@ -18,7 +18,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/components/labels.css"
 ) -%]
 
-<div class="row"><div class="columns">
 [% IF community_list.size > 0 %]
 <table>
     <thead>
@@ -75,4 +74,3 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% ELSE %]
 <div class="callout panel">[% '.no.communities' | ml( create_url = site.root _ "/communities/new" ) %]</div>
 [% END %]
-</div></div>

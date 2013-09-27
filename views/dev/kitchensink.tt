@@ -8,7 +8,6 @@
 -%]
 [% CALL dw.active_resource_group( "foundation" ) %]
 
-  <div class="large-12 columns">
     <div class="row">
       <div class="large-12 columns">
         <h2>Kitchen Sink</h2>
@@ -824,5 +823,3 @@
 
       </div>
     </div>
-
-</div>
