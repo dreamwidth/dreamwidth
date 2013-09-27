@@ -97,7 +97,14 @@ arguments for the ml string, as a hashref
 sub get {
     my ( $self, $key ) = @_;
 
-    return $self->{_data}->get_all( $key );
+    my @errors = $self->{_data}->get_all( $key );
+   foreach my $error ( @errors ) {
+       $error->{message} = $self->_absolute_ml_code( $error->{message} );
+   }
+
+    # using an array slice to force it to return as a list, even if in scalar context
+    # (so if it's called in scalar context, we just pull off the first error...)
+    return @errors[0...$#errors];
 }
 
 =head2 C<< $self->get_all >>
@@ -118,9 +125,32 @@ sub get_all {
     my ( $self ) = @_;
 
     my @errors;
-    $self->{_data}->each( sub { push @errors, { key => $_[0], %{$_[1]} } } );
+    $self->{_data}->each( sub {
+                my $error = {
+                    key     => $_[0],
+                    message => $self->_absolute_ml_code( $_[1]->{message} ),
+                };
+                $error->{args} = $_[1]->{args} if $_[1]->{args};
+
+                push @errors, $error;
+            } );
 
     return \@errors;
+}
+
+
+# converts relative ml codes to absolute ones (including filename)
+# needs to be called when getting, rather than when adding
+# because that's when we know the filename we're in
+sub _absolute_ml_code {
+    my ( $self, $error_ml ) = @_;
+
+    my $r = DW::Request->get;
+    my $ml_scope = $r ? $r->note( "ml_scope" ) : "";
+    $error_ml =  $ml_scope . $error_ml
+        if rindex( $error_ml, '.', 0 ) == 0;
+
+    return $error_ml;
 }
 
 =head2 C<< $self->exist >>

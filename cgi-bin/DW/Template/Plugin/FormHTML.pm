@@ -41,9 +41,14 @@ sub new {
     my ( $class, $context, @params ) = @_;
 
     my $data;
+    my $errors;
     if ( $context ) {
-        my $formdata = $context->stash->{formdata};
+        my $stash = $context->stash;
+        my $formdata = $stash->{formdata};
         $data = ref $formdata eq "Hash::MultiValue" ? $formdata : Hash::MultiValue->from_mixed( $formdata );
+
+        my $formerrors = $stash->{errors};
+        $errors = $formerrors if $formerrors && $formerrors->exist;
     }
 
     my $r = DW::Request->get;
@@ -51,6 +56,7 @@ sub new {
     my $self = bless {
         _CONTEXT => $context,
         data     => $data,
+        errors   => $errors,
         did_post => $r && $r->did_post,
     }, $class;
 
@@ -243,15 +249,26 @@ are prepopulated by the plugin's datasource.
 sub textbox {
     my ( $self, $args ) = @_;
 
+    my $hint = delete $args->{hint};
+    my @errors;
+    @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
+
     $args->{class} ||= "text";
+    $args->{class} .= " error" if @errors;
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args );
     $ret .= LJ::html_text( $args );
 
-    if ( $args->{hint} ) {
+    foreach my $error ( @errors ) {
+        $ret .= qq{<small class="error">}
+                    . LJ::Lang::ml( $error->{message}, $error->{args} )
+                    . qq{</small>};
+    }
+
+    if ( $hint ) {
         my $describedby = $args->{id} ? "$args->{id}-hint" : "";
-        $ret .= qq{<span class="form-hint" id='$describedby'>$args->{hint}</span>};
+        $ret .= qq{<span class="form-hint" id='$describedby'>$hint</span>};
         $args->{"aria-describedby"} = $describedby;
     }
 
