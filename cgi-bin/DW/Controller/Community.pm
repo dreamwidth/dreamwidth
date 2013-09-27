@@ -16,6 +16,7 @@ use strict;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::FormErrors;
 
 =head1 NAME
 
@@ -141,7 +142,7 @@ sub new_handler {
         age_restriction     => 'none'
     );
 
-    my @errors;
+    my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
         $post = $r->post_args;
 
@@ -171,15 +172,15 @@ sub new_handler {
         }
 
         if ( ! $post->{user} ) {
-            push @errors, [ "user", ".error.user.mustenter" ];
+            $errors->add( "user", ".error.user.mustenter" );
         } elsif( ! $new_user ) {
-            push @errors, [ "user", "error.usernameinvalid" ];
+            $errors->add( "user", "error.usernameinvalid" );
         } elsif ( length $new_user > 25 ) {
-            push @errors, [ "user", "error.usernamelong" ];
+            $errors->add( "user", "error.usernamelong" );
         }
 
         # disallow creating communities matched against the deny list
-        push @errors, [ "user", ".error.user.reserved" ]
+        $errors->add( "user", ".error.user.reserved" )
             if LJ::User->is_protected_username( $new_user );
 
         # now try to actually create the community
@@ -187,14 +188,14 @@ sub new_handler {
         my $cu = LJ::load_user( $new_user );
 
         if ( $cu && $cu->is_expunged ) {
-            push @errors, [ "user", "widget.createaccount.error.username.purged",
-                                    { aopts => "href='$LJ::SITEROOT/rename/'" } ],
+            $errors->add( "user", "widget.createaccount.error.username.purged",
+                                        { aopts => "href='$LJ::SITEROOT/rename/'" } );
         } elsif ( $cu ) {
             # community was created in the last 10 minutes?
             my $recent_create = ( $cu->timecreate > (time() - (10*60)) ) ? 1 : 0;
             $second_submit = ( $cu->is_community && $recent_create
                                 && $remote->can_manage_other( $cu ) ) ? 1 : 0;
-            push @errors, [ "user", ".error.user.inuse" ] unless $second_submit;
+            $errors->add( "user", ".error.user.inuse" ) unless $second_submit;
         }
 
         unless ( $errors->exist ) {
@@ -228,11 +229,7 @@ sub new_handler {
     my $vars = {
         age_restriction_enabled => LJ::is_enabled( 'adult_content' ),
 
-        # a list of errors, in a specific order
-        errors => [ map { { ml => $_->[1], args => $_->[2] } } @errors ],
-
-        # form field name => error
-        formdata_errors => { map { $_[0] => { ml => $_[1], args => $_->[2]} } @errors },
+        errors => $errors,
     };
 
     $vars->{formdata} = $post || {
