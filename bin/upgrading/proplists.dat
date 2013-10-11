@@ -90,7 +90,7 @@ userproplist.optout_community_promo:
   cldversion: 4
   datatype: char
   des: Promote this community to invited users when they create their account
-  indexed: 0 
+  indexed: 0
   multihomed: 0
   prettyname: Account creation community promo
 
@@ -125,7 +125,7 @@ userproplist.control_strip_color:
   indexed: 0
   multihomed: 0
   prettyname: Control strip color
-  
+
 userproplist.country:
   cldversion: 4
   datatype: char
@@ -178,7 +178,7 @@ userproplist.disable_auto_formatting:
   cldversion: 4
   datatype: bool
   des: Disable auto-formatting on entries by default for this user
-  indexed: 0 
+  indexed: 0
   multihomed: 0
   prettyname: User's default value for auto formatting on their entries
 
@@ -234,16 +234,16 @@ userproplist.emailpost_comments:
   cldversion: 4
   datatype: char
   des: Default comment options for post-by-email entries
-  indexed: 
-  multihomed: 
+  indexed: 0
+  multihomed: 0
   prettyname: Comment options for email posting
 
 userproplist.emailpost_gallery:
   cldversion: 4
   datatype: char
   des: Default gallery name for post-by-email pictures
-  indexed: 
-  multihomed: 
+  indexed: 0
+  multihomed: 0
   prettyname: Gallery name for email imgs
 
 userproplist.emailpost_pin:
@@ -258,16 +258,16 @@ userproplist.emailpost_security:
   cldversion: 4
   datatype: char
   des: Default security for post-by-email entries (and pictures)
-  indexed: 
-  multihomed: 
+  indexed: 0
+  multihomed: 0
   prettyname: Entry security for email posting
 
 userproplist.emailpost_userpic:
   cldversion: 4
   datatype: char
   des: Default userpic for post-by-email entries
-  indexed: 
-  multihomed: 
+  indexed: 0
+  multihomed: 0
   prettyname: Userpic for email posting
 
 userproplist.entry_draft:
@@ -705,7 +705,7 @@ userproplist.opt_ctxpopup:
 userproplist.opt_echi_display:
   cldversion: 4
   datatype: bool
-  des: Explicit Hierarchy Comment Indicator (1., 1a, 1b, 2.) display for comments 
+  des: Explicit Hierarchy Comment Indicator (1., 1a, 1b, 2.) display for comments
   indexed: 1
   multihomed: 0
   prettyname: Explicit Hierarchy Comment Indicator display
@@ -816,7 +816,7 @@ userproplist.opt_logcommentips:
 
 userproplist.opt_maxpicheight:
   cldversion: 4
-  datatype: 
+  datatype: char
   des: Maxium picture height to be shown in journal before being linkitized.  0: for no max
   indexed: 1
   multihomed: 0
@@ -824,7 +824,7 @@ userproplist.opt_maxpicheight:
 
 userproplist.opt_maxpicwidth:
   cldversion: 4
-  datatype: 
+  datatype: char
   des: Maxium picture width to be shown in journal before being linkitized.  0: for no max
   indexed: 1
   multihomed: 0
@@ -938,8 +938,8 @@ userproplist.opt_synlevel:
   cldversion: 4
   datatype: char
   des: How much content to put into syndication (Atom/RSS) feeds; values are: title, summary, or friends
-  indexed: 
-  multihomed: 
+  indexed: 0
+  multihomed: 0
   prettyname: Syndication Level
 
 userproplist.opt_tagpermissions:
@@ -1456,7 +1456,7 @@ logproplist.hasscreened:
   prettyname: Has screened replies
   sortorder: 99
   ownership: system
-  
+
 logproplist.import_source:
   datatype: char
   des: String describing where this entry was imported from
