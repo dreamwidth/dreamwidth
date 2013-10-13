@@ -81,6 +81,7 @@ sub default_themes {
         summertime => 'summertime/tenniscourt',
         tectonic => 'tectonic/fission',
         tranquilityiii => 'tranquilityiii/nightsea',
+        trifecta => 'trifecta/handlewithcare',
         wideopen => 'wideopen/koi',
         zesty => 'zesty/white',
     );

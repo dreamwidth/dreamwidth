@@ -1,0 +1,1368 @@
+layerinfo type = "layout";
+layerinfo name = "Trifecta";
+layerinfo redist_uniq = "trifecta/layout";
+layerinfo author_name = "ninetydegrees";
+layerinfo lang = "en";
+
+set layout_authors = [ {"name" => "ninetydegrees", "type" => "user"} ];
+
+##===============================
+## Presentation
+##===============================
+
+propgroup presentation_child {
+    property string post_text_align {
+        des = "Content text alignment";
+        values = "left|Left|justify|Justify";
+        }
+}
+
+set layout_type = "three-columns-left";
+set entry_date_format = "long_day_dayfirst";
+set entry_time_format = "short_24";
+set comment_time_format = "short_24";
+set entry_userpic_style = "small";
+set comment_userpic_style = "small";
+set post_text_align = "justify";
+
+set reverse_sortorder_year = true;
+set reverse_sortorder_month = true;
+set reverse_sortorder_day = true;
+set reg_firstdayofweek = "monday";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+
+    property Color color_calendar_background { des = "Calendar background color on days with entries"; }
+    property Color color_calendar_link { des = "Calendar link color on days with entries"; }
+    property Color color_calendar_link_active { des = "Calendar active link color on days with entries"; }
+    property Color color_calendar_link_hover { des = "Calendar hover link color on days with entries"; }
+    property Color color_calendar_link_visited { des = "Calendar visited link color on days with entries"; }
+    property Color color_calendar_text { des = "Calendar text color on days with entries"; }
+    property Color color_calendar_border { des = "Calendar border color"; }
+
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+
+    property Color color_main_background {
+        des = "Main background color";
+        note = "If none is specified the page color will be used. This is true for all main colors.";
+    }
+    property Color color_main_text { des = "Main text color"; }
+    property Color color_main_link { des = "Main link color"; }
+    property Color color_main_link_active { des = "Main active link color"; }
+    property Color color_main_link_hover { des = "Main hover link color"; }
+    property Color color_main_link_visited { des = "Main visited link color"; }
+    property Color color_main_border { des = "Main border color"; }
+
+    property Color color_secondary_background { des = "Main module section background color"; }
+
+    property Color color_tertiary_background {
+        des = "Secondary module section background color";
+        note = "If none is specified the main module background color will be used. This is true for all secondary colors.";
+    }
+    property Color color_module_background_alt { des = "Secondary module background color"; }
+    property Color color_module_text_alt { des = "Secondary module text color"; }
+    property Color color_module_link_alt { des = "Secondary module link color"; }
+    property Color color_module_link_active_alt { des = "Secondary module active link color"; }
+    property Color color_module_link_hover_alt { des = "Secondary module hover link color"; }
+    property Color color_module_link_visited_alt { des = "Secondary module visited link color"; }
+    property Color color_module_title_background_alt { des = "Secondary module title background color"; }
+    property Color color_module_title_alt { des = "Secondary module title color"; }
+    property Color color_module_border_alt { des = "Secondary module border color"; }
+
+    property Color color_footer_text { des = "Footer text color"; }
+    property Color color_footer_border { des = "Footer border color"; }
+}
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Times New Roman', Georgia";
+set font_fallback = "serif";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+set font_journal_title_size = "2";
+set font_journal_title_units ="em";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.2";
+set font_entry_title_units ="em";
+set font_comment_title_size = "1.1";
+set font_comment_title_units ="em";
+
+##===============================
+## Images
+##===============================
+
+propgroup images_child {
+
+property string[] image_background_main_group {
+    des = "Main background image";
+    grouptype = "image";
+}
+set image_background_main_group = [ "image_background_main_url", "image_background_main_repeat", "image_background_main_position" ];
+property string image_background_main_url {
+    grouped = 1;
+}
+property string image_background_main_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string image_background_main_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+    grouped = 1;
+    allow_other = 1;
+}
+
+property string[] image_background_footer_group {
+    des = "Footer background image";
+    grouptype = "image";
+}
+set image_background_footer_group = [ "image_background_footer_url", "image_background_footer_repeat", "image_background_footer_position" ];
+property string image_background_footer_url {
+    grouped = 1;
+}
+property string image_background_footer_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string image_background_footer_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+    grouped = 1;
+    allow_other = 1;
+}
+
+property string[] image_background_secondary_group {
+    des = "Main module section background image";
+    grouptype = "image";
+}
+set image_background_secondary_group = [ "image_background_secondary_url", "image_background_secondary_repeat", "image_background_secondary_position" ];
+property string image_background_secondary_url {
+    grouped = 1;
+}
+property string image_background_secondary_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string image_background_secondary_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+    grouped = 1;
+    allow_other = 1;
+}
+
+property string[] image_background_tertiary_group {
+    des = "Secondary module section background image";
+    grouptype = "image";
+}
+set image_background_tertiary_group = [ "image_background_tertiary_url", "image_background_tertiary_repeat", "image_background_tertiary_position" ];
+property string image_background_tertiary_url {
+    grouped = 1;
+}
+property string image_background_tertiary_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string image_background_tertiary_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+    grouped = 1;
+    allow_other = 1;
+}
+
+property string[] image_background_module_alt_group {
+    des = "Secondary module background image";
+    grouptype = "image";
+}
+set image_background_module_alt_group = [ "image_background_module_url_alt", "image_background_module_repeat_alt", "image_background_module_position_alt" ];
+property string image_background_module_url_alt {
+    grouped = 1;
+}
+property string image_background_module_repeat_alt {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string image_background_module_position_alt {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+    grouped = 1;
+    allow_other = 1;
+}
+
+}
+
+##===============================
+## Text
+##===============================
+
+set text_default_separator = " / ";
+set text_meta_music = "";
+set text_meta_mood = "";
+set text_meta_location = "";
+set text_meta_groups = "";
+set text_meta_xpost = "";
+set text_tags = "-";
+set text_skiplinks_back = "";
+set text_skiplinks_forward = "";
+set text_day_prev = "";
+set text_day_next = "";
+set text_page_top = "^";
+set text_posting_in = " in ";
+set text_comment_from = "- Posted by ";
+set text_openid_from = "- Posted by ";
+set text_comment_date = "";
+set text_comment_ipaddr = "";
+set text_comment_edittime = "Edited";
+
+##===============================
+## Modules
+##===============================
+
+propgroup modules_child {
+    property string module_navlinks_section_override {
+       values = "none|(none)|aboveheader|Above Header|one|Main Module Section|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_search_section_override {
+       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_syndicate_section_override {
+       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_time_section_override {
+       values = "none|(none)|footer|Footer";
+       grouped = 1;
+       }
+    property string module_poweredby_section_override {
+       values = "none|(none)|footer|Footer";
+       grouped = 1;
+       }
+}
+
+set grouped_property_override = {
+    "module_navlinks_section" => "module_navlinks_section_override",
+    "module_search_section" => "module_search_section_override",
+    "module_syndicate_section" => "module_syndicate_section_override",
+    "module_time_section" => "module_time_section_override",
+    "module_poweredby_section" => "module_poweredby_section_override"
+};
+
+set module_search_section = "header";
+set module_syndicate_section = "header";
+set module_time_section = "footer";
+set module_poweredby_section = "footer";
+
+set module_tags_opts_type = "cloud";
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_credit_section = "two";
+set module_tags_section = "two";
+set module_pagesummary_section = "two";
+
+##===============================
+## Functions
+##===============================
+
+## If main doesn't have colors use page instead
+## If tertiary doestn't have colors use secondary instead
+
+function prop_init () {
+
+$*color_main_background = isnull $*color_main_background ? $*color_page_background : $*color_main_background;
+$*color_main_text = isnull $*color_main_text ? $*color_page_text : $*color_main_text;
+$*color_main_link = isnull $*color_main_link ? $*color_page_link : $*color_main_link;
+$*color_main_link_active = isnull $*color_main_link_active ? $*color_page_link_active : $*color_main_link_active;
+$*color_main_link_hover = isnull $*color_main_link_hover ? $*color_page_link_hover : $*color_main_link_hover;
+$*color_main_link_visited = isnull $*color_main_link_visited ? $*color_page_link_visited : $*color_main_link_visited;
+$*color_main_border = isnull $*color_main_border ? $*color_page_border : $*color_main_border;
+
+$*color_tertiary_background = isnull $*color_tertiary_background ? $*color_secondary_background : $*color_tertiary_background;
+
+$*color_module_background_alt = isnull $*color_module_background_alt ? $*color_module_background : $*color_module_background_alt;
+$*color_module_text_alt = isnull $*color_module_text_alt ? $*color_module_text : $*color_module_text_alt;
+$*color_module_link_alt = isnull $*color_module_link_alt ? $*color_module_link : $*color_module_link_alt;
+$*color_module_link_active_alt = isnull $*color_module_link_active_alt ? $*color_module_link_active : $*color_module_link_active_alt;
+$*color_module_link_hover_alt = isnull $*color_module_link_hover_alt ? $*color_module_link_hover : $*color_module_link_hover_alt;
+$*color_module_link_visited_alt = isnull $*color_module_link_visited_alt ? $*color_module_link_visited : $*color_module_link_visited_alt;
+$*color_module_title_background_alt = isnull $*color_module_title_background_alt ? $*color_module_title_background : $*color_module_title_background_alt;
+$*color_module_title_alt = isnull $*color_module_title_alt ? $*color_module_title : $*color_module_title_alt;
+$*color_module_border_alt = isnull $*color_module_border_alt ? $*color_module_border : $*color_module_border_alt;
+}
+
+## Add title
+
+function print_module_navlinks( bool apply_class_to_link ) {
+    var Page p = get_page();
+    open_module("navlinks", "Navigation", "");
+
+    if ( $apply_class_to_link ) {
+        var string[] links = [];
+        foreach var string k ($p.views_order) {
+            var string css = """ class="$k" """;
+            if ($p.view == $k) { $css = """ class="current $k" """; }
+            $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+
+        }
+        print_module_list($links);
+    } else {
+        var string{}[] links = [];
+
+        foreach var string k ($p.views_order) {
+            var string class = $k;
+            if ($p.view == $k) { $class = "current $k"; }
+            $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
+        }
+        print_module_list($links);
+    }
+
+    close_module();
+
+}
+
+## Add header section
+## Wrap header and primary in core container
+## Add content wrapper
+## Move footer inside content if layout is of three-column type
+## Close canvas inner after footer
+
+function Page::print() {
+"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas"><div class="inner">
+        <div id="content-wrapper"><div class="inner">
+        <div id="content"><div class="inner">
+            <div id="core"><div class="inner">
+                <div id="header"><div class="inner">
+                    """;
+                    $this->print_module_section("aboveheader");
+                    """
+                    <div id="header-content"><div class="inner">
+                        <div id="header-primary"><div class="inner">
+                            """;
+                            $this->print_global_title();
+                            $this->print_global_subtitle();
+                            $this->print_title();
+                            """
+                        </div></div><!-- end header-primary and >inner -->
+                        <div id="header-secondary"><div class="inner">
+                            """;
+                            $this->print_module_section("header");
+                            """
+                        </div></div><!--  end header-secondary and >inner -->
+                        <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    </div></div><!--  end header-content and >inner -->
+                    <div id="header-footer"></div>
+                </div></div><!--  end header and >inner -->
+    """;
+                if ($*layout_type == "one-column-split") {
+                """
+                <div id="secondary"><div class="inner">
+                    """;
+                    $this->print_module_section("one");
+                    """
+                </div></div><!--  end secondary and secondary>inner -->
+                """;
+                }
+    """
+                <div id="primary"><div class="inner">
+                """;
+                $this->print_body();
+                """
+                </div></div><!-- end primary and primary>inner -->
+            </div></div><!-- end core and core>inner -->
+    """;
+            if ($*layout_type != "one-column-split") {
+                """
+                <div id="secondary"><div class="inner">
+                """;
+                $this->print_module_section("one");
+                """
+                </div></div><!--  end secondary and secondary>inner -->
+                """;
+            }
+    """
+            <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+            <div id="tertiary"><div class="inner">
+                """;
+                $this->print_module_section("two");
+                """
+            </div></div><!-- end tertiary and tertiary>inner -->
+            <div id="content-footer"></div>
+    """;
+            if ( $*layout_type->contains("three") ) {
+                """
+                <div id="footer"><div class="inner">
+                """;
+                print safe """<div class="page-top"><a href="#">$*text_page_top</a></div>""";
+                $this->print_module_section("footer");
+                """
+                </div></div><!-- end footer and footer>inner -->
+                """;
+            }
+    """
+        </div></div><!-- end content and content>inner -->
+        </div></div><!-- end content-wrapper and content-wrapper>inner -->
+    """;
+        if ( $*layout_type->contains("one") or $*layout_type->contains("two") ) {
+            """
+            <div id="footer"><div class="inner">
+                """;
+                print safe """<div class="page-top"><a href="#">$*text_page_top</a></div>""";
+                $this->print_module_section("footer");
+                """
+            </div></div><!-- end footer and footer>inner -->
+            """;
+        }
+    """
+    </div></div> <!-- end canvas and canvas>inner -->
+""";
+    $this->print_wrapper_end();
+"""</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+
+var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    if ($*image_background_header_height > 0) {
+        $header_background = """
+            $header_background
+            min-height: """ + $*image_background_header_height + """px;""";
+    }
+
+var string header_link_colors = generate_color_css($*color_header_link, new Color, new Color);
+var string header_link_active_colors = generate_color_css($*color_header_link_active, new Color, new Color);
+var string header_link_hover_colors = generate_color_css($*color_header_link_hover, new Color, new Color);
+var string header_link_visited_colors = generate_color_css($*color_header_link_visited, new Color, new Color);
+
+var string main_background = generate_background_css ($*image_background_main_url, $*image_background_main_repeat, $*image_background_main_position, $*color_main_background);
+var string main_colors = generate_color_css($*color_main_text, $*color_main_background, $*color_main_border);
+var string main_link_colors = generate_color_css($*color_main_link, new Color, new Color);
+var string main_link_active_colors = generate_color_css($*color_main_link_active, new Color, new Color);
+var string main_link_hover_colors = generate_color_css($*color_main_link_hover, new Color, new Color);
+var string main_link_visited_colors = generate_color_css($*color_main_link_visited, new Color, new Color);
+
+var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
+var string entry_link_active_colors = generate_color_css($*color_entry_link_active, new Color, new Color);
+var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, new Color, new Color);
+var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);
+var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+
+var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
+
+var string secondary_background = generate_background_css ($*image_background_secondary_url, $*image_background_secondary_repeat, $*image_background_secondary_position, $*color_secondary_background);
+var string tertiary_background = generate_background_css ($*image_background_tertiary_url, $*image_background_tertiary_repeat, $*image_background_tertiary_position, $*color_tertiary_background);
+
+var string module_link_colors = generate_color_css($*color_module_link, new Color, new Color);
+var string module_link_active_colors = generate_color_css($*color_module_link_active, new Color, new Color);
+var string module_link_hover_colors = generate_color_css($*color_module_link_hover, new Color, new Color);
+var string module_link_visited_colors = generate_color_css($*color_module_link_visited, new Color, new Color);
+
+var string module_background_alt = generate_background_css ($*image_background_module_url_alt, $*image_background_module_repeat_alt, $*image_background_module_position_alt, $*color_module_background_alt);
+var string module_colors_alt = generate_color_css($*color_module_text_alt, $*color_module_background_alt, $*color_module_border_alt);
+var string module_title_colors_alt = generate_color_css($*color_module_title_alt, $*color_module_title_background_alt, new Color);
+var string module_link_colors_alt = generate_color_css($*color_module_link_alt, new Color, new Color);
+var string module_link_active_colors_alt = generate_color_css($*color_module_link_active_alt, new Color, new Color);
+var string module_link_hover_colors_alt = generate_color_css($*color_module_link_hover_alt, new Color, new Color);
+var string module_link_visited_colors_alt = generate_color_css($*color_module_link_visited_alt, new Color, new Color);
+
+var string footer_background = generate_background_css ($*image_background_footer_url, $*image_background_footer_repeat, $*image_background_footer_position, $*color_footer_background);
+var string footer_colors = generate_color_css($*color_footer_text, $*color_footer_background, $*color_footer_border);
+var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
+var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
+var string footer_link_hover_colors = generate_color_css( $*color_footer_link_hover, new Color, new Color );
+var string footer_link_visited_colors = generate_color_css( $*color_footer_link_visited, new Color, new Color );
+
+var string secondary_position = $*margins_size != "" ? "$*margins_size$*margins_unit" : "0";
+
+var string header_css = "";
+if ($*module_search_section == "header" or $*module_syndicate_section == "header") {
+$header_css = """
+#header-content {
+    border-right: 10.5em solid transparent;
+}
+
+#header-primary {
+    float: left;
+    width: 100%;
+    margin-right: -100%;
+    margin-left: 0;
+}
+
+#header-secondary {
+    float: right;
+    width: 10.5em;
+    margin-right: -10.5em;
+}
+
+#header-footer {
+    height: 0;
+    font-size: 0; /*to make IE happy*/
+    clear: both;
+}
+""";
+}
+
+var string{}{} scaling = {
+    "" => {
+        "noicon_img"     => "$*IMGDIR/profile_icons/user.png",
+        "icon_wrap_size" => "100px",
+    },
+    "small" => {
+        "noicon_img"     => "$*IMGDIR/profile_icons/user-small.png",
+        "icon_wrap_size" => "75px",
+    },
+    "smaller" => {
+        "noicon_img"     => "$*IMGDIR/profile_icons/user-smaller.png",
+        "icon_wrap_size" => "50px",
+    }
+};
+
+var string entrypic_background = generate_background_css( $scaling{$*entry_userpic_style}{"noicon_img"}, "no-repeat", "center", new Color );
+var string entry_icon_wrap_size = $scaling{$*entry_userpic_style}{"icon_wrap_size"};
+
+var string commentpic_background = generate_background_css( $scaling{$*comment_userpic_style}{"noicon_img"}, "no-repeat", "center", new Color );
+var string comment_icon_wrap_size = $scaling{$*comment_userpic_style}{"icon_wrap_size"};
+
+var string entry_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_margin = "115px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "90px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "65px"; }
+
+var string comment_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_margin = "115px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_margin = "90px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_margin = "65px"; }
+
+var string userpic_css = "";
+
+if ($*userpics_position != "none") {
+    $userpic_css = """
+.no-userpic .entry .userpic {
+    $entrypic_background
+    width: $entry_icon_wrap_size;
+    height: $entry_icon_wrap_size;
+}
+
+.no-userpic .comment .userpic {
+    $commentpic_background
+    width: $comment_icon_wrap_size;
+    height: $comment_icon_wrap_size;
+}
+""";
+
+    if($*userpics_position == "left") {
+    $userpic_css = $userpic_css + """
+.entry .header,
+.entry-poster,
+.entry-content,
+.entry .metadata,
+.entry .footer {
+    margin-left: $entry_margin;
+}
+
+.comment .header,
+.full .comment .poster,
+.poster-ip,
+.comment-content,
+.comment .footer,
+.comment-pages.toppages {
+    margin-left: $comment_margin;
+}
+
+.entry .userpic {
+    float: left;
+}
+
+.comment .userpic {
+    display: block;
+    float: left;
+}
+
+""";
+    } elseif($*userpics_position == "right") {
+$userpic_css = $userpic_css + """
+.entry .header,
+.entry-poster,
+.entry-content,
+.entry .metadata,
+.entry .footer {
+    margin-right: $entry_margin;
+}
+
+.comment .header,
+.full .comment .poster,
+.poster-ip,
+.comment-content,
+.comment .footer,
+.comment-pages.toppages {
+    margin-right: $comment_margin;
+}
+
+.entry .userpic {
+    float: right;
+}
+
+.comment .userpic {
+    display: block;
+    float: right;
+}
+
+""";
+    }
+}
+
+"""
+
+/* Trifecta
+/* by ninetydegrees
+******************************/
+
+/* Main
+******************************/
+
+body {
+    margin: 0;
+}
+
+hr,
+.page-separator {
+    display: none;
+}
+
+#canvas {
+    margin: 0 auto;
+}
+
+/* Containers
+******************************/
+
+/* Implement column colors */
+/* Layer colors to make sure they go all the way down */
+/* and background images can be used */
+
+.two-columns #content-wrapper {
+    $secondary_background
+}
+
+.three-columns-left #content-wrapper {
+    $secondary_background
+    border-left: $*sidebar_width solid transparent;
+}
+
+.three-columns-left #content-wrapper > .inner:first-child {
+    $tertiary_background
+    border-left: $*sidebar_width solid transparent;
+}
+
+.three-columns-right #content-wrapper  {
+    $tertiary_background
+    border-right: $*sidebar_width solid transparent;
+}
+
+.three-columns-right #content-wrapper > .inner:first-child {
+    $secondary_background
+    border-right: $*sidebar_width solid transparent;
+}
+
+.three-columns-sides #content-wrapper {
+    $secondary_background
+    border-left: $*sidebar_width solid transparent;
+}
+
+.three-columns-sides #content-wrapper > .inner:first-child  {
+    $tertiary_background
+    border-right: $*sidebar_width solid transparent;
+}
+
+.three-columns-left #content,
+.three-columns-right #content,
+.three-columns-sides #content {
+    border: 0;
+}
+
+/* Implement colors for largest column */
+#content > .inner:first-child {
+    $main_background
+    $main_colors
+}
+
+#content > .inner:first-child a { $main_link_colors }
+#content > .inner:first-child a:visited { $main_link_visited_colors }
+#content > .inner:first-child a:hover { $main_link_hover_colors }
+#content > .inner:first-child a:active { $main_link_active_colors }
+
+/* Switch floating to wrapper for header and primary */
+/* Instead of primary */
+.two-columns #core,
+.three-columns #core {
+     float: left;
+     margin-left: 0px;
+     margin-right: -100%;
+     width: 100%;
+}
+
+#primary {
+     float: none;
+     margin-left: 0;
+     margin-right: 0;
+     width: auto;
+}
+
+#primary > .inner:first-child {
+    padding: .5em .5em;
+}
+
+#secondary {
+    text-transform: lowercase;
+}
+
+.one-column #secondary {
+    $secondary_background
+}
+
+#secondary > .inner:first-child {
+    padding: .5em;
+}
+
+#tertiary {
+    text-transform: lowercase;
+}
+
+.one-column #tertiary,
+.two-columns #tertiary {
+    $tertiary_background
+}
+
+.two-columns #tertiary {
+    text-align: center;
+}
+
+#tertiary > .inner:first-child {
+    padding: .5em;
+}
+
+/* Header
+******************************/
+
+#header {
+    margin-bottom: 1.5em;
+    padding: 1em 1.5em;
+}
+
+.one-column-split #header {
+    margin-bottom: 0;
+}
+
+#header h1 {
+    margin: 0;
+    padding: 0;
+}
+
+#header h2 {
+    line-height: 1em;
+    margin: 0;
+    padding: 0;
+}
+
+$header_css
+
+#content > .inner:first-child #header a { $header_link_colors }
+#content > .inner:first-child #header a:visited { $header_link_visited_colors }
+#content > .inner:first-child #header a:hover { $header_link_hover_colors }
+#content > .inner:first-child #header a:active { $header_link_active_colors }
+
+/* Navigation
+******************************/
+
+.navigation {
+    text-align: right;
+}
+
+.navigation ul {
+    margin: 0 0 1em;
+    padding: 0 1em;
+}
+
+.topnav ul {
+    margin-bottom: 1em;
+}
+
+.bottomnav ul {
+    margin-top: 1.5em;
+}
+
+.navigation ul li {
+    margin: 0;
+    padding: 0 .2ch;
+}
+
+.navigation .page-back a::before {
+    content: "<< ";
+}
+
+.navigation .page-forward a::after {
+    content: " >>";
+}
+
+.navigation .page-separator {
+    display: none;
+}
+
+/* Entries
+******************************/
+
+.entry {
+    margin-bottom: .5em;
+    padding: 1em;
+}
+
+/* Reset colors because they got overridden */
+#content > .inner:first-child .entry a { $entry_link_colors }
+#content > .inner:first-child .entry a:visited { $entry_link_visited_colors }
+#content > .inner:first-child .entry a:hover { $entry_link_hover_colors }
+#content > .inner:first-child .entry a:active { $entry_link_active_colors }
+
+.entry .entry-title {
+    display: inline;
+    line-height: 1em;  /* to make sure meta icons are vertically centered */
+    padding: 0;
+    }
+
+.entry .access-filter,
+.entry .restrictions {
+    float: left;
+    display: inline;
+    padding-right: .25em;
+}
+
+.datetime {
+    clear: both;
+    display: block;
+    font-style: italic;
+    margin: 0.5em 0;
+    text-align: right;
+}
+
+.entry .time::before {
+    content: "- ";
+}
+
+.entry .poster {
+    display: block;
+    $entry_title_font
+    font-weight: bold;
+    margin-bottom: 1em;
+    text-transform: lowercase;
+}
+
+.entry .poster::before {
+    content: "- posted by ";
+}
+
+.poster.empty {
+    display: none;
+}
+
+.entry .contents {
+    min-height: $entry_margin;
+}
+
+.entry-content {
+    margin-bottom: 1em;
+    text-align: $*post_text_align;
+}
+
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.entry-content .lj_embedcontent,
+.entry-content img,
+.comment-content img {
+    max-width: 100%;
+}
+
+.metadata {
+    font-style: italic;
+}
+
+.metadata {
+    font-style: italic;
+    margin-bottom: 1em;
+}
+
+.metadata ul {
+    margin: 0;
+}
+
+.metadata li {
+    margin: 0;
+    padding: 0;
+}
+
+.entry .footer ul {
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    text-transform: lowercase;
+}
+
+.entry .footer li {
+    padding: 0 .1em;
+}
+
+.entry .footer .text-links li {
+    padding: 0;
+}
+
+.entry .footer .text-links li::after {
+    content: " .";
+}
+
+.entry .footer .text-links li:last-child::after {
+    content: "";
+}
+
+.tag {
+    margin-bottom: 1em;
+}
+
+/* Comments
+******************************/
+
+.comment {
+    $entry_background
+    $entry_colors
+    margin-bottom: .5em;
+    padding: 1em;
+}
+
+/* Reset colors because they got overridden */
+#content > .inner:first-child .comment a { $entry_link_colors }
+#content > .inner:first-child .comment a:visited { $entry_link_visited_colors }
+#content > .inner:first-child .comment a:hover { $entry_link_hover_colors }
+#content > .inner:first-child .comment a:active { $entry_link_active_colors }
+
+.comment-poster {
+    display: block;
+    $comment_title_font
+    font-weight: bold;
+    text-transform: lowercase;
+}
+
+.poster-ip {
+    display: block;
+}
+
+.comment .contents {
+    min-height: $comment_margin;
+}
+
+.comment-content {
+    margin-bottom: 1em;
+    margin-top: 1em;
+    text-align: $*post_text_align;
+}
+
+.edittime {
+    margin-top: 1em;
+}
+
+.comment .footer ul {
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    text-transform: lowercase;
+}
+
+.comment .footer li {
+    padding: 0 .1em;
+}
+
+.comment .footer .text-links li {
+    padding: 0;
+}
+
+.comment .footer .text-links li::after {
+    content: " .";
+}
+
+/* cmt_hide isn't last in the list */
+/* hidden cmt_unhide comes after it */
+.comment .footer .text-links li:last-child::after,
+.comment .footer .text-links .cmt_hide::after {
+    content: "";
+}
+
+.comment .multiform-checkbox {
+    display: block;
+    text-align: right;
+    text-transform: lowercase;
+}
+
+.toppages,
+.bottompages {
+    padding: 0 1em;
+    text-align: right;
+}
+
+.bottomcomment {
+    margin: 1.5em 0;
+    padding: 0 1em;
+    text-align: right;
+    text-transform: lowercase;
+}
+
+.bottomcomment ul {
+    margin: 0;
+    padding: 0;
+}
+
+.bottomcomment li {
+    padding: 0 .1em;
+}
+
+.bottomcomment .text-links li {
+    padding: 0;
+}
+
+.bottomcomment .text-links li::after {
+    content: " .";
+}
+
+.bottomcomment .text-links li:last-child::after {
+    content: "";
+}
+
+.partial .comment {
+    padding: 0;
+}
+
+.partial .poster,
+.partial .datetime {
+    display: inline;
+}
+
+.partial .datetime + a {
+    text-align: right;
+    text-transform: lowercase;
+}
+
+$userpic_css
+
+/* Reply
+******************************/
+
+#postform {
+    $entry_colors
+    padding-right: 1em;
+}
+
+#content > .inner:first-child #postform a { $entry_link_colors }
+#content > .inner:first-child #postform a:visited { $entry_link_visited_colors }
+#content > .inner:first-child #postform a:hover { $entry_link_hover_colors }
+#content > .inner:first-child #postform a:active { $entry_link_active_colors }
+
+/* Other Pages
+******************************/
+
+.month,
+.page-day .day,
+.tags-container,
+.icons-container {
+    $entry_background
+    $entry_colors
+    margin-bottom: .5em;
+    padding: 1em;
+}
+
+.page-day .day {
+    margin-bottom: 0;
+    padding: 0;
+}
+
+#content > .inner:first-child .month a,
+#content > .inner:first-child .tags-container a,
+#content > .inner:first-child .icons-container a { $entry_link_colors }
+
+#content > .inner:first-child .month a:visited,
+#content > .inner:first-child .tags-container a:visited,
+#content > .inner:first-child .icons-container a:visited { $entry_link_visited_colors }
+
+#content > .inner:first-child .month a:hover,
+#content > .inner:first-child .tags-container a:hover,
+#content > .inner:first-child .icons-container a:hover { $entry_link_hover_colors }
+
+#content > .inner:first-child .month a:active,
+#content > .inner:first-child .tags-container a:active,
+#content > .inner:first-child .icons-container a:active { $entry_link_active_colors }
+
+.month h3,
+.tags-container h2,
+.icons-container h2 {
+    $entry_title_colors
+    $entry_title_font
+    padding: 0;
+}
+
+.day-date {
+    padding-left: 1em;
+}
+
+.month .footer,
+#primary .manage-link {
+    text-align: right;
+    text-transform: lowercase;
+}
+
+.month caption {
+    display: none;
+}
+
+.page-archive .month .contents {
+    margin: 1.5em 0;
+}
+
+table.month {
+    width: 80%;
+}
+
+.page-archive .month td {
+    vertical-align: top;
+    width: 14%;
+}
+
+table.month td.day {
+    padding: 2px 0;
+    text-align: center;
+}
+
+table.month th,
+table.month td {
+    border: 1px solid $*color_calendar_border;
+    }
+
+.month-wrapper .day-has-entries {
+    background: $*color_calendar_background;
+    color: $*color_calendar_text;
+    }
+
+#content > .inner:first-child .day-has-entries a {
+    color: $*color_calendar_link;
+    }
+
+#content > .inner:first-child .day-has-entries a:visited { color: $*color_calendar_link_visited; }
+#content > .inner:first-child .day-has-entries:hover p a { color: $*color_calendar_link_hover; }
+#content > .inner:first-child .day-has-entries a:active { color: $*color_calendar_link_active; }
+
+.sorting-options ul {
+    margin: 0 0 1em;
+    padding: 0;
+    text-align: right;
+}
+
+.icon-image {
+     float: left;
+     clear: left;
+     margin-bottom: .75em;
+     min-width: 106px;
+     padding-right: 1em;
+}
+
+.icon-info {
+     min-height: 100px;
+     margin-bottom: .75em;
+}
+
+.icon-keywords {
+    font-style: italic;
+}
+
+.icon-info .keywords-label,
+.icon-info .comment-text,
+.icon-info .description-text {
+    display: none;
+}
+
+.icon-comment::before,
+.icon-description::before {
+    content: "- ";
+}
+
+.icon-info .default { font-weight: bold; }
+
+.icon-keywords ul { margin: 0; }
+
+.icon-keywords ul li { padding: 0; }
+
+/* Modules
+******************************/
+
+.module {
+    margin-bottom: .5em;
+    padding: .75em;
+}
+
+/* Reset colors because they got overridden */
+#content #secondary .module a { $module_link_colors }
+#content #secondary .module a:visited { $module_link_visited_colors }
+#content #secondary .module a:hover { $module_link_hover_colors }
+#content #secondary .module a:active { $module_link_active_colors }
+
+#content #tertiary .module {
+    $module_background_alt
+    $module_colors_alt
+}
+
+#content #tertiary .module a { $module_link_colors_alt }
+#content #tertiary .module a:visited { $module_link_visited_colors_alt }
+#content #tertiary .module a:hover { $module_link_hover_colors_alt }
+#content #tertiary .module a:active { $module_link_active_colors_alt }
+
+#tertiary .module h2 {
+    $module_title_colors_alt
+}
+
+#header .module-wrapper,
+#footer .module-wrapper {
+    margin-top: 1em;
+    text-align: right;
+}
+
+#footer .module {
+    $footer_colors
+    display: block;
+    margin: 0;
+    width: 100%;
+}
+
+#header .module,
+#footer .module {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.one-column #secondary .module,
+.one-column #tertiary .module,
+.two-columns #tertiary .module {
+    display: inline-block;
+    float: none;
+    text-align: left;
+    vertical-align: top;
+    width: $*sidebar_width;
+}
+
+.module ul {
+    list-style-type: none;
+    margin: 0;
+}
+
+.module ul li {
+     margin: .15em 0;
+}
+
+.module ul ul {
+    margin-left: .5em;
+}
+
+.module-content {
+    margin-left: .75em;
+}
+
+.module .manage-link {
+    text-align: right;
+}
+
+#header .module-content,
+#header .module-syndicate .module-content {
+    text-align: right;
+}
+
+#header .module-header {
+    display: none;
+}
+
+#header .module-navlinks {
+    padding: 0;
+    text-align: right;
+    text-transform: lowercase;
+}
+
+#header .module-navlinks li {
+    display: inline;
+    padding: 0 .25em;
+}
+
+#header .search-box {
+    max-width: 95%;
+}
+
+.module-userprofile ul {
+    margin-top: .5em;
+}
+
+.module-calendar table {
+    margin: 0 auto 0 0;
+    width: 80%;
+}
+
+.module-calendar td {
+    padding: 1px;
+}
+
+.module-calendar td a {
+    display: block;
+    font-weight: bold;
+    padding: 2px;
+}
+
+.module-syndicate .module-content {
+    text-align: left;
+}
+
+/* Footer
+******************************/
+
+/* Reset colors because they got overridden */
+#footer,
+#content > .inner:first-child #footer {
+    $footer_background
+    $footer_colors
+    padding: 1em;
+    text-align: center;
+}
+
+#content > .inner:first-child #footer a { $footer_link_colors }
+#content > .inner:first-child #footer a:visited { $footer_link_visited_colors }
+#content > .inner:first-child #footer a:hover { $footer_link_hover_colors }
+#content > .inner:first-child #footer a:active { $footer_link_active_colors }
+
+#content > .inner:first-child #footer .module a { $footer_link_colors }
+#content > .inner:first-child #footer .module a:visited { $footer_link_visited_colors }
+#content > .inner:first-child #footer .module a:hover { $footer_link_hover_colors }
+#content > .inner:first-child #footer .module a:active { $footer_link_active_colors }
+
+""";
+}
