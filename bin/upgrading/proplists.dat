@@ -158,6 +158,30 @@ userproplist.crosspost_footer_nocomments:
   multihomed: 0
   prettyname: Custom footer for crossposted entries with comments disabled
 
+userproplist.customtext_title:
+  cldversion: 4
+  datatype: char
+  des: Text for the 'Custom Text' heading
+  indexed: 0
+  multihomed: 0
+  prettyname: Text for the 'Custom Text' heading
+
+userproplist.customtext_url:
+  cldversion: 4
+  datatype: char
+  des: URL for the 'Custom Text' heading link
+  indexed: 0
+  multihomed: 0
+  prettyname: URL for the 'Custom Text' heading link
+
+userproplist.customtext_content:
+  cldversion: 4
+  datatype: blobchar
+  des: Text for the 'Custom Text' box
+  indexed: 0
+  multihomed: 0
+  prettyname: Text for the 'Custom Text' box
+
 userproplist.delete_reason:
   cldversion: 4
   datatype: char
@@ -189,6 +213,14 @@ userproplist.disable_comm_promo:
   indexed: 0
   multihomed: 0
   prettyname: Administratively disable community promo features for a user
+
+userproplist.dismissed_page_notices:
+  cldversion: 4
+  datatype: char
+  des: Comma-separated list of defined keys for page notices that the user has seen and dismissed
+  indexed: 0
+  multihomed: 0
+  prettyname: Dismissed Page Notices
 
 userproplist.dogeartime:
   cldversion: 4

@@ -178,6 +178,22 @@ sub render_body {
         $ret .= "</div>";
     }
 
+    # Text Group
+    elsif ($group eq "text") {
+        $ret .= "<div id='text-group' class='customize-group'>";
+
+        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
+        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
+
+        $ret .= $s2_propgroup->render(
+            props => $groups{props},
+            propgroup => "text",
+            groupprops => $groups{groupprops}->{text},
+        );
+
+        $ret .= "</div>";
+    }
+
     # Links List Group
     elsif ($group eq "linkslist") {
         $ret .= "<div id='linkslist-group' class='customize-group'>";
