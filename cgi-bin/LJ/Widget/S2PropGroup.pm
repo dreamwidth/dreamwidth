@@ -201,6 +201,62 @@ sub render_body {
             $ret .= "</table>" if $header_printed;
         }
 
+    } elsif ($propgroup eq "text") {
+        my %subheaders = LJ::Customize->get_propgroup_subheaders;
+
+        # props under the unsorted subheader include all props in the group that aren't under any of the other subheaders
+        my %unsorted_props = map { $_ => 1 } @$groupprops;
+        foreach my $subheader (keys %subheaders) {
+            my @subheader_props = eval "\$theme->${subheader}_props";
+            foreach my $prop_name (@subheader_props) {
+                delete $unsorted_props{$prop_name} if $unsorted_props{$prop_name};
+            }
+        }
+
+        my $subheader_counter = 1;
+        foreach my $subheader (LJ::Customize->get_propgroup_subheaders_order) {
+            my $header_printed = 0;
+
+            my @subheader_props;
+            if ( $subheader eq "unsorted" ) {
+                @subheader_props = keys %unsorted_props;
+            } else {
+                @subheader_props = eval "\$theme->${subheader}_props";
+            }
+            next unless @subheader_props;
+
+            my %prop_is_in_subheader = map { $_ => 1 } @subheader_props;
+
+            foreach my $prop_name (@$groupprops) {
+                next if $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme, user => $u, style => $style);
+                next unless $prop_is_in_subheader{$prop_name};
+
+                # need to print the header inside the foreach because we don't want it printed if
+                # there's no props in this group that are also in this subheader
+                unless ($header_printed) {
+                    my $prop_list_class = "";
+                    $prop_list_class = " first" if $subheader_counter == 1;
+
+                    $ret .= "<div class='subheader subheader-$propgroup collapsible expanded' id='subheader__${propgroup}__${subheader}'><div class='collapse-button'>"
+                     . $class->ml('collapsible.expanded')
+                     . "</div>$subheaders{$subheader}</div>";
+                    $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__${propgroup}__${subheader}'>";
+                    $header_printed = 1;
+                    $subheader_counter++;
+                    $count = 1; # reset counter
+                }
+
+                $row_class = $count % 2 == 0 ? " even" : " odd";
+                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
+                $count++;
+            }
+
+            #If we're in the module subsection, we also need to render the Custom Text widget
+            if ($subheaders{$subheader} eq $class->ml('customize.propgroup_subheaders.module')) {
+                $ret .= LJ::Widget::CustomTextModule->render( $count );
+            }
+            $ret .= "</table>" if $header_printed;
+        }
     } else {
         my %subheaders = LJ::Customize->get_propgroup_subheaders;
 

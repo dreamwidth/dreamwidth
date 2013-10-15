@@ -4774,6 +4774,12 @@ widget.customizetheme.nav.style=Style
 
 widget.customizetheme.title=Customize Your Theme
 
+widget.customtext.title=Text for the 'Custom Text' heading
+
+widget.customtext.url=URL for the 'Custom Text' heading link
+
+widget.customtext.content=Text for the 'Custom Text' box
+
 widget.cuttag.collapseall=Collapse All Cut Tags
 
 widget.cuttag.collapsed=Expand

@@ -606,6 +606,10 @@ class Page
     var Link{} data_link "Links to various machine-readable data sources relating to this page";
     var string[] data_links_order "An array of data views which can be used to order the data_link hash";
 
+    var readonly string customtext_title "Header of customtext module";
+    var readonly string customtext_url "URL for header of customtext module";
+    var readonly string customtext_content "Content of customtext module";
+
     function print
     "The main entry point that Dreamwidth calls. Layouts should override this to create HTML that's the
     same for all view types, and use \$this->title, \$this->head and \$this->body to include view-specific
@@ -2226,18 +2230,21 @@ property string text_module_active_entries {
     example = "Active Entries";
 }
 property string text_module_customtext {
+    noui = 1;
     des = "Text for the 'Custom Text' heading";
     maxlength = 50;
     size = 20;
     example = "Custom Text";
 }
 property string text_module_customtext_url {
+    noui = 1;
     des = "URL for the 'Custom Text' heading link";
     maxlength = 100;
     size = 30;
     example = "http://www.dreamwidth.org";
 }
 property string text_module_customtext_content {
+    noui = 1;
     des = "Text for the 'Custom Text' box";
     cols = 50;
     rows = 10;
@@ -4449,8 +4456,8 @@ function print_module_syndicate() {
 }
 function print_module_customtext() {
     var Page p = get_page();
-    open_module("customtext", $*text_module_customtext, $*text_module_customtext_url);
-    print safe $*text_module_customtext_content;
+    open_module("customtext", $p.customtext_title, $p.customtext_url);
+    print safe $p.customtext_content;
     close_module();
 }
 function print_module_links() {
