@@ -1,0 +1,821 @@
+#NEWLAYER: trifecta/bluelove
+layerinfo type = "theme";
+layerinfo name = "Blue Love";
+layerinfo redist_uniq = "trifecta/bluelove";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "Influenza", "url" => "http://www.colourlovers.com/palette/301154/Influenza" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-right";
+set module_navlinks_section = "aboveheader";
+set module_search_section = "one";
+set module_syndicate_section = "one";
+set module_active_section = "one";
+set module_links_section = "one";
+set module_credit_section = "one";
+set module_tags_section = "one";
+set module_pagesummary_section = "one";
+set module_time_section = "one";
+set module_poweredby_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#1b144f";
+set color_calendar_border = "#4e6785";
+set color_page_background = "#000928";
+set color_page_link = "#4e6785";
+set color_page_link_hover = "#1d71d6";
+set color_page_link_visited = "#4e6785";
+set color_page_text = "#fefefe";
+set color_footer_background = "#000d3b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#1b144f";
+set color_tertiary_background = "#000d3b";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#footer {
+    padding: .3em;
+}
+""";
+}
+
+
+#NEWLAYER: trifecta/carriedaway
+layerinfo type = "theme";
+layerinfo name = "Carried Away";
+layerinfo redist_uniq = "trifecta/carriedaway";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Fargo", "url" => "http://www.colourlovers.com/palette/307038/Fargo" }
+];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "three-columns-right";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#d1d6d0";
+set color_page_background = "#96A3A1";
+set color_page_link = "#222827";
+set color_page_link_hover = "#004f43";
+set color_page_link_visited = "#111";
+set color_page_text = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#BFC7C5";
+set color_tertiary_background = "#d1d6d0";
+
+##===============================
+## Images
+##===============================
+
+set image_background_main_url = "trifecta/carriedaway.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#content {
+     box-shadow: 2px -2px 4px #888;
+}
+
+#content-wrapper > .inner:first-child {
+     box-shadow: 2px -2px 3px #aaa;
+}
+""";
+}
+
+
+#NEWLAYER: trifecta/coffeeandcream
+layerinfo type = "theme";
+layerinfo name = "Coffee and Cream";
+layerinfo redist_uniq = "trifecta/coffeeandcream";
+layerinfo author_name = "ninetydegrees";
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-right";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#F3E7CD";
+set color_calendar_border = "#F3E7CD";
+set color_calendar_link = "#3A3431";
+set color_calendar_link_hover = "#DC8250";
+set color_calendar_link_visited = "#3A3431";
+set color_calendar_text = "#19120A";
+set color_footer_background = "#3A3431";
+set color_footer_link = "#F3E7CD";
+set color_footer_link_hover = "#DC8250";
+set color_footer_link_visited = "#F3E7CD";
+set color_footer_text = "#fefefe";
+set color_page_background = "#19120A";
+set color_page_link = "#F3E7CD";
+set color_page_link_hover = "#DC8250";
+set color_page_link_visited = "#F3E7CD";
+set color_page_text = "#fefefe";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#F3E7CD";
+set color_module_link = "#3A3431";
+set color_module_link_hover = "#DC8250";
+set color_module_link_visited = "#3A3431";
+set color_module_text = "#19120A";
+set color_module_title = "#19120A";
+
+set color_tertiary_background = "#3A3431";
+set color_module_link_alt = "#F3E7CD";
+set color_module_link_hover_alt = "#DC8250";
+set color_module_link_visited_alt = "#F3E7CD";
+set color_module_text_alt = "#fefefe";
+set color_module_title_alt = "#fefefe";
+
+
+#NEWLAYER: trifecta/deepseas
+layerinfo type = "theme";
+layerinfo name = "Deep Seas";
+layerinfo redist_uniq = "trifecta/deepseas";
+layerinfo author_name = "ninetydegrees";
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "one-column";
+set module_navlinks_section = "aboveheader";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#1d1f33";
+set color_header_background = "#005972";
+set color_footer_background = "#030715";
+set color_page_background = "#0F1125";
+set color_page_link = "#fefefe";
+set color_page_link_hover = "#48a4c3";
+set color_page_link_visited = "#74aec2";
+set color_page_text = "#fefefe";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#005972";
+set color_tertiary_background = "#0F1125";
+
+
+#NEWLAYER: trifecta/handlewithcare
+layerinfo type = "theme";
+layerinfo name = "Handle with Care";
+layerinfo redist_uniq = "trifecta/handlewithcare";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Contractor_1", "url" => "http://www.colourlovers.com/palette/2703765/Contractor_1" }
+];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "three-columns-left";
+set userpics_position = "right";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#E5DDD6";
+set color_page_background = "#C5B9B3";
+set color_page_link = "#383030";
+set color_page_link_hover = "#3E0B0B";
+set color_page_link_visited = "#111";
+set color_page_text = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#CEBEBE";
+set color_tertiary_background = "#E4DBD4";
+
+##===============================
+## Images
+##===============================
+
+set image_background_tertiary_url ="trifecta/handlewithcare.png";
+
+
+#NEWLAYER: trifecta/itsamystery
+layerinfo type = "theme";
+layerinfo name = "It's a Mystery";
+layerinfo redist_uniq = "trifecta/itsamystery";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "forever lost", "url" => "http://www.colourlovers.com/palette/944213/forever_lost" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+set userpics_position = "right";
+set module_navlinks_section = "aboveheader";
+set margins_size = "10";
+set margins_unit = "%";
+set module_search_section = "one";
+set module_syndicate_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#EBE3AA";
+set color_calendar_border = "#454648";
+set color_calendar_link = "#454648";
+set color_calendar_link_hover = "#111";
+set color_calendar_link_visited = "#454648";
+set color_footer_link = "#EBE3AA";
+set color_footer_link_hover = "#111";
+set color_footer_link_visited = "#EBE3AA";
+set color_page_background = "#444547";
+set color_page_link = "#EBE3AA";
+set color_page_link_hover = "#111";
+set color_page_link_visited = "#EBE3AA";
+set color_page_text = "#111";
+set color_main_background = "#838689";
+set color_main_link = "#292a2b";
+set color_main_link_hover = "#EBE3AA";
+set color_main_link_visited = "#363638";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#EBE3AA";
+set color_module_link = "#454648";
+set color_module_link_hover = "#111";
+set color_module_link_visited = "#454648";
+set color_tertiary_background = "#A8CABA";
+
+set image_background_page_url = "trifecta/itsamystery.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#canvas {
+    border: 1px solid #454648;
+    margin-top: 6em;
+}
+""";
+}
+
+
+#NEWLAYER: trifecta/juice
+layerinfo type = "theme";
+layerinfo name = "Juice";
+layerinfo redist_uniq = "trifecta/juice";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Dance To Forget", "url" => "http://www.colourlovers.com/palette/937624/Dance_To_Forget" }
+];
+
+##===============================
+## Presentation
+##===============================
+
+set userpics_position = "right";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#ed8938";
+set color_calendar_link_hover = "#EEE9A8";
+set color_page_background = "#ece79a";
+set color_page_link = "#241000";
+set color_page_link_hover = "#ED8938";
+set color_page_link_visited = "#241000";
+set color_page_text = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#ed8938";
+set color_module_link = "#241000";
+set color_module_link_hover = "#EEE9A8";
+set color_module_link_visited = "#241000";
+set color_tertiary_background = "#eecb22";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "trifecta/juice.png";
+set image_background_footer_url = "trifecta/juice.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    border-bottom: 1px solid #E6E2A5;
+}
+
+#footer {
+    border-top: 1px solid #E6E2A5;
+}
+""";
+}
+
+
+#NEWLAYER: trifecta/morningwalk
+layerinfo type = "theme";
+layerinfo name = "Morning Walk";
+layerinfo redist_uniq = "trifecta/morningwalk";
+layerinfo author_name = "ninetydegrees";
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+set userpics_position = "right";
+set module_navlinks_section = "aboveheader";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#ECEDD2";
+set color_calendar_border = "#ECEDD2";
+set color_calendar_link = "#111";
+set color_calendar_link_hover = "#545046";
+set color_calendar_link_visited = "#111";
+set color_calendar_text = "#111";
+set color_header_background = "#ECEDD2";
+set color_header_link = "#111";
+set color_header_link_hover = "#545046";
+set color_header_link_visited = "#111";
+set color_footer_background = "#ECEDD2";
+set color_footer_link = "#111";
+set color_footer_link_hover = "#545046";
+set color_footer_link_visited = "#111";
+set color_footer_text = "#545046";
+set color_page_background = "#545046";
+set color_page_link = "#ECEDD2";
+set color_page_link_hover = "#cedfb9";
+set color_page_link_visited = "#ECEDD2";
+set color_page_text = "#fefefe";
+set color_page_title = "#545046";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#8EB25B";
+set color_module_link = "#111";
+set color_module_link_hover = "#545046";
+set color_module_link_visited = "#111";
+set color_module_text = "#111";
+set color_module_title = "#111";
+
+set color_tertiary_background = "#C3D3AE";
+set color_module_link_alt = "#111";
+set color_module_link_hover_alt = "#545046";
+set color_module_link_visited_alt = "#111";
+set color_module_text_alt = "#111";
+set color_module_title_alt = "#111";
+
+
+#NEWLAYER: trifecta/mythicalbeast
+layerinfo type = "theme";
+layerinfo name = "Mythical Beast";
+layerinfo redist_uniq = "trifecta/mythicalbeast";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "three-columns-sides";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#005A54";
+set color_calendar_border = "#111";
+set color_calendar_link = "#fff";
+set color_calendar_link = "#F6F6F6";
+set color_calendar_link_hover = "#eee";
+set color_calendar_link_visited = "#F6F6F6";
+set color_calendar_text = "#F6F6F6";
+set color_header_background = "#005A54";
+set color_footer_background = "#005A54";
+set color_footer_link = "#F6F6F6";
+set color_footer_link_hover = "#eee";
+set color_footer_link_visited = "#F6F6F6";
+set color_footer_text = "#F6F6F6";
+set color_page_background = "#F6F6F6";
+set color_page_link = "#111";
+set color_page_link_hover = "#005A54";
+set color_page_link_visited = "#111";
+set color_page_text = "#111";
+set color_page_title = "#F6F6F6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#111";
+set color_module_link = "#F6F6F6";
+set color_module_link_hover = "#eee";
+set color_module_link_visited = "#F6F6F6";
+set color_module_text = "#F6F6F6";
+set color_module_title = "#F6F6F6";
+
+##===============================
+## Images
+##===============================
+
+set image_background_main_url = "trifecta/mythicalbeast_main.png";
+set image_background_secondary_url = "trifecta/mythicalbeast_sidebar.png";
+set image_background_tertiary_url = "trifecta/mythicalbeast_sidebar.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+     border-bottom: 1px dotted #ccc;
+}
+
+#footer {
+     border-top: 1px dotted #ccc;
+}
+
+#secondary .module a:hover,
+#tertiary .module a:hover {
+     border-bottom: 1px dotted;
+}
+""";
+}
+
+
+#NEWLAYER: trifecta/peacefullife
+layerinfo type = "theme";
+layerinfo name = "Peaceful Life";
+layerinfo redist_uniq = "trifecta/peacefullife";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "Fargo", "url" => "http://www.colourlovers.com/palette/307038/Fargo" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "one-column-split";
+set margins_size = "15";
+set margins_unit = "%";
+set module_navlinks_section = "aboveheader";
+set module_tags_section = "one";
+set module_calendar_section = "two";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#d1d6d0";
+set color_footer_background = "#e4da9b";
+set color_header_background ="#bfc7c5";
+set color_page_background = "#D1D6D0";
+set color_page_link = "#222827";
+set color_page_link_hover = "#004f43";
+set color_page_link_visited = "#111";
+set color_page_text = "#111";
+set color_main_background ="#96a3a1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#bfc7c5";
+set color_tertiary_background = "#e4da9b";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#secondary,
+#tertiary {
+    text-align: center;
+}
+""";
+}
+
+
+#NEWLAYER: trifecta/purplelove
+layerinfo type = "theme";
+layerinfo name = "Purple Love";
+layerinfo redist_uniq = "trifecta/purplelove";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "Influenza", "url" => "http://www.colourlovers.com/palette/301154/Influenza" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-right";
+set module_navlinks_section = "aboveheader";
+set module_search_section = "one";
+set module_syndicate_section = "one";
+set module_active_section = "one";
+set module_links_section = "one";
+set module_credit_section = "one";
+set module_tags_section = "one";
+set module_pagesummary_section = "one";
+set module_time_section = "one";
+set module_poweredby_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#601848";
+set color_calendar_border = "#a15fa1";
+set color_page_background = "#300030";
+set color_page_link = "#a15fa1";
+set color_page_link_hover = "#c114c1";
+set color_page_link_visited = "#a15fa1";
+set color_page_text = "#fefefe";
+set color_footer_background = "#480048";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#601848";
+set color_tertiary_background = "#480048";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#footer {
+    padding: .3em;
+}
+""";
+}
+
+
+#NEWLAYER: trifecta/sanddune
+layerinfo type = "theme";
+layerinfo name = "Sand Dune";
+layerinfo redist_uniq = "trifecta/sanddune";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "again... what?!", "url" => "http://www.colourlovers.com/palette/1016818/again..._what!" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "one-column-split";
+set margins_size = "20";
+set margins_unit = "%";
+set module_tags_section = "one";
+set module_calendar_section = "two";
+set module_cuttagcontrols_section = "two";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#E3D8B8";
+set color_footer_background = "#EBD27E";
+set color_header_background ="#EBD27E";
+set color_page_background = "#D9D2B4";
+set color_page_link = "#332514";
+set color_page_link_hover = "#111";
+set color_page_link_visited = "#332514";
+set color_page_text = "#111";
+set color_main_background ="#FDFEEB";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#E3D8B8";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#secondary,
+#tertiary {
+    text-align: center;
+}
+
+#canvas {
+    box-shadow: 1px 1px 10px #B4A987;
+}
+""";
+}
+
+
+#NEWLAYER: trifecta/skinsoft
+layerinfo type = "theme";
+layerinfo name = "Skin Soft";
+layerinfo redist_uniq = "trifecta/skinsoft";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "i n v i s i b l e", "url" => "http://www.colourlovers.com/palette/670816/i_n_v_i_s_i_b_l_e" }
+];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "three-columns-left";
+set userpics_position = "right";
+set module_search_section = "one";
+set module_syndicate_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#EBE3AA";
+set color_page_background = "#FAFBE3";
+set color_page_link = "#45433d";
+set color_page_link_hover = "#111";
+set color_page_link_visited = "#45433d";
+set color_page_text = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#e3f7dc";
+set color_tertiary_background = "#bcb6a6";
+
+##===============================
+## Images
+##===============================
+
+set image_background_main_url = "trifecta/skinsoft_main.png";
+set image_background_secondary_url = "trifecta/skinsoft_secondary.png";
+
+
+#NEWLAYER: trifecta/timber
+layerinfo type = "theme";
+layerinfo name = "Timber!";
+layerinfo redist_uniq = "trifecta/timber";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "A Dream in Color", "url" => "http://www.colourlovers.com/palette/871636/A_Dream_in_Color" }
+];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "three-columns-sides";
+set module_tags_section = "one";
+set module_calendar_section = "two";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#c6d3c2";
+set color_footer_link = "#1a676a";
+set color_footer_link_hover = "#7aaf20";
+set color_footer_link_visited = "#1a676a";
+set color_footer_text = "#111";
+set color_page_background = "#ECFBE9";
+set color_page_link = "#1a676a";
+set color_page_link_hover = "#7aaf20";
+set color_page_link_visited = "#1a676a";
+set color_page_text = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#1a676a";
+set color_module_link = "#c6d3c2";
+set color_module_link_hover = "#111";
+set color_module_link_visited = "#c6d3c2";
+set color_module_text = "#fefefe";
+set color_tertiary_background = "#7aaf20";
+set color_module_link_alt = "253a00";
+set color_module_link_hover_alt = "#111";
+set color_module_link_visited_alt = "#253a00";
+set color_module_text_alt = "#111";
+
+##===============================
+## Images
+##===============================
+
+set image_background_main_url = "trifecta/timber.png";
+
+
+#NEWLAYER: trifecta/youresosweet
+layerinfo type = "theme";
+layerinfo name = "You're So Sweet";
+layerinfo redist_uniq = "trifecta/youresosweet";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "LoversInJapan", "url" => "http://www.colourlovers.com/palette/867235/LoversInJapan" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "three-columns-right";
+set module_navlinks_section = "aboveheader";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_calendar_background = "#e46285";
+set color_page_background = "#F4EAD5";
+set color_page_link = "#2E2719";
+set color_page_link_hover = "#111";
+set color_page_link_visited = "#2E2719";
+set color_page_text = "#111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_secondary_background = "#C6E5D9";
+set color_module_link = "20302a";
+set color_module_link_hover = "#111";
+set color_module_link_visited = "#20302a";
+set color_tertiary_background = "#e46285";
+set color_module_link_alt = "#470013";
+set color_module_link_hover_alt = "#111";
+set color_module_link_visited_alt = "#510017";
