@@ -1,0 +1,12 @@
+// set the variables for tables here
+// and then import the foundation tables
+
+$include-html-classes: false;
+@import "foundation/variables", "foundation/components/global";
+
+$include-html-nav-classes: true;
+@import "foundation/components/pagination";
+
+.pagination a {
+    text-decoration: none;
+}

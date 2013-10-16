@@ -18,6 +18,8 @@ use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 
+use POSIX;
+
 =head1 NAME
 
 DW::Controller::Community - Community management pages
@@ -27,11 +29,12 @@ DW::Controller::Community - Community management pages
 DW::Routing->register_string( "/communities/index", \&index_handler, app => 1 );
 DW::Routing->register_string( "/communities/list", \&list_handler, app => 1 );
 DW::Routing->register_string( "/communities/new", \&new_handler, app => 1 );
-
+DW::Routing->register_string( "/communities/members/edit", \&members_handler, app => 1 );
 
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
 DW::Routing->register_redirect( "/community/manage", "/communities/list" );
 DW::Routing->register_redirect( "/community/create", "/communities/new" );
+#DW::Routing->register_redirect( "/community/members", "/communities/members/edit" );
 
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
@@ -241,6 +244,92 @@ sub new_handler {
                             };
 
     return DW::Template->render_template( 'communities/new.tt', $vars );
+}
+
+sub members_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $remote = $rv->{remote};
+
+    my $get = $r->get_args;
+
+    # now get lists of: members, admins, able to post, moderators
+    my %roletype_to_readable = (
+                    A => 'admin',
+                    P => 'poster',
+                    E => 'member',
+                    M => 'moderator',
+                    N => 'preapproved'
+                    );
+    my %readable_to_roletype = reverse %roletype_to_readable;
+
+    my @roles = split ",", $get->{role};
+    @roles = grep { $_ } # make sure not undef
+                map { $readable_to_roletype{$_} } @roles;
+    my %active_role_filters = map { $roletype_to_readable{$_} => 1 } @roles;
+
+    # TODO: MAKE THIS WORK
+    my $cu = LJ::load_user( "test_fu" ) || LJ::load_user( "aca" );
+    return error_ml( "/communities/members/edit.tt.error.nocomm" ) unless $cu;
+
+    return error_ml( "/communities/members/edit.tt.error.notcomm", {
+                        user => $cu->ljuser_display,
+                    } ) unless $cu->is_comm;
+
+    return error_ml( "/communities/members/edit.tt.error.noaccess", {
+                        comm => $cu->ljuser_display,
+                    } ) unless $remote->can_manage_other( $cu );
+
+
+    my ( $users, $usernames, $role_count ) = $cu->get_members_by_role( \@roles );
+
+    my $page = int( $get->{page} || 0 ) || 1;
+    my $pagesize = 100;
+
+    my @users = sort keys %$usernames;
+    my $num_users = scalar @users;
+
+    my $total_pages = ceil( $num_users / $pagesize );
+
+    my $first = ( $page - 1 ) * $pagesize;
+
+    my $last = $page * $pagesize;
+    $last = $num_users if $last > $num_users;
+    $last = $last - 1;
+
+    @users = @users[$first...$last];
+
+    my $filter_link = sub {
+        my $filter = $_[0];
+        return
+        {   text    => ".role.$filter",
+            url     => LJ::create_url( undef, args => { role => "$filter" } ),
+            active  => $active_role_filters{$filter} ? 1 : 0,
+        },
+    };
+
+    my @filter_links = (
+        {   text    => ".role.all",
+            url     => LJ::create_url( undef ),
+            active  => ( scalar keys %active_role_filters ) ? 0 : 1,
+        },
+        $filter_link->( "member" ),
+        $filter_link->( "poster" ),
+        $filter_link->( "moderator" ),
+        $filter_link->( "admin" ),
+     );
+
+    my $vars = {
+        community => $cu,
+        user_list => \@users,
+
+        filter_links => \@filter_links,
+        pages => { current => $page, total_pages => $total_pages },
+    };
+
+    return DW::Template->render_template( 'communities/members/edit.tt', $vars );
 }
 
 1;

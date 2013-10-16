@@ -662,5 +662,39 @@ sub moderator_userids {
     return @{LJ::load_rel_user_cache( $u->id, 'M' )};
 }
 
+# returns three hashrefs:
+#   { userid => { "userid" => userid, "name" => username, "A" => 1, "P" => 1 ... }, ... }
+#   { username => id, ... }
+#   { "M" => count, "P" => count, ... }
+#
+# not cached
+sub get_members_by_role {
+    my ( $cu, $types, %opts ) = @_;
+
+    # this needs to handle "all"
+    my $typein = ( join ",", map { qq('$_') } @$types ) || q( 'A','P','M','N','E' );
+
+    # need a dbr now
+    my $dbr = LJ::get_db_reader();
+
+    # get all community edges
+    my $sth = $dbr->prepare("SELECT r.targetid, r.type, u.user FROM reluser r, useridmap u " .
+                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ( $typein )");
+    $sth->execute( $cu->userid );
+
+    my %users = ();
+    my %usernames;
+    my %count;
+    while ( my ( $id, $type, $user ) = $sth->fetchrow_array ) {
+        $users{$id}->{userid} = $id;
+        $users{$id}->{name} = $user;
+        $usernames{$user} = $id;
+        $users{$id}->{$type} = 1;
+        $count{$type}++;
+    }
+
+    return ( \%users, \%usernames, \%count );
+}
+
 
 1;
