@@ -17,6 +17,7 @@ title=><?_ml .title _ml?>
 body<=
 <?_code
 {
+    BML::set_language_scope( "/community/membertemp.bml" );
     use strict;
     use vars qw(%GET %POST);
 
