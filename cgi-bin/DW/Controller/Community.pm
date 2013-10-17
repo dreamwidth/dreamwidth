@@ -288,8 +288,10 @@ sub members_handler {
     my $page = int( $get->{page} || 0 ) || 1;
     my $pagesize = 100;
 
-    my @users = sort keys %$usernames;
+    my @users = sort { $a->{name} cmp $b->{name} } values %$users;
     my $num_users = scalar @users;
+
+    $_->{ljuser} = LJ::ljuser( $_->{name} ) foreach @users;
 
     my $total_pages = ceil( $num_users / $pagesize );
 
