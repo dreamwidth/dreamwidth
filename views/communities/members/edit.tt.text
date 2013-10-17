@@ -56,10 +56,7 @@
 #
 #.jump.notfound=The specified user was not found in the member list.
 #
-#.key.preapprove=Unmoderated
-#
-#.label.preapprove=Unmoderated
-#
+
 #.manage2=Manage Communities
 #
 #.name=<strong>Community name:</strong> [[name]]
@@ -117,4 +114,8 @@
 
 .role.poster=Posting Access
 
+.role.unmoderated=Unmoderated
+
 .title=Edit Community Members
+
+.account=Account

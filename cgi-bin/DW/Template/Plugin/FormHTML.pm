@@ -153,6 +153,34 @@ sub checkbox_nested {
     return $ret;
 }
 
+=head2 [% form.checkbox_nested( label="A label", id="elementid", name="elementname", .... ) %]
+
+Return a checkbox nested within a label, if provided. Values are prepopulated by the plugin's datasource.
+
+=cut
+
+sub checkbox_nested {
+    my ( $self, $args ) = @_;
+
+    my $ret = "";
+
+    if ( ! defined $args->{selected} && $self->{data} ) {
+        my %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
+        $args->{selected} = $selected{$args->{value}};
+    }
+
+    $args->{class} ||= "checkbox";
+
+    my $label = delete $args->{label};
+
+    # makes the form element use the default or an explicit value...
+    $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
+
+    $ret .= "<label for='$args->{id}'>" . LJ::html_check( $args ) . " $label</label>";
+
+    return $ret;
+}
+
 =head2 [% form.hidden( name =... ) %]
 
 Return a hidden form element. Values are prepopulated by the plugin's datasource.

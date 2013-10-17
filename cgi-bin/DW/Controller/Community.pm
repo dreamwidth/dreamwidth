@@ -261,14 +261,14 @@ sub members_handler {
                     P => 'poster',
                     E => 'member',
                     M => 'moderator',
-                    N => 'preapproved'
+                    N => 'unmoderated'
                     );
     my %readable_to_roletype = reverse %roletype_to_readable;
 
-    my @roles = split ",", $get->{role};
-    @roles = grep { $_ } # make sure not undef
-                map { $readable_to_roletype{$_} } @roles;
-    my %active_role_filters = map { $roletype_to_readable{$_} => 1 } @roles;
+    my @role_filters = split ",", $get->{role};
+    @role_filters = grep { $_ } # make sure not undef
+                map { $readable_to_roletype{$_} } @role_filters;
+    my %active_role_filters = map { $roletype_to_readable{$_} => 1 } @role_filters;
 
     # TODO: MAKE THIS WORK
     my $cu = LJ::load_user( "test_fu" ) || LJ::load_user( "aca" );
@@ -283,7 +283,7 @@ sub members_handler {
                     } ) unless $remote->can_manage_other( $cu );
 
 
-    my ( $users, $usernames, $role_count ) = $cu->get_members_by_role( \@roles );
+    my ( $users, $usernames, $role_count ) = $cu->get_members_by_role( \@role_filters );
 
     my $page = int( $get->{page} || 0 ) || 1;
     my $pagesize = 100;
@@ -301,6 +301,15 @@ sub members_handler {
 
     @users = @users[$first...$last];
 
+    my @available_roles = ( 'member', 'poster' );
+
+    my $has_moderated_posting = $cu->has_moderated_posting;
+    push @available_roles, 'unmoderated'
+        if $has_moderated_posting || $role_count->{N};
+    push @available_roles, 'moderator'
+        if $has_moderated_posting || $role_count->{M};
+    push @available_roles, 'admin';
+
     my $filter_link = sub {
         my $filter = $_[0];
         return
@@ -314,19 +323,17 @@ sub members_handler {
         {   text    => ".role.all",
             url     => LJ::create_url( undef ),
             active  => ( scalar keys %active_role_filters ) ? 0 : 1,
-        },
-        $filter_link->( "member" ),
-        $filter_link->( "poster" ),
-        $filter_link->( "moderator" ),
-        $filter_link->( "admin" ),
+        }
      );
+    push @filter_links, $filter_link->( $_ ) foreach @available_roles;
 
     my $vars = {
         community => $cu,
         user_list => \@users,
 
+        roles        => \@available_roles,
         filter_links => \@filter_links,
-        pages => { current => $page, total_pages => $total_pages },
+        pages        => { current => $page, total_pages => $total_pages },
     };
 
     return DW::Template->render_template( 'communities/members/edit.tt', $vars );
