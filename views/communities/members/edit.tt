@@ -33,19 +33,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <table>
     <thead>
     <tr>
-        <th scope="col">Username</th>
-        <th scope="col">[% '.role.member' | ml %]</th>
-        <th scope="col">[% '.role.poster' | ml %]</th>
-        <th scope="col">[% '.role.admin' | ml %]</th>
+        <th scope="col">[% '.account' | ml %]</th>
     </tr>
     </thead>
     <tbody>
     [%- FOREACH user = user_list -%]
     <tr>
         <th scope="row">[% user %]</th>
-        <td class="text-center">[% form.checkbox( name="#", value="#" ) %]</td>
-        <td class="text-center">[% form.checkbox( name="#", value="#" ) %]</td>
-        <td class="text-center">[% form.checkbox( name="#", value="#" ) %]</td>
+        [%- FOREACH role = roles -%]
+          <td>[% form.checkbox_nested( label=dw.ml( ".role.$role" ),  id="${role}_${user.userid}", name=role, value=user.userid ) %]</td>
+        [%- END -%]
     </tr>
     [%- END -%]
     </tbody>
