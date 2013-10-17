@@ -39,7 +39,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <tbody>
     [%- FOREACH user = user_list -%]
     <tr>
-        <th scope="row">[% user %]</th>
+        <th scope="row">[% user.ljuser %]</th>
         [%- FOREACH role = roles -%]
           <td>[% form.checkbox_nested( label=dw.ml( ".role.$role" ),  id="${role}_${user.userid}", name=role, value=user.userid ) %]</td>
         [%- END -%]
