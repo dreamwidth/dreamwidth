@@ -291,8 +291,9 @@ sub members_handler {
     my @users = sort { $a->{name} cmp $b->{name} } values %$users;
     my $num_users = scalar @users;
 
-    $_->{ljuser} = LJ::ljuser( $_->{name} ) foreach @users;
-
+    # pagination:
+    #   calculate the number of pages
+    #   take the results and choose only a slice for display
     my $total_pages = ceil( $num_users / $pagesize );
 
     my $first = ( $page - 1 ) * $pagesize;
@@ -303,8 +304,11 @@ sub members_handler {
 
     @users = @users[$first...$last];
 
-    my @available_roles = ( 'member', 'poster' );
+    # populate with the ljuser tag for display
+    $_->{ljuser} = LJ::ljuser( $_->{name} ) foreach @users;
 
+    # figure out what member roles are relevant
+    my @available_roles = ( 'member', 'poster' );
     my $has_moderated_posting = $cu->has_moderated_posting;
     push @available_roles, 'unmoderated'
         if $has_moderated_posting || $role_count->{N};
@@ -312,6 +316,7 @@ sub members_handler {
         if $has_moderated_posting || $role_count->{M};
     push @available_roles, 'admin';
 
+    # create a data structure for the links to filter members
     my $filter_link = sub {
         my $filter = $_[0];
         return
