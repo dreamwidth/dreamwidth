@@ -265,7 +265,7 @@ sub members_handler {
                     );
     my %readable_to_roletype = reverse %roletype_to_readable;
 
-    my @role_filters = split ",", $get->{role};
+    my @role_filters = split ",", $get->{role} || "";
     @role_filters = grep { $_ } # make sure not undef
                 map { $readable_to_roletype{$_} } @role_filters;
     my %active_role_filters = map { $roletype_to_readable{$_} => 1 } @role_filters;
@@ -334,6 +334,19 @@ sub members_handler {
      );
     push @filter_links, $filter_link->( $_ ) foreach @available_roles;
 
+    # data for the checkboxes in the form of:
+    #   {
+    #       role => [ userids ], ...
+    #  }
+    my $membership_statuses = Hash::MultiValue->new;
+    my @roletype_keys = keys %roletype_to_readable;
+    foreach my $user ( values %$users ) {
+        foreach my $roletype ( @roletype_keys ) {
+            $membership_statuses->add( $roletype_to_readable{$roletype}, $user->{userid} )
+                if $user->{$roletype};
+        }
+    }
+
     my $vars = {
         community => $cu,
         user_list => \@users,
@@ -341,6 +354,8 @@ sub members_handler {
         roles        => \@available_roles,
         filter_links => \@filter_links,
         pages        => { current => $page, total_pages => $total_pages },
+
+        formdata     => $membership_statuses,
     };
 
     return DW::Template->render_template( 'communities/members/edit.tt', $vars );
