@@ -1,6 +1,8 @@
 /* "Select all" checkboxes
  */
 
+@import "mixins/screenreader-friendly";
+
 .select-all {
     th[scope="row"] {
         text-align: right;
@@ -13,6 +15,10 @@
 
         label, input {
             margin: 0;
+        }
+
+        label {
+            @extend %screenreader-friendly;
         }
     }
 }
