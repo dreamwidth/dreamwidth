@@ -4,6 +4,12 @@
   # non skin-specific css files
   dw.need_res( { group => "foundation" },
       "stc/css/components/progress-bars.css"
+      "stc/css/components/tables.css"
+      "stc/css/components/pagination.css"
+      "stc/css/components/sub-nav.css"
+
+      "js/components/jquery.select-all.js"
+      "stc/css/components/select-all.css"
   );
 -%]
 [% CALL dw.active_resource_group( "foundation" ) %]
@@ -821,5 +827,50 @@
         </p>
 
 
+        <h4>Select All Checkboxes</h4>
+
+        <p>Requires js/components/jquery.select-all.js, stc/css/components/select-all.css, and the following HTML:</p>
+        <ul>
+        <li>th[scope=row]
+        <li>input[data-role=theName]
+        <li>input[name=theName]
+        </ul>
+
+        <table>
+        <thead>
+          <tr class="select-all">
+            <th scope="row"><span id="select-all">Select All</span></th>
+            <th><input type="checkbox" data-role="foo" aria-labelledby="select-all"></th>
+            <th><input type="checkbox" data-role="bar" aria-labelledby="select-all"></th>
+            <th><input type="checkbox" data-role="baz" aria-labelledby="select-all"></th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <th scope="row">apples</th>
+          <td><input type="checkbox" name="foo"></td>
+          <td><input type="checkbox" name="bar"></td>
+          <td><input type="checkbox" name="baz"></td>
+        </tr>
+        <tr>
+          <th scope="row">bananas</td>
+          <td><input type="checkbox" name="foo"></td>
+          <td><input type="checkbox" name="bar"></td>
+          <td><input type="checkbox" name="baz"></td>
+        </tr>
+        <tr>
+          <th scope="row">cheese and eggs and ham</td>
+          <td><input type="checkbox" name="foo"></td>
+          <td><input type="checkbox" name="bar"></td>
+          <td><input type="checkbox" name="baz"></td>
+        </tr>
+        <tr>
+          <th scope="row">breakfast</th>
+          <td><input type="checkbox" name="foo"></td>
+          <td><input type="checkbox" name="bar"></td>
+          <td><input type="checkbox" name="baz"></td>
+        </tr>
+        </tbody>
+        </table>
       </div>
     </div>

@@ -1,0 +1,18 @@
+/* "Select all" checkboxes
+ */
+
+.select-all {
+    th[scope="row"] {
+        text-align: right;
+        font-size: smaller;
+        font-weight: normal;
+    }
+
+    th {
+        vertical-align: top;
+
+        label, input {
+            margin: 0;
+        }
+    }
+}
