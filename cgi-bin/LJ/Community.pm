@@ -669,28 +669,38 @@ sub moderator_userids {
 #
 # not cached
 sub get_members_by_role {
-    my ( $cu, $types, %opts ) = @_;
+    my ( $cu, $types ) = @_;
 
-    # this needs to handle "all"
-    my $typein = ( join ",", map { qq('$_') } @$types ) || q( 'A','P','M','N','E' );
+    my @all_types = qw ( A P M N E );
+    my @filter_by_types = scalar @$types ? @$types : @all_types;
+    my %filter_by = map { $_ => 1 } @filter_by_types;
+    my $type_in = join ", ", map { qq('$_') } @all_types;
 
     # need a dbr now
     my $dbr = LJ::get_db_reader();
 
     # get all community edges
     my $sth = $dbr->prepare("SELECT r.targetid, r.type, u.user FROM reluser r, useridmap u " .
-                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ( $typein )");
+                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ( $type_in )");
     $sth->execute( $cu->userid );
 
-    my %users = ();
+    my %userinfo;       # contains the data that we fetched
+    my %users;          # the users we return / are interested in
     my %usernames;
     my %count;
     while ( my ( $id, $type, $user ) = $sth->fetchrow_array ) {
-        $users{$id}->{userid} = $id;
-        $users{$id}->{name} = $user;
+        $userinfo{$id}->{userid} = $id;
+        $userinfo{$id}->{name} = $user;
         $usernames{$user} = $id;
-        $users{$id}->{$type} = 1;
-        $count{$type}++;
+        $userinfo{$id}->{$type} = 1;
+
+        # filter down to just the roles we are interested in
+        if ( $filter_by{$type} ) {
+            $users{$id} = $userinfo{$id};
+
+            # only count if we actually include in the final results
+            $count{$type}++;
+        }
     }
 
     return ( \%users, \%usernames, \%count );
