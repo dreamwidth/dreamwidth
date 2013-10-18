@@ -19,6 +19,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/components/tables.css"
     "stc/css/components/pagination.css"
     "stc/css/components/sub-nav.css"
+
+    "js/components/jquery.select-all.js"
+    "stc/css/components/select-all.css"
 ) -%]
 
 <div class="row"><div class="columns large-12">
@@ -30,10 +33,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- END -%]
 </dl>
 
-<table>
+<table class="select-all">
     <thead>
     <tr>
-        <th scope="col">[% '.account' | ml %]</th>
+        <th scope="row"><span id="select-all">Select All</span></th>
+        [%- FOREACH role = roles -%]
+          <th><input type="checkbox" id="header_[% role %]" data-select-all="[% role %]" aria-labelledby="select-all header_[% role %]_label" />
+              <label id="header_[% role %]_label" for="header_[% role %]">[% ".role.$role" | ml %]
+          </label></th>
+        [%- END -%]
     </tr>
     </thead>
     <tbody>
