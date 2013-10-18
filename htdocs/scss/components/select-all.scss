@@ -1,0 +1,28 @@
+/* Table with columns of checkboxes
+ * With "Select all" checkboxes in the header
+ */
+
+.no-js .select-all-header {
+    display: none;
+}
+
+.select-all {
+    .select-all-label {
+        display: block;
+        text-align: right;
+        font-size: smaller;
+        font-weight: normal;
+    }
+
+    th {
+        vertical-align: top;
+
+        label {
+            font-weight: bold;
+        }
+    }
+
+    input, label {
+        margin-bottom: 0;
+    }
+}

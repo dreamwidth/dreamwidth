@@ -1,6 +1,8 @@
 [%- sections.title = '.title' | ml -%]
 
 [% CALL dw.active_resource_group( "foundation" ) %]
+
+<p>Here are the various elements that we use on our pages. This is meant to be the place where all the components we use are documented: their appearance, their HTML structure, how to use them. Individual pages should have very little page-specific styling. For consistency, use these first, and think carefully before trying to do something that only one page will use.</p>
 <!-- only shrunk so that we have more lines between headers -->
 <h2>Headers / Panels</h2>
 <div class="row">
@@ -112,41 +114,41 @@
 </form>
 
 
-<h2>Tables / Select All Checkboxes</h2>
+<h2>Select All Tables</h2>
 <div class="row"><div class="large-6 columns">
-<table>
+<table class="select-all">
 <thead>
-  <tr class="select-all">
-    <th scope="row"><span id="select-all">Select All</span></th>
-    <th><input type="checkbox" data-role="foo" aria-labelledby="select-all"></th>
-    <th><input type="checkbox" data-role="bar" aria-labelledby="select-all"></th>
-    <th><input type="checkbox" data-role="baz" aria-labelledby="select-all"></th>
+  <tr class="select-all-header">
+    <th scope="row"><span class="select-all-label" id="select-all">Select All</span></th>
+    <th><label><input type="checkbox" data-role="foo" aria-labelledby="select-all"> foo</label></th>
+    <th><label><input type="checkbox" data-role="bar" aria-labelledby="select-all"> bar</label></th>
+    <th><label><input type="checkbox" data-role="baz" aria-labelledby="select-all"> baz</label></th>
   </tr>
 </thead>
 <tbody>
 <tr>
   <th scope="row">apples</th>
-  <td><input type="checkbox" name="foo"></td>
-  <td><input type="checkbox" name="bar"></td>
-  <td><input type="checkbox" name="baz"></td>
+  <td><label><input type="checkbox" name="foo"> foo</label></td>
+  <td><label><input type="checkbox" name="bar"> bar</label></td>
+  <td><label><input type="checkbox" name="baz"> baz</label></td>
 </tr>
 <tr>
   <th scope="row">bananas</td>
-  <td><input type="checkbox" name="foo"></td>
-  <td><input type="checkbox" name="bar"></td>
-  <td><input type="checkbox" name="baz"></td>
+  <td><label><input type="checkbox" name="foo"> foo</label></td>
+  <td><label><input type="checkbox" name="bar"> bar</label></td>
+  <td><label><input type="checkbox" name="baz"> baz</label></td>
 </tr>
 <tr>
   <th scope="row">cheese and eggs and ham</td>
-  <td><input type="checkbox" name="foo"></td>
-  <td><input type="checkbox" name="bar"></td>
-  <td><input type="checkbox" name="baz"></td>
+  <td><label><input type="checkbox" name="foo"> foo</label></td>
+  <td><label><input type="checkbox" name="bar"> bar</label></td>
+  <td><label><input type="checkbox" name="baz"> baz</label></td>
 </tr>
 <tr>
   <th scope="row">breakfast</th>
-  <td><input type="checkbox" name="foo"></td>
-  <td><input type="checkbox" name="bar"></td>
-  <td><input type="checkbox" name="baz"></td>
+  <td><label><input type="checkbox" name="foo"> foo</label></td>
+  <td><label><input type="checkbox" name="bar"> bar</label></td>
+  <td><label><input type="checkbox" name="baz"> baz</label></td>
 </tr>
 </tbody>
 </table>
