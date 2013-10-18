@@ -44,7 +44,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- BLOCK block.page -%]
 [%- IF resource_group == "foundation" -%]
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
     [% PROCESS block.head %]
     <body [% sections.bodyopts %]>
         <div id="canvas">

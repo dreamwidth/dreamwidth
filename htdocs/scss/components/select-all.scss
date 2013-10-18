@@ -3,6 +3,10 @@
 
 @import "mixins/screenreader-friendly";
 
+.no-js .select-all {
+    display: none;
+}
+
 .select-all {
     th[scope="row"] {
         text-align: right;
