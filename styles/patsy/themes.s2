@@ -1,3 +1,99 @@
+#NEWLAYER: patsy/brulee
+layerinfo type = "theme";
+layerinfo name = "Brulee";
+layerinfo redist_uniq = "patsy/brulee";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#7f4446";
+set color_page_link = "#b12e32";
+set color_page_link_hover = "#b18e64";
+set color_page_text = "#110a07";
+set color_page_title = "#7f4446";
+set color_header_background = "#e2d19d";
+set color_header_border = "#110a07";
+set color_footer_background = "#e2d19d";
+set color_calendar_entryday_background = "#fde2c5";
+set color_calendar_header_background = "#e2d19d";
+set color_content_border = "#b18e64";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fde2c5";
+set color_entry_border = "#b19e8a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffa688";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Calibri";
+
+
+#NEWLAYER: patsy/claydeco
+layerinfo type = "theme";
+layerinfo name = "Clay Deco";
+layerinfo redist_uniq = "patsy/claydeco";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#6b211e";
+set color_page_link = "#ab2626";
+set color_page_link_hover = "#472b1b";
+set color_page_text = "#1c1614";
+set color_page_title = "#fae0b5";
+set color_header_background = "#bf6f5f";
+set color_header_border = "#472b1b";
+set color_header_link = "#ecd2ab";
+set color_header_link_hover = "#fae0b5";
+set color_footer_background = "#e79f89";
+set color_footer_border = "#472b1b";
+set color_footer_link = "#bf6f5f";
+set color_footer_link_active = "#6b211e";
+set color_calendar_entryday_background = "#fae0b5";
+set color_calendar_header_background = "#fae0b5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fae0b5";
+set color_entry_border = "#bf6f5f";
+set color_entry_title = "#6b211e";
+set color_comment_title = "#6b211e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ecd2ab";
+set color_module_link_hover = "#bf6f5f";
+set color_module_title = "#6b211e";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Calibri";
+
+
 #NEWLAYER: patsy/evening
 layerinfo "type" = "theme";
 layerinfo "name" = "Evening";
@@ -103,7 +199,7 @@ function Page::print_theme_stylesheet() {
         font-family: 'Courier New', monospace;
         font-size: .9em;
     }
-    
+
     /* Text placement
     ******************************/
 
@@ -240,7 +336,7 @@ function Page::print_theme_stylesheet() {
         font-family: 'Courier New', monospace;
         font-size: .9em;
     }
-    
+
     /* Text placement
     ******************************/
 
@@ -425,7 +521,7 @@ function Page::print_theme_stylesheet() {
         font-family: 'Courier New', monospace;
         font-size: .9em;
     }
-    
+
     /* Text placement
     ******************************/
 
@@ -441,3 +537,49 @@ function Page::print_theme_stylesheet() {
 
 """;
 }
+
+
+#NEWLAYER: patsy/vintagesorbet
+layerinfo type = "theme";
+layerinfo name = "Vintage Sorbet";
+layerinfo redist_uniq = "patsy/vintagesorbet";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#726956";
+set color_page_link = "#c4383e";
+set color_page_link_hover = "#7aaf8e";
+set color_page_text = "#4e473b";
+set color_page_title = "#2b2824";
+set color_header_background = "#92d1ab";
+set color_header_border = "#726956";
+set color_header_link = "#c4383e";
+set color_header_link_hover = "#fce8be";
+set color_footer_background = "#92d1ab";
+set color_calendar_entryday_background = "#fce8be";
+set color_calendar_header_background = "#fce8be";
+set color_content_border = "#c4383e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fce8be";
+set color_entry_border = "#c4383e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffcd57";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Calibri";
