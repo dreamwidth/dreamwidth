@@ -33,10 +33,22 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- END -%]
 </dl>
 
+[%- IF messages.size > 0 -%]
+<div class="panel">
+<ul>
+  [%- FOREACH msg = messages -%]
+    <li>[% msg.0 | ml( msg.1 ) %]</li>
+  [%- END -%]
+</ul>
+</div>
+[%- END -%]
+
+<form method="POST" action="[% form_edit_action_url %]">
+[%- dw.form_auth -%]
 <table>
     <thead>
     <tr class="select-all">
-        <th scope="row"><span id="select-all">Select All</span></th>
+        <th scope="row"><span id="select-all">Select All*</span></th>
         [%- FOREACH role = roles -%]
           <th><input type="checkbox" id="header_[% role %]" data-role="[% role %]" aria-labelledby="select-all header_[% role %]_label" />
               <label id="header_[% role %]_label" for="header_[% role %]">[% ".role.$role" | ml %]
@@ -49,14 +61,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <tr>
         <th scope="row">[% user.ljuser %]</th>
         [%- FOREACH role = roles -%]
-          <td>[% form.checkbox_nested( label=dw.ml( ".role.$role" ),  id="${role}_${user.userid}", name=role, value=user.userid ) %]</td>
+          <td>
+          [%- form.checkbox_nested( label=dw.ml( ".role.$role" ),  id="${role}_${user.userid}", name=role, value=user.userid, remember_old_state = 1 ) -%]
+          </td>
         [%- END -%]
     </tr>
     [%- END -%]
     </tbody>
 </table>
 
-<input type="submit" class="button" value="Save Membership Settings" />
+<input type="submit" class="button" value="Save Membership Settings*" />
+</form>
 
 [% INCLUDE components/pagination.tt
     current => pages.current,
@@ -68,6 +83,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <hr>
 
 <div class="row"><div class="columns large-12">
-<h2>Cleanup Member List</h2>
-<input type="submit" class="small secondary button" value="Remove Purged Members" />
+<h2>Cleanup Member List*</h2>
+<input type="submit" class="small secondary button" value="Remove Purged Members*" />
 </div></div>

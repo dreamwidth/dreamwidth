@@ -119,6 +119,13 @@ sub checkbox {
 
 Return a checkbox nested within a label, if provided. Values are prepopulated by the plugin's datasource.
 
+Additional option:
+
+=item remember_old_state - 1 if you want to include a hidden element containing the checkbox's value on page load.
+    Useful for cases when you have a list of items, and you want to know if the checkbox started out unchecked.
+    When it's unchecked, the checkbox doesn't get submitted, equivalent to it not being on the page in the first place.
+    So we might want to keep track of the old value so we "remember" that we need to handle the toggle
+
 =cut
 
 sub checkbox_nested {
@@ -134,11 +141,14 @@ sub checkbox_nested {
     $args->{class} ||= "checkbox";
 
     my $label = delete $args->{label};
+    my $include_hidden = delete $args->{remember_old_state} || 0;
 
     # makes the form element use the default or an explicit value...
     $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
 
     $ret .= "<label for='$args->{id}'>" . LJ::html_check( $args ) . " $label</label>";
+    $ret .= LJ::html_hidden( { name => $args->{name} . "_old" , value => $args->{value}} )
+        if $args->{selected};
 
     return $ret;
 }

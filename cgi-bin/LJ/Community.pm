@@ -706,5 +706,66 @@ sub get_members_by_role {
     return ( \%users, \%usernames, \%count );
 }
 
+=head2 C<< $cu->notify_administrator_remove( $admin_u_del, $remote ) >>
 
+Notify a user when they've been removed from being admin for a community.
+$admin_u_del is the user to be removed; $remote is the user doing the removing
+
+=cut
+sub notify_administrator_remove {
+    my ( $cu, $admin_u_del, $remote ) = @_;
+    $cu->_notify_administrator( $admin_u_del, $remote, "maintainer_remove" )
+}
+
+
+=head2 C<< $cu->notify_administrator_add( $admin_u_new, $remote ) >>
+
+Notify a user when they've been added as an admin to a community.
+$admin_u_new is the user to be added; $remote is the user doing the adding.
+
+=cut
+sub notify_administrator_add {
+    my ( $cu, $admin_u_new, $remote ) = @_;
+    $cu->_notify_administrator( $admin_u_new, $remote, "maintainer_add" );
+}
+
+# TODO: check if user wants to receive emails?
+sub _notify_administrator {
+    my ( $cu, $target_u, $remote, $action ) = @_;
+    $cu->log_event( $action, { actiontarget => $target_u->id, remote => $remote } );
+
+    return if ! $target_u || $target_u->is_expunged;
+
+    my $email_body;
+    my $email_subject;
+    my $ml_scope = "/communities/members/edit.tt";
+    if ( $action eq "maintainer_add" ) {
+        $email_body = LJ::Lang::ml( "$ml_scope.email.admin.add.body", {
+                comm => $cu->name_raw,
+                community_url => $cu->journal_base,
+
+                community_management_url => "$LJ::SITEROOT/communities/list"
+            } );
+        $email_subject = LJ::Lang::ml( "$ml_scope.email.admin.add.subject", { comm => $cu->name_raw } );
+    } else {
+        $email_body = LJ::Lang::ml( "$ml_scope.email.admin.delete.body", {
+                admin => $remote->user,
+
+                comm => $cu->name_raw,
+                community_url => $cu->journal_base,
+            });
+        $email_subject = LJ::Lang::ml( "$ml_scope.email.admin.delete.subject", { comm => $cu->name_raw } );
+    }
+
+    LJ::send_formatted_mail(
+            to => $target_u->email_raw,
+            greeting_user => $target_u->user,
+
+            from => $LJ::BOGUS_EMAIL,
+            fromname => qq{"$LJ::SITENAME"},
+
+            subject => $email_subject,
+            body => $email_body,
+    );
+}
 1;

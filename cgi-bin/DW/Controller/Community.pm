@@ -264,11 +264,7 @@ sub members_handler {
                     N => 'unmoderated'
                     );
     my %readable_to_roletype = reverse %roletype_to_readable;
-
-    my @role_filters = split ",", $get->{role} || "";
-    @role_filters = grep { $_ } # make sure not undef
-                map { $readable_to_roletype{$_} } @role_filters;
-    my %active_role_filters = map { $roletype_to_readable{$_} => 1 } @role_filters;
+    my @roles = keys %readable_to_roletype;
 
     # TODO: MAKE THIS WORK
     my $cu = LJ::load_user( "test_fu" ) || LJ::load_user( "aca" );
@@ -282,6 +278,142 @@ sub members_handler {
                         comm => $cu->ljuser_display,
                     } ) unless $remote->can_manage_other( $cu );
 
+    # handle post
+    my @messages;
+    my $errors = DW::FormErrors->new;
+    if ( $r->did_post ) {
+        my $post = $r->post_args;
+
+        my %was;
+        my %current;
+        foreach my $role ( @roles ) {
+            # quick lookup for checkboxes that were checked on page load (old values{})
+            foreach my $uid ( $post->get_all( $role . "_old" ) ) {
+                $was{$uid}->{$role} = 1;
+            }
+
+            # and same for current values
+            foreach my $uid ( $post->get_all( $role ) ) {
+                $current{$uid}->{$role} = 1;
+            }
+        }
+
+        # preload the users we're dealing with
+        # assumes that every user has at least one checked checkbox...
+        # but that seems to be a fair assumption
+        my @preload_userids = grep { $_ } map { $_ + 0 } keys %was;
+        my %us = %{ LJ::load_userids( @preload_userids ) };
+
+        # now compare userids in %current to %was
+        # to determine which to add and which to delete
+        my %add;
+        my %delete;
+        foreach my $uid ( @preload_userids ) {
+            foreach my $role ( @roles ) {
+                if ( $current{$uid}->{$role} && ! $was{$uid}->{$role} ) {
+                    $add{$role}->{$uid} = 1
+                } elsif ( $was{$uid}->{$role} && ! $current{$uid}->{$role}) {
+                    $delete{$role}->{$uid} = 1;
+                }
+            }
+        }
+
+        ########
+        ## ADD
+
+        # members are a special-case, because we need to ask permission first
+        foreach my $uid ( keys %{$add{member} || {}} ) {
+            my $add_u = $us{$uid};
+            next unless $add_u;
+
+            if ( $remote->equals( $add_u ) ) {
+                    # you're allowed to add yourself as member
+                    $remote->join_community( $cu );
+                } else {
+                    if ( $add_u && $add_u->send_comm_invite( $cu, $remote, [ 'member' ] ) ) {
+                       push @messages,  [ ".msg.invite",
+                                           { user => $add_u->ljuser_display, invite_url => "$LJ::SITEROOT/manage/invites" } ];
+                    }
+                }
+        }
+
+        # admins also need special handling: they should be notified that they've been added
+        foreach my $uid ( keys %{$add{admin} || {}} ) {
+            my $add_u = $us{$uid};
+            next unless $add_u;
+
+            $cu->notify_administrator_add( $add_u, $remote );
+        }
+
+        # go ahead and add poster (P), unmoderated (N), moderator (M), admin (A) edges unconditionally
+        my $cid = $cu->userid;
+        LJ::set_rel_multi( (map { [$cid, $_, 'A'] } keys %{$add{admin}       || {}}),
+                           (map { [$cid, $_, 'P'] } keys %{$add{poster}      || {}}),
+                           (map { [$cid, $_, 'M'] } keys %{$add{moderator}   || {}}),
+                           (map { [$cid, $_, 'N'] } keys %{$add{unmoderated} || {}}),
+                           );
+
+
+        ##########
+        ## DELETE
+
+        # delete members
+        foreach my $uid ( keys %{$delete{member} || {}} ) {
+            my $del_u = $us{$uid};
+            next unless $del_u;
+
+            $del_u->remove_edge( $cid, member => {} );
+        }
+
+        # admins are a special case: we need to make sure we don't remove all admins from the community
+
+        # we load the admin_users in bulk separately, because this list might include admins that weren't available on this page
+        # (but we still want to be able to load them up to check their visibility status)
+        my %admin_users = %{ LJ::load_userids( $cu->maintainer_userids ) };
+
+        my %admins_to_delete = %{$delete{admin} || {}};
+        my @remaining_admins = grep { ! $admins_to_delete{ $_ }             # admins we want to delete on this page load
+                                        && $admin_users{$_}                 # is an existing user
+                                        && ! $admin_users{$_}->is_expunged  # that is not expunged
+                                    } $cu->maintainer_userids;
+
+        unless ( @remaining_admins ) {
+            $errors->add( "admin", ".error.no_admin", { comm => $cu->ljuser_display } );
+
+            # refuse to delete any admins
+            $delete{admin} = {};
+        }
+
+        # now notify admins that we're deleting
+        foreach my $uid ( keys %{$delete{admin} || {}} ) {
+            my $del_u = $us{$uid};
+            next if ! $del_u || $del_u->is_expunged;
+
+            $cu->notify_administrator_remove( $del_u, $remote );
+        }
+
+        # go ahead and delete poster (P), unmoderated (N), moderator (M), admin (A) edges unconditionally
+        LJ::clear_rel_multi(
+                            (map { [$cid, $_, 'A'] } keys %{$delete{admin}       || {}}),
+                            (map { [$cid, $_, 'P'] } keys %{$delete{poster}      || {}}),
+                            (map { [$cid, $_, 'M'] } keys %{$delete{moderator}   || {}}),
+                            (map { [$cid, $_, 'N'] } keys %{$delete{unmoderated} || {}}),
+                            );
+
+
+        ###############
+        ## CLEAR CACHE
+        # delete reluser memcache key
+        LJ::MemCache::delete([ $cid, "reluser:$cid:A" ]);
+        LJ::MemCache::delete([ $cid, "reluser:$cid:P" ]);
+        LJ::MemCache::delete([ $cid, "reluser:$cid:M" ]);
+        LJ::MemCache::delete([ $cid, "reluser:$cid:N" ]);
+    }
+
+    my @role_filters = split ",", $get->{role} || "";
+    @role_filters = grep { $_ } # make sure it's a valid role
+                map { $readable_to_roletype{$_} } @role_filters;
+    my %active_role_filters = map { $roletype_to_readable{$_} => 1 } @role_filters;
 
     my ( $users, $usernames, $role_count ) = $cu->get_members_by_role( \@role_filters );
 
@@ -340,6 +472,7 @@ sub members_handler {
     #  }
     my $membership_statuses = Hash::MultiValue->new;
     my @roletype_keys = keys %roletype_to_readable;
+
     foreach my $user ( values %$users ) {
         foreach my $roletype ( @roletype_keys ) {
             $membership_statuses->add( $roletype_to_readable{$roletype}, $user->{userid} )
@@ -356,6 +489,10 @@ sub members_handler {
         pages        => { current => $page, total_pages => $total_pages },
 
         formdata     => $membership_statuses,
+        messages     => \@messages,
+        errors       => $errors,
+
+        form_edit_action_url => LJ::create_url( undef, keep_args => [qw( role page )] ),
     };
 
     return DW::Template->render_template( 'communities/members/edit.tt', $vars );
