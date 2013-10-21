@@ -33,11 +33,25 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- END -%]
 </dl>
 
-[%- IF messages.size > 0 -%]
+[%- IF messages.size > 0 or roles_changed.size > 0 -%]
 <div class="panel">
 <ul>
   [%- FOREACH msg = messages -%]
     <li>[% msg.0 | ml( msg.1 ) %]</li>
+  [%- END -%]
+  [%- FOREACH role = roles_changed -%]
+    <li>[%-  role.user -%]
+      <ul>
+      [%- IF role.added.size > 0 -%]
+        <li>[%- '.success.added' | ml -%]
+        [%- role.added.join( ", ") -%]</li>
+      [%- END -%]
+      [%- IF role.removed.size > 0 -%]
+        <li>[%- '.success.removed' | ml -%]
+        [%- role.removed.join( ", ") -%]</li>
+      [%- END -%]
+      </ul>
+    </li>
   [%- END -%]
 </ul>
 </div>
