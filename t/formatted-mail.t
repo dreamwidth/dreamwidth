@@ -6,28 +6,35 @@ use LJ::Test qw( temp_user);
 
 use LJ::Sendmail;
 
-my $original_text=<<OT;
-Stuff's happening.
+my $original_text=qq{Stuff's happening.
 
-Go to [Dreamwidth](http://www.dreamwidth.org).
+Go to [Dreamwidth](http://www.dreamwidth.org).};
 
-OT
+my ( $html, $plain ) = LJ::format_mail( $original_text, "foobarbaz" );
+is( $html, qq{<p>Dear foobarbaz,</p>
 
-my ( $html, $plain ) = LJ::format_mail( $original_text );
-is( $html, <<HTML
 <p>Stuff's happening.</p>
 
 <p>Go to <a href="http://www.dreamwidth.org">Dreamwidth</a>.</p>
-HTML
+
+<p>Regards,
+$LJ::SITENAMESHORT Team</p>
+
+<p>$LJ::SITEROOT</p>
+}
 , "HTML version looks fine."
 );
 
-is( $plain, <<PLAIN
+is( $plain, qq{Dear foobarbaz,
+
 Stuff's happening.
 
 Go to Dreamwidth (http://www.dreamwidth.org).
 
-PLAIN
+Regards,
+$LJ::SITENAMESHORT Team
+
+$LJ::SITEROOT}
 , "Plain version looks fine."
 );
 

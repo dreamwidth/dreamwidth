@@ -450,7 +450,6 @@ email.emailreset.error=Unable to update user record for [[user]]
 email.emailreset.subject=Email Address Reset
 
 email.footer<<
-
 Regards,
 [[sitename]] Team
 
@@ -459,7 +458,6 @@ Regards,
 
 email.greeting<<
 Dear [[user]],
-
 .
 
 email.invitecoderequest.accept.body2<<
