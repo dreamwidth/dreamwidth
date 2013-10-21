@@ -262,6 +262,7 @@ Required arguments:
 
 Optional arguments:
 =over
+=item greeting_user - the name to greet this user by. If not provided, we don't show the greeting
 =item toname - display name
 =item fromname - display name
 =item cc
@@ -275,11 +276,7 @@ Optional arguments:
 sub send_formatted_mail {
     my ( %opts ) = @_;
 
-    my $user = delete $opts{user};
-    my $greeting = $user ? LJ::Lang::ml( "email.greeting", { user => $user } ) : "";
-
-    my $footer = LJ::Lang::ml( "email.footer", { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT } );
-    my ( $html_body, $plain_body ) = LJ::format_mail( $greeting . $opts{body} . $footer );
+    my ( $html_body, $plain_body ) = LJ::format_mail( $opts{body}, $opts{greeting_user} );
     return LJ::send_mail( {
         to      => $opts{to},
         from    => $opts{from},
@@ -300,10 +297,17 @@ sub send_formatted_mail {
 
 Returns the formatted version of the text as a list of: ( $html_body, $plaintext_body )
 
+Automatically appends greeting and footer.
+
 =cut
 
 sub format_mail {
-    my ( $text ) = $_[0];
+    my ( $text, $greeting_user ) = @_;
+
+    my $greeting = $greeting_user ? LJ::Lang::ml( "email.greeting", { user => $greeting_user } ) : "";
+    my $footer = LJ::Lang::ml( "email.footer", { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT } );
+
+    $text = "$greeting\n\n$text\n\n$footer";
 
     # use markdown to format from text to HTML
     my $html = Text::Markdown::markdown( $text );
