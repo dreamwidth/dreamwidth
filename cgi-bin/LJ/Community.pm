@@ -686,12 +686,10 @@ sub get_members_by_role {
 
     my %userinfo;       # contains the data that we fetched
     my %users;          # the users we return / are interested in
-    my %usernames;
     my %count;
     while ( my ( $id, $type, $user ) = $sth->fetchrow_array ) {
         $userinfo{$id}->{userid} = $id;
         $userinfo{$id}->{name} = $user;
-        $usernames{$user} = $id;
         $userinfo{$id}->{$type} = 1;
 
         # filter down to just the roles we are interested in
@@ -703,7 +701,7 @@ sub get_members_by_role {
         }
     }
 
-    return ( \%users, \%usernames, \%count );
+    return ( \%users, \%count );
 }
 
 =head2 C<< $cu->notify_administrator_remove( $admin_u_del, $remote ) >>
