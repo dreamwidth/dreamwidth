@@ -1,5 +1,4 @@
-#;; -*- coding: utf-8 -*-
-#.backlink=<a [[aopts]]>&lt;&lt; Back to Member Settings</a>
+;; -*- coding: utf-8 -*-
 
 .email.admin.add.body<<
 You have just been added as an administrator of the community [[[comm]]]([[community_url]]) by one of the current administrators. As an administrator, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove yourself as an administrator or transfer your community to another user.
@@ -15,35 +14,11 @@ To manage your communities please visit [your community management page]([[commu
 
 .email.admin.delete.subject=You have been removed as an administrator of [[comm]]
 
-#
 #.error.limit=Can't invite [[user]]; the outstanding invitation limit for this community has been exceeded.#
 #
 #.error.notactive=<strong>[[user]]</strong> isn't an active account.
 #
 
-#
-#.error.nouser=<strong>[[user]]</strong> doesn't exist.  Are you sure you entered the account name correctly?
-#
-#.error.unknown=Error inviting [[user]].  Please make sure [[user]] isn't already a member and try again.
-#
-#.intro=You can define the roles of each of your members here.
-#
-#.intro.invite=Enter an account name to invite someone to join your community, and select the community privileges you want that account to have.
-#
-#.jump2=Search for account
-#
-#.jump.clear=Reshow full membership list
-#
-#.jump.notfound=The specified user was not found in the member list.
-#
-
-#.manage2=Manage Communities
-#
-#.name=<strong>Community name:</strong> [[name]]
-#
-#.nextlink=<em>(Next page...)</em>
-#
-#.prevlink=<em>(Previous page...)</em>
 #
 #.purge.confirm=Remove these users
 #
@@ -54,18 +29,6 @@ To manage your communities please visit [your community management page]([[commu
 #.purge.none=There are no members of [[commname]] who have had their accounts purged.
 #
 #.purge.request=Remove Purged Members
-
-#.settings2=Settings
-#
-#.success.added=added: [[list]]
-#
-#.success.deleted=removed: [[list]]
-#
-#.success.header=Success.
-#
-#.success.invited=You have successfully invited these people to join this community and given them the listed privileges:
-#
-#.success.invited2=You've successfully invited the following people to join this community and given them the listed privileges.  People must accept the invitation from the <a [[aopts]]>Community Invitation Page</a> before joining the community.
 #
 
 .error.noaccess=You're not an administrator of [[comm]], so you can't edit membership lists.
@@ -93,3 +56,7 @@ To manage your communities please visit [your community management page]([[commu
 .msg.invite=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a href="[[invite_url]]">Community Invitation Page</a> to rejoin.
 
 .error.no_admin=[[comm]] must have at least one administrator. Please make sure you don't remove all administrators.
+
+.success.added=added: [[list]]
+
+.success.removed=removed: [[list]]

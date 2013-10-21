@@ -280,6 +280,7 @@ sub members_handler {
 
     # handle post
     my @messages;
+    my @roles_changed;
     my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
         my $post = $r->post_args;
@@ -306,14 +307,17 @@ sub members_handler {
 
         # now compare userids in %current to %was
         # to determine which to add and which to delete
-        my %add;
-        my %delete;
+        my ( %add, %delete );                           # role -> userid mapping
+        my ( %add_user_to_role, %delete_user_to_role ); # userid -> role mappings
+
         foreach my $uid ( @preload_userids ) {
             foreach my $role ( @roles ) {
                 if ( $current{$uid}->{$role} && ! $was{$uid}->{$role} ) {
-                    $add{$role}->{$uid} = 1
+                    $add{$role}->{$uid} = 1;
+                    $add_user_to_role{$uid}->{$role} = 1;
                 } elsif ( $was{$uid}->{$role} && ! $current{$uid}->{$role}) {
                     $delete{$role}->{$uid} = 1;
+                    $delete_user_to_role{$uid}->{$role} = 1;
                 }
             }
         }
@@ -403,11 +407,34 @@ sub members_handler {
 
         ###############
         ## CLEAR CACHE
+
         # delete reluser memcache key
         LJ::MemCache::delete([ $cid, "reluser:$cid:A" ]);
         LJ::MemCache::delete([ $cid, "reluser:$cid:P" ]);
         LJ::MemCache::delete([ $cid, "reluser:$cid:M" ]);
         LJ::MemCache::delete([ $cid, "reluser:$cid:N" ]);
+
+
+        ####################
+        ## SUCCESS MESSAGES
+
+        # now show messages for each succesful change we did
+        my %done;
+        my %role_strings = map { $_ => LJ::Lang::ml( "/communities/members/edit.tt.role.$_" ) } %readable_to_roletype;
+        foreach my $uid ( keys %add_user_to_role, keys %delete_user_to_role ) {
+            next if $done{$uid}++;
+
+            my $u = $us{$uid};
+            next unless $u;
+
+            my ( $changed_roles_msg, @added_roles, @removed_roles );
+            push @added_roles, $role_strings{$_}
+                foreach keys %{$add_user_to_role{$uid} || {}};
+            push @removed_roles , $role_strings{$_}
+                foreach keys %{$delete_user_to_role{$uid} || {}};
+            push @roles_changed, { user => $u->ljuser_display, added => \@added_roles, removed => \@removed_roles } if @added_roles || @removed_roles;
+        }
+
     }
 
     my @role_filters = split ",", $get->{role} || "";
@@ -490,6 +517,7 @@ sub members_handler {
 
         formdata     => $membership_statuses,
         messages     => \@messages,
+        roles_changed => \@roles_changed,
         errors       => $errors,
 
         form_edit_action_url => LJ::create_url( undef, keep_args => [qw( role page )] ),
