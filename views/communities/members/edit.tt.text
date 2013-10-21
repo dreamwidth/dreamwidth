@@ -1,19 +1,5 @@
 ;; -*- coding: utf-8 -*-
 
-.email.admin.add.body<<
-You have just been added as an administrator of the community [[[comm]]]([[community_url]]) by one of the current administrators. As an administrator, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove yourself as an administrator or transfer your community to another user.
-
-To manage your communities please visit [your community management page]([[community_management_url]]).
-.
-
-.email.admin.add.subject=You have been added as an administrator of [[comm]]
-
-.email.admin.delete.body<<
-[[admin]] has removed you as an administrator of the community [[[comm]]]([[community_url]]).
-.
-
-.email.admin.delete.subject=You have been removed as an administrator of [[comm]]
-
 #.error.limit=Can't invite [[user]]; the outstanding invitation limit for this community has been exceeded.#
 #
 #.error.notactive=<strong>[[user]]</strong> isn't an active account.
@@ -31,11 +17,31 @@ To manage your communities please visit [your community management page]([[commu
 #.purge.request=Remove Purged Members
 #
 
+.account=Account
+
+.email.admin.add.body<<
+You have just been added as an administrator of the community [[[comm]]]([[community_url]]) by one of the current administrators. As an administrator, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove yourself as an administrator or transfer your community to another user.
+
+To manage your communities please visit [your community management page]([[community_management_url]]).
+.
+
+.email.admin.add.subject=You have been added as an administrator of [[comm]]
+
+.email.admin.delete.body<<
+[[admin]] has removed you as an administrator of the community [[[comm]]]([[community_url]]).
+.
+
+.email.admin.delete.subject=You have been removed as an administrator of [[comm]]
+
+.error.no_admin=[[comm]] must have at least one administrator. Please make sure you don't remove all administrators.
+
 .error.noaccess=You're not an administrator of [[comm]], so you can't edit membership lists.
 
 .error.nocomm=Community not found.
 
 .error.notcomm=[[user]] isn't a community.
+
+.msg.invite=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a href="[[invite_url]]">Community Invitation Page</a> to rejoin.
 
 .role.admin=Administrator
 
@@ -49,14 +55,8 @@ To manage your communities please visit [your community management page]([[commu
 
 .role.unmoderated=Unmoderated
 
-.title=Edit Community Members
-
-.account=Account
-
-.msg.invite=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a href="[[invite_url]]">Community Invitation Page</a> to rejoin.
-
-.error.no_admin=[[comm]] must have at least one administrator. Please make sure you don't remove all administrators.
-
 .success.added=added: [[list]]
 
 .success.removed=removed: [[list]]
+
+.title=Edit Community Members

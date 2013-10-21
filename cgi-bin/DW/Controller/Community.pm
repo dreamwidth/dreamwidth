@@ -442,7 +442,7 @@ sub members_handler {
                 map { $readable_to_roletype{$_} } @role_filters;
     my %active_role_filters = map { $roletype_to_readable{$_} => 1 } @role_filters;
 
-    my ( $users, $usernames, $role_count ) = $cu->get_members_by_role( \@role_filters );
+    my ( $users, $role_count ) = $cu->get_members_by_role( \@role_filters );
 
     my $page = int( $get->{page} || 0 ) || 1;
     my $pagesize = 100;
