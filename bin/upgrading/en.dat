@@ -2499,6 +2499,8 @@ search.user.update.last=Updated [[time]]
 
 search.user.update.never=Never updated
 
+select_all.label=Select All
+
 setting.adultcontent.error.invalid=Invalid adult content setting.
 
 setting.adultcontent.label=Adult Content
