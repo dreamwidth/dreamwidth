@@ -1,0 +1,123 @@
+;; -*- coding: utf-8 -*-
+.backlink=<a [[aopts]]>&lt;&lt; Back to Member Settings</a>
+
+.email.add.body2=You have just been added as an administrator of the community [[comm]] by one of the current administrators. As an administrator, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove yourself as an administrator or transfer your community to another user.
+
+.email.add.body2.html=To manage your communities please visit <a [[aopts]]>your community management page.</a>
+
+.email.add.body2.plain=To manage your communities please visit the following URL:
+
+.email.add.subject2=You have been added as an administrator of [[comm]]
+
+.email.close=Regards,
+
+.email.del.body2=[[admin]] has removed you as an administrator of the community [[comm]].
+
+.email.del.subject2=You have been removed as an administrator of [[comm]]
+
+.email.hello=Dear [[site]] user [[user]],
+
+.email.signed=[[site]] Team
+
+.error.adding=[[user]] has banned this community from sending them invitations.
+
+.error.alreadyadded=[[user]] already has access to this community.
+
+.error.alreadysent=[[user]] could not be added because they were already sent a confirmation email on <i>[[datetime]]</i>.  Please wait for them to respond.
+
+.error.invaliduser2=Can't add [[type]] account: [[user]]
+
+.error.isminor=[[user]] isn't at least 18 years old and therefore can't be invited to this community.
+
+.error.limit=Can't invite [[user]]; the outstanding invitation limit for this community has been exceeded.
+
+.error.noaccess=You're not an administrator of [[comm]], so you can't edit membership lists.
+
+.error.noattr=No attributes selected for [[user]]
+
+.error.nocomm=Community not found.
+
+.error.nomaint2=Your community, [[comm]], must have at least one administrator. Please <a [[aopts]]>go back</a> and add an administrator.
+
+.error.notactive=<strong>[[user]]</strong> isn't an active account.
+
+.error.notcomm=[[user]] isn't a community.
+
+.error.nouser=<strong>[[user]]</strong> doesn't exist.  Are you sure you entered the account name correctly?
+
+.error.unknown=Error inviting [[user]].  Please make sure [[user]] isn't already a member and try again.
+
+.intro=You can define the roles of each of your members here.
+
+.intro.invite=Enter an account name to invite someone to join your community, and select the community privileges you want that account to have.
+
+.jump2=Search for account
+
+.jump.clear=Reshow full membership list
+
+.jump.notfound=The specified user was not found in the member list.
+
+.key.admin=<strong>Administrator</strong>
+
+.key.member=<strong>Member</strong>
+
+.key.moderate=<strong>Moderator</strong>
+
+.key.post=<strong>Posting Access</strong>
+
+.key.preapprove=Unmoderated
+
+.key.user=<strong>Account</strong>
+
+.label.admin=Administrator
+
+.label.member=Member
+
+.label.moderate=Moderator
+
+.label.post=Posting Access
+
+.label.preapprove=Unmoderated
+
+.manage2=Manage Communities
+
+.name=<strong>Community name:</strong> [[name]]
+
+.nextlink=<em>(Next page...)</em>
+
+.prevlink=<em>(Previous page...)</em>
+
+.purge.confirm=Remove these users
+
+.purge.continue=Review the list below and confirm that you want to remove these users from your community.
+
+.purge.explain=The following [[count]] [[?count|member|members]] of [[commname]] [[?count|has|have]] been purged from the site.
+
+.purge.none=There are no members of [[commname]] who have had their accounts purged.
+
+.purge.request=Remove Purged Members
+
+.reinvited2=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a [[aopts]]>Community Invitation Page</a> to rejoin.
+
+.settings2=Settings
+
+.success.added=added: [[list]]
+
+.success.deleted=removed: [[list]]
+
+.success.header=Success.
+
+.success.invited=You have successfully invited these people to join this community and given them the listed privileges:
+
+.success.invited2=You've successfully invited the following people to join this community and given them the listed privileges.  People must accept the invitation from the <a [[aopts]]>Community Invitation Page</a> before joining the community.
+
+.success.message2=You have made the following changes:
+
+.success.nochanges=You haven't made any changes.
+
+.success.return2=<a [[aopts]]>Return to the list</a>
+
+.title=Community Members
+
+.update=Revise settings
+

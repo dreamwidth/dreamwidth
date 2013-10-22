@@ -583,7 +583,7 @@ sub maintainer_linkbar {
             "<a href='$LJ::SITEROOT/community/sentinvites?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
         $page eq "members" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/members?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
+            "<a href='" . $comm->community_manage_members_url . "'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
         $page eq "queue" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.queue') . "</strong>" :
             "<a href='$LJ::SITEROOT/community/moderate?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",

@@ -713,7 +713,7 @@ body<=
 
         if ( $maintbody || $modbody ) {
             my $links;
-            $links = [ { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} } ]
+            $links = [ { url => $u->community_manage_members_url, text => $ML{'.section.edit'} } ]
                 if $remote && $remote->can_manage( $u );
             $ret .= $content_block->(
                 section_name    => 'admins',
@@ -944,7 +944,7 @@ body<=
     if ( $trusted_body || $trusted_by_body || $watched_body || $watched_by_body || $members_body || $posting_access_from_body ) {
         my $links = [];
         if ( $u->is_community ) {
-           push @$links, { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} }
+           push @$links, { url => $u->community_manage_members_url, text => $ML{'.section.edit'} }
                 if $remote && $remote->can_manage( $u );
            push @$links, { url => $u->journal_base . "/read", text => $ML{'.people.viewentries'} };
         } else {
