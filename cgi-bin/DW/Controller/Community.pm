@@ -455,7 +455,17 @@ sub members_handler {
                 map { $readable_to_roletype{$_} } @role_filters;
     my %active_role_filters = map { $roletype_to_readable{$_} => 1 } @role_filters;
 
-    my ( $users, $role_count ) = $cu->get_members_by_role( \@role_filters );
+    my ( $users, $role_count );
+    if ( $get->{q} ) {
+        # we return results for just this user
+
+        my $query_u = LJ::load_user( $get->{q} );
+        ( $users, $role_count ) = $cu->get_member( $query_u );
+    } else {
+        # grab the list of users (optionally by role)
+
+        ( $users, $role_count ) = $cu->get_members_by_role( \@role_filters );
+    }
 
     my $page = int( $get->{page} || 0 ) || 1;
     my $pagesize = 100;
@@ -501,9 +511,10 @@ sub members_handler {
     my @filter_links = (
         {   text    => ".role.all",
             url     => LJ::create_url( undef ),
-            active  => ( scalar keys %active_role_filters ) ? 0 : 1,
+            active  => ( scalar keys %active_role_filters ) || $get->{q} ? 0 : 1,
         }
      );
+
     push @filter_links, $filter_link->( $_ ) foreach @available_roles;
 
     # data for the checkboxes in the form of:
@@ -535,6 +546,7 @@ sub members_handler {
         errors        => $errors,
 
         form_edit_action_url => LJ::create_url( undef, keep_args => [qw( role page )] ),
+        form_search_action_url => LJ::create_url( undef ),
     };
 
     return DW::Template->render_template( 'communities/members/edit.tt', $vars );
