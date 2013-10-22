@@ -7,6 +7,7 @@ layerinfo author_name = "Sarken";
 ##===============================
 ## Page Colors
 ##===============================
+
 set color_page_background = "#4bb5bd";
 set color_page_left_border = "#62942f";
 set color_page_link = "#919c2c";
@@ -19,15 +20,21 @@ set color_page_navigation_link = "#325A6D";
 set color_page_navigation_link_hover = "#62942F";
 set color_page_navigation_link_visited = "#325A6D";
 set color_header_background = "#cddc3e";
+set color_header_link = "#fafcfc";
+set color_header_link_active = "#fafcfc";
+set color_header_link_hover = "#fafcfc";
+set color_header_link_visited = "#fafcfc";
 set color_header_title_background = "#62942f";
 set color_headernav_background = "#325a6d";
 set color_headernav_current_background = "#cddc3e";
 set color_headernav_hover_background = "#4bb5bd";
-set color_headernav_text = "#fafcfc";
 
 ##===============================
 ## Entry Colors
 ##===============================
+
+set color_comment_title = "#000";
+set color_comment_footer_text = "#666";
 set color_entry_background = "#fafcfc";
 set color_entry_background_accent = "#f5f7f7";
 set color_entry_footer_text = "#666";
@@ -37,14 +44,9 @@ set color_entry_title = "#000";
 set color_entry_titleuserpic_border = "#c7c9c9";
 
 ##===============================
-## Comments Colors
-##===============================
-set color_comment_title = "#000";
-set color_comment_footer_text = "#666";
-
-##===============================
 ## Modules Colors
 ##===============================
+
 set color_module_background = "#fafcfc";
 set color_module_background_accent = "#f5f7f7";
 set color_module_title = "#000";
@@ -53,6 +55,7 @@ set color_module_titlelist_border = "#c7c9c9";
 ##===============================
 ## Fonts
 ##===============================
+
 set font_base = "Georgia, 'Times New Roman', serif";
 set font_page_navigation = "Chalkboard, 'Comic Sans MS'";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
@@ -73,6 +76,7 @@ layerinfo author_name = "Sarken";
 ##===============================
 ## Page Colors
 ##===============================
+
 set color_page_background = "#80805B";
 set color_page_left_border = "#914930";
 set color_page_link = "#B15B3E";
@@ -85,15 +89,21 @@ set color_page_navigation_link = "#4B4B35";
 set color_page_navigation_link_hover = "#914930";
 set color_page_navigation_link_visited = "#4B4B35";
 set color_header_background = "#B15B3E";
+set color_header_link = "#EDEDE3";
+set color_header_link_active = "#EDEDE3";
+set color_header_link_hover = "#EDEDE3";
+set color_header_link_visited = "#EDEDE3";
 set color_header_title_background = "#914930";
 set color_headernav_background = "#4B4B35";
 set color_headernav_current_background = "#B15B3E";
 set color_headernav_hover_background = "#80805B";
-set color_headernav_text = "#EDEDE3";
 
 ##===============================
 ## Entry Colors
 ##===============================
+
+set color_comment_title = "#000";
+set color_comment_footer_text = "#666";
 set color_entry_background = "#EDEDE3";
 set color_entry_background_accent = "#E1E1D1";
 set color_entry_footer_text = "#666";
@@ -103,14 +113,9 @@ set color_entry_title = "#000";
 set color_entry_titleuserpic_border = "#C3C3A2";
 
 ##===============================
-## Comments Colors
-##===============================
-set color_comment_title = "#000";
-set color_comment_footer_text = "#666";
-
-##===============================
 ## Modules Colors
 ##===============================
+
 set color_module_background = "#EDEDE3";
 set color_module_background_accent = "#E1E1D1";
 set color_module_title = "#000";
@@ -119,6 +124,7 @@ set color_module_titlelist_border = "#C3C3A2";
 ##===============================
 ## Fonts
 ##===============================
+
 set font_base = "Georgia, 'Times New Roman', serif";
 set font_page_navigation = "Chalkboard, 'Comic Sans MS'";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";
@@ -139,6 +145,7 @@ layerinfo author_name = "Sarken";
 ##===============================
 ## Page Colors
 ##===============================
+
 set color_page_background = "#727CA2";
 set color_page_left_border = "#9B314F";
 set color_page_link = "#D93361";
@@ -151,15 +158,21 @@ set color_page_navigation_link = "#483A5F";
 set color_page_navigation_link_hover = "#9B314F";
 set color_page_navigation_link_visited = "#483A5F";
 set color_header_background = "#D93361";
+set color_header_link = "#FEFEFB";
+set color_header_link_active = "#FEFEFB";
+set color_header_link_hover = "#FEFEFB";
+set color_header_link_visited = "#FEFEFB";
 set color_header_title_background = "#9B314F";
 set color_headernav_background = "#483A5F";
 set color_headernav_current_background = "#D93361";
 set color_headernav_hover_background = "#727CA2";
-set color_headernav_text = "#FEFEFB";
 
 ##===============================
 ## Entry Colors
 ##===============================
+
+set color_comment_title = "#000";
+set color_comment_footer_text = "#666";
 set color_entry_background = "#FEFEFB";
 set color_entry_background_accent = "#EEEEEE";
 set color_entry_footer_text = "#666";
@@ -169,14 +182,9 @@ set color_entry_title = "#000";
 set color_entry_titleuserpic_border = "#c7c9c9";
 
 ##===============================
-## Comments Colors
-##===============================
-set color_comment_title = "#000";
-set color_comment_footer_text = "#666";
-
-##===============================
 ## Modules Colors
 ##===============================
+
 set color_module_background = "#FEFEFB";
 set color_module_background_accent = "#EEEEEE";
 set color_module_title = "#000";
@@ -185,6 +193,7 @@ set color_module_titlelist_border = "#c7c9c9";
 ##===============================
 ## Fonts
 ##===============================
+
 set font_base = "Georgia, 'Times New Roman', serif";
 set font_page_navigation = "Chalkboard, 'Comic Sans MS'";
 set font_comment_footer = "'Lucida Grande', 'Lucida Sans', Helvetica, sans-serif";

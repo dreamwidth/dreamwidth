@@ -24,10 +24,16 @@ set text_skiplinks_forward = "";
 ##===============================
 
 propgroup colors_child {
- property Color color_headernav_background { des = "Background color for the header navigation"; }
- property Color color_headernav_current_background { des = "Background color for the header navigation on current page"; }
- property Color color_headernav_hover_background { des = "Background color for the header navigation on hover"; }
- property Color color_headernav_text { des = "Text color for the header navigation"; }
+ property Color color_headernav_background { des = "Page header navigation background color"; }
+ property use color_header_link;
+ property use color_header_link_active;
+ property use color_header_link_hover;
+ property Color color_headernav_hover_background { des = "Page header navigation background hover color"; }
+ property use color_header_link_visited;
+ property Color color_headernav_current_background { des = "Page header navigation background current color"; }
+## There is no text in the navigation module. This doesn't need to be set but was probably meant for link colors originally.
+## As it went live already, noui it instead of removing it to prevent compilation errors.
+ property Color color_headernav_text { des = "Page header navigation text color"; noui = 1; }
  property Color color_header_title_background { des = "Page header title background color"; }
  property Color color_module_background_accent { des = "Module background accent color for blocks"; }
  property Color color_entry_background_accent { des = "Entry background accent color for blocks"; }
@@ -257,34 +263,54 @@ var string comment_header_margin = "";
 var string navlinks_css = "";
  if ($*module_navlinks_section == "header") {
   $navlinks_css = """
-   .module-navlinks {
-    background-color: transparent;
-    border: none;
-    margin-bottom: 0;
-    margin-top: .5em;
+
+  .module-navlinks {
+    background: $*color_headernav_background;
+    padding: 0 1.25em;
     text-align: right;
     }
 
-   .module-navlinks li {
-    display: inline;
-    padding-left: .5em;
-    }
-
-   .module-navlinks ul > li:first-child {
-    border-left: none;
-    }
-
-   .module-navlinks .module-header {
+/* User more specific selector to override other code */
+  #header .module-navlinks h2 {
     display: none;
     }
 
-   .module-navlinks a, .module-navlinks a.current {
-    color: $*color_page_title;
+  .module-navlinks ul {
+    letter-spacing: .1em;
+    margin: 0;
+    padding:.5em 0;
+    text-transform: lowercase;
+    style: inline;
+    }
+
+  .module-navlinks li a {
+    padding: .5em;
+    }
+
+  .module-navlinks a,
+  .module-navlinks a.current {
+    color: $*color_header_link;
+    }
+
+  .module-navlinks li a:visited {
+    color: $*color_header_link_visited;
+    }
+
+  .module-navlinks li a:hover {
+    background: $*color_headernav_hover_background;
+    color: $*color_header_link_hover;
+    }
+
+  .module-navlinks li a:active {
+    color: $*color_header_link_active;
+    }
+
+  .module-section-header li .current,
+  .module-section-header a.current:hover {
+    background: $*color_headernav_current_background;
+    font-style: italic;
     }
   """;
- }
- else {
-  $navlinks_css = "";
  }
 
  """
@@ -376,41 +402,9 @@ padding: 0.625em 1.25em 0.625em 2.5em;
 margin:0;
 }
 
-#header .module {
-color: $*color_headernav_text;
-background: $*color_headernav_background;
-padding: 0 1.25em;
-text-align: right;
-}
+#header #pagetitle { display:none; }
 
-
-#header .module-header, #header #pagetitle {
-display:none;}
-
-.module-section-header a {
-color: #FAFCFC;
-}
-
-.module-section-header ul {
-letter-spacing: 0.1em;
-padding:.5em 0;
-text-transform: lowercase;
-style: inline;
-margin:0;
-}
-
-.module-section-header li a {
-padding: 0.5em;
-}
-
-.module-section-header li a:hover {
-background: $*color_headernav_hover_background;
-}
-
-.module-section-header li .current, .module-section-header a.current:hover {
-background: $*color_headernav_current_background;
-font-style: italic;
-}
+$navlinks_css
 
 /* content */
 
