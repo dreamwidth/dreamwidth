@@ -1,8 +1,0 @@
-// set the variables for labels here
-// and then import the foundation labels
-
-$include-html-classes: false;
-@import "foundation/variables", "foundation/components/global";
-
-$include-html-label-classes: true;
-@import "foundation/components/labels";

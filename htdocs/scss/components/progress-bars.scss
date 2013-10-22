@@ -1,8 +1,0 @@
-// set the variables for progress bars here
-// and then import the foundation progress bars
-
-$include-html-classes: false;
-@import "foundation/settings", "foundation/components/global";
-
-$include-html-classes: true;
-@import "foundation/components/progress-bars";
