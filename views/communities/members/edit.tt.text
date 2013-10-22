@@ -33,6 +33,10 @@ To manage your communities please visit [your community management page]([[commu
 
 .email.admin.delete.subject=You have been removed as an administrator of [[comm]]
 
+.empty.members=No members yet. <a href="[[invite_url]]">Invite some</a>?
+
+.empty.role=No members with this role.
+
 .error.no_admin=[[comm]] must have at least one administrator. Please make sure you don't remove all administrators.
 
 .error.noaccess=You're not an administrator of [[comm]], so you can't edit membership lists.

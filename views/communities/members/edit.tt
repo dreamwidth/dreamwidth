@@ -57,6 +57,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 [%- END -%]
 
+[%- IF user_list.size > 0 -%]
 <form method="POST" action="[% form_edit_action_url %]">
 [%- dw.form_auth -%]
 <table class="select-all">
@@ -91,7 +92,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     current => pages.current,
     total_pages => pages.total_pages,
 %]
-
+[%- ELSE -%]
+<div class="panel">[% has_active_filter ? dw.ml( '.empty.role' ) : dw.ml( '.empty.members', invite_url = "$site.root/communities/$community.user/members/invite" ) %]</div>
+[%- END -%]
 </div></div>
 
 <hr>
