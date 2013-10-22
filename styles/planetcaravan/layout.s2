@@ -41,7 +41,11 @@ set margins_unit = "%";
 
 propgroup colors_child {
     property Color color_entry_footer_background { des = "Entry footer background color"; }
-    property Color color_navlinks_current { des = "Color of navlink for current page"; }
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+    property Color color_navlinks_current { des = "Navigation module current color"; }
     property Color color_journal_subtitle { des = "Journal subtitle color"; }
     property Color color_userpic_border { des = "Userpic border color"; }
     property Color color_alternate_entry_border { des = "Alternate entry border color"; }
@@ -272,7 +276,19 @@ var string navlinks_css = "";
                 }
 
             .module-navlinks a {
-                color: $*color_page_title;
+                color: $*color_header_link;
+                }
+
+            .module-navlinks a:visited {
+                color: $*color_header_link_visited;
+                }
+
+            .module-navlinks a:hover {
+                color: $*color_header_link_hover;
+                }
+
+            .module-navlinks a:active {
+                color: $*color_header_link_active;
                 }
 
         """;
@@ -644,11 +660,6 @@ div.icons-container div.icon:nth-of-type(2n) {
     margin-top: .5em;
     }
 
-.module-navlinks a.current {
-    color: $*color_module_text;
-    text-decoration: none;
-    }
-
 .module-calendar .module-content {
     text-align: left;
     }
@@ -661,7 +672,7 @@ div.icons-container div.icon:nth-of-type(2n) {
     border: none;
     margin: .1em 0;
     text-align: center;
-	width: 100%;
+    width: 100%;
     }
 
 .module-navlinks .module-header {
@@ -678,12 +689,12 @@ div.icons-container div.icon:nth-of-type(2n) {
 
 .module-navlinks a:hover {text-decoration:underline;}
 
+$navlinks_css
+
 .module-navlinks a.current {
     color: $*color_navlinks_current;
     text-decoration:none;
     }
-
-$navlinks_css
 
 /*--- Footer ---*/
 
