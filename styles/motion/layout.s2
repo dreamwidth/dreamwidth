@@ -129,7 +129,11 @@ propgroup colors_child {
     property Color color_link_background { des = "Page link background color"; }
     property Color color_icon_background { des = "Icon border color"; }
     property Color color_entry_title_border_hover { des = "Entry title border color on hover"; }
-    property Color color_page_pagetitle { des = "Current page title color"; }
+    property Color color_page_pagetitle { des = "Page header page title color"; }
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
     property Color color_table_header { des = "Table header color"; }
     property Color color_title_shadow { des = "Title shadow color"; }
     property Color color_entry_link_border_hover { des = "Entry link border color on hover"; }
@@ -392,15 +396,28 @@ form label.subscribe-label{display:inline}
 #header .module-navlinks li { display: inline; }
 
 #header .module-navlinks li a {
+    $link_background_image;
+    color: $*color_header_link;
     display: block;
     float: left;
     margin-right: .75em;
     line-height: 2em;
     padding: .5em 1em;
-    $link_background_image;
+
     }
 
-#header .module-navlinks li a:hover { $link_hover_background_image; }
+#header .module-navlinks li a:visited {
+    color: $*color_header_link_visited;
+    }
+
+#header .module-navlinks li a:hover {
+    $link_hover_background_image;
+    color: $*color_header_link_hover;
+    }
+
+#header .module-navlinks li a:active {
+    color: $*color_header_link_active;
+    }
 
 /**********************************************
  * Content
