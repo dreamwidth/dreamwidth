@@ -17,6 +17,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/components/tables.css"
     "stc/css/components/labels.css"
     "stc/css/components/tables-as-list.css"
+    "stc/css/page/communities/list.css"
 ) -%]
 
 [% IF community_list.size > 0 %]
