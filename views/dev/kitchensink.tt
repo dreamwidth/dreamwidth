@@ -3,11 +3,6 @@
 [%-
   # non skin-specific css files
   dw.need_res( { group => "foundation" },
-      "stc/css/components/progress-bars.css"
-      "stc/css/components/tables.css"
-      "stc/css/components/pagination.css"
-      "stc/css/components/sub-nav.css"
-
       "js/components/jquery.select-all.js"
       "stc/css/components/select-all.css"
   );
