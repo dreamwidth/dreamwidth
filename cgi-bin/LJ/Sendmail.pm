@@ -312,10 +312,9 @@ sub format_mail {
     # use markdown to format from text to HTML
     my $html = Text::Markdown::markdown( $text );
 
-    # use plaintext as-is, but remove any brackets we encounter
+    # use plaintext as-is, but look for "[links like these](url)", and change them to "links like these (url)"
     my $plaintext = $text;
-    $plaintext =~ s/\[//g;  # just remove these
-    $plaintext =~ s/\]/ /g; # but replace these, to space it apart from the text that follows
+    $plaintext =~ s/\[(.*?)\]\(/$1 (/g;
 
     return ( $html, $plaintext );
 }
