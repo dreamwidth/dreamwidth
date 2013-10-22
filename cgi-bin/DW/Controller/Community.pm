@@ -527,11 +527,12 @@ sub members_handler {
         roles        => \@available_roles,
         filter_links => \@filter_links,
         pages        => { current => $page, total_pages => $total_pages },
+        has_active_filter => keys %active_role_filters ? 1 : 0,
 
-        formdata     => $membership_statuses,
-        messages     => \@messages,
+        formdata      => $membership_statuses,
+        messages      => \@messages,
         roles_changed => \@roles_changed,
-        errors       => $errors,
+        errors        => $errors,
 
         form_edit_action_url => LJ::create_url( undef, keep_args => [qw( role page )] ),
     };
