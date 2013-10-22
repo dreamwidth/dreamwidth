@@ -1,22 +1,5 @@
 ;; -*- coding: utf-8 -*-
 
-#.error.limit=Can't invite [[user]]; the outstanding invitation limit for this community has been exceeded.#
-#
-#.error.notactive=<strong>[[user]]</strong> isn't an active account.
-#
-
-#
-#.purge.confirm=Remove these users
-#
-#.purge.continue=Review the list below and confirm that you want to remove these users from your community.
-#
-#.purge.explain=The following [[count]] [[?count|member|members]] of [[commname]] [[?count|has|have]] been purged from the site.
-#
-#.purge.none=There are no members of [[commname]] who have had their accounts purged.
-#
-#.purge.request=Remove Purged Members
-#
-
 .account=Account
 
 .email.admin.add.body<<
@@ -54,6 +37,8 @@ To manage your communities please visit [your community management page]([[commu
 .members.button=Save Membership Settings
 
 .msg.invite=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a href="[[invite_url]]">Community Invitation Page</a> to rejoin.
+
+.purge.button=Remove Purged Members
 
 .role.admin=Administrator
 

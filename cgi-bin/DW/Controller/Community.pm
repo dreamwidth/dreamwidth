@@ -31,6 +31,7 @@ DW::Routing->register_string( "/communities/list", \&list_handler, app => 1 );
 DW::Routing->register_string( "/communities/new", \&new_handler, app => 1 );
 DW::Routing->register_string( "/communities/members/edit", \&members_redirect_handler, app => 1 );
 DW::Routing->register_regex( '^/communities/([^/]+)/members/edit$', \&members_handler, app => 1 );
+DW::Routing->register_string( "/communities/members/purge", \&purge_handler, app => 1, methods => { POST => 1 } );
 
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
 DW::Routing->register_redirect( "/community/manage", "/communities/list" );
@@ -547,9 +548,51 @@ sub members_handler {
 
         form_edit_action_url => LJ::create_url( undef, keep_args => [qw( role page )] ),
         form_search_action_url => LJ::create_url( undef ),
+        form_purge_action_url => LJ::create_url( "/communities/members/purge" ),
     };
 
     return DW::Template->render_template( 'communities/members/edit.tt', $vars );
+}
+
+sub purge_handler {
+    my ( $opts ) = @_;
+
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $post = $r->post_args;
+    my $remote = $rv->{remote};
+
+    my $cu = LJ::load_user( $post->{authas} );
+    return error_ml( "/communities/members/edit.tt.error.nocomm" ) unless $cu;
+
+    return error_ml( "/communities/members/edit.tt.error.notcomm", {
+                        user => $cu->ljuser_display,
+                    } ) unless $cu->is_comm;
+
+    return error_ml( "/communities/members/edit.tt.error.noaccess", {
+                        comm => $cu->ljuser_display,
+                    } ) unless $remote->can_manage_other( $cu );
+
+
+    my $members = LJ::load_userids( $cu->member_userids );
+    my @purged = map { name => $_->ljuser_display, id => $_->userid },
+                 sort { $a->user cmp $b->user }
+                 grep { $_ && $_->is_expunged } values %$members;
+
+    my $members_url = LJ::create_url( "/communities/" . $cu->user . "/members/edit" );
+    my $vars = {
+        user_list => \@purged,
+        community => $cu,
+
+        roles => [ qw( admin poster member moderator unmoderated ) ],
+
+        form_action => $members_url,
+        members_url => $members_url,
+    };
+
+    return DW::Template->render_template( 'communities/members/purge.tt', $vars );
 }
 
 1;
