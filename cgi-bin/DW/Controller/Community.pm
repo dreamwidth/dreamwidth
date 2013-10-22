@@ -29,12 +29,13 @@ DW::Controller::Community - Community management pages
 DW::Routing->register_string( "/communities/index", \&index_handler, app => 1 );
 DW::Routing->register_string( "/communities/list", \&list_handler, app => 1 );
 DW::Routing->register_string( "/communities/new", \&new_handler, app => 1 );
-DW::Routing->register_string( "/communities/members/edit", \&members_handler, app => 1 );
+DW::Routing->register_string( "/communities/members/edit", \&members_redirect_handler, app => 1 );
+DW::Routing->register_regex( '^/communities/([^/]+)/members/edit$', \&members_handler, app => 1 );
 
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
 DW::Routing->register_redirect( "/community/manage", "/communities/list" );
 DW::Routing->register_redirect( "/community/create", "/communities/new" );
-#DW::Routing->register_redirect( "/community/members", "/communities/members/edit" );
+DW::Routing->register_redirect( "/community/members", "/communities/members/edit" );
 
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
@@ -246,7 +247,20 @@ sub new_handler {
     return DW::Template->render_template( 'communities/new.tt', $vars );
 }
 
+sub members_redirect_handler {
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    if ( $get->{authas} ) {
+        return $r->redirect( "$LJ::SITEROOT/communities/$get->{authas}/members/edit" );
+    } else {
+        return $r->redirect( "$LJ::SITEROOT/communities/list" );
+    }
+}
+
 sub members_handler {
+    my ( $opts, $cuser ) = @_;
+
     my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;
 
@@ -266,8 +280,7 @@ sub members_handler {
     my %readable_to_roletype = reverse %roletype_to_readable;
     my @roles = keys %readable_to_roletype;
 
-    # TODO: MAKE THIS WORK
-    my $cu = LJ::load_user( "test_fu" ) || LJ::load_user( "aca" );
+    my $cu = LJ::load_user( $cuser );
     return error_ml( "/communities/members/edit.tt.error.nocomm" ) unless $cu;
 
     return error_ml( "/communities/members/edit.tt.error.notcomm", {
