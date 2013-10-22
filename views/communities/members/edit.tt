@@ -121,6 +121,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
   <div class="columns large-5 large-offset-1">
     <h2>Clean Up List</h2>
-    <input type="submit" class="small secondary button" value="Remove Purged Members*" />
+    <form method="POST" action="[% form_purge_action_url %]">
+      [%- form.hidden( name = "authas", value = community.username ) -%]
+      [%- form.submit( value = dw.ml( '.purge.button' ), class = 'small secondary button' ) -%]
+    </form>
   </div>
 </div>
