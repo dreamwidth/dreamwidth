@@ -36,7 +36,7 @@ DW::Routing->register_string( "/communities/members/purge", \&purge_handler, app
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
 DW::Routing->register_redirect( "/community/manage", "/communities/list" );
 DW::Routing->register_redirect( "/community/create", "/communities/new" );
-DW::Routing->register_redirect( "/community/members", "/communities/members/edit" );
+DW::Routing->register_redirect( "/community/members", "/communities/members/edit", keep_args => [ "authas" ] );
 
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
