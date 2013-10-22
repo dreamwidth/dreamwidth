@@ -2280,6 +2280,10 @@ sub optout_community_promo {
     return $u->prop( 'optout_community_promo' ) ? 1 : 0;
 }
 
+sub community_manage_members_url {
+    return "$LJ::SITEROOT/communities/" . $_[0]->user . "/members/edit";
+}
+
 sub control_strip_display {
     my $u = shift;
 
