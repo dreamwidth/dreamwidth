@@ -662,9 +662,9 @@ sub moderator_userids {
     return @{LJ::load_rel_user_cache( $u->id, 'M' )};
 }
 
-# returns three hashrefs:
+# accepts (optionally) a list of roles to filter by
+# returns two hashrefs:
 #   { userid => { "userid" => userid, "name" => username, "A" => 1, "P" => 1 ... }, ... }
-#   { username => id, ... }
 #   { "M" => count, "P" => count, ... }
 #
 # not cached
@@ -703,6 +703,34 @@ sub get_members_by_role {
 
     return ( \%users, \%count );
 }
+
+# accepts a user object to fetch member data of
+# returns same as get_members_by_role
+sub get_member {
+    my ( $cu, $u ) = @_;
+
+    my $dbr = LJ::get_db_reader();
+
+    # get all community edges
+    my $results = $dbr->selectall_arrayref("SELECT r.targetid, r.type, u.user FROM reluser r, useridmap u " .
+                            "WHERE r.targetid = u.userid AND r.userid=? AND r.targetid=?", undef, $cu->userid, $u->userid );
+
+    my %userinfo;
+    my %count;
+    foreach ( @$results ) {
+        my ( $id, $type, $user ) = @$_;
+
+        $userinfo{$id}->{userid} = $id;
+        $userinfo{$id}->{name} = $user;
+        $userinfo{$id}->{$type} = 1;
+
+        $count{$type}++;
+    }
+
+    return ( \%userinfo, \%count );
+}
+
+
 
 =head2 C<< $cu->notify_administrator_remove( $admin_u_del, $remote ) >>
 

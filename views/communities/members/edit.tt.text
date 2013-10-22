@@ -45,6 +45,12 @@ To manage your communities please visit [your community management page]([[commu
 
 .error.notcomm=[[user]] isn't a community.
 
+.find.button=Find
+
+.find.header=Find Member
+
+.find.label=Username:
+
 .msg.invite=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a href="[[invite_url]]">Community Invitation Page</a> to rejoin.
 
 .role.admin=Administrator

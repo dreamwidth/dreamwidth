@@ -26,3 +26,7 @@ input.journaltype-textbox {
   font-size: emCalc(12px);
 }
 
+@import "mixins/screenreader-friendly";
+label.hidden {
+  @extend %screenreader-friendly;
+}
