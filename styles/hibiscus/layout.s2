@@ -22,7 +22,7 @@ propgroup colors_child {
     property use color_header_link_active;
     property use color_header_link_hover;
     property use color_header_link_visited;
-    property Color color_header_link_current { desc = "Page header link current color"; }
+    property Color color_header_link_current { des = "Page header current link color"; }
 }
 
 ##===============================
