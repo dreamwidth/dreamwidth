@@ -79,15 +79,20 @@ propgroup colors {
     property use color_module_title;
 
     property use color_header_background;
+    property use color_header_link;
+    property use color_header_link_active;
+    property Color color_header_link_hover_background { des = "Page header hover background color"; }
+    property use color_header_link_hover;
+    property use color_header_link_visited;
     property use color_page_title;
 
     property use color_footer_background;
-    property Color color_footer_link {
-        des = "Header/footer link and text color";
-    }
-    property Color color_footer_link_hover {
-        des = "Header/footer link hover color";
-    }
+    property Color color_footer_text { des = "Page footer text color"; }
+    property use color_footer_link;
+    property use color_footer_link_active;
+    property Color color_footer_link_hover_background { des = "Page footer hover background color"; }
+    property use color_footer_link_hover;
+    property use color_footer_link_visited;
 
     property use color_entry_background;
     property use color_entry_text;
@@ -353,9 +358,9 @@ function prop_init() {
 
 function Page::print()
 {
-    """
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-    <html xmlns="http://www.w3.org/1999/xhtml">
+"""
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
     <head>""";
         $this->print_head();
         $this->print_stylesheets();
@@ -364,28 +369,28 @@ function Page::print()
     $this->print_wrapper_start();
     $this->print_control_strip();
     """
-            <div id="container">
-            <div id="header">
-    """;
-    """
-                <a name="top">
-    """;
-    $this->print_global_title();
-    $this->print_global_subtitle();
-    """
-                </a>
-            </div>
-    """;
-    $this->print_module_section("one");
-    """
-            <div id="wrap">
+    <div id="container">
+        <div id="header">
+            <div class="inner">
+                <div id="titles-wrap">
+            """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+            """
+                </div>
+            """;
+                $this->print_module_section("one");
+            """
+            </div><!-- end header>inner -->
+        </div><!-- end header -->
+        <div id="wrap">
             <div id="content">
     """;
-    $this->print_body();
+                $this->print_body();
     """
             </div>
     """;
-    $this->print_module_section("two");
+            $this->print_module_section("two");
     """
             </div><div style="clear:both;"></div>
         </div>
@@ -519,8 +524,9 @@ function Page::print_default_stylesheet () {
     if ($*image_background_header_height > 0) {
         $header_background = """
             $header_background
-            height: """ + $*image_background_header_height + """px;""";
+            min-height: """ + $*image_background_header_height + """px;""";
     }
+
 
     var string container_background = generate_background_css( $*image_background_container_url, $*image_background_container_repeat, "right", $*color_footer_background );
     var string container_background_redux = generate_background_css_flipped( $*image_background_container_url, $*image_background_container_repeat, "left", $*color_footer_background );
@@ -532,7 +538,6 @@ function Page::print_default_stylesheet () {
             height: """ + $*image_background_header_height + """px;""";
     }
 
-
     var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
     var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
     var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
@@ -542,11 +547,19 @@ function Page::print_default_stylesheet () {
 
     var string page_text_colors = generate_color_css($*color_page_text, new Color, new Color);
     var string page_details_text_colors = generate_color_css($*color_page_details_text, new Color, new Color );
-    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
-    var string header_colors = generate_color_css($*color_page_title, $*color_header_background, new Color);
-    var string header_footer_colors = generate_color_css($*color_footer_link, new Color, new Color);
-    var string header_footer_hover_colors = generate_color_css($*color_footer_link_hover, $*color_footer_background, new Color);
+
+    var string header_colors = generate_color_css( $*color_page_title, $*color_header_background, new Color );
+    var string header_link_colors = generate_color_css( $*color_header_link, new Color, new Color );
+    var string header_link_active_colors = generate_color_css( $*color_header_link_active, new Color, new Color );
+    var string header_link_hover_colors = generate_color_css( $*color_header_link_hover, $*color_header_link_hover_background, new Color );
+    var string header_link_visited_colors = generate_color_css( $*color_header_link_visited, new Color, new Color );
     var Color header_bottom_color = $*color_header_background->darker();
+
+    var string footer_colors = generate_color_css( $*color_footer_text, $*color_footer_background, new Color );
+    var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
+    var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
+    var string footer_link_hover_colors = generate_color_css( $*color_footer_link_hover, $*color_footer_link_hover_background, new Color );
+    var string footer_link_visited_colors = generate_color_css( $*color_footer_link_visited, new Color, new Color );
 
     var string module_colors = generate_color_css( new Color, $*color_module_background, new Color );
     var string module_box_background = generate_background_css( $*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, new Color );
@@ -661,6 +674,12 @@ a, a:link, a:active { $page_link_colors text-decoration: none; }
 a:visited { $page_link_visited_colors  }
 a:hover {  $page_link_hover_colors text-decoration: underline; }
 
+h1, h2, h3, h4 {
+    font-weight: 700;
+    font-variant: normal;
+    letter-spacing: .08em;
+    }
+
 q { font-style: italic; }
 
 body { $page_background $page_font margin: 0; padding: 0; }
@@ -674,17 +693,72 @@ html body {
 .two-columns-left #container { $container_background_redux }
 .two-columns-right #container, .two-columns-left #container { $container_colors margin: 0 4%; }
 
-#header { $header_background $header_footer_colors padding: 0; }
-.two-columns-right #header { margin: 0 5px 0 0; }
-.two-columns-left #header { margin: 0 0 0 5px; text-align: right; }
-#footer {margin: 0 4%; padding: 0; background:transparent;}
-.two-columns-right #footer { $container_background }
-.two-columns-left #footer { $container_background_redux }
-#header a, #footer a { $header_footer_colors text-decoration: none; }
+/*--- Header ---*/
 
-h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; }
-#header h1 {margin: 0; padding: 20px  20px  0  2em; $page_title_colors $journal_title_font font-weight: lighter; font-variant: normal; text-transform: lowercase; letter-spacing: 0.2em; }
-#header h2 {padding: 0 20px 0 2.7em; $page_title_colors $journal_subtitle_font}
+#header {
+    $header_colors
+    border-bottom: 2px solid $header_bottom_color;
+    padding: 0;
+    }
+
+.two-columns-right #header { margin: 0 5px 0 0; }
+
+.two-columns-left #header {
+    margin: 0 0 0 5px;
+    text-align: right;
+    }
+
+#header #titles-wrap {
+    $header_background
+}
+
+#header h1 {
+    $journal_title_font
+    font-weight: lighter;
+    font-variant: normal;
+    letter-spacing: .2em;
+    margin: 0;
+    padding: 20px 20px 0 2em;
+    text-transform: lowercase;
+    }
+
+#header h2 {
+    $journal_subtitle_font
+    padding: 0 20px 0 2.7em;
+    }
+
+.two-columns-right .module-section-one .inner { text-align: right; }
+.two-columns-left .module-section-one .inner { text-align: left; }
+
+#header .module-navlinks ul {
+    margin: 0;
+    padding: .5em 20px;
+    }
+
+#header .module-navlinks li {
+    display: inline;
+    }
+
+#header .module-navlinks li a {
+    $header_link_colors
+    padding: .5em 20px;
+    text-decoration: none;
+    }
+
+#header .module-navlinks li a:visited {
+    $header_link_visited_colors
+    }
+
+#header .module-navlinks li a:hover,
+#header .module-navlinks li .current {
+    $header_link_hover_colors
+    }
+
+#header .module-navlinks li a:active {
+    $header_link_active_colors
+    }
+
+/*--- Wrap ---*/
 
 #wrap { $page_text_colors }
 .two-columns-right #wrap {padding-right: $*sidebar_width; padding-top: 20px; padding-left:  20px;}
@@ -720,12 +794,6 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
     color: $*color_entry_link_active;
     }
 
-.module-section-one .inner {border-bottom:2px solid $header_bottom_color;}
-.two-columns-right .module-section-one .inner {text-align: right;}
-.two-columns-left .module-section-one .inner {text-align: left;}
-.two-columns-right .module-section-one {margin-right:5px;}
-.two-columns-left .module-section-one {margin-left:5px;}
-
 .module-section-two { $module_colors position: relative; width: $*sidebar_width;}
 .two-columns-right .module-section-two {float: left; margin-right: -$*sidebar_width; /* <--- IMPORTANT */}
 .two-columns-left .module-section-two {float: right; margin-left: -$*sidebar_width; /* <--- IMPORTANT */}
@@ -733,19 +801,6 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .two-columns-right .module-section-two .module {margin-left: 10px;}
 .two-columns-left .module-section-two .module {margin-right: 10px;}
 
-.module-section-one ul {
-    $header_colors
-    margin: 0;
-    padding: 0 20px;
-    }
-
-.module-section-one li {
-    display: inline;
-    line-height: 2.2em;
-    }
-
-.module-section-one li a {text-decoration: none; padding-top: 0.5em; padding-right: 20px; padding-bottom: 0.5em; padding-left: 20px; $header_colors }
-.module-section-one ul li a:hover, .module-section-one ul li a.current { $header_footer_hover_colors }
 .module-section-two a { $module_link_colors }
 .module-section-two .module-header a {text-decoration: none; }
 .module-section-two h2 {margin: 0; margin-bottom: 7px; padding: 0.2em; $module_title_colors }
@@ -905,13 +960,22 @@ if ( $*use_action_links_images ) {
 
 #content > hr {display: none; }
 
-.module-section-three a:hover { $header_footer_hover_colors }
-.module-section-three .module {padding-left: 20px; }
+/*--- Footer ---*/
+
+#footer {
+    background: transparent;
+    margin: 0 4%;
+    padding: 0;
+    }
+
+.two-columns-right #footer { $container_background }
+
+.two-columns-left #footer { $container_background_redux }
 
 #footer .inner {
     clear: both;
     $footer_background
-    $header_footer_colors
+    $footer_colors
     padding: .5em 1em;
     }
 
@@ -928,6 +992,28 @@ if ( $*use_action_links_images ) {
     height: auto;
     margin: 0;
     padding: 0;
+    }
+
+#footer a {
+    $footer_link_colors
+    text-decoration: none;
+    }
+
+#footer a:visited {
+    $footer_link_visited_colors
+    }
+
+#footer a:hover {
+    background-color: $*color_footer_link_hover_background;
+    color: $*color_footer_link_hover;
+    }
+
+#footer a:active {
+    $footer_link_active_colors
+    }
+
+#footer .module {
+    padding-left: 20px;
     }
 
 #footer .page-top {
