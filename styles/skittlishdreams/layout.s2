@@ -1004,8 +1004,7 @@ if ( $*use_action_links_images ) {
     }
 
 #footer a:hover {
-    background-color: $*color_footer_link_hover_background;
-    color: $*color_footer_link_hover;
+    $footer_link_hover_colors
     }
 
 #footer a:active {
