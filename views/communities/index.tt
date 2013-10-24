@@ -29,7 +29,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%# 'how to find communities' block %]
 <div class="row"><div class="large-12 columns">
-<div class="panel callout">
+<div class="panel">
     <h2>[% '.findcomms' | ml %]</h2>
     <ul>
     <li><a href="[% site.root%]/community/search">[% '.findcomms.commsearch' | ml %]</a></li>

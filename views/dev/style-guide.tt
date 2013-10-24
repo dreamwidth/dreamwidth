@@ -1,0 +1,219 @@
+[%- sections.title = '.title' | ml -%]
+
+[% CALL dw.active_resource_group( "foundation" ) %]
+<!-- only shrunk so that we have more lines between headers -->
+<h2>Headers / Panels</h2>
+<div class="row">
+  <div class="large-8 columns">
+<h3>h3. We welcome you</h3>
+<p class="lead">Platitudes are cheap. We've all heard services say they're committed to "diversity" and "tolerance" without ever getting specific, so here's our stance on it:</p>
+
+<blockquote>
+<p>We welcome people of any gender identity or expression, race, ethnicity, size, nationality, sexual orientation, ability level, neurotype, religion, elder status, family structure, culture, subculture, political opinion, identity, and self-identification. We welcome activists, artists, bloggers, crafters, dilettantes, musicians, photographers, readers, writers, ordinary people, extraordinary people, and everyone in between. <a href="">We welcome people who want to change the world</a>, <a href="?asdfhf#dont-click-on-this-unvisited-link">people who want to keep in touch with friends</a>, people who want to make great art, and people who just need a break after work. We welcome fans, geeks, nerds, and pixel-stained technopeasant wretches. We welcome you no matter if the Internet was a household word by the time you started secondary school or whether you were already retired by the time the World Wide Web was invented.</p>
+</blockquote>
+
+<h4>h4. We get excited about creativity</h4>
+<p>— from pro to amateur, from novels to haiku, from the photographer who's been doing this for decades to the person who just picked up a sketchbook last week.</p>
+
+<h5>h5. We support maximum freedom of creative expression</h5>
+<p>We support maximum freedom of creative expression within the few restrictions we need to keep the service viable for other users.</p>
+
+<h6>h6. We're serious about knowing and protecting your rights</h6>
+<p>With servers in the US we're obliged to follow US laws, but we're serious about knowing and protecting your rights when it comes to free expression and privacy.</p>
+
+<h5>h5. We will never put a limit on your creativity</h5>
+<p>We will never put a limit on your creativity just because it makes someone uncomfortable — even if that someone is us.</p>
+
+<h4>h4. We think accessibility for people with disabilities is a priority</h4>
+<p>We think accessibility for people with disabilities is a priority, not an afterthought. We think neurodiversity is a feature, not a bug. We believe in being inclusive, welcoming, and supportive of anyone who comes to us with good faith and the desire to build a community.</p>
+
+<h4>h4. We think our community is important</h4>
+<p>We think our technical and business experience is important, but we think our community experience is more important. We know what goes wrong when companies say one thing and do another, or when they refuse to say anything at all. We believe that keeping our operations transparent is just as important as keeping our servers stable.</p>
+
+  </div>
+  <div class="columns large-4">
+    <div class="row">
+      <div class="large-12 columns">
+        <div class="panel">
+          <h5>This is a regular panel.</h5>
+          <p>It has an easy to override visual style, and is appropriately subdued.</p>
+        </div>
+
+        <div class="panel callout radius">
+          <h5>This is a callout panel.</h5>
+          <p>It's a little ostentatious, but useful for important content.</p>
+        </div>
+
+      <div class="panel">
+        <h5>Just another panel.</h5>
+        <p>Etc etc etc.</p>
+      </div>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<h2>Forms</h2>
+<form>
+  <fieldset>
+    <legend>Fieldset</legend>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <label>Input Label</label>
+        <input type="text" placeholder="large-12.columns">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="large-4 columns error">
+        <label>Input Label</label>
+        <input type="text" placeholder="large-4.columns">
+        <small>Some error here</small>
+      </div>
+      <div class="large-4 columns">
+        <label>Input Label</label>
+        <input type="text" placeholder="large-4.columns">
+      </div>
+      <div class="large-4 columns">
+        <div class="row collapse">
+          <label>Input Label</label>
+          <div class="small-9 columns">
+            <input type="text" placeholder="small-9.columns">
+          </div>
+          <div class="small-3 columns">
+            <span class="postfix">.com</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <label>Textarea Label</label>
+        <textarea placeholder="small-12.columns"></textarea>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <input type="submit" class="button" value=".button" />
+        <input type="submit" class="button secondary" value=".button.secondary">
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset><legend>Buttons</legend>
+      <input type="button" class="small button" value=".small.button" /><br>
+      <input type="button" class="button" value="(default) .button" /><br>
+      <input type="button" class="large button" value=".large.button" /><br>
+  </fieldset>
+</form>
+
+
+<h2>Tables / Select All Checkboxes</h2>
+<div class="row"><div class="large-6 columns">
+<table>
+<thead>
+  <tr class="select-all">
+    <th scope="row"><span id="select-all">Select All</span></th>
+    <th><input type="checkbox" data-role="foo" aria-labelledby="select-all"></th>
+    <th><input type="checkbox" data-role="bar" aria-labelledby="select-all"></th>
+    <th><input type="checkbox" data-role="baz" aria-labelledby="select-all"></th>
+  </tr>
+</thead>
+<tbody>
+<tr>
+  <th scope="row">apples</th>
+  <td><input type="checkbox" name="foo"></td>
+  <td><input type="checkbox" name="bar"></td>
+  <td><input type="checkbox" name="baz"></td>
+</tr>
+<tr>
+  <th scope="row">bananas</td>
+  <td><input type="checkbox" name="foo"></td>
+  <td><input type="checkbox" name="bar"></td>
+  <td><input type="checkbox" name="baz"></td>
+</tr>
+<tr>
+  <th scope="row">cheese and eggs and ham</td>
+  <td><input type="checkbox" name="foo"></td>
+  <td><input type="checkbox" name="bar"></td>
+  <td><input type="checkbox" name="baz"></td>
+</tr>
+<tr>
+  <th scope="row">breakfast</th>
+  <td><input type="checkbox" name="foo"></td>
+  <td><input type="checkbox" name="bar"></td>
+  <td><input type="checkbox" name="baz"></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="large-6 columns">
+<h3>code</h3>
+[%-
+  dw.need_res( { group => "foundation" },
+      "js/components/jquery.select-all.js"
+      "stc/css/components/select-all.css"
+  );
+-%]
+
+<pre><code>  [&#37;-
+  dw.need_res( { group => "foundation" },
+      "js/components/jquery.select-all.js"
+      "stc/css/components/select-all.css"
+  );
+-&#37;]</code></pre>
+</div>
+</div>
+
+<h2>Pagination</h2>
+<div class="row">
+  <div class="large-6 columns">
+  [% INCLUDE components/pagination.tt
+    current => 2,
+    total_pages => 12,
+  %]
+  </div>
+  <div class="large-6 columns">
+  <h3>code</h3>
+  <pre><code>  [&#37; INCLUDE components/pagination.tt
+    current => 2,
+    total_pages => 12,
+  &#37;]</code></pre>
+  </div>
+</div>
+
+<h2>Sub Nav</h2>
+<dl class="sub-nav">
+  <dt>Filter:</dt>
+  <dd class="active"><a href="#">All</a></dd>
+  <dd><a href="#">Active</a></dd>
+  <dd><a href="#">Pending</a></dd>
+  <dd><a href="#">Suspended</a></dd>
+</dl>
+
+<h2>Alert Boxes</h2>
+<div data-alert class="alert-box radius">
+  This is a standard alert (div.alert-box).
+  <a href="" class="close">&times;</a>
+</div>
+
+<div data-alert class="alert-box radius success">
+  This is a success alert (div.alert-box.success).
+  <a href="" class="close">&times;</a>
+</div>
+
+<div data-alert class="alert-box alert">
+  This is an alert (div.alert-box.alert).
+  <a href="" class="close">&times;</a>
+</div>
+
+<div data-alert class="alert-box secondary">
+  This is a secondary alert (div.alert-box.secondary).
+  <a href="" class="close">&times;</a>
+</div>
+

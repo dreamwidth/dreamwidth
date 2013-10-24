@@ -72,5 +72,5 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </tbody>
 </table>
 [% ELSE %]
-<div class="callout panel">[% '.no.communities' | ml( create_url = site.root _ "/communities/new" ) %]</div>
+<div class="panel">[% '.no.communities' | ml( create_url = site.root _ "/communities/new" ) %]</div>
 [% END %]

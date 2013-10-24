@@ -20,7 +20,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/pages/communities/new.css"
 ) -%]
 
-<div class="row"><div class="columns large-6 large-centered">
+<div class="row"><div class="columns large-6">
 <form action="[% site.root %]/communities/new" method="POST">
     [% dw.form_auth %]
     <fieldset>
