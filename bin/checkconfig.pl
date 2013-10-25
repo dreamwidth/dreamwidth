@@ -264,6 +264,9 @@ my %modules = (
                "Image::ExifTool" => {
                    deb => 'libimage-exiftool-perl',
                },
+# Workaround for IO::Socket::SSL + LPWx::ParanoidAgent
+#  ( see bug 5280 ) - 2013-10-25
+               "Crypt::SSLeay" => {}
               );
 
 
