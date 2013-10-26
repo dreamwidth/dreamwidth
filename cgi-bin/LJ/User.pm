@@ -6757,7 +6757,7 @@ Default: the users default userpic.
 sub get_picid_from_keyword {
     my ( $u, $kw, $default ) = @_;
     $default ||= ref $u ? $u->{defaultpicid} : 0;
-    return $default unless $kw;
+    return $default unless defined($kw);
 
     my $info = LJ::isu( $u ) ? $u->get_userpic_info : undef;
     return $default unless $info;
@@ -7102,7 +7102,6 @@ sub get_userpic_info {
         my %picmap;
         my %kwmap;
         while (my ($kw, $id, $mapid, $redir) = $sth->fetchrow_array) {
-
             # used to be a bug that allowed these to get in.
             next if $kw =~ /[\n\r\0]/ || ( defined $kw && length($kw) == 0 );
 
