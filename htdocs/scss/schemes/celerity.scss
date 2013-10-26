@@ -10,38 +10,93 @@
  * 'perldoc perlartistic' or 'perldoc perlgpl'.
  */
 
-// very strong color, for emphasis. use sparingly
-// be careful if editing this, it's meant to match the color of the image
-$strong-accent-color: #999966;
-$topbar-bg: #ddddaa;
+// color names. Only use these variables in the color assignment section
+$_dark-olive-green:  #999966;
+$_very-dark-olive:   darken($_dark-olive-green, 10%);// try to match visual impact of the top bar
+                                                     // which is $_dark-olive-green, but heavier to the eye
+$_light-olive-green: #ddddaa;
+
+$_white:             #fff;
+$_light-gray:        #f7f7f7;
+$_dark-gray:         #e9e9e9;
+$_low-contrast-gray: #ddd;
+$_off-black:         #222211;
+
+// color assignment
+$background-color:   $_light-gray;
+$text-color:         $_off-black;
+$link-color:         $_dark-olive-green;
+
+$primary-color:      $_very-dark-olive;
+$primary-text-color: $_white;
+$secondary-color:    $_dark-gray;
+$strong-accent-color:$_very-dark-olive;
+$soft-accent-color:  $_light-olive-green;
+$border-color:       $_low-contrast-gray;
+
+$header-image-color: $_dark-olive-green; // meant to match the images in the nav
+
+$form-font-color:    $_off-black;
+$form-bg-color:      $_white;
+$form-border-color:  $_low-contrast-gray;
+
+@import "schemes/alert-colors";
+
 
 // foundation global variables
-$body-bg: #ffffff;
-$body-font-color: #222211;
-$body-font-family: Arial, Verdana, sans-serif;
-$base-line-height: 1.4;
-
-// background colors for various components
-$primary-color: lighten( $topbar-bg, 15% );
-$secondary-color: #e9e9e9;
-$alert-color: #d75759;
-$success-color: #7bb74b;
+$body-bg:           $background-color;
+$body-font-color:   $text-color;
+$body-font-family:  Arial, Verdana, sans-serif;
+$base-line-height:  1.4;
 
 
 // foundation type variables
 // We use these to control header font styles
 $header-font-family:                   "Century Gothic", Verdana, sans-serif;
-$header-font-color:                    $body-font-color;
+$page-title-color:                     $primary-color;
+$header-font-color:                    lighten( $body-font-color, 5% );
 $list-side-margin:                     1em;
 
+// we want to base these on $body-font-color rather than the random variables they're based on
+$code-color:                            tint( $body-font-color, 20% );
+$blockquote-font-color:                 tint( $body-font-color, 20% );
+$small-font-color:                      $body-font-color;
 
 // We use these to style anchors
 $anchor-text-decoration:               underline;
-$anchor-font-color:                    #999966;
+$anchor-font-color:                    $link-color;
 $anchor-font-color-visited:            shade( $anchor-font-color, 30% );
 $anchor-font-color-hover:              lighten( $anchor-font-color, 30% );
 
+// forms
+$form-label-font-color:                 lighten($body-font-color, 20%);
+$input-font-color:                      $form-font-color;
+$input-bg-color:                        $form-bg-color;
+$input-focus-bg-color:                  darken($input-bg-color, 2%);
+$input-border-color:                    darken($input-bg-color, 20%);
+$input-focus-border-color:              darken($input-bg-color, 40%);
+$input-disabled-bg:                     $form-border-color;
+$fieldset-border-color:                 $form-border-color;
+$legend-bg:                             $body-bg;
+$input-prefix-bg:                       darken($input-bg-color, 5%);
+$input-prefix-border-color:             $input-border-color;
+
+// panel
+$panel-bg:                              darken( $body-bg, 5% );
+$panel-callout-bg:                      change-color( $soft-accent-color, $lightness:90% );
+
+// tables
+$table-bg:              $form-bg-color;
+$table-even-row-bg:     $background-color;
+$table-border-color:    $border-color;
+$table-head-bg:         $primary-color;
+$table-head-font-color: $primary-text-color;
+$table-row-font-color:  $text-color;
+
+// $table-row-font-color: #222;
+
 // navigation
+$topbar-bg:                            $soft-accent-color;
 $topbar-link-weight:                   normal;
 $topbar-link-color:                    #222200;
 $topbar-link-color-hover:              $topbar-link-color;
@@ -98,7 +153,7 @@ ul { list-style: square;}
      position: absolute;
      top: $nav-small-screen-header-height;
      left: 0;
-     background-color: $strong-accent-color;
+     background-color: $header-image-color;
      background-image: url("/img/celerity/dk-stripe.jpg");
      background-position: right;
      background-repeat: repeat-y;
@@ -122,8 +177,8 @@ ul { list-style: square;}
 /**
  * Footer
  */
-footer { border-top: 4px double $strong-accent-color;
-    border-bottom: 4px double $strong-accent-color;
+footer { border-top: 4px double $header-image-color;
+    border-bottom: 4px double $header-image-color;
     margin: 1em;
     text-align: center;
 

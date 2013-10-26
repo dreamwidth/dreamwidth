@@ -164,7 +164,7 @@ $form-element-height: 13px;
   @if $bg {
     $bg-lightness: lightness($bg);
     background: $bg;
-    border-color: darken($bg, 10%);
+    border-color: $input-prefix-border-color;
     border-#{$opposite-direction}: none;
 
     // Control the font color based on background brightness
@@ -189,7 +189,7 @@ $form-element-height: 13px;
   @if $bg {
     $bg-lightness: lightness($bg);
     background: $bg;
-    border-color: darken($bg, 15%);
+    border-color: $input-prefix-border-color;
     border-#{$default-float}: none;
 
     // Control the font color based on background brightness

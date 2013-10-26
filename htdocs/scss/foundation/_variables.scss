@@ -31,6 +31,8 @@ $experimental: true !default;
 // GLOBAL
 
 $default-float: left;
+$global-radius: 3px;
+$alert-border-width: $global-radius;
 
 // most of the time, we'll just want the mixins or variables
 // and not the styles themselves
@@ -45,12 +47,12 @@ $row-width: 80em;
 
 // TYPE
 // Heading font sizes
-$h1-font-size: 2em;
-$h2-font-size: 2em;
-$h3-font-size: 1.8em;
-$h4-font-size: 1.6em;
-$h5-font-size: 1.4em;
-$h6-font-size: 1.2em;
+$h1-font-size: 1.814em;
+$h2-font-size: 1.814em;
+$h3-font-size: 1.618em;
+$h4-font-size: 1.121em;
+$h5-font-size: 1em;
+$h6-font-size: 0.90em;
 
 
 // BUTTONS

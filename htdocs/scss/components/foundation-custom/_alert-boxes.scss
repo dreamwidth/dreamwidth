@@ -1,0 +1,18 @@
+$include-html-alert-classes: false;
+@import "foundation/components/alert-boxes";
+
+$alert-box-color: $primary-color !default;
+$alert-box-error-color: $alert-color !default;
+
+.alert-box {
+  @include alert($bg:$alert-box-color);
+
+  .close { @include alert-close; }
+
+  &.radius { @include radius($alert-radius); }
+  &.round { @include radius($global-rounded); }
+
+  &.success { @include alert-style($success-color);}
+  &.alert { @include alert-style($alert-box-error-color);}
+  &.secondary { @include alert-style($secondary-color);}
+}

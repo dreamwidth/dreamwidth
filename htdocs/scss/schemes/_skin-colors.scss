@@ -12,12 +12,15 @@
  * Links and a pseudo link class
  */
 
+$anchor-font-color-visited: shade( $anchor-font-color, 20% ) !default;
+$page-title-color: $primary-color !default;
+
 a:visited {
     color: $anchor-font-color-visited;
 }
 
 .ljuser a {
-     color: $strong-accent-color;
+     color: $primary-color;
 }
 
 a:hover, a:active {

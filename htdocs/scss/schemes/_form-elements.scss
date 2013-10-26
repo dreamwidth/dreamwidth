@@ -27,7 +27,12 @@ input.journaltype-textbox {
 }
 
 legend {
-  color: $strong-accent-color;
+  color: $header-font-color;
+}
+
+fieldset {
+    border-width: 0;
+    border-top-width: 1px;
 }
 
 @import "mixins/screenreader-friendly";
