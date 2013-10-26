@@ -1,0 +1,46 @@
+$custom-alert-colors: false !default;
+$alert-borders-only: false !default;
+
+$include-html-alert-classes: not $custom-alert-colors;
+@import "foundation/components/alert-boxes";
+
+@mixin alert-borders-only($border-color) {
+   background-color: tint( $border-color, 80% );
+   border-color: $border-color;
+   color: $body-font-color;
+ }
+
+@if $custom-alert-colors {
+  /* Foundation Alerts */
+  // yes the color naming here is messed up
+  .alert-box {
+    @include alert($bg:$alert-box-color);
+
+    .close { @include alert-close; }
+
+    &.radius { @include radius($alert-radius); }
+    &.round { @include radius($global-rounded); }
+
+    &.success { @include alert-style($success-color); }
+    &.alert { @include alert-style($alert-box-error-color);  }
+    &.secondary { @include alert-style($secondary-color); }
+  }
+}
+
+@if $alert-borders-only {
+  /* Foundation Alerts */
+  // yes the color naming here is messed up
+  .alert-box {
+    @include alert($bg:$alert-box-color);
+    @include alert-borders-only($alert-box-color);
+
+    .close { @include alert-close; }
+
+    &.radius { @include radius($alert-radius); }
+    &.round { @include radius($global-rounded); }
+
+    &.success { @include alert-style($success-color); @include alert-borders-only($success-color); }
+    &.alert { @include alert-style($alert-box-error-color); @include alert-borders-only($alert-box-error-color); }
+    &.secondary { @include alert-style($secondary-color); @include alert-borders-only($secondary-color); }
+  }
+}

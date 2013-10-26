@@ -1,0 +1,21 @@
+$include-html-panel-classes: false;
+
+@import "foundation/components/panels";
+
+$panel-callout-bg: #fff !default;
+$panel-callout-border: $primary-color !default;
+
+/* Panels */
+.panel { @include panel;
+    &.callout {
+      @include panel($bg:$panel-callout-bg);
+      @include inset-shadow($active:false);
+      border: 5px $panel-callout-border solid;
+    }
+
+    &.radius {
+      @include panel($bg:false);
+      @include radius;
+    }
+
+}
