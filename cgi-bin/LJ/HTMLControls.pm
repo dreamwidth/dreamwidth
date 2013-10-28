@@ -157,6 +157,7 @@ sub html_select
     my @items = @_;
     my $ehtml = $opts->{'noescape'} ? 0 : 1;
     my $ret;
+
     $ret .= "<select";
     $ret .= " $opts->{'raw'}" if $opts->{'raw'};
     $ret .= " disabled='disabled'" if $opts->{'disabled'};
@@ -206,7 +207,7 @@ sub _html_option {
     my $sel = "";
     # multiple-mode or single-mode?
     if ( $selref && ( ref $selref eq 'HASH' ) && $selref->{$value} ||
-        $opts->{selected} && ( $opts->{selected} eq $value ) && ! $$did_sel++ ) {
+        defined( $opts->{selected} ) && ( $opts->{selected} eq $value ) && ! $$did_sel++ ) {
 
         $sel = " selected='selected'";
     }

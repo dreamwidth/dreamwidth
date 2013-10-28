@@ -380,7 +380,7 @@ sub alttext {
 
     # 1. If there is a keyword associated with the icon, use it.
     # 2. If it was chosen via the default icon, show "(Default)".
-    if ($kw) {
+    if ( defined ( $kw ) ) {
         $alt .= " (" . $kw . ")";
     } else {
         $alt .= " (Default)";
@@ -405,7 +405,7 @@ sub titletext {
 
     # 1. If there is a keyword associated with the icon, use it.
     # 2. If it was chosen via the default icon, show "(Default)".
-    if ($kw) {
+    if ( defined ( $kw ) ) {
         $title .= " " . $kw;
     } else {
         $title .= " (Default)";
@@ -1294,7 +1294,7 @@ sub sort {
 
     for my $pic ( @$userpics ) {
         my $pickw = $pic->keywords( raw => 1 );
-        if ( $pickw ) {
+        if ( defined $pickw ) {
             $kwhash{$pickw} = $pic;
         } else {
             $pickw = $pic->keywords;
@@ -1324,10 +1324,11 @@ sub separate_keywords {
 
     my @userpic_array;
     my @nokw_array;
+
     foreach my $userpic ( @$userpics ) {
         my @keywords = $userpic->keywords( raw => 1 );
         foreach my $keyword ( @keywords ) {
-            if ( $keyword ) {
+            if ( defined $keyword ) {
                 push @userpic_array, { keyword => $keyword, userpic => $userpic };
             } else {
                 $keyword = $userpic->keywords;
