@@ -985,11 +985,11 @@ sub navigation_props {
 sub header_props {
     qw (
         color_header_background
-        color_page_title
         color_header_link
         color_header_link_active
         color_header_link_hover
         color_header_link_visited
+        color_page_title
         font_journal_title
         font_journal_title_size
         font_journal_title_units

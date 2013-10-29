@@ -1,22 +1,48 @@
 layerinfo type = "layout";
 layerinfo name = "Hibiscus";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "hibiscus/layout";
+layerinfo author_name = "branchandroot";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
 ##===============================
-## Navigation Module
+## Presentation
 ##===============================
 
-    property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
-       grouped = 1;
-       }
+set layout_type = "two-columns-left";
+set userpics_position = "left";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+    property Color color_header_link_current { des = "Page header current link color"; }
+}
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 185;
+
+##===============================
+## Modules
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
+    grouped = 1;
+    }
 
 set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
 set module_navlinks_section = "header";
+set module_tags_opts_count_type = "title";
 
 ##===============================
 ##Text
@@ -31,20 +57,6 @@ set text_mem_add = "Memory";
 set text_tell_friend = "Share";
 set text_watch_comments = "Track";
 set text_unwatch_comments = "Untrack";
-
-##===============================
-##Layout
-##===============================
-
-set layout_type = "two-columns-left";
-set module_tags_opts_count_type = "title";
-set image_background_header_height = 185;
-
-##===============================
-## Position
-##===============================
-
-set userpics_position = "left";
 
 ##===============================
 ## Functions
@@ -162,11 +174,58 @@ var string userpic_css = "";
             margin-left: 0; }";
     }
 
+var string navlinks_css = "";
+if ($*module_navlinks_section == "header") {
+$navlinks_css = """
+.module-navlinks {
+    background-color: transparent;
+    border: none;
+    margin: -2em 1em 0 0;
+    width: 100%;
+}
 
+.module-navlinks .module-header {
+    display: none;
+}
+.module-navlinks li {
+    display: inline;
+    margin: 0 .25em;
+    padding: 0 .25em;
+}
 
-    """
+/* Override */
+.module.module-navlinks li {
+    border-bottom: none;
+}
 
-/* Hibiscus  */
+.module-navlinks ul > li:first-child {
+    border-left: none;
+}
+
+.module-navlinks li a {
+    color: $*color_header_link;
+}
+
+.module-navlinks li a:visited {
+    color: $*color_header_link_visited;
+}
+
+.module-navlinks li a:hover {
+    color: $*color_header_link_hover;
+}
+
+.module-navlinks li a:active {
+    color: $*color_header_link_active;
+}
+
+.module-navlinks .current {
+    color: $*color_header_link_current;
+}
+""";
+}
+"""
+
+/* Hibiscus */
 
 body { margin: 0; }
 
@@ -203,6 +262,8 @@ a:hover { text-decoration: underline; }
 #title { padding-top: 0; }
 #pagetitle { font-size: medium;
     margin-top: 1em; }
+
+$navlinks_css
 
 /* Content */
 
@@ -247,11 +308,11 @@ $userpic_css
 
 ul.entry-management-links,
 .comment-management-links {
-	margin: .25em 0;
+    margin: .25em 0;
     }
 ul.entry-interaction-links,
 .comment-interaction-links {
-	margin: .25em 0;
+    margin: .25em 0;
     }
 .entry-wrapper .separator-after {clear: both;
     height: 2em; }
@@ -271,10 +332,10 @@ ul.entry-interaction-links,
 .bottomcomment { padding: 1px;
     margin-top: 1em; }
 .bottomcomment ul.entry-management-links { float: left;
-	margin: .5em 0;
+    margin: .5em 0;
     }
 .bottomcomment ul.entry-interaction-links { text-align: right;
-	margin: .5em .5em .5em 0;
+    margin: .5em .5em .5em 0;
     }
 
 
@@ -386,32 +447,6 @@ div.icons-container div.icon:nth-of-type(2n) {
 .module-tags_multilevel li a,
 .module-tags_multilevel li span { display: block;
     border-bottom: 1px dotted $*color_header_background; }
-
-#header .module-navlinks .current {
-    color: $*color_page_text;
-    }
-
-#header .module-navlinks {
-    margin: -2em 1em 0 0;
-    padding-bottom:1.5em;
-    width:100%;
-    border: none;
-    background-color: transparent;
-    }
-
-#header .module-navlinks li { display: inline;
-    padding: 0 .25em;
-    margin: 0 .25em;
-    border-bottom: none !important;
-    }
-
-#header .module-navlinks ul > li:first-child {
-    border-left: none;
-    }
-
-#header .module-navlinks .module-header {
-    display: none;
-    }
 
 .module-navlinks a.current {
     font-weight: bold;
