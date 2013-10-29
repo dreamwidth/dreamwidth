@@ -368,7 +368,7 @@ function Page::print()
             <div id="header">
     """;
     """
-                <a name="top">
+          
     """;
     $this->print_global_title();
     $this->print_global_subtitle();
