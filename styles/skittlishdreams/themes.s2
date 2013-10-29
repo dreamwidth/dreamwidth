@@ -19,8 +19,15 @@ set color_page_link_visited = "#b9a62a";
 set color_page_text = "#555";
 set color_page_title = "#fff";
 set color_header_background = "#cab72d";
+set color_header_link = "#fff";
+set color_header_link_active = "#fff";
+set color_header_link_hover = "#fff";
+set color_header_link_hover_background = "#e1cc33";
+set color_header_link_visited = "#fff";
 set color_footer_background = "#e1cc33";
 set color_footer_link = "#fff";
+set color_footer_link_hover_background = "#e1cc33";
+set color_footer_text = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -90,9 +97,14 @@ set color_page_link_visited = "#0870C9";
 set color_page_text = "#666";
 set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
+set color_header_link = "#ddd";
+set color_header_link_active = "#ddd";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#ddd";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
+set color_footer_text = "#bababa";
 
 ##===============================
 ## Entry Colors
@@ -147,9 +159,14 @@ set color_page_link_visited = "#1088F7";
 set color_page_text = "#666";
 set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
+set color_header_link = "#ddd";
+set color_header_link_active = "#ddd";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#ddd";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
+set color_footer_text = "#bababa";
 
 ##===============================
 ## Entry Colors
@@ -206,8 +223,15 @@ set color_page_link_visited = "#AD9625";
 set color_page_text = "#555";
 set color_page_title = "#fff";
 set color_header_background = "#92A588";
+set color_header_link = "#fff";
+set color_header_link_active = "#fff";
+set color_header_link_hover = "#efefef";
+set color_header_link_hover_background = "#A7BD9B";
+set color_header_link_visited = "#fff";
 set color_footer_background = "#A7BD9B";
 set color_footer_link = "#efefef";
+set color_footer_link_hover_background = "#A7BD9B";
+set color_footer_text = "#efefef";
 
 ##===============================
 ## Entry Colors
@@ -271,9 +295,14 @@ set color_page_link_visited = "#61AC00";
 set color_page_text = "#666";
 set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
+set color_header_link = "#ddd";
+set color_header_link_active = "#ddd";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#ddd";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
+set color_footer_text = "#bababa";
 
 ##===============================
 ## Entry Colors
@@ -331,8 +360,15 @@ set color_page_link_visited = "#695E55";
 set color_page_text = "#222";
 set color_page_title = "#fff";
 set color_header_background = "#417D8A";
+set color_header_link = "#fff";
+set color_header_link_active = "#fff";
+set color_header_link_hover = "#fff";
+set color_header_link_hover_background = "#2E5962";
+set color_header_link_visited = "#fff";
 set color_footer_background = "#2E5962";
 set color_footer_link = "#fff";
+set color_footer_link_hover_background = "#2E5962";
+set color_footer_text = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -404,8 +440,15 @@ set color_page_link_visited = "#d17114";
 set color_page_text = "#555";
 set color_page_title = "#fff";
 set color_header_background = "#d17114";
+set color_header_link = "#fff";
+set color_header_link_active = "#fff";
+set color_header_link_hover = "#efefef";
+set color_header_link_hover_background = "#99530f";
+set color_header_link_visited = "#fff";
 set color_footer_background = "#99530f";
 set color_footer_link = "#efefef";
+set color_footer_link_hover_background = "#99530f";
+set color_footer_text = "#efefef";
 
 ##===============================
 ## Entry Colors
@@ -470,9 +513,14 @@ set color_page_link_visited = "#F79910";
 set color_page_text = "#666";
 set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
+set color_header_link = "#ddd";
+set color_header_link_active = "#ddd";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#ddd";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
+set color_footer_text = "#bababa";
 
 ##===============================
 ## Entry Colors
@@ -527,9 +575,14 @@ set color_page_link_visited = "#F122BE";
 set color_page_text = "#666";
 set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
+set color_header_link = "#ddd";
+set color_header_link_active = "#ddd";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#ddd";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
+set color_footer_text = "#bababa";
 
 ##===============================
 ## Entry Colors
@@ -584,9 +637,14 @@ set color_page_link_visited = "#C90808";
 set color_page_text = "#666";
 set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
+set color_header_link = "#ddd";
+set color_header_link_active = "#ddd";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#ddd";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
+set color_footer_text = "#bababa";
 
 ##===============================
 ## Entry Colors
@@ -643,8 +701,15 @@ set color_page_link_visited = "#0E3870";
 set color_page_text = "#222";
 set color_page_title = "#fff";
 set color_header_background = "#DB181C";
+set color_header_link = "#fff";
+set color_header_link_active = "#fff";
+set color_header_link_hover = "#fff";
+set color_header_link_hover_background = "#a61216";
+set color_header_link_visited = "#fff";
 set color_footer_background = "#a61216";
 set color_footer_link = "#fff";
+set color_footer_link_hover_background = "#a61216";
+set color_footer_text = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -714,9 +779,14 @@ set color_page_link_hover = "#16E";
 set color_page_text = "#666";
 set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
+set color_header_link = "#ddd";
+set color_header_link_active = "#ddd";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#ddd";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
+set color_footer_text = "#bababa";
 
 ##===============================
 ## Entry Colors

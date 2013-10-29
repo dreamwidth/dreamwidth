@@ -9,9 +9,6 @@ sub page_props {
     my $self = shift;
     my @props = qw(
         image_background_container_group
-        image_background_container_url
-        image_background_container_repeat
-        image_background_container_position
     );
     return $self->_append_props( "page_props", @props );
 }
@@ -20,20 +17,22 @@ sub navigation_props {
     my $self = shift;
     my @props = qw(
         image_background_navigation_group
-        image_background_navigation_url
-        image_background_navigation_repeat
-        image_background_navigation_position
     );
     return $self->_append_props( "navigation_props", @props );
+}
+
+sub header_props {
+    my $self = shift;
+    my @props = qw( color_header_link_hover_background );
+    return $self->_append_props( "header_props", @props );
 }
 
 sub footer_props {
     my $self = shift;
     my @props = qw(
+        color_footer_text
+        color_footer_link_hover_background
         image_background_footer_group
-        image_background_footer_url
-        image_background_footer_repeat
-        image_background_footer_position
     );
     return $self->_append_props( "footer_props", @props );
 }
