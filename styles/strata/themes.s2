@@ -1316,6 +1316,77 @@ set color_module_title_link = "#eee";
 set color_module_title = "#eee";
 
 
+#NEWLAYER: strata/quasar
+layerinfo type = "theme";
+layerinfo name = "Quasar";
+layerinfo redist_uniq = "strata/quasar";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#a60a43";
+set color_page_link_active = "#a60a43";
+set color_page_link_hover = "#db0d5f";
+set color_page_link_visited = "#a60a43";
+set color_page_text = "#e0bea5";
+set color_page_title = "#e0bea5";
+set color_header_background = "#401435";
+set color_header_navlinks_background = "#1a1032";
+set color_header_navlinks_current_background = "#6e0e39";
+set color_navlinks_current = "#000";
+set color_footer_background = "#401435";
+set color_footer_link = "#a60a43";
+set color_footer_link_active = "#a60a43";
+set color_footer_link_hover = "#db0d5f";
+set color_footer_link_visited = "#a60a43";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#1a1032";
+set color_entry_border = "#401435";
+set color_entry_footer_background = "#1a1032";
+set color_entry_interaction_links = "#a60a43";
+set color_entry_link = "#a60a43";
+set color_entry_link_active = "#a60a43";
+set color_entry_link_hover = "#db0d5f";
+set color_entry_link_visited = "#a60a43";
+set color_entry_text = "#e0bea5";
+set color_entry_title = "#e0bea5";
+set color_entry_title_background = "#000";
+set color_entry_title_link = "#a60a43";
+set color_entry_title_link_active = "#a60a43";
+set color_entry_title_link_hover = "#db0d5f";
+set color_entry_title_link_visited = "#a60a43";
+set color_comment_title = "#e0bea5";
+set color_comment_title_background = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#1a1032";
+set color_module_border = "#401435";
+set color_module_footer_background = "#1a1032";
+set color_module_link = "#a60a43";
+set color_module_link_active = "#a60a43";
+set color_module_link_hover = "#db0d5f";
+set color_module_link_visited = "#a60a43";
+set color_module_text = "#e0bea5";
+set color_module_title = "#e0bea5";
+set color_module_title_background = "#000";
+set color_module_title_link = "#a60a43";
+set color_module_title_link_active = "#a60a43";
+set color_module_title_link_hover = "#db0d5f";
+set color_module_title_link_visited = "#a60a43";
+
+
 #NEWLAYER: strata/rainyday
 layerinfo type = "theme";
 layerinfo name = "Rainy Day";
@@ -1652,6 +1723,69 @@ set color_module_footer_background = "#f4e2b7";
 set color_module_title = "#fff2b0";
 set color_module_title_background = "#c76c58";
 set color_module_title_link = "#fff2b0";
+
+
+#NEWLAYER: strata/seaserpent
+layerinfo type = "theme";
+layerinfo name = "Sea Serpent";
+layerinfo redist_uniq = "strata/seaserpent";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0a342a";
+set color_page_link = "#98dfd2";
+set color_page_link_active = "#98dfd2";
+set color_page_link_hover = "#84825b";
+set color_page_link_visited = "#98dfd2";
+set color_page_text = "#cfd8ad";
+set color_page_title = "#cfd8ad";
+set color_header_background = "#3a715c";
+set color_header_navlinks_background = "#000";
+set color_header_navlinks_current_background = "#0a342a";
+set color_footer_background = "#0a342a";
+set color_footer_link = "#98dfd2";
+set color_footer_link_active = "#98dfd2";
+set color_footer_link_hover = "#84825b";
+set color_footer_link_visited = "#98dfd2";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#3a715c";
+set color_entry_footer_background = "#000";
+set color_entry_interaction_links = "#98dfd2";
+set color_entry_link = "#98dfd2";
+set color_entry_link_active = "#98dfd2";
+set color_entry_link_hover = "#84825b";
+set color_entry_link_visited = "#98dfd2";
+set color_entry_text = "#cfd8ad";
+set color_entry_title_background = "#0a342a";
+set color_comment_title_background = "#0a342a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#000";
+set color_module_border = "#3a715c";
+set color_module_footer_background = "#000";
+set color_module_link = "#98dfd2";
+set color_module_link_active = "#98dfd2";
+set color_module_link_hover = "#84825b";
+set color_module_link_visited = "#98dfd2";
+set color_module_text = "#cfd8ad";
+set color_module_title_background = "#0a342a";
+set color_module_title_link = "#98dfd2";
+set color_module_title_link_active = "#98dfd2";
+set color_module_title_link_hover = "#84825b";
+set color_module_title_link_visited = "#98dfd2";
 
 
 #NEWLAYER: strata/sleepingwarrior
