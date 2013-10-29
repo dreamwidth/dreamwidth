@@ -1088,7 +1088,7 @@ userproplist.posting_guidelines_location:
 
 userproplist.profile_collapsed_headers:
   cldversion: 4
-  datatype: char
+  datatype: blobchar
   des: Comma-separated list of header ids that should start out collapsed when the user is viewing any profile.
   indexed: 0
   multihomed: 0
