@@ -63,7 +63,7 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_units = "em";
 set font_module_text_units = "em";
 
-function Page::print_theme_stylesheet() { 
+function Page::print_theme_stylesheet() {
     """
         /* Adored
         /* by Nornoriel
@@ -78,12 +78,12 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic, 
+        .entry .userpic,
         .comment .userpic {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic img, 
+        .entry .userpic img,
         .comment .userpic img {
             background-color: $*color_entry_title_background;
         }
@@ -92,12 +92,12 @@ function Page::print_theme_stylesheet() {
             color: $*color_entry_link_hover;
         }
 
-        .entry .header .entry-title, 
+        .entry .header .entry-title,
         .entry .header .entry-title a {
             background-color: transparent;
         }
 
-        #comments .comment, 
+        #comments .comment,
         .bottomcomment {
             border-bottom: 1px solid $*color_entry_title_background;
             border-right: 1px solid $*color_entry_title_background;
@@ -118,23 +118,23 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_module_border;
         }
 
-        .module-calendar .empty-day, 
+        .module-calendar .empty-day,
         .month .day {
             background-color: $*color_module_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-calendar th, 
-        .module-calendar .entry-day, 
-        .month th, 
+        .module-calendar th,
+        .module-calendar .entry-day,
+        .month th,
         .month .day-has-entries {
             background-color: $*color_page_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-navlinks, 
-        .module-time, 
-        .module-powered, 
+        .module-navlinks,
+        .module-time,
+        .module-powered,
         .module-header {
             background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
             background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
@@ -233,7 +233,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-     """; 
+     """;
 }
 
 
@@ -365,6 +365,74 @@ set image_background_header_height = 0;
 set image_background_header_position = "top left";
 set image_background_header_repeat = "repeat";
 set image_background_header_url = "commons/argyle.png";
+
+
+#NEWLAYER: crisped/autumnflowers
+layerinfo type = "theme";
+layerinfo name = "Autumn Flowers";
+layerinfo redist_uniq = "crisped/autumnflowers";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/3748145/Autumn_Flowers" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#6e0000";
+set color_page_border = "#af0000";
+set color_page_link = "#feffa7";
+set color_page_link_visited = "#ff8b24";
+set color_page_subtitle = "#ffc28d";
+set color_page_text = "#ffc28d";
+set color_page_title = "#ffc28d";
+set color_header_background = "#6e0000";
+set color_footer_background = "#6e0000";
+set color_footer_link = "#e10d0d";
+set color_footer_link_visited = "#ff8b24";
+set color_calendar_background = "#6e0000";
+set color_calendar_link = "#e10d0d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#6e0000";
+set color_entry_border = "#af0000";
+set color_entry_interaction_links = "#e10d0d";
+set color_entry_link = "#e10d0d";
+set color_entry_link_visited = "#ff8b24";
+set color_entry_text = "#ffc28d";
+set color_entry_title = "#feffa7";
+set color_entry_title_background = "#6e0000";
+set color_comment_title = "#ffc28d";
+set color_comment_title_background = "#6e0000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#6e0000";
+set color_module_border = "#af0000";
+set color_module_link = "#e10d0d";
+set color_module_link_visited = "#ff8b24";
+set color_module_text = "#ffc28d";
+set color_module_title = "#ffc28d";
+set color_module_title_background = "#6e0000";
+
+function Page::print_theme_stylesheet() { """
+     /* REMOVING ALL THE UPPERCASE */
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/autumnflowers.png";
 
 
 #NEWLAYER: crisped/barrenwintertrees
@@ -2417,6 +2485,62 @@ set color_module_text = "#b7d698";
 set color_module_title = "#62902d";
 
 
+#NEWLAYER: crisped/enjoythelove
+layerinfo type = "theme";
+layerinfo name = "Enjoy the Love";
+layerinfo redist_uniq = "crisped/enjoythelove";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by *Darinka and OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/2453398/Enjoy_the_love*" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fad6c1";
+set color_page_link = "#7a5046";
+set color_page_link_visited = "#cc7677";
+set color_page_subtitle = "#000";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#f4bfae";
+set color_footer_background = "#f4bfae";
+set color_footer_link = "#7a5046";
+set color_footer_link_visited = "#cc7677";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#7a5046";
+set color_entry_link = "#7a5046";
+set color_entry_link_visited = "#cc7677";
+set color_entry_text = "#000";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#f4bfae";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f4bfae";
+set color_module_link = "#7a5046";
+set color_module_link_visited = "#cc7677";
+set color_module_text = "#000";
+set color_module_title = "#000";
+set color_module_title_background = "#f4bfae";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/enjoythelove.png";
+
+
 #NEWLAYER: crisped/fadingmesa
 layerinfo type = "theme";
 layerinfo name = "Fading Mesa";
@@ -2629,6 +2753,144 @@ function Page::print_theme_stylesheet () {
     }
     """;
 }
+
+
+#NEWLAYER: crisped/fallingflames
+layerinfo type = "theme";
+layerinfo name = "Falling Flames";
+layerinfo redist_uniq = "crisped/fallingflames";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/3712583/Falling_Flames" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#520202";
+set color_page_border = "#a30404";
+set color_page_link = "#c70000";
+set color_page_link_visited = "#f4f106";
+set color_page_subtitle = "#c70000";
+set color_page_text = "#f29613";
+set color_page_title = "#ec8958";
+set color_header_background = "#520202";
+set color_footer_background = "#520202";
+set color_footer_link = "#c70000";
+set color_footer_link_visited = "#f4f106";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#520202";
+set color_entry_border = "#a30404";
+set color_entry_interaction_links = "#c70000";
+set color_entry_link = "#c70000";
+set color_entry_link_visited = "#f4f106";
+set color_entry_text = "#ec8958";
+set color_entry_title = "#ec5825";
+set color_entry_title = "#ec8958";
+set color_entry_title_background = "#520202";
+set color_entry_title_background = "#520202";
+set color_comment_title = "#ec8958";
+set color_comment_title_background = "#af0404";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#520202";
+set color_module_border = "#a30404";
+set color_module_link = "#c70000";
+set color_module_link_visited = "#f4f106";
+set color_module_text = "#ec8958";
+set color_module_title = "#ec8958";
+set color_module_title_background = "#520202";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/fallingflames.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+     /* REMOVING ALL THE UPPERCASE */
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
+
+
+#NEWLAYER: crisped/fallingleaves
+layerinfo type = "theme";
+layerinfo name = "Falling Leaves";
+layerinfo redist_uniq = "crisped/fallingleaves";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/3729978/Falling_Leaves" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#001c0a";
+set color_page_border = "#001c0a";
+set color_page_link = "#85a286";
+set color_page_link_visited = "#85a286";
+set color_page_subtitle = "#d3ebcf";
+set color_page_text = "#d3ebcf";
+set color_page_title = "#d3ebcf";
+set color_header_background = "#001c0a";
+set color_footer_background = "#001c0a";
+set color_footer_link = "#85a286";
+set color_footer_link_visited = "#85a286";
+set color_calendar_background = "#001c0a";
+set color_calendar_link = "#85a286";
+set color_calendar_link_visited = "#85a286";
+set color_calendar_text = "#d3ebcf";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#001c0a";
+set color_entry_border = "#094600";
+set color_entry_interaction_links = "#85a286";
+set color_entry_link = "#85a286";
+set color_entry_link_visited = "#85a286";
+set color_entry_text = "#d3ebcf";
+set color_entry_title = "#d3ebcf";
+set color_entry_title_background = "#001c0a";
+set color_comment_title = "#d3ebcf";
+set color_comment_title_background = "#001c0a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#001c0a";
+set color_module_border = "#001c0a";
+set color_module_link = "#85a286";
+set color_module_link_visited = "#85a286";
+set color_module_text = "#d3ebcf";
+set color_module_title = "#d3ebcf";
+set color_module_title_background = "#001C0A";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/fallingleaves.png";
 
 
 #NEWLAYER: crisped/fatigued
@@ -3387,7 +3649,7 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_units = "em";
 set font_module_text_units = "em";
 
-function Page::print_theme_stylesheet() { 
+function Page::print_theme_stylesheet() {
     """
         /* Fresh Air
         /* by Nornoriel
@@ -3402,12 +3664,12 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic, 
+        .entry .userpic,
         .comment .userpic {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic img, 
+        .entry .userpic img,
         .comment .userpic img {
             background-color: $*color_entry_title_background;
         }
@@ -3416,12 +3678,12 @@ function Page::print_theme_stylesheet() {
             color: $*color_entry_link_hover;
         }
 
-        .entry .header .entry-title, 
+        .entry .header .entry-title,
         .entry .header .entry-title a {
             background-color: transparent;
         }
 
-        #comments .comment, 
+        #comments .comment,
         .bottomcomment {
             border-bottom: 1px solid $*color_entry_title_background;
             border-right: 1px solid $*color_entry_title_background;
@@ -3442,23 +3704,23 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_module_border;
         }
 
-        .module-calendar .empty-day, 
+        .module-calendar .empty-day,
         .month .day {
             background-color: $*color_module_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-calendar th, 
-        .module-calendar .entry-day, 
-        .month th, 
+        .module-calendar th,
+        .module-calendar .entry-day,
+        .month th,
         .month .day-has-entries {
             background-color: $*color_page_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-navlinks, 
-        .module-time, 
-        .module-powered, 
+        .module-navlinks,
+        .module-time,
+        .module-powered,
         .module-header {
             background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
             background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
@@ -3557,7 +3819,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-     """; 
+     """;
 }
 
 
@@ -4164,7 +4426,7 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_units = "em";
 set font_module_text_units = "em";
 
-function Page::print_theme_stylesheet() { 
+function Page::print_theme_stylesheet() {
     """
         /* Juno II
         /* by Nornoriel
@@ -4179,12 +4441,12 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic, 
+        .entry .userpic,
         .comment .userpic {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic img, 
+        .entry .userpic img,
         .comment .userpic img {
             background-color: $*color_entry_title_background;
         }
@@ -4193,12 +4455,12 @@ function Page::print_theme_stylesheet() {
             color: $*color_entry_link_hover;
         }
 
-        .entry .header .entry-title, 
+        .entry .header .entry-title,
         .entry .header .entry-title a {
             background-color: transparent;
         }
 
-        #comments .comment, 
+        #comments .comment,
         .bottomcomment {
             border-bottom: 1px solid $*color_entry_title_background;
             border-right: 1px solid $*color_entry_title_background;
@@ -4219,23 +4481,23 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_module_border;
         }
 
-        .module-calendar .empty-day, 
+        .module-calendar .empty-day,
         .month .day {
             background-color: $*color_module_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-calendar th, 
-        .module-calendar .entry-day, 
-        .month th, 
+        .module-calendar th,
+        .module-calendar .entry-day,
+        .month th,
         .month .day-has-entries {
             background-color: $*color_page_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-navlinks, 
-        .module-time, 
-        .module-powered, 
+        .module-navlinks,
+        .module-time,
+        .module-powered,
         .module-header {
             background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
             background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
@@ -4334,7 +4596,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-     """; 
+     """;
 }
 
 
@@ -4665,6 +4927,82 @@ function Page::print_theme_stylesheet() {
         """;
     }
 
+#NEWLAYER: crisped/lovelyflowersbloom
+layerinfo type = "theme";
+layerinfo name = "Lovely Flowers Bloom";
+layerinfo redist_uniq = "crisped/lovelyflowersbloom";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by KiMiNiToDoKe98 and OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/2476135/Lovely_Flowers_Bloom" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#310d0d";
+set color_page_border = "#a05a75";
+set color_page_link = "#ECC5C5";
+set color_page_link = "#d4b1b1";
+set color_page_link_visited = "#e1a8a6";
+set color_page_subtitle = "#f19f9f";
+set color_page_text = "#e1a8a6";
+set color_page_title = "#e1a8a6";
+set icons_page_sort = "keyword";
+set color_header_background = "#310d0d";
+set color_footer_background = "#310d0d";
+set color_footer_link = "#e1a8a6";
+set color_footer_link_visited = "#a05a75";
+set color_calendar_background = "#310d0d";
+set color_calendar_link = "#d4b1b1";
+set color_calendar_link_visited = "#e1a8a6";
+set color_calendar_text = "#e1a8a6";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#310d0d";
+set color_entry_border = "#a05a75";
+set color_entry_interaction_links = "#d4b1b1";
+set color_entry_interaction_links_visited = "#e1a8a6";
+set color_entry_link = "#d4b1b1";
+set color_entry_link_visited = "#e1a8a6";
+set color_entry_text = "#e1a8a6";
+set color_entry_title = "#e1a8a6";
+set color_entry_title_background = "#310d0d";
+set color_comment_title = "#e1a8a6";
+set color_comment_title_background = "#310d0d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#310d0d";
+set color_module_border = "#a05a75";
+set color_module_link = "#d4b1b1";
+set color_module_link_visited = "#e1a8a6";
+set color_module_text = "#e1a8a6";
+set color_module_title = "#e1a8a6";
+set color_module_title_background = "#310d0d";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/lovelyflowersbloom.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+     /* REMOVING ALL THE UPPERCASE */
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
+
 
 #NEWLAYER: crisped/lowfrequency
 layerinfo type = "theme";
@@ -4785,7 +5123,7 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_units = "em";
 set font_module_text_units = "em";
 
-function Page::print_theme_stylesheet() { 
+function Page::print_theme_stylesheet() {
     """
         /* Moonstone
         /* by Nornoriel
@@ -4800,12 +5138,12 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic, 
+        .entry .userpic,
         .comment .userpic {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic img, 
+        .entry .userpic img,
         .comment .userpic img {
             background-color: $*color_entry_title_background;
         }
@@ -4814,12 +5152,12 @@ function Page::print_theme_stylesheet() {
             color: $*color_entry_link_hover;
         }
 
-        .entry .header .entry-title, 
+        .entry .header .entry-title,
         .entry .header .entry-title a {
             background-color: transparent;
         }
 
-        #comments .comment, 
+        #comments .comment,
         .bottomcomment {
             border-bottom: 1px solid $*color_entry_title_background;
             border-right: 1px solid $*color_entry_title_background;
@@ -4840,23 +5178,23 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_module_border;
         }
 
-        .module-calendar .empty-day, 
+        .module-calendar .empty-day,
         .month .day {
             background-color: $*color_module_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-calendar th, 
-        .module-calendar .entry-day, 
-        .month th, 
+        .module-calendar th,
+        .module-calendar .entry-day,
+        .month th,
         .month .day-has-entries {
             background-color: $*color_page_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-navlinks, 
-        .module-time, 
-        .module-powered, 
+        .module-navlinks,
+        .module-time,
+        .module-powered,
         .module-header {
             background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
             background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
@@ -4955,7 +5293,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-     """; 
+     """;
 }
 
 
@@ -6441,6 +6779,80 @@ set color_module_text = "#fbfae8";
 set font_base = "'Palatino Linotype', Georgia, Palatino";
 
 
+#NEWLAYER: crisped/pastelflowersonplum
+layerinfo type = "theme";
+layerinfo name = "Pastel Flowers on Plum";
+layerinfo redist_uniq = "crisped/pastelflowersonplum";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/3729836/Pastel_on_Plum" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1e0026";
+set color_page_border = "#1e0026";
+set color_page_link = "#d9d4ff";
+set color_page_link_visited = "#c7ffe6";
+set color_page_subtitle = "#ffd4e7";
+set color_page_text = "#ffd4e7";
+set color_page_title = "#ffd4e7";
+set color_header_background = "#1e0026";
+set color_footer_background = "#1e0026";
+set color_footer_link = "#d9d4ff";
+set color_footer_link_visited = "#c7ffe6";
+set color_calendar_background = "#1e0026";
+set color_calendar_link = "#d9d4ff";
+set color_calendar_text = "#ffd4e7";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#1e0026";
+set color_entry_border = "#1e0026";
+set color_entry_interaction_links = "#d9d4ff";
+set color_entry_link = "#d9d4ff";
+set color_entry_link_visited = "#c7ffe6";
+set color_entry_text = "#ffd4e7";
+set color_entry_title = "#ffd4e7";
+set color_entry_title_background = "#1e0026";
+set color_comment_title = "#ffd4e7";
+set color_comment_title_background = "#1e0026";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#1e0026";
+set color_module_border = "#1e0026";
+set color_module_link = "#d9d4ff";
+set color_module_link_visited = "#c7ffe6";
+set color_module_text = "#ffd4e7";
+set color_module_title = "#d9d4ff";
+set color_module_title_background = "#1e0026";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/pastelonplum.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+     /* REMOVING ALL THE UPPERCASE */
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
+
+
 #NEWLAYER: crisped/peekaboo
 layerinfo type = "theme";
 layerinfo name = "Peekaboo";
@@ -6505,7 +6917,7 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_units = "em";
 set font_module_text_units = "em";
 
-function Page::print_theme_stylesheet() { 
+function Page::print_theme_stylesheet() {
     """
         /* Peekaboo
         /* by Nornoriel
@@ -6520,12 +6932,12 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic, 
+        .entry .userpic,
         .comment .userpic {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic img, 
+        .entry .userpic img,
         .comment .userpic img {
             background-color: $*color_entry_title_background;
         }
@@ -6534,12 +6946,12 @@ function Page::print_theme_stylesheet() {
             color: $*color_entry_link_hover;
         }
 
-        .entry .header .entry-title, 
+        .entry .header .entry-title,
         .entry .header .entry-title a {
             background-color: transparent;
         }
 
-        #comments .comment, 
+        #comments .comment,
         .bottomcomment {
             border-bottom: 1px solid $*color_entry_title_background;
             border-right: 1px solid $*color_entry_title_background;
@@ -6560,23 +6972,23 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_module_border;
         }
 
-        .module-calendar .empty-day, 
+        .module-calendar .empty-day,
         .month .day {
             background-color: $*color_module_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-calendar th, 
-        .module-calendar .entry-day, 
-        .month th, 
+        .module-calendar th,
+        .module-calendar .entry-day,
+        .month th,
         .month .day-has-entries {
             background-color: $*color_page_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-navlinks, 
-        .module-time, 
-        .module-powered, 
+        .module-navlinks,
+        .module-time,
+        .module-powered,
         .module-header {
             background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
             background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
@@ -6675,7 +7087,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-     """; 
+     """;
 }
 
 
@@ -7245,6 +7657,71 @@ set color_module_border = "#D8D8A8";
 set color_module_title = "#301818";
 set color_module_title_background = "#D8D8A8";
 set color_calendar_background = "#D8D8A8";
+
+
+#NEWLAYER: crisped/rosewood
+layerinfo type = "theme";
+layerinfo name = "Rosewood";
+layerinfo redist_uniq = "crisped/rosewood";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by KittnChopz and huege", "url" => "http://www.colourlovers.com/pattern/2329014/rosewood" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ce8080";
+set color_page_border = "#DEA1A1";
+set color_page_link = "#facfce";
+set color_page_link_visited = "#a397d5";
+set color_page_title = "#facfce";
+set color_header_background = "#ce8080";
+set color_footer_background = "#ce8080";
+set color_footer_link = "#facfce";
+set color_footer_link_visited = "#a397d5";
+set color_calendar_background = "#ce8080";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ce8080";
+set color_entry_border = "#DEA1A1";
+set color_entry_link = "#facfce";
+set color_entry_link_visited = "#a397d5";
+set color_entry_title_background = "#ce8080";
+set color_comment_title_background = "#ce8080";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ce8080";
+set color_module_border = "#DEA1A1";
+set color_module_link = "#facfce";
+set color_module_link_visited = "#a397d5";
+set color_module_text = "#352123";
+set color_module_title_background = "#ce8080";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/rosewood.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+     /* REMOVING ALL THE UPPERCASE */
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
 
 
 #NEWLAYER: crisped/sejour
@@ -7888,6 +8365,79 @@ set font_module_text = "'Courier New'";
 set font_module_text_units = "em";
 
 
+#NEWLAYER: crisped/skygarden
+layerinfo type = "theme";
+layerinfo name = "Sky Garden";
+layerinfo redist_uniq = "crisped/skygarden";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by ereseigh and OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/2474878/Petunia_Garden" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3a3150";
+set color_page_link = "#b9c8b9";
+set color_page_link_visited = "#788994";
+set color_page_subtitle = "#f3e9c5";
+set color_page_text = "#f3e9c5";
+set color_page_title = "#f3e9c5";
+set color_header_background = "#3a3150";
+set color_footer_link = "#f3e9c5";
+set color_footer_link_visited = "#788994";
+set color_calendar_background = "#3a3150";
+set color_calendar_link = "#b9c8b9";
+set color_calendar_link_visited = "#788994";
+set color_calendar_text = "#f3e9c5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3a3150";
+set color_entry_border = "#504963";
+set color_entry_interaction_links = "#b9c8b9";
+set color_entry_link = "#b9c8b9";
+set color_entry_link_visited = "#788994";
+set color_entry_text = "#f3e9c5";
+set color_entry_title = "#f3e9c5";
+set color_entry_title_background = "#3a3150";
+set color_comment_title = "#f3e9c5";
+set color_comment_title_background = "#3a3150";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#3a3150";
+set color_module_border = "#504963";
+set color_module_link = "#b9c8b9";
+set color_module_link_visited = "#788994";
+set color_module_text = "#f3e9c5";
+set color_module_title = "#f3e9c5";
+set color_module_title_background = "#3a3150";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/skygarden.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+     /* REMOVING ALL THE UPPERCASE */
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
+
+
 #NEWLAYER: crisped/solyluna
 layerinfo type = "theme";
 layerinfo name = "Sol y Luna";
@@ -7955,6 +8505,75 @@ set color_calendar_link_active = "#ff0";
 set color_calendar_link_hover = "#fffb91";
 set color_calendar_link_visited = "#CBFF00";
 set color_calendar_text = "#fbfaee";
+
+
+#NEWLAYER: crisped/speckles
+layerinfo type = "theme";
+layerinfo name = "Speckles";
+layerinfo redist_uniq = "crisped/speckles";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/1359171/Speckles" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#25064a";
+set color_page_border = "#eaadde";
+set color_page_link = "#eaadde";
+set color_page_link_visited = "#31e2ff";
+set color_page_subtitle = "#eaadde";
+set color_page_text = "#fff167";
+set color_page_title = "#fff167";
+set color_header_background = "#25064a";
+set color_footer_background = "#25064a";
+set color_footer_link = "#eaadde";
+set color_footer_link_visited = "#31e2ff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#25064a";
+set color_entry_border = "#eaadde";
+set color_entry_interaction_links = "#eaadde";
+set color_entry_link = "#eaadde";
+set color_entry_link_visited = "#31e2ff";
+set color_entry_text = "#fff167";
+set color_entry_title = "#eaadde";
+set color_entry_title_background = "#25064a";
+set color_comment_title = "#eaadde";
+set color_comment_title_background = "#25064a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#25064a";
+set color_module_border = "#eaadde";
+set color_module_link = "#eaadde";
+set color_module_link_visited = "#31e2ff";
+set color_module_text = "#fff167";
+set color_module_title = "#eaadde";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/speckles.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+     /* REMOVING ALL THE UPPERCASE */
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
 
 
 #NEWLAYER: crisped/summersunset
@@ -8193,7 +8812,7 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_units = "em";
 set font_module_text_units = "em";
 
-function Page::print_theme_stylesheet() { 
+function Page::print_theme_stylesheet() {
     """
         /* Timeless
         /* by Nornoriel
@@ -8208,12 +8827,12 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic, 
+        .entry .userpic,
         .comment .userpic {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic img, 
+        .entry .userpic img,
         .comment .userpic img {
             background-color: $*color_entry_title_background;
         }
@@ -8222,12 +8841,12 @@ function Page::print_theme_stylesheet() {
             color: $*color_entry_link_hover;
         }
 
-        .entry .header .entry-title, 
+        .entry .header .entry-title,
         .entry .header .entry-title a {
             background-color: transparent;
         }
 
-        #comments .comment, 
+        #comments .comment,
         .bottomcomment {
             border-bottom: 1px solid $*color_entry_title_background;
             border-right: 1px solid $*color_entry_title_background;
@@ -8248,23 +8867,23 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_module_border;
         }
 
-        .module-calendar .empty-day, 
+        .module-calendar .empty-day,
         .month .day {
             background-color: $*color_module_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-calendar th, 
-        .module-calendar .entry-day, 
-        .month th, 
+        .module-calendar th,
+        .module-calendar .entry-day,
+        .month th,
         .month .day-has-entries {
             background-color: $*color_page_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-navlinks, 
-        .module-time, 
-        .module-powered, 
+        .module-navlinks,
+        .module-time,
+        .module-powered,
         .module-header {
             background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
             background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
@@ -8363,7 +8982,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-     """; 
+     """;
 }
 
 
@@ -8433,6 +9052,82 @@ set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
 set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
 set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 set font_module_text_units = "em";
+
+
+#NEWLAYER: crisped/tropic
+layerinfo type = "theme";
+layerinfo name = "Tropic";
+layerinfo redist_uniq = "crisped/tropic";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/2156009/Tropic" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#400f2d";
+set color_page_border = "#dd3330";
+set color_page_link = "#c8444d";
+set color_page_link_visited = "#dd3330";
+set color_page_subtitle = "#dd3330";
+set color_page_text = "#fce980";
+set color_page_title = "#fce980";
+set color_header_background = "#400f2d";
+set color_footer_background = "#400f2d";
+set color_footer_link = "#c8444d";
+set color_footer_link_visited = "#dd3330";
+set color_calendar_background = "#400f2d";
+set color_calendar_link = "#dd3330";
+set color_calendar_link_visited = "#dd3330";
+set color_calendar_text = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#400f2d";
+set color_entry_border = "#dd3330";
+set color_entry_interaction_links = "#c8444d";
+set color_entry_interaction_links_visited = "#dd3330";
+set color_entry_link = "#c8444d";
+set color_entry_link_visited = "#dd3330";
+set color_entry_text = "#fce980";
+set color_entry_title = "#fce980";
+set color_entry_title_background = "#400f2d";
+set color_comment_title = "#fce980";
+set color_comment_title_background = "#400f2d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#400f2d";
+set color_module_border = "#dd3330";
+set color_module_link = "#c8444d";
+set color_module_link_hover = "#e03848";
+set color_module_link_visited = "#dd3330";
+set color_module_text = "#fce980";
+set color_module_title = "#fce980";
+set color_module_title_background = "#400f2d";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/tropic.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+     /* REMOVING ALL THE UPPERCASE */
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
 
 
 #NEWLAYER: crisped/turtle
@@ -8893,7 +9588,7 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_units = "em";
 set font_module_text_units = "em";
 
-function Page::print_theme_stylesheet() { 
+function Page::print_theme_stylesheet() {
     """
         /* Whisper
         /* by Nornoriel
@@ -8908,12 +9603,12 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic, 
+        .entry .userpic,
         .comment .userpic {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic img, 
+        .entry .userpic img,
         .comment .userpic img {
             background-color: $*color_entry_title_background;
         }
@@ -8922,12 +9617,12 @@ function Page::print_theme_stylesheet() {
             color: $*color_entry_link_hover;
         }
 
-        .entry .header .entry-title, 
+        .entry .header .entry-title,
         .entry .header .entry-title a {
             background-color: transparent;
         }
 
-        #comments .comment, 
+        #comments .comment,
         .bottomcomment {
             border-bottom: 1px solid $*color_entry_title_background;
             border-right: 1px solid $*color_entry_title_background;
@@ -8948,23 +9643,23 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_module_border;
         }
 
-        .module-calendar .empty-day, 
+        .module-calendar .empty-day,
         .month .day {
             background-color: $*color_module_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-calendar th, 
-        .module-calendar .entry-day, 
-        .month th, 
+        .module-calendar th,
+        .module-calendar .entry-day,
+        .month th,
         .month .day-has-entries {
             background-color: $*color_page_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-navlinks, 
-        .module-time, 
-        .module-powered, 
+        .module-navlinks,
+        .module-time,
+        .module-powered,
         .module-header {
             background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
             background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
@@ -9063,7 +9758,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-     """; 
+     """;
 }
 
 
@@ -9184,7 +9879,7 @@ set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_units = "em";
 set font_module_text_units = "em";
 
-function Page::print_theme_stylesheet() { 
+function Page::print_theme_stylesheet() {
     """
         /* Wish
         /* by Nornoriel
@@ -9199,12 +9894,12 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic, 
+        .entry .userpic,
         .comment .userpic {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-        .entry .userpic img, 
+        .entry .userpic img,
         .comment .userpic img {
             background-color: $*color_entry_title_background;
         }
@@ -9213,12 +9908,12 @@ function Page::print_theme_stylesheet() {
             color: $*color_entry_link_hover;
         }
 
-        .entry .header .entry-title, 
+        .entry .header .entry-title,
         .entry .header .entry-title a {
             background-color: transparent;
         }
 
-        #comments .comment, 
+        #comments .comment,
         .bottomcomment {
             border-bottom: 1px solid $*color_entry_title_background;
             border-right: 1px solid $*color_entry_title_background;
@@ -9239,23 +9934,23 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_module_border;
         }
 
-        .module-calendar .empty-day, 
+        .module-calendar .empty-day,
         .month .day {
             background-color: $*color_module_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-calendar th, 
-        .module-calendar .entry-day, 
-        .month th, 
+        .module-calendar th,
+        .module-calendar .entry-day,
+        .month th,
         .month .day-has-entries {
             background-color: $*color_page_background;
             border: 1px solid $*color_module_border;
         }
 
-        .module-navlinks, 
-        .module-time, 
-        .module-powered, 
+        .module-navlinks,
+        .module-time,
+        .module-powered,
         .module-header {
             background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
             background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
@@ -9354,7 +10049,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 1px 2px 3px $*color_entry_border;
         }
 
-     """; 
+     """;
 }
 
 
