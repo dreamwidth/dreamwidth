@@ -306,9 +306,8 @@ sub _init {
     my $min_animation;
     if ( $u ) {
         # icons
-	warn ("I");
         @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
-	warn Data::Dumper::Dumper(@icons);
+
         @icons = LJ::Userpic->separate_keywords( \@icons )
             if @icons;
 

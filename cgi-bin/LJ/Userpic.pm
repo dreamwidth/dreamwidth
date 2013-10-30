@@ -1236,7 +1236,6 @@ sub set_and_rename_keywords {
             # if it does, we have to remap it
             if ( $mapid ) {
                 my $oldid = $u->get_mapid_from_keyword( $origkw );
-
                 # redirect the old mapid to the new mapid
                 $u->do( "UPDATE userpicmap3 SET kwid = NULL, picid = NULL, redirect_mapid = ? WHERE mapid = ? AND userid = ?",
                         undef, $mapid, $oldid, $u->id );

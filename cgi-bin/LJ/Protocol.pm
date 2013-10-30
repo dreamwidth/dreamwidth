@@ -536,11 +536,14 @@ sub sendmessage
 
     my @msg;
     BML::set_language('en'); # FIXME
-
+    
     foreach my $to (@to) {
         my $tou = LJ::load_user($to);
         return fail($err, 100, $to)
             unless $tou;
+        
+        my $msguserpic = undef;
+        $msguserpic = $req->{'userpic'} if ( defined $msguserpic );
 
         my $msg = LJ::Message->new({
                     journalid => $u->userid,
@@ -548,7 +551,7 @@ sub sendmessage
                     subject => $subject_text,
                     body => $body_text,
                     parent_msgid => defined $req->{'parent'} ? $req->{'parent'} + 0 : undef,
-                    userpic => $req->{'userpic'} || undef,
+                    userpic => $msguserpic,
                   });
 
         push @msg, $msg
