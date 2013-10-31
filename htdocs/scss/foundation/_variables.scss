@@ -67,3 +67,5 @@ $button-font-lrg: emCalc(16px);
 // FORMS
 $form-label-font-size: emCalc(16px);
 $input-font-size:      emCalc(16px);
+$form-spacing:         emCalc(16px);
+$input-error-message-top: -($form-spacing) - emCalc(6px);
