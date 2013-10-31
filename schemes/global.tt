@@ -68,15 +68,12 @@
 
 [%# sections.errors are instances of DW::FormErrors %]
 [%- IF sections.errors.exist -%]
-<div class="row"><div class="large-12 columns">
-    <div class="panel">
-    <ol>
-    [%- FOREACH err = sections.errors.get_all -%]
-        <li>[%- err.message | ml( err.args ) -%]</li>
-    [%- END -%]
-    </ol>
+<div class="row">
+    <div class="columns large-12">
+        [%- FOREACH err = sections.errors.get_all -%]
+            <div class="alert-box alert radius">[%- err.message | ml( err.args ) -%]</div>
+        [%- END -%]
     </div>
-</div></div>
+</div>
 [%- END -%]
-
 [%- END -%]
