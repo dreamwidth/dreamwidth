@@ -32,27 +32,20 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </dl>
 
 [%- IF messages.size > 0 or roles_changed.size > 0 -%]
-<div class="panel">
-<ul>
   [%- FOREACH msg = messages -%]
-    <li>[% msg.0 | ml( msg.1 ) %]</li>
+    <div class="alert-box">[% msg.0 | ml( msg.1 ) %]</div>
   [%- END -%]
   [%- FOREACH role = roles_changed -%]
-    <li>[%-  role.user -%]
-      <ul>
+    <div class="alert-box success">[%-  role.user -%] - 
       [%- IF role.added.size > 0 -%]
-        <li>[%- '.success.added' | ml -%]
-        [%- role.added.join( ", ") -%]</li>
+        [%- '.success.added' | ml( list = role.added.join( ", " ) ) -%]
       [%- END -%]
+      [%- IF role.added.size > 0 and role.removed.size > 0 -%]; [% END -%]
       [%- IF role.removed.size > 0 -%]
-        <li>[%- '.success.removed' | ml -%]
-        [%- role.removed.join( ", ") -%]</li>
+        [%- '.success.removed' | ml( list = role.removed.join( ", ") ) -%]
       [%- END -%]
-      </ul>
-    </li>
+    </div>
   [%- END -%]
-</ul>
-</div>
 [%- END -%]
 
 [%- IF user_list.size > 0 -%]
@@ -63,8 +56,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <tr>
         <th scope="row"><span id="select-all">[% 'select_all.label' | ml %]</span></th>
         [%- FOREACH role = roles -%]
-          <th><input type="checkbox" id="header_[% role %]" data-select-all="[% role %]" aria-labelledby="select-all header_[% role %]_label" />
-              <label id="header_[% role %]_label" for="header_[% role %]">[% ".role.$role" | ml %]
+          <th><label id="header_[% role %]_label" for="header_[% role %]"><input type="checkbox" id="header_[% role %]" data-select-all="[% role %]" aria-labelledby="select-all header_[% role %]_label" /> [% ".role.$role" | ml %]
           </label></th>
         [%- END -%]
     </tr>
@@ -110,7 +102,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                           labelclass="hidden" ) -%]
       </div>
       <div class="large-4 columns">
-        [%- form.submit( value = dw.ml( '.find.button' ), class = "small secondary button postfix" ) -%]
+        [%- form.submit( value = dw.ml( '.find.button' ), class = "secondary button postfix" ) -%]
       </div>
     </div>
     </form>
@@ -121,7 +113,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <h2>Clean Up List</h2>
     <form method="POST" action="[% form_purge_action_url %]">
       [%- form.hidden( name = "authas", value = community.username ) -%]
-      [%- form.submit( value = dw.ml( '.purge.button' ), class = 'small secondary button' ) -%]
+      [%- form.submit( value = dw.ml( '.purge.button' ), class = 'secondary button' ) -%]
     </form>
   </div>
 </div>

@@ -20,25 +20,25 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/pages/communities/new.css"
 ) -%]
 
-<div class="row"><div class="columns large-6 large-centered">
+
 <form action="[% site.root %]/communities/new" method="POST">
     [% dw.form_auth %]
     <fieldset>
         <legend>[% '.form.comminfo.legend' | ml %]</legend>
-        <div class="row collapse"><div class="columns">
-            <label for="user">[% '.form.comminfo.user.label' | ml %]</label>
-            <div class="small-7 large-8 columns">
-            [%- form.textbox(
-                name = "user"
-                id   = "user"
-                maxlength = 25
-                class = "journaltype-textbox community-textbox"
-            ) -%]
-            </div>
-            <div class="small-5 large-4 columns"><span class="postfix">.[% site.domain %]</span></div>
-        </div></div>
 
-        <div class="row"><div class="columns">
+            <div class="row collapse">
+                <label for="user">[% '.form.comminfo.user.label' | ml %]</label>
+                <div class="small-7 large-8 columns">
+                [%- form.textbox(
+                    name = "user"
+                    id   = "user"
+                    maxlength = 25
+                    class = "journaltype-textbox community-textbox"
+                ) -%]
+                </div>
+                <div class="small-5 large-4 columns"><span class="postfix">.[% site.domain %]</span></div>
+            </div>
+
             [%- form.textbox(
                 label = dw.ml( '.form.comminfo.title.label' )
                 hint = dw.ml( '.form.comminfo.title.hint' )
@@ -46,7 +46,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 id    = "title"
                 maxlength = 80
             ) -%]
-        </div></div>
     </fieldset>
 
     <fieldset>
@@ -73,40 +72,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </fieldset>
 
     <fieldset>
-        <legend>[% '.form.postlevel.legend' | ml %]</legend>
-        <div class="subheader">[% '.form.postlevel.subhead' | ml %]</div>
-        [%- form.radio_nested(
-            label = dw.ml( '.form.postlevel.members.label' )
-            name  = "postlevel"
-            id    = "postlevel_members"
-            value = "members"
-        ) -%]
-        [%- form.radio_nested(
-            label = dw.ml( '.form.postlevel.select.label' )
-            name  = "postlevel"
-            id    = "postlevel_select"
-            value = "select"
-        ) -%]
-    </fieldset>
-
-    <fieldset>
-        <legend>[% '.form.nonmember_posting.legend' | ml %]</legend>
-        <div class="subheader">[% '.form.nonmember_posting.subhead' | ml %]</div>
-        [%- form.radio_nested(
-            label = dw.ml( '.form.nonmember_posting.closed.label' )
-            name  = "nonmember_posting"
-            id    = "nonmember_closed"
-            value = 0
-        ) -%]
-        [%- form.radio_nested(
-            label = dw.ml( '.form.nonmember_posting.open.label' )
-            name  = "nonmember_posting"
-            id    = "nonmember_open"
-            value = 1
-        ) -%]
-    </fieldset>
-
-    <fieldset>
         <legend>[% '.form.moderated.legend' | ml %]</legend>
         <div class="subheader">[% '.form.moderated.subhead' | ml %]</div>
         [%- form.radio_nested(
@@ -123,34 +88,23 @@ the same terms as Perl itself.  For a copy of the license, please reference
         ) -%]
     </fieldset>
 
-    [%- IF age_restriction_enabled -%]
     <fieldset>
-        <legend>[% '.form.age_restriction.legend' | ml %]</legend>
-        <div class="subheader">[% '.form.age_restriction.subhead' | ml %]</div>
+        <legend>[% '.form.postlevel.legend' | ml %]</legend>
+        <div class="subheader">[% '.form.postlevel.subhead' | ml %]</div>
         [%- form.radio_nested(
-            label = dw.ml( '.form.age_restriction.none.label' )
-            name  = "age_restriction"
-            id    = "age_restriction_none"
-            value = "none"
+            label = dw.ml( '.form.postlevel.members.label' )
+            name  = "postlevel"
+            id    = "postlevel_members"
+            value = "members"
         ) -%]
         [%- form.radio_nested(
-            label = dw.ml( '.form.age_restriction.concepts.label' )
-            name  = "age_restriction"
-            id    = "age_restriction_concepts"
-            value = "concepts"
-        ) -%]
-        [%- form.radio_nested(
-            label = dw.ml( '.form.age_restriction.explicit.label' )
-            name  = "age_restriction"
-            id    = "age_restriction_explicit"
-            value = "explicit"
+            label = dw.ml( '.form.postlevel.select.label' )
+            name  = "postlevel"
+            id    = "postlevel_select"
+            value = "select"
         ) -%]
     </fieldset>
-    [%- END -%]
 
-    <div class="row"><div class="columns large-12">
-        [% form.submit( value = dw.ml( '.form.submit.create' ) ) %]
-    </div></div>
+    [% form.submit( value = dw.ml( '.form.submit.create' ) ) %]
 
 </form>
-</div></div>

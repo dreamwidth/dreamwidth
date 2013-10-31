@@ -435,6 +435,7 @@ sub members_handler {
         # now show messages for each succesful change we did
         my %done;
         my %role_strings = map { $_ => LJ::Lang::ml( "/communities/members/edit.tt.role.$_" ) } %readable_to_roletype;
+        my $remote_uid = $remote->userid;
         foreach my $uid ( keys %add_user_to_role, keys %delete_user_to_role ) {
             next if $done{$uid}++;
 
@@ -443,7 +444,9 @@ sub members_handler {
 
             my ( $changed_roles_msg, @added_roles, @removed_roles );
             push @added_roles, $role_strings{$_}
-                foreach keys %{$add_user_to_role{$uid} || {}};
+                foreach grep { $_ ne "member"           # reinvited members need to confirm, so we don't want a success message
+                                || $uid == $remote_uid  # but if you're adding yourself as a member, that's fine
+                            } keys %{$add_user_to_role{$uid} || {}};
             push @removed_roles , $role_strings{$_}
                 foreach keys %{$delete_user_to_role{$uid} || {}};
             push @roles_changed, { user => $u->ljuser_display, added => \@added_roles, removed => \@removed_roles } if @added_roles || @removed_roles;
