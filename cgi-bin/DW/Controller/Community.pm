@@ -235,6 +235,8 @@ sub new_handler {
         age_restriction_enabled => LJ::is_enabled( 'adult_content' ),
 
         errors => $errors,
+
+        version => $get->{v} || 1,
     };
 
     $vars->{formdata} = $post || {
