@@ -1,6 +1,8 @@
 ;; -*- coding: utf-8 -*-
 .btn.change=Change email address
 
+.error.header=There were errors in your request:
+
 .error.invalidemail=Invalid email address.
 
 .error.invalidpassword=Invalid password.
@@ -26,6 +28,8 @@
 .label.password2=[[remote]]'s current password:
 
 .label.username=Account name:
+
+.label.warning=Warning: 
 
 .newemail.body.openid<<
 You have just entered an email address for your OpenID account "[[username]]" at [[sitename]]. To validate this address, please go to:
@@ -78,4 +82,3 @@ Regards,
 .success.text=Email address changed successfully.
 
 .title=Change Email Address
-
