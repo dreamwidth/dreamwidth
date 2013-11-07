@@ -1090,6 +1090,10 @@ sub load_comments
                     $post->{'echi_count'} = 0;
                     $post->{'echi_type'} = 'N';
                 }
+                # Count number of non-whitespace characters in echi
+                my $char_count = $post->{echi} =~ tr/a-zA-Z0-9//;
+                # Add a whitespace every ten non-whitespace characters
+                $post->{echi} = $post->{echi} . ' ' if ( $char_count % 10 == 0 );
             }
         }
     }
