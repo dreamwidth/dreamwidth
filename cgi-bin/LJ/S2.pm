@@ -2956,12 +2956,12 @@ sub print_search_form {
     my $search_form = '<div class="search-form">';
     $search_form .= '<form method="post" action="'. $LJ::SITEROOT. '/search?user=' . $ju->user . '">';
     $search_form .= LJ::form_auth();
-    $search_form .= '<input class="search-box" type="text" name="query" maxlength="255">';
+    $search_form .= '<span class="search-box-item"><input class="search-box" type="text" name="query" maxlength="255"></span>';
     if ( $ju->allow_comments_indexed ) {
-        $search_form .= '<br/><input class="comment_search_checkbox" name="with_comments" id="with_comments" type="checkbox">';
-        $search_form .= '<label for="with_comments">Include comments</label></br>';
+        $search_form .= '<span class="comment_search_checkbox_item"><input class="comment_search_checkbox" name="with_comments" id="with_comments" type="checkbox"></span>';
+        $search_form .= '<span class="comment_search_label"><label for="with_comments">Include comments</label></span>';
     }
-    $search_form .= '<input class="search-button" type="submit" value="' . $_[1] . '" />';
+    $search_form .= '<span class="search-button-item"><input class="search-button" type="submit" value="' . $_[1] . '" /></span>';
     $search_form .= '</form></div>';
 
     S2::pout( $search_form );

@@ -683,6 +683,13 @@ $header_modulewrapper
     border: none;
     display: none;
     }
+	
+#header .module-search .search-form .search-box-item,
+#header .module-search .search-form .comment_search_checkbox_item,
+#header .module-search .search-form .comment_search_label,
+#header .module-search .search-form .search-button-item {
+    display: inline;
+    }
 
 /* Entries
 ******************************/

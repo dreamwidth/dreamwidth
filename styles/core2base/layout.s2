@@ -746,6 +746,15 @@ ul.userlite-interaction-links.text-links {
     max-width: 100%;
 }
 
+.search-form .search-box-item, 
+.search-form .search-button-item {
+    display: block
+}
+
+.search-form .comment_search_checkbox_item {
+    display: inline
+}
+
 /* wrap long content, particularly openid usernames */
 .module-pagesummary .ljuser {
     white-space: normal !important;
