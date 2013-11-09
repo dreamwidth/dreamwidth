@@ -263,7 +263,7 @@ sub _process_value_and_label {
             $args->{$valuekey} = $self->{data}->{$args->{name}};
         }
         # no data source, value not set explicitly, use a default if provided
-        $args->{$valuekey} = $default unless  defined( $args->{$valuekey} || $self->{did_post} );
+        $args->{$valuekey} //= $default unless $self->{did_post};
     }
 
     my $label_html = "";

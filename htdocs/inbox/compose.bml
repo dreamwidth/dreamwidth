@@ -133,7 +133,7 @@ body<=
                     next;
                 }
 
-                my $msguserpic = undef;
+                my $msguserpic;
                 $msguserpic = $POST{'prop_picture_keyword'} if ( defined $POST{'prop_picture_keyword'} );
 
                 push @msg_list, LJ::Message->new({journalid => $remote_id,

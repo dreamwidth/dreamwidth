@@ -560,7 +560,7 @@ sub user_search_display {
     # of the user's default all userpics
     my $get_picid = sub {
         my $u = shift;
-        return $u->{'defaultpicid'} unless defined ( $args{'pickwd'} );
+        return $u->{'defaultpicid'} unless defined $args{'pickwd'};
         return $u->get_picid_from_keyword( $args{pickwd} );
     };
 

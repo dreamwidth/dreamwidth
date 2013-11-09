@@ -380,7 +380,7 @@ sub alttext {
 
     # 1. If there is a keyword associated with the icon, use it.
     # 2. If it was chosen via the default icon, show "(Default)".
-    if ( defined ( $kw ) ) {
+    if ( defined $kw ) {
         $alt .= " (" . $kw . ")";
     } else {
         $alt .= " (Default)";
@@ -405,7 +405,7 @@ sub titletext {
 
     # 1. If there is a keyword associated with the icon, use it.
     # 2. If it was chosen via the default icon, show "(Default)".
-    if ( defined ( $kw ) ) {
+    if ( defined $kw ) {
         $title .= " " . $kw;
     } else {
         $title .= " (Default)";

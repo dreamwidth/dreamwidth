@@ -542,8 +542,8 @@ sub sendmessage
         return fail($err, 100, $to)
             unless $tou;
         
-        my $msguserpic = undef;
-        $msguserpic = $req->{'userpic'} if ( defined $msguserpic );
+        my $msguserpic;
+        $msguserpic = $req->{'userpic'} if defined $req->{'userpic'};
 
         my $msg = LJ::Message->new({
                     journalid => $u->userid,
@@ -1286,7 +1286,7 @@ sub postevent
         unless common_event_validation($req, $err, $flags);
 
     # now we can move over to picture_mapid instead of picture_keyword if appropriate
-    if ( $req->{props} && defined( $req->{props}->{picture_keyword} ) && $u->userpic_have_mapid ) {
+    if ( $req->{props} && defined $req->{props}->{picture_keyword}  && $u->userpic_have_mapid ) {
         $req->{props}->{picture_mapid} = $u->get_mapid_from_keyword( $req->{props}->{picture_keyword}, create => $flags->{create_unknown_picture_mapid} || 0 );
         delete $req->{props}->{picture_keyword};
     }
@@ -1981,7 +1981,7 @@ sub editevent
     if ( $req->{props} && defined $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
         $req->{props}->{picture_mapid} = '';
         $req->{props}->{picture_mapid} = $u->get_mapid_from_keyword( $req->{props}->{picture_keyword}, create => $flags->{create_unknown_picture_mapid} || 0 )
-            if ( defined $req->{props}->{picture_keyword} );
+            if defined $req->{props}->{picture_keyword};
         delete $req->{props}->{picture_keyword};
     }
 

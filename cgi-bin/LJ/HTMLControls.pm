@@ -207,7 +207,7 @@ sub _html_option {
     my $sel = "";
     # multiple-mode or single-mode?
     if ( $selref && ( ref $selref eq 'HASH' ) && $selref->{$value} ||
-        defined( $opts->{selected} ) && ( $opts->{selected} eq $value ) && ! $$did_sel++ ) {
+        defined $opts->{selected}  && ( $opts->{selected} eq $value ) && ! $$did_sel++ ) {
 
         $sel = " selected='selected'";
     }

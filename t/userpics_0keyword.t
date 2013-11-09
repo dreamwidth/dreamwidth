@@ -1,19 +1,15 @@
 # t/userpics_nokeywords.t
 #
-# Test LJ::Userpic.
+# Tests for the use of userpics with the keyword '0' 
+# NB.  Although this tests commenting and posting backends it
+# doesn't test the User Interface or Protocol.  Nor anything to do
+# with messaging.
 #
-# This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by
-# Dreamwidth Studios, LLC. These files were originally licensed under
-# the terms of the license supplied by Live Journal, Inc, which can
-# currently be found at:
+# Copyright (c) 2008-2010 by Dreamwidth Studios, LLC.
 #
-# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
-#
-# In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License.
-# A copy of that license can be found in the LICENSE file included as
-# part of this distribution.
+# This program is free software; you may redistribute it and/or modigy it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 use strict;
 use warnings;
