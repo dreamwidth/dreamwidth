@@ -1054,6 +1054,14 @@ ul.userlite-interaction-links.icon-links li {
 .module-search .search-form { margin: .2em auto; }
 .module-search .search-box { margin: .2em; max-width:100%; }
 
+.search-form .search-box-item, 
+.search-form .search-button-item {
+    display: block
+}
+.search-form .comment_search_checkbox_item {
+    display: inline
+}
+
 #tertiary .module-content ul {
     list-style-position: disc outside;
     margin-left: 1em;

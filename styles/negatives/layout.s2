@@ -451,6 +451,14 @@ function Page::print_default_stylesheet()
         max-width: 100%;
     }
 
+	.search-form .search-box-item, 
+    .search-form .search-button-item {
+        display: block
+    }
+    .search-form .comment_search_checkbox_item {
+        display: inline
+    }
+
     .entry, .entry-wrapper, .comment, .comment-wrapper {
         min-height: 110px;
         border:5px solid $*color_entry_border;

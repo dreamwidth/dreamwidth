@@ -628,6 +628,20 @@ function Page::print_default_stylesheet()
     /* Search Module
     ***************************************************************************/
     .search-box { max-width: 100%; }
+	
+	.search-form .search-box-item, 
+    .search-form .search-button-item {
+        display: block
+    }
+    .search-form .comment_search_checkbox_item {
+        display: inline
+    }
+	
+	#footer .module-search .search-form .search-box-item,
+    #footer .module-search .search-form .comment_search_label,
+    #footer .module-search .search-form .search-button-item {
+        display: inline;
+    }
 
     /* Tag Module
     ***************************************************************************/
