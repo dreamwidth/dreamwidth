@@ -51,8 +51,8 @@ sub render_body {
 
         my $link = qq{<a href=".?view=$link_view" class="$class" id="esn_folder_$link_view">};
         $link .= BML::ml( $link_label );
-        $link .= " $img" if $img;
         $link .= $unread if $unread;
+        $link .= " $img" if $img;
         $link .= qq{</a>\n};
         return $link;
     };
@@ -97,7 +97,7 @@ sub render_body {
     $body .= $subfolder_link->( "usermsg_sent", "inbox.menu.sent", "subs", 
         $unread_html->( $inbox->usermsg_sent_event_count ) ) if LJ::is_enabled( 'user_messaging' );
     $body .= qq{<span class="subs">&nbsp;</span>\n};
-    $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", "", LJ::img( 'flag', '' ) );
+    $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", $unread_html->( $inbox->bookmark_count ), LJ::img( 'flag', '' ) );
     $body .= $subfolder_link->( "archived", "inbox.menu.archive", "subs" ) if LJ::is_enabled( 'esn_archive' );
     $body .= qq{
             </p></div>&nbsp;<br />

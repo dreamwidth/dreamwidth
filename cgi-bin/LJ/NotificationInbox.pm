@@ -573,6 +573,13 @@ sub can_add_bookmark {
     return 1;
 }
 
+# return count of unread bookmarks
+sub bookmark_count {
+    my ( $self, $count ) = @_;
+    my $unread_bookmark_count = scalar grep { $_->unread } $self->bookmark_items;
+    return $unread_bookmark_count;
+}
+
 sub delete_all {
     my ( $self, $view, %args ) = @_;
     my @items;
