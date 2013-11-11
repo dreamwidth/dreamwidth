@@ -193,7 +193,7 @@ sub get_menu_navigation {
                     display => $loggedin_hasjournal,
                 },
                 {
-                    url => "$LJ::SITEROOT/tools/recent_comments",
+                    url => "$LJ::SITEROOT/comments/recent",
                     text => "menunav.read.recentcomments",
                     display => $loggedin,
                 },

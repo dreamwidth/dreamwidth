@@ -1,0 +1,49 @@
+;; -*- coding: utf-8 -*-
+.anonymous=Anonymous
+
+.comment=Comment
+
+.comment.deleted=Comment Deleted
+
+.comment.link=Comment Link
+
+.comments=Comments
+
+.delete=Delete
+
+.delete.link=delete
+
+.edit=Edit
+
+.edit.link=edit
+
+.entry=Entry
+
+.entry.link=Entry Link
+
+.last.num.posted.by=Last [[num]] comments [[user]] has posted
+
+.last.num.posted.in=Last [[num]] comments posted in
+
+.latest.posted=Latest Posted
+
+.latest.received=Latest Received
+
+.location=Location
+
+.managesettings=Manage Comment Settings
+
+.maxnotshown=Your account is only permitted to view the latest [[current]] comments, not the full limit of [[max]].
+
+.no.comments.posted= No comments have been posted in:
+
+.post.deleted=Entry Deleted
+
+.reply=*: This comment has been replied to.
+
+.time=Time
+
+.title=Manage Comments
+
+.view.latest=View Latest
+

@@ -289,7 +289,9 @@ function deleteComment (ditemid) {
     };
 
     xtr.onreadystatechange = state_callback;
-    xtr.open("POST", "/" + LJ_cmtinfo.journal + "/__rpc_delcomment?mode=js&journal=" + LJ_cmtinfo.journal + "&id=" + ditemid, true);
+    // Set to LJ_cmtinfo[ditemid].postedin on /comments/posted if comment was posted in a journal other than the user's
+    var posted_in = LJ_cmtinfo[ditemid].postedin || LJ_cmtinfo.journal;
+    xtr.open("POST", "/" + LJ_cmtinfo.journal + "/__rpc_delcomment?mode=js&journal=" + posted_in + "&id=" + ditemid, true); 
     var postdata = "confirm=1";
     if (opt_ban) postdata += "&ban=1";
     if (opt_spam) postdata += "&spam=1";

@@ -1,0 +1,104 @@
+[%# posted.tt
+
+Recent posted comments page
+
+Authors:
+    hotlevel4 <hotlevel4@hotmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- dw.need_res( 'js/commentmanage.js' ) -%]
+
+[%- sections.title = '.title' | ml -%]
+
+<form method='get' action='/comments/posted'>
+    [% authas_html %]
+</form>
+
+<div class='action-box' style='text-align: center'><div class='inner'>
+[% IF u.is_person || u.is_community %]
+    [% IF count != show %]
+        [<a href='[% site.root %]/comments/recent?show=[% count %]'>[% '.latest.received' | ml %]</a>]
+    [% ELSE %]
+        [<a href='[% site.root %]/comments/recent'>[% '.latest.received' | ml %]</a>]
+    [% END %]
+[% END %]
+[% IF u.is_person %]
+    [[% '.latest.posted' | ml %]]
+[% END %]
+[<a href='[% site.root %]/manage/comments[% getextra %]'>[% '.managesettings' | ml %]</a>]<br />
+[% '.view.latest' | ml %] [
+[% FOREACH val = values %]
+    [% IF val <= max %]
+        [% IF val == count %]
+            <b>[% val %]</b>
+        [% ELSE %]
+            <a href='?show=[% val %][% getextra %]'>[% val %]</a>
+        [% END %]
+    [% END %]
+[% END %]
+] [% '.comments' | ml %]</div></div><div class='clear-floats'></div>
+
+<h1> [% '.latest.posted' | ml %]</h1><p>
+[% IF comments %]
+    [% '.last.num.posted.by' | ml( num = count, user = u.ljuser_display ) %]<p>
+    <table style='text-align: left'>
+        <thead><tr>
+            <th>[% '.time' | ml %]</th>
+            <th>[% '.location' | ml %]</th>
+            <th>[% '.delete' | ml %]</th>
+            [% IF canedit %]
+                <th>[% '.edit' | ml %]</th>
+            [% END %]
+        </tr></thead>
+        [% FOREACH r = comments %]
+            <tr><td>
+            [% IF r.postdeleted %]
+                [% r.hr_ago %]
+            [% ELSE %]
+                <a href=[% r.talkurl %]>[% r.hr_ago %]</a></td>
+            [% END %]
+            <td>[% r.ju.ljuser_display %]: 
+            [% IF r.postdeleted %] 
+                [% '.post.deleted' | ml %]
+            [% ELSE %]
+                [% r.subject %] <a href=[% r.logurl %]>(link)</a>[% r.candelete %]
+            [% END %]
+            </td>
+            <td id='cmt[% r.talkid %]'>            
+            [% IF NOT r.deletelink and NOT r.postdeleted %]
+                [% '.comment.deleted' | ml %]
+            [% ELSIF NOT r.postdeleted %]
+                <a href='[% r.deletelink %]'>[% '.delete.link' | ml %]</a>
+            [% END %]
+            </td>
+            <td id='cmt[% r.talkid %]_e'>
+                [% IF r.editlink %]
+                    <a href=[% r.editlink %]>[% '.edit.link' | ml %]</a>
+                [% END %]
+            </td></tr>
+        [% END %]
+    </table>
+    [% '.reply' | ml %]    
+[% ELSE %]
+    [% '.no.comments.posted' | ml %] [% u.ljuser_display %]
+[% END %]
+
+[% UNLESS max >= sitemax %]
+    <p /><p>[% '.maxnotshown' | ml( current = max, max = sitemax ) %]</p>
+[% END %]
+
+<script>
+    var LJ_cmtinfo = [% LJ_cmtinfo %];
+    function userhook_delete_comment_ARG (talkid) {
+        hideElement('cmt'+talkid); 
+        hideElement('cmt'+talkid+'_e');
+    }
+    var Site; 
+    if (!Site) Site = new Object(); 
+    Site.imgprefix = "[% site.imgroot %]";
+</script>
