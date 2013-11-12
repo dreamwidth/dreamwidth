@@ -12,7 +12,9 @@
 
 .actions.members=Members
 
-.actions.moderation=[[num]] in queue
+.actions.moderation.entries=Entries [[num]]
+
+.actions.moderation.members=Members [[num]]
 
 .actions.new_entry=New Entry
 
