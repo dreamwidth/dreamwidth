@@ -204,7 +204,7 @@ sub _save_msgprop_row_to_db {
 
     my $propval = $self->userpic;
 
-    if ($propval) {
+    if ( defined $propval ) {
         my $tm = $self->typemap;
         my $propid = $tm->class_to_typeid('userpic');
         my $sql = "INSERT INTO usermsgprop (journalid, msgid, propid, propval) " .

@@ -380,7 +380,7 @@ sub alttext {
 
     # 1. If there is a keyword associated with the icon, use it.
     # 2. If it was chosen via the default icon, show "(Default)".
-    if ($kw) {
+    if ( defined $kw ) {
         $alt .= " (" . $kw . ")";
     } else {
         $alt .= " (Default)";
@@ -405,7 +405,7 @@ sub titletext {
 
     # 1. If there is a keyword associated with the icon, use it.
     # 2. If it was chosen via the default icon, show "(Default)".
-    if ($kw) {
+    if ( defined $kw ) {
         $title .= " " . $kw;
     } else {
         $title .= " (Default)";
@@ -1236,7 +1236,6 @@ sub set_and_rename_keywords {
             # if it does, we have to remap it
             if ( $mapid ) {
                 my $oldid = $u->get_mapid_from_keyword( $origkw );
-
                 # redirect the old mapid to the new mapid
                 $u->do( "UPDATE userpicmap3 SET kwid = NULL, picid = NULL, redirect_mapid = ? WHERE mapid = ? AND userid = ?",
                         undef, $mapid, $oldid, $u->id );
@@ -1294,7 +1293,7 @@ sub sort {
 
     for my $pic ( @$userpics ) {
         my $pickw = $pic->keywords( raw => 1 );
-        if ( $pickw ) {
+        if ( defined $pickw ) {
             $kwhash{$pickw} = $pic;
         } else {
             $pickw = $pic->keywords;
@@ -1324,10 +1323,11 @@ sub separate_keywords {
 
     my @userpic_array;
     my @nokw_array;
+
     foreach my $userpic ( @$userpics ) {
         my @keywords = $userpic->keywords( raw => 1 );
         foreach my $keyword ( @keywords ) {
-            if ( $keyword ) {
+            if ( defined $keyword ) {
                 push @userpic_array, { keyword => $keyword, userpic => $userpic };
             } else {
                 $keyword = $userpic->keywords;

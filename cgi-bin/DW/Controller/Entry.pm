@@ -307,6 +307,7 @@ sub _init {
     if ( $u ) {
         # icons
         @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
+
         @icons = LJ::Userpic->separate_keywords( \@icons )
             if @icons;
 
@@ -802,6 +803,7 @@ sub _backend_to_form {
 #             };
 
     # direct translation of prop values to the form
+
     my %formprops = map { $_ => $entry->prop( $form_to_props{$_} ) } keys %form_to_props;
 
     # some properties aren't in the hash above, so go through them manually

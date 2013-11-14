@@ -245,7 +245,7 @@ sub display_pic {
     my $pic;
 
     # Get the userpic object
-    if ( $msg->userpic ) {
+    if ( defined $msg->userpic ) {
         $pic = LJ::Userpic->new_from_keyword($u, $msg->userpic);
     } else {
         $pic = $u->userpic;
@@ -254,7 +254,7 @@ sub display_pic {
     # Get the image URL and the alternative text. Don't set
     # alternative text if there isn't any userpic.
     my ( $userpic_src, $userpic_alt );
-    if ( $pic ) {
+    if ( defined $pic ) {
         $userpic_src = $pic->url;
         $userpic_alt = LJ::ehtml( $pic->alttext( $msg->userpic ) );
     } else {
@@ -280,7 +280,7 @@ sub raw_info {
     my $msg = $self->load_message;
 
     my $pic;
-    if ($msg->userpic) {
+    if ( defined $msg->userpic ) {
         $pic = LJ::Userpic->new_from_keyword($msg->other_u, $msg->userpic);
     } else {
         $pic = $msg->other_u->userpic;

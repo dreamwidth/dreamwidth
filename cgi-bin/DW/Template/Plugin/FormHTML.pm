@@ -168,6 +168,7 @@ sub select {
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, use_as_value => "selected" );
     $ret .= LJ::html_select( $args, @{$items || []} );
+
     return $ret;
 }
 
@@ -261,9 +262,8 @@ sub _process_value_and_label {
         if ( $self->{data} && ! $opts{noautofill} && $args->{name} ) {
             $args->{$valuekey} = $self->{data}->{$args->{name}};
         }
-
         # no data source, value not set explicitly, use a default if provided
-        $args->{$valuekey} ||= $default unless $self->{did_post};
+        $args->{$valuekey} //= $default unless $self->{did_post};
     }
 
     my $label_html = "";

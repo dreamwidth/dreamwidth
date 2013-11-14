@@ -536,11 +536,14 @@ sub sendmessage
 
     my @msg;
     BML::set_language('en'); # FIXME
-
+    
     foreach my $to (@to) {
         my $tou = LJ::load_user($to);
         return fail($err, 100, $to)
             unless $tou;
+        
+        my $msguserpic;
+        $msguserpic = $req->{'userpic'} if defined $req->{'userpic'};
 
         my $msg = LJ::Message->new({
                     journalid => $u->userid,
@@ -548,7 +551,7 @@ sub sendmessage
                     subject => $subject_text,
                     body => $body_text,
                     parent_msgid => defined $req->{'parent'} ? $req->{'parent'} + 0 : undef,
-                    userpic => $req->{'userpic'} || undef,
+                    userpic => $msguserpic,
                   });
 
         push @msg, $msg
@@ -1283,7 +1286,7 @@ sub postevent
         unless common_event_validation($req, $err, $flags);
 
     # now we can move over to picture_mapid instead of picture_keyword if appropriate
-    if ( $req->{props} && $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
+    if ( $req->{props} && defined $req->{props}->{picture_keyword}  && $u->userpic_have_mapid ) {
         $req->{props}->{picture_mapid} = $u->get_mapid_from_keyword( $req->{props}->{picture_keyword}, create => $flags->{create_unknown_picture_mapid} || 0 );
         delete $req->{props}->{picture_keyword};
     }
@@ -1975,10 +1978,10 @@ sub editevent
         unless common_event_validation($req, $err, $flags);
 
     # now we can move over to picture_mapid instead of picture_keyword if appropriate
-    if ( $req->{props} && exists $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
+    if ( $req->{props} && defined $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
         $req->{props}->{picture_mapid} = '';
         $req->{props}->{picture_mapid} = $u->get_mapid_from_keyword( $req->{props}->{picture_keyword}, create => $flags->{create_unknown_picture_mapid} || 0 )
-            if $req->{props}->{picture_keyword};
+            if defined $req->{props}->{picture_keyword};
         delete $req->{props}->{picture_keyword};
     }
 
