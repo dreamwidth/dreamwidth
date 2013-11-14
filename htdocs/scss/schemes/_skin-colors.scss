@@ -15,6 +15,11 @@
 a:visited {
     color: $anchor-font-color-visited;
 }
+
+.ljuser a {
+     color: $strong-accent-color;
+}
+
 a:hover, a:active {
     color: $anchor-font-color-hover;
 }
@@ -28,9 +33,11 @@ nav {
 }
 
 /**
- * Form elements
+ * Header
  */
 
-.submit {
-    @extend .button;
- }
+h1 {
+    color: $page-title-color;
+}
+
+@import "schemes/form-elements";
