@@ -29,7 +29,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         dw_scheme.need_res({ group => 'jquery' },  old_css_files );
 
         dw_scheme.need_res({ group => 'foundation' },
-            'stc/css/schemes/celerity.css'
+            'stc/css/skins/celerity.css'
         );
     -%]
 [%- END -%]
@@ -64,8 +64,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 <div class="row"><div class="large-12 columns">
                     <h1>[% sections.title %]</h1>
                 </div></div>
-                [% PROCESS block.errors %]
-                [% content %]
+
+                [%- PROCESS block.errors -%]
+
+                <div class="row"><div class="large-12 columns">
+                    [%- content -%]
+                </div></div>
+
                 </div><!--end content-->
                 <div id="page-decoration"></div>
             </div><!-- end page-->

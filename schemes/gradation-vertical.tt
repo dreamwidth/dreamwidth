@@ -29,7 +29,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         dw_scheme.need_res({ group => 'jquery' },  old_css_files );
 
         dw_scheme.need_res({ group => 'foundation' },
-            'stc/css/schemes/gradation/gradation-vertical.css',
+            'stc/css/skins/gradation/gradation-vertical.css',
         );
     -%]
 [%- END -%]

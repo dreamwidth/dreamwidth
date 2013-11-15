@@ -40,7 +40,7 @@ $form-font-color:    $_off-black;
 $form-bg-color:      $_white;
 $form-border-color:  $_low-contrast-gray;
 
-@import "schemes/alert-colors";
+@import "skins/alert-colors";
 
 
 // foundation global variables
@@ -117,7 +117,7 @@ $sidebar-width:                        9em;
 $masthead-height:                      6.875em;
 $header-offset-height:                 2em;
 
-@import "schemes/skin-colors", "schemes/nav", "schemes/skiplink";
+@import "skins/skin-colors", "skins/nav", "skins/skiplink";
 
 a:hover,
 a:active {
@@ -203,7 +203,7 @@ footer { border-top: 4px double $header-image-color;
     @include grid-row( nest-collapse );
 }
 
-@import "schemes/page-layout-hacks";
+@import "skins/page-layout-hacks";
 
 @media #{$topbar-media-query} {
     #page {
