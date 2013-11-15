@@ -29,6 +29,7 @@ use IO::Socket::INET;
 use MIME::Lite;
 use Mail::Address;
 use MIME::Words qw( encode_mimeword );
+use Text::Markdown;
 
 my $done_init = 0;
 sub init {
@@ -238,4 +239,83 @@ sub send_mail
     return 0;
 }
 
+=head2 C<< LJ::send_formatted_mail( %opts ) >>
+
+Wrapper around LJ::send_mail.
+
+Sends an email in the form of:
+
+[[greeting]],
+[[body as plaintext/html]]
+[[footer]]
+
+The greeting and footer are generated automatically. The body must not include these.
+
+Required arguments:
+
+=over
+=item to - email address
+=item from - email address
+=item subject
+=item body - The body is formatted automatically using Markdown; there's no need to do any text processing yourself.
+=back
+
+Optional arguments:
+=over
+=item greeting_user - the name to greet this user by. If not provided, we don't show the greeting
+=item toname - display name
+=item fromname - display name
+=item cc
+=item bcc
+=item charset
+=back
+
+
+=cut
+
+sub send_formatted_mail {
+    my ( %opts ) = @_;
+
+    my ( $html_body, $plain_body ) = LJ::format_mail( $opts{body}, $opts{greeting_user} );
+    return LJ::send_mail( {
+        to      => $opts{to},
+        from    => $opts{from},
+        subject => $opts{subject},
+
+        body    => $plain_body,
+        html    => $html_body,
+
+        toname      => $opts{toname},
+        fromname    => $opts{fromname},
+        cc          => $opts{cc},
+        bcc         => $opts{bcc},
+        charset     => $opts{charset},
+    } );
+}
+
+=head2 C<< LJ::format_mail( $text )>>
+
+Returns the formatted version of the text as a list of: ( $html_body, $plaintext_body )
+
+Automatically appends greeting and footer.
+
+=cut
+
+sub format_mail {
+    my ( $text, $greeting_user ) = @_;
+
+    my $greeting = $greeting_user ? LJ::Lang::ml( "email.greeting", { user => $greeting_user } ) : "";
+    my $footer = LJ::Lang::ml( "email.footer", { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT } );
+
+    $text = "$greeting\n\n$text\n\n$footer";
+
+    # use markdown to format from text to HTML
+    my $html = Text::Markdown::markdown( $text );
+
+    # use plaintext as-is, but look for "[links like these](url)", and change them to "links like these (url)"
+    my $plaintext = $text;
+    $plaintext =~ s/\[(.*?)\]\(/$1 (/g;
+
+    return ( $html, $plaintext );
+}
 1;

@@ -1,0 +1,24 @@
+// color names. Only use these variables in the color assignment section
+$_black: #000;
+
+// color assignment
+$text-color: $_black;
+
+@import "schemes/alert-colors";
+
+
+$body-font-color:   $text-color;
+
+// we want to base these on $body-font-color rather than the random variables they're based on
+$code-color:                            tint( $body-font-color, 20% );
+$blockquote-font-color:                 tint( $body-font-color, 20% );
+$small-font-color:                      $body-font-color;
+
+$include-html-classes: true;
+@import "foundation";
+
+@import "schemes/skin-colors";
+
+#content {
+    @include grid-row(container);
+}

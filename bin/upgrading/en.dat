@@ -449,6 +449,17 @@ email.emailreset.error=Unable to update user record for [[user]]
 
 email.emailreset.subject=Email Address Reset
 
+email.footer<<
+Regards,
+[[sitename]] Team
+
+[[siteroot]]
+.
+
+email.greeting<<
+Dear [[user]],
+.
+
 email.invitecoderequest.accept.body2<<
 Your previous request for invite codes has been granted. You received [[number]] invite [[?number|code|codes]] from site administrators, listed below:
 

@@ -1,0 +1,12 @@
+// shared colors for elements between themes
+$_gray:             #e9e9e9;
+$_orange:           #ffbc88;
+$_light-orange:     #fff0e4;
+$_light-green:      #e1eed7;
+$_light-yellow:     #fbf9dd;
+
+$success-color:         $_light-green;
+$alert-color:           $_orange;
+$alert-box-color:       $_light-yellow;
+$alert-box-error-color: $_light-orange;
+$alert-close-color:     $_gray;

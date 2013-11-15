@@ -24,23 +24,29 @@
   // "foundation/components/reveal",
   // "foundation/components/joyride",
   // "foundation/components/clearing",
-  "foundation/components/alert-boxes",
+  "components/foundation-custom/alert-boxes",
   // "foundation/components/breadcrumbs",
   // "foundation/components/keystrokes",
-  // "foundation/components/labels",
+  "foundation/components/labels",
   // "foundation/components/inline-lists",
-  // "foundation/components/pagination",
-  "foundation/components/panels";
+
+  "foundation/components/pagination",
+  "components/foundation-custom/pagination",
+
+  "components/foundation-custom/panels",
+
   // "foundation/components/pricing-tables",
-  // "foundation/components/progress-bars",
+  "foundation/components/progress-bars",
+
   // "foundation/components/side-nav",
-  // "foundation/components/sub-nav",
+  "foundation/components/sub-nav",
   // "foundation/components/switch"
   // "foundation/components/magellan",
-  // "foundation/components/tables",
+
+   "foundation/components/tables",
+   "components/foundation-custom/tables",
+
   // "foundation/components/thumbs",
   // "foundation/components/tooltips",
   // "foundation/components/dropdown";
-
-
-
+  "foundation/components/dropdown";

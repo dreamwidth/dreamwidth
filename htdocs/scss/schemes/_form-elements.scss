@@ -1,0 +1,41 @@
+/**
+* Site-wide customizations to form elements
+*/
+
+// make .submit act the same as a .button
+.submit {
+    @extend .button;
+ }
+
+// add the userhead in front of .user-textbox, etc
+input.journaltype-textbox {
+  font-weight: bold;
+  color: $anchor-font-color;
+}
+@each $journaltype in user, community, feed, openid {
+    input.#{$journaltype}-textbox, input.#{$journaltype}-textbox:focus {
+        background: url(/img/silk/identity/#{$journaltype}.png) 5px 50% no-repeat $input-bg-color;
+        padding-left: 5px + 16px + 5px !important;
+    }
+}
+
+.form-hint {
+  display: block;
+  margin-top: -($form-spacing);
+  margin-bottom: $form-spacing;
+  font-size: emCalc(12px);
+}
+
+legend {
+  color: $header-font-color;
+}
+
+fieldset {
+    border-width: 0;
+    border-top-width: 1px;
+}
+
+@import "mixins/screenreader-friendly";
+label.hidden {
+  @extend %screenreader-friendly;
+}

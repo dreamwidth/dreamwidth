@@ -84,6 +84,7 @@ $glowing-effect-color: $input-focus-border-color !default;
 }
 
 // We use this mixin to give all basic form elements their style
+$form-element-height: 13px;
 @mixin form-element() {
   background-color: $input-bg-color;
   font-family: $input-font-family;
@@ -97,7 +98,7 @@ $glowing-effect-color: $input-focus-border-color !default;
   font-size: $input-font-size;
   margin: 0 0 $form-spacing 0;
   padding: $form-spacing / 2;
-  height: emCalc(13px) + ($form-spacing * 1.5);
+  height: emCalc($form-element-height) + ($form-spacing * 1.5);
   width: 100%;
   @include box-sizing(border-box);
   @if $input-include-glowing-effect {
@@ -151,8 +152,10 @@ $glowing-effect-color: $input-focus-border-color !default;
   border-width: $input-prefix-border-size;
   overflow: $input-prefix-overflow;
   font-size: $form-label-font-size;
-  height: ($form-label-font-size + ($form-spacing * 1.5) - emCalc(1px));
-  line-height: ($form-label-font-size + ($form-spacing * 1.5) - emCalc(1px));
+  // $form-label-font-size (px) - $form-element-size to get it to line up with the inputs
+  $font-size-in-px: ( $form-label-font-size * $em-base ) / 1em;
+  height: ($form-label-font-size + ($form-spacing * 1.5) - emCalc( $font-size-in-px - $form-element-height ) );
+  line-height: ($form-label-font-size + ($form-spacing * 1.5) - emCalc( $font-size-in-px - $form-element-height ));
 }
 
 // We use this mixin to create prefix label styles
@@ -161,7 +164,7 @@ $glowing-effect-color: $input-focus-border-color !default;
   @if $bg {
     $bg-lightness: lightness($bg);
     background: $bg;
-    border-color: darken($bg, 10%);
+    border-color: $input-prefix-border-color;
     border-#{$opposite-direction}: none;
 
     // Control the font color based on background brightness
@@ -186,7 +189,7 @@ $glowing-effect-color: $input-focus-border-color !default;
   @if $bg {
     $bg-lightness: lightness($bg);
     background: $bg;
-    border-color: darken($bg, 15%);
+    border-color: $input-prefix-border-color;
     border-#{$default-float}: none;
 
     // Control the font color based on background brightness

@@ -1,35 +1,82 @@
+// color names. Only use these variables in the color assignment section
+$_white:            #fff;
+$_black:            #111;
+$_off-black:        #222;
+$_dark-gray:        #666;
+$_low-contrast-gray:#888;
+$_very-light-green: #e9e9e0;
+$_light-green:      #cccc99;
+$_dark-green:       #999966;
 
-// very strong color, for emphasis. use sparingly
-$strong-accent-color: #E9E9E0;
+// color assignment
+$background-color:    $_black;
+$text-color:          $_very-light-green;
+$link-color:          $_light-green;
+
+$primary-color:       $_dark-green;
+$primary-text-color:  $_white;
+$secondary-color:     $_dark-gray;
+$strong-accent-color: $_very-light-green;
+$soft-accent-color:   $_dark-green;
+$border-color:        $_low-contrast-gray;
+
+$form-font-color:     $_white;
+$form-bg-color:       $_off-black;
+$form-border-color:   $_low-contrast-gray;
+
+@import "schemes/alert-colors-dark";
 
 
 // foundation global variables
-$body-bg: #111111 url('/img/gradation/blackfade.png') top repeat-x;
-
-$body-font-color: #e9e9e0;
-$body-font-family: Arial, Verdana, sans-serif;
-$base-line-height: 1.5;
-
-// background colors for various components
-$primary-color: #999966;
-$secondary-color: #666666;
-$alert-color: #5a2d2e;
-$success-color: #2B5229;
+$body-bg:           $background-color url('/img/gradation/blackfade.png') top repeat-x;
+$body-font-color:   $text-color;
+$body-font-family:  Arial, Verdana, sans-serif;
+$base-line-height:  1.5;
 
 // foundation type variables
 // We use these to control header font styles
 $header-font-family:                   Arial, sans-serif;
-$header-font-color:                    $strong-accent-color;
+$page-title-color:                     $primary-color;
+$header-font-color:                    darken( $body-font-color, 10% );
+$list-side-margin:                     1em;
 
-// override colors based on $header-font-color
-$small-font-color:                     $body-font-color;
-$code-color:                           lighten( $body-font-color, 30% );
+// we want to base these on $body-font-color rather than the random variables they're based on
+$code-color:                            tint( $body-font-color, 20% );
+$blockquote-font-color:                 tint( $body-font-color, 20% );
+$small-font-color:                      $body-font-color;
 
 // We use these to style anchors
 $anchor-text-decoration:               underline;
-$anchor-font-color:                    #cccc99;
+$anchor-font-color:                    $link-color;
 $anchor-font-color-visited:            shade( $anchor-font-color, 20% );
 $anchor-font-color-hover:              lighten( $anchor-font-color, 30% );
+
+// forms
+$form-label-font-color:                 darken($form-font-color, 20%);
+$input-font-color:                      $form-font-color;
+$input-bg-color:                        $form-bg-color;
+$input-focus-bg-color:                  lighten( $input-bg-color, 2% );
+$input-border-color:                    lighten( $input-bg-color, 20% );
+$input-focus-border-color:              lighten( $input-bg-color, 40% );
+$input-disabled-bg:                     $form-border-color;
+$fieldset-border-color:                 $form-border-color;
+$legend-bg:                             $background-color;
+$input-prefix-bg:                       lighten( $input-bg-color, 30% );
+$input-prefix-font-color:               $input-font-color;
+$input-prefix-border-color:             $input-border-color;
+$button-color:                          $primary-text-color;
+
+// panel
+$panel-bg:                              lighten( $background-color, 30% );
+$panel-callout-bg:                      change-color( $soft-accent-color, $lightness:lightness($panel-bg) );
+
+// tables
+$table-bg:                              $form-bg-color;
+$table-even-row-bg:                     $background-color;
+$table-border-color:                    $border-color;
+$table-head-bg:                         $primary-color;
+$table-head-font-color:                 $primary-text-color;
+$table-row-font-color:                  $text-color;
 
 // navigation
 $topbar-bg:                            #222222 !default;
@@ -44,19 +91,6 @@ $topbar-dropdown-link-bg:              #333333;
 
 $topbar-menu-link-color:               $topbar-link-color;
 $topbar-menu-icon-color:               $topbar-link-color;
-
-// form elements
-$input-bg-color:                       #222222;
-$input-focus-bg-color:                 lighten( $input-bg-color, 2% );
-$input-focus-border-color:             lighten( $input-bg-color, 40% );
-$input-font-color:                     #ffffff;
-$input-border-color:                   #888888;
-
-$legend-bg:                            $input-bg-color;
-$fieldset-border-color:                #888888;
-
-$input-prefix-bg:                      lighten( $input-bg-color, 50% );
-$input-prefix-font-color:              $input-font-color;
 
 $include-html-classes: true;
 @import "foundation";
@@ -107,7 +141,7 @@ ul { list-style: circle; }
  */
 
 #content {
-    @include grid-row(false);
+    @include grid-row( nested-collapse );
     padding-top: 1.5em;
 }
 

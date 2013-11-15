@@ -5,14 +5,22 @@
 <link rel="home" title="[% 'lynx.nav.home' | ml %]" href="[% site.root %]/" />
 <link rel="contents" title="[% 'lynx.nav.sitemap' | ml %]" href="[% site.root %]/site/" />
 <link rel="help" title="[% 'lynx.nav.help' | ml %]" href="[% site.root %]/support/" />
-[% dw_scheme.need_res(
+[%- dw_scheme.need_res({ group => "default"}
     'stc/jquery/jquery.ui.theme.smoothness.css',
     'stc/lj_base-app.css',
     'stc/base-colors-light.css',
-    'stc/lynx/lynx.css' ) %]
+    'stc/lynx/lynx.css' ) -%]
+[%- dw_scheme.need_res({ group => "jquery"}
+    'stc/jquery/jquery.ui.theme.smoothness.css',
+    'stc/lj_base-app.css',
+    'stc/base-colors-light.css',
+    'stc/lynx/lynx.css' ) -%]
+[%- dw_scheme.need_res({ group => "foundation"}, 'stc/css/schemes/lynx.css') -%]
+[%- IF resource_group != "foundation" -%]
 <style>
     #Comments q { padding-left: 2.5em; font-style: italic; }
 </style>
+[%- END -%]
 <title>[% sections.windowtitle || sections.title %]</title>
 [% dw_scheme.res_includes %]
 [% sections.head %]
@@ -20,22 +28,35 @@
 
 <body [% sections.bodyopts %]>
 
-<div role="main">
-[% content %]
+<div role="main" id="content">
+    <div class="row">
+        <div class="columns large-12">
+        <h1>[% sections.title %]</h1>
+        </div>
+    </div>
+
+    [%- PROCESS block.errors -%]
+
+    <div class="row"><div class="large-12 columns">
+        [%- content -%]
+    </div></div>
 </div>
 
 <hr />
-<div role="navigation"><p>[ <a href='[% site.root %]/'>[% 'lynx.nav.home' | ml %]</a> | <a href='[% site.root %]/update'>[% 'lynx.nav.update' | ml %]</a> |
-[%- IF remote %][% baseurl = remote.journal_base %]
-<a href='[% baseurl %]/'>[% 'lynx.nav.recent' | ml %]</a> | <a href='[% baseurl %]/read'>[% 'lynx.nav.friends' | ml %]</a> |
-<a href='[% site.root %]/logout'>[% 'lynx.nav.logout' | ml %]</a> | [% remote.ljuser_display %] |
-[%- ELSE %]
-<a href='[% site.root %]/login'>[% 'lynx.nav.login' | ml %]</a> | 
-[%- END %]
-<a href='[% site.root %]/tools/search'>[% 'lynx.nav.search' | ml %]</a> | 
-<a href='[% site.root %]/manage/settings/'>[% 'lynx.nav.siteopts' | ml %]</a> | 
-<a href='[% site.root %]/site/'>[% 'lynx.nav.sitemap' | ml %]</a> ]</p></div>
-[% dw_scheme.final_body_html %]
+<div class="row"><div class="large-12 columns">
+    <div role="navigation"><p>[ <a href='[% site.root %]/'>[% 'lynx.nav.home' | ml %]</a> | <a href='[% site.root %]/update'>[% 'lynx.nav.update' | ml %]</a> |
+    [%- IF remote %][% baseurl = remote.journal_base %]
+    <a href='[% baseurl %]/'>[% 'lynx.nav.recent' | ml %]</a> | <a href='[% baseurl %]/read'>[% 'lynx.nav.friends' | ml %]</a> |
+    <a href='[% site.root %]/logout'>[% 'lynx.nav.logout' | ml %]</a> | [% remote.ljuser_display %] |
+    [%- ELSE %]
+    <a href='[% site.root %]/login'>[% 'lynx.nav.login' | ml %]</a> | 
+    [%- END %]
+    <a href='[% site.root %]/tools/search'>[% 'lynx.nav.search' | ml %]</a> | 
+    <a href='[% site.root %]/manage/settings/'>[% 'lynx.nav.siteopts' | ml %]</a> | 
+    <a href='[% site.root %]/site/'>[% 'lynx.nav.sitemap' | ml %]</a> ]</p></div>
+    [% dw_scheme.final_body_html %]
+</div></div>
 </body>
 </html>
 [%- END -%]
+
