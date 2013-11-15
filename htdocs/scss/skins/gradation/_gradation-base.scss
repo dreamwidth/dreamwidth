@@ -24,7 +24,7 @@ $form-font-color:     $_white;
 $form-bg-color:       $_off-black;
 $form-border-color:   $_low-contrast-gray;
 
-@import "schemes/alert-colors-dark";
+@import "skins/alert-colors-dark";
 
 
 // foundation global variables
@@ -98,7 +98,7 @@ $include-html-classes: true;
 // gradation-specific variables
 $masthead-height: 7.5em;
 
-@import "schemes/skin-colors", "schemes/nav", "schemes/skiplink";
+@import "skins/skin-colors", "skins/nav", "skins/skiplink";
 
 a:active, a:hover {
     text-decoration: none;
@@ -171,4 +171,4 @@ footer {
 }
 
 
-@import "schemes/page-layout-hacks";
+@import "skins/page-layout-hacks";

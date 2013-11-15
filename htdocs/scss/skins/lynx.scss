@@ -4,7 +4,7 @@ $_black: #000;
 // color assignment
 $text-color: $_black;
 
-@import "schemes/alert-colors";
+@import "skins/alert-colors";
 
 
 $body-font-color:   $text-color;
@@ -17,7 +17,7 @@ $small-font-color:                      $body-font-color;
 $include-html-classes: true;
 @import "foundation";
 
-@import "schemes/skin-colors";
+@import "skins/skin-colors";
 
 #content {
     @include grid-row(container);

@@ -15,7 +15,7 @@
     'stc/lj_base-app.css',
     'stc/base-colors-light.css',
     'stc/lynx/lynx.css' ) -%]
-[%- dw_scheme.need_res({ group => "foundation"}, 'stc/css/schemes/lynx.css') -%]
+[%- dw_scheme.need_res({ group => "foundation"}, 'stc/css/skins/lynx.css') -%]
 [%- IF resource_group != "foundation" -%]
 <style>
     #Comments q { padding-left: 2.5em; font-style: italic; }
