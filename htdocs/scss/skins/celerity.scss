@@ -23,7 +23,7 @@ $_low-contrast-gray: #ddd;
 $_off-black:         #222211;
 
 // color assignment
-$background-color:   $_light-gray;
+$background-color:   $_white;
 $text-color:         $_off-black;
 $link-color:         $_dark-olive-green;
 
@@ -110,7 +110,7 @@ $topbar-menu-icon-color:               $topbar-link-color;
 
 
 $include-html-classes: true;
-@import "foundation";
+@import "foundation/foundation";
 
 // celerity-specific measurements
 $sidebar-width:                        9em;
