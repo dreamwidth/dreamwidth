@@ -2781,7 +2781,7 @@ sub control_strip
                  'login'             => "<a href='$LJ::SITEROOT/?returnto=$euri'>$BML::ML{'web.controlstrip.links.login'}</a>",
                  'post_journal'      => "<a href='$LJ::SITEROOT/update'>$BML::ML{'web.controlstrip.links.post2'}</a>",
                  'home'              => "<a href='$LJ::SITEROOT/'>" . $BML::ML{'web.controlstrip.links.home'} . "</a>",
-                 'recent_comments'   => "<a href='$LJ::SITEROOT/tools/recent_comments'>$BML::ML{'web.controlstrip.links.recentcomments'}</a>",
+                 'recent_comments'   => "<a href='$LJ::SITEROOT/comments/recent'>$BML::ML{'web.controlstrip.links.recentcomments'}</a>",
                  'manage_friends'    => "<a href='$LJ::SITEROOT/manage/circle/'>$BML::ML{'web.controlstrip.links.managecircle'}</a>",
                  'manage_entries'    => "<a href='$LJ::SITEROOT/editjournal'>$BML::ML{'web.controlstrip.links.manageentries'}</a>",
                  'invite_friends'    => "<a href='$LJ::SITEROOT/manage/circle/invite'>$BML::ML{'web.controlstrip.links.invitefriends'}</a>",

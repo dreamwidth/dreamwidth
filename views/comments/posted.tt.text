@@ -23,8 +23,6 @@
 
 .last.num.posted.by=Last [[num]] comments [[user]] has posted
 
-.last.num.posted.in=Last [[num]] comments posted in
-
 .latest.posted=Latest Posted
 
 .latest.received=Latest Received
@@ -33,9 +31,9 @@
 
 .managesettings=Manage Comment Settings
 
-.maxnotshown=Your account is only permitted to view the latest [[current]] entries, not the full limit of [[max]].
+.maxnotshown=Your account is only permitted to view the latest [[current]] comments, not the full limit of [[max]].
 
-.no.comments.posted= No comments have been posted in:
+.no.comments.posted= No comments have been posted by
 
 .post.deleted=Entry Deleted
 

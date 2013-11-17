@@ -36,7 +36,7 @@ body<=
   <dd><ul>
    <li><a href='/update'><?_ml .maplinks.post-entry _ml?></a></li>
    <li><a href='/editjournal'><?_ml .maplinks.edit-entries _ml?></a></li>
-   <li><a href='/tools/recent_comments'><?_ml .maplinks.manage-comments _ml?></a></li>
+   <li><a href='/comments/recent'><?_ml .maplinks.manage-comments _ml?></a></li>
    <li><a href='/manage/tags'><?_ml .maplinks.manage-tags _ml?></a></li>
    <li><a href='/tools/memories'><?_ml .maplinks.manage-memories _ml?></a></li>
    <li><a href='/manage/profile'><?_ml .maplinks.manage-profile _ml?></a></li>

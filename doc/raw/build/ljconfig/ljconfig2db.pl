@@ -710,7 +710,7 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                     to user clusters (partitions) in the normal way.",
             },
             'tools_recent_comments_max' => {
-                    'desc' => "Maximum number of comments to display on Recent Comments page <uri>/tools/recent_comments.bml</uri>.",
+                    'desc' => "Maximum number of comments to display on Recent Comments page <uri>/comments/recent</uri>.",
                     'default' => "50;",
             },
         },

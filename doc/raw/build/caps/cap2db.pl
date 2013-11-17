@@ -191,7 +191,7 @@ $caps_general{'domainmap'} = {
 $caps_general{'tools_recent_comments_display'} = {
     type => 'integer',
     desc => 'Total number of comments a user can see, '.
-            ' at <filename>/tools/recent_comments.bml</filename>.',
+            ' at <filename>/comments/recent</filename>.',
 };
 $caps_general{'directory'} = {
     type => 'boolean',
