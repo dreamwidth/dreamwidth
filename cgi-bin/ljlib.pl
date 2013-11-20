@@ -1584,9 +1584,15 @@ sub get_useragent {
 
     eval "require $lib";
     my $ua = $lib->new(
-                       timeout  => $timeout,
-                       max_size => $max_size,
-                       );
+        timeout  => $timeout,
+        max_size => $max_size,
+        # FIXME: this matches old behaviour, however we may want
+        #   to do things differently
+        ssl_opts => {
+            verify_hostname => 0,
+            SSL_verify_mode => 'SSL_VERIFY_NONE',
+        },
+    );
 
     return $ua;
 }
