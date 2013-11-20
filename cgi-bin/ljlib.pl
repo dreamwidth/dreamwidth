@@ -99,13 +99,6 @@ use DW::Mood;
 use LJ::Global::Img;  # defines LJ::Img
 use DW::Media;
 
-# Workaround for IO::Socket::SSL + LPWx::ParanoidAgent
-#  ( see bug 5280 ) - 2013-10-25
-BEGIN {
-    use Net::SSL;
-    $Net::HTTPS::SSL_SOCKET_CLASS = "Net::SSL";
-}
-
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
     die "Unknown subroutine $Unicode::MapUTF8::AUTOLOAD"
