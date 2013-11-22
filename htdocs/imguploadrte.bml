@@ -241,7 +241,7 @@ _c?>
         }
     
     $$body = $ret;
-    $$head .= LJ::res_includes( script_tags => 1 );
+    $$head .= LJ::res_includes();
     return;
 }
 _code?>

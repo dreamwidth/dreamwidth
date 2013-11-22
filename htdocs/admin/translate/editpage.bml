@@ -4,7 +4,7 @@
 <?_code
 {
     LJ::Hooks::run_hook('trans_editpage_bml_postsave_begin');
-    return LJ::res_includes( script_tags => 1 );
+    return LJ::res_includes();
 }
  _code?>
 </head>

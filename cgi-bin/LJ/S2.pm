@@ -207,10 +207,6 @@ sub make_journal
     $page->{head_content} .= LJ::res_includes()
         unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
 
-    # not ideal, but we at least manage to put the js after the css
-    $page->{head_content} .= LJ::res_includes_body()
-        unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
-
     $page->{head_content} .= $extra_js;
     $page->{head_content} .= LJ::PageStats->new->render_head( 'journal' );
 
