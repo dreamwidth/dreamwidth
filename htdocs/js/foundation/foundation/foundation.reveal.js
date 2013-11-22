@@ -1,22 +1,20 @@
-/*jslint unparam: true, browser: true, indent: 2 */
-
 ;(function ($, window, document, undefined) {
   'use strict';
 
   Foundation.libs.reveal = {
-    name: 'reveal',
+    name : 'reveal',
 
-    version : '4.2.2',
+    version : '5.0.0',
 
     locked : false,
 
     settings : {
       animation: 'fadeAndPop',
-      animationSpeed: 250,
-      closeOnBackgroundClick: true,
-      closeOnEsc: true,
-      dismissModalClass: 'close-reveal-modal',
-      bgClass: 'reveal-modal-bg',
+      animation_speed: 250,
+      close_on_background_click: true,
+      close_on_esc: true,
+      dismiss_modal_class: 'close-reveal-modal',
+      bg_class: 'reveal-modal-bg',
       open: function(){},
       opened: function(){},
       close: function(){},
@@ -37,29 +35,17 @@
     },
 
     init : function (scope, method, options) {
-      Foundation.inherit(this, 'data_options delay');
+      Foundation.inherit(this, 'delay');
 
-      if (typeof method === 'object') {
-        $.extend(true, this.settings, method);
-      } else if (typeof options !== 'undefined') {
-        $.extend(true, this.settings, options);
-      }
-
-      if (typeof method !== 'string') {
-        this.events();
-
-        return this.settings.init;
-      } else {
-        return this[method].call(this, options);
-      }
+      this.bindings(method, options);
     },
 
-    events : function () {
+    events : function (scope) {
       var self = this;
 
-      $(this.scope)
-        .off('.fndtn.reveal')
-        .on('click.fndtn.reveal', '[data-reveal-id]', function (e) {
+      $('[data-reveal-id]', this.scope)
+        .off('.reveal')
+        .on('click.fndtn.reveal', function (e) {
           e.preventDefault();
 
           if (!self.locked) {
@@ -76,30 +62,51 @@
               self.open.call(self, element, {url: url});
             }
           }
-        })
+        });
+
+      $(this.scope)
+        .off('.reveal')
         .on('click.fndtn.reveal', this.close_targets(), function (e) {
+
           e.preventDefault();
+
           if (!self.locked) {
-            var settings = $.extend({}, self.settings, self.data_options($('.reveal-modal.open')));
-            if ($(e.target)[0] === $('.' + settings.bgClass)[0] && !settings.closeOnBackgroundClick) {
+            var settings = $('[data-reveal].open').data('reveal-init'),
+                bg_clicked = $(e.target)[0] === $('.' + settings.bg_class)[0];
+
+            if (bg_clicked && !settings.close_on_background_click) {
               return;
             }
 
             self.locked = true;
-            self.close.call(self, $(this).closest('.reveal-modal'));
+            self.close.call(self, bg_clicked ? $('[data-reveal].open') : $(this).closest('[data-reveal]'));
           }
-        })
-        .on('open.fndtn.reveal', '.reveal-modal', this.settings.open)
-        .on('opened.fndtn.reveal', '.reveal-modal', this.settings.opened)
-        .on('opened.fndtn.reveal', '.reveal-modal', this.open_video)
-        .on('close.fndtn.reveal', '.reveal-modal', this.settings.close)
-        .on('closed.fndtn.reveal', '.reveal-modal', this.settings.closed)
-        .on('closed.fndtn.reveal', '.reveal-modal', this.close_video);
+        });
 
-      $( 'body' ).bind( 'keyup.reveal', function ( event ) {
-        var open_modal = $('.reveal-modal.open'),
-            settings = $.extend({}, self.settings, self.data_options(open_modal));
-        if ( event.which === 27  && settings.closeOnEsc) { // 27 is the keycode for the Escape key
+      if($('[data-reveal]', this.scope).length > 0) {
+        $(this.scope)
+          // .off('.reveal')
+          .on('open.fndtn.reveal', this.settings.open)
+          .on('opened.fndtn.reveal', this.settings.opened)
+          .on('opened.fndtn.reveal', this.open_video)
+          .on('close.fndtn.reveal', this.settings.close)
+          .on('closed.fndtn.reveal', this.settings.closed)
+          .on('closed.fndtn.reveal', this.close_video);
+      } else {
+        $(this.scope)
+          // .off('.reveal')
+          .on('open.fndtn.reveal', '[data-reveal]', this.settings.open)
+          .on('opened.fndtn.reveal', '[data-reveal]', this.settings.opened)
+          .on('opened.fndtn.reveal', '[data-reveal]', this.open_video)
+          .on('close.fndtn.reveal', '[data-reveal]', this.settings.close)
+          .on('closed.fndtn.reveal', '[data-reveal]', this.settings.closed)
+          .on('closed.fndtn.reveal', '[data-reveal]', this.close_video);
+      }
+
+      $('body').on('keyup.fndtn.reveal', function ( event ) {
+        var open_modal = $('[data-reveal].open'),
+            settings = open_modal.data('reveal-init');
+        if ( event.which === 27  && settings.close_on_esc) { // 27 is the keycode for the Escape key
           open_modal.foundation('reveal', 'close');
         }
       });
@@ -121,7 +128,7 @@
       }
 
       if (!modal.hasClass('open')) {
-        var open_modal = $('.reveal-modal.open');
+        var open_modal = $('[data-reveal].open');
 
         if (typeof modal.data('css-top') === 'undefined') {
           modal.data('css-top', parseInt(modal.css('top'), 10))
@@ -131,7 +138,7 @@
         modal.trigger('open');
 
         if (open_modal.length < 1) {
-          this.toggle_bg(modal);
+          this.toggle_bg();
         }
 
         if (typeof ajax_settings === 'undefined' || !ajax_settings.url) {
@@ -163,29 +170,29 @@
     close : function (modal) {
 
       var modal = modal && modal.length ? modal : $(this.scope),
-          open_modals = $('.reveal-modal.open');
+          open_modals = $('[data-reveal].open');
 
       if (open_modals.length > 0) {
         this.locked = true;
         modal.trigger('close');
-        this.toggle_bg(modal);
+        this.toggle_bg();
         this.hide(open_modals, this.settings.css.close);
       }
     },
 
     close_targets : function () {
-      var base = '.' + this.settings.dismissModalClass;
+      var base = '.' + this.settings.dismiss_modal_class;
 
-      if (this.settings.closeOnBackgroundClick) {
-        return base + ', .' + this.settings.bgClass;
+      if (this.settings.close_on_background_click) {
+        return base + ', .' + this.settings.bg_class;
       }
 
       return base;
     },
 
-    toggle_bg : function (modal) {
-      if ($('.reveal-modal-bg').length === 0) {
-        this.settings.bg = $('<div />', {'class': this.settings.bgClass})
+    toggle_bg : function () {
+      if ($('.' + this.settings.bg_class).length === 0) {
+        this.settings.bg = $('<div />', {'class': this.settings.bg_class})
           .appendTo('body');
       }
 
@@ -199,6 +206,16 @@
     show : function (el, css) {
       // is modal
       if (css) {
+        if (el.parent('body').length === 0) {
+          var placeholder = el.wrap('<div style="display: none;" />').parent();
+          el.on('closed.fndtn.reveal.wrapped', function() {
+            el.detach().appendTo(placeholder);
+            el.unwrap().unbind('closed.fndtn.reveal.wrapped');
+          });
+
+          el.detach().appendTo('body');
+        }
+
         if (/pop/i.test(this.settings.animation)) {
           css.top = $(window).scrollTop() - el.data('offset') + 'px';
           var end_css = {
@@ -209,12 +226,12 @@
           return this.delay(function () {
             return el
               .css(css)
-              .animate(end_css, this.settings.animationSpeed, 'linear', function () {
+              .animate(end_css, this.settings.animation_speed, 'linear', function () {
                 this.locked = false;
                 el.trigger('opened');
               }.bind(this))
               .addClass('open');
-          }.bind(this), this.settings.animationSpeed / 2);
+          }.bind(this), this.settings.animation_speed / 2);
         }
 
         if (/fade/i.test(this.settings.animation)) {
@@ -223,12 +240,12 @@
           return this.delay(function () {
             return el
               .css(css)
-              .animate(end_css, this.settings.animationSpeed, 'linear', function () {
+              .animate(end_css, this.settings.animation_speed, 'linear', function () {
                 this.locked = false;
                 el.trigger('opened');
               }.bind(this))
               .addClass('open');
-          }.bind(this), this.settings.animationSpeed / 2);
+          }.bind(this), this.settings.animation_speed / 2);
         }
 
         return el.css(css).show().css({opacity: 1}).addClass('open').trigger('opened');
@@ -236,7 +253,7 @@
 
       // should we animate the background?
       if (/fade/i.test(this.settings.animation)) {
-        return el.fadeIn(this.settings.animationSpeed / 2);
+        return el.fadeIn(this.settings.animation_speed / 2);
       }
 
       return el.show();
@@ -253,12 +270,12 @@
 
           return this.delay(function () {
             return el
-              .animate(end_css, this.settings.animationSpeed, 'linear', function () {
+              .animate(end_css, this.settings.animation_speed, 'linear', function () {
                 this.locked = false;
                 el.css(css).trigger('closed');
               }.bind(this))
               .removeClass('open');
-          }.bind(this), this.settings.animationSpeed / 2);
+          }.bind(this), this.settings.animation_speed / 2);
         }
 
         if (/fade/i.test(this.settings.animation)) {
@@ -266,12 +283,12 @@
 
           return this.delay(function () {
             return el
-              .animate(end_css, this.settings.animationSpeed, 'linear', function () {
+              .animate(end_css, this.settings.animation_speed, 'linear', function () {
                 this.locked = false;
                 el.css(css).trigger('closed');
               }.bind(this))
               .removeClass('open');
-          }.bind(this), this.settings.animationSpeed / 2);
+          }.bind(this), this.settings.animation_speed / 2);
         }
 
         return el.hide().css(css).removeClass('open').trigger('closed');
@@ -279,7 +296,7 @@
 
       // should we animate the background?
       if (/fade/i.test(this.settings.animation)) {
-        return el.fadeOut(this.settings.animationSpeed / 2);
+        return el.fadeOut(this.settings.animation_speed / 2);
       }
 
       return el.hide();
@@ -327,4 +344,4 @@
 
     reflow : function () {}
   };
-}(Foundation.zj, this, this.document));
+}(jQuery, this, this.document));

@@ -83,7 +83,6 @@ $input-prefix-border-color:             $input-border-color;
 
 // panel
 $panel-bg:                              darken( $body-bg, 5% );
-$panel-callout-bg:                      change-color( $soft-accent-color, $lightness:90% );
 
 // tables
 $table-bg:              $form-bg-color;
@@ -99,7 +98,8 @@ $table-row-font-color:  $text-color;
 $topbar-bg:                            $soft-accent-color;
 $topbar-link-weight:                   normal;
 $topbar-link-color:                    #222200;
-$topbar-link-color-hover:              $topbar-link-color;
+$topbar-link-color-hover:              $primary-text-color;
+$topbar-link-bg-hover:                 $primary-color;
 
 $topbar-dropdown-bg:                   $topbar-bg;
 $topbar-dropdown-link-color:           $topbar-link-color;

@@ -1,54 +1,53 @@
-// Make sure the charset is set appropriately
-@charset "UTF-8";
+// import the settings we want to work with
+@import "foundation/settings";
 
-// This includes all of the foundation global elements that are needed to work with any of the other files.
-@import "foundation/variables";
-
+// normalize stylesheet
 @import "foundation/normalize";
 
-// Foundation Components
 @import
-  "foundation/components/global",
-  "foundation/components/grid",
-  "foundation/components/visibility",
+  // "foundation/components/accordion",
+  // "foundation/components/alert-boxes",
   // "foundation/components/block-grid",
-  "foundation/components/type",
-  "foundation/components/buttons",
-  "foundation/components/forms",
-  // "foundation/components/custom-forms",
-  // "foundation/components/button-groups",
-  // "foundation/components/dropdown-buttons",
-  // "foundation/components/split-buttons",
-  // "foundation/components/flex-video",
-  // "foundation/components/section",
-  "foundation/components/top-bar",
-  // "foundation/components/orbit",
-  // "foundation/components/reveal",
-  // "foundation/components/joyride",
-  // "foundation/components/clearing",
-  "components/foundation-custom/alert-boxes",
   // "foundation/components/breadcrumbs",
+  // "foundation/components/button-groups",
+  "foundation/components/buttons",
+  // "foundation/components/clearing",
+  // "foundation/components/dropdown",
+  // "foundation/components/dropdown-buttons",
+  // "foundation/components/flex-video",
+  "foundation/components/forms",
+  "foundation/components/grid",
+  // "foundation/components/inline-lists",
+  // "foundation/components/joyride",
   // "foundation/components/keystrokes",
   "foundation/components/labels",
-  // "foundation/components/inline-lists",
-
-  "foundation/components/pagination",
-  "components/foundation-custom/pagination",
-
-  "components/foundation-custom/panels",
-
-  // "foundation/components/pricing-tables",
-  "foundation/components/progress-bars",
-
-  // "foundation/components/side-nav",
-  "foundation/components/sub-nav",
-  // "foundation/components/switch"
   // "foundation/components/magellan",
-
-   "foundation/components/tables",
-   "components/foundation-custom/tables",
-
+  // "foundation/components/orbit",
+  "foundation/components/pagination",
+  // "foundation/components/panels",
+  // "foundation/components/pricing-tables",
+  // "foundation/components/progress-bars",
+  // "foundation/components/reveal",
+  // "foundation/components/side-nav",
+  // "foundation/components/split-buttons",
+  "foundation/components/sub-nav",
+  // "foundation/components/switch",
+  "foundation/components/tables",
+  // "foundation/components/tabs",
   // "foundation/components/thumbs",
   // "foundation/components/tooltips",
-  // "foundation/components/dropdown";
-  "foundation/components/dropdown";
+  // "foundation/components/tabs",
+  "foundation/components/offcanvas",
+  "foundation/components/visibility";
+
+
+// replaces foundation components above
+@import
+  "components/foundation-custom/alert-boxes",
+  "components/foundation-custom/panels";
+
+// tweaks to foundation components above
+@import
+  "components/foundation-custom/buttons",
+  "components/foundation-custom/pagination",
+  "components/foundation-custom/tables";
