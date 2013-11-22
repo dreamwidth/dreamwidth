@@ -119,6 +119,9 @@ use DW::Mood;
 use LJ::Global::Img;  # defines LJ::Img
 use LJ::Global::Secrets;  # defines LJ::Secrets
 
+# Fix "(Net::SSL from Crypt-SSLeay can't verify hostnames)" [ see bug 5280 ]
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
+
 require "$LJ::HOME/cgi-bin/ljlib-local.pl"
     if -e "$LJ::HOME/cgi-bin/ljlib-local.pl";
 
@@ -1584,15 +1587,9 @@ sub get_useragent {
 
     eval "require $lib";
     my $ua = $lib->new(
-        timeout  => $timeout,
-        max_size => $max_size,
-        # FIXME: this matches old behaviour, however we may want
-        #   to do things differently
-        ssl_opts => {
-            verify_hostname => 0,
-            SSL_verify_mode => 'SSL_VERIFY_NONE',
-        },
-    );
+                       timeout  => $timeout,
+                       max_size => $max_size,
+                       );
 
     return $ua;
 }
