@@ -98,7 +98,8 @@ $table-row-font-color:  $text-color;
 $topbar-bg:                            $soft-accent-color;
 $topbar-link-weight:                   normal;
 $topbar-link-color:                    #222200;
-$topbar-link-color-hover:              $topbar-link-color;
+$topbar-link-color-hover:              $primary-text-color;
+$topbar-link-bg-hover:                 $primary-color;
 
 $topbar-dropdown-bg:                   $topbar-bg;
 $topbar-dropdown-link-color:           $topbar-link-color;
