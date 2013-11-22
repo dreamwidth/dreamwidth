@@ -1,0 +1,20 @@
+$include-html-panel-classes: false;
+@import "foundation/components/panels";
+
+
+/* Panels */
+.panel { @include panel;
+
+  &.callout {
+    @include panel(change-color($primary-color, $lightness:lightness($panel-bg)));
+    a {
+      color: $callout-panel-link-color;
+    }
+  }
+
+  &.radius {
+    @include panel($bg:false);
+    @include radius;
+  }
+
+}
