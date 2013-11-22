@@ -91,6 +91,19 @@
       </div>
     </div>
 
+   <div class="row">
+     <div class="large-12 columns">
+       <label>Select Dropdrown</label>
+       <select>
+         <optgroup label="foo bar baz">
+            <option value="">foo</option>
+            <option value="">bar</option>
+            <option value="">baz</option>
+         </optgroup>
+       </select>
+     </div>
+   </div>
+
     <div class="row">
       <div class="large-12 columns">
         <label>Textarea Label</label>

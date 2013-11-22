@@ -1,0 +1,55 @@
+@import "foundation/components/global";
+
+// We set a lot of skin-specific variables (colors, etc) in the respective $skinname.scss files
+// so this likely is not want what you want to include
+
+// The default font-size is set to 100% of the browser style sheet (usually 16px)
+// for compatibility with browser-based text zoom or user-set defaults.
+$base-font-size: 100% !default;
+
+// $base-line-height is 24px while $base-font-size is 16px
+$base-line-height: 1.5;
+
+// GLOBAL
+
+$default-float: left;
+
+// most of the time, we'll just want the mixins or variables
+// and not the styles themselves
+$include-html-classes: false !default;
+$include-print-styles: true;
+
+
+// GRID
+$row-width: 80em;
+
+
+// TYPE
+$header-font-weight: 700;
+
+// Heading font sizes
+$h1-font-size: 1.814rem;
+$h2-font-size: 1.814rem;
+$h3-font-size: 1.618rem;
+$h4-font-size: 1.121rem;
+$h5-font-size: 1rem;
+$h6-font-size: 0.90rem;
+
+
+// BUTTONS
+// We use these to build padding for buttons.
+$button-sml: rem-calc(7) !default;
+$button-med: rem-calc(9) !default;
+$button-lrg: rem-calc(12) !default;
+
+
+// We use these to control button text styles.
+$button-font-sml: rem-calc(11);
+$button-font-med: rem-calc(13);
+$button-font-lrg: rem-calc(16);
+
+// FORMS
+$form-label-font-size: emCalc(16px);
+$input-font-size:      emCalc(16px);
+$input-error-message-font-weight: 600;
+$input-error-message-font-style: normal;
