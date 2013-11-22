@@ -264,6 +264,7 @@ my %modules = (
                "Image::ExifTool" => {
                    deb => 'libimage-exiftool-perl',
                },
+               "Net::SSL" => { ver => "2.85" },
               );
 
 
