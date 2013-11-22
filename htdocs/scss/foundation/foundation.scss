@@ -1,5 +1,7 @@
 // import the settings we want to work with
 @import "foundation/settings";
+
+// normalize stylesheet
 @import "foundation/normalize";
 
 @import
@@ -39,9 +41,13 @@
   "foundation/components/visibility";
 
 
-// our custom components
+// replaces foundation components above
 @import
   "components/foundation-custom/alert-boxes",
+  "components/foundation-custom/panels";
+
+// tweaks to foundation components above
+@import
+  "components/foundation-custom/buttons",
   "components/foundation-custom/pagination",
-  "components/foundation-custom/panels",
   "components/foundation-custom/tables";
