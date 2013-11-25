@@ -7,6 +7,8 @@
 
 .form.label.eventuser=Event Journal
 
+.form.label.sarg=Subscription Argument [[arg]]
+
 .form.label.subscr_user=Subscriber
 
 .subtitle.details=Event Details

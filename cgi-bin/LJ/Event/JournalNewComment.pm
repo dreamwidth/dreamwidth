@@ -488,12 +488,8 @@ sub matches_filter {
         # not a match if this user posted the comment
         return 0 if $watcher->equals( $comment->poster );
 
-        # not a match if this user posted the entry and they don't want comments emailed,
-        # unless it is a reply to one of their comments or they posted it. (don't need to check again for the cap, since we did above.)
-        my $reply_to_own_comment = $comment->parent ? $watcher->equals( $comment->parent->poster ) : 0;
-        if ( $watcher->equals( $entry->poster ) && ! ( $reply_to_own_comment || $watcher->prop( 'opt_getselfemail' ) ) ) {
-            return 0 if $entry->prop('opt_noemail') && $subscr->method =~ /Email$/;
-        }
+        # not a match if opt_noemail applies
+        return 0 if $self->apply_noemail( $watcher, $comment, $subscr->method );
     }
 
     # watching a specific journal
@@ -519,6 +515,24 @@ sub matches_filter {
         $comment = $comment->parent;
     }
     return 0;
+}
+
+sub apply_noemail {
+    my ( $self, $watcher, $comment, $method ) = @_;
+
+    my $entry = $comment->entry;
+
+    # not a match if this user posted the entry and they don't want comments emailed,
+    # unless it is a reply to one of their comments or they posted the comment
+    my $reply_to_own_comment = $comment->parent ? $watcher->equals( $comment->parent->poster ) : 0;
+    my $receive_own_comment = $comment->posterid == $watcher->id # we posted
+                                && $watcher->prop( 'opt_getselfemail' ) && $watcher->can_get_self_email;
+
+    if ( $watcher->equals( $entry->poster )
+            && ! ( $reply_to_own_comment || $receive_own_comment ) # special-cased
+        ) {
+        return 1 if $entry->prop('opt_noemail') && $method =~ /Email$/;
+    }
 }
 
 sub jtalkid {
