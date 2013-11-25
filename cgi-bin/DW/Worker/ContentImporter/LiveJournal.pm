@@ -256,25 +256,30 @@ sub remap_username_friend {
         );
 
         my $r = $ua->get( "http://$data->{hostname}/tools/opml.bml?user=$username" );
-        my $data = $r->content;
+        my $response = $r->content;
 
-        if ( $data =~ m!<ownerName>(.+?)</ownerName>! ) {
-            my $url = $1;
-            return undef unless $url;
+        my $url;
+        $url = $1 if $response =~ m!<ownerName>(.+?)</ownerName>!;
 
-            $url = "http://$url/"
-                unless $url =~ m/^https?:/;
-
-            if ( $url =~ m!http://(.+)\.$LJ::DOMAIN\/$! ) {
-                # this appears to be a local user!
-                # Map this to the local userid in feed_map too, as this is a local user.
-                return LJ::User->new_from_url( $url )->id;
-            }
-
-            my $iu = LJ::User::load_identity_user( 'O', $url, undef )
-                or return undef;
-            return $iu->id;
+        # fall back onto ext_1234.import-site.com, in case we don't have an ownername
+        # (external account on LJ that's not openid -- e..g., Google+)
+        unless ( $url ) {
+            $username =~ s/_/-/g; # URL domains have dashes.
+            $url = "http://$username.$data->{hostname}/";
         }
+
+        $url = "http://$url/"
+            unless $url =~ m/^https?:/;
+
+        if ( $url =~ m!http://(.+)\.$LJ::DOMAIN\/$! ) {
+            # this appears to be a local user!
+            # Map this to the local userid in feed_map too, as this is a local user.
+            return LJ::User->new_from_url( $url )->id;
+        }
+
+        my $iu = LJ::User::load_identity_user( 'O', $url, undef )
+            or return undef;
+        return $iu->id;
 
     } else {
         my $url_prefix = "http://$data->{hostname}/~" . $username;
