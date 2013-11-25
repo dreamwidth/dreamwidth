@@ -168,8 +168,8 @@ sub received_handler {
             #$ret .= " <label for='s$r->{jtalkid}'>$ML{'/talkread.bml.select'}</label></nobr>";
 
             my $comment_htmlid = LJ::Talk::comment_htmlid( $talkid );
-            
-            my $esubject = $log_text->{"$u->{userid}:$r->{nodeid}"}[0];
+
+            my $esubject = $log_text->{"$u->{userid}:$r->{nodeid}"}[0] // "";
             LJ::CleanHTML::clean_subject( \$esubject ) if $esubject ne "";
 
             my $ditemid_undef = defined $lrow->{ditemid} ? 0 : 1;
