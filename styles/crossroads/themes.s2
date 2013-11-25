@@ -640,6 +640,66 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: crossroads/chocolategarden
+layerinfo type = "theme";
+layerinfo name = "Chocolate Garden";
+layerinfo redist_uniq = "crossroads/chocolategarden";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/3583128/Chocolate_Garden" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#2b1a1a";
+set color_page_border = "#643c3c";
+set color_page_link = "#fff";
+set color_page_link_visited = "#979090";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#2b1a1a";
+set color_footer_background = "#2b1a1a";
+set color_footer_link = "#e7cdce";
+set color_footer_link_hover = "#979090";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2b1a1a";
+set color_entry_border = "#2b1a1a";
+set color_entry_interaction_links = "#e7cdce";
+set color_entry_link = "#e7cdce";
+set color_entry_link_visited = "#979090";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#2b1a1a";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#2b1a1a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2b1a1a";
+set color_module_border = "#643c3c";
+set color_module_link = "#e7cdce";
+set color_module_link_visited = "#979090";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#2b1a1a";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crossroads/chocolategarden.png";
+
+
 #NEWLAYER: crossroads/cinnamoncream
 layerinfo type = "theme";
 layerinfo name = "Cinnamon Cream";
