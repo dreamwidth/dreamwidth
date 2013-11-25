@@ -172,7 +172,7 @@ sub received_handler {
             my $esubject = $log_text->{"$u->{userid}:$r->{nodeid}"}[0];
             LJ::CleanHTML::clean_subject( \$esubject ) if $esubject ne "";
 
-            my $ditemid_undef = ( $lrow->{ditemid} == undef ) ? 1 : 0;
+            my $ditemid_undef = defined $lrow->{ditemid} ? 0 : 1;
             my $csubject = LJ::ehtml( $comment_text->{$r->{jtalkid}}[0] );
 
             if ( !$csubject || $csubject =~ /^Re:\s*$/ ) {
