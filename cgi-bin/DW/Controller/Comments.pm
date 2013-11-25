@@ -28,6 +28,9 @@ use DW::Template;
 DW::Routing->register_string('/comments/recent', \&received_handler, app => 1 );
 DW::Routing->register_string('/comments/posted', \&posted_handler, app => 1 );
 
+# redirect /tools/recent_comments, /tools/recent_comments.bml
+DW::Routing->register_redirect( '/tools/recent_comments', '/comments/recent', app => 1, formats => [ 'html', 'bml' ] );
+
 sub received_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
