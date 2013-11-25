@@ -354,7 +354,7 @@ sub initialize_count {
     my ( $u, $r, $vars ) = @_;
     
     my $max = $u->count_recent_comments_display;  
-    my $show = $r->get_args->{show};
+    my $show = $r->get_args->{show} // 25;
 
     # how many comments to display by default
     $show = $max if $show > $max;
