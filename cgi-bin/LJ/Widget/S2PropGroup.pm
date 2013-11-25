@@ -253,7 +253,7 @@ sub render_body {
 
             #If we're in the module subsection, we also need to render the Custom Text widget
             if ($subheaders{$subheader} eq $class->ml('customize.propgroup_subheaders.module')) {
-                $ret .= LJ::Widget::CustomTextModule->render( $count );
+                $ret .= LJ::Widget::CustomTextModule->render( count => $count );
             }
             $ret .= "</table>" if $header_printed;
         }

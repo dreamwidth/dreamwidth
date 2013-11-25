@@ -27,8 +27,8 @@ sub authas { 1 }
 
 sub render_body {
     my $class = shift;
-    my $count = shift;
     my %opts = @_;
+    my $count = $opts{count};
 
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
