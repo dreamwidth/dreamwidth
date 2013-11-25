@@ -233,7 +233,7 @@ my %modules = (
                     deb => 'libio-aio-perl',
                     opt => 'Required for Perlbal',
                  },
-               "LWPx::ParanoidAgent" => { deb => 'liblwpx-paranoidagent-perl' },
+               "LWPx::ParanoidAgent" => { ver => '1.10' },
                "MogileFS::Client" => {
                    ver => '1.12',
                },
@@ -264,9 +264,7 @@ my %modules = (
                "Image::ExifTool" => {
                    deb => 'libimage-exiftool-perl',
                },
-# Workaround for IO::Socket::SSL + LPWx::ParanoidAgent
-#  ( see bug 5280 ) - 2013-10-25
-               "Crypt::SSLeay" => {}
+               "Net::SSL" => { ver => "2.85" },
               );
 
 
