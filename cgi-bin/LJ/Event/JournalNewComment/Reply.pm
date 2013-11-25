@@ -83,53 +83,56 @@ sub raw_subscriptions {
 
     my @userids = _relevant_userids( $_[1] );
 
-    return eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid, scratch => $scratch ) } unless scalar @userids;
-
-    my @rows = eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid, scratch => $scratch ) };
-
     foreach my $userid ( @userids ) {
         my $u = LJ::load_userid($userid);
         next unless $u;
         next unless ( $cid == $u->clusterid );
 
-        if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
-            push @rows, map{ LJ::Subscription->new_from_row($_) } map { (
-                # FIXME(dre): Remove when ESN can bypass inbox
-                {
-                    userid  => $userid,
-                    ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-                    etypeid => $class->etypeid,
-                    arg2 => $_,
-                },
-                {
-                    userid  => $userid,
-                    ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
-                    etypeid => $class->etypeid,
-                    arg2 => $_,
-                },
-            ) } ( 0, 1 );
+        my @pending_subscriptions;
+        if ( $u->prop('opt_gettalkemail') ne 'X' ) {
+            if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
+                push @pending_subscriptions, map { (
+                    # FIXME(dre): Remove when ESN can bypass inbox
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment::Reply',
+                        method => 'Inbox',
+                        arg2 => $_,
+                    ),
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment::Reply',
+                        method => 'Email',
+                        arg2 => $_,
+                    ),
+                ) } ( 0, 1 );
+            }
+            $u->update_self( { 'opt_gettalkemail' => 'X' } );
         }
-
-        if ( $u->prop('opt_getselfemail') eq '1' ) {
-            push @rows, map{ LJ::Subscription->new_from_row($_) } (
-                # FIXME(dre): Remove when ESN can bypass inbox
-                {
-                    userid  => $userid,
-                    ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-                    etypeid => $class->etypeid,
-                    arg2 => 2,
-                },
-                {
-                    userid  => $userid,
-                    ntypeid => LJ::NotificationMethod::Email->ntypeid, # Email
-                    etypeid => $class->etypeid,
-                    arg2 => 2,
-                },
-            );
+        if ( $u->prop('opt_getselfemail') ne 'X' ) {
+            if ( $u->prop('opt_getselfemail') eq '1' ) {
+                push @pending_subscriptions, (
+                    # FIXME(dre): Remove when ESN can bypass inbox
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment::Reply',
+                        method => 'Inbox',
+                        arg2 => 2,
+                    ),
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment::Reply',
+                        method => 'Email',
+                        arg2 => 2,
+                    ),
+                );
+            }
+            $u->set_prop( 'opt_getselfemail' => 'X' );
         }
+        $_->commit foreach @pending_subscriptions;
     }
+
+    return eval { LJ::Event::raw_subscriptions($class, $self,
+        cluster => $cid, scratch => $scratch ) } unless scalar @userids;
+
+    my @rows = eval { LJ::Event::raw_subscriptions($class, $self,
+        cluster => $cid, scratch => $scratch ) };
 
     return @rows;
 }
