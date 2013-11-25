@@ -519,7 +519,7 @@ body<=
                         ),
                     );
                 }
-                $u->update_self( { 'opt_getselfemail' => 'X' } );
+                $u->set_prop( 'opt_getselfemail' => 'X' );
             }
             $_->commit foreach @pending_subscriptions;
         }
