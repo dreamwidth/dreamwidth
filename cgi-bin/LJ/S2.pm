@@ -2301,6 +2301,12 @@ sub Page
         $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
     }
 
+    unless ($u->prop( 'customtext_content' )) {  $u->set_prop( 'customtext_content', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_content} );}
+    unless ($u->prop( 'customtext_url' )) {  $u->set_prop( 'customtext_url', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_url} );}
+    if ($u->prop( 'customtext_title' ) eq '' || $u->prop( 'customtext_title' ) eq  "Custom Text") {
+        $u->set_prop( 'customtext_title', $opts->{ctx}->[S2::PROPS]->{text_module_customtext} );
+    }
+
     my $p = {
         '_type' => 'Page',
         '_u' => $u,
