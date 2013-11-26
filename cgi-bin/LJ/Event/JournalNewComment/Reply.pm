@@ -148,8 +148,10 @@ sub matches_filter {
     my $comment = $self->comment;
 
     # Do not send on own comments
-
     return 0 unless $comment->visible_to( $watcher );
+
+    # Do not send if opt_noemail applies
+    return 0 if $self->apply_noemail( $watcher, $comment, $subscr->method );
 
     my $parent = $comment->parent;
 
@@ -157,7 +159,7 @@ sub matches_filter {
         # Someone replies to my comment
         return 0 unless $parent;
         return 0 unless $parent->posterid == $watcher->id;
-        
+
         # Make sure we didn't post the comment
         return 1 unless $comment->posterid == $watcher->id;
     } elsif ( $arg2 == 1 ) {
