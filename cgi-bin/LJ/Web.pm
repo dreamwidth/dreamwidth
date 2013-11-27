@@ -2480,8 +2480,10 @@ sub res_includes {
     my ( %opts ) = @_;
 
     my $include_js = ! $opts{nojs};
-    my $include_links = ! $opts{nolinks};
     my $include_libs = ! $opts{nolib};
+    my $include_stylesheets = ! $opts{no_stylesheets};
+    my $include_script_tags = ! $opts{no_scripttags};
+    my $include_links = $include_stylesheets || $include_script_tags;
 
     # TODO: automatic dependencies from external map and/or content of files,
     # currently it's limited to dependencies on the order you call LJ::need_res();
@@ -2668,14 +2670,27 @@ sub res_includes {
             }
         };
 
-        $tags->("js",      "<script type=\"text/javascript\" src=\"$jsprefix/___\"></script>\n");
-        $tags->("stccss",  "<link rel=\"stylesheet\" type=\"text/css\" href=\"$statprefix/___\" />\n");
-        $tags->("wstccss", "<link rel=\"stylesheet\" type=\"text/css\" href=\"$wstatprefix/___\" />\n");
-        $tags->("stcjs",   "<script type=\"text/javascript\" src=\"$statprefix/___\"></script>\n");
-        $tags->("wstcjs",  "<script type=\"text/javascript\" src=\"$wstatprefix/___\"></script>\n");
+        if ( $include_stylesheets ) {
+            $tags->("stccss",  "<link rel=\"stylesheet\" type=\"text/css\" href=\"$statprefix/___\" />\n");
+            $tags->("wstccss", "<link rel=\"stylesheet\" type=\"text/css\" href=\"$wstatprefix/___\" />\n");
+        }
+
+        if ( $include_script_tags ) {
+            $tags->("js",      "<script type=\"text/javascript\" src=\"$jsprefix/___\"></script>\n");
+            $tags->("stcjs",   "<script type=\"text/javascript\" src=\"$statprefix/___\"></script>\n");
+            $tags->("wstcjs",  "<script type=\"text/javascript\" src=\"$wstatprefix/___\"></script>\n");
+        }
     }
 
     return $ret;
+}
+
+sub res_includes_head {
+    return LJ::res_includes( no_scripttags => 1 );
+}
+
+sub res_includes_body {
+    return LJ::res_includes( nojs => 1, no_stylesheets => 1 );
 }
 
 # called to set the active resource group

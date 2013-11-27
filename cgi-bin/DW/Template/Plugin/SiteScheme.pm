@@ -53,12 +53,14 @@ sub need_res {
 
     my @args = @_;
     @args = @{$args[0]} if ref $_[0] eq 'ARRAY';
-    
+
     return LJ::need_res($hash_arg,@args);
 }
 
 sub res_includes {
-    return LJ::res_includes();
+    return $LJ::ACTIVE_RES_GROUP eq "foundation"
+                ? LJ::res_includes_head()
+                : LJ::res_includes();
 }
 
 sub final_head_html {
@@ -66,7 +68,9 @@ sub final_head_html {
 }
 
 sub final_body_html {
-    return LJ::final_body_html();
+    return $LJ::ACTIVE_RES_GROUP eq "foundation"
+                ? LJ::res_includes_body() . LJ::final_body_html()
+                : LJ::final_body_html();
 }
 
 sub menu_nav {
