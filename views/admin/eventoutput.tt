@@ -27,10 +27,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <label>Summary:</label><div class='field'>[% event.inbox.summary %]</div>
 
 <h2>Email</h2>
+[% IF ! event.email.send %]<p>Note: this is only a preview; the subscription is such that it won't actually be sent.</p>
+<div class="disabled">[%- END -%]
 <label>From:</label><div class='field'>[% event.email.from | html %]</div>
 <label>To:</label><div class='field'>[% event.email.to | html %]</div>
 <label>Headers:</label><div class='field'>[% event.email.headers | html %]</div>
 <label>Subject:</label><div class='field'>[% event.email.subject | html %]</div>
 <label>Body (HTML):</label><div class='field'>[% event.email.body_html %]</div>
 <label>Body (Plain text):</label><div class='field'><textarea rows="20" cols="50">[% event.email.body_text %]</textarea></div>
-
+[% IF ! event.email.send %]</div>[%- END -%]

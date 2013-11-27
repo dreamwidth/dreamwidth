@@ -28,6 +28,9 @@ use DW::Template;
 DW::Routing->register_string('/comments/recent', \&received_handler, app => 1 );
 DW::Routing->register_string('/comments/posted', \&posted_handler, app => 1 );
 
+# redirect /tools/recent_comments, /tools/recent_comments.bml
+DW::Routing->register_redirect( '/tools/recent_comments', '/comments/recent', app => 1, formats => [ 'html', 'bml' ] );
+
 sub received_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
@@ -168,11 +171,11 @@ sub received_handler {
             #$ret .= " <label for='s$r->{jtalkid}'>$ML{'/talkread.bml.select'}</label></nobr>";
 
             my $comment_htmlid = LJ::Talk::comment_htmlid( $talkid );
-            
-            my $esubject = $log_text->{"$u->{userid}:$r->{nodeid}"}[0];
+
+            my $esubject = $log_text->{"$u->{userid}:$r->{nodeid}"}[0] // "";
             LJ::CleanHTML::clean_subject( \$esubject ) if $esubject ne "";
 
-            my $ditemid_undef = ( $lrow->{ditemid} == undef ) ? 1 : 0;
+            my $ditemid_undef = defined $lrow->{ditemid} ? 0 : 1;
             my $csubject = LJ::ehtml( $comment_text->{$r->{jtalkid}}[0] );
 
             if ( !$csubject || $csubject =~ /^Re:\s*$/ ) {
@@ -354,7 +357,7 @@ sub initialize_count {
     my ( $u, $r, $vars ) = @_;
     
     my $max = $u->count_recent_comments_display;  
-    my $show = $r->get_args->{show};
+    my $show = $r->get_args->{show} // 25;
 
     # how many comments to display by default
     $show = $max if $show > $max;

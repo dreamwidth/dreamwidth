@@ -891,6 +891,12 @@ sub _css_cleaner {
     return $css_cleaner ||= LJ::CSS::Cleaner->new;
 }
 
+sub escape_prop_value_ret {
+    my $what = $_[0];
+    escape_prop_value( $what, $_[1] );
+    return $what;
+}
+
 sub escape_prop_value {
     my $mode = $_[1];
     my $css_c = _css_cleaner();
@@ -2301,6 +2307,12 @@ sub Page
         $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
     }
 
+    unless ($u->prop( 'customtext_content' )) {  $u->set_prop( 'customtext_content', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_content} );}
+    unless ($u->prop( 'customtext_url' )) {  $u->set_prop( 'customtext_url', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_url} );}
+    if ($u->prop( 'customtext_title' ) eq '' || $u->prop( 'customtext_title' ) eq  "Custom Text") {
+        $u->set_prop( 'customtext_title', $opts->{ctx}->[S2::PROPS]->{text_module_customtext} );
+    }
+
     my $p = {
         '_type' => 'Page',
         '_u' => $u,
@@ -2325,9 +2337,9 @@ sub Page
             memories => "$LJ::SITEROOT/tools/memories?user=$u->{user}",
         },
         'linklist' => $linklist,
-        'customtext_title' => $u->prop( 'customtext_title' ),
-        'customtext_url' => $u->prop( 'customtext_url' ),
-        'customtext_content' => $u->prop( 'customtext_content' ),
+        'customtext_title' => escape_prop_value_ret( $u->prop( 'customtext_title' ), 'plain' ),
+        'customtext_url' => escape_prop_value_ret( $u->prop( 'customtext_url' ), 'plain' ),
+        'customtext_content' => escape_prop_value_ret( $u->prop( 'customtext_content' ), 'html' ),
         'views_order' => [ 'recent', 'archive', 'read', 'tags', 'memories', 'userinfo' ],
         'global_title' =>  LJ::ehtml($u->{'journaltitle'} || $u->{'name'}),
         'global_subtitle' => LJ::ehtml($u->{'journalsubtitle'}),

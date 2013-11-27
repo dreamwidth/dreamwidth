@@ -68,7 +68,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url     => "http://i.deviantart.net/favicon.png",
+        url     => "http://i.deviantart.net/icons/favicon.png",
         width   => 16,
         height  => 16,
     }
