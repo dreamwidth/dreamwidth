@@ -1,0 +1,73 @@
+.email.body.approved<<
+The entry you submitted to [[comm]] has been approved and successfully posted:
+
+  [[entry_url]]
+.
+
+.email.body.approved.message<<
+The moderator who approved your entry attached the following message:
+
+  [[message]]
+.
+
+.email.body.error<<
+The entry you submitted to [[comm]] was approved, but failed to be posted due to the following error:
+
+  [[error]]
+.
+
+.email.body.rejected<<
+The entry you submitted to [[comm]] has been rejected by a moderator of that community.
+
+Please note that replies to this email are not sent to the community's moderator(s). If you would like to discuss the reasons for your entry's rejection, you will need to contact a moderator directly.
+.
+
+.email.body.rejected_with_message<<
+The entry you submitted to [[comm]] has been rejected by a moderator of that community for the following reason:
+
+  [[message]]
+
+Please note that replies to this email are not sent to the community's moderator(s). If you would like to discuss the reasons for your entry's rejection, you will need to contact a moderator directly.
+.
+
+.email.submission<<
+Here is the entry you submitted:
+
+[[subject]]
+[[time]]
+[[metadata]]
+
+[[text]]
+.
+
+.email.subject=Moderated submission notification
+
+.email.submission.icon=Icon Keyword: [[icon]]
+
+.email.submission.mood=Current Mood: [[mood]]
+
+.email.submission.music=Current Music: [[music]]
+
+.email.submission.subject=Subject: [[subject]]
+
+.email.submission.time=Time: [[time]]
+
+.error.cant_spam=You cannot mark entries as spam at this time.
+
+.error.no_entry=This entry wasn't found.  It may have already been handled by another administrator.
+
+.error.post=The entry hasn't been posted because of an error: [[error]]
+
+.form.label.message=Message (optional)
+
+.form.submit.approve=Approve
+
+.form.submit.preapprove=Always Approve
+
+.form.submit.reject=Reject
+
+.form.submit.spam=Reject as Spam
+
+.label.age_restriction=Reason for restriction: [[reason]]
+
+.title=Entry Moderation Queue

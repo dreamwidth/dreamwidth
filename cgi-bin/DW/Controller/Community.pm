@@ -19,6 +19,7 @@ use DW::Template;
 use DW::FormErrors;
 
 use POSIX;
+use DW::Entry::Moderated;
 
 =head1 NAME
 
@@ -29,14 +30,45 @@ DW::Controller::Community - Community management pages
 DW::Routing->register_string( "/communities/index", \&index_handler, app => 1 );
 DW::Routing->register_string( "/communities/list", \&list_handler, app => 1 );
 DW::Routing->register_string( "/communities/new", \&new_handler, app => 1 );
-DW::Routing->register_string( "/communities/members/edit", \&members_redirect_handler, app => 1 );
+
 DW::Routing->register_regex( '^/communities/([^/]+)/members/edit$', \&members_handler, app => 1 );
 DW::Routing->register_string( "/communities/members/purge", \&purge_handler, app => 1, methods => { POST => 1 } );
 
+DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries$', \&entry_queue_handler, app => 1 );
+DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries/([0-9]+)$', \&entry_queue_edit_handler, app => 1 );
+
+# redirects
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
 DW::Routing->register_redirect( "/community/manage", "/communities/list" );
+DW::Routing->register_redirect( "/community/moderate", "/communities/queue/entries", keep_args => [ "authas" ] );
 DW::Routing->register_redirect( "/community/create", "/communities/new" );
 DW::Routing->register_redirect( "/community/members", "/communities/members/edit", keep_args => [ "authas" ] );
+DW::Routing->register_string( "/communities/members/edit", \&members_redirect_handler, app => 1 );
+DW::Routing->register_string( "/communities/queue/entries", \&entry_queue_redirect_handler, app => 1 );
+
+sub members_redirect_handler {
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    my $authas = LJ::eurl( $get->{authas});
+    if ( $authas ) {
+        return $r->redirect( "$LJ::SITEROOT/communities/$authas/members/edit" );
+    } else {
+        return $r->redirect( "$LJ::SITEROOT/communities/list" );
+    }
+}
+
+sub entry_queue_redirect_handler {
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    my $authas = LJ::eurl( $get->{authas});
+    if ( $authas ) {
+        return $r->redirect( "$LJ::SITEROOT/communities/$authas/queue/entries" );
+    } else {
+        return $r->redirect( "$LJ::SITEROOT/communities/list" );
+    }
+}
 
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
@@ -88,6 +120,7 @@ sub list_handler {
             user     => $cu->user,
             ljuser   => $cu->ljuser_display,
             title    => $cu->name_raw,
+            moderation_queue_url => $cu->moderation_queue_url,
         };
     }
 
@@ -246,17 +279,6 @@ sub new_handler {
                             };
 
     return DW::Template->render_template( 'communities/new.tt', $vars );
-}
-
-sub members_redirect_handler {
-    my $r = DW::Request->get;
-    my $get = $r->get_args;
-
-    if ( $get->{authas} ) {
-        return $r->redirect( "$LJ::SITEROOT/communities/$get->{authas}/members/edit" );
-    } else {
-        return $r->redirect( "$LJ::SITEROOT/communities/list" );
-    }
 }
 
 sub members_handler {
@@ -560,7 +582,7 @@ sub members_handler {
 sub purge_handler {
     my ( $opts ) = @_;
 
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
@@ -596,6 +618,147 @@ sub purge_handler {
     };
 
     return DW::Template->render_template( 'communities/members/purge.tt', $vars );
+}
+
+# returns ( $can_moderate, ".error_ml", { error_ml_args => foo } )
+sub _check_entry_queue_auth {
+    my ( $class, $cu, $remote ) = @_;
+
+    my $ml_scope = "/communities/queue/entries.tt";
+
+    return ( 0, "$ml_scope.error.notfound" ) unless $cu;
+
+    unless ( $remote->can_moderate( $cu ) ) {
+        return ( 0, "$ml_scope.error.noaccess", { comm => $cu->ljuser_display } )
+            if $cu->has_moderated_posting;
+
+        return ( 0, "$ml_scope.error.notmoderated" );
+    }
+}
+
+sub entry_queue_handler {
+    my ( $opts, $community ) = @_;
+
+    my ( $ok, $rv ) = controller( form_auth => 0 );
+    return $rv unless $ok;
+
+    my $cu = LJ::load_user( $community );
+
+    my ( $can_moderate, @error ) = DW::Controller::Community->_check_entry_queue_auth( $cu, $rv->{remote} );
+    return error_ml( @error ) unless $can_moderate;
+
+    my $r = $rv->{r};
+    my @queue = $cu->get_mod_queue;
+
+    my %users;
+    LJ::load_userids_multiple([ map { $_->{posterid}, \$users{$_->{posterid}} } @queue ]);
+
+    my @entries = map {
+            {
+                time    => LJ::diff_ago_text( LJ::mysqldate_to_time( $_->{logtime} ) ),
+                poster  => $users{$_->{posterid}}->ljuser_display,
+                subject => $_->{subject},
+                url     => $cu->moderation_queue_url( $_->{modid} ),
+            }
+        } @queue;
+
+    my $vars = {
+        entries => \@entries,
+    };
+
+    return DW::Template->render_template( 'communities/queue/entries.tt', $vars );
+}
+
+sub entry_queue_edit_handler {
+    my ( $opts, $community, $modid ) = @_;
+
+    $modid = int $modid;
+
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $cu = LJ::load_user( $community );
+
+    my ( $can_moderate, @error ) = DW::Controller::Community->_check_entry_queue_auth( $cu, $rv->{remote} );
+    return error_ml( @error ) unless $can_moderate;
+
+    my $moderated_entry = DW::Entry::Moderated->new( $cu, $modid );
+    return error_ml( "/communities/queue/entries/edit.tt.error.no_entry") unless $moderated_entry;
+
+    my $r = $rv->{r};
+
+    my $errors = DW::FormErrors->new;
+    if ( $r->did_post ) {
+        my $post = $r->post_args;
+        my $status_vars = { queue_url => $cu->moderation_queue_url };
+
+        return error_ml( "/communities/queue/entries/edit.tt.error.no_entry" )
+            unless $moderated_entry->auth eq $post->{auth};
+
+        if ( $post->{"action:approve"} || $post->{"action:preapprove"} ) {
+            my ( $approve_ok, $approve_rv ) = $moderated_entry->approve;
+            if ( $approve_ok ) {
+                $moderated_entry->notify_poster( "approved",
+                                   entry_url => $approve_rv,
+                                   message => $post->{message}
+                                );
+
+                $status_vars->{status} = "approved";
+                $status_vars->{entry_url} = $approve_rv;
+            } else {
+                $moderated_entry->notify_poster( "error", error => $approve_rv );
+
+                $errors->add( undef, "/communities/queue/entries/edit.tt.error.post", { error => $approve_rv } );
+            }
+
+            if ( $post->{"action:preapprove"} ) {
+                LJ::set_rel( $moderated_entry->journal, $moderated_entry->poster, 'N' );
+
+                $status_vars->{preapproved} = 1;
+                $status_vars->{user} = $moderated_entry->poster->ljuser_display;
+                $status_vars->{community} = $moderated_entry->journal->ljuser_display;
+            }
+        }
+
+        if ( $post->{"action:reject"} || $post->{"action:spam"} ) {
+            my $reject_ok = $post->{"action:spam"} ? $moderated_entry->reject_as_spam : $moderated_entry->reject;
+            $moderated_entry->notify_poster( "rejected",
+                                            message => $post->{message},
+                                        ) if $reject_ok;
+
+            $status_vars->{status} = "rejected";
+
+            $errors->add( undef, ".error.cant_spam" ) unless $reject_ok;
+        }
+
+        return DW::Template->render_template( 'communities/queue/entries/edit-status.tt', $status_vars )
+            unless $errors->exist;
+    }
+
+    my $vars = {
+        entry   =>  {   icon    => $moderated_entry->icon,
+                        poster  => $moderated_entry->poster,
+                        journal => $moderated_entry->journal,
+                        time    => $moderated_entry->time( linkify => 1 ),
+
+                        subject => $moderated_entry->subject,
+                        event   => $moderated_entry->event,
+                        age_restriction_reason => $moderated_entry->age_restriction_reason,
+
+                        auth    => $moderated_entry->auth,
+
+                        currents_html => $moderated_entry->currents_html,
+                        security_html =>$moderated_entry->security_html,
+                        age_restriction_html => $moderated_entry->age_restriction_html,
+                    },
+
+        moderate_url => LJ::create_url( undef ),
+        can_report_spam => LJ::sysban_check( 'spamreport', $cu->user ) ? 0 : 1,
+
+        errors => $errors,
+    };
+
+    return DW::Template->render_template( 'communities/queue/entries/edit.tt', $vars );
 }
 
 1;

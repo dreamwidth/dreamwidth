@@ -177,12 +177,10 @@
   );
 -%]
 
-<pre><code>  [&#37;-
-  dw.need_res( { group => "foundation" },
+<pre><code>  [&#37;- dw.need_res( { group => "foundation" },
       "js/components/jquery.select-all.js"
       "stc/css/components/select-all.css"
-  );
--&#37;]</code></pre>
+  ) -&#37;]</code></pre>
 </div>
 </div>
 
@@ -202,6 +200,36 @@
   &#37;]</code></pre>
   </div>
 </div>
+
+<h2>Queue</h2>
+[%- dw.need_res( { group => "foundation" },
+      "stc/css/components/queues.css"
+  ) -%]
+<p>A list of items for someone to take action on.</p>
+<div class="row">
+  <div class="large-6 columns">
+
+  <ul class="queue">
+    <li class="row queue-item">
+        <div class="columns large-3">[%- INCLUDE ljuser user="user" -%]</div>
+        <div class="columns large-7"><a href="">entry subject</a></div>
+        <div class="columns large-2 timestamp">timestamp</div>
+    </li>
+    <li class="row queue-item">
+        <div class="columns large-3">[%- INCLUDE ljuser user="user" -%]</div>
+        <div class="columns large-7"><a href="">entry subject</a></div>
+        <div class="columns large-2 timestamp">timestamp</div>
+    </li>
+  </ul>
+
+  </div>
+  <div class="large-6 columns"><h3>code</h3>
+  <pre><code>  [&#37;- dw.need_res( { group => "foundation" },
+      "stc/css/components/queues.css"
+  ) -&#37;]</code></pre>
+</div>
+</div>
+
 
 <h2>Sub Nav</h2>
 <dl class="sub-nav">
@@ -259,3 +287,9 @@
     </ul>
   </section>
 </nav>
+
+
+[%# Helper blocks for formatting examples above %]
+[%- BLOCK ljuser -%]
+<span lj:user='[% user %]' style='white-space: nowrap;' class='ljuser'><a href='http://[% user %].dream.fu/profile'><img src='http://www.dream.fu/img/silk/identity/user.png' alt='[personal profile] ' width='17' height='17' style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a><a href='http://[% user %].dream.fu/'><b>[% user %]</b></a></span>
+[%- END -%]

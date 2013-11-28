@@ -1,0 +1,10 @@
+$include-html-classes: false;
+@import "foundation/settings", "foundation/components/global";
+
+.approve-or-reject {
+    margin-top: $base-line-height * 3em;
+
+    textarea {
+        height: $base-line-height * 5em;
+    }
+}

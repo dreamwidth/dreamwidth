@@ -1,0 +1,12 @@
+.approved.preapproved=[[user]] has also been added to the pre-approval list for [[comm]]. Any entries they submit in the future won't need to go through moderation.
+
+.approved.text=You have successfully <a href="[[entry_url]]">approved the entry</a>.
+
+.approved.title=Entry Approved
+
+.link.queue=Go back to moderation queue
+
+.rejected.text=You have rejected the entry.
+
+.rejected.title=Entry Rejected
+

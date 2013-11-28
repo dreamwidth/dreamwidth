@@ -2822,7 +2822,7 @@ sub control_strip
             $links{'edit_community_invites'} = "<a href='$LJ::SITEROOT/community/sentinvites?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
             $links{'edit_community_members'} = "<a href='" . $journal->community_manage_members_url . "'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
             $links{'track_community'} = "<a href='$LJ::SITEROOT/manage/tracking/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackcomm'}</a>";
-            $links{'queue'} = "<a href='$LJ::SITEROOT/community/moderate?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.queue'}</a>";
+            $links{'queue'} = "<a href='" . $journal->moderation_queue_url . "'>$BML::ML{'web.controlstrip.links.queue'}</a>";
         }
     }
     my $journal_display = LJ::ljuser($journal);

@@ -2656,6 +2656,11 @@ sub large_journal_icon {
     return $wrap_img->( "user" );
 }
 
+sub moderation_queue_url {
+    my ( $u, $modid ) = @_;
+    my $base_url = "$LJ::SITEROOT/communities/" . $_[0]->user . "/queue/entries";
+    return $modid ? "$base_url/$modid" : $base_url;
+}
 
 # des: Given a list of caps to add and caps to remove, updates a user's caps.
 # args: cap_add, cap_del, res

@@ -586,7 +586,7 @@ sub maintainer_linkbar {
             "<a href='" . $comm->community_manage_members_url . "'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
         $page eq "queue" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.queue') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/moderate?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",
+            "<a href='" . $comm->moderation_queue_url . "'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",
 
     );
 
@@ -793,5 +793,26 @@ sub _notify_administrator {
             subject => $email_subject,
             body => $email_body,
     );
+}
+
+=head2 C<< $cu->get_mod_queue >>
+
+Get entries pending moderation
+
+=cut
+sub get_mod_queue {
+    my ( $cu ) = @_;
+
+    my $dbcr = LJ::get_cluster_def_reader( $cu );
+
+    my @entries;
+    my $sth = $dbcr->prepare( "SELECT * FROM modlog WHERE journalid=?" );
+    $sth->execute( $cu->userid );
+
+    while ($_ = $sth->fetchrow_hashref) {
+        push @entries, $_;
+    }
+
+    return sort { $a->{logtime} lt $b->{logtime} } @entries;
 }
 1;

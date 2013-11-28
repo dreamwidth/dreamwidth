@@ -51,4 +51,14 @@ h1 {
     color: $page-title-color;
 }
 
+// forms
 @import "skins/form-elements";
+
+// components
+$queue-font-color:     $form-font-color !default;
+$queue-bg-color:       $form-bg-color !default;
+
+.queue-item {
+    background-color: $queue-bg-color;
+    color: $queue-font-color;
+}

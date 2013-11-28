@@ -449,8 +449,9 @@ email.emailreset.error=Unable to update user record for [[user]]
 
 email.emailreset.subject=Email Address Reset
 
+email.footer|notes=The two trailing spaces after "regards," are significant, to allow a newline in markdown (without having a blank line)
 email.footer<<
-Regards,
+Regards,  
 [[sitename]] Team
 
 [[siteroot]]

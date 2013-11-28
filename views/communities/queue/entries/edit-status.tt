@@ -1,0 +1,27 @@
+[%# communities/queue/entries/edit-status.tt
+
+Shows success/failure after entry moderation
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".${status}.title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- IF status == "approved" -%]
+    <p>[%- ".approved.text" | ml ( entry_url = entry_url ) -%]</p>
+
+    [%- IF preapproved -%]
+        <p>[%- ".approved.preapproved" | ml ( user = user, comm = community ) -%]</p>
+    [%- END -%]
+[%- ELSIF status == "rejected" -%]
+    <p>[%- ".rejected.text" | ml -%]
+[%- END -%]
+
+<hr>
+<a href="[% queue_url %]">[% ".link.queue" | ml %]</a>

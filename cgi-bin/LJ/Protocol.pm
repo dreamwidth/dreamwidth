@@ -1533,8 +1533,8 @@ sub postevent
                             modid       => $modid,
                             siteroot    => $LJ::SITEROOT,
                             sitename    => $LJ::SITENAME,
-                            moderateurl => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}&modid=$modid",
-                            viewurl     => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}",
+                            moderateurl => $uowner->moderation_queue_url( $modid ),
+                            viewurl     => $uowner->moderation_queue_url,
                         });
 
                     my $subject = LJ::Lang::get_text(

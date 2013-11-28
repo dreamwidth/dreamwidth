@@ -688,5 +688,16 @@ sub html_newlines {
     return $text;
 }
 
+# prepend ">" to each line of text to make a blockquote in markdown
+# for when text has multiple lines and prepending ">" to the entire
+# text will just convert the first line / paragraph
+sub markdown_blockquote {
+    my $text = $_[0];
+    return '' unless defined $text;
+
+    $text =~ s/(^.*)/\> $1/gm;
+    return $text;
+}
+
 
 1;

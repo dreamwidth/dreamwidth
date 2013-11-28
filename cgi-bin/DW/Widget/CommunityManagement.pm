@@ -67,10 +67,10 @@ sub render_body {
                 $list .= "<dt>" . $cu->ljuser_display;
                 $list .= "<dd>" . $class->ml( 'widget.communitymanagement.pending' );
 
-                $list .= " [<a href='$LJ::SITEROOT/community/moderate?authas=" . $cu->username . "'>" . $class->ml( 'widget.communitymanagement.pending.entry', { num => $pending_entries_count } ) . "</a>]"
+                $list .= " [<a href='". $cu->moderation_queue_url . "'>" . $class->ml( 'widget.communitymanagement.pending.entry', { num => $pending_entries_count } ) . "</a>]"
                     if $pending_entries_count;
 
-                $list .= " [<a href='$LJ::SITEROOT/community/pending?authas=" . $cu->username . "'>" . $class->ml( 'widget.communitymanagement.pending.member', { num =>  $pending_members_count } ) . "</a>]"
+                $list .= " [<a href='" . $cu->moderation_queue_url . "'>" . $class->ml( 'widget.communitymanagement.pending.member', { num =>  $pending_members_count } ) . "</a>]"
                     if $pending_members_count;
 
                 $list .= "</dd>";
