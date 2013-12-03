@@ -1,11 +1,11 @@
 (function($) {
     $.fn.selectAll = function() {
         var $table = $(this);
-        $("input[data-role]", this).click(function(e) {
+        $("input[data-select-all]", this).click(function(e) {
             var $checkbox = $(this);
 
             $table
-                .find( "input[name=" + $checkbox.data("role") + "]" )
+                .find( "input[name=" + $checkbox.data("select-all") + "]" )
                     .prop( "checked", $checkbox.is(":checked") )
         })
     }
