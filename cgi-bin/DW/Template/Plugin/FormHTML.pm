@@ -48,7 +48,7 @@ sub new {
         $data = ref $formdata eq "Hash::MultiValue" ? $formdata : Hash::MultiValue->from_mixed( $formdata );
 
         my $formerrors = $stash->{errors};
-        $errors = $formerrors if $formerrors && $formerrors->exist;
+        $errors = $formerrors if $formerrors && ref $formerrors eq "DW::FormErrors" && $formerrors->exist;
     }
 
     my $r = DW::Request->get;

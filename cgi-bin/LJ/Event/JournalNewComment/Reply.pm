@@ -42,20 +42,22 @@ sub _relevant_userids {
     my $comment = $_[0]->comment;
     return () unless $comment;
 
-    my @prepart;
-    push @prepart, $comment->posterid if $comment->posterid;
-
-    my $parent = $comment->parent;
-
-    return uniq ( @prepart, $parent->posterid )
-        if $parent && $parent->posterid;
-
     my $entry = $comment->entry;
     return () unless $entry;
 
-    return uniq ( @prepart ) unless $entry->journal->is_community;
+    my @prepart;
+    push @prepart, $comment->posterid
+        if $comment->posterid;
 
-    return uniq ( @prepart, $entry->posterid );
+    my $parent = $comment->parent;
+
+    push @prepart, $parent->posterid
+        if $parent && $parent->posterid;
+
+    push @prepart, $entry->posterid
+        if $entry->journal->is_community;
+
+    return uniq @prepart;
 }
 
 sub early_filter_event {
