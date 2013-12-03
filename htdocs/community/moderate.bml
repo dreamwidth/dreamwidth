@@ -101,7 +101,7 @@ body<=
                 $ret .= "<?h1 $ML{'.posted.header'} h1?><?p $ML{'.posted.text'} p?>";
                 # does the poster want to know? if they have working email and notification on
                 ($do_mail, $why_mail) = (1, 'success')
-                    if ($poster->{'opt_gettalkemail'} eq "Y" && $poster->{'status'} eq "A");
+                    if ($poster->{'status'} eq "A");
                 $posturl = LJ::item_link($c, $res->{'itemid'}, $res->{'anum'});
             } else {
                 $prot_err = LJ::Protocol::error_message($prot_err) if $prot_err;
