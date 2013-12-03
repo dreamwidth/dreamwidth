@@ -134,9 +134,9 @@
 <thead>
   <tr class="select-all-header">
     <th scope="row"><span class="select-all-label" id="select-all">Select All</span></th>
-    <th><label><input type="checkbox" data-role="foo" aria-labelledby="select-all"> foo</label></th>
-    <th><label><input type="checkbox" data-role="bar" aria-labelledby="select-all"> bar</label></th>
-    <th><label><input type="checkbox" data-role="baz" aria-labelledby="select-all"> baz</label></th>
+    <th><label><input type="checkbox" data-select-all="foo" aria-labelledby="select-all"> foo</label></th>
+    <th><label><input type="checkbox" data-select-all="bar" aria-labelledby="select-all"> bar</label></th>
+    <th><label><input type="checkbox" data-select-all="baz" aria-labelledby="select-all"> baz</label></th>
   </tr>
 </thead>
 <tbody>
