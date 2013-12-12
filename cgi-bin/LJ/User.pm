@@ -2662,6 +2662,11 @@ sub moderation_queue_url {
     return $modid ? "$base_url/$modid" : $base_url;
 }
 
+sub member_queue_url {
+    my ( $u ) = @_;
+    return "$LJ::SITEROOT/communities/" . $_[0]->user . "/queue/members";
+}
+
 # des: Given a list of caps to add and caps to remove, updates a user's caps.
 # args: cap_add, cap_del, res
 # des-cap_add: arrayref of bit numbers to turn on

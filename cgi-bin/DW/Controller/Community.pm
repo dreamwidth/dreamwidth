@@ -37,38 +37,38 @@ DW::Routing->register_string( "/communities/members/purge", \&purge_handler, app
 DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries$', \&entry_queue_handler, app => 1 );
 DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries/([0-9]+)$', \&entry_queue_edit_handler, app => 1 );
 
+DW::Routing->register_regex( '^/communities/([^/]+)/queue/members$', \&members_queue_handler, app => 1 );
+
 # redirects
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
 DW::Routing->register_redirect( "/community/manage", "/communities/list" );
-DW::Routing->register_redirect( "/community/moderate", "/communities/queue/entries", keep_args => [ "authas" ] );
 DW::Routing->register_redirect( "/community/create", "/communities/new" );
+
 DW::Routing->register_redirect( "/community/members", "/communities/members/edit", keep_args => [ "authas" ] );
 DW::Routing->register_string( "/communities/members/edit", \&members_redirect_handler, app => 1 );
+DW::Routing->register_redirect( "/community/moderate", "/communities/queue/entries", keep_args => [ "authas" ] );
 DW::Routing->register_string( "/communities/queue/entries", \&entry_queue_redirect_handler, app => 1 );
+DW::Routing->register_redirect( "/community/pending", "/communities/queue/members", keep_args => [ "authas" ] );
+DW::Routing->register_string( "/communities/queue/members", \&member_queue_redirect_handler, app => 1 );
 
-sub members_redirect_handler {
+sub _redirect_authas {
+    my $redirect_path = $_[0];
+
     my $r = DW::Request->get;
     my $get = $r->get_args;
 
     my $authas = LJ::eurl( $get->{authas});
     if ( $authas ) {
-        return $r->redirect( "$LJ::SITEROOT/communities/$authas/members/edit" );
+        return $r->redirect( "$LJ::SITEROOT/communities/$authas/$redirect_path" );
     } else {
         return $r->redirect( "$LJ::SITEROOT/communities/list" );
     }
 }
 
-sub entry_queue_redirect_handler {
-    my $r = DW::Request->get;
-    my $get = $r->get_args;
+sub members_redirect_handler      { return _redirect_authas( "members/edit" ); }
+sub entry_queue_redirect_handler  { return _redirect_authas( "queue/entries" ); }
+sub member_queue_redirect_handler { return _redirect_authas( "queue/members" ); }
 
-    my $authas = LJ::eurl( $get->{authas});
-    if ( $authas ) {
-        return $r->redirect( "$LJ::SITEROOT/communities/$authas/queue/entries" );
-    } else {
-        return $r->redirect( "$LJ::SITEROOT/communities/list" );
-    }
-}
 
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
@@ -121,6 +121,7 @@ sub list_handler {
             ljuser   => $cu->ljuser_display,
             title    => $cu->name_raw,
             moderation_queue_url => $cu->moderation_queue_url,
+            member_queue_url     => $cu->member_queue_url,
         };
     }
 
@@ -279,6 +280,20 @@ sub new_handler {
                             };
 
     return DW::Template->render_template( 'communities/new.tt', $vars );
+}
+
+# return the appropriate slice from the full array for this page
+# ideally we'd do this when fetching from the DB
+sub _items_for_this_page {
+    my ( $page, $page_size, @items ) = @_;
+    my $first = ( $page - 1 ) * $page_size;
+
+    my $num_items = scalar @items;
+    my $last = $page * $page_size;
+    $last = $num_items if $last > $num_items;
+    $last = $last - 1;
+
+    return @items[$first...$last];
 }
 
 sub members_handler {
@@ -494,23 +509,15 @@ sub members_handler {
     }
 
     my $page = int( $get->{page} || 0 ) || 1;
-    my $pagesize = 100;
+    my $page_size = 100;
 
     my @users = sort { $a->{name} cmp $b->{name} } values %$users;
-    my $num_users = scalar @users;
 
     # pagination:
     #   calculate the number of pages
     #   take the results and choose only a slice for display
-    my $total_pages = ceil( $num_users / $pagesize );
-
-    my $first = ( $page - 1 ) * $pagesize;
-
-    my $last = $page * $pagesize;
-    $last = $num_users if $last > $num_users;
-    $last = $last - 1;
-
-    @users = @users[$first...$last];
+    my $total_pages = ceil( scalar @users / $page_size );
+    @users = _items_for_this_page( $page, $page_size, @users );
 
     # populate with the ljuser tag for display
     $_->{ljuser} = LJ::ljuser( $_->{name} ) foreach @users;
@@ -622,7 +629,7 @@ sub purge_handler {
 
 # returns ( $can_moderate, ".error_ml", { error_ml_args => foo } )
 sub _check_entry_queue_auth {
-    my ( $class, $cu, $remote ) = @_;
+    my ( $cu, $remote ) = @_;
 
     my $ml_scope = "/communities/queue/entries.tt";
 
@@ -644,7 +651,7 @@ sub entry_queue_handler {
 
     my $cu = LJ::load_user( $community );
 
-    my ( $can_moderate, @error ) = DW::Controller::Community->_check_entry_queue_auth( $cu, $rv->{remote} );
+    my ( $can_moderate, @error ) = _check_entry_queue_auth( $cu, $rv->{remote} );
     return error_ml( @error ) unless $can_moderate;
 
     my $r = $rv->{r};
@@ -679,7 +686,7 @@ sub entry_queue_edit_handler {
 
     my $cu = LJ::load_user( $community );
 
-    my ( $can_moderate, @error ) = DW::Controller::Community->_check_entry_queue_auth( $cu, $rv->{remote} );
+    my ( $can_moderate, @error ) = _check_entry_queue_auth( $cu, $rv->{remote} );
     return error_ml( @error ) unless $can_moderate;
 
     my $moderated_entry = DW::Entry::Moderated->new( $cu, $modid );
@@ -759,6 +766,102 @@ sub entry_queue_edit_handler {
     };
 
     return DW::Template->render_template( 'communities/queue/entries/edit.tt', $vars );
+}
+
+sub members_queue_handler {
+    my ( $opts, $community ) = @_;
+
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $remote = $rv->{remote};
+    my $get = $r->get_args;
+
+    my $cu = LJ::load_user( $community );
+    return error_ml( "/communities/queue/members.tt.error.notfound" ) unless $cu;
+    return error_ml( "/communities/queue/members.tt.error.noaccess", {
+            comm => $cu->ljuser_display,
+        } ) unless $remote->can_manage_other( $cu );
+
+
+    # now load all users with a pending membership request
+    my $pendids = $cu->get_pending_members || [];
+    my $us = LJ::load_userids( @$pendids );
+
+    my @success_msgs;
+    if ( $r->did_post ) {
+        my $post = $r->post_args;
+
+        my @statuses = qw(  approve reject ban ban_skip
+                            previously_handled
+                        );
+        my %status_count = map { $_ => 0 } @statuses;
+        $post->each( sub {
+            my ( $key, $action ) = @_;
+
+            my $uid;
+            return unless ( $uid ) = $key =~ m/user_(\d+)/;
+
+            my $pending_u = $us->{$uid};
+
+            if ( ! $pending_u ) {
+                # POSTed but not in pending users. Looks like it was handled by someone else
+                $status_count{previously_handled}++;
+            } elsif ( $action eq "approve" ) {
+                $cu->approve_pending_member( $pending_u );
+                $status_count{approve}++;
+            } elsif ( $action eq "reject" ) {
+                $cu->reject_pending_member( $pending_u );
+                $status_count{reject}++;
+            } elsif ( $action eq "ban" ) {
+                my $banlist = LJ::load_rel_user( $cu, 'B' ) || [];
+                if ( scalar( @$banlist ) >= ( $LJ::MAX_BANS || 5000 ) ) {
+                    $status_count{ban_skip}++;
+                } else {
+                    $cu->ban_user( $pending_u );
+                    $status_count{ban}++;
+
+                    # ban is successful, reject member
+                    # $cu->reject_pending_member( $pending_u ); # only in case of successful ban
+                }
+            }
+        });
+
+        foreach my $status ( @statuses ) {
+            push @success_msgs, { ml => ".success.$status" , num => $status_count{$status} }
+                if $status_count{$status};
+        }
+
+        # get the list of pending members again; may have changed
+        $pendids = $cu->get_pending_members || [];
+        $us = LJ::load_userids( @$pendids );
+    }
+
+    my $page = int( $get->{page} || 0 ) || 1;
+    my $page_size = 100;
+
+    my @users = sort { $a->{user} cmp $b->{user} } values %$us;
+
+    # pagination:
+    #   calculate the number of pages
+    #   take the results and choose only a slice for display
+    my $total_pages = ceil( scalar @users / $page_size );
+    @users = _items_for_this_page( $page, $page_size, @users );
+
+    my $vars = {
+        user_list   => [ map { {
+                            userid => $_->userid,
+                            ljuser => $_->ljuser_display,
+            }} @users ],
+        pages       => { current => $page, total_pages => $total_pages },
+        messages    => \@success_msgs,
+
+        form_queue_action_url => LJ::create_url( undef, keep_args => [qw( page )] ),
+    };
+
+    return DW::Template->render_template( 'communities/queue/members.tt', $vars );
+
 }
 
 1;

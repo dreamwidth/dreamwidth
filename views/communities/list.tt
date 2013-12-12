@@ -58,7 +58,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [%- END -%]
 
                 [%- IF comm.pending_members_count > 0 -%]
-                    <li><a href="[% site.root %]/community/pending?authas=[% comm.user %]">[%- '.actions.moderation.members' | ml( num = "<span class='round label'>$comm.pending_members_count</span>" ) -%]</a></li>
+                    <li><a href="[% comm.member_queue_url %]">[%- '.actions.moderation.members' | ml( num = "<span class='round label'>$comm.pending_members_count</span>" ) -%]</a></li>
                 [%- END -%]
             </ul>
             [%- END -%]</td>
