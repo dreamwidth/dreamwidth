@@ -39,6 +39,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     "js/md5.js"
                     "js/login-jquery.js"
         );
+        dw.need_res( { group => "foundation" },
+                    "js/foundation/foundation/foundation.reveal.js"
+        );
     -%]
     [%- PROCESS block.need_res -%]
     [% dw_scheme.res_includes %]
@@ -83,7 +86,86 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- account_link_options = {} -%]
 [%- BLOCK block.accountlinks -%]
-[%- IF resource_group == "foundation" %]<div class="row"><div class="columns large-12 small-12 account-links-in-header">[%- END -%]
+[%# At this point it's too tricky to work in foundation styling with the old table based way
+of managing account links, so it's been split into two different sections.  Hopefully,
+the table based way can be removed when the entire site is Foundation-based.
+%]
+[%- IF resource_group == "foundation" -%]
+[%- IF remote -%]
+<div class="row" id="account-links" role="navigation">
+<div class="columns large-12 small-12">
+    [%- IF ! account_link_options.no_userpic -%]
+        [%- PROCESS block.userpic -%]
+    [%- END -%]
+    [%- inbox = remote.notification_inbox -%]
+    [%- unread = inbox.unread_count -%]
+    [%- identity = remote.is_identity -%]
+    [%- -%]<div id='account-links-text'>
+    [%- IF dw_scheme.show_logout_button -%]
+    <div class='row'><div class='small-12 large-12 columns'>
+    [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/logout?ret=1' method='post'>
+    [%- remote.ljuser_display -%]
+    [%- -%]<input type='hidden' name='user' value='[% remote.user %]' />
+    [%- -%]<input type='hidden' name='sessid' value='[% remote.session.sessid %]' />
+    [%- -%]<input type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
+    [%- -%]</form>
+    </div></div>
+    [%- END -%]
+    <div class='row'><div class='small-12 large-12 columns'>
+    [%- -%]<ul>
+    [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
+    [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
+    [%- -%]<li><a href='[% site.root %]/inbox/'>[% 'sitescheme.accountlinks.inbox' | ml %]
+    [%- IF unread -%] <span id='Inbox_Unread_Count'>([% unread %])</span>[%- END -%]
+    [%- -%]</a></li>
+    [%- -%]</ul>
+    [%- -%]<ul>
+    [%- -%]<li><a href='[% site.root %]/manage/settings/'>[% 'sitescheme.accountlinks.account' | ml %]</a></li>
+    [%- IF ! identity AND dw_scheme.show_invite_link -%]<li><a href='[% site.root %]/manage/circle/invite'>[% 'sitescheme.accountlinks.invitefriend' | ml %]</a></li>[%- END -%]
+    [%- -%]<li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
+    [%- -%]</ul>
+    [%- -%]</div></div>
+    </div>
+</div>
+</div>
+[%- ELSE -%]
+    [%- chal = dw_scheme.challenge_generate(300) -%]
+    <div class="row" id='account-links'>
+    <div class="columns push-4 large-8 small-12" role="navigation">
+    <a href="/login" class="button radius right" data-reveal-id="nav-login-form">Log In</a>
+    <div id='nav-login-form' class="reveal-modal" data-reveal>
+    [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/login?ret=1' method='post' class='lj_login_form'>
+    [%- -%]<input type="hidden" name="returnto" value="[% get.returnto | html %]" />
+    [%- -%]<input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
+    <input type='hidden' name='response' class='lj_login_response' value='' />
+    [%- -%]<div class="row">
+    [%- -%]  <div class="columns large-3 small-12"><label for='login_user' class='inline'>[% 'sitescheme.accountlinks.login.username' | ml %]</label></div>
+    [%- -%]  <div class="columns large-5 small-12"><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" type="text" /></div>
+    [%- -%]  <div class="columns large-4 small-12"><a href='[% is_ssl ? site.ssl.root : site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></div></div>
+    [%- -%]<div class="row">
+    [%- -%]  <div class="columns large-3 small-12"><label for='login_password' class='inline'>[% 'sitescheme.accountlinks.login.password' | ml %]</label></div>
+    [%- -%]  <div class="columns large-5 small-12"><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true" class="lj_login_password"></div>
+    [%- -%]  <div class="columns large-4 small-12"><a href='[% is_ssl ? site.ssl.root : site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></div></div>
+    [%- -%]<div class="row">
+    [%- -%]  <div class="columns large-3 hide-for-small">&nbsp;</div>
+    [%- -%]  <div class="columns large-9 small-12">
+    [%- -%]    <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" tabindex="3" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %] </label>
+    [%- -%]  </div>
+           </div>
+           <div class="row">
+    [%- -%]  <div class="columns">
+                <input class="button expand" type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/>
+             </div>
+           </div>
+    [%- -%]</form>
+           <a class="close-reveal-modal">&#215;</a>
+    [%- -%]
+    </div>
+    </div>
+    </div>
+[%- END -%]
+[%- ELSE -%]
+<div id="account-links" role="navigation">
 [%- IF remote -%]
     [%- IF ! account_link_options.no_userpic -%]
         [%- PROCESS block.userpic -%]
@@ -93,16 +175,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- identity = remote.is_identity -%]
     [%- -%]<div id='account-links-text'>
     [%- IF dw_scheme.show_logout_button -%]
-    [%- IF resource_group == "foundation" %]<div class='row'><div class='small-12 large-12 columns'>[%- END -%]
     [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/logout?ret=1' method='post'>
     [%- remote.ljuser_display -%]
     [%- -%]<input type='hidden' name='user' value='[% remote.user %]' />
     [%- -%]<input type='hidden' name='sessid' value='[% remote.session.sessid %]' />
     [%- -%]<input type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     [%- -%]</form>
-    [%- IF resource_group == "foundation" %]</div></div>[%- END -%]
     [%- END -%]
-    [%- IF resource_group == "foundation" %]<div class='row'><div class='small-12 large-12 columns'>[%- END -%]
     [%- -%]<ul>
     [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
     [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
@@ -116,14 +195,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- -%]<li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
     [%- -%]</ul>
     [%- -%]</div>
-    [%- IF resource_group == "foundation" %]</div></div>[%- END -%]
 [%- ELSE -%]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/login?ret=1' method='post' class='lj_login_form'>
     [%- -%]<input type="hidden" name="returnto" value="[% get.returnto | html %]" />
     [%- -%]<input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
     <input type='hidden' name='response' class='lj_login_response' value='' />
-[%- IF resource_group != "foundation" -%]
     <table summary='' id='login-table'>
     [%- -%]<tr><td><label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label></td>
     [%- -%]<td class='input-cell' colspan='2'><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" />
@@ -137,27 +214,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- %] <label for='login_remember_me'>[% 'sitescheme.accountlinks.login.rememberme' | ml %]</label></td>
     [%- -%]<td><input type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/></td>
     [%- -%]</tr></table></form>
-[%- ELSE -%]
-    <div id='nav-login-form'>
-    [%- -%]<div class="row">
-    [%- -%]  <div class="columns large-3 small-12"><label for='login_user' class='inline'>[% 'sitescheme.accountlinks.login.username' | ml %]</label></div>
-    [%- -%]  <div class="columns large-5 small-12"><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" type="text" /></div>
-    [%- -%]  <div class="columns large-4 small-12"><a href='[% is_ssl ? site.ssl.root : site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></div></div>
-    [%- -%]<div class="row">
-    [%- -%]  <div class="columns large-3 small-12"><label for='login_password' class='inline'>[% 'sitescheme.accountlinks.login.password' | ml %]</label></div>
-    [%- -%]  <div class="columns large-5 small-12"><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true" class="lj_login_password"></div>
-    [%- -%]  <div class="columns large-4 small-12"><a href='[% is_ssl ? site.ssl.root : site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></div></div>
-    [%- -%]<div class="row">
-    [%- -%]  <div class="columns large-3 hide-for-small">&nbsp;</div>
-    [%- -%]  <div class="columns large-5 small-12">
-    [%- -%]    <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" tabindex="3" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %] </label>
-    [%- -%]  </div>
-    [%- -%]  <div class="columns large-4 small-12"><input type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/></div></div>
-    [%- -%]</div>
-    [%- -%]</form>
 [%- END -%]
+</div>
 [%- END -%]
-[%- IF resource_group == "foundation" %]</div></div>[%- END -%]
 [%- END -%]
 
 [%- BLOCK block.pagediv -%]
@@ -177,9 +236,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <h1>[% sections.title %]</h1>
     [% content %]
     </div>
-    <div id="account-links" role="navigation">
-        [% PROCESS block.accountlinks %]
-    </div>
+    [% PROCESS block.accountlinks %]
     <nav role="navigation">
         [% PROCESS block.menunav %]
     </nav>
@@ -226,9 +283,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 </div><!--end content-->
             </div><!-- end page-->
 
-            <div id="account-links" role="navigation" class="hide-for-small">
-                [% PROCESS block.accountlinks %]
-            </div><!-- end account links-->
+            [% PROCESS block.accountlinks %]
 
             <nav role="navigation"  class="main-nav top-bar contain-to-grid" data-topbar>
 
