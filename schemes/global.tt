@@ -1,4 +1,10 @@
 [%- BLOCK block.menunav -%]
+[%- IF remote and resource_group == "foundation" -%]
+<a id="account-link-access" class="show-for-small-only" href="#"
+  data-reveal-id="account-links-modal-content">
+  [% remote.username %]
+</a>
+[%- END -%]
 <ul class="left">[%- nav_links = dw_scheme.menu_nav -%]
 [% FOREACH cathash IN nav_links -%]
     [%- cat = cathash.name -%][%- submenu = cathash.items -%]

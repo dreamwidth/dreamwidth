@@ -92,40 +92,55 @@ the table based way can be removed when the entire site is Foundation-based.
 %]
 [%- IF resource_group == "foundation" -%]
 [%- IF remote -%]
+
+[%# Need to turn this into a component
+    or split up into modal and not modal bits
+%]
+[% accountlinktemplate = BLOCK %]
+[%- inbox = remote.notification_inbox -%]
+[%- unread = inbox.unread_count -%]
+[%- identity = remote.is_identity -%]
+
+[%- IF ! account_link_options.no_userpic -%]
+[%- PROCESS block.userpic -%]
+[%- END -%]
+
+<div id='account-links-text'>
+[%- IF dw_scheme.show_logout_button -%]
+<div class='row'><div class='columns'>
+<form action='[% is_ssl ? site.ssl.root : site.root %]/logout?ret=1' method='post'>
+[%- remote.ljuser_display -%]
+<input type='hidden' name='user' value='[% remote.user %]' />
+<input type='hidden' name='sessid' value='[% remote.session.sessid %]' />
+<input class="logout button secondary" type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
+</form>
+</div></div>
+[%- END -%]
+<div class='row'><div class='small-12 large-12 columns'>
+<ul>
+[%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
+<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
+<li class="before-break"><a href='[% site.root %]/inbox/'>[% 'sitescheme.accountlinks.inbox' | ml %]
+[%- IF unread -%] <span id='Inbox_Unread_Count'>([% unread %])</span>[%- END -%]
+</a></li>
+<li class="after-break"><a href='[% site.root %]/manage/settings/'>[% 'sitescheme.accountlinks.account' | ml %]</a></li>
+[%- IF ! identity AND dw_scheme.show_invite_link -%]<li><a href='[% site.root %]/manage/circle/invite'>[% 'sitescheme.accountlinks.invitefriend' | ml %]</a></li>[%- END -%]
+<li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
+</ul>
+</div></div>
+</div>
+[% END %]
+
 <div class="row" id="account-links" role="navigation">
 <div class="columns large-12 small-12">
-    [%- IF ! account_link_options.no_userpic -%]
-        [%- PROCESS block.userpic -%]
-    [%- END -%]
-    [%- inbox = remote.notification_inbox -%]
-    [%- unread = inbox.unread_count -%]
-    [%- identity = remote.is_identity -%]
-    [%- -%]<div id='account-links-text'>
-    [%- IF dw_scheme.show_logout_button -%]
-    <div class='row'><div class='small-12 large-12 columns'>
-    [%- -%]<form action='[% is_ssl ? site.ssl.root : site.root %]/logout?ret=1' method='post'>
-    [%- remote.ljuser_display -%]
-    [%- -%]<input type='hidden' name='user' value='[% remote.user %]' />
-    [%- -%]<input type='hidden' name='sessid' value='[% remote.session.sessid %]' />
-    [%- -%]<input type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
-    [%- -%]</form>
-    </div></div>
-    [%- END -%]
-    <div class='row'><div class='small-12 large-12 columns'>
-    [%- -%]<ul>
-    [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
-    [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
-    [%- -%]<li><a href='[% site.root %]/inbox/'>[% 'sitescheme.accountlinks.inbox' | ml %]
-    [%- IF unread -%] <span id='Inbox_Unread_Count'>([% unread %])</span>[%- END -%]
-    [%- -%]</a></li>
-    [%- -%]</ul>
-    [%- -%]<ul>
-    [%- -%]<li><a href='[% site.root %]/manage/settings/'>[% 'sitescheme.accountlinks.account' | ml %]</a></li>
-    [%- IF ! identity AND dw_scheme.show_invite_link -%]<li><a href='[% site.root %]/manage/circle/invite'>[% 'sitescheme.accountlinks.invitefriend' | ml %]</a></li>[%- END -%]
-    [%- -%]<li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
-    [%- -%]</ul>
-    [%- -%]</div></div>
+    <div id="account-links-modal-content" class="reveal-modal" data-reveal>
+    [% accountlinktemplate %]
+    <a class="close-reveal-modal">&#215;</a>
     </div>
+    
+    <div id="account-links-static-content">
+    [% accountlinktemplate %]
+    </div>    
 </div>
 </div>
 [%- ELSE -%]

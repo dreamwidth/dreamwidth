@@ -7,12 +7,45 @@ $nav-small-screen-header-height: 3em;
                     $topbar-offset: 0,
                     $sidebar-width: 0
                   ) {
+
     #account-links {
         position: absolute;
-        top: $accountlinks-offset + 1em;
-
+        top: -$nav-small-screen-header-height;
         white-space: nowrap;
 
+    }
+
+    #account-links-modal-content {
+       #account-links-userpic { 
+           display: none;
+       }
+       #account-links-text { float: left; }
+       .logout.button { display: block; margin-top: .5em; }
+    }
+    
+    @media #{$small-only} {
+        /* Adjustments to the static account links display in the masthead */
+        #account-links #account-links-userpic {
+            position: absolute; /* Should be done in a cleaner way -- this positions
+                                   the icon when on a small screen in the header when smaller */
+            right: -40px;
+            top: -11px;
+            
+            img { 
+                width: 50%; 
+                height: 50%; 
+            }
+        }
+        
+        #account-links #account-links-text { display: none; }
+    }
+
+    
+    @media #{$small} {
+      #account-links {
+        top: $accountlinks-offset + 1em;
+        
+        
         #account-links-text, .account-links-in-header, #nav-login-form {
             float: $side;
         }
@@ -21,6 +54,7 @@ $nav-small-screen-header-height: 3em;
             float: $side;
             clear: both;
             margin: 0;
+            font-size: .9em;
         }
 
         li {
@@ -36,10 +70,19 @@ $nav-small-screen-header-height: 3em;
                 content: "";
                 margin-left: 0;
             }
+        }        
+
+        li.before-break:after {
+            content: "";
+            margin-left: 0;
+        }
+        
+        li.after-break {
+            clear: left;
         }
 
         .ljuser {
-            font-size: 1.5em;
+            font-size: 1.3em;
             line-height: 1;
         }
 
@@ -54,7 +97,14 @@ $nav-small-screen-header-height: 3em;
          label.inline {
             text-align: right;
         }
-    }
+        
+        .logout.button {
+            padding: .15em;
+            margin: 0em;
+            font-size: 0.6875rem;
+        }
+        
+      }
 
     #account-links-userpic {
         max-height: 7em;
@@ -86,6 +136,8 @@ $nav-small-screen-header-height: 3em;
         }
     }
 
+    }
+    
     #header-search {
         position: absolute;
         top: $header-height + $search-offset;
@@ -214,6 +266,14 @@ $nav-small-screen-header-height: 3em;
             .main-nav {
                 top: $header-height;
             }
+        }
+        
+        /* On small screens, this shows in the left corner of the menu bar so an account links
+        modal can be accessed */
+        #account-link-access {
+            position: absolute;
+            left: 1em;
+            top: -2em;
         }
     }
 }
