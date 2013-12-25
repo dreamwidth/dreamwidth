@@ -14,17 +14,10 @@ $nav-small-screen-header-height: 3em;
         white-space: nowrap;
 
     }
-
-    #account-links-modal-content {
-       #account-links-userpic { 
-           display: none;
-       }
-       #account-links-text { float: left; }
-       .logout.button { display: block; margin-top: .5em; }
-    }
     
     @media #{$small-only} {
         /* Adjustments to the static account links display in the masthead */
+        
         #account-links #account-links-userpic {
             position: absolute; /* Should be done in a cleaner way -- this positions
                                    the icon when on a small screen in the header when smaller */
@@ -36,8 +29,40 @@ $nav-small-screen-header-height: 3em;
                 height: 50%; 
             }
         }
-        
-        #account-links #account-links-text { display: none; }
+                
+        /* This makes the account links text into a modal when the screen is small */
+        #account-links-text {
+            @include reveal-modal-base(
+              // Provides reveal base styles, can be set to false to override.
+              $base-style:true,
+              // Sets reveal width Default: $reveal-default-width or 80%
+              $width:$reveal-default-width
+            );        
+            @include reveal-modal-style(
+              // Sets background color of reveal modal. Default: $reveal-modal-bg or #fff
+              $bg:$reveal-modal-bg,
+              // Set reveal border style. Default: $reveal-border-style or solid
+              $border:true,
+              // Width of border (i.e. 1px). Default: $reveal-border-width.
+              $border-style:$reveal-border-style,
+              // Color of border. Default: $reveal-border-color.
+              $border-width:$reveal-border-width,
+              // Color of border. Default: $reveal-border-color.
+              $border-color:$reveal-border-color,
+              // Choose whether or not to include the default box-shadow. Default: true, Options: false
+              $box-shadow:true,
+              // Default: $reveal-position-top or 50px
+              $top-offset:$reveal-position-top
+            );
+            
+            .close-reveal-modal {
+              @include reveal-close(
+                $color:$reveal-close-color
+              );
+            }
+            
+            .logout.button { display: block; margin-top: .5em; }            
+        }
     }
 
     
@@ -45,7 +70,10 @@ $nav-small-screen-header-height: 3em;
       #account-links {
         top: $accountlinks-offset + 1em;
         
-        
+        #account-links-text {
+            .close-reveal-modal { display: none; }
+        }
+
         #account-links-text, .account-links-in-header, #nav-login-form {
             float: $side;
         }

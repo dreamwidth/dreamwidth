@@ -93,10 +93,8 @@ the table based way can be removed when the entire site is Foundation-based.
 [%- IF resource_group == "foundation" -%]
 [%- IF remote -%]
 
-[%# Need to turn this into a component
-    or split up into modal and not modal bits
-%]
-[% accountlinktemplate = BLOCK %]
+<div class="row" id="account-links" role="navigation">
+<div class="columns large-12 small-12">
 [%- inbox = remote.notification_inbox -%]
 [%- unread = inbox.unread_count -%]
 [%- identity = remote.is_identity -%]
@@ -105,7 +103,7 @@ the table based way can be removed when the entire site is Foundation-based.
 [%- PROCESS block.userpic -%]
 [%- END -%]
 
-<div id='account-links-text'>
+<div id='account-links-text' data-reveal>
 [%- IF dw_scheme.show_logout_button -%]
 <div class='row'><div class='columns'>
 <form action='[% is_ssl ? site.ssl.root : site.root %]/logout?ret=1' method='post'>
@@ -128,21 +126,12 @@ the table based way can be removed when the entire site is Foundation-based.
 <li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
 </ul>
 </div></div>
-</div>
-[% END %]
 
-<div class="row" id="account-links" role="navigation">
-<div class="columns large-12 small-12">
-    <div id="account-links-modal-content" class="reveal-modal" data-reveal>
-    [% accountlinktemplate %]
-    <a class="close-reveal-modal">&#215;</a>
-    </div>
-    
-    <div id="account-links-static-content">
-    [% accountlinktemplate %]
-    </div>    
+<a class="close-reveal-modal">&#215;</a>
+</div><!-- end #account-links-text -->
 </div>
-</div>
+</div><!-- end #account-links.row -->
+
 [%- ELSE -%]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     <div class="row" id='account-links'>

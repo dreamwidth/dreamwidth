@@ -1,7 +1,7 @@
 [%- BLOCK block.menunav -%]
 [%- IF remote and resource_group == "foundation" -%]
 <a id="account-link-access" class="show-for-small-only" href="#"
-  data-reveal-id="account-links-modal-content">
+  data-reveal-id="account-links-text">
   [% remote.username %]
 </a>
 [%- END -%]
