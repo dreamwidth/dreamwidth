@@ -302,6 +302,10 @@ $nav-small-screen-header-height: 3em;
             position: absolute;
             left: 1em;
             top: -2em;
+            
+            &:visited {
+                color: $link-color !important;
+            }
         }
     }
 }
