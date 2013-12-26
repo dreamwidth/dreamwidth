@@ -1,4 +1,16 @@
 [%- BLOCK block.menunav -%]
+[%- IF resource_group == "foundation" # Add in mobile links -%]
+[%- IF remote # Show the accounts modal link -%]
+<a id="account-link-access" class="show-for-small-only" href="#"
+  data-reveal-id="account-links-text">
+  [% remote.username %]
+</a>
+[%- ELSE # Show a login modal link -%]
+<a id="login-form-access" href="/login" class="show-for-small-only" data-reveal-id="nav-login-form">
+  [% 'sitescheme.accountlinks.btn.login' | ml %]
+</a>
+[%- END -%]
+[%- END -%]
 <ul class="left">[%- nav_links = dw_scheme.menu_nav -%]
 [% FOREACH cathash IN nav_links -%]
     [%- cat = cathash.name -%][%- submenu = cathash.items -%]
