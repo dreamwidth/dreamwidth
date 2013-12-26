@@ -41,6 +41,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         );
         dw.need_res( { group => "foundation" },
                     "js/foundation/foundation/foundation.reveal.js"
+                    "js/skins/jquery.focus-on-reveal.js"
         );
     -%]
     [%- PROCESS block.need_res -%]
@@ -146,17 +147,17 @@ the table based way can be removed when the entire site is Foundation-based.
         <div class="row">
           <div class="columns medium-6">
             <label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label>
-            <input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" type="text" />
+            <input name="user" id="login_user" size="20" maxlength="27" aria-required="true" type="text" />
             <label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label>
-            <input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true" class="lj_login_password">
-            <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" tabindex="3" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %]</label>
-            <input class="button expand" type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/>
+            <input type="password" name="password" id="login_password" size="20" aria-required="true" class="lj_login_password">
+            <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %]</label>
+            <input class="button expand" type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" />
           </div>
           <div class="columns medium-6">
             <p>[% 'sitescheme.accountlinks.login.otheroptions' | ml %]</p>
             <ul>
-              <li><a href='[% is_ssl ? site.ssl.root : site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></li>
-              <li><a href='[% is_ssl ? site.ssl.root : site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></li>
+              <li><a href='[% is_ssl ? site.ssl.root : site.root %]/lostinfo' >[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></li>
+              <li><a href='[% is_ssl ? site.ssl.root : site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' >[% 'sitescheme.accountlinks.login.openid' | ml %]</a></li>
             </ul>
           </div>
         </div>
