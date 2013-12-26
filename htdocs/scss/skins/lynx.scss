@@ -1,11 +1,12 @@
 // color names. Only use these variables in the color assignment section
 $_black: #000;
+$_white: #FFF;
 
 // color assignment
 $text-color: $_black;
+$primary-text-color: $_white;
 
 @import "skins/alert-colors";
-
 
 $body-font-color:   $text-color;
 

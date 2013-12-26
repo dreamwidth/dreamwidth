@@ -3784,6 +3784,8 @@ sitescheme.accountlinks.login.forgotpassword=Forget your password?
 
 sitescheme.accountlinks.login.openid=Log in with OpenID?
 
+sitescheme.accountlinks.login.otheroptions=Other options:
+
 sitescheme.accountlinks.login.password=Password:
 
 sitescheme.accountlinks.login.rememberme=Remember me

@@ -298,7 +298,7 @@ $nav-small-screen-header-height: 3em;
         
         /* On small screens, this shows in the left corner of the menu bar so an account links
         modal can be accessed */
-        #account-link-access {
+        #account-link-access, #login-form-access {
             position: absolute;
             left: 1em;
             top: -2em;

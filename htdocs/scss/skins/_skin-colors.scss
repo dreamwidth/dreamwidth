@@ -19,6 +19,14 @@ a:visited {
     color: $anchor-font-color-visited;
 }
 
+a.button:visited {
+    color: $primary-text-color;
+}
+
+a.button.secondary:visited {
+    color: $text-color;
+}
+
 .ljuser a {
      color: $primary-color;
 }
