@@ -24,10 +24,6 @@ To manage your communities please visit [your community management page]([[commu
 
 .error.noaccess=You're not an administrator of [[comm]], so you can't edit membership lists.
 
-.error.nocomm=Community not found.
-
-.error.notcomm=[[user]] isn't a community.
-
 .find.button=Find
 
 .find.header=Find Member

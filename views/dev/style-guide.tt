@@ -232,13 +232,28 @@
 
 
 <h2>Sub Nav</h2>
-<dl class="sub-nav">
-  <dt>Filter:</dt>
-  <dd class="active"><a href="#">All</a></dd>
-  <dd><a href="#">Active</a></dd>
-  <dd><a href="#">Pending</a></dd>
-  <dd><a href="#">Suspended</a></dd>
-</dl>
+<div class="row">
+  <div class="large-6 columns">
+  [%- INCLUDE components/filter.tt
+    links => [
+              { "text" => ".filter.all", "url" => "#", "active" => 1 },
+              { "text" => ".filter.active", "url" => "#" },
+              { "text" => ".filter.pending", "url" => "#" },
+              { "text" => ".filter.suspended", "url" => "#" },
+            ]
+   -%]</div>
+  <div class="large-6 columns"><h3>code</h3>
+  <pre><code>    [&#37;- INCLUDE components/filter.tt
+    links => [
+      { "text" => ".filter.all", "url" => "#", "active" => 1 },
+      { "text" => ".filter.active", "url" => "#" },
+      { "text" => ".filter.pending", "url" => "#" },
+      { "text" => ".filter.suspended", "url" => "#" },
+    ]
+   -&#37;]</code></pre>
+  </div>
+  </div>
+</div>
 
 <h2>Alert Boxes</h2>
 <div data-alert class="alert-box radius">

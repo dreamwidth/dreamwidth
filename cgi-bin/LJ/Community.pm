@@ -72,7 +72,7 @@ sub send_comm_invite {
         $u->do("UPDATE inviterecv SET args = ? WHERE userid = ? AND commid = ?",
                undef, $newargstr, $u->{userid}, $cu->{userid});
 
-        $cu->do("UPDATE invitesent SET args = ?, status = 'outstanding' WHERE userid = ? AND commid = ?",
+        $cu->do("UPDATE invitesent SET args = ?, status = 'outstanding' WHERE commid = ? AND userid = ?",
                 undef, $newargstr, $cu->{userid}, $u->{userid});
     } else {
          # insert new data, as this is a new invite

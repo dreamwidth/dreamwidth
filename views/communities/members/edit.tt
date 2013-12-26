@@ -24,12 +24,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class="row"><div class="columns large-12">
 
-<dl class="sub-nav">
-  <dt>Filter:</dt>
-  [%- FOREACH filter = filter_links %]
-    <dd[% filter.active ? " class='active'" : "" %]><a href="[% filter.url %]">[% filter.text | ml %]</a></dd>
-  [%- END -%]
-</dl>
+[%- INCLUDE components/filter.tt links => filter_links -%]
 
 [%- IF messages.size > 0 or roles_changed.size > 0 -%]
   [%- FOREACH msg = messages -%]
@@ -83,7 +78,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     total_pages => pages.total_pages,
 %]
 [%- ELSE -%]
-<div class="panel">[% has_active_filter ? dw.ml( '.empty.role' ) : dw.ml( '.empty.members', invite_url = "$site.root/communities/$community.user/members/invite" ) %]</div>
+<div class="panel">[% has_active_filter ? dw.ml( '.empty.role' ) : dw.ml( '.empty.members', invite_url = "$site.root/communities/$community.user/members/new" ) %]</div>
 [%- END -%]
 </div></div>
 

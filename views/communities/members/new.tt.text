@@ -1,0 +1,37 @@
+.button.cancel=Cancel Invitation
+
+.empty.filter=No matching invites from the last 30 days.
+
+.error.already_added=[[user]] already has access to this community.
+
+.error.banned=[[user]] has banned this community from sending them invitations.
+
+.error.invalid_journaltype=Can't add [[type]] account: [[user]]
+
+.error.is_minor=[[user]] must be at least 18 years old.
+
+.error.limit=Can't invite [[user]]; the outstanding invitation limit for this community has been exceeded.
+
+.error.no_role=Must select at least one role for [[user]]
+
+.error.no_user=<strong>[[user]]</strong> doesn't exist.
+
+.error.not_active=<strong>[[user]]</strong> isn't an active account.
+
+.error.unknown=Error inviting [[user]].  Please make sure [[user]] isn't already a member and try again.
+
+.header.pending=Recent Invitations
+
+.invite.button=Invite
+
+.invite.filter.accepted=Accepted
+
+.invite.filter.all=All
+
+.invite.filter.outstanding=Outstanding
+
+.invite.filter.rejected=Rejected
+
+.invite.header.inviter=Invited by [[user]]
+
+.title=Invite New Members

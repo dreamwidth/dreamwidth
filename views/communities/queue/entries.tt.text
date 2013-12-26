@@ -1,11 +1,9 @@
-.error.noaccess=You're not a moderator for [[comm]].
+.empty=There are no entries in the moderation queue.
 
-.error.notfound=Community account not found.
+.error.noaccess=You're not a moderator for [[comm]].
 
 .error.notmoderated=This community is not set to moderated posting.
 
 .no_subject=(no subject)
 
 .title=Entry Moderation Queue
-
-.empty=There are no entries in the moderation queue.

@@ -31,19 +31,23 @@ DW::Routing->register_string( "/communities/index", \&index_handler, app => 1 );
 DW::Routing->register_string( "/communities/list", \&list_handler, app => 1 );
 DW::Routing->register_string( "/communities/new", \&new_handler, app => 1 );
 
-DW::Routing->register_regex( '^/communities/([^/]+)/members/edit$', \&members_handler, app => 1 );
-DW::Routing->register_string( "/communities/members/purge", \&purge_handler, app => 1, methods => { POST => 1 } );
+DW::Routing->register_regex( '^/communities/([^/]+)/members/new$', \&members_new_handler, app => 1 );
+DW::Routing->register_regex( '^/communities/([^/]+)/members/edit$', \&members_edit_handler, app => 1 );
+DW::Routing->register_string( "/communities/members/purge", \&members_purge_handler, app => 1, methods => { POST => 1 } );
 
 DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries$', \&entry_queue_handler, app => 1 );
 DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries/([0-9]+)$', \&entry_queue_edit_handler, app => 1 );
 
 DW::Routing->register_regex( '^/communities/([^/]+)/queue/members$', \&members_queue_handler, app => 1 );
 
+
 # redirects
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
 DW::Routing->register_redirect( "/community/manage", "/communities/list" );
 DW::Routing->register_redirect( "/community/create", "/communities/new" );
 
+DW::Routing->register_redirect( "/community/sentinvites", "/communities/members/new", keep_args => [ "authas" ] );
+DW::Routing->register_string( "/communities/members/new", \&members_new_redirect_handler, app => 1 );
 DW::Routing->register_redirect( "/community/members", "/communities/members/edit", keep_args => [ "authas" ] );
 DW::Routing->register_string( "/communities/members/edit", \&members_redirect_handler, app => 1 );
 DW::Routing->register_redirect( "/community/moderate", "/communities/queue/entries", keep_args => [ "authas" ] );
@@ -64,7 +68,7 @@ sub _redirect_authas {
         return $r->redirect( "$LJ::SITEROOT/communities/list" );
     }
 }
-
+sub members_new_redirect_handler  { return _redirect_authas( "members/new" ); }
 sub members_redirect_handler      { return _redirect_authas( "members/edit" ); }
 sub entry_queue_redirect_handler  { return _redirect_authas( "queue/entries" ); }
 sub member_queue_redirect_handler { return _redirect_authas( "queue/members" ); }
@@ -282,21 +286,206 @@ sub new_handler {
     return DW::Template->render_template( 'communities/new.tt', $vars );
 }
 
-# return the appropriate slice from the full array for this page
-# ideally we'd do this when fetching from the DB
-sub _items_for_this_page {
-    my ( $page, $page_size, @items ) = @_;
-    my $first = ( $page - 1 ) * $page_size;
+sub _revoke_invitation {
+    my ( $cu, $post, $errors ) = @_;
 
-    my $num_items = scalar @items;
-    my $last = $page * $page_size;
-    $last = $num_items if $last > $num_items;
-    $last = $last - 1;
+    my $target_uid = $post->{revoke} + 0;
+    my $target_u = LJ::load_userid( $target_uid );
 
-    return @items[$first...$last];
+    $errors->add( undef, "error.nojournal" ) and return unless $target_u;
+    $cu->revoke_invites( $target_u->userid );
 }
 
-sub members_handler {
+sub _invite_new_member {
+    my ( $cu, $post, $errors, %opts ) = @_;
+
+    my $remote = $opts{remote};
+    my $num_rows = $opts{rows};
+    my $default_checked_roles = $opts{default_roles};
+    my $form_to_invite_attrib = $opts{form_to_invite_attrib};
+
+    foreach my $num ( 1..$num_rows ) {
+        my $user_field = "user_$num";
+        my $role_field = "user_role_$num";
+
+        my $given_user = LJ::ehtml( LJ::trim( $post->{$user_field} ) );
+        next unless $given_user;
+
+        my $invited_u = LJ::load_user_or_identity( $given_user );
+        $errors->add( $user_field, ".error.no_user", { user => $given_user } ) and next
+            unless $invited_u;
+
+        $errors->add( $user_field, ".error.not_active", { user => $invited_u->ljuser_display } ) and next
+            unless $invited_u->is_visible;
+
+        my @roles_for_user = $post->get_all( $role_field );
+        $errors->add( $user_field, ".error.no_role", { user => $invited_u->ljuser_display } ) and next
+            unless @roles_for_user;
+
+        $errors->add( $user_field, ".error.invalid_journaltype", {
+                                      user => $invited_u->ljuser_display,
+                                      type => $invited_u->journaltype_readable } ) and next
+            unless $invited_u->is_individual;
+
+        $errors->add( $user_field, ".error.already_added", { user => $invited_u->ljuser_display } ) and next
+            if $invited_u->member_of( $cu );
+
+        my $adult_content;
+        unless ( $invited_u->can_join_adult_comm( comm => $cu, adultref => \$adult_content ) ) {
+            $errors->add( $user_field, ".error.is_minor", { user => $invited_u->ljuser_display } ) and next
+            if $adult_content eq "explicit";
+        }
+
+        # all good, let's extend an invite to this person
+        # these map the form field POSTed to the form expected in send_comm_invite
+        my @attribs = map { $form_to_invite_attrib->{$_}} @roles_for_user;
+        if ( $invited_u->send_comm_invite( $cu, $remote, \@attribs ) ) {
+            # succeeded, clear from the form so they don't display again
+            $post->remove( $user_field );
+            $post->set( "user_role_$num", @$default_checked_roles );
+        } else {
+            my $error_ml = {
+                "comm_user_has_banned" => '.error.banned',
+                "comm_invite_limit"    => '.error.limit'
+            }->{ LJ::last_error_code() };
+            $error_ml ||= ".error.unknown";
+
+            $errors->add( $user_field, $error_ml, { user => $invited_u->ljuser_display } );
+        }
+    }
+}
+
+sub members_new_handler {
+    my ( $opts, $community ) = @_;
+
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $cu = LJ::load_user( $community );
+    return error_ml( "error.nocomm" ) unless $cu;
+
+    return error_ml( "error.communities.notcomm", {
+                        user => $cu->ljuser_display,
+                    } ) unless $cu->is_comm;
+
+    my $remote = $rv->{remote};
+    return error_ml( "error.communities.noaccess", {
+                        comm => $cu->ljuser_display,
+                    } ) unless $remote->can_manage_other( $cu );
+
+    my $r = $rv->{r};
+    my $get = $r->get_args;
+    my $num_rows = 5;
+    my @default_checked_roles = qw( member poster );
+
+    my %form_to_invite_attrib = (
+            admin   => 'admin',
+            poster  => 'post',
+            member  => 'member',
+            moderator   => 'moderate',
+            unmoderated => 'preapprove'
+    );
+    my %invite_attrib_to_form = reverse %form_to_invite_attrib;
+
+    my $errors = DW::FormErrors->new;
+    my $post;
+    if ( $r->did_post ) {
+        $post = $r->post_args;
+        if ( $post->{revoke} ) {
+            _revoke_invitation( $cu, $post, $errors, );
+        } else {
+            _invite_new_member( $cu, $post, $errors,
+                                    remote  => $remote,
+                                    rows    => $num_rows,
+                                    form_to_invite_attrib   => \%form_to_invite_attrib,
+                                    default_roles           => \@default_checked_roles,
+                                );
+        }
+
+    }
+
+    # figure out what member roles are relevant
+    my @available_roles = ( 'member', 'poster' );
+    push @available_roles, qw( unmoderated moderator )
+        if $cu->has_moderated_posting;
+    push @available_roles, 'admin';
+
+    # now get sent invites and the users involved
+    my $sent = $cu->get_sent_invites || [];
+    my @ids;
+    push @ids, ( $_->{userid}, $_->{maintid} ) foreach @$sent;
+    my $us = LJ::load_userids( @ids );
+
+    # filter by status if desired
+    my @valid_statuses = qw( outstanding accepted rejected );
+    my %valid_statuses = map { $_ => 1 } @valid_statuses;
+
+    my $status_filter = $get->{status};
+    $status_filter = "all" unless $valid_statuses{$status_filter};
+
+    my @filters = ({
+        text    => ".invite.filter.all",
+        url     => LJ::create_url( undef ),
+        active  => $status_filter eq "all",
+    });
+    push @filters, {
+        text    => ".invite.filter.$_",
+        url     => LJ::create_url( undef, args => { status => $_ } ),
+        active  => $status_filter eq $_,
+    } foreach @valid_statuses;
+
+    # populate %users hash
+    my %users = ();
+    my %usernames;
+    my @available_roles_for_invite = map { $form_to_invite_attrib{$_} } @available_roles;
+    foreach my $invite ( @$sent ) {
+        my $id = $invite->{userid};
+        next unless $status_filter eq 'all' || $status_filter eq $invite->{status};
+        my $name = $us->{$id}{user};
+        $users{$id}{userid} = $id;
+        $users{$id}{invited_by} = LJ::ljuser( $us->{$invite->{maintid}}{user} );
+        $users{$id}{user} = LJ::ljuser( $name );
+        $users{$id}{roles} = [ map { $invite_attrib_to_form{$_} }
+                                grep { $invite->{args}->{$_} }
+                                    @available_roles_for_invite
+                            ];
+        $users{$id}{status} = $invite->{status};
+        $users{$id}{date} = LJ::diff_ago_text( $invite->{recvtime} );
+    }
+
+    my $page = int( $get->{page} || 0 ) || 1;
+    my $page_size = 100;
+
+    my @users = sort { $a->{user} cmp $b->{user} } values %users;
+    my $total_pages = ceil( scalar @users / $page_size );
+    @users = _items_for_this_page( $page, $page_size, @users );
+
+    # if we invited new members, respect the checkboxes from the form submission
+    # if we revoked an invitation, use the default roles
+    # if we just loaeded the page, use the default roles
+    my $formdata = $post && ! $post->{revoke}
+                        ? $post
+                        : { map { "user_role_" . $_ => \@default_checked_roles } (1..$num_rows) };
+
+    my $vars = {
+        roles => \@available_roles,
+        rows  => $num_rows,
+
+        has_active_filter  => $status_filter eq "all" ? 0 : 1,
+        sentinvite_filters => \@filters,
+        sentinvite_pages   => { current => $page, total_pages => $total_pages },
+        sentinvite_list    => \@users,
+
+        formdata => $formdata,
+        errors   => $errors,
+
+        form_invite_action_url => LJ::create_url( undef ),
+        form_revoke_action_url => LJ::create_url( undef, keep_args => [qw( status page )] ),
+    };
+    return DW::Template->render_template( 'communities/members/new.tt', $vars );
+}
+
+sub members_edit_handler {
     my ( $opts, $cuser ) = @_;
 
     my ( $ok, $rv ) = controller( form_auth => 1 );
@@ -308,20 +497,14 @@ sub members_handler {
     my $get = $r->get_args;
 
     # now get lists of: members, admins, able to post, moderators
-    my %roletype_to_readable = (
-                    A => 'admin',
-                    P => 'poster',
-                    E => 'member',
-                    M => 'moderator',
-                    N => 'unmoderated'
-                    );
+    my %roletype_to_readable = _roletype_map();
     my %readable_to_roletype = reverse %roletype_to_readable;
     my @roles = keys %readable_to_roletype;
 
     my $cu = LJ::load_user( $cuser );
-    return error_ml( "/communities/members/edit.tt.error.nocomm" ) unless $cu;
+    return error_ml( "error.nocomm" ) unless $cu;
 
-    return error_ml( "/communities/members/edit.tt.error.notcomm", {
+    return error_ml( "error.communities.notcomm", {
                         user => $cu->ljuser_display,
                     } ) unless $cu->is_comm;
 
@@ -586,7 +769,7 @@ sub members_handler {
     return DW::Template->render_template( 'communities/members/edit.tt', $vars );
 }
 
-sub purge_handler {
+sub members_purge_handler {
     my ( $opts ) = @_;
 
     my ( $ok, $rv ) = controller( form_auth => 0 );
@@ -597,13 +780,13 @@ sub purge_handler {
     my $remote = $rv->{remote};
 
     my $cu = LJ::load_user( $post->{authas} );
-    return error_ml( "/communities/members/edit.tt.error.nocomm" ) unless $cu;
+    return error_ml( "error.nocomm" ) unless $cu;
 
-    return error_ml( "/communities/members/edit.tt.error.notcomm", {
-                        user => $cu->ljuser_display,
+    return error_ml( "error.communities.notcomm", {
+                        user  => $cu->ljuser_display,
                     } ) unless $cu->is_comm;
 
-    return error_ml( "/communities/members/edit.tt.error.noaccess", {
+    return error_ml( "error.communities.noaccess", {
                         comm => $cu->ljuser_display,
                     } ) unless $remote->can_manage_other( $cu );
 
@@ -625,22 +808,6 @@ sub purge_handler {
     };
 
     return DW::Template->render_template( 'communities/members/purge.tt', $vars );
-}
-
-# returns ( $can_moderate, ".error_ml", { error_ml_args => foo } )
-sub _check_entry_queue_auth {
-    my ( $cu, $remote ) = @_;
-
-    my $ml_scope = "/communities/queue/entries.tt";
-
-    return ( 0, "$ml_scope.error.notfound" ) unless $cu;
-
-    unless ( $remote->can_moderate( $cu ) ) {
-        return ( 0, "$ml_scope.error.noaccess", { comm => $cu->ljuser_display } )
-            if $cu->has_moderated_posting;
-
-        return ( 0, "$ml_scope.error.notmoderated" );
-    }
 }
 
 sub entry_queue_handler {
@@ -779,7 +946,7 @@ sub members_queue_handler {
     my $get = $r->get_args;
 
     my $cu = LJ::load_user( $community );
-    return error_ml( "/communities/queue/members.tt.error.notfound" ) unless $cu;
+    return error_ml( "error.nocomm" ) unless $cu;
     return error_ml( "/communities/queue/members.tt.error.noaccess", {
             comm => $cu->ljuser_display,
         } ) unless $remote->can_manage_other( $cu );
@@ -862,6 +1029,48 @@ sub members_queue_handler {
 
     return DW::Template->render_template( 'communities/queue/members.tt', $vars );
 
+}
+
+# convenience methods
+
+# return the appropriate slice from the full array for this page
+# ideally we'd do this when fetching from the DB
+sub _items_for_this_page {
+    my ( $page, $page_size, @items ) = @_;
+    my $first = ( $page - 1 ) * $page_size;
+
+    my $num_items = scalar @items;
+    my $last = $page * $page_size;
+    $last = $num_items if $last > $num_items;
+    $last = $last - 1;
+
+    return @items[$first...$last];
+}
+
+# returns ( $can_moderate, ".error_ml", { error_ml_args => foo } )
+sub _check_entry_queue_auth {
+    my ( $cu, $remote ) = @_;
+
+    my $ml_scope = "/communities/queue/entries.tt";
+
+    return ( 0, "error.nocomm" ) unless $cu;
+
+    unless ( $remote->can_moderate( $cu ) ) {
+        return ( 0, "$ml_scope.error.noaccess", { comm => $cu->ljuser_display } )
+            if $cu->has_moderated_posting;
+
+        return ( 0, "$ml_scope.error.notmoderated" );
+    }
+}
+
+sub _roletype_map {
+    return (
+        A => 'admin',
+        P => 'poster',
+        E => 'member',
+        M => 'moderator',
+        N => 'unmoderated'
+    );
 }
 
 1;

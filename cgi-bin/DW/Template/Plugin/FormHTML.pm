@@ -186,7 +186,7 @@ sub checkbox_nested {
 
     $ret .= "<label for='$args->{id}'>" . LJ::html_check( $args ) . " $label</label>";
     $ret .= LJ::html_hidden( { name => $args->{name} . "_old" , value => $args->{value}} )
-        if $args->{selected};
+        if $include_hidden;
 
     return $ret;
 }

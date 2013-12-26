@@ -46,7 +46,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 <li><a href="[% site.root %]/manage/tracking/user?journal=[% comm.user %]">[% '.actions.tracking' | ml %]</a></li>
 
                 <li><span><a href="[% site.root %]/communities/[% comm.user %]/members/edit">[% '.actions.members' | ml %]</a></li>
-                <li><a href="[% site.root %]/community/sentinvites?authas=[% comm.user %]">[% '.actions.invitations' | ml  %]</a></li>
+                <li><a href="[% site.root %]/communities/[% comm.user %]/members/new">[% '.actions.invitations' | ml  %]</a></li>
             </ul>
             [%- END -%]
             </td>

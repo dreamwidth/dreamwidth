@@ -8,8 +8,6 @@
 
 .error.noaccess=Only community administrators can accept and reject membership requests. You aren't an administrator of [[comm]].
 
-.error.notfound=Community not found.
-
 .form.button=Save Changes
 
 .header.approve=Approve All
