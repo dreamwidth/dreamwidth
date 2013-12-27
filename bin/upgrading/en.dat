@@ -1333,25 +1333,16 @@ esn.manage_request_approve=[[openlink]]Approve[[closelink]] [[username]]'s reque
 
 esn.manage_request_reject=[[openlink]]Reject[[closelink]] [[username]]'s request to join
 
-esn.moderated_submission.body<<
-There has been a new submission for the community '[[community]]',
-which you moderate.
+esn.moderated_submission.body2<<
+There has been a new submission for the community '[[community]]', which you moderate.
 
-   Account: [[user]]
+   Poster:  [[user]]
    Subject: [[subject]]
-
-
-Options:
-
-  - Accept or reject this submission
-    [[moderateurl]]
-  - View the entire moderation queue
-    [[viewurl]]
-
---
-[[sitename]] Team
-[[siteroot]]
 .
+
+esn.moderated_submission.entry=[[openlink]]Accept or reject this submission[[closelink]]
+
+esn.moderated_submission.queue=[[openlink]]View the entire moderation queue[[closelink]]
 
 esn.moderated_submission.subject2=Moderated submission notification in [[community]]
 
@@ -1635,6 +1626,8 @@ event.birthday.me=One of the people on my access or subscription lists has an up
 event.birthday.user=[[user]]'s birthday is coming up
 
 event.community_join_requst=Someone requests membership in a community I administer
+
+event.community_moderated_entry_new=Someone submits an entry to a community I moderate
 
 event.comm_invite=I receive an invitation to join a community
 

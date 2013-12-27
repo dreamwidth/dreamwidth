@@ -523,7 +523,15 @@ body<=
                 }
                 $u->set_prop( 'opt_getselfemail' => 'X' );
             }
+
             $_->commit foreach @pending_subscriptions;
+
+            $u->migrate_prop_to_esn( "opt_nomodemail", "CommunityModeratedEntryNew",
+                                        check_enabled => sub {
+                                                my ( $prop ) = @_;
+                                                # opt_nomodemail is a negative prop
+                                                return $prop eq "1" ? 0 : 1;
+                                        });
         }
 
         my @categories = (
@@ -545,7 +553,7 @@ body<=
                         event => 'JournalNewComment::Reply',
                         arg2 => 1,
                     ),
-    
+
                     LJ::Subscription::Pending->new($u,
                         event => 'JournalNewComment::Reply',
                         arg2 => 2,
@@ -578,6 +586,7 @@ body<=
                     'InvitedFriendJoins',
                     'CommunityInvite',
                     'CommunityJoinRequest',
+                    'CommunityModeratedEntryNew',
                     LJ::Subscription::Pending->new($u,
                         event => 'NewUserpic',
                     ),
