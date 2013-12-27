@@ -30,7 +30,7 @@ sub new {
 }
 
 sub arg_list {
-    return ( "Comment journalid", "Comment jtalkid" );
+    return ( "Comment jtalkid" );
 }
 
 sub related_event_classes {

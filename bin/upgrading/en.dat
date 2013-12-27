@@ -2685,6 +2685,10 @@ setting.display.banusers.option.comm=Ban and unban accounts from commenting in m
 
 setting.display.banusers.option.self=Ban and unban accounts from commenting in my journal
 
+setting.display.communityinvites.label=Community Invitations
+
+setting.display.communityinvites.option=View pending invitations to communities
+
 setting.display.domainmapping.actionlink=Set up
 
 setting.display.domainmapping.actionlink.remove=Remove
