@@ -72,6 +72,10 @@ set color_page_link_hover = "#5458C4";
 set color_page_text = "#000";
 set color_page_title = "#C5C6EB";
 set color_header_background = "#5052A6";
+set color_header_link = "#C5C6EB";
+set color_header_link_current = "#C5C6EB";
+set color_header_link_hover = "#C5C6EB";
+set color_header_link_visited = "#3E3F73";
 
 ##===============================
 ## Entry Colors
@@ -113,6 +117,10 @@ set color_page_link_visited = "#1693a5";
 set color_page_text = "#343434";
 set color_page_title = "#1d1d1d";
 set color_header_background = "#ddffa3";
+set color_header_link = "#1d1d1d";
+set color_header_link_current = "#1d1d1d";
+set color_header_link_hover = "#02aab0";
+set color_header_link_visited = "#1693a5";
 set color_footer_background = "#ddffa3";
 set color_footer_link = "#00AF87";
 set color_footer_link_hover = "#02aab0";
@@ -147,16 +155,16 @@ set color_module_title = "#1d1d1d";
 set color_module_title_background = "#e5ffb8";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -181,6 +189,11 @@ set color_page_link_visited = "#c2441e";
 set color_page_text = "#d1c8b0";
 set color_page_title = "#66d2c9";
 set color_header_background = "#281231";
+set color_header_link = "#66d2c9";
+set color_header_link_active = "#d9712d";
+set color_header_link_current = "#66d2c9";
+set color_header_link_hover = "#f5b232";
+set color_header_link_visited = "#c2441e";
 set color_footer_background = "#281231";
 set color_footer_link = "#d9712d";
 set color_footer_link_active = "#d9712d";
@@ -221,16 +234,16 @@ set color_module_title = "#98d2ce";
 set color_module_title_background = "#2d1436";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 8px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 8px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -253,6 +266,8 @@ set color_page_link_visited = "#245655";
 set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#A37B64";
+set color_header_link = "#fff";
+set color_header_link_current = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -292,6 +307,10 @@ set color_page_link_visited = "#594D4D";
 set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#BFBBA8";
+set color_header_link = "#fff";
+set color_header_link_active = "#900";
+set color_header_link_current = "#fff";
+set color_header_link_visited = "#8B776D";
 set color_footer_link = "#D9D4BA";
 
 ##===============================
@@ -333,6 +352,9 @@ set color_page_link = "#d01877";
 set color_page_text = "#503a0a";
 set color_page_title = "#fcfcfc";
 set color_header_background = "#d01877";
+set color_header_link = "#fcfcfc";
+set color_header_link_current = "#fcfcfc";
+set color_header_link_hover = "#d01877";
 set color_footer_background = "#d01877";
 set color_footer_link = "#fcfcfc";
 
@@ -416,6 +438,10 @@ set color_page_link_visited = "#a99797";
 set color_page_text = "#7b4e51";
 set color_page_title = "#b48690";
 set color_header_background = "#f0e6e6";
+set color_header_link = "#b48690";
+set color_header_link_current = "#b48690";
+set color_header_link_hover = "#90605f";
+set color_header_link_visited = "#a99797";
 set color_footer_background = "#f0e6e6";
 set color_footer_link = "#b48690";
 set color_footer_link_hover = "#90605f";
@@ -467,6 +493,8 @@ set color_page_link_visited = "#406389";
 set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#89B3CB";
+set color_header_link = "#fff";
+set color_header_link_current = "#fff";
 set color_footer_link = "#C7E7F4";
 
 ##===============================
@@ -506,6 +534,9 @@ set color_page_link_hover = "#b72f56";
 set color_page_text = "#313131";
 set color_page_title = "#f9f9f9";
 set color_header_background = "#757575";
+set color_header_link = "#f9f9f9";
+set color_header_link_current = "#f9f9f9";
+set color_header_link_hover = "#fafafa";
 set color_footer_background = "#757575";
 set color_footer_link = "#e4e4e4";
 
@@ -525,7 +556,7 @@ set color_comment_title = "#d12364";
 
 set color_module_background = "#b72f56";
 set color_module_link = "#e4e4e4";
-set color_module_link_hover = "fafafa";
+set color_module_link_hover = "#fafafa";
 set color_module_text = "#191919";
 set color_module_title = "#e4e4e4";
 
@@ -568,16 +599,16 @@ set color_module_background = "#d9e1f1";
 set color_module_title_background = "#ecedf1";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -600,6 +631,8 @@ set color_page_link_visited = "#40312C";
 set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#9EA692";
+set color_header_link = "#fff";
+set color_header_link_current = "#fff";
 set color_footer_link = "#D6D9BF";
 
 ##===============================
@@ -639,6 +672,10 @@ set color_page_link_hover = "#7B6985";
 set color_page_text = "#000";
 set color_page_title = "#675073";
 set color_header_background = "#959596";
+set color_header_link = "#675073";
+set color_header_link_current = "#675073";
+set color_header_link_hover = "#735D80";
+set color_header_link_visited = "#5B4A69";
 
 ##===============================
 ## Entry Colors
@@ -697,16 +734,16 @@ set color_module_background = "#fff8db";
 set color_module_title_background = "#fffae5";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -728,6 +765,10 @@ set color_page_link_hover = "#8FA545";
 set color_page_text = "#000";
 set color_page_title = "#c5d886";
 set color_header_background = "#8A280A";
+set color_header_link = "#c5d886";
+set color_header_link_current = "#c5d886";
+set color_header_link_hover = "#A02E0B";
+set color_header_link_visited = "#8A280A";
 
 ##===============================
 ## Entry Colors
@@ -787,16 +828,16 @@ set color_module_background = "#febd69";
 set color_module_title_background = "#fecc91";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -819,6 +860,10 @@ set color_page_link_visited = "#ff476c";
 set color_page_text = "#efcadc";
 set color_page_title = "#ff8d91";
 set color_header_background = "#990a45";
+set color_header_link = "#ff8d91";
+set color_header_link_current = "#ff8d91";
+set color_header_link_hover = "#c72559";
+set color_header_link_visited = "#ff476c";
 set color_footer_background = "#670067";
 set color_footer_link = "#e73155";
 set color_footer_link_hover = "#c72559";
@@ -878,6 +923,10 @@ set color_page_link_visited = "#55443d";
 set color_page_text = "#55443d";
 set color_page_title = "#fdca49";
 set color_header_background = "#f8872e";
+set color_header_link = "#fdca49";
+set color_header_link_current = "#fdca49";
+set color_header_link_hover = "#f9e2c2";
+set color_header_link_visited = "#55443d";
 set color_footer_background = "#f8872e";
 set color_footer_link = "#fff3b0";
 set color_footer_link_hover = "#f9e2c2";
@@ -925,6 +974,10 @@ set color_page_link_visited = "#9E9588";
 set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#75372E";
+set color_header_link = "#fff";
+set color_header_link_active = "#00b";
+set color_header_link_current = "#fff";
+set color_header_link_visited = "#6E6558";
 
 ##===============================
 ## Entry Colors
@@ -985,16 +1038,16 @@ set color_module_background = "#d8e9f5";
 set color_module_title_background = "#e6eff5";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -1033,16 +1086,16 @@ set color_module_background = "#31cb72";
 set color_module_title_background = "#37e47c";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -1064,6 +1117,8 @@ set color_page_link_hover = "#bfccb3";
 set color_page_text = "#523e4f";
 set color_page_title = "#dd1a3b";
 set color_header_background = "#e1e6cd";
+set color_header_link = "#dd1a3b";
+set color_header_link_current = "#dd1a3b";
 set color_footer_background = "#e1e6cd";
 set color_footer_link = "#dd1a3b";
 
@@ -1125,16 +1180,16 @@ set color_module_background = "#703c25";
 set color_module_title_background = "#7a4229";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -1177,16 +1232,16 @@ set color_module_title = "#242424";
 set color_module_title_background = "#aed9d2";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+    }
+""";
 }
 
 
@@ -1208,6 +1263,8 @@ set color_page_link_hover = "#fff";
 set color_page_text = "#000";
 set color_page_title = "#8e8e93";
 set color_header_background = "#3a3a3c";
+set color_header_link = "#8e8e93";
+set color_header_link_current = "#8e8e93";
 
 ##===============================
 ## Entry Colors
@@ -1244,6 +1301,10 @@ set color_page_link_visited = "#4a266b";
 set color_page_text = "#55443d";
 set color_page_title = "#4a266b";
 set color_header_background = "#A697E8";
+set color_header_link = "#4a266b";
+set color_header_link_current = "#4a266b";
+set color_header_link_hover = "#ffc";
+set color_header_link_visited = "#4a266b";
 set color_footer_background = "#A697E8";
 set color_footer_link = "#4a266b";
 set color_footer_link_hover = "#ffc";
@@ -1311,16 +1372,16 @@ set color_module_background = "#d0d4b6";
 set color_module_title_background = "#e3e8c7";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -1343,6 +1404,10 @@ set color_page_link_visited = "#5ab3ad";
 set color_page_text = "#fafafa";
 set color_page_title = "#fafafa";
 set color_header_background = "#1b1b1b";
+set color_header_link = "#fafafa";
+set color_header_link_current = "#fafafa";
+set color_header_link_hover = "#e7c049";
+set color_header_link_visited = "#5ab3ad";
 set color_footer_background = "#1b1b1b";
 set color_footer_link = "#92b35a";
 set color_footer_link_hover = "#e7c049";
@@ -1378,16 +1443,16 @@ set color_module_title = "#fafafa";
 set color_module_title_background = "#202020";
 
 function Page::print_theme_stylesheet() {
-    """
-    .userpic {
-        border: 1px solid $*color_entry_title_background;
-        padding: 4px;
-        }
+"""
+.userpic {
+    border: 1px solid $*color_entry_title_background;
+    padding: 4px;
+}
 
-    .module-userprofile .userpic {
-        display: inline-block;
-        }
-    """;
+.module-userprofile .userpic {
+    display: inline-block;
+}
+""";
 }
 
 
@@ -1408,6 +1473,9 @@ set color_page_link = "#853b93";
 set color_page_text = "#232221";
 set color_page_title = "#60266b";
 set color_header_background = "#ffe34f";
+set color_header_link = "#60266b";
+set color_header_link_current = "#60266b";
+set color_header_link_hover = "#ffcf35";
 set color_footer_background = "#ffe34f";
 set color_footer_link = "#853b93";
 set color_footer_link_hover = "#60266b";
@@ -1454,6 +1522,10 @@ set color_page_link_visited = "#47456b";
 set color_page_text = "#3a4445";
 set color_page_title = "#47456b";
 set color_header_background = "#dde2fc";
+set color_header_link = "#47456b";
+set color_header_link_current = "#47456b";
+set color_header_link_hover = "#A4ABC4";
+set color_header_link_visited = "#47456b";
 set color_footer_background = "#dde2fc";
 set color_footer_link = "#33385d";
 set color_footer_link_hover = "#A4ABC4";

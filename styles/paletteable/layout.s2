@@ -5,12 +5,12 @@ layerinfo author_name = "branchandroot";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
-set layout_type = "two-columns-left";
 
 ##===============================
 ## Presentation
 ##===============================
 
+set layout_type = "two-columns-left";
 set userpics_position = "right";
 
 ##===============================
@@ -18,6 +18,11 @@ set userpics_position = "right";
 ##===============================
 
 propgroup colors_child {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+    property Color color_header_link_current { des = "Page header current link color"; }
     property Color color_comment_title_even { des = "Comment title alternate color"; }
     property Color color_comment_title_background_even { des = "Comment title alternate background color"; }
     }
@@ -32,7 +37,6 @@ property string module_navlinks_section_override {
     }
 
 set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
-
 set module_navlinks_section = "one";
 
 ##===============================
@@ -158,40 +162,39 @@ var string userpic_css = "";
     }
 
 var string navlinks_css = "";
-    if ($*module_navlinks_section == "header") {
-        $navlinks_css = """
-            .module-navlinks {
-                background-color: transparent;
-                border: none;
-                margin-bottom: 0;
-                margin-top: .5em;
-                text-align: right;
-                }
-
-            .module-navlinks li {
-                border-left: 1px solid $*color_page_title;
-                display: inline;
-                padding-left: .5em;
-                }
-
-            .module-navlinks ul > li:first-child {
-                border-left: none;
-                }
-
-            .module-navlinks .module-header {
-                display: none;
-                }
-
-            .module-navlinks a, .module-navlinks a.current {
-                color: $*color_page_title;
-                }
-        """;
-    }
-    else {
-        $navlinks_css = "";
+if ($*module_navlinks_section == "header") {
+    $navlinks_css = """
+    .module-navlinks {
+        background-color: transparent;
+        border: none;
+        margin-bottom: 0;
+        margin-top: .5em;
+        text-align: right;
     }
 
-    """
+    .module-navlinks li {
+        border-left: 1px solid $*color_header_link;
+        display: inline;
+        padding-left: .5em;
+    }
+
+    .module-navlinks ul > li:first-child {
+        border-left: none;
+    }
+
+    .module-navlinks .module-header {
+        display: none;
+    }
+
+    .module-navlinks a { color: $*color_header_link; }
+    .module-navlinks a:visited { color: $*color_header_link_visited; }
+    .module-navlinks a:hover { color: $*color_header_link_hover; }
+    .module-navlinks a:active { color: $*color_header_link_active; }
+    .module-navlinks a.current { color: $*color_header_link_current; }
+    """;
+}
+
+"""
 
 /*--- Paletteable ---*/
 /*--- by branchandroot ---*/
