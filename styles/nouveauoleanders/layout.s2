@@ -26,6 +26,17 @@ set entry_management_links = "text";
 set comment_management_links = "text";
 
 ##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+}
+
+##===============================
 ## Fonts
 ##===============================
 
@@ -199,7 +210,6 @@ set image_comment_border_end_even_repeat = "no-repeat";
        }
 
 set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
-
 set module_navlinks_section = "header";
 
 ##===============================
@@ -322,46 +332,46 @@ function print_stylesheet () {
 var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
 
-    var string navlinks_css = "";
-        if ($*module_navlinks_section == "header") {
-            $navlinks_css = """
+var string navlinks_css = "";
+if ($*module_navlinks_section == "header") {
+    $navlinks_css = """
+    #header .module-wrapper {
+        margin-left: 220px;
+        margin-right: 220px;
+        padding-top: 1em;
+    }
 
-            #header .module-wrapper {
-                margin-left: 220px;
-                margin-right: 220px;
-                padding-top: 1em;
-                }
+    #header .module-wrapper .separator {
+        display: none;
+    }
 
-            #header .module-wrapper .separator {
-                display: none;
-                }
+    .module-navlinks {
+        background-color: transparent;
+        font-family: $*font_journal_title;
+        font-size: small;
+        text-align: center;
+    }
 
-            .module-navlinks {
-                background-color: transparent;
-                color: $*color_page_title;
-                font-family: $*font_journal_title;
-                font-size: small;
-                text-align: center;
-                }
+    .module-navlinks ul {
+        margin: .25em auto;
+    }
 
-            .module-navlinks ul {
-                margin: .25em auto;
-                }
+    .module-navlinks li {
+        border-left: 1px solid $*color_page_title;
+        display: inline;
+        padding: 0 .25em 0 .5em;
+    }
 
-            .module-navlinks li {
-                border-left: 1px solid;
-                display: inline;
-                padding: 0 .25em 0 .5em;
-                }
+    .module-navlinks ul > li:first-child {
+        border-left: none;
+    }
 
-            .module-navlinks ul > li:first-child {
-                border-left: none;
-                }
-            """;
-        }
-        else {
-            $navlinks_css = "";
-        }
+    .module-navlinks a { color: $*color_header_link; }
+    .module-navlinks a:visited { color: $*color_header_link_visited; }
+    .module-navlinks a:hover { color: $*color_header_link_hover; }
+    .module-navlinks a:active { color: $*color_header_link_active; }
+    """;
+}
 
     var string{}{} scaling = {
         "" => {
