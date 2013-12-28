@@ -5,24 +5,27 @@ layerinfo redist_uniq = "modular/layout";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
 set layout_type = "two-columns-left";
 set userpics_position = "right";
 
 ##===============================
-## Navigation Module
+## Colors
 ##===============================
 
-    property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
-       grouped = 1;
-       }
-
-set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
-
-set module_navlinks_section = "header";
+propgroup colors_child {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+}
 
 ##===============================
-##Fonts
+## Fonts
 ##===============================
 
 set font_base = "Verdana, Helvetica";
@@ -32,6 +35,22 @@ set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
 set font_entry_title = "'Century Gothic', Verdana, sans-serif";
 set font_comment_title = "'Century Gothic', Verdana, sans-serif";
 set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Module
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
+    grouped = 1;
+}
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+set module_navlinks_section = "header";
+
+##===============================
+## Functions
+##===============================
 
 # Give a title to the navlinks module
 function print_module_navlinks() {
@@ -125,6 +144,10 @@ function Page::print() {
     """</html>""";
 }
 
+##===============================
+## Stylesheet
+##===============================
+
 function print_stylesheet () {
 
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
@@ -147,7 +170,9 @@ var string userpic_css = "";
 
 """
 
-/* Modular  */
+/* Modular
+/* by branchandroot
+******************************/
 
 blockquote { padding: 1em 1em .5em 2em;
     font-style: italic;  }
@@ -528,9 +553,10 @@ ul.userlite-interaction-links { margin-top: .5em; }
     display: none;
     }
 
-#header .module-navlinks a {
-    color: $*color_page_title;
-    }
+#header .module-navlinks a { color: $*color_header_link; }
+#header .module-navlinks a:visited { color: $*color_header_link_visited; }
+#header .module-navlinks a:hover { color: $*color_header_link_hover; }
+#header .module-navlinks a:active { color: $*color_header_link_active; }
 
 .module-navlinks a.current {
     font-weight: bold;
