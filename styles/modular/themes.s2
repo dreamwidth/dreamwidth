@@ -16,6 +16,7 @@ set color_page_link_visited = "#b90";
 set color_page_text = "#4c4";
 set color_page_title = "#eee";
 set color_header_background = "#333";
+set color_header_link = "#eee";
 set color_footer_background = "#333";
 
 ##===============================
@@ -62,6 +63,9 @@ set color_page_link_hover = "#e5dcf4";
 set color_page_link_visited = "#d5caf7";
 set color_page_text = "#f9f7fc";
 set color_header_background = "#7e718f";
+set color_header_link = "#d5d2e3";
+set color_header_link_hover = "#e5dcf4";
+set color_header_link_visited = "#d5caf7";
 set color_footer_background = "#7e718f";
 set color_footer_link = "#d5d2e3";
 set color_footer_link_hover = "#e5dcf4";
@@ -125,6 +129,7 @@ set color_page_link_visited = "#488191";
 set color_page_text = "#d3e3e2";
 set color_page_title = "#488191";
 set color_header_background = "#16161A";
+set color_header_link = "#488191";
 set color_footer_background = "#16161A";
 set color_footer_link = "#357381";
 set color_footer_link_hover = "#1a3440";
@@ -235,6 +240,7 @@ set color_page_link_hover = "#95bfb1";
 set color_page_text = "#4a2d09";
 set color_page_title = "#fcf2c5";
 set color_header_background = "#603048";
+set color_header_link = "#fcf2c5";
 set color_footer_background = "#603048";
 set color_footer_link = "#95bfb1";
 
@@ -326,6 +332,7 @@ set color_page_link_visited = "#406389";
 set color_page_text = "#282421";
 set color_page_title = "#fff";
 set color_header_background = "#DCCDB0";
+set color_header_link = "#fff";
 set color_footer_background = "#DCCDB0";
 set color_footer_link = "#fff";
 
@@ -373,6 +380,7 @@ set color_page_link_visited = "#b2889c";
 set color_page_text = "#deccd5";
 set color_page_title = "#b2889c";
 set color_header_background = "#400f68";
+set color_header_link = "#b2889c";
 set color_footer_background = "#400f68";
 set color_footer_link = "#ffcaae";
 set color_footer_link_visited = "#b2889c";
@@ -421,6 +429,7 @@ set color_page_link_visited = "#a99797";
 set color_page_text = "#7b4e51";
 set color_page_title = "#b48690";
 set color_header_background = "#f0e6e6";
+set color_header_link = "#b48690";
 set color_footer_background = "#f0e6e6";
 set color_footer_link = "#b48690";
 set color_footer_link_hover = "#90605f";
@@ -476,6 +485,7 @@ set color_page_link_visited = "#89B3CB";
 set color_page_text = "#fff";
 set color_page_title = "#fff";
 set color_header_background = "#1F305C";
+set color_header_link = "#fff";
 set color_footer_background = "#1F305C";
 set color_footer_link = "#fff";
 
@@ -523,6 +533,7 @@ set color_page_link_hover = "#A17531";
 set color_page_text = "#4A321A";
 set color_page_title = "#FDFFD6";
 set color_header_background = "#A17531";
+set color_header_link = "#FDFFD6";
 set color_footer_background = "#A17531";
 set color_footer_link = "#FDFFD6";
 
@@ -618,6 +629,7 @@ set color_page_link_visited = "#a22A0B";
 set color_page_text = "#35372D";
 set color_page_title = "#fff";
 set color_header_background = "#869F78";
+set color_header_link = "#fff";
 set color_footer_background = "#869F78";
 set color_footer_link = "#fff";
 
@@ -667,6 +679,7 @@ set color_page_link_visited = "#18a418";
 set color_page_text = "#4c4";
 set color_page_title = "#4c4";
 set color_header_background = "#111";
+set color_header_link = "#4c4";
 set color_footer_background = "#111";
 set color_footer_link = "#18a418";
 set color_footer_link_hover = "#5A9B93";
@@ -722,6 +735,7 @@ set color_page_link_visited = "#8b8f74";
 set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#b6a2b8";
+set color_header_link = "#fff";
 set color_footer_background = "#b6a2b8";
 set color_footer_link = "#fff";
 
@@ -769,6 +783,7 @@ set color_page_link = "#dd1a3b";
 set color_page_text = "#523e4f";
 set color_page_title = "#dd1a3b";
 set color_header_background = "#fdfced";
+set color_header_link = "#dd1a3b";
 set color_footer_background = "#fdfced";
 set color_footer_link = "#dd1a3b";
 
@@ -827,6 +842,7 @@ set color_page_link_visited = "#ff476c";
 set color_page_text = "#efcadc";
 set color_page_title = "#ff8d91";
 set color_header_background = "#990a45";
+set color_header_link = "#ff8d91";
 set color_footer_background = "#670067";
 set color_footer_link = "#e73155";
 set color_footer_link_hover = "#c72559";
@@ -894,6 +910,7 @@ set color_page_link_visited = "#EDB98E";
 set color_page_text = "#2B1A1A";
 set color_page_title = "#fff";
 set color_header_background = "#486B82";
+set color_header_link = "#fff";
 set color_footer_background = "#486B82";
 set color_footer_link = "#fff";
 
@@ -944,6 +961,7 @@ set color_page_link_visited = "#910D0D";
 set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#524D2D";
+set color_header_link = "#fff";
 set color_footer_background = "#524D2D";
 set color_footer_link = "#fff";
 
@@ -991,6 +1009,7 @@ set color_page_link_hover = "#90906c";
 set color_page_text = "#8b6a4a";
 set color_page_title = "#cab974";
 set color_header_background = "#835c33";
+set color_header_link = "#cab974";
 set color_footer_background = "#835c33";
 set color_footer_link = "#f5ffc0";
 
@@ -1036,6 +1055,7 @@ set color_page_link_visited = "#787878";
 set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#b6a2b8";
+set color_header_link = "#fff";
 set color_footer_background = "#b6a2b8";
 set color_footer_link = "#fff";
 
@@ -1077,6 +1097,7 @@ set color_page_link_hover = "#89896b";
 set color_page_text = "#301818";
 set color_page_title = "#fafac2";
 set color_header_background = "#89896b";
+set color_header_link = "#fafac2";
 set color_footer_background = "#89896b";
 set color_footer_link = "#fafac2";
 
@@ -1133,6 +1154,7 @@ set color_page_link_visited = "#a3a4af";
 set color_page_text = "#1e1e1e";
 set color_page_title = "#1e1e1e";
 set color_header_background = "#a3a4af";
+set color_header_link = "#1e1e1e";
 set color_footer_background = "#1e1e1e";
 set color_footer_link = "#a3c7e0";
 set color_footer_link_active = "#b3b6ce";
@@ -1186,29 +1208,29 @@ set image_background_header_repeat = "repeat-x";
 set image_background_header_url = "modular/starrynight.jpg";
 
 function Page::print_theme_stylesheet() {
-    """
-    #canvas {
-        margin: 1em 12% 1em 8%;
-        }
+"""
+#canvas {
+    margin: 1em 12% 1em 8%;
+}
 
-    .navigation ul, .day h3 {
-        border: none !important;
-        }
+.navigation ul, .day h3 {
+    border: none !important;
+}
 
-    .module-wrapper, #entries, #archive-year, #archive-month, #archive-day,
-    .tags-container, .icons-container {
-        background-color: $*color_entry_background;
-        border-radius: .5em;
-        }
+.module-wrapper, #entries, #archive-year, #archive-month, #archive-day,
+.tags-container, .icons-container {
+    background-color: $*color_entry_background;
+    border-radius: .5em;
+}
 
-    #header .module-wrapper {
-        background: none;
-        }
+#header .module-wrapper {
+    background: none;
+}
 
-    .module-navlinks a:visited {
-        color: $*color_module_background;
-        }
-    """;
+.module-navlinks a:visited {
+    color: $*color_module_background;
+}
+""";
 }
 
 
@@ -1230,6 +1252,7 @@ set color_page_link_hover = "#366E92";
 set color_page_text = "#3A3229";
 set color_page_title = "#FDFFD6";
 set color_header_background = "#366E92";
+set color_header_link = "#FDFFD6";
 set color_footer_background = "#366E92";
 set color_footer_link = "#FDFFD6";
 
@@ -1282,6 +1305,7 @@ set color_page_link_hover = "#7F584E";
 set color_page_text = "#151101";
 set color_page_title = "#d1c089";
 set color_header_background = "#412e28";
+set color_header_link = "#d1c089";
 set color_footer_background = "#412e28";
 set color_footer_link = "#d9cea5";
 
@@ -1327,6 +1351,7 @@ set color_page_link_visited = "#A5BEE7";
 set color_page_text = "#000";
 set color_page_title = "#1E1D19";
 set color_header_background = "#EFEEE9";
+set color_header_link = "#1E1D19";
 set color_footer_background = "#EFEEE9";
 
 ##===============================
@@ -1375,6 +1400,7 @@ set color_page_link_visited = "#51296f";
 set color_page_text = "#55443d";
 set color_page_title = "#F9D6EE";
 set color_header_background = "#a697e8";
+set color_header_link = "#F9D6EE";
 set color_footer_background = "#a697e8";
 set color_footer_link = "#ffbfeb";
 set color_footer_link_hover = "#ffc";
