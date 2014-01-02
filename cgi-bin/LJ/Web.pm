@@ -3304,7 +3304,7 @@ sub subscribe_interface {
         $ret .= "<form method='POST' action='$LJ::SITEROOT/manage/tracking/$getextra'>$formauth";
     }
 
-    my $events_table = $settings_page ? '<table class="Subscribe" style="clear: none;" cellpadding="0" cellspacing="0">' : '<table class="Subscribe" cellpadding="0" cellspacing="0">';
+    my $events_table = $settings_page ? '<table class="Subscribe select-all" style="clear: none;" cellpadding="0" cellspacing="0">' : '<table class="Subscribe select-all" cellpadding="0" cellspacing="0">';
 
     my @notify_classes = LJ::NotificationMethod->all_classes or return "No notification methods";
 
@@ -3433,6 +3433,7 @@ sub subscribe_interface {
 
             my $checkall_box = LJ::html_check({
                 id       => "CheckAll-$catid-$ntypeid",
+                'data-select-all' => "$catid-$ntypeid",
                 label    => $title,
                 class    => "CheckAll",
                 noescape => 1,
@@ -3629,6 +3630,7 @@ sub subscribe_interface {
                     } . LJ::html_check({
                         id       => $notify_input_name,
                         name     => $notify_input_name,
+                        'data-selected-by' => "$catid-$ntypeid",    
                         class    => "SubscribeCheckbox-$catid-$ntypeid",
                         selected => $note_selected,
                         noescape => 1,
@@ -3639,6 +3641,7 @@ sub subscribe_interface {
                     $cat_html .= LJ::html_hidden({
                         name  => "${notify_input_name}-old",
                         value => (scalar @subs) ? 1 : 0,
+                        'data-selected-by' => "$catid-$ntypeid",
                     }) if $do_show;
                 }
 
