@@ -1,10 +1,12 @@
 // color names. Only use these variables in the color assignment section
-$_black: #000;
-$_white: #FFF;
+$_black:     #000;
+$_white:     #FFF;
+$_dark-gray: #636363;
 
 // color assignment
 $text-color: $_black;
 $primary-text-color: $_white;
+$inactive-color: $_dark-gray;
 
 @import "skins/alert-colors";
 
@@ -14,6 +16,13 @@ $body-font-color:   $text-color;
 $code-color:                            tint( $body-font-color, 20% );
 $blockquote-font-color:                 tint( $body-font-color, 20% );
 $small-font-color:                      $body-font-color;
+
+// sub-nav
+$sub-nav-font-color:	$inactive-color;
+
+// pagination
+$pagination-link-font-color:	 $inactive-color;
+$pagination-link-unavailable-font-color:	$inactive-color;
 
 $include-html-classes: true;
 @import "foundation/foundation";
