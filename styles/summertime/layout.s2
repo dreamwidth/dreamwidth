@@ -1493,7 +1493,6 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
 ******************************/
 
 #lj_controlstrip {
-    background-image: url();
     border: none;
     padding: 4px;
     }
