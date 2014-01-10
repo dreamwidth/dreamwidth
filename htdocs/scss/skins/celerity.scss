@@ -18,7 +18,8 @@ $_light-olive-green: #ddddaa;
 
 $_white:             #fff;
 $_light-gray:        #f7f7f7;
-$_dark-gray:         #e9e9e9;
+$_mid-gray:          #e9e9e9;
+$_dark-gray:         #636363;
 $_low-contrast-gray: #ddd;
 $_off-black:         #222211;
 
@@ -27,9 +28,11 @@ $background-color:   $_white;
 $text-color:         $_off-black;
 $link-color:         $_dark-olive-green;
 
+$inactive-color:     $_dark-gray;
+
 $primary-color:      $_very-dark-olive;
 $primary-text-color: $_white;
-$secondary-color:    $_dark-gray;
+$secondary-color:    $_mid-gray;
 $strong-accent-color:$_very-dark-olive;
 $soft-accent-color:  $_light-olive-green;
 $border-color:       $_low-contrast-gray;
@@ -83,6 +86,13 @@ $input-prefix-border-color:             $input-border-color;
 
 // panel
 $panel-bg:                              darken( $body-bg, 5% );
+
+// sub-nav
+$sub-nav-font-color:	$inactive-color;
+
+// pagination
+$pagination-link-font-color:	$inactive-color;
+$pagination-link-unavailable-font-color:	$inactive-color;
 
 // tables
 $table-bg:              $form-bg-color;
