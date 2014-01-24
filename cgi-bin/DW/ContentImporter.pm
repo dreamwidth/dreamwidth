@@ -24,7 +24,7 @@ DW::ContentImporter - Web backend functions for Content Importing
 
 use strict;
 use Carp qw/ croak /;
-use XML::Parser;
+use DW::XML::Parser;
 
 =head1 API
 

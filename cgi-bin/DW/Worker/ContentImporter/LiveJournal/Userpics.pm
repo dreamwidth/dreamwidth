@@ -19,7 +19,7 @@ package DW::Worker::ContentImporter::LiveJournal::Userpics;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use XML::Parser;
+use DW::XML::Parser;
 use HTML::Entities;
 use Storable qw/ freeze /;
 use Carp qw/ croak confess /;
@@ -171,7 +171,7 @@ sub get_lj_userpic_data {
             $upic->{src} = $temp{src};
         } elsif ( $tag eq 'category' ) {
             # keywords get triple-escaped
-            # XML::Parser handles unescaping it once, $cleanup_string second, and then we have to unescape it a third time.
+            # DW::XML::Parser handles unescaping it once, $cleanup_string second, and then we have to unescape it a third time.
             push @{$upic->{keywords}}, HTML::Entities::decode_entities( $cleanup_string->( $temp{term} ) );
         } else {
             $text_tag = $tag;
@@ -214,7 +214,7 @@ sub get_lj_userpic_data {
         }
     };
 
-    my $parser = new XML::Parser( Handlers => { Start => $upic_handler, Char => $upic_content, End => $upic_closer } );
+    my $parser = new DW::XML::Parser( Handlers => { Start => $upic_handler, Char => $upic_content, End => $upic_closer } );
 
     $log->( 'Parsing XML output.' );
     $parser->parse( $content );
