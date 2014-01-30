@@ -38,6 +38,7 @@ body<=
     my @cats_order = qw(
         account
         display
+        community
         notifications
         mobile
         privacy
@@ -167,6 +168,21 @@ body<=
              )],
 
         },
+        community => {
+            name => $ML{'.cat.community'},
+            visible => $u->is_community ? 1 : 0,
+            disabled => 0,
+            form => 1,
+            desc => $ML{'.cat.community.desc'},
+            settings => [qw(
+                DW::Setting::CommunityMembership
+                DW::Setting::CommunityPostLevel
+                DW::Setting::CommunityEntryModeration
+                DW::Setting::CommunityJoinLinks
+                DW::Setting::CommunityGuidelinesLocation
+                DW::Setting::CommunityGuidelinesEntry
+            )],
+        }
     );
 
     LJ::Hooks::run_hook("settings_extra_cats", \@cats_order, \%cats_with_settings, user => $u);

@@ -2605,6 +2605,58 @@ setting.commentscreening.option.select.nonfriends=comments from people not on yo
 
 setting.commentscreening.option.select.nonmembers=comments from non-members
 
+setting.communityentrymoderation.error.invalid=Invalid community entry moderation setting option.
+
+setting.communityentrymoderation.label=Entry Moderation
+
+setting.communityentrymoderation.option=All entries must be approved by a moderator before they will be posted to the community
+
+setting.communityguidelinesloc.error.invalid=Invalid community posting guidelines setting option.
+
+setting.communityguidelinesloc.label=Posting Guidelines
+
+setting.communityguidelinesloc.option=Guidelines for posting to this community can be found [[option]]
+
+setting.communityguidelinesloc.option.select.entry=in an entry
+
+setting.communityguidelinesloc.option.select.none=nowhere
+
+setting.communityguidelinesloc.option.select.profile=on the community profile
+
+setting.communityguidelinesentry.label=Posting Guidelines Entry
+
+setting.communityguidelinesentry.invalid=Invalid entry. The entry can be entered either as "[[example_url]]" or as "[[example_id]]"
+
+setting.communityjoinlinks.label=Links After Join
+
+setting.communityjoinlinks.option=Post to community
+
+setting.communityjoinlinks.desc=What links should be displayed to users when they join this community?
+
+setting.communitymembership.error.invalid=Invalid community membership setting option.
+
+setting.communitymembership.label=Membership
+
+setting.communitymembership.option=Membership is [[option]]
+
+setting.communitymembership.option.select.closed=closed (no new members)
+
+setting.communitymembership.option.select.moderated=moderated (needs administrator approval)
+
+setting.communitymembership.option.select.open=open (anyone can join)
+
+setting.communitypostlevel.error.invalid=Invalid community post level setting option.
+
+setting.communitypostlevel.label=Posting Access
+
+setting.communitypostlevel.option=Entries can be posted to this community by [[option]]
+
+setting.communitypostlevel.option.select.anybody=anybody, including non-members
+
+setting.communitypostlevel.option.select.members=community members
+
+setting.communitypostlevel.option.select.select=select members, with moderator approval
+
 setting.communitypromo.label=Community Promo
 
 setting.communitypromo.option=Opt out of putting this community in the list of promoted communities, when a user you invite creates an account
