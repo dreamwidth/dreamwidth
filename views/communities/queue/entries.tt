@@ -17,6 +17,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/components/queues.css"
 ) -%]
 
+<div class="panel">[%- linkbar -%]</div>
+
 [%- IF entries.size > 0 -%]
     <ul class="queue">
         [%- FOREACH entry = entries -%]

@@ -481,7 +481,10 @@ sub members_new_handler {
 
         form_invite_action_url => LJ::create_url( undef ),
         form_revoke_action_url => LJ::create_url( undef, keep_args => [qw( status page )] ),
+
+        linkbar => $cu->maintainer_linkbar( 'invites' ),
     };
+
     return DW::Template->render_template( 'communities/members/new.tt', $vars );
 }
 
@@ -764,6 +767,8 @@ sub members_edit_handler {
         form_edit_action_url => LJ::create_url( undef, keep_args => [qw( role page )] ),
         form_search_action_url => LJ::create_url( undef ),
         form_purge_action_url => LJ::create_url( "/communities/members/purge" ),
+
+        linkbar => $cu->maintainer_linkbar( 'members' ),
     };
 
     return DW::Template->render_template( 'communities/members/edit.tt', $vars );
@@ -805,6 +810,8 @@ sub members_purge_handler {
 
         form_action => $members_url,
         members_url => $members_url,
+
+        linkbar => $cu->maintainer_linkbar( '' ),
     };
 
     return DW::Template->render_template( 'communities/members/purge.tt', $vars );
@@ -838,6 +845,8 @@ sub entry_queue_handler {
 
     my $vars = {
         entries => \@entries,
+
+        linkbar => $cu->maintainer_linkbar( 'queue' ),
     };
 
     return DW::Template->render_template( 'communities/queue/entries.tt', $vars );
@@ -930,6 +939,8 @@ sub entry_queue_edit_handler {
         can_report_spam => LJ::sysban_check( 'spamreport', $cu->user ) ? 0 : 1,
 
         errors => $errors,
+
+        linkbar => $cu->maintainer_linkbar( '' ),
     };
 
     return DW::Template->render_template( 'communities/queue/entries/edit.tt', $vars );
@@ -1025,6 +1036,8 @@ sub members_queue_handler {
         messages    => \@success_msgs,
 
         form_queue_action_url => LJ::create_url( undef, keep_args => [qw( page )] ),
+
+        linkbar => $cu->maintainer_linkbar( '' ),
     };
 
     return DW::Template->render_template( 'communities/queue/members.tt', $vars );

@@ -18,6 +18,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/pages/communities/queue/entries/edit.css"
 ) -%]
 
+<div class="panel">[%- linkbar -%]</div>
+
 [%# moderated-entry is (hopefully) a temporary class to tweak the styling for entries in the moderation queue
 -%]
 <div class="entry-wrapper moderated-entry row"><div class="entry columns large-12"><div class="inner">

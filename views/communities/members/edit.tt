@@ -22,6 +22,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/components/select-all.css"
 ) -%]
 
+<div class="panel">[%- linkbar -%]</div>
+
 <div class="row"><div class="columns large-12">
 
 [%- INCLUDE components/filter.tt links => filter_links -%]

@@ -18,6 +18,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/components/queues.css"
 ) -%]
 
+<div class="panel">[%- linkbar -%]</div>
+
 <form method="POST" action="[% form_invite_action_url %]">
 [%- dw.form_auth -%]
 <ul class="no-bullet">

@@ -38,15 +38,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <td>
             [%- IF comm.admin -%]
             <ul class="inline-list">
-                <li><a href="[% site.root %]/manage/settings/?authas=[% comm.user %]&cat=community">[% '.actions.settings' | ml %]</a></li>
                 <li><a href="[% site.root %]/manage/profile?authas=[% comm.user %]">[% '.actions.profile' | ml %]</a></li>
                 <li><a href="[% site.root %]/customize/?authas=[% comm.user %]">[% '.actions.style' | ml %]</a></li>
+                <li><a href="[% site.root %]/manage/settings/?authas=[% comm.user %]&cat=community">[% '.actions.settings' | ml %]</a></li>
 
                 <li><a href="[% site.root %]/manage/tags?authas=[% comm.user %]">[% '.actions.tags' | ml %]</a></li>
                 <li><a href="[% site.root %]/manage/tracking/user?journal=[% comm.user %]">[% '.actions.tracking' | ml %]</a></li>
 
-                <li><span><a href="[% site.root %]/communities/[% comm.user %]/members/edit">[% '.actions.members' | ml %]</a></li>
                 <li><a href="[% site.root %]/communities/[% comm.user %]/members/new">[% '.actions.invitations' | ml  %]</a></li>
+                <li><a href="[% site.root %]/communities/[% comm.user %]/members/edit">[% '.actions.members' | ml %]</a></li>
             </ul>
             [%- END -%]
             </td>
