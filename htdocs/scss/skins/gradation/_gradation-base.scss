@@ -91,13 +91,10 @@ $topbar-dropdown-link-bg:              #333333;
 $topbar-menu-link-color:               $topbar-link-color;
 $topbar-menu-icon-color:               $topbar-link-color;
 
-$include-html-classes: true;
-@import "foundation/foundation";
-
 // gradation-specific variables
 $masthead-height: 7.5em;
 
-@import "skins/skin-colors", "skins/nav", "skins/skiplink";
+@import "skins/global-styles", "skins/nav", "skins/skiplink";
 
 a:active, a:hover {
     text-decoration: none;

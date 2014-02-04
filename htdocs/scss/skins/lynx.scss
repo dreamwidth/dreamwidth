@@ -26,10 +26,7 @@ $sub-nav-font-color:	$inactive-color;
 $pagination-link-font-color:	 $inactive-color;
 $pagination-link-unavailable-font-color:	$inactive-color;
 
-$include-html-classes: true;
-@import "foundation/foundation";
-
-@import "skins/skin-colors";
+@import "skins/global-styles";
 
 #content {
     @include grid-row(container);
