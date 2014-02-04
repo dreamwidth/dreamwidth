@@ -64,8 +64,8 @@ $maint{joinmail} = sub {
                        "membership page:\n\n" .
                        "\t$LJ::SITEROOT/communities/$cuser/queue/members\n\n" .
                        "You may also ignore this email.  Outstanding requests to join will expire after a period of 30 days.\n\n" .
-                       "If you wish to no longer receive these emails, visit the community management page and " .
-                       "set the relevant options:\n\n\t$LJ::SITEROOT/community/manage.bml\n\n" .
+                       "If you wish to no longer receive these emails, you can unsubscribe:\n\n" .
+                       "\t$LJ::SITEROOT/manage/settings/?cat=notifications\n\n" .
                        "Regards,\n$LJ::SITENAME Team\n";
 
             LJ::send_mail({
