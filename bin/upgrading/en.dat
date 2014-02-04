@@ -2639,11 +2639,11 @@ setting.communitymembership.label=Membership
 
 setting.communitymembership.option=Membership is [[option]]
 
-setting.communitymembership.option.select.closed=closed (no new members)
+setting.communitymembership.option.select.closed=by invitation only (only people invited by an administrator may join)
 
-setting.communitymembership.option.select.moderated=moderated (needs administrator approval)
+setting.communitymembership.option.select.moderated=moderated (anyone can ask to join, must be approved by an administrator)
 
-setting.communitymembership.option.select.open=open (anyone can join)
+setting.communitymembership.option.select.open=open (anyone can freely join)
 
 setting.communitypostlevel.error.invalid=Invalid community post level setting option.
 
