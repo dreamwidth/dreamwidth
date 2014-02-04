@@ -262,7 +262,18 @@ sub new_handler {
                 community => {
                     ljuser  => $cu->ljuser_display,
                     user    => $cu->user,
-                }
+                },
+                action_links => [
+                    {   text_ml => ".success.next.action.settings",
+                        url => LJ::create_url( "/manage/settings", args => { authas => $cu->user, cat => "community" } ),
+                    },
+                    {   text_ml => ".success.next.action.profile",
+                        url => LJ::create_url( "/manage/profile", args => { authas => $cu->user } ),
+                    },
+                    {   text_ml => ".success.next.action.customize",
+                        url => LJ::create_url( "/customize/", args => { authas => $cu->user } ),
+                    },
+                ]
             }) if $cu;
         }
     } else {

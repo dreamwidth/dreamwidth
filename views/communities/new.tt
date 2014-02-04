@@ -50,58 +50,23 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     <fieldset>
         <legend>[% '.form.membership.legend' | ml %]</legend>
-        <div class="subheader">[% '.form.membership.subhead' | ml %]</div>
         [%- form.radio_nested(
-            label = dw.ml( '.form.membership.open.label' )
+            label = dw.ml( 'setting.communitymembership.option.select.open' )
             name  = "membership"
             id    = "membership_open"
             value = "open"
         ) -%]
         [%- form.radio_nested(
-            label = dw.ml( '.form.membership.moderated.label' )
+            label = dw.ml( 'setting.communitymembership.option.select.moderated' )
             name  = "membership"
             id    = "membership_moderated"
             value = "moderated"
         ) -%]
         [%- form.radio_nested(
-            label = dw.ml( '.form.membership.closed.label' )
+            label = dw.ml( 'setting.communitymembership.option.select.closed' )
             name  = "membership"
             id    = "membership_closed"
             value = "closed"
-        ) -%]
-    </fieldset>
-
-    <fieldset>
-        <legend>[% '.form.moderated.legend' | ml %]</legend>
-        <div class="subheader">[% '.form.moderated.subhead' | ml %]</div>
-        [%- form.radio_nested(
-            label = dw.ml( '.form.moderated.no.label' )
-            name  = "moderated"
-            id    = "moderated_no"
-            value = 0
-        ) -%]
-        [%- form.radio_nested(
-            label = dw.ml( '.form.moderated.yes.label' )
-            name  = "moderated"
-            id    = "moderated_yes"
-            value = 1
-        ) -%]
-    </fieldset>
-
-    <fieldset>
-        <legend>[% '.form.postlevel.legend' | ml %]</legend>
-        <div class="subheader">[% '.form.postlevel.subhead' | ml %]</div>
-        [%- form.radio_nested(
-            label = dw.ml( '.form.postlevel.members.label' )
-            name  = "postlevel"
-            id    = "postlevel_members"
-            value = "members"
-        ) -%]
-        [%- form.radio_nested(
-            label = dw.ml( '.form.postlevel.select.label' )
-            name  = "postlevel"
-            id    = "postlevel_select"
-            value = "select"
         ) -%]
     </fieldset>
 

@@ -30,39 +30,7 @@
 
 .form.comminfo.user.label=Username
 
-.form.membership.closed.label=Closed Membership
-
 .form.membership.legend=Membership
-
-.form.membership.moderated.label=Moderated Membership
-
-.form.membership.open.label=Open Membership
-
-.form.membership.subhead=Who can join your community?
-
-.form.moderated.legend=Entry Moderation
-
-.form.moderated.subhead=Are submissions to this community moderated?
-
-.form.moderated.yes.label=Moderated
-
-.form.moderated.no.label=Unmoderated
-
-.form.nonmember_posting.closed.label=Non-Members Cannot Post
-
-.form.nonmember_posting.legend=Non-Member Posting Restrictions
-
-.form.nonmember_posting.open.label=Non-Members Can Post
-
-.form.nonmember_posting.subhead=Can people post to this community without joining it?
-
-.form.postlevel.legend=Member Posting Restrictions
-
-.form.postlevel.members.label=All Members
-
-.form.postlevel.select.label=Select Members
-
-.form.postlevel.subhead=Do you want to allow only certain members the ability to post?
 
 .form.submit.create=Create Community
 

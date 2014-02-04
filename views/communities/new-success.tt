@@ -18,11 +18,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div></div>
 
 <div class="row"><div class="large-12 columns">
-<div class="panel">
-<p>[% '.success.enter_info.prompt' | ml %]</p>
-<form method="GET" action="[% site.root %]/manage/profile">
-    <input type="hidden" name="authas" value="[% community.user %]" />
-    [%- form.submit( value = dw.ml( ".success.enter_info.button" ) ) -%]
-</form>
+<div class="panel callout">
+<h3>[% '.success.next.header' | ml %]</h3>
+<ul>[%- FOR link = action_links -%]
+    <li><a href="[% link.url %]">[% link.text_ml | ml %]</a></li>
+[%- END -%]</ul>
 </div>
 </div></div>
