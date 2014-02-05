@@ -32,7 +32,7 @@ sub _memcache_stored_props          {
     # next - allowed object properties
     return qw/ 4
                userid acctid
-               siteid username password servicename servicetype serviceurl xpostbydefault recordlink options active
+               siteid username password servicename servicetype serviceurl xpostbydefault recordlink oauth_authorized options active
                /;
 }
 sub _memcache_hashref_to_object {
@@ -84,8 +84,8 @@ sub get_external_accounts {
         return @accounts;
     }
 
-    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active FROM externalaccount WHERE userid=?" );
-    $sth->execute($u->userid, );
+    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options, active FROM externalaccount WHERE userid=?" );
+    $sth->execute($u->userid);
     LJ::throw($u->errstr) if $u->err;
 
     my @acctids;
@@ -110,7 +110,7 @@ sub get_external_account {
         return $cached_value;
     }
 
-    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active FROM externalaccount WHERE userid=? and acctid=?" );
+    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options, active FROM externalaccount WHERE userid=? and acctid=?" );
     $sth->execute($u->userid, $acctid);
     LJ::throw($u->err) if ($u->err);
 
@@ -167,7 +167,7 @@ sub xpost_string_to_hash {
 # instance methods
 sub absorb_row {
     my ($self, $row) = @_;
-    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink options active ) ) {
+    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink oauth_authorized options active ) ) {
         $self->{$f} = $row->{$f};
     }
     return $self;
@@ -190,7 +190,7 @@ sub create {
     # convert the options hashref to a single field
     my $options_blob = $class->xpost_hash_to_string( $opts->{options} );
 
-    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1 )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $options_blob );
+    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, oauth_authorized, options, active ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1 )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $opts->{oauth_authorized} ? '1' : '0', $options_blob );
     
     LJ::throw($u->errstr) if $u->err;
 
@@ -456,6 +456,11 @@ sub displayname {
     return $_[0]->username . "@" . $_[0]->servername;
 }
 
+# returns the oauth_authorized value for an OAuth account
+sub oauth_authorized {
+    return $_[0]->{oauth_authorized};
+}
+
 # returns the protocol for this account, either as set directly or
 # from the configured site
 sub protocol {
@@ -519,6 +524,24 @@ sub set_password {
     return 1;
 }
 
+#updates the username for this ExternalAccount.
+#Should probably only be used with OAuth accounts where the username can change,
+#e.g. Twitter.
+sub set_username {
+    my ( $self, $newusername ) = @_;
+
+    my $u = $self->owner;
+    unless ( $newusername eq $self->username ) {
+        $u->do( "UPDATE externalaccount SET username=? WHERE userid=? AND acctid=?", undef, $newusername, $u->{userid}, $self->acctid );
+        LJ::throw( $u->errstr ) if $u->err;
+
+        $self->{username} = $newusername;
+        $self->_remove_from_memcache( $self->_memcache_id );
+    }
+    return 1;
+}
+
+
 # sets the (protocol-specific) options.  takes a hashref as the options
 # argument.
 sub set_options {
@@ -539,6 +562,42 @@ sub set_options {
     $self->_remove_from_memcache($self->_memcache_id);
 
     return 1;
+}
+
+# updates the oauth_authorized flag for an OAuth account. 
+sub set_oauth_authorized {
+    my ( $self, $oauth_authorized ) = @_;
+
+    LJ::throw( 'Cannot set oauth_authorized flag on an account that does not use OAuth' )
+        unless $self->uses_oauth;
+
+    my $newvalue = $oauth_authorized ? '1' : '0';
+    unless ( $newvalue eq $self->oauth_authorized ) {
+        my $u = $self->owner;
+        $u->do( "UPDATE externalaccount SET oauth_authorized=? WHERE " .
+            "userid=? AND acctid=?", undef, $newvalue, $u->{userid},
+            $self->acctid );
+        LJ::throw( $u->errstr ) if $u->err;
+
+        $self->{oauth_authorized} = $oauth_authorized;
+        $self->_remove_from_memcache( $self->_memcache_id );
+    }
+    return 1;
+}
+
+# Returns true if this externalaccount uses a protocol that shouldn't receive
+#  non-public entries
+sub public_posts_only {
+    my $self = shift;
+    return 0 unless $self->protocol;
+    return $self->protocol->public_posts_only;
+}
+
+# Returns true if this account uses OAuth.
+sub uses_oauth {
+    my $self = shift;
+    return 0 unless $self->protocol;
+    return $self->protocol->uses_oauth;
 }
 
 1;

@@ -2846,6 +2846,7 @@ CREATE table externalaccount (
     xpostbydefault enum('1','0') NOT NULL default '0',
     recordlink enum('1','0') NOT NULL default '0',
     active enum('1', '0') NOT NULL default '1',
+    oauth_authorized enum('1','0') NOT NULL default '0',
     options blob,
     primary key (userid, acctid),
     index (userid)
@@ -4002,6 +4003,11 @@ EOF
         do_alter( 'externalaccount',
                   "ALTER TABLE externalaccount ADD COLUMN recordlink enum('1','0') NOT NULL default '0'");
     }
+
+    unless ( column_type( 'externalaccount', 'oauth_authorized' ) ) {
+        do_alter( 'externalaccount',
+                  "ALTER TABLE externalaccount ADD COLUMN oauth_authorized enum('1','0') NOT NULL default '0'");
+      }
 
     unless ( column_type( 'import_data', 'options' ) ) {
         do_alter( 'import_data',
