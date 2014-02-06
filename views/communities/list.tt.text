@@ -1,0 +1,37 @@
+;; -*- coding: utf-8 -*-
+
+.no.communities=You're not an administrator or moderator of any communities. Would you like to <a href="[[create_url]]">create a new community</a>?
+
+.actions.header.entries=Entries
+
+.actions.header.settings=Settings
+
+.actions.header.members=Members
+
+.actions.invitations=Invitations
+
+.actions.members=Members
+
+.actions.moderation.entries=Entries [[num]]
+
+.actions.moderation.members=Members [[num]]
+
+.actions.new_entry=New Entry
+
+.actions.settings=Settings
+
+.actions.profile=Profile
+
+.actions.style=Style
+
+.actions.tags=Tags
+
+.actions.tracking=Tracking
+
+.table.header.community=Community
+
+.table.header.moderation=Moderation Queue
+
+.table.header.settings=Settings
+
+.title=Manage Communities

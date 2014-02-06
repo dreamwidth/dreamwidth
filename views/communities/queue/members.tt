@@ -1,0 +1,70 @@
+[%# views/communities/queue/members.tt
+
+View and edit pending membership requests
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+    "stc/css/components/tables-as-list.css"
+
+    "js/components/jquery.select-all.js"
+    "stc/css/components/select-all.css"
+) -%]
+
+[%- linkbar -%]
+
+[%- IF messages.size > 0 -%]
+  [%- FOREACH msg = messages -%]
+    <div class="alert-box success">[% msg.ml | ml( num = msg.num ) %]</div>
+  [%- END -%]
+[%- END -%]
+
+[%- IF user_list.size > 0 -%]
+<form method="POST" action="[% form_queue_action_url %]">
+[%- dw.form_auth -%]
+
+[%- SET actions = [ "approve", "reject", "ban" ] -%]
+<table class="table-as-list select-all">
+    <thead>
+    <tr>
+        <th scope="row"></th>
+        [%- FOREACH action = actions -%]
+          <th><label id="header_[% action %]_label" for="header_[% action %]"><input type="checkbox" id="header_[% action %]" data-select-all="[% action %]" /> [% ".header.$action" | ml %]
+          </label></th>
+        [%- END -%]
+    </tr>
+    </thead>
+    <tbody>
+    [%- FOREACH user = user_list -%]
+    <tr>
+        <th scope="row">[% user.ljuser %]</th>
+        [%- FOREACH action = actions -%]
+          <td>
+          [%- form.radio_nested( label=dw.ml( ".action.$action" ),  id="${action}_${user.userid}", name="user_${user.userid}", value=action ) -%]
+          </td>
+        [%- END -%]
+    </tr>
+    [%- END -%]
+    </tbody>
+</table>
+
+<input type="submit" class="button" value="[% '.form.button' | ml %]" />
+</form>
+
+[% INCLUDE components/pagination.tt
+    current => pages.current,
+    total_pages => pages.total_pages,
+%]
+[%- ELSE -%]
+<div class="panel">[% ".empty" | ml %]</div>
+[%- END -%]
+

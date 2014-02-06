@@ -21,6 +21,10 @@
 
 .cat.account.desc=Basic account settings
 
+.cat.community=Community
+
+.cat.community.desc=Community posting settings
+
 .cat.display=Display
 
 .cat.display.desc=Viewing options, site navigation, and language

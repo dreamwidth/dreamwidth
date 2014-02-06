@@ -118,16 +118,12 @@ $topbar-dropdown-link-bg:              $topbar-bg;
 $topbar-menu-link-color:               $topbar-link-color;
 $topbar-menu-icon-color:               $topbar-link-color;
 
-
-$include-html-classes: true;
-@import "foundation/foundation";
-
 // celerity-specific measurements
 $sidebar-width:                        9em;
 $masthead-height:                      6.875em;
 $header-offset-height:                 2em;
 
-@import "skins/skin-colors", "skins/nav", "skins/skiplink";
+@import "skins/global-styles", "skins/nav", "skins/skiplink";
 
 a:hover,
 a:active {

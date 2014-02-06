@@ -7,7 +7,7 @@
 # Authors:
 #      Janine Smith <janine@netrophic.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -76,8 +76,8 @@ sub render_body {
         $ret .= " " . $class->ml( 'widget.createaccountentercode.pay2', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'", sitename => $LJ::SITENAMESHORT } );
     }
     my $remote = LJ::get_remote(); 
-    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/community/create'" } );
-    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout2', { aopts => "href='$LJ::SITEROOT/community/create'" } ) unless $remote;
+    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/communities/new'" } );
+    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout2', { aopts => "href='$LJ::SITEROOT/communities/new'" } ) unless $remote;
         
     $ret .= "</p>";
 

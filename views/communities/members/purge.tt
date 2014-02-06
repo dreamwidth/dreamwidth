@@ -1,0 +1,41 @@
+[%# communities/members/purge.tt
+
+Confirmation page which displays a list of members that will be purged
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- linkbar -%]
+
+[%- IF user_list.size > 0 -%]
+<p>[% '.explain' | ml( comm = community.ljuser_display ) %]</p>
+<ul>
+    [%- FOREACH user = user_list -%]
+    <li>[%- user.name -%]</li>
+    [%- END -%]
+</ul>
+
+<form method="POST" action="[%- form_action -%]">
+    [%- dw.form_auth -%]
+
+    [%- FOREACH user = user_list -%]
+        [%- FOREACH role = roles -%]
+            [%- form.hidden( name = "${role}_old", value = user.id  ) -%]
+        [%- END -%]
+    [%- END -%]
+
+    [%- form.submit( value = dw.ml( '.confirm.button' ) ) -%]
+
+    <a href="[% members_url %]" class="secondary button">[% '.back' | ml %]</a>
+</form>
+[%- ELSE -%]
+<p>[%- '.none' | ml( comm = community.ljuser_display ) -%]</p>
+[%- END -%]

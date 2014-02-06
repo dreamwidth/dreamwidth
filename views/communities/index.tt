@@ -1,0 +1,68 @@
+[%# communities/index.tt
+
+Provides a "landing page" for communities and community-related
+stuff, including links for both comm members and admins.
+
+Authors:
+    Denise Paolucci <denise@dreamwidth.org>
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<div class="row"><div class="large-12 columns">
+  <p>[% '.intro' | ml( sitename => site.nameshort ) %]</p>
+</div></div>
+
+[%# 'learn more about comms' block %]
+[%- IF faq_links -%]
+<div class="row"><div class="large-12 columns">
+    <h2>[% '.learnmore' | ml %]</h2>
+    <ul>[% faq_links %]</ul>
+</div></div>
+[%- END -%]
+
+[%# 'how to find communities' block %]
+<div class="row"><div class="large-12 columns">
+<div class="panel callout">
+    <h2>[% '.findcomms' | ml %]</h2>
+    <ul>
+    <li><a href="[% site.root%]/community/search">[% '.findcomms.commsearch' | ml %]</a></li>
+    <li><a href="[% site.root %]/community/random">[% '.findcomms.random' | ml %]</a></li>
+    <li><a href="[% site.root %]/search">[% '.findcomms.sitesearch' | ml %]</a>: [% '.findcomms.sitesearch.detail' | ml %]</li>
+    [% community_search_links %]
+    </ul>
+</div>
+</div></div>
+
+<div class="row">
+    <div class="large-6 columns">
+        [% recently_active_comms %]
+    </div>
+    <div class="large-6 columns">
+        [% newly_created_comms %]
+    </div>
+</div>
+
+<div class="row"><div class="columns">
+    [% official_comms %]
+</div></div>
+
+[% IF remote %]
+    <div class="row"><div class="large-12 columns">
+        <h2>[% '.manage' | ml %]</h2>
+        <ul>
+        <li><a href="[% site.root %]/communities/new">[% '.manage.create' | ml %]</a></li>
+        [% IF remote_admins_communities %]
+            <li><a href="[% site.root %]/communities/list">[% '.manage.yours' | ml %]</a></li>
+        [% END %]
+        [% community_manage_links %]
+        </ul>
+    </div></div>
+
+[% END %]

@@ -1497,8 +1497,8 @@ sub postevent
 
             # alert moderator(s)
             my $mods = LJ::load_rel_user($dbh, $ownerid, 'M') || [];
+
             if (@$mods) {
-                # load up all these mods and figure out if they want email or not
                 my $modlist = LJ::load_userids(@$mods);
 
                 my @emails;
@@ -1508,49 +1508,13 @@ sub postevent
 
                     next unless $mod->is_visible;
 
-                    next if $mod->prop( 'opt_nomodemail' );
-                    next if $mod->{status} ne "A";
-
-                    push @emails,
-                        {
-                            to          => $mod->email_raw,
-                            browselang  => $mod->prop('browselang'),
-                            charset     => $mod->mailencoding || 'utf-8',
-                        };
-
-                    ++$ct;
-                }
-
-                foreach my $to (@emails) {
-                    # TODO: html/plain text.
-                    my $body = LJ::Lang::get_text(
-                        $to->{'browselang'},
-                        'esn.moderated_submission.body', undef,
-                        {
-                            user        => $u->{'user'},
-                            subject     => $req->{'subject'},
-                            community   => $uowner->{'user'},
-                            modid       => $modid,
-                            siteroot    => $LJ::SITEROOT,
-                            sitename    => $LJ::SITENAME,
-                            moderateurl => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}&modid=$modid",
-                            viewurl     => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}",
-                        });
-
-                    my $subject = LJ::Lang::get_text(
-                        $to->{'browselang'},
-                        'esn.moderated_submission.subject2', undef,
-                        {
-                            community   => $uowner->{'user'}
-                        });
-
-                    LJ::send_mail({
-                        'to'        => $to->{to},
-                        'from'      => $LJ::ADMIN_EMAIL,
-                        'charset'   => $to->{charset},
-                        'subject'   => $subject,
-                        'body'      => $body,
-                    });
+                    $mod->migrate_prop_to_esn( "opt_nomodemail", "CommunityModeratedEntryNew",
+                                                check_enabled => sub {
+                                                        my ( $prop ) = @_;
+                                                        # opt_nomodemail is a negative prop
+                                                        return $prop eq "1" ? 0 : 1;
+                                                });
+                    LJ::Event::CommunityModeratedEntryNew->new( $mod, $uowner, $modid )->fire;
                 }
             }
 

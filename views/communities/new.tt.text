@@ -1,0 +1,39 @@
+;; -*- coding: utf-8 -*-
+
+.error.notactive=Your account must be active in order to create a community.  Please make sure your account isn't marked deleted or suspended and try again.
+
+.error.notconfirmed=You must <a href="[[confirm_url]]">confirm your email address</a> in order to create a community.
+
+.error.ratelimited=You have exceeded the maximum number of communities you can create in a week.  Please try again later.
+
+.error.user.inuse=That account name is already in use; please choose a different one.
+
+.error.user.mustenter=You must enter an account name.
+
+.error.user.reserved=That is a reserved account name. Please choose another.
+
+.form.age_restriction.concepts.label=Viewer Discretion Advised
+
+.form.age_restriction.explicit.label=Age 18+
+
+.form.age_restriction.legend=Age Restricted Content
+
+.form.age_restriction.none.label=No Age-Restricted Content
+
+.form.age_restriction.subhead=Does this community contain age-restricted content?
+
+.form.comminfo.legend=Community Information
+
+.form.comminfo.title.hint=This will appear at the top of your community and in the community directory
+
+.form.comminfo.title.label=Community Title
+
+.form.comminfo.user.label=Username
+
+.form.membership.legend=Membership
+
+.form.submit.create=Create Community
+
+.link.create_personal=Would you rather <a href="[[create_url]]">create a personal journal?</a>
+
+.title=Create New Community

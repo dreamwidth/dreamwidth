@@ -1,0 +1,29 @@
+.action.approve=Approve
+
+.action.ban=Reject and Ban
+
+.action.reject=Reject
+
+.empty=There are no membership requests awaiting approval.
+
+.error.noaccess=Only community administrators can accept and reject membership requests. You aren't an administrator of [[comm]].
+
+.form.button=Save Changes
+
+.header.approve=Approve All
+
+.header.ban=Reject and Ban All
+
+.header.reject=Reject All
+
+.success.approve=You've added [[num]] [[?num|person|persons]] to this community.
+
+.success.ban=You've banned [[num]] [[?num|person|persons]] from this community and rejected their request to join.
+
+.success.ban_skip=You have [[num]] failed [[?num|ban|bans]] from this community. You can clear the ban list and try again.
+
+.success.previously_handled=[[num]] [[?num|request has|requests have]] not been processed, as they were no longer pending.  Another administrator may have already processed [[?num|it|them]].
+
+.success.reject=You've rejected [[num]] [[?num|request|requests]] to join this community.
+
+.title=Member Moderation Queue

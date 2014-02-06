@@ -5,7 +5,7 @@
 #     Janine Smith <janine@netrophic.com>
 #     Sophie Hamilton <dw-bugzilla@theblob.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -103,7 +103,7 @@ sub get_menu_navigation {
 #                    display => $loggedin,
 #                },
                 {
-                    url => "$LJ::SITEROOT/community/create",
+                    url => "$LJ::SITEROOT/communities/new",
                     text => "menunav.create.createcommunity",
                     display => $loggedin_canjoincomms,
                 },
@@ -133,7 +133,7 @@ sub get_menu_navigation {
                     display => $loggedin_hasjournal,
                 },
                 {
-                    url => "$LJ::SITEROOT/community/manage",
+                    url => "$LJ::SITEROOT/communities/list",
                     text => "menunav.organize.managecommunities",
                     display => $loggedin_canjoincomms,
                 },

@@ -284,6 +284,10 @@ sub HTTP_SERVER_ERROR {
     return Apache2::Const::HTTP_INTERNAL_SERVER_ERROR;
 }
 
+sub HTTP_SERVICE_UNAVAILABLE {
+    return Apache2::Const::HTTP_SERVICE_UNAVAILABLE;
+}
+
 sub HTTP_METHOD_NOT_ALLOWED {
     return Apache2::Const::HTTP_METHOD_NOT_ALLOWED;
 }

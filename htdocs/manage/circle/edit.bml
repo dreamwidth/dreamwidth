@@ -35,7 +35,7 @@ body<=
     my $u = LJ::get_authas_user($authas);
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
-    return BML::redirect("$LJ::SITEROOT/community/members?authas=$u->{'user'}")
+    return BML::redirect( $u->community_manage_members_url )
         if $u->is_community;
     return LJ::bad_input($ML{'.error.badjournaltype'})
         unless $u->is_individual;

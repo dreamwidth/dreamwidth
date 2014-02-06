@@ -1,0 +1,23 @@
+$include-html-classes: false;
+@import "foundation/settings", "foundation/components/global";
+
+.queue {
+    list-style: none;
+
+    .queue-item {
+        padding: ($base-line-height * 1em) 0em;
+        margin-bottom: 4px;
+
+        .timestamp {
+            font-size: smaller;
+        }
+
+        .queue-action {
+            display: block;
+        }
+    }
+
+    input {
+        margin-bottom: 0;
+    }
+}

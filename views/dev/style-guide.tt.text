@@ -1,2 +1,10 @@
 ;; -*- coding: utf-8 -*-
+.filter.active=Active
+
+.filter.all=All
+
+.filter.pending=Pending
+
+.filter.suspended=Suspended
+
 .title=Style Guide

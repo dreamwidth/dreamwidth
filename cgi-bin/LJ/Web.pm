@@ -194,17 +194,27 @@ sub make_authas_select {
     my $authas = $opts->{authas} || $u->user;
     my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
 
+    my $foundation = $opts->{foundation} || 0;
+
     my @list = $u->get_authas_list( $opts );
 
     # only do most of form if there are options to select from
     if ( @list > 1 || $list[0] ne $u->user ) {
-        my $ret = LJ::html_select( { name => 'authas', selected => $authas,
-                                     class => 'hideable' },
+        my $menu = LJ::html_select( { name => 'authas', selected => $authas,
+                                     class => 'hideable', id => 'authas' },
                                    map { $_, $_ } @list );
 
-
-        $ret = "<br/>" . LJ::Lang::ml( "web.authas.select", { menu => $ret, username => LJ::ljuser($authas) } ) . " " . LJ::html_submit( undef, $button ) . "<br/><br/>\n"
-            unless $opts->{selectonly};
+        my $ret = '';
+        unless ( $opts->{selectonly} ) {
+            $ret = $foundation
+                ?   q{<div class='row collapse'><div class='columns medium-1'><label class='inline'>} . LJ::Lang::ml( 'web.authas.select.label' ) . q{</label></div>}
+                        . q{<div class='columns medium-6'>} . $menu . q{</div>}
+                        . q{<div class='columns medium-2 end'>} . LJ::html_submit( undef, $button, { class => "secondary postfix button"} ) . q{</div>}
+                    . q{</div>}
+                : "<br/>"
+                        . LJ::Lang::ml( 'web.authas.select', { menu => $menu, username => LJ::ljuser($authas) } ) . " " . LJ::html_submit( undef, $button )
+                    . "<br/><br/>\n";
+        }
 
         return $ret;
     }
@@ -2819,10 +2829,10 @@ sub control_strip
             $links{'unwatch_community'}   = "<a href='$LJ::SITEROOT/community/leave?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.removecomm'}</a>";
             $links{'post_to_community'}   = "<a href='$LJ::SITEROOT/update?usejournal=$journal->{user}'>$BML::ML{'web.controlstrip.links.postcomm'}</a>";
             $links{'edit_community_profile'} = "<a href='$LJ::SITEROOT/manage/profile/?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommprofile'}</a>";
-            $links{'edit_community_invites'} = "<a href='$LJ::SITEROOT/community/sentinvites?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
-            $links{'edit_community_members'} = "<a href='$LJ::SITEROOT/community/members?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
+            $links{'edit_community_invites'} = "<a href='" . $journal->community_invite_members_url . "'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
+            $links{'edit_community_members'} = "<a href='" . $journal->community_manage_members_url . "'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
             $links{'track_community'} = "<a href='$LJ::SITEROOT/manage/tracking/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackcomm'}</a>";
-            $links{'queue'} = "<a href='$LJ::SITEROOT/community/moderate?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.queue'}</a>";
+            $links{'queue'} = "<a href='" . $journal->moderation_queue_url . "'>$BML::ML{'web.controlstrip.links.queue'}</a>";
         }
     }
     my $journal_display = LJ::ljuser($journal);

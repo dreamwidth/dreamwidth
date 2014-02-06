@@ -225,6 +225,7 @@ no strict "vars";
                                CommunityJoinApprove
                                CommunityJoinReject
                                CommunityJoinRequest
+                               CommunityModeratedEntryNew
                                ImportStatus
                                InvitedFriendJoins
                                JournalNewComment

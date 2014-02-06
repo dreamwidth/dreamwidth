@@ -1,4 +1,5 @@
 ;; -*- coding: utf-8 -*-
+# do not delete; still used by the community linkbar
 .commlist.actinfo=Information
 
 .commlist.actinfo2=Profile

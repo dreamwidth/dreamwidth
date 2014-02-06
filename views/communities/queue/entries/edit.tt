@@ -1,0 +1,101 @@
+[%# commmunities/queue/entries/edit.tt
+
+Show and edit an entry in the moderation queue
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+    "stc/entrypage.css"
+    "stc/css/pages/communities/queue/entries/edit.css"
+) -%]
+
+[%- linkbar -%]
+
+[%# moderated-entry is (hopefully) a temporary class to tweak the styling for entries in the moderation queue
+-%]
+<div class="entry-wrapper moderated-entry row"><div class="entry columns large-12"><div class="inner">
+
+<div class="header">
+    <div class="inner">
+        [%- IF entry.icon -%]<div class="userpic">[%- entry.icon.imgtag -%]</div>[%- END -%]
+        <div class="poster-info">[%- 'talk.somebodywrote_comm' | ml(
+                realname = entry.poster.username
+                userlink = entry.poster.ljuser_display
+                commlink = entry.journal.ljuser_display
+            ) -%]
+            <br>@[%- entry.time -%]
+        </div>
+    </div>
+</div>
+
+[%- entry.currents_html -%]
+
+<div class="contents usercontent">
+    <div class="inner">
+        <div class="subject">
+            [%- entry.security_html -%]
+            [%- entry.age_restriction_html -%]
+            <h3 class="entry-title"><a href="#">[%- entry.subject -%]</a></h3>
+            [%- IF entry.age_restriction_reason -%]
+                <div class="age-restriction-reason">[%- ".label.age_restriction" | ml( reason = entry.age_restriction_reason ) | html -%]</div>
+            [%- END -%]
+        </div>
+
+        <div class="entry-content">[%- entry.event -%]</div>
+    </div>
+</div>
+</div></div></div>
+
+<div class="row"><div class="columns large-12">
+<form action="[% moderate_url %]" method="POST">
+    [%- dw.form_auth -%]
+    [%- form.hidden( name = "auth", value = entry.auth )-%]
+
+    <fieldset class="approve-or-reject">
+        <legend>Approve or Reject Entry</legend>
+        [%- IF entry.poster.is_validated -%]
+        [% form.textarea(
+            name  = "message"
+            id    = "message"
+            label = dw.ml( ".form.label.message" )
+        ) %]
+        [%- END -%]
+
+        [% form.submit(
+            name = "action:approve"
+            value = dw.ml( ".form.submit.approve" )
+            class = "submit button expand-for-mobile"
+        ) %]
+
+        [% form.submit(
+            name = "action:preapprove"
+            value = dw.ml( ".form.submit.preapprove" )
+            class = "submit button expand-for-mobile"
+        ) %]
+
+        [% form.submit(
+            name = "action:reject"
+            value = dw.ml( ".form.submit.reject" )
+            class = "secondary submit button expand-for-mobile"
+        ) %]
+
+        [%- IF can_report_spam -%]
+        [% form.submit(
+            name = "action:spam"
+            value = dw.ml( ".form.submit.spam" )
+            class = "secondary submit button expand-for-mobile"
+        ) %]
+        [%- END -%]
+
+    </fieldset>
+</form>
+</div></div>

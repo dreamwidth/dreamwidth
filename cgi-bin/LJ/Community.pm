@@ -72,7 +72,7 @@ sub send_comm_invite {
         $u->do("UPDATE inviterecv SET args = ? WHERE userid = ? AND commid = ?",
                undef, $newargstr, $u->{userid}, $cu->{userid});
 
-        $cu->do("UPDATE invitesent SET args = ?, status = 'outstanding' WHERE userid = ? AND commid = ?",
+        $cu->do("UPDATE invitesent SET args = ?, status = 'outstanding' WHERE commid = ? AND userid = ?",
                 undef, $newargstr, $cu->{userid}, $u->{userid});
     } else {
          # insert new data, as this is a new invite
@@ -549,7 +549,7 @@ sub set_comm_settings {
 }
 
 sub maintainer_linkbar {
-    my ( $comm, $page ) = @_;
+    my ( $comm, $page, $in_foundation_page ) = @_;
     die "Invalid arguments passed to maintainer_linkbar"
         unless LJ::isu( $comm ) and defined $page;
 
@@ -572,28 +572,25 @@ sub maintainer_linkbar {
         $page eq "customize" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</strong>" :
             "<a href='$LJ::SITEROOT/customize/?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</a>",
-        $page eq "settingspost" ?
-            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingspost') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/settings?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingspost') . "</a>",
         $page eq "settingsaccount" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</strong>" :
-            "<a href='$LJ::SITEROOT/manage/settings?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</a>",
+            "<a href='$LJ::SITEROOT/manage/settings?authas=$username&cat=community'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</a>",
         $page eq "invites" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/sentinvites?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
+            "<a href='$LJ::SITEROOT/communities/$username/members/new'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
         $page eq "members" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/members?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
+            "<a href='" . $comm->community_manage_members_url . "'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
         $page eq "queue" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.queue') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/moderate?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",
+            "<a href='" . $comm->moderation_queue_url . "'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",
 
     );
 
     my $ret .= "<strong>" . LJ::Lang::ml('/community/manage.bml.managelinks', { user => $comm->ljuser_display }) . "</strong> ";
     $ret .= join(" | ", @links);
 
-    return "<p style='margin-bottom: 20px;'>$ret</p>";
+    return $in_foundation_page ? $ret : "<p style='margin-bottom: 20px;'>$ret</p>";
 }
 
 sub get_mod_queue_count {
@@ -662,5 +659,157 @@ sub moderator_userids {
     return @{LJ::load_rel_user_cache( $u->id, 'M' )};
 }
 
+# accepts (optionally) a list of roles to filter by
+# returns two hashrefs:
+#   { userid => { "userid" => userid, "name" => username, "A" => 1, "P" => 1 ... }, ... }
+#   { "M" => count, "P" => count, ... }
+#
+# not cached
+sub get_members_by_role {
+    my ( $cu, $types ) = @_;
 
+    my @all_types = qw ( A P M N E );
+    my @filter_by_types = scalar @$types ? @$types : @all_types;
+    my %filter_by = map { $_ => 1 } @filter_by_types;
+    my $type_in = join ", ", map { qq('$_') } @all_types;
+
+    # need a dbr now
+    my $dbr = LJ::get_db_reader();
+
+    # get all community edges
+    my $sth = $dbr->prepare("SELECT r.targetid, r.type, u.user FROM reluser r, useridmap u " .
+                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ( $type_in )");
+    $sth->execute( $cu->userid );
+
+    my %userinfo;       # contains the data that we fetched
+    my %users;          # the users we return / are interested in
+    my %count;
+    while ( my ( $id, $type, $user ) = $sth->fetchrow_array ) {
+        $userinfo{$id}->{userid} = $id;
+        $userinfo{$id}->{name} = $user;
+        $userinfo{$id}->{$type} = 1;
+
+        # filter down to just the roles we are interested in
+        if ( $filter_by{$type} ) {
+            $users{$id} = $userinfo{$id};
+
+            # only count if we actually include in the final results
+            $count{$type}++;
+        }
+    }
+
+    return ( \%users, \%count );
+}
+
+# accepts a user object to fetch member data of
+# returns same as get_members_by_role
+sub get_member {
+    my ( $cu, $u ) = @_;
+
+    my $dbr = LJ::get_db_reader();
+
+    # get all community edges
+    my $results = $dbr->selectall_arrayref("SELECT r.targetid, r.type, u.user FROM reluser r, useridmap u " .
+                            "WHERE r.targetid = u.userid AND r.userid=? AND r.targetid=?", undef, $cu->userid, $u->userid );
+
+    my %userinfo;
+    my %count;
+    foreach ( @$results ) {
+        my ( $id, $type, $user ) = @$_;
+
+        $userinfo{$id}->{userid} = $id;
+        $userinfo{$id}->{name} = $user;
+        $userinfo{$id}->{$type} = 1;
+
+        $count{$type}++;
+    }
+
+    return ( \%userinfo, \%count );
+}
+
+
+
+=head2 C<< $cu->notify_administrator_remove( $admin_u_del, $remote ) >>
+
+Notify a user when they've been removed from being admin for a community.
+$admin_u_del is the user to be removed; $remote is the user doing the removing
+
+=cut
+sub notify_administrator_remove {
+    my ( $cu, $admin_u_del, $remote ) = @_;
+    $cu->_notify_administrator( $admin_u_del, $remote, "maintainer_remove" )
+}
+
+
+=head2 C<< $cu->notify_administrator_add( $admin_u_new, $remote ) >>
+
+Notify a user when they've been added as an admin to a community.
+$admin_u_new is the user to be added; $remote is the user doing the adding.
+
+=cut
+sub notify_administrator_add {
+    my ( $cu, $admin_u_new, $remote ) = @_;
+    $cu->_notify_administrator( $admin_u_new, $remote, "maintainer_add" );
+}
+
+# TODO: check if user wants to receive emails?
+sub _notify_administrator {
+    my ( $cu, $target_u, $remote, $action ) = @_;
+    $cu->log_event( $action, { actiontarget => $target_u->id, remote => $remote } );
+
+    return if ! $target_u || $target_u->is_expunged;
+
+    my $email_body;
+    my $email_subject;
+    my $ml_scope = "/communities/members/edit.tt";
+    if ( $action eq "maintainer_add" ) {
+        $email_body = LJ::Lang::ml( "$ml_scope.email.admin.add.body", {
+                comm => $cu->name_raw,
+                community_url => $cu->journal_base,
+
+                community_management_url => "$LJ::SITEROOT/communities/list"
+            } );
+        $email_subject = LJ::Lang::ml( "$ml_scope.email.admin.add.subject", { comm => $cu->name_raw } );
+    } else {
+        $email_body = LJ::Lang::ml( "$ml_scope.email.admin.delete.body", {
+                admin => $remote->user,
+
+                comm => $cu->name_raw,
+                community_url => $cu->journal_base,
+            });
+        $email_subject = LJ::Lang::ml( "$ml_scope.email.admin.delete.subject", { comm => $cu->name_raw } );
+    }
+
+    LJ::send_formatted_mail(
+            to => $target_u->email_raw,
+            greeting_user => $target_u->user,
+
+            from => $LJ::BOGUS_EMAIL,
+            fromname => qq{"$LJ::SITENAME"},
+
+            subject => $email_subject,
+            body => $email_body,
+    );
+}
+
+=head2 C<< $cu->get_mod_queue >>
+
+Get entries pending moderation
+
+=cut
+sub get_mod_queue {
+    my ( $cu ) = @_;
+
+    my $dbcr = LJ::get_cluster_def_reader( $cu );
+
+    my @entries;
+    my $sth = $dbcr->prepare( "SELECT * FROM modlog WHERE journalid=?" );
+    $sth->execute( $cu->userid );
+
+    while ($_ = $sth->fetchrow_hashref) {
+        push @entries, $_;
+    }
+
+    return sort { $a->{logtime} lt $b->{logtime} } @entries;
+}
 1;

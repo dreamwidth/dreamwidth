@@ -1,0 +1,55 @@
+;; -*- coding: utf-8 -*-
+
+.account=Account
+
+.email.admin.add.body<<
+You have just been added as an administrator of the community [[[comm]]]([[community_url]]) by one of the current administrators. As an administrator, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove yourself as an administrator or transfer your community to another user.
+
+To manage your communities please visit [your community management page]([[community_management_url]]).
+.
+
+.email.admin.add.subject=You have been added as an administrator of [[comm]]
+
+.email.admin.delete.body<<
+[[admin]] has removed you as an administrator of the community [[[comm]]]([[community_url]]).
+.
+
+.email.admin.delete.subject=You have been removed as an administrator of [[comm]]
+
+.empty.members=No members yet. <a href="[[invite_url]]">Invite some</a>?
+
+.empty.role=No members with this role.
+
+.error.no_admin=[[comm]] must have at least one administrator. Please make sure you don't remove all administrators.
+
+.error.noaccess=You're not an administrator of [[comm]], so you can't edit membership lists.
+
+.find.button=Find
+
+.find.header=Find Member
+
+.find.label=Username:
+
+.members.button=Save Membership Settings
+
+.msg.invite=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a href="[[invite_url]]">Community Invitation Page</a> to rejoin.
+
+.purge.button=Remove Purged Members
+
+.role.admin=Administrator
+
+.role.all=All
+
+.role.member=Member
+
+.role.moderator=Moderator
+
+.role.poster=Posting Access
+
+.role.unmoderated=Unmoderated
+
+.success.added=added: [[list]]
+
+.success.removed=removed: [[list]]
+
+.title=Edit Community Members

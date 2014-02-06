@@ -449,8 +449,9 @@ email.emailreset.error=Unable to update user record for [[user]]
 
 email.emailreset.subject=Email Address Reset
 
+email.footer|notes=The two trailing spaces after "regards," are significant, to allow a newline in markdown (without having a blank line)
 email.footer<<
-Regards,
+Regards,  
 [[sitename]] Team
 
 [[siteroot]]
@@ -864,6 +865,10 @@ error.code.comm_not_comm=Account is not a community
 error.code.comm_not_found=Community not found
 
 error.code.comm_not_member=User is not a member of this community
+
+error.communities.noaccess=You must be an administrator of [[comm]] to do this action.
+
+error.communities.notcomm=[[user]] isn't a community.
 
 error.console.notpermitted=You are not permitted to run this command.
 
@@ -1328,25 +1333,16 @@ esn.manage_request_approve=[[openlink]]Approve[[closelink]] [[username]]'s reque
 
 esn.manage_request_reject=[[openlink]]Reject[[closelink]] [[username]]'s request to join
 
-esn.moderated_submission.body<<
-There has been a new submission for the community '[[community]]',
-which you moderate.
+esn.moderated_submission.body2<<
+There has been a new submission for the community '[[community]]', which you moderate.
 
-   Account: [[user]]
+   Poster:  [[user]]
    Subject: [[subject]]
-
-
-Options:
-
-  - Accept or reject this submission
-    [[moderateurl]]
-  - View the entire moderation queue
-    [[viewurl]]
-
---
-[[sitename]] Team
-[[siteroot]]
 .
+
+esn.moderated_submission.entry=[[openlink]]Accept or reject this submission[[closelink]]
+
+esn.moderated_submission.queue=[[openlink]]View the entire moderation queue[[closelink]]
 
 esn.moderated_submission.subject2=Moderated submission notification in [[community]]
 
@@ -1630,6 +1626,8 @@ event.birthday.me=One of the people on my access or subscription lists has an up
 event.birthday.user=[[user]]'s birthday is coming up
 
 event.community_join_requst=Someone requests membership in a community I administer
+
+event.community_moderated_entry_new=Someone submits an entry to a community I moderate
 
 event.comm_invite=I receive an invitation to join a community
 
@@ -2499,6 +2497,8 @@ search.user.update.last=Updated [[time]]
 
 search.user.update.never=Never updated
 
+select_all.label=Select All
+
 setting.adultcontent.error.invalid=Invalid adult content setting.
 
 setting.adultcontent.label=Adult Content
@@ -2605,6 +2605,58 @@ setting.commentscreening.option.select.nonfriends=comments from people not on yo
 
 setting.commentscreening.option.select.nonmembers=comments from non-members
 
+setting.communityentrymoderation.error.invalid=Invalid community entry moderation setting option.
+
+setting.communityentrymoderation.label=Entry Moderation
+
+setting.communityentrymoderation.option=All entries must be approved by a moderator before they will be posted to the community
+
+setting.communityguidelinesloc.error.invalid=Invalid community posting guidelines setting option.
+
+setting.communityguidelinesloc.label=Posting Guidelines
+
+setting.communityguidelinesloc.option=Guidelines for posting to this community can be found [[option]]
+
+setting.communityguidelinesloc.option.select.entry=in an entry
+
+setting.communityguidelinesloc.option.select.none=nowhere
+
+setting.communityguidelinesloc.option.select.profile=on the community profile
+
+setting.communityguidelinesentry.label=Posting Guidelines Entry
+
+setting.communityguidelinesentry.invalid=Invalid entry. The entry can be entered either as "[[example_url]]" or as "[[example_id]]"
+
+setting.communityjoinlinks.label=Links After Join
+
+setting.communityjoinlinks.option=Post to community
+
+setting.communityjoinlinks.desc=What links should be displayed to users when they join this community?
+
+setting.communitymembership.error.invalid=Invalid community membership setting option.
+
+setting.communitymembership.label=Membership
+
+setting.communitymembership.option=Membership is [[option]]
+
+setting.communitymembership.option.select.closed=by invitation only (only people invited by an administrator may join)
+
+setting.communitymembership.option.select.moderated=moderated (anyone can ask to join, must be approved by an administrator)
+
+setting.communitymembership.option.select.open=open (anyone can freely join)
+
+setting.communitypostlevel.error.invalid=Invalid community post level setting option.
+
+setting.communitypostlevel.label=Posting Access
+
+setting.communitypostlevel.option=Entries can be posted to this community by [[option]]
+
+setting.communitypostlevel.option.select.anybody=anybody, including non-members
+
+setting.communitypostlevel.option.select.members=community members
+
+setting.communitypostlevel.option.select.select=select members, with moderator approval
+
 setting.communitypromo.label=Community Promo
 
 setting.communitypromo.option=Opt out of putting this community in the list of promoted communities, when a user you invite creates an account
@@ -2684,6 +2736,10 @@ setting.display.banusers.label=Ban and Unban Accounts
 setting.display.banusers.option.comm=Ban and unban accounts from commenting in my community
 
 setting.display.banusers.option.self=Ban and unban accounts from commenting in my journal
+
+setting.display.communityinvites.label=Community Invitations
+
+setting.display.communityinvites.option=View pending invitations to communities
 
 setting.display.domainmapping.actionlink=Set up
 
@@ -4319,6 +4375,8 @@ web.ads.search=Sponsored Search Links
 web.authas.btn=Switch
 
 web.authas.select=Work as [[menu]] instead of current [[username]]
+
+web.authas.select.label=Work as
 
 web.controlstrip.btn.go=Go
 

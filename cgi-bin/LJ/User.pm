@@ -2280,6 +2280,14 @@ sub optout_community_promo {
     return $u->prop( 'optout_community_promo' ) ? 1 : 0;
 }
 
+sub community_invite_members_url {
+    return "$LJ::SITEROOT/communities/" . $_[0]->user . "/members/new";
+}
+
+sub community_manage_members_url {
+    return "$LJ::SITEROOT/communities/" . $_[0]->user . "/members/edit";
+}
+
 sub control_strip_display {
     my $u = shift;
 
@@ -2652,6 +2660,41 @@ sub large_journal_icon {
     return $wrap_img->( "user" );
 }
 
+sub moderation_queue_url {
+    my ( $u, $modid ) = @_;
+    my $base_url = "$LJ::SITEROOT/communities/" . $_[0]->user . "/queue/entries";
+    return $modid ? "$base_url/$modid" : $base_url;
+}
+
+sub member_queue_url {
+    my ( $u ) = @_;
+    return "$LJ::SITEROOT/communities/" . $_[0]->user . "/queue/members";
+}
+
+sub migrate_prop_to_esn {
+    my ( $u, $prop_name, $event_name, %opts ) = @_;
+
+    my $migrated_value = $opts{migrated_value} || '-';
+    my $check_enabled = $opts{check_enabled}
+                        || sub {
+                                my ( $prop ) = @_;
+                                return $prop ? 1 : 0;
+                            };
+
+    my $prop = $u->prop( $prop_name );
+
+    # not yet migrated
+    if ( $prop ne $migrated_value ) {
+        if ( $check_enabled->( $prop ) ) {
+            my %params = ( event => $event_name, journal => $u );
+            unless ( $u->has_subscription( %params ) ) {
+                $u->subscribe( %params, method => $_ ) foreach qw( Inbox Email );
+            }
+        }
+        $u->set_prop( $prop_name, $migrated_value );
+    }
+
+}
 
 # des: Given a list of caps to add and caps to remove, updates a user's caps.
 # args: cap_add, cap_del, res
@@ -4355,6 +4398,39 @@ sub can_post_to {
     return 0;
 }
 
+# list of communities that $u manages
+sub communities_managed_list {
+    my ( $u ) = @_;
+
+    croak "Invalid users passed to LJ::User->communities_managed_list"
+        unless LJ::isu( $u );
+
+    my $cids = LJ::load_rel_target( $u, 'A' );
+    return undef unless $cids;
+
+    my %users = %{ LJ::load_userids( @$cids ) };
+
+    return  map { $_ }
+                grep { $_ && ( $_->is_visible || $_->is_readonly ) }
+            values %users;
+}
+
+# list of communities that $u moderates
+sub communities_moderated_list {
+    my ( $u ) = @_;
+
+    croak "Invalid users passed to LJ::User->communities_moderated_list"
+        unless LJ::isu( $u );
+
+    my $cids = LJ::load_rel_target( $u, 'M' );
+    return undef unless $cids;
+
+    my %users = %{ LJ::load_userids( @$cids ) };
+
+    return  map { $_ }
+                grep { $_ && ( $_->is_visible || $_->is_readonly ) }
+            values %users;
+}
 
 # Get an array of usernames a given user can authenticate as.
 # Valid keys for opts hashref:

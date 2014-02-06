@@ -1,0 +1,9 @@
+.back=Cancel
+
+.confirm.button=Remove These Members
+
+.explain=Review the list below and confirm that you want to remove these members from [[comm]]:
+
+.none=There are no members of [[comm]] who have had their accounts purged.
+
+.title=Remove Purged Members

@@ -1,0 +1,116 @@
+[%# communities/members/edit.tt
+
+Lists members of a community (for administrators)
+
+Conversion of htdocs/community/members.bml
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+    "stc/css/components/tables-as-list.css"
+
+    "js/components/jquery.select-all.js"
+    "stc/css/components/select-all.css"
+) -%]
+
+[%- linkbar -%]
+
+<div class="row"><div class="columns large-12">
+
+[%- INCLUDE components/filter.tt links => filter_links -%]
+
+[%- IF messages.size > 0 or roles_changed.size > 0 -%]
+  [%- FOREACH msg = messages -%]
+    <div class="alert-box">[% msg.0 | ml( msg.1 ) %]</div>
+  [%- END -%]
+  [%- FOREACH role = roles_changed -%]
+    <div class="alert-box success">[%-  role.user -%] - 
+      [%- IF role.added.size > 0 -%]
+        [%- '.success.added' | ml( list = role.added.join( ", " ) ) -%]
+      [%- END -%]
+      [%- IF role.added.size > 0 and role.removed.size > 0 -%]; [% END -%]
+      [%- IF role.removed.size > 0 -%]
+        [%- '.success.removed' | ml( list = role.removed.join( ", ") ) -%]
+      [%- END -%]
+    </div>
+  [%- END -%]
+[%- END -%]
+
+[%- IF user_list.size > 0 -%]
+<form method="POST" action="[% form_edit_action_url %]">
+[%- dw.form_auth -%]
+<table class="table-as-list select-all">
+    <thead>
+    <tr>
+        <th scope="row"><span id="select-all" class="select-all-label">[% 'select_all.label' | ml %]</span></th>
+        [%- FOREACH role = roles -%]
+          <th><label id="header_[% role %]_label" for="header_[% role %]"><input type="checkbox" id="header_[% role %]" data-select-all="[% role %]" aria-labelledby="select-all header_[% role %]_label" /> [% ".role.$role" | ml %]
+          </label></th>
+        [%- END -%]
+    </tr>
+    </thead>
+    <tbody>
+    [%- FOREACH user = user_list -%]
+    <tr>
+        <th scope="row">[% user.ljuser %]</th>
+        [%- FOREACH role = roles -%]
+          <td>
+          [%- form.checkbox_nested( label=dw.ml( ".role.$role" ),  id="${role}_${user.userid}", name=role, value=user.userid, remember_old_state = 1 ) -%]
+          </td>
+        [%- END -%]
+    </tr>
+    [%- END -%]
+    </tbody>
+</table>
+
+<input type="submit" class="button" value="[% '.members.button' | ml %]" />
+</form>
+
+[% INCLUDE components/pagination.tt
+    current => pages.current,
+    total_pages => pages.total_pages,
+%]
+[%- ELSE -%]
+<div class="panel">[% has_active_filter ? dw.ml( '.empty.role' ) : dw.ml( '.empty.members', invite_url = "$site.root/communities/$community.user/members/new" ) %]</div>
+[%- END -%]
+</div></div>
+
+<hr>
+
+<div class="row">
+  <div class="columns large-6">
+    <h2>[% ".find.header" | ml %]</h2>
+
+    <form method="GET" action="">
+    <div class="row collapse">
+      <div class="large-8 columns">
+        [%- form.textbox( name="q"
+                          id="q"
+                          label=dw.ml( ".find.label" ),
+                          labelclass="hidden" ) -%]
+      </div>
+      <div class="large-4 columns">
+        [%- form.submit( value = dw.ml( '.find.button' ), class = "secondary button postfix" ) -%]
+      </div>
+    </div>
+    </form>
+
+  </div>
+
+  <div class="columns large-5 large-offset-1">
+    <h2>Clean Up List</h2>
+    <form method="POST" action="[% form_purge_action_url %]">
+      [%- form.hidden( name = "authas", value = community.username ) -%]
+      [%- form.submit( value = dw.ml( '.purge.button' ), class = 'secondary button' ) -%]
+    </form>
+  </div>
+</div>

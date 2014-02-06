@@ -1,0 +1,22 @@
+[%# components/filter.tt
+
+Filter block. Call as follows:
+
+
+    INCLUDE components/filter.tt
+      links     => [ { active => 0 / 1, url => ..., text => ".some.ml.string" } ]
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+<dl class="sub-nav">
+  <dt>Filter:</dt>
+  [%- FOREACH filter = links %]
+    <dd[% filter.active ? " class='active'" : "" %]><a href="[% filter.url %]">[% filter.text | ml %]</a></dd>
+  [%- END -%]
+</dl>

@@ -39,3 +39,5 @@ fieldset {
 label.hidden {
   @extend %screenreader-friendly;
 }
+
+@import "components/expand-for-mobile";

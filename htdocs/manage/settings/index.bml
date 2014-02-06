@@ -38,6 +38,7 @@ body<=
     my @cats_order = qw(
         account
         display
+        community
         notifications
         mobile
         privacy
@@ -152,6 +153,7 @@ body<=
                 LJ::Setting::Display::Emails
                 LJ::Setting::Display::EmailPosts
                 LJ::Setting::Display::Orders
+                DW::Setting::Display::CommunityInvites
                 DW::Setting::Display::OpenIDClaim
             )],
         },
@@ -166,6 +168,21 @@ body<=
              )],
 
         },
+        community => {
+            name => $ML{'.cat.community'},
+            visible => $u->is_community ? 1 : 0,
+            disabled => 0,
+            form => 1,
+            desc => $ML{'.cat.community.desc'},
+            settings => [qw(
+                DW::Setting::CommunityMembership
+                DW::Setting::CommunityPostLevel
+                DW::Setting::CommunityEntryModeration
+                DW::Setting::CommunityJoinLinks
+                DW::Setting::CommunityGuidelinesLocation
+                DW::Setting::CommunityGuidelinesEntry
+            )],
+        }
     );
 
     LJ::Hooks::run_hook("settings_extra_cats", \@cats_order, \%cats_with_settings, user => $u);
@@ -523,7 +540,15 @@ body<=
                 }
                 $u->set_prop( 'opt_getselfemail' => 'X' );
             }
+
             $_->commit foreach @pending_subscriptions;
+
+            $u->migrate_prop_to_esn( "opt_nomodemail", "CommunityModeratedEntryNew",
+                                        check_enabled => sub {
+                                                my ( $prop ) = @_;
+                                                # opt_nomodemail is a negative prop
+                                                return $prop eq "1" ? 0 : 1;
+                                        });
         }
 
         my @categories = (
@@ -545,7 +570,7 @@ body<=
                         event => 'JournalNewComment::Reply',
                         arg2 => 1,
                     ),
-    
+
                     LJ::Subscription::Pending->new($u,
                         event => 'JournalNewComment::Reply',
                         arg2 => 2,
@@ -578,6 +603,7 @@ body<=
                     'InvitedFriendJoins',
                     'CommunityInvite',
                     'CommunityJoinRequest',
+                    'CommunityModeratedEntryNew',
                     LJ::Subscription::Pending->new($u,
                         event => 'NewUserpic',
                     ),

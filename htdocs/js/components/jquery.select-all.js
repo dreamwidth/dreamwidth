@@ -4,9 +4,14 @@
         $("input[data-select-all]", this).click(function(e) {
             var $checkbox = $(this);
 
+            var select_this = $checkbox.data("select-all")
             $table
-                .find( "input[name=" + $checkbox.data("select-all") + "]" )
-                    .prop( "checked", $checkbox.is(":checked") )
+                .find( "input[name=" + select_this + "], input[value=" + select_this + "]" )
+                    .prop( "checked", $checkbox.is(":checked") );
+            e.stopPropagation();
+        })
+        $table.click(function(e) {
+            $("input[data-select-all]").prop( "checked", false );
         })
     }
 })(jQuery);

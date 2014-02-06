@@ -26,8 +26,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "js/vendor/jquery.fileupload-process.js"
     "js/vendor/jquery.fileupload-image.js"
 
-    "stc/css/components/progress-bars.css"
-    "stc/css/page/fileupload.css"
+    "stc/css/pages/media/new.css"
 ) -%]
 
 

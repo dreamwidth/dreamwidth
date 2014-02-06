@@ -52,12 +52,11 @@ body<=
             unless $cu->reject_pending_member( $targetu );
 
         # return success
-        my $commname = $cu->user;
         return "<?h1 $ML{'.comm.success'} h1?>".
                '<?p ' . BML::ml('.commreject.text', {
                            user => $targetu->ljuser_display,
                            comm => $cu->ljuser_display,
-                           aopts => "href=\"$LJ::SITEROOT/community/members?authas=$commname\"",
+                           aopts => "href=\"" . $c->community_manage_members_url . "\"",
                         }) . ' p?>';
     }
 

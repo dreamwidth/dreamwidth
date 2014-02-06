@@ -1,7 +1,7 @@
 /**
 * Site-wide skin-specific CSS colors
 * Set the color variables in the scheme-specific CSS file
-* Then @import _skin_colors.scss
+* Then @import _skin-colors.scss
 *
 * Only use mixins (@include), or variables
 * so that we pick up the colors / settings from the site skin
@@ -51,4 +51,14 @@ h1 {
     color: $page-title-color;
 }
 
+// forms
 @import "skins/form-elements";
+
+// components
+$queue-font-color:     $form-font-color !default;
+$queue-bg-color:       $form-bg-color !default;
+
+.queue-item {
+    background-color: $queue-bg-color;
+    color: $queue-font-color;
+}
