@@ -549,7 +549,7 @@ sub set_comm_settings {
 }
 
 sub maintainer_linkbar {
-    my ( $comm, $page ) = @_;
+    my ( $comm, $page, $in_foundation_page ) = @_;
     die "Invalid arguments passed to maintainer_linkbar"
         unless LJ::isu( $comm ) and defined $page;
 
@@ -590,7 +590,7 @@ sub maintainer_linkbar {
     my $ret .= "<strong>" . LJ::Lang::ml('/community/manage.bml.managelinks', { user => $comm->ljuser_display }) . "</strong> ";
     $ret .= join(" | ", @links);
 
-    return "<p style='margin-bottom: 20px;'>$ret</p>";
+    return $in_foundation_page ? $ret : "<p style='margin-bottom: 20px;'>$ret</p>";
 }
 
 sub get_mod_queue_count {

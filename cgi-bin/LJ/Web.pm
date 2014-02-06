@@ -194,17 +194,27 @@ sub make_authas_select {
     my $authas = $opts->{authas} || $u->user;
     my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
 
+    my $foundation = $opts->{foundation} || 0;
+
     my @list = $u->get_authas_list( $opts );
 
     # only do most of form if there are options to select from
     if ( @list > 1 || $list[0] ne $u->user ) {
-        my $ret = LJ::html_select( { name => 'authas', selected => $authas,
-                                     class => 'hideable' },
+        my $menu = LJ::html_select( { name => 'authas', selected => $authas,
+                                     class => 'hideable', id => 'authas' },
                                    map { $_, $_ } @list );
 
-
-        $ret = "<br/>" . LJ::Lang::ml( "web.authas.select", { menu => $ret, username => LJ::ljuser($authas) } ) . " " . LJ::html_submit( undef, $button ) . "<br/><br/>\n"
-            unless $opts->{selectonly};
+        my $ret = '';
+        unless ( $opts->{selectonly} ) {
+            $ret = $foundation
+                ?   q{<div class='row collapse'><div class='columns medium-1'><label class='inline'>} . LJ::Lang::ml( 'web.authas.select.label' ) . q{</label></div>}
+                        . q{<div class='columns medium-6'>} . $menu . q{</div>}
+                        . q{<div class='columns medium-2 end'>} . LJ::html_submit( undef, $button, { class => "secondary postfix button"} ) . q{</div>}
+                    . q{</div>}
+                : "<br/>"
+                        . LJ::Lang::ml( 'web.authas.select', { menu => $menu, username => LJ::ljuser($authas) } ) . " " . LJ::html_submit( undef, $button )
+                    . "<br/><br/>\n";
+        }
 
         return $ret;
     }

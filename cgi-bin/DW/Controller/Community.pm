@@ -431,7 +431,7 @@ sub members_new_handler {
     my @valid_statuses = qw( outstanding accepted rejected );
     my %valid_statuses = map { $_ => 1 } @valid_statuses;
 
-    my $status_filter = $get->{status};
+    my $status_filter = $get->{status} || '';
     $status_filter = "all" unless $valid_statuses{$status_filter};
 
     my @filters = ({
@@ -493,7 +493,7 @@ sub members_new_handler {
         form_invite_action_url => LJ::create_url( undef ),
         form_revoke_action_url => LJ::create_url( undef, keep_args => [qw( status page )] ),
 
-        linkbar => $cu->maintainer_linkbar( 'invites' ),
+        linkbar => _community_menu( $remote, $cu, current_page => 'invites', path => "/communities/members/new" ),
     };
 
     return DW::Template->render_template( 'communities/members/new.tt', $vars );
@@ -779,7 +779,7 @@ sub members_edit_handler {
         form_search_action_url => LJ::create_url( undef ),
         form_purge_action_url => LJ::create_url( "/communities/members/purge" ),
 
-        linkbar => $cu->maintainer_linkbar( 'members' ),
+        linkbar => _community_menu( $remote, $cu, current_page => 'members', path => '/communities/members/edit' ),
     };
 
     return DW::Template->render_template( 'communities/members/edit.tt', $vars );
@@ -822,7 +822,7 @@ sub members_purge_handler {
         form_action => $members_url,
         members_url => $members_url,
 
-        linkbar => $cu->maintainer_linkbar( '' ),
+        linkbar => _community_menu( $remote, $cu, path => '/communities/members/edit' ),
     };
 
     return DW::Template->render_template( 'communities/members/purge.tt', $vars );
@@ -857,7 +857,7 @@ sub entry_queue_handler {
     my $vars = {
         entries => \@entries,
 
-        linkbar => $cu->maintainer_linkbar( 'queue' ),
+        linkbar => _community_menu( LJ::get_remote(), $cu, current_page => 'queue', path => '/communities/queue/entries' ),
     };
 
     return DW::Template->render_template( 'communities/queue/entries.tt', $vars );
@@ -951,7 +951,7 @@ sub entry_queue_edit_handler {
 
         errors => $errors,
 
-        linkbar => $cu->maintainer_linkbar( '' ),
+        linkbar => _community_menu( LJ::get_remote(), $cu, path => '/communities/queue/entries' ),
     };
 
     return DW::Template->render_template( 'communities/queue/entries/edit.tt', $vars );
@@ -1048,7 +1048,7 @@ sub members_queue_handler {
 
         form_queue_action_url => LJ::create_url( undef, keep_args => [qw( page )] ),
 
-        linkbar => $cu->maintainer_linkbar( '' ),
+        linkbar => _community_menu( $remote, $cu, path => '/communities/queue/members' ),
     };
 
     return DW::Template->render_template( 'communities/queue/members.tt', $vars );
@@ -1095,6 +1095,21 @@ sub _roletype_map {
         M => 'moderator',
         N => 'unmoderated'
     );
+}
+
+sub _community_menu {
+    my ( $u, $cu, %opts ) = @_;
+
+    my $current_page = $opts{current_page} || '';
+    my $path = $opts{path};
+
+    return
+    "<div class='community-menu'>"
+        . "<form action='" . LJ::create_url( $path ) . "' method='get'>"
+            . LJ::make_authas_select( $u, { type => 'C', authas => $cu->user, foundation => 1 } )
+         . "</form>"
+         . $cu->maintainer_linkbar( $current_page, 1 )
+    . "</div>";
 }
 
 1;

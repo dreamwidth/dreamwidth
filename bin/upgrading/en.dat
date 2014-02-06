@@ -4376,6 +4376,8 @@ web.authas.btn=Switch
 
 web.authas.select=Work as [[menu]] instead of current [[username]]
 
+web.authas.select.label=Work as
+
 web.controlstrip.btn.go=Go
 
 web.controlstrip.btn.inbox=Inbox
