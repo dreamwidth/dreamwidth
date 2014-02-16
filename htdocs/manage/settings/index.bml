@@ -503,46 +503,8 @@ body<=
 
         # Transalte legacy pre-ESN notifs to ESN notifs
         {
-            my @pending_subscriptions;
-            if ( $u->prop('opt_gettalkemail') ne 'X' ) {
-                if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
-                    push @pending_subscriptions, map { (
-                        # FIXME(dre): Remove when ESN can bypass inbox
-                        LJ::Subscription::Pending->new($u,
-                            event => 'JournalNewComment::Reply',
-                            method => 'Inbox',
-                            arg2 => $_,
-                        ),
-                        LJ::Subscription::Pending->new($u,
-                            event => 'JournalNewComment::Reply',
-                            method => 'Email',
-                            arg2 => $_,
-                        ),
-                    ) } ( 0, 1 );
-                }
-                $u->update_self( { 'opt_gettalkemail' => 'X' } );
-            }
-            if ( $u->prop('opt_getselfemail') ne 'X' ) {
-                if ( $u->prop('opt_getselfemail') eq '1' ) {
-                    push @pending_subscriptions, (
-                        # FIXME(dre): Remove when ESN can bypass inbox
-                        LJ::Subscription::Pending->new($u,
-                            event => 'JournalNewComment::Reply',
-                            method => 'Inbox',
-                            arg2 => 2,
-                        ),
-                        LJ::Subscription::Pending->new($u,
-                            event => 'JournalNewComment::Reply',
-                            method => 'Email',
-                            arg2 => 2,
-                        ),
-                    );
-                }
-                $u->set_prop( 'opt_getselfemail' => 'X' );
-            }
-
-            $_->commit foreach @pending_subscriptions;
-
+            LJ::Event::JournalNewComment::Reply->migrate_user( $u );
+ 
             $u->migrate_prop_to_esn( "opt_nomodemail", "CommunityModeratedEntryNew",
                                         check_enabled => sub {
                                                 my ( $prop ) = @_;
