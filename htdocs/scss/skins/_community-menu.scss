@@ -1,5 +1,5 @@
 .community-menu {
-  @include panel( darken( $body-bg, 8% ) );
+  @include panel( darken( $background-color, 8% ) );
   font-size: .8rem;
 
   label {
