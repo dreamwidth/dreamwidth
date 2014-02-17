@@ -71,6 +71,54 @@ sub additional_subscriptions_sql {
     return undef;
 }
 
+sub migrate_user {
+    my ($class, $u) = @_;
+
+    # Cannot use $u->migrate_prop_to_esn
+    #  * opt_gettalkemail isn't really a prop
+    #  * ->migrate_prop_to_esn won't take arg1/arg2
+
+    my @pending_subscriptions;
+    if ( $u->prop('opt_gettalkemail') ne 'X' ) {
+        if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
+            push @pending_subscriptions, map { (
+                # FIXME(dre): Remove when ESN can bypass inbox
+                LJ::Subscription::Pending->new($u,
+                    event => 'JournalNewComment::Reply',
+                    method => 'Inbox',
+                    arg2 => $_,
+                ),
+                LJ::Subscription::Pending->new($u,
+                    event => 'JournalNewComment::Reply',
+                    method => 'Email',
+                    arg2 => $_,
+                ),
+            ) } ( 0, 1 );
+        }
+        $u->update_self( { 'opt_gettalkemail' => 'X' } );
+    }
+    if ( $u->prop('opt_getselfemail') ne 'X' ) {
+        if ( $u->prop('opt_getselfemail') eq '1' ) {
+            push @pending_subscriptions, (
+                # FIXME(dre): Remove when ESN can bypass inbox
+                LJ::Subscription::Pending->new($u,
+                    event => 'JournalNewComment::Reply',
+                    method => 'Inbox',
+                    arg2 => 2,
+                ),
+                LJ::Subscription::Pending->new($u,
+                    event => 'JournalNewComment::Reply',
+                    method => 'Email',
+                    arg2 => 2,
+                ),
+            );
+        }
+        $u->set_prop( 'opt_getselfemail' => 'X' );
+    }
+
+    $_->commit foreach @pending_subscriptions;
+}
+
 # override parent class sbuscriptions method to
 # convert opt_gettalkemail to a subscription
 sub raw_subscriptions {
@@ -90,44 +138,7 @@ sub raw_subscriptions {
         next unless $u;
         next unless ( $cid == $u->clusterid );
 
-        my @pending_subscriptions;
-        if ( $u->prop('opt_gettalkemail') ne 'X' ) {
-            if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
-                push @pending_subscriptions, map { (
-                    # FIXME(dre): Remove when ESN can bypass inbox
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment::Reply',
-                        method => 'Inbox',
-                        arg2 => $_,
-                    ),
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment::Reply',
-                        method => 'Email',
-                        arg2 => $_,
-                    ),
-                ) } ( 0, 1 );
-            }
-            $u->update_self( { 'opt_gettalkemail' => 'X' } );
-        }
-        if ( $u->prop('opt_getselfemail') ne 'X' ) {
-            if ( $u->prop('opt_getselfemail') eq '1' ) {
-                push @pending_subscriptions, (
-                    # FIXME(dre): Remove when ESN can bypass inbox
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment::Reply',
-                        method => 'Inbox',
-                        arg2 => 2,
-                    ),
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment::Reply',
-                        method => 'Email',
-                        arg2 => 2,
-                    ),
-                );
-            }
-            $u->set_prop( 'opt_getselfemail' => 'X' );
-        }
-        $_->commit foreach @pending_subscriptions;
+        $class->migrate_user( $u );
     }
 
     return eval { LJ::Event::raw_subscriptions($class, $self,
