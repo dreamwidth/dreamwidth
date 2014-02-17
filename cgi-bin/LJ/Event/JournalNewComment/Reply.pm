@@ -74,6 +74,10 @@ sub additional_subscriptions_sql {
 sub migrate_user {
     my ($class, $u) = @_;
 
+    # Cannot use $u->migrate_prop_to_esn
+    #  * opt_gettalkemail isn't really a prop
+    #  * ->migrate_prop_to_esn won't take arg1/arg2
+
     my @pending_subscriptions;
     if ( $u->prop('opt_gettalkemail') ne 'X' ) {
         if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
