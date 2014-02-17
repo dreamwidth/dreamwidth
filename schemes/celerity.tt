@@ -74,9 +74,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 </div><!--end content-->
                 <div id="page-decoration"></div>
             </div><!-- end page-->
-            <div id="account-links" role="navigation" class="hide-for-small">
-                [% PROCESS block.accountlinks %]
-            </div><!-- end account links-->
+
+            [% PROCESS block.accountlinks %]
 
             <nav role="navigation"  class="main-nav top-bar contain-to-grid" data-topbar>
                 [% PROCESS block.userpic %]
@@ -136,9 +135,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 </div><!--end content-->
                 <div id="page-decoration"></div>
             </div><!-- end page-->
-            <div id="account-links" role="navigation">
-                [% PROCESS block.accountlinks %]
-            </div><!-- end account links-->
+
+            [% PROCESS block.accountlinks %]
+
             <nav role="navigation">
                 [% PROCESS block.userpic %]
                 [% PROCESS block.menunav %]
