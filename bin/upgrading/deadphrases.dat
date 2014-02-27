@@ -1551,3 +1551,13 @@ general setting.commentemailnotify.label
 general setting.commentemailnotify.option
 general setting.selfcommentemail.label
 general setting.selfcommentemail.option
+
+general poll.security
+general poll.security.all
+general poll.security.friends
+general poll.security.none
+general poll.security.none_others|notes
+general poll.security.none_others2
+general poll.security.none_remote|notes
+general poll.security.none_remote
+general poll.security.trusted

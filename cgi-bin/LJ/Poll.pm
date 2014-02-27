@@ -816,7 +816,7 @@ sub preview {
         if ($self->isanon eq "yes");
 
     my $whoview = $self->whoview eq "none" ? "none_remote" : $self->whoview;
-    $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote), 'whoview' => LJ::Lang::ml('poll.security.'.$whoview), });
+    $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.whovote.'.$self->whovote), 'whoview' => LJ::Lang::ml('poll.security.whoview.'.$whoview), });
 
     # iterate through all questions
     foreach my $q ($self->questions) {
@@ -968,8 +968,8 @@ sub render {
     if ($whoview eq "none") {
         $whoview = $remote && $remote->id == $self->posterid ? "none_remote" : "none_others2";
     }
-    $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote),
-                                       'whoview' => LJ::Lang::ml('poll.security.'.$whoview) });
+    $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.whovote.'.$self->whovote),
+                                       'whoview' => LJ::Lang::ml('poll.security.whoview.'.$whoview) });
 
     $ret .= LJ::Lang::ml('poll.participants', { 'total' => $self->num_participants });
     $ret .= "</div>";
