@@ -280,7 +280,10 @@ var string navlinks_css = "";
     margin: 0;
     padding:.5em 0;
     text-transform: lowercase;
-    style: inline;
+    }
+
+  .module-navlinks li {
+    display: inline;
     }
 
   .module-navlinks li a {
@@ -340,10 +343,6 @@ text-decoration: none;
 
 ul, ol {
 list-style-type: none;
-}
-
-li {
-display: inline;
 }
 
 code {
