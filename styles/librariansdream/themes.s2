@@ -376,6 +376,101 @@ set color_module_title = "#e0d5b7";
 set color_module_title_background = "#340004";
 
 
+#NEWLAYER: librariansdream/aranel
+layerinfo type = "theme";
+layerinfo name = "Aranel";
+layerinfo redist_uniq = "librariansdream/aranel";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_footer_background = "#fff7eb";
+set color_footer_link = "#dda8b3";
+set color_footer_link_hover = "#b79194";
+set color_footer_link_visited = "#cc99a3";
+set color_header_background = "#fff7eb";
+set color_header_link = "#b79194";
+set color_header_link_active = "#ba7178";
+set color_header_link_hover = "#ba7178";
+set color_header_link_visited = "#aa797c";
+set color_navigation_link = "#b79194";
+set color_navigation_link_active = "#ba7178";
+set color_navigation_link_hover = "#ba7178";
+set color_navigation_link_visited = "#aa797c";
+set color_page_background = "#fff7eb";
+set color_page_link = "#dda8b3";
+set color_page_link_hover = "#b79194";
+set color_page_link_visited = "#cc99a3";
+set color_page_text = "#6e5152";
+set color_page_title = "#dda8b3";
+set color_primary_background = "#f9e6e6";
+set color_sidebars_background = "#feeae1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#cc99a3";
+set color_comment_title_background = "#e2c7c8";
+set color_entry_background = "#f9e6e6";
+set color_entry_border = "#edcecb";
+set color_entry_interaction_links = "#cc99a3";
+set color_entry_link = "#dda8b3";
+set color_entry_link_hover = "#b79194";
+set color_entry_link_visited = "#cc99a3";
+set color_entry_management_background = "#edcecb";
+set color_entry_text = "#6e5152";
+set color_entry_title = "#dda8b3";
+set color_entry_title_background = "#edcecb";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_sidebars_background = "#feeae1";
+set color_module_background = "#feeae1";
+set color_module_border = "#eacfc7";
+set color_module_link = "#b79194";
+set color_module_link_background = "#feeae1";
+set color_module_link_border = "#eacfc7";
+set color_module_link_hover = "#ba7178";
+set color_module_link_hover_background = "#eacfc7";
+set color_module_link_hover_border = "#aa797c";
+set color_module_link_visited = "#aa797c";
+set color_module_text = "#6e5152";
+set color_module_title = "#aa797c";
+set color_module_title_background = "#eacfc7";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_size = "12";
+set font_comment_title_units = "pt";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title_size = "12.5";
+set font_entry_title_units = "pt";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_subtitle_size = "18";
+set font_journal_subtitle_units = "pt";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title_size = "24";
+set font_journal_title_units = "pt";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading_size = "12.5";
+set font_module_heading_units = "pt";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text_size = "11";
+set font_module_text_units = "pt";
+
+
 #NEWLAYER: librariansdream/bananasplitsville
 layerinfo type = "theme";
 layerinfo name = "Banana Splitsville";
