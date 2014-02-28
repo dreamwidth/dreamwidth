@@ -2293,23 +2293,29 @@ poll.respondents.user=[[user]] answered:
 
 poll.scaleanswers=<strong>Mean:</strong> [[mean]] <strong>Median:</strong> [[median]] <strong>Std. Dev</strong> [[stddev]]
 
-poll.security=Open to <strong>[[whovote]]</strong>. Results viewable to <strong>[[whoview]]</strong>
-
-poll.security.all=All
-
-poll.security.friends=Friends
-
-poll.security.none=None
-
-poll.security.none_others|notes=Shown to everyone who can see the poll except the poster
-poll.security.none_others2=Just the Poll Creator
-
-poll.security.none_remote|notes=Shown only to the poster of the poll
-poll.security.none_remote=Just Me
-
-poll.security.trusted=Access List
-
 poll.security2=Open to: <strong>[[whovote]]</strong>, detailed results viewable to: <strong>[[whoview]]</strong>
+
+poll.security.whoview.all=All
+
+poll.security.whoview.friends=Friends
+
+poll.security.whoview.none=None
+
+poll.security.whoview.none_others|notes=Shown to everyone who can see the poll except the poster
+poll.security.whoview.none_others2=Just the Poll Creator
+
+poll.security.whoview.none_remote|notes=Shown only to the poster of the poll
+poll.security.whoview.none_remote=Just Me
+
+poll.security.whoview.trusted=Access List
+
+poll.security.whovote.all=Registered Users
+
+poll.security.whovote.friends=Friends
+
+poll.security.whovote.none=None
+
+poll.security.whovote.trusted=Access List
 
 poll.seeresults=Display Results
 

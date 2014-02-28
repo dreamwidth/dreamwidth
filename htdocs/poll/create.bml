@@ -465,9 +465,9 @@ _c?>
             $ret .= "<option value='$sec'";
             $ret .= " selected='selected'" if $poll->{'whoview'} eq $sec;
             if ($sec eq "none") {
-                $ret .= ">" . $ML{'poll.security.none_remote'} . "</option>\n";
+                $ret .= ">" . $ML{'poll.security.whoview.none_remote'} . "</option>\n";
             } else {
-                $ret .= ">" . $ML{'poll.security.' . $sec} . "</option>\n";
+                $ret .= ">" . $ML{'poll.security.whoview.' . $sec} . "</option>\n";
             }
         }
         $ret .= "</select></p>\n";
@@ -476,7 +476,7 @@ _c?>
         foreach my $sec ( qw(all trusted) ) {
             $ret .= "<option value='$sec'";
             $ret .= " selected='selected'" if $poll->{'whovote'} eq $sec;
-            $ret .= ">" . $ML{'poll.security.'.$sec} . "\n";
+            $ret .= ">" . $ML{'poll.security.whovote.'.$sec} . "\n";
         }
         $ret .= "</select></p>\n";
 
