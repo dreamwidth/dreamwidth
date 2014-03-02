@@ -219,7 +219,7 @@ my %modules = (
                    'deb' => "libbusiness-creditcard-perl",
                    'opt' => "Required for taking credit/debit cards in the shop.",
                },
-               "Hash::MultiValue" => {},
+               "Hash::MultiValue" => { ver => '0.10' },
                "DateTime::TimeZone" => { 'deb' => "libdatetime-timezone-perl", },
                "Sys::Syscall" => {
                     deb => 'libsys-syscall-perl',
