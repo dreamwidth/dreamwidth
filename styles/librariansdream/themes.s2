@@ -609,8 +609,6 @@ set color_navigation_link_visited = "#488191";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -964,8 +962,6 @@ set color_navigation_link_visited = "#db2e4a";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -1144,8 +1140,6 @@ set color_navigation_link_visited = "#70afaa";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -1245,8 +1239,6 @@ set color_navigation_link_visited = "#ff5e71";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -1565,8 +1557,6 @@ set color_navigation_link_visited = "#b2889c";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -1869,8 +1859,6 @@ set color_navigation_link_visited = "#9d6173";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -1983,8 +1971,6 @@ set color_navigation_link_visited = "#ee7298";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12.5";
 set font_comment_title_units = "pt";
@@ -2078,8 +2064,6 @@ set color_navigation_link_visited = "#3d8944";
 ##===============================
 
 set font_base = "'Palatino Linotype', Palatino, Georgia";
-set font_base_size = "10";
-set font_base_units = "pt";
 set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
 set font_fallback = "serif";
 set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
@@ -2203,8 +2187,6 @@ set color_navigation_link_visited = "#a99797";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -2298,8 +2280,6 @@ set color_navigation_link_visited = "#9d6173";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -2639,8 +2619,6 @@ set color_navigation_link_visited = "#62902d";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12.5";
 set font_comment_title_units = "pt";
@@ -2730,8 +2708,6 @@ set color_module_title_background = "#030677";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -2828,8 +2804,6 @@ set color_navigation_link_visited = "#3e5650";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -2924,8 +2898,6 @@ set color_navigation_link_visited = "#921016";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12.5";
 set font_comment_title_units = "pt";
@@ -3019,8 +2991,6 @@ set color_navigation_link_visited = "#bf9d8f";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -3363,8 +3333,6 @@ set color_navigation_link_visited = "#2d3500";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
@@ -4790,8 +4758,6 @@ set color_navigation_link_visited = "#8c89f4";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_base_size = "10.5";
-set font_base_units = "pt";
 set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
 set font_comment_title_size = "12";
 set font_comment_title_units = "pt";
