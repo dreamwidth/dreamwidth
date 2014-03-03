@@ -170,7 +170,7 @@ body<=
         },
         community => {
             name => $ML{'.cat.community'},
-            visible => $u->is_community ? 1 : 0,
+            visible => $u && $u->is_community ? 1 : 0,
             disabled => 0,
             form => 1,
             desc => $ML{'.cat.community.desc'},
