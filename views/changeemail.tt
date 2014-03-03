@@ -1,0 +1,74 @@
+[%# changeemail.tt
+
+Change email page
+
+Authors:
+    hotlevel4 <hotlevel4@hotmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[% IF success %]
+    <h1>[% '.success.header' | ml %]</h1><p>[% '.success.text' | ml %]</p>
+[% ELSE %]
+    [% IF error_list %]
+        <div class='error-box message-box'>
+        <div class='title'>[% '.error.header' | ml %]</div>
+        <ul class='error-list'>
+            [% FOREACH error = error_list %]
+                <li>[% error %] </li>
+            [% END %]
+        </ul>
+        </div>
+    [% END %]
+
+    [% IF is_identity %]
+        <p>[% '.instructions.identity' | ml %]</p>
+    [% ELSIF is_community %]
+        <p>[% '.instructions.comm' | ml %]</p>
+    [% ELSE %]
+        <p>[% '.instructions' | ml( sitename = site.nameshort ) %]</p>
+    [% END %]
+    
+    [%# Warn if logged in and not validated %]
+    [% IF notvalidated %]
+        <div class="message-box info-box">
+            <b>[% '.label.warning' | ml %]</b> [% '.error.notvalidated' | ml %]
+        </div>
+    [% END %]
+
+    <div class='highlight-box'>
+    <form method="get">
+        [% authas_html %]
+    </form>
+    
+    <form action='[% site.root %]/changeemail[% getextra %]' method='post'>
+        [% dw.form_auth() %]
+    
+        <br/><br/><div>[% '.label.username' | ml %]<br />[% u.ljuser_display %]</div><br/>
+        <div>[% '.label.oldemail' | ml %]<br />
+            [% IF noemail %]
+                <em>[% '.noemail' | ml %]</em>
+            [% ELSE %]
+                <b>[% old_email %]</b>
+            [% END %]
+        </div><br/>
+        <div>[% '.label.newemail' | ml %]<br />
+            <input type='text' name='email' size='50' maxlength='50' tabindex='1' /></div><br />
+            [% UNLESS is_identity %]
+                <div>[% '.label.password2' | ml(remote = remote.ljuser_display) %]<br />
+                <input type='password' name='password' size='50' maxlength='50' tabindex='2' /></div>
+            [% END %]
+        </div>
+        <br />
+        
+        <div class='action-box'><div class='inner'>
+        <input type='submit' tabindex='3' value="[% '.btn.change' | ml %]" />
+        </div></div><div class='clear-floats'></div>
+    </form>
+[% END %]
