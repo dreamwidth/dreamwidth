@@ -79,6 +79,8 @@ my %host_path_match = (
     "www.plurk.com"         => qr!^/getWidget$!,
 
     "instagram.com"         => qr!^/p/.*/embed/$!,
+
+    "www.criticalcommons.org" => qr!/embed_view$!,
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
