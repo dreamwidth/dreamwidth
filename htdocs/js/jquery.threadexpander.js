@@ -11,11 +11,6 @@
       .toggleClass("partial", !full);
   }
 
-  // Returns the spacer object for S1 indents.
-  function getS1SpacerObject(element){
-    return $("td.spacer img", element);
-  }
-
   // Returns the talkids of all comments that are replies to this talkid,
   // plus the given talkid if includeSelf is called.
   function getReplies(LJ, talkid, includeSelf) {
@@ -50,7 +45,7 @@
   }
 
   // ajax expands the comments for the given talkid
-  $.fn.expandComments = function(LJ, expand_url, talkid, isS1, unhide) {
+  $.fn.expandComments = function(LJ, expand_url, talkid, unhide) {
     element = this;
     // if we've already been clicked, just return.
     if (element.hasClass("disabled")) {
@@ -68,13 +63,13 @@
           datatype: "html",
           timeout: 30000,
           success: function(data) {
-            var updateCount = element.doJqExpand(LJ, data, talkid, isS1, unhide);
+            var updateCount = element.doJqExpand(LJ, data, talkid, unhide);
             // if we didn't update any comments, something must have gone wrong
             if (updateCount == 0) {
               showExpanderError(element,$.threadexpander.config.text.error_nomatches);
               element.removeClass("disabled").fadeTo("fast", 1.0);
             } else if (unhide) {
-              element.unhideComments(LJ, talkid, isS1);
+              element.unhideComments(LJ, talkid);
             }
 
             // remove the expand_all option if all comments are expanded
@@ -98,7 +93,7 @@
   };
 
   // callback to handle comment expansion
-  $.fn.doJqExpand = function(LJ, data, talkid, isS1, unhide) {
+  $.fn.doJqExpand = function(LJ, data, talkid, unhide) {
     var updateCount = 0;
     // check for matching expansions on the page
     var replies;
@@ -130,25 +125,15 @@
               newComment = $("#cmt" + cmtId, data);
             }
             if (newComment) {
-              if (isS1) {
-                var oldWidth = getS1SpacerObject(cmtElement).width();
-                getS1SpacerObject(newComment).width(oldWidth);
-              }
               cmtElement.html($(newComment).html())
                 .trigger( "updatedcontent.comment" );
               $(".cmt_show_hide_default", cmtElement).show();
 
               // don't mark partial comments as full; make sure that the
               // loaded comments are full.
-              if (isS1) {
-                if ($('table.talk-comment', newComment).length > 0) {
-                  LJ[cmtId].full = true;
-                }
-              } else {
-                if (newComment.find(".full").length > 0) {
-                  LJ[cmtId].full = true;
-                  setFull(cmtElement, true);
-                }
+              if (newComment.find(".full").length > 0) {
+                LJ[cmtId].full = true;
+                setFull(cmtElement, true);
               }
               updateCount++;
             }
@@ -175,15 +160,11 @@
   }
 
   // hides all the comments under this comment.
-  $.fn.hideComments = function(LJ, talkid, isS1) {
+  $.fn.hideComments = function(LJ, talkid) {
     var replies = getReplies(LJ, talkid, false);
     var replyElements = getReplyElements(replies);
     for (var i = 0; i < replyElements.length; i++) {
-      if (isS1) {
-        replyElements[i].hide();
-      } else {
-        replyElements[i].slideUp("fast");
-      }
+      replyElements[i].slideUp("fast");
     }
 
     $("#cmt" + talkid + "_hide").hide();
@@ -191,7 +172,7 @@
   }
 
   // shows all the comments under this comment.
-  $.fn.unhideComments = function(LJ, talkid, isS1) {
+  $.fn.unhideComments = function(LJ, talkid) {
     var replies = getReplies(LJ, talkid, false);
     var replyElements = getReplyElements(replies);
     for (var i = 0; i < replyElements.length; i++) {
@@ -199,11 +180,7 @@
       // all show the hide option, not the unhide option.
       $(".cmt_hide", replyElements[i]).show();
       $(".cmt_unhide", replyElements[i]).hide();
-      if (isS1) {
-        replyElements[i].show();
-      } else {
-        replyElements[i].slideDown("fast");
-      }
+      replyElements[i].slideDown("fast");
     }
 
     // and this comment itself should show hide.
@@ -230,15 +207,15 @@
 
 // globals for backwards compatibility
 Expander = {
-  make: function(element, url, dtid, isS1, unhide) {
-    $(element).expandComments(LJ_cmtinfo, url, dtid, isS1, unhide);
+  make: function(element, url, dtid, unhide) {
+    $(element).expandComments(LJ_cmtinfo, url, dtid, unhide);
   },
 
-  hideComments: function(element, dtid, isS1) {
-    $(element).hideComments(LJ_cmtinfo, dtid, isS1);
+  hideComments: function(element, dtid) {
+    $(element).hideComments(LJ_cmtinfo, dtid);
   },
 
-  unhideComments: function(element, dtid, isS1) {
-    $(element).unhideComments(LJ_cmtinfo, dtid, isS1);
+  unhideComments: function(element, dtid) {
+    $(element).unhideComments(LJ_cmtinfo, dtid);
   }
 };

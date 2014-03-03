@@ -6307,7 +6307,7 @@ function CommentNav::print(string{} opts) {
         "flat"      => """<span class="view-flat"><a href="$.url${sep}view=flat#comments">$*text_commentview_flat</a></span>""",
         "threaded"  => """<span class="view-threaded"><a href="$.url#comments">$*text_commentview_threaded</a></span>""",
         "top-only"  => """<span class="view-top-only"><a href="$.url${sep}view=top-only#comments">$*text_commentview_toponly</a></span>""",
-        "expand_all"  => """<a href="$.url${sep}expand_all=1${page_arg}#comments" onClick="Expander.make(this,'$.url${sep}expand_all=1${page_arg}#comments',-1,false,false);return false;">Expand All</a>"""
+        "expand_all"  => """<a href="$.url${sep}expand_all=1${page_arg}#comments" onClick="Expander.make(this,'$.url${sep}expand_all=1${page_arg}#comments',-1,false);return false;">Expand All</a>"""
     };
 
     if ( $.view_mode == "threaded" ) {

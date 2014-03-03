@@ -3732,9 +3732,9 @@ sub Comment__expand_link
         $text = LJ::ehtml( get_plural_phrase( $ctx, $comment_count, "text_comment_unhide" ) );
         my $remote = LJ::get_remote();
 
-        $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false, true); return false;\"";
+        $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', true); return false;\"";
     } else {
-        $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false); return false;\"";
+        $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}'); return false;\"";
     }
     return"<a href='$this->{expand_url}'$title$class$onclick>$text</a>";
 }
