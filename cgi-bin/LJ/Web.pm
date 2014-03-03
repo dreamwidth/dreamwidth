@@ -205,7 +205,9 @@ sub make_authas_select {
                                    map { $_, $_ } @list );
 
         my $ret = '';
-        unless ( $opts->{selectonly} ) {
+        if ( $opts->{selectonly} ) {
+            $ret = $menu;
+        } else {
             $ret = $foundation
                 ?   q{<div class='row collapse'><div class='columns medium-1'><label class='inline'>} . LJ::Lang::ml( 'web.authas.select.label' ) . q{</label></div>}
                         . q{<div class='columns medium-6'>} . $menu . q{</div>}
