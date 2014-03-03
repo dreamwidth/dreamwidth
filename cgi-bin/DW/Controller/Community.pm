@@ -720,7 +720,9 @@ sub members_edit_handler {
     $_->{ljuser} = LJ::ljuser( $_->{name} ) foreach @users;
 
     # figure out what member roles are relevant
-    my @available_roles = ( 'member', 'poster' );
+    my @available_roles = ( 'member' );
+    push @available_roles, 'poster'
+        if $cu->post_level eq 'select';
     my $has_moderated_posting = $cu->has_moderated_posting;
     push @available_roles, 'unmoderated'
         if $has_moderated_posting || $role_count->{N};

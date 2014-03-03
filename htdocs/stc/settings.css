@@ -1,5 +1,4 @@
 /*Common */
-
 #settings_page img {
     border: 0;
 }
@@ -19,20 +18,20 @@
 }
 
 /* Shared Content */
-.account table, .display table, .mobile table, .privacy table, .history table, .othersites table {
+.account table, .display table, .mobile table, .privacy table, .history table, .othersites table, .community table {
     width: 100%;
 }
-.account td, .display td, .mobile td, .privacy td, .history td, .othersites td {
+.account td, .display td, .mobile td, .privacy td, .history td, .othersites td, .community td {
     padding: 10px 10px 10px 5px;
 }
-.account td.last, .display td.last, .mobile td.last, .privacy td.last, .history td.last, .othersites td.last {
+.account td.last, .display td.last, .mobile td.last, .privacy td.last, .history td.last, .othersites td.last, .community td.last {
     border-bottom: none;
 }
-.account td.help, .display td.help, .mobile td.help, .privacy td.help, .history td.help, .othersites td.help {
+.account td.help, .display td.help, .mobile td.help, .privacy td.help, .history td.help, .othersites td.help, .community td.help {
     width: 14px;
     text-align: right;
 }
-.account_label, .display_label, .mobile_label, .privacy_label, .history_label, .othersites_label {
+.account_label, .display_label, .mobile_label, .privacy_label, .history_label, .othersites_label, .community_label {
     font-weight: bold;
 }
 
