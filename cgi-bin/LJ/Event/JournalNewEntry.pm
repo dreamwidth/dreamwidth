@@ -141,9 +141,10 @@ sub content_summary {
     my $entry = $self->entry;
     return undef unless $self->_can_view_content( $entry, $target );
 
-    my $event_summary = $entry->event_html_summary( 300 );
+    my $truncated;
+    my $event_summary = $entry->event_html_summary( 300, { cuturl => $entry->url }, \$truncated );
     my $ret = $event_summary;
-    $ret .= "..." if $event_summary ne $entry->event_html;
+    $ret .= "..." if $truncated;
     $ret .= $self->as_html_actions;
 
     return $ret;
