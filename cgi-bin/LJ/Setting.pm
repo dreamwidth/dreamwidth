@@ -24,6 +24,7 @@ LJ::ModuleLoader->require_subclasses( "DW::Setting" );
 # ----------------------------------------------------------------------------
 
 sub should_render { 1 }
+sub is_conditional_setting { 0 }
 sub disabled { 0 }
 sub selected { 0 }
 sub label { "" }

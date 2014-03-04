@@ -94,6 +94,14 @@ userproplist.optout_community_promo:
   multihomed: 0
   prettyname: Account creation community promo
 
+userproplist.comm_postlevel_new:
+  cldversion: 4
+  datatype: bool
+  des: Whether new members can post to the community or not
+  indexed: 0
+  multihomed: 0
+  prettyname: Post Level for New Members
+
 userproplist.comm_promo_blurb:
   cldversion: 4
   datatype: char

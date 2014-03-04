@@ -2655,13 +2655,17 @@ setting.communitypostlevel.error.invalid=Invalid community post level setting op
 
 setting.communitypostlevel.label=Posting Access
 
-setting.communitypostlevel.option=Entries can be posted to this community by [[option]]
+setting.communitypostlevel.option=[[option]] can post
 
-setting.communitypostlevel.option.select.anybody=anybody, including non-members
+setting.communitypostlevel.option.select.anybody=Anyone, even non-members
 
-setting.communitypostlevel.option.select.members=community members
+setting.communitypostlevel.option.select.members=All members
 
-setting.communitypostlevel.option.select.select=select members, with moderator approval
+setting.communitypostlevel.option.select.select=Select members
+
+setting.communitypostlevelnew.label=New Member Posting
+
+setting.communitypostlevelnew.option=New members are automatically given posting access upon joining
 
 setting.communitypromo.label=Community Promo
 

@@ -24,6 +24,11 @@ body<=
     LJ::need_res("stc/tabs.css", "stc/settings.css", "js/settings.js");
     LJ::set_active_crumb('manage');
 
+    LJ::need_res({ group => 'jquery' },
+        "js/jquery.settings.js"
+    );
+    LJ::set_active_resource_group( "jquery" );
+
     my $remote = LJ::get_remote();
     my $authas;
     my $u;
@@ -177,6 +182,7 @@ body<=
             settings => [qw(
                 DW::Setting::CommunityMembership
                 DW::Setting::CommunityPostLevel
+                DW::Setting::CommunityPostLevelNew
                 DW::Setting::CommunityEntryModeration
                 DW::Setting::CommunityJoinLinks
                 DW::Setting::CommunityGuidelinesLocation
@@ -440,8 +446,10 @@ body<=
     $ret .= "</p></div>";
 
     if ($cats_with_settings{$given_cat}->{form}) {
-        my $confirm_msg = LJ::ejs($ML{'.form.confirm1'});
-        $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
+        if ( $LJ::ACTIVE_RES_GROUP ne "jquery"  ) {
+            my $confirm_msg = LJ::ejs($ML{'.form.confirm1'});
+            $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
+        }
         $ret .= "<form class='table-form' id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
         $ret .= LJ::form_auth();
     }
@@ -590,9 +598,11 @@ body<=
         ) . "<br />";
 
     } else {
-        my $setting_ct = 1;
+        my $setting_ct = 0;
         $ret .= "<table summary=''>";
         foreach my $setting (@settings) {
+            $setting_ct++ unless $setting->is_conditional_setting;
+
             my $errors = $setting->errors_from_save($save_rv);
             my $args = $setting->args_from_save($save_rv);
 
@@ -603,14 +613,13 @@ body<=
             my $last_class = $setting_ct == scalar @settings ? " last" : "";
 
             my $row_class = $setting_ct % 2 == 0 ? "even" : "odd";
-            $ret .= "<tr class='$row_class'>";
+            my $setting_id = $setting->pkgkey;
+            $ret .= "<tr class='$row_class' id='$setting_id'>";
             $ret .= "<th class='${given_cat}_label$last_class'>$label</th>" if $label;
             $ret .= "<td class='${given_cat}_option$last_class'>" . ($option ? $option : "&nbsp;") . "</td>";
             $ret .= "<td class='${given_cat}_actionlink$last_class'>" . ($actionlink ? $actionlink : "&nbsp;") . "</td>";
             $ret .= "<td class='help$last_class'>" . ($helpicon ? $helpicon : "&nbsp;") . "</td>";
             $ret .= "</tr>";
-
-            $setting_ct++;
         }
         $ret .= "</table>";
 
