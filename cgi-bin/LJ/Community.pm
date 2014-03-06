@@ -636,6 +636,14 @@ sub membership_level {
     return $membership_level || '';
 }
 
+# returns the post level of a community
+sub post_level {
+    my $u = $_[0];
+    return undef unless $u->is_community;
+
+    my ( $membership_level, $post_level ) = $u->get_comm_settings;
+    return $post_level || '';
+}
 # helper methods for checking some values about communities
 sub is_closed_membership    { $_[0]->membership_level eq 'closed' ? 1 : 0;    }
 sub is_moderated_membership { $_[0]->membership_level eq 'moderated' ? 1 : 0; }
