@@ -11,7 +11,12 @@
             e.stopPropagation();
         })
         $table.click(function(e) {
-            $("input[data-select-all]").prop( "checked", false );
+            // if we clicked anywhere else in the table, uncheck any select-all checkbox
+            // but not any select-all checkbox is what we just clicked
+            // this is to avoid interfering with deselecting everyhing by clicking on a label
+            $("input[data-select-all]")
+                .not($(e.target).find("input[data-select-all]"))
+                .prop( "checked", false );
         })
     }
 })(jQuery);
