@@ -14,22 +14,18 @@ $nav-small-screen-header-height: 3em;
         white-space: nowrap;
 
     }
-    
+
     @media #{$small-only} {
         /* Adjustments to the static account links display in the masthead */
-        
-        #account-links #account-links-userpic {
-            position: absolute; /* Should be done in a cleaner way -- this positions
-                                   the icon when on a small screen in the header when smaller */
-            right: -40px;
-            top: -11px;
-            
-            img { 
-                width: 50%; 
-                height: 50%; 
+
+        #account-links-userpic {
+            margin-top: -11px;
+            img {
+                max-height: $nav-small-screen-header-height;
+                width: auto;
             }
         }
-                
+
         /* This makes the account links text into a modal when the screen is small */
         #account-links-text {
             @include reveal-modal-base(
