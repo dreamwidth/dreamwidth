@@ -826,6 +826,14 @@ html body {
     max-width: 100%;
 }
 
+.search-form .search-box-item, 
+.search-form .search-button-item {
+    display: block
+}
+.search-form .comment_search_checkbox_item {
+    display: inline
+}
+
 .two-columns-right #entries,
 .two-columns-right.page-entry .entry-wrapper,
 .two-columns-right.page-entry #comments,
