@@ -160,8 +160,7 @@ sub new_cart {
         cartid    => $cartid,
         starttime => time(),
         userid    => $u ? $u->id : undef,
-        uniq      => LJ::UniqCookie->current_uniq,
-        ip        => BML::get_remote_ip(),
+        ip        => LJ::get_remote_ip(),
         state     => $DW::Shop::STATE_OPEN,
         items     => [],
         total_cash => 0.00,
@@ -171,6 +170,9 @@ sub new_cart {
         paymentmethod => 0, # we don't have a payment method yet
         email     => undef, # we don't have an email yet
     };
+
+    # if uniq undef, hash definition is totally wrecked, so set this separately
+    $cart->{uniq} = LJ::UniqCookie->current_uniq;
 
     # now, delete any old carts we don't need
     my $dbh = LJ::get_db_writer()
@@ -589,7 +591,7 @@ sub _notify_buyer_paid {
             receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $self->ordernum,
             sitename => $LJ::SITENAME,
         } ),
-    } );
+    } ) unless $LJ::T_SUPPRESS_EMAIL;
 }
 
 1;

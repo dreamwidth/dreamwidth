@@ -1767,6 +1767,14 @@ event.vgift.approved.msg.y=Congratulations, your proposed virtual gift named "[[
 
 event.vgift.approved.reason=The reviewer, [[admin]], included the following comments:
 
+event.vgift.delivery=Someone sends me a virtual gift
+
+event.vgift.delivery.actions=<a [[aopts1]]>Accept or Reject</a> | <a [[aopts2]]>View All Gifts</a>
+
+event.vgift.delivery.content=You have received a virtual gift from [[fromuser]]!
+
+event.vgift.delivery.msg=If you choose to accept this gift, it will be displayed on your profile for [[num_days]] [[?num_days|day|days]].
+
 event.vgift.notfound=The specified virtual gift could not be found.
 
 event.xpost.email.body.html.failure<<
@@ -3572,6 +3580,38 @@ shop.email.user.self=Your [[sitename]] account has been upgraded.
 
 shop.email.user.subject=[[sitename]] Account Purchase
 
+shop.email.vgift.body.html<<
+Dear [[touser]],
+<br /><br />
+You have received a virtual gift from [[fromuser]].
+<br /><br />
+This gift will be displayed on your [[sitenameshort]] profile if you choose
+to accept the gift.  To view more details, visit the following URL:
+<br /><br />
+    <a href="[[accept]]">[[accept]]</a>
+<br /><br />
+<br />
+Regards,<br />
+The [[sitename]] Team
+.
+
+shop.email.vgift.body.text<<
+Dear [[touser]],
+
+You have received a virtual gift from [[fromuser]].
+
+This gift will be displayed on your [[sitenameshort]] profile if you choose
+to accept the gift.  To view more details, visit the following URL:
+
+    [[accept]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.vgift.subject=You have received a virtual gift on [[sitenameshort]]!
+
 shop.expiration.0.body<<
 Dear [[account]],
 
@@ -3831,6 +3871,14 @@ shop.item.rename.name.hastoken.text=Rename Token [[token]]
 shop.item.rename.name.notoken=[[points]] points for a Rename Token
 
 shop.item.rename.note=Tokens can be used at the <a [[aopts]]>rename page</a>.
+
+shop.item.vgift.anonymous=an anonymous [[sitenameshort]] user
+
+shop.item.vgift.canbeadded.noanon=You cannot send an anonymous virtual gift to this user.
+
+shop.item.vgift.canbeadded.refused=You cannot send a virtual gift to this user.
+
+shop.item.vgift.name.notfound=(name not found)
 
 shop.unavailable=The shop is currently disabled.
 

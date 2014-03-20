@@ -815,6 +815,7 @@ sub sitenotices_event_list {
         'SecurityAttributeChanged',
         'UserExpunged',
         'VgiftApproved',
+        'VgiftDelivered',
         'XPostFailure',
         'XPostSuccess'
     );

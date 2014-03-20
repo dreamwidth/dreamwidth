@@ -5,7 +5,7 @@
 # Authors:
 #      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2013 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -33,7 +33,12 @@ sub _memcache_stored_props { return ( '1', PROPLIST ) }  #
 
 use Digest::MD5 qw/ md5_hex /;
 use LJ::Global::Constants;
-use LJ::Event::VgiftApproved;
+
+# Because events use this module, Perl warns about redefined subroutines.
+{
+    no warnings 'redefine';
+    use LJ::Event::VgiftApproved;
+}
 
 
 # TABLE OF CONTENTS
@@ -45,6 +50,8 @@ use LJ::Event::VgiftApproved;
 # 5. Aggregate methods (for mass lookups)
 # 6. End-user display methods (making things look purty)
 # 7. Notification methods (let people know about things)
+
+# Transaction methods moved to DW::VirtualGiftTransaction
 
 
 
@@ -701,7 +708,7 @@ sub _expire_relevant_keys {
         # expire memcache for img_large (set in Apache::LiveJournal)
         LJ::MemCache::delete( $self->img_memkey( 'large' ) );
     }
-    
+
     return $self->_expire_aggregate_keys( @props );
 }
 
@@ -717,12 +724,12 @@ sub _expire_aggregate_keys {
         # expire memcache for list_created_by
         LJ::MemCache::delete( $self->created_by_memkey );
     }
-    
+
     if ( $prop{creatorid} || $prop{active} || $prop{approved} ) {
         # expire memcache for fetch_creatorcounts
         LJ::MemCache::delete( $self->creatorcounts_memkey );
     }
-    
+
     return $self;
 }
 
@@ -830,7 +837,7 @@ sub _valid_name {
     my ( $self, $name, $err ) = @_;
 
     return 1 unless $name;
-    
+
     if ( $name !~ /\S/ || $name =~ /[\r\n\t\0]/ ) {
         $$err = LJ::Lang::ml('vgift.error.validate.name');
         return 0;
@@ -1005,7 +1012,7 @@ sub _fetch_tagcounts {
             "(SELECT DISTINCT tagid FROM vgift_tagpriv WHERE tagid NOT IN ".
             "(SELECT DISTINCT tagid FROM vgift_tags)) ORDER BY keyword ASC" );
         die $dbr->errstr if $dbr->err;
-        
+
         $counts->{$_} = 0 foreach @$privempty;
 
         LJ::MemCache::set( $memkey, $counts, 24*3600 );

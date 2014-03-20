@@ -3783,7 +3783,8 @@ sub ban_note {
     if ( defined $text ) {
         my $dbh = LJ::get_db_writer();
         my $remote = LJ::get_remote();
-        my @data = map { ( $u->id, $_, $remote->id, $text ) } @banned;
+        my $remote_id = $remote ? $remote->id : 0;
+        my @data = map { ( $u->id, $_, $remote_id, $text ) } @banned;
         my $qps = join( ', ', map { '(?,?,?,?)' } @banned );
 
         $dbh->do( "REPLACE INTO bannotes (journalid, banid, remoteid, notetext) "

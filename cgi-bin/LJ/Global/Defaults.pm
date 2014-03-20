@@ -242,6 +242,7 @@ no strict "vars";
                                UserMessageRecvd
                                UserMessageSent
                                VgiftApproved
+                               VgiftDelivered
                                XPostFailure
                                XPostSuccess
                                );
