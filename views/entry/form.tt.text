@@ -9,6 +9,12 @@
 
 .button.post=Post Entry
 
+.button.save.draft=Save Draft
+
+.button.schedule=Schedule
+
+.error.draft.nofind=Could not find draft id [[id]] for user [[user]].
+
 .error.header=Error
 
 .error.nofind=Could not find selected journal entry.
@@ -23,4 +29,8 @@
 
 .title=Create Entries
 
+.title.draft.edit=Edit Draft
+
 .title.edit=Edit Entry
+
+.title.scheduled.edit=Edit Scheduled Post

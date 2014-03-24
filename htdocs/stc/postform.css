@@ -371,6 +371,15 @@ ul.icon-functions li {
 }
 
 
+/* Drafts */
+
+.dw-draft-details {
+  display: none;
+}
+li.dw-draft a:hover + .dw-draft-details, li.dw-draft a:focus + .dw-draft-details {
+  display: block;
+} 
+
 /* Scheduled Posts */
 
 /* Footer Buttons */

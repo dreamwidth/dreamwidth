@@ -22,6 +22,10 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
+use DW::Draft;
+use DW::FlashScope;
+
+use DateTime::Format::Strptime;
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
 use LJ::JSON;
@@ -42,7 +46,7 @@ my @modules = qw(
     slug tags currents displaydate
     access journal comments
     age_restriction icons crosspost
-    flags
+    flags scheduled draft
 );
 
 
@@ -58,6 +62,12 @@ Handlers for creating and editing entries
 
 DW::Routing->register_string( '/entry/new', \&new_handler, app => 1 );
 DW::Routing->register_regex( '^/entry/([^/]+)/new$', \&new_handler, app => 1 );
+
+DW::Routing->register_string( '/draft/new', \&draft_handler, app => 1 );
+DW::Routing->register_regex( '^/draft/([^/]+)/([0-9]+)(/.*)?$', \&draft_handler, app => 1 );
+
+DW::Routing->register_string( '/scheduled/new', \&scheduled_handler, app => 1 );
+#DW::Routing->register_regex( '^/scheduled/([^/]+)/([0-9]+)(/.*)?$', \&scheduled_handler, app => 1 );
 
 DW::Routing->register_string( '/entry/preview', \&preview_handler, app => 1, methods => { POST => 1 } );
 
@@ -117,6 +127,8 @@ sub new_handler {
 
         my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
+        my $mode_schedule   = $post->{"action:schedule"} ? 1 : 0;
+        my $mode_draft      = $post->{"action:draft"} ? 1 : 0;
 
         push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
             unless LJ::text_in( $post );
@@ -182,11 +194,96 @@ sub new_handler {
 
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( @error_list ) {
-                my %post_res = _do_post( $form_req, $flags, \%auth, warnings => \@warnings );
-                return $post_res{render} if $post_res{status} eq "ok";
+                if ( $mode_draft ) {
+                    # save as draft
+                    # see if this is an edit or a new draft
+                    # FIXME there probably needs to be some error checking in
+                    # here for the case where the remote user has changed;
+                    # we don't want to have someone accidentally overwrite a
+                    # draft in one account if they started editing it and then
+                    # logged into a different account in another tab
+                    my $draftid =  $post->{draftid};
+                    my $draft;
+                    if ( $draftid ) {
+                        if ( $draft = DW::Draft->by_id( $remote, $draftid ) ) {
+                            $draft->{status} = 'D';
+                            $draft->set_req( $form_req );
+                            $draft->update();
+                        } else {
+                            $draftid = 0;
+                        }
+                    }
+                    if ( ! $draftid ) {
+                        $draft = DW::Draft->create_draft( $remote, $form_req );
+                        $draftid = $draft->id;
+                    }
+                    # FIXME handle errors
+                    my $successmsg = LJ::Lang::ml( "/entry/success.tt.draft.success" );
+                    my $poststatus = qq{<div class="message-box info-box"><p>$successmsg</p></div>};
 
-                # oops errors when posting: show error, fall through to show form
-                push @error_list, $post_res{errors} if $post_res{errors};
+                    my $vars = {
+                        poststatus => $poststatus, 
+                        links => [
+                            { url => $draft->edit_url,
+                              ml_string => "/entry/success.tt.draft.success.edit" ,
+                            },
+                            { url => LJ::create_url( "/entry/new", host => $LJ::DOMAIN_WEB ),
+                              ml_string => "/entry/success.tt.draft.success.entry.new" ,
+                            },
+                            ],
+                            links_header => "/entry/success.tt.draft.success.linkheader",
+                    };
+                    return DW::FlashScope->flash_redirect( $r, "/draft/" . $remote->user . "/" . $draftid . "/success", $vars );
+                } elsif ( $mode_schedule ) {
+                    # save as scheduled post
+                    # see if this is an edit or a new draft
+                    # FIXME there probably needs to be some error checking in
+                    # here for the case where the remote user has changed;
+                    # we don't want to have someone accidentally overwrite a
+                    # draft in one account if they started editing it and then
+                    # logged into a different account in another tab
+                    my $draftid =  $post->{draftid};
+                    my $draft;
+                    if ( $draftid ) {
+                        if ( $draft = DW::Draft->by_id( $remote, $draftid ) ) {
+                            $draft->{nextscheduletime} = LJ::mysql_time( $post->{parsedtime} );
+                            $draft->{recurring_period} =  $post->{recurring_period};
+                            $draft->{status} = 'S';
+                            $draft->set_req( $form_req );
+                            $draft->update();
+                        } else {
+                            $draftid = 0;
+                        }
+                    }
+                    if ( ! $draftid ) {
+                        $draft = DW::Draft->create_scheduled_draft( $remote, $form_req, { nextscheduletime => LJ::mysql_time( $post->{parsedtime} ), recurring_period => $post->{recurring_period} } );
+                        $draftid = $draft->id;
+                    }
+                    # FIXME handle errors
+                    my $successmsg = LJ::Lang::ml( "/entry/success.tt.scheduled.success", { date => $draft->nextscheduletime_dt->strftime( '%Y-%m-%d %H:%M' ) } );
+                    my $poststatus = qq{<div class="message-box info-box"><p>$successmsg</p></div>};
+
+                    my $vars = {
+                        poststatus => $poststatus, 
+                        links => [
+                            { url => $draft->edit_url,
+                              ml_string => "/entry/success.tt.schedule.success.edit" ,
+                            },
+                            { url => LJ::create_url( "/entry/new", host => $LJ::DOMAIN_WEB ),
+                              ml_string => "/entry/success.tt.draft.success.entry.new" ,
+                            },
+                            ],
+                            links_header => "/entry/success.tt.draft.success.linkheader",
+                    };
+                    return DW::FlashScope->flash_redirect( $r, "/draft/" . $remote->user . "/" . $draftid . "/success", $vars );
+                } else {
+                    # normal post
+                    my %post_res = _do_post( $form_req, $flags, \%auth, warnings => \@warnings );
+                    return $post_res{render} if $post_res{status} eq "ok";
+
+                    # oops errors when posting: show error, fall through to show form
+                    push @error_list, $post_res{errors} if $post_res{errors};
+                }
             }
         }
     }
@@ -259,11 +356,260 @@ sub new_handler {
 
     $vars->{action} = {
         url  => LJ::create_url( undef, keep_args => 1 ),
+        post_url => LJ::create_url( undef, keep_args => 1 ),
+        draft_url => LJ::create_url( "/draft/new", keep_args => 1 ),
+        schedule_url => LJ::create_url( "/scheduled/new", keep_args => 1 ),
     };
+
+    my $drafts = DW::Draft->all_for_user( $remote );
+
+    $vars->{drafts} = $drafts;
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
 
+
+=head2 C<< DW::Controller::Entry::draft_handler( ) >>
+
+Handles editing a draft
+
+=cut
+sub draft_handler {
+    my ( $opts, $username, $draftid, $action ) = @_;
+    
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+    
+    my $remote = $rv->{remote};
+
+    my $journal = defined $username ? LJ::load_user( $username ) : $remote;
+
+    return error_ml( 'error.invalidauth' ) unless $journal;
+
+    my $r = DW::Request->get;
+
+    if ( $action && ( $action eq '/success' || $action eq '/deleted' ) ) {
+        my $flash_vars = DW::FlashScope->flash_vars( $r );
+        return DW::Template->render_template( 'entry/success.tt', $flash_vars );
+    }
+    
+    if ( $r->did_post ) {
+        # submitting.  either an edit, a post, or a delete.
+        my $post = $r->post_args;
+        if ( $username && $draftid ) {
+            my $draft = DW::Draft->by_id( $journal, $draftid );
+            if ( ! $draft ) {
+                return error_ml( "/entry/form.tt.error.nofind" );
+            }
+            if ( ( $action && $action eq '/delete' ) || $post->{'action:delete'} ) {
+                # deleting the draft
+                $draft->delete();
+                my $successmsg = LJ::Lang::ml( "/entry/success.tt.draft.delete.success" );
+                my $poststatus = qq{<div class="message-box info-box"><p>$successmsg</p></div>};
+
+                my $vars = {
+                    poststatus => $poststatus, 
+                    links_header => "/entry/success.tt.draft.delete.success.linkheader",
+                    links => [
+                        { url => LJ::create_url( "/entry/new", host => $LJ::DOMAIN_WEB ),
+                          ml_string => "/entry/success.tt.draft.success.entry.new" ,
+                        },],
+                };
+
+                return DW::FlashScope->flash_redirect( $r, "/draft/" . $journal->user . "/$draftid/deleted", $vars );
+            } else {
+                # we're updating a draft
+                my $form_req = {};
+                my %status = _form_to_backend( $form_req, $post );
+                $draft->set_req( $form_req );
+                $draft->update();
+                my $successmsg = LJ::Lang::ml( "/entry/success.tt.draft.update.success" );
+                my $poststatus = qq{<div class="message-box info-box"><p>$successmsg</p></div>};
+                
+                my $vars = {
+                    poststatus => $poststatus, 
+                    links => [
+                        { url => $draft->edit_url,
+                          ml_string => "/entry/success.tt.draft.success.edit" ,
+                        },
+                        { url => LJ::create_url( "/entry/new", host => $LJ::DOMAIN_WEB ),
+                          ml_string => "/entry/success.tt.draft.success.entry.new" ,
+                        },
+                        ],
+                        links_header => "/entry/success.tt.draft.success.linkheader",
+                };
+                return DW::FlashScope->flash_redirect( $r, "/draft/" . $journal->user . "/$draftid/success", $vars );
+            }
+        } else {
+            # handle it as a new draft
+            $post->{"action:draft"} = 1;
+            return new_handler();
+        }
+    } # end if did_post
+
+    if ( ! $journal || ! $draftid ) {
+        return DW::Request->get->redirect( LJ::create_url( "/entry/new", host => $LJ::DOMAIN_WEB ) );
+    }
+
+    my $draft = DW::Draft->by_id( $journal, $draftid );
+    if ( ! $draft ) {
+        # draft doesn't exist
+        
+        my $error = LJ::Lang::ml( "/entry/form.tt.error.draft.nofind", { user => $journal, id => $draftid } );
+        # FIXME we don't display the error right now.  which is ok, but 
+        # could be better.
+        return DW::FlashScope->flash_redirect( DW::Request->get, "/entry/new", { errors => [ $error ]} );
+    }
+    
+    my @error_list;
+    my @warnings;
+    my %spellcheck;    
+    
+    # this is a draft; use the current datetime.
+    my $now = DateTime->now;
+    
+    # if user has timezone, use it!
+    if ( $remote && $remote->prop( "timezone" ) ) {
+        my $tz = $remote->prop( "timezone" );
+        $tz = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
+        $now = eval { DateTime->from_epoch( epoch => time(), time_zone => $tz ); }
+        if $tz;
+    }
+    
+    my $datetime = $now->strftime( "%F %R" ),
+    my $trust_datetime_value = 0;  # may want to override with client-side JS
+    
+    my $vars = _init( { usejournal  => $journal->username,
+                        remote      => $remote,
+                        
+                        datetime => $datetime,
+                        trust_datetime_value => $trust_datetime_value,
+                        
+#                        crosspost => \%crosspost,
+                      }, @_ );
+
+    # now look for errors that we still want to recover from
+    my $get = $r->get_args;
+    push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
+        if defined $get->{usejournal} && ! $vars->{usejournal};
+    
+    # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
+    $vars->{error_list} = \@error_list if @error_list;
+    $vars->{warnings} = \@warnings;
+    
+    $vars->{spellcheck} = \%spellcheck;
+    
+    $vars->{formdata} = _draft_to_form( $draft );
+
+    my %editable = map { $_ => 1 } @modules;
+    $vars->{editable} = \%editable;
+    
+    # this can't be edited after posting
+    delete $editable{journal};
+
+    $vars->{action} = {
+        edit => 0,
+        url  => LJ::create_url( undef, keep_args => 1 ),
+        post_url => LJ::create_url( "/entry/new", keep_args => 1 ),
+        schedule_url => LJ::create_url( "/scheduled/new", keep_args => 1 ),
+    };
+    if ( $draft->status eq 'D' ) {
+        $vars->{action}->{editdraft} = 1; 
+        $vars->{action}->{draft_url} = LJ::create_url( undef, keep_args => 1 );
+    } else {
+        $vars->{action}->{editscheduled} = 1; 
+    }
+
+    $vars->{draftid} = $draftid;
+
+    return DW::Template->render_template( 'entry/form.tt', $vars );
+}
+
+=head2 C<< DW::Controller::Entry::scheduled_handler( ) >>
+
+Handles creating/editing a scheduled post
+
+=cut
+sub scheduled_handler {
+    my ( $opts, $username, $draftid, $action ) = @_;
+    
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+    
+    my $remote = $rv->{remote};
+
+    my $journal = defined $username ? LJ::load_user( $username ) : $remote;
+
+    return error_ml( 'error.invalidauth' ) unless $journal;
+
+    my $r = DW::Request->get;
+
+    if ( $action && ( $action eq '/success' || $action eq '/deleted' ) ) {
+        my $flash_vars = DW::FlashScope->flash_vars( $r );
+        return DW::Template->render_template( 'entry/success.tt', $flash_vars );
+    }
+    
+    if ( $r->did_post ) {
+        # submitting.  either an edit, a post, or a delete.
+        my $post = $r->post_args;
+        # FIXME no error checking, no timezone checking
+        my $parser = DateTime::Format::Strptime->new( pattern => '%Y-%m-%d %H:%M:%S' );
+
+        my $publishingtime = $parser->parse_datetime( $post->{publishingtime_date} . ' ' . $post->{publishingtime_hr} . ':' . $post->{publishingtime_min} . ':00' );
+
+        if ( $username && $draftid ) {
+            my $draft = DW::Draft->by_id( $journal, $draftid );
+            if ( ! $draft ) {
+                return error_ml( "/entry/form.tt.error.nofind" );
+            }
+            if ( ( $action && $action eq '/delete' ) || $post->{'action:delete'} ) {
+                # deleting the draft
+                $draft->delete();
+                my $successmsg = LJ::Lang::ml( "/entry/success.tt.scheduled.delete.success" );
+                my $poststatus = qq{<div class="message-box info-box"><p>$successmsg</p></div>};
+
+                my $vars = {
+                    poststatus => $poststatus, 
+                    links_header => "/entry/success.tt.draft.delete.success.linkheader",
+                    links => [
+                        { url => LJ::create_url( "/entry/new", host => $LJ::DOMAIN_WEB ),
+                          ml_string => "/entry/success.tt.draft.success.entry.new" ,
+                        },],
+                };
+
+                return DW::FlashScope->flash_redirect( $r, "/draft/" . $journal->user . "/$draftid/deleted", $vars );
+            } else {
+                # we're updating a scheduled post
+                my $form_req = {};
+                my %status = _form_to_backend( $form_req, $post );
+                $draft->set_req( $form_req );
+                $draft->{schedule} = $publishingtime->epoch();
+                $draft->update();
+                my $successmsg = LJ::Lang::ml( "/entry/success.tt.draft.update.success" );
+                my $poststatus = qq{<div class="message-box info-box"><p>$successmsg</p></div>};
+                
+                my $vars = {
+                    poststatus => $poststatus, 
+                    links => [
+                        { url => $draft->edit_url,
+                          ml_string => "/entry/success.tt.draft.success.edit" ,
+                        },
+                        { url => LJ::create_url( "/entry/new", host => $LJ::DOMAIN_WEB ),
+                          ml_string => "/entry/success.tt.draft.success.entry.new" ,
+                        },
+                        ],
+                        links_header => "/entry/success.tt.draft.success.linkheader",
+                };
+                return DW::FlashScope->flash_redirect( $r, "/draft/" . $journal->user . "/$draftid/success", $vars );
+            }
+        } else {
+            # handle it as a new scheduled post
+            $post->{"action:schedule"} = 1;
+            $post->{parsedtime} = $publishingtime->epoch();
+            return new_handler();
+        }
+    } # end if did_post
+}
 
 # Initializes entry form values.
 # Can be used when posting a new entry or editing an old entry. .
@@ -604,6 +950,7 @@ sub _edit {
     $vars->{action} = {
         edit => 1,
         url  => LJ::create_url( undef, keep_args => 1 ),
+        post_url => LJ::create_url( undef, keep_args => 1 ),
     };
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
@@ -679,6 +1026,9 @@ sub _form_to_backend {
     # handle event subject and body
     $req->{subject} = $post->{subject};
     $req->{event} = $post->{event} || "";
+    if ( $post->{draftid} ) {
+        $req->{draftid} = $post->{draftid};
+    }
 
     push @errors, LJ::Lang::ml( "/update.bml.error.noentry" )
         if $req->{event} eq "" && ! $opts{allow_empty};
@@ -755,8 +1105,7 @@ sub _form_to_backend {
     $req->{security} = $sec;
     $req->{allowmask} = $amask;
 
-
-    # date/time
+    # date/times
     my ( $year, $month, $day ) = split( /\D/, $post->{entrytime} || "" );
     my ( $hour, $min ) = ( $post->{entrytime_hr}, $post->{entrytime_min} );
 
@@ -859,6 +1208,118 @@ sub _backend_to_form {
         %formprops,
         %otherprops,
     };
+}
+
+# given a DW::Draft object, returns a hashref populated with data suitable for 
+# use in generating the form
+sub _draft_to_form {
+    my ( $draft ) = @_;
+    my $req = $draft->req;
+
+    my $form = {};
+
+    # handle event subject and body
+    $form->{subject} = $req->{subject};
+    $form->{event} = $req->{event} || "";
+
+    # initialize props hash
+    $req->{props} ||= {};
+    my $props = $req->{props};
+
+    while ( my ( $formname, $propname ) = each %form_to_props ) {
+        $form->{$formname} = $props->{$propname}
+            if defined $props->{$propname};
+    }
+    $form->{taglist} = $props->{taglist} if defined $props->{taglist};
+    $form->{icon} = $props->{picture_keyword} if defined $props->{picture_keyword};
+    $form->{entrytime_outoforder} = $props->{opt_backdated}? 1 : 0;
+
+    # old implementation of comments
+    # FIXME: remove this before taking the page out of beta
+    $form->{opt_screening}  = $props->{opt_screening};
+
+    $form->{comment_settings} = $props->{opt_nocomments} ? "nocomments" : $props->{opt_noemail} ? "noemail" : "default";
+
+    # nuke taglists that are just blank
+    $form->{taglist} = $props->{taglist};
+
+    if ( LJ::is_enabled( 'adult_content' ) ) {
+        $form->{age_restriction} = {
+            ''              => '',
+            'none'          => 'none',
+            'concepts'      => 'discretion',
+            'explicit'      => 'restricted',
+        }->{$props->{adult_content}} || "";
+        
+        $form->{age_restriction_reason} = $props->{adult_content_reason} || "";
+    }
+    
+    # Set entry slug if it's been specified
+    $form->{entry_slug} = $req->{slug};
+
+    # entry security
+    my $security = $req->{security} || "";
+    my @custom_groups;
+    if ( $security eq "usemask" ) {
+        my $amask = $req->{allowmask};
+
+        if ( $amask == 1 ) {
+            $security = "access";
+        } else {
+            $security = "custom";
+            @custom_groups = grep { $amask & ( 1 << $_ ) } 1..60;
+        }
+    }
+    $form->{security} = $security;
+    $form->{custom_bit}  = \@custom_groups;
+
+    # date/time
+    #my ( $year, $month, $day ) = split( /\D/, $post->{entrytime} || "" );
+    #my ( $hour, $min ) = ( $post->{entrytime_hr}, $post->{entrytime_min} );
+
+    # if we trust_datetime, it's because we either are in a mode where we've saved the datetime before (e.g., edit)
+    # or we have run the JS that syncs the datetime with the user's current time
+    # we also have to trust the datetime when the user has JS disabled, because otherwise we won't have any fallback value
+    #if ( $post->{trust_datetime} || $post->{nojs} ) {
+    #    delete $req->{tz};
+    #    $req->{year}    = $year;
+    #    $req->{mon}     = $month;
+    #    $req->{day}     = $day;
+    #    $req->{hour}    = $hour;
+    #    $req->{min}     = $min;
+    #}
+
+    # crosspost
+    #$req->{crosspost_entry} = $post->{crosspost_entry} ? 1 : 0;
+    #if ( $req->{crosspost_entry} ) {
+    #    foreach my $acctid ( $post->get_all( "crosspost" ) ) {
+    #        $req->{crosspost}->{$acctid} = {
+    #            id          => $acctid,
+    #            password    => $post->{"crosspost_password_$acctid"},
+    #            chal        => $post->{"crosspost_chal_$acctid"},
+    #            resp        => $post->{"crosspost_resp_$acctid"},
+    #        };
+    #    }
+    #}
+
+    if ( $draft->{status} eq 'S' ) {
+        my $nextscheduletime = $draft->nextscheduletime_dt;
+        #my $date_formatter = DateTime::Format::Strptime->new( pattern => '%Y-%m-%d %H:%M:%S' );
+        my $date_formatter = DateTime::Format::Strptime->new( pattern => '%Y-%m-%d' );
+        my $date = $date_formatter->format_datetime( $nextscheduletime );
+        my $hour_formatter = DateTime::Format::Strptime->new( pattern => '%H' );
+        my $hour = $hour_formatter->format_datetime( $nextscheduletime );
+        my $minute_formatter = DateTime::Format::Strptime->new( pattern => '%M' );
+        my $min = $minute_formatter->format_datetime( $nextscheduletime );
+        $form->{publishingtime_date} = $date;
+        $form->{publishingtime_hr} = $hour;
+        $form->{publishingtime_min} = $min;
+
+        $form->{recurring_period} = $draft->recurring_period;
+    }
+
+    $form->{edit} = 1;
+    return $form;
 }
 
 sub _queue_crosspost {

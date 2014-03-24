@@ -296,6 +296,10 @@ sub FORBIDDEN {
     return Apache2::Const::FORBIDDEN;
 }
 
+sub DECLINED {
+    return Apache2::Const::DECLINED;
+}
+
 # spawn a process for an external program
 sub spawn {
     my DW::Request::Apache2 $self = shift;

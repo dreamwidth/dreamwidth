@@ -1,0 +1,13 @@
+.title=Drafts
+
+.header=Drafts
+
+.drafts=Drafts
+
+.nosubject=(no subject)
+
+.th.subject=Subject
+.th.postdate=Post Date
+.th.lastedited=Last Modified
+
+.unscheduled=Draft

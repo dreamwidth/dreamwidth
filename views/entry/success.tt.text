@@ -1,0 +1,15 @@
+.draft.delete.success=Draft deleted.
+.draft.delete.success.linkheader=Now you can:
+
+.draft.success=Draft saved successfully.
+.draft.success.linkheader=Now that you have saved this draft, you can:
+.draft.success.edit=Post or continue editing this draft
+.draft.success.entry.new=Start a new entry or draft
+
+.draft.update.success=Draft updated successfully.
+
+.scheduled.delete.success=Scheduled post deleted.
+.scheduled.success=New entry scheduled to be posted on [[date]].
+.scheduled.update.success=Scheduled post updated successfully.
+
+.schedule.success.edit=Edit or reschedule this entry.

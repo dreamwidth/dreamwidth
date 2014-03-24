@@ -1,0 +1,12 @@
+.date=Scheduled Date:
+
+.header=Scheduled Publishing
+
+.recurring=Recurring:
+.recurring.never=Never
+.recurring.day=Every Day
+.recurring.week=Every Week
+.recurring.month=Every Month
+
+.scheduled=Scheduled Posts
+

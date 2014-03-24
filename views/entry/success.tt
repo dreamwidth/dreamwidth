@@ -14,7 +14,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- sections.title = 'success' | ml -%]
 
-[%- IF warnings.size > 0 -%]
+[%- IF warnings && warnings.size > 0 -%]
     [%- FOREACH warning IN warnings -%]
         <div class="message-box [% warning.type %]-box">[%- warning.message -%]</div>
     [%- END -%]
@@ -22,7 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <p>[% poststatus %]</p>
 
-[%- IF crossposts.size > 0 -%]
+[%- IF crossposts && crossposts.size > 0 -%]
 <div class='message-box'>
 <ul>
     [%- FOREACH crosspost IN crossposts -%]

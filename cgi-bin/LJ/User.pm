@@ -4990,8 +4990,7 @@ sub entryform_panels {
                    # FIXME: should be [ "status"  "journal" "comments" "age_restriction" ] %]
                    [ "access", "journal", "currents", "comments", "age_restriction" ],
 
-                   # FIXME: should be [ "icons" "crosspost" "scheduled" ]
-                   [ "icons", "crosspost", "flags" ],
+                   [ "icons", "crosspost", "flags", "scheduled", "draft" ],
                 ],
         show => {
             "tags"          => 1,
@@ -5005,7 +5004,8 @@ sub entryform_panels {
             "icons"         => 1,
             "crosspost"     => 0,
             "flags"     => 1,
-            #"scheduled"     => 0,
+            "draft"         => 0,
+            "scheduled"     => 0,
             #"status"        => 1,
         },
         collapsed => {

@@ -63,7 +63,7 @@ $LJ::DBIRole = new DBI::Role {
                     "logprop_history", "import_status", "externalaccount",
                     "content_filters", "content_filter_data", "userpicmap3",
                     "media", "collections", "collection_items", "logslugs",
-                    "media_versions", "media_props",
+                    "media_versions", "media_props", "draft", "draftblob",
                     );
 
 # keep track of what db locks we have out
@@ -735,7 +735,7 @@ sub alloc_global_counter
 #       'Z' == import status item, 'X' == eXternal account
 #       'F' == filter id, 'Y' = pic/keYword mapping id
 #       'A' == mediA item id, 'O' == cOllection id,
-#       'N' == collectioN item id
+#       'N' == collectioN item id, '2' Draft (because why not?)
 #
 sub alloc_user_counter
 {
@@ -744,7 +744,7 @@ sub alloc_user_counter
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFYA]$/;          #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFYA2]$/;          #
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -870,6 +870,9 @@ sub alloc_user_counter
                                       undef, $uid);
     } elsif ($dom eq "N") {
         $newmax = $u->selectrow_array("SELECT MAX(colitemid) FROM collection_items WHERE userid = ?",
+                                      undef, $uid);
+    } elsif ($dom eq "2") {
+        $newmax = $u->selectrow_array("SELECT MAX(id) FROM draft WHERE userid = ?",
                                       undef, $uid);
     } else {
         die "No user counter initializer defined for area '$dom'.\n";

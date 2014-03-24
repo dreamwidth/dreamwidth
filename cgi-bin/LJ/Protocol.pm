@@ -1757,6 +1757,14 @@ sub postevent
         # TODO: error on failure?  depends on the job I suppose?  property of the job?
     }
 
+    # if this was a draft, respond to having been posted
+    if ( $req->{draftid} ) {
+        my $draft = DW::Draft->by_id( $u, $req->{draftid} );
+        if ( $draft ) {
+            $draft->handle_posted();
+        }
+    }
+
     return $res;
 }
 
