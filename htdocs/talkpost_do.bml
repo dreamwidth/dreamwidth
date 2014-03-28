@@ -244,7 +244,7 @@ body<=
             if ( $POST{'usertype'} eq 'anonymous' ) {
                 $mlcode = 'success.screened.comm.anon2';
             } elsif ( $commentu && $commentu->can_manage( $journalu ) ) {
-                $mlcode = '.success.screened.comm.owncomm2';
+                $mlcode = '.success.screened.comm.owncomm3';
             } else {
                 $mlcode = '.success.screened.comm2';
             }
@@ -252,7 +252,7 @@ body<=
             if ( $POST{'usertype'} eq 'anonymous' ) {
                 $mlcode = '.success.screened.user.anon2';
             } elsif ( $commentu && $commentu->equals( $journalu ) ) {
-                $mlcode = '.success.screened.user.ownjournal';
+                $mlcode = '.success.screened.user.ownjournal2';
             } else {
                 $mlcode = '.success.screened.user2';
             }
