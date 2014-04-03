@@ -3257,8 +3257,8 @@ sub sticky_entry {
         }
 
         # takes slug from URL
-        $slug = $3
-            if $input =~ m!^(.+)/(\d\d\d\d/\d\d/\d\d)/([a-z0-9_-]+)\.html$!;
+        $slug = $1
+            if $input =~ m!^(?:.+)/(?:\d\d\d\d/\d\d/\d\d)/([a-z0-9_-]+)\.html$!;
 
         #checks that one of $slug and $ditemid exists
         return 0 unless $ditemid || $slug;
