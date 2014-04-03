@@ -59,7 +59,7 @@ sub render_body {
     my $state_options = $regions_cfg ? $class->region_options($regions_cfg) : undef;
 
 
-    my $state_inline_desc = $class->ml('widget.location.fn.state.inline');
+    my $state_inline_desc = $class->ml('widget.location.fn.state.inline2');
     my $city_inline_desc = $class->ml('widget.location.fn.city.inline');
 
     my $ret;
@@ -198,7 +198,7 @@ sub handle_post {
     my %countries;
     LJ::load_codes({ "country" => \%countries});
 
-    my $state_inline_desc = $class->ml('widget.location.fn.state.inline');
+    my $state_inline_desc = $class->ml('widget.location.fn.state.inline2');
     my $state_from_dropdown = $class->ml('states.head.defined');
     my $city_inline_desc = $class->ml('widget.location.fn.city.inline');
 
