@@ -3245,18 +3245,34 @@ sub sticky_entry {
             $u->set_prop( sticky_entry => '' );
             return 1;
         }
-        #also takes URL
+        
         my $ditemid;
+        my $slug;
+
+        # takes ditemid/ditemid from URL
         if ( $input =~ m!/(\d+)\.html! ) {
             $ditemid = $1;
         } elsif ( $input =~ m!(\d+)! ) {
             $ditemid = $1;
-        } else {
-            return 0;
         }
 
+        # takes slug from URL
+        $slug = $1
+            if $input =~ m!^(?:.+)/(?:\d\d\d\d/\d\d/\d\d)/([a-z0-9_-]+)\.html$!;
+
+        #checks that one of $slug and $ditemid exists
+        return 0 unless $ditemid || $slug;
+
         # Validate the entry
-        my $item = LJ::Entry->new( $u, ditemid => $ditemid );
+        my $item;
+
+        $item = LJ::Entry->new( $u, ditemid => $ditemid ) if $ditemid;
+
+        if ( $slug ) {
+            $item = LJ::Entry->new( $u, slug => $slug );
+            $ditemid = $item->ditemid;
+        }
+
         return 0 unless $item && $item->valid;
 
         $u->set_prop( sticky_entry => $ditemid );
