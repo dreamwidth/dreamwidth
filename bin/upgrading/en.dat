@@ -5195,7 +5195,7 @@ widget.location.fn.province=or non-US State/province/territory
 
 widget.location.fn.state=State
 
-widget.location.fn.state.inline=state
+widget.location.fn.state.inline2=state/province/territory
 
 widget.location.fn.timezone=Timezone
 
