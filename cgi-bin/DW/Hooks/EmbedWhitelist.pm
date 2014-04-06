@@ -81,6 +81,8 @@ my %host_path_match = (
     "instagram.com"         => qr!^/p/.*/embed/$!,
 
     "www.criticalcommons.org" => qr!/embed_view$!,
+
+    "embed.ted.com"         => qr!^/talks/!,
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
