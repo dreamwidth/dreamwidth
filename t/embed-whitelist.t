@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 43;
+use Test::More tests => 44;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -117,6 +117,8 @@ note( "misc" );
     test_good_url( "http://www.plurk.com/getWidget?uid=123123123&h=375&w=200&u_info=2&bg=cf682f&tl=cae7fd" );
 
     test_good_url( "http://www.criticalcommons.org/Members/china_shop/clips/handle-with-care-white-collar-fanvid/embed_view" );
+
+    test_good_url( "http://embed.ted.com/talks/handpring_puppet_co_the_genius_puppetry_behind_war_horse.html" );
 }
 
 
