@@ -416,7 +416,9 @@ sub members_new_handler {
     }
 
     # figure out what member roles are relevant
-    my @available_roles = ( 'member', 'poster' );
+    my @available_roles = ( 'member' );
+    push @available_roles, 'poster'
+        if $cu->post_level eq 'select';
     push @available_roles, qw( unmoderated moderator )
         if $cu->has_moderated_posting;
     push @available_roles, 'admin';
@@ -722,7 +724,7 @@ sub members_edit_handler {
     # figure out what member roles are relevant
     my @available_roles = ( 'member' );
     push @available_roles, 'poster'
-        if $cu->post_level eq 'select';
+        if $cu->post_level eq 'select' || $role_count->{P};
     my $has_moderated_posting = $cu->has_moderated_posting;
     push @available_roles, 'unmoderated'
         if $has_moderated_posting || $role_count->{N};
