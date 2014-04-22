@@ -3443,7 +3443,7 @@ sub _Comment__get_link
 
     if ($key eq "watch_thread" || $key eq "unwatch_thread" || $key eq "watching_parent") {
         return $null_link unless LJ::is_enabled('esn');
-        return $null_link unless $remote && $remote->can_use_esn;
+        return $null_link unless $remote && $remote->can_use_esn && $remote->can_track_thread;
 
         if ($key eq "unwatch_thread") {
             return $null_link unless $remote->has_subscription(journal => $u, event => "JournalNewComment", arg2 => $comment->jtalkid);
