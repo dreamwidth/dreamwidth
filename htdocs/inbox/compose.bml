@@ -121,7 +121,7 @@ body<=
                 }
 
                 # Can't send to unvalidated users
-                unless ($tou->is_validated) {
+                unless ( $tou->is_validated || $remote->has_priv( "siteadmin", "*" ) ) {
                     push @errors, BML::ml( 'error.message.unvalidated',
                       { ljuser => $tou->ljuser_display } );
                     next;
