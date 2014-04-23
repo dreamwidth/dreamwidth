@@ -36,9 +36,9 @@ body<=
 
 <h1><?_ml .development.header _ml?></h1>
 
-<p><?_ml .development.main _ml?></p>
+<p><?_ml .development.main2 _ml?></p>
 
-<p><?_ml .development.directions _ml?></p>
+<p><?_ml .development.directions2 _ml?></p>
 
 <=body
 windowtitle=><?_ml .title _ml?>

@@ -34,7 +34,8 @@ our $VERSION = '0.01';
 
 # FIXME the plan is that at one point we will use File::ShareDir->dist_dir('DW')
 # or some similar way to return the home directory
-# See also http://bugs.dwscoalition.org/show_bug.cgi?id=1760
+# Use of $LJ::HOME is definitely a bug.  See also Bugzilla discussion
+# dump at https://gist.github.com/anonymous/b4fcad0ba27cc6cd1c5f#file-1760
 sub home {
     return $LJ::HOME || $ENV{LJHOME};
 }

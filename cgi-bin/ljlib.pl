@@ -1605,8 +1605,7 @@ sub assert_is {
 }
 
 # no_utf8_flag previously used pack('C*',unpack('C*', $_[0]))
-# but that stopped working in Perl 5.10; see
-# http://bugs.dwscoalition.org/show_bug.cgi?id=640
+# but that stopped working in Perl 5.10.
 sub no_utf8_flag {
     # tell Perl to ignore the SvUTF8 flag in this scope.
     use bytes;
