@@ -4835,8 +4835,6 @@ function Page::print_time(string datefmt, string timefmt) {
             $timefmt = $*entry_time_format;
         }
 
-    } else {
-        $timefmt = "short";
     }
 
     var string ret;
@@ -5534,10 +5532,6 @@ function EntryLite::time_display(string datefmt, string timefmt) : string {
             $timefmt = $*entry_time_format;
         }
 
-    } else {
-        if ($timefmt != "none") {
-            $timefmt = "short";
-        }
     }
 
     var string ret;
@@ -5571,10 +5565,6 @@ function Entry::time_display(string datefmt, string timefmt) : string {
             $timefmt = $*entry_time_format;
         }
 
-    } else {
-        if ($timefmt != "none") {
-            $timefmt = "short";
-        }
     }
 
     var string ret;
@@ -5614,10 +5604,6 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
             $timefmt = $*comment_time_format;
         }
 
-    } else {
-        if ($timefmt != "none") {
-            $timefmt = "short";
-        }
     }
 
     var string tooltip = "";
