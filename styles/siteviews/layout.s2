@@ -210,7 +210,8 @@ function Page::print_entry(Entry e)
     $e->print_userpic();
     """<div class="poster-info">\n""";
     $e->print_poster();
-    $e->print_time();
+    var string timefmt = $this.timeformat24 ? "short_24" : "short";
+    $e->print_time( $*entry_date_format, $timefmt );
     """</div>\n""";
     """</div>\n""";
     """<div class="action-box">\n""";
@@ -365,7 +366,8 @@ function EntryPage::print_comment (Comment c) {
     $c->print_subject({ "format" => "text" });
     $c->print_metatypes();
     $c->print_poster();
-    $c->print_time();
+    var string timefmt = $this.timeformat24 ? "short_24" : "short";
+    $c->print_time( $*entry_date_format, $timefmt );
     $c->print_metadata();
 
    print safe """<span class="commentpermalink">(<a href="$c.permalink_url">link</a>)</span>\n"""; $c->print_management_links();
@@ -404,7 +406,8 @@ function ReplyPage::print_comment (Comment c) {
     """<div class="poster-info">\n""";
     $c->print_poster();
     $c->print_metatypes();
-    $c->print_time();
+    var string timefmt = $this.timeformat24 ? "short_24" : "short";
+    $c->print_time( $*entry_date_format, $timefmt );
     """</div>\n""";
     """</div>\n""";
     """</div>\n""";
