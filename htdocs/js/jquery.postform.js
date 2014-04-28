@@ -6,6 +6,14 @@ init: function(formData) {
 
     // icon
     function initIcons() {
+        $("#post_entry").bind( "journalselect", function( e, journal ) {
+            if ( journal.name && journal.isremote ) {
+                $("#icons_component").not(".inactive_component").slideDown()
+            } else {
+                $("#icons_component").not(".inactive_component").slideUp()
+            }
+        });
+
         var $preview = $("#icon_preview");
         if ( $preview.has(".noicon").length > 0 ) return;
 
@@ -48,14 +56,6 @@ init: function(formData) {
         $select.iconrandom( { handler: update_icon_preview, trigger: "#icon_random_link" } );
         $select.change(update_icon_preview)
             .triggerHandler( "change" );
-
-        $("#post_entry").bind( "journalselect", function( e, journal ) {
-            if ( journal.name && journal.isremote ) {
-                $("#icons_component").not(".inactive_component").slideDown()
-            } else {
-                $("#icons_component").not(".inactive_component").slideUp()
-            }
-        });
     }
 
     // date
@@ -276,19 +276,26 @@ init: function(formData) {
             }
             $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: true});
         });
-        $("#postas_usejournal, #post_username").change(function() {
-            var journal, iscomm;
-            var postas = $.trim($("#post_username").val());
-            journal = $.trim($("#postas_usejournal").val()) || postas;
-            iscomm = journal !== postas;
-            console.log(journal, postas)
-            $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: false});
-        });
         $("#post_as_other").click(function() {
-            $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false, isremote: true } );
+            $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false, isremote: false} );
+
+            $("#postas_usejournal, #post_username").bind("change.post_as_other", function() {
+                // only interested in the rest if we're posting as other
+                if ( ! $("#post_as_other").is(":checked") ) return;
+
+                var postas = $.trim($("#post_username").val());
+                var journal = $.trim($("#postas_usejournal").val()) || postas;
+                var remote = $.trim($("#poster_remote").val());
+
+                var iscomm = journal !== postas;
+                var isremote = remote === postas;
+
+                $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: isremote});
+            });
         })
         $("#post_as_remote").click(function() {
             $("#usejournal").triggerHandler("change");
+            $("#postas_usejournal, #post_username").unbind("change.post_as_other")
         })
         $("#post_to").radioreveal({ radio: "post_as_remote" })
         $("#post_login").radioreveal({ radio: "post_as_other" });
