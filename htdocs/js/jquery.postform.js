@@ -281,7 +281,6 @@ init: function(formData) {
             var postas = $.trim($("#post_username").val());
             journal = $.trim($("#postas_usejournal").val()) || postas;
             iscomm = journal !== postas;
-            console.log(journal, postas)
             $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: false});
         });
         $("#post_as_other").click(function() {
