@@ -22,10 +22,10 @@ compass=$(which compass)
 if [ "$compass" != "" ]; then
     echo "* Building SCSS..."
     cd $LJHOME
-    $compass compile
+    $compass compile -e production --force
     if [ -d "$LJHOME/ext/dw-nonfree" ]; then
         cd $LJHOME/ext/dw-nonfree
-        $compass compile
+        $compass compile -e production --force
     fi
 fi
 
