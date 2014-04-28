@@ -6,6 +6,14 @@ init: function(formData) {
 
     // icon
     function initIcons() {
+        $("#post_entry").bind( "journalselect", function( e, journal ) {
+            if ( journal.name && journal.isremote ) {
+                $("#icons_component").not(".inactive_component").slideDown()
+            } else {
+                $("#icons_component").not(".inactive_component").slideUp()
+            }
+        });
+
         var $preview = $("#icon_preview");
         if ( $preview.has(".noicon").length > 0 ) return;
 
@@ -48,14 +56,6 @@ init: function(formData) {
         $select.iconrandom( { handler: update_icon_preview, trigger: "#icon_random_link" } );
         $select.change(update_icon_preview)
             .triggerHandler( "change" );
-
-        $("#post_entry").bind( "journalselect", function( e, journal ) {
-            if ( journal.name && journal.isremote ) {
-                $("#icons_component").not(".inactive_component").slideDown()
-            } else {
-                $("#icons_component").not(".inactive_component").slideUp()
-            }
-        });
     }
 
     // date
