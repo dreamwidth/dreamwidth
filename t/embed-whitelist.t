@@ -123,6 +123,8 @@ note( "misc" );
     test_good_url( "https://archive.org/embed/LeonardNimoy15Oct2013YiddishBookCenter" );
 
     test_good_url( "http://video.yandex.ru/iframe/v-rednaia7/9hvgcmpgkd.5440/" );
+
+    test_good_url( "http://episodecalendar.com/icalendar/sampleuser@example.com/abcde/", "Will 404, but correctly-formed" ); 
 }
 
 
