@@ -119,6 +119,8 @@ note( "misc" );
     test_good_url( "http://www.criticalcommons.org/Members/china_shop/clips/handle-with-care-white-collar-fanvid/embed_view" );
 
     test_good_url( "http://embed.ted.com/talks/handpring_puppet_co_the_genius_puppetry_behind_war_horse.html" );
+
+    test_good_url( "https://archive.org/embed/LeonardNimoy15Oct2013YiddishBookCenter" );
 }
 
 

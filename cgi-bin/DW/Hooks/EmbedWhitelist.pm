@@ -83,6 +83,8 @@ my %host_path_match = (
     "www.criticalcommons.org" => qr!/embed_view$!,
 
     "embed.ted.com"         => qr!^/talks/!,
+
+    "archive.org"           => qr!^/embed/!,
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
