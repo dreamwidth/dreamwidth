@@ -83,6 +83,12 @@ my %host_path_match = (
     "www.criticalcommons.org" => qr!/embed_view$!,
 
     "embed.ted.com"         => qr!^/talks/!,
+
+    "archive.org"           => qr!^/embed/!,
+
+    "video.yandex.ru"       => qr!^/iframe/[\-\w]+/[a-z0-9]\.\d{4}/?$!, #don't think the last part can include caps; amend if necessary
+
+    "episodecalendar.com"   => qr!^/icalendar/!,
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
