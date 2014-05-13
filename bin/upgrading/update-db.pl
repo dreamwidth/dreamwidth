@@ -406,7 +406,7 @@ sub populate_s2 {
                 my ($base, $type, $parent) = split;
 
                 if ($type eq "INCLUDE") {
-                    push @layerfiles, dirname($file) . "/$base";
+                    unshift @layerfiles, dirname($file) . "/$base";
                     next;
                 }
 

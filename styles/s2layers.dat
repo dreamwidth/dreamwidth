@@ -1,167 +1,45 @@
 ############################################################################
 # base filename          layer type                  parent
 
+## Core S2 layers
 core1                    core                        -
 core2                    core                        -
 
-siteviews/layout         layout                      core2
-siteviews/themes         theme+                      siteviews/layout
+## Tabula Rasa-based styles
+s2layers-core2base.dat   INCLUDE
 
-sitefeeds/layout         layout(core2base/layout)    core2
-sitefeeds/themes         theme+                      sitefeeds/layout
-
+## Styles not based on Tabula Rasa
 abstractia/layout        layout                      core2
 abstractia/themes        theme+                      abstractia/layout
 
 bases/layout             layout                      core2
 bases/themes             theme+                      bases/layout
 
-basicboxes/layout        layout(core2base/layout)    core2
-basicboxes/themes        theme+                      basicboxes/layout
-
-bannering/layout         layout(core2base/layout)    core2
-bannering/themes         theme+                      bannering/layout
-
 blanket/layout           layout                      core2
 blanket/themes           theme+                      blanket/layout
-
-boxesandborders/layout   layout(core2base/layout)    core2
-boxesandborders/themes   theme+                      boxesandborders/layout
 
 brittle/layout           layout                      core2
 brittle/themes           theme+                      brittle/layout
 
-ciel/layout              layout(core2base/layout)    core2
-ciel/themes              theme+                      ciel/layout
-
-colorside/layout         layout(core2base/layout)    core2
-colorside/themes         theme+                      colorside/layout
-
-compartmentalize/layout  layout(core2base/layout)    core2
-compartmentalize/themes  theme+                      compartmentalize/layout
-
-core2base/layout         layout                      core2
-core2base/themes         theme+                      core2base/layout
-
-corinthian/layout        layout(core2base/layout)    core2
-corinthian/themes        theme+                      corinthian/layout
-
-crisped/layout           layout(core2base/layout)    core2
-crisped/themes           theme+                      crisped/layout
-
-crossroads/layout        layout(core2base/layout)    core2
-crossroads/themes        theme+                      crossroads/layout
-
-database/layout          layout(core2base/layout)    core2
-database/themes          theme+                      database/layout
-
 drifting/layout          layout                      core2
 drifting/themes          theme+                      drifting/layout
-
-dustyfoot/layout         layout(core2base/layout)    core2
-dustyfoot/themes         theme+                      dustyfoot/layout
 
 easyread/layout          layout                      core2
 easyread/themes          theme+                      easyread/layout
 
-fantaisie/layout         layout(core2base/layout)    core2
-fantaisie/themes         theme+                      fantaisie/layout
-
-fiveam/layout            layout(core2base/layout)    core2
-fiveam/themes            theme+                      fiveam/layout
-
-fluidmeasure/layout      layout(core2base/layout)    core2
-fluidmeasure/themes      theme+                      fluidmeasure/layout
-
-forthebold/layout        layout(core2base/layout)    core2
-forthebold/themes        theme+                      forthebold/layout
-
-funkycircles/layout      layout(core2base/layout)    core2
-funkycircles/themes      theme+                      funkycircles/layout
-
-hibiscus/layout          layout(core2base/layout)    core2
-hibiscus/themes          theme+                      hibiscus/layout
-
-headsup/layout           layout(core2base/layout)    core2
-headsup/themes           theme+                      headsup/layout
-
-leftovers/layout         layout(core2base/layout)    core2
-leftovers/themes         theme+                      leftovers/layout
-
-lefty/layout             layout(core2base/layout)    core2
-lefty/themes             theme+                      lefty/layout
-
-librariansdream/layout   layout(core2base/layout)    core2
-librariansdream/themes   theme+                      librariansdream/layout
-
-lineup/layout            layout(core2base/layout)    core2
-lineup/themes            theme+                      lineup/layout
-
-marginless/layout        layout(core2base/layout)    core2
-marginless/themes        theme+                      marginless/layout
-
-mobility/layout          layout(core2base/layout)    core2
-mobility/themes          theme+                      mobility/layout
-
-modish/layout            layout(core2base/layout)    core2
-modish/themes            theme+                      modish/layout
-
-modular/layout           layout(core2base/layout)    core2
-modular/themes           theme+                      modular/layout
-
-motion/layout            layout(core2base/layout)    core2
-motion/themes            theme+                      motion/layout
-
 negatives/layout         layout                      core2
 negatives/themes         theme+                      negatives/layout
-
-nouveauoleanders/layout  layout(core2base/layout)    core2
-nouveauoleanders/themes  theme+                      nouveauoleanders/layout
-
-paletteable/layout       layout(core2base/layout)    core2
-paletteable/themes       theme+                      paletteable/layout
-
-paperme/layout           layout(core2base/layout)    core2
-paperme/themes           theme+                      paperme/layout
-
-patsy/layout             layout(core2base/layout)    core2
-patsy/themes             theme+                      patsy/layout
-
-planetcaravan/layout     layout(core2base/layout)    core2
-planetcaravan/themes     theme+                      planetcaravan/layout
-
-practicality/layout      layout(core2base/layout)    core2
-practicality/themes      theme+                      practicality/layout
-
-refriedtablet/layout     layout(core2base/layout)    core2
-refriedtablet/themes     theme+                      refriedtablet/layout
 
 skittlishdreams/layout   layout                      core2
 skittlishdreams/themes   theme+                      skittlishdreams/layout
 
-snakesandboxes/layout    layout(core2base/layout)    core2
-snakesandboxes/themes    theme+                      snakesandboxes/layout
-
-steppingstones/layout    layout(core2base/layout)    core2
-steppingstones/themes    theme+                      steppingstones/layout
-
-strata/layout            layout(core2base/layout)    core2
-strata/themes            theme+                      strata/layout
-
-summertime/layout        layout(core2base/layout)    core2
-summertime/themes        theme+                      summertime/layout
-
-tectonic/layout          layout(core2base/layout)    core2
-tectonic/themes          theme+                      tectonic/layout
-
-tranquilityiii/layout    layout(core2base/layout)    core2
-tranquilityiii/themes    theme+                      tranquilityiii/layout
-
-trifecta/layout          layout(core2base/layout)    core2
-trifecta/themes          theme+                      trifecta/layout
-
-wideopen/layout          layout(core2base/layout)    core2
-wideopen/themes          theme+                      wideopen/layout
-
 zesty/layout             layout                      core2
 zesty/themes             theme+                      zesty/layout
+
+
+## System styles, can't be used by users
+siteviews/layout         layout                      core2
+siteviews/themes         theme+                      siteviews/layout
+
+sitefeeds/layout         layout(core2base/layout)    core2
+sitefeeds/themes         theme+                      sitefeeds/layout
