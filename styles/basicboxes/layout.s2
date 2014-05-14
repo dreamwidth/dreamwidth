@@ -240,25 +240,27 @@ body {
 #primary a { $link_colors }
 #primary a:visited { $link_colors_visited }
 
-.one-column #primary { 
+#primary {
     width: 96%;
     margin-right: -98%;
     margin-left: 2%;
 }
-.two-columns-left #primary,
-.two-columns-right #primary,
-.three-columns-left #primary,
-.three-columns-right #primary { 
-    margin-right: -98%;
-    width: 98%;
-    }
-.two-columns-right #primary,
-.three-columns-right #primary { 
-    margin-left: 2%;
-    }
+@media $*desktop_media_query {
+    .two-columns-left #primary,
+    .two-columns-right #primary,
+    .three-columns-left #primary,
+    .three-columns-right #primary {
+        margin-right: -98%;
+        width: 98%;
+        }
+    .two-columns-right #primary,
+    .three-columns-right #primary {
+        margin-left: 2%;
+        }
 
-.two-columns-left .navigation,
-.three-columns-left .navigation { text-align: right; }
+    .two-columns-left .navigation,
+    .three-columns-left .navigation { text-align: right; }
+}
 
 /* entries */
 .entry li { margin-left: 1em; }
@@ -454,17 +456,24 @@ text-align: center; }
     padding: 0 .5em !important;
 }
 
-.three-columns-right #secondary > .inner:first-child {
-    padding: 0 0 0 .5em !important;
-}
-.three-columns-right #tertiary > .inner:first-child {
-    padding: 0 !important;
-}
-.three-columns-left #secondary > .inner:first-child {
-    padding: 0 !important;
-}
-.three-columns-left #tertiary > .inner:first-child {
-    padding: 0 .5em 0 0 !important;
+@media $*desktop_media_query {
+    .three-columns-right #secondary > .inner:first-child {
+        padding: 0 0 0 .5em !important;
+    }
+    .three-columns-right #tertiary > .inner:first-child {
+        padding: 0 !important;
+    }
+    .three-columns-left #secondary > .inner:first-child {
+        padding: 0 !important;
+    }
+    .three-columns-left #tertiary > .inner:first-child {
+        padding: 0 .5em 0 0 !important;
+    }
+
+    .two-columns #secondary .module-search .search-form,
+    .three-columns .module-search .search-form {
+        text-align: right;
+        }
 }
 
 .module {  padding: 3px; 
@@ -492,11 +501,6 @@ $navlinks_css
     background: $*color_entry_background, !important;
     font-size: .9em !important;
     color: $*color_entry_text !important; }
-
-.two-columns #secondary .module-search .search-form,
-.three-columns .module-search .search-form {
-    text-align: right;
-    }
 
 $userpic_css
     """;
