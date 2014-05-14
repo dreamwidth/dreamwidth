@@ -245,9 +245,6 @@ propgroup customcss {
 }
 
 function Page::print_default_stylesheet() {
-    # we default to one-column unless the viewer matches this media query
-    var string media_query = "only screen and (min-width: 40em)";
-
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
@@ -352,7 +349,7 @@ q { font-style: italic; }
 
 /* #content layout */
 #content { float: none; }
-@media $media_query {
+@media $*desktop_media_query {
     .two-columns-left #content,
     .three-columns-sides #content {
         border-left: $*sidebar_width solid transparent;
@@ -421,7 +418,7 @@ h2#pagetitle {
 #primary { float: none; }
 #secondary, #tertiary { width: auto; }
 
-@media $media_query {
+@media $*desktop_media_query {
     body:not(.one-column) #primary {
         float: left;
     }
@@ -718,7 +715,7 @@ ul.userlite-interaction-links.text-links {
     text-align: left;
 }
 
-@media $media_query {
+@media $*desktop_media_query {
     body:not(.one-column) .module-calendar .module-content {
         text-align: center;
     }

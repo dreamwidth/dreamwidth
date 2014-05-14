@@ -1188,6 +1188,10 @@ property string layout_type {
         values = "|none|one-column|One column (modules at bottom)|one-column-split|One column split (modules at top & bottom)|two-columns-left|Two columns (sidebar on the left)|two-columns-right|Two columns (sidebar on the right)|three-columns-sides|Three columns (one sidebar on each Side)|three-columns-left|Three column (two sidebars on the left)|three-columns-right|Three column (two sidebars on the right)";
 }
 
+property string desktop_media_query {
+  des = "If we don't match this media query, we show only one column (mobile-friendly view); if we do match, we use the \$*layout_type defined by the user";
+}
+
 property int num_items_recent {
     des = "Number of journal entries to show on the Recent Entries page";
     doc_flags = "[construct]";
@@ -1237,6 +1241,7 @@ property string sidebar_width_doubled {
 }
 
 set layout_type = "";
+set desktop_media_query = "only screen and (min-width: 60em)";
 set num_items_recent = 20;
 set num_items_reading = 20;
 set use_custom_friend_colors = false;
