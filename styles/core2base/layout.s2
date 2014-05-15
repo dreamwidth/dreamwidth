@@ -715,6 +715,8 @@ ul.userlite-interaction-links.text-links {
     text-align: left;
 }
 
+.module-calendar table { margin: 0; }
+.module-calendar .module-content { text-align: left; }
 @media $*desktop_media_query {
     body:not(.one-column) .module-calendar .module-content {
         text-align: center;
