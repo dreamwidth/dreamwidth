@@ -246,16 +246,22 @@ body {
     margin-left: 2%;
 }
 @media $*desktop_media_query {
-    .two-columns-left #primary,
-    .two-columns-right #primary,
-    .three-columns-left #primary,
-    .three-columns-right #primary {
-        margin-right: -98%;
+    .multiple-columns #primary {
         width: 98%;
         }
-    .two-columns-right #primary,
-    .three-columns-right #primary {
+
+    .column-left #primary {
+        margin-left: 0;
+    }
+
+    .column-right #primary {
         margin-left: 2%;
+        }
+
+    .three-columns-sides #primary {
+        width:100%;
+        margin-right:-100%;
+        margin-left: 0;
         }
 
     .two-columns-left .navigation,
