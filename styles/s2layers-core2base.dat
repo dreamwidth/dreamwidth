@@ -1,0 +1,131 @@
+############################################################################
+# base filename          layer type                  parent
+
+core2base/layout         layout                      core2
+core2base/themes         theme+                      core2base/layout
+
+basicboxes/layout        layout(core2base/layout)    core2
+basicboxes/themes        theme+                      basicboxes/layout
+
+bannering/layout         layout(core2base/layout)    core2
+bannering/themes         theme+                      bannering/layout
+
+boxesandborders/layout   layout(core2base/layout)    core2
+boxesandborders/themes   theme+                      boxesandborders/layout
+
+ciel/layout              layout(core2base/layout)    core2
+ciel/themes              theme+                      ciel/layout
+
+colorside/layout         layout(core2base/layout)    core2
+colorside/themes         theme+                      colorside/layout
+
+compartmentalize/layout  layout(core2base/layout)    core2
+compartmentalize/themes  theme+                      compartmentalize/layout
+
+corinthian/layout        layout(core2base/layout)    core2
+corinthian/themes        theme+                      corinthian/layout
+
+crisped/layout           layout(core2base/layout)    core2
+crisped/themes           theme+                      crisped/layout
+
+crossroads/layout        layout(core2base/layout)    core2
+crossroads/themes        theme+                      crossroads/layout
+
+database/layout          layout(core2base/layout)    core2
+database/themes          theme+                      database/layout
+
+dustyfoot/layout         layout(core2base/layout)    core2
+dustyfoot/themes         theme+                      dustyfoot/layout
+
+fantaisie/layout         layout(core2base/layout)    core2
+fantaisie/themes         theme+                      fantaisie/layout
+
+fiveam/layout            layout(core2base/layout)    core2
+fiveam/themes            theme+                      fiveam/layout
+
+fluidmeasure/layout      layout(core2base/layout)    core2
+fluidmeasure/themes      theme+                      fluidmeasure/layout
+
+forthebold/layout        layout(core2base/layout)    core2
+forthebold/themes        theme+                      forthebold/layout
+
+funkycircles/layout      layout(core2base/layout)    core2
+funkycircles/themes      theme+                      funkycircles/layout
+
+hibiscus/layout          layout(core2base/layout)    core2
+hibiscus/themes          theme+                      hibiscus/layout
+
+headsup/layout           layout(core2base/layout)    core2
+headsup/themes           theme+                      headsup/layout
+
+leftovers/layout         layout(core2base/layout)    core2
+leftovers/themes         theme+                      leftovers/layout
+
+lefty/layout             layout(core2base/layout)    core2
+lefty/themes             theme+                      lefty/layout
+
+librariansdream/layout   layout(core2base/layout)    core2
+librariansdream/themes   theme+                      librariansdream/layout
+
+lineup/layout            layout(core2base/layout)    core2
+lineup/themes            theme+                      lineup/layout
+
+marginless/layout        layout(core2base/layout)    core2
+marginless/themes        theme+                      marginless/layout
+
+mobility/layout          layout(core2base/layout)    core2
+mobility/themes          theme+                      mobility/layout
+
+modish/layout            layout(core2base/layout)    core2
+modish/themes            theme+                      modish/layout
+
+modular/layout           layout(core2base/layout)    core2
+modular/themes           theme+                      modular/layout
+
+motion/layout            layout(core2base/layout)    core2
+motion/themes            theme+                      motion/layout
+
+nouveauoleanders/layout  layout(core2base/layout)    core2
+nouveauoleanders/themes  theme+                      nouveauoleanders/layout
+
+paletteable/layout       layout(core2base/layout)    core2
+paletteable/themes       theme+                      paletteable/layout
+
+paperme/layout           layout(core2base/layout)    core2
+paperme/themes           theme+                      paperme/layout
+
+patsy/layout             layout(core2base/layout)    core2
+patsy/themes             theme+                      patsy/layout
+
+planetcaravan/layout     layout(core2base/layout)    core2
+planetcaravan/themes     theme+                      planetcaravan/layout
+
+practicality/layout      layout(core2base/layout)    core2
+practicality/themes      theme+                      practicality/layout
+
+refriedtablet/layout     layout(core2base/layout)    core2
+refriedtablet/themes     theme+                      refriedtablet/layout
+
+snakesandboxes/layout    layout(core2base/layout)    core2
+snakesandboxes/themes    theme+                      snakesandboxes/layout
+
+steppingstones/layout    layout(core2base/layout)    core2
+steppingstones/themes    theme+                      steppingstones/layout
+
+strata/layout            layout(core2base/layout)    core2
+strata/themes            theme+                      strata/layout
+
+summertime/layout        layout(core2base/layout)    core2
+summertime/themes        theme+                      summertime/layout
+
+tectonic/layout          layout(core2base/layout)    core2
+tectonic/themes          theme+                      tectonic/layout
+
+tranquilityiii/layout    layout(core2base/layout)    core2
+tranquilityiii/themes    theme+                      tranquilityiii/layout
+
+trifecta/layout          layout(core2base/layout)    core2
+trifecta/themes          theme+                      trifecta/layout
+
+wideopen/layout          layout(core2base/layout)    core2
+wideopen/themes          theme+                      wideopen/layout
