@@ -419,7 +419,7 @@ h2#pagetitle {
 #secondary, #tertiary { width: auto; }
 
 @media $*desktop_media_query {
-    body:not(.one-column) #primary {
+    .multiple-columns #primary {
         float: left;
     }
 
@@ -445,14 +445,12 @@ h2#pagetitle {
         margin-right: -$*sidebar_width;
     }
 
-    .two-columns-left #tertiary,
-    .two-columns-right #tertiary {
+    .two-columns #tertiary {
         clear: both;
     }
     .two-columns-left #tertiary { margin-left: -$*sidebar_width; }
     .two-columns-right #tertiary { margin-right: -$*sidebar_width; }
-    .two-columns-left #tertiary .module,
-    .two-columns-right #tertiary .module {
+    .two-columns #tertiary .module {
         float: left;
         width: $*sidebar_width;
     }
@@ -718,15 +716,15 @@ ul.userlite-interaction-links.text-links {
 .module-calendar table { margin: 0; }
 .module-calendar .module-content { text-align: left; }
 @media $*desktop_media_query {
-    body:not(.one-column) .module-calendar .module-content {
+    .multiple-columns .module-calendar .module-content {
         text-align: center;
     }
 
-    body:not(.one-column) .module-calendar table {
+    .multiple-columns .module-calendar table {
         margin: 0 auto;
     }
 
-    body:not(.one-column) .module-syndicate .module-content {
+    .multiple-columns .module-syndicate .module-content {
         text-align: center;
     }
 }

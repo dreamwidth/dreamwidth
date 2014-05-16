@@ -3869,6 +3869,7 @@ function Page::print_wrapper_start(string{} opts)
 
     var string column_count = "";
     var string column_side = "";
+    var string column_multiple = "";
 
     if ( $*layout_type->contains("split") ) { $column_count = "one-column"; }
     if ( $*layout_type->contains("two") ) { $column_count = "two-columns"; }
@@ -3878,12 +3879,15 @@ function Page::print_wrapper_start(string{} opts)
     if ( $*layout_type->contains("left") ) { $column_side = " column-left"; }
     if ( $*layout_type->contains("sides") ) { $column_side = " column-left column-right"; }
 
+    if ( $*layout_type->contains("one-column") ) { $column_multiple = "any-column"; }
+    else                                         { $column_multiple = "any-column multiple-columns"; }
+
     var string community_options = "";
     if ( $this.journal.journal_type == "C" ) {
          $community_options = "$member $admin $moderator";
     }
 
-    """<body class="page-$.view $column_count$column_side $*layout_type $opts{"class"} $logged_in $owner $subscribed $access $community_options $control_strip">\n""";
+    """<body class="page-$.view $column_count$column_side $column_multiple $*layout_type $opts{"class"} $logged_in $owner $subscribed $access $community_options $control_strip">\n""";
 }
 
 function Page::print_wrapper_end()
