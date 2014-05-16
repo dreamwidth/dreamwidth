@@ -524,8 +524,8 @@ div.icons-container div.icon:nth-of-type(2n) {
 
 .module .userlite-interaction-links { margin-top: .5em; }
 
-.module-calendar .module-content { text-align: left; }
-.module-calendar table { margin: 0; }
+.any-column .module-calendar .module-content { text-align: left; }
+.any-column .module-calendar table { margin: 0; }
 
 $navlinks_css
 .module-navlinks a.current { color: $*color_navlinks_link_current;
