@@ -713,7 +713,7 @@ ul.userlite-interaction-links.text-links {
     text-align: left;
 }
 
-.module-calendar table { margin: 0; }
+.any-column .module-calendar table { margin: 0; }
 .module-calendar .module-content { text-align: left; }
 @media $*desktop_media_query {
     .multiple-columns .module-calendar .module-content {
