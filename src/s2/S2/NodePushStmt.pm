@@ -37,18 +37,21 @@ sub check {
     my ($this, $l, $ck) = @_;
 
     S2::error($this, "Push target is not an assignable value.")
-        unless $this->{lhs}->isLValue();
+        unless $this->{'lhs'}->isLValue();
 
-    my $lt = $this->{lhs}->getType($ck);
+    my $lt = $this->{'lhs'}->getType($ck);
     S2::error($this, "Push target is not an array.")
         unless $lt->isArrayOf();
 
-    my $rt = $this->{expr}->getType($ck);
-    S2::error($this, "Push expression must be a simple type.")
-        unless $rt->isSimple();
+    my $rt = $this->{'expr'}->getType($ck);
+    S2::error($this, "Push expression must be a simple type or array.")
+        unless $rt->isSimple() || $rt->isArrayOf();
 
     S2::error($this, "Type mismatch between push target and expression.")
         unless $lt->baseType() eq $rt->baseType();
+
+    # Stored for later, since we won't have the checker available.
+    $this->{'expr'}->{'_is_array'} = $rt->isArrayOf() ? 1 : 0;
 }
 
 sub asS2 {
@@ -66,6 +69,12 @@ sub asPerl {
     $o->tabwrite("push(\@{");
     $this->{'lhs'}->asPerl($bp, $o);
     $o->write("}, ");
-    $this->{'expr'}->asPerl($bp, $o);
+    if ($this->{'expr'}->{'_is_array'}) {
+        $o->write("\@{");
+        $this->{'expr'}->asPerl($bp, $o);
+        $o->write("}");
+    } else {
+        $this->{'expr'}->asPerl($bp, $o);
+    }
     $o->writeln(");");
 }

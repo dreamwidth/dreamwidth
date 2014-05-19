@@ -43,6 +43,14 @@ function main ()
     push $iarray, pop $iarray;
     println "Size still = " + string(size $iarray);
 
+    var int[] sarray;
+    $sarray[0] = 23;
+    $sarray[1] = 42;
+    push $iarray, $sarray;
+
+    println "Pushed = " + $iarray[5] + ", " + $iarray[6];
+    println "Size now = " + string(size $iarray);
+
     var Dog d1 = new Dog;
     var Dog[] dogs;
 
