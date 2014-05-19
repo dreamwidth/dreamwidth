@@ -6130,7 +6130,7 @@ function EntryPage::print_comments (Comment[] cs) {
         }
 
         $prev_depth = $c.depth;
-        if ( $first_depth < 0 ) {
+        if ($first_depth < 0) {
             $first_depth = $c.depth;
         }
 
