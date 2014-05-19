@@ -2744,10 +2744,17 @@ function Redirector::end_form ()
 }
 
 ### EntryPage functions
-
 function EntryPage::print_comments (Comment[] cs) {
     if (size $cs == 0) { return; }
-    foreach var Comment c ($cs) {
+
+    # Iterate over the comment tree structure
+    var Comment c;
+    var Comment[] cs_stack = reverse $cs;
+    while (size $cs_stack) {
+        $c = pop $cs_stack;
+        push $cs_stack, reverse $c.replies;
+
+        # actually print the comment
         var int indent = ($c.depth - 1) * 25;
         "<div id='$c.dom_id' style='margin-left: ${indent}px; margin-top: 5px'>\n";
         if ($c.full) {
@@ -2756,7 +2763,6 @@ function EntryPage::print_comments (Comment[] cs) {
             $this->print_comment_partial($c);
         }
         "</div>";
-        $this->print_comments($c.replies);
     }
 }
 

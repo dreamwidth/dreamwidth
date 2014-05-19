@@ -336,7 +336,14 @@ function EntryPage::print_comment_section(Entry e) {
 
 function EntryPage::print_comments (Comment[] cs) {
     if (size $cs == 0) { return; }
-    foreach var Comment c ($cs) {
+
+    # Iterate over the comment tree structure
+    var Comment c;
+    var Comment[] cs_stack = reverse $cs;
+    while (size $cs_stack) {
+        $c = pop $cs_stack;
+        push $cs_stack, reverse $c.replies;
+
         var string parity = $c.depth % 2 ? "odd" : "even";
         var int indent = ($c.depth - 1) * 25;
         "<div class='comment-thread comment-depth-$parity comment-depth-$c.depth'>\n";
@@ -351,7 +358,6 @@ function EntryPage::print_comments (Comment[] cs) {
             $this->print_comment_partial($c);
         }
         "</div></div>";
-        $this->print_comments($c.replies);
     }
 }
 

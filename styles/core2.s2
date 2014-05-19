@@ -4232,9 +4232,15 @@ function print_module_poweredby() {
 
 function print_module_pagesummary_comment_count(Comment comment) : int {
     var int count = 0;
-    foreach var Comment c ( $comment.replies ) {
-        $count = $count + 1 + print_module_pagesummary_comment_count($c);
+    var Comment c;
+    var Comment[] replies_stack = $comment.replies;
+    while (size $replies_stack) {
+      $c = pop $replies_stack;
+      push $replies_stack, $c.replies;
+
+      $count = $count + 1;
     }
+
     return $count;
 }
 
@@ -6099,7 +6105,29 @@ function EntryPage::print_comment_section(Entry e) {
 
 function EntryPage::print_comments (Comment[] cs) {
     if (size $cs == 0) { return; }
-    foreach var Comment c ($cs) {
+
+    # Iterate over the comment tree structure
+    var int prev_depth = -1;
+    var int first_depth = -1;
+    var Comment c;
+    var Comment[] cs_stack = reverse $cs;
+    while (size $cs_stack) {
+        $c = pop $cs_stack;
+
+        push $cs_stack, reverse $c.replies;
+
+        # close some divs when not increasing depth
+        if ($prev_depth >= 0) {
+            for (var int i = $prev_depth; $i >= $c.depth; $i--) {
+               "</div>\n";
+            }
+        }
+        $prev_depth = $c.depth;
+        if ($first_depth < 0) {
+            $first_depth = $c.depth;
+        }
+
+        # actually print the comment
         var string parity = $c.depth % 2 ? "odd" : "even";
         var int indent = ($c.depth - 1) * 25;
         "<div class='comment-thread comment-depth-$parity comment-depth-$c.depth'>\n";
@@ -6114,8 +6142,10 @@ function EntryPage::print_comments (Comment[] cs) {
             $this->print_comment_partial($c);
         }
         "</div>";
-        $this->print_comments($c.replies);
-        "</div>";
+    }
+    # close any remaining divs
+    for (var int i = $prev_depth; $i >= $first_depth; $i--) {
+        "</div>\n";
     }
 }
 
