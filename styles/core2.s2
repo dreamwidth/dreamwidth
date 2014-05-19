@@ -6106,6 +6106,12 @@ function EntryPage::print_comment_section(Entry e) {
 function EntryPage::print_comments (Comment[] cs) {
     if (size $cs == 0) { return; }
 
+    # Browsers stop applying styles to nested elements after a certain depth
+    # Firefox stops at ~200
+    # Chrome stops at ~500
+    # So we stop nesting the .comment-thread element before we hit that point
+    var int MAX_NESTED_DEPTH = 180;
+
     # Iterate over the comment tree structure
     var int prev_depth = -1;
     var int first_depth = -1;
@@ -6117,10 +6123,10 @@ function EntryPage::print_comments (Comment[] cs) {
         push $cs_stack, reverse $c.replies;
 
         # close some divs when not increasing depth
-        if ($prev_depth >= 0) {
-            for (var int i = $prev_depth; $i >= $c.depth; $i--) {
-               "</div>\n";
-            }
+        if ( $c.depth < $MAX_NESTED_DEPTH  and $prev_depth >= 0) {
+          for (var int i = $prev_depth; $i >= $c.depth; $i--) {
+             "</div>\n";
+          }
         }
         $prev_depth = $c.depth;
         if ($first_depth < 0) {
@@ -6142,10 +6148,16 @@ function EntryPage::print_comments (Comment[] cs) {
             $this->print_comment_partial($c);
         }
         "</div>";
+
+        if ( $c.depth >= $MAX_NESTED_DEPTH ) {
+          print "</div>";
+        }
     }
-    # close any remaining divs
-    for (var int i = $prev_depth; $i >= $first_depth; $i--) {
-        "</div>\n";
+    if ( $c.depth < $MAX_NESTED_DEPTH ) {
+      # close any remaining divs
+      for (var int i = $prev_depth; $i >= $first_depth; $i--) {
+          "</div>\n";
+      }
     }
 }
 
