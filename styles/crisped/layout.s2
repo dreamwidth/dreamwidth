@@ -164,18 +164,20 @@ hr,
     padding: .5em;
     }
 
-.two-columns #secondary > .inner:first-child,
-.three-columns #secondary > .inner:first-child {
-    padding-top: 4em;
-    }
-
 #tertiary > .inner:first-child {
     padding: .5em;
     }
 
-.three-columns #tertiary > .inner:first-child {
-    padding-top: 4em;
-    }
+@media $*desktop_media_query {
+    .two-columns #secondary > .inner:first-child,
+    .three-columns #secondary > .inner:first-child {
+        padding-top: 4em;
+        }
+
+    .three-columns #tertiary > .inner:first-child {
+        padding-top: 4em;
+        }
+}
 
 /* Header
 ***************************************************************************/
