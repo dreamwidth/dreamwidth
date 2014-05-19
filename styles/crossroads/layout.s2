@@ -231,13 +231,15 @@ else {
                 padding-bottom: .5em;
                 }
 
-            .column-right .module-navlinks {
-                text-align: right;
-                }
+            @media $*desktop_media_query {
+                .column-right .module-navlinks {
+                    text-align: right;
+                    }
 
-            .column-left .module-navlinks {
-                text-align: left;
-                }
+                .column-left .module-navlinks {
+                    text-align: left;
+                    }
+            }
 
             .module-navlinks ul {
                 font-family: $*font_journal_title;
@@ -301,19 +303,18 @@ body { margin: 0; }
 #header { margin: 2em 0;
     padding: .5em 2% 0 2%; }
 
-.two-columns-left #header .inner {padding-left: $*sidebar_width;}
-.three-columns-left #header .inner { padding-left: $*sidebar_width_doubled; }
-.two-columns-right #header .inner { padding-right: $*sidebar_width; }
-.three-columns-right #header .inner { padding-right: $*sidebar_width_doubled; }
-.three-columns-sides #header .inner { padding: 0 $*sidebar_width; }
+@media $*desktop_media_query {
+    .two-columns-left #header .inner {padding-left: $*sidebar_width;}
+    .three-columns-left #header .inner { padding-left: $*sidebar_width_doubled; }
+    .two-columns-right #header .inner { padding-right: $*sidebar_width; }
+    .three-columns-right #header .inner { padding-right: $*sidebar_width_doubled; }
+    .three-columns-sides #header .inner { padding: 0 $*sidebar_width; }
 
-#header .inner .inner {
-    padding: 0;
-    }
+    .multiple-columns #header .inner .inner { padding: 0; }
 
-.two-columns-left #header,
-.three-columns-left #header,
-.three-columns-sides #header { text-align: right; }
+    .column-left #header, .two-columns-left #footer, .three-columns-left #footer { text-align: right; }
+    .three-columns-sides #footer { text-align: center; }
+}
 
 #content { margin: 0 2%; }
 
@@ -613,42 +614,38 @@ text-align: center; }
     margin: 0 1em;
     padding: .25em 0; }
 
-.two-columns-left #tertiary > .inner:first-child,
-.two-columns-right #tertiary > .inner:first-child { background-color: transparent; }
-
-.two-columns-left #tertiary,
-.two-columns-right #tertiary { margin-left: -1.5em; }
-
-.two-columns-left #secondary,
-.two-columns-right #secondary,
-.three-columns-left #secondary,
-.three-columns-left #tertiary,
-.three-columns-right #secondary,
-.three-columns-right #tertiary,
-.three-columns-sides #secondary,
-.three-columns-sides #tertiary { position: absolute;
-   top: 0;
-   margin: 0 !important;  }
-
-.two-columns-left #secondary,
-.three-columns-left #secondary,
-.three-columns-sides #secondary { left: 2%; }
-
-.two-columns-right #secondary,
-.three-columns-right #tertiary,
-.three-columns-sides #tertiary { right: 2%; }
-
-.three-columns-right #secondary { right: $*sidebar_width; }
-.three-columns-left #tertiary { left: $*sidebar_width; }
-
-.two-columns-left #tertiary .separator-after,
-.two-columns-right #tertiary .separator-after { clear: both; }
-
 .module { margin: 0;
     padding-top: 0;
-    border: none; } 
-.two-columns-left #tertiary .module,
-.two-columns-right #tertiary .module { margin: 0 1.5em; }
+    border: none; }
+
+@media $*desktop_media_query {
+    .two-columns-left #tertiary > .inner:first-child,
+    .two-columns-right #tertiary > .inner:first-child { background-color: transparent; }
+
+    .two-columns-left #tertiary,
+    .two-columns-right #tertiary { margin-left: -1.5em; }
+
+    .two-columns #secondary,
+    .three-columns #secondary,
+    .three-columns #tertiary { position: absolute;
+       top: 0;
+       margin: 0 !important;  }
+
+    .column-left #secondary { left: 2%; }
+
+    .two-columns-right #secondary,
+    .three-columns-right #tertiary,
+    .three-columns-sides #tertiary { right: 2%; }
+
+    .three-columns-right #secondary { right: $*sidebar_width; }
+    .three-columns-left #tertiary { left: $*sidebar_width; }
+
+    .two-columns-left #tertiary .separator-after,
+    .two-columns-right #tertiary .separator-after { clear: both; }
+
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module { margin: 0 1.5em; }
+}
 
 .module-header { font-size: large;  }
 #secondary .module-header a,
@@ -679,10 +676,6 @@ $navlinks_css
 
 #footer { padding: 1em;
 margin-top: 1em; }
-
-.two-columns-left #footer,
-.three-columns-left #footer { text-align: right; }
-.three-columns-sides #footer { text-align: center; }
 
 #footer a { color: $*color_page_title; }
 
