@@ -10,7 +10,7 @@ use S2::NodeArrayLiteral;
 use S2::NodeArguments;
 
 use vars qw($VERSION @ISA
-            $INTEGER $STRING $BOOL $VARREF $SUBEXPR
+            $INTEGER $STRING $BOOL $VARREF $SUBEXPR $POPFUNC
             $DEFINEDTEST $SIZEFUNC $REVERSEFUNC $ISNULLFUNC
             $NEW $NEWNULL $FUNCCALL $METHCALL $ARRAY $OBJ_INTERPOLATE);
 
@@ -32,6 +32,7 @@ $FUNCCALL = 10;
 $METHCALL = 11;
 $ARRAY = 14;
 $OBJ_INTERPOLATE = 15;
+$POPFUNC = 16;
 
 sub new {
     my ($class, $n) = @_;
@@ -57,7 +58,8 @@ sub canStart {
         $t == $S2::TokenKeyword::SIZE ||
         $t == $S2::TokenKeyword::REVERSE ||
         $t == $S2::TokenKeyword::ISNULL ||
-        $t == $S2::TokenKeyword::NULL;
+        $t == $S2::TokenKeyword::NULL ||
+        $t == $S2::TokenKeyword::POP;
 }
 
 sub getType {
@@ -107,6 +109,16 @@ sub _getType {
             $this->{'subType'}->isArrayOf();
 
         S2::error($this, "Can't reverse on expression that's not a string or array.");
+    }
+
+    if ($type == $POPFUNC) {
+        $this->{'subType'} = $this->{'subExpr'}->getType($ck);
+
+        # pop from an array
+        return new S2::Type $this->{'subType'}->baseType() if
+            $this->{'subType'}->isArrayOf();
+
+        S2::error($this, "Can't pop from something that isn't an array.");
     }
 
     if ($type == $ISNULLFUNC || $type == $DEFINEDTEST) {
@@ -415,6 +427,15 @@ sub parse {
         return $nt;
     }
 
+    # pop function
+    if ($t == $S2::TokenKeyword::POP) {
+        $nt->{'type'} = $POPFUNC;
+        $nt->eatToken($toker);
+        $nt->{'subExpr'} = parse S2::NodeTerm $toker;
+        $nt->addNode($nt->{'subExpr'});
+        return $nt;
+    }
+
     # reverse function
     if ($t == $S2::TokenKeyword::REVERSE) {
         $nt->{'type'} = $REVERSEFUNC;
@@ -575,6 +596,15 @@ sub asPerl {
 
     if ($type == $NEWNULL) {
         $o->write("undef");
+        return;
+    }
+
+    if ($type == $POPFUNC) {
+        if ($this->{'subType'}->isArrayOf()) {
+            $o->write("pop(\@{");
+            $this->{'subExpr'}->asPerl($bp, $o);
+            $o->write("})");
+        }
         return;
     }
 
@@ -747,7 +777,7 @@ sub asPerl {
         return;
     }
 
-    die "Unknown term type";
+    die "Unknown term type: $type";
 }
 
 sub isProperty {

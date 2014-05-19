@@ -1,0 +1,67 @@
+#-*-perl-*-
+
+layerinfo type = core;
+layerinfo "majorversion" = 0;
+
+function builtin string(int i) : string;
+function builtin int(string s) : int;
+
+class Dog
+{
+}
+
+function main ()
+{
+    var int[] iarray;
+    $iarray[0] = 0;
+    $iarray[1] = 1;
+    $iarray[2] = 2;
+    $iarray[3] = 3;
+    $iarray[4] = 4;
+    $iarray[5] = 5;
+
+    var int poptest = pop $iarray;
+    println "Popped = " + string($poptest);
+    println "Size now = " + string(size $iarray);
+
+    $poptest = pop $iarray;
+    println "Popped = " + string($poptest);
+    println "Size now = " + string(size $iarray);
+
+    $poptest = pop $iarray;
+    println "Popped = " + string($poptest);
+    println "Size now = " + string(size $iarray);
+
+    push $iarray, 4;
+    println "Pushed = " + $iarray[3];
+    println "Size now = " + string(size $iarray);
+
+    push $iarray, 18 + 1;
+    println "Pushed = " + $iarray[4];
+    println "Size now = " + string(size $iarray);
+
+    push $iarray, pop $iarray;
+    println "Size still = " + string(size $iarray);
+
+    var int[] sarray;
+    $sarray[0] = 23;
+    $sarray[1] = 42;
+    push $iarray, $sarray;
+
+    println "Pushed = " + $iarray[5] + ", " + $iarray[6];
+    println "Size now = " + string(size $iarray);
+
+    var Dog d1 = new Dog;
+    var Dog[] dogs;
+
+    push $dogs, $d1;
+    println "Dog size = " + string(size $dogs);
+
+    var Dog d2 = pop $dogs;
+    println "Dog size = " + string(size $dogs);
+
+    pop $dogs;
+    println "Dog size = " + string(size $dogs);
+
+    println "Done.";
+}
