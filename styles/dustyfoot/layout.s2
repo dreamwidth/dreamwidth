@@ -352,11 +352,16 @@ ol {
     }
 
 #secondary,
-.three-columns #tertiary,
-.one-column #tertiary {
+.any-column #tertiary {
     background-color: $*color_module_background;
     color: $*color_module_text;
     }
+
+@media $*desktop_media_query {
+     .two-columns #tertiary {
+        background-color: transparent;
+     }
+ }
 
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child {
@@ -849,10 +854,12 @@ h2#pagetitle {
     margin: 10px 10px 10px 20px;
     }
 
-.two-columns #tertiary .module-section-two .module-header,
-.two-columns #tertiary .module-section-two .module-content {
-    margin: 10px 10px 10px 20px;
-    }
+@media $*desktop_media_query {
+    .two-columns #tertiary .module-section-two .module-header,
+    .two-columns #tertiary .module-section-two .module-content {
+        margin: 10px 10px 10px 20px;
+        }
+}
 
 .module-userprofile .module-content {
     text-align: center;
