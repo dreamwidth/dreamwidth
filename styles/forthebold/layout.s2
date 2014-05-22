@@ -205,39 +205,42 @@ ol {
     padding: 0;
     }
 
-.column-left #primary > .inner:first-child {
-    padding-left: 1em;
-    }
-
-.column-right #primary > .inner:first-child {
-    padding-right: 1em;
-    }
-
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child {
     padding: 5px;
     }
 
-.two-columns #tertiary > .inner:first-child {
-    padding-top: 20px;
-    }
-
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child {
-    margin-right: .5em;
-    }
-
-.three-columns-left #tertiary > .inner:first-child,
-.three-columns-right #tertiary > .inner:first-child {
-    margin-left: .5em;
-    }
-
 #secondary > .inner:first-child,
-.three-columns #tertiary > .inner:first-child,
-.one-column #tertiary > .inner:first-child {
+.any-column #tertiary > .inner:first-child {
     background-color: $*color_module_background;
     border-radius: 5px;
     }
+
+@media $*desktop_media_query {
+    .column-left #primary > .inner:first-child {
+        padding-left: 1em;
+        }
+
+    .column-right #primary > .inner:first-child {
+        padding-right: 1em;
+        }
+
+    .two-columns #tertiary > .inner:first-child {
+        padding-top: 20px;
+        border-radius: 0;
+        background-color: transparent;
+        }
+
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        margin-right: .5em;
+        }
+
+    .three-columns-left #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child {
+        margin-left: .5em;
+        }
+}
 
 /* Header
 ******************************/
@@ -643,16 +646,22 @@ h2.module-header a:active {
     color: $*color_module_title;
     }
 
-.two-columns #tertiary .module {
-    background-color: transparent;
-    color: $*color_page_text;
-    }
+.any-column .module-userprofile .module-content, .any-column .module-syndicate .module-content { text-align: right; }
+.any-column .module-calendar table { margin-left: auto; margin-right: 0; }
+@media $*desktop_media_query {
+    .multiple-columns .module-userprofile .module-content { text-align: center; }
+    .multiple-columns  .module-calendar table { margin-left: auto; margin-right: auto; }
 
-.two-columns #tertiary .module a { color: $*color_page_link; }
-.two-columns #tertiary .module a:visited { color: $*color_page_link_visited; }
-.two-columns #tertiary .module a:hover { color: $*color_page_link_hover; }
-.two-columns #tertiary .module a:active { color: $*color_page_link_active; }
+    .two-columns #tertiary .module {
+        background-color: transparent;
+        color: $*color_page_text;
+        }
 
+    .two-columns #tertiary .module a { color: $*color_page_link; }
+    .two-columns #tertiary .module a:visited { color: $*color_page_link_visited; }
+    .two-columns #tertiary .module a:hover { color: $*color_page_link_hover; }
+    .two-columns #tertiary .module a:active { color: $*color_page_link_active; }
+}
 li.module-list-item {
     list-style: none;
     margin: 0 0 2px;
@@ -661,7 +670,6 @@ li.module-list-item {
 
 .module-userprofile .userpic {
     margin-top: 10px;
-    text-align: center;
     }
 
 .module-userprofile .userpic img {
@@ -671,7 +679,6 @@ li.module-list-item {
 
 .module-userprofile .journal-name {
     margin-top: 5px;
-    text-align: center;
     }
 
 .module-userprofile .journal-website-name {
@@ -684,7 +691,6 @@ ul.userlite-interaction-links li {
 
 ul.userlite-interaction-links.icon-links {
     margin: 5px 0 0;
-    text-align: center;
     }
 
 ul.userlite-interaction-links.icon-links li {
@@ -749,10 +755,6 @@ ul.userlite-interaction-links.icon-links li {
 
 .module-calendar td.entry-day a:active {
     color:$*color_entry_link_active;
-    }
-
-.module-syndicate .module-content {
-    text-align: right;
     }
 
 /* Footer
