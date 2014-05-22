@@ -136,6 +136,7 @@ function print_stylesheet () {
         """;
     }
 
+$userpic_css = """@media $*desktop_media_query { $userpic_css } """;
 """
 
 /* For the Bold
