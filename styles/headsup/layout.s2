@@ -318,22 +318,25 @@ dl dt {
 body {
     margin-top: 0;
     }
-.two-columns-left #content,
-.three-columns-sides #content {
-    border-left: $*sidebar_width solid $*color_module_background;
-}
 
-.two-columns-right #content,
-.three-columns-sides #content {
-    border-right: $*sidebar_width solid $*color_module_background;
-}
+@media $*desktop_media_query {
+    .two-columns-left #content,
+    .three-columns-sides #content {
+        border-left: $*sidebar_width solid $*color_module_background;
+    }
 
-.three-columns-left #content {
-    border-left: $*sidebar_width_doubled solid $*color_module_background;
-}
+    .two-columns-right #content,
+    .three-columns-sides #content {
+        border-right: $*sidebar_width solid $*color_module_background;
+    }
 
-.three-columns-right #content {
-    border-right: $*sidebar_width_doubled solid $*color_module_background;
+    .three-columns-left #content {
+        border-left: $*sidebar_width_doubled solid $*color_module_background;
+    }
+
+    .three-columns-right #content {
+        border-right: $*sidebar_width_doubled solid $*color_module_background;
+    }
 }
 
 #canvas {
@@ -607,17 +610,19 @@ h3.day-date {Den
 /*--- Sidebars ---*/
 
 
-.two-columns-left #tertiary .separator-after, .two-columns-right #tertiary .separator-after {
-    clear: both;
-    }
+@media $*desktop_media_query {
+    .two-columns #tertiary .separator-after {
+        clear: both;
+        }
 
-.two-columns-left #tertiary {
-    margin-left: 0;
-    }
+    .two-columns-left #tertiary {
+        margin-left: 0;
+        }
 
-.two-columns-right #tertiary {
-    margin-right: 0;
-    }
+    .two-columns-right #tertiary {
+        margin-right: 0;
+        }
+}
 
 .module {
     border: none;
@@ -651,11 +656,11 @@ h3.day-date {Den
     text-decoration: none;
     }
 
-.module-calendar .module-content {
+.any-column .module-calendar .module-content {
     text-align: left;
     }
 
-.module-calendar table {
+.any-column .module-calendar table {
     margin: 0;
     }
 
