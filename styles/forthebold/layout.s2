@@ -136,7 +136,7 @@ function print_stylesheet () {
         """;
     }
 
-""";
+"""
 
 /* For the Bold
 /* by timeasmymeasure
