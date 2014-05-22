@@ -416,7 +416,7 @@ h2#pagetitle {
 
 /* modules layout */
 #primary { float: none; }
-#secondary, #tertiary { width: auto; }
+#secondary, #tertiary { width: 100%; }
 
 @media $*desktop_media_query {
     .multiple-columns #primary {
@@ -447,6 +447,7 @@ h2#pagetitle {
 
     .two-columns #tertiary {
         clear: both;
+        width: auto;
     }
     .two-columns-left #tertiary { margin-left: -$*sidebar_width; }
     .two-columns-right #tertiary { margin-right: -$*sidebar_width; }
