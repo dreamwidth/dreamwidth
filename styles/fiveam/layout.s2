@@ -342,20 +342,6 @@ a, a:link, a:active, a:visited {
     padding: 0;
     }
 
-.column-left #primary > .inner:first-child {
-    padding-left: 4em;
-    }
-
-.column-right #primary > .inner:first-child {
-    padding-right: 4em;
-    }
-
-/* to make sure the sidebars always have the same size */
-.three-columns-sides #primary > .inner:first-child {
-    padding-left: 2em;
-    padding-right: 2em;
-    }
-
 #secondary {
     margin-top: 3.15em;
     }
@@ -364,31 +350,42 @@ a, a:link, a:active, a:visited {
     padding: 0;
     }
 
-.three-columns #secondary > .inner:first-child {
-    padding-right: 2em;
-    }
-
-#tertiary {
-    padding-top: 3.15em;
-    }
-
-.one-column #tertiary {
-    padding-top: 0;
-    }
-
-.one-column #secondary,
-.one-column #tertiary {
-    clear: left;
-    width: 100%;
-    }
-
 #tertiary > .inner:first-child {
     padding: 0;
     }
 
-.three-columns #tertiary > .inner:first-child {
-    padding-left: 2em;
-    }
+.any-column #tertiary { clear: both; }
+@media $*desktop_media_query {
+    .column-left #primary > .inner:first-child {
+        padding-left: 4em;
+        }
+
+    .column-right #primary > .inner:first-child {
+        padding-right: 4em;
+        }
+
+    /* to make sure the sidebars always have the same size */
+    .three-columns-sides #primary > .inner:first-child {
+        padding-left: 2em;
+        padding-right: 2em;
+        }
+
+    .three-columns #secondary > .inner:first-child {
+        padding-right: 2em;
+        }
+
+    .multiple-columns #tertiary {
+        padding-top: 3.15em;
+        }
+    .three-columns #tertiary {
+        clear: none;
+        }
+    .three-columns #tertiary > .inner:first-child {
+        padding-left: 2em;
+        }
+
+}
+
 
 /* Header
 ***************************************************************************/
@@ -968,18 +965,20 @@ h3.day-date {
     margin-bottom: 2.5em;
     }
 
-.one-column #secondary .module,
-.one-column #tertiary .module,
-.two-columns #tertiary .module {
-    float: left;
-    margin-right: 2em;
-    }
+@media $*desktop_media_query {
+    .one-column #secondary .module,
+    .one-column #tertiary .module,
+    .two-columns #tertiary .module {
+        float: left;
+        margin-right: 2em;
+        }
 
-.one-column-split #primary,
-.one-column #footer,
-.two-columns #footer {
-    clear: both;
-    }
+    .one-column-split #primary,
+    .one-column #footer,
+    .two-columns #footer {
+        clear: both;
+        }
+}
 
 .module h2 {
     padding-top: .8em;
