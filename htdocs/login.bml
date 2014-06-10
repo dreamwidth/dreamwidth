@@ -297,11 +297,10 @@ _c?>
             $banned = $ok = 0;
             my $chal_opts = {};
 
-            if ($POST{response}) {
-                $ok = LJ::challenge_check_login($u, $POST{chal}, $POST{response}, \$banned, $chal_opts);
-            } else {  # js disabled, fallback to plaintext
-                $ok = LJ::auth_okay($u, $password, undef, undef, \$banned);
-            }
+            my $hashed_password = $POST{response} ||
+                                    # js disabled, fallback to plaintext
+                                    Digest::MD5::md5_hex($POST{chal} . Digest::MD5::md5_hex($password));
+            $ok = LJ::challenge_check_login($u, $POST{chal}, $hashed_password, \$banned, $chal_opts);
 
             if ($banned) {
                 return if $want_fail_redirect->("banned_ip");
