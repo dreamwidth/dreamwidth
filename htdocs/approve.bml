@@ -57,7 +57,7 @@ body<=
                '<?p ' . BML::ml('.commjoin.text', {
                            user => $targetu->ljuser_display,
                            comm => $cu->ljuser_display,
-                           aopts => "href=\"". $cu->community_manage_members_url . "\"",
+                           aopts => "href=\"" . $cu->community_manage_members_url . "\"",
                         }) . ' p?>';
     }
 
