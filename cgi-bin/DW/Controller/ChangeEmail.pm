@@ -57,7 +57,7 @@ sub changeemail_handler {
 
     $vars->{authas_html} = $rv->{authas_html};
     
-    if ( $post->{mode} eq 'submit' && ( $post->{email} || $post->{password} ) ) {
+    if ( ( $post->{mode} || "" ) eq 'submit' && ( $post->{email} || $post->{password} ) ) {
         my $password;
         $password = $post->{password} unless $remote->is_identity;
         my $email = LJ::trim( $post->{email} );
