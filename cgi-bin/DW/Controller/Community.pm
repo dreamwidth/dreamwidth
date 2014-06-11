@@ -678,14 +678,18 @@ sub members_edit_handler {
             my $u = $us{$uid};
             next unless $u;
 
-            my ( $changed_roles_msg, @added_roles, @removed_roles );
-            push @added_roles, $role_strings{$_}
-                foreach grep { $_ ne "member"           # reinvited members need to confirm, so we don't want a success message
-                                || $uid == $remote_uid  # but if you're adding yourself as a member, that's fine
-                            } keys %{$add_user_to_role{$uid} || {}};
-            push @removed_roles , $role_strings{$_}
-                foreach keys %{$delete_user_to_role{$uid} || {}};
-            push @roles_changed, { user => $u->ljuser_display, added => \@added_roles, removed => \@removed_roles } if @added_roles || @removed_roles;
+            if ( $post->{"action:purge"} ) {
+                push @roles_changed, { user => $u->ljuser_display, purged => 1 };
+            } else {
+                my ( $changed_roles_msg, @added_roles, @removed_roles );
+                push @added_roles, $role_strings{$_}
+                    foreach grep { $_ ne "member"           # reinvited members need to confirm, so we don't want a success message
+                                    || $uid == $remote_uid  # but if you're adding yourself as a member, that's fine
+                                } keys %{$add_user_to_role{$uid} || {}};
+                push @removed_roles , $role_strings{$_}
+                    foreach keys %{$delete_user_to_role{$uid} || {}};
+                push @roles_changed, { user => $u->ljuser_display, added => \@added_roles, removed => \@removed_roles } if @added_roles || @removed_roles;
+            }
         }
 
     }
