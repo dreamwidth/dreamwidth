@@ -123,9 +123,8 @@ $nav-small-screen-header-height: 3em;
         }
         
         .logout.button {
-            padding: .15em;
+            padding: .15em .5em;
             margin: 0em;
-            font-size: 0.6875rem;
         }
         
       }
@@ -142,10 +141,6 @@ $nav-small-screen-header-height: 3em;
 
     #account-links-text {
         text-align: $side;
-    }
-
-    #nav-login-form, #account-links-text {
-        font-size: emCalc(14px);
     }
 
     #nav-login-form {
