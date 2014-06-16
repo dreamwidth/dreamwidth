@@ -4233,7 +4233,11 @@ function print_module_poweredby() {
 function print_module_pagesummary_comment_count(Comment comment) : int {
     var int count = 0;
     var Comment c;
-    var Comment[] replies_stack = $comment.replies;
+
+    # copy over to avoid munging the existing array for other callers
+    var Comment[] replies_stack = [];
+    push $replies_stack, $comment.replies;
+
     while (size $replies_stack) {
       $c = pop $replies_stack;
       push $replies_stack, $c.replies;
