@@ -1112,7 +1112,7 @@ sub _community_menu {
     my $path = $opts{path};
 
     return
-    "<div class='community-menu'>"
+    "<div class='community-menu panel'>"
         . "<form action='" . LJ::create_url( $path ) . "' method='get'>"
             . LJ::make_authas_select( $u, { type => 'C', authas => $cu->user, foundation => 1 } )
          . "</form>"

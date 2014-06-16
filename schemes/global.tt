@@ -49,7 +49,7 @@
     <option name="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
 [%- END -%]
 </select>
-    <input type="submit" value="[% 'widget.search.btn.go' | ml %]" />
+    <input type="submit" class="secondary button" value="[% 'widget.search.btn.go' | ml %]" />
 </form>
 </li>
 </ul>
