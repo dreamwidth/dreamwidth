@@ -13,6 +13,9 @@ $include-html-classes: false;
             display: block;
         }
     }
+    ul {
+        margin: 0;
+    }
 }
 
 @media #{$small} {
