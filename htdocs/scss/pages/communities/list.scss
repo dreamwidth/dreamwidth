@@ -1,3 +1,11 @@
+@import "foundation/settings";
+
 th[scope="row"] {
-	font-weight: normal;
+    font-weight: normal;
+}
+
+@media #{$medium-up} {
+    .inline-list li:nth-child(5) {
+        clear: left;
+    }
 }
