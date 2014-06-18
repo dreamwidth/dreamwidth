@@ -35,6 +35,8 @@ _c?>
         return "! invalid user, or no interests\n" unless $ret;
         $ret = "# Note: Polite data miners cache on their end.  Impolite ones get banned.\n" .
             "# <intid> <intcount> <interest ...>\n" .
+            "# metadata:id=" . $u->id . "\n" .
+            "# metadata:journaltype=" . $u->journaltype . "\n" .
             $ret;
         return $ret;
     }
