@@ -14,6 +14,7 @@
 $_dark-olive-green:  #999966;
 $_very-dark-olive:   darken($_dark-olive-green, 10%);// try to match visual impact of the top bar
                                                      // which is $_dark-olive-green, but heavier to the eye
+$_bright-olive-green: #888833; // a little brighter than the dark olive green, to attract the eye
 $_light-olive-green: #ddddaa;
 
 $_white:             #fff;
@@ -26,7 +27,7 @@ $_off-black:         #222211;
 // color assignment
 $background-color:   $_white;
 $text-color:         $_off-black;
-$link-color:         $_dark-olive-green;
+$link-color:         $_bright-olive-green;
 
 $inactive-color:     $_dark-gray;
 
