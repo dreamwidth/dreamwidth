@@ -55,7 +55,7 @@ $nav-small-screen-header-height: 3em;
               $base-style:true,
               // Sets reveal width Default: $reveal-default-width or 80%
               $width:$reveal-default-width
-            );        
+            );
             @include reveal-modal-style(
               // Sets background color of reveal modal. Default: $reveal-modal-bg or #fff
               $bg:$reveal-modal-bg,
@@ -84,11 +84,10 @@ $nav-small-screen-header-height: 3em;
         }
     }
 
-    
     @media #{$small} {
       #account-links {
         top: $accountlinks-offset + 1em;
-        
+
         #account-links-text {
             .close-reveal-modal { display: none; }
         }
@@ -117,13 +116,13 @@ $nav-small-screen-header-height: 3em;
                 content: "";
                 margin-left: 0;
             }
-        }        
+        }
 
         li.before-break:after {
             content: "";
             margin-left: 0;
         }
-        
+
         li.after-break {
             clear: left;
         }
@@ -141,15 +140,15 @@ $nav-small-screen-header-height: 3em;
             margin-bottom: 0;
         }
 
-         label.inline {
+        label.inline {
             text-align: right;
         }
-        
+
         .logout.button {
             padding: .15em .5em;
             margin: 0em;
         }
-        
+
       }
 
     #account-links-userpic {
@@ -179,7 +178,7 @@ $nav-small-screen-header-height: 3em;
     }
 
     }
-    
+
     #header-search {
         position: absolute;
         top: $header-height + $search-offset;
