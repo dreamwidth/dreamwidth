@@ -25,6 +25,18 @@ $nav-small-screen-header-height: 3em;
         }
     }
 
+    /* On small screens, this shows in the left corner of the menu bar so an account links
+    modal can be accessed */
+    #account-link-access, #login-form-access {
+        position: absolute;
+        left: 1em;
+        top:  -1 * $topbar-height;
+
+        &:visited {
+            color: $link-color !important;
+        }
+    }
+
     @media #{$small-only} {
         /* Adjustments to the static account links display in the masthead */
 
@@ -291,18 +303,6 @@ $nav-small-screen-header-height: 3em;
         @media #{$small} {
             .main-nav {
                 top: $header-height;
-            }
-        }
-        
-        /* On small screens, this shows in the left corner of the menu bar so an account links
-        modal can be accessed */
-        #account-link-access, #login-form-access {
-            position: absolute;
-            left: 1em;
-            top: -2em;
-            
-            &:visited {
-                color: $link-color !important;
             }
         }
     }
