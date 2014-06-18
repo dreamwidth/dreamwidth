@@ -15,8 +15,14 @@ $nav-small-screen-header-height: 3em;
 
     }
 
-    .top-bar.expanded {
-        z-index: 99;
+    .top-bar {
+        &.expanded {
+            z-index: 99;
+        }
+
+        .has-dropdown a, .toggle-topbar a {
+            text-decoration: none;
+        }
     }
 
     @media #{$small-only} {
@@ -217,13 +223,6 @@ $nav-small-screen-header-height: 3em;
 
         #content {
             margin-top: $header-height + $search-offset + 2 * $base-line-height !important;
-        }
-    }
-
-
-    .top-bar {
-        a {
-            text-decoration: none;
         }
     }
 
