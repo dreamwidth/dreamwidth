@@ -1020,7 +1020,7 @@ sub members_queue_handler {
                     $status_count{ban}++;
 
                     # ban is successful, reject member
-                    # $cu->reject_pending_member( $pending_u ); # only in case of successful ban
+                    $cu->reject_pending_member( $pending_u ); # only in case of successful ban
                 }
             }
         });
