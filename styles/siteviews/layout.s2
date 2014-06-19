@@ -463,6 +463,13 @@ function EntryPage::print_title() {
     $*SITEVIEWS->set_content("windowtitle",$this.journal.username + $*text_default_separator + $this->view_title());
 }
 
+function ReplyPage::print_title() {
+    # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate.
+    $*SITEVIEWS->set_content("windowtitle",$this.journal.username + $*text_default_separator + $this->view_title());
+}
+
+# MonthPage Functions
+
 function MonthPage::print_title() {
     # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate.
     $*SITEVIEWS->set_content("windowtitle",$this.journal.username + $*text_default_separator + $this->view_title());
