@@ -145,3 +145,17 @@ td.highlight { background-color: #eeeeee; }
 #qrformdiv table {
     border: 1px solid #999;
 }
+
+/* MonthPage */
+
+#archive-month .navigation li, #archive-month .navigation a, #archive-month .navigation li.active {display: inline; }
+#archive-month .highlight-box {margin: auto; text-align: center;display: inline-block;}
+#archive-month {text-align: center;}
+#archive-month .month {text-align: left;}
+#archive-month h3.entry-title {display: inline; font-size:1em;font-weight: normal;}
+#archive-month .entry-title, #archive-month .access-filter, #archive-month .poster {margin-left:1em;}
+#archive-month .empty {margin: 0;}
+#archive-month .datetime {font-style: italic;}
+#archive-month .tag li {display: inline; list-style:none;}
+
+

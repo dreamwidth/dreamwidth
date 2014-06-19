@@ -463,7 +463,64 @@ function EntryPage::print_title() {
     $*SITEVIEWS->set_content("windowtitle",$this.journal.username + $*text_default_separator + $this->view_title());
 }
 
-function ReplyPage::print_title() {
+function MonthPage::print_title() {
     # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate.
     $*SITEVIEWS->set_content("windowtitle",$this.journal.username + $*text_default_separator + $this->view_title());
+}
+
+function MonthPage::print_body {
+var MonthDay[] days = $*reverse_sortorder_month ? reverse $.days : $.days;
+    """
+    <div id="archive-month">
+        <div class="inner">
+    """;
+    $this->print_navigation( { "class" => "highlight-box" } );
+
+    """
+            <div class="month">
+                <div class="inner">
+                    <dl>
+                    """;
+
+    foreach var MonthDay d ($days) {
+        if ($d.has_entries) {
+            """<dt><a href="$d.url"><b>""";
+                    print lang_ordinal($d.day);
+            "</b></a></dt>";
+
+            "\n<dd>";
+            $d->print_subjectlist();
+            "</dd>\n";
+        }
+    }
+                """
+                </dl>
+            </div><!-- month>inner -->
+        </div><!-- month -->
+
+        </div><!-- archive-month>inner -->
+    </div><!--archive-month -->
+    """;
+}
+
+function MonthDay::print_subjectlist() {
+var Entry[] entries = $*reverse_sortorder_month ? reverse $.entries : $.entries;
+    # Too many tables...
+    var Page p = get_page();
+
+    foreach var Entry e ($entries) {
+        $e->print_time("none", "");
+        $e->print_poster();
+        $e->print_subject();
+        $e->print_metatypes();
+        if ($e.comments.count > 0) {
+            print safe " - " + get_plural_phrase($e.comments.count, "text_read_comments");
+        }
+        if ($e.comments.screened) {
+            print safe " <b>$*text_month_screened_comments</b>";
+        }
+        "<br />\n";
+        $e->print_tags();
+        "<br />\n";
+    }
 }
