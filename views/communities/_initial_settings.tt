@@ -1,0 +1,21 @@
+<fieldset>
+    <legend>[% '.form.membership.legend' | ml %]</legend>
+    [%- form.radio_nested(
+        label = dw.ml( 'setting.communitymembership.option.select.open' )
+        name  = "membership"
+        id    = "membership_open"
+        value = "open"
+    ) -%]
+    [%- form.radio_nested(
+        label = dw.ml( 'setting.communitymembership.option.select.moderated' )
+        name  = "membership"
+        id    = "membership_moderated"
+        value = "moderated"
+    ) -%]
+    [%- form.radio_nested(
+        label = dw.ml( 'setting.communitymembership.option.select.closed' )
+        name  = "membership"
+        id    = "membership_closed"
+        value = "closed"
+    ) -%]
+</fieldset>

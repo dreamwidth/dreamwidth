@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+
+.administrator=[[user]] will be the administrator of the converted community. If you'd prefer a different administrator, please <a href="[[login_url]]">log in as that user</a>.
+
+.error.alreadycomm=[[comm]] is already a community.
+
+.error.badpassword=Invalid password for the journal you're trying to convert.
+
+.error.hasentries=[[user]] already has entries and can't be converted.
+
+.error.notfound=Journal not found.
+
+.error.samenames=The administrator journal and the community journal can't be the same.
+
+.form.comminfo.legend=Journal to Convert
+
+.form.comminfo.password.label=Password
+
+.form.comminfo.user.label=Username
+
+.form.submit.convert=Convert
+
+.success.link.customize=Customize community appearance
+
+.success.link.profile=Edit community profile
+
+.success.link.settings=Edit community settings
+
+.success.message=You've successfully converted [[comm]] to a community.
+
+.success.title=Community Created
+
+.title=Convert Personal Journal to Community

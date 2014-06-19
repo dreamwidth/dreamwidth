@@ -30,6 +30,7 @@ DW::Controller::Community - Community management pages
 DW::Routing->register_string( "/communities/index", \&index_handler, app => 1 );
 DW::Routing->register_string( "/communities/list", \&list_handler, app => 1 );
 DW::Routing->register_string( "/communities/new", \&new_handler, app => 1 );
+DW::Routing->register_string( "/communities/convert", \&convert_handler, app => 1 );
 
 DW::Routing->register_regex( '^/communities/([^/]+)/members/new$', \&members_new_handler, app => 1 );
 DW::Routing->register_regex( '^/communities/([^/]+)/members/edit$', \&members_edit_handler, app => 1 );
@@ -162,6 +163,28 @@ sub list_handler {
     return DW::Template->render_template( 'communities/list.tt', $vars );
 }
 
+sub _enforce_valid_settings {
+    my ( $post, $default_options, $validate_age_restriction ) = @_;
+
+    # checks that the POSTed option is valid
+    # if not, force it to the default option
+    my $validate = sub {
+        my ( $key, $regex ) = @_;
+
+        $post->set( $key, $default_options->{$key} )
+            unless $post->{$key} =~ $regex;
+    };
+
+    $validate->( "membership",          qr/^(?:open|moderated|closed)$/ );
+    $validate->( "postlevel",           qr/^(?:members|select)$/ );
+    $validate->( "nonmember_posting",   qr/^[01]$/ );
+    $validate->( "moderated",           qr/^[01]$/ );
+    $validate->( "age_restriction",     qr/^(?:none|concepts|explicit)$/ )
+        if $validate_age_restriction;
+
+    return $post;
+}
+
 sub new_handler {
     my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;
@@ -187,23 +210,7 @@ sub new_handler {
 
     my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
-        $post = $r->post_args;
-
-        # checks that the POSTed option is valid
-        # if not, force it to the default option
-        my $validate = sub {
-            my ( $key, $regex ) = @_;
-
-            $post->set( $key, $default_options{$key} )
-                unless $post->{$key} =~ $regex;
-        };
-
-        $validate->( "membership",          qr/^(?:open|moderated|closed)$/ );
-        $validate->( "postlevel",           qr/^(?:members|select)$/ );
-        $validate->( "nonmember_posting",   qr/^[01]$/ );
-        $validate->( "moderated",           qr/^[01]$/ );
-        $validate->( "age_restriction",     qr/^(?:none|concepts|explicit)$/ );
-
+        $post = _enforce_valid_settings( $r->post_args, \%default_options, 1 );
 
         my $new_user = LJ::canonical_username( $post->{user} );
         my $title = $post->{title} || $new_user;
@@ -258,23 +265,18 @@ sub new_handler {
                     journal_adult_settings  => $post->{age_restriction},
                 ) unless $second_submit;
 
-            return DW::Template->render_template( 'communities/new-success.tt', {
-                community => {
-                    ljuser  => $cu->ljuser_display,
-                    user    => $cu->user,
+            return success_ml( '/communities/new.tt', { user => $cu->ljuser_display },
+            [
+                {   text_ml => ".success.link.settings",
+                    url => LJ::create_url( "/manage/settings", args => { authas => $cu->user, cat => "community" } ),
                 },
-                action_links => [
-                    {   text_ml => ".success.next.action.settings",
-                        url => LJ::create_url( "/manage/settings", args => { authas => $cu->user, cat => "community" } ),
-                    },
-                    {   text_ml => ".success.next.action.profile",
-                        url => LJ::create_url( "/manage/profile", args => { authas => $cu->user } ),
-                    },
-                    {   text_ml => ".success.next.action.customize",
-                        url => LJ::create_url( "/customize/", args => { authas => $cu->user } ),
-                    },
-                ]
-            }) if $cu;
+                {   text_ml => ".success.link.profile",
+                    url => LJ::create_url( "/manage/profile", args => { authas => $cu->user } ),
+                },
+                {   text_ml => ".success.link.customize",
+                    url => LJ::create_url( "/customize/", args => { authas => $cu->user } ),
+                },
+            ]) if $cu;
         }
     } else {
         $get = $r->get_args;
@@ -295,6 +297,122 @@ sub new_handler {
                             };
 
     return DW::Template->render_template( 'communities/new.tt', $vars );
+}
+
+sub convert_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $remote = $rv->{remote};
+    my $r = $rv->{r};
+    my $post;
+
+    # more private / restricted than when we create a new community from scratch
+    my %default_options = (
+        membership => 'closed',
+        postlevel  => 'select',
+        moderated   => '0',
+        nonmember_posting   => '0',
+        age_restriction     => 'none',
+    );
+
+    my $errors = DW::FormErrors->new;
+    if ( $r->did_post ) {
+        $post = _enforce_valid_settings( $r->post_args, \%default_options );
+
+        my $cuser = LJ::canonical_username( $post->{cuser} );
+        my $cu = LJ::load_user( $cuser );
+
+        if ( $cu ) {
+            $errors->add( "cuser", ".error.alreadycomm", { comm => $cu->ljuser_display } )
+                if $cu->is_community;
+            $errors->add( "cuser", ".error.samenames" )
+                if $cu->equals( $remote );
+        } else {
+            $errors->add( "cuser", ".error.notfound" ) unless $cu;
+        }
+
+        # only check the password if we have no errors so far
+        unless ( $errors->exist ) {
+            $errors->add( "cpassword", ".error.badpassword")
+                if !LJ::auth_okay( $cu, $post->{cpassword} );
+        }
+
+        # disallow changing the journal type if the journal has entries
+        if ( !$errors->exist && !$remote->has_priv( "changejournaltype", "" ) ) {
+            my $count;
+            my $userid=$cu->{'userid'}+0;
+
+            my $dbcr = LJ::get_cluster_reader($cu);
+            $count = $dbcr->selectrow_array( "SELECT COUNT(*) FROM log2 WHERE journalid=$userid AND posterid=journalid" );
+
+            $errors->add( "username", ".error.hasentries" ) if $count;
+        }
+
+        unless ( $errors->exist ) {
+            $cu->update_self( { journaltype => 'C', password => '' } );
+            $cu->invalidate_directory_record;
+
+            # handle admin edges
+            LJ::set_rel( $cu, $remote, 'A' );
+            LJ::set_rel( $cu->userid, $remote->userid, 'M' )
+                if $post->{moderated} && ! LJ::load_rel_user( $cu->userid, 'M' )->[0];
+
+            # set community settings
+            $cu->set_comm_settings( $remote,
+                { membership => $post->{membership},
+                  postlevel => $post->{postlevel},
+                } );
+            $cu->set_prop(
+                { nonmember_posting => $post->{nonmember_posting},
+                  moderated => $post->{moderated},
+                 } );
+
+            # delete existing watchlist & trustlist
+            foreach ( $cu->watched_users ) {
+                $cu->remove_edge( $_, watch => {} );
+            }
+            foreach ( $cu->trusted_users ) {
+                $cu->remove_edge( $_, trust => {} );
+            }
+
+            # log this to statushistory
+            my $msg = "account '" . $cu->user . "' converted to community";
+            $msg .= " (maintainer is '" . $remote->user . "')";
+            LJ::statushistory_add( $cu, $remote, "change_journal_type", $msg );
+
+
+            # lazy-cleanup: if a community has subscriptions (most likely
+            # due to a personal->comm conversion), nuke those subs.
+            # (since they can't manage them anyway!)
+            $cu->delete_all_subscriptions;
+
+            # ... and migrate their interests to the right table
+            $cu->lazy_interests_cleanup;
+            LJ::Hooks::run_hook("change_journal_type", $cu);
+
+            return success_ml( '/communities/convert.tt', { comm => $cu->ljuser_display },
+            [
+                {   text_ml => ".success.link.settings",
+                    url => LJ::create_url( "/manage/settings", args => { authas => $cu->user, cat => "community" } ),
+                },
+                {   text_ml => ".success.link.profile",
+                    url => LJ::create_url( "/manage/profile", args => { authas => $cu->user } ),
+                },
+                {   text_ml => ".success.link.customize",
+                    url => LJ::create_url( "/customize/", args => { authas => $cu->user } ),
+                },
+            ]);
+        }
+    }
+
+    my $vars = {
+        errors      => $errors,
+        formdata    => $post || \%default_options,
+        admin_user  => $remote->ljuser_display,
+    };
+
+    return DW::Template->render_template( 'communities/convert.tt', $vars );
 }
 
 sub _revoke_invitation {

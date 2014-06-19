@@ -12,16 +12,6 @@
 
 .error.user.reserved=That is a reserved account name. Please choose another.
 
-.form.age_restriction.concepts.label=Viewer Discretion Advised
-
-.form.age_restriction.explicit.label=Age 18+
-
-.form.age_restriction.legend=Age Restricted Content
-
-.form.age_restriction.none.label=No Age-Restricted Content
-
-.form.age_restriction.subhead=Does this community contain age-restricted content?
-
 .form.comminfo.legend=Community Information
 
 .form.comminfo.title.hint=This will appear at the top of your community and in the community directory
@@ -30,10 +20,18 @@
 
 .form.comminfo.user.label=Username
 
-.form.membership.legend=Membership
-
 .form.submit.create=Create Community
 
 .link.create_personal=Would you rather <a href="[[create_url]]">create a personal journal?</a>
+
+.success.link.customize=Customize community appearance
+
+.success.link.profile=Edit community profile
+
+.success.link.settings=Edit community settings
+
+.success.message=[[user]] has been created. You're currently its only administrator.
+
+.success.title=Community Created
 
 .title=Create New Community
