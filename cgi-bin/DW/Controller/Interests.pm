@@ -66,43 +66,23 @@ sub interests_handler {
         return $r->OK;
     }
 
-    # Load appropriate usernames for different accounts
-    my $us;
-
-    if ( $u->is_individual ) {
-        $us = LJ::load_userids( $u->trusted_userids, $u->watched_userids, $u->trusted_by_userids, $u->watched_by_userids, $u->member_of_userids );
-    } elsif ( $u->is_community ) {
-        $us = LJ::load_userids( $u->maintainer_userids, $u->moderator_userids, $u->member_userids, $u->watched_by_userids );
-    } elsif ( $u->is_syndicated ) {
-        $us = LJ::load_userids( $u->watched_by_userids );
+    # Load the interests
+    my $interests = $u->get_interests() || [];
+    my $output = {};
+    foreach my $int ( @{ $interests } ) {
+        $output->{ $int->[0] } = {
+            interest => $int->[1],
+            count    => $int->[2],
+        };
     }
-
     # Contruct the JSON response hash
     my $response = {};
 
-    # all accounts have this
     $response->{account_id} = $u->userid;
     $response->{name} = $u->user;
     $response->{display_name} = $u->display_name if $u->is_identity;
     $response->{account_type} = $u->journaltype;
-    $response->{watched_by} = [ $u->watched_by_userids ];
-
-    # different individual and community interests
-    if ( $u->is_individual ) {
-        $response->{trusted} = [ $u->trusted_userids ];
-        $response->{watched} = [ $u->watched_userids ];
-        $response->{trusted_by} = [ $u->trusted_by_userids ];
-        $response->{member_of} = [ $u->member_of_userids ];
-    } elsif ( $u->is_community ) {
-        $response->{maintainer} = [ $u->maintainer_userids ];
-        $response->{moderator} = [ $u->moderator_userids ];
-        $response->{member} = [ $u->member_userids ];
-    }
-
-    # now dump information about the users we loaded
-    $response->{accounts} = {
-        map { $_ => { name => $us->{$_}->user, type => $us->{$_}->journaltype } } keys %$us
-    };
+    $response->{interests} = $output;
 
     $format->( $r, $response );
 
