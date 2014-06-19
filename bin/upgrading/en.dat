@@ -4005,6 +4005,8 @@ subscribe_interface.unavailable_subs.note=These notification options are only av
 
 success=Success
 
+success.next.header=Next steps:
+
 support.answertype.answer=Answer
 
 support.answertype.bounce=Bounce to Email & Close

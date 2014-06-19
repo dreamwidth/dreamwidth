@@ -50,7 +50,16 @@ sub error_ml {
 # return a success page using a language string
 sub success_ml {
     return DW::Template->render_template(
-        'success.tt', { message => LJ::Lang::ml( $_[0], $_[1] ), links => $_[2] }
+        'success.tt', {
+            scope => $_[0],
+            message_arguments => $_[1],
+            links => $_[2],
+    });
+}
+
+sub old_success_ml {
+    return DW::Template->render_template(
+        'old-success.tt', { message => LJ::Lang::ml( $_[0], $_[1] ), links => $_[2] }
     );
 }
 
