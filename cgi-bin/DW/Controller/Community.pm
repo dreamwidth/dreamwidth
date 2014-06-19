@@ -30,7 +30,7 @@ DW::Controller::Community - Community management pages
 DW::Routing->register_string( "/communities/index", \&index_handler, app => 1 );
 DW::Routing->register_string( "/communities/list", \&list_handler, app => 1 );
 DW::Routing->register_string( "/communities/new", \&new_handler, app => 1 );
-DW::Routing->register_string( "/communities/convert", \&convert_handler, app => 1 );
+DW::Routing->register_string( "/communities/convert", \&convert_handler, app => 1, prefer_ssl => 1 );
 
 DW::Routing->register_regex( '^/communities/([^/]+)/members/new$', \&members_new_handler, app => 1 );
 DW::Routing->register_regex( '^/communities/([^/]+)/members/edit$', \&members_edit_handler, app => 1 );
@@ -407,6 +407,7 @@ sub convert_handler {
     }
 
     my $vars = {
+        usessl      => $LJ::USE_SSL,
         errors      => $errors,
         formdata    => $post || \%default_options,
         admin_user  => $remote->ljuser_display,
