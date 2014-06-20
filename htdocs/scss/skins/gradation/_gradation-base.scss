@@ -143,8 +143,9 @@ ul { list-style: circle; }
  */
 
 #content {
-    @include grid-row( nested-collapse );
-    padding-top: 1.5em;
+    @include grid-row();
+    margin-left: 0;
+    padding: 1.5em 0 0 ($column-gutter/2);
 }
 
 /**
