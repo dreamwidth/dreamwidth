@@ -1,0 +1,12 @@
+Return-Path: <${FROM_EMAIL}>
+Delivered-To: bradfitz@danga.com
+To: LJ LJ <${TEMPUSER}+${EMAILPIN}@${POSTDOMAIN}>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Message-Id: <0DA4840B-93E7-4B3C-A278-4D4D10A3EA1A@tangent.org>
+Content-Transfer-Encoding: 7bit
+From: ${FROM_EMAIL}
+Date: Mon, 1 Jan 2007 12:28:00 -0800
+X-Mailer: Apple Mail (2.752.2)
+Subject: Here's an entry emailed-in with a long subject (>100 characters) which will end up being truncated silently and let through instead of being rejected
+
+This entry has a long subject, which we should allow through not reject.

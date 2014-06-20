@@ -123,7 +123,7 @@ sub _process {
 
     # post!
     my $post_error;
-    LJ::Protocol::do_request( "postevent", $req, \$post_error, { noauth => 1 } );
+    LJ::Protocol::do_request( "postevent", $req, \$post_error, { noauth => 1, allow_truncated_subject => 1 } );
     return $self->send_error( LJ::Protocol::error_message( $post_error ) ) if $post_error;
 
     $self->dblog( s => $self->{subject} );

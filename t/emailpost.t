@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More tests => 19;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -34,13 +34,14 @@ local $LJ::T_ALLOW_EMAILPOST = 1; # override caps
 my $u = temp_user();
 my $emailpin = "emailpin123";
 
-# the brian aker example/bug report
-my $mime = get_mime("delspyes", {
+my $user_email_info = {
     TEMPUSER => $u->user,
     EMAILPIN => $emailpin,
     POSTDOMAIN => "post.$LJ::DOMAIN",
     FROM_EMAIL => 'foo@example.com',
-});
+};
+# the brian aker example/bug report
+my $mime = get_mime("delspyes", $user_email_info);
 ok($mime, "got delspyes MIME");
 
 my ( $email_post, $ok, $msg );
@@ -90,6 +91,14 @@ diag("Posted to: " . $entry->url);
 my $text = $entry->event_raw;
 ok($text !~ qr!http://krow\.livejournal\.com/ 434338\.html!, "no space in URLs.  delsp=yes working.");
 ok($text =~ qr!http://krow\.livejournal\.com/434338\.html!, "got correct URL in post, all together.");
+
+{
+    my $email_post = DW::EmailPost->get_handler(get_mime("long-subject", $user_email_info));
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted entry with long subject" );
+    my $entry = LJ::Entry->new( $u, jitemid => 2 );
+    is( $entry->subject_raw, "Here's an entry emailed-in with a long subject (>100 characters) which will end up being truncated s", "Entry subject truncated" );
+}
 
 sub get_mime {
     my ($filepart, $replace) = @_;
