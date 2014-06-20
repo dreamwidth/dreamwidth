@@ -148,7 +148,7 @@ td.highlight { background-color: #eeeeee; }
 
 /* MonthPage */
 
-#archive-month .navigation li, #archive-month .navigation a, #archive-month .navigation li.active {display: inline; }
+#archive-month .navigation li, #archive-month .navigation a {display: inline; }
 #archive-month .highlight-box {margin: auto; text-align: center;display: inline-block;}
 #archive-month {text-align: center;}
 #archive-month .month {text-align: left;}
