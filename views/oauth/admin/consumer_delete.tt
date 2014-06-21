@@ -1,0 +1,21 @@
+[%# oauth/admin/consumer_delete.tt
+
+Delete a consumer
+
+Authors:
+      Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2013 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = "Delete Consumer" -%]
+<p>Warning: This will delete this consumer and cannot be undone.</p>
+<p><strong>Name:</strong> [% consumer.name | html %]</p>
+<form method="POST" action="[% dw.create_url() %]">
+[% dw.form_auth %]
+<input type="submit" value="DELETE" />
+</form>
+

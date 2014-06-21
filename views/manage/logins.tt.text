@@ -1,6 +1,8 @@
 ;; -*- coding: utf-8 -*-
 .intro=This page shows all your currently logged in sessions on [[sitename]] as well as some of your prior login sessions. You can individually log out any logged in session.
 
+.note.oauth=You have authorized other sites to access your account data. You can manage these at the <a href="[[url]]">OAuth Authorizations</a> page.
+
 .loggedin.header=Currently Logged In Sessions
 
 .loggedin.header.user=Currently Logged In Sessions for [[user]]
@@ -22,6 +24,14 @@
 .loggedin.table.time=Login Time
 
 .loggedin.table.useragent=User Agent
+
+.oauth.header=Recently Active OAuth Authorizations
+
+.oauth.header.user=Recently Active OAuth Authorizations for [[user]]
+
+.oauth.table.time=Last Access Time
+
+.oauth.table.name=Name
 
 .prior.header=Prior Login Sessions
 

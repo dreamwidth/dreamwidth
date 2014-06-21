@@ -98,6 +98,9 @@ my %modules = (
                "Net::OpenID::Consumer" => {
                    opt => 'Required for OpenID consumer support.'
                },
+               "Net::OAuth" => {
+                   opt => 'Required for OAuth support.'
+               },
                "URI::URL" => { 'deb' => 'liburi-perl' },
                "HTML::Tagset" => { 'deb' => 'libhtml-tagset-perl' },
                "HTML::Parser" => { 'deb' => 'libhtml-parser-perl', },

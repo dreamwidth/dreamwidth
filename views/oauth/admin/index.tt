@@ -1,0 +1,38 @@
+[%# oauth/index.tt
+
+List all applications a user has authorized.
+
+Authors:
+      Andrea Nall <anall@andreanall.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[% sections.title = '.admin.link' | ml %]
+[% IF view_other %]
+<p>Viewing consumers for [% view_u.ljuser_display %].</p>
+[% END %]
+[% IF tokens.count == 0 %]
+You have no authorizations.
+[% ELSE %]
+<table>
+<thead>
+ <tr>
+  <th>Application</th>
+  <th>Created</th>
+ </tr>
+</thead>
+<tbody>
+ [% FOR token IN tokens %]
+<tr>
+ <td><a href="/admin/oauth/consumer/[% token.id %]">[% token.name | html %]</a></td>
+ <td>[% token.createtime | time_to_http %]</td>
+</tr>
+ [% END %]
+</tbody>
+</table>
+[% END %]
+[% IF can_create && ! view_other %]
+<p><a href="/admin/oauth/consumer/new">[ Create Consumer ]</a></p>
+[% END %]

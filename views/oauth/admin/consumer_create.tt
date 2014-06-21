@@ -1,0 +1,27 @@
+[%# oauth/admin/consumer_new.tt
+
+Create a new consumer.
+
+Authors:
+      Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2013 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = "Create Consumer" -%]
+[% UNLESS can_create %]
+You cannot create a new consumer.
+[% ELSE %]
+<form method="POST">
+[% dw.form_auth %]
+[% IF error %]
+<strong>Error: [% error %]</strong>
+[% END %]
+<p><label for="name">Name:</label><input name="name" id="name" value="[% name | html %]"/></p>
+<p><label for="website">Website:</label><input name="website" id="website" value="[% website | html %]"/></p>
+<p><input type="submit" value="Create"/></p>
+</form>
+[% END %]

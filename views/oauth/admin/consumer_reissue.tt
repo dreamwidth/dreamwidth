@@ -1,0 +1,28 @@
+[%# oauth/admin/consumer_regenerate.tt
+
+Regenerate the keys on a specific consumer
+
+Authors:
+      Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2013 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = "Regenerate Consumer Token" -%]
+[% IF done %]
+<p><strong>Name:</strong> [% token.name | html %]</p>
+<p><strong>Token:</strong> [% consumer.token | html %]</p>
+<p><strong>Secret:</strong> [% consumer.secret | html %]</p>
+<p><a href="/admin/oauth/consumer/[% consumer.id %]">[ Back ]</a></p>
+[% ELSE %]
+<p>Warning: This will unauthorize all current access tokens and create a brand new consumer token/secret pair. Your existing consumer token pair will no longer work.</p>
+<p><strong>Name:</strong> [% token.name | html %]</p>
+<form method="POST" action="[% dw.create_url() %]">
+[% dw.form_auth %]
+<input type="submit" value="Reissue" />
+</form>
+[% END %]
+

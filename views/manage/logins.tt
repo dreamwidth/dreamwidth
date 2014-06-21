@@ -14,6 +14,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- sections.title = '.title' | ml -%]
 
 <p>[% '.intro' | ml(sitename = site.nameshort) %]</p>
+[%- IF has_any_oauth %]
+<p>[% '.note.oauth' | ml( url="/oauth/" ) %]</p>
+[%- END %]
 
 [%- IF adminmode %]
 <form method='GET'>
@@ -62,6 +65,27 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </tr>
 [%- END %]
 </tbody></table><br />
+
+[%- IF oauth.size -%]
+[%- IF user -%]
+    <h1>[% '.oauth.header.user' | ml(user = user) %]</h1>
+[%- ELSE -%]
+    <h1>[% '.oauth.header' | ml %]</h1>
+[%- END -%]
+
+<table style="width: 100%"><thead><tr>
+    <th style="width: 30%">[% '.oauth.table.name' | ml %]</th>
+    <th>[% '.oauth.table.time' | ml %]</th>
+</tr></thead><tbody>
+[% FOREACH item = oauth %]
+<tr>
+    <td style="width: 30%"><a href="/oauth/token/[% item.id %]">[% item.name | html %]</a></td>
+    <td>[% item.time | html %]</td>
+</tr>
+[% END %]
+</tbody></table><br />
+
+[%- END -%]
 
 [%- IF user -%]
     <h1>[% '.prior.header.user' | ml(user = user) %]</h1>

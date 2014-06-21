@@ -571,6 +571,7 @@ sub validate {
                'pay_email' => 'email',
                'pay_uniq' => 'uniq',
                'support_user' => 'user',
+               'oauth_consumer' => 'user',
                'support_email' => 'email',
                'support_uniq' => 'uniq',
                'lostpassword' => 'user',
@@ -579,6 +580,7 @@ sub validate {
                'invite_email' => 'email',
                'noanon_ip' => 'ip',
                'spamreport' => 'user',
+               oauth_consumer => 'user',
                );
 
     while (my ($new, $existing) = splice(@map, 0, 2)) {

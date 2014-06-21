@@ -86,14 +86,33 @@ sub login_handler {
         }
     }
 
+    my $oauth_tokens = DW::OAuth::Access->tokens_for_user( $u );
+
+    my @oauth_data;
+
+    if ( scalar @$oauth_tokens ) {
+        DW::OAuth::Access->load_all_lastaccess( $oauth_tokens );
+        my $time_threshold = time() - 86400; # 24 hours
+        foreach my $token ( sort { $b->lastaccess <=> $a->lastaccess } grep { $_->lastaccess >= $time_threshold } @$oauth_tokens ) {
+            push @oauth_data, {
+                id   => $token->consumer->id,
+                name => $token->consumer->name,
+                time => LJ::time_to_http($token->lastaccess),
+            };
+        }
+    }
+
     my $vars = {
         %$rv,
         loggedin => \@login_data,
         prior => \@prior_data,
+
+        has_any_oauth => scalar( @$oauth_tokens ) ? 1 : 0,
+        oauth => \@oauth_data,
+
         adminmode => $adminmode ? 1 : 0,
         user => $user,
     };
-
 
     return DW::Template->render_template( 'manage/logins.tt', $vars );
 }

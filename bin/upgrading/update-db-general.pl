@@ -2002,6 +2002,49 @@ CREATE TABLE openid_endpoint (
 )
 EOC
 
+register_tablecreate("oauth_consumer", <<'EOC');
+CREATE TABLE oauth_consumer (
+    consumer_id int(10) UNSIGNED NOT NULL,
+    userid int(10) UNSIGNED NOT NULL,
+
+    communityid int(10) UNSIGNED NULL,
+
+    token VARCHAR(20) NOT NULL,
+    secret VARCHAR(50) NOT NULL,
+
+    name VARCHAR(255) NOT NULL DEFAULT '',
+    website VARCHAR(255) NOT NULL,
+
+    createtime INT UNSIGNED NOT NULL,
+    updatetime INT UNSIGNED NULL,
+    invalidatedtime INT UNSIGNED NULL,
+
+    approved ENUM('1','0') NOT NULL DEFAULT 1,
+    active ENUM('1','0') NOT NULL DEFAULT 1,
+
+    PRIMARY KEY (consumer_id),
+    UNIQUE KEY (token),
+    KEY (userid)
+)
+EOC
+
+register_tablecreate("oauth_access_token", <<'EOC');
+CREATE TABLE oauth_access_token (
+    consumer_id int(10) UNSIGNED NOT NULL,
+    userid int(10) UNSIGNED NOT NULL,
+
+    token VARCHAR(20) NULL,
+    secret VARCHAR(50) NULL,
+
+    createtime INT UNSIGNED NOT NULL,
+    lastaccess INT UNSIGNED,
+
+    PRIMARY KEY consumer_user (consumer_id, userid),
+    UNIQUE KEY (token),
+    KEY (userid)
+)
+EOC
+
 register_tablecreate("priv_packages", <<'EOC');
 CREATE TABLE priv_packages (
     pkgid int(10) unsigned NOT NULL auto_increment,
