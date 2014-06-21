@@ -706,9 +706,9 @@ select.select,
 
 /* MonthPage */
 
-#archive-month .navigation li, #archive-month .navigation a, #archive-month .navigation li.active {display: inline; }
+#archive-month .navigation li, #archive-month .navigation {display: inline; }
 
-#archive-month .navigation a, #archive-month .navigation li.active {
+#archive-month .navigation a {
     font-weight: bold;
     background-color: transparent;
     color: #888833;
