@@ -2528,6 +2528,12 @@ sub google_analytics {
 }
 
 
+# is there a suspend note?
+sub get_suspend_note {
+    my $u = $_[0];
+    return $u->prop( 'suspendmsg' );
+}
+
 # get/set post to community link visibility
 sub hide_join_post_link {
     my $u = $_[0];

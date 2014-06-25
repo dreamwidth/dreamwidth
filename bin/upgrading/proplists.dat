@@ -1246,6 +1246,14 @@ userproplist.stylesys:
   multihomed: 0
   prettyname: Style System to use
 
+userproplist.suspendmsg:
+  cldversion: 4
+  datatype: char
+  des: Internal notes, not shown to user
+  indexed: 0
+  multihomed: 0
+  prettyname: Sets message to be shown when running suspend command against this account
+
 userproplist.timeformat_24:
   cldversion: 4
   datatype: bool
