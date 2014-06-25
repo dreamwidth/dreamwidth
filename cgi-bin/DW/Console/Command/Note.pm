@@ -60,7 +60,7 @@ sub execute {
         }
     }
 
-    return $self->error( 'Invalid subcommand.' )
+    return $self->error( 'Invalid subcommand. Must be one of: add, remove.' )
         if $cmd && $cmd !~ /^(?:add|remove)$/;
 
     if ( $cmd eq 'add' ) {
