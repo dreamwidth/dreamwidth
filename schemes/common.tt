@@ -136,8 +136,8 @@ the table based way can be removed when the entire site is Foundation-based.
 [%- ELSE -%]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     <div class="row" id='account-links'>
-    <div class="columns show-for-medium-up medium-push-4 large-push-4 large-8 medium-8 small-12" role="navigation">
-    <a href="/login" class="button radius right" data-reveal-id="nav-login-form">Log In</a>
+    <div class="columns show-for-medium-up small-12" role="navigation">
+    <a href="/login" class="button radius" data-reveal-id="nav-login-form">Log In</a>
     <div id='nav-login-form' class="reveal-modal" data-reveal>
       <div class="row"><div class="columns">
       <form action='[% is_ssl ? site.ssl.root : site.root %]/login?ret=1' method='post' class='lj_login_form'>

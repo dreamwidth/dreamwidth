@@ -34,12 +34,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- END -%]
   [%- FOREACH role = roles_changed -%]
     <div class="alert-box success">[%-  role.user -%] - 
-      [%- IF role.added.size > 0 -%]
+      [%- IF role.added and role.added.size > 0 -%]
         [%- '.success.added' | ml( list = role.added.join( ", " ) ) -%]
       [%- END -%]
-      [%- IF role.added.size > 0 and role.removed.size > 0 -%]; [% END -%]
-      [%- IF role.removed.size > 0 -%]
+      [%- IF role.added and role.added.size > 0 and role.removed and role.removed.size > 0 -%]; [% END -%]
+      [%- IF role.removed and role.removed.size > 0 -%]
         [%- '.success.removed' | ml( list = role.removed.join( ", ") ) -%]
+      [%- END -%]
+      [%- IF role.purged -%]
+        [%- '.success.purged' | ml -%]
       [%- END -%]
     </div>
   [%- END -%]

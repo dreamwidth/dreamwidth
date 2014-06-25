@@ -171,7 +171,7 @@ sub handle_post {
     # try the rename and see if there are any errors
     $journal->rename( $tousername, user => LJ::get_remote(), token => $token, redirect => $redirect_journal, redirect_email => $other_opts{email}, %del_rel, errref => $errref );
 
-    return ( 1, success_ml( "/rename.tt.success", { from => $fromusername, to => $journal->user } ) ) unless @$errref;
+    return ( 1, DW::Controller::old_success_ml( "/rename.tt.success", { from => $fromusername, to => $journal->user } ) ) unless @$errref;
 
     # return the list of errors, because we want to print out other things as well...
     return ( 0, $errref );
@@ -235,7 +235,7 @@ sub handle_swap_post {
     my $errref = [];
     $journal->swap_usernames( $swapjournal, user => $opts{user}, tokens => $opts{tokens}, errref => $errref );
 
-    return ( 1, success_ml( "/rename/swap.tt.success", {
+    return ( 1, DW::Controller::old_success_ml( "/rename/swap.tt.success", {
             journal => $journal->ljuser_display,
             swapjournal => $swapjournal->ljuser_display,
     } ) ) unless @$errref;

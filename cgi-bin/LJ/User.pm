@@ -7401,7 +7401,7 @@ Returns the number of userpics the user can upload (base account type cap + bonu
 sub userpic_quota {
     my $u = shift or return undef;
     my $ct = $u->get_cap( 'userpics' );
-    $ct += $u->prop('bonus_icons') // 0
+    $ct += $u->prop('bonus_icons') || 0
         if $u->is_paid; # paid accounts get bonus icons
     return min( $ct, $LJ::USERPIC_MAXIMUM );
 }

@@ -58,7 +58,7 @@ sub need_res {
 }
 
 sub res_includes {
-    return $LJ::ACTIVE_RES_GROUP eq "foundation"
+    return ( $LJ::ACTIVE_RES_GROUP || "" ) eq "foundation"
                 ? LJ::res_includes_head()
                 : LJ::res_includes();
 }
@@ -68,7 +68,7 @@ sub final_head_html {
 }
 
 sub final_body_html {
-    return $LJ::ACTIVE_RES_GROUP eq "foundation"
+    return ( $LJ::ACTIVE_RES_GROUP || "" ) eq "foundation"
                 ? LJ::res_includes_body() . LJ::final_body_html()
                 : LJ::final_body_html();
 }

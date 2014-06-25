@@ -1,12 +1,19 @@
 .community-menu {
-  @include panel( darken( $background-color, 8% ) );
   font-size: .8rem;
 
-  label {
-    font-weight: bold;
-  }
+  form {
+    label,
+    input,
+    select {
+      margin-bottom: 0;
+    }
 
-  select {
-    padding-right: 1rem;
+    label {
+      font-weight: bold;
+    }
+
+    select {
+      padding-right: 1rem;
+    }
   }
 }

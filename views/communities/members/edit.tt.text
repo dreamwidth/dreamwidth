@@ -50,6 +50,8 @@ To manage your communities please visit [your community management page]([[commu
 
 .success.added=added: [[list]]
 
+.success.purged=removed from community
+
 .success.removed=removed: [[list]]
 
 .title=Edit Community Members

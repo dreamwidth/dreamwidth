@@ -65,7 +65,6 @@ $topbar-bg: #222;
 @media #{$topbar-media-query} {
     .main-nav {
         a {
-            text-decoration: none;
             display: block;
 
             &:hover {

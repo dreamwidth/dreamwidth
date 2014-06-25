@@ -75,6 +75,9 @@ sub mysqldate_to_time {
     return undef unless $string =~ /^(\d\d\d\d)-(\d\d)-(\d\d)(?: (\d\d):(\d\d)(?::(\d\d))?)?$/;
     my ($y, $mon, $d, $h, $min, $s) = ($1, $2, $3, $4, $5, $6);
 
+    # return early if we were given "0000-00-00"
+    return undef if "$y-$mon-$d" eq "0000-00-00";
+
     # these need to be set to zero if undefined, to avoid warnings
     $h   ||= 0;
     $min ||= 0;

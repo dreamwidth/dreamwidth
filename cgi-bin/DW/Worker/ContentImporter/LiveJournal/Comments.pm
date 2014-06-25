@@ -23,7 +23,7 @@ use Carp qw/ croak confess /;
 use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
-use XML::Parser;
+use DW::XML::Parser::Paranoid;
 use DW::Worker::ContentImporter::Local::Comments;
 
 # to save memory, we use arrays instead of hashes.
@@ -284,7 +284,7 @@ sub try_work {
         $server_next_id = undef;
 
         # now we want to XML parse this
-        my $parser = new XML::Parser(
+        my $parser = new DW::XML::Parser(
             Handlers => {
                 Start => $meta_handler,
                 Char  => $meta_content,
@@ -495,7 +495,7 @@ sub try_work {
             unless $content;
 
         # now we want to XML parse this
-        my $parser = new XML::Parser(
+        my $parser = new DW::XML::Parser(
             Handlers => {
                 Start => $body_handler,
                 Char  => $body_content,

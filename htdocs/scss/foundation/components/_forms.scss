@@ -241,7 +241,7 @@ $select-bg-color: #fafafa !default;
     padding-bottom: 0;
     text-align: center;
     line-height: rem-calc(34);
-    border: none;
+    border-left: none;
   }
 
 }
@@ -327,6 +327,7 @@ $select-bg-color: #fafafa !default;
       background:
         $select-bg-color
         url('data:image/svg+xml;base64, PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeD0iMHB4IiB5PSIwcHgiIHdpZHRoPSI2cHgiIGhlaWdodD0iM3B4IiB2aWV3Qm94PSIwIDAgNiAzIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA2IDMiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxwb2x5Z29uIHBvaW50cz0iNS45OTIsMCAyLjk5MiwzIC0wLjAwOCwwICIvPjwvc3ZnPg==') no-repeat;
+      color: $input-font-color;
       background-position-x: 97%;
       background-position-y: center;
       border: $input-border-width $input-border-style $input-border-color;
@@ -358,6 +359,7 @@ $select-bg-color: #fafafa !default;
 
     /* Adjust padding, alignment and radius if pre/post element is a button */
     .postfix.button { @include button-size(false,false,false); @include postfix(false, false, true); }
+    @media #{$small-only} { .postfix.button { border-left: 1px solid $input-prefix-border-color; } }
     .prefix.button { @include button-size(false,false,false); @include prefix(false, false, true); }
 
     .prefix.button.radius { @include radius(0); @include side-radius(left, $button-radius); }

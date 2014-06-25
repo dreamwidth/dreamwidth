@@ -4233,7 +4233,11 @@ function print_module_poweredby() {
 function print_module_pagesummary_comment_count(Comment comment) : int {
     var int count = 0;
     var Comment c;
-    var Comment[] replies_stack = $comment.replies;
+
+    # copy over to avoid munging the existing array for other callers
+    var Comment[] replies_stack = [];
+    push $replies_stack, $comment.replies;
+
     while (size $replies_stack) {
       $c = pop $replies_stack;
       push $replies_stack, $c.replies;
@@ -6123,13 +6127,16 @@ function EntryPage::print_comments (Comment[] cs) {
         push $cs_stack, reverse $c.replies;
 
         # close some divs when not increasing depth
-        if ($c.depth < $MAX_NESTED_DEPTH  and $prev_depth >= 0) {
+        if ($c.depth < $MAX_NESTED_DEPTH and $prev_depth >= 0) {
             for (var int i = $prev_depth; $i >= $c.depth; $i--) {
                 "</div>\n";
             }
         }
 
-        $prev_depth = $c.depth;
+        if ($c.depth < $MAX_NESTED_DEPTH) {
+            $prev_depth = $c.depth;
+        }
+
         if ($first_depth < 0) {
             $first_depth = $c.depth;
         }
@@ -6155,7 +6162,7 @@ function EntryPage::print_comments (Comment[] cs) {
         }
     }
 
-    if ($c.depth < $MAX_NESTED_DEPTH) {
+    if ($c.depth <= $MAX_NESTED_DEPTH) {
         # close any remaining divs
         for (var int i = $prev_depth; $i >= $first_depth; $i--) {
             "</div>\n";

@@ -642,13 +642,11 @@ sub _auth {
         my $u = LJ::load_user( $auth{username} );
 
         my $ok;
-        if ( $auth{response} ) {
-            # verify entered password, if it is present
-            $ok = LJ::challenge_check_login( $u, $auth{chal}, $auth{response} );
-        } else {
-            # js disabled, fallback to plaintext
-            $ok = LJ::auth_okay( $u, $auth{password} );
-        }
+        my $hashed_password = $auth{response} ||
+                                # js disabled, fallback to plaintext
+                                Digest::MD5::md5_hex($auth{chal} . Digest::MD5::md5_hex($auth{password}));
+        # verify entered password, if it is present
+        $ok = LJ::challenge_check_login( $u, $auth{chal}, $hashed_password );
 
         if ( $ok ) {
             $flags->{noauth} = 1;

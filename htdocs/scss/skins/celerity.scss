@@ -14,6 +14,7 @@
 $_dark-olive-green:  #999966;
 $_very-dark-olive:   darken($_dark-olive-green, 10%);// try to match visual impact of the top bar
                                                      // which is $_dark-olive-green, but heavier to the eye
+$_bright-olive-green: #888833; // a little brighter than the dark olive green, to attract the eye
 $_light-olive-green: #ddddaa;
 
 $_white:             #fff;
@@ -26,7 +27,7 @@ $_off-black:         #222211;
 // color assignment
 $background-color:   $_white;
 $text-color:         $_off-black;
-$link-color:         $_dark-olive-green;
+$link-color:         $_bright-olive-green;
 
 $inactive-color:     $_dark-gray;
 
@@ -87,6 +88,11 @@ $input-prefix-border-color:             $input-border-color;
 // panel
 $panel-bg:                              darken( $body-bg, 5% );
 
+// reveal modal
+$reveal-modal-bg:                       $panel-bg;
+$reveal-border-color:                   $form-border-color;
+$reveal-close-color:                    $link-color;
+
 // sub-nav
 $sub-nav-font-color:	$inactive-color;
 
@@ -96,7 +102,7 @@ $pagination-link-unavailable-font-color:	$inactive-color;
 
 // tables
 $table-bg:              $form-bg-color;
-$table-even-row-bg:     $background-color;
+$table-even-row-bg:     $panel-bg;
 $table-border-color:    $border-color;
 $table-head-bg:         $primary-color;
 $table-head-font-color: $primary-text-color;
@@ -207,6 +213,7 @@ footer { border-top: 4px double $header-image-color;
 
 #content {
     @include grid-row( nest-collapse );
+    max-width: $row-width;
 }
 
 @import "skins/page-layout-hacks";

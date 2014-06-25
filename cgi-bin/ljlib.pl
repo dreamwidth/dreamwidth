@@ -959,7 +959,8 @@ sub start_request
             'js/foundation/vendor/custom.modernizr.js',
             'js/foundation/foundation/foundation.js',
             'js/foundation/vendor/fastclick.js',
-            'js/foundation/foundation/foundation.topbar.js'
+            'js/foundation/foundation/foundation.topbar.js',
+            'js/dw/dw-core.js'
         );
 
         LJ::need_res( { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
@@ -1006,8 +1007,7 @@ sub start_request
                             stc/contextualhover.css
                             ));
 
-            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'jquery' },
-                qw(
+            my @ctx_popup_libraries = qw(
                     js/jquery/jquery.ui.core.js
                     js/jquery/jquery.ui.widget.js
 
@@ -1021,7 +1021,10 @@ sub start_request
                     js/jquery.hoverIntent.js
                     js/jquery.contextualhover.js
                     stc/jquery.contextualhover.css
-                ));
+                );
+
+            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'jquery' }, @ctx_popup_libraries );
+            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'foundation' }, @ctx_popup_libraries );
         }
 
         # development JS

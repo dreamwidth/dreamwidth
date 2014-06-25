@@ -15,6 +15,28 @@ $nav-small-screen-header-height: 3em;
 
     }
 
+    .top-bar {
+        &.expanded {
+            z-index: 99;
+        }
+
+        .has-dropdown a, .toggle-topbar a {
+            text-decoration: none;
+        }
+    }
+
+    /* On small screens, this shows in the left corner of the menu bar so an account links
+    modal can be accessed */
+    #account-link-access, #login-form-access {
+        position: absolute;
+        left: 1em;
+        top:  -1 * $topbar-height;
+
+        &:visited {
+            color: $link-color !important;
+        }
+    }
+
     @media #{$small-only} {
         /* Adjustments to the static account links display in the masthead */
 
@@ -33,7 +55,7 @@ $nav-small-screen-header-height: 3em;
               $base-style:true,
               // Sets reveal width Default: $reveal-default-width or 80%
               $width:$reveal-default-width
-            );        
+            );
             @include reveal-modal-style(
               // Sets background color of reveal modal. Default: $reveal-modal-bg or #fff
               $bg:$reveal-modal-bg,
@@ -50,22 +72,22 @@ $nav-small-screen-header-height: 3em;
               // Default: $reveal-position-top or 50px
               $top-offset:$reveal-position-top
             );
-            
+
             .close-reveal-modal {
               @include reveal-close(
                 $color:$reveal-close-color
               );
             }
-            
-            .logout.button { display: block; margin-top: .5em; }            
+
+            .logout.button { display: block; margin-top: .5em; }
+            ul { list-style: none; margin-left: 0; }
         }
     }
 
-    
     @media #{$small} {
       #account-links {
         top: $accountlinks-offset + 1em;
-        
+
         #account-links-text {
             .close-reveal-modal { display: none; }
         }
@@ -94,13 +116,13 @@ $nav-small-screen-header-height: 3em;
                 content: "";
                 margin-left: 0;
             }
-        }        
+        }
 
         li.before-break:after {
             content: "";
             margin-left: 0;
         }
-        
+
         li.after-break {
             clear: left;
         }
@@ -118,16 +140,15 @@ $nav-small-screen-header-height: 3em;
             margin-bottom: 0;
         }
 
-         label.inline {
+        label.inline {
             text-align: right;
         }
-        
+
         .logout.button {
-            padding: .15em;
+            padding: .15em .5em;
             margin: 0em;
-            font-size: 0.6875rem;
         }
-        
+
       }
 
     #account-links-userpic {
@@ -144,10 +165,6 @@ $nav-small-screen-header-height: 3em;
         text-align: $side;
     }
 
-    #nav-login-form, #account-links-text {
-        font-size: emCalc(14px);
-    }
-
     #nav-login-form {
         line-height: 1;
 
@@ -161,7 +178,7 @@ $nav-small-screen-header-height: 3em;
     }
 
     }
-    
+
     #header-search {
         position: absolute;
         top: $header-height + $search-offset;
@@ -177,10 +194,14 @@ $nav-small-screen-header-height: 3em;
     .nav-search {
         input, select {
             margin: 0;
-            padding: 0;
+            padding: 1px .25em;
             height: auto;
             width: auto;
             display: inline-block;
+            font-size: 0.875rem;
+        }
+        input.button {
+            padding: 0 .5em;
         }
     }
 
@@ -217,13 +238,6 @@ $nav-small-screen-header-height: 3em;
         }
     }
 
-
-    .top-bar {
-        a {
-            text-decoration: none;
-        }
-    }
-
     @if $nav-orientation == vertical {
         .main-nav {
             position: absolute;
@@ -249,10 +263,6 @@ $nav-small-screen-header-height: 3em;
                 ul {
                     margin: 0;
                     padding: 0;
-                }
-
-                .subnav a {
-                    padding-left: 1em;
                 }
 
                 .subnav a,
@@ -291,16 +301,19 @@ $nav-small-screen-header-height: 3em;
                 top: $header-height;
             }
         }
-        
-        /* On small screens, this shows in the left corner of the menu bar so an account links
-        modal can be accessed */
-        #account-link-access, #login-form-access {
-            position: absolute;
-            left: 1em;
-            top: -2em;
-            
-            &:visited {
-                color: $link-color !important;
+
+        // shrink search form on smaller screen sizes
+        @media #{$small-up} and (max-width:57em) {
+            .nav-search input, .nav-search select { max-width: 8em; }
+        }
+
+        @media #{$small-up} and (max-width:50em) {
+            .nav-search input, .nav-search select { max-width: 6em; }
+
+            .top-bar-section .has-dropdown a {
+                padding-right: $topbar-link-padding !important;
+
+                &:after { display: none; }
             }
         }
     }

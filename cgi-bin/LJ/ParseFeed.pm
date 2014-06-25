@@ -14,8 +14,8 @@
 package LJ::ParseFeed;
 use strict;
 
-use XML::RSS;
-use XML::Parser;
+use DW::XML::RSS;
+use DW::XML::Parser;
 
 
 # <LJFUNC>
@@ -54,7 +54,7 @@ sub parse_feed
 
     if ( (defined $type && $type eq 'atom') || $content =~ m!\<feed!) {
         # try treating it as an atom feed
-        $parser = new XML::Parser( Style => 'Stream',
+        $parser = new DW::XML::Parser( Style => 'Stream',
                                    Namespaces => 1,
                                    Pkg => 'LJ::ParseFeed::Atom' );
         return ("", "failed to create XML parser") unless $parser;
@@ -77,7 +77,7 @@ sub parse_feed
     }
 
     # try parsing it as RSS
-    $parser = new XML::RSS;
+    $parser = new DW::XML::RSS;
     return ("", "failed to create RSS parser") unless $parser;
 
     # custom LJ/DW namespaces
