@@ -21,8 +21,6 @@ package DW::Console::Command::Note;
 use strict;
 
 use base qw/ LJ::Console::Command /;
-use Carp qw/ croak /;
-use List::Util qw/ max /;
 
 sub cmd { 'note' }
 sub desc { 'Sets and clears notes that will display when you try to suspend an account. Intended for the antispam team to make notes on accounts frequently reported for spam that are actually legit.' }
@@ -69,7 +67,7 @@ sub execute {
         $self->print( $u->user . "'s note added: " . $note );
 
     } elsif ( $cmd eq 'remove' ) {
-        $u->set_prop( "suspendmsg", undef );
+        $u->clear_prop( "suspendmsg" );
         $self->print( $u->user . "'s note cleared." );
     }
 
