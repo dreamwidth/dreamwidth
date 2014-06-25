@@ -928,3 +928,32 @@ div#cf-edit select {
 #qrformdiv table {
     border: 1px solid #888;
 }
+
+/* MonthPage */
+
+#archive-month .navigation li, #archive-month .navigation a {display: inline; }
+
+#archive-month .navigation a, #archive-month .navigation {
+    font-weight: bold;
+    background-color: transparent;
+    color: #CCCC99;
+    text-decoration: underline;
+}
+
+#archive-month .navigation a:visited {
+    color: #999966;
+}
+#archive-month .navigation a:hover,
+#archive-month .navigation a:active {
+    text-decoration: none;
+}
+
+#archive-month .highlight-box {margin: auto; text-align: center;display: inline-block;}
+#archive-month {text-align: center;}
+#archive-month .month {text-align: left;}
+#archive-month h3.entry-title {display: inline; font-size:1em;font-weight: normal;}
+
+#archive-month .entry-title, #archive-month .access-filter, #archive-month .poster {margin-left:1em;}
+#archive-month .empty {margin: 0;}
+#archive-month .datetime {font-style: italic;}
+#archive-month .tag li {display: inline; list-style:none;}
