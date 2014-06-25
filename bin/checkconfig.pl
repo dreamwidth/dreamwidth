@@ -268,6 +268,9 @@ my %modules = (
                    deb => 'libimage-exiftool-perl',
                },
                "Net::SSL" => { ver => "2.85" },
+               "MIME::Base64::URLSafe" => {
+                   deb => 'libmime-base64-urlsafe-perl',
+               },
               );
 
 
