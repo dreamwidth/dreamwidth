@@ -35,6 +35,7 @@ body<=
     $ret .= LJ::html_submit( value => "View" );
     $ret .= LJ::form_auth();
     $ret .= "</form>";
+    $ret .= "<em>To be able to save changes, you need the siteadmin:* or siteadmin:propedit privs.</em>" unless $can_save;
     $ret .= "<?hr?>";
 
     if ( LJ::did_post() && LJ::check_referer('/admin/propedit.bml') ) {
