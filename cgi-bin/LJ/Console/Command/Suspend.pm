@@ -118,6 +118,14 @@ sub execute {
             next;
         }
 
+        if ( $u->get_suspend_note && $confirmed ne "confirm" ) {
+            $self->error( "One or more accounts have suspend notes:" );
+            $self->error( "   " . $u->get_suspend_note ) foreach @users;
+            $self->error( "To actually confirm this action, please do this again:" );
+            $self->error( "   suspend $user \"$reason\" confirm" );
+            next;
+        }
+
         my $err;
         $self->error($err)
             unless $u->set_suspended($remote, $reason, \$err);
