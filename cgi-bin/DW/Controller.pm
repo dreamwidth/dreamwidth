@@ -51,7 +51,7 @@ sub error_ml {
 sub success_ml {
     return DW::Template->render_template(
         'success.tt', {
-            scope => $_[0],
+            scope => "/" . $_[0],
             message_arguments => $_[1],
             links => $_[2],
     });
