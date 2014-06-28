@@ -86,9 +86,11 @@ my %host_path_match = (
 
     "archive.org"           => qr!^/embed/!,
 
-    "video.yandex.ru"       => qr!^/iframe/[\-\w]+/[a-z0-9]\.\d{4}/?$!, #don't think the last part can include caps; amend if necessary
+    "video.yandex.ru"       => qr!^/iframe/[\-\w]+/[a-z0-9]+\.\d{4}/?$!, #don't think the last part can include caps; amend if necessary
 
     "episodecalendar.com"   => qr!^/icalendar/!,
+
+    "www.flickr.com"        => qr!/player/$!,
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
