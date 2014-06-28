@@ -83,6 +83,7 @@ _c?>
         $title = BML::ml( ".top10ip.title2", { count => $count} );
 
         unless (@$res) {
+            $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; <?_ml .nav.frontpage _ml?></a> ] p?>";
             $body .= "<?_ml .view.noreports _ml?>";
             return undef;
         }
@@ -100,6 +101,7 @@ _c?>
         $title = BML::ml( ".top10user.title2", { count => $count} );
 
         unless (@$res) {
+            $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; <?_ml .nav.frontpage _ml?></a> ] p?>";
             $body .= "<?_ml .view.noreports _ml?>";
             return undef;
         }
@@ -117,6 +119,7 @@ _c?>
         $title = BML::ml( ".top10user.title2", { extratext =>, $extratitle, count => $count} );
 
         unless (@$res) {
+            $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; <?_ml .nav.frontpage _ml?></a> ] p?>";
             $body .= "<?_ml .view.noreports _ml?>";
             return undef;
         }
@@ -143,6 +146,7 @@ _c?>
         $title = BML::ml(".tlasthrs.title", { hours => $hours } ) . $extratitle;
 
         unless (@$res) {
+            $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; <?_ml .nav.frontpage _ml?></a> ] p?>";
             $body .= "<?_ml .view.noreports _ml?>";
             return undef;
         }
@@ -257,6 +261,7 @@ _c?>
 
         unless (@$res) {
             $body .= "<?_ml .view.noreports _ml?>";
+            $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; <?_ml .nav.frontpage _ml?></a> ] p?>";
             return undef;
         }
         $body .= '<table summary="">';
