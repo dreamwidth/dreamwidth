@@ -260,8 +260,8 @@ _c?>
         }
 
         unless (@$res) {
-            $body .= "<?_ml .view.noreports _ml?>";
             $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; <?_ml .nav.frontpage _ml?></a> ] p?>";
+            $body .= "<?_ml .view.noreports _ml?>";
             return undef;
         }
         $body .= '<table summary="">';
