@@ -13,7 +13,7 @@ package DW::FormErrors;
 
 use strict;
 
-
+use DW::Request;
 use Hash::MultiValue;
 
 =head1 NAME
