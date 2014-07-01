@@ -18,12 +18,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9; # TODO is it always 9?
+use Test::More tests => 9; # 5 + total # of keys in sampletrans.dat
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
 use LJ::LangDatFile;
-use Test::More tests => 9;  # 5 + total # of keys in sampletrans.dat
 
 my $trans = LJ::LangDatFile->new( "$ENV{LJHOME}/t/data/sampletrans.dat" );
 ok( $trans, 'Constructed an LJ::LangDatFile translation object' );
