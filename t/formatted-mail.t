@@ -17,7 +17,7 @@ is( $html, qq{<p>Dear foobarbaz,</p>
 
 <p>Go to <a href="http://www.dreamwidth.org">Dreamwidth</a>.</p>
 
-<p>Regards,
+<p>Regards, <br />
 $LJ::SITENAMESHORT Team</p>
 
 <p>$LJ::SITEROOT</p>
@@ -31,7 +31,7 @@ Stuff's [happening].
 
 Go to Dreamwidth (http://www.dreamwidth.org).
 
-Regards,
+Regards,  
 $LJ::SITENAMESHORT Team
 
 $LJ::SITEROOT}
