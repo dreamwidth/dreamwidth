@@ -1043,19 +1043,18 @@ sub fetchTableInfo
         $sth->execute;
         my @pris;
 
+        my %userid_primary_columns = map { $_ => 1 } qw( journalid userid commid rcptid );
         while (my $r = $sth->fetchrow_hashref) {
             push @pris, $r->{'Column_name'} if $r->{'Key_name'} eq "PRIMARY";
             next unless $r->{'Seq_in_index'} == 1;
             next if $idx;
-            if ($r->{'Column_name'} eq "journalid" ||
-                $r->{'Column_name'} eq "userid" ||
-                $r->{'Column_name'} eq "commid") {
+            if ( $userid_primary_columns{$r->{'Column_name'}} ) {
                 $idx = $r->{'Key_name'};
                 $idxcol = $r->{'Column_name'};
             }
         }
 
-        shift @pris if @pris && ($pris[0] eq "journalid" || $pris[0] eq "userid");
+        shift @pris if @pris && $userid_primary_columns{$pris[0]};
         my $verifykey = join(",", @pris);
 
         die "can't find index for table $table\n" unless $idx;
