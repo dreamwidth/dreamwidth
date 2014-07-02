@@ -3,7 +3,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2013-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -48,10 +48,20 @@ sub moderated_entry {
     return DW::Entry::Moderated->new( $self->comm, $self->arg2 );
 }
 
+sub moderated_entryid {
+    my $self = $_[0];
+    return $self->arg2;
+}
+
 sub as_html {
     my $self = shift;
-    return sprintf( "A new moderated entry <a href='%s'>has been submitted</a> to %s.",
-                    $self->comm->moderation_queue_url( $self->moderated_entry->id ), $self->comm->ljuser_display );
+    my $moderated_entry = $self->moderated_entry;
+    if ( $moderated_entry ) {
+        return sprintf( "A new moderated entry <a href='%s'>has been submitted</a> to %s.",
+                        $self->comm->moderation_queue_url( $moderated_entry->id ), $self->comm->ljuser_display );
+    } else {
+        return sprintf( "A new moderated entry has been submitted to %s.", $self->comm->ljuser_display );
+    }
 }
 
 sub as_html_actions {
@@ -61,7 +71,7 @@ sub as_html_actions {
     my $comm = $self->comm;
 
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='" . $comm->moderation_queue_url( $moderated_entry->id ) . "'>View Entry</a> |";
+    $ret .= " <a href='" . $comm->moderation_queue_url( $moderated_entry->id ) . "'>View Entry</a> |" if $moderated_entry;
     $ret .= " <a href='" . $comm->moderation_queue_url. "'>View Moderation Queue</a>";
     $ret .= "</div>";
 
@@ -73,18 +83,26 @@ sub content {
 
     my $moderated_entry = $self->moderated_entry;
 
-    my $ret = "<ul>";
-    $ret .= "<li>Poster: " . $moderated_entry->poster->ljuser_display . "</li>",
-    $ret .= "<li>Subject: " . $moderated_entry->subject . "</li>";
-    $ret .= "</ul>";
+    my $ret = "";
+    if ( $moderated_entry ) {
+        $ret .= "<ul>";
+        $ret .= "<li>Poster: " . $moderated_entry->poster->ljuser_display . "</li>",
+        $ret .= "<li>Subject: " . $moderated_entry->subject . "</li>";
+        $ret .= "</ul>";
+    } else {
+        $ret = sprintf( "This entry has been handled.", $self->moderated_entryid );
+    }
 
     return $ret . $self->as_html_actions;
 }
 
 sub as_string {
     my $self = shift;
+    my $moderated_entry = $self->moderated_entry;
     return sprintf( "A new moderated entry has been submitted to %s (%s).",
-                    $self->comm->username, $self->comm->moderation_queue_url( $self->moderated_entry->id ) );
+                    $self->comm->username,
+                    $self->moderated_entry ? $self->comm->moderation_queue_url( $self->moderated_entry->id )
+                                           : $self->moderated_entryid );
 }
 
 my @_ml_strings_en = (
@@ -114,17 +132,25 @@ sub _as_email {
     # Precache text
     LJ::Lang::get_text_multi( $lang, undef, \@_ml_strings_en );
 
+    my $links = {
+        'esn.moderated_submission.queue'      => [ 2, $comm->moderation_queue_url ],
+    };
+    $links->{'esn.moderated_submission.entry'} = [ 1, $comm->moderation_queue_url( $moderated_entry->id ) ]
+        if $moderated_entry;
+
     my $format_username = sub { return $is_html ? $_[0]->ljuser_display : $_[0]->display_username };
-    return LJ::Lang::get_text( $lang, 'esn.moderated_submission.body2', undef, {
+    my $text = $moderated_entry
+        ? LJ::Lang::get_text( $lang, 'esn.moderated_submission.body2', undef, {
                 user        => $format_username->( $moderated_entry->poster ),
                 community   => $format_username->( $self->comm ),
                 subject     => $moderated_entry->subject,
-    } ) . $self->format_options( $is_html, $lang, {},
-        {
-            'esn.moderated_submission.entry'    => [ 1, $comm->moderation_queue_url( $moderated_entry->id ) ],
-            'esn.moderated_submission.queue'    => [ 2, $comm->moderation_queue_url ],
-        }
-    );
+          } )
+        : LJ::Lang::get_text( $lang, 'esn.moderated_submission.handled.body', undef, {
+                community   => $format_username->( $self->comm ),
+                entryid     => $self->moderated_entryid,
+          });
+
+    return $text . $self->format_options( $is_html, $lang, {}, $links );
 }
 
 sub as_email_string {
