@@ -1319,14 +1319,6 @@ sub postevent
         $uowner->preload_props( @owner_props );
     }
 
-    # are they trying to post back in time?
-    if ($posterid == $ownerid && !$u->is_syndicated &&
-        !$time_was_faked && $u->{'newesteventtime'} &&
-        $eventtime lt $u->{'newesteventtime'} &&
-        !$req->{'props'}->{'opt_backdated'}) {
-        return fail($err, 153, "You have an entry which was posted at $u->{'newesteventtime'}, but you're trying to post an entry before this. Please check the date and time of both entries. If the other entry is set in the future on purpose, edit that entry to use the \"Don't show on Reading Pages\" option. Otherwise, use the \"Don't show on Reading Pages\" option for this entry instead.");
-    }
-
     my $qallowmask = $req->{'allowmask'}+0;
     my $security = "public";
     my $uselogsec = 0;

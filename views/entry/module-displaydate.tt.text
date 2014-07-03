@@ -3,7 +3,7 @@
 
 .label.autoupdate=Use the time when entry is posted
 
-.label.dateoutoforder=Don't show on Reading Pages (allows dating out of order)
+.label.dateoutoforder2=Don't show on Reading Pages
 
 .label.sticky=Make sticky (future option?)
 
