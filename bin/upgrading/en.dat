@@ -685,7 +685,7 @@ entryform.backdated=Entry is Backdated:
 
 entryform.backdated2=Backdate &amp; exclude from all Friends Pages
 
-entryform.backdated3=Don't show on Reading Pages (allows dating out of order)
+entryform.backdated4=Don't show on Reading Pages
 
 entryform.comment.disable=Disable comments?
 

@@ -1522,7 +1522,7 @@ logproplist.interface:
 logproplist.opt_backdated:
   datatype: bool
   des: Set to true if this item shouldn't show up on people's friends lists (because it occurred in the past)
-  prettyname: Back-dated
+  prettyname: Don't Show on Reading Pages
   sortorder: 35
   ownership: user
 

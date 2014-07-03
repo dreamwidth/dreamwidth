@@ -1416,7 +1416,7 @@ sub entry_form {
                     'name' => "prop_opt_backdated", "value" => 1,
                     'selected' => $opts->{'prop_opt_backdated'},
                     'tabindex' => $tabindex->() });
-            $out .= "<label for='prop_opt_backdated' class='right'>" . BML::ml('entryform.backdated3') . "</label>\n";
+            $out .= "<label for='prop_opt_backdated' class='right'>" . BML::ml('entryform.backdated4') . "</label>\n";
             $out .= LJ::help_icon_html("backdate", "", "") . "\n";
             $out .= "</span><!-- end #modifydate -->\n";
             $out .= "</p>\n";
