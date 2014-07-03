@@ -1829,6 +1829,87 @@ set image_background_page_repeat = "repeat";
 set image_background_page_url = "commons/dreamscape.jpg";
 
 
+#NEWLAYER: ciel/driedflowers
+layerinfo type = "theme";
+layerinfo name = "Dried Flowers";
+layerinfo redist_uniq = "ciel/driedflowers";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#90926a";
+set color_page_border = "#90926a";
+set color_page_link = "#482d36";
+set color_page_link_active = "#482d36";
+set color_page_link_hover = "#776267";
+set color_page_link_visited = "#482d36";
+set color_page_subtitle = "#776267";
+set color_page_text = "#000";
+set color_page_title = "#482d36";
+set color_header_background = "#90926a";
+set color_footer_background = "#b4ba8e";
+set color_footer_link = "#482d36";
+set color_footer_link_active = "#482d36";
+set color_footer_link_hover = "#776267";
+set color_footer_link_visited = "#482d36";
+set color_calendar_entryday_background = "#90926a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#b4ba8e";
+set color_entry_border = "#90926a";
+set color_entry_interaction_links = "#c9a599";
+set color_entry_interaction_links_active = "#c9a599";
+set color_entry_interaction_links_hover = "#b4ba8e";
+set color_entry_interaction_links_visited = "#c9a599";
+set color_entry_link = "#482d36";
+set color_entry_link_active = "#482d36";
+set color_entry_link_hover = "#776267";
+set color_entry_link_visited = "#482d36";
+set color_entry_management_links_active = "#c9a599";
+set color_entry_management_links_hover = "#b4ba8e";
+set color_entry_management_links_visited = "#c9a599";
+set color_entry_text = "#000";
+set color_entry_title = "#482d36";
+set color_entry_title_background = "#90926a";
+set color_comment_title = "#482d36";
+set color_comment_title_background = "#90926a";
+set color_interaction_links_background = "#776267";
+set color_management_links_background = "#482d36";
+set color_management_links = "#c9a599";
+set color_userpic_border = "#482d36";
+set color_userpic_border_alt = "#482d36";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b4ba8e";
+set color_module_border = "#90926a";
+set color_module_link = "#482d36";
+set color_module_link_active = "#482d36";
+set color_module_link_hover = "#776267";
+set color_module_link_visited = "#482d36";
+set color_module_text = "#000";
+set color_module_title = "#482d36";
+set color_module_title_background = "#90926a";
+set color_navlinks_link = "#c9a599";
+set color_navlinks_link_active = "#c9a599";
+set color_navlinks_link_active_background = "#776267";
+set color_navlinks_link_background = "#776267";
+set color_navlinks_link_hover = "#482d36";
+set color_navlinks_link_hover_background = "#b4ba8e";
+set color_navlinks_link_visited = "#c9a599";
+set color_navlinks_link_visited_background = "#776267";
+
+
 #NEWLAYER: ciel/dune
 layerinfo type = "theme";
 layerinfo name = "Dune";
@@ -2945,6 +3026,87 @@ set font_management = "'Palatino Linotype', Georgia, Palatino";
 set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
 set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
+
+
+#NEWLAYER: ciel/marbleiv
+layerinfo type = "theme";
+layerinfo name = "Marble IV";
+layerinfo redist_uniq = "ciel/marbleiv";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d2cdc7";
+set color_page_border = "#d2cdc7";
+set color_page_link = "#5e6460";
+set color_page_link_active = "#5e6460";
+set color_page_link_hover = "#818a8f";
+set color_page_link_visited = "#5e6460";
+set color_page_subtitle = "#818a8f";
+set color_page_text = "#101413";
+set color_page_title = "#101413";
+set color_header_background = "#d2cdc7";
+set color_footer_background = "#233535";
+set color_footer_link = "#5e6460";
+set color_footer_link_active = "#5e6460";
+set color_footer_link_hover = "#818a8f";
+set color_footer_link_visited = "#5e6460";
+set color_calendar_entryday_background = "#101413";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#233535";
+set color_entry_border = "#d2cdc7";
+set color_entry_interaction_links = "#233535";
+set color_entry_interaction_links_active = "#233535";
+set color_entry_interaction_links_hover = "#101413";
+set color_entry_interaction_links_visited = "#233535";
+set color_entry_link = "#5e6460";
+set color_entry_link_active = "#5e6460";
+set color_entry_link_hover = "#818a8f";
+set color_entry_link_visited = "#5e6460";
+set color_entry_management_links_active = "#101413";
+set color_entry_management_links_hover = "#233535";
+set color_entry_management_links_visited = "#101413";
+set color_entry_text = "#d2cdc7";
+set color_entry_title = "818a8f";
+set color_entry_title_background = "#101413";
+set color_comment_title = "818a8f";
+set color_comment_title_background = "#101413";
+set color_interaction_links_background = "#818a8f";
+set color_management_links_background = "#5e6460";
+set color_management_links = "#101413";
+set color_userpic_border = "#818a8f";
+set color_userpic_border_alt = "#818a8f";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#233535";
+set color_module_border = "#d2cdc7";
+set color_module_link = "#5e6460";
+set color_module_link_active = "#5e6460";
+set color_module_link_hover = "#818a8f";
+set color_module_link_visited = "#5e6460";
+set color_module_text = "#d2cdc7";
+set color_module_title = "818a8f";
+set color_module_title_background = "#101413";
+set color_navlinks_link = "#d2cdc7";
+set color_navlinks_link_active = "#d2cdc7";
+set color_navlinks_link_active_background = "#101413";
+set color_navlinks_link_background = "#101413";
+set color_navlinks_link_hover = "#233535";
+set color_navlinks_link_hover_background = "#d2cdc7";
+set color_navlinks_link_visited = "#d2cdc7";
+set color_navlinks_link_visited_background = "#101413";
 
 
 #NEWLAYER: ciel/marrythenight
@@ -4114,6 +4276,87 @@ set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 
 
+#NEWLAYER: ciel/quasar
+layerinfo type = "theme";
+layerinfo name = "Quasar";
+layerinfo redist_uniq = "ciel/quasar";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#000";
+set color_page_link = "#a60a43";
+set color_page_link_active = "#a60a43";
+set color_page_link_hover = "#db0d5f";
+set color_page_link_visited = "#a60a43";
+set color_page_subtitle = "#6e0e39";
+set color_page_text = "#e0bea5";
+set color_page_title = "e0bea5";
+set color_header_background = "#000";
+set color_footer_background = "#1a1032";
+set color_footer_link = "#a60a43";
+set color_footer_link_active = "#a60a43";
+set color_footer_link_hover = "#db0d5f";
+set color_footer_link_visited = "#a60a43";
+set color_calendar_entryday_background = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#1a1032";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#db0d5f";
+set color_entry_interaction_links_active = "#db0d5f";
+set color_entry_interaction_links_hover = "#e0bea5";
+set color_entry_interaction_links_visited = "#db0d5f";
+set color_entry_link = "#a60a43";
+set color_entry_link_active = "#a60a43";
+set color_entry_link_hover = "#db0d5f";
+set color_entry_link_visited = "#a60a43";
+set color_entry_management_links_active = "#db0d5f";
+set color_entry_management_links_hover = "#e0bea5";
+set color_entry_management_links_visited = "#db0d5f";
+set color_entry_text = "#e0bea5";
+set color_entry_title = "#e0bea5";
+set color_entry_title_background = "#401435";
+set color_comment_title = "#e0bea5";
+set color_comment_title_background = "#401435";
+set color_interaction_links_background = "#6e0e39";
+set color_management_links = "#db0d5f";
+set color_management_links_background = "#401435";
+set color_userpic_border = "#db0d5f";
+set color_userpic_border_alt = "#db0d5f";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#1a1032";
+set color_module_border = "#000";
+set color_module_link = "#a60a43";
+set color_module_link_active = "#a60a43";
+set color_module_link_hover = "#db0d5f";
+set color_module_link_visited = "#a60a43";
+set color_module_text = "#e0bea5";
+set color_module_title = "#e0bea5";
+set color_module_title_background = "#401435";
+set color_navlinks_link = "#e0bea5";
+set color_navlinks_link_active = "#e0bea5";
+set color_navlinks_link_active_background = "#401435";
+set color_navlinks_link_background = "#401435";
+set color_navlinks_link_hover = "#db0d5f";
+set color_navlinks_link_hover_background = "#1a1032";
+set color_navlinks_link_visited = "#e0bea5";
+set color_navlinks_link_visited_background = "#401435";
+
+
 #NEWLAYER: ciel/raindrop
 layerinfo type = "theme";
 layerinfo name = "Raindrop";
@@ -4236,6 +4479,166 @@ set font_management = "'Palatino Linotype', Georgia, Palatino";
 set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
 set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
+
+
+#NEWLAYER: ciel/rosegardeni
+layerinfo type = "theme";
+layerinfo name = "Rose Garden I";
+layerinfo redist_uniq = "ciel/rosegardeni";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b18698";
+set color_page_border = "#b18698";
+set color_page_link = "#154c3f";
+set color_page_link_active = "#154c3f";
+set color_page_link_hover = "#64434b";
+set color_page_link_visited = "#1a5f4e";
+set color_page_subtitle = "#e3d7db";
+set color_page_text = "#09211b";
+set color_page_title = "#154c3f";
+set color_header_background = "#b18698";
+set color_footer_background = "#e3d7db";
+set color_footer_link = "#154c3f";
+set color_footer_link_active = "#154c3f";
+set color_footer_link_hover = "#64434b";
+set color_footer_link_visited = "#1a5f4e";
+set color_calendar_entryday_background = "#e3d7db";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#b18698";
+set color_entry_interaction_links = "#154c3f";
+set color_entry_interaction_links_active = "#154c3f";
+set color_entry_interaction_links_hover = "#64434b";
+set color_entry_interaction_links_visited = "#1a5f4e";
+set color_entry_link = "#154c3f";
+set color_entry_link_active = "#154c3f";
+set color_entry_link_hover = "#64434b";
+set color_entry_link_visited = "#1a5f4e";
+set color_entry_management_links_active = "#e3d7db";
+set color_entry_management_links_hover = "#b18698";
+set color_entry_management_links_visited = "#e3d7db";
+set color_entry_text = "#09211b";
+set color_entry_title = "#64434b";
+set color_entry_title_background = "#e3d7db";
+set color_comment_title = "64434b";
+set color_comment_title_background = "#e3d7db";
+set color_interaction_links_background = "#e3d7db";
+set color_management_links_background = "#64434b";
+set color_management_links = "#e3d7db";
+set color_userpic_border = "#154c3f";
+set color_userpic_border_alt = "#154c3f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#b18698";
+set color_module_link = "#154c3f";
+set color_module_link_active = "#154c3f";
+set color_module_link_hover = "#64434b";
+set color_module_link_visited = "#1a5f4e";
+set color_module_text = "#09211b";
+set color_module_title = "#64434b";
+set color_module_title_background = "#e3d7db";
+set color_navlinks_link = "#e3d7db";
+set color_navlinks_link_active = "#e3d7db";
+set color_navlinks_link_active_background = "#64434b";
+set color_navlinks_link_background = "#64434b";
+set color_navlinks_link_hover = "#154c3f";
+set color_navlinks_link_hover_background = "#e3d7db";
+set color_navlinks_link_visited = "#e3d7db";
+set color_navlinks_link_visited_background = "#64434b";
+
+
+#NEWLAYER: ciel/rosegardenii
+layerinfo type = "theme";
+layerinfo name = "Rose Garden II";
+layerinfo redist_uniq = "ciel/rosegardenii";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#dabd9f";
+set color_page_border = "#dabd9f";
+set color_page_link = "#4c7603";
+set color_page_link_active = "#4c7603";
+set color_page_link_hover = "#71b004";
+set color_page_link_visited = "#3a5b02";
+set color_page_subtitle = "#f2e2c9";
+set color_page_text = "#3a1201";
+set color_page_title = "#724035";
+set color_header_background = "#dabd9f";
+set color_footer_background = "#f2e2c9";
+set color_footer_link = "#4c7603";
+set color_footer_link_active = "#4c7603";
+set color_footer_link_hover = "#71b004";
+set color_footer_link_visited = "#3a5b02";
+set color_calendar_entryday_background = "dabd9f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f2e2c9";
+set color_entry_border = "#dabd9f";
+set color_entry_interaction_links = "#71b004";
+set color_entry_interaction_links_active = "#71b004";
+set color_entry_interaction_links_hover = "#4c7603";
+set color_entry_interaction_links_visited = "#71b004";
+set color_entry_link = "#4c7603";
+set color_entry_link_active = "#4c7603";
+set color_entry_link_hover = "#71b004";
+set color_entry_link_visited = "#3a5b02";
+set color_entry_management_links_active = "#71b004";
+set color_entry_management_links_hover = "#4c7603";
+set color_entry_management_links_visited = "#71b004";
+set color_entry_text = "#3a1201";
+set color_entry_title = "#724035";
+set color_entry_title_background = "#dabd9f";
+set color_comment_title = "#724035";
+set color_comment_title_background = "#dabd9f";
+set color_interaction_links_background = "#724035";
+set color_management_links = "#71b004";
+set color_management_links_background = "#3a1201";
+set color_userpic_border = "#4c7603";
+set color_userpic_border_alt = "#4c7603";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f2e2c9";
+set color_module_border = "#dabd9f";
+set color_module_link = "#4c7603";
+set color_module_link_active = "#4c7603";
+set color_module_link_hover = "#71b004";
+set color_module_link_visited = "#3a5b02";
+set color_module_text = "#3a1201";
+set color_module_title = "#724035";
+set color_module_title_background = "#dabd9f";
+set color_navlinks_link = "#71b004";
+set color_navlinks_link_active = "#71b004";
+set color_navlinks_link_active_background = "#724035";
+set color_navlinks_link_background = "#724035";
+set color_navlinks_link_hover = "#3a5b02";
+set color_navlinks_link_hover_background = "#f2e2c9";
+set color_navlinks_link_visited = "#4c7603";
+set color_navlinks_link_visited_background = "#724035";
 
 
 #NEWLAYER: ciel/sanctuary
