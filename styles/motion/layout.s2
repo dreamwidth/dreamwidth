@@ -634,12 +634,19 @@ $userpic_css
 /************************************************
 * All Modules *
 ************************************************/
-.one-column #secondary .module, .one-column #tertiary .module {display:inline-block; width: $*sidebar_width; vertical-align:top; margin: 0 1em 0 1em;}
+#secondary .module, #tertiary .module {display:inline-block; width: $*sidebar_width; vertical-align:top; margin: 0 1em 0 1em;}
+@media $*desktop_media_query {
+    .multiple-columns #secondary .module,
+    .multiple-columns #tertiary .module {
+        display: block;
+        width: auto;
+        margin: 0 0 1em 0;
+    }
+}
 
 .module {
     overflow:hidden;
     padding: .75em;
-    margin-bottom: 1em;
     line-height:1.4em;
     }
 
@@ -712,7 +719,9 @@ $userpic_css
 /************************************************
 * Page Footer *
 ************************************************/
-.two-columns #tertiary .module {margin: 0 .25em; min-height: 3em; }
+@media $*desktop_media_query {
+    .two-columns #tertiary .module {margin: 0 .25em; min-height: 3em; }
+}
 
 /************************************************
 * Reading Page *
