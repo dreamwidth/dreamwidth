@@ -98,8 +98,11 @@ function Page::print() {
                     """;
                     print """<h2>""" + $this.journal.username + """</h2>""" + """<h2>""" + $*text_default_separator + """</h2>""";
                     $this->print_title();
-                    if ($*layout_type == "one-column-split") { """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>"""; }
-                    if ($*layout_type == "one-column") { """<div id="module-jump-link"><a href="#secondary"title="Jump to modules below the entries">Modules</a></div>"""; }
+                    if ($*layout_type == "one-column-split") {
+                        """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>"""; }
+                    else {
+                        """<div id="module-jump-link"><a href="#secondary"title="Jump to modules below the entries">Modules</a></div>""";
+                    }
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -278,33 +281,6 @@ function print_stylesheet () {
         text-align: left; 
     }
 
-    .one-column #content,
-    .one-column-split #content { 
-        float: none; 
-    }
-
-    .two-columns-left #content,
-    .three-columns-sides #content {
-        border-left: $*sidebar_width solid transparent;
-    }
-
-    .two-columns-right #content,
-    .three-columns-sides #content {
-        border-right: $*sidebar_width solid transparent;
-    }
-
-    .three-columns-left #content {
-        border-left: $*sidebar_width_doubled solid transparent;
-    }
-
-    .three-columns-right #content {
-        border-right: $*sidebar_width_doubled solid transparent;
-    }
-
-    .column-right #content {
-        min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
-    }
-
     /* Header and footer */
     #header, 
     #footer {
@@ -335,102 +311,17 @@ function print_stylesheet () {
     #module-jump-link a:hover { color: $*color_header_link_hover; }
     #module-jump-link a:active { color: $*color_header_link_active; }
 
-    /* Module positioning */
-    .one-column #primary,
-    .one-column-split #primary { 
-        float: none; 
+    @media $*desktop_media_query {
+        .multiple-columns #module-jump-link { display: none; }
     }
 
+    /* Module positioning */
     #primary > .inner:first-child {
         padding: 0;
     }
 
-    .one-column #secondary,
-    .one-column-split #secondary { 
-        width: auto; 
-    }
-
-    .two-columns-left #secondary,
-    .three-columns-sides #secondary {
-        float: left;
-        margin-left: -$*sidebar_width;
-        width: $*sidebar_width;
-    }
-
-    .two-columns-right #secondary {
-        float: right;
-        margin-right: -$*sidebar_width;
-        width: $*sidebar_width;
-    }
-
-    .three-columns-left #secondary {
-        float: left;
-        margin-left: -$*sidebar_width_doubled;
-        width: $*sidebar_width;        
-    }
-
-    .three-columns-right #secondary {
-        float: right;
-        margin-right: -$*sidebar_width;
-        width: $*sidebar_width;    
-    }
-
-    #secondary > .inner:first-child {
-        padding: 1em;
-    }
-
-    .one-column-split #secondary > .inner:first-child { 
-        padding: 0; 
-    }
-
-    .one-column #tertiary,
-    .one-column-split #tertiary { 
-        width: auto; 
-    }
-
-    .two-columns-left #tertiary,
-    .two-columns-right #tertiary {
-         clear: both;
-    }
-
-    .two-columns-left #tertiary { 
-        margin-left: -$*sidebar_width; 
-    }
-
-    .two-columns-right #tertiary { 
-        margin-right: -$*sidebar_width; 
-    }
-     
-    .two-columns-left #tertiary .module,
-    .two-columns-right #tertiary .module {
-        float: left;
-        width: $*sidebar_width;
-    }
-
-    .three-columns-left #tertiary {
-         float: left;
-         margin-left: -$*sidebar_width;
-         width: $*sidebar_width;         
-    }
-
-    .three-columns-right #tertiary {
-        float: right;
-        margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
-        margin-right: -$*sidebar_width_doubled;
-        width: $*sidebar_width;
-    }
-
-    .three-columns-sides #tertiary {
-        float: right;
-        margin-right: -$*sidebar_width;
-        width: $*sidebar_width;
-    }
-
-    #tertiary > .inner:first-child {
-        padding: 1em;
-    }
-
-    .one-column-split #tertiary > .inner:first-child { 
+    .one-column-split #secondary > .inner:first-child,
+    .one-column-split #tertiary > .inner:first-child {
         padding: 0; 
     }
 
