@@ -249,15 +249,7 @@ dl dt {
     background-color: $*color_entry_background;
     }
 
-.column-left #content, .column-right #content {
-    border-color: $*color_module_background;
-    }
-
-.one-column #secondary, .one-column #tertiary {
-    background-color: $*color_module_background;
-    }
-
-.one-column #primary {
+#primary {
     clear:both;
     }
 
@@ -295,13 +287,16 @@ h2#pagetitle {
     height: 10px;
     }
 
-.column-left #primary .separator-after {
-    margin-left: -1em;
-    }
+@media $*desktop_media_query {
+    .column-left #primary .separator-after {
+        margin-left: -1em;
+        }
 
-.column-right #primary .separator-after {
-    margin-right: -1em;
-    }
+    .column-right #primary .separator-after {
+        margin-right: -1em;
+        }
+
+}
 
 .entry .userpic, .comment .userpic {
     margin: 0 1em .5em 1em;
@@ -514,56 +509,72 @@ div.icons-container div.icon:nth-of-type(2n) {
 }
 /*--- Sidebars ---*/
 
-.one-column #secondary, .one-column #tertiary { width: 100%; }
-.one-column #content .module { display: inline-block; vertical-align: top; width: $*sidebar_width;
+#secondary, #tertiary { width: 100%; }
+#header .module-navlinks { background: $*color_header_background;}
+#secondary, #tertiary,
+.module-wrapper {
+    background-color: $*color_module_background;
     }
-.one-column #header .module-navlinks { background: $*color_header_background;}
-.one-column .module-wrapper {
-    background: $*color_module_background;
-    }
-
-.two-columns-left #tertiary .module,
-.two-columns-right #tertiary .module {
-    background-color: transparent;
-    color: $*color_entry_text;
-    }
-
-.two-columns-left #tertiary .module a,
-.two-columns-right #tertiary .module a {
-    color: $*color_entry_link;
+#content .module { display: inline-block; vertical-align: top; width: $*sidebar_width;
+        }
+@media $*desktop_media_query {
+    .multiple-columns .module-wrapper {
+        background-color: transparent;
     }
 
-.two-columns-left #tertiary .module a:visited,
-.two-columns-right #tertiary .module a:visited {
-    color: $*color_entry_link_visited;
+    .multiple-columns #content .module {
+        display: block; width: auto;
     }
 
-.two-columns-left #tertiary .module a:hover,
-.two-columns-right #tertiary .module a:hover {
-    color: $*color_entry_link_hover;
+    .column-left #content, .column-right #content {
+        border-color: $*color_module_background;
+        }
+
+    .multiple-columns #secondary, .multiple-columns #tertiary {
+        width: $*sidebar_width;
     }
 
-.two-columns-left #tertiary .module a:active,
-.two-columns-right #tertiary .module a:active {
-    color: $*color_entry_link_active;
+    .multiple-columns #tertiary {
+        background-color: transparent;
     }
 
-.two-columns-left #tertiary .module h2,
-.two-columns-right #tertiary .module h2 {
-    color: $*color_entry_title;
-    }
+    .two-columns #tertiary .module {
+        background-color: transparent;
+        color: $*color_entry_text;
+        }
 
-.two-columns-left #tertiary .separator-after, .two-columns-right #tertiary .separator-after {
-    clear: both;
-    }
+    .two-columns #tertiary .module a  {
+        color: $*color_entry_link;
+        }
 
-.two-columns-left #tertiary {
-    margin-left: 0;
-    }
+    .two-columns #tertiary .module a:visited {
+        color: $*color_entry_link_visited;
+        }
 
-.two-columns-right #tertiary {
-    margin-right: 0;
-    }
+    .two-columns #tertiary .module a:hover {
+        color: $*color_entry_link_hover;
+        }
+
+    .two-columns #tertiary .module a:active {
+        color: $*color_entry_link_active;
+        }
+
+    .two-columns #tertiary .module h2 {
+        color: $*color_entry_title;
+        }
+
+    .two-columns #tertiary .separator-after {
+        clear: both;
+        }
+
+    .two-columns-left #tertiary {
+        margin-left: 0;
+        }
+
+    .two-columns-right #tertiary {
+        margin-right: 0;
+        }
+}
 
 .module {
     border: none;
@@ -596,11 +607,11 @@ div.icons-container div.icon:nth-of-type(2n) {
     text-decoration: none;
     }
 
-.module-calendar .module-content {
+.any-column .module-calendar .module-content {
     text-align: left;
     }
 
-.module-calendar table {
+.any-column .module-calendar table {
     margin: 0;
     font-size:0.9em;
     }
