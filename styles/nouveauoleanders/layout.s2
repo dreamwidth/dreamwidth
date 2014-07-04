@@ -613,25 +613,6 @@ body {
     margin-bottom: 3em;
     }
 
-.entry-wrapper-odd {
-    margin-right: 255px;
-    }
-.entry-wrapper-even {
-    margin-left: 255px;
-    }
-
-.entry-wrapper-odd .entry {
-    $entry_border_image_odd
-    margin-right: -255px;
-    padding: 1px;
-    }
-
-.entry-wrapper-even .entry {
-    $entry_border_image_even
-    margin-left: -255px;
-    padding: 1px;
-    }
-
 .entry {
     border: none;
     }
@@ -640,14 +621,36 @@ body {
     padding: .5em 0;
     }
 
-.entry-wrapper-odd .header {
-    margin-right: 210px;
-    }
 
-.entry-wrapper-even .header {
-    margin-left: 210px;
-    text-align: right;
-    }
+@media $*desktop_media_query {
+    .entry-wrapper-odd {
+        margin-right: 255px;
+        }
+    .entry-wrapper-even {
+        margin-left: 255px;
+        }
+
+    .entry-wrapper-odd .entry {
+        $entry_border_image_odd
+        margin-right: -255px;
+        padding: 1px;
+        }
+
+    .entry-wrapper-even .entry {
+        $entry_border_image_even
+        margin-left: -255px;
+        padding: 1px;
+        }
+
+    .entry-wrapper-odd .header {
+        margin-right: 210px;
+        }
+
+    .entry-wrapper-even .header {
+        margin-left: 210px;
+        text-align: right;
+        }
+}
 
 .entry-wrapper-odd .contents .entry-poster {
     margin-left: -1em;
@@ -1030,22 +1033,23 @@ table.month th {
     color: $*color_module_link_active;
     }
 
-.two-columns-left #tertiary .separator-after, .two-columns-right #tertiary .separator-after {
-    clear: both;
-    }
-
 .module {
     margin: 0 0 1em;
     padding-top: 1px;
     }
 
-.two-columns-left #tertiary .module, .two-columns-right #tertiary .module {
-    margin: 0 1.5em;
-    }
+@media $*desktop_media_query {
+    .two-columns #tertiary .separator-after {
+        clear: both;
+        }
+    .two-columns #tertiary .module {
+        margin: 0 1.5em;
+        }
 
-.two-columns-left #tertiary .module {
-    float: right;
-    }
+    .two-columns-left #tertiary .module {
+        float: right;
+        }
+}
 
 .module-header {
     font-size: large;
@@ -1076,7 +1080,7 @@ table.month th {
     padding-left: 0;
     }
 
-.module-calendar table {
+.any-column .module-calendar table {
     font-size: small;
     margin: 0;
     }
@@ -1086,7 +1090,7 @@ table.month th {
     color: $*color_module_title;
     }
 
-.module-syndicate .module-content {
+.any-column .module-syndicate .module-content {
     text-align: left;
     }
 
