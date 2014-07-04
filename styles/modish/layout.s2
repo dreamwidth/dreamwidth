@@ -75,8 +75,10 @@ body {
 
 /* main column */
 
-.two-columns-left .navigation,
-.three-columns-left .navigation { text-align: right; }
+@media $*desktop_media_query {
+    .two-columns-left .navigation,
+    .three-columns-left .navigation { text-align: right; }
+}
 
 /* entries */
 .entry li { margin-left: 1em; }
