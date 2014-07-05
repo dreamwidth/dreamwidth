@@ -228,6 +228,7 @@ sub HTTP_OK { return 200; }
 sub HTTP_CREATED { return 201; }
 sub REDIRECT  { return 302; }
 sub NOT_FOUND { return 404; }
+sub HTTP_GONE { return 410; }
 sub SERVER_ERROR { return 500; }
 sub HTTP_UNAUTHORIZED { return 401; }
 sub HTTP_BAD_REQUEST { return 400; }

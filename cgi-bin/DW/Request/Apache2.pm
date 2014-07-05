@@ -264,6 +264,10 @@ sub NOT_FOUND {
     return Apache2::Const::NOT_FOUND;
 }
 
+sub HTTP_GONE {
+    return Apache2::Const::HTTP_GONE;
+}
+
 sub SERVER_ERROR {
     return Apache2::Const::SERVER_ERROR;
 }
