@@ -215,18 +215,15 @@ function print_stylesheet () {
 var string userpic_css = "";
     if ($*userpics_position == "right") {
         $userpic_css = """
-        .entry .userpic {
+        .entry .userpic, .comment .userpic {
             float: right;
-            margin-right: $entry_userpic_margin;
-            }
+            margin-right: -10px;
+            margin-left: 0.5em;
+        }
 
-        .comment .userpic {
-            float: right;
-            margin-right: $comment_userpic_margin;
-            }
-        .entry, .comment, .tags-container, .icons-container, .month, #archive-month {border-width: 0 75px 0 0;
-            border-color: $*color_entry_border;
-            border-style: solid;}
+        .entry, .comment, .tags-container, .icons-container, .month, #archive-month {border-width: 0 20px 0 0;
+                        border-color: $*color_entry_border;
+                        border-style: solid;}
 
         .entry .header, .comment .header, #archive-month .navigation  {margin-right:5px;}
 
@@ -235,30 +232,55 @@ var string userpic_css = "";
             padding-right: 5px;
             }
 
+        @media $*desktop_media_query {
+            .entry .userpic {
+                margin-right: $entry_userpic_margin;
+                margin-left: 0;
+                }
+
+            .comment .userpic {
+                margin-right: $comment_userpic_margin;
+                margin-left: 0;
+                }
+            .entry, .comment, .tags-container, .icons-container, .month, #archive-month {
+                border-right-width: 75px;
+                }
+        }
         """;
     }
     else {
         $userpic_css = """
-        .entry .userpic {
+        .entry .userpic, .comment .userpic {
             float: left;
-            margin-left: $entry_userpic_margin;
-            }
+            margin-left: -10px;
+            margin-right: 0.5em;
+        }
 
-        .comment .userpic {
-            float: left;
-            margin-left: $comment_userpic_margin;
-            }
-
-        .entry, .comment, .tags-container, .icons-container, .month, #archive-month {border-width: 0 0 0 75px;
-            border-color: $*color_entry_border;
-            border-style: solid;}
-
+        .entry, .comment, .tags-container, .icons-container, .month, #archive-month {border-width: 0 0 0 20px;
+                        border-color: $*color_entry_border;
+                        border-style: solid;}
         .entry .header, .comment .header, #archive-month .navigation  {margin-left:5px;}
 
         .entry .footer, .comment .footer {
             clear: both;
             padding-left: 5px;
             }
+
+        @media $*desktop_media_query {
+            .entry .userpic {
+                margin-left: $entry_userpic_margin;
+                margin-right: 0;
+                }
+
+            .comment .userpic {
+                margin-left: $comment_userpic_margin;
+                margin-right: 0;
+                }
+
+            .entry, .comment, .tags-container, .icons-container, .month, #archive-month {
+                border-left-width: 75px;
+                }
+        }
         """;
     }
 
@@ -327,25 +349,9 @@ a {text-decoration: none; font-weight: bold;}
 a:hover {text-decoration:underline;}
 
 /*--- Main Containers ---*/
-
-
-#content {margin:0 $*margins_size$*margins_unit; padding:0;}
-
-#primary {box-sizing: border-box;
--moz-box-sizing: border-box;
--webkit-box-sizing: border-box;
-    padding: 0 100px;}
-
 #primary > .inner:first-child {margin: 5px 0; padding: 0;}
 
-
-.column-left #content, .column-right #content {
-    border-color: $*color_module_background;
-    }
-
-/*---------inline-block one-column mode-----*/
-
-.one-column #secondary, .one-column #tertiary, .two-columns #tertiary {
+#secondary, #tertiary {
     background-color: $*color_module_background;
     margin: 0;
     padding: 0 $*margins_module_size$*margins_module_unit;
@@ -353,18 +359,51 @@ a:hover {text-decoration:underline;}
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     text-align:center;
-    }
+    width: 100%;
+}
 
-.one-column #secondary, .one-column #tertiary { width: 100%; }
-.one-column .module, .two-columns #tertiary .module {
-    display: inline-block;
-    vertical-align: top;
-    width: $*sidebar_width;
+#secondary .module, #tertiary .module {
     text-align: left;
-    float: none;
     }
 
-.one-column .module-navlinks {width: 100%; text-align:center; margin: 1em 0;}
+.module-navlinks {width: 100%; text-align:center; margin: 1em 0;}
+
+@media $*desktop_media_query {
+    #content {margin:0 $*margins_size$*margins_unit; padding:0;}
+
+    #primary {box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        padding: 0 100px;
+        }
+
+    .column-left #content, .column-right #content {
+        border-color: $*color_module_background;
+        }
+
+    /*---------inline-block one-column mode-----*/
+
+    .multiple-columns #secondary {
+        width: $*sidebar_width;
+        }
+
+    .two-columns #tertiary {
+        margin: 0;
+        }
+
+    .two-columns #secondary, .three-columns #secondary, .three-columns #tertiary {
+        text-align: left;
+        padding: 0px;
+        }
+
+    .one-column .module, .two-columns #tertiary .module {
+        display: inline-block;
+        vertical-align: top;
+        width: $*sidebar_width;
+        float: none;
+        }
+    .one-column .module-navlinks {width: 100%;}
+}
 
 /*--- Journal Header ---*/
 
@@ -401,12 +440,20 @@ h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: 
     margin-bottom: 5px;
     }
 
-.entry .userpic{
-    border: 20px solid $*color_userpic_border;
-    margin-top: -2em;
+.entry .userpic, .comment .userpic {
+    border: 10px solid $*color_userpic_border;
     }
 
-.comment .userpic {border: 20px solid $*color_userpic_border;}
+.entry .userpic {
+    margin-top: -2em;
+    margin-bottom: 1em;
+    }
+@media $*desktop_media_query {
+    .entry .userpic, .comment .userpic {
+        border-width: 20px;
+        margin-bottom: 0;
+        }
+}
 
 $userpic_css
 
@@ -660,20 +707,22 @@ div.icons-container div.icon:nth-of-type(2n) {
     margin-top: .5em;
     }
 
-.module-calendar .module-content {
-    text-align: left;
-    }
+@media $*desktop_media_query {
+    .multiple-columns .module-calendar .module-content {
+        text-align: left;
+        }
 
-.module-calendar table {
-    margin: 0;
-    }
+    .multiple-columns .module-calendar table {
+        margin: 0;
+        }
 
-.module-navlinks {
-    border: none;
-    margin: .1em 0;
-    text-align: center;
-    width: 100%;
-    }
+    .multiple-columns .module-navlinks {
+        border: none;
+        margin: .1em 0;
+        text-align: center;
+        width: 100%;
+        }
+}
 
 .module-navlinks .module-header {
     display: none;
