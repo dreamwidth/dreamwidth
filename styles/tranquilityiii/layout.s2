@@ -457,20 +457,22 @@ table.month th {
     padding: 0;
     }
 
-.two-columns-left #tertiary .separator-after,
-.two-columns-right #tertiary .separator-after {
-    clear: both;
-    }
-
 .module {
     margin: 0 1em 1em;
     padding: .25em;
     }
 
-.two-columns-left #tertiary .module,
-.two-columns-right #tertiary .module {
-    margin: .5em 1.5em;
-    }
+@media $*desktop_media_query {
+    .two-columns-left #tertiary .separator-after,
+    .two-columns-right #tertiary .separator-after {
+        clear: both;
+        }
+
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module {
+        margin: .5em 1.5em;
+        }
+}
 
 .module-header {
     font-size: large;
@@ -495,11 +497,10 @@ table.month th {
 
 .module-calendar table { font-size: small; }
 
-.module-calendar .module-content { text-align: left; }
+.any-column .module-calendar .module-content,
+.any-column .module-syndicate .module-content { text-align: left; }
 
 .module-tags_multilevel ul ul { margin-left: 1em; }
-
-.module-syndicate .module-content { text-align: left; }
 
 """;
 }
