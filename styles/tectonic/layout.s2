@@ -339,11 +339,13 @@ function print_stylesheet () {
                 text-align: left;
                 }
 
-            .two-columns-left .module-navlinks,
-            .three-columns-left .module-navlinks { text-align:right; margin:0 0 0 -5px;}
-            .three-columns-sides .module-navlinks {text-align:center;}
+            @media $*desktop_media_query {
+                .two-columns-left .module-navlinks,
+                .three-columns-left .module-navlinks { text-align:right; margin:0 0 0 -5px;}
+                .three-columns-sides .module-navlinks {text-align:center;}
+            }
 
-            .module-navlinks ul, .one-column .module-navlinks ul {
+            .module-navlinks ul {
                 margin: 0;
                 padding: 0;
                 display: inline;
@@ -386,28 +388,30 @@ body {
     margin: 0 .25em 0;
     }
 
-.column-left #primary > .inner:first-child {
-    padding-left: 1em;
-    }
-
-.column-right #primary > .inner:first-child {
-    padding-right: 1em;
-    }
-
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child {
     padding: 0;
     }
 
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child {
-    padding-right: .5em;
-    }
+@media $*desktop_media_query {
+    .column-left #primary > .inner:first-child {
+        padding-left: 1em;
+        }
 
-.three-columns-left #tertiary > .inner:first-child,
-.three-columns-right #tertiary > .inner:first-child {
-    padding-left: .5em;
-    }
+    .column-right #primary > .inner:first-child {
+        padding-right: 1em;
+        }
+
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        padding-right: .5em;
+        }
+
+    .three-columns-left #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child {
+        padding-left: .5em;
+        }
+}
 
 a {
    text-decoration: none;
@@ -481,13 +485,20 @@ li.page-separator {
     }
 
 /*--- Sidebar aka Modules ---*/
-.one-column #secondary, .one-column #tertiary { width: 100%; text-align: center; }
-.one-column .module {
+#secondary, #tertiary { text-align: center; }
+.module {
     display: inline-block;
     vertical-align: top;
     width: $*modules_per_row;
     text-align:left;
     }
+
+@media $*desktop_media_query {
+    .multiple-columns .module {
+        display: block;
+        width: auto;
+    }
+}
 
 #secondary > .inner:first-child, #tertiary > .inner:first-child {
     border-top: 30px solid $*color_module_border;
