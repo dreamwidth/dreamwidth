@@ -89,7 +89,9 @@ var string userpic_css = "";
 
 a { text-decoration: none; }
 
-.two-columns-left #tertiary .module, .two-columns-right #tertiary .module { margin:0 10px; }
+@media $*desktop_media_query {
+    .two-columns #tertiary .module { margin:0 10px; }
+}
 
 blockquote {
     padding: 10px;
@@ -514,10 +516,15 @@ table.month td.day-has-entries {
 }
 
 .module-userprofile .module-content,
-.module-calendar .module-content,
-.module-syndicate  .module-content,
 .module-credit .module-content {
     text-align: center;
+}
+
+@media $*desktop_media_query {
+    .multiple-columns .module-calendar .module-content,
+    .multiple-columns .module-syndicate  .module-content {
+        text-align: center;
+    }
 }
 
 .module-userprofile .userpic {
