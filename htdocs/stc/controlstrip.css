@@ -1,8 +1,7 @@
 html body
 {
-    padding-top: 45px;
-    margin-right: 0;
-    margin-left: 0;
+    padding-top: 0;
+    margin: 0;
 }
 
 #lj_controlstrip
@@ -10,10 +9,9 @@ html body
     top: 0;
     left: 0;
     width: 100%;
-    height: 45px;
     margin: 0;
     padding: 0;
-    position: absolute;
+    position: relative;
     background-repeat: repeat-x;
     background-position: bottom;
 }
@@ -28,17 +26,21 @@ html body
 #lj_controlstrip td
 {
     font-family: Arial, sans-serif;
-    font-size: 11px;
-    line-height: 16.5px;
+    font-size: .8em;
+    line-height: 1.618em;
     letter-spacing: normal;
+    padding: 0.4045em 0.809em;
+    white-space: normal;
+    display: inline-block;
+
+    *display: inline; /* IE7 hack for inline-block */
+    zoom: 1;
 }
 
 #lj_controlstrip a
 {
     font-family: Arial, sans-serif;
-    font-size: 11px;
     font-weight: normal;
-    line-height: 16.5px;
     letter-spacing: normal;
     text-decoration: none;
     font-variant: normal;
@@ -105,7 +107,7 @@ html body
 /* First cell */
 #lj_controlstrip_userpic
 {
-    vertical-align: top;
+    vertical-align: middle;
     width: 43px;
 }
 
