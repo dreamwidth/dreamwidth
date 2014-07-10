@@ -180,7 +180,6 @@ $navlinks_css = """
 .module-navlinks {
     background-color: transparent;
     border: none;
-    margin: -2em 1em 0 0;
     width: 100%;
 }
 
@@ -249,11 +248,20 @@ a:hover { text-decoration: underline; }
     text-align: right;
     margin-top: 85px; }
 #header > .inner:first-child { $header_background;
-    margin-bottom: -80px;
-    padding-bottom: 80px;
-    margin-top: -85px;
-    padding-top: 85px;
-    padding-left: 350px; }
+    background-size: 45%;
+}
+
+@media $*desktop_media_query {
+    #header > .inner:first-child {
+        margin-bottom: -80px;
+        padding-bottom: 80px;
+        margin-top: -85px;
+        padding-top: 85px;
+        padding-left: 350px;
+        background-size: auto;
+    }
+    .module-navlinks { margin: -2em 1em 0 0; }
+}
 
 #title,
 #subtitle,
