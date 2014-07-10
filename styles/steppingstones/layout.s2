@@ -169,7 +169,6 @@ dl dt { font-weight: bold; }
 
 #pagetitle {
     font-size: large;
-    margin-left: $*sidebar_width;
     text-align: right;
     }
 
@@ -182,6 +181,10 @@ dl dt { font-weight: bold; }
     .three-columns-sides #header > .inner:first-child {
         margin: 1em 2em;
         }
+
+    #pagetitle {
+        margin-left: $*sidebar_width;
+    }
 
     .two-columns-right #pagetitle {
         margin-left: 0;
