@@ -19,6 +19,7 @@ use DW::Template;
 use DW::FormErrors;
 
 use POSIX;
+use List::MoreUtils qw/ uniq /;
 use DW::Entry::Moderated;
 
 =head1 NAME
@@ -466,9 +467,14 @@ sub _invite_new_member {
             if $adult_content eq "explicit";
         }
 
+        # turn on posting access according to community settings
+        my $post_level = $cu->post_level;
+        push @roles_for_user, "poster"
+            if $post_level eq 'members';
+
         # all good, let's extend an invite to this person
         # these map the form field POSTed to the form expected in send_comm_invite
-        my @attribs = map { $form_to_invite_attrib->{$_}} @roles_for_user;
+        my @attribs = map { $form_to_invite_attrib->{$_}} uniq @roles_for_user;
         if ( $invited_u->send_comm_invite( $cu, $remote, \@attribs ) ) {
             # succeeded, clear from the form so they don't display again
             $post->remove( $user_field );

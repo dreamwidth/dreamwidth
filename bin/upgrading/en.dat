@@ -1340,6 +1340,8 @@ There has been a new submission for the community '[[community]]', which you mod
    Subject: [[subject]]
 .
 
+esn.moderated_submission.handled.body=The submission to the community '[[community]]' has been handled.
+
 esn.moderated_submission.entry=[[openlink]]Accept or reject this submission[[closelink]]
 
 esn.moderated_submission.queue=[[openlink]]View the entire moderation queue[[closelink]]

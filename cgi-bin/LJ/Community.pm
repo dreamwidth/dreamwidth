@@ -309,8 +309,8 @@ sub join_community {
             $addpostacc = $canpost ? 1 : 0;
         } else {
             my $crow = $cu->get_community_row;
-            $addpostacc = $crow->{postlevel} eq 'members' || $cu->prop( 'comm_postlevel_new' ) ? 1 : 0
-                if defined $crow->{postlevel};
+            $addpostacc = $crow->{postlevel} eq 'members'
+                    || ( $crow->{postlevel} eq "select" && $cu->prop( 'comm_postlevel_new' ) );
         }
     }
 
