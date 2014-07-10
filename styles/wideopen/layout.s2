@@ -691,8 +691,7 @@ $header_modulewrapper
     }
 
     #header .module-navlinks li,
-    #header .module-search .search-form input,
-    #header .module-search .search-form label {
+    #header .module-search .search-form span {
         display: inline;
         }
 }
