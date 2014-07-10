@@ -335,12 +335,6 @@ var string comment_title_font = generate_font_css($*font_comment_title, $*font_b
 var string navlinks_css = "";
 if ($*module_navlinks_section == "header") {
     $navlinks_css = """
-    #header .module-wrapper {
-        margin-left: 220px;
-        margin-right: 220px;
-        padding-top: 1em;
-    }
-
     #header .module-wrapper .separator {
         display: none;
     }
@@ -349,7 +343,6 @@ if ($*module_navlinks_section == "header") {
         background-color: transparent;
         font-family: $*font_journal_title;
         font-size: small;
-        text-align: center;
     }
 
     .module-navlinks ul {
@@ -357,19 +350,35 @@ if ($*module_navlinks_section == "header") {
     }
 
     .module-navlinks li {
-        border-left: 1px solid $*color_page_title;
-        display: inline;
-        padding: 0 .25em 0 .5em;
-    }
-
-    .module-navlinks ul > li:first-child {
-        border-left: none;
+        display: block;
     }
 
     .module-navlinks a { color: $*color_header_link; }
     .module-navlinks a:visited { color: $*color_header_link_visited; }
     .module-navlinks a:hover { color: $*color_header_link_hover; }
     .module-navlinks a:active { color: $*color_header_link_active; }
+
+    @media $*desktop_media_query {
+        #header .module-wrapper {
+            margin-left: 220px;
+            margin-right: 220px;
+            padding-top: 1em;
+        }
+
+        .module-navlinks {
+            text-align: center;
+        }
+
+        .module-navlinks li {
+            display: inline;
+            border-left: 1px solid $*color_page_title;
+            padding: 0 .25em 0 .5em;
+        }
+
+        .module-navlinks ul > li:first-child {
+            border-left: none;
+        }
+    }
     """;
 }
 
@@ -559,25 +568,27 @@ body {
     padding: 1px;
     }
 
-#header .inner:first-child {
-    $header_background_image
-    background-position: top left;
-    margin-top: -1px;
-    }
+@media $*desktop_media_query {
+    #header .inner:first-child {
+        $header_background_image
+        background-position: top left;
+        margin-top: -1px;
+        }
 
-#header .inner .inner {
-    background: none;
-    }
+    #header .inner .inner {
+        background: none;
+        }
 
-#title {
-    margin-left: 200px;
-    margin-right: 200px;
-    }
+    #title {
+        margin-left: 200px;
+        margin-right: 200px;
+        }
 
-#subtitle, #pagetitle {
-    margin-left: 2em;
-    margin-right: 2em;
-    }
+    #subtitle, #pagetitle {
+        margin-left: 2em;
+        margin-right: 2em;
+        }
+}
 
 #content {
     border-color: $*color_module_background !important;
