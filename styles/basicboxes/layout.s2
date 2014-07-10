@@ -62,9 +62,7 @@ function Page::print() {
                     """;
                     $this->print_module_section("header");
                     """<div id="journaltitles-container">""";
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
                     """</div>""";
     """
                 </div><!-- end header>inner -->
@@ -232,6 +230,10 @@ body {
     padding: 0 .5em;
     text-align: center;
     }
+
+#module-jump-link {
+    text-align: right;
+}
 
 /* main column */
 

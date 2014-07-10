@@ -104,6 +104,7 @@ function Page::print() {
                     $this->print_global_subtitle();
                     $this->print_title();
                     $this->print_module_section("header");
+                    $this->print_module_jump_link();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -415,6 +416,8 @@ a:hover {text-decoration:underline;}
 h1#title {font-weight: normal; letter-spacing: .1em;}
 
 h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: $*color_journal_subtitle; letter-spacing: .1em;}
+
+#module-jump-link { text-align: right; }
 
 /*--- Journal Navigation ---*/
 

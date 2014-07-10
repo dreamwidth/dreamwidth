@@ -82,9 +82,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -184,6 +182,10 @@ h1, h2, h3, h4 {
     padding-left: .25em;
     padding-right: .25em;
     }
+
+#module-jump-link {
+    padding-left: .5em;
+}
 
 .tags-container h2,
 .page-archive h3,

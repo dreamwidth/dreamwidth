@@ -615,6 +615,9 @@ class Page
     same for all view types, and use \$this->title, \$this->head and \$this->body to include view-specific
     content into the template.";
 
+    function print_header
+    "Print information that should go in the page header such as page title and subtitle";
+
     function print_title "Print the title for this particular page, such as \"Friends' Recent Entries\" for the friends view,
     or a date for the day view. Should be overridden in i18n layers. Ideally, layout layers should never override
     this.  See [method[Page.title()]].";
@@ -632,6 +635,9 @@ class Page
     function title : string
     "Return a relevant combination of [member[Page.global_title]] and [method[Page.view_title()]].  May be
     overridden in layout layers or left untouched for the core layer to handle.";
+
+    function print_module_jump_link()
+    "Print a link to jump to modules below the entries";
 
     function print_wrapper_start() "Start the body wrapper for this page; includes default classes";
     function print_wrapper_start(string{} opts) "Start the body wrapper for this page; includes default classes and takes a hash using the key 'class'";
@@ -3731,6 +3737,14 @@ function generate_font_css(string font_base, string font_fallback, string font_s
     return generate_font_css("", $font_base, $font_fallback, $font_size, $font_unit);
 }
 
+function Page::print_header()
+{
+    $this->print_global_title();
+    $this->print_global_subtitle();
+    $this->print_title();
+    $this->print_module_jump_link();
+}
+
 function Page::print_title()
 "Using standard CSS, print the page title. If you want to change the way this looks, modify the CSS."
 {
@@ -3848,6 +3862,15 @@ if ($.replyto isa Comment) {
 function Page::title() [notags] : string {
     return $this->view_title();
 }
+
+function Page::print_module_jump_link() {
+    if ($*layout_type == "one-column-split") {
+        """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>""";
+    } else {
+        """<div id="module-jump-link"><a href="#secondary"title="Jump to modules below the entries">Modules</a></div>""";
+    }
+}
+
 function Page::print_wrapper_start()
 "This function adds standard classes to the body of a page.  Pass extra options to it if necessary.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
@@ -4759,9 +4782,7 @@ function Page::print()
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->

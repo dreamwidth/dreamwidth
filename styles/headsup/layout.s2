@@ -141,9 +141,7 @@ if ($image_foreground_url != "" and $*image_foreground_header_position == "inlin
     """
                     <div class="page-header">""";
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
             if ($*image_foreground_header_url != "" and $*image_foreground_header_position == "after") {
                     print """<div class="header-image">""";
     print """<img src="$image_foreground_url" width="$*image_foreground_header_width" height="$*image_foreground_header_height" alt="$*image_foreground_header_alt">""";
@@ -390,6 +388,9 @@ $header_margintop }
     text-align: $*image_foreground_header_alignment;
     }
 
+#module-jump-link {
+    text-align: left;
+}
 /*--- Journal Navigation ---*/
 
 .navigation {

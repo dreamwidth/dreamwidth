@@ -137,9 +137,7 @@ function Page::print() {
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
                     $this->print_module_section("header");
     """
                 </div><!-- end header>inner -->
@@ -450,14 +448,11 @@ ol {
     }
 
 h1#title,
-h2#pagetitle {
+h2#pagetitle,
+h2#subtitle,
+#module-jump-link {
     text-align: right;
     text-transform: uppercase;
-    }
-
-h2#subtitle {
-    text-align: right;
-    text-transform: lowercase;
     }
 
 /*--- Journal Navigation ---*/

@@ -370,6 +370,8 @@ var bool modules_in_two = (
             </div><!-- end header -->
             <div id="secondary-container"><div class="inner">
     """;
+                $this->print_module_jump_link();
+
                 if ($*layout_type == "one-column-split") {
                     """<div id="secondary"><div class="inner">""";
                     $this->print_module_section("one");
@@ -717,6 +719,11 @@ h2#pagetitle {
 
 #header-footer {
     clear: both;
+}
+
+#module-jump-link {
+    text-align: right;
+    margin-right: 25px;
 }
 
 /* Content Containers

@@ -102,9 +102,7 @@ function Page::print() {
    <div id="header">
     <div class="inner">
      """;
-     $this->print_global_title();
-     $this->print_global_subtitle();
-     $this->print_title();
+     $this->print_header();
      $this->print_module_section("header");
  """
     </div><!-- end header>inner -->
@@ -403,6 +401,7 @@ margin:0;
 
 #header #pagetitle { display:none; }
 
+#module-jump-link { float: right; }
 $navlinks_css
 
 /* content */

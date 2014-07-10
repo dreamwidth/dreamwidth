@@ -113,7 +113,7 @@ blockquote {
     text-align: right;
 }
 
-h1#title, h2#subtitle, h2#pagetitle {
+h1#title, h2#subtitle, h2#pagetitle, #module-jump-link {
     margin: 0;
     padding: 5px 30px 0 0;
     font-weight: normal;
@@ -696,9 +696,7 @@ function Page::print() {
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
     """;

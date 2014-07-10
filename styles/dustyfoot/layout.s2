@@ -164,9 +164,7 @@ function Page::print() {
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
                     $this->print_module_section("header");
     """
                 </div><!-- end header>inner -->
@@ -382,6 +380,10 @@ h2#subtitle {
     padding: 0 0 0 10px;
     text-transform: lowercase;
     }
+
+#module-jump-link {
+    padding: 0 0 0 10px;
+}
 
 h2#pagetitle {
     margin: 0;

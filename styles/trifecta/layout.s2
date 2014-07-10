@@ -352,9 +352,7 @@ function Page::print() {
                     <div id="header-content"><div class="inner">
                         <div id="header-primary"><div class="inner">
                             """;
-                            $this->print_global_title();
-                            $this->print_global_subtitle();
-                            $this->print_title();
+                            $this->print_header();
                             """
                         </div></div><!-- end header-primary and >inner -->
                         <div id="header-secondary"><div class="inner">

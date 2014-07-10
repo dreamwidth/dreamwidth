@@ -136,6 +136,10 @@ var string userpic_css = "";
    margin-top: 0px;
    }
 
+#module-jump-link {
+    text-align: right;
+}
+
 /* ------------------------------------------- Page Layout ------------------------------------------ */
 
 body {

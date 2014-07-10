@@ -79,9 +79,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -302,6 +300,8 @@ body { margin: 0; }
 /* header */
 #header { margin: 2em 0;
     padding: .5em 2% 0 2%; }
+
+#module-jump-link { padding-left: .5em; }
 
 @media $*desktop_media_query {
     .two-columns-left #header .inner {padding-left: $*sidebar_width;}

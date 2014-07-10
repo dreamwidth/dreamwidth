@@ -79,6 +79,12 @@ set module_poweredby_order = 19;
 ## Functions
 ##===============================
 
+function Page::print_header() {
+    print """<h2>""" + $this.journal.username + """</h2>""" + """<h2>""" + $*text_default_separator + """</h2>""";
+    $this->print_title();
+    $this->print_module_jump_link();
+}
+
 function print_stylesheet () {
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
@@ -219,17 +225,8 @@ function print_stylesheet () {
         display: inline; 
     }
 
-    #module-jump-link { 
-        text-align: right; 
-    }
-
-    #module-jump-link a { color: $*color_header_link; }
-    #module-jump-link a:visited { color: $*color_header_link_visited; }
-    #module-jump-link a:hover { color: $*color_header_link_hover; }
-    #module-jump-link a:active { color: $*color_header_link_active; }
-
-    @media $*desktop_media_query {
-        .multiple-columns #module-jump-link { display: none; }
+    #module-jump-link {
+        text-align: right;
     }
 
     /* Module positioning */

@@ -395,6 +395,15 @@ h2#pagetitle {
     $page_subtitle_font
 }
 
+#module-jump-link a { color: $*color_header_link; }
+#module-jump-link a:visited { color: $*color_header_link_visited; }
+#module-jump-link a:hover { color: $*color_header_link_hover; }
+#module-jump-link a:active { color: $*color_header_link_active; }
+
+@media $*desktop_media_query {
+    .multiple-columns #module-jump-link { display: none; }
+}
+
 #footer {
     $footer_background
 }

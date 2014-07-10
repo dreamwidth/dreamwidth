@@ -245,9 +245,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
