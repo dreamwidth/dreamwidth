@@ -14,6 +14,7 @@ html body
     position: relative;
     background-repeat: repeat-x;
     background-position: bottom;
+    text-align: left;
 }
 
 #lj_controlstrip table
