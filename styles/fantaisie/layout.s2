@@ -580,19 +580,27 @@ blockquote a {
 #header-canvas { margin: 0 2%; }
 
 #header-primary {
-    float: left;
-    padding: 1.5em 0;
+    padding: 1.5em 0 0 0;
 }
 
 #header-secondary {
     $header_secondary_background
     background-position: center right;
-    float: right;
     $header_secondary_height
     padding: 1.5em 0;
     text-align: right;
 }
 
+@media $*desktop_media_query {
+    #header-primary {
+        float: left;
+        padding: 1.5em 0;
+    }
+
+    #header-secondary {
+        float: right;
+    }
+}
 h1#title {
     line-height: 1em;
     margin: 0;

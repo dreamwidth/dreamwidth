@@ -508,14 +508,19 @@ $userpic_css = """
 var string header_css = "";
 if ($*module_navlinks_section == "header") {
 $header_css = """
-#header-primary {
-    float: left;
+#header-secondary {
+    text-align: right;
 }
 
-#header-secondary {
-    float: right;
-    width: 355px;
-    text-align: right;
+@media $*desktop_media_query {
+    #header-primary {
+        float: left;
+    }
+
+    #header-secondary {
+        float: right;
+        width: 355px;
+    }
 }
 """;
 }

@@ -500,17 +500,19 @@ $header_css = """
     border-right: 10.5em solid transparent;
 }
 
-#header-primary {
-    float: left;
-    width: 100%;
-    margin-right: -100%;
-    margin-left: 0;
-}
+@media $*desktop_media_query {
+    #header-primary {
+        float: left;
+        width: 100%;
+        margin-right: -100%;
+        margin-left: 0;
+    }
 
-#header-secondary {
-    float: right;
-    width: 10.5em;
-    margin-right: -10.5em;
+    #header-secondary {
+        float: right;
+        width: 10.5em;
+        margin-right: -10.5em;
+    }
 }
 
 #header-footer {

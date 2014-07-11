@@ -1233,27 +1233,37 @@ if ($*module_navlinks_section == "header") {
 $header_css = """
 #header {
     background: none;
-    border-right: $*sidebar_width solid transparent;
-    min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
     padding: 0;
     }
 
-#header-primary {
-    float: left;
-    width: 100%;
-    margin-right: -100%;
-    margin-left: 0;
-    padding-bottom: 1.75em;
-    }
-
 #header-secondary {
-    float: right;
-    width: $*sidebar_width;
-    margin-right: -$*sidebar_width;
     padding-bottom: 1.75em;
+}
+
+@media $*desktop_media_query {
+    #header {
+        border-right: $*sidebar_width solid transparent;
+        min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
     }
 
-#header-primary > .inner:first-child { margin-right: 3.5em; }
+    #header-primary {
+        float: left;
+        width: 100%;
+        margin-right: -100%;
+        margin-left: 0;
+        padding-bottom: 1.75em;
+        }
+
+    #header-secondary {
+        float: right;
+        width: $*sidebar_width;
+        margin-right: -$*sidebar_width;
+        padding-bottom: 1.75em;
+        }
+
+    #header-primary > .inner:first-child { margin-right: 3.5em; }
+}
+
 
 #header .module {
     column-count: 2;
