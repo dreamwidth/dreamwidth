@@ -615,6 +615,9 @@ class Page
     same for all view types, and use \$this->title, \$this->head and \$this->body to include view-specific
     content into the template.";
 
+    function print_header
+    "Print information that should go in the page header such as page title and subtitle";
+
     function print_title "Print the title for this particular page, such as \"Friends' Recent Entries\" for the friends view,
     or a date for the day view. Should be overridden in i18n layers. Ideally, layout layers should never override
     this.  See [method[Page.title()]].";
@@ -632,6 +635,9 @@ class Page
     function title : string
     "Return a relevant combination of [member[Page.global_title]] and [method[Page.view_title()]].  May be
     overridden in layout layers or left untouched for the core layer to handle.";
+
+    function print_module_jump_link()
+    "Print a link to jump to modules below the entries";
 
     function print_wrapper_start() "Start the body wrapper for this page; includes default classes";
     function print_wrapper_start(string{} opts) "Start the body wrapper for this page; includes default classes and takes a hash using the key 'class'";
@@ -1188,6 +1194,10 @@ property string layout_type {
         values = "|none|one-column|One column (modules at bottom)|one-column-split|One column split (modules at top & bottom)|two-columns-left|Two columns (sidebar on the left)|two-columns-right|Two columns (sidebar on the right)|three-columns-sides|Three columns (one sidebar on each Side)|three-columns-left|Three column (two sidebars on the left)|three-columns-right|Three column (two sidebars on the right)";
 }
 
+property string desktop_media_query {
+  des = "If we don't match this media query, we show only one column (mobile-friendly view); if we do match, we use the \$*layout_type defined by the user";
+}
+
 property int num_items_recent {
     des = "Number of journal entries to show on the Recent Entries page";
     doc_flags = "[construct]";
@@ -1237,6 +1247,7 @@ property string sidebar_width_doubled {
 }
 
 set layout_type = "";
+set desktop_media_query = "only screen and (min-width: 60em)";
 set num_items_recent = 20;
 set num_items_reading = 20;
 set use_custom_friend_colors = false;
@@ -3726,6 +3737,14 @@ function generate_font_css(string font_base, string font_fallback, string font_s
     return generate_font_css("", $font_base, $font_fallback, $font_size, $font_unit);
 }
 
+function Page::print_header()
+{
+    $this->print_global_title();
+    $this->print_global_subtitle();
+    $this->print_title();
+    $this->print_module_jump_link();
+}
+
 function Page::print_title()
 "Using standard CSS, print the page title. If you want to change the way this looks, modify the CSS."
 {
@@ -3843,6 +3862,15 @@ if ($.replyto isa Comment) {
 function Page::title() [notags] : string {
     return $this->view_title();
 }
+
+function Page::print_module_jump_link() {
+    if ($*layout_type == "one-column-split") {
+        """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>""";
+    } else {
+        """<div id="module-jump-link"><a href="#secondary" title="Jump to modules below the entries">Modules</a></div>""";
+    }
+}
+
 function Page::print_wrapper_start()
 "This function adds standard classes to the body of a page.  Pass extra options to it if necessary.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
@@ -3864,6 +3892,7 @@ function Page::print_wrapper_start(string{} opts)
 
     var string column_count = "";
     var string column_side = "";
+    var string column_multiple = "";
 
     if ( $*layout_type->contains("split") ) { $column_count = "one-column"; }
     if ( $*layout_type->contains("two") ) { $column_count = "two-columns"; }
@@ -3873,12 +3902,15 @@ function Page::print_wrapper_start(string{} opts)
     if ( $*layout_type->contains("left") ) { $column_side = " column-left"; }
     if ( $*layout_type->contains("sides") ) { $column_side = " column-left column-right"; }
 
+    if ( $*layout_type->contains("one-column") ) { $column_multiple = "any-column"; }
+    else                                         { $column_multiple = "any-column multiple-columns"; }
+
     var string community_options = "";
     if ( $this.journal.journal_type == "C" ) {
          $community_options = "$member $admin $moderator";
     }
 
-    """<body class="page-$.view $column_count$column_side $*layout_type $opts{"class"} $logged_in $owner $subscribed $access $community_options $control_strip">\n""";
+    """<body class="page-$.view $column_count$column_side $column_multiple $*layout_type $opts{"class"} $logged_in $owner $subscribed $access $community_options $control_strip">\n""";
 }
 
 function Page::print_wrapper_end()
@@ -4747,6 +4779,7 @@ function Page::print()
 "The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -4759,9 +4792,7 @@ function Page::print()
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->

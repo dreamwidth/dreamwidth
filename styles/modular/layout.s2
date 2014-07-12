@@ -69,6 +69,7 @@ function print_module_navlinks() {
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -82,9 +83,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -185,6 +184,10 @@ h1, h2, h3, h4 {
     padding-right: .25em;
     }
 
+#module-jump-link {
+    padding-left: .5em;
+}
+
 .tags-container h2,
 .page-archive h3,
 .page-day h3.day-date {
@@ -261,23 +264,32 @@ table.talkform { padding: 1em;
 
 #primary > .inner:first-child { padding: 0 .5em; }
 
-.one-column #content {
+#content {
     margin-left: .5em;
     margin-right: .5em;
     }
 
-.one-column #secondary > .inner:first-child,
-.one-column #tertiary > .inner:first-child {
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
     padding-left: .5em;
     padding-right: .5em;
     }
 
-.two-columns-left #content,
-.three-columns-left #content { margin-right: .5em; }
+@media $*desktop_media_query {
+    .column-left #content {
+        margin-left: 0;
+    }
 
-.two-columns-right #content,
-.three-columns-right #content { margin-left: .5em; }
+    .column-right #content {
+        margin-right: 0;
+    }
 
+    .multiple-columns #secondary > .inner:first-child,
+    .multiple-columns #tertiary > .inner:first-child {
+        padding-left: 1em;
+        padding-right: 1em;
+    }
+}
 
 /* Entries */
 
@@ -501,8 +513,9 @@ table.month caption { color: $*color_entry_background; }
 
 /* Sidebars */
 
-.two-columns-left #tertiary .module,
-.two-columns-right #tertiary .module { margin: 1em 1em 1em 0; }
+@media $*desktop_media_query {
+    .two-columns #tertiary .module { margin: 1em 1em 1em 0; }
+}
 
 .module { margin: 0 0 1.5em 0; }
 

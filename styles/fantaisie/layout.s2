@@ -309,6 +309,7 @@ function Page::print_entry(Entry e) {
 
 function Page::print() {
 """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+"""<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -331,6 +332,7 @@ function Page::print() {
                             $this->print_module_section("header");
                             $this->print_global_subtitle();
                             $this->print_title();
+                            $this->print_module_jump_link();
     """
                         </div></div><!--  end header-secondary and >inner -->
                         <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
@@ -578,19 +580,27 @@ blockquote a {
 #header-canvas { margin: 0 2%; }
 
 #header-primary {
-    float: left;
-    padding: 1.5em 0;
+    padding: 1.5em 0 0 0;
 }
 
 #header-secondary {
     $header_secondary_background
     background-position: center right;
-    float: right;
     $header_secondary_height
     padding: 1.5em 0;
     text-align: right;
 }
 
+@media $*desktop_media_query {
+    #header-primary {
+        float: left;
+        padding: 1.5em 0;
+    }
+
+    #header-secondary {
+        float: right;
+    }
+}
 h1#title {
     line-height: 1em;
     margin: 0;
@@ -610,7 +620,8 @@ h1#title {
 #header .module-navlinks ul li:last-child::after { content: ""; }
 
 h2#subtitle,
-h2#pagetitle {
+h2#pagetitle,
+#module-jump-link {
     line-height: 1em;
     margin: 0;
     padding: 0 $header_secondary_padding 0 0;
@@ -639,29 +650,31 @@ h2#pagetitle {
     padding: 0;
 }
 
-.column-left #primary > .inner:first-child {
-    padding-left: 3em;
-}
+@media $*desktop_media_query {
+    .column-left #primary > .inner:first-child {
+        padding-left: 3em;
+    }
 
-.column-right #primary > .inner:first-child {
-    padding-right: 3em;
-}
+    .column-right #primary > .inner:first-child {
+        padding-right: 3em;
+    }
 
-.one-column #secondary,
-.one-column #tertiary,
-.two-columns #tertiary {
-    margin: 0 auto;
-    text-align: center;
-}
+    .one-column #secondary,
+    .one-column #tertiary,
+    .two-columns #tertiary {
+        margin: 0 auto;
+        text-align: center;
+    }
 
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child {
-    margin-right: 1.5em;
-}
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        margin-right: 1.5em;
+    }
 
-.three-columns-left #tertiary > .inner:first-child,
-.three-columns-right #tertiary > .inner:first-child {
-    margin-left: 1.5em;
+    .three-columns-left #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child {
+        margin-left: 1.5em;
+    }
 }
 
 /* Navigation
@@ -986,23 +999,25 @@ ul.comment-interaction-links li.cmt_hide::after {
 /* Modules
 ******************************/
 
-.two-columns #secondary .module,
-.three-columns #secondary .module,
-.three-columns #tertiary .module {
-   $module_footer_background
-   margin-bottom: 1.5em;
-   $module_footer_height;
-}
+@media $*desktop_media_query {
+    .two-columns #secondary .module,
+    .three-columns #secondary .module,
+    .three-columns #tertiary .module {
+       $module_footer_background
+       margin-bottom: 1.5em;
+       $module_footer_height;
+    }
 
-.one-column #secondary .module,
-.one-column #tertiary .module,
-.two-columns #tertiary .module {
-    display: inline-block;
-    float: none;
-    margin: .75em 1em;
-    width: $*sidebar_width;
-    vertical-align: top;
-    text-align: left;
+    .one-column #secondary .module,
+    .one-column #tertiary .module,
+    .two-columns #tertiary .module {
+        display: inline-block;
+        float: none;
+        margin: .75em 1em;
+        width: $*sidebar_width;
+        vertical-align: top;
+        text-align: left;
+    }
 }
 
 .module-header {
@@ -1024,8 +1039,8 @@ ul.comment-interaction-links li.cmt_hide::after {
 .module-navlinks .current { border-bottom: 1px dotted; }
 
 .module-userprofile .module-content,
-.one-column .module-calendar .module-content,
-.one-column .module-syndicate .module-content {
+.any-column .module-calendar .module-content,
+.any-column .module-syndicate .module-content {
     text-align: center;
 }
 

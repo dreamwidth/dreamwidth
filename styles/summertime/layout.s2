@@ -339,6 +339,7 @@ var bool modules_in_two = (
 
 """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n
     <head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
         $this->print_head();
         $this->print_stylesheets();
         $this->print_head_title();
@@ -370,6 +371,8 @@ var bool modules_in_two = (
             </div><!-- end header -->
             <div id="secondary-container"><div class="inner">
     """;
+                $this->print_module_jump_link();
+
                 if ($*layout_type == "one-column-split") {
                     """<div id="secondary"><div class="inner">""";
                     $this->print_module_section("one");
@@ -505,14 +508,19 @@ $userpic_css = """
 var string header_css = "";
 if ($*module_navlinks_section == "header") {
 $header_css = """
-#header-primary {
-    float: left;
+#header-secondary {
+    text-align: right;
 }
 
-#header-secondary {
-    float: right;
-    width: 355px;
-    text-align: right;
+@media $*desktop_media_query {
+    #header-primary {
+        float: left;
+    }
+
+    #header-secondary {
+        float: right;
+        width: 355px;
+    }
 }
 """;
 }
@@ -719,12 +727,17 @@ h2#pagetitle {
     clear: both;
 }
 
+#module-jump-link {
+    text-align: right;
+    margin-right: 25px;
+}
+
 /* Content Containers
 ******************************/
 
 #content {
     clear: both;
-    margin: 0 150px;
+    margin: 0 15px;
 }
 
 .page-entry #primary,
@@ -738,22 +751,12 @@ h2#pagetitle {
 
 #primary > .inner:first-child { padding: 0; }
 
-.two-columns-left #primary > .inner:first-child,
-.three-columns.column-left #primary > .inner:first-child {
-    margin-left: 25px;
-}
-
-.two-columns-right #primary > .inner:first-child,
-.three-columns.column-right #primary > .inner:first-child {
-    margin-right: 25px;
-}
-
 #secondary-container {
     background-color: $*color_module_top_background;
     border-radius: 0 0 20px 20px;
     box-shadow: 3px 3px 3px $*color_module_top_background_shadow;
     clear: both;
-    margin: 0 150px;
+    margin: 0 15px;
     min-height: 32px;
 }
 
@@ -761,35 +764,50 @@ h2#pagetitle {
     background-color: $*color_module_bottom_background;
     border-radius: 20px 20px 0 0;
     box-shadow: 3px -3px 3px $*color_module_bottom_background_shadow;
-    margin: 0 150px;
+    margin: 0 15px;
     min-height: 32px;
 }
-
-.two-columns #secondary,
-.three-columns #secondary,
-.three-columns #tertiary {
-    margin-top: 40px;
-    padding-top: 1.4em;
-    }
 
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child {
     padding: 0;
 }
 
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child {
-    margin-right: 12.5px;
+@media $*desktop_media_query {
+    #content, #secondary-container, #tertiary-container {
+        margin: 0 150px;
+    }
+
+    .two-columns-left #primary > .inner:first-child,
+    .three-columns.column-left #primary > .inner:first-child {
+        margin-left: 25px;
+    }
+
+    .two-columns-right #primary > .inner:first-child,
+    .three-columns.column-right #primary > .inner:first-child {
+        margin-right: 25px;
+    }
+
+    .two-columns #secondary,
+    .three-columns #secondary,
+    .three-columns #tertiary {
+        margin-top: 40px;
+        padding-top: 1.4em;
+        }
+
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        margin-right: 12.5px;
+    }
+
+    .two-columns-left #tertiary { margin-left: 0; }
+    .two-columns-right #tertiary { margin-right: 0; }
+
+    .three-columns-left #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child {
+        margin-left: 12.5px;
+    }
 }
-
-.two-columns-left #tertiary { margin-left: 0; }
-.two-columns-right #tertiary { margin-right: 0; }
-
-.three-columns-left #tertiary > .inner:first-child,
-.three-columns-right #tertiary > .inner:first-child {
-    margin-left: 12.5px;
-}
-
 /* Navigation
 ******************************/
 
@@ -1226,116 +1244,104 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
 
 /* Modules
 ******************************/
-
-.one-column #secondary .module-wrapper,
-.one-column #tertiary .module-wrapper,
-.two-columns #tertiary .module-wrapper {
+#secondary-container .module-wrapper, #tertiary-container .module-wrapper {
     padding: 25px;
-    text-align: center;
 }
 
-.one-column #secondary .module,
-.one-column #tertiary .module,
-.two-columns #tertiary .module {
-    display: inline-block;
-    float: none;
-    margin: 12.5px;
-    vertical-align: top;
-    width: $*sidebar_width;
-    text-align: left;
+.module-time, .module-calendar.calendar-horizontal {
+    padding-left: 35px;
 }
 
-.one-column #secondary .calendar-horizontal.module,
-.one-column #tertiary .calendar-horizontal.module,
-.two-columns #tertiary .calendar-horizontal.module {
-    display: block;
-    width: 100%;
+#secondary-container .module-time, #tertiary-container .module-time,
+#secondary-container .module-calendar.calendar-horizontal, #tertiary-container .module-calendar.calendar-horizontal {
+    padding-left: 0;
+}
+
+@media $*desktop_media_query {
+    #secondary-container .module-wrapper, #tertiary-container .module-wrapper {
+        padding: 0;
     }
 
-.one-column-split #secondary .module,
-.one-column #tertiary .module,
-.two-columns #tertiary .module {
-    background: none;
-}
+    .one-column #secondary .module-wrapper,
+    .one-column #tertiary .module-wrapper,
+    .two-columns #tertiary .module-wrapper {
+        padding: 25px;
+        text-align: center;
+    }
 
-.one-column #secondary .module,
-.two-columns #secondary .module,
-.three-columns #secondary .module,
-.three-columns #tertiary .module {
-    border-radius: 0 20px;
-    box-shadow: 3px 3px 5px $*color_module_background_shadow;
-    margin-bottom: 25px;
-}
+    .one-column #secondary .module,
+    .one-column #tertiary .module,
+    .two-columns #tertiary .module {
+        display: inline-block;
+        float: none;
+        margin: 12.5px;
+        vertical-align: top;
+        width: $*sidebar_width;
+        text-align: left;
+    }
 
-.one-column-split #secondary .module {
-    border-radius: 0;
-    box-shadow: none;
-    margin-bottom: 0;
+    .one-column #secondary .calendar-horizontal.module,
+    .one-column #tertiary .calendar-horizontal.module,
+    .two-columns #tertiary .calendar-horizontal.module {
+        display: block;
+        width: 100%;
+        }
 }
 
 .module-header {
     font-weight: normal;
     margin: 0;
-    padding: 0;
+    padding: 25px 25px 0 50px;
+    text-align: right;
     text-transform: uppercase;
 }
 
-.one-column #secondary .module-header,
-.two-columns #secondary .module-header,
-.three-columns .module-header {
-    padding: 25px 25px 0 50px;
-    text-align: right;
-}
-
-.one-column-split #secondary .module-header {
+#secondary-container .module-header, #tertiary-container .module-header {
     padding: 0;
     text-align: left;
 }
 
-.one-column-split #secondary .module {
+.any-column #secondary .module, .any-column #tertiary .module {
+    border-radius: 0 20px;
+    box-shadow: 3px 3px 5px $*color_module_background_shadow;
+    margin-bottom: 25px;
+}
+
+.any-column #secondary-container .module, .any-column #tertiary-container .module {
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+    background: none;
+}
+
+#secondary-container .module {
     $top_module_colors
 }
 
-.one-column-split #secondary .module a { $top_module_link_colors }
-.one-column-split #secondary .module a:visited { $top_module_link_visited_colors; }
-.one-column-split #secondary .module a:hover { $top_module_link_hover_colors; }
-.one-column-split #secondary .module a:active { $top_module_link_active_colors; }
+#secondary-container .module a { $top_module_link_colors }
+#secondary-container .module a:visited { $top_module_link_visited_colors; }
+#secondary-container .module a:hover { $top_module_link_hover_colors; }
+#secondary-container .module a:active { $top_module_link_active_colors; }
 
-.one-column-split #secondary .module h2 {
+#secondary-container .module h2 {
     $top_module_title_colors
 }
 
-.one-column #tertiary .module,
-.two-columns #tertiary .module {
+#tertiary-container .module {
     $bottom_module_colors
 }
 
-.one-column #tertiary .module a, .two-columns #tertiary .module a { $bottom_module_link_colors }
-.one-column #tertiary .modulea:visited, .two-columns #tertiary .module a { $bottom_module_link_visited_colors; }
-.one-column #tertiary .module a:hover, .two-columns #tertiary .module a { $bottom_module_link_hover_colors; }
-.one-column #tertiary .module a:active, .two-columns #tertiary .module a { $bottom_module_link_active_colors; }
+#tertiary-container .module a { $bottom_module_link_colors }
+#tertiary-container .modulea:visited { $bottom_module_link_visited_colors; }
+#tertiary-container .module a:hover { $bottom_module_link_hover_colors; }
+#tertiary-container .module a:active { $bottom_module_link_active_colors; }
 
-.one-column #tertiary .module h2,
-.two-columns #tertiary .module h2 {
+#tertiary-container .module h2  {
     $bottom_module_title_colors
 }
 
 .module-content {
     padding: 1.5625em;
-}
-
-.one-column #secondary .module-time,
-.two-columns #secondary .module-time,
-.three-columns .module-time,
-.one-column #secondary .module-calendar.calendar-horizontal,
-.two-columns #secondary .module-calendar.calendar-horizontal,
-.three-columns .module-calendar.calendar-horizontal {
-    padding-left: 35px;
-}
-
-.one-column-split #secondary .module-time,
-.one-column-split #secondary .module-calendar.calendar-horizontal {
-    padding-left: 0;
 }
 
 .module-content ul {
@@ -1429,7 +1435,7 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
 }
 
 #footer-shadow-left {
-    width: 150px;
+    width: 15px;
     box-shadow: 0 -3px 3px $*color_footer_background_shadow;
     height: 3px;
 }
@@ -1439,7 +1445,13 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
     height: 3px;
     margin-right: 0;
     margin-left: auto;
-    width: 150px;
+    width: 15px;
+}
+
+@media $*desktop_media_query {
+    #footer-shadow-left, #footer-shadow-right {
+        width: 150px
+    }
 }
 
 .page-top {

@@ -117,6 +117,7 @@ set module_navlinks_section = "header";
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -130,9 +131,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -342,20 +341,6 @@ a, a:link, a:active, a:visited {
     padding: 0;
     }
 
-.column-left #primary > .inner:first-child {
-    padding-left: 4em;
-    }
-
-.column-right #primary > .inner:first-child {
-    padding-right: 4em;
-    }
-
-/* to make sure the sidebars always have the same size */
-.three-columns-sides #primary > .inner:first-child {
-    padding-left: 2em;
-    padding-right: 2em;
-    }
-
 #secondary {
     margin-top: 3.15em;
     }
@@ -364,31 +349,42 @@ a, a:link, a:active, a:visited {
     padding: 0;
     }
 
-.three-columns #secondary > .inner:first-child {
-    padding-right: 2em;
-    }
-
-#tertiary {
-    padding-top: 3.15em;
-    }
-
-.one-column #tertiary {
-    padding-top: 0;
-    }
-
-.one-column #secondary,
-.one-column #tertiary {
-    clear: left;
-    width: 100%;
-    }
-
 #tertiary > .inner:first-child {
     padding: 0;
     }
 
-.three-columns #tertiary > .inner:first-child {
-    padding-left: 2em;
-    }
+.any-column #tertiary { clear: both; }
+@media $*desktop_media_query {
+    .column-left #primary > .inner:first-child {
+        padding-left: 4em;
+        }
+
+    .column-right #primary > .inner:first-child {
+        padding-right: 4em;
+        }
+
+    /* to make sure the sidebars always have the same size */
+    .three-columns-sides #primary > .inner:first-child {
+        padding-left: 2em;
+        padding-right: 2em;
+        }
+
+    .three-columns #secondary > .inner:first-child {
+        padding-right: 2em;
+        }
+
+    .multiple-columns #tertiary {
+        padding-top: 3.15em;
+        }
+    .three-columns #tertiary {
+        clear: none;
+        }
+    .three-columns #tertiary > .inner:first-child {
+        padding-left: 2em;
+        }
+
+}
+
 
 /* Header
 ***************************************************************************/
@@ -968,18 +964,20 @@ h3.day-date {
     margin-bottom: 2.5em;
     }
 
-.one-column #secondary .module,
-.one-column #tertiary .module,
-.two-columns #tertiary .module {
-    float: left;
-    margin-right: 2em;
-    }
+@media $*desktop_media_query {
+    .one-column #secondary .module,
+    .one-column #tertiary .module,
+    .two-columns #tertiary .module {
+        float: left;
+        margin-right: 2em;
+        }
 
-.one-column-split #primary,
-.one-column #footer,
-.two-columns #footer {
-    clear: both;
-    }
+    .one-column-split #primary,
+    .one-column #footer,
+    .two-columns #footer {
+        clear: both;
+        }
+}
 
 .module h2 {
     padding-top: .8em;

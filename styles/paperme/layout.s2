@@ -136,6 +136,10 @@ var string userpic_css = "";
    margin-top: 0px;
    }
 
+#module-jump-link {
+    text-align: right;
+}
+
 /* ------------------------------------------- Page Layout ------------------------------------------ */
 
 body {
@@ -168,13 +172,19 @@ img, img a {
 
 /*------------------------------------------ Sidebar --------------------------------------------*/
 
-.one-column #tertiary .module, .one-column #secondary .module, .two-columns #tertiary .module {
-    float:none !important;
+.any-column #tertiary .module, .any-column #secondary .module {
+    float:none;
     display:inline-block;
     width: $*sidebar_width;
     vertical-align: top;
     background: none;
+}
+@media $*desktop_media_query {
+    .multiple-columns #secondary .module, .three-columns #tertiary .module {
+        display: block;
+        width: auto;
     }
+}
 
 .module ul {
     list-style: none;

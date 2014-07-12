@@ -54,6 +54,7 @@ function Page::print()
 "The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -68,9 +69,7 @@ function Page::print()
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -197,43 +196,45 @@ float: left; width: 92%; /*asinine IE7 hack to keep left sidebar from sliding un
 #content { background-color: $*color_page_background;
 position: relative; z-index: 120;}
 
-.two-columns-left #content,
-.three-columns-sides #content { 
-    border-left: $*sidebar_width solid $*color_page_border;
-}
-.two-columns-right #content,
-.three-columns-sides #content {
-    border-right: $*sidebar_width solid $*color_page_border;
-}
-.three-columns-left #content {
-    border-left: $*sidebar_width_doubled solid $*color_page_border;
-}
-.three-columns-right #content {
-    border-right: $*sidebar_width_doubled solid $*color_page_border;
-}
-
 #content-footer { clear: both; }
 #content-footer { height: 0; font-size: 0; } /* IE clearing fix */
 
 /*to make the bottom curves */
-.one-column #content,
-.two-columns-left #content,
-.two-columns-right #content {
+.any-column #content {
     border-bottom-color: transparent;
     border-bottom-left-radius: 1em;
     border-bottom-right-radius: 1em;
+}
+@media $*desktop_media_query {
+    .two-columns-left #content,
+    .three-columns-sides #content {
+        border-left: $*sidebar_width solid $*color_page_border;
+    }
+    .two-columns-right #content,
+    .three-columns-sides #content {
+        border-right: $*sidebar_width solid $*color_page_border;
+    }
+    .three-columns-left #content {
+        border-left: $*sidebar_width_doubled solid $*color_page_border;
+    }
+    .three-columns-right #content {
+        border-right: $*sidebar_width_doubled solid $*color_page_border;
+    }
+    .three-columns #content {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
-.three-columns-sides #color-footer,
-.three-columns-left #color-footer,
-.three-columns-right #color-footer { background-color: $*color_page_border;
-    margin: 0 4%;
-    border: 1em solid $*color_page_border;
-    border-bottom-left-radius: 1em;
-    border-bottom-right-radius: 1em;
-    clear: both;
-    }
-
+    .three-columns-sides #color-footer,
+    .three-columns-left #color-footer,
+    .three-columns-right #color-footer { background-color: $*color_page_border;
+        margin: 0 4%;
+        border: 1em solid $*color_page_border;
+        border-bottom-left-radius: 1em;
+        border-bottom-right-radius: 1em;
+        clear: both;
+        }
+}
 
 /* header */
 #header { padding: .5em 1em;
@@ -576,19 +577,6 @@ text-align: center; }
     border-radius: 1em;
     }
 
-.one-column #secondary,
-.one-column #tertiary {
-    padding: .5em 0;
-    }
-
-.one-column #tertiary {
-    margin-top: 2em;
-    }
-
-.one-column-split #tertiary {
-    margin-top: 0;
-    }
-
 #secondary a,
 #tertiary a { color: $*color_module_link; }
 #secondary a:visited,
@@ -599,12 +587,32 @@ text-align: center; }
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child { padding: 0 !important; }
 
-.two-columns-left #tertiary,
-.two-columns-right #tertiary { 
-    border-bottom-left-radius: 1em;
-    border-bottom-right-radius: 1em;
-    }
+.any-column #secondary, .any-column #tertiary { padding: .5em 0; }
+.any-column #tertiary { margin-top: 2em; }
+.one-column-split #tertiary { margin-top: 0; }
+@media $*desktop_media_query {
+    .multiple-columns #secondary,
+    .multiple-columns #tertiary {
+        padding: 0;
+        }
 
+    .multiple-columns #tertiary {
+        margin-top: 0;
+        }
+
+    .two-columns #tertiary {
+        border-bottom-left-radius: 1em;
+        border-bottom-right-radius: 1em;
+        }
+
+    .two-columns #tertiary .module { margin: 1em 1.5em; }
+    .two-columns-left #tertiary .module { float: right !important; }
+
+    .two-columns #secondary .module-search .search-form,
+    .three-columns .module-search .search-form {
+        text-align: right;
+        }
+}
 
 .module {  padding: 1em .25em .5em .25em; 
     margin: 2.5em 1.5em;
@@ -612,11 +620,6 @@ text-align: center; }
     border-color: transparent !important;
     border-radius: 1em;
     }
-
-.two-columns-left #tertiary .module,
-.two-columns-right #tertiary .module { margin: 1em 1.5em; }
-
-.two-columns-left #tertiary .module { float: right !important; }
 
 .module-header { background-color: $*color_module_title_background;
     font-size: medium;
@@ -664,11 +667,6 @@ text-align: center; }
 }
 .module-search .search-form { margin: .2em auto; }
 .module-search .search-box { margin: .2em; }
-
-.two-columns #secondary .module-search .search-form,
-.three-columns .module-search .search-form {
-    text-align: right;
-    }
 
 .module-search .module-content,
 .module-cuttagcontrols .module-content {

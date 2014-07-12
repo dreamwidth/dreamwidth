@@ -155,16 +155,13 @@ hr,
     $entry_background
     }
 
-#secondary, .three-column #tertiary {
-    $module_background
-}
-.two-columns #primary, .three-columns #primary {
-    position: relative;
-    top: -4em;}
-
 #primary > .inner:first-child {
     padding: 1em .5em;
     }
+
+#secondary {
+    $module_background
+}
 
 #secondary > .inner:first-child {
     padding: .5em;
@@ -174,41 +171,65 @@ hr,
     padding: .5em;
     }
 
-.three-columns #tertiary > .inner:first-child {
-    padding-top: 4em;
+.any-column #secondary, .any-column #tertiary {
+    background-color: $*color_module_background;
     }
 
-.two-columns-left #content,
-.three-columns-sides #content {
-    border-left: $*sidebar_width solid $*color_module_background;
-}
-.two-columns-right #content,
-.three-columns-sides #content {
-    border-right: $*sidebar_width solid $*color_module_background;
-}
-.three-columns-left #content {
-    border-left: $*sidebar_width_doubled solid $*color_module_background;
-}
-.three-columns-right #content {
-    border-right: $*sidebar_width_doubled solid $*color_module_background;
-}
+.any-column .module {
+    display: inline-block;
+    vertical-align: top;
+    width: $*sidebar_width;
+    }
 
-.three-columns-sides #tertiary {position: relative;
-    padding: 0;
-    top: -4em;}
+@media $*desktop_media_query {
+    .multiple-columns #primary {
+        position: relative;
+        top: -4em;}
 
-.three-columns #tertiary > .inner:first-child {
-    padding-top: 0;
+    .three-column #tertiary {
+        $module_background
+    }
+
+    .three-columns #tertiary > .inner:first-child {
+        padding-top: 4em;
+        }
+
+    .column-left #content {
+        border-left: $*sidebar_width solid $*color_module_background;
+    }
+    .column-right #content {
+        border-right: $*sidebar_width solid $*color_module_background;
+    }
+    .three-columns-left #content {
+        border-left: $*sidebar_width_doubled solid $*color_module_background;
+    }
+    .three-columns-right #content {
+        border-right: $*sidebar_width_doubled solid $*color_module_background;
+    }
+
+    .three-columns-sides #tertiary {position: relative;
+        padding: 0;
+        top: -4em;}
+
+    .three-columns #tertiary > .inner:first-child {
+        padding-top: 0;
+    }
+
+    .two-columns #tertiary {color: $*color_page_text; background: $*color_entry_background; margin: 0;}
+    .two-columns #tertiary .module { background: transparent;}
+
+    .two-columns #tertiary a { color: $*color_entry_link }
+    .two-columns #tertiary a:visited { color: $*color_entry_link_visited }
+    .two-columns #tertiary a:hover { color: $*color_entry_link_hover }
+    .two-columns #tertiary a:active { color; $*color_entry_link_active }
+
+    .multiple-columns .module {
+        display: block;
+        vertical-align: baseline;
+        width: auto;
+        }
+
 }
-
-.two-columns #tertiary {color: $*color_page_text; background: $*color_entry_background; margin: 0;}
-.two-columns #tertiary .module { background: transparent;}
-
-.two-columns #tertiary a { color: $*color_entry_link }
-.two-columns #tertiary a:visited { color: $*color_entry_link_visited }
-.two-columns #tertiary a:hover { color: $*color_entry_link_hover }
-.two-columns #tertiary a:active { color; $*color_entry_link_active }
-
 
 /* Header
 ***************************************************************************/
@@ -219,56 +240,45 @@ hr,
     line-height: 140%;
     }
 
-.two-columns #header, .three-columns-sides #header .inner, .two-columns #footer, .three-columns-sides #footer .inner {
-        width:$*sidebar_width;}
+@media $*desktop_media_query {
+    .two-columns #header, .three-columns-sides #header .inner, .two-columns #footer, .three-columns-sides #footer .inner {
+            width:$*sidebar_width;}
 
-.three-columns-sides #header, .three-columns-sides #footer {
-    background: transparent;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+    .three-columns-sides #header, .three-columns-sides #footer {
+        background: transparent;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .three-columns-sides #header .inner, .three-columns-sides #footer .inner {
+        background: $*color_header_background;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .three-columns-right #header, .three-columns-left #header,
+    .three-columns-right #footer, .three-columns-left #footer {
+        width:$*sidebar_width_doubled;}
+
+    .column-right #header, .column-right #footer {
+        margin: 0 0 0 auto;
+        }
+
+    .column-left #header, .column-left #footer {
+        margin: 0 auto 0 0;
+        }
+
+    .three-columns-sides #header, .three-columns-sides #footer  {
+        width: 100%;
+        border-right: solid $*color_module_background $*sidebar_width;
+        }
 }
-
-.three-columns-sides #header .inner, .three-columns-sides #footer .inner {
-    background: $*color_header_background;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-}
-
-
-.three-columns-right #header, .three-columns-left #header,
-.three-columns-right #footer, .three-columns-left #footer {
-    width:$*sidebar_width_doubled;}
-
-.two-columns-right #header, .three-columns-right #header, .two-columns-right #footer, .three-columns-right #footer {
-    margin: 0 0 0 auto;
-    }
-
-.two-columns-left #header, .three-columns-left #header, .three-columns-sides #header,
-.two-columns-left #footer, .three-columns-left #footer, .three-columns-sides #footer {
-    margin: 0 auto 0 0;
-    }
-.three-columns-sides #header, .three-columns-sides #footer  {
-    width: 100%;
-    border-right: solid $*color_module_background $*sidebar_width;
-    }
 
 
 #header .inner { padding: 30px 15px 15px; text-align: right; }
 
 #footer {padding:0;}
 #footer .inner {padding: 0.5em;}
-
-.one-column #secondary, .one-column #tertiary {
-    background-color: $*color_module_background;
-    }
-
-.one-column #secondary, .one-column #tertiary { width: 100%; }
-.one-column .module {
-    display: inline-block;
-    vertical-align: top;
-    width: $*sidebar_width;
-    }
-
 
 h1#title {
     font-weight: lighter;
@@ -763,7 +773,6 @@ line-height: 120%;
     }
 
 .module-calendar table {
-    margin: 0 auto;
     text-align: center;
     }
 

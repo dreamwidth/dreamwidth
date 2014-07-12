@@ -347,23 +347,26 @@ a:active { $page_link_active_colors }
 
 q { font-style: italic; }
 
-.one-column #content { float: none; }
-.two-columns-left #content,
-.three-columns-sides #content {
-    border-left: $*sidebar_width solid transparent;
-}
-.two-columns-right #content,
-.three-columns-sides #content {
-    border-right: $*sidebar_width solid transparent;
-}
-.three-columns-left #content {
-    border-left: $*sidebar_width_doubled solid transparent;
-}
-.three-columns-right #content {
-    border-right: $*sidebar_width_doubled solid transparent;
-}
-.column-right #content {
-    min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
+/* #content layout */
+#content { float: none; }
+@media $*desktop_media_query {
+    .two-columns-left #content,
+    .three-columns-sides #content {
+        border-left: $*sidebar_width solid transparent;
+    }
+    .two-columns-right #content,
+    .three-columns-sides #content {
+        border-right: $*sidebar_width solid transparent;
+    }
+    .three-columns-left #content {
+        border-left: $*sidebar_width_doubled solid transparent;
+    }
+    .three-columns-right #content {
+        border-right: $*sidebar_width_doubled solid transparent;
+    }
+    .column-right #content {
+        min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
+    }
 }
 
 #content-footer {
@@ -392,6 +395,15 @@ h2#pagetitle {
     $page_subtitle_font
 }
 
+#module-jump-link a { color: $*color_header_link; }
+#module-jump-link a:visited { color: $*color_header_link_visited; }
+#module-jump-link a:hover { color: $*color_header_link_hover; }
+#module-jump-link a:active { color: $*color_header_link_active; }
+
+@media $*desktop_media_query {
+    .multiple-columns #module-jump-link { display: none; }
+}
+
 #footer {
     $footer_background
 }
@@ -402,78 +414,72 @@ h2#pagetitle {
 #footer a:active { $footer_link_active_colors }
 
 #primary {
-    float: left;
     width:100%;
     margin-right:-100%;
     margin-left: 0;
 }
 
-.one-column #primary { float: none; }
-
-#primary > .inner:first-child {
+#primary > .inner:first-child, #secondary > .inner:first-child, #tertiary > .inner:first-child {
     padding: 1em;
 }
 
-.one-column #secondary { width: auto; }
+/* modules layout */
+#primary { float: none; }
+#secondary, #tertiary { width: 100%; }
 
-.two-columns-left #secondary,
-.three-columns-sides #secondary {
-    float: left;
-    width: $*sidebar_width;
-    margin-left: -$*sidebar_width;
-}
-.two-columns-right #secondary {
-    float: right;
-    width: $*sidebar_width;
-    margin-right: -$*sidebar_width;
-}
-.three-columns-left #secondary {
-    float: left;
-    width: $*sidebar_width;
-    margin-left: -$*sidebar_width_doubled;
-}
-.three-columns-right #secondary {
-    float: right;
-    width: $*sidebar_width;
-    margin-right: -$*sidebar_width;
-}
+@media $*desktop_media_query {
+    .multiple-columns #primary {
+        float: left;
+    }
 
-#secondary > .inner:first-child {
-    padding: 1em;
-}
+    .two-columns-left #secondary,
+    .three-columns-sides #secondary {
+        float: left;
+        width: $*sidebar_width;
+        margin-left: -$*sidebar_width;
+    }
+    .two-columns-right #secondary {
+        float: right;
+        width: $*sidebar_width;
+        margin-right: -$*sidebar_width;
+    }
+    .three-columns-left #secondary {
+        float: left;
+        width: $*sidebar_width;
+        margin-left: -$*sidebar_width_doubled;
+    }
+    .three-columns-right #secondary {
+        float: right;
+        width: $*sidebar_width;
+        margin-right: -$*sidebar_width;
+    }
 
-.one-column #tertiary { width: auto; }
-
-.two-columns-left #tertiary,
-.two-columns-right #tertiary {
-    clear: both;
-}
-.two-columns-left #tertiary { margin-left: -$*sidebar_width; }
-.two-columns-right #tertiary { margin-right: -$*sidebar_width; }
-.two-columns-left #tertiary .module,
-.two-columns-right #tertiary .module {
-    float: left;
-    width: $*sidebar_width;
-}
-.three-columns-left #tertiary {
-    float: left;
-    width: $*sidebar_width;
-    margin-left: -$*sidebar_width;
-}
-.three-columns-right #tertiary {
-    float: right;
-    width: $*sidebar_width;
-    margin-right: -$*sidebar_width_doubled;
-    margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
-}
-.three-columns-sides #tertiary {
-    float: right;
-    width: $*sidebar_width;
-    margin-right: -$*sidebar_width;
-}
-
-#tertiary > .inner:first-child {
-    padding: 1em;
+    .two-columns #tertiary {
+        clear: both;
+        width: auto;
+    }
+    .two-columns-left #tertiary { margin-left: -$*sidebar_width; }
+    .two-columns-right #tertiary { margin-right: -$*sidebar_width; }
+    .two-columns #tertiary .module {
+        float: left;
+        width: $*sidebar_width;
+    }
+    .three-columns-left #tertiary {
+        float: left;
+        width: $*sidebar_width;
+        margin-left: -$*sidebar_width;
+    }
+    .three-columns-right #tertiary {
+        float: right;
+        width: $*sidebar_width;
+        margin-right: -$*sidebar_width_doubled;
+        margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
+    }
+    .three-columns-sides #tertiary {
+        float: right;
+        width: $*sidebar_width;
+        margin-right: -$*sidebar_width;
+    }
 }
 
 .navigation ul {
@@ -717,20 +723,20 @@ ul.userlite-interaction-links.text-links {
     text-align: left;
 }
 
-.module-calendar .module-content {
-    text-align: center;
-}
+.any-column .module-calendar table { margin: 0; }
+.module-calendar .module-content { text-align: left; }
+@media $*desktop_media_query {
+    .multiple-columns .module-calendar .module-content {
+        text-align: center;
+    }
 
-.one-column .module-calendar .module-content {
-    text-align: left;
-}
+    .multiple-columns .module-calendar table {
+        margin: 0 auto;
+    }
 
-.module-calendar table {
-    margin: 0 auto;
-}
-
-.one-column .module-calendar table {
-    margin: 0;
+    .multiple-columns .module-syndicate .module-content {
+        text-align: center;
+    }
 }
 
 .module-calendar td {
@@ -768,14 +774,6 @@ ul.userlite-interaction-links.text-links {
 }
 
 .tags_cloud li, .module-tags_cloud li { display: inline; }
-
-.module-syndicate .module-content {
-    text-align: center;
-}
-
-.one-column .module-syndicate .module-content {
-    text-align: left;
-}
 
 $userpic_css
     """;

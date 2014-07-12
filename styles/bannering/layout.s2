@@ -139,6 +139,7 @@ function print_module_navlinks() {
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -152,9 +153,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -318,6 +317,11 @@ a:hover { text-decoration: none; }
 .entry .footer,
 .comment .footer,
 .module { font-size: small; }
+
+#module-jump-link {
+    font-size: small;
+    text-align: right;
+}
 
 #canvas { position: relative;
     padding-top: 1px; }
@@ -486,10 +490,7 @@ div.icons-container div.icon:nth-of-type(2n) {
 
 /* Sidebars */
 
-.two-columns-left #secondary, .three-columns-sides #secondary, .three-columns-left #secondary, .three-columns-left #tertiary { border-right: 1px solid $*color_module_border; }
-.two-columns-right #secondary, .three-columns-sides #tertiary, .three-columns-right #secondary, .three-columns-right #tertiary { border-left: 1px solid $*color_module_border; }
-
-.one-column #content .module {
+#content .module {
     display: inline-block;
     vertical-align: top;
     width: $*sidebar_width;
@@ -497,9 +498,21 @@ div.icons-container div.icon:nth-of-type(2n) {
     padding: 0 .25em;
     }
 
-.one-column #content .module-wrapper {
+#content .module-wrapper {
     text-align:center;
     }
+
+@media $*desktop_media_query {
+    .two-columns-left #secondary, .three-columns-sides #secondary, .three-columns-left #secondary, .three-columns-left #tertiary { border-right: 1px solid $*color_module_border; }
+    .two-columns-right #secondary, .three-columns-sides #tertiary, .three-columns-right #secondary, .three-columns-right #tertiary { border-left: 1px solid $*color_module_border; }
+
+    body:not(.one-column) #content .module {
+        display: block;
+        vertical-align: baseline;
+        width: auto;
+        padding: 0;
+    }
+}
 
 .module { margin-bottom: 1em;
     border: none; }
@@ -515,8 +528,8 @@ div.icons-container div.icon:nth-of-type(2n) {
 
 .module .userlite-interaction-links { margin-top: .5em; }
 
-.module-calendar .module-content { text-align: left; }
-.module-calendar table { margin: 0; }
+.any-column .module-calendar .module-content { text-align: left; }
+.any-column .module-calendar table { margin: 0; }
 
 $navlinks_css
 .module-navlinks a.current { color: $*color_navlinks_link_current;

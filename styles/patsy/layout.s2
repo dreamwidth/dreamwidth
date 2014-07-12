@@ -61,6 +61,7 @@ function print_module_navlinks() {
 # Add section for navlinks module, reorder header and footer
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -75,9 +76,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -156,52 +155,59 @@ if ( ($*comment_userpic_style == "" and $*entry_userpic_style == "small") or ($*
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
-            .has-userpic .entry .userpic {
-                float: left;
-                margin: -4em 0 0 -$entry_userpic_margin;
-                border-right: 20px solid $*color_entry_border;
-                }
-
-            #primary, #header, #footer, .one-column #secondary, .one-column #tertiary, .two-columns #tertiary {
-                border-left: $entry_header_margin solid $*color_page_background !important;
-                }
-
             .entry,  .comment, .comment-pages, .bottomcomment, .month, .tags-container, .icons-container, .navigation, .talkform {
                     border-right: 20px solid $*color_entry_border;
                     border-left:0 !important;
                     }
 
-            .one-column #secondary, .one-column #tertiary, .two-columns #tertiary { border-right: 20px solid $*color_entry_border; }
+            #secondary, #tertiary { border-right: 20px solid $*color_entry_border; }
 
             #header { border-right: 20px solid $*color_header_border; }
 
             #footer { border-right: 20px solid $*color_footer_border; }
 
-            .has-userpic .comment .userpic {
-                float: left;
-                margin: -1em 0 0 -$comment_userpic_margin;
-                border-right: 20px solid $*color_entry_border;
-                }
+            @media $*desktop_media_query {
+                #primary, #header, #footer, #secondary, #tertiary {
+                    border-left: $entry_header_margin solid $*color_page_background !important;
+                    }
+
+                .has-userpic .entry .userpic {
+                    float: left;
+                    margin: -4em 0 0 -$entry_userpic_margin;
+                    border-right: 20px solid $*color_entry_border;
+                    }
+
+                .has-userpic .comment .userpic {
+                    float: left;
+                    margin: -1em 0 0 -$comment_userpic_margin;
+                    border-right: 20px solid $*color_entry_border;
+                    }
+            }
             """;
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
-            .has-userpic .entry .userpic {
-                float: right;
-                margin: -4em -$entry_userpic_margin 0 0;
-                border-left: 20px solid $*color_entry_border;
-                }
+            @media $*desktop_media_query {
+                #primary, #header, #footer, #secondary, #tertiary {
+                   border-right: $entry_header_margin solid $*color_page_background;
+                   }
+                .has-userpic .entry .userpic {
+                    float: right;
+                    margin: -4em -$entry_userpic_margin 0 0;
+                    border-left: 20px solid $*color_entry_border;
+                    }
 
-             #primary, #header, #footer, .one-column #secondary, .one-column #tertiary, .two-columns #tertiary {
-                border-right: $entry_header_margin solid $*color_page_background !important;
-                }
-            .has-userpic .comment .userpic {
-                float: right;
-                border-left: 20px solid $*color_entry_border;
-                margin: -1em -$comment_userpic_margin 0 0;
-                }
+                .has-userpic .comment .userpic {
+                    float: right;
+                    border-left: 20px solid $*color_entry_border;
+                    margin: -1em -$comment_userpic_margin 0 0;
+                    }
+            }
             """;
         }
+        $userpic_css = $userpic_css + """
+            .multiple-columns #secondary, .three-columns #tertiary { border: none; }
+        """;
 
 """
 
@@ -235,7 +241,6 @@ a { text-decoration: none; }
 #canvas {
     text-align: justify;
     padding: 0;
-    border-left: 100px solid $*color_content_border;
     }
 
 
@@ -269,12 +274,17 @@ li.page-separator { display: none; }
 
 .navigation ul { display: inline; padding: 0; margin: 0; }
 
-.column-left #content, .column-right #content {
-    border-color: $*color_module_background;
-    }
+@media $*desktop_media_query {
+    #canvas {
+        border-left: 100px solid $*color_content_border;
+        }
 
+    .column-left #content, .column-right #content {
+        border-color: $*color_module_background;
+        }
+    .two-columns #secondary, .three-columns #secondary, .three-columns #tertiary {position:relative; top: -7em;}
+}
 
-.two-columns #secondary, .three-columns #secondary, .three-columns #tertiary {position:relative; top: -7em;}
 /*------------------------------------- header & footer -------------------------------------*/
 
 #header {
@@ -556,18 +566,28 @@ textarea.textbox  { width: 80% !important; }
 
 /*------------------------------------- sidebar (minus the navigation)  -------------------------------------*/
 
-.two-columns #tertiary .module, .one-column #tertiary .module, .one-column #secondary .module {
-    display: inline-block;
-    width: $*sidebar_width;
-    float: none;
- }
+.any-column #secondary, .any-column #tertiary {
+    width: auto;
+}
 
-.two-columns #tertiary, .one-column #tertiary, .one-column #secondary  {
-     border-left: 20px solid $*color_entry_border;
-     background: $*color_module_background;
+@media $*desktop_media_query {
+    .multiple-columns #secondary, .three-columns.column-right #tertiary {
+        width: $*sidebar_width;
     }
 
-.two-columns #tertiary {margin:0;}
+    .two-columns #tertiary .module, .one-column #tertiary .module, .one-column #secondary .module {
+        display: inline-block;
+        width: $*sidebar_width;
+        float: none;
+     }
+
+    .two-columns #tertiary, .one-column #tertiary, .one-column #secondary  {
+         border-left: 20px solid $*color_entry_border;
+         background: $*color_module_background;
+        }
+
+    .two-columns #tertiary {margin:0;}
+}
 
 .module-content .userpic { text-align: center; }
 

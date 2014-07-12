@@ -341,30 +341,41 @@ div.icons-container div.icon:nth-of-type(2n) {
 
 /* Sidebars and Modules */
 
-
-.two-columns-right .module, .three-columns-right .module, .three-columns-sides #tertiary .module, .one-column .module { margin: 0 0 1em 1em}
-.two-columns-left .module, .three-columns-left .module, .three-columns-sides #secondary .module { margin: 1em;}
-
 .module {
     padding: 1em;
+    margin: 0 0 1em 1em;
     border-radius: 2em;
 }
 
-.one-column .module {
+.any-column .module {
     display:inline-block;
     width:$*sidebar_width;
     vertical-align: top;
     text-align: left;
 }
 
-.one-column #secondary, .one-column #tertiary, .one-column .module-navlinks {text-align: center;}
+.any-column .module-userprofile { text-align: left; }
+#secondary, #tertiary, .any-column .module-navlinks {text-align: center;}
 
-.module-userprofile {text-align: center;}
+@media $*desktop_media_query {
+    .two-columns-left .module, .three-columns-left .module, .three-columns-sides #secondary .module { margin: 1em;}
+
+    .multiple-columns .module {
+        display: block;
+        width: auto;
+        vertical-align: baseline;
+    }
+
+    .multiple-columns #secondary, .multiple-columns #tertiary {
+        text-align: left;
+    }
+
+    .multiple-columns .module-userprofile { text-align: center; }
+}
 
 .module .userpic {display:inline-block; float: none;}
 
 .module-navlinks {
-    text-align: center;
     background: $*color_navlinks_link_background;
     padding: 2em 0;
 }

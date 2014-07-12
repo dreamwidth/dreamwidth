@@ -79,6 +79,7 @@ function print_module_navlinks() {
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -92,9 +93,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -180,7 +179,6 @@ $navlinks_css = """
 .module-navlinks {
     background-color: transparent;
     border: none;
-    margin: -2em 1em 0 0;
     width: 100%;
 }
 
@@ -249,11 +247,20 @@ a:hover { text-decoration: underline; }
     text-align: right;
     margin-top: 85px; }
 #header > .inner:first-child { $header_background;
-    margin-bottom: -80px;
-    padding-bottom: 80px;
-    margin-top: -85px;
-    padding-top: 85px;
-    padding-left: 350px; }
+    background-size: 45%;
+}
+
+@media $*desktop_media_query {
+    #header > .inner:first-child {
+        margin-bottom: -80px;
+        padding-bottom: 80px;
+        margin-top: -85px;
+        padding-top: 85px;
+        padding-left: 350px;
+        background-size: auto;
+    }
+    .module-navlinks { margin: -2em 1em 0 0; }
+}
 
 #title,
 #subtitle,
@@ -273,9 +280,13 @@ $navlinks_css
 
 .navigation { text-align: right; }
 
-.one-column #content .module { display: inline-block; vertical-align: top; width: $*sidebar_width; }
+.any-column #content .module { display: inline-block; vertical-align: top; width: $*sidebar_width; }
+.any-column #content .module-wrapper { padding: 0 2em; }
 
-.one-column #content .module-wrapper { padding: 0 2em; }
+@media $*desktop_media_query {
+    .multiple-columns #content .module { display: block; vertical-align: baseline; width: auto; }
+    .multiple-columns #content .module-wrapper { padding: 0; }
+}
 
 /* Entries */
 
@@ -424,8 +435,9 @@ div.icons-container div.icon:nth-of-type(2n) {
 #tertiary a:active { color: $*color_module_link_active; }
 
 
-.two-columns-left #tertiary .separator-after,
-.two-columns-right #tertiary .separator-after { clear: both; }
+@media $*desktop_media_query {
+    .two-columns #tertiary .separator-after { clear: both; }
+}
 
 .module { margin-bottom: 1em;
     border: none; }

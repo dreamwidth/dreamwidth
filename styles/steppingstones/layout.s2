@@ -163,47 +163,55 @@ dl dt { font-weight: bold; }
 
 #header > .inner:first-child {
     $header_colors
-    margin: 1em;
+    margin: 1em 1em 1em 2em;
     padding: .5em 1em;
     }
 
-.one-column #header > .inner:first-child,
-.column-left #header > .inner:first-child {
-    margin-left: 2em;
-    }
-
-.column-right #header > .inner:first-child {
-    margin-right: 2em;
-    }
-
-#pagetitle { font-size: large; }
-
-.one-column #pagetitle,
-.two-columns-left #pagetitle {
-    margin-left: $*sidebar_width;
+#pagetitle {
+    font-size: large;
     text-align: right;
     }
 
-.three-columns-left #pagetitle {
-    margin-left: $*sidebar_width_doubled;
+#module-jump-link {
     text-align: right;
+}
+
+@media $*desktop_media_query {
+    .column-right #header > .inner:first-child {
+        margin-left: 1em;
+        margin-right: 2em;
+        }
+
+    .three-columns-sides #header > .inner:first-child {
+        margin: 1em 2em;
+        }
+
+    #pagetitle {
+        margin-left: $*sidebar_width;
     }
 
-.two-columns-right #pagetitle {
-    margin-right: $*sidebar_width;
-    text-align: left;
-    }
+    .two-columns-right #pagetitle {
+        margin-left: 0;
+        margin-right: $*sidebar_width;
+        text-align: left;
+        }
 
-.three-columns-right #pagetitle {
-    margin-right: $*sidebar_width_doubled;
-    text-align: left;
-    }
+    .three-columns-right #pagetitle {
+        margin-left: 0;
+        margin-right: $*sidebar_width_doubled;
+        text-align: left;
+        }
 
-.three-columns-sides #pagetitle {
-    margin-left: $*sidebar_width;
-    margin-right: $*sidebar_width;
-    text-align: center;
-    }
+    .three-columns-sides #pagetitle {
+        margin-left: $*sidebar_width;
+        margin-right: $*sidebar_width;
+        text-align: center;
+        }
+
+    .three-columns-left #pagetitle {
+        margin-left: $*sidebar_width_doubled;
+        }
+}
 
 /* Main Column
 ******************************/
@@ -505,11 +513,6 @@ table.month th {
 
 #secondary,
 #tertiary {
-    margin-top: -5em;
-    }
-
-.one-column #secondary,
-.one-column #tertiary {
     margin-top: 0;
     }
 
@@ -520,15 +523,20 @@ table.month th {
     padding: 0;
     }
 
-.two-columns-left #tertiary > .inner:first-child,
-.two-columns-right #tertiary > .inner:first-child {
-    background-color: transparent;
-    }
+@media $*desktop_media_query {
+    .multiple-columns #secondary,
+    .multiple-columns #tertiary {
+        margin-top: -5em;
+        }
 
-.two-columns-left #tertiary .module,
-.two-columns-right #tertiary .module {
-    margin-right: 1em;
-    }
+    .two-columns #tertiary > .inner:first-child {
+        background-color: transparent;
+        }
+
+    .two-columns #tertiary .module {
+        margin-right: 1em;
+        }
+}
 
 .module {
     border: none;

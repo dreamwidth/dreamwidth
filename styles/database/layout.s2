@@ -1102,6 +1102,7 @@ function Page::title() [notags] : string {
 function Page::print() {
 """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+"""<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -1115,9 +1116,7 @@ function Page::print() {
                 <div class="inner">
                     <div id="header-primary"><div class="inner">
                         """;
-                        $this->print_global_title();
-                        $this->print_global_subtitle();
-                        $this->print_title();
+                        $this->print_header();
     """
                     </div></div><!-- end primary and primary>inner -->
                     <div id="header-secondary"><div class="inner">
@@ -1234,27 +1233,37 @@ if ($*module_navlinks_section == "header") {
 $header_css = """
 #header {
     background: none;
-    border-right: $*sidebar_width solid transparent;
-    min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
     padding: 0;
     }
 
-#header-primary {
-    float: left;
-    width: 100%;
-    margin-right: -100%;
-    margin-left: 0;
-    padding-bottom: 1.75em;
-    }
-
 #header-secondary {
-    float: right;
-    width: $*sidebar_width;
-    margin-right: -$*sidebar_width;
     padding-bottom: 1.75em;
+}
+
+@media $*desktop_media_query {
+    #header {
+        border-right: $*sidebar_width solid transparent;
+        min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
     }
 
-#header-primary > .inner:first-child { margin-right: 3.5em; }
+    #header-primary {
+        float: left;
+        width: 100%;
+        margin-right: -100%;
+        margin-left: 0;
+        padding-bottom: 1.75em;
+        }
+
+    #header-secondary {
+        float: right;
+        width: $*sidebar_width;
+        margin-right: -$*sidebar_width;
+        padding-bottom: 1.75em;
+        }
+
+    #header-primary > .inner:first-child { margin-right: 3.5em; }
+}
+
 
 #header .module {
     column-count: 2;
@@ -1426,15 +1435,18 @@ h2#pagetitle {
 
 #primary > .inner:first-child { padding: 0; }
 
-.two-columns-left #primary > .inner:first-child { margin-left: 3.5em; }
-.two-columns-right #primary > .inner:first-child { margin-right: 3.5em; }
+@media $*desktop_media_query {
+    .two-columns-left #primary > .inner:first-child { margin-left: 3.5em; }
+    .two-columns-right #primary > .inner:first-child { margin-right: 3.5em; }
 
-.three-columns.column-left #primary > .inner:first-child { margin-left: 2em; }
-.three-columns.column-right #primary > .inner:first-child { margin-right: 2em; }
+    .three-columns.column-left #primary > .inner:first-child { margin-left: 2em; }
+    .three-columns.column-right #primary > .inner:first-child { margin-right: 2em; }
+}
 
 #secondary,
 #tertiary {
     margin-top: 1.9em;
+    width: auto;
     }
 
 .page-entry #secondary,
@@ -1446,27 +1458,29 @@ h2#pagetitle {
     margin-top: 0;
     }
 
-.one-column #secondary,
-.one-column #tertiary,
-.two-columns #tertiary {
-    margin: 0 auto;
-    text-align: center;
-    }
-
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child {
     padding: 0;
     }
 
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child {
-    margin-right: 1em;
+@media $*desktop_media_query {
+    .one-column #secondary,
+    .one-column #tertiary,
+    .two-columns #tertiary {
+        text-align: center;
+        margin: 0px auto;
     }
 
-.three-columns-left #tertiary > .inner:first-child,
-.three-columns-right #tertiary > .inner:first-child {
-    margin-left: 1em;
-    }
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        margin-right: 1em;
+        }
+
+    .three-columns-left #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child {
+        margin-left: 1em;
+        }
+}
 
 /* Navigation
 ******************************/
@@ -2044,23 +2058,26 @@ span.de {
     margin: 0 0 1.75em;
     }
 
-.one-column #secondary .module,
-.one-column #tertiary .module,
-.two-columns #tertiary .module {
-    display: inline-block;
-    float: none;
-    margin: 1.75em 1em 0;
-    width: $*sidebar_width;
-    text-align: left;
-    vertical-align: top;
-    }
+@media $*desktop_media_query {
+    .one-column #secondary .module,
+    .one-column #tertiary .module,
+    .two-columns #tertiary .module {
+        display: inline-block;
+        float: none;
+        margin: 1.75em 1em 0;
+        width: $*sidebar_width;
+        text-align: left;
+        vertical-align: top;
+        }
 
-.one-column #secondary .calendar-horizontal.module,
-.one-column #tertiary .calendar-horizontal.module,
-.two-columns #tertiary .calendar-horizontal.module {
-    display: block;
-    width: 100%;
-    }
+        .one-column #secondary .calendar-horizontal.module,
+        .one-column #tertiary .calendar-horizontal.module,
+        .two-columns #tertiary .calendar-horizontal.module {
+            display: block;
+            width: 100%;
+            }
+
+}
 
 .module h2 {
     letter-spacing: .1em;
@@ -2167,7 +2184,7 @@ ul.userlite-interaction-links.icon-links img:hover {
 
 .module-customtext .module-content { text-align: $*post_text_align; }
 
-.module-syndicate .module-content {
+.any-column .module-syndicate .module-content {
     margin-left: 15px;
     text-align: left;
     }

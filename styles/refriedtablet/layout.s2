@@ -470,9 +470,26 @@ h2.module-header {
     text-transform: lowercase;
 }
 
-.one-column .module:first-child h2.module-header {
+.module:first-child h2.module-header {
     border-top: 2px solid $*color_module_border;
     }
+
+/* Special case for modules without headers */
+
+.module-navlinks.module:first-child,
+.module-time.module:first-child,
+.module-powered.module:first-child {
+    border-top: 2px solid $*color_module_border;
+    }
+
+@media $*desktop_media_query {
+    .multiple-columns .module:first-child h2.module-header,
+    .multiple-columns .module-navlinks.module:first-child,
+    .multiple-columns .module-time.module:first-child,
+    .multiple-columns .module-powered.module:first-child {
+        border-top: none;
+    }
+}
 
 /* get rid of padding so that the header borders go all the way to the sides */
 #secondary {
@@ -485,10 +502,10 @@ h2.module-header {
     padding: 0;
 }
 
-.three-columns-sides #tertiary .inner:first-child,
-.three-columns-left #tertiary .inner:first-child,
-.three-columns-right #tertiary .inner:first-child {
-    padding-top: 0;
+@media $*desktop_media_query {
+    .three-columns #tertiary .inner:first-child {
+        padding-top: 0;
+    }
 }
 
 /* add padding to module content because whitespace is good! But we don't need so much on ul and table. */
@@ -496,9 +513,14 @@ h2.module-header {
     padding: 1em;
 }
 
-.module-content ul,
-.module-content table {
+.module-content ul {
     margin: 0 .5em;
+}
+
+@media $*desktop_media_query {
+    .multiple-columns .module-content table {
+        margin: 0 .5em;
+    }
 }
 
 /* make lists prettier */
@@ -506,14 +528,6 @@ h2.module-header {
     list-style: none;
     text-align: left;
 }
-
-/* Special case for modules without headers */
-
-.one-column .module-navlinks.module:first-child,
-.one-column .module-time.module:first-child,
-.one-column .module-powered.module:first-child {
-    border-top: 2px solid $*color_module_border;
-    }
 
 /* special case for the syndicate tags, too close to top */
 .module-syndicate .module-content {
@@ -526,48 +540,42 @@ h2.module-header {
     margin-top: 1em;
 }
 
-.two-columns-left #tertiary,
-.two-columns-right #tertiary {
-    $tertiary_border
+@media $*desktop_media_query {
+    .two-columns #tertiary {
+        $tertiary_border
+        }
+
+    /* don't make tertiary modules in two column into 15px boxes, the data doesn't fit!*/
+    /* color match the tertiary modules in two column styles to the page */
+    .two-columns #tertiary .module {
+        $page_background
+        $page_colors
+        border: none;
+        clear: both;
+        margin: 0 auto;
+        padding: 0;
+        width: auto;
     }
 
-/* don't make tertiary modules in two column into 15px boxes, the data doesn't fit!*/
-/* color match the tertiary modules in two column styles to the page */
-.two-columns-left #tertiary .module,
-.two-columns-right #tertiary .module {
-    $page_background
-    $page_colors
-    border: none;
-    clear: both;
-    margin: 0 auto;
-    padding: 0;
-    width: auto;
-}
+    .two-columns #tertiary .module a {
+        $page_link_colors
+    }
 
-.two-columns-left #tertiary .module a,
-.two-columns-right #tertiary .module a {
-    $page_link_colors
-}
+    .two-columns #tertiary .module a:visited {
+        $page_link_visited_colors
+    }
 
-.two-columns-left #tertiary .module a:visited,
-.two-columns-right #tertiary .module a:visited {
-    $page_link_visited_colors
-}
+    .two-columns #tertiary .module a:hover {
+        $page_link_hover_colors
+    }
 
-.two-columns-left #tertiary .module a:hover,
-.two-columns-right #tertiary .module a:hover {
-    $page_link_hover_colors
-}
-
-.two-columns-left #tertiary .module a:active,
-.two-columns-right #tertiary .module a:active {
-    $page_link_active_colors
+    .two-columns #tertiary .module a:active {
+        $page_link_active_colors
+    }
 }
 
 /* add room to breathe on one-column implementations */
-.one-column #primary,
-.one-column #secondary,
-.one-column #tertiary {
+#primary, #secondary, #tertiary {
     padding: 5%;
     width: 90%;
 }
@@ -576,15 +584,25 @@ h2.module-header {
     padding: 0;
     }
 
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child {
-    margin-right: .5em;
+@media $*desktop_media_query {
+    .multiple-columns #primary {
+        padding: 0;
+        width: 100%;
+    }
+    .multiple-columns #secondary, .multiple-columns #tertiary {
+        padding: 0;
     }
 
-.three-columns-right #tertiary > .inner:first-child,
-.three-columns-left #tertiary > .inner:first-child {
-    margin-left: .5em;
-    }
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        margin-right: .5em;
+        }
+
+    .three-columns-right #tertiary > .inner:first-child,
+    .three-columns-left #tertiary > .inner:first-child {
+        margin-left: .5em;
+        }
+}
 
 /* COMMENTS */
 

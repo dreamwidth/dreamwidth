@@ -198,28 +198,31 @@ ol {
     padding: 0;
     }
 
-.column-left #primary > .inner:first-child {
-    padding-left: 1em;
-    }
-
-.column-right #primary > .inner:first-child {
-    padding-right: 1em;
-    }
-
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child {
     padding: 0;
     }
 
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child {
-    margin-right: .5em;
-    }
+@media $*desktop_media_query {
+    .column-left #primary > .inner:first-child {
+        padding-left: 1em;
+        }
 
-.three-columns-left #tertiary > .inner:first-child,
-.three-columns-right #tertiary > .inner:first-child {
-    margin-left: .5em;
-    }
+    .column-right #primary > .inner:first-child {
+        padding-right: 1em;
+        }
+
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        margin-right: .5em;
+        }
+
+    .three-columns-left #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child {
+        margin-left: .5em;
+        }
+}
+
 
 /* Header
 ***************************************************************************/
@@ -753,9 +756,11 @@ table.month td {
     margin: 0 0 15px 0;
     }
 
-.two-columns #tertiary .module {
-    margin: 0 15px 15px 0;
-    }
+@media $*desktop_media_query {
+    .two-columns #tertiary .module {
+        margin: 0 15px 15px 0;
+        }
+}
 
 .module-header {
     font-weight: normal;
@@ -814,12 +819,14 @@ ul.userlite-interaction-links li {
 
 .module-navlinks {
     font-size: $*font_module_heading_size$*font_module_heading_units;
-    text-align: right;
-    }
-
-.one-column .module-navlinks {
     text-align: left;
     }
+
+@media $*desktop_media_query {
+    .multiple-columns .module-navlinks {
+        text-align: right;
+    }
+}
 
 .module-navlinks ul {
     text-transform: uppercase;

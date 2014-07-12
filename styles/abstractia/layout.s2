@@ -784,6 +784,10 @@ q {
     margin-right: 6%;
 }
 
+@media $*desktop_media_query {
+    .multiple-columns #module-jump-link { display: none; }
+}
+
 /* Content & Sidebars
 ***************************************************************************/
 

@@ -125,6 +125,7 @@ function print_module_navlinks() {
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -137,9 +138,7 @@ function Page::print() {
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
                     $this->print_module_section("header");
     """
                 </div><!-- end header>inner -->
@@ -339,11 +338,13 @@ function print_stylesheet () {
                 text-align: left;
                 }
 
-            .two-columns-left .module-navlinks,
-            .three-columns-left .module-navlinks { text-align:right; margin:0 0 0 -5px;}
-            .three-columns-sides .module-navlinks {text-align:center;}
+            @media $*desktop_media_query {
+                .two-columns-left .module-navlinks,
+                .three-columns-left .module-navlinks { text-align:right; margin:0 0 0 -5px;}
+                .three-columns-sides .module-navlinks {text-align:center;}
+            }
 
-            .module-navlinks ul, .one-column .module-navlinks ul {
+            .module-navlinks ul {
                 margin: 0;
                 padding: 0;
                 display: inline;
@@ -386,28 +387,30 @@ body {
     margin: 0 .25em 0;
     }
 
-.column-left #primary > .inner:first-child {
-    padding-left: 1em;
-    }
-
-.column-right #primary > .inner:first-child {
-    padding-right: 1em;
-    }
-
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child {
     padding: 0;
     }
 
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child {
-    padding-right: .5em;
-    }
+@media $*desktop_media_query {
+    .column-left #primary > .inner:first-child {
+        padding-left: 1em;
+        }
 
-.three-columns-left #tertiary > .inner:first-child,
-.three-columns-right #tertiary > .inner:first-child {
-    padding-left: .5em;
-    }
+    .column-right #primary > .inner:first-child {
+        padding-right: 1em;
+        }
+
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        padding-right: .5em;
+        }
+
+    .three-columns-left #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child {
+        padding-left: .5em;
+        }
+}
 
 a {
    text-decoration: none;
@@ -446,14 +449,11 @@ ol {
     }
 
 h1#title,
-h2#pagetitle {
+h2#pagetitle,
+h2#subtitle,
+#module-jump-link {
     text-align: right;
     text-transform: uppercase;
-    }
-
-h2#subtitle {
-    text-align: right;
-    text-transform: lowercase;
     }
 
 /*--- Journal Navigation ---*/
@@ -481,13 +481,20 @@ li.page-separator {
     }
 
 /*--- Sidebar aka Modules ---*/
-.one-column #secondary, .one-column #tertiary { width: 100%; text-align: center; }
-.one-column .module {
+#secondary, #tertiary { text-align: center; }
+.module {
     display: inline-block;
     vertical-align: top;
     width: $*modules_per_row;
     text-align:left;
     }
+
+@media $*desktop_media_query {
+    .multiple-columns .module {
+        display: block;
+        width: auto;
+    }
+}
 
 #secondary > .inner:first-child, #tertiary > .inner:first-child {
     border-top: 30px solid $*color_module_border;

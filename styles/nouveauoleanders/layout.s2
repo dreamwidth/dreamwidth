@@ -232,6 +232,7 @@ set text_unwatch_comments = "Untrack";
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -245,9 +246,7 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
-                    $this->print_global_title();
-                    $this->print_global_subtitle();
-                    $this->print_title();
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -335,12 +334,6 @@ var string comment_title_font = generate_font_css($*font_comment_title, $*font_b
 var string navlinks_css = "";
 if ($*module_navlinks_section == "header") {
     $navlinks_css = """
-    #header .module-wrapper {
-        margin-left: 220px;
-        margin-right: 220px;
-        padding-top: 1em;
-    }
-
     #header .module-wrapper .separator {
         display: none;
     }
@@ -349,7 +342,6 @@ if ($*module_navlinks_section == "header") {
         background-color: transparent;
         font-family: $*font_journal_title;
         font-size: small;
-        text-align: center;
     }
 
     .module-navlinks ul {
@@ -357,19 +349,35 @@ if ($*module_navlinks_section == "header") {
     }
 
     .module-navlinks li {
-        border-left: 1px solid $*color_page_title;
-        display: inline;
-        padding: 0 .25em 0 .5em;
-    }
-
-    .module-navlinks ul > li:first-child {
-        border-left: none;
+        display: block;
     }
 
     .module-navlinks a { color: $*color_header_link; }
     .module-navlinks a:visited { color: $*color_header_link_visited; }
     .module-navlinks a:hover { color: $*color_header_link_hover; }
     .module-navlinks a:active { color: $*color_header_link_active; }
+
+    @media $*desktop_media_query {
+        #header .module-wrapper {
+            margin-left: 220px;
+            margin-right: 220px;
+            padding-top: 1em;
+        }
+
+        .module-navlinks {
+            text-align: center;
+        }
+
+        .module-navlinks li {
+            display: inline;
+            border-left: 1px solid $*color_page_title;
+            padding: 0 .25em 0 .5em;
+        }
+
+        .module-navlinks ul > li:first-child {
+            border-left: none;
+        }
+    }
     """;
 }
 
@@ -559,25 +567,27 @@ body {
     padding: 1px;
     }
 
-#header .inner:first-child {
-    $header_background_image
-    background-position: top left;
-    margin-top: -1px;
-    }
+@media $*desktop_media_query {
+    #header .inner:first-child {
+        $header_background_image
+        background-position: top left;
+        margin-top: -1px;
+        }
 
-#header .inner .inner {
-    background: none;
-    }
+    #header .inner .inner {
+        background: none;
+        }
 
-#title {
-    margin-left: 200px;
-    margin-right: 200px;
-    }
+    #title {
+        margin-left: 200px;
+        margin-right: 200px;
+        }
 
-#subtitle, #pagetitle {
-    margin-left: 2em;
-    margin-right: 2em;
-    }
+    #subtitle, #pagetitle {
+        margin-left: 2em;
+        margin-right: 2em;
+        }
+}
 
 #content {
     border-color: $*color_module_background !important;
@@ -613,25 +623,6 @@ body {
     margin-bottom: 3em;
     }
 
-.entry-wrapper-odd {
-    margin-right: 255px;
-    }
-.entry-wrapper-even {
-    margin-left: 255px;
-    }
-
-.entry-wrapper-odd .entry {
-    $entry_border_image_odd
-    margin-right: -255px;
-    padding: 1px;
-    }
-
-.entry-wrapper-even .entry {
-    $entry_border_image_even
-    margin-left: -255px;
-    padding: 1px;
-    }
-
 .entry {
     border: none;
     }
@@ -640,14 +631,36 @@ body {
     padding: .5em 0;
     }
 
-.entry-wrapper-odd .header {
-    margin-right: 210px;
-    }
 
-.entry-wrapper-even .header {
-    margin-left: 210px;
-    text-align: right;
-    }
+@media $*desktop_media_query {
+    .entry-wrapper-odd {
+        margin-right: 255px;
+        }
+    .entry-wrapper-even {
+        margin-left: 255px;
+        }
+
+    .entry-wrapper-odd .entry {
+        $entry_border_image_odd
+        margin-right: -255px;
+        padding: 1px;
+        }
+
+    .entry-wrapper-even .entry {
+        $entry_border_image_even
+        margin-left: -255px;
+        padding: 1px;
+        }
+
+    .entry-wrapper-odd .header {
+        margin-right: 210px;
+        }
+
+    .entry-wrapper-even .header {
+        margin-left: 210px;
+        text-align: right;
+        }
+}
 
 .entry-wrapper-odd .contents .entry-poster {
     margin-left: -1em;
@@ -1030,22 +1043,23 @@ table.month th {
     color: $*color_module_link_active;
     }
 
-.two-columns-left #tertiary .separator-after, .two-columns-right #tertiary .separator-after {
-    clear: both;
-    }
-
 .module {
     margin: 0 0 1em;
     padding-top: 1px;
     }
 
-.two-columns-left #tertiary .module, .two-columns-right #tertiary .module {
-    margin: 0 1.5em;
-    }
+@media $*desktop_media_query {
+    .two-columns #tertiary .separator-after {
+        clear: both;
+        }
+    .two-columns #tertiary .module {
+        margin: 0 1.5em;
+        }
 
-.two-columns-left #tertiary .module {
-    float: right;
-    }
+    .two-columns-left #tertiary .module {
+        float: right;
+        }
+}
 
 .module-header {
     font-size: large;
@@ -1076,7 +1090,7 @@ table.month th {
     padding-left: 0;
     }
 
-.module-calendar table {
+.any-column .module-calendar table {
     font-size: small;
     margin: 0;
     }
@@ -1086,7 +1100,7 @@ table.month th {
     color: $*color_module_title;
     }
 
-.module-syndicate .module-content {
+.any-column .module-syndicate .module-content {
     text-align: left;
     }
 
