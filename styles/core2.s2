@@ -3867,7 +3867,7 @@ function Page::print_module_jump_link() {
     if ($*layout_type == "one-column-split") {
         """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>""";
     } else {
-        """<div id="module-jump-link"><a href="#secondary"title="Jump to modules below the entries">Modules</a></div>""";
+        """<div id="module-jump-link"><a href="#secondary" title="Jump to modules below the entries">Modules</a></div>""";
     }
 }
 
