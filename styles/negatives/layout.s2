@@ -365,6 +365,10 @@ function Page::print_default_stylesheet()
     #header a:hover {
         color: $*color_header_link_hover;
     }
+    #module-jump-link { text-align: right; }
+    @media $*desktop_media_query {
+        .multiple-columns #module-jump-link { display: none; }
+    }
     .module-section-two {
     }
     .module-section-three {
@@ -1013,6 +1017,7 @@ function Page::print()
     println """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>""";
+        """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
         $this->print_head();
         $this->print_stylesheets();
         $this->print_head_title();
@@ -1024,6 +1029,7 @@ function Page::print()
             println "<a name=\"top\"></a>";
             $this->print_global_title();
             $this->print_global_subtitle();
+            $this->print_module_jump_link();
             $this->print_module_section("two");
         println "</div>";
         if ($*layout_type == "one-column-split") {

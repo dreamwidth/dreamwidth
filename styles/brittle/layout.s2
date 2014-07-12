@@ -480,6 +480,10 @@ q { font-style: italic; }
   $journal_subtitle_font
 }
 
+@media $*desktop_media_query {
+    .multiple-columns #module-jump-link { display: none; }
+}
+
 /*--- footer ---*/
 #footer {
     background: $*color_footer_background;

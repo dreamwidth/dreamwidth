@@ -376,6 +376,10 @@ input, textarea {
     padding: 4em 2em;
     }
 
+@media $*desktop_media_query {
+    .multiple-columns #module-jump-link { display: none; }
+}
+
 #footer {
     clear: both;
     display: block;
