@@ -458,33 +458,34 @@ body {$page_font $page_background color: $*color_page_text; width: 100%; margin:
 
 #secondary > .inner:first-child {padding: 0;}
 
-.one-column #secondary {display: none;}
-.one-column #primary {border: 0.083em solid $*color_page_border; background: $*color_entry_background; width: 90%; padding: 0; border-top: 0; position: absolute; margin-left: 5%; }
-.one-column #header { width: 90%;}
+#primary {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0; border-top: 0; }
+#header, #primary, #secondary { width: 90%; margin-left: 5%; }
 
-.two-columns #secondary {
-    background: $*color_entry_background;
-    border: .083em solid $*color_page_border;
-    border-bottom: 0;
-    margin-$sidebar_position: auto;
-    margin-$sidebar_position_opposite: 66.4%;
-    width: 16.667em;
-    }
+@media $*desktop_media_query {
+    .two-columns #secondary {
+        background: $*color_entry_background;
+        border: .083em solid $*color_page_border;
+        border-bottom: 0;
+        margin-$sidebar_position: auto;
+        margin-$sidebar_position_opposite: 66.4%;
+        width: 16.667em;
+        }
 
-.two-columns #primary {
-    background: $*color_entry_background;
-    border: .083em solid $*color_page_border;
-    border-top: 0;
-    margin-$sidebar_position_opposite: 5%;
-    padding: 0;
-    position: absolute;
-    width: 60.4%;
-    $sidebar_position_opposite: 0;
-    }
+    .two-columns #primary {
+        background: $*color_entry_background;
+        border: .083em solid $*color_page_border;
+        border-top: 0;
+        margin-$sidebar_position_opposite: 5%;
+        padding: 0;
+        position: absolute;
+        width: 60.4%;
+        $sidebar_position_opposite: 0;
+        }
 
-.two-columns #header {
-    width: 60.4%;
-    }
+    .two-columns #header {
+        width: 60.4%;
+        }
+}
 
 /* ====================== RANDOM MARK UP AND CONDITIONALS ======================= */
 
@@ -544,25 +545,29 @@ ul ul {list-style: circle;}
 #header {
     border: .083em solid $*color_page_border;
     border-bottom: none;
-    margin: 0 -100% 0 5%;
     padding: 0;
     $header_background
     $header_background_height
     }
 
-.two-columns-left #header {
-    margin: 0 5% 0 auto;
+#module-jump-link { text-align: right; }
+@media $*desktop_media_query {
+    .two-columns-right #header {
+        margin: 0 -100% 0 5%;
     }
+
+    .two-columns-left #header {
+        margin: 0 5% 0 auto;
+        }
+
+    .multiple-columns #module-jump-link { display: none; }
+}
 
 #title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; color: $*color_page_title; margin: 0; }
 
 #subtitle { $page_subtitle_font padding-left: 1.5em; color: $*color_page_title; }
 
 #pagetitle { border-bottom: 0.083em solid $*color_page_border; font-size: 1em; padding: 0 0 1em 2.2em; margin: 0.5em 0 0 0; }
-
-@media $*desktop_media_query {
-    .multiple-columns #module-jump-link { display: none; }
-}
 
 $navlinks_css
 
