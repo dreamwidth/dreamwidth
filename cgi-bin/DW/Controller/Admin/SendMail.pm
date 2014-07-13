@@ -23,9 +23,7 @@ use DW::Routing;
 use DW::Template;
 use DW::Controller::Admin;
 
-my @privs;
-push @privs, grep { /\w:/ } sort values %LJ::SENDMAIL_ACCOUNTS;
-# the grep is to hopefully avoid hash values that aren't in priv:args form
+my @privs = qw(siteadmin:sendmail);
 
 DW::Controller::Admin->register_admin_page( '/',
     path => 'sendmail/',
@@ -137,10 +135,9 @@ sub index_controller {
     # end form processing
 
     # Construct data for dropdown of available email addresses;
-    # the user should have at least one of these or else
-    # the controller priv check would have failed, above.
-    # One exception: if user has form edit priv but no relevant acct priv.
-    # We check for that in the template and print an error if that happens.
+    # the user should have at least one of these for this page to be useful.
+    # If the user somehow has sendmail priv but no relevant account priv,
+    # we print an error in the template in that case.
     my @account_menu = ( "", LJ::Lang::ml( '/admin/sendmail/index.tt.select.account.choose' ) );
 
     foreach my $account ( sort keys %LJ::SENDMAIL_ACCOUNTS ) {
