@@ -50,17 +50,22 @@ sub error_ml {
 # return a success page using a language string
 sub success_ml {
     return DW::Template->render_template(
-        'success.tt', {
+        'success.tt', { message => LJ::Lang::ml( $_[0], $_[1] ), links => $_[2] }
+    );
+}
+
+# return a success page, takes the following arguments:
+#   - a scope page in the form of `page-name.tt', in the form that DW::Controller->render_template expects
+#       this scope's corresponding .tt.text should have a ".success.message" and ".success.title"
+#   - a hashref of arguments to ".success.message", if needed
+#   - a list of links, with each link being in the form of { text_ml => ".success.link.x", url => LJ::create_url( "..." ) }
+sub render_success {
+    return DW::Template->render_template(
+        'success-page.tt', {
             scope => "/" . $_[0],
             message_arguments => $_[1],
             links => $_[2],
     });
-}
-
-sub old_success_ml {
-    return DW::Template->render_template(
-        'old-success.tt', { message => LJ::Lang::ml( $_[0], $_[1] ), links => $_[2] }
-    );
 }
 
 # helper controller.  give it a few arguments and it does nice things for you.

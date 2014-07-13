@@ -266,7 +266,7 @@ sub new_handler {
                     journal_adult_settings  => $post->{age_restriction},
                 ) unless $second_submit;
 
-            return success_ml( 'communities/new.tt', { user => $cu->ljuser_display },
+            return DW::Controller->render_success( 'communities/new.tt', { user => $cu->ljuser_display },
             [
                 {   text_ml => ".success.link.settings",
                     url => LJ::create_url( "/manage/settings", args => { authas => $cu->user, cat => "community" } ),
@@ -392,7 +392,7 @@ sub convert_handler {
             $cu->lazy_interests_cleanup;
             LJ::Hooks::run_hook("change_journal_type", $cu);
 
-            return success_ml( 'communities/convert.tt', { comm => $cu->ljuser_display },
+            return DW::Controller->render_success( 'communities/convert.tt', { comm => $cu->ljuser_display },
             [
                 {   text_ml => ".success.link.settings",
                     url => LJ::create_url( "/manage/settings", args => { authas => $cu->user, cat => "community" } ),
