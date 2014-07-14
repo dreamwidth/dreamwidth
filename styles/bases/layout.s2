@@ -561,7 +561,7 @@ ul ul {list-style: circle;}
 #pagetitle { border-bottom: 0.083em solid $*color_page_border; font-size: 1em; padding: 0 0 1em 2.2em; margin: 0.5em 0 0 0; }
 
 @media $*desktop_media_query {
-    .multiple-columns #module-jump-link { display: none; }
+    #module-jump-link { display: none; }
 }
 
 $navlinks_css

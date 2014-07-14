@@ -481,7 +481,7 @@ q { font-style: italic; }
 }
 
 @media $*desktop_media_query {
-    .multiple-columns #module-jump-link { display: none; }
+    #module-jump-link { display: none; }
 }
 
 /*--- footer ---*/

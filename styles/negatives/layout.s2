@@ -367,7 +367,7 @@ function Page::print_default_stylesheet()
     }
     #module-jump-link { text-align: right; }
     @media $*desktop_media_query {
-        .multiple-columns #module-jump-link { display: none; }
+        #module-jump-link { display: none; }
     }
     .module-section-two {
     }
