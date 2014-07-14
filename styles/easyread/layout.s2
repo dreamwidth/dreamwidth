@@ -479,7 +479,7 @@ html body {
 }
 
 @media $*desktop_media_query {
-    .multiple-columns #module-jump-link { display: none; }
+    #module-jump-link { display: none; }
 }
 
 /* Navigation at top/bottom of recent entries page */

@@ -401,7 +401,7 @@ h2#pagetitle {
 #module-jump-link a:active { color: $*color_header_link_active; }
 
 @media $*desktop_media_query {
-    .multiple-columns #module-jump-link { display: none; }
+    #module-jump-link { display: none; }
 }
 
 #footer {
