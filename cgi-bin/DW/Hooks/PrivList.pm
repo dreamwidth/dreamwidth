@@ -120,6 +120,7 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         mysqlstatus    => "Access to /admin/mysql_status",
         propedit       => "Allow to change userprops for other users",
         rename         => "Access to rename_opts console command",
+        sendmail       => "Access to /admin/sendmail",
         spamreports    => "Access to /admin/spamreports",
         styleview      => "Access to private styles on /customize/advanced",
         themes         => "Access to /admin/themes",
