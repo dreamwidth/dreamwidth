@@ -3173,6 +3173,24 @@ CREATE TABLE openid_claims (
 )
 EOC
 
+register_tablecreate("siteadmin_email_history", <<'EOC');
+CREATE TABLE siteadmin_email_history (
+    msgid        INT UNSIGNED NOT NULL,
+    remoteid     INT UNSIGNED NOT NULL,
+    time_sent    INT UNSIGNED NOT NULL,   #unixtime
+    account      VARCHAR(255) NOT NULL,
+    sendto       VARCHAR(255) NOT NULL,
+    subject      VARCHAR(255) NOT NULL,
+    request      INT UNSIGNED,
+    message      MEDIUMTEXT NOT NULL,
+    notes        MEDIUMTEXT,
+
+    PRIMARY KEY (msgid),
+    INDEX (account),
+    INDEX (sendto)
+)
+EOC
+
 # FIXME: add alt text, etc. mediaprops?
 register_tablecreate("media", <<'EOC');
 CREATE TABLE `media` (

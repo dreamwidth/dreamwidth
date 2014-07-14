@@ -367,7 +367,7 @@ function Page::print_default_stylesheet()
     }
     #module-jump-link { text-align: right; }
     @media $*desktop_media_query {
-        .multiple-columns #module-jump-link { display: none; }
+        #module-jump-link { display: none; }
     }
     .module-section-two {
     }
@@ -410,14 +410,6 @@ function Page::print_default_stylesheet()
         font-size: 0.80em;
         $module_background
         color: $*color_module_text;
-        }
-
-    .one-column #secondary {
-        border-left: 5px double $*color_module_border;
-        border-right: 5px double $*color_module_border;
-        }
-
-    .one-column-split #secondary {
         border-left: 5px double $*color_module_border;
         border-right: 5px double $*color_module_border;
         }
@@ -441,11 +433,18 @@ function Page::print_default_stylesheet()
         font-weight:bold;
         letter-spacing:.3em;
     }
-    .two-columns-right #secondary .module-header {
-        text-align: right;
-    }
     #secondary .module-header a {
         color: $*color_module_title;
+    }
+
+    @media $*desktop_media_query {
+        .multiple-columns #secondary {
+            border: none;
+        }
+
+        .two-columns-right #secondary .module-header {
+            text-align: right;
+        }
     }
 
     .manage-link {
@@ -733,8 +732,10 @@ function Page::print_default_stylesheet()
         display: inline;
         padding: .2em 1em .2em .5em;
     }
-    .two-columns-left .module-section-two .module-navlinks {
-        text-align: right;
+    @media $*desktop_media_query {
+        .two-columns-left .module-section-two .module-navlinks {
+            text-align: right;
+        }
     }
     .module-section-one .module-navlinks {
         clear: both;
@@ -757,8 +758,10 @@ function Page::print_default_stylesheet()
         $entry_title_font
     }
 
-    .two-columns-right .module-section-one .module-userprofile .userpic {
-        text-align: right;
+    @media $*desktop_media_query {
+        .two-columns-right .module-section-one .module-userprofile .userpic {
+            text-align: right;
+        }
     }
 
     .module-section-two .module-calendar,
@@ -766,7 +769,13 @@ function Page::print_default_stylesheet()
         text-align: center;
         font-size: 0.8em;
         padding:5px;
-        margin: 0px 190px 0px 100px;
+        margin: 0;
+    }
+    @media $*desktop_media_query {
+        .module-section-two .module-calendar,
+        .module-section-three .module-calendar {
+            margin: 0px 190px 0px 100px;
+        }
     }
     .module-calendar table {
         letter-spacing: 0.2em;
@@ -810,19 +819,22 @@ function Page::print_default_stylesheet()
         text-align: right;
     }
 
-    .one-column #primary,
-    .one-column #secondary {
+    #primary,
+    #secondary {
         margin: 0 5%;
     }
 
-    .two-columns-left #primary {float: right;}
-    .two-columns-left #secondary { float: right; }
-    .two-columns-right #primary { float: left; }
-    .two-columns-right #secondary {float: left;}
-    .two-columns-left #primary { right: 10%; width: 70%; }
-    .two-columns-left #secondary { right: 10%; width: 15%; }
-    .two-columns-right #primary {left: 10%; width: 70%;}
-    .two-columns-right #secondary {left: 10%; width: 15%;}
+    @media $*desktop_media_query {
+        .multiple-columns #primary, .multiple-columns #secondary { margin: 0; }
+        .two-columns-left #primary { float: right;}
+        .two-columns-left #secondary { float: right; }
+        .two-columns-right #primary { float: left; }
+        .two-columns-right #secondary {float: left;}
+        .two-columns-left #primary { right: 10%; width: 70%; }
+        .two-columns-left #secondary { right: 10%; width: 15%; }
+        .two-columns-right #primary {left: 10%; width: 70%;}
+        .two-columns-right #secondary {left: 10%; width: 15%;}
+    }
 
 $userpic_css
 
@@ -1017,7 +1029,7 @@ function Page::print()
     println """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>""";
-        """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
+        $this->print_meta_viewport_tag();
         $this->print_head();
         $this->print_stylesheets();
         $this->print_head_title();
@@ -1067,3 +1079,4 @@ function Page::print()
     $this->print_wrapper_end();
     println "</html>";
 }
+

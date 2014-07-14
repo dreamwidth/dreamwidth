@@ -639,6 +639,9 @@ class Page
     function print_module_jump_link()
     "Print a link to jump to modules below the entries";
 
+    function print_meta_viewport_tag()
+    "Print the meta name=viewport tag for mobile devices";
+
     function print_wrapper_start() "Start the body wrapper for this page; includes default classes";
     function print_wrapper_start(string{} opts) "Start the body wrapper for this page; includes default classes and takes a hash using the key 'class'";
     function print_wrapper_end() "End the body wrapper for this entry or comment.";
@@ -1247,7 +1250,7 @@ property string sidebar_width_doubled {
 }
 
 set layout_type = "";
-set desktop_media_query = "only screen and (min-width: 60em)";
+set desktop_media_query = "only screen and (min-width: 30em)";
 set num_items_recent = 20;
 set num_items_reading = 20;
 set use_custom_friend_colors = false;
@@ -3737,6 +3740,14 @@ function generate_font_css(string font_base, string font_fallback, string font_s
     return generate_font_css("", $font_base, $font_fallback, $font_size, $font_unit);
 }
 
+function Page::print_meta_viewport_tag() {
+    # they're using their own stylesheets which probably won't work with the initial scale
+    # (things will just look smooshed together)
+    if ($*include_default_stylesheet) {
+        print """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
+    }
+}
+
 function Page::print_header()
 {
     $this->print_global_title();
@@ -4779,7 +4790,7 @@ function Page::print()
 "The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
+    $this->print_meta_viewport_tag();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
