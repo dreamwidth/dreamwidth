@@ -824,5 +824,3 @@ $userpic_css
 function Page::print_module_jump_link() {
     print """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>""";
 }
-
-function Page::print_meta_viewport_tag() {}
