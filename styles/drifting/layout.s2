@@ -372,28 +372,41 @@ function Page::print_default_stylesheet()
         $canvas_colors
     }
 
-    #primary {
-        margin: 10px 0 0 235px;
-        border-left: 1px solid $*color_page_border;
-    }
-
     #secondary {
-        float: left;
-        width: 225px;
         margin: 0px 0px 0px 0px;
-        border-right: 1px solid $*color_module_border;
         text-align: left;
     }
 
-    #secondary .module-wrapper .separator-after {
-        float: left;
-        clear: left;
-        width: 224px;
-        height: 1.5em;
-        margin-top: .5em;
-        $module_footer_colors
-    }
+    /* reorder so that #primary appears on top of #secondary on mobile views */
+    #canvas { display: table; }
+    #header { display: table-header-group; }
+    #secondary { display: table-footer-group; }
+    #primary { display: table-row-group; }
 
+    @media $*desktop_media_query {
+        #canvas, #header, #secondary, #primary { display: block; }
+        #primary {
+            margin: 10px 0 0 235px;
+            border-left: 1px solid $*color_page_border;
+        }
+
+        #secondary {
+            float: left;
+            width: 225px;
+            border-right: 1px solid $*color_module_border;
+        }
+
+        @media $*desktop_media_query {
+            #secondary .module-wrapper .separator-after {
+                float: left;
+                clear: left;
+                width: 224px;
+                height: 1.5em;
+                margin-top: .5em;
+                $module_footer_colors
+            }
+        }
+    }
     /* Lists
     ***************************************************************************/
 
@@ -431,7 +444,6 @@ function Page::print_default_stylesheet()
     .day-title,
     .month-title {
         border: 1px solid $*color_module_border;
-        border-left: none;
         background: $*color_page_background;
         padding: 3px;
         padding-left: 10px;
@@ -455,15 +467,6 @@ function Page::print_default_stylesheet()
         background-image: url($image_header_left_url);
         background-repeat: no-repeat;
         height: 4.7em;
-        float: left;
-        width: 60%;
-    }
-
-    .header-right {
-        background-image: url($image_header_right_url);
-        height: 4.7em;
-        float: right;
-        width: 250px;
     }
 
     #header h1#title {
@@ -472,18 +475,39 @@ function Page::print_default_stylesheet()
         font-style: italic;
         color: $*color_page_title;
         line-height: 0.9em;
-        margin: 0px 0px 0px 235px;
         width: 100%;
+        margin: 0;
+        text-align: center;
     }
 
     #header h2#subtitle {
         $page_subtitle_font
-        margin: 5px 0px 0px 335px;
         color: $*color_page_subtitle;
         width: 100%;
     }
 
     @media $*desktop_media_query {
+        #header h1#title {
+            margin: 0px 0px 0px 235px;
+            text-align: left;
+        }
+
+        #header h2#subtitle {
+            margin: 5px 0px 0px 335px;
+        }
+
+        .header-left {
+            float: left;
+            width: 60%;
+        }
+
+        .header-right {
+            background-image: url($image_header_right_url);
+            height: 4.7em;
+            float: right;
+            width: 250px;
+        }
+
         #module-jump-link { display: none; }
     }
 
@@ -493,7 +517,6 @@ function Page::print_default_stylesheet()
         padding: 3px 15px 3px 10px;
         margin-bottom: 15px;
         $navigation_colors
-        border-left: none;
         clear: right;
         text-align: right;
     }
@@ -661,7 +684,6 @@ function Page::print_default_stylesheet()
     ***************************************************************************/
     #reply h2 {
         border: 1px solid $*color_entry_border;
-        border-left: none;
         background: $*color_page_background;
         padding: 3px;
         padding-left: 10px;
@@ -696,7 +718,6 @@ function Page::print_default_stylesheet()
     .entry .subject {
         padding: 3px;
         border: 1px solid $*color_entry_border;
-        border-left: none;
         $module_header_background
         font-size: 1.2em;
         font-weight: bold;
@@ -820,7 +841,6 @@ function Page::print_default_stylesheet()
 
     .comment .subject {
         border: 1px solid $*color_entry_border;
-        border-left: none;
         background: $*color_page_background;
         padding: 3px;
         padding-left: 10px;
@@ -964,7 +984,6 @@ function Page::print_default_stylesheet()
         background: $*color_page_background;
         color: $*color_page_text;
         border: 1px solid $*color_entry_border;
-        border-left: none;
         padding: 3px;
         padding-left: 10px;
     }
@@ -986,7 +1005,6 @@ function Page::print_default_stylesheet()
         background: $*color_page_background;
         color: $*color_page_text;
         border: 1px solid $*color_entry_border;
-        border-left: none;
         padding: 3px;
         padding-left: 10px;
     }
@@ -1039,10 +1057,7 @@ function Page::print_default_stylesheet()
     #footer {
         font-size: .8em;
         font-weight: normal;
-        border-right: 1px solid $*color_module_border;
-        border-top: 1px solid $*color_module_border;
-        border-bottom: 1px solid $*color_module_border;
-        border-left: 0px;
+        border: 1px solid $*color_module_border;
         background: $*color_page_background;
         padding: 3px;
         padding-left: 10px;
@@ -1054,6 +1069,17 @@ function Page::print_default_stylesheet()
         font-size: .8em;
         padding-top: 10px;
         text-align: center;
+    }
+
+    /* (left border)
+    ***************************************************************************/
+    @media $*desktop_media_query {
+        .day-title, .month-title,
+        #footer, .navigation, #reply h2,
+        .entry .subject, .comment .subject,
+        .tags-container h2, .icons-container h2 {
+            border-left: none;
+        }
     }
 
 $userpic_css
@@ -1356,5 +1382,3 @@ var MonthDay[] days = $*reverse_sortorder_month ? reverse $.days : $.days;
 
     $this->print_navigation();
 }
-
-function Page::print_meta_viewport_tag() {}
