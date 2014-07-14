@@ -359,7 +359,6 @@ input, textarea {
 #primary {
     margin: 0 auto;
     padding: 0;
-    width: 60%;
     z-index: 0;
     }
 
@@ -368,7 +367,6 @@ input, textarea {
 #header {
     $header_colors
     margin: 0 auto 2em;
-    width: 60%;
     }
 
 #header>.inner {
@@ -377,6 +375,7 @@ input, textarea {
     }
 
 @media $*desktop_media_query {
+    #primary, #header, #secondary, .page-top { width: 60%; }
     #module-jump-link { display: none; }
 }
 
@@ -389,7 +388,6 @@ input, textarea {
     margin: 0 auto;
     text-align: right;
     text-transform: uppercase;
-    width: 60%;
     }
 
 .navigation {
@@ -480,7 +478,6 @@ li.page-separator {
     $entry_colors
     margin: 0 auto;
     padding: 0;
-    width: 60%;
     z-index: 0;
     }
 
@@ -981,7 +978,4 @@ td.day {
 $userpic_css
 
 """;
-}
-
-function Page::print_meta_viewport_tag() {
 }
