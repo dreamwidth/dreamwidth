@@ -1162,3 +1162,5 @@ $entryicon_css
 """;
 
 }
+
+function Page::print_meta_viewport_tag() {}
