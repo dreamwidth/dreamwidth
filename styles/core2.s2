@@ -1247,7 +1247,7 @@ property string sidebar_width_doubled {
 }
 
 set layout_type = "";
-set desktop_media_query = "only screen and (min-width: 60em)";
+set desktop_media_query = "only screen and (min-width: 30em)";
 set num_items_recent = 20;
 set num_items_reading = 20;
 set use_custom_friend_colors = false;
