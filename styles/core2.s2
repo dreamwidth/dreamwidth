@@ -3760,7 +3760,7 @@ function generate_media_query(string user_breakpoint, int sidebar_width_multipli
             var int width = int($*sidebar_width->substr(0, $unit_index));
             var string unit = $*sidebar_width->substr($unit_index, 2);
 
-            $min_width = string($*sidebar_width_multiplier * $width) + $unit;
+            $min_width = string($sidebar_width_multiplier * $width) + $unit;
         }
     }
 
