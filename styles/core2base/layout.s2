@@ -299,6 +299,14 @@ function Page::print_default_stylesheet() {
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
     var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
+    var string medium_sidebar_width = $*sidebar_width->css_multiply_length(2);
+    $medium_sidebar_width = $medium_sidebar_width->css_divide_length(3);
+    var string medium_sidebar_width_doubled = $*sidebar_width_doubled->css_multiply_length(2);
+    $medium_sidebar_width_doubled = $medium_sidebar_width_doubled->css_divide_length(3);
+    if ($medium_sidebar_width == "") { $medium_sidebar_width = $*sidebar_width; }
+    if ($medium_sidebar_width_doubled == "") { $medium_sidebar_width_doubled = $*sidebar_width_doubled; }
 
      var string userpic_css = "";
          if ($*userpics_position == "right") {
@@ -352,6 +360,26 @@ q { font-style: italic; }
 /* #content layout */
 #content { float: none; }
 @media $medium_media_query {
+    .two-columns-left #content,
+    .three-columns-sides #content {
+        border-left: $medium_sidebar_width solid transparent;
+    }
+    .two-columns-right #content,
+    .three-columns-sides #content {
+        border-right: $medium_sidebar_width solid transparent;
+    }
+    .three-columns-left #content {
+        border-left: $medium_sidebar_width_doubled solid transparent;
+    }
+    .three-columns-right #content {
+        border-right: $medium_sidebar_width_doubled solid transparent;
+    }
+    .column-right #content {
+        min-width: $medium_sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
+    }
+}
+
+@media $large_media_query {
     .two-columns-left #content,
     .three-columns-sides #content {
         border-left: $*sidebar_width solid transparent;
@@ -437,33 +465,74 @@ h2#pagetitle {
     .two-columns-left #secondary,
     .three-columns-sides #secondary {
         float: left;
-        width: $*sidebar_width;
-        margin-left: -$*sidebar_width;
+        width: $medium_sidebar_width;
+        margin-left: -$medium_sidebar_width;
     }
     .two-columns-right #secondary {
         float: right;
-        width: $*sidebar_width;
-        margin-right: -$*sidebar_width;
+        width: $medium_sidebar_width;
+        margin-right: -$medium_sidebar_width;
     }
     .three-columns-left #secondary {
         float: left;
-        width: $*sidebar_width;
-        margin-left: -$*sidebar_width_doubled;
+        width: $medium_sidebar_width;
+        margin-left: -$medium_sidebar_width_doubled;
     }
     .three-columns-right #secondary {
         float: right;
-        width: $*sidebar_width;
-        margin-right: -$*sidebar_width;
+        width: $medium_sidebar_width;
+        margin-right: -$medium_sidebar_width;
     }
 
     .two-columns #tertiary {
         clear: both;
         width: auto;
     }
+    .two-columns-left #tertiary { margin-left: -$medium_sidebar_width; }
+    .two-columns-right #tertiary { margin-right: -$medium_sidebar_width; }
+    .two-columns #tertiary .module {
+        float: left;
+        width: $medium_sidebar_width;
+    }
+    .three-columns-left #tertiary {
+        float: left;
+        width: $medium_sidebar_width;
+        margin-left: -$medium_sidebar_width;
+    }
+    .three-columns-right #tertiary {
+        float: right;
+        width: $medium_sidebar_width;
+        margin-right: -$medium_sidebar_width_doubled;
+        margin-left: $medium_sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
+    }
+    .three-columns-sides #tertiary {
+        float: right;
+        width: $medium_sidebar_width;
+        margin-right: -$medium_sidebar_width;
+    }
+}
+
+@media $large_media_query {
+    .two-columns-left #secondary,
+    .three-columns-sides #secondary {
+        width: $*sidebar_width;
+        margin-left: -$*sidebar_width;
+    }
+    .two-columns-right #secondary {
+        width: $*sidebar_width;
+        margin-right: -$*sidebar_width;
+    }
+    .three-columns-left #secondary {
+        width: $*sidebar_width;
+        margin-left: -$*sidebar_width_doubled;
+    }
+    .three-columns-right #secondary {
+        width: $*sidebar_width;
+        margin-right: -$*sidebar_width;
+    }
     .two-columns-left #tertiary { margin-left: -$*sidebar_width; }
     .two-columns-right #tertiary { margin-right: -$*sidebar_width; }
     .two-columns #tertiary .module {
-        float: left;
         width: $*sidebar_width;
     }
     .three-columns-left #tertiary {
@@ -472,13 +541,11 @@ h2#pagetitle {
         margin-left: -$*sidebar_width;
     }
     .three-columns-right #tertiary {
-        float: right;
         width: $*sidebar_width;
         margin-right: -$*sidebar_width_doubled;
         margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
     }
     .three-columns-sides #tertiary {
-        float: right;
         width: $*sidebar_width;
         margin-right: -$*sidebar_width;
     }
