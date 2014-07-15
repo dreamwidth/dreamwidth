@@ -87,6 +87,11 @@ class string
     function builtin css_url_value : string
     "If the string contains a valid HTTP or HTTPS URL it is returned. Otherwise, an empty string is returned.";
 
+    function builtin css_multiply_length(int multiplier) : string
+    "If the string contains a valid CSS length value, returns the value multiplied by the multiplier with the unit appended. Otherwise, an empty string is returned";
+
+    function builtin css_divide_length(int divisor) : string
+    "If the string contains a valid CSS length value, returns the value divided by the divisor with the unit appended. Otherwise, an empty string is returned";
 }
 
 class Color
@@ -3755,13 +3760,7 @@ function generate_media_query(string user_breakpoint, int sidebar_width_multipli
     # no user-provided breakpoint width, base our min-width as a multiplier on the sidebar width
     if ($min_width == "") {
         # set the min width in ems
-        if ($*sidebar_width->ends_with("em") or $*sidebar_width->ends_with("px")) {
-            var int unit_index = $*sidebar_width->length() - 2;
-            var int width = int($*sidebar_width->substr(0, $unit_index));
-            var string unit = $*sidebar_width->substr($unit_index, 2);
-
-            $min_width = string($sidebar_width_multiplier * $width) + $unit;
-        }
+        $min_width = $*sidebar_width->css_multiply_length($sidebar_width_multiplier);
     }
 
     # $*sidebar_width wasn't in a format we expected, fall back to a default
