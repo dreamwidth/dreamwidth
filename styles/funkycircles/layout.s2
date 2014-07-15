@@ -169,6 +169,9 @@ function print_stylesheet () {
     elseif ( $*comment_userpic_style == "small" ) { $comment_spacing = "40px"; }
     elseif ( $*comment_userpic_style == "smaller" ) { $comment_spacing = "15px"; }
 
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
@@ -195,7 +198,7 @@ function print_stylesheet () {
                 margin-left: $comment_spacing;
                 }
 
-            @media $*desktop_media_query {
+            @media $medium_media_query {
                 .two-columns-left #primary > .inner:first-child,
                 .three-columns-left #primary > .inner:first-child {
                     padding: 1em 2em 1em 5em;
@@ -237,7 +240,7 @@ function print_stylesheet () {
                 margin-right: $comment_spacing;
                 }
 
-            @media $*desktop_media_query {
+            @media $medium_media_query {
                 .two-columns-left #primary > .inner:first-child,
                 .three-columns-left #primary > .inner:first-child {
                     padding: 1em 3.5em 1em;
@@ -345,10 +348,9 @@ h2#pagetitle {
 .any-column #secondary { margin-top: 0; }
 .any-column #secondary > .inner:first-child { padding: 1em 0 0 0; }
 .any-column #tertiary > .inner:first-child { padding: 0; }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #content {
         width: auto;
-        margin: 0 4em;
     }
 
     .multiple-columns #secondary,
@@ -373,6 +375,12 @@ h2#pagetitle {
         .three-columns-right #tertiary > .inner:first-child {
             padding-left: .5em;
             }
+}
+
+@media $large_media_query {
+    .multiple-columns #content {
+        margin: 0 4em;
+    }
 }
 
 /* Navigation
@@ -1054,7 +1062,7 @@ $userpic_css
     margin-top: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns .module-userprofile, .one-column-split .module-userprofile,
     .multiple-columns .module h2, .multiple-columns .module h2 a, .one-column-split .module h2, .one-column-split .module h2 a,
     .multiple-columns .module-search .search-form, .one-column-split .module-search .search-form {

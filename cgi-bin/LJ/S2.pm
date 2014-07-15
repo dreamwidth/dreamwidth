@@ -4666,6 +4666,20 @@ sub string__css_length_value
     return '';
 }
 
+sub string__css_multiply_length
+{
+    my ($ctx, $this, $multiplier) = @_;
+    my ($length, $unit) = $this =~ /(\d+)(.+)/;
+    return string__css_length_value($ctx, ($length * $multiplier) . $unit);
+}
+
+sub string__css_divide_length
+{
+    my ($ctx, $this, $divisor) = @_;
+    my ($length, $unit) = $this =~ /(\d+)(.+)/;
+    return string__css_length_value($ctx, int($length / $divisor) . $unit);
+}
+
 sub string__css_string
 {
     my ($ctx, $this) = @_;
