@@ -421,15 +421,15 @@ h2#pagetitle {
     margin-left: 0;
 }
 
+#primary > .inner:first-child, #secondary > .inner:first-child, #tertiary > .inner:first-child {
+    padding: 1em;
+}
+
 /* modules layout */
 #primary { float: none; }
 #secondary, #tertiary { width: 100%; }
 
 @media $medium_media_query {
-    #primary > .inner:first-child, #secondary > .inner:first-child, #tertiary > .inner:first-child {
-        padding: 1em;
-    }
-
     .multiple-columns #primary {
         float: left;
     }
