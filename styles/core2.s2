@@ -1199,6 +1199,14 @@ property string layout_type {
 
 property string desktop_media_query {
   des = "If we don't match this media query, we show only one column (mobile-friendly view); if we do match, we use the \$*layout_type defined by the user";
+  note = "OBSOLETE: use medium_breakpoint_width instead";
+}
+
+property string medium_breakpoint_width {
+  des = "The width at which we switch from one column to multiple columns mode.";
+}
+property string large_breakpoint_width {
+  des = "The width at which we asssume we're on a larger screen and can afford some extra whitespace.";
 }
 
 property int num_items_recent {
@@ -3738,6 +3746,38 @@ function generate_font_css(string font_specific, string font_base, string font_f
 
 function generate_font_css(string font_base, string font_fallback, string font_size, string font_unit) : string {
     return generate_font_css("", $font_base, $font_fallback, $font_size, $font_unit);
+}
+
+function generate_media_query(string user_breakpoint, int sidebar_width_multiplier, string default_min_width): string {
+    # use the user-provided breakpoint width
+    var string min_width = $user_breakpoint;
+
+    # no user-provided breakpoint width, base our min-width as a multiplier on the sidebar width
+    if ($min_width == "") {
+        # set the min width in ems
+        if ($*sidebar_width->ends_with("em") or $*sidebar_width->ends_with("px")) {
+            var int unit_index = $*sidebar_width->length() - 2;
+            var int width = int($*sidebar_width->substr(0, $unit_index));
+            var string unit = $*sidebar_width->substr($unit_index, 2);
+
+            $min_width = string($*sidebar_width_multiplier * $width) + $unit;
+        }
+    }
+
+    # $*sidebar_width wasn't in a format we expected, fall back to a default
+    if ($min_width == "") {
+        $min_width = $default_min_width;
+    }
+
+    return "only screen and (min-width: $min_width)";
+}
+
+function generate_medium_media_query(): string {
+    return generate_media_query($*medium_breakpoint_width, 3, "40em");
+}
+
+function generate_large_media_query(): string {
+    return generate_media_query($*large_breakpoint_width, 4, "64em");
 }
 
 function Page::print_meta_viewport_tag() {
