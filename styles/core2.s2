@@ -3754,7 +3754,7 @@ function generate_media_query(): string {
             var int width = int($*sidebar_width->substr(0, $unit_index));
             var string unit = $*sidebar_width->substr($unit_index, 2);
 
-            $min_width = string(3 * $width) + $unit;
+            $min_width = string(4 * $width) + $unit;
         }
     }
     var string min_width_query = $min_width ? "and (min-width: $min_width)" : "";
