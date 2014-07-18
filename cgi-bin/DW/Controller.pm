@@ -62,9 +62,9 @@ sub success_ml {
 sub render_success {
     return DW::Template->render_template(
         'success-page.tt', {
-            scope => "/" . $_[0],
-            message_arguments => $_[1],
-            links => $_[2],
+            scope => "/" . $_[1],
+            message_arguments => $_[2],
+            links => $_[3],
     });
 }
 
