@@ -507,8 +507,6 @@ function Page::print_default_stylesheet()
             float: right;
             width: 250px;
         }
-
-        #module-jump-link { display: none; }
     }
 
     /* Navigation
@@ -1124,7 +1122,6 @@ function Page::print()
             println "<div class=\"header-left\">";
                 $this->print_global_title();
                 $this->print_global_subtitle();
-                $this->print_module_jump_link();
             println "</div><div class=\"header-right\"></div>";
             println "</div>";
 

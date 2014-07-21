@@ -302,8 +302,6 @@ body { margin: 0; }
 #header { margin: 2em 0;
     padding: .5em 2% 0 2%; }
 
-#module-jump-link { padding-left: .5em; }
-
 @media $*desktop_media_query {
     .two-columns-left #header .inner {padding-left: $*sidebar_width;}
     .three-columns-left #header .inner { padding-left: $*sidebar_width_doubled; }

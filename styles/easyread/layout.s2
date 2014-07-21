@@ -478,10 +478,6 @@ html body {
     content: "This page: ";
 }
 
-@media $*desktop_media_query {
-    #module-jump-link { display: none; }
-}
-
 /* Navigation at top/bottom of recent entries page */
 .navigation {
     margin-top: 10px;
@@ -819,8 +815,4 @@ module-section-two ul.module-list li {
 $userpic_css
 
 /* End of CSS file */""";
-}
-
-function Page::print_module_jump_link() {
-    print """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>""";
 }

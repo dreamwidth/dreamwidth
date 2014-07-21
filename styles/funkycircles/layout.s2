@@ -325,10 +325,6 @@ h2#pagetitle {
     text-transform: lowercase;
     }
 
-#module-jump-link {
-    padding: 0 1em;
-}
-
 /* Page Containers
 ***************************************************************************/
 #primary {

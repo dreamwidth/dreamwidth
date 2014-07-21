@@ -450,8 +450,7 @@ ol {
 
 h1#title,
 h2#pagetitle,
-h2#subtitle,
-#module-jump-link {
+h2#subtitle {
     text-align: right;
     text-transform: uppercase;
     }

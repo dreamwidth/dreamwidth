@@ -382,10 +382,6 @@ h2#subtitle {
     text-transform: lowercase;
     }
 
-#module-jump-link {
-    padding: 0 0 0 10px;
-}
-
 h2#pagetitle {
     margin: 0;
     padding: 10px;

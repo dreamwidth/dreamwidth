@@ -184,10 +184,6 @@ h1, h2, h3, h4 {
     padding-right: .25em;
     }
 
-#module-jump-link {
-    padding-left: .5em;
-}
-
 .tags-container h2,
 .page-archive h3,
 .page-day h3.day-date {

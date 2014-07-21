@@ -3792,7 +3792,6 @@ function Page::print_header()
     $this->print_global_title();
     $this->print_global_subtitle();
     $this->print_title();
-    $this->print_module_jump_link();
 }
 
 function Page::print_title()

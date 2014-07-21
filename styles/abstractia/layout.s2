@@ -781,8 +781,6 @@ q {
         margin-left: 5%;
         margin-right: 6%;
     }
-
-    #module-jump-link { display: none; }
 }
 
 /* Content & Sidebars

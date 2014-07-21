@@ -550,7 +550,6 @@ ul ul {list-style: circle;}
     $header_background_height
     }
 
-#module-jump-link { text-align: right; }
 @media $*desktop_media_query {
     .two-columns-right #header {
         margin: 0 -100% 0 5%;
@@ -559,8 +558,6 @@ ul ul {list-style: circle;}
     .two-columns-left #header {
         margin: 0 5% 0 auto;
         }
-
-    #module-jump-link { display: none; }
 }
 
 #title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; color: $*color_page_title; margin: 0; }

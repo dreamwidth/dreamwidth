@@ -402,7 +402,6 @@ margin:0;
 
 #header #pagetitle { display:none; }
 
-#module-jump-link { float: right; }
 $navlinks_css
 
 /* content */

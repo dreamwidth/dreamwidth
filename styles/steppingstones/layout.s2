@@ -172,10 +172,6 @@ dl dt { font-weight: bold; }
     text-align: right;
     }
 
-#module-jump-link {
-    text-align: right;
-}
-
 @media $*desktop_media_query {
     .column-right #header > .inner:first-child {
         margin-left: 1em;
