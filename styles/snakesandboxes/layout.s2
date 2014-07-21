@@ -311,13 +311,6 @@ pre {
     word-wrap: break-word;
 }
 
-/* Noting that this can distort or cut off content */
-.entry-content .lj_embedcontent,
-.entry-content img,
-.comment-content img {
-     max-width: 100%;
-}
-
 blockquote {
     border: 1px dotted $*color_elements_border;
     margin: 2em;

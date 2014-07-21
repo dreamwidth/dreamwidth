@@ -301,6 +301,7 @@ function Page::print_default_stylesheet() {
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
+
      var string userpic_css = "";
          if ($*userpics_position == "right") {
              $userpic_css = """
@@ -519,6 +520,16 @@ h2#pagetitle {
 .comment-content li {
     list-style-position: inside;
     }
+
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
 
 .metadata ul {
     display: inline;

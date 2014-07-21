@@ -902,12 +902,6 @@ pre {
     word-wrap: break-word;
 }
 
-.entry-content .lj_embedcontent,
-.entry-content img,
-.comment-content img {
-    max-width: 100%;
-}
-
 .metadata {
     font-style: italic;
 }
