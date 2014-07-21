@@ -113,7 +113,7 @@ blockquote {
     text-align: right;
 }
 
-h1#title, h2#subtitle, h2#pagetitle, #module-jump-link {
+h1#title, h2#subtitle, h2#pagetitle {
     margin: 0;
     padding: 5px 30px 0 0;
     font-weight: normal;

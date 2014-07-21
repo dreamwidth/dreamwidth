@@ -318,11 +318,6 @@ a:hover { text-decoration: none; }
 .comment .footer,
 .module { font-size: small; }
 
-#module-jump-link {
-    font-size: small;
-    text-align: right;
-}
-
 #canvas { position: relative;
     padding-top: 1px; }
 

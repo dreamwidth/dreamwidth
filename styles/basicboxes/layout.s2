@@ -232,10 +232,6 @@ body {
     text-align: center;
     }
 
-#module-jump-link {
-    text-align: right;
-}
-
 /* main column */
 
 #primary { $primary_colors

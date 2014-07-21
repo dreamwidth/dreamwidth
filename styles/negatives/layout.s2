@@ -365,10 +365,6 @@ function Page::print_default_stylesheet()
     #header a:hover {
         color: $*color_header_link_hover;
     }
-    #module-jump-link { text-align: right; }
-    @media $*desktop_media_query {
-        #module-jump-link { display: none; }
-    }
     .module-section-two {
     }
     .module-section-three {
@@ -1041,7 +1037,6 @@ function Page::print()
             println "<a name=\"top\"></a>";
             $this->print_global_title();
             $this->print_global_subtitle();
-            $this->print_module_jump_link();
             $this->print_module_section("two");
         println "</div>";
         if ($*layout_type == "one-column-split") {

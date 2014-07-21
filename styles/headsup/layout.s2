@@ -389,9 +389,6 @@ $header_margintop }
     text-align: $*image_foreground_header_alignment;
     }
 
-#module-jump-link {
-    text-align: left;
-}
 /*--- Journal Navigation ---*/
 
 .navigation {

@@ -518,8 +518,6 @@ q { font-style: italic; }
     .two-columns-left #header {
         text-align: right;
     }
-
-    #module-jump-link { display: none; }
 }
 /*--- prev/next navigation ---*/
 
