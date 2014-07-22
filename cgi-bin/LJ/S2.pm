@@ -2354,6 +2354,8 @@ sub Page
         $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset=' . $opts->{'saycharset'} . "\" />\n";
     }
 
+    $p->{'head_content'} = '<meta http-equiv="X-UA-Compatible" content="IE=edge">';
+
     if (LJ::Hooks::are_hooks('s2_head_content_extra')) {
         $p->{head_content} .= LJ::Hooks::run_hook('s2_head_content_extra', $remote, $opts->{r});
     }

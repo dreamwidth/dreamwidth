@@ -645,7 +645,10 @@ class Page
     "Print a link to jump to modules below the entries";
 
     function print_meta_viewport_tag()
-    "Print the meta name=viewport tag for mobile devices";
+    "OBSOLETE. Use print_meta_tags() instead";
+
+    function print_meta_tags()
+    "Print meta tags. Needs to be within the first 512 bytes to work.";
 
     function print_wrapper_start() "Start the body wrapper for this page; includes default classes";
     function print_wrapper_start(string{} opts) "Start the body wrapper for this page; includes default classes and takes a hash using the key 'class'";
@@ -3779,12 +3782,14 @@ function generate_large_media_query(): string {
     return generate_media_query($*large_breakpoint_width, 4, "64em");
 }
 
-function Page::print_meta_viewport_tag() {
+function Page::print_meta_tags() {
     # they're using their own stylesheets which probably won't work with the initial scale
     # (things will just look smooshed together)
     if ($*include_default_stylesheet) {
         print """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     }
+
+    print """<meta http-equiv="X-UA-Compatible" content="IE=edge">""";
 }
 
 function Page::print_header()
@@ -4828,7 +4833,7 @@ function Page::print()
 "The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
