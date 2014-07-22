@@ -1695,7 +1695,7 @@ sub clean_as_markdown {
 
     # second, convert @-style addressing to user tags
     my $usertag = sub {
-        my ($user, $site) = ($1, $2 || 'dreamwidth.org');
+        my ($user, $site) = ($1, $2 || $LJ::DOMAIN);
         if (my $siteobj = DW::External::Site->get_site( site => $site )) {
             return qq|<user name="$user" site="$siteobj->{domain}" />|;
         } else {
