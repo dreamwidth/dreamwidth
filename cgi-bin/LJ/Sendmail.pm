@@ -29,7 +29,7 @@ use IO::Socket::INET;
 use MIME::Lite;
 use Mail::Address;
 use MIME::Words qw( encode_mimeword );
-use Text::Markdown;
+use LJ::CleanHTML;
 
 my $done_init = 0;
 sub init {
@@ -310,10 +310,15 @@ sub format_mail {
     $text = "$greeting\n\n$text\n\n$footer";
 
     # use markdown to format from text to HTML
-    my $html = Text::Markdown::markdown( $text );
+    my $html = $text;
+    my $opts = {};
+    LJ::CleanHTML::clean_as_markdown( \$html, $opts );
+
+    # run this cleaner to convert any user tags that turn up post-markdown
+    LJ::CleanHTML::clean_event( \$html, $opts );
 
     # use plaintext as-is, but look for "[links like these](url)", and change them to "links like these (url)"
-    my $plaintext = $text;
+    my $plaintext = LJ::strip_html( $text );
     $plaintext =~ s/\[(.*?)\]\(/$1 (/g;
 
     return ( $html, $plaintext );
