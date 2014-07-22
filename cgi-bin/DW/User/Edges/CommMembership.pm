@@ -116,7 +116,11 @@ sub member_of_userids {
     return ()
         unless $u->is_individual;
 
-    return @{ LJ::load_rel_target_cache( $u, 'E' ) || [] };
+    my $limit = $args{limit};
+    my @users = @{ LJ::load_rel_target_cache( $u, 'E' ) || [] };
+    @users = @users[0..$limit-1] if defined $limit && @users > $limit;
+
+    return @users;
 }
 *LJ::User::member_of_userids = \&member_of_userids;
 
@@ -129,7 +133,11 @@ sub member_userids {
     return ()
         unless $u->is_community;
 
-    return @{ LJ::load_rel_user_cache( $u, 'E' ) || [] };
+    my $limit = $args{limit};
+    my @users = @{ LJ::load_rel_user_cache( $u, 'E' ) || [] };
+    @users = @users[0..$limit-1] if defined $limit && @users > $limit;
+
+    return @users;
 }
 *LJ::User::member_userids = \&member_userids;
 
