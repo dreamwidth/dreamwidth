@@ -4058,13 +4058,14 @@ You are receiving this email because you've requested notifications of new suppo
 
 .
 
-support.email.notif.update.body2<<
+support.email.notif.update.body3<<
 A follow-up to the following [[sitename]] support request has been submitted:
 
 Category: [[category]]
 Subject: [[subject]]
 User: [[username]]
 URL: [[url]]
+Type: [[type]]
 Text:
 
 [[text]]

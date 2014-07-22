@@ -1097,10 +1097,19 @@ sub work {
 
         $show_name ||= $sp->{reqname};
 
+        my $response_type = {
+            req => "New Request", # not applicable here
+            answer => "Answer",
+            comment => "Comment",
+            internal => "Internal Comment",
+            screened => "Screened Answer",
+        }->{$rtype};
+
         # build body
-        $body = LJ::Lang::ml( "support.email.notif.update.body2", {
+        $body = LJ::Lang::ml( "support.email.notif.update.body3", {
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
+                type => $response_type,
                 username => LJ::trim( $show_name ),
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",
                 text => $resp
