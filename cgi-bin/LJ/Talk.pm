@@ -1910,7 +1910,7 @@ sub talkform {
     } # end edit check
 
     my $basesubject = $form->{subject} || "";
-    if ($opts->{replyto} && !$basesubject && $parpost->{'subject'}) {
+    if (!$editid && $opts->{replyto} && !$basesubject && $parpost->{'subject'}) {
         $basesubject = $parpost->{'subject'};
         $basesubject =~ s/^Re:\s*//i;
         $basesubject = "Re: $basesubject";
