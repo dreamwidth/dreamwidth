@@ -311,6 +311,10 @@ pre {
     word-wrap: break-word;
 }
 
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
+
 blockquote {
     border: 1px dotted $*color_elements_border;
     margin: 2em;
