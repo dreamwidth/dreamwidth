@@ -613,6 +613,7 @@ h2#pagetitle {
     margin-bottom: 20px;
     margin-right: 10px;
     padding: 10px;
+    background-color: $*color_entry_background;
     }
 
 #content .comment-wrapper .comment-title,

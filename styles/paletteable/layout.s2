@@ -307,6 +307,10 @@ ul.entry-interaction-links, .comment-interaction-links {
     margin-top: .5em;
     }
 
+.comment-wrapper {
+    background-color: $*color_entry_background;
+    }
+
 .comment-wrapper .header {
     padding: .25em .5em;
     }
@@ -343,7 +347,16 @@ ul.entry-interaction-links, .comment-interaction-links {
     display: block;
     }
 
-.partial .comment {
+.page-entry #primary > .inner:first-child {
+    padding: 1em 0;
+    }
+.page-entry .entry-wrapper {
+    padding: 0 1em;
+    }
+.comment > .inner:first-child {
+    padding: 1em;
+    }
+.partial .comment  > .inner:first-child {
     padding: .25em .5em;
     }
 

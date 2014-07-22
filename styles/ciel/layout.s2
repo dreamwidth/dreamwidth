@@ -241,7 +241,7 @@ $userpic_css
 
 /* Comments */
 
-.comment { min-height: 138px; }
+.comment { min-height: 138px; $entry_colors }
 
 .comment-pages { text-align:center;}
 
