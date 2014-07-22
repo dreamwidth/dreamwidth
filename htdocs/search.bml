@@ -221,7 +221,7 @@ body<=
 
     # put some stats on the output
     my $matchct = scalar( @{ $result->{matches} } );
-    my $skip = $offset > 0 ? " " . LJ::Lang::ml( '.results.skipped', { journal => $offset } ) : "";
+    my $skip = $offset > 0 ? " " . LJ::Lang::ml( '.results.skipped', { offset => $offset } ) : "";
     $ret .= "<span class='stats'>";
     $ret .= LJ::Lang::ml( '.results.displayed', { results => $matchct, total => $result->{total}, skipped => $skip, query => $q } );
     $ret .= " " . LJ::Lang::ml( '.results.time', { time => $result->{time} } );
