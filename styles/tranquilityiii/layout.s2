@@ -282,7 +282,7 @@ ul.entry-interaction-links li.entry-readlink { font-weight: bold; }
 /* Comments
 ******************************/
 
-.comment { padding: .5em }
+.comment { padding: .5em; background-color: $*color_entry_background; }
 
 #comments .separator-after {
     border-top: 1px solid;

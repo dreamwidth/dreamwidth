@@ -491,8 +491,12 @@ display: none;
 margin-bottom: 3.5em;
 position: relative;
 color: $*color_entry_text;
+background-color: $*color_entry_background;
 }
 
+.page-entry #primary > .inner:first-child { padding: 1em 0; }
+.page-entry .entry-wrapper { padding: 0 1em; }
+.comment > .inner:first-child { padding: 0 1em; }
 
 .no-userpic .entry .header, .no-userpic .comment .header {
 margin-right: 0;

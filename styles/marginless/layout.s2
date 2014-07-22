@@ -359,6 +359,10 @@ ul.entry-interaction-links, ul.comment-interaction-links {
     margin-top: .5em;
     }
 
+.comment-wrapper {
+    background-color: $*color_entry_background;
+    }
+
 .comment-wrapper .header {
     padding: .25em .5em;
     }

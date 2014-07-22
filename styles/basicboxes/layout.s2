@@ -134,6 +134,7 @@ function print_stylesheet () {
 
     var string entry_colors = generate_color_css( new Color, $*color_entry_title_background, $*color_entry_border );
     var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+    var string comment_colors = generate_color_css( $*color_entry_text, $*color_entry_background, new Color );
     var string comment_header_colors = generate_color_css( $*color_page_title, $*color_header_background, $*color_entry_border );
     var string comment_title_colors = generate_color_css( $*color_page_title, new Color, new Color );
 
@@ -314,9 +315,12 @@ ul.entry-interaction-links { text-align: right;
     min-height: 17px; } /* prevent entry-management icons from shoving quickreply aside */
 
 /* comments */
-.comment { margin-bottom: 1em; }
+.page-entry #primary > .inner:first-child { padding: 1em 0; }
+.page-entry .entry-wrapper { padding: 0 1em; }
+.partial .comment { margin-bottom: 0; padding: 0 .5em; }
+.comment > .inner:first-child { padding: 1em; }
 
-.partial .comment { margin-bottom: 0;} 
+.comment { margin-bottom: 1em; $comment_colors }
 
 .comment .header { $comment_header_colors
     padding: 2px 5px;
