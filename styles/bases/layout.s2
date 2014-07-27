@@ -332,6 +332,7 @@ function Page::print()
 
 function Page::print_default_stylesheet()
 {
+var string medium_media_query = generate_medium_media_query();
 
 var string sidebar_position = "";
 var string sidebar_position_opposite = "";
@@ -461,7 +462,7 @@ body {$page_font $page_background color: $*color_page_text; width: 100%; margin:
 #primary {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0; border-top: 0; }
 #header, #primary, #secondary { width: 90%; margin-left: 5%; }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #secondary {
         background: $*color_entry_background;
         border: .083em solid $*color_page_border;
@@ -550,7 +551,7 @@ ul ul {list-style: circle;}
     $header_background_height
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #header {
         margin: 0 -100% 0 5%;
     }

@@ -287,6 +287,8 @@ propgroup customcss
 ################################################################################
 function Page::print_default_stylesheet()
 {
+    var string medium_media_query = generate_medium_media_query();
+
     var string image_header_left_url = generate_image_url ($*image_header_left);
     var string image_header_right_url = generate_image_url ($*image_header_right);
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
@@ -383,7 +385,7 @@ function Page::print_default_stylesheet()
     #secondary { display: table-footer-group; }
     #primary { display: table-row-group; }
 
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         #canvas, #header, #secondary, #primary { display: block; }
         #primary {
             margin: 10px 0 0 235px;
@@ -396,7 +398,7 @@ function Page::print_default_stylesheet()
             border-right: 1px solid $*color_module_border;
         }
 
-        @media $*desktop_media_query {
+        @media $medium_media_query {
             #secondary .module-wrapper .separator-after {
                 float: left;
                 clear: left;
@@ -486,7 +488,7 @@ function Page::print_default_stylesheet()
         width: 100%;
     }
 
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         #header h1#title {
             margin: 0px 0px 0px 235px;
             text-align: left;
@@ -1071,7 +1073,7 @@ function Page::print_default_stylesheet()
 
     /* (left border)
     ***************************************************************************/
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         .day-title, .month-title,
         #footer, .navigation, #reply h2,
         .entry .subject, .comment .subject,

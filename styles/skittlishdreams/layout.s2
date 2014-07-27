@@ -505,6 +505,7 @@ function generate_background_css_flipped (
 }
 
 function Page::print_default_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string[] path_components = $*image_background_entry_url->split("/");
     var string image_base = $path_components[size($path_components)-1];
@@ -690,7 +691,7 @@ html body {
     margin-right: $*margins_size$*margins_unit;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #container { $container_background }
     .two-columns-left #container { $container_background_redux }
     .two-columns-right #container, .two-columns-left #container { $container_colors margin: 0 4%; }
@@ -704,7 +705,7 @@ html body {
     padding: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #header { margin: 0 5px 0 0; }
 
     .two-columns-left #header {
@@ -732,7 +733,7 @@ html body {
     padding: 0 20px 0 2.7em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right .module-section-one .inner { text-align: right; }
     .two-columns-left .module-section-one .inner { text-align: left; }
 }
@@ -766,7 +767,7 @@ html body {
     $header_link_active_colors
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #header .module-navlinks li a {
         line-height: 1em;
     }
@@ -776,7 +777,7 @@ html body {
 
 #wrap { $page_text_colors }
 #content {position: relative; width: 100%; padding-bottom: 20px; $content_colors}
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #wrap {padding-right: $*sidebar_width; padding-top: 20px; padding-left:  20px;}
     .two-columns-left #wrap  {padding-left: $*sidebar_width; padding-top: 20px; padding-right: 20px;}
     .two-columns-right #content {margin: 0 -5px 0 0; float: left;}
@@ -812,7 +813,7 @@ html body {
 
 .module-section-two { $module_colors position: relative; text-align: center; padding: 20px; }
 .module-section-two .module { $module_box_background $module_box_colors margin: 0 20px; padding: 10px; text-align: left; }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns .module-section-two { padding: 0; width: $*sidebar_width; }
     .multiple-columns .module-section-two .module { margin: 20px; }
     .two-columns-right .module-section-two {float: left; margin-right: -$*sidebar_width; /* <--- IMPORTANT */}
@@ -854,7 +855,7 @@ html body {
     display: inline
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #entries,
     .two-columns-right.page-entry .entry-wrapper,
     .two-columns-right.page-entry #comments,
@@ -1014,7 +1015,7 @@ if ( $*use_action_links_images ) {
     padding: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #footer { margin: 0 4%; }
 
     .two-columns-right #footer { $container_background }
@@ -1063,7 +1064,7 @@ if ( $*use_action_links_images ) {
     height: 61px;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right .hfeed .navigation,
     .two-columns-right #archive-year .navigation,
     .two-columns-right #archive-month .navigation,
@@ -1107,7 +1108,7 @@ if ( $*use_action_links_images ) {
     padding: .2em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #archive-year .navigation  {margin:-20px 5px -20px -20px; border-left: solid 1px $*color_page_border;}
     .two-columns-left #archive-year .navigation  {margin:-20px -20px -20px 5px;border-right: solid 1px $*color_page_border;}
     .two-columns-right #archive-month .navigation   {margin:0 -22px 0 0;}
@@ -1129,7 +1130,7 @@ if ( $*use_action_links_images ) {
 
 .month-wrapper, #archive-month dl {padding:10px;position:relative;background-color:$*color_entry_background;}
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #archive-month .entry-title {display: inline-block; margin:0 0 .5em 0; padding-left: 5px; }
     .two-columns-left #archive-month .entry-title {display: inline-block; margin:0 0 .5em 0; padding-right: 5px; }
 

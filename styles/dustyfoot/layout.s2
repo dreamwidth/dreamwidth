@@ -231,6 +231,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_header_margin = "";
     if ( $*entry_userpic_style == "" ) { $entry_header_margin = "130px"; }
@@ -356,7 +357,7 @@ ol {
     color: $*color_module_text;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
      .two-columns #tertiary {
         background-color: transparent;
      }
@@ -854,7 +855,7 @@ h2#pagetitle {
     margin: 10px 10px 10px 20px;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .module-section-two .module-header,
     .two-columns #tertiary .module-section-two .module-content {
         margin: 10px 10px 10px 20px;

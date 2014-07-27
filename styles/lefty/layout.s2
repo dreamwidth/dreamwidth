@@ -206,6 +206,7 @@ function print_module_userprofile() {
 
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string entry_header_margin = "";
     if ( $*entry_userpic_style == "" ) { $entry_header_margin = "112px"; }
@@ -474,7 +475,7 @@ content: ">>";
 display: none;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns .navigation ul {
     height: auto;
     }
@@ -972,7 +973,7 @@ width: 100%;
 text-align: center;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     /* two columns */
 
     .two-columns #secondary {

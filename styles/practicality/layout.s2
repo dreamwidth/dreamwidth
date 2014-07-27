@@ -139,6 +139,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
@@ -247,7 +248,7 @@ ol {
     padding: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #primary > .inner:first-child {
         padding-left: 1em;
         }

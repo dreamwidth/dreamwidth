@@ -431,6 +431,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string header_paddingtop = ($*image_background_header_url != "") ? "65px" : "40px";
 
@@ -591,7 +592,7 @@ a:hover {
     padding: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #primary > .inner:first-child {
         padding-left: 2em;
         }
@@ -681,7 +682,7 @@ $header_modulewrapper
     display: none;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #header .module-navlinks {
         margin-right: $navlinks_padding;
     }
@@ -877,7 +878,7 @@ ul.comment-interaction-links a {
     clear: both;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .entry .userpic, .comment .userpic {
         position: absolute;
         top: 0;
@@ -1096,7 +1097,7 @@ ul.comment-interaction-links a {
     margin: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .one-column #secondary .module,
     .one-column #tertiary .module,
     .two-columns #tertiary .module {

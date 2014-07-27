@@ -141,6 +141,7 @@ function Page::print() {
 
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string userpic_css = "";
     if ($*userpics_position == "right") {
@@ -228,7 +229,7 @@ dl dt {
     background-color: $*color_module_background;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #content, .column-right #content {
         border-color: $*color_module_background;
         }
@@ -461,7 +462,7 @@ h3.day-date {
 
 /*--- Sidebars ---*/
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .module {
         background-color: transparent;
         color: $*color_entry_text;

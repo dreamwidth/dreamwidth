@@ -132,6 +132,7 @@ function Page::print()
 }
 
 function print_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
@@ -205,7 +206,7 @@ position: relative; z-index: 120;}
     border-bottom-left-radius: 1em;
     border-bottom-right-radius: 1em;
 }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #content,
     .three-columns-sides #content {
         border-left: $*sidebar_width solid $*color_page_border;
@@ -590,7 +591,7 @@ text-align: center; }
 .any-column #secondary, .any-column #tertiary { padding: .5em 0; }
 .any-column #tertiary { margin-top: 2em; }
 .one-column-split #tertiary { margin-top: 0; }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #secondary,
     .multiple-columns #tertiary {
         padding: 0;

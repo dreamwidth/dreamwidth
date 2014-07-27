@@ -30,6 +30,8 @@ set font_module_heading = "'Century Gothic', Verdana, sans-serif";
 ##===============================
 
 function print_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+
     var string canvas_colors = generate_color_css( new Color, $*color_page_background, new Color );
 
     var string entry_header_colors = generate_color_css( new Color, $*color_entry_title_background, new Color );
@@ -155,7 +157,7 @@ width: 96% !important; }
     padding: 0;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #primary > .inner:first-child,
     .three-columns-left #primary > .inner:first-child {
         padding: 0 0 0 1em !important;
@@ -404,7 +406,7 @@ text-align: center; }
 .any-column #tertiary .module-header a,
 .one-column #tertiary .module-header a:visited { $module_header_link_colors }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary > .inner:first-child, .two-columns #tertiary .module { $module_alt_colors }
 
     .two-columns #tertiary a,

@@ -244,6 +244,7 @@ propgroup customcss {
 }
 
 function Page::print_default_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string page_colors = generate_color_css( $*color_page_text, $*color_page_background, new Color );
 
@@ -374,7 +375,7 @@ input, textarea {
     padding: 4em 2em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #primary, #header, #secondary, .page-top { width: 60%; }
 }
 

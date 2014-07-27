@@ -49,6 +49,7 @@ set font_module_heading_units = "em";
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
     var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
@@ -181,7 +182,7 @@ hr,
     width: $*sidebar_width;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #primary {
         position: relative;
         top: -4em;}
@@ -240,7 +241,7 @@ hr,
     line-height: 140%;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #header, .three-columns-sides #header .inner, .two-columns #footer, .three-columns-sides #footer .inner {
             width:$*sidebar_width;}
 

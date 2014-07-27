@@ -150,6 +150,8 @@ function Page::print_global_title() {
 }
 
 function print_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+
     var string header_decoration_colors = generate_color_css( new Color, $*color_page_text, $*color_page_title );
     var string header_decoration_inner_colors = generate_color_css( new Color, $*color_page_border, $*color_page_background );
 
@@ -296,7 +298,7 @@ body {
    padding: 1em 2em;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left .navigation,
     .three-columns-left .navigation { text-align: right; }
 }
@@ -494,7 +496,7 @@ text-decoration: none; }
 
 .module-content ul { list-style: outside square; }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #secondary .module-userprofile,
     .three-columns .module-userprofile {
         text-align: center;

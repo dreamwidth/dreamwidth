@@ -148,6 +148,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
@@ -271,7 +272,7 @@ table.talkform { padding: 1em;
     padding-right: .5em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #content {
         margin-left: 0;
     }
@@ -509,7 +510,7 @@ table.month caption { color: $*color_entry_background; }
 
 /* Sidebars */
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .module { margin: 1em 1em 1em 0; }
 }
 

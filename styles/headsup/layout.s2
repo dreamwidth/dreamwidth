@@ -216,6 +216,7 @@ if ($image_foreground_url != "" and $*image_foreground_header_position == "inlin
 
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string header_background_height;
     if ($*image_background_header_height > 0) {
@@ -318,7 +319,7 @@ body {
     margin-top: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #content,
     .three-columns-sides #content {
         border-left: $*sidebar_width solid $*color_module_background;
@@ -622,7 +623,7 @@ h3.day-date {Den
 /*--- Sidebars ---*/
 
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .separator-after {
         clear: both;
         }

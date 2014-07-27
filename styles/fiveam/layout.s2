@@ -196,6 +196,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string blockquote_background = generate_background_css ($*image_blockquote_background_url, $*image_blockquote_background_repeat, $*image_blockquote_background_position, new Color);
 
@@ -354,7 +355,7 @@ a, a:link, a:active, a:visited {
     }
 
 .any-column #tertiary { clear: both; }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #primary > .inner:first-child {
         padding-left: 4em;
         }
@@ -964,7 +965,7 @@ h3.day-date {
     margin-bottom: 2.5em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .one-column #secondary .module,
     .one-column #tertiary .module,
     .two-columns #tertiary .module {

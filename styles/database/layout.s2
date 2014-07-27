@@ -1202,6 +1202,8 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
+
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
     var string blockquote_background = generate_background_css ($*image_background_blockquote_url, $*image_background_blockquote_repeat, $*image_background_blockquote_position, $*color_page_background);
@@ -1240,7 +1242,7 @@ $header_css = """
     padding-bottom: 1.75em;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #header {
         border-right: $*sidebar_width solid transparent;
         min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
@@ -1435,7 +1437,7 @@ h2#pagetitle {
 
 #primary > .inner:first-child { padding: 0; }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #primary > .inner:first-child { margin-left: 3.5em; }
     .two-columns-right #primary > .inner:first-child { margin-right: 3.5em; }
 
@@ -1463,7 +1465,7 @@ h2#pagetitle {
     padding: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .one-column #secondary,
     .one-column #tertiary,
     .two-columns #tertiary {
@@ -2058,7 +2060,7 @@ span.de {
     margin: 0 0 1.75em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .one-column #secondary .module,
     .one-column #tertiary .module,
     .two-columns #tertiary .module {

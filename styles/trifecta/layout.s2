@@ -437,6 +437,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
@@ -500,7 +501,7 @@ $header_css = """
     border-right: 10.5em solid transparent;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #header-primary {
         float: left;
         width: 100%;
@@ -661,7 +662,7 @@ hr,
 /* Layer colors to make sure they go all the way down */
 /* and background images can be used */
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #content-wrapper {
         $secondary_background
     }
@@ -716,7 +717,7 @@ hr,
 
 /* Switch floating to wrapper for header and primary */
 /* Instead of primary */
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #core,
     .three-columns #core {
          float: left;
@@ -755,7 +756,7 @@ hr,
     padding: .5em;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #secondary,
     .three-columns #tertiary  {
         background: none;
@@ -1268,7 +1269,7 @@ table.month td {
     padding: 0;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .one-column #secondary .module,
     .one-column #tertiary .module,
     .two-columns #tertiary .module {
