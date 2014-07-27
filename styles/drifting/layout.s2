@@ -288,6 +288,7 @@ propgroup customcss
 function Page::print_default_stylesheet()
 {
     var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
 
     var string image_header_left_url = generate_image_url ($*image_header_left);
     var string image_header_right_url = generate_image_url ($*image_header_right);
@@ -714,6 +715,16 @@ function Page::print_default_stylesheet()
     .comment-content li {
         list-style-position: inside;
         }
+
+    /* To constrain the width and prevent layout breaking */
+    .entry-content img, .comment-content img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    @media $large_media_query {
+        .entry-content img, .comment-content img { max-width: none; }
+    }
 
     .entry .subject {
         padding: 3px;

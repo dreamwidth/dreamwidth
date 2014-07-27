@@ -333,6 +333,7 @@ function Page::print()
 function Page::print_default_stylesheet()
 {
 var string medium_media_query = generate_medium_media_query();
+var string large_media_query = generate_large_media_query();
 
 var string sidebar_position = "";
 var string sidebar_position_opposite = "";
@@ -540,6 +541,16 @@ ul ul {list-style: circle;}
 .entry-content a img {border-bottom: 0.083em solid $*color_entry_link; }
 .entry-content a img:hover {border-color: $*color_entry_link_hover; }
 .entry-content .userpic, #comments .userpic {background: $*color_entry_background;}
+
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
 
 /* ====================== HEADER ======================= */
 

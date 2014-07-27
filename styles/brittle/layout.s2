@@ -326,6 +326,7 @@ function prop_init() {
 
 function Page::print_default_stylesheet() {
     var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
 
     var string sidebar_position = "";
     var string sidebar_position_opposite = "";
@@ -560,6 +561,16 @@ li.page-separator { display: none; }
     }
 
 .entry-content { margin: 10px 0 0 0; }
+
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
 
 .entry .header {
     padding: 0;

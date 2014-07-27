@@ -506,6 +506,7 @@ function generate_background_css_flipped (
 
 function Page::print_default_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
 
     var string[] path_components = $*image_background_entry_url->split("/");
     var string image_base = $path_components[size($path_components)-1];
@@ -949,6 +950,16 @@ html body {
 .comment-content {
     padding: 10px 0;
     }
+
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+    }
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
 
 .page-recent .security-public.restrictions-none.journal-type-P.has-userpic.no-subject .entry-content,
 .page-day .security-public.restrictions-none.journal-type-P.has-userpic.no-subject .entry-content {
