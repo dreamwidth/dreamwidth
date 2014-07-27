@@ -141,6 +141,14 @@
     #     },
     # );
 
+    # If you want to enable DW::Stats business metrics reporting, uncomment
+    # this structure and set it up. This was originally implemented to work
+    # with the local dogstatsd daemon from datadog.com, but it should work
+    # with any system that follows the same protocol.
+    # %STATS = (
+    #     host => '127.0.0.1',
+    #     port => 8125,
+    # );
 }
 
 {

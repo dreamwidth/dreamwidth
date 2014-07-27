@@ -154,6 +154,8 @@ sub create {
              undef, $userid);
 
     my $u = LJ::load_userid( $userid, "force" ) or return;
+    DW::Stats::increment( 'dw.action.account.create', 1,
+            [ 'journal_type:' . $u->journaltype_readable ] );
 
     my $status   = $opts{status}   || ($LJ::EVERYONE_VALID ? 'A' : 'N');
     my $name     = $opts{name}     || $username;

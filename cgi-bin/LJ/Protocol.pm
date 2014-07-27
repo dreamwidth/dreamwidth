@@ -177,6 +177,8 @@ sub do_request
     $apache_r->notes->{codepath} = "protocol.$method"
         if $apache_r && ! $apache_r->notes->{codepath};
 
+    DW::Stats::increment( 'dw.protocol_request', 1, [ "method:$method" ] );
+
     if ($method eq "login")            { return login(@args);            }
     if ($method eq "getfriendgroups")  { return getfriendgroups(@args);  }
     if ($method eq "gettrustgroups")   { return gettrustgroups(@args);   }
@@ -1717,6 +1719,9 @@ sub postevent
     LJ::mark_user_active($u, 'post');
     LJ::mark_user_active($uowner, 'post') unless $u->equals( $uowner );
 
+    DW::Stats::increment( 'dw.action.entry.post', 1,
+            [ 'journal_type:' . $uowner->journaltype_readable ] );
+
     $res->{'itemid'} = $jitemid;  # by request of mart
     $res->{'anum'} = $anum;
     $res->{'url'} = $entry->url;
@@ -2170,6 +2175,9 @@ sub editevent
 
     my $entry = LJ::Entry->new($ownerid, jitemid => $itemid);
     LJ::EventLogRecord::EditEntry->new($entry)->fire;
+
+    DW::Stats::increment( 'dw.action.entry.edit', 1,
+            [ 'journal_type:' . $uowner->journaltype_readable ] );
 
     # fired to copy the post over to the Sphinx search database
     if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {

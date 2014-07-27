@@ -94,6 +94,9 @@ sub _apply_userid {
     LJ::statushistory_add( $u, $fu, 'bonus_icons',
             sprintf( '%d icons added; item #%d', $self->icons, $self->id ) );
 
+    DW::Stats::increment( 'dw.shop.icons.applied', $self->icons,
+            [ 'gift:' . ( $fu->equals( $u ) ? 'no' : 'yes' ) ] );
+
     # we're applied now, regardless of what happens with the email
     $self->{applied} = 1;
 

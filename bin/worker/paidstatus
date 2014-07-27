@@ -111,6 +111,7 @@ sub main_loop {
     return $log->( 'Database error cleaning carts: %s', $dbh->errstr )
         if $dbh->err;
     $log->( 'Cleaned %d carts that were unused for more than 30 days.', $ct+0 );
+    DW::Stats::increment( 'dw.shop.cart.expired', $ct );
 
 ## PHASE 1) PROCESS PAYMENTS
 
@@ -230,6 +231,8 @@ sub warn_user {
     }
 
     return 1 unless defined $mail;
+
+    DW::Stats::increment( 'dw.shop.paid_account.warn_' . $mail, 1 );
 
     if ( $u->is_community ) {
         # send an email to every maintainer
