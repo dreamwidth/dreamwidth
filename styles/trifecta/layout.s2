@@ -897,15 +897,14 @@ $header_css
     text-align: $*post_text_align;
 }
 
+/* Make sure content isn't bigger than container */
 pre {
     white-space: pre-wrap;
     word-wrap: break-word;
 }
 
-.entry-content .lj_embedcontent,
-.entry-content img,
-.comment-content img {
-    max-width: 100%;
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
 }
 
 .metadata {

@@ -311,11 +311,8 @@ pre {
     word-wrap: break-word;
 }
 
-/* Noting that this can distort or cut off content */
-.entry-content .lj_embedcontent,
-.entry-content img,
-.comment-content img {
-     max-width: 100%;
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
 }
 
 blockquote {

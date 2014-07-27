@@ -208,7 +208,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
     # because we have additional checks in the callers
     my $invalid_embed = qq{[Invalid lj-embed id 1]};
 
-    my $iframe = qq{<iframe ([^>]+)></iframe>(<div><a href=""></a></div>)};
+    my $iframe = qq{<div class="lj_embedcontent-wrapper" style="[^"]+"><div class="lj_embedcontent-ratio" style="[^"]+"><iframe ([^>]+)></iframe></div></div>(<div><a href=""></a></div>)};
 
     foreach ( (
         # [ "title"
@@ -337,7 +337,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{foo <site-embed id="1"/>baz},
             qq{foo <site-embed id="1"><iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe></site-embed>baz},
             # site-embed iframe
-            qr{foo <iframe ([^>]+)></iframe><div><a href="https://www.youtube.com/watch\?v=ABC123abc_-">(?:[^<]+)</a></div>\s*baz},
+            qr{foo <div class="lj_embedcontent-wrapper" style="[^"]+"><div class="lj_embedcontent-ratio" style="[^"]+"><iframe ([^>]+)></iframe></div></div><div><a href="https://www.youtube.com/watch\?v=ABC123abc_-">(?:[^<]+)</a></div>\s*baz},
             # ...which contains the nested iframe with a URL from a trusted source
             qq{<iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>},
         ],
@@ -349,7 +349,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{foo <site-embed id="1"/> baz},
             qq{foo <site-embed id="1"><iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe></site-embed> baz},
             # site-embed iframe
-            qr{foo <iframe ([^>]+)></iframe><div><a href="https://www.youtube.com/watch\?v=ABC123abc_-">(?:[^<]+)</a></div>\s*baz},
+            qr{foo <div class="lj_embedcontent-wrapper" style="[^"]+"><div class="lj_embedcontent-ratio" style="[^"]+"><iframe ([^>]+)></iframe></div></div><div><a href="https://www.youtube.com/watch\?v=ABC123abc_-">(?:[^<]+)</a></div>\s*baz},
             # ...which contains the nested iframe with a URL from a trusted source
             qq{<iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>},
         ],
