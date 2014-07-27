@@ -202,6 +202,7 @@ function Page::print() {
 
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_userpic_margin = "";
     if ( $*entry_userpic_style == "" ) {$entry_userpic_margin = "-160px"; }
@@ -233,7 +234,7 @@ var string userpic_css = "";
             padding-right: 5px;
             }
 
-        @media $*desktop_media_query {
+        @media $medium_media_query {
             .entry .userpic {
                 margin-right: $entry_userpic_margin;
                 margin-left: 0;
@@ -267,7 +268,7 @@ var string userpic_css = "";
             padding-left: 5px;
             }
 
-        @media $*desktop_media_query {
+        @media $medium_media_query {
             .entry .userpic {
                 margin-left: $entry_userpic_margin;
                 margin-right: 0;
@@ -369,7 +370,7 @@ a:hover {text-decoration:underline;}
 
 .module-navlinks {width: 100%; text-align:center; margin: 1em 0;}
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #content {margin:0 $*margins_size$*margins_unit; padding:0;}
 
     #primary {box-sizing: border-box;
@@ -449,7 +450,7 @@ h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: 
     margin-top: -2em;
     margin-bottom: 1em;
     }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .entry .userpic, .comment .userpic {
         border-width: 20px;
         margin-bottom: 0;
@@ -708,7 +709,7 @@ div.icons-container div.icon:nth-of-type(2n) {
     margin-top: .5em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns .module-calendar .module-content {
         text-align: left;
         }

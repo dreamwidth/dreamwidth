@@ -64,6 +64,7 @@ function print_module_navlinks() {
 ##===============================
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string userpic_css = "";
 if ($*userpics_position == "left") {
@@ -462,7 +463,7 @@ table.month th {
     padding: .25em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #tertiary .separator-after,
     .two-columns-right #tertiary .separator-after {
         clear: both;

@@ -153,6 +153,7 @@ function ReplyPage::print_comment (Comment c) {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
@@ -379,7 +380,7 @@ h2#subtitle {
     padding: 0;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #primary > .inner:first-child {
         padding-left: 1em;
     }
@@ -948,7 +949,7 @@ h3.day-date {
     padding: 1em;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .module {
         margin-right: 1em;
     }

@@ -214,6 +214,7 @@ function Page::print() {
 }
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string header_inner_background = generate_background_css ($*image_background_header_inner_url, $*image_background_header_inner_repeat, $*image_background_header_inner_position, $*color_header_inner_background);
     if ($*image_background_header_inner_height > 0) {
@@ -497,7 +498,7 @@ div.icons-container div.icon:nth-of-type(2n) {
     text-align:center;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #secondary, .three-columns-sides #secondary, .three-columns-left #secondary, .three-columns-left #tertiary { border-right: 1px solid $*color_module_border; }
     .two-columns-right #secondary, .three-columns-sides #tertiary, .three-columns-right #secondary, .three-columns-right #tertiary { border-left: 1px solid $*color_module_border; }
 

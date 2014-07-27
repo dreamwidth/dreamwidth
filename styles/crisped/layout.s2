@@ -51,6 +51,7 @@ set font_module_heading_units = "em";
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
@@ -168,7 +169,7 @@ hr,
     padding: .5em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #secondary > .inner:first-child,
     .three-columns #secondary > .inner:first-child {
         padding-top: 4em;

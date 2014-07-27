@@ -154,6 +154,7 @@ function Page::print() {
 }
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, new Color);
     if ($*image_background_header_height > 0) {
@@ -250,7 +251,7 @@ a:hover { text-decoration: underline; }
     background-size: 45%;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #header > .inner:first-child {
         margin-bottom: -80px;
         padding-bottom: 80px;
@@ -283,7 +284,7 @@ $navlinks_css
 .any-column #content .module { display: inline-block; vertical-align: top; width: $*sidebar_width; }
 .any-column #content .module-wrapper { padding: 0 2em; }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #content .module { display: block; vertical-align: baseline; width: auto; }
     .multiple-columns #content .module-wrapper { padding: 0; }
 }
@@ -435,7 +436,7 @@ div.icons-container div.icon:nth-of-type(2n) {
 #tertiary a:active { color: $*color_module_link_active; }
 
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .separator-after { clear: both; }
 }
 

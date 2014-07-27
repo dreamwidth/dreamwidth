@@ -397,6 +397,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
 var string header_secondary_background = generate_background_css ($*image_background_header_secondary_url, "no-repeat", "center left", new Color);
@@ -590,7 +591,7 @@ blockquote a {
     text-align: right;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #header-primary {
         float: left;
         padding: 1.5em 0;
@@ -648,7 +649,7 @@ h2#pagetitle {
     padding: 0;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #primary > .inner:first-child {
         padding-left: 3em;
     }
@@ -997,7 +998,7 @@ ul.comment-interaction-links li.cmt_hide::after {
 /* Modules
 ******************************/
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #secondary .module,
     .three-columns #secondary .module,
     .three-columns #tertiary .module {

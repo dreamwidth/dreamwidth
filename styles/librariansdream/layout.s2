@@ -218,6 +218,7 @@ function print_module_userprofile() {
 ##===============================
 
 function print_stylesheet() {
+var string medium_media_query = generate_medium_media_query();
 
 #to move userpic left or right
 var string userpic_css = "";
@@ -280,7 +281,7 @@ else { $navlinks_css = ""; }
     padding: .5em 1em;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #primary > .inner:first-child,
     .three-columns-left #primary > .inner:first-child { margin-right: 0; }
     .two-columns-right #primary > .inner:first-child,
@@ -659,7 +660,7 @@ div.icons-container div.icon:nth-of-type(2n) {
 
 .any-column .module-list {text-align: left;}
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #tertiary .separator-after,
     .two-columns-right #tertiary .separator-after  {clear: both; }
 
@@ -853,7 +854,7 @@ ul.userlite-interaction-links li {
 #footer {border: none; background: none; padding: 0;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #footer,
     .three-columns-sides #footer { margin-left: $*sidebar_width;
         padding-left: .25em; }
