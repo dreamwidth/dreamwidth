@@ -42,6 +42,12 @@ our $STATE_REFUNDED    = 7;    # we have refunded this cart and reversed it
 our $STATE_CLOSED      = 8;    # carts can go from OPEN -> CLOSED
 our $STATE_DECLINED    = 9;    # payment entity declined the fundage
 
+# state names, just for helping
+our %STATE_NAMES = (
+    1 => 'open', 2 => 'checkout', 3 => 'pend_paid', 4 => 'paid', 5 => 'processed',
+    6 => 'pend_refund', 7 => 'refunded', 8 => 'closed', 9 => 'declined'
+);
+
 # documentation of valid state transitions...
 #
 #   OPEN -> CHECKOUT     user has decided to purchase this and we have sent the

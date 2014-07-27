@@ -3529,6 +3529,9 @@ sub post_comment {
     # cluster tracking
     LJ::mark_user_active($comment->{u}, 'comment');
 
+    DW::Stats::increment( 'dw.action.comment.post', 1, [ "journal_type:" . $journalu->journaltype_readable,
+            "poster_type:" . ( ref $comment->{u} ? $comment->{u}->journaltype_readable : 'anonymous' ) ] );
+
     LJ::Hooks::run_hooks('new_comment', $journalu->{userid}, $item->{itemid}, $jtalkid);
 
     return 1;
@@ -3604,6 +3607,9 @@ sub edit_comment {
 
         $sclient->insert_jobs( @jobs );
     }
+
+    DW::Stats::increment( 'dw.action.comment.edit', 1, [ "journal_type:" . $journalu->journaltype_readable,
+            "poster_type:" . $pu ? $pu->journaltype_readable : 'anonymous' ] );
 
     LJ::Hooks::run_hooks('edit_comment', $journalu->{userid}, $item->{itemid}, $comment->{talkid});
 

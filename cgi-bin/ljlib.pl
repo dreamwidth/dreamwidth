@@ -21,7 +21,6 @@ BEGIN {
     # ljlib.pl (via require, ick!).  so this lets them know if it's recursive.
     # we REALLY need to move the rest of this crap to .pm files.
 
-
     # ensure we have $LJ::HOME, or complain very vigorously
     $LJ::HOME ||= $ENV{LJHOME};
     die "No \$LJ::HOME set, or not a directory!\n"
@@ -98,6 +97,7 @@ use LJ::Capabilities;
 use DW::Mood;
 use LJ::Global::Img;  # defines LJ::Img
 use DW::Media;
+use DW::Stats;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
@@ -220,6 +220,10 @@ if ($SIG{'HUP'}) {
     $SIG{'HUP'} = \&LJ::clear_caches;
 }
 
+# Initialize our statistics reporting library if needed
+if ( $LJ::STATS{host} && $LJ::STATS{port} ) {
+    DW::Stats::setup( $LJ::STATS{host}, $LJ::STATS{port} );
+}
 
 sub get_blob_domainid
 {

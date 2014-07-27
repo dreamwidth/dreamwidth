@@ -2059,9 +2059,14 @@ sub delete_all_comments {
             $u->do( "DELETE FROM $table WHERE journalid=? AND jtalkid IN ($in)",
                     undef, $u->userid );
         }
+
+        my $ct = scalar @$t;
+        DW::Stats::increment( 'dw.action.comment.delete', $ct,
+                [ "journal_type:" . $u->journaltype_readable, 'method:delete_all_comments' ] );
+
         # decrement memcache
-        LJ::MemCache::decr( [$u->userid, "talk2ct:" . $u->userid], scalar(@$t) );
-        $loop = 0 unless @$t == $chunk_size;
+        LJ::MemCache::decr( [$u->userid, "talk2ct:" . $u->userid], $ct );
+        $loop = 0 unless $ct == $chunk_size;
     }
     return 1;
 
@@ -2099,6 +2104,9 @@ sub delete_comments {
     $num = 0 if $num == -1;
 
     if ( $num > 0 ) {
+        DW::Stats::increment( 'dw.action.comment.delete', $num,
+                [ "journal_type:" . $u->journaltype_readable, 'method:delete_comments' ] );
+
         $u->do( "UPDATE talktext2 SET subject=NULL, body=NULL $where" );
         $u->do( "DELETE FROM talkprop2 $where" );
     }
@@ -2165,6 +2173,9 @@ sub delete_entry
         });
         return 0;
     }
+
+    DW::Stats::increment( 'dw.action.entry.delete', 1,
+            [ "journal_type:" . $u->journaltype_readable ] );
 
     # delete from clusters
     foreach my $t (qw(logtext2 logprop2 logsec2 logslugs)) {

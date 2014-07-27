@@ -137,6 +137,10 @@ sub cart_state_changed {
             $from = "anon";
         }
 
+        DW::Stats::increment( 'dw.shop.rename_tokens.created', 1,
+                [ 'gift:' . ( $from eq 'self' ? 'no' : 'yes' ),
+                  'anonymous:' . ( $from eq 'anon' ? 'yes' : 'no' ) ] );
+
         LJ::send_mail( {
             to => $u->email_raw,
             from => $LJ::ACCOUNTS_EMAIL,

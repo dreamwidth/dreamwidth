@@ -103,6 +103,18 @@ sub _apply_userid {
     DW::Pay::add_paid_time( $u, $self->class, $self->months )
         or return 0;
 
+    {
+        # By definition, things from anonymous purchasers are gifts.
+        my @tags = ( 'gift:' . ( $fu && $fu->equals( $u ) ? 'no' : 'yes' ),
+                     'anonymous:' . ( $self->anonymous ? 'yes' : 'no' ),
+                     'type:' . $self->class,
+                     'target:account' );
+        DW::Stats::increment( 'dw.shop.paid_account.applied', 1,
+                [ @tags, 'months:' . $self->months ] );
+        DW::Stats::increment( 'dw.shop.paid_account.applied_months', $self->months,
+                [ @tags ] );
+    }
+
     # we're applied now, regardless of what happens with the email
     $self->{applied} = 1;
 
@@ -199,6 +211,17 @@ sub _apply_email {
     unless ( $self->anonymous || $fu ) {
         warn "Failed to apply: NOT anonymous and no from_user!\n";
         return 0;
+    }
+
+    {
+        # By definition, things sent to email are gifts.
+        my @tags = ( 'gift:yes', 'target:email',
+                     'anonymous:' . ( $self->anonymous ? 'yes' : 'no' ),
+                     'type:' . $self->class );
+        DW::Stats::increment( 'dw.shop.paid_account.applied', 1,
+                [ @tags, 'months:' . $self->months ] );
+        DW::Stats::increment( 'dw.shop.paid_account.applied_months', $self->months,
+                [ @tags ] );
     }
 
     my $reason = join ':', 'payment', $self->class, $self->months;

@@ -412,6 +412,7 @@ sub expire_user {
     $u->delete_email_alias;
 
     # happy times
+    DW::Stats::increment( 'dw.shop.paid_account.expired', 1 );
     return 1;
 }
 

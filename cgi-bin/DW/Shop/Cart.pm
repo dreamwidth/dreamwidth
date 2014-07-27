@@ -199,6 +199,9 @@ sub new_cart {
     $cart->save;
     $u->{_cart} = $cart if $u;
 
+    DW::Stats::increment( 'dw.shop.cart.new', 1,
+            [ 'anonymous:' . ( $u ? 'no' : 'yes' ) ] );
+
     # we're done
     return $cart;
 }
@@ -454,6 +457,9 @@ sub state {
     $_->cart_state_changed( $newstate ) foreach @{$self->items};
 
     LJ::Hooks::run_hooks( 'shop_cart_state_change', $self, $newstate );
+    DW::Stats::increment( 'dw.shop.cart.state_change', 1,
+            [ 'from_state:' . $DW::Shop::STATE_NAMES{$self->{state}},
+              'to_state:' . $DW::Shop::STATE_NAMES{$newstate} ] );
 
     $self->_notify_buyer_paid if $newstate == $DW::Shop::STATE_PROCESSED;
 

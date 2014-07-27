@@ -95,6 +95,9 @@ sub _apply_userid {
     # now try to add the points
     $u->give_shop_points( amount => $self->points, reason => 'ordered; item #' . $self->id );
 
+    DW::Stats::increment( 'dw.shop.points.applied', $self->points,
+            [ 'gift:' . ( $fu->equals( $u ) ? 'no' : 'yes' ) ] );
+
     # we're applied now, regardless of what happens with the email
     $self->{applied} = 1;
 

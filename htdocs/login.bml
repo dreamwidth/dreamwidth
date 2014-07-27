@@ -258,6 +258,7 @@ _c?>
 
         if ($do_logout) {
             $logout_remote->();
+            DW::Stats::increment( 'dw.action.session.logout' );
             $title = BML::ml(".login.title", { 'sitename' => $LJ::SITENAMESHORT} );
         }
 
@@ -266,6 +267,8 @@ _c?>
             $bindip = BML::get_remote_ip()
                 if $POST{'bindip'} eq "yes";
 
+            DW::Stats::increment( 'dw.action.session.update', 1, [ 'bindip:' . $bindip ? 'yes' : 'no',
+                    'exptype:' . $POST{expire} eq 'never' ? 'long' : 'short' ] );
             $cursess->set_ipfixed($bindip) or die "failed to set ipfixed";
             $cursess->set_exptype($POST{expire} eq 'never' ? 'long' : 'short') or die "failed to set exptype";
             $cursess->update_master_cookie;
@@ -290,6 +293,7 @@ _c?>
                 return if $want_fail_redirect->("database_readonly");
 
                 $body = LJ::bad_input("The database is temporarily in read-only mode, so creating new login sessions is temporarily down.  Please try again later.");
+                DW::Stats::increment( 'dw.action.session.login_failed', 1, [ 'reason:database_readonly' ] );
                 return;
             }
 
@@ -306,6 +310,7 @@ _c?>
                 return if $want_fail_redirect->("banned_ip");
 
                 $body = LJ::bad_input("Your IP address is temporarily banned for exceeding the login failure rate.");
+                DW::Stats::increment( 'dw.action.session.login_failed', 1, [ 'reason:banned_ip' ] );
                 return;
             }
 
@@ -321,6 +326,8 @@ _c?>
                 if $u && $u->is_locked;
 
             if (@errors) {
+                DW::Stats::increment( 'dw.action.session.login_failed', 1, [ "reason:$_->[0]" ] )
+                    foreach @errors; # Many errors, increment a failure for each reason.
                 $login_html->();
                 return;
             }
@@ -334,6 +341,9 @@ _c?>
             $u->make_login_session($exptype, $bindip);
             LJ::Hooks::run_hook('user_login', $u);
             $cursess = $u->session;
+
+            DW::Stats::increment( 'dw.action.session.login_ok', 1, [ 'bindip:' . $bindip ? 'yes' : 'no',
+                    "exptype:$exptype" ] );
 
             return if $want_success_redirect->();
 

@@ -28,6 +28,7 @@ use DW::External::Account;
 use LJ::Event::XPostSuccess;
 use LJ::User;
 use LJ::Lang;
+use Time::HiRes qw/ gettimeofday /;
 
 sub schwartz_capabilities { return ('DW::Worker::XPostWorker'); }
 
@@ -46,26 +47,26 @@ sub grab_for { 600 }
 
 sub work {
     my ($class, $job) = @_;
-
     my $arg = { %{$job->arg} };
 
-    my ($uid, $ditemid, $acctid, $password, $auth_challenge, $auth_response, $delete) = map { delete $arg->{$_} } qw( uid ditemid accountid password auth_challenge auth_response delete );
-
+    my ( $uid, $ditemid, $acctid, $password, $auth_challenge, $auth_response, $delete ) =
+        map { delete $arg->{$_} } qw( uid ditemid accountid password auth_challenge
+                auth_response delete );
     return $job->permanent_failure("Unknown keys: " . join(", ", keys %$arg))
         if keys %$arg;
     return $job->permanent_failure("Missing argument")
         unless defined $uid && defined $ditemid && defined $acctid;
 
-    # get the user from the uid
-    my $u = LJ::want_user($uid) or return $job->failed("Unable to load user with uid $uid");
+    my $u = LJ::want_user( $uid )
+        or return $job->failed( "Unable to load user with uid $uid" );
+    my $acct = DW::External::Account->get_external_account( $u, $acctid )
+        or return $job->failed("Unable to load account $acctid for uid $uid");
 
-    # get the account from the acctid
-    my $acct = DW::External::Account->get_external_account($u, $acctid);
-    # fail if no available account
-    return $job->failed("Unable to load account $acctid for uid $uid") unless defined $acct;
+    my $domain = $acct->externalsite ? $acct->externalsite->{domain} : 'unknown';
 
-    my $entry = LJ::Entry->new($u, ditemid => $ditemid);
-    return $job->failed("Unable to load entry $ditemid for uid $uid") unless defined $entry && ( $delete || $entry->valid );
+    my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
+    return $job->failed( "Unable to load entry $ditemid for uid $uid" )
+        unless defined $entry && ( $delete || $entry->valid );
 
     my %auth;
     if ($auth_response) {
@@ -74,16 +75,39 @@ sub work {
         %auth = ( 'password' => $password );
     }
 
+    my $start = [ gettimeofday ];
     my $result = $delete ? $acct->delete_entry(\%auth, $entry) : $acct->crosspost(\%auth, $entry);
+
     my $sclient = LJ::theschwartz();
     if ($result->{success}) {
         $sclient->insert_jobs(LJ::Event::XPostSuccess->new($u, $acctid, $ditemid)->fire_job );
+        DW::Stats::increment( 'dw.worker.crosspost.success', 1, [ "domain:$domain" ] );
+        DW::Stats::timing( 'dw.worker.crosspost.success_time', $start, [ "domain:$domain" ] );
+        printf STDERR "[xpost] Successful post to %s for %s(%d).\n",
+               $domain, $u->user, $u->id;
     } else {
+        # In case this was a connection timeout, then we want to do special
+        # handling to make sure we retry. Yes, this will retry permanently.
+        if ( $result->{error} =~ /Failed to connect/ ) {
+            printf STDERR "[xpost] Timeout posting to %s for %s(%d)... will retry.\n",
+                   $domain, $u->user, $u->id;
+
+            # If we just decline immediately, we'll retry every 10 seconds. This
+            # logic makes us back off to a slower interval.
+            return $job->declined if $job->failures > 3;
+            return $job->failed( "Timeout encountered, will retry." );
+        }
+
+        # Some other failure, so let's just let it go through.
         $sclient->insert_jobs(
             LJ::Event::XPostFailure->new(
                 $u, $acctid, $ditemid, ( $result->{error} || 'Unknown error message.' )
             )->fire_job
         );
+        DW::Stats::increment( 'dw.worker.crosspost.failure', 1, [ "domain:$domain" ] );
+        DW::Stats::timing( 'dw.worker.crosspost.failure_time', $start, [ "domain:$domain" ] );
+        printf STDERR "[xpost] Failed to post to %s for %s(%d): %s.\n",
+               $domain, $u->user, $u->id, $result->{error} || 'Unknown error message.';
     }
 
     $job->completed;
