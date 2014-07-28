@@ -268,6 +268,9 @@ function prop_init {
 #Prints the stylesheet
 function Page::print_default_stylesheet()
 {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
     var string page_background = generate_background_css($*image_background_page_url,$*image_background_page_repeat,$*image_background_page_position,$*color_page_background);
     var string header_background = generate_background_css($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
@@ -365,10 +368,6 @@ function Page::print_default_stylesheet()
     #header a:hover {
         color: $*color_header_link_hover;
     }
-    #module-jump-link { text-align: right; }
-    @media $*desktop_media_query {
-        #module-jump-link { display: none; }
-    }
     .module-section-two {
     }
     .module-section-three {
@@ -437,7 +436,7 @@ function Page::print_default_stylesheet()
         color: $*color_module_title;
     }
 
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         .multiple-columns #secondary {
             border: none;
         }
@@ -573,6 +572,17 @@ function Page::print_default_stylesheet()
     .comment-content li {
         list-style-position: inside;
         }
+
+    /* To constrain the width and prevent layout breaking */
+    .entry-content img, .comment-content img {
+        max-width: 100%;
+        height: auto;
+        }
+
+    @media $large_media_query {
+        .entry-content img, .comment-content img { max-width: none; }
+    }
+
 
     .entry .footer,
     .comment .footer {
@@ -732,7 +742,7 @@ function Page::print_default_stylesheet()
         display: inline;
         padding: .2em 1em .2em .5em;
     }
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         .two-columns-left .module-section-two .module-navlinks {
             text-align: right;
         }
@@ -758,7 +768,7 @@ function Page::print_default_stylesheet()
         $entry_title_font
     }
 
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         .two-columns-right .module-section-one .module-userprofile .userpic {
             text-align: right;
         }
@@ -771,7 +781,7 @@ function Page::print_default_stylesheet()
         padding:5px;
         margin: 0;
     }
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         .module-section-two .module-calendar,
         .module-section-three .module-calendar {
             margin: 0px 190px 0px 100px;
@@ -824,7 +834,7 @@ function Page::print_default_stylesheet()
         margin: 0 5%;
     }
 
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         .multiple-columns #primary, .multiple-columns #secondary { margin: 0; }
         .two-columns-left #primary { float: right;}
         .two-columns-left #secondary { float: right; }
@@ -1029,7 +1039,7 @@ function Page::print()
     println """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>""";
-        $this->print_meta_viewport_tag();
+        $this->print_meta_tags();
         $this->print_head();
         $this->print_stylesheets();
         $this->print_head_title();
@@ -1041,7 +1051,6 @@ function Page::print()
             println "<a name=\"top\"></a>";
             $this->print_global_title();
             $this->print_global_subtitle();
-            $this->print_module_jump_link();
             $this->print_module_section("two");
         println "</div>";
         if ($*layout_type == "one-column-split") {

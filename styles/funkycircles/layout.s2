@@ -135,6 +135,8 @@ function print_module_navlinks() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
 
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, "", $*color_header_background);
     var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
@@ -168,9 +170,6 @@ function print_stylesheet () {
     if ( $*comment_userpic_style == "" ) { $comment_spacing = "65px"; }
     elseif ( $*comment_userpic_style == "small" ) { $comment_spacing = "40px"; }
     elseif ( $*comment_userpic_style == "smaller" ) { $comment_spacing = "15px"; }
-
-    var string medium_media_query = generate_medium_media_query();
-    var string large_media_query = generate_large_media_query();
 
     var string userpic_css = "";
         if ($*userpics_position == "left") {
@@ -324,10 +323,6 @@ h2#pagetitle {
     padding: .25em .6em;
     text-transform: lowercase;
     }
-
-#module-jump-link {
-    padding: 0 1em;
-}
 
 /* Page Containers
 ***************************************************************************/

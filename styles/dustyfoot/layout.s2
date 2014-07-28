@@ -152,7 +152,7 @@ function print_module_calendar() {
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -231,6 +231,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_header_margin = "";
     if ( $*entry_userpic_style == "" ) { $entry_header_margin = "130px"; }
@@ -356,7 +357,7 @@ ol {
     color: $*color_module_text;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
      .two-columns #tertiary {
         background-color: transparent;
      }
@@ -381,10 +382,6 @@ h2#subtitle {
     padding: 0 0 0 10px;
     text-transform: lowercase;
     }
-
-#module-jump-link {
-    padding: 0 0 0 10px;
-}
 
 h2#pagetitle {
     margin: 0;
@@ -617,6 +614,7 @@ h2#pagetitle {
     margin-bottom: 20px;
     margin-right: 10px;
     padding: 10px;
+    background-color: $*color_entry_background;
     }
 
 #content .comment-wrapper .comment-title,
@@ -857,7 +855,7 @@ h2#pagetitle {
     margin: 10px 10px 10px 20px;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .module-section-two .module-header,
     .two-columns #tertiary .module-section-two .module-content {
         margin: 10px 10px 10px 20px;

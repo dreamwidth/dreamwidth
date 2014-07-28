@@ -232,7 +232,7 @@ set text_unwatch_comments = "Untrack";
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -311,6 +311,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string header_background_image = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, "", new Color);
 
@@ -357,7 +358,7 @@ if ($*module_navlinks_section == "header") {
     .module-navlinks a:hover { color: $*color_header_link_hover; }
     .module-navlinks a:active { color: $*color_header_link_active; }
 
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         #header .module-wrapper {
             margin-left: 220px;
             margin-right: 220px;
@@ -567,7 +568,7 @@ body {
     padding: 1px;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #header .inner:first-child {
         $header_background_image
         background-position: top left;
@@ -632,7 +633,7 @@ body {
     }
 
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .entry-wrapper-odd {
         margin-right: 255px;
         }
@@ -1048,7 +1049,7 @@ table.month th {
     padding-top: 1px;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .separator-after {
         clear: both;
         }

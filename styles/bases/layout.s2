@@ -281,7 +281,7 @@ function print_module_navlinks() {
 function Page::print()
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -332,6 +332,8 @@ function Page::print()
 
 function Page::print_default_stylesheet()
 {
+var string medium_media_query = generate_medium_media_query();
+var string large_media_query = generate_large_media_query();
 
 var string sidebar_position = "";
 var string sidebar_position_opposite = "";
@@ -461,7 +463,7 @@ body {$page_font $page_background color: $*color_page_text; width: 100%; margin:
 #primary {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0; border-top: 0; }
 #header, #primary, #secondary { width: 90%; margin-left: 5%; }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #secondary {
         background: $*color_entry_background;
         border: .083em solid $*color_page_border;
@@ -540,6 +542,16 @@ ul ul {list-style: circle;}
 .entry-content a img:hover {border-color: $*color_entry_link_hover; }
 .entry-content .userpic, #comments .userpic {background: $*color_entry_background;}
 
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
+
 /* ====================== HEADER ======================= */
 
 #header {
@@ -550,8 +562,7 @@ ul ul {list-style: circle;}
     $header_background_height
     }
 
-#module-jump-link { text-align: right; }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #header {
         margin: 0 -100% 0 5%;
     }
@@ -559,8 +570,6 @@ ul ul {list-style: circle;}
     .two-columns-left #header {
         margin: 0 5% 0 auto;
         }
-
-    #module-jump-link { display: none; }
 }
 
 #title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; color: $*color_page_title; margin: 0; }

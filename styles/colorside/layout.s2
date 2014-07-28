@@ -30,6 +30,8 @@ set font_module_heading = "'Century Gothic', Verdana, sans-serif";
 ##===============================
 
 function print_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+
     var string canvas_colors = generate_color_css( new Color, $*color_page_background, new Color );
 
     var string entry_header_colors = generate_color_css( new Color, $*color_entry_title_background, new Color );
@@ -148,10 +150,14 @@ width: 96% !important; }
 /* main column */
 
 .any-column #primary > .inner:first-child {
-    padding: 0 1em !important;
+    padding: 0 1em;
 }
 
-@media $*desktop_media_query {
+.page-entry.any-column #primary > .inner:first-child {
+    padding: 0;
+}
+
+@media $medium_media_query {
     .two-columns-left #primary > .inner:first-child,
     .three-columns-left #primary > .inner:first-child {
         padding: 0 0 0 1em !important;
@@ -172,7 +178,7 @@ width: 96% !important; }
     margin: 1em 10%; }
 
 .entry { margin: 0 0 50px 0;
-    padding: 10px 0 0 0; /* gap/margin fix */
+    padding: 10px 1em 0 1em; /* gap/margin fix */
     position: relative; }
 
 .entry .header { $entry_header_colors
@@ -247,11 +253,12 @@ ul.entry-interaction-links { text-align: right;
 
 /* comments */
 .comment { margin: 0 0 20px 0;
-    padding: 15px 0 0 0; 
-    position: relative; }
+    padding: 15px 1em 0 1em;
+    position: relative;
+    $entry_elements_colors }
 
 .partial .comment { margin: 0 0 0 0; 
-    padding: 1px 0 0 0;} 
+    padding: 1px .5em 0 .5em;}
 
 .comment .header { $entry_header_colors
     padding: 5px;
@@ -399,7 +406,7 @@ text-align: center; }
 .any-column #tertiary .module-header a,
 .one-column #tertiary .module-header a:visited { $module_header_link_colors }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary > .inner:first-child, .two-columns #tertiary .module { $module_alt_colors }
 
     .two-columns #tertiary a,

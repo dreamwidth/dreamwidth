@@ -48,7 +48,7 @@ set module_navlinks_section = "header";
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -125,6 +125,7 @@ function Page::print() {
 }
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string primary_colors = generate_color_css( $*color_entry_text, $*color_entry_background, $*color_entry_border );
     var string header_colors = generate_color_css( new Color, $*color_header_background, $*color_page_border );
@@ -134,6 +135,7 @@ function print_stylesheet () {
 
     var string entry_colors = generate_color_css( new Color, $*color_entry_title_background, $*color_entry_border );
     var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+    var string comment_colors = generate_color_css( $*color_entry_text, $*color_entry_background, new Color );
     var string comment_header_colors = generate_color_css( $*color_page_title, $*color_header_background, $*color_entry_border );
     var string comment_title_colors = generate_color_css( $*color_page_title, new Color, new Color );
 
@@ -232,10 +234,6 @@ body {
     text-align: center;
     }
 
-#module-jump-link {
-    text-align: right;
-}
-
 /* main column */
 
 #primary { $primary_colors
@@ -248,7 +246,7 @@ body {
     margin-right: -98%;
     margin-left: 2%;
 }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #primary {
         width: 98%;
         }
@@ -318,9 +316,12 @@ ul.entry-interaction-links { text-align: right;
     min-height: 17px; } /* prevent entry-management icons from shoving quickreply aside */
 
 /* comments */
-.comment { margin-bottom: 1em; }
+.page-entry #primary > .inner:first-child { padding: 1em 0; }
+.page-entry .entry-wrapper { padding: 0 1em; }
+.partial .comment { margin-bottom: 0; padding: 0 .5em; }
+.comment > .inner:first-child { padding: 1em; }
 
-.partial .comment { margin-bottom: 0;} 
+.comment { margin-bottom: 1em; $comment_colors }
 
 .comment .header { $comment_header_colors
     padding: 2px 5px;
@@ -465,7 +466,7 @@ text-align: center; }
     padding: 0 .5em !important;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .three-columns-right #secondary > .inner:first-child {
         padding: 0 0 0 .5em !important;
     }

@@ -61,7 +61,7 @@ function print_module_navlinks() {
 # Add section for navlinks module, reorder header and footer
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -137,6 +137,7 @@ function Page::print() {
 }
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_header_margin = "";
     var string entry_userpic_margin = "";
@@ -166,7 +167,7 @@ if ( ($*comment_userpic_style == "" and $*entry_userpic_style == "small") or ($*
 
             #footer { border-right: 20px solid $*color_footer_border; }
 
-            @media $*desktop_media_query {
+            @media $medium_media_query {
                 #primary, #header, #footer, #secondary, #tertiary {
                     border-left: $entry_header_margin solid $*color_page_background !important;
                     }
@@ -187,7 +188,7 @@ if ( ($*comment_userpic_style == "" and $*entry_userpic_style == "small") or ($*
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
-            @media $*desktop_media_query {
+            @media $medium_media_query {
                 #primary, #header, #footer, #secondary, #tertiary {
                    border-right: $entry_header_margin solid $*color_page_background;
                    }
@@ -274,7 +275,7 @@ li.page-separator { display: none; }
 
 .navigation ul { display: inline; padding: 0; margin: 0; }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #canvas {
         border-left: 100px solid $*color_content_border;
         }
@@ -570,7 +571,7 @@ textarea.textbox  { width: 80% !important; }
     width: auto;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #secondary, .three-columns.column-right #tertiary {
         width: $*sidebar_width;
     }

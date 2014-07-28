@@ -64,6 +64,7 @@ set font_module_heading_units = "em";
 ##===============================
 
 function print_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
 
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, $*color_entry_title_border);
@@ -136,7 +137,7 @@ function print_stylesheet () {
         """;
     }
 
-$userpic_css = """@media $*desktop_media_query { $userpic_css } """;
+$userpic_css = """@media $medium_media_query { $userpic_css } """;
 """
 
 /* For the Bold
@@ -217,7 +218,7 @@ ol {
     border-radius: 5px;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #primary > .inner:first-child {
         padding-left: 1em;
         }
@@ -649,7 +650,7 @@ h2.module-header a:active {
 
 .any-column .module-userprofile .module-content, .any-column .module-syndicate .module-content { text-align: right; }
 .any-column .module-calendar table { margin-left: auto; margin-right: 0; }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns .module-userprofile .module-content { text-align: center; }
     .multiple-columns  .module-calendar table { margin-left: auto; margin-right: auto; }
 

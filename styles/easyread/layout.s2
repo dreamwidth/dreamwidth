@@ -252,7 +252,7 @@ set module_calendar_order = 18;
 function Page::print()
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -308,6 +308,8 @@ function Page::print()
 }
 
 function Page::print_default_stylesheet {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
 
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
@@ -478,10 +480,6 @@ html body {
     content: "This page: ";
 }
 
-@media $*desktop_media_query {
-    #module-jump-link { display: none; }
-}
-
 /* Navigation at top/bottom of recent entries page */
 .navigation {
     margin-top: 10px;
@@ -600,6 +598,16 @@ h2.module-header a {
 .entry .entry-title {
     $entry_title_font
     $entrytitle_padding
+}
+
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
 }
 
 /* Set height to keep spacing */
@@ -819,8 +827,4 @@ module-section-two ul.module-list li {
 $userpic_css
 
 /* End of CSS file */""";
-}
-
-function Page::print_module_jump_link() {
-    print """<div id="module-jump-link"><a href="#tertiary" title="Jump to modules below the entries">Modules</a></div>""";
 }

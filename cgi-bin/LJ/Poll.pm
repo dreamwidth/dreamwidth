@@ -1219,13 +1219,13 @@ sub render {
                 if ($do_table) {
                     $results_table .= "<tr valign='middle'><td align='right'>$item</td><td>";
                     $results_table .= LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
-                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
+                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle; height: 14px;' height='14' width='$width' alt='' />";
                     $results_table .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
                     $results_table .= "<b>$count</b> ($percent%) $answered</td></tr>";
                 } else {
                     $results_table .= "<p>$item<br /><span style='white-space: nowrap'>";
                     $results_table .= LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
-                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
+                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle; height: 14px;' height='14' width='$width' alt='' />";
                     $results_table .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
                     $results_table .= "<b>$count</b> ($percent%) $answered</span></p>";
                 }

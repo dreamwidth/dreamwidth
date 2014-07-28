@@ -244,6 +244,8 @@ propgroup customcss {
 }
 
 function Page::print_default_stylesheet () {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
 
     var string page_colors = generate_color_css( $*color_page_text, $*color_page_background, new Color );
 
@@ -374,9 +376,8 @@ input, textarea {
     padding: 4em 2em;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #primary, #header, #secondary, .page-top { width: 60%; }
-    #module-jump-link { display: none; }
 }
 
 #footer {
@@ -672,6 +673,16 @@ h3.entry-title a {
 .comment-content li {
     list-style-position: inside;
     }
+
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
 
 .metadata {
     margin: 2em 0 0;

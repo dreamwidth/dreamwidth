@@ -116,7 +116,7 @@ function Page::print() {
 var string image_foreground_url = generate_image_url($*image_foreground_header_url);
 
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -216,6 +216,7 @@ if ($image_foreground_url != "" and $*image_foreground_header_position == "inlin
 
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string header_background_height;
     if ($*image_background_header_height > 0) {
@@ -318,7 +319,7 @@ body {
     margin-top: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left #content,
     .three-columns-sides #content {
         border-left: $*sidebar_width solid $*color_module_background;
@@ -389,9 +390,6 @@ $header_margintop }
     text-align: $*image_foreground_header_alignment;
     }
 
-#module-jump-link {
-    text-align: left;
-}
 /*--- Journal Navigation ---*/
 
 .navigation {
@@ -491,6 +489,10 @@ ul.entry-interaction-links, .comment-interaction-links {
     color: $*color_entry_interaction_links;
     }
 
+.comment-wrapper {
+    background-color: $*color_entry_background;
+    }
+
 .comment-wrapper .header {
     border-bottom: 5px solid $*color_comment_title_border;
     padding: .25em .5em;
@@ -505,7 +507,16 @@ ul.entry-interaction-links, .comment-interaction-links {
     margin-bottom: .25em;
     }
 
-.partial .comment {
+.page-entry #primary > .inner:first-child {
+    padding: 1em 0;
+}
+.page-entry .entry-wrapper {
+    padding: 0 1em;
+}
+.comment > .inner:first-child {
+    padding: 1em;
+}
+.partial .comment > .inner.first-child {
     padding: .25em .5em;
     }
 
@@ -612,7 +623,7 @@ h3.day-date {Den
 /*--- Sidebars ---*/
 
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .separator-after {
         clear: both;
         }

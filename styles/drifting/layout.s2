@@ -287,6 +287,9 @@ propgroup customcss
 ################################################################################
 function Page::print_default_stylesheet()
 {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
     var string image_header_left_url = generate_image_url ($*image_header_left);
     var string image_header_right_url = generate_image_url ($*image_header_right);
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
@@ -383,7 +386,7 @@ function Page::print_default_stylesheet()
     #secondary { display: table-footer-group; }
     #primary { display: table-row-group; }
 
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         #canvas, #header, #secondary, #primary { display: block; }
         #primary {
             margin: 10px 0 0 235px;
@@ -396,7 +399,7 @@ function Page::print_default_stylesheet()
             border-right: 1px solid $*color_module_border;
         }
 
-        @media $*desktop_media_query {
+        @media $medium_media_query {
             #secondary .module-wrapper .separator-after {
                 float: left;
                 clear: left;
@@ -486,7 +489,7 @@ function Page::print_default_stylesheet()
         width: 100%;
     }
 
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         #header h1#title {
             margin: 0px 0px 0px 235px;
             text-align: left;
@@ -507,8 +510,6 @@ function Page::print_default_stylesheet()
             float: right;
             width: 250px;
         }
-
-        #module-jump-link { display: none; }
     }
 
     /* Navigation
@@ -714,6 +715,16 @@ function Page::print_default_stylesheet()
     .comment-content li {
         list-style-position: inside;
         }
+
+    /* To constrain the width and prevent layout breaking */
+    .entry-content img, .comment-content img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    @media $large_media_query {
+        .entry-content img, .comment-content img { max-width: none; }
+    }
 
     .entry .subject {
         padding: 3px;
@@ -1073,7 +1084,7 @@ function Page::print_default_stylesheet()
 
     /* (left border)
     ***************************************************************************/
-    @media $*desktop_media_query {
+    @media $medium_media_query {
         .day-title, .month-title,
         #footer, .navigation, #reply h2,
         .entry .subject, .comment .subject,
@@ -1110,7 +1121,7 @@ function Page::print()
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>""";
-        $this->print_meta_viewport_tag();
+        $this->print_meta_tags();
         $this->print_head();
         $this->print_stylesheets();
         $this->print_head_title();
@@ -1124,7 +1135,6 @@ function Page::print()
             println "<div class=\"header-left\">";
                 $this->print_global_title();
                 $this->print_global_subtitle();
-                $this->print_module_jump_link();
             println "</div><div class=\"header-right\"></div>";
             println "</div>";
 

@@ -245,6 +245,9 @@ propgroup customcss {
 }
 
 function Page::print_default_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
@@ -298,7 +301,6 @@ function Page::print_default_stylesheet() {
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
-    var string medium_media_query = generate_medium_media_query();
 
      var string userpic_css = "";
          if ($*userpics_position == "right") {
@@ -395,15 +397,6 @@ h1#title {
 h2#subtitle,
 h2#pagetitle {
     $page_subtitle_font
-}
-
-#module-jump-link a { color: $*color_header_link; }
-#module-jump-link a:visited { color: $*color_header_link_visited; }
-#module-jump-link a:hover { color: $*color_header_link_hover; }
-#module-jump-link a:active { color: $*color_header_link_active; }
-
-@media $medium_media_query {
-    #module-jump-link { display: none; }
 }
 
 #footer {
@@ -527,6 +520,16 @@ h2#pagetitle {
 .comment-content li {
     list-style-position: inside;
     }
+
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
 
 .metadata ul {
     display: inline;

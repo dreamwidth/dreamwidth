@@ -64,7 +64,7 @@ set module_navlinks_section = "header";
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -150,6 +150,8 @@ function Page::print_global_title() {
 }
 
 function print_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+
     var string header_decoration_colors = generate_color_css( new Color, $*color_page_text, $*color_page_title );
     var string header_decoration_inner_colors = generate_color_css( new Color, $*color_page_border, $*color_page_background );
 
@@ -296,7 +298,7 @@ body {
    padding: 1em 2em;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-left .navigation,
     .three-columns-left .navigation { text-align: right; }
 }
@@ -494,7 +496,7 @@ text-decoration: none; }
 
 .module-content ul { list-style: outside square; }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #secondary .module-userprofile,
     .three-columns .module-userprofile {
         text-align: center;

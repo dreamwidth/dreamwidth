@@ -28,6 +28,7 @@ set color_page_details_text = "#999";
 ##===============================
 
 function print_stylesheet() {
+var string medium_media_query = generate_medium_media_query();
 
 var string header_colors = generate_color_css( $*color_page_title, $*color_header_background, new Color );
 var string entry_colors = generate_color_css( $*color_entry_text, $*color_entry_background, $*color_entry_border );
@@ -172,11 +173,7 @@ dl dt { font-weight: bold; }
     text-align: right;
     }
 
-#module-jump-link {
-    text-align: right;
-}
-
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-right #header > .inner:first-child {
         margin-left: 1em;
         margin-right: 2em;
@@ -523,7 +520,7 @@ table.month th {
     padding: 0;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #secondary,
     .multiple-columns #tertiary {
         margin-top: -5em;

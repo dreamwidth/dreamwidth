@@ -538,6 +538,9 @@ function EntryPage::print_comment (Comment c) {
 }
 
 function Page::print_default_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
@@ -767,7 +770,7 @@ q {
     margin-left: $*margins_size%;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns-right #header {
         margin-right: $two_column_margin_header_right%;
         margin-left: $*margins_size%;
@@ -781,8 +784,6 @@ q {
         margin-left: 5%;
         margin-right: 6%;
     }
-
-    #module-jump-link { display: none; }
 }
 
 /* Content & Sidebars
@@ -805,7 +806,7 @@ q {
     width: $one_column_main_width%;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns #secondary {
         width: $*sidebar_width%;
         min-width: 200px;
@@ -975,7 +976,7 @@ q {
     margin-bottom: .2em;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .module, .two-columns #tertiary .module-header {
         padding: 0;
     }
@@ -1086,7 +1087,7 @@ q {
     $footer_link_hover_colors
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary {
         opacity: .4;
     }
@@ -1210,6 +1211,15 @@ q {
 
 .entry-content ul:first-child li, .entry-content ol:first-child li {
     list-style-position: inside;
+}
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
 }
 
 .entry .tag,.footer .multiform-checkbox {
@@ -1678,7 +1688,7 @@ blockquote {
     border: 1px solid;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .two-columns #tertiary .module, .two-columns #tertiary .module-header {
         background: none;
         border: none;

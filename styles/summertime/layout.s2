@@ -339,7 +339,7 @@ var bool modules_in_two = (
 
 """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n
     <head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-        $this->print_meta_viewport_tag();
+        $this->print_meta_tags();
         $this->print_head();
         $this->print_stylesheets();
         $this->print_head_title();
@@ -371,7 +371,6 @@ var bool modules_in_two = (
             </div><!-- end header -->
             <div id="secondary-container"><div class="inner">
     """;
-                $this->print_module_jump_link();
 
                 if ($*layout_type == "one-column-split") {
                     """<div id="secondary"><div class="inner">""";
@@ -435,6 +434,7 @@ var bool modules_in_two = (
 ##===============================
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string top_module_colors = generate_color_css($*color_module_top_text, new Color, $*color_module_top_border);
 var string top_module_title_colors = generate_color_css($*color_module_top_title, $*color_module_top_title_background, new Color);
@@ -512,7 +512,7 @@ $header_css = """
     text-align: right;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #header-primary {
         float: left;
     }
@@ -727,11 +727,6 @@ h2#pagetitle {
     clear: both;
 }
 
-#module-jump-link {
-    text-align: right;
-    margin-right: 25px;
-}
-
 /* Content Containers
 ******************************/
 
@@ -773,7 +768,7 @@ h2#pagetitle {
     padding: 0;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #content, #secondary-container, #tertiary-container {
         margin: 0 150px;
     }
@@ -1257,7 +1252,7 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
     padding-left: 0;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #secondary-container .module-wrapper, #tertiary-container .module-wrapper {
         padding: 0;
     }
@@ -1448,7 +1443,7 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
     width: 15px;
 }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     #footer-shadow-left, #footer-shadow-right {
         width: 150px
     }

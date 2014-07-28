@@ -75,7 +75,7 @@ function print_module_navlinks() {
 # Add section for navlinks module
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
-    $this->print_meta_viewport_tag();
+    $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
@@ -155,6 +155,7 @@ function Page::print() {
 
 
 function print_stylesheet () {
+var string medium_media_query = generate_medium_media_query();
 
 var string userpic_css = "";
     if ($*userpics_position == "right") {
@@ -286,7 +287,7 @@ h2#pagetitle {
     height: 10px;
     }
 
-@media $*desktop_media_query {
+@media $medium_media_query {
     .column-left #primary .separator-after {
         margin-left: -1em;
         }
@@ -357,6 +358,10 @@ ul.entry-interaction-links, ul.comment-interaction-links {
     margin-bottom: .5em;
     margin-right: .5em;
     margin-top: .5em;
+    }
+
+.comment-wrapper {
+    background-color: $*color_entry_background;
     }
 
 .comment-wrapper .header {
@@ -516,7 +521,7 @@ div.icons-container div.icon:nth-of-type(2n) {
     }
 #content .module { display: inline-block; vertical-align: top; width: $*sidebar_width;
         }
-@media $*desktop_media_query {
+@media $medium_media_query {
     .multiple-columns .module-wrapper {
         background-color: transparent;
     }
