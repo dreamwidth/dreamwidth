@@ -3,6 +3,6 @@
 
 .admin.text=For editing user capabilities.
 
-.note=Note: to change a user's status, you should use the <a [[payments]]>Payment Managements tool</a> instead. This requires you to have the 'payments' priviledge so you may need to <a [[priv]]>grant it to yourself first</a>.
+.note1=Note: to change a user's status, you should use the <a [[payments]]>Payment Managements tool</a> instead. This requires you to have the 'payments' privilege so you may need to <a [[priv]]>grant it to yourself first</a>.
 
 .title=Capability Class Management
