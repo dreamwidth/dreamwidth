@@ -16,6 +16,8 @@ propgroup presentation {
     property use num_items_reading;
     property use use_custom_friend_colors;
     property use use_shared_pic;
+	property use medium_breakpoint_width;
+    property use large_breakpoint_width;
     property use use_journalstyle_entry_page;
     property use custom_control_strip_colors;
 
@@ -42,6 +44,8 @@ set num_items_recent = 10;
 set num_items_reading = 10;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
+set medium_breakpoint_width = "48em";
+set large_breakpoint_width = "64em";
 set userpics_position = "right";
 set custom_control_strip_colors = "on_no_gradient";
 

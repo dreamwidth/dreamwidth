@@ -29,6 +29,8 @@ propgroup presentation
     property use use_journalstyle_entry_page;
     property use margins_size;
     property use margins_unit;
+	property use medium_breakpoint_width;
+    property use large_breakpoint_width;
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
     property use icons_page_sort;
@@ -49,6 +51,8 @@ propgroup presentation
 
 set layout_type            = "two-columns-left";
 set userpics_position = "right";
+set medium_breakpoint_width = "30em";
+set large_breakpoint_width = "40em";
 set num_items_recent       = 20;
 set num_items_reading      = 20;
 set linklist_support       = true;
