@@ -17,7 +17,7 @@ propgroup presentation {
     property use margins_unit;
     property use sidebar_width;
     property use sidebar_width_doubled;
-	property use medium_breakpoint_width;
+    property use medium_breakpoint_width;
     property use large_breakpoint_width;
     property use custom_control_strip_colors;
 
@@ -43,8 +43,6 @@ propgroup presentation {
 set layout_type = "one-column";
 set sidebar_width = "15em";
 set sidebar_width_doubled = "30em";
-set medium_breakpoint_width = "45em";
-set large_breakpoint_width = "60em";
 set userpics_position = "left";
 set use_custom_friend_colors = false;
 set custom_foreground_element = "userpic_border";

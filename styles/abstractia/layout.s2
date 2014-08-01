@@ -28,7 +28,7 @@ propgroup presentation {
         des = "Set the percentage width of the left and right margins, without the % symbol.";
         size = 5;
     }
-	property use medium_breakpoint_width;
+    property use medium_breakpoint_width;
     property use large_breakpoint_width;
     property string entry_poster_alignment {
         des = "Alignment of entry/comment poster";
@@ -54,8 +54,6 @@ propgroup presentation {
 set layout_type = "two-columns-right";
 set sidebar_width = "20";
 set margins_size = "5";
-set medium_breakpoint_width = "30em";
-set large_breakpoint_width = "50em";
 set userpics_position = "right";
 set entry_poster_alignment = "right";
 set entry_poster_position = "header";

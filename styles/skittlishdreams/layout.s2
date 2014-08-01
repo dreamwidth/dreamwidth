@@ -19,7 +19,7 @@ propgroup presentation {
     property use margins_size;
     property use margins_unit;
     property use sidebar_width;
-	property use medium_breakpoint_width;
+    property use medium_breakpoint_width;
     property use large_breakpoint_width;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -54,8 +54,6 @@ propgroup presentation {
 
 set layout_type = "two-columns-right";
 set sidebar_width = "300px";
-set medium_breakpoint_width = "45em";
-set large_breakpoint_width = "60em";
 set tags_page_type = "";
 set all_commentsubjects = true;
 set entryicons_position = "same";
