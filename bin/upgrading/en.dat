@@ -3026,6 +3026,10 @@ setting.minsecurity.option.select.private2=Just Me (Private)
 
 setting.minsecurity.option.select.public2=Everyone (Public)
 
+setting.mobileview.des=Turn off mobile view for this device
+
+setting.mobileview.label=Mobile View
+
 setting.name.question=What's your name?
 
 setting.navstrip.label=Navigation Strip

@@ -2313,6 +2313,7 @@ sub Page
         $u->set_prop( 'customtext_title', $opts->{ctx}->[S2::PROPS]->{text_module_customtext} );
     }
 
+    my $r = DW::Request->get;
     my $p = {
         '_type' => 'Page',
         '_u' => $u,
@@ -2347,7 +2348,8 @@ sub Page
         'data_link' => {},
         'data_links_order' => [],
         _styleopts => LJ::viewing_style_opts( %$get ),
-        timeformat24 => $remote && $remote->use_24hour_time
+        timeformat24 => $remote && $remote->use_24hour_time,
+        include_meta_viewport => $r->cookie( 'no_mobile' ) ? 0 : 1,
     };
 
     if ($LJ::UNICODE && $opts && $opts->{'saycharset'}) {

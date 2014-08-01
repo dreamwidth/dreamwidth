@@ -615,6 +615,9 @@ class Page
     var readonly string customtext_url "URL for header of customtext module";
     var readonly string customtext_content "Content of customtext module";
 
+    var readonly bool include_meta_viewport
+    "Whether we should print the meta viewport tag or not, based on the viewer's preferences";
+
     function print
     "The main entry point that Dreamwidth calls. Layouts should override this to create HTML that's the
     same for all view types, and use \$this->title, \$this->head and \$this->body to include view-specific
@@ -3784,7 +3787,7 @@ function generate_large_media_query(): string {
 function Page::print_meta_tags() {
     # they're using their own stylesheets which probably won't work with the initial scale
     # (things will just look smooshed together)
-    if ($*include_default_stylesheet) {
+    if ($this.include_meta_viewport and $*include_default_stylesheet) {
         print """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     }
 
