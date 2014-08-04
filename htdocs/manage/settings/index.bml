@@ -99,6 +99,7 @@ body<=
                 DW::Setting::GoogleAnalytics
                 DW::Setting::ExcludeOwnStats
                 DW::Setting::StickyEntry
+                DW::Setting::MobileView
                 LJ::Setting::SiteScheme
             )],
         },
