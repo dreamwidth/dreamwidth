@@ -3221,7 +3221,7 @@ jQuery(function(jQ){
     if (jQ("#lj_controlstrip").length == 0) {
         jQ.getJSON("/$user/__rpc_controlstrip?user=$user&host=$host&uri=$uri&args=$args&view=$view", {},
             function(data) {
-                jQ("<div></div>").html(data.control_strip).appendTo("body");
+                jQ("<div></div>").html(data.control_strip).prependTo("body");
             }
         );
     }
