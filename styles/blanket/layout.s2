@@ -19,7 +19,6 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use custom_control_strip_colors;
 
-
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
     property use tags_page_type;

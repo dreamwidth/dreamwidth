@@ -17,6 +17,8 @@ propgroup presentation {
     property use margins_unit;
     property use sidebar_width;
     property use sidebar_width_doubled;
+    property use medium_breakpoint_width;
+    property use large_breakpoint_width;
     property use custom_control_strip_colors;
 
     property use reverse_sortorder_group;

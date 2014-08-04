@@ -19,6 +19,8 @@ propgroup presentation {
     property use margins_size;
     property use margins_unit;
     property use sidebar_width;
+    property use medium_breakpoint_width;
+    property use large_breakpoint_width;
     property use use_custom_friend_colors;
     property use use_shared_pic;
     property use use_journalstyle_entry_page;

@@ -28,6 +28,8 @@ propgroup presentation {
         des = "Set the percentage width of the left and right margins, without the % symbol.";
         size = 5;
     }
+    property use medium_breakpoint_width;
+    property use large_breakpoint_width;
     property string entry_poster_alignment {
         des = "Alignment of entry/comment poster";
         values = "none|None (don't show)|left|Left|right|Right";

@@ -1214,10 +1214,14 @@ property string desktop_media_query {
 }
 
 property string medium_breakpoint_width {
-  des = "The width at which we switch from one column to multiple columns mode.";
+  des = "The width at which the layout switches from single column mode (mobile view) to multiple columns if selected (tablet view).";
+  note = "Set this to 0 to use multiple columns regardless of screen size";
+  example = "30em";
 }
 property string large_breakpoint_width {
-  des = "The width at which we asssume we're on a larger screen and can afford some extra whitespace.";
+  des = "The width at which the layout switches to larger screen mode (desktop view) and can afford some extra whitespace.";
+  note = "Set this to 0 to keep the layout the same regardless of screen size";
+  example = "40em";
 }
 
 property int num_items_recent {
