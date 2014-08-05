@@ -70,25 +70,23 @@ function print_stylesheet () {
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, $*color_entry_title_border);
     var string module_title_colors = generate_color_css($*color_module_title, $*color_module_title_background, $*color_module_title_border);
 
-    var string entry_margin = "";
-    if ( $*entry_userpic_style == "" ) { $entry_margin = "160px"; }
-    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "135px"; }
-    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "110px"; }
+    var int base_userpic_size = 100;
 
-    var string comment_margin = "";
-    if ( $*comment_userpic_style == "" ) { $comment_margin = "160px"; }
-    elseif ( $*comment_userpic_style == "small" ) { $comment_margin = "135px"; }
-    elseif ( $*comment_userpic_style == "smaller" ) { $comment_margin = "110px"; }
+    if ( $*entry_userpic_style == "" ) { $base_userpic_size = 100; }
+    elseif ( $*entry_userpic_style == "small" ) { $base_userpic_size = 75; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $base_userpic_size = 50; }
 
-    var string entry_userpic_margin = "";
-    if ( $*entry_userpic_style == "" ) { $entry_userpic_margin = "146px"; }
-    elseif ( $*entry_userpic_style == "small" ) { $entry_userpic_margin = "121px"; }
-    elseif ( $*entry_userpic_style == "smaller" ) { $entry_userpic_margin = "96px"; }
+    var string entry_margin = string($base_userpic_size + 60) + "px";
+    var string entry_userpic_margin = string($base_userpic_size + 46) + "px";
+    var string entry_userpic_text_margin = string($base_userpic_size + 25) + "px";
 
-    var string comment_userpic_margin = "";
-    if ( $*comment_userpic_style == "" ) { $comment_userpic_margin = "141px"; }
-    elseif ( $*comment_userpic_style == "small" ) { $comment_userpic_margin = "115px"; }
-    elseif ( $*comment_userpic_style == "smaller" ) { $comment_userpic_margin = "91px"; }
+    if ( $*comment_userpic_style == "" ) { $base_userpic_size = 100; }
+    elseif ( $*comment_userpic_style == "small" ) { $base_userpic_size = 75; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $base_userpic_size = 50; }
+
+    var string comment_margin = string($base_userpic_size + 60) + "px";
+    var string comment_userpic_margin = string($base_userpic_size + 41) + "px";
+    var string comment_userpic_text_margin = string($base_userpic_size + 25) + "px";
 
     var string userpic_css = "";
 
@@ -311,7 +309,11 @@ h2#pagetitle {
 .entry .poster {
     float: right;
     margin-top: -1.4em;
+    margin-right: $entry_userpic_text_margin;
     }
+@media $medium_media_query {
+    .entry .poster { margin-right: 0; }
+}
 
 .entry-content {
     border-top: 1px solid $*color_entry_title_border;
@@ -408,7 +410,11 @@ ul.entry-interaction-links li {
 .comment .poster {
     float: right;
     margin-top: -1.4em;
+    margin-right: $comment_userpic_text_margin;
     }
+@media $medium_media_query {
+    .comment .poster { margin-right: 0; }
+}
 
 .comment-content {
     border-top: 1px solid $*color_comment_title_border;
