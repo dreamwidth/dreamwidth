@@ -15,7 +15,7 @@ set color_page_link_visited = "#234163";
 set color_page_subtitle = "#5a799d";
 set color_page_text = "#234163";
 set color_page_title = "#fff";
-set color_header_background = "#5a799d";
+set color_header_background = "#7997BD";
 
 ##===============================
 ## Entry Colors
@@ -37,7 +37,8 @@ set color_module_title = "#5a799d";
 ## Images
 ##===============================
 
-set image_background_header_repeat = "repeat";
+set image_background_header_position = "0 100%";
+set image_background_header_repeat = "repeat-x";
 set image_background_header_url = "drifting/hdr_bg.jpg";
 set image_header_left = "drifting/hdr_left.jpg";
 set image_header_right = "drifting/hdr_right.jpg";
