@@ -401,15 +401,13 @@ function Page::print_default_stylesheet()
             border-right: 1px solid $*color_module_border;
         }
 
-        @media $medium_media_query {
-            #secondary .module-wrapper .separator-after {
-                float: left;
-                clear: left;
-                width: 224px;
-                height: 1.5em;
-                margin-top: .5em;
-                $module_footer_colors
-            }
+        #secondary .module-wrapper .separator-after {
+            float: left;
+            clear: left;
+            width: 224px;
+            height: 1.5em;
+            margin-top: .5em;
+            $module_footer_colors
         }
     }
     /* Lists
