@@ -3767,7 +3767,7 @@ function generate_media_query(string user_breakpoint, int sidebar_width_multipli
     var string min_width = $user_breakpoint;
 
     # no user-provided breakpoint width, base our min-width as a multiplier on the sidebar width
-    if ($min_width == "") {
+    if ($min_width == "" and $*sidebar_width != "") {
         # set the min width in ems
         $min_width = $*sidebar_width->css_multiply_length($sidebar_width_multiplier);
     }
