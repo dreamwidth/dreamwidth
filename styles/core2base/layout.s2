@@ -516,6 +516,15 @@ h2#pagetitle {
 .entry a:hover { $entry_link_hover_colors }
 .entry a:active { $entry_link_active_colors }
 
+/* ensure comment content stretches out horizontally so it's readable */
+.comment-content:before {
+    content: "";
+    display: block;
+    overflow: hidden;
+    width: 10em;
+}
+.comment-content { border-top: 1px transparent solid; } /* for firefox */
+
 /* To prevent overlapping when icon's on the left */
 /* and list is the first thing in content */
 .entry-content li,

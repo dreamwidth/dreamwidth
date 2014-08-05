@@ -544,6 +544,15 @@ ul ul {list-style: circle;}
 .entry-content a img:hover {border-color: $*color_entry_link_hover; }
 .entry-content .userpic, #comments .userpic {background: $*color_entry_background;}
 
+/* ensure comment content stretches out horizontally so it's readable */
+.comment-content:before {
+    content: "";
+    display: block;
+    overflow: hidden;
+    width: 10em;
+}
+.comment-content { border-top: 1px transparent solid; } /* for firefox */
+
 /* To constrain the width and prevent layout breaking */
 .entry-content img, .comment-content img {
     max-width: 100%;

@@ -1214,6 +1214,16 @@ q {
 .entry-content ul:first-child li, .entry-content ol:first-child li {
     list-style-position: inside;
 }
+
+/* ensure comment content stretches out horizontally so it's readable */
+.comment-content:before {
+    content: "";
+    display: block;
+    overflow: hidden;
+    width: 10em;
+}
+.comment-content { border-top: 1px transparent solid; } /* for firefox */
+
 /* To constrain the width and prevent layout breaking */
 .entry-content img, .comment-content img {
     max-width: 100%;
