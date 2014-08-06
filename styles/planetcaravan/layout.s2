@@ -508,10 +508,18 @@ div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-t
     margin-left: -5px;
     }
 
-ul.entry-management-links, ul.comment-management-links {
-    text-align: left;
+.entry .footer, .comment .footer {
     background: $*color_entry_footer_background;
     padding: .75em;
+}
+.entry .footer:after, .comment .footer:after { /* clearfix */
+  content: "";
+  display: table;
+  clear: both;
+}
+
+ul.entry-management-links, ul.comment-management-links {
+    text-align: left;
     font-size: smaller;
     text-transform:lowercase;
     margin: 0;
@@ -519,11 +527,16 @@ ul.entry-management-links, ul.comment-management-links {
 
 ul.entry-interaction-links, ul.comment-interaction-links {
     float:right;
-    padding: .75em;
-    margin: -2.9em 0 0;
+    margin: 0 0 0 .75em;
     font-size: smaller;
     text-transform:lowercase;
     }
+
+@media $medium_media_query {
+    ul.entry-interaction-links, ul.comment-interaction-links {
+        margin-top: -1.4em;
+    }
+}
 
 .text-links a {    color: $*color_entry_interaction_links; text-decoration: none; font-weight:normal;}
 .text-links a:hover {text-decoration: underline; color: $*color_entry_interaction_links_hover;}
