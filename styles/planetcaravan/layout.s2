@@ -447,11 +447,11 @@ h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: 
     }
 
 .entry .userpic {
-    margin-top: -2em;
     margin-bottom: 1em;
     }
 @media $medium_media_query {
     .entry .userpic, .comment .userpic {
+        margin-top: -2em;
         border-width: 20px;
         margin-bottom: 0;
         }
