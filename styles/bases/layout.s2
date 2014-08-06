@@ -894,7 +894,7 @@ li.first-item {margin-left: 0;}
 
 #comments { border-top: 0.083em solid $*color_entry_border; padding-top: 0.5em;}
 
-.comment { border: 0.083em solid $*color_entry_border; margin: 0 1em 0 1em; }
+.comment { border: 0.083em solid $*color_entry_border; margin: 0 1em 0 1em; background-color: $*color_entry_background; }
 
 .comment-title {
     $comment_title_font
@@ -924,7 +924,7 @@ li.first-item {margin-left: 0;}
 
 .screened .comment-content {background: $*color_comment_screened; padding: 0.833em; }
 
-.partial .comment {color: transparent; padding: 0 0 0.5em 0; min-width: 16.667em; background: $*color_entry_background;}
+.partial .comment {color: transparent; padding: 0 0 0.5em 0; min-width: 16.667em;}
 .partial .comment-title { font-size: 1.166em; font-weight: bold; }
 .partial .comment-poster { color: $*color_entry_text; padding-left: .5em; }
 .partial .comment .datetime { border: 0; display: inline; background: none; margin: 0; padding: 0;}
