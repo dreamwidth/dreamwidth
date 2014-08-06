@@ -483,16 +483,13 @@ li.page-separator {
 /*--- Sidebar aka Modules ---*/
 #secondary, #tertiary { text-align: center; }
 .module {
-    display: inline-block;
-    vertical-align: top;
-    width: $*modules_per_row;
     text-align:left;
     }
-
 @media $medium_media_query {
-    .multiple-columns .module {
-        display: block;
-        width: auto;
+    .one-column .module {
+        display: inline-block;
+        vertical-align: top;
+        width: $*modules_per_row;
     }
 }
 
