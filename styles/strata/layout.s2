@@ -322,9 +322,9 @@ ul.entry-interaction-links {
     background-color: $*color_comment_title_background;
     color: $*color_comment_title;}
 
-.comment .comment-content { background-color: $*color_entry_background;
-    color: $*color_entry_text !important;
-    color: $*color_page_text;}
+.comment { background-color: $*color_entry_background;
+    color: $*color_entry_text;
+}
 
 .comment .comment-content { clear: left }
 
