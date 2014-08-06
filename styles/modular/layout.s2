@@ -309,13 +309,18 @@ table.talkform { padding: 1em;
 $userpic_css
 
 .entry .userpic {
-    margin: -2em 10px .5em 10px;
+    margin: -1em 0 .5em 0;
     padding: 0 8px 8px 8px;
     background-color: $*color_entry_title_background;
     }
-
 .page-recent .entry .userpic,
-.page-day .entry .userpic { margin-top: -2.5em; }
+.page-day .entry .userpic { margin-top: -1.5em; }
+@media $medium_media_query {
+    .entry .userpic { margin: -2em 10px .5em 10px; }
+
+    .page-recent .entry .userpic,
+    .page-day .entry .userpic { margin-top: -2.5em; }
+}
 
 .entry-content { margin-top: 1em; }
 
@@ -370,10 +375,16 @@ ul.entry-interaction-links,
 .comment-title a { color: $*color_entry_title; }
 
 .comment .userpic {
-    margin: -1.5em 10px .5em 10px;
+    margin: -.5em 0 .5em 0;
     padding: 0 5px 5px 5px;
     background-color: $*color_entry_title_background;
     }
+
+@media $medium_media_query {
+    .comment .userpic {
+        margin: -1.5em 10px .5em 10px;
+    }
+}
 
 .poster-ip { font-size: small;
     font-style: italic;
