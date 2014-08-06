@@ -460,16 +460,22 @@ function Page::print_default_stylesheet()
     /* Header
     ***************************************************************************/
     #header {
-        height: 4.7em;
         margin-bottom: 10px;
         border: 1px solid $*color_module_border;
         $header_background
     }
 
+    #header:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
     .header-left {
         background-image: url($image_header_left_url);
+        background-position: 0 100%;
         background-repeat: no-repeat;
-        height: 4.7em;
+        min-height: 4.7em;
     }
 
     #header h1#title {
@@ -503,9 +509,12 @@ function Page::print_default_stylesheet()
             float: left;
             width: 60%;
         }
+    }
 
+    @media $large_media_query {
         .header-right {
             background-image: url($image_header_right_url);
+            background-position: 0 100%;
             height: 4.7em;
             float: right;
             width: 250px;
