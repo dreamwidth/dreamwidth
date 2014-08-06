@@ -323,6 +323,7 @@ h1, h2, h3, h4, h5, h6{font-size:1em}
 /************************************************
 * General elements *
 ************************************************/
+body {background-attachment: fixed;}
 
 #primary h1, #primary h2, #primary h3, #primary h4, #primary h5, #primary h6, #primary p, #primary li, #primary dt, #primary dd, #primary blockquote, #primary label, #primary th, #primary td, #primary a {text-shadow: 0 0 4px $*color_entry_text_shadow;}
 
