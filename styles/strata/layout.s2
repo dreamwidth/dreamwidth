@@ -212,8 +212,6 @@ h3.entry-title {
 
 .entry .footer {
     clear: both;
-    padding: 0 0 35px;
-    border-bottom: 15px solid $*color_entry_footer_background;
 }
 
 .entry .footer .tag {
@@ -273,9 +271,15 @@ ul.entry-management-links {
 
 ul.entry-interaction-links {
     float: right;
-    padding: 5px 15px;
+    padding: 0 15px;
 }
 .entry-wrapper .separator-after {background: $*color_entry_border }
+
+.entry .footer .inner:after, .comment .footer .inner:after { /* clearfix */
+  content: "";
+  display: table;
+  clear: both;
+}
 
 /* ------- comments --------- */
 
@@ -301,7 +305,7 @@ ul.entry-interaction-links {
 #comments .comment-content { padding: 10px 20px; }
 
 #comments .footer {
-    padding: 0 10px 40px 20px;
+    padding: 0 10px 0 20px;
     background: $*color_entry_background;
 }
 
@@ -327,6 +331,7 @@ ul.entry-interaction-links {
 .comment-interaction-links, .comment-management-links {
     float: left;
     font-size: .9em;
+    margin-bottom: .5em;
 }
 
 .footer .inner .multiform-checkbox {
