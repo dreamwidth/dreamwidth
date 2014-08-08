@@ -1,0 +1,12 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+*.pm text
+*.pl text
+*.s2 text
+*.dat text
+
+*.png binary
+*.jpg binary
+*.svg binary
+*.gif binary
