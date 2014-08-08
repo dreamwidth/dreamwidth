@@ -32,7 +32,7 @@
   function getUnexpandedComments(LJ) {
     var returnValue = [];
     for (var talkid in LJ) {
-      if (LJ[talkid].hasOwnProperty("full") && ! LJ[talkid].full && ! LJ[talkid].deleted && ! LJ[talkid].screened) {
+      if (LJ[talkid].hasOwnProperty("full") && ! LJ[talkid].full && ! LJ[talkid].deleted && (!LJ[talkid].screened || LJ.canAdmin)) {
         returnValue.push(talkid);
       }
     }
