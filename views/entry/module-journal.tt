@@ -70,7 +70,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 items = journalselect
             ) -%]
         [% ELSE %]
-            [% journallist.first.ljuser_display%]</span>
+            [% journallist.first.ljuser_display%]
             [% form.hidden( name = "usejournal", id = "usejournal", value = journallist.first.user ) %]
         [% END %]
    </div>
