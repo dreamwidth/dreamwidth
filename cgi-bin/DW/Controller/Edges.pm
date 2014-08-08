@@ -56,15 +56,6 @@ sub edges_handler {
     return $error_out->( 403, 'suspended' ) if $u->is_suspended;
     return $error_out->( 404, 'deleted' ) if $u->is_deleted;
 
-    # deal with renamed accounts
-    my $renamed_u = $u->get_renamed_user;
-    unless ( $renamed_u && $u->equals( $renamed_u ) ) {
-        $r->header_out("Location", $renamed_u->journal_base . "/data/edges");
-        $r->status( $r->REDIRECT );
-        $r->print( to_json( { error => 'moved', moved_to => $renamed_u->journal_base . "/data/edges" } ) );
-        return $r->OK;
-    }
-
     # Load appropriate usernames for different accounts
     my $us;
 

@@ -52,15 +52,6 @@ sub interests_handler {
     return $error_out->( $r->FORBIDDEN, 'suspended' ) if $u->is_suspended;
     return $error_out->( $r->NOT_FOUND, 'deleted' ) if $u->is_deleted;
 
-    # deal with renamed accounts
-    my $renamed_u = $u->get_renamed_user;
-    unless ( $renamed_u && $u->equals( $renamed_u ) ) {
-        $r->header_out( "Location", $renamed_u->journal_base . "/data/interests" );
-        $r->status( $r->REDIRECT );
-        $r->print( to_json( { error => 'moved', moved_to => $renamed_u->journal_base . "/data/interests" } ) );
-        return $r->OK;
-    }
-
     # Load the interests
     my $interests = $u->get_interests || [];
     my $output = {};
