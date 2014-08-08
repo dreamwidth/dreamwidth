@@ -112,6 +112,51 @@ sub new_handler {
     my $post;
     my %spellcheck;
 
+    # figure out times
+    my $datetime;
+    my $trust_datetime_value = 0;
+
+    if ( $post && $post->{entrytime} && $post->{entrytime_hr} && $post->{entrytime_min} ) {
+        $datetime = "$post->{entrytime} $post->{entrytime_hr}:$post->{entrytime_min}";
+        $trust_datetime_value = 1;
+    } else {
+        my $now = DateTime->now;
+
+        # if user has timezone, use it!
+        if ( $remote && $remote->prop( "timezone" ) ) {
+            my $tz = $remote->prop( "timezone" );
+            $tz = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
+            $now = eval { DateTime->from_epoch( epoch => time(), time_zone => $tz ); }
+               if $tz;
+        }
+
+        $datetime = $now->strftime( "%F %R" ),
+        $trust_datetime_value = 0;  # may want to override with client-side JS
+    }
+
+    # crosspost account selected?
+    my %crosspost;
+    if ( ! $r->did_post && $remote ) {
+        %crosspost = map { $_->acctid => $_->xpostbydefault }
+            DW::External::Account->get_external_accounts( $remote )
+    }
+
+    my $get = $r->get_args;
+    $usejournal ||= $get->{usejournal};
+    my $vars = _init( { usejournal  => $usejournal,
+                        altlogin    => $get->{altlogin},
+                        remote      => $remote,
+
+                        datetime    => $datetime || "",
+                        trust_datetime_value => $trust_datetime_value,
+
+                        crosspost => \%crosspost,
+                      }, @_ );
+
+    # now look for errors that we still want to recover from
+    push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
+        if defined $usejournal && ! $vars->{usejournal};
+
     if ( $r->did_post ) {
         $post = $r->post_args;
 
@@ -138,8 +183,12 @@ sub new_handler {
                 $spellcheck{results} = $spellchecker->check_html( \$event, 1 );
                 $spellcheck{did_spellcheck} = 1;
             }
-        } elsif ( $okay_formauth && ! $post->{showform} # some other form posted content to us, which the user will want to edit further
-        ) {
+        } elsif ( $okay_formauth && $post->{showform} ) {  # some other form posted content to us, which the user will want to edit further
+
+            # make explicit whether we're posting as the current remote or as ourselves
+            $post->set( "post_as",  $vars->{post_as} ) unless $post->{post_as};
+
+        } elsif ( $okay_formauth ) {
             my $flags = {};
 
             my %auth = _auth( $flags, $post, $remote );
@@ -191,52 +240,6 @@ sub new_handler {
         }
     }
 
-    # figure out times
-    my $datetime;
-    my $trust_datetime_value = 0;
-
-    if ( $post && $post->{entrytime} && $post->{entrytime_hr} && $post->{entrytime_min} ) {
-        $datetime = "$post->{entrytime} $post->{entrytime_hr}:$post->{entrytime_min}";
-        $trust_datetime_value = 1;
-    } else {
-        my $now = DateTime->now;
-
-        # if user has timezone, use it!
-        if ( $remote && $remote->prop( "timezone" ) ) {
-            my $tz = $remote->prop( "timezone" );
-            $tz = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
-            $now = eval { DateTime->from_epoch( epoch => time(), time_zone => $tz ); }
-               if $tz;
-        }
-
-        $datetime = $now->strftime( "%F %R" ),
-        $trust_datetime_value = 0;  # may want to override with client-side JS
-    }
-
-
-    # crosspost account selected?
-    my %crosspost;
-    if ( ! $r->did_post && $remote ) {
-        %crosspost = map { $_->acctid => $_->xpostbydefault }
-            DW::External::Account->get_external_accounts( $remote )
-    }
-
-
-    my $get = $r->get_args;
-    $usejournal ||= $get->{usejournal};
-    my $vars = _init( { usejournal  => $usejournal,
-                        altlogin    => $get->{altlogin},
-                        remote      => $remote,
-
-                        datetime    => $datetime || "",
-                        trust_datetime_value => $trust_datetime_value,
-
-                        crosspost => \%crosspost,
-                      }, @_ );
-
-    # now look for errors that we still want to recover from
-    push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
-        if defined $usejournal && ! $vars->{usejournal};
 
     # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
     $vars->{error_list} = \@error_list if @error_list;
