@@ -65,10 +65,12 @@ sub execute {
         return $self->error( 'Must specify a note to add.' ) unless $note;
         $u->set_prop( "suspendmsg", $note );
         $self->print( $u->user . "'s note added: " . $note );
+        LJ::statushistory_add($u, $remote, "note_add", $note);
 
     } elsif ( $cmd eq 'remove' ) {
         $u->clear_prop( "suspendmsg" );
         $self->print( $u->user . "'s note cleared." );
+        LJ::statushistory_add($u, $remote, "note_remove", $note);
     }
 
     return 1;
