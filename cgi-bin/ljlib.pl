@@ -26,6 +26,8 @@ BEGIN {
     die "No \$LJ::HOME set, or not a directory!\n"
         unless $LJ::HOME && -d $LJ::HOME;
 
+    use lib ( $LJ::HOME || $ENV{LJHOME} ) . "/extlib/lib/perl5";
+
     # Please do not change this to "LJ::Directories"
     require $LJ::HOME . "/cgi-bin/LJ/Directories.pm";
 }
@@ -33,7 +35,6 @@ BEGIN {
 # now that the library is setup, we can start pulling things in.  start with
 # the configuration library we need.
 use lib "$LJ::HOME/cgi-bin";
-use lib "$LJ::HOME/extlib/lib/perl5";
 use LJ::Config;
 
 BEGIN {
