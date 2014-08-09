@@ -855,15 +855,6 @@ sub external_services {
         };
     }
 
-    if ( my $msn = $u->prop( 'msn' ) ) {
-        push @ret, {
-            type => 'msn',
-            email => LJ::ehtml( $msn ),
-            image => 'msn.gif',
-            title_ml => '.im.msn',
-        };
-    }
-
     if ( my $pinboard = $u->prop( 'pinboard' ) ) {
         my $pinboard = LJ::eurl( $pinboard );
         push @ret, {

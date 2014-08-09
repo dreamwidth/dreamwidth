@@ -108,8 +108,7 @@ _c?>
 
     if ($type eq "im" ||
         $type eq "aolim" || $type eq "icq" ||
-        $type eq "yahoo" || $type eq "msn" ||
-        $type eq "jabber") {
+        $type eq "yahoo" || $type eq "jabber") {
 
         use LJ::Directory::Constraint::ContactInfo;
         my @uids = LJ::Directory::Constraint::ContactInfo->new(screenname => $q)->matching_uids;

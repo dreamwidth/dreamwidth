@@ -207,7 +207,6 @@ sub multisearch_handler {
                      aolim        => $f_im,
                      icq          => $f_im,
                      yahoo        => $f_im,
-                     msn          => $f_im,
                      jabber       => $f_im,
                      region       => $f_region,
                      faq          => $f_faq,

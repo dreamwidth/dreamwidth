@@ -44,7 +44,7 @@ sub new_remote {
     $vcard->URL($u->journal_base . "/");
 
     $u->preload_props(qw(city state country
-                        aolim google_talk icq jabber msn skype yahoo));
+                        aolim google_talk icq jabber skype yahoo));
 
 
     my $node;
@@ -59,7 +59,7 @@ sub new_remote {
     }
 
     if ($u->share_contactinfo($remote)) {
-        my @chats = qw(aolim google_talk icq jabber msn skype twitter yahoo);
+        my @chats = qw(aolim google_talk icq jabber skype twitter yahoo);
         foreach my $c (@chats) {
             my $field = uc $c;
             $field =~ s/_//g;

@@ -169,8 +169,6 @@
 
 .im.lastfm=Last.fm
 
-.im.msn=MSN
-
 .im.skype=Skype
 
 .im.skype.status=Skype status
@@ -252,8 +250,6 @@
 .label.moderators=Moderators ([[num]]):
 
 .label.moredetails=(more details...)
-
-.label.msnusername=MSN Username:
 
 .label.mutual=Mutual Friends:
 

@@ -502,7 +502,6 @@ sub get_foaf_from {
         'foaf:icqChatID' => 'icq',
         'foaf:aimChatID' => 'aolim',
         'foaf:jabberID' => 'jabber',
-        'foaf:msnChatID' => 'msn',
         'foaf:yahooChatID' => 'yahoo',
         'ya:bio' => 'bio',
         'lj:journaltitle' => 'journaltitle',

@@ -57,7 +57,7 @@ body<=
     my @uprops = qw/
         opt_whatemailshow comm_theme
         ao3 aolim delicious diigo etsy ffnet google_talk icq jabber
-        last_fm_user msn pinboard plurk ravelry skype tumblr twitter yahoo
+        last_fm_user pinboard plurk ravelry skype tumblr twitter yahoo
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
@@ -473,7 +473,6 @@ body<=
                            ["icq", $ML{'.chat.icquin'}, 12],
                            ["jabber", $ML{'.chat.jabber'}, 60],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
-                           ["msn", $ML{'.chat.msnusername'}, 60],
                            ["pinboard", $ML{'.services.pinboard'}, 30],
                            ["plurk", $ML{ '.services.plurk' }, 255],
                            ["ravelry", $ML{ '.services.ravelry' }, 40],
