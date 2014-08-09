@@ -1070,6 +1070,14 @@ userproplist.pinboard:
   multihomed: 0
   prettyname: Pinboard user account name
 
+userproplist.pinterest:
+  cldversion: 4
+  datatype: char
+  des: Pinterest user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Pinterest user account name
+
 userproplist.plurk:
   cldversion: 4
   datatype: char
