@@ -4269,6 +4269,45 @@ EOF
                 . "ADD COLUMN url VARCHAR(255);" );
 
     }
+
+    if ( table_relevant( "media_versions" ) && !check_dbnote( "init_media_versions_dimensions" ) ) {
+        do_sql( 'LOCK TABLES media_versions WRITE, media WRITE' );
+
+        do_code("populate media_versions using existing data in media", sub {
+            my $sth = $dbh->prepare(q{SELECT media.userid, media.mediaid, media.filesize
+                                    FROM media LEFT JOIN media_versions
+                                        ON media.userid=media_versions.userid AND media.mediaid=media_versions.mediaid
+                                        WHERE media_versions.mediaid IS NULL}
+                                    );
+            $sth->execute;
+            die $sth->errstr if $sth->err;
+
+            eval "use DW::Media::Photo; use Image::Size; 1;" or die "Unable to load media libraries";
+            my $failed = 0;
+            while ( my $row = $sth->fetchrow_hashref ) {
+                my $media_file = DW::Media::Photo->new_from_row(
+                        userid => $row->{userid},
+                        versionid => $row->{mediaid}
+                );
+                my $imagedata = LJ::mogclient()->get_file_data( $media_file->mogkey );
+                my ( $width, $height ) = Image::Size::imgsize( $imagedata );
+                unless (defined $width && defined $height) {
+                    $failed++;
+                    next;
+                }
+
+                $dbh->do(q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesize)
+                    VALUES (?, ?, ?, ?, ?, ?)},
+                    undef, $row->{userid}, $row->{mediaid}, $row->{mediaid}, $width, $height, $row->{filesize}
+                );
+                die $dbh->errstr if $dbh->err;
+            }
+            warn "Failed: $failed" if $failed;
+        });
+
+        do_sql( 'UNLOCK TABLES' );
+        set_dbnote( "init_media_versions_dimensions", 1 );
+    }
 });
 
 
