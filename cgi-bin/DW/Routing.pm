@@ -200,6 +200,18 @@ sub _call_hash {
         if $opts->prefer_ssl && $LJ::USE_SSL && $opts->role eq 'app' &&
             ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
+    # if renamed with redirect in place, then do the redirect
+    if ( $opts->role eq 'user' && ( my $orig_u = LJ::load_user( $opts->username ) ) ) {
+        my $renamed_u = $orig_u->get_renamed_user;
+
+        unless ( $renamed_u && $orig_u->equals( $renamed_u ) ) {
+            my $journal_host = $renamed_u->journal_base;
+            $journal_host =~ s!http://!!;
+
+            return $r->redirect( LJ::create_url( $r->uri, host => $journal_host, keep_args => 1 ) );
+        }
+    }
+
     # apply default content type if it exists
     my $format = $opts->format;
     $r->content_type( $default_content_types->{$format} )
