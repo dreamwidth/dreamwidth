@@ -9,7 +9,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -51,6 +51,7 @@ $domaintosite{"wordpress.com"} = DW::External::Site->new("18", "wordpress.com", 
 $domaintosite{"plurk.com"} = DW::External::Site->new("19", "plurk.com", "plurk.com", "Plurk", "Plurk");
 $domaintosite{"pinboard.in"} = DW::External::Site->new("20", "www.pinboard.in", "pinboard.in", "Pinboard", "Pinboard");
 $domaintosite{"fanfiction.net"} = DW::External::Site->new("21", "www.fanfiction.net", "fanfiction.net", "FanFiction", "FanFiction");
+$domaintosite{"pinterest.com"} = DW::External::Site->new("22", "www.pinterest.com", "pinterest.com", "Pinterest", "pinterest");
 
 foreach my $value (values %domaintosite) {
     $idtosite{$value->{siteid}} = $value;

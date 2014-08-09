@@ -875,6 +875,19 @@ sub external_services {
         };
     }
 
+
+    if ( my $pinterest = $u->prop( 'pinterest' ) ) {
+        my $pinterest = LJ::eurl( $pinterest );
+        push @ret, {
+            type => 'pinterest',
+            text => LJ::ehtml( $pinterest ),
+            url => "http://www.pinterest.com/$pinterest",
+            image => 'pinterest.png',
+            title_ml => '.service.pinterest',
+        };
+    }
+
+
     if ( my $plurk = $u->prop( 'plurk' ) ) {
         my $plurk = LJ::eurl( $plurk );
         push @ret, {
