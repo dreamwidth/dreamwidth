@@ -105,7 +105,8 @@ _c?>
         # see if they can see this item: either they have unarged historyview or
         # they have historyview:shtype
         next unless $remote && ( $remote->has_priv( 'historyview', '' ) ||
-                    $remote->has_priv( 'historyview', $hist->{shtype} ) );
+                    $remote->has_priv( 'historyview', $hist->{shtype} ) ||
+                    $LJ::IS_DEV_SERVER );
 
         $ret .= "<tr>";
         foreach (qw(user admin shtype shdate notes)) {
