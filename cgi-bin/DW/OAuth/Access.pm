@@ -166,8 +166,8 @@ sub new {
     $opts{secret} = $secret;
 
     my $dbh = LJ::get_db_writer();
-    $dbh->do( "INSERT INTO oauth_access_token (consumer_id, userid, token, secret, createtime) VALUES (?,?,?,?,?)",undef,
-        $opts{consumer_id}, $opts{userid}, $opts{token}, $opts{secret}, time() ) or die $dbh->errstr;
+    $dbh->do( "INSERT INTO oauth_access_token (consumer_id, userid, token, secret, createtime, lastaccess) VALUES (?,?,?,?,?,?)",undef,
+        $opts{consumer_id}, $opts{userid}, $opts{token}, $opts{secret}, time(), time() ) or die $dbh->errstr;
 
     $class->_clear_user_tokens( $opts{userid} );
 
