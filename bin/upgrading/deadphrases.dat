@@ -1563,6 +1563,6 @@ general poll.security.none_remote
 general poll.security.trusted
 
 general widget.search.msn
-general htdocs/manage/profile/index.bml.chat.msnusername
-general htdocs/profile.bml.im.msn
-general htdocs/profile.bml.label.msnusername
+general /manage/profile/index.bml.chat.msnusername
+general /profile.bml.im.msn
+general /profile.bml.label.msnusername
