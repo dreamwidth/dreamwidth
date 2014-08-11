@@ -206,7 +206,8 @@ sub make_feed
         }
 
         # an HTML link to the entry. used if we truncate or summarize
-        my $readmore = "<b>(<a href=\"$journalinfo->{link}$ditemid.html\">Read more ...</a>)</b>";
+        my $entry_url = $entry_obj->url;
+        my $readmore = q{<b>(<a href="$entry_url">Read more ...</a>)</b>};
 
         # empty string so we don't waste time cleaning an entry that won't be used
         my $event = $u->{'opt_synlevel'} eq 'title' ? '' : $logtext->{$itemid}->[1];
@@ -226,7 +227,7 @@ sub make_feed
                                        {
                                         wordlength => 0,
                                         preformatted => $logprops{$itemid}->{opt_preformatted},
-                                        cuturl => $u->{opt_synlevel} eq 'cut' ? "$journalinfo->{link}$ditemid.html" : "",
+                                        cuturl => $u->{opt_synlevel} eq 'cut' ? $entry_url : "",
                                         to_external_site => 1,
                                        });
             # do this after clean so we don't have to about know whether or not
@@ -291,6 +292,7 @@ sub make_feed
             security   => $it->{security},
             posterid   => $it->{posterid},
             replycount => $logprops{$itemid}->{'replycount'},
+            url        => $entry_url,
         };
         push @cleanitems, $cleanitem;
         push @entries,    $entry_obj;
@@ -383,18 +385,19 @@ sub create_view_rss {
         my $poster = $posteru{$it->{posterid}};
 
         $ret .= "<item>\n";
+        # use the $ditemid form so it doesn't change
         $ret .= "  <guid isPermaLink='true'>$journalinfo->{link}$ditemid.html</guid>\n";
         $ret .= "  <pubDate>" . LJ::time_to_http($it->{createtime}) . "</pubDate>\n";
         $ret .= "  <title>" . LJ::exml($it->{subject}) . "</title>\n" if $it->{subject};
         $ret .= "  <author>" . LJ::exml($journalinfo->{email}) . "</author>" if $journalinfo->{email};
-        $ret .= "  <link>$journalinfo->{link}$ditemid.html</link>\n";
+        $ret .= "  <link>$it->{url}</link>\n";
         # omit the description tag if we're only syndicating titles
         #   note: the $event was also emptied earlier, in make_feed
         unless ($u->{'opt_synlevel'} eq 'title') {
             $ret .= "  <description>" . LJ::exml($it->{event}) . "</description>\n";
         }
         if ($it->{comments}) {
-            $ret .= "  <comments>$journalinfo->{link}$ditemid.html</comments>\n";
+            $ret .= "  <comments>$it->{url}</comments>\n";
         }
         $ret .= "  <category>$_</category>\n" foreach map { LJ::exml($_) } @{$it->{tags} || []};
         # support 'podcasting' enclosures

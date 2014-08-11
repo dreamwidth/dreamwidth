@@ -66,7 +66,7 @@ body<=
         });
         return $err->($tagerr) unless $rv;
 
-        BML::redirect( $u->journal_base . "/$ditemid.html" );
+        BML::redirect( $ent->url );
         #$msg = "<div class='update_good'>Tags successfully updated.</div>";
     }
 
@@ -148,7 +148,7 @@ body<=
     $ret .= "<br /><br />";
     $ret .= "$ML{'.permissions.add.yes'}<br />" if $can_add_entry_tags;
     $ret .= "$ML{'.permissions.control.yes'}<br />" if LJ::Tags::can_control_tags($u, $remote);
-    $ret .= BML::ml('.view', { aopts => 'href="' . $u->journal_base . "/$ditemid.html" . '"' });
+    $ret .= BML::ml('.view', { aopts => 'href="' . $ent->url . '"' });
     $ret .= "</td></tr>";
     $ret .= '</form>';
 
