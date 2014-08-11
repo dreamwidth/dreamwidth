@@ -35,7 +35,7 @@ sub is_selected {
         if defined $r->note( 'no_mobile_post_value' );
 
     # normal page load, check the cookie
-    return $r->cookie( 'no_mobile' );
+    return $r->cookie( 'no_mobile' ) ? 1 : 0;
 }
 
 sub option {
