@@ -19,7 +19,7 @@ use strict;
 use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 
-BEGIN { require "ljlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = $ENV{DW_TEST}; require "ljlib.pl"; }
 use Getopt::Long;
 use File::Path ();
 use File::Basename qw/ dirname /;
@@ -41,6 +41,8 @@ my $opt_nostyles;
 my $opt_forcebuild = 0;
 my $opt_compiletodisk = 0;
 my $opt_innodb;
+my $opt_poptest = 0;
+
 exit 1 unless
 GetOptions("runsql" => \$opt_sql,
            "drop" => \$opt_drop,
@@ -57,6 +59,7 @@ GetOptions("runsql" => \$opt_sql,
            );
 
 $opt_nostyles = 1 unless LJ::is_enabled("update_styles");
+$opt_nostyles = 1 if $ENV{DW_TEST};
 $opt_innodb = 1;
 
 if ($opt_help) {

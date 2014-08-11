@@ -24,13 +24,19 @@ $LJ::CACHE_CONFIG_MODTIME = 0;
 # what files to check for config, ORDER MATTERS, please go from most specific
 # to least specific.  files later in the chain should be careful to not clobber
 # anything.
-@LJ::CONFIG_FILES = ( ( map { LJ::resolve_file($_) } qw(
-    etc/config-private.pl
-    etc/config-local.pl
-    etc/config.pl
-) ) , ( map { $LJ::HOME . "/" . $_ } qw(
-    cgi-bin/LJ/Global/Defaults.pm
-) ) );
+@LJ::CONFIG_FILES = $LJ::_T_CONFIG ?
+    ( ( map { LJ::resolve_file($_) } qw(
+        t/config-test.pl
+    ) ) , ( map { $LJ::HOME . "/" . $_ } qw(
+        cgi-bin/LJ/Global/Defaults.pm
+    ) ) ) :
+    ( ( map { LJ::resolve_file($_) } qw(
+        etc/config-private.pl
+        etc/config-local.pl
+        etc/config.pl
+    ) ) , ( map { $LJ::HOME . "/" . $_ } qw(
+        cgi-bin/LJ/Global/Defaults.pm
+    ) ) );
 
 # loads all configurations from scratch
 sub load {

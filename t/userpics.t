@@ -21,7 +21,7 @@ use warnings;
 use Test::More tests => 65;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 use LJ::Userpic;
 use LJ::Test;
 use FindBin qw($Bin);

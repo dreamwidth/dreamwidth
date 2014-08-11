@@ -22,7 +22,7 @@ use Test::More tests => 8;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 
 #  These tests are of the correct identification of an "alternate" link.
 #  We assume here that an HTML alternate link is preferred over text/plain,

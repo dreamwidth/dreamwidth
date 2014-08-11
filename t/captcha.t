@@ -19,7 +19,7 @@ use warnings;
 use Test::More;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 
 my $recaptcha_enabled   = DW::Captcha::reCAPTCHA->site_enabled;
 my $textcaptcha_enabled = DW::Captcha::textCAPTCHA->site_enabled;
