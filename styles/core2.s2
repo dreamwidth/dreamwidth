@@ -647,9 +647,6 @@ class Page
     function print_module_jump_link()
     "Print a link to jump to modules below the entries";
 
-    function print_meta_viewport_tag()
-    "OBSOLETE. Use print_meta_tags() instead";
-
     function print_meta_tags()
     "Print meta tags. Needs to be within the first 512 bytes to work.";
 
