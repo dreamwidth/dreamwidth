@@ -2987,7 +2987,8 @@ sub init {
     my $iprops = $item->{'props'};
     my $ditemid = $init->{'ditemid'}+0;
 
-    my $talkurl = $journalu->journal_base . "/$ditemid.html";
+    my $entry = LJ::Entry->new( $journalu, ditemid => $ditemid );
+    my $talkurl = $entry->url;
     $init->{talkurl} = $talkurl;
 
     ### load users

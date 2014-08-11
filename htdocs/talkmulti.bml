@@ -59,7 +59,8 @@ _c?>
 
     my $jid = $u->userid;
     my $ditemid = $POST{'ditemid'}+0;
-    my $commentlink = $u->journal_base . "/$ditemid.html";
+    my $e = LJ::Entry->new( $u, ditemid => $ditemid );
+    my $commentlink = $e->url;
     my $itemid = $ditemid >> 8;
     my $log = $dbcr->selectrow_hashref("SELECT * FROM log2 WHERE journalid=? AND jitemid=?",
                                        undef, $jid, $itemid);

@@ -130,7 +130,10 @@ body<=
     if ($POST{'submitpreview'} || ($POST{'qr'} && $POST{'do_spellcheck'})) {
         my $cookie_auth;
         $cookie_auth = 1 if $POST{usertype} eq "cookieuser";
-        my $talkurl = $journalu->journal_base . "/$POST{itemid}.html";
+
+        my $entry = LJ::Entry->new( $journalu, ditemid => $POST{itemid} + 0 );
+        my $talkurl = $entry->url;
+
         $title = $ML{'.title.preview'};
         return LJ::Talk::Post::make_preview($talkurl, $cookie_auth, \%POST);
     }

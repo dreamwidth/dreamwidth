@@ -128,17 +128,12 @@ _info?><?_code
 
     my $qitemid = $post->{'itemid'}+0;
 
-    # $posterid is the userid of the author of the entry, not the comment
-    my ($posterid, $anum) =
-        $dbcr->selectrow_array("SELECT posterid, anum FROM log2 WHERE ".
-                               "journalid=$u->{'userid'} AND jitemid=$qitemid");
-    my $up = LJ::load_userid($posterid);
+    my $e = LJ::Entry->new( $u, jitemid => $qitemid );
 
-    my $ditemid = $qitemid*256 + $anum;
+    my $up = $e->poster;
 
-    my $itemlink = $u->journal_base . "/$ditemid.html";
+    my $itemlink = $e->url;
     my $linktext = BML::ml( '.link', { aopts => "href='$itemlink'" } );
-    my $commentlink = "$itemlink?view=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid );
 
     if ($mode eq 'screen') {
         my $can_screen = LJ::Talk::can_screen($remote, $u, $up, $post->{'userpost'});

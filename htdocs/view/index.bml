@@ -251,7 +251,7 @@ _c?>
 
         LJ::CleanHTML::clean_subject_all(\$subject);
 
-        $body .= "<td><a href='" . LJ::item_link($u, $itemid, $anum) . "'>$subject</a>$sec$rep</td></tr>\n";
+        $body .= "<td><a href='" . $entry->url . "'>$subject</a>$sec$rep</td></tr>\n";
     }
     if ($lday) { $body .= "</table></dd>\n"; }
     $body .= "</dl>";
