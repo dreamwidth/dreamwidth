@@ -81,19 +81,13 @@ sub load_cuttext {
     # $journal: journal posted to
     my $journalid = $entry_obj->journalid;
     my $journal = LJ::load_userid( $journalid );
-
-    # is style=mine used?  or if remote has it on and this entry is not part of
-    # their journal.  if either are yes, it needs to be added to comment links
-    my %opt_stylemine = $remote && $remote->prop( 'opt_stylemine' ) && $remote->id != $journalid ? ( style => 'mine' ) : ();
-    my $style_args = LJ::viewing_style_args( %$get, %opt_stylemine );
     
     #load and prepare text of entry
     my $text = LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
     LJ::item_toutf8( $journal, \$subject, \$text ) if $LJ::UNICODE && $entry_obj->props->{unknown8bit};
 
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
-    # cleaning the entry text: cuts and such
-    my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum, $style_args ),
+    my $cleanhtml_opts = { cuturl => $entry_obj->url,
         journal => $journal->username,
         ditemid => $ditemid,
         suspend_msg => $suspend_msg,

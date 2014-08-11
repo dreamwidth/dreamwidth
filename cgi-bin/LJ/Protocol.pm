@@ -2148,12 +2148,6 @@ sub editevent
 
     $uowner->clear_daycounts( $oldevent->{allowmask} + 0 || $oldevent->{security}, $qallowmask || $security );
 
-    $res->{itemid} = $itemid;
-    if (defined $oldevent->{'anum'}) {
-        $res->{'anum'} = $oldevent->{'anum'};
-        $res->{'url'} = LJ::item_link($uowner, $itemid, $oldevent->{'anum'});
-    }
-
     # Update the slug (try to, this will fail if this slug is already used). To
     # delete or change the slug, you must pass this parameter in. If it is not
     # present, we leave the slug alone.
@@ -2174,6 +2168,13 @@ sub editevent
     }
 
     my $entry = LJ::Entry->new($ownerid, jitemid => $itemid);
+
+    $res->{itemid} = $itemid;
+    if (defined $oldevent->{'anum'}) {
+        $res->{'anum'} = $oldevent->{'anum'};
+        $res->{'url'} = $entry->url;
+    }
+
     LJ::EventLogRecord::EditEntry->new($entry)->fire;
 
     DW::Stats::increment( 'dw.action.entry.edit', 1,
