@@ -2139,7 +2139,7 @@ sub Entry_from_entryobj
     unless ( $no_entry_body ) {
         # cleaning the entry text: cuts and such
         my $cut_disable = $opts->{cut_disable};
-        my $cleanhtml_opts = { cuturl => $entry_obj->url( style_args =>  LJ::viewing_style_opts( %$get, %opt_stylemine ) ),
+        my $cleanhtml_opts = { cuturl => $entry_obj->url( style_opts =>  LJ::viewing_style_opts( %$get, %opt_stylemine ) ),
             ljcut_disable => $cut_disable,
             journal => $journal->username,
             ditemid => $ditemid,

@@ -898,7 +898,7 @@ sub create_qr_div {
     my $e = LJ::Entry->new( $u, ditemid => $ditemid );
     my $separator = %$style_opts ? "&" : "?";
 
-    my $basepath =  $e->url( style_args => LJ::viewing_style_opts( %$style_opts ) ) . $separator;
+    my $basepath =  $e->url( style_opts => LJ::viewing_style_opts( %$style_opts ) ) . $separator;
     my $usertype = ($remote->openid_identity && $remote->is_validated) ? 'openid_cookie' : 'cookieuser';
     $qrhtml .= LJ::html_hidden({'name' => 'replyto', 'id' => 'replyto', 'value' => ''},
                                {'name' => 'parenttalkid', 'id' => 'parenttalkid', 'value' => ''},

@@ -103,7 +103,7 @@ body<=
                                    journal => $journal,
                                    ret_url => ($can_watch
                                                 ? $comment->url( LJ::viewing_style_args( @style_args ) )
-                                                : $entry->url( style_args => LJ::viewing_style_opts( @style_args ) )
+                                                : $entry->url( style_opts => LJ::viewing_style_opts( @style_args ) )
                                               ),
                                    default_selected_notifications => ['LJ::NotificationMethod::Email'],
                                    post_to_settings_page => 1,

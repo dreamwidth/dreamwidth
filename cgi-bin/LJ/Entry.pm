@@ -257,10 +257,10 @@ sub reply_url {
 # returns permalink url
 sub url {
     my ( $self, %opts ) = @_;
-    my %style_args = %{ delete $opts{style_args} || {} };
+    my %style_opts = %{ delete $opts{style_opts} || {} };
 
     my %args = %opts; # used later
-    @args{keys %style_args} = values %style_args;
+    @args{keys %style_opts} = values %style_opts;
 
     my $u = $self->{u};
     my $view = delete $opts{view};

@@ -89,7 +89,7 @@ _c?>
 
      if ( $jumpid ) {
          my $e = LJ::Entry->new( $u, ditemid => $jumpid );
-         return BML::redirect( $e->url( style_args => LJ::viewing_style_opts( %GET ) ) );
+         return BML::redirect( $e->url( style_opts => LJ::viewing_style_opts( %GET ) ) );
      }
  }
 
