@@ -122,7 +122,7 @@ _c?>
             $body .= $error;
             return;
         }
-        return BML::redirect( $entry->url( style_args => LJ::viewing_style_opts( %GET ) ) );
+        return BML::redirect( $entry->url( style_opts => LJ::viewing_style_opts( %GET ) ) );
     }
 
     $body .= $poll->render(mode => $mode, qid => $FORM{qid},

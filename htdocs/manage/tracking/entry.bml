@@ -126,7 +126,7 @@ body<=
     $body .= LJ::subscribe_interface( $remote,
                  journal      => $journal,
                  categories   => $categories,
-                 ret_url      => $entry->url( style_args => LJ::viewing_style_opts( @style_args ) ),
+                 ret_url      => $entry->url( style_opts => LJ::viewing_style_opts( @style_args ) ),
                  default_selected_notifications => ['LJ::NotificationMethod::Email'],
                  post_to_settings_page => 1,
              );

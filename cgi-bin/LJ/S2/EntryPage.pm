@@ -437,7 +437,7 @@ sub EntryPage
     # creates the comment nav bar
     $p->{'comment_nav'} = CommentNav({
         'view_mode' => $flat_mode ? "flat" : $top_only_mode ? "top-only" : "threaded",
-        'url' => $entry->url( style_args => LJ::viewing_style_opts( %$get ) ),
+        'url' => $entry->url( style_opts => LJ::viewing_style_opts( %$get ) ),
         'current_page' => $copts->{'out_page'},
         'show_expand_all' => $show_expand_all,
     });
