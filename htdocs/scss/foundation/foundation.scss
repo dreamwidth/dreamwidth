@@ -1,5 +1,10 @@
+/* site-wide components and settings, to be included in the site skins (but not individual pages) */
+
 // import the settings we want to work with
 @import "foundation/settings";
+
+// import global
+@import "foundation/components/global";
 
 // normalize stylesheet
 @import "foundation/normalize";

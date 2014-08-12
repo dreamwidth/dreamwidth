@@ -1,5 +1,4 @@
-$include-html-classes: false;
-@import "foundation/settings", "foundation/components/global";
+@import "foundation/base";
 
 $include-html-inline-list-classes: true;
 @import "foundation/components/inline-lists";

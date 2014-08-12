@@ -1,4 +1,4 @@
-@import "foundation/components/global";
+@import "functions";
 
 // We set a lot of skin-specific variables (colors, etc) in the respective $skinname.scss files
 // so this likely is not want what you want to include
@@ -17,7 +17,6 @@ $default-float: left;
 // most of the time, we'll just want the mixins or variables
 // and not the styles themselves
 $include-html-classes: false !default;
-$include-print-styles: true;
 
 
 // GRID
@@ -57,3 +56,4 @@ $input-error-message-font-style: normal;
 
 // TOPBAR
 $topbar-button-top: 0;
+

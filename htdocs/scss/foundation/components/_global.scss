@@ -256,6 +256,7 @@ $cursor-text-value: text !default;
 
 
 @include exports("global") {
+  @if $include-html-classes {
   meta.foundation-version {
     font-family: "/5.1.0/";
   }
@@ -292,9 +293,9 @@ $cursor-text-value: text !default;
 
   // Must be 100% for off canvas to work
   html, body { height: 100%; }
+  }
 
   @if $include-html-global-classes {
-
     // Set box-sizing globally to handle padding and border widths
     *,
     *:before,

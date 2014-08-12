@@ -2,8 +2,7 @@
 // but no specific width in larger screens (so the grid system isn't appropriate)
 // e.g., a row of buttons
 
-$include-html-classes: false;
-@import "foundation/settings", "foundation/components/global";
+@import "foundation/base";
 
 .expand-for-mobile {
   width: 100%;
