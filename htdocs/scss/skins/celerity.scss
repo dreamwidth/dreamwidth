@@ -265,7 +265,7 @@ footer { border-top: 4px double $header-image-color;
     }
 
     #account-links {
-       left: $sidebar-width + 1em;
+       padding-left: $sidebar-width + 1em;
     }
 
     #header-userpic { text-align: center;
