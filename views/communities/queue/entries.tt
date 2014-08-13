@@ -22,7 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- IF entries.size > 0 -%]
     <ul class="queue">
         [%- FOREACH entry = entries -%]
-        <li class="row queue-item">
+        <li class="queue-item"><div class="row">
             <div class="columns large-3">[%- entry.poster -%]</div>
             <div class="columns large-7"><a href="[%- entry.url -%]" class="queue-action">
             [%- IF entry.subject -%]
@@ -32,7 +32,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             [%- END -%]
             </a></div>
             <div class="columns large-2 timestamp">[%- entry.time  -%]</div>
-        </li>
+        </div></li>
         [%- END -%]
     </ul>
 [%- ELSE -%]
