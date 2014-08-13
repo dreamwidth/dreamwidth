@@ -5,21 +5,21 @@ Page to post and edit entries
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2011-2013 by Dreamwidth Studios, LLC.
+Copyright (c) 2011-2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[%- CALL dw.active_resource_group( "jquery" ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- dw.need_res(
-    "stc/postform.css"
-    "stc/postform-resize.css"
+    "stc/css/pages/entry/new.css"
+    "stc/css/components/button-groups.css"
 ) -%]
 
-[%- dw.need_res( { group => "jquery" },
+[%- dw.need_res( { group => "foundation" },
     # jquery ui
     "js/jquery/jquery.ui.core.js"
     "js/jquery/jquery.ui.widget.js"
@@ -72,8 +72,6 @@ END -%]
 [% sections.contentopts = '' %]
 
 [% sections.head = BLOCK %]
-<meta name="viewport" content="width=device-width" />
-
 [% IF show_unimplemented %]
 <style type="text/css">
 .unimplemented {
@@ -140,7 +138,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 </script>
 [% END  # sections.head %]
 
-<div class="message-box ui-state-highlight">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
+<div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
 
 [%- IF warnings.size -%]
     [%- FOREACH warning IN warnings -%]
@@ -183,10 +181,8 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
     [%- dw.form_auth -%]
 
-    <div id="primary"><!-- Start main column sub & entry -->
-        <div id="current_entry">
-            <fieldset>
-                <legend></legend>
+    <div class="current-entry row"><!-- Start main column sub & entry -->
+        <div class="columns large-12">
 
                 <!-- TODO make this only take up one tab area? -->
                 <div class="toolbar">
@@ -245,29 +241,38 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                         placeholder = placeholder
                     ) -%]
                 </div>
-            </fieldset>
-            <fieldset class='submit'>
-                [%- preview_label = 'talk.btn.preview' | ml;
-                    form.submit( value = preview_label
-                                 name = "action:preview"
-                                 id = "preview_button" )
-                -%]
 
-                [%- IF can_spellcheck;
-                    spellcheck_label = 'entryform.spellcheck' | ml;
-                    form.submit( value = spellcheck_label
-                                 name = "action:spellcheck"
-                                 id = "spellcheck_button" );
-                END -%]
+            <div class="button-bar clearfix">
+                <ul class="button-group left">
+                    [%- post_label = action.edit ? '.button.edit' : '.button.post' | ml;
+                        form.submit( value = post_label
+                                     name = "action:post"
+                                     id = "submit_entry"
+                                     class = "left small button"
+                                     )
+                    -%]
+                </ul>
+                <ul class="button-group right">
+                    <li>[%- preview_label = 'talk.btn.preview' | ml;
+                        form.submit( value = preview_label
+                                     name = "action:preview"
+                                     id = "preview_button"
+                                     class = "small secondary button"
+                                     )
+                    -%]</li>
 
-                [%- post_label = action.edit ? '.button.edit' : '.button.post' | ml;
-                    form.submit( value = post_label
-                                 name = "action:post"
-                                 id = "submit_entry" )
-                -%]
-            </fieldset>
+                    [%- IF can_spellcheck %]
+                    <li>[% spellcheck_label = 'entryform.spellcheck' | ml;
+                        form.submit( value = spellcheck_label
+                                     name = "action:spellcheck"
+                                     id = "spellcheck_button"
+                                     class = "small secondary button"
+                                     );
+                    %]</li>
+                    [%- END -%]
+                </ul>
+            </div>
         </div>
-
     </div> <!-- End main column sub & entry -->
 
     [%- BLOCK column %]
@@ -279,36 +284,39 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         [%- END -%]
     [% END -%]
 
-    <div id="secondary" class='column'> <!-- Start column of components -->
-        [% PROCESS column components = panels.order.shift %]
-    </div> <!-- end second column of components -->
-
-    <div id="tertiary"> <!-- Start components below entry field -->
-        <div class="column">
+    <div class="row components first-column">
+        <div class='columns'> <!-- first column of components -->
+            [% PROCESS column components = panels.order.shift %]
+        </div>
+    </div>
+    <div class="row components second-column">
+        <div class="columns medium-6"> <!-- second column of components -->
             [% PROCESS column components = panels.order.shift %]
         </div>
 
-        <div class="column tertiary-right">
+        <div class="columns medium-6"> <!-- third column of components -->
             [% PROCESS column components = panels.order.shift %]
         </div>
     </div>
 
-    <div class="submit action-bar">
-        <span id="actions">
-            [%- form.submit( value = post_label
-                             name = "action:post"
-                             id = "submit_entry_large" )
-            -%]
-        </span>
+
+    <div class="button-bar">
+        [%- form.submit( value = post_label
+                         name = "action:post"
+                         id = "submit_entry_large"
+                         class = "button left"
+                         )
+        -%]
 
         [% IF action.edit %]
-        <span class="destructive">
             [%- form.submit( value = dw.ml( '.button.delete' )
                              name  = "action:delete"
-                             id    = "delete_entry" )
+                             id    = "delete_entry"
+                             class = "button secondary right"
+                            )
             -%]
-        </span>
         [% END %]
     </div>
+
 </form>
 

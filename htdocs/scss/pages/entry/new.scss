@@ -1,0 +1,62 @@
+@import "foundation/base", "foundation/components/grid";
+
+.current-entry textarea {
+    height: auto;
+}
+
+@media #{$large-up} {
+    .entry-full-width {
+        .first-column {
+            float: left;
+            margin-right: $column-gutter / 2;
+            width: grid-calc(4, 12);
+        }
+        .second-column {
+            float: left;
+            margin-left: 0;
+            width: grid-calc(8, 12);
+        }
+
+        .second-column > .columns {
+            margin-right: -$column-gutter / 2;
+        }
+    }
+
+    .entry-partial-width {
+        .current-entry {
+            float: left;
+            margin-right: $column-gutter / 2;
+            width: grid-calc(8, 12);
+        }
+
+        .current-entry > .columns {
+            padding-right: 0;
+        }
+
+        .row.current-entry:after {
+            clear: none;
+        }
+
+        .first-column {
+            float: left;
+            margin-left: $column-gutter / 2;
+            width: grid-calc(4, 12);
+        }
+
+        .second-column {
+            clear: both;
+        }
+    }
+}
+
+
+/* TEMPORARY */
+.toolbar, .component {
+    background-color: gray;
+    border: 1px black solid;
+    * {
+        display: none;
+    }
+}
+.toolbar    { height: 2em;  }
+.component  { height: 10em; }
