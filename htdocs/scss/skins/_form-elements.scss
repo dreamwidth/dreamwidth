@@ -35,6 +35,10 @@ fieldset {
     border-top-width: 1px;
 }
 
+.panel fieldset {
+  border: none;
+}
+
 @import "mixins/screenreader-friendly";
 label.hidden {
   @extend %screenreader-friendly;

@@ -1,9 +1,5 @@
 @import "foundation/base", "foundation/components/grid";
 
-.current-entry textarea {
-    height: auto;
-}
-
 @media #{$large-up} {
     .entry-full-width {
         .first-column {
@@ -49,9 +45,35 @@
     }
 }
 
+.current-entry textarea {
+    height: auto;
+}
+
+.inactive_component {
+    display: none;
+}
+
+.component {
+    padding: 0;
+
+    h3, h4 {
+        font-size: 1.1rem;
+    }
+
+    ul {
+      list-style-type:none;
+      margin: 0;
+      padding: 0;
+    }
+
+    fieldset fieldset {
+        padding: 0;
+    }
+}
+
 
 /* TEMPORARY */
-.toolbar, .component {
+.toolbar {
     background-color: gray;
     border: 1px black solid;
     * {
@@ -59,4 +81,4 @@
     }
 }
 .toolbar    { height: 2em;  }
-.component  { height: 10em; }
+

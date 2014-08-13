@@ -277,7 +277,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
     [%- BLOCK column %]
         [% FOREACH component = components %]
-        <div class='component ui-corner-top [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'>
+        <div class='panel component [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'>
         [%- file = editable.$component ? "entry/module-${component}.tt" : "entry/display/module-${component}.tt" -%]
         [%- dw.scoped_include( file ); %]
         </div>
