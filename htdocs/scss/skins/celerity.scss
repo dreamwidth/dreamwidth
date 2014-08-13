@@ -81,7 +81,7 @@ $input-border-color:                    darken($input-bg-color, 20%);
 $input-focus-border-color:              darken($input-bg-color, 40%);
 $input-disabled-bg:                     $form-border-color;
 $fieldset-border-color:                 $form-border-color;
-$legend-bg:                             $body-bg;
+$legend-bg:                             transparent;
 $input-prefix-bg:                       darken($input-bg-color, 5%);
 $input-prefix-border-color:             $input-border-color;
 
