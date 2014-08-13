@@ -210,16 +210,18 @@
   <div class="large-6 columns">
 
   <ul class="queue">
-    <li class="row queue-item">
+    <li class="queue-item">
+    <div class="row">
+      <div class="columns large-3">[%- INCLUDE ljuser user="user" -%]</div>
+      <div class="columns large-7"><a href="">entry subject</a></div>
+      <div class="columns large-2 timestamp">timestamp</div>
+    </div>
+    </li>
+    <li class="queue-item"><div class="row">
         <div class="columns large-3">[%- INCLUDE ljuser user="user" -%]</div>
         <div class="columns large-7"><a href="">entry subject</a></div>
         <div class="columns large-2 timestamp">timestamp</div>
-    </li>
-    <li class="row queue-item">
-        <div class="columns large-3">[%- INCLUDE ljuser user="user" -%]</div>
-        <div class="columns large-7"><a href="">entry subject</a></div>
-        <div class="columns large-2 timestamp">timestamp</div>
-    </li>
+    </div></li>
   </ul>
 
   </div>
