@@ -1077,7 +1077,7 @@ sub set_keywords {
     $sth->execute( $u->userid, $self->id );
 
     my %exist_kwids;
-    while (my ($kwid) = $sth->fetchrow_array) {
+    while ( my ($kwid) = $sth->fetchrow_array ) {
 
         # This is an edge case to catch keyword changes where the existing keyword
         # is in the pic#  format.  In this case kwid is NULL and we want to 
@@ -1132,9 +1132,9 @@ sub set_keywords {
 
     foreach my $kwid (keys %exist_kwids) {
         if ( $have_mapid ) {
-            $u->do("UPDATE userpicmap3 SET picid=NULL WHERE userid=? AND picid=? AND kwid=?", undef, $u->id, $self->id, $kwid);
+            $u->do( "UPDATE userpicmap3 SET picid=NULL WHERE userid=? AND picid=? AND kwid=?", undef, $u->id, $self->id, $kwid );
         } else {
-            $u->do("DELETE FROM userpicmap2 WHERE userid=? AND picid=? AND kwid=?", undef, $u->id, $self->id, $kwid);
+            $u->do( "DELETE FROM userpicmap2 WHERE userid=? AND picid=? AND kwid=?", undef, $u->id, $self->id, $kwid );
         }
     }
 
@@ -1252,13 +1252,14 @@ sub set_and_rename_keywords {
                 die $u->errstr if $u->err;
 
             } else {
-                if ( $origkw !~ /^\s*pic\#\d+\s*$/ ) {
+                if ( $origkw !~ /^\s*pic\#(\d+)\s*$/ ) {
                     $u->do( "UPDATE userpicmap3 SET kwid = ? WHERE kwid = ? AND userid = ?",
                             undef, $u->get_keyword_id( $newkw ), $u->get_keyword_id( $origkw ), $u->id );
                     die $u->errstr if $u->err;
                 } else {
-                    $u->do( "REPLACE INTO userpicmap3 (userid, kwid, picid) VALUES (?, ?, ?)",
-                            undef, $u->id, $u->get_keyword_id( $newkw ), $self->picid );
+                    my $new_mapid = LJ::alloc_user_counter( $u, 'Y' );
+                    $u->do( "INSERT INTO userpicmap3 SET mapid = ?, kwid = ?, userid = ?, picid = ?",
+                            undef, $new_mapid, $u->get_keyword_id( $newkw ), $u->id, $self->picid );
                     die $u->errstr if $u->err;
                 }
             }
