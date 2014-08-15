@@ -1,12 +1,20 @@
-(function($) {
-$.postForm = {
+var postForm = (function($) {
+    var initializeCollapsible = function() {
+        $("#post_entry").collapse({ endpointUrl: "/__rpc_entryformcollapse" });
+    };
 
-init: function(formData) {
-    if ( ! formData ) formData = {};
-}
-} })(jQuery);
+    var init = function(formData) {
+        $("#nojs").val(0);
+        initializeCollapsible();
+
+        if ( ! formData ) formData = {};
+    };
+
+    return {
+        init: init
+    };
+})(jQuery);
 
 jQuery(function($) {
-    $("#nojs").val(0);
-    $.postForm.init(window.postFormInitData);
+    postForm.init(window.postFormInitData);
 });

@@ -1,0 +1,37 @@
+@import "foundation/base", "mixins/visually-hidden";
+
+.collapse-trigger, .collapse-trigger:hover, .collapse-trigger:focus {
+    display: block;
+    width: 100%;
+
+    font-weight: bold;
+    text-align: left;
+    font-size: inherit;
+    background-color: transparent;
+    color: inherit;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
+.collapse-trigger .fi-icon {
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: .5;
+}
+
+.collapse-trigger:hover .fi-icon,
+.collapse-trigger:focus .fi-icon {
+    @include single-transition(opacity);
+    opacity: 1;
+}
+
+ .collapse-trigger:focus .fi-icon {
+    outline: 1px black dotted;
+}
+
+.collapse-trigger-action {
+    @extend %visually-hidden;
+}

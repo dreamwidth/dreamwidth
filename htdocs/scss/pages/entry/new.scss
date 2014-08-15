@@ -60,6 +60,13 @@
         font-size: 1.1rem;
     }
 
+    &.collapse-collapsed {
+        h3 {
+           margin-bottom: 0;
+           @include single-transition(margin-bottom);
+        }
+    }
+
     ul {
       list-style-type:none;
       margin: 0;

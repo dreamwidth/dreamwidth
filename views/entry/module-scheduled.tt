@@ -13,7 +13,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 <fieldset>
-  <h3 class='ui-corner-top'>Scheduled Publishing</h3>
+  <h3>Scheduled Publishing</h3>
     <div class="inner">
     <div class='time_container' id="publishingtime_container">
       <input type="text" name="publishingtime" id="publishingtime" value="2010-04-10" maxlength="10" size="10" />

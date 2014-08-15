@@ -13,7 +13,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
   <fieldset>
-    <h3 class='ui-corner-top'>Status</h3>
+    <h3>Status</h3>
 
     <div class='inner'>
       <div class="status-notice">

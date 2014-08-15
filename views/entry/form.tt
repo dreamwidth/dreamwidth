@@ -17,30 +17,27 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- dw.need_res(
     "stc/css/pages/entry/new.css"
     "stc/css/components/button-groups.css"
+    "stc/css/components/foundation-icons.css"
 ) -%]
 
 [%- dw.need_res( { group => "foundation" },
-    # page-specific
-    "js/pages/entry/new.js",
-
     # jquery ui
     #"js/jquery/jquery.ui.core.js"
     #"js/jquery/jquery.ui.widget.js"
-#
+
     #"js/jquery/jquery.ui.datepicker.js"
     #"js/jquery/jquery.ui.dialog.js"
-#
+
     #"stc/jquery/jquery.ui.core.css"
     #"stc/jquery/jquery.ui.datepicker.css"
     #"stc/jquery/jquery.ui.dialog.css"
-#
-#
+
     ## jquery utility plugins
     #"js/jquery.radioreveal.js"
-#
+
     ## icons
     #"js/jquery.iconrandom.js"
-#
+
     ## tags
     #"js/jquery.vertigro.js"
     #"js/jquery.tagselector.js"
@@ -51,20 +48,20 @@ the same terms as Perl itself.  For a copy of the license, please reference
     #"stc/jquery/jquery.ui.menu.css"
     #"stc/jquery/jquery.ui.autocomplete.css"
     #"stc/jquery.autocompletewithunknown.css"
-#
+
     ## crosspost
     #"js/md5.js"
     #"js/jquery.crosspost.js"
-#
+
     ## collapsing
-    #"js/jquery.collapsible.js"
-    #"stc/jquery.collapsible.css"
-#
-    ## page-specific
-    #"js/jquery.postform.js"
+    "js/components/jquery.collapse.js"
+    "stc/css/components/jquery.collapse.css"
+
+    # page-specific
+    "js/pages/entry/new.js"
 ) -%]
 
-[%- IF remote && remote.can_use_userpic_select;
+[%#- IF remote && remote.can_use_userpic_select;
     dw.need_res( { group => "jquery" },
         "js/jquery.iconselector.js"
         "stc/jquery.iconselector.css"
@@ -280,7 +277,8 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
     [%- BLOCK column %]
         [% FOREACH component = components %]
-        <div class='panel component [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'>
+        <div class='panel component [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'
+             data-collapse='[% component %]' data-collapse-state='[% panels.collapsed.$component ? "collapsed" : "expanded" %]'>
         [%- file = editable.$component ? "entry/module-${component}.tt" : "entry/display/module-${component}.tt" -%]
         [%- dw.scoped_include( file ); %]
         </div>
