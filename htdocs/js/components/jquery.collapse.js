@@ -4,8 +4,7 @@ function Collapsible($el, options) {
     var self = this;
 
     var $trigger = $el.find(options.triggerSelector)
-        .wrapInner("<button class='collapse-trigger' />")
-        .find(".collapse-trigger");
+        .wrap("<button class='collapse-trigger' />");
     $trigger.append("<span class='fi-icon' aria-hidden='true'></span><span class='collapse-trigger-action'></state>");
 
     var $target = $el.find(options.targetSelector);
@@ -16,7 +15,7 @@ function Collapsible($el, options) {
     $.extend(this, {
         strings: options.strings,
         endpointUrl: options.endpointUrl,
-        isExpanded: $el.data("collapse-state") === "expanded" ? true : false,
+        isExpanded: $el.data("collapse-state") === "collapsed" ? false : true,
 
         element: $el,
         target: $target,
