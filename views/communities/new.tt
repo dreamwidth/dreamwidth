@@ -16,7 +16,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- dw.need_res( { group => "foundation" }
     "js/jquery.validation.js"
     "js/jquery.checkusername.js"
-    "js/page/jquery.communities-new.js"
+    "js/pages/jquery.communities-new.js"
     "stc/css/pages/communities/new.css"
 ) -%]
 
