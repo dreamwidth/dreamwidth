@@ -1,8 +1,9 @@
 /* hide things visually, but keep them still visible to screenreaders */
 %screenreader-friendly {
     position:absolute;
-    left:0px;
-    top:-500px;
+    clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+    clip: rect(1px, 1px, 1px, 1px);
+
     width:1px;
     height:1px;
     overflow:hidden;
