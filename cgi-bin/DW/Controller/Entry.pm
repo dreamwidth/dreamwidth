@@ -1260,8 +1260,7 @@ sub preview_handler {
         $r->note( "journalid"   => $u->{userid} );
 
         # load necessary props
-        $u->preload_props( qw( s2_style ) );
-
+        $u->preload_props( qw( s2_style journaltitle journalsubtitle ) );
 
         # determine style system to preview with
         $ctx = LJ::S2::s2_context( $u->{s2_style} );
