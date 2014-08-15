@@ -51,6 +51,12 @@ h1 {
     color: $page-title-color;
 }
 
+// icon fonts
+.fi-icon:hover, button:hover .fi-icon,
+.fi-icon:focus, button:focus .fi-icon {
+    color: $primary-color;
+}
+
 // forms
 @import "skins/form-elements";
 
