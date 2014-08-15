@@ -210,25 +210,21 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                 </div>
 
                 <div class='subject-container'>
-                    [%- placeholder = ".subject.placeholder" | ml;
-                        title = ".subject.label" | ml;
-                        form.textbox( label = title
+                    [%- form.textbox( label = dw.ml(".subject.label")
                             id = "subject"
                             name = "subject"
 
                             maxlength = limits.subject_length
                             size = "50"
 
-                            labelclass = "invisible"
+                            labelclass = "hidden"
 
-                            placeholder = placeholder
+                            placeholder = dw.ml(".subject.placeholder")
                     ) -%]
                 </div>
 
                 <div class='event-container'>
-                    [%- placeholder = ".event.placeholder" | ml -%]
-                    [%- title = ".event.label" | ml -%]
-                    [%- form.textarea( label = title
+                    [%- form.textarea( label = dw.ml(".event.label")
                         id = "event"
                         name = "event"
 
@@ -236,16 +232,15 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                         rows = "20"
                         wrap = "soft"
 
-                        labelclass = "invisible"
+                        labelclass = "hidden"
 
-                        placeholder = placeholder
+                        placeholder = dw.ml(".event.placeholder")
                     ) -%]
                 </div>
 
             <div class="button-bar clearfix">
                 <ul class="button-group left">
-                    [%- post_label = action.edit ? '.button.edit' : '.button.post' | ml;
-                        form.submit( value = post_label
+                    [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
                                      name = "action:post"
                                      id = "submit_entry"
                                      class = "left small button"
@@ -253,8 +248,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     -%]
                 </ul>
                 <ul class="button-group right">
-                    <li>[%- preview_label = 'talk.btn.preview' | ml;
-                        form.submit( value = preview_label
+                    <li>[%- form.submit( value = dw.ml('talk.btn.preview')
                                      name = "action:preview"
                                      id = "preview_button"
                                      class = "small secondary button"
@@ -262,8 +256,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     -%]</li>
 
                     [%- IF can_spellcheck %]
-                    <li>[% spellcheck_label = 'entryform.spellcheck' | ml;
-                        form.submit( value = spellcheck_label
+                    <li>[% form.submit( value = dw.ml('entryform.spellcheck')
                                      name = "action:spellcheck"
                                      id = "spellcheck_button"
                                      class = "small secondary button"
