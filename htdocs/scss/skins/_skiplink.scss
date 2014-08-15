@@ -1,9 +1,9 @@
 /* allow hidden skip links */
-@import "mixins/screenreader-friendly";
+@import "mixins/visually-hidden";
 
 #skip a, #skip a:hover, #skip a:visited
 {
-    @extend %screenreader-friendly;
+    @extend %visually-hidden;
     padding: 0.5em 1em;
 }
 

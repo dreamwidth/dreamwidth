@@ -39,9 +39,9 @@ fieldset {
   border: none;
 }
 
-@import "mixins/screenreader-friendly";
+@import "mixins/visually-hidden";
 label.hidden {
-  @extend %screenreader-friendly;
+  @extend %visually-hidden;
 }
 
 @import "components/expand-for-mobile";
