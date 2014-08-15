@@ -35,7 +35,7 @@ sub is_selected {
         if defined $r->note( 'no_mobile_post_value' );
 
     # normal page load, check the cookie
-    return $r->cookie( 'no_mobile' );
+    return $r->cookie( 'no_mobile' ) ? 1 : 0;
 }
 
 sub option {
@@ -55,7 +55,8 @@ sub save {
         $r->add_cookie(
             name    => 'no_mobile',
             domain  => ".$LJ::DOMAIN",
-            value   => 1
+            value   => 1,
+            expires => time() + 86400 * 365 * 10, # 10 years
         );
         $r->note( 'no_mobile_post_value', 1 );
     } else {
