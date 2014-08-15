@@ -293,23 +293,26 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div>
     </div>
 
+    <div class="row">
+        <div class="columns">
+            <div class="button-bar">
+                [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
+                                 name = "action:post"
+                                 id = "submit_entry_large"
+                                 class = "button left"
+                                 )
+                -%]
 
-    <div class="button-bar">
-        [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
-                         name = "action:post"
-                         id = "submit_entry_large"
-                         class = "button left"
-                         )
-        -%]
-
-        [% IF action.edit %]
-            [%- form.submit( value = dw.ml( '.button.delete' )
-                             name  = "action:delete"
-                             id    = "delete_entry"
-                             class = "button secondary right"
-                            )
-            -%]
-        [% END %]
+                [% IF action.edit %]
+                    [%- form.submit( value = dw.ml( '.button.delete' )
+                                     name  = "action:delete"
+                                     id    = "delete_entry"
+                                     class = "button secondary right"
+                                    )
+                    -%]
+                [% END %]
+            </div>
+        </div>
     </div>
 
 </form>
