@@ -295,7 +295,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
 
     <div class="button-bar">
-        [%- form.submit( value = post_label
+        [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
                          name = "action:post"
                          id = "submit_entry_large"
                          class = "button left"
