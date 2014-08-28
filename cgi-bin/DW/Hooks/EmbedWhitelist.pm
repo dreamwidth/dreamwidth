@@ -91,6 +91,9 @@ my %host_path_match = (
     "episodecalendar.com"   => qr!^/icalendar/!,
 
     "www.flickr.com"        => qr!/player/$!,
+
+    "www.npr.org"           => qr!^/templates/event/embeddedVideo\.php!,
+
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
