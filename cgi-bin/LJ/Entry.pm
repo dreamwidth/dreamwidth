@@ -1817,7 +1817,7 @@ sub get_log2_recent_user {
 ## see subs 'get_itemid_after2' and 'get_itemid_before2'
 ##
 sub get_itemid_near2 {
-    my ( $u, $jitemid, $after_before ) = @_;
+    my ( $u, $jitemid, $tagnav, $after_before ) = @_;
 
     $jitemid += 0;
 
@@ -1867,13 +1867,24 @@ sub get_itemid_near2 {
     ##
     my $result_ref;
     foreach my $limit (2, 10, 50, 100) {
-        $result_ref = $dbr->selectall_arrayref(
-            "SELECT jitemid, anum, $field FROM log2 use index (rlogtime,revttime) ".
-                "WHERE journalid=? AND $field $cmp1 ? AND jitemid <> ? " .
-                $secwhere. " ".
-                "ORDER BY $field $order LIMIT $limit",
-            undef, $jid, $stime, $jitemid
-        );
+        if($tagnav) {
+            $result_ref = $dbr->selectall_arrayref(
+                "SELECT log2.jitemid, anum, $field FROM log2 use index (rlogtime,revttime), logtagsrecent ".
+                    "WHERE log2.journalid=? AND $field $cmp1 ? AND log2.jitemid <> ? " .
+                    "AND log2.journalid=logtagsrecent.journalid AND log2.jitemid=logtagsrecent.jitemid AND logtagsrecent.kwid=$tagnav ".
+                    $secwhere. " ".
+                    "ORDER BY $field $order LIMIT $limit",
+                undef, $jid, $stime, $jitemid
+                );
+        } else {
+            $result_ref = $dbr->selectall_arrayref(
+                "SELECT jitemid, anum, $field FROM log2 use index (rlogtime,revttime) ".
+                    "WHERE journalid=? AND $field $cmp1 ? AND jitemid <> ? " .
+                    $secwhere. " ".
+                    "ORDER BY $field $order LIMIT $limit",
+                undef, $jid, $stime, $jitemid
+                );
+        }
 
         my %hash_times = ();
         map {$hash_times{$_->[2]} = 1} @$result_ref;
