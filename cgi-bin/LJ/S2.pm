@@ -2197,6 +2197,7 @@ sub Entry_from_entryobj
     my $tags = LJ::Tags::get_logtags( $journal, $jitemid );
     my $taglist = [];
     $text .= TagList( $tags->{$jitemid}, $journal, $jitemid, $opts, $taglist );
+    my $tagnav;
 
     # building the CommentInfo and Entry objects
     my $comments = CommentInfo( $entry_obj->comment_info(
@@ -2221,6 +2222,7 @@ sub Entry_from_entryobj
         userpic => $userpic,
         userpic_style => $userpic_style,
         tags => $taglist,
+        tagnav => $tagnav,
         permalink_url => $entry_obj->url,
         moodthemeid => $moodthemeid,
         timeformat24 => $remote && $remote->use_24hour_time,
@@ -4173,6 +4175,26 @@ sub _Entry__get_link
         return LJ::S2::Link( LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {
                                     journal => $journal,
                                     itemid => $this->{itemid},
+                                    dir => "next",
+                                } ),
+                            $ctx->[S2::PROPS]->{"text_entry_next"},
+                            LJ::S2::Image_std( 'next_entry' ) );
+    }
+    if ($key eq "nav_tag_prev") {
+        return LJ::S2::Link( LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {
+                                    journal => $journal,
+                                    itemid => $this->{itemid},
+                                    redir_key => $this->{tagnav}->{name},
+                                    dir => "prev",
+                                } ),
+                            $ctx->[S2::PROPS]->{"text_entry_prev"},
+                            LJ::S2::Image_std( 'prev_entry' ) );
+    }
+    if ($key eq "nav_tag_next") {
+        return LJ::S2::Link( LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {
+                                    journal => $journal,
+                                    itemid => $this->{itemid},
+                                    redir_key => $this->{tagnav}->{name},
                                     dir => "next",
                                 } ),
                             $ctx->[S2::PROPS]->{"text_entry_next"},
