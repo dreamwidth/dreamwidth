@@ -13,6 +13,8 @@
 
 .error.nofind=Could not find selected journal entry.
 
+.error.login=Error logging in: [[error]]
+
 .event.label=Entry
 
 .event.placeholder=Your entry text...

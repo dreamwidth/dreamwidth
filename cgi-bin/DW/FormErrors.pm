@@ -74,8 +74,27 @@ sub add {
     };
     $error->{args} = $args if $args;
 
-    $self->{_data}->add( $key, $error );
+    $self->{_data}->add( $key || "", $error );
 }
+
+=head2 C<< $self->add_string( $key, $hardcoded_string ) >>
+
+Adds a string for the given form field (key).
+
+Use this only if you have a hardcoded string, such as one in a variable in the site config.
+Otherwise, $self->add is preferred.
+
+=cut
+sub add_string {
+    my ( $self, $key, $hardcoded_string ) = @_;
+
+    my $error = {
+        message_as_string => $hardcoded_string,
+    };
+
+    $self->{_data}->add( $key || "", $error );
+}
+
 
 =head2 C<< $self->get( $key ) >>
 
@@ -98,9 +117,9 @@ sub get {
     my ( $self, $key ) = @_;
 
     my @errors = $self->{_data}->get_all( $key );
-   foreach my $error ( @errors ) {
-       $error->{message} = $self->_absolute_ml_code( $error->{message} );
-   }
+    foreach my $error ( @errors ) {
+        $error->{message} = $self->_absolute_ml_code( $error->{message} );
+    }
 
     # using an array slice to force it to return as a list, even if in scalar context
     # (so if it's called in scalar context, we just pull off the first error...)
@@ -131,6 +150,8 @@ sub get_all {
                     message => $self->_absolute_ml_code( $_[1]->{message} ),
                 };
                 $error->{args} = $_[1]->{args} if $_[1]->{args};
+                $error->{message_as_string} = $_[1]->{message_as_string}
+                    if $_[1]->{message_as_string};
 
                 push @errors, $error;
             } );

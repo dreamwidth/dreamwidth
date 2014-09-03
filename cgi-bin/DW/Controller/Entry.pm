@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2011-2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -21,6 +21,7 @@ use strict;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::FormErrors;
 
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
@@ -107,7 +108,7 @@ sub new_handler {
             if $remote->can_post_disabled;
 
 
-    my @error_list;
+    my $errors = DW::FormErrors->new;
     my @warnings;
     my $post;
     my %spellcheck;
@@ -154,7 +155,7 @@ sub new_handler {
                       }, @_ );
 
     # now look for errors that we still want to recover from
-    push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
+    $errors->add( undef, "/update.bml.error.invalidusejournal" )
         if defined $usejournal && ! $vars->{usejournal};
 
     if ( $r->did_post ) {
@@ -163,12 +164,12 @@ sub new_handler {
         my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
-        push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body' )
             unless LJ::text_in( $post );
 
         my $okay_formauth = ! $remote || LJ::check_form_auth( $post->{lj_form_auth} );
 
-        push @error_list, LJ::Lang::ml( "error.invalidform" )
+        $errors->add( undef, "error.invalidform" )
             unless $okay_formauth;
 
         if ( $mode_preview ) {
@@ -194,7 +195,7 @@ sub new_handler {
             my %auth = _auth( $flags, $post, $remote );
 
             my $uj = $auth{journal};
-            push @error_list, $LJ::MSG_READONLY_USER
+            $errors->add_string( undef, $LJ::MSG_READONLY_USER )
                 if $uj && $uj->readonly;
 
             # do a login action to check if we can authenticate as unverified_username
@@ -214,8 +215,8 @@ sub new_handler {
                 my $login_res = LJ::Protocol::do_request( "login", \%login_req, \$err, $flags );
 
                 unless ( $login_res ) {
-                    push @error_list, LJ::Lang::ml( "/update.bml.error.login" )
-                        . " " . LJ::Protocol::error_message( $err );
+                    $errors->add( undef, ".error.login",
+                        { error => LJ::Protocol::error_message( $err ) } );
                 }
 
                 # e.g. not validated
@@ -225,24 +226,22 @@ sub new_handler {
             }
 
             my $form_req = {};
-            my %status = _form_to_backend( $form_req, $post );
-            push @error_list, @{$status{errors}}
-                if exists $status{errors};
+            _form_to_backend( $form_req, $post, errors => $errors );
 
             # if we didn't have any errors with decoding the form, proceed to post
-            unless ( @error_list ) {
+            unless ( $errors->exist ) {
                 my %post_res = _do_post( $form_req, $flags, \%auth, warnings => \@warnings );
                 return $post_res{render} if $post_res{status} eq "ok";
 
                 # oops errors when posting: show error, fall through to show form
-                push @error_list, $post_res{errors} if $post_res{errors};
+                $errors->add_string( undef, $post_res{errors} ) if $post_res{errors};
             }
         }
     }
 
 
     # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
-    $vars->{error_list} = \@error_list if @error_list;
+    $vars->{errors} = $errors;
     $vars->{warnings} = \@warnings;
 
     $vars->{spellcheck} = \%spellcheck;
@@ -472,7 +471,7 @@ sub _edit {
 
     return error_ml( 'error.invalidauth' ) unless $journal;
 
-    my @error_list;
+    my $errors = DW::FormErrors->new;
     my @warnings;
     my $post;
     my %spellcheck;
@@ -490,12 +489,12 @@ sub _edit {
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
         my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
 
-        push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body' )
             unless LJ::text_in( $post );
 
 
         my $okay_formauth =  LJ::check_form_auth( $post->{lj_form_auth} );
-        push @error_list, LJ::Lang::ml( "error.invalidform" )
+        $errors->add( undef, "error.invalidform" )
             unless $okay_formauth;
 
         if ( $mode_preview ) {
@@ -510,17 +509,16 @@ sub _edit {
                 $spellcheck{results} = $spellchecker->check_html( \$event, 1 );
                 $spellcheck{did_spellcheck} = 1;
             }
-        } elsif ( $okay_formauth) {
-            push @error_list, $LJ::MSG_READONLY_USER
+        } elsif ( $okay_formauth ) {
+            $errors->add_string( undef, $LJ::MSG_READONLY_USER )
                 if $journal && $journal->readonly;
 
             my $form_req = {};
-            my %status = _form_to_backend( $form_req, $post, allow_empty => $mode_delete );
-            push @error_list, @{$status{errors}}
-                if exists $status{errors};
+            my %status = _form_to_backend( $form_req, $post,
+                allow_empty => $mode_delete, errors => $errors );
 
             # if we didn't have any errors with decoding the form, proceed to post
-            unless ( @error_list ) {
+            unless ( $errors->exist ) {
 
                 if ( $mode_delete ) {
                     $form_req->{event} = "";
@@ -543,7 +541,7 @@ sub _edit {
                 return $edit_res{render} if $edit_res{status} eq "ok";
 
                 # oops errors when posting: show error, fall through to show form
-                push @error_list, $edit_res{errors} if $edit_res{errors};
+                $errors->add_string( undef, $edit_res{errors} ) if $edit_res{errors};
             }
         }
     }
@@ -586,11 +584,11 @@ sub _edit {
 
     # now look for errors that we still want to recover from
     my $get = $r->get_args;
-    push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
+    $errors->add( undef, "/update.bml.error.invalidusejournal" )
         if defined $get->{usejournal} && ! $vars->{usejournal};
 
     # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
-    $vars->{error_list} = \@error_list if @error_list;
+    $vars->{errors} = $errors;
     $vars->{warnings} = \@warnings;
 
     $vars->{spellcheck} = \%spellcheck;
@@ -675,14 +673,14 @@ sub _auth {
 sub _form_to_backend {
     my ( $req, $post, %opts ) = @_;
 
-    my @errors;
+    my $errors = $opts{errors};
 
     # handle event subject and body
     $req->{subject} = $post->{subject};
     $req->{event} = $post->{event} || "";
 
-    push @errors, LJ::Lang::ml( "/update.bml.error.noentry" )
-        if $req->{event} eq "" && ! $opts{allow_empty};
+    $errors->add( undef, "/update.bml.error.noentry" )
+        if $errors && $req->{event} eq "" && ! $opts{allow_empty};
 
 
     # initialize props hash
@@ -786,9 +784,7 @@ sub _form_to_backend {
         }
     }
 
-    return ( errors => \@errors ) if @errors;
-
-    return ();
+    return 1;
 }
 
 # given an LJ::Entry object, returns a hashref populated with data suitable for use in generating the form
@@ -1211,7 +1207,7 @@ sub preview_handler {
     my ( $ditemid, $anum, $itemid );
 
     my $form_req = {};
-    _form_to_backend( $form_req, $post );    # ignore errors
+    _form_to_backend( $form_req, $post );
 
     my ( $event, $subject ) = ( $form_req->{event}, $form_req->{subject} );
     LJ::CleanHTML::clean_subject( \$subject );
@@ -1589,7 +1585,7 @@ sub _options {
 
             $u->set_prop( js_animations_minimal => $post->{minimal_animations} );
         } else {
-            $vars->{error_list} = [ LJ::Lang::ml( "error.invalidform") ];
+            $vars->{error_list} = [ LJ::Lang::ml( "error.invalidform" ) ];
         }
 
     } else {

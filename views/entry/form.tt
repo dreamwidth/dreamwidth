@@ -146,17 +146,6 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
     [%- END -%]
 [%- END -%]
 
-[% IF error_list %]
-<div class='error-box message-box'>
-<div class='title'>[% '.error.header' | ml %]</div>
-<ul class='error-list'>
-    [% FOREACH error = error_list %]
-        <li>[% error %] </li>
-    [% END %]
-</ul>
-</div>
-[% END %]
-
 [%- IF spellcheck.did_spellcheck -%]
     <h2>[% 'entryform.spellchecked' | ml %]</h2>
     [%-
