@@ -5298,14 +5298,26 @@ function Comment::print_metatypes() {
 
 function Entry::print_tags() [fixed] {
     if ($this.tags) {
+        var Page p = get_page();
+        var bool show_tagnav_links;
+        if ($p isa RecentPage) {
+            var RecentPage rp = $p as RecentPage;
+            $show_tagnav_links = ($rp.filter_active and $rp.filter_tags);
+        } else {
+            $show_tagnav_links = ($p.view == "entry" or $p.view == "reply");
+        }
         var int tag_count = 0;
         """<div class="tag"><span class="tag-text">$*text_tags</span><ul>\n""";
         foreach var Tag t ($this.tags) {
             $this.tagnav = $t;
             "<li>";
-            $this->print_link_tag_prev();
+            if ($show_tagnav_links) {
+                $this->print_link_tag_prev();
+            }
             """ <a rel="tag" href="$t.url">$t.name</a> """;
-            $this->print_link_tag_next();
+            if ($show_tagnav_links) {
+                $this->print_link_tag_next();
+            }
             $tag_count++;
             if ($tag_count < size $.tags) { print $*text_tags_item_sep; }
             "</li>\n";
