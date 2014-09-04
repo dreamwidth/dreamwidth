@@ -1,0 +1,39 @@
+.edit.delete=Journal entry was deleted.
+
+.edit.delete.comm=Community entry was deleted.
+
+.edit.deletespam=Additionally, the entry was marked as spam.  Thank you for your report.
+
+.edit.edited=Journal entry was edited.
+
+.edit.edited.comm=Community entry was edited.
+
+.edit.links=From here you can:
+
+.edit.links.editentry=Edit this entry again
+
+.edit.links.manageentries=Manage your journal entries
+
+.edit.links.viewentries=View your journal entries
+
+.edit.links.viewentries.comm=View community
+
+.edit.links.viewentry=View this entry
+
+.new.community=Your update was successful. <a href="[[url]]">View your updated community</a>.
+
+.new.journal=Your update was successful. <a href="[[url]]">View your updated journal</a>.
+
+.new.links=Now that you've posted, you can:
+
+.new.links.backdated=View all entries from the same date
+
+.new.links.edit=Edit the entry
+
+.new.links.memories=Add the entry to your memories
+
+.new.links.myentries=View all my entries in this community
+
+.new.links.tags=Edit this entry's tags
+
+.new.links.view=View the entry

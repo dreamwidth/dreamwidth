@@ -98,13 +98,13 @@ sub new_handler {
 
     # these kinds of errors prevent us from initializing the form at all
     # so abort and return it without the form
-    return error_ml( "/update.bml.error.nonusercantpost", { sitename => $LJ::SITENAME } )
+    return error_ml( "/entry/form.tt.error.nonusercantpost", { sitename => $LJ::SITENAME } )
             if $remote->is_identity;
 
-    return error_ml( "/update.bml.error.cantpost" )
+    return error_ml( "/entry/form.tt.error.cantpost" )
             unless $remote->can_post;
 
-    return error_ml( '/update.bml.error.disabled' )
+    return error_ml( '/entry/form.tt.error.disabled' )
             if $remote->can_post_disabled;
 
 
@@ -155,7 +155,7 @@ sub new_handler {
                       }, @_ );
 
     # now look for errors that we still want to recover from
-    $errors->add( undef, "/update.bml.error.invalidusejournal" )
+    $errors->add( undef, ".error.invalidusejournal" )
         if defined $usejournal && ! $vars->{usejournal};
 
     if ( $r->did_post ) {
@@ -584,7 +584,7 @@ sub _edit {
 
     # now look for errors that we still want to recover from
     my $get = $r->get_args;
-    $errors->add( undef, "/update.bml.error.invalidusejournal" )
+    $errors->add( undef, ".error.invalidusejournal" )
         if defined $get->{usejournal} && ! $vars->{usejournal};
 
     # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
@@ -679,7 +679,7 @@ sub _form_to_backend {
     $req->{subject} = $post->{subject};
     $req->{event} = $post->{event} || "";
 
-    $errors->add( undef, "/update.bml.error.noentry" )
+    $errors->add( undef, ".error.noentry" )
         if $errors && $req->{event} eq "" && ! $opts{allow_empty};
 
 
@@ -937,7 +937,6 @@ sub _do_post {
     # post succeeded, time to do some housecleaning
     _persist_props( $auth->{poster}, $form_req );
 
-    my $ret = "";
     my $render_ret;
     my @links;
 
@@ -946,10 +945,9 @@ sub _do_post {
 
     # special-case moderated: no itemid, but have a message
     if ( ! defined $res->{itemid} && $res->{message} ) {
-        $ret .= qq{<div class="message-box info-box"><p>$res->{message}</p></div>};
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
-                poststatus  => $ret,
+                moderated_message  => $res->{message},
             }
         );
 
@@ -964,12 +962,10 @@ sub _do_post {
 
 
         # we updated successfully! Now tell the user
-        my $update_ml = $ju->is_community ? "/update.bml.update.success2.community" : "/update.bml.update.success2";
-        $ret .= LJ::Lang::ml( $update_ml, {
-            aopts => "href='" . $ju->journal_base . "/'",
-        } );
-
-
+        my $poststatus = {
+            ml_string => $ju->is_community ? ".new.community" : ".new.journal",
+            url => $ju->journal_base . "/",
+        };
 
         # bunch of helpful links
         my $juser = $ju->user;
@@ -979,7 +975,7 @@ sub _do_post {
 
         my @links = (
             { url => $itemlink,
-                ml_string => "/update.bml.success.links.view" }
+                ml_string => ".new.links.view" }
         );
 
         if ( $form_req->{props}->{opt_backdated} ) {
@@ -988,21 +984,21 @@ sub _do_post {
             my ( $y, $m, $d ) = ( $e->{eventtime} =~ /^(\d+)-(\d+)-(\d+)/ );
             push @links, {
                 url => $ju->journal_base . "/$y/$m/$d/",
-                ml_string => "/update.bml.success.links.backdated",
+                ml_string => ".new.links.backdated",
             }
         }
 
         push @links, (
             { url => $edititemlink,
-                ml_string => "/update.bml.success.links.edit" },
+                ml_string => ".new.links.edit" },
             { url => "$LJ::SITEROOT/tools/memadd?journal=$juser&itemid=$ditemid",
-                ml_string => "/update.bml.success.links.memories" },
+                ml_string => ".new.links.memories" },
             { url => "$LJ::SITEROOT/edittags?journal=$juser&itemid=$ditemid",
-                ml_string => "/update.bml.success.links.tags" },
+                ml_string => ".new.links.tags" },
         );
 
         push @links, { url => $ju->journal_base . "?poster=" . $auth->{poster}->user,
-                        ml_string => "/update.bml.success.links.myentries" } if $ju->is_community;
+                        ml_string => ".new.links.myentries" } if $ju->is_community;
 
 
         # crosspost!
@@ -1016,11 +1012,11 @@ sub _do_post {
 
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
-                poststatus  => $ret,        # did the update succeed or fail?
-                warnings    => \@warnings,   # warnings about the entry or your account
+                poststatus  => $poststatus, # did the update succeed or fail?
+                warnings    => \@warnings,  # warnings about the entry or your account
                 crossposts  => \@crossposts,# crosspost status list
                 links       => \@links,
-                links_header => "/update.bml.success.links",
+                links_header => ".new.links",
             }
         );
     }
@@ -1064,7 +1060,7 @@ sub _do_edit {
     # post succeeded, time to do some housecleaning
     _persist_props( $remote, $form_req );
 
-    my $ret = "";
+    my $poststatus_ml;
     my $render_ret;
     my @links;
 
@@ -1082,28 +1078,28 @@ sub _do_edit {
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
     if ( $deleted ) {
-        $ret .= LJ::Lang::ml( '/editjournal.bml.success.delete' );
+        $poststatus_ml = ".edit.delete";
     } else {
-        $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );
+        $poststatus_ml = ".edit.edited";
 
         push @links, {
             url => $entry_url,
-            ml_string => "/editjournal.bml.success.fromhere.viewentry",
+            ml_string => ".edit.links.viewentry",
         };
 
         push @links, {
             url => $edit_url,
-            ml_string => "/editjournal.bml.success.fromhere.editentry",
+            ml_string => ".edit.links.editentry",
         } if @warnings;
 
     }
 
     push @links, ( {
         url => $journal->journal_base,
-        ml_string => '/editjournal.bml.success.fromhere.viewentries',
+        ml_string => '.edit.links.viewentries',
     }, {
         url => "$LJ::SITEROOT/editjournal",
-        ml_string => '/editjournal.bml.success.fromhere.manageentries',
+        ml_string => '.edit.links.manageentries',
     } );
 
     my @crossposts = _queue_crosspost( $form_req,
@@ -1114,13 +1110,14 @@ sub _do_edit {
         editurl => $edit_url,
     );
 
+    my $poststatus = { ml_string => $poststatus_ml };
     $render_ret = DW::Template->render_template(
         'entry/success.tt', {
-            poststatus  => $ret,        # did the update succeed or fail?
-            warnings    => \@warnings,   # warnings about the entry or your account
+            poststatus  => $poststatus, # did the update succeed or fail?
+            warnings    => \@warnings,  # warnings about the entry or your account
             crossposts  => \@crossposts,# crosspost status list
             links       => \@links,
-            links_header => '/editjournal.bml.success.fromhere',
+            links_header => '.edit.links',
         }
     );
 
