@@ -1090,7 +1090,7 @@ sub _do_edit {
         push @links, {
             url => $edit_url,
             ml_string => ".edit.links.editentry",
-        } if @warnings;
+        };
 
     }
 
