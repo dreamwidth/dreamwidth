@@ -72,12 +72,14 @@
         }
     }
 
-    & > fieldset {
-        @include single-transition(padding-bottom);
-    }
-
-    &.collapse-expanded > fieldset {
-        padding-bottom: .25rem;
+    &.collapse-expanded {
+        // .last-visible handles the case when we have invisible elements
+        // that are only meant to be revealed by js
+        .row:last-child, .last-visible {
+            input, select, button {
+                margin-bottom: 0;
+            }
+        }
     }
 
     ul {

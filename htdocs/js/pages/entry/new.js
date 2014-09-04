@@ -79,6 +79,15 @@ var postForm = (function($) {
             $summary_text.text(selected.join(", "));
         }
 
+        var setLastVisible = function() {
+            $("#access-component")
+                .find(".last-visible")
+                    .removeClass("last-visible")
+                .end()
+                .find(".row:visible:last")
+                    .addClass("last-visible");
+        }
+
         var rememberInitialValue = !formData.did_spellcheck;
         $("#js-security").change( function(e, init) {
             var $this = $(this);
@@ -87,9 +96,9 @@ var postForm = (function($) {
                     $custom_groups.foundation('reveal', 'open');
                 }
                 updateSummary();
-                $summary_container.slideDown();
+                $summary_container.slideDown(setLastVisible);
             } else {
-                $summary_container.slideUp();
+                $summary_container.slideUp(setLastVisible);
             }
 
             if ( ! init ) {
@@ -156,7 +165,7 @@ var postForm = (function($) {
         $form.bind( "journalselect", function(e, journal) {
             var anon = ! journal.name
             if ( anon || journal.iscomm || ! journal.isremote )
-                $summary_container.slideUp();
+                $summary_container.slideUp(setLastVisible);
 
             var $security = $("#js-security");
             if ( $security.length > 0 ) {
