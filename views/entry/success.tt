@@ -13,12 +13,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 -%]
 
 [%- sections.title = 'success' | ml -%]
-
-[%- IF warnings.exist -%]
-    [%- FOREACH warning IN warnings.get_all -%]
-        <div class="alert-box">[%- warning.message -%]</div>
-    [%- END -%]
-[%- END -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- IF moderated_message -%]
 <div class="alert-box success">[%- moderated_message -%]</div>
@@ -28,16 +23,20 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>[% poststatus.ml_string | ml( url => poststatus.url )%]</p>
 [%- END -%]
 
+[%- IF warnings.exist -%]
+    [%- FOREACH warning IN warnings.get_all -%]
+        <div class="alert-box">[%- warning.message -%]</div>
+    [%- END -%]
+[%- END -%]
+
 [%- IF crossposts.size > 0 -%]
-<div class='message-box'>
-<ul>
+<ul class='no-bullet'>
     [%- FOREACH crosspost IN crossposts -%]
-        <li [% IF crosspost.status == "error" -%] class="error-box" [%- END -%]>
+        <li class="alert-box [% IF crosspost.status == "error" %] alert [%- ELSE -%] success [%- END -%]">
             [%- crosspost.text -%]
         </li>
     [%- END -%]
 </ul>
-</div>
 [%- END -%]
 
 [%- IF links.size > 0 -%]
