@@ -72,6 +72,14 @@
         }
     }
 
+    & > fieldset {
+        @include single-transition(padding-bottom);
+    }
+
+    &.collapse-expanded > fieldset {
+        padding-bottom: .25rem;
+    }
+
     ul {
       list-style-type:none;
       margin: 0;
