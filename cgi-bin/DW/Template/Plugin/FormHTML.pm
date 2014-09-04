@@ -300,9 +300,7 @@ sub textbox {
     $ret .= LJ::html_text( $args );
 
     foreach my $error ( @errors ) {
-        $ret .= qq{<small class="error">}
-                    . LJ::Lang::ml( $error->{message}, $error->{args} )
-                    . qq{</small>};
+        $ret .= qq!<small class="error">$error->{message}</small>!;
     }
 
     if ( $hint ) {
