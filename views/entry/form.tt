@@ -140,9 +140,9 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
 <div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
 
-[%- IF warnings.size -%]
-    [%- FOREACH warning IN warnings -%]
-        <div class="message-box [% warning.type %]-box">[%- warning.message -%]</div>
+[%- IF warnings.exist -%]
+    [%- FOREACH warning IN warnings.get_all -%]
+        <div class="alert-box">[%- warning.message -%]</div>
     [%- END -%]
 [%- END -%]
 
