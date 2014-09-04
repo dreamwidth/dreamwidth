@@ -1,15 +1,10 @@
-@import "foundation/base", "mixins/visually-hidden";
+@import "foundation/base", "mixins/visually-hidden", "mixins/bare-button";
 
 .collapse-trigger, .collapse-trigger:hover, .collapse-trigger:focus {
     display: block;
     width: 100%;
 
-    text-align: left;
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    margin: 0;
+    @extend %bare-button;
 }
 
 .collapse-trigger .fi-icon {
