@@ -100,6 +100,17 @@
     }
 }
 
+/* Access */
+.custom-groups ul {
+    -moz-column-width: 12em;
+    -webkit-column-width: 12em;
+    column-width: 12em;
+}
+
+.custom-groups-summary {
+    font-style: italic;
+}
+
 /* TEMPORARY */
 .toolbar {
     background-color: gray;

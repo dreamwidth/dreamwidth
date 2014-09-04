@@ -66,24 +66,42 @@ var postForm = (function($) {
     };
 
     function initAccess($form, formData) {
-        var $custom_access_groups = $("#js-custom-access-groups");
-        var $custom_access_group_members = $("#js-custom-access-group-members");
-        $custom_access_groups.hide();
+        var $custom_groups = $("#js-custom-groups");
+        var $custom_access_group_members = $("#js-custom-group-members");
+        var $summary_container = $("#js-custom-groups-summary");
+        var $summary_text = $summary_container.find(".summary-text");
+
+        var updateSummary = function() {
+            var selected = [];
+            $custom_groups.find("input:checked").each(function() {
+                selected.push($.trim($(this).next().text()));
+            });
+            $summary_text.text(selected.join(", "));
+        }
 
         var rememberInitialValue = !formData.did_spellcheck;
         $("#js-security").change( function(e, init) {
             var $this = $(this);
             if ( $this.val() == "custom" ) {
-                $custom_access_groups.slideDown();
+                if ( ! init ) {
+                    $custom_groups.foundation('reveal', 'open');
+                }
+                updateSummary();
+                $summary_container.slideDown();
             } else {
-                $custom_access_groups.slideUp();
-                $custom_access_group_members.hide();
+                $summary_container.slideUp();
             }
 
             if ( ! init ) {
                 $this.data("lastselected",$this.val())
             }
         }).triggerHandler("change", rememberInitialValue);
+
+        $(document).on('close.fndtn.reveal', '[data-reveal]', function () {
+            if (this.id === "js-custom-groups") {
+                updateSummary();
+            }
+        } );
 
         function adjustSecurityDropdown(data) {
             if ( ! data ) return;
@@ -138,7 +156,7 @@ var postForm = (function($) {
         $form.bind( "journalselect", function(e, journal) {
             var anon = ! journal.name
             if ( anon || journal.iscomm || ! journal.isremote )
-                $custom_access_groups.slideUp();
+                $summary_container.slideUp();
 
             var $security = $("#js-security");
             if ( $security.length > 0 ) {
@@ -153,7 +171,7 @@ var postForm = (function($) {
           }
         });
 
-        $custom_access_groups.find("input[name=custom_bit]").click(function(e) {
+        $custom_groups.find("input[name=custom_bit]").click(function(e) {
             var members_data = []
             var requests = []
             $(this).parent().parent().find(":checkbox").each(function() {
@@ -176,10 +194,7 @@ var postForm = (function($) {
                 for (member in members_data) {
                     members_data_list = members_data_list + "<li>" + members_data[member] + "</li>";
                 }
-                $custom_access_group_members
-                    .slideDown()
-                    .find("ul")
-                        .html(members_data_list);
+                $custom_access_group_members.html(members_data_list);
             });
         });
     }

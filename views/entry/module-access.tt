@@ -31,9 +31,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </div></div>
 
     [% IF customgroups.size > 0 %]
-    <fieldset id="js-custom-access-groups" class="row"><div class="columns">
+    <div id="js-custom-groups" class="reveal-modal custom-groups" data-reveal>
+
+    <fieldset class="row"><div class="columns">
       <legend>[% ".header.custom" | ml %]</legend>
-      <ul>
+      <ul class="no-bullet">
         [% FOREACH group IN customgroups %]
             <li>[%- form.checkbox( label = group.label
                         name = "custom_bit"
@@ -45,13 +47,26 @@ the same terms as Perl itself.  For a copy of the license, please reference
       </ul>
     </div></fieldset>
 
-    <fieldset id="js-custom-access-group-members" class="row"><div class="columns">
+    <fieldset class="row"><div class="columns">
       <legend>[% ".header.custom_member" | ml %]</legend>
-      <ul>
+      <ul class="no-bullet" id="js-custom-group-members">
       </ul>
     </div></fieldset>
 
+    <a href="#0" class="close-reveal-modal" title="Close">x</a>
     </div>
+
+
+    [%#- Summary -%]
+    <fieldset class="row custom-groups-summary" id="js-custom-groups-summary">
+        <div class="columns small-9">
+            <div class='summary-text'></div>
+        </div>
+        <div class="columns small-3">
+            <button class="secondary small right" data-reveal-id="js-custom-groups">Edit</button>
+        </div>
+    </fieldset>
+
     [% END %]
 
 </div>
