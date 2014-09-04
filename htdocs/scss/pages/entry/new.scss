@@ -83,6 +83,14 @@
     }
 }
 
+/* Currents */
+#js-moodpreview {
+    text-align: center;
+
+    .moodpreview-image {
+        height: auto !important; // avoid distortion if we constrained image width
+    }
+}
 
 /* TEMPORARY */
 .toolbar {
