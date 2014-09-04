@@ -1,6 +1,6 @@
 var postForm = (function($) {
-    var initCollapsible = function() {
-        $("#post_entry").collapse({ endpointUrl: "/__rpc_entryformcollapse" });
+    var initCollapsible = function($form) {
+        $form.collapse({ endpointUrl: "/__rpc_entryformcollapse" });
     };
 
     var initCurrents = function(moodpics) {
@@ -69,10 +69,11 @@ var postForm = (function($) {
         $("#nojs").val(0);
 
         if ( ! formData ) formData = {};
-        initCollapsible();
+        var entryForm = $("#js-post-entry");
+
+        initCollapsible(entryForm);
 
         initCurrents(formData.moodpics);
-
     };
 
     return {
