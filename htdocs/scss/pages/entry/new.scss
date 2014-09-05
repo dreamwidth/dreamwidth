@@ -113,6 +113,17 @@
     font-style: italic;
 }
 
+
+/* elements in modals */
+// remove extra padding here since the modal has its own padding
+.reveal-modal fieldset, .reveal-modal fieldset .columns {
+    padding: 0;
+}
+
+.reveal-modal fieldset {
+    border: none;
+}
+
 /* TEMPORARY */
 .toolbar {
     background-color: gray;
