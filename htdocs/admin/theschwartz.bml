@@ -53,13 +53,15 @@ body<=
         or return "Unable to manually connect to TheSchwartz database.";
 
     # gather status on jobs in the queue
+    my $job = ( $db->{prefix} || "" ) . "job";
+    my $funcmap = ( $db->{prefix} || "" ) . "funcmap";
     my $jobs = $dbr->selectall_arrayref(
-        q{SELECT j.jobid, f.funcname,
+        qq{SELECT j.jobid, f.funcname,
                  FROM_UNIXTIME(j.insert_time), j.insert_time,
                  FROM_UNIXTIME(j.run_after), j.run_after,
                  FROM_UNIXTIME(j.grabbed_until), j.grabbed_until,
                  j.priority
-          FROM job j, funcmap f
+          FROM $job j, $funcmap f
           WHERE f.funcid = j.funcid
           ORDER BY j.insert_time}
     );
@@ -107,9 +109,10 @@ body<=
     }
 
     # gather some status on the last 100 errors.
+    my $error = ( $db->{prefix} || "" ) . "error";
     my $errs = $dbr->selectall_arrayref(
-        q{SELECT e.jobid, FROM_UNIXTIME(e.error_time), f.funcname, e.message
-          FROM error e, funcmap f
+        qq{SELECT e.jobid, FROM_UNIXTIME(e.error_time), f.funcname, e.message
+          FROM $error e, $funcmap f
           WHERE f.funcid = e.funcid
           ORDER BY e.error_time DESC
           LIMIT 100}
