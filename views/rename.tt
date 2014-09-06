@@ -112,8 +112,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         <hr />
 
-        <a href="[%dw.site|url%]/rename/swap">Swap usernames with a journal under your control</a>
-        <p class='note'>You will require two tokens</p>
+        <a href="[%dw.site|url%]/rename/swap">[%~ '.swap.linktext' | ml ~%]</a>
+        <p class='note'>[%~ '.swap.note' | ml ~%]</p>
     [% END %]
 
     <hr />

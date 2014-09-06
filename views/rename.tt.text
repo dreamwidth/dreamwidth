@@ -73,6 +73,10 @@
 
 .success=Successfully renamed journal from [[from]] to [[to]].
 
+.swap.linktext=Swap usernames with a journal under your control
+
+.swap.note=You will require two tokens
+
 .title=Rename Journal
 
 .token.invalid=Invalid token: [[token]]
