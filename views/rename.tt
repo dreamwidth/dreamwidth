@@ -38,7 +38,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <div class="formfield">
                 <label>[%- '.form.rename.fromuser.label' | ml -%]</label> [% form.data.authas %]
                 [% IF form.data.journaltype == "P" %]
-                    <a href="[%- form.data.pageurl | url -%]?type=C">[%- '.form.switchtype.comm' | ml -%]</a>
+                    <a href="[%- form.data.pageurl | url -%]&type=C">[%- '.form.switchtype.comm' | ml -%]</a>
                 [% ELSE %]
                     <a href="[%- form.data.pageurl | url -%]">[%- '.form.switchtype.journal' | ml -%]</a>
                 [% END %]
@@ -122,15 +122,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <p>[% '.token.list.header' | ml %]</p>
         <ul>
         [% FOREACH token = unused_tokens %]
-            <li>[% token.token | html %] - <a href="[%- site.root | url %]/rename/[% token.token | url %]
+            <li>[% token.token | html %] - <a href="[%- site.root | url %]/rename?giventoken=[% token.token | url %]
             [%~ IF checkusername.user AND checkusername.status == 'available' ~%]
-                ?to=[%~ checkusername.user | url ~%]
+                &to=[%~ checkusername.user | url ~%]
                 ">[%~ '.token.list.item.withname' | ml( username = checkusername.user ) ~%]
             [%~ ELSE ~%]
                 ">[%~ '.token.list.item' | ml ~%]
             [%~ END ~%]
             </a>
-            <a href="[%- site.root | url %]/rename/[% token.token | url %]?type=C
+            <a href="[%- site.root | url %]/rename?giventoken=[% token.token | url %]&type=C
             [%~ IF checkusername.user AND checkusername.status == 'available' ~%]
                 &to=[%~ checkusername.user | url ~%]
                 ">[%~ '.token.list.item.comm.withname' | ml( username = checkusername.user ) ~%]
