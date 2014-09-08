@@ -6,4 +6,7 @@ unique handling SASS does will not work)
 */
 
 $include-html-classes: false;
-@import "foundation/settings", "foundation/components/global";
+@import "foundation/settings";
+
+$modules: append($modules, "global"); // hack so we don't print out the meta.foundation* classes from global
+@import "foundation/components/global";
