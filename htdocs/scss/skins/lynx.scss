@@ -17,7 +17,6 @@ $form-font-color:   rgba(0,0,0,0.75);
 $form-bg-color:     #f7f7f7;
 
 // we want to base these on $body-font-color rather than the random variables they're based on
-$code-color:                            tint( $body-font-color, 20% );
 $blockquote-font-color:                 tint( $body-font-color, 20% );
 $small-font-color:                      $body-font-color;
 
