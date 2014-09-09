@@ -191,9 +191,7 @@ sub rename {
 
     my $remote = LJ::isu( $opts{user} ) ? $opts{user} : $self;
     push @$errref, LJ::Lang::ml( 'rename.error.tokeninvalid' )
-        unless $opts{token} && $opts{token}->isa( "DW::RenameToken" )
-            && ( $opts{token}->ownerid == $remote->userid
-            || $remote->has_priv( "siteadmin", "rename" ) && $opts{force} ) ;
+        unless $opts{token} && $opts{token}->isa( "DW::RenameToken" );
     push @$errref, LJ::Lang::ml( 'rename.error.tokenapplied' ) if $opts{token} && $opts{token}->applied;
 
     my $can_rename_to = $self->can_rename_to( $tousername, %opts );
