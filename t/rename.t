@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 152;
+use Test::More tests => 153;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -487,6 +487,17 @@ note( "-- openid and feeds" );
 
     LJ::update_user( $u, { journaltype => 'F' } );
     ok( ! $u->can_rename_to( $u->user . "_rename" ), "Cannot rename feed accounts" );
+}
+
+note( "-- rename token ownership ignored" );
+{
+    my $u = temp_user();
+
+    my $fromusername = $u->user;
+    my $tousername =  $fromusername . "_renameto";
+
+    ok( $u->rename( $tousername, token => new_token( temp_user() ) ),
+        "Check that rename token ownership is ignored" );
 }
 
 note( "-- two username swap (personal to personal)" );
