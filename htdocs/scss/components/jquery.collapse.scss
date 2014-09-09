@@ -1,4 +1,4 @@
-@import "foundation/base", "mixins/visually-hidden", "mixins/bare-button";
+@import "foundation/base", "mixins/visually-hidden", "mixins/bare-button", "mixins/focus";
 
 .collapse-trigger, .collapse-trigger:hover, .collapse-trigger:focus {
     display: block;
@@ -21,7 +21,7 @@
 }
 
  .collapse-trigger:focus .fi-icon {
-    outline: 1px black dotted;
+    @extend %focus;
 }
 
 .collapse-trigger-action {

@@ -1,0 +1,37 @@
+@import "foundation/base", "foundation/components/forms", "mixins/focus";
+$regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
+
+.fancy-select {
+    display: inline-block;
+    height: $regular-select-height;
+}
+
+.fancy-select-select {
+    position: relative;
+
+    select {
+        z-index: 10;
+
+        // hide the select
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: none;
+        background: none;
+        outline: none;
+        opacity: 0;
+        -webkit-appearance: none;
+        filter: alpha(opacity=0);
+    }
+}
+
+
+// visually overlay our custom element over the select
+// (but the select will be activated)
+.fancy-select-output.split.button {
+    z-index: 9;
+}
+
+.focus {
+    @extend %focus;
+}

@@ -309,6 +309,76 @@ dw.need_res( { group => "foundation" },
 </div>
 </div>
 
+<h2>Fancy Select</h2>
+<div class="row">
+  <div class="large-6 columns">
+  [%- INCLUDE components/fancyselect.tt
+        name = "foo"
+        label = "Foo:"
+
+        items = [
+          { label = "plain"
+            value = "plain"
+            format = "a plain option"
+          }
+          { label = "image"
+            value = "image"
+            format = "with image prefix"
+            image = {
+              src = "/silk/site/tick.png"
+              width = 16
+              height = 16
+            }
+          }
+          { label = "user"
+            value = "user"
+            format = "contains a @user"
+          }
+          {
+            label = "comm"
+            value = "comm"
+            format = "contains a @c:comm"
+          }
+        ]
+  -%]
+  </div>
+
+  <div class="large-6 columns">
+  [%- WRAPPER code -%]
+    name = "foo"
+    label = "Foo:"
+
+    items = [
+      { label = "plain"
+        value = "plain"
+        format = "a plain option"
+      }
+      { label = "image"
+        value = "image"
+        format = "with image prefix"
+        image = {
+          src = "/silk/site/tick.png"
+          width = 16
+          height = 16
+        }
+      }
+      { label = "user"
+        value = "user"
+        format = "contains a @user"
+      }
+      {
+        label = "comm"
+        value = "comm"
+        format = "contains a @c:comm"
+      }
+    ]
+  -%]
+  [%- END -%]
+  [% WRAPPER code+onload -%]
+    $("body").fancySelect();
+  [%- END -%]
+  </div>
+</div>
 
 <h2>Alert Boxes</h2>
 <div data-alert class="alert-box radius">
