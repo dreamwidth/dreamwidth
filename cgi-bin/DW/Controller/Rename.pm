@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -159,7 +159,7 @@ sub handle_post {
         if ( $post_args->{redirect} ne "forward" ) {
             push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnotforward', { emaildomain => "\@$LJ::USER_DOMAIN" } );
             $other_opts{email} = 0;
-        } 
+        }
 
         unless ( $journal->can_have_email_alias ) {
             push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnoalias' );
@@ -403,7 +403,7 @@ sub siteadmin_rename_handler {
     if ( $r->method eq "POST" ) {
         my ( $post_ok, $rv ) = handle_siteadmin_rename_post( $post_args );
         return $rv if $post_ok;
-    
+
         $vars->{error_list} = $rv;
     }
 
