@@ -55,6 +55,10 @@ use DW::RenameToken;
 
 Return true if this user can be renamed to the given username
 
+Optional arguments are:
+=item force     => bool, default false
+=item errref    => array ref of errors
+
 =cut
 sub can_rename_to {
     my ( $self, $tousername, %opts ) = @_;
@@ -176,7 +180,7 @@ sub can_rename_to {
 Rename the given user to the provided username. Requires a user name to rename to, and a token object to store the rename action data. If the username we're returning to is of an existing user then it shall be moved aside to a username of the form "ex_oldusernam123". Returns 1 on success, 0 on failure
 
 Optional arguments are:
-=item force     => bool, default false
+=item force     => bool, default false (passed to ->can_rename_to)
 =item redirect  => bool, default false
 =item errref    => array ref of errors
 =item del_watched_by/del_trusted_by/del_trusted/del_watched/del_communities => bool, default false
