@@ -28,8 +28,9 @@ $regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1))
 
 // visually overlay our custom element over the select
 // (but the select will be activated)
-.fancy-select-output.split.button {
+.fancy-select-output {
     z-index: 9;
+    text-align: left;
 }
 
 .focus {

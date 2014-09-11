@@ -39,10 +39,19 @@ function updateSelected(e) {
     $(e.target).next().find("output").html(displayHTML);
 }
 
+function setMinWidth($ele, newMin, padding) {
+    newMin = parseInt(newMin) || 0;
+    padding = parseInt(padding) || 0;
+    var mw = parseInt( $ele.css("min-width") ) || 0;
+
+    $ele.css("min-width", Math.max(mw, newMin) + padding + "px")
+}
+
 $.fn.extend({
     fancySelect: function() {
         $(this).find(".fancy-select select").each(function() {
-            $(this)
+            var $select = $(this);
+            $select
                 .wrap("<div class='fancy-select-select'/>")
                 .after("<span class='fancy-select-output split button secondary'><output></output><span class='fancy-select-arrow'></span></span>")
                 .focus(function() {
@@ -52,8 +61,21 @@ $.fn.extend({
                     $(this).next(".fancy-select-output").removeClass("focus");
                 })
                 .change(updateSelected)
-                .trigger("change")
+                .change(function() {
+                    setMinWidth(
+                        $(this).next(".fancy-select-output"),
+                        $(this).parent(".fancy-select-select").width()
+                    );
+                })
+                .trigger("change");
+
+            setMinWidth(
+                $select.next(".fancy-select-output"),
+                $select.width(),
+                30
+            );
         });
+
     }
 });
 
