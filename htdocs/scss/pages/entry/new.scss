@@ -45,6 +45,10 @@
     }
 }
 
+.js .js-only.components {
+    display: none;
+}
+
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
 .button-bar .button-group .fancy-select {
     &, & div {

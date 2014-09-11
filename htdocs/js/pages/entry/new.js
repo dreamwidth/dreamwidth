@@ -66,121 +66,35 @@ var postForm = (function($) {
         }
     };
 
-    function initAccess($form, formData) {
+    var initSecurity = function($form, formData) {
         var $custom_groups = $("#js-custom-groups");
         var $custom_access_group_members = $("#js-custom-group-members");
-        var $summary_container = $("#js-custom-groups-summary");
-        var $summary_text = $summary_container.find(".summary-text");
+        var $custom_edit_button = $('<button class="secondary" data-reveal-id="js-custom-groups" aria-label="Edit custom entries">Edit</button>');
 
-        var updateSummary = function() {
-            var selected = [];
-            $custom_groups.find("input:checked").each(function() {
-                selected.push($.trim($(this).next().text()));
-            });
-            $summary_text.text(selected.join(", "));
-        }
+        // create an "edit custom groups" button
+        $("#js-security").closest(".fancy-select")
+                .after($custom_edit_button);
 
-        var setLastVisible = function() {
-            $("#access-component")
-                .find(".last-visible")
-                    .removeClass("last-visible")
-                .end()
-                .find(".row:visible:last")
-                    .addClass("last-visible");
-        }
-
+        // show the custom groups modal
         var rememberInitialValue = !formData.did_spellcheck;
         $("#js-security").change( function(e, init) {
             var $this = $(this);
+
             if ( $this.val() == "custom" ) {
-                if ( ! init ) {
+                if ( !init ) {
                     $custom_groups.foundation('reveal', 'open');
                 }
-                updateSummary();
-                $summary_container.slideDown(setLastVisible);
+                $custom_edit_button.show();
             } else {
-                $summary_container.slideUp(setLastVisible);
+                $custom_edit_button.hide();
             }
 
-            if ( ! init ) {
-                $this.data("lastselected",$this.val())
+            if ( !init ) {
+                $this.data("lastselected", $this.val());
             }
         }).triggerHandler("change", rememberInitialValue);
 
-        $(document).on('close.fndtn.reveal', '[data-reveal]', function () {
-            if (this.id === "js-custom-groups") {
-                updateSummary();
-            }
-        } );
-
-        function adjustSecurityDropdown(data) {
-            if ( ! data ) return;
-
-            var $security = $("#js-security");
-            var oldval = $security.data("lastselected");
-            var rank = { "public": "0", "access": "1", "private": "2", "custom": "3" };
-
-            $security.empty();
-            if ( data.ret ) {
-                if ( data.ret["minsecurity"] == "friends" ) data.ret["minsecurity"] = "access";
-
-                var opts;
-                if ( data.ret['is_comm'] ) {
-                    opts = [
-                        "<option value='public'>Everyone (Public)</option>",
-                        "<option value='access'>Members</option>"
-                    ];
-                    if ( data.ret['can_manage'] )
-                        opts.push("<option value='private'>Admin</option>");
-                } else {
-                    opts = [
-                        "<option value='public'>Everyone (Public)</option>",
-                        "<option value='access'>Access List</option>",
-                        "<option value='private'>Private (Just You)</option>"
-                    ];
-                    if ( data.ret['friend_groups_exist'] )
-                        opts.push("<option value='custom'>Custom</option>");
-                }
-
-                $security.append(opts.join("\n"))
-
-                // select the minsecurity value and disable the values with lesser security
-                $security.val(rank[oldval] >= rank[data.ret['minsecurity']] ? oldval : data.ret['minsecurity']);
-                if ( data.ret['minsecurity'] == 'access' ) {
-                    $security.find("option[value='public']").prop("disabled", true);
-                } else if ( data.ret['minsecurity'] == 'private' ) {
-                    $security.find("option[value='public'],option[value='access'],option[value='custom']")
-                        .prop("disabled", true);
-                }
-            } else {
-                // user is not known. no custom groups, no minsecurity
-                $security.append([
-                    "<option value='public'>Everyone (Public)</option>",
-                    "<option value='access'>Access List</option>",
-                    "<option value='private'>Private (Just You)</option>"
-                ].join("\n"))
-                $security.val(oldval);
-            }
-        }
-
-        $form.bind( "journalselect", function(e, journal) {
-            var anon = ! journal.name
-            if ( anon || journal.iscomm || ! journal.isremote )
-                $summary_container.slideUp(setLastVisible);
-
-            var $security = $("#js-security");
-            if ( $security.length > 0 ) {
-              if ( anon ) {
-                // no custom groups
-                adjustSecurityDropdown({})
-              } else if ( ! formData.edit ) {
-                $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions",
-                    { "user": journal.name }, adjustSecurityDropdown);
-            }
-            $(this).data("journal",journal.name);
-          }
-        });
-
+        // update the list of people who can see the entry
         $custom_groups.find("input[name=custom_bit]").click(function(e) {
             var members_data = []
             var requests = []
@@ -207,7 +121,7 @@ var postForm = (function($) {
                 $custom_access_group_members.html(members_data_list);
             });
         });
-    }
+    };
 
     var init = function(formData) {
         $("#nojs").val(0);
@@ -218,7 +132,7 @@ var postForm = (function($) {
         initMainForm(entryForm);
 
         initCurrents(entryForm, formData.moodpics);
-        initAccess(entryForm, formData);
+        initSecurity(entryForm, formData);
     };
 
     return {

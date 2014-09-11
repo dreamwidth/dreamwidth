@@ -17,7 +17,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class="fancy-select">
 <label for="fancy-select-[% name %]">[%- label -%]</label>
-<select id="fancy-select-[% name %]">
+<select id="[%- id || "fancy-select-$name" -%]">
     [%- FOR item IN items -%]
     <option value="[%- item.value | html -%]" [%- IF item.image -%]
         data-fancyselect-img="[%- item.image.src | html -%]:[% item.image.width | html %]:[% item.image.height | html %]"

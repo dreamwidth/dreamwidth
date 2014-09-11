@@ -244,6 +244,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                 -%]
                 <li>[%- INCLUDE components/fancyselect.tt
                         name = "security"
+                        id = "js-security"
                         label = dw.ml( '.select.security' )
 
                         items = security
@@ -316,6 +317,12 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
         <div class="columns medium-6"> <!-- third column of components -->
             [% PROCESS column components = panels.order.shift %]
+        </div>
+    </div>
+
+    <div class="row components js-only">
+        <div class="columns">
+            [%- dw.scoped_include( "entry/module-access.tt" ) %]
         </div>
     </div>
 

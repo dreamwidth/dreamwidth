@@ -13,23 +13,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 -%]
 
 <fieldset>
-<h3>[% ".header" | ml %]</h3>
 <div class="inner">
-
-    <div class="row"><div class="columns">
-        [%- securitylist = [];
-            FOREACH level IN security;
-                securitylist.push( level.value, level.label );
-            END;
-        -%]
-        [%- form.select( label = dw.ml( ".label" )
-            name = "security"
-            id = "js-security"
-
-            items = securitylist
-        ) -%]
-    </div></div>
-
     [% IF customgroups.size > 0 %]
     <div id="js-custom-groups" class="reveal-modal custom-groups" data-reveal>
 
@@ -55,17 +39,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     <a href="#0" class="close-reveal-modal" title="Close">x</a>
     </div>
-
-
-    [%#- Summary -%]
-    <fieldset class="row custom-groups-summary" id="js-custom-groups-summary">
-        <div class="columns small-9">
-            <div class='summary-text'></div>
-        </div>
-        <div class="columns small-3">
-            <button class="secondary small right" data-reveal-id="js-custom-groups">Edit</button>
-        </div>
-    </fieldset>
 
     [% END %]
 
