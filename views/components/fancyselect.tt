@@ -17,12 +17,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class="fancy-select">
 <label for="fancy-select-[% name %]">[%- label -%]</label>
-<select id="[%- id || "fancy-select-$name" -%]">
-    [%- FOR item IN items -%]
-    <option value="[%- item.value | html -%]" [%- IF item.image -%]
-        data-fancyselect-img="[%- item.image.src | html -%]:[% item.image.width | html %]:[% item.image.height | html %]"
-    [%- END -%]
-    data-fancyselect-format="[%- ( item.format || item.label ) | html -%]">[%- item.label | html -%]</option>
+<select id="[%- id || "fancy-select-$name" -%]" name="[% name %]">
+    [%- FOR option IN items -%]
+    <option value="[%- option.value | html -%]"
+        [%- IF option.value == formdata.$name -%]
+            selected="selected"
+        [%- END -%]
+        [%- IF option.image -%]
+            data-fancyselect-img="[%- option.image.src | html -%]:[% option.image.width | html %]:[% option.image.height | html %]"
+        [%- END -%]
+        data-fancyselect-format="[%- ( option.format || option.label ) | html -%]"
+    >[%- option.label | html -%]</option>
     [%- END -%]
 </select>
 </div>
