@@ -28,7 +28,7 @@ function imageTag(data) {
 
 function updateSelected(e) {
     var $selected = $(e.target).find("option:selected");
-    var text = $selected.data("fancyselect-displaytext");
+    var text = $selected.data("fancyselect-format");
     var image = $selected.data("fancyselect-img");
 
     var displayHTML = text.replace(/(?:@([^\s]+))/, userTag);

@@ -119,6 +119,19 @@ postFormInitData.panels = {
     }
 };
 
+postFormInitData.security = {
+    [%- FOREACH level = security_options.pairs %]
+        [%- level.key | js %] : { 'value': [%~ level.value.value | js ~%]
+            , 'label':  [%~ level.value.label | ml | js ~%]
+            , 'format': [%~ level.value.format | ml | js ~%]
+            , 'image': { 'src': [%~ level.value.image.src | js ~%]
+                , 'width':  [%~ level.value.image.width | js ~%]
+                , 'height': [%~ level.value.image.height | js ~%]
+        } }
+        [%- UNLESS loop.last %],[% END -%]
+    [% END %]
+};
+
 postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 
 postFormInitData.strings = {

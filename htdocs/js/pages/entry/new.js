@@ -70,14 +70,15 @@ var postForm = (function($) {
         var $custom_groups = $("#js-custom-groups");
         var $custom_access_group_members = $("#js-custom-group-members");
         var $custom_edit_button = $('<button class="secondary" data-reveal-id="js-custom-groups" aria-label="Edit custom entries">Edit</button>');
+        var $security_select = $("#js-security");
 
         // create an "edit custom groups" button
-        $("#js-security").closest(".fancy-select")
+        $security_select.closest(".fancy-select")
                 .after($custom_edit_button);
 
         // show the custom groups modal
         var rememberInitialValue = !formData.did_spellcheck;
-        $("#js-security").change( function(e, init) {
+        $security_select.change( function(e, init) {
             var $this = $(this);
 
             if ( $this.val() == "custom" ) {
@@ -121,6 +122,83 @@ var postForm = (function($) {
                 $custom_access_group_members.html(members_data_list);
             });
         });
+
+
+        // update the options when journal changes
+        function adjustSecurityDropdown(data) {
+            if ( !data ) return;
+
+            function createOption(option) {
+                var security = formData.security[option];
+                return '<option value="' + security.value + '"' +
+                    ' data-fancyselect-img="' + security.image.src +
+                        ":" + security.image.width +
+                        ":" + security.image.height +
+                        '"' +
+                    ' data-fancyselect-format="' + security.format + '"' +
+                    '>' + security.label + '</option>';
+            }
+
+            var $security = $("#js-security");
+            var oldval = $security.data("lastselected");
+            var rank = { "public": "0", "access": "1", "private": "2", "custom": "3" };
+
+            $security.empty();
+            if ( data.ret ) {
+                if ( data.ret["minsecurity"] == "friends" ) data.ret["minsecurity"] = "access";
+
+                var opts;
+                if ( data.ret['is_comm'] ) {
+                    opts = [
+                        createOption( "public" ),
+                        createOption( "members" )
+                    ];
+
+                    if ( data.ret['can_manage'] )
+                        opts.push( createOption( "admin" ) );
+                } else {
+                    opts = [
+                        createOption( "public" ),
+                        createOption( "access" ),
+                        createOption( "private" )
+                    ];
+
+                    if ( data.ret['friend_groups_exist'] )
+                        opts.push( createOption( "custom" ) );
+                }
+                $security.append(opts.join(""));
+
+                // select the minsecurity value and disable the values with lesser security
+                $security.val(rank[oldval] >= rank[data.ret['minsecurity']] ? oldval : data.ret['minsecurity']);
+                if ( data.ret['minsecurity'] == 'access' ) {
+                    $security.find("option[value='public']").prop("disabled", true);
+                } else if ( data.ret['minsecurity'] == 'private' ) {
+                    $security.find("option[value='public'],option[value='access'],option[value='custom']")
+                        .prop("disabled", true);
+                }
+            } else {
+                $security.append([
+                    createOption( "public" ),
+                    createOption( "access" ),
+                    createOption( "private" )
+                ].join(""));
+                $security.val(oldval);
+            }
+
+        }
+
+        $form.bind( "journalselect", function(e, journal) {
+            var anon = ! journal.name;
+            if ( $security_select.length > 0 ) {
+                if ( anon ) {
+                    // no custom groups
+                    adjustSecurityDropdown({})
+                } else if ( ! formData.edit ) {
+                    $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions",
+                    { "user": journal.name }, adjustSecurityDropdown);
+                }
+            }
+        } );
     };
 
     var init = function(formData) {

@@ -366,7 +366,7 @@ sub _init {
     my ( @security, @custom_groups );
     my $is_community = $journalu && $journalu->is_community;
 
-    my %security_data = (
+    my %security_options = (
         "public" => {
             value => "public",
             label => ".public.label",
@@ -374,14 +374,26 @@ sub _init {
         },
         "private" => {
             value => "private",
-            label => $is_community ? ".admin.label" : ".private.label",
+            label => ".private.label",
+            format => ".private.format",
+            image => $LJ::Img::img{"security-private"},
+        },
+        "admin" => {
+            value => "private",
+            label => ".admin.label",
             format => ".private.format",
             image => $LJ::Img::img{"security-private"},
         },
         "access" => {
             value => "access",
-            label => $is_community ? ".members.label" : ".access.label",
+            label => ".access.label",
             format => ".access.format",
+            image => $LJ::Img::img{"security-protected"},
+        },
+        "members" => {
+            value => "access",
+            label => ".members.label",
+            format => ".members.format",
             image => $LJ::Img::img{"security-protected"},
         },
         "custom" => {
@@ -391,21 +403,19 @@ sub _init {
             image => $LJ::Img::img{"security-groups"},
         }
     );
-
-    my @security_list = qw( public access private );
-    if ( $u && ! $is_community ) {
-        @custom_groups = map { { value => $_->{groupnum}, label => $_->{groupname} } } $u->trust_groups;
-        push @security_list, "custom" if @custom_groups;
-    }
-    foreach my $security ( @security_list ) {
-        my $data = $security_data{$security};
+    foreach my $data ( values %security_options ) {
         my $prefix = ".select.security";
 
         $data->{label} = $prefix . $data->{label};
         $data->{format} = $prefix . $data->{format};
-
-        push @security, $data;
     }
+
+    my @security = $is_community ? qw( public members admin ) : qw( public access private );
+    if ( $u && ! $is_community ) {
+        @custom_groups = map { { value => $_->{groupnum}, label => $_->{groupname} } } $u->trust_groups;
+        push @security, "custom" if @custom_groups;
+    }
+    @security = map { $security_options{$_} } @security;
 
     my ( $year, $mon, $mday, $hour, $min ) = split( /\D/, $form_opts->{datetime} || "" );
     my %displaydate;
@@ -442,6 +452,7 @@ sub _init {
 
         security     => \@security,
         customgroups => \@custom_groups,
+        security_options => \%security_options,
 
         journalu    => $journalu,
 

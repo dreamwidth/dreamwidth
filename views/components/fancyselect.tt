@@ -22,7 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <option value="[%- item.value | html -%]" [%- IF item.image -%]
         data-fancyselect-img="[%- item.image.src | html -%]:[% item.image.width | html %]:[% item.image.height | html %]"
     [%- END -%]
-    data-fancyselect-displaytext="[%- ( item.format || item.label ) | html -%]">[%- item.label | html -%]</option>
+    data-fancyselect-format="[%- ( item.format || item.label ) | html -%]">[%- item.label | html -%]</option>
     [%- END -%]
 </select>
 </div>
