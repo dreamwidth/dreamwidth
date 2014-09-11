@@ -4,6 +4,7 @@ $regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1))
 .fancy-select {
     display: inline-block;
     height: $regular-select-height;
+    margin-bottom: $form-spacing;
 }
 
 .fancy-select-select {
