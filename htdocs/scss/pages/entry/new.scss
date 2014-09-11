@@ -45,6 +45,17 @@
     }
 }
 
+// don't let fancy-select-box expand around its contents (causes extra whitespace)
+.button-bar .button-group .fancy-select {
+    &, & div {
+        overflow: visible;
+    }
+
+    label {
+        @include element-invisible();
+    }
+}
+
 .current-entry textarea {
     height: auto;
 }

@@ -1,6 +1,7 @@
 var postForm = (function($) {
-    var initCollapsible = function($form) {
+    var initMainForm = function($form) {
         $form.collapse({ endpointUrl: "/__rpc_entryformcollapse" });
+        $form.fancySelect();
     };
 
     var initCurrents = function($form, moodpics) {
@@ -214,7 +215,7 @@ var postForm = (function($) {
         if ( ! formData ) formData = {};
         var entryForm = $("#js-post-entry");
 
-        initCollapsible(entryForm);
+        initMainForm(entryForm);
 
         initCurrents(entryForm, formData.moodpics);
         initAccess(entryForm, formData);

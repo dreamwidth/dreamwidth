@@ -229,12 +229,49 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
             <div class="button-bar clearfix">
                 <ul class="button-group left">
-                    [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
-                                     name = "action:post"
-                                     id = "submit_entry"
-                                     class = "left small button"
-                                     )
+
+                <li>
+                [%- form.submit(
+                        value = dw.ml(action.edit ? '.button.edit.quick' : '.button.post.quick')
+                        name = "action:post"
+                        )
+                %]</li>
+
+                [%- FOREACH level = security;
+                        level.label = dw.ml( level.label );
+                        level.format = dw.ml( level.format );
+                    END;
+                -%]
+                <li>[%- INCLUDE components/fancyselect.tt
+                        name = "security"
+                        label = dw.ml( '.select.security' )
+
+                        items = security
+                -%]</li>
+
+                [%- IF journallist.size > 1 %]
+                    [%-
+                        journalselect = [];
+                        FOREACH journal IN journallist;
+                            isJournal = journal.equals(remote);
+                            userFormat = isJournal ? "@$journal.user" : "@c:$journal.user";
+                            journalselect.push({
+                                label = journal.user
+                                value = (isJournal ? "" : journal.user)
+                                format = dw.ml( ".select.usejournal.format", { user => userFormat } )
+                            });
+                        END
                     -%]
+
+                    <li>[%- INCLUDE components/fancyselect.tt
+                            name = "usejournal"
+                            label = dw.ml( '.select.usejournal' )
+
+                            items = journalselect
+                     -%]</li>
+
+                [%- END -%]
+
                 </ul>
                 <ul class="button-group right">
                     <li>[%- form.submit( value = dw.ml('talk.btn.preview')

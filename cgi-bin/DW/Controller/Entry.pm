@@ -365,25 +365,47 @@ sub _init {
         foreach sort { $moods->{$a}->{name} cmp $moods->{$b}->{name} } keys %$moods;
 
     my ( @security, @custom_groups );
-    if ( $journalu && $journalu->is_community ) {
-        @security = (
-            { value => "public",  label => LJ::Lang::ml( 'label.security.public2' ) },
-            { value => "access",  label => LJ::Lang::ml( 'label.security.members' ) },
-            { value => "private", label => LJ::Lang::ml( 'label.security.maintainers' ) },
-        );
-    } else {
-        @security = (
-            { value => "public",  label => LJ::Lang::ml( 'label.security.public2' ) },
-            { value => "access",  label => LJ::Lang::ml( 'label.security.accesslist' ) },
-            { value => "private", label => LJ::Lang::ml( 'label.security.private2' ) },
-        );
+    my $is_community = $journalu && $journalu->is_community;
 
-        if ( $u ) {
-            @custom_groups = map { { value => $_->{groupnum}, label => $_->{groupname} } } $u->trust_groups;
-
-            push @security, { value => "custom", label => LJ::Lang::ml( 'label.security.custom' ) }
-                if @custom_groups;
+    my %security_data = (
+        "public" => {
+            value => "public",
+            label => ".public.label",
+            format => ".public.format",
+        },
+        "private" => {
+            value => "private",
+            label => $is_community ? ".admin.label" : ".private.label",
+            format => ".private.format",
+            image => $LJ::Img::img{"security-private"},
+        },
+        "access" => {
+            value => "access",
+            label => $is_community ? ".members.label" : ".access.label",
+            format => ".access.format",
+            image => $LJ::Img::img{"security-protected"},
+        },
+        "custom" => {
+            value => "custom",
+            label => ".custom.label",
+            format => ".custom.format",
+            image => $LJ::Img::img{"security-groups"},
         }
+    );
+
+    my @security_list = qw( public access private );
+    if ( $u && ! $is_community ) {
+        @custom_groups = map { { value => $_->{groupnum}, label => $_->{groupname} } } $u->trust_groups;
+        push @security_list, "custom" if @custom_groups;
+    }
+    foreach my $security ( @security_list ) {
+        my $data = $security_data{$security};
+        my $prefix = ".select.security";
+
+        $data->{label} = $prefix . $data->{label};
+        $data->{format} = $prefix . $data->{format};
+
+        push @security, $data;
     }
 
     my ( $year, $mon, $mday, $hour, $min ) = split( /\D/, $form_opts->{datetime} || "" );
