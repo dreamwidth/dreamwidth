@@ -5011,10 +5011,10 @@ sub entryform_panels {
     my $default = {
         order => [ [ "tags", "displaydate", "slug" ],
 
-                   # FIXME: should be [ "status"  "journal" "comments" "age_restriction" ] %]
-                   [ "access", "journal", "currents", "comments", "age_restriction" ],
+                   # FIXME: should be [ "status" ... ] %]
+                   [ "access", "currents", "comments", "age_restriction" ],
 
-                   # FIXME: should be [ "icons" "crosspost" "scheduled" ]
+                   # FIXME: should be [ ... "scheduled" ]
                    [ "icons", "crosspost", "flags" ],
                 ],
         show => {
@@ -5022,8 +5022,6 @@ sub entryform_panels {
             "currents"      => 1,
             "slug"          => 1,
             "displaydate"   => 0,
-            "access"        => 1,
-            "journal"       => 1,
             "comments"      => 0,
             "age_restriction" => 0,
             "icons"         => 1,
@@ -5035,6 +5033,10 @@ sub entryform_panels {
         collapsed => {
         }
     };
+    my %obsolete = (
+        access => 1,
+        journal => 1,
+    );
 
     my %need_panels = map { $_ => 1 } keys %{$default->{show}};
 
@@ -5042,8 +5044,24 @@ sub entryform_panels {
     $ret = Storable::thaw( $prop ) if $prop;
 
     if ( $ret ) {
-        # fill in any modules that somehow are not in this list
+        # remove any obsolete panels from "show" and "collapse"
+        foreach my $panel ( keys %obsolete ) {
+            delete $ret->{show}->{$panel};
+            delete $ret->{collapsed}->{$panel};
+        }
+
         foreach my $column ( @{$ret->{order}} ) {
+            # remove any obsolete panels from "order"
+            my @col = @{$column};
+            my @del_indexes = grep { $obsolete{$col[$_]} } 0..$#col;
+            if ( @del_indexes ) {
+                foreach my $del ( reverse @del_indexes ) {
+                    splice @col, $del, 1;
+                }
+            }
+            $column = \@col;
+
+            # fill in any modules that somehow are not in this list
             foreach my $panel ( @{$column} ) {
                 delete $need_panels{$panel};
             }

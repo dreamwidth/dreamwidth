@@ -41,9 +41,8 @@ my %form_to_props = (
 
 my @modules = qw(
     slug tags currents displaydate
-    access journal comments
-    age_restriction icons crosspost
-    flags
+    comments age_restriction icons
+    crosspost flags
 );
 
 
