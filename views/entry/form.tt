@@ -36,7 +36,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     #"js/jquery.radioreveal.js"
 
     ## icons
-    #"js/jquery.iconrandom.js"
+    "js/components/jquery.icon-random.js"
 
     ## tags
     #"js/jquery.vertigro.js"

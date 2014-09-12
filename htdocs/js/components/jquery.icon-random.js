@@ -4,18 +4,20 @@
 
         if ( opts.trigger ) {
             $(opts.trigger).click(
-                function() {
+                function(e) {
                     var numicons = $selector.prop("length");
 
                     // we need to ignore the first option "(default)"
                     var randomnumber = Math.floor(Math.random() * (numicons - 1));
-                    $selector.prop("selectedIndex", randomnumber + 1);
+                    $selector
+                        .prop( "selectedIndex", randomnumber + 1 )
+                        .trigger( "change" );
 
-                    if ( opts.handler && $selector.get(0) )
-                        opts.handler.apply($selector.get(0));
-                    return false;
+                    e.preventDefault();
                 });
         }
+
+        return this;
     };
 
 })(jQuery);

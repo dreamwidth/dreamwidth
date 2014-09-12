@@ -228,6 +228,41 @@ var postForm = (function($) {
         });
     };
 
+    var initIcons = function($form, icons) {
+        var $preview = $( "#js-icon-preview" );
+        if ( $preview.is(".no-icon") ) return;
+
+        var $select = $("#js-icon-select");
+
+        // icon preview
+        $preview.closest(".columns")
+            .addClass("medium-5")
+            .after("<div class='columns medium-7'>" +
+                    "<ul class='icon-functions'>" +
+                        "<li><button id='js-icon-browse' class='secondary button'>browse</button></li>" +
+                        "<li><button id='js-icon-random' class='secondary button'>random</button></li>" +
+                    "</ul>"+
+                "</div>");
+
+        function update_icon_preview() {
+            if ( !icons ) return;
+
+            if ( this.selectedIndex != null && icons[this.selectedIndex] ) {
+                if ( icons[this.selectedIndex].src ) {
+                    $("#js-icon-preview-image").attr({
+                        "src": icons[this.selectedIndex].src,
+                        "alt": icons[this.selectedIndex].alt
+                    });
+                }
+            }
+        }
+
+        $select
+            .iconrandom( { trigger: "#js-icon-random" } )
+            .change( update_icon_preview )
+            .triggerHandler( "change" );
+    };
+
     var init = function(formData) {
         $("#nojs").val(0);
 
@@ -239,6 +274,7 @@ var postForm = (function($) {
         initCurrents(entryForm, formData.moodpics);
         initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
         initJournal(entryForm);
+        initIcons(entryForm, formData.icons);
     };
 
     return {

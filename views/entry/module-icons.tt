@@ -5,7 +5,7 @@ Module for icons in the entry form
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2011 by Dreamwidth Studios, LLC.
+Copyright (c) 2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -14,22 +14,25 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% IF remote %]
 <fieldset>
-  <h3>[% ".header" | ml %]</h3>
+<h3>[% ".header" | ml %]</h3>
+<div class='inner'>
 
-  <div class='inner'>
-    <div id='icon_preview'>
-      <div class="icon [% IF icons.size==0 %] noicon [% END %]">
+    <div class="row">
+    <div class="columns">
+        <div id="js-icon-preview" class="icon [% IF icons.size==0 %] no-icon [% END %]">
         [% IF icons.size > 0 %]
             [% IF defaulticon %]
-                <img id="icon_preview_image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" />
+                <img id="js-icon-preview-image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" />
             [% END %]
         [% ELSE %]
             <a href='[% site.root %]/editicons'>[% 'entryform.userpic.upload' | ml %]</a>
         [% END %]
         </div>
     </div>
+    </div>
 
     [%- IF icons.size > 0 -%]
+    <div class="row"><div class="columns">
         [%- iconselect = [] -%]
         [%- FOREACH icon IN icons -%]
             [%- IF icon.keyword.defined -%]
@@ -42,11 +45,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         [%- form.select(
             name = "icon"
-            id = "iconselect"
+            id = "js-icon-select"
 
             items = iconselect
         ) -%]
+
+    </div></div>
     [% END %]
-  </div>
+
+</div>
 </fieldset>
 [% END %]
