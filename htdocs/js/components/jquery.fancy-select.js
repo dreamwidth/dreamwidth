@@ -53,7 +53,7 @@ $.fn.extend({
             var $select = $(this);
             $select
                 .wrap("<div class='fancy-select-select'/>")
-                .after("<span class='fancy-select-output split button secondary'><output></output><span class='fancy-select-arrow'></span></span>")
+                .after("<span class='fancy-select-output split button secondary' aria-hidden='true'><output></output><span class='fancy-select-arrow'></span></span>")
                 .focus(function() {
                     $(this).next(".fancy-select-output").addClass("focus");
                 })
