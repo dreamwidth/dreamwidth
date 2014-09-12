@@ -54,7 +54,7 @@ var postForm = (function($) {
                 .change(updatePreview)
                 .change(updatePreviewText)
                 .closest(".columns")
-                    .after("<div id='js-moodpreview'>"
+                    .after("<div id='js-moodpreview' class='moodpreview'>"
                         + "<div class='moodpreview-text'></div>"
                         + "<div class='moodpreview-image'></div>"
                         + "</div>");
