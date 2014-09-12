@@ -55,7 +55,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     ## collapsing
     "js/components/jquery.collapse.js"
-    "stc/css/components/jquery.collapse.css"
+    "stc/css/components/collapse.css"
 
     # page-specific
     "js/pages/entry/new.js"
