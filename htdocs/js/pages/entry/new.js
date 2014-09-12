@@ -66,7 +66,7 @@ var postForm = (function($) {
         }
     };
 
-    var initSecurity = function($form, formData) {
+    var initSecurity = function($form, security_options, opts) {
         var $custom_groups = $("#js-custom-groups");
         var $custom_access_group_members = $("#js-custom-group-members");
         var $custom_edit_button = $('<button class="secondary" data-reveal-id="js-custom-groups" aria-label="Edit custom entries">Edit</button>');
@@ -77,7 +77,7 @@ var postForm = (function($) {
                 .after($custom_edit_button);
 
         // show the custom groups modal
-        var rememberInitialValue = !formData.did_spellcheck;
+        var rememberInitialValue = !opts.spellcheck;
         $security_select.change( function(e, init) {
             var $this = $(this);
 
@@ -129,7 +129,7 @@ var postForm = (function($) {
             if ( !data ) return;
 
             function createOption(option) {
-                var security = formData.security[option];
+                var security = security_options[option];
                 return '<option value="' + security.value + '"' +
                     ' data-fancyselect-img="' + security.image.src +
                         ":" + security.image.width +
@@ -193,12 +193,16 @@ var postForm = (function($) {
                 if ( anon ) {
                     // no custom groups
                     adjustSecurityDropdown({})
-                } else if ( ! formData.edit ) {
+                } else if ( ! opts.edit ) {
                     $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions",
                     { "user": journal.name }, adjustSecurityDropdown);
                 }
             }
         } );
+    };
+
+    var initJournal = function($form) {
+
     };
 
     var init = function(formData) {
@@ -210,7 +214,7 @@ var postForm = (function($) {
         initMainForm(entryForm);
 
         initCurrents(entryForm, formData.moodpics);
-        initSecurity(entryForm, formData);
+        initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
     };
 
     return {
