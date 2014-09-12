@@ -363,9 +363,6 @@ sub _init {
     push @moodlist, { id => $_, name => $moods->{$_}->{name} }
         foreach sort { $moods->{$a}->{name} cmp $moods->{$b}->{name} } keys %$moods;
 
-    my ( @security, @custom_groups );
-    my $is_community = $journalu && $journalu->is_community;
-
     my %security_options = (
         "public" => {
             value => "public",
@@ -410,7 +407,9 @@ sub _init {
         $data->{format} = $prefix . $data->{format};
     }
 
+    my $is_community = $journalu && $journalu->is_community;
     my @security = $is_community ? qw( public members admin ) : qw( public access private );
+    my @custom_groups;
     if ( $u && ! $is_community ) {
         @custom_groups = map { { value => $_->{groupnum}, label => $_->{groupname} } } $u->trust_groups;
         push @security, "custom" if @custom_groups;
