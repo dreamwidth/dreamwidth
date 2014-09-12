@@ -215,7 +215,7 @@ var postForm = (function($) {
                 iscomm  = $option.val() !== "";
             } else {
                 journal = $usejournal.val();
-                iscomm = journal !== $("#poster_remote").val(); // FIXME
+                iscomm = journal !== $("#js-remote").val();
             }
 
             $form.data( "journal", journal )

@@ -284,8 +284,11 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
                             items = journalselect
                      -%]</li>
-
+                [%- ELSE -%]
+                    [% '.select.usejournal.format' | ml( user = journallist.first.ljuser_display ) %]
+                    [% form.hidden( name = "usejournal", id = "js-usejournal", value = journallist.first.user ) %]
                 [%- END -%]
+                [%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
 
                 </ul>
                 <ul class="button-group right">
