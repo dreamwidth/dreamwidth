@@ -279,6 +279,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
                     <li>[%- INCLUDE components/fancyselect.tt
                             name = "usejournal"
+                            id = "js-usejournal"
                             label = dw.ml( '.select.usejournal' )
 
                             items = journalselect

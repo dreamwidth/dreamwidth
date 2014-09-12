@@ -176,13 +176,17 @@ var postForm = (function($) {
                     $security.find("option[value='public'],option[value='access'],option[value='custom']")
                         .prop("disabled", true);
                 }
+
+                $security.trigger( "change" );
             } else {
-                $security.append([
-                    createOption( "public" ),
-                    createOption( "access" ),
-                    createOption( "private" )
-                ].join(""));
-                $security.val(oldval);
+                $security
+                    .append([
+                        createOption( "public" ),
+                        createOption( "access" ),
+                        createOption( "private" )
+                    ].join(""))
+                    .val(oldval)
+                    .trigger( "change" );
             }
 
         }
@@ -202,7 +206,26 @@ var postForm = (function($) {
     };
 
     var initJournal = function($form) {
+        $("#js-usejournal").change(function() {
+            var $usejournal = $(this);
+            var journal, iscomm;
+            if ( $usejournal.is("select") ) {
+                var $option = $usejournal.find("option:selected");
+                journal = $option.text();
+                iscomm  = $option.val() !== "";
+            } else {
+                journal = $usejournal.val();
+                iscomm = journal !== $("#poster_remote").val(); // FIXME
+            }
 
+            $form.data( "journal", journal )
+                .trigger( "journalselect",
+                {
+                    "name": journal,
+                    "iscomm": iscomm,
+                    isremote: true
+                });
+        });
     };
 
     var init = function(formData) {
@@ -215,6 +238,7 @@ var postForm = (function($) {
 
         initCurrents(entryForm, formData.moodpics);
         initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
+        initJournal(entryForm);
     };
 
     return {
