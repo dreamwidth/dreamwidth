@@ -314,7 +314,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
     [%- BLOCK column %]
         [% FOREACH component = components %]
-        <div class='panel component [% UNLESS panels.show.$component -%] inactive-component [%- END -%]' id='[% component %]-component'
+        <div class='panel component [% component %]-component[% UNLESS panels.show.$component -%] inactive-component[%- END -%]'
              data-collapse='[% component %]' data-collapse-state='[% panels.collapsed.$component ? "collapsed" : "expanded" %]'>
         [%- file = editable.$component ? "entry/module-${component}.tt" : "entry/display/module-${component}.tt" -%]
         [%- dw.scoped_include( file ); %]
