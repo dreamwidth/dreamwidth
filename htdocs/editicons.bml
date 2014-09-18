@@ -492,6 +492,21 @@ use strict;
                 <div class='EditIconsStatus'>
             };
 
+        # Check for default userpic keywords
+        my $nokeywords = 0;
+        foreach my $pic ( @userpics ) {
+            my $keywords = $pic->keywords;
+            if ( substr( $keywords, 0, 4 ) eq "pic#" ) {
+                $nokeywords = 1;
+            }
+        }
+
+        if ( $nokeywords ) {
+            $body .= "<div class='highlight-box' id='no_keywords'>";
+            $body .= BML::ml('.error.nokeywords');
+            $body .= "</div>";
+        }            
+
         $body .= "<p><strong>" . BML::ml( '.piclimitstatus', { current => scalar @userpics, max => $max } ) . "</strong> ";
         $body .= BML::ml( '.view.allicons', { aopts => "href='" . $u->allpics_base . "'" } ) . "</p>";
         if (scalar @userpics >= $max) {

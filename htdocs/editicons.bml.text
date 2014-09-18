@@ -33,6 +33,8 @@
 
 .error.multipleresize=Error: only one image requiring resizing may be sent.
 
+.error.nokeywords=WARNING: You have not added keywords for one or more of your icons. They have been assigned an automated keyword, in the form of "pic#__". Icons with automated keywords can be used in posts and comments, but may behave strangely. We strongly recommand that you assign keywords to your icons before using them.
+
 .error.nofile=You must choose a file to upload
 
 .error.nomediauploads.delete=Unable to delete icons at this time.
