@@ -1,4 +1,4 @@
-@import "foundation/base", "foundation/components/grid";
+@import "foundation/base", "foundation/components/grid", "foundation/components/type";
 
 @media #{$large-up} {
     .entry-full-width {
@@ -129,8 +129,16 @@
 }
 
 /* Icons */
-.icon-functions button {
-    width: 100%;
+
+.icons-component {
+    .icon {
+        text-align: center;
+        margin-bottom: $paragraph-margin-bottom;
+    }
+
+    .inner button {
+        width: 100%;
+    }
 }
 
 /* elements in modals */

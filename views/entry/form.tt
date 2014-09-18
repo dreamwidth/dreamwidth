@@ -61,13 +61,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "js/pages/entry/new.js"
 ) -%]
 
-[%#- IF remote && remote.can_use_userpic_select;
-    dw.need_res( { group => "jquery" },
-        "js/jquery.iconselector.js"
-        "stc/jquery.iconselector.css"
-    );
-END -%]
-
 [% sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) %]
 [% sections.contentopts = '' %]
 

@@ -228,21 +228,22 @@ var postForm = (function($) {
         });
     };
 
-    var initIcons = function($form, icons) {
+    var initIcons = function($form, icons, iconBrowserOptions) {
         var $preview = $( "#js-icon-preview" );
         if ( $preview.is(".no-icon") ) return;
 
         var $select = $("#js-icon-select");
 
-        // icon preview
-        $preview.closest(".columns")
-            .addClass("medium-5")
-            .after("<div class='columns medium-7'>" +
-                    "<ul class='icon-functions'>" +
-                        "<li><button id='js-icon-browse' class='secondary button'>browse</button></li>" +
-                        "<li><button id='js-icon-random' class='secondary button'>random</button></li>" +
-                    "</ul>"+
-                "</div>");
+        function buttonHTML(id, text, columnClass) {
+            return '<div class="columns medium-6 ' + columnClass + '">' +
+                "<button id='" + id + "' class='small secondary button'>" + text + "</button>" +
+                '</div>'
+        }
+        $select.closest('.row')
+                .after('<div class="row">' +
+                    buttonHTML('js-icon-browse', 'browse', '') +
+                    buttonHTML('js-icon-random', 'random', 'end') +
+                    '</div>');
 
         function update_icon_preview() {
             if ( !icons ) return;
@@ -261,6 +262,17 @@ var postForm = (function($) {
             .iconrandom( { trigger: "#js-icon-random" } )
             .change( update_icon_preview )
             .triggerHandler( "change" );
+
+        if ( $.fn.iconBrowser ) {
+            if ( ! iconBrowserOptions ) iconBrowserOptions = {};
+            $select.iconBrowser({
+                triggerSelector: "#js-icon-preview, #js-icon-browse",
+                modalId: "js-icon-browser",
+                preferences: iconBrowserOptions
+            });
+        } else {
+            $("#js-icon-browse").remove();
+        }
     };
 
     var init = function(formData) {
@@ -274,7 +286,7 @@ var postForm = (function($) {
         initCurrents(entryForm, formData.moodpics);
         initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
         initJournal(entryForm);
-        initIcons(entryForm, formData.icons);
+        initIcons(entryForm, formData.icons, formData.iconBrowser);
     };
 
     return {

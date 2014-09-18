@@ -1,0 +1,45 @@
+@import "foundation/base";
+.icon-browser {
+    li {
+        @include single-transition(background-color);
+    }
+    .keyword {
+        text-decoration: none;
+        border-width: 1px;
+        border-style: solid;
+        margin-right: .2em;
+        padding: .2em .3em;
+        line-height: $base-line-height * 1.5;
+        @include single-transition(background-color);
+        @include single-transition(color);
+    }
+
+    a.inactive-toggle {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    &.no-meta {
+        .icon-browser-item-meta {
+            display: none;
+        }
+        li {
+            width: auto;
+            clear: none;
+        }
+    }
+
+    &.small-icons {
+        .icon-image {
+            float: left;
+            max-width: 50px;
+            max-height: 50px;
+            margin-right: 4px;
+
+            img {
+                vertical-align: top;
+                margin-top: 4px; // width of the border around the image
+            }
+        }
+    }
+}

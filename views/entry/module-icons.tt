@@ -17,21 +17,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <h3>[% ".header" | ml %]</h3>
 <div class='inner'>
 
-    <div class="row">
-    <div class="columns">
-        <div id="js-icon-preview" class="icon [% IF icons.size==0 %] no-icon [% END %]">
-        [% IF icons.size > 0 %]
-            [% IF defaulticon %]
-                <img id="js-icon-preview-image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" />
-            [% END %]
-        [% ELSE %]
-            <a href='[% site.root %]/editicons'>[% 'entryform.userpic.upload' | ml %]</a>
-        [% END %]
-        </div>
-    </div>
-    </div>
-
     [%- IF icons.size > 0 -%]
+
+    [%- INCLUDE "components/icon-browser.tt" -%]
+
     <div class="row"><div class="columns">
         [%- iconselect = [] -%]
         [%- FOREACH icon IN icons -%]
@@ -52,6 +41,20 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     </div></div>
     [% END %]
+
+    <div class="row">
+    <div class="columns">
+        <div id="js-icon-preview" class="icon [% IF icons.size==0 %] no-icon [% END %]">
+        [% IF icons.size > 0 %]
+            [% IF defaulticon %]
+                <img id="js-icon-preview-image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" />
+            [% END %]
+        [% ELSE %]
+            <a href='[% site.root %]/editicons'>[% 'entryform.userpic.upload' | ml %]</a>
+        [% END %]
+        </div>
+    </div>
+    </div>
 
 </div>
 </fieldset>

@@ -68,3 +68,24 @@ $queue-bg-color:       $form-bg-color !default;
     background-color: $queue-bg-color;
     color: $queue-font-color;
 }
+
+// miscellaneous active elements
+$global-active-bg:     $primary-color !default;
+$global-active-font-color: $primary-text-color !default;
+a.active {
+    background-color: $global-active-bg;
+    color: $global-active-font-color;
+
+    & a {
+        color: $global-active-font-color;
+
+        &:hover {
+            background-color: $global-active-font-color;
+            color: $global-active-bg;
+        }
+    }
+}
+
+.th.active {
+    border-color: $global-active-bg;
+}
