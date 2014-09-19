@@ -245,19 +245,19 @@ body<=
         my $commentu = $init ? $init->{comment}->{u} : undef;
         if ( $journalu && $journalu->is_community ) {
             if ( $POST{'usertype'} eq 'anonymous' ) {
-                $mlcode = 'success.screened.comm.anon2';
+                $mlcode = 'success.screened.comm.anon3';
             } elsif ( $commentu && $commentu->can_manage( $journalu ) ) {
-                $mlcode = '.success.screened.comm.owncomm3';
+                $mlcode = '.success.screened.comm.owncomm4';
             } else {
-                $mlcode = '.success.screened.comm2';
+                $mlcode = '.success.screened.comm3';
             }
         } else {  # not a community
             if ( $POST{'usertype'} eq 'anonymous' ) {
-                $mlcode = '.success.screened.user.anon2';
+                $mlcode = '.success.screened.user.anon3';
             } elsif ( $commentu && $commentu->equals( $journalu ) ) {
-                $mlcode = '.success.screened.user.ownjournal2';
+                $mlcode = '.success.screened.user.ownjournal3';
             } else {
-                $mlcode = '.success.screened.user2';
+                $mlcode = '.success.screened.user3';
             }
         }
     }
