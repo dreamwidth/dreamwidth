@@ -20,14 +20,20 @@ use base 'DW::Setting::JournalStyle';
 use strict;
 
 sub label {
-    return $_[0]->ml( 'setting.display.journaliconstyle.label' );
+    return $_[0]->ml( 'setting.display.journaliconstyle.label2' );
 }
 
 sub option_ml {
+    my ( $class, $u ) = @_;
+    return $_[0]->ml('setting.display.journaliconstyle.option.comm')
+        if $u && $u->is_community;
     return $_[0]->ml('setting.display.journaliconstyle.option');
 }
 
 sub note_ml {
+    my ( $class, $u ) = @_;
+    return $_[0]->ml('setting.display.journaliconstyle.note.comm')
+        if $u && $u->is_community;
     return $_[0]->ml('setting.display.journaliconstyle.note');
 }
 
