@@ -73,6 +73,10 @@
 
 .success=Successfully renamed journal from [[from]] to [[to]].
 
+.swap.linktext=Swap usernames with a journal under your control
+
+.swap.note=You will require two tokens
+
 .title=Rename Journal
 
 .token.invalid=Invalid token: [[token]]
@@ -86,6 +90,16 @@
 .token.list.item.comm.withname=Use token to rename a community to [[username]]
 
 .token.list.item.withname=Use token to rename journal to [[username]]
+
+.token.manual.header=You can also paste or enter a rename token by hand, if someone else gave it to you.
+
+.token.manual.iscomm=Community?
+
+.token.manual.label=Rename token:
+
+.token.manual.submit=Use token to rename
+
+.token.manual.submit.withname=Use token to rename to [[username]]
 
 .token.notoken=<a [[aopts]]>Purchase a rename token</a> to perform a rename.
 

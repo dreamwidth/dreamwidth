@@ -5,7 +5,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -39,7 +39,7 @@ DW::User::Rename - Contains logic to handle account renaming. Based on bin/renam
   my $user_b = LJ::load_user( "swap_b" );
   $user_a->swap_usernames( $user_b ) if $user_a->can_rename_to( $user_b->user );
 
-  # can also force a rename, which doesn't take into consideration any of the 
+  # can also force a rename, which doesn't take into consideration any of the
   # safeguards. Only call this from an admin page:
   $u->rename( "to_username", token => $token, force => 1 )
 =cut
@@ -54,6 +54,10 @@ use DW::RenameToken;
 =head2 C<< $self->can_rename_to( $tousername [, %opts ] ) >>
 
 Return true if this user can be renamed to the given username
+
+Optional arguments are:
+=item force     => bool, default false
+=item errref    => array ref of errors
 
 =cut
 sub can_rename_to {
@@ -87,7 +91,7 @@ sub can_rename_to {
     # force, but only if to and from are valid
     return 1 if $opts{force};
 
-    # can't rename to a reserved username 
+    # can't rename to a reserved username
     if ( LJ::User->is_protected_username( $tousername ) ) {
         push @$errref, LJ::Lang::ml( 'rename.error.reserved', { to => LJ::ehtml( $tousername ) } );
         return 0;
@@ -152,7 +156,7 @@ sub can_rename_to {
 
         my $tou = LJ::load_user( $tousername );
 
-        # check basic stuff that is common for all renames       
+        # check basic stuff that is common for all renames
         my $rv = $check_basics->( $self, $tou );
         return $rv->{ret} if $rv;
 
@@ -176,7 +180,7 @@ sub can_rename_to {
 Rename the given user to the provided username. Requires a user name to rename to, and a token object to store the rename action data. If the username we're returning to is of an existing user then it shall be moved aside to a username of the form "ex_oldusernam123". Returns 1 on success, 0 on failure
 
 Optional arguments are:
-=item force     => bool, default false
+=item force     => bool, default false (passed to ->can_rename_to)
 =item redirect  => bool, default false
 =item errref    => array ref of errors
 =item del_watched_by/del_trusted_by/del_trusted/del_watched/del_communities => bool, default false
@@ -191,9 +195,7 @@ sub rename {
 
     my $remote = LJ::isu( $opts{user} ) ? $opts{user} : $self;
     push @$errref, LJ::Lang::ml( 'rename.error.tokeninvalid' )
-        unless $opts{token} && $opts{token}->isa( "DW::RenameToken" )
-            && ( $opts{token}->ownerid == $remote->userid
-            || $remote->has_priv( "siteadmin", "rename" ) && $opts{force} ) ;
+        unless $opts{token} && $opts{token}->isa( "DW::RenameToken" );
     push @$errref, LJ::Lang::ml( 'rename.error.tokenapplied' ) if $opts{token} && $opts{token}->applied;
 
     my $can_rename_to = $self->can_rename_to( $tousername, %opts );
@@ -324,7 +326,7 @@ sub _is_authorized_for_comm {
 =head2 C<< $self->_rename( $tousername, %opts ) >>
 
 Internal function to do renames. Low-level, no error-checking on inputs. Only call
-this when you are sure that all conditions for a rename are satisfied. Returns 1 on 
+this when you are sure that all conditions for a rename are satisfied. Returns 1 on
 success, 0 on failure.
 
 =cut
@@ -342,7 +344,7 @@ sub _rename {
     # FIXME: transactions possible?
     foreach my $table ( qw( user useridmap ) )
     {
-        $dbh->do( "UPDATE $table SET user=? WHERE user=?", 
+        $dbh->do( "UPDATE $table SET user=? WHERE user=?",
             undef, $tousername, $fromusername );
 
         if ( $dbh->err ) {
@@ -369,7 +371,7 @@ sub _rename {
         },
         del => {
             map { $_ => $opts{$_} } qw( del_trusted_by del_watched_by del_trusted del_watched del_communities ),
-        }, 
+        },
         user => $opts{user},
     );
 
@@ -381,7 +383,7 @@ sub _rename {
     $self->infohistory_add( "username", $fromusername );
 
     # notification
-    LJ::Event::SecurityAttributeChanged->new( $self, { 
+    LJ::Event::SecurityAttributeChanged->new( $self, {
         action   => 'account_renamed',
         ip       => eval { BML::get_remote_ip() } || "[unknown]",
         old_username => $fromusername,
@@ -412,7 +414,7 @@ del hashref:
 =item del_watched_by
 =item del_trusted
 =item del_watched
-=item del_communities 
+=item del_communities
 
 =cut
 sub apply_rename_opts {
@@ -468,7 +470,7 @@ sub apply_rename_opts {
 
     $extra_args{from} = $from if $from;
     $extra_args{to} = $to if $to;
-    
+
     my $remote = LJ::isu( $user ) ? $user : $self;
     $self->log_event( 'rename', {
         remote => $remote,
@@ -500,7 +502,7 @@ sub create_redirect_journal {
     my ( $class, $fromusername, $tousername ) = @_;
 
     # we can only create a redirect journal for a nonexistent, a purged user, or a redirecting user
-    my $fromu = LJ::load_user( $fromusername ); 
+    my $fromu = LJ::load_user( $fromusername );
     return 0 if $fromu && ! ( $fromu->is_expunged || $fromu->is_redirect );
 
     return 0 unless LJ::load_user( $tousername );
@@ -564,7 +566,7 @@ sub delete_relationships {
             if ( $_->is_community ) {
                 push @watched_comms, $_ if $opts{del_communities};
                 next;
-            } 
+            }
 
             $self->remove_edge( $_, watch => {} );
         }
@@ -654,7 +656,7 @@ Afuna <coder.dw@afunamatata.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2010 by Dreamwidth Studios, LLC.
+Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

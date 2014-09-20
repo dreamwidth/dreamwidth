@@ -5,7 +5,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2013-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 152;
+use Test::More tests => 153;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -76,7 +76,7 @@ note( "-- personal-to-unregistered, no redirect" );
 
     $u = LJ::load_userid( $u->userid );
     is( $u->userid, $fromuid, "Id '#$fromuid' remains the same after rename." );
-    is( $u->user, $tousername, "fromu is now named '$tousername'" ); 
+    is( $u->user, $tousername, "fromu is now named '$tousername'" );
 }
 
 note( "-- personal-to-unregistered, with redirect" );
@@ -95,7 +95,7 @@ note( "-- personal-to-unregistered, with redirect" );
 
     $u = LJ::load_userid( $u->userid );
     is( $u->userid, $fromuid, "Id '#$fromuid' remains the same after rename." );
-    is( $u->user, $tousername, "fromu is now named '$tousername'" ); 
+    is( $u->user, $tousername, "fromu is now named '$tousername'" );
 
     my $orig_u = LJ::load_user( $fromusername );
     ok( $orig_u->is_renamed, "Yup, renamed" );
@@ -184,7 +184,7 @@ note ( "-- rename opts: deleting relationships" );
     ok( $truster->trusts( $u ), "User has a truster." );
     ok( $u->watches( $watched ), "User watches someone." );
     ok( $u->trusts( $trusted ), "User trusts someone." );
-    ok( $u->watches( $comm ), "User watches a comm." ); 
+    ok( $u->watches( $comm ), "User watches a comm." );
     $watcher->add_edge( $u, watch => { nonotify => 1 } );
 
     $u->apply_rename_opts( del => { del_trusted_by => 1 } );
@@ -239,27 +239,27 @@ note( "-- personal-to-personal, authorization" );
         password => 'rename',
         email => 'rename@testemail',
     );
-    ( $fromu, $tou ) = $create_users->( 
+    ( $fromu, $tou ) = $create_users->(
         from_details => { %rename_cond, email => 'from@testemail' },
         to_details   => { %rename_cond, email => 'to@testemail'   }  );
     $tousername = $tou->user;
     ok( ! $fromu->can_rename_to( $tousername ), "Cannot rename fromu to existing user $tousername (because: email)" );
 
 
-    ( $fromu, $tou ) = $create_users->( 
+    ( $fromu, $tou ) = $create_users->(
         from_details => { %rename_cond, password => 'from' },
         to_details   => { %rename_cond, password => 'to'   }  );
     $tousername = $tou->user;
     ok( ! $fromu->can_rename_to( $tousername ), "Cannot rename fromu to existing user $tousername (because: password)" );
 
-    ( $fromu, $tou ) = $create_users->( 
+    ( $fromu, $tou ) = $create_users->(
         from_details => { %rename_cond, status => 'N' },
         to_details   => { %rename_cond, status => 'N' }  );
     $tousername = $tou->user;
     ok( ! $fromu->can_rename_to( $tousername ), "Cannot rename fromu to existing user $tousername (because: validation)" );
 
 
-    ( $fromu, $tou ) = $create_users->( 
+    ( $fromu, $tou ) = $create_users->(
         from_details => { %rename_cond },
         to_details   => { %rename_cond, status => 'N' }  );
     $tousername = $tou->user;
@@ -326,7 +326,7 @@ note( "-- user status special casing" );
     ok( ! $fromu->can_rename_to( $tousername ), "Cannot rename to nonmatching suspended users." );
 
 
-    ( $fromu, $tou ) = $create_users->( match => 1, validated => 1 );   
+    ( $fromu, $tou ) = $create_users->( match => 1, validated => 1 );
     $tousername = $tou->user;
 
     $tou->set_statusvis( "S" );
@@ -435,7 +435,7 @@ note( "-- community-to-unregistered" );
 
 note( "-- community-to-personal" );
 {
-    my ( $admin, $tou ) = $create_users->( validated => 1 ); 
+    my ( $admin, $tou ) = $create_users->( validated => 1 );
     my $fromu = temp_comm();
     my $tousername = $tou->user;
 
@@ -445,7 +445,7 @@ note( "-- community-to-personal" );
 
     ok( ! $fromu->can_rename_to( $tousername, user => $admin ), "Cannot rename fromu to existing user $tousername (tou is a personal journal not under admin's control)" );
 
-    ( $admin, $tou ) = $create_users->( match => 1, validated => 1 ); 
+    ( $admin, $tou ) = $create_users->( match => 1, validated => 1 );
     $tousername = $tou->user;
 
     # make admin of fromu
@@ -489,6 +489,17 @@ note( "-- openid and feeds" );
     ok( ! $u->can_rename_to( $u->user . "_rename" ), "Cannot rename feed accounts" );
 }
 
+note( "-- rename token ownership ignored" );
+{
+    my $u = temp_user();
+
+    my $fromusername = $u->user;
+    my $tousername =  $fromusername . "_renameto";
+
+    ok( $u->rename( $tousername, token => new_token( temp_user() ) ),
+        "Check that rename token ownership is ignored" );
+}
+
 note( "-- two username swap (personal to personal)" );
 {
     my ( $u1, $u2 ) = $create_users->( match => 1, validated => 1 );
@@ -519,7 +530,7 @@ note( "-- two username swap (personal to personal)" );
     is( $u2->user, $u1sername, "Swap usernames of u2 and u1" );
 
     is( $u1->userid, $u1id, "Id of u1 remains the same after rename." );
-    is( $u2->userid, $u2id, "Id of u2 remains the same after rename." );    
+    is( $u2->userid, $u2id, "Id of u2 remains the same after rename." );
 }
 
 note( "-- two username swap (one user is suspended)" );
