@@ -245,7 +245,7 @@ body<=
         my $commentu = $init ? $init->{comment}->{u} : undef;
         if ( $journalu && $journalu->is_community ) {
             if ( $POST{'usertype'} eq 'anonymous' ) {
-                $mlcode = 'success.screened.comm.anon3';
+                $mlcode = '.success.screened.comm.anon3';
             } elsif ( $commentu && $commentu->can_manage( $journalu ) ) {
                 $mlcode = '.success.screened.comm.owncomm4';
             } else {
