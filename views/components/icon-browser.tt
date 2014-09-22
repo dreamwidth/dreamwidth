@@ -18,7 +18,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         "stc/css/components/icon-browser.css"
     ); -%]
 
-<div id="js-icon-browser" class="reveal-modal icon-browser" data-reveal>
+    [%- WRAPPER components/modal.tt id="js-icon-browser" class="icon-browser" -%]
     <div class="row">
         <div class="columns medium-2 large-1">
             <label class='inline' for='js-icon-browser-search'>Search:</label>
@@ -54,6 +54,5 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <ul></ul>
         </div>
     </div></div>
-    <a href="#0" class="close-reveal-modal" title="Close">&#215;</a>
-</div>
+    [%- END -%]
 [%- END -%]
