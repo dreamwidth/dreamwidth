@@ -115,10 +115,12 @@ IconBrowser.prototype = {
                 .on("click", ".keyword", this.selectByKeywordMenuClick.bind(this))
                 .on("dblclick", ".keyword", this.selectByKeywordMenuDoubleClick.bind(this));
 
-        $("#js-icon-browser-select").click(this.close.bind(this));
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
 
-        $(document).keydown(this.selectByEnter.bind(this));
+        $(document)
+            .keydown(this.selectByEnter.bind(this))
+            .on('close.fndtn.reveal', this.updateOwner.bind(this));
+
         this.listenersRegistered = true;
     },
     selectByEnter: function(e) {
@@ -191,11 +193,6 @@ IconBrowser.prototype = {
             var $keywords = $container.find(".keywords");
             iconBrowser.modal.find(".keyword-menu .keywords")
                 .replaceWith($keywords.clone());
-
-            if ($keywords.length > 0)
-                $("#js-icon-browser-select").prop("disabled", false);
-            else
-                $("#js-icon-browser-select").prop("disabled", true);
         } else {
             iconBrowser.modal.find(".keyword-menu .active")
                 .removeClass("active");
@@ -209,11 +206,14 @@ IconBrowser.prototype = {
             })
             .addClass("active");
     },
-    close: function() {
+    updateOwner: function() {
         if (this.selectedKeyword) {
             this.element.val(this.selectedKeyword);
-            this.modal.foundation('reveal', 'close');
         }
+    },
+    close: function() {
+        this.updateOwner();
+        this.modal.foundation('reveal', 'close');
     },
     filter: function(e) {
         var val = $(e.target).val().toLocaleUpperCase();

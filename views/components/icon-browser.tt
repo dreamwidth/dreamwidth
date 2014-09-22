@@ -40,12 +40,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </div>
 
     <div class="row">
-        <div class="columns medium-10 keyword-menu">
+        <div class="columns keyword-menu">
             <label class="left">Keywords of selected icon:</label>
             <div class='keywords'></div>
-        </div>
-        <div class="columns medium-2 text-right">
-            <button id='js-icon-browser-select' disabled='disabled' class='small'>Select</button>
         </div>
     </div>
 
