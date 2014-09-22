@@ -208,7 +208,9 @@ IconBrowser.prototype = {
     },
     updateOwner: function() {
         if (this.selectedKeyword) {
-            this.element.val(this.selectedKeyword);
+            this.element
+                .val(this.selectedKeyword)
+                .triggerHandler("change");
         }
     },
     close: function() {
