@@ -47,7 +47,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div id="js-icon-preview" class="icon [% IF icons.size==0 %] no-icon border [% END %]">
         [% IF icons.size > 0 %]
             [% IF defaulticon %]
-                <img id="js-icon-preview-image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" />
+                <img id="js-icon-preview-image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" data-no-ctx="true" />
             [% END %]
         [% ELSE %]
             <a href='[% site.root %]/editicons'>[% 'entryform.userpic.upload' | ml %]</a>

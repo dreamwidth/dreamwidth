@@ -40,7 +40,7 @@ function _initIcons(context) {
     var re = new RegExp( "^" + Site.iconprefix + "/\\d+\/\\d+$" );
     $("img[src^='"+Site.iconprefix+"']",context).each(function() {
         var $icon = $(this);
-        if (this.src.match(re)) {
+        if (!$icon.data("no-ctx") && this.src.match(re)) {
             $icon.contextualhover({ "icon_url": this.src, type: "icon" });
         }
     });
