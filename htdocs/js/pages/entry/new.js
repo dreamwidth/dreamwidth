@@ -96,10 +96,14 @@ var postForm = (function($) {
         }).triggerHandler("change", rememberInitialValue);
 
         // update the list of people who can see the entry
-        $custom_groups.find("input[name=custom_bit]").click(function(e) {
+        function updatePostingMembers(e, useCached) {
             var members_data = []
             var requests = []
-            $(this).parent().parent().find(":checkbox").each(function() {
+
+            if(useCached && $custom_access_group_members.data("fetched")) return;
+            $custom_access_group_members.data("fetched", true);
+
+            $custom_groups.find(":checkbox").each(function() {
                 if (this.checked) {
                     requests.push($.getJSON("/__rpc_general?mode=list_filter_members&user=" + $form.data("journal") + "&filterid=" + this.value, function(data) {
                         for ( member in data.filter_members.filterusers) {
@@ -121,7 +125,9 @@ var postForm = (function($) {
                 }
                 $custom_access_group_members.html(members_data_list);
             });
-        });
+        }
+        $custom_groups.find("input[name=custom_bit]").click(updatePostingMembers);
+        $(document).on('open.fndtn.reveal', "#js-custom-groups", updatePostingMembers.bind(undefined, undefined, true));
 
 
         // update the options when journal changes
