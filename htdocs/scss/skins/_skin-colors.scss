@@ -89,3 +89,8 @@ a.active {
 .th.active {
     border-color: $global-active-bg;
 }
+
+// color-holding classes
+.border {
+    border: 1px solid $border-color;
+}
