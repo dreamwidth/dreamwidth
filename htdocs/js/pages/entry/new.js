@@ -225,7 +225,8 @@ var postForm = (function($) {
                     "iscomm": iscomm,
                     isremote: true
                 });
-        });
+        })
+        .triggerHandler("change");
     };
 
     var initIcons = function($form, icons, iconBrowserOptions) {
