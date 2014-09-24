@@ -231,8 +231,7 @@ var postForm = (function($) {
                     "iscomm": iscomm,
                     isremote: true
                 });
-        })
-        .triggerHandler("change");
+        });
     };
 
     var initIcons = function($form, icons, iconBrowserOptions) {
@@ -282,6 +281,50 @@ var postForm = (function($) {
         }
     };
 
+    var initSlug = function($form, $dateElement) {
+        var $slug = $("#js-entry-slug");
+        var $slugBase = $("#js-slug-base");
+
+        var slug = $slug.val(), base_url = '';
+
+        // Takes an input string and sluggifies it. If you update this, please
+        // also update LJ::canonicalize_slug in cgi-bin/LJ/Web.pm.
+        function toSlug(inp) {
+            return inp
+                    .trim()
+                    .replace(/\s+/g, "-")
+                    .replace(/[^a-z0-9_-]/gi, "")
+                    .replace(/-+/g, "-")
+                    .replace(/^-|-$/g, "")
+                    .toLowerCase();
+        }
+
+        function updateSlugBase() {
+            var dval = $dateElement.val().replace(/-/g, '/');
+
+            $slugBase.text(base_url + "/" + dval + "/");
+        }
+
+        $slug.change(function(e) {
+            slug = toSlug($slug.val());
+            $slug.val(slug);
+
+            updateSlugBase();
+            e.preventDefault();
+        });
+
+        $dateElement.change(function(e) {
+            updateSlugBase();
+        });
+
+        $form.bind('journalselect', function(evt, journal) {
+            base_url = 'http://' + journal.name + '.' + Site.user_domain;
+            updateSlugBase();
+        });
+
+        updateSlugBase();
+    };
+
     var init = function(formData) {
         $("#nojs").val(0);
 
@@ -294,6 +337,10 @@ var postForm = (function($) {
         initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
         initJournal(entryForm);
         initIcons(entryForm, formData.icons, formData.iconBrowser);
+        initSlug(entryForm, $("#entrytime"));
+
+
+        $("#js-usejournal").triggerHandler("change");
     };
 
     return {

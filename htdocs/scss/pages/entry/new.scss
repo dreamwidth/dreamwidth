@@ -157,6 +157,11 @@
     }
 }
 
+/* Slug */
+.slug-base {
+    word-break: break-all;
+}
+
 /* elements in modals */
 // remove extra padding here since the modal has its own padding
 .reveal-modal fieldset, .reveal-modal fieldset .columns {
