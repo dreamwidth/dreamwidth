@@ -325,6 +325,36 @@ var postForm = (function($) {
         updateSlugBase();
     };
 
+    var initTags = function($form) {
+        $form.one("journalselect", function(e, journal) {
+            var $taglist = $("#js-taglist");
+
+            var options = {
+                grow: true,
+                maxlength: 40
+            }
+
+            if ( journal.name ) {
+                options.populateSource = Site.siteroot + "/__rpc_gettags?user=" + journal.name;
+                options.populateId = journal.name;
+            }
+
+            $taglist.autocompletewithunknown(options);
+
+            if ( journal.name )
+                $taglist.tagselector({fallbackLink: "#js-taglist-link"});
+
+            $form.bind("journalselect", function(e, journal) {
+                if ( journal.name ) {
+                    $taglist.autocompletewithunknown( "populate",
+                        Site.siteroot + "/__rpc_gettags?user=" + journal.name, journal.name );
+                } else {
+                    $taglist.autocompletewithunknown( "clear" )
+                }
+            })
+        });
+    };
+
     var init = function(formData) {
         $("#nojs").val(0);
 
@@ -338,6 +368,7 @@ var postForm = (function($) {
         initJournal(entryForm);
         initIcons(entryForm, formData.icons, formData.iconBrowser);
         initSlug(entryForm, $("#entrytime"));
+        initTags(entryForm);
 
 
         $("#js-usejournal").triggerHandler("change");

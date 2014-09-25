@@ -94,3 +94,25 @@ a.active {
 .border {
     border: 1px solid $border-color;
 }
+
+// autocomplete
+.autocomplete-container {
+    background-color: $input-bg-color;
+
+    &.focus {
+        background-color: $input-focus-bg-color;
+    }
+}
+
+.token {
+    background-color: $input-bg-color;
+    color: $primary-color;
+    border-color: $secondary-button-border-color;
+
+    &:hover {
+        border-color: $primary-color;
+    }
+}
+
+// replacement colors for jquery-ui elements
+@import "skins/jquery-ui-theme";

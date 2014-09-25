@@ -32,10 +32,9 @@
                 var $text = $("<span></span>")
                     .addClass(self.options.tokenTextClass)
                     .text(tag);
-                var $a = $("<a></a>").addClass(self.options.tokenRemoveClass).attr({
-                    href: "#remove-"+tag,
-                    title: "Remove " + tag
-                }).text("x");
+                var $a = $("<button></button>").addClass(self.options.tokenRemoveClass).attr({
+                    "aria-label": "Remove " + tag
+                }).html("<span class='fi-icon fi-x' aria-hidden='true'></span>");
 
                 var $li = $("<li></li>").addClass(self.options.tokenClass + " " + tokentype)
                     .append($text).append($a).append(" ")
@@ -77,8 +76,8 @@
             options: {
                 id: null,
                 tokenClass: "token",
-                tokenTextClass: "token_text",
-                tokenRemoveClass: "token_remove",
+                tokenTextClass: "token-text",
+                tokenRemoveClass: "token-remove",
                 newTokenClass: "new",
                 curTokenClass: "autocomplete",
                 numMatches: 20,
@@ -129,17 +128,24 @@
                 if (!self.options.id)
                     self.options.id = "autocomplete_"+self.element.attr("id");
 
-                self.uiAutocomplete = self.element.wrap("<div class='autocomplete_container'></div>").parent().attr("id", self.options.id).addClass(self.element.attr("class"));
+                self.uiAutocomplete = self.element.wrap("<div class='autocomplete-container border'></div>").parent().attr("id", self.options.id).addClass(self.element.attr("class"));
 
-                self.uiAutocompletelist = $("<ul class='autocomplete_list'></ul>").appendTo(self.uiAutocomplete).attr( "aria-live", "assertive" );
+                self.uiAutocompletelist = $("<ul class='autocomplete-list'></ul>").appendTo(self.uiAutocomplete).attr( "aria-live", "assertive" );
 
                 // this is just frontend; will use JS to transfer contents to the original field (now hidden)
-                self.uiAutocompleteInput = $("<textarea class='autocomplete_input' rows='1'></textarea>")
+                self.uiAutocompleteInput = $("<textarea class='autocomplete-input' rows='1'></textarea>")
                         .appendTo(self.uiAutocomplete)
-                        .data("autocompletewithunknown", self);
+                        .data("autocompletewithunknown", self)
+                        .focus(function(e) {
+                            $(this).closest(".autocomplete-container").addClass("focus");
+                        })
+                        .blur(function(e) {
+                            $(this).closest(".autocomplete-container").removeClass("focus");
+                        });
 
                 if ( self.options.grow ) {
-                    self.uiAutocomplete.after("<div class='autocomplete_count_container'><span id='"+self.options.id+"_count_label'>characters per tag:</span> <span id='"+self.options.id+"_count' class='autocomplete_count'>50</span></div>");
+                    self.uiAutocomplete.closest(".row").parent().find(".tagselector-controls")
+                        .append("<div class='autocomplete-count-container right'><span id='"+self.options.id+"_count_label'>characters per tag:</span> <span id='"+self.options.id+"_count' class='autocomplete-count'>50</span></div>");
                     $(self.uiAutocompleteInput).vertigro(self.options.maxlength, self.options.id + "_count");
                 }
 
@@ -244,15 +250,15 @@
                     $(self.element).trigger("autocomplete_edittext", [ $(this).closest("li"), $(this).val() ] );
                 });
 
-                $("."+self.options.tokenRemoveClass, self.uiAutocomplete.get(0)).live("click", function(event) {
+                $("."+self.options.tokenRemoveClass, self.uiAutocomplete.get(0)).live("click", function(e) {
                     var $token = $(this).closest("."+self.options.tokenClass);
 
                     delete self.tagslist[$token.children("."+self.options.tokenTextClass).text()];
                     _arrayToVal(self.tagslist, self.element);
                     $token.fadeOut(function() {$(this).remove()});
 
-                    event.preventDefault();
-                    event.stopPropagation();
+                    e.preventDefault();
+                    e.stopPropagation();
                 }).live("focus", function(event) {
                     $(this).parent().addClass("focus");
                 }).live("blur", function(event) {
@@ -270,14 +276,6 @@
                     } else if (event.which != $.ui.keyCode.TAB) {
                         $(this).siblings("."+self.options.tokenTextClass).click();
                     }
-                });
-
-                $("."+self.options.tokenTextClass, self.uiAutocomplete.get(0)).live("hover", function(event) {
-                     if (event.type == 'mouseover') {
-                        $(this).addClass("hover");
-                      } else {
-                        $(this).removeClass("hover");
-                      }
                 });
 
                 // workaround for autocompleting with ENTER in opera

@@ -39,6 +39,13 @@ fieldset {
   border: none;
 }
 
+.focus {
+    transition: box-shadow $glowing-effect-fade-time, border-color $glowing-effect-fade-time ease-in-out;
+
+    box-shadow: 0 0 5px $glowing-effect-color;
+    border-color: $glowing-effect-color;
+}
+
 @import "mixins/visually-hidden";
 label.hidden {
   @extend %visually-hidden;

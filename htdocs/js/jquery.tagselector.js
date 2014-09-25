@@ -7,16 +7,16 @@
 
         $.fn.tagselector.owner = $(this);
 
-        if ( opts.fallbackLink ) {
-            $(opts.fallbackLink).remove();
-        }
-
-        $("<button class='tagselector_trigger ui-state-default'>browse</button>")
+        $("<button class='small secondary'>browse</button>")
             .click(function(e) {
                     e.preventDefault();
                     _open.apply( $.fn.tagselector.owner, [ opts ] );
             })
-            .insertAfter($(this).closest("div"));
+            .insertAfter(opts.fallbackLink || $(this).closest("div"));
+
+        if ( opts.fallbackLink ) {
+            $(opts.fallbackLink).remove();
+        }
 
         return $(this);
     };
@@ -72,7 +72,7 @@
         <span class='tagselector_searchbox'>\
           Search: <input type='search' id='tagselector_search'>\
           </span>\
-          <button id='tagselector_select' class='ui-state-default' disabled='disabled'>Save</button>\
+          <button id='tagselector_select' class='secondary' disabled='disabled'>Save</button>\
       </div>\
       <div id='tagselector_tags'><span class='tagselector_status'>Loading...</span></div>\
     </div>";

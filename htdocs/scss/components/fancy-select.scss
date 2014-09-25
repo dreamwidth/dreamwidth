@@ -1,4 +1,4 @@
-@import "foundation/base", "foundation/components/forms", "mixins/focus";
+@import "foundation/base", "foundation/components/forms";
 $regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
 
 .fancy-select {
@@ -32,8 +32,4 @@ $regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1))
 .fancy-select-output {
     z-index: 9;
     text-align: left;
-}
-
-.focus {
-    @extend %focus;
 }

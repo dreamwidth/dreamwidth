@@ -1,0 +1,14 @@
+.ui-menu {
+    background-color: $input-bg-color;
+    border: 1px solid $input-border-color;
+
+    a {
+        color: $input-font-color;
+    }
+
+    .ui-state-focus {
+        background-color: $primary-color;
+        color: $primary-text-color;
+        @include radius();
+    }
+}
