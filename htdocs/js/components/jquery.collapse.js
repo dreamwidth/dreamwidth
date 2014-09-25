@@ -9,7 +9,7 @@ function Collapsible($el, options) {
 
     var $target = $el.find(options.targetSelector);
     $target.addClass("collapse-target")
-        .attr("id", "collapse-target-" + $el.attr("id"));
+        .attr("id", "collapse-target-" + $el.data("collapse"));
     $trigger.attr("aria-controls", $target.attr("id"));
 
     $.extend(this, {
