@@ -104,7 +104,12 @@ IconBrowser.prototype = {
             iconBrowser.isLoaded = true;
         }
     },
+    deregisterListeners: function() {
+        $(document).off('keydown.icon-browser');
+    },
     registerListeners: function() {
+        $(document).on('keydown.icon-browser', this.selectByEnter.bind(this));
+
         if ( this.listenersRegistered ) return;
 
         $("#js-icon-browser-content")
@@ -119,8 +124,8 @@ IconBrowser.prototype = {
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
 
         $(document)
-            .keydown(this.selectByEnter.bind(this))
-            .on('close.fndtn.reveal', this.updateOwner.bind(this));
+            .on('close.fndtn.reveal', this.updateOwner.bind(this))
+            .on('closed.fndtn.reveal', this.deregisterListeners.bind(this));
 
         this.listenersRegistered = true;
     },

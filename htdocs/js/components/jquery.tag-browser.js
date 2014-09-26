@@ -34,6 +34,7 @@ function validAttribute(text) {
 TagBrowser.prototype = {
     newTags: undefined,
     isLoaded: false,
+    listenersRegistered: false,
     tagsData: function(full) {
         var tags_data = this.element.data("autocompletewithunknown");
         if (!tags_data)
@@ -137,12 +138,21 @@ TagBrowser.prototype = {
         $("#js-tag-browser-search").val("");
         $("#js-tag-browser-content li").show();
     },
+    deregisterListeners: function() {
+        $(document).off('keydown.tag-browser');
+    },
     registerListeners: function() {
+        $(document).on('keydown.tag-browser', this.closeByEnter.bind(this));
+
+        if ( this.listenersRegistered ) return;
+
         $("#js-tag-browser-search").bind("keyup click", this.filter.bind(this));
 
         $(document)
-            .keydown(this.closeByEnter.bind(this))
-            .on('close.fndtn.reveal', this.updateOwner.bind(this));
+            .on('close.fndtn.reveal', this.updateOwner.bind(this))
+            .on('closed.fndtn.reveal', this.deregisterListeners.bind(this));
+
+        this.listenersRegistered = true;
     }
 };
 
