@@ -38,7 +38,7 @@ IconBrowser.prototype = {
             var url = Site.currentJournalBase ? "/" + Site.currentJournal + "/__rpc_userpicselect" : "/__rpc_userpicselect";
             $.getJSON(url).then(function(data) {
                 var $content = $("#js-icon-browser-content");
-                var $status = $content.find(".icon-selector-status");
+                var $status = $content.find(".icon-browser-status");
 
                 if ( !data ) {
                     $status.html("<p>Unable to load icons</p>");
