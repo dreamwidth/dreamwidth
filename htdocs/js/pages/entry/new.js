@@ -136,11 +136,12 @@ var postForm = (function($) {
 
             function createOption(option) {
                 var security = security_options[option];
-                return '<option value="' + security.value + '"' +
-                    ' data-fancyselect-img="' + security.image.src +
+                var img = security.image ? security.image.src +
                         ":" + security.image.width +
-                        ":" + security.image.height +
-                        '"' +
+                        ":" + security.image.height : "";
+
+                return '<option value="' + security.value + '"' +
+                    ' data-fancyselect-img="' + img + '"' +
                     ' data-fancyselect-format="' + security.format + '"' +
                     '>' + security.label + '</option>';
             }
