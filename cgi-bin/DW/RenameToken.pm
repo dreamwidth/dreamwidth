@@ -5,7 +5,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -35,6 +35,7 @@ DW::RenameToken - Token which can be applied to a journal to change the username
   # try to use...
   my $token_obj = DW::RenameToken->new( token => $POST{token} );
   if ( $token_obj->applied ) { print "Already used" }
+  elsif ( $token_obj->revoked ) { print "Revoked by a site admin" }
   else { $token_obj->apply( userid => $id_of_the_journal_being_renamed, from => $oldname, to => $newname ) }
 
 =cut
@@ -44,7 +45,7 @@ use warnings;
 
 use DW::Shop::Cart;
 
-use fields qw(renid auth cartid ownerid renuserid fromuser touser rendate);
+use fields qw(renid auth cartid ownerid renuserid fromuser touser rendate status);
 
 use constant { AUTH_LEN => 13, ID_LEN => 7 };
 use constant DIGITS => qw(A B C D E F G H J K L M N P Q R S T U V W X Y Z 2 3 4 5 6 7 8 9);
@@ -73,8 +74,8 @@ sub create_token {
         or die "Unable to connect to database.\n";
 
     my $sth = $dbh->prepare(
-        q{INSERT INTO renames (renid, auth, cartid, ownerid)
-          VALUES (NULL, ?, ?, ?)}
+        q{INSERT INTO renames (renid, auth, cartid, ownerid, status)
+          VALUES (NULL, ?, ?, ?, 'U')}
     )
         or die "Unable to allocate statement handle.\n";
 
@@ -91,6 +92,7 @@ sub create_token {
         auth    => $authcode,
         cartid  => $cartid,
         ownerid => $uid,
+        status  => 'U'
     }, "DW::RenameToken" );
 }
 
@@ -135,7 +137,7 @@ sub new {
     return undef unless $class->valid_format( string => $opts{token} );
 
     my ( $id, $auth ) = $class->decode( $opts{token} );
-    my $renametoken = $dbr->selectrow_hashref( "SELECT renid, auth, cartid, ownerid, renuserid, fromuser, touser, rendate FROM renames ".
+    my $renametoken = $dbr->selectrow_hashref( "SELECT renid, auth, cartid, ownerid, renuserid, fromuser, touser, rendate, status FROM renames ".
                                       "WHERE renid=? AND auth=?",
                                       undef, $id, $auth);
 
@@ -163,8 +165,8 @@ sub by_owner_unused {
 
     my $dbr = LJ::get_db_reader();
 
-    my $sth = $dbr->prepare( "SELECT renid, auth, cartid, ownerid, renuserid, fromuser, touser, rendate FROM renames " .
-                             "WHERE ownerid=? AND renuserid=0" )
+    my $sth = $dbr->prepare( "SELECT renid, auth, cartid, ownerid, renuserid, fromuser, touser, rendate, status FROM renames " .
+                             "WHERE ownerid=? AND status='U'" )
         or die "Unable to retrieve list of unused rename tokens: " . $dbr->errstr;
 
     $sth->execute( $userid )
@@ -199,7 +201,7 @@ sub by_username {
     return unless $user;
 
     my $dbr = LJ::get_db_reader();
-    my $sth = $dbr->prepare( "SELECT renid, auth, cartid, ownerid, renuserid, fromuser, touser, rendate FROM renames " .
+    my $sth = $dbr->prepare( "SELECT renid, auth, cartid, ownerid, renuserid, fromuser, touser, rendate, status FROM renames " .
                              "WHERE fromuser=? OR touser=?" )
         or die "Unable to retrieve list of rename tokens involving a username";
 
@@ -296,7 +298,7 @@ sub apply {
 
     # modify self
     my $dbh = LJ::get_db_writer();
-    $dbh->do( "UPDATE renames SET renuserid=?, fromuser=?, touser=?, rendate=? WHERE renid=?",
+    $dbh->do( "UPDATE renames SET renuserid=?, fromuser=?, touser=?, rendate=?, status = 'A' WHERE renid=?",
         undef, $opts{userid}, $opts{from}, $opts{to}, time, $self->id );
 
     # modify status in the cart
@@ -310,6 +312,19 @@ sub apply {
         $cart->save;
     }
 
+    return 1;
+}
+
+=head2 C<< $self->revoke >>
+
+Mark as revoked in-DB
+
+=cut
+
+sub revoke {
+    my $dbh = LJ::get_db_writer();
+    $dbh->do( "UPDATE renames SET status = 'R' WHERE renid=?",
+        undef, $_[0]->id );
     return 1;
 }
 
@@ -374,6 +389,10 @@ The string representation of the token (formed by a combination of the auth code
 
 Whether this token has been used.
 
+=head2 C<< $self->revoked >>
+
+Whether this token has been revoked.
+
 =head2 C<< $self->auth >>
 
 The auth code, randomly generated characters. Not necesarily unique.
@@ -417,7 +436,12 @@ sub token {
 
 sub applied {
     my $self = $_[0];
-    return $self->{renuserid} ? 1 : 0;
+    return ( $self->{status} eq 'A' ) ? 1 : 0;
+}
+
+sub revoked {
+    my $self = $_[0];
+    return ( $self->{status} eq 'R' ) ? 1 : 0;
 }
 
 sub cartid {
@@ -441,7 +465,7 @@ Afuna <coder.dw@afunamatata.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2010 by Dreamwidth Studios, LLC.
+Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

@@ -196,7 +196,7 @@ sub rename {
     my $remote = LJ::isu( $opts{user} ) ? $opts{user} : $self;
     push @$errref, LJ::Lang::ml( 'rename.error.tokeninvalid' )
         unless $opts{token} && $opts{token}->isa( "DW::RenameToken" );
-    push @$errref, LJ::Lang::ml( 'rename.error.tokenapplied' ) if $opts{token} && $opts{token}->applied;
+    push @$errref, LJ::Lang::ml( 'rename.error.tokenapplied' ) if $opts{token} && ( $opts{token}->applied || $opts{token}->revoked );
 
     my $can_rename_to = $self->can_rename_to( $tousername, %opts );
 
@@ -230,7 +230,7 @@ sub swap_usernames {
                 && $token->ownerid == $admin->userid;
 
         push @$errref, LJ::Lang::ml( 'rename.error.tokenapplied' )
-            if $token->applied;
+            if $token->applied || $token->revoked;
     }
 
     if ( scalar @tokens >= 2 ) {

@@ -86,7 +86,7 @@ sub rename_handler {
     }
 
     if ( $token ) {
-        if ( $token->applied ) {
+        if ( $token->applied || $token->revoked ) {
             $vars->{usedtoken} = $token->token;
         } else {
             $vars->{token} = $token;
@@ -123,7 +123,7 @@ sub rename_handler {
         }
     }
 
-    if ( ! $token || ( $token && $token->applied ) ) {
+    if ( ! $token || ( $token && $token->applied ) || ( $token && $token->revoked ) ) {
         # grab a list of tokens they can use in case they didn't provide a usable token
         # assume we always have a remote because our controller is registered as requiring a remote (default behavior)
         $vars->{unused_tokens} = DW::RenameToken->by_owner_unused( userid => $remote->userid );
