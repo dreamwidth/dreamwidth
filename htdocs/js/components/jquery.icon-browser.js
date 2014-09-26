@@ -16,9 +16,6 @@ function IconBrowser($el, options) {
         .on('open.fndtn.reveal', "#" + options.modalId, function() {
             iconBrowser.loadIcons();
             iconBrowser.registerListeners();
-        })
-        .on('closed.fndtn.reveal', '#' + options.modalId, function() {
-            $el.focus();
         });
 }
 
@@ -31,6 +28,7 @@ IconBrowser.prototype = {
     loadIcons: function() {
         var iconBrowser = this;
         if ( iconBrowser.isLoaded ) {
+            iconBrowser.resetFilter();
             iconBrowser.initializeKeyword();
         } else {
             iconBrowser.modal.find(":input[type=search]").prop("disabled", true);
@@ -214,7 +212,6 @@ IconBrowser.prototype = {
         }
     },
     close: function() {
-        this.updateOwner();
         this.modal.foundation('reveal', 'close');
     },
     filter: function(e) {
@@ -231,6 +228,10 @@ IconBrowser.prototype = {
         var $visible = $("#js-icon-browser-content li:visible");
         if ( $visible.length == 1 )
             this.doSelect($visible, null, true);
+    },
+    resetFilter: function() {
+        $("#js-icon-browser-search").val("");
+        $("#js-icon-browser-content li").show();
     }
 };
 
