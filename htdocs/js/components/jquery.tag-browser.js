@@ -17,7 +17,10 @@ function TagBrowser($el, options) {
     }
 
     $(document)
-        .on('open.fndtn.reveal', "#" + options.modalId, function() {
+        .on('open.fndtn.reveal', "#" + options.modalId, function(e) {
+            // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want once
+            if (e.namespace === "") return;
+
             tagBrowser.loadTags();
             tagBrowser.registerListeners();
         });
@@ -100,7 +103,10 @@ TagBrowser.prototype = {
             tagBrowser.isLoaded = true;
         }
     },
-    updateOwner: function() {
+    updateOwner: function(e) {
+        // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want once
+        if (e.namespace === "") return;
+
         // add in newly checked
         var selected = [];
         $("#js-tag-browser-content input:checked").each(function() {

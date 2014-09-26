@@ -13,7 +13,10 @@ function IconBrowser($el, options) {
     new Options(this.modal, options.preferences);
 
     $(document)
-        .on('open.fndtn.reveal', "#" + options.modalId, function() {
+        .on('open.fndtn.reveal', "#" + options.modalId, function(e) {
+            // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want one
+            if (e.namespace === "") return;
+
             iconBrowser.loadIcons();
             iconBrowser.registerListeners();
         });
@@ -204,7 +207,10 @@ IconBrowser.prototype = {
             })
             .addClass("active");
     },
-    updateOwner: function() {
+    updateOwner: function(e) {
+        // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want once
+        if (e.namespace === "") return;
+
         if (this.selectedKeyword) {
             this.element
                 .val(this.selectedKeyword)
