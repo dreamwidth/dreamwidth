@@ -125,7 +125,7 @@ sub cart_state_changed {
         my $vars = {
             sitename => $LJ::SITENAME,
             touser   => $u->user,
-            tokenurl => "$LJ::SITEROOT/rename/$token",
+            tokenurl => "$LJ::SITEROOT/rename?giventoken=$token",
         };
 
         if ( $u->equals( $fu ) ) {
