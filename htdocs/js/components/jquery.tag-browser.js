@@ -5,7 +5,8 @@ function TagBrowser($el, options) {
 
     $.extend(tagBrowser, {
         element: $el,
-        modal: $("#" + options.modalId)
+        modal: $("#" + options.modalId),
+        modalId: options.modalId
     });
 
     $("<button class='small secondary'>browse</button>")
@@ -149,8 +150,8 @@ TagBrowser.prototype = {
         $("#js-tag-browser-search").bind("keyup click", this.filter.bind(this));
 
         $(document)
-            .on('close.fndtn.reveal', this.updateOwner.bind(this))
-            .on('closed.fndtn.reveal', this.deregisterListeners.bind(this));
+            .on('close.fndtn.reveal', '#' + this.modalId, this.updateOwner.bind(this))
+            .on('closed.fndtn.reveal', '#' + this.modalId, this.deregisterListeners.bind(this));
 
         this.listenersRegistered = true;
     }

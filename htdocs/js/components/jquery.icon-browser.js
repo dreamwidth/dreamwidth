@@ -5,7 +5,8 @@ function IconBrowser($el, options) {
 
     $.extend(iconBrowser, {
         element: $el,
-        modal: $("#" + options.modalId)
+        modal: $("#" + options.modalId),
+        modalId: options.modalId
     });
 
     $(options.triggerSelector).attr("data-reveal-id", options.modalId);
@@ -124,8 +125,8 @@ IconBrowser.prototype = {
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
 
         $(document)
-            .on('close.fndtn.reveal', this.updateOwner.bind(this))
-            .on('closed.fndtn.reveal', this.deregisterListeners.bind(this));
+            .on('close.fndtn.reveal', '#' + this.modalId, this.updateOwner.bind(this))
+            .on('closed.fndtn.reveal', '#' + this.modalId, this.deregisterListeners.bind(this));
 
         this.listenersRegistered = true;
     },
