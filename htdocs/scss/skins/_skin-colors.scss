@@ -14,6 +14,7 @@
 
 $anchor-font-color-visited: shade( $anchor-font-color, 20% ) !default;
 $page-title-color: $primary-color !default;
+$border-color: $input-border-color !default;
 
 a:visited {
     color: $anchor-font-color-visited;
