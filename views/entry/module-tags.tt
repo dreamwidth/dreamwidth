@@ -26,6 +26,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         ) -%]
     </div></div>
 
+    [%- INCLUDE "components/tag-browser.tt" -%]
+
     <div class="row"><div class="columns tagselector-controls">
         [% IF journalu %]
             <a id="js-taglist-link" target="_blank" href="[% journalu.journal_base %]/tag/">[% ".link.tagspage" | ml %]</a>

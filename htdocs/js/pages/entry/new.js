@@ -342,7 +342,7 @@ var postForm = (function($) {
             $taglist.autocompletewithunknown(options);
 
             if ( journal.name )
-                $taglist.tagselector({fallbackLink: "#js-taglist-link"});
+                $taglist.tagBrowser({fallbackLink: "#js-taglist-link"});
 
             $form.bind("journalselect", function(e, journal) {
                 if ( journal.name ) {
