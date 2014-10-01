@@ -3147,6 +3147,7 @@ CREATE TABLE renames (
     fromuser CHAR(25),
     touser CHAR(25),
     rendate INT UNSIGNED,
+    status CHAR(1) NOT NULL DEFAULT 'A',
 
     INDEX (ownerid)
 )
@@ -4307,6 +4308,13 @@ EOF
 
         do_sql( 'UNLOCK TABLES' );
         set_dbnote( "init_media_versions_dimensions", 1 );
+    }
+
+    if ( column_type( "renames", "status" ) eq '' ) {
+        do_alter( 'renames',
+            "ALTER TABLE renames " .
+            "ADD COLUMN status CHAR(1) NOT NULL DEFAULT 'A'" );
+        do_sql( 'UPDATE renames SET status="U" WHERE renuserid = 0' );
     }
 });
 
