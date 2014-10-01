@@ -356,6 +356,54 @@ var postForm = (function($) {
         });
     };
 
+    var initDate = function(entryForm) {
+        $("#js-entrytime-date").pickadate({
+            editable: true,
+            format: 'yyyy-mm-dd',
+
+            trigger: document.getElementById("js-entrytime-date-button"),
+
+            klass: {
+                picker: 'picker picker--date',
+
+                navPrev: 'picker__nav--prev fi-icon fi-arrow-left',
+                navNext: 'picker__nav--next fi-icon fi-arrow-right',
+
+                buttonClear: 'picker__button--clear secondary',
+                buttonToday: 'picker__button--today',
+                buttonClose: 'picker__button--close secondary'
+            }
+        }).change(function(e) {
+            var picker = $(e.target).pickadate('picker');
+            var oldValue = picker.get('select', 'yyyy-mm-dd');
+            var newValue = picker.get('value');
+            if ( oldValue !== newValue ) {
+                picker.set('select', newValue);
+            }
+        });
+
+        $("#js-entrytime-time").pickatime({
+            editable: true,
+            format: "HH:i",
+
+            trigger: document.getElementById("js-entrytime-time-button")
+        }).change(function(e) {
+            var picker = $(e.target).pickatime('picker');
+
+
+            var oldValue = picker.get('select', 'HH:i');
+            var newValue = picker.get('value');
+
+            if ( oldValue !== newValue ) {
+                // tweak interval so that we don't round off to the nearest interval
+                // when setting the value
+                picker.set('interval', 1);
+                picker.set('select', newValue);
+                picker.set('interval', 30);
+            }
+        });
+    };
+
     var init = function(formData) {
         $("#nojs").val(0);
 
@@ -368,9 +416,9 @@ var postForm = (function($) {
         initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
         initJournal(entryForm);
         initIcons(entryForm, formData.icons, formData.iconBrowser);
-        initSlug(entryForm, $("#entrytime"));
+        initSlug(entryForm, $("#js-entrytime-date"));
         initTags(entryForm);
-
+        initDate(entryForm);
 
         $("#js-usejournal").triggerHandler("change");
     };

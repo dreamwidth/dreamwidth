@@ -53,8 +53,8 @@ h1 {
 }
 
 // icon fonts
-.fi-icon:hover, button:hover .fi-icon,
-.fi-icon:focus, button:focus .fi-icon {
+.fi-icon:hover, button.fi-icon:hover, button:hover .fi-icon,
+.fi-icon:focus, button.fi-icon:focus, button:focus .fi-icon {
     color: $primary-color;
 }
 
@@ -114,6 +114,78 @@ a.active {
         border-color: $primary-color;
     }
 }
+
+// date and time picker
+.picker__holder {
+    background-color: $reveal-modal-bg;
+    border: 1px solid $reveal-border-color;
+}
+
+.picker--date {
+    .picker__table tbody tr {
+        background-color: $table-bg;
+    }
+    .picker__year {
+        color: $inactive-color;
+    }
+    .picker__nav--disabled {
+        color: $inactive-color;
+    }
+    .picker__day--highlighted {
+      border-color: $global-active-bg;
+    }
+    .picker__day--outfocus {
+        color: $inactive-color
+    }
+    .picker__day--infocus:hover,
+    .picker__day--outfocus:hover,
+    .picker__day--selected,
+    .picker__day--selected:hover,
+    .picker--focused .picker__day--selected {
+        color: $global-active-font-color;
+        background: $global-active-bg;
+    }
+}
+
+.picker--time {
+    .picker__list-item {
+        border-bottom: 1px solid $border-color;
+        border-top: 1px solid $border-color;
+
+        background: $form-bg-color;
+        color: $form-font-color;
+
+        &:hover {
+              color: $global-active-font-color;
+              background: $global-active-bg;
+              border-color: $border-color;
+        }
+  }
+
+    /* Highlighted and hovered/focused time */
+    .picker__list-item--highlighted {
+        border-color: $global-active-bg;
+    }
+
+    /* Selected and hovered/focused time */
+    .picker__list-item--selected,
+    .picker__list-item--selected:hover,
+    .picker--focused .picker__list-item--selected {
+        background: $global-active-bg;
+        color: $global-active-font-color;
+    }
+
+    /* Disabled time */
+    .picker__list-item--disabled,
+    .picker__list-item--disabled:hover,
+    .picker--focused .picker__list-item--disabled {
+        border-color: $inactive-color;
+        color: $inactive-color;
+        cursor: default;
+        z-index: auto;
+    }
+}
+
 
 // replacement colors for jquery-ui elements
 @import "skins/jquery-ui-theme";

@@ -90,7 +90,7 @@
     &.collapse-expanded {
         // .last-visible handles the case when we have invisible elements
         // that are only meant to be revealed by js
-        .row:last-child, .last-visible {
+        .row:last-child .columns >, .last-visible .columns > {
             input, select, button {
                 margin-bottom: 0;
             }
@@ -156,6 +156,14 @@
 /* Slug */
 .slug-base {
     word-break: break-all;
+}
+
+/* Date */
+
+.displaydate-component {
+    .columns {
+        position: static;
+    }
 }
 
 /* elements in modals */

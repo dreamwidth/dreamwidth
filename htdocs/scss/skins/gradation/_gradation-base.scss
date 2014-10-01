@@ -2,6 +2,7 @@
 $_white:            #fff;
 $_black:            #111;
 $_off-black:        #222;
+$_light-gray:       #ccc;
 $_dark-gray:        #666;
 $_low-contrast-gray:#888;
 $_very-light-green: #e9e9e0;
@@ -19,6 +20,8 @@ $secondary-color:     $_dark-gray;
 $strong-accent-color: $_very-light-green;
 $soft-accent-color:   $_dark-green;
 $border-color:        $_low-contrast-gray;
+
+$inactive-color:      $_light-gray;
 
 $form-font-color:     $_white;
 $form-bg-color:       $_off-black;

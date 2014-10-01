@@ -21,17 +21,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 ) -%]
 
 [%- dw.need_res( { group => "foundation" },
-    # jquery ui
-    #"js/jquery/jquery.ui.core.js"
-    #"js/jquery/jquery.ui.widget.js"
-
-    #"js/jquery/jquery.ui.datepicker.js"
-    #"js/jquery/jquery.ui.dialog.js"
-
-    #"stc/jquery/jquery.ui.core.css"
-    #"stc/jquery/jquery.ui.datepicker.css"
-    #"stc/jquery/jquery.ui.dialog.css"
-
     ## jquery utility plugins
     #"js/jquery.radioreveal.js"
 
@@ -55,8 +44,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "js/components/jquery.collapse.js"
     "stc/css/components/collapse.css"
 
+    ## date
+    "js/vendor/pickadate.js/picker.js"
+    "js/vendor/pickadate.js/picker.date.js"
+    "js/vendor/pickadate.js/picker.time.js"
+    "js/vendor/pickadate.js/legacy.js"
+    "stc/css/components/pickadate/datetime.css"
+
     # page-specific
     "js/pages/entry/new.js"
+
 ) -%]
 
 [% sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) %]

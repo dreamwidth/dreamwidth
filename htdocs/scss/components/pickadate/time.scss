@@ -1,0 +1,54 @@
+/* ==========================================================================
+   $BASE-TIME-PICKER
+   ========================================================================== */
+/**
+ * Note: the root picker element should __NOT__ be styled
+ * more than what’s here. Style the `.picker__holder` instead.
+ */
+.picker--time {
+  min-width: 256px;
+  max-width: 320px;
+}
+/**
+ * The box contains the list of times.
+ */
+.picker--time .picker__box {
+  padding: 0;
+  position: relative;
+}
+/**
+ * The list of times.
+ */
+.picker__list {
+  list-style: none;
+  padding: 0.75em 0 4.2em;
+  margin: 0;
+}
+/**
+ * The times on the clock.
+ */
+.picker__list-item {
+  margin-bottom: -1px;
+  position: relative;
+  padding: .75em 1.25em;
+}
+@media (min-height: 46.75em) {
+  .picker__list-item {
+    padding: .5em 1em;
+  }
+}
+/* Hovered time */
+.picker__list-item:hover {
+  cursor: pointer;
+  z-index: 10;
+}
+/* Highlighted time */
+.picker__list-item--highlighted {
+    z-index: 10;
+}
+/**
+ * The clear button
+ */
+.picker--time .picker__button--clear {
+  display: none;
+}

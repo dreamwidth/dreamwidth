@@ -5,10 +5,8 @@
 
 .label.dateoutoforder2=Don't show on Reading Pages
 
+.label.picker.time=Time Picker
+
+.label.picker.date=Date Picker
+
 .label.sticky=Make sticky (future option?)
-
-.title.entrytime=displayed entry date; example [[example]]
-
-.title.entrytime_hr=hours; 24-hour time
-
-.title.entrytime_min=minutes
