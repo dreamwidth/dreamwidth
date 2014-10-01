@@ -109,7 +109,7 @@ sub new_handler {
 
     my $errors = DW::FormErrors->new;
     my $warnings = DW::FormErrors->new;
-    my $post;
+    my $post = $r->did_post ? $r->post_args : undef;
     my %spellcheck;
 
     # figure out times
@@ -158,8 +158,6 @@ sub new_handler {
         if defined $usejournal && ! $vars->{usejournal};
 
     if ( $r->did_post ) {
-        $post = $r->post_args;
-
         my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
