@@ -246,8 +246,11 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
                     }
 
                     // Pass focus to the element’s jQuery object.
-                    if ( ! TRIGGER )
+                    if ( TRIGGER ) {
+                        $( TRIGGER ).trigger( 'focus' )
+                    } else {
                         $ELEMENT.trigger( 'focus' )
+                    }
 
                     // Bind the document events.
                     $document.on( 'click.' + STATE.id + ' focusin.' + STATE.id, function( event ) {
