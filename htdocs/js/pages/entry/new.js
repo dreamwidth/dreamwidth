@@ -402,6 +402,26 @@ var postForm = (function($) {
                 picker.set('interval', 30);
             }
         });
+
+        function zeropad(num) { return num < 10 ? "0" + num : num }
+        function setTimeToNow() {
+            var now = new Date();
+
+            var date =  [ now.getFullYear(),
+                            zeropad(now.getMonth() + 1),
+                            zeropad(now.getDate())
+                        ].join("-");
+            $("#js-entrytime-date").val(date).trigger("change");
+
+            var time = [ zeropad(now.getHours()), zeropad(now.getMinutes() * 100) ];
+            $("#js-entrytime-time").val(time).trigger("change");
+
+            $("#js-trust-datetime").val(1);
+        }
+
+        if ( $("#js-trust-datetime").val() != 1 ) {
+            setTimeToNow();
+        }
     };
 
     var init = function(formData) {

@@ -116,8 +116,8 @@ sub new_handler {
     my $datetime;
     my $trust_datetime_value = 0;
 
-    if ( $post && $post->{entrytime} && $post->{entrytime_hr} && $post->{entrytime_min} ) {
-        $datetime = "$post->{entrytime} $post->{entrytime_hr}:$post->{entrytime_min}";
+    if ( $post && $post->{entrytime_date} && $post->{entrytime_time} ) {
+        $datetime = "$post->{entrytime_date} $post->{entrytime_time}";
         $trust_datetime_value = 1;
     } else {
         my $now = DateTime->now;
@@ -786,8 +786,8 @@ sub _form_to_backend {
 
 
     # date/time
-    my ( $year, $month, $day ) = split( /\D/, $post->{entrytime} || "" );
-    my ( $hour, $min ) = ( $post->{entrytime_hr}, $post->{entrytime_min} );
+    my ( $year, $month, $day ) = split( /\D/, $post->{entrytime_date} || "" );
+    my ( $hour, $min ) = split( /\D/, $post->{entrytime_time} || "" );
 
     # if we trust_datetime, it's because we either are in a mode where we've saved the datetime before (e.g., edit)
     # or we have run the JS that syncs the datetime with the user's current time
