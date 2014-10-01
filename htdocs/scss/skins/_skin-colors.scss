@@ -53,8 +53,8 @@ h1 {
 }
 
 // icon fonts
-.fi-icon:hover, button.fi-icon:hover, button:hover .fi-icon,
-.fi-icon:focus, button.fi-icon:focus, button:focus .fi-icon {
+.fi-icon:hover, button.fi-icon:hover, button:not([disabled]):hover .fi-icon,
+.fi-icon:focus, button.fi-icon:focus, button:not([disabled]):focus .fi-icon {
     color: $primary-color;
 }
 

@@ -67,6 +67,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div class="columns">
             [%- form.checkbox_nested( label = dw.ml( ".label.autoupdate" )
                 name = "update_displaydate"
+                id = "js-entrytime-autoupdate"
 
                 value = "1"
             ) -%]

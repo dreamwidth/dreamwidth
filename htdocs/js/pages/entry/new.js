@@ -427,6 +427,19 @@ var postForm = (function($) {
         if ( $("#js-trust-datetime").val() != 1 ) {
             setTimeToNow();
         }
+
+        $("#js-entrytime-autoupdate").click(function() {
+            var $inputs = $(".displaydate-component .inner").find("input[type=text], button");
+            $inputs.prop("disabled", $(this).is(":checked"));
+        });
+        entryForm.submit(function() {
+            if ( $("#js-entrytime-autoupdate").is(":checked") ) {
+                setTimeToNow();
+
+                var $inputs = $(".displaydate-component .inner").find("input[type=text], button");
+                $inputs.prop("disabled", false);
+            }
+        });
     };
 
     var init = function(formData) {
