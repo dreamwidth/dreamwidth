@@ -63,5 +63,24 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
     </div>
 
+    <div class="row">
+        <div class="columns">
+            [%- form.checkbox_nested( label = dw.ml( ".label.autoupdate" )
+                name = "update_displaydate"
+
+                value = "1"
+            ) -%]
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="columns">
+            [%- form.checkbox_nested( label = dw.ml(".label.dateoutoforder2" )
+                name = "entrytime_outoforder"
+
+                value = "1"
+            ) -%]
+        </div>
+    </div>
 </div>
 </fieldset>
