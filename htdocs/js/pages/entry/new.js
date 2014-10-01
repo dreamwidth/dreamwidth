@@ -357,6 +357,13 @@ var postForm = (function($) {
     };
 
     var initDate = function(entryForm) {
+        function zeropad(num) { return num < 10 ? "0" + num : num }
+        function padAll(text, sep) {
+            return $.map( text.split(sep), function(value, index) {
+                return zeropad(parseInt(value, 10));
+            } ).join(sep);
+        }
+
         $("#js-entrytime-date").pickadate({
             editable: true,
             format: 'yyyy-mm-dd',
@@ -376,7 +383,8 @@ var postForm = (function($) {
         }).change(function(e) {
             var picker = $(e.target).pickadate('picker');
             var oldValue = picker.get('select', 'yyyy-mm-dd');
-            var newValue = picker.get('value');
+            var newValue = padAll(picker.get('value'), '-');
+
             if ( oldValue !== newValue ) {
                 picker.set('select', newValue);
             }
@@ -389,8 +397,6 @@ var postForm = (function($) {
             trigger: document.getElementById("js-entrytime-time-button")
         }).change(function(e) {
             var picker = $(e.target).pickatime('picker');
-
-
             var oldValue = picker.get('select', 'HH:i');
             var newValue = picker.get('value');
 
@@ -403,7 +409,6 @@ var postForm = (function($) {
             }
         });
 
-        function zeropad(num) { return num < 10 ? "0" + num : num }
         function setTimeToNow() {
             var now = new Date();
 
