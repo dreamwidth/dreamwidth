@@ -26,8 +26,9 @@
     /**
      * The picker input element.
      */
-    .picker__input {
+    .picker__input.picker__input--active {
       cursor: default;
+      margin-bottom: 0;
     }
     /**
      * When the picker is opened, the input element is “activated”.
