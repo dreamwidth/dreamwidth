@@ -4,8 +4,8 @@ function Collapsible($el, options) {
     var self = this;
 
     var $trigger = $el.find(options.triggerSelector)
-        .wrap("<button class='collapse-trigger' />");
-    $trigger.append("<span class='fi-icon' aria-hidden='true'></span><span class='collapse-trigger-action'></span>");
+        .wrap("<button class='collapse-trigger theme-color-on-hover fi-icon--with-fallback' />");
+    $trigger.append("<span class='fi-icon' aria-hidden='true'></span><span class='collapse-trigger-action fi-icon--fallback'></span>");
 
     var $target = $el.find(options.targetSelector);
     $target.addClass("collapse-target")

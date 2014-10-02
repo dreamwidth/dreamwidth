@@ -135,6 +135,49 @@
       <input type="button" class="button" value="(default) .button" /><br>
       <input type="button" class="large button" value=".large.button" /><br>
   </fieldset>
+
+  <fieldset>
+    <legend>Icon Buttons</legend>
+    <div class="row">
+      <div class="columns large-6">
+        [%- INCLUDE "components/icon-buttons.tt"
+              button = {
+                class = ""
+                id = ""
+              }
+              icon = "x"
+              text = "Close"
+        -%]
+        [%- INCLUDE "components/icon-buttons.tt"
+              button = {
+                class = "secondary"
+                id = ""
+              }
+              icon = "arrow-left"
+              text = "Previous"
+        -%]
+        [%- INCLUDE "components/icon-buttons.tt"
+              button = {
+                class = "secondary"
+                id = ""
+              }
+              icon = "arrow-right"
+              text = "Next"
+        -%]
+      </div>
+      <div class="columns large-6">
+[%- WRAPPER code -%]
+INCLUDE "components/icon-buttons.tt"
+  button = {
+    class = "[secondary][etc-button-class]"
+    id = ""
+  }
+  icon = "arrow-right"
+  text = "Next"
+[%- END -%]
+      </div>
+    </div>
+  </fieldset>
 </form>
 
 

@@ -52,12 +52,6 @@ h1 {
     color: $page-title-color;
 }
 
-// icon fonts
-.fi-icon:hover, button.fi-icon:hover, button:not([disabled]):hover .fi-icon,
-.fi-icon:focus, button.fi-icon:focus, button:not([disabled]):focus .fi-icon {
-    color: $primary-color;
-}
-
 // forms
 @import "skins/form-elements";
 
@@ -94,6 +88,16 @@ a.active {
 // color-holding classes
 .border {
     border: 1px solid $border-color;
+}
+
+.theme-color-on-hover {
+    &:hover, &:focus {
+        color: $primary-color;
+
+        .fi-icon {
+            color: $primary-color;
+        }
+    }
 }
 
 // autocomplete

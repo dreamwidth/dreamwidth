@@ -32,6 +32,8 @@
 /**
  * The month navigation buttons.
  */
+ $include-html-fi-icon-classes: false;
+ @import "components/foundation-icons";
 .picker__nav--prev,
 .picker__nav--next {
   position: absolute;
@@ -40,6 +42,10 @@
   height: 1em;
   box-sizing: content-box;
   top: -0.25em;
+
+  &:before {
+    @extend %fi-icon;
+  }
 }
 @media (min-width: 24.5em) {
   .picker__nav--prev,

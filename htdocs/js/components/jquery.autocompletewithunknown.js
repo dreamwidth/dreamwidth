@@ -32,9 +32,8 @@
                 var $text = $("<span></span>")
                     .addClass(self.options.tokenTextClass)
                     .text(tag);
-                var $a = $("<button></button>").addClass(self.options.tokenRemoveClass).attr({
-                    "aria-label": "Remove " + tag
-                }).html("<span class='fi-icon fi-x' aria-hidden='true'></span>");
+                var $a = $("<button class='fi-icon--with-fallback theme-color-on-hover'></button>").addClass(self.options.tokenRemoveClass).html("<span class='fi-icon fi-x' aria-hidden='true'></span>" +
+                    "<span class='fi-icon--fallback'>Remove " + tag + "</span>");
 
                 var $li = $("<li></li>").addClass(self.options.tokenClass + " " + tokentype)
                     .append($text).append($a).append(" ")
