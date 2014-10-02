@@ -20,9 +20,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 ) -%]
 
 [%- dw.need_res( { group => "foundation" },
-    ## jquery utility plugins
-    #"js/jquery.radioreveal.js"
-
     ## icons
     "js/components/jquery.icon-random.js"
 
@@ -55,25 +52,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% sections.contentopts = '' %]
 
 [% sections.head = BLOCK %]
-[% IF show_unimplemented %]
-<style type="text/css">
-.unimplemented {
-  outline: 2px orange solid;
-  opacity: 0.6;
-}
-</style>
-[% ELSE %]
-<style type="text/css">
-.unimplemented {
-    opacity: 0.2;
-    display: none;
-}
-.unimplemented:hover {
-    opacity: 1;
-}
-</style>
-[% END %]
-
 [%- chalresp_js -%]
 
 <script type="text/javascript">

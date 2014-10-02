@@ -253,8 +253,6 @@ sub new_handler {
         $vars->{login_chal} = LJ::challenge_generate( 3600 ); # one hour to post if they're not logged in
     }
 
-    $vars->{show_unimplemented} = $get->{highlight} ? 1 : 0;
-
     $vars->{action} = {
         url  => LJ::create_url( undef, keep_args => 1 ),
     };
