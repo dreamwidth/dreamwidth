@@ -45,6 +45,7 @@
 // variables
 $sidebar-width: 8.25em;
 $topbar-bg: #222;
+$row-width: 64em + $sidebar-width + 1em; // desired content width + border width + padding
 
 // Shared stylesheets
 @import "skins/gradation/gradation-base";

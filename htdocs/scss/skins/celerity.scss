@@ -211,7 +211,6 @@ footer { border-top: 4px double $header-image-color;
 
 #content {
     @include grid-row( nest-collapse );
-    max-width: $row-width;
 }
 
 @import "skins/page-layout-hacks";
@@ -283,5 +282,6 @@ footer { border-top: 4px double $header-image-color;
     #content {
         margin-left: 1em;
         padding: 1px 1em 1em 1.5em;
+        max-width: $row-width + $sidebar-width + 2.5em; // desired content width + border width + padding
     }
 }
