@@ -369,6 +369,7 @@ var postForm = (function($) {
             format: 'yyyy-mm-dd',
 
             trigger: document.getElementById("js-entrytime-date-button"),
+            container: '.displaydate-component .picker-output',
 
             klass: {
                 picker: 'picker picker--date',
@@ -394,7 +395,9 @@ var postForm = (function($) {
             editable: true,
             format: "HH:i",
 
-            trigger: document.getElementById("js-entrytime-time-button")
+            trigger: document.getElementById("js-entrytime-time-button"),
+            container: '.displaydate-component .picker-output'
+
         }).change(function(e) {
             var picker = $(e.target).pickatime('picker');
             var oldValue = picker.get('select', 'HH:i');

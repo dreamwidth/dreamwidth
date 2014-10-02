@@ -22,7 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     ) -%]
 
     <div class="row collapse">
-        <div class="columns small-10 medium-5">
+        <div class="columns small-5">
         [%- form.textbox(
             name = "entrytime_date"
             id = "js-entrytime-date"
@@ -35,14 +35,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
             autocomplete = "off"
         ) -%]
         </div>
-        <div class="columns small-2 medium-2">
+        <div class="columns small-2">
             <button class="postfix secondary" id="js-entrytime-date-button">
                 <span class="fi-icon fi-calendar" aria-hidden="true"></span>
                 [%- ".label.picker.date" | ml -%]
             </button>
         </div>
 
-        <div class="columns small-10 medium-3">
+        <div class="columns small-3">
         [%- form.textbox(
             name = "entrytime_time"
             id = "js-entrytime-time"
@@ -55,13 +55,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
             autocomplete = "off"
         ) ~%]
         </div>
-        <div class="columns small-2 medium-2">
+        <div class="columns small-2">
             <button class="postfix secondary" id="js-entrytime-time-button">
                 <span class="fi-icon fi-clock" aria-hidden="true"></span>
                 [%- ".label.picker.time" | ml -%]
             </button>
         </div>
     </div>
+    <div class="picker-output"></div>
 
     <div class="row">
         <div class="columns">

@@ -161,8 +161,8 @@
 /* Date */
 
 .displaydate-component {
-    .columns {
-        position: static;
+    .picker-output {
+        margin-top: -1 * rem-calc(20); // $form-spacing + 2px for borders
     }
 }
 
