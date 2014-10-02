@@ -1561,3 +1561,24 @@ general poll.security.none_others2
 general poll.security.none_remote|notes
 general poll.security.none_remote
 general poll.security.trusted
+
+general widget.support.submit.button
+general widget.support.submit.captcha
+general widget.support.submit.captcha.note
+general widget.support.submit.category
+general widget.support.submit.complete.text
+general widget.support.submit.language
+general widget.support.submit.language.note
+general widget.support.submit.language.other
+general widget.support.submit.login.note
+general widget.support.submit.nonpublic
+general widget.support.submit.notshow
+general widget.support.submit.question
+general widget.support.submit.question.note
+general widget.support.submit.summary
+general widget.support.submit.text_intro
+general widget.support.submit.text_question
+general widget.support.submit.text_submit
+general widget.support.submit.yourmail
+general widget.support.submit.yourname
+general /support/submit.tt.help.text

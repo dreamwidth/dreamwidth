@@ -5442,48 +5442,6 @@ widget.sitesearch.desc=Search for entries containing:
 
 widget.sitesearch.title=Search [[sitename]]
 
-widget.support.submit.button=Submit Request
-
-widget.support.submit.captcha=Prove You're Human
-
-widget.support.submit.captcha.note=If you can't pass the human test, email your inquiry to: [[email]]
-
-widget.support.submit.category=Category
-
-widget.support.submit.complete.text<<
-Your request has been filed. You can track its progress at:
-<blockquote><a href='[[url]]'>[[url]]</a></blockquote>
-If you have any additional questions or comments, you can add them to your request at any time.
-.
-
-widget.support.submit.language=Language
-
-widget.support.submit.language.note=Select the language in which you'd prefer to receive a response.
-
-widget.support.submit.language.other=(Other)
-
-widget.support.submit.login.note=If you're a [[sitename]] user, <a [[loginlink]]>please log in</a> before submitting your request.
-
-widget.support.submit.nonpublic=* Only visible to staff and those trusted volunteers with appropriate privileges
-
-widget.support.submit.notshow=(not shown to the public)
-
-widget.support.submit.question=Question or Problem
-
-widget.support.submit.question.note=Don't include confidential information like your password or phone number. Don't use HTML in your submission.
-
-widget.support.submit.summary=Summary
-
-widget.support.submit.text_intro=If you have a question or concern about a payment you've made, we will be happy to assist you.
-
-widget.support.submit.text_question=Make sure to include your username. If you were buying a gift for another user, include their username as well.
-
-widget.support.submit.text_submit=Submit Inquiry
-
-widget.support.submit.yourmail=Your email address:
-
-widget.support.submit.yourname=Your name:
-
 widget.themechooser.btn.page=Go
 
 widget.themechooser.btn.show=Go
