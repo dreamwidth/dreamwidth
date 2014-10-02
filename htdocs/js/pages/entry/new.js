@@ -356,7 +356,7 @@ var postForm = (function($) {
         });
     };
 
-    var initDate = function(entryForm) {
+    var initDate = function($form) {
         function zeropad(num) { return num < 10 ? "0" + num : num }
         function padAll(text, sep) {
             return $.map( text.split(sep), function(value, index) {
@@ -435,7 +435,7 @@ var postForm = (function($) {
             var $inputs = $(".displaydate-component .inner").find("input[type=text], button");
             $inputs.prop("disabled", $(this).is(":checked"));
         });
-        entryForm.submit(function() {
+        $form.submit(function() {
             if ( $("#js-entrytime-autoupdate").is(":checked") ) {
                 setTimeToNow();
 
