@@ -35,10 +35,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/jquery/jquery.ui.autocomplete.css"
     "stc/css/components/autocompletewithunknown.css"
 
-    ## crosspost
-    #"js/md5.js"
-    #"js/jquery.crosspost.js"
-
     ## collapsing
     "js/components/jquery.collapse.js"
     "stc/css/components/collapse.css"

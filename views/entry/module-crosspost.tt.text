@@ -7,4 +7,6 @@
 
 .label.password=Password:
 
-.settings.link=go to settings
+.settings.link=Settings
+
+.settings.link.setup=Set up accounts to crosspost to

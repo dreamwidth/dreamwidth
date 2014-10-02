@@ -445,6 +445,30 @@ var postForm = (function($) {
         });
     };
 
+    var initCrosspost = function($form) {
+        function setLastVisible() {
+            $(".crosspost-component")
+                .find(".last-visible")
+                    .removeClass("last-visible")
+                .end()
+                .find(".row:visible:last")
+                    .addClass("last-visible");
+        }
+
+        var $crosspost = $(".crosspost-component");
+        $crosspost.crosspost();
+
+        $crosspost.find("input[type=checkbox]").change(setLastVisible);
+        setLastVisible();
+
+        $form.bind("journalselect", function(e, journal) {
+            if ( journal.name && journal.isremote )
+                $crosspost.crosspost("toggle", "community", ! journal.iscomm, true);
+            else
+                $crosspost.crosspost("toggle", "unknown", false, true);
+        });
+    };
+
     var init = function(formData) {
         $("#nojs").val(0);
 
@@ -460,6 +484,7 @@ var postForm = (function($) {
         initSlug(entryForm, $("#js-entrytime-date"));
         initTags(entryForm);
         initDate(entryForm);
+        initCrosspost(entryForm);
 
         $("#js-usejournal").triggerHandler("change");
     };
