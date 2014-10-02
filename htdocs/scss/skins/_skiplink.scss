@@ -1,9 +1,7 @@
 /* allow hidden skip links */
-@import "mixins/visually-hidden";
-
 #skip a, #skip a:hover, #skip a:visited
 {
-    @extend %visually-hidden;
+    @include element-invisible();
     padding: 0.5em 1em;
 }
 

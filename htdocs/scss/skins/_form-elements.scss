@@ -46,9 +46,8 @@ fieldset {
     border-color: $glowing-effect-color;
 }
 
-@import "mixins/visually-hidden";
 label.hidden {
-  @extend %visually-hidden;
+  @include element-invisible();
 }
 
 @import "components/expand-for-mobile";
