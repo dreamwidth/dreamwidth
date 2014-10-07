@@ -4,6 +4,51 @@ var postForm = (function($) {
         $form.fancySelect();
     };
 
+    var initButtons = function($form, $crosspost, strings) {
+        function openPreview(e) {
+            var form = e.target.form;
+            var action = form.action;
+            var target = form.target;
+
+            var $password = $(form).find( "input[type='password']:enabled" );
+            $password.prop( "disabled", true );
+
+            form.action = "/entry/preview";
+            form.target = 'preview';
+            window.open( '',
+                'preview',
+                'width=760,height=600,resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes'
+            );
+            form.submit();
+
+            form.action = action;
+            form.target = target;
+            $password.prop( "disabled", false );
+            e.preventDefault();
+        }
+
+        function handleSpellcheck(e) {
+            $(this.form).data( "skipchecks", "spellcheck" );
+        }
+
+        function handleDelete(e) {
+            $(this.form).data( "skipchecks", "delete" );
+
+            var do_delete = confirm( strings.delete_confirm );
+            if ( do_delete ) {
+                do_delete = $crosspost.crosspost( "confirmDelete", strings.delete_xposts_confirm );
+            }
+
+            if ( ! do_delete ) {
+                e.preventDefault();
+            }
+        }
+
+        $("#js-preview-button").click(openPreview);
+        $("#js-spellcheck-button").click(handleSpellcheck);
+        $("#js-delete-button").click(handleDelete);
+    };
+
     var initCommunitySection = function($form) {
         $form.bind("journalselect-full", function(e, journal) {
             if ( journal.name && journal.isremote ) {
@@ -499,6 +544,7 @@ var postForm = (function($) {
         var entryForm = $("#js-post-entry");
 
         initMainForm(entryForm);
+        initButtons(entryForm, $( ".crosspost-component" ), formData.strings);
         initCommunitySection(entryForm);
 
         initCurrents(entryForm, formData.moodpics);

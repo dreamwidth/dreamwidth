@@ -261,7 +261,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                 <ul class="button-group right">
                     <li>[%- form.submit( value = dw.ml('talk.btn.preview')
                                      name = "action:preview"
-                                     id = "preview_button"
+                                     id = "js-preview-button"
                                      class = "small secondary button"
                                      )
                     -%]</li>
@@ -269,7 +269,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     [%- IF can_spellcheck %]
                     <li>[% form.submit( value = dw.ml('entryform.spellcheck')
                                      name = "action:spellcheck"
-                                     id = "spellcheck_button"
+                                     id = "js-spellcheck-button"
                                      class = "small secondary button"
                                      );
                     %]</li>
@@ -331,7 +331,6 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
             <div class="button-bar">
                 [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
                                  name = "action:post"
-                                 id = "submit_entry_large"
                                  class = "button left"
                                  )
                 -%]
@@ -339,7 +338,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                 [% IF action.edit %]
                     [%- form.submit( value = dw.ml( '.button.delete' )
                                      name  = "action:delete"
-                                     id    = "delete_entry"
+                                     id    = "js-delete-button"
                                      class = "button secondary right"
                                     )
                     -%]
