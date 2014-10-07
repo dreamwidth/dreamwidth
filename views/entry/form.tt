@@ -251,7 +251,9 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                      -%]</li>
                 [%- ELSE -%]
                     [% '.select.usejournal.format' | ml( user = journallist.first.ljuser_display ) %]
-                    [% form.hidden( name = "usejournal", id = "js-usejournal", value = journallist.first.user ) %]
+                    [% form.hidden( name = "usejournal", id = "js-usejournal", value = journallist.first.user,
+                        "data-is-admin" = remote != journallist.first && remote.can_manage( journallist.first )
+                    ) %]
                 [%- END -%]
                 [%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
 
@@ -277,28 +279,44 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div>
     </div> <!-- End main column sub & entry -->
 
-    [%- BLOCK column %]
-        [% FOREACH component = components %]
-        <div class='panel component [% component %]-component[% UNLESS panels.show.$component -%] inactive-component[%- END -%]'
+    [%- BLOCK components forCommunity = 0 %]
+        [% FOREACH component = items %]
+        [%- IF forCommunity -%]<div class='columns medium-6 large-4'>[%- END -%]
+
+        <div class='panel component [% component %]-component[% UNLESS forCommunity || panels.show.$component -%] inactive-component[%- END -%]'
              data-collapse='[% component %]' data-collapse-state='[% panels.collapsed.$component ? "collapsed" : "expanded" %]'>
-        [%- file = editable.$component ? "entry/module-${component}.tt" : "entry/display/module-${component}.tt" -%]
+        [%- file = forCommunity || editable.$component
+            ? "entry/module-${component}.tt"
+            : "entry/display/module-${component}.tt"
+        -%]
         [%- dw.scoped_include( file ); %]
         </div>
+
+        [%- IF forCommunity -%]</div>[%- END -%]
         [%- END -%]
     [% END -%]
 
-    <div class="row components first-column">
-        <div class='columns'> <!-- first column of components -->
-            [% PROCESS column components = panels.order.shift %]
+    <div class="row components-columns">
+        <div class="columns components first-column"><!-- first column of components -->
+            [% PROCESS components items = panels.order.shift %]
         </div>
-    </div>
-    <div class="row components second-column">
-        <div class="columns medium-6"> <!-- second column of components -->
-            [% PROCESS column components = panels.order.shift %]
+        <div class='columns components second-column'> <!-- second column of components -->
+            [% PROCESS components items = panels.order.shift %]
         </div>
 
-        <div class="columns medium-6"> <!-- third column of components -->
-            [% PROCESS column components = panels.order.shift %]
+        <div class='columns components third-column'> <!-- third column of components -->
+            [% PROCESS components items = panels.order.shift %]
+        </div>
+    </div>
+
+    <div class="community-administration">
+    <hr>
+        <div class="row">
+            <div class="columns"><h2>Community Administration</h2></div>
+        </div>
+        <div class="row components">
+            [%- PROCESS components forCommunity = 1
+                    items = [ "community-flags" ] -%]
         </div>
     </div>
 

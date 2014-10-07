@@ -5015,7 +5015,7 @@ sub entryform_panels {
                    [ "access", "currents", "comments", "age_restriction" ],
 
                    # FIXME: should be [ ... "scheduled" ]
-                   [ "icons", "crosspost", "flags" ],
+                   [ "icons", "crosspost" ],
                 ],
         show => {
             "tags"          => 1,
@@ -5026,7 +5026,6 @@ sub entryform_panels {
             "age_restriction" => 0,
             "icons"         => 1,
             "crosspost"     => 0,
-            "flags"     => 1,
             #"scheduled"     => 0,
             #"status"        => 1,
         },
@@ -5036,6 +5035,7 @@ sub entryform_panels {
     my %obsolete = (
         access => 1,
         journal => 1,
+        flags => 1,
     );
 
     my %need_panels = map { $_ => 1 } keys %{$default->{show}};

@@ -4,17 +4,12 @@
     .entry-full-width {
         .first-column {
             float: left;
-            margin-right: $column-gutter / 2;
             width: grid-calc(4, 12);
         }
-        .second-column {
-            float: left;
-            margin-left: 0;
-            width: grid-calc(8, 12);
-        }
 
-        .second-column > .columns {
-            margin-right: -$column-gutter / 2;
+        .second-column, .third-column {
+            float: left;
+            width: grid-calc(4, 12);
         }
     }
 
@@ -23,10 +18,10 @@
             float: left;
             margin-right: $column-gutter / 2;
             width: grid-calc(8, 12);
-        }
 
-        .current-entry > .columns {
-            padding-right: 0;
+            & > .columns {
+                padding-right: 0;
+            }
         }
 
         .row.current-entry:after {
@@ -35,18 +30,25 @@
 
         .first-column {
             float: left;
-            margin-left: $column-gutter / 2;
             width: grid-calc(4, 12);
         }
-
-        .second-column {
-            clear: both;
+        .second-column, .third-column {
+            float: left;
+            width: grid-calc(6, 12);
         }
     }
 }
 
 .js .js-only.components {
     display: none;
+}
+
+.community-administration {
+    clear: both;
+
+    h2 {
+        font-size: 1.2rem;
+    }
 }
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)

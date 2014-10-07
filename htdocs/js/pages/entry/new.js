@@ -4,6 +4,18 @@ var postForm = (function($) {
         $form.fancySelect();
     };
 
+    var initCommunitySection = function($form) {
+        $form.bind("journalselect-full", function(e, journal) {
+            if ( journal.name && journal.isremote ) {
+                if ( journal.iscomm && journal.canManage) {
+                    $(".community-administration").show();
+                } else {
+                    $(".community-administration").hide();
+                }
+            }
+        });
+    }
+
     var initCurrents = function($form, moodpics) {
         var $moodSelect = $("#js-current-mood");
         var $customMood = $("#js-current-mood-other");
@@ -131,8 +143,14 @@ var postForm = (function($) {
 
 
         // update the options when journal changes
-        function adjustSecurityDropdown(data) {
+        function adjustSecurityDropdown(data, journal) {
             if ( !data ) return;
+
+            if ( journal ) {
+                $form.trigger( "journalselect-full", $.extend( {}, journal, {
+                    canManage: data.ret.can_manage
+                }) );
+            }
 
             function createOption(option) {
                 var security = security_options[option];
@@ -206,7 +224,7 @@ var postForm = (function($) {
                     adjustSecurityDropdown({})
                 } else if ( ! opts.edit ) {
                     $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions",
-                    { "user": journal.name }, adjustSecurityDropdown);
+                    { "user": journal.name }, function(data) { adjustSecurityDropdown(data, journal) } );
                 }
             }
         } );
@@ -225,13 +243,18 @@ var postForm = (function($) {
                 iscomm = journal !== $("#js-remote").val();
             }
 
-            $form.data( "journal", journal )
-                .trigger( "journalselect",
-                {
+            var journalData = {
                     "name": journal,
                     "iscomm": iscomm,
                     isremote: true
-                });
+            };
+            $form.data( "journal", journal )
+                .trigger( "journalselect", journalData );
+
+            if ( $usejournal.data( "is-admin" ) ) {
+                $form.trigger( "journalselect-full", $.extend( journalData, { canManage: true } ) );
+                $usejournal.removeData("is-admin");
+            }
         });
     };
 
@@ -476,6 +499,7 @@ var postForm = (function($) {
         var entryForm = $("#js-post-entry");
 
         initMainForm(entryForm);
+        initCommunitySection(entryForm);
 
         initCurrents(entryForm, formData.moodpics);
         initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
