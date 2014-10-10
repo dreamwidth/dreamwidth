@@ -116,6 +116,10 @@
     input[type="radio"] + label {
         display: inline;
     }
+
+    a {
+        text-decoration: none;
+    }
 }
 
 /* Currents */
@@ -190,14 +194,3 @@
 .reveal-modal fieldset {
     border: none;
 }
-
-/* TEMPORARY */
-.toolbar {
-    background-color: gray;
-    border: 1px black solid;
-    * {
-        display: none;
-    }
-}
-.toolbar    { height: 2em;  }
-
