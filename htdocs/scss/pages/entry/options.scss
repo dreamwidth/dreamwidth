@@ -10,16 +10,16 @@
 }
 
 /* sortable */
+.sortable-column-text {
+    display: none;
+}
+
 .screen-customize-mode {
     .ui-sortable {
         border-width: 2px;
         border-style: dashed;
         min-height: 200px;
         padding-bottom: 10em; // space for the drag & drop instructions
-
-        .sortable-column-text {
-            display: none;
-        }
     }
 
 
