@@ -61,12 +61,15 @@ $.endpoint = function(action){
 $.fn.throbber = function(jqxhr) {
     var $this = $(this);
 
+    var bgcolor = $this.css( "backgroundColor" );
+    var bgposition = parseInt($this.css("padding-right"), 10) + $this.width();
+
     if ( ! $this.data( "throbber" ) ) {
         $this.css( "padding-right", "+=18px" );
     }
 
     $this
-        .css( "background", "url('" + $.throbber.src + "') center right no-repeat" )
+        .css( "background", "url('" + $.throbber.src + "') " + bgcolor + " "  + bgposition + "px center no-repeat" )
         .data("throbber", true);
 
     jqxhr.then(function() {

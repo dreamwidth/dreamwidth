@@ -1,0 +1,64 @@
+.note {
+    font-size: small;
+    font-style: italic;
+}
+
+.panels-list {
+    -moz-column-width: 12em;
+    -webkit-column-width: 12em;
+    column-width: 12em;
+}
+
+/* sortable */
+.screen-customize-mode {
+    .ui-sortable {
+        border-width: 2px;
+        border-style: dashed;
+        min-height: 200px;
+        padding-bottom: 10em; // space for the drag & drop instructions
+
+        .sortable-column-text {
+            display: none;
+        }
+    }
+
+
+    // all components (even non-sortable ones) should be disabled
+    .component {
+        input, button, img, select, label, a, textarea {
+            pointer-events: none;
+        }
+    }
+
+    .sortable-components {
+        .component, .panel {
+           cursor: move;
+           border-left-style: none;
+           border-right-style: none;
+
+           &.ui-sortable-helper {
+               border-style: solid;
+            }
+        }
+
+        .sortable-column-text {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            padding: 0.5em 1.5em;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        .inactive-component {
+            display: block;
+            opacity: 0.65;
+
+            .inner { display: none; }
+        }
+    }
+}

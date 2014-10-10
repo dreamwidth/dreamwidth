@@ -148,64 +148,75 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
     [%- dw.form_auth -%]
 
-    <div class="current-entry row"><!-- Start main column sub & entry -->
-        <div class="columns large-12">
+    <div class="current-entry row"><div class="columns"><!-- Start main column sub & entry -->
 
-                <!-- TODO make this only take up one tab area? -->
-                <div class="toolbar">
-                    <div id="main-tools" class='subtoolbar'>
-                        [%- IF remote.can_create_polls OR journalu.can_create_polls -%]
-                        <a href="[%site.root%]/poll/create" class="external-link" target="_blank">Create Poll <span class="ui-icon ui-icon-newwin"></span></a>
-                        [%- END -%]
-                        <a href="#" class="unimplemented"><img src="[% site.imgroot%]/silk/site/help.png" alt="Help for valid HTML tags" title="Help for valid HTML tags" width="16" height="16"></a>
-                        <a href="[%site.root%]/entry/options" id="post_options"><img src="[% site.imgroot%]/silk/site/cog.png" alt="Edit entry form settings" title="Edit entry form settings" width="16" height="16"> Settings</a>
-                    </div>
+        <div class="toolbar-container">
+        <div class="row"><div class="columns">
+            <div class='panel radius toolbar text-right'>
+                [%- IF remote.can_create_polls OR journalu.can_create_polls -%]
+                [%- INCLUDE "components/icon-link-decorative.tt"
+                        link = {
+                            url = site.root _ "/poll/create"
+                            newwindow = 1
+                        }
+                        icon = "graph-horizontal"
+                        text = "Create Poll"
+                -%]
+                [%- END -%]
 
-                    <div id="settings-tools" class='subtoolbar' aria-live="polite">
-                    <!-- TODO:
-                    autoformat
-                    supported html...
-                    -->
-                    </div>
+                <span id="js-entry-settings">
+                [%- INCLUDE "components/icon-link-decorative.tt"
+                        link = {
+                            url = site.root _ "/entry/options"
+                            newwindow = 1
+                        }
+                        icon = "widget"
+                        text = "Settings"
+                -%]
+                </span>
+            </div>
+        </div></div>
+        <div class="row"><div class="columns">
+            <div class="panel" id="js-settings-panel"></div>
+        </div></div>
 
-                    <div id="plaintext-tools" class='subtoolbar'>
-                        <!-- TODO: needs to be JS only -->
-                        <input type='button' value='Insert image' class='unimplemented' />
-                        <input type='button' value='Embed media' class='unimplemented' />
-                        <input type="button" value="Use Rich Text Mode" class='unimplemented' />
-                    </div>
-                </div>
+        </div>
 
-                <div class='subject-container'>
-                    [%- form.textbox( label = dw.ml(".subject.label")
-                            id = "subject"
-                            name = "subject"
+        <div class="row"><div class="columns">
+            <div class='subject-container'>
+                [%- form.textbox( label = dw.ml(".subject.label")
+                        id = "subject"
+                        name = "subject"
 
-                            maxlength = limits.subject_length
-                            size = "50"
-
-                            labelclass = "hidden"
-
-                            placeholder = dw.ml(".subject.placeholder")
-                    ) -%]
-                </div>
-
-                <div class='event-container'>
-                    [%- form.textarea( label = dw.ml(".event.label")
-                        id = "event"
-                        name = "event"
-
-                        cols = "50"
-                        rows = "20"
-                        wrap = "soft"
+                        maxlength = limits.subject_length
+                        size = "50"
 
                         labelclass = "hidden"
 
-                        placeholder = dw.ml(".event.placeholder")
-                    ) -%]
-                </div>
+                        placeholder = dw.ml(".subject.placeholder")
+                ) -%]
+            </div>
+        </div></div>
 
-            <div class="button-bar clearfix">
+        <div class="row"><div class="columns">
+            <div class='event-container'>
+                [%- form.textarea( label = dw.ml(".event.label")
+                    id = "event"
+                    name = "event"
+
+                    cols = "50"
+                    rows = "20"
+                    wrap = "soft"
+
+                    labelclass = "hidden"
+
+                    placeholder = dw.ml(".event.placeholder")
+                ) -%]
+            </div>
+        </div></div>
+
+        <div class="row"><div class="columns">
+            <div class="button-bar">
                 <ul class="button-group left">
 
                 <li>
@@ -276,7 +287,8 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     [%- END -%]
                 </ul>
             </div>
-        </div>
+        </div></div>
+    </div>
     </div> <!-- End main column sub & entry -->
 
     [%- BLOCK components forCommunity = 0 %]
@@ -297,15 +309,21 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
     [% END -%]
 
     <div class="row components-columns">
-        <div class="columns components first-column"><!-- first column of components -->
+        <div class="columns components first-column sortable-components"><!-- first column of components -->
+        <div class="inner">
             [% PROCESS components items = panels.order.shift %]
         </div>
-        <div class='columns components second-column'> <!-- second column of components -->
+        </div>
+        <div class='columns components second-column sortable-components'> <!-- second column of components -->
+        <div class="inner">
             [% PROCESS components items = panels.order.shift %]
+        </div>
         </div>
 
-        <div class='columns components third-column'> <!-- third column of components -->
+        <div class='columns components third-column sortable-components'> <!-- third column of components -->
+        <div class="inner">
             [% PROCESS components items = panels.order.shift %]
+        </div>
         </div>
     </div>
 

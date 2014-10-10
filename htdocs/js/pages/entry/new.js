@@ -4,6 +4,30 @@ var postForm = (function($) {
         $form.fancySelect();
     };
 
+    var initToolbar = function($form, minAnimation) {
+        $("#js-entry-settings").find("a").click(function(e) {
+            e.preventDefault();
+
+            var $link = $(this);
+
+            var $settings = $("#js-settings-panel");
+            var $settingsForm = $settings.children( "form:visible" );
+
+            if ( $settingsForm.length > 0 ) {
+                $settingsForm.trigger( "settings.cancel" )
+                $settings.slideUp();
+            } else {
+                $link.addClass( "spinner" );
+                $settings.load(Site.siteroot + "/__rpc_entryoptions", function(html,status,jqxhr) {
+                    $(this).slideDown();
+                    $link.removeClass( "spinner" );
+                })
+            }
+        });
+
+        $.fx.off = minAnimation;
+    };
+
     var initButtons = function($form, $crosspost, strings) {
         function openPreview(e) {
             var form = e.target.form;
@@ -544,6 +568,7 @@ var postForm = (function($) {
         var entryForm = $("#js-post-entry");
 
         initMainForm(entryForm);
+        initToolbar(entryForm, formData.minAnimation);
         initButtons(entryForm, $( ".crosspost-component" ), formData.strings);
         initCommunitySection(entryForm);
 

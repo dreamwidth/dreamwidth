@@ -40,9 +40,9 @@ my %form_to_props = (
 
 
 my @modules = qw(
-    slug tags currents displaydate
-    comments age_restriction icons
-    crosspost flags
+    tags displaydate slug
+    currents comments age_restriction
+    icons crosspost
 );
 
 
@@ -1488,7 +1488,7 @@ sub options_rpc_handler {
     $vars->{use_js} = 1;
 
     my $r = DW::Request->get;
-    $r->status( @{$vars->{error_list} || []} ? HTTP_BAD_REQUEST : HTTP_OK );
+    $r->status( $vars->{errors} && $vars->{errors}->exist ? HTTP_BAD_REQUEST : HTTP_OK );
 
     return DW::Template->render_template( 'entry/options.tt', $vars, { fragment => 1 } );
 }
@@ -1565,6 +1565,7 @@ sub _options {
     };
 
     my $r = DW::Request->get;
+    my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
         my $post = $r->post_args;
         $vars->{formdata} = $post;
@@ -1606,9 +1607,10 @@ sub _options {
 
             $u->set_prop( js_animations_minimal => $post->{minimal_animations} );
         } else {
-            $vars->{error_list} = [ LJ::Lang::ml( "error.invalidform" ) ];
+            $errors->add( undef, "error.invalidform" );
         }
 
+        $vars->{errors} = $errors;
     } else {
 
         my $default = {

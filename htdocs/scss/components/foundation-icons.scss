@@ -21,7 +21,6 @@ $include-html-fi-icon-classes: true !default;
 
 @import "foundation/base";
 %fi-icon {
-    display: inline-block;
     font-family: "foundation-icons";
     font-style: normal;
     font-weight: normal;
@@ -35,7 +34,8 @@ $include-html-fi-icon-classes: true !default;
 @if $include-html-fi-icon-classes {
     .fi-icon--decorative {
         .fontface & {
-            .fi-icon:before {
+            .fi-icon {
+                display: inline-block;
                 @extend %fi-icon;
             }
         }
@@ -48,6 +48,10 @@ $include-html-fi-icon-classes: true !default;
 
         .fontface.generatedcontent & {
             .fi-icon:before {
+                display: inline-block;
+            }
+
+            .fi-icon {
                 @extend %fi-icon;
             }
 
@@ -142,7 +146,7 @@ $include-html-fi-icon-classes: true !default;
         // .fi-foot:before { content: "\f151"; }
         // .fi-foundation:before { content: "\f152"; }
         // .fi-graph-bar:before { content: "\f153"; }
-        // .fi-graph-horizontal:before { content: "\f154"; }
+        .fi-graph-horizontal:before { content: "\f154"; }
         // .fi-graph-pie:before { content: "\f155"; }
         // .fi-graph-trend:before { content: "\f156"; }
         // .fi-guide-dog:before { content: "\f157"; }
@@ -334,7 +338,7 @@ $include-html-fi-icon-classes: true !default;
         // .fi-volume:before { content: "\f211"; }
         // .fi-web:before { content: "\f212"; }
         // .fi-wheelchair:before { content: "\f213"; }
-        // .fi-widget:before { content: "\f214"; }
+        .fi-widget:before { content: "\f214"; }
         .fi-wrench:before { content: "\f215"; }
         // .fi-x-circle:before { content: "\f216"; }
         .fi-x:before { content: "\f217"; }

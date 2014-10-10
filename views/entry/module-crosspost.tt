@@ -32,9 +32,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     <div class="row"><div class="columns">
         <span class="crosspost-settings right">
-            <a class="fi-icon--decorative" href="[%- crosspost_url -%]" target="_blank">
-                <span class="fi-icon fi-wrench" aria-hidden="true"></span> [%- ".settings.link" | ml -%]
-            </a>
+            [%- INCLUDE "components/icon-link-decorative.tt"
+                    link = {
+                        url = crosspost_url
+                        newwindow = 1
+                    }
+                    icon = "wrench"
+                    text = dw.ml( ".settings.link" )
+            -%]
         </span>
 
         [%- form.checkbox_nested( label = dw.ml(".label.crosspost_entry")

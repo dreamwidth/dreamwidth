@@ -5,7 +5,7 @@ Page to edit options for the post entry page
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2011 by Dreamwidth Studios, LLC.
+Copyright (c) 2011-2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -14,114 +14,101 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- sections.windowtitle = ".title" | ml -%]
 
-[% dw.need_res( "stc/simple-form.css" ) %]
-[%- dw.need_res( { group => "fragment" }, "stc/simple-form.css", "stc/jquery.postoptions.css", "js/jquery.postoptions.js" ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- dw.need_res( "stc/css/pages/entry/options.css" ) -%]
+[%- dw.need_res( { group => "fragment" }, "stc/css/pages/entry/options.css", "js/pages/entry/options.js" ) -%]
 
-<form action="/entry/options" method="post" id="post-options" class="simple-form">
+<form action="/entry/options" method="post" id="js-post-options">
 
-[% IF error_list %]
-<div class='error-box message-box'>
-<div class='title'>[% '.error.header' | ml %]</div>
-<ul class='error-list'>
-    [% FOREACH error = error_list %]
-        <li>[% error %] </li>
-    [% END %]
-</ul>
+[%- IF use_js && errors.exist -%]
+<div class="row">
+    <div class="columns large-12">
+        [%- FOREACH err = errors.get_all -%]
+            <div class="alert-box alert radius">[%- err.message -%]</div>
+        [%- END -%]
+    </div>
 </div>
-[% END %]
+[%- END -%]
 
 [% dw.form_auth %]
 
-<div class='inner'>
 <fieldset>
     <legend><span>[%sections.windowtitle%]</span></legend>
 
-    <ul>
-    <li class="odd">
-        <fieldset class="radio-group" id='entry_field_width'>
-            <legend><span>[% '.width.header' | ml %]</span></legend>
-            <ul>
-                <li>
-                    [%- width_full_label = '.width.label.full' | ml;
-                        form.radio(
-                            label = width_full_label
-                            id = 'entry_field_full_width'
-                            name = 'entry_field_width'
-                            value = 'F'
-                        )
-                    -%]
-                </li>
-                <li>
-                    [%- width_partial_label = '.width.label.partial' | ml;
-                        form.radio(
-                            label = width_partial_label
-                            id = 'entry_field_partial_width'
-                            name = 'entry_field_width'
-                            value = 'P'
-                        )
-                    -%]
-                <p class='note'>[% '.width.note' | ml %]</p>
-                </li>
-            </ul>
-        </fieldset>
-    </li>
-    <li class="even">
-        <fieldset class="checkbox-group">
-            <legend><span>[% '.panels.header' | ml %]</span></legend>
-            [%- IF panels.size > 0 -%]
-            <ul class='panels-list'>
+    <fieldset class="row"><div class="columns">
+        <legend><span>[% '.width.header' | ml %]</span></legend>
+            [%- form.radio_nested(
+                    label = dw.ml( '.width.label.full' )
+                    name = 'entry_field_width'
+                    value = 'F'
+                )
+            -%]
+            [%- form.radio_nested(
+                    label = dw.ml( '.width.label.partial' )
+                    name = 'entry_field_width'
+                    value = 'P'
+                )
+            -%]
+        <p class='note'>[% '.width.note' | ml %]</p>
+    </div></fieldset>
+
+    <fieldset class="row"><div class="columns">
+        <legend><span>[% '.panels.header' | ml %]</span></legend>
+        [%- IF panels.size > 0 -%]
+            <div class="panels-list">
                 [%- FOREACH panel IN panels -%]
-                <li>
-                    [% panel_label = panel.label_ml | ml;
-                        form.checkbox(
-                            label = panel_label
+                    [% form.checkbox_nested(
+                            label = dw.ml( panel.label_ml )
                             name = panel.name
-                            id = panel.id
                             value = panel.panel_name
                         ) %]
-                </li>
                 [%- END -%]
-            </ul>
+            </div>
+
+            [%- IF use_js -%]
+                <p class='note'>Scroll down to arrange panels to your preference</p>
             [%- END -%]
-        </fieldset>
-    </li>
-    <li class="odd">
-        <fieldset>
+        [%- END -%]
+    </div></fieldset>
+
+    <fieldset class="row"><div class="columns">
         <legend><span>[% '.panels.reset.header' | ml %]</span></legend>
-        <ul>
-            <li>[%- reset_label = '.panels.reset.label' | ml;
-                form.checkbox(
-                    label = reset_label
-                    id = "reset_panels"
-                    name = "reset_panels"
-                    value = "1"
-                )
-            -%]</li>
+            [%- form.checkbox_nested(
+                label = dw.ml( '.panels.reset.label' )
+                name = "reset_panels"
+                value = "1"
+            )
+        -%]
+    </div></fieldset>
+
+    <fieldset class="row"><div class="columns">
+        <legend><span>[% '.animations.header' | ml %]</span></legend>
+            [%- animations_label = '.animations.label' | ml;
+                form.checkbox_nested(
+                    label = animations_label
+                    id = 'js-minimal-animations'
+                    name = 'minimal_animations'
+                    value = '1'
+                ) -%]
+            </li>
         </ul>
-    </li>
-    <li class="even">
-        <fieldset>
-            <legend><span>[% '.animations.header' | ml %]</span></legend>
-            <ul>
-                <li>
-                [%- animations_label = '.animations.label' | ml;
-                    form.checkbox(
-                        label = animations_label
-                        id = 'minimal_animations'
-                        name = 'minimal_animations'
-                        value = '1'
-                    ) -%]
-                </li>
-            </ul>
-        </fieldset>
-    </li>
-    </ul>
+    </div></fieldset>
+
+    <fieldset class="row"><div class="columns">
+        [% form.submit( value = dw.ml( ".submit" ) ) %]
+    </div></fieldset>
+
 </fieldset>
 
-<fieldset class='submit'>[% submit_label = ".submit" | ml; form.submit( value = submit_label ) %]</fieldset>
-
-</div>
 </form>
 
 
-[%- UNLESS use_js -%]<p><a href="[%site.root%]/entry/new">[% ".back" | ml %]</a></p>[%- END -%]
+[%- UNLESS use_js -%]
+    [%- INCLUDE "components/icon-link-decorative.tt"
+        link = {
+            url = "$site.root/entry/new"
+        }
+        icon = "arrow-left"
+        text = dw.ml( ".back" )
+    -%]
+[%- END -%]

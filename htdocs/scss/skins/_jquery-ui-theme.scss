@@ -12,3 +12,7 @@
         @include radius();
     }
 }
+
+.ui-sortable {
+    border-color: $border-color;
+}

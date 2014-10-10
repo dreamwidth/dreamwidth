@@ -5012,7 +5012,7 @@ sub entryform_panels {
         order => [ [ "tags", "displaydate", "slug" ],
 
                    # FIXME: should be [ "status" ... ] %]
-                   [ "access", "currents", "comments", "age_restriction" ],
+                   [ "currents", "comments", "age_restriction" ],
 
                    # FIXME: should be [ ... "scheduled" ]
                    [ "icons", "crosspost" ],
