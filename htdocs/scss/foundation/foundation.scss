@@ -1,5 +1,10 @@
+/* site-wide components and settings, to be included in the site skins (but not individual pages) */
+
 // import the settings we want to work with
 @import "foundation/settings";
+
+// import global
+@import "foundation/components/global";
 
 // normalize stylesheet
 @import "foundation/normalize";
@@ -29,15 +34,16 @@
   // "foundation/components/progress-bars",
   "foundation/components/reveal",
   // "foundation/components/side-nav",
-  // "foundation/components/split-buttons",
+  "foundation/components/split-buttons",
   "foundation/components/sub-nav",
-  // "foundation/components/switch",
+  //"foundation/components/switches",
   "foundation/components/tables",
   // "foundation/components/tabs",
-  // "foundation/components/thumbs",
+  "foundation/components/thumbs",
   // "foundation/components/tooltips",
   // "foundation/components/tabs",
-  "foundation/components/offcanvas",
+  "foundation/components/type",
+  "foundation/components/top-bar",
   "foundation/components/visibility";
 
 
@@ -50,4 +56,6 @@
 @import
   "components/foundation-custom/buttons",
   "components/foundation-custom/pagination",
-  "components/foundation-custom/tables";
+  "components/foundation-custom/tables",
+  "components/foundation-custom/reveal";
+

@@ -1,7 +1,6 @@
 /* rough way to make certain tables display as a list on smaller screens */
 
-$include-html-classes: false;
-@import "foundation/settings", "foundation/components/global";
+@import "foundation/base";
 
 .table-as-list {
     thead {

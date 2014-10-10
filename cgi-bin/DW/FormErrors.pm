@@ -70,12 +70,31 @@ sub add {
     my ( $self, $key, $error_ml, $args ) = @_;
 
     my $error = {
-        message => $error_ml,
+       ml_key => $error_ml,
     };
-    $error->{args} = $args if $args;
+    $error->{ml_args} = $args if $args;
 
-    $self->{_data}->add( $key, $error );
+    $self->{_data}->add( $key || "", $error );
 }
+
+=head2 C<< $self->add_string( $key, $hardcoded_string ) >>
+
+Adds a string for the given form field (key).
+
+Use this only if you have a hardcoded string, such as one in a variable in the site config.
+Otherwise, $self->add is preferred.
+
+=cut
+sub add_string {
+    my ( $self, $key, $hardcoded_string ) = @_;
+
+    my $error = {
+        message => $hardcoded_string,
+    };
+
+    $self->{_data}->add( $key || "", $error );
+}
+
 
 =head2 C<< $self->get( $key ) >>
 
@@ -85,9 +104,13 @@ Errors are a hashref which contain:
 
 =over
 =item B< message >
-error ml code
+the full string of the error message
 
-=item B< args > (optional)
+=item B< ml_key > (optional)
+the ml key used to generate the error message. May not exist if we
+used $self->add_string
+
+=item B< ml_args > (optional)
 arguments for the ml string, as a hashref
 
 =back
@@ -98,9 +121,9 @@ sub get {
     my ( $self, $key ) = @_;
 
     my @errors = $self->{_data}->get_all( $key );
-   foreach my $error ( @errors ) {
-       $error->{message} = $self->_absolute_ml_code( $error->{message} );
-   }
+    foreach my $error ( @errors ) {
+        $error->{message} ||= $self->_absolute_ml_code( $error->{ml_key} );
+    }
 
     # using an array slice to force it to return as a list, even if in scalar context
     # (so if it's called in scalar context, we just pull off the first error...)
@@ -114,8 +137,8 @@ Get all the errors in the order that were added.
 Returns a reference to a list:
 
 [
-    { "key" => $key, "message" => $error_ml },
-    { "key" => $key, "message" => $error_ml, args => { arg1 => value } },
+    { "key" => $key, "message" => $message },
+    { "key" => $key, "message" => $message, ml_key => $error_ml, ml_args => { arg1 => value } },
 ]
 
 Duplicate keys are preserved
@@ -128,9 +151,13 @@ sub get_all {
     $self->{_data}->each( sub {
                 my $error = {
                     key     => $_[0],
-                    message => $self->_absolute_ml_code( $_[1]->{message} ),
                 };
-                $error->{args} = $_[1]->{args} if $_[1]->{args};
+                $error->{ml_key} = $self->_absolute_ml_code( $_[1]->{ml_key} )
+                    if $_[1]->{ml_key};
+                $error->{ml_args} = $_[1]->{ml_args} if $_[1]->{ml_args};
+
+                $error->{message} = $_[1]->{message}
+                    || LJ::Lang::ml( $error->{ml_key}, $error->{ml_args} );
 
                 push @errors, $error;
             } );

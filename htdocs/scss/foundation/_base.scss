@@ -1,0 +1,12 @@
+/* include this file in your page or component to get settings, functions, etc.
+This does not print any additional CSS because that same CSS will already be in the site skin
+
+(note: because this stylesheet is generated separately from the site skin, the @import/@export
+unique handling SASS does will not work)
+*/
+
+$include-html-classes: false;
+@import "foundation/settings";
+
+$modules: append($modules, "global"); // hack so we don't print out the meta.foundation* classes from global
+@import "foundation/components/global";

@@ -1,0 +1,25 @@
+@import "foundation/base", "mixins/bare-button";
+
+.collapse-trigger, .collapse-trigger:hover, .collapse-trigger:focus {
+    display: block;
+    width: 100%;
+
+    @extend %bare-button;
+}
+
+.collapse-trigger .fi-icon {
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: .5;
+}
+
+.collapse-trigger:hover .fi-icon,
+.collapse-trigger:focus .fi-icon {
+    @include single-transition(opacity);
+    opacity: 1;
+}
+
+.collapse-trigger-action {
+    @include element-invisible();
+}

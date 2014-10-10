@@ -1,0 +1,11 @@
+// for when we want to use the button element to be semantically accurate / accessible
+// but we don't want it to look visually like a button
+%bare-button {
+    text-align: left;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+}

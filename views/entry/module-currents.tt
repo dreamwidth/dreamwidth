@@ -5,58 +5,59 @@ Module for currents / metadata in the entry form
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2011 by Dreamwidth Studios, LLC.
+Copyright (c) 2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
-  <fieldset>
-    <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
-    <div class='inner'>
-      <p>
+<fieldset>
+<h3>[% ".header" | ml %]</h3>
+<div class='inner'>
+
+    <div class="row"><div class="columns">
         [%- moodselect = [];
             FOREACH mood IN moods;
                 moodselect.push( mood.id, mood.name );
             END
         -%]
-        [%- label = ".label.current_mood" | ml;
-        form.select( label = label
+        [%- form.select( label = dw.ml( ".label.current_mood" )
             name = "current_mood"
-            id = "current_mood"
+            id = "js-current-mood"
 
             items = moodselect
         ) -%]
-      </p>
-      <p>
-        [%- label = ".label.current_mood_other" | ml;
-        form.textbox( label = label
-            name = "current_mood_other"
-            id = "current_mood_other"
+    </div></div>
 
-            size = "20"
-            maxlength = "30"
-         ) %]
-      </p>
-      <p>
-        [%- label = ".label.current_music" | ml;
-        form.textbox( label = label
+    <div class="row"><div class="columns">
+        [%- form.textbox( label = dw.ml( ".label.current_mood_other" )
+          name = "current_mood_other"
+          id = "js-current-mood-other"
+
+          size = "20"
+          maxlength = "30"
+        ) %]
+    </div></div>
+
+    <div class="row"><div class="columns">
+        [%- form.textbox( label = dw.ml( ".label.current_music" )
             name = "current_music"
-            id = "current_music"
+            id = "current-music"
 
             size="20"
             maxlength="80"
         ) %]
-      </p>
-      <p>
-        [%- label = ".label.current_location" | ml;
-        form.textbox( label = label
+    </div></div>
+
+    <div class="row"><div class="columns">
+        [%- form.textbox( label = dw.ml( ".label.current_location" )
             name = "current_location"
-            id = "current_location"
+            id = "current-location"
 
             size = "20"
             maxlength = "80"
         ) %]
-      </p>
-    </div>
-  </fieldset>
+    </div></div>
+
+</div>
+</fieldset>

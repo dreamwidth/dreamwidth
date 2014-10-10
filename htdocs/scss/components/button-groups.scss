@@ -1,0 +1,8 @@
+@import "foundation/base";
+
+// import the buttons component before we set $include-html-button-classes
+@import "foundation/components/buttons";
+
+$include-html-button-classes: true;
+@import "foundation/components/button-groups";
+.button-bar .button-group.right { margin-right: 0; }

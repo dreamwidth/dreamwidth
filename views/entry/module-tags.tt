@@ -12,20 +12,26 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
-  <fieldset>
-    <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
-    <div class="inner">
-        [%- label = ".label.tags" | ml;
-        form.textarea( label = label
-            id = "taglist"
+<fieldset>
+<h3>[% ".header" | ml %]</h3>
+<div class='inner'>
+
+    <div class="row"><div class="columns">
+        [%- form.textarea( label = dw.ml(".label.tags")
             name = "taglist"
+            id = "js-taglist"
 
             cols = "20"
             rows = "1"
         ) -%]
+    </div></div>
 
-      [% IF journalu %]
-          <a id="taglist_link" class="external-link" target="_blank" href="[% journalu.journal_base %]/tag/">[% ".link.tagspage" | ml %] <span class="ui-icon ui-icon-newwin"></span></a>
-      [% END %]
-    </div>
-  </fieldset>
+    [%- INCLUDE "components/tag-browser.tt" -%]
+
+    <div class="row"><div class="columns tagselector-controls">
+        [% IF journalu %]
+            <a id="js-taglist-link" target="_blank" href="[% journalu.journal_base %]/tag/">[% ".link.tagspage" | ml %]</a>
+        [% END %]
+    </div></div>
+</div>
+</fieldset>

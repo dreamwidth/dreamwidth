@@ -1021,7 +1021,7 @@ sub start_request
                     js/jquery/jquery.ui.position.js
                     stc/jquery/jquery.ui.core.css
                     stc/jquery/jquery.ui.tooltip.css
-                    stc/jquery/jquery.ui.theme.smoothness.css
+
 
                     js/jquery.hoverIntent.js
                     js/jquery.contextualhover.js

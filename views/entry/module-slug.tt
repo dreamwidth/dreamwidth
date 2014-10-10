@@ -12,23 +12,31 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
- <fieldset>
-   <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
-   <div class="inner">
+<fieldset>
+<h3>[% ".header" | ml %]</h3>
+<div class='inner'>
 
-   <div id="entry_slug_box">
-        [% label = ".label.post_slug" | ml;
-           form.textbox( label = label
-                name = "entry_slug"
-                id = "entry_slug"
+    <div class="row">
+        <div class="columns">
+            <div id="js-slug-base" class="slug-base"></div>
+        </div>
+    </div>
 
-                size = "30"
-                maxlength = "80"
-        ) %]
+    <div class="row collapse">
+        <div class="columns small-9">
+            [%- form.textbox( label = dw.ml( ".label.post_slug" )
+                    name = "entry_slug"
+                    id = "js-entry-slug"
+                    labelclass="hidden"
 
-        <br /><br />
-        <span id="slug_preview">[% ".label.preview" | ml %]</span>
-   </div>
+                    maxlength = "80"
+            ) -%]
+        </div>
 
-   </div>
- </fieldset>
+        <div class="columns small-3">
+            <span class="postfix">.html</span>
+        </div>
+    </div>
+
+</div>
+</fieldset>

@@ -1,5 +1,15 @@
 [%- sections.title = '.title' | ml -%]
 
+[%#- save the scripts in a variable to be printed out all together in a window.onload -%]
+[%- SET global.scripts = "" -%]
+
+[%- BLOCK onload -%]&lt;script&gt;jQuery(document).ready(function($) {
+    [% content %]
+  });&lt;/script&gt;
+
+  [%- global.scripts = global.scripts _ content -%]
+[%- END -%]
+
 [% CALL dw.active_resource_group( "foundation" ) %]
 
 <p>Here are the various elements that we use on our pages. This is meant to be the place where all the components we use are documented: their appearance, their HTML structure, how to use them. Individual pages should have very little page-specific styling. For consistency, use these first, and think carefully before trying to do something that only one page will use.</p>
@@ -73,7 +83,7 @@
       <div class="large-4 columns error">
         <label>Input Label</label>
         <input type="text" placeholder="large-4.columns">
-        <small>Some error here</small>
+        <small class="error">Some error here</small>
       </div>
       <div class="large-4 columns">
         <label>Input Label</label>
@@ -125,6 +135,135 @@
       <input type="button" class="button" value="(default) .button" /><br>
       <input type="button" class="large button" value=".large.button" /><br>
   </fieldset>
+
+  <fieldset>
+    <legend>Icon-only Buttons</legend>
+    <div class="row">
+      <div class="columns large-6">
+        [%- INCLUDE "components/icon-button.tt"
+              button = {
+                class = ""
+                id = ""
+              }
+              icon = "x"
+              text = "Close"
+        -%]
+        [%- INCLUDE "components/icon-button.tt"
+              button = {
+                class = "secondary"
+                id = ""
+              }
+              icon = "arrow-left"
+              text = "Previous"
+        -%]
+        [%- INCLUDE "components/icon-button.tt"
+              button = {
+                class = "secondary"
+                id = ""
+              }
+              icon = "arrow-right"
+              text = "Next"
+        -%]
+      </div>
+      <div class="columns large-6">
+[%- WRAPPER code -%]
+INCLUDE "components/icon-button.tt"
+  button = {
+    class = "[secondary][etc-button-class]"
+    id = ""
+  }
+  icon = "arrow-right"
+  text = "Next"
+[%- END -%]
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Buttons with Decorative Icons</legend>
+      <div class="row">
+        <div class="columns large-6">
+          [%- INCLUDE "components/icon-button-decorative.tt"
+                button = {
+                  class = ""
+                  id = ""
+                }
+                icon = "x"
+                text = "Close"
+          -%]
+          [%- INCLUDE "components/icon-button-decorative.tt"
+                button = {
+                  class = "secondary"
+                  id = ""
+                }
+                icon = "arrow-left"
+                text = "Previous"
+          -%]
+          [%- INCLUDE "components/icon-button-decorative.tt"
+                button = {
+                  class = "secondary"
+                  id = ""
+                }
+                icon = "arrow-right"
+                text = "Next"
+          -%]
+        </div>
+        <div class="columns large-6">
+  [%- WRAPPER code -%]
+  INCLUDE "components/icon-button-decorative.tt"
+    button = {
+      class = "[secondary][etc-button-class]"
+      id = ""
+    }
+    icon = "arrow-right"
+    text = "Next"
+  [%- END -%]
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Links with Decorative Icons</legend>
+        <div class="row">
+          <div class="columns large-6">
+            [%- INCLUDE "components/icon-link-decorative.tt"
+                  link = {
+                    url = "$site.root/etc"
+                    newwindow = 1
+                  }
+                  icon = "x"
+                  text = "Close"
+            %] |
+            [%- INCLUDE "components/icon-link-decorative.tt"
+                  link = {
+                    url = "$site.root/etc"
+                    newwindow = 1
+                  }
+                  icon = "arrow-left"
+                  text = "Previous"
+            %] |
+            [%- INCLUDE "components/icon-link-decorative.tt"
+                  link = {
+                    url = "$site.root/etc"
+                    newwindow = 1
+                  }
+                  icon = "arrow-right"
+                  text = "Next"
+            -%]
+          </div>
+          <div class="columns large-6">
+    [%- WRAPPER code -%]
+    INCLUDE "components/icon-link-decorative.tt"
+      link = {
+        url = "$site.root/etc"
+        newwindow = 1
+      }
+      icon = "arrow-right"
+      text = "Next"
+    [%- END -%]
+          </div>
+        </div>
+      </fieldset>
 </form>
 
 
@@ -169,18 +308,19 @@
 </div>
 
 <div class="large-6 columns">
-<h3>code</h3>
 [%-
   dw.need_res( { group => "foundation" },
       "js/components/jquery.select-all.js"
       "stc/css/components/select-all.css"
   );
 -%]
-
-<pre><code>  [&#37;- dw.need_res( { group => "foundation" },
+[%- WRAPPER code -%]
+dw.need_res( { group => "foundation" },
       "js/components/jquery.select-all.js"
       "stc/css/components/select-all.css"
-  ) -&#37;]</code></pre>
+);
+[%- END -%]
+
 </div>
 </div>
 
@@ -193,11 +333,11 @@
   %]
   </div>
   <div class="large-6 columns">
-  <h3>code</h3>
-  <pre><code>  [&#37; INCLUDE components/pagination.tt
+  [%- WRAPPER code -%]
+  INCLUDE components/pagination.tt
     current => 2,
     total_pages => 12,
-  &#37;]</code></pre>
+  [%- END -%]
   </div>
 </div>
 
@@ -225,10 +365,12 @@
   </ul>
 
   </div>
-  <div class="large-6 columns"><h3>code</h3>
-  <pre><code>  [&#37;- dw.need_res( { group => "foundation" },
+  <div class="large-6 columns">
+  [%- WRAPPER code -%]
+  dw.need_res( { group => "foundation" },
       "stc/css/components/queues.css"
-  ) -&#37;]</code></pre>
+  );
+  [%- END -%]
 </div>
 </div>
 
@@ -244,15 +386,126 @@
               { "text" => ".filter.suspended", "url" => "#" },
             ]
    -%]</div>
-  <div class="large-6 columns"><h3>code</h3>
-  <pre><code>    [&#37;- INCLUDE components/filter.tt
+  <div class="large-6 columns">
+  [%- WRAPPER code -%]
+  INCLUDE components/filter.tt
     links => [
       { "text" => ".filter.all", "url" => "#", "active" => 1 },
       { "text" => ".filter.active", "url" => "#" },
       { "text" => ".filter.pending", "url" => "#" },
       { "text" => ".filter.suspended", "url" => "#" },
     ]
-   -&#37;]</code></pre>
+  [%- END -%]
+  </div>
+</div>
+
+<h2>Collapsible Sections</h2>
+<div class="row">
+
+<div class="large-6 columns">
+  <div data-collapse="foo">
+    <h4>Foo</h4>
+    <div class="inner">foo foo foo fooooo</div>
+  </div>
+  <div data-collapse="bar" data-collapse-state="collapsed">
+    <h4>Bar</h4>
+    <div class="inner">bar bar barrrr</div>
+  </div>
+  <div data-collapse="baz" data-collapse-state="expanded">
+    <h4>Baz</h4>
+    <div class="inner">baz baz bzzt</div>
+  </div>
+</div>
+
+<div class="large-6 columns">
+  [%- dw.need_res( { group => "foundation" },
+        "js/components/jquery.collapse.js"
+        "stc/css/components/jquery.collapse.css"
+        "stc/css/components/foundation-icons.css"
+  ) -%]
+  [%- WRAPPER code -%]
+  dw.need_res( { group => "foundation" },
+        "js/components/jquery.collapse.js"
+        "stc/css/components/jquery.collapse.css"
+        "stc/css/components/foundation-icons.css"
+  )
+  [%- END -%]
+
+  [% WRAPPER code+onload -%]
+    $("body").collapse();
+  [%- END -%]
+  </code></pre>
+</div>
+</div>
+
+<h2>Fancy Select</h2>
+<div class="row">
+  <div class="large-6 columns">
+  [%- INCLUDE components/fancyselect.tt
+        name = "foo"
+        label = "Foo:"
+
+        items = [
+          { label = "plain"
+            value = "plain"
+            format = "a plain option"
+          }
+          { label = "image"
+            value = "image"
+            format = "with image prefix"
+            image = {
+              src = "/silk/site/tick.png"
+              width = 16
+              height = 16
+            }
+          }
+          { label = "user"
+            value = "user"
+            format = "contains a @user"
+          }
+          {
+            label = "comm"
+            value = "comm"
+            format = "contains a @c:comm"
+          }
+        ]
+  -%]
+  </div>
+
+  <div class="large-6 columns">
+  [%- WRAPPER code -%]
+    name = "foo"
+    label = "Foo:"
+
+    items = [
+      { label = "plain"
+        value = "plain"
+        format = "a plain option"
+      }
+      { label = "image"
+        value = "image"
+        format = "with image prefix"
+        image = {
+          src = "/silk/site/tick.png"
+          width = 16
+          height = 16
+        }
+      }
+      { label = "user"
+        value = "user"
+        format = "contains a @user"
+      }
+      {
+        label = "comm"
+        value = "comm"
+        format = "contains a @c:comm"
+      }
+    ]
+  -%]
+  [%- END -%]
+  [% WRAPPER code+onload -%]
+    $("body").fancySelect();
+  [%- END -%]
   </div>
 </div>
 
@@ -308,4 +561,19 @@
 [%# Helper blocks for formatting examples above %]
 [%- BLOCK ljuser -%]
 <span lj:user='[% user %]' style='white-space: nowrap;' class='ljuser'><a href='http://[% user %].dreamwidth.org/profile'><img src='http://www.dreamwidth.org/img/silk/identity/user.png' alt='[personal profile] ' width='17' height='17' style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a><a href='http://[% user %].dreamwidth.org/'><b>[% user %]</b></a></span>
+[%- END -%]
+
+[%- BLOCK code -%]
+<h3>code</h3>
+<code class="code-example"><pre>[&#37;- [%- content | trim -%] -&#37;]</pre></code>
+[%- END -%]
+
+[%- sections.head = BLOCK -%]
+<script>
+  window.onload=function() {
+    [%- global.scripts -%]
+  }
+  </script>
+
+  <style>.code-example { display: block; }</style>
 [%- END -%]

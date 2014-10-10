@@ -7,15 +7,61 @@
 
 .button.edit=Save Changes
 
+.button.edit.quick=Save
+
 .button.post=Post Entry
+
+.button.post.quick=Post
+
+.error.cantpost=Sorry: you can't post at this time.
+
+.error.disabled=You can't post because of the type of account you have.
 
 .error.header=Error
 
+.error.invalidusejournal=Invalid usejournal argument.
+
+.error.noentry=Must provide entry text.
+
 .error.nofind=Could not find selected journal entry.
+
+.error.nonusercantpost=Non-[[sitename]] users can't post entries because they don't have journals here, but can leave comments in other journals.
+
+.error.login=Error logging in: [[error]]
 
 .event.label=Entry
 
 .event.placeholder=Your entry text...
+
+.select.security=Security:
+
+.select.security.access.format=an access locked entry
+
+.select.security.access.label=access locked
+
+.select.security.admin.format=an administrator only entry
+
+.select.security.admin.label=administrators only
+
+.select.security.custom.format=a custom filtered entry
+
+.select.security.custom.label=custom filtered
+
+.select.security.members.format=a members locked entry
+
+.select.security.members.label=members
+
+.select.security.private.format=a private entry
+
+.select.security.private.label=private
+
+.select.security.public.format=a public entry
+
+.select.security.public.label=public
+
+.select.usejournal=Post to:
+
+.select.usejournal.format=to [[user]]
 
 .subject.label=Subject
 

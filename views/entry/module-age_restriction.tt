@@ -12,11 +12,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
-  <fieldset>
-  <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
-  <div class='inner'>
-  <div class="age_level_reason">
-    <p>
+<fieldset>
+<h3>[% ".header" | ml %]</h3>
+<div class='inner'>
+    <div class="row"><div class="columns">
         [%- levelselect = [];
             FOREACH opt IN [
                 ""              ".option.adultcontent.default"
@@ -31,24 +30,23 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 levelselect.push( opt );
             END
         -%]
-        [%- label = ".label.age_restriction" | ml;
-        form.select( label = label
+        [%- form.select( label = dw.ml( ".label.age_restriction" )
             name = "age_restriction"
             id = "age_restriction"
 
             items = levelselect
         ) -%]
-    </p>
-    <p>
-        [%- label = ".label.age_restriction_reason" | ml;
-        form.textbox( label = label
+    </div></div>
+
+    <div class="row"><div class="columns">
+        [%- form.textbox( label = dw.ml( ".label.age_restriction_reason" )
             name = "age_restriction_reason"
             id = "age_restriction_reason"
 
             size = "30"
             maxlength = "255"
         ) -%]
-    </p>
-  </div>
+    </div></div>
+
   </div>
   </fieldset>

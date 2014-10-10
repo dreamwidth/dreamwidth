@@ -1,9 +1,0 @@
-/* hide things visually, but keep them still visible to screenreaders */
-%screenreader-friendly {
-    position:absolute;
-    left:0px;
-    top:-500px;
-    width:1px;
-    height:1px;
-    overflow:hidden;
-}

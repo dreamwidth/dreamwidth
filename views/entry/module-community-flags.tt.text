@@ -1,0 +1,4 @@
+;; -*- coding: utf-8 -*-
+.header=Entry Flags
+
+.label.adminpost=Flag as an official community post

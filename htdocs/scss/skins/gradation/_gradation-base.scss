@@ -2,6 +2,7 @@
 $_white:            #fff;
 $_black:            #111;
 $_off-black:        #222;
+$_light-gray:       #ccc;
 $_dark-gray:        #666;
 $_low-contrast-gray:#888;
 $_very-light-green: #e9e9e0;
@@ -19,6 +20,8 @@ $secondary-color:     $_dark-gray;
 $strong-accent-color: $_very-light-green;
 $soft-accent-color:   $_dark-green;
 $border-color:        $_low-contrast-gray;
+
+$inactive-color:      $_light-gray;
 
 $form-font-color:     $_white;
 $form-bg-color:       $_off-black;
@@ -41,7 +44,6 @@ $header-font-color:                    darken( $body-font-color, 10% );
 $list-side-margin:                     1em;
 
 // we want to base these on $body-font-color rather than the random variables they're based on
-$code-color:                            tint( $body-font-color, 20% );
 $blockquote-font-color:                 tint( $body-font-color, 20% );
 $small-font-color:                      $body-font-color;
 
@@ -60,7 +62,7 @@ $input-border-color:                    lighten( $input-bg-color, 20% );
 $input-focus-border-color:              lighten( $input-bg-color, 40% );
 $input-disabled-bg:                     $form-border-color;
 $fieldset-border-color:                 $form-border-color;
-$legend-bg:                             $background-color;
+$legend-bg:                             transparent;
 $input-prefix-bg:                       lighten( $input-bg-color, 30% );
 $input-prefix-font-color:               $input-font-color;
 $input-prefix-border-color:             $input-border-color;
@@ -73,7 +75,6 @@ $panel-bg:                              lighten( $background-color, 20% );
 // reveal modal
 $reveal-modal-bg:                       $panel-bg;
 $reveal-border-color:                   $form-border-color;
-$reveal-close-color:                    $link-color;
 
 // tables
 $table-bg:                              $form-bg-color;

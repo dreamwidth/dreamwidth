@@ -1,9 +1,7 @@
 /* allow hidden skip links */
-@import "mixins/screenreader-friendly";
-
 #skip a, #skip a:hover, #skip a:visited
 {
-    @extend %screenreader-friendly;
+    @include element-invisible();
     padding: 0.5em 1em;
 }
 
@@ -12,6 +10,7 @@
     position:fixed;
     top:.25em;
     left:.25em;
+    clip: auto;
     width:auto;
     height:auto;
     z-index: 500;

@@ -13,7 +13,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 -%]
 
   <fieldset class="comments_settings">
-  <h3 class='ui-corner-top'>Comment Settings</h3>
+  <h3>Comment Settings</h3>
   <div class='inner'>
   <p>
     <label class='unimplemented' for="comment_email">Email Comments:</label>

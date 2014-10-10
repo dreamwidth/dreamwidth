@@ -1,0 +1,35 @@
+[%# components/tag-browser.tt
+
+Tag browser modal skeleton
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+
+[%- dw.need_res( { group => "foundation" },
+        "js/components/jquery.tag-browser.js"
+        "stc/css/components/tag-browser.css"
+); -%]
+
+[%- WRAPPER components/modal.tt id="js-tag-browser" class="tag-browser" -%]
+<div class="row">
+    <div class="columns medium-2 large-1">
+        <label class='inline' for='js-tag-browser-search'>Search:</label>
+    </div>
+    <div class="columns medium-10 large-11">
+        <input type='search' id='js-tag-browser-search'>
+    </div>
+</div>
+
+<div class="row"><div class="columns">
+    <div id="js-tag-browser-content">
+        <span class="tag-browser-status">Loading...</span>
+        <ul class='no-bullet'></ul>
+    </div>
+</div></div>
+[%- END -%]

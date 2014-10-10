@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2011-2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -21,6 +21,7 @@ use strict;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::FormErrors;
 
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
@@ -39,10 +40,9 @@ my %form_to_props = (
 
 
 my @modules = qw(
-    slug tags currents displaydate
-    access journal comments
-    age_restriction icons crosspost
-    flags
+    tags displaydate slug
+    currents comments age_restriction
+    icons crosspost
 );
 
 
@@ -97,27 +97,27 @@ sub new_handler {
 
     # these kinds of errors prevent us from initializing the form at all
     # so abort and return it without the form
-    return error_ml( "/update.bml.error.nonusercantpost", { sitename => $LJ::SITENAME } )
+    return error_ml( "/entry/form.tt.error.nonusercantpost", { sitename => $LJ::SITENAME } )
             if $remote->is_identity;
 
-    return error_ml( "/update.bml.error.cantpost" )
+    return error_ml( "/entry/form.tt.error.cantpost" )
             unless $remote->can_post;
 
-    return error_ml( '/update.bml.error.disabled' )
+    return error_ml( '/entry/form.tt.error.disabled' )
             if $remote->can_post_disabled;
 
 
-    my @error_list;
-    my @warnings;
-    my $post;
+    my $errors = DW::FormErrors->new;
+    my $warnings = DW::FormErrors->new;
+    my $post = $r->did_post ? $r->post_args : undef;
     my %spellcheck;
 
     # figure out times
     my $datetime;
     my $trust_datetime_value = 0;
 
-    if ( $post && $post->{entrytime} && $post->{entrytime_hr} && $post->{entrytime_min} ) {
-        $datetime = "$post->{entrytime} $post->{entrytime_hr}:$post->{entrytime_min}";
+    if ( $post && $post->{entrytime_date} && $post->{entrytime_time} ) {
+        $datetime = "$post->{entrytime_date} $post->{entrytime_time}";
         $trust_datetime_value = 1;
     } else {
         my $now = DateTime->now;
@@ -154,21 +154,19 @@ sub new_handler {
                       }, @_ );
 
     # now look for errors that we still want to recover from
-    push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
+    $errors->add( undef, ".error.invalidusejournal" )
         if defined $usejournal && ! $vars->{usejournal};
 
     if ( $r->did_post ) {
-        $post = $r->post_args;
-
         my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
-        push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body' )
             unless LJ::text_in( $post );
 
         my $okay_formauth = ! $remote || LJ::check_form_auth( $post->{lj_form_auth} );
 
-        push @error_list, LJ::Lang::ml( "error.invalidform" )
+        $errors->add( undef, "error.invalidform" )
             unless $okay_formauth;
 
         if ( $mode_preview ) {
@@ -194,7 +192,7 @@ sub new_handler {
             my %auth = _auth( $flags, $post, $remote );
 
             my $uj = $auth{journal};
-            push @error_list, $LJ::MSG_READONLY_USER
+            $errors->add_string( undef, $LJ::MSG_READONLY_USER )
                 if $uj && $uj->readonly;
 
             # do a login action to check if we can authenticate as unverified_username
@@ -214,36 +212,33 @@ sub new_handler {
                 my $login_res = LJ::Protocol::do_request( "login", \%login_req, \$err, $flags );
 
                 unless ( $login_res ) {
-                    push @error_list, LJ::Lang::ml( "/update.bml.error.login" )
-                        . " " . LJ::Protocol::error_message( $err );
+                    $errors->add( undef, ".error.login",
+                        { error => LJ::Protocol::error_message( $err ) } );
                 }
 
                 # e.g. not validated
-                push @warnings, {   type => "info",
-                                    message => LJ::auto_linkify( LJ::ehtml( $login_res->{message} ) )
-                                } if $login_res->{message};
+                $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $login_res->{message} ) ) )
+                    if $login_res->{message};
             }
 
             my $form_req = {};
-            my %status = _form_to_backend( $form_req, $post );
-            push @error_list, @{$status{errors}}
-                if exists $status{errors};
+            _form_to_backend( $form_req, $post, errors => $errors );
 
             # if we didn't have any errors with decoding the form, proceed to post
-            unless ( @error_list ) {
-                my %post_res = _do_post( $form_req, $flags, \%auth, warnings => \@warnings );
+            unless ( $errors->exist ) {
+                my %post_res = _do_post( $form_req, $flags, \%auth, warnings => $warnings );
                 return $post_res{render} if $post_res{status} eq "ok";
 
                 # oops errors when posting: show error, fall through to show form
-                push @error_list, $post_res{errors} if $post_res{errors};
+                $errors->add_string( undef, $post_res{errors} ) if $post_res{errors};
             }
         }
     }
 
 
     # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
-    $vars->{error_list} = \@error_list if @error_list;
-    $vars->{warnings} = \@warnings;
+    $vars->{errors} = $errors;
+    $vars->{warnings} = $warnings;
 
     $vars->{spellcheck} = \%spellcheck;
 
@@ -257,8 +252,6 @@ sub new_handler {
         $vars->{chalresp_js} = (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : "";
         $vars->{login_chal} = LJ::challenge_generate( 3600 ); # one hour to post if they're not logged in
     }
-
-    $vars->{show_unimplemented} = $get->{highlight} ? 1 : 0;
 
     $vars->{action} = {
         url  => LJ::create_url( undef, keep_args => 1 ),
@@ -366,27 +359,58 @@ sub _init {
     push @moodlist, { id => $_, name => $moods->{$_}->{name} }
         foreach sort { $moods->{$a}->{name} cmp $moods->{$b}->{name} } keys %$moods;
 
-    my ( @security, @custom_groups );
-    if ( $journalu && $journalu->is_community ) {
-        @security = (
-            { value => "public",  label => LJ::Lang::ml( 'label.security.public2' ) },
-            { value => "access",  label => LJ::Lang::ml( 'label.security.members' ) },
-            { value => "private", label => LJ::Lang::ml( 'label.security.maintainers' ) },
-        );
-    } else {
-        @security = (
-            { value => "public",  label => LJ::Lang::ml( 'label.security.public2' ) },
-            { value => "access",  label => LJ::Lang::ml( 'label.security.accesslist' ) },
-            { value => "private", label => LJ::Lang::ml( 'label.security.private2' ) },
-        );
-
-        if ( $u ) {
-            @custom_groups = map { { value => $_->{groupnum}, label => $_->{groupname} } } $u->trust_groups;
-
-            push @security, { value => "custom", label => LJ::Lang::ml( 'label.security.custom' ) }
-                if @custom_groups;
+    my %security_options = (
+        "public" => {
+            value => "public",
+            label => ".public.label",
+            format => ".public.format",
+        },
+        "private" => {
+            value => "private",
+            label => ".private.label",
+            format => ".private.format",
+            image => $LJ::Img::img{"security-private"},
+        },
+        "admin" => {
+            value => "private",
+            label => ".admin.label",
+            format => ".private.format",
+            image => $LJ::Img::img{"security-private"},
+        },
+        "access" => {
+            value => "access",
+            label => ".access.label",
+            format => ".access.format",
+            image => $LJ::Img::img{"security-protected"},
+        },
+        "members" => {
+            value => "access",
+            label => ".members.label",
+            format => ".members.format",
+            image => $LJ::Img::img{"security-protected"},
+        },
+        "custom" => {
+            value => "custom",
+            label => ".custom.label",
+            format => ".custom.format",
+            image => $LJ::Img::img{"security-groups"},
         }
+    );
+    foreach my $data ( values %security_options ) {
+        my $prefix = ".select.security";
+
+        $data->{label} = $prefix . $data->{label};
+        $data->{format} = $prefix . $data->{format};
     }
+
+    my $is_community = $journalu && $journalu->is_community;
+    my @security = $is_community ? qw( public members admin ) : qw( public access private );
+    my @custom_groups;
+    if ( $u && ! $is_community ) {
+        @custom_groups = map { { value => $_->{groupnum}, label => $_->{groupname} } } $u->trust_groups;
+        push @security, "custom" if @custom_groups;
+    }
+    @security = map { $security_options{$_} } @security;
 
     my ( $year, $mon, $mday, $hour, $min ) = split( /\D/, $form_opts->{datetime} || "" );
     my %displaydate;
@@ -423,6 +447,7 @@ sub _init {
 
         security     => \@security,
         customgroups => \@custom_groups,
+        security_options => \%security_options,
 
         journalu    => $journalu,
 
@@ -472,8 +497,8 @@ sub _edit {
 
     return error_ml( 'error.invalidauth' ) unless $journal;
 
-    my @error_list;
-    my @warnings;
+    my $errors = DW::FormErrors->new;
+    my $warnings = DW::FormErrors->new;
     my $post;
     my %spellcheck;
 
@@ -490,12 +515,12 @@ sub _edit {
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
         my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
 
-        push @error_list, LJ::Lang::ml( 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body' )
             unless LJ::text_in( $post );
 
 
         my $okay_formauth =  LJ::check_form_auth( $post->{lj_form_auth} );
-        push @error_list, LJ::Lang::ml( "error.invalidform" )
+        $errors->add( undef, "error.invalidform" )
             unless $okay_formauth;
 
         if ( $mode_preview ) {
@@ -510,17 +535,16 @@ sub _edit {
                 $spellcheck{results} = $spellchecker->check_html( \$event, 1 );
                 $spellcheck{did_spellcheck} = 1;
             }
-        } elsif ( $okay_formauth) {
-            push @error_list, $LJ::MSG_READONLY_USER
+        } elsif ( $okay_formauth ) {
+            $errors->add_string( undef, $LJ::MSG_READONLY_USER )
                 if $journal && $journal->readonly;
 
             my $form_req = {};
-            my %status = _form_to_backend( $form_req, $post, allow_empty => $mode_delete );
-            push @error_list, @{$status{errors}}
-                if exists $status{errors};
+            my %status = _form_to_backend( $form_req, $post,
+                allow_empty => $mode_delete, errors => $errors );
 
             # if we didn't have any errors with decoding the form, proceed to post
-            unless ( @error_list ) {
+            unless ( $errors->exist ) {
 
                 if ( $mode_delete ) {
                     $form_req->{event} = "";
@@ -538,12 +562,12 @@ sub _edit {
                         $ditemid,
                         $form_req,
                         { remote => $remote, journal => $journal },
-                        warnings => \@warnings
+                        warnings => $warnings,
                         );
                 return $edit_res{render} if $edit_res{status} eq "ok";
 
                 # oops errors when posting: show error, fall through to show form
-                push @error_list, $edit_res{errors} if $edit_res{errors};
+                $errors->add_string( undef, $edit_res{errors} ) if $edit_res{errors};
             }
         }
     }
@@ -586,12 +610,12 @@ sub _edit {
 
     # now look for errors that we still want to recover from
     my $get = $r->get_args;
-    push @error_list, LJ::Lang::ml( "/update.bml.error.invalidusejournal" )
+    $errors->add( undef, ".error.invalidusejournal" )
         if defined $get->{usejournal} && ! $vars->{usejournal};
 
     # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
-    $vars->{error_list} = \@error_list if @error_list;
-    $vars->{warnings} = \@warnings;
+    $vars->{errors} = $errors;
+    $vars->{warnings} = $warnings;
 
     $vars->{spellcheck} = \%spellcheck;
 
@@ -675,14 +699,14 @@ sub _auth {
 sub _form_to_backend {
     my ( $req, $post, %opts ) = @_;
 
-    my @errors;
+    my $errors = $opts{errors};
 
     # handle event subject and body
     $req->{subject} = $post->{subject};
     $req->{event} = $post->{event} || "";
 
-    push @errors, LJ::Lang::ml( "/update.bml.error.noentry" )
-        if $req->{event} eq "" && ! $opts{allow_empty};
+    $errors->add( undef, ".error.noentry" )
+        if $errors && $req->{event} eq "" && ! $opts{allow_empty};
 
 
     # initialize props hash
@@ -758,8 +782,8 @@ sub _form_to_backend {
 
 
     # date/time
-    my ( $year, $month, $day ) = split( /\D/, $post->{entrytime} || "" );
-    my ( $hour, $min ) = ( $post->{entrytime_hr}, $post->{entrytime_min} );
+    my ( $year, $month, $day ) = split( /\D/, $post->{entrytime_date} || "" );
+    my ( $hour, $min ) = split( /\D/, $post->{entrytime_time} || "" );
 
     # if we trust_datetime, it's because we either are in a mode where we've saved the datetime before (e.g., edit)
     # or we have run the JS that syncs the datetime with the user's current time
@@ -786,9 +810,7 @@ sub _form_to_backend {
         }
     }
 
-    return ( errors => \@errors ) if @errors;
-
-    return ();
+    return 1;
 }
 
 # given an LJ::Entry object, returns a hashref populated with data suitable for use in generating the form
@@ -941,39 +963,34 @@ sub _do_post {
     # post succeeded, time to do some housecleaning
     _persist_props( $auth->{poster}, $form_req );
 
-    my $ret = "";
     my $render_ret;
     my @links;
 
     # we may have warnings generated by previous parts of the process
-    my @warnings = @{ $opts{warnings} || [] };
+    my $warnings = $opts{warnings} || DW::FormErrors->new;
 
     # special-case moderated: no itemid, but have a message
     if ( ! defined $res->{itemid} && $res->{message} ) {
-        $ret .= qq{<div class="message-box info-box"><p>$res->{message}</p></div>};
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
-                poststatus  => $ret,
+                moderated_message  => $res->{message},
             }
         );
 
     } else {
         # e.g., bad HTML in the entry
-        push @warnings, {   type => "warning",
-                            message => LJ::auto_linkify( LJ::ehtml( $res->{message} ) )
-                        } if $res->{message};
+        $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $res->{message} ) ) )
+            if $res->{message};
 
         my $u = $auth->{poster};
         my $ju = $auth->{journal} || $auth->{poster};
 
 
         # we updated successfully! Now tell the user
-        my $update_ml = $ju->is_community ? "/update.bml.update.success2.community" : "/update.bml.update.success2";
-        $ret .= LJ::Lang::ml( $update_ml, {
-            aopts => "href='" . $ju->journal_base . "/'",
-        } );
-
-
+        my $poststatus = {
+            ml_string => $ju->is_community ? ".new.community" : ".new.journal",
+            url => $ju->journal_base . "/",
+        };
 
         # bunch of helpful links
         my $juser = $ju->user;
@@ -983,7 +1000,7 @@ sub _do_post {
 
         my @links = (
             { url => $itemlink,
-                ml_string => "/update.bml.success.links.view" }
+                ml_string => ".new.links.view" }
         );
 
         if ( $form_req->{props}->{opt_backdated} ) {
@@ -992,21 +1009,21 @@ sub _do_post {
             my ( $y, $m, $d ) = ( $e->{eventtime} =~ /^(\d+)-(\d+)-(\d+)/ );
             push @links, {
                 url => $ju->journal_base . "/$y/$m/$d/",
-                ml_string => "/update.bml.success.links.backdated",
+                ml_string => ".new.links.backdated",
             }
         }
 
         push @links, (
             { url => $edititemlink,
-                ml_string => "/update.bml.success.links.edit" },
+                ml_string => ".new.links.edit" },
             { url => "$LJ::SITEROOT/tools/memadd?journal=$juser&itemid=$ditemid",
-                ml_string => "/update.bml.success.links.memories" },
+                ml_string => ".new.links.memories" },
             { url => "$LJ::SITEROOT/edittags?journal=$juser&itemid=$ditemid",
-                ml_string => "/update.bml.success.links.tags" },
+                ml_string => ".new.links.tags" },
         );
 
         push @links, { url => $ju->journal_base . "?poster=" . $auth->{poster}->user,
-                        ml_string => "/update.bml.success.links.myentries" } if $ju->is_community;
+                        ml_string => ".new.links.myentries" } if $ju->is_community;
 
 
         # crosspost!
@@ -1020,11 +1037,11 @@ sub _do_post {
 
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
-                poststatus  => $ret,        # did the update succeed or fail?
-                warnings    => \@warnings,   # warnings about the entry or your account
+                poststatus  => $poststatus, # did the update succeed or fail?
+                warnings    => $warnings,   # warnings about the entry or your account
                 crossposts  => \@crossposts,# crosspost status list
                 links       => \@links,
-                links_header => "/update.bml.success.links",
+                links_header => ".new.links",
             }
         );
     }
@@ -1068,17 +1085,16 @@ sub _do_edit {
     # post succeeded, time to do some housecleaning
     _persist_props( $remote, $form_req );
 
-    my $ret = "";
+    my $poststatus_ml;
     my $render_ret;
     my @links;
 
     # we may have warnings generated by previous parts of the process
-    my @warnings = @{ $opts{warnings} || [] };
+    my $warnings = $opts{warnings} || DW::FormErrors->new;
 
     # e.g., bad HTML in the entry
-    push @warnings, {   type => "warning",
-                        message => LJ::auto_linkify( LJ::ehtml( $res->{message} ) )
-                    } if $res->{message};
+    $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $res->{message} ) ) )
+        if $res->{message};
 
     # bunch of helpful links:
     my $juser = $journal->user;
@@ -1086,28 +1102,28 @@ sub _do_edit {
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
     if ( $deleted ) {
-        $ret .= LJ::Lang::ml( '/editjournal.bml.success.delete' );
+        $poststatus_ml = ".edit.delete";
     } else {
-        $ret .= LJ::Lang::ml( '/editjournal.bml.success.edited' );
+        $poststatus_ml = ".edit.edited";
 
         push @links, {
             url => $entry_url,
-            ml_string => "/editjournal.bml.success.fromhere.viewentry",
+            ml_string => ".edit.links.viewentry",
         };
 
         push @links, {
             url => $edit_url,
-            ml_string => "/editjournal.bml.success.fromhere.editentry",
-        } if @warnings;
+            ml_string => ".edit.links.editentry",
+        };
 
     }
 
     push @links, ( {
         url => $journal->journal_base,
-        ml_string => '/editjournal.bml.success.fromhere.viewentries',
+        ml_string => '.edit.links.viewentries',
     }, {
         url => "$LJ::SITEROOT/editjournal",
-        ml_string => '/editjournal.bml.success.fromhere.manageentries',
+        ml_string => '.edit.links.manageentries',
     } );
 
     my @crossposts = _queue_crosspost( $form_req,
@@ -1118,13 +1134,14 @@ sub _do_edit {
         editurl => $edit_url,
     );
 
+    my $poststatus = { ml_string => $poststatus_ml };
     $render_ret = DW::Template->render_template(
         'entry/success.tt', {
-            poststatus  => $ret,        # did the update succeed or fail?
-            warnings    => \@warnings,   # warnings about the entry or your account
+            poststatus  => $poststatus, # did the update succeed or fail?
+            warnings    => $warnings,   # warnings about the entry or your account
             crossposts  => \@crossposts,# crosspost status list
             links       => \@links,
-            links_header => '/editjournal.bml.success.fromhere',
+            links_header => '.edit.links',
         }
     );
 
@@ -1211,7 +1228,7 @@ sub preview_handler {
     my ( $ditemid, $anum, $itemid );
 
     my $form_req = {};
-    _form_to_backend( $form_req, $post );    # ignore errors
+    _form_to_backend( $form_req, $post );
 
     my ( $event, $subject ) = ( $form_req->{event}, $form_req->{subject} );
     LJ::CleanHTML::clean_subject( \$subject );
@@ -1471,7 +1488,7 @@ sub options_rpc_handler {
     $vars->{use_js} = 1;
 
     my $r = DW::Request->get;
-    $r->status( @{$vars->{error_list} || []} ? HTTP_BAD_REQUEST : HTTP_OK );
+    $r->status( $vars->{errors} && $vars->{errors}->exist ? HTTP_BAD_REQUEST : HTTP_OK );
 
     return DW::Template->render_template( 'entry/options.tt', $vars, { fragment => 1 } );
 }
@@ -1548,6 +1565,7 @@ sub _options {
     };
 
     my $r = DW::Request->get;
+    my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
         my $post = $r->post_args;
         $vars->{formdata} = $post;
@@ -1589,9 +1607,10 @@ sub _options {
 
             $u->set_prop( js_animations_minimal => $post->{minimal_animations} );
         } else {
-            $vars->{error_list} = [ LJ::Lang::ml( "error.invalidform") ];
+            $errors->add( undef, "error.invalidform" );
         }
 
+        $vars->{errors} = $errors;
     } else {
 
         my $default = {

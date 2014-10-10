@@ -5,69 +5,87 @@ Module to control crosspost behavior
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2011 by Dreamwidth Studios, LLC.
+Copyright (c) 2011-2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-
 [% IF remote %]
-  <fieldset>
-    <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
-    <div class="inner">
+[%- IF crosspostlist.size > 0 -%]
+[%- dw.need_res( { group => "foundation" },
+    "js/md5.js"
+    "js/components/jquery.crosspost.js"
+) -%]
+[%- END -%]
+<fieldset>
+<h3>[% ".header" | ml %]</h3>
+<div class="inner">
+    [%- IF crosspostlist.size == 0 -%]
 
-    <span class="crosspost-settings">
-        <a href="[% crosspost_url %]" class="external-link" target="_blank">[% ".settings.link" | ml %] <span class="ui-icon ui-icon-newwin"></span></a>
-    </span>
+    <div class="row"><div class="columns">
+        <a href="[%- crosspost_url -%]" target="_blank">[%- '.settings.link.setup' | ml -%]</a>
+    </div></div>
 
-    [% IF crosspostlist.size > 0 %]
+    [%- ELSE -%]
 
-        [%- crosspost_entry_label = ".label.crosspost_entry" | ml;
-        form.checkbox( label = crosspost_entry_label
+    <div class="row"><div class="columns">
+        <span class="crosspost-settings right">
+            [%- INCLUDE "components/icon-link-decorative.tt"
+                    link = {
+                        url = crosspost_url
+                        newwindow = 1
+                    }
+                    icon = "wrench"
+                    text = dw.ml( ".settings.link" )
+            -%]
+        </span>
+
+        [%- form.checkbox_nested( label = dw.ml(".label.crosspost_entry")
             name ="crosspost_entry"
-            id = "crosspost_entry"
+            id = "js-crosspost-entry"
 
             value = 1
             default = crosspost_entry
         ) -%]
+    </div></div>
 
-        <h4>[% ".header.accounts" | ml %]</h4>
-        <input type="text" name="autocompletefix" value="crosspost account" style="display: none"/>
-        <ul id="crosspost_accounts">
+    <div class="row"><div class="columns">
+        <fieldset id="js-crosspost-accounts">
+            <legend>[% ".header.accounts" | ml %]</legend>
+            <input type="text" name="autocompletefix" value="crosspost account" style="display: none"/>
+
             [% crosspost_password_label = ".label.password" | ml %]
-
+            <ul>
             [% FOREACH account IN crosspostlist %]
-                <li>
-                [%- form.checkbox( label = account.name
+                <li class="row"><div class="columns">
+                [%- form.checkbox_nested( label = account.name
                     name = "crosspost"
-                    id = "crosspost_$account.id"
 
                     value = account.id
                     default = account.selected
                 ) -%]
-
                 [% IF account.need_password %]
-                    <div class="crosspost_password_container" id="crosspost_password_container_[% account.id %]">
-                    [%- form.password( label = crosspost_password_label
-                            name = "crosspost_password_$account.id"
-                            id = "crosspost_password_$account.id"
+                    <div class='crosspost-password-container'>
+                        [%- form.password( label = crosspost_password_label
+                                name = "crosspost_password_$account.id"
 
-                            class = "crosspost_password text"
-                            labelclass="checkboxlabel"
-                    ) -%]
+                                class = "crosspost-password"
+                        ) -%]
 
-                        <div class="crosspost_password_status" aria-live="imperative"></div>
+                        <div class="crosspost-password-status" aria-live="imperative"></div>
                         [%# we don't want these to be carried over between posts %]
-                        <input type="hidden" name="crosspost_chal_[%account.id%]" id="crosspost_chal_[%account.id%]" class="crosspost_chal" />
-                        <input type="hidden" name="crosspost_resp_[%account.id%]" id="crosspost_resp_[%account.id%]" class="crosspost_resp" />
+                        <input type="hidden" name="crosspost_chal_[%account.id%]" class="crosspost-chal" />
+                        <input type="hidden" name="crosspost_resp_[%account.id%]" class="crosspost-resp" />
                     </div>
-                [% END %]
-                </li>
-              [% END %]
-        </ul>
-      [% END %]
-      </div>
-    </fieldset>
+                [%- END -%]
+                </div></li>
+            [%- END -%]
+            </ul>
+        </fieldset>
+    </div></div>
+    [%- END -%]
+</div>
+</fieldset>
 [% END %]

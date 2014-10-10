@@ -1,0 +1,52 @@
+@import "foundation/base", "foundation/components/forms", "mixins/bare-button";
+
+$half-form-spacing: $form-spacing / 2;
+.autocomplete-container {
+    margin-bottom: $form-spacing;
+    padding: $half-form-spacing 0 0 $half-form-spacing;
+
+    textarea {
+        min-height: auto;
+        width: 100%;
+        padding: $half-form-spacing 0;
+        margin: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    .token {
+        padding:.2em .4em .2em 0;
+        margin: 0.2em;
+        display: inline-block;
+        border-width: 1px;
+        border-style: solid;
+        @include radius();
+    }
+
+    .token.new {
+        border-style: dashed;
+    }
+
+    .token .token-remove {
+        &, &:hover, &:focus {
+            @extend %bare-button;
+        }
+    }
+
+    .token-text {
+        display: inline-block;
+        margin-bottom: 0;
+        padding: 0 $half-form-spacing;
+        height: auto;
+        border: none;
+    }
+}
+
+.autocomplete-list {
+    list-style-type: none;
+}
+
+.autocomplete-count {
+    font-weight: bold;
+    font-size: larger;
+}

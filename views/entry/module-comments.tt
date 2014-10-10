@@ -6,41 +6,44 @@ will be phased out for new implementation
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2011 by Dreamwidth Studios, LLC.
+Copyright (c) 2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
-  <fieldset class="comments_settings">
-  <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
-  <div class='inner'>
-  <p>
-    [%- form.select( label = "Comments:"
-        name = "comment_settings"
-        id = "comment_settings"
+<fieldset>
+<h3>[% ".header" | ml %]</h3>
+<div class='inner'>
 
-        items = [
-            ""              "Journal Default"
-            "nocomments"    "Disabled"
-            "noemail"       "Don't Email"
-        ]
-    ) -%]
-  </p>
-  <p>
-    [%- form.select( label = "Screening:"
-        name = "opt_screening"
-        id = "opt_screening"
+    <div class="row"><div class="columns">
+        [%- form.select( label = "Comments:"
+            name = "comment_settings"
+            id = "comment_settings"
 
-        items = [
-            ""      "Journal Default"
-            "N"     "Disabled"
-            "R"     "Anonymous Only"
-            "F"     "Non-access List"
-            "A"     "All Comments"
-        ]
-    ) -%]
-  </p>
-  </div>
-  </fieldset>
+            items = [
+                ""              "Journal Default"
+                "nocomments"    "Disabled"
+                "noemail"       "Don't Email"
+            ]
+        ) -%]
+    </div></div>
+
+    <div class="row"><div class="columns">
+        [%- form.select( label = "Screening:"
+            name = "opt_screening"
+            id = "opt_screening"
+
+            items = [
+                ""      "Journal Default"
+                "N"     "Disabled"
+                "R"     "Anonymous Only"
+                "F"     "Non-access List"
+                "A"     "All Comments"
+            ]
+        ) -%]
+    </div></div>
+
+</div>
+</fieldset>

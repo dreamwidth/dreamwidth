@@ -1,0 +1,7 @@
+.close-reveal-modal {
+    text-decoration: none;
+
+    &:hover, &:focus {
+        color: $primary-color;
+    }
+}

@@ -5,54 +5,40 @@ Module for security in the entry form
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2011 by Dreamwidth Studios, LLC.
+Copyright (c) 2014 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
-    <fieldset>
-        <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
-        <div class="inner">
-        <div id="security_group">
-            [%- securitylist = [];
-                FOREACH level IN security;
-                    securitylist.push( level.value, level.label );
-                END;
-            -%]
-            [%- label = ".label" | ml;
-            form.select( label = label
-                name = "security"
-                id = "security"
+<fieldset>
+<div class="inner">
+    [% IF customgroups.size > 0 %]
 
-                items = securitylist
-            ) -%]
-        </div>
+    [%- WRAPPER components/modal.tt id="js-custom-groups" class="custom-groups" -%]
+    <fieldset class="row"><div class="columns">
+      <legend>[% ".header.custom" | ml %]</legend>
+      <ul class="no-bullet">
+        [% FOREACH group IN customgroups %]
+            <li>[%- form.checkbox( label = group.label
+                        name = "custom_bit"
+                        id = "custom-bit-$group.value"
 
-        [% IF customgroups.size > 0 %]
-        <div id="custom_access_groups">
-          <h4>[% ".header.custom" | ml %]</h4>
-          <ul>
-            [% FOREACH group IN customgroups %]
-                <li>[%- form.checkbox( label = group.label
-                            name = "custom_bit"
-                            id = "custom_bit_$group.value"
-
-                            value = group.value
-                ) -%]</li>
-            [% END %]
-          </ul>
-        </div>
+                        value = group.value
+            ) -%]</li>
         [% END %]
-        
-        [% IF customgroups.size > 0 %]
-        <div id="custom_access_group_members">
-          <h4>[% ".header.custom_member" | ml %]</h4>
-          <ul id="custom_access_group_members_body">
-          </ul>
-        </div>
-        [% END %]
-        
-        </div>
-    </fieldset>
+      </ul>
+    </div></fieldset>
+
+    <fieldset class="row"><div class="columns">
+      <legend>[% ".header.custom_member" | ml %]</legend>
+      <ul class="no-bullet" id="js-custom-group-members">
+      </ul>
+    </div></fieldset>
+    [% END %]
+
+    [% END %]
+
+</div>
+</fieldset>

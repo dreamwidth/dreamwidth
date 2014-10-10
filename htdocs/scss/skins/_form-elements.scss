@@ -35,9 +35,19 @@ fieldset {
     border-top-width: 1px;
 }
 
-@import "mixins/screenreader-friendly";
+.panel fieldset {
+  border: none;
+}
+
+.focus {
+    transition: box-shadow $glowing-effect-fade-time, border-color $glowing-effect-fade-time ease-in-out;
+
+    box-shadow: 0 0 5px $glowing-effect-color;
+    border-color: $glowing-effect-color;
+}
+
 label.hidden {
-  @extend %screenreader-friendly;
+  @include element-invisible();
 }
 
 @import "components/expand-for-mobile";

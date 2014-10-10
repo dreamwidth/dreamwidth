@@ -62,7 +62,6 @@ $header-font-color:                    lighten( $body-font-color, 5% );
 $list-side-margin:                     1em;
 
 // we want to base these on $body-font-color rather than the random variables they're based on
-$code-color:                            tint( $body-font-color, 20% );
 $blockquote-font-color:                 tint( $body-font-color, 20% );
 $small-font-color:                      $body-font-color;
 
@@ -81,7 +80,7 @@ $input-border-color:                    darken($input-bg-color, 20%);
 $input-focus-border-color:              darken($input-bg-color, 40%);
 $input-disabled-bg:                     $form-border-color;
 $fieldset-border-color:                 $form-border-color;
-$legend-bg:                             $body-bg;
+$legend-bg:                             transparent;
 $input-prefix-bg:                       darken($input-bg-color, 5%);
 $input-prefix-border-color:             $input-border-color;
 
@@ -91,7 +90,6 @@ $panel-bg:                              darken( $body-bg, 5% );
 // reveal modal
 $reveal-modal-bg:                       $panel-bg;
 $reveal-border-color:                   $form-border-color;
-$reveal-close-color:                    $link-color;
 
 // sub-nav
 $sub-nav-font-color:	$inactive-color;
@@ -213,7 +211,6 @@ footer { border-top: 4px double $header-image-color;
 
 #content {
     @include grid-row( nest-collapse );
-    max-width: $row-width;
 }
 
 @import "skins/page-layout-hacks";
@@ -285,5 +282,6 @@ footer { border-top: 4px double $header-image-color;
     #content {
         margin-left: 1em;
         padding: 1px 1em 1em 1.5em;
+        max-width: $row-width + $sidebar-width + 2.5em; // desired content width + border width + padding
     }
 }
