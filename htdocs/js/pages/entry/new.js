@@ -320,9 +320,10 @@ var postForm = (function($) {
             $form.data( "journal", journal )
                 .trigger( "journalselect", journalData );
 
-            if ( $usejournal.data( "is-admin" ) ) {
-                $form.trigger( "journalselect-full", $.extend( journalData, { canManage: true } ) );
-                $usejournal.removeData("is-admin");
+            var isAdmin = $usejournal.attr( "data-is-admin" );
+            if ( isAdmin !== undefined ) {
+                $form.trigger( "journalselect-full", $.extend( journalData, { canManage: isAdmin } ) );
+                $usejournal.removeAttr("data-is-admin");
             }
         });
     };
