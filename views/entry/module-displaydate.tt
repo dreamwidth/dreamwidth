@@ -36,7 +36,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         ) -%]
         </div>
         <div class="columns small-2">
-        [%- INCLUDE "components/icon-buttons.tt"
+        [%- INCLUDE "components/icon-button.tt"
                 button = {
                     class = "postfix secondary"
                     id = "js-entrytime-date-button"
@@ -60,7 +60,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         ) ~%]
         </div>
         <div class="columns small-2">
-        [%- INCLUDE "components/icon-buttons.tt"
+        [%- INCLUDE "components/icon-button.tt"
                 button = {
                     class = "postfix secondary"
                     id = "js-entrytime-time-button"

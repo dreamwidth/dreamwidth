@@ -140,7 +140,7 @@
     <legend>Icon Buttons</legend>
     <div class="row">
       <div class="columns large-6">
-        [%- INCLUDE "components/icon-buttons.tt"
+        [%- INCLUDE "components/icon-button.tt"
               button = {
                 class = ""
                 id = ""
@@ -148,7 +148,7 @@
               icon = "x"
               text = "Close"
         -%]
-        [%- INCLUDE "components/icon-buttons.tt"
+        [%- INCLUDE "components/icon-button.tt"
               button = {
                 class = "secondary"
                 id = ""
@@ -156,7 +156,7 @@
               icon = "arrow-left"
               text = "Previous"
         -%]
-        [%- INCLUDE "components/icon-buttons.tt"
+        [%- INCLUDE "components/icon-button.tt"
               button = {
                 class = "secondary"
                 id = ""
@@ -167,7 +167,7 @@
       </div>
       <div class="columns large-6">
 [%- WRAPPER code -%]
-INCLUDE "components/icon-buttons.tt"
+INCLUDE "components/icon-button.tt"
   button = {
     class = "[secondary][etc-button-class]"
     id = ""

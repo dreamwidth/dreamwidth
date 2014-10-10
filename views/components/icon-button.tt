@@ -1,6 +1,6 @@
-[%# views/components/icon-buttons.tt
+[%# views/components/icon-button.tt
 
-Buttons showing only an icon (with hidden fallback text)
+Button showing only an icon (with hidden fallback text)
 
 Authors:
     Afuna <coder.dw@afunamatata.com>
