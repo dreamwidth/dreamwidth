@@ -455,7 +455,7 @@ sub _init {
         can_spellcheck => $LJ::SPELLER,
 
         panels      => $panels,
-        formwidth   => $formwidth eq "P" ? "narrow" : "wide",
+        formwidth   => $formwidth && $formwidth eq "P" ? "narrow" : "wide",
         min_animation => $min_animation ? 1 : 0,
 
         limits => {
