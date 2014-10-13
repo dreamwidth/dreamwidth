@@ -240,7 +240,7 @@ var postForm = (function($) {
         function adjustSecurityDropdown(data, journal) {
             if ( !data ) return;
 
-            if ( journal ) {
+            if ( journal && data.ret ) {
                 $form.trigger( "journalselect-full", $.extend( {}, journal, {
                     canManage: data.ret.can_manage
                 }) );
