@@ -92,19 +92,18 @@ sub new_handler {
     my $r = DW::Request->get;
     my $remote = $rv->{remote};
 
-    return error_ml( "/entry/form.tt.beta.off", { aopts => "href='$LJ::SITEROOT/betafeatures'" } )
-        unless $remote && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
-
     # these kinds of errors prevent us from initializing the form at all
     # so abort and return it without the form
-    return error_ml( "/entry/form.tt.error.nonusercantpost", { sitename => $LJ::SITENAME } )
-            if $remote->is_identity;
+    if ( $remote ) {
+        return error_ml( "/entry/form.tt.error.nonusercantpost", { sitename => $LJ::SITENAME } )
+                if $remote->is_identity;
 
-    return error_ml( "/entry/form.tt.error.cantpost" )
-            unless $remote->can_post;
+        return error_ml( "/entry/form.tt.error.cantpost" )
+                unless $remote->can_post;
 
-    return error_ml( '/entry/form.tt.error.disabled' )
-            if $remote->can_post_disabled;
+        return error_ml( '/entry/form.tt.error.disabled' )
+                if $remote->can_post_disabled;
+    }
 
 
     my $errors = DW::FormErrors->new;
@@ -144,7 +143,6 @@ sub new_handler {
     my $get = $r->get_args;
     $usejournal ||= $get->{usejournal};
     my $vars = _init( { usejournal  => $usejournal,
-                        altlogin    => $get->{altlogin},
                         remote      => $remote,
 
                         datetime    => $datetime || "",
@@ -182,9 +180,6 @@ sub new_handler {
                 $spellcheck{did_spellcheck} = 1;
             }
         } elsif ( $okay_formauth && $post->{showform} ) {  # some other form posted content to us, which the user will want to edit further
-
-            # make explicit whether we're posting as the current remote or as ourselves
-            $post->set( "post_as",  $vars->{post_as} ) unless $post->{post_as};
 
         } elsif ( $okay_formauth ) {
             my $flags = {};
@@ -248,8 +243,8 @@ sub new_handler {
     $vars->{editable} = { map { $_ => 1 } @modules };
 
     # we don't need this JS magic if we are sending everything over SSL
-    unless ( $LJ::IS_SSL ) {
-        $vars->{chalresp_js} = (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : "";
+    $vars->{usessl} = $LJ::IS_SSL;
+    if ( ! $LJ::IS_SSL && ! $remote ) {
         $vars->{login_chal} = LJ::challenge_generate( 3600 ); # one hour to post if they're not logged in
     }
 
@@ -265,7 +260,6 @@ sub new_handler {
 # Can be used when posting a new entry or editing an old entry. .
 # Arguments:
 # * form_opts: options for initializing the form
-#       altlogin      bool: whether we are posting as someone other than the currently logged in user
 #       usejournal    string: username of the journal we're posting to (if not provided,
 #                        use journal of the user we're posting as)
 #       datetime      string: display date of the entry in format "$year-$mon-$mday $hour:$min" (already taking into account timezones)
@@ -273,8 +267,7 @@ sub new_handler {
 sub _init {
     my ( $form_opts, $call_opts ) = @_;
 
-    my $post_as_other = $form_opts->{altlogin} ? 1 : 0;
-    my $u = $post_as_other ? undef : $form_opts->{remote};
+    my $u = $form_opts->{remote};
     my $vars = {};
 
     my @icons;
@@ -353,6 +346,8 @@ sub _init {
         $panels = $u->entryform_panels;
         $formwidth = $u->entryform_width;
         $min_animation = $u->prop( "js_animations_minimal" ) ? 1 : 0;
+    } else {
+        $panels = LJ::User::default_entryform_panels( anonymous => 1 );
     }
 
     @moodlist = ( { id => "", name => LJ::Lang::ml( "entryform.mood.noneother" ) } );
@@ -443,7 +438,6 @@ sub _init {
 
         journallist => \@journallist,
         usejournal  => $usejournal,
-        post_as     => $form_opts->{altlogin} ? "other" : "remote",
 
         security     => \@security,
         customgroups => \@custom_groups,
@@ -657,14 +651,11 @@ sub _auth {
     foreach ( qw( username chal response password ) ) {
         $auth{$_} = $post->{$_} || "";
     }
-    $auth{post_as_other} = ( $post->{post_as} || "" ) eq "other" ? 1 : 0;
 
-    my $user_is_remote = $remote && $remote->user eq $auth{username};
     my %ret;
 
     if ( $auth{username}            # user argument given
-        && ! $user_is_remote        # user != remote
-        && ( ! $remote || $auth{post_as_other} ) ) {  # user not logged in, or user is posting as other
+        && ! $remote            ) { # user not logged in
 
         my $u = LJ::load_user( $auth{username} );
 
@@ -680,7 +671,7 @@ sub _auth {
             $flags->{u} = $u;
 
             $ret{poster} = $u;
-            $ret{journal} = $post->{postas_usejournal} ? LJ::load_user( $post->{postas_usejournal} ) : $u;
+            $ret{journal} = $post->{usejournal} ? LJ::load_user( $post->{usejournal} ) : $u;
         }
     } elsif ( $remote && LJ::check_referer( undef, $referer ) ) {
         $flags->{noauth} = 1;
@@ -1208,16 +1199,15 @@ sub preview_handler {
     my $styleid;
     my $siteskinned = 1;
 
-    my $altlogin = $post->{post_as} eq "other" ? 1 : 0;
-    my $username = $altlogin ? $post->{username} : $remote->username;
-    my $usejournal = $altlogin ? $post->{postas_usejournal} : $post->{usejournal};
+    my $username = $remote ? $remote->username : $post->{username};
+    my $usejournal = $post->{usejournal};
 
     # figure out poster/journal
     my ( $u, $up );
     if ( $usejournal ) {
         $u = LJ::load_user( $usejournal );
         $up = $username ? LJ::load_user( $username ) : $remote;
-    } elsif ( $username && $altlogin ) {
+    } elsif ( ! $remote && $username ) {
         $u = LJ::load_user( $username );
     } else {
         $u = $remote;
@@ -1306,7 +1296,8 @@ sub preview_handler {
         $vars->{icon} = $pic ? $pic->imgtag : undef;
 
 
-        my $etime = LJ::date_to_view_links( $u, "$form_req->{year}-$form_req->{mon}-$form_req->{day}" );
+        my $date = "$form_req->{year}-$form_req->{mon}-$form_req->{day}";
+        my $etime = $u ? LJ::date_to_view_links( $u, $date ) : $date;
         my $hour = sprintf( "%02d", $form_req->{hour} );
         my $min = sprintf( "%02d", $form_req->{min} );
         $vars->{displaydate} = "$etime $hour:$min:00";

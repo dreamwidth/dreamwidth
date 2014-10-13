@@ -141,15 +141,11 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         [%- formwidth == "narrow" ? "entry-partial-width" : "entry-full-width" -%]">
     <input type="hidden" id="nojs" value="1" name="nojs" />
 
-    [% IF login_chal %]
-        <input type="hidden" id="login_chal" name="chal" value="[%login_chal%]" />
-        <input type="hidden" id="login_response" name="response" value="" />
-    [% END %]
-
     [%- dw.form_auth -%]
 
     <div class="current-entry row"><div class="columns"><!-- Start main column sub & entry -->
 
+        [%- IF remote -%]
         <div class="toolbar-container">
         <div class="row"><div class="columns">
             <div class='panel radius toolbar text-right'>
@@ -181,6 +177,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div></div>
 
         </div>
+        [%- END -%]
 
         <div class="row"><div class="columns">
             <div class='subject-container'>
@@ -216,22 +213,19 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div></div>
 
         <div class="row"><div class="columns">
-            <div class="button-bar">
-                <ul class="button-group left">
+            <div class="button-bar entry-quick-metadata">
+                <ul class="no-bullet left">
 
                 <li>
                 [%- form.submit(
                         value = dw.ml(action.edit ? '.button.edit.quick' : '.button.post.quick')
                         name = "action:post"
                         )
-                %]</li>
-
-                [%- FOREACH level = security;
+                %]</li>[%- FOREACH level = security;
                         level.label = dw.ml( level.label );
                         level.format = dw.ml( level.format );
                     END;
-                -%]
-                <li>[%- INCLUDE components/fancyselect.tt
+                -%]<li>[%- INCLUDE components/fancyselect.tt
                         name = "security"
                         id = "js-security"
                         label = dw.ml( '.select.security' )
@@ -239,7 +233,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                         items = security
                 -%]</li>
 
-                [%- IF journallist.size > 1 %]
+                [%~ IF journallist.size > 1 %]
                     [%-
                         journalselect = [];
                         FOREACH journal IN journallist;
@@ -251,7 +245,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                                 format = dw.ml( ".select.usejournal.format", { user => userFormat } )
                             });
                         END
-                    -%]
+                    ~%]
 
                     <li>[%- INCLUDE components/fancyselect.tt
                             name = "usejournal"
@@ -260,11 +254,34 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
                             items = journalselect
                      -%]</li>
-                [%- ELSE -%]
-                    [% '.select.usejournal.format' | ml( user = journallist.first.ljuser_display ) %]
-                    [% form.hidden( name = "usejournal", id = "js-usejournal", value = journallist.first.user,
-                        "data-is-admin" = remote != journallist.first && remote.can_manage( journallist.first )
-                    ) %]
+                [%~ ELSE ~%]
+                    [%- SET usejournal  = journallist.first
+                            isComm      = usejournal.is_community
+                            isAdmin     = isComm && remote.can_manage( usejournal )
+
+                    ~%]
+
+                    [%~ IF usejournal ~%]
+                        [% '.select.usejournal.format' | ml( user = usejournal.ljuser_display ) %]
+                        [% form.hidden( name = "usejournal", id = "js-usejournal", value = usejournal.user,
+                            "data-is-admin" = isAdmin
+                            "data-is-comm" = isComm
+                        ) %]
+                    [%~ ELSE ~%]
+                        <li>
+                        [%~ form.textbox(
+                            name = "usejournal"
+                            id = "js-usejournal"
+                            label = dw.ml( '.select.usejournal' )
+                            placeholder =  dw.ml( '.select.usejournal.format', user = "journal" )
+
+                            "data-is-admin" = isAdmin
+                            "data-is-comm" = isComm
+
+                            class = "radius"
+                        ) -%]
+                        </li>
+                    [%- END -%]
                 [%- END -%]
                 [%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
 
@@ -327,6 +344,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div>
     </div>
 
+    [%- IF remote -%]
     <div class="community-administration">
     <hr>
         <div class="row">
@@ -337,10 +355,14 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     items = [ "community-flags" ] -%]
         </div>
     </div>
+    [%- END -%]
 
     <div class="row components js-only">
         <div class="columns">
             [%- dw.scoped_include( "entry/module-access.tt" ) %]
+            [%- UNLESS remote -%]
+                [%- dw.scoped_include( "entry/login.tt" ) -%]
+            [%- END -%]
         </div>
     </div>
 
