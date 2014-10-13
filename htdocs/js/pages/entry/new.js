@@ -1,6 +1,10 @@
 var postForm = (function($) {
+    function hasRemote() {
+        return $("#js-remote").val() === "" ? false : true;
+    }
+
     var initMainForm = function($form) {
-        $form.collapse({ endpointUrl: "/__rpc_entryformcollapse" });
+        $form.collapse({ endpointUrl: hasRemote() ? "/__rpc_entryformcollapse" : "" });
         $form.fancySelect();
     };
 
@@ -68,9 +72,30 @@ var postForm = (function($) {
             }
         }
 
+        function handleLoginModal(e) {
+            var $modal = $("#js-post-entry-login");
+
+            $form.find("input[name=username]").val( $modal.find("input[name=username]").val() );
+            $form.find("input[name=password]").val( $modal.find("input[name=password]").val() );
+            $modal.find("input[name=password]").val("")
+            if ( $modal.find("input[name=remember_me]").is(":checked") ) {
+                $form.find("input[name=remember_me]").val(1);
+            }
+
+
+            $form.submit();
+        }
+
         $("#js-preview-button").click(openPreview);
         $("#js-spellcheck-button").click(handleSpellcheck);
         $("#js-delete-button").click(handleDelete);
+
+        if ( ! hasRemote() ) {
+            $("input[name='action:post']").attr("data-reveal-id", "js-post-entry-login");
+
+            $("#js-post-entry-login").find("input[type=submit]").click(handleLoginModal);
+            $form.hashpassword();
+        }
     };
 
     var initCommunitySection = function($form) {
@@ -309,14 +334,15 @@ var postForm = (function($) {
                 iscomm  = $option.val() !== "";
             } else {
                 journal = $usejournal.val();
-                iscomm = journal !== $("#js-remote").val();
+                iscomm = $usejournal.data( "is-comm" ) ? true : false;
             }
 
             var journalData = {
                     "name": journal,
                     "iscomm": iscomm,
-                    isremote: true
+                    isremote: hasRemote()
             };
+
             $form.data( "journal", journal )
                 .trigger( "journalselect", journalData );
 
@@ -412,7 +438,7 @@ var postForm = (function($) {
         });
 
         $form.bind('journalselect', function(evt, journal) {
-            base_url = 'http://' + journal.name + '.' + Site.user_domain;
+            base_url = 'http://' + (journal.name || "[journal]") + '.' + Site.user_domain;
             updateSlugBase();
         });
 
@@ -422,20 +448,21 @@ var postForm = (function($) {
     var initTags = function($form) {
         $form.one("journalselect", function(e, journal) {
             var $taglist = $("#js-taglist");
+            var canGetTags = hasRemote() && journal.name;
 
             var options = {
                 grow: true,
                 maxlength: 40
             }
 
-            if ( journal.name ) {
+            if ( canGetTags ) {
                 options.populateSource = Site.siteroot + "/__rpc_gettags?user=" + journal.name;
                 options.populateId = journal.name;
             }
 
             $taglist.autocompletewithunknown(options);
 
-            if ( journal.name )
+            if ( canGetTags )
                 $taglist.tagBrowser({fallbackLink: "#js-taglist-link"});
 
             $form.bind("journalselect", function(e, journal) {
@@ -539,6 +566,10 @@ var postForm = (function($) {
     };
 
     var initCrosspost = function($form) {
+        if ( ! $.fn.crosspost ) {
+            return;
+        }
+
         function setLastVisible() {
             $(".crosspost-component")
                 .find(".last-visible")

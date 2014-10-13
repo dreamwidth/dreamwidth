@@ -48,13 +48,33 @@
 }
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
-.button-bar .button-group .fancy-select {
-    &, & div {
-        overflow: visible;
-    }
+.entry-quick-metadata {
+    li {
+        display: inline-block;
 
+        input, .button {
+            border-radius: 0;
+        }
+
+        &:first-of-type input {
+            border-top-left-radius: $global-radius;
+            border-bottom-left-radius: $global-radius;
+        }
+        &:last-of-type input {
+            border-top-right-radius: $global-radius;
+            border-bottom-right-radius: $global-radius;
+        }
+    }
     label {
         @include element-invisible();
+    }
+    input[type=text] {
+        display: inline-block;
+
+        // force alignment to buttons
+        padding-top: $button-med - rem-calc(1);
+        position: relative;
+        top: 1px;
     }
 }
 

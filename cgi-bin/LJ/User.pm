@@ -4999,6 +4999,41 @@ sub entryform_width {
 }
 
 # getter/setter
+sub default_entryform_panels {
+    my ( %opts ) = @_;
+    my $anonymous = $opts{anonymous} ? 1 : 0;
+    my $force_show = $anonymous;
+
+    return {
+        order => $anonymous ?
+                [   [ "tags", "displaydate", "slug" ],
+                    [ "currents" ],
+                    [ "comments", "age_restriction" ],
+                ] :
+                [   [ "tags", "displaydate", "slug" ],
+
+                    # FIXME: should be [ "status" ... ] %]
+                    [ "currents", "comments", "age_restriction" ],
+
+                    # FIXME: should be [ ... "scheduled" ]
+                    [ "icons", "crosspost" ],
+                ],
+        show => {
+            "tags"          => 1,
+            "currents"      => 1,
+            "slug"          => 1,
+            "displaydate"   => $force_show,
+            "comments"      => $force_show,
+            "age_restriction" => $force_show,
+            "icons"         => 1,
+            "crosspost"     => $force_show,
+            #"scheduled"     => $force_show,
+            #"status"        => 1,
+        },
+        collapsed => {
+        }
+    };
+}
 sub entryform_panels {
     my ( $u, $val ) = @_;
 
@@ -5008,30 +5043,7 @@ sub entryform_panels {
     }
 
     my $prop = $u->prop( "entryform_panels" );
-    my $default = {
-        order => [ [ "tags", "displaydate", "slug" ],
-
-                   # FIXME: should be [ "status" ... ] %]
-                   [ "currents", "comments", "age_restriction" ],
-
-                   # FIXME: should be [ ... "scheduled" ]
-                   [ "icons", "crosspost" ],
-                ],
-        show => {
-            "tags"          => 1,
-            "currents"      => 1,
-            "slug"          => 1,
-            "displaydate"   => 0,
-            "comments"      => 0,
-            "age_restriction" => 0,
-            "icons"         => 1,
-            "crosspost"     => 0,
-            #"scheduled"     => 0,
-            #"status"        => 1,
-        },
-        collapsed => {
-        }
-    };
+    my $default = LJ::User::default_entryform_panels();
     my %obsolete = (
         access => 1,
         journal => 1,
