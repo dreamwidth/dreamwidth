@@ -103,6 +103,7 @@ Return a list of errors for the given form field (key)
 Errors are a hashref which contain:
 
 =over
+
 =item B< message >
 the full string of the error message
 
