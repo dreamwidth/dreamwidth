@@ -23,9 +23,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- IF use_js && errors.exist -%]
 <div class="row">
     <div class="columns large-12">
-        [%- FOREACH err = errors.get_all -%]
-            <div class="alert-box alert radius">[%- err.message -%]</div>
-        [%- END -%]
+    [%- INCLUDE components/errors.tt errors = errors -%]
     </div>
 </div>
 [%- END -%]
