@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2010-2012 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -41,6 +41,22 @@ When using in conjunction with LJ::Widget subclasses, you can just specify the f
 
     LJ::Widget->use_specific_form_fields( post => \%POST, widget => "...", fields => [ DW::Captcha->form_fields ] )
         if DW::Captcha->enabled( 'create' );
+
+
+In a controller+template pair, do this to generate the captcha HTML:
+
+    $vars->{print_captcha} = sub { return DW::Captcha->new( $_[0] )->print; }
+    # ... other vars go here ...
+    return DW::Template->render_template( 'path/to/template.tt', $vars );
+
+then, in template path/to/template.tt:
+
+    [% print_captcha( 'page name' ) %]
+
+or
+
+    [% print_captcha() %]
+
 =cut
 
 use strict;
@@ -174,7 +190,7 @@ sub print {
 
     my $ret = "<div class='captcha'>";
     $ret .= $self->_print;
-    $ret .= "<p style='clear:both'>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
+    $ret .= "<p style='clear:both'>" . LJ::Lang::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
     $ret .= "</div>";
 
     return $ret;
