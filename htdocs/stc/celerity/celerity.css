@@ -417,7 +417,7 @@ footer { border-top: 4px double #999966;
     background: #fff;
     padding: 3px 5px;
 }
-.highlight-box, .message-box, .error-box {
+.highlight-box, .message-box, .error-box, .alert-box {
     margin: 1em auto;
     padding: 0.5em;
 }
@@ -426,7 +426,7 @@ footer { border-top: 4px double #999966;
     background-color: #DDDDAA;
     color: #000;
 }
-.error-box {
+.error-box, .alert-box {
     color: #000;
     background-color: #fcf6db;
     border: 1px solid #ffdfc0;
