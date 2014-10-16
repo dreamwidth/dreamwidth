@@ -512,7 +512,7 @@ textarea, input {
     border: 1px solid #888;
     padding: 3px 5px;
 }
-.highlight-box, .message-box, .error-box {
+.highlight-box, .message-box, .error-box, .alert-box {
     margin: 1em auto;
     padding: 0.5em;
 }
@@ -521,7 +521,7 @@ textarea, input {
     background-color: #333;
     color: #fff;
 }
-.error-box {
+.error-box, .alert-box {
     color: #fff;
     background-color: #916E10;
     border: 1px solid #ffdfc0;
