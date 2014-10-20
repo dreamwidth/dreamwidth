@@ -5,6 +5,8 @@
 
 .error.nojournal=No journal selected to swap usernames.
 
+.form.button=Swap
+
 .form.journal=Select Journal
 
 .form.swapjournal=Swap With
