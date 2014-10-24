@@ -104,6 +104,8 @@ sub start_request_reload {
             $LJ::_ORIG_CONFIG{$_} = ${$LJ::{$_}}
                 foreach qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
 
+            $LJ::LOCKER_OBJ = undef;
+
             if ($modtime > $now - 60) {
                 # show to stderr current reloads.  won't show
                 # reloads happening from new apache children
