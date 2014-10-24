@@ -256,6 +256,10 @@ sub HTTP_CREATED {
     return Apache2::Const::HTTP_CREATED;
 }
 
+sub MOVED_PERMANENTLY {
+    return Apache2::Const::HTTP_MOVED_PERMANENTLY;
+}
+
 sub REDIRECT {
     return Apache2::Const::REDIRECT;
 }
