@@ -398,15 +398,21 @@ sub trans
 
     # only allow certain pages over SSL
     if ($is_ssl) {
+        $LJ::SITEROOT = $LJ::SSLROOT;
         $LJ::IMGPREFIX = $LJ::SSLIMGPREFIX;
         $LJ::STATPREFIX = $LJ::SSLSTATPREFIX;
+        $LJ::STATPREFIX = $LJ::SSLSTATPREFIX;
+        $LJ::JSPREFIX = $LJ::SSLJSPREFIX;
+        $LJ::WSTATPREFIX = $LJ::SSLWSTATPREFIX;
+        $LJ::USERPIC_ROOT = $LJ::SSLICONPREFIX;
     } elsif (LJ::Hooks::run_hook("set_alternate_statimg")) {
         # do nothing, hook did it.
     } else {
         $LJ::DEBUG_HOOK{'pre_restore_bak_stats'}->() if $LJ::DEBUG_HOOK{'pre_restore_bak_stats'};
-        $LJ::IMGPREFIX = $LJ::IMGPREFIX_BAK;
-        $LJ::STATPREFIX = $LJ::STATPREFIX_BAK;
-        $LJ::USERPIC_ROOT = $LJ::USERPICROOT_BAK if $LJ::USERPICROOT_BAK;
+
+        # restore original siteroot, etc
+        ${$LJ::{$_}} = $LJ::_ORIG_CONFIG{$_}
+            foreach qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
     }
 
     # let foo.com still work, but redirect to www.foo.com

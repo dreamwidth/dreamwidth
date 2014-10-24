@@ -2506,21 +2506,12 @@ sub res_includes {
 
     # use correct root and prefixes for SSL pages
     my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix, $iconprefix);
-    if ($LJ::IS_SSL) {
-        $siteroot = $LJ::SSLROOT;
-        $imgprefix = $LJ::SSLIMGPREFIX;
-        $statprefix = $LJ::SSLSTATPREFIX;
-        $jsprefix = $LJ::SSLJSPREFIX;
-        $wstatprefix = $LJ::SSLWSTATPREFIX;
-        $iconprefix = $LJ::USERPIC_ROOT;
-    } else {
-        $siteroot = $LJ::SITEROOT;
-        $imgprefix = $LJ::IMGPREFIX;
-        $statprefix = $LJ::STATPREFIX;
-        $jsprefix = $LJ::JSPREFIX;
-        $wstatprefix = $LJ::WSTATPREFIX;
-        $iconprefix = $LJ::USERPIC_ROOT;
-    }
+    $siteroot = $LJ::SITEROOT;
+    $imgprefix = $LJ::IMGPREFIX;
+    $statprefix = $LJ::STATPREFIX;
+    $jsprefix = $LJ::JSPREFIX;
+    $wstatprefix = $LJ::WSTATPREFIX;
+    $iconprefix = $LJ::USERPIC_ROOT;
 
     if ( $include_js ) {
         # find current journal
