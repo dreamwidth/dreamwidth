@@ -847,18 +847,10 @@ sub trans
         return redir( $apache_r, "http://$2.$LJ::USER_DOMAIN$uri$args_wq" )
             if $1 eq 'www.';
 
-        if ( $is_ssl ) {
-            # FIXME: Remove when we are ready for SSL in userspace
-            return redir($apache_r, LJ::create_url( undef, ssl => 0, keep_args => 1 ) )
-                    if $apache_r->method eq "GET" || $apache_r->method eq "HEAD";
-            return 404;
-        }
-
         my $user = $2;
 
         # see if the "user" is really functional code
         my $func = $LJ::SUBDOMAIN_FUNCTION{$user};
-
         if ($func eq "normal") {
             # site admin wants this domain to be ignored and treated as if it
             # were "www", so set this flag so the custom "OTHER_VHOSTS" check
@@ -890,6 +882,12 @@ sub trans
             return DECLINED;
 
         } elsif ($func eq "journal") {
+            if ( $is_ssl ) {
+                # FIXME: Remove when we are ready for SSL in userspace
+                return redir($apache_r, LJ::create_url( undef, ssl => 0, keep_args => 1 ) )
+                        if $apache_r->method eq "GET" || $apache_r->method eq "HEAD";
+                return 404;
+            }
 
             unless ($uri =~ m!^/(\w{1,25})(/.*)?$!) {
                 if ( $uri eq "/favicon.ico" ) {
@@ -1105,10 +1103,10 @@ sub userpic_trans
 
     # redirect to the correct URL if we're not at the right one,
     # and unless CDN stuff is in effect...
-    unless ($LJ::USERPIC_ROOT ne $LJ::USERPICROOT_BAK) {
+    if ( $LJ::USERPIC_ROOT ne $LJ::_ORIG_CONFIG{USERPIC_ROOT} ) {
         my $host = $apache_r->headers_in->{"Host"};
-        unless (    $LJ::USERPIC_ROOT =~ m!^http://\Q$host\E!i
-                    || $LJ::USERPIC_ROOT_CDN && $LJ::USERPIC_ROOT_CDN =~ m!^http://\Q$host\E!i
+        unless (    $LJ::USERPIC_ROOT =~ m!^https?://\Q$host\E!i
+                    || $LJ::USERPIC_ROOT_CDN && $LJ::USERPIC_ROOT_CDN =~ m!^https?://\Q$host\E!i
                     || $host eq '127.0.0.1' # FIXME: lame hack for DW config
         ) {
             return redir($apache_r, "$LJ::USERPIC_ROOT/$picid/$userid");
