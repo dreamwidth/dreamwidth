@@ -595,7 +595,7 @@ sub _apply_defaults {
     $hash->{user}         = $opts->{user} || 0;
     $hash->{api}          = $opts->{api}  || 0;
     $hash->{format}     ||= $opts->{format} || 'html';
-    $hash->{prefer_ssl}   = $opts->{prefer_ssl} || 0;
+    $hash->{prefer_ssl}   = $opts->{prefer_ssl} // ($hash->{app} ? $LJ::USE_SSL : 0);
 
     my $formats = $opts->{formats} || [ $hash->{format} ];
     $formats = { map { ( $_, 1 ) } @$formats } if ref $formats eq 'ARRAY';
