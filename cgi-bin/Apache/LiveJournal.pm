@@ -358,6 +358,12 @@ sub trans
 
     my $bml_handler = sub {
         my $filename = shift;
+
+        # redirect to HTTPS if necessary
+        my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
+        return $redirect_handler if $redirect_handler;
+
+        # show the file
         $apache_r->handler("perl-script");
         $apache_r->notes->{bml_filename} = $filename;
         $apache_r->push_handlers(PerlHandler => \&Apache::BML::handler);
@@ -987,6 +993,10 @@ sub trans
     # now check for BML pages
     my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $apache_r, $uri );
     if ( $alt_path ) {
+        # redirect to HTTPS if necessary
+        my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
+        return $redirect_handler if $redirect_handler;
+
         $apache_r->uri( $alt_uri );
         $apache_r->filename( $alt_path );
         return OK;
