@@ -103,7 +103,6 @@ sub start_request_reload {
             %LJ::_ORIG_CONFIG = ();
             $LJ::_ORIG_CONFIG{$_} = ${$LJ::{$_}}
                 foreach qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
-                warn Data::Dumper::Dumper( \%LJ::_ORIG_CONFIG );
 
             if ($modtime > $now - 60) {
                 # show to stderr current reloads.  won't show
