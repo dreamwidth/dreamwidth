@@ -410,7 +410,6 @@ sub convert_handler {
     }
 
     my $vars = {
-        usessl      => $LJ::USE_SSL,
         errors      => $errors,
         formdata    => $post || \%default_options,
         admin_user  => $remote->ljuser_display,
