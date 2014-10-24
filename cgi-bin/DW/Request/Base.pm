@@ -215,9 +215,10 @@ sub _string_to_multivalue {
 
 # simply sets the location header and returns REDIRECT
 sub redirect {
+    my %opts = @_;
     my DW::Request $self = $_[0];
     $self->header_out( Location => $_[1] );
-    return $self->REDIRECT;
+    return $opts{permanent} ? $self->MOVED_PERMANENTLY : $self->REDIRECT;
 }
 
 # indicates that this request has been handled
@@ -226,6 +227,7 @@ sub OK { return 0; }
 # HTTP status codes that we return in other methods
 sub HTTP_OK { return 200; }
 sub HTTP_CREATED { return 201; }
+sub MOVED_PERMANENTLY { return 301; }
 sub REDIRECT  { return 302; }
 sub NOT_FOUND { return 404; }
 sub HTTP_GONE { return 410; }
