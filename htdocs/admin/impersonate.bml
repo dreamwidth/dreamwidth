@@ -76,7 +76,7 @@ body<=
 
     $ret .= LJ::labelfy( 'impersonate_reason', $ML{'.form.reason'} );
     $ret .= LJ::html_text( { id => 'impersonate_reason', name => 'reason', maxlength => '255', size => '50', value => $POST{reason} } ) . "<br />";
-    $ret .= "<input type='submit' value='Submit' />";
+    $ret .= "<input type='submit' value=\"" . LJ::ehtml( $ML{'.form.button'} ) . "\" />";
     $ret .= "</form>";
 
     return $ret;

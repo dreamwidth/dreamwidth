@@ -7,6 +7,8 @@
 
 .error.invaliduser=Could not load user '[[user]]'.
 
+.form.button=Submit
+
 .form.password=Password:
 
 .form.reason=Reason:
