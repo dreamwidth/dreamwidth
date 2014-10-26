@@ -462,11 +462,22 @@ EOC
 register_tablecreate("supportcat", <<'EOC');
 CREATE TABLE supportcat (
     spcatid int(10) unsigned NOT NULL auto_increment,
+    catkey VARCHAR(25) NOT NULL,
     catname varchar(80) default NULL,
     sortorder mediumint(8) unsigned NOT NULL default '0',
     basepoints tinyint(3) unsigned NOT NULL default '1',
+    is_selectable ENUM('1','0') NOT NULL DEFAULT '1',
+    public_read  ENUM('1','0') NOT NULL DEFAULT '1',
+    public_help ENUM('1','0') NOT NULL DEFAULT '1',
+    allow_screened ENUM('1','0') NOT NULL DEFAULT '0',
+    hide_helpers ENUM('1','0') NOT NULL DEFAULT '0',
+    user_closeable ENUM('1', '0') NOT NULL DEFAULT '1',
+    replyaddress VARCHAR(50),
+    no_autoreply ENUM('1', '0') NOT NULL DEFAULT '0',
+    scope ENUM('general', 'local') NOT NULL DEFAULT 'general',
 
-    PRIMARY KEY  (spcatid)
+    PRIMARY KEY  (spcatid),
+    UNIQUE (catkey)
 )
 EOC
 
