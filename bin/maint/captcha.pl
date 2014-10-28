@@ -39,9 +39,10 @@ $maint{cache_textcaptcha} = sub {
     my $need = $MAX_CACHED - $count;
     print "pre-fetching $need textcaptcha items.\n";
 
-    # pre-fetch. Gradually ease off the timer if we were unable to get a captcha
-    # if we failed totally, we can always try again next time we run maint tasks
-    my @backoff_timer = ( 1, 3, 5, 10 );
+    # pre-fetch. Gradually ease off the timer if we were unable to get a captcha.
+    # If we tried and failed too many times, stop for now.
+    # We can always try again next time we run maint tasks
+    my @backoff_timer = ( 1, 3, 5, 0 );
     my $delay = 1;
     my @fetched_captchas = ();
     foreach my $i ( 1...$need ) {
@@ -50,7 +51,8 @@ $maint{cache_textcaptcha} = sub {
         if ( $captcha ) {
             push @fetched_captchas, $captcha;
         } else {
-            $delay = shift @backoff_timer unless $captcha;
+            $delay = shift @backoff_timer;
+            print $delay ? "setting delay to $delay.\n" : "ending on attempt #$i with " . scalar @fetched_captchas . " fetched.\n";
             last unless $delay;
         }
 
