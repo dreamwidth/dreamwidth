@@ -692,7 +692,7 @@ sub trans
 
         # see if there is a modular handler for this URI
         my $ret = LJ::URI->handle($uuri, $apache_r);
-        $ret = DW::Routing->call( username => $user ) unless defined $ret;
+        $ret = DW::Routing->call( username => $user, ssl => $is_ssl ) unless defined $ret;
         return $ret if defined $ret;
 
         if ($uuri =~ m#^/tags(.*)#) {
