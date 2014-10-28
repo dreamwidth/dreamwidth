@@ -41,7 +41,7 @@ $maint{cache_textcaptcha} = sub {
 
     # pre-fetch. Gradually ease off the timer if we were unable to get a captcha
     # if we failed totally, we can always try again next time we run maint tasks
-    my @backoff_timer = ( 1, 3, 5, 0 );
+    my @backoff_timer = ( 1, 3, 5, 10 );
     my $delay = 1;
     my @fetched_captchas = ();
     foreach my $i ( 1...$need ) {
