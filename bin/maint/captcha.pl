@@ -51,7 +51,8 @@ $maint{cache_textcaptcha} = sub {
         if ( $captcha ) {
             push @fetched_captchas, $captcha;
         } else {
-            $delay = shift @backoff_timer unless $captcha;
+            $delay = shift @backoff_timer;
+            print $delay ? "setting delay to $delay.\n" : "ending on attempt #$i with " . scalar @fetched_captchas . " fetched.\n";
             last unless $delay;
         }
 
