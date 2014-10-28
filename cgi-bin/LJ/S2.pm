@@ -130,7 +130,7 @@ sub make_journal
 
     foreach ("name", "url", "urlname") { LJ::text_out(\$u->{$_}); }
 
-    $u->{'_journalbase'} = $u->journal_base( $opts->{'vhost'} );
+    $u->{'_journalbase'} = $u->journal_base( vhost => $opts->{'vhost'} );
 
     my $view2class = {
         lastn    => "RecentPage",

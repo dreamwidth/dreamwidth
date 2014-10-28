@@ -46,7 +46,7 @@ sub RecentPage
     }
 
     my $user = $u->user;
-    my $journalbase = $u->journal_base( $opts->{'vhost'} );
+    my $journalbase = $u->journal_base( vhost => $opts->{'vhost'} );
 
     my $datalink = sub {
         my ($what, $caption) = @_;

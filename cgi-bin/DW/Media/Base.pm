@@ -107,7 +107,7 @@ sub url {
             ( $self->{url_height} // $self->{height} ) . '/';
     }
 
-    return $self->u->journal_base . '/file/' . $extra . $self->{displayid} .
+    return $self->u->journal_base( ssl => $LJ::IS_SSL ) . '/file/' . $extra . $self->{displayid} .
         '.' . $self->{ext};
 }
 

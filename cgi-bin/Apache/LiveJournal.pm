@@ -821,7 +821,7 @@ sub trans
         if ( $u && $u->is_redirect && $u->is_renamed ) {
             my $renamedto = $u->prop( 'renamedto' );
             if ($renamedto ne '') {
-                my $redirect_url = ($renamedto =~ m!^https?://!) ? $renamedto : LJ::journal_base($renamedto, $vhost) . $uuri . $args_wq;
+                my $redirect_url = ($renamedto =~ m!^https?://!) ? $renamedto : LJ::journal_base($renamedto, vhost => $vhost) . $uuri . $args_wq;
                 return redir($apache_r, $redirect_url, 301);
             }
         }

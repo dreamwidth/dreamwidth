@@ -27,7 +27,7 @@ sub DayPage
     $p->{'entries'} = [];
 
     my $user = $u->user;
-    my $journalbase = $u->journal_base( $opts->{'vhost'} );
+    my $journalbase = $u->journal_base( vhost => $opts->{'vhost'} );
 
     if ($u->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();

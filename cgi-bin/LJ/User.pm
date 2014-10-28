@@ -9474,7 +9474,9 @@ sub clear_rel {
 # </LJFUNC>
 sub journal_base
 {
-    my ($user, $vhost) = @_;
+    my ($user, %opts) = @_;
+    my $vhost = $opts{vhost};
+    my $protocol = $opts{ssl} ? "https" : "http";
 
     my $u = LJ::isu( $user ) ? $user : LJ::load_user( $user );
     $user = $u->user if $u;
@@ -9504,16 +9506,16 @@ sub journal_base
 
         if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
             $user =~ s/_/-/g;
-            return "http://$user.$LJ::DOMAIN";
+            return "$protocol://$user.$LJ::DOMAIN";
         } else {
-            return "http://$rule->[1]/$user";
+            return "$protocol://$rule->[1]/$user";
         }
     }
 
     if ($vhost eq "users") {
         my $he_user = $user;
         $he_user =~ s/_/-/g;
-        return "http://$he_user.$LJ::USER_DOMAIN";
+        return "$protocol://$he_user.$LJ::USER_DOMAIN";
     } elsif ($vhost eq "tilde") {
         return "$LJ::SITEROOT/~$user";
     } elsif ($vhost eq "community") {
@@ -9521,7 +9523,7 @@ sub journal_base
     } elsif ($vhost eq "front") {
         return $LJ::SITEROOT;
     } elsif ($vhost =~ /^other:(.+)/) {
-        return "http://$1";
+        return "$protocol://$1";
     } else {
         return "$LJ::SITEROOT/users/$user";
     }
@@ -9568,7 +9570,7 @@ sub make_journal {
     return unless $styleid;
 
 
-    $u->{'_journalbase'} = $u->journal_base( $opts->{'vhost'} );
+    $u->{'_journalbase'} = $u->journal_base( vhost => $opts->{'vhost'} );
 
     my $eff_view = $LJ::viewinfo{$view}->{'styleof'} || $view;
 
