@@ -81,6 +81,7 @@ body<=
 
     LJ::CleanHTML::clean_subject(\$subj);
     LJ::CleanHTML::clean_event(\$evt, \%opts);
+    LJ::expand_embedded($u, $ditemid, $remote, \$evt, proxy_insecure_content => 1 );
 
     # prevent BML tags interpretation inside post body
     $subj =~ s/<\?/&lt;?/g;

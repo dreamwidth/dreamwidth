@@ -822,8 +822,10 @@ sub clean
                         ! defined $hash->{height}) { $img_bad ||= $opts->{imageplaceundef}; }
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
-                    $hash->{src} = canonical_url($hash->{src}, 1);
-                    $img_bad = 1 if $opts->{proxy_insecure_content};
+                    my $url = canonical_url($hash->{src}, 1);
+                    # https:// and the relative // protocol don't need proxying
+                    $img_bad = 1 if $opts->{proxy_insecure_content} && $url !~ m!^(?:https://|//)!;
+                    $hash->{src} = $url;
 
                     if ($img_bad) {
                         $newdata .= "<a class=\"ljimgplaceholder\" href=\"" .

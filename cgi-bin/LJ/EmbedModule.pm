@@ -603,7 +603,7 @@ sub module_iframe_tag {
         # show placeholder if this is not whitelisted video
         $do_placeholder = 1 if $no_whitelist;
     }
-    $do_placeholder = 1 if $opts{proxy_insecure_content};
+    $do_placeholder = 1 if $opts{proxy_insecure_content} && $url !~ m!^(?:https://|//)!;
 
     return $iframe_tag unless $do_placeholder;
 
