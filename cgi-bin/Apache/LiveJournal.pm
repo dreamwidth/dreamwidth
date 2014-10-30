@@ -299,7 +299,6 @@ sub resolve_path_for_uri {
                 $file .= ".bml";
                 $uri .= ".bml";
             }
-            next unless -f $file;
 
             # /foo  => /foo/
             # /foo/ => /foo/index.bml
@@ -308,6 +307,7 @@ sub resolve_path_for_uri {
                 $file .= "index.bml";
                 $uri .= "index.bml";
             }
+            next unless -f $file;
 
             $file = abs_path( $file );
             if ( $file ) {
