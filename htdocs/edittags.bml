@@ -77,7 +77,7 @@ body<=
     my (%props, %opts);
     LJ::load_log_props2($u->{userid}, [$jitemid], \%props);
     $opts{'preformatted'} = $props{$jitemid}{'opt_preformatted'};
-    $opts{proxy_insecure_content} = 1;
+    $opts{proxy_insecure_content} = $LJ::IS_SSL;
 
     LJ::CleanHTML::clean_subject(\$subj);
     LJ::CleanHTML::clean_event(\$evt, \%opts);
