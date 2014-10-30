@@ -32,7 +32,13 @@ sub bml_handler {
 sub redirect_to_https {
     my ( $class, $apache_r, $uri ) = @_;
 
-    if ( $LJ::USE_SSL && !$LJ::IS_SSL && !$LJ::SSL_DISABLED_URI{$uri}
+    my $host = $apache_r->headers_in->{"Host"};
+    if ( $LJ::USE_SSL && !$LJ::IS_SSL
+            && ( # temporary
+                !$LJ::SSL_DISABLED_URI{$uri}
+                && "http://$host/" ne $LJ::CSSPROXY
+                && $host ne $LJ::EMBED_MODULE_DOMAIN
+            )
             && ( $apache_r->method eq "GET" || $apache_r->method eq "HEAD" )
             && $apache_r->status == 200 # don't try to handle 404s, 500s
         ) {
