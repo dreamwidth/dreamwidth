@@ -34,6 +34,7 @@ sub redirect_to_https {
 
     if ( $LJ::USE_SSL && !$LJ::IS_SSL && !$LJ::SSL_DISABLED_URI{$uri}
             && ( $apache_r->method eq "GET" || $apache_r->method eq "HEAD" )
+            && $apache_r->status == 200 # don't try to handle 404s, 500s
         ) {
         my $url = LJ::create_url( $uri, ssl => 1, keep_args => 1 );
         return Apache::LiveJournal::redir( $apache_r, $url, HTTP_MOVED_PERMANENTLY );
