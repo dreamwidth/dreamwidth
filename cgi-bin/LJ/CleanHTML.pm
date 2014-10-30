@@ -823,6 +823,7 @@ sub clean
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
                     $hash->{src} = canonical_url($hash->{src}, 1);
+                    $img_bad = 1 if $opts->{proxy_insecure_content};
 
                     if ($img_bad) {
                         $newdata .= "<a class=\"ljimgplaceholder\" href=\"" .
@@ -1533,6 +1534,7 @@ sub clean_event
         journal => $opts->{journal},
         ditemid => $opts->{ditemid},
         errref => $opts->{errref},
+        proxy_insecure_content => $opts->{proxy_insecure_content},
     });
 }
 
@@ -1610,6 +1612,7 @@ sub clean_comment
         'textonly' => $opts->{'textonly'} ? 1 : 0,
         'remove_positioning' => 1,
         'remove_abs_sizes' => $opts->{anon_comment},
+        proxy_insecure_content => $opts->{proxy_insecure_content},
     });
 }
 

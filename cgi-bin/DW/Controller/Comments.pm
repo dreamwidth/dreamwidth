@@ -188,6 +188,7 @@ sub received_handler {
                             editor => $r->{props}->{editor},
                             anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
                             nocss => 1,
+                            proxy_insecure_content => 1,
             } );
 
             my $stylemine = 0;

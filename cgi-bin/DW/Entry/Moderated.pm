@@ -104,10 +104,11 @@ sub event {
     LJ::CleanHTML::clean_event(\$event, { preformatted  => $raw_data->{props}->{opt_preformatted},
                                           cutpreview    => 1,
                                           cuturl        => '#',
+                                          proxy_insecure_content => 1,
                                      });
 
     # create iframe from <lj-embed> tag
-    LJ::EmbedModule->expand_entry( $self->journal, \$event) ;
+    LJ::EmbedModule->expand_entry( $self->journal, \$event, proxy_insecure_content => 1 ) ;
 
     return $event;
 }

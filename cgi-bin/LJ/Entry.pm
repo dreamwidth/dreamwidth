@@ -871,7 +871,10 @@ sub event_html
     my $event = $self->{event};
     LJ::CleanHTML::clean_event(\$event, $opts);
 
-    LJ::expand_embedded($self->{u}, $self->ditemid, LJ::User->remote, \$event, sandbox => $opts->{sandbox} );
+    LJ::expand_embedded($self->{u}, $self->ditemid, LJ::User->remote, \$event,
+        sandbox => $opts->{sandbox},
+        proxy_insecure_content =>  $opts->{proxy_insecure_content}
+        );
     return $event;
 }
 
