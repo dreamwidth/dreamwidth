@@ -70,22 +70,31 @@ sub new {
 =head2 Common Arguments
 
 All methods which generate an HTML element can accept the following optional arguments:
+
+=over
+
 =item default - default value to use. Does not override the value of a previous form submission
                 The default value will most likely come from settings stored in the DB.
                 It may also be a hardcoded initial value.
+
 =item value - value to apply to the form element. Does override any previous form submissions
+
 =item selected - (for checkbox, radio) - whether the form element was selected or not
                - (for select) - the selected option in the dropdown
 
 =item label - text for a label, which is paired with the form element if an id is provided
+
 =item labelclass - class for a label
 
 =item id - id of the element. Highly recommended, especially if you have a label
+
 =item name - name of the form element. You'll probably really want this
+
 =item class - CSS class of the form element
 
 =item (other valid HTML attributes)
-=cut
+
+=back
 
 =head2 [% form.checkbox( label="A label", id="elementid", name="elementname", .... ) %]
 
@@ -121,10 +130,14 @@ Return a checkbox nested within a label, if provided. Values are prepopulated by
 
 Additional option:
 
+=over
+
 =item remember_old_state - 1 if you want to include a hidden element containing the checkbox's value on page load.
     Useful for cases when you have a list of items, and you want to know if the checkbox started out unchecked.
     When it's unchecked, the checkbox doesn't get submitted, equivalent to it not being on the page in the first place.
     So we might want to keep track of the old value so we "remember" that we need to handle the toggle
+
+=back
 
 =cut
 
@@ -198,7 +211,7 @@ sub radio {
 
 }
 
-=head2 [% form.radio( label = ... ) %]
+=head2 [% form.radio_nested( label = ... ) %]
 
 Return a radiobutton nested within a label, if provided. Values are prepopulated by the plugin's datasource.
 
