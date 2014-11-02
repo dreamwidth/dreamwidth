@@ -17,7 +17,7 @@
 package DW::Controller::Admin::SupportCat;
 
 use strict;
-use warnings;
+
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -57,8 +57,15 @@ sub category_controller {
 
     my $r = DW::Request->get;
 
-    my $args = $r->did_post ? $r->post_args : $r->get_args;
-    my $catkey = LJ::text_trim( $args->{catkey}, 25, 0 );
+    # catkey and newcat can come from get (first time in) or post (later)
+    my $catkey = $r->did_post
+        ? $r->post_args->{catkey}
+        : $r->get_args->{catkey};
+    $catkey = LJ::text_trim( $catkey, 25, 0 );
+    my $newcat = $r->did_post 
+        ? $r->post_args->{newcat} 
+        : $r->get_args->{newcat};
+    $newcat = $newcat ? 1 : 0;
 
     my $cats = LJ::Support::load_cats();
     my $cat = LJ::Support::get_cat_by_key( $cats, $catkey ) || {
@@ -80,15 +87,21 @@ sub category_controller {
     my $errors = DW::FormErrors->new;
 
     if ( $r->did_post ) {
+        my $post_args = $r->post_args;
+
         # Copy fields to $cat, normalizing at the same time.
         $cat->{catkey} = $catkey;
-        $cat->{catname} = LJ::text_trim( $args->{catname}, 80, 0 );
-        $cat->{$_} = $args->{$_} + 0 foreach ( qw( sortorder basepoints ) );
-        $cat->{$_} = $args->{$_} ? 1 : 0
+        $cat->{catname} = LJ::text_trim( $post_args->{catname}, 80, 0 );
+        $cat->{$_} = $post_args->{$_} + 0
+            foreach ( qw( sortorder basepoints ) );
+        $cat->{$_} = $post_args->{$_} ? 1 : 0
             foreach ( qw( is_selectable public_read public_help allow_screened
                           hide_helpers user_closeable no_autoreply ) );
-        $cat->{replyaddress} = LJ::text_trim( $args->{replyaddress}, 50, 0 );
-        $cat->{scope} = ( $args->{scope} eq 'local' ) ? 'local' : 'general';
+        $cat->{replyaddress}
+            = LJ::text_trim( $post_args->{replyaddress}, 50, 0 );
+        $cat->{scope} = ( $post_args->{scope} eq 'local' )
+                        ? 'local'
+                        : 'general';
 
         # Check for errors
         $errors->add( 'catkey', '.error.catkey_empty' ) if $cat->{catkey} eq '';
@@ -113,9 +126,9 @@ sub category_controller {
         }
     }
 
-    $vars->{cat} = $cat;
+    $vars->{formdata} = $cat;
     $vars->{errors} = $errors;
-    $vars->{newcat} = $args->{newcat};
+    $vars->{newcat} = $newcat;
     return DW::Template->render_template( 'admin/supportcat/category.tt', $vars );
 }
 
