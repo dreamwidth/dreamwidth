@@ -291,6 +291,12 @@ sub textbox {
     my ( $self, $args ) = @_;
 
     my $hint = delete $args->{hint};
+    my $describedby;
+    if ( $hint ) {
+        $describedby = $args->{id} ? "$args->{id}-hint" : "";
+        $args->{"aria-describedby"} = $describedby;
+    }
+
     my @errors;
     @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
 
@@ -305,11 +311,7 @@ sub textbox {
         $ret .= qq!<small class="error">$error->{message}</small>!;
     }
 
-    if ( $hint ) {
-        my $describedby = $args->{id} ? "$args->{id}-hint" : "";
-        $ret .= qq{<span class="form-hint" id='$describedby'>$hint</span>};
-        $args->{"aria-describedby"} = $describedby;
-    }
+    $ret .= qq{<span class="form-hint" id='$describedby'>$hint</span>} if $hint;
 
     return $ret;
 }
