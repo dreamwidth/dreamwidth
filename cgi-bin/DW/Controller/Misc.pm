@@ -27,11 +27,58 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
+DW::Routing->register_string( '/misc/feedping', \&feedping_handler, app => 1 );
 DW::Routing->register_string( '/misc/whereami', \&whereami_handler, app => 1 );
 DW::Routing->register_string( '/pubkey',        \&pubkey_handler,   app => 1 );
 DW::Routing->register_string( '/guidelines',    \&community_guidelines, user => 1 );
 DW::Routing->register_string( "/random/index", \&random_personal_handler, app => 1 );
 DW::Routing->register_string( "/community/random/index", \&random_community_handler, app => 1 );
+
+sub feedping_handler {
+    my ( $opts ) = @_;
+
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 0 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $error_out = sub {
+       my ( $code, $message ) = @_;
+       $r->status( $code );
+       $r->print( $message );
+       return $r->OK;
+    };
+
+    my $out = sub {
+        my ( $message ) = @_;
+        $r->print( $message );
+        return $r->OK;
+    };
+
+    return $out->( "This is a REST-like interface for pinging $LJ::SITENAMESHORT feed crawler to re-fetch a syndication URL.  Do a POST to this URL with a 'feed' parameter equal to the URL.  Possible HTTP responses are 400 (bad request), 404 (we're not indexing that feed), or 204 (we'll get to it soon).  (also permitted are multiple feed parameters, if you're not sure we're indexing your Atom vs RSS, etc.  At most 3 are currently accepted.)" )
+            unless $r->did_post;
+
+
+    my $post = $r->post_args;
+    my $test_url = $post->{feed};
+    return $error_out->( $r->HTTP_BAD_REQUEST, "No 'feed' parameter with URL." )
+        unless $test_url;
+
+    my @feeds = $post->get_all( "feed" );
+    return $error_out->( $r->HTTP_BAD_REQUEST, "Too many 'feed' parameters." )
+        if @feeds > 3;
+
+    my $updated = 0;
+    my $dbh = LJ::get_db_writer();
+    foreach my $url ( @feeds ) {
+        $updated = 1 if
+            $dbh->do( "UPDATE syndicated SET checknext=NOW() WHERE synurl=?", undef, $url ) > 0;
+    }
+
+    return $out->( "Thanks! We'll get to it soon." )
+        if $updated;
+
+    return $error_out->( $r->NOT_FOUND, "Unknown feed(s)." );
+}
 
 # handles the /misc/whereami page
 sub whereami_handler {
