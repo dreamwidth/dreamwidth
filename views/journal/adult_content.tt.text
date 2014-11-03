@@ -1,7 +1,11 @@
 ;; -*- coding: utf-8 -*-
-.btn.ageconfirm=Yes, I am at least [[age]] years old.
+.action.age.no=Return to [[sitename]]
 
-.btn.viewconfirm=Yes, I want to view this content.
+.action.age.yes=Yes, I am at least [[age]] years old
+
+.action.view.no=No, return me to [[sitename]]
+
+.action.view.yes=Yes, I want to view this content
 
 .message.concepts.byjournal=You're about to view content that [[journal]] has advised <strong>should be viewed with discretion</strong>. To continue, you must confirm you want to view this content.
 
@@ -27,7 +31,7 @@
 
 .message.explicit.byjournal=You're about to view content that [[journal]] marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 
-.message.explicit.byjournal.reason=[[journal]] provided the following reason for this entry being marked "suitable for 18+" : <strong>[[reason]]</strong>. 
+.message.explicit.byjournal.reason=[[journal]] provided the following reason for this entry being marked "suitable for 18+" : <strong>[[reason]]</strong>.
 
 .message.explicit.byposter=You're about to view content that [[poster]] marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 
@@ -39,17 +43,10 @@
 
 .message.explicit.journalreason=[[journal]] provided the following reason for this journal being marked "suitable for 18+": <strong>[[reason]]</strong>.
 
-.notconfirmed=No, return me to [[sitename]].
-
-.notconfirmed.tooyoung=Return to [[sitename]]
-
 .setage=<a [[aopts]]>Edit your profile</a> to register your age.
-
-.title=Age Filtered Notice
 
 .title.18=Discretion Advised: 18+ Content
 
 .title.18.blocked=Adult Content: Restricted to 18+
 
 .title.nsfw=Discretion Advised
-

@@ -6128,8 +6128,10 @@ sub journal_base {
 
 
 sub meta_discovery_links {
-    my ( $u, %opts ) = @_;
+    my $u = shift;
     my $journalbase = $u->journal_base;
+
+    my %opts = ref $_[0] ? %{$_[0]} : @_;
 
     my $ret = "";
 

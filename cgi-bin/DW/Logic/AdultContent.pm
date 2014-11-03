@@ -90,7 +90,7 @@ sub adult_interstitial_path {
     my $type = $opts{type};
     return '' unless $type;
 
-    my $path = "$LJ::HOME/htdocs/misc/adult_${type}.bml";
+    my $path = "/journal/adult_${type}";
     return $path;
 }
 
@@ -105,9 +105,9 @@ sub interstitial_reason {
         my $reason = LJ::ehtml( $journal->adult_content_reason );
 
         if ( $journal->adult_content_calculated eq 'concepts' ) {
-            $ret .= LJ::Lang::ml( '/misc/adult_content.bml.message.concepts.' . $what . 'reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
+            $ret .= LJ::Lang::ml( '/journal/adult_content.tt.message.concepts.' . $what . 'reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
         } else {
-            $ret .= LJ::Lang::ml( '/misc/adult_content.bml.message.explicit.' . $what . 'reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
+            $ret .= LJ::Lang::ml( '/journal/adult_content.tt.message.explicit.' . $what . 'reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
         }
 
         $reason_exists = 1;
@@ -118,9 +118,9 @@ sub interstitial_reason {
         my $reason = LJ::ehtml( $entry->adult_content_reason );
 
         if ( $entry->adult_content eq 'concepts' ) {
-            $ret .= LJ::Lang::ml( '/misc/adult_content.bml.message.concepts.byposter.reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
+            $ret .= LJ::Lang::ml( '/journal/adult_content.tt.message.concepts.byposter.reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
         } else {
-            $ret .= LJ::Lang::ml( '/misc/adult_content.bml.message.explicit.byposter.reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
+            $ret .= LJ::Lang::ml( '/journal/adult_content.tt.message.explicit.byposter.reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
         }
         $reason_exists = 1;
     }
@@ -130,9 +130,9 @@ sub interstitial_reason {
         my $reason = LJ::ehtml( $entry->adult_content_maintainer_reason );
 
         if ( $entry->adult_content_maintainer eq 'concepts' ) {
-            $ret .= LJ::Lang::ml( '/misc/adult_content.bml.message.concepts.byjournal.reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
+            $ret .= LJ::Lang::ml( '/journal/adult_content.tt.message.concepts.byjournal.reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
         } else {
-            $ret .= LJ::Lang::ml( '/misc/adult_content.bml.message.explicit.byjournal.reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
+            $ret .= LJ::Lang::ml( '/journal/adult_content.tt.message.explicit.byjournal.reason', { journal => $journal->ljuser_display, poster => $poster->ljuser_display, reason => $reason } );
         }
         $reason_exists = 1;
     }

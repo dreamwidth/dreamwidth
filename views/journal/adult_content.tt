@@ -1,0 +1,82 @@
+[%# views/journal/adult_content.tt
+
+The adult content interstitial page
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.head = BLOCK -%]
+    [%- journal.meta_discovery_links( feeds = 1, openid = 1 ) -%]
+[%- END -%]
+
+[%- explicit_18_plus = type == "explicit" && remote && remote.best_guess_age -%]
+[%- all_strings = {
+    "concepts" = {
+        "title"     = ".title.nsfw"
+        "yes"       = ".action.view.yes"
+        "no"        = ".action.view.no",
+        "message"   = ".message.concepts"
+    }
+    "explicit" = {
+        "title"     = ".title.18"
+        "yes"       = explicit_18_plus ? ".action.view.yes" : ".action.age.yes"
+        "yesargs"   = explicit_18_plus ? {} : { age = 18 }
+        "no"        = ".action.view.no"
+        "message"   = explicit_18_plus ? ".message.explicit.18plus" : ".message.explicit"
+        "extra_no_age" = remote && !remote.best_guess_age ? ".setage" : ""
+        "extra_no_age_args" = { aopts => "href='$site.root/manage/profile/'" }
+
+    }
+    "explicit_blocked" = {
+        "title"     = ".title.18.blocked"
+        "no"        = ".action.age.no"
+        "message"   = ".message.explicit.blocked"
+    }
+} -%]
+[%- strings = all_strings.$type  -%]
+
+[%- sections.windowtitle = strings.title | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<div class="row"><div class="columns">
+    <div class="panel callout radius">
+        <h1 class="text-center">[%- strings.title | ml -%]</h1>
+
+        <p>[%- strings.message _ ".by${markedby}" | ml( journal = journal.ljuser_display, poster = poster.ljuser_display ) %]
+           [% IF strings.extra_no_age; dw.ml( strings.extra_no_age, strings.extra_no_age_args ); END %]
+        </p>
+        [%- IF reason -%]<p>[%- reason -%]</p>[%- END -%]
+    </div>
+</div></div>
+
+[%- IF form_url -%]
+<div class="row"><div class="columns">
+    <form method="POST" action="[%- form_url -%]">
+    [%- dw.form_auth -%]
+    [%- form.hidden( name = "ret", value = returl ) -%]
+    [%- form.hidden( name = "journalid", value = journal.id ) -%]
+    [%- form.hidden( name = "entryid", value = entry.defined ? entry.ditemid : 0 ) -%]
+
+    <div class="row">
+    <div class="columns medium-6 text-right">
+    [%- form.submit(
+            name = "adult_check"
+            value = dw.ml( strings.yes, strings.yesargs )
+    ) -%]
+    </div>
+    <div class="columns medium-6 text-left">
+        <a href='[%- site.root -%]' class="secondary button">[%- strings.no | ml( sitename => site.nameshort ) -%]</a>
+    </div>
+    </div>
+    </form>
+</div></div>
+[%- ELSE -%]
+<div class="row"><div class="columns text-center">
+    <a href='[%- site.root -%]' class="secondary button">[%- strings.no | ml( sitename => site.nameshort ) -%]</a>
+</div></div>
+[%- END -%]
