@@ -1,4 +1,5 @@
 ;; -*- coding: utf-8 -*-
+# used in cgi-bin/DW/Controller/Redirect.pm
 .defaultbody=No parameters given.
 
 .defaulttitle=Error
@@ -7,9 +8,9 @@
 
 .error.noentry=No such entry exists.
 
-.error.noentry.next=There is no entry following this one.
+.error.noentry.next2=There is no entry following this one. Go back to [[journal]].
 
-.error.noentry.prev=There is no entry preceding this one.
+.error.noentry.prev2=There is no entry preceding this one. Go back to [[journal]].
 
 .error.noentrytitle=No Entry
 
