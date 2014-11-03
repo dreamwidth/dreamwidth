@@ -144,7 +144,7 @@ sub MonthPage
         'user' => $u->{'user'},
         'vhost' => $vhost,
         'type' => 'monthview',
-        'url' => "$LJ::SITEROOT/go.bml",
+        'url' => "$LJ::SITEROOT/go",
     };
     
     # figure out what months have been posted into
