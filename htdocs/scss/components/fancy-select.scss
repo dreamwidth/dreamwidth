@@ -3,7 +3,7 @@ $regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1))
 
 .fancy-select {
     display: inline-block;
-    height: $regular-select-height;
+    height: $regular-select-height; // prevents extra bottom margins from inside elements
     margin-bottom: $form-spacing;
 }
 
@@ -32,4 +32,5 @@ $regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1))
 .fancy-select-output {
     z-index: 9;
     text-align: left;
+    height: $regular-select-height;     // ensures consistent height for the visual overlay
 }

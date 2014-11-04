@@ -60,7 +60,7 @@
             border-top-left-radius: $global-radius;
             border-bottom-left-radius: $global-radius;
         }
-        &:last-of-type input {
+        &:last-of-type input, &:last-of-type .button {
             border-top-right-radius: $global-radius;
             border-bottom-right-radius: $global-radius;
         }
@@ -75,6 +75,9 @@
         padding-top: $button-med - rem-calc(1);
         position: relative;
         top: 1px;
+    }
+    .usejournal-text {
+        padding-left: 0.2rem;
     }
 }
 

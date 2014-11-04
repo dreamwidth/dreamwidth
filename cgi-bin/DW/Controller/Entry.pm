@@ -455,7 +455,7 @@ sub _init {
         can_spellcheck => $LJ::SPELLER,
 
         panels      => $panels,
-        formwidth   => $formwidth eq "P" ? "narrow" : "wide",
+        formwidth   => $formwidth && $formwidth eq "P" ? "narrow" : "wide",
         min_animation => $min_animation ? 1 : 0,
 
         limits => {
@@ -534,7 +534,7 @@ sub _edit {
                 if $journal && $journal->readonly;
 
             my $form_req = {};
-            my %status = _form_to_backend( $form_req, $post,
+            _form_to_backend( $form_req, $post,
                 allow_empty => $mode_delete, errors => $errors );
 
             # if we didn't have any errors with decoding the form, proceed to post

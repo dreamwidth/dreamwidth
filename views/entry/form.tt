@@ -262,7 +262,9 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     ~%]
 
                     [%~ IF usejournal ~%]
+                        <span class="usejournal-text">
                         [% '.select.usejournal.format' | ml( user = usejournal.ljuser_display ) %]
+                        </span>
                         [% form.hidden( name = "usejournal", id = "js-usejournal", value = usejournal.user,
                             "data-is-admin" = isAdmin
                             "data-is-comm" = isComm
