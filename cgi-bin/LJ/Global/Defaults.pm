@@ -266,7 +266,6 @@ no strict "vars";
                        talkscreen     => "talkscreen.bml",
                        ctxpopup       => "tools/endpoints/ctxpopup.bml",
                        changerelation => "tools/endpoints/changerelation.bml",
-                       userpicselect  => "tools/endpoints/getuserpics.bml",
                        esn_inbox      => "tools/endpoints/esn_inbox.bml",
                        esn_subs       => "tools/endpoints/esn_subs.bml",
                        trans_save     => "tools/endpoints/trans_save.bml",
