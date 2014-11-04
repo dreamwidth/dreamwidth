@@ -579,18 +579,25 @@ sub trans
                 $apache_r->notes->{returl} = $returl;
 
                 unless ( DW::Logic::AdultContent->user_confirmed_page( user => $remote, journal => $u, entry => $entry, adult_content => $adult_content ) ) {
+                    my $adult_content_handler = sub {
+                        $apache_r->handler( "perl-script" );
+                        $apache_r->notes->{adult_content_type} = $_[0];
+                        $apache_r->push_handlers( PerlHandler => \&adult_interstitial );
+                        return OK;
+                    };
+
                     # logged in users with a defined age of under 18 are blocked from explicit adult content
                     # logged in users with a defined age of under 18 are given a confirmation page for adult concepts depending on their settings
                     # logged in users with a defined age of 18 or older are given confirmation pages for adult content depending on their settings
                     # logged in users without defined ages and logged out users are given confirmation pages for all adult content
                     if ( $adult_content eq "explicit" && $remote && $remote->is_minor ) {
-                        return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'explicit_blocked' ) );
+                        return $adult_content_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'explicit_blocked' ) );
                     } else {
                         my $hide_adult_content = $remote ? $remote->hide_adult_content : "concepts";
                         if ( $adult_content eq "explicit" && $hide_adult_content ne "none" ) {
-                            return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'explicit' ) );
+                            return $adult_content_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'explicit' ) );
                         } elsif ( $adult_content eq "concepts" && $hide_adult_content eq "concepts" ) {
-                            return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'concepts' ) );
+                            return $adult_content_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'concepts' ) );
                         }
                     }
                 }
@@ -1236,6 +1243,17 @@ sub vgift_content
     my $memkey = $vg->img_memkey( $picsize ); #[$picid, "mogp.vg.$picsize.$picid"];
     mogile_fetch( $apache_r, $key, $memkey, 'vgifts', $send_headers );
     return OK;
+}
+
+sub adult_interstitial {
+    my $apache_r = shift;
+    my $int_redir = DW::Routing->call( uri => $apache_r->notes->{adult_content_type} );
+
+    if ( defined $int_redir ) {
+        # we got a match; clear the request cache and return DECLINED.
+        LJ::start_request();
+        return DECLINED;
+    }
 }
 
 sub journal_content
