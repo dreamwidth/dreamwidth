@@ -264,7 +264,6 @@ no strict "vars";
     my %ajaxmapping = (
                        delcomment     => "delcomment.bml",
                        talkscreen     => "talkscreen.bml",
-                       esn_inbox      => "tools/endpoints/esn_inbox.bml",
                        esn_subs       => "tools/endpoints/esn_subs.bml",
                        trans_save     => "tools/endpoints/trans_save.bml",
                        dirsearch      => "tools/endpoints/directorysearch.bml",
