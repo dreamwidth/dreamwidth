@@ -28,6 +28,7 @@ use DW::Routing;
 use DW::Template;
 
 DW::Routing->register_string( '/misc/feedping', \&feedping_handler, app => 1 );
+DW::Routing->register_string( '/misc/get_domain_session', \&domain_session_handler, app => 1 );
 DW::Routing->register_string( '/misc/whereami', \&whereami_handler, app => 1 );
 DW::Routing->register_string( '/pubkey',        \&pubkey_handler,   app => 1 );
 DW::Routing->register_string( '/guidelines',    \&community_guidelines, user => 1 );
@@ -78,6 +79,17 @@ sub feedping_handler {
         if $updated;
 
     return $error_out->( $r->NOT_FOUND, "Unknown feed(s)." );
+}
+
+sub domain_session_handler {
+    my ( $opts ) = @_;
+
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 0 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $get = $r->get_args;
+    return $r->redirect( LJ::Session->helper_url( $get->{return} || "$LJ::SITEROOT/login" );
 }
 
 # handles the /misc/whereami page
