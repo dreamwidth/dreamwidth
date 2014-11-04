@@ -1,0 +1,34 @@
+[%# views/admin/supportcat/index.tt
+ 
+Index page for support category administration
+ 
+Authors:
+    Pau Amma <pauamma@dreamwidth.org>
+ 
+Copyright (c) 2014 by Dreamwidth Studios, LLC
+ 
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+ 
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+ 
+<form action="[% site.root %]/admin/supportcat/category" method="get">
+<input type="hidden" name="newcat" value="0" />
+<div class="row">
+<div class="small-4 large-2 column"><label for='catkey_sel'>[% '.edit_category.label' | ml %]</label></div>
+<div class="small-4 column"><select name="catkey" id="catkey_sel">
+[% FOREACH cat IN categories %]
+    <option value="[% cat.catkey | html %]">[% cat.catname %]</option>
+[% END %]</select></div>
+<div class="small-4 large-6 column">[% form.submit( name="submit", value=dw.ml( '.edit_category.btn' ) ) %]</div>
+</div>
+</form>
+<hr />
+<form action="[% site.root %]/admin/supportcat/category" method="get">
+<input type="hidden" name="newcat" value="1" />
+<input type="hidden" name="catkey" value="" />
+<div class="row"><div class="column">[% form.submit( name="submit", value=dw.ml( '.add_category.btn' ) ) %]</div></div>
+</form>

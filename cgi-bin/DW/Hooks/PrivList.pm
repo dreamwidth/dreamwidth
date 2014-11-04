@@ -10,7 +10,7 @@
 # Authors:
 #      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -123,6 +123,7 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         sendmail       => "Access to /admin/sendmail",
         spamreports    => "Access to /admin/spamreports",
         styleview      => "Access to private styles on /customize/advanced",
+        support        => "Access to /admin/supportcat",
         themes         => "Access to /admin/themes",
         theschwartz    => "Access to /admin/theschwartz",
         usernames      => "Bypasses is_protected_username check",

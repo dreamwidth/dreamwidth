@@ -1,0 +1,13 @@
+;; -*- coding: utf-8 -*-
+.add_category.btn=Add Category
+
+.admin.link=Support categories
+
+.admin.text=Manage support categories
+
+.edit_category.btn=Edit
+
+.edit_category.label=Edit Category:
+
+.title=Manage support categories
+

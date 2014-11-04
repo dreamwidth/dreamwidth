@@ -1,0 +1,73 @@
+;; -*- coding: utf-8 -*-
+.button=Save category
+
+.error.basepoints_oob=Base points must be between 0 and 255
+
+.error.dberror=Some database error occured. Your changes may not have been saved.
+
+.error.catkey_empty=Category key cannot be empty
+
+.error.catname_empty=Category name cannot be empty
+
+.error.sortorder_oob=Sort order must be between 0 and 16777215
+
+.field.allow_screened.label2=Allow screened
+
+.field.allow_screened.note=If checked, all users can leave screened answers.
+
+.field.basepoints.label2=Base points
+
+.field.basepoints.note=Minimum number of support points requests are worth.
+
+.field.catkey.label2=Category key
+
+.field.catkey.note=Unique short name, not visible to users.
+
+.field.catname.label2=Category name
+
+.field.catname.note=Long name, visible to users.
+
+.field.hide_helpers.label2=Hide helpers
+
+.field.hide_helpers.note=If checked, who answered a request is hidden and only the answer is visible to users without appropriate privileges.
+
+.field.is_selectable.label2=Selectable
+
+.field.is_selectable.note=If checked, category appears in the open request category dropdown.
+
+.field.no_autoreply.label2=No autoreply
+
+.field.no_autoreply.note=If checked, doesn't send a confirmation email to the user who opened a request.
+
+.field.public_help.label2=Public help
+
+.field.public_help.note=If checked, all users can leave unscreened answers or comments.
+
+.field.public_read.label2=Public read
+
+.field.public_read.note=If checked, all users can see requests in the category.
+
+.field.replyaddress.label2=Reply address
+
+.field.replyaddress.note=If not blank, users can open requests in the category by sending email to that address. Include the domain name.
+
+.field.scope.label2=Scope
+
+.field.scope.note=Of historical interest only unless you run bin/dumpsql.pl.
+
+.field.scope.option.general=General
+
+.field.scope.option.local=Local
+
+.field.sortorder.label2=Sort order
+
+.field.sortorder.note=Category order in the open request category dropdown, smaller values first.
+
+.field.user_closeable.label2=User-closeable
+
+.field.user_closeable.note=If checked, the user opening the request can close it.
+
+.saved2=Your changes have been saved. <a href="[[url]]">Return to the category selection page.</a>
+
+.title=Create or edit a support category
+
