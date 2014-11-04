@@ -123,7 +123,7 @@ sub get {
 
     my @errors = $self->{_data}->get_all( $key );
     foreach my $error ( @errors ) {
-        $error->{message} ||= $self->_absolute_ml_code( $error->{ml_key} );
+        $error->{message} ||= LJ::Lang::ml( $self->_absolute_ml_code( $error->{ml_key} ), $error->{ml_args} );
     }
 
     # using an array slice to force it to return as a list, even if in scalar context
