@@ -14,7 +14,7 @@ package DW::Controller::RPC::MiscLegacy;
 
 use strict;
 use DW::Routing;
-use LJ::JSON;
+use DW::RPC;
 use LJ::CreatePage;
 
 # do not put any endpoints that do not have the "forked from LJ" header in this file
@@ -28,8 +28,7 @@ sub check_username_handler {
     my $args = $r->get_args;
     my $error = LJ::CreatePage->verify_username( $args->{user} );
 
-    $r->print( to_json({ error => $error ? $error : "" }) );
-    return $r->OK;
+    return DW::RPC->err( $error );
 }
 
 sub control_strip_handler {
@@ -45,29 +44,18 @@ sub control_strip_handler {
         $control_strip = LJ::control_strip( user => $user, host => $args->{host}, uri => $args->{uri}, args => $args->{args}, view => $args->{view} );
     }
 
-    $r->print( to_json( { control_strip => $control_strip } ) );
-    return $r->OK;
+    return DW::RPC->out( control_strip => $control_strip );
 }
 
 sub get_security_options_handler {
     my $r = DW::Request->get;
     my $args = $r->get_args;
 
-    my $ret = sub {
-        $r->print( to_json( $_[0] ) );
-        return $r->OK;
-    };
-
-    my $err = sub {
-        return $ret->( { 'alert' => $_[0] } );
-    };
-
-
     my $remote = LJ::get_remote();
     my $user = $args->{user};
     my $u = LJ::load_user($user);
 
-    return $ret->( {} )
+    return DW::RPC->out
         unless $u;
 
     my %ret = (
@@ -75,7 +63,7 @@ sub get_security_options_handler {
         can_manage =>  $remote && $remote->can_manage( $u ) ? 1 : 0,
     );
 
-    return $ret->( { ret => \%ret } )
+    return DW::RPC->out( ret => \%ret )
         unless $remote && $remote->can_post_to($u);
 
     unless ( $ret{is_comm} ) {
@@ -85,28 +73,20 @@ sub get_security_options_handler {
 
     $ret{minsecurity} = $u->newpost_minsecurity;
 
-    return $ret->( { ret => \%ret } );
+    return DW::RPC->out( ret => \%ret );
 }
 
 sub get_tags_handler {
     my $r = DW::Request->get;
     my $args = $r->get_args;
 
-    my $err = sub {
-        my $msg = shift;
-        $r->print( to_json({
-            'alert' => $msg,
-        }) );
-        return $r->OK;
-    };
-
     my $remote = LJ::get_remote();
     my $user = $args->{user};
     my $u = LJ::load_user($user);
     my $tags = $u ? $u->tags : {};
 
-    return $err->("You cannot view this journal's tags.") unless $remote && $remote->can_post_to($u);
-    return $err->("You cannot use this journal's tags.") unless $remote->can_add_tags_to($u);
+    return DW::RPC->alert( "You cannot view this journal's tags." ) unless $remote && $remote->can_post_to($u);
+    return DW::RPC->alert( "You cannot use this journal's tags." ) unless $remote->can_add_tags_to($u);
 
     my @tag_names;
     if (keys %$tags) {
@@ -114,8 +94,7 @@ sub get_tags_handler {
         @tag_names = sort { lc $a cmp lc $b } @tag_names;
     }
 
-    $r->print( to_json({ tags => \@tag_names }) );
-    return $r->OK;
+    return DW::RPC->out( tags => \@tag_names );
 }
 
 1;
