@@ -89,7 +89,7 @@ sub domain_session_handler {
 
     my $r = $rv->{r};
     my $get = $r->get_args;
-    return $r->redirect( LJ::Session->helper_url( $get->{return} || "$LJ::SITEROOT/login" );
+    return $r->redirect( LJ::Session->helper_url( $get->{return} || "$LJ::SITEROOT/login" ) );
 }
 
 # handles the /misc/whereami page
