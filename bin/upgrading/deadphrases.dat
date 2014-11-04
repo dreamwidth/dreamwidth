@@ -1582,3 +1582,18 @@ general widget.support.submit.text_submit
 general widget.support.submit.yourmail
 general widget.support.submit.yourname
 general /support/submit.tt.help.text
+
+general /admin/supportcat/category.tt.field.allow_screened.label
+general /admin/supportcat/category.tt.field.basepoints.label
+general /admin/supportcat/category.tt.field.catkey.label
+general /admin/supportcat/category.tt.field.catname.label
+general /admin/supportcat/category.tt.field.hide_helpers.label
+general /admin/supportcat/category.tt.field.is_selectable.label
+general /admin/supportcat/category.tt.field.no_autoreply.label
+general /admin/supportcat/category.tt.field.public_help.label
+general /admin/supportcat/category.tt.field.public_read.label
+general /admin/supportcat/category.tt.field.replyaddress.label
+general /admin/supportcat/category.tt.field.scope.label
+general /admin/supportcat/category.tt.field.sortorder.label
+general /admin/supportcat/category.tt.field.user_closeable.label
+general /admin/supportcat/category.tt.saved
