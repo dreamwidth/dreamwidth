@@ -18,11 +18,101 @@ use DW::RPC;
 use LJ::CreatePage;
 
 # do not put any endpoints that do not have the "forked from LJ" header in this file
+DW::Routing->register_rpc( "changerelation", \&change_relation_handler, format => 'json' );
 DW::Routing->register_rpc( "checkforusername", \&check_username_handler, format => 'json' );
 DW::Routing->register_rpc( "controlstrip", \&control_strip_handler, format => 'json' );
 DW::Routing->register_rpc( "getsecurityoptions", \&get_security_options_handler, format => 'json' );
 DW::Routing->register_rpc( "gettags", \&get_tags_handler, format => 'json' );
 DW::Routing->register_rpc( "userpicselect", \&get_userpics_handler, format => 'json' );
+
+sub change_relation_handler {
+    my $r = DW::Request->get;
+    my $post = $r->post_args;
+
+    # get user
+    my $remote = LJ::get_remote();
+    return DW::RPC->err( "Sorry, you must be logged in to use this feature." )
+        unless $remote;
+
+    return DW::RPC->err( "Invalid auth token" )
+        unless $remote->check_ajax_auth_token( '/__rpc_changerelation', %$post );
+
+    my ( $target, $action );
+    $target = $post->{target} or return DW::RPC->err( "No target specified" );
+    $action = $post->{action} or return DW::RPC->err( "No action specified" );
+
+    # Prevent XSS attacks
+    $target = LJ::ehtml( $target );
+    $action = LJ::ehtml( $action );
+
+    my $targetu = LJ::load_user( $target );
+    return DW::RPC->err( "Invalid user $target" )
+        unless $targetu;
+
+    my $success = 0;
+    my %ret = ();
+
+    if ( $action eq 'addTrust' ) {
+        my $error;
+        return DW::RPC->err( $error )
+            unless $remote->can_trust( $targetu, errref => \$error );
+
+        $success = $remote->add_edge( $targetu, trust => {} );
+    } elsif ( $action eq 'addWatch' ) {
+        my $error;
+        return DW::RPC->err( $error )
+            unless $remote->can_watch( $targetu, errref => \$error );
+
+        $success = $remote->add_edge( $targetu, watch => {} );
+
+        $success &&= $remote->add_to_default_filters( $targetu );
+    } elsif ( $action eq 'removeTrust' ) {
+        $success = $remote->remove_edge( $targetu, trust => {} );
+    } elsif ( $action eq 'removeWatch' ) {
+        $success = $remote->remove_edge( $targetu, watch => {} );
+    } elsif ( $action eq 'join' ) {
+        my $error;
+        if ( $remote->can_join( $targetu, errref => \$error ) ) {
+            $success = $remote->join_community( $targetu );
+        } else {
+            if ( $error eq LJ::Lang::ml( 'edges.join.error.targetnotopen' ) && $targetu->is_moderated_membership ) {
+                $targetu->comm_join_request( $remote );
+                $ret{note} = LJ::Lang::ml( '/community/join.bml.reqsubmitted.body' );
+            } else {
+                return DW::RPC->err( $error );
+            }
+        }
+    } elsif ( $action eq 'leave' ) {
+        my $error;
+        return DW::RPC->err( $error )
+            unless $remote->can_leave( $targetu, errref => \$error );
+
+        $success = $remote->leave_community( $targetu );
+    } elsif ( $action eq 'setBan' ) {
+        my $list_of_banned = LJ::load_rel_user( $remote, 'B' ) || [];
+
+        return DW::RPC->err( "Exceeded limit maximum of banned users" )
+            if @$list_of_banned >= ( $LJ::MAX_BANS || 5000 );
+
+        my $ban_user = LJ::load_user($target);
+        $success = $remote->ban_user($ban_user);
+        LJ::Hooks::run_hooks('ban_set', $remote, $ban_user);
+    } elsif ( $action eq 'setUnban' ) {
+        my $unban_user = LJ::load_user($target);
+        $success = $remote->unban_user_multi( $unban_user->{userid} );
+    } else {
+        return DW::RPC->err( "Invalid action $action" );
+    }
+
+    return DW::RPC->out(
+        success     => $success,
+        is_trusting => $remote->trusts( $targetu ),
+        is_watching => $remote->watches( $targetu ),
+        is_member   => $remote->member_of( $targetu ),
+        is_banned   => $remote->has_banned( $targetu ),
+        %ret,
+    );
+}
 
 sub check_username_handler {
     my $r = DW::Request->get;

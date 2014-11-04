@@ -265,7 +265,6 @@ no strict "vars";
                        delcomment     => "delcomment.bml",
                        talkscreen     => "talkscreen.bml",
                        ctxpopup       => "tools/endpoints/ctxpopup.bml",
-                       changerelation => "tools/endpoints/changerelation.bml",
                        esn_inbox      => "tools/endpoints/esn_inbox.bml",
                        esn_subs       => "tools/endpoints/esn_subs.bml",
                        trans_save     => "tools/endpoints/trans_save.bml",
