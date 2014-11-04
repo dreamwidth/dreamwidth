@@ -21,6 +21,7 @@ use LJ::CreatePage;
 DW::Routing->register_rpc( "changerelation", \&change_relation_handler, format => 'json' );
 DW::Routing->register_rpc( "checkforusername", \&check_username_handler, format => 'json' );
 DW::Routing->register_rpc( "controlstrip", \&control_strip_handler, format => 'json' );
+DW::Routing->register_rpc( "ctxpopup", \&ctxpopup_handler, format => 'json' );
 DW::Routing->register_rpc( "getsecurityoptions", \&get_security_options_handler, format => 'json' );
 DW::Routing->register_rpc( "gettags", \&get_tags_handler, format => 'json' );
 DW::Routing->register_rpc( "userpicselect", \&get_userpics_handler, format => 'json' );
@@ -136,6 +137,126 @@ sub control_strip_handler {
     }
 
     return DW::RPC->out( control_strip => $control_strip );
+}
+
+sub ctxpopup_handler {
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    my $get_user = sub {
+        # three ways to load a user:
+
+        # username:
+        if ( my $user = LJ::canonical_username( $get->{user} ) ) {
+            return LJ::load_user( $user );
+        }
+
+        # identity:
+        if ( my $userid = $get->{userid} ) {
+            return undef unless $userid =~ /^\d+$/;
+            my $u = LJ::load_userid( $userid );
+            return undef unless $u && $u->identity;
+            return $u;
+        }
+
+        # based on userpic url
+        if ( my $upurl = $get->{userpic_url} ) {
+            return undef unless $upurl =~ m!(\d+)/(\d+)!;
+            my ( $picid, $userid ) = ( $1, $2 );
+            my $u = LJ::load_userid( $userid );
+            my $up = LJ::Userpic->instance( $u, $picid );
+            return $up->valid ? $u : undef;
+        }
+    };
+
+    my $remote = LJ::get_remote();
+    my $u = $get_user->();
+    my %ret = $u ? $u->info_for_js : ();
+    my $reason = $u ? $u->prop( 'delete_reason' ) : '';
+    $reason = $reason ? "Reason given: " . $reason : "No reason given.";
+
+    return DW::RPC->err( "Error: Invalid mode" )
+        unless $get->{mode} eq 'getinfo';
+    return DW::RPC->out( error => "No such user", noshow => 1 )
+        unless $u;
+    return DW::RPC->err( "This user's account is deleted.<br />" . $reason )
+        if $u->is_deleted;
+    return DW::RPC->err( "This user's account is deleted and purged." )
+        if $u->is_expunged;
+    return DW::RPC->err( "This user's account is suspended." )
+        if $u->is_suspended;
+
+    # uri for changerelation auth token
+    my $uri = '/__rpc_changerelation';
+
+    # actions to generate auth tokens for
+    my @actions = ();
+
+    $ret{url_addtrust} = "$LJ::SITEROOT/manage/circle/add?user=" . $u->{user} . "&action=access";
+    $ret{url_addwatch} = "$LJ::SITEROOT/manage/circle/add?user=" . $u->{user} . "&action=subscribe";
+
+    my $up = $u->userpic;
+    if ( $up ) {
+        $ret{url_userpic} = $up->url;
+        $ret{userpic_w}   = $up->width;
+        $ret{userpic_h}   = $up->height;
+    } else {
+        # if it's a feed, make their userpic the feed icon
+        if ( $u->is_syndicated ) {
+            $ret{url_userpic} = "$LJ::IMGPREFIX/feed100x100.png";
+        } elsif ( $u->is_identity ) {
+            $ret{url_userpic} = "$LJ::IMGPREFIX/identity_100x100.png";
+        } else {
+            $ret{url_userpic} = "$LJ::IMGPREFIX/nouserpic.png";
+        }
+        $ret{userpic_w} = 100;
+        $ret{userpic_h} = 100;
+    }
+
+    if ($remote) {
+        $ret{is_trusting}   = $remote->trusts( $u );
+        $ret{is_trusted_by} = $u->trusts( $remote );
+        $ret{is_watching}   = $remote->watches( $u );
+        $ret{is_watched_by} = $u->watches( $remote );
+        $ret{is_requester}  = $remote->equals( $u );
+        $ret{other_is_identity} = $u->is_identity;
+        $ret{self_is_identity} = $remote->is_identity;
+        $ret{can_message} = $u->can_receive_message( $remote );
+        $ret{url_message} = $u->message_url;
+        $ret{can_receive_vgifts} = $u->can_receive_vgifts_from( $remote );
+        $ret{url_vgift} = $u->virtual_gift_url;
+    }
+
+    $ret{is_logged_in}  = $remote ? 1 : 0;
+
+    if ($u->is_comm) {
+        $ret{url_joincomm}   = "$LJ::SITEROOT/community/join?comm=" . $u->{user};
+        $ret{url_leavecomm}  = "$LJ::SITEROOT/community/leave?comm=" . $u->{user};
+        $ret{is_member} = $remote->member_of( $u ) if $remote;
+        $ret{is_closed_membership} = $u->is_closed_membership;
+
+        push @actions, 'join', 'leave';
+    }
+
+    # generate auth tokens
+    if ($remote) {
+        push @actions, 'addTrust', 'addWatch', 'removeTrust', 'removeWatch', 'setBan' , 'setUnban';
+        foreach my $action (@actions) {
+            $ret{"${action}_authtoken"} = $remote->ajax_auth_token(
+                                                                   $uri,
+                                                                   target => $u->user,
+                                                                   action => $action,
+                                                                  );
+        }
+    }
+
+    my %extrainfo = LJ::Hooks::run_hook( "ctxpopup_extra_info", $u ) || ();
+    %ret = ( %ret, %extrainfo ) if %extrainfo;
+
+    $ret{is_banned} = $remote->has_banned( $u ) ? 1 : 0 if $remote;
+
+    $ret{success} = 1;
+    return DW::RPC->out( %ret );
 }
 
 sub get_security_options_handler {
