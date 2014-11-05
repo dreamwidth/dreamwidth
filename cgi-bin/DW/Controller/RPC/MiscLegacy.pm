@@ -27,6 +27,7 @@ DW::Routing->register_rpc( "esn_subs", \&esn_subs_handler, format => 'json' );
 DW::Routing->register_rpc( "getsecurityoptions", \&get_security_options_handler, format => 'json' );
 DW::Routing->register_rpc( "gettags", \&get_tags_handler, format => 'json' );
 DW::Routing->register_rpc( "userpicselect", \&get_userpics_handler, format => 'json' );
+DW::Routing->register_rpc( "widget", \&widget_handler, format => 'json' );
 
 sub change_relation_handler {
     my $r = DW::Request->get;
@@ -578,6 +579,91 @@ sub get_userpics_handler {
     $upics{ids} = [sort { $a <=> $b } keys %{$upics{pics}}];
 
     return DW::RPC->out( %upics );
+}
+
+sub widget_handler {
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+    my $post = $r->post_args;
+
+    return DW::RPC->err( "Sorry widget AJAX is not enabled" )
+        unless LJ::is_enabled( 'widget_ajax' );
+
+    my $remote = LJ::get_remote();
+    my $widget_class = LJ::ehtml( $post->{_widget_class} || $get->{_widget_class} );
+    return DW::RPC->err( "Invalid widget class $widget_class" ) unless $widget_class =~ /^(IPPU::)?\w+$/gm;
+    $widget_class = "LJ::Widget::$widget_class";
+
+    return DW::RPC->err( "Cannot do AJAX request to $widget_class" )
+        unless $widget_class->ajax;
+
+    # hack to circumvent a bigip/perlbal interaction
+    # that sometimes closes keepalive POST requests under
+    # certain conditions. accepting GETs makes it work fine
+    if ( %$get && $widget_class->can_fake_ajax_post ) {
+        $post->clear;
+        $post->{$_} = $get->{$_} foreach keys %$get;
+    }
+
+
+    my $widget_id    = $post->{_widget_id};
+    my $widget_ippu  = $post->{_widget_ippu};
+    my $doing_post   = delete $post->{_widget_post};
+
+    my %ret = (
+               _widget_id    => $widget_id,
+               _widget_class => $widget_class,
+               );
+
+    # make sure that we're working with the right user
+    if ( $post->{authas} ) {
+        if ( $widget_class->authas ) {
+            my $u = LJ::get_authas_user( $post->{authas} );
+            return DW::RPC->err( "Invalid user." ) unless $u;
+        } else {
+            return DW::RPC->err( "Widget does not support authas authentication." );
+        }
+    }
+
+    if ( $doing_post ) {
+        # just a normal post request, handle it and then return status
+
+        local $LJ::WIDGET_NO_AUTH_CHECK = 1 if
+            $remote->check_ajax_auth_token( "/_widget", auth_token => delete $post->{auth_token} );
+
+        my %res;
+
+        # set because LJ::Widget->handle_post uses this global variable
+        @BMLCodeBlock::errors = ();
+        eval {
+            %res = LJ::Widget->handle_post( $post, $widget_class );
+        };
+
+        $ret{res} = \%res;
+        $ret{errors} = $@ ? [$@] : \@BMLCodeBlock::errors;
+        $ret{_widget_post} = 1;
+
+        # generate new auth token for future requests if succesfully checked auth token
+        $ret{auth_token} = $remote->ajax_auth_token( "/_widget" ) if $LJ::WIDGET_NO_AUTH_CHECK;
+    }
+
+    if ( delete $post->{_widget_update} ) {
+        # render the widget and return it
+
+        # remove the widget prefix from the POST vars
+        foreach my $key ( keys %$post ) {
+            my $orig_key = $key;
+            if ($key =~ s/^Widget\[\w+?\]_//) {
+                $post->{$key} = $post->{$orig_key};
+                delete $post->{$orig_key};
+            }
+        }
+        $ret{_widget_body} = eval { $widget_class->render_body( %$post ); };
+        $ret{_widget_body} = "Error: $@" if $@;
+        $ret{_widget_update} = 1;
+    }
+
+    return DW::RPC->out( %ret );
 }
 
 1;

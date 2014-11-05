@@ -266,7 +266,6 @@ no strict "vars";
                        talkscreen     => "talkscreen.bml",
                        dirsearch      => "tools/endpoints/directorysearch.bml",
                        jobstatus      => "tools/endpoints/jobstatus.bml",
-                       widget         => "tools/endpoints/widget.bml",
                        multisearch    => "tools/endpoints/multisearch.bml",
                        extacct_auth   => "tools/endpoints/extacct_auth.bml",
                        contentfilters => "tools/endpoints/contentfilters.bml",
