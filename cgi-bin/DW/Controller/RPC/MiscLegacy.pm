@@ -23,6 +23,7 @@ DW::Routing->register_rpc( "checkforusername", \&check_username_handler, format 
 DW::Routing->register_rpc( "controlstrip", \&control_strip_handler, format => 'json' );
 DW::Routing->register_rpc( "ctxpopup", \&ctxpopup_handler, format => 'json' );
 DW::Routing->register_rpc( "esn_inbox", \&esn_inbox_handler, format => 'json' );
+DW::Routing->register_rpc( "esn_subs", \&esn_subs_handler, format => 'json' );
 DW::Routing->register_rpc( "getsecurityoptions", \&get_security_options_handler, format => 'json' );
 DW::Routing->register_rpc( "gettags", \&get_tags_handler, format => 'json' );
 DW::Routing->register_rpc( "userpicselect", \&get_userpics_handler, format => 'json' );
@@ -362,6 +363,119 @@ sub esn_inbox_handler {
         unread_entrycomment => $inbox->entrycomment_event_count,
         unread_pollvote => $inbox->pollvote_event_count,
         unread_usermsg_sent => $inbox->usermsg_sent_event_count,
+        %ret,
+    );
+}
+
+sub esn_subs_handler {
+    my $r = DW::Request->get;
+    my $post = $r->post_args;
+
+    return DW::RPC->err( "Sorry async ESN is not enabled" ) unless LJ::is_enabled( 'esn_ajax' );
+
+    my $remote = LJ::get_remote();
+    return DW::RPC->err( "Sorry, you must be logged in to use this feature." )
+        unless $remote;
+
+    # check auth token
+    return DW::RPC->err( "Invalid auth token" ) unless $remote->check_ajax_auth_token( '/__rpc_esn_subs', %$post );
+
+    my $action = $post->{action} or return DW::RPC->err( "No action specified" );
+    my $success = 0;
+    my %ret;
+
+    if ( $action eq 'delsub' ) {
+        my $subid = $post->{subid} or return DW::RPC->err( "No subid" );
+        my $subscr = LJ::Subscription->new_by_id( $remote, $subid );
+        return DW::RPC->out( success => 0 )
+            unless $subscr;
+
+        my %postauth;
+        foreach my $subkey ( qw(journalid arg1 arg2 etypeid) ) {
+            $ret{$subkey} = $subscr->$subkey || 0;
+            $postauth{$subkey} = $ret{$subkey} if $ret{$subkey};
+        }
+
+        $ret{event_class} = $subscr->event_class;
+
+        $subscr->delete;
+        $success = 1;
+        $ret{msg} = "Notification Tracking Removed";
+        $ret{subscribed} = 0;
+
+        my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
+                                                   action    => 'addsub',
+                                                   %postauth,
+                                                   );
+
+        if ($subscr->event_class eq 'LJ::Event::JournalNewEntry') {
+            $ret{newentry_token} = $auth_token;
+        } else {
+            $ret{auth_token} = $auth_token;
+        }
+    } elsif ( $action eq 'addsub' ) {
+
+        return DW::RPC->err( "Reached limit of " . $remote->count_max_subscriptions . " active notifications" )
+            unless $remote->can_add_inbox_subscription;
+
+        my %subparams = ();
+
+        return DW::RPC->err( "Invalid notification tracking parameters" ) unless ( defined $post->{journalid} ) && $post->{etypeid}+0;
+
+        foreach my $param ( qw(journalid etypeid arg1 arg2) ) {
+            $subparams{$param} = $post->{$param}+0;
+        }
+
+        $subparams{method} = 'Inbox';
+
+        my ( $subscr ) = $remote->has_subscription( %subparams );
+
+        $subparams{flags} = LJ::Subscription::TRACKING;
+        eval { $subscr ||= $remote->subscribe(%subparams) };
+        return DW::RPC->err( $@ ) if $@;
+
+        if ( $subscr ) {
+            $subscr->activate;
+            $success = 1;
+            $ret{msg} = "Notification Tracking Added";
+            $ret{subscribed} = 1;
+            $ret{event_class} = $subscr->event_class;
+            my %sub_info = $subscr->sub_info;
+            $ret{sub_info} = \%sub_info;
+
+            # subscribe to email as well
+            my %email_sub_info = %sub_info;
+            $email_sub_info{method} = "Email";
+            $remote->subscribe( %email_sub_info );
+
+            # special case for JournalNewComment: need to return dtalkid for
+            # updating of tracking icons (on subscriptions with jtalkid)
+            if ( $subscr->event_class eq 'LJ::Event::JournalNewComment' && $subscr->arg2 ) {
+                my $cmt = LJ::Comment->new( $subscr->journal, jtalkid => $subscr->arg2 );
+                $ret{dtalkid} = $cmt->dtalkid if $cmt;
+            }
+
+            my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
+                                                       subid  => $subscr->id,
+                                                       action => 'delsub' );
+
+            if ( $subscr->event_class eq 'LJ::Event::JournalNewEntry' ) {
+                $ret{newentry_token} = $auth_token;
+                $ret{newentry_subid} = $subscr->id;
+            } else {
+                $ret{auth_token} = $auth_token;
+                $ret{subid}      = $subscr->id;
+            }
+        } else {
+            $success = 0;
+            $ret{subscribed} = 0;
+        }
+    } else {
+        return DW::RPC->err( "Invalid action $action" );
+    }
+
+    return DW::RPC->out(
+        success => $success,
         %ret,
     );
 }
