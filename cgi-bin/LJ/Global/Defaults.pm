@@ -267,7 +267,6 @@ no strict "vars";
                        dirsearch      => "tools/endpoints/directorysearch.bml",
                        jobstatus      => "tools/endpoints/jobstatus.bml",
                        multisearch    => "tools/endpoints/multisearch.bml",
-                       contentfilters => "tools/endpoints/contentfilters.bml",
                        );
 
     foreach my $src (keys %ajaxmapping) {
