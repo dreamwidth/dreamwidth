@@ -267,7 +267,6 @@ no strict "vars";
                        dirsearch      => "tools/endpoints/directorysearch.bml",
                        jobstatus      => "tools/endpoints/jobstatus.bml",
                        multisearch    => "tools/endpoints/multisearch.bml",
-                       extacct_auth   => "tools/endpoints/extacct_auth.bml",
                        contentfilters => "tools/endpoints/contentfilters.bml",
                        );
 

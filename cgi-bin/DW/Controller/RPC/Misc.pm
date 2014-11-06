@@ -20,29 +20,57 @@ use LJ::JSON;
 use DW::Routing;
 use LJ::JSON;
 
+DW::Routing->register_rpc( "extacct_auth", \&extacct_auth_handler, format => 'json' );
 DW::Routing->register_rpc( "general", \&general_handler, format => 'json' );
-    
+
+sub extacct_auth_handler {
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    my $u = LJ::get_remote();
+    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nouser' ) )
+        unless $u;
+
+    # get the account
+    my $acctid = LJ::ehtml( $get->{acctid} );
+    my $account = DW::External::Account->get_external_account( $u, $acctid );
+    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nosuchaccount',
+                            {
+                                acctid => $acctid,
+                                username => $u->username
+                            }
+                        ) ) unless $account;
+
+    # make sure this account supports challenge/response authentication
+    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nochallenge',
+                            {
+                                account => LJ::ehtml( $account->displayname )
+                            }
+                        ) ) unless $account->supports_challenge;
+
+    # get the auth challenge
+    my $challenge = $account->challenge;
+    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.authfailed',
+                            {
+                                account => LJ::ehtml( $account->displayname )
+                            }
+                        ) ) unless $challenge;
+
+    return DW::RPC->out( challenge => $challenge, success => 1 );
+}
+
 sub general_handler {
     my $r = DW::Request->get;
-
-    my $err = sub {
-        $r->print( to_json( {
-            alert => $_[0],
-            error => 1,
-        } ) );
-        return $r->OK;
-    };
-
     my $args = $r->get_args;
 
     # make sure we have a user of some sort
     my $remote = LJ::get_remote();
     my $u = LJ::load_user( $args->{user} || $remote->user )
-        or return $err->( 'Unable to load user for call.' );
+        or return DW::RPC->alert( 'Unable to load user for call.' );
 
     # in theory, they're passing a mode in the args-> arguments
     my $mode = $args->{mode}
-        or return $err->( 'No mode passed.' );
+        or return DW::RPC->alert( 'No mode passed.' );
 
     my %ret;
 
@@ -78,12 +106,11 @@ sub general_handler {
 
     # problems
     } else {
-        return $err->( 'Unknown mode.' );
+        return DW::RPC->alert( 'Unknown mode.' );
 
     }
 
-    $r->print( to_json( \%ret ) );
-    return $r->OK;
+    return DW::RPC->out( %ret );
 }
 
 1;
