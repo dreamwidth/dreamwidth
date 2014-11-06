@@ -26,6 +26,7 @@ DW::Routing->register_rpc( "esn_inbox", \&esn_inbox_handler, format => 'json' );
 DW::Routing->register_rpc( "esn_subs", \&esn_subs_handler, format => 'json' );
 DW::Routing->register_rpc( "getsecurityoptions", \&get_security_options_handler, format => 'json' );
 DW::Routing->register_rpc( "gettags", \&get_tags_handler, format => 'json' );
+DW::Routing->register_rpc( "load_state_codes", \&load_state_codes_handler, format => 'json' );
 DW::Routing->register_rpc( "userpicselect", \&get_userpics_handler, format => 'json' );
 DW::Routing->register_rpc( "widget", \&widget_handler, format => 'json' );
 
@@ -529,6 +530,25 @@ sub get_tags_handler {
     }
 
     return DW::RPC->out( tags => \@tag_names );
+}
+
+sub load_state_codes_handler {
+    my $r = DW::Request->get;
+    my $post = $r->post_args;
+
+    my $country = $post->{country};
+    return DW::RPC->err( "no country parameter" ) unless $country;
+
+    my %states;
+    my $states_type = $LJ::COUNTRIES_WITH_REGIONS{$country}->{type};
+    LJ::load_codes( { $states_type => \%states } ) if defined $states_type;
+
+    return DW::RPC->out(
+        states => [ map { $_, $states{$_} }
+                        sort { $states{$a} cmp $states{$b} }
+                        keys %states],
+        head => LJ::Lang::ml( 'states.head.defined' ),
+    );
 }
 
 sub get_userpics_handler {

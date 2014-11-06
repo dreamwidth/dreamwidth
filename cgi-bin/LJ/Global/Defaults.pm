@@ -274,7 +274,6 @@ no strict "vars";
     foreach my $src (keys %ajaxmapping) {
         $LJ::AJAX_URI_MAP{$src} ||= $ajaxmapping{$src};
     }
-    $LJ::AJAX_URI_MAP{load_state_codes} = 'tools/endpoints/load_state_codes.bml';
     $LJ::AJAX_URI_MAP{profileexpandcollapse} = 'tools/endpoints/profileexpandcollapse.bml';
 
     # List all countries that have states listed in 'codes' table in DB
