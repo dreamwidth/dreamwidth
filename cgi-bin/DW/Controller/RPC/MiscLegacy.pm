@@ -27,6 +27,7 @@ DW::Routing->register_rpc( "esn_subs", \&esn_subs_handler, format => 'json' );
 DW::Routing->register_rpc( "getsecurityoptions", \&get_security_options_handler, format => 'json' );
 DW::Routing->register_rpc( "gettags", \&get_tags_handler, format => 'json' );
 DW::Routing->register_rpc( "load_state_codes", \&load_state_codes_handler, format => 'json' );
+DW::Routing->register_rpc( "profileexpandcollapse", \&profileexpandcollapse_handler, format => 'json' );
 DW::Routing->register_rpc( "userpicselect", \&get_userpics_handler, format => 'json' );
 DW::Routing->register_rpc( "widget", \&widget_handler, format => 'json' );
 
@@ -549,6 +550,42 @@ sub load_state_codes_handler {
                         keys %states],
         head => LJ::Lang::ml( 'states.head.defined' ),
     );
+}
+
+sub profileexpandcollapse_handler {
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    # if any opts aren't defined, they'll be passed in as empty strings
+    my $mode = $get->{mode} eq "save" ? "save" : "load";
+    my $header = $get->{header} eq "" ? undef : $get->{header};
+    my $expand = $get->{expand} eq "false" ? 0 : 1;
+
+    my $remote = LJ::get_remote();
+    return unless $remote;
+
+    if ( $mode eq "save" ) {
+        return unless $header && $header =~ /_header$/;
+        $header =~ s/_header$//;
+
+        my %is_collapsed = map { $_ => 1 } split( /,/, $remote->prop( "profile_collapsed_headers" ) );
+
+        # this header is already saved as expanded or collapsed, so we don't need to do anything
+        return if $is_collapsed{$header} && !$expand;
+        return if !$is_collapsed{$header} && $expand;
+
+        # remove header from list if expanding
+        # add header to list if collapsing
+        if ( $expand ) {
+            delete $is_collapsed{$header};
+            $remote->set_prop( profile_collapsed_headers => join( ",", keys %is_collapsed ) );
+        } else { # collapse
+            $is_collapsed{$header} = 1;
+            $remote->set_prop( profile_collapsed_headers => join( ",", keys %is_collapsed ) );
+        }
+    } else { # load
+        return DW::RPC->out( headers => [ split( /,/, $remote->prop( "profile_collapsed_headers" ) ) ] );
+    }
 }
 
 sub get_userpics_handler {
