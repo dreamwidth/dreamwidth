@@ -1,4 +1,5 @@
 ;; -*- coding: utf-8 -*-
+# used in cgi-bin/DW/Controller/RPC/Misc
 .error.authfailed=Failed to connect to [[account]]
 
 .error.nochallenge=[[account]] does not support challenge/response authentication.

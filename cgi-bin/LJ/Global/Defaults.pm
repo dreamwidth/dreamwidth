@@ -264,25 +264,14 @@ no strict "vars";
     my %ajaxmapping = (
                        delcomment     => "delcomment.bml",
                        talkscreen     => "talkscreen.bml",
-                       ctxpopup       => "tools/endpoints/ctxpopup.bml",
-                       changerelation => "tools/endpoints/changerelation.bml",
-                       userpicselect  => "tools/endpoints/getuserpics.bml",
-                       esn_inbox      => "tools/endpoints/esn_inbox.bml",
-                       esn_subs       => "tools/endpoints/esn_subs.bml",
-                       trans_save     => "tools/endpoints/trans_save.bml",
                        dirsearch      => "tools/endpoints/directorysearch.bml",
                        jobstatus      => "tools/endpoints/jobstatus.bml",
-                       widget         => "tools/endpoints/widget.bml",
                        multisearch    => "tools/endpoints/multisearch.bml",
-                       extacct_auth   => "tools/endpoints/extacct_auth.bml",
-                       contentfilters => "tools/endpoints/contentfilters.bml",
                        );
 
     foreach my $src (keys %ajaxmapping) {
         $LJ::AJAX_URI_MAP{$src} ||= $ajaxmapping{$src};
     }
-    $LJ::AJAX_URI_MAP{load_state_codes} = 'tools/endpoints/load_state_codes.bml';
-    $LJ::AJAX_URI_MAP{profileexpandcollapse} = 'tools/endpoints/profileexpandcollapse.bml';
 
     # List all countries that have states listed in 'codes' table in DB
     # These countries will be displayed with drop-down menu on Profile edit page

@@ -280,7 +280,7 @@ sub handle_post {
     my $errorsref = \@BMLCodeBlock::errors;
 
     unless (LJ::check_form_auth($post->{lj_form_auth}) || $LJ::WIDGET_NO_AUTH_CHECK) {
-        push @$errorsref, BML::ml('error.invalidform');
+        push @$errorsref, LJ::Lang::ml('error.invalidform');
     }
 
     my $per_widget = $class->post_fields_by_widget( post => $post, widgets => \@widgets, errors => $errorsref );
