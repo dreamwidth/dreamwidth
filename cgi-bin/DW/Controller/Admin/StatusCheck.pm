@@ -1,56 +1,60 @@
-<?_c
-#
-# theschwartz.bml
-#
-# Shows statistics and information on the TheSchwartz queue.
+#!/usr/bin/perl
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
-#
-_c?><?page
-body<=
-<?_code
-{
-    use strict;
-    use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
 
-    # translated/custom page title can go here
-    $title = "TheSchwartz Queue/Admin Page";
+package DW::Controller::Admin::StatusCheck;
 
-    # for pages that require authentication
-    my $remote = LJ::get_remote();
-    return "<?needlogin?>" unless $remote;
+use strict;
+use DW::Controller;
+use DW::Routing;
+use DW::Template;
+use DW::Controller::Admin;
 
-    # and check priv
-    return "You must have the siteadmin:theschwartz privilege for this page."
-        unless $remote->has_priv( siteadmin => 'theschwartz' );
+=head1 NAME
+
+DW::Controller::Admin::StatusCheck - Checks the status of various services
+
+=cut
+
+DW::Routing->register_string( "/admin/theschwartz", \&theschwartz_handler );
+DW::Controller::Admin->register_admin_page( '/',
+    path => 'theschwartz',
+    ml_scope => '/admin/theschwartz.tt',
+    privs => [ 'siteadmin:theschwartz' ]
+);
+
+sub theschwartz_handler {
+    my ( $opts ) = @_;
+
+    my ( $ok, $rv ) = controller( privcheck => [ 'siteadmin:theschwartz' ] );
+    return $rv unless $ok;
 
     # of course, if TheSchwartz is off...
-    my $sch = LJ::theschwartz()
-        or return "Unable to get TheSchwartz worker.  Is it enabled?";
-
-    my $ret = '';
+    my $sch = LJ::theschwartz();
+    return error_ml( "/admin/theschwartz.tt.error.noschwartz" ) unless $sch;
 
     # okay, this is really hacky, and I apologize in advance for inflicting this
     # on the codebase.  but we have no way of really getting into the database used
-    # by TheScwartz without this manual hackery... also, this requires that we not
+    # by TheSchwartz without this manual hackery... also, this requires that we not
     # be using roled TheSchwartz, or multiple (undefined results)
     #
     # FIXME: this can be so much better.
-    return "Site configuration is not valid for using this tool."
+    return error_ml( "/admin/theschwartz.tt.error.config" )
         if scalar( grep { defined $_->{role} } @LJ::THESCHWARTZ_DBS ) > 0 ||
            scalar( @LJ::THESCHWARTZ_DBS ) > 1;
 
     # do manual connection
     my $db = $LJ::THESCHWARTZ_DBS[0];
-    my $dbr = DBI->connect( $db->{dsn}, $db->{user}, $db->{pass} )
-        or return "Unable to manually connect to TheSchwartz database.";
+    my $dbr = DBI->connect( $db->{dsn}, $db->{user}, $db->{pass} );
+    return error_ml( "/admin/theschwartz.tt.error.manual" ) unless $dbr;
 
     # gather status on jobs in the queue
     my $job = ( $db->{prefix} || "" ) . "job";
@@ -65,13 +69,12 @@ body<=
           WHERE f.funcid = j.funcid
           ORDER BY j.insert_time}
     );
-    return "Failed to retrieve outstanding job list: " . $dbr->errstr . "."
+    return error_ml( '/admin/theschwartz.tt.error.jobs', { error => $dbr->errstr } )
         if $dbr->err;
 
-    # dump the output
-    $ret .= "<?h2 Outstanding Jobs h2?>";
+    # now get the actual data
+    my @queue;
     if ( $jobs && @$jobs ) {
-        $ret .= "<ul>";
         foreach my $job ( @$jobs ) {
             my ( $jid, $fn, $it, $r_it, $ra, $r_ra, $gu, $r_gu, $pr ) = @$job;
 
@@ -99,13 +102,15 @@ body<=
             }
 
             $pr ||= 'undefined';
-
-            $ret .= "<li>#$jid <strong>$it [$ago_it]</strong> in <em>$fn</em><br />State: <strong>$state</strong>, priority $pr.";
-            $ret .= "<br />&nbsp;</li>";
+            push @queue, {
+                jid => $jid,
+                it  => $it,
+                ago_it => $ago_it,
+                fn => $fn,
+                state => $state,
+                priority => $pr
+            };
         }
-        $ret .= "</ul>";
-    } else {
-        $ret .= "<?p No outstanding jobs. p?>";
     }
 
     # gather some status on the last 100 errors.
@@ -117,27 +122,13 @@ body<=
           ORDER BY e.error_time DESC
           LIMIT 100}
     );
-    return "Failed to retrieve recent error list: " . $dbr->errstr . "."
+    return error_ml( '/admin/theschwartz.tt.error.recent', { error => $dbr->errstr } )
         if $dbr->err;
 
-    # gather some output
-    $ret .= "<?h2 Recent Errors h2?>";
-    if ( $errs && @$errs ) {
-        $ret .= "<ul>";
-        foreach my $err ( @$errs ) {
-            $ret .= "<li>#$err->[0] <strong>$err->[1]</strong> in <em>$err->[2]</em><br />$err->[3]<br />&nbsp;</li>\n";
-        }
-        $ret .= "</ul>";
-    } else {
-        $ret .= "<?p No recent errors. p?>";
-    }
-
-    return $ret;
+    return DW::Template->render_template( "admin/theschwartz.tt", {
+        queue => \@queue,
+        recent_errors => $errs,
+    } );
 }
-_code?>
-<=body
-title=><?_code return $title; _code?>
-head<=
-<?_code return $headextra; _code?>
-<=head
-page?>
+
+1;

@@ -1,0 +1,21 @@
+.admin.link=TheSchwartz Queue/Error Viewer
+
+.admin.text=View the status of jobs in the TheSchwartz queue.
+
+.error.config=Site configuration is not valid for using this tool.
+
+.error.jobs=Failed to retrieve outstanding job list: [[error]].
+
+.error.manual=Unable to manually connect to TheSchwartz database.
+
+.error.noschwartz=Unable to get TheSchwartz worker. Is it enabled?
+
+.error.recent=Failed to retrieve recent error list: [[error]].
+
+.outstanding.header=Outstanding Jobs
+
+.outstanding.none=No outstanding jobs.
+
+.recent.header=Recent Errors
+
+.recent.none=No recent errors.

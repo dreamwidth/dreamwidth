@@ -75,10 +75,6 @@
 
 .admin.sysban.text=Set and manage sysbans.
 
-.admin.theschwartz.link=TheSchwartz Queue/Error Viewer
-
-.admin.theschwartz.text=View the status of jobs in the TheSchwartz queue.
-
 .admin.title=Admin Tools
 
 .admin.translate.link=Translation & Site Copy
