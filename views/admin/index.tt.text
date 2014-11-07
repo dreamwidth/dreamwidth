@@ -27,6 +27,10 @@
 
 .admin.file_edit.text=Allows you to edit various include files.
 
+.admin.healthy.link=Health Check
+
+.admin.healthy.text=Returns some healthy-or-not statistics on the site.  Intended to be used by remote monitoring services.
+
 .admin.invites.link=Invite Code Management
 
 .admin.invites.text=View and manage invite codes.
