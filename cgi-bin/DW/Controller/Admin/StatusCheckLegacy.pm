@@ -40,13 +40,101 @@ DW::Controller::Admin->register_admin_page( '/',
     privs => [ "supporthelp" ]
 );
 
+DW::Routing->register_string( "/admin/mysql_status", \&mysql_status_handler, formats => [ 'html', 'plain' ] );
+DW::Controller::Admin->register_admin_page( '/',
+    path => 'mysql_status',
+    ml_scope => '/admin/mysql_status.tt',
+    privs => [ 'siteadmin:mysqlstatus', 'siteadmin:*' ]
+);
+
+sub mysql_status_handler {
+    my ( $opts ) = @_;
+
+    my ( $ok, $rv ) = controller( privcheck => [ 'siteadmin:mysqlstatus', 'siteadmin:*' ] );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $get = $r->get_args;
+
+    my $mode = $get->{mode} || "status";
+    my @modes = map {
+        {   text    => ".mode.$_",
+            url     => LJ::create_url( undef, args => { mode => $_ } ),
+            active  => $_ eq $mode,
+        }
+    } qw(status variables tables);
+
+    my $dbh = LJ::get_db_writer();
+    my ( @data, @headers );
+
+    if ( $mode eq "status" ) {
+        my $sth;
+        $sth = $dbh->prepare( "SHOW STATUS" );
+        $sth->execute;
+        my %s;
+        while ( my ( $k, $v ) = $sth->fetchrow_array ) {
+            $s{$k} = $v;
+        }
+
+        $sth = $dbh->prepare( "SHOW STATUS" );
+        $sth->execute;
+        while (my ( $k, $v ) = $sth->fetchrow_array) {
+            my $delta = $v - $s{$k};
+            if ($delta == 0) {
+                $delta = "";
+            } elsif ($delta > 0) {
+                $delta = "+$delta";
+            } else {
+                $delta = "-$delta";
+            }
+            push @data, [ $k, $v, $delta ];
+        }
+    } elsif ( $mode eq "variables" ) {
+        my $sth;
+        $sth = $dbh->prepare( "SHOW VARIABLES" );
+        $sth->execute;
+
+        while ( my ( $k, $v ) = $sth->fetchrow_array ) {
+            push @data, [ $k, $v ];
+        }
+    } elsif ( $mode eq "tables" ) {
+        my $sth;
+        $sth = $dbh->prepare( "SHOW TABLE STATUS" );
+        $sth->execute;
+
+        @headers = @{$sth->{NAME}};
+
+        while ( my $t = $sth->fetchrow_hashref ) {
+            my @row;
+            push @row, $t->{$_} foreach @headers;
+            push @data, \@row;
+        }
+    }
+
+    if ( $opts->{format} eq 'plain' ) {
+        $r->print( join(",", @headers ) . "\n" );
+        $r->print( join( ",", @$_ ) . "\n" ) foreach @data;
+        return $r->OK;
+    }
+
+    my $vars = {
+        mode_links  => \@modes,
+        mode        => $mode,
+
+        text_version_link => LJ::create_url( $r->uri . ".plain", keep_args => 1 ),
+
+        data    => \@data,
+        headers => \@headers,
+    };
+
+    return DW::Template->render_template( "admin/mysql_status.tt", $vars );
+}
+
 sub clusterstatus_handler {
     my ( $opts ) = @_;
 
     my ( $ok, $rv ) = controller( privcheck => [ "supporthelp" ], );
     return $rv unless $ok;
-
-    my $r = $rv->{r};
 
     my @clusters;
     foreach my $cid ( @LJ::CLUSTERS ) {

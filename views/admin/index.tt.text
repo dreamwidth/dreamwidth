@@ -43,10 +43,6 @@
 
 .admin.memcache_view.text=Shows current memcache details.
 
-.admin.mysql.link=MySQL Status
-
-.admin.mysql.text=Shows current MySQL status.
-
 .admin.pay.link=Payment Managements
 
 .admin.pay.text=Review payment details.

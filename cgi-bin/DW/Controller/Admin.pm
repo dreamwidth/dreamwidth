@@ -65,8 +65,6 @@ DW::Controller::Admin->_register_admin_pages_legacy( '/',
         '.admin.memcache_view.link', '.admin.memcache_view.text', [ 'siteadmin:memcacheview', 'siteadmin:*', sub {
             return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
         } ] ],
-    [ 'mysql_status',
-        '.admin.mysql.link', '.admin.mysql.text', [ 'siteadmin:mysqlstatus', 'siteadmin:*' ] ],
     [ 'pay/',
         '.admin.pay.link', '.admin.pay.text', [ 'payments' ] ],
     [ 'priv/',
