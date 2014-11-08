@@ -217,6 +217,9 @@ sub _call_hash {
     $r->content_type( $default_content_types->{$format} )
         if $default_content_types->{$format};
 
+    # apply no-cache if needed
+    $r->no_cache if $opts->no_cache;
+
     # try to call the handler that actually does the content creation; it will
     # return either a number (HTTP code), or undef
     # means there was an error of some sort
@@ -596,6 +599,7 @@ sub _apply_defaults {
     $hash->{api}          = $opts->{api}  || 0;
     $hash->{format}     ||= $opts->{format} || 'html';
     $hash->{prefer_ssl}   = $opts->{prefer_ssl} || 0;
+    $hash->{no_cache}     = $opts->{no_cache} || 0;
 
     my $formats = $opts->{formats} || [ $hash->{format} ];
     $formats = { map { ( $_, 1 ) } @$formats } if ref $formats eq 'ARRAY';

@@ -297,4 +297,7 @@ sub spawn {
     confess "Sorry, spawning not implemented.";
 }
 
+sub no_cache {
+    confess "Sorry, no_cache not implemented.";
+}
 1;
