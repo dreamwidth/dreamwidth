@@ -3,10 +3,6 @@
 
 .admin.cluster.text=Get information on cluster availability.
 
-.admin.console.link=Console
-
-.admin.console.text=For general input; usable by all users to an extent.
-
 .admin.dbschema.link=Database Schema
 
 .admin.dbschema.text=Shows the database schema.

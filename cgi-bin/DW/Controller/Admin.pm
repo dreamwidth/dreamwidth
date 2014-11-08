@@ -44,8 +44,6 @@ DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 DW::Controller::Admin->_register_admin_pages_legacy( '/', 
     [ 'clusterstatus',
         '.admin.cluster.link', '.admin.cluster.text', [ 'supporthelp' ] ],
-    [ 'console/',
-        '.admin.console.link', '.admin.console.text' ],
     [ 'schema/',
         '.admin.dbschema.link', '.admin.dbschema.text', [ 'schemadoc' ] ],
     [ 'dupkiller',

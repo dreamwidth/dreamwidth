@@ -1,13 +1,11 @@
-;; -*- coding: utf-8 -*-
+.admin.link=Administration Console
+
+.admin.text=For general input; usable by all users to an extent.
+
 .description=You can use the Command Console to enter single commands that will affect your entire journal or community.  Several of the features of the Command Console are only available to site supervisors, but many can be used by everyone.
 
-.description.reference=The <a [[aopts]]>command reference</a> has a list of commands.
+.description.reference=The <a href=[[url]]>command reference</a> has a list of commands.
 
 .entercommands=Enter Commands:
 
-.error.nopost=Error: invalid form submission; please refresh and try again.
-
 .execute=Execute
-
-.title=Administration Console
-
