@@ -1,9 +1,0 @@
-;; -*- coding: utf-8 -*-
-.paragraph1=These are the commands you can use in the <a [[aopts]]>Admin Console</a>.
-
-.paragraph2=The first word is a command.  Every word after that is an argument to that command. Every command has a different number of required and optional parameters.  White space delimits arguments. If you need a space in an argument, put double quotes around the whole thing.   If you need double quotes and spaces in an argument, escape the quote with a backslash (\) first. If you need to do a backslash, escape that with a backslash.
-
-.paragraph3=Arguments in &lt;angle brackets&gt; are required.  Arguments in [brackets] are optional.  If there is more than one optional argument, you can't skip one and provide one after it.  Once you skip one, you have to skip the rest.
-
-.title=Admin Console Reference
-

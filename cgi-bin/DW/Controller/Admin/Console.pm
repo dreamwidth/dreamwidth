@@ -17,6 +17,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Controller::Admin;
+use LJ::Console;
 
 =head1 NAME
 
@@ -29,6 +30,23 @@ DW::Controller::Admin->register_admin_page( '/',
     path => 'console/index',
     ml_scope => '/admin/console/index.tt',
 );
+
+DW::Routing->register_string( "/admin/console/reference", \&reference_handler, app => 1 );
+
+sub reference_handler {
+    my ( $opts ) = @_;
+
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $vars = {
+        console_url => LJ::create_url( "/admin/console" ),
+
+        command_list_html => LJ::Console->command_list_html,
+        command_reference_html => LJ::Console->command_reference_html,
+    };
+    return DW::Template->render_template( 'admin/console/reference.tt', $vars );
+}
 
 sub console_handler {
     my ( $opts ) = @_;
