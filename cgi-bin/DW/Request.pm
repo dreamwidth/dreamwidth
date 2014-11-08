@@ -241,6 +241,10 @@ Spawn off an external program.
 
 Redirect to a different URL.
 
+=head2 C<< $r->no_cache >>
+
+Turn off caching for this resource.
+
 =head1 AUTHORS
 
 =over

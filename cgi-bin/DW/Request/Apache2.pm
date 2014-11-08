@@ -306,4 +306,9 @@ sub spawn {
     return $self->{r}->spawn_proc_prog( @_ );
 }
 
+sub no_cache {
+    my DW::Request::Apache2 $self = shift;
+    return $self->{r}->no_cache( 1 );
+}
+
 1;
