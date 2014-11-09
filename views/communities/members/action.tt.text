@@ -1,0 +1,18 @@
+;; -*- coding: utf-8 -*-
+.approve.success.message=You've approved the membership of [[user]] in [[comm]].  Would you like to <a href=[[url]]>set further options for this person</a>?
+
+.approve.success.title=Approved Membership Request
+
+.error.actionperformed=This membership request has already been handled.
+
+.error.approve=There was an error approving the request to join.
+
+.error.internerr.invalidaction=Internal error: invalid action
+
+.error.invalidargument=Invalid argument given
+
+.error.reject=There was an error rejecting this request to join.
+
+.reject.success.message=You've rejected [[user]]'s request to join [[comm]].
+
+.reject.success.title=Rejected Membership Request
