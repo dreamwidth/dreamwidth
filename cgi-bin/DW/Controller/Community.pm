@@ -42,6 +42,8 @@ DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries/([0-9]+)$', \&
 
 DW::Routing->register_regex( '^/communities/([^/]+)/queue/members$', \&members_queue_handler, app => 1 );
 
+DW::Routing->register_regex( '^/approve/(\d+)\.(.+)$', \&member_approve_handler, app => 1, no_cache => 1 );
+DW::Routing->register_regex( '^/reject/(\d+)\.(.+)$', \&member_reject_handler, app => 1, no_cache => 1 );
 
 # redirects
 DW::Routing->register_redirect( "/community/index", "/communities/index" );
@@ -1187,6 +1189,73 @@ sub members_queue_handler {
     return DW::Template->render_template( 'communities/queue/members.tt', $vars );
 
 }
+
+sub member_approve_handler {
+    my ( $opts, $aaid, $auth ) = @_;
+
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    return _member_action_handler( $rv, aaid => $aaid, auth => $auth, action => "approve" );
+}
+
+sub member_reject_handler {
+    my ( $opts, $aaid, $auth ) = @_;
+
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    return _member_action_handler( $rv, aaid => $aaid, auth => $auth, action => "reject" );
+}
+
+sub _member_action_handler {
+    my ( $rv, %opts ) = @_;
+
+    my $r = $rv->{r};
+    my $aaid = $opts{aaid};
+    my $auth = $opts{auth};
+    my $action = $opts{action};
+    my $ml_scope = '/communities/members/action.tt';
+
+    my $aa = LJ::is_valid_authaction( $aaid, $auth );
+    return error_ml( $ml_scope . '.error.invalidargument' )
+        unless $aa;
+    return error_ml( $ml_scope . '.error.actionperformed' )
+        if $aa->{used} eq 'Y';
+
+    my $arg = {};
+    LJ::decode_url_string( $aa->{arg1}, $arg );
+
+    my $dbh = LJ::get_db_writer();
+
+    # get user we're adding
+    my $targetu = LJ::load_userid( $arg->{targetid} );
+    return error_ml( $ml_scope . '.error.internerr.invalidaction' ) unless $targetu;
+
+    if ( $aa->{action} eq 'comm_join_request' ) {
+
+        # add to community
+        my $cu = LJ::load_userid( $aa->{userid} );
+        return error_ml( $ml_scope . '.error.' . $action )
+            unless $cu;
+
+        my $did_succeed;
+        if ( $action eq "approve" ) {
+            $did_succeed = $cu->approve_pending_member( $targetu );
+        } else {
+            $did_succeed = $cu->reject_pending_member( $targetu );
+        }
+        return error_ml( $ml_scope . '.error.' . $action )
+            unless $did_succeed;
+
+        return DW::Controller->render_success( 'communities/members/action.tt.' . $action, {
+            user => $targetu->ljuser_display,
+            comm => $cu->ljuser_display,
+            url  => $cu->community_manage_members_url,
+        } );
+    }
+}
+
 
 # convenience methods
 

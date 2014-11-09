@@ -1071,16 +1071,6 @@ sub trans
         return redir($apache_r, "$LJ::SITEROOT/register.bml?$1");
     }
 
-    # approve
-    if ($uri =~ m!^/approve/(\w+\.\w+)!) {
-        return redir($apache_r, "$LJ::SITEROOT/approve.bml?$1");
-    }
-
-    # reject
-    if ($uri =~ m!^/reject/(\w+\.\w+)!) {
-        return redir($apache_r, "$LJ::SITEROOT/reject.bml?$1");
-    }
-
     return FORBIDDEN if $uri =~ m!^/userpics!;
 
     return DECLINED;
