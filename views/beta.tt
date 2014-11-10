@@ -1,0 +1,67 @@
+[%# Allows users to enable/disable beta features
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml( sitename = site.name ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<div class="alert-box secondary">
+[%- IF news_journal -%]
+    [%- ".staytuned.newscomm" | ml( news = news_journal.ljuser_display ) -%]
+[%- ELSE -%]
+    [%- ".staytuned.generic" | ml -%]
+[%- END -%]
+</div>
+
+[%- IF features.size > 0 -%]
+    [%- FOREACH feature = features -%]
+        [%- PROCESS item handler = feature -%]
+    [%- END -%]
+[%- ELSE -%]
+    [%- '.nofeatures' | ml -%]
+[%- END -%]
+
+[%- BLOCK item
+        handler = ""
+-%]
+<form method="POST">
+[%- dw.form_auth -%]
+
+<div class="row"><div class="columns">
+
+    [%- IF handler.is_active -%]
+        <h2>[%- "widget.betafeature.${handler.key}.title" | ml -%]</h2>
+    [%- END -%]
+
+    [%- IF handler.is_active && handler.user_can_add( remote ) -%]
+        [%- SET submit_actions = handler.is_optout ? [ "on", "off" ] : [ "off", "on" ] -%]
+        [%- IF remote.is_in_beta( handler.key ) -%]
+            <div class="row"><div class="columns">
+                [% replace_ljuser_tag( dw.ml( "widget.betafeature.${handler.key}.on", handler.args_list ) ) -%]
+            </div></div>
+            <div class="row"><div class="columns">
+                [%- form.submit( name = "off", value = dw.ml( "widget.betafeature.btn.$submit_actions.0" ), class = "secondary submit" ) -%]
+            </div></div>
+        [%- ELSE -%]
+            <div class="row"><div class="columns">
+                [% replace_ljuser_tag( dw.ml( "widget.betafeature.${handler.key}.off", handler.args_list ) ) -%]
+            </div></div>
+            <div class="row"><div class="columns">
+                [%- form.submit( name = "on", value = dw.ml( "widget.betafeature.btn.$submit_actions.1" ) ) -%]
+            </div></div>
+        [%- END -%]
+
+        [%- form.hidden( name = "feature", value = handler.key ) -%]
+        [%- form.hidden( name = "user", value = remote.user ) -%]
+    [%- ELSIF ! handler.user_can_add( remote ) -%]
+        [%- "widget.betafeature.${handler.key}.cantadd" | ml -%]
+    [%- END -%]
+</div></div>
+</form>
+[%- END -%]
