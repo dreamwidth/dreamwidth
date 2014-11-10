@@ -420,13 +420,13 @@ dw.need_res( { group => "foundation" },
 <div class="large-6 columns">
   [%- dw.need_res( { group => "foundation" },
         "js/components/jquery.collapse.js"
-        "stc/css/components/jquery.collapse.css"
+        "stc/css/components/collapse.css"
         "stc/css/components/foundation-icons.css"
   ) -%]
   [%- WRAPPER code -%]
   dw.need_res( { group => "foundation" },
         "js/components/jquery.collapse.js"
-        "stc/css/components/jquery.collapse.css"
+        "stc/css/components/collapse.css"
         "stc/css/components/foundation-icons.css"
   )
   [%- END -%]
