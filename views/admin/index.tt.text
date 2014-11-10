@@ -51,10 +51,6 @@
 
 .admin.priv.text=View privs by priv or by user. Some priv lists are private.
 
-.admin.propedit.link=User Property Edit
-
-.admin.propedit.text=Allows you to view and edit userprops.
-
 .admin.recent_comments.link=Recent Comments
 
 .admin.recent_comments.text=Allows you to view a user's recent comments.
