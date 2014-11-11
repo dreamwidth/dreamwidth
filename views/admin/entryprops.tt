@@ -1,0 +1,62 @@
+[%# View the properties set on a particular entry.
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".admin.link" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+
+<div class="row"><div class="columns">
+<form method="POST">
+<div class="row"><div class="columns">
+    [%- form.textbox(
+            label = "View properties for URL: "
+            name = 'url',
+            maxlength = 100
+    ) -%]
+</div></div>
+<div class="row"><div class="columns">
+    [%- form.submit( value = "View" ) -%]
+</div></div>
+</form>
+</div></div>
+
+[%- IF entry -%]
+    <hr>
+    <div class="row"><div class="columns">
+        <strong>Subject:</strong> <a href="[%- entry.url -%]">[%- entry.subject -%]</a>
+    </div></div>
+    <div class="row"><div class="columns">
+        <strong>Poster:</strong> [% entry.poster %]
+    </div></div>
+    <div class="row"><div class="columns">
+        <strong>Journal:</strong> [% entry.journal %]
+    </div></div>
+    <div class="row"><div class="columns">
+        <strong>Security</strong> [% entry.security %]
+        (journal wide minsecurity): [% entry.minsecurity %]
+    </div></div>
+    <div class="row"><div class="columns">
+        <strong>User Date/Time:</strong> [% entry.user_time %]
+    </div></div>
+    <div class="row"><div class="columns">
+        <strong>Server Date/Time:</strong> [% entry.server_time %]
+    </div></div>
+    <div class="row"><div class="columns">
+        <strong>Journal Adult Content:</strong> [% entry.adult_content %]
+    </div></div>
+    <ul>
+    [%- FOR prop = props -%]
+        <li>
+            <strong>[%- prop.name -%]:</strong> [% prop.value %]<br>
+            <small>[%- prop.description -%]</small>
+        </li>
+    [%- END -%]
+    </ul>
+[%- END -%]

@@ -1,0 +1,38 @@
+[%# Shows statistics and information on the TheSchwartz queue
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".admin.link" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<div class="row"><div class="columns">
+    <h2>[%- '.outstanding.header' | ml -%]</h2>
+    [%- IF queue.size > 0 -%]
+        <ul>
+        [%- FOR job = queue -%]
+        <li>#[% job.jid %] <strong>[% job.it %] [[% job.ago_it %]]</strong> in <em>[% job.fn %]</em><br />State: <strong>[% job.state %]</strong>, priority [% job.pr %].
+        <br />&nbsp;</li>
+        [%- END -%]
+        </ul>
+    [%- ELSE -%]
+        <div class="panel">[%- '.outstanding.none' | ml -%]</div>
+    [%- END -%]
+
+    <hr>
+    <h2>[%- '.recent.header' | ml -%]</h2>
+    [%- IF recent_errors.size > 0 -%]
+        <ul>
+            [%- FOR err = recent_errors -%]
+                <li>#[%- err.0 %] <strong>[%- err.1 -%]</strong> in <em>[%- err.2 -%]</em><br />[%- err.3 -%]<br />&nbsp;</li>
+            [%- END -%]
+        </ul>
+    [%- ELSE -%]
+        <div class="panel">[%- '.recent.none' | ml -%]</div>
+    [%- END -%]
+</div></div>

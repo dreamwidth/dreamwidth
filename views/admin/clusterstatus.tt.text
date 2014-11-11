@@ -1,0 +1,16 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Cluster Status
+
+.admin.text=Get information on cluster availability.
+
+.cluster.available=available
+
+.cluster.unavailable=unavailable
+
+.status.okay=no known issues
+
+.status.limited=read-only for free users
+
+.status.readonly=read-only for all users
+
+.status.when_needed=read-only for free users during load

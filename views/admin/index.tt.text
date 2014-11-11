@@ -1,23 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.admin.cluster.link=Cluster Status
-
-.admin.cluster.text=Get information on cluster availability.
-
-.admin.console.link=Console
-
-.admin.console.text=For general input; usable by all users to an extent.
-
 .admin.dbschema.link=Database Schema
 
 .admin.dbschema.text=Shows the database schema.
-
-.admin.dupkiller.link=Duplicate Entry Killer
-
-.admin.dupkiller.text=Checks for (and kills) duplicate entries.
-
-.admin.entryprops.link=Entry Properties
-
-.admin.entryprops.text=View the properties set on a particular entry.
 
 .admin.faq.link=FAQ Tools
 
@@ -43,10 +27,6 @@
 
 .admin.memcache_view.text=Shows current memcache details.
 
-.admin.mysql.link=MySQL Status
-
-.admin.mysql.text=Shows current MySQL status.
-
 .admin.pay.link=Payment Managements
 
 .admin.pay.text=Review payment details.
@@ -54,10 +34,6 @@
 .admin.priv.link=Privilege Management
 
 .admin.priv.text=View privs by priv or by user. Some priv lists are private.
-
-.admin.propedit.link=User Property Edit
-
-.admin.propedit.text=Allows you to view and edit userprops.
 
 .admin.recent_comments.link=Recent Comments
 
@@ -78,10 +54,6 @@
 .admin.sysban.link=Sysban Management
 
 .admin.sysban.text=Set and manage sysbans.
-
-.admin.theschwartz.link=TheSchwartz Queue/Error Viewer
-
-.admin.theschwartz.text=View the status of jobs in the TheSchwartz queue.
 
 .admin.title=Admin Tools
 

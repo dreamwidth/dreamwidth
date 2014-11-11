@@ -195,7 +195,7 @@ sub command_reference_html {
         my $class = $cmd2class{$cmd};
         my $style = $class->can_execute ? "enabled" : "disabled";
 
-        $ret .= "<hr /><div class='$style'><a name='cmd.$cmd'><h2><code><b>$cmd</b></a> ";
+        $ret .= "<hr /><div class='$style'><h2 id='cmd.$cmd'><code><b>$cmd</b> ";
         $ret .= LJ::ehtml($class->usage);
         $ret .= "</code></h2>\n";
         $ret .= "<p><em><?_ml error.console.notpermitted _ml?></em></p>" unless $class->can_execute;

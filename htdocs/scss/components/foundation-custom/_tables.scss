@@ -5,3 +5,8 @@ th[scope="row"] {
 table th label {
     color: $table-head-font-color;
 }
+
+table.data-table {
+    width: auto;
+    max-width: 100%;
+}

@@ -1,0 +1,11 @@
+.admin.link=MySQL Status
+
+.admin.text=Shows current MySQL status.
+
+.link.text=<a href="[[url]]">Text version</a>
+
+.mode.status=Status
+
+.mode.tables=Tables
+
+.mode.variables=Variables

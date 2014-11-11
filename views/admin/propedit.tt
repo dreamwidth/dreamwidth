@@ -1,0 +1,98 @@
+[%# Admin page to view and edit userprops.
+
+Authors:
+    Andrea Nall <anall@andreanall.com>
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".admin.link" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+
+<form method="POST">
+[%- dw.form_auth -%]
+<div class="row">
+    <div class="columns">
+    [%- form.textbox(
+        label = "Username"
+        id = 'username_input'
+        name = 'username'
+        maxlength = 50
+        size = 25
+    ) -%]
+    </div>
+</div>
+<div class="row">
+    <div class="columns">
+        [%- form.submit( value = "View", class = user.defined ? "secondary" : "" ) -%]
+    </div>
+</div>
+
+[%- UNLESS can_save -%]
+<div class="row"><div class="columns">
+    <em>To be able to save changes, you need the siteadmin:* or siteadmin:propedit privs.</em>
+</div></div>
+[%- END -%]
+</form>
+
+[%- IF u -%]
+<hr>
+
+<div class="row"><div class="columns">
+    [%- IF can_save -%]
+        <form method="POST">
+        [%- dw.form_auth -%]
+        [%- form.hidden( name = "username", value = u.username ) -%]
+        [%- form.hidden( name = "_save", value = 1 ) -%]
+    [%- END -%]
+
+    <div class="row"><div class="columns">
+        <strong>Username:</strong> [% u.username %] ([%- u.userid -%])
+    </div></div>
+    <div class="row"><div class="columns">
+        <strong>Cluster:</strong> [% u.clusterid %]
+    </div></div>
+    <div class="row"><div class="columns">
+        <strong>Database Version:</strong> [% u.dversion %]
+    </div></div>
+    <div class="row "><div class="columns">
+        <strong>Statusvis:</strong> [% u.statusvis_display %] ([% u.statusvis %])
+    </div></div>
+
+
+    [%- FOREACH prop = props -%]
+    <div class="row"><div class="columns">
+        [%- IF can_save -%]
+            [%- IF prop.is_text -%]
+                [%- form.textbox(
+                    label = prop.name,
+                    id = prop.name
+                    name = prop.name
+                    value = prop.value
+                    maxlength = 255
+                    hint = prop.description
+                ) -%]
+            [%- ELSE -%]
+                [%- form.textarea(
+                    label = prop.name
+                    value = prop.value
+                    disabled = 1
+                ) -%]
+            [%- END -%]
+        [%- ELSE -%]
+            <strong>[%- prop.name -%]:</strong> [%- prop.value -%]<br>
+            <small>[%- prop.description -%]</small>
+        [%- END -%]
+    </div></div>
+    [%- END -%]
+
+    [%- IF can_save -%]
+        [%- form.submit( value = "Save" ) -%]
+        </form>
+    [%- END -%]
+</div></div>
+[%- END -%]
