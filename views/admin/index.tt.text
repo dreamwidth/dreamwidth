@@ -3,10 +3,6 @@
 
 .admin.dbschema.text=Shows the database schema.
 
-.admin.entryprops.link=Entry Properties
-
-.admin.entryprops.text=View the properties set on a particular entry.
-
 .admin.faq.link=FAQ Tools
 
 .admin.faq.text=Allows you to manipulate the FAQ.
