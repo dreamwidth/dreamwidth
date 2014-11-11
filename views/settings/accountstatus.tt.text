@@ -47,7 +47,7 @@ You, or another administrator, can restore the community at any point within 30 
 
 .message.nochange.comm=The community's status has been left as <b>[[statusvis]]</b>.
 
-.message.noothermaintainer=If you delete your journal,  [[commlist]] won't have an active administrator.  If you'd like to appoint an additional administrator now, please visit the <a [[aopts]]>[[pagetitle]]</a> page.
+.message.noothermaintainer=If you delete your journal,  [[commlist]] won't have an active administrator.  If you'd like to appoint an additional administrator now, please visit the <a href="[[manage_url]]">[[pagetitle]]</a> page.
 
 .message.success=You've successfully changed your journal status to <b>[[statusvis]]</b>.
 

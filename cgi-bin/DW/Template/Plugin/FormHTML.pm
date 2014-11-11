@@ -337,12 +337,20 @@ Return a password field with a matching label, if provided. Values are never pre
 sub password {
     my ( $self, $args ) = @_;
 
+    my @errors;
+    @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
+
     $args->{type} = "password";
     $args->{class} ||= "text";
+    $args->{class} .= " error" if @errors;
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, noautofill => 1 );
     $ret .= LJ::html_text( $args );
+
+    foreach my $error ( @errors ) {
+        $ret .= qq!<small class="error">$error->{message}</small>!;
+    }
 
     return $ret;
 

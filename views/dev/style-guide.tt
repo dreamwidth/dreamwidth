@@ -420,13 +420,13 @@ dw.need_res( { group => "foundation" },
 <div class="large-6 columns">
   [%- dw.need_res( { group => "foundation" },
         "js/components/jquery.collapse.js"
-        "stc/css/components/jquery.collapse.css"
+        "stc/css/components/collapse.css"
         "stc/css/components/foundation-icons.css"
   ) -%]
   [%- WRAPPER code -%]
   dw.need_res( { group => "foundation" },
         "js/components/jquery.collapse.js"
-        "stc/css/components/jquery.collapse.css"
+        "stc/css/components/collapse.css"
         "stc/css/components/foundation-icons.css"
   )
   [%- END -%]
@@ -509,6 +509,17 @@ dw.need_res( { group => "foundation" },
   </div>
 </div>
 
+<h2>Authas</h2>
+<div class="row">
+  <div class="columns">
+    [%- dw.authas() -%]
+  </div>
+</div>
+<div class="row"><div class="columns">
+  [%- WRAPPER code -%]
+    dw.authas()
+  [%- END -%]
+</div></div>
 <h2>Alert Boxes</h2>
 <div data-alert class="alert-box radius">
   This is a standard alert (div.alert-box).

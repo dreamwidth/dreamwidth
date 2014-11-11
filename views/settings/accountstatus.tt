@@ -1,0 +1,75 @@
+[%# account status
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.authas( showall = 1 ) -%]
+
+[%- IF messages.exist -%]
+    [%- FOREACH msg = messages.get_all -%]
+        <div class="alert-box success radius">[%- msg.message -%]</div>
+    [%- END -%]
+[%- END -%]
+
+[%- IF warnings.exist -%]
+    [%- FOREACH warning IN warnings.get_all -%]
+        <div class="alert-box">[%- warning.message -%]</div>
+    [%- END -%]
+[%- END -%]
+
+
+<form method="POST" action="[%- form_url -%]">
+[%- dw.form_auth -%]
+
+<p>
+
+<div class="row"><div class="columns">
+    [%- form.select(
+        label = dw.ml( ".journalstatus.select.head" )
+        name = "statusvis"
+        id = "statusvis"
+        selected = u.statusvis
+        items = statusvis_options
+    ) -%]
+</div></div>
+
+<div class="row"><div class="columns">
+    [%- form.textbox(
+        label = dw.ml( '.reason.head' )
+        name = 'reason'
+        id = 'reason'
+        value = delete_reason
+        maxlength = 255
+        hint = dw.ml( u.is_community ? '.reason.about.comm' : '.reason.about' )
+    ) -%]
+</div></div>
+
+<div class="row"><div class="columns">
+    [%- form.submit( value = dw.ml( '.btn.status' ), disabled = u.is_suspended ) -%]
+</div></div>
+</form>
+
+<div class="panel radius">
+[%- IF u.is_community -%]
+    [%- '.journalstatus.about.comm' | ml( sitenameshort = site.nameshort, commname = u.ljuser_display ) -%]
+[%- ELSE -%]
+    [%- '.journalstatus.about2' | ml( sitenameshort = site.nameshort ) -%]
+[%- END -%]
+
+[%- IF u.is_identity && u.statusvis != 'D' -%]
+[%# only show this text to not-deleted OpenID accounts -%]
+    <p>[%- '.delete.openid' | ml -%]
+[%- END -%]
+
+[%- IF extra_delete_text -%]
+    <p>[%- extra_delete_text -%]</p>
+[%- END -%]
+</div>

@@ -7,7 +7,7 @@
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -145,6 +145,20 @@ sub ml {
 sub img {
     my $self = shift;
     return LJ::img(@_);
+}
+
+=head2 authas
+
+Print out the authas select dropdown
+
+=cut
+sub authas {
+    my ( $self, $args ) = @_;
+
+    my $r = DW::Request->get;
+    return "<form action='" . LJ::create_url() . "' method='get'>"
+            . LJ::make_authas_select( LJ::get_remote(), { authas => $r->get_args->{authas}, foundation => 1, %{$args || {}} } )
+        . "</form>"
 }
 
 =head2 scoped_include
