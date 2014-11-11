@@ -42,8 +42,6 @@ DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 
 # DO NOT add anything to here
 DW::Controller::Admin->_register_admin_pages_legacy( '/', 
-    [ 'clusterstatus',
-        '.admin.cluster.link', '.admin.cluster.text', [ 'supporthelp' ] ],
     [ 'schema/',
         '.admin.dbschema.link', '.admin.dbschema.text', [ 'schemadoc' ] ],
     [ 'dupkiller',

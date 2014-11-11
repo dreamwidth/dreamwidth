@@ -1,8 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.admin.cluster.link=Cluster Status
-
-.admin.cluster.text=Get information on cluster availability.
-
 .admin.dbschema.link=Database Schema
 
 .admin.dbschema.text=Shows the database schema.
