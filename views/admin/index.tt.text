@@ -3,10 +3,6 @@
 
 .admin.dbschema.text=Shows the database schema.
 
-.admin.dupkiller.link=Duplicate Entry Killer
-
-.admin.dupkiller.text=Checks for (and kills) duplicate entries.
-
 .admin.entryprops.link=Entry Properties
 
 .admin.entryprops.text=View the properties set on a particular entry.
@@ -18,10 +14,6 @@
 .admin.file_edit.link=File Edit
 
 .admin.file_edit.text=Allows you to edit various include files.
-
-.admin.healthy.link=Health Check
-
-.admin.healthy.text=Returns some healthy-or-not statistics on the site.  Intended to be used by remote monitoring services.
 
 .admin.invites.link=Invite Code Management
 

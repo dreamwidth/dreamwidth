@@ -44,8 +44,6 @@ DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 DW::Controller::Admin->_register_admin_pages_legacy( '/', 
     [ 'schema/',
         '.admin.dbschema.link', '.admin.dbschema.text', [ 'schemadoc' ] ],
-    [ 'dupkiller',
-        '.admin.dupkiller.link', '.admin.dupkiller.text', [ 'supporthelp' ] ],
     [ 'entryprops',
         '.admin.entryprops.link', '.admin.entryprops.text', [ 'canview:entryprops', 'canview:*', sub {
             return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
