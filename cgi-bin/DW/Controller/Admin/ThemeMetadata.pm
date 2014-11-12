@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::Controller::Themes
+# DW::Controller::Admin::ThemeMetadata
 #
 # Theme metadata admin page.
 #
