@@ -9,6 +9,8 @@ Your request has been filed. You can track its progress at:
 If you have any additional questions or comments, you can add them to your request at any time.
 .
 
+.error.email.required=An email address is required if you're not logged in.
+
 .help.header=Did You Know?
 
 .help.text2=[[sitename]] Support is run primarily by volunteers. Do you have some extra time? <strong><a [[aopts]]>Help someone!</a></strong>

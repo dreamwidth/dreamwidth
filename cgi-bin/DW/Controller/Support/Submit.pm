@@ -58,6 +58,8 @@ sub submit_handler {
             my @errors = ();
             LJ::check_email( $post_args->{email}, \@errors );
             $errors->add_string( 'email', $_ ) foreach @errors;
+        } elsif ( $req{reqtype} eq 'email' ) {
+            $errors->add( 'email', '.error.email.required' );
         }
 
         unless ( $remote ) {
