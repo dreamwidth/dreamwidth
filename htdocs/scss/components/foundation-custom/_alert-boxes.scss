@@ -15,4 +15,6 @@ $alert-box-error-color: $alert-color !default;
   &.success { @include alert-style($success-color);}
   &.alert { @include alert-style($alert-box-error-color);}
   &.secondary { @include alert-style($secondary-color);}
+
+  ul, ol { font-size: inherit; margin-bottom: 0; }
 }

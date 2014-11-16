@@ -395,6 +395,8 @@ date.month.september.long=September
 
 date.month.september.short=Sep
 
+edges.join.error.setage=Please <a href="[[url]]">edit your profile</a> to register your age.
+
 edges.join.error.targetbanneduser=You have been banned from the community.
 
 edges.join.error.targetnotcommunity=The account being joined must be a community.
@@ -411,7 +413,7 @@ edges.join.error.usernotvisible=Your account must be visible.
 
 edges.join.error.userunderage=You must be 18 or older to join this community.
 
-edges.leave.error.lastmaintainer=You can't leave this community because you're the only administrator.  If you want to leave the community, please appoint another adminstrator and then try leaving again.
+edges.leave.error.lastmaintainer2=You can't leave this community because you're the only administrator.  If you want to leave the community, please <a href="[[url]]">appoint another adminstrator</a> and then try leaving again.
 
 edges.trust.error.targetinvalidstatusvis=The person who you are granting access to must not be purged, suspended, or locked.
 

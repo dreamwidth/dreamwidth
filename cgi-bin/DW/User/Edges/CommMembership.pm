@@ -143,6 +143,7 @@ sub can_join {
     $tu = LJ::want_user( $tu );
 
     my $errref = $opts{errref};
+    my $membership_ref = $opts{membership_ref};
     my $moderated_add = $opts{moderated_add} ? 1 : 0;
 
     # if the user is a maintainer, skip every other check
@@ -180,14 +181,23 @@ sub can_join {
         }
 
         # make sure the user isn't underage and trying to join an adult community
-        unless ( $u->can_join_adult_comm( comm => $tu ) ) {
-            $$errref = LJ::Lang::ml( 'edges.join.error.userunderage' );
+        my $adult_content;
+        unless ( $u->can_join_adult_comm( comm => $tu, adultref => \$adult_content ) ) {
+            if ( $adult_content eq "explicit" ) {
+                $$errref = LJ::Lang::ml( 'edges.join.error.userunderage' );
+            }
+
+            unless ( $u->best_guess_age ) {
+                $$errref .= " " . LJ::Lang::ml( 'edges.join.error.setage', { url => LJ::create_url( "/manage/profile" ) } );
+            }
+
             return 0;
         }
 
         # the community must be open membership or we must be adding to a moderated community
         unless ( $tu->is_open_membership || $opts{moderated_add} ) {
             $$errref = LJ::Lang::ml( 'edges.join.error.targetnotopen' );
+            $$membership_ref = 1;
             return 0;
         }
     }
@@ -219,7 +229,7 @@ sub can_leave {
                 # one exception: maintainer can remove themselves from a deleted community
                 return 1;
             } else {
-                $$errref = LJ::Lang::ml( 'edges.leave.error.lastmaintainer' );
+                $$errref = LJ::Lang::ml( 'edges.leave.error.lastmaintainer2', { url => $tu->community_manage_members_url } );
                 return 0;
             }
         }
