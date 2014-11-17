@@ -66,12 +66,10 @@
 // $base-font-size: 100%;
 
 // The $base-font-size is 100% while $base-line-height is 150%
-$base-line-height: 1.5;
+// $base-line-height: 150%;
 
 // We use this to control whether or not CSS classes come through in the gem files.
-// most of the time, we'll just want the mixins or variables
-// and not the styles themselves
-$include-html-classes: false !default;
+$include-html-classes: true;
 // $include-print-styles: true;
 $include-html-global-classes: $include-html-classes;
 
@@ -81,46 +79,21 @@ $include-html-global-classes: $include-html-classes;
 // $include-html-grid-classes: $include-html-classes;
 // $include-xl-html-grid-classes: false;
 
-$row-width: 64em !default;
+// $row-width: rem-calc(1000);
 // $total-columns: 12;
 // $column-gutter: rem-calc(30);
 
 // c. Global
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
+// We use these to define default font stacks
+// $font-family-sans-serif: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+// $font-family-serif: Georgia, Cambria, "Times New Roman", Times, serif;
+// $font-family-monospace: Consolas, "Liberation Mono", Courier, monospace;
+
 // We use these to define default font weights
 // $font-weight-normal: normal !default;
 // $font-weight-bold: bold !default;
-
-// Global
-
-// We use these to define default font weights
-// $font-weight-normal: normal !default;
-// $font-weight-bold: bold !default;
-
-// We use these to control various global styles
-// $body-bg: $white;
-// $body-font-color: $jet;
-// $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-// $body-font-weight: $font-weight-normal;
-// $body-font-style: normal;
-
-// We use this to control font-smoothing
-// $font-smoothing: antialiased;
-
-// We use these to control text direction settings
-// $text-direction: ltr;
-// $opposite-direction: right;
-// $default-float: left;
-// $last-child-float: $opposite-direction;
-
-// We use these as default colors throughout
-// $primary-color: #008CBA;
-// $secondary-color: #e7e7e7;
-// $alert-color: #f04124;
-// $success-color: #43AC6A;
-// $warning-color: #f08a24;
-// $info-color: #a0d3e8;
 
 // $white       : #FFFFFF;
 // $ghost       : #FAFAFA;
@@ -141,6 +114,30 @@ $row-width: 64em !default;
 // $oil         : #333333;
 // $jet         : #222222;
 // $black       : #000000;
+
+// We use these as default colors throughout
+// $primary-color: #008CBA;
+// $secondary-color: #e7e7e7;
+// $alert-color: #f04124;
+// $success-color: #43AC6A;
+// $warning-color: #f08a24;
+// $info-color: #a0d3e8;
+
+// We use these to control various global styles
+// $body-bg: $white;
+// $body-font-color: $jet;
+// $body-font-family: $font-family-sans-serif;
+// $body-font-weight: $font-weight-normal;
+// $body-font-style: normal;
+
+// We use this to control font-smoothing
+// $font-smoothing: antialiased;
+
+// We use these to control text direction settings
+// $text-direction: ltr;
+// $opposite-direction: right;
+// $default-float: left;
+// $last-child-float: $opposite-direction;
 
 // We use these to make sure border radius matches unless we want it different.
 // $global-radius: 3px;
@@ -199,7 +196,7 @@ $row-width: 64em !default;
 
 // We use these to control header font styles
 // $header-font-family: $body-font-family;
-$header-font-weight: 700;
+// $header-font-weight: $font-weight-normal;
 // $header-font-style: normal;
 // $header-font-color: $jet;
 // $header-line-height: 1.4;
@@ -208,12 +205,12 @@ $header-font-weight: 700;
 // $header-text-rendering: optimizeLegibility;
 
 // We use these to control header font sizes
-$h1-font-size: 1.814rem;
-$h2-font-size: 1.814rem;
-$h3-font-size: 1.618rem;
-$h4-font-size: 1.121rem;
-$h5-font-size: 1rem;
-$h6-font-size: 0.90rem;
+// $h1-font-size: rem-calc(44);
+// $h2-font-size: rem-calc(37);
+// $h3-font-size: rem-calc(27);
+// $h4-font-size: rem-calc(23);
+// $h5-font-size: rem-calc(18);
+// $h6-font-size: 1rem;
 
 // We use these to control header size reduction on small screens
 // $h1-font-reduction: rem-calc(10) !default;
@@ -231,7 +228,7 @@ $h6-font-size: 0.90rem;
 // $subheader-bottom-margin: .5rem;
 
 // A general <small> styling
-$small-font-size: 80%;
+// $small-font-size: 60%;
 // $small-font-color: scale-color($header-font-color, $lightness: 35%);
 
 // We use these to style paragraphs
@@ -247,7 +244,7 @@ $small-font-size: 80%;
 
 // We use these to style <code> tags
 // $code-color: $oil;
-// $code-font-family: Consolas, 'Liberation Mono', Courier, monospace;
+// $code-font-family: $font-family-monospace;
 // $code-font-weight: $font-weight-normal;
 // $code-background-color: scale-color($secondary-color, $lightness: 70%);
 // $code-border-size: 1px;
@@ -314,7 +311,6 @@ $small-font-size: 80%;
 // We use this to control abbr font styles
 // $microformat-abbr-font-weight: $font-weight-bold;
 // $microformat-abbr-font-decoration: none;
-
 
 // 01. Accordion
 // - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -385,7 +381,6 @@ $small-font-size: 80%;
 // $block-grid-default-spacing: rem-calc(20);
 // $align-block-grid-to-grid: false;
 
-
 // Enables media queries for block-grid classes. Set to false if writing semantic HTML.
 // $block-grid-media-queries: true;
 
@@ -427,9 +422,9 @@ $small-font-size: 80%;
 
 // We use these to build padding for buttons.
 // $button-tny: rem-calc(10);
-$button-sml: rem-calc(7) !default;
-$button-med: rem-calc(9) !default;
-$button-lrg: rem-calc(12) !default;
+// $button-sml: rem-calc(14);
+// $button-med: rem-calc(16);
+// $button-lrg: rem-calc(18);
 
 // We use this to control the display property.
 // $button-display: inline-block;
@@ -440,9 +435,9 @@ $button-lrg: rem-calc(12) !default;
 // $button-font-color: $white;
 // $button-font-color-alt: $oil;
 // $button-font-tny: rem-calc(11);
-$button-font-sml: rem-calc(11);
-$button-font-med: rem-calc(13);
-$button-font-lrg: rem-calc(16);
+// $button-font-sml: rem-calc(13);
+// $button-font-med: rem-calc(16);
+// $button-font-lrg: rem-calc(20);
 // $button-font-weight: $font-weight-normal;
 // $button-font-align: center;
 
@@ -556,6 +551,10 @@ $button-font-lrg: rem-calc(16);
 // We use this to control the styles for when the dropdown has custom content.
 // $f-dropdown-content-padding: rem-calc(20);
 
+// Default radius for dropdown.
+// $f-dropdown-radius: $global-radius;
+
+
 // 09. Dropdown Buttons
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -617,7 +616,7 @@ $button-font-lrg: rem-calc(16);
 
 // We use these to style the labels in different ways
 // $form-label-pointer: pointer;
-$form-label-font-size: rem-calc(16s);
+// $form-label-font-size: rem-calc(14);
 // $form-label-font-weight: $font-weight-normal;
 // $form-label-line-height: 1.5;
 // $form-label-font-color: scale-color($black, $lightness: 30%);
@@ -625,7 +624,7 @@ $form-label-font-size: rem-calc(16s);
 // $form-label-bottom-margin: 0;
 // $input-font-family: inherit;
 // $input-font-color: rgba(0,0,0,0.75);
-$input-font-size: rem-calc(16);
+// $input-font-size: rem-calc(14);
 // $input-bg-color: $white;
 // $input-focus-bg-color: scale-color($white, $lightness: -2%);
 // $input-border-color: scale-color($white, $lightness: -20%);
@@ -665,8 +664,8 @@ $input-font-size: rem-calc(16);
 // $input-error-message-padding: rem-calc(6 9 9);
 // $input-error-message-top: -1px;
 // $input-error-message-font-size: rem-calc(12);
-$input-error-message-font-weight: 600;
-$input-error-message-font-style: normal;
+// $input-error-message-font-weight: $font-weight-normal;
+// $input-error-message-font-style: italic;
 // $input-error-message-font-color: $white;
 // $input-error-message-font-color-alt: $oil;
 
@@ -678,7 +677,6 @@ $input-error-message-font-style: normal;
 // Select variables
 // $select-bg-color: $ghost;
 // $select-hover-bg-color: scale-color($select-bg-color, $lightness: -3%);
-
 
 // 12. Icon Bar
 // - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -716,7 +714,7 @@ $input-error-message-font-style: normal;
 // We use this to control the list items
 // $inline-list-display: block;
 
-// We use this to control any elments within list items
+// We use this to control any elements within list items
 // $inline-list-children-display: block;
 
 // 14. Joyride
@@ -732,7 +730,7 @@ $input-error-message-font-style: normal;
 // $joyride-tip-radius: 4px;
 // $joyride-tip-position-offset: 22px;
 
-// Here, we're setting the tip dont styles
+// Here, we're setting the tip font styles
 // $joyride-tip-font-color: $white;
 // $joyride-tip-font-size: rem-calc(14);
 // $joyride-tip-header-weight: $font-weight-bold;
@@ -781,7 +779,7 @@ $input-error-message-font-style: normal;
 // $include-html-label-classes: $include-html-classes;
 
 // We use these to style the labels
-// $label-padding: rem-calc(4 8 6);
+// $label-padding: rem-calc(4 8 4);
 // $label-radius: $global-radius;
 
 // We use these to style the label text
@@ -824,6 +822,7 @@ $input-error-message-font-style: normal;
 // Off Canvas Menu Variables
 // $off-canvas-width: rem-calc(250);
 // $off-canvas-bg: $oil;
+// $off-canvas-bg-hover: scale-color($tabbar-bg, $lightness: -30%);
 
 // Off Canvas Menu List Variables
 // $off-canvas-label-padding: 0.3rem rem-calc(15);
@@ -1023,7 +1022,6 @@ $input-error-message-font-style: normal;
 // $price-cta-align: center;
 // $price-cta-padding: rem-calc(20 20 0);
 
-
 // 23. Progress Bar
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1054,7 +1052,7 @@ $input-error-message-font-style: normal;
 
 // $include-html-range-slider-classes: $include-html-classes;
 
-// These variabels define the slider bar styles
+// These variables define the slider bar styles
 // $range-slider-bar-width: 100%;
 // $range-slider-bar-height: rem-calc(16);
 
@@ -1069,7 +1067,7 @@ $input-error-message-font-style: normal;
 // $range-slider-vertical-bar-width: rem-calc(16);
 // $range-slider-vertical-bar-height: rem-calc(200);
 
-// These variabels define the slider handle styles
+// These variables define the slider handle styles
 // $range-slider-handle-width: rem-calc(32);
 // $range-slider-handle-height: rem-calc(22);
 // $range-slider-handle-position-top: rem-calc(-5);
@@ -1095,6 +1093,7 @@ $input-error-message-font-style: normal;
 // $reveal-modal-bg: $white;
 // $reveal-position-top: rem-calc(100);
 // $reveal-default-width: 80%;
+// $reveal-max-width: $row-width;
 // $reveal-modal-padding: rem-calc(20);
 // $reveal-box-shadow: 0 0 10px rgba($black,.4);
 
@@ -1141,7 +1140,7 @@ $input-error-message-font-style: normal;
 // $side-nav-font-weight: $font-weight-normal;
 // $side-nav-font-weight-active: $side-nav-font-weight;
 // $side-nav-font-family: $body-font-family;
-// $side-nav-active-font-family: $side-nav-font-family;
+// $side-nav-font-family-active: $side-nav-font-family;
 
 // We use these to control heading styles.
 // $side-nav-heading-color: $side-nav-link-color;
@@ -1212,7 +1211,6 @@ $input-error-message-font-style: normal;
 // $sub-nav-border-radius: 3px;
 // $sub-nav-font-color-hover: scale-color($sub-nav-font-color, $lightness: -25%);
 
-
 // We use these to control the active item styles
 // $sub-nav-active-font-weight: $font-weight-normal;
 // $sub-nav-active-bg: $primary-color;
@@ -1223,7 +1221,6 @@ $input-error-message-font-style: normal;
 
 // $sub-nav-item-divider: "";
 // $sub-nav-item-divider-margin: rem-calc(12);
-
 
 // 29. Switch
 // - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1291,7 +1288,8 @@ $input-error-message-font-style: normal;
 // $table-row-font-color: $jet;
 // $table-line-height: rem-calc(18);
 
-// These are for controlling the display and margin of tables
+// These are for controlling the layout, display and margin of tables
+// $table-layout: auto;
 // $table-display: table-cell;
 // $table-margin-bottom: rem-calc(20);
 
@@ -1403,7 +1401,7 @@ $input-error-message-font-style: normal;
 // $topbar-link-dropdown-padding: 20px;
 
 // $topbar-button-font-size: 0.75rem;
-$topbar-button-top: 0;
+// $topbar-button-top: 7px;
 
 // $topbar-dropdown-label-color: $monsoon;
 // $topbar-dropdown-label-text-transform: uppercase;
