@@ -1014,8 +1014,8 @@ sub can_trust {
             return 0;
         }
 
-        # the target must not be purged/suspended/locked
-        if ( $tu->is_expunged || $tu->is_suspended || $tu->is_locked ) {
+        # the target must not be purged/suspended/locked/deleted
+        if ( $tu->is_expunged || $tu->is_suspended || $tu->is_locked || $tu->is_deleted ) {
             $$errref = LJ::Lang::ml( 'edges.trust.error.targetinvalidstatusvis' );
             return 0;
         }
@@ -1059,8 +1059,8 @@ sub can_watch {
     }
 
     if ( $tu ) {
-        # the target must not be purged/suspended/locked
-        if ( $tu->is_expunged || $tu->is_suspended || $tu->is_locked ) {
+        # the target must not be purged/suspended/locked/deleted
+        if ( $tu->is_expunged || $tu->is_suspended || $tu->is_locked || $tu->is_deleted ) {
             $$errref = LJ::Lang::ml( 'edges.watch.error.targetinvalidstatusvis' );
             return 0;
         }

@@ -89,7 +89,7 @@ You can:
     unless ( $u->watches( $self->userpic->owner ) ) {
         $email .= "
   - Subscribe to $poster:
-    $LJ::SITEROOT/manage/circle/add?user=$poster&action=subscribe";
+    $LJ::SITEROOT/circle/$poster/edit?action=subscribe";
     }
 
 $email .= "
@@ -130,7 +130,7 @@ $poster has uploaded a new icon:
 You can:<ul>";
 
     $email .= "<li><a href=\"$icons_url\">View all of $postername\'s icons</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe\">Subscribe to $postername</a></li>"
+    $email .= "<li><a href=\"$LJ::SITEROOT/circle/$postername/edit?action=subscribe\">Subscribe to $postername</a></li>"
         unless $u->watches( $self->userpic->owner );
     $email .= "<li><a href=\"$journal_url\">View their journal</a></li>";
     $email .= "<li><a href=\"$profile\">View their profile</a></li></ul>";

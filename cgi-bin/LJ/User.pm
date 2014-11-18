@@ -6000,19 +6000,19 @@ sub display_journal_deleted {
                  $relationship_ml = 'web.controlstrip.status.memberwatcher';
                  @relationship_links = (
                      { ml => 'web.controlstrip.links.leavecomm',
-                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                       url => "$LJ::SITEROOT/circle/$u->{user}/edit"
                      } );
              } elsif ( $watching ) {
                  $relationship_ml = 'web.controlstrip.status.watcher';
                  @relationship_links = (
                      { ml => 'web.controlstrip.links.removecomm',
-                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                       url => "$LJ::SITEROOT/circle/$u->{user}/edit"
                      } );
              } elsif ( $memberof ) {
                  $relationship_ml = 'web.controlstrip.status.member';
                  @relationship_links = (
                      { ml => 'web.controlstrip.links.leavecomm',
-                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                       url => "$LJ::SITEROOT/circle/$u->{user}/edit"
                      } );
              }
         }
@@ -6027,19 +6027,19 @@ sub display_journal_deleted {
                 $relationship_ml = 'web.controlstrip.status.trust_watch';
                 @relationship_links = (
                     { ml => 'web.controlstrip.links.modifycircle',
-                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                      url => "$LJ::SITEROOT/circle/$u->{user}/edit"
                     } );
             } elsif ( $trusts ) {
                 $relationship_ml = 'web.controlstrip.status.trusted';
                 @relationship_links = (
                     { ml => 'web.controlstrip.links.modifycircle',
-                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                      url => "$LJ::SITEROOT/circle/$u->{user}/edit"
                     } );
             } elsif ( $watches ) {
                 $relationship_ml = 'web.controlstrip.status.watched';
                 @relationship_links = (
                     { ml => 'web.controlstrip.links.modifycircle',
-                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                      url => "$LJ::SITEROOT/circle/$u->{user}/edit"
                     } );
             }
         }

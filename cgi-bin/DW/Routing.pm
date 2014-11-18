@@ -319,10 +319,16 @@ sub _redirect_helper {
     my $r = DW::Request->get;
     my $data = $_[0]->args;
 
+    my $dest = $data->{dest};
+    if ( ref $dest eq "CODE" ) {
+        my $get = $r->get_args;
+        $dest = $dest->( { map { $_ => LJ::eurl( $get->{$_} ) } keys %$get } );
+    }
+
     if ( $data->{full_uri} ) {
-        return $r->redirect( $data->{dest} );
+        return $r->redirect( $dest );
     } else {
-        return $r->redirect( LJ::create_url( $data->{dest}, keep_args => $data->{keep_args} ) );
+        return $r->redirect( LJ::create_url( $dest, keep_args => $data->{keep_args} ) );
     }
 }
 

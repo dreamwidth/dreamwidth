@@ -1,0 +1,59 @@
+.access.button.off=Revoke Access
+
+.access.button.on=Grant Access
+
+.access.explanation=Allows [[user]] to view your protected entries and other protected content.
+
+.access.filter.button=Save Access Filters
+
+.access.filter.header=Access Filters
+
+.access.header=Access
+
+.error.invalidaccount=[[user]] is not a valid account.
+
+.error.membership_closed=If you're interested in joining it, please contact one of its administrators: [[admins]]
+
+.membership.button.off=Leave
+
+.membership.button.on=Join
+
+.membership.explanation=Allows you to read any members-only entries posted in [[user]]. Doesn't allow other members or administrators to read protected entries in your journal.
+
+.membership.header=Membership
+
+.membership.lastadmin_deletedcomm.extra=You are the last administrator for this deleted community. If you leave now, it will not be possible to restore the community, should you change your mind in the future.
+
+.membership.moderated.button.on=Request to Join
+
+.membership.moderated.extra=[[user]] doesn't have open membership, but you can send a membership request to the community administrators.
+
+.membership.postlevel.extra=This community only allows authorized people to post; joining won't allow you to post in it.  Contact one of the administrators if you'd like posting access: [[admins]]
+
+.subscribe.button.off=Unsubscribe
+
+.subscribe.button.on=Subscribe
+
+.subscribe.explanation.comm=Displays entries posted in [[user]] on your Reading Page.
+
+.subscribe.explanation=Displays [[user]]'s entries on your Reading Page.
+
+.subscribe.filter.button=Save Content Filters
+
+.subscribe.filter.header=Content Filters
+
+.subscribe.header=Subscribe
+
+.success.join.actions.guidelines=Read this community's posting guidelines
+
+.success.join.actions.post=Post to this community
+
+.success.join=You've successfully joined [[user]].
+
+.success.join_request=Your membership request has been sent to community administrators.
+
+.title=[[user]] in your circle
+
+.warning.leave.closed=This community has closed membership. An administrator will need to invite you if you ever want to rejoin. Leave?
+
+.warning.leave.moderated=This community has moderated membership. An administrator must approve your join request if you ever want to rejoin. Leave?

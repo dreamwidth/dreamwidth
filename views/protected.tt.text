@@ -3,7 +3,7 @@
 
 .protected.error.notauthorised.comm.closed=This protected entry is viewable by community members only. Membership to this community is closed.
 
-.protected.error.notauthorised.comm.open=This protected entry is viewable by community members only. Would you like to <a href="[[siteroot]]/community/join?comm=[[journalname]]">join the community</a>?
+.protected.error.notauthorised.comm.open=This protected entry is viewable by community members only. Would you like to <a href="[[siteroot]]/circle/[[journalname]]/edit">join the community</a>?
 
 .protected.message.nouser=You need to be logged in to see this content.  If you have an account on [[sitename]], you can log in using it.  Or, if you have an account on a site that supports OpenID, you may log in using OpenID.
 

@@ -87,7 +87,7 @@ sub _as_email {
             'esn.read_last_comm_entries'    => [ 2, $community_url ],
             'esn.view_profile'              => [ 3, $community_profile ],
             'esn.add_watch'                 => [ $u->watches( $self->comm ) ? 0 : 4,
-                                                "$LJ::SITEROOT/manage/circle/add?user=$community_user&action=subscribe" ],
+                                                "$LJ::SITEROOT/circle/$community_user/edit?action=subscribe" ],
         }
     );
 }
