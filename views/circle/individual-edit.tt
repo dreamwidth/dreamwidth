@@ -78,7 +78,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     [%- INCLUDE filters
                             type = edge.type
                             filter_list = edge.filters
-                            initial_state = edge.on
+                            initial_state = edge.expand_filters
                     -%]
                 [%- END -%]
             </form>
