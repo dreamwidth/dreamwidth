@@ -16,3 +16,8 @@
 .ui-sortable {
     border-color: $border-color;
 }
+
+.ui-widget {
+    background-color: $input-bg-color;
+    border: 1px solid $input-border-color;
+}
