@@ -35,7 +35,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- form.select(
         label = dw.ml( ".journalstatus.select.head" )
         name = "statusvis"
-        id = "statusvis"
         selected = u.statusvis
         items = statusvis_options
     ) -%]
@@ -45,7 +44,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- form.textbox(
         label = dw.ml( '.reason.head' )
         name = 'reason'
-        id = 'reason'
         value = delete_reason
         maxlength = 255
         hint = dw.ml( u.is_community ? '.reason.about.comm' : '.reason.about' )

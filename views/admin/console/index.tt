@@ -26,7 +26,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <form method="POST" action="[%- form_url -%]">
     [%- dw.form_auth -%]
     [%- form.textarea( label = dw.ml( ".entercommands" )
-        id = "console"
         name = "commands"
         rows = 10
         cols = 70

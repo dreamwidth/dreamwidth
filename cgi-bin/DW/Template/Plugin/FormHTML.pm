@@ -58,6 +58,7 @@ sub new {
         data     => $data,
         errors   => $errors,
         did_post => $r && $r->did_post,
+        _id_gen_counter => 0,
     }, $class;
 
     return $self;
@@ -114,6 +115,7 @@ sub checkbox {
 
     $args->{labelclass} ||= "checkboxlabel";
     $args->{class} ||= "checkbox";
+    $args->{id} ||= $self->generate_id( $args );
 
     # makes the form element use the default or an explicit value...
     my $label_html = $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
@@ -200,6 +202,7 @@ sub radio {
 
     $args->{labelclass} ||= "radiolabel";
     $args->{class} ||= "radio";
+    $args->{id} ||= $self->generate_id( $args );
 
     # makes the form element use the default or an explicit value...
     my $label_html = $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
@@ -250,6 +253,7 @@ sub select {
 
     my $items = delete $args->{items};
     $args->{class} ||= "select";
+    $args->{id} ||= $self->generate_id( $args );
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, use_as_value => "selected" );
@@ -284,6 +288,7 @@ sub textarea {
     my ( $self, $args ) = @_;
 
     $args->{class} ||= "text";
+    $args->{id} ||= $self->generate_id( $args );
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args );
@@ -315,6 +320,7 @@ sub textbox {
 
     $args->{class} ||= "text";
     $args->{class} .= " error" if @errors;
+    $args->{id} ||= $self->generate_id( $args );
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args );
@@ -343,6 +349,7 @@ sub password {
     $args->{type} = "password";
     $args->{class} ||= "text";
     $args->{class} .= " error" if @errors;
+    $args->{id} ||= $self->generate_id( $args );
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, noautofill => 1 );
@@ -356,6 +363,12 @@ sub password {
 
 }
 
+# generates a unique id for a form element
+# ensures that we can easily associate the form element to its label
+sub generate_id {
+    my ( $self, $args ) = @_;
+    return "id-" . $args->{name} . "-" . $self->{_id_gen_counter}++;
+}
 
 # populate the element's value, modifying the $args hashref
 # return the label HTML if applicable
@@ -380,7 +393,8 @@ sub _process_value_and_label {
     my $label_html = "";
     my $label = delete $args->{label};
     my $labelclass = delete $args->{labelclass} || "";
-    $label_html = LJ::labelfy( $args->{id} || "", LJ::ehtml( $label ), $labelclass )
+
+    $label_html = LJ::labelfy( $args->{id}, LJ::ehtml( $label ), $labelclass )
         if defined $label;
 
     return $label_html || "";
