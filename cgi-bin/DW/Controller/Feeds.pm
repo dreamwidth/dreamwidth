@@ -154,8 +154,8 @@ sub index_handler {
                 if ( $syn_url ne $url ) {
                     my $adu = LJ::Feed::synrow_select( url => $syn_url );
 
-                    return $r->redirect( LJ::create_url( "/manage/circle/add",
-                        args => { user => $adu->{user}, action => 'subscribe' } ) )
+                    return $r->redirect( LJ::create_url( "/circle/$adu->{user}/edit",
+                        args => { action => 'subscribe' } ) )
                             if $adu;
 
                     $res = $ua->get( $syn_url );
@@ -195,8 +195,8 @@ sub index_handler {
 
         # at this point, we have a new account, or an old account, but we have
         # an account, so let's redirect them to the subscribe page
-        return $r->redirect( LJ::create_url( "/manage/circle/add",
-            args => { user => $su->{user}, action => 'subscribe' } ) )
+        return $r->redirect( LJ::create_url( "/circle/$su->{user}/edit",
+            args => { action => 'subscribe' } ) )
     }
 
     # finished trying to create a feed - still some form processing

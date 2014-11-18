@@ -25,6 +25,11 @@ DW::Controller::Circle - Circle management
 
 DW::Routing->register_regex( '^/circle/(.+)/edit$', \&individual_edit_handler, app => 1 );
 
+DW::Routing->register_redirect( '/manage/circle/add', sub { "/circle/$_[0]->{user}/edit" }, keep_args => [ "action" ] );
+DW::Routing->register_redirect( '/community/join', sub { "/circle/$_[0]->{comm}/edit"} );
+DW::Routing->register_redirect( '/community/leave', sub { "/circle/$_[0]->{comm}/edit"} );
+
+
 sub individual_edit_handler {
     my ( $opts, $username ) = @_;
 

@@ -140,7 +140,7 @@ sub manage_membership {
         # if logged in and a member of the community $u
         if ( $remote && $remote->member_of( $u ) ) {
             return $self->fix_link( {
-                url      => "community/leave?comm=$user",
+                url      => "circle/$user/edit",
                 title_ml => 'userlinkbar.leavecomm.title',
                 image    => 'community_leave.png',
                 text_ml  => 'userlinkbar.leavecomm2',
@@ -166,7 +166,7 @@ sub manage_membership {
 
             # allowed to join
             } else {
-                $link->{url}      = "community/join?comm=$user";
+                $link->{url}      = "circle/$user/edit";
                 $link->{title_ml} = 'userlinkbar.joincomm.title.open';
                 $link->{image}    = 'community_join.png';
                 $link->{class}    = "join";

@@ -86,7 +86,7 @@ sub _as_email {
         return LJ::Lang::get_text( $lang, 'esn.removedfromcircle.trusted.email_text', undef, $vars ) .
             $self->format_options( $is_html, $lang, $vars,
             {
-                'esn.remove_trust'    => [ !$u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername" ],
+                'esn.remove_trust'    => [ !$u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/circle/$postername/edit" ],
                 'esn.post_entry'      => [ 2, "$LJ::SITEROOT/update" ],
                 'esn.edit_friends'    => [ 3, "$LJ::SITEROOT/manage/circle/edit" ],
                 'esn.edit_groups'     => [ 4, "$LJ::SITEROOT/manage/circle/editfilters" ],
@@ -96,7 +96,7 @@ sub _as_email {
         return LJ::Lang::get_text( $lang, 'esn.removedfromcircle.watched.email_text', undef, $vars ) .
             $self->format_options( $is_html, $lang, $vars,
             {
-                'esn.remove_watch'    => [ !$u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername" ],
+                'esn.remove_watch'    => [ !$u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/circle/$postername/edit" ],
                 'esn.post_entry'      => [ 2, "$LJ::SITEROOT/update" ],
                 'esn.edit_friends'    => [ 3, "$LJ::SITEROOT/manage/circle/edit" ],
                 'esn.edit_groups'     => [ 4, "$LJ::SITEROOT/manage/circle/editfilters" ],
@@ -153,11 +153,11 @@ sub as_html_actions {
 
     my $ret .= "<div class='actions'>";
     if ( $self->trusted ) {
-        $ret .= "<a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "'>Remove Access</a> |"
+        $ret .= "<a href='$LJ::SITEROOT/circle/" . $fromuser->user . "/edit'>Remove Access</a> |"
             if $u->trusts( $fromuser );
         $ret .= " <a href='" . $fromuser->profile_url . "'>View Profile</a>";
     } else { # watched
-        $ret .= "<a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "'>Unsubscribe</a> |"
+        $ret .= "<a href='$LJ::SITEROOT/circle/" . $fromuser->user . "/edit'>Unsubscribe</a> |"
             if $u->watches( $fromuser );
         $ret .= " <a href='" . $fromuser->profile_url . "'>View Profile</a>";
     }

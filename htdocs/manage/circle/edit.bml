@@ -202,7 +202,7 @@ body<=
                             $jointext = $status ? $ML{".circle.join.$status"} : $ML{'.circle.none'};
                             if ( $status eq 'moderated' ) {
                                 # print link to join page
-                                my $href = "$LJ::SITEROOT/community/join?comm=" . $other_u->user;
+                                my $href = "$LJ::SITEROOT/circle/" . $other_u->user . "/edit";
                                 $jointext .= " " .
                                     LJ::Lang::ml( '.circle.join.apply', { aopts => "href='$href'" } );
                             }

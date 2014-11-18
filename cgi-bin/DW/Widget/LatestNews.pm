@@ -53,11 +53,11 @@ sub render_body {
 
     if ( $remote->watches( $news_journal ) ) {
         $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe.modify', { 
-            aopts => "href='$LJ::SITEROOT/manage/circle/add?user=" . $news_journal->user . "'",
+            aopts => "href='$LJ::SITEROOT/circle/" . $news_journal->user . "/edit'",
             news => LJ::ljuser( $news_journal ) } ) . "</p>";
     } else {
         $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe.add2', { 
-            aopts => "href='$LJ::SITEROOT/manage/circle/add?user=" . $news_journal->user. "&action=subscribe'",
+            aopts => "href='$LJ::SITEROOT/circle/" . $news_journal->user. "/edit?action=subscribe'",
             news => LJ::ljuser( $news_journal ) } ) . "</p>";
     }
 

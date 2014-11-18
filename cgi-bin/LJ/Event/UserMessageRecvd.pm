@@ -74,7 +74,7 @@ sub _as_email {
             'esn.view_profile'     => [ 2, $other_u->profile_url ],
             'esn.read_journal'     => [ $other_u->is_identity ? 0 : 3, $other_u->journal_base ],
             'esn.add_watch'        => [ $u->watches( $other_u ) ? 0 : 4,
-                                             "$LJ::SITEROOT/manage/circle/add?user=$sender&action=subscribe" ],
+                                             "$LJ::SITEROOT/circle/$sender/edit?action=subscribe" ],
         }
     );
 
@@ -135,7 +135,7 @@ sub as_html_actions {
     my $ret = "<div class='actions'>";
     if (! $other_u->is_suspended ) {
         $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Reply</a>";
-        $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add?user=". $msg->other_u->user ."&action=subscribe'>Subscribe to ". $msg->other_u->user ."</a>"
+        $ret .= " | <a href='$LJ::SITEROOT/circle/". $msg->other_u->user ."/edit?action=subscribe'>Subscribe to ". $msg->other_u->user ."</a>"
             unless $u->watches( $msg->other_u );
         $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Mark as Spam</a>"
             unless LJ::sysban_check( 'spamreport', $u->user );
