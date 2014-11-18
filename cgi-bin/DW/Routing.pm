@@ -492,7 +492,7 @@ sub register_rpc {
 
     # FIXME: per Bug 4900, this line is temporary and can go away as soon as
     #  all the javascript is updated
-    $class->register_regex( qr!^/[^/]+/\Q__rpc_$string\E$!, $sub, user => 1, %opts );
+    $class->register_regex( qr!^/[^/]+/\Q__rpc_$string\E$!, $sub, app => 1, user => 1, %opts );
 }
 
 =head2 C<< $class->register_api_endpoint( $string, $sub, %opts ) >>
