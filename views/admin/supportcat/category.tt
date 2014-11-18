@@ -22,26 +22,26 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [% dw.form_auth %]
     <input type="hidden" name="newcat" value="[% newcat | html %]" />
     [% IF newcat %]
-        <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.catkey.label2' ), name="catkey", id="catkey", maxlength=25 ) %]</div>
+        <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.catkey.label2' ), name="catkey", maxlength=25 ) %]</div>
         <div class="medium-8 large-8 column"><small>[% '.field.catkey.note' | ml %]</small></div></div>
     [% ELSE %]
-        [% form.hidden( name="catkey", id="catkey" ) %]
+        [% form.hidden( name="catkey" ) %]
     [% END %]
-    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.catname.label2' ), name="catname", id="catname", maxlength=80, size=50 ) %]</div>
+    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.catname.label2' ), name="catname", maxlength=80, size=50 ) %]</div>
     <div class="medium-8 large-8 column"><small>[% '.field.catname.note' | ml %]</small></div></div>
-    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.sortorder.label2' ), name="sortorder", id="sortorder", maxlength=8 ) %]</div>
+    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.sortorder.label2' ), name="sortorder", maxlength=8 ) %]</div>
     <div class="medium-8 large-8 column"><small>[% '.field.sortorder.note' | ml %]</small></div></div>
-    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.basepoints.label2' ), name="basepoints", id="basepoints", maxlength=3 ) %]</div>
+    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.basepoints.label2' ), name="basepoints", maxlength=3 ) %]</div>
     <div class="medium-8 large-8 column"><small>[% '.field.basepoints.note' | ml %]</small></div></div>
     [% FOREACH checkbox IN [ 'is_selectable' 'public_read' 'public_help' 'allow_screened' 'hide_helpers' 'user_closeable' ] %]
-        <div class="row"><div class="medium-4 large-4 column">[% form.checkbox_nested( label=dw.ml( ".field.${checkbox}.label2" ), name=checkbox, id=checkbox, value=1, selected=formdata.$checkbox ) %]</div>
+        <div class="row"><div class="medium-4 large-4 column">[% form.checkbox_nested( label=dw.ml( ".field.${checkbox}.label2" ), name=checkbox, value=1, selected=formdata.$checkbox ) %]</div>
         <div class="medium-8 large-8 column"><small>[% ".field.${checkbox}.note" | ml %]</small></div></div>
     [% END %]
-    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.replyaddress.label2' ), name="replyaddress", id="replyaddress", maxlength=50 ) %]</div>
+    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.replyaddress.label2' ), name="replyaddress", maxlength=50 ) %]</div>
     <div class="medium-8 large-8 column"><small>[% '.field.replyaddress.note' | ml %]</small></div></div>
-    <div class="row"><div class="medium-4 large-4 column">[% form.checkbox_nested( label=dw.ml( '.field.no_autoreply.label2' ), name="no_autoreply", id="no_autoreply", value=1, selected=formdata.no_autoreply ) %]</div>
+    <div class="row"><div class="medium-4 large-4 column">[% form.checkbox_nested( label=dw.ml( '.field.no_autoreply.label2' ), name="no_autoreply", value=1, selected=formdata.no_autoreply ) %]</div>
     <div class="medium-8 large-8 column"><small>[% '.field.no_autoreply.note' | ml %]</small></div></div>
-    <div class="row"><div class="medium-4 large-4 column">[% form.select( label=dw.ml( '.field.scope.label2' ), name="scope", id="scope", selected=formdata.scope, items=[ 'general', dw.ml( '.field.scope.option.general' ), 'local', dw.ml( '.field.scope.option.local' ) ] ) %]</div>
+    <div class="row"><div class="medium-4 large-4 column">[% form.select( label=dw.ml( '.field.scope.label2' ), name="scope", selected=formdata.scope, items=[ 'general', dw.ml( '.field.scope.option.general' ), 'local', dw.ml( '.field.scope.option.local' ) ] ) %]</div>
     <div class="medium-8 large-8 column"><small>[% '.field.scope.note' | ml %]</small></div></div>
     <div class="row"><div class="column">[% form.submit( name="submit", value=dw.ml( '.button' ) ) %]</div></div>
     </form>

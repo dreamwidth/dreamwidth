@@ -43,7 +43,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 label = dw.ml( '.form.comminfo.title.label' )
                 hint = dw.ml( '.form.comminfo.title.hint' )
                 name  = "title"
-                id    = "title"
                 maxlength = 80
             ) -%]
     </fieldset>

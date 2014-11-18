@@ -19,7 +19,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="columns">
     [%- form.textbox(
         label = "Username"
-        id = 'username_input'
         name = 'username'
         maxlength = 50
         size = 25

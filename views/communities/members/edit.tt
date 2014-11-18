@@ -97,7 +97,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="row collapse">
       <div class="large-8 columns">
         [%- form.textbox( name="q"
-                          id="q"
                           label=dw.ml( ".find.label" ),
                           labelclass="hidden" ) -%]
       </div>

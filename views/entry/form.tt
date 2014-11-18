@@ -182,7 +182,6 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         <div class="row"><div class="columns">
             <div class='subject-container'>
                 [%- form.textbox( label = dw.ml(".subject.label")
-                        id = "subject"
                         name = "subject"
 
                         maxlength = limits.subject_length
@@ -198,7 +197,6 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         <div class="row"><div class="columns">
             <div class='event-container'>
                 [%- form.textarea( label = dw.ml(".event.label")
-                    id = "event"
                     name = "event"
 
                     cols = "50"
