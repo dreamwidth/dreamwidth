@@ -63,6 +63,12 @@ Further, if you specify the delete and expungedel options at the same time,
 if the user is expunged, all of their data will be deleted from the source
 cluster.  THIS IS IRREVERSIBLE AND YOU WILL NOT BE ASKED FOR CONFIRMATION.
 
+=item --earlyexpunge
+
+Ignore the 31 day delay in --expungedel, so the user will be expunged no
+matter how long since they were deleted. This option is allowed on dev
+servers only.
+
 =item --jobserver=host:port
 
 Specify a job server to get tasks from.  In this mode, no other
@@ -98,6 +104,7 @@ my $opt_verbose = 1;
 my $opt_movemaster = 0;
 my $opt_prelocked = 0;
 my $opt_expungedel = 0;
+my $opt_earlyexpunge = 0;
 my $opt_ignorebit = 0;
 my $opt_verify = 0;
 my $opt_help = 0;
@@ -110,6 +117,7 @@ abortWithUsage() unless
                'movemaster|mm' => \$opt_movemaster, # use separate dedicated source
                'prelocked' => \$opt_prelocked, # don't do own locking; master does (harness, ljumover)
                'expungedel' => \$opt_expungedel, # mark as expunged if possible (+del to delete)
+               'earlyexpunge' => \$opt_earlyexpunge, # expunge without delay
                'ignorebit' => \$opt_ignorebit, # ignore move in progress bit cap (force)
                'verify' => \$opt_verify,  # slow verification pass (just for debug)
                'jobserver=s' => \$opt_jobserver,
@@ -240,13 +248,17 @@ sub parseOpts {
     }
 
     foreach my $opt (qw(del destdel movemaster prelocked
-                        expungedel ignorebit verify)) {
+                        expungedel earlyexpunge ignorebit verify)) {
         next if defined $opts->{$opt};
         $opts->{$opt} = eval "\$opt_$opt";
     }
 
     # Have the same delete behavior despite of how the input delete parameter is specified: by 'delete=1' or by 'del=1'
     $opts->{del} = $opts->{'delete'} if defined $opts->{'delete'} and not $opts->{del};
+
+    # Forbid use of earlyexpunge except on dev instances
+    die "Can't use --earlyexpunge on production servers.\n"
+        if $opts->{earlyexpunge} && !$LJ::IS_DEV_SERVER;
 
     return $opts;
 }
@@ -505,7 +517,7 @@ sub moveUser {
     }
 
     if ($opts->{expungedel} && $u->{'statusvis'} eq "D" &&
-        LJ::mysqldate_to_time($u->{'statusvisdate'}) < time() - 86400*31 &&
+        ( LJ::mysqldate_to_time($u->{'statusvisdate'}) < time() - 86400*31 || $opts->{earlyexpunge} ) &&
         !$u->is_identity) {
 
         print "Expunging user '$u->{'user'}'\n";
