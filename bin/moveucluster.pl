@@ -258,7 +258,7 @@ sub parseOpts {
 
     # Forbid use of earlyexpunge except on dev instances
     die "Can't use --earlyexpunge on production servers.\n"
-        unless $LJ::IS_DEV_SERVER || !$opts->{'earlyexpunge'};
+        if $opts->{earlyexpunge} && !$LJ::IS_DEV_SERVER;
 
     return $opts;
 }
