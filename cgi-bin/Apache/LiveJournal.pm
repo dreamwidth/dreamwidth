@@ -384,9 +384,9 @@ sub trans
 
     } else { # not is_initial_req
         if ($apache_r->status == 404) {
-            my $fn = $LJ::PAGE_404 || "404-error.bml";
-            my ( $uri, $path ) = resolve_path_for_uri( $apache_r, $fn );
-            return $bml_handler->( $path ) if $path;
+            my $ret = DW::Routing->call( uri => "/internal/local/404" );
+            $ret //= DW::Routing->call( uri => "/internal/404" );
+            return $ret if defined $ret;
         }
     }
 

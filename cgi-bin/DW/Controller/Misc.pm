@@ -38,6 +38,8 @@ DW::Routing->register_string( "/random/index", \&random_personal_handler, app =>
 DW::Routing->register_string( "/community/random/index", \&random_community_handler, app => 1 );
 DW::Routing->register_string( "/beta", \&beta_handler, app => 1 );
 
+DW::Routing->register_static( '/internal/404', 'error/404.tt', app => 1 );
+
 sub beta_handler {
     my ( $opts ) = @_;
 

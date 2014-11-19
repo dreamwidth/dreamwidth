@@ -108,11 +108,6 @@
     # for security reasons, we strongly recommend that this not be on your $DOMAIN
     $EMBED_MODULE_DOMAIN = "embed.my-other-domain.net";
 
-    # 404 page
-    # Uncomment if you don't want the (dw-free) default, 404-error.bml
-    # (Note: you need to provide your own 404-error-local.bml)
-    # $PAGE_404 = "404-error-local.bml";
-
     # merchandise link
     # $MERCH_URL = "http://www.zazzle.com/dreamwidth*";
 
