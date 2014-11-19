@@ -25,7 +25,6 @@ use strict;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
-use DW::Controller;
 use DW::FormErrors;
 
 =head1 NAME
