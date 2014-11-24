@@ -499,8 +499,8 @@ sub trans
     }
 
     # is this the embed module host
-    if ($LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/) {
-        return $bml_handler->("$LJ::HOME/htdocs/tools/embedcontent.bml");
+    if ( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ ) {
+        return DW::Routing->call( uri => '/journal/embedcontent' );
     }
 
     my $journal_view = sub {
