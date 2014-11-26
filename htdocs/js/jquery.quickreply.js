@@ -12,6 +12,15 @@ function can_continue() {
 }
 
 function update(data,widget) {
+    var targetParts = data.target.split("-");
+    if ( targetParts.length === 1 ) {
+        data.dtid = target;
+    } else {
+        data.dtid = 0;
+        $("#journal").val(targetParts[1]);
+        $("#itemid").val(targetParts[2]);
+    }
+
     $("#parenttalkid, #replyto").val(data.pid);
     $("#dtid").val(data.dtid);
     
@@ -42,6 +51,7 @@ function update(data,widget) {
 $.widget("dw.quickreply", {
     options: {
         dtid: undefined,
+        target: undefined,
         pid: undefined,
         subject: undefined
     },
@@ -55,7 +65,7 @@ $.widget("dw.quickreply", {
         }).click();
     },
     widget: function() {
-        return this.options.dtid ? $("#ljqrt"+this.options.dtid) : [];
+        return this.options.target ? $("#ljqrt"+this.options.target) : [];
     }
 });
 
@@ -128,9 +138,10 @@ jQuery(document).ready(function($) {
 });
 
 
-function quickreply(dtid, pid, newsubject, trigger) {
+function quickreply(target, pid, newsubject, trigger) {
     trigger = trigger || document;
-    $(trigger).quickreply({ dtid: dtid, pid: pid, subject: newsubject })
+
+    $(trigger).quickreply({ target: target, pid: pid, subject: newsubject })
             .attr("onclick", null);
     return ! $.dw.quickreply.can_continue();
 }
