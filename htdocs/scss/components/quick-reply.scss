@@ -1,0 +1,62 @@
+#qrdiv * {
+    box-sizing: border-box;
+}
+
+#qrform {
+    text-align: left;
+    margin: 0 auto;
+    padding: 0 1em;
+
+    .de {
+        font-size: small;
+    }
+
+    input, button, textarea, select {
+        margin-bottom: .2em;
+    }
+
+    .qr-icon {
+        width: 50px;
+        height: 50px;
+        float: left;
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    }
+
+    .qr-meta {
+        margin-left: 55px;
+    }
+
+    textarea, select, input {
+        width: 100%;
+    }
+
+    select, input, textarea {
+        padding: .25em;
+    }
+}
+@media only screen and (min-width: 40em) {
+
+    #qrform {
+        display: table;
+
+        .qr-meta {
+            display: -webkit-flex;
+            -webkit-flex-direction: row;
+
+            display: flex;
+            flex-direction: row;
+        }
+
+        .qr-body, .qr-footer {
+            margin-left: 55px;
+        }
+
+        select, input, textarea {
+            padding: .5em;
+        }
+    }
+}

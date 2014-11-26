@@ -47,6 +47,7 @@ sub FriendsPage
             stc/jquery/jquery.ui.core.css
             js/jquery/jquery.ui.widget.js
             js/jquery.quickreply.js
+            stc/css/components/quick-reply.css
             js/jquery.threadexpander.js
         ) );
 

@@ -3694,7 +3694,7 @@ sub _print_reply_container
                     style_opts => $page->{_styleopts},
                     userpic => $userpic,
                     thread => $thread,
-                    reduced => $page->{view} eq "read",
+                    minimal => $page->{view} eq "read",
                 ) );
         }
     }

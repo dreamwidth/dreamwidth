@@ -887,7 +887,7 @@ sub create_qr_div {
     return undef unless $u && $remote && $ditemid;
 
     my $style_opts = $opts{style_opts} || {};
-    my $userpic = $opts{userpic};
+    my $userpic_kw = $opts{userpic};
     my $viewing_thread = $opts{thread};
 
     return undef if $remote->prop( "opt_no_quickreply" );
@@ -945,11 +945,13 @@ sub create_qr_div {
         form_url                => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         hidden_form_elements    => $hidden_form_elements,
         can_checkspell          => $LJ::SPELLER ? 1 : 0,
+        minimal                 => $opts{minimal} ? 1 : 0,
 
         quote_button_js         => LJ::Talk::js_quote_button( 'body' ),
         iconbrowser_js          => $remote->can_use_userpic_select ? LJ::Talk::js_iconbrowser_button() : "",
 
-        current_icon => $userpic,
+        current_icon_kw => $userpic_kw,
+        current_icon    => LJ::Userpic->new_from_keyword( $remote, $userpic_kw ),
 
         remote => {
             ljuser  => $remote->ljuser_display,
