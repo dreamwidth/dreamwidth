@@ -261,6 +261,8 @@ class CommentInfo
 
     function print
     "Print all comment related links";
+    function print(Entry e, string{} opts)
+    "Print all comment related links, with arguments";
     function print_readlink
     "Print the formatted link to the 'Read Comments' view";
     function print_postlink
@@ -382,6 +384,11 @@ class EntryLite
     function print_poster () "Print the poster of the entry or comment (user or user in journal, etc)";
 
     function print_admin_post_icon () "prints the icon into the subject line";
+
+    function builtin print_reply_link(string{} opts) "Prints a link to reply to the comment. You may specify the link text in the 'linktext' option, and the link CSS class in 'class'. You may also specify the url of an image to use as a button in 'img_url'.";
+    function builtin print_reply_container() "Prints the area in which the quickreply box will go. If no container is available, quickreply will not work.";
+    function builtin print_reply_container(string{} opts) "Prints the area in which the quickreply box will go. You may 'class' which will be the CSS class used by the container. If no container is available, quickreply will not work.";
+
 }
 
 class Entry extends EntryLite
@@ -459,12 +466,6 @@ class Comment extends EntryLite
     var readonly DateTime edittime_poster "The local time the comment was edited, in the commenter's timezone.  Or undef if anonymous comment, or commenter's timezone is unknown, or the comment hasn't been edited.";
 
     function builtin print_multiform_check "Prints the select checkbox in CSS class 'ljcomsel' with DOM id 'ljcomsel_\$talkid' for a multi-action form started with [method[EntryPage.print_multiform_start()]].";
-
-    function builtin print_reply_link(string{} opts) "Prints a link to reply to the comment. You may specify the link text in the 'linktext' option, and the link CSS class in 'class'. You may also specify the url of an image to use as a button in 'img_url'.";
-
-    function builtin print_reply_container() "Prints the area in which the quickreply box will go. If no container is available, quickreply will not work.";
-
-    function builtin print_reply_container(string{} opts) "Prints the area in which the quickreply box will go. You may 'class' which will be the CSS class used by the container. If no container is available, quickreply will not work.";
 
     function builtin expand_link () : string "Returns a link to expand a collapsed comment. Uses the value of the 'text_comment_expand' property as the text. Will not work in untrusted layers.";
     function builtin expand_link (string{} opts) : string "Returns a link to expand a collapsed comment. Can pass options 'text', 'title', 'class', and 'img_url' (and other 'img_*' options). Will not work in untrusted layers.";
@@ -5067,8 +5068,8 @@ function EntryPage::print_entry_footer(Entry e) {
 
 function Page::print_entry_footer(Entry e) {
     $e->print_management_links();
-        $e->print_interaction_links();
-
+    $e->print_interaction_links();
+    $e->print_reply_container({ "target" => $e.dom_id + "-reply" });
 }
 function RecentPage::print_sticky_entry(StickyEntry s)
 "function to print the sticky entry. can be overrised by styles to print it differently than other entries."
@@ -5544,6 +5545,8 @@ function Entry::print_interaction_links(string target)
         if ($count > 0) {
             "</ul>";
         }
+    } elseif ($p.view == "read") {
+      $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
     } else {
             $this.comments->print();
         }
@@ -6133,21 +6136,28 @@ function CommentInfo::print_postlink() {
         print safe "<a href=\"$.post_url\">"+($p.view == "read" or $p.view == "network" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
     }
 }
-function CommentInfo::print() {
-    var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
-    """<ul class="entry-interaction-links$display_type">\n""";
-    """<li class="entry-permalink first-item"><a href="$.permalink_url">$*text_permalink</a></li>\n""";
-    if ($.show_readlink) {
-        """<li class="entry-readlink">""";
-        $this->print_readlink();
-        "</li>\n";
-    }
-    if ($.show_postlink and $.enabled) {
-        """<li class="entry-replylink">""";
+function CommentInfo::print(Entry e, string{} opts) {
+  var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
+  """<ul class="entry-interaction-links$display_type">\n""";
+  """<li class="entry-permalink first-item"><a href="$.permalink_url">$*text_permalink</a></li>\n""";
+  if ($.show_readlink) {
+      """<li class="entry-readlink">""";
+      $this->print_readlink();
+      "</li>\n";
+  }
+  if ($.show_postlink and $.enabled) {
+      """<li class="entry-replylink">""";
+      if (isnull $e) {
         $this->print_postlink();
-        "</li>\n";
-    }
-    "</ul>";
+      } else {
+        $e->print_reply_link({ "linktext" => $opts{"linktext"}, "target" => $opts{"target"} });
+      }
+      "</li>\n";
+  }
+  "</ul>";
+}
+function CommentInfo::print() {
+  return $this->print(null Entry, { "" => "" });
 }
 
 
