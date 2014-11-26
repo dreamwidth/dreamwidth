@@ -14,7 +14,7 @@ function can_continue() {
 function update(data,widget) {
     var targetParts = data.target.split("-");
     if ( targetParts.length === 1 ) {
-        data.dtid = target;
+        data.dtid = data.target;
     } else {
         data.dtid = 0;
         $("#journal").val(targetParts[1]);
