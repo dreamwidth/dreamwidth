@@ -142,6 +142,7 @@
     function _selectCurrent() {
         if ($.fn.iconselector.selectedKeyword) {
             $.fn.iconselector.owner.val($.fn.iconselector.selectedKeyword);
+            $.fn.iconselector.owner.trigger("change");
             opts.onSelect.apply($.fn.iconselector.owner[0]);
             $.fn.iconselector.instance.dialog("close");
         }

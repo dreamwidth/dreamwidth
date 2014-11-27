@@ -124,6 +124,15 @@ jQuery(document).ready(function($) {
         $("#qrform").submit();
     });
 
+    $("#prop_picture_keyword").live("change", function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        $(".qr-icon").find("img")
+            .attr("src", $(this).find("option:selected").data("url"))
+            .removeAttr("width").removeAttr("height").removeAttr("alt");
+    });
+
     $("#randomicon").live("click", function(e){
         e.stopPropagation();
         e.preventDefault();

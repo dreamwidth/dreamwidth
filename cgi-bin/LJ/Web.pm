@@ -928,16 +928,19 @@ sub create_qr_div {
         LJ::do_request({ mode => "login",
                          ver => ($LJ::UNICODE ? "1" : "0"),
                          user => $remote->user,
-                         getpickws => 1, },
+                         getpickws => 1,
+                         getpickwurls => 1,
+                         },
                        \%res, { noauth => 1, userid => $remote->userid }
                        );
 
         if ( $res{pickw_count} ) {
             for (my $i=1; $i<= $res{pickw_count}; $i++) {
-                push @pics, $res{"pickw_$i"};
+                push @pics, [ $res{"pickw_$i"}, $res{"pickwurl_$i"} ];
             }
-            @pics = sort { lc($a) cmp lc($b) } @pics;
-            @pics = ( "", LJ::Lang::ml('/talkpost.bml.opt.defpic' ), map { ( $_, $_ ) } @pics );
+            @pics = sort { lc($a->[0]) cmp lc($b->[0]) } @pics;
+            @pics = ( { value => "", text => LJ::Lang::ml('/talkpost.bml.opt.defpic' ) },
+                    map { { value => $_->[0], text => $_->[0], data => { url => $_->[1] } } } @pics );
         }
     }
 

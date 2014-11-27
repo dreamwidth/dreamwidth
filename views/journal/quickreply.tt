@@ -17,7 +17,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- dw.form_auth -%]
 [%- hidden_form_elements -%]
 <div class='qr-icon'>
-  [%- current_icon.imgtag -%]
+    [%- IF remote.can_use_iconbrowser -%]
+      <button id="lj_userpicselect">[%- current_icon.imgtag -%]</button>
+    [%- ELSE -%]
+      [%- current_icon.imgtag -%]
+    [%- END -%]
 </div>
 <div class="qr-meta">
   <label for='prop_picture_keyword' class='invisible'>[%- '/talkpost.bml.label.picturetouse2' | ml( aopts = "href='$remote.icons_url'" ) -%]</label>
