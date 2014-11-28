@@ -4327,6 +4327,11 @@ EOF
             "ADD COLUMN status CHAR(1) NOT NULL DEFAULT 'A'" );
         do_sql( 'UPDATE renames SET status="U" WHERE renuserid = 0' );
     }
+
+    if ( !check_dbnote( 'remove_countries_from_codes' ) ) {
+        do_sql( 'DELETE FROM codes WHERE type = "country"' );
+        set_dbnote( 'remove_countries_from_codes', 1 );
+    }
 });
 
 
