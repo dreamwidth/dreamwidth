@@ -270,6 +270,7 @@ my %modules = (
                    deb => 'libmime-base64-urlsafe-perl',
                },
                "List::MoreUtils" => {},
+               "Locale::Country" => { ver => '3.32' },
               );
 
 
