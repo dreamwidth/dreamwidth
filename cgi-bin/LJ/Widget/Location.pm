@@ -17,6 +17,7 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 use DateTime::TimeZone;
+use DW::Countries;
 
 my @location_props = qw/ country state city sidx_loc /;
 
@@ -196,7 +197,7 @@ sub handle_post {
     my $u = $class->get_effective_remote;
     # load country codes
     my %countries;
-    LJ::load_codes({ "country" => \%countries});
+    DW::Countries->load( \%countries );
 
     my $state_inline_desc = $class->ml('widget.location.fn.state.inline2');
     my $state_from_dropdown = $class->ml('states.head.defined');
@@ -263,7 +264,7 @@ sub country_options {
 
     my %countries;
     # load country codes
-    LJ::load_codes({ "country" => \%countries});
+    DW::Countries->load( \%countries );
 
     my $options = ['' => $class->ml('widget.location.country.choose'), 'US' => 'United States',
                    map { $_, $countries{$_} } sort { $countries{$a} cmp $countries{$b} } keys %countries];

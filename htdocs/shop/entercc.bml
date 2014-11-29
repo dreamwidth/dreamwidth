@@ -11,7 +11,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -24,6 +24,7 @@ body<=
     use strict;
     use vars qw/ %GET %POST $title /;
     use Business::CreditCard;
+    use DW::Countries;
 
     return BML::redirect( "$LJ::SITEROOT/" )
         unless LJ::is_enabled( 'payments' );
@@ -75,7 +76,7 @@ body<=
 
         # load country codes, and US states
         my ( %countries, %usstates );
-        LJ::load_codes( { country => \%countries } );
+        DW::Countries->load( \%countries );
         LJ::load_codes( { state => \%usstates } );
 
         # accepted credit card list.  this should be populated by the hooks.

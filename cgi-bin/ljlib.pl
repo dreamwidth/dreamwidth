@@ -529,7 +529,7 @@ sub get_prop
 # name: LJ::load_codes
 # des: Populates hashrefs with lookup data from the database or from memory,
 #      if already loaded in the past.  Examples of such lookup data include
-#      state codes, country codes, color name/value mappings, etc.
+#      state codes, color name/value mappings, etc.
 # args: dbarg?, whatwhere
 # des-whatwhere: a hashref with keys being the code types you want to load
 #                and their associated values being hashrefs to where you

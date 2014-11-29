@@ -9,7 +9,7 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      Janine Smith <janine@netrophic.com>
 #
-# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2014 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -19,6 +19,7 @@
 package DW::Logic::ProfilePage;
 
 use strict;
+use DW::Countries;
 use DW::Logic::UserLinkBar;
 
 # returns a new profile page object
@@ -442,7 +443,7 @@ sub _basic_info_location {
 
         if ( $country ) {
             my %countries = ();
-            LJ::load_codes( { country => \%countries } );
+            DW::Countries->load( \%countries );
 
             $country_ret = {};
             $country_ret->{url} = "$dirurl&amp;loc_cn=$ecountry"

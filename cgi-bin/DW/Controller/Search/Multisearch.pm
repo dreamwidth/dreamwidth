@@ -22,6 +22,7 @@ use strict;
 use DW::Routing;
 use DW::Template;
 use DW::Controller;
+use Locale::Codes::Country;
 
 DW::Routing->register_string( '/multisearch', \&multisearch_handler, app => 1 );
 
@@ -158,12 +159,17 @@ sub multisearch_handler {
         }
 
         my $ctc = $parts[-1];
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare( qq{
-            SELECT code FROM codes WHERE type='country'
-            AND (code=? OR item=?) LIMIT 1 } );
-        $sth->execute( $ctc, $ctc );
-        my ( $country ) = $sth->fetchrow_array;
+        my $country;
+        if ( length( $ctc ) > 2 ) {
+            # Must be country name
+            $country = uc country2code( $ctc );
+        } else {
+            # Likely country code or invalid
+            $country = uc country_code2code( $ctc, LOCALE_CODE_ALPHA_2,
+                                             LOCALE_CODE_ALPHA_2 );
+            $country ||= uc country2code( $ctc ); # 2-letter country name??
+        }
+
         my ( $state, $city );
 
         if ( $country ) {
