@@ -19,6 +19,7 @@ body<=
 
  use strict;
  use vars qw/ $title /;
+ use DW::Countries;
 
  LJ::set_active_crumb('stats');
 
@@ -40,10 +41,12 @@ body<=
      return "<?h1 Sorry... h1?><?p No statistics are available.  If you're the administrator for this site, run <b>ljmaint.pl genstats</b>, or ideally, put it in cron to run nightly. p?>";
  }
 
- $sth = $dbr->prepare("SELECT c.item, s.statval FROM stats s, codes c WHERE c.type='country' AND s.statcat='country' AND s.statkey=c.code ORDER BY s.statval DESC LIMIT 15");
+ my %countries;
+ DW::Countries->load( \%countries );
+ $sth = $dbr->prepare("SELECT statkey, statval FROM stats WHERE statcat='country' ORDER BY statval DESC LIMIT 15");
  $sth->execute;
- while ($_ = $sth->fetchrow_hashref) {
-     $stat{'country'}->{$_->{'item'}} = $_->{'statval'};
+ while (my $row = $sth->fetchrow_hashref) {
+     $stat{'country'}->{$countries{$row->{statkey}}} = $row->{statval};
  }
 
  $sth = $dbr->prepare("SELECT c.item, s.statval FROM stats s, codes c WHERE c.type='state' AND s.statcat='stateus' AND s.statkey=c.code ORDER BY s.statval DESC LIMIT 15");
