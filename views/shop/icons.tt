@@ -14,12 +14,12 @@
     </td></tr>
 [% ELSE %]
     <tr><td>[% '.buying.for' | ml %]</td><td><input type='text' name='foruser' maxlength='25' size='15' />
-        [% IF errs.foruser %]<br /><strong>[% errs.foruser %][% END %]
+        [% IF errs.foruser %]<br /><strong>[% errs.foruser %]</strong>[% END %]
     </td></tr>
 [% END %]
 <tr><td>[% '.buying.icons' | ml %]</td>
     <td><input type='text' name='icons' id='icons' maxlength='3' size='10' value='[% icons %]' />
-    [% IF errs.icons %]<br /><strong>[% errs.icons %][% END %]
+    [% IF errs.icons %]<br /><strong>[% errs.icons %]</strong>[% END %]
 </td></tr>
 <tr><td><span id='icons-cost'></span></td><td><input type='submit' value='[% '.addtocart' | ml %]' /></td></tr>
 </table>

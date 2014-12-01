@@ -13,12 +13,12 @@
     </td></tr>
 [% ELSE %]
     <tr><td>[% '.buying.for' | ml %]</td><td><input type='text' name='foruser' maxlength='25' size='15' />
-        [% IF errs.foruser %]<br /><strong>[% errs.foruser %][% END %]
+        [% IF errs.foruser %]<br /><strong>[% errs.foruser %]</strong>[% END %]
     </td></tr>
 [% END %]
 <tr><td>[% '.buying.points' | ml %]</td><td><input type='text' name='points' id='points' maxlength='4' size='10' value='[% points %]' />
     [% '.buying.points.range' | ml %]
-    [% IF errs.points %]<br /><strong>[% errs.points %][% END %]
+    [% IF errs.points %]<br /><strong>[% errs.points %]</strong>[% END %]
 </td></tr>
 <tr><td><span id='points-cost'></span></td><td><input type='submit' value='[% '.addtocart' | ml %]' /></td></tr>
 </table>
