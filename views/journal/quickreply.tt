@@ -60,8 +60,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
   ) -%]
 </div>
 <div class="qr-footer">
-  <button>[%- '/talkread.bml.button.post' | ml -%]</button>
-  <button>[%- '/talkread.bml.button.more' | ml -%]</button>
+  [%- form.submit(
+      name = 'submitpost'
+      value = dw.ml( '/talkread.bml.button.post' ),
+      id = 'submitpost'
+  ) -%]
+  [%- form.submit(
+      name = 'submitmoreopts'
+      value = dw.ml( '/talkread.bml.button.more' ),
+      id = 'submitmoreopts'
+  ) -%]
+
 
   [%- IF journal.is_iplogging -%]
     <div class='de'>[%- '/talkpost.bml.logyourip' | ml -%]</div>

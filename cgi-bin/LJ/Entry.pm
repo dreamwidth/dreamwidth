@@ -643,9 +643,13 @@ sub set_talkdata {
 }
 
 sub reply_count {
-    my $self = $_[0];
-    my $rc = $self->prop('replycount');
-    return $rc if defined $rc;
+    my ( $self, %opts ) = @_;
+
+    unless ( $opts{force_lookup} ) {
+        my $rc = $self->prop( 'replycount' );
+        return $rc if defined $rc;
+    }
+
     return LJ::Talk::get_replycount($self->journal, $self->jitemid);
 }
 

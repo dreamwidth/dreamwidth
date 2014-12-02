@@ -53,6 +53,8 @@ collapsible.collapsed=Expand
 
 collapsible.expanded=Collapse
 
+comment.rpc.posted=Your comment has been posted.
+
 contentflag.viewingconcepts.bycommunity=You are about to view content that a community administrator has advised should be viewed with discretion.
 
 contentflag.viewingconcepts.byjournal=You're about to view content which the journal owner has advised should be viewed with discretion.

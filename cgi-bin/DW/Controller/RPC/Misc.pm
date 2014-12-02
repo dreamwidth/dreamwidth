@@ -18,10 +18,12 @@ package DW::Controller::RPC::Misc;
 use strict;
 use LJ::JSON;
 use DW::Routing;
+use DW::Controller;
 
 DW::Routing->register_rpc( "contentfilters", \&contentfilters_handler, format => 'json' );
 DW::Routing->register_rpc( "extacct_auth", \&extacct_auth_handler, format => 'json' );
 DW::Routing->register_rpc( "general", \&general_handler, format => 'json' );
+DW::Routing->register_rpc( "addcomment", \&addcomment_handler, format => 'json', methods => { POST => 1 } );
 
 sub contentfilters_handler {
     my $r = DW::Request->get;
@@ -272,6 +274,47 @@ sub general_handler {
     }
 
     return DW::RPC->out( %ret );
+}
+
+sub addcomment_handler {
+    my $remote = LJ::get_remote();
+    my $r = DW::Request->get;
+    my $post = $r->post_args;
+
+    return DW::RPC->err( LJ::Lang::ml( 'error.invalidform' ) )
+        if $r->did_post && ! LJ::check_form_auth( $post->{lj_form_auth} );
+
+    # build the comment
+    my $req = {
+        ver      => 1,
+
+        username => $remote->username,
+        journal  => $post->{journal},
+        ditemid  => $post->{itemid},
+        parent   => $post->{parenttalkid},
+
+        body     => $post->{body},
+        subject  => $post->{subject},
+        prop_picture_keyword => $post->{prop_picture_keyword},
+
+        useragent => "rpc-addcomment",
+    };
+
+    # post!
+    my $post_error;
+    LJ::Protocol::do_request( "addcomment", $req, \$post_error, { noauth => 1, nocheckcap => 1 } );
+    return DW::RPC->err( LJ::Protocol::error_message( $post_error ) ) if $post_error;
+
+    # now get the comment count
+    my $entry;
+    my $uid = LJ::get_userid( $post->{journal} );
+    $entry = LJ::Entry->new( $uid, ditemid => $post->{itemid} ) if $uid;
+    $entry = undef unless $entry && $entry->valid;
+
+    my $count;
+    $count = $entry->reply_count( force_lookup => 1 ) if $entry;
+
+    return DW::RPC->out( message => LJ::Lang::ml( 'comment.rpc.posted' ), count => $count );
 }
 
 1;

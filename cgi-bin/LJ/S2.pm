@@ -3680,7 +3680,7 @@ sub _print_reply_container
 
     $class = $class ? "class=\"$class\"" : "";
 
-    $S2::pout->("<div $class id=\"ljqrt$target\" style=\"display: none;\"></div>");
+    $S2::pout->("<div $class id=\"ljqrt$target\" data-quickreply-container=\"$target\" style=\"display: none;\"></div>");
 
     # unless we've already inserted the big qrdiv ugliness, do it.
     unless ($ctx->[S2::SCRATCH]->{'quickreply_printed_div'}++) {

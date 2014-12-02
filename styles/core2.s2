@@ -5546,11 +5546,11 @@ function Entry::print_interaction_links(string target)
             "</ul>";
         }
     } elseif ($p.view == "read") {
-      $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
+        $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
     } else {
-            $this.comments->print();
-        }
+        $this.comments->print();
     }
+}
 
 ### RecentPage and related functions
 
@@ -6138,7 +6138,7 @@ function CommentInfo::print_postlink() {
 }
 function CommentInfo::print(Entry e, string{} opts) {
   var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
-  """<ul class="entry-interaction-links$display_type">\n""";
+  """<ul class="entry-interaction-links$display_type" data-quickreply-target="$opts{"target"}">\n""";
   """<li class="entry-permalink first-item"><a href="$.permalink_url">$*text_permalink</a></li>\n""";
   if ($.show_readlink) {
       """<li class="entry-readlink">""";

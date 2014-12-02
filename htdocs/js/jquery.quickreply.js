@@ -19,7 +19,12 @@ function update(data,widget) {
         data.dtid = 0;
         $("#journal").val(targetParts[1]);
         $("#itemid").val(targetParts[2]);
+        $("#basepath").val(document.location.protocol + "//" +
+                            targetParts[1].replace("_", "-") + "." + Site.user_domain +
+                            "/" + targetParts[2] + ".html?");
+        data.stayOnPage = true;
     }
+    $("#qrform").data("stayOnPage", data.stayOnPage);
 
     $("#parenttalkid, #replyto").val(data.pid);
     $("#dtid").val(data.dtid);
@@ -50,8 +55,9 @@ function update(data,widget) {
 
 $.widget("dw.quickreply", {
     options: {
-        dtid: undefined,
         target: undefined,
+        stayOnPage: false,
+        dtid: undefined,
         pid: undefined,
         subject: undefined
     },
@@ -79,16 +85,56 @@ jQuery(document).ready(function($) {
     function submitform(e) {
         e.preventDefault();
         e.stopPropagation();
+        var $form = $("#qrform");
 
-        $("#submitmoreopts, #submitpview, #submitpost").prop("disabled", true);
+        if ($form.data("stayOnPage")) {
+            $("#submitpost").ajaxtip() // init
+            .ajaxtip( "load", {
+                endpoint: "addcomment",
 
-        var dtid = $("#dtid");
-        if ( ! Number(dtid.val()) )
-            dtid.val("0");
+                ajax: {
+                    type: "POST",
 
-        $("#qrform")
-            .attr("action", Site.siteroot + "/talkpost_do" )
-            .submit();
+                    data: $form.serialize(),
+
+                    success: function( data, status, jqxhr ) {
+                        if ( data.error ) {
+                            $("#submitpost").ajaxtip( "error", data.error )
+                        } else {
+                            var $container = $("#qrdiv").parent();
+                            var $readLink = $("[data-quickreply-target='" + $container.data("quickreply-container") + "'] .entry-readlink a");
+                            $container
+                                .slideUp(function() {
+                                    // reset form
+                                    $("#subject").val("");
+                                    $("#body").val("");
+                                    var $iconSelect = $("#prop_picture_keyword");
+                                    if ( $iconSelect.length > 0 ) {
+                                        $iconSelect.get(0).selectedIndex = 0;
+                                        $iconSelect.trigger("change");
+                                    }
+
+                                    $readLink
+                                        .ajaxtip() // init
+                                        .ajaxtip("success", data.message) // success message
+                                        .text($readLink.text().replace(/\d+/, data.count)) // replace count
+                                });
+
+                        }
+                    }
+                }
+            });
+        } else {
+            $("#submitmoreopts, #submitpview, #submitpost").prop("disabled", true);
+
+            var dtid = $("#dtid");
+            if ( ! Number(dtid.val()) )
+                dtid.val("0");
+
+            $form
+                .attr("action", Site.siteroot + "/talkpost_do" )
+                .submit();
+        }
     }
 
     $("#submitpview").live("click", function(e){
