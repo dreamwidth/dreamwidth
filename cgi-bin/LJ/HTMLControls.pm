@@ -49,6 +49,7 @@ sub html_datetime
                                  defined $5 && $5 > 0 ? $5   : "",
                                  defined $6 && $6 > 0 ? $6   : "" );
     }
+
     $ret .= html_select( { name => "${name}_mm",
                            id => "${id}_mm",
                            selected => $mm,

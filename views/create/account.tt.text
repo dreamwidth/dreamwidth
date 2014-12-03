@@ -1,0 +1,33 @@
+.btn= Create Account
+
+.field.birthdate=Birthdate (month-dd-yyyy)
+
+.field.confirmpassword=Confirm Password
+
+.field.email=Email Address
+
+.field.news=Yes, email me [[sitename]] announcements.
+
+.field.paidaccount=<strong>Note:</strong> This account will be a [[type]] for [[nummonths]] [[?nummonths|month|months]].
+
+.field.paidaccount.permanent=<strong>Note:</strong> This account will be a [[type]].
+
+.field.password=Password
+
+.field.tos=I've read and agree to [[sitename]]'s <a [[aopts1]]>Terms of Service</a> and <a [[aopts2]]>Privacy Policy</a>.
+
+.field.username=Account Name
+
+.section.account=Your Account Details
+
+.section.captcha=Anti-spam Measure
+
+.tip.birthdate=This information is required by law. You must enter your real birthdate. You can change it after you've created your account. We display only the month and day by default.
+
+.tip.email=We need your email address to send you important information. We'll never give your email address to anyone else.
+
+.tip.password=Choose a secure password that's between 6 and 30 characters long with at least 4 unique characters and one non-letter character (digit or symbol). Passwords can't be based on your account name, your real name, or your email address for security reasons.
+
+.tip.username=Use lower-case letters (a-z), digits (0-9), and underscores (_), and choose a name between 2 and 25 characters long. You can't start or end your account name with an underscore, nor have two consecutive underscores.
+
+.title=Create Your [[sitename]] Account

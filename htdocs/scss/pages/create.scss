@@ -1,0 +1,42 @@
+@import "foundation/base", "foundation/components/forms";
+
+$include-html-tooltip-classes: true;
+@import "foundation/components/tooltips";
+
+.progress-meter {
+    counter-reset: step;
+    margin-left: 0;
+    padding-left: 0;
+    overflow: hidden;
+    margin-bottom: $form-spacing;
+
+    & > li {
+        list-style: none;
+        margin-right: 1em;
+        float: left;
+
+        &:before {
+            content: counter(step);
+            counter-increment: step;
+            display: inline-block;
+            padding: 0 .5em;
+            margin-right: .25em;
+        }
+    }
+}
+
+.tooltip {
+    font-size: small;
+    max-width: none;
+    left: 0;
+
+    &.tip-right >.nub {
+        top: $form-spacing;
+    }
+}
+
+@media #{$medium-up} {
+    .tooltip {
+        margin-top: $form-spacing * 1.5;
+    }
+}

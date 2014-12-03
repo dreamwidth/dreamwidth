@@ -4696,8 +4696,6 @@ widget.communitymanagement.pending.member=[[num]] [[?num|member|members]]
 
 widget.communitymanagement.title=Community Management
 
-widget.createaccount.btn=Create Account
-
 widget.createaccount.error.birthdate.invalid=You must enter a valid birthdate.
 
 widget.createaccount.error.birthdate.underage=You must be over 13 to create an account.
@@ -4712,7 +4710,7 @@ widget.createaccount.error.list=Errors in form:
 
 widget.createaccount.error.password.asciionly=You can only use ASCII symbols in the password.
 
-widget.createaccount.error.password.bad=Bad password:
+widget.createaccount.error.password.bad2=Bad password: [[reason]]
 
 widget.createaccount.error.password.blank=You must enter a password.
 
@@ -4743,46 +4741,6 @@ widget.createaccount.error.username.invalid=Sorry, you can't use that username. 
 widget.createaccount.error.username.mustenter=You must enter an account name.
 
 widget.createaccount.error.username.purged=That account name has been deleted and purged. At the moment, you can't register it. (We'll be changing that soon.)
-
-widget.createaccount.field.birthdate=Birthdate (month-dd-yyyy):
-
-widget.createaccount.field.captcha.hear=Type the numbers you hear:
-
-widget.createaccount.field.captcha.play=Play the sound
-
-widget.createaccount.field.captcha.visual=Type the letters and numbers seen above:
-
-widget.createaccount.field.captcha2=Anti-spam measure:
-
-widget.createaccount.field.confirmpassword=Confirm Password:
-
-widget.createaccount.field.email=Email Address:
-
-widget.createaccount.field.news=Yes, email me [[sitename]] announcements.
-
-widget.createaccount.field.paidaccount=<strong>Note:</strong> This account will be a [[type]] for [[nummonths]] [[?nummonths|month|months]].
-
-widget.createaccount.field.paidaccount.permanent=<strong>Note:</strong> This account will be a [[type]].
-
-widget.createaccount.field.password=Password:
-
-widget.createaccount.field.tos=I've read and agree to [[sitename]]'s <a [[aopts1]]>Terms of Service</a> and <a [[aopts2]]>Privacy Policy</a>.
-
-widget.createaccount.field.username=Account name:
-
-widget.createaccount.field.username.available=This account name is available
-
-widget.createaccount.tip.birthdate=Required by law. No worries, you can set privacy on this after you're done creating an account.
-
-widget.createaccount.tip.birthdate2=This information is required by law. You must enter your real birthdate. You can change it after you've created your account. We display only the month and day by default.
-
-widget.createaccount.tip.captcha=If you can't read the text, type "audio" to take a sound test instead.
-
-widget.createaccount.tip.email=We need your email address to send you important information. We'll never give your email address to anyone else.
-
-widget.createaccount.tip.password2=Choose a secure password that's between 6 and 30 characters long with at least 4 unique characters and one non-letter character (digit or symbol). Passwords can't be based on your account name, your real name, or your email address for security reasons.
-
-widget.createaccount.tip.username=Your account name is used in your journal URL. Use lower-case letters (a-z), digits (0-9), and underscores (_), and choose a name between 2 and 25 characters long. You can't start or end your account name with an underscore, nor have two consecutive underscores.
 
 widget.createaccountentercode.btn.proceed=Proceed.
 

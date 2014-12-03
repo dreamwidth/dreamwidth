@@ -28,7 +28,7 @@ sub verify_username {
     my $user = LJ::canonical_username($given_username);
 
     unless ($given_username) {
-        $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.mustenter');
+        $error = LJ::Lang::ml('widget.createaccount.error.username.mustenter');
     }
     if ($given_username && !$user) {
         $error = LJ::Lang::ml('error.usernameinvalid');
@@ -46,7 +46,7 @@ sub verify_username {
 
     # do not create if this account name is purged
     if ($u && $u->is_expunged) {
-        $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.purged', { aopts => "href='$LJ::SITEROOT/rename/'" });
+        $error = LJ::Lang::ml('widget.createaccount.error.username.purged', { aopts => "href='$LJ::SITEROOT/rename/'" });
     } elsif ($u) {
         $in_use = 1;
 
@@ -71,10 +71,10 @@ sub verify_username {
     }
 
     # don't allow protected usernames
-    $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.invalid')
+    $error = LJ::Lang::ml('widget.createaccount.error.username.invalid')
         if LJ::User->is_protected_username( $user );
 
-    $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.inuse') if $in_use;
+    $error = LJ::Lang::ml('widget.createaccount.error.username.inuse') if $in_use;
 
     return $error;
 }
@@ -100,47 +100,47 @@ sub verify_password {
     $name = $opts{name} if $opts{name};
 
     # password must exist
-    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.blank' )
+    return LJ::Lang::ml( 'widget.createaccount.error.password.blank' )
         unless $password;
 
     # at least 6 characters
-    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.tooshort' )
+    return LJ::Lang::ml( 'widget.createaccount.error.password.tooshort' )
         if length $password < 6;
 
     # no more than 30 characters
-    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.toolong' )
+    return LJ::Lang::ml( 'widget.createaccount.error.password.toolong' )
         if length $password > 30;
 
     # only ascii characters
-    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.asciionly' )
+    return LJ::Lang::ml( 'widget.createaccount.error.password.asciionly' )
         unless LJ::is_ascii( $password );
 
     # not the same as the username or the reversed username
     if ( $username ) {
-        return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.likeusername' )
+        return LJ::Lang::ml( 'widget.createaccount.error.password.likeusername' )
             if lc $password eq lc $username || lc $password eq lc reverse $username;
     }
 
     # not the same as either part of the email address
     if ( $email ) {
         $email =~ /^(.+)@(.+)\./;
-        return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.likeemail' )
+        return LJ::Lang::ml( 'widget.createaccount.error.password.likeemail' )
             if lc $password eq lc $1 || lc $password eq lc $2;
     }
 
     # not the same as the displayed name or the reversed displayed name
     if ( $name ) {
-        return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.likename' )
+        return LJ::Lang::ml( 'widget.createaccount.error.password.likename' )
             if lc $password eq lc $name || lc $password eq lc reverse $name;
     }
 
     # at least 4 unique characters
     my %unique_chars = map { $_ => 1 } split( //, $password );
-    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.needsmoreuniquechars' )
+    return LJ::Lang::ml( 'widget.createaccount.error.password.needsmoreuniquechars' )
         unless scalar keys %unique_chars >= 4;
 
     # contains at least one digit or symbol
-    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.needsnonletter' )
+    return LJ::Lang::ml( 'widget.createaccount.error.password.needsnonletter' )
         if $password =~ /^[A-Za-z]+$/;
 
     # isn't similar to a common password
@@ -150,7 +150,7 @@ sub verify_password {
         # than the sum of the common password's length plus the ceiling of half of its length
         next if length $password > ( ( length $comm_pass ) + POSIX::ceil( ( length $comm_pass ) / 2 ) );
 
-        return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.common' )
+        return LJ::Lang::ml( 'widget.createaccount.error.password.common' )
             if $password =~ /$comm_pass/i;
     }
 
