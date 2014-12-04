@@ -37,18 +37,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </form>
 </div></div>
 
-<!--
+<div class="row"><div class="columns">
+    [% 'widget.createaccountentercode.getcode' | ml %]
 
-    $ret .= "<p style='margin-top: 10px;'>";
+    [%- IF payments_enabled -%]
+        [% 'widget.createaccountentercode.pay2' | ml( aopts = "href='$site.root/shop/account?for=new'", sitename = site.nameshort ) %]
+    [%- END -%]
 
-    $ret .= $class->ml( 'widget.createaccountentercode.getcode' );
-    if ( LJ::is_enabled( 'payments' ) ) {
-        $ret .= " " . $class->ml( 'widget.createaccountentercode.pay2', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'", sitename => $LJ::SITENAMESHORT } );
-    }
-    my $remote = LJ::get_remote();
-    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/communities/new'" } );
-    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout2', { aopts => "href='$LJ::SITEROOT/communities/new'" } ) unless $remote;
+    [% 'widget.createaccountentercode.comm' | ml( aopts = "href='$site.root/communities/new'" ) %]
 
-    $ret .= "</p>";
-
-    return $ret; -->
+    [%- IF logged_out -%]
+        [% 'widget.createaccountentercode.comm.loggedout2' | ml( aopts = "href='$site.root/communities/new'") %]
+    [%- END -%]
+</div></div>

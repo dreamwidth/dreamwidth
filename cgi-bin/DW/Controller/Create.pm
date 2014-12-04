@@ -322,6 +322,9 @@ sub create_handler {
         # also check for the presence of a code (if we reach this point with a code, code should be invalid...)
         $errors->add( 'code', 'widget.createaccountentercode.error.invalidcode' ) if $code && ! $code_valid;
 
+        $vars->{payments_enabled} = LJ::is_enabled( 'payments' );
+        $vars->{logged_out} = $rv->{remote} ? 0 : 1;
+
         $vars->{formdata} ||= {
             code => $vars->{code},
             from => $vars->{from},
