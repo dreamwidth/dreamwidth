@@ -4766,9 +4766,9 @@ widget.createaccountinviter.addcomms.note.mm=[[user]] is an administrator of thi
 
 widget.createaccountinviter.addcomms.note.moderated=This community has moderated membership; you'll have to wait for an administrator to approve your membership.
 
-widget.createaccountinviter.addinviter.trust=Add [[user]] to your Access List.
+widget.createaccountinviter.addinviter.trust2=Add [[user]] to your Access List
 
-widget.createaccountinviter.addinviter.watch=Add [[user]] to your subscriptions.
+widget.createaccountinviter.addinviter.watch2=Add [[user]] to your subscriptions
 
 widget.createaccountinviter.title=Manage Your Circle
 

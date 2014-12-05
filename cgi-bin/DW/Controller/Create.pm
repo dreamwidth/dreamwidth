@@ -445,6 +445,37 @@ sub setup_handler {
         $errors->add( 'bio', '/manage/profile/index.bml.error.bio.toolong' ) if length $post->{bio} >= LJ::BMAX_BIO;
         LJ::EmbedModule->parse_module_embed( $u, \$post->{bio} );
 
+
+        # inviter / communities
+        ## trust
+        if ( $post->{inviter_trust} ) {
+            my $trust_u = LJ::load_userid( $post->{inviter_trust} );
+            $u->add_edge( $trust_u, trust => {} )
+                if LJ::isu( $trust_u ) && ! $u->trusts( $trust_u );
+        }
+
+        if ( $post->{inviter_watch} ) {
+            my $watch_u = LJ::load_userid( $post->{inviter_watch} );
+            $u->add_edge( $watch_u, watch => {} )
+                if LJ::isu( $watch_u ) && ! $u->watches( $watch_u );
+        }
+
+        my @comm_ids = $post->get_all( 'inviter_join' );
+        foreach my $comm_id ( @comm_ids ) {
+            my $join_u = LJ::load_userid( $comm_id );
+
+            if ( LJ::isu( $join_u ) && ! $u->member_of( $join_u ) ) {
+                # try to join the community
+                # if it fails and the community's moderated, send a join request and watch it
+                unless ( $u->join_community( $join_u, 1 ) ) {
+                    if ( $join_u->is_moderated_membership ) {
+                        $join_u->comm_join_request( $u );
+                        $u->add_edge( $join_u, watch => {} );
+                    }
+                }
+            }
+        }
+
         unless ( $errors->exist ) {
             # name
             $u->update_self( { name => $post->{name} } );
@@ -468,7 +499,6 @@ sub setup_handler {
                 if LJ::is_enabled( 'payments' ) && !$remote->is_paid;
 
             return $r->redirect( LJ::create_url( "/create/confirm" ) );
-
         }
 
     }
@@ -481,10 +511,46 @@ sub setup_handler {
     # location
     $u->preload_props( @location_props );
 
+    my $inviter;
+    my $inviter_u = $u->who_invited;
+    my %inviter_form_defaults;
+    if ( $inviter_u ) {
+        my %comms = $inviter_u->is_individual
+            ? $inviter_u->relevant_communities
+            : ( $inviter_u->id => { u => $inviter_u, istatus => 'normal' } );
+
+        my @comms = map { id => $_, %{$comms{$_}} },
+            sort { $comms{$a}->{u}->display_username cmp $comms{$b}->{u}->display_username }
+            keys %comms;
+
+        $inviter = {
+            user            => $inviter_u->user,
+            id              => $inviter_u->id,
+            ljuser_display  => $inviter_u->ljuser_display,
+
+            # if inviter was a community, then it came from a promo code
+            from_promo      => $inviter_u->is_individual ? 0 : 1,
+
+            comms           => \@comms,
+
+            can_add_watch   => $u->can_watch( $inviter_u ),
+            can_add_trust   => $u->can_trust( $inviter_u ),
+        };
+
+        %inviter_form_defaults = (
+            inviter_watch => $inviter_u->id,
+            inviter_trust => $inviter_u->id,
+
+            inviter_join  => $inviter_u->is_community ? $inviter_u->id : undef,
+        );
+    }
+
     my $step = 2;
     my $vars = {
         steps_to_show   => [ steps_to_show( $step ) ],
         step            => $step,
+
+        inviter         => $inviter,
 
         form_url        => LJ::create_url(),
         gender_list     => [
@@ -515,6 +581,8 @@ sub setup_handler {
                             statedrop   => $u->prop( 'state' ) || "",
                             stateother  => $u->prop( 'state' ) || "",
                             city    => $u->prop( 'city' ) || "",
+
+                            %inviter_form_defaults,
                         },
         errors          => $errors,
     };

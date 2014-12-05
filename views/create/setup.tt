@@ -88,6 +88,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div></div>
 </fieldset>
 
+[%- INCLUDE create/inviter.tt inviter = inviter -%]
+
 <div class="row"><div class="columns">
     [%- form.submit( value = dw.ml( '.btn.next' ) ) -%]
 </div></div>
