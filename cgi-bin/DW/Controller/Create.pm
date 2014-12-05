@@ -15,9 +15,10 @@
 #
 #
 # Authors:
+#      Janine Smith <janine@netrophic.com>
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2014 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2014 by Dreamwidth Studios, LLC.
 
 package DW::Controller::Create;
 
@@ -26,6 +27,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
+use LJ::Widget::Location;
 
 =head1 NAME
 
@@ -34,6 +36,7 @@ DW::Controller::Create - Account creation flow
 =cut
 
 DW::Routing->register_string( "/create", \&create_handler, app => 1, prefer_ssl => 1 );
+DW::Routing->register_string( "/create/setup", \&setup_handler, app => 1 );
 
 DW::Routing->register_redirect( "/create/", "/create", app => 1 );
 
@@ -269,7 +272,7 @@ sub create_handler {
 
     my $step = 1;
     my $vars = {
-        steps_to_show   => [ steps_to_show( $code, $step ) ],
+        steps_to_show   => [ steps_to_show( $step, code => $code ) ],
         step            => $step,
 
         form_url        => LJ::create_url( undef, keep_args => [ qw( user from code ) ] ),
@@ -334,9 +337,206 @@ sub create_handler {
     }
 }
 
-sub steps_to_show {
-    my ( $code, $given_step ) = @_;
+sub setup_handler {
+    my ( $opts ) = @_;
+
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $remote = $rv->{remote};
     my $u = LJ::get_effective_remote();
+    my $post;
+
+    return $r->redirect( LJ::create_url( "/" ) ) unless $remote->is_personal;
+
+    my @location_props = qw/ country state city /;
+    my $errors = DW::FormErrors->new;
+    if ( $r->did_post ) {
+        $post = $r->post_args;
+
+        # name
+        $errors->add( 'name', '/manage/profile/index.bml.error.noname' )
+            unless LJ::trim( $post->{name}) || defined $post->{name_absent};
+
+        $errors->add( 'name', '/manage/profile/index.bml.error.name.toolong' )
+            if length $post->{name} > 80;
+
+        $post->{name} =~ s/[\n\r]//g;
+        $post->{name} = LJ::text_trim( $post->{name}, LJ::BMAX_NAME, LJ::CMAX_NAME );
+
+
+        # gender
+        $post->{gender} = 'U' unless $post->{gender} =~ m/^[UMFO]$/;
+
+
+        # location
+        my $state_from_dropdown = LJ::Lang::ml( 'states.head.defined' );
+        $post->{stateother} = "" if $post->{stateother} eq $state_from_dropdown;
+
+        my %countries;
+        DW::Countries->load( \%countries );
+
+        my $regions_cfg = LJ::Widget::Location->country_regions_cfg( $post->{country} );
+        if ( $regions_cfg && $post->{stateother} ) {
+            $errors->add( 'statedrop', 'widget.location.error.locale.country_ne_state' );
+        } elsif ( !$regions_cfg && $post->{statedrop} ) {
+            $errors->add( 'stateother', 'widget.location.error.locale.state_ne_country' );
+        }
+
+        if ( $post->{country} && ! defined $countries{$post->{country}} ) {
+            $errors->add( 'country', 'widget.location.error.locale.invalid_country' );
+        }
+
+        # check if specified country has states
+        if ( $regions_cfg ) {
+            # if it is - use region select dropbox
+            $post->{state} = $post->{statedrop};
+
+            # mind save_region_code also
+            unless ( $regions_cfg->{save_region_code} ) {
+                # save region name instead of code
+                my $regions_arrayref = LJ::Widget::Location->region_options( $regions_cfg );
+                my %regions_as_hash = @$regions_arrayref;
+                $post->{state} = $regions_as_hash{$post->{state}};
+            }
+        } else {
+            # use state input box
+            $post->{state} = $post->{stateother};
+        }
+
+
+        # interests
+        my @interests_strings = (
+                $post->{interests_music},
+                $post->{interests_moviestv},
+                $post->{interests_books},
+                $post->{interests_hobbies},
+                $post->{interests_other},
+            );
+        my @ints = LJ::interest_string_to_list( join ", ", @interests_strings );
+
+        # count interests
+        my $intcount = scalar @ints;
+        my $maxinterests = $u->count_max_interests;
+
+        $errors->add( 'interests', 'error.interest.excessive2', { intcount => $intcount, maxinterests => $maxinterests } )
+            if $intcount > $maxinterests;
+
+        # clean interests, and make sure they're valid
+        my @interrors;
+        my @valid_ints = LJ::validate_interest_list( \@interrors, @ints );
+        if ( @interrors > 0 ) {
+            for my $err ( @interrors ) {
+                $errors->add( 'interests', $err->[0], {
+                                words => $err->[1]{words},
+                                words_max => $err->[1]{words_max},
+                                'int' => $err->[1]{int},
+                                bytes => $err->[1]{bytes},
+                                bytes_max => $err->[1]{bytes_max},
+                                chars => $err->[1]{chars},
+                                chars_max => $err->[1]{chars_max},
+                        } );
+            }
+        }
+
+
+        # bio
+        $errors->add( 'bio', '/manage/profile/index.bml.error.bio.toolong' ) if length $post->{bio} >= LJ::BMAX_BIO;
+        LJ::EmbedModule->parse_module_embed( $u, \$post->{bio} );
+
+        unless ( $errors->exist ) {
+            # name
+            $u->update_self( { name => $post->{name} } );
+
+            # gender
+            $u->set_prop( 'gender', $post->{gender} );
+
+            # location
+            $u->set_prop( $_, $post->{$_} ) foreach @location_props;
+
+            # interests
+            $u->set_interests( \@valid_ints );
+
+            # bio
+            $u->set_bio( $post->{bio}, $post->{bio_absent} );
+
+            $u->invalidate_directory_record;
+
+            # now go to the next page
+            return $r->redirect( LJ::create_url( "/create/upgrade" ) )
+                if LJ::is_enabled( 'payments' ) && !$remote->is_paid;
+
+            return $r->redirect( LJ::create_url( "/create/confirm" ) );
+
+        }
+
+    }
+
+    my @current_interests;
+    foreach ( sort keys %{$u->interests} ) {
+        push @current_interests, $_ if LJ::text_in( $_ );
+    }
+
+    # location
+    $u->preload_props( @location_props );
+
+    my $step = 2;
+    my $vars = {
+        steps_to_show   => [ steps_to_show( $step ) ],
+        step            => $step,
+
+        form_url        => LJ::create_url(),
+        gender_list     => [
+                            F => LJ::Lang::ml( '/manage/profile/index.bml.gender.female' ),
+                            M => LJ::Lang::ml( '/manage/profile/index.bml.gender.male' ),
+                            O => LJ::Lang::ml( '/manage/profile/index.bml.gender.other' ),
+                            U => LJ::Lang::ml( '/manage/profile/index.bml.gender.unspecified' ),
+                        ],
+        interests       => \@current_interests,
+
+        country_list    => LJ::Widget::Location->country_options,
+        state_list      => undef, # set later
+        countries_with_regions => join( " ", LJ::Widget::Location->countries_with_regions ) || "",
+
+
+        is_utf8         => {
+                            name => LJ::text_in( $u->name_orig ),
+                            bio  => LJ::text_in( $u->bio ),
+                        },
+
+        formdata        => $post || {
+                            name    => $u->name_orig || "",
+                            gender  => $u->prop( 'gender' ) || 'U',
+                            interests_other => join( ", ", @current_interests ) || "",
+                            bio     => $u->bio || "",
+
+                            country     => $u->prop( 'country' ) || "",
+                            statedrop   => $u->prop( 'state' ) || "",
+                            stateother  => $u->prop( 'state' ) || "",
+                            city    => $u->prop( 'city' ) || "",
+                        },
+        errors          => $errors,
+    };
+
+    # clean bio and expand for editing
+    my $bio = \$vars->{formdata}->{bio};
+    LJ::EmbedModule->parse_module_embed( $u, $bio, edit => 1 );
+    LJ::text_out( $bio, "force" );
+
+    # populate specified country with state information (if any)
+    # first check if specified country has regions
+    my $regions_cfg = LJ::Widget::Location->country_regions_cfg( $vars->{formdata}->{country} );
+    # hashref of all regions for the specified country; it is initialized and used only if $regions_cfg is defined, i.e. the country has regions (states)
+    $vars->{state_list} = LJ::Widget::Location->region_options( $regions_cfg ) if $regions_cfg;
+
+    return DW::Template->render_template( 'create/setup.tt', $vars );
+}
+
+sub steps_to_show {
+    my ( $given_step, %opts ) = @_;
+    my $u = LJ::get_effective_remote();
+    my $code = $opts{code};
 
     return ! LJ::is_enabled( 'payments' )
             || ( $LJ::USE_ACCT_CODES && $given_step == 1 && !DW::InviteCodes::Promo->is_promo_code( code => $code ) && DW::InviteCodes->paid_status( code => $code ) )

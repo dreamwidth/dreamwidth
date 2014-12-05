@@ -4786,7 +4786,9 @@ widget.createaccountnextsteps.steps.userpics=Upload icons
 
 widget.createaccountnextsteps.title=What's Next?
 
-widget.createaccountprofile.field.bio=Tell us a little (or a lot) about yourself:
+widget.createaccountprofile.field.bio.note=Bio
+
+widget.createaccountprofile.field.bio2=Tell us a little (or a lot) about yourself
 
 widget.createaccountprofile.field.gender=For statistical purposes, please provide your gender. (It will not be publicly displayed.)
 
@@ -4814,7 +4816,7 @@ widget.createaccountprofile.field.name=Name
 
 widget.createaccountprofile.info=You can tell other people about yourself here.  All fields are optional.
 
-widget.createaccountprofile.title=Start Creating Your Profile
+widget.createaccountprofile.title2=Start creating your profile
 
 widget.createaccountprogressmeter.step1=Create Account
 

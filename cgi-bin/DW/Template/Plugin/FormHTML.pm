@@ -255,9 +255,15 @@ sub select {
     $args->{class} ||= "select";
     $args->{id} ||= $self->generate_id( $args );
 
+    my $errors = $self->_process_errors( $args );
+    my $hint = $self->_process_hint( $args );
+
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, use_as_value => "selected" );
     $ret .= LJ::html_select( $args, @{$items || []} );
+
+    $ret .= $errors;
+    $ret .= $hint;
 
     return $ret;
 }
@@ -290,9 +296,15 @@ sub textarea {
     $args->{class} ||= "text";
     $args->{id} ||= $self->generate_id( $args );
 
+    my $errors = $self->_process_errors( $args );
+    my $hint = $self->_process_hint( $args );
+
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args );
     $ret .= LJ::html_textarea( $args );
+
+    $ret .= $errors;
+    $ret .= $hint;
 
     return $ret;
 }
@@ -308,29 +320,19 @@ are prepopulated by the plugin's datasource.
 sub textbox {
     my ( $self, $args ) = @_;
 
-    my $hint = delete $args->{hint};
-    my $describedby;
-    if ( $hint ) {
-        $describedby = $args->{id} ? "$args->{id}-hint" : "";
-        $args->{"aria-describedby"} = $describedby;
-    }
-
-    my @errors;
-    @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
 
     $args->{class} ||= "text";
-    $args->{class} .= " error" if @errors;
     $args->{id} ||= $self->generate_id( $args );
+
+    my $hint = $self->_process_hint( $args );
+    my $errors = $self->_process_errors( $args );
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args );
     $ret .= LJ::html_text( $args );
 
-    foreach my $error ( @errors ) {
-        $ret .= qq!<small class="error">$error->{message}</small>!;
-    }
-
-    $ret .= qq{<span class="form-hint" id='$describedby'>$hint</span>} if $hint;
+    $ret .= $errors;
+    $ret .= $hint;
 
     return $ret;
 }
@@ -343,21 +345,19 @@ Return a password field with a matching label, if provided. Values are never pre
 sub password {
     my ( $self, $args ) = @_;
 
-    my @errors;
-    @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
-
     $args->{type} = "password";
     $args->{class} ||= "text";
-    $args->{class} .= " error" if @errors;
     $args->{id} ||= $self->generate_id( $args );
+
+    my $hint = $self->_process_hint( $args );
+    my $errors = $self->_process_errors( $args );
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, noautofill => 1 );
     $ret .= LJ::html_text( $args );
 
-    foreach my $error ( @errors ) {
-        $ret .= qq!<small class="error">$error->{message}</small>!;
-    }
+    $ret .= $errors;
+    $ret .= $hint;
 
     return $ret;
 
@@ -398,6 +398,34 @@ sub _process_value_and_label {
         if defined $label;
 
     return $label_html || "";
+}
+
+sub _process_hint {
+    my ( $self, $args ) = @_;
+
+    my $hint = delete $args->{hint};
+    my $describedby;
+    if ( $hint ) {
+        $describedby = $args->{id} ? "$args->{id}-hint" : "";
+        $args->{"aria-describedby"} = $describedby;
+    }
+
+    return $hint ? qq{<span class="form-hint" id='$describedby'>$hint</span>} : "";
+}
+
+sub _process_errors {
+    my ( $self, $args ) = @_;
+
+    my @errors;
+    @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
+
+    $args->{class} .= " error" if @errors;
+
+    my $ret = "";
+    foreach my $error ( @errors ) {
+        $ret .= qq!<small class="error">$error->{message}</small>!;
+    }
+    return $ret;
 }
 
 =head1 AUTHOR

@@ -1,0 +1,9 @@
+.state-field {
+    .state-drop { display: none }
+    .state-other { display: block;}
+
+    &.has-state-options {
+        .state-drop { display: block; }
+        .state-other { display: none; }
+    }
+}

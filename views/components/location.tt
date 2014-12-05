@@ -1,0 +1,49 @@
+[%# Allow the user to set their location
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- dw.need_res( { group = "foundation"}
+        "js/components/jquery.location.js"
+        "stc/css/components/location.css"
+) -%]
+<div class="row" data-country-regions="[%- countries_with_regions -%]"><div class="columns">
+<div class="row"><div class="columns">
+    [%- form.select(
+        label = dw.ml( '.field.country' ),
+
+        name = 'country'
+
+        items = country_list
+    ) -%]
+</div></div>
+
+<div class="row state-field [%- state_list.defined ? " has-state-options" : "" -%]">
+<div class="columns medium-6 state-drop">
+    [%- form.select(
+        label = dw.ml( '.field.state' )
+        name = 'statedrop'
+
+        items = state_list
+    ) -%]
+</div>
+<div class="columns medium-6 state-other">
+    [%- form.textbox(
+        label = dw.ml( '.field.state' )
+        name = 'stateother'
+    ) -%]
+</div>
+
+<div class="columns medium-6">
+    [%- form.textbox(
+        label = dw.ml( '.field.city' )
+        name = 'city'
+    ) -%]
+</div>
+</div>
+</div></div>

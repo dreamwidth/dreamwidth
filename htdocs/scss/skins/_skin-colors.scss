@@ -201,6 +201,14 @@ a.active {
         background-color: $primary-color;
         color: $primary-text-color;
     }
+
+    .finished {
+        color: $inactive-color;
+    }
+    .finished:before {
+        background-color: tint( $inactive-color, 50% );
+        color: $inactive-color;
+    }
 }
 
 // replacement colors for jquery-ui elements
