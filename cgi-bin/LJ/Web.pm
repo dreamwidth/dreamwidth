@@ -881,26 +881,23 @@ sub check_form_auth {
 # </LJFUNC>
 sub create_qr_div {
 
-    my ( $user, $ditemid, $style_opts, $userpic, $viewing_thread ) = @_;
-    my $u = LJ::want_user($user);
+    my ( $user, $ditemid, %opts ) = @_;
+    my $u = LJ::want_user( $user );
     my $remote = LJ::get_remote();
     return undef unless $u && $remote && $ditemid;
 
-    $style_opts ||= {};
-
-    my $qrhtml;
+    my $style_opts = $opts{style_opts} || {};
+    my $userpic_kw = $opts{userpic};
+    my $viewing_thread = $opts{thread};
 
     return undef if $remote->prop( "opt_no_quickreply" );
 
-    $qrhtml .= "<div id='qrformdiv'><form id='qrform' name='qrform' method='POST' action='$LJ::SITEROOT/talkpost_do'>";
-    $qrhtml .= LJ::form_auth();
-
     my $e = LJ::Entry->new( $u, ditemid => $ditemid );
     my $separator = %$style_opts ? "&" : "?";
-
     my $basepath =  $e->url( style_opts => LJ::viewing_style_opts( %$style_opts ) ) . $separator;
+
     my $usertype = ($remote->openid_identity && $remote->is_validated) ? 'openid_cookie' : 'cookieuser';
-    $qrhtml .= LJ::html_hidden({'name' => 'replyto', 'id' => 'replyto', 'value' => ''},
+    my $hidden_form_elements .= LJ::html_hidden({'name' => 'replyto', 'id' => 'replyto', 'value' => ''},
                                {'name' => 'parenttalkid', 'id' => 'parenttalkid', 'value' => ''},
                                {'name' => 'journal', 'id' => 'journal', 'value' => $u->{'user'}},
                                {'name' => 'itemid', 'id' => 'itemid', 'value' => $ditemid},
@@ -912,7 +909,7 @@ sub create_qr_div {
                                {'name' => 'viewing_thread', 'id' => 'viewing_thread', 'value' => $viewing_thread},
                                );
     while ( my ( $key, $value ) = each %$style_opts ) {
-        $qrhtml .= LJ::html_hidden( { name => $key, id => $key, value => $value } );
+        $hidden_form_elements .= LJ::html_hidden( { name => $key, id => $key, value => $value } );
     }
 
     # rate limiting challenge
@@ -920,129 +917,66 @@ sub create_qr_div {
         my ($time, $secret) = LJ::get_secret();
         my $rchars = LJ::rand_chars(20);
         my $chal = $ditemid . "-$u->{userid}-$time-$rchars";
-        my $res = Digest::MD5::md5_hex($secret . $chal);
-        $qrhtml .= LJ::html_hidden("chrp1", "$chal-$res");
+        my $res = Digest::MD5::md5_hex( $secret . $chal );
+        $hidden_form_elements .= LJ::html_hidden( "chrp1", "$chal-$res" );
     }
 
-    # Start making the div itself
-    $qrhtml .= "<table>";
-    $qrhtml .= "<tr valign='center'>";
-    $qrhtml .= "<td align='right'><b>".BML::ml('/talkpost.bml.opt.from')."</b></td><td align='left'>";
-    $qrhtml .= LJ::ljuser($remote->{'user'});
-    $qrhtml .= "</td><td align='center'>";
-
+    my @pics;
     # Userpic selector
     {
         my %res;
-        LJ::do_request({ "mode" => "login",
-                         "ver" => ($LJ::UNICODE ? "1" : "0"),
-                         "user" => $remote->{'user'},
-                         "getpickws" => 1, },
-                       \%res, { "noauth" => 1, "userid" => $remote->{'userid'}}
+        LJ::do_request({ mode => "login",
+                         ver => ($LJ::UNICODE ? "1" : "0"),
+                         user => $remote->user,
+                         getpickws => 1,
+                         getpickwurls => 1,
+                         },
+                       \%res, { noauth => 1, userid => $remote->userid }
                        );
 
-        if ($res{'pickw_count'}) {
-            $qrhtml .= BML::ml('/talkpost.bml.label.picturetouse2',
-                               {
-                                   'aopts'=>"href='" . $remote->allpics_base . "'"});
-            my @pics;
-            for (my $i=1; $i<=$res{'pickw_count'}; $i++) {
-                push @pics, $res{"pickw_$i"};
+        if ( $res{pickw_count} ) {
+            for (my $i=1; $i<= $res{pickw_count}; $i++) {
+                push @pics, [ $res{"pickw_$i"}, $res{"pickwurl_$i"} ];
             }
-            @pics = sort { lc($a) cmp lc($b) } @pics;
-            $qrhtml .= LJ::html_select({'name' => 'prop_picture_keyword',
-                                        'selected' => $userpic, 'id' => 'prop_picture_keyword' },
-                                       ("", BML::ml('/talkpost.bml.opt.defpic'), map { ($_, $_) } @pics));
-
-            # userpic browse button
-            $qrhtml .= qq {<input type="button" id="lj_userpicselect" value="Browse" />} if $remote->can_use_userpic_select;
-
-            $qrhtml .= "<input type='button' id='randomicon' value='" . BML::ml('/talkpost.bml.userpic.random2') . "' />";
-
-            $qrhtml .= LJ::help_icon_html("userpics", " ");
+            @pics = sort { lc($a->[0]) cmp lc($b->[0]) } @pics;
+            @pics = ( { value => "", text => LJ::Lang::ml('/talkpost.bml.opt.defpic' ), data => { url => $res{defaultpicurl} } },
+                    map { { value => $_->[0], text => $_->[0], data => { url => $_->[1] } } } @pics );
         }
     }
 
-    $qrhtml .= "<span id='quotebuttonspan'></span></td></tr>";
+    return DW::Template->template_string( 'journal/quickreply.tt', {
+        form_url                => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
+        hidden_form_elements    => $hidden_form_elements,
+        can_checkspell          => $LJ::SPELLER ? 1 : 0,
+        minimal                 => $opts{minimal} ? 1 : 0,
 
-    $qrhtml .= "<tr><td align='right'>";
-    $qrhtml .= "<b>".BML::ml('/talkpost.bml.opt.subject')."</b></td>";
-    $qrhtml .= "<td colspan='2' align='left'>";
-    $qrhtml .= "<input class='textbox' type='text' size='50' maxlength='100' name='subject' id='subject' value='' />";
-    $qrhtml .= "</td></tr>";
+        quote_button_js         => LJ::Talk::js_quote_button( 'body' ),
+        iconbrowser_js          => $remote->can_use_userpic_select ? LJ::Talk::js_iconbrowser_button() : "",
 
-    $qrhtml .= "<tr valign='top'>";
-    $qrhtml .= "<td align='right'><b>".BML::ml('/talkpost.bml.opt.message')."</b></td>";
-    $qrhtml .= "<td colspan='3' style='width: 90%'>";
+        current_icon_kw => $userpic_kw,
+        current_icon    => LJ::Userpic->new_from_keyword( $remote, $userpic_kw ),
 
-    $qrhtml .= "<textarea class='textbox' rows='10' cols='50' wrap='soft' name='body' id='body' style='width: 99%'></textarea>";
-    $qrhtml .= "</td></tr>";
+        remote => {
+            ljuser  => $remote->ljuser_display,
+            user    => $remote->user,
 
-    $qrhtml .= "<tr><td>&nbsp;</td>";
-    $qrhtml .= "<td colspan='3' align='left'>";
+            icons_url => $remote->allpics_base,
+            icons     => \@pics,
+            can_use_iconbrowser => $remote->can_use_userpic_select,
+        },
 
-    $qrhtml .= LJ::html_submit('submitpost', BML::ml('/talkread.bml.button.post'),
-                               { 'id' => 'submitpost',
-                               });
+        journal => {
+            is_iplogging => $u->opt_logcommentips eq 'A',
+            is_linkstripped => !$remote || ( $remote && $remote->is_identity && !$u->trusts_or_has_member( $remote ) ),
+        },
 
-    $qrhtml .="&nbsp;" . LJ::html_submit('submitpview', BML::ml('talk.btn.preview'),
-                               { 'id' => 'submitpview',
-                               });
+        help => {
+            icon => LJ::help_icon_html("userpics", " "),
+            iplogging => LJ::help_icon_html("iplogging", " "),
+        },
 
-    $qrhtml .= LJ::html_hidden('submitpreview', '0');
-
-    $qrhtml .= "&nbsp;" . LJ::html_submit('submitmoreopts', BML::ml('/talkread.bml.button.more'),
-                                          { 'id' => 'submitmoreopts',
-                                          });
-    if ($LJ::SPELLER) {
-        $qrhtml .= "&nbsp;<input type='checkbox' name='do_spellcheck' value='1' id='do_spellcheck' /> <label for='do_spellcheck'>";
-        $qrhtml .= BML::ml('/talkread.bml.qr.spellcheck');
-        $qrhtml .= "</label>";
-    }
-
-    if ($u->opt_logcommentips eq 'A') {
-        $qrhtml .= '<br />';
-        $qrhtml .= LJ::deemp(BML::ml('/talkpost.bml.logyourip'));
-        $qrhtml .= LJ::help_icon_html("iplogging", " ");
-    }
-    if ( !$remote || ( $remote && $remote->is_identity && !$u->trusts_or_has_member( $remote ) ) ) {
-        $qrhtml .= '<br />';
-        $qrhtml .= LJ::deemp( BML::ml( '/talkpost.bml.linkstripped' ) );
-    }
-
-    $qrhtml .= "</td></tr></table>";
-    $qrhtml .= "</form></div>";
-    $qrhtml = LJ::ejs( $qrhtml );
-
-    my $ret;
-    $ret = "<script language='JavaScript'>\n";
-
-
-    # here we create some separate fields for saving the quickreply entry
-    # because the browser will not save to a dynamically-created form.
-    my $qrsaveform = LJ::ejs(LJ::html_hidden(
-                                      {'name' => 'saved_subject', 'id' => 'saved_subject'},
-                                      {'name' => 'saved_body', 'id' => 'saved_body'},
-                                      {'name' => 'saved_spell', 'id' => 'saved_spell'},
-                                      {'name' => 'saved_upic', 'id' => 'saved_upic'},
-                                      {'name' => 'saved_dtid', 'id' => 'saved_dtid'},
-                                      {'name' => 'saved_ptid', 'id' => 'saved_ptid'},
-                                      ));
-
-    # FIXME: figure out how to fix the saving of the qr entry stuff
-    $ret .= qq{jQuery(function(jQ){
-            jQ("body").append(jQ("<div id='qrdiv'></div>").html("$qrhtml").hide());
-        });
-    };
-
-    # quick quote button
-    $ret .= LJ::Talk::js_quote_button( 'body' );
-
-    $ret .= "\n</script>";
-
-    $ret .= LJ::Talk::js_iconbrowser_button() if $remote->can_use_userpic_select;
-
-    return $ret;
+        ejs => sub { return LJ::ejs( @_ ) },
+    });
 }
 
 # <LJFUNC>

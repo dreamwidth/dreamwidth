@@ -65,6 +65,8 @@
 
 .opt.message=Message:
 
+.opt.message2=Message
+
 .opt.noanonpost=This account has disabled anonymous posting.
 
 .opt.noanonpost.nonpublic=You can't comment anonymously on a protected entry.
@@ -88,6 +90,8 @@
 .opt.spellcheck=Spell check entry before posting
 
 .opt.subject=Subject:
+
+.opt.subject2=Subject
 
 .opt.submit=Post Comment
 

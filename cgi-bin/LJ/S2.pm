@@ -2015,7 +2015,7 @@ sub Entry
     };
     foreach ( qw( subject text journal poster new_day end_day
                 comments userpic permalink_url itemid tags timeformat24
-                admin_post ) ) {
+                admin_post dom_id ) ) {
         $e->{$_} = $arg->{$_};
     }
 
@@ -2227,6 +2227,7 @@ sub Entry_from_entryobj
         moodthemeid => $moodthemeid,
         timeformat24 => $remote && $remote->use_24hour_time,
         admin_post => $entry_obj->admin_post,
+        dom_id => "entry-" . $journal->user . "-$ditemid",
         } );
 
     return $entry;
@@ -3584,6 +3585,8 @@ sub Comment__print_reply_link
     _print_quickreply_link($ctx, $this, $opts);
 }
 
+*EntryLite__print_reply_link = \&_print_quickreply_link;
+*Entry__print_reply_link = \&_print_quickreply_link;
 *Page__print_reply_link = \&_print_quickreply_link;
 *EntryPage__print_reply_link = \&_print_quickreply_link;
 
@@ -3594,13 +3597,15 @@ sub _print_quickreply_link
     $opts ||= {};
 
     # one of these had better work
-    my $replyurl =  $opts->{'reply_url'} || $this->{'reply_url'} || $this->{'entry'}->{'comments'}->{'post_url'};
+    my $replyurl =  $opts->{'reply_url'} || $this->{'reply_url'}        # entrypage comments
+                    || $this->{'entry'}->{'comments'}->{'post_url'}     # entrypage entry
+                    || $this->{comments}->{post_url};                   # readpage entry
 
     # clean up input:
     my $linktext = LJ::ehtml($opts->{'linktext'}) || "";
 
     my $target = $opts->{target} || '';
-    return unless $target =~ /^\w+$/; # if no target specified bail out
+    return unless $target =~ /^[\w-]+$/; # if no target specified bail out
 
     my $opt_class = $opts->{class}|| '';
     undef $opt_class unless $opt_class =~ /^[\w\s-]+$/;
@@ -3647,7 +3652,7 @@ sub _print_quickreply_link
         $onclick = "onclick='$onclick'";
     }
 
-    $onclick = "" unless $page->{'_type'} eq 'EntryPage';
+    $onclick = "" unless $page->{view} eq 'entry' || $page->{view} eq 'read';
     $onclick = "" unless LJ::is_enabled('s2quickreply');
     $onclick = "" if $page->{'_u'}->does_not_allow_comments_from( $remote );
 
@@ -3659,10 +3664,10 @@ sub _print_reply_container
     my ($ctx, $this, $opts) = @_;
 
     my $page = get_page();
-    return unless $page->{'_type'} eq 'EntryPage';
+    return unless $page->{view} eq 'entry' || $page->{view} eq 'read';
 
     my $target = $opts->{target} || '';
-    undef $target unless $target =~ /^\w+$/;
+    undef $target unless $target =~ /^[\w-]+$/;
 
     my $class = $opts->{class} || '';
 
@@ -3675,19 +3680,28 @@ sub _print_reply_container
 
     $class = $class ? "class=\"$class\"" : "";
 
-    $S2::pout->("<div $class id=\"ljqrt$target\" style=\"display: none;\"></div>");
+    $S2::pout->("<div $class id=\"ljqrt$target\" data-quickreply-container=\"$target\" style=\"display: none;\"></div>");
 
     # unless we've already inserted the big qrdiv ugliness, do it.
     unless ($ctx->[S2::SCRATCH]->{'quickreply_printed_div'}++) {
-        my $u = $page->{'_u'};
-        my $ditemid = $page->{'entry'}{'itemid'} || 0;
+        if ( $page->{view} eq "entry" || $page->{view} eq "read" ) {
+            my $u = $page->{'_u'};
+            my $ditemid = $page->{'entry'}{'itemid'} || $this->{itemid} || 0;
 
-        my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
-        my $thread = $page->{_viewing_thread_id} + 0 || "";
-        $S2::pout->( LJ::create_qr_div( $u, $ditemid, $page->{_styleopts}, $userpic, $thread ) );
+            my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
+            my $thread = $page->{_viewing_thread_id} + 0 || "";
+            $S2::pout->( LJ::create_qr_div( $u, $ditemid,
+                    style_opts => $page->{_styleopts},
+                    userpic => $userpic,
+                    thread => $thread,
+                    minimal => $page->{view} eq "read",
+                ) );
+        }
     }
 }
 
+*EntryLite__print_reply_container = \&_print_reply_container;
+*Entry__print_reply_container = \&_print_reply_container;
 *Comment__print_reply_container = \&_print_reply_container;
 *EntryPage__print_reply_container = \&_print_reply_container;
 *Page__print_reply_container = \&_print_reply_container;

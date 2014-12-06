@@ -61,26 +61,30 @@ $.endpoint = function(action){
 $.fn.throbber = function(jqxhr) {
     var $this = $(this);
 
-    var bgcolor = $this.css( "backgroundColor" );
-    var bgposition = parseInt($this.css("padding-right"), 10) + $this.width();
-
     if ( ! $this.data( "throbber" ) ) {
         $this.css( "padding-right", "+=18px" );
     }
 
+    var $throbber = $("<span class='throbber'></span>").css({
+            "position": "absolute",
+            "display": "inline-block",
+            "marginLeft": "-16px",
+            "width": "16px",
+            "height": "16px",
+            "background": "url('" + $.throbber.src + "') no-repeat"
+        });
     $this
-        .css( "background", "url('" + $.throbber.src + "') " + bgcolor + " "  + bgposition + "px center no-repeat" )
+        .after($throbber)
         .data("throbber", true);
 
-    jqxhr.then(function() {
-        $this.css( {
-            "paddingRight": "-=18px",
-            "backgroundImage": "none"
-        }).data("throbber", false);
-    });
 
-    jqxhr.fail(function() {
-        $this.css( "backgroundImage", "url('" + $.throbber.error + "')" );
+    jqxhr.then(function() {
+        $throbber.remove();
+        $this
+            .css( "padding-right", "-=18px" )
+            .data("throbber", false)
+    }, function() {
+        $throbber.css( "backgroundImage", "url('" + $.throbber.error + "')" );
     });
 
     return $this;
