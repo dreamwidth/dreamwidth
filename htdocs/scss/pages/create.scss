@@ -35,6 +35,21 @@ $include-html-tooltip-classes: true;
     }
 }
 
+.next-steps {
+    li {
+        width: 100%;
+    }
+    a {
+        text-decoration: none;
+        display: block;
+        text-align: center;
+
+        .fi-icon {
+            font-size: 2.4rem;
+            display: block !important;
+        }
+    }
+}
 @media #{$medium-up} {
     .tooltip {
         margin-top: $form-spacing * 1.5;

@@ -37,8 +37,7 @@ DW::Controller::Create - Account creation flow
 
 DW::Routing->register_string( "/create", \&create_handler, app => 1, prefer_ssl => 1 );
 DW::Routing->register_string( "/create/setup", \&setup_handler, app => 1 );
-
-DW::Routing->register_redirect( "/create/", "/create", app => 1 );
+DW::Routing->register_string( "/create/next", \&next_handler, app => 1 );
 
 sub create_handler {
     my ( $opts ) = @_;
@@ -498,7 +497,7 @@ sub setup_handler {
             return $r->redirect( LJ::create_url( "/create/upgrade" ) )
                 if LJ::is_enabled( 'payments' ) && !$remote->is_paid;
 
-            return $r->redirect( LJ::create_url( "/create/confirm" ) );
+            return $r->redirect( LJ::create_url( "/create/next" ) );
         }
 
     }
@@ -599,6 +598,14 @@ sub setup_handler {
     $vars->{state_list} = LJ::Widget::Location->region_options( $regions_cfg ) if $regions_cfg;
 
     return DW::Template->render_template( 'create/setup.tt', $vars );
+}
+
+sub next_handler {
+    my $step = 4;
+    return DW::Template->render_template( 'create/next.tt', {
+        steps_to_show   => [ steps_to_show( $step ) ],
+        step            => $step,
+    } );
 }
 
 sub steps_to_show {
