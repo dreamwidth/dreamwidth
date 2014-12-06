@@ -65,7 +65,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           link = {
             url = "$site.root/manage/profile"
           }
-          icon = "home"
+          icon = "torso"
           text = dw.ml( 'widget.createaccountnextsteps.steps.profile' )
     %]
     </div></li>
