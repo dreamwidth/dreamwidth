@@ -58,25 +58,40 @@ sub _print {
     # after the <head> has already been printed
     # FIXME: remove check when we get rid of the old library
     my $loading_text = LJ::Lang::ml( "captcha.loading" );
-    my $captcha_load = $LJ::ACTIVE_RES_GROUP && $LJ::ACTIVE_RES_GROUP eq "jquery"
-        ? qq!
-<script type="text/javascript">
-jQuery(function(jq){
-    jq("#textcaptcha_container").html("$loading_text")
-        .load(jq.endpoint("captcha") + "/$auth");
-});
-</script>
-        ! : qq!
-<script type="text/javascript">
-    \$("textcaptcha_container").innerHTML = "$loading_text";
-    HTTPReq.getJSON({
-        "url": LiveJournal.getAjaxUrl("captcha") + "/$auth.json",
-        "method": "GET",
-        "onError": LiveJournal.ajaxError,
-        "onData": function(data) {\$("textcaptcha_container").innerHTML = data.captcha}
-    })
-</script>
-    !;
+
+    my $captcha_load = "";
+    if ( $LJ::ACTIVE_RES_GROUP && $LJ::ACTIVE_RES_GROUP eq "foundation" )  {
+        LJ::need_res( { group => "foundation" }, "js/components/jquery.textcaptcha.js" );
+        $captcha_load = qq!
+        <script>
+        var captcha = {
+            loadingText: "$loading_text",
+            auth: "$auth"
+            };
+        </script>
+        !;
+    } else {
+        $captcha_load = $LJ::ACTIVE_RES_GROUP && $LJ::ACTIVE_RES_GROUP eq "jquery"
+            ? qq!
+        <script type="text/javascript">
+        jQuery(function(jq){
+            jq("#textcaptcha_container").html("$loading_text")
+                .load(jq.endpoint("captcha") + "/$auth");
+        });
+        </script>
+                ! : qq!
+        <script type="text/javascript">
+            \$("textcaptcha_container").innerHTML = "$loading_text";
+            HTTPReq.getJSON({
+                "url": LiveJournal.getAjaxUrl("captcha") + "/$auth.json",
+                "method": "GET",
+                "onError": LiveJournal.ajaxError,
+                "onData": function(data) {\$("textcaptcha_container").innerHTML = data.captcha}
+            })
+        </script>
+            !;
+    }
+
 
     my $response_label = LJ::Lang::ml( "/textcaptcha-response.tt.response.user.label" );
 

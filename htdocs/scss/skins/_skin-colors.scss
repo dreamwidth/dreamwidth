@@ -190,5 +190,26 @@ a.active {
     }
 }
 
+// progress meter
+.progress-meter {
+    li:before {
+        background-color: lighten( tint( $primary-color, 50% ), 10% );
+        color: $primary-text-color;
+    }
+
+    .current:before {
+        background-color: $primary-color;
+        color: $primary-text-color;
+    }
+
+    .finished {
+        color: $inactive-color;
+    }
+    .finished:before {
+        background-color: tint( $inactive-color, 50% );
+        color: $inactive-color;
+    }
+}
+
 // replacement colors for jquery-ui elements
 @import "skins/jquery-ui-theme";

@@ -1,0 +1,61 @@
+[%# Date dropdown -- includes month, day, year
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- birthdate_error = errors.get( "birthdate" ) -%]
+
+<div class="row"><div class="columns">
+    <span id="birthdate-label">[%- '.birthdate' | ml -%]</span>
+</div></div>
+<div class="row collapse">
+<div class="columns small-12 medium-6">
+[%- form.select(
+    label = dw.ml( ".month" )
+    labelclass = "hidden"
+
+    name = 'bday_mm'
+    class = birthdate_error ? "error" : ""
+
+    items = months
+
+    "aria-required" = "true"
+    "aria-describedby" = "birthdate-label"
+) -%]
+</div>
+<div class="columns small-4 medium-2">
+[%- form.select(
+    label = dw.ml( ".day" )
+    labelclass = "hidden"
+
+    name = 'bday_dd'
+    class = birthdate_error ? "error" : ""
+
+    items = days
+
+    "aria-required" = "true"
+    "aria-describedby" = "birthdate-label"
+) -%]
+</div>
+<div class="columns small-8 medium-4">
+[%- form.textbox(
+    label = dw.ml( ".year" )
+    labelclass = "hidden"
+
+    name = 'bday_yyyy'
+    class = birthdate_error ? "error" : ""
+    size = '4'
+    maxlength = '4'
+
+    "aria-required" = "true"
+    "aria-describedby" = "birthdate-label"
+) -%]
+</div>
+</div>
+
+[%- INCLUDE components/error.tt error_name='birthdate' -%]

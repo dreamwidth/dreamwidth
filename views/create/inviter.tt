@@ -1,0 +1,82 @@
+[%# Contains the form for adding watch/trust edges for the person who
+    invited you to the site, as well as join/watch edges for some of their
+    relevant communities.
+
+Authors:
+    Janine Smith <janine@netrophic.com>
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- IF inviter -%]
+<fieldset>
+<legend>[%- 'widget.createaccountinviter.title' | ml -%]</legend>
+
+[%- form.hidden( name = "from", value = inviter.user ) -%]
+
+[%- UNLESS inviter.from_promo -%]
+    [%- IF inviter.can_add_trust -%]
+        <label>
+        [%- form.checkbox(
+                name = 'inviter_trust'
+                value = inviter.id
+        ) %]
+        [% 'widget.createaccountinviter.addinviter.trust2' | ml( user = inviter.ljuser_display ) -%]
+        </label>
+    [%- END -%]
+
+    [%- IF inviter.can_add_trust -%]
+        <label>
+        [%- form.checkbox(
+                name = 'inviter_watch'
+                value = inviter.id
+        ) %]
+        [% 'widget.createaccountinviter.addinviter.watch2' | ml( user = inviter.ljuser_display ) -%]
+        </label>
+    [%- END -%]
+[%- END -%]
+
+[%- IF inviter.comms.size > 0 -%]
+    [%- any_mm = ''; any_mod = '' -%]
+    [%- FOREACH comm_data = inviter.comms -%]
+        [%- LAST IF loop.count >= 20 -%]
+
+        [%- comm_u = comm_data.u -%]
+
+        [%- note_mm = comm_data.istatus == 'mm' ? ' *' : '' -%]
+        [%- any_mm = any_mm || note_mm -%]
+
+        [%- # we will only get moderated or open communities -%]
+        [%- note_moderated = comm_u.is_moderated_membership ? ' **' : '' -%]
+        [%- any_mod = any_mod || note_moderated -%]
+
+        <label>
+        [%- form.checkbox(
+                name = 'inviter_join'
+                value = comm_data.id
+        ) -%]
+        [% 'widget.createaccountinviter.addcomms' | ml(
+                user = comm_u.ljuser_display
+                name = comm_u.name_html
+        ) %]
+        [%- note_mm -%][%- note_moderated -%]
+        </label>
+    [%- END -%]
+
+    [%- IF any_mm -%]
+    <div class="rows"><div class="columns">
+        <small>* [%- 'widget.createaccountinviter.addcomms.note.mm' | ml( user => inviter.ljuser_display ) -%]</small>
+    </div></div>
+    [%- END -%]
+    [%- IF any_mod -%]
+    <div class="rows"><div class="columns">
+        <small>** [%- 'widget.createaccountinviter.addcomms.note.moderated' | ml -%]</small>
+    </div></div>
+    [%- END -%]
+[%- END -%]
+
+</fieldset>
+[%- END -%]

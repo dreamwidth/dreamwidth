@@ -1,0 +1,40 @@
+[%# This is the third page in the account creation flow. It only shows to users
+    who don't have a paid account, and it gives these users information about
+    paid accounts and why they should buy one.
+
+Authors:
+    Janine Smith <janine@netrophic.com>
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+    'stc/css/pages/create.css'
+) -%]
+
+
+<p>[%- 'widget.createaccountupgrade.text' | ml(
+        sitename = site.nameshort
+        aopts = "href='$help_url'"
+    ) -%]</p>
+
+<form method="POST" action="[%- upgrade_url -%]">
+<div class="row">
+<div class="columns medium-6 text-right">
+[%- form.submit(
+        name = "submit"
+        value = dw.ml( 'widget.createaccountupgrade.btn.purchase' )
+) -%]
+</div>
+<div class="columns medium-6 text-left">
+    <a href='[%- next_url -%]' class="secondary button">[%- 'widget.createaccountupgrade.nextstep' | ml -%]</a>
+</div>
+</div>
+
+</form>

@@ -1,0 +1,52 @@
+[%# The form for giving your account creation code
+
+Authors:
+    Janine Smith <janine@netrophic.com>
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>[%- 'widget.createaccountentercode.info' | ml -%]
+
+<div class="row"><div class="columns medium-6 medium-centered">
+<form method='GET' action='[%- form_url -%]' class='panel'>
+
+[%- IF from; form.hidden( name = "from", value = from ); END -%]
+<div class="row"><div class="columns">
+    [%- form.textbox(
+        label = dw.ml( '.field.code' )
+        name = 'code'
+        size = 21
+        maxlength = 20
+    ) -%]
+</div></div>
+
+<div class="row"><div class="columns">
+    [%- form.submit(
+         value = dw.ml( '.btn.proceed' )
+         class = 'expand submit'
+    ) -%]
+</div></div>
+
+</form>
+</div></div>
+
+<div class="row"><div class="columns">
+    [% 'widget.createaccountentercode.getcode' | ml %]
+
+    [%- IF payments_enabled -%]
+        [% 'widget.createaccountentercode.pay2' | ml( aopts = "href='$site.root/shop/account?for=new'", sitename = site.nameshort ) %]
+    [%- END -%]
+
+    [% 'widget.createaccountentercode.comm' | ml( aopts = "href='$site.root/communities/new'" ) %]
+
+    [%- IF logged_out -%]
+        [% 'widget.createaccountentercode.comm.loggedout2' | ml( aopts = "href='$site.root/communities/new'") %]
+    [%- END -%]
+</div></div>

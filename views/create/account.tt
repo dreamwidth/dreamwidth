@@ -1,0 +1,171 @@
+[%# This is the first and main page in the account creation flow
+    It lets you register your account name, provide email address, etc
+
+
+Authors:
+    Janine Smith <janine@netrophic.com>
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml( sitename => site.nameshort ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+        "js/components/jquery.validation.js"
+        "js/components/jquery.check-username.js"
+        "stc/css/components/check-username.css"
+
+        "js/pages/jquery.create.js"
+        "stc/css/pages/create.css"
+) -%]
+
+[%- INCLUDE create/progress.tt step = step -%]
+
+<form method="POST" action="[%- form_url -%]">
+[%- dw.form_auth -%]
+
+[%- IF from; form.hidden( name = "from", value = from ); END -%]
+[%- IF code; form.hidden( name = "code", value = code ); END -%]
+
+<fieldset>
+<legend>[%- '.section.account' | ml -%]</legend>
+<div class="row">
+<div class="columns medium-8">
+    <div class="row collapse">
+        <label for="js-user">[% '.field.username' | ml %]</label>
+        <div class="small-7 large-8 columns">
+        [%- form.textbox(
+            name = "user"
+            id   = "js-user"
+
+            # maxlength 26, so if people don't notice that they hit the limit,
+            # we give them a warning. (some people don't notice/proofread)
+            maxlength = 26
+
+            "aria-required" = "true"
+            class = "journaltype-textbox user-textbox"
+
+            # FIXME: value = post->user / get->user
+        ) -%]
+        </div>
+        <div class="small-5 large-4 columns"><span class="postfix">.[% site.domain %]</span></div>
+    </div>
+</div>
+
+<div class="columns medium-4">
+    [%- INCLUDE tooltip text='.tip.username' id='user'-%]
+</div>
+</div>
+
+
+<div class="row">
+<div class="columns medium-8">
+    [%- form.textbox(
+        label = dw.ml( '.field.email' )
+        name  = 'email'
+
+        maxlength = 50
+
+        "aria-required" = "true"
+    ) -%]
+</div>
+
+<div class="columns medium-4">
+    [%- INCLUDE tooltip text='.tip.email' id='email' -%]
+</div>
+</div>
+
+<div class="row">
+<div class="columns medium-8">
+    [%- form.password(
+        label = dw.ml( '.field.password' )
+        name  = 'password1'
+
+        maxlength = 31
+
+        "aria-required" = "true"
+    ) -%]
+</div>
+
+<div class="columns medium-4">
+    [%- INCLUDE tooltip text='.tip.password' id='password' -%]
+</div>
+</div>
+
+<div class="row"><div class="columns medium-8">
+    [%- form.password(
+        label = dw.ml( '.field.confirmpassword' )
+        name  = 'password2'
+
+        maxlength = 31
+
+        "aria-required" = "true"
+    ) -%]
+</div></div>
+
+<div class="row">
+<div class="columns medium-8">
+    [%- dw.scoped_include( "components/birthdate.tt", months = months, days = days ) -%]
+</div>
+
+<div class="columns medium-4">
+    [%- INCLUDE tooltip text='.tip.birthdate' id='birthdate' -%]
+</div>
+</div>
+
+
+<div class="row"><div class="columns medium-8">
+    [%- form.checkbox_nested(
+        label = dw.ml( '.field.news', sitename = site.nameshort )
+        name = 'news'
+        value = 1
+    ) -%]
+</div></div>
+
+<div class="row"><div class="columns medium-8">
+    <label>
+    [%- form.checkbox(
+        name = 'tos'
+        value = 1
+    )%]
+    [% '.field.tos' | ml( sitename = site.nameshort,
+            aopts1 = "href='$site.root/legal/tos' target='_new'",
+            aopts2 = "href='$site.root/legal/privacy' target='_new'"
+    ) -%]
+    </label>
+    [%- INCLUDE components/error.tt error_name='tos' -%]
+</div></div>
+</fieldset>
+
+[%- IF captcha -%]
+<fieldset class="row">
+<legend>[%- '.section.captcha' | ml -%]</legend>
+<div class="columns">
+    [%- INCLUDE components/error.tt error_name='captcha' -%]
+    [%- captcha -%]
+</div>
+</fieldset>
+[%- END -%]
+
+<div class="row"><div class="columns">
+    [%- form.submit( value = dw.ml( '.btn' ) ) -%]
+</div></div>
+
+<div class="row"><div class="columns">
+    [%- IF code_paid_time -%]
+        [%- IF code_paid_time.permanent -%]
+            [%- '.field.paidaccount.permanent' | ml( type = "<strong>$code_paid_time.type</strong>" ) -%]
+        [%- ELSE -%]
+            [%- '.field.paidaccount' | ml( type = "<strong>$code_paid_time.type</strong>", nummonths = code_paid_time.months ) -%]
+        [%- END -%]
+    [%- END -%]
+</div></div>
+</form>
+
+[%- BLOCK tooltip text="" id="" -%]
+<div class="tooltip tip-right" id="hint-[%- id -%]"><div class='nub'></div> [%- text | ml -%]</div>
+[%- END -%]

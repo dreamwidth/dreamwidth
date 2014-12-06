@@ -5,7 +5,7 @@
 
             $element.blur(function() {
                 var request = $.getJSON(
-                    "/__rpc_checkforusername?user=" + this.value
+                    "/__rpc_checkforusername?user=" + encodeURIComponent( this.value )
                 );
 
                 $element.removeClass( "username-okay" );

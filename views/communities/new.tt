@@ -14,10 +14,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- dw.need_res( { group => "foundation" }
-    "js/jquery.validation.js"
-    "js/jquery.checkusername.js"
+    "js/components/jquery.validation.js"
+    "js/components/jquery.check-username.js"
+    "stc/css/components/check-username.css"
+
     "js/pages/jquery.communities-new.js"
-    "stc/css/pages/communities/new.css"
 ) -%]
 
 
@@ -27,11 +28,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <legend>[% '.form.comminfo.legend' | ml %]</legend>
 
             <div class="row collapse">
-                <label for="user">[% '.form.comminfo.user.label' | ml %]</label>
+                <label for="js-user">[% '.form.comminfo.user.label' | ml %]</label>
                 <div class="small-7 large-8 columns">
                 [%- form.textbox(
                     name = "user"
-                    id   = "user"
+                    id   = "js-user"
                     maxlength = 25
                     class = "journaltype-textbox community-textbox"
                 ) -%]
