@@ -35,9 +35,18 @@ DW::Controller::Create - Account creation flow
 
 =cut
 
-DW::Routing->register_string( "/create", \&create_handler, app => 1, prefer_ssl => 1 );
-DW::Routing->register_string( "/create/setup", \&setup_handler, app => 1 );
-DW::Routing->register_string( "/create/next", \&next_handler, app => 1 );
+my %urls = (
+    create  => '/create',
+    setup   => '/create/setup',
+    upgrade => '/create/upgrade',
+    next    => '/create/next',
+);
+
+DW::Routing->register_string( $urls{create}, \&create_handler, app => 1, prefer_ssl => 1 );
+DW::Routing->register_string( $urls{setup}, \&setup_handler, app => 1 );
+DW::Routing->register_string( $urls{upgrade}, \&upgrade_handler, app => 1 );
+DW::Routing->register_string( $urls{next}, \&next_handler, app => 1 );
+
 
 sub create_handler {
     my ( $opts ) = @_;
@@ -254,7 +263,7 @@ sub create_handler {
             $redirect = LJ::Hooks::run_hook( 'rewrite_redirect_after_create', $nu );
             return $r->redirect( $redirect ) if $redirect;
 
-            return $r->redirect( LJ::create_url( '/create/setup' ) );
+            return $r->redirect( LJ::create_url( $urls{setup} ) );
         }
     } else {
         # we always need the code, because it might contain paid time
@@ -494,10 +503,10 @@ sub setup_handler {
             $u->invalidate_directory_record;
 
             # now go to the next page
-            return $r->redirect( LJ::create_url( "/create/upgrade" ) )
+            return $r->redirect( LJ::create_url( $urls{upgrade} ) )
                 if LJ::is_enabled( 'payments' ) && !$remote->is_paid;
 
-            return $r->redirect( LJ::create_url( "/create/next" ) );
+            return $r->redirect( LJ::create_url( $urls{next} ) );
         }
 
     }
@@ -598,6 +607,33 @@ sub setup_handler {
     $vars->{state_list} = LJ::Widget::Location->region_options( $regions_cfg ) if $regions_cfg;
 
     return DW::Template->render_template( 'create/setup.tt', $vars );
+}
+
+sub upgrade_handler {
+    my ( $ok, $rv ) = controller( form_auth => 0 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $remote = $rv->{remote};
+
+    return $r->redirect( LJ::create_url( $urls{next} ) )
+        unless LJ::is_enabled( 'payments' ) && $remote->is_personal && !$remote->is_paid;
+
+    return $r->redirect( LJ::create_url( "/shop/account?for=self" ) )
+        if $r->did_post;
+
+    my $step = 3;
+    my $vars = {
+        steps_to_show   => [ steps_to_show( $step ) ],
+        step            => $step,
+
+        upgrade_url     => LJ::create_url(),
+        next_url        => LJ::create_url( $urls{next} ),
+
+        help_url        => $LJ::HELPURL{paidaccountinfo},
+    };
+
+    return DW::Template->render_template( 'create/upgrade.tt', $vars );
 }
 
 sub next_handler {
