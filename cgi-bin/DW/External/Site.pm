@@ -8,6 +8,8 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Denise Paolucci <denise@dreamwidth.org>
+#      Azure Lunatic <azurelunatic@dreamwidth.org>
 #
 # Copyright (c) 2009-2014 by Dreamwidth Studios, LLC.
 #
@@ -53,6 +55,7 @@ $domaintosite{"pinboard.in"} = DW::External::Site->new("20", "www.pinboard.in", 
 $domaintosite{"fanfiction.net"} = DW::External::Site->new("21", "www.fanfiction.net", "fanfiction.net", "FanFiction", "FanFiction");
 $domaintosite{"pinterest.com"} = DW::External::Site->new("22", "www.pinterest.com", "pinterest.com", "Pinterest", "pinterest");
 $domaintosite{"youtube.com"} = DW::External::Site->new("23", "www.youtube.com", "youtube.com", "YouTube", "yt");
+$domaintosite{"github.com} = DW::External::Site->new("24", "www.github.com", "github.com", "github", "gh"); 
 
 
 foreach my $value (values %domaintosite) {
