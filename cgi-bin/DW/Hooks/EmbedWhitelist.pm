@@ -94,6 +94,8 @@ my %host_path_match = (
 
     "www.npr.org"           => qr!^/templates/event/embeddedVideo\.php!,
 
+    "imgur.com"             => qr!^/a/.+?/embed!,
+
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
