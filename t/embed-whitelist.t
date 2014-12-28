@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 49;
+use Test::More tests => 50;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { require 'ljlib.pl'; }
@@ -129,6 +129,8 @@ note( "misc" );
     test_good_url( "https://www.flickr.com/photos/cards_by_krisso/13983859958/player/" );
 
     test_good_url( "http://www.npr.org/templates/event/embeddedVideo.php?storyId=326182003&mediaId=327658636" );
+
+    test_good_url( "//imgur.com/a/J4OKE/embed" );
 }
 
 
