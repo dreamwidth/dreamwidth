@@ -192,6 +192,7 @@ sub make_journal
         stc/jquery/jquery.ui.tooltip.css
         stc/jquery/jquery.ui.button.css
         stc/jquery/jquery.ui.dialog.css
+        stc/jquery/jquery.ui.theme.smoothness.css
 
         js/jquery.poll.js
 
