@@ -512,12 +512,13 @@ dw.need_res( { group => "foundation" },
 <h2>Authas</h2>
 <div class="row">
   <div class="columns">
-    [%- dw.authas() -%]
+    [%- authas_form -%]
   </div>
 </div>
 <div class="row"><div class="columns">
   [%- WRAPPER code -%]
-    dw.authas()
+    # variable from controller()
+    authas_form
   [%- END -%]
 </div></div>
 <h2>Alert Boxes</h2>

@@ -40,16 +40,13 @@ DW::Routing->register_string( "/changepassword", \&changepassword_handler, app =
 sub account_status_handler {
     my ( $opts ) = @_;
 
-    my ( $ok, $rv ) = controller( form_auth => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, authas => { show_all => 1 } );
     return $rv unless $ok;
 
     my $r = $rv->{r};
     my $remote = $rv->{remote};
+    my $u = $rv->{u};
     my $get = $r->get_args;
-
-    my $authas = $get->{authas} || $remote->{user};
-    my $u = LJ::get_authas_user( $authas );
-    return error_ml( 'error.invalidauth' ) unless $u;
 
     my $ml_scope = "/settings/accountstatus.tt";
     my @statusvis_options = $u->is_suspended
@@ -198,6 +195,8 @@ sub account_status_handler {
         messages => $messages,
         warnings => $warnings,
         formdata => $post,
+
+        authas_form => $rv->{authas_form},
     };
     return DW::Template->render_template( 'settings/accountstatus.tt', $vars );
 }
