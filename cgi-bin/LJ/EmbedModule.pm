@@ -570,8 +570,19 @@ sub module_iframe_tag {
     my $wrapper_style = "max-width: $width" . ($width_unit || "px") . "; max-height: " . MAX_HEIGHT . "px;";
 
     # this is the ratio between
-    my $padding_based_on_aspect_ratio = $height / $width * 100;
-    my $ratio_style = "padding-top: $padding_based_on_aspect_ratio%";
+    my $padding_based_on_aspect_ratio;
+    if ( $height_unit eq $width_unit ) {
+        $padding_based_on_aspect_ratio = $height / $width * 100;
+        $padding_based_on_aspect_ratio .= "%";
+    } else {
+        if ( $height_unit eq "%" ) {
+            $padding_based_on_aspect_ratio = $height / 100 * $width;
+        } else {
+            $padding_based_on_aspect_ratio = $width / 100 * $height;
+        }
+        $padding_based_on_aspect_ratio .= "px";
+    }
+    my $ratio_style = "padding-top: $padding_based_on_aspect_ratio";
 
     # safari caches state of sub-resources aggressively, so give
     # each iframe a unique 'name' and 'id' attribute
