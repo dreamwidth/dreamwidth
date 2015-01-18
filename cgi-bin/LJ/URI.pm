@@ -36,7 +36,6 @@ sub redirect_to_https {
     if ( $LJ::USE_SSL_EVERYWHERE && !$LJ::IS_SSL
             && ( # temporary
                 !$LJ::SSL_DISABLED_URI{$uri}
-                && "http://$host/" ne $LJ::CSSPROXY
                 && $host ne $LJ::EMBED_MODULE_DOMAIN
             )
             && ( $apache_r->method eq "GET" || $apache_r->method eq "HEAD" )

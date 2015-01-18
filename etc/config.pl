@@ -45,7 +45,7 @@
     #$FRONTPAGE_JOURNAL = "news";
 
     # css proxy
-    $CSSPROXY = "http://cssproxy.$DOMAIN/";
+    $CSSPROXY = "//cssproxy.$DOMAIN/";
 
     # setup subdomains that work
     %SUBDOMAIN_FUNCTION = (
