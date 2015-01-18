@@ -110,9 +110,7 @@ LiveJournal.gotInboxUpdate = function (resp) {
 
 // Search for placeholders and initialize them
 LiveJournal.initPagePlaceholders = function () {
-  if (document.location.protocol === 'http:') {
     LiveJournal.initPlaceholders(document);
-  }
 }
 
 LiveJournal.initPlaceholders = function (srcElement) {
