@@ -8,7 +8,7 @@ allow us to proxy HTTP embedded content.
 Authors:
      Mark Smith <mark@dreamwidth.org>
 
-Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference

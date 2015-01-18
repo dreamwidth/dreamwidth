@@ -149,6 +149,11 @@
     #     host => '127.0.0.1',
     #     port => 8125,
     # );
+
+    # If you are going to be using the external content proxy system, you should
+    # define a file here that contains your private salt.
+    $PROXY_URL = "https://proxy.myhost.net";
+    $PROXY_SALT_FILE = "$HOME/etc/proxy-salt";
 }
 
 {

@@ -99,6 +99,7 @@ use DW::Mood;
 use LJ::Global::Img;  # defines LJ::Img
 use DW::Media;
 use DW::Stats;
+use DW::Proxy;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
