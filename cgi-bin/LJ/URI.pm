@@ -33,7 +33,7 @@ sub redirect_to_https {
     my ( $class, $apache_r, $uri ) = @_;
 
     my $host = $apache_r->headers_in->{"Host"};
-    if ( $LJ::USE_SSL && !$LJ::IS_SSL
+    if ( $LJ::USE_SSL_EVERYWHERE && !$LJ::IS_SSL
             && ( # temporary
                 !$LJ::SSL_DISABLED_URI{$uri}
                 && "http://$host/" ne $LJ::CSSPROXY
