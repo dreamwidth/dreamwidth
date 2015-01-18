@@ -25,7 +25,7 @@ sub TagsPage
     $p->{'tags'} = [];
 
     my $user = $u->user;
-    my $journalbase = $u->journal_base( $opts->{'vhost'} );
+    my $journalbase = $u->journal_base( vhost => $opts->{'vhost'} );
 
     if ($opts->{'pathextra'}) {
         $opts->{'badargs'} = 1;

@@ -99,9 +99,11 @@ sub start_request_reload {
             __PACKAGE__->reload;
             $LJ::DEBUG_HOOK{'pre_save_bak_stats'}->() if $LJ::DEBUG_HOOK{'pre_save_bak_stats'};
 
-            $LJ::IMGPREFIX_BAK = $LJ::IMGPREFIX;
-            $LJ::STATPREFIX_BAK = $LJ::STATPREFIX;
-            $LJ::USERPICROOT_BAK = $LJ::USERPIC_ROOT;
+            # save a backup of the original config value
+            %LJ::_ORIG_CONFIG = ();
+            $LJ::_ORIG_CONFIG{$_} = ${$LJ::{$_}}
+                foreach qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
+
             $LJ::LOCKER_OBJ = undef;
 
             if ($modtime > $now - 60) {

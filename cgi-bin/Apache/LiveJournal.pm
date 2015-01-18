@@ -299,7 +299,6 @@ sub resolve_path_for_uri {
                 $file .= ".bml";
                 $uri .= ".bml";
             }
-            next unless -f $file;
 
             # /foo  => /foo/
             # /foo/ => /foo/index.bml
@@ -308,6 +307,7 @@ sub resolve_path_for_uri {
                 $file .= "index.bml";
                 $uri .= "index.bml";
             }
+            next unless -f $file;
 
             $file = abs_path( $file );
             if ( $file ) {
@@ -358,6 +358,12 @@ sub trans
 
     my $bml_handler = sub {
         my $filename = shift;
+
+        # redirect to HTTPS if necessary
+        my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
+        return $redirect_handler if $redirect_handler;
+
+        # show the file
         $apache_r->handler("perl-script");
         $apache_r->notes->{bml_filename} = $filename;
         $apache_r->push_handlers(PerlHandler => \&Apache::BML::handler);
@@ -392,15 +398,21 @@ sub trans
 
     # only allow certain pages over SSL
     if ($is_ssl) {
+        $LJ::SITEROOT = $LJ::SSLROOT;
         $LJ::IMGPREFIX = $LJ::SSLIMGPREFIX;
         $LJ::STATPREFIX = $LJ::SSLSTATPREFIX;
+        $LJ::STATPREFIX = $LJ::SSLSTATPREFIX;
+        $LJ::JSPREFIX = $LJ::SSLJSPREFIX;
+        $LJ::WSTATPREFIX = $LJ::SSLWSTATPREFIX;
+        $LJ::USERPIC_ROOT = $LJ::SSLICONPREFIX;
     } elsif (LJ::Hooks::run_hook("set_alternate_statimg")) {
         # do nothing, hook did it.
     } else {
         $LJ::DEBUG_HOOK{'pre_restore_bak_stats'}->() if $LJ::DEBUG_HOOK{'pre_restore_bak_stats'};
-        $LJ::IMGPREFIX = $LJ::IMGPREFIX_BAK;
-        $LJ::STATPREFIX = $LJ::STATPREFIX_BAK;
-        $LJ::USERPIC_ROOT = $LJ::USERPICROOT_BAK if $LJ::USERPICROOT_BAK;
+
+        # restore original siteroot, etc
+        ${$LJ::{$_}} = $LJ::_ORIG_CONFIG{$_}
+            foreach qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
     }
 
     # let foo.com still work, but redirect to www.foo.com
@@ -680,7 +692,7 @@ sub trans
 
         # see if there is a modular handler for this URI
         my $ret = LJ::URI->handle($uuri, $apache_r);
-        $ret = DW::Routing->call( username => $user ) unless defined $ret;
+        $ret = DW::Routing->call( username => $user, ssl => $is_ssl ) unless defined $ret;
         return $ret if defined $ret;
 
         if ($uuri =~ m#^/tags(.*)#) {
@@ -809,7 +821,7 @@ sub trans
         if ( $u && $u->is_redirect && $u->is_renamed ) {
             my $renamedto = $u->prop( 'renamedto' );
             if ($renamedto ne '') {
-                my $redirect_url = ($renamedto =~ m!^https?://!) ? $renamedto : LJ::journal_base($renamedto, $vhost) . $uuri . $args_wq;
+                my $redirect_url = ($renamedto =~ m!^https?://!) ? $renamedto : LJ::journal_base($renamedto, vhost => $vhost) . $uuri . $args_wq;
                 return redir($apache_r, $redirect_url, 301);
             }
         }
@@ -842,18 +854,10 @@ sub trans
         return redir( $apache_r, "http://$2.$LJ::USER_DOMAIN$uri$args_wq" )
             if $1 eq 'www.';
 
-        if ( $is_ssl ) {
-            # FIXME: Remove when we are ready for SSL in userspace
-            return redir($apache_r, LJ::create_url( undef, ssl => 0, keep_args => 1 ) )
-                    if $apache_r->method eq "GET" || $apache_r->method eq "HEAD";
-            return 404;
-        }
-
         my $user = $2;
 
         # see if the "user" is really functional code
         my $func = $LJ::SUBDOMAIN_FUNCTION{$user};
-
         if ($func eq "normal") {
             # site admin wants this domain to be ignored and treated as if it
             # were "www", so set this flag so the custom "OTHER_VHOSTS" check
@@ -885,6 +889,12 @@ sub trans
             return DECLINED;
 
         } elsif ($func eq "journal") {
+            if ( $is_ssl ) {
+                # FIXME: Remove when we are ready for SSL in userspace
+                return redir($apache_r, LJ::create_url( undef, ssl => 0, keep_args => 1 ) )
+                        if $apache_r->method eq "GET" || $apache_r->method eq "HEAD";
+                return 404;
+            }
 
             unless ($uri =~ m!^/(\w{1,25})(/.*)?$!) {
                 if ( $uri eq "/favicon.ico" ) {
@@ -987,6 +997,10 @@ sub trans
     # now check for BML pages
     my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $apache_r, $uri );
     if ( $alt_path ) {
+        # redirect to HTTPS if necessary
+        my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
+        return $redirect_handler if $redirect_handler;
+
         $apache_r->uri( $alt_uri );
         $apache_r->filename( $alt_path );
         return OK;
@@ -1086,10 +1100,10 @@ sub userpic_trans
 
     # redirect to the correct URL if we're not at the right one,
     # and unless CDN stuff is in effect...
-    unless ($LJ::USERPIC_ROOT ne $LJ::USERPICROOT_BAK) {
+    if ( $LJ::USERPIC_ROOT ne $LJ::_ORIG_CONFIG{USERPIC_ROOT} ) {
         my $host = $apache_r->headers_in->{"Host"};
-        unless (    $LJ::USERPIC_ROOT =~ m!^http://\Q$host\E!i
-                    || $LJ::USERPIC_ROOT_CDN && $LJ::USERPIC_ROOT_CDN =~ m!^http://\Q$host\E!i
+        unless (    $LJ::USERPIC_ROOT =~ m!^https?://\Q$host\E!i
+                    || $LJ::USERPIC_ROOT_CDN && $LJ::USERPIC_ROOT_CDN =~ m!^https?://\Q$host\E!i
                     || $host eq '127.0.0.1' # FIXME: lame hack for DW config
         ) {
             return redir($apache_r, "$LJ::USERPIC_ROOT/$picid/$userid");

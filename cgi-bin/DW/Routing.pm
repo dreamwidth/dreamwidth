@@ -194,10 +194,11 @@ sub _call_hash {
     return $r->NOT_FOUND unless $opts->format_valid;
 
     # prefer SSL if wanted and possible
-    #  cannot do SSL on userspace, cannot do SSL if it's not set up
+    #  cannot do SSL if it's not set up
     #  cannot do the redirect safely for non-GET/HEAD requests.
+    my $url = LJ::create_url( $r->uri, keep_args => 1, ssl => 1 );
     return $r->redirect( LJ::create_url( $r->uri, keep_args => 1, ssl => 1 ) )
-        if $opts->prefer_ssl && $LJ::USE_SSL && $opts->role eq 'app' &&
+        if $opts->prefer_ssl && $LJ::USE_SSL &&
             ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
     # if renamed with redirect in place, then do the redirect
@@ -604,7 +605,7 @@ sub _apply_defaults {
     $hash->{user}         = $opts->{user} || 0;
     $hash->{api}          = $opts->{api}  || 0;
     $hash->{format}     ||= $opts->{format} || 'html';
-    $hash->{prefer_ssl}   = $opts->{prefer_ssl} || 0;
+    $hash->{prefer_ssl}   = $opts->{prefer_ssl} // ($hash->{app} ? $LJ::USE_SSL_EVERYWHERE : 0);
     $hash->{no_cache}     = $opts->{no_cache} || 0;
 
     my $formats = $opts->{formats} || [ $hash->{format} ];
@@ -612,9 +613,6 @@ sub _apply_defaults {
 
     $hash->{formats} = $formats;
     $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1 };
-
-    croak 'Cannot register with prefer_ssl without app role'
-        if $hash->{prefer_ssl} && ! $hash->{app};
 
     return $hash;
 }

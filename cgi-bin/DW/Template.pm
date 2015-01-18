@@ -45,15 +45,6 @@ my $site_constants = Template::Namespace::Constants->new({
     domain      => $LJ::DOMAIN,
     domainweb   => $LJ::DOMAIN_WEB,
 
-    root    => $LJ::SITEROOT,
-    imgroot => $LJ::IMGPREFIX,
-    jsroot  => $LJ::JSPREFIX,
-    statroot=> $LJ::STATPREFIX,
-    ssl => {
-        root => $LJ::SSLROOT,
-        imgroot => $LJ::SSLIMGPREFIX,
-    },
-
     help => \%LJ::HELPURL,
 
     email => {

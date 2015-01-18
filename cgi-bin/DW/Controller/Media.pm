@@ -25,9 +25,9 @@ use DW::Controller;
 my %VALID_SIZES = ( map { $_ => 1 } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
             800, 600, 720, 1600, 1200 ) );
 
-DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler, user => 1, formats => 1 );
+DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler, user => 1, formats => 1, prefer_ssl => 1 );
 DW::Routing->register_regex( qr!^/file/(\d+x\d+|full)(/\w:[\d\w]+)*/(\d+)$!,
-        \&media_handler, user => 1, formats => 1 );
+        \&media_handler, user => 1, formats => 1, prefer_ssl => 1 );
 DW::Routing->register_string( '/file/list', \&media_manage_handler, app => 1 );
 DW::Routing->register_string( '/file/edit', \&media_bulkedit_handler, app => 1 );
 DW::Routing->register_string( '/file/new', \&media_new_handler, app => 1  );

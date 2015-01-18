@@ -101,6 +101,7 @@ sub content {
                         cuturl => $entry->url,
                         sandbox => 1,
                         preformatted => $entry->prop( "opt_preformatted" ),
+                        proxy_insecure_content => $LJ::IS_SSL,
                     } )
                     . $self->as_html_tags( $target );
 
