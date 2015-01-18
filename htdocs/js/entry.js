@@ -218,11 +218,10 @@ function entryPreview(entryForm) {
     var f=entryForm;
     var action=f.action;
 
-    var root = Site.siteroot.replace("https", "http");
     if (f.action.indexOf("altlogin=1") != -1)
-        f.action=root+'/preview/entry?altlogin=1';
+        f.action='/preview/entry?altlogin=1';
     else
-        f.action=root+'/preview/entry';
+        f.action='/preview/entry';
 
     f.target='preview';
     window.open('','preview','width=760,height=600,resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');

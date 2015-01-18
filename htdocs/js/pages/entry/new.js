@@ -41,7 +41,7 @@ var postForm = (function($) {
             var $password = $(form).find( "input[type='password']:enabled" );
             $password.prop( "disabled", true );
 
-            form.action = Site.siteroot.replace("https", "http") + "/entry/preview";
+            form.action = "/entry/preview";
             form.target = 'preview';
             window.open( '',
                 'preview',
