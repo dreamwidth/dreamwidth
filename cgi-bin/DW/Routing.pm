@@ -197,7 +197,7 @@ sub _call_hash {
     #  cannot do SSL if it's not set up
     #  cannot do the redirect safely for non-GET/HEAD requests.
     my $url = LJ::create_url( $r->uri, keep_args => 1, ssl => 1 );
-    return $r->redirect( LJ::create_url( $r->uri, keep_args => 1, ssl => 1 ), permanent => 1 )
+    return $r->redirect( LJ::create_url( $r->uri, keep_args => 1, ssl => 1 ) )
         if $opts->prefer_ssl && $LJ::USE_SSL &&
             ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
