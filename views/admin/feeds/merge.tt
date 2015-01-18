@@ -36,13 +36,13 @@ td, th { padding: 4px; }
 [%- ELSIF need_confirm -%]
 <form method="post" action="[% dw.create_url %]">
 [% dw.form_auth %]
-<input type="hidden" name="dest_feed" value="[% dest_feed | url %]" \>
-<input type="hidden" name="dest_url" value="[% dest_url | url %]" \>
+<input type="hidden" name="dest_feed" value="[% dest_feed | html %]" />
+<input type="hidden" name="dest_url" value="[% dest_url | html %]" />
 [%- FOREACH id IN to_include %]
-<input type="hidden" name="include" value="[% id | url %]" \>
+<input type="hidden" name="include" value="[% id | html %]" />
 [% END -%]
-<input type="hidden" name="confirmed" value="1" \>
-<input type="submit" value="[% '.btn.confirm' | ml | url %]" \>
+<input type="hidden" name="confirmed" value="1" />
+<input type="submit" value="[% '.btn.confirm' | ml | html %]" />
 </form>
 [%- ELSIF data.size == 0 -%]
 <h2>[% '.hdr.settings' | ml %]</h2>
