@@ -7,6 +7,7 @@
 /locks
 /var
 *.sw?
+src/proxy/proxy
 
 # Ignore SCSS cache
 .sass-cache
