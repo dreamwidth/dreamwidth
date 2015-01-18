@@ -823,8 +823,7 @@ sub clean
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
                     my $url = canonical_url($hash->{src}, 1);
-                    # https:// and the relative // protocol don't need proxying
-                    $img_bad = 1 if $opts->{proxy_insecure_content} && $url !~ m!^(?:https://|//)!;
+                    $url = https_url( $url ) if $opts->{proxy_insecure_content};
                     $hash->{src} = $url;
 
                     if ($img_bad) {
@@ -1668,6 +1667,24 @@ sub canonical_url {
     }
 
     return $url;
+}
+
+sub https_url {
+    my ( $url ) = @_;
+
+    # no-op if we're not configured to use SSL
+    return $url unless $LJ::USE_SSL;
+
+    # https:// and the relative // protocol don't need proxying
+    return $url if $url =~ m!^(?:https://|//)!;
+
+    # if this link is on our site, let's just switch it to https
+    if ( $url =~ $LJ::DOMAIN ) {
+        $url =~ s!^http:!https:!;
+        return $url;
+    }
+
+    return DW::Proxy::get_proxy_url( $url ) || $url;
 }
 
 sub break_word {
