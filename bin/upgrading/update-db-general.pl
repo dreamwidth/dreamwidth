@@ -4321,7 +4321,7 @@ EOF
         set_dbnote( "init_media_versions_dimensions", 1 );
     }
 
-    if ( column_type( "renames", "status" ) eq '' ) {
+    if ( table_relevant("renames") && column_type( "renames", "status" ) eq '' ) {
         do_alter( 'renames',
             "ALTER TABLE renames " .
             "ADD COLUMN status CHAR(1) NOT NULL DEFAULT 'A'" );
