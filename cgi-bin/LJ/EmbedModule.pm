@@ -641,7 +641,8 @@ sub module_content {
     my $journalid = $opts{journalid}+0
         or croak "No journalid";
     my $journal = LJ::load_userid($journalid) or die "Invalid userid $journalid";
-    return '' if ($journal->is_expunged);
+    return { content => '' } if $journal->is_expunged;
+
     my $preview = $opts{preview};
 
     # try memcache
