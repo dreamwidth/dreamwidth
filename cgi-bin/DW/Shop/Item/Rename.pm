@@ -60,7 +60,7 @@ sub name_text {
 # override
 sub name_html {
     return $_[0]->token && $_[0]->from_userid == $_[0]->t_userid
-        ? LJ::Lang::ml( 'shop.item.rename.name.hastoken', { token => $_[0]->token, aopts => "href='$LJ::SITEROOT/rename/" . $_[0]->token . "'" } )
+        ? LJ::Lang::ml( 'shop.item.rename.name.hastoken', { token => $_[0]->token, aopts => "href='$LJ::SITEROOT/rename?giventoken=" . $_[0]->token . "'" } )
         : LJ::Lang::ml( 'shop.item.rename.name.notoken', { points => $_[0]->cost_points } );
 }
 

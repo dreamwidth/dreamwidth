@@ -29,7 +29,7 @@ use DW::Shop;
 DW::Routing->register_string( "/rename/swap", \&swap_handler, app => 1 );
 
 # token is now passed as a get argument
-DW::Routing->register_string( "/rename", \&rename_handler, app => 1 );
+DW::Routing->register_string( "/rename/index", \&rename_handler, app => 1 );
 
 DW::Routing->register_string( "/admin/rename/index", \&rename_admin_handler, app => 1 );
 DW::Routing->register_string( "/admin/rename/edit", \&rename_admin_edit_handler, app => 1 );
