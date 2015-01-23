@@ -978,6 +978,7 @@ register_tabledrop("zip");
 register_tabledrop("openid_external");
 register_tabledrop("site_messages");
 register_tabledrop("navtag");
+register_tabledrop("syndicated_hubbub2");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -1320,26 +1321,6 @@ CREATE TABLE syndicated (
     UNIQUE (synurl),
     INDEX (checknext),
     INDEX (fuzzy_token)
-)
-EOC
-
-register_tablecreate("syndicated_hubbub2", <<'EOC');
-CREATE TABLE syndicated_hubbub2 (
-    id INT UNSIGNED NOT NULL,
-    userid INT UNSIGNED NOT NULL,
-    huburl VARCHAR(255) NOT NULL,
-    topicurl VARCHAR(255) NOT NULL,
-    verifytoken VARCHAR(64) NOT NULL,
-    lastseenat INT UNSIGNED NOT NULL,
-    leasegoodto INT UNSIGNED,
-    timespinged INT UNSIGNED NOT NULL DEFAULT '0',
-
-    UNIQUE (userid, huburl, topicurl),
-    UNIQUE (verifytoken),
-    INDEX (topicurl),
-    INDEX (leasegoodto),
-    INDEX (lastseenat),
-    PRIMARY KEY (id)
 )
 EOC
 
@@ -3966,11 +3947,6 @@ register_alter(sub {
     unless ( column_type( 'import_data', 'usejournal' ) ) {
         do_alter( 'import_data',
                   q{ALTER TABLE import_data ADD COLUMN usejournal VARCHAR(255) AFTER username} );
-    }
-
-    unless ( column_type( 'syndicated_hubbub2', 'timespinged' ) ) {
-        do_alter( 'syndicated_hubbub2',
-                  q{ALTER TABLE syndicated_hubbub2 ADD COLUMN timespinged INT UNSIGNED NOT NULL DEFAULT '0'} );
     }
 
     # FIXME: This should be moved into a maint script or something,

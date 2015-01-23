@@ -1732,9 +1732,6 @@ sub postevent
         push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
         push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;
 
-        # PubSubHubbub Support
-        LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
-
         # latest posts feed update
         DW::LatestFeed->new_item( $entry );
     }
@@ -2189,10 +2186,7 @@ sub editevent
         );
     }
 
-    # PubSubHubbub Support
     my @jobs;
-    LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
-
     LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );
 
     my $sclient = LJ::theschwartz();
