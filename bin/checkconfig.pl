@@ -253,8 +253,6 @@ my %modules = (
                "Gearman::Client" => {
                    deb => 'libgearman-client-perl',
                },
-               "Net::PubSubHubbub::Publisher" => {},
-               "TheSchwartz::Worker::PubSubHubbubPublish" => {},
                "File::Type" => {
                    deb => 'libfile-type-perl',
                },

@@ -698,7 +698,7 @@ sub alloc_global_counter
         # pick maximum id from pollowner
         $newmax = $dbh->selectrow_array( "SELECT MAX(pollid) FROM pollowner" );
     } elsif ( $dom eq 'F' ) {
-        $newmax = $dbh->selectrow_array( 'SELECT MAX(id) FROM syndicated_hubbub2' );
+        confess 'Tried to allocate PubSubHubbub counter.';
     } elsif ( $dom eq 'U' ) {
         $newmax = $dbh->selectrow_array( "SELECT MAX(consumer_id) FROM oauth_consumer" );
     } elsif ( $dom eq 'V' ) {
