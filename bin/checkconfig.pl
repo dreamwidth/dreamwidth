@@ -269,6 +269,7 @@ my %modules = (
                },
                "List::MoreUtils" => {},
                "Locale::Country" => { ver => '3.32' },
+               "Net::SMTPS" => {},
               );
 
 
