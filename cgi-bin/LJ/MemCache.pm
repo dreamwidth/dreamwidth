@@ -81,7 +81,6 @@ sub client_stats {
 }
 
 sub reload_conf {
-    my $stat_callback;
     return $memc if eval { $memc->doesnt_want_configuration; };
 
     $memc->set_servers(\@LJ::MEMCACHE_SERVERS);
@@ -92,15 +91,7 @@ sub reload_conf {
     $memc->set_connect_timeout($LJ::MEMCACHE_CONNECT_TIMEOUT);
     $memc->set_cb_connect_fail($LJ::MEMCACHE_CB_CONNECT_FAIL);
 
-    if ($LJ::DB_LOG_HOST) {
-        $stat_callback = sub {
-            my ($stime, $etime, $host, $action) = @_;
-            LJ::blocking_report($host, 'memcache', $etime - $stime, "memcache: $action");
-        };
-    } else {
-        $stat_callback = undef;
-    }
-    $memc->set_stat_callback($stat_callback);
+    $memc->set_stat_callback(undef);
     $memc->set_readonly(1) if $ENV{LJ_MEMC_READONLY};
 
     if (LJ::_using_blockwatch()) {

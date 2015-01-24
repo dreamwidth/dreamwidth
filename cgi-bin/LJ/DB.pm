@@ -342,16 +342,6 @@ sub dbtime_callback {
 sub get_dbirole_dbh {
     my $dbh = $LJ::DBIRole->get_dbh( @_ ) or return undef;
 
-    if ( $LJ::DB_LOG_HOST && $LJ::HAVE_DBI_PROFILE ) {
-        $LJ::DB_REPORT_HANDLES{ $dbh->{Name} } = $dbh;
-
-        # :TODO: Explain magic number
-        $dbh->{Profile} ||= "2/DBI::Profile";
-
-        # And turn off useless (to us) on_destroy() reports, too.
-        undef $DBI::Profile::ON_DESTROY_DUMP;
-    }
-
     return $dbh;
 }
 

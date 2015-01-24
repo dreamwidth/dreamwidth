@@ -187,10 +187,6 @@ sub send_mail
                                         run_after => $opt->{delay} ? time() + $opt->{delay} : undef,
                                         );
         my $h = $sclient->insert($job);
-
-        LJ::blocking_report( 'the_schwartz', 'send_mail',
-                             tv_interval($starttime));
-
         return $h ? 1 : 0;
     };
 
@@ -227,11 +223,6 @@ sub send_mail
                          $msg->get('to'),
                          $rv ? "succeeded" : "failed",
                          $msg->get('subject') );
-
-    unless ($async_caller) {
-        LJ::blocking_report( $LJ::SMTP_SERVER || $LJ::SENDMAIL, 'send_mail',
-                             tv_interval($starttime), $notes );
-    }
 
     return 1 if $rv;
     return 0 if $@ =~ /no data in this part/;  # encoding conversion error higher
