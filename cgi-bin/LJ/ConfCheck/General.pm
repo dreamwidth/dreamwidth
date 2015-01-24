@@ -84,12 +84,6 @@ add_conf('$COOKIE_DOMAIN',
          des => "The 'domain' value set on cookies sent to users.  By default, value is \".\$DOMAIN\".  Note the leading period, which is a wildcard for everything at or under \$DOMAIN.",
          );
 
-add_conf('$DB_LOG_HOST',
-         required => 0,
-         type => "hostport",
-         des => "An optional host:port to send UDP packets to with blocking reports.  See LJ::blocking_report(..)",
-         );
-
 add_conf('$DB_TIMEOUT',
          required => 0,
          type => "int",

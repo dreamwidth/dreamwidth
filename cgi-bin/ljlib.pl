@@ -201,12 +201,6 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
 ## see LJ::clear_caches and LJ::handle_caches
 $LJ::CLEAR_CACHES = 0;
 
-# DB Reporting UDP socket object
-$LJ::ReportSock = undef;
-
-# DB Reporting handle collection. ( host => $dbh )
-%LJ::DB_REPORT_HANDLES = ();
-
 my $GTop;     # GTop object (created if $LJ::LOG_GTOP is true)
 my %SecretCache;
 
@@ -1245,37 +1239,6 @@ sub work_report {
 
     my $dst = Socket::sockaddr_in($port, Socket::inet_aton($host));
     my $rv = $udp_sock->send($msg, 0, $dst);
-}
-
-# <LJFUNC>
-# name: LJ::blocking_report
-# des: Log a report on the total amount of time used in a slow operation to a
-#      remote host via UDP.
-# args: host, type, time, notes
-# des-host: The DB host the operation used.
-# des-type: The type of service the operation was talking to (e.g., 'database',
-#           'memcache', etc.)
-# des-time: The amount of time (in floating-point seconds) the operation took.
-# des-notes: A short description of the operation.
-# </LJFUNC>
-sub blocking_report {
-    my ( $host, $type, $time, $notes ) = @_;
-
-    if ( $LJ::DB_LOG_HOST ) {
-        unless ( $LJ::ReportSock ) {
-            my ( $host, $port ) = split /:/, $LJ::DB_LOG_HOST, 2;
-            return unless $host && $port;
-
-            $LJ::ReportSock = new IO::Socket::INET (
-                PeerPort => $port,
-                Proto    => 'udp',
-                PeerAddr => $host
-               ) or return;
-        }
-
-        my $msg = join( "\x3", $host, $type, $time, $notes );
-        $LJ::ReportSock->send( $msg );
-    }
 }
 
 
