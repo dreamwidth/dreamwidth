@@ -147,8 +147,17 @@
 
     # If you are going to be using the external content proxy system, you should
     # define a file here that contains your private salt.
-    $PROXY_URL = "https://proxy.myhost.net";
-    $PROXY_SALT_FILE = "$HOME/etc/proxy-salt";
+    # $PROXY_URL = "https://proxy.myhost.net";
+    # $PROXY_SALT_FILE = "$HOME/etc/proxy-salt";
+
+    # If you want to use Amazon SES (e.g. bin/worker/send-email-ses) then you
+    # need to do a lot of setup on the Amazon side and then fill this out. The
+    # settings are from the SMTP Settings page in SES.
+    # %EMAIL_VIA_SES = (
+    #     hostname => '...',
+    #     username => '...',
+    #     password => '...',
+    # );
 }
 
 {
