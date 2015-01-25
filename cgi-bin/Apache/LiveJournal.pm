@@ -249,33 +249,6 @@ sub blocked_anon
     return OK;
 }
 
-# returns whether or not an IP address is from the Tor proxy exit list, but only if we're configured
-# to actually use this data
-sub ip_is_via_tor {
-    return unless $LJ::USE_TOR_CONFIGS;
-
-    # try to load the data every few minutes so that we keep it reasonably fresh, but so that we don't
-    # hammer the database all of the time
-    unless ( defined $TOR_UPDATE_TIME && $TOR_UPDATE_TIME > time ) {
-        # either way, wait a few minutes before trying again, that way we don't hammer things if the
-        # database is down or something
-        $TOR_UPDATE_TIME = time + 300;
-
-        # be very conscientious not to get rid of data if we get a db error
-        my $dbh = LJ::get_db_writer() or return;
-        my $ips = $dbh->selectcol_arrayref( 'SELECT addr FROM tor_proxy_exits' );
-        return if $dbh->err;
-
-        if ( $ips && ref $ips eq 'ARRAY' ) {
-            %TOR_EXITS = ();
-            $TOR_EXITS{$_} = 1 foreach @$ips;
-        }
-    }
-
-    # regardless of what happened above we can check and return
-    return exists $TOR_EXITS{$_[0]};
-}
-
 sub resolve_path_for_uri {
     my ( $apache_r, $orig_uri ) = @_;
 
@@ -482,9 +455,6 @@ sub trans
                 $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
                 return OK;
             }
-
-            # determine if this IP is one of the tor exits and set a note on the request
-            $apache_r->notes->{via_tor_exit} = 1 if ip_is_via_tor( $ip );
         }
         if ( LJ::Hooks::run_hook( "forbid_request", $apache_r ) ) {
             $apache_r->handler( "perl-script" );

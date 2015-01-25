@@ -173,10 +173,6 @@ sub remote_sysban_check {
         }
     }
 
-    # now do a tor check
-    return BML::ml( 'error.blocked', { blocktype => "Tor proxy", email => $LJ::ACCOUNTS_EMAIL } )
-        if LJ::Sysban::tor_check( 'shop' );
-
     # looks good
     return undef;
 }

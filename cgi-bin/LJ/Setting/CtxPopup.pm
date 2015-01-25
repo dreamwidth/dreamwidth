@@ -19,7 +19,7 @@ use warnings;
 sub should_render {
     my ($class, $u) = @_;
 
-    return !$LJ::CTX_POPUP || !$u || $u->is_community ? 0 : 1;
+    return !$u || $u->is_community ? 0 : 1;
 }
 
 sub label {

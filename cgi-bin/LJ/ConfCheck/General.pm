@@ -699,10 +699,6 @@ add_conf('%USERPROP_DEF',
          des => "Hash of userprop defaults.  See also %USERPROP_INIT."
          );
 
-add_conf('@RBL_LIST',
-         des => "Used by LJ::is_open_proxy."
-         );
-
 add_conf('@INITIAL_OPTOUT_SUBSCRIPTIONS',
          des => "Array of users checked by default on create.bml."
          );
