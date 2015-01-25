@@ -140,7 +140,6 @@ sub multiMove {
     # the job server can keep giving us new jobs to move (or a stop command)
     # over and over, so we avoid perl exec times
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-    eval "use LJ::Cmdbuffer; 1;" or die $@;
 
     my $sock;
   ITER:
@@ -273,7 +272,6 @@ sub singleMove {
     abortWithUsage() unless defined $user && defined $dclust;
 
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-    eval "use LJ::Cmdbuffer; 1;" or die $@;
 
     $user = LJ::canonical_username($user);
     abortWithUsage("Invalid username") unless length($user);
@@ -660,13 +658,6 @@ sub moveUser {
     }
 
     print "Moving away from cluster $sclust\n" if $optv;
-
-    my %cmd_done;  # cmd_name -> 1
-    while (my $cmd = $dboa->selectrow_array("SELECT cmd FROM cmdbuffer WHERE journalid=$userid")) {
-        die "Already flushed cmdbuffer job '$cmd' -- it didn't take?\n" if $cmd_done{$cmd}++;
-        print "Flushing cmdbuffer for cmd: $cmd\n" if $optv > 1;
-        LJ::Cmdbuffer::flush($dbh, $dboa, $cmd, $userid);
-    }
 
     # setup dependencies (we can skip work by not checking a table if we know
     # its dependent table was empty).  then we have to order things so deps get

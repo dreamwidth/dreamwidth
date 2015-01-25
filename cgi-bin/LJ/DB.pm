@@ -39,7 +39,7 @@ $LJ::DBIRole = new DBI::Role {
 # this is here and no longer in bin/upgrading/update-db-{general|local}.pl
 # so other tools (in particular, the inter-cluster user mover) can verify
 # that it knows how to move all types of data before it will proceed.
-@LJ::USER_TABLES = ("userbio", "birthdays", "cmdbuffer", "dudata",
+@LJ::USER_TABLES = ("userbio", "birthdays", "dudata",
                     "log2", "logtext2", "logprop2", "logsec2",
                     "talk2", "talkprop2", "talktext2", "talkleft",
                     "userpicblob2", "subs", "subsprop", "has_subs",

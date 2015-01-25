@@ -78,10 +78,6 @@
       <listitem><simpara>Enable running of maintenance tasks by <filename>ljmaint.pl</filename>.</simpara></listitem>
     </varlistentry>
     <varlistentry>
-      <term>qbufferd_jobs</term>
-      <listitem><simpara>Enable query buffering for high-load sites, by <filename>qbufferd.pl</filename>.</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
       <term>recaptcha</term>
       <listitem><simpara>Use older CAPTCHAs method, which automated tools may
       find easier to guess, for human checks instead of using reCAPTCHA.</simpara></listitem>
