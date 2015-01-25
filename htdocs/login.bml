@@ -17,9 +17,6 @@ _c?>
     use strict;
     use vars qw($body %GET %POST $title);
 
-    my $crumb = $LJ::IS_SSL ? 'securelogin' : 'login';
-    LJ::set_active_crumb($crumb);
-
     $body = "";
 
     my @errors = ();

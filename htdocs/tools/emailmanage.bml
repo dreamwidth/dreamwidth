@@ -22,8 +22,6 @@ body<=
     use vars qw(%GET %POST);
     use HTTP::Date; # str2time
 
-    LJ::set_active_crumb('emailmanage');
-
     my $dbh = LJ::get_db_writer();
     
     my $remote = LJ::get_remote();

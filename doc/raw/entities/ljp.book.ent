@@ -20,7 +20,6 @@
 <!ENTITY ljp.int.cap_classes                    SYSTEM "../ljp.book/int/cap_classes.xml">
 <!ENTITY ljp.int.cap_list                           SYSTEM "../ljp.book/int/cap.ref.gen.xml">
 <!ENTITY ljp.int.cookie_scheme               SYSTEM "../ljp.book/int/cookie_scheme.xml">
-<!ENTITY ljp.int.oh_crumbs                      SYSTEM "../ljp.book/int/crumbs.xml">
 <!ENTITY ljp.int.statusvis                         SYSTEM "../ljp.book/int/statusvis.xml">
 <!ENTITY ljp.int.dversion                         SYSTEM "../ljp.book/int/dversion.xml">
 <!ENTITY ljp.int.xml_userdata                   SYSTEM "../ljp.book/int/xml_userdata.xml">

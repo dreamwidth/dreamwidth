@@ -23,8 +23,6 @@ body<=
  use strict;
  use vars qw(%POST %GET $title);
 
- LJ::set_active_crumb('register');
-
  my $ret;
  my $qs = $POST{qs} || BML::get_query_string();
  $title = $ML{'.title'};

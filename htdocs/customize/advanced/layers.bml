@@ -17,8 +17,6 @@ _c?>
     use strict;
     use vars qw(%GET %POST $title $body);
 
-    LJ::set_active_crumb('yourlayers');
-
     my $remote;
 
     # authas switcher form

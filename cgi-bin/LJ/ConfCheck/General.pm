@@ -23,8 +23,8 @@ use LJ::ConfCheck;
 add_singletons(qw(
                   @USER_TABLES $PROTOCOL_VER $MAX_DVERSION
                   $CLEAR_CACHES $BIN $HTDOCS
-                  $ACTIVE_CRUMB $IMGPREFIX_BAK $IS_SSL
-                  $_XFER_REMOTE_IP $STATPREFIX_BAK
+                  $IMGPREFIX_BAK $IS_SSL
+                  $STATPREFIX_BAK
                   %LIB_MOD_TIME %MEMCACHE_ARRAYFMT
                   @MEMCACHE_SERVERS %MEMCACHE_PREF_IP
                   %DEBUG %COMMON_CODE %CLUSTER_PAIR_ACTIVE
@@ -489,10 +489,6 @@ add_conf('$MEMCACHE_COMPRESS_THRESHOLD',
 add_conf('$MEMCACHE_CONNECT_TIMEOUT',
          type => 'int',
          des => "Timeout threshold in seconds."
-         );
-
-add_conf('%CRUMBS',
-         des => "Breadcrumbs for site navigation - see LJ::get_crumb."
          );
 
 add_conf('%READONLY_CLUSTER',

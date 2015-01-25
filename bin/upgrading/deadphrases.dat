@@ -1,14 +1,6 @@
 # these get removed if found by texttool.pl
 #
 
-general crumb.createjournal
-general crumb.editentries_do
-general crumb.modify
-general crumb.preview
-general crumb.searchregion
-general crumb.siteopts
-general crumb.themes
-
 general /allpics.bml.edit
 general /allpics.bml.nopics.text
 general /allpics.bml.nopics.text.other
@@ -696,15 +688,11 @@ general widget.verticalsummary.nosubject
 general widget.verticalsummary.posttime
 general widget.verticalsummary.subcats
 
-general crumb.nudgefriend
-
 general cprod.textmessaging.text3
 general cprod.todomaxitems.link
 general cprod.todomaxitems.text2
 general cprod.todononpublic.link
 general cprod.todononpublic.text
-general crumb.addtodo
-general crumb.todo
 
 general setting.contentpromotion.label
 general setting.contentpromotion.option
@@ -972,20 +960,6 @@ general contentflag.viewingconcepts.byadmin
 general contentflag.viewingexplicit.byadmin
 general cprod.todomaxitems.text2.v1
 general cprod.todononpublic.text.v1
-general crumb.filterfriends
-general crumb.managecomments
-general crumb.managecommentsettings
-general crumb.managecommunities
-general crumb.managefriendgrps
-general crumb.managefriends
-general crumb.managetags
-general crumb.manageuserpics
-general crumb.meme
-general crumb.news
-general crumb.postentry
-general crumb.schools
-general crumb.schoolsfind
-general crumb.schoolsmy
 general customize.cats.animals
 general customize.cats.clean
 general customize.cats.cool

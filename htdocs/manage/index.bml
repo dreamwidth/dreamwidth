@@ -17,8 +17,6 @@ _c?>
     use strict;
     use vars qw (%GET);
 
-    LJ::set_active_crumb('manage');
-
     my $remote = LJ::get_remote();
 
     my $authas = $GET{'authas'} || $remote->{'user'};

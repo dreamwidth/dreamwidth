@@ -250,33 +250,6 @@ _code?>
 </html>
 <=PAGE
 
-BREADCRUMBS<=
-{Fp}<?_code
-    # where are we
-    my @crumbs = LJ::get_crumb_path();
-    return unless @crumbs;
-    my @ret;
-    my $count = 0;
-    foreach my $crumb (@crumbs) {
-        # put crumbs together
-        next unless $crumb->[3]; # no blank crumbs
-        if ($crumb->[3] eq 'dynamic') {
-            # dynamic
-            unshift @ret, "<b>$crumb->[0]</b>";
-            $count++;
-        } else {
-            # non-dynamic
-            unshift @ret, $count++ == 0 ?
-                "<b>$ML{'crumb.'.$crumb->[3]}</b>" :
-                $crumb->[1] ne '' ?
-                    "<a href=\"$crumb->[1]\">$ML{'crumb.'.$crumb->[3]}</a>" :
-                    "$ML{'crumb.'.$crumb->[3]}";
-        }
-    }
-    return "<div id='ljbreadcrumbs'>" . join(" : ", @ret) . "</div>";
-_code?>
-<=BREADCRUMBS
-
 # Dreamwidth menu structure
 menunav<=
 <?_code

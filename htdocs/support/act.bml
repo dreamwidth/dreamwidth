@@ -14,8 +14,6 @@
 _c?>
 <?_code
 
- LJ::set_active_crumb('supportact');
- 
  my $cmd = BML::get_query_string();
  if ($cmd =~ /^(\w+);(\d+);(\w{15})(?:;(\d+))?$/) {
      ($action, $spid, $authcode, $splid) = ($1, $2, $3, $4);

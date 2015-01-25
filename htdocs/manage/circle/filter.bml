@@ -20,8 +20,6 @@ _c?>
     $title = $ML{'.title3'};
     $body = "";
     
-    LJ::set_active_crumb('filterfriends');
-    
     if ($POST{'mode'} eq "view") 
     {
         # for safety, since we will be redirecting to this page be strict in the value we accept for the pageview

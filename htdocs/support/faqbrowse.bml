@@ -285,9 +285,6 @@ body<=
      $$body .= BML::ml('.backsearch', { 'aopts' => 'href="/support/faqsearch"' }) . "<br />";
      $$body .= BML::ml('.backsupport2', { 'aopts' => 'href="/support/"' });
 
-     # we're dynamic, set title as crumb title
-     LJ::set_dynamic_crumb($_[1]->{'title'}, 'faq');
-
      $$body .= "</div>";
 
      return $_[1]->{'body'};

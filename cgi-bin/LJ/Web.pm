@@ -19,9 +19,6 @@ use strict;
 
 use lib "$LJ::HOME/cgi-bin";
 
-# load the bread crumb hash
-use LJ::Global::Crumbs;
-
 use Carp;
 use POSIX;
 use DW::External::Site;
@@ -684,64 +681,6 @@ sub make_cookie
     $cookie .= "; domain=$domain" if $domain;
     push(@cookies, $cookie);
     return @cookies;
-}
-
-sub set_active_crumb
-{
-    $LJ::ACTIVE_CRUMB = shift;
-    return undef;
-}
-
-sub set_dynamic_crumb
-{
-    my ($title, $parent) = @_;
-    $LJ::ACTIVE_CRUMB = [ $title, $parent ];
-}
-
-sub get_parent_crumb
-{
-    my $thiscrumb = LJ::get_crumb(LJ::get_active_crumb());
-    return LJ::get_crumb($thiscrumb->[2]);
-}
-
-sub get_active_crumb
-{
-    return $LJ::ACTIVE_CRUMB;
-}
-
-sub get_crumb_path
-{
-    my $cur = LJ::get_active_crumb();
-    my @list;
-    while ($cur) {
-        # get crumb, fix it up, and then put it on the list
-        if (ref $cur) {
-            # dynamic crumb
-            push @list, [ $cur->[0], '', $cur->[1], 'dynamic' ];
-            $cur = $cur->[1];
-        } else {
-            # just a regular crumb
-            my $crumb = LJ::get_crumb($cur);
-            last unless $crumb;
-            last if $cur eq $crumb->[2];
-            $crumb->[3] = $cur;
-            push @list, $crumb;
-
-            # now get the next one we're going after
-            $cur = $crumb->[2]; # parent of this crumb
-        }
-    }
-    return @list;
-}
-
-sub get_crumb
-{
-    my $crumbkey = shift;
-    if (defined $LJ::CRUMBS_LOCAL{$crumbkey}) {
-        return $LJ::CRUMBS_LOCAL{$crumbkey};
-    } else {
-        return $LJ::CRUMBS{$crumbkey};
-    }
 }
 
 # <LJFUNC>

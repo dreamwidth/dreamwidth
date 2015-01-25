@@ -46,8 +46,6 @@ _info?><?_code
         return;
     };
 
-    LJ::set_active_crumb('delcomment');
-
     my $remote = LJ::get_remote();
     return $error->(LJ::error_noremote()) unless $remote;
 

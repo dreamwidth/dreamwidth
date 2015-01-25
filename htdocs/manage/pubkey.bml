@@ -20,8 +20,6 @@ body<=
     use strict;
     use vars qw(%POST);
 
-    LJ::set_active_crumb('setpgpkey');
-
     return $ML{'.error.notconfigured'} unless $LJ::USE_PGP;
 
     my $u = LJ::get_remote();

@@ -30,8 +30,6 @@ _c?>
 
     $$title = $ML{'.title2'};
 
-    LJ::set_active_crumb("postentry");
-
     # invalid text input?
     unless (LJ::text_in(\%POST)) {
         $$body = "<?badinput?>";

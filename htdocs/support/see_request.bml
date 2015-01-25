@@ -25,8 +25,6 @@ body<=
     use vars qw(%FORM);
     use DW::Template;
 
-    LJ::set_dynamic_crumb('Request #' . ($FORM{'id'}+0), 'supporthelp');
-
     LJ::need_res( { group => "jquery" }, "js/jquery.supportform.js", "stc/simple-form.css" );
     LJ::set_active_resource_group( "jquery" );
 

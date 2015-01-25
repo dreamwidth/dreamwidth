@@ -14,8 +14,6 @@
 _c?>
 <?_code
 
-        LJ::set_active_crumb('export');
-
         my $req = shift;
         my $apache_r = $req->{'r'};
 

@@ -17,7 +17,6 @@ body<=
 <?_code
 {
     use strict;
-    LJ::set_active_crumb("support");
 
     my $ret;
 

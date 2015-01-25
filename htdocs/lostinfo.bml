@@ -22,8 +22,6 @@ body<=
 
     use POSIX qw(strftime);
 
-    LJ::set_active_crumb('lostinfo');
-
     my $captcha = DW::Captcha->new( 'lostinfo', %POST );
 
     my $captcha_error;

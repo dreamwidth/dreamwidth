@@ -17,8 +17,6 @@ _c?>
     use strict;
     use vars qw($body %POST %GET $title);
 
-    LJ::set_active_crumb('logout');
-
     $body = "";
 
     my $u = LJ::get_remote();
