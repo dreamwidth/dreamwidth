@@ -103,11 +103,6 @@ body<=
     # input, since it may be not in UTF-8 in replies coming from mail
     # clients. We call it later.
 
-    my $remote_ip = LJ::get_remote_ip();
-    if (($POST{'usertype'} eq "anonymous" || $POST{'usertype'} eq "openid") && LJ::is_open_proxy($remote_ip)) {
-        return LJ::bad_input("Your IP address ($remote_ip) is detected as an open proxy (a common source of spam) so comment access is denied.  If you do not believe you're accessing the net through an open proxy, please contact your ISP or this site's tech support to help resolve the problem.");
-    }
-
     my $remote = LJ::get_remote();
     my $journalu = LJ::load_user($POST{journal});
     return LJ::bad_input('Unknown journal.  Please go back and try again.') unless $journalu;
@@ -117,7 +112,6 @@ body<=
     LJ::need_res( LJ::Talk::init_iconbrowser_js( 1 ) )
         if $remote && $remote->can_use_userpic_select;
     LJ::set_active_resource_group( "jquery" );
-
 
     # FIXME: this isn't entirely correct, if ecphash is present but ignored/incorrect
     # that fix would need to be done in talklib.pl

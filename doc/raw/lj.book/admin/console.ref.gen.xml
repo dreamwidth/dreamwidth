@@ -1,20 +1,5 @@
 <variablelist><title>Administrative Console Commands</title>
 <varlistentry>
-  <term><literal role="console.command">allow_open_proxy</literal></term>
-  <listitem><para>
-Marks an IP address as not being an open proxy for the next 24 hours.
-    <itemizedlist>
-      <title>Arguments:</title>
-      <listitem><formalpara><title>ip</title>
-      <para>The IP address to mark as clear.</para>
-      </formalpara></listitem>
-      <listitem><formalpara><title>forever</title>
-      <para>Set to 'forever' if this proxy should be allowed forever.</para>
-      </formalpara></listitem>
-    </itemizedlist>
-  </para></listitem>
-</varlistentry>
-<varlistentry>
   <term><literal role="console.command">ban_list</literal></term>
   <listitem><para>
 List banned users.

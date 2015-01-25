@@ -979,6 +979,8 @@ register_tabledrop("openid_external");
 register_tabledrop("site_messages");
 register_tabledrop("navtag");
 register_tabledrop("syndicated_hubbub2");
+register_tabledrop("openproxy");
+register_tabledrop("tor_proxy_exits");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -1658,18 +1660,6 @@ CREATE TABLE clustermove_inprogress (
     moverinstance CHAR(22) NOT NULL, # base64ed MD5 hash
 
     PRIMARY KEY (userid)
-)
-EOC
-
-# track open HTTP proxies
-register_tablecreate("openproxy", <<'EOC');
-CREATE TABLE openproxy (
-    addr        VARCHAR(15) NOT NULL,
-    status      ENUM('proxy', 'clear'),
-    asof        INT UNSIGNED NOT NULL,
-    src         VARCHAR(80),
-
-    PRIMARY KEY (addr)
 )
 EOC
 
@@ -3108,13 +3098,6 @@ CREATE TABLE cc_log (
     res_content text not null,
 
     index (cartid)
-)
-EOC
-
-register_tablecreate('tor_proxy_exits', <<'EOC');
-CREATE TABLE tor_proxy_exits (
-    addr VARCHAR(15) NOT NULL,
-    PRIMARY KEY (addr)
 )
 EOC
 

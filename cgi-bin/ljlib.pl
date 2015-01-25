@@ -992,34 +992,32 @@ sub start_request
             if LJ::is_enabled('esn_ajax');
 
         # contextual popup JS
-        if ( $LJ::CTX_POPUP ) {
-            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw(
-                            js/6alib/ippu.js
-                            js/lj_ippu.js
-                            js/6alib/hourglass.js
-                            js/contextualhover.js
-                            stc/contextualhover.css
-                            ));
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw(
+                        js/6alib/ippu.js
+                        js/lj_ippu.js
+                        js/6alib/hourglass.js
+                        js/contextualhover.js
+                        stc/contextualhover.css
+                        ));
 
-            my @ctx_popup_libraries = qw(
-                    js/jquery/jquery.ui.core.js
-                    js/jquery/jquery.ui.widget.js
+        my @ctx_popup_libraries = qw(
+                js/jquery/jquery.ui.core.js
+                js/jquery/jquery.ui.widget.js
 
-                    js/jquery/jquery.ui.tooltip.js
-                    js/jquery.ajaxtip.js
-                    js/jquery/jquery.ui.position.js
-                    stc/jquery/jquery.ui.core.css
-                    stc/jquery/jquery.ui.tooltip.css
+                js/jquery/jquery.ui.tooltip.js
+                js/jquery.ajaxtip.js
+                js/jquery/jquery.ui.position.js
+                stc/jquery/jquery.ui.core.css
+                stc/jquery/jquery.ui.tooltip.css
 
 
-                    js/jquery.hoverIntent.js
-                    js/jquery.contextualhover.js
-                    stc/jquery.contextualhover.css
-                );
+                js/jquery.hoverIntent.js
+                js/jquery.contextualhover.js
+                stc/jquery.contextualhover.css
+            );
 
-            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'jquery' }, @ctx_popup_libraries );
-            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'foundation' }, @ctx_popup_libraries );
-        }
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'jquery' }, @ctx_popup_libraries );
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'foundation' }, @ctx_popup_libraries );
 
         # development JS
         LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
@@ -1395,54 +1393,6 @@ sub get_secret
 
 sub is_web_context {
     return $ENV{MOD_PERL} ? 1 : 0;
-}
-
-sub is_open_proxy
-{
-    my $ip = $_[0] || DW::Request->get;
-    return 0 unless $ip;
-
-    if ( ref $ip ) {
-        $ip = $ip->get_remote_ip;
-    }
-
-    my $dbr = LJ::get_db_reader();
-    my $stat = $dbr->selectrow_hashref("SELECT status, asof FROM openproxy WHERE addr=?",
-                                       undef, $ip);
-
-    # only cache 'clear' hosts for a day; 'proxy' for two days
-    $stat = undef if $stat && $stat->{'status'} eq "clear" && $stat->{'asof'} > 0 && $stat->{'asof'} < time()-86400;
-    $stat = undef if $stat && $stat->{'status'} eq "proxy" && $stat->{'asof'} < time()-2*86400;
-
-    # open proxies are considered open forever, unless cleaned by another site-local mechanism
-    return 1 if $stat && $stat->{'status'} eq "proxy";
-
-    # allow things to be cached clear for a day before re-checking
-    return 0 if $stat && $stat->{'status'} eq "clear";
-
-    # no RBL defined?
-    return 0 unless @LJ::RBL_LIST;
-
-    my $src = undef;
-    my $rev = join('.', reverse split(/\./, $ip));
-    foreach my $rbl (@LJ::RBL_LIST) {
-        my @res = gethostbyname("$rev.$rbl");
-        if ($res[4]) {
-            $src = $rbl;
-            last;
-        }
-    }
-
-    my $dbh = LJ::get_db_writer();
-    if ($src) {
-        $dbh->do("REPLACE INTO openproxy (addr, status, asof, src) VALUES (?,?,?,?)", undef,
-                 $ip, "proxy", time(), $src);
-        return 1;
-    } else {
-        $dbh->do("INSERT IGNORE INTO openproxy (addr, status, asof, src) VALUES (?,?,?,?)", undef,
-                 $ip, "clear", time(), $src);
-        return 0;
-    }
 }
 
 # loads an include file, given the bare name of the file.
