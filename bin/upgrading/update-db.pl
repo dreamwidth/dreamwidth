@@ -228,9 +228,7 @@ sub populate_database {
 
     populate_basedata();
     populate_proplists();
-    clean_schema_docs();
     populate_mogile_conf();
-    schema_upgrade_scripts();
 
     # system user
     my $made_system;
@@ -704,18 +702,6 @@ sub populate_moods {
     }
 }
 
-sub clean_schema_docs {
-    # clean out schema documentation for old/unknown tables
-    foreach my $tbl (qw(schemacols schematables)) {
-        my $sth = $dbh->prepare("SELECT DISTINCT tablename FROM $tbl");
-        $sth->execute;
-        while (my $doctbl = $sth->fetchrow_array) {
-            next if $table_create{$doctbl};
-            $dbh->do("DELETE FROM $tbl WHERE tablename=?", undef, $doctbl);
-        }
-    }
-}
-
 sub populate_mogile_conf {
     # create/update the MogileFS database if we use it
     return unless defined $LJ::MOGILEFS_CONFIG{hosts};
@@ -755,11 +741,6 @@ sub populate_mogile_conf {
                 or die "Error: Unable to create class.\n";
         }
     }
-}
-
-sub schema_upgrade_scripts {
-    # none right now, when DW has some upgrades you can look back at this file's history
-    # to see what kind of stuff goes in here
 }
 
 sub skip_opt
