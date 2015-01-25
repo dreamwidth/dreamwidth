@@ -17,8 +17,6 @@ title=><?_ml .title _ml?>
 body<=
 <?_code
     
-    LJ::set_active_crumb('advcustomize');
-
     my $u = LJ::get_effective_remote();
     my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
     if ($no_layer_edit) {

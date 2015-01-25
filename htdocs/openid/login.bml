@@ -17,7 +17,6 @@ _c?>
     use strict;
     use vars qw($title $head $body %GET %POST);
     use LJ::OpenID;
-    LJ::set_active_crumb("openid_login");
 
     $title = $ML{".title"};
     $head = "";

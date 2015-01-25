@@ -160,8 +160,6 @@ body<=
     use strict;
     use vars qw(%POST %GET);
 
-    LJ::set_active_crumb('moodeditor');
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 

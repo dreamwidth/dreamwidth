@@ -21,7 +21,6 @@ body<=
     use strict;
     use vars qw(%GET);
 
-    LJ::set_active_crumb('faq');
     LJ::need_res( 'stc/faq.css' );
 
     my $curlang = BML::get_language();

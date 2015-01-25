@@ -24,8 +24,6 @@ body<=
     my $head     = \$_[1]->{'head'};
     my $bodyopts = \$_[1]->{'bodyopts'};
 
-    LJ::set_active_crumb('editentries');
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 

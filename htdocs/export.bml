@@ -22,8 +22,6 @@ body<=
     use strict;
     use vars qw(%GET);
 
-    LJ::set_active_crumb('export');
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>"
         unless $remote;

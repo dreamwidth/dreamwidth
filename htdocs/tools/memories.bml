@@ -18,8 +18,6 @@ _c?>
  use vars qw(%POST %GET $head $title $body);
  BML::decl_params(_default => qr/./);
 
- LJ::set_active_crumb('memories');
-
  my $dbr = LJ::get_db_reader();
  my $remote = LJ::get_remote();
 

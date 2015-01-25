@@ -17,8 +17,6 @@ _c?>
     use strict;
     use vars qw(%GET $title $body);
 
-    LJ::set_active_crumb('invitefriend');
-
     $title = $ML{'.title'};
     $body = "";
 

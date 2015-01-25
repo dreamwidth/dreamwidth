@@ -17,7 +17,6 @@ title=><?_ml .faqpop.title _ml?>
 body<=
 
 <?_code
- LJ::set_active_crumb('popfaqs');
  $ret .= "<?h1 $ML{'.head.title'} h1?>";
  $ret .= "<?p $ML{'.faqpop.title.text'} p?>";
  

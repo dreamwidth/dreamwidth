@@ -20,8 +20,6 @@ body<=
     use strict;
     use vars qw(%GET %POST);
 
-    LJ::set_active_crumb('managefriends');
-
     return "<?badinput?>"
         unless LJ::text_in(\%POST);
 

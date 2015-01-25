@@ -327,7 +327,7 @@ sub valid {
     return $err->("Invalid auth") if $sess->{'timeexpire'} < $now;
 
     if ($sess->{'ipfixed'} && ! $LJ::Session::OPT_IGNORE_IP) {
-        my $remote_ip = $LJ::_XFER_REMOTE_IP || LJ::get_remote_ip();
+        my $remote_ip = LJ::get_remote_ip();
         return $err->("Session wrong IP ($remote_ip != $sess->{ipfixed})")
             if $sess->{'ipfixed'} ne $remote_ip;
     }

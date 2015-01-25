@@ -29,8 +29,6 @@ _c?>
                   url          => '.',
                   );
 
- LJ::set_active_crumb('tellfriend');
-
  $title = BML::ml( ".title" );
  $body = "";
 

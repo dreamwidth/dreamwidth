@@ -60,8 +60,6 @@ body<=
  use vars qw(%FORM);
  LJ::need_res( 'stc/support.css' );
 
- LJ::set_active_crumb('supporthelp');
-
  my ($ret, $sth);
  my $dbr = LJ::get_db_reader();
 

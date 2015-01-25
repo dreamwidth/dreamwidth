@@ -22,7 +22,6 @@ body<=
     BML::set_language_scope('/manage/settings/index.bml');
 
     LJ::need_res("stc/tabs.css", "stc/settings.css", "js/settings.js");
-    LJ::set_active_crumb('manage');
 
     LJ::need_res({ group => 'jquery' },
         "js/jquery.settings.js"

@@ -105,7 +105,7 @@ Terms, definitions, and insight.</para>
 
     <glossentry>
     <glossterm><filename>texttool.pl</filename></glossterm>
-    <glossdef><para>This file loads new text, breadcrumbs, and their
+    <glossdef><para>This file loads new text, and their
     metadata, for the installation.</para></glossdef>
     </glossentry>
 

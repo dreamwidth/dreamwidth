@@ -21,7 +21,6 @@ body<=
     use vars qw(%POST %GET $headextra @errors);
     use LJ::Setting;
 
-    LJ::set_active_crumb('editprofile');
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/lj_settings.css' );
 
     my $remote = LJ::get_remote()

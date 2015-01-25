@@ -39,8 +39,6 @@ body<=
     use strict;
     use vars qw(%GET);
 
-    LJ::set_active_crumb('moodlist');
-
     my $ret;
 
     my $remote = LJ::get_remote();

@@ -21,8 +21,6 @@ body<=
     use strict;
     use vars qw(%FORM);
 
-    LJ::set_active_crumb('supportappend');
-
     my $r = DW::Request->get;
 
     my $status = "";

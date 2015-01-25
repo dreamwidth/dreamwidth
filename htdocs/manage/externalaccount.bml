@@ -27,7 +27,6 @@ use strict;
     BML::set_language_scope('/manage/externalaccount.bml');
 
     LJ::need_res("stc/settings.css", "js/externalaccount.js");
-    LJ::set_active_crumb('manage');
 
     my $remote = LJ::get_remote();
 
