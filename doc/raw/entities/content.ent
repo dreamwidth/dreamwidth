@@ -1,9 +1,0 @@
-<!ENTITY % books   SYSTEM "books.ent">
-<!ENTITY % authors SYSTEM "authors.ent">
-<!ENTITY % pregen  SYSTEM "prevar.gen.ent">
-<!ENTITY % general  SYSTEM "general.ent">
-%books;
-%authors;
-%pregen;
-%general;
-

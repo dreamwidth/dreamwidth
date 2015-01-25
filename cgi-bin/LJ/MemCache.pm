@@ -94,13 +94,6 @@ sub reload_conf {
     $memc->set_stat_callback(undef);
     $memc->set_readonly(1) if $ENV{LJ_MEMC_READONLY};
 
-    if (LJ::_using_blockwatch()) {
-        eval { LJ::Blockwatch->setup_memcache_hooks($memc) };
-
-        warn "Unable to add Blockwatch hooks to Cache::Memcached client object: $@"
-            if $@;
-    }
-
     return $memc;
 }
 

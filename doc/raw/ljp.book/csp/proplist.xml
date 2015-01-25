@@ -1,8 +1,0 @@
-<chapter id="ljp.csp.proplist">
-  <title>Journal Entries Meta-data</title>
-    <subtitle>Entry Properties</subtitle>
-  <para>
-    This is a list of the meta-data that can be assigned to journal entries.
-  </para>
-  &ljp.csp.proplist.ref;
-</chapter>
