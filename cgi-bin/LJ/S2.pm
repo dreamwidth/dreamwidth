@@ -2442,6 +2442,9 @@ sub Image_std
     my $name = shift;
     my $ctx = $LJ::S2::CURR_CTX or die "No S2 context available ";
 
+    my $imgprefix = $LJ::IMGPREFIX;
+    $imgprefix =~ s/^https?://;
+
     unless ($LJ::S2::RES_MADE++) {
         $LJ::S2::RES_CACHE = {};
         my $textmap = {
@@ -2456,7 +2459,7 @@ sub Image_std
         foreach ( keys %$textmap ) {
             my $i = $LJ::Img::img{$_};
             $LJ::S2::RES_CACHE->{$_} =
-                Image( "$LJ::IMGPREFIX$i->{src}",
+                Image( "$imgprefix$i->{src}",
                        $i->{width}, $i->{height},
                        $ctx->[S2::PROPS]->{ $textmap->{$_} } );
         }
@@ -2469,7 +2472,7 @@ sub Image_std
         foreach ( @ic ) {
             my $i = $LJ::Img::img{$_};
             $LJ::S2::RES_CACHE->{$_} =
-                Image( "$LJ::IMGPREFIX$i->{src}",
+                Image( "$imgprefix$i->{src}",
                        $i->{width}, $i->{height},
                        LJ::Lang::ml( $i->{alt} ) );
         }
