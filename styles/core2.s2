@@ -5314,9 +5314,11 @@ function Entry::print_tags() [fixed] {
             "<li>";
             if ($show_tagnav_links) {
                 $this->print_link_tag_prev();
+                print " ";
             }
-            """ <a rel="tag" href="$t.url">$t.name</a> """;
+            """<a rel="tag" href="$t.url">$t.name</a>""";
             if ($show_tagnav_links) {
+                print " ";
                 $this->print_link_tag_next();
             }
             $tag_count++;
