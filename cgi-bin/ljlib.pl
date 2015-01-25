@@ -234,19 +234,6 @@ sub get_blob_domainid
     die "Unknown blob domain: $name";
 }
 
-sub _using_blockwatch {
-    unless ( LJ::is_enabled('blockwatch') ) {
-        # Config override to disable blockwatch.
-        return 0;
-    }
-
-    unless (LJ::ModuleCheck->have('LJ::Blockwatch')) {
-        # If we don't have or are unable to load LJ::Blockwatch, then give up too
-        return 0;
-    }
-    return 1;
-}
-
 sub locker {
     return $LJ::LOCKER_OBJ if $LJ::LOCKER_OBJ;
     eval "use DDLockClient ();";
@@ -257,13 +244,6 @@ sub locker {
                           servers => [ @LJ::LOCK_SERVERS ],
                           lockdir => $LJ::LOCKDIR || "$LJ::HOME/locks",
                           );
-
-    if (_using_blockwatch()) {
-        eval { LJ::Blockwatch->setup_ddlock_hooks($LJ::LOCKER_OBJ) };
-
-        warn "Unable to add Blockwatch hooks to DDLock client object: $@"
-            if $@;
-    }
 
     return $LJ::LOCKER_OBJ;
 }
@@ -276,13 +256,6 @@ sub gearman_client {
 
     my $client = Gearman::Client->new;
     $client->job_servers(@LJ::GEARMAN_SERVERS);
-
-    if (_using_blockwatch()) {
-        eval { LJ::Blockwatch->setup_gearman_hooks($client) };
-
-        warn "Unable to add Blockwatch hooks to Gearman client object: $@"
-            if $@;
-    }
 
     return $client;
 }
@@ -306,13 +279,6 @@ sub mogclient {
         # set preferred ip list if we have one
         $LJ::MogileFS->set_pref_ip(\%LJ::MOGILEFS_PREF_IP)
             if %LJ::MOGILEFS_PREF_IP;
-
-        if (_using_blockwatch()) {
-            eval { LJ::Blockwatch->setup_mogilefs_hooks($LJ::MogileFS) };
-
-            warn "Unable to add Blockwatch hooks to MogileFS client object: $@"
-                if $@;
-        }
     }
 
     return $LJ::MogileFS;

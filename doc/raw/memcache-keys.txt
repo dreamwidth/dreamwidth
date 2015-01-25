@@ -134,9 +134,6 @@ jabclusterid:<id> == address of server
 
 qotd:<type> == QotDs of the type <type> ('current' or 'old')
 
-blockwatch_ids   == hash of blockwatch ids mapped to names
-blockwatch_names == hash of blockwatch names mapped to ids
-
 ct_flag_locked == array of locked content flag ids
 ct_flag_cat_count == hash of content flag counts
 

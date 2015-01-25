@@ -1,9 +1,0 @@
-<title>LiveJournal's S2 API</title>
-<para>S2 is a generic system which sites like LiveJournal can use.  This appendix documents the LiveJournal-specific core layers, which provide the basic functionality that's available to all other layers.  At present there's only one core layer (version 1), but in the future there may be more.</para>
-
-<section id='&s2.idroot;siteapi.core1'>
-  <title>Core Layer 1</title>
-  <para>LiveJournal's only core layer, at present.</para>
-   &s2.siteapi.core1.autogen;
-   &s2.siteapi.core1.dateformats;
-</section>

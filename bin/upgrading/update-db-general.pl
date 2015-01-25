@@ -949,6 +949,7 @@ register_tabledrop("tor_proxy_exits");
 register_tabledrop("cmdbuffer");
 register_tabledrop("schemacols");
 register_tabledrop("schematables");
+register_tabledrop("blockwatch_events");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -2374,16 +2375,6 @@ CREATE TABLE dirmogsethandles (
     exptime  INT UNSIGNED NOT NULL,
 
     INDEX    (exptime)
-)
-EOC
-
-register_tablecreate("blockwatch_events", <<'EOC');
-CREATE TABLE blockwatch_events (
-    id int unsigned NOT NULL auto_increment,
-    name varchar(255) NOT NULL,
-
-    PRIMARY KEY (id),
-    UNIQUE KEY (name)
 )
 EOC
 
