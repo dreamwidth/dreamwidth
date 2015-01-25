@@ -347,20 +347,6 @@ CREATE TABLE priv_map (
 )
 EOC
 
-register_tablecreate("cmdbuffer", <<'EOC');
-CREATE TABLE cmdbuffer (
-    cbid INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    journalid INT UNSIGNED NOT NULL,
-    cmd VARCHAR(30) NOT NULL default '',
-    instime datetime NOT NULL default '0000-00-00 00:00:00',
-    args TEXT NOT NULL,
-
-    PRIMARY KEY  (cbid),
-    KEY (cmd),
-    KEY (journalid)
-)
-EOC
-
 register_tablecreate("random_user_set", <<'EOC');
 CREATE TABLE random_user_set (
     posttime INT UNSIGNED NOT NULL,
@@ -981,6 +967,7 @@ register_tabledrop("navtag");
 register_tabledrop("syndicated_hubbub2");
 register_tabledrop("openproxy");
 register_tabledrop("tor_proxy_exits");
+register_tabledrop("cmdbuffer");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (

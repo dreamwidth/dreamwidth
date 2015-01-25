@@ -45,10 +45,6 @@
 # Optional, if you want to use &captcha;s:
 30 * * * * /home/lj/bin/ljmaint.pl gen_audio_captchas gen_image_captchas clean_captchas > /dev/null
 
-# If you are running a high-load site with $LJ::CMDBUFFER on,
-# there&apos;s another one to install:
-*/5 * * * * /home/lj/bin/qbufferd.pl &gt;/dev/null      <co id="COqbufferd" linkends="qbufferdCO" />
-
 </programlisting>
 
    <calloutlist>
@@ -58,20 +54,6 @@
             <programlisting>
             Change:    /dev/null
             To:        <filename>/var/log/cronrun.log</filename> 2&gt;&amp;1</programlisting></para></tip>
-      </callout>
-
-      <callout arearefs="COqbufferd" id="qbufferdCO">
-              <para>If query-buffering is off, you can still run that, but it&apos;s not needed.
-              Packagers should make their packages install it, since it doesn&apos;t hurt if it is
-              running and not used.  It&apos;ll die off right away if it realizes it&apos;s not needed.
-              Otherwise it&apos;ll start up in the background and run every 15 seconds or so.
-              Future startups by <systemitem class='daemon'>cron</systemitem> will only make
-              sure it hasn&apos;t died (like if the database dies).</para>
-              <para>The <link linkend="ljp.dbschema.cmdbuffer">
-              <database class="table">cmdbuffer</database></link> table and related functions
-              are just the successor to querybuffer. It is a clustered version of the earlier tool,
-              using specialized commands instead of general table locking.
-              The <filename>qbufferd.pl</filename> tool uses the new commands.</para>
       </callout>
     </calloutlist>
 

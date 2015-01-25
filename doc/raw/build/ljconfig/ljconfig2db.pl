@@ -581,15 +581,6 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                     'type' => "array",
                     'example' => '("^ex_", "^lj_")',
             },
-            'qbufferd_isolate' => {
-                    'desc' => "On a larger installation, it is useful to have multiple <systemitem class='process'>qbufferd.pl</systemitem> processes, one for each command type. This is not necessary on a small installation.",
-                    'type' => "array",
-                    'example' => "('weblogscom', 'eg_comnewpost')",
-            },
-            'qbufferd_pidfile' => {
-                    'desc' => "Sets the file to which the qbufferd.pl parent process records the process id of the daemon. The presence of the file ensures qbufferd.pl knows if it already has a process started. The value must be a valid path, as the parent has to kill the child process if the parent couldn&apos;t create or write to its pid.",
-                    'default' => '$LJ::HOME/var/qbufferd.pid',
-            },
             'random_user_period' => {
                     'desc' => "If you want to change the amount of time a user stays in the [dbtable[random_user_set]] table, change this. The random user search feature uses this. The value is in days (default is one week).",
                     'default' => "7",
@@ -612,10 +603,6 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
             },
             'trust_x_headers' => {
                     'desc' => "If you know that your installation is behind a proxy or other fence that inserts <literal>X-Forwarded-For</literal> headers that you can trust, enable this. Otherwise, don&apos;t! Default is off (for direct connection to the &apos;net).  If behind your own reverse proxies, you should enable this.",
-            },
-            'use_qbufferd_delay' => {
-                    'desc' => "Used in conjunction with [ljconfig[qbufferd_isolate]], to specify a time to sleep between runs of <systemitem>qbuffered</systemitem> tasks. The default is 15 seconds.",
-                    'example' => "10",
             },
             'usersearch_metafile_path' => {
                     'desc' => "File name and path the search-updater worker should use for the usersearch data file.",
@@ -676,10 +663,6 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
             'max_s2compiled_cache_size' => {
                     'desc' => "Threshold (in bytes) under which compiled S2 layers are cached in &memcached;. If you have a lot of free &memcached; memory and a loaded database server with lots of queries to the [dbtable[s2compiled]] table, turn this up.",
                     'default' => "7500;",
-            },
-            'qbufferd_clusters' => {
-                    'desc' => "If defined, list of clusters that qbufferd should use when retrieving and processing outstanding jobs.  Defaults to value of [ljconfig[clusters]]. You might set this if you removed a cluster you wanted to retire from \@LJ::CLUSTERS so it receives no new qbufferd jobs, but still needed to get qbufferd to process remaining jobs.",
-                    'type' => "array",
             },
             'recent_tag_limit' => {
                     'desc' => "The [dbtable[logtagsrecent]] table holds mapping on a set quantity of the most recent tags applied to an entry. This variable sets that quantity.",

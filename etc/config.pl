@@ -79,12 +79,6 @@
     ### System Information
     ###
 
-    # on a larger installation, it's useful to have multiple qbufferd.pl
-    # processes, one for each command type.  this is unecessary on a
-    # small installation.  you can also specify a delay between runs.
-    #@QBUFFERD_ISOLATE = ('ljcom_newpost');
-    #$QBUFFERD_DELAY   = 10;
-
     # path to sendmail and any necessary options
     $SENDMAIL = "/usr/sbin/sendmail -t";
 

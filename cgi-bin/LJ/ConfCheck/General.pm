@@ -113,9 +113,6 @@ add_conf('@LANGS_IN_PROGRESS',
 add_conf('@CLUSTERS',
          des => "Array of cluster numbers in operation.");
 
-add_conf('@QBUFFERD_CLUSTERS',
-         des => "If defined, list of clusters that qbufferd should use when retrieving and processing outstanding jobs.  Defaults to \@CLUSTERS");
-
 add_conf('$DEFAULT_STYLE',
          required => 0,
          des => "Hashref describing default S2 style.  Keys are layer types, values being the S2 redist_uniqs.",
@@ -271,11 +268,6 @@ add_conf('$MSG_READONLY_USER',
 add_conf('$NEWUSER_CAPS',
          type => 'int',
          des => "Bitmask of capability classes that new users begin their accounts with.  By default users aren't in any capability classes and get only the default site-wide capabilities.  See also \%CAP.",
-         );
-
-add_conf('$QBUFFERD_DELAY',
-         type => 'int',
-         des => "Time to sleep between runs of qbuffered tasks.  Default is 15 seconds.",
          );
 
 add_conf('$RATE_COMMENT_AUTH',
@@ -656,10 +648,6 @@ add_conf('@PRIVATE_STATS',
          des => "Used by bin/maint/stats.pl."
          );
 
-add_conf('$QBUFFERD_PIDFILE',
-         des => "Process ID file used by bin/qbufferd.pl."
-         );
-
 add_conf('%SUPPORT_DIAGNOSTICS',
          des => "Diagnostics to turn on.  Only supported key is 'track_useragent'."
          );
@@ -736,10 +724,6 @@ add_conf('%CAPTCHA_FOR',
 
 add_conf('%DBINFO',
          des => "Database connection information, including passwords."
-         );
-
-add_conf('@QBUFFERD_ISOLATE',
-         des => "List of job types that need to fork a separate process."
          );
 
 add_conf('$CSSPROXY',

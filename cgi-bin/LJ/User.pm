@@ -1339,16 +1339,6 @@ sub begin_work {
 }
 
 
-# front-end to LJ::cmd_buffer_add, which has terrible interface
-#   cmd: scalar
-#   args: hashref
-sub cmd_buffer_add {
-    my ($u, $cmd, $args) = @_;
-    $args ||= {};
-    return LJ::cmd_buffer_add( $u->clusterid, $u->userid, $cmd, $args );
-}
-
-
 sub commit {
     my $u = shift;
     return 1 unless $u->is_innodb;
