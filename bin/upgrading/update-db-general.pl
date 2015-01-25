@@ -358,27 +358,6 @@ CREATE TABLE random_user_set (
 )
 EOC
 
-register_tablecreate("schemacols", <<'EOC');
-CREATE TABLE schemacols (
-    tablename varchar(40) NOT NULL default '',
-    colname varchar(40) NOT NULL default '',
-    des varchar(255) default NULL,
-
-    PRIMARY KEY  (tablename,colname)
-)
-EOC
-
-register_tablecreate("schematables", <<'EOC');
-CREATE TABLE schematables (
-    tablename varchar(40) NOT NULL default '',
-    public_browsable enum('0','1') NOT NULL default '0',
-    redist_mode enum('off','insert','replace') NOT NULL default 'off',
-    des text,
-
-    PRIMARY KEY  (tablename)
-)
-EOC
-
 register_tablecreate("statkeylist", <<'EOC');
 CREATE TABLE statkeylist (
     statkeyid  int unsigned NOT NULL auto_increment,
@@ -968,6 +947,8 @@ register_tabledrop("syndicated_hubbub2");
 register_tabledrop("openproxy");
 register_tabledrop("tor_proxy_exits");
 register_tabledrop("cmdbuffer");
+register_tabledrop("schemacols");
+register_tabledrop("schematables");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -3334,12 +3315,6 @@ register_alter(sub {
         do_alter("duplock",
                  "ALTER TABLE duplock MODIFY realm ENUM('support','log',".
                  "'comment','payments') NOT NULL default 'support'");
-    }
-
-    if (column_type("schematables", "redist_where") eq "") {
-        do_alter("schematables",
-                 "ALTER TABLE schematables ADD ".
-                 "redist_where varchar(255) AFTER redist_mode");
     }
 
     # upgrade people to the new capabilities system.  if they're

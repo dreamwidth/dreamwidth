@@ -42,8 +42,6 @@ DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 
 # DO NOT add anything to here
 DW::Controller::Admin->_register_admin_pages_legacy( '/', 
-    [ 'schema/',
-        '.admin.dbschema.link', '.admin.dbschema.text', [ 'schemadoc' ] ],
     [ 'faq/',
         '.admin.faq.link', '.admin.faq.text', [ 'faqadd', 'faqedit', 'faqcat' ] ],
     [ 'fileedit/',
