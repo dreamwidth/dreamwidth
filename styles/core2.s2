@@ -5447,11 +5447,11 @@ function Entry::print_link_prev() {
 }
 function Entry::print_link_tag_next() {
     var Link link = $this->get_link("nav_tag_next");
-    """<a href="$link.url">&rarr;</a>""";
+    """<a class="tagnav" href="$link.url">&rarr;</a>""";
 }
 function Entry::print_link_tag_prev() {
     var Link link = $this->get_link("nav_tag_prev");
-    """<a href="$link.url">&larr;</a>""";
+    """<a class="tagnav" href="$link.url">&larr;</a>""";
 }
 function Entry::print_management_links()
 "Prints entry management links, aka prev/edit/tag/memory/tag/next, with standarized CSS."
