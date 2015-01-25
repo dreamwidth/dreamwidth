@@ -5314,11 +5314,11 @@ function Entry::print_tags() [fixed] {
             "<li>";
             if ($show_tagnav_links) {
                 $this->print_link_tag_prev();
-                print " ";
+                """<span class="tagnav-space"> </span>""";
             }
             """<a rel="tag" href="$t.url">$t.name</a>""";
             if ($show_tagnav_links) {
-                print " ";
+                """<span class="tagnav-space"> </span>""";
                 $this->print_link_tag_next();
             }
             $tag_count++;
