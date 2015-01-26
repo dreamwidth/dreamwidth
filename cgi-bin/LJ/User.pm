@@ -9742,32 +9742,12 @@ sub make_journal {
     }
 
     # signal to LiveJournal.pm that we can't handle this
-    # FIXME: Make this properly invoke siteviews all the time -- once all the views are ready.
-    # Most of this if and tons of messy conditionals can go away once all views are done.
     if ( $stylesys == 1 || $stylearg eq 'site' || $stylearg eq 'light' ) {
-        # FIXME: The month view is currently not styled in siteviews
-        my $fallback = $view eq 'month' ? 'bml' : 's2';
-
         # If they specified ?format=light, it means they want a page easy
         # to deal with text-only or on a mobile device.  For now that means
         # render it in the lynx site scheme.
         DW::SiteScheme->set_for_request( 'lynx' )
             if $stylearg eq 'light';
-
-        # but if the user specifies which they want, override the fallback we picked
-        if ($geta->{'fallback'} && $geta->{'fallback'} =~ /^s2|bml$/) {
-            $fallback = $geta->{'fallback'};
-        }
-
-        # Only the month view has a BML version.
-        $fallback = 's2'
-            if $view ne 'month';
-
-        # fall back to legacy BML unless we're using siteviews
-        if ($fallback eq 'bml') {
-            ${$opts->{'handle_with_bml_ref'}} = 1;
-            return;
-        }
 
         # Render a system-owned S2 style that renders
         # this content, then passes it to get treated as BML
