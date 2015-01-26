@@ -29,8 +29,6 @@ _c?>
                  'stc/imgupload.css',
                  'stc/display_none.css');
 
-    LJ::need_res( 'js/photobucket_jw.js' ) if $LJ::PHOTOBUCKET_JWIDGET_ID;
-
     if ($GET{upload_count} || LJ::did_post()) {
         my $js = "";
 
@@ -85,9 +83,6 @@ _c?>
             }
             function clearTabs() {
                 \$('tabInsert').className = '';~;
-    $$head .= qq~ 
-                \$('tabPhotobucket').className = '';~
-                    if $LJ::PHOTOBUCKET_JWIDGET_ID;
     $$head .= qq~
             }
         </script>
@@ -97,8 +92,6 @@ _c?>
     $ret .= "<div class='insobjOuter' id='insobjOuter'>";
     $ret .= "<form id='insobjform' enctype='multipart/form-data' action='imgupload' method='post' onsubmit='return window.parent.InOb.onSubmit()' >";
     $ret .= "<div class='tabs'><ul><li id='tabInsert' class='on'><a href='javascript: void(0);' onclick='window.parent.InOb.showSelectorPage();setTab(\"tabInsert\");return false;'>Insert Image</a></li>";
-
-    $ret .= "<li id='tabPhotobucket'><a href='javascript: void(0);' onclick='window.parent.InOb.photobucket(seedurl,pb_affsite_id);setTab(\"tabPhotobucket\");return false;'>Photobucket</a></li>" if $LJ::PHOTOBUCKET_JWIDGET_ID;
 
     $ret .= "</ul></div><div id='close'><a href='#close' onclick='onCancel();return false;'>close</a></div>";
 
@@ -158,10 +151,6 @@ _c?>
 
     $$body = $ret;
 
-    if ( $LJ::PHOTOBUCKET_JWIDGET_ID ) {
-        $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb';";
-        $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
-    }
     $$head .= LJ::res_includes();
     return;
 }

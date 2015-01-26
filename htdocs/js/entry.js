@@ -620,8 +620,6 @@ InOb.setupIframeHandlers = function () {
     if (el) el.onclick = function () { return InOb.selectRadio("fromfile"); };
     el = ifw.document.getElementById("fromfileentry");
     if (el) el.onclick = el.onchange = function () { return InOb.selectRadio("fromfile"); };
-    el = ifw.document.getElementById("fromfb");
-    if (el) el.onclick = function () { return InOb.selectRadio("fromfb"); };
     el = ifw.document.getElementById("btnPrev");
     if (el) el.onclick = InOb.onButtonPrevious;
 };
@@ -663,11 +661,6 @@ InOb.selectRadio = function (which) {
         fromfile.focus();
     }
 
-    else if (which == "fromfb") {
-        submit.value = "Next -->";  // &#x2192 is a right arrow
-        // fromfile.focus();
-    }
-
     return true;
 };
 
@@ -680,7 +673,6 @@ InOb.popid = function (id) {
 InOb.onSubmit = function () {
     var fileradio = InOb.popid('fromfile');
     var urlradio  = InOb.popid('fromurl');
-    var fbradio   = InOb.popid('fromfb');
 
     var form = InOb.popid('insobjform');
     if (! form) return InOb.fail('no form');
@@ -723,11 +715,6 @@ InOb.onSubmit = function () {
         return true;
     }
 
-    if (fbradio && fbradio.checked) {
-        InOb.fotobilderStepOne();
-        return false;
-    }
-
     alert('unknown radio button checked');
     return false;
 };
@@ -746,40 +733,6 @@ InOb.showSelectorPage = function () {
     var div_err = InOb.popid('img_error');
     if (div_err) { div_err.style.display = 'none'; }
 };
-
-InOb.fotobilderStepOne = function () {
-    InOb.fullCenter();
-    var div_if = InOb.popid("img_iframe_holder");
-    var windims = DOM.getClientDimensions();
-    DOM.setHeight(div_if, windims.y - 300);
-    var div_fw = InOb.popid("img_fromwhere");
-    div_fw.style.display = "none";
-    div_if.style.display = "block";
-    var url = currentPopupWindow.fbroot + "/getgals";
-
-    var h = windims.y - 350;
-    div_if.innerHTML = "<iframe id='fbstepframe' src=\"" + url + "\" height=\"" + h + "\" width='99%' frameborder='0' style='margin: 0 auto;'></iframe>";
-    InOb.setPreviousCb(InOb.showSelectorPage);
-}
-
-InOb.photobucket= function (seedurl,pb_affsite_id) {
-    InOb.tallCenter();
-    var div_if = InOb.popid("img_iframe_holder");
-    var windims = DOM.getClientDimensions();
-    DOM.setHeight(div_if, 450);
-    var div_fw = InOb.popid("img_fromwhere");
-    div_fw.style.display = "none";
-    div_if.style.display = "block";
-
-    // Safari can't use the advanced JWidget integration so the callback
-    // URL is set to nothing
-    var cb_url = "&url=" + escape(seedurl);
-    var browser = new BrowserDetectLite();
-    if (browser.isSafari) cb_url = '';
-
-    div_if.innerHTML = '<iframe name="jwidget" id="jwidget" src="http://photobucket.com/svc/jwidget.php?width=360&height=400&largeThumb=true&pbaffsite='+pb_affsite_id+'&bg=%23FFFFFF&border=false&bordercolor=%23000000'+cb_url+'&linkType=url&textcolor=%23000000&linkcolor=%230000FF&media=image&btntxt=Paste&dimensions=false&promo=false" bgcolor="transparent" width="99%" height="440" frameborder="0" scrolling="no"></iframe>';
-    InOb.setPreviousCb(InOb.showSelectorPage);
-}
 
 InOb.fullCenter = function () {
     var windims = DOM.getClientDimensions();

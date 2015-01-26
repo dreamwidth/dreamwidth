@@ -3115,9 +3115,6 @@ sub rte_js_vars {
         $ret .= "    RTEdisabled['$key'] = true;" if $rte_disabled->{$key};
     }
 
-    # detect whether image upload and photobucket are set up
-    my $photobucket_is_setup = $LJ::PHOTOBUCKET_JWIDGET_ID ? "true" : "false";
-
     $ret .= qq^
         var canmakepoll = $canmakepoll;
 
@@ -3128,9 +3125,6 @@ sub rte_js_vars {
                 }
             }
         }
-
-        var SiteConfig = new Object();
-        SiteConfig.ImagePhotobucket = $photobucket_is_setup;
     </script>^;
 
     return $ret;
