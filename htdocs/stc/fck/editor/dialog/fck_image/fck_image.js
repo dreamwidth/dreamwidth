@@ -43,9 +43,6 @@ if ( FCKConfig.ImageUpload && top.SiteConfig.ImageUpload )
 	dialog.AddTab( 'Upload', FCKLang.DlgLnkUpload ) ;
 
 // LJ SPECIFIC
-if ( FCKConfig.ImagePhotobucket && top.SiteConfig.ImagePhotobucket )
-    dialog.AddTab( 'Photobucket', 'Photobucket' ) ;
-
 if ( !FCKConfig.ImageDlgHideAdvanced )
 	dialog.AddTab( 'Advanced', FCKLang.DlgAdvancedTag ) ;
 
@@ -55,7 +52,6 @@ function OnDialogTabChange( tabCode )
 	ShowE('divInfo'		, ( tabCode == 'Info' ) ) ;
 	ShowE('divLink'		, ( tabCode == 'Link' ) ) ;
 	ShowE('divUpload'	, ( tabCode == 'Upload' ) ) ;
-  ShowE('divPhotobucket', ( tabCode == 'Photobucket' ) ) ;
 	ShowE('divAdvanced'	, ( tabCode == 'Advanced' ) ) ;
 }
 
@@ -543,8 +539,6 @@ InObFCK.setupIframeHandlers = function () {
     if (el) el.onfocus = function () { return InObFCK.selectRadio("fromfile"); };
     el = GetE("fromfileentry");
     if (el) el.onclick = el.onfocus = function () { return InObFCK.selectRadio("fromfile"); };
-    el = GetE("fromfb");
-    if (el) el.onfocus = el.onclick = function () { return InObFCK.selectRadio("fromfb"); };
     el = GetE("btnPrev");
     if (el) el.onclick = InObFCK.onButtonPrevious;
 
@@ -579,7 +573,6 @@ InObFCK.selectRadio = function (which) {
 
 InObFCK.onSubmit = function () {
     var fileradio = GetE('fromfile');
-    var fbradio   = GetE('fromfb');
 
     var form = GetE('insobjform');
     var sFile = GetE('fromfileentry').value ;
@@ -612,11 +605,6 @@ InObFCK.onSubmit = function () {
                 form.action = fileaction;
                 setEnc("multipart/form-data");
                 return true;
-    } else {
-        if (fbradio && fbradio.checked) {
-            InObFCK.fotobilderStepOne();
-            return false;
-        }
     }
 
     alert('unknown radio button checked');
@@ -632,25 +620,6 @@ InObFCK.showSelectorPage = function () {
 
         InObFCK.setTitle('Insert Image');
 };
-
-InObFCK.fotobilderStepOne = function () {
-    var div_if = GetE("img_iframe_holder");
-    var div_fw = GetE("img_fromwhere");
-    div_fw.style.display = "none";
-    div_if.style.display = "";
-    var url = fbroot + "/getgalsrte";
-
-    var titlebar = GetE('insObjTitle');
-
-    var navbar = GetE('insobjNav');
-
-    div_if.innerHTML = "<iframe width='100%' height='100%' id='fbstepframe' src=\"" + url + "\" frameborder='0'></iframe>";
-    div_if.style.border = '0px solid';
-    div_if.style.height = '100%'; // Needed for Safari to display Iframe
-
-    InObFCK.setPreviousCb(InObFCK.showSelectorPage);
-}
-
 
 InObFCK.setPreviousCb = function (cb) {
     InObFCK.cbForBtnPrevious = cb;
