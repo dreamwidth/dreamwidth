@@ -25,9 +25,9 @@ BEGIN { require 'ljlib.pl'; }
 use LJ::Typemap;
 use LJ::Test;
 
-my $table = 'cprodlist';
-my $classfield = 'class';
-my $idfield = 'cprodid';
+my $table = 'statkeylist';
+my $classfield = 'name';
+my $idfield = 'statkeyid';
 
 sub run_tests {
     my $tm;
