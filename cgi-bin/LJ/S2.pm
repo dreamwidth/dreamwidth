@@ -105,8 +105,6 @@ sub make_journal
     if ( $styleid && $styleid eq "siteviews" ) {
         $apache_r->notes->{ 'no_control_strip' } = 1;
 
-        # kill the flag
-        ${$opts->{'handle_with_bml_ref'}} = 0;
         ${$opts->{'handle_with_siteviews_ref'}} = 1;
         $opts->{siteviews_extra_content} ||= {};
 

@@ -9935,22 +9935,18 @@ sub make_journal {
 
         my $mj;
 
-        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} ) {
-            $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
-        } else {
-            eval {
-                $mj = LJ::S2::make_journal($u, $styleid, $view, $remote, $opts);
-            };
-            if ( $@ ) {
-                if ( $remote && $remote->show_raw_errors ) {
-                    my $r = DW::Request->get;
-                    $r->content_type("text/html");
-                    $r->print("<b>[Error: $@]</b>");
-                    warn $@;
-                    return;
-                } else {
-                    die $@;
-                }
+        eval {
+            $mj = LJ::S2::make_journal($u, $styleid, $view, $remote, $opts);
+        };
+        if ( $@ ) {
+            if ( $remote && $remote->show_raw_errors ) {
+                my $r = DW::Request->get;
+                $r->content_type("text/html");
+                $r->print("<b>[Error: $@]</b>");
+                warn $@;
+                return;
+            } else {
+                die $@;
             }
         }
 
