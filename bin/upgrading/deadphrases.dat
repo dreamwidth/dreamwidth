@@ -483,16 +483,28 @@ general ljfeedback.text
 general ljspotlight.text
 general polls.link
 general polls.text
+general cprod.birthday.link.v1
+general cprod.birthday.text.v1
+general cprod.controlstrip.link.v1
+general cprod.controlstrip.text.v1
+general cprod.createstyles.text.v1
+general cprod.editpics.text6.v1
+general cprod.editpicsmax.text5.v1
+general cprod.editstyles.text.v1
+general cprod.feeds.link.v1
+general cprod.feeds.text.v1
 general cprod.friendsfriends.text.v1
 general cprod.friendsfriends.text.v2
 general cprod.friendsfriends.text.v3
 general cprod.friendsfriends.text.v4
 general cprod.friendsfriends.text.v5
+general cprod.friendsfriends.text2.v1
 general cprod.friendsfriends.link.v1
 general cprod.friendsfriends.link.v2
 general cprod.friendsfriends.link.v3
 general cprod.friendsfriends.link.v4
 general cprod.friendsfriends.link.v5
+general cprod.friendsfriends.link2.v1
 general /tools/textmessage.bml.enter.user.text
 general cprod.friendsfriendsinline.link2.v1
 general cprod.friendsfriendsinline.link2.v2
@@ -505,7 +517,12 @@ general cprod.friendsfriendsinline.text2.v3
 general cprod.friendsfriendsinline.text2.v4
 general cprod.friendsfriendsinline.text2.v5
 general cprod.links.text2.v1
+general cprod.polls.link.v1
+general cprod.polls.text.v1
 general cprod.textmessaging.text2.v1
+general cprod.textmessaging.text3.v1
+general cprod.userpic.link.v1
+general cprod.userpic.text.v1
 
 general web.controlstrip.links.changecommsettings
 
