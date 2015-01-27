@@ -207,8 +207,10 @@ sub make_authas_select {
         } else {
             $ret = $foundation
                 ?   q{<div class='row collapse'><div class='columns medium-1'><label class='inline'>} . LJ::Lang::ml( 'web.authas.select.label' ) . q{</label></div>}
-                        . q{<div class='columns medium-6'>} . $menu . q{</div>}
-                        . q{<div class='columns medium-2 end'>} . LJ::html_submit( undef, $button, { class => "secondary postfix button"} ) . q{</div>}
+                        . q{<div class='columns medium-11'><div class='row'>}
+                            . q{<div class='columns medium-4'>} . $menu . q{</div>}
+                            . q{<div class='columns medium-2 end'>} . LJ::html_submit( undef, $button, { class => "secondary button"} ) . q{</div>}
+                        . q{</div></div>}
                     . q{</div>}
                 : "<br/>"
                         . LJ::Lang::ml( 'web.authas.select', { menu => $menu, username => LJ::ljuser($authas) } ) . " " . LJ::html_submit( undef, $button )
