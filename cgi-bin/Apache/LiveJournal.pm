@@ -1306,14 +1306,8 @@ sub journal_content
     }
 
 
-    # LJ::make_journal() will set this flag if the pages are
-    # viewed without using S2 (e.g. lynx, format=light, which
-    # can't do EntryPage or MonthPage), in which
-    # case it's our job to invoke the legacy BML page.
-    my $handle_with_bml = 0;
-
-    # or this flag for pages that are from siteviews and expect
-    # to be processed by /misc/siteviews to get sitescheme around them
+    # LJ::make_journal() will set this flag for pages that should use the site
+    # skin and therefore need to be processed by siteviews (e.g., style=site)
     my $handle_with_siteviews = 0;
 
     my %headers = ();
@@ -1326,7 +1320,6 @@ sub journal_content
         'header'    => {
             'If-Modified-Since' => $apache_r->headers_in->{"If-Modified-Since"},
         },
-        'handle_with_bml_ref' => \$handle_with_bml,
         'handle_with_siteviews_ref' => \$handle_with_siteviews,
         'siteviews_extra_content' => {},
         'ljentry' => $RQ{'ljentry'},
@@ -1356,36 +1349,8 @@ sub journal_content
     # if LJ::make_journal() indicated it can't handle the request:
     # only if HTML is set, otherwise leave it alone so the user
     # gets "messed up template definition", cause something went wrong.
-    if ( $handle_with_siteviews && $html ) {
-        return DW::Template->render_string( $html, $opts->{siteviews_extra_content} );
-    } elsif ( $handle_with_bml ) {
-        my $args = $apache_r->args;
-        my $args_wq = $args ? "?$args" : "";
-
-        # historical: can't show BML on user domains... redirect them.  nowadays
-        # not a big deal, but debug option retained for other sites w/ old BML schemes
-        if ($LJ::DEBUG{'no_bml_on_user_domains'}
-            && $RQ{'vhost'} eq "users" && ($RQ{'mode'} eq "entry" ||
-                                           $RQ{'mode'} eq "reply" ||
-                                           $RQ{'mode'} eq "month"))
-        {
-            my $u = LJ::load_user($RQ{'user'});
-            my $base = "$LJ::SITEROOT/users/$RQ{'user'}";
-            $base = "$LJ::SITEROOT/community/$RQ{'user'}" if $u && $u->is_community;
-            return redir($apache_r, "$base$uri$args_wq");
-        }
-
-        if ($RQ{'mode'} eq "entry" || $RQ{'mode'} eq "reply") {
-            confess 'Old talkread/talkpost path hit. Please fix.';
-        }
-
-        if ($RQ{'mode'} eq "month") {
-            my $filename = "$LJ::HOME/htdocs/view/index.bml";
-            $apache_r->notes->{_journal} = $RQ{user};
-            $apache_r->notes->{bml_filename} = $filename;
-            return Apache::BML::handler($apache_r);
-        }
-    }
+    return DW::Template->render_string( $html, $opts->{siteviews_extra_content} )
+        if $handle_with_siteviews && $html;
 
     my $status = $opts->{'status'} || "200 OK";
     $opts->{'contenttype'} ||= $opts->{'contenttype'} = "text/html";
