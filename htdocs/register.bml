@@ -139,7 +139,7 @@ body<=
          $ret .= "$ML{'.new.101.community.answer'}</p>";
          $ret .= "</div>";
          $ret .= "<div class='columns-2-right'>";
-         $ret .= LJ::CProd->full_box_for($u, width => 300);
+         # nothing here - R.I.P. CProd
          $ret .= "</div>";
          $ret .= "</div><!-- end .columns-2 -->";
      }

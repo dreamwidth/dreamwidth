@@ -252,13 +252,8 @@ use strict;
                 ## see if they have too many pictures uploaded
                 my $inline;
                 if ($userpic_count >= $max) {
-                    if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'EditPicsMax')) {
-                        push @info, $inline;
-                        $no_errors = 0;
-                    } else {
-                        push @info, BML::ml('.error.toomanypics4', { "num" => $max });
-                        $no_errors = 0;
-                    }
+                    push @info, BML::ml('.error.toomanypics4', { "num" => $max });
+                    $no_errors = 0;
                 } elsif ($current_upload{"error"}) {
                     push @info, $message_prefix . "$current_upload{error}";
                     $no_errors = 0;
@@ -466,12 +461,7 @@ use strict;
 
         } else {
             $body .= "<div id='limit'>\n";
-            my $inline;
-            if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'EditPicsMax')) {
-                $body .= $inline;
-            } else {
-                $body .= BML::ml('.error.toomanypics_standout', { num => $max });
-            }
+            $body .= BML::ml('.error.toomanypics_standout', { num => $max });
             $body .= "</div><!-- end #limit -->";
         }
         $body .= " \n\n";
@@ -509,12 +499,7 @@ use strict;
         $body .= "<p><strong>" . BML::ml( '.piclimitstatus', { current => scalar @userpics, max => $max } ) . "</strong> ";
         $body .= BML::ml( '.view.allicons', { aopts => "href='" . $u->allpics_base . "'" } ) . "</p>";
         if (scalar @userpics >= $max) {
-            my $inline;
-            if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'EditPics')) {
-                $body .= "<?warningbar" . $inline . "warningbar?>";
-            } else {
-                $body .= "<p>".BML::ml('cprod.editpics.text7.v1',{ "num" => $max })."</p>";
-            }
+            $body .= "<p>".BML::ml('cprod.editpics.text7.v1',{ "num" => $max })."</p>";
         }
 
         # show sort options
