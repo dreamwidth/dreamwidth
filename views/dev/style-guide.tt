@@ -85,20 +85,23 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     <div class="row">
       <div class="large-12 columns">
-        <label>Input Label</label>
-        <input type="text" placeholder="large-12.columns">
+        [%- form.textbox( label = "Input Label"
+              placeholder = "large-12.columns"
+         ) -%]
       </div>
     </div>
 
     <div class="row">
       <div class="large-4 columns error">
-        <label>Input Label</label>
-        <input type="text" placeholder="large-4.columns">
-        <small class="error">Some error here</small>
+        [%- form.textbox( label = "Input Label"
+              placeholder = "large-4.columns"
+              name = "has_error"
+         ) -%]
       </div>
       <div class="large-4 columns">
-        <label>Input Label</label>
-        <input type="text" placeholder="large-4.columns">
+        [%- form.textbox( label = "Input Label"
+              placeholder = "large-4.columns"
+         ) -%]
       </div>
       <div class="large-4 columns">
         <div class="row collapse">
@@ -115,21 +118,21 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
    <div class="row">
      <div class="large-12 columns">
-       <label>Select Dropdrown</label>
-       <select>
-         <optgroup label="foo bar baz">
-            <option value="">foo</option>
-            <option value="">bar</option>
-            <option value="">baz</option>
-         </optgroup>
-       </select>
+        [%- form.select( label = "Select Dropdown"
+              placeholder = "large-12.columns"
+              items = [ {
+                optgroup = "foo bar baz"
+                items = [ { text = "foo", value = "" }, { text = "bar", value = "" }, { text = "baz", value = "" }, ]
+            } ]
+        ) -%]
      </div>
    </div>
 
     <div class="row">
       <div class="large-12 columns">
-        <label>Textarea Label</label>
-        <textarea placeholder="small-12.columns"></textarea>
+        [%- form.textarea( label = "Textarea Label"
+              placeholder = "small-12.columns"
+        ) -%]
       </div>
     </div>
 
@@ -140,6 +143,24 @@ the same terms as Perl itself.  For a copy of the license, please reference
       </div>
     </div>
   </fieldset>
+
+  [%- WRAPPER code -%]
+  form.textbox( label = "Input Label"
+    placeholder = "large-12.columns"
+  )
+  form.select( label = "Select Dropdown"
+    placeholder = "large-12.columns"
+    items = [ {
+        optgroup = "foo bar baz"
+        items = [ { text = "foo", value = "" }, { text = "bar", value = "" }, { text = "baz", value = "" }, ]
+    } ]
+  )
+  form.textarea( label = "Textarea Label"
+    placeholder = "small-12.columns"
+  )
+  # see DW::Template::Plugin::FormHTML for more
+  [%- END -%]
+
 
   <fieldset><legend>Buttons</legend>
       <input type="button" class="small button" value=".small.button" /><br>

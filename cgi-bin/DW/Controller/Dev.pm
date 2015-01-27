@@ -21,6 +21,7 @@ use warnings;
 use DW::Routing;
 use DW::SiteScheme;
 use DW::Controller;
+use DW::FormErrors;
 
 use LJ::JSON;
 
@@ -40,7 +41,15 @@ sub style_guide_handler {
     my $authas_form = "<form action='" . LJ::create_url() . "' method='get'>"
                             . LJ::make_authas_select( LJ::load_user( "system" ), { authas => "", foundation => 1 } )
                             . "</form>";
-    return DW::Template->render_template( 'dev/style-guide.tt', { authas_form => $authas_form } );
+
+    # errors
+    my $errors = DW::FormErrors->new();
+    $errors->add_string( "has_error", "Some error here (added by controller)" );
+
+    return DW::Template->render_template( 'dev/style-guide.tt', {
+            authas_form => $authas_form,
+            errors => $errors,
+     });
 }
 
 sub tests_index_handler {
