@@ -9733,12 +9733,7 @@ sub make_journal {
         return $notice->( BML::ml( 'error.vhost.nocomm' ) );
     }
     if ($view eq "network" && ! LJ::get_cap($u, "friendsfriendsview")) {
-        my $inline;
-        if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'FriendsFriendsInline')) {
-            return $inline;
-        } else {
-            return BML::ml('cprod.friendsfriendsinline.text3.v1');
-        }
+        return BML::ml('cprod.friendsfriendsinline.text3.v1');
     }
 
     # signal to LiveJournal.pm that we can't handle this

@@ -42,9 +42,6 @@ sub directory_handler {
     # check for the /community/search path (same form)
     if ( $r->uri =~ m:^/community/search: ) {
         $rv->{comm_page} = 1;
-        if ( LJ::Hooks::are_hooks("cprod_redirect_user") ) {
-            return LJ::Hooks::run_hook( "cprod_redirect_user", $remote );
-        }
     }
 
     # see if we submitted the form (the directory.bml section)

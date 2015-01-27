@@ -134,13 +134,8 @@ sub render_body {
                 { 'disabled' => $ct >= $caplinks, 'noescape' => 1 }
             );
         }
-        my $inline;
         if ($ct >= $caplinks) {
-            if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'Links')) {
-                $ret .= $inline;
-            } else {
-                $ret .= "</td></tr><tr><td colspan='2'>&nbsp;</td><td>" . LJ::Lang::ml('cprod.links.text3.v1');
-            }
+            $ret .= "</td></tr><tr><td colspan='2'>&nbsp;</td><td>" . LJ::Lang::ml('cprod.links.text3.v1');
         }
         $ret .= "</td></tr>";
 
