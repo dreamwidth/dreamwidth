@@ -543,7 +543,7 @@ sub slug {
     croak $u->errstr if $u->err;
 
     LJ::MemCache::set( [ $jid, "logslug:$jid:$self->{jitemid}" ], $slug );
-    
+
     $self->{_loaded_slug} = 1;
     return $self->{slug} = $slug;
 }
@@ -610,9 +610,9 @@ sub _load_comments {
         $row->{nodetype} = "L";
         $row->{nodeid}   = $nodeid;
         $comment->absorb_row(%$row);
-        
+
         push @comment_list, $comment;
-    }        
+    }
     $self->set_comment_list( @comment_list );
 
     return $self;
@@ -2045,6 +2045,70 @@ sub load_log_props2
 }
 
 # <LJFUNC>
+# name: LJ::load_talk_props2
+# class:
+# des:
+# info:
+# args:
+# des-:
+# returns:
+# </LJFUNC>
+sub load_talk_props2
+{
+    my $db = LJ::DB::isdb( $_[0] ) ? shift @_ : undef;
+    my ($uuserid, $listref, $hashref) = @_;
+
+    my $userid = want_userid($uuserid);
+    my $u = ref $uuserid ? $uuserid : undef;
+
+    $hashref = {} unless ref $hashref eq "HASH";
+
+    my %need;
+    my @memkeys;
+    foreach (@$listref) {
+        my $id = $_+0;
+        $need{$id} = 1;
+        push @memkeys, [$userid,"talkprop:$userid:$id"];
+    }
+    return $hashref unless %need;
+
+    my $mem = LJ::MemCache::get_multi(@memkeys) || {};
+
+    # allow hooks to count memcaches in this function for testing
+    if ($LJ::_T_GET_TALK_PROPS2_MEMCACHE) {
+        $LJ::_T_GET_TALK_PROPS2_MEMCACHE->();
+    }
+
+    while (my ($k, $v) = each %$mem) {
+        next unless $k =~ /(\d+):(\d+)/ && ref $v eq "HASH";
+        delete $need{$2};
+        $hashref->{$2}->{$_[0]} = $_[1] while @_ = each %$v;
+    }
+    return $hashref unless %need;
+
+    if (!$db || @LJ::MEMCACHE_SERVERS) {
+        $u ||= LJ::load_userid($userid);
+        $db = @LJ::MEMCACHE_SERVERS ? LJ::get_cluster_def_reader($u) :  LJ::get_cluster_reader($u);
+        return $hashref unless $db;
+    }
+
+    LJ::load_props("talk");
+    my $in = join(',', keys %need);
+    my $sth = $db->prepare("SELECT jtalkid, tpropid, value FROM talkprop2 ".
+                           "WHERE journalid=? AND jtalkid IN ($in)");
+    $sth->execute($userid);
+    while (my ($jtalkid, $propid, $value) = $sth->fetchrow_array) {
+        my $p = $LJ::CACHE_PROPID{'talk'}->{$propid};
+        next unless $p;
+        $hashref->{$jtalkid}->{$p->{'name'}} = $value;
+    }
+    foreach my $id (keys %need) {
+        LJ::MemCache::set([$userid,"talkprop:$userid:$id"], $hashref->{$id} || {});
+    }
+    return $hashref;
+}
+
+# <LJFUNC>
 # name: LJ::delete_all_comments
 # des: deletes all comments from a post, permanently, for when a post is deleted
 # info: The tables [dbtable[talk2]], [dbtable[talkprop2]], [dbtable[talktext2]],
@@ -2390,6 +2454,92 @@ sub get_logtext2
         $lt->{$id} = $val;
         LJ::MemCache::add([$journalid,"logtext:$clusterid:$journalid:$id"], $val);
         delete $need{$id};
+    }
+    return $lt;
+}
+
+# <LJFUNC>
+# name: LJ::get_talktext2
+# des: Retrieves comment text. Tries slave servers first, then master.
+# info: Efficiently retrieves batches of comment text. Will try alternate
+#       servers first. See also [func[LJ::get_logtext2]].
+# returns: Hashref with the talkids as keys, values being [ $subject, $event ].
+# args: u, opts?, jtalkids
+# des-opts: A hashref of options. 'onlysubjects' will only retrieve subjects.
+# des-jtalkids: A list of talkids to get text for.
+# </LJFUNC>
+sub get_talktext2
+{
+    my $u = shift;
+    my $clusterid = $u->{'clusterid'};
+    my $journalid = $u->{'userid'}+0;
+
+    my $opts = ref $_[0] ? shift : {};
+
+    # return structure.
+    my $lt = {};
+    return $lt unless $clusterid;
+
+    # keep track of itemids we still need to load.
+    my %need;
+    my @mem_keys;
+    foreach (@_) {
+        my $id = $_+0;
+        $need{$id} = 1;
+        push @mem_keys, [$journalid,"talksubject:$clusterid:$journalid:$id"];
+        unless ($opts->{'onlysubjects'}) {
+            push @mem_keys, [$journalid,"talkbody:$clusterid:$journalid:$id"];
+        }
+    }
+
+    # try the memory cache
+    my $mem = LJ::MemCache::get_multi(@mem_keys) || {};
+
+    if ($LJ::_T_GET_TALK_TEXT2_MEMCACHE) {
+        $LJ::_T_GET_TALK_TEXT2_MEMCACHE->();
+    }
+
+    while (my ($k, $v) = each %$mem) {
+        $k =~ /^talk(.*):(\d+):(\d+):(\d+)/;
+        if ($opts->{'onlysubjects'} && $1 eq "subject") {
+            delete $need{$4};
+            $lt->{$4} = [ $v ];
+        }
+        if (! $opts->{'onlysubjects'} && $1 eq "body" &&
+            exists $mem->{"talksubject:$2:$3:$4"}) {
+            delete $need{$4};
+            $lt->{$4} = [ $mem->{"talksubject:$2:$3:$4"}, $v ];
+        }
+    }
+    return $lt unless %need;
+
+    my $bodycol = $opts->{'onlysubjects'} ? "" : ", body";
+
+    # pass 1 (slave) and pass 2 (master)
+    foreach my $pass (1, 2) {
+        next unless %need;
+        my $db = $pass == 1 ? LJ::get_cluster_reader($clusterid) :
+            LJ::get_cluster_def_reader($clusterid);
+
+        unless ($db) {
+            next if $pass == 1;
+            die "Could not get db handle";
+        }
+
+        my $in = join(",", keys %need);
+        my $sth = $db->prepare("SELECT jtalkid, subject $bodycol FROM talktext2 ".
+                               "WHERE journalid=$journalid AND jtalkid IN ($in)");
+        $sth->execute;
+        while (my ($id, $subject, $body) = $sth->fetchrow_array) {
+            $subject = "" unless defined $subject;
+            $body = "" unless defined $body;
+            LJ::text_uncompress(\$body);
+            $lt->{$id} = [ $subject, $body ];
+            LJ::MemCache::add([$journalid,"talkbody:$clusterid:$journalid:$id"], $body)
+                unless $opts->{'onlysubjects'};
+            LJ::MemCache::add([$journalid,"talksubject:$clusterid:$journalid:$id"], $subject);
+            delete $need{$id};
+        }
     }
     return $lt;
 }
