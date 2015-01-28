@@ -97,6 +97,7 @@ use LJ::Time;
 use LJ::Capabilities;
 use DW::Mood;
 use LJ::Global::Img;  # defines LJ::Img
+use LJ::Global::Secrets;  # defines LJ::Secrets
 use DW::Media;
 use DW::Stats;
 use DW::Proxy;
@@ -111,15 +112,6 @@ sub Unicode::MapUTF8::AUTOLOAD {
 }
 
 sub END { LJ::end_request(); }
-
-use LJ::DB;
-use LJ::Tags;
-use LJ::TextUtil;
-use LJ::Time;
-use LJ::Capabilities;
-use DW::Mood;
-use LJ::Global::Img;  # defines LJ::Img
-use LJ::Global::Secrets;  # defines LJ::Secrets
 
 # Fix "(Net::SSL from Crypt-SSLeay can't verify hostnames)" [ see bug 5280 ]
 $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;

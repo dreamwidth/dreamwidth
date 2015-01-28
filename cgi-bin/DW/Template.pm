@@ -21,6 +21,7 @@ use Template::Plugins;
 use Template::Namespace::Constants;
 use DW::FragmentCache;
 use DW::Request;
+use LJ::Directories;
 
 =head1 NAME
 

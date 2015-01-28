@@ -110,7 +110,11 @@ sub checkbox {
 
     if ( ! defined $args->{selected} && $self->{data} ) {
         my %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
-        $args->{selected} = $selected{$args->{value}};
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::checkbox has undefined argument 'value'";
+        }
     }
 
     $args->{labelclass} ||= "checkboxlabel";
@@ -150,7 +154,11 @@ sub checkbox_nested {
 
     if ( ! defined $args->{selected} && $self->{data} ) {
         my %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
-        $args->{selected} = $selected{$args->{value}};
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::checkbox_nested has undefined argument 'value'";
+        }
     }
 
     $args->{class} ||= "checkbox";
@@ -197,7 +205,11 @@ sub radio {
 
     if ( ! defined $args->{selected} && $self->{data} ) {
         my %selected = map { $_ => 1 } $self->{data}->get_all( $args->{name} );
-        $args->{selected} = $selected{$args->{value}};
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::radio has undefined argument 'value'";
+        }
     }
 
     $args->{labelclass} ||= "radiolabel";
@@ -228,7 +240,11 @@ sub radio_nested {
     my $ret = "";
     if ( ! defined $args->{selected} && $self->{data} ) {
         my %selected = map { $_ => 1 } $self->{data}->get_all( $args->{name} );
-        $args->{selected} = $selected{$args->{value}};
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::radio_nested has undefined argument 'value'";
+        }
     }
 
     $args->{class} ||= "radio";
