@@ -110,7 +110,11 @@ sub checkbox {
 
     if ( ! defined $args->{selected} && $self->{data} ) {
         my %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
-        $args->{selected} = $selected{$args->{value}};
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::checkbox has undefined argument 'value'";
+        }
     }
 
     $args->{labelclass} ||= "checkboxlabel";
