@@ -54,7 +54,6 @@ use DW::BusinessRules::InviteCodeRequests;
 
 use DateTime;
 use DateTime::TimeZone;
-use LJ::CProd;
 use LJ::OpenID;
 use LJ::Location;
 use LJ::SpellCheck;

@@ -950,6 +950,8 @@ register_tabledrop("cmdbuffer");
 register_tabledrop("schemacols");
 register_tabledrop("schematables");
 register_tabledrop("blockwatch_events");
+register_tabledrop("cprodlist");
+register_tabledrop("cprod");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -2178,39 +2180,6 @@ CREATE TABLE notifyqueue (
 
     PRIMARY KEY (userid, qid),
     INDEX       (state)
-)
-EOC
-
-# global (contextual product prodding, "hey, you've never used polls, wanna learn how?")
-register_tablecreate("cprodlist", <<'EOC');
-CREATE TABLE cprodlist (
-    cprodid   SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    class     VARCHAR(100),
-
-    UNIQUE (class)
-)
-EOC
-
-# contextual product prodding history, making sure we don't bug people when they
-# don't want it anymore.
-#
-#   -- firstshowtime: when it was first highlighted to them (not all the everything page)
-#   -- recentshowtime: a recent showing time.  perhaps not THE most recent, though.
-#   -- acktime: time the user saw the box.  either by clicking next/no/more info.
-#   -- nothankstime: also a boolean:  time/if user doesn't want to see it again
-#   -- clickthrutime:  time user clicked for more info
-register_tablecreate("cprod", <<'EOC');
-CREATE TABLE cprod (
-    userid    INT      UNSIGNED NOT NULL,
-    cprodid   SMALLINT UNSIGNED NOT NULL,
-    PRIMARY KEY (userid, cprodid),
-
-    firstshowtime      INT UNSIGNED,
-    recentshowtime     INT UNSIGNED,
-    acktime            INT UNSIGNED,
-    nothankstime       INT UNSIGNED,
-    clickthrutime      INT UNSIGNED,
-    clickthruver       SMALLINT UNSIGNED
 )
 EOC
 

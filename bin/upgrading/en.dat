@@ -67,49 +67,15 @@ contentflag.viewingexplicit.byjournal=You're about to view content that a commun
 
 contentflag.viewingexplicit.byposter=You're about to view content that the poster has marked as potentially inappropriate for anyone under the age of 18.
 
-cprod.birthday.link.v1=birthdays
-
-cprod.birthday.text.v1=Hey, [[user]], see which of your friends' [[link]] are coming up! Dreamwidth keeps a list of their birthdays for you.
-
-cprod.controlstrip.link.v1=Navigation Strip
-
-cprod.controlstrip.text.v1=9 out of 10 LJ users prefer the [[link]].  (OK we made that up, but you should check it out anyway.)
-
-cprod.createstyles.text.v1=Your account type does not support creating styles.
-
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
 
-cprod.editpics.text6.v1=You've reached your limit of [[num]] userpics.
-
 cprod.editpics.text7.v1=You've reached your limit of [[num]] icons.
-
-cprod.editpicsmax.text5.v1=You've reached your limit of [[num]] userpics.
-
-cprod.editstyles.text.v1=Your account type does not permit you to edit styles.
-
-cprod.feeds.link.v1=syndicated feeds
-
-cprod.feeds.text.v1=Find good content outside of LJ? Add [[link]] to your Friends page so you never have to leave.
-
-cprod.friendsfriends.link2.v1=Friends of Friends
-
-cprod.friendsfriends.text2.v1=[[link]] page shows all your friends' Friends pages in one Friends page.  Say that three times fast!
 
 cprod.friendsfriendsinline.text3.v1=Sorry, this account type does not permit showing your network.
 
 cprod.links.text3.v1=Your account type doesn't permit you to have more links.
 
-cprod.polls.link.v1=poll creation wizard
-
-cprod.polls.text.v1=[[user]], you can post a poll in your journal using our [[link]]?  [[poll]]
-
 cprod.syn.text.v1=Note: This feature isn't available to your account type.
-
-cprod.textmessaging.text3.v1=Your account type doesn't permit you to use this feature.
-
-cprod.userpic.link.v1=default userpic
-
-cprod.userpic.text.v1=[[user]], did you know you could pick a [[link]] to go along with your posts and comments?
 
 customize.cats.all=All
 
