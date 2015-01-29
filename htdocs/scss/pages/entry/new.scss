@@ -102,12 +102,23 @@
     padding: 0;
     font-size: .8rem;
 
-    label, input, legend, ul, select {
+    h3 {
+        font-size: 1rem;
+    }
+
+    label, input, legend, ul, select, textarea {
         font-size: .8rem;
     }
 
-    h3 {
-        font-size: 1rem;
+    input[type=text], input[type=password], select {
+        line-height: 2rem;
+        height: 2rem;
+        padding: .4rem;
+    }
+
+    .postfix {
+        line-height: 2rem;
+        height: 2rem;
     }
 
     &.collapse-collapsed {
