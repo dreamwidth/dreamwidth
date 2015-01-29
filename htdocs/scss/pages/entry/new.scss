@@ -1,5 +1,12 @@
 @import "foundation/base", "foundation/components/grid", "foundation/components/type";
 
+@media #{$medium-up} {
+    .second-column, .third-column {
+        float: left;
+        width: grid-calc(6, 12);
+    }
+}
+
 @media #{$large-up} {
     .entry-full-width {
         .first-column {
@@ -95,12 +102,22 @@
     padding: 0;
     font-size: .8rem;
 
-    label, input, legend, ul {
+    h3 {
+        font-size: 1rem;
+    }
+
+    label, input, legend, ul, select, textarea {
         font-size: .8rem;
     }
 
-    h3 {
-        font-size: 1rem;
+    input[type=text], input[type=password], select {
+        height: 2rem;
+        padding: .4rem;
+    }
+
+    .postfix {
+        height: 2rem;
+        line-height: 2rem;
     }
 
     &.collapse-collapsed {
@@ -131,15 +148,17 @@
         margin: 0;
     }
 
+    a {
+        text-decoration: none;
+    }
+}
+
+.component, .reveal-modal {
     // so that when it wraps it still stays beside the radio/checkbox
     // instead of having the entire label go to the next line
     input[type="checkbox"] + label,
     input[type="radio"] + label {
         display: inline;
-    }
-
-    a {
-        text-decoration: none;
     }
 }
 

@@ -1,9 +1,9 @@
 ;; -*- coding: utf-8 -*-
 .header=Display Date
 
-.label.autoupdate=Use the time when entry is posted
+.label.autoupdate=Use the current time
 
-.label.dateoutoforder2=Don't show on Reading Pages
+.label.dateoutoforder2=Don't show on Reading pages
 
 .label.picker.time=Time Picker
 
