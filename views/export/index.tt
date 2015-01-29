@@ -1,0 +1,112 @@
+[%# export/index.tt
+
+Journal export functionality
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- CALL dw.ml_scope( '/export.bml' ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- sections.title = '.title' | ml -%]
+[%- authas_form -%]
+
+<p>[% '.description' | ml %]</p>
+
+<form action='export_do?authas=[% u.username %]' method='post'>
+
+<fieldset class="row">
+    <legend>[% '.label.export' | ml %]</legend>
+    <div class="columns medium-centered medium-10 large-6 end">
+        <div class="row">
+            <div class="columns medium-8">
+                [%- form.textbox(
+                    label = dw.ml('.label.year')
+                    name  = 'year'
+                    hint  = dw.ml('.hint.year')
+                    placeholder = 'yyyy'
+                    maxlength = 4
+
+                    "aria-required" = "true"
+                ) -%]
+            </div>
+            <div class="columns medium-4">
+                [%- form.textbox(
+                    label = dw.ml('.label.month')
+                    name  = 'month'
+                    hint  = dw.ml('.hint.month')
+                    placeholder = 'mm'
+                    maxlength = 2
+
+                    "aria-required" = "true"
+                ) -%]
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="large-12 columns">
+                [%- form.select(
+                    name  = 'format'
+                    label = dw.ml('.label.format')
+                    items = ['csv', dw.ml('.format.csv'), 'xml', dw.ml('.format.xml')]
+                ) -%]
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="large-12 columns">
+                [%- form.select(
+                    name = 'encid'
+                    label = dw.ml('.label.encoding')
+                    selected = 'UTF-8'
+                    hint = dw.ml('.hint.encoding')
+                    items = encodings
+                ) -%]
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="columns">
+                <p>[% '.label.choices' | ml %]</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="medium-6 columns">
+                <input type='checkbox' name="field_itemid" id="field_itemid" checked='checked' />
+                <label for="field_itemid">[% '.label.field.itemid' | ml %]</label><br />
+                <input type='checkbox' name="field_eventtime" id="field_eventtime" checked='checked' />
+                <label for="field_eventtime">[% '.label.field.eventtime' | ml %]</label><br />
+                <input type='checkbox' name="field_logtime" id="field_logtime" checked='checked' />
+                <label for="field_logtime">[% '.label.field.logtime' | ml %]</label><br />
+                <input type='checkbox' name="field_subject" id="field_subject" checked='checked' />
+                <label for="field_subject">[% '.label.field.subject' | ml %]</label><br />
+            </div>
+            <div class="medium-6 columns">
+                <input type='checkbox' name="field_event" id="field_event" checked='checked' />
+                <label for="field_event">[% '.label.field.event' | ml %]</label><br />
+                <input type='checkbox' name="field_security" id="field_security" checked='checked' />
+                <label for="field_security">[% '.label.field.security' | ml %]</label><br />
+                <input type='checkbox' name="field_allowmask" id="field_allowmask" checked='checked' />
+                <label for="field_allowmask">[% '.label.field.allowmask' | ml %]</label><br />
+                <input type='checkbox' name='field_currents' id="field_currents" checked='checked' />
+                <label for="field_currents">[% '.label.field.currents' | ml %]</label><br />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="large-12 columns">
+                <input type="submit" class="button" value="[% '.btn.proceed' | ml %]" />
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+</form>

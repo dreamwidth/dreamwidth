@@ -1,41 +1,47 @@
 ;; -*- coding: utf-8 -*-
-.btn.proceed=Proceed.
+.btn.proceed=Export Journal Content
 
-.description=This feature lets you back up your entire journal by downloading to a custom format .
+.description=From this page you can download a month's worth of journal entries in either CSV or XML format. This is designed to be used for local archival purposes.
 
 .fields=Fields:
 
 .format.csv=CSV (Comma Separated Values)
 
-.format.xml=XML
+.format.xml=XML (eXtensible Markup Language)
 
-.label.encoding=Encoding:
+.hint.encoding=Usually UTF-8 is the best choice here.
 
-.label.field.allowmask=Allow Mask
+.hint.month=E.g. 01, 02, etc.
+
+.hint.year=E.g. 2010, 2011, etc.
+
+.label.choices=Please select one or more fields to export below. Any items checked will be included for all entries exported.
+
+.label.encoding=Text Encoding
+
+.label.export=Export Journal Content
+
+.label.field.allowmask=Access Groups
 
 .label.field.currents=Current Mood &amp; Music
 
-.label.field.event=<strong>Event</strong>
+.label.field.event=<strong>Entry Text</strong>
 
-.label.field.eventtime=Event Time (from your clock)
+.label.field.eventtime=Local Time (yours)
 
 .label.field.itemid=ID Number
 
-.label.field.logtime=Log Time (from system's clock)
+.label.field.logtime=Server Time (ours)
 
 .label.field.security=Security Level
 
-.label.field.subject=Subject
+.label.field.subject=Entry Subject
 
-.label.format=Format:
+.label.format=Export File Format
 
-.label.header=Header:
+.label.month=Month of Year
 
-.label.month=Select month:
-
-.label.month.month=mm:
-
-.label.month.year=yyyy:
+.label.year=Year to Export
 
 .label.notranslation=Don't translate between encodings
 
