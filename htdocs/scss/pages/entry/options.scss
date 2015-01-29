@@ -1,3 +1,9 @@
+.toolbar-container fieldset {
+    &, label {
+        font-size: .8rem;
+    }
+}
+
 .note {
     font-size: small;
     font-style: italic;
