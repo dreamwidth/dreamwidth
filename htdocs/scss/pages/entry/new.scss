@@ -131,7 +131,7 @@
         // .last-visible handles the case when we have invisible elements
         // that are only meant to be revealed by js
         .row:last-child .columns >, .last-visible {
-            input, select, button {
+            label input, input, select, button {
                 margin-bottom: 0;
             }
         }
