@@ -1584,7 +1584,7 @@ sub _options {
                     my @col;
 
                     foreach ( $post->get_all( "column_$column_index" ) ) {
-                        my ( $order, $panel ) = m/(\d+):(.+)_component/;
+                        my ( $order, $panel ) = m/(\d+):(.+)/;
                         $col[$order] = $panel;
 
                         $didpost_order = 1;
