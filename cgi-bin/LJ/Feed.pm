@@ -615,7 +615,7 @@ sub create_view_foaf {
 
     # setup userprops we will need
     $u->preload_props( qw{
-        aolim icq yahoo jabber msn icbm url urlname external_foaf_url country city journaltitle
+        aolim icq yahoo jabber icbm url urlname external_foaf_url country city journaltitle
     } );
 
     # create bare foaf document, for now
@@ -687,7 +687,6 @@ sub create_view_foaf {
         aolim => 'aimChatID',
         icq => 'icqChatID',
         yahoo => 'yahooChatID',
-        msn => 'msnChatID',
         jabber => 'jabberID',
     );
     if ($u->{allow_contactshow} eq 'Y') {

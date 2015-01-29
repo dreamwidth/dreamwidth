@@ -1588,3 +1588,8 @@ general /admin/supportcat/category.tt.field.scope.label
 general /admin/supportcat/category.tt.field.sortorder.label
 general /admin/supportcat/category.tt.field.user_closeable.label
 general /admin/supportcat/category.tt.saved
+
+general widget.search.msn
+general /manage/profile/index.bml.chat.msnusername
+general /profile.bml.im.msn
+general /profile.bml.label.msnusername
