@@ -1,5 +1,12 @@
 @import "foundation/base", "foundation/components/grid", "foundation/components/type";
 
+@media #{$medium-up} {
+    .second-column, .third-column {
+        float: left;
+        width: grid-calc(6, 12);
+    }
+}
+
 @media #{$large-up} {
     .entry-full-width {
         .first-column {
