@@ -1059,7 +1059,6 @@ function Page::print()
         $this->print_wrapper_start();
         $this->print_control_strip();
         println "<div id=\"header\">";
-            println "<a name=\"top\"></a>";
             $this->print_global_title();
             $this->print_global_subtitle();
             $this->print_module_section("two");
