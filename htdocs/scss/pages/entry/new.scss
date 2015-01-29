@@ -1,6 +1,10 @@
 @import "foundation/base", "foundation/components/grid", "foundation/components/type";
 
 @media #{$medium-up} {
+    .components {
+        padding: 0 .45rem;
+    }
+
     .second-column, .third-column {
         float: left;
         width: grid-calc(6, 12);
@@ -9,12 +13,7 @@
 
 @media #{$large-up} {
     .entry-full-width {
-        .first-column {
-            float: left;
-            width: grid-calc(4, 12);
-        }
-
-        .second-column, .third-column {
+        .first-column, .second-column, .third-column {
             float: left;
             width: grid-calc(4, 12);
         }
@@ -141,6 +140,10 @@
       list-style-type:none;
       margin: 0;
       padding: 0;
+    }
+
+    fieldset {
+        padding: .75rem;
     }
 
     fieldset fieldset {
