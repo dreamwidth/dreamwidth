@@ -111,14 +111,13 @@
     }
 
     input[type=text], input[type=password], select {
-        line-height: 2rem;
         height: 2rem;
         padding: .4rem;
     }
 
     .postfix {
-        line-height: 2rem;
         height: 2rem;
+        line-height: 2rem;
     }
 
     &.collapse-collapsed {
