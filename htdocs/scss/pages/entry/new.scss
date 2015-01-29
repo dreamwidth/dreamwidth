@@ -55,6 +55,10 @@
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
 .entry-quick-metadata {
+    & > ul {
+        margin-bottom: 0;
+    }
+
     li {
         display: inline-block;
 
