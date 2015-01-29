@@ -138,15 +138,17 @@
         margin: 0;
     }
 
+    a {
+        text-decoration: none;
+    }
+}
+
+.component, .reveal-modal {
     // so that when it wraps it still stays beside the radio/checkbox
     // instead of having the entire label go to the next line
     input[type="checkbox"] + label,
     input[type="radio"] + label {
         display: inline;
-    }
-
-    a {
-        text-decoration: none;
     }
 }
 
