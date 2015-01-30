@@ -1,5 +1,18 @@
-.tag-browser ul {
-    -moz-column-width: 12em;
-    -webkit-column-width: 12em;
-    column-width: 12em;
+.tag-browser {
+    ul {
+        -moz-column-width: 12em;
+        -webkit-column-width: 12em;
+        column-width: 12em;
+    }
+
+    // make sure that checkbox doesn't separate from the label
+    li {
+        white-space: nowrap;
+    }
+
+    // but also make sure that the label wraps / breaks instead of going on forever
+    label {
+        word-wrap: break-word;
+        white-space: normal;
+    }
 }

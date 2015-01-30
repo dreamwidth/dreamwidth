@@ -1,6 +1,10 @@
 @import "foundation/base", "foundation/components/grid", "foundation/components/type";
 
 @media #{$medium-up} {
+    .components {
+        padding: 0 .45rem;
+    }
+
     .second-column, .third-column {
         float: left;
         width: grid-calc(6, 12);
@@ -9,12 +13,7 @@
 
 @media #{$large-up} {
     .entry-full-width {
-        .first-column {
-            float: left;
-            width: grid-calc(4, 12);
-        }
-
-        .second-column, .third-column {
+        .first-column, .second-column, .third-column {
             float: left;
             width: grid-calc(4, 12);
         }
@@ -56,6 +55,10 @@
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
 .entry-quick-metadata {
+    & > ul {
+        margin-bottom: 0;
+    }
+
     li {
         display: inline-block;
 
@@ -90,7 +93,7 @@
 
 .current-entry {
     textarea {
-        height: auto;
+        font-family: monospace;
     }
 }
 
@@ -131,7 +134,7 @@
         // .last-visible handles the case when we have invisible elements
         // that are only meant to be revealed by js
         .row:last-child .columns >, .last-visible {
-            input, select, button {
+            label input, input, select, button {
                 margin-bottom: 0;
             }
         }
@@ -141,6 +144,10 @@
       list-style-type:none;
       margin: 0;
       padding: 0;
+    }
+
+    fieldset {
+        padding: .75rem;
     }
 
     fieldset fieldset {
