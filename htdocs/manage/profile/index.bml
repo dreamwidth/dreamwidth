@@ -61,8 +61,8 @@ body<=
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
         opt_showmutualfriends
-        opt_showbday opt_showlocation opt_showljtalk
-        opt_sharebday opt_showonlinestatus
+        opt_showbday opt_showlocation
+        opt_sharebday
     /;
 
     # load user props
@@ -377,49 +377,6 @@ body<=
 
         if ( $u->is_person ) {
 
-            if ( LJ::is_enabled( 'ljtalk' ) ) {
-                $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
-                $ret .= BML::ml( '.fn.ljtalk.address', { siteabbrev => $LJ::SITENAMEABBREV } );
-                $ret .= "</td><td style='vertical-align: middle'>" . $u->ljtalk_id;
-                # Don't show LJ Talk field? (opt_showljtalk)
-                $ret .= "</td><td class='selectvis'>";
-                $ret .= LJ::html_select
-                    (
-                        {
-                            name => 'opt_showljtalk',
-                            id => 'opt_showljtalk',
-                            title => BML::ml( '.display.title',
-                                { name => BML::ml( '.fn.ljtalk.address', { siteabbrev => $LJ::SITENAMEABBREV } ) } ),
-                            selected => $u->hide_ljtalk ? 'N' : 'Y'
-                        },
-                        Y => $ML{'.security.visibility.privacy'},
-                        N => $ML{'.security.visibility.noshow'}
-                    );
-                $ret .= "</td></tr>\n";
-
-                my $jabber_title = LJ::Hooks::run_hook("jabber_title") || $ML{'/manage/settings/index.bml.jabber.title'};
-                $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
-                $ret .= BML::ml( '.fn.ljtalk.status', { siteabbrev => $LJ::SITENAMEABBREV } );
-                $ret .= "</td><td>$ML{'.fn.showljtalk'}<br />";
-                $ret .= "<span class='helper'>" . BML::ml('/manage/settings/index.bml.jabber.text', {'jabbertitle' => $jabber_title}) . "</span>";
-                # Jabber Online Status
-                $ret .= "</td><td class='selectvis'>";
-                $ret .= LJ::html_select
-                    (
-                        {
-                            name => 'opt_showonlinestatus',
-                            id => 'opt_showonlinestatus',
-                            title => BML::ml( '.privacy.title',
-                                { name => BML::ml( '.fn.ljtalk.status', { siteabbrev => $LJ::SITENAMEABBREV } ) } ),
-                            selected => $u->opt_showonlinestatus
-                        },
-                        Y => $ML{'.security.visibility.everybody2'},
-                        F => $ML{'.security.visibility.access'},
-                        N => $ML{'.security.visibility.nobody'}
-                    );
-                $ret .= "</td></tr>\n";
-            }
-
             # opt_findbyemail
             if ( LJ::is_enabled( 'opt_findbyemail' ) ) {
                 $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
@@ -506,7 +463,7 @@ body<=
 
         $ret .= "<div class='section_head'><a name='bio'></a>$ML{'.section.bio2'}</div>";
         if ( LJ::text_in( $saved{'bio'} ) ) {
-            $ret .= $u->is_identity ? $ML{'.fn.bio.openid'} : 
+            $ret .= $u->is_identity ? $ML{'.fn.bio.openid'} :
                 $ML{".fn.bio$iscomm"};
             $ret .= "<br />\n";
             $ret .= LJ::html_textarea( { name => 'bio',
@@ -699,11 +656,6 @@ body<=
             $POST{'opt_showbday'} = 'D' unless $POST{'opt_showbday'} =~ m/^[DFNY]$/;
             # undefined means show to everyone, "N" means don't show
             $POST{'opt_showlocation'} = undef unless $POST{'opt_showlocation'} =~ m/^[NRYF]$/;
-            # Does the user want to show the LJ Talk field?  Y=Yes, N=No
-            # In this case, the question is actually if they want to hide
-            # it, hence looking for a value of 'N' before 'Y'.
-            $POST{'opt_showljtalk'} = $POST{'opt_showljtalk'} ? 'N' : 'Y';
-            $POST{'opt_showonlinestatus'} = '' unless $POST{'opt_showonlinestatus'} =~ m/^[YFN]$/;
             # change value of opt_whatemailshow based on opt_usesite and
             # $u->profile_email (changed above by DW::Setting::ProfileEmail)
             $POST{'opt_whatemailshow'} =~ tr/A/D/ if $u->profile_email;
@@ -780,7 +732,7 @@ body<=
         my $profile_url = $u->profile_url;
         if ($u->is_community) {
             return "<?h1 $ML{'.success.header'} h1?>\n" .
-                 "<?p " . BML::ml( '.success.text.comm', 
+                 "<?p " . BML::ml( '.success.text.comm',
                     {commname => LJ::ljuser($u->{user}) } ) . " p?>" .
                  "<?p $ML{'.success.gonext'} p?>" .
                  "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile.comm'}</a></li>" .

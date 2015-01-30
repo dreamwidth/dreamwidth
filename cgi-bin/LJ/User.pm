@@ -54,7 +54,6 @@ use LJ::Community;
 use LJ::Subscription;
 use LJ::Identity;
 use LJ::Auth;
-use LJ::Jabber::Presence;
 use LJ::S2;
 use IO::Socket::INET;
 use Time::Local;
@@ -85,7 +84,6 @@ use LJ::Keywords;
 ###  14. Adult Content Functions
 ###  15. Email-Related Functions
 ###  16. (( there is no section 16 ))
-###  18. Jabber-Related Functions
 ###  19. OpenID and Identity Functions
 ###  21. Password Functions
 ###  22. Priv-Related Functions
@@ -2092,28 +2090,6 @@ sub can_show_location {
 }
 
 
-sub can_show_onlinestatus {
-    # FIXME: this function is unused as of Aug 2009 - kareila
-    my $u = shift;
-    my $remote = shift;
-    croak "invalid user object passed"
-        unless LJ::isu($u);
-
-    # Nobody can see online status of $u
-    return 0 if $u->opt_showonlinestatus eq 'N';
-
-    # Everybody can see online status of $u
-    return 1 if $u->opt_showonlinestatus eq 'Y';
-
-    # Only mutually trusted people of $u can see online status
-    if ($u->opt_showonlinestatus eq 'F') {
-        return 0 unless $remote;
-        return 1 if $u->mutually_trusts( $remote );
-        return 0;
-    }
-    return 0;
-}
-
 # The option to track all comments is available to:
 # -- community admins for any community they manage
 # -- all users if community's seed or premium paid
@@ -2836,21 +2812,6 @@ sub opt_showlocation {
 }
 
 
-# opt_showonlinestatus options
-# F = Mutually Trusted
-# Y = Everybody
-# N = Nobody
-sub opt_showonlinestatus {
-    my $u = shift;
-
-    if ($u->raw_prop('opt_showonlinestatus') =~ /^(F|N|Y)$/) {
-        return $u->raw_prop('opt_showonlinestatus');
-    } else {
-        return 'F';
-    }
-}
-
-
 sub opt_whatemailshow {
     my $u = $_[0];
 
@@ -3243,7 +3204,7 @@ sub sticky_entry {
             $u->set_prop( sticky_entry => '' );
             return 1;
         }
-        
+
         my $ditemid;
         my $slug;
 
@@ -5411,118 +5372,6 @@ sub third_party_notify_list_remove {
                       )
                  );
     return 1;
-}
-
-
-########################################################################
-###  18. Jabber-Related Functions
-
-=head2 Jabber-Related Functions
-=cut
-
-# Hide the LJ Talk field on profile?  opt_showljtalk needs a value of 'N'.
-sub hide_ljtalk {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    # ... The opposite of showing the field. :)
-    return $u->show_ljtalk ? 0 : 1;
-}
-
-
-# returns whether or not the user is online on jabber
-sub jabber_is_online {
-    # FIXME: this function is unused as of Aug 2009 - kareila
-    my $u = shift;
-
-    return keys %{LJ::Jabber::Presence->get_resources($u)} ? 1 : 0;
-}
-
-
-sub ljtalk_id {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    return $u->site_email_alias;
-}
-
-
-# opt_showljtalk options based on user setting
-# Y = Show the LJ Talk field on profile (default)
-# N = Don't show the LJ Talk field on profile
-sub opt_showljtalk {
-    my $u = shift;
-
-    # Check for valid value, or just return default of 'Y'.
-    if ($u->raw_prop('opt_showljtalk') =~ /^(Y|N)$/) {
-        return $u->raw_prop('opt_showljtalk');
-    } else {
-        return 'Y';
-    }
-}
-
-
-# find what servers a user is logged in to, and send them an IM
-# returns true if sent, false if failure or user not logged on
-# Please do not call from web context
-sub send_im {
-    my ($self, %opts) = @_;
-
-    croak "Can't call in web context" if LJ::is_web_context();
-
-    my $from = delete $opts{from};
-    my $msg  = delete $opts{message} or croak "No message specified";
-
-    croak "No from or bot jid defined" unless $from || $LJ::JABBER_BOT_JID;
-
-    my @resources = keys %{LJ::Jabber::Presence->get_resources($self)} or return 0;
-
-    my $res = $resources[0] or return 0; # FIXME: pick correct server based on priority?
-    my $pres = LJ::Jabber::Presence->new($self, $res) or return 0;
-    my $ip = $LJ::JABBER_SERVER_IP || '127.0.0.1';
-
-    my $sock = IO::Socket::INET->new(PeerAddr => "${ip}:5200")
-        or return 0;
-
-    my $vhost = $LJ::DOMAIN;
-
-    my $to_jid   = $self->user   . '@' . $LJ::DOMAIN;
-    my $from_jid = $from ? $from->user . '@' . $LJ::DOMAIN : $LJ::JABBER_BOT_JID;
-
-    my $emsg = LJ::exml($msg);
-    my $stanza = LJ::eurl(qq{<message to="$to_jid" from="$from_jid"><body>$emsg</body></message>});
-
-    print $sock "send_stanza $vhost $to_jid $stanza\n";
-
-    my $start_time = time();
-
-    while (1) {
-        my $rin = '';
-        vec($rin, fileno($sock), 1) = 1;
-        select(my $rout=$rin, undef, undef, 1);
-        if (vec($rout, fileno($sock), 1)) {
-            my $ln = <$sock>;
-            return 1 if $ln =~ /^OK/;
-        }
-
-        last if time() > $start_time + 5;
-    }
-
-    return 0;
-}
-
-
-# Show LJ Talk field on profile?  opt_showljtalk needs a value of 'Y'.
-sub show_ljtalk {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    # Fail if the user wants to hide the LJ Talk field on their profile,
-    # or doesn't even have the ability to show it.
-    return 0 unless $u->opt_showljtalk eq 'Y' && LJ::is_enabled('ljtalk') && $u->is_person;
-
-    # User either decided to show LJ Talk field or has left it at the default.
-    return 1 if $u->opt_showljtalk eq 'Y';
 }
 
 

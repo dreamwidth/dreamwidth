@@ -81,8 +81,6 @@ sub title {
 
     if ($mode eq "html") {
         return eval { $self->event->as_html($self->u) } || $@;
-    } elsif ($mode eq "im") {
-        return eval { $self->event->as_im($self->u) } || $@;
     }
 }
 

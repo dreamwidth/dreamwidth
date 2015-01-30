@@ -1096,6 +1096,7 @@ general inbox.menu.new_friends
 general label.security.friends
 general menunav.explore.journalsearch
 general menunav.read.inbox.unread
+general notification_method.im.title
 general notification_method.sms.title
 general password.max30
 general pingback.ljping.comment.text

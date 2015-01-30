@@ -2014,8 +2014,6 @@ menunav.shop.transferpoints=Transfer Shop Points
 
 notification_method.email.title=Email
 
-notification_method.im.title=IM
-
 notification_method.inbox.title=Inbox
 
 number.million=[[number]] million
