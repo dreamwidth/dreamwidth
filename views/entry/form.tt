@@ -211,8 +211,9 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div></div>
 
         <div class="row"><div class="columns">
-            <div class="button-bar entry-quick-metadata">
-                <ul class="no-bullet left">
+            <div class="button-bar entry-quick-metadata row">
+            <div class="columns medium-8 large-9">
+                <ul class="no-bullet">
 
                 <li>
                 [%- form.submit(
@@ -286,23 +287,26 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                 [%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
 
                 </ul>
-                <ul class="button-group right">
-                    <li>[%- form.submit( value = dw.ml('talk.btn.preview')
+                </div>
+                <div class="columns medium-4 large-3">
+                <ul class="no-bullet secondary-actions row collapse">
+                    <li class='columns small-6'>[%- form.submit( value = dw.ml('talk.btn.preview')
                                      name = "action:preview"
                                      id = "js-preview-button"
-                                     class = "small secondary button"
+                                     class = "secondary button expand"
                                      )
                     -%]</li>
 
                     [%- IF can_spellcheck %]
-                    <li>[% form.submit( value = dw.ml('entryform.spellcheck')
+                    <li class="columns small-6">[% form.submit( value = dw.ml('entryform.spellcheck')
                                      name = "action:spellcheck"
                                      id = "js-spellcheck-button"
-                                     class = "small secondary button"
+                                     class = "secondary button expand"
                                      );
                     %]</li>
                     [%- END -%]
                 </ul>
+                </div>
             </div>
         </div></div>
     </div>

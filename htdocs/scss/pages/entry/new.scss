@@ -1,5 +1,10 @@
 @import "foundation/base", "foundation/components/grid", "foundation/components/type";
 
+.entry-quick-metadata .secondary-actions {
+    margin-left: 0;
+    text-align: left;
+}
+
 @media #{$medium-up} {
     .components {
         padding: 0 .45rem;
@@ -8,6 +13,10 @@
     .second-column, .third-column {
         float: left;
         width: grid-calc(6, 12);
+    }
+
+    .entry-quick-metadata .secondary-actions {
+        text-align: right;
     }
 }
 
@@ -55,7 +64,7 @@
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
 .entry-quick-metadata {
-    & > ul {
+    ul {
         margin-bottom: 0;
     }
 
