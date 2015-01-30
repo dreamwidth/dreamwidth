@@ -18,7 +18,6 @@ use Carp qw/ croak /;
 use LJ::Typemap;
 use LJ::NotificationMethod::Email;
 use LJ::NotificationMethod::Inbox;
-use LJ::NotificationMethod::IM;
 use LJ::NotificationMethod::DebugLog;
 
 # this is basically just an interface
