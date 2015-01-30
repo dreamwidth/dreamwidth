@@ -2092,28 +2092,6 @@ sub can_show_location {
 }
 
 
-sub can_show_onlinestatus {
-    # FIXME: this function is unused as of Aug 2009 - kareila
-    my $u = shift;
-    my $remote = shift;
-    croak "invalid user object passed"
-        unless LJ::isu($u);
-
-    # Nobody can see online status of $u
-    return 0 if $u->opt_showonlinestatus eq 'N';
-
-    # Everybody can see online status of $u
-    return 1 if $u->opt_showonlinestatus eq 'Y';
-
-    # Only mutually trusted people of $u can see online status
-    if ($u->opt_showonlinestatus eq 'F') {
-        return 0 unless $remote;
-        return 1 if $u->mutually_trusts( $remote );
-        return 0;
-    }
-    return 0;
-}
-
 # The option to track all comments is available to:
 # -- community admins for any community they manage
 # -- all users if community's seed or premium paid
@@ -2836,21 +2814,6 @@ sub opt_showlocation {
 }
 
 
-# opt_showonlinestatus options
-# F = Mutually Trusted
-# Y = Everybody
-# N = Nobody
-sub opt_showonlinestatus {
-    my $u = shift;
-
-    if ($u->raw_prop('opt_showonlinestatus') =~ /^(F|N|Y)$/) {
-        return $u->raw_prop('opt_showonlinestatus');
-    } else {
-        return 'F';
-    }
-}
-
-
 sub opt_whatemailshow {
     my $u = $_[0];
 
@@ -3243,7 +3206,7 @@ sub sticky_entry {
             $u->set_prop( sticky_entry => '' );
             return 1;
         }
-        
+
         my $ditemid;
         my $slug;
 
@@ -5420,16 +5383,6 @@ sub third_party_notify_list_remove {
 =head2 Jabber-Related Functions
 =cut
 
-# Hide the LJ Talk field on profile?  opt_showljtalk needs a value of 'N'.
-sub hide_ljtalk {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    # ... The opposite of showing the field. :)
-    return $u->show_ljtalk ? 0 : 1;
-}
-
-
 # returns whether or not the user is online on jabber
 sub jabber_is_online {
     # FIXME: this function is unused as of Aug 2009 - kareila
@@ -5444,21 +5397,6 @@ sub ljtalk_id {
     croak "Invalid user object passed" unless LJ::isu($u);
 
     return $u->site_email_alias;
-}
-
-
-# opt_showljtalk options based on user setting
-# Y = Show the LJ Talk field on profile (default)
-# N = Don't show the LJ Talk field on profile
-sub opt_showljtalk {
-    my $u = shift;
-
-    # Check for valid value, or just return default of 'Y'.
-    if ($u->raw_prop('opt_showljtalk') =~ /^(Y|N)$/) {
-        return $u->raw_prop('opt_showljtalk');
-    } else {
-        return 'Y';
-    }
 }
 
 
@@ -5511,19 +5449,6 @@ sub send_im {
     return 0;
 }
 
-
-# Show LJ Talk field on profile?  opt_showljtalk needs a value of 'Y'.
-sub show_ljtalk {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    # Fail if the user wants to hide the LJ Talk field on their profile,
-    # or doesn't even have the ability to show it.
-    return 0 unless $u->opt_showljtalk eq 'Y' && LJ::is_enabled('ljtalk') && $u->is_person;
-
-    # User either decided to show LJ Talk field or has left it at the default.
-    return 1 if $u->opt_showljtalk eq 'Y';
-}
 
 
 ########################################################################

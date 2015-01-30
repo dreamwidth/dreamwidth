@@ -105,10 +105,6 @@
 
 .fn.link2=Link URL
 
-.fn.ljtalk.address=[[siteabbrev]] Chat Address
-
-.fn.ljtalk.status=[[siteabbrev]] Chat Status
-
 .fn.location=Location
 
 .fn.mutualfriends3=Mutual Lists
@@ -120,8 +116,6 @@
 .fn.province=or non-US State/province/territory
 
 .fn.servprov=Service Provider
-
-.fn.showljtalk=Who can see your online chat status?
 
 .fn.sitename2=Link Name
 

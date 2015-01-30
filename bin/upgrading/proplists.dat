@@ -926,14 +926,6 @@ userproplist.opt_showbday:
   multihomed: 0
   prettyname: Show Birthday
 
-userproplist.opt_showljtalk:
-  cldversion: 4
-  datatype: char
-  des: User selected setting for showing (Y) or hiding (N) the LJ Talk field on their profile
-  indexed: 0
-  multihomed: 0
-  prettyname: Show LJ Talk field?
-
 userproplist.opt_showlocation:
   cldversion: 4
   datatype: char
@@ -949,14 +941,6 @@ userproplist.opt_showmutualfriends:
   indexed: 1
   multihomed: 0
   prettyname: Mutual Friends Display
-
-userproplist.opt_showonlinestatus:
-  cldversion: 0
-  datatype: char
-  des: Show online status to Everyone(Y), Mutual Friends(F) or Nobody(N).
-  indexed: 0
-  multihomed: 0
-  prettyname: Show online status
 
 userproplist.opt_stylemine:
   cldversion: 4
