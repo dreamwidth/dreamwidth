@@ -110,29 +110,14 @@ sub is_visible { 0 }
 
 sub always_checked { 1 }
 
-# override parent class subscription methods to always return
-# a subscription object for the user - copied from LJ::Event::XPostSuccess
-sub subscriptions {
-    my ( $self, %args ) = @_;
-    my $cid   = delete $args{'cluster'};  # optional
-    my $limit = delete $args{'limit'};    # optional
-    croak("Unknown options: " . join(', ', keys %args)) if %args;
-    croak("Can't call in web context") if LJ::is_web_context();
+# override parent class subscriptions method to always return
+# a subscription object for the user
+sub raw_subscriptions {
+    my ( $class, $self, %args ) = @_;
 
-    my @subs;
-    my $u = $self->u;
-    return unless $cid == $u->clusterid;
+    $args{ntypeid} = LJ::NotificationMethod::Inbox->ntypeid; # Inbox
 
-    my $row = { userid  => $self->u->id,
-                ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-              };
-
-    push @subs, LJ::Subscription->new_from_row($row);
-
-    push @subs, eval { $self->SUPER::subscriptions(cluster => $cid,
-                                                   limit   => $limit) };
-
-    return @subs;
+    return $class->_raw_always_subscribed( $self, %args );
 }
 
 sub get_subscriptions {
