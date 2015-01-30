@@ -26,7 +26,7 @@ chdir "$Bin/data/userpics" or die "Failed to chdir to t/data/userpics";
 
 package LJ;
 
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 use LJ::HTMLControls;
 use LJ::Talk;
 

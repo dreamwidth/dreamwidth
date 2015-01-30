@@ -21,7 +21,7 @@ use warnings;
 use Test::More tests => 23;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 
 # old calling conventions unmodified:  return undef on no dbh
 my $db = LJ::get_dbh("foo", "bar");

@@ -18,7 +18,7 @@ use warnings;
 use Test::More tests => 8;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 use DW::Pay;
 use LJ::Test qw (temp_user);
 

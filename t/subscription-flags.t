@@ -21,7 +21,7 @@ use warnings;
 use Test::More tests => 10;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 use LJ::Subscription;
 use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);

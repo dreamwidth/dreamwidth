@@ -21,7 +21,7 @@ use warnings;
 use Test::More tests => 40;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 use FindBin qw($Bin);
 use LJ::Test qw(memcache_stress);
 
