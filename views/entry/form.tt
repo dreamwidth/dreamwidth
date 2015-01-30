@@ -211,9 +211,9 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div></div>
 
         <div class="row"><div class="columns">
-            <div class="button-bar entry-quick-metadata row">
-            <div class="columns medium-8 large-9">
-                <ul class="no-bullet">
+            <div class="button-bar entry-quick-actions row">
+            <div class="columns medium-9 large-9">
+                <ul class="no-bullet entry-quick-metadata">
 
                 <li>
                 [%- form.submit(
@@ -288,7 +288,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
                 </ul>
                 </div>
-                <div class="columns medium-4 large-3">
+                <div class="columns medium-3 large-3">
                 <ul class="no-bullet secondary-actions row collapse">
                     <li class='columns small-6'>[%- form.submit( value = dw.ml('talk.btn.preview')
                                      name = "action:preview"
