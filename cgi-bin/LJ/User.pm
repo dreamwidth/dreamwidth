@@ -54,7 +54,6 @@ use LJ::Community;
 use LJ::Subscription;
 use LJ::Identity;
 use LJ::Auth;
-use LJ::Jabber::Presence;
 use LJ::S2;
 use IO::Socket::INET;
 use Time::Local;
@@ -85,7 +84,6 @@ use LJ::Keywords;
 ###  14. Adult Content Functions
 ###  15. Email-Related Functions
 ###  16. (( there is no section 16 ))
-###  18. Jabber-Related Functions
 ###  19. OpenID and Identity Functions
 ###  21. Password Functions
 ###  22. Priv-Related Functions
@@ -5375,80 +5373,6 @@ sub third_party_notify_list_remove {
                  );
     return 1;
 }
-
-
-########################################################################
-###  18. Jabber-Related Functions
-
-=head2 Jabber-Related Functions
-=cut
-
-# returns whether or not the user is online on jabber
-sub jabber_is_online {
-    # FIXME: this function is unused as of Aug 2009 - kareila
-    my $u = shift;
-
-    return keys %{LJ::Jabber::Presence->get_resources($u)} ? 1 : 0;
-}
-
-
-sub ljtalk_id {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    return $u->site_email_alias;
-}
-
-
-# find what servers a user is logged in to, and send them an IM
-# returns true if sent, false if failure or user not logged on
-# Please do not call from web context
-sub send_im {
-    my ($self, %opts) = @_;
-
-    croak "Can't call in web context" if LJ::is_web_context();
-
-    my $from = delete $opts{from};
-    my $msg  = delete $opts{message} or croak "No message specified";
-
-    croak "No from or bot jid defined" unless $from || $LJ::JABBER_BOT_JID;
-
-    my @resources = keys %{LJ::Jabber::Presence->get_resources($self)} or return 0;
-
-    my $res = $resources[0] or return 0; # FIXME: pick correct server based on priority?
-    my $pres = LJ::Jabber::Presence->new($self, $res) or return 0;
-    my $ip = $LJ::JABBER_SERVER_IP || '127.0.0.1';
-
-    my $sock = IO::Socket::INET->new(PeerAddr => "${ip}:5200")
-        or return 0;
-
-    my $vhost = $LJ::DOMAIN;
-
-    my $to_jid   = $self->user   . '@' . $LJ::DOMAIN;
-    my $from_jid = $from ? $from->user . '@' . $LJ::DOMAIN : $LJ::JABBER_BOT_JID;
-
-    my $emsg = LJ::exml($msg);
-    my $stanza = LJ::eurl(qq{<message to="$to_jid" from="$from_jid"><body>$emsg</body></message>});
-
-    print $sock "send_stanza $vhost $to_jid $stanza\n";
-
-    my $start_time = time();
-
-    while (1) {
-        my $rin = '';
-        vec($rin, fileno($sock), 1) = 1;
-        select(my $rout=$rin, undef, undef, 1);
-        if (vec($rout, fileno($sock), 1)) {
-            my $ln = <$sock>;
-            return 1 if $ln =~ /^OK/;
-        }
-
-        last if time() > $start_time + 5;
-    }
-
-    return 0;
-}
-
 
 
 ########################################################################
