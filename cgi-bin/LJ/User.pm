@@ -7848,7 +7848,14 @@ sub get_effective_remote {
     my $remote = LJ::get_remote();
     return undef unless $remote;
 
-    my $authas = $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas} || $remote->user;
+    my $authas = $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas};
+
+    unless ( $authas ) {
+        my $r = DW::Request->get;
+        $authas = $r->get_args->{authas} || $r->post_args->{authas};
+    }
+
+    $authas ||= $remote->user;
     return $remote if $authas eq $remote->user;
 
     return LJ::get_authas_user($authas);

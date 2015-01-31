@@ -1,13 +1,27 @@
-@import "foundation/base", "foundation/components/grid", "foundation/components/type";
+@import "foundation/base", "foundation/components/grid", "foundation/components/type", "foundation/components/forms";
+
+.entry-quick-actions .secondary-actions {
+    text-align: left;
+}
+
+@media #{$medium-up} {
+    .components {
+        padding: 0 .45rem;
+    }
+
+    .second-column, .third-column {
+        float: left;
+        width: grid-calc(6, 12);
+    }
+
+    .entry-quick-actions .secondary-actions {
+        text-align: right;
+    }
+}
 
 @media #{$large-up} {
     .entry-full-width {
-        .first-column {
-            float: left;
-            width: grid-calc(4, 12);
-        }
-
-        .second-column, .third-column {
+        .first-column, .second-column, .third-column {
             float: left;
             width: grid-calc(4, 12);
         }
@@ -48,7 +62,11 @@
 }
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
-.entry-quick-metadata {
+.entry-quick-actions {
+    ul {
+        margin-bottom: 0;
+    }
+
     li {
         display: inline-block;
 
@@ -74,16 +92,52 @@
         // force alignment to buttons
         padding-top: $button-med - rem-calc(1);
         position: relative;
-        top: 1px;
+        top: -2px;
+        border-radius: 0;
     }
     .usejournal-text {
         padding-left: 0.2rem;
+    }
+
+    li + li input {
+        border-left: none;
+    }
+
+    select {
+        position: relative;
+        top: -2px;
+    }
+
+    input, .fancy-select-output, select {
+        height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
+        vertical-align: middle;
+    }
+
+    @media #{$small-only} {
+        .entry-quick-metadata li:last-of-type {
+            width: 100%;
+
+            .fancy-select {
+                width: 100%;
+                padding-right: $column-gutter;
+            }
+            .fancy-select-output {
+                border-radius: $global-radius;
+            }
+        }
+    }
+
+    @media #{$medium-up} {
+        .fancy-select-output {
+            width: auto;
+            border-left: none;
+        }
     }
 }
 
 .current-entry {
     textarea {
-        height: auto;
+        font-family: monospace;
     }
 }
 
@@ -95,12 +149,22 @@
     padding: 0;
     font-size: .8rem;
 
-    label, input, legend, ul {
+    h3 {
+        font-size: 1rem;
+    }
+
+    label, input, legend, ul, select, textarea {
         font-size: .8rem;
     }
 
-    h3 {
-        font-size: 1rem;
+    input[type=text], input[type=password], select {
+        height: 2rem;
+        padding: .4rem;
+    }
+
+    .postfix {
+        height: 2rem;
+        line-height: 2rem;
     }
 
     &.collapse-collapsed {
@@ -114,7 +178,7 @@
         // .last-visible handles the case when we have invisible elements
         // that are only meant to be revealed by js
         .row:last-child .columns >, .last-visible {
-            input, select, button {
+            label input, input, select, button {
                 margin-bottom: 0;
             }
         }
@@ -126,20 +190,26 @@
       padding: 0;
     }
 
+    fieldset {
+        padding: .75rem;
+    }
+
     fieldset fieldset {
         padding: 0;
         margin: 0;
     }
 
+    a {
+        text-decoration: none;
+    }
+}
+
+.component, .reveal-modal {
     // so that when it wraps it still stays beside the radio/checkbox
     // instead of having the entire label go to the next line
     input[type="checkbox"] + label,
     input[type="radio"] + label {
         display: inline;
-    }
-
-    a {
-        text-decoration: none;
     }
 }
 

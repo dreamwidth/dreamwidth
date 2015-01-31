@@ -1,9 +1,9 @@
 ;; -*- coding: utf-8 -*-
 .header=Crosspost
 
-.header.accounts=Crosspost Accounts
+.header.accounts=Crosspost to:
 
-.label.crosspost_entry=Crosspost this entry
+.label.crosspost_entry=Crosspost this
 
 .label.password=Password:
 

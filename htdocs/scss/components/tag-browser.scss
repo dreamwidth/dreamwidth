@@ -1,5 +1,28 @@
-.tag-browser ul {
-    -moz-column-width: 12em;
-    -webkit-column-width: 12em;
-    column-width: 12em;
+.tag-browser {
+    ul {
+        -moz-column-width: 12em;
+        -webkit-column-width: 12em;
+        column-width: 12em;
+    }
+
+    input[type=checkbox] {
+        margin-bottom: 0; // bottom margin on input causes a gap when the tag wraps
+    }
+    li {
+        margin-bottom: .5rem; // but we do still want margin between the items
+    }
+
+    li {
+        // make sure that checkbox doesn't separate from the label
+        white-space: nowrap;
+    }
+
+    label {
+        // but also make sure that the label wraps / breaks instead of going on forever
+        word-wrap: break-word;
+        white-space: normal;
+
+
+    }
+
 }

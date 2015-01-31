@@ -4162,14 +4162,14 @@ EOF
         set_dbnote( "init_media_versions_dimensions", 1 );
     }
 
-    if ( column_type( "renames", "status" ) eq '' ) {
+    if ( table_relevant("renames") && column_type( "renames", "status" ) eq '' ) {
         do_alter( 'renames',
             "ALTER TABLE renames " .
             "ADD COLUMN status CHAR(1) NOT NULL DEFAULT 'A'" );
         do_sql( 'UPDATE renames SET status="U" WHERE renuserid = 0' );
     }
 
-    if ( !check_dbnote( 'remove_countries_from_codes' ) ) {
+    if ( table_relevant("codes") && !check_dbnote( 'remove_countries_from_codes' ) ) {
         do_sql( 'DELETE FROM codes WHERE type = "country"' );
         set_dbnote( 'remove_countries_from_codes', 1 );
     }

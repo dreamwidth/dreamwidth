@@ -1070,7 +1070,8 @@ sub userpic_trans
 
     # redirect to the correct URL if we're not at the right one,
     # and unless CDN stuff is in effect...
-    if ( $LJ::USERPIC_ROOT ne $LJ::_ORIG_CONFIG{USERPIC_ROOT} ) {
+    if ( $LJ::USERPIC_ROOT ne $LJ::_ORIG_CONFIG{USERPIC_ROOT}
+        && $LJ::USERPIC_ROOT ne $LJ::SSLICONPREFIX ) {
         my $host = $apache_r->headers_in->{"Host"};
         unless (    $LJ::USERPIC_ROOT =~ m!^https?://\Q$host\E!i
                     || $LJ::USERPIC_ROOT_CDN && $LJ::USERPIC_ROOT_CDN =~ m!^https?://\Q$host\E!i
