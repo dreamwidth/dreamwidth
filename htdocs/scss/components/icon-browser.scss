@@ -10,8 +10,7 @@
         margin-right: .2em;
         padding: .2em .3em;
         line-height: $base-line-height * 1.5;
-        @include single-transition(background-color);
-        @include single-transition(color);
+        transition: color 300ms ease-out, background-color 300ms ease-out;
     }
 
     a.inactive-toggle {
