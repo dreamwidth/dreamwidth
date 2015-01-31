@@ -49,7 +49,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <hr>
 
     <div class="row"><div class="columns">
-        <div id="js-icon-browser-content">
+        <div id="js-icon-browser-content" class="icon-browser-content">
             <span class="icon-browser-status">Loading...</span>
             <ul></ul>
         </div>
