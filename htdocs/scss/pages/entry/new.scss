@@ -276,6 +276,14 @@
         // component padding: 20
         right: rem-calc(15+20);
     }
+
+    .columns:nth-child(2) .postfix {
+        border-radius: 0;
+    }
+
+    .columns:nth-child(3) input {
+        border-left: none;
+    }
 }
 
 /* elements in modals */
