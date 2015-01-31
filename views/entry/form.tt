@@ -200,7 +200,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     name = "event"
 
                     cols = "50"
-                    rows = "20"
+                    rows = "18"
                     wrap = "soft"
 
                     labelclass = "hidden"
