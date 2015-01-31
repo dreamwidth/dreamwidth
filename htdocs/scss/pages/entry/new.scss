@@ -99,8 +99,10 @@
         padding-left: 0.2rem;
     }
 
-    li + li input {
-        border-left: none;
+    li + li {
+        input, button {
+            border-left: none;
+        }
     }
 
     select {
@@ -108,7 +110,7 @@
         top: -2px;
     }
 
-    input, .fancy-select-output, select {
+    input, .fancy-select-output, select, button {
         height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
         vertical-align: middle;
     }
