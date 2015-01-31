@@ -1,4 +1,8 @@
-@import "foundation/base", "foundation/components/grid", "foundation/components/type";
+@import "foundation/base", "foundation/components/grid", "foundation/components/type", "foundation/components/forms";
+
+.entry-quick-actions .secondary-actions {
+    text-align: left;
+}
 
 @media #{$medium-up} {
     .components {
@@ -8,6 +12,10 @@
     .second-column, .third-column {
         float: left;
         width: grid-calc(6, 12);
+    }
+
+    .entry-quick-actions .secondary-actions {
+        text-align: right;
     }
 }
 
@@ -54,8 +62,8 @@
 }
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
-.entry-quick-metadata {
-    & > ul {
+.entry-quick-actions {
+    ul {
         margin-bottom: 0;
     }
 
@@ -84,10 +92,46 @@
         // force alignment to buttons
         padding-top: $button-med - rem-calc(1);
         position: relative;
-        top: 1px;
+        top: -2px;
+        border-radius: 0;
     }
     .usejournal-text {
         padding-left: 0.2rem;
+    }
+
+    li + li input {
+        border-left: none;
+    }
+
+    select {
+        position: relative;
+        top: -2px;
+    }
+
+    input, .fancy-select-output, select {
+        height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
+        vertical-align: middle;
+    }
+
+    @media #{$small-only} {
+        .entry-quick-metadata li:last-of-type {
+            width: 100%;
+
+            .fancy-select {
+                width: 100%;
+                padding-right: $column-gutter;
+            }
+            .fancy-select-output {
+                border-radius: $global-radius;
+            }
+        }
+    }
+
+    @media #{$medium-up} {
+        .fancy-select-output {
+            width: auto;
+            border-left: none;
+        }
     }
 }
 
