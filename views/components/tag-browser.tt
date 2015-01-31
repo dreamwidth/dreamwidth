@@ -27,7 +27,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 
 <div class="row"><div class="columns">
-    <div id="js-tag-browser-content">
+    <div id="js-tag-browser-content" class="tag-browser-content">
         <span class="tag-browser-status">Loading...</span>
         <ul class='no-bullet'></ul>
     </div>
