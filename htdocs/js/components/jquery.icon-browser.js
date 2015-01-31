@@ -192,7 +192,7 @@ IconBrowser.prototype = {
         iconBrowser.selectedId = $container.attr("id");
         $container
             .show()
-            .find(".th, a[data-kw='" + iconBrowser.selectedKeyword + "'']")
+            .find(".th, a[data-kw='" + iconBrowser.selectedKeyword + "']")
                 .addClass("active");
 
         // keyword menu

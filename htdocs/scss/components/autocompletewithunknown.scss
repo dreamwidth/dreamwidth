@@ -8,7 +8,7 @@ $half-form-spacing: $form-spacing / 2;
     textarea {
         min-height: auto;
         width: 100%;
-        padding: $half-form-spacing 0;
+        padding: 0 0 $half-form-spacing $half-form-spacing;
         margin: 0;
         border: none;
         box-shadow: none;
