@@ -42,7 +42,7 @@ my %form_to_props = (
 my @modules = qw(
     tags displaydate slug
     currents comments age_restriction
-    icons crosspost
+    icons crosspost sticky
 );
 
 
@@ -319,10 +319,8 @@ sub _init {
             }
         }
 
-
         @journallist = ( $u, $u->posting_access_list )
             unless $usejournal;
-
 
         # crosspost
         my @accounts = DW::External::Account->get_external_accounts( $u );
@@ -448,6 +446,9 @@ sub _init {
         crosspost_entry => $crosspost_main,
         crosspostlist => \@crosspost_list,
         crosspost_url => "$LJ::SITEROOT/manage/settings/?cat=othersites",
+
+        sticky_url => "$LJ::SITEROOT/manage/settings/?cat=display#DW__Setting__StickyEntry_",
+        sticky_entry => $form_opts->{sticky_entry},
 
         displaydate => \%displaydate,
 
@@ -600,6 +601,7 @@ sub _edit {
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
+                        sticky_entry => $journal->sticky_entries_lookup->{$ditemid},
                       }, @_ );
 
     # now look for errors that we still want to recover from
@@ -801,6 +803,8 @@ sub _form_to_backend {
         }
     }
 
+    $req->{sticky_entry} = $post->{sticky_entry};
+
     return 1;
 }
 
@@ -869,6 +873,7 @@ sub _backend_to_form {
         icon        => $entry->userpic_kw,
         security    => $security,
         custom_bit  => \@custom_groups,
+        is_sticky   => $entry->journal->sticky_entries_lookup->{$entry->ditemid},
 
         %formprops,
         %otherprops,
@@ -967,7 +972,6 @@ sub _do_post {
                 moderated_message  => $res->{message},
             }
         );
-
     } else {
         # e.g., bad HTML in the entry
         $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $res->{message} ) ) )
@@ -975,7 +979,6 @@ sub _do_post {
 
         my $u = $auth->{poster};
         my $ju = $auth->{journal} || $auth->{poster};
-
 
         # we updated successfully! Now tell the user
         my $poststatus = {
@@ -1025,6 +1028,12 @@ sub _do_post {
                 editurl => $edititemlink,
                 ditemid => $ditemid,
         );
+
+        # set sticky
+        if ( $form_req->{sticky_entry} && $u->can_manage( $ju ) ) {
+            my $added_sticky = $ju->sticky_entry_new( $ditemid );
+            $warnings->add( '', '.sticky.max', { limit => $u->count_max_stickies } ) unless $added_sticky;
+        }
 
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
@@ -1092,8 +1101,21 @@ sub _do_edit {
     my $entry_url = $res->{url};
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
+    my $is_sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
+    if ( $remote->can_manage( $journal ) ) {
+        if ( $form_req->{sticky_entry} ) {
+            $journal->sticky_entry_new( $ditemid );
+        } else {
+            $journal->sticky_entry_remove( $ditemid )
+                if $is_sticky_entry;
+        }
+    }
+
     if ( $deleted ) {
         $poststatus_ml = ".edit.delete";
+
+        $journal->sticky_entry_remove( $ditemid )
+            if $is_sticky_entry && $remote->can_manage( $journal );
     } else {
         $poststatus_ml = ".edit.edited";
 

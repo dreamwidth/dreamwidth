@@ -593,6 +593,26 @@ var postForm = (function($) {
         });
     };
 
+    var initSticky = function($form) {
+        $form.bind("journalselect-full", function(e, journal) {
+            if ( journal.name && journal.isremote ) {
+                if ( journal.iscomm ) {
+                    $(".components-columns .sticky-component:not(.inactive-component)").hide();
+                } else {
+                    $(".components-columns  .sticky-component:not(.inactive-component)").show();
+                }
+
+                $(".sticky-component")
+                    .filter(":visible")
+                        .find("input").removeAttr("disabled")
+                    .end().end()
+                    .filter(":not(:visible)")
+                        .find("input").attr("disabled", "");
+            }
+        });
+
+    };
+
     var init = function(formData) {
         $("#nojs").val(0);
 
@@ -612,6 +632,7 @@ var postForm = (function($) {
         initTags(entryForm);
         initDate(entryForm);
         initCrosspost(entryForm);
+        initSticky(entryForm);
 
         $("#js-usejournal").triggerHandler("change");
     };

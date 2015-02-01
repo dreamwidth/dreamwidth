@@ -160,28 +160,35 @@ sub RecentPage
 
     die $err if $err;
 
-    # prepare sticky entry for S2 - only show sticky entry on first page of Recent Entries, not on skip= pages
-    # or tag and security subfilters
-    my $stickyentry;
-    $stickyentry = $u->get_sticky_entry
-        if $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
-    # only show if visible to user
-    if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
-        # create S2 entry object and show first on page
-        my $entry = Entry_from_entryobj( $u, $stickyentry, $opts ); 
-        # sticky entry specific things
-        my $sticky_icon = Image_std( 'sticky-entry' );
-        $entry->{_type} = 'StickyEntry';
-        $entry->{sticky_entry_icon} = $sticky_icon;
-        # show on top of page
-        push @{$p->{entries}}, $entry;
+    # Prepare sticky entries for S2.
+    # Only show sticky entry on first page of Recent Entries.
+    # Do not show stickies unless they have the relevant permissions.
+    # Do not sticky posts on tagged view but display in place.
+    # On skip pages show sticky entries in place.
+    my $show_sticky_entries = $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
+    if ( $show_sticky_entries ) {
+        foreach my $sticky_entry ( $u->sticky_entries ) {
+            # only show if visible to user
+            if ( $sticky_entry && $sticky_entry->visible_to( $remote, $get->{viewall} ) ) {
+                # create S2 entry object and show first on page
+                my $entry = Entry_from_entryobj( $u, $sticky_entry, $opts );
+                # sticky entry specific things
+                my $sticky_icon = Image_std( 'sticky-entry' );
+                $entry->{_type} = 'StickyEntry';
+                $entry->{sticky_entry_icon} = $sticky_icon;
+                # show on top of page
+                push @{$p->{entries}}, $entry;
+            }
+        }
     }
-    
+
     my $lastdate = "";
     my $itemnum = 0;
     my $lastentry = undef;
 
     $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_journal' ) );
+
+    my $sticky_entries = $u->sticky_entries_lookup;
 
   ENTRY:
     foreach my $item (@items)
@@ -193,7 +200,7 @@ sub RecentPage
         $itemnum++;
 
         my $ditemid = $itemid * 256 + $anum;
-        next if $itemnum > 0 && $stickyentry && $stickyentry->ditemid == $ditemid;
+        next if $itemnum > 0 && $show_sticky_entries && $sticky_entries->{$ditemid};
 
         my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 

@@ -37,3 +37,5 @@
 .new.links.tags=Edit this entry's tags
 
 .new.links.view=View the entry
+
+.sticky.max=This entry was not made sticky because you've reached your limit of [[limit]] for sticky entries.

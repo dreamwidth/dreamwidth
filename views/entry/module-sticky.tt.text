@@ -1,0 +1,6 @@
+;; -*- coding: utf-8 -*-
+.header=Sticky Entry
+
+.label.sticky=Sticky to top of journal
+
+.settings.link=Reorder

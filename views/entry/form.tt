@@ -314,7 +314,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
     [%- BLOCK components forCommunity = 0 %]
         [% FOREACH component = items %]
-        [%- IF forCommunity -%]<div class='columns medium-6 large-4'>[%- END -%]
+        [%- IF forCommunity -%]<div class='columns medium-6 large-4 [% IF loop.count == items.size %]end[% END %]'>[%- END -%]
 
         <div class='panel component [% component %]-component[% UNLESS forCommunity || panels.show.$component -%] inactive-component[%- END -%]'
              data-collapse='[% component %]' data-collapse-state='[% panels.collapsed.$component ? "collapsed" : "expanded" %]'>
@@ -356,7 +356,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div>
         <div class="row components">
             [%- PROCESS components forCommunity = 1
-                    items = [ "community-flags" ] -%]
+                    items = [ "community-flags", "sticky" ] -%]
         </div>
     </div>
     [%- END -%]
