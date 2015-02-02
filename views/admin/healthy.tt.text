@@ -1,0 +1,3 @@
+.admin.link=Health Check
+
+.admin.text=Returns some healthy-or-not statistics on the site.  Intended to be used by remote monitoring services.
