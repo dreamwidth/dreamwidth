@@ -28,9 +28,7 @@ DW::Controller::Admin::StatusCheck - Checks the status of various services
 DW::Routing->register_string( "/admin/healthy", \&healthy_handler, format => 'plain' );
 DW::Controller::Admin->register_admin_page( '/',
     path => 'healthy',
-    ml_scope => '/admin/index.tt',
-    link_ml => '.admin.healthy.link',
-    description_ml => '.admin.healthy.text'
+    ml_scope => '/admin/healthy.tt',
 );
 
 DW::Routing->register_string( "/admin/theschwartz", \&theschwartz_handler );
