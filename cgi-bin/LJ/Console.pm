@@ -162,10 +162,10 @@ sub run_commands_html {
     my $out;
     foreach my $c (LJ::Console->parse_text($text)) {
         $out .= $c->as_html;
-        $out .= "<pre><strong>";
+        $out .= "<pre><span class='console_text'>";
         $c->execute_safely;
         $out .= join("\n", map { $_->as_html } $c->responses);
-        $out .= "</strong></pre>";
+        $out .= "</span></pre>";
     }
 
     return $out;

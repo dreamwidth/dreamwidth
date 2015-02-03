@@ -102,7 +102,7 @@ sub as_string {
 sub as_html {
     my $self = shift;
 
-    my $out = "<table summary='' border='1' cellpadding='5'><tr>";
+    my $out = "<table class='console_command' summary='' border='1' cellpadding='5'><tr>";
     $out .= "<td><strong>" . LJ::ehtml($self->cmd) . "</strong></td>";
     $out .= "<td>" . LJ::ehtml($_) . "</td>" foreach $self->args;
     $out .= "</tr></table>";
