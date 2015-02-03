@@ -215,6 +215,18 @@ sub new_from_url {
     return undef;
 }
 
+sub new_from_url_or_ditemid {
+    my ( $class, $input, $u ) = @_;
+
+    my $e = LJ::Entry->new_from_url( $input );
+
+    # couldn't be parsed as a URL, try as a ditemid
+    $e ||= LJ::Entry->new( $u, ditemid => $input )
+        if $input =~ /^(?:\d+)$/;
+
+    return $e && $e->valid ? $e : undef;
+}
+
 sub new_from_row {
     my ( $class, %row ) = @_;
 

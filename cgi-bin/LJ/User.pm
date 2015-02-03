@@ -2317,6 +2317,10 @@ sub count_max_mod_queue_per_poster {
     return $_[0]->get_cap( 'mod_queue_per_poster' );
 }
 
+sub count_max_stickies {
+    return $_[0]->get_cap( 'stickies' );
+}
+
 sub count_max_subscriptions {
     return $_[0]->get_cap( 'subscriptions' );
 }
@@ -2678,7 +2682,6 @@ sub migrate_prop_to_esn {
         }
         $u->set_prop( $prop_name, $migrated_value );
     }
-
 }
 
 # des: Given a list of caps to add and caps to remove, updates a user's caps.
@@ -3195,60 +3198,106 @@ sub thread_expand_all {
     return 0;
 }
 
-#get/set Sticky Entry parent ID for settings menu
-sub sticky_entry {
-    my ( $u, $input ) = @_;
+# get/set Sticky Entry parent ID for settings menu
+# Expects an array of entry URLs or ditemids as input
+# If used as a setter, returns 1 or undef
+# Otherwise, returns an array of entry objects
+sub sticky_entries {
+    my ( $u, $input_ref ) = @_;
 
-    if ( defined $input ) {
-        unless ( $input ) {
+    # The user may have previously had an account type that allowed more stickes.
+    # we want to preserve a record of these additional stickes in case they once
+    # more upgrade their account.  This means we must first extract these
+    # if they exist.
+    my @entry_ids = $u->sticky_entry_ids;
+
+    my $max_sticky_count = $u->count_max_stickies;
+    my $entry_length = @entry_ids;
+
+    my @currently_unused_stickies = @entry_ids[$max_sticky_count..$entry_length];
+
+    # Check we've been sent input and it isn't empty.  If so we need to alter the sticky entries stored.
+    if ( defined $input_ref ) {
+        my @input = @$input_ref;
+
+        unless ( scalar @input ) {
             $u->set_prop( sticky_entry => '' );
             return 1;
         }
 
-        my $ditemid;
-        my $slug;
+        # sanity check the elements of the input array of candidate stickies.
+        my $new_sticky_count = 0;
+        foreach my $sticky_input ( @input ) {
+            $new_sticky_count++;
 
-        # takes ditemid/ditemid from URL
-        if ( $input =~ m!/(\d+)\.html! ) {
-            $ditemid = $1;
-        } elsif ( $input =~ m!(\d+)! ) {
-            $ditemid = $1;
+            my $e = LJ::Entry->new_from_url_or_ditemid( LJ::trim( $sticky_input ), $u );
+            return undef unless $e && $e->valid;
         }
 
-        # takes slug from URL
-        $slug = $1
-            if $input =~ m!^(?:.+)/(?:\d\d\d\d/\d\d/\d\d)/([a-z0-9_-]+)\.html$!;
-
-        #checks that one of $slug and $ditemid exists
-        return 0 unless $ditemid || $slug;
-
-        # Validate the entry
-        my $item;
-
-        $item = LJ::Entry->new( $u, ditemid => $ditemid ) if $ditemid;
-
-        if ( $slug ) {
-            $item = LJ::Entry->new( $u, slug => $slug );
-            $ditemid = $item->ditemid;
+        # The user may have reused a sticky from before their account was downgraded.  To keep
+        # stickies unique we should remove this from the list of unused stickies.
+        my @new_unused_stickies;
+        # We create a hash from the input for quick membership checking.
+        my %sticky_hash = map { $_ =>  1 } @input;
+        foreach my $unused_sticky ( @currently_unused_stickies ) {
+            push @new_unused_stickies, $unused_sticky unless exists $sticky_hash{$unused_sticky};
         }
 
-        return 0 unless $item && $item->valid;
+        # This shouldn't happen but, just in case, we check the number of new stickies and
+        # if we have more than we're allowed we trim the input array accordingly.
+        @input = @input[0..$max_sticky_count-1] unless $new_sticky_count < $max_sticky_count;
 
-        $u->set_prop( sticky_entry => $ditemid );
+        # We add the currently_unused_stickies onto the end of the new stickies.
+        # This has the side effect that, if the user hasn't allocated all their
+        # sticky quota but has previously used more than their quota that some of their
+        # old stickies will "shuffle up" to fill in the space.
+        my $sticky_entry = join( ',', ( @input, @new_unused_stickies ) );
+        $u->set_prop( sticky_entry => $sticky_entry );
         return 1;
     }
-    return $u->prop( 'sticky_entry' );
+
+    my @entries = map { LJ::Entry->new( $u, ditemid => $_ ) } @entry_ids;
+    @entries = @entries[0..$max_sticky_count-1] if scalar @entries > $max_sticky_count;
+    return @entries;
 }
 
-sub get_sticky_entry {
-    my $u = shift;
-
-    if ( my $ditemid = $u->sticky_entry ) {
-        my $item = LJ::Entry->new( $u, ditemid => $ditemid );
-        return $item if $item->valid;
-    }
-    return undef;
+# returns a list of sticky entry ids
+sub sticky_entry_ids {
+    return split /,/, $_[0]->prop( 'sticky_entry' );
 }
+
+# returns a map of ditemid => 1 of the sticky entries
+sub sticky_entries_lookup {
+    return { map { $_ => 1 } $_[0]->sticky_entry_ids };
+}
+
+# Make a particular entry into a particular sticky.
+sub sticky_entry_new {
+    my ( $u, $ditemid ) = @_;
+
+    my @stickies = $u->sticky_entry_ids;
+    return undef if scalar @stickies >= $u->count_max_stickies;
+
+    unshift @stickies, $ditemid;
+    my $sticky_entry_list = join( ',', @stickies );
+
+    $u->set_prop( sticky_entry => $sticky_entry_list );
+
+    return 1;
+}
+
+# Remove a particular entry from the sticky list
+sub sticky_entry_remove {
+    my ( $u, $ditemid ) = @_;
+
+    my @new_stickies  = grep { $_ != $ditemid } $u->sticky_entry_ids;
+
+    my $sticky_entry = join( ',', @new_stickies );
+    $u->set_prop( sticky_entry => $sticky_entry );
+
+    return 1;
+}
+
 
 # should times be displayed in 24-hour time format?
 sub use_24hour_time { $_[0]->prop( 'timeformat_24' ) ? 1 : 0; }
@@ -4967,7 +5016,7 @@ sub default_entryform_panels {
                     [ "currents", "comments", "age_restriction" ],
 
                     # FIXME: should be [ ... "scheduled" ]
-                    [ "icons", "crosspost" ],
+                    [ "icons", "crosspost", "sticky" ],
                 ],
         show => {
             "tags"          => 1,
@@ -4977,8 +5026,12 @@ sub default_entryform_panels {
             "comments"      => $force_show,
             "age_restriction" => $force_show,
             "icons"         => 1,
+
             "crosspost"     => $force_show,
             #"scheduled"     => $force_show,
+
+            "sticky"        => 1,
+
             #"status"        => 1,
         },
         collapsed => {
