@@ -242,12 +242,16 @@ var postForm = (function($) {
             saveCurrentGroups();
         }
 
-        function close() {
-            // close (retains current state)
+        function close(e) {
+            e.preventDefault();
+
+            // hide the modal (retains current state)
             $custom_groups.foundation('reveal', 'close');
+            $custom_groups.detach().appendTo(".components.js-only");
         }
 
         function cancel() {
+            // reset to initial selected custom groups
             var data = $custom_groups.data("original_data");
             var groups = {};
             for ( var i = 0; i < data.length; i++ ) {
