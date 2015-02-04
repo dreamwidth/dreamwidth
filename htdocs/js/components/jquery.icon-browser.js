@@ -123,9 +123,9 @@ IconBrowser.prototype = {
                 .on("dblclick", ".keyword", this.selectByKeywordMenuDoubleClick.bind(this));
 
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
+        $("#js-icon-browser-select").on("click", this.updateOwner.bind(this));
 
         $(document)
-            .on('close.fndtn.reveal', '#' + this.modalId, this.updateOwner.bind(this))
             .on('closed.fndtn.reveal', '#' + this.modalId, this.deregisterListeners.bind(this));
 
         this.listenersRegistered = true;
@@ -214,7 +214,7 @@ IconBrowser.prototype = {
             .addClass("active");
     },
     updateOwner: function(e) {
-        // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want once
+        // hackety hack -- being triggered on both 'close' and 'close.fndtn.reveal'; just want once
         if (e.namespace === "") return;
 
         if (this.selectedKeyword) {
@@ -222,6 +222,8 @@ IconBrowser.prototype = {
                 .val(this.selectedKeyword)
                 .triggerHandler("change");
         }
+
+        this.close();
     },
     close: function() {
         this.modal.foundation('reveal', 'close');

@@ -26,7 +26,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div class="columns medium-4 large-4">
             <input type='search' id='js-icon-browser-search'>
         </div>
-        <div class="columns medium-6 large-7 text-right">
+        <div class="columns medium-3">
+            <button id='js-icon-browser-select'>Select</button>
+        </div>
+        <div class="columns medium-3 large-3">
                 <div class='icon-browser-meta-toggle' id='js-icon-browser-meta-toggle'>
                     <a href="#" data-action="text">Meta text</a> /
                     <a href="#" data-action="no-text">No meta text</a>

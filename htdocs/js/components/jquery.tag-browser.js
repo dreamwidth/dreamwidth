@@ -106,7 +106,7 @@ TagBrowser.prototype = {
         }
     },
     updateOwner: function(e) {
-        // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want once
+        // hackety hack -- being triggered on both 'close' and 'close.fndtn.reveal'; just want once
         if (e.namespace === "") return;
 
         // add in newly checked
@@ -120,6 +120,8 @@ TagBrowser.prototype = {
             selected.push(this.newTags);
 
         this.element.trigger("autocomplete_inittext", selected.join(","));
+
+        this.close();
     },
     close: function() {
         this.modal.foundation('reveal', 'close');
@@ -148,10 +150,11 @@ TagBrowser.prototype = {
         if ( this.listenersRegistered ) return;
 
         $("#js-tag-browser-search").bind("keyup click", this.filter.bind(this));
+        $("#js-tag-browser-select").on("click", this.updateOwner.bind(this));
 
         $(document)
-            .on('close.fndtn.reveal', '#' + this.modalId, this.updateOwner.bind(this))
             .on('closed.fndtn.reveal', '#' + this.modalId, this.deregisterListeners.bind(this));
+
 
         this.listenersRegistered = true;
     }

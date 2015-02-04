@@ -21,8 +21,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="columns medium-2 large-1">
         <label class='inline' for='js-tag-browser-search'>Search:</label>
     </div>
-    <div class="columns medium-10 large-11">
+    <div class="columns medium-4 large-4">
         <input type='search' id='js-tag-browser-search'>
+    </div>
+    <div class="columns medium-2 large-1 end">
+        <button id='js-tag-browser-select'>Select</button>
     </div>
 </div>
 
