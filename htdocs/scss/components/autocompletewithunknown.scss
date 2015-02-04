@@ -12,6 +12,11 @@ $half-form-spacing: $form-spacing / 2;
         margin: 0;
         border: none;
         box-shadow: none;
+
+        // this forces the autocomplete dropdown to have z-index: 2 (to overcome buttons z-index)
+        // see jquery.ui.autocomplete.js
+        position: relative;
+        z-index: 1;
     }
 
     .token {
