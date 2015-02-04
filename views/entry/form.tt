@@ -261,6 +261,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     ~%]
 
                     [%~ IF usejournal ~%]
+                        <li>
                         <span class="usejournal-text">
                         [% '.select.usejournal.format' | ml( user = usejournal.ljuser_display ) %]
                         </span>
@@ -268,6 +269,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                             "data-is-admin" = isAdmin
                             "data-is-comm" = isComm
                         ) %]
+                        </li>
                     [%~ ELSE ~%]
                         <li>
                         [%~ form.textbox(

@@ -232,8 +232,41 @@ var postForm = (function($) {
                 $custom_access_group_members.html(members_data_list);
             });
         }
+
+        function saveCurrentGroups() {
+            $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
+        }
+
+        function onOpen() {
+            updatePostingMembers(undefined, true);
+            saveCurrentGroups();
+        }
+
+        function close() {
+            // close (retains current state)
+            $custom_groups.foundation('reveal', 'close');
+        }
+
+        function cancel() {
+            var data = $custom_groups.data("original_data");
+            var groups = {};
+            for ( var i = 0; i < data.length; i++ ) {
+                groups[data[i].value] = true;
+            }
+
+            $custom_groups.find("input[name=custom_bit]").each(function(i, elem) {
+                if (groups[elem.value]) {
+                    $(elem).prop("checked", "checked")
+                } else {
+                    $(elem).removeProp("checked");
+                }
+            });
+        }
+
         $custom_groups.find("input[name=custom_bit]").click(updatePostingMembers);
-        $(document).on('open.fndtn.reveal', "#js-custom-groups", updatePostingMembers.bind(undefined, undefined, true));
+        $(document).on('open.fndtn.reveal', "#js-custom-groups", onOpen);
+        $("#js-custom-groups-select").click(close);
+        $custom_groups.find(".close-reveal-modal").click(cancel);
 
 
         // update the options when journal changes

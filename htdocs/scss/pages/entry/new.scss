@@ -63,6 +63,7 @@
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
 .entry-quick-actions {
+    $entry-quick-action-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
     ul {
         margin-bottom: 0;
     }
@@ -97,6 +98,8 @@
     }
     .usejournal-text {
         padding-left: 0.2rem;
+        display: inline-block;
+        vertical-align: top;
     }
 
     li + li {
@@ -110,9 +113,8 @@
         top: -2px;
     }
 
-    input, .fancy-select-output, select, button {
-        height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
-        vertical-align: middle;
+    input, .fancy-select-output, select, button, .usejournal-text {
+        height: $entry-quick-action-height;
     }
 
     @media #{$small-only} {
@@ -155,7 +157,7 @@
         font-size: 1rem;
     }
 
-    label, input, legend, ul, select, textarea {
+    p, label, input, legend, ul, select, textarea {
         font-size: .8rem;
     }
 
