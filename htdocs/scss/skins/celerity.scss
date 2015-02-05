@@ -72,7 +72,7 @@ $anchor-font-color-visited:            shade( $anchor-font-color, 30% );
 $anchor-font-color-hover:              lighten( $anchor-font-color, 30% );
 
 // forms
-$form-label-font-color:                 lighten($body-font-color, 20%);
+$form-label-font-color:                 $form-font-color;
 $input-font-color:                      $form-font-color;
 $input-bg-color:                        $form-bg-color;
 $input-focus-bg-color:                  darken($input-bg-color, 2%);
