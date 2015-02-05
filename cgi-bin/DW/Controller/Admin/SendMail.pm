@@ -70,10 +70,10 @@ sub index_controller {
         $errors->add( "message", ".error.nomsg" )  unless $message;
 
         if ( $support_req ) {
-            if ( $support_req !~ /^\d+$/ ) {
-                $errors->add( "request", ".error.badreq" );
-            } else {
+            if ( $support_req =~ /^\d+$/ ) {
                 $subject = "[\#$support_req] $subject" if $reqsubj;
+            } else {
+                $errors->add( "request", ".error.badreq" );
             }
         }
 
@@ -127,14 +127,13 @@ sub index_controller {
                 # send an email to every maintainer
                 my $maintus = LJ::load_userids( $u->maintainer_userids );
                 foreach my $maintu ( values %$maintus ) {
-                    $send->() if $msg->{to} = $maintu->email_raw;
+                    $msg->{to} = $maintu->email_raw;
+                    $send->() if $msg->{to};
                 }
 
-            } elsif ( $u ) {
-                $send->() if $msg->{to} = $u->email_raw;
-
             } else {
-                $send->() if $msg->{to} = $sendto;
+                $msg->{to} = $u ? $u->email_raw : $sendto;
+                $send->() if $msg->{to};
             }
 
             # 3. update userlog and return success message

@@ -57,7 +57,7 @@
                        selected = 1, value = 1 );
     -%]</p><p>
 
-    [%- ".input.notes.label" | ml -%]<br />
+    <label for="notes">[%- ".input.notes.label" | ml -%]</label><br />
     [%- form.textarea( name = "notes", id = "notes",
                        rows = '6', cols = '60', wrap = 'soft',
                        style = 'vertical-align: top' );
