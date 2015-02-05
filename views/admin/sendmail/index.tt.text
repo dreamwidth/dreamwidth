@@ -1,5 +1,9 @@
 ;; -*- coding: utf-8 -*-
 
+.admin.link=Send Email Message
+
+.admin.text=Allows you to email users from registered site accounts.
+
 .check.supportreq.label=Include in email subject?
 
 .error.badacct=That is not a valid from address.
