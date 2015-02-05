@@ -41,46 +41,57 @@ sub index_controller {
     return $rv unless $ok;
     my $remote = $rv->{remote};
 
+    my $scope = sub { return '/admin/sendmail/index.tt' . $_[0] };
+
     my $r = DW::Request->get;
 
     # form processing
     if ( $r->did_post ) {
         my $args = $r->post_args;
-        return error_ml( '/admin/sendmail/index.tt.error.noacct' )
-            unless my $account = LJ::trim( $args->{account} );
-        return error_ml( '/admin/sendmail/index.tt.error.norcpt' )
-            unless my $sendto  = LJ::trim( $args->{sendto} );
-        return error_ml( '/admin/sendmail/index.tt.error.nomsg' )
-            unless my $message = LJ::trim( $args->{message} );
-        return error_ml( '/admin/sendmail/index.tt.error.nosubj' )
-            unless my $subject = LJ::trim( $args->{subject} );
 
+        my $account     = LJ::trim( $args->{account} );
+        my $sendto      = LJ::trim( $args->{sendto}  );
+        my $message     = LJ::trim( $args->{message} );
+        my $subject     = LJ::trim( $args->{subject} );
         my $support_req = LJ::trim( $args->{request} );
-        return error_ml( '/admin/sendmail/index.tt.error.badreq' )
-            if $support_req &&  $support_req !~ /^\d+$/;
-        return error_ml( '/admin/sendmail/index.tt.error.badacct' )
-            unless exists $LJ::SENDMAIL_ACCOUNTS{$account};
-        return error_ml( '/admin/sendmail/index.tt.error.nomulti' )
-            if $sendto =~ /,/;
+        my $teamnotes   = LJ::trim( $args->{notes}   );
+        my $reqsubj     = $args->{reqsubj} ? 1 : 0;
+
+        if ( $account ) {
+            return error_ml( $scope->( '.error.badacct' ) )
+                unless exists $LJ::SENDMAIL_ACCOUNTS{$account};
+        } else {
+            return error_ml( $scope->( '.error.noacct' ) );
+        }
+
+        return error_ml( $scope->( '.error.nosubj' ) )  unless $subject;
+        return error_ml( $scope->( '.error.nomsg' ) )  unless $message;
+
+        if ( $support_req ) {
+            if ( $support_req !~ /^\d+$/ ) {
+                 return error_ml( $scope->( '.error.badreq' ) );
+            } else {
+                $subject = "[\#$support_req] $subject" if $reqsubj;
+            }
+        }
 
         my $u;
 
-        # make sure we're sending to either a valid user or something
-        # that looks reasonably like an email address.
-        if ( $sendto !~ /^[^@]+@[^.]+\./ ) {
-            # doesn't look like an email address; do a username lookup
-            $u = LJ::load_user( $sendto );
-            return error_ml( '/admin/sendmail/index.tt.error.badrcpt' )
-                unless defined $u;
-            $sendto = $u->id;  # log userid instead of username
-        }
-
-        # these fields are unconstrained
-        my $teamnotes = LJ::trim( $args->{notes} );
-        my $reqsubj = $args->{reqsubj} ? 1 : 0;
-
-        if ( $reqsubj && $support_req ) {
-            $subject = "[\#$support_req] $subject";
+        if ( $sendto ) {
+            if ( $sendto =~ /,/ ) { # multiple recipients
+                return error_ml( $scope->( '.error.nomulti' ) );
+            } else {
+                # make sure we're sending to either a valid user or something
+                # that looks reasonably like an email address.
+                if ( $sendto !~ /^[^@]+@[^.]+\./ ) {
+                    # doesn't look like an email address; do a username lookup
+                    $u = LJ::load_user( $sendto );
+                     return error_ml( $scope->( '.error.badrcpt' ) ) unless defined $u;
+                    $sendto = $u->id;  # log userid instead of username
+                }
+            }
+        } else { # no $sendto
+             return error_ml( $scope->( '.error.norcpt' ) );
         }
 
         # now that we have the data, send the message.
@@ -92,7 +103,7 @@ sub index_controller {
                   " notes) VALUES (?,?,?,?,?,?,?,?,?)", undef,
                   $msgid, $remote->id, time, $account, $sendto, $subject,
                   $support_req, $message, $teamnotes )
-            or return error_ml( '/admin/sendmail/index.tt.error.sendfailed' );
+            or return error_ml( $scope->( '.error.sendfailed' ) );
 
         # 2. construct the message and send it to the user(s)
         # (this block adapted from bin/worker/paidstatus)
@@ -123,13 +134,13 @@ sub index_controller {
             $sent = 1;
         }
 
-        return error_ml( '/admin/sendmail/index.tt.error.nouseremail' )
+        return error_ml( $scope->( '.error.nouseremail' ) )
             unless $sent;
 
         # 3. update userlog and return success message
         $remote->log_event( 'siteadmin_email', { account => $account, msgid => $msgid } );
-        return success_ml( '/admin/sendmail/index.tt.success.msgtext', undef,
-            [ { text => LJ::Lang::ml( '/admin/sendmail/index.tt.success.linktext.a' ),
+        return success_ml( $scope->( '.success.msgtext' ), undef,
+            [ { text => LJ::Lang::ml( $scope->( '.success.linktext.a' ) ),
                 url => '/admin/sendmail' } ] );
     }
     # end form processing
@@ -138,7 +149,7 @@ sub index_controller {
     # the user should have at least one of these for this page to be useful.
     # If the user somehow has sendmail priv but no relevant account priv,
     # we print an error in the template in that case.
-    my @account_menu = ( "", LJ::Lang::ml( '/admin/sendmail/index.tt.select.account.choose' ) );
+    my @account_menu = ( "", LJ::Lang::ml( $scope->( '.select.account.choose' ) ) );
 
     foreach my $account ( sort keys %LJ::SENDMAIL_ACCOUNTS ) {
         my $priv = $LJ::SENDMAIL_ACCOUNTS{$account};
