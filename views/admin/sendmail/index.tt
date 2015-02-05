@@ -12,8 +12,15 @@
 %]
 
 [%- sections.title='.title' | ml -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        .error { color: #f04124; }
+    </style>
+[% END %]
 
 <p>[% '.intro' | ml %]</p>
+
+[%- INCLUDE components/errors.tt errors = errors -%]
 
 <form method="POST">
 

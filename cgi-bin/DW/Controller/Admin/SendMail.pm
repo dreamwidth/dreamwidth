@@ -22,6 +22,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Controller::Admin;
+use DW::FormErrors;
 
 my @privs = qw(siteadmin:sendmail);
 
@@ -44,6 +45,7 @@ sub index_controller {
     my $scope = sub { return '/admin/sendmail/index.tt' . $_[0] };
 
     my $r = DW::Request->get;
+    my $errors = DW::FormErrors->new;
 
     # form processing
     if ( $r->did_post ) {
@@ -58,18 +60,18 @@ sub index_controller {
         my $reqsubj     = $args->{reqsubj} ? 1 : 0;
 
         if ( $account ) {
-            return error_ml( $scope->( '.error.badacct' ) )
+            $errors->add( "account", ".error.badacct" )
                 unless exists $LJ::SENDMAIL_ACCOUNTS{$account};
         } else {
-            return error_ml( $scope->( '.error.noacct' ) );
+            $errors->add( "account", ".error.noacct" );
         }
 
-        return error_ml( $scope->( '.error.nosubj' ) )  unless $subject;
-        return error_ml( $scope->( '.error.nomsg' ) )  unless $message;
+        $errors->add( "subject", ".error.nosubj" )  unless $subject;
+        $errors->add( "message", ".error.nomsg" )  unless $message;
 
         if ( $support_req ) {
             if ( $support_req !~ /^\d+$/ ) {
-                 return error_ml( $scope->( '.error.badreq' ) );
+                $errors->add( "request", ".error.badreq" );
             } else {
                 $subject = "[\#$support_req] $subject" if $reqsubj;
             }
@@ -79,69 +81,73 @@ sub index_controller {
 
         if ( $sendto ) {
             if ( $sendto =~ /,/ ) { # multiple recipients
-                return error_ml( $scope->( '.error.nomulti' ) );
+                $errors->add( "sendto", ".error.nomulti" );
             } else {
                 # make sure we're sending to either a valid user or something
                 # that looks reasonably like an email address.
                 if ( $sendto !~ /^[^@]+@[^.]+\./ ) {
                     # doesn't look like an email address; do a username lookup
                     $u = LJ::load_user( $sendto );
-                     return error_ml( $scope->( '.error.badrcpt' ) ) unless defined $u;
+                    $errors->add( "sendto", ".error.badrcpt" ) unless defined $u;
                     $sendto = $u->id;  # log userid instead of username
                 }
             }
         } else { # no $sendto
-             return error_ml( $scope->( '.error.norcpt' ) );
+            $errors->add( "sendto", ".error.norcpt" );
         }
 
-        # now that we have the data, send the message.
-        # 1. insert data into siteadmin_email_history table
-        my $msgid = LJ::alloc_global_counter('N');
-        my $dbh = LJ::get_db_writer();
-        $dbh->do( "INSERT INTO siteadmin_email_history (msgid, remoteid," .
-                  " time_sent, account, sendto, subject, request, message, " .
-                  " notes) VALUES (?,?,?,?,?,?,?,?,?)", undef,
-                  $msgid, $remote->id, time, $account, $sendto, $subject,
-                  $support_req, $message, $teamnotes )
-            or return error_ml( $scope->( '.error.sendfailed' ) );
+        # at this point, we should have good form data; the form can still
+        # have errors below, but they aren't the fault of the user input
 
-        # 2. construct the message and send it to the user(s)
-        # (this block adapted from bin/worker/paidstatus)
-        my $send = { from => "$account\@$LJ::DOMAIN",
-                     fromname => $LJ::SITENAME,
-                     subject => $subject,
-                     body => $message,
-                   };
-        my $sent = 0;
+        unless ( $errors->exist ) {
+            # now that we have the data, send the message.
+            # 1. insert data into siteadmin_email_history table
+            my $msgid = LJ::alloc_global_counter('N');
+            my $dbh = LJ::get_db_writer();
+            $dbh->do( "INSERT INTO siteadmin_email_history (msgid, remoteid," .
+                      " time_sent, account, sendto, subject, request, message, " .
+                      " notes) VALUES (?,?,?,?,?,?,?,?,?)", undef,
+                      $msgid, $remote->id, time, $account, $sendto, $subject,
+                      $support_req, $message, $teamnotes )
+                or return error_ml( $scope->( '.error.sendfailed' ) );
+            # keeping this as error_ml; if we get a DB error things are FUBAR
 
-        if ( $u && $u->is_community ) {
-            # send an email to every maintainer
-            my $maintus = LJ::load_userids( $u->maintainer_userids );
-            foreach my $maintu ( values %$maintus ) {
-                if ( $send->{to} = $maintu->email_raw ) {
-                    LJ::send_mail( $send );
-                    $sent = 1;
+            # 2. construct the message and send it to the user(s)
+            # (this block adapted from bin/worker/paidstatus)
+            my $msg = { from => "$account\@$LJ::DOMAIN",
+                        fromname => $LJ::SITENAME,
+                        subject => $subject,
+                        body => $message,
+                      };
+            my $sent = 0;
+
+            my $send = sub { LJ::send_mail( $msg ); $sent = 1; };
+
+            if ( $u && $u->is_community ) {
+                # send an email to every maintainer
+                my $maintus = LJ::load_userids( $u->maintainer_userids );
+                foreach my $maintu ( values %$maintus ) {
+                    $send->() if $msg->{to} = $maintu->email_raw;
                 }
+
+            } elsif ( $u ) {
+                $send->() if $msg->{to} = $u->email_raw;
+
+            } else {
+                $send->() if $msg->{to} = $sendto;
             }
-        } elsif ( $u ) {
-            if ( $send->{to} = $u->email_raw ) {
-                LJ::send_mail( $send );
-                $sent = 1;
+
+            # 3. update userlog and return success message
+            if ( $sent ) {
+                $remote->log_event( 'siteadmin_email', { account => $account,
+                                                         msgid => $msgid } );
+                return success_ml( $scope->( '.success.msgtext' ), undef,
+                    [ { text => LJ::Lang::ml( $scope->( '.success.linktext.a' ) ),
+                        url => '/admin/sendmail' } ] );
+            } else {
+                $errors->add( "sendto", ".error.nouseremail" );
             }
-        } else {
-            $send->{to} = $sendto;
-            LJ::send_mail( $send );
-            $sent = 1;
         }
-
-        return error_ml( $scope->( '.error.nouseremail' ) )
-            unless $sent;
-
-        # 3. update userlog and return success message
-        $remote->log_event( 'siteadmin_email', { account => $account, msgid => $msgid } );
-        return success_ml( $scope->( '.success.msgtext' ), undef,
-            [ { text => LJ::Lang::ml( $scope->( '.success.linktext.a' ) ),
-                url => '/admin/sendmail' } ] );
     }
     # end form processing
 
@@ -159,6 +165,9 @@ sub index_controller {
 
     $rv->{has_menu}      = ( @account_menu > 2 );
     $rv->{account_menu}  = \@account_menu;
+
+    $rv->{errors}        = $errors;
+    $rv->{formdata}      = $r->post_args;
 
     return DW::Template->render_template( 'admin/sendmail/index.tt', $rv );
 }
