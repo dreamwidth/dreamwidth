@@ -99,7 +99,7 @@ var postForm = (function($) {
     };
 
     var initCommunitySection = function($form) {
-        $form.bind("journalselect-full", function(e, journal) {
+        $form.on("journalselect-full", function(e, journal) {
             if ( journal.name && journal.isremote ) {
                 if ( journal.iscomm && journal.canManage) {
                     $(".community-administration").show();
@@ -383,8 +383,9 @@ var postForm = (function($) {
             $form.data( "journal", journal )
                 .trigger( "journalselect", journalData );
 
-            var isAdmin = $usejournal.attr( "data-is-admin" );
-            if ( isAdmin !== undefined ) {
+            var dataAttribute = $usejournal.attr( "data-is-admin" );
+            if ( dataAttribute !== undefined ) {
+                var isAdmin = dataAttribute === "1" ? true : false;
                 $form.trigger( "journalselect-full", $.extend( journalData, { canManage: isAdmin } ) );
                 $usejournal.removeAttr("data-is-admin");
             }
