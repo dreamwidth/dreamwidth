@@ -1,4 +1,13 @@
+@import "foundation/base";
 .tag-browser {
+    @media #{$medium-up} {
+        .tag-browser-content {
+            max-height: 70vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+    }
+
     ul {
         -moz-column-width: 12em;
         -webkit-column-width: 12em;
@@ -17,12 +26,9 @@
         white-space: nowrap;
     }
 
-    label {
+    .tag-browser-content label {
         // but also make sure that the label wraps / breaks instead of going on forever
         word-wrap: break-word;
         white-space: normal;
-
-
     }
-
 }

@@ -99,7 +99,7 @@ var postForm = (function($) {
     };
 
     var initCommunitySection = function($form) {
-        $form.bind("journalselect-full", function(e, journal) {
+        $form.on("journalselect-full", function(e, journal) {
             if ( journal.name && journal.isremote ) {
                 if ( journal.iscomm && journal.canManage) {
                     $(".community-administration").show();
@@ -232,8 +232,45 @@ var postForm = (function($) {
                 $custom_access_group_members.html(members_data_list);
             });
         }
+
+        function saveCurrentGroups() {
+            $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
+        }
+
+        function onOpen() {
+            updatePostingMembers(undefined, true);
+            saveCurrentGroups();
+        }
+
+        function close(e) {
+            e.preventDefault();
+
+            // hide the modal (retains current state)
+            $custom_groups.foundation('reveal', 'close');
+            $custom_groups.detach().appendTo(".components.js-only");
+        }
+
+        function cancel() {
+            // reset to initial selected custom groups
+            var data = $custom_groups.data("original_data");
+            var groups = {};
+            for ( var i = 0; i < data.length; i++ ) {
+                groups[data[i].value] = true;
+            }
+
+            $custom_groups.find("input[name=custom_bit]").each(function(i, elem) {
+                if (groups[elem.value]) {
+                    $(elem).prop("checked", "checked")
+                } else {
+                    $(elem).removeProp("checked");
+                }
+            });
+        }
+
         $custom_groups.find("input[name=custom_bit]").click(updatePostingMembers);
-        $(document).on('open.fndtn.reveal', "#js-custom-groups", updatePostingMembers.bind(undefined, undefined, true));
+        $(document).on('open.fndtn.reveal', "#js-custom-groups", onOpen);
+        $("#js-custom-groups-select").click(close);
+        $custom_groups.find(".close-reveal-modal").click(cancel);
 
 
         // update the options when journal changes
@@ -346,8 +383,9 @@ var postForm = (function($) {
             $form.data( "journal", journal )
                 .trigger( "journalselect", journalData );
 
-            var isAdmin = $usejournal.attr( "data-is-admin" );
-            if ( isAdmin !== undefined ) {
+            var dataAttribute = $usejournal.attr( "data-is-admin" );
+            if ( dataAttribute !== undefined ) {
+                var isAdmin = dataAttribute === "1" ? true : false;
                 $form.trigger( "journalselect-full", $.extend( journalData, { canManage: isAdmin } ) );
                 $usejournal.removeAttr("data-is-admin");
             }
