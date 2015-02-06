@@ -63,6 +63,7 @@
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
 .entry-quick-actions {
+    $entry-quick-action-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
     ul {
         margin-bottom: 0;
     }
@@ -92,15 +93,19 @@
         // force alignment to buttons
         padding-top: $button-med - rem-calc(1);
         position: relative;
-        top: -2px;
+        top: 2px;
         border-radius: 0;
     }
     .usejournal-text {
         padding-left: 0.2rem;
+        display: inline-block;
+        vertical-align: top;
     }
 
-    li + li input {
-        border-left: none;
+    li + li {
+        input, button {
+            border-left: none;
+        }
     }
 
     select {
@@ -108,9 +113,8 @@
         top: -2px;
     }
 
-    input, .fancy-select-output, select {
-        height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
-        vertical-align: middle;
+    input, .fancy-select-output, select, button, .usejournal-text {
+        height: $entry-quick-action-height;
     }
 
     @media #{$small-only} {
@@ -153,7 +157,7 @@
         font-size: 1rem;
     }
 
-    label, input, legend, ul, select, textarea {
+    p, label, input, legend, ul, select, textarea {
         font-size: .8rem;
     }
 
@@ -273,6 +277,14 @@
         // column-gutter: 15
         // component padding: 20
         right: rem-calc(15+20);
+    }
+
+    .columns:nth-child(2) .postfix {
+        border-radius: 0;
+    }
+
+    .columns:nth-child(3) input {
+        border-left: none;
     }
 }
 
