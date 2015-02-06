@@ -139,8 +139,9 @@ $nav-small-screen-header-height: 3em;
         }
 
         .logout.button {
-            padding: .15em .5em;
-            margin: 0em;
+            padding: .15rem .5rem;
+            margin: 0;
+            vertical-align: .15rem;
         }
 
       }
