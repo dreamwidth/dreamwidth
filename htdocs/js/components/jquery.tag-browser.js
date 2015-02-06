@@ -43,6 +43,10 @@ TagBrowser.prototype = {
 
         return full ? tags_data : tags_data.cache[tags_data.currentCache];
     },
+    tagsJournal: function() {
+        var tags_data = this.tagsData(true);
+        return tags_data ? tags_data.currentCache : "";
+    },
     selectedTags: function() {
         var tags = this.tagsData(true);
         if (tags) {
@@ -62,8 +66,9 @@ TagBrowser.prototype = {
     },
     loadTags: function() {
         var tagBrowser = this;
+        var tagJournalLoaded = "journal-tags-loaded--" + this.tagsJournal();
         var $content = $("#js-tag-browser-content");
-        if ( tagBrowser.isLoaded ) {
+        if ( tagBrowser[tagJournalLoaded] ) {
             $content.find("input").prop("checked", false);
             this.resetFilter();
 
@@ -102,7 +107,7 @@ TagBrowser.prototype = {
                 .prop("disabled", false)
                 .focus();
 
-            tagBrowser.isLoaded = true;
+            tagBrowser[tagJournalLoaded] = true;
         }
     },
     updateOwner: function(e) {
