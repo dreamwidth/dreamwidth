@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+
+.backlink=&lt;&lt; Back
+
+.error.badacct=That is not a valid site account.
+
+.error.noacct=You must select an account to view.
+
+.error.nomsg=The requested message does not exist in the database.
+
+.error.nopriv=You must have the <tt>[[priv]]</tt> site privilege to view this message.
+
+.intro=Choose an account below to view the list of messages previously sent from that account.
+
+.noaddresses=Sorry, you don't have privileges for any of the currently configured accounts.
+
+.nodata=No previously sent messages were found for this account.
+
+.select.account.choose=(choose one)
+
+.select.account.label=Accounts:
+
+.submit=Show Messages
+
+.table.date=Date Sent
+
+.table.req=Req #
+
+.table.sendto=Recipient
+
+.table.subject=Subject
+
+.title=Lookup Previously Sent Messages
