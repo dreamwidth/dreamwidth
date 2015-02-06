@@ -109,7 +109,7 @@
                 // second step, because we first need to find out how many
                 // total start with the term, and so need to be in the list
                 // those that only contain the term fill in any remaining slots
-                var responseArray = startsWithTerm;
+                var responseArray = startsWithTerm.slice(0, self.options.numMatches);
                 $.each(filtered, function(index, value) {
                     if ( responseArray.length >= self.options.numMatches )
                         return false;

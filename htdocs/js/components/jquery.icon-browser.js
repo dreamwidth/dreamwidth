@@ -229,23 +229,45 @@ IconBrowser.prototype = {
         this.modal.foundation('reveal', 'close');
     },
     filter: function(e) {
+        console.log("filter");
         var val = $(e.target).val().toLocaleUpperCase();
-        $("#js-icon-browser-content li").hide().each(function(i, item) {
-            if ( $(this).data("keywords").indexOf(val) != -1
-                || $(this).data("comment").indexOf(val) != -1
-                || $(this).data("alt").indexOf(val) != -1 ) {
 
-                $(this).show();
-             }
-        });
+        if ( ! this.originalElement ) {
+            this.originalElement = $("#js-icon-browser-content");
+            this.originalElementContainer = this.originalElement.parent();
+            this.originalElement.detach();
+        } else {
+            $("#js-icon-browser-content").remove();
+        }
+
+
+        var $filtered = this.originalElement.clone(true);
+        $filtered
+            .find("li").each(function(i, item) {
+                console.log("item", item, $(this).data("keywords"), val);
+                if ( $(this).data("keywords").indexOf(val) == -1
+                    && $(this).data("comment").indexOf(val) == -1
+                    && $(this).data("alt").indexOf(val) == -1 ) {
+
+                    $(this).remove();
+                }
+            }).end()
+        .appendTo(this.originalElementContainer);
 
         var $visible = $("#js-icon-browser-content li:visible");
         if ( $visible.length == 1 )
             this.doSelect($visible, null, true);
     },
     resetFilter: function() {
+        console.log("reset filter");
         $("#js-icon-browser-search").val("");
-        $("#js-icon-browser-content li").show();
+        if ( this.originalElement ) {
+            $("#js-icon-browser-content").detach();
+            this.originalElementContainer.append(this.originalElement);
+        }
+
+        this.originalElement = null;
+        this.originalElementContainer = null;
     }
 };
 
