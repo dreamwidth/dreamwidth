@@ -58,7 +58,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [ "email", "email" ]
     [ "im", "iminfo" ]
 ] ~%]
-    <option name="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
+    <option value="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
 [%- END -%]
 </select>
     <input type="submit" class="secondary button" value="[% 'widget.search.btn.go' | ml %]" />
