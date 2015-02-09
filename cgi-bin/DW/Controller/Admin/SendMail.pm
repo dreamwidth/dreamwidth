@@ -180,16 +180,20 @@ sub lookup_controller {
 
     my $enhance_row = sub {
         my ( $row ) = @_;
+
         # link to view full message
-        $row->{msgurl} = '?id=' . $row->{msgid};
+        $row->{msgurl} = LJ::create_url( undef, args => { id => $row->{msgid} } );
+
         # time_sent needs a display version
         $row->{time_sent_view} = LJ::time_to_http( $row->{time_sent} );
+
         # build a request URL
         if ( $row->{request} ) {
-            $row->{request_url} = "/support/see_request?id=";
-            $row->{request_url} .= $row->{request};
+            $row->{request_url} = LJ::create_url( "/support/see_request",
+                                    args => { id => $row->{request} } );
         }
-        # sendto might be a uid
+
+        # sendto might be a uid (if it's an email, no work is needed)
         if ( $row->{sendto} =~ /^\d+$/ ) {
             if ( my $u = LJ::load_userid( $row->{sendto} ) ) {
                 $row->{sendto} = $u;
@@ -197,12 +201,14 @@ sub lookup_controller {
                 $row->{sendto} = '[unknown user] '. $row->{sendto};
             }
         }
+
         # sentfrom is definitely a uid
         if ( my $ru = LJ::load_userid( $row->{remoteid} ) ) {
             $row->{remote} = $ru;
         } else {
             $row->{remote} = '[unknown user] '. $row->{remoteid};
         }
+
         # add domain name to display site address
         $row->{account_view} = $row->{account} . "\@$LJ::DOMAIN";
 
@@ -218,7 +224,7 @@ sub lookup_controller {
         my $account = LJ::trim( $args->{account} );
 
         if ( $account ) {
-            if ( my $priv = $LJ::SENDMAIL_ACCOUNTS{ $account } ) {
+            if ( my $priv = $LJ::SENDMAIL_ACCOUNTS{$account} ) {
                 $errors->add( "account", ".error.nopriv", { priv => $priv } )
                     unless $remote->has_priv( $priv );
             } else {
@@ -259,7 +265,7 @@ sub lookup_controller {
             return error_ml( $scope->( '.error.nomsg' ) ) unless $row;
             $row = $enhance_row->( $row );
 
-            my $priv = $LJ::SENDMAIL_ACCOUNTS{ $row->{account} };
+            my $priv = $LJ::SENDMAIL_ACCOUNTS{$row->{account}};
 
             if ( $priv && $remote->has_priv( $priv ) ) {
                 $rv->{row} = $row;
