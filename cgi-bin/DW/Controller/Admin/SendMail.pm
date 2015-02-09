@@ -7,7 +7,7 @@
 # Authors:
 #      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2012-2014 by Dreamwidth Studios, LLC.
+# Copyright (c) 2012-2015 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -33,9 +33,49 @@ DW::Controller::Admin->register_admin_page( '/',
 );
 
 DW::Routing->register_string( "/admin/sendmail/index", \&index_controller );
-#add these later
-#DW::Routing->register_string( "/admin/sendmail/lookup", \&lookup_controller );
+DW::Routing->register_string( "/admin/sendmail/lookup", \&lookup_controller );
+DW::Routing->register_string( "/admin/sendmail/message", \&message_controller );
+# FIXME: add this later
 #DW::Routing->register_string( "/admin/sendmail/forms", \&form_controller );
+
+# helper function for lookup and message
+my $enhance_row = sub {
+    my ( $row ) = @_;
+
+    # link to view full message
+    $row->{msgurl} = LJ::create_url( "/admin/sendmail/message",
+                       args => { id => $row->{msgid} } );
+
+    # time_sent needs a display version
+    $row->{time_sent_view} = LJ::time_to_http( $row->{time_sent} );
+
+    # build a request URL
+    if ( $row->{request} ) {
+        $row->{request_url} = LJ::create_url( "/support/see_request",
+                                args => { id => $row->{request} } );
+    }
+
+    # sendto might be a uid (if it's an email, no work is needed)
+    if ( $row->{sendto} =~ /^\d+$/ ) {
+        if ( my $u = LJ::load_userid( $row->{sendto} ) ) {
+            $row->{sendto} = $u;
+        } else {
+            $row->{sendto} = '[unknown user] '. $row->{sendto};
+        }
+    }
+
+    # sentfrom is definitely a uid
+    if ( my $ru = LJ::load_userid( $row->{remoteid} ) ) {
+        $row->{remote} = $ru;
+    } else {
+        $row->{remote} = '[unknown user] '. $row->{remoteid};
+    }
+
+    # add domain name to display site address
+    $row->{account_view} = $row->{account} . "\@$LJ::DOMAIN";
+
+    return $row;
+};
 
 sub index_controller {
     my ( $ok, $rv ) = controller( privcheck => \@privs, form_auth => 1 );
@@ -171,5 +211,98 @@ sub index_controller {
     return DW::Template->render_template( 'admin/sendmail/index.tt', $rv );
 }
 
+sub lookup_controller {
+    my ( $ok, $rv ) = controller( privcheck => \@privs, form_auth => 1 );
+    return $rv unless $ok;
+    my $remote = $rv->{remote};
+
+    my $scope = sub { return '/admin/sendmail/lookup.tt' . $_[0] };
+
+    my $r = DW::Request->get;
+    my $errors = DW::FormErrors->new;
+
+    if ( $r->did_post ) {
+        my $args = $r->post_args;
+
+        my $account = LJ::trim( $args->{account} );
+
+        if ( $account ) {
+            if ( my $priv = $LJ::SENDMAIL_ACCOUNTS{$account} ) {
+                $errors->add( "account", ".error.nopriv", { priv => $priv } )
+                    unless $remote->has_priv( $priv );
+            } else {
+                $errors->add( "account", ".error.badacct" );
+            }
+
+        } else {
+            $errors->add( "account", ".error.noacct" );
+        }
+
+        unless ( $errors->exist ) {
+            my $dbr = LJ::get_db_reader();
+            my $rows = $dbr->selectall_hashref(
+                "SELECT msgid, time_sent, sendto, subject, request" .
+                " FROM siteadmin_email_history WHERE account=?", 'msgid',
+                undef, $account );
+            die $dbr->errstr if $dbr->err;
+
+            my @data = map { $enhance_row->( $_ ) } values %$rows;
+
+            $rv->{rows} = [ sort { $b->{time_sent} <=> $a->{time_sent} } @data ];
+            $rv->{account}  = $account;
+        }
+
+    }
+
+    # Construct data for dropdown of available email addresses
+    my @account_menu = ( "", LJ::Lang::ml( $scope->( '.select.account.choose' ) ) );
+
+    foreach my $account ( sort keys %LJ::SENDMAIL_ACCOUNTS ) {
+        my $priv = $LJ::SENDMAIL_ACCOUNTS{$account};
+        push @account_menu, ( $account, "$account\@$LJ::DOMAIN" )
+            if $remote->has_priv( $priv );
+    }
+
+    $rv->{has_menu}      = ( @account_menu > 2 );
+    $rv->{account_menu}  = \@account_menu;
+
+    $rv->{errors}        = $errors;
+    $rv->{formdata}      = $r->post_args;
+
+    return DW::Template->render_template( 'admin/sendmail/lookup.tt', $rv );
+}
+
+sub message_controller {
+    my ( $ok, $rv ) = controller( privcheck => \@privs );
+    return $rv unless $ok;
+    my $remote = $rv->{remote};
+
+    my $scope = sub { return '/admin/sendmail/lookup.tt' . $_[0] };
+
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+    my $msgid = LJ::trim( $args->{id} );
+
+    return $r->redirect( "/admin/sendmail/lookup" )
+        unless $msgid && $msgid =~ /^\d+$/;
+
+    my $dbr = LJ::get_db_reader();
+    my $row = $dbr->selectrow_hashref(
+        "SELECT * FROM siteadmin_email_history WHERE msgid=?",
+        undef, $msgid );
+    die $dbr->errstr if $dbr->err;
+
+    return error_ml( $scope->( '.error.nomsg' ) ) unless $row;
+
+    my $priv = $LJ::SENDMAIL_ACCOUNTS{$row->{account}};
+
+    if ( $priv && $remote->has_priv( $priv ) ) {
+        $rv->{row} = $enhance_row->( $row );
+    } else {
+        return error_ml( $scope->( '.error.nopriv' ), { priv => $priv } );
+    }
+
+    return DW::Template->render_template( 'admin/sendmail/message.tt', $rv );
+}
 
 1;

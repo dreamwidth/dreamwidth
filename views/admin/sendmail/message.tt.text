@@ -1,0 +1,23 @@
+;; -*- coding: utf-8 -*-
+
+.backlink=Back To List
+
+.nodata=The message you are trying to view does not exist.
+
+.table.account=Account Used:
+
+.table.date=Date Sent:
+
+.table.from=Sent By:
+
+.table.message=Message Text:
+
+.table.notes=Private Notes:
+
+.table.req=Req #:
+
+.table.sendto=Recipient:
+
+.table.subject=Subject:
+
+.title=Message

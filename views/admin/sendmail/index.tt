@@ -3,7 +3,7 @@
   # Authors:
   #      Jen Griffin <kareila@livejournal.com>
   #
-  # Copyright (c) 2012-2014 by Dreamwidth Studios, LLC.
+  # Copyright (c) 2012-2015 by Dreamwidth Studios, LLC.
   #
   # This program is free software; you may redistribute it and/or modify it
   # under the same terms as Perl itself. For a copy of the license, please
@@ -18,7 +18,7 @@
     </style>
 [% END %]
 
-<p>[% '.intro' | ml %]</p>
+<p>[% '.intro' | ml %] [% '.lookup' | ml( url = 'lookup' ) %] [% '.formtemp' | ml %]</p>
 
 [%- INCLUDE components/errors.tt errors = errors -%]
 
