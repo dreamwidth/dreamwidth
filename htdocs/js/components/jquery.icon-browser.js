@@ -139,7 +139,7 @@ IconBrowser.prototype = {
             } else if ($originalTarget.is("a")) {
                 return;
             }
-            this.close();
+            this.updateOwner.call(this, e);
         }
     },
     selectByClick: function(e) {
@@ -154,7 +154,7 @@ IconBrowser.prototype = {
     },
     selectByDoubleClick: function(e) {
         this.selectByClick.call(this, e);
-        this.close();
+        this.updateOwner.call(this, e);
     },
     selectByKeywordMenuClick: function(e) {
         var keyword = $(e.target).text();
@@ -168,7 +168,7 @@ IconBrowser.prototype = {
     },
     selectByKeywordMenuDoubleClick: function(e) {
         this.selectByKeywordMenuClick(e);
-        this.close();
+        this.updateOwner.call(this, e);
     },
     initializeKeyword: function() {
         var keyword = this.element.val();
@@ -259,7 +259,6 @@ IconBrowser.prototype = {
             this.doSelect($visible, null, true);
     },
     resetFilter: function() {
-        console.log("reset filter");
         $("#js-icon-browser-search").val("");
         if ( this.originalElement ) {
             $("#js-icon-browser-content").detach();
