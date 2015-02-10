@@ -5308,17 +5308,16 @@ function Entry::print_tags() [fixed] {
             $show_tagnav_links = ($p.view == "entry" or $p.view == "reply");
         }
         var int tag_count = 0;
-        """<div class="tag"><span class="tag-text">$*text_tags</span><ul>\n""";
+
+        var string dataAttributes = "";
+        if ( $show_tagnav_links ) {
+          $dataAttributes = """ data-journal="$this.journal.username" data-ditemid="$this.itemid" """;
+        }
+        """<div class="tag"><span class="tag-text"$dataAttributes>$*text_tags</span><ul>\n""";
+
         foreach var Tag t ($this.tags) {
-            $this.tagnav = $t;
             "<li>";
-            if ($show_tagnav_links) {
-                $this->print_link_tag_prev();
-            }
             """<a rel="tag" href="$t.url">$t.name</a>""";
-            if ($show_tagnav_links) {
-                $this->print_link_tag_next();
-            }
             $tag_count++;
             if ($tag_count < size $.tags) { print $*text_tags_item_sep; }
             "</li>\n";

@@ -193,6 +193,7 @@ sub make_journal
         stc/jquery/jquery.ui.theme.smoothness.css
 
         js/jquery.poll.js
+        js/journals/jquery.tag-nav.js
 
         js/jquery.mediaplaceholder.js
     ) );
