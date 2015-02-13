@@ -20,6 +20,7 @@ package DW::External::User;
 use strict;
 use Carp qw/ croak /;
 use DW::External::Site;
+use LJ::CleanHTML;
 
 
 # given a site (url) and a user (string), construct an external
@@ -67,6 +68,7 @@ sub ljuser_display {
     my $profile_url = $self->site->profile_url( $self );
     my $journal_url = $self->site->journal_url( $self );
     my $badge_image = $self->site->badge_image( $self );
+    $badge_image->{url} = LJ::CleanHTML::https_url( $badge_image->{url} ) if $LJ::IS_SSL;
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
