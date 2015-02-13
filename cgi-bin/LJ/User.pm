@@ -9375,7 +9375,7 @@ sub journal_base
 {
     my ($user, %opts) = @_;
     my $vhost = $opts{vhost};
-    my $protocol = $opts{ssl} ? "https" : "http";
+    my $protocol = $LJ::IS_SSL ? "https" : "http";
 
     my $u = LJ::isu( $user ) ? $user : LJ::load_user( $user );
     $user = $u->user if $u;
