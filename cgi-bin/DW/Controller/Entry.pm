@@ -1104,7 +1104,8 @@ sub _do_edit {
     my $is_sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
     if ( $remote->can_manage( $journal ) ) {
         if ( $form_req->{sticky_entry} ) {
-            $journal->sticky_entry_new( $ditemid );
+            $journal->sticky_entry_new( $ditemid )
+                unless $is_sticky_entry;
         } else {
             $journal->sticky_entry_remove( $ditemid )
                 if $is_sticky_entry;
