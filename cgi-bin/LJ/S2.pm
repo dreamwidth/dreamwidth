@@ -2145,6 +2145,7 @@ sub Entry_from_entryobj
             suspend_msg => $suspend_msg,
             unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0,
             preformatted => $entry_obj->prop( "opt_preformatted" ),
+            proxy_insecure_content => $LJ::IS_SSL,
         };
 
         # reading pages might need to display image placeholders
