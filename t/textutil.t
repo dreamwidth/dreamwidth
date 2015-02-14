@@ -18,6 +18,7 @@ use warnings;
 
 use Test::More tests => 22;
 
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::TextUtil;
 

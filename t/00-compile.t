@@ -14,6 +14,7 @@
 
 use strict;
 use warnings;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 
 use Test::Most;
 use File::Temp;
@@ -36,6 +37,9 @@ my %SKIP = (
 
     'cgi-bin/modperl.pl' => "Special file",
     'cgi-bin/modperl_subs.pl' => "Special file",
+
+    'LJ/ConfCheck.pm' => 'omit defined warnings',
+    'LJ/ConfCheck/General.pm' => 'omit defiend warnings',
 );
 
 my @scripts = File::Find::Rule->file->name('*.pl')->in('cgi-bin');

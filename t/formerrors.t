@@ -9,6 +9,8 @@
 
 use strict;
 use Test::More tests => 8;
+
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 
 use DW::FormErrors;

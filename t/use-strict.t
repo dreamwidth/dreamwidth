@@ -38,6 +38,7 @@ foreach my $repo ( LJ::get_all_directories( ".git" ) ) {
         next unless $path =~ /\.(pl|pm)$/;
         # skip stuff we're less concerned about or don't control
         next if $path =~ m:\b(doc|etc|fck|miscperl|src|s2|extlib)/:;
+        next if $path =~ m/config-test\.pl$/;
         $check{$path} = 1;
     }
 }
