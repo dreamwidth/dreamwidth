@@ -555,7 +555,7 @@ sub EntryPage_entry
     $comments->{show_readlink} &&= $get_mode eq 'reply';
 
     my $subject = LJ::CleanHTML::quote_html( $entry->subject_html, $get->{nohtml} );
-    my $event = LJ::CleanHTML::quote_html( $entry->event_html( { proxy_insecure_content => $LJ::IS_SSL } ), $get->{nohtml} );
+    my $event = LJ::CleanHTML::quote_html( $entry->event_html, $get->{nohtml} );
 
     # load tags
     my @taglist;
