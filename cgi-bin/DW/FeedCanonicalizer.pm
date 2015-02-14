@@ -53,31 +53,31 @@ sub canonicalize {
         # Let's see if this looks "LJ-ish".
         if ( $uri_str =~ m!^https?://(?:users|community|syndicated)\.([^/]+)/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
             my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
-            return make_ljish( $host, $sub, $feed, $orig_uri, $extra ) unless 0
-                or $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
-                or $spare && ! $LJISH_SITES{$host};
+            return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
+                unless $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
+                    or $spare && ! $LJISH_SITES{$host};
         }
 
         if ( $uri_str =~ m!^https?://([a-z0-9\-_]+)\.([^/]+)/+$LJISH_URL_PART$!i ) {
             my ( $sub, $host, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
-            return make_ljish( $host, $sub, $feed, $orig_uri, $extra ) unless 0
-                or $sub eq 'www'
-                or $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
-                or $spare && ! $LJISH_SITES{$host};
+            return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
+                unless $sub eq 'www'
+                    or $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
+                    or $spare && ! $LJISH_SITES{$host};
         }
         
         if ( $uri_str =~ m!^https?://(?:www\.)?([^/]+)/+~([a-z0-9\-_]+)/$LJISH_URL_PART!i ) {
             my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 ); 
-            return make_ljish( $host, $sub, $feed, $orig_uri, $extra ) unless 0
-                or $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
-                or $spare && ! $LJISH_SITES{$host};
+            return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
+                unless $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
+                    or $spare && ! $LJISH_SITES{$host};
         }
         
         if ( $uri_str =~ m!^https?://(?:www\.)?([^/]+)/+(?:users|community|syndicated)/([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
             my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
-            return make_ljish( $host, $sub, $feed, $orig_uri, $extra ) unless 0
-                or $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
-                or $spare && ! $LJISH_SITES{$host};
+            return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
+                unless $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
+                    or $spare && ! $LJISH_SITES{$host};
         }
 
         # InsaneJournal decided to call communities something different
