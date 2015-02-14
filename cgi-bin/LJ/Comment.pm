@@ -865,7 +865,6 @@ sub body_html {
     $opts->{preformatted} = $self->prop("opt_preformatted");
     $opts->{anon_comment} = LJ::Talk::treat_as_anon( $self->poster, $self->journal );
     $opts->{editor} = $self->prop( "editor" );
-    $opts->{proxy_insecure_content} = $extra_opts{proxy_insecure_content};
 
     my $body = $self->body_raw;
     LJ::CleanHTML::clean_comment(\$body, $opts) if $body;

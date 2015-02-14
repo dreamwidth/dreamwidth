@@ -188,7 +188,7 @@ sub content {
 
     LJ::need_res('js/commentmanage.js');
 
-    my $comment_body = $comment->body_html( proxy_insecure_content => $LJ::IS_SSL );
+    my $comment_body = $comment->body_html;
     my $buttons = $comment->manage_buttons;
     my $dtalkid = $comment->dtalkid;
     my $htmlid  = LJ::Talk::comment_htmlid( $dtalkid );

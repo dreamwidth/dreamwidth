@@ -885,7 +885,6 @@ sub event_html
 
     LJ::expand_embedded($self->{u}, $self->ditemid, LJ::User->remote, \$event,
         sandbox => $opts->{sandbox},
-        proxy_insecure_content =>  $opts->{proxy_insecure_content}
         );
     return $event;
 }
