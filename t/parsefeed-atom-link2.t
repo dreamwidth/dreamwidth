@@ -20,6 +20,7 @@ use warnings;
 
 use Test::More tests => 8;
 
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
 BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
