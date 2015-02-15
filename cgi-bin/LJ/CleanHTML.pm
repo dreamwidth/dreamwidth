@@ -1454,7 +1454,7 @@ sub clean_and_trim_subject {
 
 my @comment_eat = qw( head title style layer iframe applet object );
 my @comment_anon_eat = ( @comment_eat, qw(
-    table tbody thead tfoot tr td th caption colgroup col
+    table tbody thead tfoot tr td th caption colgroup col font
 ) );
 
 my @comment_close = qw(
