@@ -39,6 +39,7 @@ ok($u->{clusterid}, "on a clusterid ($u->{clusterid})");
 my @others = grep { $u->{clusterid} != $_ } @LJ::CLUSTERS;
 my $dest = shift @others;
 
+$ENV{DW_TEST} = 1;
 my $rv = system("$ENV{LJHOME}/bin/moveucluster.pl", "--ignorebit", "--destdel", "--verbose=0", "system", $dest);
 ok(!$rv, "no errors moving to cluster $dest");
 

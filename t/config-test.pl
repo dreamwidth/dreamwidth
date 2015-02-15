@@ -36,6 +36,7 @@
                 },
             );
 
+    @LANGS = qw( en );
     @CLUSTERS = ( 1, 2 );    # eg: (1, 2, 3) (for scalability)
     $DEFAULT_CLUSTER = [ 1, 2 ];
     @THESCHWARTZ_DBS = (
@@ -356,15 +357,18 @@
     # (16 bit unsigned int ... each bit is capability class flag)
     $NEWUSER_CAPS = 2;
 
+    $USE_SSL = 1;
 
     ## MISC SETTINGS ##
     $DOMAIN = "test.dw";
     $EMAIL_POST_DOMAIN = "post.$DOMAIN";
+    $EMBED_MODULE_DOMAIN = "embed.dw";
 
     $SITENAME = "DW Test Installation";
     $SITENAME_SHORT = "DW Test";
     $SITENAMEABBREV = "TST";
 
+    $BOGUS_EMAIL = "bogus\@$DOMAIN";
 }
 
 1;

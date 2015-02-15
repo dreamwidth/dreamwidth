@@ -49,7 +49,7 @@ my $currurl = $dbh->selectrow_array("SELECT synurl FROM syndicated WHERE userid=
 is($run->("syn_editurl " . $feed1->user . " $LJ::SITEROOT/feed.rss"),
    "success: URL for account " . $feed1->user . " changed: $currurl => $LJ::SITEROOT/feed.rss");
 
-my $currurl = $dbh->selectrow_array("SELECT synurl FROM syndicated WHERE userid=?", undef, $feed1->id);
+$currurl = $dbh->selectrow_array("SELECT synurl FROM syndicated WHERE userid=?", undef, $feed1->id);
 is($currurl, "$LJ::SITEROOT/feed.rss", "Feed URL updated correctly.");
 
 is($run->("syn_editurl " . $feed2->user . " $LJ::SITEROOT/feed.rss"),

@@ -46,7 +46,7 @@ sub assert {
     subtest $testname => sub {
         plan tests => 4;
 
-        my ($typeid) = grep { $LJ::CAP{$_}->{_account_type} eq $type } keys %LJ::CAP;
+        my ($typeid) = grep { ( $LJ::CAP{$_}->{_account_type}||"" ) eq $type } keys %LJ::CAP;
         ok( $typeid, 'valid class' );
 
         my $ps = DW::Pay::get_paid_status( $u );

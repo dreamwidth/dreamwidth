@@ -194,7 +194,7 @@ test_esn_flow(sub {
     $LJ::CAP{0...15}->{track_thread} = 0;
     $subsc->delete;
 
-    if (LJ::Event::JournalNewComment->zero_journalid_subs_means eq "friends") {
+    if ( ( LJ::Event::JournalNewComment->zero_journalid_subs_means // "" ) eq "friends") {
         ####### S4 (watching new comments on all friends' journals)
 
         $subsc = $u1->subscribe(
@@ -248,7 +248,7 @@ test_esn_flow(sub {
     my $u2e5 = eval { $u2->t_post_fake_entry };
 
     # subscribe to replies to a thread
-    my $subsc = $u1->subscribe(
+    $subsc = $u1->subscribe(
                             event   => "JournalNewComment::TopLevel",
                             method  => "Email",
                             journal => $u2,
@@ -269,7 +269,7 @@ test_esn_flow(sub {
     ok( ! $email, "Unsubscribed watcher not notified" );
 
     # reply to a comment on this entry, make sure we're not notified
-    my $reply = $comment->t_reply;
+    $reply = $comment->t_reply;
     ok( $reply, "Posted reply" );
 
     $email = $got_notified->( $u1 );

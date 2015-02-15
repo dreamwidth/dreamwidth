@@ -94,6 +94,8 @@ use IO::Socket::INET;
 use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 
+BEGIN { $LJ::_T_CONFIG = $ENV{DW_TEST}; };
+
 # NOTE: these options are used both by Getopt::Long for command-line parsing
 # in single user move move, and also set by hand when in --jobserver mode,
 # and the jobserver gives us directions, including whether or not users

@@ -58,7 +58,6 @@ note( "test entry from ditemid (valid jitemid, invalid anum)" );
 {
     LJ::Entry->reset_singletons;
     my $entry_from_ditemid = LJ::Entry->new( $u, ditemid => ( $jitemid << 8 ) + ( ( $anum + 1 ) % 256 ) );
-    warn "$entry_real->{ditemid}; $entry_real->{anum} ;; $entry_from_ditemid->{ditemid}; $entry_from_ditemid->{anum}";
     ok(   $entry_from_ditemid->valid, "valid entry" );
     ok( ! $entry_from_ditemid->correct_anum, "incorrect anum" );
 }

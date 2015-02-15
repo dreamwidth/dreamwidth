@@ -50,7 +50,7 @@ handle_custom("/ssl_test", name => "ssl possible, on ssl", opts=>{ ssl => 1 }, f
 handle_custom("/ssl_test",name => "ssl possible, not ssl, user page", opts=>{username=>'example'}, final => sub {
     my ( $r, $rv ) = @_;
     plan( tests => 1 );
-    is( $rv, -100 );
+    is( $rv, $r->REDIRECT );
 });
 
 $LJ::USE_SSL = 0;
