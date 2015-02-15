@@ -313,9 +313,11 @@ sub data_for_hash {
             fn => $fn,
         };
     } elsif ( $subref == \&DW::Routing::_redirect_helper ) {
+        my $args = { %{ $hash->{args} } };
+        $args->{dest} = "<<CODE BLOCK>>" if ref $args->{dest} eq 'CODE';
         $data = {
             _redirect => 1,
-            data => $hash->{'args'},
+            data => $args,
         };
     } else {
         $data = {
