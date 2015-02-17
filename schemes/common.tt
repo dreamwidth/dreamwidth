@@ -314,6 +314,7 @@ the table based way can be removed when the entire site is Foundation-based.
                     .find(".top-bar-section").removeClass( "top-bar-section" ).end()
             }
           });
+          Foundation.global.namespace = '';
           $(document).foundation();
         </script>
     </body>
