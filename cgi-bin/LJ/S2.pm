@@ -2328,6 +2328,7 @@ sub Page
         'layout_url' => $layouturl,
         'time' => DateTime_unix(time),
         'local_time' => $tz_remote ? DateTime_tz( time, $tz_remote ) : DateTime_unix(time),
+        timezone => $tz_remote ? $tz_remote->short_name_for_datetime( DateTime->now() ) : 'UTC',
         'base_url' => $base_url,
         'stylesheet_url' => "$base_url/res/$styleid/stylesheet?$stylemodtime",
         'view_url' => {
