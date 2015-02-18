@@ -2647,6 +2647,8 @@ sub sitescheme_secs_to_iso {
     my $has_tz = defined $s2_datetime ? "(local)" : "UTC";
     # if timezone execution failed, use GMT
     $s2_datetime = DateTime_unix( $secs ) unless defined $s2_datetime;
+    # but don't display timezone unless it was requested
+    $has_tz = '' unless $opts{tz};
 
     my @s2_args = ( $s2_ctx, $s2_datetime );
 
