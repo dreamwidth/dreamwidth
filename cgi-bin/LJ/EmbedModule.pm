@@ -646,6 +646,9 @@ sub module_content {
 
     my $preview = $opts{preview};
 
+    # are we displaying the content? (as opposed to processing the text for other reasons)
+    my $display = $opts{display_as_content};
+
     # try memcache
     my $memkey = $class->memkey($journalid, $moduleid, $preview);
     my ($content, $linktext, $url); # for direct linking
@@ -669,7 +672,7 @@ sub module_content {
     LJ::text_uncompress(\$content) if $content =~ s/^C-//;
 
     # clean js out of content
-    LJ::CleanHTML::clean_embed( \$content );
+    LJ::CleanHTML::clean_embed( \$content, { display_as_content => $display });
 
     my $return_content;
 

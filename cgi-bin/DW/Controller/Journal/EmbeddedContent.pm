@@ -73,6 +73,7 @@ sub embedcontent_handler {
         journalid => $journalid,
         moduleid  => $moduleid,
         preview => $preview,
+        display_as_content => 1,
     )->{content};
 
     $r->print(qq{<html><head><style type="text/css">html, body { background-color:transparent; padding:0; margin:0; border:0; overflow:hidden; } iframe, object, embed { width: 100%; height: 100%;}</style></head><body>$content</body></html>});
