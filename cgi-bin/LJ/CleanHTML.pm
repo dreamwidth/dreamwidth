@@ -433,9 +433,12 @@ sub clean
 
             # force this specific instance of the tag to be allowed (for conditional)
             my $force_allow = 0;
+
             if (defined $action{$tag} and $action{$tag} eq "conditional") {
                 if ( $tag eq "iframe" ) {
-                    $force_allow = LJ::Hooks::run_hook( 'allow_iframe_embeds', $attr->{src} );
+                    my $can_https;
+                    ( $force_allow, $can_https ) = LJ::Hooks::run_hook( 'allow_iframe_embeds', $attr->{src} );
+                    $attr->{src} =~ s!^https?:!! if $opts->{force_https_embed} && $can_https;  # convert to protocol-relative URL
                     unless ( $force_allow ) {
                         ## eat this tag
                         if (!$attr->{'/'}) {
@@ -1519,7 +1522,7 @@ sub clean_event
 
 # clean JS out of embed module
 sub clean_embed {
-    my ( $ref ) = @_;
+    my ( $ref, $opts ) = @_;
     return unless $$ref;
     return unless LJ::is_enabled( 'embedmodule-cleancontent' );
 
@@ -1538,6 +1541,7 @@ sub clean_embed {
         noexpandembedded => 1,
         transform_embed_nocheck => 1,
         rewrite_embed_param => 1,
+        force_https_embed => $opts->{display_as_content} && $LJ::IS_SSL,
     });
 }
 
