@@ -22,7 +22,6 @@ h3.entry-title, h4.comment-title {
 
 .entry .header, .comment .header {background:none; border:0;}
 .entry .datetime:before, .comment .datetime:before { content:"@ ";} /*add the talkread-style elements to the date and time*/
-.entry .datetime:after {content:" UTC";}
 .entry .datetime, .comment .datetime {font-style: italic; display:block;}
 .entry .contents, .comment .contents{ margin-left: 30px}
 .comment .header, .screened {background:none; border:0;}

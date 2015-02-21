@@ -2642,9 +2642,16 @@ sub sitescheme_secs_to_iso {
 
     # convert date to S2 object
     my $s2_ctx = [];  # fake S2 context object
+
+    my $s2_datetime;
+    my $has_tz = '';  # don't display timezone unless requested below
+
     # if opts has a true tz key, get the remote user's timezone if possible
-    my $s2_datetime = $opts{tz} ? DateTime_tz( $secs, $remote ) : undef;
-    my $has_tz = defined $s2_datetime ? "(local)" : "UTC";
+    if ( $opts{tz} ) {
+        $s2_datetime = DateTime_tz( $secs, $remote );
+        $has_tz = defined $s2_datetime ? "(local)" : "UTC";
+    }
+
     # if timezone execution failed, use GMT
     $s2_datetime = DateTime_unix( $secs ) unless defined $s2_datetime;
 
