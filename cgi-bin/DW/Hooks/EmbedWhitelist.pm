@@ -73,8 +73,6 @@ my %host_path_match = (
     "w.soundcloud.com"      => [ qr!^/player/!, 1 ],
     "embed.spotify.com"     => [ qr!^/$!, 1 ],
 
-    "www.twitvid.com"       => [ qr!^/embed.php$!, 0 ],
-
     "player.vimeo.com"      => [ qr!^/video/\d+$!, 1 ],
 
     "www.plurk.com"         => [ qr!^/getWidget$!, 1 ],
