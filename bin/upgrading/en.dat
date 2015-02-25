@@ -4877,9 +4877,13 @@ widget.inbox.menu.delete.btn=Delete Selected
 
 widget.inbox.menu.delete_all.btn=Delete All
 
+widget.inbox.menu.delete_all.entry.btn=Delete All for this Entry
+
 widget.inbox.menu.delete_all.subfolder.btn=Delete All in Subfolder
 
 widget.inbox.menu.mark_all_read.btn=Mark All Read
+
+widget.inbox.menu.mark_all_read.entry.btn=Mark All Read for this Entry
 
 widget.inbox.menu.mark_all_read.subfolder.btn=Mark Subfolder Read
 
