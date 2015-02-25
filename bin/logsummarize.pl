@@ -96,7 +96,7 @@ foreach my $table (@need_summary)
 	}
 
 	my $ref = $r->[F_REF];
-	if ($ref =~ m!^http://([^/]+)!) {
+	if ($ref =~ m!^https?://([^/]+)!) {
 	    $ref = $1;
 	    $st{'referer'}->{$ref}++ unless ($ref =~ /livejournal\.com$/);
 	}

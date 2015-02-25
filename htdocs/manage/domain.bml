@@ -64,7 +64,7 @@ body<=
             ( !$dom_cap && $POST{journaldomain_del} ) ) {
 
             my $dom = lc( $POST{journaldomain} );
-            $dom =~ s!^(http://)?(www\.)?!!;
+            $dom =~ s!^(https?://)?(www\.)?!!;
 
             # Strip off trailing '.', and any path or port the user might have entered.
             $dom =~ s!\.([:/].+)?$!!;

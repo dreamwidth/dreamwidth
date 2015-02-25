@@ -318,7 +318,7 @@ use strict;
         $returl = LJ::CleanHTML::canonical_url($POST{'ret'});
         if ($returl) {
             my $redir_host;
-            $redir_host = $1 if $returl =~ m!^http://([\.:\w-]+)!i;
+            $redir_host = $1 if $returl =~ m!^https?://([\.:\w-]+)!i;
             return BML::redirect($returl) if $LJ::REDIRECT_ALLOWED{$redir_host};
         }
     }

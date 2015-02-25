@@ -500,8 +500,7 @@ sub trans
         # -- uppercase usernames
         # -- users with hyphens/underscores, except users from external domains (see table 'domains')
         if ( $orig_user ne lc($orig_user) ||
-            $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^http://$host!i && $opts->{'vhost'} !~ /^other:/) {
-
+            $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^$protocol://$host!i && $opts->{'vhost'} !~ /^other:/) {
             my $newurl = $uri;
 
             # if we came through $opts->{vhost} eq "users" path above, then
@@ -884,7 +883,7 @@ sub trans
             # redirect them to their canonical URL if on wrong host/prefix
             if (my $u = LJ::load_user($user)) {
                 my $canon_url = $u->journal_base;
-                unless ($canon_url =~ m!^http://$host!i || $LJ::DEBUG{'user_vhosts_no_wronghost_redirect'}) {
+                unless ($canon_url =~ m!^$protocol://$host!i || $LJ::DEBUG{'user_vhosts_no_wronghost_redirect'}) {
                     return redir($apache_r, "$canon_url$uri$args_wq");
                 }
             }
@@ -1603,7 +1602,7 @@ sub mogile_fetch {
             LJ::MemCache::add( $memkey, $paths, $cache_for ) if @paths;
         }
 
-        if ( defined $paths->[0] && $paths->[0] =~ m/^http:/ ) {
+        if ( defined $paths->[0] && $paths->[0] =~ m/^https?:/ ) {
             # reproxy url
             $apache_r->headers_out->{'X-REPROXY-CACHE-FOR'} = "$cache_for; Last-Modified Content-Type";
             $apache_r->headers_out->{'X-REPROXY-URL'} = join( ' ', @$paths );

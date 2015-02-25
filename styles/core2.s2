@@ -3675,7 +3675,7 @@ function FriendsPage::print_stylesheets() {
 function generate_image_url ( string image_path ) : string
 "Take an image property and append style image directory path if not given absolute path"
 {
-    if ( $image_path != "" and not $image_path->starts_with("http://") ) {
+    if ( $image_path != "" and not ( $image_path->starts_with("http://") or $image_path->starts_with("https://") ) ) {
         $image_path = "$*STYLES_IMGDIR/$image_path";
     }
 

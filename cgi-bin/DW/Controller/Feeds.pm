@@ -143,7 +143,7 @@ sub index_handler {
                     if ( $type eq "link" &&
                          $val =~ m!rel=.alternate.!i &&
                          $val =~ m!type=.application/(?:rss|atom)\+xml.!i &&
-                         $val =~ m!href=[\"\'](http://[^\"\']+)[\"\']!i ) {
+                         $val =~ m!href=[\"\'](https?://[^\"\']+)[\"\']!i ) {
                             $syn_url = $1;
                             last;
                     }

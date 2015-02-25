@@ -3530,12 +3530,12 @@ sub new_from_url {
     }
 
     # user subdomains
-    if ($LJ::USER_DOMAIN && $url =~ m!^http://([\w-]+)\.\Q$LJ::USER_DOMAIN\E/?$!) {
+    if ($LJ::USER_DOMAIN && $url =~ m!^https?://([\w-]+)\.\Q$LJ::USER_DOMAIN\E/?$!) {
         return LJ::load_user($1);
     }
 
     # subdomains that hold a bunch of users (eg, users.siteroot.com/username/)
-    if ($url =~ m!^http://\w+\.\Q$LJ::USER_DOMAIN\E/([\w-]+)/?$!) {
+    if ($url =~ m!^https?://\w+\.\Q$LJ::USER_DOMAIN\E/([\w-]+)/?$!) {
         return LJ::load_user($1);
     }
 
@@ -7601,7 +7601,7 @@ sub load_user_or_identity {
     return undef unless $arg =~ /\./;
 
     my $url = lc($arg);
-    $url = "http://$url" unless $url =~ m!^http://!;
+    $url = "http://$url" unless $url =~ m!^https?://!;
     $url .= "/" unless $url =~ m!/$!;
 
     # get from memcache

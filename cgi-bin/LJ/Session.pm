@@ -921,7 +921,7 @@ sub valid_domain_cookie {
 
 sub valid_destination {
     my $dest = shift;
-    return $dest =~ qr!^http://[-\w\.]+\.\Q$LJ::USER_DOMAIN\E/!;
+    return $dest =~ qr!^https?://[-\w\.]+\.\Q$LJ::USER_DOMAIN\E/!;
 }
 
 sub valid_cookie_generation {
