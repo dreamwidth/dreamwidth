@@ -2639,6 +2639,7 @@ sub control_strip
     my $passed_in_location = $opts{host} && $opts{uri} ? 1 : 0;
     my $host = delete $opts{host} || $r->host;
     my $uri = delete $opts{uri} || $r->uri;
+    my $protocol = $LJ::IS_SSL ? "https" : "http";
 
     my $args;
     my $argshash = {};
@@ -2654,7 +2655,7 @@ sub control_strip
     my $view = delete $opts{view} || $r->note( 'view' );
     my $view_is = sub { defined $view && $view eq $_[0] };
 
-    my $baseuri = "http://$host$uri";
+    my $baseuri = "$protocol://$host$uri";
 
     $baseuri .= $args ? "?$args" : "";
     my $euri = LJ::eurl( $baseuri );

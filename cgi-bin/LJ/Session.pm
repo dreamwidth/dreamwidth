@@ -446,7 +446,7 @@ sub domain_cookie {
 sub domain_journal {
     my ($class, $url) = @_;
 
-    $url ||= _current_url();
+    $url ||= LJ::create_url( undef, keep_args => 1 );
     return undef unless
         $url =~ m!^https?://(.+?)(/.*)$!;
 
@@ -473,7 +473,7 @@ sub domain_journal {
 
 sub url_owner {
     my ($class, $url) = @_;
-    $url ||= _current_url();
+    $url ||= LJ::create_url( undef, keep_args => 1 );
     my ($subdomain, $user) = LJ::Session->domain_journal($url);
     $user = $subdomain if $user eq "";
     return LJ::canonical_username($user);
@@ -526,7 +526,7 @@ sub session_from_domain_cookie {
         warn "No session found for domain cookie: $reason\n" if $LJ::IS_DEV_SERVER;
 
         my $rr = $opts->{redirect_ref};
-        $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(_current_url()) if $rr;
+        $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(LJ::create_url( undef, keep_args => 1 )) if $rr;
 
         return undef;
     };
@@ -773,15 +773,6 @@ sub setdomsess_handler {
 ############################################################################
 #  UTIL FUNCTIONS
 ############################################################################
-
-sub _current_url {
-    my $apache_r = BML::get_request();
-    my $args = $apache_r->args;
-    my $args_wq = $args ? "?$args" : "";
-    my $host = $apache_r->headers_in->{Host} || '';
-    my $uri = $apache_r->uri;
-    return "http://$host$uri$args_wq";
-}
 
 sub domsess_signature {
     my ($time, $sess, $domcook) = @_;

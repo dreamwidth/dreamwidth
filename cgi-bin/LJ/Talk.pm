@@ -303,12 +303,8 @@ sub check_viewable
         }
     }
 
-    my $host = $apache_r->headers_in->{Host};
-    my $args = scalar $apache_r->args;
-    my $querysep = $args ? "?" : "";
-    my $returnto = "http://" . $host . $apache_r->uri . $querysep . $args;
     $apache_r->notes->{internal_redir} = "/protected";
-    $apache_r->notes->{returnto} = $returnto;
+    $apache_r->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
     return 0;
 
 }

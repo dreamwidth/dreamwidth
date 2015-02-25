@@ -39,10 +39,7 @@ sub protected_handler {
     # using the current request url
     my $returnto = $r->note( 'returnto' ) || LJ::ehtml( $r->get_args->{returnto} );
     if ( ( ! $returnto ) && ( $r->uri ne '/protected' ) ) {
-        # FIXME: Convert this to create_url
-        my $host = $r->host;
-        my $query_string = $r->query_string ? "?" . $r->query_string : "";
-        $returnto = LJ::ehtml( "http://$host" . $r->uri . "$query_string" );
+        $returnto = LJ::ehtml( LJ::create_url( undef, keep_args => 1 ) );
     }
 
     my $vars = {
