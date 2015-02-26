@@ -38,7 +38,7 @@ DW::Routing->register_regex( '^/communities/([^/]+)/members/edit$', \&members_ed
 DW::Routing->register_string( "/communities/members/purge", \&members_purge_handler, app => 1, methods => { POST => 1 } );
 
 DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries$', \&entry_queue_handler, app => 1 );
-DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries/([0-9]+)$', \&entry_queue_edit_handler, app => 1, prefer_ssl => 0 );
+DW::Routing->register_regex( '^/communities/([^/]+)/queue/entries/([0-9]+)$', \&entry_queue_edit_handler, app => 1 );
 
 DW::Routing->register_regex( '^/communities/([^/]+)/queue/members$', \&members_queue_handler, app => 1 );
 

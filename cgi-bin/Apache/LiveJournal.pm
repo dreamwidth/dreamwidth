@@ -345,6 +345,13 @@ sub trans
     };
 
     if ($apache_r->is_initial_req) {
+        # redirect to https if we're on http and we've set up the site to want https
+        if ( $LJ::USE_SSL && $LJ::USE_HTTPS_EVERYWHERE && ! $is_ssl
+                && ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' ) ) {
+            my $url = LJ::create_url( $uri, keep_args => 1, ssl => 1 );
+            return redir( $apache_r, $url );
+        }
+
         # delete cookies if there are any we want gone
         if (my $cookie = $LJ::DEBUG{"delete_cookie"}) {
             LJ::Session::set_cookie($cookie => 0, delete => 1, domain => $LJ::DOMAIN, path => "/");
@@ -364,8 +371,8 @@ sub trans
 
     } else { # not is_initial_req
         if ($apache_r->status == 404) {
-            my $ret = DW::Routing->call( uri => "/internal/local/404" );
-            $ret //= DW::Routing->call( uri => "/internal/404" );
+            my $ret = DW::Routing->call( uri => "/internal/local/404", ssl => $is_ssl );
+            $ret //= DW::Routing->call( uri => "/internal/404", ssl => $is_ssl );
             return $ret if defined $ret;
         }
     }
@@ -475,7 +482,7 @@ sub trans
 
     # is this the embed module host
     if ( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ ) {
-        return DW::Routing->call( uri => '/journal/embedcontent' );
+        return DW::Routing->call( uri => '/journal/embedcontent', ssl => $is_ssl );
     }
 
     my $journal_view = sub {
@@ -851,13 +858,6 @@ sub trans
             return DECLINED;
 
         } elsif ($func eq "journal") {
-            if ( $is_ssl ) {
-                # FIXME: Remove when we are ready for SSL in userspace
-                return redir($apache_r, LJ::create_url( undef, ssl => 0, keep_args => 1 ) )
-                        if $apache_r->method eq "GET" || $apache_r->method eq "HEAD";
-                return 404;
-            }
-
             unless ($uri =~ m!^/(\w{1,25})(/.*)?$!) {
                 if ( $uri eq "/favicon.ico" ) {
                     $apache_r->filename( LJ::resolve_file( "htdocs/$uri" ) );
