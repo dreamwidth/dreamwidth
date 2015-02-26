@@ -25,8 +25,8 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
-DW::Routing->register_string('/comments/recent', \&received_handler, app => 1, prefer_ssl => 0 );
-DW::Routing->register_string('/comments/posted', \&posted_handler, app => 1, prefer_ssl => 0 );
+DW::Routing->register_string('/comments/recent', \&received_handler, app => 1 );
+DW::Routing->register_string('/comments/posted', \&posted_handler, app => 1 );
 
 # redirect /tools/recent_comments, /tools/recent_comments.bml
 DW::Routing->register_redirect( '/tools/recent_comments', '/comments/recent', app => 1, formats => [ 'html', 'bml' ] );
