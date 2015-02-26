@@ -94,7 +94,7 @@ body<=
         my $url = $u->profile_url( full => $is_full );
 
         my $good_domain = $url;
-        $good_domain =~ s!^http://!!;
+        $good_domain =~ s!^https?://!!;
         $good_domain =~ s!/.*!!;
         if ( $domain ne $good_domain ) {
             return BML::redirect( $url );

@@ -328,6 +328,7 @@ sub trans
     my $is_ssl = $LJ::IS_SSL = LJ::Hooks::run_hook("ssl_check", {
         r => $apache_r,
     });
+    my $protocol = $is_ssl ? "https" : "http";
 
     my $bml_handler = sub {
         my $filename = shift;
@@ -407,7 +408,7 @@ sub trans
         }
 
         if ( defined $which_alternate_domain ) {
-            my $root = $is_ssl ? "https://" : "http://";
+            my $root = "$protocol://";
             $host =~ s/\Q$which_alternate_domain\E$/$LJ::DOMAIN/i;
 
             # do $LJ::DOMAIN -> $LJ::DOMAIN_WEB here, to save a redirect.
@@ -499,8 +500,7 @@ sub trans
         # -- uppercase usernames
         # -- users with hyphens/underscores, except users from external domains (see table 'domains')
         if ( $orig_user ne lc($orig_user) ||
-            $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^http://$host!i && $opts->{'vhost'} !~ /^other:/) {
-
+            $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^$protocol://$host!i && $opts->{'vhost'} !~ /^other:/) {
             my $newurl = $uri;
 
             # if we came through $opts->{vhost} eq "users" path above, then
@@ -553,7 +553,7 @@ sub trans
             my $is_journal_page = !$opts->{mode} || $journal_pages{$opts->{mode}};
 
             if ($adult_content ne "none" && $is_journal_page && !$should_show_page) {
-                my $returl = "http://$host" . $apache_r->uri . "$args_wq";
+                my $returl = "$protocol://$host" . $apache_r->uri . "$args_wq";
 
                 LJ::set_active_journal( $u );
                 $apache_r->pnotes->{user} = $u;
@@ -821,7 +821,7 @@ sub trans
         $apache_r->status < 400)
     {
         # Per bug 3734: users sometimes type 'www.username.USER_DOMAIN'.
-        return redir( $apache_r, "http://$2.$LJ::USER_DOMAIN$uri$args_wq" )
+        return redir( $apache_r, "$protocol://$2.$LJ::USER_DOMAIN$uri$args_wq" )
             if $1 eq 'www.';
 
         my $user = $2;
@@ -851,7 +851,7 @@ sub trans
 
         } elsif (ref $func eq "ARRAY" && $func->[0] eq "changehost") {
 
-            return redir($apache_r, "http://$func->[1]$uri$args_wq");
+            return redir($apache_r, "$protocol://$func->[1]$uri$args_wq");
 
         } elsif ($uri =~ m!^/(?:talkscreen|delcomment)\.bml!) {
             # these URLs need to always work for the javascript comment management code
@@ -883,7 +883,7 @@ sub trans
             # redirect them to their canonical URL if on wrong host/prefix
             if (my $u = LJ::load_user($user)) {
                 my $canon_url = $u->journal_base;
-                unless ($canon_url =~ m!^http://$host!i || $LJ::DEBUG{'user_vhosts_no_wronghost_redirect'}) {
+                unless ($canon_url =~ m!^$protocol://$host!i || $LJ::DEBUG{'user_vhosts_no_wronghost_redirect'}) {
                     return redir($apache_r, "$canon_url$uri$args_wq");
                 }
             }
@@ -1016,7 +1016,7 @@ sub trans
         }
 
         # redirect to canonical username and/or add slash if needed
-        return redir($apache_r, "http://$host$hostport/$part1$cuser$srest$args_wq")
+        return redir($apache_r, "$protocol://$host$hostport/$part1$cuser$srest$args_wq")
             if $cuser ne $user or not $rest;
 
         my $vhost = { 'users/' => '', 'community/' => 'community',
@@ -1602,7 +1602,7 @@ sub mogile_fetch {
             LJ::MemCache::add( $memkey, $paths, $cache_for ) if @paths;
         }
 
-        if ( defined $paths->[0] && $paths->[0] =~ m/^http:/ ) {
+        if ( defined $paths->[0] && $paths->[0] =~ m/^https?:/ ) {
             # reproxy url
             $apache_r->headers_out->{'X-REPROXY-CACHE-FOR'} = "$cache_for; Last-Modified Content-Type";
             $apache_r->headers_out->{'X-REPROXY-URL'} = join( ' ', @$paths );

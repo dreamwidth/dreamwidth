@@ -360,7 +360,7 @@ sub process_content {
         # <link>.
         # [zilla: 267] Patch: Chaz Meyers <lj-zilla@thechaz.net>
         if ( defined $it->{'id'} && $it->{'id'} ne $it->{'link'}
-             && $it->{'id'} =~ m!^http://! )
+             && $it->{'id'} =~ m!^https?://! )
         {
             $htmllink .= "<p class=\"ljsyndicationlink\">" .
                 "<a href=\"$it->{'id'}\">$it->{'id'}</a></p>";

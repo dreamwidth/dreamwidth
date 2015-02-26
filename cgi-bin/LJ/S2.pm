@@ -3174,7 +3174,7 @@ sub set_handler
         } elsif ($cmd eq "set_image") {
             my $domexp = $get_domexp->();
             my $url = shift @args;
-            if ($url =~ m!^http://! && $url !~ /[\'\"\n\r]/) {
+            if ($url =~ m!^https?://! && $url !~ /[\'\"\n\r]/) {
                 $url = LJ::eurl($url);
                 $S2::pout->("setAttr($domexp, 'src', \"$url\");\n");
             }

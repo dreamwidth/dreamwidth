@@ -726,9 +726,9 @@ sub check_referer {
 
     return 1 if $LJ::SITEROOT   && $referer =~ m!^\Q$LJ::SITEROOT\E$uri!;
     return 1 if $LJ::SSLROOT    && $referer =~ m!^\Q$LJ::SSLROOT\E$uri!;
-    return 1 if $LJ::DOMAIN     && $referer =~ m!^http://\Q$LJ::DOMAIN\E$uri!;
-    return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^http://\Q$LJ::DOMAIN_WEB\E$uri!;
-    return 1 if $LJ::USER_VHOSTS && $referer =~ m!^http://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
+    return 1 if $LJ::DOMAIN     && $referer =~ m!^https?://\Q$LJ::DOMAIN\E$uri!;
+    return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^https?://\Q$LJ::DOMAIN_WEB\E$uri!;
+    return 1 if $LJ::USER_VHOSTS && $referer =~ m!^https?://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
     return 1 if $origuri =~ m!^https?://! && $origreferer eq $origuri;
     return undef;
 }
@@ -2639,6 +2639,7 @@ sub control_strip
     my $passed_in_location = $opts{host} && $opts{uri} ? 1 : 0;
     my $host = delete $opts{host} || $r->host;
     my $uri = delete $opts{uri} || $r->uri;
+    my $protocol = $LJ::IS_SSL ? "https" : "http";
 
     my $args;
     my $argshash = {};
@@ -2654,7 +2655,7 @@ sub control_strip
     my $view = delete $opts{view} || $r->note( 'view' );
     my $view_is = sub { defined $view && $view eq $_[0] };
 
-    my $baseuri = "http://$host$uri";
+    my $baseuri = "$protocol://$host$uri";
 
     $baseuri .= $args ? "?$args" : "";
     my $euri = LJ::eurl( $baseuri );

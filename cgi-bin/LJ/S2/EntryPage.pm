@@ -525,13 +525,9 @@ sub EntryPage_entry
             }
         }
 
-        my $host = $apache_r->headers_in->{Host};
-        my $args = scalar $apache_r->args;
-        my $querysep = $args ? "?" : "";
-        my $redir = "http://$host$uri$querysep$args";
         $opts->{internal_redir} = "/protected";
         $apache_r->notes->{journalid} = $entry->journalid;
-        $apache_r->notes->{returnto} = $redir;
+        $apache_r->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
         return;
     }
 

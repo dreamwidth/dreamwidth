@@ -119,7 +119,7 @@ sub get_feed_account_from_url {
 
     # see if it looks like a valid URL
     return undef
-        unless $url =~ m!^http://([^:/]+)(?::(\d+))?!;
+        unless $url =~ m!^https?://([^:/]+)(?::(\d+))?!;
 
     # Try to figure out if this is a local user.
     my ( $hostname, $port ) = ( $1, $2 );

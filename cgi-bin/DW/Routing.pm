@@ -207,7 +207,7 @@ sub _call_hash {
 
         unless ( $renamed_u && $orig_u->equals( $renamed_u ) ) {
             my $journal_host = $renamed_u->journal_base;
-            $journal_host =~ s!http://!!;
+            $journal_host =~ s!https?://!!;
 
             return $r->redirect( LJ::create_url( $r->uri, host => $journal_host, keep_args => 1 ) );
         }

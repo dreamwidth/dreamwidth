@@ -67,13 +67,13 @@ _c?>
             # Redirect to offsite uri if allowed.
             if ($POST{'ret'}) {
                 my $redir_host;
-                $redir_host = $1 if $POST{'ret'} =~ m#^http://([\.:\w-]+)#i;
+                $redir_host = $1 if $POST{'ret'} =~ m#^https?://([\.:\w-]+)#i;
                 return BML::redirect($POST{'ret'}) if $LJ::REDIRECT_ALLOWED{$redir_host};
             }
 
             $logged_out_html->();
         } else {
-            if ($POST{ret_fail} && $POST{ret_fail} =~ m!^http://([\.:\w-]+)!i &&
+            if ($POST{ret_fail} && $POST{ret_fail} =~ m!^https?://([\.:\w-]+)!i &&
                 $LJ::REDIRECT_ALLOWED{$1})
             {
                 return BML::redirect($POST{ret_fail} . LJ::eurl('incorrect_sessid'));
@@ -105,7 +105,7 @@ _c?>
             }
         }
     } else {
-        if ($POST{ret_fail} && $POST{ret_fail} =~ m!^http://([\.:\w-]+)!i &&
+        if ($POST{ret_fail} && $POST{ret_fail} =~ m!^https?://([\.:\w-]+)!i &&
            $LJ::REDIRECT_ALLOWED{$1})
         {
            return BML::redirect($POST{ret_fail} . LJ::eurl('no_user'));
