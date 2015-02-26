@@ -906,7 +906,7 @@ sub load_include {
     }
 
     # hit it up from the file, if it exists
-    my $filename = "$LJ::HOME/htdocs/inc/$file";
+    my $filename = "$LJ::HTDOCS/inc/$file";
     return unless -e $filename;
 
     # get it and return it

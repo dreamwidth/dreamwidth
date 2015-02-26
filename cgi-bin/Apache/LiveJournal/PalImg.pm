@@ -35,7 +35,7 @@ sub handler
     $apache_r->notes->{codepath} = "img.palimg";
     return 404 unless $base && $base !~ m!\.\.!;
 
-    my $disk_file = "$LJ::HOME/htdocs/palimg/$base.$ext";
+    my $disk_file = "$LJ::HTDOCS/palimg/$base.$ext";
     return 404 unless -e $disk_file;
 
     my @st = stat(_);
