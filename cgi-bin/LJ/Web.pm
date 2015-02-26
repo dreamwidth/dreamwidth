@@ -1122,7 +1122,7 @@ sub create_url {
     $path ||= $r->uri;
 
     # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
-    $opts{ssl} = $LJ::IS_SSL unless $opts{host} || exists $opts{ssl};
+    $opts{ssl} //= $LJ::IS_SSL;
 
     my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
     my $url = $proto . "://$host$path";
