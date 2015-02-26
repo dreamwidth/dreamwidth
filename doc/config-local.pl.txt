@@ -142,7 +142,7 @@
     # bookmarks on user subdomains (or anything else rendered through
     # S2). This file is not part of the dw-free installation, and is
     # therefore disabled by default.
-    #$APPLE_TOUCH_ICON = "$LJ::SITEROOT/apple-touch-icon.png";
+    #$APPLE_TOUCH_ICON = "$LJ::RELATIVE_SITEROOT/apple-touch-icon.png";
 
 
 
