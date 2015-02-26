@@ -109,11 +109,6 @@ require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"
 # the hooks to be run
 LJ::Hooks::_load_hooks_dir() unless LJ::is_from_test();
 
-# save a backup of the original config value
-%LJ::_ORIG_CONFIG = ();
-$LJ::_ORIG_CONFIG{$_} = ${$LJ::{$_}}
-    foreach qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
-
 package LJ::ModPerl;
 
 # pull in a lot of useful stuff before we fork children
