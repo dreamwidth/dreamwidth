@@ -371,8 +371,8 @@ sub trans
 
     } else { # not is_initial_req
         if ($apache_r->status == 404) {
-            my $ret = DW::Routing->call( uri => "/internal/local/404" );
-            $ret //= DW::Routing->call( uri => "/internal/404" );
+            my $ret = DW::Routing->call( uri => "/internal/local/404", ssl => $is_ssl );
+            $ret //= DW::Routing->call( uri => "/internal/404", ssl => $is_ssl );
             return $ret if defined $ret;
         }
     }
@@ -482,7 +482,7 @@ sub trans
 
     # is this the embed module host
     if ( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ ) {
-        return DW::Routing->call( uri => '/journal/embedcontent' );
+        return DW::Routing->call( uri => '/journal/embedcontent', ssl => $is_ssl );
     }
 
     my $journal_view = sub {
