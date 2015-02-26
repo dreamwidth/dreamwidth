@@ -603,7 +603,7 @@ sub trans
 
             my $file = LJ::Hooks::run_hook("profile_bml_file");
             $file ||= $LJ::PROFILE_BML_FILE || "profile.bml";
-            return $bml_handler->("$LJ::HOME/htdocs/$file");
+            return $bml_handler->("$LJ::HTDOCS/$file");
         }
 
         if ($opts->{'mode'} eq "update") {
@@ -828,7 +828,7 @@ sub trans
 
         } elsif ($func eq "cssproxy") {
 
-            return $bml_handler->("$LJ::HOME/htdocs/extcss/index.bml");
+            return $bml_handler->("$LJ::HTDOCS/extcss/index.bml");
 
         } elsif ($func eq 'support') {
             return redir($apache_r, "$LJ::SITEROOT/support/");
