@@ -29,6 +29,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <div class="columns large-7"><a href="[%- entry.url -%]" class="queue-action">
             [%- IF entry.subject -%]
                 [%- entry.subject | html -%]
+                [%- IF entry.subject_maxlength -%]
+                    ...
+                [%- END -%]
             [%- ELSE -%]
                 [%- ".no_subject" | ml -%]
             [%- END -%]

@@ -984,6 +984,7 @@ sub entry_queue_handler {
                 time    => LJ::diff_ago_text( LJ::mysqldate_to_time( $_->{logtime} ) ),
                 poster  => $users{$_->{posterid}}->ljuser_display,
                 subject => $_->{subject},
+                subject_maxlength => ( length( $_->{subject} ) >= 29 ) ? 1 : 0,
                 url     => $cu->moderation_queue_url( $_->{modid} ),
             }
         } @queue;
