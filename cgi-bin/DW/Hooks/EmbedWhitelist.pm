@@ -95,6 +95,9 @@ my %host_path_match = (
 
     "imgur.com"             => [ qr!^/a/.+?/embed!, 1 ],
 
+    "vine.co"               => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
+    # Videos seemed to use an 11-character identification; may need to be changed
+
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
