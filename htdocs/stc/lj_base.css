@@ -181,6 +181,7 @@ div.lj_ippu_titlebar {
 
 .tag-nav-trigger {
     vertical-align: bottom;
+    border: none;
 }
 
 .tag-nav-actions.ui-dialog .ui-dialog-content {
