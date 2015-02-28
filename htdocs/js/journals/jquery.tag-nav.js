@@ -37,7 +37,7 @@
                             my: "center top",
                             at: "center bottom",
                             of: this,
-                            collision: "fit fit"
+                            collision: "flipfit"
                         },
                         width: "auto",
                         open: function(e, ui) {
