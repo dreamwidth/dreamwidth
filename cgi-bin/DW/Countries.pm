@@ -48,6 +48,7 @@ sub load {
     foreach my $code ( all_country_codes() ) {
         $countries->{ uc $code } = code2country( $code );
     }
+    $countries->{UK} = $countries->{GB};
 }
 
 1;
