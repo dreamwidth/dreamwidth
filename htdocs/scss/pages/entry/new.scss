@@ -103,8 +103,8 @@
     }
 
     li + li {
-        input, button {
-            border-left: none;
+        input, button, .fancy-select-output {
+            margin-left: -1px;
         }
     }
 
@@ -134,7 +134,6 @@
     @media #{$medium-up} {
         .fancy-select-output {
             width: auto;
-            border-left: none;
         }
     }
 }
