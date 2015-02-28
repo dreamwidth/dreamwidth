@@ -27,7 +27,8 @@ sub test_good_url {
     my $url = $_[0];
     my $msg = $_[1];
     subtest "good embed url $url", sub {
-        ok( LJ::Hooks::run_hook( "allow_iframe_embeds", $url ), $msg );
+        my ( $url_ok, $can_https ) = LJ::Hooks::run_hook( "allow_iframe_embeds", $url );
+        ok( $url_ok, $msg );
     }
 }
 
