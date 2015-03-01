@@ -360,7 +360,7 @@ sub delete_and_purge_completely {
 
     $dbh->do("DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?", undef, $u->id, $u->id);
     $dbh->do("DELETE FROM reluser WHERE targetid=?", undef, $u->id);
-    $dbh->do("DELETE FROM email_aliases WHERE alias=?", undef, $u->site_email_alias);
+    $u->delete_email_alias;
 
     $dbh->do("DELETE FROM community WHERE userid=?", undef, $u->id)
         if $u->is_community;
