@@ -131,6 +131,10 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
     if ( $uri_host eq "commons.wikimedia.org" ) {
         return ( 1, 1 ) if $uri_path =~ m!^/wiki/File:! && $parsed_uri->query =~ m/embedplayer=yes/;
     }
+    
+    if ( $uri_host eq "www.jigsawplanet.com" ) {
+	return ( 1, 1 ) if $parsed_uri->query =~ m/rc=play/;
+    }
 
     return 0;
 

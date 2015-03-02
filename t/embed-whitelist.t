@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 53;
+use Test::More tests => 54;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
@@ -135,6 +135,9 @@ note( "misc" );
     test_bad_url( "https://vine.co/v/bjHh0zHdgZT/embed/postcard" );
     test_bad_url( "https://vine.co/v/bjHh0zHdgZT/embed" );
     test_bad_url( "https://vine.co/v/abc/embed/simple" );
+
+    test_good_url( "//www.jigsawplanet.com/?rc=play&amp;pid=35458f1355c4&amp;view=iframe" );
+
 }
 
 
