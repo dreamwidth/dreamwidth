@@ -517,10 +517,15 @@ function CommentInfo::print(Entry e, string{} opts) {
         """<li class="entry-permalink first-item"><a href="$.read_url"><img src="$*image_link" alt="$*text_permalink" title="$*text_permalink" /></a></li>""";
     }
     if ($.show_readlink) {
-        """<li class="entry-readlink first-item">""";
+        """<li class="entry-readlink">""";
+        $this->print_readlink();
+        "</li>";
+    } elseif ($.show_readlink_hidden) {
+        """<li class="entry-readlink" style="display:none">""";
         $this->print_readlink();
         "</li>";
     }
+
     if ($.show_postlink and $.enabled) {
         """<li class="entry-replylink">""";
         if (isnull $e) {

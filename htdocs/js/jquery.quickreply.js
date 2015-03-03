@@ -114,6 +114,9 @@ jQuery(document).ready(function($) {
                                         $iconSelect.trigger("change");
                                     }
 
+                                    // for the 0 -> 1 case, when the link starts out hidden
+                                    $readLink.parent().show();
+
                                     $readLink
                                         .ajaxtip() // init
                                         .ajaxtip("success", data.message) // success message
