@@ -26,6 +26,7 @@ $LJ::CACHE_CONFIG_MODTIME = 0;
 # anything.
 @LJ::CONFIG_FILES = $LJ::_T_CONFIG ?
     ( ( map { LJ::resolve_file($_) } qw(
+        t/config-test-private.pl
         t/config-test.pl
     ) ) , ( map { $LJ::HOME . "/" . $_ } qw(
         cgi-bin/LJ/Global/Defaults.pm
