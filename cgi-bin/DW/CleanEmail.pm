@@ -41,8 +41,8 @@ sub nonquoted_text {
         # but this can be in various languages, so  not hardcoding the text
         last if m/^\s*-{3,}[^-]+-{3,}\s*$/;
 
-        # --- (some text), the bogus email we sent the comments as
-        last if m/^\s*-{3,}.*<$LJ::BOGUS_EMAIL>/;
+        # the bogus email we sent the comments as wrapped in <>
+        last if m/<$LJ::BOGUS_EMAIL>/;
 
         $num_lines++;
     }
