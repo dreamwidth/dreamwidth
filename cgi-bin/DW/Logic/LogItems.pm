@@ -52,7 +52,7 @@ sub watch_items
 
     # we only allow viewing protected content on your own reading page, if you
     # are viewing someone else's reading page, we assume you're logged out
-    my $remote = LJ::get_remote();
+    my $remote = LJ::want_user( delete $args{remote} ) || LJ::get_remote();
     $remote = undef if $remote && $remote->id != $u->id;
 
     # prepare some variables for later... many variables
