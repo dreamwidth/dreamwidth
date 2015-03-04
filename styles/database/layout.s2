@@ -507,10 +507,10 @@ function CommentInfo::print_postlink() {
         }
     }
 }
-function CommentInfo::print() {
+function CommentInfo::print(Entry e, string{} opts) {
     var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
 
-    """<ul class="entry-interaction-links$display_type">""";
+    """<ul class="entry-interaction-links$display_type" data-quickreply-target="$opts{"target"}">\n""";
     if ($*entry_interaction_links == "text") {
         """<li class="entry-permalink first-item"><a href="$.read_url">$*text_permalink</a></li>\n""";
     } else {
@@ -523,7 +523,12 @@ function CommentInfo::print() {
     }
     if ($.show_postlink and $.enabled) {
         """<li class="entry-replylink">""";
-        $this->print_postlink();
+        if (isnull $e) {
+            $this->print_postlink();
+        } else {
+            $e->print_reply_link({ "target" => $opts{"target"}, "img_url" => $*image_reply,
+                                    "alt" => $*text_post_comment_friends, "title" => $*text_post_comment_friends });
+        }
         "</li>";
     }
     "</ul>";
@@ -571,10 +576,12 @@ function Entry::print_interaction_links(string target) {
         if ($count > 0) {
             "</ul>";
         }
+    } elseif ($p.view == "read") {
+        $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
     } else {
-            $this.comments->print();
-        }
+        $this.comments->print();
     }
+}
 
 function Comment::print_management_links() {
     var string{} manage_icons = {
