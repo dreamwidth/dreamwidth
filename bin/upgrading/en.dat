@@ -3767,6 +3767,10 @@ sitescheme.footer.sitemap=Site Map
 
 sitescheme.footer.suggestion=Make a Suggestion
 
+sitescheme.navigation.accountlinks=Account Links
+
+sitescheme.navigation.sitelinks=Site Navigation
+
 siteskins.celerity.alt=Celerity: Black text on white background; olive color highlights
 
 siteskins.celerity.desc=Default-sized sans-serif font; vertical, fixed, non-expanding menus.
