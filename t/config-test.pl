@@ -6,9 +6,9 @@
              'master' => {
                           'host' => "localhost",
                           'port' => 3306,
-                          'user' => "testuser",
-                          'pass' => "",
-                          'dbname' => "test_master",
+                          'user' => $DW::PRIVATE::DBINFO{master}->{user},
+                          'pass' => $DW::PRIVATE::DBINFO{master}->{pass},
+                          'dbname' => $DW::PRIVATE::DBINFO{master}->{dbname},
                           'role' => {
                                 slow => 1,
                             },
@@ -16,9 +16,9 @@
                 'c01' => {
                     'host' => "localhost",
                     'port' => 3306,
-                    'user' => "testuser",
-                    'pass' => "",
-                    'dbname' => 'test_c01',
+                    'user' => $DW::PRIVATE::DBINFO{c01}->{user},
+                    'pass' => $DW::PRIVATE::DBINFO{c01}->{pass},
+                    'dbname' => $DW::PRIVATE::DBINFO{c01}->{dbname},
                     'role' => {
                         'cluster1' => 1,
                     },
@@ -27,9 +27,9 @@
                 'c02' => {
                     'host' => "localhost",
                     'port' => 3306,
-                    'user' => "testuser",
-                    'pass' => "",
-                    'dbname' => 'test_c02',
+                    'user' => $DW::PRIVATE::DBINFO{c02}->{user},
+                    'pass' => $DW::PRIVATE::DBINFO{c02}->{pass},
+                    'dbname' => $DW::PRIVATE::DBINFO{c02}->{dbname},
                     'role' => {
                         'cluster2' => 1,
                     },
@@ -40,9 +40,9 @@
     $DEFAULT_CLUSTER = [ 1, 2 ];
     @THESCHWARTZ_DBS = (
                       {
-                       dsn => "dbi:mysql:test_schwartz;host=localhost",
-                       user => "testuser",
-                       pass => "",
+                       dsn => "dbi:mysql:$DW::PRIVATE::DBINFO{theschwartz}->{dbname};host=localhost",
+                       user => $DW::PRIVATE::DBINFO{theschwartz}->{user},
+                       pass => $DW::PRIVATE::DBINFO{theschwartz}->{pass},
                       }
                      );
 
