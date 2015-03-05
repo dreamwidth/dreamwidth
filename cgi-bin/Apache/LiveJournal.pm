@@ -304,6 +304,8 @@ sub trans
     my $host = lc( $apache_r->headers_in->{"Host"} );
     my $hostport = ( $host =~ s/(:\d+)$// ) ? $1 : "";
 
+    my %GET = LJ::parse_args( $apache_r->args );
+
     # Allow hosts ending in . to work properly.
     $host =~ s/\.$//;
 
@@ -333,10 +335,6 @@ sub trans
     my $bml_handler = sub {
         my $filename = shift;
 
-        # redirect to HTTPS if necessary
-        my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
-        return $redirect_handler if $redirect_handler;
-
         # show the file
         $apache_r->handler("perl-script");
         $apache_r->notes->{bml_filename} = $filename;
@@ -347,7 +345,8 @@ sub trans
     if ($apache_r->is_initial_req) {
         # redirect to https if we're on http and we've set up the site to want https
         if ( $LJ::USE_SSL && $LJ::USE_HTTPS_EVERYWHERE && ! $is_ssl
-                && ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' ) ) {
+                && ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' )
+                && ( $GET{ssl} || "" ) ne "no" ) {
             my $url = LJ::create_url( $uri, keep_args => 1, ssl => 1 );
             return redir( $apache_r, $url );
         }
@@ -472,8 +471,6 @@ sub trans
             $apache_r->notes->{bml_use_scheme} = $LJ::MINIMAL_BML_SCHEME;
         }
     }
-
-    my %GET = LJ::parse_args( $apache_r->args );
 
     if ($LJ::IS_DEV_SERVER && $GET{'as'} =~ /^\w{1,25}$/) {
         my $ru = LJ::load_user($GET{'as'});
@@ -959,10 +956,6 @@ sub trans
     # now check for BML pages
     my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $apache_r, $uri );
     if ( $alt_path ) {
-        # redirect to HTTPS if necessary
-        my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
-        return $redirect_handler if $redirect_handler;
-
         $apache_r->uri( $alt_uri );
         $apache_r->filename( $alt_path );
         return OK;
