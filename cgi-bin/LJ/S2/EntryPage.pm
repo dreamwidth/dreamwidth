@@ -146,8 +146,10 @@ sub EntryPage
             my $dtalkid = $com->{'talkid'} * 256 + $entry->anum;
             my $text = LJ::CleanHTML::quote_html( $com->{body}, $get->{nohtml} );
 
+            my $anon_comment = LJ::Talk::treat_as_anon( $pu, $u );
             LJ::CleanHTML::clean_comment( \$text, { preformatted => $com->{props}->{opt_preformatted},
-                                                    anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
+                                                    anon_comment => $anon_comment,
+                                                    nocss => $anon_comment,
                                                     editor => $com->{props}->{editor}
                                                   } );
 
