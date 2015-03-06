@@ -1498,6 +1498,7 @@ sub talkform {
                             "itemid", $opts->{ditemid},
                             "journal", $journalu->{'user'},
                             "basepath", $basepath,
+                            "dtid", $opts->{dtid},
                             %{$opts->{styleopts}},
                             );
 

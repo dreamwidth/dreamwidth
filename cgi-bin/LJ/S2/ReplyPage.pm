@@ -126,6 +126,8 @@ sub ReplyPage
             return;
         }
 
+        my $dtalkid = $re_talkid * 256 + $entry->anum;
+
         # FIXME: Why are we loading the comment manually when we do LJ::Comment->new below
         # and could do everything through there.
         my $sql = "SELECT jtalkid, posterid, state, datepost FROM talk2 ".
@@ -169,6 +171,7 @@ sub ReplyPage
         $parpost->{'body'} = $tt->{$re_talkid}->[1];
         $parpost->{'props'} =
             LJ::load_talk_props2($u, [ $re_talkid ])->{$re_talkid} || {};
+        $parpost->{'dtid'} = $dtalkid;
 
         if($LJ::UNICODE && $parpost->{'props'}->{'unknown8bit'}) {
             LJ::item_toutf8($u, \$parpost->{'subject'}, \$parpost->{'body'}, {});
@@ -196,7 +199,6 @@ sub ReplyPage
                                      });
 
 
-        my $dtalkid = $re_talkid * 256 + $entry->anum;
         my $cmtobj = LJ::Comment->new( $u, dtalkid => $dtalkid );
 
         my $tz_remote;
@@ -274,6 +276,7 @@ sub ReplyForm__print
     my $u = $form->{'_u'};
     my $parpost = $form->{'_parpost'};
     my $parent = $parpost ? $parpost->{'jtalkid'} : 0;
+    my $dtid = $parpost ? $parpost->{dtid} : 0;
 
     my $post_vars = DW::Request->get->post_args;
     $post_vars = $form->{_values} unless keys %$post_vars;
@@ -282,6 +285,7 @@ sub ReplyForm__print
                                      'journalu'  => $u,
                                      'parpost'   => $parpost,
                                      'replyto'   => $parent,
+                                     'dtid'      => $dtid,
                                      'ditemid'   => $form->{'_ditemid'},
                                      'styleopts' => $form->{_styleopts},
                                      'form'      => $post_vars, 
