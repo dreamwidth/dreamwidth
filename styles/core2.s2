@@ -258,6 +258,7 @@ class CommentInfo
     var bool maxcomments "Set to true if entry has reached a comment maximum.";
     var bool show_postlink "Indicates whether the Post Comment link for this entry should be shown.";
     var bool show_readlink "Indicates whether the Read Comments link for this entry should be shown.";
+    var bool show_readlink_hidden "Indicates whether to show the Read Comments link for this entry, but hidden, to be shown my JS.";
 
     function print
     "Print all comment related links";
@@ -6143,7 +6144,12 @@ function CommentInfo::print(Entry e, string{} opts) {
       """<li class="entry-readlink">""";
       $this->print_readlink();
       "</li>\n";
+  } elseif ($.show_readlink_hidden) {
+    """<li class="entry-readlink" style="display:none">""";
+    $this->print_readlink();
+    "</li>\n";
   }
+
   if ($.show_postlink and $.enabled) {
       """<li class="entry-replylink">""";
       if (isnull $e) {
