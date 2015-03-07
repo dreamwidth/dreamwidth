@@ -209,10 +209,14 @@ sub validate {
 
     my $err_ref = $opts{err_ref};
 
-    if ( $self->challenge ) {
-        return 1 if $self->_validate;
+                    # captcha type, page captcha appeared on
+    my $stat_tags = [ (ref $self)->name, "page:" . $self->page ];
+    if ( $self->challenge && $self->_validate ) {
+        DW::Stats::increment( "dw.captcha.success", 1, $stat_tags );
+        return 1;
     }
 
+    DW::Stats::increment( "dw.captcha.failure", 1, $stat_tags );
     $$err_ref = LJ::Lang::ml( 'captcha.invalid' );
 
     return 0;
