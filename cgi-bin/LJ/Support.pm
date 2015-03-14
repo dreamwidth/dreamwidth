@@ -907,6 +907,40 @@ sub touch_request
     return 1;
 }
 
+# Extra email addresses are stored as support properties
+# - nb_extra_addresses: number of extra addresses (if not present, 0)
+# - extra_address_$n: extra address $n (0<=$n<nb_extra_addresses)
+
+sub add_email_address {
+    my ( $sp, $address ) = @_;
+
+    # Already present?
+    return if grep { $_ eq $address } @{all_email_addresses( $sp )};
+
+    # Add
+    my $props = load_props( $sp->{spid} + 0 );
+    my $nb_extra_addresses = $props->{nb_extra_addresses} || 0;
+    set_prop( $sp->{spid}, 'nb_extra_addresses', $nb_extra_addresses + 1 );
+    set_prop( $sp->{spid}, "extra_address_$nb_extra_addresses", $address );
+}
+
+sub all_email_addresses {
+    my ( $sp ) = @_;
+
+    my $props = load_props( $sp->{spid} + 0 );
+    my @emails = map { $props->{"extra_address_$_"} }
+                     0..( ( $props->{nb_extra_addresses} || 0 ) - 1 );
+
+    if ( $sp->{reqtype} eq 'email' ) {
+        push @emails, $sp->{reqemail};
+    } else {
+        my $u = LJ::load_userid($sp->{requserid});
+        push @emails, ( $u->email_raw || $sp->{reqemail} );
+    }
+
+    return \@emails;
+}
+
 sub mail_response_to_user
 {
     my $sp = shift;
@@ -916,13 +950,7 @@ sub mail_response_to_user
 
     my $res = load_response($splid);
     my $u;
-    my $email;
-    if ($sp->{'reqtype'} eq "email") {
-        $email = $sp->{'reqemail'};
-    } else {
-        $u = LJ::load_userid($sp->{'requserid'});
-        $email = $u->email_raw || $sp->{'reqemail'};
-    }
+    $u = LJ::load_userid( $sp->{requserid} ) if $sp->{reqtype} ne 'email';
 
     my $spid = $sp->{'spid'}+0;
     my $faqid = $res->{'faqid'}+0;
@@ -998,14 +1026,18 @@ sub mail_response_to_user
         $body .= "\n\n" . LJ::Lang::ml( "support.email.update.noreply" );
     }
 
-    LJ::send_mail({
-        'to' => $email,
-        'from' => $fromemail,
-        'fromname' => LJ::Lang::ml( "support.email.fromname", { sitename => $LJ::SITENAME } ),
-        'charset' => 'utf-8',
-        'subject' => LJ::Lang::ml( "support.email.update.subject", { subject => $sp->{'subject'} } ),
-        'body' => $body
-        });
+    foreach my $email ( @{all_email_addresses( $sp )} ) {
+        LJ::send_mail( {
+            to => $email,
+            from => $fromemail,
+            fromname => LJ::Lang::ml( 'support.email.fromname',
+                                      { sitename => $LJ::SITENAME } ),
+            charset => 'utf-8',
+            subject => LJ::Lang::ml( 'support.email.update.subject',
+                                     { subject => $sp->{subject} } ),
+            body => $body
+            } );
+    }
 
     if ($type eq "answer") {
         $dbh->do("UPDATE support SET timelasthelp=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP() WHERE spid=$spid");
