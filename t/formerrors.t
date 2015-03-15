@@ -13,6 +13,7 @@ use Test::More tests => 8;
 use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use lib "$ENV{LJHOME}/cgi-bin";
 
+BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 use DW::FormErrors;
 
 note( "Get all errors" );
@@ -23,9 +24,9 @@ note( "Get all errors" );
     $errors->add( "baz", ".error.baz" );
 
     is_deeply( $errors->get_all, [
-                { key => "foo", message => ".error.foo" },
-                { key => "bar", message => ".error.bar" },
-                { key => "baz", message => ".error.baz" },
+                { key => "foo", ml_key => ".error.foo", message => '' },
+                { key => "bar", ml_key => ".error.bar", message => '' },
+                { key => "baz", ml_key => ".error.baz", message => '' },
             ], "all errors in the order that they were added" );
 };
 
@@ -35,8 +36,8 @@ note( "Get error by key" );
     $errors->add( "foo", ".error.foo" );
     $errors->add( "bar", ".error.bar" );
 
-    is( $errors->get( "foo" )->{message}, ".error.foo", "error foo by key" );
-    is( $errors->get( "bar" )->{message}, ".error.bar", "error bar by key" );
+    is( $errors->get( "foo" )->{ml_key}, ".error.foo", "error foo by key" );
+    is( $errors->get( "bar" )->{ml_key}, ".error.bar", "error bar by key" );
 }
 
 note( "Multiple errors for the same key" );
@@ -46,12 +47,12 @@ note( "Multiple errors for the same key" );
     $errors->add( "foo", ".error.foo2" );
 
     my ( $foo1, $foo2 ) = $errors->get( "foo" );
-    is( $foo1->{message}, ".error.foo1", "multiple errors for foo (1)" );
-    is( $foo2->{message}, ".error.foo2", "multiple errors for foo (2)" );
+    is( $foo1->{ml_key}, ".error.foo1", "multiple errors for foo (1)" );
+    is( $foo2->{ml_key}, ".error.foo2", "multiple errors for foo (2)" );
 
     is_deeply( $errors->get_all, [
-                { key => "foo", message => ".error.foo1" },
-                { key => "foo", message => ".error.foo2" }
+                { key => "foo", ml_key => ".error.foo1", message => '' },
+                { key => "foo", ml_key => ".error.foo2", message => '' }
             ], "all errors in the order that they were added (multiple errors for the key)" );
 }
 
@@ -60,11 +61,11 @@ note( "Error ml code with argument" );
     my $errors = DW::FormErrors->new;
     $errors->add( "foo", ".error.foo", { foo_arg => "foofoofoo" } );
 
-    is_deeply( $errors->get( "foo" ), { message => ".error.foo", args => { foo_arg => "foofoofoo" } },
+    is_deeply( $errors->get( "foo" ), { ml_key => ".error.foo", message => '', ml_args => { foo_arg => "foofoofoo" } },
                 "error foo with argument (get)" );
     is_deeply(
         $errors->get_all,
-        [ { key => "foo", message => ".error.foo", args => { foo_arg => "foofoofoo" } } ],
+        [ { key => "foo", ml_key => ".error.foo", message => '', ml_args => { foo_arg => "foofoofoo" } } ],
         "error foo with argument (get_all)" );
 }
 1;

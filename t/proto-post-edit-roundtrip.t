@@ -99,7 +99,7 @@ $gres = do_req_deep("getevents",
                     'itemid' => $itemid,
                     );
 
-my $it = $gres->{events}[0];
+$it = $gres->{events}[0];
 is($it->{props}{revnum}, 2, "is 2nd revision now");
 
 

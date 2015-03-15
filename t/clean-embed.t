@@ -486,7 +486,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             is( $attrs{id}, "embed_${userid}_1", "iframe id: $title" );
             like( $attrs{name}, qr!embed_${userid}_1_[\w]{5}!, "iframe name: $title" );
             is( $attrs{class}, "lj_embedcontent", "iframe class: $title" );
-            like( $attrs{src}, qr!^http://$LJ::EMBED_MODULE_DOMAIN/\?journalid=!, "iframe src: $title" );
+            like( $attrs{src}, qr!^(https?:)?//$LJ::EMBED_MODULE_DOMAIN/\?journalid=!, "iframe src: $title" );
         }
 
         # check the iframe contents

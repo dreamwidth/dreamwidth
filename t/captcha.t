@@ -98,7 +98,7 @@ note( "user tries to use a disabled captcha type" );
     is( $captcha->name, $default_name, "want $default_name, everything is fine" );
     ok( $captcha->site_enabled, "$default_name was enabled" );
 
-    my $captcha = DW::Captcha->new( "testpage", want => $BAD_CAPTCHA_TYPE );
+    $captcha = DW::Captcha->new( "testpage", want => $BAD_CAPTCHA_TYPE );
     is( $captcha->name, $default_name, "wanted other type, but it's not enabled so use default instead" );
     ok( $captcha->site_enabled, "our fallback is enabled" );
 }

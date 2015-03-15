@@ -33,7 +33,11 @@ my @urls = (
     [ "//example.com/a.png", "//example.com/a.png" ],
 );
 
-plan tests => scalar @urls;
+if ( $LJ::USE_SSL ) {
+    plan tests => scalar @urls;
+} else {
+    plan skip_all => "Doesn't work without \$LJ::USE_SSL set";
+}
 
 for ( @urls ) {
     my $url = $_->[0];
