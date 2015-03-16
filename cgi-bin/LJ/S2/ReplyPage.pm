@@ -191,10 +191,12 @@ sub ReplyPage
             $comment_userpic = Image_userpic($pu, $pic ? $pic->picid : 0, $pickw);
         }
 
+        my $anon_comment = LJ::Talk::treat_as_anon( $pu, $u );
         LJ::CleanHTML::clean_comment(\$parpost->{'body'},
                                      {
                                          preformatted => $parpost->{props}->{opt_preformatted},
-                                         anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
+                                         anon_comment => $anon_comment,
+                                         nocss => $anon_comment,
                                          editor => $parpost->{props}->{editor},
                                      });
 
