@@ -96,8 +96,9 @@
 jQuery(document).ready(function() {
     $(".tag-text[data-journal]").tagnav();
 
-    if ( document.location.hash.startsWith( "#tagnav-" ) ) {
-        var tag = document.location.hash.slice(8);
+    var hash = location.hash;
+    if ( hash.indexOf( "#tagnav-" ) == 0 ) {
+        var tag = hash.slice(8);
 
         $(".tag-nav-trigger").click();
         $(".tag a").filter(function() {
