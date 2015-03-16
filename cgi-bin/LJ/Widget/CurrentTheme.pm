@@ -74,7 +74,7 @@ sub render_body {
         $ret .= "<li><a href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.currenttheme.options.change') . "</a></li>";
     }
     if (! $no_layer_edit ) {
-        $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced'>" . $class->ml( 'widget.currenttheme.options.advancedcust' ) . "</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/'>" . $class->ml( 'widget.currenttheme.options.advancedcust' ) . "</a></li>";
         if ($theme->layoutid && !$theme->layout_uniq) {
             $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->layoutid . "'>" . $class->ml('widget.currenttheme.options.editlayoutlayer') . "</a></li>";
         }
