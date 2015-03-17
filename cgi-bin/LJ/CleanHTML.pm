@@ -950,7 +950,8 @@ sub clean
                             # so rather than mess with it, let's just ignore those
                             # and only deal with non-self-closing tags
                             # which are not in a table
-                            push @tagstack, $tag unless $slashclose || @tablescope;
+                            # (but we still want to close <table>; that's not yet inside the table)
+                            push @tagstack, $tag if ! $slashclose && ( $tag eq "table" || ! @tablescope );
                         }
                         else { $newdata .= "&gt;"; }
                     }
@@ -1062,7 +1063,7 @@ sub clean
                         # open table
                         if ($tag eq 'table') {
                             pop @tablescope;
-
+                            pop @tagstack if $tagstack[-1] eq 'table';
                         # closing tag within current table
                         } elsif (@tablescope) {
                             # If this tag was not opened inside this table, then
