@@ -539,8 +539,7 @@ sub moveUser {
             print "Deleting expungeable user data...\n" if $optv;
 
             $dbh->do("DELETE FROM domains WHERE userid = ?", undef, $u->id);
-            $dbh->do("DELETE FROM email_aliases WHERE alias = ?",
-                     undef, $u->site_email_alias );
+            $u->delete_email_alias;
             $dbh->do("DELETE FROM userinterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM comminterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM syndicated WHERE userid = ?", undef, $u->id);
