@@ -924,13 +924,20 @@ sub clean
                                 if exists $hash->{$_};
                         }
 
-                        # ignore the effects of slashclose unless we're dealing with a tag that can
-                        # actually close itself. Otherwise, a tag like <em /> can pass through as valid
-                        # even though some browsers just render it as an opening tag
-                        if ($slashclose && $tag =~ $slashclose_tags) {
-                            $newdata .= " /";
-                            $opencount{$tag}--;
-                            $tablescope[-1]->{$tag}-- if @tablescope;
+                        if ($slashclose) {
+                            if ( $tag =~ $slashclose_tags ) {
+                                # ignore the effects of slashclose unless we're dealing with a tag that can
+                                # actually close itself. Otherwise, a tag like <em /> can pass through as valid
+                                # even though some browsers just render it as an opening tag
+
+                                $newdata .= " /";
+                                $opencount{$tag}--;
+                                $tablescope[-1]->{$tag}-- if @tablescope;
+                            } else {
+                                # we didn't actually slash close, treat this as a normal opening tag
+
+                                $slashclose = 0;
+                            }
                         }
                         if ($allow) {
                             $newdata .= ">";
