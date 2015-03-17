@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 41;
+use Test::More tests => 42;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
@@ -276,6 +276,11 @@ note( "mismatched and misnested tags" );
     $clean_post = qq{strong not <em><b>strong</b></em>};
     $clean->();
     is( $orig_post, $clean_post, "mismatched closing tags or misnested closing tags shouldn't be displayed" );
+
+    $orig_post = qq{before <i>in i<i/> after};
+    $clean_post = qq{before <i>in i<i> after</i></i>};
+    $clean->();
+    is( $orig_post, $clean_post, "self-closing tags that aren't actually self-closing should still be closed.");
 
     $entry_text = qq{before <strong><cut text="cut">in strong</strong>out strong</cut>after};
 

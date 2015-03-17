@@ -574,7 +574,7 @@ sub maintainer_linkbar {
             "<a href='$LJ::SITEROOT/customize/?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</a>",
         $page eq "settingsaccount" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</strong>" :
-            "<a href='$LJ::SITEROOT/manage/settings?authas=$username&cat=community'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</a>",
+            "<a href='$LJ::SITEROOT/manage/settings/?authas=$username&cat=community'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</a>",
         $page eq "invites" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</strong>" :
             "<a href='$LJ::SITEROOT/communities/$username/members/new'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",

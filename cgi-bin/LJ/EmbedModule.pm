@@ -594,7 +594,7 @@ sub module_iframe_tag {
     my $auth_token = LJ::eurl(LJ::Auth->sessionless_auth_token('embedcontent', moduleid => $moduleid, journalid => $journalid, preview => $preview,));
     my $iframe_link = qq{//$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token};
     my $iframe_tag = qq {<div class="lj_embedcontent-wrapper" style="$wrapper_style"><div class="lj_embedcontent-ratio" style="$ratio_style"><iframe src="$iframe_link"}
-        . qq{ sandbox="allow-same-origin allow-scripts allow-forms" width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0"}
+        . qq{ width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0"}
         . qq{ class="lj_embedcontent" id="$id" name="$name"></iframe></div></div>}
         . qq{$direct_link};
 

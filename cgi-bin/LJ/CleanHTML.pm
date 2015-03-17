@@ -924,13 +924,20 @@ sub clean
                                 if exists $hash->{$_};
                         }
 
-                        # ignore the effects of slashclose unless we're dealing with a tag that can
-                        # actually close itself. Otherwise, a tag like <em /> can pass through as valid
-                        # even though some browsers just render it as an opening tag
-                        if ($slashclose && $tag =~ $slashclose_tags) {
-                            $newdata .= " /";
-                            $opencount{$tag}--;
-                            $tablescope[-1]->{$tag}-- if @tablescope;
+                        if ($slashclose) {
+                            if ( $tag =~ $slashclose_tags ) {
+                                # ignore the effects of slashclose unless we're dealing with a tag that can
+                                # actually close itself. Otherwise, a tag like <em /> can pass through as valid
+                                # even though some browsers just render it as an opening tag
+
+                                $newdata .= " /";
+                                $opencount{$tag}--;
+                                $tablescope[-1]->{$tag}-- if @tablescope;
+                            } else {
+                                # we didn't actually slash close, treat this as a normal opening tag
+
+                                $slashclose = 0;
+                            }
                         }
                         if ($allow) {
                             $newdata .= ">";
@@ -950,7 +957,8 @@ sub clean
                             # so rather than mess with it, let's just ignore those
                             # and only deal with non-self-closing tags
                             # which are not in a table
-                            push @tagstack, $tag unless $slashclose || @tablescope;
+                            # (but we still want to close <table>; that's not yet inside the table)
+                            push @tagstack, $tag if ! $slashclose && ( $tag eq "table" || ! @tablescope );
                         }
                         else { $newdata .= "&gt;"; }
                     }
@@ -1062,7 +1070,7 @@ sub clean
                         # open table
                         if ($tag eq 'table') {
                             pop @tablescope;
-
+                            pop @tagstack if $tagstack[-1] eq 'table';
                         # closing tag within current table
                         } elsif (@tablescope) {
                             # If this tag was not opened inside this table, then

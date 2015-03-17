@@ -250,9 +250,10 @@ sub blocked_anon
 }
 
 sub resolve_path_for_uri {
-    my ( $apache_r, $orig_uri ) = @_;
+    my ( $apache_r, $orig_uri, %opts ) = @_;
 
     my $uri = $orig_uri;
+    my $redirect_ref = $opts{redirect_url_ref};
 
     if ( $uri !~ m!(\.\.|\%|\.\/)! ) {
         if ( exists $FILE_LOOKUP_CACHE{$orig_uri} ) {
@@ -276,7 +277,10 @@ sub resolve_path_for_uri {
             # /foo  => /foo/
             # /foo/ => /foo/index.bml
             if ( -d $file && -e "$file/index.bml" ) {
-                return redir( $apache_r, $uri . "/" ) unless $uri =~ m!/$!;
+                unless ( $uri =~ m!/$! ) {
+                    $$redirect_ref = LJ::create_url( $uri . "/" );
+                    return;
+                }
                 $file .= "index.bml";
                 $uri .= "index.bml";
             }
@@ -957,7 +961,11 @@ sub trans
     }
 
     # now check for BML pages
-    my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $apache_r, $uri );
+    my $redirect_url;
+    my ( $alt_uri, $alt_path ) = resolve_path_for_uri( $apache_r, $uri, redirect_url_ref => \$redirect_url );
+
+    return redir( $apache_r, $redirect_url ) if $redirect_url;
+
     if ( $alt_path ) {
         # redirect to HTTPS if necessary
         my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );

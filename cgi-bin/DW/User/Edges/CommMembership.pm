@@ -188,7 +188,7 @@ sub can_join {
             }
 
             unless ( $u->best_guess_age ) {
-                $$errref .= " " . LJ::Lang::ml( 'edges.join.error.setage', { url => LJ::create_url( "/manage/profile" ) } );
+                $$errref .= " " . LJ::Lang::ml( 'edges.join.error.setage', { url => LJ::create_url( "/manage/profile/" ) } );
             }
 
             return 0;
