@@ -915,7 +915,7 @@ sub add_email_address {
     my ( $sp, $address ) = @_;
 
     # Already present?
-    return if grep { $_ eq $address } @{all_email_addresses( $sp )};
+    return if grep { $_ eq $address } all_email_addresses( $sp );
 
     # Add
     my $props = load_props( $sp->{spid} + 0 );
@@ -938,7 +938,7 @@ sub all_email_addresses {
         push @emails, ( $u->email_raw || $sp->{reqemail} );
     }
 
-    return \@emails;
+    return @emails;
 }
 
 sub mail_response_to_user
@@ -1026,7 +1026,7 @@ sub mail_response_to_user
         $body .= "\n\n" . LJ::Lang::ml( "support.email.update.noreply" );
     }
 
-    foreach my $email ( @{all_email_addresses( $sp )} ) {
+    foreach my $email ( all_email_addresses( $sp ) ) {
         LJ::send_mail( {
             to => $email,
             from => $fromemail,
