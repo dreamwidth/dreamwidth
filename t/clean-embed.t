@@ -368,9 +368,9 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{foo <site-embed><object>blah</site-embed> bzzt},
 
             qq{foo <site-embed id="1"/> bzzt},
-            qq{foo <site-embed id="1"><object>blah</site-embed> bzzt},
+            qq{foo <site-embed id="1"><object>blah</object></site-embed> bzzt},
             qr{foo $iframe bzzt},
-            qq{<object>blah}
+            qq{<object>blah</object>}
         ],
 
 
