@@ -32,6 +32,7 @@ my $gc = LJ::gearman_client();
 sub _do_search {
     return unless $gc && @LJ::SPHINX_SEARCHD;
     my ( $arg ) = @_;
+    $arg = Storable::nfreeze( $arg );
     my $result;
 
     my $task = Gearman::Task->new(
@@ -137,7 +138,7 @@ sub search_handler {
                          ignore_security => $ignore_security, allowmask => $allowmask,
                          include_comments => $wc };
 
-            my $result = _do_search( Storable::nfreeze( $args ) );
+            my $result = _do_search( $args );
             $errors->add( "", ".error.timedout" ) unless $result;
 
             $rv->{result} = $result;
