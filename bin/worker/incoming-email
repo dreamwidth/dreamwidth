@@ -258,6 +258,8 @@ sub work {
           )
           or return dequeue("Error appending request?");
 
+        LJ::Support::add_email_address( $sp, $from );
+
         LJ::Support::touch_request($spid);
 
         return completed();
