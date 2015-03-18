@@ -105,8 +105,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     .find(".top-bar-section").removeClass( "top-bar-section" ).end()
             }
           });
-          $(document).foundation();
         </script>
+        [%- PROCESS block.script_init -%]
     </body>
 </html>
 [%- ELSE -%]

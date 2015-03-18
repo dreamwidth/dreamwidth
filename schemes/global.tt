@@ -101,3 +101,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 [%- END -%]
 [%- END -%]
+
+[%- BLOCK block.script_init -%]
+[%- IF resource_group == "foundation" -%]
+<script>$(document).foundation();</script>
+[%- END -%]
+[%- END -%]
