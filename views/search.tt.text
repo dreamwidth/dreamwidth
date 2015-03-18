@@ -23,8 +23,6 @@
 
 .date=Posted:
 
-.error=Error:
-
 .error.forbidden=You can't search that journal.
 
 .error.longquery=Query must be shorter than 255 characters, sorry!
@@ -35,13 +33,11 @@
 
 .error.notconfigured=Sorry, content searching is not configured on this server.
 
-.error.refresh=Did you leave this window open too long? Please refresh and try again.
-
 .error.timedout=Sorry, we were unable to find a result in the time allotted. This may mean that the server is busy or down. Please try your query again later.
 
 .error.wrongoffset=Hey, that offset is nonsensical... :(
 
-.label.journalsearch=Journal Search:
+.label.journalsearch=Journal Search: <strong>[[user]]</strong>
 
 .label.sitesearch=Site Search (Public Entries)
 

@@ -409,9 +409,13 @@ sub _process_value_and_label {
     my $label_html = "";
     my $label = delete $args->{label};
     my $labelclass = delete $args->{labelclass} || "";
+    my $noescape = delete $args->{noescape};
 
-    $label_html = LJ::labelfy( $args->{id}, LJ::ehtml( $label ), $labelclass )
-        if defined $label;
+    if ( defined $label ) {
+        # don't ehtml the label text if noescape is specified
+        $label = LJ::ehtml( $label ) unless $noescape;
+        $label_html = LJ::labelfy( $args->{id}, $label, $labelclass );
+    }
 
     return $label_html || "";
 }
