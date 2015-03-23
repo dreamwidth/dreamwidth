@@ -1,4 +1,4 @@
-[%# admin/rename.tt
+[%# admin/capedit.tt
 
 Admin page for capability class management
 
@@ -25,13 +25,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% END %]
 
 <form method="get">
-<p>Modify capabilities for user: <input name='user' maxlength='25' size='25'> <input type='submit' value="Load"></p>
+<p>[% '.modify.user' | ml %] <input name='user' maxlength='25' size='25'> <input type='submit' value="[% '.btn.load' | ml | html %]"></p>
 </form>
 
 [% IF u %]
-<h2><a href="capedit">&lt;&lt;</a> editing user [% u.ljuser_display %]</h2>
+<h2><a href="capedit">&lt;&lt;</a> [% '.edit.user' | ml( user=u.ljuser_display ) %]</h2>
 
-[% IF save %]<h4>Changes to [% u.display_name %] have been saved!</h4>[% END %]
+[% IF save %]<h4>[% '.saved.user' | ml( name= u.display_name ) %]</h4>[% END %]
 
 <form method="post">
 [% dw.form_auth %]
@@ -43,7 +43,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <label for="class_[% cap.n %]">[% cap.name %]</label>
 [% IF cap.on %]</strong>[% END %]
 [% END %]
-<p><input type="submit" value="Save"></p>
+<p><input type="submit" value="[% '.btn.save' | ml | html %]"></p>
 </form>
 [% END %]
 <p>[%- '.note1' | ml(payments = "href='/admin/pay/'", priv = "href='/admin/priv/?priv=payments'") -%]</p>

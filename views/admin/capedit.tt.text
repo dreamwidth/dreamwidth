@@ -3,6 +3,16 @@
 
 .admin.text=For editing user capabilities.
 
+.btn.load=Load
+
+.btn.save=Save
+
+.edit.user=editing user [[user]]
+
+.modify.user=Modify capabilities for user:
+
 .note1=Note: to change a user's status, you should use the <a [[payments]]>Payment Managements tool</a> instead. This requires you to have the 'payments' privilege so you may need to <a [[priv]]>grant it to yourself first</a>.
+
+.saved.user=Changes to [[name]] have been saved!
 
 .title=Capability Class Management
