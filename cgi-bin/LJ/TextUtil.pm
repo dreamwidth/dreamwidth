@@ -653,8 +653,10 @@ sub html_trim {
 
         } elsif ($type eq 'E') {
             # end tag
-            pop @open_tags;
-            $out .= "</$tag>";
+            if ( $open_tags[-1] eq $tag ) {
+                pop @open_tags;
+                $out .= "</$tag>";
+            }
         }
     }
 
