@@ -314,8 +314,8 @@ the table based way can be removed when the entire site is Foundation-based.
                     .find(".top-bar-section").removeClass( "top-bar-section" ).end()
             }
           });
-          $(document).foundation();
         </script>
+        [%- PROCESS block.script_init -%]
     </body>
 </html>
 [%- ELSE -%]

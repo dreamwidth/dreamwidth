@@ -67,6 +67,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <a href='[% site.root %]/manage/settings/'>[% 'lynx.nav.siteopts' | ml %]</a> | 
     <a href='[% site.root %]/site/'>[% 'lynx.nav.sitemap' | ml %]</a> ]</p></div>
     [% dw_scheme.final_body_html %]
+    [%- PROCESS block.script_init -%]
 </div></div>
 </body>
 </html>
