@@ -3,11 +3,27 @@
 
 .admin.text=Manage renames
 
+.btn.lookup=Look up user name
+
+.header.accountrenamed=Account renamed
+
+.header.from=From
+
+.header.renamedby=Renamed by
+
+.header.renamedon=Renamed on
+
+.header.to=To
+
 .new.link=Create Rename
 
 .renames.list.empty=No renames involving "[[user]]".
 
 .renames.list.item.details=More / edit
 
+.return=Return to renames lookup
+
 .title=Renames Admin Page
+
+.username=Username:
 
