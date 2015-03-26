@@ -19,8 +19,8 @@ _c?>
 
     $title = "<?_ml .main.title _ml?>";
     $body = "";
-    
-    my $error = sub { 
+
+    my $error = sub {
         $title = "<?_ml .error.title _ml?>";
         $body = join '', @_;
         return undef;
@@ -41,14 +41,14 @@ _c?>
             LJ::html_hidden('srids', join(',', @$srids)) .
             LJ::html_hidden('ret', "spamreports?" . join('&amp;', map { "$_=" . LJ::eurl($GET{$_}) } keys %GET)) .
             LJ::html_submit('submit', $text) .
-            $extra . 
+            $extra .
             "</form>";
     };
     # login check
     my $remote = LJ::get_remote();
     return $error->("<?needlogin?>")
         unless $remote;
-    
+
     # priv check
     my @displayprivs = ( "siteadmin:spamreports", "siteadmin:*" );
     my $numprivs = @displayprivs;
@@ -90,7 +90,7 @@ _c?>
         foreach (@$res) {
             push @rows, [ $_->[0], $_->[1], $makelink->('ip', $_->[1], 'open', $_->[2]) ];
         }
- 
+
     } elsif ($mode eq 'top10user') {
         @headers = ('<?_ml .header.numreports _ml?>', '<?_ml .header.postedbyuser _ml?>', '<?_ml .header.mostrecentreport _ml?>');
         my $res = $dbr->selectall_arrayref('SELECT COUNT(posterid) AS num, posterid, MAX(reporttime) FROM spamreports ' .
@@ -109,7 +109,7 @@ _c?>
             my $u = LJ::load_userid($_->[1]);
             push @rows, [ $_->[0], LJ::ljuser($u), $makelink->('posterid', $_->[1], 'open', $_->[2]) ];
         }
- 
+
     } elsif ($mode eq 'tlast10') {
         @headers = ('<?_ml .header.postedby _ml?>', '<?_ml .header.postedin _ml?>', '<?_ml .header.reporttime _ml?>');
         my $res = $dbr->selectall_arrayref('SELECT posterid, ip, journalid, reporttime FROM spamreports ' .
@@ -167,7 +167,7 @@ _c?>
             $hits{$key}++;
             $times{$key} = $_->[3] unless $times{$key} gt $_->[3];
         }
-        
+
         # now reverse to number => item list
         my %revhits;
         foreach (keys %hits) {
@@ -183,7 +183,7 @@ _c?>
             my $r = $revhits{$_};
             foreach (@$r) {
                 my $isip = $_ =~ /\./ ? 1 : 0;
-                push @rows, [ $hits{$_}, $isip ? $_ : LJ::ljuser(LJ::load_userid($_)), 
+                push @rows, [ $hits{$_}, $isip ? $_ : LJ::ljuser(LJ::load_userid($_)),
                               $makelink->($isip ? 'ip' : 'posterid', $_, 'open', $times{$_}) ];
             }
         }
@@ -194,7 +194,7 @@ _c?>
         $by = '' unless $by =~ /^(?:ip|poster(?:id)?)$/;
         $state = 'open' unless $state =~ /^(?:open|closed)$/;
         $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; Front Page</a> ] ";
-        
+
         # open/closed links
         my $eargs = LJ::eurl("?by=$by&what=$what&state");
         if ($state eq 'open') {
@@ -212,22 +212,24 @@ _c?>
             $title = BML::ml( ".view.byposterid.title", { user => $u->ljuser_display } );
             $title .= " (" . $u->{user} . ")" if $u->is_identity;
 
-            # build some basic stats on what the account's activity
-            # looks like, as requested by the antispam team
+            unless ( $u->is_expunged ) {
+                # build some basic stats on what the account's activity
+                # looks like, as requested by the antispam team
 
-            my $num_comments_received = $u->num_comments_received;
-            my $num_comments_posted = $u->num_comments_posted;
-            my $num_entries_posted = $u->number_of_posts;
+                my $num_comments_received = $u->num_comments_received;
+                my $num_comments_posted = $u->num_comments_posted;
+                my $num_entries_posted = $u->number_of_posts;
 
-            $extratitle .= "<br /><h6> ";
+                $extratitle .= "<br /><h6> ";
 
-            $extratitle .= BML::ml( '.view.poster.comments.posted', { posted_raw => $num_comments_posted, posted_comma => LJ::commafy( $num_comments_posted ) } ) . ", "
-                if LJ::is_enabled( 'show-talkleft' ) && ( $u->is_personal || $u->is_identity );
-            $extratitle .= BML::ml( '.view.poster.comments.received', { received_raw => $num_comments_received, received_comma => LJ::commafy( $num_comments_received ) } ) . ", "
-                unless $u->is_identity;
-            $extratitle .= BML::ml( '.view.poster.entries.posted', { entries_raw => $num_entries_posted, entries_comma => LJ::commafy( $num_entries_posted ) } )
-                unless $u->is_identity;
-            $extratitle .= "</h6><br />";
+                $extratitle .= BML::ml( '.view.poster.comments.posted', { posted_raw => $num_comments_posted, posted_comma => LJ::commafy( $num_comments_posted ) } ) . ", "
+                    if LJ::is_enabled( 'show-talkleft' ) && ( $u->is_personal || $u->is_identity );
+                $extratitle .= BML::ml( '.view.poster.comments.received', { received_raw => $num_comments_received, received_comma => LJ::commafy( $num_comments_received ) } ) . ", "
+                    unless $u->is_identity;
+                $extratitle .= BML::ml( '.view.poster.entries.posted', { entries_raw => $num_entries_posted, entries_comma => LJ::commafy( $num_entries_posted ) } )
+                    unless $u->is_identity;
+                $extratitle .= "</h6><br />";
+            }
 
         } elsif ($by eq 'poster') {
             my $u = LJ::load_user($what);
