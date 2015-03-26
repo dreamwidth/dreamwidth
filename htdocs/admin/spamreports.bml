@@ -212,22 +212,24 @@ _c?>
             $title = BML::ml( ".view.byposterid.title", { user => $u->ljuser_display } );
             $title .= " (" . $u->{user} . ")" if $u->is_identity;
 
-            # build some basic stats on what the account's activity
-            # looks like, as requested by the antispam team
+            unless ( $u->is_expunged ) {
+                # build some basic stats on what the account's activity
+                # looks like, as requested by the antispam team
 
-            my $num_comments_received = $u->num_comments_received;
-            my $num_comments_posted = $u->num_comments_posted;
-            my $num_entries_posted = $u->number_of_posts;
+                my $num_comments_received = $u->num_comments_received;
+                my $num_comments_posted = $u->num_comments_posted;
+                my $num_entries_posted = $u->number_of_posts;
 
-            $extratitle .= "<br /><h6> ";
+                $extratitle .= "<br /><h6> ";
 
-            $extratitle .= BML::ml( '.view.poster.comments.posted', { posted_raw => $num_comments_posted, posted_comma => LJ::commafy( $num_comments_posted ) } ) . ", "
-                if LJ::is_enabled( 'show-talkleft' ) && ( $u->is_personal || $u->is_identity );
-            $extratitle .= BML::ml( '.view.poster.comments.received', { received_raw => $num_comments_received, received_comma => LJ::commafy( $num_comments_received ) } ) . ", "
-                unless $u->is_identity;
-            $extratitle .= BML::ml( '.view.poster.entries.posted', { entries_raw => $num_entries_posted, entries_comma => LJ::commafy( $num_entries_posted ) } )
-                unless $u->is_identity;
-            $extratitle .= "</h6><br />";
+                $extratitle .= BML::ml( '.view.poster.comments.posted', { posted_raw => $num_comments_posted, posted_comma => LJ::commafy( $num_comments_posted ) } ) . ", "
+                    if LJ::is_enabled( 'show-talkleft' ) && ( $u->is_personal || $u->is_identity );
+                $extratitle .= BML::ml( '.view.poster.comments.received', { received_raw => $num_comments_received, received_comma => LJ::commafy( $num_comments_received ) } ) . ", "
+                    unless $u->is_identity;
+                $extratitle .= BML::ml( '.view.poster.entries.posted', { entries_raw => $num_entries_posted, entries_comma => LJ::commafy( $num_entries_posted ) } )
+                    unless $u->is_identity;
+                $extratitle .= "</h6><br />";
+            }
 
         } elsif ($by eq 'poster') {
             my $u = LJ::load_user($what);
