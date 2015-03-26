@@ -184,6 +184,12 @@ div.lj_ippu_titlebar {
     border: none;
 }
 
+.tag-nav-trigger, .tag-nav-actions input {
+    width: 16px;
+    height: 16px;
+    border: none;
+}
+
 .tag-nav-actions.ui-dialog .ui-dialog-content {
     padding: 0;
 }
