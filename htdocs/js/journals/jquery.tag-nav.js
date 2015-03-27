@@ -95,14 +95,18 @@
 
 jQuery(document).ready(function() {
     $(".tag-text[data-journal]").tagnav();
+});
 
-    var hash = location.hash;
-    if ( hash.indexOf( "#tagnav-" ) == 0 ) {
+// we do this later, because we want to make sure the whole page is loaded
+// properly, so the position is calculated accurately
+var hash = location.hash;
+if ( hash.indexOf( "#tagnav-" ) == 0 ) {
+    $(window).load(function() {
         var tag = hash.slice(8);
 
         $(".tag-nav-trigger").click();
         $(".tag a").filter(function() {
             return $(this).text() === tag;
         }).click();
-    }
-});
+    })
+}
