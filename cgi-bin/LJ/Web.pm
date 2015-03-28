@@ -2333,7 +2333,7 @@ sub js_dumper {
         };
 
         my $file = LJ::resolve_file("htdocs/$key");
-        my $mtime = (stat($file))[9];
+        my $mtime = defined $file ? (stat($file))[9] : undef;
         return $set->($mtime);
     }
 }
@@ -2476,12 +2476,13 @@ sub res_includes {
             # in the concat-res case, we don't directly append the URL w/
             # the modtime, but rather do one global max modtime at the
             # end, which is done later in the tags function.
+            $modtime = '' unless defined $modtime;
             $what .= "?v=$modtime" unless $do_concat;
 
             $list{$type} ||= [];
             push @{$list{$type}[$order] ||= []}, $what;
             $oldest{$type} ||= [];
-            $oldest{$type}[$order] = $modtime if $modtime > ( $oldest{$type}[$order] || 0 );
+            $oldest{$type}[$order] = $modtime if $modtime && $modtime > ( $oldest{$type}[$order] || 0 );
         };
 
         # we may not want to pull in the libraries again, say if we're pulling in elements via an ajax load
@@ -3505,7 +3506,7 @@ sub subscribe_interface {
                     } . LJ::html_check({
                         id       => $notify_input_name,
                         name     => $notify_input_name,
-                        'data-selected-by' => "$catid-$ntypeid",    
+                        'data-selected-by' => "$catid-$ntypeid",
                         class    => "SubscribeCheckbox-$catid-$ntypeid",
                         selected => $note_selected,
                         noescape => 1,
