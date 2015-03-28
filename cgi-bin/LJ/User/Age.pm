@@ -13,6 +13,7 @@
 
 package LJ::User;
 use strict;
+no warnings 'uninitialized';
 
 use Carp;
 
@@ -33,7 +34,7 @@ sub age {
 
     my ($year, $mon, $day) = $bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
     my $age = LJ::calc_age($year, $mon, $day);
-    return $age if $age > 0;
+    return $age if defined $age && $age > 0;
     return;
 }
 

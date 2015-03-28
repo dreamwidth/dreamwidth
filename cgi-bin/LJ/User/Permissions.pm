@@ -13,6 +13,7 @@
 
 package LJ::User;
 use strict;
+no warnings 'uninitialized';
 
 use Carp;
 
@@ -534,7 +535,7 @@ sub exclude_from_own_stats {
         return $_[0];
     }
 
-    return $u->prop( 'exclude_from_own_stats' ) eq "1" ? 1 : 0;
+    return $u->prop( 'exclude_from_own_stats' ) ? 1 : 0;
 }
 
 # returns the max capability ($cname) for all the classes
@@ -973,7 +974,7 @@ sub opt_whatemailshow {
     my $u = $_[0];
 
     # return prop value if it exists and is valid
-    my $prop_val = $u->prop( 'opt_whatemailshow' );
+    my $prop_val = $u->prop( 'opt_whatemailshow' ) || '';
     $prop_val =~ tr/BVL/ADN/ unless $u->can_have_email_alias;
     return $prop_val if $prop_val =~ /^[ALBNDV]$/;
 
@@ -1365,7 +1366,7 @@ sub sticky_entries {
     # if they exist.
     my @entry_ids = $u->sticky_entry_ids;
 
-    my $max_sticky_count = $u->count_max_stickies;
+    my $max_sticky_count = $u->count_max_stickies || 0;
     my $entry_length = @entry_ids;
 
     my @currently_unused_stickies = @entry_ids[$max_sticky_count..$entry_length];
@@ -1417,7 +1418,9 @@ sub sticky_entries {
 
 # returns a list of sticky entry ids
 sub sticky_entry_ids {
-    return split /,/, $_[0]->prop( 'sticky_entry' );
+    my $prop = $_[0]->prop( 'sticky_entry' );
+    return unless defined $prop;
+    return split /,/, $prop;
 }
 
 # returns a map of ditemid => 1 of the sticky entries

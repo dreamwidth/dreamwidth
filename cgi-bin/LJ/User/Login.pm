@@ -13,6 +13,7 @@
 
 package LJ::User;
 use strict;
+no warnings 'uninitialized';
 
 use LJ::Session;
 
@@ -286,7 +287,7 @@ sub redirect_rename {
 # my $sess = $u->session($sessid)  (returns given session id for user)
 sub session {
     my ($u, $sessid) = @_;
-    $sessid = $sessid + 0;
+    $sessid = defined $sessid ? $sessid + 0 : 0;
     return $u->{_session} unless $sessid;  # should be undef, or LJ::Session hashref
     return LJ::Session->instance($u, $sessid);
 }

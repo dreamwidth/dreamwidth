@@ -13,6 +13,7 @@
 
 package LJ::User;
 use strict;
+no warnings 'uninitialized';
 
 ########################################################################
 ### 9. Logging and Recording Actions

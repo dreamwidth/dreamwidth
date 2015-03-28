@@ -13,6 +13,7 @@
 
 package LJ::User;
 use strict;
+no warnings 'uninitialized';
 
 use Carp;
 use LJ::Identity;

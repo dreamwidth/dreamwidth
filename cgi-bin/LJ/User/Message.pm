@@ -13,6 +13,7 @@
 
 package LJ::User;
 use strict;
+no warnings 'uninitialized';
 
 use Carp;
 use LJ::Subscription;
@@ -413,9 +414,10 @@ sub notification_inbox {
 # N - Nobody
 sub opt_usermsg {
     my $u = shift;
+    my $prop = $u->raw_prop('opt_usermsg');
 
-    if ($u->raw_prop('opt_usermsg') =~ /^(Y|F|M|N)$/) {
-        return $u->raw_prop('opt_usermsg');
+    if ( defined $prop && $prop =~ /^(Y|F|M|N)$/ ) {
+        return $prop;
     } else {
         return 'M' if $u->is_minor;
         return 'Y';

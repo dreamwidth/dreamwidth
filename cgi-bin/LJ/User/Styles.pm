@@ -13,6 +13,7 @@
 
 package LJ::User;
 use strict;
+no warnings 'uninitialized';
 
 use Carp;
 use DW::SiteScheme;
@@ -395,6 +396,7 @@ sub viewing_style {
     );
 
     my $prop = $view_props{ $view } || 'opt_viewjournalstyle';
+    return 'original' unless defined $u->prop( $prop );
     return $style_types{ $u->prop( $prop ) } || 'original';
 }
 

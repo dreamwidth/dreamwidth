@@ -13,6 +13,7 @@
 
 package LJ::User;
 use strict;
+no warnings 'uninitialized';
 
 use LJ::Auth;
 use LJ::BetaFeatures;
@@ -492,6 +493,7 @@ sub get_timeupdate_multi {
         $timeupdate{$uid} = $tu;
 
         # set memcache for this row
+        $tu = 0 unless defined $tu;  # don't try to pack an undefined value
         LJ::MemCache::add([$uid, "tu:$uid"], pack("N", $tu), 30*60);
     }
 
