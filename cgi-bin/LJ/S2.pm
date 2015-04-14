@@ -920,7 +920,7 @@ sub escape_prop_value {
         }
         elsif ($mode eq 'html' || $mode eq 'html-oneline') {
             LJ::CleanHTML::clean_event(\$_[0]);
-            $_[0] =~ s!\n!<br />!g if $mode eq 'html';
+            $_[0] =~ s!\n!<br />!g if defined $_[0] && $mode eq 'html';
         }
         elsif ($mode eq 'css') {
             my $clean = $css_c->clean($_[0]);
@@ -2312,7 +2312,7 @@ sub Page
 
     unless ($u->prop( 'customtext_content' )) {  $u->set_prop( 'customtext_content', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_content} );}
     unless ($u->prop( 'customtext_url' )) {  $u->set_prop( 'customtext_url', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_url} );}
-    if ($u->prop( 'customtext_title' ) eq '' || $u->prop( 'customtext_title' ) eq  "Custom Text") {
+    if ( ! defined $u->prop( 'customtext_title' ) || $u->prop( 'customtext_title' ) eq '' || $u->prop( 'customtext_title' ) eq  "Custom Text" ) {
         $u->set_prop( 'customtext_title', $opts->{ctx}->[S2::PROPS]->{text_module_customtext} );
     }
 
