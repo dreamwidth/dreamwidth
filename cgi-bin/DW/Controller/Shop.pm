@@ -342,6 +342,12 @@ sub shop_refund_to_points_handler {
         $rv->{points} = $rv->{blocks} * $rv->{rate};
     }
 
+    unless ( $rv->{can_refund} ) {
+        # tell them how long they have to wait for their next refund.
+        my $last = $rv->{remote}->prop( "shop_refund_time" );
+        $rv->{next_refund} = LJ::mysql_date( $last + 86400 * 30 ) if $last;
+    }
+
     my $r = DW::Request->get;
     return DW::Template->render_template( 'shop/refundtopoints.tt', $rv )
         unless $r->did_post && $rv->{can_refund};
