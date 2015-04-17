@@ -1,6 +1,9 @@
 {
   package LJ;
 
+  # keep this enabled only if this site is a development server
+  $IS_DEV_SERVER = 1;
+
   ## TEST DATABASE ##
   %DBINFO = (
              'master' => {
