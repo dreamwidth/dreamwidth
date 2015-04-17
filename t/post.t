@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 135;
+use Test::More tests => 136;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
@@ -23,6 +23,7 @@ use LJ::Test qw( temp_user temp_comm );
 
 use DW::Routing::CallInfo;
 use DW::Controller::Entry;
+use DW::FormErrors;
 
 use LJ::Community;
 use LJ::Entry;
@@ -126,7 +127,10 @@ note( "Logged in - init" );
     $vars = DW::Controller::Entry::_init( { remote => $u } );
     my $moods = DW::Mood->get_moods;
 
-    ok( $vars->{moodtheme}->{id} == $LJ::USER_INIT{moodthemeid}, "Default mood theme." );
+    SKIP: {
+        skip "Default mood theme not defined.", 1 unless $LJ::USER_INIT{moodthemeid};
+        ok( $vars->{moodtheme}->{id} == $LJ::USER_INIT{moodthemeid}, "Default mood theme." );
+    };
     is( scalar keys %{$vars->{moodtheme}->{pics}}, scalar keys %$moods, "Complete mood theme." );
 
     note( "  no mood theme" );
@@ -158,23 +162,23 @@ note( "Logged in - init" );
     note( "Security levels ");
     $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( scalar @{$vars->{security}}, 3, "Basic security levels" );
-    is( $vars->{security}->[0]->{label}, LJ::Lang::ml( 'label.security.public2' ), "Public security" );
+    is( $vars->{security}->[0]->{label}, '.select.security.public.label', "Public security" );
     is( $vars->{security}->[0]->{value}, "public", "Public security" );
-    is( $vars->{security}->[1]->{label}, LJ::Lang::ml( 'label.security.accesslist' ), "Access-only security" );
+    is( $vars->{security}->[1]->{label}, '.select.security.access.label', "Access-only security" );
     is( $vars->{security}->[1]->{value}, "access", "Access-only security" );
-    is( $vars->{security}->[2]->{label}, LJ::Lang::ml( 'label.security.private2' ), "Private security" );
+    is( $vars->{security}->[2]->{label}, '.select.security.private.label', "Private security" );
     is( $vars->{security}->[2]->{value}, "private", "Private security" );
 
     $u->create_trust_group( groupname => "test" );
     $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( scalar @{$vars->{security}}, 4, "Security with custom groups" );
-    is( $vars->{security}->[0]->{label}, LJ::Lang::ml( 'label.security.public2' ), "Public security" );
+    is( $vars->{security}->[0]->{label}, '.select.security.public.label', "Public security" );
     is( $vars->{security}->[0]->{value}, "public", "Public security" );
-    is( $vars->{security}->[1]->{label}, LJ::Lang::ml( 'label.security.accesslist' ), "Access-only security" );
+    is( $vars->{security}->[1]->{label}, '.select.security.access.label', "Access-only security" );
     is( $vars->{security}->[1]->{value}, "access", "Access-only security" );
-    is( $vars->{security}->[2]->{label}, LJ::Lang::ml( 'label.security.private2' ), "Private security" );
+    is( $vars->{security}->[2]->{label}, '.select.security.private.label', "Private security" );
     is( $vars->{security}->[2]->{value}, "private", "Private security" );
-    is( $vars->{security}->[3]->{label}, LJ::Lang::ml( 'label.security.custom' ), "Custom security" );
+    is( $vars->{security}->[3]->{label}, '.select.security.custom.label', "Custom security" );
     is( $vars->{security}->[3]->{value}, "custom", "Custom security" );
     is( @{$vars->{customgroups}}, 1, "Custom group list");
     is( $vars->{customgroups}->[0]->{label}, "test" );
@@ -217,11 +221,11 @@ note( " Usejournal - init" );
 
     note( " checking community security levels ");
     is( scalar @{$vars->{security}}, 3, "Basic security levels" );
-    is( $vars->{security}->[0]->{label}, LJ::Lang::ml( 'label.security.public2' ), "Public security" );
+    is( $vars->{security}->[0]->{label}, '.select.security.public.label', "Public security" );
     is( $vars->{security}->[0]->{value}, "public", "Public security" );
-    is( $vars->{security}->[1]->{label}, LJ::Lang::ml( 'label.security.members' ), "Members-only security" );
+    is( $vars->{security}->[1]->{label}, '.select.security.members.label', "Members-only security" );
     is( $vars->{security}->[1]->{value}, "access", "Access-only security" );
-    is( $vars->{security}->[2]->{label}, LJ::Lang::ml( 'label.security.maintainers' ), "Admin-only security" );
+    is( $vars->{security}->[2]->{label}, '.select.security.admin.label', "Admin-only security" );
     is( $vars->{security}->[2]->{value}, "private", "Private security" );
 
     # TODO:
@@ -279,6 +283,7 @@ my $postdecoded_bare = {
     allowmask   => 0,
 
     crosspost_entry => 0,
+    sticky_entry => undef,
 
     props => {
         taglist => "",
@@ -325,21 +330,21 @@ sub post_with {
     %auth = DW::Controller::Entry::_auth( \%flags, $post, $remote, $LJ::SITEROOT );
 
     my %req;
-    my %decode_status;
-    %decode_status = DW::Controller::Entry::_form_to_backend( \%req, $post );
+    my $errors = DW::FormErrors->new;
+    DW::Controller::Entry::_form_to_backend( \%req, $post, errors => $errors );
 
     my $res = DW::Controller::Entry::_save_new_entry( \%req, \%flags, \%auth );
     delete $req{props}->{unknown8bit}; # TODO: remove this from protocol at some point
 
-    return ( \%req, $res, $remote, \%decode_status );
+    return ( \%req, $res, $remote, $errors );
 }
 
 note( "Logged in - post (bare minimum)" );
 {
     # only have the event
-    my ( $req, $res, $u, $decode ) = post_with( undef => undef );
+    my ( $req, $res, $u, $errors ) = post_with( undef => undef );
     is_deeply( $req, $postdecoded_bare, "decoded entry form" );
-    is_deeply( $decode, {}, "no errors" );
+    is_deeply( $errors->get_all, [], "no errors" );
 
     my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
     is( $entry->subject_orig, '', "subject" );
@@ -348,11 +353,11 @@ note( "Logged in - post (bare minimum)" );
 
 note( "Post - subject" );
 {
-    my ( $req, $res, $u, $decode ) = post_with( subject => $postdata->{subject} );
+    my ( $req, $res, $u, $errors ) = post_with( subject => $postdata->{subject} );
     is_deeply( $req, { %$postdecoded_bare,
         subject => $postdata->{subject},
     } );
-    is_deeply( $decode, {} );
+    is_deeply( $errors->get_all, [], "no errors" );
 
     my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
     is( $entry->subject_orig, $postdata->{subject} );
@@ -361,15 +366,14 @@ note( "Post - subject" );
 
 note( "Post - lacking required info" );
 {
-    my ( $req, $res, $u, $decode ) = post_with( subject => $postdata->{subject}, event => undef );
+    my ( $req, $res, $u, $errors ) = post_with( subject => $postdata->{subject}, event => undef );
     is_deeply( $req, { %$postdecoded_bare,
         subject => $postdata->{subject},
         event   => "",
     }, "decoded entry form" );
-    is_deeply( $decode,
-        { errors => [ LJ::Lang::ml( "/update.bml.error.noentry" ) ] },
-        "no entry text"
-    );
+    my $error_list = $errors->get_all;
+    is( scalar @$error_list, 1, "one error returned" );
+    is( $error_list->[0]->{'ml_key'}, '.error.noentry', "no entry text" );
 
     is_deeply( $res, {
         errors  => LJ::Protocol::error_message( 200 ),
@@ -529,7 +533,7 @@ note( "Altlogin - post" );
     my $alt_pass = "abc123!" . rand();
     $alt->set_password( $alt_pass );
 
-    my ( $req, $res, $remote, $decode ) = post_with(
+    my ( $req, $res, $remote, $errors ) = post_with(
         post_as  => "other",
         username => $alt->user,
         password => $alt_pass
@@ -556,7 +560,7 @@ note( "Altlogin - but changed mind" );
 
     # filled in username and password (or perhaps browser autofill)
     # but selected the "post_as_remote"...
-    my ( $req, $res, $remote, $decode ) = post_with(
+    my ( $req, $res, $remote, $errors ) = post_with(
         post_as  => "remote",
         username => $alt->user,
         password => $alt_pass
@@ -580,9 +584,9 @@ TODO: {
 
 # note( "Editing an entry with the wrong ditemid" );
 # {
-#     my ( $req, $res, $u, $decode ) = post_with( undef => undef );
+#     my ( $req, $res, $u, $errors ) = post_with( undef => undef );
 #     is_deeply( $req, $postdecoded_bare, "decoded entry form" );
-#     is_deeply( $decode, {}, "no errors" );
+#     is_deeply( $errors->get_all, [], "no errors" );
 
 #     my $anum_fake = $res->{anum} == 0 ? $res->{anum} + 1 : $res->{anum} - 1;
 #     my $ditemid_fake = $res->{ditemid} * 256 + $anum_fake;
