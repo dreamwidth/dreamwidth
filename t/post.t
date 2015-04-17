@@ -283,6 +283,7 @@ my $postdecoded_bare = {
     allowmask   => 0,
 
     crosspost_entry => 0,
+    sticky_entry => undef,
 
     props => {
         taglist => "",
