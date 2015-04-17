@@ -3129,6 +3129,8 @@ sub rte_js_vars {
                 }
             }
         }
+
+        var SiteConfig = new Object();
     </script>^;
 
     return $ret;
