@@ -136,7 +136,7 @@ sub create_community {
     $u->set_prop("nonmember_posting", $opts{nonmember_posting}+0);
     $u->set_prop("moderated", $opts{moderated}+0);
     $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled( 'adult_content' );
-    $u->set_default_style;
+    $u->set_default_style unless $LJ::_T_CONFIG;
 
     my $admin = $opts{admin_userid} ?
         LJ::load_userid( $opts{admin_userid} ) :
