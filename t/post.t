@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 136;
+use Test::More tests => 133;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
@@ -527,41 +527,13 @@ TODO: {
     local $TODO = "post to a community";
 }
 
-note( "Altlogin - post" );
+note( "Altlogin with remote - no longer allowed" );
 {
     my $alt = temp_user();
     my $alt_pass = "abc123!" . rand();
     $alt->set_password( $alt_pass );
 
     my ( $req, $res, $remote, $errors ) = post_with(
-        post_as  => "other",
-        username => $alt->user,
-        password => $alt_pass
-    );
-
-    ok( ! $remote->equals( $alt ), "Remote and altlogin aren't the same user" );
-
-    my $entry = LJ::Entry->new( $alt, jitemid => $res->{itemid} );
-    ok( $entry->valid, "valid entry posted to alt (not remote)" );
-
-    my $no_entry = LJ::Entry->new( $remote, jitemid => $res->{itemid} );
-    ok( ! $no_entry->valid, "no such entry (was posted to alt)" );
-
-
-    # TODO: altlogin + usejournal
-    # mix usejournal and postas_usejournal
-}
-
-note( "Altlogin - but changed mind" );
-{
-    my $alt = temp_user();
-    my $alt_pass = "abc123!" . rand();
-    $alt->set_password( $alt_pass );
-
-    # filled in username and password (or perhaps browser autofill)
-    # but selected the "post_as_remote"...
-    my ( $req, $res, $remote, $errors ) = post_with(
-        post_as  => "remote",
         username => $alt->user,
         password => $alt_pass
     );
