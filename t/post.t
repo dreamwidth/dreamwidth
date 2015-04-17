@@ -161,23 +161,23 @@ note( "Logged in - init" );
     note( "Security levels ");
     $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( scalar @{$vars->{security}}, 3, "Basic security levels" );
-    is( $vars->{security}->[0]->{label}, LJ::Lang::ml( 'label.security.public2' ), "Public security" );
+    is( $vars->{security}->[0]->{label}, '.select.security.public.label', "Public security" );
     is( $vars->{security}->[0]->{value}, "public", "Public security" );
-    is( $vars->{security}->[1]->{label}, LJ::Lang::ml( 'label.security.accesslist' ), "Access-only security" );
+    is( $vars->{security}->[1]->{label}, '.select.security.access.label', "Access-only security" );
     is( $vars->{security}->[1]->{value}, "access", "Access-only security" );
-    is( $vars->{security}->[2]->{label}, LJ::Lang::ml( 'label.security.private2' ), "Private security" );
+    is( $vars->{security}->[2]->{label}, '.select.security.private.label', "Private security" );
     is( $vars->{security}->[2]->{value}, "private", "Private security" );
 
     $u->create_trust_group( groupname => "test" );
     $vars = DW::Controller::Entry::_init( { remote => $u } );
     is( scalar @{$vars->{security}}, 4, "Security with custom groups" );
-    is( $vars->{security}->[0]->{label}, LJ::Lang::ml( 'label.security.public2' ), "Public security" );
+    is( $vars->{security}->[0]->{label}, '.select.security.public.label', "Public security" );
     is( $vars->{security}->[0]->{value}, "public", "Public security" );
-    is( $vars->{security}->[1]->{label}, LJ::Lang::ml( 'label.security.accesslist' ), "Access-only security" );
+    is( $vars->{security}->[1]->{label}, '.select.security.access.label', "Access-only security" );
     is( $vars->{security}->[1]->{value}, "access", "Access-only security" );
-    is( $vars->{security}->[2]->{label}, LJ::Lang::ml( 'label.security.private2' ), "Private security" );
+    is( $vars->{security}->[2]->{label}, '.select.security.private.label', "Private security" );
     is( $vars->{security}->[2]->{value}, "private", "Private security" );
-    is( $vars->{security}->[3]->{label}, LJ::Lang::ml( 'label.security.custom' ), "Custom security" );
+    is( $vars->{security}->[3]->{label}, '.select.security.custom.label', "Custom security" );
     is( $vars->{security}->[3]->{value}, "custom", "Custom security" );
     is( @{$vars->{customgroups}}, 1, "Custom group list");
     is( $vars->{customgroups}->[0]->{label}, "test" );
@@ -220,11 +220,11 @@ note( " Usejournal - init" );
 
     note( " checking community security levels ");
     is( scalar @{$vars->{security}}, 3, "Basic security levels" );
-    is( $vars->{security}->[0]->{label}, LJ::Lang::ml( 'label.security.public2' ), "Public security" );
+    is( $vars->{security}->[0]->{label}, '.select.security.public.label', "Public security" );
     is( $vars->{security}->[0]->{value}, "public", "Public security" );
-    is( $vars->{security}->[1]->{label}, LJ::Lang::ml( 'label.security.members' ), "Members-only security" );
+    is( $vars->{security}->[1]->{label}, '.select.security.members.label', "Members-only security" );
     is( $vars->{security}->[1]->{value}, "access", "Access-only security" );
-    is( $vars->{security}->[2]->{label}, LJ::Lang::ml( 'label.security.maintainers' ), "Admin-only security" );
+    is( $vars->{security}->[2]->{label}, '.select.security.admin.label', "Admin-only security" );
     is( $vars->{security}->[2]->{value}, "private", "Private security" );
 
     # TODO:
