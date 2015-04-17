@@ -126,7 +126,10 @@ note( "Logged in - init" );
     $vars = DW::Controller::Entry::_init( { remote => $u } );
     my $moods = DW::Mood->get_moods;
 
-    ok( $vars->{moodtheme}->{id} == $LJ::USER_INIT{moodthemeid}, "Default mood theme." );
+    SKIP: {
+        skip "Default mood theme not defined.", 1 unless $LJ::USER_INIT{moodthemeid};
+        ok( $vars->{moodtheme}->{id} == $LJ::USER_INIT{moodthemeid}, "Default mood theme." );
+    };
     is( scalar keys %{$vars->{moodtheme}->{pics}}, scalar keys %$moods, "Complete mood theme." );
 
     note( "  no mood theme" );
