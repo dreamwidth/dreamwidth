@@ -364,6 +364,7 @@
 
     ## MISC SETTINGS ##
     $DOMAIN = "test.dw";
+    $USER_DOMAIN = $DOMAIN;
     $EMAIL_POST_DOMAIN = "post.$DOMAIN";
     $EMBED_MODULE_DOMAIN = "embed.dw";
 
