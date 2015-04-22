@@ -390,6 +390,7 @@
             '_key' => 'paid_user', # Some things expect that key name
             '_visible_name' => 'Paid Account',
             '_account_type' => 'paid',
+            '_refund_points' => 30,
             'activeentries' => 1,
             'bookmark_max' => 500,
             'checkfriends' => 1,
@@ -446,6 +447,7 @@
             '_key' => 'premium_user',
             '_visible_name' => 'Premium Paid Account',
             '_account_type' => 'premium',
+            '_refund_points' => 41,
             'activeentries' => 1,
             'bookmark_max' => 1000,
             'checkfriends' => 1,

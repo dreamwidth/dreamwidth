@@ -29,13 +29,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <p><strong>[% '.noteligible' | ml %]</strong></p>
 
-[% ELSIF NOT points %]
-
-<p><strong>[% '.toofew' | ml %]</strong><p>
-
 [% ELSIF NOT can_refund %]
 
 <p><strong>[% '.toosoon' | ml %]</strong></p>
+<p>[% IF next_refund; '.nextrefund' | ml(date = next_refund); END %]</p>
+
+[% ELSIF NOT points %]
+
+<p><strong>[% '.toofew' | ml %]</strong><p>
 
 [% ELSE %]
 
