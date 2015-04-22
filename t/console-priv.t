@@ -37,7 +37,7 @@ my $run = sub {
 };
 
 is($run->("priv grant admin:* " . $u2->user),
-   "error: You are not authorized to run this command.");
+   "error: You are not permitted to grant admin:*");
 is($run->("priv_package list"),
    "error: You are not authorized to run this command.");
 $u->grant_priv("admin", "supporthelp");

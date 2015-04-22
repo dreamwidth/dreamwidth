@@ -362,6 +362,8 @@
 
     $USE_SSL = 1;
 
+    $ONLY_USER_VHOSTS = 1;
+
     ## MISC SETTINGS ##
     $DOMAIN = "test.dw";
     $USER_DOMAIN = $DOMAIN;

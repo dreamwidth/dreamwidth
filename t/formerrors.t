@@ -24,9 +24,9 @@ note( "Get all errors" );
     $errors->add( "baz", ".error.baz" );
 
     is_deeply( $errors->get_all, [
-                { key => "foo", ml_key => ".error.foo", message => '' },
-                { key => "bar", ml_key => ".error.bar", message => '' },
-                { key => "baz", ml_key => ".error.baz", message => '' },
+                { key => "foo", ml_key => ".error.foo", message => '[missing string .error.foo]' },
+                { key => "bar", ml_key => ".error.bar", message => '[missing string .error.bar]' },
+                { key => "baz", ml_key => ".error.baz", message => '[missing string .error.baz]' },
             ], "all errors in the order that they were added" );
 };
 
@@ -51,8 +51,8 @@ note( "Multiple errors for the same key" );
     is( $foo2->{ml_key}, ".error.foo2", "multiple errors for foo (2)" );
 
     is_deeply( $errors->get_all, [
-                { key => "foo", ml_key => ".error.foo1", message => '' },
-                { key => "foo", ml_key => ".error.foo2", message => '' }
+                { key => "foo", ml_key => ".error.foo1", message => '[missing string .error.foo1]' },
+                { key => "foo", ml_key => ".error.foo2", message => '[missing string .error.foo2]' }
             ], "all errors in the order that they were added (multiple errors for the key)" );
 }
 
@@ -61,11 +61,11 @@ note( "Error ml code with argument" );
     my $errors = DW::FormErrors->new;
     $errors->add( "foo", ".error.foo", { foo_arg => "foofoofoo" } );
 
-    is_deeply( $errors->get( "foo" ), { ml_key => ".error.foo", message => '', ml_args => { foo_arg => "foofoofoo" } },
+    is_deeply( $errors->get( "foo" ), { ml_key => ".error.foo", message => '[missing string .error.foo]', ml_args => { foo_arg => "foofoofoo" } },
                 "error foo with argument (get)" );
     is_deeply(
         $errors->get_all,
-        [ { key => "foo", ml_key => ".error.foo", message => '', ml_args => { foo_arg => "foofoofoo" } } ],
+        [ { key => "foo", ml_key => ".error.foo", message => '[missing string .error.foo]', ml_args => { foo_arg => "foofoofoo" } } ],
         "error foo with argument (get_all)" );
 }
 1;
