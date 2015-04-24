@@ -48,7 +48,7 @@ body<=
     # POST hash as if they never left.  Watch and see
     if (($GET{'openid.mode'} eq 'id_res' || $GET{'openid.mode'} eq 'cancel') && $GET{'jid'} && $GET{'pendcid'}) {
 
-        return LJ::bad_input("OpenID support not enabled")
+        return LJ::bad_input( BML::ml( '/openid/login.bml.error.no_support' ) )
             unless LJ::OpenID::consumer_enabled();
 
         my $csr = LJ::OpenID::consumer(\%GET);
@@ -56,18 +56,13 @@ body<=
         if ($GET{'openid.mode'} eq 'id_res') { # Verify their identity
 
             unless ( LJ::check_referer('/talkpost_do.bml', $GET{'openid.return_to'}) ) {
-                return LJ::bad_input("Invalid return_to");
+                return LJ::bad_input( BML::ml( '/openid/login.bml.error.invalidparameter',
+                                               { item => "return_to" } ) );
             }
 
-            my $vident = $csr->verified_identity;
-            return LJ::bad_input("Can't verify identity: ".$csr->err) unless $vident;
-
-            my $url = $vident->url;
-            return LJ::bad_input("Invalid characters in identity URL.") if $url =~ /[\<\>\s]/;
-
-            my $uo = LJ::User::load_identity_user("O", $url, $vident);
-            return LJ::bad_input("Couldn't vivify your account (but we verified that you're " . LJ::ehtml($url) . ")")
-                unless $uo;
+            my $errmsg;
+            my $uo = LJ::User::load_from_consumer( $csr, \$errmsg );
+            return LJ::bad_input( $errmsg ) unless $uo;
 
             LJ::set_remote($uo);
             $skip_form_auth = 1;  # wouldn't have form auth at this point

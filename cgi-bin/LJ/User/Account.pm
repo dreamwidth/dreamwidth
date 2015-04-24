@@ -1049,6 +1049,38 @@ sub load_identity_user {
     return $u;
 }
 
+# class function - refactoring verification of Net::OpenID::Consumer object
+# returns the associated user object, or undef on failure
+sub load_from_consumer {
+    my ( $csr, $errorref ) = @_;
+
+    my $err = sub { $$errorref = LJ::Lang::ml( @_ ) if defined $errorref && ref $errorref };
+
+    my $vident = eval { $csr->verified_identity; };
+
+    unless ( $vident ) {
+        my $msg = $@ ? $@ : $csr->err;
+        $err->( '/openid/login.bml.error.notverified', { error => $msg } );
+        return;
+    }
+
+    my $url = $vident->url;
+
+    if ( $url =~ /[\<\>\s]/ ) {
+        $err->( '/openid/login.bml.error.invalidcharacters' );
+        return;
+    }
+
+    my $u = load_identity_user( "O", $url, $vident );
+
+    unless ( $u ) {
+        $err->( '/openid/login.bml.error.notvivified', { url => LJ::ehtml( $url ) } );
+        return;
+    }
+
+    return $u;
+}
+
 # journal_base replacement for OpenID accounts. since they don't have
 # a journal, redirect to /read.
 sub openid_journal_base {
