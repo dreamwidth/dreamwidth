@@ -22,14 +22,6 @@ body<=
     my @errors;
     my $skip_form_auth = 0;
 
-    # stupid hack to allow hotmail people to post, since hotmail changes
-    # POST forms to GET.  this isn't a security problem (GET -> POST escalation)
-    # since talklib.pl's LJ::Talk::Post::init checks for $POST{'ecphash'}
-    # and requires it to be correct.  if it's not, the page fails.
-    if ($GET{'ecphash'}) {
-        %POST = %GET;
-    }
-
     if ($LJ::TALK_ABORT_REGEXP) {
         my $tempbody = $POST{'body'};
         LJ::CleanHTML::clean_comment(\$tempbody);
@@ -90,11 +82,7 @@ body<=
 
         push @errors, "You chose to cancel your identity verification"
             if $csr->user_cancel;
-    }
-    # normally require POST.  if an ecphash is specified, we'll let
-    # them through since they're coming from a comment page and
-    # validate the hash later.
-    elsif (! LJ::did_post() && !$POST{'ecphash'}) {
+    } elsif ( ! LJ::did_post() ) {
         return LJ::bad_input("Comment not posted: POST required, or missing parameter.");
     }
 
@@ -113,11 +101,8 @@ body<=
         if $remote && $remote->can_use_userpic_select;
     LJ::set_active_resource_group( "jquery" );
 
-    # FIXME: this isn't entirely correct, if ecphash is present but ignored/incorrect
-    # that fix would need to be done in talklib.pl
-
     # show this error along with the regenerated comment form down below
-    push @errors, $ML{'.error.invalidform'} if $remote && ! ( $skip_form_auth || $POST{ecphash} || LJ::check_form_auth() );
+    push @errors, $ML{'.error.invalidform'} if $remote && ! ( $skip_form_auth || LJ::check_form_auth() );
 
     ## preview
     # ignore errors for previewing
