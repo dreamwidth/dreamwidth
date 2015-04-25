@@ -72,12 +72,6 @@ sub get_subjecticons
     return \%subjecticon;
 }
 
-# entryid-commentid-emailrecipientpassword hash
-sub ecphash {
-    my ($itemid, $talkid, $password) = @_;
-    return "ecph-" . Digest::MD5::md5_hex($itemid . $talkid . $password);
-}
-
 # Returns talkurl with GET args added (don't pass #anchors to this :-)
 sub talkargs {
     my $talkurl = shift;
@@ -3000,24 +2994,15 @@ sub init {
         }
     }
 
-    # anonymous/cookie users cannot authenticate with ecphash
-    if ($form->{'ecphash'} && $form->{'usertype'} ne "user") {
-        $mlerr->( "$SC.error.badusername2", { sitename => $LJ::SITENAMESHORT,
-                  aopts => "href='$LJ::SITEROOT/lostinfo'" } );
-        return undef;
-    }
-
     my $cookie_auth;
-    # either we are posting from the comment email notification form
-    # or we are posting from talkpost, as currently logged-in user
-    if ( ( $form->{usertype} eq "user" && exists $form->{ecphash} ) ||
-        ($form->{'usertype'} eq "cookieuser")) {
+    # we are posting from talkpost, as currently logged-in user
+    if ( $form->{usertype} eq "cookieuser" ) {
         my $userpost = $form->{'userpost'} || $form->{'cookieuser'};
         $mlerr->("$SC.error.lostcookie")
             unless $remote && $remote->{'user'} eq $userpost;
         return undef if @$errret;
 
-        $cookie_auth = 1 unless exists $form->{ecphash};
+        $cookie_auth = 1;
         $form->{'userpost'} = $remote->{'user'};
         $form->{'usertype'} = "user";
     }
@@ -3036,7 +3021,6 @@ sub init {
     my $up;             # user posting
     my $exptype;        # set to long if ! after username
     my $ipfixed;        # set to remote  ip if < after username
-    my $used_ecp;       # ecphash was validated and used
 
     if ($form->{'usertype'} eq "user") {
         if ($form->{'userpost'}) {
@@ -3066,30 +3050,16 @@ sub init {
                 # don't want to re-authenticate, so just skip this
                 unless ($cookie_auth) {
 
-                    # if ecphash present, authenticate on that
-                    if ($form->{'ecphash'}) {
-
-                        if ($form->{'ecphash'} eq
-                            LJ::Talk::ecphash($itemid, $form->{'parenttalkid'}, $up->password))
-                        {
-                            $used_ecp = 1;
-                        } else {
-                            $mlerr->( "$SC.error.badpassword2",
-                                { aopts => "href='$LJ::SITEROOT/lostinfo'" } );
-                        }
-
-                    # otherwise authenticate on username/password
+                    # authenticate on username/password
+                    my $ok;
+                    if ( $form->{response} ) {
+                        $ok = LJ::challenge_check_login( $up, $form->{chal}, $form->{response} );
                     } else {
-                        my $ok;
-                        if ($form->{response}) {
-                            $ok = LJ::challenge_check_login($up, $form->{chal}, $form->{response});
-                        } else {
-                            $ok = LJ::auth_okay($up, $form->{'password'}, $form->{'hpassword'});
-                        }
-                        $mlerr->( "$SC.error.badpassword2",
-                                { aopts => "href='$LJ::SITEROOT/lostinfo'" } )
-                            unless $ok;
+                        $ok = LJ::auth_okay( $up, $form->{password}, $form->{hpassword} );
                     }
+                    $mlerr->( "$SC.error.badpassword2",
+                            { aopts => "href='$LJ::SITEROOT/lostinfo'" } )
+                        unless $ok;
                 }
 
                 # if the user chooses to log in, do so
@@ -3180,33 +3150,31 @@ sub init {
     }
 
     # validate the challenge/response value (anti-spammer)
-    unless ($used_ecp) {
-        my $chrp_err;
-        if (my $chrp = $form->{'chrp1'}) {
-            my ($c_ditemid, $c_uid, $c_time, $c_chars, $c_res) =
-                split(/\-/, $chrp);
-            my $chal = "$c_ditemid-$c_uid-$c_time-$c_chars";
-            my $secret = LJ::get_secret($c_time);
-            my $res = Digest::MD5::md5_hex($secret . $chal);
-            if ($res ne $c_res) {
-                $chrp_err = "invalid";
-            } elsif ($c_time < time() - 2*60*60) {
-                $chrp_err = "too_old" if $LJ::REQUIRE_TALKHASH_NOTOLD;
-            }
-        } else {
-            $chrp_err = "missing";
+    my $chrp_err;
+    if ( my $chrp = $form->{'chrp1'} ) {
+        my ( $c_ditemid, $c_uid, $c_time, $c_chars, $c_res ) =
+            split( /\-/, $chrp );
+        my $chal = "$c_ditemid-$c_uid-$c_time-$c_chars";
+        my $secret = LJ::get_secret( $c_time );
+        my $res = Digest::MD5::md5_hex( $secret . $chal );
+        if ( $res ne $c_res ) {
+            $chrp_err = "invalid";
+        } elsif ( $c_time < time() - 2*60*60 ) {
+            $chrp_err = "too_old" if $LJ::REQUIRE_TALKHASH_NOTOLD;
         }
-        if ($chrp_err) {
-            my $ip = LJ::get_remote_ip();
-            if ($LJ::DEBUG{'talkspam'}) {
-                my $ruser = $remote ? $remote->{user} : "[nonuser]";
-                print STDERR "talkhash error: from $ruser \@ $ip - $chrp_err - $talkurl\n";
-            }
-            if ($LJ::REQUIRE_TALKHASH) {
-                return $err->("Sorry, form expired.  Press back, copy text, reload form, paste into new form, and re-submit.")
-                    if $chrp_err eq "too_old";
-                return $err->("Missing parameters");
-            }
+    } else {
+        $chrp_err = "missing";
+    }
+    if ( $chrp_err ) {
+        my $ip = LJ::get_remote_ip();
+        if ( $LJ::DEBUG{'talkspam'} ) {
+            my $ruser = $remote ? $remote->{user} : "[nonuser]";
+            print STDERR "talkhash error: from $ruser \@ $ip - $chrp_err - $talkurl\n";
+        }
+        if ( $LJ::REQUIRE_TALKHASH ) {
+            return $err->("Sorry, form expired.  Press back, copy text, reload form, paste into new form, and re-submit.")
+                if $chrp_err eq "too_old";
+            return $err->("Missing parameters");
         }
     }
 
