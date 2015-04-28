@@ -102,11 +102,12 @@ jQuery(document).ready(function() {
 var hash = location.hash;
 if ( hash.indexOf( "#tagnav-" ) == 0 ) {
     $(window).load(function() {
-        var tag = hash.slice(8);
+        var tagnav_tag = hash.slice(8);
 
         $(".tag-nav-trigger").click();
         $(".tag a").filter(function() {
-            return $(this).text() === tag;
+            var text = $(this).text();
+            return text === tagnav_tag || text.replace(' ', '+') === tagnav_tag;
         }).click();
     })
 }
