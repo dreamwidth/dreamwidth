@@ -102,7 +102,7 @@ jQuery(document).ready(function() {
 var hash = location.hash;
 if ( hash.indexOf( "#tagnav-" ) == 0 ) {
     $(window).load(function() {
-        var tagnav_tag = hash.slice(8);
+        var tagnav_tag = decodeURI(hash.slice(8));
 
         $(".tag-nav-trigger").click();
         $(".tag a").filter(function() {
