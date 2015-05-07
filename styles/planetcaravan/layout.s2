@@ -457,6 +457,10 @@ h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: 
         }
 }
 
+.userpic img {
+    display: block;
+}
+
 $userpic_css
 
 .no-userpic .userpic {border: 0;}

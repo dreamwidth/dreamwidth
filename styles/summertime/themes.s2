@@ -1,3 +1,89 @@
+#NEWLAYER: summertime/athingwithfeathers
+layerinfo type = "theme";
+layerinfo name = "A Thing With Feathers";
+layerinfo redist_uniq = "summertime/athingwithfeathers";
+layerinfo author_name = "ketsu";
+
+set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f7e4b5";
+set color_page_link = "#ff4200";
+set color_page_link_active = "#bf91bf";
+set color_page_link_hover = "#bf91bf";
+set color_page_link_visited = "#63991c";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_page_title_shadow = "#ffc331";
+set color_header_background = "#ffe094";
+set color_header_background_shadow = "#ffc331";
+set color_header_icons_shadow = "#ffc331";
+set color_footer_background = "#ffe094";
+set color_footer_background_shadow = "#ffc331";
+set color_footer_icon_shadow = "#ffc331";
+set color_footer_link_shadow = "#ffc331";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_background_shadow = "#ffc331";
+set color_entry_interaction_links = "#df9f03";
+set color_entry_text = "#000";
+set color_entry_title = "#63991c";
+set color_entry_title_background = "#ffe094";
+set color_comment_title = "#000";
+set color_comment_title_background = "#ffe094";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffe094";
+set color_module_background_shadow = "#ffc331";
+set color_module_bottom_background = "#ffe094";
+set color_module_bottom_background_shadow = "#ffc331";
+set color_module_title = "#ffe094";
+set color_module_title_background = "#df9f03";
+set color_module_top_background = "#ffe094";
+set color_module_top_background_shadow = "#ffc331";
+
+##===============================
+## Images
+##===============================
+
+set image_archive = "summertime/icon-archive_orange.png";
+set image_archive_alt = "summertime/icon-archive_black.png";
+set image_memories = "summertime/icon-memories_orange.png";
+set image_memories_alt = "summertime/icon-memories_black.png";
+set image_network = "summertime/icon-network_orange.png";
+set image_network_alt = "summertime/icon-network_black.png";
+set image_poweredby = "summertime/icon-poweredby_orange.png";
+set image_profile = "summertime/icon-profile_orange.png";
+set image_profile_alt = "summertime/icon-profile_black.png";
+set image_reading = "summertime/icon-reading_orange.png";
+set image_reading_alt = "summertime/icon-reading_black.png";
+set image_recent = "summertime/icon-recent_orange.png";
+set image_recent_alt = "summertime/icon-recent_black.png";
+set image_tags = "summertime/icon-tags_orange.png";
+set image_tags_alt = "summertime/icon-tags_black.png";
+
+function Page::print_theme_stylesheet() { """
+    .module-header a {color:#FFE094 !important;}    
+    .entry-title a:visited {color:#000 !important;}
+    
+    .comment .comment-title a {color:#000 !important;}
+    
+    .has-userpic .entry .userpic, .has-userpic .comment .userpic {border-color: #DF9F03 !important;} 
+    
+"""; }
+
 #NEWLAYER: summertime/atlantic
 layerinfo type = "theme";
 layerinfo name = "Atlantic";
@@ -276,6 +362,207 @@ set image_tags = "summertime/icon-tags_black.png";
 set image_tags_alt = "summertime/icon-tags_white.png";
 
 
+#NEWLAYER: summertime/capriciousinsect
+layerinfo type = "theme";
+layerinfo name = "Capricious Insect";
+layerinfo redist_uniq = "summertime/capriciousinsect";
+layerinfo author_name = "ketsu";
+
+set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#06ff4c";
+set color_page_link = "#7c1d3d";
+set color_page_link_active = "#b6456b";
+set color_page_link_hover = "#b6456b";
+set color_page_link_visited = "#386426";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_page_title_shadow = "#2d7943";
+set color_header_background = "#31bb58";
+set color_header_background_shadow = "#38d60b";
+set color_header_icons_shadow = "#2d7943";
+set color_footer_background = "#31bb58";
+set color_footer_background_shadow = "#38d60b";
+set color_footer_icon_shadow = "#2d7943";
+set color_footer_link_shadow = "#2d7943";
+set color_footer_link_visited = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_background_shadow = "#38d60b";
+set color_entry_interaction_links = "#31bb58";
+set color_entry_interaction_links_active = "#5831bb";
+set color_entry_interaction_links_hover = "#5831bb";
+set color_entry_interaction_links_visited = "#bb5831";
+set color_entry_link = "#7c1d3d";
+set color_entry_link_active = "#b6456b";
+set color_entry_link_hover = "#b6456b";
+set color_entry_link_visited = "#386426";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_title_background = "#d3fff6";
+set color_comment_title = "#000";
+set color_comment_title_background = "#d3fff6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d3fff6";
+set color_module_background_shadow = "#38d60b";
+set color_module_bottom_background = "#31bb58";
+set color_module_bottom_background_shadow = "#38d60b";
+set color_module_bottom_link_visited = "#fff";
+set color_module_link = "#7c1d3d";
+set color_module_link_active = "#b6456b";
+set color_module_link_hover = "#b6456b";
+set color_module_link_visited = "#386426";
+set color_module_text = "#000";
+set color_module_title = "#fff";
+set color_module_title_background = "#31bb58";
+set color_module_top_background = "#31bb58";
+set color_module_top_background_shadow = "#38d60b";
+set color_module_top_link_visited = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_archive = "summertime/icon-archive_green.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_green.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_green.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_green.png";
+set image_profile = "summertime/icon-profile_green.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_green.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_green.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_green.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+function Page::print_theme_stylesheet() { """
+    .module-header a {color:#fff !important;}    
+    .entry-title a:visited {color:#000 !important;}
+    
+    .has-userpic .entry .userpic, .has-userpic .comment .userpic {border-color: #31BB58 !important;}
+    
+    .comment .comment-title a {color:#000 !important;}    """; }
+
+
+#NEWLAYER: summertime/dimensions
+layerinfo type = "theme";
+layerinfo name = "Dimensions";
+layerinfo redist_uniq = "summertime/dimensions";
+layerinfo author_name = "ketsu";
+
+set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+
+set layout_resources = [ 
+{ "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
+{ "name" => "Background from Subtle Patterns", "url" => "http://subtlepatterns.com/" } 
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#353535";
+set color_page_link = "#4ac925";
+set color_page_link_active = "#aaa";
+set color_page_link_hover = "#aaa";
+set color_page_link_visited = "#c92525";
+set color_page_text = "#fff";
+set color_page_title = "#949494";
+set color_page_title_shadow = "#222";
+set color_header_background = "#000";
+set color_header_background_shadow = "#323c37";
+set color_header_icons_shadow = "#222";
+set color_footer_background = "#000";
+set color_footer_background_shadow = "#323c37";
+set color_footer_icon_shadow = "#222";
+set color_footer_link = "#4ac925";
+set color_footer_link_active = "#aaa";
+set color_footer_link_hover = "#aaa";
+set color_footer_link_shadow = "#222";
+set color_footer_link_visited = "#c92525";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_background_shadow = "#323c37";
+set color_entry_link = "#008141";
+set color_entry_link_active = "#555";
+set color_entry_link_hover = "#555";
+set color_entry_link_visited = "#810000";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#008141";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#202020";
+set color_module_background_shadow = "#323c37";
+set color_module_bottom_background = "#000";
+set color_module_bottom_background_shadow = "#323c37";
+set color_module_bottom_title_background = "#000";
+set color_module_link = "#4ac925";
+set color_module_link_active = "#aaa";
+set color_module_link_hover = "#aaa";
+set color_module_link_visited = "#c92525";
+set color_module_text = "#fff";
+set color_module_title = "#949494";
+set color_module_top_background = "#000";
+set color_module_top_background_shadow = "#323c37";
+set color_module_top_title_background = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "summertime/dimensions.png";
+
+set image_archive = "summertime/icon-archive_dimensions.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_dimensions.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_dimensions.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_white.png";
+set image_profile = "summertime/icon-profile_dimensions.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_dimensions.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_dimensions.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_dimensions.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+function Page::print_theme_stylesheet() { """
+    .module-header a {color:#949494 !important;}    
+    .entry-title a:visited {color:#000 !important;}
+    
+    .comment .comment-title a {color:#fff !important;}   
+"""; }
+
+
 #NEWLAYER: summertime/dinnerwithfriends
 layerinfo type = "theme";
 layerinfo name = "Dinner with Friends";
@@ -372,6 +659,95 @@ set image_tags = "summertime/icon-tags_black.png";
 set image_tags_alt = "summertime/icon-tags_white.png";
 
 
+#NEWLAYER: summertime/enoughatlast
+layerinfo type = "theme";
+layerinfo name = "Enough At Last";
+layerinfo redist_uniq = "summertime/enoughatlast";
+layerinfo author_name = "ketsu";
+
+set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#444";
+set color_page_link = "#ffc0b8";
+set color_page_link_active = "#c0b8ff";
+set color_page_link_hover = "#c0b8ff";
+set color_page_link_visited = "#b8ffc0";
+set color_page_title = "#fff";
+set color_page_title_shadow = "#555";
+set color_header_background = "#222";
+set color_header_background_shadow = "#323232";
+set color_header_icons_shadow = "#555";
+set color_footer_background = "#222";
+set color_footer_background_shadow = "#323232";
+set color_footer_icon_shadow = "#555";
+set color_footer_link = "#fff";
+set color_footer_link_shadow = "#555";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_background_shadow = "#323232";
+set color_entry_link = "#ff2106";
+set color_entry_link_visited = "#05ff22";
+set color_entry_text = "#323232";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#323232";
+set color_comment_title = "#000";
+set color_comment_title_background = "#929292";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b70d0e";
+set color_module_background_shadow = "#323232";
+set color_module_bottom_background = "#ff2106";
+set color_module_bottom_background_shadow = "#323232";
+set color_module_link = "#ffc0b8";
+set color_module_link_active = "#c0b8ff";
+set color_module_link_hover = "#c0b8ff";
+set color_module_link_visited = "#b8ffc0";
+set color_module_text = "#fff";
+set color_module_title_background = "#222";
+set color_module_top_background = "#ff2106";
+set color_module_top_background_shadow = "#323232";
+
+##===============================
+## Images
+##===============================
+
+set image_archive = "summertime/icon-archive_grey.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_grey.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_grey.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_white.png";
+set image_profile = "summertime/icon-profile_grey.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_grey.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_grey.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_grey.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+function Page::print_theme_stylesheet() { """
+    .module-header a {color:#fff !important;}    
+    .entry-title a:visited {color:#fff !important;}
+    
+    .has-userpic .entry .userpic, .has-userpic .comment .userpic {border-color: #FF2106 !important;}
+    
+    .comment .comment-title a {color:#000 !important;}    
+"""; }
+
+
 #NEWLAYER: summertime/freshair
 layerinfo type = "theme";
 layerinfo name = "Fresh Air";
@@ -457,6 +833,92 @@ set image_profile = "summertime/icon-profile_black.png";
 set image_reading = "summertime/icon-reading_black.png";
 set image_recent = "summertime/icon-recent_black.png";
 set image_tags = "summertime/icon-tags_black.png";
+
+
+NEWLAYER: summertime/imgonnaletitshine
+layerinfo type = "theme";
+layerinfo name = "I'm Gonna Let It Shine";
+layerinfo redist_uniq = "summertime/imgonnaletitshine";
+layerinfo author_name = "ketsu";
+
+set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff547";
+set color_page_link = "#005682";
+set color_page_link_active = "#578200";
+set color_page_link_hover = "#578200";
+set color_page_link_visited = "#b536da";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_page_title_shadow = "#ca5a00";
+set color_header_background = "#f98100";
+set color_header_background_shadow = "#22a4ff";
+set color_header_icons_shadow = "#fa4700";
+set color_footer_background = "#f98100";
+set color_footer_background_shadow = "#22a4ff";
+set color_footer_icon_shadow = "#fa4700";
+set color_footer_link_shadow = "#ca5a00";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_background_shadow = "#22a4ff";
+set color_entry_title = "#000";
+set color_entry_title_background = "#fff547";
+set color_comment_title = "#000";
+set color_comment_title_background = "#fff547";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fa4700";
+set color_module_background_shadow = "#22a4ff";
+set color_module_bottom_background = "#fa4700";
+set color_module_bottom_background_shadow = "#22a4ff";
+set color_module_link = "#24323d";
+set color_module_link_active = "#141f00";
+set color_module_link_hover = "#141f00";
+set color_module_link_visited = "#442f4c";
+set color_module_text = "#fff";
+set color_module_title = "#000";
+set color_module_title_background = "#f98100";
+set color_module_top_background = "#fa4700";
+set color_module_top_background_shadow = "#22a4ff";
+
+#===============================
+## Images
+##===============================
+
+set image_archive = "summertime/icon-archive_yellow.png";
+set image_archive_alt = "summertime/icon-archive_white.png";
+set image_memories = "summertime/icon-memories_yellow.png";
+set image_memories_alt = "summertime/icon-memories_white.png";
+set image_network = "summertime/icon-network_yellow.png";
+set image_network_alt = "summertime/icon-network_white.png";
+set image_poweredby = "summertime/icon-poweredby_white.png";
+set image_profile = "summertime/icon-profile_yellow.png";
+set image_profile_alt = "summertime/icon-profile_white.png";
+set image_reading = "summertime/icon-reading_yellow.png";
+set image_reading_alt = "summertime/icon-reading_white.png";
+set image_recent = "summertime/icon-recent_yellow.png";
+set image_recent_alt = "summertime/icon-recent_white.png";
+set image_tags = "summertime/icon-tags_yellow.png";
+set image_tags_alt = "summertime/icon-tags_white.png";
+
+function Page::print_theme_stylesheet() { """
+    .module-header a {color:#000 !important;}    
+    .entry-title a:visited {color:#000 !important;}
+    
+    .has-userpic .entry .userpic, .has-userpic .comment .userpic {border-color: #F98100 !important;}
+    
+    .comment .comment-title a {color:#000 !important;}    """; }
 
 
 #NEWLAYER: summertime/karting
@@ -820,6 +1282,99 @@ set image_recent = "summertime/icon-recent_black.png";
 set image_recent_alt = "summertime/icon-recent_white.png";
 set image_tags = "summertime/icon-tags_black.png";
 set image_tags_alt = "summertime/icon-tags_white.png";
+
+
+#NEWLAYER: summertime/onceisenough
+layerinfo type = "theme";
+layerinfo name = "Once Is Enough";
+layerinfo redist_uniq = "summertime/onceisenough";
+layerinfo author_name = "ketsu";
+
+set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ccc3b4";
+set color_page_link = "#76c34e";
+set color_page_link_active = "#c24e76";
+set color_page_link_hover = "#c24e76";
+set color_page_link_visited = "#4e76c2";
+set color_page_title = "#76c34e";
+set color_page_title_shadow = "#605542";
+set color_header_background = "#494132";
+set color_header_background_shadow = "#978a70";
+set color_header_icons_shadow = "#605542";
+set color_footer_background = "#494132";
+set color_footer_background_shadow = "#978a70";
+set color_footer_link = "#d9f7c8";
+set color_footer_link_active = "#f7c8da";
+set color_footer_link_hover = "#f7c8da";
+set color_footer_link_shadow = "#605542";
+set color_footer_link_visited = "#c8daf7";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_background_shadow = "#978a70";
+set color_entry_interaction_links = "#978a70";
+set color_entry_link = "#76c34e";
+set color_entry_link_active = "#c24e76";
+set color_entry_link_hover = "#c24e76";
+set color_entry_link_visited = "#4e76c2";
+set color_entry_text = "#000";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#978a70";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#978a70";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#978a70";
+set color_module_background_shadow = "#978a70";
+set color_module_bottom_background = "#494132";
+set color_module_bottom_background_shadow = "#978a70";
+set color_module_link = "#d9f7c8";
+set color_module_link_active = "#f7c8da";
+set color_module_link_hover = "#f7c8da";
+set color_module_link_visited = "#c8daf7";
+set color_module_text = "#000";
+set color_module_title = "#fff";
+set color_module_title_background = "#494132";
+set color_module_top_background = "#494132";
+set color_module_top_background_shadow = "#978a70";
+
+##===============================
+## Images
+##===============================
+
+set image_archive = "summertime/icon-archive_tan.png";
+set image_archive_alt = "summertime/icon-archive_once.png";
+set image_memories = "summertime/icon-memories_tan.png";
+set image_memories_alt = "summertime/icon-memories_once.png";
+set image_network = "summertime/icon-network_tan.png";
+set image_network_alt = "summertime/icon-network_once.png";
+set image_poweredby = "summertime/icon-poweredby_tan.png";
+set image_profile = "summertime/icon-profile_tan.png";
+set image_profile_alt = "summertime/icon-profile_once.png";
+set image_reading = "summertime/icon-reading_tan.png";
+set image_reading_alt = "summertime/icon-reading_once.png";
+set image_recent = "summertime/icon-recent_tan.png";
+set image_recent_alt = "summertime/icon-recent_once.png";
+set image_tags = "summertime/icon-tags_tan.png";
+set image_tags_alt = "summertime/icon-tags_once.png";
+
+function Page::print_theme_stylesheet() { """
+    .module-header a {color:#fff !important;}    
+    .entry-title a:visited {color:#fff !important;}
+    
+    .has-userpic .entry .userpic, .has-userpic .comment .userpic {border-color: #76C34E !important;}     
+"""; }
 
 
 #NEWLAYER: summertime/regatta
