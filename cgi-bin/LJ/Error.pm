@@ -209,7 +209,7 @@ sub log {
         my $uri = $apache_r->uri;
 
         my %insert_r = (
-                        'addr'        => $apache_r->connection->remote_ip,
+                        'addr'        => $apache_r->connection->client_ip,
                         'remote'      => $apache_rl->notes('ljuser'),
                         'remotecaps'  => $remotecaps,
                         'remoteid'    => $remoteid,
