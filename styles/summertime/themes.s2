@@ -835,7 +835,7 @@ set image_recent = "summertime/icon-recent_black.png";
 set image_tags = "summertime/icon-tags_black.png";
 
 
-NEWLAYER: summertime/imgonnaletitshine
+#NEWLAYER: summertime/imgonnaletitshine
 layerinfo type = "theme";
 layerinfo name = "I'm Gonna Let It Shine";
 layerinfo redist_uniq = "summertime/imgonnaletitshine";
