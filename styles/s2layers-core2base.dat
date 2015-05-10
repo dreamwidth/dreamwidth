@@ -106,6 +106,9 @@ practicality/themes      theme+                      practicality/layout
 refriedtablet/layout     layout(core2base/layout)    core2
 refriedtablet/themes     theme+                      refriedtablet/layout
 
+seamless/layout          layout(core2base/layout)    core2
+seamless/themes          theme+                      seamless/layout
+
 snakesandboxes/layout    layout(core2base/layout)    core2
 snakesandboxes/themes    theme+                      snakesandboxes/layout
 
