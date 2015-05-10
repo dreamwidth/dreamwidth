@@ -172,6 +172,7 @@ body<=
                 unless (@errors) {
                     $body .= $ML{'.message.sent'};
                     $body .= "<?p $ML{'.message.sent.options'} <ul>";
+                    $body .= "<li><a href='$LJ::SITEROOT/inbox/?page=0&view=usermsg_sent_last'>$ML{'.link.view.message'}</a></li>";
                     $body .= "<li><a href='$LJ::SITEROOT/inbox/compose'>$ML{'.link.send.message'}</a></li>";
                     $body .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'.link.inbox'}</a></li>";
                     $body .= "<li><a href='$LJ::SITEROOT/'>$ML{'.link.home'}</a></li>";
