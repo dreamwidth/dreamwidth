@@ -171,6 +171,7 @@ func getProxyFile(token, url string) (string, error) {
 		log.Printf("Failed to fetch %s: %s", url, err)
 		return "", err
 	}
+	defer resp.Body.Close()
 
 	// If it's too large, we don't want it!
 	if resp.ContentLength > MAXIMUM_SIZE {
