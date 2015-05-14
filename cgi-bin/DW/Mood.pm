@@ -16,6 +16,7 @@ package DW::Mood;
 use strict;
 use warnings;
 
+use LJ::CleanHTML;
 
 ### MOOD (CLASS) METHODS
 
@@ -208,6 +209,7 @@ sub get_picture {
         # must be a good url
         $ref->{pic} = "#invalid" unless
             $ref->{pic} =~ m!^https?://[^\'\"\0\s]+$!;
+        $ref->{pic} = LJ::CleanHTML::https_url( $ref->{pic} );
         return 1;
     }
     return 0;  # couldn't find a picture anywhere in the parent chain
