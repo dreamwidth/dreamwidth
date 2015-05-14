@@ -1,0 +1,1049 @@
+layerinfo type = "layout";
+layerinfo name = "Seamless";
+layerinfo redist_uniq = "seamless/layout";
+layerinfo author_name = "timeasmymeasure";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "timeasmymeasure v ", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+set layout_type = "two-columns-right";
+
+set margins_size = "10";
+set margins_unit = "em";
+
+##===============================
+## Fonts
+##===============================
+
+propgroup fonts_child{
+    property string font_interaction_links;
+    property string font_interaction_links_size;
+    property string font_interaction_links_units;
+}
+
+set font_interaction_links_units = "em";
+set font_interaction_links_size = "1.75";
+
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_calendar_header_background { des = "Background color for calendar header on Archive page"; }
+    property Color color_calendar_header { des = "Color color for calendar header on Archive page"; }
+    property Color color_calendar_entry { des = "Background color for a day with entries on the calendar"; }    
+    property Color color_module_calendar_header_background { des = "Background color for calendar module header"; }    
+    property Color color_module_calendar_header { des = "Color for calendar module header text"; }
+    property Color color_module_calendar_entry { des = "Background color for a day with entries on the calendar module"; }
+    property Color color_userpic_background { des = "Border color for user icon on sidebar and in entries"; }
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+    property Color color_page_subtitle { des = "Page header link visited color"; }
+    property Color color_metadata_label { des = "Currents label color"; }
+    property Color color_metadata_text { des = "Currents text color"; }
+    }
+
+##===============================
+## Modules
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
+    grouped = 1;
+    }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "header";
+
+##===============================
+## Functions
+##===============================
+
+# Give a title to the navlinks module
+function print_module_navlinks() {
+    var Page p = get_page();
+    var string title = "Navigation";
+    open_module("navlinks", "$title", "");
+    var string[] links = [];
+    foreach var string k ($p.views_order) {
+        var string css = """ class="$k" """;
+        if ($p.view == $k) { $css = """ class="current $k" """; }
+        $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+    }
+    print_module_list($links);
+    close_module();
+}
+
+# Add section for navlinks module
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_module_section("header");
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+    """;
+
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+
+    """
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if (($*layout_type != "one-column-split") and ($*layout_type != "one-column")) {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+
+                if ($*layout_type->contains("three")) {
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+    """;
+                }
+    """
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+
+
+    """;
+
+                if ($*layout_type == "one-column") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+
+                if (($*layout_type->contains("two")) or ($*layout_type->contains("one"))) {
+    """
+                    <div id="tertiary"><div class="inner">
+    """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+    """;
+                }
+
+    """
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+
+##===============================
+## Stylesheet
+##===============================
+
+
+function print_stylesheet () {
+
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+
+    var int base_userpic_size = 100;
+
+    if ( $*entry_userpic_style == "" ) { $base_userpic_size = 100; }
+    elseif ( $*entry_userpic_style == "small" ) { $base_userpic_size = 75; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $base_userpic_size = 50; }
+
+    var string entry_margin = string($base_userpic_size + 70) + "px";
+    var string entry_userpic_margin = string($base_userpic_size + 40) + "px";
+
+    if ( $*comment_userpic_style == "" ) { $base_userpic_size = 100; }
+    elseif ( $*comment_userpic_style == "small" ) { $base_userpic_size = 75; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $base_userpic_size = 50; }
+
+    var string comment_margin = string($base_userpic_size + 60) + "px";
+    var string comment_userpic_margin = string($base_userpic_size + 41) + "px";
+
+
+    var string userpic_css = "";
+
+    if($*userpics_position == "left") {
+        $userpic_css = """
+        .bottomnav {
+            margin: 0px 0px 0px $entry_margin; 
+            }
+            
+        .entry {
+            margin: 0px 0px 0px $entry_margin;          
+            border-width: 0px 10px 0px 0px;
+            }
+
+        .comment {
+            margin-left: $comment_margin;
+            }
+
+        .has-userpic .entry .userpic {
+            float: left;
+            margin: -10px 0px 10px -$entry_userpic_margin;
+            }
+
+        .has-userpic .comment .userpic {
+            display: block;
+            float: left;
+            margin: 0 0 15px -$comment_userpic_margin;
+            }
+        """;
+    }
+    elseif($*userpics_position == "right") {
+        $userpic_css = """
+        
+        .bottomnav {
+            margin: 0px $entry_margin 0px 0px;
+            }
+            
+        .entry {
+            margin: 0px $entry_margin 0px 0px;
+            border-width: 0px 0px 0px 10px;
+            }
+
+        .comment {
+            margin-right: $comment_margin;
+            }
+
+        .has-userpic .entry .userpic {
+            float: right;
+            margin: -10px -$entry_userpic_margin 10px 0px;
+            }
+
+        .has-userpic .comment .userpic {
+            display: block;
+            float: right;
+            margin: 0 -$comment_userpic_margin 15px 0;
+            }
+        """;
+    }
+
+    """
+/*-- Seamless (Tabula Rasa) --*/
+/*--- main ---*/
+
+        * {
+        margin: 0px; 
+        padding: 0px;
+        }
+
+        BODY { 
+        font-family: arial, sans-serif;
+        } 
+
+        a { 
+        text-decoration: none;
+        }
+
+        code, kbd, pre, tt, textarea {
+        font-family: monospace;
+        }
+
+        q { 
+        font-style: italic; 
+        }
+
+        blockquote {
+        padding: 8px; 
+        margin: 15px 55px 15px 15px; 
+        text-align: justify;
+        }
+
+        ul {
+        margin: 5px 0px 5px 25px;
+        list-style: square;
+        list-style-position: inside;
+        }
+
+        ol li {
+        margin: 5px 0px 5px 15px;
+        list-style-type: upper-roman;
+        list-style-position: inside;
+        }
+
+
+/*--- containers and layout-specific styling ---*/
+
+        #primary > .inner:first-child, #secondary > .inner:first-child, #tertiary > .inner:first-child {
+        padding: 0;
+        }
+
+        .three-columns-left h2.module-header, .two-columns-left h2.module-header,
+        .three-columns-sides #secondary h2.module-header, .one-column h2.module-header { border-right: 10px solid $*color_module_border; }
+
+        .three-columns-left .module-header, .two-columns-left .module-header,
+        .three-columns-sides #secondary .module-header, .one-column .module-header,
+        .three-columns-left .module, .two-columns-left .module,
+        .three-columns-sides #secondary .module, .one-column .module { text-align: right; }
+
+        .three-columns-right h2.module-header, .two-columns-right h2.module-header,
+        .three-columns-sides #tertiary h2.module-header { border-left: 10px solid $*color_module_border; }
+
+        .three-columns-right .module-header, .two-columns-right .module-header,
+        .three-columns-sides #tertiary .module-header,
+        .three-columns-right .module, .two-columns-right .module,
+        .three-columns-sides #tertiary .module { text-align: left; }
+
+        /*---------inline-block one-column mode-----*/
+
+.one-column #secondary, .one-column #tertiary {
+    background-color: $*color_module_background;
+    }
+
+.one-column #secondary, .one-column #tertiary { width: 100%; }
+.one-column .module {
+    display: inline-block;
+    vertical-align: top;
+    width: $*sidebar_width;
+    }
+.one-column #header .module-navlinks {width: 100%;}
+
+/*--- titles ---*/
+
+        #header { 
+        padding: 5px;   
+        margin: -15px 0px 0px 0px;  
+        }
+
+        h1#title { 
+        letter-spacing: -0.07em;
+        line-height: 55%;  
+        text-align: right;
+        text-transform: lowercase;
+        font-weight: lighter; 
+        }
+
+        h2#subtitle { 
+        letter-spacing: -0.07em;
+        color: $*color_page_subtitle;     
+        text-align: right;
+        text-transform: lowercase;
+        font-weight: lighter; 
+        }
+
+        h2#pagetitle {
+        letter-spacing: -0.07em;  
+        text-align: right;
+        text-transform: lowercase;
+        font-weight: lighter; 
+        }
+
+/*--- sidebar ---*/
+
+        .module {   
+        text-align: right; 
+        padding: 0px;           
+        border: 0;
+        }
+
+        .module-header {   
+        text-align: right;
+        }
+
+        .module-content { 
+        padding: 10px; 
+        }
+
+
+        h2.module-header {  
+        padding: 12px; 
+        letter-spacing: -0.07em;
+        font-size: 2em;
+        text-transform: lowercase;
+        font-weight: lighter;
+        margin:0;  
+        }
+
+        h2.module-header a { 
+        color: $*color_module_title;  
+        }
+
+        #header .module-navlinks { 
+        font-size: $*font_journal_subtitle_size$*font_journal_subtitle_units;
+        margin: 20px 0px 20px 0px;  
+        font-weight: lighter;
+        text-transform: lowercase;
+        background-color: transparent;
+        }
+
+        #header .module-navlinks ul.module-list {
+        display: inline;
+        padding: 0; 
+        margin: 0;  
+        }
+
+        #header .module-navlinks ul.module-list li { 
+        display: inline; 
+        margin: 0px 5px 20px 0; 
+        list-style: none; 
+        padding: 5px 5px 10px 5px; 
+        }
+
+        #header .module-navlinks a { 
+        color: $*color_header_link;     
+        }
+
+        #header .module-navlinks a:hover { 
+        color: $*color_header_link_hover;     
+        }
+
+        #header .module-navlinks a:visited { 
+        color: $*color_header_link_visited;     
+        }
+
+        #header .module-navlinks a:active { 
+        color: $*color_header_link_active;     
+        }
+
+        .no-navstrip .module-navlinks {
+        top: 0;
+        }
+
+        #header .module-navlinks .module-header {
+            display: none;
+        }
+
+        div.module-content div.userpic { 
+        text-align: center; 
+        }
+
+        div.module-content div.userpic img { 
+        background-color: $*color_module_border;
+        border: 0px solid;  
+        width: 50px;
+        height: 50px;
+        border-right: 5px solid $*color_entry_title_background;    
+        border-left: 5px solid $*color_module_title_background; 
+        padding: 5px 5px 20px 5px;  
+        }
+
+        div.journal-name {  
+        text-transform: lowercase; 
+        margin: 5px 0px 0px 0px; 
+        text-align: center; 
+        }
+
+        div.journal-website-name { 
+        text-transform: lowercase; 
+        text-align: center; 
+        }
+
+        ul.userlite-interaction-links { 
+        margin: 5px 0px 0px 0px; 
+        list-style: none; 
+        text-align: center; 
+        }
+
+        ul.userlite-interaction-links li { 
+        margin: 0px auto; 
+        display: inline; 
+        list-style: none; 
+        text-align: center; 
+        }
+
+        .module-list-item { 
+        padding: 2px; 
+        margin: 5px 0px; 
+        list-style: none; 
+        }
+
+        div.manage-tags-link { 
+        margin: 10px 0px 0px 0px;
+        text-transform: lowercase; 
+        text-align: right; 
+        }
+
+        div.module-calendar table { 
+        text-align: center; 
+        margin: auto; 
+        width: 55%; 
+        }
+
+        div.module-calendar td {
+        padding: 3px; 
+        }
+
+        div.module-calendar th { 
+        text-transform: lowercase; 
+        background-color: $*color_module_calendar_header_background;
+        border: 1px solid $*color_module_calendar_header_background; 
+        color: $*color_module_calendar_header;
+        }
+
+        div.module-calendar td.empty-day { 
+        text-transform: lowercase;
+        border: 1px solid $*color_module_calendar_header_background; 
+        }
+
+        div.module-calendar td.entry-day { 
+        text-transform: lowercase; 
+        border: 1px solid $*color_module_calendar_header_background; 
+        background-color: $*color_module_calendar_entry;
+        }
+
+/*--- navigation (for entries) ---*/
+
+        .navigation { 
+        background-color: $*color_entry_title_background;  
+        color: $*color_entry_title;  
+        text-align: center; 
+        padding: 5px; 
+        margin: 0px 0px 0px 0px;    
+        letter-spacing: -0.07em;
+        font-size: 1.2em;
+        text-transform: lowercase;
+        font-weight: lighter; 
+        }
+
+        .navigation a { 
+        color: $*color_entry_title;  
+        }
+
+        .topnav { 
+        display: none;  
+        }
+
+        .bottomnav { 
+        margin: 0px 170px 0px 0px;
+        }
+
+        .page-separator { 
+        padding: 10px; 
+        }
+
+        div.navigation ul { 
+        display: inline; 
+        }
+
+        div.navigation li { 
+        display: inline; 
+        list-style: none; 
+        }
+
+        li.page-back, li.page-forward {
+        display: inline; 
+        list-style: none; 
+        }
+
+/*--- entries ---*/
+
+        .entry {  
+        border-style: solid;
+        border-color: $*color_entry_border;    
+        }
+
+        $userpic_css
+
+        .entry .userpic img { 
+        background-color: $*color_entry_border;
+        border: 0px solid;  
+        border-right: 10px solid $*color_entry_title_background;    
+        border-left: 10px solid $*color_module_title_background;    
+        padding: 10px 10px 50px 10px;   
+        }
+
+        .entry-content { 
+        padding: 10px; 
+        min-height: 100px; 
+        margin: 10px 0px 0px 0px;
+        }
+
+        .entry .header { 
+        background-color: $*color_entry_title_background;  
+        padding: 5px 10px 5px 10px; 
+        margin: 0px 150px 0px 0px; 
+        margin-right: 0px; 
+        text-align: right;
+        font-weight: lighter;
+        }
+
+
+        .entry-title {
+        letter-spacing: -0.07em;
+        text-transform: lowercase;
+        font-weight: lighter;
+        }
+
+        .entry-title a { 
+        padding: 3px 5px 5px 5px;
+        }
+
+        .datetime {  
+        color: #6C5C5C; 
+        text-transform: lowercase;
+        }
+
+        .datetime a {  
+        color: #6C5C5C; 
+        }
+
+/*--- currents and tags ---*/
+
+        .metadata { 
+        padding: 10px 15px 5px 15px; 
+        margin: 0px;  
+        text-transform: lowercase; 
+        margin-right: 0px; 
+        }
+
+        div.metadata ul { 
+        padding: 0px; 
+        margin: 0px; 
+        }
+
+        div.metadata ul li { 
+        list-style: none; 
+        padding: 0px; 
+        margin: 0px; 
+        }
+
+        span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood { 
+        color: $*color_metadata_text;
+        text-align: right; 
+        text-transform: lowercase; 
+        display: inline; 
+        }
+
+        .tag {  
+        padding: 15px; 
+        text-transform: lowercase;
+        margin-right: 0px;  
+        }
+
+        span.tag-text { 
+        text-transform: lowercase;
+        }
+
+        div.tag ul li { 
+        text-align: right; 
+        display: inline; 
+        list-style: none; 
+        font-weight: normal; 
+        margin: 5px 5px 0px 0px; 
+        }
+
+        ul.entry-management-links {
+        padding: 5px 5px 0px 5px; 
+        list-style: none; 
+        text-align: right;
+        margin: 0px; 
+        margin-right: 0px;  
+        }
+
+        ul.entry-management-links li { 
+        margin: 0px auto; 
+        display: inline; 
+        list-style: none; 
+        }
+
+        ul.entry-interaction-links { 
+        padding: 5px; 
+        text-align: right; 
+        margin: 0px; 
+        margin-right: 0px; 
+        }
+
+        .entry ul.text-links li { 
+        display: inline; 
+        list-style: none;  
+        letter-spacing: -0.07em;
+        font-size: $*font_interaction_links_size$*font_interaction_links_units;
+        text-transform: lowercase;
+        font-weight: lighter;
+        margin: 0px 5px x 0px;
+        padding: 0px; 
+        }
+
+
+/*--- entry colors on secondary pages ---*/
+
+#archive-year .header h3, .tags-container .header h2, .icons-container .header h2 {
+    $entry_title_font
+    $entry_title_colors;
+}
+
+.tags-container, .icons-container, #archive-year div.month, #comments .comment, #archive-month div.month { 
+        $entry_colors
+        margin: 0px 170px 0px 0px;
+        border-width: 0px 0px 0px 10px;
+        border-style: solid;
+        border-color: $*color_entry_border }
+
+.tags-container .contents, .icons-container .contents, #archive-year div.month .contents, #comments .comment .contents, #archive-month div.month  { padding: 1em; }
+
+.tags-container a, .icons-container a, #archive-year a, #comments a, #archive-month a { color:$*color_entry_link; }
+
+.tags-container a:active, .icons-container a:active, #archive-year a:active, #comments a:active, #archive-month a:active { color:$*color_entry_link_active; }
+
+.tags-container a:hover, .icons-container a:hover, #archive-year a:hover, #comments a:hover, #archive-month a:hover { color:$*color_entry_link_hover; }
+
+.tags-container a:visited, .icons-container a:visited, #archive-year a:visited, #comments a:visited, #archive-month a:visited { color:$*color_entry_link_visited; }
+
+
+/*--- archive page ---*/
+
+        .month {   
+        margin: 0px 170px 0px 0px;
+        border-width: 0px 0px 0px 10px;
+        border-style: solid;
+        border-color: $*color_entry_border;   
+        }
+
+        table.month { 
+        border: 0px;
+        padding: 15px; 
+        }
+
+        .month table { 
+        width: 70%; 
+        margin: auto; 
+        }
+
+        .month caption { 
+        display: none; 
+        }
+
+        #archive-year .month h3 { 
+        background-color: $*color_entry_title_background;  
+        padding: 12px; 
+        color: $*color_entry_title; 
+        letter-spacing: -0.07em;
+        font-size: 2em;
+        text-align: right; 
+        text-transform: lowercase; 
+        font-weight: lighter; 
+        }
+
+        .day-date { 
+        background-color: $*color_entry_title_background;  
+        margin: 0px 170px 0px 0px; 
+        padding: 5px; 
+        color: $*color_entry_title; 
+        letter-spacing: -0.07em;
+        font-size: 1.5em;
+        text-transform: lowercase; 
+        font-weight: lighter; 
+        border-left: 10px solid $*color_entry_border;
+        }
+
+
+        .month th { 
+        background-color: $*color_calendar_header_background; 
+        color: $*color_calendar_header; 
+        margin: 0px 2px; 
+        padding: 5px; 
+        font-size: 1.5em; 
+        font-weight: lighter; 
+        text-transform: lowercase; 
+        border: 1px solid $*color_calendar_header_background;
+        width:14%;
+        }
+
+        .month td { 
+        padding: 15px; 
+        border: 1px solid $*color_calendar_header_background;
+        }
+
+        .month td.day { 
+        border: 1px solid $*color_calendar_header_background; 
+        font-weight: normal; 
+        }
+
+        .month td.day-has-entries {
+        background-color: $*color_calendar_entry;
+        font-weight: normal; 
+        }
+
+        .month td.day-has-entries p { 
+        text-align: right; 
+        font-size: 1.5em; 
+        font-weight: lighter; 
+        padding: 0px 0px 0px 5px; 
+        }
+
+/*--- tags page ---*/
+
+        .page-tags .tags-container {
+        background-color: $*color_entry_background;   
+        margin: 0px 170px 0px 0px;
+        border-width: 0px 0px 0px 10px;
+        border-style: solid;
+        border-color: $*color_entry_border;  
+        }
+
+        .page-tags .tags-container h2 { 
+        background-color: $*color_entry_title_background;
+        padding: 12px; 
+        color: $*color_entry_title; 
+        letter-spacing: -0.07em;
+        font-size: 2em;
+        text-transform: lowercase; 
+        font-weight: lighter; 
+        }
+
+        .page-tags .ljtaglist { 
+        padding: 10px; 
+        }
+
+        .manage-tags-link { 
+        padding: 10px; 
+        }
+
+
+/*--- icon page ---*/
+
+        .icons-container {
+        background-color: $*color_entry_background; 
+        margin: 0px 170px 0px 0px;
+        border-width: 0px 0px 0px 10px;
+        border-style: solid;
+        border-color: $*color_entry_border;  
+        }
+
+        .icons-container h2 { 
+        background-color: $*color_entry_title_background;
+        padding: 12px; 
+        color: $*color_entry_title; 
+        letter-spacing: -0.07em;
+        font-size: 2em;
+        text-transform: lowercase; 
+        font-weight: lighter; 
+        }
+
+
+        .manage-icons-link { 
+        padding: 10px; 
+        }
+
+        div.icons-container div.icon:nth-of-type(2n) {
+    clear: both;
+}
+
+.icons-container .icon {
+    float: left;
+    margin-bottom: 15px;
+    min-width: 350px;
+    vertical-align: bottom;
+    width: 50%;
+    display:table;
+}
+
+.icon-image {
+    display: inline;
+    float: left;
+    margin-right: 1em;
+    min-width: 100px;
+    margin-top: 0;
+}
+
+.icon-info {
+    overflow: auto;
+    vertical-align: bottom;
+    word-wrap: break-word;
+    display:table-cell;
+    width:100%;
+}
+
+.icon-info .label,
+.icon-info span {
+    font-weight: bold;
+}
+
+.icons-container .inner .footer, .icon-pages {
+    clear: both;
+    text-align: center;
+}
+
+/*--- comments ---*/
+
+        .comment-content { 
+        padding: 15px; 
+        min-height: 70px; 
+        }
+
+        div.comment div.header { 
+        background-color: $*color_entry_title_background;
+        padding: 5px 10px 5px 10px;  
+        letter-spacing: -0.07em;
+        color: $*color_entry_title; 
+        text-align: right;
+        text-transform: lowercase;
+        font-weight: lighter;
+        }
+
+        .comment-title { 
+        color: $*color_entry_title; 
+        letter-spacing: -0.07em;
+        font-weight: lighter;
+        font-size: 2em;
+        text-transorm: lowercase;
+        }
+
+        .comment-title a { 
+        color: $*color_entry_title; 
+        font-weight: lighter;
+        }
+
+        hr.above-entry-interaction-links, hr.below-reply-container { 
+        display: none; 
+        }
+
+        textarea.textbox  { 
+        width: 85% !important; 
+        border: 1px solid $*color_entry_border;
+        }
+
+        .poster-ip { 
+        margin-top: 5px;
+        display: none; 
+        }
+
+        div.comment div.userpic { 
+        float: right; 
+        margin: 0px -130px 10px 0px; 
+        }
+
+        div.comment div.userpic img { 
+        background-color: $*color_entry_border;
+        border: 0px solid;  
+        border-right: 10px solid $*color_entry_title_background;    
+        border-left: 10px solid $*color_module_title_background;     
+        padding: 10px 10px 50px 10px;   
+        }
+
+        .bottomcomment { 
+        background-color: $*color_entry_background; 
+        padding: 10px; 
+        margin: 0px 170px 0px 0px;  
+        border-left: 10px solid $*color_entry_border;
+        }
+
+        div.comment div.footer { 
+        margin-right: 0px; 
+        padding: 0px 10px 0px 10px; 
+        font-weight: lighter; 
+        text-transform: lowercase; 
+        }
+
+        .comment-management-links ul, .comment-interaction-links ul {
+        list-style: none; 
+        }
+
+        ul.comment-management-links {
+        padding: 2px; 
+        list-style: none; 
+        text-align: right;
+        margin: 0px;
+        }
+
+        ul.comment-management-links li { 
+        margin: 0px auto; 
+        display: inline; 
+        list-style: none; 
+        }
+
+        ul.comment-interaction-links { 
+        padding: 2px; 
+        text-align: right; 
+        margin: 0px; 
+        }
+
+        .comment ul.text-links li { 
+        display: inline; 
+        list-style: none;  
+        letter-spacing: -0.07em;
+        font-size: $*font_interaction_links_size$*font_interaction_links_units;
+        text-transform: lowercase;
+        font-weight: lighter; 
+        margin: 0px 5px 0px 0px;
+        padding: 0px; 
+        }
+
+        .comment ul.text-links a { 
+        color:$*color_entry_interaction_links; 
+        }
+
+        .comment ul.text-links a:hover { 
+        color:$*color_entry_interaction_links_hover; 
+        }
+
+        .comment ul.text-links a:active { 
+        color:$*color_entry_interaction_links_active; 
+        }
+
+         .comment ul.text-links a:visited { 
+        color:$*color_entry_interaction_links_visited; 
+        }
+
+        #qrform table { 
+        border: 0!important; 
+        }
+
+        table.talkform { 
+        margin: 0px 0px 10px 0px; 
+        padding: 10px; 
+        }
+
+
+""";
+}
