@@ -1028,6 +1028,23 @@ sub _do_post {
                 editurl => $edititemlink,
                 ditemid => $ditemid,
         );
+        
+        my $extradata = {
+            security => $form_req->{security},
+            security_ml => "",
+            subject => LJ::ehtml( $form_req->{subject} ),
+        };
+        if ( $extradata->{security} eq "usemask" ) {
+            if ( $form_req -> {allowmask} == 1 ) {
+                $extradata->{security_ml} = ".extradata.sec.access";
+            } else {
+                $extradata->{security_ml} = ".extradata.sec.custom";
+            }
+        } elsif ( $extradata->{security} eq "private" ) {
+            $extradata->{security_ml} = ".extradata.sec.private";
+        } else {
+            $extradata->{security_ml} = ".extradata.sec.public";
+        }
 
         # set sticky
         if ( $form_req->{sticky_entry} && $u->can_manage( $ju ) ) {
@@ -1042,6 +1059,7 @@ sub _do_post {
                 crossposts  => \@crossposts,# crosspost status list
                 links       => \@links,
                 links_header => ".new.links",
+                extradata   => $extradata,
             }
         );
     }
@@ -1147,7 +1165,24 @@ sub _do_edit {
         ditemid => $ditemid,
         editurl => $edit_url,
     );
-
+        
+    my $extradata = {
+        security => $form_req->{security},
+        security_ml => "",
+        subject => LJ::ehtml( $form_req->{subject} ),
+    };
+    if ( $extradata->{security} eq "usemask" ) {
+        if ( $form_req -> {allowmask} == 1 ) {
+            $extradata->{security_ml} = ".extradata.sec.access";
+        } else {
+            $extradata->{security_ml} = ".extradata.sec.custom";
+        }
+    } elsif ( $extradata->{security} eq "private" ) {
+        $extradata->{security_ml} = ".extradata.sec.private";
+    } else {
+        $extradata->{security_ml} = ".extradata.sec.public";
+    }
+    
     my $poststatus = { ml_string => $poststatus_ml };
     $render_ret = DW::Template->render_template(
         'entry/success.tt', {
@@ -1156,6 +1191,7 @@ sub _do_edit {
             crossposts  => \@crossposts,# crosspost status list
             links       => \@links,
             links_header => '.edit.links',
+            extradata   => $extradata,
         }
     );
 

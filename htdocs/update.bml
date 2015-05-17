@@ -469,6 +469,22 @@ _c?>
 
                     my @after_entry_post_extra_options = LJ::Hooks::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
                     my $after_entry_post_extra_options = join('', map {$_->[0]} @after_entry_post_extra_options) || '';
+                    
+                    if ($req{"security"} eq "private") {
+                        $$body .=" p?><?p $ML{'.extradata.sec.private'}";
+                    } elsif ($req{"security"} eq "usemask") {
+                        if ($req{"allowmask"} == 0) { # custom security with no group -- essentially private
+                            $$body .=" p?><?p $ML{'.extradata.sec.private'}";
+                        } elsif ($req{"allowmask"} > 1) { # custom group
+                            $$body .=" p?><?p $ML{'.extradata.sec.custom'}";
+                        } else { # friends only
+                            $$body .=" p?><?p $ML{'.extradata.sec.access'}";
+                        }
+                    } else {
+                        $$body .=" p?><?p $ML{'.extradata.sec.public'}";
+                    }
+                
+                    $$body .=" p?><?p " . BML::ml('.extradata.subject', { subject =>LJ::ehtml( $req{"subject"} ) });
 
                     my $backdatedlink = '';
                     if ( $POST{prop_opt_backdated} or $GET{prop_opt_backdated} ) {
