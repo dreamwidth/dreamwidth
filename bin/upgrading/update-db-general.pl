@@ -4173,6 +4173,13 @@ EOF
         do_sql( 'DELETE FROM codes WHERE type = "country"' );
         set_dbnote( 'remove_countries_from_codes', 1 );
     }
+
+    # widen ip column for IPv6 addresses
+    if ( column_type("spamreports", "ip") eq "varchar(15)" ) {
+        do_alter( "spamreports",
+                  "ALTER TABLE spamreports ".
+                  "MODIFY ip VARCHAR(39)" );
+    }
 });
 
 

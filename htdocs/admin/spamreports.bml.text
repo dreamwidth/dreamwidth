@@ -33,6 +33,8 @@
 .report.individual.sysban.anon=anonymous spamreports
 .report.individual.sysban.done=Already talk_ip_test banned
 .report.individual.sysban.ip=Also Sysban IP?
+.report.individual.sysban.ip4only=(only IPv4 addresses may be sysbanned)
+.report.individual.sysban.ip.invalid=(sysban unavailable: invalid IP address)
 .report.individual.sysban.nonote=(no note)
 
 .reports.anon=anonymous
