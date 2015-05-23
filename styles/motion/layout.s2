@@ -531,6 +531,8 @@ $userpic_css
     border-radius:4px
     }
 
+.entry .userpic img, .comment .userpic img { display:block;}
+
 .module .userpic { float: left;}
 
 .userpic a{ border:0;}
