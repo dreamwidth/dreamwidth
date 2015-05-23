@@ -293,6 +293,7 @@ sub _init {
     my $panels;
     my $formwidth;
     my $min_animation;
+    my $displaydate_check;
     if ( $u ) {
         # icons
         @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
@@ -344,6 +345,7 @@ sub _init {
         $panels = $u->entryform_panels;
         $formwidth = $u->entryform_width;
         $min_animation = $u->prop( "js_animations_minimal" ) ? 1 : 0;
+        $displaydate_check = $u->displaydate_check ? 1 : 0;
     } else {
         $panels = LJ::User::default_entryform_panels( anonymous => 1 );
     }
@@ -451,6 +453,7 @@ sub _init {
         sticky_entry => $form_opts->{sticky_entry},
 
         displaydate => \%displaydate,
+        displaydate_check => $displaydate_check,
 
 
         can_spellcheck => $LJ::SPELLER,
@@ -789,6 +792,8 @@ sub _form_to_backend {
         $req->{hour}    = $hour;
         $req->{min}     = $min;
     }
+    
+    $req->{update_displaydate} = $post->{update_displaydate};
 
     # crosspost
     $req->{crosspost_entry} = $post->{crosspost_entry} ? 1 : 0;
@@ -1203,6 +1208,8 @@ sub _persist_props {
     my ( $u, $form ) = @_;
 
     return unless $u;
+    
+    $u->displaydate_check($form->{update_displaydate} ? 1 : 0);
 # FIXME:
 #
 #                 # persist the default value of the disable auto-formatting option
