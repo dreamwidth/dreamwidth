@@ -1170,6 +1170,8 @@ q {
     overflow: hidden;
 }
 
+.entry .userpic img, .comment .userpic img {display:block;}
+
 .has-userpic .userpic {
     $userpic_css
     padding: 10px;
