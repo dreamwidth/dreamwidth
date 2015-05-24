@@ -527,6 +527,16 @@ sub disable_auto_formatting {
     return $u->prop( 'disable_auto_formatting' ) ? 1 : 0;
 }
 
+sub displaydate_check {
+    my ( $u, $value ) = @_;
+    if ( defined $value && $value =~ /[01]/ ) {
+        $u->set_prop( displaydate_check => $value );
+        return $value;
+    }
+
+    return $u->prop( 'displaydate_check' ) ? 1 : 0;
+}
+
 sub exclude_from_own_stats {
     my $u = shift;
 

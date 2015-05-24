@@ -673,6 +673,7 @@ var postForm = (function($) {
         initSticky(entryForm);
 
         $("#js-usejournal").triggerHandler("change");
+        $("#js-entrytime-autoupdate").triggerHandler("click");
     };
 
     return {
