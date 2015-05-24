@@ -38,13 +38,21 @@ sub get_url_signature {
 }
 
 sub get_proxy_url {
-    my ( $url ) = @_;
+    my ( $url, %opts ) = @_;
     return undef unless $LJ::PROXY_URL && substr($url, 0, 7) eq 'http://';
 
     my $signature = DW::Proxy::get_url_signature($url);
     return undef unless $signature;
 
-    return join('/', $LJ::PROXY_URL, $signature, substr($url, 7));
+    my $source = "-";
+    if ( $opts{journal} && $opts{ditemid} ) {
+        my $journalu = LJ::load_user($opts{journal});
+        if ( $journalu ) {
+            $source = "$journalu->{userid}-$opts{ditemid}";
+        }
+    }
+
+    return join('/', $LJ::PROXY_URL, $signature, $source, substr($url, 7));
 }
 
 1;
