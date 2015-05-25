@@ -1129,7 +1129,7 @@ sub _do_edit {
         if ( $form_req->{sticky_entry} ) {
             $journal->sticky_entry_new( $ditemid )
                 unless $is_sticky_entry;
-        } else {
+        } elsif ( $form_req->{sticky_select} ) {
             $journal->sticky_entry_remove( $ditemid )
                 if $is_sticky_entry;
         }
