@@ -559,6 +559,8 @@ ul.module-list li {
 
 ul.module-list li:hover {background: $*color_module_list_background_hover;}
 
+.module-tags_multilevel li li {border:0; padding-bottom: 0px; padding-left: .5em;}
+
 .module-navlinks, .module-navlinks a {
     color: $*color_module_title;
     font-family: $*font_module_heading;
