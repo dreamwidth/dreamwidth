@@ -197,7 +197,7 @@ sub new_handler {
     my $post;
     my $get;
 
-    return error_ml( 'bml.badinput.body' ) unless LJ::text_in( $post );
+    return error_ml( 'bml.badinput.body1' ) unless LJ::text_in( $post );
     return error_ml( '/communities/new.tt.error.notactive' ) unless $remote->is_visible;
     return error_ml( '/communities/new.tt.error.notconfirmed', {
             confirm_url => "$LJ::SITEROOT/register",

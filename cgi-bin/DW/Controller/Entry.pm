@@ -159,7 +159,7 @@ sub new_handler {
         my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
-        $errors->add( undef, 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in( $post );
 
         my $okay_formauth = ! $remote || LJ::check_form_auth( $post->{lj_form_auth} );
@@ -513,7 +513,7 @@ sub _edit {
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
         my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
 
-        $errors->add( undef, 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in( $post );
 
 
