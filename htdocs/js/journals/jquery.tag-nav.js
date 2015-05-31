@@ -8,6 +8,7 @@
     function collapsed($trigger) {
         $trigger.attr("aria-expanded", "false");
         $trigger.attr("alt", "Show tag navigation");
+        $trigger.attr("title", "Tag navigation: Select this button, then a tag, then use the arrows displayed to navigate through entries with that tag.");
         $trigger.attr("src", Site.imgprefix + "/silk/site/add.png");
     }
 
