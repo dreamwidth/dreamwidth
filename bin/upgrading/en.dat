@@ -7,7 +7,7 @@ Backlink=[<a href="[[link]]">&lt;&lt;</a> [[text]]]
 
 bml.badcontent.body=One or more errors occurred processing your request.  Please go back, correct the necessary information, and submit your data again.
 
-bml.badinput.body=Your browser sent some text which isn't recognised as valid text in the UTF-8 encoding. This might happen if you forced your browser to view the previous page in some encoding other than UTF-8. It may also indicate a bug in the browser. If you can't get around this error, contact us.
+bml.badinput.body1=Your browser sent some text which isn't recognised as valid text in the UTF-8 encoding. This might happen if you forced your browser to view the previous page in some encoding other than UTF-8. It may also indicate a bug in the browser. Try copying the text into a text editor such as Notepad, then copying it back into the text box. If you still can't get around this error, contact us.
 
 bml.badinput.head=Bad Unicode Input
 

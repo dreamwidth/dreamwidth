@@ -32,7 +32,7 @@ ENTRYFORMCSS<=
 
 BADINPUT<=
 <?h1 <?_ml bml.badinput.head _ml?> h1?>
-<?p <?_ml bml.badinput.body _ml?> p?>
+<?p <?_ml bml.badinput.body1 _ml?> p?>
 <=BADINPUT
 
 REQUIREPOST=><?_ml bml.requirepost _ml?>
