@@ -4178,7 +4178,7 @@ EOF
     if ( column_type("spamreports", "ip") eq "varchar(15)" ) {
         do_alter( "spamreports",
                   "ALTER TABLE spamreports ".
-                  "MODIFY ip VARCHAR(39)" );
+                  "MODIFY ip VARCHAR(45)" );
     }
 });
 

@@ -44,37 +44,6 @@ _c?>
             $extra .
             "</form>";
     };
-    my $verify_ipv6 = sub {
-        my ( $ip ) = @_;
-        # first check for correct set of characters: hex digits and colons
-        return 0 unless $ip =~ /^[:0-9a-f]+$/i;
-
-        # next check for omitted zero values and replace them
-        if ( $ip =~ /::/ ) {
-            # count the number of non-omitted fields
-            my @count = ( $ip =~ m/[0-9a-f]+/gi );
-            my $num_z = 8 - scalar @count;
-            return 0 unless $num_z > 0;
-
-            my $zeroes = join ':', ( split //, '0' x $num_z );
-
-            # this is obnoxious, but necessary to avoid edge cases
-            if   ( $ip =~ /^::$/ ) { $ip =~ s/::/$zeroes/;   }
-            elsif ( $ip =~ /^::/ ) { $ip =~ s/::/$zeroes:/;  }
-            elsif ( $ip =~ /::$/ ) { $ip =~ s/::/:$zeroes/;  }
-            else                   { $ip =~ s/::/:$zeroes:/; }
-        }
-
-        # now make sure we have eight colon-separated hex fields
-        my @digits = split /:/, $ip;
-        return 0 unless scalar @digits == 8;
-
-        foreach my $field ( @digits ) {
-            return 0 unless $field =~ /^[0-9a-f]{1,4}$/i;
-        }
-
-        return 1;  # all our tests passed
-    };
 
     # login check
     my $remote = LJ::get_remote();
@@ -276,7 +245,7 @@ _c?>
             # don't worry about IP format, just do a length check
             # if the IP is in the results table, we consider it valid
             # if it's not, we'll get a noreports error below, so it's all good
-            return $error->('<?_ml .error.noip _ml?>') if length $what > 39;
+            return $error->('<?_ml .error.noip _ml?>') if length $what > 45;
         }
 
         # see if we should call a hook for extra actions?
@@ -340,8 +309,6 @@ _c?>
                     $extra .= "<br/><textarea name='sysban_note' rows='3' cols='60'> ~";
                     $extra .= LJ::ehtml( $remote->username . " @ " . LJ::mysql_time() );
                     $extra .= "</textarea>";
-                } elsif ( $verify_ipv6->( $what ) ) {
-                    $extra = BML::ml( ".report.individual.sysban.ip4only" );
                 } else {
                     $extra = BML::ml( ".report.individual.sysban.ip.invalid" );
                 }
