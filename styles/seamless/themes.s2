@@ -1,0 +1,58 @@
+#NEWLAYER: seamless/pinkenvy
+layerinfo type = "theme";
+layerinfo name = "Pink Envy";
+layerinfo redist_uniq = "seamless/pinkenvy";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#F4F5E6";
+set color_page_link = "#E86197";
+set color_page_link_hover = "#82D4BA";
+set color_page_subtitle = "#E86197";
+set color_page_text = "#6C5C5C";
+set color_page_title = "#857575";
+set color_header_link = "#82D4BA";
+set color_header_link_hover = "#E86197";
+set color_calendar_entry = "#F4F5E6";
+set color_calendar_header = "#fefff0";
+set color_calendar_header_background = "#857575";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fefff0";
+set color_entry_border = "#857575";
+set color_entry_interaction_links = "#857575";
+set color_entry_title = "#fefff0";
+set color_entry_title_background = "#82D4BA";
+set color_metadata_text = "#E86197";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fefff0";
+set color_module_border = "#857575";
+set color_module_calendar_entry = "#F4F5E6";
+set color_module_calendar_header = "#fefff0";
+set color_module_calendar_header_background = "#857575";
+set color_module_link = "#5BA890";
+set color_module_title = "#fefff0";
+set color_module_title_background = "#E86197";
+
+##===============================
+## Fonts
+##===============================
+
+set font_entry_title_size = "2";
+set font_entry_title_units = "em";
+set font_journal_subtitle_size = "2";
+set font_journal_subtitle_units = "em";
+set font_journal_title_size = "3";
+set font_journal_title_units = "em";

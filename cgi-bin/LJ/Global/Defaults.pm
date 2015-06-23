@@ -68,8 +68,9 @@ no strict "vars";
     $WSTATPREFIX ||= "$SITEROOT/stc";
     $JSPREFIX ||= "$SITEROOT/js";
     $USERPIC_ROOT ||= "$LJ::SITEROOT/userpic";
-    $PALIMGROOT ||= "$LJ::SITEROOT/palimg";
+
     $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
+    $PALIMGROOT ||= "$RELATIVE_SITEROOT/palimg";
 
     # path to sendmail and any necessary options
     $SENDMAIL ||= "/usr/sbin/sendmail -t -oi";

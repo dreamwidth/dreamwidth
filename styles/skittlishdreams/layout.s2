@@ -939,7 +939,7 @@ html body {
     top: $comment_userpic_shift;
     }
 
-.entry .userpic img, .comment .userpic img {border: none; }
+.entry .userpic img, .comment .userpic img {border: none; display:block;}
 .no-userpic .comment {margin-top: 20px; }
 
 .no-userpic .comment-title {

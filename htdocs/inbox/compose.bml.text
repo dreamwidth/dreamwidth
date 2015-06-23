@@ -23,6 +23,10 @@
 
 .link.send.message=Send a new message
 
+.link.view.message=View your message
+
+.link.view.warning=(If your message doesn't appear yet, please wait a few minutes and refresh the page.)
+
 .message.sent=Your message has been sent successfully.
 
 .message.sent.options=From here you can:

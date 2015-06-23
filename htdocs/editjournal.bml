@@ -346,6 +346,22 @@ body<=
                         $result .= "<?p " . BML::ml('.success.editedstillsuspended', { aopts => "href='$LJ::SITEROOT/abuse/report'" }) . " p?>";
                     }
                 }
+                
+                if ($req{"security"} eq "private") {
+                    $result .="<p>$ML{'.extradata.sec.private'}</p>";
+                } elsif ($req{"security"} eq "usemask") {
+                    if ($req{"allowmask"} == 0) { # custom security with no group -- essentially private
+                        $result .="<p>$ML{'.extradata.sec.private'}</p>";
+                    } elsif ($req{"allowmask"} > 1) { # custom group
+                        $result .="<p>$ML{'.extradata.sec.custom'}</p>";
+                    } else { # friends only
+                        $result .="<p>$ML{'.extradata.sec.access'}</p>";
+                    }
+                } else {
+                    $result .="<p>$ML{'.extradata.sec.public'}</p>";
+                }
+                
+                $result .="<?p " . BML::ml('.extradata.subject', { subject => LJ::ehtml( $req{"subject"} ) }) . " p?>";
 
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
                 $result .= "<li><a href='$entry_url'>$ML{'.success.fromhere.viewentry'}</a></li>" unless $deleted;
