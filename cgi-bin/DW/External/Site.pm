@@ -31,7 +31,8 @@ LJ::ModuleLoader->require_subclasses( "DW::External::Site" );
 my %domaintosite;
 my %idtosite;
 
-# static initializers
+### static initializers
+# with tld
 $domaintosite{"livejournal.com"} = DW::External::Site->new("2", "www.livejournal.com", "livejournal.com", "LiveJournal", "lj");
 $domaintosite{"insanejournal.com"} = DW::External::Site->new("3", "www.insanejournal.com", "insanejournal.com", "InsaneJournal", "lj");
 $domaintosite{"deadjournal.com"} = DW::External::Site->new("4", "www.deadjournal.com", "deadjournal.com", "DeadJournal", "lj");
@@ -57,6 +58,39 @@ $domaintosite{"pinterest.com"} = DW::External::Site->new("22", "www.pinterest.co
 $domaintosite{"youtube.com"} = DW::External::Site->new("23", "www.youtube.com", "youtube.com", "YouTube", "yt");
 $domaintosite{"github.com"} = DW::External::Site->new("24", "www.github.com", "github.com", "github", "gh"); 
 
++# without tld
++$domaintosite{"livejournal"} = $domaintosite{"livejournal.com"};
++$domaintosite{"lj"} = $domaintosite{"livejournal.com"};
++$domaintosite{"insanejournal"} = $domaintosite{ "insanejournal.com"};
++$domaintosite{"ij"} = $domaintosite{ "insanejournal.com"};
++$domaintosite{"deadjournal"} = $domaintosite{"deadjournal.com"};
++$domaintosite{"dj"} = $domaintosite{"deadjournal.com"};
++$domaintosite{"deviantart"} = $domaintosite{"deviantart.com"};
++$domaintosite{"da"} = $domaintosite{"deviantart.com"};
++$domaintosite{"inksome"} = $domaintosite{"inksome.com"};
++$domaintosite{"journalfen"} = $domaintosite{"journalfen.net"};
++$domaintosite{"jf"} = $domaintosite{"journalfen.net"};
++$domaintosite{"dreamwidth"} = $domaintosite{"dreamwidth.org"};
++$domaintosite{"dw"} = $domaintosite{"dreamwidth.org"};
++$domaintosite{"archiveofourown"} = $domaintosite{"archiveofourown.org"};
++$domaintosite{"ao3"} = $domaintosite{"archiveofourown.org"};
++$domaintosite{"twitter"} = $domaintosite{"twitter.com"};
++$domaintosite{"tumblr"} = $domaintosite{"tumblr.com"};
++$domaintosite{"etsy"} = $domaintosite{"etsy.com"};
++$domaintosite{"diigo"} = $domaintosite{"diigo.com"};
++$domaintosite{"blogspot"} = $domaintosite{"blogspot.com"};
++$domaintosite{"blogger.com"} = $domaintosite{"blogspot.com"};
++$domaintosite{"blogger"} = $domaintosite{"blogspot.com"};
++$domaintosite{"delicious"} = $domaintosite{"delicious.com"};
++$domaintosite{"deviantart"} = $domaintosite{"deviantart.com"};
++$domaintosite{"ravelry"} = $domaintosite{"ravelry.com"};
++$domaintosite{"wordpress"} = $domaintosite{"wordpress.com"};
++$domaintosite{"plurk"} = $domaintosite{"plurk.com"};
++$domaintosite{"pinboard"} = $domaintosite{"pinboard.in"};
++$domaintosite{"ffn"} = $domaintosite{"fanfiction.net"};
++$domaintosite{"pinterest"} = $domaintosite{"pinterest.com"};
++$domaintosite{"youtube"} = $domaintosite{"youtube.com"};
++$domaintosite{"github"} = $domaintosite{"github.com"}; 
 
 foreach my $value (values %domaintosite) {
     $idtosite{$value->{siteid}} = $value;
@@ -96,7 +130,8 @@ sub get_site {
                 map { lc $_ }
                 split( /\./, $site );
 
-    return $domaintosite{"$parts[-2].$parts[-1]"} || DW::External::Site::Unknown->accepts( \@parts ) || undef;
+    return $domaintosite{"$parts[-2].$parts[-1]"} || $domaintosite{"$parts[-1]"}  || 
+           DW::External::Site::Unknown->accepts( \@parts ) || undef;
 }
 
 
