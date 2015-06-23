@@ -34,7 +34,6 @@ BEGIN {
 
 # now that the library is setup, we can start pulling things in.  start with
 # the configuration library we need.
-use lib "$LJ::HOME/cgi-bin";
 use LJ::Config;
 
 BEGIN {
