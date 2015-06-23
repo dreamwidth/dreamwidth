@@ -30,7 +30,7 @@
 #
 
 use strict;
-require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use Getopt::Long;
 use POSIX qw(:sys_wait_h);
 use Danga::Daemon;

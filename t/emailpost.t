@@ -18,8 +18,7 @@ use warnings;
 
 use Test::More tests => 19;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::EmailPost;
 use LJ::Emailpost::Web;

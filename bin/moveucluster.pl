@@ -91,9 +91,10 @@ use Getopt::Long;
 use Pod::Usage qw{pod2usage};
 use IO::Socket::INET;
 
-require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
-
-BEGIN { $LJ::_T_CONFIG = $ENV{DW_TEST}; };
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+    $LJ::_T_CONFIG = $ENV{DW_TEST};
+};
 
 # NOTE: these options are used both by Getopt::Long for command-line parsing
 # in single user move move, and also set by hand when in --jobserver mode,

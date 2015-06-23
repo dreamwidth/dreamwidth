@@ -16,7 +16,7 @@
 
 use strict;
 
-require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use DW::Captcha;
 use DW::Captcha::textCAPTCHA;
 

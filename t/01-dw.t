@@ -16,7 +16,7 @@ use warnings;
 
 use Test::More tests => 3;
 
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 
 use_ok('DW');
 

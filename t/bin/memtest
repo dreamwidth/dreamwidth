@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 LJ::Worker::Test->set_memory_limit(40*1024*1024); # 80MB memory limit
 LJ::Worker::Test->run;
 

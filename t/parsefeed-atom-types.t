@@ -20,10 +20,8 @@ use warnings;
 
 use Test::More;
 
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::ParseFeed;
-BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 
 #plan tests => 16;
 plan skip_all => 'Fix this test!';

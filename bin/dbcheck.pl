@@ -15,7 +15,7 @@
 
 use strict;
 
-require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use LJ::DB;
 
 use DBI;

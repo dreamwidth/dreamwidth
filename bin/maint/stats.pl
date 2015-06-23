@@ -17,7 +17,7 @@
 use strict;
 our %maint;
 
-require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use LJ::Stats;
 
 # filled in by ljmaint.pl, 0=quiet, 1=normal, 2=verbose
