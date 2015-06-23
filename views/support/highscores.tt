@@ -1,0 +1,49 @@
+[%# highscores.tt
+
+Support High Scores page
+
+Authors:
+    hotlevel4 <hotlevel4@hotmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.title = '.title' | ml -%]
+
+[% IF warn_nodata %]
+    <blockquote>[% '.warn.support' | ml %]</blockquote>
+[% ELSE %]
+    <table id='support-highscores'><thead><tr>
+        <th>[% '.header.rank' | ml %]</th>
+        <th>[% '.header.delta' | ml %]</th>
+        <th>[% '.header.user' | ml %]</th>
+        <th>[% '.header.points' | ml %]</th>
+    </tr></thead>
+    [% FOREACH row = scores %]
+        <tr><td align="right">[% row.rank %].</td>
+        <td>
+            [% IF row.change > 0 %]
+                <font color="#00dd00">(+[% row.change %])</font>
+            [% ELSIF row.change < 0 %]
+                <font color="#dd0000">([% row.change %])</font>
+            [% END %]
+        </td>
+        <td>[% row.ljname %] - [% row.name %]</td>
+        <td><b>[% row.points %] point[% row.s %]</b></td></tr>
+    [% END %]
+    </table>
+    <p><b>[% total %]</b> [% '.down.text' | ml(count = count) %]</p>
+    [% INCLUDE components/pagination.tt
+        current => pages.current,
+        total_pages => pages.total_pages 
+    %]
+[% END %]
+
+<hr>
+
+[% '.backlink' | ml ( backurl = 'href="./"' ) %]

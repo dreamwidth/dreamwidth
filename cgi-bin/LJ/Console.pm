@@ -197,7 +197,9 @@ sub command_reference_html {
 
         $ret .= "<hr /><div class='$style'><h2 id='cmd.$cmd'><code><b>$cmd</b> ";
         $ret .= LJ::ehtml($class->usage);
-        $ret .= "</code></h2>\n";
+        $ret .= "</code>";
+        $ret .= " (unavailable)" unless $class->can_execute;
+        $ret .= "</h2>\n";
         $ret .= "<p><em><?_ml error.console.notpermitted _ml?></em></p>" unless $class->can_execute;
 
         $ret .= $class->desc;
