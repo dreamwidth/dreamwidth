@@ -15,7 +15,6 @@ package LJ::OpenID;
 
 use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
-use LWPx::ParanoidAgent;
 use LJ::OpenID::Cache;
 
 BEGIN {
@@ -66,10 +65,9 @@ sub consumer {
 
     my $ua;
     unless ($LJ::IS_DEV_SERVER) {
-        $ua = LWPx::ParanoidAgent->new(
-                                       timeout => 10,
-                                       max_size => 1024*300,
-                                       );
+        $ua = LJ::get_useragent( role => "OpenID",
+                                 timeout => 10,
+                                 max_size => 1024*300, );
     }
 
     my $cache = undef;

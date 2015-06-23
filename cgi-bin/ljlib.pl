@@ -975,7 +975,7 @@ sub error
 *errobj = \&LJ::Error::errobj;
 *throw = \&LJ::Error::throw;
 
-# Returns a LWP::UserAgent or LWPx::Paranoid agent depending on role
+# Returns a LWP::UserAgent or LWP::UserAgent::Paranoid agent depending on role
 # passed in by the caller.
 # Des-%opts:
 #           role     => what is this UA being used for? (required)
@@ -986,6 +986,7 @@ sub get_useragent {
 
     my $timeout  = $opts{'timeout'}  || 10;
     my $max_size = $opts{'max_size'} || undef;
+    my $agent    = $opts{'agent'};
     my $role     = $opts{'role'};
     return unless $role;
 
@@ -997,10 +998,11 @@ sub get_useragent {
         request_timeout  => $timeout,
         max_size => $max_size,
         ssl_opts => {
-            verify_hostname => 1,
-            ca_file => Mozilla::CA::SSL_ca_file()
+            # FIXME: we still need verify_hostname off. Investigate.
+            verify_hostname => 0,
+            #ca_file => Mozilla::CA::SSL_ca_file()
         });
-
+    #$ua->agent($agent) if $agent;
     return $ua;
 }
 
