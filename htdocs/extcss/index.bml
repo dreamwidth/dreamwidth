@@ -16,7 +16,6 @@ _c?>
 {
     use strict;
     use vars qw(%GET %POST);
-    use LWPx::ParanoidAgent;
     use LJ::CSS::Cleaner;
     use Digest::SHA1;
     use URI::URL;
@@ -45,7 +44,7 @@ _c?>
         return $clean;
     }
 
-    my $ua = LWPx::ParanoidAgent->new(
+    my $ua = LJ::get_useragent(       role => "extcss",
                                       timeout => $LJ::CSS_FETCH_TIMEOUT || 2,
                                       max_size => 1024*300,
                                       );

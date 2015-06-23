@@ -235,7 +235,6 @@ my %modules = (
                     deb => 'libio-aio-perl',
                     opt => 'Required for Perlbal',
                  },
-               "LWPx::ParanoidAgent" => { ver => '1.10' },
                "MogileFS::Client" => {
                    ver => '1.12',
                },
@@ -270,6 +269,9 @@ my %modules = (
                "List::MoreUtils" => {},
                "Locale::Country" => { ver => '3.32' },
                "Net::SMTPS" => {},
+               "IO::Socket::SSL" => {},
+               "LWP::UserAgent::Paranoid" => {},
+               "Mozilla::CA" => {},
               );
 
 

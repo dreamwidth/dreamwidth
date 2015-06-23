@@ -17,15 +17,14 @@ use strict;
 
 use Carp qw/ croak /;
 use Storable qw/ nfreeze /;
-use LWPx::ParanoidAgent;
 
 # timeout interval - to avoid hammering the remote site,
 # wait 30 minutes before trying again for this user
 sub wait { return 1800; }
 
 sub agent {
-    return LWPx::ParanoidAgent->new( agent => "$LJ::SITENAME Userinfo; $LJ::ADMIN_EMAIL",
-                                     max_size => 10240 );
+    return LJ::get_useragent( role => 'userinfo', agent => "$LJ::SITENAME Userinfo; $LJ::ADMIN_EMAIL",
+                          max_size => 10240 );
 }
 
 

@@ -16,6 +16,7 @@ package LJ;
 use strict;
 no warnings 'uninitialized';
 
+
 BEGIN {
     # ugly hack to shutup dependent libraries which sometimes want to bring in
     # ljlib.pl (via require, ick!).  so this lets them know if it's recursive.
@@ -79,6 +80,9 @@ use LJ::ConvUTF8;
 use LJ::Userpic;
 use LJ::ModuleCheck;
 use IO::Socket::INET;
+use IO::Socket::SSL;
+use Mozilla::CA;
+
 use LJ::UniqCookie;
 use LJ::WorkerResultStorage;
 use LJ::EventLogRecord;
@@ -102,6 +106,8 @@ use DW::Media;
 use DW::Stats;
 use DW::Proxy;
 
+$Net::HTTPS::SSL_SOCKET_CLASS = "IO::Socket::SSL";
+
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
     die "Unknown subroutine $Unicode::MapUTF8::AUTOLOAD"
@@ -112,9 +118,6 @@ sub Unicode::MapUTF8::AUTOLOAD {
 }
 
 sub END { LJ::end_request(); }
-
-# Fix "(Net::SSL from Crypt-SSLeay can't verify hostnames)" [ see bug 5280 ]
-$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
 
 require "$LJ::HOME/cgi-bin/ljlib-local.pl"
     if -e "$LJ::HOME/cgi-bin/ljlib-local.pl";
@@ -972,7 +975,7 @@ sub error
 *errobj = \&LJ::Error::errobj;
 *throw = \&LJ::Error::throw;
 
-# Returns a LWP::UserAgent or LWPx::Paranoid agent depending on role
+# Returns a LWP::UserAgent or LWP::UserAgent::Paranoid agent depending on role
 # passed in by the caller.
 # Des-%opts:
 #           role     => what is this UA being used for? (required)
@@ -983,18 +986,23 @@ sub get_useragent {
 
     my $timeout  = $opts{'timeout'}  || 10;
     my $max_size = $opts{'max_size'} || undef;
+    my $agent    = $opts{'agent'};
     my $role     = $opts{'role'};
     return unless $role;
 
-    my $lib = 'LWPx::ParanoidAgent';
+    my $lib = 'LWP::UserAgent::Paranoid';
     $lib = $LJ::USERAGENT_LIB{$role} if defined $LJ::USERAGENT_LIB{$role};
 
     eval "require $lib";
     my $ua = $lib->new(
-                       timeout  => $timeout,
-                       max_size => $max_size,
-                       );
-
+        request_timeout  => $timeout,
+        max_size => $max_size,
+        ssl_opts => {
+            # FIXME: we still need verify_hostname off. Investigate.
+            verify_hostname => 0,
+            #ca_file => Mozilla::CA::SSL_ca_file()
+        });
+    #$ua->agent($agent) if $agent;
     return $ua;
 }
 
