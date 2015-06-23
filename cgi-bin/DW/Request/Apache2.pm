@@ -170,7 +170,7 @@ sub err_header_out_add {
 # returns the ip address of the connected person
 sub get_remote_ip {
     my DW::Request::Apache2 $self = $_[0];
-    return $self->{r}->connection->remote_ip;
+    return $self->{r}->connection->client_ip;
 }
 
 # sets last modified
