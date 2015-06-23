@@ -14,7 +14,6 @@
 #
 # Wrapper around MemCachedClient
 
-use lib "$LJ::HOME/cgi-bin";
 use Cache::Memcached;
 use strict;
 

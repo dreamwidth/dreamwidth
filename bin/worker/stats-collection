@@ -21,10 +21,8 @@ DW::Worker::StatsCollection - Collect statistics
 =cut
 
 use strict;
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN {
-    require 'ljlib.pl';
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
 use YAML;

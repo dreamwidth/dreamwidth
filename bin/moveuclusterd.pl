@@ -114,8 +114,7 @@ BEGIN {
     use constant TRUE   => 1;
     use constant FALSE  => 0;
 
-    use lib "$ENV{LJHOME}/cgi-bin";
-    require "ljlib.pl";
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 
     # Modules
     use Carp                qw{croak confess};
@@ -310,8 +309,7 @@ BEGIN {
         'recentmoves',          # Timed buffer of recently-completed jobs
        );
 
-    use lib "$ENV{LJHOME}/cgi-bin";
-    require 'ljlib.pl';
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 
     use base qw{fields};
 }
@@ -1440,8 +1438,7 @@ BEGIN {
     use Time::HiRes     qw{time};
     use Scalar::Util    qw{blessed};
 
-    use lib "$ENV{LJHOME}/cgi-bin";
-    require 'ljlib.pl';
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
     use LJ::Config;
     LJ::Config->load;
 

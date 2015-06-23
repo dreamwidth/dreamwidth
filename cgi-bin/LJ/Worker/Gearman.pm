@@ -13,12 +13,11 @@
 
 package LJ::Worker::Gearman;
 use strict;
-use lib "$LJ::HOME/cgi-bin";
 use Gearman::Worker;
 use base "LJ::Worker", "Exporter";
 use LJ::WorkerResultStorage;
 
-require "ljlib.pl";
+require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 use Getopt::Long;
 use IO::Socket::INET ();
 use Carp qw(croak);

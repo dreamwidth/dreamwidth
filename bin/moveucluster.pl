@@ -91,8 +91,7 @@ use Getopt::Long;
 use Pod::Usage qw{pod2usage};
 use IO::Socket::INET;
 
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
+require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
 
 BEGIN { $LJ::_T_CONFIG = $ENV{DW_TEST}; };
 

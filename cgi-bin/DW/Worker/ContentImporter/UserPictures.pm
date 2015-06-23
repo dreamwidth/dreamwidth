@@ -21,8 +21,7 @@ use Storable qw(thaw);
 
 use DW::Worker::ContentImporter;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 
 use base 'TheSchwartz::Worker';
 

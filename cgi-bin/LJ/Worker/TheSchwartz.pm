@@ -13,10 +13,9 @@
 
 package LJ::Worker::TheSchwartz;
 use strict;
-use lib "$LJ::HOME/cgi-bin";
 use base "LJ::Worker", "Exporter";
 
-require "ljlib.pl";
+require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 use Getopt::Long;
 
 my $interval = 5;

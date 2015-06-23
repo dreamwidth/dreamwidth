@@ -13,10 +13,9 @@
 # part of this distribution.
 
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
 use Carp;
 BEGIN {
-    require 'ljlib.pl';
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 use LJ::UserSearch::MetaUpdater;
 

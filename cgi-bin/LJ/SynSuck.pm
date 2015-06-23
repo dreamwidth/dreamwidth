@@ -15,7 +15,6 @@ package LJ::SynSuck;
 use strict;
 use HTTP::Status;
 
-use lib "$LJ::HOME/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
 use LJ::Protocol;
 use LJ::ParseFeed;
 use LJ::CleanHTML;
