@@ -95,7 +95,7 @@ sub handler
             # by the fact that mod_proxy did nothing, requiring mod_proxy_add_forward, then
             # decided to do X-Forwarded-For, then did X-Forwarded-Host, so we have to deal
             # with all permutations of versions, hence all the ugliness:
-            @req_hosts = ($apache_r->connection->remote_ip);
+            @req_hosts = ($apache_r->connection->client_ip);
             if (my $forward = $apache_r->headers_in->{'X-Forwarded-For'})
             {
                 my (@hosts, %seen);
@@ -106,7 +106,7 @@ sub handler
                 }
                 if (@hosts) {
                     my $real = shift @hosts;
-                    $apache_r->connection->remote_ip($real);
+                    $apache_r->connection->client_ip($real);
                 }
                 $apache_r->headers_in->{'X-Forwarded-For'} = join(", ", @hosts);
             }

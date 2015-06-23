@@ -1916,7 +1916,7 @@ sub get_path_info
 sub get_remote_ip
 {
     my $apache_r = BML::get_request();
-    return $apache_r->connection()->remote_ip;
+    return $apache_r->connection()->client_ip;
 }
 
 sub get_remote_host
