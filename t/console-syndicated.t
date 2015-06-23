@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More tests => 10;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
 use LJ::Test qw (temp_user temp_feed);
 local $LJ::T_NO_COMMAND_PRINT = 1;

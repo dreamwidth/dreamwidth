@@ -19,8 +19,7 @@ use warnings;
 
 use Test::More tests => 175;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use LJ::CleanHTML;
 use LJ::EmbedModule;

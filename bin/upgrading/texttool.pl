@@ -18,10 +18,8 @@
 #
 
 use strict;
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
 
-BEGIN { $LJ::_T_CONFIG = $ENV{DW_TEST}; require "ljlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = $ENV{DW_TEST}; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use File::Basename ();
 use File::Path ();
 use File::Find ();

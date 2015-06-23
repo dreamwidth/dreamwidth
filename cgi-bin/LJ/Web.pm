@@ -17,7 +17,6 @@
 package LJ;
 use strict;
 
-use lib "$LJ::HOME/cgi-bin";
 
 use Carp;
 use POSIX;

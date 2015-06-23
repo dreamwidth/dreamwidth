@@ -18,8 +18,7 @@ use warnings;
 
 use Test::More tests => 22;
 
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use LJ::TextUtil;
 
 note("html breaks");

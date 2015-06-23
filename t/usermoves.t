@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Event;
 use FindBin qw($Bin);
 

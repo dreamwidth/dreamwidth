@@ -33,7 +33,6 @@ no warnings 'uninitialized';
 ### Begin LJ::User functions
 
 package LJ::User;
-use lib "$LJ::HOME/cgi-bin";
 use LJ::MemCache;
 
 use DW::Logic::ProfilePage;

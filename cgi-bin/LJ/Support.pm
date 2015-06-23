@@ -16,7 +16,6 @@ use strict;
 
 use Digest::MD5 qw(md5_hex);
 
-use lib "$LJ::HOME/cgi-bin";
 use LJ::Sysban;
 use LJ::Faq;
 

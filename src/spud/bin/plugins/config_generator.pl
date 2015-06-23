@@ -14,8 +14,7 @@ use MogileFS::Admin;
 # up if we want.  in this case we just load the LJ libraries.
 sub register {
     # load up our livejournal files
-    use lib "$ENV{LJHOME}/cgi-bin";
-    require 'ljlib.pl';
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 
     # signal success if we get here
     return 1;

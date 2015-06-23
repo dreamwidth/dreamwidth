@@ -14,8 +14,7 @@
 package LJ::Procnotify;
 
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 
 
 # <LJFUNC>

@@ -33,9 +33,7 @@ fi
 perl -e '
 use strict;
 
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require "ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Directories;
 
 # look up all instances of the directory in various subfolders
