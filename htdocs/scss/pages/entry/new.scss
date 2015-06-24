@@ -4,6 +4,11 @@
     text-align: left;
 }
 
+.no-js button.postfix.fi-icon--with-fallback {
+    padding: 0 0.75em;
+    font-size: 1em;
+}
+
 @media #{$medium-up} {
     .components {
         padding: 0 .45rem;
