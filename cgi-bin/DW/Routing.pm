@@ -521,55 +521,6 @@ sub register_api_endpoint {
     croak 'register_api_endpoint must have version option'
         unless exists $opts{version};
 
-    # Ensure these opts are correct
-    $opts{api} = 1;
-    $opts{app} = 0;
-    $opts{user} = 0;
-
-    my $hash = _apply_defaults( \%opts, {
-        sub    => $sub,
-        format => 'json',
-    });
-
-    my $vers = ref $opts{version} eq 'ARRAY' ? $opts{version} :
-        [ $opts{version} + 0 ];
-    croak 'register_api_version requires all versions >= 1'
-        if grep { $_ <= 0 } @$vers;
-
-    $hash->{api_versions} = $vers;
-
-    # Now register this string at all versions that they gave us.
-    $string_choices{"api/v$_$string"} = $hash
-        foreach @$vers;
-}
-
-# internal helper for speed construction ...
-sub register_api_endpoints {
-    my $class = shift;
-    foreach my $row ( @_ ) {
-        $class->register_api_endpoint( $row->[0], $row->[1], version => $row->[2] );
-    }
-}
-
-=head2 C<< $class->register_api_endpoint( $string, $sub, %opts ) >>
-
-=over
-
-=item string
-
-=item sub - sub
-
-=item opts (see register_string)
-
-=back
-
-=cut
-
-sub register_api_endpoint {
-    my ( $class, $string, $sub, %opts ) = @_;
-    croak 'register_api_endpoint must have version option'
-        unless exists $opts{version};
-
     my $hash = _apply_defaults( \%opts, {
         sub    => $sub,
         format => 'json',
