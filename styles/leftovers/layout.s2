@@ -115,6 +115,14 @@ li.page-separator { display: none; }
 
 div.navigation ul { display: inline; padding: 0; margin: 0; }
 
+#secondary > .inner:first-child, #tertiary > .inner:first-child {
+padding: 0 ;
+}
+
+#secondary > .inner:first-child, #tertiary > .inner:first-child {
+padding: 1em 0 ;
+}
+
 
 
 /*------------------------------------- header & footer -------------------------------------*/
