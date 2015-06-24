@@ -15,6 +15,17 @@ set userpics_position = "right";
 set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
+## Colors
+##===============================
+
+propgroup colors {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+}
+
+##===============================
 ## Fonts
 ##===============================
 
@@ -296,7 +307,7 @@ h2#subtitle {
     $page_subtitle_font
     background: transparent;
     border: none;
-    color: $*color_page_title;
+    color: $*color_header_link;
     font-variant: small-caps;
     font-weight: bold;
     letter-spacing: 0;
@@ -310,7 +321,19 @@ h2#subtitle {
     }
 
 #header .module-navlinks li a {
-    color: $*color_page_title;
+    color: $*color_header_link;
+    }
+
+#header .module-navlinks li a:active {
+    color: $*color_header_link_active;
+    }
+
+#header .module-navlinks li a:hover {
+    color: $*color_header_link_hover;
+    }
+
+#header .module-navlinks li a:visited {
+    color: $*color_header_link_visited;
     }
 
 /*--- Journal Navigation ---*/
