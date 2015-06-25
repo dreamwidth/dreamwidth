@@ -21,6 +21,7 @@ sub entry_props {
     color_entry_interaction_links_hover
     color_entry_interaction_links_visited
     color_entry_footer_background
+    color_entry_footer_text
     color_alternate_entry_border
     color_alternate2_entry_border
     color_alternate3_entry_border

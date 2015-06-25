@@ -41,6 +41,7 @@ set margins_unit = "%";
 
 propgroup colors_child {
     property Color color_entry_footer_background { des = "Entry footer background color"; }
+    property Color color_entry_footer_text { des = "Entry footer text color"; }
     property use color_header_link;
     property use color_header_link_active;
     property use color_header_link_hover;
@@ -514,6 +515,7 @@ div#archive-year > div.inner > div.year > div.inner > div.month-wrapper:nth-of-t
 
 .entry .footer, .comment .footer {
     background: $*color_entry_footer_background;
+    color: $*color_entry_footer_text;
     padding: .75em;
 }
 .entry .footer:after, .comment .footer:after { /* clearfix */
@@ -569,6 +571,7 @@ ul.entry-interaction-links, ul.comment-interaction-links {
 
 .bottomcomment, .comment-pages {
     background-color: $*color_entry_footer_background;
+    color: $*color_entry_footer_text;
     color: $*color_entry_interaction_links;
     margin-top: 5px;
     text-align: center;
