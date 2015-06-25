@@ -44,7 +44,7 @@ class="piechart" alt="" />
 <p>
 [% '.accounts.explanation.personal' | ml %]
 [% '.accounts.explanation.community' | ml %]
-[% '.accounts.explanation.identity' | ml %]
+[% '.accounts.explanation.identity1' | ml %]
 [% '.accounts.explanation.syndicated' | ml %]
 </p>
 
@@ -129,7 +129,7 @@ class="bargraph" />
 
 [%# Paid accounts (by level), with % of total (P+C) and active %]
 <h2>[% '.paid.title' | ml %]</h2>
-<p>[% '.paid.explanation' | ml %]</p>
+<p>[% '.paid.explanation1' | ml %]</p>
 [% IF paid.defined %]
     <table class='stats-matrix'><thead><tr>
     [% FOREACH h = [ 'level' 'number' 'pct_total' 'pct_active' ] %]

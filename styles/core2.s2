@@ -1160,17 +1160,17 @@ propgroup other = "Other";
 property builtin string IMGDIR {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current Dreamwidth site's image directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/img\".";
+    des = "The base URL of the current Dreamwidth site's image directory, without a trailing slash.  Example: \"https://www.dreamwidth.com/img\".";
 }
 property builtin string STYLES_IMGDIR {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current Dreamwidth site's style image directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/img/styles\".";
+    des = "The base URL of the current Dreamwidth site's style image directory, without a trailing slash.  Example: \"https://www.dreamwidth.com/img/styles\".";
 }
 property builtin string STATDIR {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current Dreamwidth site's static files directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/stc\".";
+    des = "The base URL of the current Dreamwidth site's static files directory, without a trailing slash.  Example: \"https://www.dreamwidth.com/stc\".";
 }
 property builtin string SITENAME {
     noui = 1;
@@ -1190,12 +1190,12 @@ property builtin string SITENAMEABBREV {
 property builtin string SITEROOT {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current Dreamwidth site, without a trailing slash.  Example: \"http://www.dreamwidth.com\".";
+    des = "The base URL of the current Dreamwidth site, without a trailing slash.  Example: \"https://www.dreamwidth.com\".";
 }
 property builtin string PALIMGROOT {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of palimg files, without a trailing slash.  Example: \"http://www.dreamwidth.com/palimg\".";
+    des = "The base URL of palimg files, without a trailing slash.  Example: \"https://www.dreamwidth.com/palimg\".";
 }
 
 ##=======================================
@@ -2280,7 +2280,7 @@ property string text_module_customtext_url {
     des = "URL for the 'Custom Text' heading link";
     maxlength = 100;
     size = 30;
-    example = "http://www.dreamwidth.org";
+    example = "https://www.dreamwidth.org";
 }
 property string text_module_customtext_content {
     noui = 1;
