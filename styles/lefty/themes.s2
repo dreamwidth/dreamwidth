@@ -72,10 +72,10 @@ set color_module_title = "#da284c";
 ## Fonts
 ##===============================
 
-set font_journal_title = "arial"; 
+set font_journal_title = "Arial"; 
 set font_journal_title_size = "120";
 set font_journal_title_units = "%";
-set font_journal_subtitle = "arial"; 
+set font_journal_subtitle = "Arial"; 
 set font_journal_subtitle_size = "120";
 set font_journal_subtitle_units = "%";
 
@@ -217,23 +217,23 @@ set color_module_titlelist_border = "#BCC6D6";
 ## Fonts
 ##===============================
 
-set font_base = "\"Georgia\"";
+set font_base = "Georgia";
 set font_base_size = "1";
 set font_base_units = "em";
 set font_comment_title_units = "em";
 set font_entry_title_units = "em";
 set font_fallback = "serif";
-set font_journal_subtitle = "\"Georgia\"";
+set font_journal_subtitle = "Georgia";
 set font_journal_subtitle_size = "1";
 set font_journal_subtitle_units = "em";
-set font_journal_title = "\"Georgia\"";
+set font_journal_title = "Georgia";
 set font_journal_title_size = "1";
 set font_journal_title_units = "em";
-set font_module_heading = "\"Georgia\"";
+set font_module_heading = "Georgia";
 set font_module_heading_units = "em";
-set font_module_text = "\"Georgia\"";
+set font_module_text = "Georgia";
 set font_module_text_units = "em";
-set font_page_navigation = "\"Georgia\"";
+set font_page_navigation = "Georgia";
 
 #NEWLAYER: lefty/glossalia
 layerinfo type = "theme";
@@ -289,23 +289,23 @@ set color_module_titlelist_border = "#c0ac9b";
 ## Fonts
 ##===============================
 
-set font_base = "\"Georgia\"";
+set font_base = "Georgia";
 set font_base_size = "1";
 set font_base_units = "em";
 set font_comment_title_units = "em";
 set font_entry_title_units = "em";
 set font_fallback = "serif";
-set font_journal_subtitle = "\"Georgia\"";
+set font_journal_subtitle = "Georgia";
 set font_journal_subtitle_size = "1";
 set font_journal_subtitle_units = "em";
-set font_journal_title = "\"Georgia\"";
+set font_journal_title = "Georgia";
 set font_journal_title_size = "1";
 set font_journal_title_units = "em";
-set font_module_heading = "\"Georgia\"";
+set font_module_heading = "Georgia";
 set font_module_heading_units = "em";
-set font_module_text = "\"Georgia\"";
+set font_module_text = "Georgia";
 set font_module_text_units = "em";
-set font_page_navigation = "\"Georgia\"";
+set font_page_navigation = "Georgia";
 
 
 function Page::print_theme_stylesheet() { """
@@ -605,6 +605,6 @@ set color_module_titlelist_border = "#498d60";
 set font_journal_title = "Arial";
 set font_journal_title_size = "120";
 set font_journal_title_units = "%";
-set font_journal_subtitle = "arial"; 
+set font_journal_subtitle = "Arial"; 
 set font_journal_subtitle_size = "120";
 set font_journal_subtitle_units = "%";
