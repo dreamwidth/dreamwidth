@@ -1,3 +1,325 @@
+#NEWLAYER: lefty/beachhut
+layerinfo type = "theme";
+layerinfo name = "Beach Hut";
+layerinfo redist_uniq = "lefty/beachhut";
+layerinfo author_name = "forthwritten";
+
+set theme_authors = [ { "name" => "forthwritten", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#c2f2f2";
+set color_page_left_border = "#e7ce8c";
+set color_page_link = "#da284c";
+set color_page_link_active = "#ff8279";
+set color_page_link_hover = "#ff8279";
+set color_page_link_visited = "#da284c";
+set color_page_navigation_link = "#da284c";
+set color_page_navigation_link_active = "#ff8279";
+set color_page_navigation_link_hover = "#ff8279";
+set color_page_navigation_link_visited = "#da284c";
+set color_page_right_border = "#da284c";
+set color_page_title = "#272727";
+set color_header_background = "#f34384";
+set color_header_link = "#fff";
+set color_header_link_active = "#fff";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#fff";
+set color_header_title_background = "#e7ce8c";
+set color_headernav_background = "#da284c";
+set color_headernav_current_background = "#f34384";
+set color_headernav_hover_background = "#f34384";
+set color_footer_background = "#fff";
+set color_footer_link = "#da284c";
+set color_footer_link_active = "#ff8279";
+set color_footer_link_hover = "#ff8279";
+set color_footer_link_visited = "#da284c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#da284c";
+set color_entry_interaction_links_active = "#ff8279";
+set color_entry_interaction_links_hover = "#ff8279";
+set color_entry_interaction_links_visited = "#da284c";
+set color_entry_link = "#da284c";
+set color_entry_link_active = "#ff8279";
+set color_entry_link_hover = "#ff8279";
+set color_entry_link_visited = "#da284c";
+set color_entry_text = "#272727";
+set color_entry_title = "#da284c";
+set color_entry_title_background = "#fff";
+set color_entry_titleuserpic_border = "#e7ce8c";
+set color_comment_footer_text = "#da284c";
+set color_comment_title = "#da284c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#da284c";
+set color_module_link_active = "#ff8279";
+set color_module_link_hover = "#ff8279";
+set color_module_link_visited = "#da284c";
+set color_module_text = "#da284c";
+set color_module_title = "#da284c";
+
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "Arial"; 
+set font_journal_title_size = "120";
+set font_journal_title_units = "%";
+set font_journal_subtitle = "Arial"; 
+set font_journal_subtitle_size = "120";
+set font_journal_subtitle_units = "%";
+
+
+#NEWLAYER: lefty/cityspring
+layerinfo type = "theme";
+layerinfo name = "City Spring";
+layerinfo redist_uniq = "lefty/cityspring";
+layerinfo author_name = "forthwritten";
+
+set theme_authors = [ { "name" => "forthwritten", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#929a93";
+set color_page_left_border = "#308ba1";
+set color_page_link = "#308ba1";
+set color_page_link_active = "#a7d583";
+set color_page_link_hover = "#a7d583";
+set color_page_link_visited = "#308ba1";
+set color_page_navigation_link = "#308ba1";
+set color_page_navigation_link_active = "#a7d583";
+set color_page_navigation_link_hover = "#a7d583";
+set color_page_navigation_link_visited = "#308ba1";
+set color_page_right_border = "#a7d583";
+set color_page_title = "#272727";
+set color_header_background = "#76b3c0";
+set color_header_link = "#308ba1";
+set color_header_link_active = "#308ba1";
+set color_header_link_hover = "#5b605b";
+set color_header_link_visited = "#308ba1";
+set color_header_title_background = "#308ba1";
+set color_headernav_background = "#a7d583";
+set color_headernav_current_background = "#76b3c0";
+set color_headernav_hover_background = "#76b3c0";
+set color_footer_background = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#308ba1";
+set color_entry_interaction_links_active = "#a7d583";
+set color_entry_interaction_links_hover = "#a7d583";
+set color_entry_interaction_links_visited = "#308ba1";
+set color_entry_link = "#308ba1";
+set color_entry_link_active = "#bfe7a7";
+set color_entry_link_hover = "#bfe7a7";
+set color_entry_link_visited = "#308ba1";
+set color_entry_text = "#272727";
+set color_entry_title = "#308ba1";
+set color_comment_footer_text = "#308ba1";
+set color_comment_title = "#308ba1";
+set color_comment_title_background = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_link = "#76b3c0";
+set color_module_link_active = "#bfe7a7";
+set color_module_link_hover = "#bfe7a7";
+set color_module_link_visited = "#76b3c0";
+set color_module_text = "#272727";
+set color_module_title = "#308ba1";
+set color_module_titlelist_border = "#308ba1";
+
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "Arial";
+set font_journal_title_size = "120";
+set font_journal_title_units = "%";
+set font_journal_subtitle = "Arial";
+set font_journal_subtitle_size = "120";
+set font_journal_subtitle_units = "%";
+
+#NEWLAYER: lefty/foggybeach
+layerinfo type = "theme";
+layerinfo name = "Foggy Beach";
+layerinfo redist_uniq = "lefty/foggybeach";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a2947a";
+set color_page_border = "#a2947a";
+set color_page_left_border = "#929aa6";
+set color_page_link = "#454f72";
+set color_page_link_active = "#454f72";
+set color_page_link_hover = "#929aa6";
+set color_page_link_visited = "#454f72";
+set color_page_navigation_link = "#4c4b50";
+set color_page_navigation_link_active = "#4c4b50";
+set color_page_navigation_link_hover = "#929aa6";
+set color_page_navigation_link_visited = "#4c4b50";
+set color_page_right_border = "#4c4b50";
+set color_page_text = "#2c2119";
+set color_page_title = "#e7e1d9";
+set color_header_background = "#c0ac9b";
+set color_header_link = "#e7e1d9";
+set color_header_link_active = "#e7e1d9";
+set color_header_link_hover = "#e7e1d9";
+set color_header_title_background = "#929aa6";
+set color_headernav_background = "#4c4b50";
+set color_headernav_current_background = "#a2947a";
+set color_headernav_hover_background = "#c0ac9b";
+set color_footer_background = "#e6d9cf";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e6d9cf";
+set color_entry_background_accent = "#e7e1d9";
+set color_entry_link_hover = "#929aa6";
+set color_entry_title = "#4c4b50";
+set color_entry_titleuserpic_border = "#BCC6D6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e7e1d9";
+set color_module_background_accent = "#e6d9cf";
+set color_module_title = "#4c4b50";
+set color_module_titlelist_border = "#BCC6D6";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Georgia";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_comment_title_units = "em";
+set font_entry_title_units = "em";
+set font_fallback = "serif";
+set font_journal_subtitle = "Georgia";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Georgia";
+set font_journal_title_size = "1";
+set font_journal_title_units = "em";
+set font_module_heading = "Georgia";
+set font_module_heading_units = "em";
+set font_module_text = "Georgia";
+set font_module_text_units = "em";
+set font_page_navigation = "Georgia";
+
+#NEWLAYER: lefty/glossalia
+layerinfo type = "theme";
+layerinfo name = "Glossalia";
+layerinfo redist_uniq = "lefty/glossalia";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#2b0919";
+set color_page_border = "#2b0919";
+set color_page_left_border = "#6c2f36";
+set color_page_link = "#6c5048";
+set color_page_link_active = "#6c5048";
+set color_page_link_hover = "#fea64f";
+set color_page_link_visited = "#6c5048";
+set color_page_right_border = "#6c2f36";
+set color_page_text = "#2b0919";
+set color_page_title = "#2b0919";
+set color_header_background = "#77594f";
+set color_header_link = "#d8f4c3";
+set color_header_link_active = "#d8f4c3";
+set color_header_link_hover = "#e7e1d9";
+set color_header_link_visited = "#d8f4c3";
+set color_header_title_background = "#fea64f";
+set color_headernav_background = "#6c2f36";
+set color_headernav_current_background = "#77594f";
+set color_headernav_hover_background = "#77594f";
+set color_footer_background = "#e6d9cf";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d8f4c3";
+set color_entry_background_accent = "#e7e1d9";
+set color_entry_title = "#6c2f36";
+set color_entry_titleuserpic_border = "#c0ac9b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background_accent = "#d8f4c3";
+set color_module_title = "#6c2f36";
+set color_module_titlelist_border = "#c0ac9b";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Georgia";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_comment_title_units = "em";
+set font_entry_title_units = "em";
+set font_fallback = "serif";
+set font_journal_subtitle = "Georgia";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Georgia";
+set font_journal_title_size = "1";
+set font_journal_title_units = "em";
+set font_module_heading = "Georgia";
+set font_module_heading_units = "em";
+set font_module_text = "Georgia";
+set font_module_text_units = "em";
+set font_page_navigation = "Georgia";
+
+
+function Page::print_theme_stylesheet() { """
+    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #D8F4C3;
+    border-color: #2B0919; 
+    color: #77594F;
+    }
+    
+    #lj_controlstrip a {
+    color: #6C2F36; 
+    }    
+"""; }
+
+
 #NEWLAYER: lefty/greenmachine
 layerinfo type = "theme";
 layerinfo name = "Green Machine";
@@ -203,3 +525,86 @@ set font_journal_subtitle_units = "em";
 set font_journal_title = "Georgia, 'Times New Roman', serif";
 set font_journal_title_size = "1";
 set font_journal_title_units = "em";
+
+
+#NEWLAYER: lefty/thetreestheforest
+layerinfo type = "theme";
+layerinfo name = "The Trees, The Forest";
+layerinfo redist_uniq = "lefty/thetreestheforest";
+layerinfo author_name = "forthwritten";
+
+set theme_authors = [ { "name" => "forthwritten", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1d4537";
+set color_page_left_border = "#498d60";
+set color_page_link = "#498d60";
+set color_page_link_active = "#76c698";
+set color_page_link_hover = "#76c698";
+set color_page_link_visited = "#498d60";
+set color_page_navigation_link = "#498d60";
+set color_page_navigation_link_active = "#76c698";
+set color_page_navigation_link_hover = "#76c698";
+set color_page_navigation_link_visited = "#498d60";
+set color_page_right_border = "#3e2b39";
+set color_page_text = "#272727";
+set color_page_title = "#3e2b39";
+set color_header_background = "#76c698";
+set color_header_link = "#a4e6d6";
+set color_header_link_active = "#a4e6d6";
+set color_header_link_hover = "#1d4537";
+set color_header_link_visited = "#a4e6d6";
+set color_header_title_background = "#498d60";
+set color_headernav_background = "#3e2b39";
+set color_headernav_current_background = "#76c698";
+set color_headernav_hover_background = "#76c698";
+set color_footer_background = "#fff";
+set color_footer_link = "#3a3a3a";
+set color_footer_link_active = "#76c698";
+set color_footer_link_hover = "#76c698";
+set color_footer_link_visited = "#498d60";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#498d60";
+set color_entry_interaction_links_active = "#76c698";
+set color_entry_interaction_links_hover = "#76c698";
+set color_entry_interaction_links_visited = "#498d60";
+set color_entry_link = "#498d60";
+set color_entry_link_active = "#76c698";
+set color_entry_link_hover = "#76c698";
+set color_entry_link_visited = "#498d60";
+set color_entry_text = "#3a3a3a";
+set color_entry_title = "#1d4537";
+set color_comment_footer_text = "#498d60";
+set color_comment_title = "#1d4537";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_link = "#1d4537";
+set color_module_link_active = "#76c698";
+set color_module_link_hover = "#76c698";
+set color_module_link_visited = "#1d4537";
+set color_module_text = "#3a3a3a";
+set color_module_title = "#1d4537";
+set color_module_titlelist_border = "#498d60";
+
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "Arial";
+set font_journal_title_size = "120";
+set font_journal_title_units = "%";
+set font_journal_subtitle = "Arial"; 
+set font_journal_subtitle_size = "120";
+set font_journal_subtitle_units = "%";
