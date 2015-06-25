@@ -4572,7 +4572,7 @@ widget.createaccountentercode.error.toofast=You're entering codes too quickly. P
 
 widget.createaccountentercode.getcode= If you do not have an account creation code, you can obtain one this way.
 
-widget.createaccountentercode.info=Enter an account creation code to create a new account:
+widget.createaccountentercode.info1=Enter an account creation code to create a new account:
 
 widget.createaccountentercode.pay2=Alternatively, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
 
@@ -4764,7 +4764,7 @@ widget.importchoosedata.item.lj_userpics.desc=Imports your icons (userpics). If 
 
 widget.importchoosesource.btn.continue=Continue &rarr;
 
-widget.importchoosesource.disabled=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
+widget.importchoosesource.disabled1=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
 
 widget.importchoosesource.error.nocredentials=Please provide a username and password for the service that you selected.
 
