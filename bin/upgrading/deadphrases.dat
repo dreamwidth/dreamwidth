@@ -1253,6 +1253,9 @@ general widget.accountstatistics.tags
 general widget.addqotd.extratext
 general widget.addqotd.extratext.note
 general widget.addqotd.is_special
+general widget.betafeature.updatepage.off
+general widget.betafeature.updatepage.on
+general widget.betafeature.updatepage.title
 general widget.browse.directorysearch
 general widget.browse.directorysearch.communities
 general widget.browse.directorysearch.users
