@@ -1108,6 +1108,127 @@ set color_module_title = "#fff";
 set color_module_title_background = "#776267";
 
 
+#NEWLAYER: crossroads/enjoythelove
+layerinfo type = "theme";
+layerinfo name = "Enjoy the Love";
+layerinfo redist_uniq = "crossroads/enjoythelove";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by *Darinka and OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/2453398/Enjoy_the_love*" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fad6c1";
+set color_page_border = "#fad6c1";
+set color_page_link = "#A66C5F";
+set color_page_link_visited = "#cc7677";
+set color_page_text = "#67423B";
+set color_page_title = "#67423B";
+set color_header_background = "#f4bfae";
+set color_footer_background = "#f4bfae";
+set color_footer_link = "#A66C5F";
+set color_footer_link_visited = "#cc7677";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f4bfae";
+set color_entry_border = "#fad6c1";
+set color_entry_interaction_links = "#cc7677";
+set color_entry_link = "#A66C5F";
+set color_entry_link_visited = "#cc7677";
+set color_entry_text = "#67423B";
+set color_entry_title = "#67423B";
+set color_entry_title_background = "#f4bfae";
+set color_comment_title = "#ac7063";
+set color_comment_title_background = "#f4bfae";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f4bfae";
+set color_module_border = "#fad6c1";
+set color_module_link = "#A66C5F";
+set color_module_link_visited = "#cc7677";
+set color_module_text = "#67423B";
+set color_module_title = "#ac7063";
+set color_module_title_background = "#f4bfae";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/enjoythelove.png";
+
+
+#NEWLAYER: crossroads/fallingleaves
+layerinfo type = "theme";
+layerinfo name = "Falling Leaves";
+layerinfo redist_uniq = "crossroads/fallingleaves";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/3729978/Falling_Leaves" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#001C0A";
+set color_page_border = "#001C0A";
+set color_page_link = "#00CCA6";
+set color_page_link_visited = "#C2FFE8";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#001C0A";
+set color_footer_background = "#001C0A";
+set color_footer_link = "#00CCA6";
+set color_footer_link_visited = "#C2FFE8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#001C0A";
+set color_entry_border = "#001C0A";
+set color_entry_interaction_links = "#00CCA6";
+set color_entry_link = "#00CCA6";
+set color_entry_link_visited = "#C2FFE8";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#001C0A";
+set color_comment_title = "#EFE600";
+set color_comment_title_background = "#001C0A";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#001C0A";
+set color_module_border = "#001C0A";
+set color_module_link = "#00CCA6";
+set color_module_link_visited = "#C2FFE8";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#001C0A";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crossroads/fallingleaves.png";
+
+
 #NEWLAYER: crossroads/flutterby
 layerinfo type = "theme";
 layerinfo name = "Flutterby";
@@ -1768,6 +1889,66 @@ set color_module_link_visited = "#2e5e73";
 set color_module_text = "#1f080b";
 set color_module_title = "#fff";
 set color_module_title_background = "99b3ba";
+
+
+#NEWLAYER: crossroads/neonsequins
+layerinfo type = "theme";
+layerinfo name = "Neon Sequins";
+layerinfo redist_uniq = "crossroads/neonsequins";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/3507772/Neon_Sequins" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#ffbded";
+set color_page_link = "#95dbff";
+set color_page_link_visited = "#e39bff";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#95dbff";
+set color_footer_link_visited = "#e39bff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#95dbff";
+set color_entry_link = "#95dbff";
+set color_entry_link_visited = "#e39bff";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#000";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#000";
+set color_module_border = "#e39bff";
+set color_module_link = "#e39bff";
+set color_module_link_visited = "#95dbff";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crossroads/neonsequins.png";
 
 
 #NEWLAYER: crossroads/nnwm2009
