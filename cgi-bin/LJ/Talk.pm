@@ -1596,6 +1596,10 @@ sub talkform {
             $ret .= LJ::img( 'id_user', '', { onclick => 'handleRadios(1);' } ) . "</td>";
             $ret .= "<td align='left'><label for='talkpostfromremote'>";
             $ret .= BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } ) . "</label>\n";
+            
+            $ret .= " " . $BML::ML{'.opt.willscreen'} if $screening eq 'A'
+                    || ( $screening eq 'R' && !$remote->is_validated )
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
 
             $ret .= "<input type='hidden' name='usertype' value='cookieuser' />";
             $ret .= "<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
@@ -3287,9 +3291,9 @@ sub init {
     # figure out whether to post this comment screened
     my $state = 'A';
     my $screening = LJ::Talk::screening_level($journalu, $ditemid >> 8) || "";
-    if (!$form->{editid} && ($screening eq 'A' ||
+    if ($screening eq 'A' ||
         ($screening eq 'R' && ! $up) ||
-        ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up ))))) {
+        ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up )))) {
         $state = 'S';
     }
 
@@ -3551,6 +3555,12 @@ sub edit_comment {
 
     # the caller wants to know the comment's talkid.
     $comment->{talkid} = $comment_obj->jtalkid;
+
+    # If we need to rescreen the comment, do so now.
+    my $state = $comment->{state} || "";
+    if ( $state eq 'S') {
+        LJ::Talk::screen_comment($journalu, $item->{itemid}, $comment->{talkid});
+    }
 
     # cluster tracking
     LJ::mark_user_active($pu, 'comment');
