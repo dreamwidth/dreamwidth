@@ -747,7 +747,7 @@ body<=
     my %banned_users = map { $_ => 1 } @$banned;
 
     # remove banned users from lists to display
-    @$_ = grep { !exists $banned_users{ $_ }, @$_ }
+    @$_ = grep { !exists $banned_users{ $_ } } @$_
         foreach ( \@trusted_userids, \@watched_userids, \@trusted_by_userids, \@watched_by_userids,
                   \@mutually_trusted_userids, \@mutually_watched_userids, \@mutually_watched_userids,
                   \@not_mutually_trusted_userids, \@not_mutually_watched_userids,
