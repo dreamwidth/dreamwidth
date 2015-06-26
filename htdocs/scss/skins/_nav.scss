@@ -292,6 +292,17 @@ $nav-small-screen-header-height: 3em;
             right: 0;
         }
 
+        /* Adds background color to menu nav when we hover over the dropdown it contains.
+        Because submit extends button, the css for this selector in _top-bar.scss is too specific,
+        and we override the expected bg (from a different selector). This just re-overrides.
+        Ugly but it's what we need!
+        */
+        @media #{$topbar-media-query} {
+            .top-bar-section li:hover:not(.has-form) a:not(.button):not(.submit) {
+                background: $topbar-dropdown-link-bg;
+            }
+        }
+
         @media #{$small} {
             .main-nav {
                 top: $header-height;
