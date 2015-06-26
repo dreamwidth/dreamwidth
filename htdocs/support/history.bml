@@ -91,7 +91,7 @@ body<=
                     state => $row->[2],
                     spcatid => $row->[3],
                     requserid => $row->[4],
-                    timecreate => LJ::mysql_time($row->[5]),
+                    timecreate => $row->[5],
                     reqemail => LJ::ehtml($row->[6]),
                 };
                 push @userids, $row->[4] if $row->[4];
@@ -121,7 +121,9 @@ body<=
                 $ret .= "</td>\n";
                 $ret .= "<td align='center'>$cats->{$reqs{$id}->{spcatid}}{catname}</td>\n<td align='center'>";
                 $ret .= $reqs{$id}->{requserid} ? LJ::ljuser($us->{$reqs{$id}->{requserid}}) : $reqs{$id}->{reqemail};
-                $ret .= "</td>\n<td align='center'>$reqs{$id}->{timecreate}</td>\n";
+                $ret .= "</td>\n<td align='center'>";
+                $ret .= LJ::mysql_time($reqs{$id}->{timecreate});
+                $ret .= "</td>\n";
                 $ret .= '</tr>';
             }
             $ret .= '</table><br /><br />';
