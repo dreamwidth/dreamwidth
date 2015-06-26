@@ -97,7 +97,7 @@ func main() {
 
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	//                        0   /  1  /   2  /   3   /  4
-	// http://proxy.dreamwidth.net/TOKEN/SOURCE/foo.com/url?arg=val
+	// https://proxy.dreamwidth.net/TOKEN/SOURCE/foo.com/url?arg=val
 	// SOURCE is ignored programmatically; it's only for admins
 	parts := strings.SplitN(req.URL.RequestURI(), "/", 5)
 

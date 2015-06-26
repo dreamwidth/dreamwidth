@@ -85,7 +85,7 @@ xmlns:dc='http://purl.org/dc/elements/1.1/'>
 </rss>};
 
 my $feed_atom = q {<?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dw="http://www.dreamwidth.org" xmlns:lj="http://www.livejournal.com">
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dw="https://www.dreamwidth.org" xmlns:lj="http://www.livejournal.com">
 <title>Feed title</title>
 <link rel="alternate" type="text/html" href="http://example.com/feed/atom" />
 <id>example:atom:feed</id>

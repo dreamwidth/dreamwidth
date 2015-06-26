@@ -841,7 +841,7 @@ error.vhost.noalias=This user's account type doesn't permit domain aliasing.
 
 error.vhost.nocomm=This account isn't a community journal.
 
-error.vhost.nodomain=URLs like <nobr><b>http://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
+error.vhost.nodomain1=URLs like <nobr><b>https://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
 
 error.vhost.nostyle=This user's account type is not permitted to create and embed styles.
 
@@ -4494,21 +4494,6 @@ widget.betafeature.s2comments.on<<
 
 widget.betafeature.s2comments.title=New S2 Comment Pages
 
-
-widget.betafeature.updatepage.off<<
-<p>Activate the testing version of the new Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
-
-<p>To report bugs with the new Create Entries page, <a href="http://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.updatepage.on<<
-<p>You are currently testing the Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
-
-<p>To report bugs with the new Create Entries page, <a href="http://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.updatepage.title=New Create Entries Page
-
 widget.comms.notavailable=This list is currently unavailable.
 
 widget.comms.recentactive=Recently Active Communities
@@ -4587,7 +4572,7 @@ widget.createaccountentercode.error.toofast=You're entering codes too quickly. P
 
 widget.createaccountentercode.getcode= If you do not have an account creation code, you can obtain one this way.
 
-widget.createaccountentercode.info=Enter an account creation code to create a new account:
+widget.createaccountentercode.info1=Enter an account creation code to create a new account:
 
 widget.createaccountentercode.pay2=Alternatively, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
 
@@ -4779,7 +4764,7 @@ widget.importchoosedata.item.lj_userpics.desc=Imports your icons (userpics). If 
 
 widget.importchoosesource.btn.continue=Continue &rarr;
 
-widget.importchoosesource.disabled=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
+widget.importchoosesource.disabled1=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
 
 widget.importchoosesource.error.nocredentials=Please provide a username and password for the service that you selected.
 

@@ -66,7 +66,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF u.is_identity && u.statusvis != 'D' -%]
 [%# only show this text to not-deleted OpenID accounts -%]
-    <p>[%- '.delete.openid' | ml -%]
+    <p>[%- '.delete.openid1' | ml -%]
 [%- END -%]
 
 [%- IF extra_delete_text -%]

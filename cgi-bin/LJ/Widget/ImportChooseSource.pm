@@ -30,7 +30,7 @@ sub render_body {
     my $u = LJ::get_effective_remote();
     return "" unless LJ::isu( $u );
 
-    return $class->ml( 'widget.importchoosesource.disabled' )
+    return $class->ml( 'widget.importchoosesource.disabled1' )
         unless LJ::is_enabled('importing');
 
     my @services;

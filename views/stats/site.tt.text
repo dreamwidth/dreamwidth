@@ -11,7 +11,7 @@
 
 .accounts.explanation.community=<em>Community</em>: communities based around some shared interest.<br />
 
-.accounts.explanation.identity=<em>External identity</em>: accounts where the user doesn't have a Dreamwidth user name, but instead logs in with <a href="http://www.dreamwidth.org/openid/">OpenID</a>.<br />
+.accounts.explanation.identity1=<em>External identity</em>: accounts where the user doesn't have a Dreamwidth user name, but instead logs in with <a href="https://www.dreamwidth.org/openid/">OpenID</a>.<br />
 
 .accounts.explanation.personal=<em>Personal</em>: personal accounts.<br />
 
@@ -95,7 +95,7 @@
 
 .paid.colhdr.pct_total=% of total accounts
 
-.paid.explanation=There are two levels of paid accounts, 'paid' and 'premium paid', which offer extra services compared to free accounts. 'Seed' accounts offer the level of services as 'premium paid', but are permanent. <a href="http://www.dreamwidth.org/support/faqbrowse?faqid=4">Information on paid accounts</a>.
+.paid.explanation1=There are two levels of paid accounts, 'paid' and 'premium paid', which offer extra services compared to free accounts. 'Seed' accounts offer the level of services as 'premium paid', but are permanent. <a href="https://www.dreamwidth.org/support/faqbrowse?faqid=4">Information on paid accounts</a>.
 
 .paid.rowhdr.activepaid=Active paid/premium/seed
 

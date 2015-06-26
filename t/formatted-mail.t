@@ -10,14 +10,14 @@ note("simple email");
 {
 my $original_text=qq{Stuff's [happening].
 
-Go to [Dreamwidth](http://www.dreamwidth.org).};
+Go to [Dreamwidth](https://www.dreamwidth.org).};
 
 my ( $html, $plain ) = LJ::format_mail( $original_text, "foobarbaz" );
 is( $html, qq{<p>Dear foobarbaz,</p>
 
 <p>Stuff's [happening].</p>
 
-<p>Go to <a href="http://www.dreamwidth.org">Dreamwidth</a>.</p>
+<p>Go to <a href="https://www.dreamwidth.org">Dreamwidth</a>.</p>
 
 <p>Regards, <br />
 $LJ::SITENAMESHORT Team</p>
@@ -31,7 +31,7 @@ is( $plain, qq{Dear foobarbaz,
 
 Stuff's [happening].
 
-Go to Dreamwidth (http://www.dreamwidth.org).
+Go to Dreamwidth (https://www.dreamwidth.org).
 
 Regards,  
 $LJ::SITENAMESHORT Team
