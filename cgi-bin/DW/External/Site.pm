@@ -30,6 +30,7 @@ LJ::ModuleLoader->require_subclasses( "DW::External::Site" );
 
 my %domaintosite;
 my %idtosite;
+my @all_sites_without_alias;
 
 ### static initializers
 # with tld
@@ -40,7 +41,6 @@ $domaintosite{"inksome.com"} = DW::External::Site->new("5", "www.inksome.com", "
 $domaintosite{"journalfen.net"} = DW::External::Site->new("6", "www.journalfen.net", "journalfen.net", "JournalFen", "lj");
 $domaintosite{"dreamwidth.org"} = DW::External::Site->new("7", "www.dreamwidth.org", "dreamwidth.org", "Dreamwidth", "lj");
 $domaintosite{"archiveofourown.org"} = DW::External::Site->new("8", "www.archiveofourown.org", "archiveofourown.org", "ArchiveofOurOwn", "AO3");
-$domaintosite{"ao3.org"} = $domaintosite{"archiveofourown.org"};
 $domaintosite{"twitter.com"} = DW::External::Site->new("9", "twitter.com", "twitter.com", "Twitter", "Twitter");
 $domaintosite{"tumblr.com"} = DW::External::Site->new("10", "tumblr.com", "tumblr.com", "Tumblr", "Tumblr");
 $domaintosite{"etsy.com"} = DW::External::Site->new("11", "www.etsy.com", "etsy.com", "Etsy", "Etsy");
@@ -58,6 +58,8 @@ $domaintosite{"pinterest.com"} = DW::External::Site->new("22", "www.pinterest.co
 $domaintosite{"youtube.com"} = DW::External::Site->new("23", "www.youtube.com", "youtube.com", "YouTube", "yt");
 $domaintosite{"github.com"} = DW::External::Site->new("24", "www.github.com", "github.com", "github", "gh"); 
 
+@all_sites_without_alias = values %domaintosite;
+
 # without tld
 $domaintosite{"livejournal"} = $domaintosite{"livejournal.com"};
 $domaintosite{"lj"} = $domaintosite{"livejournal.com"};
@@ -73,6 +75,7 @@ $domaintosite{"jf"} = $domaintosite{"journalfen.net"};
 $domaintosite{"dreamwidth"} = $domaintosite{"dreamwidth.org"};
 $domaintosite{"dw"} = $domaintosite{"dreamwidth.org"};
 $domaintosite{"archiveofourown"} = $domaintosite{"archiveofourown.org"};
+$domaintosite{"ao3.org"} = $domaintosite{"archiveofourown.org"};
 $domaintosite{"ao3"} = $domaintosite{"archiveofourown.org"};
 $domaintosite{"twitter"} = $domaintosite{"twitter.com"};
 $domaintosite{"tumblr"} = $domaintosite{"tumblr.com"};
@@ -92,7 +95,7 @@ $domaintosite{"pinterest"} = $domaintosite{"pinterest.com"};
 $domaintosite{"youtube"} = $domaintosite{"youtube.com"};
 $domaintosite{"github"} = $domaintosite{"github.com"};
 
-foreach my $value (values %domaintosite) {
+foreach my $value (@all_sites_without_alias) {
     $idtosite{$value->{siteid}} = $value;
 }
 
@@ -136,13 +139,13 @@ sub get_site {
 
 
 # returns a list of all supported sites for linking
-sub get_sites { return values %domaintosite; }
+sub get_sites { return @all_sites_without_alias; }
 
 # returns a list of all supported sites for crossposting
 sub get_xpost_sites {
     my %protocols = DW::External::XPostProtocol->get_all_protocols;
     return grep { exists $protocols{ $_->{servicetype} } && LJ::is_enabled( "external_sites", $_ ) }
-           values %domaintosite;
+           @all_sites_without_alias;
 }
 
 # returns the appropriate site by site_id
