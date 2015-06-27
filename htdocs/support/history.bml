@@ -39,9 +39,11 @@ body<=
                 && ( $fullsearch || $remote->id == $userid );
             $ret .= "<h2>Viewing support requests for " .
                     LJ::ljuser( LJ::get_username( $userid ) ) . "</h2>\n";
-            $reqlist = $dbr->selectall_arrayref('SELECT spid, subject, state, spcatid, requserid, timecreate, reqemail ' .
-                                                'FROM support WHERE reqtype = \'user\' AND requserid = ?',
-                                                undef, $userid);
+            $reqlist = $dbr->selectall_arrayref(
+                'SELECT spid, subject, state, spcatid, requserid, ' .
+                       'timecreate, timetouched, timelasthelp, reqemail ' .
+                'FROM support WHERE reqtype = \'user\' AND requserid = ?',
+                undef, $userid);
         } elsif ($GET{email}) {
             # try by email, note that this gets requests opened by users and anonymous
             # requests, so we can view them all
@@ -61,9 +63,11 @@ body<=
                 && ( $fullsearch || $user_emails{$email} );
             $ret .= "<h2>Viewing support requests for " .
                     LJ::ehtml( $email ) . "</h2>\n";
-            $reqlist = $dbr->selectall_arrayref('SELECT spid, subject, state, spcatid, requserid, timecreate, reqemail ' .
-                                                'FROM support WHERE reqemail = ?',
-                                                undef, $email);
+            $reqlist = $dbr->selectall_arrayref(
+                'SELECT spid, subject, state, spcatid, requserid, ' .
+                       'timecreate, timetouched, timelasthelp, reqemail ' .
+                'FROM support WHERE reqemail = ?',
+                undef, $email);
         }
 
         if (@{$reqlist || []}) {
@@ -92,7 +96,9 @@ body<=
                     spcatid => $row->[3],
                     requserid => $row->[4],
                     timecreate => $row->[5],
-                    reqemail => LJ::ehtml($row->[6]),
+                    timetouched => $row->[6],
+                    timelasthelp => $row->[7],
+                    reqemail => LJ::ehtml($row->[8]),
                 };
                 push @userids, $row->[4] if $row->[4];
             }
