@@ -39,9 +39,11 @@ body<=
                 && ( $fullsearch || $remote->id == $userid );
             $ret .= "<h2>Viewing support requests for " .
                     LJ::ljuser( LJ::get_username( $userid ) ) . "</h2>\n";
-            $reqlist = $dbr->selectall_arrayref('SELECT spid, subject, state, spcatid, requserid, timecreate, reqemail ' .
-                                                'FROM support WHERE reqtype = \'user\' AND requserid = ?',
-                                                undef, $userid);
+            $reqlist = $dbr->selectall_arrayref(
+                'SELECT spid, subject, state, spcatid, requserid, ' .
+                       'timecreate, timetouched, timelasthelp, reqemail ' .
+                'FROM support WHERE reqtype = \'user\' AND requserid = ?',
+                undef, $userid);
         } elsif ($GET{email}) {
             # try by email, note that this gets requests opened by users and anonymous
             # requests, so we can view them all
@@ -61,9 +63,11 @@ body<=
                 && ( $fullsearch || $user_emails{$email} );
             $ret .= "<h2>Viewing support requests for " .
                     LJ::ehtml( $email ) . "</h2>\n";
-            $reqlist = $dbr->selectall_arrayref('SELECT spid, subject, state, spcatid, requserid, timecreate, reqemail ' .
-                                                'FROM support WHERE reqemail = ?',
-                                                undef, $email);
+            $reqlist = $dbr->selectall_arrayref(
+                'SELECT spid, subject, state, spcatid, requserid, ' .
+                       'timecreate, timetouched, timelasthelp, reqemail ' .
+                'FROM support WHERE reqemail = ?',
+                undef, $email);
         }
 
         if (@{$reqlist || []}) {
@@ -91,8 +95,10 @@ body<=
                     state => $row->[2],
                     spcatid => $row->[3],
                     requserid => $row->[4],
-                    timecreate => LJ::mysql_time($row->[5]),
-                    reqemail => LJ::ehtml($row->[6]),
+                    timecreate => $row->[5],
+                    timetouched => $row->[6],
+                    timelasthelp => $row->[7],
+                    reqemail => LJ::ehtml($row->[8]),
                 };
                 push @userids, $row->[4] if $row->[4];
             }
@@ -107,11 +113,14 @@ body<=
                 # verify user can see this category (public_read or has supportread in it)
                 next unless $cats->{$reqs{$id}->{spcatid}}{public_read} ||
                     LJ::Support::can_read_cat($cats->{$reqs{$id}->{spcatid}}, $remote);
+                my $status = $reqs{$id}->{state} eq "closed" ? "closed" :
+                             LJ::Support::open_request_status($reqs{$id}->{timetouched},
+                                                              $reqs{$id}->{timelasthelp});
 
                 # print out this request row
                 $ret .= '<tr>';
                 $ret .= "<td><a href=\"see_request?id=$reqs{$id}->{spid}\">$reqs{$id}->{subject}</a></td>\n";
-                $ret .= "<td align='center'>$reqs{$id}->{state}</td>\n";
+                $ret .= "<td align='center'>$status</td>\n";
                 $ret .= '<td align="center">';
                 if ($reqs{$id}->{state} eq 'closed' && $reqs{$id}->{winner}) {
                     $ret .= LJ::ljuser($reqs{$id}->{winner}) . " ($reqs{$id}->{points})";
@@ -121,7 +130,9 @@ body<=
                 $ret .= "</td>\n";
                 $ret .= "<td align='center'>$cats->{$reqs{$id}->{spcatid}}{catname}</td>\n<td align='center'>";
                 $ret .= $reqs{$id}->{requserid} ? LJ::ljuser($us->{$reqs{$id}->{requserid}}) : $reqs{$id}->{reqemail};
-                $ret .= "</td>\n<td align='center'>$reqs{$id}->{timecreate}</td>\n";
+                $ret .= "</td>\n<td align='center'>";
+                $ret .= LJ::mysql_time($reqs{$id}->{timecreate});
+                $ret .= "</td>\n";
                 $ret .= '</tr>';
             }
             $ret .= '</table><br /><br />';
