@@ -196,7 +196,7 @@ sub blocked_hosts {
     return do { my $dummy = 0; \$dummy; } if $LJ::IS_DEV_SERVER;
 
     my $tried_local_id = 0;
-    $csr->ua->blocked_hosts(
+    $csr->ua->blocked_hosts( [
                             sub {
                                 my $dest = shift;
 
@@ -205,7 +205,7 @@ sub blocked_hosts {
                                     return 1;
                                 }
                                 return 0;
-                            });
+                            } ] );
     return \$tried_local_id;
 }
 
