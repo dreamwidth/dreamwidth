@@ -283,6 +283,7 @@ my $postdecoded_bare = {
 
     crosspost_entry => 0,
     sticky_entry => undef,
+    update_displaydate => undef,
 
     props => {
         taglist => "",
