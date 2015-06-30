@@ -128,13 +128,24 @@ sub get_site {
     $site =~ s!^(?:.+)://(.*)!$1!;  # remove proto:// leading
     $site =~ s!^([^/]+)/.*$!$1!;    # remove /foo/bar.html trailing
 
-    # validate each part of the domain based on RFC 1035
-    my @parts = grep { /^[a-z][a-z0-9\-]*?[a-z0-9]$/ }
-                map { lc $_ }
-                split( /\./, $site );
+    my $mapped;
 
-    return $domaintosite{"$parts[-2].$parts[-1]"} || $domaintosite{"$parts[-1]"}  || 
-           DW::External::Site::Unknown->accepts( \@parts ) || undef;
+    # if there are no dots in the site argument, do a straightforward hash check
+    if ( $site !~ /\./ ) {
+        $site = lc $site;
+        $mapped = $domaintosite{$site};
+
+    } else {
+        # validate each part of the domain based on RFC 1035
+        my @parts = grep { /^[a-z][a-z0-9\-]*?[a-z0-9]$/ }
+                    map { lc $_ }
+                    split( /\./, $site );
+
+        $mapped = $domaintosite{"$parts[-2].$parts[-1]"};
+        $mapped ||= DW::External::Site::Unknown->accepts( \@parts );
+    }
+
+    return $mapped || undef;
 }
 
 
