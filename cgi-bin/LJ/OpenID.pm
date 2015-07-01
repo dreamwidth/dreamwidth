@@ -64,7 +64,7 @@ sub consumer {
     my $get_args = shift || {};
 
     my $ua;
-    unless ($LJ::IS_DEV_SERVER) {
+    unless ( $LJ::SKIP_PARANOID_USERAGENT ) {
         $ua = LJ::get_useragent( role => "OpenID",
                                  timeout => 10,
                                  max_size => 1024*300, );
@@ -193,7 +193,7 @@ sub hmac {
 sub blocked_hosts {
     my $csr = shift;
 
-    return do { my $dummy = 0; \$dummy; } if $LJ::IS_DEV_SERVER;
+    return do { my $dummy = 0; \$dummy; } if $LJ::SKIP_PARANOID_USERAGENT;
 
     my $tried_local_id = 0;
     $csr->ua->blocked_hosts( [
