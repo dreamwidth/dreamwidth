@@ -44,8 +44,7 @@
     %]
 
     <br>
-    [% eq = q | html;
-       form.textbox( name = "query", maxlength = "255", size = "60", value = eq );
+    [% form.textbox( name = "query", maxlength = "255", size = "60", value = q );
        " ";
        form.submit( value = dw.ml( '.button.search' ) );
     %]
@@ -135,7 +134,7 @@
                 IF result.total > offsetm -%]
                     <form method="POST" action='[% site.root %]/search?offset=[% offsetm %]'>
                     [% dw.form_auth %]
-                    [% form.hidden( name = 'query', value = eq );
+                    [% form.hidden( name = 'query', value = q );
                        form.hidden( name = 'mode', value = su ? su.user : '' );
                        form.hidden( name = 'sort_by', value = sort_by );
                        form.hidden( name = 'with_comments', value = wc );
