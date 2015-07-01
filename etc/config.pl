@@ -801,6 +801,11 @@
     $OPENID_SERVER = 1;
     $OPENID_CONSUMER = 1;
 
+    # Uncomment this if you want LJ::OpenID functions to use LWP::UserAgent
+    # instead of LWP::UserAgent::Paranoid, for example if you want to access
+    # a URL that resolves to a private IP for testing purposes.
+    # $SKIP_PARANOID_USERAGENT = 1;
+
     # how many days to store random users for; after this many days they fall out of the table.
     # high traffic sites probably want a reasonably low number, whereas lower traffic sites might
     # want to set this higher to give a larger sample of users to select from.
