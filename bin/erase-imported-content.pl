@@ -2,8 +2,7 @@
 
 use v5.10;
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Talk;
 use DW::Worker::ContentImporter::Local::Entries;
 use DW::Worker::ContentImporter::Local::Comments;

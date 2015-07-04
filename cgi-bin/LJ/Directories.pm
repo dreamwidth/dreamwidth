@@ -94,6 +94,7 @@ lib->import( $ENV{LJHOME} . "/src/DSMS/lib" );
 
     @FILE_DIRS = map { @{ $dir_scopes{$_} || [] } } @SCOPES;
 
+    use lib "$ENV{LJHOME}/extlib/lib/perl5";
     foreach my $dir ( reverse map { abs_path($_."/cgi-bin") } @FILE_DIRS ) {
         lib->import($dir) if defined $dir;
     }

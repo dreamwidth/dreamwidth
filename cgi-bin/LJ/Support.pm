@@ -16,7 +16,6 @@ use strict;
 
 use Digest::MD5 qw(md5_hex);
 
-use lib "$LJ::HOME/cgi-bin";
 use LJ::Sysban;
 use LJ::Faq;
 
@@ -202,6 +201,20 @@ sub fill_request_with_cat
 {
     my ($sp, $cats) = @_;
     $sp->{_cat} = $cats->{$sp->{'spcatid'}};
+}
+
+sub open_request_status {
+    my ($timetouched, $timelasthelp) = @_;
+    my $status;
+    if ($timelasthelp > $timetouched+5) {
+        $status = "awaiting close";
+    } elsif ($timelasthelp &&
+             $timetouched > $timelasthelp+5) {
+        $status = "still needs help";
+    } else {
+        $status = "open";
+    }
+    return $status;
 }
 
 sub is_poster {

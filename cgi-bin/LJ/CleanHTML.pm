@@ -826,7 +826,7 @@ sub clean
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
                     my $url = canonical_url($hash->{src}, 1);
-                    $url = https_url( $url ) if $LJ::IS_SSL;
+                    $url = https_url( $url, journal => $journal, ditemid => $ditemid ) if $LJ::IS_SSL;
                     $hash->{src} = $url;
 
                     if ($img_bad) {
@@ -1654,7 +1654,7 @@ sub canonical_url {
 }
 
 sub https_url {
-    my ( $url ) = @_;
+    my ( $url, %opts ) = @_;
 
     # no-op if we're not configured to use SSL
     return $url unless $LJ::USE_SSL;
@@ -1668,7 +1668,10 @@ sub https_url {
         return $url;
     }
 
-    return DW::Proxy::get_proxy_url( $url ) || $url;
+    return DW::Proxy::get_proxy_url( $url,
+                                     journal => $opts{journal},
+                                     ditemid => $opts{ditemid}
+                                    ) || $url;
 }
 
 sub break_word {

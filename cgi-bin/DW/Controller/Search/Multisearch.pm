@@ -203,8 +203,7 @@ sub multisearch_handler {
     };
 
     # set up dispatch table
-    my $dispatch = { nav          => $f_nav,
-                     nav_and_user => $f_nav,
+    my $dispatch = { nav_and_user => $f_nav,
                      user         => $f_user,
                      int          => $f_int,
                      email        => $f_email,

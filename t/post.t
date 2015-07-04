@@ -17,8 +17,7 @@ use warnings;
 
 use Test::More tests => 133;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
 
 use DW::Routing::CallInfo;
@@ -284,6 +283,7 @@ my $postdecoded_bare = {
 
     crosspost_entry => 0,
     sticky_entry => undef,
+    update_displaydate => undef,
 
     props => {
         taglist => "",

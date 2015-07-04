@@ -159,7 +159,7 @@ sub new_handler {
         my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
-        $errors->add( undef, 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in( $post );
 
         my $okay_formauth = ! $remote || LJ::check_form_auth( $post->{lj_form_auth} );
@@ -293,6 +293,7 @@ sub _init {
     my $panels;
     my $formwidth;
     my $min_animation;
+    my $displaydate_check;
     if ( $u ) {
         # icons
         @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
@@ -344,6 +345,7 @@ sub _init {
         $panels = $u->entryform_panels;
         $formwidth = $u->entryform_width;
         $min_animation = $u->prop( "js_animations_minimal" ) ? 1 : 0;
+        $displaydate_check = $u->displaydate_check ? 1 : 0;
     } else {
         $panels = LJ::User::default_entryform_panels( anonymous => 1 );
     }
@@ -451,6 +453,7 @@ sub _init {
         sticky_entry => $form_opts->{sticky_entry},
 
         displaydate => \%displaydate,
+        displaydate_check => $displaydate_check,
 
 
         can_spellcheck => $LJ::SPELLER,
@@ -510,7 +513,7 @@ sub _edit {
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
         my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
 
-        $errors->add( undef, 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in( $post );
 
 
@@ -789,6 +792,8 @@ sub _form_to_backend {
         $req->{hour}    = $hour;
         $req->{min}     = $min;
     }
+    
+    $req->{update_displaydate} = $post->{update_displaydate};
 
     # crosspost
     $req->{crosspost_entry} = $post->{crosspost_entry} ? 1 : 0;
@@ -1028,6 +1033,23 @@ sub _do_post {
                 editurl => $edititemlink,
                 ditemid => $ditemid,
         );
+        
+        my $extradata = {
+            security => $form_req->{security},
+            security_ml => "",
+            subject => LJ::ehtml( $form_req->{subject} ),
+        };
+        if ( $extradata->{security} eq "usemask" ) {
+            if ( $form_req -> {allowmask} == 1 ) {
+                $extradata->{security_ml} = ".extradata.sec.access";
+            } else {
+                $extradata->{security_ml} = ".extradata.sec.custom";
+            }
+        } elsif ( $extradata->{security} eq "private" ) {
+            $extradata->{security_ml} = ".extradata.sec.private";
+        } else {
+            $extradata->{security_ml} = ".extradata.sec.public";
+        }
 
         # set sticky
         if ( $form_req->{sticky_entry} && $u->can_manage( $ju ) ) {
@@ -1042,6 +1064,7 @@ sub _do_post {
                 crossposts  => \@crossposts,# crosspost status list
                 links       => \@links,
                 links_header => ".new.links",
+                extradata   => $extradata,
             }
         );
     }
@@ -1106,7 +1129,7 @@ sub _do_edit {
         if ( $form_req->{sticky_entry} ) {
             $journal->sticky_entry_new( $ditemid )
                 unless $is_sticky_entry;
-        } else {
+        } elsif ( $form_req->{sticky_select} ) {
             $journal->sticky_entry_remove( $ditemid )
                 if $is_sticky_entry;
         }
@@ -1147,7 +1170,24 @@ sub _do_edit {
         ditemid => $ditemid,
         editurl => $edit_url,
     );
-
+        
+    my $extradata = {
+        security => $form_req->{security},
+        security_ml => "",
+        subject => LJ::ehtml( $form_req->{subject} ),
+    };
+    if ( $extradata->{security} eq "usemask" ) {
+        if ( $form_req -> {allowmask} == 1 ) {
+            $extradata->{security_ml} = ".extradata.sec.access";
+        } else {
+            $extradata->{security_ml} = ".extradata.sec.custom";
+        }
+    } elsif ( $extradata->{security} eq "private" ) {
+        $extradata->{security_ml} = ".extradata.sec.private";
+    } else {
+        $extradata->{security_ml} = ".extradata.sec.public";
+    }
+    
     my $poststatus = { ml_string => $poststatus_ml };
     $render_ret = DW::Template->render_template(
         'entry/success.tt', {
@@ -1156,6 +1196,7 @@ sub _do_edit {
             crossposts  => \@crossposts,# crosspost status list
             links       => \@links,
             links_header => '.edit.links',
+            extradata   => $extradata,
         }
     );
 
@@ -1167,6 +1208,8 @@ sub _persist_props {
     my ( $u, $form ) = @_;
 
     return unless $u;
+    
+    $u->displaydate_check($form->{update_displaydate} ? 1 : 0);
 # FIXME:
 #
 #                 # persist the default value of the disable auto-formatting option

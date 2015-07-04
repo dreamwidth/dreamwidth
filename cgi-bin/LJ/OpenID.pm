@@ -15,7 +15,6 @@ package LJ::OpenID;
 
 use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
-use LWPx::ParanoidAgent;
 use LJ::OpenID::Cache;
 
 BEGIN {
@@ -64,13 +63,10 @@ sub server {
 sub consumer {
     my $get_args = shift || {};
 
-    my $ua;
-    unless ($LJ::IS_DEV_SERVER) {
-        $ua = LWPx::ParanoidAgent->new(
-                                       timeout => 10,
-                                       max_size => 1024*300,
-                                       );
-    }
+    # always use a paranoid useragent
+    my $ua = LJ::get_useragent( role => "OpenID",
+                                timeout => 10,
+                                max_size => 1024*300, );
 
     my $cache = undef;
     if (! $LJ::OPENID_STATELESS && scalar(@LJ::MEMCACHE_SERVERS)) {
@@ -195,10 +191,11 @@ sub hmac {
 sub blocked_hosts {
     my $csr = shift;
 
-    return do { my $dummy = 0; \$dummy; } if $LJ::IS_DEV_SERVER;
+    # uncomment this if you need to bypass this check for testing purposes
+    # return do { my $dummy = 0; \$dummy; } if $LJ::IS_DEV_SERVER;
 
     my $tried_local_id = 0;
-    $csr->ua->blocked_hosts(
+    $csr->ua->blocked_hosts( [
                             sub {
                                 my $dest = shift;
 
@@ -207,7 +204,7 @@ sub blocked_hosts {
                                     return 1;
                                 }
                                 return 0;
-                            });
+                            } ] );
     return \$tried_local_id;
 }
 

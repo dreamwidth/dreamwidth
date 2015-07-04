@@ -20,10 +20,8 @@ use warnings;
 
 use Test::More tests => 8;
 
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::ParseFeed;
-BEGIN { $LJ::_T_CONFIG = 1; require 'ljlib.pl'; }
 
 #  These tests are of the correct identification of an "alternate" link.
 #  We assume here that an HTML alternate link is preferred over text/plain,

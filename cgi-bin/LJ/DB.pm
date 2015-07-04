@@ -15,7 +15,6 @@
 
 
 use strict;
-use lib "$LJ::HOME/cgi-bin";
 use DBI::Role;
 use DBI;
 

@@ -7,7 +7,7 @@ Backlink=[<a href="[[link]]">&lt;&lt;</a> [[text]]]
 
 bml.badcontent.body=One or more errors occurred processing your request.  Please go back, correct the necessary information, and submit your data again.
 
-bml.badinput.body=Your browser sent some text which isn't recognised as valid text in the UTF-8 encoding. This might happen if you forced your browser to view the previous page in some encoding other than UTF-8. It may also indicate a bug in the browser. If you can't get around this error, contact us.
+bml.badinput.body1=Your browser sent some text which isn't recognised as valid text in the UTF-8 encoding. This might happen if you forced your browser to view the previous page in some encoding other than UTF-8. It may also indicate a bug in the browser. Try copying the text into a text editor such as Notepad, then copying it back into the text box. If you still can't get around this error, contact us.
 
 bml.badinput.head=Bad Unicode Input
 
@@ -841,7 +841,7 @@ error.vhost.noalias=This user's account type doesn't permit domain aliasing.
 
 error.vhost.nocomm=This account isn't a community journal.
 
-error.vhost.nodomain=URLs like <nobr><b>http://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
+error.vhost.nodomain1=URLs like <nobr><b>https://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
 
 error.vhost.nostyle=This user's account type is not permitted to create and embed styles.
 
@@ -3775,7 +3775,7 @@ siteskins.celerity.alt=Celerity: Black text on white background; olive color hig
 
 siteskins.celerity.desc=Default-sized sans-serif font; vertical, fixed, non-expanding menus.
 
-siteskins.blueshift.alt=Blueshift: Black text ond white background; blue highlights
+siteskins.blueshift.alt=Blueshift: Black text on white background; blue highlights
 
 siteskins.blueshift.desc=Vertical, fixed, non-expanding menus.
 
@@ -4498,13 +4498,13 @@ widget.betafeature.s2comments.title=New S2 Comment Pages
 widget.betafeature.updatepage.off<<
 <p>Activate the testing version of the new Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
 
-<p>To report bugs with the new Create Entries page, <a href="http://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
+<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
 .
 
 widget.betafeature.updatepage.on<<
 <p>You are currently testing the Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
 
-<p>To report bugs with the new Create Entries page, <a href="http://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
+<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
 .
 
 widget.betafeature.updatepage.title=New Create Entries Page
@@ -4587,7 +4587,7 @@ widget.createaccountentercode.error.toofast=You're entering codes too quickly. P
 
 widget.createaccountentercode.getcode= If you do not have an account creation code, you can obtain one this way.
 
-widget.createaccountentercode.info=Enter an account creation code to create a new account:
+widget.createaccountentercode.info1=Enter an account creation code to create a new account:
 
 widget.createaccountentercode.pay2=Alternatively, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
 
@@ -4779,7 +4779,7 @@ widget.importchoosedata.item.lj_userpics.desc=Imports your icons (userpics). If 
 
 widget.importchoosesource.btn.continue=Continue &rarr;
 
-widget.importchoosesource.disabled=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
+widget.importchoosesource.disabled1=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
 
 widget.importchoosesource.error.nocredentials=Please provide a username and password for the service that you selected.
 

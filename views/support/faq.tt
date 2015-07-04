@@ -45,7 +45,7 @@ the same terms as Perl itself. For a copy of the license, please reference
     <h2>[% faqcategory.faqcatname | html %] (<a href='faqbrowse?faqcat=[% faqcategory.faqcat %]' name='[% faqcategory.faqcat %]'>[% '.view.all' | ml %]</a>)</h2>
     <ol class='faqlist'>
     [% faqcatid = faqcategory.faqcat %]
-    [% FOREACH faqq = $faqcatid.faqqs %]
+    [% FOREACH faqq = questions.$faqcatid.faqqs %]
         <li><a href='faqbrowse?faqid=[% faqq.faqid %]'>
             [% faqq.q %]
         </a></li>

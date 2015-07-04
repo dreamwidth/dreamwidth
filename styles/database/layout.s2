@@ -1342,6 +1342,7 @@ a:hover { text-decoration: underline; }
 .icon-image img,
 .ContextualPopup .Userpic img {
     box-shadow: .1em .1em .4em $*color_userpic_shadow;
+    display: block;
     }
 
 .has-userpic .userpic:hover,

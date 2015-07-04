@@ -11,11 +11,11 @@ Hi,
 
 .email.body.custom=This is a custom message from [[user]]:
 
-.email.body.footer<<
+.email.body.footer1<<
 -[[user]]
 
 --[[sitename]] Team
-Read the latest [[sitenameshort]] news at http://news.[[domain]]/
+Read the latest [[sitenameshort]] news at https://news.[[domain]]/
 .
 
 .email.body.otherjournal<<

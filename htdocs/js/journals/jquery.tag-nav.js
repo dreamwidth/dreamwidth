@@ -8,6 +8,7 @@
     function collapsed($trigger) {
         $trigger.attr("aria-expanded", "false");
         $trigger.attr("alt", "Show tag navigation");
+        $trigger.attr("title", "Tag navigation: Select this button, then a tag, then use the arrows displayed to navigate through entries with that tag.");
         $trigger.attr("src", Site.imgprefix + "/silk/site/add.png");
     }
 
@@ -102,11 +103,12 @@ jQuery(document).ready(function() {
 var hash = location.hash;
 if ( hash.indexOf( "#tagnav-" ) == 0 ) {
     $(window).load(function() {
-        var tag = hash.slice(8);
+        var tagnav_tag = decodeURI(hash.slice(8));
 
         $(".tag-nav-trigger").click();
         $(".tag a").filter(function() {
-            return $(this).text() === tag;
+            var text = $(this).text();
+            return text === tagnav_tag || text.replace(' ', '+') === tagnav_tag;
         }).click();
     })
 }

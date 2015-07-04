@@ -221,6 +221,14 @@ userproplist.disable_comm_promo:
   indexed: 0
   multihomed: 0
   prettyname: Administratively disable community promo features for a user
+  
+userproplist.displaydate_check:
+  cldversion: 4
+  datatype: bool
+  des: Use time of posting by default for this user.
+  indexed: 0
+  multihomed: 0
+  prettyname: Automatically sets entry page to use time of posting for timestamp.
 
 userproplist.dismissed_page_notices:
   cldversion: 4

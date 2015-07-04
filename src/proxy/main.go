@@ -96,16 +96,18 @@ func main() {
 }
 
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
-	//                        0   /  1  /   2   /  3
-	// http://proxy.dreamwidth.net/TOKEN/foo.com/url?arg=val
-	parts := strings.SplitN(req.URL.RequestURI(), "/", 4)
-	if len(parts) != 4 || parts[0] != "" {
+	//                        0   /  1  /   2  /   3   /  4
+	// https://proxy.dreamwidth.net/TOKEN/SOURCE/foo.com/url?arg=val
+	// SOURCE is ignored programmatically; it's only for admins
+	parts := strings.SplitN(req.URL.RequestURI(), "/", 5)
+
+	if len(parts) != 5 || parts[0] != "" {
 		// Invalid request, treat it as a 404.
 		log.Printf("Invalid request: %s", req.URL.RequestURI())
 		http.NotFound(w, req)
 		return
 	}
-	token, url := parts[1], "http://"+strings.Join(parts[2:], "/")
+	token, url := parts[1], "http://"+strings.Join(parts[3:], "/")
 
 	if !validSignature(token, url) {
 		log.Printf("Invalid signature in request: %s", req.URL.RequestURI())
@@ -171,6 +173,7 @@ func getProxyFile(token, url string) (string, error) {
 		log.Printf("Failed to fetch %s: %s", url, err)
 		return "", err
 	}
+	defer resp.Body.Close()
 
 	// If it's too large, we don't want it!
 	if resp.ContentLength > MAXIMUM_SIZE {

@@ -361,7 +361,7 @@ h2#subtitle {
 
 .datetime {  text-transform: uppercase; font-size: smaller; letter-spacing: 0.3em; }
 
-.entry .userpic img, .comment .userpic img  { border: 10px solid $*color_entry_background; }
+.entry .userpic img, .comment .userpic img  { border: 10px solid $*color_entry_background; display:block}
 
 $userpic_css
 

@@ -15,8 +15,7 @@ package DW::Graphs;
 
 use strict;
 use warnings;
-use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl';
+require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 use GD::Graph;
 use GD::Graph::bars;
 use GD::Graph::hbars;

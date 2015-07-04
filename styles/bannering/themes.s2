@@ -834,7 +834,7 @@ layerinfo name = "Wind Power";
 layerinfo redist_uniq = "bannering/windpower";
 layerinfo author_name = "branchandroot";
 
-set layout_resources = [ { "name" => "Sarah Wheaton", "url" => "http://dianavilliers.dreamwidth.org/" } ];
+set layout_resources = [ { "name" => "Sarah Wheaton", "url" => "https://dianavilliers.dreamwidth.org/" } ];
 
 ##===============================
 ## Presentation

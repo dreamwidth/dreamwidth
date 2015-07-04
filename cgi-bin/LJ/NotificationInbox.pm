@@ -140,6 +140,14 @@ sub usermsg_sent_items {
     return $self->subset_items(@events);
 }
 
+sub usermsg_sent_last_items {
+    my $self = shift;
+
+    my @events = ( 'UserMessageSent' );
+
+    return $self->subset_items(@events);
+}
+
 sub birthday_items {
     my $self = shift;
 
@@ -604,6 +612,8 @@ sub delete_all {
         @items = $self->bookmark_items;
     } elsif ( $view eq 'usermsg_sent' ) {
         @items = $self->usermsg_sent_items;
+    } elsif ( $view eq 'usermsg_sent_last' ) {
+        @items = $self->usermsg_sent_last_items;
     } elsif ( $view eq 'singleentry' && $args{itemid} ) {
         my $itemid = $args{itemid} + 0;
         return unless $itemid;
@@ -658,6 +668,8 @@ sub mark_all_read {
         @items = $self->bookmark_items;
     } elsif ( $view eq 'usermsg_sent' ) {
         @items = $self->usermsg_sent_items;
+    } elsif ( $view eq 'usermsg_sent_last' ) {
+        @items = $self->usermsg_sent_last_items;
     } elsif ( $view eq 'singleentry' && $args{itemid} ) {
         my $itemid = $args{itemid} + 0;
         return unless $itemid;

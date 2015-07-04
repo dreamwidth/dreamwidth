@@ -74,6 +74,7 @@ sub default_themes {
         planetcaravan => 'planetcaravan/cheerfully',
         practicality => 'practicality/warmth',
         refriedtablet => 'refriedtablet/refriedclassic',
+        seamless => 'seamless/pinkenvy',
         skittlishdreams => 'skittlishdreams/orange',
         snakesandboxes => 'snakesandboxes/pinkedout',
         steppingstones => 'steppingstones/purple',

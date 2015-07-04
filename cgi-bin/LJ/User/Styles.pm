@@ -688,7 +688,7 @@ sub make_journal {
     };
     if ( $LJ::USER_VHOSTS && $opts->{'vhost'} eq "users" && ! $u->is_redirect &&
         ! LJ::get_cap( $u, "userdomain" ) ) {
-        return $notice->( BML::ml( 'error.vhost.nodomain', { user_domain => $LJ::USER_DOMAIN } ) );
+        return $notice->( BML::ml( 'error.vhost.nodomain1', { user_domain => $LJ::USER_DOMAIN } ) );
     }
     if ($opts->{'vhost'} =~ /^other:/ && ! LJ::get_cap($u, "domainmap")) {
         return $notice->( BML::ml( 'error.vhost.noalias' ) );

@@ -308,6 +308,8 @@ table.talkform { padding: 1em;
 
 $userpic_css
 
+.entry .userpic img, .comment .userpic img { display:block;}
+
 .entry .userpic {
     margin: -1em 0 .5em 0;
     padding: 0 8px 8px 8px;

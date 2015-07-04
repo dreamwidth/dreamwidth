@@ -16,9 +16,8 @@
 
 use strict;
 use warnings;
-use lib "$ENV{'LJHOME'}/cgi-bin";
 BEGIN {
-    require "ljlib.pl";
+    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
 }
 use LJ::Sysban;
 use DW::Pay;

@@ -87,7 +87,7 @@ sub faq_handler {
             next unless $q;
             $q =~ s/^\s+//; $q =~ s/\s+$//;
             $q =~ s!\n!<br />!g;
-            push @{ $vars->{$faqcat}->{faqqs} }, {
+            push @{ $vars->{questions}->{$faqcat}->{faqqs} }, {
                 q => $q,
                 faqid => $faqid };
         }

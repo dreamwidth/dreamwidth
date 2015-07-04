@@ -15,7 +15,7 @@
 
 use strict;
 our ( %maint, %maintinfo );
-use lib "$ENV{'LJHOME'}/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
+require "$ENV{'LJHOME'}/cgi-bin/LJ/Directories.pm";  # extra XML::Encoding files in cgi-bin/XML/*
 use LJ::SynSuck;
 
 $maintinfo{'synsuck'}{opts}{locking} = "per_host";

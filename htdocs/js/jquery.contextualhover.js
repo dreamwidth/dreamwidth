@@ -37,8 +37,10 @@ function _initUserhead(context) {
 }
 
 function _initIcons(context) {
-    var re = new RegExp( "^" + Site.iconprefix + "/\\d+\/\\d+$" );
-    $("img[src^='"+Site.iconprefix+"']",context).each(function() {
+    var old_icon_path = '/userpic';
+    var url_prefix = "(^" + Site.iconprefix + "|" + old_icon_path + ")";
+    var re = new RegExp( url_prefix + "/\\d+\/\\d+$" );
+    $("img[src^='"+Site.iconprefix+"'],img[src*='"+old_icon_path+"']",context).each(function() {
         var $icon = $(this);
         if (!$icon.data("no-ctx") && this.src.match(re)) {
             $icon.contextualhover({ "icon_url": this.src, type: "icon" });

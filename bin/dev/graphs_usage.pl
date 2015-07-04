@@ -18,7 +18,7 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use DW::Graphs;
 use strict;
 use warnings;

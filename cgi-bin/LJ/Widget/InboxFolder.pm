@@ -204,6 +204,8 @@ sub render_body {
             my $expanded = $expand && $expand == $qid;
             $expanded ||= $remote->prop('esn_inbox_default_expand');
             $expanded = 0 if $inbox_item->read;
+            
+            $expanded = 1 if ( $view eq "usermsg_sent_last" && $i == $starting_index );
 
             my $expand_img = $expanded ? "inbox_expand" : "inbox_collapse";
 
