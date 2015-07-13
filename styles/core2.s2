@@ -4658,7 +4658,7 @@ function print_module_credit() {
                 $count++;
                 if ( $count < $layout_authors_size ) {
                     if ( $count == ($layout_authors_size -1) ) { $ret = $ret + " and "; }
-                    else { $ret = $ret + ","; }
+                    else { $ret = $ret + ", "; }
                 }
             }
         }
