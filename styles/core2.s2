@@ -4698,7 +4698,7 @@ function print_module_credit() {
             $count++;
             if ( $count < $theme_authors_size ) {
                 if ( $count == ($theme_authors_size -1) ) { $ret = $ret + " and "; }
-                else { $ret = $ret + ","; }
+                else { $ret = $ret + ", "; }
             }
         }
 
@@ -4722,7 +4722,7 @@ function print_module_credit() {
             $count++;
             if ( $count < $resources_size ) {
                 if ( $count == ($resources_size -1) ) { $ret = $ret + " and "; }
-                else { $ret = $ret + ","; }
+                else { $ret = $ret + ", "; }
             }
         }
         $ret = $ret + "</li>\n";
