@@ -55,7 +55,7 @@ body<=
     # props in this list will be preloaded on page load and saved on post
     my @uprops = qw/
         opt_whatemailshow comm_theme
-        ao3 aolim delicious diigo etsy ffnet google_talk icq jabber
+        ao3 aolim delicious diigo etsy ffnet github google_talk icq jabber
         last_fm_user pinboard pinterest plurk ravelry skype tumblr twitter yahoo
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
@@ -425,6 +425,7 @@ body<=
                            ["diigo", $ML{ '.services.diigo' }, 16],
                            ["etsy", $ML{ '.services.etsy' }, 20],
                            ["ffnet", $ML{ '.services.ffnet' }, 30],
+                           ["github", $ML{'.services.github'}, 39],
                            ["google_talk", $ML{'.chat.googletalk'}, 60],
                            ["icq", $ML{'.chat.icquin'}, 12],
                            ["jabber", $ML{'.chat.jabber'}, 60],

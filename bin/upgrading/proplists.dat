@@ -438,6 +438,14 @@ userproplist.gender:
   multihomed: 0
   prettyname: Gender
 
+userproplist.github:
+  cldversion: 4
+  datatype: char
+  des: GitHub user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: GitHub user account name
+
 userproplist.google_talk:
   cldversion: 0
   datatype: char

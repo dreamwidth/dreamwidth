@@ -203,6 +203,8 @@
 
 .services.ffnet=FanFiction.net Username
 
+.services.github=GitHub Username
+
 .services.last_fm=Last.fm Username
 
 .services.pinboard=Pinboard Username
