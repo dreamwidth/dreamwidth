@@ -1000,6 +1000,8 @@ sub get_useragent {
         ssl_opts => {
             # FIXME: we still need verify_hostname off. Investigate.
             verify_hostname => 0,
+            # also needed for LWP::Protocol::https < 6.06
+            SSL_verify_mode => 0,
             #ca_file => Mozilla::CA::SSL_ca_file()
         });
     #$ua->agent($agent) if $agent;
