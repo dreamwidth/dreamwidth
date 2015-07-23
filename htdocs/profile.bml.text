@@ -391,6 +391,8 @@
 
 .services.ffnet=FanFiction.net
 
+.service.github=GitHub
+
 .service.pinboard=Pinboard
 
 .service.pinterest=Pinterest

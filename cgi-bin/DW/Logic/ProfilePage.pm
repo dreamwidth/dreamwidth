@@ -783,6 +783,17 @@ sub external_services {
         };
     }
 
+    if ( my $github = $u->prop( 'github' ) ) {
+        my $github = LJ::eurl( $github );
+        push @ret, {
+            type => 'github',
+            text => LJ::ehtml( $github ),
+            url => "https://github.com/$github",
+            image => 'github.png',
+            title_ml => '.service.github',
+        };
+    }
+
     if ( my $google = $u->prop( 'google_talk' ) ) {
         push @ret, {
             type => 'google',
