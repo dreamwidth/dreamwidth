@@ -1596,3 +1596,12 @@ general widget.search.msn
 general /manage/profile/index.bml.chat.msnusername
 general /profile.bml.im.msn
 general /profile.bml.label.msnusername
+
+general widget.betafeature.btn.off
+general widget.betafeature.btn.on
+general widget.betafeature.s2comments.off
+general widget.betafeature.s2comments.on
+general widget.betafeature.s2comments.title
+general widget.betafeature.updatepage.off
+general widget.betafeature.updatepage.on
+general widget.betafeature.updatepage.title

@@ -1,4 +1,40 @@
 ;; -*- coding: utf-8 -*-
+.betafeature.btn.off=Turn OFF beta testing
+
+.betafeature.btn.on=Turn ON beta testing
+
+.betafeature.s2comments.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.s2comments.off<<
+<p>Activate the testing version of the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
+
+<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.s2comments.on<<
+<p>You are currently testing the the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
+
+<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.s2comments.title=New S2 Comment Pages
+
+.betafeature.updatepage.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.updatepage.off<<
+<p>Activate the testing version of the new Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
+
+<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.updatepage.on<<
+<p>You are currently testing the Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
+
+<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.updatepage.title=New Create Entries Page
+
 .nofeatures=There are no features currently available for beta testing.
 
 .staytuned.newscomm=Stay tuned to [[news]] for upcoming testing opportunities. Thank you.
