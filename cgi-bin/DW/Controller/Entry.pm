@@ -257,7 +257,7 @@ sub new_handler {
 
 
 # Initializes entry form values.
-# Can be used when posting a new entry or editing an old entry. .
+# Can be used when posting a new entry or editing an old entry.
 # Arguments:
 # * form_opts: options for initializing the form
 #       usejournal    string: username of the journal we're posting to (if not provided,
@@ -345,7 +345,7 @@ sub _init {
         $panels = $u->entryform_panels;
         $formwidth = $u->entryform_width;
         $min_animation = $u->prop( "js_animations_minimal" ) ? 1 : 0;
-        $displaydate_check = $u->displaydate_check ? 1 : 0;
+        $displaydate_check = ( $u->displaydate_check && not $form_opts->{trust_datetime_value}) ? 1 : 0;
     } else {
         $panels = LJ::User::default_entryform_panels( anonymous => 1 );
     }
