@@ -15,14 +15,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- sections.title = "Detailed Rename View"; -%]
 [%- dw.need_res( 'stc/rename.css' ) -%]
 
-[% IF error_list %]
-    <p>Error</p>
-    <ul class='error-list'>
-        [% FOREACH error = error_list %]
-            <li>[% error %] </li>
-        [% END %]
-    </ul>
-[% END %]
+[%- PROCESS block.errors -%]
 
 [% IF token %]
     <form method="POST" id="renameform">
@@ -71,7 +64,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </fieldset>
         [% END %]
 
-        <fieldset class="others">        
+        <fieldset class="others">
             <legend>[% '.form.others.header' | ml %]</legend>
             <input type="checkbox" name="override_others" id="override_others" /><label for="override_others">Override</label>
             <div class="formfield">

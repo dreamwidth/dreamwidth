@@ -14,14 +14,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% sections.title = 'System Renames' %]
 
-[% IF error_list %]
-    <p>Error</p>
-    <ul class='error-list'>
-        [% FOREACH error = error_list %]
-            <li>[% error %] </li>
-        [% END %]
-    </ul>
-[% END %]
+[%- PROCESS block.errors -%]
 
 <p>This allows a system user to perform a rename. The rules are slightly relaxed compared to normal renames: we check for validity of the username, but we don't care about other things like the journal's status or ownership.</p>
 <p>All existing relationships are kept; email and journal redirects are broken.</p>

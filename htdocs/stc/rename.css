@@ -25,15 +25,6 @@
     padding: 0.2em 0;
 }
 
-ul.error-list {
-    margin-left: 2em;
-    margin-bottom: 2em;
-}
-
-ul.error-list li { 
-    list-style: disc outside;
-}
-
 p.detail {
     margin-left: 2em !important;
 }

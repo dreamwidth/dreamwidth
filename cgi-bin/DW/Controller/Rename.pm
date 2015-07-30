@@ -22,6 +22,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Controller::Admin;
+use DW::FormErrors;
 
 use DW::RenameToken;
 use DW::Shop;
@@ -66,21 +67,23 @@ sub rename_handler {
 
     if ( $r->method eq "POST" ) {
 
-        # this is kind of ugly. Basically, it's a rendered template if it's a success, and a list of errors if it failed
-        my ( $post_ok, $rv ) = handle_post( $token, $post_args );
-        return $rv if $post_ok;
+        # this is kind of ugly. $post_ok is a hashref of template args
+        # if it's a success, and false if it failed
+        my $errors = DW::FormErrors->new;
+        my $post_ok = handle_post( $token, $post_args, errors => $errors );
+        return success_ml( "/rename.tt.success", $post_ok ) if $post_ok;
 
-        $vars->{error_list} = $rv;
+        $vars->{errors} = $errors;
     }
 
     $vars->{invalidtoken} = $given_token
         if $given_token && ! $token;
 
-    my $rename_to_errors = [];
+    my $rename_to_errors = DW::FormErrors->new;
     if ( $get_args->{checkuser} ) {
         $vars->{checkusername} = {
             user => $get_args->{checkuser},
-            status => $remote->can_rename_to( $get_args->{checkuser}, errref => $rename_to_errors ) ? "available" : "unavailable",
+            status => $remote->can_rename_to( $get_args->{checkuser}, errors => $rename_to_errors ) ? "available" : "unavailable",
             errors => $rename_to_errors
         };
     }
@@ -135,19 +138,22 @@ sub rename_handler {
 sub handle_post {
     my ( $token, $post_args, %opts ) = @_;
 
-    return ( 0, [ LJ::Lang::ml( '/rename.tt.error.invalidform' ) ] ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+    my $errors = $opts{errors} || DW::FormErrors->new;
 
-    my $errref = [];
+    unless ( LJ::check_form_auth( $post_args->{lj_form_auth} ) ) {
+        $errors->add( '', '/rename.tt.error.invalidform' );
+        return 0;
+    }
 
     # the journal we are going to rename: yourself or a community you maintain
     my $journal = LJ::get_authas_user( $post_args->{authas} );
-    push @$errref, LJ::Lang::ml( '/rename.tt.error.nojournal' ) unless $journal;
+    $errors->add( 'authas', '/rename.tt.error.nojournal' ) unless $journal;
 
     my $fromusername = $journal ? $journal->user : "";
 
     my $tousername = $post_args->{touser};
     my $redirect_journal = $post_args->{redirect} && $post_args->{redirect} eq "disconnect" ? 0 : 1;
-    push @$errref, LJ::Lang::ml( '/rename.tt.error.noredirectopt' ) unless $post_args->{redirect};
+    $errors->add( 'redirect', '/rename.tt.error.noredirectopt' ) unless $post_args->{redirect};
 
     # since you can't recover deleted relationships, but you can delete the relationships later if something was missed
     # negate the form submission so we're explicitly stating which rels we want to delete, rather than deleting everything not listed
@@ -157,23 +163,23 @@ sub handle_post {
     my %other_opts = map { $_ => 1 } $post_args->get_all( "others" );
     if ( $other_opts{email} ) {
         if ( $post_args->{redirect} ne "forward" ) {
-            push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnotforward', { emaildomain => "\@$LJ::USER_DOMAIN" } );
+            $errors->add( 'redirect', '/rename.tt.error.emailnotforward', { emaildomain => "\@$LJ::USER_DOMAIN" } );
             $other_opts{email} = 0;
         }
 
         unless ( $journal->can_have_email_alias ) {
-            push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnoalias' );
+            $errors->add( 'others_email', '/rename.tt.error.emailnoalias' );
             $other_opts{email} = 0;
         }
     }
 
     # try the rename and see if there are any errors
-    $journal->rename( $tousername, user => LJ::get_remote(), token => $token, redirect => $redirect_journal, redirect_email => $other_opts{email}, %del_rel, errref => $errref );
+    $journal->rename( $tousername, user => LJ::get_remote(), token => $token, redirect => $redirect_journal, redirect_email => $other_opts{email}, %del_rel, errors => $errors );
 
-    return ( 1, success_ml( "/rename.tt.success", { from => $fromusername, to => $journal->user } ) ) unless @$errref;
+    return { from => $fromusername, to => $journal->user } unless $errors->exist;
 
-    # return the list of errors, because we want to print out other things as well...
-    return ( 0, $errref );
+    # the list of errors should be present in the caller
+    return 0;
 }
 
 
@@ -194,11 +200,13 @@ sub swap_handler {
     $vars->{numtokens} = scalar @unused_tokens;
 
     if ( $r->method eq "POST" ) {
-        # this is kind of ugly. Basically, it's a rendered template if it's a success, and a list of errors if it failed
-        my ( $post_ok, $rv ) = handle_swap_post( $post_args, tokens => \@unused_tokens, user => $remote );
-        return $rv if $post_ok;
+        # this is kind of ugly. $post_ok is a hashref of template args
+        # if it's a success, and false if it failed
+        my $errors = DW::FormErrors->new;
+        my $post_ok = handle_swap_post( $post_args, tokens => \@unused_tokens, user => $remote, errors => $errors );
+        return success_ml( "/rename/swap.tt.success", $post_ok ) if $post_ok;
 
-        $vars->{error_list} = $rv;
+        $vars->{errors} = $errors;
     }
 
     my $authas =  LJ::make_authas_select( $remote,
@@ -215,32 +223,30 @@ sub swap_handler {
 sub handle_swap_post {
     my ( $post_args, %opts ) = @_;
 
-    my @errors = ();
-    push @errors, LJ::Lang::ml( '/rename.tt.error.invalidform' ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+    my $errors = $opts{errors} || DW::FormErrors->new;
+    $errors->add( '', '/rename.tt.error.invalidform' ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
 
     my $journal = LJ::get_authas_user( $post_args->{authas} );
-    push @errors, LJ::Lang::ml( '/rename/swap.tt.error.nojournal' ) unless $journal;
+    $errors->add( 'authas', '/rename/swap.tt.error.nojournal' ) unless $journal;
 
     my $swapjournal = LJ::load_user( $post_args->{swapjournal} );
-    push @errors, LJ::Lang::ml( '/rename/swap.tt.error.invalidswapjournal' ) unless $swapjournal;
+    $errors->add( 'swapjournal', '/rename/swap.tt.error.invalidswapjournal' ) unless $swapjournal;
 
-    return ( 0, \@errors ) if @errors;
+    return 0 if $errors->exist;
 
 
     ( $journal, $swapjournal ) = ( $swapjournal, $journal )
         if $journal->is_community && $swapjournal->is_personal;
 
     # let's do this
-    my $errref = [];
-    $journal->swap_usernames( $swapjournal, user => $opts{user}, tokens => $opts{tokens}, errref => $errref );
+    my $swap_errors = $opts{errors} || DW::FormErrors->new;
+    $journal->swap_usernames( $swapjournal, user => $opts{user}, tokens => $opts{tokens}, errors => $swap_errors );
 
-    return ( 1, success_ml( "/rename/swap.tt.success", {
-            journal => $journal->ljuser_display,
-            swapjournal => $swapjournal->ljuser_display,
-    } ) ) unless @$errref;
+    return { journal => $journal->ljuser_display,
+             swapjournal => $swapjournal->ljuser_display } unless $errors->exist;
 
-    # return the list of errors, because we want to print out other things as well...
-    return ( 0, $errref );
+    # the list of errors should be present in the caller
+    return 0;
 }
 
 sub rename_admin_handler {
@@ -320,14 +326,17 @@ sub rename_admin_edit_handler {
     };
 
     if ( $r->did_post ) {
-        my ( $post_ok, $rv ) = handle_admin_post( $token, $post_args,
+        my $errors = DW::FormErrors->new;
+        my $post_ok = handle_admin_post( $token, $post_args,
                     journal     => $u,
                     from_user    => $token->fromuser,
                     to_user      => $token->touser,
+                    errors      => $errors,
         );
-        return $rv if $post_ok;
+        return DW::Template->render_template( 'success.tt',
+            { message => "Successfully changed settings." } ) if $post_ok;
 
-        $vars->{error_list} = $rv;
+        $vars->{errors} = $errors;
     }
 
     return DW::Template->render_template( "admin/rename_edit.tt", $vars );
@@ -336,9 +345,13 @@ sub rename_admin_edit_handler {
 sub handle_admin_post {
     my ( $token, $post_args, %opts ) = @_;
 
-    return ( 0, [ LJ::Lang::ml( '/rename.tt.error.invalidform' ) ] ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+    my $errors = $opts{errors} || DW::FormErrors->new;
 
-    my $errref = [];
+    unless ( LJ::check_form_auth( $post_args->{lj_form_auth} ) ) {
+        $errors->add( '', '/rename.tt.error.invalidform' );
+        return 0;
+    }
+
     my %rename_opts = ( user => LJ::get_remote(), from => $opts{from_user}, to => $opts{to_user} );
 
     if ( $post_args->{override_redirect} ) {
@@ -346,7 +359,7 @@ sub handle_admin_post {
             my $redirect_journal = $post_args->{redirect} && $post_args->{redirect} eq "disconnect" ? 0 : 1;
             $rename_opts{break_redirect}->{username} = ! $redirect_journal;
         } else {
-            push @$errref, "Cannot do redirect; invalid journal, or no username provided to rename from/to.";
+            $errors->add_string( '', "Cannot do redirect; invalid journal, or no username provided to rename from/to." );
         }
     }
 
@@ -367,12 +380,12 @@ sub handle_admin_post {
         # force email to false if we can't support forwarding for this user
         if ( $other_opts{email} ) {
             if ( $post_args->{redirect} ne "forward" ) {
-                push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnotforward', { emaildomain => "\@$LJ::USER_DOMAIN" } );
+                $errors->add( 'redirect', '/rename.tt.error.emailnotforward', { emaildomain => "\@$LJ::USER_DOMAIN" } );
                 $other_opts{email} = 0;
             }
 
             unless ( $opts{journal}->can_have_email_alias ) {
-                push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnoalias' );
+                $errors->add( 'others_email', '/rename.tt.error.emailnoalias' );
                 $other_opts{email} = 0;
             }
         }
@@ -382,12 +395,7 @@ sub handle_admin_post {
 
     $opts{journal}->apply_rename_opts( %rename_opts );
 
-    return ( 1, DW::Template->render_template(
-        'success.tt', { message => "Successfully changed settings." }
-    ) ) unless @$errref;
-
-    # return the list of errors, because we want to print out other things as well...
-    return ( 0, $errref );
+    return $errors->exist ? 0 : 1;
 }
 
 
@@ -401,10 +409,12 @@ sub siteadmin_rename_handler {
     my $vars = {};
 
     if ( $r->method eq "POST" ) {
-        my ( $post_ok, $rv ) = handle_siteadmin_rename_post( $post_args );
-        return $rv if $post_ok;
+        my $errors = DW::FormErrors->new;
+        my $post_ok = handle_siteadmin_rename_post( $post_args, errors => $errors );
+        return DW::Template->render_template( 'success.tt',
+            { message => "Successfully changed settings." } ) if $post_ok;
 
-        $vars->{error_list} = $rv;
+        $vars->{errors} = $errors;
     }
 
     return DW::Template->render_template( "admin/rename_new.tt", $vars );
@@ -412,29 +422,28 @@ sub siteadmin_rename_handler {
 
 
 sub handle_siteadmin_rename_post {
-    my ( $post_args ) = @_;
+    my ( $post_args, %opts ) = @_;
 
-    return ( 0, [ LJ::Lang::ml( '/rename.tt.error.invalidform' ) ] )
-        unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+    my $errors = $opts{errors} || DW::FormErrors->new;
 
-    my $errref = [];
+    unless ( LJ::check_form_auth( $post_args->{lj_form_auth} ) ) {
+        $errors->add( '', '/rename.tt.error.invalidform' );
+        return 0;
+    }
 
     my $from_user = LJ::load_user( $post_args->{user} );
     my $to_user = $post_args->{touser};
 
-    push @$errref, LJ::Lang::ml( '/rename.tt.error.nojournal' ) unless $from_user;
+    $errors->add( 'user', '/rename.tt.error.nojournal' ) unless $from_user;
 
     $from_user->rename( $to_user,
         token => DW::RenameToken->create_token( systemtoken => 1 ),
         user => LJ::get_remote(),
         force => 1,
-        errref => $errref,
+        errors => $errors,
+        form_from => 'user',
     );
 
-    return ( 1, DW::Template->render_template(
-        'success.tt', { message => "Successfully changed settings." }
-    ) ) unless @$errref;
-
-    return ( 0, $errref );
+    return $errors->exist ? 0 : 1;
 }
 1;
