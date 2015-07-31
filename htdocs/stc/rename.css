@@ -1,11 +1,6 @@
-#renameform fieldset {
-    display: block;
-}
-
 #renameform fieldset legend {
     font-size: 1.2em;
     padding: 0.8em 0 0.2em 0;
-    font-weight: bold;
 }
 
 #renameform .formfield fieldset legend {
@@ -25,6 +20,6 @@
     padding: 0.2em 0;
 }
 
-p.detail {
-    margin-left: 2em !important;
+#content p.note {
+    font-style: italic; font-size: 80%;
 }

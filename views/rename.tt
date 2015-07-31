@@ -15,6 +15,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- dw.need_res( 'stc/rename.css' ) -%]
 
 [%- sections.title = '.title' | ml -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        p.detail { margin-left: 2em; }
+    </style>
+[% END %]
 
 [%- PROCESS block.errors -%]
 
