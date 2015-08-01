@@ -16,6 +16,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- sections.head = BLOCK %]
     <style type="text/css">
         p.detail { margin-left: 2em; }
+        label.inline { display: inline; }
     </style>
 [% END %]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
@@ -101,7 +102,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% END %]
 
         <form method="GET" id="checkusername">
-            <label for="username_for_rename">[% '.checkusername.label' | ml %]: <input id="username_for_rename" name="checkuser" value="[% checkusername.user | html %]" />
+            <label class="inline" for="username_for_rename">[% '.checkusername.label' | ml %]:</label> <input id="username_for_rename" name="checkuser" value="[% checkusername.user | html %]" />
             <input type="submit" value="[% '.checkusername.submit' | ml %]" />
         </form>
 
@@ -141,7 +142,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [% END %]
     <p>[% '.token.manual.header' | ml %]</p>
     <form method="GET" id="entermanualtoken">
-        <label for="manual_token">[% '.token.manual.label' | ml %] <input id="manual_token" name="giventoken" value="" />
+        <label class="inline" for="manual_token">[% '.token.manual.label' | ml %]</label> <input id="manual_token" name="giventoken" value="" />
         <input type="checkbox" name="type" value="C" id="manual_iscomm" /><label for="manual_iscomm">[% '.token.manual.iscomm' | ml %]</label>
         [%~ IF checkusername.user AND checkusername.status == 'available' ~%]
             <input type="hidden" id="manual_renameto" name="to" value="[%~ checkusername.user | html ~%]" />
