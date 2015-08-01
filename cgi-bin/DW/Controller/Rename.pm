@@ -415,6 +415,10 @@ sub siteadmin_rename_handler {
             { message => "Successfully changed settings." } ) if $post_ok;
 
         $vars->{errors} = $errors;
+
+        # also prefill form with previously submitted data
+        $vars->{prev_user}   = $post_args->{user};
+        $vars->{prev_touser} = $post_args->{touser};
     }
 
     return DW::Template->render_template( "admin/rename_new.tt", $vars );
