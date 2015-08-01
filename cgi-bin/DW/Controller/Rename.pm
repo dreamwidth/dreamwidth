@@ -446,7 +446,7 @@ sub handle_siteadmin_rename_post {
         force => 1,
         errors => $errors,
         form_from => 'user',
-    );
+    ) if defined $from_user;
 
     return $errors->exist ? 0 : 1;
 }
