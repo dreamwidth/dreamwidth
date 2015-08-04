@@ -579,7 +579,7 @@ var postForm = (function($) {
                         ].join("-");
             $("#js-entrytime-date").val(date).trigger("change");
 
-            var time = [ zeropad(now.getHours()), zeropad(now.getMinutes() * 100) ];
+            var time = [ zeropad(now.getHours()), zeropad(now.getMinutes()) ];
             $("#js-entrytime-time").val(time).trigger("change");
 
             $("#js-trust-datetime").val(1);
