@@ -740,12 +740,13 @@ sub _form_to_backend {
     $props->{taglist} = "" unless $props->{taglist} && $props->{taglist} =~ /\S/;
 
     if ( LJ::is_enabled( 'adult_content' ) ) {
+        my $restriction_key = $post->{age_restriction} || '';
         $props->{adult_content} = {
             ''              => '',
             'none'          => 'none',
             'discretion'    => 'concepts',
             'restricted'    => 'explicit',
-        }->{$post->{age_restriction}} || "";
+        }->{$restriction_key} || "";
 
         $props->{adult_content_reason} = $post->{age_restriction_reason} || "";
     }
