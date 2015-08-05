@@ -32,19 +32,6 @@ sub show_individual_result{
 }
 
 
-# sub doform {
-#     my ($self, $preval, $clearanswers) = @_;
-#     my $ret = '';
-#     my $qid = $self->pollqid;
-#     my $pollid = $self->pollid;
-#     my ($size, $max) = split(m!/!, $self->opts);
-#     my $prevanswer = $clearanswers ? "" : $preval->{$qid};
-# 
-#     $ret .= LJ::html_text({ 'size' => $size, 'maxlength' => $max, 'class'=>"poll-$pollid",
-#                                 'name' => "pollq-$qid", 'value' => $prevanswer });
-#         return $ret;
-# }
-
 sub has_sub_items {0}
 sub previewing_snippet {
     my $self = shift;

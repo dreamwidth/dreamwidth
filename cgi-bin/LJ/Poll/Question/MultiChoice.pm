@@ -5,7 +5,7 @@
 # currently be found at:
 #
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
-#
+# #
 # In accordance with the original license, this code and all its
 # modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
@@ -72,31 +72,27 @@ sub display_result {
                      id="LJ_PollAnswerLink_${pollid}_$qid">
                 } . LJ::Lang::ml('poll.viewanswers') . "</a><br />" if $poll->can_view;
 
-            ### if this is a text question and the viewing user answered it, show that answer
-
-                ### but, if this is a non-text item, and we're showing results, need to load the answers:
-                $sth = $poll->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
-                $sth->execute( $pollid, $qid, $poll->journalid );
-                while (my ($val) = $sth->fetchrow_array) {
-                    $usersvoted++;
-                        foreach ($self->decompose_votes($val)) {
-                            $itvotes{$_}++;
-                        }
+             ### but, if this is a non-text item, and we're showing results, need to load the answers:
+            $sth = $poll->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
+            $sth->execute( $pollid, $qid, $poll->journalid );
+            while (my ($val) = $sth->fetchrow_array) {
+                $usersvoted++;
+                for ($self->decompose_votes($val)) { #decompose_votes is subclassed
+                    $itvotes{$_}++;
                 }
+            }
 
-                foreach (values %itvotes) {
-                    $maxitvotes = $_ if ($_ > $maxitvotes);
-                }
+            for (values %itvotes) {
+                $maxitvotes = $_ if ($_ > $maxitvotes);
+            }
         }
 
         my $prevanswer;
 
-        #### now, questions with items
-
         my @items = $poll->question($qid)->items;
         @items = map { [$_->{pollitid}, $_->{item}] } @items;
 
-         foreach my $item (@items) {
+        for my $item (@items) {
             # note: itid can be fake
             my ($itid, $item) = @$item;
 
@@ -133,7 +129,7 @@ sub display_result {
         $ret .= "</div></div>";
 
  #####################
-        return $ret;
+    return $ret;
 }
 
 

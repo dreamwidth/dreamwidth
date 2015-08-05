@@ -152,13 +152,12 @@ sub dotable_flag{0}
 sub decompose_votes{my ($self,$val) = @_; return $val }
 sub has_sub_items {0}
 sub previewing_snippet_preamble { return '' } # not needed in most cases.
-sub process_tag_options {     # subclassed in some cases
+sub process_tag_options {     # subclassed in some cases, in other cases return qopts untouched.
     my ($opts, $qopts,$err) = @_; 
     return $qopts 
 }
 sub get_summary_stats{ #Subclassed in Scale
-    return(undef,undef,undef,undef)
-}
+    return(undef,undef,undef,undef)}
 sub is_valid_answer {1}
 sub display_result {croak("This needs to be subclassed in package " , ref(shift)) }
 

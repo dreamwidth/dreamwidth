@@ -916,13 +916,10 @@ sub render {
     my $results_table = "";
     ## go through all questions, adding to buffer to return
     foreach my $q (@qs) {
-        
         $results_table .= $q->display_result($do_form, \%preval, $clearanswers, $mode, $pagesize);
-        
     }
-    
     $ret .= $results_table;
-    
+
     if ($do_form) {
         $ret .= LJ::html_submit(
                                 'poll-submit',

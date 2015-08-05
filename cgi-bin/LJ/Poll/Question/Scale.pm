@@ -131,11 +131,11 @@ sub get_summary_stats{
 sub is_valid_answer {
     my ($self, $val) = @_;
     my $opts = $self->opts;
-           my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $opts );
-            if ($val < $from || $val > $to) {
-                # bogus! cheating?
-                return 0;
-            }
+    my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $opts );
+    if ($val < $from || $val > $to) {
+        # bogus! cheating?
+        return 0;
+    }
     return 1; 
 }
 
@@ -163,86 +163,6 @@ sub previewing_snippet_preamble {
     return $ret;
 }
 
-# sub doform {
-#     my ($self, $preval, $clearanswers) = @_;
-#     my $ret = '';
-#     my $prevanswer;
-#     my %preval = %$preval;
-#     my $qid = $self->pollqid;
-#     my $pollid = $self->pollid;
-# 
-# 
-#     #### scales (from 1-10) questions
-#     my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $self->opts );
-#     $by ||= 1;
-#     my $count = int(($to-$from)/$by) + 1;
-#     my $do_radios = ($count <= 11);
-# 
-#     # few opts, display radios
-#     if ($do_radios) {
-# 
-#         $ret .= "<table summary=''><tr valign='top' align='center'>";
-# 
-#         # appends the lower end
-#         $ret .= "<td style='padding-right: 5px;'><b>$lowlabel</b></td>" if defined $lowlabel;
-# 
-#         for (my $at=$from; $at<=$to; $at+=$by) {
-# 
-#             my $selectedanswer = !$clearanswers && ( defined $preval{$qid} && $at == $preval{$qid});
-#             $ret .= "<td style='text-align: center;'>";
-#             $ret .= LJ::html_check( { 'type' => 'radio', 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
-#                                         'value' => $at, 'id' => "pollq-$pollid-$qid-$at",
-#                                         'selected' => $selectedanswer } );
-#             $ret .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
-#         }
-# 
-#         # appends the higher end
-#         $ret .= "<td style='padding-left: 5px;'><b>$highlabel</b></td>" if defined $highlabel;
-# 
-#         $ret .= "</tr></table>\n";
-# 
-#     # many opts, display select
-#     # but only if displaying form
-#     } else {
-#         $prevanswer = $clearanswers ? "" : $preval{$qid};
-# 
-#         my @optlist = ('', '');
-#         push @optlist, ( $from, $from . " " . $lowlabel );
-# 
-#         my $at = 0;
-#         for ( $at=$from+$by; $at<=$to-$by; $at+=$by ) {
-#             push @optlist, ($at, $at);
-#         }
-# 
-#         push @optlist, ( $at, $at . " " . $highlabel );
-# 
-#         $ret .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid", 'selected' => $prevanswer }, @optlist);
-#     }
-# 
-# 
-#  #####################
-#         return $ret;
-# }
-# 
-# 
-# sub notdoform {
-#     my ($self, $preval, $clearanswers) = @_;
-#     my $ret = '';
-#     my $prevanswer;
-#     my %preval = %$preval;
-#     my $qid = $self->pollqid;
-#     my $pollid = $self->pollid;
-# #################
-#     my ($valcount, $valmean, $valstddev, $valmedian) = $self->get_summary_stats;
-#     my $stddev  = sprintf("%.2f", $valstddev);
-#     my $mean = sprintf("%.2f", $valmean);
-#     $ret .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
-#     $ret .= "<br />\n";
-#     $ret .= "<table summary=''>";
-# 
-#  #####################
-#         return $ret;
-# }
 
 sub display_result {
     my ($self, $do_form, $preval, $clearanswers, $mode, $pagesize) = @_;
@@ -259,38 +179,7 @@ sub display_result {
         $ret .= "<div class='poll-inquiry'><p>$text</p>";
         $ret .= "<div style='margin: 10px 0 10px 40px' class='poll-response'>";
 
-        ### get statistics, for scale questions
-        my ($valcount, $valmean, $valstddev, $valmedian);
-        if ($self->type eq "scale") {
-            # get stats
-            $sth = $poll->journal->prepare( "SELECT COUNT(*), AVG(value), STDDEV(value) FROM pollresult2 " .
-                                            "WHERE pollid=? AND pollqid=? AND journalid=?" );
-            $sth->execute( $pollid, $qid, $poll->journalid );
-
-            ( $valcount, $valmean, $valstddev ) = $sth->fetchrow_array;
-
-            # find median:
-            $valmedian = 0;
-            if ($valcount == 1) {
-                $valmedian = $valmean;
-            } elsif ($valcount > 1) {
-                my ($mid, $fetch);
-                # fetch two mids and average if even count, else grab absolute middle
-                $fetch = ($valcount % 2) ? 1 : 2;
-                $mid = int(($valcount+1)/2);
-                my $skip = $mid-1;
-
-                $sth = $poll->journal->prepare(
-                    "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=? " .
-                    "ORDER BY value+0 LIMIT $skip,$fetch" );
-                $sth->execute( $pollid, $qid, $poll->journalid );
-
-                while (my ($v) = $sth->fetchrow_array) {
-                    $valmedian += $v;
-                }
-                $valmedian /= $fetch;
-            }
-        }
+        my ($valcount, $valmean, $valstddev, $valmedian) = $self->get_summary_stats;
 
         my $usersvoted = 0;
         my %itvotes;
@@ -323,7 +212,6 @@ sub display_result {
 
         my $prevanswer;
 
-        #### text questions are the easy case
         if ($do_form) {
             #### scales (from 1-10) questions
             my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $self->opts );
@@ -356,7 +244,7 @@ sub display_result {
 
             # many opts, display select
             # but only if displaying form
-            } else {
+            } else { #if not $do_radios...
                 $prevanswer = $clearanswers ? "" : $preval{$qid};
 
                 my @optlist = ('', '');
@@ -372,22 +260,19 @@ sub display_result {
                 $ret .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid", 'selected' => $prevanswer }, @optlist);
             }
 
-        } else {
-            #### now, questions with items
-            my $do_table = 0;
+        } else { #if not $do_form...
 
             my $stddev = sprintf("%.2f", $valstddev);
             my $mean = sprintf("%.2f", $valmean);
             $ret .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
             $ret .= "<br />\n";
-            $do_table = 1;
             $ret .= "<table summary=''>";
 
             my @items = $poll->question($qid)->items;
             @items = map { [$_->{pollitid}, $_->{item}] } @items;
 
             # generate poll items dynamically since this is a scale
-            
+
             my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $self->opts );
             $by = 1 unless ($by > 0 and int($by) == $by);
             $highlabel //= "";
@@ -398,7 +283,7 @@ sub display_result {
                 push @items, [$at, $at]; # note: fake itemid, doesn't matter, but needed to be unique
             }
             push @items, [ $to, "$highlabel $to" ];
-            
+
 
             for my $item (@items) {
                 # note: itid can be fake
@@ -434,7 +319,7 @@ sub display_result {
  
             }
 
-                $ret .= "</table>";
+            $ret .= "</table>";
          }
 
         $ret .= "</div></div>";

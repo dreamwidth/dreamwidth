@@ -32,7 +32,7 @@ sub previewing_snippet {
     return $ret;
 }
 
-sub boxtype{"option"}
+sub boxtype{undef}
 
 sub display_result {
     my ($self, $do_form, $preval, $clearanswers, $mode, $pagesize) = @_;
@@ -47,13 +47,7 @@ sub display_result {
         my $text = $self->text;
         LJ::Poll->clean_poll(\$text);
         $ret .= "<div class='poll-inquiry'><p>$text</p>";
-
-        # shows how many options a user must/can choose if that restriction applies
-        if ($do_form) { $ret .= $self->previewing_snippet_preamble }
-        
         $ret .= "<div style='margin: 10px 0 10px 40px' class='poll-response'>";
-
-        ### get statistics, for scale questions
 
         my $usersvoted = 0;
         my %itvotes;
@@ -63,33 +57,27 @@ sub display_result {
             ### to see individual's answers
             my $posterid = $poll->posterid;
             $ret .= qq {
-                <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;qid=$qid&amp;mode=ans'
-                     class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid' lj_page='0' lj_pagesize="$pagesize"
-                     id="LJ_PollAnswerLink_${pollid}_$qid">
+                    <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;qid=$qid&amp;mode=ans'
+                    class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid' lj_page='0' lj_pagesize="$pagesize"
+                    id="LJ_PollAnswerLink_${pollid}_$qid">
                 } . LJ::Lang::ml('poll.viewanswers') . "</a><br />" if $poll->can_view;
 
-            ### if this is a text question and the viewing user answered it, show that answer
 
-                ### but, if this is a non-text item, and we're showing results, need to load the answers:
-                $sth = $poll->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
-                $sth->execute( $pollid, $qid, $poll->journalid );
-                while (my ($val) = $sth->fetchrow_array) {
-                    $usersvoted++;
-                        foreach ($self->decompose_votes($val)) {
-                            $itvotes{$_}++;
-                        }
-                }
-
-                foreach (values %itvotes) {
-                    $maxitvotes = $_ if ($_ > $maxitvotes);
-                }
+            ### Load the answers:
+            $sth = $poll->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
+            $sth->execute( $pollid, $qid, $poll->journalid );
+            while (my ($val) = $sth->fetchrow_array) {
+                $usersvoted++;
+                $itvotes{$_}++;
+            }
+            for (values %itvotes) {
+                $maxitvotes = $_ if ($_ > $maxitvotes);
+            }
         }
 
         my $prevanswer;
 
         #### now, questions with items
-        my $do_table = 0;
-
         my @items = $poll->question($qid)->items;
         @items = map { [$_->{pollitid}, $_->{item}] } @items;
 
@@ -134,31 +122,6 @@ sub display_result {
  #####################
         return $ret;
 }
-
-
-
-# sub doform {
-#     my ($self, $preval, $clearanswers) = @_;
-#     my $ret = '';
-#     my $prevanswer;
-#     my %preval = %$preval;
-#     my $qid = $self->pollqid;
-#     my $pollid = $self->pollid;
-#             #### drop-down list
-#             my @optlist = ('', '');
-#             foreach my $it ($self->poll->question($qid)->items) {
-#                 my $itid  = $it->{pollitid};
-#                 my $item  = $it->{item};
-#                 LJ::Poll->clean_poll(\$item);
-#                 push @optlist, ($itid, $item);
-#             }
-#             $prevanswer = $clearanswers ? 0 : $preval{$qid};
-#             $ret .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
-#                                       'selected' => $prevanswer }, @optlist);
-#         return $ret;
-# }
-
-
 
 
 
