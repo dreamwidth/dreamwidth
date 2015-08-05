@@ -90,6 +90,13 @@ sub previewing_snippet_preamble {
     return $ret;
 }
 
+sub boxtype{"check"}
+
+
+
+
+
+
 sub decompose_votes{my ($self,$val) = @_; return split(/,/ ,$val)  }
 
 

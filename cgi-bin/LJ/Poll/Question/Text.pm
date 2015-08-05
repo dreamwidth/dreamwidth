@@ -32,18 +32,18 @@ sub show_individual_result{
 }
 
 
-sub doform {
-    my ($self, $preval, $clearanswers) = @_;
-    my $ret = '';
-    my $qid = $self->pollqid;
-    my $pollid = $self->pollid;
-    my ($size, $max) = split(m!/!, $self->opts);
-    my $prevanswer = $clearanswers ? "" : $preval->{$qid};
-
-    $ret .= LJ::html_text({ 'size' => $size, 'maxlength' => $max, 'class'=>"poll-$pollid",
-                                'name' => "pollq-$qid", 'value' => $prevanswer });
-        return $ret;
-}
+# sub doform {
+#     my ($self, $preval, $clearanswers) = @_;
+#     my $ret = '';
+#     my $qid = $self->pollqid;
+#     my $pollid = $self->pollid;
+#     my ($size, $max) = split(m!/!, $self->opts);
+#     my $prevanswer = $clearanswers ? "" : $preval->{$qid};
+# 
+#     $ret .= LJ::html_text({ 'size' => $size, 'maxlength' => $max, 'class'=>"poll-$pollid",
+#                                 'name' => "pollq-$qid", 'value' => $prevanswer });
+#         return $ret;
+# }
 
 sub has_sub_items {0}
 sub previewing_snippet {
@@ -84,4 +84,55 @@ sub process_tag_options {
     $qopts->{'opts'} = "$size/$max";
     return $qopts;
 }
+        
+        
+sub display_result {
+    my ($self, $do_form, $preval, $clearanswers, $mode, $pagesize) = @_;
+    my $ret = '';
+    my $prevanswer;
+    my %preval = %$preval;
+    my $qid = $self->pollqid;
+    my $pollid = $self->pollid;
+    my $poll = $self->poll;
+    my $sth;
+ #################
+        my $text = $self->text;
+        LJ::Poll->clean_poll(\$text);
+        $ret .= "<div class='poll-inquiry'><p>$text</p>";
+        $ret .= "<div style='margin: 10px 0 10px 40px' class='poll-response'>";
+
+
+        if ($mode eq "results") {
+            ### to see individual's answers
+            my $posterid = $poll->posterid;
+            $ret .= qq {
+                <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;qid=$qid&amp;mode=ans'
+                     class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid' lj_page='0' lj_pagesize="$pagesize"
+                     id="LJ_PollAnswerLink_${pollid}_$qid">
+                } . LJ::Lang::ml('poll.viewanswers') . "</a><br />" if $poll->can_view;
+
+            ### if this is a text question and the viewing user answered it, show that answer
+            if ( $preval{$qid} ) {
+                LJ::Poll->clean_poll( \$preval{$qid} );
+                $ret .= "<br />" . BML::ml('poll.useranswer', { "answer" => $preval{$qid} } );
+            }
+        }
+
+        my $prevanswer;
+
+        #### text questions are the easy case
+        if ( $do_form) {
+            my ($size, $max) = split(m!/!, $self->opts);
+            $prevanswer = $clearanswers ? "" : $preval{$qid};
+
+            $ret .= LJ::html_text({ 'size' => $size, 'maxlength' => $max, 'class'=>"poll-$pollid",
+                                    'name' => "pollq-$qid", 'value' => $prevanswer });
+        }
+
+        $ret .= "</div></div>";
+
+ #####################
+        return $ret;
+}
+
 1;

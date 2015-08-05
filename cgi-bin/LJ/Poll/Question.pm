@@ -148,6 +148,7 @@ sub show_individual_result{
 }
 
 ################# MAINLY STUBS #####################
+sub dotable_flag{0}
 sub decompose_votes{my ($self,$val) = @_; return $val }
 sub has_sub_items {0}
 sub previewing_snippet_preamble { return '' } # not needed in most cases.
@@ -159,6 +160,7 @@ sub get_summary_stats{ #Subclassed in Scale
     return(undef,undef,undef,undef)
 }
 sub is_valid_answer {1}
+sub display_result {croak("This needs to be subclassed in package " , ref(shift)) }
 
 ############END STUBS#################
 
@@ -318,6 +320,13 @@ sub translate_individual_answer {
     my ($self, $value, $items) = @_;
     return ref($self) . $value; # this is subclassed for anything more complicated.
 }
+
+
+
+
+
+
+
 
 #returns how a user answered this question
 sub user_answer_as_html {

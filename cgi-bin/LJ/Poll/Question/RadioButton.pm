@@ -17,6 +17,6 @@ use parent qw/LJ::Poll::Question::MultiChoice/;
 
 
 
-
+sub boxtype{"radio"}
 
 1;
