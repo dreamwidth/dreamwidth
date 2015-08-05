@@ -168,6 +168,12 @@ sub atomtype {
 
     # this is simple enough not to bother with an XML parser
     my $text = $res->content || '';
+
+    # first look for lj.rossia.org - different from other LJ sites
+    my ( $ljr ) = $text =~
+        m@<link rel='alternate' type='text/html' href='http://lj.rossia.org/([^/]+)@i;
+    return $ljr if $ljr; # community or users
+
     my ( $str ) = $text =~ m@<(?:lj|dw):journal ([^/]*)/>@i;
     return undef unless $str;
 
@@ -212,6 +218,7 @@ sub check_remote {
                 personal   => 'P',
                 syndicated => 'Y',
                 user       => 'P',
+                users      => 'P',
                );
 
     # invalid users don't always 404, so we also detect from title
