@@ -277,95 +277,11 @@ sub new_from_html {
                 %qopts = ();
                 $qopts{'items'} = [];
 
-                $qopts{'type'} = $opts->{'type'};
-                if ($qopts{'type'} eq "text") {
-                    my $size = 35;
-                    my $max = 255;
-                    if (defined $opts->{'size'}) {
-                        if ($opts->{'size'} > 0 &&
-                            $opts->{'size'} <= 100)
-                        {
-                            $size = $opts->{'size'}+0;
-                        } else {
-                            return $err->('poll.error.badsize2');
-                        }
-                    }
-                    if (defined $opts->{'maxlength'}) {
-                        if ($opts->{'maxlength'} > 0 &&
-                            $opts->{'maxlength'} <= 255)
-                        {
-                            $max = $opts->{'maxlength'}+0;
-                        } else {
-                            return $err->('poll.error.badmaxlength');
-                        }
-                    }
-
-                    $qopts{'opts'} = "$size/$max";
-                }
-                if ($qopts{'type'} eq "check") {
-                    my $checkmin = 0;
-                    my $checkmax = 255;
-
-                    if (defined $opts->{'checkmin'}) {
-                        $checkmin = int($opts->{'checkmin'});
-                    }
-                    if (defined $opts->{'checkmax'}) {
-                        $checkmax = int($opts->{'checkmax'});
-                    }
-                    if ($checkmin < 0) {
-                        return $err->('poll.error.checkmintoolow');
-                    }
-                    if ($checkmax < $checkmin) {
-                        return $err->('poll.error.checkmaxtoolow');
-                    }
-
-                    $qopts{'opts'} = "$checkmin/$checkmax";
-
-                }
-                if ($qopts{'type'} eq "scale")
-                {
-                    my $from = 1;
-                    my $to = 10;
-                    my $by = 1;
-                    my $lowlabel = "";
-                    my $highlabel = "";
-
-                    if (defined $opts->{'from'}) {
-                        $from = int($opts->{'from'});
-                    }
-                    if (defined $opts->{'to'}) {
-                        $to = int($opts->{'to'});
-                    }
-                    if (defined $opts->{'by'}) {
-                        $by = int($opts->{'by'});
-                    }
-                    if ( defined $opts->{'lowlabel'} ) {
-                        $lowlabel = LJ::strip_html( $opts->{'lowlabel'} );
-                    }
-                    if ( defined $opts->{'highlabel'} ) {
-                        $highlabel = LJ::strip_html( $opts->{'highlabel'} );
-                    }
-                    if ($by < 1) {
-                        return $err->('poll.error.scaleincrement');
-                    }
-                    if ($from >= $to) {
-                        return $err->('poll.error.scalelessto');
-                    }
-                    my $scaleoptions = ( ( $to - $from ) / $by ) + 1;
-                    if ( $scaleoptions > 21 ) {
-                        return $err->( 'poll.error.scaletoobig1', { 'maxselections' => 21, 'selections' => $scaleoptions - 21 } );
-                    }
-                    $qopts{'opts'} = "$from/$to/$by/$lowlabel/$highlabel";
-                }
-
                 $qopts{'type'} = lc($opts->{'type'}) || "text";
 
-                if ($qopts{'type'} ne "radio" &&
-                    $qopts{'type'} ne "check" &&
-                    $qopts{'type'} ne "drop" &&
-                    $qopts{'type'} ne "scale" &&
-                    $qopts{'type'} ne "text")
-                {
+                my $typewriter = get_question_type_for_class_methods( $qopts{'type'}, $err );
+                %qopts = %{$typewriter->process_tag_options($opts, \%qopts, $err)};
+                unless ( $LJ::Poll::Question::ALLOWED_TYPES{ $qopts{'type'} } ) {
                     return $err->('poll.error.unknownpqtype');
                 }
             }
@@ -436,10 +352,8 @@ sub new_from_html {
             elsif ($tag eq "lj-pq" || $tag eq "poll-question") {
                 return $err->('poll.error.tagnotopen', { 'tag' => 'poll-question' })
                     unless $qopen;
-
-                unless ($qopts{'type'} eq "scale" ||
-                        $qopts{'type'} eq "text" ||
-                        @{$qopts{'items'}})
+                my $typewriter = get_question_type_for_class_methods( $qopts{'type'}, $err );
+                if ($typewriter->has_sub_items && not scalar @{$qopts{'items'}})
                 {
                     return $err->('poll.error.noitems');
                 }
@@ -522,8 +436,17 @@ sub new_from_html {
 
 ###### Utility methods
 
+sub get_question_type_for_class_methods {
+    my ($type, $err) = @_;
+    my $class = $LJ::Poll::Question::ALLOWED_TYPES{$type} or return $err->('poll.error.unknownpqtype');
+    return bless ({}, $class);
+}
+
+
+
 # if we have a complete poll object (sans pollid) we can save it to
 # the database and get a pollid
+
 sub save_to_db {
 
     # OBSOLETE METHOD?
@@ -999,59 +922,16 @@ sub render {
         $results_table .= "<div class='poll-inquiry'><p>$text</p>";
 
         # shows how many options a user must/can choose if that restriction applies
-        if ($q->type eq 'check' && $do_form) {
-            my ($mincheck, $maxcheck) = split(m!/!, $q->opts);
-            $mincheck ||= 0;
-            $maxcheck ||= 255;
-
-            if ($mincheck > 0 && $mincheck eq $maxcheck ) {
-                $results_table .= "<i>". LJ::Lang::ml( "poll.checkexact2", { options => $mincheck } ). "</i><br />\n";
-            }
-            else {
-                if ($mincheck > 0) {
-                    $results_table .= "<i>". LJ::Lang::ml( "poll.checkmin2", { options => $mincheck } ). "</i><br />\n";
-                }
-
-                if ($maxcheck < 255) {
-                    $results_table .= "<i>". LJ::Lang::ml( "poll.checkmax2", { options => $maxcheck } ). "</i><br />\n";
-                }
-            }
+        if ($do_form) {       # if ($q->type eq "text" && $do_form) {
+#
+            $results_table .= $q->previewing_snippet_preamble;
         }
-        
+
         $results_table .= "<div style='margin: 10px 0 10px 40px' class='poll-response'>";
 
         ### get statistics, for scale questions
-        my ($valcount, $valmean, $valstddev, $valmedian);
-        if ($q->type eq "scale") {
-            # get stats
-            $sth = $self->journal->prepare( "SELECT COUNT(*), AVG(value), STDDEV(value) FROM pollresult2 " .
-                                            "WHERE pollid=? AND pollqid=? AND journalid=?" );
-            $sth->execute( $pollid, $qid, $self->journalid );
+        my ($valcount, $valmean, $valstddev, $valmedian) = $q->get_summary_stats;
 
-            ( $valcount, $valmean, $valstddev ) = $sth->fetchrow_array;
-
-            # find median:
-            $valmedian = 0;
-            if ($valcount == 1) {
-                $valmedian = $valmean;
-            } elsif ($valcount > 1) {
-                my ($mid, $fetch);
-                # fetch two mids and average if even count, else grab absolute middle
-                $fetch = ($valcount % 2) ? 1 : 2;
-                $mid = int(($valcount+1)/2);
-                my $skip = $mid-1;
-
-                $sth = $self->journal->prepare(
-                    "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=? " .
-                    "ORDER BY value+0 LIMIT $skip,$fetch" );
-                $sth->execute( $pollid, $qid, $self->journalid );
-
-                while (my ($v) = $sth->fetchrow_array) {
-                    $valmedian += $v;
-                }
-                $valmedian /= $fetch;
-            }
-        }
 
         my $usersvoted = 0;
         my %itvotes;
@@ -1066,101 +946,14 @@ sub render {
                      id="LJ_PollAnswerLink_${pollid}_$qid">
                 } . LJ::Lang::ml('poll.viewanswers') . "</a><br />" if $self->can_view;
 
-            ### if this is a text question and the viewing user answered it, show that answer
-            if ( $q->type eq "text" && $preval{$qid} ) {
-                LJ::Poll->clean_poll( \$preval{$qid} );
-                $results_table .= "<br />" . BML::ml('poll.useranswer', { "answer" => $preval{$qid} } );
-            } elsif ( $q->type ne "text" ) {
-                ### but, if this is a non-text item, and we're showing results, need to load the answers:
-                $sth = $self->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
-                $sth->execute( $pollid, $qid, $self->journalid );
-                while (my ($val) = $sth->fetchrow_array) {
-                    $usersvoted++;
-                    if ($q->type eq "check") {
-                        foreach (split(/,/,$val)) {
-                            $itvotes{$_}++;
-                        }
-                    } else {
-                        $itvotes{$val}++;
-                    }
-                }
-
-                foreach (values %itvotes) {
-                    $maxitvotes = $_ if ($_ > $maxitvotes);
-                }
-            }
+            
+             $results_table .= $q->show_individual_result(\%preval);
         }
-
         my $prevanswer;
-
-        #### text questions are the easy case
-        if ($q->type eq "text" && $do_form) {
-            my ($size, $max) = split(m!/!, $q->opts);
-            $prevanswer = $clearanswers ? "" : $preval{$qid};
-
-            $results_table .= LJ::html_text({ 'size' => $size, 'maxlength' => $max, 'class'=>"poll-$pollid",
-                                    'name' => "pollq-$qid", 'value' => $prevanswer });
-        } elsif ($q->type eq 'drop' && $do_form) {
-            #### drop-down list
-            my @optlist = ('', '');
-            foreach my $it ($self->question($qid)->items) {
-                my $itid  = $it->{pollitid};
-                my $item  = $it->{item};
-                LJ::Poll->clean_poll(\$item);
-                push @optlist, ($itid, $item);
-            }
-            $prevanswer = $clearanswers ? 0 : $preval{$qid};
-            $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
-                                      'selected' => $prevanswer }, @optlist);
-        } elsif ($q->type eq "scale" && $do_form) {
-            #### scales (from 1-10) questions
-            my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $q->opts );
-            $by ||= 1;
-            my $count = int(($to-$from)/$by) + 1;
-            my $do_radios = ($count <= 11);
-
-            # few opts, display radios
-            if ($do_radios) {
-
-                $results_table .= "<table summary=''><tr valign='top' align='center'>";
-
-                # appends the lower end
-                $results_table .= "<td style='padding-right: 5px;'><b>$lowlabel</b></td>" if defined $lowlabel;
-
-                for (my $at=$from; $at<=$to; $at+=$by) {
-
-                    my $selectedanswer = !$clearanswers && ( defined $preval{$qid} && $at == $preval{$qid});
-                    $results_table .= "<td style='text-align: center;'>";
-                    $results_table .= LJ::html_check( { 'type' => 'radio', 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
-                                             'value' => $at, 'id' => "pollq-$pollid-$qid-$at",
-                                             'selected' => $selectedanswer } );
-                    $results_table .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
-                }
-
-                # appends the higher end
-                $results_table .= "<td style='padding-left: 5px;'><b>$highlabel</b></td>" if defined $highlabel;
-
-                $results_table .= "</tr></table>\n";
-
-            # many opts, display select
-            # but only if displaying form
-            } else {
-                $prevanswer = $clearanswers ? "" : $preval{$qid};
-
-                my @optlist = ('', '');
-                push @optlist, ( $from, $from . " " . $lowlabel );
-
-                my $at = 0;
-                for ( $at=$from+$by; $at<=$to-$by; $at+=$by ) {
-                    push @optlist, ($at, $at);
-                }
-
-                push @optlist, ( $at, $at . " " . $highlabel );
-
-                $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid", 'selected' => $prevanswer }, @optlist);
-            }
-
-        } else {
+        $results_table .= $q->doform(\%preval, $clearanswers) if $do_form;
+             
+ 
+        if(1) {
             #### now, questions with items
             my $do_table = 0;
 
@@ -1236,12 +1029,12 @@ sub render {
             }
 
         }
-
+    
         $results_table .= "</div></div>";
     }
-
+    
     $ret .= $results_table;
-
+    
     if ($do_form) {
         $ret .= LJ::html_submit(
                                 'poll-submit',
@@ -1549,36 +1342,15 @@ sub process_submission {
     foreach my $q (@qs) {
         my $qid = $q->pollqid;
         my $val = $form->{"pollq-$qid"};
-        if ($q->type eq "check") {
-            ## multi-selected items are comma separated from htdocs/poll/index.bml
-            $val = join(",", sort { $a <=> $b } split(/,/, $val));
-            if (length($val) > 0) { # if the user answered to this question
-                my @num_opts = split( /,/, $val );
-                my $num_opts = scalar @num_opts;  # returns the number of options they answered
-
-                my ($checkmin, $checkmax) = split(m!/!, $q->opts);
-                $checkmin ||= 0;
-                $checkmax ||= 255;
-
-                if($num_opts < $checkmin) {
-                    $$error = LJ::Lang::ml( 'poll.error.checkfewoptions3', {'question' => $qid, 'options' => $checkmin} );
-                    $error_code = 2;
-                    $val = "";
-                }
-                if($num_opts > $checkmax) {
-                    $$error = LJ::Lang::ml( 'poll.error.checktoomuchoptions3', {'question' => $qid, 'options' => $checkmax} );
-                    $error_code = 2;
-                    $val = "";
-                }
-            }
+        
+        my $rv = $q->is_valid_answer($val);
+        
+        if ($rv != 1){
+            
+            ($$error, $error_code) = @$rv if ref($rv);
+            $val = "";
         }
-        if ($q->type eq "scale") {
-            my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $q->opts );
-            if ($val < $from || $val > $to) {
-                # bogus! cheating?
-                $val = "";
-            }
-        }
+
 
         # if $val is still undef here, set it to empty string
         $val = "" unless defined $val;

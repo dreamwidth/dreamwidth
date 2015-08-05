@@ -15,6 +15,26 @@ package LJ::Poll::Question;
 use strict;
 use Carp qw (croak);
 
+
+### I don't quite see why I should need to do the use here, but it does
+### seem to be necessary - asb
+use LJ::Poll::Question::CheckBox;
+use LJ::Poll::Question::RadioButton;
+use LJ::Poll::Question::MultiChoice;
+use LJ::Poll::Question::Scale;
+use LJ::Poll::Question::DropDown;
+use LJ::Poll::Question::Text;
+
+
+our %ALLOWED_TYPES = (
+    check => "LJ::Poll::Question::CheckBox",
+    text  => "LJ::Poll::Question::Text",
+    radio => "LJ::Poll::Question::RadioButton",
+    drop  => "LJ::Poll::Question::DropDown",
+    scale => "LJ::Poll::Question::Scale",
+);
+
+
 sub new {
     my ($class, $poll, $pollqid) = @_;
 
@@ -47,6 +67,7 @@ sub absorb_row {
 
     # items is optional, used for caching
     $self->{$_} = $row->{$_} foreach qw (sortorder type opts qtext items);
+    $self->blessme;
     $self->{_loaded} = 1;
 }
 
@@ -63,6 +84,18 @@ sub _load {
     $sth->execute( $self->pollid, $self->pollqid, $self->poll->journalid );
 
     $self->absorb_row( $sth->fetchrow_hashref );
+
+
+}
+
+
+sub blessme {
+    my $self = shift;
+    my $class = ref($self);
+    my $type = $self->{type} or warn "No type found! Defaulting to 'text'"; $type ||= "text";
+    my $newclass = $ALLOWED_TYPES{$type} or die "Unknown type '$type'!";
+
+    bless $self, $newclass;
 }
 
 # returns the question rendered for previewing
@@ -78,85 +111,56 @@ sub preview_as_html {
         LJ::Poll->clean_poll(\$qtext);
           $ret .= "<p>$qtext</p>\n";
     }
-    if ( $type eq 'check' ) {
-        my ( $mincheck, $maxcheck ) = split( m!/!, $opts );
-        $mincheck ||= 0;
-        $maxcheck ||= 255;
-
-        if ($mincheck > 0 && $mincheck eq $maxcheck ) {
-            $ret .= "<i>". LJ::Lang::ml( "poll.checkexact2", { options => $mincheck } ). "</i><br />\n";
-        }
-        else {
-            if ($mincheck > 0) {
-                $ret .= "<i>". LJ::Lang::ml( "poll.checkmin2", { options => $mincheck } ). "</i><br />\n";
-            }
-
-            if ($maxcheck < 255) {
-                $ret .= "<i>". LJ::Lang::ml( "poll.checkmax2", { options => $maxcheck } ). "</i><br />\n";
-            }
-        }
-    }
+    $ret .= $self->previewing_snippet_preamble(); # handled by subclasses!
     $ret .= "<div style='margin: 10px 0 10px 40px'>";
-
-    # text questions
-    if ($type eq 'text') {
-        my ($size, $max) = split(m!/!, $opts);
-        $ret .= LJ::html_text({ 'size' => $size, 'maxlength' => $max });
-
-        # scale questions
-    } elsif ($type eq 'scale') {
-        my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $opts );
-        $by ||= 1;
-        my $count = int(($to-$from)/$by) + 1;
-        my $do_radios = ($count <= 11);
-
-        # few opts, display radios
-        if ($do_radios) {
-            $ret .= "<table summary=''><tr valign='top' align='center'>\n";
-            $ret .= "<td style='padding-right: 5px;'><b>$lowlabel</b></td>";
-            for (my $at = $from; $at <= $to; $at += $by) {
-                $ret .= "<td>" . LJ::html_check({ 'type' => 'radio' }) . "<br />$at</td>\n";
-            }
-            $ret .= "<td style='padding-left: 5px;'><b>$highlabel</b></td>";
-            $ret .= "</tr></table>\n";
-
-            # many opts, display select
-        } else {
-            my @optlist = ( '', ' ' );
-            push @optlist, ( $from, $from . " " . $lowlabel );
-
-            my $at = 0;
-            for ( $at=$from+$by; $at<=$to-$by; $at+=$by ) {
-                push @optlist, ('', $at);
-            }
-
-            push @optlist, ( $at, $at . " " . $highlabel );
-
-            $ret .= LJ::html_select({}, @optlist);
-        }
-
-        # questions with items
-    } else {
-        # drop-down list
-        if ($type eq 'drop') {
-            my @optlist = ('', '');
-            foreach my $it ($self->items) {
-                LJ::Poll->clean_poll(\$it->{item});
-                  push @optlist, ('', $it->{item});
-              }
-            $ret .= LJ::html_select({}, @optlist);
-
-            # radio or checkbox
-        } else {
-            foreach my $it ($self->items) {
-                LJ::Poll->clean_poll(\$it->{item});
-                  $ret .= LJ::html_check({ 'type' => $self->type }) . "$it->{item}<br />\n";
-              }
-        }
-    }
+    $ret .= $self->previewing_snippet(); # handled by subclasses!
     $ret .= "</div>";
     return $ret;
 }
+
+sub show_individual_result{
+    
+
+    
+    my ($self, $preval) = @_;
+    my $ret = '';
+    my $qid = $self->pollqid;
+
+    my $usersvoted = 0;
+    my %itvotes;
+    my $maxitvotes = 1;
+
+
+               ### but, if this is a non-text item, and we're showing results, need to load the answers:
+    my $sth = $self->poll->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
+    $sth->execute( $self->pollid, $qid, $self->poll->journalid );
+    while (my ($val) = $sth->fetchrow_array) {
+        $usersvoted++;
+        for ($self->decompose_votes($val)) {
+                $itvotes{$_}++;
+        }
+    }
+
+    foreach (values %itvotes) {
+        $maxitvotes = $_ if ($_ > $maxitvotes);
+    }
+    return $ret;
+}
+
+################# MAINLY STUBS #####################
+sub decompose_votes{my ($self,$val) = @_; return $val }
+sub has_sub_items {0}
+sub previewing_snippet_preamble { return '' } # not needed in most cases.
+sub process_tag_options {     # subclassed in some cases
+    my ($opts, $qopts,$err) = @_; 
+    return $qopts 
+}
+sub get_summary_stats{ #Subclassed in Scale
+    return(undef,undef,undef,undef)
+}
+sub is_valid_answer {1}
+
+############END STUBS#################
 
 sub items {
     my $self = shift;
@@ -290,22 +294,17 @@ sub answers_as_html {
     push @res, $_ while $_ = $sth->fetchrow_hashref;
     @res = sort { $a->{datesubmit} cmp $b->{datesubmit} } @res;
     
-    foreach my $res (@res) {
+    for my $res (@res) {
         my ($userid, $value) = ($res->{userid}, $res->{value}, $res->{pollqid});
         my @items = $self->items;
 
         my %it;
-        $it{$_->{pollitid}} = $_->{item} foreach @items;
+        $it{$_->{pollitid}} = $_->{item} for @items;
 
         my $u = LJ::load_userid($userid) or die "Invalid userid $userid";
 
         ## some question types need translation; type 'text' doesn't.
-        if ($self->type eq "radio" || $self->type eq "drop") {
-            $value = $it{$value};
-        } elsif ($self->type eq "check") {
-            $value = join(", ", map { $it{$_} } split(/,/, $value));
-        }
-
+        $value = $self->translate_individual_answer($value, \%it);
         LJ::Poll->clean_poll(\$value);
         my $user_display = $isanon eq "yes" ? "User <b>#" . $uid_map->{$userid} . "</b>" : $u->ljuser_display;
 
@@ -313,6 +312,11 @@ sub answers_as_html {
     }
 
     return $ret;
+}
+        
+sub translate_individual_answer {
+    my ($self, $value, $items) = @_;
+    return ref($self) . $value; # this is subclassed for anything more complicated.
 }
 
 #returns how a user answered this question
@@ -345,11 +349,7 @@ sub user_answer_as_html {
         $it{$_->{pollitid}} = $_->{item} foreach @items;
 
         # some question types need translation; type 'text' doesn't.
-        if ( $self->type eq "radio" || $self->type eq "drop" ) {
-            $value = $it{$value};
-        } elsif ( $self->type eq "check" ) {
-            $value = join( ", ", map { $it{$_} } split( /,/, $value ) );
-        }
+        $value = $self->translate_individual_answer($value, \%it);
 
         LJ::Poll->clean_poll( \$value );
         LJ::Poll->clean_poll( \$qtext );
