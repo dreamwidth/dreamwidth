@@ -112,6 +112,12 @@ body<=
                           undef, $question, $summary, $answer, $faqcat,
                           $sortorder, $remote->{userid} );
                 $id = $dbh->{mysql_insertid};
+                $dbh->do( qq{ INSERT INTO faqhist
+                              ( rev, faqid, question, summary, answer, faqcat,
+                                sortorder, lastmoduserid, lastmodtime)
+                              VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, NOW()) },
+                          undef, $id, $question, $summary, $answer, $faqcat,
+                          $sortorder, $remote->{userid} ) unless $dbh->errstr;
                 $ret .= $dbh->errstr || "Added FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
                 $opts_question->{childrenlatest} = 1;
@@ -128,11 +134,22 @@ body<=
                                          WHERE faqid=? },
                           undef, $question, $summary, $answer, $faqcat,
                           $remote->{userid}, $sortorder, $id );
+                $dbh->do( qq{ INSERT INTO faqhist
+                              ( rev, faqid, question, summary, answer, faqcat,
+                                sortorder, lastmoduserid, lastmodtime)
+                              VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, NOW()) },
+                          undef, $id, $question, $summary, $answer, $faqcat,
+                          $sortorder, $remote->{userid} ) unless $dbh->errstr;
                 $ret .= $dbh->errstr || "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
                 $do_trans->( $id );
             } else {
                 $dbh->do( "DELETE FROM faq WHERE faqid=?", undef, $id );
+                $dbh->do( qq{ INSERT INTO faqhist
+                              ( rev, faqid, question, summary, answer, faqcat,
+                                sortorder, lastmoduserid, lastmodtime)
+                              VALUES (NULL, ?, NULL, NULL, NULL, NULL, NULL, ?, NOW()) },
+                          undef, $id, $remote->{userid} ) unless $dbh->errstr;
                 $ret .= $dbh->errstr || "FAQ item deleted.";
 
                 # FIXME: delete translation from ml_* ?
