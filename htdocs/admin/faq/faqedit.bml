@@ -128,12 +128,12 @@ body<=
                                          WHERE faqid=? },
                           undef, $question, $summary, $answer, $faqcat,
                           $remote->{userid}, $sortorder, $id );
-                $ret .= "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
+                $ret .= $dbh->errstr || "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
                 $do_trans->( $id );
             } else {
                 $dbh->do( "DELETE FROM faq WHERE faqid=?", undef, $id );
-                $ret .= "FAQ item deleted.";
+                $ret .= $dbh->errstr || "FAQ item deleted.";
 
                 # FIXME: delete translation from ml_* ?
             }
