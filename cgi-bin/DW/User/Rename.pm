@@ -229,10 +229,14 @@ sub swap_usernames {
     my $admin = LJ::isu( $opts{user} ) ? $opts{user} : $u1;
     my @tokens = @{ $opts{tokens} || [] };
 
+    # tokens can be owned by $admin (remote user),
+    # $u1 (authas user), or $u2 (intended target)
+    my $check_uids = { $admin->id => 1, $u1->id => 1, $u2->id => 1 };
+
     foreach my $token ( @tokens ) {
         $errors->add( 'token', 'rename.error.tokeninvalid' )
             unless $token && $token->isa( "DW::RenameToken" )
-                && $token->ownerid == $admin->userid;
+                && $check_uids->{$token->ownerid};
 
         $errors->add( 'token', 'rename.error.tokenapplied' )
             if $token->applied || $token->revoked;
