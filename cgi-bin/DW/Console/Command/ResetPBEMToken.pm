@@ -5,7 +5,7 @@
 # Console command for resetting PBEM tokens
 #
 # Authors:
-#      Adam Bernard <user name="pseudomonas" site="dreamwidth.org"">
+#      Adam Bernard <https://pseudomonas.dreamwidth.org>
 #
 # Copyright (c) 2015 by Dreamwidth Studios, LLC.
 #
@@ -45,7 +45,7 @@ sub execute {
 
     my $newauth = $u->generate_emailpost_auth();
 
-    return $self->print( "Token not reset" ) unless $newauth;
+    return $self->error( "Token not reset" ) unless $newauth;
 
     my $sitename = $LJ::SITENAME;
     my $rv = LJ::send_mail( {
