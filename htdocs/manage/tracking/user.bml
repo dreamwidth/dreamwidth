@@ -69,7 +69,7 @@ body<=
             journal => $journal,
             flags   => LJ::Subscription::TRACKING,
         ) if $remote->can_track_all_community_comments( $journal )
-            and $journal->statusvis eq "V";
+            && $journal->statusvis eq "V";
 
     push @{ @$categories[0]->{$cat_title} },
         LJ::Subscription::Pending->new( $remote,
