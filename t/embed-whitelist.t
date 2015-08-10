@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 56;
+use Test::More tests => 57;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -139,6 +139,8 @@ note( "misc" );
     test_good_url( "//www.jigsawplanet.com/?rc=play&amp;pid=35458f1355c4&amp;view=iframe" );
 
     test_good_url( "https://screen.yahoo.com/fashion-photographer-life-changed-chance-193621376.html?format=embed" );
+
+    test_good_url( "//www.zippcast.com/videoview.php?vplay=6c91dae3fc1bc909db0&auto=no" );
 
 }
 
