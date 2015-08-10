@@ -1,4 +1,4 @@
-Please see the LICENSE file for the license of this code.  Note that all code
+Please see the `LICENSE` file for the license of this code.  Note that all code
 committed to this repository MUST be licensed under the GPL and have proper
 copyright notices tagged at the top of the file.
 
@@ -8,13 +8,11 @@ actually write out documentation here.  :-)
 If you just want to get started with a fresh installation, you can get things
 rolling along:
 
-   perl bin/bootstrap.pl
+    perl bin/bootstrap.pl
 
 This will check out the various repositories that we use and put them in the
 appropriate place.
 
-Please see our wiki for more information:
-
-    http://wiki.dwscoalition.org/
+Please [see our wiki for more information](http://wiki.dwscoalition.org/).
 
 Thanks!
