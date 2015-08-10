@@ -221,7 +221,7 @@ userproplist.disable_comm_promo:
   indexed: 0
   multihomed: 0
   prettyname: Administratively disable community promo features for a user
-  
+
 userproplist.displaydate_check:
   cldversion: 4
   datatype: bool
@@ -509,14 +509,6 @@ userproplist.icq:
   indexed: 1
   multihomed: 1
   prettyname: ICQ
-
-userproplist.identity_posting:
-  cldversion: 4
-  datatype: bool
-  des: Whether to allow identity users to post entries to this journal
-  indexed: 0
-  multihomed: 0
-  prettyname: Entries from Identity Users
 
 userproplist.import_job:
   cldversion: 4
