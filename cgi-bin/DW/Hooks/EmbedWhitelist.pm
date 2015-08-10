@@ -136,6 +136,10 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
 	return ( 1, 1 ) if $parsed_uri->query =~ m/rc=play/;
     }
 
+    if ( $uri_host eq "screen.yahoo.com" ) {
+        return ( 1, 1 ) if $parsed_uri->query =~ m/format=embed/;
+    }
+
     return 0;
 
 } );
