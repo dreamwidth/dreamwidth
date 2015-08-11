@@ -54,7 +54,7 @@ body<=
             event   => "JournalNewEntry",
             journal => $journal,
             flags   => LJ::Subscription::TRACKING,
-        ) if $journal->statusvis eq "V";
+        ) if $journal->is_visible;
 
     push @{ @$categories[0]->{$cat_title} },
         LJ::Subscription::Pending->new( $remote,
@@ -69,7 +69,7 @@ body<=
             journal => $journal,
             flags   => LJ::Subscription::TRACKING,
         ) if $remote->can_track_all_community_comments( $journal )
-            && $journal->statusvis eq "V";
+            && $journal->is_visible;
 
     push @{ @$categories[0]->{$cat_title} },
         LJ::Subscription::Pending->new( $remote,
@@ -82,7 +82,7 @@ body<=
             event   => "Birthday",
             journal => $journal,
             flags   => LJ::Subscription::TRACKING,
-        ) if $journal->statusvis eq "V";
+        ) if $journal->is_visible;
 
     # validate referer for ret_url
     my $referer = BML::get_client_header('Referer');
