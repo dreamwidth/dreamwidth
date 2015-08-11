@@ -538,12 +538,12 @@ sub sendmessage
 
     my @msg;
     BML::set_language('en'); # FIXME
-    
+
     foreach my $to (@to) {
         my $tou = LJ::load_user($to);
         return fail($err, 100, $to)
             unless $tou;
-        
+
         my $msguserpic;
         $msguserpic = $req->{'userpic'} if defined $req->{'userpic'};
 
@@ -1218,9 +1218,8 @@ sub postevent
     return fail($err,306) unless $dbh && $dbcm && $uowner->writer;
     return fail($err,200) unless $req->{'event'} =~ /\S/;
 
-    ### make sure community or identity journals don't post
+    ### make sure community journals don't post
     return fail($err,150) if $u->is_community;
-    return fail($err,150) if ! $importer_bypass && ! $uowner->prop( "identity_posting" ) && $u->is_identity;
 
     # suspended users can't post
     return fail($err,305) if ! $importer_bypass && $u->is_suspended;
