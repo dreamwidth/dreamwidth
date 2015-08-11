@@ -400,7 +400,7 @@ sub set_text {
     my $oldtextid = $dbh->selectrow_array("SELECT txtid FROM ml_text WHERE lnid=? AND dmid=? AND itid=?", undef, $lnid, $dmid, $itid);
 
     if (defined $text) {
-        my $userid = $opts->{'userid'} + 0;
+        my $userid = ( $opts->{userid} // 0 ) + 0;
         # Strip bad characters
         $text =~ s/\r//;
         my $qtext = $dbh->quote($text);
@@ -416,7 +416,7 @@ sub set_text {
         $txtid = $opts->{'txtid'}+0;
     }
 
-    my $staleness = $opts->{'staleness'}+0;
+    my $staleness = ( $opts->{staleness} // 0 ) + 0;
     $dbh->do("REPLACE INTO ml_latest (lnid, dmid, itid, txtid, chgtime, staleness) ".
              "VALUES ($lnid, $dmid, $itid, $txtid, NOW(), $staleness)");
     return set_error("Error inserting ml_latest: ".$dbh->errstr) if $dbh->err;

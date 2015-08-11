@@ -107,7 +107,7 @@ sub history_handler {
                 $reqs{$row->[0]} = {
                     spid => $row->[0],
                     winner => $points{$row->[0]}->[0],
-                    points => $points{$row->[0]}->[1]+0,
+                    points => $points{$row->[0]}->[1] || 0,
                     subject => LJ::ehtml($row->[1]),
                     state => $row->[2],
                     spcatid => $row->[3],
