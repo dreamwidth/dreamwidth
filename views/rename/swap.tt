@@ -20,7 +20,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 ) -%]
 
 <p>[% '.intro' | ml %]</p>
-[% IF numtokens >= 2 %]
     <form id="renameform" method="POST">
         [% dw.form_auth %]
         <div class='formfield'>
@@ -37,8 +36,3 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         <input type='submit' value="[% '.form.button' | ml | html %]" />
     </form>
-[% ELSE %]
-    [%- '.numtokens.toofew' | ml(aopts = "href='/shop/renames?for=self'") -%]
-[% END %]
-
-

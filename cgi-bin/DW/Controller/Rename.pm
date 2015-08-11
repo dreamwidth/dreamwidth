@@ -196,14 +196,11 @@ sub swap_handler {
 
     my $post_args = DW::Request->get->post_args;
 
-    my @unused_tokens = @{DW::RenameToken->by_owner_unused( userid => $remote->userid ) || []};
-    $vars->{numtokens} = scalar @unused_tokens;
-
     if ( $r->method eq "POST" ) {
         # this is kind of ugly. $post_ok is a hashref of template args
         # if it's a success, and false if it failed
         my $errors = DW::FormErrors->new;
-        my $post_ok = handle_swap_post( $post_args, tokens => \@unused_tokens, user => $remote, errors => $errors );
+        my $post_ok = handle_swap_post( $post_args, user => $remote, errors => $errors );
         return success_ml( "/rename/swap.tt.success", $post_ok ) if $post_ok;
 
         $vars->{errors} = $errors;
@@ -232,6 +229,17 @@ sub handle_swap_post {
     my $swapjournal = LJ::load_user( $post_args->{swapjournal} );
     $errors->add( 'swapjournal', '/rename/swap.tt.error.invalidswapjournal' ) unless $swapjournal;
 
+    my $remote = $opts{user};
+    my $get_unused_tokens = sub { @{DW::RenameToken->by_owner_unused( userid => $_[0]->id ) || []} };
+
+    my @unused_tokens = grep { defined } ( $get_unused_tokens->( $remote ),
+                                           $get_unused_tokens->( $journal ),
+                                           $get_unused_tokens->( $swapjournal ) );
+
+    $errors->add( '', '/rename/swap.tt.numtokens.toofew',
+                      { aopts => "href='/shop/renames?for=self'" } )
+        unless @unused_tokens > 1;
+
     return 0 if $errors->exist;
 
 
@@ -240,7 +248,7 @@ sub handle_swap_post {
 
     # let's do this
     my $swap_errors = $opts{errors} || DW::FormErrors->new;
-    $journal->swap_usernames( $swapjournal, user => $opts{user}, tokens => $opts{tokens}, errors => $swap_errors );
+    $journal->swap_usernames( $swapjournal, user => $opts{user}, tokens => \@unused_tokens, errors => $swap_errors );
 
     return { journal => $journal->ljuser_display,
              swapjournal => $swapjournal->ljuser_display } unless $errors->exist;
