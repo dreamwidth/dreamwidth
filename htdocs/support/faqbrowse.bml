@@ -112,7 +112,7 @@ body<=
         LJ::Faq->render_in_place( { lang => $lang, user => $user,
                                     url => $user_url }, @faqs );
 
-        $$body .= "<ol name='toc'>";
+        $$body .= "<ol>";
         foreach my $f (@faqs) {
             my $faqid = $f->faqid;
             my $question = $f->question_raw;
@@ -207,7 +207,7 @@ body<=
             $$body .= " <a style='text-decoration: none;' " .
                       "href='faqbrowse?faqid=$faqid'>&#x00bb;</a>";
             # Create a separate anchor so we don't visibly select the arrow
-            $$body .= "<a name='faq$faqid' />";
+            $$body .= "<a id='faq$faqid'></a>";
             $$body .= " $question h1?>";
         }
         $$body .= "<div style='margin-left: 20px;'>";
