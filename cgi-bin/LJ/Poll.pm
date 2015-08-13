@@ -1224,10 +1224,25 @@ sub process_submission {
     my $ct = 0; # how many questions did they answer?
     my ( %vote_delete, %vote_replace );
 
+    my %tuplefields;
+    my @fieldnames = keys %{$form};
+    for (@fieldnames){ 
+        warn $_;
+        if (/^polltuple-(\d+)-(\d*)$/){ push @{$tuplefields{$1}} , $2 }
+    };
+    
     foreach my $q (@qs) {
         my $qid = $q->pollqid;
         my $val = $form->{"pollq-$qid"};
         
+        
+        ### TUPLE-HANDLING
+        
+        if ($tuplefields{$qid}){
+            $val = join(",", map { $_ . "=" . ( $form->{"polltuple-$qid-$_"} || '') } sort {$a <=> $b} @{$tuplefields{$qid}})
+        }
+        
+
         my $rv = $q->is_valid_answer($val);
         
         if ($rv != 1){

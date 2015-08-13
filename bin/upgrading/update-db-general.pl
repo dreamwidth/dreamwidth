@@ -2361,7 +2361,7 @@ CREATE TABLE pollquestion2 (
     pollid INT UNSIGNED NOT NULL,
     pollqid TINYINT UNSIGNED NOT NULL,
     sortorder TINYINT UNSIGNED NOT NULL DEFAULT '0',
-    type ENUM('check','radio','drop','text','scale') NOT NULL,
+    type ENUM('check','radio','drop','text','scale','ranked') NOT NULL,
     opts VARCHAR(255) DEFAULT NULL,
     qtext TEXT,
 

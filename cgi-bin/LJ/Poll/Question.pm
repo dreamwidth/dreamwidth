@@ -20,6 +20,7 @@ use Carp qw (croak);
 ### seem to be necessary - asb
 use LJ::Poll::Question::CheckBox;
 use LJ::Poll::Question::RadioButton;
+use LJ::Poll::Question::Ranked;
 use LJ::Poll::Question::MultiChoice;
 use LJ::Poll::Question::Scale;
 use LJ::Poll::Question::DropDown;
@@ -32,6 +33,7 @@ our %ALLOWED_TYPES = (
     radio => "LJ::Poll::Question::RadioButton",
     drop  => "LJ::Poll::Question::DropDown",
     scale => "LJ::Poll::Question::Scale",
+    ranked => "LJ::Poll::Question::Ranked",
 );
 
 

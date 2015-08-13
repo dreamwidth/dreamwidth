@@ -69,6 +69,7 @@ _c?>
                   "drop" => $ML{'.type.drop'},
                   "text" => $ML{'.type.text'},
                   "scale" => $ML{'.type.scale'},
+                  "ranked" => $ML{'.type.ranked'},
                   );
 
 
@@ -189,7 +190,7 @@ _c?>
                 next unless defined $val;
 
                 # ignore invalid types?
-                next if $atr eq 'type' && $val !~ /^(radio|check|drop|text|scale)$/;
+                next if $atr eq 'type' && $val !~ /^(radio|check|drop|text|scale|ranked)$/;
 
                 # question too long/nonexistant
                 if ($atr eq 'question') {
@@ -382,7 +383,7 @@ _c?>
                         {
                             "question" => '',
                             "type" => $val,
-                            "opts" => ($val =~ /^(radio|drop|check)$/) ? $RULES{'items'}->{'start'} : 0,
+                            "opts" => ($val =~ /^(radio|drop|check|ranked)$/) ? $RULES{'items'}->{'start'} : 0,
                             "opt" => [],
                         }
                         );
@@ -413,7 +414,7 @@ _c?>
                     }
 
                     # catches inserts
-                    if ($POST{"$act:$q"} =~ /^(radio|check|drop|text|scale)$/)  {
+                    if ($POST{"$act:$q"} =~ /^(radio|check|drop|text|scale|ranked)$/)  {
                         $do_action->($act, $q, $1);
                         next;
                     }
@@ -502,7 +503,7 @@ _c?>
                 $ret .= "<?de [$ML{'.elements.limitreached'}] de?>\n";
             } else {
                 $ret .= "$ML{'.insertquestion'} <select name='insert:$after'>\n";
-                foreach my $type (qw(-- radio check drop text scale)) {
+                foreach my $type (qw(-- radio check drop text scale ranked)) {
                     $ret .= "<option value='$type'>$TYPENAME{$type}</option>\n";
                 }
                 $ret .= "</select>\n";
@@ -559,13 +560,15 @@ _c?>
             $ret .= "<div style='margin: 10px 0 10px 40px'>\n";
 
             # spit out opts -- choices for drop-down, radio, etc questions
-            if ($elem->{'type'} =~ /^(radio|check|drop)$/) {
+            if ($elem->{'type'} =~ /^(radio|check|drop|ranked)$/) {
                 $ret .= LJ::Lang::ml( ".options2" ) . "\n";
                 foreach my $o (0..$elem->{'opts'}-1) {
                     $ret .= "<br />";
 
                     $ret .= LJ::html_check({ 'type' => 'radio', 'name' => "dummy_$q", 'disabled' => 'disabled' }) if $elem->{'type'} eq 'radio';
                     $ret .= LJ::html_check({ 'type' => 'checkbox', 'disabled' => 'disabled' }) if $elem->{'type'} eq 'check';
+                    
+                    $ret .= LJ::html_text({  'type' => 'text', 'name' => "dummy_$q", 'size' => '3', 'disabled' => 'disabled' }) if $elem->{'type'} eq 'ranked';
 
                     $ret .= LJ::html_text({ 'type' => 'text', 'name' => "pq_${q}_opt_$o", 'size' => '35',
                                             'maxlength' => $RULES{'items'}->{'maxlength'}, 'value' => $elem->{'opt'}->[$o] }) . "\n";
@@ -682,7 +685,7 @@ _c?>
                 $ret .= ">\n";
                 $ret .= $elem->{'question'} . "\n" if $elem->{'question'};
 
-                if ($elem->{'type'} =~ /^(radio|drop|check)$/) {
+                if ($elem->{'type'} =~ /^(radio|drop|check|ranked)$/) {
                     # make <poll-item> tags
                     foreach my $o (0..$elem->{'opts'}) {
                         $ret .= "<poll-item>$elem->{'opt'}->[$o]</poll-item>\n" if $elem->{'opt'}->[$o] ne '';
