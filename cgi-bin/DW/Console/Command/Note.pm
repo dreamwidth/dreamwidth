@@ -32,7 +32,10 @@ sub args_desc {
     ]
 }
 sub usage { '<username> [<subcommand> <note>]' }
-sub can_execute { 1 }
+sub can_execute {
+    my $remote = LJ::get_remote();
+    return $remote && $remote->has_priv( 'suspend' );
+}
 
 sub execute {
     my ( $self, $user, $cmd, $note ) = @_;
