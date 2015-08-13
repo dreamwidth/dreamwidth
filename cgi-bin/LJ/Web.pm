@@ -2802,7 +2802,11 @@ sub control_strip
                 # since this is only shown if $remote->equals( $journal ) , we don't have to care whether a filter is public or not
                 my @custom_filters = $journal->content_filters;
 
+                # Making as few changes to existing behaviour
+                my $default_filter = "default view";
                 foreach my $f ( @custom_filters ) {
+                    # Both 'default' and 'default view' are default filters
+                    $default_filter = "default" if lc( $f->name ) eq "default";
                     push @filters, "filter:" . lc( $f->name ), $f->name;
                 }
 
@@ -2813,7 +2817,7 @@ sub control_strip
                     $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
                     $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
                 } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
-                    my $filter = $1 || "default view";
+                    my $filter = $1 || $default_filter;
                     $selected = "filter:" . LJ::durl( lc( $filter ) );
                 }
 
