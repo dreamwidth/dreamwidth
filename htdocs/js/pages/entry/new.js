@@ -195,10 +195,6 @@ var postForm = (function($) {
             } else {
                 $custom_edit_button.hide();
             }
-
-            if ( !init ) {
-                $this.data("lastselected", $this.val());
-            }
         }).triggerHandler("change", rememberInitialValue);
 
         // update the list of people who can see the entry
@@ -296,7 +292,7 @@ var postForm = (function($) {
             }
 
             var $security = $("#js-security");
-            var oldval = $security.data("lastselected");
+            var oldval = $security.closest('select').find('option').filter(':selected').val();
             var rank = { "public": "0", "access": "1", "private": "2", "custom": "3" };
 
             $security.empty();
