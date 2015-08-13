@@ -195,10 +195,6 @@ var postForm = (function($) {
             } else {
                 $custom_edit_button.hide();
             }
-
-            if ( !init ) {
-                $this.data("lastselected", $this.val());
-            }
         }).triggerHandler("change", rememberInitialValue);
 
         // update the list of people who can see the entry
