@@ -87,8 +87,6 @@ sub display_result {
             }
         }
 
-        my $prevanswer;
-
         my @items = $poll->question($qid)->items;
         @items = map { [$_->{pollitid}, $_->{item}] } @items;
 

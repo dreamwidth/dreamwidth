@@ -285,34 +285,3 @@ jQuery(document).ready(function($){
         $(this).find(".poll-container").andSelf().dynamicpoll();
     });
 });
-
-  
-// ADAM's ADDITIONS
-   
-$('head').append('<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">');
-$('head').append('<style>\
-  #sortable1, #sortable2 {\
-    border: 1px solid #eee;\
-    width: 142px;\
-    min-height: 20px;\
-    list-style-type: none;\
-    margin: 0;\
-    padding: 5px 0 0 0;\
-    float: left;\
-    margin-right: 10px;\
-  }\
-  #sortable1 li, #sortable2 li {\
-    margin: 0 5px 5px 5px;\
-    padding: 5px;\
-    font-size: 1.2em;\
-    width: 120px;\
-  }\
-  </style>');
-$.getScript("//code.jquery.com/ui/1.11.4/jquery-ui.js", function(){
-    $( "ul.sortable" ).sortable({
-      connectWith: "ul"
-    });
- 
- 
-    $( "#sortable1, #sortable2" ).disableSelection();
-  });

@@ -32,7 +32,7 @@ sub previewing_snippet {
     return $ret;
 }
 
-sub boxtype{undef}
+sub boxtype{return undef;}
 
 sub display_result {
     my ($self, $do_form, $preval, $clearanswers, $mode, $pagesize) = @_;

@@ -19,6 +19,7 @@ _c?>
     use LJ::Poll;
 
     $title = $ML{'.title'};
+
     $body = "";
 
     # answers to checkbox questions are null-separated sequences

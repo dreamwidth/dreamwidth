@@ -562,6 +562,10 @@ sub start_request
             ),
         );
 
+
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => "jquery" }, @LJ::Poll::Question::Ranked::needed_resources);
+
+
         # old/standard libraries are below here.
 
         # standard site-wide JS and CSS

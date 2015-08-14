@@ -15,17 +15,7 @@ package LJ::Poll::Question;
 use strict;
 use Carp qw (croak);
 
-
-### I don't quite see why I should need to do the use here, but it does
-### seem to be necessary - asb
-use LJ::Poll::Question::CheckBox;
-use LJ::Poll::Question::RadioButton;
-use LJ::Poll::Question::Ranked;
-use LJ::Poll::Question::MultiChoice;
-use LJ::Poll::Question::Scale;
-use LJ::Poll::Question::DropDown;
-use LJ::Poll::Question::Text;
-
+LJ::ModuleLoader->require_subclasses( "LJ::Poll::Question" );
 
 our %ALLOWED_TYPES = (
     check => "LJ::Poll::Question::CheckBox",
@@ -159,7 +149,8 @@ sub process_tag_options {     # subclassed in some cases, in other cases return 
     return $qopts 
 }
 sub get_summary_stats{ #Subclassed in Scale
-    return(undef,undef,undef,undef)}
+    return(undef,undef,undef,undef)
+}
 sub is_valid_answer {1}
 sub display_result {croak("This needs to be subclassed in package " , ref(shift)) }
 

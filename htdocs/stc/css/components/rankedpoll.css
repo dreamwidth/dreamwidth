@@ -1,0 +1,48 @@
+.rankedpoll_sortable_from {
+    list-style-type: none; margin: 0;  margin-right: 10px; background: #eee; padding: 5px; width: 200px;
+    display:inline-block;
+    vertical-align: top;
+    -webkit-flex: 1;
+    flex: 1;
+    border:1px solid rgb(100,100,100);
+}
+
+.rankedpoll_sortable_to {
+    list-style-type: none; margin: 0;  margin-right: 10px; background: #eee; padding: 5px; width: 200px;
+    display:inline-block;
+    vertical-align: top; 
+    -webkit-flex: 1;
+    flex: 1;
+    border:1px solid black;
+            
+}
+.rankedlistwrapper {
+    margin:8px; position:relative; top:0; left:0; right:0; bottom:0;
+    display: -webkit-flex;
+    display: flex;
+}
+.rankedlistfromwrapper{
+      display:inline-block;
+      vertical-align: top;
+      
+}
+.rankedlisttowrapper{
+      display:inline-block;
+      vertical-align: top;
+
+}
+.rankedpoll_sortable_to li {
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    font-size: 1.2em;
+    width: 120px;
+    color:black;
+}
+
+.rankedpoll_sortable_from li {
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    font-size: 1.2em;
+    color: rgb(100,100,100);
+    width: 120px;
+}

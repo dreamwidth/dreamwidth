@@ -19,6 +19,16 @@ package LJ::Poll::Question::Ranked;
 use strict;
 use base qw/ LJ::Poll::Question::MultiChoice /;
 
+our @needed_resources = qw#js/jquery/jquery-1.8.3.js
+                         js/jquery/jquery.ui.core.js
+                         js/jquery/jquery.ui.widget.js
+                         js/jquery/jquery.ui.mouse.js
+                         js/jquery/jquery.ui.sortable.js
+                         stc/css/components/rankedpoll.css
+                         js/jquery.rankedpoll.js
+                        #;
+
+
 sub translate_individual_answer {
     my ($self, $value, $items) = @_;
     my %h = rankings_string_to_hash($value);
@@ -74,6 +84,8 @@ sub display_result {
     my $poll = $self->poll;
     my $sth;
  #################
+ 
+        LJ::need_res( @needed_resources );
         my $text = $self->text;
         LJ::Poll->clean_poll(\$text);
         $ret .= "<div class='poll-inquiry'><p>$text</p>";
@@ -86,7 +98,7 @@ sub display_result {
         my @result_of_runoff;
         
         
-        my $js_poll = q!<div class="rankedlistjs"><ul id="sortable1" class="sortable">mooboocoo!;
+         my (@injs, @outjs);
         if ($mode eq "results") {
             ### to see individual's answers
             my $posterid = $poll->posterid;
@@ -95,17 +107,6 @@ sub display_result {
                      class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid' lj_page='0' lj_pagesize="$pagesize"
                      id="LJ_PollAnswerLink_${pollid}_$qid">
                 } . LJ::Lang::ml('poll.viewanswers') . "</a><br />" if $poll->can_view;
-
-
- 
-  
-  
-#     <style>
-#   #sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
-#   #sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }
-#   #sortable li span { position: absolute; margin-left: -1.3em; }
-#   </style>
-
 
             $sth = $poll->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
             $sth->execute( $pollid, $qid, $poll->journalid );
@@ -146,12 +147,19 @@ sub display_result {
             if ($do_form) {
                 
                 
-               $js_poll .= '<li class="ui-state-default">'.$item.'</li>';
+                my $js_snippet .= qq{<li class="ui-state-default" id="rankedpoll_item-$pollid+$qid-$itid">$item</li>};
 
                 $prevanswer = $clearanswers ? '' : ($my_votes{$itid} // '');
-                $ret .= '<div class="hideable" style="display: none;">';
+
+                if ($prevanswer){
+                    $injs[$prevanswer - 1] = $js_snippet;
+                } else {
+                    push @outjs, $js_snippet;
+                }
+                
+                $ret .= '<div class="rankedpoll_hideable">';
                 $ret .= LJ::html_text({ 'size' => 3, 'maxlength' => 3, 'class'=>"poll-$pollid",
-                                    'name' => "polltuple-$qid-$itid", 'value' => $prevanswer });
+                                    'name' => "polltuple-$qid-$itid", 'id' => "polltuple-$pollid+$qid-$itid", 'value' => $prevanswer });
                 $ret .= " <label for='pollq-$pollid-$qid-$itid'>$item</label><br />";
                 $ret .= '</div>';
 
@@ -175,11 +183,19 @@ sub display_result {
 
         }
             
-        $js_poll.= '</ul><ul id="sortable2"></ul></div>';
-        $js_poll =~ s/\n//g;
-        $ret .= q!<script type="text/javascript"> 
-                document.write('! .$js_poll. q!');
-                </script>!;
+       if ($do_form) {
+  
+            my $js_poll = q!<div class="rankedlistwrapper"><ul class="rankedpoll_sortable_from">Unused Options!;
+            $js_poll.= join("", grep {defined $_} @outjs);
+            $js_poll.= '</ul><ul class="rankedpoll_sortable_to" id="rankedpoll-'."$pollid+$qid".'">Your Choices';
+            $js_poll.= join("", grep {defined $_} @injs);
+            $js_poll.= '</ul></div>';
+            $js_poll =~ s/\n//g;
+            $ret .= q!<script type="text/javascript"> 
+                    document.write('! .$js_poll. q!');
+                    </script>!;
+
+        }
         $ret .= "</div></div>";
 
  #####################
@@ -206,15 +222,15 @@ sub do_runoff{
     my $round = 1;
     my @history;
     while (1){
-        my %firstchoices;
+        my %firstchoices = map {$_ => 0} @candidates;
         for my $v (@votes){
             $firstchoices{$v->[0]}++ if scalar @$v;
         }
         push @history, \%firstchoices;
-        my $lowestscore = $firstchoices{$candidates[0]};
+        my $lowestscore  = $firstchoices{$candidates[0]};
         my $highestscore = $firstchoices{$candidates[0]};
         for my $c (@candidates){
-            $lowestscore = $firstchoices{$c} if $firstchoices{$c} < $lowestscore;
+            $lowestscore  = $firstchoices{$c} if $firstchoices{$c} < $lowestscore;
             $highestscore = $firstchoices{$c} if $firstchoices{$c} > $highestscore;
         }
         

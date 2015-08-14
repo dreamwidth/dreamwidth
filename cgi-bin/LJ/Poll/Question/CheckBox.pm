@@ -17,7 +17,7 @@ use base qw/ LJ::Poll::Question::MultiChoice /;
 
 sub translate_individual_answer {
     my ($self, $value, $items) = @_;
-    return join(", ", map {  __PACKAGE__ . $items->{$_} } split(/,/, $value));
+    return join(", ", map { $items->{$_} } split(/,/, $value));
 }
 
 sub process_tag_options {
