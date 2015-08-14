@@ -4180,6 +4180,12 @@ EOF
                   "ALTER TABLE spamreports ".
                   "MODIFY ip VARCHAR(45)" );
     }
+        
+    if (column_type("pollquestion2", "type") eq "enum('check','radio','drop','text','scale')") {
+        do_alter("pollquestion2",
+                 "ALTER TABLE pollquestion2 CHANGE COLUMN type type enum('check','radio','drop','text','scale','ranked')".
+
+    }
 });
 
 
