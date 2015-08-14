@@ -77,6 +77,8 @@
 
 .type.radio=Radio Buttons
 
+.type.ranked=Ranked Options
+
 .type.scale=Scale
 
 .type.text=Text box
