@@ -11,7 +11,7 @@ function LJUser(textArea) {
     var html = oEditor.GetXHTML(false);
     if (html) html = html.replace(/<\/(lj|user)>/, '');
     var regexp = /<(?:lj|user)( (?:user|name|site)=[^/>]+)\/?>\s?(?:<\/(?:lj|user)>)?\s?/g;
-    var attrs_regexp = /(user|name|site)=['"]([.\w]+?)['"]/g;
+    var attrs_regexp = /(user|name|site)=['"]([.\w-]+?)['"]/g;
     var userstr;
     var users = [];
     var username;
