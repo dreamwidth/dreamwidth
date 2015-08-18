@@ -5,7 +5,7 @@
 
 .attrib.silk=&bull; In certain places, [[sitenameshort]] uses the <a href="http://www.famfamfam.com/lab/icons/silk/">Silk</a> icon set made by Mark James, which is licensed under a <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a>. We are grateful to Mark for creating and sharing these.
 
-.development.directions3=If you'd like to report a bug that you've found in the Dreamwidth code, please do so by opening a <a href="https://www.dreamwidth.org/support/submit">support request</a> on Dreamwidth.org, or email support@dreamwidth.org. That will allow us to verify the bug and the steps to reproduce it before entering it into our bug tracking system. If the bug is security-related and you think it shouldn't be posted in public, you can email webmaster@dreamwidth.org instead.
+.development.directions4=If you'd like to report a bug that you've found in the Dreamwidth code, please do so by opening a <a href="https://www.dreamwidth.org/support/submit">support request</a> on Dreamwidth.org, or email support@dreamwidth.org. That will allow us to verify the bug and the steps to reproduce it before entering it into our bug tracking system. If the bug is security-related and you think it shouldn't be posted in public, you can email webmaster@dreamwidth.org instead.
 
 .development.header=Development
 

@@ -1596,3 +1596,5 @@ general widget.search.msn
 general /manage/profile/index.bml.chat.msnusername
 general /profile.bml.im.msn
 general /profile.bml.label.msnusername
+
+general /site/opensource.bml.text.development.directions3

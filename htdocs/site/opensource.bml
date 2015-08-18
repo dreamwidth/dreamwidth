@@ -38,7 +38,7 @@ body<=
 
 <p><?_ml .development.main2 _ml?></p>
 
-<p><?_ml .development.directions3 _ml?></p>
+<p><?_ml .development.directions4 _ml?></p>
 
 <=body
 windowtitle=><?_ml .title _ml?>
