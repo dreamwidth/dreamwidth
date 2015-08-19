@@ -68,6 +68,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>
     [ <a href="spamreports">&lt;&lt; [% '.nav.frontpage' | ml %]</a> ]
     [ [% statelink %] ]
+  [%- IF count > 1 -%]
+    [ <a href="[% sorturl %]">[% ".nav.sort.${view_sort}" | ml %]</a> ]
+  [%- END -%]
 </p>
 
 [%- IF ! count -%]

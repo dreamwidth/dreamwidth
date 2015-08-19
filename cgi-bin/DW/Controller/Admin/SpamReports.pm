@@ -213,9 +213,19 @@ sub main_controller {
         $by = '' unless $by =~ /^(?:ip|poster(?:id)?)$/;
         $state = 'open' unless $state =~ /^(?:open|closed)$/;
 
+        # check to see whether the viewer requested a posttime sort instead
+        my $sort = lc( $get->{sort} || '' );
+        $sort = 'reporttime' unless $sort =~ /^(?:reporttime|posttime)$/;
+
         $rv->{view_by}    = $by;
         $rv->{view_what}  = $what;
         $rv->{view_state} = $state;
+        $rv->{view_sort}  = $sort;
+
+        my %flip = ( reporttime => 'posttime', posttime => 'reporttime' );
+
+        $rv->{sorturl} = LJ::create_url( undef, keep_args => 1,
+                                         args => { sort => $flip{$sort} } );
 
         if ( $state eq 'open' ) {
             $rv->{statelink} = $viewlink->( $by, $what, 'closed', undef,
@@ -258,7 +268,7 @@ sub main_controller {
         my $res = $by ? $dbr->selectall_arrayref(
             "SELECT reporttime, journalid, subject, body, posttime, report_type," .
             " srid, client FROM spamreports WHERE state=? AND $by=?" .
-            " ORDER BY reporttime DESC LIMIT 1000", undef, $state, $what ) : [];
+            " ORDER BY ? DESC LIMIT 1000", undef, $state, $what, $sort ) : [];
         my @srids;
         foreach ( @$res ) {
             my $reporttime = LJ::mysql_time( $_->[0] );

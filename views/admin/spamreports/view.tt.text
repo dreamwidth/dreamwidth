@@ -2,6 +2,10 @@
 
 .nav.frontpage=Front Page
 
+.nav.sort.posttime=Sort Reports By Time Reported
+
+.nav.sort.reporttime=Sort Reports By Time Posted
+
 .report.individual.body=Body:
 
 .report.individual.body.none=no body
