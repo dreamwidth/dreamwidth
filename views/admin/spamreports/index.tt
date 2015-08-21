@@ -12,14 +12,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[%- sections.head = BLOCK %]
-    <style type="text/css">
-        form.usersearch {
-            display: inline;
-            margin: 0;
-        }
-    </style>
-[% END %]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+        "stc/css/pages/admin/spamreports.css"
+) -%]
 
 [%- sections.title = '.main.title' | ml -%]
 
