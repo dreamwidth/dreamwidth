@@ -709,7 +709,8 @@ sub trust_groups {
     my $id = delete $opts{id};
     my $bit = defined $id ? $id + 0 : 0;
     confess 'invalid bit number' if $bit < 0 || $bit > 60;
-    my $name = defined $opts{name} ? lc delete( $opts{name} ) : '';
+    my $name = delete( $opts{name} );
+    $name = lc $name if defined $name;
     confess 'invalid arguments' if %opts;
 
     return DW::User::Edges::WatchTrust::Loader::_trust_groups( $u, $bit, $name );
