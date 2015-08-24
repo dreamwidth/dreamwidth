@@ -59,8 +59,6 @@ DW::Controller::Admin->_register_admin_pages_legacy( '/',
         '.admin.priv.link', '.admin.priv.text' ],
     [ 'recent_comments',
         '.admin.recent_comments.link', '.admin.recent_comments.text', [ 'siteadmin:commentview', 'siteadmin:*' ] ],
-    [ 'spamreports',
-        '.admin.spamreports.link', '.admin.spamreports.text', [ 'siteadmin:spamreports', 'siteadmin:*' ] ],
     [ 'statushistory',
         '.admin.statushistory.link', '.admin.statushistory.text', [ 'historyview', sub {
             return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );

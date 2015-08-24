@@ -1,0 +1,55 @@
+;; -*- coding: utf-8 -*-
+
+.nav.frontpage=Front Page
+
+.nav.sort.posttime=Sort Reports By Time Reported
+
+.nav.sort.reporttime=Sort Reports By Time Posted
+
+.report.individual.body=Body:
+
+.report.individual.body.none=no body
+
+.report.individual.client=Client Info:
+
+.report.individual.client.notrecorded=(none)
+
+.report.individual.close=Close
+
+.report.individual.in=[[spamlocation]] in:
+
+.report.individual.reporttime=Report Time:
+
+.report.individual.spamtime=[[spamlocation]] Time:
+
+.report.individual.spamtime.notrecorded=not recorded
+
+.report.individual.subject=Subject:
+
+.report.individual.subject.none=no subject
+
+.report.individual.sysban.done=Already talk_ip_test banned
+
+.report.individual.sysban.ip=Also Sysban IP?
+
+.report.individual.sysban.ip.invalid=(sysban unavailable: invalid IP address)
+
+.report.individual.sysban.nonote=(no note)
+
+.view.byip.title=Spam Reports - By IP [[ip]] ([[state]]: [[count]])
+
+.view.byposterid.title=Spam Reports - By [[user]]
+
+.view.byposter.title=Spam Reports - Comments By [[user]]
+
+.view.closeall=Close All
+
+.view.noreports=No reports found.
+
+.view.numreports=[[count_comma]] [[?count_raw|report|reports]] found.
+
+.view.poster.comments.posted=[[posted_comma]] [[?posted_raw|comment|comments]] posted
+
+.view.poster.comments.received=[[received_comma]] [[?received_raw|comment|comments]] received
+
+.view.poster.entries.posted=[[entries_comma]] [[?entries_raw|entry|entries]] posted
