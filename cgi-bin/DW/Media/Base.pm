@@ -170,11 +170,17 @@ sub set_security {
     return 0 if $self->is_deleted;
 
     my $security = $opts{security};
+    confess 'Invalid argument hash passed to set_security.'
+        unless defined $security;
+
+    $security = 'usemask' if $security =~ /^(?:friends|access)$/;
     confess 'Invalid security type passed to set_security.'
         unless $security =~ /^(?:private|public|usemask)$/;
 
     my $mask = 0;
     if ( $security eq 'usemask' ) {
+        # allowmask must be defined - defaults to 1 (all trusted)
+        $opts{allowmask} //= 1;
         $mask = int $opts{allowmask};
     }
 
