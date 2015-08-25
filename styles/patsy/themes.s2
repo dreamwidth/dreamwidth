@@ -173,7 +173,7 @@ set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
 set font_journal_title = "Metamorphous";
 set font_module_heading = "Metamorphous";
-set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+set font_sources = "https://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
 
 function Page::print_theme_stylesheet() {
 """
@@ -395,7 +395,7 @@ set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
 set font_journal_title = "Metamorphous";
 set font_module_heading = "Metamorphous";
-set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+set font_sources = "https://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
 
 function Page::print_theme_stylesheet() {
 """
@@ -580,7 +580,7 @@ set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
 set font_journal_title = "Metamorphous";
 set font_module_heading = "Metamorphous";
-set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+set font_sources = "https://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
 
 function Page::print_theme_stylesheet() {
 """
