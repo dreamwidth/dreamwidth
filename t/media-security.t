@@ -23,7 +23,7 @@ use LJ::Test qw(temp_user);
 use DW::Media;
 
 if ( LJ::mogclient() ) {
-    plan tests => 14;
+    plan tests => 15;
 } else {
     plan skip_all => "MogileFS client unavailable.";
     exit 0;
@@ -71,6 +71,10 @@ if ( defined $obj ) {
     $obj->set_security( security => "usemask", allowmask => 0 );
 
     ok( ! $obj->visible_to( $u2 ), "Trusted user can't view if no allowmask" );
+
+    $obj->set_security( security => "usemask", allowmask => undef );
+
+    ok( ! $obj->visible_to( $u2 ), "Trusted user can't view undef allowmask" );
 
     # make sure "friends" security works (newpost_minsecurity still uses this)
     $obj->set_security( security => "friends" );

@@ -175,8 +175,8 @@ sub set_security {
 
     my $mask = 0;
     if ( $security eq 'usemask' ) {
-        # allowmask must be defined - defaults to 1 (all trusted)
-        $opts{allowmask} //= 1;
+        # default allowmask of 0 unless defined otherwise
+        $opts{allowmask} //= 0;
         $mask = int $opts{allowmask};
     }
 

@@ -117,8 +117,8 @@ sub upload_media {
     croak 'Invalid security for uploaded file.'
         unless $sec =~ /^(?:public|private|usemask)$/;
     if ( $sec eq 'usemask' ) {
-        # default allowmask of 1 unless defined otherwise
-        $opts{allowmask} //= 1;
+        # default allowmask of 0 unless defined otherwise
+        $opts{allowmask} //= 0;
     } else {
         $opts{allowmask} = 0;
     }
