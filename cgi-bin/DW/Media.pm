@@ -110,7 +110,10 @@ sub upload_media {
 
     # set the security
     my $sec = $opts{security} || 'public';
-    $sec = 'usemask' if $sec =~ /^(?:friends|access)$/;
+    if ( $sec =~ /^(?:friends|access)$/ ) {
+        $sec = 'usemask' ;
+        $opts{allowmask} = 1;
+    }
     croak 'Invalid security for uploaded file.'
         unless $sec =~ /^(?:public|private|usemask)$/;
     if ( $sec eq 'usemask' ) {
