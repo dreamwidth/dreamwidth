@@ -2693,7 +2693,8 @@ sub start_css {
     $sc->{_start_css_pout_s} = S2::get_output_safe();
     $sc->{_start_css_buffer} = "";
     my $printer = sub {
-        $sc->{_start_css_buffer} .= shift;
+        my $arg = shift;
+        $sc->{_start_css_buffer} .= $arg if defined $arg;
     };
     S2::set_output($printer);
     S2::set_output_safe($printer);

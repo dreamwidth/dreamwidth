@@ -75,7 +75,7 @@ sub watch_items
     my $filter_journaltypes = sub {
         my ( $friends, $friends_u, $memcache_only, $valid_types ) = @_;
         return unless $friends && $friends_u;
-        $valid_types ||= uc $args{showtypes};
+        $valid_types ||= uc $args{showtypes} if defined $args{showtypes};
 
         # make (F)eeds an alias for s(Y)ndicated
         $valid_types =~ s/F/Y/g;

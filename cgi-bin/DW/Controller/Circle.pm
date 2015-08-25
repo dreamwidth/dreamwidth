@@ -126,7 +126,8 @@ sub individual_edit_handler {
             };
         }
         $edge->{filters} = \@access_filters;
-        $edge->{expand_filters} = $edge->{on} || ( $get->{action} eq "access" );
+        my $action = $get->{action} // '';
+        $edge->{expand_filters} = $edge->{on} || ( $action eq "access" );
         return $edge;
     };
 
@@ -155,7 +156,8 @@ sub individual_edit_handler {
             }
         }
         $edge->{filters} = \@content_filters;
-        $edge->{expand_filters} = $edge->{on} || ( $get->{action} eq "subscribe" );
+        my $action = $get->{action} // '';
+        $edge->{expand_filters} = $edge->{on} || ( $action eq "subscribe" );
         return $edge;
     };
 
