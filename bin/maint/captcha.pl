@@ -56,10 +56,16 @@ $maint{cache_textcaptcha} = sub {
             last unless $delay;
         }
 
+        if ( scalar @fetched_captchas >= 10 ) {
+            print "...flushing to DB\n";
+            DW::Captcha::textCAPTCHA::Logic->save_multi( @fetched_captchas );
+            @fetched_captchas = ();
+        }
+
         sleep $delay;
     }
 
-    DW::Captcha::textCAPTCHA::Logic->save_multi( @fetched_captchas );
+    DW::Captcha::textCAPTCHA::Logic->save_multi( @fetched_captchas ) if @fetched_captchas;
     return 1;
 };
 
