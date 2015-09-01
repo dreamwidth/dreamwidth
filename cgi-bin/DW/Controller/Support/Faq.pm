@@ -26,6 +26,7 @@ use DW::Routing;
 use DW::Template;
 
 DW::Routing->register_string( '/support/faq', \&faq_handler, app => 1 );
+DW::Routing->register_string( '/support/faqpop', \&faqpop_handler, app => 1 );
 
 sub faq_handler {
     my $r = DW::Request->get;
@@ -94,6 +95,51 @@ sub faq_handler {
     }
     
     return DW::Template->render_template( 'support/faq.tt', $vars );
+
+}
+
+sub faqpop_handler {
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
+    return $rv unless $ok;
+    
+    my $vars = {};    
+
+    my $remote = $rv->{remote};
+    my $user;
+    my $user_url;
+
+    # Get remote username and journal URL, or example user's username and journal URL
+    if ( $remote ) {
+        $user = $remote->user;
+        $user_url = $remote->journal_base;
+    } else {
+        my $u = LJ::load_user( $LJ::EXAMPLE_USER_ACCOUNT );
+        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+    }
+
+    my $dbr = LJ::get_db_reader();
+    my $sth = $dbr->prepare( "SELECT statkey, statval FROM stats WHERE statcat='pop_faq' ORDER BY statval DESC LIMIT 50" );
+    $sth->execute;
+
+    while (my $s = $sth->fetchrow_hashref) {
+        my $f = LJ::Faq->load( $s->{statkey} );
+        $f->render_in_place( {user => $user, url => $user_url} );
+        my $q = $f->question_html;
+        $q =~ s/^\s+//; 
+        $q =~ s/\s+$//;
+        $q =~ s!\n!<br />!g;
+        push @{ $vars->{faqs} }, {
+            question => $q,
+            statval => $s->{statval},
+            faqid => $f->faqid
+        };
+    }
+
+    return DW::Template->render_template( 'support/faqpop.tt', $vars );
 
 }
 
