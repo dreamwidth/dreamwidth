@@ -106,7 +106,7 @@ sub entryprops_handler {
                     $prop{description} = $prop_meta->{des};
 
                     # an ugly hack, i know
-                    $prop{value} = LJ::mysql_time( $prop_name ) if $prop_meta->{des} =~ /unix/i;
+                    $prop{value} = LJ::mysql_time( $prop{value} ) if $prop_meta->{des} =~ /unix/i;
 
                     # render xpost prop into human readable form
                     if ( $prop_name eq "xpost" || $prop_name eq "xpostdetail" ) {
