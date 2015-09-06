@@ -920,47 +920,6 @@ sub create_qr_div {
 }
 
 # <LJFUNC>
-# name: LJ::make_qr_link
-# class: web
-# des: Creates the link to toggle the QR reply form or if
-#      JavaScript is not enabled, then forwards the user through
-#      to replyurl.
-# returns: undef upon failure or HTML for the link
-# args: dtid, basesubject, linktext, replyurl
-# des-dtid: dtalkid for this comment
-# des-basesubject: parent comment's subject
-# des-linktext: text for the user to click
-# des-replyurl: URL to forward user to if their browser
-#               does not support QR.
-# </LJFUNC>
-sub make_qr_link
-{
-    my ($dtid, $basesubject, $linktext, $replyurl) = @_;
-
-    return undef unless defined $dtid && $linktext && $replyurl;
-
-    my $remote = LJ::get_remote();
-    unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
-        my $pid = ( $dtid =~ /^\d+$/) ? int( $dtid / 256 ) : 0;
-
-        $basesubject =~ s/^(Re:\s*)*//i;
-        $basesubject = "Re: $basesubject" if $basesubject;
-        $basesubject = LJ::ehtml(LJ::ejs($basesubject));
-        my $onclick = "return function(that) { return quickreply(\"$dtid\", $pid, \"$basesubject\", that)}(this)";
-
-        my $r = DW::Request->get;
-        my $ju;
-        $ju = LJ::load_userid( $r->note( 'journalid' ) )
-            if $r and $r->note( 'journalid' );
-
-        $onclick = "" if $ju && $ju->does_not_allow_comments_from( $remote );
-        return "<a onclick='$onclick' href='$replyurl' >$linktext</a>";
-    } else { # QR Disabled
-        return "<a href='$replyurl' >$linktext</a>";
-    }
-}
-
-# <LJFUNC>
 # name: LJ::get_lastcomment
 # class: web
 # des: Looks up the last talkid and journal the remote user posted in.
