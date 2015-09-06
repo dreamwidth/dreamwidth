@@ -3700,7 +3700,9 @@ sub _print_reply_container
             my $ditemid = $page->{'entry'}{'itemid'} || $this->{itemid} || 0;
 
             my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
-            my $thread = $page->{_viewing_thread_id} + 0 || "";
+            my $thread = "";
+            $thread = $page->{_viewing_thread_id} + 0
+                if defined $page->{_viewing_thread_id};
             $S2::pout->( LJ::create_qr_div( $u, $ditemid,
                     style_opts => $page->{_styleopts},
                     userpic => $userpic,
