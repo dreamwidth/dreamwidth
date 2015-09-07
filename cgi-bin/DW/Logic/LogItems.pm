@@ -78,7 +78,7 @@ sub watch_items
         $valid_types ||= uc $args{showtypes} if defined $args{showtypes};
 
         # make (F)eeds an alias for s(Y)ndicated
-        $valid_types =~ s/F/Y/g;
+        $valid_types =~ s/F/Y/g if defined $valid_types;
 
         # load u objects for all the given
         LJ::load_userids_multiple([ map { $_, \$friends_u->{$_} } keys %$friends ], [$remote],
