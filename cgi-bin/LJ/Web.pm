@@ -2811,14 +2811,28 @@ sub control_strip
                 }
 
                 my $selected = "all";
+
+                # first, change the selection state to reflect any filter in use;
+                # if we have no default filter or if the named filter somehow
+                # fails to exist, this will effectively select nothing
+                if ( $r->uri =~ /^\/read\/?(.+)?/i ) {
+                    my $filter = $1 || $default_filter;
+                    $selected = "filter:" . LJ::durl( lc( $filter ) );
+                    # but don't select the filter if the query string contains filter=0
+                    # (fun fact: named filter + filter=0 returns a 404 error)
+                    $selected = "all" if $r->query_string && $r->query_string =~ /\bfilter=0\b/;
+                }
+
+                # next, change the selection state to reflect showtypes from getargs;
+                # note this will override the implicit default filter or filter=0 selection
+                # if a match is found, but not a filter explicitly named in the URL.
+                # (of course you can use both! we're just competing for the
+                #  state of the pop-up menu in the control strip here)
                 if ( ( $r->uri eq "/read" || $r->uri eq "/network" ) &&
                      $r->query_string && $r->query_string ne "" ) {
                     $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
                     $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
                     $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
-                } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
-                    my $filter = $1 || $default_filter;
-                    $selected = "filter:" . LJ::durl( lc( $filter ) );
                 }
 
                 $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";
