@@ -143,8 +143,6 @@
                  directory => 0,
                  esn_archive => 1,
                  eventlogrecord => 1,
-                 feedster_search => 0,
-                 free_create => 1,
                  googlecheckout => 1,
                  icon_renames => 0,
                  importing => 0,
@@ -648,82 +646,6 @@
     # which users' s2 layers should always run trusted un-cleaned?
     #%S2_TRUSTED = ( '2' => 'whitaker' ); # userid => username
 
-
-    ###
-    ### Portal Options
-    ###
-
-    @PORTAL_BOXES = (
-                     'Birthdays',
-                     'UpdateJournal',
-                     'TextMessage',
-                     'PopWithFriends',
-                     'Friends',
-                     'Manage',
-                     'RecentComments',
-                     'NewUser',
-                     'FriendsPage',
-                     'FAQ',
-                     'Debug',
-                     'Note',
-                     'RandomUser',
-                     );
-
-    @PORTAL_BOXES_HIDDEN = (
-                            'Debug',
-                            );
-
-    %PORTAL_DEFAULTBOXSTATES = (
-                         'Birthdays' => {
-                             'added' => 1,
-                             'sort'  => 4,
-                             'col'   => 'R',
-                         },
-                         'FriendsPage' => {
-                             'added' => 1,
-                             'sort'  => 6,
-                             'col'   => 'L',
-                         },
-                         'FAQ' => {
-                             'added' => 1,
-                             'sort'  => 8,
-                             'col'   => 'R',
-                         },
-                         'Friends' => {
-                             'added' => 1,
-                             'sort'  => 10,
-                             'col'   => 'R',
-                         },
-                         'Manage' => {
-                             'added' => 1,
-                             'sort'  => 12,
-                             'col'   => 'L',
-                         },
-                         'PopWithFriends' => {
-                             'added' => 0,
-                             'col'   => 'R',
-                         },
-                         'RecentComments' => {
-                             'added' => 1,
-                             'sort'  => 10,
-                             'col'   => 'L',
-                         },
-                         'UpdateJournal' => {
-                             'added' => 1,
-                             'sort'  => 4,
-                             'col'   => 'L',
-                         },
-                         'NewUser' => {
-                             'added' => 1,
-                             'sort'  => 2,
-                             'col'   => 'L',
-                         },
-                         'TextMessage' => {
-                             'added'  => 1,
-                             'sort'   => 12,
-                             'col'    => 'R',
-                         },
-                         );
 
     # Setup support email address to not accept new emails.  Basically if an
     # address is specified below, any user who emails it out of the blue will
