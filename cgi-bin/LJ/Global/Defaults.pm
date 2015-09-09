@@ -72,6 +72,12 @@ no strict "vars";
     $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
     $PALIMGROOT ||= "$RELATIVE_SITEROOT/palimg";
 
+    # SSL prefix defaults
+    $SSLIMGPREFIX   ||= "$SSLROOT/img";
+    $SSLSTATPREFIX  ||= "$SSLROOT/stc";
+    $SSLJSPREFIX    ||= "$SSLROOT/js";
+    $SSLWSTATPREFIX ||= "$SSLROOT/stc";
+
     # path to sendmail and any necessary options
     $SENDMAIL ||= "/usr/sbin/sendmail -t -oi";
 

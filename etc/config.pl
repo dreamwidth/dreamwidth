@@ -25,12 +25,6 @@
     # prefix for images
     $IMGPREFIX = "$SITEROOT/img";
 
-    # SSL prefix defaults
-    $SSLIMGPREFIX   ||= "$SSLROOT/img";
-    $SSLSTATPREFIX  ||= "$SSLROOT/stc";
-    $SSLJSPREFIX    ||= "$SSLROOT/js";
-    $SSLWSTATPREFIX ||= "$SSLROOT/stc";
-
     # set this if you're running an FTP server that mirrors your htdocs/files
     #$FTPPREFIX = "ftp://ftp.$DOMAIN";
 
