@@ -19,9 +19,17 @@
 
     # this is what gets prepended to all URLs
     $SITEROOT = "http://$DOMAIN_WEB";
+    $SSLROOT = "https://$DOMAIN_WEB";
+    $RELATIVE_SITEROOT = "//$DOMAIN_WEB";
 
     # prefix for images
     $IMGPREFIX = "$SITEROOT/img";
+
+    # SSL prefix defaults
+    $SSLIMGPREFIX   ||= "$SSLROOT/img";
+    $SSLSTATPREFIX  ||= "$SSLROOT/stc";
+    $SSLJSPREFIX    ||= "$SSLROOT/js";
+    $SSLWSTATPREFIX ||= "$SSLROOT/stc";
 
     # set this if you're running an FTP server that mirrors your htdocs/files
     #$FTPPREFIX = "ftp://ftp.$DOMAIN";
@@ -58,6 +66,8 @@
             mobile => 'mobile',
             m => 'mobile',
             support => 'support',
+            u => 'userpics',
+            v => 'userpics',
         );
 
 
@@ -86,6 +96,9 @@
     # command-line to spell checker, or undefined if you don't want spell checking
     #$SPELLER = "/usr/local/bin/ispell -a";
     #$SPELLER = "/usr/bin/aspell pipe --mode=html --sug-mode=fast --ignore-case";
+
+    # use a gearman worker for spellcheck
+    #$RUN_SPELLCHECK_USING_GEARMAN = 1;
 
     # to save bandwidth, should we compress pages before they go out?
     # require Compress::Zlib to be installed
@@ -153,6 +166,7 @@
                  'show-talkleft' => 0,
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
+                 'support_request_language' => 1,
                  tellafriend => 0,
                  );
 
@@ -169,6 +183,7 @@
     #   return 0 if $module eq "textcaptcha";
     #   return 0;
     #};
+    #$DEFAULT_CAPTCHA_TYPE = "T";
 
 
     # turn $SERVER_DOWN on while you do any maintenance
@@ -271,17 +286,21 @@
     # class-specific limit below matches.
     %CAP_DEF = (
             'activeentries' => 0,
+            'bonus_icons' => 0,
             'can_post' => 1,
             'checkfriends' => 0,
             'checkfriends_interval' => 300,
             'directorysearch' => 0,
+            'emailpost' => 0,
             'findsim' => 0,
             'friendspage_per_day' => 0,
             'friendsviewupdate' => 30,
             'full_rss' => 1,
             'get_comments' => 1,
             'getselfemail' => 0,
+            'google_analytics' => 0,
             'hide_email_after' => 60,
+            'import_comm' => 0,
             'interests' => 150,
             'leave_comments' => 1,
             'makepoll' => 0,
@@ -318,6 +337,7 @@
     my %CAP_PAID = (
             'paid' => 1,
             'activeentries' => 1,
+            'bonus_icons' => 1,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
             'directory' => 1,
@@ -332,6 +352,7 @@
             'full_rss' => 1,
             'getselfemail' => 1,
             'google_analytics' => 1,
+            'import_comm' => 1,
             'makepoll' => 1,
             'mass_privacy' => 1,
             'mod_queue' => 100,
@@ -341,6 +362,7 @@
             's2props' => 1,
             's2styles' => 1,
             'security_filter' => 1,
+            'stickies' => 5,
             'synd_create' => 1,
             'textmessaging' => 1,
             'thread_expand_all' => 1,
@@ -369,6 +391,7 @@
             'tools_recent_comments_display' => 150,
             'track_all_comments' => 1,
             'userpics' => 150,
+            'xpost_accounts' => 5,
     );
 
     # capability class limits.
@@ -403,6 +426,7 @@
             'full_rss' => 1,
             'getselfemail' => 0,
             'google_analytics' => 0,
+            'import_comm' => 1,
             'inbox_max' => 2000,
             'interests' => 150,
             'makepoll' => 0,
@@ -417,6 +441,7 @@
             's2styles' => 0,
             's2stylesmax' => 0,
             'security_filter' => 0,
+            'stickies' => 2,
             'subscriptions' => 25,
             'synd_create' => 1,
             'tags_max' => 1000,
@@ -469,7 +494,6 @@
             '_refund_points' => 41,
             %CAP_PAID,
             %CAP_PREMIUM,
-            'xpost_accounts' => 5,
         },
         # a capability class with a name of "_moveinprogress" is required
         # if you want to be able to move users between clusters with the
@@ -485,7 +509,6 @@
             '_account_type' => 'seed',
             %CAP_PAID,
             %CAP_PREMIUM,
-            'xpost_accounts' => 5,
         },
         '7' => {  # 0x80
             '_name' => 'Staff',
@@ -494,7 +517,6 @@
             'staff_headicon' => 1,
             %CAP_PAID,
             %CAP_PREMIUM,
-            'xpost_accounts' => 9,
         },
         8 => { _name => 'beta', _key => 'betafeatures' }, # 0x100
     );
@@ -639,6 +661,9 @@
             safe_search_level => 11,
         },
     );
+
+    # default is plain (change to 'rich' if you want RTE by default)
+    $DEFAULT_EDITOR = 'plain';
 
     # page that 'noanon_ip' sysbanned users can access to get more information
     # on why they're banned
