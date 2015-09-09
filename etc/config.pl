@@ -3,6 +3,15 @@
 
 # LiveJournal configuration file.
 
+# THIS FILE IS INTENDED FOR EXAMPLE/DOCUMENTATION PURPOSES ONLY.
+
+# Ideally, any configuration changes for your site should go in
+# config-local.pl or config-private.pl.  If you feel like you need
+# a site-specific config.pl, make sure you copy it to ext/local/etc
+# and customize it there.  This will protect it from getting clobbered
+# when you upgrade to the newest Dreamwidth code in the future, but
+# you will not automatically inherit additions or updates to this file.
+
 {
     package LJ;
 
