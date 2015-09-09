@@ -123,7 +123,7 @@
     #$BLOCKED_BOT_URI = '/bots';
 
     # Add any tags here that you wish to create global 'latest posts' feed groups.
-    # %LATEST_TAG_FEEDSS =
+    # %LATEST_TAG_FEEDS =
     #     group_names => {
     #         # short name => long name, used for the UI
     #         nnwm09 => 'NaNoWriMo 2009',
