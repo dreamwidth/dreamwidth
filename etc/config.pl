@@ -303,7 +303,7 @@
             's2viewreply' => 1,
             'staff_headicon' => 0,
             'styles' => 0,
-            'textmessage' => 0,
+            'textmessaging' => 0,
             'thread_expand_all' => 0,
             'thread_expander' => 0,
             'track_all_comments' => 0,

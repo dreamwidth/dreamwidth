@@ -114,7 +114,7 @@ no strict "vars";
                       's2viewreply' => 1,
                       's2stylesmax' => 10,
                       's2layersmax' => 50,
-                      'textmessage' => 1,
+                      'textmessaging' => 1,
                       'userdomain' => 0,
                       'domainmap' => 0,
                       'useremail' => 0,
