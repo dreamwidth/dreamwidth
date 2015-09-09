@@ -137,7 +137,7 @@ body<=
      $ret .= "<p>$ML{'.recent.desc.community'}</p><ul>";
      $sth = $dbr->prepare( "SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) AND u.journaltype = 'C' ORDER BY uu.timeupdate DESC LIMIT 20" );
      $sth->execute;
-     my $accounts = $sth->fetchall_arrayref({});
+     $accounts = $sth->fetchall_arrayref({});
 
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
@@ -167,7 +167,7 @@ body<=
      $ret .= "<p>$ML{'.recent.desc.feeds'}</p><ul>";
      $sth = $dbr->prepare( "SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) AND u.journaltype = 'Y' ORDER BY uu.timeupdate DESC LIMIT 20" );
      $sth->execute;
-     my $accounts = $sth->fetchall_arrayref({});
+     $accounts = $sth->fetchall_arrayref({});
 
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
@@ -200,7 +200,7 @@ body<=
      $ret .= "<h1>$ML{'.new.header'}</h1>";
      # Personal accounts
      $ret .= "<p>$ML{'.new.desc.personal'}</p><ul>";
-     $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'P' ORDER BY uu.timecreate DESC LIMIT 20");
+     $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'P' AND u.statusvis != 'S' ORDER BY uu.timecreate DESC LIMIT 20");
      $sth->execute;
      my $accounts = $sth->fetchall_arrayref({});
 
@@ -232,7 +232,7 @@ body<=
      $ret .= "<p>$ML{'.new.desc.community'}</p><ul>";
      $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'C' ORDER BY uu.timecreate DESC LIMIT 20");
      $sth->execute;
-     my $accounts = $sth->fetchall_arrayref({});
+     $accounts = $sth->fetchall_arrayref({});
 
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
@@ -262,7 +262,7 @@ body<=
      $ret .= "<p>$ML{'.new.desc.feeds'}</p><ul>";
      $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'Y' ORDER BY uu.timecreate DESC LIMIT 20");
      $sth->execute;
-     my $accounts = $sth->fetchall_arrayref({});
+     $accounts = $sth->fetchall_arrayref({});
 
      if ( @$accounts ) {
          my $userobj_for = LJ::load_userids(map { $_->{userid} } @$accounts);
