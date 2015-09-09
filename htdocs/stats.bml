@@ -200,7 +200,7 @@ body<=
      $ret .= "<h1>$ML{'.new.header'}</h1>";
      # Personal accounts
      $ret .= "<p>$ML{'.new.desc.personal'}</p><ul>";
-     $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'P' ORDER BY uu.timecreate DESC LIMIT 20");
+     $sth = $dbr->prepare("SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype = 'P' AND u.statusvis != 'S' ORDER BY uu.timecreate DESC LIMIT 20");
      $sth->execute;
      my $accounts = $sth->fetchall_arrayref({});
 
