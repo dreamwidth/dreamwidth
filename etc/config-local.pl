@@ -1,18 +1,21 @@
 #!/usr/bin/perl
 # -*-perl-*-
 
-# Dreamwidth configuration file.  Copy this out of the documentation
-# directory to etc/config-local.pl and edit as necessary.  The reason
-# it's not in the etc directory already is to protect it from
-# getting clobbered when you upgrade to the newest Dreamwidth code in
-# the future.
+# THIS FILE IS INTENDED FOR EXAMPLE/DOCUMENTATION PURPOSES ONLY.
+# An active site should have a customized version of this file located in ext/local/etc.
+
+# Dreamwidth configuration file.  Copy this out of the current
+# directory to ext/local/etc/config-local.pl and edit as necessary.
+# This will separate your active config file from the canonical
+# one under version control, and protect it from getting clobbered
+# when you upgrade to the newest Dreamwidth code in the future.
 
 # This, and config-private.pl should be the only files you need to
 # change to get the Dreamwidth code to run on your site. Variables
 # which are set by $DW::PRIVATE::... should be configured in
 # config-private.pl instead.
 
-# Use the  checkconfig.pl utility to find any other config variables
+# Use the checkconfig.pl utility to find any other config variables
 # that might not be documented here. You should be able to set config
 # values here and have the DW code run; if you have to modify the
 # code itself, it's a bug and you should report it.
@@ -23,9 +26,8 @@
     # keep this enabled only if this site is a development server
     $IS_DEV_SERVER = 1;
 
-    # change this to "1" if you only want changes that
-    # have been tested in production on dreamwidth.org
-    $USE_STABLE_CODE = 0;
+    # change this to "1" to redirect all incoming connections to use HTTPS
+    $USE_SSL_EVERYWHERE = 0;
 
     # home directory
     $HOME = $ENV{'LJHOME'};
@@ -144,7 +146,22 @@
     # therefore disabled by default.
     #$APPLE_TOUCH_ICON = "$LJ::RELATIVE_SITEROOT/apple-touch-icon.png";
 
+    # sphinx search daemon
+    #@SPHINX_SEARCHD = ( '127.0.0.1', 3312 );
 
+
+    # example betafeature config
+#    %BETA_FEATURES = (
+#        "updatepage" => {
+#            start_time => 0,
+#            end_time => "Inf",
+#        },
+#        "s2comments" => {
+#            start_time => 0,
+#            end_time => "Inf",
+#            sitewide => 1,
+#        },
+#    );
 
 }
 

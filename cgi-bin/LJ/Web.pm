@@ -263,7 +263,7 @@ sub make_postto_select {
 #      be returned.
 # args: topic, pre?, post?
 # des-topic: Help topic key.
-#            See doc/ljconfig.pl.txt, or [special[helpurls]] for examples.
+#            See etc/config-local.pl, or [special[helpurls]] for examples.
 # des-pre: HTML/BML to place before the help icon.
 # des-post: HTML/BML to place after the help icon.
 # </LJFUNC>

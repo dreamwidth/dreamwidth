@@ -1,11 +1,15 @@
 #!/usr/bin/perl
+# -*-perl-*-
 
-# Dreamwidth configuration file.  Copy this out of the documentation
-# directory to etc/config-private.pl and edit as necessary.  The reason
-# it's not in the etc directory already is to protect it from
-# getting clobbered when you upgrade to the newest Dreamwidth code in
-# the future.
-#
+# THIS FILE IS INTENDED FOR EXAMPLE/DOCUMENTATION PURPOSES ONLY.
+# An active site should have a customized version of this file located in ext/local/etc.
+
+# Dreamwidth configuration file.  Copy this out of the current
+# directory to ext/local/etc/config-private.pl and edit as necessary.
+# This will separate your active config file from the canonical
+# one under version control, and protect it from getting clobbered
+# when you upgrade to the newest Dreamwidth code in the future.
+
 # This is where you define private, site-specific configs (e.g. passwords).
 
 {
@@ -123,7 +127,7 @@
     #$BLOCKED_BOT_URI = '/bots';
 
     # Add any tags here that you wish to create global 'latest posts' feed groups.
-    # %LATEST_TAG_FEEDSS =
+    # %LATEST_TAG_FEEDS =
     #     group_names => {
     #         # short name => long name, used for the UI
     #         nnwm09 => 'NaNoWriMo 2009',
