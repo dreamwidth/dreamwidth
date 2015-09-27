@@ -17,9 +17,10 @@ sub header_props {
     my $self = shift;
     my @props = qw(
         image_foreground_header_url
-        int image_foreground_header_height
-        string image_foreground_header_alignment
+        image_foreground_header_height
+        image_foreground_header_width
         image_foreground_header_position
+        string image_foreground_header_alignment
         image_foreground_header_alt
     );
     return $self->_append_props( "header_props", @props );

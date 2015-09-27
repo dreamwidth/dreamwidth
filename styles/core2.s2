@@ -1796,7 +1796,7 @@ property string image_background_header_position {
 }
 # FIXME: This should be grouped, but then it doesn't get a label.
 property int image_background_header_height {
-    des = "The height of your header, in pixels.  Use 0 for default.";
+    des = "The height of your header background image, in pixels. Use 0 for default.";
     example = "50";
     size = 6;
 }

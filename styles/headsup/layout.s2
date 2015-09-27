@@ -47,33 +47,35 @@ propgroup colors_child {
 propgroup images_child {
 
 property string image_foreground_header_url {
-   des = "The URL to the header image (this style does not automatically resize images)";
+    des = "The URL to the additional header image";
+    note = "This image goes on top of the background one if it exists.";
 }
 
 property int image_foreground_header_height {
-    des = "The height of your header image, in pixels.";
+    des = "The height of your additional header image, in pixels.";
     example = "100";
     size = 6;
 }
 
 property int image_foreground_header_width {
-    des = "The width of your header image, in pixels.";
+    des = "The width of your additional header image, in pixels.";
     example = "600";
     size = 6;
 }
 
+property string image_foreground_header_position {
+    values = "before|above journal header text|after|below journal header text|inline|inline with journal header text";
+    des = "Position of the additional header image";
+    note = "'Inline' may cause text to overlap the header image.";
+}
+
 property string image_foreground_header_alignment {
-    des = "The alignment of the header image in its area.";
+    des = "The alignment of the additional header image in its area.";
     values = "left|left|center|center|right|right";
 }
 
-property string image_foreground_header_position {
-    values = "before|above journal header text|after|below journal header text|inline|inline with journal header text";
-    des = "Position of header image (inline may cause text to overlap the header image)";
-}
-
 property string image_foreground_header_alt {
-    des = "Alt text for your header image, for screen readers.";
+    des = "Alt text for your additional header image, for screen readers.";
     example = "A sunset.";
 }
 
@@ -225,12 +227,14 @@ var string header_background_height;
     }
 
 var string headerimage_area_height;
-    if ($*image_foreground_header_height > 0) {
+    if ($*image_foreground_header_height > 0 and $*image_foreground_header_url != "") {
         $headerimage_area_height = """
             min-height: """ + $*image_foreground_header_height + """px;""";
     }
     var string header_margintop;
-    if ($*image_foreground_header_height > 0 and $*image_foreground_header_position == "inline" ) {
+    if ($*image_foreground_header_height > 0
+        and $*image_foreground_header_position == "inline"
+        and $*image_foreground_header_url != "") {
         $header_margintop = """
             margin-top: -""" + $*image_foreground_header_height + """px;""";
     }
