@@ -7,8 +7,9 @@
 #
 # Authors:
 #      Ninety Degrees <ninetyd.bis@gmail.com>
+#      Azure Jane Lunatic <azurelunatic@gmail.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2015 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -27,20 +28,20 @@ body<=
 <h1><?_ml .css.header _ml?></h1>
 <?_code return BML::ml ('.intro.css', {'sitename' => $LJ::SITENAMESHORT}); _code?>
 <ul>
-    <li><a href='http://wiki.dwscoalition.org/notes/S2_CSS'><?_ml .css.overview _ml?></a></li>
-    <li><a href='http://wiki.dwscoalition.org/notes/CSS_tutorial'><?_ml .css.tutorial _ml?></a></li>
-    <li><a href='http://wiki.dwscoalition.org/notes/Style_Structure_Overview'><?_ml .css.stylestructure _ml?></a></li>
-    <li><a href='http://wiki.dwscoalition.org/notes/Category:S2_CSS'><?_ml .css.selectors _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_CSS'><?_ml .css.overview _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/CSS_tutorial'><?_ml .css.tutorial _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/Style_Structure_Overview'><?_ml .css.stylestructure _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/Category:S2_CSS'><?_ml .css.selectors _ml?></a></li>
 </ul>
 <h1><?_ml .s2.header _ml?></h1>
 <?_code return BML::ml ('.intro.s2', {'sitename' => $LJ::SITENAMESHORT}); _code?>
 <ul>
-    <li><a href='http://wiki.dwscoalition.org/notes/Category:S2_Guide'><?_ml .s2.guide _ml?></a></li>
-    <li><a href='http://wiki.dwscoalition.org/notes/S2_Guide:_Style_System_Overview'><?_ml .s2.overview _ml?></a></li>
-    <li><a href='http://wiki.dwscoalition.org/notes/S2_Guide:_Language_Tutorial'><?_ml .s2.language _ml?></a></li>
-    <li><a href='http://wiki.dwscoalition.org/notes/S2_Cookbook:_Introduction'><?_ml .s2.cookbook _ml?></a></li>
-    <li><a href='http://wiki.dwscoalition.org/notes/Category:S2_Properties'><?_ml .s2.props _ml?></a></li>
-    <li><a href='http://wiki.dwscoalition.org/notes/S2_Guide:_Troubleshooting'><?_ml .s2.troubleshoot _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/Category:S2_Guide'><?_ml .s2.guide _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_Guide:_Style_System_Overview'><?_ml .s2.overview _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_Guide:_Language_Tutorial'><?_ml .s2.language _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_Cookbook:_Introduction'><?_ml .s2.cookbook _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/Category:S2_Properties'><?_ml .s2.props _ml?></a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_Guide:_Troubleshooting'><?_ml .s2.troubleshoot _ml?></a></li>
 </ul>
 <=body
 windowtitle=><?_ml .title _ml?>
