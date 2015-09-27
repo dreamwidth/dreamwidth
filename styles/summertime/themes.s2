@@ -2,9 +2,9 @@
 layerinfo type = "theme";
 layerinfo name = "A Thing With Feathers";
 layerinfo redist_uniq = "summertime/athingwithfeathers";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 set layout_resources = [ { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" } ];
 
@@ -366,9 +366,9 @@ set image_tags_alt = "summertime/icon-tags_white.png";
 layerinfo type = "theme";
 layerinfo name = "Capricious Insect";
 layerinfo redist_uniq = "summertime/capriciousinsect";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -464,9 +464,9 @@ function Page::print_theme_stylesheet() { """
 layerinfo type = "theme";
 layerinfo name = "Dimensions";
 layerinfo redist_uniq = "summertime/dimensions";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 set layout_resources = [ 
 { "name" => "Icons by Romeo Barreto, John Caserta, Denis Chenu, Pedro Lalli, Marcus Michaels, P.J. Onori, Laurent Patain and Cor Tiemens from The Noun Project", "url" => "http://thenounproject.com/" },
@@ -663,9 +663,9 @@ set image_tags_alt = "summertime/icon-tags_white.png";
 layerinfo type = "theme";
 layerinfo name = "Enough At Last";
 layerinfo redist_uniq = "summertime/enoughatlast";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -839,9 +839,9 @@ set image_tags = "summertime/icon-tags_black.png";
 layerinfo type = "theme";
 layerinfo name = "I'm Gonna Let It Shine";
 layerinfo redist_uniq = "summertime/imgonnaletitshine";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1288,9 +1288,9 @@ set image_tags_alt = "summertime/icon-tags_white.png";
 layerinfo type = "theme";
 layerinfo name = "Once Is Enough";
 layerinfo redist_uniq = "summertime/onceisenough";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1381,9 +1381,9 @@ function Page::print_theme_stylesheet() { """
 layerinfo type = "theme";
 layerinfo name = "Reason Does Not Understand";
 layerinfo redist_uniq = "summertime/reasondoesnotunderstand";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1944,9 +1944,9 @@ set image_tags_alt = "summertime/icon-tags_black.png";
 layerinfo type = "theme";
 layerinfo name = "Take It Away";
 layerinfo redist_uniq = "summertime/takeitaway";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2137,9 +2137,9 @@ set image_tags_alt = "summertime/icon-tags_white.png";
 layerinfo type = "theme";
 layerinfo name = "The Poet's Abstract Head";
 layerinfo redist_uniq = "summertime/thepoetsabstracthead";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2223,9 +2223,9 @@ function Page::print_theme_stylesheet() { """
 layerinfo type = "theme";
 layerinfo name = "The Very Opposite of Meaning";
 layerinfo redist_uniq = "summertime/theveryoppositeofmeaning";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2305,9 +2305,9 @@ set image_tags_alt = "summertime/icon-tags_white.png";
 layerinfo type = "theme";
 layerinfo name = "Thicker Than Water";
 layerinfo redist_uniq = "summertime/thickerthanwater";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2496,9 +2496,9 @@ set image_tags_alt = "summertime/icon-tags_white.png";
 layerinfo type = "theme";
 layerinfo name = "Uncertain Inevitability";
 layerinfo redist_uniq = "summertime/uncertaininevitability";
-layerinfo author_name = "ketsu";
+layerinfo author_name = "phidari";
 
-set theme_authors = [ { "name" => "ketsu", "type" => "user" } ];
+set theme_authors = [ { "name" => "phidari", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
