@@ -209,6 +209,12 @@ sub sysban_check {
         return 0 unless scalar @domains >= 2;
         my $domain = "$domains[-2].$domains[-1]";
         return 1 if $check->('email_domain', $domain);
+        # also check for three-element domain bans
+        if ( defined $domains[-3] ) {
+            # don't overwrite $domain here - two-element domain checked below
+            my $triple = "$domains[-3].$domains[-2].$domains[-1]";
+            return 1 if $check->( 'email_domain', $triple );
+        }
 
         # account for GMail troll tricks
         if ( $domain eq "gmail.com" ) {
