@@ -198,6 +198,42 @@ sub sysban_check {
             }, undef, $wh, $vl);
     };
 
+    # helper for iteratively checking all subdomains of a hostname
+    my $check_all_subdomains = sub {
+        my ( $host ) = @_;
+
+        # break the hostname into domain components
+        my @domains = split( /\./, $host );
+        my $length = scalar @domains;
+        return 0 unless $length >= 2;
+
+        # build up the list of subdomains to check for bans
+        # for example, if the full hostname is www.hack.dreamwidth.net,
+        # this will also check hack.dreamwidth.net and dreamwidth.net
+        my @check;
+        for ( my $i = 0; $i < $length; $i++ ) {
+            my $part = $domains[$i];
+            @check = map { "$_.$part" } @check;
+            push @check, $part unless $i == $length - 1;  # don't check TLD
+        }
+
+        # save database overhead by hashing all the email_domain sysbans in one query
+        my $banned = $dbr->selectall_arrayref( qq{
+                SELECT value FROM sysban
+                WHERE status = 'active'
+                  AND what = ?
+                  AND NOW() > bandate
+                  AND (NOW() < banuntil
+                       OR banuntil = 0
+                       OR banuntil IS NULL)
+            }, undef, 'email_domain' );
+        my %banned = map { $_->[0] => 1 } @$banned;
+
+        foreach ( @check ) {
+            return 1 if $banned{$_};
+        }
+    };
+
     # check both ban by email and ban by domain if we have an email address
     if ($what eq 'email') {
         # short out if this email really is banned directly, or if we can't parse it
@@ -205,18 +241,13 @@ sub sysban_check {
         return 0 unless $value =~ /@(.+)$/;
 
         # see if this domain is banned
+        return 1 if $check_all_subdomains->( $1 );
+
+        # account for GMail troll tricks
         my @domains = split(/\./, $1);
         return 0 unless scalar @domains >= 2;
         my $domain = "$domains[-2].$domains[-1]";
-        return 1 if $check->('email_domain', $domain);
-        # also check for three-element domain bans
-        if ( defined $domains[-3] ) {
-            # don't overwrite $domain here - two-element domain checked below
-            my $triple = "$domains[-3].$domains[-2].$domains[-1]";
-            return 1 if $check->( 'email_domain', $triple );
-        }
 
-        # account for GMail troll tricks
         if ( $domain eq "gmail.com" ) {
         	my ($user) = ($value =~ /^(.+)@/);
         	$user =~ s/\.//g;    # strip periods
