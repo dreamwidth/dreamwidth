@@ -198,40 +198,25 @@ sub sysban_check {
             }, undef, $wh, $vl);
     };
 
-    # helper for iteratively checking all subdomains of a hostname
-    my $check_all_subdomains = sub {
+    # helper variation for wildcard match of domain bans
+    my $check_subdomains = sub {
         my ( $host ) = @_;
+        return 0 unless $host && $host =~ /\./;
 
-        # break the hostname into domain components
-        my @domains = split( /\./, $host );
-        my $length = scalar @domains;
-        return 0 unless $length >= 2;
+        # very similar to above, except in addition to exact match
+        # we also check for wildcard matches of larger banned domains
+        # e.g. foo.bar.org will match ban for "%.bar.org"
 
-        # build up the list of subdomains to check for bans
-        # for example, if the full hostname is www.hack.dreamwidth.net,
-        # this will also check hack.dreamwidth.net and dreamwidth.net
-        my @check;
-        for ( my $i = 0; $i < $length; $i++ ) {
-            my $part = $domains[$i];
-            @check = map { "$_.$part" } @check;
-            push @check, $part unless $i == $length - 1;  # don't check TLD
-        }
-
-        # save database overhead by hashing all the email_domain sysbans in one query
-        my $banned = $dbr->selectall_arrayref( qq{
-                SELECT value FROM sysban
+        return $dbr->selectrow_array( qq{
+                SELECT COUNT(*) FROM sysban
                 WHERE status = 'active'
                   AND what = ?
+                  AND (value = ? OR ? LIKE CONCAT("%.", value))
                   AND NOW() > bandate
                   AND (NOW() < banuntil
                        OR banuntil = 0
                        OR banuntil IS NULL)
-            }, undef, 'email_domain' );
-        my %banned = map { $_->[0] => 1 } @$banned;
-
-        foreach ( @check ) {
-            return 1 if $banned{$_};
-        }
+            }, undef, 'email_domain', $host, $host );
     };
 
     # check both ban by email and ban by domain if we have an email address
@@ -240,8 +225,9 @@ sub sysban_check {
         return 1 if $check->('email', $value);
         return 0 unless $value =~ /@(.+)$/;
 
-        # see if this domain is banned
-        return 1 if $check_all_subdomains->( $1 );
+        # see if this domain is banned, either directly
+        # or else as part of a larger domain ban
+        return 1 if $check_subdomains->( $1 );
 
         # account for GMail troll tricks
         my @domains = split(/\./, $1);
