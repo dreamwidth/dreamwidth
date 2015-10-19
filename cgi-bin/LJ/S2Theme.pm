@@ -71,6 +71,7 @@ sub default_themes {
         paletteable => 'paletteable/descending',
         paperme => 'paperme/newleaf',
         patsy => 'patsy/retro',
+        pattern => 'pattern/foundinthedesert',
         planetcaravan => 'planetcaravan/cheerfully',
         practicality => 'practicality/warmth',
         refriedtablet => 'refriedtablet/refriedclassic',
