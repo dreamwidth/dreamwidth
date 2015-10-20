@@ -608,8 +608,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/elementarysmoke
-layerinfo "type" = "theme";
-layerinfo "name" = "Elementary Smoke";
+layerinfo type = "theme";
+layerinfo name = "Elementary Smoke";
 layerinfo redist_uniq = "pattern/elementarysmoke";
 layerinfo author_name = "ninetydegrees";
 
@@ -681,8 +681,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/elementarysmokeii
-layerinfo "type" = "theme";
-layerinfo "name" = "Elementary Smoke II";
+layerinfo type = "theme";
+layerinfo name = "Elementary Smoke II";
 layerinfo redist_uniq = "pattern/elementarysmokeii";
 layerinfo author_name = "ninetydegrees";
 
@@ -752,8 +752,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/foundinthedesert
-layerinfo "type" = "theme";
-layerinfo "name" = "Found in the Desert";
+layerinfo type = "theme";
+layerinfo name = "Found in the Desert";
 layerinfo redist_uniq = "pattern/foundinthedesert";
 layerinfo author_name = "ninetydegrees";
 
@@ -810,8 +810,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/foundinthedesertii
-layerinfo "type" = "theme";
-layerinfo "name" = "Found in the Desert II";
+layerinfo type = "theme";
+layerinfo name = "Found in the Desert II";
 layerinfo redist_uniq = "pattern/foundinthedesertii";
 layerinfo author_name = "ninetydegrees";
 
@@ -866,8 +866,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/lightasafeather
-layerinfo "type" = "theme";
-layerinfo "name" = "Light as a Feather";
+layerinfo type = "theme";
+layerinfo name = "Light as a Feather";
 layerinfo redist_uniq = "pattern/lightasafeather";
 layerinfo author_name = "ninetydegrees";
 
@@ -924,8 +924,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/lightasafeatherii
-layerinfo "type" = "theme";
-layerinfo "name" = "Light as a Feather II";
+layerinfo type = "theme";
+layerinfo name = "Light as a Feather II";
 layerinfo redist_uniq = "pattern/lightasafeatherii";
 layerinfo author_name = "ninetydegrees";
 
@@ -980,8 +980,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/orangepyramids
-layerinfo "type" = "theme";
-layerinfo "name" = "Orange Pyramids";
+layerinfo type = "theme";
+layerinfo name = "Orange Pyramids";
 layerinfo redist_uniq = "pattern/orangepyramids";
 layerinfo author_name = "ninetydegrees";
 
@@ -1057,8 +1057,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/orangepyramidsii
-layerinfo "type" = "theme";
-layerinfo "name" = "Orange Pyramids II";
+layerinfo type = "theme";
+layerinfo name = "Orange Pyramids II";
 layerinfo redist_uniq = "pattern/orangepyramidsii";
 layerinfo author_name = "ninetydegrees";
 
@@ -1132,8 +1132,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/pinkpyramids
-layerinfo "type" = "theme";
-layerinfo "name" = "Pink Pyramids";
+layerinfo type = "theme";
+layerinfo name = "Pink Pyramids";
 layerinfo redist_uniq = "pattern/pinkpyramids";
 layerinfo author_name = "ninetydegrees";
 
@@ -1209,8 +1209,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/pinkpyramidsii
-layerinfo "type" = "theme";
-layerinfo "name" = "Pink Pyramids II";
+layerinfo type = "theme";
+layerinfo name = "Pink Pyramids II";
 layerinfo redist_uniq = "pattern/pinkpyramidsii";
 layerinfo author_name = "ninetydegrees";
 
@@ -1284,8 +1284,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/sunnyswirls
-layerinfo "type" = "theme";
-layerinfo "name" = "Sunny Swirls";
+layerinfo type = "theme";
+layerinfo name = "Sunny Swirls";
 layerinfo redist_uniq = "pattern/sunnyswirls";
 layerinfo author_name = "ninetydegrees";
 
@@ -1348,8 +1348,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/sunnyswirlsii
-layerinfo "type" = "theme";
-layerinfo "name" = "Sunny Swirls II";
+layerinfo type = "theme";
+layerinfo name = "Sunny Swirls II";
 layerinfo redist_uniq = "pattern/sunnyswirlsii";
 layerinfo author_name = "ninetydegrees";
 
@@ -1410,8 +1410,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/terraprima
-layerinfo "type" = "theme";
-layerinfo "name" = "Terra Prima";
+layerinfo type = "theme";
+layerinfo name = "Terra Prima";
 layerinfo redist_uniq = "pattern/terraprima";
 layerinfo author_name = "ninetydegrees";
 
@@ -1483,8 +1483,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/terraprimaii
-layerinfo "type" = "theme";
-layerinfo "name" = "Terra Prima II";
+layerinfo type = "theme";
+layerinfo name = "Terra Prima II";
 layerinfo redist_uniq = "pattern/terraprimaii";
 layerinfo author_name = "ninetydegrees";
 
@@ -1554,8 +1554,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/watercubes
-layerinfo "type" = "theme";
-layerinfo "name" = "Water Cubes";
+layerinfo type = "theme";
+layerinfo name = "Water Cubes";
 layerinfo redist_uniq = "pattern/watercubes";
 layerinfo author_name = "ninetydegrees";
 
@@ -1627,8 +1627,8 @@ function Page::print_theme_stylesheet() {
 
 
 #NEWLAYER: pattern/watercubesii
-layerinfo "type" = "theme";
-layerinfo "name" = "Water Cubes II";
+layerinfo type = "theme";
+layerinfo name = "Water Cubes II";
 layerinfo redist_uniq = "pattern/watercubesii";
 layerinfo author_name = "ninetydegrees";
 
