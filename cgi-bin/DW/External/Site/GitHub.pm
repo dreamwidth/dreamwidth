@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# DW::External::Site::github
+# DW::External::Site::GitHub
 #
-# Class to support github user linking.
+# Class to support GitHub user linking.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -16,7 +16,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::External::Site::github;
+package DW::External::Site::GitHub;
 
 use strict;
 use base 'DW::External::Site';
