@@ -1,0 +1,30 @@
+[%# faqpop.tt
+
+Support Popular FAQs page
+
+Authors:
+    hotlevel4 <hotlevel4@hotmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.title = '.faqpop.title' | ml -%]
+
+<h2>[% '.head.title' | ml %]</h2>
+
+<p>[% '.faqpop.title.text' | ml %]</p>
+
+<ul>
+[% FOREACH faq = faqs %]
+    <li><a href = 'faqbrowse?faqid=[% faq.faqid %]'>[% faq.question %]</a> <i>([%faq.statval%])</i></li>
+[% END %]
+</ul>
+<hr>
+
+[% '.faqpop.back.link' | ml( backlink = 'href="./"' ) %]
+
