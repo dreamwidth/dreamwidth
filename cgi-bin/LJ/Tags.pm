@@ -1363,7 +1363,7 @@ sub merge_usertags {
     my $exists = $tags->{$u->get_keyword_id( $newname )} ? 1 : 0;
     my %merge_from = map { $_ => 1 } @merge_from;
     return $err->( LJ::Lang::ml( 'taglib.error.mergetoexisting', { tagname => LJ::ehtml( $merge_to ) } ) )
-        if $exists && ! $merge_from{$merge_to};
+        if $exists && ! $merge_from{lc( $merge_to )};
 
     # if necessary, create new tag id
     my $merge_to_id;
