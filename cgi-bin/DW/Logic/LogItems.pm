@@ -75,10 +75,10 @@ sub watch_items
     my $filter_journaltypes = sub {
         my ( $friends, $friends_u, $memcache_only, $valid_types ) = @_;
         return unless $friends && $friends_u;
-        $valid_types ||= uc $args{showtypes};
+        $valid_types ||= uc $args{showtypes} if defined $args{showtypes};
 
         # make (F)eeds an alias for s(Y)ndicated
-        $valid_types =~ s/F/Y/g;
+        $valid_types =~ s/F/Y/g if defined $valid_types;
 
         # load u objects for all the given
         LJ::load_userids_multiple([ map { $_, \$friends_u->{$_} } keys %$friends ], [$remote],

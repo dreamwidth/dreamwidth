@@ -228,7 +228,7 @@ sub general_handler {
 
     # make sure we have a user of some sort
     my $remote = LJ::get_remote();
-    my $u = LJ::load_user( $args->{user} || $remote->user )
+    my $u = LJ::load_user( $args->{user} ) || $remote
         or return DW::RPC->alert( 'Unable to load user for call.' );
 
     # in theory, they're passing a mode in the args-> arguments

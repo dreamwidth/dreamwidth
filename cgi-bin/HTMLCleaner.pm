@@ -140,8 +140,8 @@ sub CLEAN_link {
         my ($host, $path) = ($1, $2);
 
         my $rv = $self->{'valid_stylesheet'}->($href, $host, $path);
-        if ($rv == 1) {
-            return 1;
+        if ( $rv =~ /^\d+$/ ) {
+            return 1 if $rv == 1;
         }
         if ($rv) {
             $attr->{href} = $rv;

@@ -2693,7 +2693,8 @@ sub start_css {
     $sc->{_start_css_pout_s} = S2::get_output_safe();
     $sc->{_start_css_buffer} = "";
     my $printer = sub {
-        $sc->{_start_css_buffer} .= shift;
+        my $arg = shift;
+        $sc->{_start_css_buffer} .= $arg if defined $arg;
     };
     S2::set_output($printer);
     S2::set_output_safe($printer);
@@ -3699,7 +3700,9 @@ sub _print_reply_container
             my $ditemid = $page->{'entry'}{'itemid'} || $this->{itemid} || 0;
 
             my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
-            my $thread = $page->{_viewing_thread_id} + 0 || "";
+            my $thread = "";
+            $thread = $page->{_viewing_thread_id} + 0
+                if defined $page->{_viewing_thread_id};
             $S2::pout->( LJ::create_qr_div( $u, $ditemid,
                     style_opts => $page->{_styleopts},
                     userpic => $userpic,
