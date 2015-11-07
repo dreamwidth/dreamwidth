@@ -484,7 +484,11 @@ _c?>
                         $$body .=" p?><?p $ML{'.extradata.sec.public'}";
                     }
                 
-                    $$body .=" p?><?p " . BML::ml('.extradata.subject', { subject =>LJ::ehtml( $req{"subject"} ) });
+                    if ( length($req{"subject"}) > 0 ) {
+                        $$body .=" p?><?p " . $ML{'.extradata.subj'} . LJ::ehtml( $req{"subject"} );
+                    } else {
+                        $$body .=" p?><?p " . $ML{'.extradata.subj'} . $ML{'.extradata.subject.no_subject'};
+                    }
 
                     my $backdatedlink = '';
                     if ( $POST{prop_opt_backdated} or $GET{prop_opt_backdated} ) {
