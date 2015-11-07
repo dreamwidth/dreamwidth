@@ -963,7 +963,7 @@ sub _do_post {
     return %$res if $res->{errors};
 
     # post succeeded, time to do some housecleaning
-    _persist_props( $auth->{poster}, $form_req );
+    _persist_props( $auth->{poster}, $form_req, 0 );
 
     my $render_ret;
     my @links;
@@ -1107,7 +1107,7 @@ sub _do_edit {
     my $deleted = $form_req->{event} ? 0 : 1;
 
     # post succeeded, time to do some housecleaning
-    _persist_props( $remote, $form_req );
+    _persist_props( $remote, $form_req, 1 );
 
     my $poststatus_ml;
     my $render_ret;
@@ -1206,11 +1206,13 @@ sub _do_edit {
 
 # remember value of properties, to use the next time the user makes a post
 sub _persist_props {
-    my ( $u, $form ) = @_;
+    my ( $u, $form, $is_edit ) = @_;
 
     return unless $u;
     
-    $u->displaydate_check($form->{update_displaydate} ? 1 : 0);
+    if ( ! $is_edit ) {
+        $u->displaydate_check($form->{update_displaydate} ? 1 : 0);
+    }
 # FIXME:
 #
 #                 # persist the default value of the disable auto-formatting option
