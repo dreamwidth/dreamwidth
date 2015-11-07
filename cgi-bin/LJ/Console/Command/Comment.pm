@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "comment" }
 
-sub desc { "Manage comments in an account." }
+sub desc { "Manage comments in an account. Requires priv: deletetalk." }
 
 sub args_desc { [
                  'action' => 'One of: screen, unscreen, freeze, unfreeze, delete, delete_thread.',

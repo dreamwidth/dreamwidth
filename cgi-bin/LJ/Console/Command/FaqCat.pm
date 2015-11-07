@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "faqcat" }
 
-sub desc { "Tool for managing FAQ categories." }
+sub desc { "Tool for managing FAQ categories. Requires priv: faqcat." }
 
 sub args_desc { [
                  'command' => "One of: list, delete, add, move.  'list' shows all the defined FAQ categories, including their catkey, name, and sortorder.  Also, it shows all the distinct catkeys that are in use by FAQ. 'add' creates or modifies a FAQ category. 'delete' removes a FAQ category (but not the questions that are in it). 'move' moves a FAQ category up or down in the list.",

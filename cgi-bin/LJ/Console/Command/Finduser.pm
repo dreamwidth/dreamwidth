@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "finduser" }
 
-sub desc { "Finds all accounts matching a certain criterion." }
+sub desc { "Finds all accounts matching a certain criterion. Requires priv: finduser." }
 
 sub args_desc { [
                  'criteria' => "One of: 'user', 'userid', 'email', or 'timeupdate'.",

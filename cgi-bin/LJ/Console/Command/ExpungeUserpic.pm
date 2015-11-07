@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "expunge_userpic" }
 
-sub desc { "Expunge a userpic from the site." }
+sub desc { "Expunge a userpic from the site. Requires priv: siteadmin:userpics." }
 
 sub args_desc { [
                  'url' => "URL of the userpic to expunge",

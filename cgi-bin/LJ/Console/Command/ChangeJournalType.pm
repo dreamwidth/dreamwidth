@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "change_journal_type" }
 
-sub desc { "Change a journal's type." }
+sub desc { "Change a journal's type. Requires priv: changejournaltype." }
 
 sub args_desc { [
                  'journal' => "The username of the journal that type is changing.",
