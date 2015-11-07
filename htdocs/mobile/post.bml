@@ -90,7 +90,7 @@ _code?>
 
 <form method='post' action='/mobile/post'>
 <?_code { return LJ::form_auth(); } _code?>
-<?_ml .form.subject _ml?>:<br />
+<?_ml .form.subject2 _ml?>:<br />
 <input name='subject' size='50' style='width: 90%' /><br />
 <?_ml .form.post _ml?>:<br />
 <textarea rows='10' cols='40' name='event' wrap='virtual' style='width: 90%'></textarea><br />
