@@ -24,8 +24,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- END -%]
 
 [%- IF poststatus.ml_string != ".edit.delete" -%]
+
 <p>[% extradata.security_ml | ml %]</p>
-<p>[% ".extradata.subject" | ml( subject => extradata.subject) %]</p>
+<p>[% ".extradata.subj" | ml %]
+    [% IF extradata.subject.length > 0 %]
+        [% ".extradata.subject.subject" | ml( subject => extradata.subject ) %]
+    [% ELSE %]
+        [% ".extradata.subject.no_subject" | ml %]
+    [% END %]</p>
 [%- END -%]
 
 [%- IF warnings.exist -%]
