@@ -348,9 +348,12 @@ no strict "vars";
         /latest
         /edittags
     );
-    
+
     # Selective screening limit. No user can have more than this.
     $LJ::SEL_SCREEN_LIMIT ||= 500;
+
+    # maximum length of a username (NB do not change without changing width of database fields to match. And perhaps other stuff.
+    $USERNAME_MAXLENGTH = 25;
 }
 
 
