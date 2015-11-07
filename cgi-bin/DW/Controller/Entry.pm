@@ -1210,9 +1210,7 @@ sub _persist_props {
 
     return unless $u;
     
-    if ( ! $is_edit ) {
-        $u->displaydate_check($form->{update_displaydate} ? 1 : 0);
-    }
+    $u->displaydate_check($form->{update_displaydate} ? 1 : 0) unless $is_edit;
 # FIXME:
 #
 #                 # persist the default value of the disable auto-formatting option
