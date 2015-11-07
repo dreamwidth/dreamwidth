@@ -684,10 +684,6 @@
         comment_html_auth => 0,      # HTML comments from non-anon commenters?
     );
 
-    # Global constant for the max length of a username. Do not change without
-    # checking for implications re database field lengths, etc. In fact, probably
-    # do not change.
-    $USERNAME_MAXLENGTH = 25;   
 
 }
 
