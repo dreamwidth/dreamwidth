@@ -100,7 +100,7 @@ test_esn_flow(sub {
     $comment = $u1e1->t_enter_comment;
     ok($comment, "left comment");
 
-    # make sure we got notification
+    # make sure we didn't get notification
     $email = $got_notified->($u1);
     ok(! $email, "got no email");
 
@@ -113,7 +113,7 @@ test_esn_flow(sub {
     $comment = $u2e2f->t_enter_comment;
     ok($comment, "got jtalkid");
 
-    # make sure we got notification
+    # make sure we didn't get notification
     $email = $got_notified->($u1);
     ok(! $email, "got no email, due to security (u2 doesn't trust u1)");
 
