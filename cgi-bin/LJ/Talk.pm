@@ -3040,9 +3040,10 @@ sub init {
                 ### see if the user is banned from posting here
                 $mlerr->("$SC.error.banned$iscomm") if $journalu->has_banned( $up );
 
-                # TEMP until we have better openid support
-                if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg") {
-                    $mlerr->("$SC.error.noopenid");
+                # Reject OpenIDs that are neither validated nor granted access by the user
+                if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg"
+                        && ! ( $up->is_validated || $journalu->trusts( $remote ) ) ) {
+                    $mlerr->("$SC.error.noopenidpost", { aopts1 => "href='$LJ::SITEROOT/changeemail'", aopts2 => "href='$LJ::SITEROOT/register'" })
                 }
 
                 unless ( $up->is_person || ( $up->is_identity && $cookie_auth ) ) {
