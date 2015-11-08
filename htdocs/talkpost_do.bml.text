@@ -82,7 +82,7 @@
 .preview.unauthenticated_openid=[[openid]] (not yet authenticated)
 .preview.subject=<strong>Subject: </strong>
 
-.preview.submit=Submit
+.preview.postcomment=Post Comment
 
 .preview.title=Preview
 

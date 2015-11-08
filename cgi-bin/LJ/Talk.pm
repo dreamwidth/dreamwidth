@@ -3694,7 +3694,7 @@ sub make_preview {
             unless $_ eq 'body' || $_ eq 'subject' || $_ eq 'prop_opt_preformatted' || $_ eq 'editreason';
     }
 
-    $ret .= "<br /><input type='submit' value='$BML::ML{'/talkpost_do.bml.preview.submit'}' />\n";
+    $ret .= "<br /><input type='submit' value='$BML::ML{'/talkpost_do.bml.preview.postcomment'}' />\n";
     $ret .= "<input type='submit' name='submitpreview' value='$BML::ML{'talk.btn.preview'}' />\n";
     $ret .= "<span id='moreoptions-container'></span>\n";
     if ($LJ::SPELLER) {
