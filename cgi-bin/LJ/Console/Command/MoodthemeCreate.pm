@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "moodtheme_create" }
 
-sub desc { "Create a new moodtheme. Returns the mood theme ID that you'll need to define moods for this theme." }
+sub desc { "Create a new moodtheme. Returns the mood theme ID that you'll need to define moods for this theme. Requires priv: none." }
 
 sub args_desc { [
                  'name' => "Name of this theme.",

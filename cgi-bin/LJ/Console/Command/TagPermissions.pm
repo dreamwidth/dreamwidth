@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "tag_permissions" }
 
-sub desc { "Set tagging permission levels for an account." }
+sub desc { "Set tagging permission levels for an account. Requires priv: none." }
 
 sub args_desc { [
                  'community' => "Optional; community to change permission levels for.",
