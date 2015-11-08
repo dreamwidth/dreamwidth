@@ -55,17 +55,25 @@ collapsible.expanded=Collapse
 
 comment.rpc.posted=Your comment has been posted.
 
-contentflag.viewingconcepts.bycommunity=You are about to view content that a community administrator has advised should be viewed with discretion.
+contentflag.viewingconcepts.bycommunity.community=You're about to view content that a community administrator has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byjournal=You're about to view content which the journal owner has advised should be viewed with discretion.
+contentflag.viewingconcepts.byjournal.community=You're about to view content that a community administrator has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byposter=You're about to view content which the poster has advised should be viewed with discretion.
+contentflag.viewingconcepts.byposter.community=You're about to view content that the poster has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.bycommunity=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingconcepts.byjournal.personal=You're about to view content that the journal owner has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.byjournal=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingconcepts.byposter.personal=You're about to view content that the journal owner has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.byposter=You're about to view content that the poster has marked as potentially inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.bycommunity.community=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byjournal.community=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byposter.community=You're about to view content that the poster has marked as potentially inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byjournal.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byposter.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
 
