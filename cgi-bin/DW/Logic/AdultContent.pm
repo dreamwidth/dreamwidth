@@ -64,12 +64,18 @@ sub adult_interstitial_link {
 
     my $entry = $opts{entry};
     my $type = $opts{type};
+    my $journal = $opts{journal};
     return '' unless $entry && $type;
 
     my $url = $entry->url;
     my $msg;
 
     my $markedby = $entry->adult_content_marker;
+    if ( $journal->is_community ) {
+        $markedby .= '.community';
+    } else {
+        $markedby .= '.personal';
+    }
 
     if ( $type eq 'explicit' ) {
         $msg = LJ::Lang::ml( 'contentflag.viewingexplicit.by' . $markedby );
