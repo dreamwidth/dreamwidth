@@ -283,7 +283,6 @@ _create: function() {
                     document.location = $ele.attr("href");
                 }
             },
-            maxWidth: "80%",
             width: 500
         });
     });
