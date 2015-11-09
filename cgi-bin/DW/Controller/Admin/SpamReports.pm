@@ -186,14 +186,14 @@ sub main_controller {
         foreach ( sort { $b <=> $a } keys %revhits ) {
             my $r = $revhits{$_};
             foreach ( @$r ) {
-                if ( /\./ ) {  # ip report
-                    push @rows, [ $hits{$_}, $_,
-                                  $viewlink->( 'ip', $_, 'open', $times{$_} )
-                                ];
-                } else {  # user report
+                if ( /^\d+$/ ) {  # userid
                     my $u = LJ::load_userid( $_ );
                     push @rows, [ $hits{$_}, LJ::ljuser($u),
                                   $viewlink->( 'posterid', $_, 'open', $times{$_} )
+                                ];
+                } else {  # assumed to be IP address
+                    push @rows, [ $hits{$_}, $_,
+                                  $viewlink->( 'ip', $_, 'open', $times{$_} )
                                 ];
                 }
             }
