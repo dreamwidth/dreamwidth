@@ -123,7 +123,7 @@ sub highscores_handler {
             } else {
                 $buildup++;
             }
-            my $change = "";
+            my $change = 0;
             if ($rank{$userid}->{'now'} && $rank{$userid}->{'last'}) {
                 $change = $rank{$userid}->{'last'} - $rank{$userid}->{'now'};  # from 5th to 4th is 5-4 = 1 (+1 for increase)
              }
