@@ -69,7 +69,7 @@ sub highscores_handler {
         $sth->execute;
         my @rows;
         push @rows, $_ while $_ = $sth->fetchrow_hashref;
-        if ( $args->{'sort'} eq "lastupdate" ) { 
+        if ( defined $args->{sort} && $args->{sort} eq "lastupdate" ) {
             @rows = sort { $b->{lastupdate} <=> $a->{lastupdate} } @rows;
         } else {
             @rows = sort { $b->{points} <=> $a->{points} } @rows;
