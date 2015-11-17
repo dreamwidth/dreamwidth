@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "get_relation" }
 
-sub desc { "Given a username and an edge, looks up all relations." }
+sub desc { "Given a username and an edge, looks up all relations. Requires priv: N/A, can't be called directly." }
 
 sub args_desc { [
                  'user' => "The username of the account you want to look up.",

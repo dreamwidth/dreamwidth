@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "ban_set" }
 
-sub desc { "Ban another user from posting in your journal or community." }
+sub desc { "Ban another user from posting in your journal or community. Requires priv: none." }
 
 sub args_desc { [
                  'user' => "The user you want to ban.",

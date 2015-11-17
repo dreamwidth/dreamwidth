@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "invalid command" } # deliberately invalid (space) so people can't actually call this directly
 
-sub desc { "This specifies the console's behavior for invalid input." }
+sub desc { "This specifies the console's behavior for invalid input. Requires priv: N/A, can't be called directly." }
 
 sub args_desc { [] }
 

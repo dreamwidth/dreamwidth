@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "infohistory" }
 
-sub desc { "Retrieve info history of a given account." }
+sub desc { "Retrieve info history of a given account. Requires priv: finduser:infohistory." }
 
 sub args_desc { [
                  'user' => "The username of the account whose infohistory to retrieve.",

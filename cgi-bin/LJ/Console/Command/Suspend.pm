@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "suspend" }
 
-sub desc { "Suspend an account or entry." }
+sub desc { "Suspend an account or entry. Requires priv: suspend." }
 
 sub args_desc { [
                  'username or email address or entry url' => "The username of the account to suspend, or an email address to suspend all accounts at that address, or an entry URL to suspend a single entry within an account",
