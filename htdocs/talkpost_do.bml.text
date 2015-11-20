@@ -39,6 +39,8 @@
 
 .error.noopenid=OpenID users aren't authorized to reply to this entry.
 
+.error.noopenidpost=You must <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address before you can comment.
+
 .error.noparent=Cannot reply to a non-existent comment.
 
 .error.notafriend=You aren't on [[user]]'s Access List; only members of [[user]]'s Access List can reply to entries in this journal.
