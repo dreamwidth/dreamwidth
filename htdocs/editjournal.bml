@@ -108,7 +108,7 @@ body<=
 
             $ret .= "</td></tr></table>\n";
         }
-        $ret .= "</td>";        
+        $ret .= "</td>";
         $ret .= "</tr></table>";
 
         return $ret;
@@ -319,7 +319,7 @@ body<=
                     $result .= $deleted_extras if defined $deleted_extras;
                 } else {
                     $message = LJ::auto_linkify( LJ::ehtml( $res{message} ) );
-                    $result .= ($journalu->is_community) ? 
+                    $result .= ($journalu->is_community) ?
                         "<?p $ML{'.success.edited.comm'} p?>" :
                         "<?p $ML{'.success.edited'} p?>";
                     $result .= "<?p $message p?>" if $message;
@@ -347,7 +347,7 @@ body<=
                         $result .= "<?p " . BML::ml('.success.editedstillsuspended', { aopts => "href='$LJ::SITEROOT/abuse/report'" }) . " p?>";
                     }
                 }
-               
+
                 if (!$deleted) {
                     if ($req{"security"} eq "private") {
                         $result .="<p>$ML{'.extradata.sec.private'}</p>";
@@ -362,7 +362,7 @@ body<=
                     } else {
                         $result .="<p>$ML{'.extradata.sec.public'}</p>";
                     }
-                    
+
                     $result .="<?p " . BML::ml('.extradata.subject', { subject => LJ::ehtml( $req{"subject"} ) }) . " p?>";
                 }
 
