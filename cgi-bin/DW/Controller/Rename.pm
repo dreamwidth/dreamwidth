@@ -113,6 +113,7 @@ sub rename_handler {
             $vars->{formdata} = {
                 authas      => $authas,
                 journaltype => $get_args->{type},
+                journalname => $get_args->{type} eq "P" ? $remote->user : "communityname",
                 journalurl  => $get_args->{type} eq "P" ? $remote->journal_base : LJ::journal_base( "communityname", vhost => "community" ),
                 pageurl     => "/rename?giventoken=" . $token->token,
                 token       => $token->token,
