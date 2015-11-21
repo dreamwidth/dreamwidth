@@ -97,7 +97,8 @@ body<=
 
             if (my $subj = $res{"events_${i}_subject"}) {
                 LJ::CleanHTML::clean_subject_all(\$subj);
-                  $ret .= " <i>" . LJ::ehtml($subj) . "</i>";
+                # clean_subject_all returns plain text, so no HTML escaping here
+                $ret .= " <i>$subj</i>";
               }
             $ret .= "<br />\n";
 
@@ -183,7 +184,7 @@ body<=
             }
 
             return BML::redirect( "/entry/" . $u_for_entry->user . "/$ditemid/edit" )
-                    if ! LJ::did_post() && ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
+                    if ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
             ###
             ### SAVE EDITS
