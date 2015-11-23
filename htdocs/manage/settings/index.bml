@@ -32,8 +32,16 @@ body<=
     my $authas;
     my $u;
 
-    if ($remote) {
-        $authas = $GET{authas} || $remote->user;
+    $authas = $GET{authas} || $remote->user if $remote;
+
+    my $can_view_other = ( $remote && $remote->has_priv( "canview", "subscriptions" ) );
+
+    if ( $can_view_other && $GET{cat} && $GET{cat} eq 'notifications' ) {
+        # impersonation mode - check for $u->user ne $authas
+        $u = LJ::load_user( $GET{user} ) if $GET{user};
+    }
+
+    if ( $remote && ! defined $u ) {
         $u = LJ::get_authas_user($authas);
         return LJ::bad_input($ML{'error.invalidauth'})
             unless $u;
@@ -203,6 +211,15 @@ body<=
         $given_cat = "display";
     }
 
+    if ( $u->user ne $authas ) {
+        # can only impersonate notification settings -
+        # if invisible or disabled, print this error
+        return LJ::bad_input( $ML{'error.invalidauth'} )
+            if $given_cat ne 'notifications';
+        # don't allow editing
+        $cats_with_settings{notifications}->{form} = 0;
+    }
+
     my @settings = @{$cats_with_settings{$given_cat}->{settings}};
 
     # remove any settings that don't exist for this category
@@ -227,6 +244,10 @@ body<=
     if (LJ::did_post()) {
         return LJ::bad_input($ML{'error.invalidform'})
             unless LJ::check_form_auth();
+
+        # can't make changes while impersonating
+        return LJ::bad_input( $ML{'error.invalidauth'} )
+            if $u->user ne $authas;
 
         if ( $given_cat eq "notifications" && $POST{deleteinactive} ) {
             $u->delete_all_inactive_subscriptions;
@@ -378,7 +399,7 @@ body<=
         }
     }
 
-    if ($given_cat eq "notifications") {
+    if ( $given_cat eq "notifications" && $u->user eq $authas ) {
         # look for deletions from GET
         my $deleted_subs = 0;
         foreach my $subscr ($u->subscriptions) {
@@ -398,7 +419,7 @@ body<=
 
     my ($getextra, $getsep) = ("", "?");
     $title = $windowtitle = $ML{'.title.self'};
-    if ($u && $authas ne $remote->user) {
+    if ( $u && $u->user ne $remote->user ) {
         $getextra = "?authas=$authas";
         $getsep = "&";
         $title = BML::ml('.title.comm', { user => $u->ljuser_display });
@@ -445,6 +466,23 @@ body<=
     $ret .= $cats_with_settings{$given_cat}->{desc};
     $ret .= "</p></div>";
 
+    $ret .= "<div class='settings_content'>";
+    $ret .= "<div class='$given_cat'>";
+
+    if ( $given_cat eq "notifications" && $can_view_other ) {
+        # form for viewing another user's notifications
+        # must go above the post form declaration
+        $ret .= "<div id='settings_save' class='action-bar'>";
+        $ret .= "<form action='$LJ::SITEROOT/manage/settings/' method='get'>";
+        $ret .= LJ::html_hidden( authas => $GET{authas} );
+        $ret .= LJ::html_hidden( cat => $given_cat );
+        $ret .= "<label for='user'>$ML{'.user'}</label>";
+        $ret .= "<input name='user' id='user' value='$GET{user}' maxlength='25' size='15'/>";
+        $ret .= "<input type='submit' value='$ML{'.user.submit'}'>";
+        $ret .= "</form>";
+        $ret .= "</div>";
+    }
+
     if ($cats_with_settings{$given_cat}->{form}) {
         if ( $LJ::ACTIVE_RES_GROUP ne "jquery"  ) {
             my $confirm_msg = LJ::ejs($ML{'.form.confirm1'});
@@ -453,8 +491,6 @@ body<=
         $ret .= "<form class='table-form' id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
         $ret .= LJ::form_auth();
     }
-    $ret .= "<div class='settings_content'>";
-    $ret .= "<div class='$given_cat'>";
 
     if ($given_cat eq "notifications") {
 
@@ -463,17 +499,20 @@ body<=
             "js/components/jquery.select-all-special.js",
             "stc/css/components/select-all.css"  );
 
-        $ret .= "<div id='settings_save' class='action-bar'>";
-        $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
-        $ret .= "&nbsp;";
-        my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
-        $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'},
-                                 {
-                                   class => 'btn',
-                                   title => $ML{'.btn.deleteinactive2'},
-                                   onClick => "return confirm( '$del_conf' )"
-                                 } );
-        $ret .= "</div>";
+        # don't reprint the save buttons here if we displayed the admin form
+        if ( ! $can_view_other ) {
+            $ret .= "<div id='settings_save' class='action-bar'>";
+            $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
+            $ret .= "&nbsp;";
+            my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
+            $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'},
+                                     {
+                                       class => 'btn',
+                                       title => $ML{'.btn.deleteinactive2'},
+                                       onClick => "return confirm( '$del_conf' )"
+                                     } );
+            $ret .= "</div>";
+        }
 
         my $my_account_extra = LJ::Hooks::run_hook('subscriptions_manage_my_account_extra', $u);
 
@@ -509,10 +548,10 @@ body<=
             $_->commit foreach @default_subscriptions;
         }
 
-        # Transalte legacy pre-ESN notifs to ESN notifs
+        # Translate legacy pre-ESN notifs to ESN notifs
         {
             LJ::Event::JournalNewComment::Reply->migrate_user( $u );
- 
+
             $u->migrate_prop_to_esn( "opt_nomodemail", "CommunityModeratedEntryNew",
                                         check_enabled => sub {
                                                 my ( $prop ) = @_;
@@ -643,7 +682,7 @@ body<=
 
     $ret .= "<div id='settings_save' class='action-bar'>";
     $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
-    if ( $given_cat eq "notifications" ) {
+    if ( $given_cat eq "notifications" && $u->user eq $authas ) {
         $ret .= "&nbsp;";
         my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
         $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'}, {
