@@ -34,11 +34,11 @@ body<=
 
     $authas = $GET{authas} || $remote->user if $remote;
 
-    my $can_view_other = ( $remote && $remote->has_priv( "canview", "subscriptions" ) );
+    my $can_view_other = $remote && $remote->has_priv( "canview", "subscriptions" );
 
-    if ( $can_view_other && $GET{cat} && $GET{cat} eq 'notifications' ) {
+    if ( $can_view_other && $GET{user} && $GET{cat} && $GET{cat} eq 'notifications' ) {
         # impersonation mode - check for $u->user ne $authas
-        $u = LJ::load_user( $GET{user} ) if $GET{user};
+        $u = LJ::load_user( $GET{user} );
     }
 
     if ( $remote && ! defined $u ) {
