@@ -81,6 +81,7 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
     $hr = {
         entryprops => "Access to /admin/entryprops",
         sessions   => "Access to admin mode on /manage/logins",
+        subscriptions => "Access to admin mode on notification settings",
         suspended  => "Access to suspended journal content",
         userlog    => "Access to /admin/userlog",
         userprops  => "Access to /admin/propedit",
