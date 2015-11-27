@@ -23,7 +23,7 @@ use strict;
 use base qw/ LJ::Console::Command /;
 
 sub cmd { 'note' }
-sub desc { 'Sets and clears notes that will display when you try to suspend an account. Intended for the antispam team to make notes on accounts frequently reported for spam that are actually legit.' }
+sub desc { 'Sets and clears notes that will display when you try to suspend an account. Intended for the antispam team to make notes on accounts frequently reported for spam that are actually legit. Requires priv: suspend.' }
 sub args_desc {
     [
         'command' => 'Subcommand: add, remove.',
