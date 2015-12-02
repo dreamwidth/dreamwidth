@@ -1038,7 +1038,7 @@ sub _do_post {
         my $extradata = {
             security => $form_req->{security},
             security_ml => "",
-            subject => LJ::ehtml( $form_req->{subject} ),
+            subject => $form_req->{subject},
         };
         if ( $extradata->{security} eq "usemask" ) {
             if ( $form_req -> {allowmask} == 1 ) {
