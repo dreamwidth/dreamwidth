@@ -62,6 +62,8 @@ my %host_path_match = (
     # drawings do not need to be whitelisted as they are images.
     # forms arent being allowed for security concerns.
     "docs.google.com"       => [ qr!^/(document|spreadsheets?|presentation)/!, 1 ],
+    
+    "books.google.com"      => [ qr!^/ngrams/!, 1 ],
 
     "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
