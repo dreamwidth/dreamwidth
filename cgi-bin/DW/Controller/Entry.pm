@@ -872,9 +872,14 @@ sub _backend_to_form {
         }
     }
 
+    # allow editing of embedded content
+    my $event = $entry->event_raw;
+    my $ju = $entry->journal;
+    LJ::EmbedModule->parse_module_embed( $ju, \$event, edit => 1 );
+
     return {
         subject => $entry->subject_raw,
-        event   => $entry->event_raw,
+        event   => $event,
 
         icon        => $entry->userpic_kw,
         security    => $security,
