@@ -756,7 +756,7 @@ sub _form_to_backend {
 
     # Check if this is a community.
     $props->{admin_post} = $post->{flags_adminpost} || 0;
-        
+
     # entry security
     my $sec = "public";
     my $amask = 0;
@@ -793,7 +793,7 @@ sub _form_to_backend {
         $req->{hour}    = $hour;
         $req->{min}     = $min;
     }
-    
+
     $req->{update_displaydate} = $post->{update_displaydate};
 
     # crosspost
@@ -872,9 +872,14 @@ sub _backend_to_form {
         }
     }
 
+    # allow editing of embedded content
+    my $event = $entry->event_raw;
+    my $ju = $entry->journal;
+    LJ::EmbedModule->parse_module_embed( $ju, \$event, edit => 1 );
+
     return {
         subject => $entry->subject_raw,
-        event   => $entry->event_raw,
+        event   => $event,
 
         icon        => $entry->userpic_kw,
         security    => $security,
@@ -1034,7 +1039,7 @@ sub _do_post {
                 editurl => $edititemlink,
                 ditemid => $ditemid,
         );
-        
+
         my $extradata = {
             security => $form_req->{security},
             security_ml => "",
@@ -1171,7 +1176,7 @@ sub _do_edit {
         ditemid => $ditemid,
         editurl => $edit_url,
     );
-        
+
     my $extradata = {
         security => $form_req->{security},
         security_ml => "",
@@ -1188,7 +1193,7 @@ sub _do_edit {
     } else {
         $extradata->{security_ml} = ".extradata.sec.public";
     }
-    
+
     my $poststatus = { ml_string => $poststatus_ml };
     $render_ret = DW::Template->render_template(
         'entry/success.tt', {
@@ -1209,7 +1214,7 @@ sub _persist_props {
     my ( $u, $form, $is_edit ) = @_;
 
     return unless $u;
-    
+
     $u->displaydate_check($form->{update_displaydate} ? 1 : 0) unless $is_edit;
 # FIXME:
 #
