@@ -58,7 +58,7 @@ my %host_path_match = (
     "www.goodreads.com"     => [ qr!^/widgets/!, 1 ],
 
     "maps.google.com"       => [ qr!^/maps!, 1 ],
-    "www.google.com"        => [ qr!^/calendar/!, 1 ],
+    "calendar.google.com"   => [ qr!^/calendar/!, 1 ],
     # drawings do not need to be whitelisted as they are images.
     # forms arent being allowed for security concerns.
     "docs.google.com"       => [ qr!^/(document|spreadsheets?|presentation)/!, 1 ],
