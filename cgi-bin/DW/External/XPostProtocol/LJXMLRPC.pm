@@ -18,7 +18,7 @@ use base 'DW::External::XPostProtocol';
 use strict;
 use warnings;
 
-use Digest::MD5 qw(md5_hex);  
+use Digest::MD5 qw(md5_hex);
 use XMLRPC::Lite;
 use HTML::Entities ();
 
@@ -67,7 +67,7 @@ sub _call_xmlrpc {
         return {
             success => 0,
             error => LJ::Lang::ml("xpost.error.connection", { url => $xmlrpc->proxy->endpoint })
-        } 
+        }
     }
 }
 
@@ -128,7 +128,7 @@ sub do_auth {
 # LJ-XMLRPC library class.
 sub call_xmlrpc {
     my ($self, $proxyurl, $mode, $req, $auth) = @_;
-    
+
     my $xmlrpc = eval {
         XMLRPC::Lite->proxy( $proxyurl,
             agent => "$LJ::SITENAME XPoster ($LJ::ADMIN_EMAIL)",
@@ -202,7 +202,7 @@ sub crosspost {
 
         # set the value for comments on the crossposted entry
         $req->{props}->{opt_nocomments} = $disabling_comments || $req->{props}->{opt_nocomments} || 0;
-        
+
         $req->{event} = $req->{event} . $footer_text if $footer_text;
     }
 
@@ -390,7 +390,7 @@ sub entry_to_req {
 
     # and set the useragent - FIXME put this somewhere else?
     $req->{props}->{useragent} = "Dreamwidth Crossposter";
-    
+
     # do any per-site preprocessing
     $req = $extacct->externalsite->pre_crosspost_hook( $req )
             if $extacct->externalsite;
@@ -401,7 +401,7 @@ sub entry_to_req {
 # translates the given allowmask to
 sub translate_allowmask {
     my ($self, $extacct, $auth, $entry) = @_;
- 
+
     my $result = $self->get_friendgroups($extacct, $auth);
     return 0 unless $result->{success};
 
@@ -444,10 +444,10 @@ sub clean_entry_text {
 
     # clean up lj-tags
     $self->clean_lj_tags(\$event_text, $extacct);
-    
+
     # clean up any embedded objects
     LJ::EmbedModule->expand_entry($entry->journal, \$event_text, expand_full => 1);
-    
+
     # remove polls, then return the text
     return $self->scrub_polls($event_text);
 }
@@ -475,7 +475,7 @@ sub clean_lj_tags {
     while (my $token = $p->get_token) {
         my $type = $token->[0];
         # See if this tag should be treated as an alias
-        
+
         if ($type eq "S") {
             my $tag = $token->[1];
             my $hash  = $token->[2]; # attribute hashref
@@ -484,16 +484,16 @@ sub clean_lj_tags {
             # we need to rewrite cut tags as lj-cut
             if ($update_tags{$tag}) {
                 $tag = $update_tags{$tag};
-                
+
                 # for tags like <name/>, pretend it's <name> and reinsert the slash later
                 my $slashclose = 0;   # If set to 1, use XML-style empty tag marker
                 $slashclose = 1 if delete $hash->{'/'};
-                
+
                 # spit it back out
                 $newdata .= "<$tag";
                 # output attributes in original order
                 foreach (@$attrs) {
-                    $newdata .= " $_=\"" . $hash->{$_} . "\""    
+                    $newdata .= " $_=\"" . $hash->{$_} . "\""
                         if exists $hash->{$_};
                 }
                 $newdata .= " /" if $slashclose;
@@ -504,7 +504,7 @@ sub clean_lj_tags {
                 my $user = $hash->{user} = exists $hash->{name} ? $hash->{name} :
                     exists $hash->{user} ? $hash->{user} :
                     exists $hash->{comm} ? $hash->{comm} : undef;
-                
+
                 # allow external sites
                 if (my $site = $hash->{site}) {
                     # try to load this user@site combination
@@ -564,7 +564,7 @@ sub clean_lj_tags {
             $newdata .= $token->[2];
         }
     } # end while
-    
+
     # explicitly close any cuts
     $newdata .= "</lj-cut>" if $opencount{'lj-cut'};
     $$entry_text_ref = $newdata;
@@ -578,11 +578,11 @@ sub protocolid {
 }
 
 # hash the password in a protocol-specific manner
-sub encrypt_password { 
+sub encrypt_password {
     my ($self, $password) = @_;
 
     if ($password) {
-        return md5_hex($password);  
+        return md5_hex($password);
     } else {
         # don't hash blank passwords
         return $password;
@@ -590,7 +590,7 @@ sub encrypt_password {
 }
 
 # get a challenge for this server.  returns 0 on failure.
-sub challenge { 
+sub challenge {
     my ($self, $extacct) = @_;
 
     # get the xml-rpc proxy and start the connection.
@@ -613,7 +613,7 @@ sub challenge {
 }
 
 # checks to see if this account supports challenge/response authentication
-sub supports_challenge { 
+sub supports_challenge {
     return 1;
 }
 
