@@ -341,6 +341,12 @@ sub entry_to_req {
         $req->{props}->{$entrykey} = $entryprops->{$entrykey} if defined $entryprops->{$entrykey};
     }
 
+    # determine if we used Markdown by examining the raw entry text (not
+    # the cleaned text) and advertise the opt_preformatted flag if so
+    if ( $entry->event_raw =~ /^\s*!markdown\s*\r?\n/s ) {
+        $req->{props}->{opt_preformatted} = 1;
+    }
+
     # remove html from current location
     if ($req->{props}->{current_location}) {
         $req->{props}->{current_location} = LJ::strip_html($req->{props}->{current_location});
@@ -441,6 +447,15 @@ sub clean_entry_text {
     my ($self, $entry, $extacct) = @_;
 
     my $event_text = $entry->event_raw;
+
+    # FIXME: Markdown processing needs to be better integrated, but this at
+    # at least makes it work with crossposting to LJ sites.
+    #
+    # Note: the flag for opt_preformatted should be set in the caller,
+    # since the crosspost request data isn't accessible here.
+    if ( $event_text =~ s/^\s*!markdown\s*\r?\n//s ) {
+        LJ::CleanHTML::clean_as_markdown( \$event_text, {} );
+    }
 
     # clean up lj-tags
     $self->clean_lj_tags(\$event_text, $extacct);
