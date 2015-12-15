@@ -19,7 +19,7 @@ use strict;
 use base qw/ LJ::Console::Command /;
 
 sub cmd { 'reset_token' }
-sub desc { 'Reset post-by-email token.' }
+sub desc { 'Reset post-by-email token. Requires priv: reset_email.' }
 sub args_desc {
     [
         'username' => 'Username of the account whose token is to be reset',

@@ -22,7 +22,7 @@ use Carp qw/ croak /;
 use List::Util qw/ max /;
 
 sub cmd { 'bonus_icons' }
-sub desc { 'Manage bonus icons for an account.' }
+sub desc { 'Manage bonus icons for an account. Requires priv: payments:bonus_icons.' }
 sub args_desc {
     [
         'command' => 'Subcommand: add, remove.',
