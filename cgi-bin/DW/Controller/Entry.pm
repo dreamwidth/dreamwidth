@@ -1040,10 +1040,14 @@ sub _do_post {
                 ditemid => $ditemid,
         );
 
+        # use the HTML cleaner on the entry subject if one exists
+        my $subject = $form_req->{subject};
+        LJ::CleanHTML::clean_subject( \$subject ) if $subject;
+
         my $extradata = {
             security => $form_req->{security},
             security_ml => "",
-            subject => $form_req->{subject},
+            subject => $subject,
         };
         if ( $extradata->{security} eq "usemask" ) {
             if ( $form_req -> {allowmask} == 1 ) {
