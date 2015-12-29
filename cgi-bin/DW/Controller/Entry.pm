@@ -1181,10 +1181,14 @@ sub _do_edit {
         editurl => $edit_url,
     );
 
+    # use the HTML cleaner on the entry subject if one exists
+    my $subject = $form_req->{subject};
+    LJ::CleanHTML::clean_subject( \$subject ) if $subject;
+
     my $extradata = {
         security => $form_req->{security},
         security_ml => "",
-        subject => LJ::ehtml( $form_req->{subject} ),
+        subject => $subject,
     };
     if ( $extradata->{security} eq "usemask" ) {
         if ( $form_req -> {allowmask} == 1 ) {

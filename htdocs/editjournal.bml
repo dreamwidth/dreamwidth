@@ -363,7 +363,18 @@ body<=
                         $result .="<p>$ML{'.extradata.sec.public'}</p>";
                     }
 
-                    $result .="<?p " . BML::ml('.extradata.subject', { subject => LJ::ehtml( $req{"subject"} ) }) . " p?>";
+                    my $subject = $req{subject};
+
+                    if ( length $subject > 0 ) {
+                        # use the HTML cleaner on the entry subject,
+                        # then display it without escaping
+                        LJ::CleanHTML::clean_subject( \$subject );
+                     } else {
+                        # display (no subject) if subject is empty
+                        $subject = $ML{'.extradata.subj.no_subject'};
+                     }
+
+                    $result .= "<?p " . $ML{'.extradata.subj'} . " $subject p?>";
                 }
 
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";

@@ -21,7 +21,9 @@
 
 .extradata.sec.public=The entry was posted publicly.
 
-.extradata.subject=The entry was posted with the following subject: [[subject]]
+.extradata.subj=The entry was posted with the following subject:
+
+.extradata.subj.no_subject=(no subject)
 
 .in=In community:
 
