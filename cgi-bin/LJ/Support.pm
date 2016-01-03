@@ -1108,6 +1108,7 @@ sub work {
           }
 
         $body = LJ::Lang::ml( "support.email.notif.new.body2", {
+                sitename => $LJ::SITENAMESHORT,
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
                 username => LJ::trim( $show_name ),
@@ -1152,6 +1153,7 @@ sub work {
 
         # build body
         $body = LJ::Lang::ml( "support.email.notif.update.body3", {
+                sitename => $LJ::SITENAMESHORT,
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
                 type => $response_type,
