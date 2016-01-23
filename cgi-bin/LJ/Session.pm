@@ -934,8 +934,7 @@ sub get_cookie_path {
 
 sub get_path_user {
     my ( $path ) = @_;
-    my $exp = '^/(\w{1,' . $LJ::USERNAME_MAXLENGTH . '})\b';
-    return unless $path =~ /$exp/;
+    return unless $path =~ m!^/(\w{1,$LJ::USERNAME_MAXLENGTH})\b!;
 
     return lc $1;
 }

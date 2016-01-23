@@ -920,8 +920,6 @@ error.unknownmode=Unknown mode.
 
 error.usernameinvalid=This account name contains invalid characters.
 
-error.usernamelong=This account name is too long.  Account names can't be longer than 25 characters.
-
 error.usernamelong1=This account name is too long. Account names can't be longer than [[maxlength]] characters.
 
 error.username_notfound=This account name wasn't found.
