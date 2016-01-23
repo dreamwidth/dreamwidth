@@ -40,6 +40,8 @@ body<=
         $ret .= "<?h1 $ML{'.enter.user.head'} h1?>".
             "<?p " . BML::ml( '.enter.user.text3', { sitenameshort => $LJ::SITENAMESHORT } ) . " p?>".
             "<div style='margin-left: 40px'><form method='get' action='textmessage'>$ML{'.enter.user.input'} <input type='text' size='25' maxlength='25' name='user' /> <input type='submit' value=\"$ML{'.enter.user.submit'}\" /></form></div>".
+            #NB the maxlength of the username text box should be based on
+            #LJ::USERNAME_MAXLENGTH, not hardcoded here.
             "<p>".BML::ml('.setup.text', { aopts => "href='$LJ::SITEROOT/manage/profile/'" })."</p>";
         return add_footer( $ret );
     }
