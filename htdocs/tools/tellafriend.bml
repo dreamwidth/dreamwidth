@@ -199,8 +199,7 @@ _c?>
             : BML::ml( ".email.subject.entrynosubject", { sitenameshort => $LJ::SITENAMESHORT } );
  }
 
- my $exp = '^\w{1,' . $LJ::USERNAME_MAXLENGTH . '}$';
- if ($GET{'user'} =~ /$exp/) {
+ if ($GET{'user'} =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/) {
      my $user = $GET{'user'};
      my $uj = LJ::load_user($user);
      my $url = $uj->journal_base;
