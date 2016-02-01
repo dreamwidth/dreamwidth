@@ -15,7 +15,7 @@ use Module::Build;
 # Requirements
 # See bin/checkconfig.pl
 # as explained in:
-# http://wiki.dwscoalition.org/notes/Dreamwidth_Scratch_Installation#Make_sure_things_are_working_with_checkconfig.pl
+# http://wiki.dreamwidth.net/notes/Dreamwidth_Scratch_Installation#Make_sure_things_are_working_with_checkconfig.pl
 
 # Setting Up
 # Run this script to generate the Build script:

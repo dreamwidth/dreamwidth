@@ -13,6 +13,6 @@ rolling along:
 This will check out the various repositories that we use and put them in the
 appropriate place.
 
-Please [see our wiki for more information](http://wiki.dwscoalition.org/).
+Please [see our wiki for more information](http://wiki.dreamwidth.net/).
 
 Thanks!
