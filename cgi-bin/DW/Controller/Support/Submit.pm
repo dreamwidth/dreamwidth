@@ -104,6 +104,14 @@ sub submit_handler {
             if LJ::is_enabled( 'support_request_language' );
     }
 
+    # If not logged in and logged-out requests are disabled, give a fatal error
+    unless ( $remote || LJ::is_enabled( 'loggedout_support_requests' ) ) {
+        my $errors = DW::FormErrors->new;
+        $errors->add( 'no_such_variable', '.error.mustbeloggedin' );
+        $vars->{errors} = $errors;
+        $vars->{fatal_errors} = 1;
+    }
+
     # Include name if not logged in, email address if not logged in or empty
     $vars->{include_name} = $remote ? 0 : 1;
     $vars->{include_email} = ($remote && $remote->email_raw) ? 0 : 1;
