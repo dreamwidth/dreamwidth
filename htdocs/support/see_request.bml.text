@@ -89,7 +89,7 @@
 
 .no=No
 
-.no.html.allowed=There's no HTML allowed, so don't worry about about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
+.no.html.allowed2=There's no HTML allowed, so don't worry about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
 
 .none=None
 
