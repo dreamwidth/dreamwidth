@@ -685,6 +685,10 @@ sub make_journal {
     if (exists $opts->{getargs}->{security}) {
         my $securityfilter = $opts->{getargs}->{security};
 
+        my $canview_groups = ( $view eq "lastn"  # viewing recent entries
+          # ... or your own read page (can't see locked entries on others' read page anyway)
+            || ( $view eq "read" && $u->equals( $remote ) ) );
+
         my $r = DW::Request->get;
         my $security_err = sub {
             my ( $args, %opts ) = @_;
@@ -694,11 +698,7 @@ sub make_journal {
             my @levels;
             my @groups;
             # error message is an appropriate type to show the list
-            if ( $opts{show_list}
-                # viewing recent entries
-                && ( $view eq "lastn"
-                    # or your own read page (can't see locked entries on others' read page anyway)
-                    || ( $view eq "read" && $u->equals( $remote ) ) ) ) {
+            if ( $opts{show_list} && $canview_groups ) {
 
                 my $path = $view eq "read" ? "/read/security" : "/security";
                 @levels  = ( { link => LJ::create_url( "$path/public", viewing_style => 1 ),
@@ -759,7 +759,7 @@ sub make_journal {
             $opts->{securityfilter} = lc($securityfilter);
 
         # see if they want to filter by a custom group
-        } elsif ( $securityfilter =~ /^group:(.+)$/i && $view eq 'lastn' ) {
+        } elsif ( $securityfilter =~ /^group:(.+)$/i && $canview_groups ) {
             my $tf = $u->trust_groups( name => $1 );
             if ( $tf && ( $u->equals( $remote ) ||
                           $u->trustmask( $remote ) & ( 1 << $tf->{groupnum} ) ) ) {
