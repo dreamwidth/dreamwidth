@@ -176,6 +176,15 @@ body<=
     return LJ::bad_input($ML{'/talkpost.bml.error.noreply_readonly_journal'})
         if $journalu && $journalu->is_readonly;
 
+    # don't allow user A to reply to a comment by user B if user B has banned user A
+    if ( defined $remote ) {    #skip this if not logged in
+        my $parentu = LJ::load_userid( $parent->{posterid} );
+        return LJ::bad_input( $ML{'.error.banned.reply'} )
+            if ( defined $parentu && $parentu->has_banned( $remote ) );
+            #we check whether parentu is defined because it won't be
+            #if the parent is an anonymous comment.
+    }
+
     ## insertion or editing
     my $wasscreened = ($parent->{state} eq 'S');
     my $err;
