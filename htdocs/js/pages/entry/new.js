@@ -548,6 +548,8 @@ var postForm = (function($) {
         $("#js-entrytime-time").pickatime({
             editable: true,
             format: "HH:i",
+            interval: 1,
+            max: 1439,
 
             trigger: document.getElementById("js-entrytime-time-button"),
             container: '.displaydate-component .picker-output'
