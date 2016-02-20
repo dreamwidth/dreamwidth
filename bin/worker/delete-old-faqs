@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+#
+# Authors:
+#       Adam Dinwoodie <adam@dinwoodie.org>
+#
+# Copyright (c) 2016 Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+package LJ::Worker::DeleteOldFaqs;
+
+use strict;
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use base 'LJ::Worker::Manual';
+
+sub work {
+    my $dbr = LJ::get_db_reader();
+
+    my $sth = $dbr->prepare('SELECT DISTINCT faqid FROM faqhist');
+    $sth->execute;
+    die 'Error selecting existing FAQ IDs: ' . $dbr->errostr if $dbr->err;
+
+    my @faqids;
+    while (my $faqid = $sth->fetchrow_array) {
+        push @faqids, $faqid;
+    }
+
+    foreach my $faqid (@faqids) {
+        # Find the revision number of the first revision after the first five.
+        # If it exists, there are more than five entries, so the older ones get
+        # deleted.
+        $sth = $dbr->prepare
+            ('SELECT rev FROM faqhist WHERE faqid = ? ' .
+             'ORDER BY rev DESC LIMIT 1 OFFSET 5');
+        $sth->execute($faqid);
+        my $rev = $sth->fetchrow_array;
+        if ($rev) {
+            $sth = $dbr->prepare
+                ('DELETE FROM faqhist WHERE faqid = ? AND rev <= ?');
+            $sth->execute($faqid, $rev);
+        }
+    }
+
+    return 1;
+}
+
+__PACKAGE__->run();
