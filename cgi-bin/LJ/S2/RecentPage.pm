@@ -79,8 +79,14 @@ sub RecentPage
     }
 
     if ( $opts->{securityfilter} ) {
+        my $filter = $u->trust_groups( id => $opts->{securityfilter} );
         $p->{filter_active} = 1;
-        $p->{filter_name} = $opts->{securityfilter};
+        if ( defined $filter ) {
+            $p->{filter_name} = $filter->{groupname};
+        } else {
+            # something went wrong; just use the group number
+            $p->{filter_name} = $opts->{securityfilter};
+        }
     } 
 
     my $get = $opts->{'getargs'};
