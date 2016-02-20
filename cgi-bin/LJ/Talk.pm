@@ -3301,6 +3301,7 @@ sub init {
     my $parent = {
         state     => $parpost->{state},
         talkid    => $partid,
+        posterid  => $parpost->{posterid},
     };
     my $comment = {
         u               => $up,
