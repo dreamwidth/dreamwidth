@@ -263,7 +263,7 @@ sub make_postto_select {
 #      be returned.
 # args: topic, pre?, post?
 # des-topic: Help topic key.
-#            See doc/ljconfig.pl.txt, or [special[helpurls]] for examples.
+#            See etc/config-local.pl, or [special[helpurls]] for examples.
 # des-pre: HTML/BML to place before the help icon.
 # des-post: HTML/BML to place after the help icon.
 # </LJFUNC>
@@ -917,47 +917,6 @@ sub create_qr_div {
 
         ejs => sub { return LJ::ejs( @_ ) },
     });
-}
-
-# <LJFUNC>
-# name: LJ::make_qr_link
-# class: web
-# des: Creates the link to toggle the QR reply form or if
-#      JavaScript is not enabled, then forwards the user through
-#      to replyurl.
-# returns: undef upon failure or HTML for the link
-# args: dtid, basesubject, linktext, replyurl
-# des-dtid: dtalkid for this comment
-# des-basesubject: parent comment's subject
-# des-linktext: text for the user to click
-# des-replyurl: URL to forward user to if their browser
-#               does not support QR.
-# </LJFUNC>
-sub make_qr_link
-{
-    my ($dtid, $basesubject, $linktext, $replyurl) = @_;
-
-    return undef unless defined $dtid && $linktext && $replyurl;
-
-    my $remote = LJ::get_remote();
-    unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
-        my $pid = ( $dtid =~ /^\d+$/) ? int( $dtid / 256 ) : 0;
-
-        $basesubject =~ s/^(Re:\s*)*//i;
-        $basesubject = "Re: $basesubject" if $basesubject;
-        $basesubject = LJ::ehtml(LJ::ejs($basesubject));
-        my $onclick = "return function(that) { return quickreply(\"$dtid\", $pid, \"$basesubject\", that)}(this)";
-
-        my $r = DW::Request->get;
-        my $ju;
-        $ju = LJ::load_userid( $r->note( 'journalid' ) )
-            if $r and $r->note( 'journalid' );
-
-        $onclick = "" if $ju && $ju->does_not_allow_comments_from( $remote );
-        return "<a onclick='$onclick' href='$replyurl' >$linktext</a>";
-    } else { # QR Disabled
-        return "<a href='$replyurl' >$linktext</a>";
-    }
 }
 
 # <LJFUNC>
@@ -2802,19 +2761,37 @@ sub control_strip
                 # since this is only shown if $remote->equals( $journal ) , we don't have to care whether a filter is public or not
                 my @custom_filters = $journal->content_filters;
 
+                # Making as few changes to existing behaviour
+                my $default_filter = "default view";
                 foreach my $f ( @custom_filters ) {
+                    # Both 'default' and 'default view' are default filters
+                    $default_filter = "default" if lc( $f->name ) eq "default";
                     push @filters, "filter:" . lc( $f->name ), $f->name;
                 }
 
                 my $selected = "all";
+
+                # first, change the selection state to reflect any filter in use;
+                # if we have no default filter or if the named filter somehow
+                # fails to exist, this will effectively select nothing
+                if ( $r->uri =~ /^\/read\/?(.+)?/i ) {
+                    my $filter = $1 || $default_filter;
+                    $selected = "filter:" . LJ::durl( lc( $filter ) );
+                    # but don't select the filter if the query string contains filter=0
+                    # (fun fact: named filter + filter=0 returns a 404 error)
+                    $selected = "all" if $r->query_string && $r->query_string =~ /\bfilter=0\b/;
+                }
+
+                # next, change the selection state to reflect showtypes from getargs;
+                # note this will override the implicit default filter or filter=0 selection
+                # if a match is found, but not a filter explicitly named in the URL.
+                # (of course you can use both! we're just competing for the
+                #  state of the pop-up menu in the control strip here)
                 if ( ( $r->uri eq "/read" || $r->uri eq "/network" ) &&
                      $r->query_string && $r->query_string ne "" ) {
                     $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
                     $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
                     $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
-                } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
-                    my $filter = $1 || "default view";
-                    $selected = "filter:" . LJ::durl( lc( $filter ) );
                 }
 
                 $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";

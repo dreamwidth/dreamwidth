@@ -22,7 +22,7 @@ use Carp qw/ croak /;
 use List::Util qw/ max /;
 
 sub cmd { 'bonus_icons' }
-sub desc { 'Manage bonus icons for an account.' }
+sub desc { 'Manage bonus icons for an account. Requires priv: payments:bonus_icons.' }
 sub args_desc {
     [
         'command' => 'Subcommand: add, remove.',
@@ -31,7 +31,10 @@ sub args_desc {
     ]
 }
 sub usage { '<username> [<subcommand> <count>]' }
-sub can_execute { 1 }
+sub can_execute {
+    my $remote = LJ::get_remote();
+    return $remote && $remote->has_priv( 'payments' => 'bonus_icons' );
+}
 
 sub execute {
     my ( $self, $user, $cmd, $count ) = @_;

@@ -1731,7 +1731,7 @@ property string font_comment_title_units {
 
 property string font_sources {
     des = "Embedded fonts stylesheet URL";
-    note = "The URL must point to a font stylesheet such as 'http://fonts.googleapis.com/css?family=Average+Sans' and not directly at the font file. Embedded fonts can slow page loading time. Blank the field to stop using them.";
+    note = "The URL must point to a font stylesheet such as 'https://fonts.googleapis.com/css?family=Average+Sans' and not directly at the font file. Embedded fonts can slow page loading time. Blank the field to stop using them. The URL should be a secure URL and begin with 'https://'.";
 }
 
 set font_base = "";     # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
@@ -4658,7 +4658,7 @@ function print_module_credit() {
                 $count++;
                 if ( $count < $layout_authors_size ) {
                     if ( $count == ($layout_authors_size -1) ) { $ret = $ret + " and "; }
-                    else { $ret = $ret + ","; }
+                    else { $ret = $ret + ", "; }
                 }
             }
         }
@@ -4698,7 +4698,7 @@ function print_module_credit() {
             $count++;
             if ( $count < $theme_authors_size ) {
                 if ( $count == ($theme_authors_size -1) ) { $ret = $ret + " and "; }
-                else { $ret = $ret + ","; }
+                else { $ret = $ret + ", "; }
             }
         }
 
@@ -4722,7 +4722,7 @@ function print_module_credit() {
             $count++;
             if ( $count < $resources_size ) {
                 if ( $count == ($resources_size -1) ) { $ret = $ret + " and "; }
-                else { $ret = $ret + ","; }
+                else { $ret = $ret + ", "; }
             }
         }
         $ret = $ret + "</li>\n";
@@ -5545,7 +5545,7 @@ function Entry::print_interaction_links(string target)
         if ($count > 0) {
             "</ul>";
         }
-    } elseif ($p.view == "read") {
+    } elseif ($p.view == "read" or $p.view == "day" or $p.view == "recent" or $p.view == "network") {
         $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
     } else {
         $this.comments->print();

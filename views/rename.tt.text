@@ -43,17 +43,17 @@
 
 .form.rename.disconnect.label.p=Disconnect your old username from your new username, leaving the old username free to use
 
-.form.rename.disconnect.note.c=[[journalurl]] will not point to the new username.
+.form.rename.disconnect.note2.c=[[journalurl]] will not point to the new username, and URLs that link to the old username will no longer work.  If you choose this option, [[journalname]] will eventually become available to be used again.
 
-.form.rename.disconnect.note.p=[[journalurl]] will not point to your new username; comments and community entries that you posted will still show your new username.
+.form.rename.disconnect.note2.p=[[journalurl]] will not point to your new username; comments and community entries that you posted with your old username will update to show your new username, but URLs that link to your old username will no longer work.  If you choose this option, [[journalname]] will eventually become available to be used again.
 
 .form.rename.forward.label.c=Forward your community's old username to the new username
 
 .form.rename.forward.label.p=Forward your old username to your new username
 
-.form.rename.forward.note.c=[[journalurl]] will automatically redirect to your community's new username.
+.form.rename.forward.note2.c=[[journalurl]] will automatically redirect to your community's new username, so that URLs that link to the community's old username will continue to work. If you choose this option, [[journalname]] will not become available for you or anyone else to register again in the future, and <strong>no one</strong> (including you) will be able to rename another account to [[journalname]].
 
-.form.rename.forward.note.p=[[journalurl]] will automatically redirect to your new username.
+.form.rename.forward.note2.p=[[journalurl]] will automatically redirect to your new username, so that URLs that link to your old username will continue to work. If you choose this option, [[journalname]] will not become available for you or anyone else to register again in the future, and <strong>no one</strong> (including you) will be able to rename another account to [[journalname]].
 
 .form.rename.fromuser.label=Rename from
 

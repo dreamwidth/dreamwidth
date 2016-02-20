@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More skip_all => "Test is not deterministic -- seems due to test DB corruption"; #tests => 246;
+use Test::More skip_all => "Test is not deterministic -- inconsistent results from content filters"; #tests => 243;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Protocol;
@@ -499,9 +499,7 @@ note( "post to community by various journaltypes" );
     # test cases:
     # personal journal posting to a community
     # community posting to a community
-    # openid to a community with no openid posting cap
-    # openid to a community which has the openid posting cap
-    # openid to a community which normally does not allow openid posting, but with the importer bypass on
+    # openid account posting to a community
 
     # open up community posting to everybody
     my $admin = temp_user();
@@ -549,52 +547,32 @@ note( "post to community by various journaltypes" );
     my $identity_u = temp_user( journaltype => "I" );
     $identity_u->update_self( { status => "A" } );
 
-    ( $res, $err ) = $do_request->( "postevent",
-        username    => $identity_u->user,
-        usejournal  => $comm->user,
-
-        event       => "new test post to a community by an identity user",
-        tz          => "guess",
-    );
-    $check_err->( 150, "OpenID users cannot post entries to communities with no OpenID posting prop." );
-
-
-    ( $res, $err ) = $do_request->( "postevent",
-        username    => $identity_u->user,
-        usejournal  => $comm->user,
-
-        event       => "new test post to a community by an identity user",
-        tz          => "guess",
-
-        flags       => { importer_bypass => 1 },
-    );
-    $success->( "Always allow posting with the importer bypass." );
-
-
     # allow all users to add and control tags (for convenience)
     $comm->set_prop( opt_tagpermissions => "public,public" );
 
 
-    ok( ! LJ::Tags::can_control_tags( $comm, $identity_u ), "Identity user cannot control tags on communities that don't allow identity posting." );
-    ok( ! LJ::Tags::can_add_tags( $comm, $identity_u ), "Identity user cannot control tags on communities that don't allow identity posting." );
-
-
-    # allow identity users to post entries and add / control tags as appropriate
-    $comm->set_prop( identity_posting => 1 );
-
-    ok( LJ::Tags::can_control_tags( $comm, $identity_u ), "Identity user can control tags on communities if they allow identity posting." );
-    ok( LJ::Tags::can_add_tags( $comm, $identity_u ), "Identity user can control tags on communities if they allow identity posting." );
-
+    # allow identity users to post entries and add / control tags
+    ok( LJ::Tags::can_control_tags( $comm, $identity_u ), "Identity user can control tags on communities." );
+    ok( LJ::Tags::can_add_tags( $comm, $identity_u ), "Identity user can control tags on communities." );
 
     ( $res, $err ) = $do_request->( "postevent",
         username    => $identity_u->user,
         usejournal  => $comm->user,
 
-        event       => "new test post to a community by an identity user",
+        event       => "new test post to a community by an identity user (no tags)",
+        tz          => "guess",
+    );
+    $success->( "OpenID users can post entries to communities." );
+
+    ( $res, $err ) = $do_request->( "postevent",
+        username    => $identity_u->user,
+        usejournal  => $comm->user,
+
+        event       => "new test post to a community by an identity user (with tags)",
         props       => { taglist => "testing" },
         tz          => "guess",
     );
-    $success->( "OpenID users can post entries to communities with the appropriate prop." );
+    $success->( "OpenID users can post entries including tags to communities." );
 }
 
 

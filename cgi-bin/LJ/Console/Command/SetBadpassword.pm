@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "set_badpassword" }
 
-sub desc { "Mark or unmark an account as having a bad password." }
+sub desc { "Mark or unmark an account as having a bad password. Requires priv: suspend." }
 
 sub args_desc { [
                  'user' => "The username of the journal to mark/unmark",

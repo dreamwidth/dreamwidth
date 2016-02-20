@@ -23,7 +23,7 @@ use strict;
 use base qw/ LJ::Console::Command /;
 
 sub cmd { 'note' }
-sub desc { 'Sets and clears notes that will display when you try to suspend an account. Intended for the antispam team to make notes on accounts frequently reported for spam that are actually legit.' }
+sub desc { 'Sets and clears notes that will display when you try to suspend an account. Intended for the antispam team to make notes on accounts frequently reported for spam that are actually legit. Requires priv: suspend.' }
 sub args_desc {
     [
         'command' => 'Subcommand: add, remove.',
@@ -32,7 +32,10 @@ sub args_desc {
     ]
 }
 sub usage { '<username> [<subcommand> <note>]' }
-sub can_execute { 1 }
+sub can_execute {
+    my $remote = LJ::get_remote();
+    return $remote && $remote->has_priv( 'suspend' );
+}
 
 sub execute {
     my ( $self, $user, $cmd, $note ) = @_;

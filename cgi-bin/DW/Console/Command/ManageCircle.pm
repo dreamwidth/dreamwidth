@@ -24,7 +24,7 @@ use base qw/ LJ::Console::Command /;
 use Carp qw/ croak /;
 
 sub cmd { 'manage_circle' }
-sub desc { 'Manage your circle of relationships.' }
+sub desc { 'Manage your circle of relationships. Requires priv: none.' }
 sub args_desc {
     [
         'command' => 'Subcommand: add_read, del_read, add_access, del_access.',

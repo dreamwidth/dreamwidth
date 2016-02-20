@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "moodtheme_public" }
 
-sub desc { "Mark a mood theme as public or not." }
+sub desc { "Mark a mood theme as public or not. Requires priv: moodthememanager." }
 
 sub args_desc { [
                  'themeid' => "Mood theme ID number.",

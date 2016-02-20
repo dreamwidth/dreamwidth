@@ -1,0 +1,43 @@
+;; -*- coding: utf-8 -*-
+
+.header.ipaddress=IP Address
+
+.header.mostrecentreport=Most Recent Report
+
+.header.numreports=Number of Reports
+
+.header.postedby=Posted By
+
+.header.postedbyuser=Posted By User
+
+.header.postedin=Posted In
+
+.header.reporttime=Report Time
+
+.nav.frontpage=Front Page
+
+.tlast10.title.a=Spam Reports - Last 10 - Anonymous Only (results: [[count]])
+
+.tlast10.title.c=Spam Reports - Last 10 (results: [[count]])
+
+.tlast10.title.u=Spam Reports - Last 10 - Users Only (results: [[count]])
+
+.tlasthrs.numreports=Number of Reports
+
+.tlasthrs.postedby=Posted By
+
+.tlasthrs.reporttime=Report Time
+
+.tlasthrs.title.a=Spam Reports - Last [[hours]] [[?num|Hour|Hours]] - Anonymous Only (results: [[count]])
+
+.tlasthrs.title.c=Spam Reports - Last [[hours]] [[?num|Hour|Hours]] (results: [[count]])
+
+.tlasthrs.title.u=Spam Reports - Last [[hours]] [[?num|Hour|Hours]] - Users Only (results: [[count]])
+
+.top10ip.title=Spam Reports - Top 10 by IP Address (results: [[count]])
+
+.top10user.title=Spam Reports - Top 10 by User (results: [[count]])
+
+.view.noreports=No reports found.
+
+.view.numreports=[[count]] [[?num|report|reports]] found.

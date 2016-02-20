@@ -97,6 +97,9 @@ paperme/themes           theme+                      paperme/layout
 patsy/layout             layout(core2base/layout)    core2
 patsy/themes             theme+                      patsy/layout
 
+pattern/layout           layout(core2base/layout)    core2
+pattern/themes           theme+                      pattern/layout
+
 planetcaravan/layout     layout(core2base/layout)    core2
 planetcaravan/themes     theme+                      planetcaravan/layout
 

@@ -480,7 +480,7 @@ sub can_add_tags {
     # we don't allow identity users to add tags, even when tag permissions would otherwise allow any user on the site
     # exception are communities that explicitly allow identity users to post in them
     # FIXME: perhaps we should restrict on all users, but allow for more restrictive settings such as members?
-    return undef unless $remote->is_personal || $remote->is_identity && $u->prop( 'identity_posting' );
+    return undef unless $remote->is_individual;
     return undef if $u->has_banned( $remote );
 
     # get permission hashref and check it; note that we fall back to the control
@@ -500,7 +500,7 @@ sub can_add_entry_tags {
     return undef unless $remote && $entry;
 
     my $journal = $entry->journal;
-    return undef unless $remote->is_personal || $remote->is_identity && $journal->prop( 'identity_posting' );
+    return undef unless $remote->is_individual;
     return undef if $journal->has_banned( $remote );
 
     my $perms = LJ::Tags::get_permission_levels( $journal );
@@ -536,7 +536,7 @@ sub can_control_tags {
     my $u = LJ::want_user(shift);
     my $remote = LJ::want_user(shift);
     return undef unless $u && $remote;
-    return undef unless $remote->is_personal || $remote->is_identity && $u->prop( 'identity_posting' );
+    return undef unless $remote->is_individual;
     return undef if $u->has_banned( $remote );
 
     # get permission hashref and check it
@@ -1363,7 +1363,7 @@ sub merge_usertags {
     my $exists = $tags->{$u->get_keyword_id( $newname )} ? 1 : 0;
     my %merge_from = map { $_ => 1 } @merge_from;
     return $err->( LJ::Lang::ml( 'taglib.error.mergetoexisting', { tagname => LJ::ehtml( $merge_to ) } ) )
-        if $exists && ! $merge_from{$merge_to};
+        if $exists && ! $merge_from{lc( $merge_to )};
 
     # if necessary, create new tag id
     my $merge_to_id;

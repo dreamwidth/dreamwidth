@@ -1,0 +1,26 @@
+#renameform fieldset legend {
+    font-size: 1.2em;
+    padding: 0.8em 0 0.2em 0;
+}
+
+#renameform .formfield fieldset legend {
+    font-size: 1em;
+}
+
+#renameform .rename label {
+    padding-right: 1em;
+}
+
+#renameform label {
+    display: inline-block;
+    min-width: 8em;
+}
+
+#renameform .formfield {
+    padding: 0.2em 0;
+}
+
+#content p.note {
+    font-style: italic;
+    font-size: 80%;
+}

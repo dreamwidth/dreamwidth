@@ -1,0 +1,48 @@
+/* use variables for consistency */
+
+$dt_width: 20ex;
+$dt_top_pad: 0.25em;
+
+dl.spamreport {
+    display: inline-block;
+    font-size: 0.8em;
+    width: 80%;
+    padding-bottom: 2em;
+}
+
+dl.spamreport dt {
+    float: left;
+    clear: left;
+    width: $dt_width;
+    font-weight: bold;
+    text-align: right;
+    white-space: nowrap;
+    padding-right: 1em;
+    padding-top: $dt_top_pad;
+    margin-bottom: 0;
+}
+
+dl.spamreport dd {
+    margin-bottom: 0;
+    margin-left: $dt_width;
+    padding-top: $dt_top_pad;
+}
+
+form.close {
+    display: inline-block;
+    width: 8ex;
+    vertical-align: top;
+}
+
+form.usersearch, form.usersearch label, input#repu {
+    display: inline;
+}
+
+form.usersearch {
+    margin: 0;
+    width: 100%;
+}
+
+input#repu {
+    width: auto;
+}

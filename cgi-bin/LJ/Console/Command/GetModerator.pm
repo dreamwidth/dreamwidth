@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "get_moderator" }
 
-sub desc { "Given a community username, lists all moderators. Given a user account, lists all communities that the user moderates." }
+sub desc { "Given a community username, lists all moderators. Given a user account, lists all communities that the user moderates. Requires priv: finduser." }
 
 sub args_desc { [
                  'user' => "The username of the account you want to look up.",

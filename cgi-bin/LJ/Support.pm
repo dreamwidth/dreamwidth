@@ -203,6 +203,20 @@ sub fill_request_with_cat
     $sp->{_cat} = $cats->{$sp->{'spcatid'}};
 }
 
+sub open_request_status {
+    my ($timetouched, $timelasthelp) = @_;
+    my $status;
+    if ($timelasthelp > $timetouched+5) {
+        $status = "awaiting close";
+    } elsif ($timelasthelp &&
+             $timetouched > $timelasthelp+5) {
+        $status = "still needs help";
+    } else {
+        $status = "open";
+    }
+    return $status;
+}
+
 sub is_poster {
     my ($sp, $remote, $auth) = @_;
 

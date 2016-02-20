@@ -1,0 +1,28 @@
+[%# spamreports/closed.tt
+
+Success page for form submission to close reports
+
+Authors:
+    Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.title = '.reports.close' | ml -%]
+
+<p>
+    [ <a href="spamreports">&lt;&lt; [% '.nav.frontpage' | ml %]</a> ]
+    [ <a href='[% ret %]'>&lt;&lt; [% '.nav.goback' | ml %]</a> ]
+</p>
+
+[%- IF count -%]
+    <p>[% '.reports.close.closed' | ml( count = count ) %]</p>
+[%- ELSE -%]
+    <p>[% '.reports.close.done' | ml %]</p>
+[%- END -%]

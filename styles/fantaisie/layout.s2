@@ -69,7 +69,7 @@ propgroup fonts_child {
     property use font_sources;
 }
 
-set font_sources = "http://fonts.googleapis.com/css?family=Asap|Rochester";
+set font_sources = "https://fonts.googleapis.com/css?family=Asap|Rochester";
 
 set font_base = "Asap";
 set font_fallback = "sans-serif";

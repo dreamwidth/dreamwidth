@@ -145,8 +145,11 @@ note( "Logged in - init" );
     $u->update_self( { moodthemeid => $customtheme->id } );
     $u = LJ::load_user($u->user, 'force');
 
-    # pick a mood, any mood
-    my $testmoodid = (keys %$moods)[0];
+    # we used to pick a random mood here - whichever moodid was the
+    # first one returned from the keys array - but the test would
+    # fail if we picked a mood that had other moods inherit from it,
+    # so now we pick a mood that is known to be childless
+    my $testmoodid = 105;  # quixotic
     my $err;
     $customtheme->set_picture( $testmoodid, { picurl => "http://example.com/moodpic", width => 10, height => 20 }, \$err );
 
@@ -283,6 +286,7 @@ my $postdecoded_bare = {
 
     crosspost_entry => 0,
     sticky_entry => undef,
+    update_displaydate => undef,
 
     props => {
         taglist => "",

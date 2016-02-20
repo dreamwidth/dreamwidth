@@ -557,9 +557,11 @@ sub profileexpandcollapse_handler {
     my $get = $r->get_args;
 
     # if any opts aren't defined, they'll be passed in as empty strings
+    # (actually header and expand are sometimes undefined in my testing,
+    #  hence the updates below.  --kareila 2015/08/19)
     my $mode = $get->{mode} eq "save" ? "save" : "load";
-    my $header = $get->{header} eq "" ? undef : $get->{header};
-    my $expand = $get->{expand} eq "false" ? 0 : 1;
+    my $header = ( defined $get->{header} && $get->{header} eq "" ) ? undef : $get->{header};
+    my $expand = ( defined $get->{expand} && $get->{expand} eq "false" ) ? 0 : 1;
 
     my $remote = LJ::get_remote();
     return unless $remote;
@@ -584,7 +586,8 @@ sub profileexpandcollapse_handler {
             $remote->set_prop( profile_collapsed_headers => join( ",", keys %is_collapsed ) );
         }
     } else { # load
-        return DW::RPC->out( headers => [ split( /,/, $remote->prop( "profile_collapsed_headers" ) ) ] );
+        my $profile_collapsed_headers = $remote->prop( "profile_collapsed_headers" ) // '';
+        return DW::RPC->out( headers => [ split( /,/, $profile_collapsed_headers ) ] );
     }
 }
 

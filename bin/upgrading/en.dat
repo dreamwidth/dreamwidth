@@ -55,17 +55,25 @@ collapsible.expanded=Collapse
 
 comment.rpc.posted=Your comment has been posted.
 
-contentflag.viewingconcepts.bycommunity=You are about to view content that a community administrator has advised should be viewed with discretion.
+contentflag.viewingconcepts.bycommunity.community=You're about to view content that a community administrator has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byjournal=You're about to view content which the journal owner has advised should be viewed with discretion.
+contentflag.viewingconcepts.byjournal.community=You're about to view content that a community administrator has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byposter=You're about to view content which the poster has advised should be viewed with discretion.
+contentflag.viewingconcepts.byposter.community=You're about to view content that the poster has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.bycommunity=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingconcepts.byjournal.personal=You're about to view content that the journal owner has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.byjournal=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingconcepts.byposter.personal=You're about to view content that the journal owner has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.byposter=You're about to view content that the poster has marked as potentially inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.bycommunity.community=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byjournal.community=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byposter.community=You're about to view content that the poster has marked as potentially inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byjournal.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byposter.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
 
@@ -4475,39 +4483,6 @@ widget.accountstatistics.memories2=[[num_comma]] <a [[aopts]]>[[?num_raw|Memory|
 widget.accountstatistics.tags2=[[num_comma]] <a [[aopts]]>[[?num_raw|Tag|Tags]]</a>
 
 widget.accountstatistics.title=Account Stats
-
-widget.betafeature.btn.off=Turn OFF beta testing
-
-widget.betafeature.btn.on=Turn ON beta testing
-
-widget.betafeature.s2comments.off<<
-<p>Activate the testing version of the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
-
-<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.s2comments.on<<
-<p>You are currently testing the the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
-
-<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.s2comments.title=New S2 Comment Pages
-
-
-widget.betafeature.updatepage.off<<
-<p>Activate the testing version of the new Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
-
-<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.updatepage.on<<
-<p>You are currently testing the Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
-
-<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.updatepage.title=New Create Entries Page
 
 widget.comms.notavailable=This list is currently unavailable.
 

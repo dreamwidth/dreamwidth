@@ -12,20 +12,18 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[%- dw.need_res( 'stc/rename.css' ) -%]
-
 [%- sections.title = '.title' | ml -%]
-
-[% IF error_list %]
-    <div class='error-box'>
-    <p>[% '.error.header' | ml %]</p>
-    <ul class='error-list'>
-        [% FOREACH error = error_list %]
-            <li>[% error %] </li>
-        [% END %]
-    </ul>
-    </div>
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        p.detail { margin-left: 2em; }
+        label.inline { display: inline; }
+    </style>
 [% END %]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+        "stc/css/pages/rename.css"
+) -%]
 
 [% IF token %]
     <form method="POST" id="renameform">
@@ -55,10 +53,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <div class="formfield">
                 <fieldset>
                 <legend>[%- '.form.rename.oldusername.header.' _ form.data.journaltype | ml -%]</legend>
-                <input type="radio" name="redirect" value="forward" id="redirect_forward" [% 'checked="checked"' IF form.data.redirect == "forward" %]/><label for="redirect_forward">[%- '.form.rename.forward.label.' _ form.data.journaltype | ml %]</label>
-                <p class='detail'>[%- '.form.rename.forward.note.' _ form.data.journaltype | ml( journalurl = form.data.journalurl ) %]</p>
-                <input type="radio" name="redirect" value="disconnect" id="redirect_disconnect" [% 'checked="checked"' IF form.data.redirect == 'disconnect' %]/><label for="redirect_disconnect">[%- '.form.rename.disconnect.label.' _ form.data.journaltype | ml %]</label>
-                <p class='detail'>[%- '.form.rename.disconnect.note.' _ form.data.journaltype | ml( journalurl = form.data.journalurl ) %]</p>
+                <input type="radio" name="redirect" value="forward" id="redirect_forward" [% 'checked="checked"' IF form.data.redirect == "forward" %]/><em><label for="redirect_forward">[%- '.form.rename.forward.label.' _ form.data.journaltype | ml %]</label></em>
+                <p class='detail'>[%- '.form.rename.forward.note2.' _ form.data.journaltype | ml( journalurl = form.data.journalurl, journalname = form.data.journalname ) %]</p>
+                <input type="radio" name="redirect" value="disconnect" id="redirect_disconnect" [% 'checked="checked"' IF form.data.redirect == 'disconnect' %]/><em><label for="redirect_disconnect">[%- '.form.rename.disconnect.label.' _ form.data.journaltype | ml %]</label></em>
+                <p class='detail'>[%- '.form.rename.disconnect.note2.' _ form.data.journaltype | ml( journalurl = form.data.journalurl, journalname = form.data.journalname ) %]</p>
                 </fieldset>
             </div>
         </fieldset>
@@ -99,16 +97,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% IF checkusername.status %]
             <p>[% ".checkusername.status.${checkusername.status}"  | ml( user = checkusername.user ) | html %]</p>
             [% IF checkusername.errors %]
-                <ul class='error-list'>
-                [% FOREACH error = checkusername.errors %]
-                    <li>[% error %] </li>
-                [% END %]
-                </ul>
+                [%- INCLUDE components/errors.tt errors = checkusername.errors -%]
             [% END %]
         [% END %]
 
-        <form method="GET" id="checkusername"> 
-            <label for="username_for_rename">[% '.checkusername.label' | ml %]: <input id="username_for_rename" name="checkuser" value="[% checkusername.user | html %]" />
+        <form method="GET" id="checkusername">
+            <label class="inline" for="username_for_rename">[% '.checkusername.label' | ml %]:</label> <input id="username_for_rename" name="checkuser" value="[% checkusername.user | html %]" />
             <input type="submit" value="[% '.checkusername.submit' | ml %]" />
         </form>
 
@@ -147,8 +141,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- '.token.notoken' | ml(aopts = "href='/shop/renames?for=self'") -%]
     [% END %]
     <p>[% '.token.manual.header' | ml %]</p>
-    <form method="GET" id="entermanualtoken"> 
-        <label for="manual_token">[% '.token.manual.label' | ml %] <input id="manual_token" name="giventoken" value="" />
+    <form method="GET" id="entermanualtoken">
+        <label class="inline" for="manual_token">[% '.token.manual.label' | ml %]</label> <input id="manual_token" name="giventoken" value="" />
         <input type="checkbox" name="type" value="C" id="manual_iscomm" /><label for="manual_iscomm">[% '.token.manual.iscomm' | ml %]</label>
         [%~ IF checkusername.user AND checkusername.status == 'available' ~%]
             <input type="hidden" id="manual_renameto" name="to" value="[%~ checkusername.user | html ~%]" />

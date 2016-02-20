@@ -180,6 +180,10 @@
 
 .title.self=My Account Settings
 
+.user=View notifications for user:
+
+.user.submit=View
+
 .viewingadult=Collapse content marked as inappropriate for:
 
 .viewingadult.select.concepts=Anyone under the age of 14

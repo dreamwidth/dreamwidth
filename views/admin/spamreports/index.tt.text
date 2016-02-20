@@ -1,0 +1,47 @@
+;; -*- coding: utf-8 -*-
+
+.admin.link=Spam Reports
+
+.admin.text=View and handle reports of spam.
+
+.error.db.failure=Database error occurred: [[dberr]]
+
+.error.db.noread=Unable to get database reader handle.
+
+.error.db.nowrite=Unable to get database writer handle.
+
+.error.noip=No such IP.
+
+.error.noposterid=No such posterid.
+
+.error.nouser=No such user.
+
+.main.title=Spam Reports
+
+.mode.tlast10=Last 10 Reports
+
+.mode.tlasthrs.01=Last 1 Hour
+
+.mode.tlasthrs.06=Last 6 Hours
+
+.mode.tlasthrs.24=Last 24 Hours
+
+.mode.top10ip=Top 10 by IP Address
+
+.mode.top10user=Top 10 by User
+
+.reports.anon=anonymous
+
+.reports.available=Available reports:
+
+.reports.individual.sysban.anon=anonymous spamreports
+
+.reports.select=Please select one of the above reports to view.  Actions can be taken when viewing a report.
+
+.reports.user.individual=Reports for user:
+
+.reports.users=users
+
+.view.closedreports=View Closed Reports
+
+.view.openreports=View Open Reports

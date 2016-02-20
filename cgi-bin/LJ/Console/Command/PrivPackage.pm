@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "priv_package" }
 
-sub desc { "Manage packages of admin privs. Basic workflow: priv_package create mypkg \"Test Package\", priv_package add mypkg admin:*, priv_package list. To actually grant a package to someone, priv grant #mypkg username. Works for revoke as well." }
+sub desc { "Manage packages of admin privs. Basic workflow: priv_package create mypkg \"Test Package\", priv_package add mypkg admin:*, priv_package list. To actually grant a package to someone, priv grant #mypkg username. Works for revoke as well. Requires priv: admin." }
 
 sub args_desc { [
                  'command' => 'One of "list", "create", "add", "remove", "delete".',

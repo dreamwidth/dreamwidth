@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "ban_list" }
 
-sub desc { "Lists users who are banned from an account." }
+sub desc { "Lists users who are banned from an account. Requires priv: none." }
 
 sub args_desc { [
                  'user' => "Optional; lists bans in a community you maintain, or any user if you have the 'finduser' priv."

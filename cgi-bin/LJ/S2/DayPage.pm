@@ -33,6 +33,16 @@ sub DayPage
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
 
+    # load for quick reply
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.core.js
+            stc/jquery/jquery.ui.core.css
+            js/jquery/jquery.ui.widget.js
+            js/jquery.quickreply.js
+            stc/css/components/quick-reply.css
+            js/jquery.threadexpander.js
+        ) );
+
     # load for ajax cuttag
     LJ::need_res( 'js/cuttag-ajax.js' );
     LJ::need_res( { group => "jquery" }, qw(

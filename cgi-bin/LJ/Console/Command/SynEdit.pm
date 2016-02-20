@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "syn_editurl" }
 
-sub desc { "Changes the source feed URL for a syndicated account." }
+sub desc { "Changes the source feed URL for a syndicated account. Requires priv: syn_edit." }
 
 sub args_desc { [
                  'user' => "The username of the syndicated account.",

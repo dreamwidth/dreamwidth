@@ -257,7 +257,7 @@ sub new_handler {
 
 
 # Initializes entry form values.
-# Can be used when posting a new entry or editing an old entry. .
+# Can be used when posting a new entry or editing an old entry.
 # Arguments:
 # * form_opts: options for initializing the form
 #       usejournal    string: username of the journal we're posting to (if not provided,
@@ -345,7 +345,7 @@ sub _init {
         $panels = $u->entryform_panels;
         $formwidth = $u->entryform_width;
         $min_animation = $u->prop( "js_animations_minimal" ) ? 1 : 0;
-        $displaydate_check = $u->displaydate_check ? 1 : 0;
+        $displaydate_check = ( $u->displaydate_check && not $form_opts->{trust_datetime_value}) ? 1 : 0;
     } else {
         $panels = LJ::User::default_entryform_panels( anonymous => 1 );
     }
@@ -740,12 +740,13 @@ sub _form_to_backend {
     $props->{taglist} = "" unless $props->{taglist} && $props->{taglist} =~ /\S/;
 
     if ( LJ::is_enabled( 'adult_content' ) ) {
+        my $restriction_key = $post->{age_restriction} || '';
         $props->{adult_content} = {
             ''              => '',
             'none'          => 'none',
             'discretion'    => 'concepts',
             'restricted'    => 'explicit',
-        }->{$post->{age_restriction}} || "";
+        }->{$restriction_key} || "";
 
         $props->{adult_content_reason} = $post->{age_restriction_reason} || "";
     }
@@ -755,7 +756,7 @@ sub _form_to_backend {
 
     # Check if this is a community.
     $props->{admin_post} = $post->{flags_adminpost} || 0;
-        
+
     # entry security
     my $sec = "public";
     my $amask = 0;
@@ -792,7 +793,7 @@ sub _form_to_backend {
         $req->{hour}    = $hour;
         $req->{min}     = $min;
     }
-    
+
     $req->{update_displaydate} = $post->{update_displaydate};
 
     # crosspost
@@ -871,9 +872,14 @@ sub _backend_to_form {
         }
     }
 
+    # allow editing of embedded content
+    my $event = $entry->event_raw;
+    my $ju = $entry->journal;
+    LJ::EmbedModule->parse_module_embed( $ju, \$event, edit => 1 );
+
     return {
         subject => $entry->subject_raw,
-        event   => $entry->event_raw,
+        event   => $event,
 
         icon        => $entry->userpic_kw,
         security    => $security,
@@ -962,7 +968,7 @@ sub _do_post {
     return %$res if $res->{errors};
 
     # post succeeded, time to do some housecleaning
-    _persist_props( $auth->{poster}, $form_req );
+    _persist_props( $auth->{poster}, $form_req, 0 );
 
     my $render_ret;
     my @links;
@@ -1033,11 +1039,11 @@ sub _do_post {
                 editurl => $edititemlink,
                 ditemid => $ditemid,
         );
-        
+
         my $extradata = {
             security => $form_req->{security},
             security_ml => "",
-            subject => LJ::ehtml( $form_req->{subject} ),
+            subject => $form_req->{subject},
         };
         if ( $extradata->{security} eq "usemask" ) {
             if ( $form_req -> {allowmask} == 1 ) {
@@ -1106,7 +1112,7 @@ sub _do_edit {
     my $deleted = $form_req->{event} ? 0 : 1;
 
     # post succeeded, time to do some housecleaning
-    _persist_props( $remote, $form_req );
+    _persist_props( $remote, $form_req, 1 );
 
     my $poststatus_ml;
     my $render_ret;
@@ -1170,7 +1176,7 @@ sub _do_edit {
         ditemid => $ditemid,
         editurl => $edit_url,
     );
-        
+
     my $extradata = {
         security => $form_req->{security},
         security_ml => "",
@@ -1187,7 +1193,7 @@ sub _do_edit {
     } else {
         $extradata->{security_ml} = ".extradata.sec.public";
     }
-    
+
     my $poststatus = { ml_string => $poststatus_ml };
     $render_ret = DW::Template->render_template(
         'entry/success.tt', {
@@ -1205,11 +1211,11 @@ sub _do_edit {
 
 # remember value of properties, to use the next time the user makes a post
 sub _persist_props {
-    my ( $u, $form ) = @_;
+    my ( $u, $form, $is_edit ) = @_;
 
     return unless $u;
-    
-    $u->displaydate_check($form->{update_displaydate} ? 1 : 0);
+
+    $u->displaydate_check($form->{update_displaydate} ? 1 : 0) unless $is_edit;
 # FIXME:
 #
 #                 # persist the default value of the disable auto-formatting option

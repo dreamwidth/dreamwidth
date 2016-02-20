@@ -272,6 +272,10 @@ my %modules = (
                "IO::Socket::SSL" => {},
                "LWP::UserAgent::Paranoid" => {},
                "Mozilla::CA" => {},
+               "File::Find::Rule" => {
+                   deb => 'libfile-find-rule-perl',
+                   opt => "Used by t/00-compile.t test.",
+               },
               );
 
 

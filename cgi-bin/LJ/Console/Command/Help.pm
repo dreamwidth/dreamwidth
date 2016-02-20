@@ -27,7 +27,7 @@ foreach my $class (@CLASSES) {
 
 sub cmd { "help" }
 
-sub desc { "Get help on console commands." }
+sub desc { "Get help on console commands. Requires priv: none." }
 
 sub args_desc { [
                   'command' => "A command to get help on. If omitted, prints help for all commands.",

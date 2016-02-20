@@ -37,10 +37,10 @@ function _initUserhead(context) {
 }
 
 function _initIcons(context) {
-    var old_icon_path = '/userpic';
-    var url_prefix = "(^" + Site.iconprefix + "|" + old_icon_path + ")";
+    var old_icon_url = 'www\\.dreamwidth\\.org/userpic';
+    var url_prefix = "(^" + Site.iconprefix + "|" + old_icon_url + ")";
     var re = new RegExp( url_prefix + "/\\d+\/\\d+$" );
-    $("img[src^='"+Site.iconprefix+"'],img[src*='"+old_icon_path+"']",context).each(function() {
+    $("img[src^='"+Site.iconprefix+"'],img[src*='"+old_icon_url+"']",context).each(function() {
         var $icon = $(this);
         if (!$icon.data("no-ctx") && this.src.match(re)) {
             $icon.contextualhover({ "icon_url": this.src, type: "icon" });
@@ -87,7 +87,6 @@ _create: function() {
         if ( parent.length > 0 )
             self.element = parent;
     }
-
     var trigger = self.element;
     trigger.addClass("ContextualPopup-trigger");
 

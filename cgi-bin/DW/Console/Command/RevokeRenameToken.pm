@@ -19,7 +19,7 @@ use strict;
 use base qw/ LJ::Console::Command /;
 
 sub cmd { 'revoke_rename_token' }
-sub desc { 'Revoke rename token.' }
+sub desc { 'Revoke rename token. Requires priv: siteadmin:rename.' }
 sub args_desc {
     [
         'token' => 'Token to revoke.',

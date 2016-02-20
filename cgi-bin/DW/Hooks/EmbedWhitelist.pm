@@ -59,9 +59,12 @@ my %host_path_match = (
 
     "maps.google.com"       => [ qr!^/maps!, 1 ],
     "www.google.com"        => [ qr!^/calendar/!, 1 ],
+    "calendar.google.com"   => [ qr!^/calendar/!, 1 ],
     # drawings do not need to be whitelisted as they are images.
     # forms arent being allowed for security concerns.
     "docs.google.com"       => [ qr!^/(document|spreadsheets?|presentation)/!, 1 ],
+    
+    "books.google.com"      => [ qr!^/ngrams/!, 1 ],
 
     "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
@@ -98,6 +101,8 @@ my %host_path_match = (
     "vine.co"               => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
     # Videos seemed to use an 11-character identification; may need to be changed
 
+    "www.zippcast.com"      => [ qr!^/videoview\.php$!, 0 ]
+
 );
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
@@ -133,7 +138,11 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
     }
     
     if ( $uri_host eq "www.jigsawplanet.com" ) {
-	return ( 1, 1 ) if $parsed_uri->query =~ m/rc=play/;
+        return ( 1, 1 ) if $parsed_uri->query =~ m/rc=play/;
+    }
+
+    if ( $uri_host eq "screen.yahoo.com" ) {
+        return ( 1, 1 ) if $parsed_uri->query =~ m/format=embed/;
     }
 
     return 0;

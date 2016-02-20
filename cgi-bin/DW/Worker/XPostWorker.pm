@@ -82,7 +82,8 @@ sub work {
     if ($result->{success}) {
         $sclient->insert_jobs(LJ::Event::XPostSuccess->new($u, $acctid, $ditemid)->fire_job );
         DW::Stats::increment( 'dw.worker.crosspost.success', 1, [ "domain:$domain" ] );
-        DW::Stats::timing( 'dw.worker.crosspost.success_time', $start, [ "domain:$domain" ] );
+        # FIXME: subroutine not implemented
+        # DW::Stats::timing( 'dw.worker.crosspost.success_time', $start, [ "domain:$domain" ] );
         printf STDERR "[xpost] Successful post to %s for %s(%d).\n",
                $domain, $u->user, $u->id;
     } else {
@@ -105,7 +106,8 @@ sub work {
             )->fire_job
         );
         DW::Stats::increment( 'dw.worker.crosspost.failure', 1, [ "domain:$domain" ] );
-        DW::Stats::timing( 'dw.worker.crosspost.failure_time', $start, [ "domain:$domain" ] );
+        # FIXME: subroutine not implemented
+        # DW::Stats::timing( 'dw.worker.crosspost.failure_time', $start, [ "domain:$domain" ] );
         printf STDERR "[xpost] Failed to post to %s for %s(%d): %s.\n",
                $domain, $u->user, $u->id, $result->{error} || 'Unknown error message.';
     }

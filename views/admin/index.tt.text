@@ -39,10 +39,6 @@
 
 .admin.recent_comments.text=Allows you to view a user's recent comments.
 
-.admin.spamreports.link=Spam Reports
-
-.admin.spamreports.text=View and handle reports of spam.
-
 .admin.statushistory.link=Statushistory
 
 .admin.statushistory.text=Shows you a user's statushistory.

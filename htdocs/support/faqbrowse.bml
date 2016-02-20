@@ -44,11 +44,11 @@ body<=
     my $faqidarg = $GET{'faqid'} + 0;
     # FIXME: disallow both faqid and faqcat (or ignore one)
     my $faqcatarg = $GET{'faqcat'};
-    
+
     unless ($faqidarg || $faqcatarg) {
         return BML::redirect("faq");
     }
-    
+
     # make title and body references to BML scratch area
     my $title = \$_[1]->{'title'};
     my $body = \$_[1]->{'body'};
@@ -111,6 +111,16 @@ body<=
                      LJ::Faq->load_all( lang => $lang, cat => $faqcatarg );
         LJ::Faq->render_in_place( { lang => $lang, user => $user,
                                     url => $user_url }, @faqs );
+
+        $$body .= "<ol>";
+        foreach my $f (@faqs) {
+            my $faqid = $f->faqid;
+            my $question = $f->question_raw;
+            $$body .= "<li>";
+            $$body .= "<a href='#faq$faqid'>$question</a>";
+            $$body .= "</li>";
+        }
+        $$body .= "</ol>";
     }
 
     my $count = 0;
@@ -154,7 +164,7 @@ body<=
         my $question = $f->question_html;
         $question =~ s/^\s+//; $question =~ s/\s+$//;
         $question =~ s/\n/<br \/>/g;
-        
+
         # Clean this as if it were an entry, but don't allow lj-cuts
         LJ::CleanHTML::clean_event(\$summary, {'ljcut_disable' => 1})
             if $display_summary;
@@ -196,6 +206,8 @@ body<=
             $$body .= "<?h1";
             $$body .= " <a style='text-decoration: none;' " .
                       "href='faqbrowse?faqid=$faqid'>&#x00bb;</a>";
+            # Create a separate anchor so we don't visibly select the arrow
+            $$body .= "<a id='faq$faqid'></a>";
             $$body .= " $question h1?>";
         }
         $$body .= "<div style='margin-left: 20px;'>";
