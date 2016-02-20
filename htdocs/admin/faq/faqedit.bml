@@ -26,6 +26,7 @@ body<=
     use strict;
 
     my $id = $FORM{id} + 0;
+    my $rev = $FORM{rev} + 0;
     my $ret = "";
 
     my $dbh = LJ::get_db_writer();
@@ -33,6 +34,8 @@ body<=
 
     my @display_privs = ( "faqadd", "faqedit" );
     my $numprivs =  @display_privs;
+
+    my $sth;
 
     return "<?needlogin?>" unless $remote;
 
@@ -47,8 +50,37 @@ body<=
     my ( $faqcat, $sortorder, $question, $summary, $answer, $has_summary );
 
     if ( $id != 0 ) {
-        my $faq = LJ::Faq->load( $id, lang => $rlang->{lncode} )
-            or return "<b>Error:</b> FAQ #$id does not exist.";
+        my $faq = LJ::Faq->load( $id, lang => $rlang->{lncode}, rev => $rev );
+
+        if ( ! $faq ) {
+            $ret .= "<b>Error:</b> FAQ #$id does not exist.";
+
+            $ret .= '<?h1 Version history h1?>';
+            $ret .= '<form action="faqedit" method="get">';
+            $ret .= '<input type="hidden" name="id" value="' . $id . '"/>';
+            $ret .= '<p>Revisions: ';
+
+            $sth = $dbh->prepare( 'SELECT rev, lastmodtime, lastmoduserid FROM faqhist WHERE faqid = ? ORDER BY rev DESC' );
+            $sth->execute($id);
+            my @revs;
+
+            while ( my ($rev, $modtime, $moduser) = $sth->fetchrow_array ) {
+                my $u = LJ::load_userid( $moduser );
+                my $opt_display = $modtime . ' (' . $u->display_name . ')';
+                push @revs, $rev, $opt_display;
+            }
+
+            if ( $rev == 0 ) {
+                $ret .= LJ::html_select( { name => 'rev' }, @revs );
+            } else {
+                $ret .= LJ::html_select( { name => 'rev', selected => $rev}, @revs );
+            }
+            $ret .= '&nbsp;';
+            $ret .= LJ::html_submit( 'Load' );
+            $ret .= '</p></form>';
+
+            return $ret;
+        }
 
         $faqcat = $faq->faqcat;
         $sortorder = $faq->sortorder;
@@ -239,7 +271,7 @@ body<=
     $ret .= LJ::html_hidden( 'id', $id );
     $ret .= "<p>Category: ";
 
-    my $sth = $dbh->prepare( "SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder" );
+    $sth = $dbh->prepare( "SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder" );
     $sth->execute;
     my @cats;
     push @cats, '', '';
@@ -285,6 +317,33 @@ body<=
     $ret .= "<p>" . LJ::html_submit( 'action:save', 'Add/Edit FAQ Item' );
     $ret .= " " . LJ::html_submit( 'action:preview', 'Preview FAQ Item' )
             . "</p></form>";
+
+    if ( $id != 0 ) {
+        $ret .= '<?h1 Version history h1?>';
+        $ret .= '<form action="faqedit" method="get">';
+        $ret .= '<input type="hidden" name="id" value="' . $id . '"/>';
+        $ret .= '<p>Revisions: ';
+
+        $sth = $dbh->prepare( 'SELECT rev, lastmodtime, lastmoduserid FROM faqhist WHERE faqid = ? ORDER BY rev DESC' );
+        $sth->execute($id);
+        my @revs;
+
+        while ( my ($rev, $modtime, $moduser) = $sth->fetchrow_array ) {
+            my $u = LJ::load_userid( $moduser );
+            my $opt_display = $modtime . ' (' . $u->display_name . ')';
+            push @revs, $rev, $opt_display;
+        }
+
+        if ($rev == 0) {
+            $ret .= LJ::html_select( { name => 'rev' }, @revs );
+        } else {
+            $ret .= LJ::html_select( { name => 'rev', selected => $rev}, @revs );
+        }
+        $ret .= '&nbsp;';
+        $ret .= LJ::html_submit( 'Load' );
+        $ret .= '</p></form>';
+    }
+
     return $ret;
 }
 _code?>
