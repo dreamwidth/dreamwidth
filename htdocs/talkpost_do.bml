@@ -176,6 +176,10 @@ body<=
     return LJ::bad_input($ML{'/talkpost.bml.error.noreply_readonly_journal'})
         if $journalu && $journalu->is_readonly;
 
+    # is the current user banned by the author of the original post?
+    return LJ::bad_input( $ML{'.error.banned.entryowner'} )
+        if ( defined $remote && $entryu->has_banned( $remote ) );  
+
     # don't allow user A to reply to a comment by user B if user B has banned user A
     if ( defined $remote ) {    #skip this if not logged in
         my $parentu = LJ::load_userid( $parent->{posterid} );
