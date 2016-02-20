@@ -211,7 +211,7 @@ body<=
         $given_cat = "display";
     }
 
-    if ( $u->user ne $authas ) {
+    if ( $u && $u->user ne $authas ) {
         # can only impersonate notification settings -
         # if invisible or disabled, print this error
         return LJ::bad_input( $ML{'error.invalidauth'} )
@@ -247,7 +247,7 @@ body<=
 
         # can't make changes while impersonating
         return LJ::bad_input( $ML{'error.invalidauth'} )
-            if $u->user ne $authas;
+            if $u && $u->user ne $authas;
 
         if ( $given_cat eq "notifications" && $POST{deleteinactive} ) {
             $u->delete_all_inactive_subscriptions;
