@@ -265,6 +265,7 @@ sub country_options {
     my %countries;
     # load country codes
     DW::Countries->load( \%countries );
+    delete $countries{UK};
 
     my $options = ['' => $class->ml('widget.location.country.choose'), 'US' => 'United States',
                    map { $_, $countries{$_} } sort { $countries{$a} cmp $countries{$b} } keys %countries];
