@@ -884,11 +884,15 @@ sub create_qr_div {
         }
     }
 
+    my $post_disabled = $u->does_not_allow_comments_from($remote)
+        || ($u->{'opt_whocanreply'} eq 'reg' && $remote->is_identity && ! ( $remote->is_validated || $u->trusts( $remote )));
     return DW::Template->template_string( 'journal/quickreply.tt', {
         form_url                => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         hidden_form_elements    => $hidden_form_elements,
         can_checkspell          => $LJ::SPELLER ? 1 : 0,
         minimal                 => $opts{minimal} ? 1 : 0,
+        post_disabled           => $post_disabled,
+        post_button_class       => $post_disabled ? 'ui-state-disabled' : '',
 
         quote_button_js         => LJ::Talk::js_quote_button( 'body' ),
         iconbrowser_js          => $remote->can_use_userpic_select ? LJ::Talk::js_iconbrowser_button() : "",

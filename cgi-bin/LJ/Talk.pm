@@ -3695,7 +3695,13 @@ sub make_preview {
             unless $_ eq 'body' || $_ eq 'subject' || $_ eq 'prop_opt_preformatted' || $_ eq 'editreason';
     }
 
-    $ret .= "<br /><input type='submit' value='$BML::ML{'/talkpost_do.bml.preview.postcomment'}' />\n";
+    my $post_disabled = $u->does_not_allow_comments_from($remote)
+        || ($u->{'opt_whocanreply'} eq 'reg' && $remote->is_identity && ! ( $remote->is_validated || $u->trusts( $remote )));
+    if ($post_disabled) {
+        $ret .= "<div class='ui-state-error'>$BML::ML{'/talkpost.bml.error.nocomment_quick'}</div>";
+    }
+    my $disabling_extra = $post_disabled ? ' disabled="disabled" class="ui-state-disabled"' : '';
+    $ret .= "<br /><input type='submit' $disabling_extra value='$BML::ML{'/talkpost_do.bml.preview.postcomment'}' />\n";
     $ret .= "<input type='submit' name='submitpreview' value='$BML::ML{'talk.btn.preview'}' />\n";
     $ret .= "<span id='moreoptions-container'></span>\n";
     if ($LJ::SPELLER) {

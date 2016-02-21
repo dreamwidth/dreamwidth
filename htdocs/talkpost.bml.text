@@ -9,6 +9,8 @@
 
 .error.nocommentspost=Comments are disabled for this entry.
 
+.error.nocomment_quick=You cannot reply as this account. You can select a different one under More Options.
+
 .error.noreplypost=Reply-to entry not found.  It may have been deleted.
 
 .error.noreply_deleted=You can't reply to this comment because it has been deleted.
