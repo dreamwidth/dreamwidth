@@ -28,7 +28,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>[% extradata.security_ml | ml %]</p>
 <p>[% ".extradata.subj" | ml %]
     [% IF extradata.subject.length > 0 %]
-        [% extradata.subject | html %]
+        [%# cleaned subject should render HTML #%]
+        [% extradata.subject %]
     [% ELSE %]
         [% ".extradata.subject.no_subject" | ml %]
     [% END %]</p>
