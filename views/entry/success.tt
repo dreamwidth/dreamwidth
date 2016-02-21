@@ -16,23 +16,24 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- IF moderated_message -%]
-<div class="alert-box success">[%- moderated_message -%]</div>
-[%- END -%]
+    <div class="alert-box success">[%- moderated_message -%]</div>
+[%- ELSE -%]
 
 [%- IF poststatus -%]
 <p>[% poststatus.ml_string | ml( url => poststatus.url)%]</p>
 [%- END -%]
 
-[%- IF poststatus.ml_string != ".edit.delete" -%]
+    [%- IF poststatus.ml_string != ".edit.delete" -%]
 
-<p>[% extradata.security_ml | ml %]</p>
-<p>[% ".extradata.subj" | ml %]
-    [% IF extradata.subject.length > 0 %]
-        [%# cleaned subject should render HTML #%]
-        [% extradata.subject %]
-    [% ELSE %]
-        [% ".extradata.subject.no_subject" | ml %]
-    [% END %]</p>
+    <p>[% extradata.security_ml | ml %]</p>
+    <p>[% ".extradata.subj" | ml %]
+        [% IF extradata.subject.length > 0 %]
+            [%# cleaned subject should render HTML #%]
+            [% extradata.subject %]
+        [% ELSE %]
+            [% ".extradata.subject.no_subject" | ml %]
+        [% END %]</p>
+    [%- END -%]
 [%- END -%]
 
 [%- IF warnings.exist -%]
