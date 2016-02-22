@@ -13,6 +13,18 @@
 
 .error.nofind=Could not find selected journal entry.
 
+.extradata.sec.access=The entry was posted with circle access.
+
+.extradata.sec.custom=The entry was posted with custom access.
+
+.extradata.sec.private=The entry was posted privately.
+
+.extradata.sec.public=The entry was posted publicly.
+
+.extradata.subj=The entry was posted with the following subject:
+
+.extradata.subj.no_subject=(no subject)
+
 .in=In community:
 
 .invalid_encoding=This entry may contain unknown characters, which have been replaced with a "?". Please ensure the entry is exactly as intended before posting.
@@ -57,14 +69,3 @@
 .title=Edit Entries
 
 .viewwhat=View Which Entries:
-
-.extradata.sec.public=The entry was posted publicly.
-
-.extradata.sec.access=The entry was posted with circle access.
-
-.extradata.sec.private=The entry was posted privately.
-
-.extradata.sec.custom=The entry was posted with custom access.
-
-.extradata.subject=The entry was posted with the following subject: [[subject]]
-
