@@ -1048,17 +1048,38 @@ sub _do_post {
             security => $form_req->{security},
             security_ml => "",
             subject => $subject,
+            visibility => "",
+            filters => ""
         };
         if ( $extradata->{security} eq "usemask" ) {
-            if ( $form_req -> {allowmask} == 1 ) {
-                $extradata->{security_ml} = ".extradata.sec.access";
-            } else {
-                $extradata->{security_ml} = ".extradata.sec.custom";
+            if ( $form_req->{allowmask} == 1 ) { # access list
+                if ( $ju->is_community ) {
+                    $extradata->{security_ml} = ".extradata.security";
+                    $extradata->{visibility} = "community members";
+                } else {
+                    $extradata->{security_ml} = ".extradata.security";
+                    $extradata->{visibility} = "your access list";
+                }
+            } elsif ( $form_req->{allowmask} > 1 ) { # custom group
+                my $filternames = $ju->security_group_display( $form_req->{allowmask} );
+                $extradata->{security_ml} = ".extradata.security";
+                $extradata->{visibility} = "your custom access filter(s) ";
+                $extradata->{filters} = $filternames;
+            } else { # custom security with no group - essentially private
+                $extradata->{security_ml} = ".extradata.security";
+                $extradata->{visibility} = "only you (private)";
             }
         } elsif ( $extradata->{security} eq "private" ) {
-            $extradata->{security_ml} = ".extradata.sec.private";
-        } else {
-            $extradata->{security_ml} = ".extradata.sec.public";
+            if ( $ju->is_community ) {
+                $extradata->{security_ml} = ".extradata.security";
+                $extradata->{visibility} = "community administrators";
+            } else {
+                $extradata->{security_ml} = ".extradata.security";
+                $extradata->{visibility} = "only you (private)";
+            }
+        } else { #public
+            $extradata->{security_ml} = ".extradata.security";
+            $extradata->{visibility} = "everybody (public)";
         }
 
         # set sticky
@@ -1189,17 +1210,38 @@ sub _do_edit {
         security => $form_req->{security},
         security_ml => "",
         subject => $subject,
+        visibility => "",
+        filters => ""
     };
     if ( $extradata->{security} eq "usemask" ) {
-        if ( $form_req -> {allowmask} == 1 ) {
-            $extradata->{security_ml} = ".extradata.sec.access";
-        } else {
-            $extradata->{security_ml} = ".extradata.sec.custom";
+        if ( $form_req->{allowmask} == 1 ) { # access list
+            if ( $journal->is_community ) {
+                $extradata->{security_ml} = ".extradata.security";
+                $extradata->{visibility} = "community members";
+            } else {
+                $extradata->{security_ml} = ".extradata.security";
+                $extradata->{visibility} = "your access list";
+            }
+        } elsif ( $form_req->{allowmask} > 1 ) { # custom group
+            my $filternames = $journal->security_group_display( $form_req->{allowmask} );
+            $extradata->{security_ml} = ".extradata.security";
+            $extradata->{visibility} = "your custom access filter(s) ";
+            $extradata->{filters} = $filternames;
+        } else { # custom security with no group - essentially private
+            $extradata->{security_ml} = ".extradata.security";
+            $extradata->{visibility} = "only you (private)";
         }
     } elsif ( $extradata->{security} eq "private" ) {
-        $extradata->{security_ml} = ".extradata.sec.private";
-    } else {
-        $extradata->{security_ml} = ".extradata.sec.public";
+        if ( $journal->is_community ) {
+            $extradata->{security_ml} = ".extradata.security";
+            $extradata->{visibility} = "community administrators";
+        } else {
+            $extradata->{security_ml} = ".extradata.security";
+            $extradata->{visibility} = "only you (private)";
+        }
+    } else { #public
+        $extradata->{security_ml} = ".extradata.security";
+        $extradata->{visibility} = "everybody (public)";
     }
 
     my $poststatus = { ml_string => $poststatus_ml };
