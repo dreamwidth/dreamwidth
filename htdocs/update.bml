@@ -470,18 +470,27 @@ _c?>
                     my @after_entry_post_extra_options = LJ::Hooks::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
                     my $after_entry_post_extra_options = join('', map {$_->[0]} @after_entry_post_extra_options) || '';
                     
-                    if ($req{"security"} eq "private") {
-                        $$body .=" p?><?p $ML{'.extradata.sec.private'}";
-                    } elsif ($req{"security"} eq "usemask") {
-                        if ($req{"allowmask"} == 0) { # custom security with no group -- essentially private
-                            $$body .=" p?><?p $ML{'.extradata.sec.private'}";
-                        } elsif ($req{"allowmask"} > 1) { # custom group
-                            $$body .=" p?><?p $ML{'.extradata.sec.custom'}";
-                        } else { # friends only
-                            $$body .=" p?><?p $ML{'.extradata.sec.access'}";
+                    if ( $req{"security"} eq "private" ) {
+                        if ( $u->is_community ) {
+                            $$body .=" p?><?p " . BML::ml('.extradata.security', {security => "community administrators", filters => "" });
+                        } else {
+                            $$body .=" p?><?p " . BML::ml('.extradata.security', {security => "only you (private)", filters => "" });
                         }
-                    } else {
-                        $$body .=" p?><?p $ML{'.extradata.sec.public'}";
+                    } elsif ( $req{"security"} eq "usemask" ) {
+                        if ( $req{"allowmask"} == 0 ) { # custom security with no group -- essentially private
+                            $$body .=" p?><?p " . BML::ml('.extradata.security', {security => "only you (private)", filters => "" });
+                        } elsif ( $req{"allowmask"} > 1 ) { # custom group
+                            my $filternames = $u->security_group_display( $req{"allowmask"} );   
+                            $$body .=" p?><?p " . BML::ml('.extradata.security', {security=> "the access filter(s) ", filters => $filternames});
+                        } else { # access list
+                            if ( $u->is_community ) {
+                                $$body .=" p?><?p " . BML::ml('.extradata.security', {security => "community members", filters => "" });
+                            } else {
+                                $$body .=" p?><?p " . BML::ml('.extradata.security', {security => "your access list", filters => "" });
+                            }
+                        }
+                    } else { # public
+                        $$body .=" p?><? p " . BML::ml('.extradata.security', {security => "everyone (public)", filters => "" });
                     }
                 
                     if ( length($req{"subject"}) > 0 ) {

@@ -66,5 +66,10 @@
 
 .extradata.sec.custom=The entry was posted with custom access.
 
+.extradata.security=The entry is visible to [[security]][[filters]].
+
 .extradata.subject=The entry was posted with the following subject: [[subject]]
 
+.extradata.subj=The entry was posted with the following subject: 
+
+.extradata.subject.no_subject=(no subject)
