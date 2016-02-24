@@ -492,9 +492,14 @@ _c?>
                     } else { # public
                         $$body .=" p?><? p " . BML::ml('.extradata.security', {security => "everyone (public)", filters => "" });
                     }
-                
-                    if ( length($req{"subject"}) > 0 ) {
-                        $$body .=" p?><?p " . $ML{'.extradata.subj'} . LJ::ehtml( $req{"subject"} );
+
+                    my $subject = $req{subject};
+
+                    if ( length $subject > 0 ) {
+                        # use the HTML cleaner on the entry subject,
+                        # then display it without escaping
+                        LJ::CleanHTML::clean_subject( \$subject );
+                        $$body .=" p?><?p " . $ML{'.extradata.subj'} . $subject;
                     } else {
                         $$body .=" p?><?p " . $ML{'.extradata.subj'} . $ML{'.extradata.subject.no_subject'};
                     }

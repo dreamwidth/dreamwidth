@@ -372,12 +372,18 @@ body<=
                         $result .="<?p " . BML::ml('.extradata.security', {security => "everyone (public)", filters => "" }) . " p?>";
                     }
 
-                    if ( length($req{"subject"}) > 0 ) {
-                        $result .="<?p " . $ML{'.extradata.subj'} . LJ::ehtml( $req{"subject"} ) . " p?>";
-                    } else {
-                            $result .="<?p " . $ML{'.extradata.subj'} . $ML{'.extradata.subject.no_subject'} . " p?>";
-                    }
-                     
+                    my $subject = $req{subject};
+
+                    if ( length $subject > 0 ) {
+                        # use the HTML cleaner on the entry subject,
+                        # then display it without escaping
+                        LJ::CleanHTML::clean_subject( \$subject );
+                     } else {
+                        # display (no subject) if subject is empty
+                        $subject = $ML{'.extradata.subj.no_subject'};
+                     }
+
+                    $result .= "<?p " . $ML{'.extradata.subj'} . " $subject p?>";
                 }
 
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
