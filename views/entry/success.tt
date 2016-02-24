@@ -23,7 +23,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>[% poststatus.ml_string | ml( url => poststatus.url)%]</p>
 [%- END -%]
 
-[%- IF poststatus.ml_string != ".edit.delete" -%]
+    [%- IF poststatus.ml_string != ".edit.delete" -%]
 
     <p>[% extradata.security_ml | ml( visibility => extradata.visibility, filters => extradata.filters ) %]</p>
     <p>[% ".extradata.subj" | ml %]
@@ -33,6 +33,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% ELSE %]
             [% ".extradata.subject.no_subject" | ml %]
         [% END %]</p>
+    [%- END -%]
 [%- END -%]
 
 [%- IF warnings.exist -%]
