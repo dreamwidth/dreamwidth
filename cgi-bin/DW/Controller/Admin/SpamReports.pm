@@ -323,7 +323,7 @@ sub main_controller {
         return error_ml( "$scope.error.db.failure", { dberr => $dbh->errstr } )
             if $dbh->err;
 
-        $rv->{count} = $count;
+        $rv->{count} = $count + 0;
         $rv->{ret} = $post->{ret};  # already escaped
 
         return DW::Template->render_template( 'admin/spamreports/closed.tt', $rv );
