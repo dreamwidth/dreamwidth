@@ -72,7 +72,7 @@ $.widget("dw.quickreply", {
 
         $(".qr-icon").find("img")
             .attr("src", $(this).find("option:selected").data("url"))
-            .removeAttr("width").removeAttr("height").removeAttr("alt");
+            .removeAttr("width").removeAttr("height");
     },
     widget: function() {
         return this.options.target ? $("#ljqrt"+this.options.target) : [];
