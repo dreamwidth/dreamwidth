@@ -151,8 +151,14 @@ sub FriendsPage
 
     my $filter;
     if ( $opts->{securityfilter} ) {
-            $p->{filter_active} = 1;
+        my $filter = $u->trust_groups( id => $opts->{securityfilter} );
+        $p->{filter_active} = 1;
+        if ( defined $filter ) {
+            $p->{filter_name} = $filter->{groupname};
+        } else {
+            # something went wrong; just use the group number
             $p->{filter_name} = $opts->{securityfilter};
+        }
     } else {
     # but we can't just use a filter, we have to make sure the person is allowed to
         if ( ( ! defined $get->{filter} || $get->{filter} ne "0" )
