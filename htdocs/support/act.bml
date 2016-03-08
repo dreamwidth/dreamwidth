@@ -81,7 +81,7 @@ body<=
      # textarea for their message body
      $ret .= '<tr valign="top"><td align="right">' . $ML{'.message'} . '</td><td colspan="2">';
      $ret .= '<textarea rows="10" cols="50" name="body"></textarea><br />';
-     $ret .= "\n<?de $ML{'.no.html.allowed'} de?><br />\n";
+     $ret .= "\n<?de $ML{'.no.html.allowed2'} de?><br />\n";
      $ret .= '<input type="submit" name="submitpost" value="'. $ML{'.postbutton'} . '" />';
      $ret .= "\n</td></tr></table></form>";
 

@@ -78,7 +78,7 @@ END -%]
 -%]
 </li>
 <li>
-<p style='padding-left: 12em'>[%- '.no.html.allowed' | ml -%]</p></li>
+<p style='padding-left: 12em'>[%- '.no.html.allowed2' | ml -%]</p></li>
 </ul>
 </fieldset>
 
