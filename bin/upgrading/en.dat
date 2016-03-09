@@ -2268,6 +2268,18 @@ portal.update.portaltitle=Update Your Journal
 
 portal.update.subject=Subject:
 
+post.security.access.c=The entry is visible to community members.
+
+post.security.access.p=The entry is visible to your access list.
+
+post.security.custom=The entry is visible to your custom access filter(s) [[filters]].
+
+post.security.private.c=The entry is only visible to community administrators.
+
+post.security.private.p=The entry is only visible to you (private).
+
+post.security.public=The entry is visible to everyone (public).
+
 protocol.bad_password=Your password is too easy to guess.  We strongly recommend you change it, otherwise you risk having your journal hijacked.  Visit [[siteroot]]/changepassword to change your password.
 
 protocol.mail_bouncing=You are currently using a bad email address.  All mail we try to send you is bouncing.  We require a valid email address for continued use.  Visit the support area for more information.

@@ -961,6 +961,39 @@ sub _save_new_entry {
     return $res;
 }
 
+# helper sub for printing success messages when posting or editing
+sub _get_extradata {
+    my ( $form_req, $journal ) = @_;
+    my $extradata = {
+        security_ml => "",
+        filters => "",
+    };
+
+    # use the HTML cleaner on the entry subject if one exists
+    my $subject = $form_req->{subject};
+    LJ::CleanHTML::clean_subject( \$subject ) if $subject;
+    $extradata->{subject} = $subject;
+
+    my $c_or_p = $journal->is_community ? 'c' : 'p';
+
+    if ( $form_req->{security} eq "usemask" ) {
+        if ( $form_req->{allowmask} == 1 ) { # access list
+            $extradata->{security_ml} = "post.security.access.$c_or_p";
+        } elsif ( $form_req->{allowmask} > 1 ) { # custom group
+            $extradata->{security_ml} = "post.security.custom";
+            $extradata->{filters} = $journal->security_group_display( $form_req->{allowmask} );
+        } else { # custom security with no group - essentially private
+            $extradata->{security_ml} = "post.security.private.$c_or_p";
+        }
+    } elsif ( $form_req->{security} eq "private" ) {
+        $extradata->{security_ml} = "post.security.private.$c_or_p";
+    } else { #public
+        $extradata->{security_ml} = "post.security.public";
+    }
+
+    return $extradata;
+}
+
 sub _do_post {
     my ( $form_req, $flags, $auth, %opts ) = @_;
 
@@ -1040,48 +1073,6 @@ sub _do_post {
                 ditemid => $ditemid,
         );
 
-        # use the HTML cleaner on the entry subject if one exists
-        my $subject = $form_req->{subject};
-        LJ::CleanHTML::clean_subject( \$subject ) if $subject;
-
-        my $extradata = {
-            security => $form_req->{security},
-            security_ml => "",
-            subject => $subject,
-            visibility => "",
-            filters => ""
-        };
-        if ( $extradata->{security} eq "usemask" ) {
-            if ( $form_req->{allowmask} == 1 ) { # access list
-                if ( $ju->is_community ) {
-                    $extradata->{security_ml} = ".extradata.security";
-                    $extradata->{visibility} = "community members";
-                } else {
-                    $extradata->{security_ml} = ".extradata.security";
-                    $extradata->{visibility} = "your access list";
-                }
-            } elsif ( $form_req->{allowmask} > 1 ) { # custom group
-                my $filternames = $ju->security_group_display( $form_req->{allowmask} );
-                $extradata->{security_ml} = ".extradata.security";
-                $extradata->{visibility} = "your custom access filter(s) ";
-                $extradata->{filters} = $filternames;
-            } else { # custom security with no group - essentially private
-                $extradata->{security_ml} = ".extradata.security";
-                $extradata->{visibility} = "only you (private)";
-            }
-        } elsif ( $extradata->{security} eq "private" ) {
-            if ( $ju->is_community ) {
-                $extradata->{security_ml} = ".extradata.security";
-                $extradata->{visibility} = "community administrators";
-            } else {
-                $extradata->{security_ml} = ".extradata.security";
-                $extradata->{visibility} = "only you (private)";
-            }
-        } else { #public
-            $extradata->{security_ml} = ".extradata.security";
-            $extradata->{visibility} = "everybody (public)";
-        }
-
         # set sticky
         if ( $form_req->{sticky_entry} && $u->can_manage( $ju ) ) {
             my $added_sticky = $ju->sticky_entry_new( $ditemid );
@@ -1095,7 +1086,7 @@ sub _do_post {
                 crossposts  => \@crossposts,# crosspost status list
                 links       => \@links,
                 links_header => ".new.links",
-                extradata   => $extradata,
+                extradata   => _get_extradata( $form_req, $ju ),
             }
         );
     }
@@ -1202,48 +1193,6 @@ sub _do_edit {
         editurl => $edit_url,
     );
 
-    # use the HTML cleaner on the entry subject if one exists
-    my $subject = $form_req->{subject};
-    LJ::CleanHTML::clean_subject( \$subject ) if $subject;
-
-    my $extradata = {
-        security => $form_req->{security},
-        security_ml => "",
-        subject => $subject,
-        visibility => "",
-        filters => ""
-    };
-    if ( $extradata->{security} eq "usemask" ) {
-        if ( $form_req->{allowmask} == 1 ) { # access list
-            if ( $journal->is_community ) {
-                $extradata->{security_ml} = ".extradata.security";
-                $extradata->{visibility} = "community members";
-            } else {
-                $extradata->{security_ml} = ".extradata.security";
-                $extradata->{visibility} = "your access list";
-            }
-        } elsif ( $form_req->{allowmask} > 1 ) { # custom group
-            my $filternames = $journal->security_group_display( $form_req->{allowmask} );
-            $extradata->{security_ml} = ".extradata.security";
-            $extradata->{visibility} = "your custom access filter(s) ";
-            $extradata->{filters} = $filternames;
-        } else { # custom security with no group - essentially private
-            $extradata->{security_ml} = ".extradata.security";
-            $extradata->{visibility} = "only you (private)";
-        }
-    } elsif ( $extradata->{security} eq "private" ) {
-        if ( $journal->is_community ) {
-            $extradata->{security_ml} = ".extradata.security";
-            $extradata->{visibility} = "community administrators";
-        } else {
-            $extradata->{security_ml} = ".extradata.security";
-            $extradata->{visibility} = "only you (private)";
-        }
-    } else { #public
-        $extradata->{security_ml} = ".extradata.security";
-        $extradata->{visibility} = "everybody (public)";
-    }
-
     my $poststatus = { ml_string => $poststatus_ml };
     $render_ret = DW::Template->render_template(
         'entry/success.tt', {
@@ -1252,7 +1201,7 @@ sub _do_edit {
             crossposts  => \@crossposts,# crosspost status list
             links       => \@links,
             links_header => '.edit.links',
-            extradata   => $extradata,
+            extradata   => _get_extradata( $form_req, $journal ),
         }
     );
 
