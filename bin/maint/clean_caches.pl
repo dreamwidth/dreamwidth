@@ -191,7 +191,7 @@ $maint{'clean_caches'} = sub
         my ($yr, $mo, $day, $hr) =
             $time_str =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d)/;
 
-        # Building up all this sql is pretty ghetto but otherwise it
+        # Building up all this sql is pretty messy but otherwise it
         # becomes unwieldy with tons of code duplication and more places
         # for this fairly-complicated where condition to break.  So we'll
         # build a nice where clause which uses bind vars and then create

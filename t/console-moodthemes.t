@@ -34,7 +34,7 @@ my $run = sub {
 
 ### CREATING AND LISTING THEMES #######
 
-# FIXME: be less ghetto about this.
+# FIXME: make this neater.
 ok($run->("moodtheme_list") =~ "Kanji Moods", "Got public theme");
 ok($run->("moodtheme_list 1") =~ "18x18 /img/mood/kanji/crazy.gif", "Got a theme");
 
