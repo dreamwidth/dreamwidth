@@ -622,7 +622,7 @@ sub html_trim {
                     next;
                 }
 
-                # FIXME: ultra ghetto.
+                # FIXME: neaten
                 $attr->{$attrname} = LJ::no_utf8_flag($attr->{$attrname});
                 $out .= " $attrname=\"" . LJ::ehtml($attr->{$attrname}) . "\"";
             }
