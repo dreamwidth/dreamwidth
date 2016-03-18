@@ -66,11 +66,11 @@ no strict "vars";
     $IMGPREFIX ||= "$SITEROOT/img";
     $STATPREFIX ||= "$SITEROOT/stc";
     $WSTATPREFIX ||= "$SITEROOT/stc";
-    $JSPREFIX ||= "$SITEROOT/js";
     $USERPIC_ROOT ||= "$LJ::SITEROOT/userpic";
 
     $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
     $PALIMGROOT ||= "$RELATIVE_SITEROOT/palimg";
+    $JSPREFIX ||= "$RELATIVE_SITEROOT/js";
 
     # SSL prefix defaults
     $SSLIMGPREFIX   ||= "$SSLROOT/img";
