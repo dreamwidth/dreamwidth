@@ -3907,7 +3907,7 @@ You are receiving this email because you've requested notifications of new suppo
 
 .
 
-support.email.notif.update.body3<<
+support.email.notif.update.body4<<
 A follow-up to the following [[sitename]] support request has been submitted:
 
 Category: [[category]]
@@ -3916,6 +3916,12 @@ User: [[username]]
 URL: [[url]]
 Type: [[type]]
 Text:
+
+.
+
+support.email.notif.update.body.faqref=FAQ REFERENCE: [[faqref]]
+
+support.email.notif.update.body.text<<
 
 [[text]]
 
