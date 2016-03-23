@@ -755,7 +755,7 @@ sub external_services {
         push @ret, {
             type => 'deviantart',
             text => LJ::ehtml( $deviantart ),
-            url => "http://www.deviantart.com/$deviantart",
+            url => "http://$deviantart.deviantart.com",
             image => 'deviantart.png',
             title_ml => '.service.deviantart',
         };
