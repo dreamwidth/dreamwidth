@@ -33,31 +33,12 @@ sub DayPage
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
 
-    # load for quick reply
-    LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.core.js
-            stc/jquery/jquery.ui.core.css
-            js/jquery/jquery.ui.widget.js
-            js/jquery.quickreply.js
-            stc/css/components/quick-reply.css
-            js/jquery.threadexpander.js
-        ) );
+    # include JS for quick reply, icon browser, and ajax cut tag
+    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref} &&
+                              ${$opts->{handle_with_siteviews_ref}};
+    LJ::Talk::init_s2journal_js( iconbrowser => $remote && $remote->can_use_userpic_select,
+                                 siteskin => $handle_with_siteviews, lastn => 1 );
 
-    # libs for userpicselect
-    # if we're using the site skin, don't override the jquery-ui theme, as that's already included
-    my @iconbrowser_extra_stylesheet;
-    @iconbrowser_extra_stylesheet = ( 'stc/jquery/jquery.ui.theme.smoothness.css' )
-            unless $opts->{handle_with_siteviews_ref} && ${$opts->{handle_with_siteviews_ref}};
-
-    LJ::need_res( LJ::Talk::init_iconbrowser_js( 1, @iconbrowser_extra_stylesheet ) )
-        if $remote && $remote->can_use_userpic_select;
-
-    # load for ajax cuttag
-    LJ::need_res( 'js/cuttag-ajax.js' );
-    LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.widget.js
-            js/jquery.cuttag-ajax.js
-        ) );
     my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
     my $expanded = BML::ml( 'widget.cuttag.expanded' );
     my $collapseAll = BML::ml( 'widget.cuttag.collapseAll' );
