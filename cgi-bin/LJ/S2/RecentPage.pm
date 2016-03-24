@@ -96,6 +96,15 @@ sub RecentPage
         return 1;
     }
 
+    # libs for userpicselect
+    # if we're using the site skin, don't override the jquery-ui theme, as that's already included
+    my @iconbrowser_extra_stylesheet;
+    @iconbrowser_extra_stylesheet = ( 'stc/jquery/jquery.ui.theme.smoothness.css' )
+            unless $opts->{handle_with_siteviews_ref} && ${$opts->{handle_with_siteviews_ref}};
+
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( 1, @iconbrowser_extra_stylesheet ) )
+        if $remote && $remote->can_use_userpic_select;
+
     if ($u->should_block_robots || $get->{'skip'}) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
