@@ -2221,6 +2221,43 @@ sub init_iconbrowser_js {
     return @list;
 }
 
+# convenience/deduplication function for QR, cut tag, & icon browser JS loading
+# args: hash of opts to determine which JS files to load (iconbrowser, siteskin, lastn, noqr)
+# returns: nothing, just calls need_res
+sub init_s2journal_js {
+    my %opts = @_;
+
+    # load for quick reply (every view except ReplyPage)
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.core.js
+            stc/jquery/jquery.ui.core.css
+            js/jquery/jquery.ui.widget.js
+            js/jquery.quickreply.js
+            js/jquery.threadexpander.js
+        ) ) unless $opts{noqr};
+
+    # this is only used on lastn-type pages (DayPage, RecentPage, FriendsPage)
+    LJ::need_res( { group => "jquery" }, qw(
+            stc/css/components/quick-reply.css
+        ) ) if $opts{lastn};
+
+    # load for userpicselect
+    LJ::need_res( init_iconbrowser_js( 1 ) ) if $opts{iconbrowser};
+
+    # if we're using the site skin, don't override the jquery-ui theme,
+    # as that's already included
+    LJ::need_res( { group => "jquery" }, qw(
+            stc/jquery/jquery.ui.theme.smoothness.css
+        ) ) unless $opts{siteskin};
+
+    # load for ajax cuttag - again, only needed on lastn-type pages
+    LJ::need_res( 'js/cuttag-ajax.js' ) if $opts{lastn};
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.widget.js
+            js/jquery.cuttag-ajax.js
+        ) ) if $opts{lastn};
+}
+
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
     my $remote = LJ::get_remote();
