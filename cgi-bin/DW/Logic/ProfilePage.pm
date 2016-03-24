@@ -750,6 +750,17 @@ sub external_services {
         };
     }
 
+    if ( my $deviantart = $u->prop( 'deviantart' ) ) {
+        my $deviantart = LJ::eurl( $deviantart );
+        push @ret, {
+            type => 'deviantart',
+            text => LJ::ehtml( $deviantart ),
+            url => "http://$deviantart.deviantart.com",
+            image => 'deviantart.png',
+            title_ml => '.service.deviantart',
+        };
+    }
+
     if ( my $diigo = $u->prop( 'diigo' ) ) {
         my $diigo = LJ::eurl( $diigo );
         push @ret, {

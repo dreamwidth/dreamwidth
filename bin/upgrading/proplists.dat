@@ -205,6 +205,14 @@ userproplist.delicious:
   indexed: 0
   multihomed: 0
   prettyname: Delicious user account name
+  
+userproplist.deviantart:
+  cldversion: 4
+  datatype: char
+  des: DeviantArt user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: DeviantArt user account name
 
 userproplist.disable_auto_formatting:
   cldversion: 4
