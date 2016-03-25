@@ -237,7 +237,6 @@ sub FriendsPage
         my $entry = Entry_from_entryobj( $u, $entry_obj, $opts );
 
         $entry->{_ymd} = join('-', map { $entry->{'time'}->{$_} } qw(year month day));
-        $entry->{comments}->{show_readlink_hidden} = 1;
 
         push @{$p->{'entries'}}, $entry;
         $eventnum++;
