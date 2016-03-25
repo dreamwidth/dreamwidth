@@ -809,6 +809,8 @@ error.security.s1.2=Error: Sorry, security filtering is not supported within S1 
 
 error.support.invalid_category=Invalid support category
 
+error.support.mustbeloggedin=New support requests may only be submitted while logged in.
+
 error.support.nonuser=You cannot submit support requests from non-user accounts.
 
 error.support.norequest=You did not enter a support request.

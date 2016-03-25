@@ -570,6 +570,9 @@ sub file_request
     my $o = shift;
 
     my $email = $o->{'reqtype'} eq "email" ? $o->{'reqemail'} : "";
+    unless ( LJ::is_enabled( 'loggedout_support_requests' ) || !$email ) {
+        push @$errors, LJ::Lang::ml( "error.support.mustbeloggedin" );
+    }
     my $log = { 'uniq' => $o->{'uniq'},
                 'email' => $email };
     my $userid = 0;

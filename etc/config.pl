@@ -154,6 +154,7 @@
     # CPU & database intensive or that you simply don't want to use
     %DISABLED = (
                  adult_content => 0,
+                 loggedout_support_requests => 1,
                  'community-logins' => 0,
                  captcha => 0,
                  directory => 0,
