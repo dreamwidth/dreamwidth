@@ -350,17 +350,26 @@ body<=
 
                 if (!$deleted) {
                     if ($req{"security"} eq "private") {
-                        $result .="<p>$ML{'.extradata.sec.private'}</p>";
+                        if ( $journalu->is_community ) {
+                            $result .="<?p " . BML::ml('.extradata.security', {security => "community administrators", filters => "" }) . " p?>";
+                        } else {
+                            $result .="<?p " . BML::ml('.extradata.security', {security => "only you (private)", filters => "" }) . " p?>";
+                        }
                     } elsif ($req{"security"} eq "usemask") {
                         if ($req{"allowmask"} == 0) { # custom security with no group -- essentially private
-                            $result .="<p>$ML{'.extradata.sec.private'}</p>";
+                            $result .="<?p " . BML::ml('.extradata.security', {security => "only you (private)", filters => "" }) . " p?>";
                         } elsif ($req{"allowmask"} > 1) { # custom group
-                            $result .="<p>$ML{'.extradata.sec.custom'}</p>";
-                        } else { # friends only
-                            $result .="<p>$ML{'.extradata.sec.access'}</p>";
+                            my $filternames = $journalu->security_group_display( $req{allowmask} );
+                            $result .="<?p " . BML::ml('.extradata.security', {security=> "your custom access filter(s) ", filters => $filternames }) . " p?>";
+                        } else { # access list only
+                            if ( $journalu->is_community) {
+                                $result .="<?p " . BML::ml('.extradata.security', {security => "community members", filters => "" }) . " p?>";
+                            } else {
+                                $result .="<?p " . BML::ml('.extradata.security', {security => "your access list", filters => "" }) . " p?>";
+                            }
                         }
                     } else {
-                        $result .="<p>$ML{'.extradata.sec.public'}</p>";
+                        $result .="<?p " . BML::ml('.extradata.security', {security => "everyone (public)", filters => "" }) . " p?>";
                     }
 
                     my $subject = $req{subject};
