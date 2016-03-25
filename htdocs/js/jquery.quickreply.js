@@ -123,8 +123,20 @@ jQuery(document).ready(function($) {
 
                                     $readLink
                                         .ajaxtip() // init
-                                        .ajaxtip("success", data.message) // success message
-                                        .text($readLink.text().replace(/\d+/, data.count)) // replace count
+                                        .ajaxtip("success", data.message); // success message
+
+                                    var commentText = '';
+                                    if ( data.count == 1 ) {
+                                        commentText = $readLink.data('sing');
+                                    }
+                                    else if ( data.count == 2 ) {
+                                        commentText = $readLink.data('dual');
+                                    }
+                                    else {
+                                        commentText = $readLink.data('plur').replace(/\d+/, data.count);
+                                    }
+
+                                    $readLink.text(commentText); // replace count
                                 });
 
                         }

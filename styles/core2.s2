@@ -6120,11 +6120,14 @@ function CommentInfo::print_readlink {
     var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
     var string text_both = $text_visible + $*text_default_separator + $text_screened;
     var string text_total = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_sing = get_plural_phrase(1, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_dual = get_plural_phrase(2, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_plur = get_plural_phrase(3, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
 
     if ($.screened) { # show visible count and screened count
-        print safe """<a href="$.read_url#comments">"""+ $text_both + """</a>""";
+        print safe """<a href="$.read_url#comments" data-sing="$text_sing" data-dual="$text_dual" data-plur="$text_plur">"""+ $text_both + """</a>""";
     } else {
-        print safe """<a href="$.read_url#comments">"""+ $text_total + """</a>""";
+        print safe """<a href="$.read_url#comments" data-sing="$text_sing" data-dual="$text_dual" data-plur="$text_plur">"""+ $text_total + """</a>""";
     }
 }
 
