@@ -1019,21 +1019,21 @@ esn.journal_new_comment.admin_post.text=[ as admin ]
 
 esn.journal_new_comment.anonymous.comment=The reply was:
 
-esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post2=Somebody replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post3=Somebody replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post2=Somebody replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post3=Somebody replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.post2=Somebody replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.anonymous.reply_to.post3=Somebody replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.anonymous.reply_to.user_comment.to_post2=Somebody replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.user_comment.to_post3=Somebody replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post2=Somebody replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post3=Somebody replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_comment.to_post2=Somebody replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.your_comment.to_post3=Somebody replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2=Somebody replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post3=Somebody replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_post2=Somebody replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.anonymous.reply_to.your_post3=Somebody replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
 esn.journal_new_comment.edit_reason<<
 Reason for edit:
@@ -1048,71 +1048,71 @@ esn.journal_new_comment.subject=Subject:
 
 esn.journal_new_comment.user.comment=The reply was:
 
-esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post2=[[who]] edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post3=[[who]] edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post2=[[who]] edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post3=[[who]] edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.post2=[[who]] edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.user.edit_reply_to.post3=[[who]] edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.user.edit_reply_to.user_comment.to_post2=[[who]] edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.user_comment.to_post3=[[who]] edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post2=[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post3=[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_comment.to_post2=[[who]] edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.your_comment.to_post3=[[who]] edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post2=[[who]] edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post3=[[who]] edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_post2=[[who]] edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.user.edit_reply_to.your_post3=[[who]] edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
 esn.journal_new_comment.user.new_comment=The new reply is:
 
-esn.journal_new_comment.user.reply_to.anonymous_comment.to_post2=[[who]] replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.anonymous_comment.to_post3=[[who]] replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post2=[[who]] replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post3=[[who]] replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.post2=[[who]] replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.user.reply_to.post3=[[who]] replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.user.reply_to.user_comment.to_post2=[[who]] replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.user_comment.to_post3=[[who]] replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.user_comment.to_your_post2=[[who]] replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.user_comment.to_your_post3=[[who]] replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_comment.to_post2=[[who]] replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.your_comment.to_post3=[[who]] replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_comment.to_your_post2=[[who]] replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.your_comment.to_your_post3=[[who]] replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_post2=[[who]] replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.user.reply_to.your_post3=[[who]] replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
-esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post2=You edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post3=You edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post2=You edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post3=You edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.post2=You edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.you.edit_reply_to.post3=You edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.you.edit_reply_to.user_comment.to_post2=You edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.user_comment.to_post3=You edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post2=You edited a reply to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post3=You edited a reply to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_comment.to_post2=You edited a reply to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.your_comment.to_post3=You edited a reply to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post2=You edited a reply to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post3=You edited a reply to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_post2=You edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.you.edit_reply_to.your_post3=You edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
-esn.journal_new_comment.you.reply_to.anonymous_comment.to_post2=You replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.anonymous_comment.to_post3=You replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post2=You replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post3=You replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.post2=You replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.you.reply_to.post3=You replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.you.reply_to.user_comment.to_post2=You replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.user_comment.to_post3=You replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.user_comment.to_your_post2=You replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.user_comment.to_your_post3=You replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_comment.to_post2=You replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.your_comment.to_post3=You replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_comment.to_your_post2=You replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.your_comment.to_your_post3=You replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_post2=You replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.you.reply_to.your_post3=You replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
 esn.journal_new_comment.your.comment=Your reply was:
 
@@ -1122,11 +1122,11 @@ esn.journal_new_entry.about= titled "[[title]]"
 
 esn.journal_new_entry.admin_post=[ [[img]] as admin ]
 
-esn.journal_new_entry.head_comm=There is a new entry by [[poster]][[about]] in [[journal]].[[tags]]
+esn.journal_new_entry.head_comm2=There is a new entry by [[poster]][[about]][[postsecurity]] in [[journal]].[[tags]]
 
-esn.journal_new_entry.head_comm.admin_post=There is a new admin entry by [[poster]][[about]] in [[journal]].[[tags]]
+esn.journal_new_entry.head_comm2.admin_post=There is a new admin entry by [[poster]][[about]][[postsecurity]] in [[journal]].[[tags]]
 
-esn.journal_new_entry.head_user=[[poster]] has posted a new entry[[about]].[[tags]]
+esn.journal_new_entry.head_user2=[[poster]] has posted a new entry[[about]][[postsecurity]].[[tags]]
 
 esn.journal_new_entry.posted_new_entry=[[who]] posted a new entry in [[journal]].
 
