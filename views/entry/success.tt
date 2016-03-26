@@ -23,9 +23,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>[% poststatus.ml_string | ml( url => poststatus.url)%]</p>
 [%- END -%]
 
-    [%- IF poststatus.ml_string != ".edit.delete" -%]
+[%- IF poststatus.ml_string != ".edit.delete" -%]
 
-    <p>[% extradata.security_ml | ml %]</p>
+    <p>[% extradata.security_ml | ml( filters => extradata.filters ) %]</p>
     <p>[% ".extradata.subj" | ml %]
         [% IF extradata.subject.length > 0 %]
             [%# cleaned subject should render HTML #%]
