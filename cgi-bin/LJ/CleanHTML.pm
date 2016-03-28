@@ -136,7 +136,7 @@ sub clean
     my $remove_abs_sizes = $opts->{remove_abs_sizes} || 0;
     my $remove_fonts = $opts->{'remove_fonts'} || 0;
     my $blocked_links = (exists $opts->{'blocked_links'}) ? $opts->{'blocked_links'} : \@LJ::BLOCKED_LINKS;
-    my $blocked_link_substitute = 
+    my $blocked_link_substitute =
         (exists $opts->{'blocked_link_substitute'}) ? $opts->{'blocked_link_substitute'} :
         ($LJ::BLOCKED_LINK_SUBSTITUTE) ? $LJ::BLOCKED_LINK_SUBSTITUTE : '#';
     my $suspend_msg = $opts->{'suspend_msg'} || 0;
@@ -281,12 +281,12 @@ sub clean
         }->{$_[0]} || $_[0];
     };
 
-    
-    # if we're retrieving a cut tag, then we want to eat everything 
+
+    # if we're retrieving a cut tag, then we want to eat everything
     # until we hit the first cut tag.
     my @cuttag_stack = ();
     my $eatall = $cut_retrieve ? 1 : 0;
-    
+
   TOKEN:
     while (my $token = $p->get_token)
     {
@@ -714,7 +714,7 @@ sub clean
                                     next ATTR;
                                 }
                             }
-                            
+
                             if ($opts->{'strongcleancss'}) {
                                 if ($hash->{style} =~ /-moz-|absolute|relative|outline|z-index|(?<!-)(?:top|left|right|bottom)\s*:|filter|-webkit-/io) {
                                     delete $hash->{style};
@@ -774,7 +774,7 @@ sub clean
                         delete $hash->{$attr};
                         next;
 		    }
-		    
+
                     # reserve ljs_* ids for divs, etc so users can't override them to replace content
                     if ($attr eq 'id' && $hash->{$attr} =~ /^ljs_/i) {
                         delete $hash->{$attr};
@@ -807,7 +807,7 @@ sub clean
                             }
                         }
                     }
-                    
+
                     unless ($hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei) {
                         $hash->{href} = canonical_url($hash->{href}, 1);
                     }
@@ -985,18 +985,18 @@ sub clean
 
                 next TOKEN if @eatuntil;
             }
-            
+
             # if we're just getting the contents of a cut tag, then pop the
             # tag off the stack.  if this is the last tag on the stack, then
             # go back to eating the rest of the content.
             if ( @cuttag_stack ) {
                 if ( $cuttag_stack[-1] eq $tag ) {
                     pop @cuttag_stack;
-                    
+
                     last TOKEN unless ( @cuttag_stack );
                 }
             }
-            
+
             if ( $eatall ) {
                 next TOKEN;
             }
@@ -1004,7 +1004,7 @@ sub clean
             if ( $eating_ljuser_span ) {
                 if ( $tag eq "span" ) {
                     $eating_ljuser_span = 0;
-                    
+
                     if ( $opts->{textonly} ) {
                         $newdata .= $ljuser_text_node;
                     } else {
