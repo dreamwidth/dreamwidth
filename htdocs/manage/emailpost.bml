@@ -44,8 +44,6 @@ body<=
     use strict;
     use vars qw(%POST %GET);
 
-    LJ::set_active_crumb('mobilepost');
-
     return $ML{'.error.sitenotconfigured'} unless $LJ::EMAIL_POST_DOMAIN;
 
     my $u = LJ::get_remote();

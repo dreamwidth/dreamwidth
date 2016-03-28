@@ -2,7 +2,7 @@
 #
 # Dreamwidth worker manager
 #
-# Written by Mark Smith <mark@dwscoalition.org>.
+# Written by Mark Smith <mark@dreamwidth.org>.
 #
 # This maintains a group of workers for ESN and the like.  It can manage any
 # process that can be run and needs to be restarted if it dies.  Configuration
@@ -10,10 +10,8 @@
 #
 
 use strict;
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
 BEGIN {
-    require 'ljlib.pl';
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
 use POSIX qw/ :sys_wait_h /;

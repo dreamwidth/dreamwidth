@@ -91,8 +91,10 @@ use Getopt::Long;
 use Pod::Usage qw{pod2usage};
 use IO::Socket::INET;
 
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+    $LJ::_T_CONFIG = $ENV{DW_TEST};
+};
 
 # NOTE: these options are used both by Getopt::Long for command-line parsing
 # in single user move move, and also set by hand when in --jobserver mode,
@@ -140,7 +142,6 @@ sub multiMove {
     # the job server can keep giving us new jobs to move (or a stop command)
     # over and over, so we avoid perl exec times
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-    eval "use LJ::Cmdbuffer; 1;" or die $@;
 
     my $sock;
   ITER:
@@ -273,7 +274,6 @@ sub singleMove {
     abortWithUsage() unless defined $user && defined $dclust;
 
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-    eval "use LJ::Cmdbuffer; 1;" or die $@;
 
     $user = LJ::canonical_username($user);
     abortWithUsage("Invalid username") unless length($user);
@@ -539,8 +539,7 @@ sub moveUser {
             print "Deleting expungeable user data...\n" if $optv;
 
             $dbh->do("DELETE FROM domains WHERE userid = ?", undef, $u->id);
-            $dbh->do("DELETE FROM email_aliases WHERE alias = ?",
-                     undef, $u->site_email_alias );
+            $u->delete_email_alias;
             $dbh->do("DELETE FROM userinterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM comminterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM syndicated WHERE userid = ?", undef, $u->id);
@@ -660,13 +659,6 @@ sub moveUser {
     }
 
     print "Moving away from cluster $sclust\n" if $optv;
-
-    my %cmd_done;  # cmd_name -> 1
-    while (my $cmd = $dboa->selectrow_array("SELECT cmd FROM cmdbuffer WHERE journalid=$userid")) {
-        die "Already flushed cmdbuffer job '$cmd' -- it didn't take?\n" if $cmd_done{$cmd}++;
-        print "Flushing cmdbuffer for cmd: $cmd\n" if $optv > 1;
-        LJ::Cmdbuffer::flush($dbh, $dboa, $cmd, $userid);
-    }
 
     # setup dependencies (we can skip work by not checking a table if we know
     # its dependent table was empty).  then we have to order things so deps get

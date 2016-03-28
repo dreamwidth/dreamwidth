@@ -22,8 +22,6 @@ body<=
 
     use POSIX qw(strftime);
 
-    LJ::set_active_crumb('lostinfo');
-
     my $captcha = DW::Captcha->new( 'lostinfo', %POST );
 
     my $captcha_error;
@@ -44,7 +42,7 @@ body<=
 
         $ret .= "<div class='form-basic form-fix'><div class='tl'><div class='tr'><div class='br'><div class='bl'>\n";
         $ret .= "<fieldset><label>$ML{'.enter_username'}</label>\n";
-        $ret .= LJ::html_text({ 'name' => 'user', 'id' => 'userlost', 'size' => 30, 'maxlength' => 25, onkeyup => 'enable_pass();'}) . "</fieldset>\n";
+        $ret .= LJ::html_text({ 'name' => 'user', 'id' => 'userlost', 'size' => 30, 'maxlength' => 25, onkeyup => 'enable_pass();', onchange=>'enable_pass();'}) . "</fieldset>\n";
         $ret .= "<fieldset><label>$ML{'.enter_email_optional'}</label>\n";
         $ret .= LJ::html_text({ 'name' => 'email_p', 'size' => 30, 'maxlength' => 50 }) . "</fieldset>\n";
         $ret .= "<div class='btn-set'>\n";
@@ -55,17 +53,17 @@ body<=
         $ret .= "<?p $ML{'.lostusername.text'} p?>\n";
         $ret .= "<div class='form-basic form-fix'><div class='tl'><div class='tr'><div class='br'><div class='bl'>\n";
         $ret .= "<fieldset><label>$ML{'.enter_email'}</label>\n";
-        $ret .= LJ::html_text({ 'name' => 'email_u', 'id' => 'email_u', 'size' => 30, 'maxlength' => 50, onkeyup => 'enable_user();' }) . "</fieldset>\n";
+        $ret .= LJ::html_text({ 'name' => 'email_u', 'id' => 'email_u', 'size' => 30, 'maxlength' => 50, onkeyup => 'enable_user();', onchange=>'enable_user();' }) . "</fieldset>\n";
         $ret .= "<div class='btn-set'>\n";
         $ret .= LJ::html_submit('lostuser', $ML{'.btn.proceed'}, { id => 'lostuser' }) . "</div>\n";
         $ret .= "</div></div></div></div></div>\n";
 
         $ret .= qq( <script type="text/javascript">
                     function enable_pass () {
-                        \$("lostpass").disabled = !\$("userlost").value;
+                        \$("lostpass").disabled = \$("userlost").value ? false : true;
                     }
                     function enable_user () {
-                        \$("lostuser").disabled = !\$("email_u").value;
+                        \$("lostuser").disabled = \$("email_u").value ? false : true;
                     }
 
                     enable_pass();

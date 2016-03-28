@@ -44,7 +44,6 @@ _c?>
     # show the public layers
     unless ($id) {
         $title = $ML{'.title'};
-        LJ::set_active_crumb('layerbrowse');
 
         my %layerinfo;
         my @to_load = grep { /^\d+$/ } keys %$pub;
@@ -353,7 +352,6 @@ _c?>
         }
     }
     
-    LJ::set_dynamic_crumb($title, 'layerbrowse');
     return;
 
 }

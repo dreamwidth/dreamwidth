@@ -17,10 +17,6 @@
 package LJ;
 use strict;
 
-use lib "$LJ::HOME/cgi-bin";
-
-# load the bread crumb hash
-use LJ::Global::Crumbs;
 
 use Carp;
 use POSIX;
@@ -210,8 +206,10 @@ sub make_authas_select {
         } else {
             $ret = $foundation
                 ?   q{<div class='row collapse'><div class='columns medium-1'><label class='inline'>} . LJ::Lang::ml( 'web.authas.select.label' ) . q{</label></div>}
-                        . q{<div class='columns medium-6'>} . $menu . q{</div>}
-                        . q{<div class='columns medium-2 end'>} . LJ::html_submit( undef, $button, { class => "secondary postfix button"} ) . q{</div>}
+                        . q{<div class='columns medium-11'><div class='row'>}
+                            . q{<div class='columns medium-4'>} . $menu . q{</div>}
+                            . q{<div class='columns medium-2 end'>} . LJ::html_submit( undef, $button, { class => "secondary button"} ) . q{</div>}
+                        . q{</div></div>}
                     . q{</div>}
                 : "<br/>"
                         . LJ::Lang::ml( 'web.authas.select', { menu => $menu, username => LJ::ljuser($authas) } ) . " " . LJ::html_submit( undef, $button )
@@ -265,7 +263,7 @@ sub make_postto_select {
 #      be returned.
 # args: topic, pre?, post?
 # des-topic: Help topic key.
-#            See doc/ljconfig.pl.txt, or [special[helpurls]] for examples.
+#            See etc/config-local.pl, or [special[helpurls]] for examples.
 # des-pre: HTML/BML to place before the help icon.
 # des-post: HTML/BML to place after the help icon.
 # </LJFUNC>
@@ -686,64 +684,6 @@ sub make_cookie
     return @cookies;
 }
 
-sub set_active_crumb
-{
-    $LJ::ACTIVE_CRUMB = shift;
-    return undef;
-}
-
-sub set_dynamic_crumb
-{
-    my ($title, $parent) = @_;
-    $LJ::ACTIVE_CRUMB = [ $title, $parent ];
-}
-
-sub get_parent_crumb
-{
-    my $thiscrumb = LJ::get_crumb(LJ::get_active_crumb());
-    return LJ::get_crumb($thiscrumb->[2]);
-}
-
-sub get_active_crumb
-{
-    return $LJ::ACTIVE_CRUMB;
-}
-
-sub get_crumb_path
-{
-    my $cur = LJ::get_active_crumb();
-    my @list;
-    while ($cur) {
-        # get crumb, fix it up, and then put it on the list
-        if (ref $cur) {
-            # dynamic crumb
-            push @list, [ $cur->[0], '', $cur->[1], 'dynamic' ];
-            $cur = $cur->[1];
-        } else {
-            # just a regular crumb
-            my $crumb = LJ::get_crumb($cur);
-            last unless $crumb;
-            last if $cur eq $crumb->[2];
-            $crumb->[3] = $cur;
-            push @list, $crumb;
-
-            # now get the next one we're going after
-            $cur = $crumb->[2]; # parent of this crumb
-        }
-    }
-    return @list;
-}
-
-sub get_crumb
-{
-    my $crumbkey = shift;
-    if (defined $LJ::CRUMBS_LOCAL{$crumbkey}) {
-        return $LJ::CRUMBS_LOCAL{$crumbkey};
-    } else {
-        return $LJ::CRUMBS{$crumbkey};
-    }
-}
-
 # <LJFUNC>
 # name: LJ::check_referer
 # class: web
@@ -785,9 +725,9 @@ sub check_referer {
 
     return 1 if $LJ::SITEROOT   && $referer =~ m!^\Q$LJ::SITEROOT\E$uri!;
     return 1 if $LJ::SSLROOT    && $referer =~ m!^\Q$LJ::SSLROOT\E$uri!;
-    return 1 if $LJ::DOMAIN     && $referer =~ m!^http://\Q$LJ::DOMAIN\E$uri!;
-    return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^http://\Q$LJ::DOMAIN_WEB\E$uri!;
-    return 1 if $LJ::USER_VHOSTS && $referer =~ m!^http://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
+    return 1 if $LJ::DOMAIN     && $referer =~ m!^https?://\Q$LJ::DOMAIN\E$uri!;
+    return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^https?://\Q$LJ::DOMAIN_WEB\E$uri!;
+    return 1 if $LJ::USER_VHOSTS && $referer =~ m!^https?://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
     return 1 if $origuri =~ m!^https?://! && $origreferer eq $origuri;
     return undef;
 }
@@ -980,47 +920,6 @@ sub create_qr_div {
 }
 
 # <LJFUNC>
-# name: LJ::make_qr_link
-# class: web
-# des: Creates the link to toggle the QR reply form or if
-#      JavaScript is not enabled, then forwards the user through
-#      to replyurl.
-# returns: undef upon failure or HTML for the link
-# args: dtid, basesubject, linktext, replyurl
-# des-dtid: dtalkid for this comment
-# des-basesubject: parent comment's subject
-# des-linktext: text for the user to click
-# des-replyurl: URL to forward user to if their browser
-#               does not support QR.
-# </LJFUNC>
-sub make_qr_link
-{
-    my ($dtid, $basesubject, $linktext, $replyurl) = @_;
-
-    return undef unless defined $dtid && $linktext && $replyurl;
-
-    my $remote = LJ::get_remote();
-    unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
-        my $pid = ( $dtid =~ /^\d+$/) ? int( $dtid / 256 ) : 0;
-
-        $basesubject =~ s/^(Re:\s*)*//i;
-        $basesubject = "Re: $basesubject" if $basesubject;
-        $basesubject = LJ::ehtml(LJ::ejs($basesubject));
-        my $onclick = "return function(that) { return quickreply(\"$dtid\", $pid, \"$basesubject\", that)}(this)";
-
-        my $r = DW::Request->get;
-        my $ju;
-        $ju = LJ::load_userid( $r->note( 'journalid' ) )
-            if $r and $r->note( 'journalid' );
-
-        $onclick = "" if $ju && $ju->does_not_allow_comments_from( $remote );
-        return "<a onclick='$onclick' href='$replyurl' >$linktext</a>";
-    } else { # QR Disabled
-        return "<a href='$replyurl' >$linktext</a>";
-    }
-}
-
-# <LJFUNC>
 # name: LJ::get_lastcomment
 # class: web
 # des: Looks up the last talkid and journal the remote user posted in.
@@ -1181,7 +1080,7 @@ sub create_url {
     $path ||= $r->uri;
 
     # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
-    $opts{ssl} = $LJ::IS_SSL unless $opts{host} || exists $opts{ssl};
+    $opts{ssl} //= $LJ::IS_SSL;
 
     my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
     my $url = $proto . "://$host$path";
@@ -2392,7 +2291,7 @@ sub js_dumper {
         };
 
         my $file = LJ::resolve_file("htdocs/$key");
-        my $mtime = (stat($file))[9];
+        my $mtime = defined $file ? (stat($file))[9] : undef;
         return $set->($mtime);
     }
 }
@@ -2440,21 +2339,12 @@ sub res_includes {
 
     # use correct root and prefixes for SSL pages
     my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix, $iconprefix);
-    if ($LJ::IS_SSL) {
-        $siteroot = $LJ::SSLROOT;
-        $imgprefix = $LJ::SSLIMGPREFIX;
-        $statprefix = $LJ::SSLSTATPREFIX;
-        $jsprefix = $LJ::SSLJSPREFIX;
-        $wstatprefix = $LJ::SSLWSTATPREFIX;
-        $iconprefix = $LJ::USERPIC_ROOT;
-    } else {
-        $siteroot = $LJ::SITEROOT;
-        $imgprefix = $LJ::IMGPREFIX;
-        $statprefix = $LJ::STATPREFIX;
-        $jsprefix = $LJ::JSPREFIX;
-        $wstatprefix = $LJ::WSTATPREFIX;
-        $iconprefix = $LJ::USERPIC_ROOT;
-    }
+    $siteroot = $LJ::SITEROOT;
+    $imgprefix = $LJ::IMGPREFIX;
+    $statprefix = $LJ::STATPREFIX;
+    $jsprefix = $LJ::JSPREFIX;
+    $wstatprefix = $LJ::WSTATPREFIX;
+    $iconprefix = $LJ::USERPIC_ROOT;
 
     if ( $include_js ) {
         # find current journal
@@ -2544,12 +2434,13 @@ sub res_includes {
             # in the concat-res case, we don't directly append the URL w/
             # the modtime, but rather do one global max modtime at the
             # end, which is done later in the tags function.
+            $modtime = '' unless defined $modtime;
             $what .= "?v=$modtime" unless $do_concat;
 
             $list{$type} ||= [];
             push @{$list{$type}[$order] ||= []}, $what;
             $oldest{$type} ||= [];
-            $oldest{$type}[$order] = $modtime if $modtime > ( $oldest{$type}[$order] || 0 );
+            $oldest{$type}[$order] = $modtime if $modtime && $modtime > ( $oldest{$type}[$order] || 0 );
         };
 
         # we may not want to pull in the libraries again, say if we're pulling in elements via an ajax load
@@ -2707,6 +2598,7 @@ sub control_strip
     my $passed_in_location = $opts{host} && $opts{uri} ? 1 : 0;
     my $host = delete $opts{host} || $r->host;
     my $uri = delete $opts{uri} || $r->uri;
+    my $protocol = $LJ::IS_SSL ? "https" : "http";
 
     my $args;
     my $argshash = {};
@@ -2722,7 +2614,7 @@ sub control_strip
     my $view = delete $opts{view} || $r->note( 'view' );
     my $view_is = sub { defined $view && $view eq $_[0] };
 
-    my $baseuri = "http://$host$uri";
+    my $baseuri = "$protocol://$host$uri";
 
     $baseuri .= $args ? "?$args" : "";
     my $euri = LJ::eurl( $baseuri );
@@ -2750,7 +2642,7 @@ sub control_strip
         $links{inbox} .= " ($unread)" if $unread;
         $links{inbox} .= "</a>";
 
-        $links{settings} = "<a href='$LJ::SITEROOT/manage/settings'>$BML::ML{'web.controlstrip.links.settings'}</a>";
+        $links{settings} = "<a href='$LJ::SITEROOT/manage/settings/'>$BML::ML{'web.controlstrip.links.settings'}</a>";
         $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         $links{'edit_friend'} = "<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
@@ -2869,19 +2761,37 @@ sub control_strip
                 # since this is only shown if $remote->equals( $journal ) , we don't have to care whether a filter is public or not
                 my @custom_filters = $journal->content_filters;
 
+                # Making as few changes to existing behaviour
+                my $default_filter = "default view";
                 foreach my $f ( @custom_filters ) {
+                    # Both 'default' and 'default view' are default filters
+                    $default_filter = "default" if lc( $f->name ) eq "default";
                     push @filters, "filter:" . lc( $f->name ), $f->name;
                 }
 
                 my $selected = "all";
+
+                # first, change the selection state to reflect any filter in use;
+                # if we have no default filter or if the named filter somehow
+                # fails to exist, this will effectively select nothing
+                if ( $r->uri =~ /^\/read\/?(.+)?/i ) {
+                    my $filter = $1 || $default_filter;
+                    $selected = "filter:" . LJ::durl( lc( $filter ) );
+                    # but don't select the filter if the query string contains filter=0
+                    # (fun fact: named filter + filter=0 returns a 404 error)
+                    $selected = "all" if $r->query_string && $r->query_string =~ /\bfilter=0\b/;
+                }
+
+                # next, change the selection state to reflect showtypes from getargs;
+                # note this will override the implicit default filter or filter=0 selection
+                # if a match is found, but not a filter explicitly named in the URL.
+                # (of course you can use both! we're just competing for the
+                #  state of the pop-up menu in the control strip here)
                 if ( ( $r->uri eq "/read" || $r->uri eq "/network" ) &&
                      $r->query_string && $r->query_string ne "" ) {
                     $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
                     $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
                     $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
-                } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
-                    my $filter = $1 || "default view";
-                    $selected = "filter:" . LJ::durl( lc( $filter ) );
                 }
 
                 $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";
@@ -3185,9 +3095,6 @@ sub rte_js_vars {
         $ret .= "    RTEdisabled['$key'] = true;" if $rte_disabled->{$key};
     }
 
-    # detect whether image upload and photobucket are set up
-    my $photobucket_is_setup = $LJ::PHOTOBUCKET_JWIDGET_ID ? "true" : "false";
-
     $ret .= qq^
         var canmakepoll = $canmakepoll;
 
@@ -3200,7 +3107,6 @@ sub rte_js_vars {
         }
 
         var SiteConfig = new Object();
-        SiteConfig.ImagePhotobucket = $photobucket_is_setup;
     </script>^;
 
     return $ret;
@@ -3578,7 +3484,7 @@ sub subscribe_interface {
                     } . LJ::html_check({
                         id       => $notify_input_name,
                         name     => $notify_input_name,
-                        'data-selected-by' => "$catid-$ntypeid",    
+                        'data-selected-by' => "$catid-$ntypeid",
                         class    => "SubscribeCheckbox-$catid-$ntypeid",
                         selected => $note_selected,
                         noescape => 1,

@@ -1,3 +1,14 @@
+[%# Initialize site skins
+
+Authors:
+    Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
 [%- USE dw -%]
 [%- USE dw_scheme -%]
 [%- FOREACH current_scheme IN inheritance -%][%- PROCESS $current_scheme -%][%- END -%]

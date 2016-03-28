@@ -5,6 +5,8 @@ Change email page
 Authors:
     hotlevel4 <hotlevel4@hotmail.com>
 
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
@@ -47,7 +49,7 @@ the same terms as Perl itself. For a copy of the license, please reference
         [% authas_html %]
     </form>
     
-    <form action='[% IF usessl %][% site.ssl.root %][% ELSE %][% site.root %][% END %]/changeemail[% getextra %]' method='post'>
+    <form action='[% site.root %]/changeemail[% getextra %]' method='post'>
         [% dw.form_auth() %]
     
         <br/><br/><div>[% '.label.username' | ml %]<br />[% u.ljuser_display %]</div><br/>

@@ -347,20 +347,6 @@ CREATE TABLE priv_map (
 )
 EOC
 
-register_tablecreate("cmdbuffer", <<'EOC');
-CREATE TABLE cmdbuffer (
-    cbid INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    journalid INT UNSIGNED NOT NULL,
-    cmd VARCHAR(30) NOT NULL default '',
-    instime datetime NOT NULL default '0000-00-00 00:00:00',
-    args TEXT NOT NULL,
-
-    PRIMARY KEY  (cbid),
-    KEY (cmd),
-    KEY (journalid)
-)
-EOC
-
 register_tablecreate("random_user_set", <<'EOC');
 CREATE TABLE random_user_set (
     posttime INT UNSIGNED NOT NULL,
@@ -369,27 +355,6 @@ CREATE TABLE random_user_set (
 
     PRIMARY KEY (userid),
     INDEX (posttime)
-)
-EOC
-
-register_tablecreate("schemacols", <<'EOC');
-CREATE TABLE schemacols (
-    tablename varchar(40) NOT NULL default '',
-    colname varchar(40) NOT NULL default '',
-    des varchar(255) default NULL,
-
-    PRIMARY KEY  (tablename,colname)
-)
-EOC
-
-register_tablecreate("schematables", <<'EOC');
-CREATE TABLE schematables (
-    tablename varchar(40) NOT NULL default '',
-    public_browsable enum('0','1') NOT NULL default '0',
-    redist_mode enum('off','insert','replace') NOT NULL default 'off',
-    des text,
-
-    PRIMARY KEY  (tablename)
 )
 EOC
 
@@ -978,6 +943,20 @@ register_tabledrop("zip");
 register_tabledrop("openid_external");
 register_tabledrop("site_messages");
 register_tabledrop("navtag");
+register_tabledrop("syndicated_hubbub2");
+register_tabledrop("openproxy");
+register_tabledrop("tor_proxy_exits");
+register_tabledrop("cmdbuffer");
+register_tabledrop("schemacols");
+register_tabledrop("schematables");
+register_tabledrop("blockwatch_events");
+register_tabledrop("cprodlist");
+register_tabledrop("cprod");
+register_tabledrop("jabroster");
+register_tabledrop("jabpresence");
+register_tabledrop("jabcluster");
+register_tabledrop("jablastseen");
+
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -1323,26 +1302,6 @@ CREATE TABLE syndicated (
 )
 EOC
 
-register_tablecreate("syndicated_hubbub2", <<'EOC');
-CREATE TABLE syndicated_hubbub2 (
-    id INT UNSIGNED NOT NULL,
-    userid INT UNSIGNED NOT NULL,
-    huburl VARCHAR(255) NOT NULL,
-    topicurl VARCHAR(255) NOT NULL,
-    verifytoken VARCHAR(64) NOT NULL,
-    lastseenat INT UNSIGNED NOT NULL,
-    leasegoodto INT UNSIGNED,
-    timespinged INT UNSIGNED NOT NULL DEFAULT '0',
-
-    UNIQUE (userid, huburl, topicurl),
-    UNIQUE (verifytoken),
-    INDEX (topicurl),
-    INDEX (leasegoodto),
-    INDEX (lastseenat),
-    PRIMARY KEY (id)
-)
-EOC
-
 register_tablecreate("synitem", <<'EOC');
 CREATE TABLE synitem (
     userid  INT UNSIGNED NOT NULL,
@@ -1677,18 +1636,6 @@ CREATE TABLE clustermove_inprogress (
     moverinstance CHAR(22) NOT NULL, # base64ed MD5 hash
 
     PRIMARY KEY (userid)
-)
-EOC
-
-# track open HTTP proxies
-register_tablecreate("openproxy", <<'EOC');
-CREATE TABLE openproxy (
-    addr        VARCHAR(15) NOT NULL,
-    status      ENUM('proxy', 'clear'),
-    asof        INT UNSIGNED NOT NULL,
-    src         VARCHAR(80),
-
-    PRIMARY KEY (addr)
 )
 EOC
 
@@ -2241,39 +2188,6 @@ CREATE TABLE notifyqueue (
 )
 EOC
 
-# global (contextual product prodding, "hey, you've never used polls, wanna learn how?")
-register_tablecreate("cprodlist", <<'EOC');
-CREATE TABLE cprodlist (
-    cprodid   SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    class     VARCHAR(100),
-
-    UNIQUE (class)
-)
-EOC
-
-# contextual product prodding history, making sure we don't bug people when they
-# don't want it anymore.
-#
-#   -- firstshowtime: when it was first highlighted to them (not all the everything page)
-#   -- recentshowtime: a recent showing time.  perhaps not THE most recent, though.
-#   -- acktime: time the user saw the box.  either by clicking next/no/more info.
-#   -- nothankstime: also a boolean:  time/if user doesn't want to see it again
-#   -- clickthrutime:  time user clicked for more info
-register_tablecreate("cprod", <<'EOC');
-CREATE TABLE cprod (
-    userid    INT      UNSIGNED NOT NULL,
-    cprodid   SMALLINT UNSIGNED NOT NULL,
-    PRIMARY KEY (userid, cprodid),
-
-    firstshowtime      INT UNSIGNED,
-    recentshowtime     INT UNSIGNED,
-    acktime            INT UNSIGNED,
-    nothankstime       INT UNSIGNED,
-    clickthrutime      INT UNSIGNED,
-    clickthruver       SMALLINT UNSIGNED
-)
-EOC
-
 register_tablecreate("sch_funcmap", <<'EOC');
 CREATE TABLE sch_funcmap (
     funcid         INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -2342,51 +2256,6 @@ CREATE TABLE comm_promo_list (
 )
 EOC
 
-register_tablecreate("jabroster", <<'EOC');
-CREATE TABLE jabroster (
-    userid     INT UNSIGNED NOT NULL,
-    contactid  INT UNSIGNED NOT NULL,
-    PRIMARY KEY (userid, contactid),
-    name       VARCHAR(255) BINARY,
-    substate   TINYINT UNSIGNED NOT NULL,
-    groups     VARCHAR(255) BINARY,
-    ljflags    TINYINT UNSIGNED NOT NULL
-)
-EOC
-
-register_tablecreate("jabpresence", <<'EOC');
-CREATE TABLE jabpresence (
-    userid     INT UNSIGNED NOT NULL,
-    reshash    CHAR(22) BINARY,
-    PRIMARY KEY (userid, reshash),
-    resource   VARCHAR(255) NOT NULL,
-    client     VARCHAR(255),
-    clusterid  INT UNSIGNED NOT NULL,
-    presence   BLOB,
-    flags      INT UNSIGNED NOT NULL,
-    priority   INT UNSIGNED,
-    ctime      INT UNSIGNED NOT NULL,
-    mtime      INT UNSIGNED NOT NULL,
-    remoteip   VARCHAR(255)
-)
-EOC
-
-register_tablecreate("jabcluster", <<'EOC');
-CREATE TABLE jabcluster (
-    clusterid  INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    address    VARCHAR(255) NOT NULL
-)
-EOC
-
-register_tablecreate("jablastseen", <<'EOC');
-CREATE TABLE jablastseen (
-    userid     INT UNSIGNED NOT NULL PRIMARY KEY,
-    presence   BLOB,
-    time       INT UNSIGNED NOT NULL,
-    motd_ver   INT UNSIGNED
-)
-EOC
-
 register_tablecreate("usersearch_packdata", <<'EOC');
 CREATE TABLE usersearch_packdata (
     userid      INT UNSIGNED NOT NULL PRIMARY KEY,
@@ -2435,16 +2304,6 @@ CREATE TABLE dirmogsethandles (
     exptime  INT UNSIGNED NOT NULL,
 
     INDEX    (exptime)
-)
-EOC
-
-register_tablecreate("blockwatch_events", <<'EOC');
-CREATE TABLE blockwatch_events (
-    id int unsigned NOT NULL auto_increment,
-    name varchar(255) NOT NULL,
-
-    PRIMARY KEY (id),
-    UNIQUE KEY (name)
 )
 EOC
 
@@ -3130,13 +2989,6 @@ CREATE TABLE cc_log (
 )
 EOC
 
-register_tablecreate('tor_proxy_exits', <<'EOC');
-CREATE TABLE tor_proxy_exits (
-    addr VARCHAR(15) NOT NULL,
-    PRIMARY KEY (addr)
-)
-EOC
-
 register_tablecreate('externaluserinfo', <<'EOC');
 CREATE TABLE externaluserinfo (
     site INT UNSIGNED NOT NULL,
@@ -3383,12 +3235,6 @@ register_alter(sub {
         do_alter("duplock",
                  "ALTER TABLE duplock MODIFY realm ENUM('support','log',".
                  "'comment','payments') NOT NULL default 'support'");
-    }
-
-    if (column_type("schematables", "redist_where") eq "") {
-        do_alter("schematables",
-                 "ALTER TABLE schematables ADD ".
-                 "redist_where varchar(255) AFTER redist_mode");
     }
 
     # upgrade people to the new capabilities system.  if they're
@@ -3968,11 +3814,6 @@ register_alter(sub {
                   q{ALTER TABLE import_data ADD COLUMN usejournal VARCHAR(255) AFTER username} );
     }
 
-    unless ( column_type( 'syndicated_hubbub2', 'timespinged' ) ) {
-        do_alter( 'syndicated_hubbub2',
-                  q{ALTER TABLE syndicated_hubbub2 ADD COLUMN timespinged INT UNSIGNED NOT NULL DEFAULT '0'} );
-    }
-
     # FIXME: This should be moved into a maint script or something,
     #   but if someone ever does remove the " 0 && " from here, this whole body needs to be wrapped
     #   in a do_code block ( To prevent the warning message from delaying things )
@@ -4321,16 +4162,23 @@ EOF
         set_dbnote( "init_media_versions_dimensions", 1 );
     }
 
-    if ( column_type( "renames", "status" ) eq '' ) {
+    if ( table_relevant("renames") && column_type( "renames", "status" ) eq '' ) {
         do_alter( 'renames',
             "ALTER TABLE renames " .
             "ADD COLUMN status CHAR(1) NOT NULL DEFAULT 'A'" );
         do_sql( 'UPDATE renames SET status="U" WHERE renuserid = 0' );
     }
 
-    if ( !check_dbnote( 'remove_countries_from_codes' ) ) {
+    if ( table_relevant("codes") && !check_dbnote( 'remove_countries_from_codes' ) ) {
         do_sql( 'DELETE FROM codes WHERE type = "country"' );
         set_dbnote( 'remove_countries_from_codes', 1 );
+    }
+
+    # widen ip column for IPv6 addresses
+    if ( column_type("spamreports", "ip") eq "varchar(15)" ) {
+        do_alter( "spamreports",
+                  "ALTER TABLE spamreports ".
+                  "MODIFY ip VARCHAR(45)" );
     }
 });
 

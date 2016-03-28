@@ -194,10 +194,11 @@ sub _call_hash {
     return $r->NOT_FOUND unless $opts->format_valid;
 
     # prefer SSL if wanted and possible
-    #  cannot do SSL on userspace, cannot do SSL if it's not set up
+    #  cannot do SSL if it's not set up
     #  cannot do the redirect safely for non-GET/HEAD requests.
+    my $url = LJ::create_url( $r->uri, keep_args => 1, ssl => 1 );
     return $r->redirect( LJ::create_url( $r->uri, keep_args => 1, ssl => 1 ) )
-        if $opts->prefer_ssl && $LJ::USE_SSL && $opts->role eq 'app' &&
+        if $opts->prefer_ssl && $LJ::USE_SSL &&
             ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
     # if renamed with redirect in place, then do the redirect
@@ -206,7 +207,7 @@ sub _call_hash {
 
         unless ( $renamed_u && $orig_u->equals( $renamed_u ) ) {
             my $journal_host = $renamed_u->journal_base;
-            $journal_host =~ s!http://!!;
+            $journal_host =~ s!https?://!!;
 
             return $r->redirect( LJ::create_url( $r->uri, host => $journal_host, keep_args => 1 ) );
         }
@@ -520,55 +521,6 @@ sub register_api_endpoint {
     croak 'register_api_endpoint must have version option'
         unless exists $opts{version};
 
-    # Ensure these opts are correct
-    $opts{api} = 1;
-    $opts{app} = 0;
-    $opts{user} = 0;
-
-    my $hash = _apply_defaults( \%opts, {
-        sub    => $sub,
-        format => 'json',
-    });
-
-    my $vers = ref $opts{version} eq 'ARRAY' ? $opts{version} :
-        [ $opts{version} + 0 ];
-    croak 'register_api_version requires all versions >= 1'
-        if grep { $_ <= 0 } @$vers;
-
-    $hash->{api_versions} = $vers;
-
-    # Now register this string at all versions that they gave us.
-    $string_choices{"api/v$_$string"} = $hash
-        foreach @$vers;
-}
-
-# internal helper for speed construction ...
-sub register_api_endpoints {
-    my $class = shift;
-    foreach my $row ( @_ ) {
-        $class->register_api_endpoint( $row->[0], $row->[1], version => $row->[2] );
-    }
-}
-
-=head2 C<< $class->register_api_endpoint( $string, $sub, %opts ) >>
-
-=over
-
-=item string
-
-=item sub - sub
-
-=item opts (see register_string)
-
-=back
-
-=cut
-
-sub register_api_endpoint {
-    my ( $class, $string, $sub, %opts ) = @_;
-    croak 'register_api_endpoint must have version option'
-        unless exists $opts{version};
-
     my $hash = _apply_defaults( \%opts, {
         sub    => $sub,
         format => 'json',
@@ -604,7 +556,7 @@ sub _apply_defaults {
     $hash->{user}         = $opts->{user} || 0;
     $hash->{api}          = $opts->{api}  || 0;
     $hash->{format}     ||= $opts->{format} || 'html';
-    $hash->{prefer_ssl}   = $opts->{prefer_ssl} || 0;
+    $hash->{prefer_ssl}   = $opts->{prefer_ssl} // $LJ::USE_HTTPS_EVERYWHERE;
     $hash->{no_cache}     = $opts->{no_cache} || 0;
 
     my $formats = $opts->{formats} || [ $hash->{format} ];
@@ -612,9 +564,6 @@ sub _apply_defaults {
 
     $hash->{formats} = $formats;
     $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1 };
-
-    croak 'Cannot register with prefer_ssl without app role'
-        if $hash->{prefer_ssl} && ! $hash->{app};
 
     return $hash;
 }

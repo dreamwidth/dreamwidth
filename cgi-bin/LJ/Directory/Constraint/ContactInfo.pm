@@ -50,7 +50,7 @@ sub matching_uids {
 
     my @propids;
     # FIRST: check whether we get maches based on IM services
-    foreach my $service (qw(aolim icq yahoo msn jabber skype google_talk)) {
+    foreach my $service (qw(aolim icq yahoo jabber skype google_talk)) {
         my $p = LJ::get_prop("user", $service);
         push @propids, $p->{upropid};
     }

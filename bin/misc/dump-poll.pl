@@ -20,9 +20,8 @@
 
 use strict;
 use warnings;
-use lib "$ENV{'LJHOME'}/cgi-bin";
 BEGIN {
-    require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 use LJ::Poll;
 

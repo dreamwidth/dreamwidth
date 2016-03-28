@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "reset_password" }
 
-sub desc { "Resets the password for a given account" }
+sub desc { "Resets the password for a given account. Requires priv: reset_password." }
 
 sub args_desc { [
                  'user' => "The account to reset the password for.",

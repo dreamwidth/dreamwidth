@@ -52,7 +52,7 @@ sub watch_items
 
     # we only allow viewing protected content on your own reading page, if you
     # are viewing someone else's reading page, we assume you're logged out
-    my $remote = LJ::get_remote();
+    my $remote = LJ::want_user( delete $args{remote} ) || LJ::get_remote();
     $remote = undef if $remote && $remote->id != $u->id;
 
     # prepare some variables for later... many variables
@@ -75,10 +75,10 @@ sub watch_items
     my $filter_journaltypes = sub {
         my ( $friends, $friends_u, $memcache_only, $valid_types ) = @_;
         return unless $friends && $friends_u;
-        $valid_types ||= uc $args{showtypes};
+        $valid_types ||= uc $args{showtypes} if defined $args{showtypes};
 
         # make (F)eeds an alias for s(Y)ndicated
-        $valid_types =~ s/F/Y/g;
+        $valid_types =~ s/F/Y/g if defined $valid_types;
 
         # load u objects for all the given
         LJ::load_userids_multiple([ map { $_, \$friends_u->{$_} } keys %$friends ], [$remote],

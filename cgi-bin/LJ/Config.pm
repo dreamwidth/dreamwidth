@@ -24,13 +24,20 @@ $LJ::CACHE_CONFIG_MODTIME = 0;
 # what files to check for config, ORDER MATTERS, please go from most specific
 # to least specific.  files later in the chain should be careful to not clobber
 # anything.
-@LJ::CONFIG_FILES = ( ( map { LJ::resolve_file($_) } qw(
-    etc/config-private.pl
-    etc/config-local.pl
-    etc/config.pl
-) ) , ( map { $LJ::HOME . "/" . $_ } qw(
-    cgi-bin/LJ/Global/Defaults.pm
-) ) );
+@LJ::CONFIG_FILES = $LJ::_T_CONFIG ?
+    ( ( map { LJ::resolve_file($_) } qw(
+        t/config-test-private.pl
+        t/config-test.pl
+    ) ) , ( map { $LJ::HOME . "/" . $_ } qw(
+        cgi-bin/LJ/Global/Defaults.pm
+    ) ) ) :
+    ( ( map { LJ::resolve_file($_) } qw(
+        etc/config-private.pl
+        etc/config-local.pl
+        etc/config.pl
+    ) ) , ( map { $LJ::HOME . "/" . $_ } qw(
+        cgi-bin/LJ/Global/Defaults.pm
+    ) ) );
 
 # loads all configurations from scratch
 sub load {
@@ -99,9 +106,11 @@ sub start_request_reload {
             __PACKAGE__->reload;
             $LJ::DEBUG_HOOK{'pre_save_bak_stats'}->() if $LJ::DEBUG_HOOK{'pre_save_bak_stats'};
 
-            $LJ::IMGPREFIX_BAK = $LJ::IMGPREFIX;
-            $LJ::STATPREFIX_BAK = $LJ::STATPREFIX;
-            $LJ::USERPICROOT_BAK = $LJ::USERPIC_ROOT;
+            # save a backup of the original config value
+            %LJ::_ORIG_CONFIG = ();
+            $LJ::_ORIG_CONFIG{$_} = ${$LJ::{$_}}
+                foreach qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
+
             $LJ::LOCKER_OBJ = undef;
 
             if ($modtime > $now - 60) {

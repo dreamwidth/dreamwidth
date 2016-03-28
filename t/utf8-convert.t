@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More tests => 7;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 ok(Unicode::MapUTF8::utf8_supported_charset("iso-8859-1"), "8859-1 is supported");
 ok(Unicode::MapUTF8::utf8_supported_charset("iso-8859-1"), "8859-1 is supported still");

@@ -13,29 +13,6 @@
 
 [%- sections.title=".title.$type" | ml -%]
 
-[%- IF type == 'nav' -%]
-   [%- FOREACH cats -%]
-        <h2>[% ".head.$name" | ml %]</h2>
-        <p>[% ".text.$name" | ml(query = query, sitename = site.nameshort) %]</p>
-        <ul class="bullet-list">
-        [%- FOREACH dst = list;
-              link_title = dst.title | html;
-              link_url = dst.url | html;
-              lju = dst.ljuser -%]
-
-          [%- IF lju -%]
-              [%- IF lju.is_visible -%]
-                <li>[% lju.ljuser_display %] - [% link_title %]</li>
-              [%- END -%]
-          [%- ELSE -%]
-                <li><a href="[% link_url %]">[% link_title %]</a></li>
-          [%- END -%]
-
-        [%- END -%]
-        </ul>
-   [%- END -%]
-[%- END -%]
-
 [%- IF type == 'im'; results; END -%]
 
 [%- IF type == 'region';

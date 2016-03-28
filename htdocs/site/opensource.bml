@@ -26,7 +26,7 @@ body<=
 
 <h1><?_ml .licensing.header _ml?></h1>
 
-<p><?_ml .licensing.main _ml?></p>
+<p><?_ml .licensing.main1 _ml?></p>
 
 <h1><?_ml .attrib.header _ml?></h1>
 
@@ -38,7 +38,7 @@ body<=
 
 <p><?_ml .development.main2 _ml?></p>
 
-<p><?_ml .development.directions2 _ml?></p>
+<p><?_ml .development.directions3 _ml?></p>
 
 <=body
 windowtitle=><?_ml .title _ml?>

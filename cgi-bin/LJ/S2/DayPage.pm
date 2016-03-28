@@ -27,18 +27,18 @@ sub DayPage
     $p->{'entries'} = [];
 
     my $user = $u->user;
-    my $journalbase = $u->journal_base( $opts->{'vhost'} );
+    my $journalbase = $u->journal_base( vhost => $opts->{'vhost'} );
 
     if ($u->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
 
-    # load for ajax cuttag
-    LJ::need_res( 'js/cuttag-ajax.js' );
-    LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.widget.js
-            js/jquery.cuttag-ajax.js
-        ) );
+    # include JS for quick reply, icon browser, and ajax cut tag
+    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref} &&
+                              ${$opts->{handle_with_siteviews_ref}};
+    LJ::Talk::init_s2journal_js( iconbrowser => $remote && $remote->can_use_userpic_select,
+                                 siteskin => $handle_with_siteviews, lastn => 1 );
+
     my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
     my $expanded = BML::ml( 'widget.cuttag.expanded' );
     my $collapseAll = BML::ml( 'widget.cuttag.collapseAll' );

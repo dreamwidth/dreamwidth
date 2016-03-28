@@ -67,5 +67,5 @@ sub save {
     return 1;
 }
 
-sub _example_url { "http://exampleusername.$LJ::DOMAIN/1234.html" }
+sub _example_url { "https://exampleusername.$LJ::DOMAIN/1234.html" }
 1;

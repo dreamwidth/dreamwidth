@@ -66,7 +66,7 @@ sub option {
     }, @options);
 
     if ( ! $u->best_guess_age ) {
-        $ret .= "<br /><span style='font-size: smaller;'> " . LJ::Lang::ml( 'setting.viewingadultcontent.reason', { aopts => "href='$LJ::SITEROOT/manage/profile'" } ) . "</span>";
+        $ret .= "<br /><span style='font-size: smaller;'> " . LJ::Lang::ml( 'setting.viewingadultcontent.reason', { aopts => "href='$LJ::SITEROOT/manage/profile/'" } ) . "</span>";
 
     }
 

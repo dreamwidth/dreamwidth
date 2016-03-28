@@ -20,14 +20,13 @@ use warnings;
 
 use Test::More tests => 42;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Typemap;
 use LJ::Test;
 
-my $table = 'cprodlist';
-my $classfield = 'class';
-my $idfield = 'cprodid';
+my $table = 'statkeylist';
+my $classfield = 'name';
+my $idfield = 'statkeyid';
 
 sub run_tests {
     my $tm;

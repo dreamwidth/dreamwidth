@@ -109,7 +109,7 @@
                 // second step, because we first need to find out how many
                 // total start with the term, and so need to be in the list
                 // those that only contain the term fill in any remaining slots
-                var responseArray = startsWithTerm;
+                var responseArray = startsWithTerm.slice(0, self.options.numMatches);
                 $.each(filtered, function(index, value) {
                     if ( responseArray.length >= self.options.numMatches )
                         return false;
@@ -232,6 +232,10 @@
                     _handleComplete.apply( self.uiAutocompleteInput, [ event, { item: { value: new_text } }, $element ] );
                 });
 
+                $(".autocomplete-container").click(function() {
+                    self.uiAutocompleteInput.focus();
+                });
+
                 $("span."+self.options.tokenTextClass, self.uiAutocomplete.get(0))
                 .live("click", function(event) {
                     delete self.tagslist[$(this).text()];
@@ -242,6 +246,8 @@
                         .width($(this).width()+5);
                     $(this).replaceWith($input);
                     $input.focus();
+
+                    event.stopPropagation();
                 });
 
                 $("input."+self.options.tokenTextClass,self.uiAutocomplete.get(0))

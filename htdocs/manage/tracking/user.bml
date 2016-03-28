@@ -41,24 +41,20 @@ body<=
 
     # what classes to display on this page
     my $cat_title = 'Track User';
-    my $categories =
-        [
-            { $cat_title =>
-                [
-                    LJ::Subscription::Pending->new( $remote,
-                        event   => "JournalNewEntry",
-                        arg1    => '?',
-                        journal => $journal,
-                        flags   => LJ::Subscription::TRACKING,
-                    ),
-                    LJ::Subscription::Pending->new( $remote,
-                        event   => "JournalNewEntry",
-                        journal => $journal,
-                        flags   => LJ::Subscription::TRACKING,
-                    ),
-                ]
-            },
-        ];
+    my $categories = [ { $cat_title => [ ] }, ];
+
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewEntry",
+            arg1    => '?',
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        ),
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewEntry",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        ) if $journal->is_visible;
 
     push @{ @$categories[0]->{$cat_title} },
         LJ::Subscription::Pending->new( $remote,
@@ -72,8 +68,9 @@ body<=
             event   => "JournalNewComment",
             journal => $journal,
             flags   => LJ::Subscription::TRACKING,
-        ) if $remote->can_track_all_community_comments( $journal );
-    
+        ) if $remote->can_track_all_community_comments( $journal )
+            && $journal->is_visible;
+
     push @{ @$categories[0]->{$cat_title} },
         LJ::Subscription::Pending->new( $remote,
             event    => "NewUserpic",
@@ -85,7 +82,7 @@ body<=
             event   => "Birthday",
             journal => $journal,
             flags   => LJ::Subscription::TRACKING,
-        );
+        ) if $journal->is_visible;
 
     # validate referer for ret_url
     my $referer = BML::get_client_header('Referer');

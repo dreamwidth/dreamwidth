@@ -7,7 +7,7 @@ Backlink=[<a href="[[link]]">&lt;&lt;</a> [[text]]]
 
 bml.badcontent.body=One or more errors occurred processing your request.  Please go back, correct the necessary information, and submit your data again.
 
-bml.badinput.body=Your browser sent some text which isn't recognised as valid text in the UTF-8 encoding. This might happen if you forced your browser to view the previous page in some encoding other than UTF-8. It may also indicate a bug in the browser. If you can't get around this error, contact us.
+bml.badinput.body1=Your browser sent some text which isn't recognised as valid text in the UTF-8 encoding. This might happen if you forced your browser to view the previous page in some encoding other than UTF-8. It may also indicate a bug in the browser. Try copying the text into a text editor such as Notepad, then copying it back into the text box. If you still can't get around this error, contact us.
 
 bml.badinput.head=Bad Unicode Input
 
@@ -55,223 +55,35 @@ collapsible.expanded=Collapse
 
 comment.rpc.posted=Your comment has been posted.
 
-contentflag.viewingconcepts.bycommunity=You are about to view content that a community administrator has advised should be viewed with discretion.
+contentflag.viewingconcepts.bycommunity.community=You're about to view content that a community administrator has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byjournal=You're about to view content which the journal owner has advised should be viewed with discretion.
+contentflag.viewingconcepts.byjournal.community=You're about to view content that a community administrator has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byposter=You're about to view content which the poster has advised should be viewed with discretion.
+contentflag.viewingconcepts.byposter.community=You're about to view content that the poster has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.bycommunity=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingconcepts.byjournal.personal=You're about to view content that the journal owner has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.byjournal=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingconcepts.byposter.personal=You're about to view content that the journal owner has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.byposter=You're about to view content that the poster has marked as potentially inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.bycommunity.community=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
 
-cprod.birthday.link.v1=birthdays
+contentflag.viewingexplicit.byjournal.community=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
 
-cprod.birthday.text.v1=Hey, [[user]], see which of your friends' [[link]] are coming up! Dreamwidth keeps a list of their birthdays for you.
+contentflag.viewingexplicit.byposter.community=You're about to view content that the poster has marked as potentially inappropriate for anyone under the age of 18.
 
-cprod.controlstrip.link.v1=Navigation Strip
+contentflag.viewingexplicit.byjournal.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
-cprod.controlstrip.text.v1=9 out of 10 LJ users prefer the [[link]].  (OK we made that up, but you should check it out anyway.)
-
-cprod.createstyles.text.v1=Your account type does not support creating styles.
+contentflag.viewingexplicit.byposter.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
 
-cprod.editpics.text6.v1=You've reached your limit of [[num]] userpics.
-
 cprod.editpics.text7.v1=You've reached your limit of [[num]] icons.
-
-cprod.editpicsmax.text5.v1=You've reached your limit of [[num]] userpics.
-
-cprod.editstyles.text.v1=Your account type does not permit you to edit styles.
-
-cprod.feeds.link.v1=syndicated feeds
-
-cprod.feeds.text.v1=Find good content outside of LJ? Add [[link]] to your Friends page so you never have to leave.
-
-cprod.friendsfriends.link2.v1=Friends of Friends
-
-cprod.friendsfriends.text2.v1=[[link]] page shows all your friends' Friends pages in one Friends page.  Say that three times fast!
 
 cprod.friendsfriendsinline.text3.v1=Sorry, this account type does not permit showing your network.
 
 cprod.links.text3.v1=Your account type doesn't permit you to have more links.
 
-cprod.polls.link.v1=poll creation wizard
-
-cprod.polls.text.v1=[[user]], you can post a poll in your journal using our [[link]]?  [[poll]]
-
 cprod.syn.text.v1=Note: This feature isn't available to your account type.
-
-cprod.textmessaging.text3.v1=Your account type doesn't permit you to use this feature.
-
-cprod.userpic.link.v1=default userpic
-
-cprod.userpic.text.v1=[[user]], did you know you could pick a [[link]] to go along with your posts and comments?
-
-crumb.acctstatus=Account Status
-
-crumb.addfriend=Add to Circle
-
-crumb.advcustomize=Customize Advanced S2 Settings
-
-crumb.advsearch=Advanced Search
-
-crumb.birthdays=Birthdays
-
-crumb.changeemail=Change Email Address
-
-crumb.changepass=Change Password
-
-crumb.comminvites=Community Invitations
-
-crumb.commmembers=Community Membership
-
-crumb.commpending=Pending Memberships
-
-crumb.commsearch=Community Search
-
-crumb.commsentinvites=Sent Invitations
-
-crumb.commsettings=Community Settings
-
-crumb.community=Community Center
-
-crumb.createcommunity=Create Community
-
-crumb.createjournal_1=Create Your Account
-
-crumb.createstyle=Create Style
-
-crumb.customize=Customize S2 Settings
-
-crumb.customizelayer=Individual Customizations
-
-crumb.delcomment=Delete Comment
-
-crumb.domain=Domain Aliasing
-
-crumb.editcomments=Comment Settings
-
-crumb.editentries=Edit Entries
-
-crumb.editfriendgrps=Edit Friends Groups
-
-crumb.editfriends=Edit Friends
-
-crumb.editinfo=Personal Info
-
-crumb.editpics=User Pictures
-
-crumb.editprofile=Edit Profile
-
-crumb.editsettings=Viewing Options
-
-crumb.editstyle=Edit Style
-
-crumb.edituserpics=Edit Userpics
-
-crumb.emailgateway=Email Gateway
-
-crumb.emailmanage=Email Management
-
-crumb.encodings=About Encodings
-
-crumb.export=Export Journal
-
-crumb.faq=Frequently Asked Questions
-
-crumb.feedstersearch=Search a Journal
-
-crumb.friends=Relationship Tools
-
-crumb.friendsfilter=Friends Filter
-
-crumb.home=Home
-
-crumb.invitefriend=Invite Someone
-
-crumb.joincomm=Join Community
-
-crumb.latestposts=Latest Posts
-
-crumb.layerbrowse=Public Layer Browser
-
-crumb.leavecomm=Leave This Community
-
-crumb.linkslist=Your Links
-
-crumb.login=Log in
-
-crumb.logout=Logout
-
-crumb.lostinfo=Lost Information
-
-crumb.manage=Manage Accounts
-
-crumb.managecommunity=Community Management
-
-crumb.managelogins=Manage Your Login Sessions
-
-crumb.memories=Memorable Entries
-
-crumb.mobilepost=Mobile Post Settings
-
-crumb.moderate=Community Moderation
-
-crumb.moodeditor=Custom Mood Theme Editor
-
-crumb.moodlist=Mood Viewer
-
-crumb.phonepostsettings=Phone Post
-
-crumb.popfaq=Popular FAQs
-
-crumb.register=Confirm Email
-
-crumb.searchinterests=Search By Interest
-
-crumb.seeoverrides=View User Overrides
-
-crumb.setpgpkey=Public Key
-
-crumb.sitestats=Site Statistics
-
-crumb.stats=Statistics
-
-crumb.styles=Styles
-
-crumb.support=Support
-
-crumb.supportact=Request Action
-
-crumb.supportappend=Append to Request
-
-crumb.supporthelp=Request Board
-
-crumb.supportnotify=Notification Settings
-
-crumb.supportscores=High Scores
-
-crumb.supportsubmit=Submit Request
-
-crumb.textmessage=Send Text Message
-
-crumb.translate=Translation Area
-
-crumb.translateteams=Translation Teams
-
-crumb.unsubscribe=Unsubscribe
-
-crumb.update=Update Journal
-
-crumb.utf8convert=UTF-8 Converter
-
-crumb.yourlayers=Your Layers
-
-crumb.yourstyles=Your Styles
 
 customize.cats.all=All
 
@@ -661,6 +473,21 @@ Enjoy!
 [[siteroot]]/
 .
 
+email.massprivacy.subject=Updated entry security for [[user]]
+
+email.massprivacy.body<<
+Dear [[user]],
+
+At your request, [[count]] [[oldsecurity]] [[?count|entry|entries]] [[timeframe]] have now been changed to [[newsecurity]].
+
+If you want to change the security on more of your entries, you can do so at:
+
+    [[privacyurl]]
+
+[[sitenameshort]] Team
+[[siteroot]]/
+.
+
 emailpost.reply.address=Reply as [[user]]
 
 embedmedia.vimeo=Watch on Vimeo
@@ -982,6 +809,8 @@ error.security.s1.2=Error: Sorry, security filtering is not supported within S1 
 
 error.support.invalid_category=Invalid support category
 
+error.support.mustbeloggedin=New support requests may only be submitted while logged in.
+
 error.support.nonuser=You cannot submit support requests from non-user accounts.
 
 error.support.norequest=You did not enter a support request.
@@ -1022,7 +851,7 @@ error.vhost.noalias=This user's account type doesn't permit domain aliasing.
 
 error.vhost.nocomm=This account isn't a community journal.
 
-error.vhost.nodomain=URLs like <nobr><b>http://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
+error.vhost.nodomain1=URLs like <nobr><b>https://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
 
 error.vhost.nostyle=This user's account type is not permitted to create and embed styles.
 
@@ -1190,21 +1019,21 @@ esn.journal_new_comment.admin_post.text=[ as admin ]
 
 esn.journal_new_comment.anonymous.comment=The reply was:
 
-esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post2=Somebody replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post3=Somebody replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post2=Somebody replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post3=Somebody replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.post2=Somebody replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.anonymous.reply_to.post3=Somebody replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.anonymous.reply_to.user_comment.to_post2=Somebody replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.user_comment.to_post3=Somebody replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post2=Somebody replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post3=Somebody replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_comment.to_post2=Somebody replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.your_comment.to_post3=Somebody replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2=Somebody replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post3=Somebody replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_post2=Somebody replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.anonymous.reply_to.your_post3=Somebody replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
 esn.journal_new_comment.edit_reason<<
 Reason for edit:
@@ -1219,71 +1048,71 @@ esn.journal_new_comment.subject=Subject:
 
 esn.journal_new_comment.user.comment=The reply was:
 
-esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post2=[[who]] edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post3=[[who]] edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post2=[[who]] edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post3=[[who]] edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.post2=[[who]] edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.user.edit_reply_to.post3=[[who]] edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.user.edit_reply_to.user_comment.to_post2=[[who]] edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.user_comment.to_post3=[[who]] edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post2=[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post3=[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_comment.to_post2=[[who]] edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.your_comment.to_post3=[[who]] edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post2=[[who]] edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post3=[[who]] edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_post2=[[who]] edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.user.edit_reply_to.your_post3=[[who]] edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
 esn.journal_new_comment.user.new_comment=The new reply is:
 
-esn.journal_new_comment.user.reply_to.anonymous_comment.to_post2=[[who]] replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.anonymous_comment.to_post3=[[who]] replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post2=[[who]] replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post3=[[who]] replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.post2=[[who]] replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.user.reply_to.post3=[[who]] replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.user.reply_to.user_comment.to_post2=[[who]] replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.user_comment.to_post3=[[who]] replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.user_comment.to_your_post2=[[who]] replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.user_comment.to_your_post3=[[who]] replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_comment.to_post2=[[who]] replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.your_comment.to_post3=[[who]] replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_comment.to_your_post2=[[who]] replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.your_comment.to_your_post3=[[who]] replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_post2=[[who]] replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.user.reply_to.your_post3=[[who]] replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
-esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post2=You edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post3=You edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post2=You edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post3=You edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.post2=You edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.you.edit_reply_to.post3=You edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.you.edit_reply_to.user_comment.to_post2=You edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.user_comment.to_post3=You edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post2=You edited a reply to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post3=You edited a reply to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_comment.to_post2=You edited a reply to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.your_comment.to_post3=You edited a reply to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post2=You edited a reply to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post3=You edited a reply to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_post2=You edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.you.edit_reply_to.your_post3=You edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
-esn.journal_new_comment.you.reply_to.anonymous_comment.to_post2=You replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.anonymous_comment.to_post3=You replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post2=You replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post3=You replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.post2=You replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.you.reply_to.post3=You replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:
 
-esn.journal_new_comment.you.reply_to.user_comment.to_post2=You replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.user_comment.to_post3=You replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.user_comment.to_your_post2=You replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.user_comment.to_your_post3=You replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_comment.to_post2=You replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.your_comment.to_post3=You replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_comment.to_your_post2=You replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.your_comment.to_your_post3=You replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_post2=You replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.you.reply_to.your_post3=You replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]][[postsecurity]] in which you said:
 
 esn.journal_new_comment.your.comment=Your reply was:
 
@@ -1293,11 +1122,11 @@ esn.journal_new_entry.about= titled "[[title]]"
 
 esn.journal_new_entry.admin_post=[ [[img]] as admin ]
 
-esn.journal_new_entry.head_comm=There is a new entry by [[poster]][[about]] in [[journal]].[[tags]]
+esn.journal_new_entry.head_comm2=There is a new entry by [[poster]][[about]][[postsecurity]] in [[journal]].[[tags]]
 
-esn.journal_new_entry.head_comm.admin_post=There is a new admin entry by [[poster]][[about]] in [[journal]].[[tags]]
+esn.journal_new_entry.head_comm2.admin_post=There is a new admin entry by [[poster]][[about]][[postsecurity]] in [[journal]].[[tags]]
 
-esn.journal_new_entry.head_user=[[poster]] has posted a new entry[[about]].[[tags]]
+esn.journal_new_entry.head_user2=[[poster]] has posted a new entry[[about]][[postsecurity]].[[tags]]
 
 esn.journal_new_entry.posted_new_entry=[[who]] posted a new entry in [[journal]].
 
@@ -1844,7 +1673,7 @@ fcklang.userprompt.site=External Site (optional)
 
 fcklang.userprompt.user=Username
 
-fcklang.videoprompt=Please enter the YouTube, PhotoBucket, or Google Video URL:
+fcklang.videoprompt=Please enter the YouTube or Google Video URL:
 
 Help=Help
 
@@ -2195,8 +2024,6 @@ menunav.shop.transferpoints=Transfer Shop Points
 
 notification_method.email.title=Email
 
-notification_method.im.title=IM
-
 notification_method.inbox.title=Inbox
 
 number.million=[[number]] million
@@ -2442,6 +2269,18 @@ portal.update.portalname=Journal Update
 portal.update.portaltitle=Update Your Journal
 
 portal.update.subject=Subject:
+
+post.security.access.c=The entry is visible to community members.
+
+post.security.access.p=The entry is visible to your access list.
+
+post.security.custom=The entry is visible to your custom access filter(s) [[filters]].
+
+post.security.private.c=The entry is only visible to community administrators.
+
+post.security.private.p=The entry is only visible to you (private).
+
+post.security.public=The entry is visible to everyone (public).
 
 protocol.bad_password=Your password is too easy to guess.  We strongly recommend you change it, otherwise you risk having your journal hijacked.  Visit [[siteroot]]/changepassword to change your password.
 
@@ -3098,9 +2937,17 @@ setting.sitescheme.label=Site Skin
 
 setting.sitescheme.label=Site Scheme
 
-setting.stickyentry.error.invalid=Invalid Dreamwidth entry ID or URL entered.
+setting.stickyentry.details.label=Note: blank entries will be ignored.
+
+setting.stickyentry.error.invalid2=Invalid Dreamwidth entry ID or URL entered for Sticky [[stickyid]].
+
+setting.stickyentry.error.duplicate=Duplicate ID or URL entered for Sticky [[stickyid]].
 
 setting.stickyentry.label=ID or URL of entry to make sticky
+
+setting.stickyentry.label2=IDs or URLs of Sticky Entries
+
+setting.stickyentryi.label=Sticky [[stickyid]]
 
 setting.stylemine.label=Comment Pages
 
@@ -3942,11 +3789,15 @@ sitescheme.footer.sitemap=Site Map
 
 sitescheme.footer.suggestion=Make a Suggestion
 
+sitescheme.navigation.accountlinks=Account Links
+
+sitescheme.navigation.sitelinks=Site Navigation
+
 siteskins.celerity.alt=Celerity: Black text on white background; olive color highlights
 
 siteskins.celerity.desc=Default-sized sans-serif font; vertical, fixed, non-expanding menus.
 
-siteskins.blueshift.alt=Blueshift: Black text ond white background; blue highlights
+siteskins.blueshift.alt=Blueshift: Black text on white background; blue highlights
 
 siteskins.blueshift.desc=Vertical, fixed, non-expanding menus.
 
@@ -4070,7 +3921,7 @@ You are receiving this email because you've requested notifications of new suppo
 
 .
 
-support.email.notif.update.body3<<
+support.email.notif.update.body4<<
 A follow-up to the following [[sitename]] support request has been submitted:
 
 Category: [[category]]
@@ -4079,6 +3930,12 @@ User: [[username]]
 URL: [[url]]
 Type: [[type]]
 Text:
+
+.
+
+support.email.notif.update.body.faqref=FAQ REFERENCE: [[faqref]]
+
+support.email.notif.update.body.text<<
 
 [[text]]
 
@@ -4647,39 +4504,6 @@ widget.accountstatistics.tags2=[[num_comma]] <a [[aopts]]>[[?num_raw|Tag|Tags]]<
 
 widget.accountstatistics.title=Account Stats
 
-widget.betafeature.btn.off=Turn OFF beta testing
-
-widget.betafeature.btn.on=Turn ON beta testing
-
-widget.betafeature.s2comments.off<<
-<p>Activate the testing version of the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
-
-<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.s2comments.on<<
-<p>You are currently testing the the sitescheme comments and reply pages. This is a complete rewrite of the existing pages into S2, the scripting language we use for journalstyles, which is more modern and flexible than the old code. It should be complete and a close match to old reply pages, but some bugs may still remain.</p>
-
-<p>To report bugs with the new comment and reply pages, leave a comment in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.s2comments.title=New S2 Comment Pages
-
-
-widget.betafeature.updatepage.off<<
-<p>Activate the testing version of the new Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
-
-<p>To report bugs with the new Create Entries page, <a href="http://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.updatepage.on<<
-<p>You are currently testing the Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
-
-<p>To report bugs with the new Create Entries page, <a href="http://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
-.
-
-widget.betafeature.updatepage.title=New Create Entries Page
-
 widget.comms.notavailable=This list is currently unavailable.
 
 widget.comms.recentactive=Recently Active Communities
@@ -4758,7 +4582,7 @@ widget.createaccountentercode.error.toofast=You're entering codes too quickly. P
 
 widget.createaccountentercode.getcode= If you do not have an account creation code, you can obtain one this way.
 
-widget.createaccountentercode.info=Enter an account creation code to create a new account:
+widget.createaccountentercode.info1=Enter an account creation code to create a new account:
 
 widget.createaccountentercode.pay2=Alternatively, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
 
@@ -4950,7 +4774,7 @@ widget.importchoosedata.item.lj_userpics.desc=Imports your icons (userpics). If 
 
 widget.importchoosesource.btn.continue=Continue &rarr;
 
-widget.importchoosesource.disabled=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
+widget.importchoosesource.disabled1=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
 
 widget.importchoosesource.error.nocredentials=Please provide a username and password for the service that you selected.
 
@@ -5052,9 +4876,13 @@ widget.inbox.menu.delete.btn=Delete Selected
 
 widget.inbox.menu.delete_all.btn=Delete All
 
+widget.inbox.menu.delete_all.entry.btn=Delete All for this Entry
+
 widget.inbox.menu.delete_all.subfolder.btn=Delete All in Subfolder
 
 widget.inbox.menu.mark_all_read.btn=Mark All Read
+
+widget.inbox.menu.mark_all_read.entry.btn=Mark All Read for this Entry
 
 widget.inbox.menu.mark_all_read.subfolder.btn=Mark Subfolder Read
 
@@ -5319,8 +5147,6 @@ widget.search.interestonly=Find people and communities interested in:
 widget.search.interestonly.btn=Find
 
 widget.search.jabber=Jabber ID
-
-widget.search.msn=MSN
 
 widget.search.region=Region
 

@@ -20,13 +20,12 @@ use warnings;
 
 use Test::More tests => 1;
 
-use lib "$ENV{LJHOME}/cgi-bin";
 use FindBin qw($Bin);
 chdir "$Bin/data/userpics" or die "Failed to chdir to t/data/userpics";
 
 package LJ;
 
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::HTMLControls;
 use LJ::Talk;
 

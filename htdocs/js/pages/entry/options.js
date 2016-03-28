@@ -24,10 +24,10 @@ jQuery(function($) {
                     var postPanels = [];
                     if ( $.fn.sortable ) {
                         $(".ui-sortable").each(function(columnNum) {
-                            var ids = $(this).sortable("toArray");
-                            for ( var i = 0; i < ids.length; i++ ) {
-                                if ( ids[i] != "" )
-                                    postPanels.push( { "name" : "column_"+columnNum, "value": i+":"+ids[i] } );
+                            var panelNames = $(this).sortable("toArray", { attribute: "data-collapse"});
+                            for ( var i = 0; i < panelNames.length; i++ ) {
+                                if ( panelNames[i] != "" )
+                                    postPanels.push( { "name" : "column_"+columnNum, "value": i+":"+panelNames[i] } );
                             }
                         });
                     }

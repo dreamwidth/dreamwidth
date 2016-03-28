@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "unsuspend" }
 
-sub desc { "Unsuspend an account or entry." }
+sub desc { "Unsuspend an account or entry. Requires priv: suspend." }
 
 sub args_desc { [
                  'username or email address or entry url' => "The username of the account to unsuspend, or an email address to unsuspend all accounts at that address, or an entry URL to unsuspend a single entry within an account",

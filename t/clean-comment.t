@@ -16,10 +16,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 28;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
 
 my $orig_comment;
@@ -73,6 +72,36 @@ $clean_comment = qq{<span style="\\s*padding-top: 200px;\\s*padding-left: 200px;
 $clean->({ remove_positioning => 1 });
 ok($orig_comment =~ /^$clean_comment$/, "Padding not removed; of reasonable size.");
 
+$orig_comment = qq{<font color="red">test};
+$clean_comment = qq{<font color="red">test</font>};
+$clean->();
+ok($orig_comment eq $clean_comment, "Font tag closed.");
+
+$orig_comment = qq{<font color="red"></div>test};
+$clean_comment = qq{<font color="red">test</font>};
+$clean->();
+ok($orig_comment eq $clean_comment, "Spurious closing div stripped.");
+
+$orig_comment = qq{<font color="red"><div>test</font>};
+$clean_comment = qq{<font color="red"><div>test</div></font>};
+$clean->();
+ok($orig_comment eq $clean_comment, "Closing div inserted.");
+
+$orig_comment = qq{<div><font color="red"></div>test</font>};
+$clean_comment = qq{<div><font color="red"></font></div>test};
+$clean->();
+ok($orig_comment eq $clean_comment, "Bad open/closes fixed.");
+
+$orig_comment = qq{<h1><h2><h3><h1><h2><h3>};
+$clean_comment = qq{<h1><h2><h3><h1><h2><h3></h3></h2></h1></h3></h2></h1>};
+$clean->();
+ok($orig_comment eq $clean_comment, "Aggressively close things.");
+
+$orig_comment = qq{<h1><h2><h3><h1></h2><h2></h3><h3>};
+$clean_comment = qq{<h1><h2><h3><h1></h1></h3></h2><h2><h3></h3></h2></h1>};
+$clean->();
+ok($orig_comment eq $clean_comment, "Aggressive close with eaten extra close.");
+
 note( "Remove absolute sizes when logged out" );
 {
     $orig_comment  = qq{<span style="font-size: larger">foo</span>};
@@ -89,8 +118,6 @@ note( "Remove absolute sizes when logged out" );
     $clean_comment = qq{<span style=" font-weight: bold">foo</span>};
     $clean->( { anon_comment => 1 } );
     is( $orig_comment, $clean_comment, "Strip absolute font sizes" );
-
-
 }
 
 note( "Don't remove absolute sizes when logged in" );

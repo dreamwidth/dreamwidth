@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "get_maintainer" }
 
-sub desc { "Given a community username, lists all maintainers. Given a user account, lists all communities that the user maintains." }
+sub desc { "Given a community username, lists all maintainers. Given a user account, lists all communities that the user maintains. Requires priv: finduser." }
 
 sub args_desc { [
                  'user' => "The username of the account you want to look up.",

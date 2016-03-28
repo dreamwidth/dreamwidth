@@ -15,8 +15,7 @@
 
 
 use strict;
-use lib "$LJ::HOME/cgi-bin";
-require 'ljlib.pl';
+require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 
 package LJ::SixDegrees;
 

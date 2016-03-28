@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "print" }
 
-sub desc { "This is a debugging function. Given any number of arguments, it'll print each one back to you. If an argument begins with a bang (!), then it'll be printed to the error stream instead." }
+sub desc { "This is a debugging function. Given any number of arguments, it'll print each one back to you. If an argument begins with a bang (!), then it'll be printed to the error stream instead. Requires priv: none." }
 
 sub args_desc { [] }
 

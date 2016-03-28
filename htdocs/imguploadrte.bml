@@ -27,7 +27,6 @@ _c?>
 
     LJ::need_res( "stc/display_none.css",
                  "js/browserdetect.js" );
-    LJ::need_res( "js/photobucket_jw.js" ) if $LJ::PHOTOBUCKET_JWIDGET_ID;
     my $js = "";
     if ($GET{upload_count} || LJ::did_post()) {
 
@@ -218,27 +217,6 @@ _c?>
                 <input id="txtAttStyle" style="WIDTH: 100%" type="text">
                 </div>
             };
-    
-        # photobucket tab
-        if ( $LJ::PHOTOBUCKET_JWIDGET_ID ) {
-            $ret .= qq{
-                    <div id="divPhotobucket" style="DISPLAY: none">
-                    <script type="text/javascript">
-                        // Safari can't use the advanced JWidget integration so the callback
-                        // URL is set to nothing
-                        var cb_url = "&url=" + escape(seedurl);
-                        var inRTE = true;
-                        var browser = new BrowserDetectLite();
-                        if (browser.isSafari) cb_url = '';
-    
-                        document.write('<iframe name="jwidget" id="jwidget" src="http://photobucket.com/svc/jwidget.php?width=360&height=400&largeThumb=true&pbaffsite='+pb_affsite_id+'&bg=%23F7F7F7&border=false&bordercolor=%23000000'+cb_url+'&linkType=url&textcolor=%23000000&linkcolor=%230000FF&media=image&btntxt=Paste&dimensions=false&promo=false" bgcolor="transparent" width="99%" height="440" frameborder="0" scrolling="no"></iframe>');
-                    </script>
-                    </div>
-                };
-    
-            $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb';";
-            $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
-        }
     
     $$body = $ret;
     $$head .= LJ::res_includes();

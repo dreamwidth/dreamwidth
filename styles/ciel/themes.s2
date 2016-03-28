@@ -753,7 +753,7 @@ set color_navlinks_link_hover_background = "#ffb2d0";
 ## Fonts
 ##===============================
 
-set font_sources= "http://fonts.googleapis.com/css?family=Bonbon";
+set font_sources= "https://fonts.googleapis.com/css?family=Bonbon";
 set font_journal_title = "Bonbon";
 
 function Page::print_theme_stylesheet() { """
@@ -963,7 +963,7 @@ set font_management = "'Noticia Text'";
 set font_module_heading = "'Chelsea Market'";
 set font_module_text = "'Noticia Text'";
 set font_navlinks = "'Noticia Text'";
-set font_sources = "http://fonts.googleapis.com/css?family=Noticia+Text:400,400italic|Chelsea+Market";
+set font_sources = "https://fonts.googleapis.com/css?family=Noticia+Text:400,400italic|Chelsea+Market";
 
 
 #NEWLAYER: ciel/chelsealight
@@ -1007,7 +1007,7 @@ set font_management = "'Noticia Text'";
 set font_module_heading = "'Chelsea Market'";
 set font_module_text = "'Noticia Text'";
 set font_navlinks = "'Noticia Text'";
-set font_sources = "http://fonts.googleapis.com/css?family=Noticia+Text:400,400italic|Chelsea+Market";
+set font_sources = "https://fonts.googleapis.com/css?family=Noticia+Text:400,400italic|Chelsea+Market";
 
 
 #NEWLAYER: ciel/chocolatemint
@@ -2036,7 +2036,7 @@ set font_management = "'News Gothic MT'";
 set font_module_heading = "'Germania One'";
 set font_module_text = "'News Gothic MT'";
 set font_navlinks = "'News Gothic MT'";
-set font_sources = "http://fonts.googleapis.com/css?family=Germania+One";
+set font_sources = "https://fonts.googleapis.com/css?family=Germania+One";
 
 
 #NEWLAYER: ciel/enchantedforest
@@ -2488,7 +2488,7 @@ set color_navlinks_link_hover_background = "#ECABFF";
 ## Fonts
 ##===============================
 
-set font_sources= "http://fonts.googleapis.com/css?family=Bonbon";
+set font_sources= "https://fonts.googleapis.com/css?family=Bonbon";
 set font_journal_title = "Bonbon";
 
 function Page::print_theme_stylesheet() { """
@@ -4113,7 +4113,7 @@ set font_management = "Helvetica";
 set font_module_heading = "'Text Me One'";
 set font_module_text = "Helvetica";
 set font_navlinks = "Helvetica";
-set font_sources = "http://fonts.googleapis.com/css?family=Text+Me+One&subset=latin,latin-ext";
+set font_sources = "https://fonts.googleapis.com/css?family=Text+Me+One&subset=latin,latin-ext";
 
 
 #NEWLAYER: ciel/persephone

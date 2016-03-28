@@ -162,10 +162,10 @@ sub run_commands_html {
     my $out;
     foreach my $c (LJ::Console->parse_text($text)) {
         $out .= $c->as_html;
-        $out .= "<pre><strong>";
+        $out .= "<pre><span class='console_text'>";
         $c->execute_safely;
         $out .= join("\n", map { $_->as_html } $c->responses);
-        $out .= "</strong></pre>";
+        $out .= "</span></pre>";
     }
 
     return $out;
@@ -197,7 +197,9 @@ sub command_reference_html {
 
         $ret .= "<hr /><div class='$style'><h2 id='cmd.$cmd'><code><b>$cmd</b> ";
         $ret .= LJ::ehtml($class->usage);
-        $ret .= "</code></h2>\n";
+        $ret .= "</code>";
+        $ret .= " (unavailable)" unless $class->can_execute;
+        $ret .= "</h2>\n";
         $ret .= "<p><em><?_ml error.console.notpermitted _ml?></em></p>" unless $class->can_execute;
 
         $ret .= $class->desc;

@@ -15,10 +15,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 49;
+use Test::More tests => 58;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::Hooks::EmbedWhitelist;
 
@@ -27,7 +26,8 @@ sub test_good_url {
     my $url = $_[0];
     my $msg = $_[1];
     subtest "good embed url $url", sub {
-        ok( LJ::Hooks::run_hook( "allow_iframe_embeds", $url ), $msg );
+        my ( $url_ok, $can_https ) = LJ::Hooks::run_hook( "allow_iframe_embeds", $url );
+        ok( $url_ok, $msg );
     }
 }
 
@@ -86,6 +86,7 @@ note( "misc" );
     test_good_url( "http://maps.google.com/maps?f=q&source=s_q&hl=en&geocode=&q=somethingsomething&aq=0&sll=00.000,-00.0000&sspn=0.00,0.0&vpsrc=0&ie=UTF8&hq=&hnear=somethingsomething&z=0&ll=0,-00&output=embed" );
     test_good_url( "https://www.google.com/calendar/b/0/embed?showPrint=0&showTabs=0&showCalendars=0&showTz=0&height=600&wkst=1&bgcolor=%23FFFFFF&src=foo%40group.calendar.google.com" );
     test_good_url( "https://docs.google.com/spreadsheet/pub?key=0ArL0HD_lYDPadEkxSi1DTzJDa09GUmtzWEEwUDd4WFE&output=html&widget=true" );
+    test_good_url( "https://docs.google.com/spreadsheets/d/1P84CUNTo5O4ZW7R58Gl1ksCknFx3p59XzzQa7y67IaI/pubhtml?gid=23737011&single=true&widget=true&headers=false" );
     test_good_url( "https://docs.google.com/document/d/1Bo38jRzUWrEAHT6oaNyeGLlluscRY6TS2lE2E1T94dQ/pub?embedded=true" );
     test_good_url( "https://docs.google.com/presentation/d/1AxZkO9k4ISxku0__jRD8Im6mJC9xv5i4MgETEJ_MnA8/embed?start=false&loop=false&delayms=3000" );
 
@@ -105,8 +106,6 @@ note( "misc" );
     test_good_url( "http://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F23318382&show_artwork=true" );
 
     test_good_url( "https://embed.spotify.com/?uri=spotify:track:1DeuZgn99eUC1hreXTWBvY" );
-
-    test_good_url( "http://www.twitvid.com/embed.php?guid=QNDLU&autoplay=0" );
 
     test_good_url( "http://player.vimeo.com/video/123123123?title=0&byline=0&portrait=0" );
     test_bad_url( "http://player.vimeo.com/video/123abc?title=0&byline=0&portrait=0" );
@@ -129,6 +128,22 @@ note( "misc" );
     test_good_url( "https://www.flickr.com/photos/cards_by_krisso/13983859958/player/" );
 
     test_good_url( "http://www.npr.org/templates/event/embeddedVideo.php?storyId=326182003&mediaId=327658636" );
+
+    test_good_url( "//imgur.com/a/J4OKE/embed" );
+
+    test_good_url( "https://vine.co/v/bjHh0zHdgZT/embed/simple" );
+    test_bad_url( "https://vine.co/v/bjHh0zHdgZT/embed/postcard" );
+    test_bad_url( "https://vine.co/v/bjHh0zHdgZT/embed" );
+    test_bad_url( "https://vine.co/v/abc/embed/simple" );
+
+    test_good_url( "//www.jigsawplanet.com/?rc=play&amp;pid=35458f1355c4&amp;view=iframe" );
+
+    test_good_url( "https://screen.yahoo.com/fashion-photographer-life-changed-chance-193621376.html?format=embed" );
+
+    test_good_url( "//www.zippcast.com/videoview.php?vplay=6c91dae3fc1bc909db0&auto=no" );
+
+    test_good_url( "//codepen.io/enxaneta/embed/gPeZdP/?height=268&theme-id=0&default-tab=result" );
+
 }
 
 

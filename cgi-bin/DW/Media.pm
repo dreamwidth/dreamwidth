@@ -110,9 +110,18 @@ sub upload_media {
 
     # set the security
     my $sec = $opts{security} || 'public';
+    if ( $sec =~ /^(?:friends|access)$/ ) {
+        $sec = 'usemask' ;
+        $opts{allowmask} = 1;
+    }
     croak 'Invalid security for uploaded file.'
         unless $sec =~ /^(?:public|private|usemask)$/;
-    $opts{allowmask} = 0 unless defined $opts{allowmask} && $sec eq 'usemask';
+    if ( $sec eq 'usemask' ) {
+        # default allowmask of 0 unless defined otherwise
+        $opts{allowmask} //= 0;
+    } else {
+        $opts{allowmask} = 0;
+    }
 
     # now we can cook -- allocate an id and upload
     my $id = LJ::alloc_user_counter( $opts{user}, 'A' )

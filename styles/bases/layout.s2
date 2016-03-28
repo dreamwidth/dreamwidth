@@ -80,6 +80,13 @@ propgroup colors {
 
     property use color_header_background;
     property use color_page_title;
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+    property Color color_header_link_background { des = "Header link background color"; }
+    property Color color_header_link_border { des = "Header link border color"; }
+    property Color color_header_link_hover_background { des = "Header link hover background color"; }
 
     property use color_entry_background;
     property use color_entry_text;
@@ -282,7 +289,7 @@ function print_module_navlinks() {
 
 function Page::print()
 {
-    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<!DOCTYPE html>\n<html lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
     $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
@@ -395,7 +402,7 @@ var Color element_background = $*color_page_background->lighter();
             $navlinks_css = """
 
             .module-navlinks ul {
-                background: $*color_module_title_background;
+                background: $*color_header_link_background;
                 font-size: 1em;
                 font-weight: bold;
                 line-height: 2.2em;
@@ -413,32 +420,36 @@ var Color element_background = $*color_page_background->lighter();
                 }
 
             .module-navlinks li:first-child {
-                border-left: .083em solid $*color_module_background;
+                border-left: .083em solid $*color_header_link_border;
                 margin-left: .6em !important;
                 }
 
             .module-navlinks li:hover {
-                background: $*color_module_link_hover;
+                background: $*color_header_link_hover_background;
                 }
 
             .module-navlinks li a {
-                border-right: .083em solid $*color_module_background;
+                border-right: .083em solid $*color_header_link_border;
                 line-height: 2.2em;
                 padding: .5em .833em;
+                color: $*color_header_link;
                 }
 
             .module-navlinks li a:hover {
                 text-decoration: underline;
+                color: $*color_header_link_hover;
                 }
 
             .module-navlinks li.current {
-                background: $*color_module_link_hover;
+                background: $*color_header_link_hover_background;
                 }
 
-            .module-navlinks li a,
-            .module-navlinks li a:hover,
+            .module-navlinks li a:active {
+                color: $*color_header_link_active;
+                }
+
             .module-navlinks li a:visited {
-                color: $*color_module_title;
+                color: $*color_header_link_visited;
                 }
             """;
         }
@@ -754,7 +765,7 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 .access-filter, .restrictions {float: left; margin: 0.25em 0.5em 0.25em 0.5em;}
 
 .has-userpic .entry .userpic { border: 0.083em solid $*color_entry_border; padding: 0.2em; margin: 0.5em; background: $*color_entry_background; }
-.entry .userpic img {border: 0;}
+.entry .userpic img {border: 0; display:block;}
 .entry .userpic img:hover {opacity: .7;}
 
 .entry-poster { display: block; border-bottom: 0.083em solid $*color_entry_border; padding: 0.167em 0.833em 0.167em 0.833em;}

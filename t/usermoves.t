@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Event;
 use FindBin qw($Bin);
 
@@ -39,6 +38,7 @@ ok($u->{clusterid}, "on a clusterid ($u->{clusterid})");
 my @others = grep { $u->{clusterid} != $_ } @LJ::CLUSTERS;
 my $dest = shift @others;
 
+$ENV{DW_TEST} = 1;
 my $rv = system("$ENV{LJHOME}/bin/moveucluster.pl", "--ignorebit", "--destdel", "--verbose=0", "system", $dest);
 ok(!$rv, "no errors moving to cluster $dest");
 

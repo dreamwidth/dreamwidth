@@ -107,7 +107,7 @@ sub event {
                                      });
 
     # create iframe from <lj-embed> tag
-    LJ::EmbedModule->expand_entry( $self->journal, \$event) ;
+    LJ::EmbedModule->expand_entry( $self->journal, \$event ) ;
 
     return $event;
 }

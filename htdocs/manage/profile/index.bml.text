@@ -7,8 +7,6 @@
 
 .chat.jabber=Jabber
 
-.chat.msnusername=MSN Username
-
 .chat.skype=Skype
 
 .chat.yahooid=Yahoo! ID
@@ -107,10 +105,6 @@
 
 .fn.link2=Link URL
 
-.fn.ljtalk.address=[[siteabbrev]] Chat Address
-
-.fn.ljtalk.status=[[siteabbrev]] Chat Status
-
 .fn.location=Location
 
 .fn.mutualfriends3=Mutual Lists
@@ -122,8 +116,6 @@
 .fn.province=or non-US State/province/territory
 
 .fn.servprov=Service Provider
-
-.fn.showljtalk=Who can see your online chat status?
 
 .fn.sitename2=Link Name
 
@@ -205,11 +197,15 @@
 
 .services.delicious=Delicious Username
 
+.services.deviantart=DeviantArt Username
+
 .services.diigo=Diigo Username
 
 .services.etsy=Etsy Username
 
 .services.ffnet=FanFiction.net Username
+
+.services.github=GitHub Username
 
 .services.last_fm=Last.fm Username
 

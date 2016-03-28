@@ -16,7 +16,6 @@ use strict;
 
 use Digest::MD5 qw(md5_hex);
 
-use lib "$LJ::HOME/cgi-bin";
 use LJ::Sysban;
 use LJ::Faq;
 
@@ -202,6 +201,20 @@ sub fill_request_with_cat
 {
     my ($sp, $cats) = @_;
     $sp->{_cat} = $cats->{$sp->{'spcatid'}};
+}
+
+sub open_request_status {
+    my ($timetouched, $timelasthelp) = @_;
+    my $status;
+    if ($timelasthelp > $timetouched+5) {
+        $status = "awaiting close";
+    } elsif ($timelasthelp &&
+             $timetouched > $timelasthelp+5) {
+        $status = "still needs help";
+    } else {
+        $status = "open";
+    }
+    return $status;
 }
 
 sub is_poster {
@@ -439,7 +452,7 @@ sub set_prop
 }
 
 # $loadreq is used by /abuse/report.bml and
-# LJ::Cmdbuffer to signify that the full request
+# to signify that the full request
 # should not be loaded.  To simplify code going live,
 # Whitaker and I decided to not try and merge it
 # into the new $opts hash.
@@ -557,6 +570,9 @@ sub file_request
     my $o = shift;
 
     my $email = $o->{'reqtype'} eq "email" ? $o->{'reqemail'} : "";
+    unless ( LJ::is_enabled( 'loggedout_support_requests' ) || !$email ) {
+        push @$errors, LJ::Lang::ml( "error.support.mustbeloggedin" );
+    }
     my $log = { 'uniq' => $o->{'uniq'},
                 'email' => $email };
     my $userid = 0;
@@ -907,6 +923,40 @@ sub touch_request
     return 1;
 }
 
+# Extra email addresses are stored as support properties
+# - nb_extra_addresses: number of extra addresses (if not present, 0)
+# - extra_address_$n: extra address $n (0<=$n<nb_extra_addresses)
+
+sub add_email_address {
+    my ( $sp, $address ) = @_;
+
+    # Already present?
+    return if grep { $_ eq $address } all_email_addresses( $sp );
+
+    # Add
+    my $props = load_props( $sp->{spid} + 0 );
+    my $nb_extra_addresses = $props->{nb_extra_addresses} || 0;
+    set_prop( $sp->{spid}, 'nb_extra_addresses', $nb_extra_addresses + 1 );
+    set_prop( $sp->{spid}, "extra_address_$nb_extra_addresses", $address );
+}
+
+sub all_email_addresses {
+    my ( $sp ) = @_;
+
+    my $props = load_props( $sp->{spid} + 0 );
+    my @emails = map { $props->{"extra_address_$_"} }
+                     0..( ( $props->{nb_extra_addresses} || 0 ) - 1 );
+
+    if ( $sp->{reqtype} eq 'email' ) {
+        push @emails, $sp->{reqemail};
+    } else {
+        my $u = LJ::load_userid($sp->{requserid});
+        push @emails, ( $u->email_raw || $sp->{reqemail} );
+    }
+
+    return @emails;
+}
+
 sub mail_response_to_user
 {
     my $sp = shift;
@@ -916,13 +966,7 @@ sub mail_response_to_user
 
     my $res = load_response($splid);
     my $u;
-    my $email;
-    if ($sp->{'reqtype'} eq "email") {
-        $email = $sp->{'reqemail'};
-    } else {
-        $u = LJ::load_userid($sp->{'requserid'});
-        $email = $u->email_raw || $sp->{'reqemail'};
-    }
+    $u = LJ::load_userid( $sp->{requserid} ) if $sp->{reqtype} ne 'email';
 
     my $spid = $sp->{'spid'}+0;
     my $faqid = $res->{'faqid'}+0;
@@ -998,14 +1042,18 @@ sub mail_response_to_user
         $body .= "\n\n" . LJ::Lang::ml( "support.email.update.noreply" );
     }
 
-    LJ::send_mail({
-        'to' => $email,
-        'from' => $fromemail,
-        'fromname' => LJ::Lang::ml( "support.email.fromname", { sitename => $LJ::SITENAME } ),
-        'charset' => 'utf-8',
-        'subject' => LJ::Lang::ml( "support.email.update.subject", { subject => $sp->{'subject'} } ),
-        'body' => $body
-        });
+    foreach my $email ( all_email_addresses( $sp ) ) {
+        LJ::send_mail( {
+            to => $email,
+            from => $fromemail,
+            fromname => LJ::Lang::ml( 'support.email.fromname',
+                                      { sitename => $LJ::SITENAME } ),
+            charset => 'utf-8',
+            subject => LJ::Lang::ml( 'support.email.update.subject',
+                                     { subject => $sp->{subject} } ),
+            body => $body
+            } );
+    }
 
     if ($type eq "answer") {
         $dbh->do("UPDATE support SET timelasthelp=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP() WHERE spid=$spid");
@@ -1063,6 +1111,7 @@ sub work {
           }
 
         $body = LJ::Lang::ml( "support.email.notif.new.body2", {
+                sitename => $LJ::SITENAMESHORT,
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
                 username => LJ::trim( $show_name ),
@@ -1084,19 +1133,20 @@ sub work {
 
     } elsif ($type eq 'update') {
         # load the response we want to stuff in the email
-        my ($resp, $rtype, $posterid) =
-            $dbr->selectrow_array("SELECT message, type, userid FROM supportlog WHERE spid = ? AND splid = ?",
+        my ($resp, $rtype, $posterid, $faqid) =
+            $dbr->selectrow_array("SELECT message, type, userid, faqid FROM supportlog WHERE spid = ? AND splid = ?",
                                   undef, $sp->{spid}, $a->{splid}+0);
 
         # set up $show_name for this environment
         my $show_name;
         if ( $posterid ) {
-            my $u = LJ::load_userid ( $posterid );
+            my $u = LJ::load_userid( $posterid );
             $show_name = $u->display_name if $u;
         }
 
         $show_name ||= $sp->{reqname};
 
+        # set up $response_type for this environment
         my $response_type = {
             req => "New Request", # not applicable here
             answer => "Answer",
@@ -1106,14 +1156,39 @@ sub work {
         }->{$rtype};
 
         # build body
-        $body = LJ::Lang::ml( "support.email.notif.update.body3", {
+        $body = LJ::Lang::ml( "support.email.notif.update.body4", {
+                sitename => $LJ::SITENAMESHORT,
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
-                type => $response_type,
                 username => LJ::trim( $show_name ),
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",
-                text => $resp
+                type => $response_type
             } );
+        if ( $faqid ) {
+            # need to set up $lang
+            my ( $lang, $u );
+            $u = LJ::load_userid( $posterid ) if $posterid;
+            $lang = LJ::Support::prop( $spid, 'language' )
+                if LJ::is_enabled( 'support_request_language' );
+            $lang ||= $u->prop( 'browselang' ) if $u;
+            $lang ||= $LJ::DEFAULT_LANG;
+            
+            # now actually get the FAQ
+            my $faq = LJ::Faq->load( $faqid, lang => $lang );
+            if ( $faq ) {
+                $faq->render_in_place;
+                my $faqref = $faq->question_raw . " " . "$LJ::SITEROOT/support/faqbrowse?faqid=$faqid&view=full";
+
+                # now add it to the e-mail!
+                $body .= "\n" . LJ::Lang::ml( "support.email.notif.update.body.faqref", {
+                        faqref => $faqref
+                } );
+                $body .= "\n";
+            }
+        }
+        $body .= LJ::Lang::ml( "support.email.notif.update.body.text", {
+                text => $resp
+        } );
         $body .= "\n\n" . "="x4 . "\n\n";
         $body .= LJ::Lang::ml( "support.email.notif.update.footer", {
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",

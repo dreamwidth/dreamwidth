@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "reset_email" }
 
-sub desc { "Resets the email address of a given account." }
+sub desc { "Resets the email address of a given account. Requires priv: reset_email." }
 
 sub args_desc { [
                  'user' => "The account to reset the email address for.",

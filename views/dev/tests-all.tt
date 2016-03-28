@@ -1,3 +1,14 @@
+[%# Helper for JS tests
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
 [%-
     # it's all right to require jquery here because the other tests load up in a sandbox
     # and the different js library versions can't interfere with one another

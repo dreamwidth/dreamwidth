@@ -208,7 +208,7 @@ $.widget("dw.cuttag_controls", {
     },
     _create: function() {
         var self = this;
-        var cuttags = $("span.cuttag");
+        var cuttags = $("span.cuttag[id]");
 
         if ( cuttags.size() == 0 ) return;
 
@@ -218,7 +218,7 @@ $.widget("dw.cuttag_controls", {
         var self = this;
         self.element.empty();
 
-        var cuttags = $("span.cuttag");
+        var cuttags = $("span.cuttag[id]");
 
         var aria_open = "";
         var aria_closed = "";
@@ -255,7 +255,7 @@ $.widget("dw.cuttag_controls", {
 
             a_exp.click(function() {
                 isExpandingAll = 1;
-                var cuttags = $("span.cuttag");
+                var cuttags = $("span.cuttag[id]");
                 cuttags.each(function (_,element) {
                     $(element).data("dw-cuttag").open();
                 });
@@ -308,7 +308,7 @@ $.extend( $.dw.cuttag_controls, {
 
 $.extend( $.dw.cuttag, {
     initLinks: function(context) {
-        var cuttags = $("span.cuttag",context);
+        var cuttags = $("span.cuttag[id]",context);
 
         cuttags.each(function (_,element) {
             $(element).cuttag();

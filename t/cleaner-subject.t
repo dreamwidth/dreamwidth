@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More 'no_plan'; # tests => TODO;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 

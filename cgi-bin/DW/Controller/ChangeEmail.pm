@@ -43,7 +43,6 @@ sub changeemail_handler {
     return error_ml( '/changeemail.tt.error.suspended' ) if $u->is_suspended;
     
     $vars->{getextra} = ( $u ne $remote) ? ( "?authas=" . $u->user ) : '';
-    $vars->{usessl} = $LJ::USE_SSL;
 
     my $is_identity_no_email = $u->is_identity && !$u->email_raw;
     $vars->{noemail} = 1 if $is_identity_no_email;

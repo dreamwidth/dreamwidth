@@ -106,7 +106,7 @@ sub as_html {
     # put the string together
     return "Your $item_has $succeeded.";
 }
-    
+
 # content is the main body of the event
 sub content {
     my $self = $_[0];
@@ -160,29 +160,14 @@ sub _optsref {
     return $self->{_optsref} = thaw( $item );
 }
 
-# override parent class sbuscriptions method to always return
+# override parent class subscriptions method to always return
 # a subscription object for the user
-sub subscriptions {
-    my ( $self, %args ) = @_;
-    my $cid   = delete $args{'cluster'};  # optional
-    my $limit = delete $args{'limit'};    # optional
-    croak("Unknown options: " . join(', ', keys %args)) if %args;
-    croak("Can't call in web context") if LJ::is_web_context();
+sub raw_subscriptions {
+    my ( $class, $self, %args ) = @_;
 
-    my @subs;
-    my $u = $self->u;
-    return unless $cid == $u->clusterid;
+    $args{ntypeid} = LJ::NotificationMethod::Inbox->ntypeid; # Inbox
 
-    my $row = { userid  => $self->u->id,
-                ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-              };
-
-    push @subs, LJ::Subscription->new_from_row($row);
-
-    push @subs, eval { $self->SUPER::subscriptions(cluster => $cid,
-                                                   limit   => $limit) };
-
-    return @subs;
+    return $class->_raw_always_subscribed( $self, %args );
 }
 
 sub get_subscriptions {

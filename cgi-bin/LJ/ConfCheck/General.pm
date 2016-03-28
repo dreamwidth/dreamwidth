@@ -23,8 +23,8 @@ use LJ::ConfCheck;
 add_singletons(qw(
                   @USER_TABLES $PROTOCOL_VER $MAX_DVERSION
                   $CLEAR_CACHES $BIN $HTDOCS
-                  $ACTIVE_CRUMB $IMGPREFIX_BAK $IS_SSL
-                  $_XFER_REMOTE_IP $STATPREFIX_BAK
+                  $IMGPREFIX_BAK $IS_SSL
+                  $STATPREFIX_BAK
                   %LIB_MOD_TIME %MEMCACHE_ARRAYFMT
                   @MEMCACHE_SERVERS %MEMCACHE_PREF_IP
                   %DEBUG %COMMON_CODE %CLUSTER_PAIR_ACTIVE
@@ -84,12 +84,6 @@ add_conf('$COOKIE_DOMAIN',
          des => "The 'domain' value set on cookies sent to users.  By default, value is \".\$DOMAIN\".  Note the leading period, which is a wildcard for everything at or under \$DOMAIN.",
          );
 
-add_conf('$DB_LOG_HOST',
-         required => 0,
-         type => "hostport",
-         des => "An optional host:port to send UDP packets to with blocking reports.  See LJ::blocking_report(..)",
-         );
-
 add_conf('$DB_TIMEOUT',
          required => 0,
          type => "int",
@@ -118,9 +112,6 @@ add_conf('@LANGS_IN_PROGRESS',
 
 add_conf('@CLUSTERS',
          des => "Array of cluster numbers in operation.");
-
-add_conf('@QBUFFERD_CLUSTERS',
-         des => "If defined, list of clusters that qbufferd should use when retrieving and processing outstanding jobs.  Defaults to \@CLUSTERS");
 
 add_conf('$DEFAULT_STYLE',
          required => 0,
@@ -277,11 +268,6 @@ add_conf('$MSG_READONLY_USER',
 add_conf('$NEWUSER_CAPS',
          type => 'int',
          des => "Bitmask of capability classes that new users begin their accounts with.  By default users aren't in any capability classes and get only the default site-wide capabilities.  See also \%CAP.",
-         );
-
-add_conf('$QBUFFERD_DELAY',
-         type => 'int',
-         des => "Time to sleep between runs of qbuffered tasks.  Default is 15 seconds.",
          );
 
 add_conf('$RATE_COMMENT_AUTH',
@@ -491,10 +477,6 @@ add_conf('$MEMCACHE_CONNECT_TIMEOUT',
          des => "Timeout threshold in seconds."
          );
 
-add_conf('%CRUMBS',
-         des => "Breadcrumbs for site navigation - see LJ::get_crumb."
-         );
-
 add_conf('%READONLY_CLUSTER',
          des => "Hash of database clusters that should be read-only."
          );
@@ -666,10 +648,6 @@ add_conf('@PRIVATE_STATS',
          des => "Used by bin/maint/stats.pl."
          );
 
-add_conf('$QBUFFERD_PIDFILE',
-         des => "Process ID file used by bin/qbufferd.pl."
-         );
-
 add_conf('%SUPPORT_DIAGNOSTICS',
          des => "Diagnostics to turn on.  Only supported key is 'track_useragent'."
          );
@@ -697,10 +675,6 @@ add_conf('%MINIMAL_STYLE',
 
 add_conf('%USERPROP_DEF',
          des => "Hash of userprop defaults.  See also %USERPROP_INIT."
-         );
-
-add_conf('@RBL_LIST',
-         des => "Used by LJ::is_open_proxy."
          );
 
 add_conf('@INITIAL_OPTOUT_SUBSCRIPTIONS',
@@ -750,10 +724,6 @@ add_conf('%CAPTCHA_FOR',
 
 add_conf('%DBINFO',
          des => "Database connection information, including passwords."
-         );
-
-add_conf('@QBUFFERD_ISOLATE',
-         des => "List of job types that need to fork a separate process."
          );
 
 add_conf('$CSSPROXY',

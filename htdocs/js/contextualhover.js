@@ -49,7 +49,9 @@ ContextualPopup.setup = function () {
     // attach to all userpics
     if (Site.ctx_popup_icons) {
         var images = document.getElementsByTagName("img") || [];
-        var re = new RegExp( "^" + Site.iconprefix + "/\\d+\/\\d+$" );
+        var old_icon_url = 'www\\.dreamwidth\\.org/userpic';
+        var url_prefix = "(^" + Site.iconprefix + "|" + old_icon_url + ")";
+        var re = new RegExp( url_prefix + "/\\d+\/\\d+$" );
         Array.prototype.forEach.call(images, function (image) {
             // if the image url matches a regex for userpic urls then attach to it
             if (image.src.match(re)) {

@@ -49,7 +49,7 @@ windowtitle=><?_ml .title _ml?>
 body<=
 
 <?h1 <?_ml .main.what_is_openid _ml?> h1?>
-<?p <?_code BML::ml(".main.what_is_openid.content", {'sitename' => $LJ::SITENAMESHORT}) _code?> p?>
+<?p <?_code BML::ml(".main.what_is_openid.content1", {'sitename' => $LJ::SITENAMESHORT}) _code?> p?>
 
 <?h1 <?_ml .main.using_your_openid_here _ml?> h1?>
 <?p

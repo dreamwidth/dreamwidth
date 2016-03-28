@@ -24,8 +24,6 @@ body<=
     my $head     = \$_[1]->{'head'};
     my $bodyopts = \$_[1]->{'bodyopts'};
 
-    LJ::set_active_crumb('editentries');
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
@@ -99,7 +97,8 @@ body<=
 
             if (my $subj = $res{"events_${i}_subject"}) {
                 LJ::CleanHTML::clean_subject_all(\$subj);
-                  $ret .= " <i>" . LJ::ehtml($subj) . "</i>";
+                # clean_subject_all returns plain text, so no HTML escaping here
+                $ret .= " <i>$subj</i>";
               }
             $ret .= "<br />\n";
 
@@ -109,7 +108,7 @@ body<=
 
             $ret .= "</td></tr></table>\n";
         }
-        $ret .= "</td>";        
+        $ret .= "</td>";
         $ret .= "</tr></table>";
 
         return $ret;
@@ -185,7 +184,7 @@ body<=
             }
 
             return BML::redirect( "/entry/" . $u_for_entry->user . "/$ditemid/edit" )
-                    if ! LJ::did_post() && ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
+                    if ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
             ###
             ### SAVE EDITS
@@ -320,7 +319,7 @@ body<=
                     $result .= $deleted_extras if defined $deleted_extras;
                 } else {
                     $message = LJ::auto_linkify( LJ::ehtml( $res{message} ) );
-                    $result .= ($journalu->is_community) ? 
+                    $result .= ($journalu->is_community) ?
                         "<?p $ML{'.success.edited.comm'} p?>" :
                         "<?p $ML{'.success.edited'} p?>";
                     $result .= "<?p $message p?>" if $message;
@@ -349,9 +348,45 @@ body<=
                     }
                 }
 
+                if (!$deleted) {
+                    my $security_ml;
+                    my $filternames = '';
+                    my $c_or_p = $journalu->is_community ? 'c' : 'p';
+
+                    if ($req{"security"} eq "private") {
+                        $security_ml = "post.security.private.$c_or_p";
+                    } elsif ($req{"security"} eq "usemask") {
+                        if ($req{"allowmask"} == 0) { # custom security with no group -- essentially private
+                            $security_ml = "post.security.private.$c_or_p";
+                        } elsif ($req{"allowmask"} > 1) { # custom group
+                            $filternames = $journalu->security_group_display( $req{allowmask} );
+                            $security_ml = "post.security.custom";
+                        } else { # access list only
+                            $security_ml = "post.security.access.$c_or_p";
+                        }
+                    } else {
+                        $security_ml = "post.security.public";
+                    }
+
+                    $result .= "<?p " . BML::ml( $security_ml, { filters => $filternames } ) . " p?>";
+
+                    my $subject = $req{subject};
+
+                    if ( length $subject > 0 ) {
+                        # use the HTML cleaner on the entry subject,
+                        # then display it without escaping
+                        LJ::CleanHTML::clean_subject( \$subject );
+                     } else {
+                        # display (no subject) if subject is empty
+                        $subject = $ML{'.extradata.subj.no_subject'};
+                     }
+
+                    $result .= "<?p " . $ML{'.extradata.subj'} . " $subject p?>";
+                }
+
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
                 $result .= "<li><a href='$entry_url'>$ML{'.success.fromhere.viewentry'}</a></li>" unless $deleted;
-                $result .= "<li><a href='$edit_url'>$ML{'.success.fromhere.editentry'}</a></li>";
+                $result .= "<li><a href='$edit_url'>$ML{'.success.fromhere.editentry'}</a></li>" unless $deleted;
                 $result .= ($journalu->is_community) ?
                     "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries.comm'}</a></li>" :
                     "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";

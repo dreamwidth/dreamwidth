@@ -39,8 +39,6 @@ body<=
     use strict;
     use vars qw(%GET);
 
-    LJ::set_active_crumb('moodlist');
-
     my $ret;
 
     my $remote = LJ::get_remote();
@@ -175,8 +173,9 @@ body<=
 
         $add_header->();
 
-        # Check if the user is logged in and didn't specify an owner.  If so append their private mood themes
-        if ( $remote && ! $GET{ownerid} ) {
+        # Check if the (non-system) user is logged in and didn't specify an owner.
+        # If so, append their private mood themes.
+        if ( $remote && ( $remote->user ne 'system' ) && ! $GET{ownerid} ) {
             @user_themes = DW::Mood->get_themes( { ownerid => $remote->id } );
         } elsif ( $GET{ownerid} ) {
             @user_themes = DW::Mood->get_themes( { themeid => $GET{moodtheme},

@@ -4,7 +4,7 @@
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
-#      Mark Smith <mark@dwscoalition.org>
+#      Mark Smith <mark@dreamwidth.org>
 #      Allen Petersen <allen@suberic.net>
 #
 # Copyright (c) 2013 by Dreamwidth Studios, LLC.
@@ -17,10 +17,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 41;
+use Test::More tests => 42;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 
@@ -44,10 +43,10 @@ $clean_post = qq{<div><table><tr><td></td></tr></table><span></span></div>};
 $clean->();
 is( $orig_post, $clean_post, "Tag outside a table isn't closed" );
 
-# this is a bit weird; we don't want to mess with tags in tables
-# so we just close it after, leading to this HTML
+# we don't want to mess with tags in tables
+# they should be restricted in scope to within the <td> tags they're in right now
 $orig_post  = qq{<div><table><tr><td><span></td></tr></table></div>};
-$clean_post = qq{<div><table><tr><td><span></td></tr></table></div></span>};
+$clean_post = qq{<div><table><tr><td><span></td></tr></table></div>};
 $clean->();
 is( $orig_post, $clean_post, "Non-table-related tag inside a table is open" );
 
@@ -276,6 +275,11 @@ note( "mismatched and misnested tags" );
     $clean_post = qq{strong not <em><b>strong</b></em>};
     $clean->();
     is( $orig_post, $clean_post, "mismatched closing tags or misnested closing tags shouldn't be displayed" );
+
+    $orig_post = qq{before <i>in i<i/> after};
+    $clean_post = qq{before <i>in i<i> after</i></i>};
+    $clean->();
+    is( $orig_post, $clean_post, "self-closing tags that aren't actually self-closing should still be closed.");
 
     $entry_text = qq{before <strong><cut text="cut">in strong</strong>out strong</cut>after};
 

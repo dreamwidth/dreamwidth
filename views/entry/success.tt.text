@@ -20,6 +20,10 @@
 
 .edit.links.viewentry=View this entry
 
+.extradata.subj=The entry was posted with the following subject: 
+
+.extradata.subject.no_subject=(no subject)
+
 .new.community=Your update was successful. <a href="[[url]]">View your updated community</a>.
 
 .new.journal=Your update was successful. <a href="[[url]]">View your updated journal</a>.
@@ -37,3 +41,5 @@
 .new.links.tags=Edit this entry's tags
 
 .new.links.view=View the entry
+
+.sticky.max=This entry was not made sticky because you've reached your limit of [[limit]] for sticky entries.

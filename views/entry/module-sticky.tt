@@ -1,0 +1,39 @@
+[%# Module for sticky / metadata in the entry form
+
+Authors:
+  Louise Dennis
+  Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+<fieldset>
+<h3>[% ".header" | ml %]</h3>
+<div class='inner'>
+[%- form.hidden( id = "sticky_select", name = "sticky_select", value = 1 ) -%]
+
+    <div class="row"><div class="columns">
+        <span class="right">
+            [%- INCLUDE "components/icon-link-decorative.tt"
+                    link = {
+                        url = sticky_url
+                        newwindow = 1
+                    }
+                    icon = "wrench"
+                    text = dw.ml( ".settings.link" )
+            -%]
+        </span>
+
+        [%- form.checkbox_nested( label = dw.ml( ".label.sticky" )
+            name ="sticky_entry"
+
+            value = 1
+            default = sticky_entry
+        ) -%]
+    </div></div>
+
+</div>
+</fieldset>

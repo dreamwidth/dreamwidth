@@ -9,6 +9,8 @@
 
 .complete=Your exchange has been completed.
 
+.nextrefund=You won't be able to convert paid time to points again until after [[date]].
+
 .noteligible=Sorry, your account type is not eligible for a points conversion.
 
 .refund=You are eligible to exchange <strong>[[days]] days</strong> of [[type]] for <strong>[[points]] [[sitename]] Points</strong>.
@@ -19,4 +21,4 @@
 
 .toofew=Sorry, you have less than 30 days of paid time on your account.
 
-.toosoon=Sorry, you can only refund paid time once every thirty days.
+.toosoon=Sorry, you can only convert paid time once every thirty days.

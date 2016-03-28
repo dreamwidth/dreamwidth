@@ -109,8 +109,15 @@ sub checkbox {
     my $ret = "";
 
     if ( ! defined $args->{selected} && $self->{data} ) {
-        my %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
-        $args->{selected} = $selected{$args->{value}};
+        my %selected;
+        if ( defined $args->{name} ) {
+            %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
+        }
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::checkbox has undefined argument 'value'";
+        }
     }
 
     $args->{labelclass} ||= "checkboxlabel";
@@ -149,8 +156,15 @@ sub checkbox_nested {
     my $ret = "";
 
     if ( ! defined $args->{selected} && $self->{data} ) {
-        my %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
-        $args->{selected} = $selected{$args->{value}};
+        my %selected;
+        if ( defined $args->{name} ) {
+            %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
+        }
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::checkbox_nested has undefined argument 'value'";
+        }
     }
 
     $args->{class} ||= "checkbox";
@@ -196,8 +210,15 @@ sub radio {
     my $ret = "";
 
     if ( ! defined $args->{selected} && $self->{data} ) {
-        my %selected = map { $_ => 1 } $self->{data}->get_all( $args->{name} );
-        $args->{selected} = $selected{$args->{value}};
+        my %selected;
+        if ( defined $args->{name} ) {
+            %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
+        }
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::radio has undefined argument 'value'";
+        }
     }
 
     $args->{labelclass} ||= "radiolabel";
@@ -227,8 +248,15 @@ sub radio_nested {
 
     my $ret = "";
     if ( ! defined $args->{selected} && $self->{data} ) {
-        my %selected = map { $_ => 1 } $self->{data}->get_all( $args->{name} );
-        $args->{selected} = $selected{$args->{value}};
+        my %selected;
+        if ( defined $args->{name} ) {
+            %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
+        }
+        if ( defined $args->{value} ) {
+            $args->{selected} = $selected{$args->{value}};
+        } elsif ( $LJ::IS_DEV_SERVER ) {
+            warn "DW::Template::Plugin::FormHTML::radio_nested has undefined argument 'value'";
+        }
     }
 
     $args->{class} ||= "radio";
@@ -393,9 +421,13 @@ sub _process_value_and_label {
     my $label_html = "";
     my $label = delete $args->{label};
     my $labelclass = delete $args->{labelclass} || "";
+    my $noescape = delete $args->{noescape};
 
-    $label_html = LJ::labelfy( $args->{id}, LJ::ehtml( $label ), $labelclass )
-        if defined $label;
+    if ( defined $label ) {
+        # don't ehtml the label text if noescape is specified
+        $label = LJ::ehtml( $label ) unless $noescape;
+        $label_html = LJ::labelfy( $args->{id}, $label, $labelclass );
+    }
 
     return $label_html || "";
 }

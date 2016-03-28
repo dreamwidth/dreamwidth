@@ -16,10 +16,8 @@
 #
 
 use strict;
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
 
-BEGIN { require "ljlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = $ENV{DW_TEST}; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use Getopt::Long;
 use File::Path ();
 use File::Basename qw/ dirname /;
@@ -41,6 +39,8 @@ my $opt_nostyles;
 my $opt_forcebuild = 0;
 my $opt_compiletodisk = 0;
 my $opt_innodb;
+my $opt_poptest = 0;
+
 exit 1 unless
 GetOptions("runsql" => \$opt_sql,
            "drop" => \$opt_drop,
@@ -57,6 +57,7 @@ GetOptions("runsql" => \$opt_sql,
            );
 
 $opt_nostyles = 1 unless LJ::is_enabled("update_styles");
+$opt_nostyles = 1 if $ENV{DW_TEST};
 $opt_innodb = 1;
 
 if ($opt_help) {
@@ -228,9 +229,7 @@ sub populate_database {
 
     populate_basedata();
     populate_proplists();
-    clean_schema_docs();
     populate_mogile_conf();
-    schema_upgrade_scripts();
 
     # system user
     my $made_system;
@@ -704,18 +703,6 @@ sub populate_moods {
     }
 }
 
-sub clean_schema_docs {
-    # clean out schema documentation for old/unknown tables
-    foreach my $tbl (qw(schemacols schematables)) {
-        my $sth = $dbh->prepare("SELECT DISTINCT tablename FROM $tbl");
-        $sth->execute;
-        while (my $doctbl = $sth->fetchrow_array) {
-            next if $table_create{$doctbl};
-            $dbh->do("DELETE FROM $tbl WHERE tablename=?", undef, $doctbl);
-        }
-    }
-}
-
 sub populate_mogile_conf {
     # create/update the MogileFS database if we use it
     return unless defined $LJ::MOGILEFS_CONFIG{hosts};
@@ -755,11 +742,6 @@ sub populate_mogile_conf {
                 or die "Error: Unable to create class.\n";
         }
     }
-}
-
-sub schema_upgrade_scripts {
-    # none right now, when DW has some upgrades you can look back at this file's history
-    # to see what kind of stuff goes in here
 }
 
 sub skip_opt

@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More tests => 14;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
 use LJ::Test qw (temp_user);
 local $LJ::T_NO_COMMAND_PRINT = 1;
@@ -33,6 +32,7 @@ LJ::set_remote($remote);
 $u->clear_prop("opt_logcommentips");
 my $entry = $u->t_post_fake_entry;
 my $comment = $entry->t_enter_comment(u => $u, body => "this comment is apple cranberries");
+my $url;
 
 my $run = sub {
     my $cmd = shift;
@@ -45,9 +45,9 @@ is($run->("comment delete url reason"),
 
 $remote->grant_priv("deletetalk");
 
-my $entry = $u->t_post_fake_entry;
-my $comment = $entry->t_enter_comment(u => $u, body => "this comment is bananas");
-my $url = $comment->url;
+$entry = $u->t_post_fake_entry;
+$comment = $entry->t_enter_comment(u => $u, body => "this comment is bananas");
+$url = $comment->url;
 
 is($run->("comment screen $url reason"),
    "success: Comment action taken.");

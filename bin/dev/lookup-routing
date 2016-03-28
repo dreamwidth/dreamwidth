@@ -80,7 +80,7 @@ my @all_roles = ( 'app', 'user', 'api' );
 my $data = undef;
 my $cache_file = $HOME . "/logs/.cached_routing";
 #              YYYYMMDDVVV
-my $version = "20130726001";
+my $version = "20150724001";
 my $dirty = 1;
 
 if ( -e $cache_file ) {
@@ -119,7 +119,15 @@ if ( $list ) {
                 print_for_hash($choice,undef,$role);
             }
         }
-        print " -- Also all in api role, prepended with '/api'\n" if $role eq 'app';
+        if ( $role eq 'api' ) {
+            foreach my $ver ( sort { $a cmp $b } keys %{ $data->{api} } ) {
+                my %choices = %{ $data->{api}{$ver} };
+                foreach my $key ( sort { $choices{$a}{path} cmp $choices{$b}{path} } keys %choices ) {
+                    $ct++;
+                    print_for_hash($choices{$key},undef,$role);
+                }
+            }
+        }
         print "\n\n\n" if $ct;
     }
 } elsif ( $stats ) {
@@ -128,6 +136,9 @@ if ( $list ) {
 
     print "Regex routing table:\n";
     $tct += print_stats_for( $data->{stats}->{regex} );
+
+    print "API routing table:\n";
+    $tct += print_stats_for( $data->{stats}->{api} );
 
     printf "Total entries: %i\n", $tct;
 } else {
@@ -163,13 +174,20 @@ sub run_lookup {
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
 
-    if ( $uri =~ m!^/api(/.+)$! && $role eq 'app' ) {
-        print " -- Assuming API role\n";
+    my $apiver;
+
+    if ( $uri =~ m!^/api/v(\d+)(/.+)$! and $role eq 'api' ) {
         $role = 'api';
-        $uri = $1;
+        $apiver = $1;
+        $uri = $2;
     }
 
     my $hash = $data->{string}->{$role . $uri};
+    if ( defined $hash ) {
+        return [$hash,[]];
+    }
+
+    $hash = $data->{api}{$apiver}{$uri} if defined $apiver;
     if ( defined $hash ) {
         return [$hash,[]];
     }
@@ -313,9 +331,11 @@ sub data_for_hash {
             fn => $fn,
         };
     } elsif ( $subref == \&DW::Routing::_redirect_helper ) {
+        my $args = { %{ $hash->{args} } };
+        $args->{dest} = "<<CODE BLOCK>>" if ref $args->{dest} eq 'CODE';
         $data = {
             _redirect => 1,
-            data => $hash->{'args'},
+            data => $args,
         };
     } else {
         $data = {
@@ -425,21 +445,28 @@ sub load_cache {
 
     my %str_choices   = %DW::Routing::string_choices;
     my %regex_choices = %DW::Routing::regex_choices;
+    my %api_choices   = %DW::Routing::api_endpoints;
 
     foreach my $role ( @all_roles ) {
         my @regex_data = ();
-        foreach my $key ( sort { $str_choices{$a}->{path} cmp $str_choices{$b}->{path} } grep { m/^$role\// } keys %str_choices ) {
+        foreach my $key ( grep { m/^$role\// } keys %str_choices ) {
             my ( $path ) = $key =~ m/^$role(\/.+)$/;
-            $data->{string}->{$key} = data_for_hash($str_choices{$key},$path,$role);
-            $data->{stats}->{string}->{$role}++;
+            $data->{string}{$key} = data_for_hash($str_choices{$key},$path,$role);
+            $data->{stats}{string}{$role}++;
         }
-        foreach my $choice ( sort { $a->{regex} cmp $b->{regex} } @{ $regex_choices{$role} || [] } ) {
+        foreach my $choice ( @{ $regex_choices{$role} || [] } ) {
             push @regex_data, data_for_hash($choice,undef,$role);
-            $data->{stats}->{regex}->{$role}++;
+            $data->{stats}{regex}{$role}++;
         }
-        $data->{regex}->{$role} = \@regex_data;
+        $data->{regex}{$role} = \@regex_data;
     }
 
+    foreach my $ver ( keys %api_choices ) {
+        foreach my $key ( keys %{$api_choices{$ver}} ) {
+            $data->{api}{$ver}{$key} = data_for_hash($api_choices{$ver}{$key},"/api/v$ver$key",'api');
+            $data->{stats}{api}{"v$ver"}++;
+        }
+    }
     print "Done!\n";
     return $data;
 }

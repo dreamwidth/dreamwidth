@@ -1,6 +1,18 @@
+[%# Lynx site skin
+
+Authors:
+    Andrea Nall <anall@andreanall.com>
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
 [%- BLOCK block.page -%]
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
 <link rel="home" title="[% 'lynx.nav.home' | ml %]" href="[% site.root %]/" />
 <link rel="contents" title="[% 'lynx.nav.sitemap' | ml %]" href="[% site.root %]/site/" />
@@ -55,6 +67,7 @@
     <a href='[% site.root %]/manage/settings/'>[% 'lynx.nav.siteopts' | ml %]</a> | 
     <a href='[% site.root %]/site/'>[% 'lynx.nav.sitemap' | ml %]</a> ]</p></div>
     [% dw_scheme.final_body_html %]
+    [%- PROCESS block.script_init -%]
 </div></div>
 </body>
 </html>

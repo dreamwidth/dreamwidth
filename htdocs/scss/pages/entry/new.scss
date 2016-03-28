@@ -1,13 +1,32 @@
-@import "foundation/base", "foundation/components/grid", "foundation/components/type";
+@import "foundation/base", "foundation/components/grid", "foundation/components/type", "foundation/components/forms";
+
+.entry-quick-actions .secondary-actions {
+    text-align: left;
+}
+
+.no-js button.postfix.fi-icon--with-fallback {
+    padding: 0 0.75em;
+    font-size: 1em;
+}
+
+@media #{$medium-up} {
+    .components {
+        padding: 0 .45rem;
+    }
+
+    .second-column, .third-column {
+        float: left;
+        width: grid-calc(6, 12);
+    }
+
+    .entry-quick-actions .secondary-actions {
+        text-align: right;
+    }
+}
 
 @media #{$large-up} {
     .entry-full-width {
-        .first-column {
-            float: left;
-            width: grid-calc(4, 12);
-        }
-
-        .second-column, .third-column {
+        .first-column, .second-column, .third-column {
             float: left;
             width: grid-calc(4, 12);
         }
@@ -48,7 +67,12 @@
 }
 
 // don't let fancy-select-box expand around its contents (causes extra whitespace)
-.entry-quick-metadata {
+.entry-quick-actions {
+    $entry-quick-action-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
+    ul {
+        margin-bottom: 0;
+    }
+
     li {
         display: inline-block;
 
@@ -61,8 +85,8 @@
             border-bottom-left-radius: $global-radius;
         }
         &:last-of-type input, &:last-of-type .button {
-            border-top-right-radius: $global-radius;
-            border-bottom-right-radius: $global-radius;
+            border-top-right-radius: $global-radius !important;
+            border-bottom-right-radius: $global-radius !important;
         }
     }
     label {
@@ -74,16 +98,98 @@
         // force alignment to buttons
         padding-top: $button-med - rem-calc(1);
         position: relative;
-        top: 1px;
+        top: 2px;
+        border-radius: 0;
     }
     .usejournal-text {
         padding-left: 0.2rem;
+        display: inline-block;
+    }
+
+    li + li {
+        input, button, .fancy-select-output {
+            margin-left: -1px;
+        }
+    }
+
+    select {
+        position: relative;
+        top: -2px;
+    }
+
+    input, .fancy-select-output, select, button, .usejournal-text {
+        height: $entry-quick-action-height;
+    }
+
+    .usejournal-text {
+        line-height: $entry-quick-action-height;
+    }
+
+    @media #{$small-only} {
+        .entry-quick-metadata li:last-of-type {
+            width: 100%;
+
+            .fancy-select {
+                width: 100%;
+            }
+            .fancy-select-output {
+                border-radius: $global-radius;
+            }
+        }
+    }
+
+    @media #{$medium-up} {
+        .fancy-select-output {
+            width: auto;
+        }
+    }
+}
+
+.flexbox {
+    .entry-quick-actions {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+    }
+
+    .entry-quick-actions.row .columns {
+      width: auto;
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+    }
+
+    .secondary-actions {
+        -webkit-flex-grow: 1;
+        flex-grow: 1;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-justify-content: flex-end;
+        justify-content: flex-end;
+    }
+
+    .secondary-actions input[type=button]{
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+    }
+
+    .entry-quick-metadata {
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -webkit-justify-content: flex-start;
+        justify-content: flex-start;
+
+        input[type=text] {
+            top: 0;
+        }
     }
 }
 
 .current-entry {
     textarea {
-        height: auto;
+        font-family: monospace;
     }
 }
 
@@ -95,12 +201,22 @@
     padding: 0;
     font-size: .8rem;
 
-    label, input, legend, ul {
+    h3 {
+        font-size: 1rem;
+    }
+
+    p, label, input, legend, ul, select, textarea {
         font-size: .8rem;
     }
 
-    h3 {
-        font-size: 1rem;
+    input[type=text], input[type=password], select {
+        height: 2rem;
+        padding: .4rem;
+    }
+
+    .postfix {
+        height: 2rem;
+        line-height: 2rem;
     }
 
     &.collapse-collapsed {
@@ -114,7 +230,7 @@
         // .last-visible handles the case when we have invisible elements
         // that are only meant to be revealed by js
         .row:last-child .columns >, .last-visible {
-            input, select, button {
+            label input, input, select, button {
                 margin-bottom: 0;
             }
         }
@@ -126,20 +242,26 @@
       padding: 0;
     }
 
+    fieldset {
+        padding: .75rem;
+    }
+
     fieldset fieldset {
         padding: 0;
         margin: 0;
     }
 
+    a {
+        text-decoration: none;
+    }
+}
+
+.component, .reveal-modal {
     // so that when it wraps it still stays beside the radio/checkbox
     // instead of having the entire label go to the next line
     input[type="checkbox"] + label,
     input[type="radio"] + label {
         display: inline;
-    }
-
-    a {
-        text-decoration: none;
     }
 }
 
@@ -203,6 +325,14 @@
         // column-gutter: 15
         // component padding: 20
         right: rem-calc(15+20);
+    }
+
+    .columns:nth-child(2) .postfix {
+        border-radius: 0;
+    }
+
+    .columns:nth-child(3) input {
+        border-left: none;
     }
 }
 

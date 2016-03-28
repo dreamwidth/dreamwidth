@@ -77,7 +77,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
             [% PROCESS block.accountlinks %]
 
-            <nav role="navigation"  class="main-nav top-bar contain-to-grid" data-topbar>
+            <nav role="navigation" aria-label="[% 'sitescheme.navigation.sitelinks' | ml %]" class="main-nav top-bar contain-to-grid" data-topbar>
                 [% PROCESS block.userpic %]
                 <ul class="title-area">
                 <li class="name"></li>
@@ -105,8 +105,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     .find(".top-bar-section").removeClass( "top-bar-section" ).end()
             }
           });
-          $(document).foundation();
         </script>
+        [%- PROCESS block.script_init -%]
     </body>
 </html>
 [%- ELSE -%]
@@ -118,10 +118,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <div id="page">
                 [%- PROCESS block.skiplink -%]
 
-                [%# Visible only with screenreader or keyboard, per css %]
-                <div id="skip">
-                    <a href="#content" tabindex="1">Skip to Main Content</a>
-                </div>
                 [%# Not using the HTML 5 <header> element for now
                 because of incompatibilities with JAWS and
                 Firefox %]
@@ -138,7 +134,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
             [% PROCESS block.accountlinks %]
 
-            <nav role="navigation">
+            <nav role="navigation" aria-label="[% 'sitescheme.navigation.sitelinks' | ml %]">
                 [% PROCESS block.userpic %]
                 [% PROCESS block.menunav %]
             </nav>

@@ -1766,7 +1766,7 @@ function Page::lay_footer() {
     </div>
 
     <div id="footer">
-        <p><span class="top-link"><a href="#header">$*top_link_text</a></span> <a href="http://www.dreamwidth.org/customize/advanced/layerbrowse.bml?id=zesty/layout">Zesty</a>. """; server_sig(); """</p>
+        <p><span class="top-link"><a href="#header">$*top_link_text</a></span> <a href="https://www.dreamwidth.org/customize/advanced/layerbrowse.bml?id=zesty/layout">Zesty</a>. """; server_sig(); """</p>
     </div>
     """;
 }
@@ -1775,9 +1775,8 @@ function Page::lay_footer() {
 function Page::print() {
 
 """
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-loose.dtd">
-       <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+       <html lang="en">
 <head>
 <title>"""+$this->title()+"""</title>
 """;

@@ -46,7 +46,7 @@ sub RecentPage
     }
 
     my $user = $u->user;
-    my $journalbase = $u->journal_base( $opts->{'vhost'} );
+    my $journalbase = $u->journal_base( vhost => $opts->{'vhost'} );
 
     my $datalink = sub {
         my ($what, $caption) = @_;
@@ -69,8 +69,14 @@ sub RecentPage
     }
 
     if ( $opts->{securityfilter} ) {
+        my $filter = $u->trust_groups( id => $opts->{securityfilter} );
         $p->{filter_active} = 1;
-        $p->{filter_name} = $opts->{securityfilter};
+        if ( defined $filter ) {
+            $p->{filter_name} = $filter->{groupname};
+        } else {
+            # something went wrong; just use the group number
+            $p->{filter_name} = $opts->{securityfilter};
+        }
     } 
 
     my $get = $opts->{'getargs'};
@@ -90,12 +96,12 @@ sub RecentPage
 
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
-    # load for ajax cuttag
-    LJ::need_res( 'js/cuttag-ajax.js' );
-    LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.widget.js
-            js/jquery.cuttag-ajax.js
-        ) );
+    # include JS for quick reply, icon browser, and ajax cut tag
+    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref} &&
+                              ${$opts->{handle_with_siteviews_ref}};
+    LJ::Talk::init_s2journal_js( iconbrowser => $remote && $remote->can_use_userpic_select,
+                                 siteskin => $handle_with_siteviews, lastn => 1 );
+
     my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
     my $expanded = BML::ml( 'widget.cuttag.expanded' );
     my $collapseAll = BML::ml( 'widget.cuttag.collapseAll' );
@@ -160,28 +166,35 @@ sub RecentPage
 
     die $err if $err;
 
-    # prepare sticky entry for S2 - only show sticky entry on first page of Recent Entries, not on skip= pages
-    # or tag and security subfilters
-    my $stickyentry;
-    $stickyentry = $u->get_sticky_entry
-        if $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
-    # only show if visible to user
-    if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
-        # create S2 entry object and show first on page
-        my $entry = Entry_from_entryobj( $u, $stickyentry, $opts ); 
-        # sticky entry specific things
-        my $sticky_icon = Image_std( 'sticky-entry' );
-        $entry->{_type} = 'StickyEntry';
-        $entry->{sticky_entry_icon} = $sticky_icon;
-        # show on top of page
-        push @{$p->{entries}}, $entry;
+    # Prepare sticky entries for S2.
+    # Only show sticky entry on first page of Recent Entries.
+    # Do not show stickies unless they have the relevant permissions.
+    # Do not sticky posts on tagged view but display in place.
+    # On skip pages show sticky entries in place.
+    my $show_sticky_entries = $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
+    if ( $show_sticky_entries ) {
+        foreach my $sticky_entry ( $u->sticky_entries ) {
+            # only show if visible to user
+            if ( $sticky_entry && $sticky_entry->visible_to( $remote, $get->{viewall} ) ) {
+                # create S2 entry object and show first on page
+                my $entry = Entry_from_entryobj( $u, $sticky_entry, $opts );
+                # sticky entry specific things
+                my $sticky_icon = Image_std( 'sticky-entry' );
+                $entry->{_type} = 'StickyEntry';
+                $entry->{sticky_entry_icon} = $sticky_icon;
+                # show on top of page
+                push @{$p->{entries}}, $entry;
+            }
+        }
     }
-    
+
     my $lastdate = "";
     my $itemnum = 0;
     my $lastentry = undef;
 
     $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_journal' ) );
+
+    my $sticky_entries = $u->sticky_entries_lookup;
 
   ENTRY:
     foreach my $item (@items)
@@ -193,7 +206,7 @@ sub RecentPage
         $itemnum++;
 
         my $ditemid = $itemid * 256 + $anum;
-        next if $itemnum > 0 && $stickyentry && $stickyentry->ditemid == $ditemid;
+        next if $itemnum > 0 && $show_sticky_entries && $sticky_entries->{$ditemid};
 
         my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 

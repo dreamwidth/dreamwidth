@@ -19,7 +19,6 @@ h3.entry-title {
 
 .entry .header {background:none; border:0;}
 .entry .datetime:before { content:"@ ";} /*add the talkread-style elements to the date and time*/
-.entry .datetime:after {content:" UTC";}
 .entry .datetime {font-style: italic;}
 .entry .contents{ margin-left: 30px}
 .entry-wrapper .userpic {display: table-cell; float: none;}

@@ -99,7 +99,7 @@ var postForm = (function($) {
     };
 
     var initCommunitySection = function($form) {
-        $form.bind("journalselect-full", function(e, journal) {
+        $form.on("journalselect-full", function(e, journal) {
             if ( journal.name && journal.isremote ) {
                 if ( journal.iscomm && journal.canManage) {
                     $(".community-administration").show();
@@ -195,10 +195,6 @@ var postForm = (function($) {
             } else {
                 $custom_edit_button.hide();
             }
-
-            if ( !init ) {
-                $this.data("lastselected", $this.val());
-            }
         }).triggerHandler("change", rememberInitialValue);
 
         // update the list of people who can see the entry
@@ -232,8 +228,45 @@ var postForm = (function($) {
                 $custom_access_group_members.html(members_data_list);
             });
         }
+
+        function saveCurrentGroups() {
+            $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
+        }
+
+        function onOpen() {
+            updatePostingMembers(undefined, true);
+            saveCurrentGroups();
+        }
+
+        function close(e) {
+            e.preventDefault();
+
+            // hide the modal (retains current state)
+            $custom_groups.foundation('reveal', 'close');
+            $custom_groups.detach().appendTo(".components.js-only");
+        }
+
+        function cancel() {
+            // reset to initial selected custom groups
+            var data = $custom_groups.data("original_data");
+            var groups = {};
+            for ( var i = 0; i < data.length; i++ ) {
+                groups[data[i].value] = true;
+            }
+
+            $custom_groups.find("input[name=custom_bit]").each(function(i, elem) {
+                if (groups[elem.value]) {
+                    $(elem).prop("checked", "checked")
+                } else {
+                    $(elem).removeProp("checked");
+                }
+            });
+        }
+
         $custom_groups.find("input[name=custom_bit]").click(updatePostingMembers);
-        $(document).on('open.fndtn.reveal', "#js-custom-groups", updatePostingMembers.bind(undefined, undefined, true));
+        $(document).on('open.fndtn.reveal', "#js-custom-groups", onOpen);
+        $("#js-custom-groups-select").click(close);
+        $custom_groups.find(".close-reveal-modal").click(cancel);
 
 
         // update the options when journal changes
@@ -259,7 +292,7 @@ var postForm = (function($) {
             }
 
             var $security = $("#js-security");
-            var oldval = $security.data("lastselected");
+            var oldval = $security.closest('select').find('option').filter(':selected').val();
             var rank = { "public": "0", "access": "1", "private": "2", "custom": "3" };
 
             $security.empty();
@@ -346,8 +379,9 @@ var postForm = (function($) {
             $form.data( "journal", journal )
                 .trigger( "journalselect", journalData );
 
-            var isAdmin = $usejournal.attr( "data-is-admin" );
-            if ( isAdmin !== undefined ) {
+            var dataAttribute = $usejournal.attr( "data-is-admin" );
+            if ( dataAttribute !== undefined ) {
+                var isAdmin = dataAttribute === "1" ? true : false;
                 $form.trigger( "journalselect-full", $.extend( journalData, { canManage: isAdmin } ) );
                 $usejournal.removeAttr("data-is-admin");
             }
@@ -514,6 +548,8 @@ var postForm = (function($) {
         $("#js-entrytime-time").pickatime({
             editable: true,
             format: "HH:i",
+            interval: 1,
+            max: 1439,
 
             trigger: document.getElementById("js-entrytime-time-button"),
             container: '.displaydate-component .picker-output'
@@ -541,7 +577,7 @@ var postForm = (function($) {
                         ].join("-");
             $("#js-entrytime-date").val(date).trigger("change");
 
-            var time = [ zeropad(now.getHours()), zeropad(now.getMinutes() * 100) ];
+            var time = [ zeropad(now.getHours()), zeropad(now.getMinutes()) ];
             $("#js-entrytime-time").val(time).trigger("change");
 
             $("#js-trust-datetime").val(1);
@@ -593,6 +629,26 @@ var postForm = (function($) {
         });
     };
 
+    var initSticky = function($form) {
+        $form.bind("journalselect-full", function(e, journal) {
+            if ( journal.name && journal.isremote ) {
+                if ( journal.iscomm ) {
+                    $(".components-columns .sticky-component:not(.inactive-component)").hide();
+                } else {
+                    $(".components-columns  .sticky-component:not(.inactive-component)").show();
+                }
+
+                $(".sticky-component")
+                    .filter(":visible")
+                        .find("input").removeAttr("disabled")
+                    .end().end()
+                    .filter(":not(:visible)")
+                        .find("input").attr("disabled", "");
+            }
+        });
+
+    };
+
     var init = function(formData) {
         $("#nojs").val(0);
 
@@ -612,8 +668,10 @@ var postForm = (function($) {
         initTags(entryForm);
         initDate(entryForm);
         initCrosspost(entryForm);
+        initSticky(entryForm);
 
         $("#js-usejournal").triggerHandler("change");
+        $("#js-entrytime-autoupdate").triggerHandler("click");
     };
 
     return {

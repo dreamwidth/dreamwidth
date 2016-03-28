@@ -25,6 +25,8 @@
 
 .permissions.none=(You don't have permission to edit tags on this entry.)
 
+.poster=Poster:
+
 .readonly.journal=This journal is read-only.  Its entry tags can't be edited.
 
 .readonly.poster=This poster is read-only; the tags for this entry can't be edited.

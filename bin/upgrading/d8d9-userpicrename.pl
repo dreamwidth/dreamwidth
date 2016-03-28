@@ -19,8 +19,7 @@
 use strict;
 use warnings;
 BEGIN {
-    use lib "$ENV{'LJHOME'}/cgi-bin/";
-    require "ljlib.pl";
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 use Term::ReadLine;
 use Getopt::Long;

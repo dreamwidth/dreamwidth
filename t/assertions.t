@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More tests => 13;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 ok(LJ::assert_is("foo", "foo"));
 ok(! eval { LJ::assert_is("foo", "bar") });

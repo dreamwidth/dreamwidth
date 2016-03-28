@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "faqcat" }
 
-sub desc { "Tool for managing FAQ categories." }
+sub desc { "Tool for managing FAQ categories. Requires priv: faqcat." }
 
 sub args_desc { [
                  'command' => "One of: list, delete, add, move.  'list' shows all the defined FAQ categories, including their catkey, name, and sortorder.  Also, it shows all the distinct catkeys that are in use by FAQ. 'add' creates or modifies a FAQ category. 'delete' removes a FAQ category (but not the questions that are in it). 'move' moves a FAQ category up or down in the list.",
@@ -30,10 +30,18 @@ sub usage { '<command> <commandargs>' }
 
 sub requires_remote { 0 } # 'list' doesn't need a remote
 
-sub can_execute { 1 }
+sub can_execute {
+    my $remote = LJ::get_remote();
+    return $remote && $remote->has_priv( "faqcat" );
+ }
 
 sub execute {
     my ($self, $command, @args) = @_;
+
+    my $remote = LJ::get_remote();
+    return $self->error("You are not authorized to run this command.")
+        unless $remote && $remote->has_priv( "faqcat" );
+
     my $dbh = LJ::get_db_writer();
 
     return $self->error("Invalid command. Must be one of 'list', 'move', 'add', or 'delete'.")
@@ -75,11 +83,6 @@ sub execute {
 
         return 1;
     }
-
-    my $remote = LJ::get_remote();
-    # anything from this point on requires a priv
-    return $self->error("You are not authorized to run this command.")
-        unless $remote && $remote->has_priv( "faqcat" );
 
     if ($command eq "delete") {
         my $catkey = shift @args;

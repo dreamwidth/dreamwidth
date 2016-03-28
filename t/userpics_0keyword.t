@@ -16,8 +16,7 @@ use warnings;
 
 use Test::More tests => 22;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Userpic;
 use LJ::Test qw (temp_user);
 use FindBin qw($Bin);

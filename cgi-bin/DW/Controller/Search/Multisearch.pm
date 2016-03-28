@@ -203,17 +203,14 @@ sub multisearch_handler {
     };
 
     # set up dispatch table
-    my $dispatch = { nav          => $f_nav,
-                     nav_and_user => $f_nav,
+    my $dispatch = { nav_and_user => $f_nav,
                      user         => $f_user,
-                     ljtalk       => $f_user,
                      int          => $f_int,
                      email        => $f_email,
                      im           => $f_im,
                      aolim        => $f_im,
                      icq          => $f_im,
                      yahoo        => $f_im,
-                     msn          => $f_im,
                      jabber       => $f_im,
                      region       => $f_region,
                      faq          => $f_faq,

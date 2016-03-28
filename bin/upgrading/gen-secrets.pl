@@ -14,12 +14,11 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
 use Getopt::Long;
 use POSIX;
 use Data::Dumper;
 
-BEGIN { require "ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 my $tv = system('openssl version >/dev/null 2>/dev/null');
 die "OpenSSL command line not found" if $tv;

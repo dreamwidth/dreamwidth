@@ -13,6 +13,10 @@
 
 .error.nofind=Could not find selected journal entry.
 
+.extradata.subj=The entry was posted with the following subject:
+
+.extradata.subj.no_subject=(no subject)
+
 .in=In community:
 
 .invalid_encoding=This entry may contain unknown characters, which have been replaced with a "?". Please ensure the entry is exactly as intended before posting.
@@ -57,4 +61,3 @@
 .title=Edit Entries
 
 .viewwhat=View Which Entries:
-

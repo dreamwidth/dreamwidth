@@ -237,6 +237,251 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: crisped/aliceblueblossoms
+layerinfo type = "theme";
+layerinfo name = "Alice Blue Blossoms";
+layerinfo redist_uniq = "crisped/aliceblueblossoms";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/3872852/Alice_Blue_Blossoms" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f0f8ff";
+set color_page_border = "#b0c4de";
+set color_page_link = "#7da4a6";
+set color_page_link_visited = "#87cefa";
+set color_page_subtitle = "#b2c7e1";
+set color_page_text = "#5f6a78";
+set color_page_title = "#5f6a78";
+set color_header_background = "#f0f8ff";
+set color_footer_background = "#f0f8ff";
+set color_footer_link = "#7da4a6";
+set color_footer_link_visited = "#87cefa";
+set color_calendar_background = "#dafbf8";
+set color_calendar_link = "#7da4a6";
+set color_calendar_link_visited = "#87cefa";
+set color_calendar_text = "#5f6a78";
+set control_strip_bgcolor = "#f0f8ff";
+set control_strip_bordercolor = "#b0c4de";
+set control_strip_fgcolor = "#5f6a78";
+set control_strip_linkcolor = "#7da4a6";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f0f8ff";
+set color_entry_border = "#b0cfee";
+set color_entry_interaction_links = "#7da4a6";
+set color_entry_interaction_links_visited = "#87cefa";
+set color_entry_link = "#7da4a6";
+set color_entry_link_visited = "#87cefa";
+set color_entry_text = "#5f6a78";
+set color_entry_title = "#5f6a78";
+set color_entry_title_background = "#C6DCF9";
+set color_entry_title_background = "#C6DCF9";
+set color_comment_title = "#f0f8ff";
+set color_comment_title_background = "#C6DCF9";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f0f8ff";
+set color_module_border = "#b0c4de";
+set color_module_link = "#7da4a6";
+set color_module_link_visited = "#87cefa";
+set color_module_text = "#5f6a78";
+set color_module_title = "#5f6a78";
+set color_module_title_background = "#C6DCF9";
+set color_module_title_background = "#C6DCF9";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/aliceblueblossoms.png";
+
+function Page::print_theme_stylesheet() { """
+
+            /* Alice Blue Blossoms
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+         """;
+    }
+
+
 #NEWLAYER: crisped/andune
 layerinfo type = "theme";
 layerinfo name = "Andúnë";
@@ -3380,6 +3625,250 @@ function Page::print_theme_stylesheet () {
 }
 
 
+#NEWLAYER: crisped/flowersandcurls
+layerinfo type = "theme";
+layerinfo name = "Flowers and Curls";
+layerinfo redist_uniq = "crisped/flowersandcurls";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by DarkBlueMe4Ever & dazzlement", "url" => "http://www.colourlovers.com/pattern/3982064/Parchment_Flower" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f6f4e7";
+set color_page_border = "#dadea7";
+set color_page_link = "#909b35";
+set color_page_link_visited = "#bebe36";
+set color_page_subtitle = "#76ab38";
+set color_page_text = "#608c2e";
+set color_page_title = "#608c2e";
+set color_header_background = "#f6f4e7";
+set color_footer_background = "#f6f4e7";
+set color_footer_link = "#909b35";
+set color_footer_link_visited = "#bebe36";
+set color_calendar_background = "#f6f4e7";
+set color_calendar_link = "#909b35";
+set color_calendar_link_visited = "#bebe36";
+set color_calendar_text = "#608c2e";
+set control_strip_bgcolor = "#f6f4e7";
+set control_strip_bordercolor = "#dadea7";
+set control_strip_fgcolor = "#608c2e";
+set control_strip_linkcolor = "#909b35";
+set custom_control_strip_colors = "on_gradient";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f6f4e7";
+set color_entry_border = "#dadea7";
+set color_entry_interaction_links = "#909b35";
+set color_entry_interaction_links_visited = "#bebe36";
+set color_entry_link = "#909b35";
+set color_entry_link_visited = "#bebe36";
+set color_entry_text = "#608c2e";
+set color_entry_title = "#608c2e";
+set color_entry_title_background = "#e1e6b7";
+set color_comment_title = "#608c2e";
+set color_comment_title_background = "#e1e6b7";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f6f4e7";
+set color_module_border = "#dadea7";
+set color_module_link = "#909b35";
+set color_module_link_visited = "#bebe36";
+set color_module_text = "#608c2e";
+set color_module_title = "#608c2e";
+set color_module_title_background = "#e1e6b7";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/flowersandcurls.png";
+
+function Page::print_theme_stylesheet() { """
+
+            /* Flowers and Curls
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+         """;
+    }
+
+
 #NEWLAYER: crisped/frenchgradients
 layerinfo type = "theme";
 layerinfo name = "French Gradients";
@@ -4137,6 +4626,250 @@ set color_calendar_link_visited = "#3d7b55";
 set color_calendar_text = "#0b0b0b";
 
 
+#NEWLAYER: crisped/igetmisty
+layerinfo type = "theme";
+layerinfo name = "I Get Misty...";
+layerinfo redist_uniq = "crisped/igetmisty";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by ScienceFair & ArrayOfLilly", "url" => "http://www.colourlovers.com/pattern/4299136/I_get_misty..." } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#4A635E";
+set color_page_border = "#fff";
+set color_page_link = "#91aeba";
+set color_page_link_visited = "#91baaf";
+set color_page_subtitle = "#91aeba";
+set color_page_text = "#4A635E";
+set color_page_title = "#fff";
+set color_header_background = "#cfe5e7";
+set color_footer_background = "#4A635E";
+set color_footer_link = "#cfe5e7";
+set color_footer_link_visited = "#91baaf";
+set color_calendar_background = "#cfe5e7";
+set color_calendar_link = "#91aeba";
+set color_calendar_link_visited = "#91baaf";
+set color_calendar_text = "#fff";
+set control_strip_bgcolor = "#cfe5e7";
+set control_strip_bordercolor = "#91aeba";
+set control_strip_fgcolor = "#4A635E";
+set control_strip_linkcolor = "#91aeba";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#cfe5e7";
+set color_entry_border = "#91aeba";
+set color_entry_interaction_links = "#91aeba";
+set color_entry_interaction_links_visited = "#91baaf";
+set color_entry_link = "#91aeba";
+set color_entry_link_visited = "#91baaf";
+set color_entry_text = "#4A635E";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#91aeba";
+set color_comment_title = "#4A635E";
+set color_comment_title_background = "#91aeba";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#cfe5e7";
+set color_module_border = "#91aeba";
+set color_module_link = "#91aeba";
+set color_module_link_visited = "#91baaf";
+set color_module_text = "#4A635E";
+set color_module_title = "#fff";
+set color_module_title_background = "#91aeba";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/igetmisty.png";
+    
+    function Page::print_theme_stylesheet() {
+        """
+            /* I Get Misty
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    
+"""; }
+
+
 #NEWLAYER: crisped/inspring
 layerinfo type = "theme";
 layerinfo name = "In Spring";
@@ -4308,62 +5041,6 @@ set color_module_link_hover = "#9fd86b";
 set color_module_link_visited = "#96EAD1";
 set color_module_text = "#0c0636";
 set color_module_title = "#96EAD1";
-
-
-#NEWLAYER: crisped/keepfalling
-layerinfo type = "theme";
-layerinfo name = "Keep Falling";
-layerinfo redist_uniq = "crisped/keepfalling";
-layerinfo author_name = "timeasmymeasure";
-
-set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
-
-##===============================
-## Page Colors
-##===============================
-
-set color_page_background = "#81290b";
-set color_page_link = "#f04d14";
-set color_page_link_hover = "#ea8713";
-set color_page_subtitle = "EA8713";
-set color_page_text = "#f0a914";
-set color_page_title = "#F55822";
-set color_footer_background = "#641908";
-set color_footer_link = "#f04d14";
-set control_strip_bgcolor = "#641908";
-set control_strip_bordercolor = "#5b1a06";
-set control_strip_linkcolor = "#f04d14";
-set control_strip_fgcolor = "#f0a914";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_comment_title = "#f0a914";
-set color_comment_title_background = "#4b1605";
-set color_entry_background = "#641908";
-set color_entry_border = "#5b1a06";
-set color_entry_link = "#f04d14";
-set color_entry_link_hover = "#ea8713";
-set color_entry_text = "#f0a914";
-set color_entry_title = "#f0a914";
-set color_entry_title_background = "#4b1605";
-
-##===============================
-## Module Colors
-##===============================
-
-set color_module_background = "#641908";
-set color_module_border = "#5b1a06";
-set color_module_link = "#f04d14";
-set color_module_link_hover = "#ea8713";
-set color_module_text = "#f0a914";
-set color_module_title = "#f0a914";
-set color_module_title_background = "#4b1605";
-set color_calendar_background = "#4b1605";
-set color_calendar_link = "#f04d14";
-set color_calendar_link_hover = "#ea8713";
-set color_calendar_text = "#f0a914";
 
 
 #NEWLAYER: crisped/junoii
@@ -4598,6 +5275,549 @@ function Page::print_theme_stylesheet() {
 
      """;
 }
+
+
+#NEWLAYER: crisped/keepfalling
+layerinfo type = "theme";
+layerinfo name = "Keep Falling";
+layerinfo redist_uniq = "crisped/keepfalling";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#81290b";
+set color_page_link = "#f04d14";
+set color_page_link_hover = "#ea8713";
+set color_page_subtitle = "EA8713";
+set color_page_text = "#f0a914";
+set color_page_title = "#F55822";
+set color_footer_background = "#641908";
+set color_footer_link = "#f04d14";
+set control_strip_bgcolor = "#641908";
+set control_strip_bordercolor = "#5b1a06";
+set control_strip_linkcolor = "#f04d14";
+set control_strip_fgcolor = "#f0a914";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#f0a914";
+set color_comment_title_background = "#4b1605";
+set color_entry_background = "#641908";
+set color_entry_border = "#5b1a06";
+set color_entry_link = "#f04d14";
+set color_entry_link_hover = "#ea8713";
+set color_entry_text = "#f0a914";
+set color_entry_title = "#f0a914";
+set color_entry_title_background = "#4b1605";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#641908";
+set color_module_border = "#5b1a06";
+set color_module_link = "#f04d14";
+set color_module_link_hover = "#ea8713";
+set color_module_text = "#f0a914";
+set color_module_title = "#f0a914";
+set color_module_title_background = "#4b1605";
+set color_calendar_background = "#4b1605";
+set color_calendar_link = "#f04d14";
+set color_calendar_link_hover = "#ea8713";
+set color_calendar_text = "#f0a914";
+
+
+#NEWLAYER: crisped/kyler
+layerinfo type = "theme";
+layerinfo name = "Kyler";
+layerinfo redist_uniq = "crisped/kyler";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by medeakay & thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/4189592/Kyler" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#670f5f";
+set color_page_border = "#c01bb1";
+set color_page_link = "#87fe2f";
+set color_page_link_visited = "#8daf24";
+set color_page_subtitle = "#afda2d";
+set color_page_text = "#f1fec8";
+set color_page_title = "#ccfe30";
+set icons_page_sort = "keyword";
+set color_header_background = "#670f5f";
+set color_footer_background = "#670f5f";
+set color_footer_link = "#87fe2f";
+set color_footer_link_visited = "#8daf24";
+set color_calendar_background = "#670f5f";
+set color_calendar_link = "#87fe2f";
+set color_calendar_link_visited = "#8daf24";
+set color_calendar_text = "#ccfe30";
+set comment_date_format = "med";
+set control_strip_bgcolor = "#670F5F";
+set control_strip_bordercolor = "#6B851C";
+set control_strip_fgcolor = "#f1fec8";
+set control_strip_linkcolor = "#87fe2f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#670f5f";
+set color_entry_interaction_links = "#87fe2f";
+set color_entry_interaction_links_visited = "#8daf24";
+set color_entry_link = "#87fe2f";
+set color_entry_link_visited = "#8daf24";
+set color_entry_text = "#f1fec8";
+set color_entry_title = "#f1fec8";
+set color_entry_title_background = "#e5fe95";
+set color_comment_title = "#ccfe30";
+set color_comment_title_background = "#670f5f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#670f5f";
+set color_module_link = "#87fe2f";
+set color_module_link_visited = "#cee685";
+set color_module_text = "#f1fec8";
+set color_module_title = "#cee685";
+set color_module_title_background = "#e5fe95";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/kyler.png";
+
+function Page::print_theme_stylesheet() { """
+            /* Kyler
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+   
+"""; }
+
+
+#NEWLAYER: crisped/lawlessspeckles
+layerinfo type = "theme";
+layerinfo name = "Lawless Speckles";
+layerinfo redist_uniq = "crisped/lawlessspeckles";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly and thirdbreakfast", "url" => "http://www.colourlovers.com/pattern/4259186/Lawless_Speckless" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#25064a";
+set color_page_border = "#3B3865";
+set color_page_link = "#eaadde";
+set color_page_link_visited = "#b9f1ff";
+set color_page_subtitle = "#ddb8e2";
+set color_page_text = "#d2c5e2";
+set color_page_title = "#d2c5e2";
+set color_header_background = "#25064a";
+set color_footer_background = "#25064a";
+set color_footer_link = "#eaadde";
+set color_footer_link_visited = "#b9f1ff";
+set color_calendar_background = "#25064a";
+set color_calendar_link = "#eaadde";
+set color_calendar_link_visited = "#b9f1ff";
+set color_calendar_text = "#d2c5e2";
+set control_strip_bgcolor = "#25064a";
+set control_strip_bordercolor = "#3B3865";
+set control_strip_fgcolor = "#d2c5e2";
+set control_strip_linkcolor = "#eaadde";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#25064a";
+set color_entry_border = "#3B3865";
+set color_entry_interaction_links = "#eaadde";
+set color_entry_interaction_links_visited = "#b9f1ff";
+set color_entry_link = "#eaadde";
+set color_entry_link_visited = "#b9f1ff";
+set color_entry_text = "#d2c5e2";
+set color_entry_title = "#d2c5e2";
+set color_entry_title_background = "#3B3865";
+set color_comment_title = "#d2c5e2";
+set color_comment_title_background = "#3B3865";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#25064a";
+set color_module_border = "#3B3865";
+set color_module_link = "#eaadde";
+set color_module_link_visited = "#b9f1ff";
+set color_module_text = "#d2c5e2";
+set color_module_title = "#d2c5e2";
+set color_module_title_background = "#3B3865";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/lawlessspeckles.png";
+    
+    function Page::print_theme_stylesheet() {
+        """
+            /* Lawless Speckles
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    
+    
+"""; }
 
 
 #NEWLAYER: crisped/lemarin
@@ -5056,6 +6276,267 @@ set color_module_text = "#FFFFF9";
 set color_module_title = "#FFE29B";
 set color_module_title_background = "#443E39";
 set color_calendar_text = "#FFFFF9";
+
+
+#NEWLAYER: crisped/luka
+layerinfo type = "theme";
+layerinfo name = "Luka";
+layerinfo redist_uniq = "crisped/luka";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly & dazzlement", "url" => "http://www.colourlovers.com/pattern/4181611/Luka" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e3edf3";
+set color_page_link = "#8788a7";
+set color_page_link_hover = "#7f92a3";
+set color_page_link_visited = "#686988";
+set color_page_subtitle = "#686988";
+set color_page_text = "#4e5568";
+set color_page_title = "#8788a7";
+set color_footer_background = "#eff1f3";
+set color_footer_link = "#4e5568";
+set color_footer_link_hover = "#8788a7";
+set color_footer_link_visited = "#686988";
+set color_calendar_background = "#fdfdfd";
+set color_calendar_link = "#8599ab";
+set color_calendar_link_hover = "#afaab1";
+set color_calendar_link_visited = "#889";
+set color_calendar_text = "#4e5568";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#eff1f3";
+set color_entry_background = "#eff1f3";
+set color_entry_background = "#fdfdfd";
+set color_entry_border = "#dadbf5";
+set color_entry_border = "#dadbf5";
+set color_entry_border = "#f7d9f4";
+set color_entry_interaction_links = "#8599ab";
+set color_entry_link = "#8599ab";
+set color_entry_link_hover = "#afaab1";
+set color_entry_link_visited = "#889";
+set color_entry_text = "#4e5568";
+set color_entry_title = "#4b4f5c";
+set color_entry_title_background = "#dadbf5";
+set color_entry_title_background = "#dadbf5";
+set color_entry_title_background = "#e3f7f8";
+set color_comment_title = "#8599ab";
+set color_comment_title_background = "#dadbf5";
+set color_comment_title_background = "#dadbf5";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#eff1f3";
+set color_module_background = "#eff1f3";
+set color_module_background = "#fdfdfd";
+set color_module_border = "#d4ebfb";
+set color_module_link = "#8599ab";
+set color_module_link_hover = "#afaab1";
+set color_module_link_visited = "#889";
+set color_module_text = "#4e5568";
+set color_module_title = "#4b4f5c";
+set color_module_title_background = "#dadbf5";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title_units = "em";
+set font_module_text_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/luka.png";
+
+function Page::print_theme_stylesheet() { """
+
+            /* Luka
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    
+    
+    
+"""; }
 
 
 #NEWLAYER: crisped/moonstone
@@ -6318,6 +7799,72 @@ function Page::print_theme_stylesheet() {
     }
 
 
+#NEWLAYER: crisped/nightflowers
+layerinfo type = "theme";
+layerinfo name = "Night Flowers";
+layerinfo redist_uniq = "crisped/nightflowers";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly & OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/3540461/Night_Flowers" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1c002f";
+set color_page_border = "#bac4e1";
+set color_page_link = "#d7c1ff";
+set color_page_link_visited = "#FFD1F0";
+set color_page_subtitle = "#bac4e1";
+set color_page_text = "#bac4e1";
+set color_page_title = "#bac4e1";
+set color_header_background = "#1c002f";
+set color_footer_background = "#1c002f";
+set color_footer_link = "#d7c1ff";
+set color_footer_link_visited = "#FFD1F0";
+set color_calendar_background = "#1c002f";
+set color_calendar_link = "#d7c1ff";
+set color_calendar_link_visited = "#FFD1F0";
+set color_calendar_text = "#bac4e1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#1c002f";
+set color_entry_border = "#bac4e1";
+set color_entry_interaction_links = "#d7c1ff";
+set color_entry_interaction_links_visited = "#FFD1F0";
+set color_entry_link = "#d7c1ff";
+set color_entry_link_visited = "#FFD1F0";
+set color_entry_text = "#bac4e1";
+set color_entry_title = "#bac4e1";
+set color_entry_title_background = "#1c002f";
+set color_comment_title = "#bac4e1";
+set color_comment_title_background = "#1c002f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#1c002f";
+set color_module_border = "#bac4e1";
+set color_module_link = "#d7c1ff";
+set color_module_link_visited = "#FFD1F0";
+set color_module_text = "#bac4e1";
+set color_module_title = "#bac4e1";
+set color_module_title_background = "#1c002f";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/nightflowers.png";
+
+
 #NEWLAYER: crisped/ohwinter
 layerinfo type = "theme";
 layerinfo name = "Oh Winter";
@@ -7418,6 +8965,255 @@ set color_calendar_link_visited = "#481463";
 set color_calendar_text = "#000";
 
 
+#NEWLAYER: crisped/purplesandgolds
+layerinfo type = "theme";
+layerinfo name = "Purples and Golds";
+layerinfo redist_uniq = "crisped/purplesandgolds";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly & dazzlement", "url" => "http://www.colourlovers.com/pattern/4261922/Purples_and_Golds" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#740049";
+set color_page_border = "#400f2d";
+set color_page_link = "#da008a";
+set color_page_link_visited = "#e6b700";
+set color_page_subtitle = "#da008a";
+set color_page_text = "#f0ed0d";
+set color_page_title = "#f0ed0d";
+set icons_page_sort = "keyword";
+set color_header_background = "#740049";
+set color_footer_background = "#740049";
+set color_footer_link = "#f0ed0d";
+set color_footer_link_visited = "#e6b700";
+set color_calendar_background = "#740049";
+set color_calendar_link = "#e6b700";
+set color_calendar_link_visited = "#e6b700";
+set color_calendar_text = "#f0ed0d";
+set control_strip_bgcolor = "#740049";
+set control_strip_bordercolor = "#400f2d";
+set control_strip_fgcolor = "#f0ed0d";
+set control_strip_linkcolor = "#da008a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#740049";
+set color_entry_border = "#400f2d";
+set color_entry_interaction_links = "#da008a";
+set color_entry_interaction_links_visited = "#e6b700";
+set color_entry_link = "#da008a";
+set color_entry_link_visited = "#e6b700";
+set color_entry_text = "#f0ed0d";
+set color_entry_title = "#f0ed0d";
+set color_entry_title_background = "#400f2d";
+set color_comment_title = "#da008a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#740049";
+set color_module_border = "#400f2d";
+set color_module_link = "#da008a";
+set color_module_link_visited = "#e6b700";
+set color_module_text = "#f0ed0d";
+set color_module_title = "#e6b700";
+set color_module_title_background = "#400f2d";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_url = "crisped/purplesandgolds.png";
+
+function Page::print_theme_stylesheet() { """
+
+            /* Purples and Golds
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }";
+    
+    
+"""; }
+
+
 #NEWLAYER: crisped/queries
 layerinfo type = "theme";
 layerinfo name = "Queries";
@@ -8066,6 +9862,252 @@ function Page::print_theme_stylesheet () {
 }
 
 
+#NEWLAYER: crisped/seatheflowers
+layerinfo type = "theme";
+layerinfo name = "Sea the Flowers";
+layerinfo redist_uniq = "crisped/seatheflowers";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly & OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/4348429/Sea_the_Flowers" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e9fffc";
+set color_page_border = "#9dbfbb";
+set color_page_link = "#61948e";
+set color_page_link_visited = "#9dbfbb";
+set color_page_subtitle = "#9dbfbb";
+set color_page_text = "#385753";
+set color_page_title = "#385753";
+set color_header_background = "#e9fffc";
+set color_footer_background = "#e9fffc";
+set color_footer_link = "#61948e";
+set color_footer_link_visited = "#9dbfbb";
+set color_calendar_background = "#e9fffc";
+set color_calendar_link = "#61948e";
+set color_calendar_link_visited = "#9dbfbb";
+set color_calendar_text = "#385753";
+set control_strip_bgcolor = "#E9FFFC";
+set control_strip_bordercolor = "#91aeba";
+set control_strip_fgcolor = "#385753";
+set control_strip_linkcolor = "#61948e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e9fffc";
+set color_entry_border = "#9dbfbb";
+set color_entry_interaction_links = "#61948e";
+set color_entry_interaction_links_visited = "#9dbfbb";
+set color_entry_link = "#61948e";
+set color_entry_link_visited = "#9dbfbb";
+set color_entry_text = "#385753";
+set color_entry_title = "#385753";
+set color_entry_title_background = "#61948e";
+set color_comment_title = "#385753";
+set color_comment_title_background = "#e9fffc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e9fffc";
+set color_module_border = "#9dbfbb";
+set color_module_link = "#61948e";
+set color_module_link_visited = "#9dbfbb";
+set color_module_text = "#385753";
+set color_module_title = "#385753";
+set color_module_title_background = "#61948e";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/seatheflowers.png";
+
+
+    function Page::print_theme_stylesheet() {
+        """
+            /* Sea the Flowers
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+ /* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }";
+    
+    
+"""; }
+
+
 #NEWLAYER: crisped/silentnight
 layerinfo type = "theme";
 layerinfo name = "Silent Night";
@@ -8438,6 +10480,496 @@ function Page::print_theme_stylesheet() { """
 """; }
 
 
+#NEWLAYER: crisped/softestflowers
+layerinfo type = "theme";
+layerinfo name = "Softest Flowers";
+layerinfo redist_uniq = "crisped/softestflowers";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly & ArrayOfLily", "url" => "http://www.colourlovers.com/pattern/4329289/Softest_Flowers" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3e1817";
+set color_page_border = "#dee4be";
+set color_page_link = "#bab192";
+set color_page_link_visited = "#928f5c";
+set color_page_subtitle = "#dee4be";
+set color_page_text = "#dee4be";
+set color_page_title = "#dee4be";
+set color_footer_background = "#3e1817";
+set color_footer_link = "#bab192";
+set color_footer_link_visited = "#928f5c";
+set color_calendar_background = "#3e1817";
+set color_calendar_link = "#bab192";
+set color_calendar_link_visited = "#928f5c";
+set color_calendar_text = "#dee4be";
+set control_strip_bgcolor = "#3e1817";
+set control_strip_bordercolor = "#dee4be";
+set control_strip_fgcolor = "#dee4be";
+set control_strip_linkcolor = "#bab192";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3e1817";
+set color_entry_border = "#dee4be";
+set color_entry_interaction_links = "#bab192";
+set color_entry_interaction_links_visited = "#928f5c";
+set color_entry_link = "#bab192";
+set color_entry_link_visited = "#928f5c";
+set color_entry_text = "#dee4be";
+set color_entry_title = "#dee4be";
+set color_entry_title_background = "#76404e";
+set color_comment_title = "#dee4be";
+set color_comment_title_background = "#76404e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#3e1817";
+set color_module_border = "#dee4be";
+set color_module_link = "#bab192";
+set color_module_link_visited = "#928f5c";
+set color_module_text = "#dee4be";
+set color_module_title = "#dee4be";
+set color_module_title_background = "#76404e";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/softestflowers.png";
+    
+    
+    function Page::print_theme_stylesheet() {
+        """
+            /* Softest Flowers
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+
+"""; }
+
+
+#NEWLAYER: crisped/softoliveflowers
+layerinfo type = "theme";
+layerinfo name = "Soft Olive Flowers";
+layerinfo redist_uniq = "crisped/softoliveflowers";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by ArrayOfLily", "url" => "http://www.colourlovers.com/pattern/4277265/x" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#23291F";
+set color_page_border = "#E3E197";
+set color_page_link = "#C3CAA0";
+set color_page_link_visited = "#A79F8A";
+set color_page_subtitle = "#E3E197";
+set color_page_text = "#E3E197";
+set color_page_title = "#E3E197";
+set color_footer_background = "#23291F";
+set color_footer_link = "#C3CAA0";
+set color_footer_link_visited = "#A79F8A";
+set color_calendar_background = "#23291F";
+set color_calendar_link = "#C3CAA0";
+set color_calendar_link_visited = "#A79F8A";
+set color_calendar_text = "#E3E197";
+set control_strip_bgcolor = "#23291F";
+set control_strip_bordercolor = "#E3E197";
+set control_strip_fgcolor = "#E3E197";
+set control_strip_linkcolor = "#C3CAA0";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#23291F";
+set color_entry_border = "#A79F8A";
+set color_entry_interaction_links = "#C3CAA0";
+set color_entry_link = "#C3CAA0";
+set color_entry_link_visited = "#A79F8A";
+set color_entry_text = "#E3E197";
+set color_entry_title = "#E3E197";
+set color_entry_title_background = "#E3E197";
+set color_comment_title = "#5E635D";
+set color_comment_title_background = "#23291F";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#23291F";
+set color_module_border = "#E3E197";
+set color_module_link = "#C3CAA0";
+set color_module_link_visited = "#A79F8A";
+set color_module_text = "#E3E197";
+set color_module_title = "#E3E197";
+set color_module_title_background = "#E3E197";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/softoliveflowers.png";
+
+
+    
+    function Page::print_theme_stylesheet() {
+        """
+            /* Soft Olive Flowers
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+     /* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; } 
+    
+    
+    
+"""; }
+
+
 #NEWLAYER: crisped/solyluna
 layerinfo type = "theme";
 layerinfo name = "Sol y Luna";
@@ -8573,6 +11105,252 @@ set image_background_page_url = "crisped/speckles.png";
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
     h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+"""; }
+
+#NEWLAYER: crisped/springtimeflowers
+layerinfo type = "theme";
+layerinfo name = "Springtime Flowers";
+layerinfo redist_uniq = "crisped/springtimeflowers";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly & OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/4348415/Springtime_Flowers" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#edf4c3";
+set color_page_border = "#000";
+set color_page_link = "#909b35";
+set color_page_link_visited = "#bebe36";
+set color_page_subtitle = "#76ab38";
+set color_page_text = "#608c2e";
+set color_page_title = "#608c2e";
+set color_header_background = "#edf4c3";
+set color_footer_background = "#edf4c3";
+set color_footer_link = "#909b35";
+set color_footer_link_visited = "#bebe36";
+set color_calendar_background = "#edf4c3";
+set color_calendar_link = "#909b35";
+set color_calendar_link_visited = "#bebe36";
+set color_calendar_text = "#608c2e";
+set control_strip_bgcolor = "#edf4c3";
+set control_strip_bordercolor = "#000";
+set control_strip_fgcolor = "#608c2e";
+set control_strip_linkcolor = "#909b35";
+set custom_control_strip_colors = "on_gradient";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#edf4c3";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#909b35";
+set color_entry_interaction_links_visited = "#bebe36";
+set color_entry_link = "#909b35";
+set color_entry_link_visited = "#bebe36";
+set color_entry_text = "#608c2e";
+set color_entry_title = "#608c2e";
+set color_entry_title_background = "#c2e09c";
+set color_comment_title = "#608c2e";
+set color_comment_title_background = "#edf4c3";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#edf4c3";
+set color_module_border = "#608c2e";
+set color_module_link = "#909b35";
+set color_module_link_visited = "#bebe36";
+set color_module_text = "#608c2e";
+set color_module_title = "#608c2e";
+set color_module_title_background = "#c2e09c";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/springtimeflowers.png";
+
+
+    function Page::print_theme_stylesheet() {
+        """
+            /* Springtime Flowers
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    
+    
 """; }
 
 
@@ -9308,6 +12086,243 @@ set color_module_border = "#404040";
 set color_module_title = "#a7a7a7";
 set color_module_title_background = "#404040";
 set color_calendar_background = "#a7a7a7";
+
+
+#NEWLAYER: crisped/verdena
+layerinfo type = "theme";
+layerinfo name = "Verdena";
+layerinfo redist_uniq = "crisped/verdena";
+layerinfo author_name = "forests_of_fire";
+
+set theme_authors = [ { "name" => "forests_of_fire", "type" => "user" } ];
+set layout_resources = [ { "name" => "ColourLovers pattern by amethystfirefly & OldeAuntieRae", "url" => "http://www.colourlovers.com/pattern/3820114/verdena" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#C7E371";
+set color_page_border = "#fff";
+set color_page_link = "#E4F3B6";
+set color_page_link_visited = "#000e06";
+set color_page_subtitle = "#000";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#C7E371";
+set color_footer_background = "#C7E371";
+set color_footer_link = "#477745";
+set color_footer_link_visited = "#000e06";
+set color_calendar_background = "#C7E371";
+set color_calendar_link = "#477745";
+set color_calendar_link_visited = "#000e06";
+set color_calendar_text = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#C7E371";
+set color_entry_border = "#fff";
+set color_entry_interaction_links = "#477745";
+set color_entry_interaction_links_visited = "#000e06";
+set color_entry_link = "#477745";
+set color_entry_link_visited = "#000e06";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_title_background = "#98BE21";
+set color_comment_title_background = "#C7E371";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#C7E371";
+set color_module_border = "#fff";
+set color_module_link = "#477745";
+set color_module_link_visited = "#000e06";
+set color_module_text = "#000";
+set color_module_title = "#477745";
+set color_module_title_background = "#98BE21";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "crisped/verdena.png";
+
+function Page::print_theme_stylesheet() { """
+            /* Verdena
+            /* by forests_of_fire
+            ******************************/
+    
+            /* Entries with gradients
+            ******************************/
+    
+            .entry {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic,
+            .comment .userpic {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            .entry .userpic img,
+            .comment .userpic img {
+                background-color: $*color_entry_title_background;
+            }
+    
+            .entry-interaction-links a:hover {
+                color: $*color_entry_link_hover;
+            }
+    
+            .entry .header .entry-title,
+            .entry .header .entry-title a {
+                background-color: transparent;
+            }
+    
+            #comments .comment,
+            .bottomcomment {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Modules with gradients
+            ******************************/
+    
+            .module {
+                border-bottom: 1px solid $*color_module_border;
+                border-right: 1px solid $*color_module_border;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+           .module-content .userpic img {
+                background-color: $*color_module_border !important;
+                box-shadow: 1px 2px 3px $*color_module_border;
+            }
+    
+            .module-calendar .empty-day,
+            .month .day {
+                background-color: $*color_module_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-calendar th,
+            .module-calendar .entry-day,
+            .month th,
+            .month .day-has-entries {
+                background-color: $*color_page_background;
+                border: 1px solid $*color_module_border;
+            }
+    
+            .module-navlinks,
+            .module-time,
+            .module-powered,
+            .module-header {
+                background: -moz-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Firefox */
+                background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_module_title_background), color-stop(30px, $*color_module_background)); /* Safari 4+, Chrome 2+ */
+                background: -webkit-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px);
+                filter: progid:DXImageTransform.Microsoft.gradient (GradientType=0,startColorstr='$*color_module_title_background', endColorstr='$*color_module_background'); /* IE6 + IE 7 */
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
+                background: -ms-linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* IE 10 */
+                background: linear-gradient(top, $*color_module_title_background, $*color_module_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
+                background: -o-linear-gradient(top, $*color_module_title_background 0, $*color_module_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Archive with gradients
+            ******************************/
+    
+            .month {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+            }
+    
+            .month-wrapper {
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Tags page with gradients
+            ******************************/
+            .page-tags .tags-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* Custom icons page with gradients
+            ******************************/
+    
+            .page-icons .icons-container {
+                border-bottom: 1px solid $*color_entry_title_background;
+                border-right: 1px solid $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+            /* General page gradients
+            ******************************/
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                 background: $*color_entry_background;
+                 background: -moz-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Firefox */
+                 background: -webkit-linear-gradient(linear, left top, left bottom, color-stop(0, $*color_entry_title_background), color-stop(30px, $*color_entry_background)); /* Safari 4+, Chrome 2+ */
+                 background: -webkit-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
+                 filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='$*color_entry_title_background', endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
+                 -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
+                 background: -ms-linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* IE 10 */
+                 background: linear-gradient(top, $*color_entry_title_background, $*color_entry_background 30px); /* Standard Syntax */
+            }
+    
+            noindex:-o-prefocus,
+            .entry .header,
+            #comments .comment,
+            .bottomcomment,
+            .month,
+            .tags-container h2,
+            .icons-container h2 {
+                background: -o-linear-gradient(top, $*color_entry_title_background 0, $*color_entry_background 30px); /* Opera 11.10+ */
+            }
+    
+            /* Navigation strip
+            ******************************/
+    
+            #lj_controlstrip {
+                box-shadow: 0px 1px 2px $*color_entry_border;
+            }
+    
+            #lj_controlstrip td {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .logged-out #lj_controlstrip_login td {
+                border: none;
+            }
+    
+            /* Contextual hover
+            ******************************/
+    
+            .ContextualPopup .Inner {
+                border: 1px solid $*color_entry_title_background;
+            }
+    
+            .ContextualPopup .Userpic {
+                background-color: $*color_entry_title_background;
+                box-shadow: 1px 2px 3px $*color_entry_border;
+            }
+    
+    
+"""; }
 
 
 #NEWLAYER: crisped/walnut

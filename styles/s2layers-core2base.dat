@@ -97,6 +97,9 @@ paperme/themes           theme+                      paperme/layout
 patsy/layout             layout(core2base/layout)    core2
 patsy/themes             theme+                      patsy/layout
 
+pattern/layout           layout(core2base/layout)    core2
+pattern/themes           theme+                      pattern/layout
+
 planetcaravan/layout     layout(core2base/layout)    core2
 planetcaravan/themes     theme+                      planetcaravan/layout
 
@@ -105,6 +108,9 @@ practicality/themes      theme+                      practicality/layout
 
 refriedtablet/layout     layout(core2base/layout)    core2
 refriedtablet/themes     theme+                      refriedtablet/layout
+
+seamless/layout          layout(core2base/layout)    core2
+seamless/themes          theme+                      seamless/layout
 
 snakesandboxes/layout    layout(core2base/layout)    core2
 snakesandboxes/themes    theme+                      snakesandboxes/layout

@@ -105,8 +105,6 @@ sub make_journal
     if ( $styleid && $styleid eq "siteviews" ) {
         $apache_r->notes->{ 'no_control_strip' } = 1;
 
-        # kill the flag
-        ${$opts->{'handle_with_bml_ref'}} = 0;
         ${$opts->{'handle_with_siteviews_ref'}} = 1;
         $opts->{siteviews_extra_content} ||= {};
 
@@ -130,7 +128,7 @@ sub make_journal
 
     foreach ("name", "url", "urlname") { LJ::text_out(\$u->{$_}); }
 
-    $u->{'_journalbase'} = $u->journal_base( $opts->{'vhost'} );
+    $u->{'_journalbase'} = $u->journal_base( vhost => $opts->{'vhost'} );
 
     my $view2class = {
         lastn    => "RecentPage",
@@ -192,8 +190,10 @@ sub make_journal
         stc/jquery/jquery.ui.tooltip.css
         stc/jquery/jquery.ui.button.css
         stc/jquery/jquery.ui.dialog.css
+        stc/jquery/jquery.ui.theme.smoothness.css
 
         js/jquery.poll.js
+        js/journals/jquery.tag-nav.js
 
         js/jquery.mediaplaceholder.js
     ) );
@@ -920,7 +920,7 @@ sub escape_prop_value {
         }
         elsif ($mode eq 'html' || $mode eq 'html-oneline') {
             LJ::CleanHTML::clean_event(\$_[0]);
-            $_[0] =~ s!\n!<br />!g if $mode eq 'html';
+            $_[0] =~ s!\n!<br />!g if defined $_[0] && $mode eq 'html';
         }
         elsif ($mode eq 'css') {
             my $clean = $css_c->clean($_[0]);
@@ -2312,7 +2312,7 @@ sub Page
 
     unless ($u->prop( 'customtext_content' )) {  $u->set_prop( 'customtext_content', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_content} );}
     unless ($u->prop( 'customtext_url' )) {  $u->set_prop( 'customtext_url', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_url} );}
-    if ($u->prop( 'customtext_title' ) eq '' || $u->prop( 'customtext_title' ) eq  "Custom Text") {
+    if ( ! defined $u->prop( 'customtext_title' ) || $u->prop( 'customtext_title' ) eq '' || $u->prop( 'customtext_title' ) eq  "Custom Text" ) {
         $u->set_prop( 'customtext_title', $opts->{ctx}->[S2::PROPS]->{text_module_customtext} );
     }
 
@@ -2441,6 +2441,9 @@ sub Image_std
     my $name = shift;
     my $ctx = $LJ::S2::CURR_CTX or die "No S2 context available ";
 
+    my $imgprefix = $LJ::IMGPREFIX;
+    $imgprefix =~ s/^https?://;
+
     unless ($LJ::S2::RES_MADE++) {
         $LJ::S2::RES_CACHE = {};
         my $textmap = {
@@ -2455,7 +2458,7 @@ sub Image_std
         foreach ( keys %$textmap ) {
             my $i = $LJ::Img::img{$_};
             $LJ::S2::RES_CACHE->{$_} =
-                Image( "$LJ::IMGPREFIX$i->{src}",
+                Image( "$imgprefix$i->{src}",
                        $i->{width}, $i->{height},
                        $ctx->[S2::PROPS]->{ $textmap->{$_} } );
         }
@@ -2468,7 +2471,7 @@ sub Image_std
         foreach ( @ic ) {
             my $i = $LJ::Img::img{$_};
             $LJ::S2::RES_CACHE->{$_} =
-                Image( "$LJ::IMGPREFIX$i->{src}",
+                Image( "$imgprefix$i->{src}",
                        $i->{width}, $i->{height},
                        LJ::Lang::ml( $i->{alt} ) );
         }
@@ -2640,9 +2643,16 @@ sub sitescheme_secs_to_iso {
 
     # convert date to S2 object
     my $s2_ctx = [];  # fake S2 context object
+
+    my $s2_datetime;
+    my $has_tz = '';  # don't display timezone unless requested below
+
     # if opts has a true tz key, get the remote user's timezone if possible
-    my $s2_datetime = $opts{tz} ? DateTime_tz( $secs, $remote ) : undef;
-    my $has_tz = defined $s2_datetime ? "(local)" : "UTC";
+    if ( $opts{tz} ) {
+        $s2_datetime = DateTime_tz( $secs, $remote );
+        $has_tz = defined $s2_datetime ? "(local)" : "UTC";
+    }
+
     # if timezone execution failed, use GMT
     $s2_datetime = DateTime_unix( $secs ) unless defined $s2_datetime;
 
@@ -2659,6 +2669,15 @@ sub sitescheme_secs_to_iso {
 # adectomy
 sub current_box_type {}
 sub curr_page_supports_ebox { 0 }
+
+# Convenience method since it gets checked multiple times
+sub has_quickreply
+{
+    my ($page) = @_;
+    my $view = $page->{view};
+    # Also needs adding to the list in core2.s2
+    return $view eq 'entry' || $view eq 'read' || $view eq 'day' || $view eq 'recent' || $view eq 'network';
+}
 
 
 ###############
@@ -2683,7 +2702,8 @@ sub start_css {
     $sc->{_start_css_pout_s} = S2::get_output_safe();
     $sc->{_start_css_buffer} = "";
     my $printer = sub {
-        $sc->{_start_css_buffer} .= shift;
+        my $arg = shift;
+        $sc->{_start_css_buffer} .= $arg if defined $arg;
     };
     S2::set_output($printer);
     S2::set_output_safe($printer);
@@ -3164,7 +3184,7 @@ sub set_handler
         } elsif ($cmd eq "set_image") {
             my $domexp = $get_domexp->();
             my $url = shift @args;
-            if ($url =~ m!^http://! && $url !~ /[\'\"\n\r]/) {
+            if ($url =~ m!^https?://! && $url !~ /[\'\"\n\r]/) {
                 $url = LJ::eurl($url);
                 $S2::pout->("setAttr($domexp, 'src', \"$url\");\n");
             }
@@ -3652,7 +3672,7 @@ sub _print_quickreply_link
         $onclick = "onclick='$onclick'";
     }
 
-    $onclick = "" unless $page->{view} eq 'entry' || $page->{view} eq 'read';
+    $onclick = "" unless LJ::S2::has_quickreply($page);
     $onclick = "" unless LJ::is_enabled('s2quickreply');
     $onclick = "" if $page->{'_u'}->does_not_allow_comments_from( $remote );
 
@@ -3664,7 +3684,7 @@ sub _print_reply_container
     my ($ctx, $this, $opts) = @_;
 
     my $page = get_page();
-    return unless $page->{view} eq 'entry' || $page->{view} eq 'read';
+    return unless LJ::S2::has_quickreply($page);
 
     my $target = $opts->{target} || '';
     undef $target unless $target =~ /^[\w-]+$/;
@@ -3681,22 +3701,20 @@ sub _print_reply_container
     $class = $class ? "class=\"$class\"" : "";
 
     $S2::pout->("<div $class id=\"ljqrt$target\" data-quickreply-container=\"$target\" style=\"display: none;\"></div>");
-
     # unless we've already inserted the big qrdiv ugliness, do it.
     unless ($ctx->[S2::SCRATCH]->{'quickreply_printed_div'}++) {
-        if ( $page->{view} eq "entry" || $page->{view} eq "read" ) {
-            my $u = $page->{'_u'};
-            my $ditemid = $page->{'entry'}{'itemid'} || $this->{itemid} || 0;
-
-            my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
-            my $thread = $page->{_viewing_thread_id} + 0 || "";
-            $S2::pout->( LJ::create_qr_div( $u, $ditemid,
-                    style_opts => $page->{_styleopts},
-                    userpic => $userpic,
-                    thread => $thread,
-                    minimal => $page->{view} eq "read",
-                ) );
-        }
+        my $u = $page->{'_u'};
+        my $ditemid = $page->{'entry'}{'itemid'} || $this->{itemid} || 0;
+        my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
+        my $thread = "";
+        $thread = $page->{_viewing_thread_id} + 0
+            if defined $page->{_viewing_thread_id};
+        $S2::pout->( LJ::create_qr_div( $u, $ditemid,
+                style_opts => $page->{_styleopts},
+                userpic => $userpic,
+                thread => $thread,
+                minimal => $page->{view} ne "entry",
+            ) );
     }
 }
 

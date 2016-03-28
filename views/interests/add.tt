@@ -41,7 +41,7 @@
           [%- '.add.added.editinterests' | ml %]</a></li>
       <li><a href='[% remote.profile_url %]'>
           [%- '.add.added.viewprofile' | ml %]</a></li>
-      <li><a href='[% site.root %]/manage/profile'>
+      <li><a href='[% site.root %]/manage/profile/'>
           [%- '.add.added.editprofile' | ml %]</a></li>
     </ul>
 [%- END -%]

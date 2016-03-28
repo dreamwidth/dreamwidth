@@ -109,7 +109,7 @@ a.active {
     }
 }
 
-.token {
+li.token {
     background-color: $input-bg-color;
     color: $primary-color;
     border-color: $secondary-button-border-color;
@@ -118,6 +118,10 @@ a.active {
         border-color: $primary-color;
     }
 }
+
+// Enabled and disabled text
+div.enabled, div.enabled * { color: $text-color; }
+div.disabled, div.disabled * { color: scale-color($text-color, $lightness: 50%); }
 
 // date and time picker
 .picker__holder {

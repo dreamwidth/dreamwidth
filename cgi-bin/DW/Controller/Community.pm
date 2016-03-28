@@ -197,7 +197,7 @@ sub new_handler {
     my $post;
     my $get;
 
-    return error_ml( 'bml.badinput.body' ) unless LJ::text_in( $post );
+    return error_ml( 'bml.badinput.body1' ) unless LJ::text_in( $post );
     return error_ml( '/communities/new.tt.error.notactive' ) unless $remote->is_visible;
     return error_ml( '/communities/new.tt.error.notconfirmed', {
             confirm_url => "$LJ::SITEROOT/register",
@@ -271,10 +271,10 @@ sub new_handler {
             return DW::Controller->render_success( 'communities/new.tt', { user => $cu->ljuser_display },
             [
                 {   text_ml => ".success.link.settings",
-                    url => LJ::create_url( "/manage/settings", args => { authas => $cu->user, cat => "community" } ),
+                    url => LJ::create_url( "/manage/settings/", args => { authas => $cu->user, cat => "community" } ),
                 },
                 {   text_ml => ".success.link.profile",
-                    url => LJ::create_url( "/manage/profile", args => { authas => $cu->user } ),
+                    url => LJ::create_url( "/manage/profile/", args => { authas => $cu->user } ),
                 },
                 {   text_ml => ".success.link.customize",
                     url => LJ::create_url( "/customize/", args => { authas => $cu->user } ),
@@ -397,10 +397,10 @@ sub convert_handler {
             return DW::Controller->render_success( 'communities/convert.tt', { comm => $cu->ljuser_display },
             [
                 {   text_ml => ".success.link.settings",
-                    url => LJ::create_url( "/manage/settings", args => { authas => $cu->user, cat => "community" } ),
+                    url => LJ::create_url( "/manage/settings/", args => { authas => $cu->user, cat => "community" } ),
                 },
                 {   text_ml => ".success.link.profile",
-                    url => LJ::create_url( "/manage/profile", args => { authas => $cu->user } ),
+                    url => LJ::create_url( "/manage/profile/", args => { authas => $cu->user } ),
                 },
                 {   text_ml => ".success.link.customize",
                     url => LJ::create_url( "/customize/", args => { authas => $cu->user } ),
@@ -410,7 +410,6 @@ sub convert_handler {
     }
 
     my $vars = {
-        usessl      => $LJ::USE_SSL,
         errors      => $errors,
         formdata    => $post || \%default_options,
         admin_user  => $remote->ljuser_display,
@@ -985,6 +984,7 @@ sub entry_queue_handler {
                 time    => LJ::diff_ago_text( LJ::mysqldate_to_time( $_->{logtime} ) ),
                 poster  => $users{$_->{posterid}}->ljuser_display,
                 subject => $_->{subject},
+                subject_maxlength => ( length( $_->{subject} ) >= 29 ) ? 1 : 0,
                 url     => $cu->moderation_queue_url( $_->{modid} ),
             }
         } @queue;

@@ -1,3 +1,14 @@
+[%# Shop - Convert paid time to points
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
 [%- sections.title = '.title' | ml(sitename = site.nameshort) -%]
 
 [% cart_display %]
@@ -18,13 +29,14 @@
 
 <p><strong>[% '.noteligible' | ml %]</strong></p>
 
-[% ELSIF NOT points %]
-
-<p><strong>[% '.toofew' | ml %]</strong><p>
-
 [% ELSIF NOT can_refund %]
 
 <p><strong>[% '.toosoon' | ml %]</strong></p>
+<p>[% IF next_refund; '.nextrefund' | ml(date = next_refund); END %]</p>
+
+[% ELSIF NOT points %]
+
+<p><strong>[% '.toofew' | ml %]</strong><p>
 
 [% ELSE %]
 

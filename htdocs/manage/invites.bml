@@ -20,8 +20,6 @@ body<=
     use strict;
     use vars qw(%POST);
 
-    LJ::set_active_crumb('comminvites');
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>"
         unless $remote;

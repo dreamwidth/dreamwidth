@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More tests => 10;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test;
 use LJ::Protocol;
 
@@ -99,7 +98,7 @@ $gres = do_req_deep("getevents",
                     'itemid' => $itemid,
                     );
 
-my $it = $gres->{events}[0];
+$it = $gres->{events}[0];
 is($it->{props}{revnum}, 2, "is 2nd revision now");
 
 

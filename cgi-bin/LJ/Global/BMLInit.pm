@@ -14,7 +14,6 @@
 # part of this distribution.
 
 use strict;
-use lib "$LJ::HOME/cgi-bin";
 use Errno qw(ENOENT);
 use LJ::Config;
 LJ::Config->load;

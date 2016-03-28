@@ -23,7 +23,7 @@ use DW::InviteCodes ();
 
 sub cmd { "make_invites" }
 
-sub desc { "Make invite codes." }
+sub desc { "Make invite codes. Requires priv: payments." }
 
 sub args_desc { [
                  owner => "The username of the account on whose behalf the invite codes are generated",

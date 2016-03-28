@@ -17,8 +17,7 @@ use warnings;
 
 use Test::More tests => 8;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Pay;
 use LJ::Test qw (temp_user);
 
@@ -46,7 +45,7 @@ sub assert {
     subtest $testname => sub {
         plan tests => 4;
 
-        my ($typeid) = grep { $LJ::CAP{$_}->{_account_type} eq $type } keys %LJ::CAP;
+        my ($typeid) = grep { ( $LJ::CAP{$_}->{_account_type}||"" ) eq $type } keys %LJ::CAP;
         ok( $typeid, 'valid class' );
 
         my $ps = DW::Pay::get_paid_status( $u );

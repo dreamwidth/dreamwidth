@@ -60,8 +60,6 @@ body<=
  use vars qw(%FORM);
  LJ::need_res( 'stc/support.css' );
 
- LJ::set_active_crumb('supporthelp');
-
  my ($ret, $sth);
  my $dbr = LJ::get_db_reader();
 
@@ -297,20 +295,22 @@ body<=
      LJ::Support::fill_request_with_cat($sp, $cats);
      next unless (LJ::Support::can_read($sp, $remote));
 
-     my $status = "open";
-     my $barbg = "green";
-     if ($sp->{'timeclosed'}) {
-         $status = "closed";
+     my $status = $sp->{'state'} eq "closed" ? "closed" :
+                  LJ::Support::open_request_status($sp->{'timetouched'},
+                                                   $sp->{'timelasthelp'});
+     my $barbg;
+     if ($status eq "open") {
+         $barbg = "green";
+     } elsif ($status eq "closed") {
          $barbg = "red";
-     }
-     elsif ($sp->{'timelasthelp'} > $sp->{'timetouched'}+5) {
-         $status = "answered<br />awaiting close";
+     } elsif ($status eq "awaiting close") {
+         $status = "answered<br/>awaiting close";
          $barbg = "yellow";
-     }
-     elsif ($sp->{'timelasthelp'} && $sp->{'timetouched'} > $sp->{'timelasthelp'}+5) {
-         $status = "answered<br /><b>still needs help</b>";
+     } elsif ($status eq "still needs help") {
+         $status = "answered<br/><strong>still needs help</strong>";
          $barbg = "green";
      }
+
      my $original_barbg = $barbg;
      $barbg = 'clicked' if ( $GET{closeall} && $original_barbg eq 'yellow' )
                         || $marked{$sp->{spid}};

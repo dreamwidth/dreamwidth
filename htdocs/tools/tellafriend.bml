@@ -29,8 +29,6 @@ _c?>
                   url          => '.',
                   );
 
- LJ::set_active_crumb('tellfriend');
-
  $title = BML::ml( ".title" );
  $body = "";
 
@@ -67,7 +65,7 @@ _c?>
      return;
  };
 
- my $msg_footer = BML::ml( ".email.body.footer", { user => $u->{user}, sitename => $LJ::SITENAME, sitenameshort => $LJ::SITENAMESHORT, domain =>$LJ::DOMAIN } );
+ my $msg_footer = BML::ml( ".email.body.footer1", { user => $u->{user}, sitename => $LJ::SITENAME, sitenameshort => $LJ::SITENAMESHORT, domain =>$LJ::DOMAIN } );
  my $custom_msg = "\n\n" . BML::ml( ".email.body.custom", { user => $u->{user} } );
 
  # Tell a friend form submitted

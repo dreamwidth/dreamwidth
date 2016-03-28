@@ -25,7 +25,7 @@ sub save {
 
     my $domainname = lc( $args->{journaldomain} );
 
-    $domainname =~ s!^(http://)?(www\.)?!!;
+    $domainname =~ s!^(https?://)?(www\.)?!!;
 
     # Strip off trailing '.', and any path or port the user might have entered.
     $domainname =~ s!\.([:/].+)?$!!;

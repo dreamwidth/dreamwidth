@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More; # TODO no plan yet
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 if ( @LJ::CLUSTERS < 2 || @{$LJ::DEFAULT_CLUSTER||[]} < 2) {
     plan skip_all => "Less than two clusters.";

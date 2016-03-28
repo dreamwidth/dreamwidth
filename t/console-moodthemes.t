@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More tests => 23;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
@@ -35,7 +34,7 @@ my $run = sub {
 
 ### CREATING AND LISTING THEMES #######
 
-# FIXME: be less ghetto about this.
+# FIXME: make this neater.
 ok($run->("moodtheme_list") =~ "Kanji Moods", "Got public theme");
 ok($run->("moodtheme_list 1") =~ "18x18 /img/mood/kanji/crazy.gif", "Got a theme");
 

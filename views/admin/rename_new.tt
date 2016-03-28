@@ -5,30 +5,24 @@ Admin page to do renames.
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
 [% sections.title = 'System Renames' %]
-
-[% IF error_list %]
-    <p>Error</p>
-    <ul class='error-list'>
-        [% FOREACH error = error_list %]
-            <li>[% error %] </li>
-        [% END %]
-    </ul>
-[% END %]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 <p>This allows a system user to perform a rename. The rules are slightly relaxed compared to normal renames: we check for validity of the username, but we don't care about other things like the journal's status or ownership.</p>
 <p>All existing relationships are kept; email and journal redirects are broken.</p>
 <form method="POST">
     [% dw.form_auth %]
     <div class='formfield'>
-        <label for="user">User:</label> <input type="text" name="user" id="user"/></div>
+        <label for="user">User:</label> <input type="text" name="user" id="user" value="[% prev_user | html %]" /></div>
     <div class='formfield'>
-        <label for="touser">To:</label> <input type="text" name="touser" id="touser" />
+        <label for="touser">To:</label> <input type="text" name="touser" id="touser" value="[% prev_touser | html %]" />
     </div>
     <input type="submit" value="Perform rename" />
 </form>

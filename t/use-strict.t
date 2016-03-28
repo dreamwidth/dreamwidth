@@ -16,8 +16,7 @@
 use strict;
 use warnings;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use Test::More;
 use LJ::Directories;
@@ -38,6 +37,8 @@ foreach my $repo ( LJ::get_all_directories( ".git" ) ) {
         next unless $path =~ /\.(pl|pm)$/;
         # skip stuff we're less concerned about or don't control
         next if $path =~ m:\b(doc|etc|fck|miscperl|src|s2|extlib)/:;
+        next if $path =~ m/config-test\.pl$/;
+        next if $path =~ m/config-test-private\.pl$/;
         $check{$path} = 1;
     }
 }

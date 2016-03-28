@@ -1,0 +1,152 @@
+[%# Journal search form.
+  #
+  # Authors:
+  #      Mark Smith <mark@dreamwidth.org>
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2009-2015 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        .exc { padding-left: 1em; font-style: italic; font-size: smaller; }
+        .stats { font-style: italic;  }
+        .searchres { margin: 0.2em 0em 0.2em 2em; }
+        .error { color: #f04124; }
+    </style>
+[% END %]
+
+[%- UNLESS did_post -%]
+    <p>[% '.blurb' | ml( sitename = site.name ) %]</p>
+[%- END -%]
+
+[%- INCLUDE components/errors.tt errors = errors -%]
+
+<form method="POST" action='[% site.root %]/search'>
+[% dw.form_auth %]
+<p>
+    [% form.radio( label = dw.ml( '.label.sitesearch' ),
+                   name = "mode", id = "m-global", value = "",
+                   selected = su.defined ? 0 : 1 );
+       tu = su.defined ? su : remote;
+
+       IF tu.allow_search_by( remote );
+           form.radio( label = dw.ml( '.label.journalsearch', user = tu.user ),
+                       name = "mode", id = "m-user", value = tu.user, noescape => 1,
+                       selected = su.defined ? 1 : 0 );
+       END;
+    %]
+
+    <br>
+    [% form.textbox( name = "query", maxlength = "255", size = "60", value = q );
+       " ";
+       form.submit( value = dw.ml( '.button.search' ) );
+    %]
+
+    <br>
+    [% sortopts = [ 'new', dw.ml( '.sort.date.new' ),
+                    'old', dw.ml( '.sort.date.old' ),
+                    'rel', dw.ml( '.sort.relevance' ) ];
+       form.select( label = dw.ml( '.sortby' ), name = "sort_by", selected = sort_by,
+                    items = sortopts );
+    %]
+
+    <br>
+    [% IF tu.is_paid;
+           wc_note = '.comments.include.note' | ml;
+           wc_label = '.comments.include' | ml;
+           wc_select = wc;
+           wc_hide = 0;
+       ELSE;
+           wc_note = '.comments.disabled.note' | ml;
+           wc_label = '.comments.disabled' | ml;
+           wc_select = 0;
+           wc_hide = 1;
+       END;
+
+           form.checkbox( label = wc_label, selected = wc_select,
+                          name = "with_comments", id = "with_comments",
+                          disabled = wc_hide );
+           "<br><em>$wc_note</em>";
+    %]
+</p>
+</form>
+
+<p>
+[%- IF did_post -%]
+    [%- IF result.size -%]
+        [%- IF result.total > 0;
+                FOREACH match = result.matches;
+                    mu = load_uid( match.journalid );
+                    pu = load_uid( match.poster_id );
+
+                    # Do not show filtered icon for other users
+                    IF match.security == 'usemask' && ! mu.equals( remote );
+                        match.security = 'access';
+                    END;
+
+                    icon = sec_icon( match.security );
+
+                    IF match.jtalkid > 0;
+                        IF match.poster_id > 0;
+                            attrib = '.attribution.comment' | ml( journal => mu.ljuser_display,
+                                                                  poster => pu.ljuser_display );
+                        ELSE;
+                            attrib = '.attribution.comment.anon' | ml( journal => mu.ljuser_display );
+                        END;
+                    ELSE;
+                        IF mu.is_comm;
+                            attrib = '.attribution.comm' | ml( journal => mu.ljuser_display,
+                                                               poster => pu.ljuser_display );
+                        ELSE;
+                            attrib = '.attribution' | ml( journal => mu.ljuser_display );
+                        END;
+                    END;
+                -%]
+                    <div class='searchres'>[% attrib %]: [% icon %]
+                        <a href="[% match.url %]">[% match.subject %]</a><br>
+                        <span class='exc'>[% match.excerpt %]</span><br>
+                        [% IF match.tags.size;
+                               '.tags' | ml; " "; tagprint( match.tags ); "<br>";
+                           END %]
+                        [% '.date' | ml %] <strong>[% match.eventtime %]</strong><br><br>
+                    </div>
+            [% END; # FOREACH
+
+               # put some stats on the output
+               IF offset > 0;
+                   skip = '.results.skipped' | ml( offset = offset );
+               END -%]
+
+               <span class='stats'>
+                   [% '.results.displayed' | ml( results = matchct, total = result.total,
+                                                 skipped = " $skip", query = q ) %]
+                   [% '.results.time' | ml( time = result.time ) %]
+               </span>
+
+            [%- offsetm = offset + matchct;
+                IF result.total > offsetm -%]
+                    <form method="POST" action='[% site.root %]/search?offset=[% offsetm %]'>
+                    [% dw.form_auth %]
+                    [% form.hidden( name = 'query', value = q );
+                       form.hidden( name = 'mode', value = su ? su.user : '' );
+                       form.hidden( name = 'sort_by', value = sort_by );
+                       form.hidden( name = 'with_comments', value = wc );
+                       form.submit( value = dw.ml( '.button.more' ) ) %]
+                    </form>
+            [%- END -%]
+        [%- ELSE -%]
+            <strong>[% 'error' | ml %]:</strong>
+            [% ".error.noresults" | ml( query = q, time = result.time ) %]
+        [%- END -%]
+    [%- END -%]
+[%- ELSE -%]
+    [% '.security.setting' | ml( aopts => "href='$site.root/manage/settings/?cat=privacy'" ) %]
+[%- END -%]
+</p>

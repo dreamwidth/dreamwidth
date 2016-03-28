@@ -66,7 +66,7 @@ sub monthview_url {
     if ( $vhost eq "other" ) {
         # FIXME: lookup their domain alias, and make vhost be "other:domain.com";
     }
-    my $base = LJ::journal_base( $user, $vhost );
+    my $base = LJ::journal_base( $user, vhost => $vhost );
     return ( error => ".error.redirkey" ) unless $args->{redir_key} =~ /^(\d\d\d\d)(\d\d)$/;
     my ( $year, $month ) = ( $1, $2 );
     return ( url => "$base/$year/$month/" );
@@ -125,7 +125,8 @@ sub entry_nav_url {
     return unless $jumpid;
 
     my $e = LJ::Entry->new( $u, ditemid => $jumpid );
-    return ( url => $e->url( style_opts => LJ::viewing_style_opts( %$args ) ) );
+    my $anchor = $tagnav ? "tagnav-" . LJ::eurl( $args->{redir_key} ) : "";
+    return ( url => $e->url( style_opts => LJ::viewing_style_opts( %$args ), anchor => $anchor ) );
 }
 
 1;

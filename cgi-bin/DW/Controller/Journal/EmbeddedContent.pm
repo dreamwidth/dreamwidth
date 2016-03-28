@@ -40,7 +40,7 @@ DW::Routing->register_string( "/journal/embedcontent", \&embedcontent_handler, a
 sub embedcontent_handler {
     my ( $opts ) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, skip_domsess => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
@@ -73,9 +73,11 @@ sub embedcontent_handler {
         journalid => $journalid,
         moduleid  => $moduleid,
         preview => $preview,
+        display_as_content => 1,
     )->{content};
 
-    return $r->print(qq{<html><head><style type="text/css">html, body { background-color:transparent; padding:0; margin:0; border:0; overflow:hidden; } iframe, object, embed { width: 100%; height: 100%;}</style></head><body>$content</body></html>})
+    $r->print(qq{<html><head><style type="text/css">html, body { background-color:transparent; padding:0; margin:0; border:0; overflow:hidden; } iframe, object, embed { width: 100%; height: 100%;}</style></head><body>$content</body></html>});
+    return $r->OK;
 }
 
 1;

@@ -1,0 +1,63 @@
+[%# Review emails sent from site accounts.
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2015 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        .error { color: #f04124; }
+        table.results td { padding: 0.5em; border: 2px solid; }
+    </style>
+[% END %]
+
+<p>[% '.intro' | ml %]</p>
+
+[%- INCLUDE components/errors.tt errors = errors -%]
+
+<form method="POST">
+
+[%- IF has_menu -%]
+    [% dw.form_auth %]<p>
+    [%- form.select( label = dw.ml( ".select.account.label" ),
+                     name = "account", id = "account",
+                     selected = account, items = account_menu );
+    form.submit( value = dw.ml( ".submit" ) ) -%]</p><p>
+
+    [%- IF rows.size -%]
+        <table class="results"><tr>
+        <th>[% '.table.date' | ml %]</th>
+        <th>[% '.table.req' | ml %]</th>
+        <th>[% '.table.sendto' | ml %]</th>
+        <th>[% '.table.subject' | ml %]</th>
+        </tr>
+        [%- FOREACH row = rows -%]
+            <tr>
+            <td>[% row.time_sent_view | html %]</td>
+            <td>[% IF row.request %]<a href="[% row.request_url | url %]">
+                [% row.request | html %]</a>[% END %]</td>
+            <td>[% IF row.sendto.ljuser_display; row.sendto.ljuser_display;
+                   ELSE; row.sendto | html; END %]</td>
+            <td><a href="[% row.msgurl | url %]">[% row.subject | html %]</a></td>
+            </tr>
+        [%- END -%]
+        </table>
+    [%- ELSIF account -%]
+    <div class='error-box message-box'>[% '.nodata' | ml %]</div>
+    [%- END -%]</p>
+
+[%- ELSE -%]
+    <div class='error-box message-box'>[% '.noaddresses' | ml %]</div>
+[%- END -%]
+
+<p><a href="/admin/sendmail/">[% '.backlink' | ml %]</a></p>
+
+</form>

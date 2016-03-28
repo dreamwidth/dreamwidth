@@ -1,0 +1,147 @@
+[%# spamreports/view.tt
+
+Display spam reports
+
+Authors:
+    Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+        "stc/css/pages/admin/spamreports.css"
+) -%]
+
+[%# This title logic is a convoluted mess.  I did what I could. #%]
+
+[%- IF view_by == 'ip';
+        ip_ehtml = view_what | html;
+        sections.title = '.view.byip.title' | ml( count = count, ip = ip_ehtml,
+                                                  state = view_state );
+    ELSE;
+        IF view_by == 'poster';
+            title =  ".view.byposter.title";
+        ELSIF view_by == 'posterid';
+            title =  ".view.byposterid.title";
+        END;
+
+        title_extra = "($view_state: $count)";
+
+        IF view_u.is_identity;
+            title_extra = "($view_u.user) $title_extra";
+        END;
+
+        sections.title = title | ml( user = view_u.ljuser_display( head_size = "24x24" ) );
+        sections.title = "$sections.title $title_extra";
+
+        sections.windowtitle = title | ml( user = view_u.display_name );
+        sections.windowtitle = "$sections.windowtitle $title_extra";
+
+    END -%]
+
+[%- IF view_by == 'posterid' AND ! view_u.is_expunged; -%]
+    <h6>
+    [%- IF show_posted;
+            ncp = view_u.num_comments_posted;
+            '.view.poster.comments.posted' | ml( posted_comma = commafy( ncp ),
+                                                 posted_raw = ncp );
+        END;
+        UNLESS view_u.is_identity;
+            IF show_posted;  ', '; END;
+            ncr = view_u.num_comments_received;
+            '.view.poster.comments.received' | ml( received_comma = commafy( ncr ),
+                                                   received_raw = ncr );
+            ', ';
+            nop = view_u.number_of_posts;
+            '.view.poster.entries.posted' | ml( entries_comma = commafy( nop ),
+                                                entries_raw = nop );
+        END -%]
+    </h6>
+[%- END -%]
+
+<p>
+    [ <a href="spamreports">&lt;&lt; [% '.nav.frontpage' | ml %]</a> ]
+    [ [% statelink %] ]
+  [%- IF count > 1 -%]
+    [ <a href="[% sorturl %]">[% ".nav.sort.${view_sort}" | ml %]</a> ]
+  [%- END -%]
+</p>
+
+[%- IF ! count -%]
+    <p>[% '.view.noreports' | ml %]</p>
+[%- ELSE -%]
+    [%- FOREACH row IN rows -%]
+        [% IF view_state == 'open';
+               '<form method="post" action="spamreports" class="close">';
+               dw.form_auth;
+               closeform( [ row.srid ], dw.ml( '.report.individual.close' ) );
+               '</form>';
+           END %]
+        <dl class="spamreport">
+            <dt>[% ".report.individual.in" | ml( spamlocation = row.spamloc ) %]</dt>
+            <dd>[% row.journal.ljuser_display %]</dd>
+            <dt>[% ".report.individual.reporttime" | ml %]</dt>
+            <dd>[% row.reporttime %]</dd>
+            <dt>[% ".report.individual.spamtime" | ml( spamlocation = row.spamloc ) %]</dt>
+            <dd>[% IF row.posttime; row.posttime; ELSE;
+                      ".report.individual.spamtime.notrecorded" | ml; END %]</dd>
+            <dt>[% ".report.individual.client" | ml %]</dt>
+            <dd>[% IF row.client; row.client | html; ELSE;
+                      ".report.individual.client.notrecorded" | ml; END %]</dd>
+            <dt>[% ".report.individual.subject" | ml %]</dt>
+            <dd>[% IF row.subject; row.subject | html; ELSE;
+                      ".report.individual.subject.none" | ml; END %]</dd>
+            <dt>[% ".report.individual.body" | ml %]</dt>
+            <dd>[% IF row.body; row.body | html; ELSE;
+                      ".report.individual.body.none" | ml; END %]</dd>
+        </dl>
+    [%- END -%]
+
+    <p>
+    [% IF view_state == 'open';
+           '<form method="post" action="spamreports">';
+           dw.form_auth;
+           closeform( srids, dw.ml( '.view.closeall' ) );
+       END %]
+    [%- IF view_by == 'ip' -%]
+        [%- IF reason AND reason.talk_ip_test; -%]
+                <strong>[% '.report.individual.sysban.done' | ml %]</strong>
+                [%- IF remote.has_priv( 'sysban' ) -%]
+                    <br/><textarea name='sysban_note' rows='3' cols='60' readonly='1'>
+                    [%- note = reason.talk_ip_test.note;
+                        IF note; note | html; ELSE;
+                        ".report.individual.syban.nonote" | ml;
+                        END -%]
+                    </textarea>
+                [%- END -%]
+
+        [%- ELSIF remote AND remote.has_priv( 'sysban', 'talk_ip_test' ); -%]
+        [%# Here is where we need to make sure we don't sysban an invalid IP.
+          # For now, only allow IPv4 addresses to be sysbanned. #%]
+
+            [%- IF is_ipv4;
+                form.checkbox( label = dw.ml( ".report.individual.sysban.ip" ),
+                               name = "sysban_ip", value = view_what ); -%]
+                <br/><textarea name='sysban_note' rows='3' cols='60'>
+                [%- timestamp = "~" _ remote.username _ " @ " _ timestr;
+                    timestamp | html -%]
+                </textarea>
+            [%- ELSE -%]
+                [% ".report.individual.sysban.ip.invalid" | ml %]
+            [%- END -%]
+        [%- END -%]
+    [%- END -%]
+    [% IF view_state == 'open'; '</form>'; END %]
+    </p>
+
+    <p>[% '.view.numreports' | ml( count_comma = commafy( count ),
+                                   count_raw = count ) %]
+    </p>
+
+[%- END -%]

@@ -80,6 +80,7 @@ body<=
 
     LJ::CleanHTML::clean_subject(\$subj);
     LJ::CleanHTML::clean_event(\$evt, \%opts);
+    LJ::expand_embedded($u, $ditemid, $remote, \$evt );
 
     # prevent BML tags interpretation inside post body
     $subj =~ s/<\?/&lt;?/g;
@@ -102,6 +103,9 @@ body<=
     $ret .= "<script type='text/javascript'> var cur_taglist = '$logtagstr'; </script>";
 
     $ret .= '<table summary="" class="edittbl" cellpadding="0" cellspacing="0" width="50%">';
+    if ( $u->is_community ) {
+        $ret .= "<tr><td class='l'>$ML{'.poster'}</td><td>" . $ent->poster->ljuser_display . "</td></tr>";
+    }
     $ret .= "<tr><td class='l'>$ML{'.subject'}</td><td>$subj</td></tr>" if $subj;
 
     $ret .= '<form method="POST" action="/edittags" id="edit_tagform">';

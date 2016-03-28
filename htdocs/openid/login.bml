@@ -17,7 +17,6 @@ _c?>
     use strict;
     use vars qw($title $head $body %GET %POST);
     use LJ::OpenID;
-    LJ::set_active_crumb("openid_login");
 
     $title = $ML{".title"};
     $head = "";
@@ -32,7 +31,7 @@ _c?>
         unless LJ::OpenID::consumer_enabled();
 
     my $query_args = $POST{'continue_to'} ? "?continue_to=" .  LJ::eurl( $POST{'continue_to'} ) : "";
-    
+
     my $return_to = "$LJ::SITEROOT/openid/login" . $query_args;
 
     my $remote = LJ::get_remote();
@@ -53,18 +52,12 @@ _c?>
         }
 
         if ($GET{'openid.return_to'} && $GET{'openid.return_to'} !~ /^\Q$return_to\E/) {
-            return $err->(BML::ml( '.error.invalidparam', { item => "return_to" } ) );
+            return $err->( BML::ml( '.error.invalidparameter', { item => "return_to" } ) );
         }
 
-        my $vident = eval { $csr->verified_identity; };
-        return $err->($@) if $@;
-        return $err->($csr->err) unless $vident;
-
-        my $url = $vident->url;
-        return $err->( $ML{'.error.invalidchars'} ) if $url =~ /[\<\>\s]/;
-
-        my $u = LJ::User::load_identity_user("O", $url, $vident);
-        return $err->( BML::ml( '.error.notvivified', { url => LJ::ehtml( $url ) } ) ) unless $u;
+        my $errmsg;
+        my $u = LJ::User::load_from_consumer( $csr, \$errmsg );
+        return $err->( $errmsg ) unless $u;
 
         my $sess_opts = {
             'exptype' => 'short',

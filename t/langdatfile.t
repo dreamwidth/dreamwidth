@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More tests => 9; # 5 + total # of keys in sampletrans.dat
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::LangDatFile;
 
 my $trans = LJ::LangDatFile->new( "$ENV{LJHOME}/t/data/sampletrans.dat" );

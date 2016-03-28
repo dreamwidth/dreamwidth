@@ -16,7 +16,7 @@ use warnings;
 
 use Test::More;
 
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::User;
 
 my @tests = (

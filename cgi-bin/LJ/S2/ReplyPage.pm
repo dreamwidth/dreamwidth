@@ -63,14 +63,11 @@ sub ReplyPage
     LJ::need_res('stc/display_none.css');
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
-    # libs for userpicselect
-    # if we're using the site skin, don't override the jquery-ui theme, as that's already included
-    my @iconbrowser_extra_stylesheet;
-    @iconbrowser_extra_stylesheet = ( 'stc/jquery/jquery.ui.theme.smoothness.css' )
-            unless $opts->{handle_with_siteviews_ref} && ${$opts->{handle_with_siteviews_ref}};
-
-    LJ::need_res( LJ::Talk::init_iconbrowser_js( 1, @iconbrowser_extra_stylesheet ) )
-        if $remote && $remote->can_use_userpic_select;
+    # include JS for quick reply, icon browser, and ajax cut tag
+    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref} &&
+                              ${$opts->{handle_with_siteviews_ref}};
+    LJ::Talk::init_s2journal_js( iconbrowser => $remote && $remote->can_use_userpic_select,
+                                 siteskin => $handle_with_siteviews, noqr => 1 );
 
     if ($u->should_block_robots || $entry->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
@@ -91,13 +88,7 @@ sub ReplyPage
         my $errref;
         $comment = LJ::Comment->new($u, dtalkid => $editid);
         unless ($remote) {
-            my $r = $opts->{'r'};
-            my $host = $r->headers_in->{Host};
-            my $uri = $r->uri;
-            my $args = scalar $r->args;
-            my $querysep = $args ? "?" : "";
-            my $redir = LJ::eurl("http://$host$uri$querysep$args");
-
+            my $redir = LJ::eurl( LJ::create_url( undef, keep_args => 1 ) );
             $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin";
             return;
         }
@@ -131,6 +122,8 @@ sub ReplyPage
             $opts->{'handler_return'} = 404;
             return;
         }
+
+        my $dtalkid = $re_talkid * 256 + $entry->anum;
 
         # FIXME: Why are we loading the comment manually when we do LJ::Comment->new below
         # and could do everything through there.
@@ -175,6 +168,7 @@ sub ReplyPage
         $parpost->{'body'} = $tt->{$re_talkid}->[1];
         $parpost->{'props'} =
             LJ::load_talk_props2($u, [ $re_talkid ])->{$re_talkid} || {};
+        $parpost->{'dtid'} = $dtalkid;
 
         if($LJ::UNICODE && $parpost->{'props'}->{'unknown8bit'}) {
             LJ::item_toutf8($u, \$parpost->{'subject'}, \$parpost->{'body'}, {});
@@ -194,15 +188,16 @@ sub ReplyPage
             $comment_userpic = Image_userpic($pu, $pic ? $pic->picid : 0, $pickw);
         }
 
+        my $anon_comment = LJ::Talk::treat_as_anon( $pu, $u );
         LJ::CleanHTML::clean_comment(\$parpost->{'body'},
                                      {
                                          preformatted => $parpost->{props}->{opt_preformatted},
-                                         anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
+                                         anon_comment => $anon_comment,
+                                         nocss => $anon_comment,
                                          editor => $parpost->{props}->{editor},
                                      });
 
 
-        my $dtalkid = $re_talkid * 256 + $entry->anum;
         my $cmtobj = LJ::Comment->new( $u, dtalkid => $dtalkid );
 
         my $tz_remote;
@@ -280,6 +275,7 @@ sub ReplyForm__print
     my $u = $form->{'_u'};
     my $parpost = $form->{'_parpost'};
     my $parent = $parpost ? $parpost->{'jtalkid'} : 0;
+    my $dtid = $parpost ? $parpost->{dtid} : 0;
 
     my $post_vars = DW::Request->get->post_args;
     $post_vars = $form->{_values} unless keys %$post_vars;
@@ -288,6 +284,7 @@ sub ReplyForm__print
                                      'journalu'  => $u,
                                      'parpost'   => $parpost,
                                      'replyto'   => $parent,
+                                     'dtid'      => $dtid,
                                      'ditemid'   => $form->{'_ditemid'},
                                      'styleopts' => $form->{_styleopts},
                                      'form'      => $post_vars, 

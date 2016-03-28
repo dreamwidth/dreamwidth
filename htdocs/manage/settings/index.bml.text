@@ -75,8 +75,6 @@
 
 .fn.imageplace=Image placeholders
 
-.fn.jabber=Online Status
-
 .fn.language=Language
 
 .fn.minsecurity=Minimum Entry Security
@@ -113,12 +111,6 @@
 .intro2=Customize your viewing, notification, and additional privacy options. You may also edit your <a [[aopts1]]>profile settings</a> or your <a [[aopts2]]>comment settings</a>.
 
 .intro3=You can edit your account settings here. You can also edit your <a [[aopts1]]>profile</a> or your <a [[aopts2]]>journal style</a>.
-
-.jabber=Show [[jabbertitle]] online status to:
-
-.jabber.text=Your online status may be visible to others when logged in with any Jabber IM client using your [[jabbertitle]] username.
-
-.jabber.title=Jabber
 
 .language=Select your language:
 
@@ -187,6 +179,10 @@
 .title.comm=[[user]]'s Account Settings
 
 .title.self=My Account Settings
+
+.user=View notifications for user:
+
+.user.submit=View
 
 .viewingadult=Collapse content marked as inappropriate for:
 

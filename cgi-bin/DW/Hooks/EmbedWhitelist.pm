@@ -47,52 +47,63 @@ sub match_full_path {
 }
 
 my %host_path_match = (
-    "8tracks.com"           => qr!^/mixes/!,
-    "bandcamp.com"          => qr!^/EmbeddedPlayer/!,
-    "blip.tv"               => qr!^/play/!,
+                                # regex, whether this supports https or not
+    "8tracks.com"           => [ qr!^/mixes/!, 0 ],
+    "bandcamp.com"          => [ qr!^/EmbeddedPlayer/!, 1 ],
+    "blip.tv"               => [ qr!^/play/!, 1 ],
 
-    "www.dailymotion.com"   => qr!^/embed/video/!,
-    "dotsub.com"            => qr!^/media/!,
+    "www.dailymotion.com"   => [ qr!^/embed/video/!, 1 ],
+    "dotsub.com"            => [ qr!^/media/!, 1 ],
 
-    "www.goodreads.com"     => qr!^/widgets/!,
+    "www.goodreads.com"     => [ qr!^/widgets/!, 1 ],
 
-    "maps.google.com"       => qr!^/maps!,
-    "www.google.com"        => qr!^/calendar/!,
+    "maps.google.com"       => [ qr!^/maps!, 1 ],
+    "www.google.com"        => [ qr!^/calendar/!, 1 ],
+    "calendar.google.com"   => [ qr!^/calendar/!, 1 ],
     # drawings do not need to be whitelisted as they are images.
     # forms arent being allowed for security concerns.
-    "docs.google.com"       => qr!^/(document|spreadsheet|presentation)/!,
+    "docs.google.com"       => [ qr!^/(document|spreadsheets?|presentation)/!, 1 ],
+    
+    "books.google.com"      => [ qr!^/ngrams/!, 1 ],
 
-    "www.kickstarter.com"   => qr!/widget/[a-zA-Z]+\.html$!,
+    "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
-    "ext.nicovideo.jp"      => qr!^/thumb/!,
+    "ext.nicovideo.jp"      => [ qr!^/thumb/!, 0 ],
 
-    "www.sbs.com.au"        => qr!/player/embed/!,  # best guess; language parameter before /player may vary
-    "www.scribd.com"        => qr!^/embeds/!,
-    "www.slideshare.net"    => qr!^/slideshow/embed_code/!,
-    "w.soundcloud.com"      => qr!^/player/!,
-    "embed.spotify.com"     => qr!^/$!,
+    "www.sbs.com.au"        => [ qr!/player/embed/!, 0 ],  # best guess; language parameter before /player may vary
+    "www.scribd.com"        => [ qr!^/embeds/!, 1 ],
+    "www.slideshare.net"    => [ qr!^/slideshow/embed_code/!, 1 ],
+    "w.soundcloud.com"      => [ qr!^/player/!, 1 ],
+    "embed.spotify.com"     => [ qr!^/$!, 1 ],
 
-    "www.twitvid.com"       => qr!^/embed.php$!,
+    "player.vimeo.com"      => [ qr!^/video/\d+$!, 1 ],
 
-    "player.vimeo.com"      => qr!^/video/\d+$!,
+    "www.plurk.com"         => [ qr!^/getWidget$!, 1 ],
 
-    "www.plurk.com"         => qr!^/getWidget$!,
+    "instagram.com"         => [ qr!^/p/.*/embed/$!, 1 ],
 
-    "instagram.com"         => qr!^/p/.*/embed/$!,
+    "www.criticalcommons.org" => [ qr!/embed_view$!, 0 ],
 
-    "www.criticalcommons.org" => qr!/embed_view$!,
+    "embed.ted.com"         => [ qr!^/talks/!, 1 ],
 
-    "embed.ted.com"         => qr!^/talks/!,
+    "archive.org"           => [ qr!^/embed/!, 1 ],
 
-    "archive.org"           => qr!^/embed/!,
+    "video.yandex.ru"       => [ qr!^/iframe/[\-\w]+/[a-z0-9]+\.\d{4}/?$!, 1 ], #don't think the last part can include caps; amend if necessary
 
-    "video.yandex.ru"       => qr!^/iframe/[\-\w]+/[a-z0-9]+\.\d{4}/?$!, #don't think the last part can include caps; amend if necessary
+    "episodecalendar.com"   => [ qr!^/icalendar/!, 0 ],
 
-    "episodecalendar.com"   => qr!^/icalendar/!,
+    "www.flickr.com"        => [ qr!/player/$!, 1 ],
 
-    "www.flickr.com"        => qr!/player/$!,
+    "www.npr.org"           => [ qr!^/templates/event/embeddedVideo\.php!, 1 ],
 
-    "www.npr.org"           => qr!^/templates/event/embeddedVideo\.php!,
+    "imgur.com"             => [ qr!^/a/.+?/embed!, 1 ],
+
+    "vine.co"               => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
+    # Videos seemed to use an 11-character identification; may need to be changed
+
+    "www.zippcast.com"      => [ qr!^/videoview\.php$!, 0 ],
+
+    "codepen.io"            => [ qr!^/enxaneta/embed/!, 1 ]
 
 );
 
@@ -114,16 +125,26 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
     my $uri_host = $parsed_uri->host;
     my $uri_path = $parsed_uri->path;   # not including query
 
-    my $path_regex = $host_path_match{$uri_host};
-    return 1 if $path_regex && ( $uri_path =~ $path_regex );
+    my $host_details = $host_path_match{$uri_host};
+    my $path_regex = $host_details->[0];
+
+    return ( 1, $host_details->[1] ) if $path_regex && ( $uri_path =~ $path_regex);
 
     ## YouTube (http://apiblog.youtube.com/2010/07/new-way-to-embed-youtube-videos.html)
     if ( match_subdomain( "youtube.com", $uri_host ) || match_subdomain( "youtube-nocookie.com", $uri_host ) ) {
-        return 1 if match_full_path( qr!/embed/[-_a-zA-Z0-9]{11,}!, $uri_path );
+        return ( 1, 1 ) if match_full_path( qr!/embed/[-_a-zA-Z0-9]{11,}!, $uri_path );
     }
 
     if ( $uri_host eq "commons.wikimedia.org" ) {
-        return 1 if $uri_path =~ m!^/wiki/File:! && $parsed_uri->query =~ m/embedplayer=yes/;
+        return ( 1, 1 ) if $uri_path =~ m!^/wiki/File:! && $parsed_uri->query =~ m/embedplayer=yes/;
+    }
+    
+    if ( $uri_host eq "www.jigsawplanet.com" ) {
+        return ( 1, 1 ) if $parsed_uri->query =~ m/rc=play/;
+    }
+
+    if ( $uri_host eq "screen.yahoo.com" ) {
+        return ( 1, 1 ) if $parsed_uri->query =~ m/format=embed/;
     }
 
     return 0;

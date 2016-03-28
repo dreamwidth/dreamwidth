@@ -1047,8 +1047,8 @@ function EntryPage::print_comment (Comment c)
 #Layout Frame
 function Page::print()
 {
-    println """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    println """<!DOCTYPE html>
+    <html lang="en">
     <head>""";
         $this->print_meta_tags();
         $this->print_head();
@@ -1059,7 +1059,6 @@ function Page::print()
         $this->print_wrapper_start();
         $this->print_control_strip();
         println "<div id=\"header\">";
-            println "<a name=\"top\"></a>";
             $this->print_global_title();
             $this->print_global_subtitle();
             $this->print_module_section("two");

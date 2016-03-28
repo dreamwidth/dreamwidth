@@ -5,13 +5,15 @@ Login page.
 Authors:
     Allen Petersen <allen@suberic.net>
 
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
 This program is free software; you may redistribute it and/or modify it 
 under the same terms as Perl itself.  For a copy of the license, please 
 reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 <div class="login-container">
   <div class="appwidget appwidget-login" id="protected_login"> 
-    <form action="[% IF usessl %][% site.ssl.root %][% ELSE %][% site.root %][% END %]/login" method="post" class="lj_login_form pkg">
+    <form action="[% site.root %]/login" method="post" class="lj_login_form pkg">
     <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4> 
       [% dw.form_auth() %]
       <input type="hidden" name="chal" class="lj_login_chal" value="[% chal %]" /> 

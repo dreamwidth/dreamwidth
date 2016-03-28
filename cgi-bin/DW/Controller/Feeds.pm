@@ -70,7 +70,7 @@ sub index_handler {
         if ( $url ne "" ) {
             my $uri = URI->new( $url );
             return error_ml( '/feeds/index.tt.invalid.url' )
-                unless $uri->scheme ~~ [ qw/ http https / ] && $uri->host;
+                unless $uri->scheme =~ m/^(http|https)$/ && $uri->host;
 
             my $hostname = $uri->host;
             my $port = $uri->port;
@@ -143,7 +143,7 @@ sub index_handler {
                     if ( $type eq "link" &&
                          $val =~ m!rel=.alternate.!i &&
                          $val =~ m!type=.application/(?:rss|atom)\+xml.!i &&
-                         $val =~ m!href=[\"\'](http://[^\"\']+)[\"\']!i ) {
+                         $val =~ m!href=[\"\'](https?://[^\"\']+)[\"\']!i ) {
                             $syn_url = $1;
                             last;
                     }

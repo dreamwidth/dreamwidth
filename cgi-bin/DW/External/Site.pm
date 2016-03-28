@@ -8,6 +8,8 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Denise Paolucci <denise@dreamwidth.org>
+#      Azure Lunatic <azurelunatic@dreamwidth.org>
 #
 # Copyright (c) 2009-2014 by Dreamwidth Studios, LLC.
 #
@@ -28,8 +30,10 @@ LJ::ModuleLoader->require_subclasses( "DW::External::Site" );
 
 my %domaintosite;
 my %idtosite;
+my @all_sites_without_alias;
 
-# static initializers
+### static initializers
+# with tld
 $domaintosite{"livejournal.com"} = DW::External::Site->new("2", "www.livejournal.com", "livejournal.com", "LiveJournal", "lj");
 $domaintosite{"insanejournal.com"} = DW::External::Site->new("3", "www.insanejournal.com", "insanejournal.com", "InsaneJournal", "lj");
 $domaintosite{"deadjournal.com"} = DW::External::Site->new("4", "www.deadjournal.com", "deadjournal.com", "DeadJournal", "lj");
@@ -37,7 +41,6 @@ $domaintosite{"inksome.com"} = DW::External::Site->new("5", "www.inksome.com", "
 $domaintosite{"journalfen.net"} = DW::External::Site->new("6", "www.journalfen.net", "journalfen.net", "JournalFen", "lj");
 $domaintosite{"dreamwidth.org"} = DW::External::Site->new("7", "www.dreamwidth.org", "dreamwidth.org", "Dreamwidth", "lj");
 $domaintosite{"archiveofourown.org"} = DW::External::Site->new("8", "www.archiveofourown.org", "archiveofourown.org", "ArchiveofOurOwn", "AO3");
-$domaintosite{"ao3.org"} = $domaintosite{"archiveofourown.org"};
 $domaintosite{"twitter.com"} = DW::External::Site->new("9", "twitter.com", "twitter.com", "Twitter", "Twitter");
 $domaintosite{"tumblr.com"} = DW::External::Site->new("10", "tumblr.com", "tumblr.com", "Tumblr", "Tumblr");
 $domaintosite{"etsy.com"} = DW::External::Site->new("11", "www.etsy.com", "etsy.com", "Etsy", "Etsy");
@@ -53,9 +56,50 @@ $domaintosite{"pinboard.in"} = DW::External::Site->new("20", "www.pinboard.in", 
 $domaintosite{"fanfiction.net"} = DW::External::Site->new("21", "www.fanfiction.net", "fanfiction.net", "FanFiction", "FanFiction");
 $domaintosite{"pinterest.com"} = DW::External::Site->new("22", "www.pinterest.com", "pinterest.com", "Pinterest", "pinterest");
 $domaintosite{"youtube.com"} = DW::External::Site->new("23", "www.youtube.com", "youtube.com", "YouTube", "yt");
+$domaintosite{"github.com"} = DW::External::Site->new("24", "www.github.com", "github.com", "GitHub", "gh"); 
+# three-part domain name
+$domaintosite{"lj.rossia.org"} = DW::External::Site->new("25", "lj.rossia.org", "lj.rossia.org", "LJRossia", "lj"); 
 
 
-foreach my $value (values %domaintosite) {
+@all_sites_without_alias = values %domaintosite;
+
+# without tld
+$domaintosite{"livejournal"} = $domaintosite{"livejournal.com"};
+$domaintosite{"lj"} = $domaintosite{"livejournal.com"};
+$domaintosite{"insanejournal"} = $domaintosite{ "insanejournal.com"};
+$domaintosite{"ij"} = $domaintosite{ "insanejournal.com"};
+$domaintosite{"deadjournal"} = $domaintosite{"deadjournal.com"};
+$domaintosite{"dj"} = $domaintosite{"deadjournal.com"};
+$domaintosite{"deviantart"} = $domaintosite{"deviantart.com"};
+$domaintosite{"da"} = $domaintosite{"deviantart.com"};
+$domaintosite{"inksome"} = $domaintosite{"inksome.com"};
+$domaintosite{"journalfen"} = $domaintosite{"journalfen.net"};
+$domaintosite{"jf"} = $domaintosite{"journalfen.net"};
+$domaintosite{"dreamwidth"} = $domaintosite{"dreamwidth.org"};
+$domaintosite{"dw"} = $domaintosite{"dreamwidth.org"};
+$domaintosite{"archiveofourown"} = $domaintosite{"archiveofourown.org"};
+$domaintosite{"ao3.org"} = $domaintosite{"archiveofourown.org"};
+$domaintosite{"ao3"} = $domaintosite{"archiveofourown.org"};
+$domaintosite{"twitter"} = $domaintosite{"twitter.com"};
+$domaintosite{"tumblr"} = $domaintosite{"tumblr.com"};
+$domaintosite{"etsy"} = $domaintosite{"etsy.com"};
+$domaintosite{"diigo"} = $domaintosite{"diigo.com"};
+$domaintosite{"blogspot"} = $domaintosite{"blogspot.com"};
+$domaintosite{"blogger.com"} = $domaintosite{"blogspot.com"};
+$domaintosite{"blogger"} = $domaintosite{"blogspot.com"};
+$domaintosite{"delicious"} = $domaintosite{"delicious.com"};
+$domaintosite{"deviantart"} = $domaintosite{"deviantart.com"};
+$domaintosite{"ravelry"} = $domaintosite{"ravelry.com"};
+$domaintosite{"wordpress"} = $domaintosite{"wordpress.com"};
+$domaintosite{"plurk"} = $domaintosite{"plurk.com"};
+$domaintosite{"pinboard"} = $domaintosite{"pinboard.in"};
+$domaintosite{"ffn"} = $domaintosite{"fanfiction.net"};
+$domaintosite{"pinterest"} = $domaintosite{"pinterest.com"};
+$domaintosite{"youtube"} = $domaintosite{"youtube.com"};
+$domaintosite{"github"} = $domaintosite{"github.com"};
+$domaintosite{"lj.rossia"} = $domaintosite{"lj.rossia.org"};
+$domaintosite{"ljr"} = $domaintosite{"lj.rossia.org"};
+foreach my $value (@all_sites_without_alias) {
     $idtosite{$value->{siteid}} = $value;
 }
 
@@ -88,23 +132,37 @@ sub get_site {
     $site =~ s!^(?:.+)://(.*)!$1!;  # remove proto:// leading
     $site =~ s!^([^/]+)/.*$!$1!;    # remove /foo/bar.html trailing
 
-    # validate each part of the domain based on RFC 1035
-    my @parts = grep { /^[a-z][a-z0-9\-]*?[a-z0-9]$/ }
-                map { lc $_ }
-                split( /\./, $site );
+    my $mapped;
 
-    return $domaintosite{"$parts[-2].$parts[-1]"} || DW::External::Site::Unknown->accepts( \@parts ) || undef;
+    # if there are no dots in the site argument, do a straightforward hash check
+    if ( $site !~ /\./ ) {
+        $site = lc $site;
+        $mapped = $domaintosite{$site};
+
+    } else {
+        # validate each part of the domain based on RFC 1035
+        my @parts = grep { /^[a-z][a-z0-9\-]*?[a-z0-9]$/ }
+                    map { lc $_ }
+                    split( /\./, $site );
+
+        $mapped = $domaintosite{"$parts[-2].$parts[-1]"};
+        # if two-part domain not matched, try three-part (for e.g. lj.rossia.org) 
+        $mapped ||= $domaintosite{"$parts[-3].$parts[-2].$parts[-1]"};
+        $mapped ||= DW::External::Site::Unknown->accepts( \@parts );
+    }
+
+    return $mapped || undef;
 }
 
 
 # returns a list of all supported sites for linking
-sub get_sites { return values %domaintosite; }
+sub get_sites { return @all_sites_without_alias; }
 
 # returns a list of all supported sites for crossposting
 sub get_xpost_sites {
     my %protocols = DW::External::XPostProtocol->get_all_protocols;
     return grep { exists $protocols{ $_->{servicetype} } && LJ::is_enabled( "external_sites", $_ ) }
-           values %domaintosite;
+           @all_sites_without_alias;
 }
 
 # returns the appropriate site by site_id

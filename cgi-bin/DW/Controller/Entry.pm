@@ -42,7 +42,7 @@ my %form_to_props = (
 my @modules = qw(
     tags displaydate slug
     currents comments age_restriction
-    icons crosspost
+    icons crosspost sticky
 );
 
 
@@ -159,7 +159,7 @@ sub new_handler {
         my $mode_preview    = $post->{"action:preview"} ? 1 : 0;
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
-        $errors->add( undef, 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in( $post );
 
         my $okay_formauth = ! $remote || LJ::check_form_auth( $post->{lj_form_auth} );
@@ -257,7 +257,7 @@ sub new_handler {
 
 
 # Initializes entry form values.
-# Can be used when posting a new entry or editing an old entry. .
+# Can be used when posting a new entry or editing an old entry.
 # Arguments:
 # * form_opts: options for initializing the form
 #       usejournal    string: username of the journal we're posting to (if not provided,
@@ -293,6 +293,7 @@ sub _init {
     my $panels;
     my $formwidth;
     my $min_animation;
+    my $displaydate_check;
     if ( $u ) {
         # icons
         @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
@@ -319,10 +320,8 @@ sub _init {
             }
         }
 
-
         @journallist = ( $u, $u->posting_access_list )
             unless $usejournal;
-
 
         # crosspost
         my @accounts = DW::External::Account->get_external_accounts( $u );
@@ -346,6 +345,7 @@ sub _init {
         $panels = $u->entryform_panels;
         $formwidth = $u->entryform_width;
         $min_animation = $u->prop( "js_animations_minimal" ) ? 1 : 0;
+        $displaydate_check = ( $u->displaydate_check && not $form_opts->{trust_datetime_value}) ? 1 : 0;
     } else {
         $panels = LJ::User::default_entryform_panels( anonymous => 1 );
     }
@@ -449,7 +449,11 @@ sub _init {
         crosspostlist => \@crosspost_list,
         crosspost_url => "$LJ::SITEROOT/manage/settings/?cat=othersites",
 
+        sticky_url => "$LJ::SITEROOT/manage/settings/?cat=display#DW__Setting__StickyEntry_",
+        sticky_entry => $form_opts->{sticky_entry},
+
         displaydate => \%displaydate,
+        displaydate_check => $displaydate_check,
 
 
         can_spellcheck => $LJ::SPELLER,
@@ -509,7 +513,7 @@ sub _edit {
         my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
         my $mode_delete     = $post->{"action:delete"} ? 1 : 0;
 
-        $errors->add( undef, 'bml.badinput.body' )
+        $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in( $post );
 
 
@@ -600,6 +604,7 @@ sub _edit {
                         trust_datetime_value => $trust_datetime_value,
 
                         crosspost => \%crosspost,
+                        sticky_entry => $journal->sticky_entries_lookup->{$ditemid},
                       }, @_ );
 
     # now look for errors that we still want to recover from
@@ -735,12 +740,13 @@ sub _form_to_backend {
     $props->{taglist} = "" unless $props->{taglist} && $props->{taglist} =~ /\S/;
 
     if ( LJ::is_enabled( 'adult_content' ) ) {
+        my $restriction_key = $post->{age_restriction} || '';
         $props->{adult_content} = {
             ''              => '',
             'none'          => 'none',
             'discretion'    => 'concepts',
             'restricted'    => 'explicit',
-        }->{$post->{age_restriction}} || "";
+        }->{$restriction_key} || "";
 
         $props->{adult_content_reason} = $post->{age_restriction_reason} || "";
     }
@@ -750,7 +756,7 @@ sub _form_to_backend {
 
     # Check if this is a community.
     $props->{admin_post} = $post->{flags_adminpost} || 0;
-        
+
     # entry security
     my $sec = "public";
     my $amask = 0;
@@ -788,6 +794,8 @@ sub _form_to_backend {
         $req->{min}     = $min;
     }
 
+    $req->{update_displaydate} = $post->{update_displaydate};
+
     # crosspost
     $req->{crosspost_entry} = $post->{crosspost_entry} ? 1 : 0;
     if ( $req->{crosspost_entry} ) {
@@ -800,6 +808,8 @@ sub _form_to_backend {
             };
         }
     }
+
+    $req->{sticky_entry} = $post->{sticky_entry};
 
     return 1;
 }
@@ -862,13 +872,19 @@ sub _backend_to_form {
         }
     }
 
+    # allow editing of embedded content
+    my $event = $entry->event_raw;
+    my $ju = $entry->journal;
+    LJ::EmbedModule->parse_module_embed( $ju, \$event, edit => 1 );
+
     return {
         subject => $entry->subject_raw,
-        event   => $entry->event_raw,
+        event   => $event,
 
         icon        => $entry->userpic_kw,
         security    => $security,
         custom_bit  => \@custom_groups,
+        is_sticky   => $entry->journal->sticky_entries_lookup->{$entry->ditemid},
 
         %formprops,
         %otherprops,
@@ -945,6 +961,39 @@ sub _save_new_entry {
     return $res;
 }
 
+# helper sub for printing success messages when posting or editing
+sub _get_extradata {
+    my ( $form_req, $journal ) = @_;
+    my $extradata = {
+        security_ml => "",
+        filters => "",
+    };
+
+    # use the HTML cleaner on the entry subject if one exists
+    my $subject = $form_req->{subject};
+    LJ::CleanHTML::clean_subject( \$subject ) if $subject;
+    $extradata->{subject} = $subject;
+
+    my $c_or_p = $journal->is_community ? 'c' : 'p';
+
+    if ( $form_req->{security} eq "usemask" ) {
+        if ( $form_req->{allowmask} == 1 ) { # access list
+            $extradata->{security_ml} = "post.security.access.$c_or_p";
+        } elsif ( $form_req->{allowmask} > 1 ) { # custom group
+            $extradata->{security_ml} = "post.security.custom";
+            $extradata->{filters} = $journal->security_group_display( $form_req->{allowmask} );
+        } else { # custom security with no group - essentially private
+            $extradata->{security_ml} = "post.security.private.$c_or_p";
+        }
+    } elsif ( $form_req->{security} eq "private" ) {
+        $extradata->{security_ml} = "post.security.private.$c_or_p";
+    } else { #public
+        $extradata->{security_ml} = "post.security.public";
+    }
+
+    return $extradata;
+}
+
 sub _do_post {
     my ( $form_req, $flags, $auth, %opts ) = @_;
 
@@ -952,7 +1001,7 @@ sub _do_post {
     return %$res if $res->{errors};
 
     # post succeeded, time to do some housecleaning
-    _persist_props( $auth->{poster}, $form_req );
+    _persist_props( $auth->{poster}, $form_req, 0 );
 
     my $render_ret;
     my @links;
@@ -967,7 +1016,6 @@ sub _do_post {
                 moderated_message  => $res->{message},
             }
         );
-
     } else {
         # e.g., bad HTML in the entry
         $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $res->{message} ) ) )
@@ -975,7 +1023,6 @@ sub _do_post {
 
         my $u = $auth->{poster};
         my $ju = $auth->{journal} || $auth->{poster};
-
 
         # we updated successfully! Now tell the user
         my $poststatus = {
@@ -1026,6 +1073,12 @@ sub _do_post {
                 ditemid => $ditemid,
         );
 
+        # set sticky
+        if ( $form_req->{sticky_entry} && $u->can_manage( $ju ) ) {
+            my $added_sticky = $ju->sticky_entry_new( $ditemid );
+            $warnings->add( '', '.sticky.max', { limit => $u->count_max_stickies } ) unless $added_sticky;
+        }
+
         $render_ret = DW::Template->render_template(
             'entry/success.tt', {
                 poststatus  => $poststatus, # did the update succeed or fail?
@@ -1033,6 +1086,7 @@ sub _do_post {
                 crossposts  => \@crossposts,# crosspost status list
                 links       => \@links,
                 links_header => ".new.links",
+                extradata   => _get_extradata( $form_req, $ju ),
             }
         );
     }
@@ -1074,7 +1128,7 @@ sub _do_edit {
     my $deleted = $form_req->{event} ? 0 : 1;
 
     # post succeeded, time to do some housecleaning
-    _persist_props( $remote, $form_req );
+    _persist_props( $remote, $form_req, 1 );
 
     my $poststatus_ml;
     my $render_ret;
@@ -1092,8 +1146,22 @@ sub _do_edit {
     my $entry_url = $res->{url};
     my $edit_url = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
+    my $is_sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
+    if ( $remote->can_manage( $journal ) ) {
+        if ( $form_req->{sticky_entry} ) {
+            $journal->sticky_entry_new( $ditemid )
+                unless $is_sticky_entry;
+        } elsif ( $form_req->{sticky_select} ) {
+            $journal->sticky_entry_remove( $ditemid )
+                if $is_sticky_entry;
+        }
+    }
+
     if ( $deleted ) {
         $poststatus_ml = ".edit.delete";
+
+        $journal->sticky_entry_remove( $ditemid )
+            if $is_sticky_entry && $remote->can_manage( $journal );
     } else {
         $poststatus_ml = ".edit.edited";
 
@@ -1133,6 +1201,7 @@ sub _do_edit {
             crossposts  => \@crossposts,# crosspost status list
             links       => \@links,
             links_header => '.edit.links',
+            extradata   => _get_extradata( $form_req, $journal ),
         }
     );
 
@@ -1141,9 +1210,11 @@ sub _do_edit {
 
 # remember value of properties, to use the next time the user makes a post
 sub _persist_props {
-    my ( $u, $form ) = @_;
+    my ( $u, $form, $is_edit ) = @_;
 
     return unless $u;
+
+    $u->displaydate_check($form->{update_displaydate} ? 1 : 0) unless $is_edit;
 # FIXME:
 #
 #                 # persist the default value of the disable auto-formatting option
@@ -1584,7 +1655,7 @@ sub _options {
                     my @col;
 
                     foreach ( $post->get_all( "column_$column_index" ) ) {
-                        my ( $order, $panel ) = m/(\d+):(.+)_component/;
+                        my ( $order, $panel ) = m/(\d+):(.+)/;
                         $col[$order] = $panel;
 
                         $didpost_order = 1;

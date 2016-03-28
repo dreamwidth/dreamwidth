@@ -65,7 +65,7 @@ sub console_handler {
 
 
     my $vars = {
-        reference_url   => LJ::create_url( $r->uri . 'reference' ),
+        reference_url   => LJ::create_url( "/admin/console/reference" ),
         form_url        => LJ::create_url( undef ),
 
         show_extended_description => ! $r->did_post,

@@ -8,8 +8,6 @@ body<=
     my $dbr = LJ::get_db_reader();
     my ($ret, $sth);
 
-    LJ::set_active_crumb('translateteams');
-
     $ret .= "<?h1 $ML{'.teams.header'} h1?>";
     $ret .= "<?p $ML{'.teams.text'} p?>";
 

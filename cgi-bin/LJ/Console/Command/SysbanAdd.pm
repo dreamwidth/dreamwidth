@@ -21,7 +21,7 @@ use LJ::Sysban;
 
 sub cmd { "sysban_add" }
 
-sub desc { "Block an action based on certain criteria" }
+sub desc { "Block an action based on certain criteria. Requires priv: sysban." }
 
 sub args_desc { [
                  'what' => "The criterion you're blocking",

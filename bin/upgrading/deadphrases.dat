@@ -1,14 +1,6 @@
 # these get removed if found by texttool.pl
 #
 
-general crumb.createjournal
-general crumb.editentries_do
-general crumb.modify
-general crumb.preview
-general crumb.searchregion
-general crumb.siteopts
-general crumb.themes
-
 general /allpics.bml.edit
 general /allpics.bml.nopics.text
 general /allpics.bml.nopics.text.other
@@ -491,16 +483,28 @@ general ljfeedback.text
 general ljspotlight.text
 general polls.link
 general polls.text
+general cprod.birthday.link.v1
+general cprod.birthday.text.v1
+general cprod.controlstrip.link.v1
+general cprod.controlstrip.text.v1
+general cprod.createstyles.text.v1
+general cprod.editpics.text6.v1
+general cprod.editpicsmax.text5.v1
+general cprod.editstyles.text.v1
+general cprod.feeds.link.v1
+general cprod.feeds.text.v1
 general cprod.friendsfriends.text.v1
 general cprod.friendsfriends.text.v2
 general cprod.friendsfriends.text.v3
 general cprod.friendsfriends.text.v4
 general cprod.friendsfriends.text.v5
+general cprod.friendsfriends.text2.v1
 general cprod.friendsfriends.link.v1
 general cprod.friendsfriends.link.v2
 general cprod.friendsfriends.link.v3
 general cprod.friendsfriends.link.v4
 general cprod.friendsfriends.link.v5
+general cprod.friendsfriends.link2.v1
 general /tools/textmessage.bml.enter.user.text
 general cprod.friendsfriendsinline.link2.v1
 general cprod.friendsfriendsinline.link2.v2
@@ -513,7 +517,12 @@ general cprod.friendsfriendsinline.text2.v3
 general cprod.friendsfriendsinline.text2.v4
 general cprod.friendsfriendsinline.text2.v5
 general cprod.links.text2.v1
+general cprod.polls.link.v1
+general cprod.polls.text.v1
 general cprod.textmessaging.text2.v1
+general cprod.textmessaging.text3.v1
+general cprod.userpic.link.v1
+general cprod.userpic.text.v1
 
 general web.controlstrip.links.changecommsettings
 
@@ -696,15 +705,11 @@ general widget.verticalsummary.nosubject
 general widget.verticalsummary.posttime
 general widget.verticalsummary.subcats
 
-general crumb.nudgefriend
-
 general cprod.textmessaging.text3
 general cprod.todomaxitems.link
 general cprod.todomaxitems.text2
 general cprod.todononpublic.link
 general cprod.todononpublic.text
-general crumb.addtodo
-general crumb.todo
 
 general setting.contentpromotion.label
 general setting.contentpromotion.option
@@ -972,20 +977,6 @@ general contentflag.viewingconcepts.byadmin
 general contentflag.viewingexplicit.byadmin
 general cprod.todomaxitems.text2.v1
 general cprod.todononpublic.text.v1
-general crumb.filterfriends
-general crumb.managecomments
-general crumb.managecommentsettings
-general crumb.managecommunities
-general crumb.managefriendgrps
-general crumb.managefriends
-general crumb.managetags
-general crumb.manageuserpics
-general crumb.meme
-general crumb.news
-general crumb.postentry
-general crumb.schools
-general crumb.schoolsfind
-general crumb.schoolsmy
 general customize.cats.animals
 general customize.cats.clean
 general customize.cats.cool
@@ -1047,45 +1038,88 @@ general esn.defriended.email_text
 general esn.defriended.subject
 general esn.email.pm_without_body
 general esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.anonymous.reply_to.post
+general esn.journal_new_comment.anonymous.reply_to.post2
 general esn.journal_new_comment.anonymous.reply_to.user_comment.to_post
+general esn.journal_new_comment.anonymous.reply_to.user_comment.to_post2
 general esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post
+general esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.anonymous.reply_to.your_comment.to_post
+general esn.journal_new_comment.anonymous.reply_to.your_comment.to_post2
 general esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post
+general esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.anonymous.reply_to.your_post
+general esn.journal_new_comment.anonymous.reply_to.your_post2
 general esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.user.edit_reply_to.post
+general esn.journal_new_comment.user.edit_reply_to.post2
 general esn.journal_new_comment.user.edit_reply_to.user_comment.to_post
+general esn.journal_new_comment.user.edit_reply_to.user_comment.to_post2
 general esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post
+general esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.user.edit_reply_to.your_comment.to_post
+general esn.journal_new_comment.user.edit_reply_to.your_comment.to_post2
 general esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post
+general esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.user.edit_reply_to.your_post
+general esn.journal_new_comment.user.edit_reply_to.your_post2
 general esn.journal_new_comment.user.reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.user.reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.user.reply_to.post
+general esn.journal_new_comment.user.reply_to.post2
 general esn.journal_new_comment.user.reply_to.user_comment.to_post
+general esn.journal_new_comment.user.reply_to.user_comment.to_post2
 general esn.journal_new_comment.user.reply_to.user_comment.to_your_post
+general esn.journal_new_comment.user.reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.user.reply_to.your_comment.to_post
+general esn.journal_new_comment.user.reply_to.your_comment.to_post2
 general esn.journal_new_comment.user.reply_to.your_comment.to_your_post
+general esn.journal_new_comment.user.reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.user.reply_to.your_post
+general esn.journal_new_comment.user.reply_to.your_post2
 general esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.you.edit_reply_to.post
+general esn.journal_new_comment.you.edit_reply_to.post2
 general esn.journal_new_comment.you.edit_reply_to.user_comment.to_post
+general esn.journal_new_comment.you.edit_reply_to.user_comment.to_post2
 general esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post
+general esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.you.edit_reply_to.your_comment.to_post
+general esn.journal_new_comment.you.edit_reply_to.your_comment.to_post2
 general esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post
+general esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.you.edit_reply_to.your_post
+general esn.journal_new_comment.you.edit_reply_to.your_post2
 general esn.journal_new_comment.you.reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.you.reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.you.reply_to.post
+general esn.journal_new_comment.you.reply_to.post2
 general esn.journal_new_comment.you.reply_to.user_comment.to_post
+general esn.journal_new_comment.you.reply_to.user_comment.to_post2
 general esn.journal_new_comment.you.reply_to.user_comment.to_your_post
+general esn.journal_new_comment.you.reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.you.reply_to.your_comment.to_post
+general esn.journal_new_comment.you.reply_to.your_comment.to_post2
 general esn.journal_new_comment.you.reply_to.your_comment.to_your_post
+general esn.journal_new_comment.you.reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.you.reply_to.your_post
+general esn.journal_new_comment.you.reply_to.your_post2
+general esn.journal_new_entry.head_comm
+general esn.journal_new_entry.head_comm.admin_post
+general esn.journal_new_entry.head_user
 general esn.moderated_submission.subject
 general esn.officialpost.html
 general esn.officialpost.sms
@@ -1105,6 +1139,7 @@ general inbox.menu.new_friends
 general label.security.friends
 general menunav.explore.journalsearch
 general menunav.read.inbox.unread
+general notification_method.im.title
 general notification_method.sms.title
 general password.max30
 general pingback.ljping.comment.text
@@ -1195,6 +1230,8 @@ general setting.sms.option.advanced
 general setting.sms.option.carrier
 general setting.sms.option.carrier.selectone
 general setting.sms.option.phone
+general setting.stickyentry.error.invalid
+general setting.stickyentry.label
 general setting.stylealwaysmine.label
 general setting.stylealwaysmine.option
 general setting.xpost.option.footer.vars.comment_image.alttext
@@ -1597,3 +1634,24 @@ general /admin/supportcat/category.tt.field.scope.label
 general /admin/supportcat/category.tt.field.sortorder.label
 general /admin/supportcat/category.tt.field.user_closeable.label
 general /admin/supportcat/category.tt.saved
+
+general widget.search.msn
+general /manage/profile/index.bml.chat.msnusername
+general /profile.bml.im.msn
+general /profile.bml.label.msnusername
+
+general widget.betafeature.btn.off
+general widget.betafeature.btn.on
+general widget.betafeature.s2comments.off
+general widget.betafeature.s2comments.on
+general widget.betafeature.s2comments.title
+general widget.betafeature.updatepage.off
+general widget.betafeature.updatepage.on
+general widget.betafeature.updatepage.title
+
+contentflag.viewingconcepts.bycommunity
+contentflag.viewingconcepts.byjournal
+contentflag.viewingconcepts.byposter
+contentflag.viewingexplicit.bycommunity
+contentflag.viewingexplicit.byjournal
+contentflag.viewingexplicit.byposter

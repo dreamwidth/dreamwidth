@@ -20,16 +20,36 @@ use strict;
 use warnings;
 use DW::Routing;
 use DW::SiteScheme;
+use DW::Controller;
+use DW::FormErrors;
 
 use LJ::JSON;
 
-DW::Routing->register_static( '/dev/style-guide', 'dev/style-guide.tt', app => 1 );
+DW::Routing->register_string( '/dev/style-guide', \&style_guide_handler, app => 1 );
 
 if ( $LJ::IS_DEV_SERVER ) {
     DW::Routing->register_string( '/dev/tests/index', \&tests_index_handler, app => 1 );
     DW::Routing->register_regex( '^/dev/tests/([^/]+)(?:/(.*))?$', \&tests_handler, app => 1 );
 
     DW::Routing->register_string( '/dev/testhelper/jsondump', \&testhelper_json_handler, app => 1, format => "json" );
+}
+
+sub style_guide_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $authas_form = "<form action='" . LJ::create_url() . "' method='get'>"
+                            . LJ::make_authas_select( LJ::load_user( "system" ), { authas => "", foundation => 1 } )
+                            . "</form>";
+
+    # errors
+    my $errors = DW::FormErrors->new();
+    $errors->add_string( "has_error", "Some error here (added by controller)" );
+
+    return DW::Template->render_template( 'dev/style-guide.tt', {
+            authas_form => $authas_form,
+            errors => $errors,
+     });
 }
 
 sub tests_index_handler {

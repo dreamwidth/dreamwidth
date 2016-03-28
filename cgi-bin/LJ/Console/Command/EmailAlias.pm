@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "email_alias" }
 
-sub desc { "View and edit email aliases." }
+sub desc { "View and edit email aliases. Requires priv: reset_email." }
 
 sub args_desc { [
                       action        => "One of: 'show' (to view recipient), 'delete' (to delete), or 'set' (to set a value)",

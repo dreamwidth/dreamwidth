@@ -198,19 +198,42 @@ sub sysban_check {
             }, undef, $wh, $vl);
     };
 
+    # helper variation for wildcard match of domain bans
+    my $check_subdomains = sub {
+        my ( $host ) = @_;
+        return 0 unless $host && $host =~ /\./;
+
+        # very similar to above, except in addition to exact match
+        # we also check for wildcard matches of larger banned domains
+        # e.g. foo.bar.org will match ban for "%.bar.org"
+
+        return $dbr->selectrow_array( qq{
+                SELECT COUNT(*) FROM sysban
+                WHERE status = 'active'
+                  AND what = ?
+                  AND (value = ? OR ? LIKE CONCAT("%.", value))
+                  AND NOW() > bandate
+                  AND (NOW() < banuntil
+                       OR banuntil = 0
+                       OR banuntil IS NULL)
+            }, undef, 'email_domain', $host, $host );
+    };
+
     # check both ban by email and ban by domain if we have an email address
     if ($what eq 'email') {
         # short out if this email really is banned directly, or if we can't parse it
         return 1 if $check->('email', $value);
         return 0 unless $value =~ /@(.+)$/;
 
-        # see if this domain is banned
+        # see if this domain is banned, either directly
+        # or else as part of a larger domain ban
+        return 1 if $check_subdomains->( $1 );
+
+        # account for GMail troll tricks
         my @domains = split(/\./, $1);
         return 0 unless scalar @domains >= 2;
         my $domain = "$domains[-2].$domains[-1]";
-        return 1 if $check->('email_domain', $domain);
 
-        # account for GMail troll tricks
         if ( $domain eq "gmail.com" ) {
         	my ($user) = ($value =~ /^(.+)@/);
         	$user =~ s/\.//g;    # strip periods
@@ -258,13 +281,6 @@ sub sysban_populate {
     $ts->wait(timeout => 30); # 30 sec timeout
 
     return $where;
-}
-
-
-# here because it relates to sysbans ...
-sub tor_check {
-    return 0 unless $LJ::USE_TOR_CONFIGS && $LJ::TOR_CONFIG{$_[0]};
-    return DW::Request->get->note( 'via_tor_exit' ) ? 1 : 0;
 }
 
 

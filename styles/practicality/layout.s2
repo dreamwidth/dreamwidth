@@ -15,6 +15,17 @@ set userpics_position = "right";
 set custom_control_strip_colors = "on_no_gradient";
 
 ##===============================
+## Colors
+##===============================
+
+propgroup colors {
+    property use color_header_link;
+    property use color_header_link_active;
+    property use color_header_link_hover;
+    property use color_header_link_visited;
+}
+
+##===============================
 ## Fonts
 ##===============================
 
@@ -59,7 +70,7 @@ set grouped_property_override = { "module_navlinks_section" => "module_navlinks_
 set module_navlinks_section = "one";
 
 function Page::print() {
-    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<!DOCTYPE html>\n<html lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
     $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
@@ -296,7 +307,7 @@ h2#subtitle {
     $page_subtitle_font
     background: transparent;
     border: none;
-    color: $*color_page_title;
+    color: $*color_header_link;
     font-variant: small-caps;
     font-weight: bold;
     letter-spacing: 0;
@@ -310,7 +321,19 @@ h2#subtitle {
     }
 
 #header .module-navlinks li a {
-    color: $*color_page_title;
+    color: $*color_header_link;
+    }
+
+#header .module-navlinks li a:active {
+    color: $*color_header_link_active;
+    }
+
+#header .module-navlinks li a:hover {
+    color: $*color_header_link_hover;
+    }
+
+#header .module-navlinks li a:visited {
+    color: $*color_header_link_visited;
     }
 
 /*--- Journal Navigation ---*/

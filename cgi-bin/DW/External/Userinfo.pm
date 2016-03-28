@@ -17,15 +17,14 @@ use strict;
 
 use Carp qw/ croak /;
 use Storable qw/ nfreeze /;
-use LWPx::ParanoidAgent;
 
 # timeout interval - to avoid hammering the remote site,
 # wait 30 minutes before trying again for this user
 sub wait { return 1800; }
 
 sub agent {
-    return LWPx::ParanoidAgent->new( agent => "$LJ::SITENAME Userinfo; $LJ::ADMIN_EMAIL",
-                                     max_size => 10240 );
+    return LJ::get_useragent( role => 'userinfo', agent => "$LJ::SITENAME Userinfo; $LJ::ADMIN_EMAIL",
+                          max_size => 10240 );
 }
 
 
@@ -169,6 +168,12 @@ sub atomtype {
 
     # this is simple enough not to bother with an XML parser
     my $text = $res->content || '';
+
+    # first look for lj.rossia.org - different from other LJ sites
+    my ( $ljr ) = $text =~
+        m@<link rel='alternate' type='text/html' href='http://lj.rossia.org/([^/]+)@i;
+    return $ljr if $ljr; # community or users
+
     my ( $str ) = $text =~ m@<(?:lj|dw):journal ([^/]*)/>@i;
     return undef unless $str;
 
@@ -213,6 +218,7 @@ sub check_remote {
                 personal   => 'P',
                 syndicated => 'Y',
                 user       => 'P',
+                users      => 'P',
                );
 
     # invalid users don't always 404, so we also detect from title

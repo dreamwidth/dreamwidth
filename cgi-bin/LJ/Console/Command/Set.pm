@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "set" }
 
-sub desc { "Set the value of a userprop." }
+sub desc { "Set the value of a userprop. Requires priv: none." }
 
 sub args_desc { [
                  'community' => "Optional; community to set property for, if you're a maintainer.",

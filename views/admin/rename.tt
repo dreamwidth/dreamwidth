@@ -5,21 +5,29 @@ Admin page for renames
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 [%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        input#user { width: auto; }
+    </style>
+[% END %]
 
-<a href="[%site.root%]/admin/rename/new">[% '.new.link' | ml %]</a>
+<p><a href="[%site.root%]/admin/rename/new">[% '.new.link' | ml %]</a></p>
 
 [% IF renames %]
     [% IF renames.size == 0 %]
         <p>[% '.renames.list.empty' | ml( user = user ) | html %]</p>
     [% ELSE %]
         <table>
-            <thead><tr><th>From</th><th>To</th><th>Renamed by</th><th>Account renamed</th><th>Renamed on</th></tr></thead>
-        
+            <thead><tr><th>[% '.header.from' | ml %]</th><th>[% '.header.to' | ml %]</th><th>[% '.header.renamedby' | ml %]</th><th>[% '.header.accountrenamed' | ml %]</th><th>[% '.header.renamedon' | ml %]</th></tr></thead>
+
             [% FOREACH rename = renames %]
             <tr>
                 <td>[%rename.from | html %]</td>
@@ -36,12 +44,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% IF user %]
 <p>
-<a href="[%site.root%]/admin/rename/">Return to renames lookup</a>
+<a href="[%site.root%]/admin/rename/">[% '.return' | ml %]</a>
 </p>
 [% ELSE %]
 <form method="GET">
-    <label for="user">Username:</label> <input type="text" name="user" id="user"/>
-    <input type="submit" value="Look up user name" />
+    <label for="user">[% '.username' | ml %]</label> <input type="text" name="user" id="user"/>
+    <input type="submit" value="[% '.btn.lookup' | ml | html %]" />
 </form>
 [% END %]
 

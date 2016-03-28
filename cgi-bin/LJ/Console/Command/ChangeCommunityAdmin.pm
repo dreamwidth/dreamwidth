@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "change_community_admin" }
 
-sub desc { "Transfer maintainership of a community to another user." }
+sub desc { "Transfer maintainership of a community to another user. Requires priv: communityxfer." }
 
 sub args_desc { [
                  'community' => "The username of the community.",

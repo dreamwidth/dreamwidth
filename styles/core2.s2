@@ -258,6 +258,7 @@ class CommentInfo
     var bool maxcomments "Set to true if entry has reached a comment maximum.";
     var bool show_postlink "Indicates whether the Post Comment link for this entry should be shown.";
     var bool show_readlink "Indicates whether the Read Comments link for this entry should be shown.";
+    var bool show_readlink_hidden "Indicates whether to show the Read Comments link for this entry, but hidden, to be shown my JS.";
 
     function print
     "Print all comment related links";
@@ -1159,17 +1160,17 @@ propgroup other = "Other";
 property builtin string IMGDIR {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current Dreamwidth site's image directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/img\".";
+    des = "The base URL of the current Dreamwidth site's image directory, without a trailing slash.  Example: \"https://www.dreamwidth.com/img\".";
 }
 property builtin string STYLES_IMGDIR {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current Dreamwidth site's style image directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/img/styles\".";
+    des = "The base URL of the current Dreamwidth site's style image directory, without a trailing slash.  Example: \"https://www.dreamwidth.com/img/styles\".";
 }
 property builtin string STATDIR {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current Dreamwidth site's static files directory, without a trailing slash.  Example: \"http://www.dreamwidth.com/stc\".";
+    des = "The base URL of the current Dreamwidth site's static files directory, without a trailing slash.  Example: \"https://www.dreamwidth.com/stc\".";
 }
 property builtin string SITENAME {
     noui = 1;
@@ -1189,12 +1190,12 @@ property builtin string SITENAMEABBREV {
 property builtin string SITEROOT {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current Dreamwidth site, without a trailing slash.  Example: \"http://www.dreamwidth.com\".";
+    des = "The base URL of the current Dreamwidth site, without a trailing slash.  Example: \"https://www.dreamwidth.com\".";
 }
 property builtin string PALIMGROOT {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of palimg files, without a trailing slash.  Example: \"http://www.dreamwidth.com/palimg\".";
+    des = "The base URL of palimg files, without a trailing slash.  Example: \"https://www.dreamwidth.com/palimg\".";
 }
 
 ##=======================================
@@ -1730,7 +1731,7 @@ property string font_comment_title_units {
 
 property string font_sources {
     des = "Embedded fonts stylesheet URL";
-    note = "The URL must point to a font stylesheet such as 'http://fonts.googleapis.com/css?family=Average+Sans' and not directly at the font file. Embedded fonts can slow page loading time. Blank the field to stop using them.";
+    note = "The URL must point to a font stylesheet such as 'https://fonts.googleapis.com/css?family=Average+Sans' and not directly at the font file. Embedded fonts can slow page loading time. Blank the field to stop using them. The URL should be a secure URL and begin with 'https://'.";
 }
 
 set font_base = "";     # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
@@ -2279,7 +2280,7 @@ property string text_module_customtext_url {
     des = "URL for the 'Custom Text' heading link";
     maxlength = 100;
     size = 30;
-    example = "http://www.dreamwidth.org";
+    example = "https://www.dreamwidth.org";
 }
 property string text_module_customtext_content {
     noui = 1;
@@ -3675,7 +3676,7 @@ function FriendsPage::print_stylesheets() {
 function generate_image_url ( string image_path ) : string
 "Take an image property and append style image directory path if not given absolute path"
 {
-    if ( $image_path != "" and not $image_path->starts_with("http://") ) {
+    if ( $image_path != "" and not ( $image_path->starts_with("http://") or $image_path->starts_with("https://") ) ) {
         $image_path = "$*STYLES_IMGDIR/$image_path";
     }
 
@@ -4657,7 +4658,7 @@ function print_module_credit() {
                 $count++;
                 if ( $count < $layout_authors_size ) {
                     if ( $count == ($layout_authors_size -1) ) { $ret = $ret + " and "; }
-                    else { $ret = $ret + ","; }
+                    else { $ret = $ret + ", "; }
                 }
             }
         }
@@ -4697,7 +4698,7 @@ function print_module_credit() {
             $count++;
             if ( $count < $theme_authors_size ) {
                 if ( $count == ($theme_authors_size -1) ) { $ret = $ret + " and "; }
-                else { $ret = $ret + ","; }
+                else { $ret = $ret + ", "; }
             }
         }
 
@@ -4721,7 +4722,7 @@ function print_module_credit() {
             $count++;
             if ( $count < $resources_size ) {
                 if ( $count == ($resources_size -1) ) { $ret = $ret + " and "; }
-                else { $ret = $ret + ","; }
+                else { $ret = $ret + ", "; }
             }
         }
         $ret = $ret + "</li>\n";
@@ -4840,7 +4841,7 @@ function Page::print_module_section ( string section_name ) {
 function Page::print()
 "The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
 {
-    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    """<!DOCTYPE html>\n<html lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
     $this->print_meta_tags();
     $this->print_head();
     $this->print_stylesheets();
@@ -5308,17 +5309,16 @@ function Entry::print_tags() [fixed] {
             $show_tagnav_links = ($p.view == "entry" or $p.view == "reply");
         }
         var int tag_count = 0;
-        """<div class="tag"><span class="tag-text">$*text_tags</span><ul>\n""";
+
+        var string dataAttributes = "";
+        if ( $show_tagnav_links ) {
+          $dataAttributes = """ data-journal="$this.journal.username" data-ditemid="$this.itemid" """;
+        }
+        """<div class="tag"><span class="tag-text"$dataAttributes>$*text_tags</span><ul>\n""";
+
         foreach var Tag t ($this.tags) {
-            $this.tagnav = $t;
             "<li>";
-            if ($show_tagnav_links) {
-                $this->print_link_tag_prev();
-            }
-            """ <a rel="tag" href="$t.url">$t.name</a> """;
-            if ($show_tagnav_links) {
-                $this->print_link_tag_next();
-            }
+            """<a rel="tag" href="$t.url">$t.name</a>""";
             $tag_count++;
             if ($tag_count < size $.tags) { print $*text_tags_item_sep; }
             "</li>\n";
@@ -5445,11 +5445,11 @@ function Entry::print_link_prev() {
 }
 function Entry::print_link_tag_next() {
     var Link link = $this->get_link("nav_tag_next");
-    """<a href="$link.url">&rarr;</a>""";
+    """<span class="tagnav"> <a href="$link.url">&rarr;</a></span>""";
 }
 function Entry::print_link_tag_prev() {
     var Link link = $this->get_link("nav_tag_prev");
-    """<a href="$link.url">&larr;</a>""";
+    """<span class="tagnav"><a href="$link.url">&larr;</a> </span>""";
 }
 function Entry::print_management_links()
 "Prints entry management links, aka prev/edit/tag/memory/tag/next, with standarized CSS."
@@ -5545,7 +5545,7 @@ function Entry::print_interaction_links(string target)
         if ($count > 0) {
             "</ul>";
         }
-    } elseif ($p.view == "read") {
+    } elseif ($p.view == "read" or $p.view == "day" or $p.view == "recent" or $p.view == "network") {
         $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
     } else {
         $this.comments->print();
@@ -6120,11 +6120,14 @@ function CommentInfo::print_readlink {
     var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
     var string text_both = $text_visible + $*text_default_separator + $text_screened;
     var string text_total = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_sing = get_plural_phrase(1, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_dual = get_plural_phrase(2, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_plur = get_plural_phrase(3, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
 
     if ($.screened) { # show visible count and screened count
-        print safe """<a href="$.read_url#comments">"""+ $text_both + """</a>""";
+        print safe """<a href="$.read_url#comments" data-sing="$text_sing" data-dual="$text_dual" data-plur="$text_plur">"""+ $text_both + """</a>""";
     } else {
-        print safe """<a href="$.read_url#comments">"""+ $text_total + """</a>""";
+        print safe """<a href="$.read_url#comments" data-sing="$text_sing" data-dual="$text_dual" data-plur="$text_plur">"""+ $text_total + """</a>""";
     }
 }
 
@@ -6144,7 +6147,12 @@ function CommentInfo::print(Entry e, string{} opts) {
       """<li class="entry-readlink">""";
       $this->print_readlink();
       "</li>\n";
+  } elseif ($.show_readlink_hidden) {
+    """<li class="entry-readlink" style="display:none">""";
+    $this->print_readlink();
+    "</li>\n";
   }
+
   if ($.show_postlink and $.enabled) {
       """<li class="entry-replylink">""";
       if (isnull $e) {

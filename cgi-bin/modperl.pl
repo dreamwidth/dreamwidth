@@ -17,12 +17,11 @@
 package LJ::ModPerl;
 
 use strict;
-use lib "$ENV{LJHOME}/extlib/lib/perl5";
-use lib "$ENV{LJHOME}/cgi-bin";
 
 # very important that this is done early!  everything else in the LJ
 # setup relies on $LJ::HOME being set...
 $LJ::HOME = $ENV{LJHOME};
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 
 #use APR::Pool ();
 #use Apache::DB ();
@@ -46,7 +45,7 @@ $LJ::HOME = $ENV{LJHOME};
 #}
 
 # pull in libraries and do per-start initialization once.
-require "modperl_subs.pl";
+require "$LJ::HOME/cgi-bin/modperl_subs.pl";
 
 # do per-restart initialization
 LJ::ModPerl::setup_restart();

@@ -43,6 +43,14 @@ sub new {
     $context->define_filter( 'js', [ \&DW::Template::Filters::js, 1 ] );
     $context->define_filter( 'time_to_http', [ \&DW::Template::Filters::time_to_http ] );
 
+    # refresh on each page load, because this changes depending on whether you're using HTTP or HTTPS
+    $context->stash->{site} = {
+        root => $LJ::SITEROOT,
+        imgroot => $LJ::IMGPREFIX,
+        jsroot  => $LJ::JSPREFIX,
+        statroot=> $LJ::STATPREFIX,
+    };
+
     return $self;
 }
 
@@ -145,20 +153,6 @@ sub ml {
 sub img {
     my $self = shift;
     return LJ::img(@_);
-}
-
-=head2 authas
-
-Print out the authas select dropdown
-
-=cut
-sub authas {
-    my ( $self, $args ) = @_;
-
-    my $r = DW::Request->get;
-    return "<form action='" . LJ::create_url() . "' method='get'>"
-            . LJ::make_authas_select( LJ::get_remote(), { authas => $r->get_args->{authas}, foundation => 1, %{$args || {}} } )
-        . "</form>"
 }
 
 =head2 scoped_include

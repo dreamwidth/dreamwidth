@@ -170,13 +170,22 @@ sub set_security {
     return 0 if $self->is_deleted;
 
     my $security = $opts{security};
-    confess 'Invalid security type passed to set_security.'
-        unless $security =~ /^(?:private|public|usemask)$/;
+    confess 'Invalid argument hash passed to set_security.'
+        unless defined $security;
 
     my $mask = 0;
     if ( $security eq 'usemask' ) {
+        # default allowmask of 0 unless defined otherwise
+        $opts{allowmask} //= 0;
         $mask = int $opts{allowmask};
     }
+
+    if ( $security =~ /^(?:friends|access)$/ ) {
+        $security = 'usemask';
+        $mask = 1;
+    }
+    confess 'Invalid security type passed to set_security.'
+        unless $security =~ /^(?:private|public|usemask)$/;
 
     my $u = $self->u
         or croak 'Sorry, unable to load the user.';

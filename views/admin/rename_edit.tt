@@ -5,22 +5,19 @@ Interface to edit rename options.
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
 [%- sections.title = "Detailed Rename View"; -%]
-[%- dw.need_res( 'stc/rename.css' ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
-[% IF error_list %]
-    <p>Error</p>
-    <ul class='error-list'>
-        [% FOREACH error = error_list %]
-            <li>[% error %] </li>
-        [% END %]
-    </ul>
-[% END %]
+[%- dw.need_res( { group => "foundation" }
+        "stc/css/pages/rename.css"
+) -%]
 
 [% IF token %]
     <form method="POST" id="renameform">
@@ -69,7 +66,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </fieldset>
         [% END %]
 
-        <fieldset class="others">        
+        <fieldset class="others">
             <legend>[% '.form.others.header' | ml %]</legend>
             <input type="checkbox" name="override_others" id="override_others" /><label for="override_others">Override</label>
             <div class="formfield">

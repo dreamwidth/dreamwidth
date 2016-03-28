@@ -22,8 +22,7 @@ use Test::More tests => 58;
 
 use strict;
 use Test::More;
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 # Set more manageable limit for testing
 $LJ::CAP{0..15}->{inbox_max} = 10;

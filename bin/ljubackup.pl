@@ -97,7 +97,7 @@ BEGIN {
     use constant TRUE   => 1;
     use constant FALSE  => 0;
 
-    use lib ( "$ENV{LJHOME}/cgi-bin" );
+    require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
 
     # Modules
     use Getopt::Long        qw{GetOptions};

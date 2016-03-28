@@ -19,8 +19,7 @@ use warnings;
 
 use Test::More tests => 175;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use LJ::CleanHTML;
 use LJ::EmbedModule;
@@ -368,9 +367,9 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{foo <site-embed><object>blah</site-embed> bzzt},
 
             qq{foo <site-embed id="1"/> bzzt},
-            qq{foo <site-embed id="1"><object>blah</site-embed> bzzt},
+            qq{foo <site-embed id="1"><object>blah</object></site-embed> bzzt},
             qr{foo $iframe bzzt},
-            qq{<object>blah}
+            qq{<object>blah</object>}
         ],
 
 
@@ -486,7 +485,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             is( $attrs{id}, "embed_${userid}_1", "iframe id: $title" );
             like( $attrs{name}, qr!embed_${userid}_1_[\w]{5}!, "iframe name: $title" );
             is( $attrs{class}, "lj_embedcontent", "iframe class: $title" );
-            like( $attrs{src}, qr!^http://$LJ::EMBED_MODULE_DOMAIN/\?journalid=!, "iframe src: $title" );
+            like( $attrs{src}, qr!^(https?:)?//$LJ::EMBED_MODULE_DOMAIN/\?journalid=!, "iframe src: $title" );
         }
 
         # check the iframe contents

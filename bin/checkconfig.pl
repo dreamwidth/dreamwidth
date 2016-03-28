@@ -235,7 +235,6 @@ my %modules = (
                     deb => 'libio-aio-perl',
                     opt => 'Required for Perlbal',
                  },
-               "LWPx::ParanoidAgent" => { ver => '1.10' },
                "MogileFS::Client" => {
                    ver => '1.12',
                },
@@ -253,8 +252,6 @@ my %modules = (
                "Gearman::Client" => {
                    deb => 'libgearman-client-perl',
                },
-               "Net::PubSubHubbub::Publisher" => {},
-               "TheSchwartz::Worker::PubSubHubbubPublish" => {},
                "File::Type" => {
                    deb => 'libfile-type-perl',
                },
@@ -271,6 +268,14 @@ my %modules = (
                },
                "List::MoreUtils" => {},
                "Locale::Country" => { ver => '3.32' },
+               "Net::SMTPS" => {},
+               "IO::Socket::SSL" => {},
+               "LWP::UserAgent::Paranoid" => {},
+               "Mozilla::CA" => {},
+               "File::Find::Rule" => {
+                   deb => 'libfile-find-rule-perl',
+                   opt => "Used by t/00-compile.t test.",
+               },
               );
 
 

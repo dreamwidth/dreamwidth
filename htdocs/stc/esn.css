@@ -268,6 +268,10 @@ span.Pages input {
 
 
 /**** ESN AJAX ****/
+.track-dialog {  /* outer div */
+    max-width: 80%;
+}
+
 .trackdialog .track_title, .ippu .track_title {
     font-weight: bold;
     margin: 4px;

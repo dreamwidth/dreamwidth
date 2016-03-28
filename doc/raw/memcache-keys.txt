@@ -104,11 +104,6 @@ includefile:<name> == text of BML include file
 <uid> inbox:bookmarks:<uid> == list of bookmarked qids for a user's notificationinbox (packed, see LJ::NotificationInbox->load_bookmarks)
 <uid> inbox:newct:<uid> == count of new messages in inbox
 
-<uid> jabpresence:<uid>:<reshash> == hash of jabber presence information for a particular userid/reshash pair
-<uid> jabuser:<uid> == hash of jabber resources for this user, keyed on resource name
-jabclusteraddr:<address> == id of server
-jabclusterid:<id> == address of server
-
 <uid> email:<uid> == email of user
 <uid> pw:<uid>    == password of user
 
@@ -133,9 +128,6 @@ jabclusterid:<id> == address of server
 # Widgets
 
 qotd:<type> == QotDs of the type <type> ('current' or 'old')
-
-blockwatch_ids   == hash of blockwatch ids mapped to names
-blockwatch_names == hash of blockwatch names mapped to ids
 
 ct_flag_locked == array of locked content flag ids
 ct_flag_cat_count == hash of content flag counts

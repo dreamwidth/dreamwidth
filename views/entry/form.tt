@@ -200,7 +200,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     name = "event"
 
                     cols = "50"
-                    rows = "20"
+                    rows = "18"
                     wrap = "soft"
 
                     labelclass = "hidden"
@@ -211,8 +211,9 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div></div>
 
         <div class="row"><div class="columns">
-            <div class="button-bar entry-quick-metadata">
-                <ul class="no-bullet left">
+            <div class="button-bar entry-quick-actions row">
+            <div class="columns medium-9 large-9">
+                <ul class="no-bullet entry-quick-metadata">
 
                 <li>
                 [%- form.submit(
@@ -260,6 +261,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                     ~%]
 
                     [%~ IF usejournal ~%]
+                        <li>
                         <span class="usejournal-text">
                         [% '.select.usejournal.format' | ml( user = usejournal.ljuser_display ) %]
                         </span>
@@ -267,6 +269,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                             "data-is-admin" = isAdmin
                             "data-is-comm" = isComm
                         ) %]
+                        </li>
                     [%~ ELSE ~%]
                         <li>
                         [%~ form.textbox(
@@ -286,23 +289,26 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                 [%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
 
                 </ul>
-                <ul class="button-group right">
-                    <li>[%- form.submit( value = dw.ml('talk.btn.preview')
+                </div>
+                <div class="columns medium-3 large-3 secondary-actions">
+                <ul class="no-bullet row collapse">
+                    <li class='columns small-6'>[%- form.submit( value = dw.ml('talk.btn.preview')
                                      name = "action:preview"
                                      id = "js-preview-button"
-                                     class = "small secondary button"
+                                     class = "secondary button"
                                      )
                     -%]</li>
 
                     [%- IF can_spellcheck %]
-                    <li>[% form.submit( value = dw.ml('entryform.spellcheck')
+                    <li class="columns small-6">[% form.submit( value = dw.ml('entryform.spellcheck')
                                      name = "action:spellcheck"
                                      id = "js-spellcheck-button"
-                                     class = "small secondary button"
+                                     class = "secondary button"
                                      );
                     %]</li>
                     [%- END -%]
                 </ul>
+                </div>
             </div>
         </div></div>
     </div>
@@ -310,7 +316,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
 
     [%- BLOCK components forCommunity = 0 %]
         [% FOREACH component = items %]
-        [%- IF forCommunity -%]<div class='columns medium-6 large-4'>[%- END -%]
+        [%- IF forCommunity -%]<div class='columns medium-6 large-4 [% IF loop.count == items.size %]end[% END %]'>[%- END -%]
 
         <div class='panel component [% component %]-component[% UNLESS forCommunity || panels.show.$component -%] inactive-component[%- END -%]'
              data-collapse='[% component %]' data-collapse-state='[% panels.collapsed.$component ? "collapsed" : "expanded" %]'>
@@ -352,7 +358,7 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
         </div>
         <div class="row components">
             [%- PROCESS components forCommunity = 1
-                    items = [ "community-flags" ] -%]
+                    items = [ "community-flags", "sticky" ] -%]
         </div>
     </div>
     [%- END -%]

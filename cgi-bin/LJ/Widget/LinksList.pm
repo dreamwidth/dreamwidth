@@ -42,7 +42,7 @@ sub render_body {
 # title of this module
 
     $ret .= "<p class='detail'>" . $class->ml('widget.linkslist.about') . "</p>";
-    
+
 # explanation
 
     $ret .= "<table summary='' cellspacing='2' cellpadding='0'><tr valign='top'><td>";
@@ -53,22 +53,22 @@ sub render_body {
     $showlinks += $link_more if $post->{'action:morelinks'};
     $showlinks = $link_min if $showlinks < $link_min;
     $showlinks = $caplinks if $showlinks > $caplinks;
- 
+
     $ret .= "<td><div class='highlight-box'><p class='tips-header'><strong>" . $class->ml('widget.linkslist.tips') . "</strong></p>";
     $ret .= "<ul><li>" . $class->ml('widget.linkslist.about.reorder') . "</li>";
     $ret .= "<li>" . $class->ml('widget.linkslist.about.blank') . "</li>";
     $ret .= "<li>" . $class->ml('widget.linkslist.about.heading') . "</li>";
     $ret .= "<li>" . $class->ml('widget.linkslist.about.hover') . "</li>";
-    $ret .= "<li>" . $class->ml('widget.linkslist.about.hoverhead') . 
-    "</li></ul></div>"; 
+    $ret .= "<li>" . $class->ml('widget.linkslist.about.hoverhead') .
+    "</li></ul></div>";
     $ret .= "</td></tr></table>";
 
-   
+
 # add the table-ey stuff at the top
 
     $ret .= "<table border='0' cellspacing='5' cellpadding='0'>";
     $ret .= "<thead><tr><th>" . $class->ml('widget.linkslist.table.order') . "</th><th></th>";
-    $ret .= "<th>" . $class->ml('widget.linkslist.table.title') . "</th><td>&nbsp;</td></tr></thead>"; 
+    $ret .= "<th>" . $class->ml('widget.linkslist.table.title') . "</th><td>&nbsp;</td></tr></thead>";
 
 # now we're building the textareas
 # --- here would be the bit I am interested in ---
@@ -110,7 +110,7 @@ sub render_body {
             value => $it->{title},
         );
         $ret .= "</td>";
-        
+
 # so here's where we might insert some hover text
 
         $ret .= "<tr><td></td><td>";
@@ -134,13 +134,8 @@ sub render_body {
                 { 'disabled' => $ct >= $caplinks, 'noescape' => 1 }
             );
         }
-        my $inline;
         if ($ct >= $caplinks) {
-            if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'Links')) {
-                $ret .= $inline;
-            } else {
-                $ret .= "</td></tr><tr><td colspan='2'>&nbsp;</td><td>" . LJ::Lang::ml('cprod.links.text3.v1');
-            }
+            $ret .= "</td></tr><tr><td colspan='2'>&nbsp;</td><td>" . LJ::Lang::ml('cprod.links.text3.v1');
         }
         $ret .= "</td></tr>";
 

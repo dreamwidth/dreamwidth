@@ -18,10 +18,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 10;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 {
     my $test_string = qq {
@@ -44,6 +43,32 @@ BEGIN { require 'ljlib.pl'; }
     $test_string_trunc = qq {<br /><input type="button" value="button" />123};
 
     is(LJ::html_trim($test_string, 3), $test_string_trunc, "Truncating with poorly-formed HTML");
+
+    $test_string = qq{<table><tr><td>test</table>};
+    $test_string_trunc = qq{<table><tr><td>test</td>
+</tr>
+</table>};
+    is(LJ::html_trim($test_string, length($test_string)), $test_string_trunc, "Truncating with table tags");
+
+    $test_string = qq{<h1>a<h2>b<h3>c</h1>d</h2>e</h3>};
+    is(LJ::html_trim($test_string, 1), qq{<h1>a<h2>b</h2>
+</h1>}, "Truncating [1] with mismatched tags");
+    is(LJ::html_trim($test_string, 2), qq{<h1>a<h2>b<h3>c</h3>
+</h2>
+</h1>}, "Truncating [2] with mismatched tags");
+    is(LJ::html_trim($test_string, 3), qq{<h1>a<h2>b<h3>cd</h3>
+</h2>
+</h1>}, "Truncating [3] with mismatched tags");
+
+    my $cleaned_test_string = $test_string;
+    LJ::CleanHTML::clean_event( \$cleaned_test_string );
+    is(LJ::html_trim($cleaned_test_string, 1), qq{<h1>a<h2>b</h2>
+</h1>}, "Truncating [1] with mismatched tags (pre-cleaned)");
+    is(LJ::html_trim($cleaned_test_string, 2), qq{<h1>a<h2>b<h3>c</h3>
+</h2>
+</h1>}, "Truncating [2] with mismatched tags (pre-cleaned)");
+        is(LJ::html_trim($cleaned_test_string, 3), qq{<h1>a<h2>b<h3>c</h3></h2></h1>de}, "Truncating [3] with mismatched tags");
+
 }
 
 1;

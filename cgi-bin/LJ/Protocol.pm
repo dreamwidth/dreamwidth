@@ -538,12 +538,12 @@ sub sendmessage
 
     my @msg;
     BML::set_language('en'); # FIXME
-    
+
     foreach my $to (@to) {
         my $tou = LJ::load_user($to);
         return fail($err, 100, $to)
             unless $tou;
-        
+
         my $msguserpic;
         $msguserpic = $req->{'userpic'} if defined $req->{'userpic'};
 
@@ -1218,9 +1218,8 @@ sub postevent
     return fail($err,306) unless $dbh && $dbcm && $uowner->writer;
     return fail($err,200) unless $req->{'event'} =~ /\S/;
 
-    ### make sure community or identity journals don't post
+    ### make sure community journals don't post
     return fail($err,150) if $u->is_community;
-    return fail($err,150) if ! $importer_bypass && ! $uowner->prop( "identity_posting" ) && $u->is_identity;
 
     # suspended users can't post
     return fail($err,305) if ! $importer_bypass && $u->is_suspended;
@@ -1732,9 +1731,6 @@ sub postevent
         push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
         push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;
 
-        # PubSubHubbub Support
-        LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
-
         # latest posts feed update
         DW::LatestFeed->new_item( $entry );
     }
@@ -2189,10 +2185,7 @@ sub editevent
         );
     }
 
-    # PubSubHubbub Support
     my @jobs;
-    LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
-
     LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );
 
     my $sclient = LJ::theschwartz();

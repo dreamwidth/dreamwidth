@@ -20,7 +20,7 @@ use base qw/ LJ::Console::Command /;
 use Carp qw/ croak /;
 
 sub cmd { 'rename_opts' }
-sub desc { 'Manage options attached to a rename.' }
+sub desc { 'Manage options attached to a rename. Requires priv: siteadmin:rename.' }
 
 sub args_desc {
     [

@@ -15,10 +15,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::CleanEmail;
 
 {
@@ -179,6 +178,20 @@ Datum: Donnerstag, 25. April, 2013 21:15 Uhr
 
     is( $nonquoted, q{
 foo}, "\$LJ::BOGUS_EMAIL")
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(qq{
+foo
+
+Von: etc - DW Comment <$LJ::BOGUS_EMAIL>
+Betreff: Reply to your comment. [ exampleusername - 12345 ]
+Datum: Donnerstag, 25. April, 2013 21:15 Uhr
+});
+
+    is( $nonquoted, q{
+foo
+}, "\$LJ::BOGUS_EMAIL")
 }
 
 {

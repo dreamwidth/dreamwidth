@@ -208,8 +208,8 @@ my @_ml_strings_en = (
     'esn.journal_new_entry.about',                  # ' titled "[[title]]"',
     'esn.tags',                                     # 'The entry is tagged "[[tags]]"',
     'esn.tags.short',                               
-    'esn.journal_new_entry.head_comm',              # 'There is a new entry by [[poster]][[about]] in [[journal]]![[tags]]',
-    'esn.journal_new_entry.head_user',              # '[[poster]] has posted a new entry[[about]].[[tags]]',
+    'esn.journal_new_entry.head_comm2',              # 'There is a new entry by [[poster]][[about]][[postsecurity]] in [[journal]]![[tags]]',
+    'esn.journal_new_entry.head_user2',              # '[[poster]] has posted a new entry[[about]][[postsecurity]].[[tags]]',
     'esn.you_can',                                  # 'You can:',
     'esn.view_entry.nosubject',                     # '[[openlink]]View entry [[ditemid]][[closelink]]'
     'esn.view_entry.subject',                       # '[[openlink]]View entry titled [[subject]][[closelink]]',
@@ -276,10 +276,16 @@ sub _as_email {
         $tags = ' ' . LJ::Lang::get_text($lang, 'esn.tags', undef, { tags => join(', ', $self->entry->tags ) });
     }
 
-    my $head_ml = 'esn.journal_new_entry.head_user';
+    # indicate post security if it is locked or filtered
+    my $postsecurity = '';
+    if ( $self->entry->security eq 'usemask' ) {
+        $postsecurity = ' [locked]';
+    }
+
+    my $head_ml = 'esn.journal_new_entry.head_user2';
     my $entry = $self->entry;
     if ( $entry->journal->is_comm ) {
-        $head_ml = 'esn.journal_new_entry.head_comm';
+        $head_ml = 'esn.journal_new_entry.head_comm2';
 
         $head_ml .= '.admin_post'
             if $entry->admin_post;

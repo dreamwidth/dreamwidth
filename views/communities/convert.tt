@@ -5,6 +5,8 @@ Convert personal journal to community
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
@@ -14,7 +16,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
 <p>[%- '.administrator' | ml( user = admin_user, login_url = "$LJ::SITEROOT/login?ret=1" ) -%]</p>
-<form action="[% IF usessl %][% site.ssl.root %][% ELSE %][% site.root %][% END %]/communities/convert" method="POST">
+<form action="[% site.root %]/communities/convert" method="POST">
     [% dw.form_auth %]
     <fieldset>
         <legend>[% '.form.comminfo.legend' | ml %]</legend>

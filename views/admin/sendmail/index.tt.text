@@ -1,5 +1,9 @@
 ;; -*- coding: utf-8 -*-
 
+.admin.link=Send Email Message
+
+.admin.text=Allows you to email users from registered site accounts.
+
 .check.supportreq.label=Include in email subject?
 
 .error.badacct=That is not a valid from address.
@@ -22,6 +26,8 @@
 
 .error.sendfailed=The message could not be sent at this time because of a database error.  Please try again later.
 
+.formtemp=and eventually there will be a feature to allow using and editing commonly sent form messages.
+
 .input.message.label=Message:
 
 .input.notes.label=(Optional) Private notes only visible to other team members:
@@ -35,6 +41,8 @@
 .input.supportreq.label=(Optional) Support Request #:
 
 .intro=This is a convenience form for sending emails to users from registered site addresses.  You can only send messages from these addresses if you have the appropriate privileges.
+
+.lookup=You may also <a href="[[url]]">view previously sent messages</a>
 
 .noaddresses=Sorry, you don't have privileges for any of the currently configured accounts.
 

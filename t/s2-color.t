@@ -17,8 +17,7 @@ use warnings;
 
 use Test::More tests => 14;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 # As all of these are builtins, fake context.
 my $ctx = [];

@@ -54,7 +54,6 @@ use DW::BusinessRules::InviteCodeRequests;
 
 use DateTime;
 use DateTime::TimeZone;
-use LJ::CProd;
 use LJ::OpenID;
 use LJ::Location;
 use LJ::SpellCheck;
@@ -109,10 +108,6 @@ require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"
 # will be smarter and only load in the *.pm files it needs to fulfill
 # the hooks to be run
 LJ::Hooks::_load_hooks_dir() unless LJ::is_from_test();
-
-$LJ::IMGPREFIX_BAK = $LJ::IMGPREFIX;
-$LJ::STATPREFIX_BAK = $LJ::STATPREFIX;
-$LJ::USERPICROOT_BAK = $LJ::USERPIC_ROOT;
 
 package LJ::ModPerl;
 

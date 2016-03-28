@@ -622,7 +622,7 @@ sub html_trim {
                     next;
                 }
 
-                # FIXME: ultra ghetto.
+                # FIXME: neaten
                 $attr->{$attrname} = LJ::no_utf8_flag($attr->{$attrname});
                 $out .= " $attrname=\"" . LJ::ehtml($attr->{$attrname}) . "\"";
             }
@@ -653,8 +653,10 @@ sub html_trim {
 
         } elsif ($type eq 'E') {
             # end tag
-            pop @open_tags;
-            $out .= "</$tag>";
+            if ( $open_tags[-1] eq $tag ) {
+                pop @open_tags;
+                $out .= "</$tag>";
+            }
         }
     }
 

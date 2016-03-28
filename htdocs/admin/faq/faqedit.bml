@@ -25,8 +25,6 @@ body<=
 {
     use strict;
 
-    # FIXME: add crumb
-    
     my $id = $FORM{id} + 0;
     my $ret = "";
 
@@ -37,7 +35,7 @@ body<=
     my $numprivs =  @display_privs;
 
     return "<?needlogin?>" unless $remote;
-    
+
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
         unless $remote->has_priv( "faqadd" ) || $remote->has_priv( "faqedit" );
 
@@ -47,7 +45,6 @@ body<=
     my $faqd = LJ::Lang::get_dom( "faq" );
     my $rlang = LJ::Lang::get_root_lang( $faqd );
     my ( $faqcat, $sortorder, $question, $summary, $answer, $has_summary );
-    my ( $sev_question, $sev_summary, $sev_answer );
 
     if ( $id != 0 ) {
         my $faq = LJ::Faq->load( $id, lang => $rlang->{lncode} )
@@ -82,17 +79,15 @@ body<=
         $answer = $FORM{a};
         $faqcat = $FORM{faqcat};
         $sortorder = $FORM{sortorder} + 0 || 50;
-        $sev_question = $FORM{sev_question} + 0;
-        $sev_summary = $FORM{sev_summary} + 0;
-        $sev_answer = $FORM{sev_answer} + 0;
 
         if ( $POST{'action:save'} ) { # Save FAQ
             return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}"
                 unless LJ::check_form_auth();
 
-            my $opts_question = { changeseverity => $sev_question };
-            my $opts_summary = { changeseverity => $sev_summary };
-            my $opts_answer = { changeseverity => $sev_answer };
+            # severity options are deprecated - always use 0
+            my $opts_question = { changeseverity => 0 };
+            my $opts_summary = { changeseverity => 0 };
+            my $opts_answer = { changeseverity => 0 };
             my $do_trans = sub {
                 my $id = shift;
                 return unless $faqd;
@@ -252,16 +247,6 @@ body<=
                                  rows => 2, cols => 70, wrap => 'soft' } );
     $ret .= "<br /><i>(erase question to delete FAQ entry)</i></p>";
 
-    if ( $faqd && $id != 0 ) {
-        $ret .= "<p><b>Select modification level for question:</b> ";
-        $ret .= LJ::html_select( { name => "sev_question",
-                                   selected => $sev_question },
-                                 0 => "Typo/etc (no notify)",
-                                 1 => "Minor (notify translators)",
-                                 2 => "Major (require translation updates)" );
-        $ret .= "</p>";
-    }
-
     if ( LJ::is_enabled( 'faq_summaries' ) || $has_summary ) {
         # If FAQ has summary and summaries are disabled, leave field in, but
         # make it read-only to let FAQ editors copy from it.
@@ -272,18 +257,6 @@ body<=
                                      rows => '10', cols => '70',
                                      wrap => 'soft', disabled => $readonly } );
         $ret .= "</p>";
-
-        if ( $faqd && $id != 0 && !$readonly ) {
-            # If absent, severity will default to 0 (unchanged), which is
-            # the right thing for a readonly field.
-            $ret .= "<p><b>Select modification level for summary:</b> ";
-            $ret .= LJ::html_select( { name => "sev_summary",
-                                       selected => $sev_summary },
-                                     0 => "Typo/etc (no notify)",
-                                     1 => "Minor (notify translators)",
-                                     2 => "Major (require translation updates)" );
-            $ret .= "</p>";
-        }
     }
 
     $ret .= "<?h1 Answer h1?> <?p (long as you want, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
@@ -291,16 +264,6 @@ body<=
     $ret .= LJ::html_textarea( { name => 'a', value => $answer,
                                  rows => '15', cols => '70', wrap => 'soft' } );
     $ret .= "</p>";
-
-    if ( $faqd && $id != 0 ) {
-        $ret .= "<p><b>Select modification level for answer:</b> ";
-        $ret .= LJ::html_select( { name => "sev_answer",
-                                   selected => $sev_answer },
-                                 0 => "Typo/etc (no notify)",
-                                 1 => "Minor (notify translators)",
-                                 2 => "Major (require translation updates)" );
-        $ret .= "</p>";
-    }
 
     $ret .= "<p>" . LJ::html_submit( 'action:save', 'Add/Edit FAQ Item' );
     $ret .= " " . LJ::html_submit( 'action:preview', 'Preview FAQ Item' )

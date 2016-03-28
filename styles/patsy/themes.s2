@@ -173,7 +173,7 @@ set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
 set font_journal_title = "Metamorphous";
 set font_module_heading = "Metamorphous";
-set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+set font_sources = "https://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
 
 function Page::print_theme_stylesheet() {
 """
@@ -215,6 +215,91 @@ function Page::print_theme_stylesheet() {
 
 """;
 }
+
+
+#NEWLAYER: patsy/foggybeach
+layerinfo type = "theme";
+layerinfo name = "Foggy Beach";
+layerinfo redist_uniq = "patsy/foggybeach";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a2947a";
+set color_page_link = "#4c4b50";
+set color_page_link_hover = "#929AA6";
+set color_page_text = "#523e30";
+set color_header_background = "#c0ac9b";
+set color_header_border = "#a2947a";
+set color_header_link = "#4c4b50";
+set color_header_link_hover = "#e7e1d9";
+set color_footer_background = "#c0ac9b";
+set color_calendar_entryday_background = "#e7e1d9";
+set color_calendar_header_background = "#e7e1d9";
+set color_content_border = "#4c4b50";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e7e1d9";
+set color_entry_border = "#4c4b50";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#dcdee1";
+
+
+#NEWLAYER: patsy/glossalia
+layerinfo type = "theme";
+layerinfo name = "Glossalia";
+layerinfo redist_uniq = "patsy/glossalia";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#77594f";
+set color_page_link = "#6c2f36";
+set color_page_link_hover = "#77594f";
+set color_page_text = "#2b0919";
+set color_page_title = "#d8f4c3";
+set color_header_background = "#6c2f36";
+set color_header_border = "#77594f";
+set color_header_link = "#fea64f";
+set color_header_link_hover = "#d8f4c3";
+set color_footer_background = "#6c2f36";
+set color_footer_link_hover = "#77594f";
+set color_calendar_entryday_background = "#d8f4c3";
+set color_calendar_header_background = "#d8f4c3";
+set color_content_border = "#77594f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d8f4c3";
+set color_entry_border = "#6c2f36";
+set color_entry_link = "#6c2f36";
+set color_entry_link_hover = "#fea64f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fea64f";
+set color_module_link = "#6c2f36";
+set color_module_link_hover = "#77594f";
+set color_module_title = "2b0919";
 
 
 #NEWLAYER: patsy/hollowsilence
@@ -310,7 +395,7 @@ set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
 set font_journal_title = "Metamorphous";
 set font_module_heading = "Metamorphous";
-set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+set font_sources = "https://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
 
 function Page::print_theme_stylesheet() {
 """
@@ -495,7 +580,7 @@ set font_fallback = "sans-serif";
 set font_journal_subtitle = "Metamorphous";
 set font_journal_title = "Metamorphous";
 set font_module_heading = "Metamorphous";
-set font_sources = "http://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
+set font_sources = "https://fonts.googleapis.com/css?family=Metamorphous&subset=latin,latin-ext";
 
 function Page::print_theme_stylesheet() {
 """

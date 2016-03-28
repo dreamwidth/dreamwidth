@@ -109,7 +109,7 @@ Verifies if this could be a valid format for the rename token. Checks length and
 sub valid_format {
     my ( $class, %opts ) = @_;
 
-    my $string = uc $opts{string};
+    my $string = uc( $opts{string} // '' );
     return 0 unless length $string == TOKEN_LEN;
 
     my %valid_digits = map { $_ => 1 } DIGITS;

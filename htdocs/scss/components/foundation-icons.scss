@@ -13,8 +13,8 @@ $include-html-fi-icon-classes: true !default;
     src: url("/stc/fonts/foundation-icons.eot");
     src: url("/stc/fonts/foundation-icons.eot?#iefix") format("embedded-opentype"),
        url("/stc/fonts/foundation-icons.woff") format("woff"),
-       url("stc/fonts/foundation-icons.ttf") format("truetype"),
-       url("stc/fonts/foundation-icons.svg#fontcustom") format("svg");
+       url("/stc/fonts/foundation-icons.ttf") format("truetype"),
+       url("/stc/fonts/foundation-icons.svg#fontcustom") format("svg");
     font-weight: normal;
     font-style: normal;
 }

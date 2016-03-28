@@ -1,0 +1,12 @@
+@import "foundation/base";
+@import "foundation/components/tables";
+
+.console_command {
+    margin-top: $table-margin-bottom;
+}
+
+.console_text {
+    font-weight: bold;
+    overflow: visible;
+    font-size: 0.9em;
+}

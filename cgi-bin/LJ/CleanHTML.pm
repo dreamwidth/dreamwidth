@@ -23,7 +23,6 @@ use LJ::Config;
 
 LJ::Config->load;
 
-
 # attempt to mangle an email address for printing out to HTML.  this is
 # kind of futile, but we try anyway.
 sub mangle_email_address {
@@ -35,7 +34,6 @@ sub mangle_email_address {
 #     LJ::CleanHTML::clean(\$u->{'bio'}, {
 #        'wordlength' => 100, # maximum length of an unbroken "word"
 #        'addbreaks' => 1,    # insert <br/> after newlines where appropriate
-#        'tablecheck' => 1,   # make sure they aren't closing </td> that weren't opened.
 #        'eat' => [qw(head title style layer iframe)],
 #        'mode' => 'allow',
 #        'deny' => [qw(marquee)],
@@ -91,6 +89,8 @@ my %tag_substitute = (
 # but some browsers still will interpret it as an opening only tag.
 # This is a list of tags which you can actually close with a trailing
 # slash and get the proper behavior from a browser.
+#
+# In HTML5 these are called "void elements".
 my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|lj-embed|site-embed)$/i;
 
 # <LJFUNC>
@@ -433,9 +433,12 @@ sub clean
 
             # force this specific instance of the tag to be allowed (for conditional)
             my $force_allow = 0;
+
             if (defined $action{$tag} and $action{$tag} eq "conditional") {
                 if ( $tag eq "iframe" ) {
-                    $force_allow = LJ::Hooks::run_hook( 'allow_iframe_embeds', $attr->{src} );
+                    my $can_https;
+                    ( $force_allow, $can_https ) = LJ::Hooks::run_hook( 'allow_iframe_embeds', $attr->{src} );
+                    $attr->{src} =~ s!^https?:!! if $opts->{force_https_embed} && $can_https;  # convert to protocol-relative URL
                     unless ( $force_allow ) {
                         ## eat this tag
                         if (!$attr->{'/'}) {
@@ -822,7 +825,9 @@ sub clean
                         ! defined $hash->{height}) { $img_bad ||= $opts->{imageplaceundef}; }
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
-                    $hash->{src} = canonical_url($hash->{src}, 1);
+                    my $url = canonical_url($hash->{src}, 1);
+                    $url = https_url( $url, journal => $journal, ditemid => $ditemid ) if $LJ::IS_SSL;
+                    $hash->{src} = $url;
 
                     if ($img_bad) {
                         $newdata .= "<a class=\"ljimgplaceholder\" href=\"" .
@@ -889,19 +894,16 @@ sub clean
 
                     if ($allow && ! $remove{$tag})
                     {
-                        if ($opts->{'tablecheck'}) {
+                        $allow = 0 if
 
-                            $allow = 0 if
+                            # can't open table elements from outside a table
+                            ($tag =~ /^(?:tbody|thead|tfoot|tr|td|th|caption|colgroup|col)$/ && ! @tablescope) ||
 
-                                # can't open table elements from outside a table
-                                ($tag =~ /^(?:tbody|thead|tfoot|tr|td|th|caption|colgroup|col)$/ && ! @tablescope) ||
+                            # can't open td or th if not inside tr
+                            ($tag =~ /^(?:td|th)$/ && ! $tablescope[-1]->{'tr'}) ||
 
-                                # can't open td or th if not inside tr
-                                ($tag =~ /^(?:td|th)$/ && ! $tablescope[-1]->{'tr'}) ||
-
-                                # can't open a table unless inside a td or th
-                                ($tag eq 'table' && @tablescope && ! grep { $tablescope[-1]->{$_} } qw(td th));
-                        }
+                            # can't open a table unless inside a td or th
+                            ($tag eq 'table' && @tablescope && ! grep { $tablescope[-1]->{$_} } qw(td th));
 
                         if ($allow) { $newdata .= "<$tag"; }
                         else { $newdata .= "&lt;$tag"; }
@@ -910,7 +912,7 @@ sub clean
                         # that are allowed (by still being in %$hash after cleaning)
                         foreach (@$attrs) {
                             unless (LJ::is_ascii($hash->{$_})) {
-                                # FIXME: this is so ghetto.  make faster.  make generic.
+                                # FIXME: this isn't nice.  make faster.  make generic.
                                 # HTML::Parser decodes entities for us (which is good)
                                 # but in Perl 5.8 also includes the "poison" SvUTF8
                                 # flag on the scalar it returns, thus poisoning the
@@ -922,29 +924,32 @@ sub clean
                                 if exists $hash->{$_};
                         }
 
-                        # ignore the effects of slashclose unless we're dealing with a tag that can
-                        # actually close itself. Otherwise, a tag like <em /> can pass through as valid
-                        # even though some browsers just render it as an opening tag
-                        if ($slashclose && $tag =~ $slashclose_tags) {
-                            $newdata .= " /";
-                            $opencount{$tag}--;
-                            $tablescope[-1]->{$tag}-- if $opts->{'tablecheck'} && @tablescope;
+                        if ($slashclose) {
+                            if ( $tag =~ $slashclose_tags ) {
+                                # ignore the effects of slashclose unless we're dealing with a tag that can
+                                # actually close itself. Otherwise, a tag like <em /> can pass through as valid
+                                # even though some browsers just render it as an opening tag
+
+                                $newdata .= " /";
+                                $opencount{$tag}--;
+                                $tablescope[-1]->{$tag}-- if @tablescope;
+                            } else {
+                                # we didn't actually slash close, treat this as a normal opening tag
+
+                                $slashclose = 0;
+                            }
                         }
                         if ($allow) {
                             $newdata .= ">";
                             $opencount{$tag}++;
 
-                            # maintain current table scope
-                            if ($opts->{'tablecheck'}) {
+                            # open table
+                            if ($tag eq 'table') {
+                                push @tablescope, {};
 
-                                # open table
-                                if ($tag eq 'table') {
-                                    push @tablescope, {};
-
-                                # new tag within current table
-                                } elsif (@tablescope) {
-                                    $tablescope[-1]->{$tag}++;
-                                }
+                            # new tag within current table
+                            } elsif (@tablescope) {
+                                $tablescope[-1]->{$tag}++;
                             }
 
                             # we have all this previous logic which makes us
@@ -952,7 +957,8 @@ sub clean
                             # so rather than mess with it, let's just ignore those
                             # and only deal with non-self-closing tags
                             # which are not in a table
-                            push @tagstack, $tag unless $slashclose || @tablescope;
+                            # (but we still want to close <table>; that's not yet inside the table)
+                            push @tagstack, $tag if ! $slashclose && ( $tag eq "table" || ! @tablescope );
                         }
                         else { $newdata .= "&gt;"; }
                     }
@@ -1012,15 +1018,15 @@ sub clean
             my $allow;
             if ($tag eq "lj-raw") {
                 $opencount{$tag}--;
-                $tablescope[-1]->{$tag}-- if $opts->{'tablecheck'} && @tablescope;
-            }
+                $tablescope[-1]->{$tag}-- if @tablescope;
+
             # Since this is an end-tag, we can't know if it's the closing
             # div for a faked <div class="ljcut"> tag, which means that
             # community moderators can't see <b></cut></b> at the end of one
             # of those tags; if this was a problem, then the 'S' branch of
             # this function would need to record the ljcut_div flag in a
             # state variable which is stashed across tokens.
-            elsif ($tag eq "lj-cut") {
+            } elsif ($tag eq "lj-cut") {
                 if ($opts->{'cutpreview'}) {
                     $newdata .= "<b>&lt;/cut&gt;</b>";
                 }
@@ -1043,16 +1049,13 @@ sub clean
 
                 if ($allow && ! $remove{$tag})
                 {
-                    if ($opts->{'tablecheck'}) {
+                    $allow = 0 if
 
-                        $allow = 0 if
+                        # can't close table elements from outside a table
+                        ($tag =~ /^(?:table|tbody|thead|tfoot|tr|td|th|caption|colgroup|col)$/ && ! @tablescope) ||
 
-                            # can't close table elements from outside a table
-                            ($tag =~ /^(?:table|tbody|thead|tfoot|tr|td|th|caption|colgroup|col)$/ && ! @tablescope) ||
-
-                            # can't close td or th unless open tr
-                            ($tag =~ /^(?:td|th)$/ && ! $tablescope[-1]->{'tr'});
-                    }
+                        # can't close td or th unless open tr
+                        ($tag =~ /^(?:td|th)$/ && ! $tablescope[-1]->{'tr'});
 
                     if ($allow && ! ($opts->{'noearlyclose'} && ! $opencount{$tag})) {
 
@@ -1064,21 +1067,17 @@ sub clean
                             }
                         }
 
-                        # maintain current table scope
-                        if ($opts->{'tablecheck'}) {
-
-                            # open table
-                            if ($tag eq 'table') {
-                                pop @tablescope;
-
-                            # closing tag within current table
-                            } elsif (@tablescope) {
-                                # If this tag was not opened inside this table, then
-                                # do not close it! (This let's the auto-closer clean
-                                # up later.)
-                                next TOKEN unless $tablescope[-1]->{$tag};
-                                $tablescope[-1]->{$tag}--;
-                            }
+                        # open table
+                        if ($tag eq 'table') {
+                            pop @tablescope;
+                            pop @tagstack if $tagstack[-1] eq 'table';
+                        # closing tag within current table
+                        } elsif (@tablescope) {
+                            # If this tag was not opened inside this table, then
+                            # do not close it! (This let's the auto-closer clean
+                            # up later.)
+                            next TOKEN unless $tablescope[-1]->{$tag};
+                            $tablescope[-1]->{$tag}--;
                         }
 
                         if ( $opencount{$tag} ) {
@@ -1089,8 +1088,8 @@ sub clean
                         # tag wasn't allowed, or we have an out of scope form tag? display it then
                         $newdata .= "&lt;/$tag&gt;";
                     } else {
-                        # mismatched or not nested properly, just keep quiet and let it go
-                        # we'll have corrected elsewhere if possible
+                        # This is a closing tag for something that isn't open. We ignore these
+                        # and do nothing with them.
                     }
                 }
 
@@ -1213,12 +1212,11 @@ sub clean
     # don't close tags that don't need a closing tag -- otherwise,
     # we output the closing tags in the wrong place (eg, a </td>
     # after the <table> was closed) causing unnecessary problems
-    if (ref $opts->{'autoclose'} eq "ARRAY") {
-        foreach my $tag (@{$opts->{'autoclose'}}) {
-            next if $tag =~ /^(?:tr|td|th|tbody|thead|tfoot|li)$/;
-            if ($opencount{$tag}) {
-                $newdata .= "</$tag>" x $opencount{$tag};
-            }
+    foreach my $tag ( reverse @tagstack ) {
+        next if $tag =~ $slashclose_tags;
+        if ($opencount{$tag}) {
+            $newdata .= "</$tag>";
+            $opencount{$tag}--;
         }
     }
 
@@ -1418,7 +1416,6 @@ sub clean_subject
         'mode' => 'deny',
         'allow' => $subject_allow,
         'remove' => $subject_remove,
-        'autoclose' => $subject_allow,
         'noearlyclose' => 1,
     });
 }
@@ -1435,7 +1432,6 @@ sub clean_subject_all
         'eat' => $subjectall_eat,
         'mode' => 'deny',
         'textonly' => 1,
-        'autoclose' => $subject_allow,
         'noearlyclose' => 1,
     });
 }
@@ -1452,10 +1448,10 @@ sub clean_and_trim_subject {
 
 my @comment_eat = qw( head title style layer iframe applet object );
 my @comment_anon_eat = ( @comment_eat, qw(
-    table tbody thead tfoot tr td th caption colgroup col
+    table tbody thead tfoot tr td th caption colgroup col font
 ) );
 
-my @comment_close = qw(
+my @comment_all = qw(
     table tr td th tbody tfoot thead colgroup caption col
     a sub sup xmp bdo q span
     b i u tt s strike big small font
@@ -1463,16 +1459,14 @@ my @comment_close = qw(
     h1 h2 h3 h4 h5 h6 div blockquote address pre center
     ul ol li dl dt dd
     area map form textarea
+    img br hr p col
 );
-my @comment_all = ( @comment_close, qw( img br hr p col ) );
 
 my $event_eat = $subject_eat;
 my $event_remove = [ qw[ bgsound embed object link body meta noscript plaintext noframes ] ];
-my @event_close = ( @comment_close, qw( marquee blink ) );
 
 my $userbio_eat = $event_eat;
 my $userbio_remove = $event_remove;
-my @userbio_close = @event_close;
 
 sub clean_event
 {
@@ -1509,14 +1503,12 @@ sub clean_event
         'eat' => $event_eat,
         'mode' => 'allow',
         'remove' => $event_remove,
-        'autoclose' => \@event_close,
         'cleancss' => 1,
         'maximgwidth' => $opts->{'maximgwidth'},
         'maximgheight' => $opts->{'maximgheight'},
         'imageplaceundef' => $opts->{'imageplaceundef'},
         'ljcut_disable' => $opts->{'ljcut_disable'},
         'noearlyclose' => 1,
-        'tablecheck' => 1,
         'extractimages' => $opts->{'extractimages'} ? 1 : 0,
         'noexpandembedded' => $opts->{'noexpandembedded'} ? 1 : 0,
         'textonly' => $opts->{'textonly'} ? 1 : 0,
@@ -1538,13 +1530,12 @@ sub clean_event
 
 # clean JS out of embed module
 sub clean_embed {
-    my ( $ref ) = @_;
+    my ( $ref, $opts ) = @_;
     return unless $$ref;
     return unless LJ::is_enabled( 'embedmodule-cleancontent' );
 
     clean( $ref, {
         addbreaks => 0,
-        tablecheck => 0,
         mode => 'allow',
         allow => [ qw( object embed ) ],
         deny => [ qw( script ) ],
@@ -1558,6 +1549,7 @@ sub clean_embed {
         noexpandembedded => 1,
         transform_embed_nocheck => 1,
         rewrite_embed_param => 1,
+        force_https_embed => $opts->{display_as_content} && $LJ::IS_SSL,
     });
 }
 
@@ -1599,13 +1591,11 @@ sub clean_comment
         'eat' => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
         'mode' => 'deny',
         'allow' => \@comment_all,
-        'autoclose' => \@comment_close,
         'cleancss' => 1,
         'strongcleancss' => 1,
         'extractlinks' => $opts->{'anon_comment'},
         'extractimages' => $opts->{'anon_comment'},
         'noearlyclose' => 1,
-        'tablecheck' => 1,
         'nocss' => $opts->{'nocss'},
         'textonly' => $opts->{'textonly'} ? 1 : 0,
         'remove_positioning' => 1,
@@ -1623,10 +1613,8 @@ sub clean_userbio {
         'attrstrip' => [qw[style]],
         'mode' => 'allow',
         'noearlyclose' => 1,
-        'tablecheck' => 1,
         'eat' => $userbio_eat,
         'remove' => $userbio_remove,
-        'autoclose' => \@userbio_close,
         'cleancss' => 1,
     });
 }
@@ -1663,6 +1651,27 @@ sub canonical_url {
     }
 
     return $url;
+}
+
+sub https_url {
+    my ( $url, %opts ) = @_;
+
+    # no-op if we're not configured to use SSL
+    return $url unless $LJ::USE_SSL;
+
+    # https:// and the relative // protocol don't need proxying
+    return $url if $url =~ m!^(?:https://|//)!;
+
+    # if this link is on our site, let's just switch it to https
+    if ( $url =~ $LJ::DOMAIN ) {
+        $url =~ s!^http:!https:!;
+        return $url;
+    }
+
+    return DW::Proxy::get_proxy_url( $url,
+                                     journal => $opts{journal},
+                                     ditemid => $opts{ditemid}
+                                    ) || $url;
 }
 
 sub break_word {

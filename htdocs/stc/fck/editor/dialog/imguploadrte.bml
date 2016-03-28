@@ -174,18 +174,6 @@
         $ret .= "<div class='ex'>$msg</div>";
         $ret .= "</td></tr>";
 
-        # from Fotobilder
-        if ($fbenabled) {
-            $ret .= "<tr><td colspan='2'>";
-            $ret .= LJ::html_check({
-                'type' => 'radio',
-                'name' => 'method',
-                'id' => 'fromfb',
-                'value'=> 'fb',
-            });
-
-            $ret .= " <label for='fromfb'>$ML{'/imgupload.bml.gallery.label'}</label></td></tr>";
-}
         $ret .= "</table>";
 
         $ret .= "<br /><font size='1' color='gray'><i>$ML{'.size'}</i></font></div></td></tr><tr height='20' class='insobjNav' id='insobjNav'><td align='left'><div style='margin-left: 10px'>";

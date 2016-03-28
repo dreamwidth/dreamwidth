@@ -4,7 +4,7 @@
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
-#      Mark Smith <mark@dwscoalition.org>
+#      Mark Smith <mark@dreamwidth.org>
 #
 # Copyright (c) 2013 by Dreamwidth Studios, LLC.
 #
@@ -18,8 +18,7 @@ use warnings;
 
 use Test::More tests => 19;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::EmailPost;
 use LJ::Emailpost::Web;

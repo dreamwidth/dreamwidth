@@ -327,7 +327,7 @@ sub valid {
     return $err->("Invalid auth") if $sess->{'timeexpire'} < $now;
 
     if ($sess->{'ipfixed'} && ! $LJ::Session::OPT_IGNORE_IP) {
-        my $remote_ip = $LJ::_XFER_REMOTE_IP || LJ::get_remote_ip();
+        my $remote_ip = LJ::get_remote_ip();
         return $err->("Session wrong IP ($remote_ip != $sess->{ipfixed})")
             if $sess->{'ipfixed'} ne $remote_ip;
     }
@@ -406,8 +406,7 @@ sub helper_url {
 
     if ($dest =~ m!^(https?://)([^/]*?)\.\Q$LJ::USER_DOMAIN\E/?([^/]*)!) {
         my $url = "$1$2.$LJ::USER_DOMAIN/";
-        if ( $LJ::SUBDOMAIN_FUNCTION{ lc($2) } &&
-             $LJ::SUBDOMAIN_FUNCTION{ lc($2) } eq "journal" ) {
+        if ( is_journal_subdomain( $2 ) ) {
             $url .= "$3/" if $3 && ($3 ne '/'); # 'http://community.livejournal.com/name/__setdomsess'
         }
 
@@ -446,7 +445,7 @@ sub domain_cookie {
 sub domain_journal {
     my ($class, $url) = @_;
 
-    $url ||= _current_url();
+    $url ||= LJ::create_url( undef, keep_args => 1 );
     return undef unless
         $url =~ m!^https?://(.+?)(/.*)$!;
 
@@ -460,10 +459,9 @@ sub domain_journal {
         $host =~ m!^([-\w\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!;
 
     my $subdomain = lc($1);
-    if ( $LJ::SUBDOMAIN_FUNCTION{$subdomain} &&
-         $LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal" ) {
-        return undef unless $path =~ m!^/(\w{1,15})\b!;
-        my $user = lc($1);
+    if ( is_journal_subdomain( $subdomain ) ) {
+        my $user = get_path_user( $path );
+        return undef unless $user;
         return wantarray ? ($subdomain, $user) : $user;
     }
 
@@ -473,7 +471,7 @@ sub domain_journal {
 
 sub url_owner {
     my ($class, $url) = @_;
-    $url ||= _current_url();
+    $url ||= LJ::create_url( undef, keep_args => 1 );
     my ($subdomain, $user) = LJ::Session->domain_journal($url);
     $user = $subdomain if $user eq "";
     return LJ::canonical_username($user);
@@ -526,7 +524,7 @@ sub session_from_domain_cookie {
         warn "No session found for domain cookie: $reason\n" if $LJ::IS_DEV_SERVER;
 
         my $rr = $opts->{redirect_ref};
-        $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(_current_url()) if $rr;
+        $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(LJ::create_url( undef, keep_args => 1 )) if $rr;
 
         return undef;
     };
@@ -735,22 +733,7 @@ sub setdomsess_handler {
     return "$LJ::SITEROOT" unless valid_destination($dest);
     return $dest unless valid_domain_cookie( $domcook, $cookie, $r->cookie( 'ljloggedin' ) );
 
-    my $path = '/'; # By default cookie path is root
-
-    # If it is not the master domain
-
-    if ($dest =~ m!^https?://(.+?)(/.*)$!) {
-        my ($host, $url_path) = (lc($1), $2);
-        my ($subdomain, $user);
-
-        if (    $host =~ m!^([-\w\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!
-            && ($subdomain = lc($1))                                # undef: not on a user-subdomain
-            &&  $LJ::SUBDOMAIN_FUNCTION{$subdomain}
-            && ($LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal")
-            && ($url_path =~ m!^/(\w{1,15})\b!) ) {
-                $path = '/' . lc($1) . '/' if $1;
-        }
-    }
+    my $path = get_cookie_path( $dest );
 
     my $expires = $LJ::DOMSESS_EXPIRATION || 0; # session-cookie only
     set_cookie($domcook   => $cookie,
@@ -773,15 +756,6 @@ sub setdomsess_handler {
 ############################################################################
 #  UTIL FUNCTIONS
 ############################################################################
-
-sub _current_url {
-    my $apache_r = BML::get_request();
-    my $args = $apache_r->args;
-    my $args_wq = $args ? "?$args" : "";
-    my $host = $apache_r->headers_in->{Host} || '';
-    my $uri = $apache_r->uri;
-    return "http://$host$uri$args_wq";
-}
 
 sub domsess_signature {
     my ($time, $sess, $domcook) = @_;
@@ -930,7 +904,7 @@ sub valid_domain_cookie {
 
 sub valid_destination {
     my $dest = shift;
-    return $dest =~ qr!^http://[-\w\.]+\.\Q$LJ::USER_DOMAIN\E/!;
+    return $dest =~ qr!^https?://[-\w\.]+\.\Q$LJ::USER_DOMAIN\E/!;
 }
 
 sub valid_cookie_generation {
@@ -942,6 +916,44 @@ sub valid_cookie_generation {
         return 1 if $dgen eq $okay;
     }
     return 0;
+}
+
+sub is_journal_subdomain {
+    my ( $subdomain ) = @_;
+    return 0 unless defined $subdomain;
+    $subdomain = lc $subdomain;
+
+    my $func = $LJ::SUBDOMAIN_FUNCTION{ $subdomain };
+    return $func && $func eq "journal" ? 1 : 0;
+}
+
+sub get_cookie_path {
+    my ( $dest ) = @_;
+    my $path = '/'; # By default cookie path is root
+
+    # If it is not the master domain, include the username
+
+    if ( $dest && $dest =~ m!^https?://(.+?)(/.*)$! ) {
+        my ( $host, $url_path ) = ( lc($1), $2 );
+        my $path_user = get_path_user( $url_path );
+
+        if ( $host =~ m!^([-\w\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!
+             && is_journal_subdomain( $1 )    # undef: not on a user-subdomain
+             && $path_user ) {
+
+                $path = '/' . $path_user . '/';
+        }
+    }
+
+    return $path;
+}
+
+sub get_path_user {
+    my ( $path ) = @_;
+    return unless $path =~ m!^/(\w{1,25})\b!;
+    # FIXME: username length should be a named constant (#1568)
+
+    return lc $1;
 }
 
 1;

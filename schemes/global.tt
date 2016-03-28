@@ -1,3 +1,15 @@
+[%# Short description of the page
+
+Authors:
+    Andrea Nall <anall@andreanall.com>
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
 [%- BLOCK block.menunav -%]
 [%- IF resource_group == "foundation" # Add in mobile links -%]
 [%- IF remote # Show the accounts modal link -%]
@@ -46,7 +58,7 @@
     [ "email", "email" ]
     [ "im", "iminfo" ]
 ] ~%]
-    <option name="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
+    <option value="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
 [%- END -%]
 </select>
     <input type="submit" class="secondary button" value="[% 'widget.search.btn.go' | ml %]" />
@@ -87,5 +99,11 @@
         [%- END -%]
     </div>
 </div>
+[%- END -%]
+[%- END -%]
+
+[%- BLOCK block.script_init -%]
+[%- IF resource_group == "foundation" -%]
+<script>$(document).foundation();</script>
 [%- END -%]
 [%- END -%]

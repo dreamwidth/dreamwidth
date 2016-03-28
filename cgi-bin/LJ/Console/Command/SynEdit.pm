@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "syn_editurl" }
 
-sub desc { "Changes the source feed URL for a syndicated account." }
+sub desc { "Changes the source feed URL for a syndicated account. Requires priv: syn_edit." }
 
 sub args_desc { [
                  'user' => "The username of the syndicated account.",
@@ -46,7 +46,7 @@ sub execute {
     return $self->error("Not a syndicated account")
         unless $u->is_syndicated;
     return $self->error("Invalid URL")
-        unless $newurl =~ m!^http://(.+?)/!;
+        unless $newurl =~ m!^https?://(.+?)/!;
 
     my $dbh = LJ::get_db_writer();
     my $oldurl = $dbh->selectrow_array("SELECT synurl FROM syndicated WHERE userid=?",

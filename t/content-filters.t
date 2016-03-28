@@ -17,8 +17,7 @@ use warnings;
 
 use Test::More tests => 15;
 
-use lib "$ENV{LJHOME}/cgi-bin";
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw ( temp_user temp_comm );
 
 use LJ::Community;

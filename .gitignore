@@ -7,8 +7,12 @@
 /locks
 /var
 *.sw?
+src/proxy/proxy
 
 # Ignore SCSS cache
 .sass-cache
 # Ignore compiled CSS
 htdocs/stc/css
+
+# Ignore test stuff
+t-theschwartz.sqlite

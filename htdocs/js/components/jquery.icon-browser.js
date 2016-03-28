@@ -123,9 +123,9 @@ IconBrowser.prototype = {
                 .on("dblclick", ".keyword", this.selectByKeywordMenuDoubleClick.bind(this));
 
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
+        $("#js-icon-browser-select").on("click", this.updateOwner.bind(this));
 
         $(document)
-            .on('close.fndtn.reveal', '#' + this.modalId, this.updateOwner.bind(this))
             .on('closed.fndtn.reveal', '#' + this.modalId, this.deregisterListeners.bind(this));
 
         this.listenersRegistered = true;
@@ -139,7 +139,7 @@ IconBrowser.prototype = {
             } else if ($originalTarget.is("a")) {
                 return;
             }
-            this.close();
+            this.updateOwner.call(this, e);
         }
     },
     selectByClick: function(e) {
@@ -154,7 +154,7 @@ IconBrowser.prototype = {
     },
     selectByDoubleClick: function(e) {
         this.selectByClick.call(this, e);
-        this.close();
+        this.updateOwner.call(this, e);
     },
     selectByKeywordMenuClick: function(e) {
         var keyword = $(e.target).text();
@@ -168,7 +168,7 @@ IconBrowser.prototype = {
     },
     selectByKeywordMenuDoubleClick: function(e) {
         this.selectByKeywordMenuClick(e);
-        this.close();
+        this.updateOwner.call(this, e);
     },
     initializeKeyword: function() {
         var keyword = this.element.val();
@@ -192,7 +192,7 @@ IconBrowser.prototype = {
         iconBrowser.selectedId = $container.attr("id");
         $container
             .show()
-            .find(".th, a[data-kw='" + iconBrowser.selectedKeyword + "'']")
+            .find(".th, a[data-kw='" + iconBrowser.selectedKeyword + "']")
                 .addClass("active");
 
         // keyword menu
@@ -214,7 +214,7 @@ IconBrowser.prototype = {
             .addClass("active");
     },
     updateOwner: function(e) {
-        // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want once
+        // hackety hack -- being triggered on both 'close' and 'close.fndtn.reveal'; just want once
         if (e.namespace === "") return;
 
         if (this.selectedKeyword) {
@@ -222,20 +222,37 @@ IconBrowser.prototype = {
                 .val(this.selectedKeyword)
                 .triggerHandler("change");
         }
+
+        this.close();
     },
     close: function() {
         this.modal.foundation('reveal', 'close');
     },
     filter: function(e) {
+        console.log("filter");
         var val = $(e.target).val().toLocaleUpperCase();
-        $("#js-icon-browser-content li").hide().each(function(i, item) {
-            if ( $(this).data("keywords").indexOf(val) != -1
-                || $(this).data("comment").indexOf(val) != -1
-                || $(this).data("alt").indexOf(val) != -1 ) {
 
-                $(this).show();
-             }
-        });
+        if ( ! this.originalElement ) {
+            this.originalElement = $("#js-icon-browser-content");
+            this.originalElementContainer = this.originalElement.parent();
+            this.originalElement.detach();
+        } else {
+            $("#js-icon-browser-content").remove();
+        }
+
+
+        var $filtered = this.originalElement.clone(true);
+        $filtered
+            .find("li").each(function(i, item) {
+                console.log("item", item, $(this).data("keywords"), val);
+                if ( $(this).data("keywords").indexOf(val) == -1
+                    && $(this).data("comment").indexOf(val) == -1
+                    && $(this).data("alt").indexOf(val) == -1 ) {
+
+                    $(this).remove();
+                }
+            }).end()
+        .appendTo(this.originalElementContainer);
 
         var $visible = $("#js-icon-browser-content li:visible");
         if ( $visible.length == 1 )
@@ -243,7 +260,13 @@ IconBrowser.prototype = {
     },
     resetFilter: function() {
         $("#js-icon-browser-search").val("");
-        $("#js-icon-browser-content li").show();
+        if ( this.originalElement ) {
+            $("#js-icon-browser-content").detach();
+            this.originalElementContainer.append(this.originalElement);
+        }
+
+        this.originalElement = null;
+        this.originalElementContainer = null;
     }
 };
 

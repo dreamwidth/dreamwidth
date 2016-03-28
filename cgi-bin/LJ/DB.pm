@@ -15,7 +15,6 @@
 
 
 use strict;
-use lib "$LJ::HOME/cgi-bin";
 use DBI::Role;
 use DBI;
 
@@ -39,7 +38,7 @@ $LJ::DBIRole = new DBI::Role {
 # this is here and no longer in bin/upgrading/update-db-{general|local}.pl
 # so other tools (in particular, the inter-cluster user mover) can verify
 # that it knows how to move all types of data before it will proceed.
-@LJ::USER_TABLES = ("userbio", "birthdays", "cmdbuffer", "dudata",
+@LJ::USER_TABLES = ("userbio", "birthdays", "dudata",
                     "log2", "logtext2", "logprop2", "logsec2",
                     "talk2", "talkprop2", "talktext2", "talkleft",
                     "userpicblob2", "subs", "subsprop", "has_subs",
@@ -54,8 +53,7 @@ $LJ::DBIRole = new DBI::Role {
                     "logtags", "logtagsrecent", "logkwsum",
                     "recentactions", "usertags", "pendcomments",
                     "loginlog", "active_user", "bannotes",
-                    "notifyqueue", "cprod", "dbnotes",
-                    "jabroster", "jablastseen", "random_user_set",
+                    "notifyqueue", "dbnotes", "random_user_set",
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2", "vgift_trans",
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
@@ -341,16 +339,6 @@ sub dbtime_callback {
 # </LJFUNC>
 sub get_dbirole_dbh {
     my $dbh = $LJ::DBIRole->get_dbh( @_ ) or return undef;
-
-    if ( $LJ::DB_LOG_HOST && $LJ::HAVE_DBI_PROFILE ) {
-        $LJ::DB_REPORT_HANDLES{ $dbh->{Name} } = $dbh;
-
-        # :TODO: Explain magic number
-        $dbh->{Profile} ||= "2/DBI::Profile";
-
-        # And turn off useless (to us) on_destroy() reports, too.
-        undef $DBI::Profile::ON_DESTROY_DUMP;
-    }
 
     return $dbh;
 }
@@ -698,7 +686,7 @@ sub alloc_global_counter
         # pick maximum id from pollowner
         $newmax = $dbh->selectrow_array( "SELECT MAX(pollid) FROM pollowner" );
     } elsif ( $dom eq 'F' ) {
-        $newmax = $dbh->selectrow_array( 'SELECT MAX(id) FROM syndicated_hubbub2' );
+        confess 'Tried to allocate PubSubHubbub counter.';
     } elsif ( $dom eq 'U' ) {
         $newmax = $dbh->selectrow_array( "SELECT MAX(consumer_id) FROM oauth_consumer" );
     } elsif ( $dom eq 'V' ) {

@@ -15,11 +15,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 20;
+use Test::More tests => 22;
 
-use lib "$ENV{LJHOME}/cgi-bin";
 
-BEGIN { require 'ljlib.pl'; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Request::Standard;
 use HTTP::Request;
 
@@ -160,12 +159,32 @@ check_req(
     undef, {
         host => "foo.example.com",
     },
-    { ssl => 0, host => "foo.example.com", uri=>"/", },
+    { ssl => 1, host => "foo.example.com", uri=>"/", },
     {},
 );
 
 check_req(
     "https://www.example.com/",
+    undef, {
+        host => "foo.example.com",
+        ssl => 1,
+    },
+    { ssl => 1, host => "foo.example.com", uri=>"/", },
+    {},
+);
+
+check_req(
+    "https://www.example.com/",
+    undef, {
+        host => "foo.example.com",
+        ssl => 0,
+    },
+    { ssl => 0, host => "foo.example.com", uri=>"/", },
+    {},
+);
+
+check_req(
+    "http://www.example.com/",
     undef, {
         host => "foo.example.com",
         ssl => 1,

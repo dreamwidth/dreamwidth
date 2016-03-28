@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 
-use lib "$ENV{LJHOME}/cgi-bin";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; };
 use DW::Routing::Test tests => 5;
 
 $DW::Routing::T_TESTING_ERRORS = 1;
@@ -50,7 +50,7 @@ handle_custom("/ssl_test", name => "ssl possible, on ssl", opts=>{ ssl => 1 }, f
 handle_custom("/ssl_test",name => "ssl possible, not ssl, user page", opts=>{username=>'example'}, final => sub {
     my ( $r, $rv ) = @_;
     plan( tests => 1 );
-    is( $rv, -100 );
+    is( $rv, $r->REDIRECT );
 });
 
 $LJ::USE_SSL = 0;
