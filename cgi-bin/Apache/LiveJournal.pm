@@ -1074,7 +1074,7 @@ sub userpic_trans
         my $host = $apache_r->headers_in->{"Host"};
         unless (    $LJ::USERPIC_ROOT =~ m!^https?://\Q$host\E!i
                     || $LJ::USERPIC_ROOT_CDN && $LJ::USERPIC_ROOT_CDN =~ m!^https?://\Q$host\E!i
-                    || $host eq '127.0.0.1' # FIXME: lame hack for DW config
+                    || $host eq '127.0.0.1' # FIXME: not great hack for DW config
         ) {
             return redir($apache_r, "$LJ::USERPIC_ROOT/$picid/$userid");
         }
