@@ -825,9 +825,19 @@ sub clean
                         ! defined $hash->{height}) { $img_bad ||= $opts->{imageplaceundef}; }
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
-                    my $url = canonical_url($hash->{src}, 1);
-                    $url = https_url( $url, journal => $journal, ditemid => $ditemid ) if $LJ::IS_SSL;
-                    $hash->{src} = $url;
+                    my $sanitize_url = sub {
+                        my $url = canonical_url( $_[0], 1 );
+                        return $url unless $LJ::IS_SSL;
+                        return https_url( $url, journal => $journal, ditemid => $ditemid );
+                    };
+
+                    $hash->{src} = $sanitize_url->( $hash->{src} );
+
+                    # some responsive images use srcset as well as src;
+                    # both attributes should be proxied for https if requested
+                    if ( defined $hash->{srcset} ) {
+                        $hash->{srcset} =~ s!\b(http://\S+)!$sanitize_url->( $1 )!egi;
+                    }
 
                     if ($img_bad) {
                         $newdata .= "<a class=\"ljimgplaceholder\" href=\"" .
