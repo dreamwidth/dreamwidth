@@ -30,29 +30,40 @@ _c?>
     my $ret;
 
     my $skip = $GET{skip}+0 || 0;
+    my $view = $GET{view};
 
-    # Filter first to a "Mobile View" friends group if they have one,
-    # then fall back to "Default View", and then just show them everything
-#    my $filter;
-    my $groupname = "All friends";
+    my $showtypes = '';
+    my $reqfilter;
 
-# FIXME: WTF reading groups
-#    foreach ("Mobile View", "Default View") {
-#        if (my $grp = LJ::get_friend_group($u, { 'name' => $_ })) {
-#            $groupname = $_;
-#            $filter = 1 << $grp->{'groupnum'};
-#            last;
-#        }
-#    }
+    if ( $view && $view =~ /^[CPY]$/ ) {
+        $showtypes = $view;
+    } elsif ( defined $view ) {
+        $reqfilter = int $view;
+    }
+
+    my $cf;
+
+    # Filters to check for: specified filter ID, then "Mobile", "Mobile View",
+    # "Default", "Default View" - if none of these exist, then no filter.
+    # However, don't load default filters if all subscriptions were requested.
+
+    # an id of zero or undef would return all the user's filters
+    $cf = $u->content_filters( id => $reqfilter ) if $reqfilter;
+
+    $cf ||= $u->content_filters( name => "Mobile" )      ||
+            $u->content_filters( name => "Mobile View" ) ||
+            $u->content_filters( name => "Default" )     ||
+            $u->content_filters( name => "Default View" )
+        unless defined $view && $view == 0;
 
     my @entries = $u->watch_items(
         'remote'            => $u->{'userid'},
         'itemshow'          => $itemsperpage,
         'skip'              => $skip,
-        'showtypes'         => 'PYC',
+        'showtypes'         => $showtypes,
         'u'                 => $u,
         'userid'            => $u->{'userid'},
-#        'filter'            => $filter,
+        'content_filter'    => $cf,
     );
 
     my $numentries = @entries;
@@ -61,10 +72,26 @@ _c?>
     my $nextlink  = $skip ? BML::ml( '.items.next', { aopts => "href='?skip=$nextcount'", items => $itemsperpage } ) : '';
     my $prevlink  = ( $numentries < $itemsperpage ) ? '' : BML::ml( '.items.previous', { aopts => "href='?skip=$prevcount'", items => $itemsperpage } );
 
+    my @filters = ( "0", $BML::ML{'web.controlstrip.select.friends.all'},
+                    "P", $BML::ML{'web.controlstrip.select.friends.journals'},
+                    "C", $BML::ML{'web.controlstrip.select.friends.communities'},
+                    "Y", $BML::ML{'web.controlstrip.select.friends.feeds'} );
+    push @filters, $_->id, $_->name foreach $u->content_filters;
+
+    # showtypes overrides default filters, but reqfilter overrides showtypes
+    my $selected = "0";
+    $selected = $cf->id if $cf;
+    $selected = $showtypes if $showtypes;
+    $selected = $cf->id if $reqfilter;
+
     $ret .= BML::ml( '.read.back', { aopts => "href='./'", sitename => $LJ::SITENAMESHORT } );
     $ret .= qq(<div style="font-size: 16pt; font-weight: bold; margin: 0.8em;">);
     $ret .= qq($ML{'.page.title'}</div><div style="margin: 1em;"><div style="font-weight: bold;">);
-    $ret .= BML::ml( '.read.groupname', { groupname => $groupname } );
+    $ret .= $BML::ML{'web.controlstrip.select.friends.label'} . " ";
+    $ret .= "<form method='get' style='display: inline;' action='$LJ::SITEROOT/mobile/read'>\n";
+    $ret .= LJ::html_select( { name => "view", selected => $selected }, @filters ) . " ";
+    $ret .= LJ::html_submit( $BML::ML{'web.controlstrip.btn.view'} );
+    $ret .= "</form>";
     $ret .= qq(</div><div>$prevlink$nextlink</div><br/></div>);
 
     # how many characters to truncate entry at
@@ -107,8 +134,8 @@ _c?>
 
         $ret .= "$who: " . "<a href='$url'>$subject</a><br />";
     }
-    
-    $ret .= BML::ml( '.read.noentries', { groupname => $groupname } ) unless $numentries;
+
+    $ret .= BML::ml( '.read.noneleft' ) unless $numentries;
 
     return $ret;
 }
