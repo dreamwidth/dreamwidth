@@ -1030,7 +1030,7 @@ sub delete_logtags {
     my $jitemid = shift() + 0;
     return undef unless $u && $jitemid;
 
-    # maybe this is ghetto, but it does all of the logic we would otherwise
+    # maybe this is wrong, but it does all of the logic we would otherwise
     # have to duplicate here, so no sense in doing that.
     return LJ::Tags::update_logtags($u, $jitemid, { set_string => "", force => 1, });
 }

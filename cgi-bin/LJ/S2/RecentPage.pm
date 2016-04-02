@@ -36,16 +36,6 @@ sub RecentPage
     $p->{filter_name} = "";
     $p->{filter_tags} = 0;
 
-    # load for quick reply
-    LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.core.js
-            stc/jquery/jquery.ui.core.css
-            js/jquery/jquery.ui.widget.js
-            js/jquery.quickreply.js
-            stc/css/components/quick-reply.css
-            js/jquery.threadexpander.js
-        ) );
-
     # Link to the friends page as a "group", for use with OpenID "Group Membership Protocol"
     {
         my $is_comm = $u->is_community;
@@ -79,8 +69,14 @@ sub RecentPage
     }
 
     if ( $opts->{securityfilter} ) {
+        my $filter = $u->trust_groups( id => $opts->{securityfilter} );
         $p->{filter_active} = 1;
-        $p->{filter_name} = $opts->{securityfilter};
+        if ( defined $filter ) {
+            $p->{filter_name} = $filter->{groupname};
+        } else {
+            # something went wrong; just use the group number
+            $p->{filter_name} = $opts->{securityfilter};
+        }
     } 
 
     my $get = $opts->{'getargs'};
@@ -100,12 +96,12 @@ sub RecentPage
 
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
-    # load for ajax cuttag
-    LJ::need_res( 'js/cuttag-ajax.js' );
-    LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.widget.js
-            js/jquery.cuttag-ajax.js
-        ) );
+    # include JS for quick reply, icon browser, and ajax cut tag
+    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref} &&
+                              ${$opts->{handle_with_siteviews_ref}};
+    LJ::Talk::init_s2journal_js( iconbrowser => $remote && $remote->can_use_userpic_select,
+                                 siteskin => $handle_with_siteviews, lastn => 1 );
+
     my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
     my $expanded = BML::ml( 'widget.cuttag.expanded' );
     my $collapseAll = BML::ml( 'widget.cuttag.collapseAll' );

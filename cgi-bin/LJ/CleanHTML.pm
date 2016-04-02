@@ -136,7 +136,7 @@ sub clean
     my $remove_abs_sizes = $opts->{remove_abs_sizes} || 0;
     my $remove_fonts = $opts->{'remove_fonts'} || 0;
     my $blocked_links = (exists $opts->{'blocked_links'}) ? $opts->{'blocked_links'} : \@LJ::BLOCKED_LINKS;
-    my $blocked_link_substitute = 
+    my $blocked_link_substitute =
         (exists $opts->{'blocked_link_substitute'}) ? $opts->{'blocked_link_substitute'} :
         ($LJ::BLOCKED_LINK_SUBSTITUTE) ? $LJ::BLOCKED_LINK_SUBSTITUTE : '#';
     my $suspend_msg = $opts->{'suspend_msg'} || 0;
@@ -281,12 +281,12 @@ sub clean
         }->{$_[0]} || $_[0];
     };
 
-    
-    # if we're retrieving a cut tag, then we want to eat everything 
+
+    # if we're retrieving a cut tag, then we want to eat everything
     # until we hit the first cut tag.
     my @cuttag_stack = ();
     my $eatall = $cut_retrieve ? 1 : 0;
-    
+
   TOKEN:
     while (my $token = $p->get_token)
     {
@@ -714,7 +714,7 @@ sub clean
                                     next ATTR;
                                 }
                             }
-                            
+
                             if ($opts->{'strongcleancss'}) {
                                 if ($hash->{style} =~ /-moz-|absolute|relative|outline|z-index|(?<!-)(?:top|left|right|bottom)\s*:|filter|-webkit-/io) {
                                     delete $hash->{style};
@@ -774,7 +774,7 @@ sub clean
                         delete $hash->{$attr};
                         next;
 		    }
-		    
+
                     # reserve ljs_* ids for divs, etc so users can't override them to replace content
                     if ($attr eq 'id' && $hash->{$attr} =~ /^ljs_/i) {
                         delete $hash->{$attr};
@@ -807,7 +807,7 @@ sub clean
                             }
                         }
                     }
-                    
+
                     unless ($hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei) {
                         $hash->{href} = canonical_url($hash->{href}, 1);
                     }
@@ -825,9 +825,19 @@ sub clean
                         ! defined $hash->{height}) { $img_bad ||= $opts->{imageplaceundef}; }
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
-                    my $url = canonical_url($hash->{src}, 1);
-                    $url = https_url( $url, journal => $journal, ditemid => $ditemid ) if $LJ::IS_SSL;
-                    $hash->{src} = $url;
+                    my $sanitize_url = sub {
+                        my $url = canonical_url( $_[0], 1 );
+                        return $url unless $LJ::IS_SSL;
+                        return https_url( $url, journal => $journal, ditemid => $ditemid );
+                    };
+
+                    $hash->{src} = $sanitize_url->( $hash->{src} );
+
+                    # some responsive images use srcset as well as src;
+                    # both attributes should be proxied for https if requested
+                    if ( defined $hash->{srcset} ) {
+                        $hash->{srcset} =~ s!\b(http://\S+)!$sanitize_url->( $1 )!egi;
+                    }
 
                     if ($img_bad) {
                         $newdata .= "<a class=\"ljimgplaceholder\" href=\"" .
@@ -912,7 +922,7 @@ sub clean
                         # that are allowed (by still being in %$hash after cleaning)
                         foreach (@$attrs) {
                             unless (LJ::is_ascii($hash->{$_})) {
-                                # FIXME: this is so ghetto.  make faster.  make generic.
+                                # FIXME: this isn't nice.  make faster.  make generic.
                                 # HTML::Parser decodes entities for us (which is good)
                                 # but in Perl 5.8 also includes the "poison" SvUTF8
                                 # flag on the scalar it returns, thus poisoning the
@@ -985,18 +995,18 @@ sub clean
 
                 next TOKEN if @eatuntil;
             }
-            
+
             # if we're just getting the contents of a cut tag, then pop the
             # tag off the stack.  if this is the last tag on the stack, then
             # go back to eating the rest of the content.
             if ( @cuttag_stack ) {
                 if ( $cuttag_stack[-1] eq $tag ) {
                     pop @cuttag_stack;
-                    
+
                     last TOKEN unless ( @cuttag_stack );
                 }
             }
-            
+
             if ( $eatall ) {
                 next TOKEN;
             }
@@ -1004,7 +1014,7 @@ sub clean
             if ( $eating_ljuser_span ) {
                 if ( $tag eq "span" ) {
                     $eating_ljuser_span = 0;
-                    
+
                     if ( $opts->{textonly} ) {
                         $newdata .= $ljuser_text_node;
                     } else {

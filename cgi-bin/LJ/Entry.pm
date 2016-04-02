@@ -718,6 +718,7 @@ sub comment_info {
         screened => $has_screened,
         screened_count => $screenedcount,
         show_readlink => $comments_enabled && ( $replycount || $has_screened ),
+        show_readlink_hidden => $comments_enabled,
         show_postlink => $comments_enabled,
     };
 }

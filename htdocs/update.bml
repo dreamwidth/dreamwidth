@@ -469,26 +469,39 @@ _c?>
 
                     my @after_entry_post_extra_options = LJ::Hooks::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
                     my $after_entry_post_extra_options = join('', map {$_->[0]} @after_entry_post_extra_options) || '';
-                    
-                    if ($req{"security"} eq "private") {
-                        $$body .=" p?><?p $ML{'.extradata.sec.private'}";
-                    } elsif ($req{"security"} eq "usemask") {
-                        if ($req{"allowmask"} == 0) { # custom security with no group -- essentially private
-                            $$body .=" p?><?p $ML{'.extradata.sec.private'}";
-                        } elsif ($req{"allowmask"} > 1) { # custom group
-                            $$body .=" p?><?p $ML{'.extradata.sec.custom'}";
-                        } else { # friends only
-                            $$body .=" p?><?p $ML{'.extradata.sec.access'}";
+
+                    my $security_ml;
+                    my $filternames = '';
+                    my $c_or_p = $ju->is_community ? 'c' : 'p';
+
+                    if ( $req{"security"} eq "private" ) {
+                        $security_ml = "post.security.private.$c_or_p";
+                    } elsif ( $req{"security"} eq "usemask" ) {
+                        if ( $req{"allowmask"} == 0 ) { # custom security with no group -- essentially private
+                            $security_ml = "post.security.private.$c_or_p";
+                        } elsif ( $req{"allowmask"} > 1 ) { # custom group
+                            $filternames = $ju->security_group_display( $req{"allowmask"} );
+                            $security_ml = "post.security.custom";
+                        } else { # access list
+                            $security_ml = "post.security.access.$c_or_p";
                         }
-                    } else {
-                        $$body .=" p?><?p $ML{'.extradata.sec.public'}";
+                    } else { # public
+                        $security_ml = "post.security.public";
                     }
-                
-                    if ( length($req{"subject"}) > 0 ) {
-                        $$body .=" p?><?p " . $ML{'.extradata.subj'} . LJ::ehtml( $req{"subject"} );
+
+                    $$body .= " p?><?p " . BML::ml( $security_ml, { filters => $filternames } );
+
+                    my $subject = $req{subject};
+
+                    if ( length $subject > 0 ) {
+                        # use the HTML cleaner on the entry subject,
+                        # then display it without escaping
+                        LJ::CleanHTML::clean_subject( \$subject );
                     } else {
-                        $$body .=" p?><?p " . $ML{'.extradata.subj'} . $ML{'.extradata.subject.no_subject'};
+                        $subject = $ML{'.extradata.subject.no_subject'};
                     }
+
+                    $$body .= sprintf( " p?><?p %s %s", $ML{'.extradata.subj'}, $subject );
 
                     my $backdatedlink = '';
                     if ( $POST{prop_opt_backdated} or $GET{prop_opt_backdated} ) {

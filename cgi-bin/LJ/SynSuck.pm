@@ -516,7 +516,7 @@ sub process_content {
     my $r_etag = $res->header('ETag');
 
     # decide when to poll next (in minutes).
-    # FIXME: this is super lame.  (use hints in RSS file!)
+    # FIXME: this is super bad.  (use hints in RSS file!)
     my $int = $newcount ? 30 : 60;
     my $status = $newcount ? "ok" : "nonew";
     my $updatenew = $newcount ? ", lastnew=NOW()" : "";

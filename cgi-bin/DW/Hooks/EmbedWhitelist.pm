@@ -101,7 +101,9 @@ my %host_path_match = (
     "vine.co"               => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
     # Videos seemed to use an 11-character identification; may need to be changed
 
-    "www.zippcast.com"      => [ qr!^/videoview\.php$!, 0 ]
+    "www.zippcast.com"      => [ qr!^/videoview\.php$!, 0 ],
+
+    "codepen.io"            => [ qr!^/enxaneta/embed/!, 1 ]
 
 );
 
