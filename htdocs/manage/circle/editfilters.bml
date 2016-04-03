@@ -89,7 +89,7 @@ _c?>
             my $trusted_u = LJ::load_user( $2 );
             # User might have been removed from circle between load and
             # submit; don't re-add.
-            next unless $trusted_u && $u->trusts($trusted_u);
+            next unless $trusted_u && $u->trusts( $trusted_u );
             my $groupmask;
             if ( $1 eq 'groupmask' ) {
                 $groupmask = $POST{$post_key};
