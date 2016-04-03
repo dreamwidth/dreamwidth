@@ -884,7 +884,7 @@ sub create_qr_div {
         }
     }
 
-    my $post_disabled = $u->does_not_allow_comments_from($remote) || $u->does_not_allow_comments_from_unconfirmed_openid($remote);
+    my $post_disabled = $u->does_not_allow_comments_from( $remote ) || $u->does_not_allow_comments_from_unconfirmed_openid( $remote );
     return DW::Template->template_string( 'journal/quickreply.tt', {
         form_url                => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         hidden_form_elements    => $hidden_form_elements,

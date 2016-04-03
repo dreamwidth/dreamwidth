@@ -3732,7 +3732,7 @@ sub make_preview {
             unless $_ eq 'body' || $_ eq 'subject' || $_ eq 'prop_opt_preformatted' || $_ eq 'editreason';
     }
 
-    my $post_disabled = $u->does_not_allow_comments_from($remote) || $u->does_not_allow_comments_from_unconfirmed_openid($remote);
+    my $post_disabled = $u->does_not_allow_comments_from( $remote ) || $u->does_not_allow_comments_from_unconfirmed_openid( $remote );
     if ($post_disabled) {
         $ret .= "<div class='ui-state-error'>$BML::ML{'/talkpost.bml.error.nocomment_quick'}</div>";
     }
