@@ -13,6 +13,9 @@ package DW::CleanEmail;
 
 use strict;
 
+use HTML::Entities;
+
+
 =head1 NAME
 
 DW::CleanEmail - Clean up text from email
@@ -80,7 +83,7 @@ sub nonquoted_text {
 
 =head2 C<< $class->reply_subject( $text ) >>
 
-Clean out "Re:" from the subject
+Clean out "Re:" from the subject and decode HTML entities
 
 =cut
 sub reply_subject {
@@ -89,7 +92,7 @@ sub reply_subject {
     $subject =~ s/^(Re:\s*)*//i;
     $subject = "Re: $subject" if $subject;
 
-    return $subject;
+    return HTML::Entities::decode( $subject );
 }
 
 1;
