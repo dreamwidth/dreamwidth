@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 58;
+use Test::More tests => 59;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -143,6 +143,8 @@ note( "misc" );
     test_good_url( "//www.zippcast.com/videoview.php?vplay=6c91dae3fc1bc909db0&auto=no" );
 
     test_good_url( "//codepen.io/enxaneta/embed/gPeZdP/?height=268&theme-id=0&default-tab=result" );
+
+    test_good_url( "https://vid.me/e/v63?stats=1&amp;tools=1" );
 
 }
 

@@ -103,7 +103,9 @@ my %host_path_match = (
 
     "www.zippcast.com"      => [ qr!^/videoview\.php$!, 0 ],
 
-    "codepen.io"            => [ qr!^/enxaneta/embed/!, 1 ]
+    "codepen.io"            => [ qr!^/enxaneta/embed/!, 1 ],
+
+    "vid.me"                => [ qr!^/e/!, 1 ],
 
 );
 
