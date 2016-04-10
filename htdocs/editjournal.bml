@@ -259,7 +259,7 @@ body<=
 
                 # check response
                 unless ($res{'success'} eq "OK") {
-                    return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.modify'} <ul><li><b>$res{'errmsg'}</b></li></ul> p?>";
+                    return "<?h1 $ML{'Error'} h1?><?p <ul><li><b>$res{'errmsg'}</b></li></ul> p?>";
                 }
 
                 my $deleted = $req{event} ? 0 : 1;
