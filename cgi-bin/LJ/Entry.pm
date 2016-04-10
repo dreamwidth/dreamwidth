@@ -1290,6 +1290,22 @@ sub put_logprop_in_history {
     return 1;
 }
 
+# convert to json
+sub TO_JSON { 
+    my $self = shift;
+
+    my $remote = LJ::get_remote();
+    my $returnval = { 
+        poster => $self->poster->username,
+        ditemid => $self->ditemid,
+        subject => $self->subject_raw,
+        event => $self->event_raw,
+    };
+
+    return $returnval;
+}
+
+
 package LJ;
 
 use Carp qw(confess);
