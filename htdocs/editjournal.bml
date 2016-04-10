@@ -322,7 +322,7 @@ body<=
                     $result .= ($journalu->is_community) ?
                         "<?p $ML{'.success.edited.comm'} p?>" :
                         "<?p $ML{'.success.edited'} p?>";
-                    $result .= "<?p $message p?>" if $message;
+                    $result .= "<div class='alert-box'>$message</div>" if $message;
                     $result .= $xpost_result;
                     # open a request about the unsuspension if one doesn't already exist
                     if ($POST{'action:saveunsuspend'} && !$entry_obj->prop("unsuspend_supportid") && $LJ::UNSUSPENSION_REQUEST_SPCATID) {
