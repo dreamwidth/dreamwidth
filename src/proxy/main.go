@@ -8,7 +8,7 @@ allow us to proxy HTTP embedded content.
 Authors:
      Mark Smith <mark@dreamwidth.org>
 
-Copyright (c) 2015 by Dreamwidth Studios, LLC.
+Copyright (c) 2015-2016 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -181,28 +181,64 @@ func getProxyFile(token, url string) (string, error) {
 		return "", errors.New("File exceeds maximum allowable size")
 	}
 
-	// Write the file out to disk.
+	// Make sure the file we requested is an image:
+	// 1. Get the first 512 (or less) bytes of the content
+	buflen := resp.ContentLength
+	if buflen > 512 {
+		buflen = 512
+	}
+	var firstblock []byte = make([]byte, buflen)
+	n, err := io.ReadFull(resp.Body, firstblock)
+	if err != nil {
+		log.Printf("Failed to read response body %s: %s", url, err)
+		return "", err
+	}
+	if int64(n) != buflen {
+		log.Printf("Failed to read response body %s: %d / %d", url, n, buflen)
+		return "", errors.New("Read incomplete buffer")
+	}
+
+	// Make sure the file we requested is an image:
+	// 2. See if the content begins with an image MIME type
+	mimetype := http.DetectContentType(firstblock)
+	if !strings.HasPrefix(mimetype, "image/") {
+		log.Printf("Not an image %s: %s", url, mimetype)
+		return "", errors.New("File is not a known image type")
+	}
+
+	// Prepare to write the file out to disk.
 	fn := filepath.Join(CACHE_DIR, fmt.Sprintf("%x", md5.Sum([]byte(url))))
 	file, err := os.Create(fn)
 	if err != nil {
 		log.Printf("Failed to open %s for writing: %s", fn, err)
 		return "", err
 	}
+	defer file.Close()
 
-	written, err := io.Copy(file, resp.Body)
+	// First write the chunk we already read from the response.
+	written1, err := io.WriteString(file, string(firstblock))
 	if err != nil {
-		file.Close()
 		log.Printf("Failed to cache file %s: %s", url, err)
 		return "", err
 	}
-	file.Close()
+	if written1 != n {
+		log.Printf("Failed to cache file %s: first block failed", url)
+		return "", errors.New("Writing first block failed")
+	}
+
+	// Now write out the remainder of the response content.
+	written, err := io.Copy(file, resp.Body)
+	if err != nil {
+		log.Printf("Failed to cache file %s: %s", url, err)
+		return "", err
+	}
 
 	// Fill in the file structure, since we've got everything.
 	pf.LocalPath = fn
 	pf.SourceURL = url
 	pf.LastCheck = time.Now()
 
-	log.Printf("Cached %s to %s: %d bytes", pf.SourceURL, pf.LocalPath, written)
+	log.Printf("Cached %s to %s: %d bytes", pf.SourceURL, pf.LocalPath, int64(written1)+written)
 	return pf.LocalPath, nil
 }
 
