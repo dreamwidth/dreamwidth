@@ -1760,6 +1760,15 @@ sub editevent
     my $deleted = 0;
     un_utf8_request($req);
 
+    my $add_message = sub {
+        my $new_message = shift;
+        if ( $res->{message} ) {
+            $res->{message} .= ' ' . $new_message;
+        } else {
+            $res->{message} = $new_message;
+        }
+    };
+
     return undef unless authenticate($req, $err, $flags);
 
     # we check later that user owns entry they're modifying, so all
@@ -2077,7 +2086,7 @@ sub editevent
     my $clean_event = $event;
     my $errref;
     LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref } );
-    $res->{message} = translate( $u, $errref, { aopts => "href='$LJ::SITEROOT/editjournal?journal=" . $uowner->user . "&itemid=$ditemid'" } ) if $errref;
+    $add_message->( translate( $u, $errref, { aopts => "href='$LJ::SITEROOT/editjournal?journal=" . $uowner->user . "&itemid=$ditemid'" } ) ) if $errref;
 
     # up the revision number
     $req->{'props'}->{'revnum'} = ($curprops{$itemid}->{'revnum'} || 0) + 1;
@@ -2107,8 +2116,8 @@ sub editevent
                 err_ref => \$tagerr,
             });
 
-        # we only want to fail if we tried to edit the tags, not if we just tried to edit the security
-        return fail( $err, 157, $tagerr ) if $tagerr && $do_tags;
+        # we only want to warn if we tried to edit the tags, not if we just tried to edit the security
+        $add_message->( $tagerr ) if $tagerr && $do_tags;
     }
 
     # handle the props
@@ -2157,8 +2166,8 @@ sub editevent
             $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
                     undef, $ownerid, $itemid, $slug );
             if ( $u->err ) {
-                $res->{message} ||= 'Sorry, it looks like that slug has already been used. ' .
-                    'Your entry has been updated, but you can still edit it again to add a unique slug.';
+                $add_message->( 'Sorry, it looks like that slug has already been used. ' .
+                    'Your entry has been updated, but you can still edit it again to add a unique slug.' );
             }
         }
     }
