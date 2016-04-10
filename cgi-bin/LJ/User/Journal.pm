@@ -299,6 +299,19 @@ sub does_not_allow_comments_from {
 }
 
 
+# true if u1 restricts comments to registered users and u2 is a
+# non-circled OpenID with an unconfirmed email
+# FIXME: fold into does_not_allow_comments_from without disabling
+# QuickReply in that situation due to S2.pm:3677
+sub does_not_allow_comments_from_unconfirmed_openid {
+    my ( $u1, $u2 ) = @_;
+    return unless LJ::isu( $u1 ) && LJ::isu( $u2 );
+    return $u1->{'opt_whocanreply'} eq 'reg'
+        && $u2->is_identity
+        && ! ( $u2->is_validated || $u1->trusts( $u2 ));
+}
+
+
 # get recent talkitems posted to this user
 # args: maximum number of comments to retrieve
 # returns: array of hashrefs with jtalkid, nodetype, nodeid, parenttalkid, posterid, state
