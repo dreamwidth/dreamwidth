@@ -820,7 +820,7 @@ sub update_logtags {
 
     my @add_delete_errors;
     push @add_delete_errors, LJ::Lang::ml( "taglib.error.add", { tags => join( ", ", @unauthorized_add ) } ) if @unauthorized_add;
-    push @add_delete_errors, LJ::Lang::ml( "taglib.error.delete", { tags => join( ", ", map { $utags->{$_}->{name} } keys %delete ) } ) if %delete && ! $can_control && ! $opts->{force};
+    push @add_delete_errors, LJ::Lang::ml( "taglib.error.delete2", { tags => join( ", ", map { $utags->{$_}->{name} } keys %delete ) } ) if %delete && ! $can_control && ! $opts->{force};
     return $err->( join " ", @add_delete_errors ) if @add_delete_errors;
 
     # bail out if nothing needs to be done
