@@ -88,15 +88,12 @@ sub work {
                $domain, $u->user, $u->id;
     } else {
         # In case this was a connection timeout, then we want to do special
-        # handling to make sure we retry. Yes, this will retry permanently.
+        # handling to make sure we retry immediately, but if we exhaust
+        # max_retries, we should give up instead of rescheduling for later.
         if ( $result->{error} =~ /Failed to connect/ ) {
             printf STDERR "[xpost] Timeout posting to %s for %s(%d)... will retry.\n",
                    $domain, $u->user, $u->id;
-
-            # If we just decline immediately, we'll retry every 10 seconds. This
-            # logic makes us back off to a slower interval.
-            return $job->declined if $job->failures > 3;
-            return $job->failed( "Timeout encountered, will retry." );
+            return $job->failed( "Timeout encountered, maybe retry." );
         }
 
         # Some other failure, so let's just let it go through.

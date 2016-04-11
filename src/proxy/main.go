@@ -183,20 +183,9 @@ func getProxyFile(token, url string) (string, error) {
 
 	// Make sure the file we requested is an image:
 	// 1. Get the first 512 (or less) bytes of the content
-	buflen := resp.ContentLength
-	if buflen > 512 {
-		buflen = 512
-	}
-	var firstblock []byte = make([]byte, buflen)
-	n, err := io.ReadFull(resp.Body, firstblock)
-	if err != nil {
-		log.Printf("Failed to read response body %s: %s", url, err)
-		return "", err
-	}
-	if int64(n) != buflen {
-		log.Printf("Failed to read response body %s: %d / %d", url, n, buflen)
-		return "", errors.New("Read incomplete buffer")
-	}
+	var firstblock []byte = make([]byte, 512)
+	n, _ := io.ReadFull(resp.Body, firstblock)
+	firstblock = firstblock[:n]
 
 	// Make sure the file we requested is an image:
 	// 2. See if the content begins with an image MIME type
@@ -222,7 +211,7 @@ func getProxyFile(token, url string) (string, error) {
 		return "", err
 	}
 	if written1 != n {
-		log.Printf("Failed to cache file %s: first block failed", url)
+		log.Printf("Failed to cache file %s: first block failed at %d / %d", url, written1, n)
 		return "", errors.New("Writing first block failed")
 	}
 
