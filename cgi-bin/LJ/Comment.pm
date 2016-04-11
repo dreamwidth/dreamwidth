@@ -208,11 +208,10 @@ sub create {
         if LJ::Talk::Post::over_maxcomments($init->{journalu}, $init->{item}->{'jitemid'});
 
     # no replying to frozen comments
-    return $err->( "frozen", "Can't reply to frozen thread." )
-        if $init->{parent}->{state} eq 'F';
+    my $parent_state = $init->{parent}->{state} // '';
+    return $err->( "frozen", "Can't reply to frozen thread." ) if $parent_state eq 'F';
 
     ## insertion
-    my $wasscreened = ($init->{parent}->{state} eq 'S');
     my $post_err_ref;
     return $err->( "post_comment", $post_err_ref )
         unless LJ::Talk::Post::post_comment($init->{entryu},  $init->{journalu},

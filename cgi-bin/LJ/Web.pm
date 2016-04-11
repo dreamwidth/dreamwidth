@@ -3348,7 +3348,8 @@ sub subscribe_interface {
             my $subscribed = ! $pending_sub->pending;
 
             unless ($pending_sub->enabled) {
-                $title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $title . $upgrade_notice;
+                my $hooktext = LJ::Hooks::run_hook( "disabled_esn_sub", $u ) // '';
+                $title = $hooktext . $title . $upgrade_notice;
                 $unavailable_subs++;
             }
             next if ! $pending_sub->event_class->is_visible && $showtracking;
