@@ -26,7 +26,9 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -56,6 +58,7 @@ var (
 	CACHE_DIR      string        = "/tmp"
 	MAXIMUM_SIZE   int64         = 20 * 1024 * 1024
 	MESSAGE_SALT   string        = "You should really use a salt file!"
+	HOTLINK_DOMAIN string        = "example.org"
 )
 
 func main() {
@@ -65,12 +68,15 @@ func main() {
 	var cacheFor = flag.Int("cache_for", int(CACHE_FOR/1000000000),
 		"How long to cache files for (seconds)")
 	var maxSize = flag.Int64("max_filesize", MAXIMUM_SIZE, "Max filesyze in bytes to proxy")
+	var hotlinkDomain = flag.String("hotlink_domain", HOTLINK_DOMAIN,
+		"Domain to allow hotlinking from")
 	var saltFile = flag.String("salt_file", "", "Path to salt file to use for signatures")
 	flag.Parse()
 
 	CACHE_FOR = time.Duration(*cacheFor) * time.Second
 	CACHE_DIR = *cacheDir
 	MAXIMUM_SIZE = *maxSize
+	HOTLINK_DOMAIN = *hotlinkDomain
 
 	stat, err := os.Stat(CACHE_DIR)
 	if !stat.Mode().IsDir() || err != nil {
@@ -91,8 +97,14 @@ func main() {
 	log.Printf("Listening on %s:%d", *listen, *port)
 	log.Printf("Caching to %s with a max of %d nanoseconds", CACHE_DIR, CACHE_FOR)
 
+	http.HandleFunc("/robots.txt", robotsHandler)
 	http.HandleFunc("/", defaultHandler)
 	http.ListenAndServe(fmt.Sprintf("%s:%d", *listen, *port), nil)
+}
+
+func robotsHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("Request for robots.txt from User-Agent: %s", req.Header.Get("User-Agent"))
+	fmt.Fprint(w, "User-agent: *\nDisallow: /\n")
 }
 
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
@@ -107,15 +119,34 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 		http.NotFound(w, req)
 		return
 	}
-	token, url := parts[1], "http://"+strings.Join(parts[3:], "/")
+	token, orig_url := parts[1], "http://"+strings.Join(parts[3:], "/")
 
-	if !validSignature(token, url) {
+	if !validSignature(token, orig_url) {
 		log.Printf("Invalid signature in request: %s", req.URL.RequestURI())
 		http.NotFound(w, req)
 		return
 	}
 
-	path, err := getProxyFile(token, url)
+	referer := req.Header.Get("Referer")
+	if referer != "" {
+		ref_url, err := url.Parse(referer)
+		if err != nil {
+			log.Printf("Rejecting malformed referer [%s]: %s", referer, err)
+			http.Error(w, "Malformed referer.", 400)
+			return
+		}
+		host, _, err := net.SplitHostPort(ref_url.Host)
+		if err != nil {
+			host = ref_url.Host
+		}
+		if !(host == HOTLINK_DOMAIN || strings.HasSuffix(host, "."+HOTLINK_DOMAIN)) {
+			log.Printf("Rejecting hotlink from: %s", referer)
+			http.Error(w, "Hotlinking is forbidden.", 403)
+			return
+		}
+	}
+
+	path, err := getProxyFile(token, orig_url)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("%s", err), 500)
 		return
@@ -124,17 +155,17 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	http.ServeFile(w, req, path)
 }
 
-func validSignature(token, url string) bool {
-	signature := fmt.Sprintf("%x", md5.Sum([]byte(MESSAGE_SALT+url)))[0:12]
-	log.Printf("Signature check for %s: expect %s", url, signature)
+func validSignature(token, orig_url string) bool {
+	signature := fmt.Sprintf("%x", md5.Sum([]byte(MESSAGE_SALT+orig_url)))[0:12]
+	log.Printf("Signature check for %s: expect %s", orig_url, signature)
 	return token == signature
 }
 
-func getProxyFile(token, url string) (string, error) {
+func getProxyFile(token, orig_url string) (string, error) {
 	respch := make(chan *ProxyFile)
 	PROXY_FILE_REQ <- &ProxyFileRequest{
 		Token:     token,
-		SourceURL: url,
+		SourceURL: orig_url,
 		Response:  respch,
 	}
 	pf := <-respch
@@ -161,53 +192,42 @@ func getProxyFile(token, url string) (string, error) {
 	// check again and make sure we need to download it.
 	if pf.LocalPath != "" {
 		if time.Since(pf.LastCheck) > CACHE_FOR {
-			log.Printf("Expiring local cache for: %s", url)
+			log.Printf("Expiring local cache for: %s", orig_url)
 		} else {
 			return pf.LocalPath, nil
 		}
 	}
 
 	// Needs downloading and we have the right/write lock.
-	resp, err := http.Get(url)
+	resp, err := http.Get(orig_url)
 	if err != nil {
-		log.Printf("Failed to fetch %s: %s", url, err)
+		log.Printf("Failed to fetch %s: %s", orig_url, err)
 		return "", err
 	}
 	defer resp.Body.Close()
 
 	// If it's too large, we don't want it!
 	if resp.ContentLength > MAXIMUM_SIZE {
-		log.Printf("File too large %s: %d", url, resp.ContentLength)
+		log.Printf("File too large %s: %d", orig_url, resp.ContentLength)
 		return "", errors.New("File exceeds maximum allowable size")
 	}
 
 	// Make sure the file we requested is an image:
 	// 1. Get the first 512 (or less) bytes of the content
-	buflen := resp.ContentLength
-	if buflen > 512 {
-		buflen = 512
-	}
-	var firstblock []byte = make([]byte, buflen)
-	n, err := io.ReadFull(resp.Body, firstblock)
-	if err != nil {
-		log.Printf("Failed to read response body %s: %s", url, err)
-		return "", err
-	}
-	if int64(n) != buflen {
-		log.Printf("Failed to read response body %s: %d / %d", url, n, buflen)
-		return "", errors.New("Read incomplete buffer")
-	}
+	var firstblock []byte = make([]byte, 512)
+	n, _ := io.ReadFull(resp.Body, firstblock)
+	firstblock = firstblock[:n]
 
 	// Make sure the file we requested is an image:
 	// 2. See if the content begins with an image MIME type
 	mimetype := http.DetectContentType(firstblock)
 	if !strings.HasPrefix(mimetype, "image/") {
-		log.Printf("Not an image %s: %s", url, mimetype)
+		log.Printf("Not an image %s: %s", orig_url, mimetype)
 		return "", errors.New("File is not a known image type")
 	}
 
 	// Prepare to write the file out to disk.
-	fn := filepath.Join(CACHE_DIR, fmt.Sprintf("%x", md5.Sum([]byte(url))))
+	fn := filepath.Join(CACHE_DIR, fmt.Sprintf("%x", md5.Sum([]byte(orig_url))))
 	file, err := os.Create(fn)
 	if err != nil {
 		log.Printf("Failed to open %s for writing: %s", fn, err)
@@ -218,24 +238,25 @@ func getProxyFile(token, url string) (string, error) {
 	// First write the chunk we already read from the response.
 	written1, err := io.WriteString(file, string(firstblock))
 	if err != nil {
-		log.Printf("Failed to cache file %s: %s", url, err)
+		log.Printf("Failed to cache file %s: %s", orig_url, err)
 		return "", err
 	}
 	if written1 != n {
-		log.Printf("Failed to cache file %s: first block failed", url)
+		log.Printf("Failed to cache file %s: first block failed at %d / %d",
+			orig_url, written1, n)
 		return "", errors.New("Writing first block failed")
 	}
 
 	// Now write out the remainder of the response content.
 	written, err := io.Copy(file, resp.Body)
 	if err != nil {
-		log.Printf("Failed to cache file %s: %s", url, err)
+		log.Printf("Failed to cache file %s: %s", orig_url, err)
 		return "", err
 	}
 
 	// Fill in the file structure, since we've got everything.
 	pf.LocalPath = fn
-	pf.SourceURL = url
+	pf.SourceURL = orig_url
 	pf.LastCheck = time.Now()
 
 	log.Printf("Cached %s to %s: %d bytes", pf.SourceURL, pf.LocalPath, int64(written1)+written)
