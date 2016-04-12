@@ -132,7 +132,8 @@ sub is_identity {
         # legacy:
         $ident eq "$LJ::SITEROOT/users/$user/" ||
         $ident eq "$LJ::SITEROOT/~$user/" ||
-        $ident eq "http://$user.$LJ::USER_DOMAIN/";
+        $ident eq "http://$user.$LJ::USER_DOMAIN/" ||
+        $ident eq "https://$user.$LJ::USER_DOMAIN/";
 
     return 0;
 }
