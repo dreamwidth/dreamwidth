@@ -1673,7 +1673,8 @@ sub https_url {
     return $url if $url =~ m!^(?:https://|//)!;
 
     # if this link is on our site, let's just switch it to https
-    if ( $url =~ $LJ::DOMAIN || $url =~ $LJ::HTTPS_UPGRADE_REGEX ) {
+    if ( $url =~ $LJ::DOMAIN || defined $LJ::HTTPS_UPGRADE_REGEX
+                             && $url =~ $LJ::HTTPS_UPGRADE_REGEX ) {
         $url =~ s!^http:!https:!;
         return $url;
     }
