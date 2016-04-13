@@ -1088,7 +1088,19 @@ sub create_url {
     my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
     my $url = $proto . "://$host$path";
 
-    my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
+    my $orig_args = $opts{cur_args} || DW::Request->get->get_args( preserve_case => 1 );
+
+    # Mimic previous behavior of lowercasing keys unless they start with Widget
+    # FIXME: this should eventually go away - see #1742
+    unless ( $opts{cur_args} ) {
+        foreach my $k ( keys %$orig_args ) {
+            next if $k eq lc $k;
+            next if $k =~ /^Widget\b/;
+            warn "[#1742] lowercasing $k, url: $url\n";
+            $orig_args->{lc $k} = $orig_args->{$k};
+            delete $orig_args->{$k};
+        }
+    }
 
     # Move over viewing style arguments
     if( $opts{viewing_style} ) {

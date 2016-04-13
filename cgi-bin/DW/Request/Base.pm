@@ -164,13 +164,19 @@ sub post_args {
 
 # returns a Hash::MultiValue of query string arguments
 sub get_args {
-    my DW::Request $self = $_[0];
+    my DW::Request $self = shift;
     return $self->{get_args} if defined $self->{get_args};
 
+    my %opts = @_;
+
     # We lowercase GET arguments because these are often typed by users, and
-    # that's nicer on them.
+    # that's nicer on them.  This isn't always desired behavior, though.
+    # In particular, it confuses post_fields_by_widget in LJ::Widget.
+
+    my $lc = $opts{preserve_case} ? 0 : 1;
+
     return $self->{get_args} =
-        $self->_string_to_multivalue( $self->query_string, lowercase => 1 );
+        $self->_string_to_multivalue( $self->query_string, lowercase => $lc );
 }
 
 # Returns a JSON object contained in the body of this request if and only if
