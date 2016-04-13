@@ -865,6 +865,8 @@ sub body_html {
     $opts->{anon_comment} = LJ::Talk::treat_as_anon( $self->poster, $self->journal );
     $opts->{nocss} = $opts->{anon_comment};
     $opts->{editor} = $self->prop( "editor" );
+    $opts->{journal} = $self->journal->user;
+    $opts->{ditemid} = $self->entry->ditemid;
 
     my $body = $self->body_raw;
     LJ::CleanHTML::clean_comment(\$body, $opts) if $body;
@@ -1631,7 +1633,7 @@ sub is_text_spam($\$) {
     $ref = \$ref unless ref ($ref) eq 'SCALAR';
 
     my $plain = $$ref; # otherwise we modify the source text
-       $plain = LJ::CleanHTML::clean_comment(\$plain);
+    $plain = LJ::CleanHTML::clean_comment(\$plain);
 
     foreach my $re ($LJ::TALK_ABORT_REGEXP, @LJ::TALKSPAM){
         return 1 # spam

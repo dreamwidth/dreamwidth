@@ -879,6 +879,8 @@ sub event_html
     my $suspend_msg = $self->should_show_suspend_msg_to($remote) ? 1 : 0;
     $opts->{suspend_msg} = $suspend_msg;
     $opts->{unsuspend_supportid} = $suspend_msg ? $self->prop("unsuspend_supportid") : 0;
+    $opts->{journal} = $self->{u}->user;
+    $opts->{ditemid} = $self->{ditemid};
 
     $self->_load_text unless $self->{_loaded_text};
     my $event = $self->{event};
