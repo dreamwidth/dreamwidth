@@ -884,11 +884,14 @@ sub create_qr_div {
         }
     }
 
+    my $post_disabled = $u->does_not_allow_comments_from( $remote ) || $u->does_not_allow_comments_from_unconfirmed_openid( $remote );
     return DW::Template->template_string( 'journal/quickreply.tt', {
         form_url                => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         hidden_form_elements    => $hidden_form_elements,
         can_checkspell          => $LJ::SPELLER ? 1 : 0,
         minimal                 => $opts{minimal} ? 1 : 0,
+        post_disabled           => $post_disabled,
+        post_button_class       => $post_disabled ? 'ui-state-disabled' : '',
 
         quote_button_js         => LJ::Talk::js_quote_button( 'body' ),
         iconbrowser_js          => $remote->can_use_userpic_select ? LJ::Talk::js_iconbrowser_button() : "",
@@ -3345,7 +3348,8 @@ sub subscribe_interface {
             my $subscribed = ! $pending_sub->pending;
 
             unless ($pending_sub->enabled) {
-                $title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $title . $upgrade_notice;
+                my $hooktext = LJ::Hooks::run_hook( "disabled_esn_sub", $u ) // '';
+                $title = $hooktext . $title . $upgrade_notice;
                 $unavailable_subs++;
             }
             next if ! $pending_sub->event_class->is_visible && $showtracking;

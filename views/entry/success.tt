@@ -33,7 +33,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     <p>[% extradata.security_ml | ml( filters => extradata.filters ) %]</p>
     <p>[% ".extradata.subj" | ml %]
-        [% IF extradata.subject.length > 0 %]
+        [% IF extradata.subject.length %]
             [%# cleaned subject should render HTML #%]
             [% extradata.subject %]
         [% ELSE %]
@@ -42,7 +42,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- END -%]
 [%- END -%]
 
-[%- IF crossposts.size > 0 -%]
+[%- IF crossposts.size -%]
 <ul class='no-bullet'>
     [%- FOREACH crosspost IN crossposts -%]
         <li class="alert-box [% IF crosspost.status == "error" %] alert [%- ELSE -%] success [%- END -%]">
@@ -52,7 +52,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </ul>
 [%- END -%]
 
-[%- IF links.size > 0 -%]
+[%- IF links.size -%]
 <p>[%- links_header | ml -%]</p>
 <ul>
     [%- FOREACH link IN links -%]

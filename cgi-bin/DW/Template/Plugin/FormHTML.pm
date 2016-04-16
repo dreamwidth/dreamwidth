@@ -111,7 +111,8 @@ sub checkbox {
     if ( ! defined $args->{selected} && $self->{data} ) {
         my %selected;
         if ( defined $args->{name} ) {
-            %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
+            my @selargs = grep { defined } ( $self->{data}->get_all( $args->{name} ) );
+            %selected = map { $_ => 1 } @selargs;
         }
         if ( defined $args->{value} ) {
             $args->{selected} = $selected{$args->{value}};
@@ -158,7 +159,8 @@ sub checkbox_nested {
     if ( ! defined $args->{selected} && $self->{data} ) {
         my %selected;
         if ( defined $args->{name} ) {
-            %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
+            my @selargs = grep { defined } ( $self->{data}->get_all( $args->{name} ) );
+            %selected = map { $_ => 1 } @selargs;
         }
         if ( defined $args->{value} ) {
             $args->{selected} = $selected{$args->{value}};

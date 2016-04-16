@@ -208,11 +208,10 @@ sub create {
         if LJ::Talk::Post::over_maxcomments($init->{journalu}, $init->{item}->{'jitemid'});
 
     # no replying to frozen comments
-    return $err->( "frozen", "Can't reply to frozen thread." )
-        if $init->{parent}->{state} eq 'F';
+    my $parent_state = $init->{parent}->{state} // '';
+    return $err->( "frozen", "Can't reply to frozen thread." ) if $parent_state eq 'F';
 
     ## insertion
-    my $wasscreened = ($init->{parent}->{state} eq 'S');
     my $post_err_ref;
     return $err->( "post_comment", $post_err_ref )
         unless LJ::Talk::Post::post_comment($init->{entryu},  $init->{journalu},
@@ -866,6 +865,8 @@ sub body_html {
     $opts->{anon_comment} = LJ::Talk::treat_as_anon( $self->poster, $self->journal );
     $opts->{nocss} = $opts->{anon_comment};
     $opts->{editor} = $self->prop( "editor" );
+    $opts->{journal} = $self->journal->user;
+    $opts->{ditemid} = $self->entry->ditemid;
 
     my $body = $self->body_raw;
     LJ::CleanHTML::clean_comment(\$body, $opts) if $body;
@@ -1632,7 +1633,7 @@ sub is_text_spam($\$) {
     $ref = \$ref unless ref ($ref) eq 'SCALAR';
 
     my $plain = $$ref; # otherwise we modify the source text
-       $plain = LJ::CleanHTML::clean_comment(\$plain);
+    $plain = LJ::CleanHTML::clean_comment(\$plain);
 
     foreach my $re ($LJ::TALK_ABORT_REGEXP, @LJ::TALKSPAM){
         return 1 # spam

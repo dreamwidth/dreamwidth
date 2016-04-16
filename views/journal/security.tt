@@ -16,7 +16,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% IF message %]<p>[% message | ml %]</p> [% END %]
 
-[% IF levels.size > 0 %]
+[% IF levels.size %]
 <p>[% ".filter.levels" | ml %]
 <ul>
     [% FOREACH level IN levels %]
@@ -26,7 +26,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </p>
 [% END %]
 
-[% IF groups.size > 0 %]
+[% IF groups.size %]
 <p>[% ".filter.custom" | ml %]
 <ul>
     [% FOREACH group IN groups %]

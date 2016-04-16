@@ -67,7 +67,7 @@ sub add_to_beta {
         $u->add_to_class($class->cap_name);
     }
 
-    my $propval = $u->prop($class->prop_name);
+    my $propval = $u->prop($class->prop_name) // '';
     my @features = split(/\s*,\s*/, $propval);
     return 1 if grep { $_ eq $key } @features;
 

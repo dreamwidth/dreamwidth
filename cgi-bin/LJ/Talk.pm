@@ -1596,7 +1596,7 @@ sub talkform {
             $ret .= LJ::img( 'id_user', '', { onclick => 'handleRadios(1);' } ) . "</td>";
             $ret .= "<td align='left'><label for='talkpostfromremote'>";
             $ret .= BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } ) . "</label>\n";
-            
+
             $ret .= " " . $BML::ML{'.opt.willscreen'} if $screening eq 'A'
                     || ( $screening eq 'R' && !$remote->is_validated )
                     || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
@@ -3665,11 +3665,13 @@ sub make_preview {
 
     $ret .= "$BML::ML{'/talkpost_do.bml.preview.poster'} ";
     # displays the username or openid url of the commenter, or anonymous otherwise
-    if ($form->{'usertype'} eq 'cookieuser' || $form->{'usertype'} eq 'openid_cookie') {
+    my $has_remote = LJ::isu( $remote );
+    my $has_cookie = { cookieuser => $has_remote, openid_cookie => $has_remote };
+    if ( $has_cookie->{ $form->{usertype} } ) {
         $ret .= $remote->ljuser_display;
     } elsif ($form->{'usertype'} eq 'openid') {
         $ret .= BML::ml( ".preview.unauthenticated_openid", { openid => $form->{oidurl} } );
-    } elsif ($form->{'usertype'} eq 'anonymous') {
+    } else {  # anonymous usertype or not logged in
         $ret .= $BML::ML{'/talkpost_do.bml.preview.anonymous'};
     }
     $ret .= "<br />";
@@ -3732,7 +3734,12 @@ sub make_preview {
             unless $_ eq 'body' || $_ eq 'subject' || $_ eq 'prop_opt_preformatted' || $_ eq 'editreason';
     }
 
-    $ret .= "<br /><input type='submit' value='$BML::ML{'/talkpost_do.bml.preview.postcomment'}' />\n";
+    my $post_disabled = $u->does_not_allow_comments_from( $remote ) || $u->does_not_allow_comments_from_unconfirmed_openid( $remote );
+    if ($post_disabled) {
+        $ret .= "<div class='ui-state-error'>$BML::ML{'/talkpost.bml.error.nocomment_quick'}</div>";
+    }
+    my $disabling_extra = $post_disabled ? ' disabled="disabled" class="ui-state-disabled"' : '';
+    $ret .= "<br /><input type='submit' $disabling_extra value='$BML::ML{'/talkpost_do.bml.preview.postcomment'}' />\n";
     $ret .= "<input type='submit' name='submitpreview' value='$BML::ML{'talk.btn.preview'}' />\n";
     $ret .= "<span id='moreoptions-container'></span>\n";
     if ($LJ::SPELLER) {
