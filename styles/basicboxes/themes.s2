@@ -58,6 +58,7 @@ set layout_resources = [ { "name" => "A Glass of Red Wine", "url" => "http://www
 set color_page_background = "#621F37";
 set color_page_border = "#420B1F";
 set color_page_link = "#eee3e3";
+set color_page_text = "#000";
 set color_page_title = "#eee3e3";
 set color_header_background = "#7B2C49";
 
@@ -196,6 +197,7 @@ set layout_resources = [ { "name" => "On the Down Low", "url" => "http://www.col
 set color_page_background = "#687385";
 set color_page_border = "#595D74";
 set color_page_link = "#eAe9eC";
+set color_page_text = "#000";
 set color_page_title = "#eAe9eC";
 set color_header_background = "#748896";
 
@@ -238,6 +240,7 @@ set layout_resources = [ { "name" => "My first palette", "url" => "http://www.co
 set color_page_background = "#DEDBCA";
 set color_page_border = "#aFaD96";
 set color_page_link = "#fff";
+set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#DEDBD1";
 
@@ -279,6 +282,7 @@ set theme_authors = [ { "name" => "kareila", "type" => "user" } ];
 set color_page_background = "#40095d";
 set color_page_border = "#908aa6";
 set color_page_link = "#a8b257";
+set color_page_text = "#000";
 set color_page_title = "#a8b257";
 set color_header_background = "#641471";
 
@@ -361,6 +365,7 @@ layerinfo author_name = "branchandroot";
 set color_page_background = "#818f48";
 set color_page_border = "#566030";
 set color_page_link = "#e9eed3";
+set color_page_text = "#000";
 set color_page_title = "#e9eed3";
 set color_header_background = "#92a252";
 
@@ -555,6 +560,7 @@ set layout_resources = [ { "name" => "Medusa's Hair", "url" => "http://www.colou
 set color_page_background = "#4C6B2F";
 set color_page_border = "#24400B";
 set color_page_link = "#e9eee0";
+set color_page_text = "#000";
 set color_page_title = "#e9eee0";
 set color_header_background = "#608042";
 
@@ -688,6 +694,7 @@ set color_page_link = "#448099";
 set color_page_link_active = "#448099";
 set color_page_link_hover = "#45545a";
 set color_page_link_visited = "#448099";
+set color_page_text = "#000";
 set color_page_title = "#448099";
 set color_header_background = "#e9c98b";
 set color_footer_background = "#e9c98b";
@@ -729,6 +736,7 @@ set layout_resources = [ { "name" => "Pure", "url" => "http://www.colourlovers.c
 set color_page_background = "#FFDDBA";
 set color_page_border = "#FFCD9C";
 set color_page_link = "#125468";
+set color_page_text = "#000";
 set color_page_title = "#125468";
 set color_header_background = "#FFEBD6";
 
