@@ -616,9 +616,6 @@ sub make_journal {
     if ($opts->{'vhost'} =~ /^other:/ && ! LJ::get_cap($u, "domainmap")) {
         return $notice->( BML::ml( 'error.vhost.noalias' ) );
     }
-    if ($opts->{'vhost'} eq "customview" && ! LJ::get_cap($u, "styles")) {
-        return $notice->( BML::ml( 'error.vhost.nostyle' ) );
-    }
     if ($opts->{'vhost'} eq "community" && $u->journaltype !~ /[CR]/) {
         $opts->{'badargs'} = 1; # Output a generic 'bad URL' message if available
         return $notice->( BML::ml( 'error.vhost.nocomm' ) );

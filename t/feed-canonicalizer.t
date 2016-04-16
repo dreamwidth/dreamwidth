@@ -42,8 +42,6 @@ my @pairs = map {
     [ "http://username.fakejournal.com/data/rss?tag=cupcakes", "ljish://fakejournal.com/username?tag=cupcakes"],
     [ "http://username.fakejournal.com/data/atom?tag=cupcakes", "ljish://fakejournal.com/username?tag=cupcakes"],
 
-    [ "http://username.fakejournal.com/data/customview?styleid=1&show=2&filter=3", "ljish://fakejournal.com/username/customview?filter=3&show=2&styleid=1"],
-
     # These only work on lj-ish sites    
     [ "http://username.livejournal.com/rss", "ljish://livejournal.com/username"],
     [ "http://username.livejournal.com/rss/friends", "ljish://livejournal.com/username/friends"],    
