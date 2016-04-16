@@ -219,12 +219,10 @@ if ( ($*comment_userpic_style == "" and $*entry_userpic_style == "small") or ($*
 /*-------------------------------------
 
 
-	layout name: patsy
-	latout type: tabularasa
-	tiny icon credits: pinvoke.com
+    layout name: patsy
+    layout type: tabularasa
 
-	renoir.dreamwidth.org / vaisselle.livejournal.com
-	please do not redistribute
+    renoir.dreamwidth.org / vaisselle.livejournal.com
 
 
 -------------------------------------*/
