@@ -318,7 +318,7 @@ body<=
                     my $deleted_extras = LJ::Hooks::run_hook('entry_deleted_page_extras');
                     $result .= $deleted_extras if defined $deleted_extras;
                 } else {
-                    $message = LJ::auto_linkify( LJ::ehtml( $res{message} ) );
+                    $message = LJ::auto_linkify( LJ::html_newlines( LJ::ehtml( $res{message} ) ) );
                     $result .= ($journalu->is_community) ?
                         "<?p $ML{'.success.edited.comm'} p?>" :
                         "<?p $ML{'.success.edited'} p?>";

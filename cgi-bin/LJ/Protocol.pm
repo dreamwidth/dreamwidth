@@ -1763,7 +1763,7 @@ sub editevent
     my $add_message = sub {
         my $new_message = shift;
         if ( $res->{message} ) {
-            $res->{message} .= ' ' . $new_message;
+            $res->{message} .= "\n\n" . $new_message;
         } else {
             $res->{message} = $new_message;
         }
