@@ -750,8 +750,6 @@ sub update_logtags {
     my $utags = LJ::Tags::get_usertags($u);
     return undef unless $utags;
 
-    # for errors that we want to skip over silently instead of failing, but still report at the end
-    my @skippable_errors;
     my @unauthorized_add;
 
     # take arrayrefs of tag strings and stringify them for validation
@@ -820,13 +818,10 @@ sub update_logtags {
     # now don't readd things we already have
     delete $add{$_} foreach keys %{$tags};
 
-    # populate the errref, but don't actually return.
-    push @skippable_errors, LJ::Lang::ml( "taglib.error.add", { tags => join( ", ", @unauthorized_add ) } ) if @unauthorized_add;
-    push @skippable_errors, LJ::Lang::ml( "taglib.error.delete", { tags => join( ", ", map { $utags->{$_}->{name} } keys %delete ) } ) if %delete && ! $can_control ;
-    $err->( join " ", @skippable_errors ) if @skippable_errors;
-
-    # but delete nothing if we're not a controller
-    %delete = () unless $can_control || $opts->{force};
+    my @add_delete_errors;
+    push @add_delete_errors, LJ::Lang::ml( "taglib.error.add", { tags => join( ", ", @unauthorized_add ) } ) if @unauthorized_add;
+    push @add_delete_errors, LJ::Lang::ml( "taglib.error.delete2", { tags => join( ", ", map { $utags->{$_}->{name} } keys %{$tags} ) } ) if %delete && ! $can_control && ! $opts->{force};
+    return $err->( join "\n\n", @add_delete_errors ) if @add_delete_errors;
 
     # bail out if nothing needs to be done
     return 1 unless %add || %delete;

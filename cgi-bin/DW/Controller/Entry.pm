@@ -1138,7 +1138,7 @@ sub _do_edit {
     my $warnings = $opts{warnings} || DW::FormErrors->new;
 
     # e.g., bad HTML in the entry
-    $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $res->{message} ) ) )
+    $warnings->add_string( undef, LJ::auto_linkify( LJ::html_newlines( LJ::ehtml( $res->{message} ) ) ) )
         if $res->{message};
 
     # bunch of helpful links:

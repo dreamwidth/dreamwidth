@@ -259,7 +259,7 @@ body<=
 
                 # check response
                 unless ($res{'success'} eq "OK") {
-                    return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.modify'} <ul><li><b>$res{'errmsg'}</b></li></ul> p?>";
+                    return "<?h1 $ML{'Error'} h1?><?p <ul><li><b>$res{'errmsg'}</b></li></ul> p?>";
                 }
 
                 my $deleted = $req{event} ? 0 : 1;
@@ -318,11 +318,11 @@ body<=
                     my $deleted_extras = LJ::Hooks::run_hook('entry_deleted_page_extras');
                     $result .= $deleted_extras if defined $deleted_extras;
                 } else {
-                    $message = LJ::auto_linkify( LJ::ehtml( $res{message} ) );
+                    $message = LJ::auto_linkify( LJ::html_newlines( LJ::ehtml( $res{message} ) ) );
                     $result .= ($journalu->is_community) ?
                         "<?p $ML{'.success.edited.comm'} p?>" :
                         "<?p $ML{'.success.edited'} p?>";
-                    $result .= "<?p $message p?>" if $message;
+                    $result .= "<div class='alert-box'>$message</div>" if $message;
                     $result .= $xpost_result;
                     # open a request about the unsuspension if one doesn't already exist
                     if ($POST{'action:saveunsuspend'} && !$entry_obj->prop("unsuspend_supportid") && $LJ::UNSUSPENSION_REQUEST_SPCATID) {
