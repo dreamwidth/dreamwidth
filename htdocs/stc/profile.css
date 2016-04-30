@@ -211,11 +211,11 @@ span.expandcollapse {
     padding-right: 3px;
     max-width: 19px;
 }
-.external_services table td.im_icon,
-.external_services table td.im_status {
+.external_services div.im_icon,
+.external_services div.im_status {
     text-align: center;
 }
-.external_services table td.im_icon img,
-.external_services table td.im_status img {
+.external_services div.im_icon img,
+.external_services div.im_status img {
     border: 0;
 }
