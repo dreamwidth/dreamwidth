@@ -211,9 +211,17 @@ span.expandcollapse {
     padding-right: 3px;
     max-width: 19px;
 }
+.external_services ul {
+    -webkit-column-width: 15em;
+    -moz-column-width: 15em;
+    column-width: 15em;
+    list-style-type: none;
+}
 .external_services div.im_icon,
 .external_services div.im_status {
     text-align: center;
+    display: inline;
+    width: 19px;
 }
 .external_services div.im_icon img,
 .external_services div.im_status img {
