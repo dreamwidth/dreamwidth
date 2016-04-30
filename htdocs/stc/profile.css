@@ -216,6 +216,11 @@ span.expandcollapse {
     column-width: 15em;
     list-style-type: none;
 }
+.external_services ul li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .external_services div.im_icon,
 .external_services div.im_status {
     text-align: center;
