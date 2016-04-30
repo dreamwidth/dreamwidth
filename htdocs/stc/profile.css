@@ -207,15 +207,15 @@ span.expandcollapse {
     float: left;
     margin: 10px 70px 0 0;
 }
-    .external_services img {
-        padding-right: 3px;
-        max-width: 19px;
-    }
-    .external_services table td.im_icon,
-    .external_services table td.im_status {
-        text-align: center;
-    }
-        .external_services table td.im_icon img,
-        .external_services table td.im_status img {
-            border: 0;
-        }
+.external_services img {
+    padding-right: 3px;
+    max-width: 19px;
+}
+.external_services table td.im_icon,
+.external_services table td.im_status {
+    text-align: center;
+}
+.external_services table td.im_icon img,
+.external_services table td.im_status img {
+    border: 0;
+}
