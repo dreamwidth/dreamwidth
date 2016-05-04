@@ -1096,7 +1096,13 @@ sub create_url {
         foreach my $k ( keys %$orig_args ) {
             next if $k eq lc $k;
             next if $k =~ /^Widget\b/;
-            warn "[#1742] lowercasing $k, url: $url\n";
+            # already found another unintended side effect in /endpoints/draft
+            next if $k eq 'getProperties';
+
+            # don't complain about hand-typed arguments, but do convert them (for now)
+            my $referer = DW::Request->get->header_in("Referer");
+            warn "[#1742] lowercasing $k, url: $url (referer: $referer)\n"
+                if $referer;
             $orig_args->{lc $k} = $orig_args->{$k};
             delete $orig_args->{$k};
         }
