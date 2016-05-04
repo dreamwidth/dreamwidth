@@ -55,7 +55,7 @@ sub directory_handler {
             return DW::Template->render_template( 'directory/searchdots.tt', $rv );
         }
 
-        my $journaltype = $rv->{journaltype} = uc $args->{journaltype} || '';
+        my $journaltype = $rv->{journaltype} = uc( $args->{journaltype} || '' );
         $rv->{searchurl} = $journaltype eq 'C' ?
                            "community/search" : "directorysearch";
 
