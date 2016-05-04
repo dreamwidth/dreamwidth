@@ -1562,7 +1562,7 @@ sub parse_multipart_interactive {
             return $err->($@);
         }
         unless ($ret) {
-            return $err->("Hook: '$name' returned false");
+            return $err->( $$errref ? $$errref : "Hook: '$name' returned false" );
         }
         return 1;
     };

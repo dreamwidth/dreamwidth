@@ -1051,9 +1051,12 @@ sub parse_large_upload
         }
 
         if (index(lc($$errorref), 'unknown format') == 0) {
-            return $err->(BML::ml(".error.unknowntype"));
+            $$errorref = BML::ml(".error.unknowntype");
+        } else {
+            $$errorref = "couldn't parse upload: $$errorref";
         }
-        return $err->("couldn't parse upload: $$errorref");
+        # the error page is printed in the caller
+        return 0;
     }
 
     return $retval;
