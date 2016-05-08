@@ -808,11 +808,6 @@ sub trans
         });
     };
 
-    # flag if we hit a domain that was configured as a "normal" domain
-    # which shouldn't be inspected for its domain name.  (for use with
-    # Akamai and other CDN networks...)
-    my $skip_domain_checks = 0;
-
     # user domains
     if (($LJ::USER_VHOSTS || $LJ::ONLY_USER_VHOSTS) &&
         $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/ &&
@@ -832,9 +827,7 @@ sub trans
         my $func = $LJ::SUBDOMAIN_FUNCTION{$user};
         if ($func eq "normal") {
             # site admin wants this domain to be ignored and treated as if it
-            # were "www", so set this flag so the custom "OTHER_VHOSTS" check
-            # below fails.
-            $skip_domain_checks = 1;
+            # were "www"
 
         } elsif ($func eq "cssproxy") {
 
@@ -898,31 +891,6 @@ sub trans
             return $view if defined $view;
             return 404;
         }
-    }
-
-    # custom used-specified domains
-    if ($LJ::OTHER_VHOSTS && !$skip_domain_checks &&
-        $host !~ /$LJ::DOMAIN$/ &&
-        $host =~ /\./ &&
-        $host =~ /[^\d\.]/)
-    {
-        my $dbr = LJ::get_db_reader();
-        my $checkhost = lc( $host );
-        $checkhost =~ s/^www\.//i;
-        my $key = "domain:$checkhost";
-        my $userid = LJ::MemCache::get( $key );
-        unless (defined $userid) {
-            my $db = LJ::get_db_reader();
-            ($userid) = $db->selectrow_array( qq{SELECT userid FROM domains WHERE domain=?}, undef, $checkhost );
-            $userid ||= 0; ## we do cache negative results - if no user for such domain, set userid=0
-            LJ::MemCache::set( $key, $userid );
-        }
-        my $user = LJ::load_userid( $userid );
-        return 404 unless $user;
-
-        my $view = $determine_view->( $user->user, "other:$host$hostport", $uri );
-        return $view if defined $view;
-        return 404;
     }
 
     # userpic

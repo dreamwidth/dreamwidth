@@ -758,7 +758,6 @@ my %bools = (
              "NO_PASSWORD_CHECK" => "Don't do strong password checks.  Users can use any old dumb password they'd like.",
              "OPENID_CONSUMER" => "Accept OpenID identies for logging in and commenting.",
              "OPENID_SERVER" => "Be an OpenID server.",
-             "OTHER_VHOSTS" => "Let users CNAME their vanity domains to this LiveJournal installation to transparently load their journal.",
              "USE_SSL" => "Links to SSL portions of the site should be visible.",
              "USE_PGP" => "Let users set their PGP/GPG public key, and accept PGP/GPG-signed emails (for authentication)",
              "OPENID_COMPAT" => "Support pre-1.0 OpenID specs as well as final spec.",
