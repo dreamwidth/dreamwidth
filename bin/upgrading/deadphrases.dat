@@ -173,6 +173,16 @@ general /modify.bml.modify.head
 general /modify.bml.modify.text
 general /modify.bml.title
 
+general /modify_do.bml.domainalias.about
+general /modify_do.bml.domainalias.about.comm
+general /modify_do.bml.domainalias.domainname
+general /modify_do.bml.domainalias.example
+general /modify_do.bml.domainalias.example.comm
+general /modify_do.bml.domainalias.head
+general /modify_do.bml.domainalias.helptext
+general /modify_do.bml.error.dupdomainalias
+general /modify_do.bml.error.samedomainalias
+general /modify_do.bml.success.head
 general /modify_do.bml.title
 
 general /multisearch.bml.formaterror
@@ -1206,6 +1216,9 @@ general portal.update.portaltitle
 general portal.update.subject
 general protocol.old_win32_client
 general search.user.nopic
+general setting.display.domainmapping.actionlink
+general setting.display.domainmapping.actionlink.remove
+general setting.display.domainmapping.label
 general setting.display.secretquestion.actionlink.change
 general setting.display.secretquestion.actionlink.set
 general setting.display.secretquestion.label
