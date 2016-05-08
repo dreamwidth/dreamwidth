@@ -500,7 +500,7 @@ sub trans
 
         # do redirects:
         # -- uppercase usernames
-        # -- users with hyphens/underscores, except users from external domains (see table 'domains')
+        # -- users with hyphens/underscores, except users from external domains
         if ( $orig_user ne lc($orig_user) ||
             $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^$protocol://$host!i && $opts->{'vhost'} !~ /^other:/) {
             my $newurl = $uri;

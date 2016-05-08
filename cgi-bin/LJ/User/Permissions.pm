@@ -169,10 +169,6 @@ sub can_manage_invites_light {
     return 0;
 }
 
-sub can_map_domains {
-    return 0;
-}
-
 sub can_post {
     return $_[0]->get_cap( 'can_post' ) ? 1 : 0;
 }

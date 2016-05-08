@@ -205,7 +205,7 @@ userproplist.delicious:
   indexed: 0
   multihomed: 0
   prettyname: Delicious user account name
-  
+
 userproplist.deviantart:
   cldversion: 4
   datatype: char
@@ -557,14 +557,6 @@ userproplist.jabber:
   indexed: 1
   multihomed: 1
   prettyname: Jabber Address
-
-userproplist.journaldomain:
-  cldversion: 4
-  datatype: char
-  des: Domain which will load user's journal
-  indexed: 0
-  multihomed: 0
-  prettyname: Domain Alias
 
 userproplist.journalsubtitle:
   cldversion: 4
