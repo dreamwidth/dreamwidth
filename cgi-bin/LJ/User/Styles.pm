@@ -613,8 +613,8 @@ sub make_journal {
         ! LJ::get_cap( $u, "userdomain" ) ) {
         return $notice->( BML::ml( 'error.vhost.nodomain1', { user_domain => $LJ::USER_DOMAIN } ) );
     }
-    if ($opts->{'vhost'} =~ /^other:/ && ! LJ::get_cap($u, "domainmap")) {
-        return $notice->( BML::ml( 'error.vhost.noalias' ) );
+    if ( $opts->{'vhost'} =~ /^other:/ ) {
+        return $notice->( BML::ml( 'error.vhost.noalias1' ) );
     }
     if ($opts->{'vhost'} eq "customview" && ! LJ::get_cap($u, "styles")) {
         return $notice->( BML::ml( 'error.vhost.nostyle' ) );
