@@ -147,9 +147,6 @@
     # (versions 3.14 and above) for Maildir support.
     #$MAILSPOOL = '/home/livejournal/mail';
 
-    # Allow users to point their own domains here?
-    $OTHER_VHOSTS = 1;
-
     # turns these from 0 to 1 to disable parts of the site that are
     # CPU & database intensive or that you simply don't want to use
     %DISABLED = (
@@ -345,7 +342,6 @@
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
             'directory' => 1,
-            'domainmap' => 1,
             'edit_comments' => 1,
             'emailpost' => 1,
             'fastserver' => 1,
@@ -420,7 +416,6 @@
             'checkfriends' => 0,
             'checkfriends_interval' => 0,
             'directory' => 1,
-            'domainmap' => 0,
             'edit_comments' => 0,
             'emailpost' => 0,
             'findsim' => 0,

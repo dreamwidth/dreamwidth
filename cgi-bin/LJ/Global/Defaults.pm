@@ -122,7 +122,6 @@ no strict "vars";
                       's2layersmax' => 50,
                       'textmessaging' => 1,
                       'userdomain' => 0,
-                      'domainmap' => 0,
                       'useremail' => 0,
                       'userpics' => 5,
                       'findsim' => 1,

@@ -847,7 +847,7 @@ error.usernamelong=This account name is too long.  Account names can't be longer
 
 error.username_notfound=This account name wasn't found.
 
-error.vhost.noalias=This user's account type doesn't permit domain aliasing.
+error.vhost.noalias1=The domain aliasing feature has been retired.
 
 error.vhost.nocomm=This account isn't a community journal.
 
@@ -2603,12 +2603,6 @@ setting.display.banusers.option.self=Ban and unban accounts from commenting in m
 setting.display.communityinvites.label=Community Invitations
 
 setting.display.communityinvites.option=View pending invitations to communities
-
-setting.display.domainmapping.actionlink=Set up
-
-setting.display.domainmapping.actionlink.remove=Remove
-
-setting.display.domainmapping.label=Domain Mapping
 
 setting.display.email.actionlink.change=Change
 

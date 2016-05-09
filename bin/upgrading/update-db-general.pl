@@ -956,6 +956,7 @@ register_tabledrop("jabroster");
 register_tabledrop("jabpresence");
 register_tabledrop("jabcluster");
 register_tabledrop("jablastseen");
+register_tabledrop("domains");
 
 
 register_tablecreate("infohistory", <<'EOC');
@@ -1264,16 +1265,6 @@ CREATE TABLE ml_text (
     text    TEXT NOT NULL,
     userid  INT UNSIGNED NOT NULL
 ) ENGINE=MYISAM
-EOC
-
-register_tablecreate("domains", <<'EOC');
-CREATE TABLE domains (
-    domain  VARCHAR(80) NOT NULL,
-    PRIMARY KEY (domain),
-    userid  INT UNSIGNED NOT NULL,
-
-    INDEX (userid)
-)
 EOC
 
 register_tablecreate("procnotify", <<'EOC');

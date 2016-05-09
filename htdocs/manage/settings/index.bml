@@ -71,7 +71,6 @@ body<=
                 LJ::Setting::Display::AccountStatus
                 LJ::Setting::Display::Email
                 LJ::Setting::Display::Password
-                LJ::Setting::Display::DomainMapping
             )],
         },
         display => {
