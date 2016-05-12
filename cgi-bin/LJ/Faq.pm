@@ -231,6 +231,18 @@ sub sortorder {
     return $self->{sortorder};
 }
 
+sub url {
+    my ($class, $faqid) = @_;
+    $faqid = $class->{faqid} if ref $class;
+    return "$LJ::SITEROOT/support/faqbrowse?faqid=$faqid";
+}
+
+sub url_full {
+    my ($class, $faqid) = @_;
+    $faqid = $class->{faqid} if ref $class;
+    return "$LJ::SITEROOT/support/faqbrowse?faqid=$faqid&view=full";
+}
+
 # <LJFUNC>
 # name: LJ::Faq::has_summary
 # class: general
