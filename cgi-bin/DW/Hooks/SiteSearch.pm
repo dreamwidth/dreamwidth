@@ -21,8 +21,9 @@ use LJ::Hooks;
 
 sub _sphinx_db {
     # ensure we can talk to our system
-    return LJ::get_dbh( 'sphinx_search' )
+    my $dbh = LJ::get_dbh( 'sphinx_search' )
         or die "Unable to get sphinx_search database handle.\n";
+    return $dbh;
 }
 
 LJ::Hooks::register_hook( 'setprop', sub {
