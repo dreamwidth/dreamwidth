@@ -47,6 +47,10 @@
     $SITEADDRESS = "123 Main St.<br />Somewhere, XX 12345";
     $SITEADDRESSLINE = "123 Main St. Somewhere, XX 12345";
 
+    # supported languages (defaults to qw(en) if none given)
+    # First element is default language for user interface, untranslated text
+    #@LANGS = qw( en_DW );
+
     # MemCache information, if you have MemCache servers running
     #@MEMCACHE_SERVERS = ('hostname:port');
     #$MEMCACHE_COMPRESS_THRESHOLD = 1_000; # bytes
