@@ -217,7 +217,9 @@
 
     # supported languages (defaults to qw(en) if none given)
     # First element is default language for user interface, untranslated text
-    @LANGS = qw( en_DW );
+    unless (@LANGS) {
+      @LANGS = qw( en_DW ) if -d "$HOME/ext/dw-nonfree";
+    }
 
     # support unicode (posts in multiple languages)?  leave enabled.
     $UNICODE = 1;
