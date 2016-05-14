@@ -305,7 +305,7 @@ sub _are_same_person {
     # able to rename to registered accounts, where both accounts can be identified as the same person
     # may be able to do this more elegantly once we are able to associate accounts
     # right now: two valid accounts, same email address, same password, and at least one must be validated
-    return 0 unless lc( $p1->email_raw ) eq lc( $p2->email_raw );
+    return 0 unless $p1->has_same_email_as( $p2 );
     return 0 unless $p1->password eq $p2->password;
     return 0 unless $p1->is_validated || $p2->is_validated;
 

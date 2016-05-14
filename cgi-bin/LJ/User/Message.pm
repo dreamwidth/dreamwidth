@@ -72,6 +72,11 @@ sub email_raw {
     return $u->{_email};
 }
 
+sub has_same_email_as {
+    my ( $u, $other ) = @_;
+    croak "invalid user object passed" unless LJ::isu( $u ) && LJ::isu( $other );
+    return lc( $u->email_raw ) eq lc( $other->email_raw );
+}
 
 sub email_status {
     my $u = shift;

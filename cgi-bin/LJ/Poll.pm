@@ -1516,14 +1516,12 @@ sub process_submission {
                                                            undef, $poll->journalid, $poll->pollid );
 
             if (@$uids) {
-                my $remote_email = $remote->email_raw;
                 my $us = LJ::load_userids(@$uids);
 
                 foreach my $u (values %$us) {
                     next unless $u;
 
-                    my $u_email = $u->email_raw;
-                    if (lc $u_email eq lc $remote_email) {
+                    if ( $u->has_same_email_as( $remote ) ) {
                         $$error = LJ::Lang::ml('poll.error.alreadyvoted', { user => $u->ljuser_display });
                         return 0;
                     }
