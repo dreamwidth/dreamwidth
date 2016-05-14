@@ -187,12 +187,6 @@ sub totally_down_content
         return OK;
     }
 
-    if ($uri =~ m!^/customview.cgi!) {
-        $apache_r->content_type("text/html");
-        $apache_r->print("<!-- $LJ::SERVER_DOWN_MESSAGE -->");
-        return OK;
-    }
-
     # set to 500 so people don't cache this error message
     my $body = "<h1>$LJ::SERVER_DOWN_SUBJECT</h1>$LJ::SERVER_DOWN_MESSAGE<!-- " . ("x" x 1024) . " -->";
     $apache_r->status( 503 );
@@ -632,11 +626,6 @@ sub trans
 
             my ($mode, $path) = ($1, $2);
 
-            if ($mode eq "customview") {
-                $apache_r->handler("perl-script");
-                $apache_r->push_handlers(PerlResponseHandler => \&customview_content);
-                return OK;
-            }
             if (my $handler = LJ::Hooks::run_hook("data_handler:$mode", $RQ{'user'}, $path)) {
                 $apache_r->handler("perl-script");
                 $apache_r->push_handlers(PerlResponseHandler => $handler);
@@ -991,13 +980,6 @@ sub trans
 
         my $view = $determine_view->($user, $vhost, $rest);
         return $view if defined $view;
-    }
-
-    # customview (get an S1 journal by number)
-    if ($uri =~ m!^/customview\.cgi!) {
-        $apache_r->handler("perl-script");
-        $apache_r->push_handlers(PerlResponseHandler => \&customview_content);
-        return OK;
     }
 
     if ($uri =~ m!^/palimg/!) {
@@ -1441,83 +1423,6 @@ sub journal_content
     $apache_r->headers_out->{"Content-length"} = $length;
     $apache_r->print($html) unless $apache_r->header_only;
 
-    return OK;
-}
-
-sub customview_content
-{
-    my $apache_r = shift;
-    my %FORM = $apache_r->args;
-
-    my $charset = "utf-8";
-
-    if ($LJ::UNICODE && $FORM{'charset'}) {
-        $charset = $FORM{'charset'};
-        if ($charset ne "utf-8" && ! Unicode::MapUTF8::utf8_supported_charset($charset)) {
-            $apache_r->content_type("text/html");
-            $apache_r->print("<b>Error:</b> requested charset not supported.");
-            return OK;
-        }
-    }
-
-    my $ctype = "text/html";
-    if ($FORM{'type'} eq "xml") {
-        $ctype = "text/xml";
-    }
-
-    if ($LJ::UNICODE) {
-        $ctype .= "; charset=$charset";
-    }
-
-    $apache_r->content_type($ctype);
-
-    my $cur_journal = LJ::Session->domain_journal;
-    my $user = LJ::canonical_username($FORM{'username'} || $FORM{'user'} || $cur_journal);
-    my $styleid = $FORM{'styleid'} + 0;
-    my $nooverride = $FORM{'nooverride'} ? 1 : 0;
-
-    if ($LJ::ONLY_USER_VHOSTS && $cur_journal ne $user) {
-        my $u = LJ::load_user($user)
-            or return 404;
-        my $safeurl = $u->journal_base . "/data/customview?";
-        my %get_args = %FORM;
-        delete $get_args{'user'};
-        delete $get_args{'username'};
-        $safeurl .= join("&", map { LJ::eurl($_) . "=" . LJ::eurl($get_args{$_}) } keys %get_args);
-        return redir($apache_r, $safeurl);
-    }
-
-    my $remote;
-    if ($FORM{'checkcookies'}) {
-        $remote = LJ::get_remote();
-    }
-
-    my $data = (LJ::make_journal($user, "", $remote,
-                 { "nocache" => $FORM{'nocache'},
-                   "vhost" => "customview",
-                   "nooverride" => $nooverride,
-                   "styleid" => $styleid,
-                   "saycharset" => $charset,
-                   "args" => scalar $apache_r->args,
-                   "r" => $apache_r,
-               })
-          || "<b>[$LJ::SITENAME: Bad username, styleid, or style definition]</b>");
-
-    if ($FORM{'enc'} eq "js") {
-        $data =~ s/\\/\\\\/g;
-        $data =~ s/\"/\\\"/g;
-        $data =~ s/\n/\\n/g;
-        $data =~ s/\r//g;
-        $data = "document.write(\"$data\")";
-    }
-
-    if ($LJ::UNICODE && $charset ne 'utf-8') {
-        $data = Unicode::MapUTF8::from_utf8({-string=>$data, -charset=>$charset});
-    }
-
-    $apache_r->headers_out->{"Cache-Control"} = "must-revalidate";
-    $apache_r->headers_out->{"Content-Length"} = length($data);
-    $apache_r->print($data) unless $apache_r->header_only;
     return OK;
 }
 

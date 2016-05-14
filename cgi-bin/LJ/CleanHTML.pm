@@ -861,6 +861,8 @@ sub clean
                 # in S1 with a page that embeds scripting as well.  An example being an AJAX
                 # six degrees tool, while cool it should not be allowed.
                 #
+                # FIXME Dreamwidth does not support S1 and customview has been removed.
+                #
                 # Example syntax:
                 # <xsl:element name="script">
                 # <xsl:attribute name="type">text/javascript</xsl:attribute>

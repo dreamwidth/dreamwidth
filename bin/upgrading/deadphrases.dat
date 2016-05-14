@@ -1042,6 +1042,7 @@ general error.interest.bytes.chars.words
 general error.interest.chars.words
 general error.interest.excessive
 general error.interest.words
+general error.vhost.nostyle
 general esn.add_friend
 general esn.befriended.email_text
 general esn.befriended.openid_email_text
