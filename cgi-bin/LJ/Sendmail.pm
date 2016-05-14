@@ -147,7 +147,8 @@ sub send_mail
                                    'Bcc'     => $opt->{bcc} || '',
                                    'Subject' => $subject,
                                    'Type'    => 'text/plain',
-                                   'Data'    => $body);
+                                   'Data'    => $body,
+                                   'Encoding' => 'quoted-printable');
 
             $msg->attr("content-type.charset" => $charset);
         }
