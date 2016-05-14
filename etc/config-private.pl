@@ -20,7 +20,7 @@
                'master' => {  # master must be named 'master'
                    'host' => "localhost",
                    'port' => 3306,
-                   'user' => 'dw',
+                   'user' => 'dw',    #CHANGETHIS if on Dreamhack
                    'pass' => 'password',    # CHANGETHIS
                    'dbname' => 'dw',
                    'role' => {
