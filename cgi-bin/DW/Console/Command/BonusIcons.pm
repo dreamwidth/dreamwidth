@@ -91,7 +91,7 @@ sub execute {
         return $self->error( 'Invalid target user.' )
             unless $destination_u;
         return $self->error( 'E-mail addresses do not match.' )
-            unless $to_u->email_raw eq $destination_u->email_raw; 
+            unless $to_u->has_same_email_as( $destination_u );
         return $self->error( 'One or more email address(es) not confirmed.' )
             unless $to_u->is_validated && $destination_u->is_validated;
 
