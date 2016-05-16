@@ -1165,7 +1165,9 @@ general pingback.option.lj_only
 general pingback.option.open
 general pingback.public.comment.text
 general pingback.sourceuri.default_title
+general poll.error.alreadyvoted
 general poll.error.notvalidated
+general poll.error.notvalidated2
 general poll.error.scaletoobig
 general portal.bdays.count.des
 general portal.bdays.count.name
