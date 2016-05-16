@@ -237,9 +237,6 @@ sub new_from_html {
                 $popts{whoview} = "trusted" if $popts{whoview} eq "friends";
 
                 my $journal = LJ::load_userid($iteminfo->{posterid});
-                if (LJ::Hooks::run_hook("poll_unique_prop_is_enabled", $journal)) {
-                    $popts{props}->{unique} = $opts->{unique} ? 1 : 0;
-                }
                 if (LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $journal)) {
                     $popts{props}->{createdate} = $opts->{createdate} || undef;
                 }
@@ -748,13 +745,6 @@ sub is_owner {
 
     return 1 if $remote && $remote->userid == $self->posterid;
     return 0;
-}
-
-# poll requires unique answers (by email address)
-sub is_unique {
-    my $self = $_[0];
-
-    return LJ::Hooks::run_hook("poll_unique_prop_is_enabled", $self->poster) && $self->prop("unique") ? 1 : 0;
 }
 
 # poll requires voters to be created on or before a certain date
@@ -1499,36 +1489,6 @@ sub process_submission {
     # delete user answer MemCache entry
     my $memkey = [$remote->userid, "pollresults:" . $remote->userid . ":$pollid"];
     LJ::MemCache::delete( $memkey );
-
-    # if unique prop is on, make sure that a particular email address can only vote once
-    if ($poll->is_unique) {
-        # make sure their email address is validated
-        unless ($remote->is_validated) {
-            $$error = LJ::Lang::ml('poll.error.notvalidated2', { aopts => "href='$LJ::SITEROOT/register'" });
-            return 0;
-        }
-
-        # if this particular user has already voted, let them change their answer
-        my $time = $poll->get_time_user_submitted($remote);
-        unless ($time) {
-            my $uids = $poll->journal->selectcol_arrayref( "SELECT userid FROM pollsubmission2 " .
-                                                           "WHERE journalid = ? AND pollid = ?",
-                                                           undef, $poll->journalid, $poll->pollid );
-
-            if (@$uids) {
-                my $us = LJ::load_userids(@$uids);
-
-                foreach my $u (values %$us) {
-                    next unless $u;
-
-                    if ( $u->has_same_email_as( $remote ) ) {
-                        $$error = LJ::Lang::ml('poll.error.alreadyvoted', { user => $u->ljuser_display });
-                        return 0;
-                    }
-                }
-            }
-        }
-    }
 
     ### load any previous answers
     my $qvals = $poll->journal->selectall_arrayref(
