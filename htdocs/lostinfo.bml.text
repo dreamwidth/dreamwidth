@@ -38,7 +38,7 @@ Regards,
 
 .error.toofrequent=You're trying to send too many emails at once.  You may only request five lost information emails within 24 hours.
 
-.lostpassword.text=If you've lost your password, enter your account name and, optionally, the email address to which you'd like the password sent.  The email address must be one you've already confirmed and used previously at [[sitename]].  If you leave the email field blank, the email will be sent to your current email address.
+.lostpassword.text=If you've lost your password, enter your account name and, optionally, the email address to which you'd like the password reset token sent.  The email address must be one you've already confirmed and used previously at [[sitename]].  If you leave the email field blank, the password reset email will be sent to your current email address.
 
 .lostpassword.title=Have you lost your password?
 

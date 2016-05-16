@@ -799,6 +799,9 @@ general /editprivacy.bml.calendar
 general /login.bml.createaccount.tour
 general /lostinfo.bml.captcha.invalid
 general /lostinfo.bml.recaptcha.title
+general /lostinfo_do.bml.lostpasswordmail.part1
+general /lostinfo_do.bml.lostpasswordmail.part2
+general /lostinfo_do.bml.lostpasswordmail.part5
 general /manage/circle/add.bml.confirm.syn.title1
 general /manage/circle/add.bml.confirm.syn.title1.add
 general /manage/circle/add.bml.confirm.text1.news
