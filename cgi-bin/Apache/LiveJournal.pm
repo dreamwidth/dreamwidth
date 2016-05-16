@@ -1516,6 +1516,10 @@ sub xmlrpc_method {
     }
     my $res = LJ::Protocol::do_request($method, $req, \$error);
     if ($error) {
+        # FIXME [#1709]: which errors don't start with numbers?
+        print STDERR "[#1709] xmlrpc error for $method needs faultcode: $error\n"
+            unless $error =~ /^\d{3}/;
+        # existing behavior
         die SOAP::Fault
             ->faultstring(LJ::Protocol::error_message($error))
             ->faultcode(substr($error, 0, 3));
