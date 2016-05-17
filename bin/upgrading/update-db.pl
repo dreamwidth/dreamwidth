@@ -530,7 +530,6 @@ sub populate_proplist_file {
         'media_prop_list' => 'name',
         'talkproplist' => 'name',
         'usermsgproplist' => 'name',
-        'pollproplist2'   => 'name',
         );
     my %id = (
         'userproplist' => 'upropid',
@@ -538,7 +537,6 @@ sub populate_proplist_file {
         'media_prop_list' => 'propid',
         'talkproplist' => 'tpropid',
         'usermsgproplist' => 'propid',
-        'pollproplist2'   => 'propid',
     );
 
     my $table;  # table
