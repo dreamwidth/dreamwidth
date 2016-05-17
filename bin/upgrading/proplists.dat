@@ -758,14 +758,6 @@ userproplist.opt_embedplaceholders:
   multihomed: 0
   prettyname: Use Placeholders for lj-template embedded objects
 
-userproplist.opt_exclude_stats:
-  cldversion: 4
-  datatype: bool
-  des: 1: don't include user when using offsite hit tracker
-  indexed: 0
-  multihomed: 0
-  prettyname: Exclude From Offsite Stats Tracking
-
 userproplist.opt_findbyemail:
   cldversion: 4
   datatype: char
