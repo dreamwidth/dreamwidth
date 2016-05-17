@@ -237,10 +237,6 @@ sub new_from_html {
                 $popts{whoview} = "trusted" if $popts{whoview} eq "friends";
 
                 my $journal = LJ::load_userid($iteminfo->{posterid});
-                if (LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $journal)) {
-                    $popts{props}->{createdate} = $opts->{createdate} || undef;
-                }
-                LJ::Hooks::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
 
                 $popts{'isanon'} = "no" unless ($popts{'isanon'} eq "yes");
 
@@ -747,13 +743,6 @@ sub is_owner {
     return 0;
 }
 
-# poll requires voters to be created on or before a certain date
-sub is_createdate_restricted {
-    my $self = $_[0];
-
-    return LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $self->poster) && $self->prop("createdate") ? 1 : 0;
-}
-
 # do we have a valid poll?
 sub valid {
     my $self = $_[0];
@@ -1258,20 +1247,6 @@ sub can_vote {
     return 0 if $self->whovote eq "trusted" && !$trusted;
 
     return 0 if $self->journal->has_banned( $remote );
-
-    if ($self->is_createdate_restricted) {
-        my $propval = $self->prop("createdate");
-        if ($propval =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/) {
-            my $propdate = DateTime->new( year => $1, month => $2, day => $3, hour => 23, minute => 59, second => 59, time_zone => 'America/Los_Angeles' );
-            my $timecreate = DateTime->from_epoch( epoch => $remote->timecreate, time_zone => 'America/Los_Angeles' );
-
-            # make sure that timecreate is before or equal to propdate
-            return 0 if $propdate && $timecreate && DateTime->compare($timecreate, $propdate) == 1;
-        }
-    }
-
-    my $can_vote_override = LJ::Hooks::run_hook("can_vote_poll_override", $self);
-    return 0 unless !defined $can_vote_override || $can_vote_override;
 
     return 1;
 }
