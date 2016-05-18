@@ -1676,3 +1676,6 @@ contentflag.viewingconcepts.byposter
 contentflag.viewingexplicit.bycommunity
 contentflag.viewingexplicit.byjournal
 contentflag.viewingexplicit.byposter
+
+general /customize/options.bml.widget.navstripchooser.option.color.control_strip_borderc
+general /customize/options.bml.widget.navstripchooser.option.color.control_strip_linkcol
