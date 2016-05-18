@@ -290,6 +290,8 @@ sub create_handler {
 
         formdata        => $post,
         errors          => $errors,
+
+        username_maxlength => $LJ::USERNAME_MAXLENGTH,
     };
 
     if ( $code_valid && $rate_ok ) {

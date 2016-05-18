@@ -33,8 +33,9 @@ sub verify_username {
     if ($given_username && !$user) {
         $error = LJ::Lang::ml('error.usernameinvalid');
     }
-    if (length $given_username > 25) {
-        $error = LJ::Lang::ml('error.usernamelong');
+    if ( length $given_username > $LJ::USERNAME_MAXLENGTH ) {
+        $error = LJ::Lang::ml('error.usernamelong1', 
+            { maxlength => $LJ::USERNAME_MAXLENGTH });
     }
 
     my $u = LJ::load_user($user);

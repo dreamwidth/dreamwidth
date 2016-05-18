@@ -1241,7 +1241,8 @@ use Carp;
 sub canonical_username {
     my $input = lc( $_[0] );
     my $user = "";
-    if ( $input =~ /^\s*([a-z0-9_\-]{1,25})\s*$/ ) {  # good username
+    my $exp = '^\s*([a-z0-9_\-]{1,' . $LJ::USERNAME_MAXLENGTH . '})\s*$';
+    if ( $input =~ m/^\s*([a-z0-9_z\-]{1,$LJ::USERNAME_MAXLENGTH})\s*$/ ) {
         $user = $1;
         $user =~ s/-/_/g;
     }

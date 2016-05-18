@@ -44,9 +44,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name = "user"
             id   = "js-user"
 
-            # maxlength 26, so if people don't notice that they hit the limit,
+            # maxlength is one over the actual max, so if people 
+            # don't notice that they hit the limit,
             # we give them a warning. (some people don't notice/proofread)
-            maxlength = 26
+            maxlength = username_maxlength + 1
 
             "aria-required" = "true"
             class = "journaltype-textbox user-textbox"

@@ -359,6 +359,9 @@ no strict "vars";
         /latest
         /edittags
     );
+
+    # maximum length of a username (NB do not change without changing width of database fields to match. And perhaps other stuff.
+    $USERNAME_MAXLENGTH = 25;
 }
 
 

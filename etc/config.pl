@@ -681,6 +681,8 @@
         comment_html_anon => 1,      # HTML comments from anon commenters?
         comment_html_auth => 0,      # HTML comments from non-anon commenters?
     );
+
+
 }
 
 1;
