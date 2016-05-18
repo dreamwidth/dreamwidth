@@ -2352,7 +2352,7 @@ CREATE TABLE pollquestion2 (
     pollid INT UNSIGNED NOT NULL,
     pollqid TINYINT UNSIGNED NOT NULL,
     sortorder TINYINT UNSIGNED NOT NULL DEFAULT '0',
-    type ENUM('check','radio','drop','text','scale') NOT NULL,
+    type ENUM('check','radio','drop','text','scale','ranked') NOT NULL,
     opts VARCHAR(255) DEFAULT NULL,
     qtext TEXT,
 
@@ -4170,6 +4170,12 @@ EOF
         do_alter( "spamreports",
                   "ALTER TABLE spamreports ".
                   "MODIFY ip VARCHAR(45)" );
+    }
+        
+    if (column_type("pollquestion2", "type") eq "enum('check','radio','drop','text','scale')") {
+        do_alter("pollquestion2",
+                 "ALTER TABLE pollquestion2 CHANGE COLUMN type type enum('check','radio','drop','text','scale','ranked')".
+
     }
 });
 

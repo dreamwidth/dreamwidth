@@ -430,7 +430,7 @@
             'import_comm' => 1,
             'inbox_max' => 2000,
             'interests' => 150,
-            'makepoll' => 0,
+            'makepoll' => 1,
             'mass_privacy' => 0,
             'maxfriends' => 1000,
             'mod_queue' => 50,
