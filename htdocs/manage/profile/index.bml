@@ -409,7 +409,7 @@ body<=
             # chat thingies
 
             $ret .= qq{
-    <tr class='section_subhead'><td colspan=2>$ML{'.subsection.other'}
+    <tr id='iminfo' class='section_subhead'><td colspan=2><a name='iminfo'></a>$ML{'.subsection.other'}
     </td><td class='view_options'>
     <a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'>
     $ML{'.fn.privacy'}: $curr_privacy</a></td></tr>\n
