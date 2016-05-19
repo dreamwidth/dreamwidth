@@ -60,7 +60,8 @@ sub entryprops_handler {
         my $entry = LJ::Entry->new_from_url( $post->{url} );
 
         my $url = LJ::ehtml( $post->{url} );
-        $errors->add_string( "$url is not a valid entry URL." ) unless $entry && $entry->valid;
+        $errors->add_string( 'url', "$url is not a valid entry URL." )
+            unless $entry && $entry->valid;
 
         unless ( $errors->exist ) {
             # WE HAEV ENTRY!!
@@ -172,7 +173,7 @@ sub propedit_handler {
 
         $u = LJ::load_user( $post->{username} );
         my $username = LJ::ehtml( $post->{username} );
-        $errors->add_string( "$username is not a valid username" ) unless $u;
+        $errors->add_string( 'username', "$username is not a valid username" ) unless $u;
 
         if ( ! $errors->exist && $can_save && $post->{_save} ) {
             foreach my $key ( $post->keys ) {
