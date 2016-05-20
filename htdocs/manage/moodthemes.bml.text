@@ -47,9 +47,13 @@
 
 .mood.reset=[[mood]] has been reset and will inherit if it has a parent.
 
+.mood.notcreated=[[mood]] was not created due to missing width and/or height.
+
 .mood.setpic=[[mood]] is set to [[url]].
 
 .saved=You've successfully saved your changes.
+
+.partiallysaved=Your changes were saved, except for the following errors.
 
 .title=Custom mood theme editor
 
