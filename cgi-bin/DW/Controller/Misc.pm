@@ -52,10 +52,10 @@ sub beta_handler {
         my $post = $r->post_args;
 
         my $feature = $post->{feature};
-        $errors->add_string( "No feature defined." ) unless $feature;
+        $errors->add_string( 'feature', "No feature defined." ) unless $feature;
 
         my $u = LJ::load_user( $post->{user} );
-        $errors->add_string( "Invalid user." ) unless $u;
+        $errors->add_string( 'user', "Invalid user." ) unless $u;
 
         unless ( $errors->exist ) {
             if ( $post->{on} ) {

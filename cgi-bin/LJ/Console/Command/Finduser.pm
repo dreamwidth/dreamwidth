@@ -36,15 +36,15 @@ sub can_execute {
 sub execute {
     my ($self, @args) = @_;
 
-    my ($crit, $data, $opt);
+    return $self->error( "No arguments given" ) unless @args;
+
+    my ( $crit, $data );
+    my $use_timeupdate = 0;
+
     if (scalar(@args) == 1) {
         # we can auto-detect emails easy enough
         $data = $args[0];
-        if ($data =~ /@/) {
-            $crit = 'email';
-        } else {
-            $crit = 'user';
-        }
+        $crit = ( $data =~ /@/ ) ? 'email' : 'user';
     } else {
         # old format...but new variations
         $crit = $args[0];
@@ -53,12 +53,8 @@ sub execute {
         # if they gave us the timeupdate flag as the criterion,
         # rewrite as a regular finduser, but display last update time, too
         if ($crit eq 'timeupdate') {
-            $opt = 'timeupdate';
-            if ($data !~ /@/) {
-                $crit = 'user';
-            } else {
-                $crit = 'email';
-            }
+            $use_timeupdate = 1;
+            $crit = ( $data =~ /@/ ) ? 'email' : 'user';
         }
 
         # if they gave us a username and want to search by email, instead find
@@ -98,7 +94,7 @@ sub execute {
 
     my $timeupdate;
     $timeupdate = LJ::get_timeupdate_multi({}, @$userids)
-        if $opt eq 'timeupdate';
+        if $use_timeupdate;
 
     foreach my $u (sort { $a->id <=> $b->id } values %$us) {
         next unless $u;
@@ -111,7 +107,7 @@ sub execute {
             if $u->readonly;
 
         $self->info("  Last updated: " . ($timeupdate->{$userid} ? LJ::time_to_http($timeupdate->{$userid}) : "Never"))
-            if $opt eq 'timeupdate';
+            if $use_timeupdate;
 
         foreach (LJ::Hooks::run_hooks("finduser_extrainfo", $u)) {
             next unless $_->[0];

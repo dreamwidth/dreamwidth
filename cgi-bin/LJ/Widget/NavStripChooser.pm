@@ -36,9 +36,8 @@ sub render_body {
     $ret .= "<p>" . $class->ml('widget.navstripchooser.colors') . "</p>";
 
     # choose colors
-    my $color_selected = $u->prop( 'control_strip_color' ) ne ''
-        ? $u->prop( 'control_strip_color' )
-        : "dark";
+    my $chosen_color = $u->prop( 'control_strip_color' ) // '';
+    my $color_selected = $chosen_color ne '' ? $chosen_color : "dark";
 
     my ($theme, @props, %prop_is_used, %colors_values, %bgcolor_values, %fgcolor_values, %bordercolor_values, %linkcolor_values, $color_custom);
     if ($u->prop('stylesys') == 2) {

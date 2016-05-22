@@ -25,7 +25,7 @@ sub get_allowed_senders {
     return undef unless LJ::isu( $u );
     my (%addr, @address);
 
-    @address = split( /\s*,\s*/, $u->prop( 'emailpost_allowfrom' ) );
+    @address = split( /\s*,\s*/, $u->prop( 'emailpost_allowfrom' ) || '' );
 
     # add their personal email, and assume we want to receive errors here
     unshift @address, $u->email_raw . "(E)" if $include_user_email;

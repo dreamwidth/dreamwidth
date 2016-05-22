@@ -1718,7 +1718,15 @@ sub clean_as_markdown {
     # second, convert @-style addressing to user tags
     my $usertag = sub {
         my ($user, $site) = ($1, $2 || $LJ::DOMAIN);
-        if (my $siteobj = DW::External::Site->get_site( site => $site )) {
+        my $siteobj = DW::External::Site->get_site( site => $site );
+
+        if ( $site eq $LJ::DOMAIN ) {
+            # just use a plain usertag in the most common case, which
+            # also avoids problems with other sites (dreamhacks etc.)
+            # that aren't found in DW::External::Site
+            return qq|<user name="$user" />|;
+        } elsif ( $siteobj && ref $siteobj ne 'DW::External::Site::Unknown' ) {
+            # only do site tags for known site formats
             return qq|<user name="$user" site="$siteobj->{domain}" />|;
         } else {
             return qq|\@$user.$site|;
