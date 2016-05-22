@@ -1012,7 +1012,7 @@ sub mail_response_to_user
         if ( $faq ) {
             $faq->render_in_place;
             $body .= LJ::Lang::ml( "support.email.update.faqref") . " " . $faq->question_raw . "\n";
-            $body .= "$LJ::SITEROOT/support/faqbrowse?faqid=$faqid&view=full";
+            $body .= $faq->url_full;
             $body .= "\n\n";
         }
     }
@@ -1177,7 +1177,7 @@ sub work {
             my $faq = LJ::Faq->load( $faqid, lang => $lang );
             if ( $faq ) {
                 $faq->render_in_place;
-                my $faqref = $faq->question_raw . " " . "$LJ::SITEROOT/support/faqbrowse?faqid=$faqid&view=full";
+                my $faqref = $faq->question_raw . " " . $faq->url_full;
 
                 # now add it to the e-mail!
                 $body .= "\n" . LJ::Lang::ml( "support.email.notif.update.body.faqref", {
