@@ -1654,12 +1654,6 @@ logproplist.xpostdetail:
 usermsgproplist.userpic:
   des: Userpic chosen by the user who created the message
 
-pollproplist2.unique:
-  des: If set to 1, then a person with a given email address can only vote once in the poll
-
-pollproplist2.createdate:
-  des: The voter must have created their account by the date specified (Pacific time) in order to vote.  Must be in format YYYY-MM-DD, otherwise there will be no restriction.
-
 media_prop_list.title:
   des: Title of this object
   prettyname: Title

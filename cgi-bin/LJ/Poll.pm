@@ -17,7 +17,6 @@ use Carp qw (croak);
 use LJ::Entry;
 use LJ::Poll::Question;
 use LJ::Event::PollVote;
-use LJ::Typemap;
 
 ##
 ## Memcache routines
@@ -30,7 +29,7 @@ sub _memcache_stored_props          {
     # next - allowed object properties
     return qw/ 2
                ditemid itemid
-               pollid journalid posterid isanon whovote whoview name status questions props
+               pollid journalid posterid isanon whovote whoview name status questions
                /;
 }
     *_memcache_hashref_to_object    = \*absorb_row;
@@ -137,17 +136,11 @@ sub create {
 
     if (ref $classref eq 'LJ::Poll') {
         $classref->{pollid} = $pollid;
-        foreach my $prop (keys %{$opts{props}}) {
-            $classref->set_prop($prop, $opts{props}->{$prop});
-        }
 
         return $classref;
     }
 
     my $pollobj = LJ::Poll->new($pollid);
-    foreach my $prop (keys %{$opts{props}}) {
-        $pollobj->set_prop($prop, $opts{props}->{$prop});
-    }
 
     return $pollobj;
 }
@@ -237,10 +230,6 @@ sub new_from_html {
                 $popts{whoview} = "trusted" if $popts{whoview} eq "friends";
 
                 my $journal = LJ::load_userid($iteminfo->{posterid});
-                if (LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $journal)) {
-                    $popts{props}->{createdate} = $opts->{createdate} || undef;
-                }
-                LJ::Hooks::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
 
                 $popts{'isanon'} = "no" unless ($popts{'isanon'} eq "yes");
 
@@ -529,9 +518,8 @@ sub save_to_db {
 
     my %createopts;
 
-    # name and props are optional fields
+    # name is optional field
     $createopts{name} = $opts{name} || $self->{name};
-    $createopts{props} = $opts{props} || $self->{props};
 
     foreach my $f (qw(ditemid journalid posterid questions isanon whovote whoview)) {
         $createopts{$f} = $opts{$f} || $self->{$f} or croak "Field $f required for save_to_db";
@@ -594,7 +582,7 @@ sub absorb_row {
 
     # questions is an optional field for creating a fake poll object for previewing
     $self->{ditemid} = $row->{ditemid} || $row->{itemid}; # renamed to ditemid in poll2
-    $self->{$_} = $row->{$_} foreach qw(pollid journalid posterid isanon whovote whoview name status questions props);
+    $self->{$_} = $row->{$_} foreach qw(pollid journalid posterid isanon whovote whoview name status questions);
     $self->{_loaded} = 1;
     return $self;
 }
@@ -745,13 +733,6 @@ sub is_owner {
 
     return 1 if $remote && $remote->userid == $self->posterid;
     return 0;
-}
-
-# poll requires voters to be created on or before a certain date
-sub is_createdate_restricted {
-    my $self = $_[0];
-
-    return LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $self->poster) && $self->prop("createdate") ? 1 : 0;
 }
 
 # do we have a valid poll?
@@ -1259,20 +1240,6 @@ sub can_vote {
 
     return 0 if $self->journal->has_banned( $remote );
 
-    if ($self->is_createdate_restricted) {
-        my $propval = $self->prop("createdate");
-        if ($propval =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/) {
-            my $propdate = DateTime->new( year => $1, month => $2, day => $3, hour => 23, minute => 59, second => 59, time_zone => 'America/Los_Angeles' );
-            my $timecreate = DateTime->from_epoch( epoch => $remote->timecreate, time_zone => 'America/Los_Angeles' );
-
-            # make sure that timecreate is before or equal to propdate
-            return 0 if $propdate && $timecreate && DateTime->compare($timecreate, $propdate) == 1;
-        }
-    }
-
-    my $can_vote_override = LJ::Hooks::run_hook("can_vote_poll_override", $self);
-    return 0 unless !defined $can_vote_override || $can_vote_override;
-
     return 1;
 }
 
@@ -1379,50 +1346,6 @@ sub respondents_as_html {
             "<span class='polluser' id='LJ_PollUserAnswerRes_${pollid}_$userid'>" . $u->ljuser_display . "</span></div>\n";
     }
     return $ret;
-}
-
-########## Props
-# get the typemap for pollprop2
-sub typemap {
-    return LJ::Typemap->new(
-        table       => 'pollproplist2',
-        classfield  => 'name',
-        idfield     => 'propid',
-    );
-}
-
-sub prop {
-    my ($self, $propname) = @_;
-
-    my $tm = $self->typemap;
-    my $propid = $tm->class_to_typeid($propname);
-    my $u = $self->journal;
-
-    my $sth = $u->prepare("SELECT * FROM pollprop2 WHERE journalid = ? AND pollid = ? AND propid = ?");
-    $sth->execute($u->id, $self->pollid, $propid);
-    die $sth->errstr if $sth->err;
-
-    if (my $row = $sth->fetchrow_hashref) {
-        return $row->{propval};
-    }
-
-    return undef;
-}
-
-sub set_prop {
-    my ($self, $propname, $propval) = @_;
-
-    if (defined $propval) {
-        my $tm = $self->typemap;
-        my $propid = $tm->class_to_typeid($propname);
-        my $u = $self->journal;
-
-        $u->do("INSERT INTO pollprop2 (journalid, pollid, propid, propval) " .
-               "VALUES (?,?,?,?)", undef, $u->id, $self->pollid, $propid, $propval);
-        die $u->errstr if $u->err;
-    }
-
-    return 1;
 }
 
 ########## Class methods

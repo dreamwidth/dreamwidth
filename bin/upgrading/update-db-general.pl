@@ -957,6 +957,8 @@ register_tabledrop("jabpresence");
 register_tabledrop("jabcluster");
 register_tabledrop("jablastseen");
 register_tabledrop("domains");
+register_tabledrop("pollprop2");
+register_tabledrop("pollproplist2");
 
 
 register_tablecreate("infohistory", <<'EOC');
@@ -2386,28 +2388,6 @@ CREATE TABLE pollsubmission2 (
 EOC
 
 # clustered
-register_tablecreate("pollprop2", <<'EOC');
-CREATE TABLE pollprop2 (
-    journalid INT UNSIGNED NOT NULL,
-    pollid INT UNSIGNED NOT NULL,
-    propid SMALLINT UNSIGNED NOT NULL,
-    propval VARCHAR(255) NOT NULL,
-
-    PRIMARY KEY (journalid,pollid,propid)
-)
-EOC
-
-register_tablecreate("pollproplist2", <<'EOC');
-CREATE TABLE pollproplist2 (
-    propid SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) DEFAULT NULL,
-    des VARCHAR(255) DEFAULT NULL,
-    scope ENUM('general', 'local') DEFAULT 'general' NOT NULL,
-
-    UNIQUE KEY (name)
-)
-EOC
-
 # clustered
 register_tablecreate("embedcontent", <<'EOC');
 CREATE TABLE embedcontent (

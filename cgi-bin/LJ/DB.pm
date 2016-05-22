@@ -57,7 +57,7 @@ $LJ::DBIRole = new DBI::Role {
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2", "vgift_trans",
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
-                    "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
+                    "notifyarchive", "notifybookmarks", "embedcontent_preview",
                     "logprop_history", "import_status", "externalaccount",
                     "content_filters", "content_filter_data", "userpicmap3",
                     "media", "collections", "collection_items", "logslugs",
