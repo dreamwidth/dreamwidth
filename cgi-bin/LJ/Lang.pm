@@ -16,7 +16,7 @@ use strict;
 use LJ::LangDatFile;
 
 
-use constant MAXIMUM_ITCODE_LENGTH => 80;
+use constant MAXIMUM_ITCODE_LENGTH => 120;
 
 my @day_short   = (qw[Sun Mon Tue Wed Thu Fri Sat]);
 my @day_long    = (qw[Sunday Monday Tuesday Wednesday Thursday Friday Saturday]);

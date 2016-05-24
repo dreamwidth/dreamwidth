@@ -1203,7 +1203,7 @@ CREATE TABLE ml_items (
     dmid    TINYINT UNSIGNED NOT NULL,
     itid    MEDIUMINT UNSIGNED AUTO_INCREMENT NOT NULL,
     PRIMARY KEY (dmid, itid),
-    itcode  VARCHAR(80) NOT NULL,
+    itcode  VARCHAR(120) CHARACTER SET ascii NOT NULL,
     UNIQUE  (dmid, itcode),
     proofed TINYINT NOT NULL DEFAULT 0, -- boolean, really
     INDEX   (proofed),
@@ -4151,6 +4151,12 @@ EOF
                   "ALTER TABLE spamreports ".
                   "MODIFY ip VARCHAR(45)" );
     }
+
+    unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
+        do_alter( 'ml_items',
+                  "ALTER TABLE ml_items MODIFY COLUMN itcode VARCHAR(120) CHARACTER SET ascii NOT NULL" );
+    }
+
 });
 
 
