@@ -285,6 +285,8 @@ _renderPopup: function() {
         if ( ! data.is_closed_membership || data.is_member ) {
             if ( data.is_member )
                 this._addAction( data.url_leavecomm, "Leave", "leave" );
+            else if ( data.is_invited )
+                this._addAction( data.url_acceptinvite, "Accept invitation", "accept");
             else
                 this._addAction( data.url_joincomm, "Join community", "join" );
         } else {
