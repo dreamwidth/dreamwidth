@@ -2375,7 +2375,7 @@ sub Page
     $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
     $p->{head_content} .= qq{<link rel="apple-touch-icon" href="$LJ::APPLE_TOUCH_ICON" />\n}
          if $LJ::APPLE_TOUCH_ICON;
-    $p->{head_content} .= qq{<meta property="og:image" content="$LJ::IMGPREFIX/Swirly-d-square.png"/>\n};
+    $p->{head_content} .= qq{<meta property="og:image" content="$LJ::FACEBOOK_PREVIEW_ICON"/>\n};
     $p->{head_content} .= qq{<meta property="og:image:width" content="363"/>\n};
     $p->{head_content} .= qq{<meta property="og:image:height" content="363"/>\n};
     # Identity (type I) accounts only have read views

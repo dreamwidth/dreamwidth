@@ -152,6 +152,8 @@
     # S2). This file is not part of the dw-free installation, and is
     # therefore disabled by default.
     #$APPLE_TOUCH_ICON = "$LJ::RELATIVE_SITEROOT/apple-touch-icon.png";
+    # Similarly for the icon used by Facebook for previews on links
+    #$FACEBOOK_PREVIEW_ICON = "$LJ::RELATIVE_SITEROOT/Swirly-d-square.png";
 
     # sphinx search daemon
     #@SPHINX_SEARCHD = ( '127.0.0.1', 3312 );
