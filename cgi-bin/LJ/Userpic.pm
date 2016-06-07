@@ -335,7 +335,7 @@ sub dimensions {
 
 sub max_allowed_bytes {
     my ($class, $u) = @_;
-    return 40960;
+    return 61440;
 }
 
 
