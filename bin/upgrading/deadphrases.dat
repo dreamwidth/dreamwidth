@@ -50,6 +50,12 @@ general /editinfo.bml.schools.title
 general /editinfo.bml.topicdir.about
 general /editinfo.bml.topicdir.header
 
+general /editicons.bml.restriction.fileformat
+general /editicons.bml.restriction.filesize
+general /editicons.bml.restriction.imagesize2
+general /editicons.bml.restriction.keywords
+general /editicons.bml.restriction.keywords.faq
+
 general /editpics.bml.error.toomanypics2
 general /editpics.bml.error.toomanypics3
 general /editpics.bml.restriction.imagesize
