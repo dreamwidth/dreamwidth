@@ -360,10 +360,9 @@ sub fullurl {
     return $self->{url};
 }
 
-
 # given a userpic and a keyword, return the alt text
 sub alttext {
-    my ( $self, $kw ) = @_;
+    my ( $self, $kw, $mark_default ) = @_;
 
     # load the alttext.  
     # "username: description (keyword)"
@@ -379,10 +378,11 @@ sub alttext {
     }
 
     # 1. If there is a keyword associated with the icon, use it.
-    # 2. If it was chosen via the default icon, show "(Default)".
     if ( defined $kw ) {
         $alt .= " (" . $kw . ")";
-    } else {
+    }
+    # 2. If it was chosen via the default icon, show "(Default)".
+    if ( $mark_default // !defined $kw ) {
         $alt .= " (Default)";
     }
 
@@ -392,7 +392,7 @@ sub alttext {
 
 # given a userpic and a keyword, return the title text
 sub titletext {
-    my ( $self, $kw ) = @_;
+    my ( $self, $kw, $mark_default ) = @_;
 
     # load the titletext.  
     # "username: keyword (description)"
@@ -404,10 +404,11 @@ sub titletext {
     my $title = $u->username . ":";
 
     # 1. If there is a keyword associated with the icon, use it.
-    # 2. If it was chosen via the default icon, show "(Default)".
     if ( defined $kw ) {
         $title .= " " . $kw;
-    } else {
+    }
+    # 2. If it was chosen via the default icon, show "(Default)".
+    if ( $mark_default // !defined $kw ) {
         $title .= " (Default)";
     }
 
