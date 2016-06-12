@@ -333,18 +333,20 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
             if (!data.is_closed_membership || data.is_member) {
                 var membershipLink  = document.createElement("a");
 
+                var membership_action;
+
                 if (data.is_member) {
                     membershipLink.href = data.url_leavecomm;
                     membershipLink.innerHTML = "Leave";
-                    var membership_action = "leave"
+                    membership_action = "leave";
                 } else if (data.is_invited) {
                     membershipLink.href = data.url_acceptinvite;
                     membershipLink.innerHTML = "Accept invitation";
-                    var membership_action = "accept"
+                    membership_action = "accept";
                 } else {
                     membershipLink.href = data.url_joincomm;
                     membershipLink.innerHTML = "Join community";
-                    var membership_action = "join";
+                    membership_action = "join";
                 }
 
                 if (!ContextualPopup.disableAJAX) {
