@@ -188,10 +188,6 @@ my %modules = (
                    'deb' => 'libmail-gnupg-perl',
                    'opt' => "Required for email posting.",
                },
-               "Text::vCard" => {
-                   'deb' => 'libtext-vcard-perl',
-                   'opt' => "Used to generate user vCards.",
-               },
                "IP::Country::Fast" => {
                    'opt' => "Required for country lookup with IP address.",
                },
