@@ -55,7 +55,7 @@ my %MimeTypeMap = (
 
 # all LJ::Userpics in memory
 # userid -> picid -> LJ::Userpic
-my %singletons;  
+my %singletons;
 
 sub reset_singletons {
     %singletons = ();
@@ -335,7 +335,7 @@ sub dimensions {
 
 sub max_allowed_bytes {
     my ($class, $u) = @_;
-    return 40960;
+    return 61440;
 }
 
 
@@ -364,10 +364,10 @@ sub fullurl {
 sub alttext {
     my ( $self, $kw, $mark_default ) = @_;
 
-    # load the alttext.  
+    # load the alttext.
     # "username: description (keyword)"
     # If any of those are not present leave them (and their
-    # affiliated punctuation) out. 
+    # affiliated punctuation) out.
 
     # always  include the username
     my $u = $self->owner;
@@ -394,10 +394,10 @@ sub alttext {
 sub titletext {
     my ( $self, $kw, $mark_default ) = @_;
 
-    # load the titletext.  
+    # load the titletext.
     # "username: keyword (description)"
     # If any of those are not present leave them (and their
-    # affiliated punctuation) out. 
+    # affiliated punctuation) out.
 
     # always  include the username
     my $u = $self->owner;
@@ -436,8 +436,8 @@ sub imgtag {
     my $alttext = $self->alttext( $keyword );
     my $title = $self->titletext( $keyword );
 
-    return '<img src="' . $self->url . '" width="' . $width . 
-        '" height="' . $height . '" alt="' . $alttext . 
+    return '<img src="' . $self->url . '" width="' . $width .
+        '" height="' . $height . '" alt="' . $alttext .
         '" title="' . $title . '" class="userpic-img" />';
 }
 
@@ -475,7 +475,7 @@ sub img_fixedsize {
     my $width = $opts{width} || 0;
     my $height = $opts{height} || 0;
 
-    if ( $width > 0 && $width < $self->width && 
+    if ( $width > 0 && $width < $self->width &&
         ( !$height || ( $width <= $height && $self->width >= $self->height ) ) ) {
         my $ratio = $width / $self->width;
         $height = int( $self->height * $ratio );
@@ -1061,7 +1061,7 @@ sub set_keywords {
     } else {
         @keywords = split(',', $_[0]);
     }
-    
+
     @keywords = grep { !/^pic\#\d+$/ } map { s/^\s+//; s/\s+$//; $_ } @keywords;
 
     my $u = $self->owner;
@@ -1081,7 +1081,7 @@ sub set_keywords {
     while ( my ($kwid) = $sth->fetchrow_array ) {
 
         # This is an edge case to catch keyword changes where the existing keyword
-        # is in the pic#  format.  In this case kwid is NULL and we want to 
+        # is in the pic#  format.  In this case kwid is NULL and we want to
         # delete any records from userpicmap3 that involve it.
         unless ( $kwid ) {
            $u->do( "DELETE FROM userpicmap3 WHERE userid=? AND picid=? AND kwid IS NULL", undef, $u->id, $self->id );
@@ -1146,7 +1146,7 @@ sub set_keywords {
         if ( $have_mapid ) {
             $u->do( "REPLACE INTO userpicmap3 (userid, mapid, kwid, picid) VALUES $bind",
                     undef, @data );
-        } else {            
+        } else {
             $u->do( "REPLACE INTO userpicmap2 (userid, kwid, picid) VALUES $bind",
                     undef, @data );
         }
@@ -1177,7 +1177,7 @@ sub set_keywords {
 # some ambiguity about which old keywords should match up with the new
 # keywords.  if the number of keywords don't match, then an error is thrown
 # and no changes are made to the keywords for this userpic.
-# 
+#
 # all new keywords must not currently be in use; you can't rename a keyword
 # to a keyword currently mapped to another (or the same) userpic.  this will
 # result in an error and no changes made to these keywords.
@@ -1210,14 +1210,14 @@ sub set_and_rename_keywords {
     foreach my $newkw (@keywords) {
         my $origkw = shift(@orig_keywords);
         # clear whitespace
-        $newkw =~ s/^\s+//; 
+        $newkw =~ s/^\s+//;
         $newkw =~ s/\s+$//;
-        $origkw =~ s/^\s+//; 
+        $origkw =~ s/^\s+//;
         $origkw =~ s/\s+$//;
 
         $keywordmap{$origkw} = $newkw if $origkw ne $newkw;
     }
-    
+
     # make sure there is at least one change.
     if (keys(%keywordmap)) {
 
@@ -1315,7 +1315,7 @@ sub set_fullurl {
 # Sorts the given list of Userpics.
 sub sort {
     my ( $class, $userpics ) = @_;
-    
+
     return () unless ( $userpics && ref $userpics );
 
     my %kwhash;
@@ -1363,9 +1363,9 @@ sub separate_keywords {
                 $keyword = $userpic->keywords;
                 push @nokw_array, { keyword => $keyword, userpic => $userpic };
             }
-        } 
+        }
     }
-        
+
     @userpic_array = sort { lc( $a->{keyword} ) cmp lc( $b->{keyword} ) } @userpic_array;
     push @userpic_array, sort { $a->{keyword} cmp $b->{keyword} } @nokw_array;
 
