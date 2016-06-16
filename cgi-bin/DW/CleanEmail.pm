@@ -13,9 +13,6 @@ package DW::CleanEmail;
 
 use strict;
 
-use HTML::Entities;
-
-
 =head1 NAME
 
 DW::CleanEmail - Clean up text from email
@@ -92,7 +89,7 @@ sub reply_subject {
     $subject =~ s/^(Re:\s*)*//i;
     $subject = "Re: $subject" if $subject;
 
-    return HTML::Entities::decode( $subject );
+    return LJ::dhtml( $subject );
 }
 
 1;

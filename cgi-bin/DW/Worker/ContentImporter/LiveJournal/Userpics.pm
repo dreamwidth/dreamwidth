@@ -20,7 +20,6 @@ use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use DW::XML::Parser;
-use HTML::Entities;
 use Storable qw/ freeze /;
 use Carp qw/ croak confess /;
 use Encode qw/ encode_utf8 /;
@@ -157,7 +156,7 @@ sub get_lj_userpic_data {
     my $cleanup_string = sub {
         # FIXME: If LJ ever fixes their /data/userpics feed to double-escepe, this will cause issues.
         # Probably need to figure out a way to detect that a double-escape happened and only fix in that case.
-        return HTML::Entities::decode_entities( encode_utf8( $_[0] || "" ) );
+        return LJ::dhtml( encode_utf8( $_[0] || "" ) );
     };
 
     my $upic_handler = sub {
@@ -172,7 +171,7 @@ sub get_lj_userpic_data {
         } elsif ( $tag eq 'category' ) {
             # keywords get triple-escaped
             # DW::XML::Parser handles unescaping it once, $cleanup_string second, and then we have to unescape it a third time.
-            push @{$upic->{keywords}}, HTML::Entities::decode_entities( $cleanup_string->( $temp{term} ) );
+            push @{$upic->{keywords}}, LJ::dhtml( $cleanup_string->( $temp{term} ) );
         } else {
             $text_tag = $tag;
         }

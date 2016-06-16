@@ -20,7 +20,6 @@ use warnings;
 
 use Digest::MD5 qw(md5_hex);
 use XMLRPC::Lite;
-use HTML::Entities ();
 
 # create a new instance of LJXMLRPC
 sub instance {
