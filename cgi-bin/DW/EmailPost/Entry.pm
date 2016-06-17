@@ -512,7 +512,8 @@ sub _cleanup_mobile_carriers {
         return $self->err( "Unable to find XML content in PictureMail message." )
             unless $xml_string;
 
-        LJ::dhtml( $xml_string );
+        LJ::dhtml( $xml_string ); # $xml_string is being modified by this function call
+                                  # special characters are replaced with equivalent HTML entities
         my $xml = eval { XML::Simple::XMLin( $xml_string ); };
         return $self->err( "Unable to parse XML content in PictureMail message." )
             if ! $xml || $@;

@@ -154,7 +154,7 @@ sub get_lj_userpic_data {
     my ( @upics, $upic, $default_upic, $text_tag );
 
     my $cleanup_string = sub {
-        # FIXME: If LJ ever fixes their /data/userpics feed to double-escepe, this will cause issues.
+        # FIXME: If LJ ever fixes their /data/userpics feed to double-escape, this will cause issues.
         # Probably need to figure out a way to detect that a double-escape happened and only fix in that case.
         return LJ::dhtml( encode_utf8( $_[0] || "" ) );
     };
