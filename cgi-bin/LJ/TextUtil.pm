@@ -16,6 +16,7 @@ use strict;
 
 use LJ::ConvUTF8;
 use HTML::TokeParser;
+use HTML::Entities;
 
 # <LJFUNC>
 # name: LJ::trim
@@ -212,6 +213,21 @@ sub ehtml {
     return $a;
 }
 *eall = \&ehtml;  # old BML syntax required eall to also escape BML.  not anymore.
+
+# <LJFUNC>
+# name: LJ::dhtml
+# class: text
+# des: Decodes a value that's HTML-escaped.  See also [func[LJ::ehtml]].
+# args: string
+# des-string: string to be decoded
+# returns: string decoded
+# </LJFUNC>
+sub dhtml {
+    my $a = $_[0];
+    return '' unless defined $a;
+
+    return HTML::Entities::decode_entities( $a );
+}
 
 # <LJFUNC>
 # name: LJ::etags
