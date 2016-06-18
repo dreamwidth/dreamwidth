@@ -94,6 +94,8 @@ sub change_relation_handler {
             unless $remote->can_leave( $targetu, errref => \$error );
 
         $success = $remote->leave_community( $targetu );
+    } elsif ( $action eq 'accept' ) {
+        $success = $remote->accept_comm_invite( $targetu );
     } elsif ( $action eq 'setBan' ) {
         my $list_of_banned = LJ::load_rel_user( $remote, 'B' ) || [];
 
@@ -237,10 +239,13 @@ sub ctxpopup_handler {
     if ($u->is_comm) {
         $ret{url_joincomm}   = "$LJ::SITEROOT/circle/" . $u->{user} . "/edit";
         $ret{url_leavecomm}  = "$LJ::SITEROOT/circle/" . $u->{user} . "/edit";
+        $ret{url_acceptinvite}  = "$LJ::SITEROOT/manage/invites";
         $ret{is_member} = $remote->member_of( $u ) if $remote;
         $ret{is_closed_membership} = $u->is_closed_membership;
+        my $pending = $remote ? ( $remote->get_pending_invites || [] ) : [];
+        $ret{is_invited} = ( grep { $_->[0] == $u->id } @$pending ) ? 1 : 0;
 
-        push @actions, 'join', 'leave';
+        push @actions, 'join', 'leave', 'accept';
     }
 
     # generate auth tokens
