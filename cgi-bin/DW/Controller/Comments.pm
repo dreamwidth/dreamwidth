@@ -283,45 +283,43 @@ sub posted_handler {
         my $log_data     = LJ::get_posts_raw( { text_only => 1 }, @need_logtext );
         my $log_text     = $log_data->{text};
         my $root = $u->journal_base;
-        
+
         # Cycle through each comment to extract necessary data
         foreach my $r ( @posted ) {
             $jcount{$r->{'journalid'}}++;
             next unless $r->{'nodetype'} eq "L";   # log2 comment
-            
+
             my $ju = $us->{$r->{journalid}};
             my $lrow = $logrow{"$ju->{userid} $r->{nodeid}"} ||= LJ::get_log2_row( $ju, $r->{'nodeid'} );
-            my $talkid = ( $r->{'jtalkid'} << 8 ) + $lrow->{'anum'};
-            my $ljcmt = $LJ_cmtinfo{$talkid} = {};
-            $ljcmt->{u} = $u->{user};
-            $ljcmt->{postedin} = $ju ? $ju->{user} : "";
-
-            my $comment = LJ::Comment->new( $ju, dtalkid => $talkid );
-
-            my $logurl = $ju->journal_base . "/$lrow->{ditemid}.html";
-            my $commentanchor = LJ::Talk::comment_anchor( $talkid );
-            my $talkurl = "$logurl?thread=$talkid$commentanchor";
 
             my $hr_ago = LJ::diff_ago_text( $r->{posttime}, $now );
-            my $subject;
-            my $delete;
-            my $editlink;
-            
+
             # if entry exists
             if ( defined $lrow->{ditemid} ) {
-                $subject = $log_text->{"$r->{journalid}:$r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
+                my $talkid = ( $r->{'jtalkid'} << 8 ) + $lrow->{'anum'};
+                my $ljcmt = $LJ_cmtinfo{$talkid} = {};
+                $ljcmt->{u} = $u->{user};
+                $ljcmt->{postedin} = $ju ? $ju->{user} : "";
+
+                my $comment = LJ::Comment->new( $ju, dtalkid => $talkid );
+
+                my $logurl = $ju->journal_base . "/$lrow->{ditemid}.html";
+                my $commentanchor = LJ::Talk::comment_anchor( $talkid );
+                my $talkurl = "$logurl?thread=$talkid$commentanchor";
+
+                my $subject = $log_text->{"$r->{journalid}:$r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
                 LJ::CleanHTML::clean_subject( \$subject );
 
                 # add a sign if the comment has replies
                 my $hasreplies = $comment->has_nondeleted_children ? "*" : '';
 
                 # delete link, very helpful for when the user does not have access to that entry anymore
-                $delete = $comment->is_deleted ? '' : LJ::create_url( "/delcomment", args => {
+                my $delete = $comment->is_deleted ? '' : LJ::create_url( "/delcomment", args => {
                 journal => $ju->{'user'},
                 id => $talkid } );
 
                 # edit link, if comment can be edited
-                $editlink = $comment->remote_can_edit ? LJ::Talk::talkargs( $comment->edit_url ) : '';
+                my $editlink = $comment->remote_can_edit ? LJ::Talk::talkargs( $comment->edit_url ) : '';
 
                 push @{ $vars->{comments} }, {
                     ju => $ju, # journal comment was posted in
