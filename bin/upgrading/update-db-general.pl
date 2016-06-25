@@ -121,9 +121,6 @@ CREATE TABLE clients (
 )
 EOC
 
-post_create("clients",
-            "sqltry" => "INSERT INTO clients (client) SELECT DISTINCT client FROM logins");
-
 register_tablecreate("clientusage", <<'EOC');
 CREATE TABLE clientusage (
     userid int(10) unsigned NOT NULL default '0',
@@ -134,9 +131,6 @@ CREATE TABLE clientusage (
     UNIQUE KEY userid (userid,clientid)
 )
 EOC
-
-post_create("clientusage",
-            "sqltry" => "INSERT INTO clientusage SELECT u.userid, c.clientid, l.lastlogin FROM user u, clients c, logins l WHERE u.user=l.user AND l.client=c.client");
 
 register_tablecreate("codes", <<'EOC');
 CREATE TABLE codes (
