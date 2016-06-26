@@ -154,17 +154,6 @@ CREATE TABLE community (
 )
 EOC
 
-register_tablecreate("dirsearchres2", <<'EOC');
-CREATE TABLE dirsearchres2 (
-    qdigest varchar(32) NOT NULL default '',
-    dateins datetime NOT NULL default '0000-00-00 00:00:00',
-    userids blob,
-
-    PRIMARY KEY  (qdigest),
-    KEY (dateins)
-)
-EOC
-
 register_tablecreate("duplock", <<'EOC');
 CREATE TABLE duplock (
     realm enum('support','log','comment') NOT NULL default 'support',
@@ -953,6 +942,7 @@ register_tabledrop("jablastseen");
 register_tabledrop("domains");
 register_tabledrop("pollprop2");
 register_tabledrop("pollproplist2");
+register_tabledrop("dirsearchres2");
 
 
 register_tablecreate("infohistory", <<'EOC');
