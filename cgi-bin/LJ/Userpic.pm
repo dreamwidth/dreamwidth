@@ -726,12 +726,6 @@ sub create {
             push @errors, $clean_err->("Unable to contact storage server.  Your picture has not been saved.");
         }
 
-        # even for mogile we use the userblob table as a means
-        # to track the number and size of user blob assets
-        my $dmid = LJ::get_blob_domainid('userpic');
-        $u->do("INSERT INTO userblob (journalid, domain, blobid, length) ".
-               "VALUES (?, ?, ?, ?)", undef, $u->{userid}, $dmid, $picid, $size);
-
     } elsif ( !$dberr ) {  # use userpicblob2 table in database
         my $dbcm = LJ::get_cluster_master($u);
         return $err->($BML::ML{'error.nodb'}) unless $dbcm;
@@ -980,13 +974,6 @@ sub delete {
 
     my $u = $self->owner;
     my $picid = $self->id;
-
-    # delete meta-data first so it doesn't get stranded if errors
-    # between this and deleting row
-    $u->do("DELETE FROM userblob WHERE journalid=? AND blobid=? " .
-           "AND domain=?", undef, $u->{'userid'}, $picid,
-           LJ::get_blob_domainid('userpic'));
-    $fail->() if $@;
 
     # userpic keywords
     eval {

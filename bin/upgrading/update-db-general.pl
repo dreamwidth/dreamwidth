@@ -637,24 +637,6 @@ CREATE TABLE userpic2 (
 )
 EOC
 
-# - blobids aren't necessarily unique between domains;
-# global userpicids may collide with the counter used for the rest.
-# so type must be in the key.
-# - domain ids are set up in etc/config.pl.
-# - NULL length indicates the data is external-- we need another
-# table for more data for that.
-register_tablecreate("userblob", <<'EOC'); # clustered
-CREATE TABLE userblob (
-    journalid   INT       UNSIGNED NOT NULL,
-    domain      TINYINT   UNSIGNED NOT NULL,
-    blobid      MEDIUMINT UNSIGNED NOT NULL,
-    length      MEDIUMINT UNSIGNED,
-
-    PRIMARY KEY (journalid, domain, blobid),
-    KEY (domain)
-)
-EOC
-
 register_tablecreate("userproplist", <<'EOC');
 CREATE TABLE userproplist (
     upropid smallint(5) unsigned NOT NULL auto_increment,
@@ -934,6 +916,7 @@ register_tabledrop("schools");
 register_tabledrop("schools_attended");
 register_tabledrop("schools_pending");
 register_tabledrop("user_schools");
+register_tabledrop("userblob");
 register_tabledrop("userblobcache");
 register_tabledrop("commenturls");
 register_tabledrop("captchas");
@@ -3389,10 +3372,6 @@ register_alter(sub {
                  "count int(5) UNSIGNED NOT NULL DEFAULT 0 AFTER challenge");
     }
 
-    if (column_type("userblob", "length") =~ /mediumint/) {
-        do_alter("userblob", "ALTER TABLE userblob MODIFY length INT UNSIGNED");
-    }
-
     unless (index_name("support", "INDEX:requserid")) {
         do_alter("support", "ALTER IGNORE TABLE support ADD INDEX (requserid), ADD INDEX (reqemail)");
     }
@@ -3415,10 +3394,6 @@ register_alter(sub {
         do_alter("userpic2", "ALTER TABLE userpic2 " .
                  "ADD flags tinyint(1) unsigned NOT NULL default 0 AFTER comment, " .
                  "ADD location enum('blob','disk','mogile') default NULL AFTER flags");
-    }
-
-    if (column_type("userblob", "blobid") =~ /mediumint/) {
-        do_alter("userblob", "ALTER TABLE userblob MODIFY blobid INT UNSIGNED NOT NULL");
     }
 
     if (column_type("counter", "max") =~ /mediumint/) {
