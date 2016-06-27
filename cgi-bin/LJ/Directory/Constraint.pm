@@ -31,6 +31,8 @@ use LJ::Directory::Constraint::Location;
 use LJ::Directory::Constraint::JournalType;
 use LJ::Directory::Constraint::Test;
 
+use DW::BlobStore;
+
 sub constraints_from_formargs {
     my ($pkg, $postargs) = @_;
 
@@ -139,11 +141,9 @@ sub sethandle {
                  undef, $cachekey, ($self->cache_for || 0));
         die $dbh->errstr if $dbh->err;
 
-        my $newfh = LJ::mogclient()->new_file("dsh:" . $cachekey);
-        while (@uids) {
-            print $newfh pack("N*", shift @uids);
-        }
-        close $newfh or die "Error closing file: $!";
+        my $content = join( '', map { pack("N*", $_) } @uids );
+        DW::BlobStore->store( directorysearch => "dsh:$cachekey", \$content );
+
         $seth = LJ::Directory::SetHandle::Mogile->new($cachekey);
     }
 

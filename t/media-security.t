@@ -22,12 +22,7 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user);
 use DW::Media;
 
-if ( LJ::mogclient() ) {
-    plan tests => 15;
-} else {
-    plan skip_all => "MogileFS client unavailable.";
-    exit 0;
-}
+plan tests => 15;
 
 my $u1 = temp_user();
 my $u2 = temp_user();

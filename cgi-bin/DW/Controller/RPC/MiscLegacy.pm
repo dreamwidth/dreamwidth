@@ -154,12 +154,12 @@ sub ctxpopup_handler {
         # three ways to load a user:
 
         # username:
-        if ( my $user = LJ::canonical_username( $get->{user} ) ) {
+        if ( defined $get->{user} && ( my $user = LJ::canonical_username( $get->{user} ) ) ) {
             return LJ::load_user( $user );
         }
 
         # identity:
-        if ( my $userid = $get->{userid} ) {
+        if ( defined $get->{userid} && ( my $userid = $get->{userid} ) ) {
             return undef unless $userid =~ /^\d+$/;
             my $u = LJ::load_userid( $userid );
             return undef unless $u && $u->identity;
@@ -167,7 +167,7 @@ sub ctxpopup_handler {
         }
 
         # based on userpic url
-        if ( my $upurl = $get->{userpic_url} ) {
+        if ( defined $get->{userpic_url} && ( my $upurl = $get->{userpic_url} ) ) {
             return undef unless $upurl =~ m!(\d+)/(\d+)!;
             my ( $picid, $userid ) = ( $1, $2 );
             my $u = LJ::load_userid( $userid );

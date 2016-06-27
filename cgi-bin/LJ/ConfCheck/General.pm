@@ -28,7 +28,6 @@ add_singletons(qw(
                   %LIB_MOD_TIME %MEMCACHE_ARRAYFMT
                   @MEMCACHE_SERVERS %MEMCACHE_PREF_IP
                   %DEBUG %COMMON_CODE %CLUSTER_PAIR_ACTIVE
-                  %MOGILEFS_PREF_IP
                   ));
 
 add_conf('$ADMIN_EMAIL',
@@ -127,7 +126,7 @@ add_conf('$DISABLE_MASTER',
 
 add_conf('$DISABLE_MEDIA_UPLOADS',
          type => 'bool',
-         des => "If set to true, all media uploads that would go to MogileFS are disabled.",
+         des => "If set to true, all media uploads that would go to storage are disabled.",
          );
 
 add_conf('$DISCONNECT_DBS',
@@ -759,7 +758,6 @@ my %bools = (
              "OPENID_COMPAT" => "Support pre-1.0 OpenID specs as well as final spec.",
              "OPENID_STATELESS" => "Speak stateless OpenID.  Slower, but no local state needs to be kept.",
              "ONLY_USER_VHOSTS" => "Don't allow www.* journals at /users/ and /~ and /community/.  Only allow them on their own user virtual host domains.",
-             "USERPIC_MOGILEFS" => "Store userpics on MogileFS.",
              );
 
 foreach my $k (keys %bools) {

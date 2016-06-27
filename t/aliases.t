@@ -32,7 +32,11 @@ local $LJ::USER_EMAIL = 1;
 my $dbh = LJ::get_db_writer();
 sub check_alias {
     my ( $alias ) = @_;
-    my ( $rcpt ) = $dbh->selectrow_array( "SELECT rcpt FROM email_aliases WHERE alias=CONCAT(REPLACE(?, '-', '_'), '\@$LJ::USER_DOMAIN')", undef, $alias );
+    my ( $rcpt ) = $dbh->selectrow_array(
+    	qq{SELECT rcpt FROM email_aliases
+    	   WHERE alias=CONCAT(REPLACE(?, '-', '_'), '\@$LJ::USER_DOMAIN')},
+    	undef, $alias
+    );
     return defined $rcpt;
 }
 

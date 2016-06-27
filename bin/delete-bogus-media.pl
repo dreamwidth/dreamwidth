@@ -3,9 +3,11 @@
 use v5.10;
 use strict;
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use DW::Media;
 
 use Getopt::Long;
+
+use DW::BlobStore;
+use DW::Media;
 
 sub usage {
     die "Usage: $0 -u USER MEDIAID\n";
@@ -61,20 +63,17 @@ if ( $mediaid == $versionid ) {
     @mv = ( $versionid );
 }
 
-my $mogc = LJ::mogclient();
-
-unless ( $mogc ) {
-    say "MogileFS not available, exiting.";
-    exit 0;
-}
-
 foreach my $id ( @mv ) {
     # create a fake object to get the mogkey
     my $fakeobj = bless { userid => $u->id, versionid => $id }, 'DW::Media::Photo';
     my $mogkey = $fakeobj->mogkey;
-    # this will return true whether the file existed or not
-    $mogc->delete( $mogkey );
-    say "MogileFS file $mogkey has been deleted.";
+
+    # attempt to delete the file
+    if ( DW::BlobStore->delete( media => $mogkey ) ) {
+        say "File $mogkey has been deleted.";
+    } else {
+        say "File $mogkey was not deleted (not found).";
+    }
 }
 
 exit 0;

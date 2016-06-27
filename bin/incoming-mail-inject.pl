@@ -12,16 +12,17 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-
 use strict;
-use warnings;
+use v5.10;
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
-use Class::Autouse qw(
-                      LJ::IncomingEmailHandle
-                      );
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger( __PACKAGE__ );
+
+use Digest::MD5 qw/ md5_hex /;
+use DW::BlobStore;
 
 my $sclient = LJ::theschwartz() or die "No schwartz config.\n";
 
@@ -29,7 +30,7 @@ my $tempfail = sub {
     my $msg = shift;
     warn "Failure: $msg\n" if $msg;
     # makes postfix do temporary failure:
-    exit(75);
+    exit 75;
 };
 
 # below this size, we put in database directly.  if over,
@@ -40,55 +41,45 @@ sub IN_MEMORY_THRES () {
         768 * 1024;
 }
 
-my $buf;
 my $msg = '';  # in-memory message
-my $rv;
-my $len = 0;
-my $ieh;
-my $ignore_message = 0;  # bool: to ignore rest of message.
+my $len = 0;   # length of message
+
 eval {
-    while ($rv = sysread(STDIN, $buf, 1024*64)) {
-        next if $ignore_message;
+    my ( $buf, $rv );
+    while ( $rv = sysread STDIN, $buf, 1024*64 ) {
         $len += $rv;
-        if ($ieh) {
-            $ieh->append($buf);
-        } else {
-            $msg .= $buf;
-        }
-
-        if ($len > IN_MEMORY_THRES && ! $ieh) {
-            if (should_ignore($msg)) {
-                $ignore_message = 1;
-                next;
-            }
-
-            # allocate a mogile filehandle once we cross the line of
-            # what's too big to store in memory and in a schwartz arg
-            $ieh = LJ::IncomingEmailHandle->new;
-            $ieh->append($msg);
-            undef $msg;  # no longer used.
-        }
+        $msg .= $buf;
     }
-    $tempfail->("Error reading: $!") unless defined $rv;
+    $tempfail->( "Error reading: $!" )
+        unless defined $rv;
 
-    if ($ieh) {
-        $ieh->closetemp;
-        $tempfail->("Size doesn't match") unless $ieh->tempsize == $len;
-        $ieh->insert_into_mogile;
+    if ( should_ignore( $msg ) ) {
+        $log->info( "Received probable spam message of $len bytes, dropping" );
+        exit 0;
     }
+
+    $log->info( "Received email of $len bytes, saving for handling" );
 };
+$tempfail->( $@ ) if $@;
 
-# just shut postfix up
-if ($ignore_message || should_ignore($msg)) {
-    exit(0);
+if ( $len > IN_MEMORY_THRES ) {
+    my $md5 = md5_hex( $msg );
+    DW::BlobStore->store( temp => "ie:$md5", \$msg );
+    $log->info( "Storing email in blobstore at key: ie:$md5");
+
+    # Overwrite $msg so that the incoming-email worker knows that this
+    # is a key it should look up in the storage system
+    $msg = "ie:$md5";
 }
 
-$tempfail->($@) if $@;
-
-my $h = $sclient->insert(TheSchwartz::Job->new(funcname => "LJ::Worker::IncomingEmail",
-                                               arg      => ($ieh ? $ieh->id : $msg)));
+my $h = $sclient->insert(
+    TheSchwartz::Job->new(
+        funcname => "LJ::Worker::IncomingEmail",
+        arg      => $msg,
+    ),
+);
 exit 0 if $h;
-exit(75);  # temporary error
+exit 75;  # temporary error
 
 # it pays to get rid of as many bounces and gibberish now, before we
 # have to put it in the database, mogile, allocate ids, run workers,

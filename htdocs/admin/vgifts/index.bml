@@ -64,11 +64,6 @@
         my ( $id, $loaderr ) = @_;
         my $data;
 
-        unless ( LJ::mogclient() ) {
-            $$loaderr = $ML{'.error.upload.nomogilefs'};
-            return undef;
-        }
-
         if ( $POST{$id} eq 'url' ) {
             $data = $POST{"url_$id"};
 

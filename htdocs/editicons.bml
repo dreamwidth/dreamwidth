@@ -15,8 +15,9 @@ _c?>
 <?_code
 use strict;
 {
+    use DW::Controller::EditIcons;
+
     use vars qw(%GET %POST $title $body $head @errors);
-    use Carp qw(croak);
 
     BML::set_language_scope("/editicons.bml");
 
@@ -97,7 +98,8 @@ use strict;
 
         ### save changes to existing pics
         if ($POST{'action:save'}) {
-            my $refresh = update_userpics(\@userpics, $u, $err);
+            my $refresh = DW::Controller::EditIcons::update_userpics(
+                \%POST, \@errors, \@userpics, $u, $err );
 
             # push all the errors to info
             push(@info, @errors);
@@ -117,32 +119,7 @@ use strict;
 
             my $MAX_UPLOAD = LJ::Userpic->max_allowed_bytes($u);
             my $error;
-
-            # act like the factory is disabled if no mogile
-            my $factory_disabled = !LJ::is_enabled('userpicfactory') || !LJ::mogclient();
-            my $mogcli = LJ::mogclient();
-
-            # just return an error immediately if there's no mogile and the upload
-            # size is too big.
-            if (!$mogcli && ($size > $MAX_UPLOAD + 2048)) {
-                # we have to suck in the data otherwise the browser gets upset because we're
-                # closing the connection before reading in all the data and it will sometimes
-                # refuse to show the error.
-
-                # pretend to tell apache that we care about parsing the data, but we really don't
-                my $bogus = sub {return 1;};
-                BML::parse_multipart_interactive(\$error, {
-                    newheaders => $bogus,
-                    data       => $bogus,
-                    enddata    => $bogus,
-                                                 });
-
-                return $err->(BML::ml('.error.filetoolarge',
-                                      { 'maxsize' => int($MAX_UPLOAD / 1024) }));
-
-            }
-
-            my $parsetomogile = !$factory_disabled && ($size > $MAX_UPLOAD + 2048);
+            my $parsetomogile = $size > $MAX_UPLOAD + 2048;
 
             # array of map references
             my @uploaded_userpics;
@@ -161,16 +138,16 @@ use strict;
                 }
 
                 # parse the post parameters into an array of pics
-                @uploaded_userpics = parse_post_uploads(\%POST, $u, $MAX_UPLOAD, $factory_disabled);
-
+                @uploaded_userpics = DW::Controller::EditIcons::parse_post_uploads(
+                    \%POST, $u, $MAX_UPLOAD );
             }
 
             # if we're coming from the factory, we don't need to write
             # to mogilefs
-            $parsetomogile = 0 if ($POST{'src'} && $POST{'src'} eq 'factory');
+            $parsetomogile = 0 if $POST{'src'} && $POST{'src'} eq 'factory';
 
             if ($parsetomogile) {
-                my $res = parse_large_upload(\%POST, \$error, $u, $err);
+                my $res = parse_large_upload( \%POST, \$error, $u, $err );
                 # large path
 
                 # was there an error parsing the multipart form?
@@ -187,10 +164,10 @@ use strict;
                 }
 
                 # parse the post parameters into an array of pics
-                @uploaded_userpics = parse_post_uploads(\%POST, $u, $MAX_UPLOAD, $factory_disabled);
+                @uploaded_userpics = DW::Controller::EditIcons::parse_post_uploads(
+                    \%POST, $u, $MAX_UPLOAD );
 
             } elsif ($POST{'src'} eq "factory") {
-
                 my $scaledsizemax = $POST{'scaledSizeMax'};
                 my $x1 = $POST{'x1'}+0;
                 my $x2 = $POST{'x2'}+0;
@@ -202,33 +179,28 @@ use strict;
 
                 my $picinfo = eval {
                     LJ::Userpic->get_upf_scaled(
-                        x1 => $x1,
-                        y1 => $y1,
-                        x2 => $x2,
-                        y2 => $y2,
+                        x1     => $x1,
+                        y1     => $y1,
+                        x2     => $x2,
+                        y2     => $y2,
                         border => $POST{'border'},
-                        userid  => $u->userid,
+                        userid => $u->userid,
                         mogkey => "upf_$index:$u->{userid}",
-                        );
+                    );
                 }
                 or return $err->($ML{'.error.generatinguserpic'} . $@);
 
-                my %current_upload;
-                $current_upload{key} = "userpic_0";
-                $current_upload{image} = \${ $picinfo->[0] };
-                $current_upload{keywords} = $POST{keywords};
-                $current_upload{default} = $POST{default};
-                $current_upload{comments} = $POST{comments};
-                $current_upload{descriptions} = $POST{descriptions};
-                $current_upload{make_default} = $POST{make_default};
-                $current_upload{index} = 0;
-
+                my %current_upload = (
+                    key   => 'userpic_0',
+                    image => \${$picinfo->[0]},
+                    index => 0,
+                );
+                $current_upload{$_} = $POST{$_}
+                    foreach qw/ keywords default comments descriptions make_default /;
                 push @uploaded_userpics, \%current_upload;
-
             }
 
             # throw an error if we didn't get a first pic.
-
             unless (@uploaded_userpics) {
                 if ($POST{src} eq "file")  {
                     return $err->($ML{'.error.nofile'});
@@ -258,9 +230,10 @@ use strict;
                     push @info, $message_prefix . "$current_upload{error}";
                     $no_errors = 0;
                 } elsif ($current_upload{requires_factory}) {
-                    unless ($current_upload{spool_fh}) {
-                        LJ::mogclient()->store_content("upf_$current_upload{index}:$u->{userid}", "temp", $current_upload{image});
-                    }
+                    DW::BlobStore->store(
+                        temp => "upf_$current_upload{index}:$u->{userid}",
+                        $current_upload{image},
+                    );
 
                     $factory_redirect = "$LJ::SITEROOT/tools/userpicfactory?keywords=" .
                         BML::eurl($current_upload{keywords}) . "&comments=" .
@@ -287,15 +260,16 @@ use strict;
                         push @info, $message_prefix . $ML{'.uploadsuccessful'};
                         $success_count++;
 
-                        # make it their default pic?
-                        if ($current_upload{make_default}) {
-                            $userpic->make_default;
-                        }
-
-                        $userpic->set_keywords($current_upload{keywords}) if defined ($current_upload{keywords});
-                        $userpic->set_comment($current_upload{comments})  if $current_upload{comments};
-                        $userpic->set_description($current_upload{descriptions}) if $current_upload{descriptions};
-                        $userpic->set_fullurl($current_upload{url})       if $POST{url};
+                        $userpic->make_default
+                            if $current_upload{make_default};
+                        $userpic->set_keywords( $current_upload{keywords} )
+                            if defined $current_upload{keywords};
+                        $userpic->set_comment( $current_upload{comments} )
+                            if $current_upload{comments};
+                        $userpic->set_description( $current_upload{descriptions} )
+                            if $current_upload{descriptions};
+                        $userpic->set_fullurl( $current_upload{url} )
+                            if $POST{url};
 
                         $userpic_count++;
                     }
@@ -423,7 +397,7 @@ use strict;
             # adding multi-upload option if mogile is enabled
 
             my $remaining_uploads = $max - scalar @userpics;
-            if ($remaining_uploads >= 2 && LJ::mogclient()) {
+            if ($remaining_uploads >= 2) {
                 $body .= "<div id='multi_insert'></div>";
                 $body .= "<div id='no_default_insert'></div>";
                 $body .= "<p class='pkg' id='multi_insert_buttons'>\n";
@@ -623,444 +597,125 @@ use strict;
             };
     }
 
+    sub parse_large_upload {
+        my ( $POST, $errorref, $user, $err ) = @_;
+
+        my %upload = (); # { spool_data, spool_file_name, filename, bytes, md5sum, md5ctx, mime }
+        my @uploaded_files = ();
+        my $curr_name;
+
+        # called when the beginning of an upload is encountered
+        my $hook_newheaders = sub {
+            my ( $name, $filename ) = @_;
+            $curr_name = $name;
+            $POST->{$curr_name} = '';
+            return 1 unless $curr_name =~ /userpic.*/;
+
+            # new file, need to create a filehandle, etc
+            %upload = ();
+            $upload{filename} = $filename;
+            $upload{md5ctx} = new Digest::MD5;
+
+            my @tokens = split(/_/, $curr_name);
+            my $counter = $tokens[1];
+
+            $upload{spool_file_name} = "upf_${counter}:$user->{userid}";
+            $upload{spool_data} = '';
+
+            push @uploaded_files, $upload{spool_file_name};
+            return 1;
+        };
+
+        # called as data is received
+        my $hook_data = sub {
+            my ( $len, $data ) = @_;
+            unless ( $curr_name =~ /userpic.*/ ) {
+                $POST->{$curr_name} .= $data;
+                return 1;
+            }
+
+            # check that we've not exceeded the max read limit
+            my $max_read = (1<<20) * 5; # 5 MiB
+            $upload{bytes} += $len;
+            if ( $upload{bytes} > $max_read ) {
+                $$errorref = "Upload max $max_read exceeded at $upload{bytes} bytes";
+                return $err->( $$errorref );
+            }
+
+            $upload{md5ctx}->add($data);
+            $upload{spool_data} .= $data;
+
+            return 1;
+        };
+
+        # called when the end of an upload is encountered
+        my $hook_enddata = sub {
+            return 1 unless $curr_name =~ /userpic.*/;
+
+            # since we've just finished a potentially slow upload, we need to
+            # make sure the database handles in DBI::Role's cache haven't expired,
+            # so we'll just trigger a revalidation now so that subsequent database
+            # calls will be safe.
+            $LJ::DBIRole->clear_req_cache();
+
+            # don't try to operate on 0-length spoolfiles
+            unless ( $upload{bytes} ) {
+                %upload = ();
+                return 1;
+            }
+            unless ( length $upload{spool_data} > 0 ) {
+                $$errorref = "Failed to read a file";
+                return $err->( $$errorref );
+            }
+
+            # Get MIME type from magic bytes
+            $upload{mime} = File::Type->new->mime_type( $upload{spool_data} );
+            unless ( $upload{mime} ) {
+                $$errorref = "Unknown format for upload";
+                return $err->( $$errorref );
+            }
+
+            # finished adding data for md5, create digest (but don't destroy original)
+            $upload{md5sum} = $upload{md5ctx}->digest;
+            $POST->{$curr_name} = \$upload{spool_data};
+            return 1;
+        };
+
+
+        # parse multipart-mime submission, one chunk at a time,
+        # calling our hooks as we go to put uploads in temporary
+        # MogileFS filehandles
+        my $retval = eval { BML::parse_multipart_interactive($errorref, {
+            newheaders => $hook_newheaders,
+            data       => $hook_data,
+            enddata    => $hook_enddata,
+                                                             }); };
+
+        # if BML::Parse_multipart_interactive failed, we need to add
+        # all of our gpics to the gpic_delete queue.  if any of them
+        # still have refcounts, they won't really be deleted because
+        # the async job will realize and leave them alone
+        unless ( $retval ) {
+            # if we hit a parse error, delete the uploaded files
+            foreach my $mogkey ( @uploaded_files ) {
+                DW::BlobStore->delete( temp => $mogkey );
+            }
+
+            if (index(lc($$errorref), 'unknown format') == 0) {
+                $$errorref = BML::ml(".error.unknowntype");
+            } else {
+                $$errorref = "couldn't parse upload: $$errorref";
+            }
+            # the error page is printed in the caller
+            return 0;
+        }
+
+        return $retval;
+    }
 
     return;
 }
 
-sub update_userpics
-{
-    my $userpicsref = shift;
-    my $u = shift;
-    my @userpics = @$userpicsref;
-    my $err = shift;
-
-    my $display_rename = LJ::is_enabled( "icon_renames" ) ? 1 : 0 ;
-
-    # form being posted isn't multipart, since we were able to read from %POST
-    unless (LJ::check_form_auth()) {
-        return $err->($ML{'error.invalidform'});
-    }
-
-    my @delete; # userpic objects to delete
-    my @inactive_picids;
-    my %picid_of_kwid;
-    my %used_keywords;
-
-    # we need to count keywords based on what the user provided, in order
-    # to find duplicates. $up->keywords doesn't work, because re-using a
-    # keyword will remove it from the other userpic without our knowing
-    my $count_keywords = sub {
-        my $kwlist = shift;
-        $used_keywords{$_}++ foreach split(/,\s*/, $kwlist);
-    };
-
-    foreach my $up (@userpics) {
-
-        my $picid = $up->id;
-
-        # delete this pic
-        if ($POST{"delete_$picid"}) {
-            push @delete, $up;
-            next;
-        }
-
-        # we're only going to modify keywords/comments on active pictures
-        if ($up->inactive || $POST{"pic_inactive_$picid"}) {
-            # use 'orig' because we don't POST disabled fields
-            $count_keywords->($POST{"kw_orig_$picid"});
-            next;
-        }
-
-        $count_keywords->($POST{"kw_$picid"});
-
-        # only modify if changing the data, make sure not collidiing with other edits, etc
-        if ($POST{"kw_$picid"} ne $POST{"kw_orig_$picid"}) {
-            my $kws = $POST{"kw_$picid"};
-
-            if ( $POST{"rename_keyword_$picid"} ) {
-                if ( $display_rename && $u->userpic_have_mapid ) {
-                    eval {
-                       $up->set_and_rename_keywords($kws, $POST{"kw_orig_$picid"});
-                    } or push @errors, $@->as_html;
-                } else {
-                    push @errors, $ML{'.label.rename.disabled'};
-                }
-            } else {
-                eval {
-                    $up->set_keywords($kws);
-                } or push @errors, $@->as_html;
-            }
-        }
-
-        eval {
-            $up->set_comment ($POST{"com_$picid"})
-                unless $POST{"com_$picid"} eq $POST{"com_orig_$picid"};
-        } or push @errors, $@;
-
-        eval {
-            $up->set_description ($POST{"desc_$picid"})
-                unless $POST{"desc_$picid"} eq $POST{"desc_orig_$picid"};
-        } or push @errors, $@;
-
-    }
-
-    foreach my $kw (keys %used_keywords) {
-        next unless $used_keywords{$kw} > 1;
-        push @errors, BML::ml('.error.keywords', {ekw => $kw});
-    }
-
-    if (@delete && $LJ::DISABLE_MEDIA_UPLOADS) {
-        push @errors, $ML{'.error.nomediauploads.delete'};
-
-    } elsif (@delete) {
-
-        # delete pics
-        foreach my $up (@delete) {
-            eval { $up->delete; } or push @errors, $@;
-        }
-
-        # if any of the userpics they want to delete are active, then we want to
-        # re-run activate_userpics() - turns out it's faster to not check to
-        # see if we need to do this
-        $u->activate_userpics;
-    }
-
-    my $new_default = $POST{'defaultpic'}+0;
-    if ($POST{"delete_${new_default}"}) {
-        # deleting default
-        $new_default = 0;
-    }
-
-    if ($new_default && $new_default != $u->{'defaultpicid'}) {
-        my ($up) = grep { $_->id == $new_default } @userpics;
-
-        # see if they are trying to make an inactive userpic their default
-        if ($up && !$up->inactive) {
-            $up->make_default;
-        }
-    } elsif ($new_default eq '0' && $u->{'defaultpicid'}) {
-        # selected the "no default picture" option
-        $u->update_self( { defaultpicid => 0 } );
-        $u->{'defaultpicid'} = 0;
-    }
-
-    return scalar @delete;
-}
-
-sub parse_post_uploads
-{
-    my $postref = shift;
-    my %POST = %$postref;
-    my $u = shift;
-    my $MAX_UPLOAD = shift;
-    my $factory_disabled = shift;
-
-
-    my @uploads;
-
-    # if we find a userpic that requires the factory, save it here.
-    # we can only have one.
-    my $requires_factory;
-
-    # go through each key and create a %current_upload for it, then
-    # put it in @uploads.
-    foreach my $userpic_key (keys %POST) {
-        # uploaded pics
-        if ($userpic_key =~ /userpic_.*/) {
-            # only use userpic_0 if we selected file for the source
-            unless ($userpic_key eq "userpic_0" && $POST{"src"} ne "file") {
-                # copy all of the basic settings into the hash.
-                my %current_upload;
-                $current_upload{key} = $userpic_key;
-                my @tokens = split(/_/, $userpic_key);
-                my $counter = $tokens[1];
-                $current_upload{keywords} = $POST{"keywords_$counter"};
-                $current_upload{comments} = $POST{"comments_$counter"};
-                $current_upload{descriptions} = $POST{"descriptions_$counter"};
-                $current_upload{index} = $counter;
-                $current_upload{image} = \$POST{$userpic_key};
-                $current_upload{make_default} =  ($POST{"make_default"} eq $counter);
-
-                # check the image size.
-                my $imgdata = $POST{"spool_fh_$counter"} ? $POST{"spool_fh_$counter"} : \$POST{$userpic_key};
-                my $size = length($$imgdata);
-
-                if ($size == 0) {
-                    $current_upload{error} = $ML{'.error.nofile'};
-                } else {
-                    my ($imagew, $imageh, $filetype) = Image::Size::imgsize($imgdata);
-                    my $size = length($imgdata);
-
-                    if (!$imagew || !$imageh) {
-                        # couldn't parse the file
-                        $current_upload{error} = BML::ml(".error.unsupportedtype", {filetype => $filetype});
-                    } elsif ($imagew > 5000 || $imageh > 5000) {
-                        # file is too big, no matter what.
-                        $current_upload{error} = "The dimensions of this image are too large.";
-                    } elsif (int($imagew) > 100 || int($imageh) > 100 || $size > $MAX_UPLOAD) {
-                        # file is too large.
-                        if ($factory_disabled) {
-                            if (int($imagew) > 100 || int($imageh) > 100) {
-                                $current_upload{error} = BML::ml('.error.imagetoolarge', {imagesize => "${imagew}x$imageh"});
-                            } else {
-                                $current_upload{error} = BML::ml('.error.filetoolarge', { 'maxsize' => int($MAX_UPLOAD / 1024) });
-                            }
-                        } elsif ($filetype ne 'JPG' && $filetype ne 'PNG') {
-                            # factory only works on jpegs and pngs because Image::Magick has issues
-                            if (int($imagew) > 100 || int($imageh) > 100) {
-                                $current_upload{error} = $ML{'.error.giffiledimensions'};
-                            } else {
-                                $current_upload{error} = BML::ml('.error.filetoolarge', { 'maxsize' => int($MAX_UPLOAD / 1024)});
-                            }
-                        } elsif ($imagew <= 100 && $imageh <= 100) {
-                            # if it's the right size, just too large a file, see if we can
-                            # resize it down
-                            unless ($POST{"spool_file_name_$counter"}) {
-                                LJ::mogclient()->store_content("upf_${counter}:$u->{userid}", "temp", \$POST{$userpic_key});
-                            }
-
-                            eval {
-                                my $picinfo = LJ::Userpic->get_upf_scaled(
-                                    size => 100,
-                                    u    => $u,
-                                    mogkey => "upf_${counter}:$u->{userid}"
-                                    );
-
-                                # success! don't go to the factory, and pretend the user just uploaded the file
-                                # and continue on normally
-                                $current_upload{image} = \${ $picinfo->[0] };
-                            };
-
-                            if ($@ || (length($POST{$userpic_key}) > $MAX_UPLOAD)) {
-                                $current_upload{error} = ML::ml('.error.filetoolarge', {maxsize => int($MAX_UPLOAD / 1024) });
-                            }
-                        } else {
-                            # this is a candidate for the userpicfactory.
-
-                            # we can only do a single pic in the factory, so if there are two,
-                            # then error out for both.
-                            if ($requires_factory) {
-                                $requires_factory -> {error} = $ML{'.error.multipleresize'};
-                                $current_upload{error} = $ML{'.error.multipleresize'};
-                                $requires_factory->{requires_factory} = 0;
-                            } else {
-                                $current_upload{requires_factory} = 1;
-                                $current_upload{imageh} = $imageh;
-                                $current_upload{imagew} = $imagew;
-                                if ($POST{"spool_fh_$counter"}) {
-                                    $current_upload{spool_fh} = $POST{"spool_fh_$counter"};
-                                }
-                                $requires_factory = \%current_upload;
-                            }
-                        }
-                    } else {
-                        # valid file; just add it as given.
-                        if ($POST{"spool_file_name_$counter"}) {
-                            $current_upload{image} = LJ::mogclient()->get_file_data($POST{"spool_file_name_$counter"});
-                        }
-                    }
-                }
-                push @uploads, \%current_upload;
-            }
-        } elsif ($userpic_key =~ /urlpic_.*/) {
-            # go through the URL uploads
-            unless ($userpic_key eq "urlpic_0" && $POST{src} ne "url") {
-                # copy all of the basic settings into the hash.
-                my %current_upload;
-                $current_upload{key} = $userpic_key;
-                my @tokens = split(/_/, $userpic_key);
-                my $counter = $tokens[1];
-                $current_upload{keywords} = $POST{"keywords_$counter"};
-                $current_upload{comments} = $POST{"comments_$counter"};
-                $current_upload{descriptions} = $POST{"descriptions_$counter"};
-                $current_upload{index} = $counter;
-                $current_upload{make_default} =  ($POST{"make_default"} eq $counter);
-
-                if (! $POST{$userpic_key}) {
-                    $current_upload{error} = $ML{'.error.nourl'};
-                } elsif ($POST{$userpic_key} !~ /^https?:\/\//) {
-                    $current_upload{error} = $ML{'.error.badurl'};
-                } else {
-                    my $ua = LJ::get_useragent(
-                        role     => 'userpic',
-                        max_size => $MAX_UPLOAD + 1024,
-                        timeout  => 10,
-                        );
-                    my $res = $ua->get($POST{$userpic_key});
-                    $current_upload{image} = \$res->content if $res && $res->is_success;
-                    $current_upload{error} = $ML{'.error.urlerror'} unless $current_upload{image};
-                    # Below, $current_upload{image} needs to be dereferenced because it contains a hash value.
-                    $current_upload{error} = $ML{'.error.urlfiletoolarge'} if $current_upload{image} && length( ${ $current_upload{image} } ) > $MAX_UPLOAD;
-                }
-                push @uploads, \%current_upload;
-            }
-        }
-    }
-
-    return @uploads;
-}
-
-sub parse_large_upload
-{
-    my $postref = shift;
-    my $errorref = shift;
-    my $user = shift;
-    my $err = shift;
-
-    my %upload = (); # { spool_fh, spool_path, filename, bytes, md5sum, md5ctx, mime }
-    my @uploaded_files = ();
-    my $curr_name;
-
-    # called when the beginning of an upload is encountered
-    my $hook_newheaders = sub {
-        my ($name, $filename) = @_;
-
-        # for uploaded files, just set POST value to filename
-        $postref->{$name} = '';
-
-        $curr_name = $name;
-
-        return 1 unless $curr_name =~ /userpic.*/;
-
-        # new file, need to create a filehandle, etc
-        %upload = ();
-        $upload{filename} = $filename;
-        $upload{md5ctx} = new Digest::MD5;
-
-        # get MogileFS filehandle
-        return $err->("Sorry, MogileFS must be running to handle the uploading of large images.") unless LJ::mogclient();
-
-        my @tokens = split(/_/, $curr_name);
-        my $counter = $tokens[1];
-
-        $upload{spool_file_name} = "upf_${counter}:$user->{userid}";
-        $upload{spool_fh} = LJ::mogclient()->new_file($upload{spool_file_name}, 'temp')
-            or die "Failed to open MogileFS tempfile";
-
-        push @uploaded_files, $upload{spool_file_name};
-        return 1;
-    };
-
-    # called as data is received
-    my $hook_data = sub {
-        my ($len, $data) = @_;
-
-        unless ($curr_name =~ /userpic.*/) {
-            $postref->{$curr_name} .= $data;
-            return 1;
-        }
-
-        # check that we've not exceeded the max read limit
-        my $max_read = (1<<20) * 5; # 5 MiB
-        my $len_read = 0;
-
-        $len_read = ($upload{bytes} += $len);
-
-        die "Upload max exceeded at $len_read bytes"
-            if $len_read > $max_read;
-
-        $upload{md5ctx}->add($data);
-        $upload{spool_fh}->print($data);
-
-        return 1;
-    };
-
-    # called when the end of an upload is encountered
-    my $hook_enddata = sub {
-        return 1 unless $curr_name =~ /userpic.*/;
-
-        # since we've just finished a potentially slow upload, we need to
-        # make sure the database handles in DBI::Role's cache haven't expired,
-        # so we'll just trigger a revalidation now so that subsequent database
-        # calls will be safe.
-        $LJ::DBIRole->clear_req_cache();
-
-        # don't try to operate on 0-length spoolfiles
-        unless ($upload{bytes}) {
-            %upload = ();
-            return 1;
-        }
-
-        # read magic and try to determine formatid of uploaded file. This
-        # doesn't use fh->tell and fh->seek because the filehandle is
-        # sysopen()ed, so isn't really an IO::Seekable like an IO::File
-        # filehandle would be.
-        my $magic;
-        tell $upload{spool_fh}
-        or die "read offset is 0, empty file?";
-        seek $upload{spool_fh}, 0, 0;
-
-        # $! should always be set in this case because a failed read will
-        # always be an error, not EOF, which is handled above (tell)
-        $upload{spool_fh}->read($magic, 20)
-            or die "Couldn't read magic: $!";
-
-        $upload{spool_fh}->close
-            or die "Can't close Mogile filehandle";
-
-        my $format_magic = sub {
-            my $magic = shift;
-            my $hex = unpack "H*", $magic;
-            my $mime;
-
-            # image formats
-            $mime = 'image/jpeg' if $magic =~ /^\xff\xd8/; # JPEG
-            $mime = 'image/gif'  if $magic =~ /^GIF8/;     # GIF
-            $mime = 'image/png'  if $magic =~ /^\x89PNG/;  # PNG
-
-            return $mime;
-        };
-
-        $upload{mime} = $format_magic->( $magic );
-        unless ( $upload{mime} ) {
-            $$errorref = "Unknown format for upload";
-            return $err->( $$errorref );
-        }
-
-        # finished adding data for md5, create digest (but don't destroy original)
-        $upload{md5sum} = $upload{md5ctx}->digest;
-
-        my @tokens = split(/_/, $curr_name);
-        my $counter = $tokens[1];
-
-        $postref->{$curr_name} = $upload{spool_fh};
-        $postref->{"spool_file_name_$counter"} = $upload{spool_file_name};
-        $postref->{"spool_fh_$counter"} = $upload{spool_fh};
-
-        return 1;
-    };
-
-
-    # parse multipart-mime submission, one chunk at a time,
-    # calling our hooks as we go to put uploads in temporary
-    # MogileFS filehandles
-    my $retval = eval { BML::parse_multipart_interactive($errorref, {
-        newheaders => $hook_newheaders,
-        data       => $hook_data,
-        enddata    => $hook_enddata,
-                                                         }); };
-
-    # if BML::Parse_multipart_interactive failed, we need to add
-    # all of our gpics to the gpic_delete queue.  if any of them
-    # still have refcounts, they won't really be deleted because
-    # the async job will realize and leave them alone
-    unless ($retval) {
-        # if we hit a parse error, delete the uploaded files
-        foreach my $mogkey (@uploaded_files) {
-            LJ::mogclient()->delete($mogkey);
-        }
-
-        if (index(lc($$errorref), 'unknown format') == 0) {
-            $$errorref = BML::ml(".error.unknowntype");
-        } else {
-            $$errorref = "couldn't parse upload: $$errorref";
-        }
-        # the error page is printed in the caller
-        return 0;
-    }
-
-    return $retval;
-}
 
 _code?><?page
     head=><?_code return $head; _code?>

@@ -54,6 +54,26 @@ BEGIN {
     }
 }
 
+# Now set up logging support for everybody else to access; this is done
+# very early. We may be called by a test though, which will set the flag,
+# and in that case we disable all the logging.
+use Log::Log4perl;
+BEGIN {
+    if ( $LJ::_T_CONFIG ) {
+        # Tests, don't log
+        my $conf = q{
+log4perl.rootLogger=FATAL, DevNull
+
+log4perl.appender.DevNull=Log::Log4perl::Appender::File
+log4perl.appender.DevNull.filename=/dev/null
+log4perl.appender.DevNull.layout=Log::Log4perl::Layout::SimpleLayout
+        };
+        Log::Log4perl::init( \$conf );
+    } else {
+        Log::Log4perl::init_and_watch($LJ::HOME . '/etc/log4perl.conf', 10);
+    }
+}
+
 use Apache2::Connection ();
 use Carp;
 use DBI;
@@ -240,30 +260,6 @@ sub gearman_client {
     $client->job_servers(@LJ::GEARMAN_SERVERS);
 
     return $client;
-}
-
-sub mogclient {
-    return $LJ::MogileFS if $LJ::MogileFS;
-
-    if (%LJ::MOGILEFS_CONFIG && $LJ::MOGILEFS_CONFIG{hosts}) {
-        eval "use MogileFS::Client;";
-        die "Couldn't load MogileFS: $@" if $@;
-
-        $LJ::MogileFS = MogileFS::Client->new(
-                                      domain => $LJ::MOGILEFS_CONFIG{domain},
-                                      root   => $LJ::MOGILEFS_CONFIG{root},
-                                      hosts  => $LJ::MOGILEFS_CONFIG{hosts},
-                                      readonly => $LJ::DISABLE_MEDIA_UPLOADS,
-                                      timeout => $LJ::MOGILEFS_CONFIG{timeout},
-                                      )
-            or die "Could not initialize MogileFS";
-
-        # set preferred ip list if we have one
-        $LJ::MogileFS->set_pref_ip(\%LJ::MOGILEFS_PREF_IP)
-            if %LJ::MOGILEFS_PREF_IP;
-    }
-
-    return $LJ::MogileFS;
 }
 
 sub theschwartz {
@@ -1013,9 +1009,9 @@ sub no_utf8_flag {
     return substr($_[0], 0);
 }
 
-# return true if root caller is a test file
-sub is_from_test {
-    return $0 && $0 =~ m!(^|/)t/!;
+# return 1 if root caller is a test, else 0
+sub in_test {
+    return $LJ::_T_CONFIG == 1 ? 1 : 0;
 }
 
 our $AUTOLOAD;

@@ -21,6 +21,8 @@ use Carp qw/ croak confess /;
 use Image::Magick;
 use Image::ExifTool qw/ :Public /;
 
+use DW::BlobStore;
+
 use DW::Media::Base;
 use base 'DW::Media::Base';
 
@@ -97,7 +99,7 @@ sub _resize {
 
     # Load the image data, then scale it.
     my ( $username, $mediaid ) = ( $self->u->user, $self->{mediaid} );
-    my $dataref = LJ::mogclient()->get_file_data( $self->mogkey )
+    my $dataref = DW::BlobStore->retrieve( media => $self->mogkey )
         or croak "Failed to load image file $mediaid for $username.";
     my $timage = Image::Magick->new()
         or croak 'Failed to instantiate Image::Magick object.';
@@ -112,11 +114,8 @@ sub _resize {
     $self->{filesize} = length $blob;
 
     # Now save to MogileFS first, before adding it to the database.
-    my $fh = LJ::mogclient()->new_file( $self->mogkey, 'media' )
-        or croak 'Unable to instantiate resized file in MogileFS.';
-    $fh->print( $blob ); # Aww, deref...
-    $fh->close
-        or croak 'Unable to save resized file to MogileFS.';
+    DW::BlobStore->store( media => $self->mogkey, \$blob )
+        or croak 'Unable to save resized file to storage.';
 
     # Insert into the database, then we're done.
     my $u = $self->u;
