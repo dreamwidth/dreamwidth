@@ -596,14 +596,6 @@
     # if you want to use MogileFS.
     #$USERPIC_MOGILEFS = 1; # uncomment to put new userpics in MogileFS
 
-    # if you are using Perlbal to balance your web site, by default it uses
-    # reproxying to distribute the files itself.  however, in some situations
-    # you may not want to do that.  use this option to disable that on an
-    # item by item basis.
-    #%REPROXY_DISABLE = (
-    #    userpics => 1,
-    #);
-
     # Some people on portable devices may have troubles viewing the nice site
     # scheme you've setup, so you can specify that some user-agent prefixes
     # should instead use fallback presentation information.

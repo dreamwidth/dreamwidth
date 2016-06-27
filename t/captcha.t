@@ -85,7 +85,7 @@ note( "user tries to use a disabled captcha type" );
 # it's possible only one type currently works, so activate a good one
 {
     local %LJ::DISABLED = ( captcha  => sub {
-        my $module = $_[0];
+        my $module = $_[0] // '';
         return ! $recaptcha_enabled if $module eq "recaptcha";
         return $recaptcha_enabled if $module eq "textcaptcha";
     } );

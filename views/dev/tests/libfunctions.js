@@ -19,9 +19,6 @@ old: js/6alib/template.js
 old: js/userpicselect.js
 
 old: js/6alib/view.js
-old: js/directorysearch.js
-old: js/directorysearchconstraints.js
-old: js/directorysearchresults.js
 
 old: js/esnmanager.js
 
@@ -90,35 +87,6 @@ test( "UserpicSelect", function() {
     o = new UserpicSelect();
     o.init();
     ok( o, "UserpicSelect" );
-});
-
-test( "Directory", function() {
-    expect(6);
-
-    var o;
-    o = new View();
-    o.init({});
-    ok( o, "View" );
-
-    o = new DirectorySearchView();
-    o.init($("searchview"), {});
-    ok( o, "DirectorySearchView" );
-
-    o = new DirectorySearch();
-    o.init() ;
-    ok( o, "DirectorySearch" );
-
-    o = new DirectorySearchResults();
-    o.init({}, {"resultsView": $("searchresults")});
-    ok( o, "DirectorySearchResults" );
-
-    o = new DirectorySearchConstraintsView();
-    o.init({view: $("searchconstraints")});
-    ok( o, "DirectorySearchConstraintsView" );
-
-    o = new DirectorySearchConstraint();
-    o.init();
-    ok( o, "DirectorySearchConstraint" );
 });
 
 test( "ESN", function() {

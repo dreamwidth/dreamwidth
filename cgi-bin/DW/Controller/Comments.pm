@@ -34,19 +34,19 @@ DW::Routing->register_redirect( '/tools/recent_comments', '/comments/recent', ap
 sub received_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
-    
+
     my $r = $rv->{r};
     my $u = $rv->{u};
     my $remote = $rv->{remote};
-    
+
     my $dbcr = LJ::get_cluster_reader($u);
-    die "Error: can't get DB for user" unless $dbcr;    
+    die "Error: can't get DB for user" unless $dbcr;
 
     my $vars;
     $vars->{u} = $u;
     $vars->{authas_html} = $rv->{authas_html};
-    $vars->{getextra} = ( $u ne $remote ) ? ( "?authas=" . $u->user ) : '';    
-    
+    $vars->{getextra} = ( $u ne $remote ) ? ( "?authas=" . $u->user ) : '';
+
     my %LJ_cmtinfo = %{ LJ::Comment->info( $u ) };
     $LJ_cmtinfo{form_auth} = LJ::form_auth( 1 );
 
@@ -89,7 +89,7 @@ sub received_handler {
         my $log_data     = LJ::get_posts_raw( { text_only => 1 }, @need_logtext );
         my $log_text     = $log_data->{text};
         my $root = $u->journal_base;
-        
+
         # Cycle through comments and skip deleted ones
         foreach my $r ( @recv ) {
             next unless $r->{nodetype} eq "L";
@@ -106,7 +106,7 @@ sub received_handler {
             my $ditemid = "$root/$lrow->{ditemid}.html";
             my $commentanchor = LJ::Talk::comment_anchor( $talkid );
             my $talkurl = "$root/$lrow->{ditemid}.html?thread=$talkid$commentanchor";
-            
+
             my $state = "";
             my $tdclass = "";
             if ( $r->{state} eq "S" ) {
@@ -129,7 +129,7 @@ sub received_handler {
                 journal => $u->{'user'},
                 id => $talkid } );
             my $del_img = LJ::img( "btn_del", "", { align => 'absmiddle', hspace => 2 } );
-            
+
             my $freeze_link;
             my $freeze_img;
 
@@ -147,7 +147,7 @@ sub received_handler {
                     talkid => $talkid } );
                 $freeze_img = LJ::img( "btn_unfreeze", "", { align => 'absmiddle', hspace => 2 } );
             }
-            
+
             my $screen_link;
             my $screen_img;
 
@@ -183,7 +183,7 @@ sub received_handler {
             }
 
             my $comment = $comment_text->{$r->{jtalkid}}[1];
-            LJ::CleanHTML::clean_comment( \$comment, { 
+            LJ::CleanHTML::clean_comment( \$comment, {
                             preformatted => $r->{props}->{opt_preformatted},
                             editor => $r->{props}->{editor},
                             anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
@@ -209,17 +209,17 @@ sub received_handler {
                 ditemid_undef => $ditemid_undef,
                 ditemid => $ditemid,
                 csubject => $csubject,
-                comment => $comment, 
+                comment => $comment,
                 talkurl => $talkurl, # direct link to comment
                 replyurl => $replyurl,
-                talkid => $talkid, # comment number                
+                talkid => $talkid, # comment number
                 tdclass => $tdclass
             };
         }
-    }     
-    
+    }
+
     $vars->{LJ_cmtinfo} = LJ::js_dumper( \%LJ_cmtinfo );
-    
+
     return DW::Template->render_template( 'comments/recent.tt', $vars );
 }
 
@@ -227,7 +227,7 @@ sub received_handler {
 sub posted_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
-    
+
     my $r = $rv->{r};
     my $u = $rv->{u};
     my $remote = $rv->{remote};
@@ -236,15 +236,15 @@ sub posted_handler {
     $vars->{u} = $u;
     $vars->{authas_html} = $rv->{authas_html};
     $vars->{getextra} = ( $u ne $remote) ? ( "?authas=" . $u->user ) : '';
-    
+
     my %LJ_cmtinfo = %{ LJ::Comment->info( $u ) };
     $LJ_cmtinfo{form_auth} = LJ::form_auth( 1 );
-    
+
     my $dbcr = LJ::get_cluster_reader($u);
-    die "Error: can't get DB for user" unless $dbcr;    
+    die "Error: can't get DB for user" unless $dbcr;
 
     $vars = initialize_count( $u, $r, $vars );
-    
+
     my ( @posted, %talkids );
     my %need_userid;
     $need_userid{$u->{userid}} = 1 if $u->is_community; # Need to load the community for logtext
@@ -255,7 +255,7 @@ sub posted_handler {
     my $sth;
 
     $vars->{canedit} = $remote->can_edit_comments;
-    
+
     # Retrieve posted
     if ($u->is_individual) {
         $sth = $dbcr->prepare("SELECT posttime, journalid, nodetype, nodeid, jtalkid, publicitem ".
@@ -269,9 +269,9 @@ sub posted_handler {
                 if $r->{nodetype} eq "L";
             $need_userid{$r->{journalid}} = 1;
         }
-        
+
         my $us = LJ::load_userids(keys %need_userid);
-        
+
         # setup the parameter to get_posts_raw
         my @need_logtext;
         foreach my $need ( values %need_logids ) {
@@ -283,45 +283,43 @@ sub posted_handler {
         my $log_data     = LJ::get_posts_raw( { text_only => 1 }, @need_logtext );
         my $log_text     = $log_data->{text};
         my $root = $u->journal_base;
-        
+
         # Cycle through each comment to extract necessary data
         foreach my $r ( @posted ) {
             $jcount{$r->{'journalid'}}++;
             next unless $r->{'nodetype'} eq "L";   # log2 comment
-            
+
             my $ju = $us->{$r->{journalid}};
             my $lrow = $logrow{"$ju->{userid} $r->{nodeid}"} ||= LJ::get_log2_row( $ju, $r->{'nodeid'} );
-            my $talkid = ( $r->{'jtalkid'} << 8 ) + $lrow->{'anum'};
-            my $ljcmt = $LJ_cmtinfo{$talkid} = {};
-            $ljcmt->{u} = $u->{user};
-            $ljcmt->{postedin} = $ju ? $ju->{user} : "";
-
-            my $comment = LJ::Comment->new( $ju, dtalkid => $talkid );
-
-            my $logurl = $ju->journal_base . "/$lrow->{ditemid}.html";
-            my $commentanchor = LJ::Talk::comment_anchor( $talkid );
-            my $talkurl = "$logurl?thread=$talkid$commentanchor";
 
             my $hr_ago = LJ::diff_ago_text( $r->{posttime}, $now );
-            my $subject;
-            my $delete;
-            my $editlink;
-            
+
             # if entry exists
             if ( defined $lrow->{ditemid} ) {
-                $subject = $log_text->{"$r->{journalid}:$r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
+                my $talkid = ( $r->{'jtalkid'} << 8 ) + $lrow->{'anum'};
+                my $ljcmt = $LJ_cmtinfo{$talkid} = {};
+                $ljcmt->{u} = $u->{user};
+                $ljcmt->{postedin} = $ju ? $ju->{user} : "";
+
+                my $comment = LJ::Comment->new( $ju, dtalkid => $talkid );
+
+                my $logurl = $ju->journal_base . "/$lrow->{ditemid}.html";
+                my $commentanchor = LJ::Talk::comment_anchor( $talkid );
+                my $talkurl = "$logurl?thread=$talkid$commentanchor";
+
+                my $subject = $log_text->{"$r->{journalid}:$r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
                 LJ::CleanHTML::clean_subject( \$subject );
 
                 # add a sign if the comment has replies
                 my $hasreplies = $comment->has_nondeleted_children ? "*" : '';
 
                 # delete link, very helpful for when the user does not have access to that entry anymore
-                $delete = $comment->is_deleted ? '' : LJ::create_url( "/delcomment", args => {
+                my $delete = $comment->is_deleted ? '' : LJ::create_url( "/delcomment", args => {
                 journal => $ju->{'user'},
                 id => $talkid } );
 
                 # edit link, if comment can be edited
-                $editlink = $comment->remote_can_edit ? LJ::Talk::talkargs( $comment->edit_url ) : '';
+                my $editlink = $comment->remote_can_edit ? LJ::Talk::talkargs( $comment->edit_url ) : '';
 
                 push @{ $vars->{comments} }, {
                     ju => $ju, # journal comment was posted in
@@ -334,29 +332,29 @@ sub posted_handler {
                     editlink => $editlink, # link to edit comment (if available, otherwise blank)
                     talkid => $talkid # comment number
                 };
-                
-            } 
+
+            }
             # entry has been deleted
             else {
-                push @{ $vars->{comments} }, { 
+                push @{ $vars->{comments} }, {
                     postdeleted => 1, # entry deleted
                     hr_ago => $hr_ago,
-                    ju => $ju 
+                    ju => $ju
                 };
             }
         }
     }
-    
+
     $vars->{LJ_cmtinfo} = LJ::js_dumper( \%LJ_cmtinfo );
-    
+
     return DW::Template->render_template( 'comments/posted.tt', $vars );
 }
 
 # Ascertain number of comments to show
 sub initialize_count {
     my ( $u, $r, $vars ) = @_;
-    
-    my $max = $u->count_recent_comments_display;  
+
+    my $max = $u->count_recent_comments_display;
     my $show = $r->get_args->{show} // 25;
 
     # how many comments to display by default
@@ -374,11 +372,11 @@ sub initialize_count {
     push @values, $max
         unless grep { $max == $_ } @values;
 
-    @values = sort { $a <=> $b } @values; 
+    @values = sort { $a <=> $b } @values;
     $vars->{values} = \@values;
     $vars->{sitemax} = $LJ::TOOLS_RECENT_COMMENTS_MAX;
-    
+
     return $vars;
 }
-    
+
 1;
