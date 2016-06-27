@@ -195,10 +195,6 @@ no strict "vars";
     $MOGILEFS_CONFIG{classes}->{vgifts}      ||= 3;
     $MOGILEFS_CONFIG{classes}->{media}       ||= 3;
 
-    # Default to allow all reproxying.
-    %REPROXY_DISABLE = () unless %REPROXY_DISABLE;
-
-
     # detect whether we are running on 32-bit architecture
     my $arch = ( length(pack "L!", 0) == 4 ) ? 1 : 0;
     if ( defined $ARCH32 ) {
@@ -207,7 +203,6 @@ no strict "vars";
     } else {
         $ARCH32 = $arch;
     }
-
 
     # setup default minimal style information
     $MINIMAL_USERAGENT{$_} ||= 1 foreach qw(Links Lynx w BlackBerry WebTV); # w is for w3m
