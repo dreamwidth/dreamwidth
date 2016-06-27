@@ -159,7 +159,6 @@ sub media_handler {
         unless $obj->visible_to( LJ::get_remote() );
 
     # load the data for this object
-# FIXME: support X-REPROXY headers here
     my $dataref = LJ::mogclient()->get_file_data( $obj->mogkey );
     return $error_out->( 500, 'Unexpected internal error locating file' )
         unless defined $dataref && ref $dataref eq 'SCALAR';

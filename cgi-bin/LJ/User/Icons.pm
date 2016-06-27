@@ -746,7 +746,8 @@ sub get_userpic_kw_map {
     foreach my $keyword ( keys %{$picinfo->{kw}} ) {
         my $picid = $picinfo->{kw}->{$keyword}->{picid};
         $keywords->{$picid} = [] unless $keywords->{$picid};
-        push @{$keywords->{$picid}}, $keyword if ( defined( $keyword ) && $picid && $keyword !~ m/^pic\#(\d+)$/ );
+        push @{$keywords->{$picid}}, $keyword
+            if defined $keyword && $picid && $keyword !~ m/^pic\#(\d+)$/;
     }
 
     return $u->{picid_kw_map} = $keywords;

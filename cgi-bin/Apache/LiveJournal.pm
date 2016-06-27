@@ -1042,67 +1042,25 @@ sub userpic_trans
     return OK;
 }
 
-sub userpic_content
-{
-    my $apache_r = shift;
-    my $file = $apache_r->filename;
-
-    my $picid = $RQ{'picid'};
-    my $userid = $RQ{'pic-userid'}+0;
-
-    my ($data, $lastmod);
-
-    my $mime = "image/jpeg";
-    my $set_mime = sub {
-        my $data = shift;
-        if ($data =~ /^GIF/) { $mime = "image/gif"; }
-        elsif ($data =~ /^\x89PNG/) { $mime = "image/png"; }
-    };
-    my $size;
-
-    my $send_headers = sub {
-        $size = $_[0] if @_;
-        $size ||= 0;
-        $apache_r->content_type( $mime );
-        $apache_r->headers_out->{"Content-length"} = $size + 0;
-        $apache_r->headers_out->{"Cache-Control"} = "no-transform";
-        $apache_r->headers_out->{"Last-Modified"} = LJ::time_to_http($lastmod);
-    };
+sub userpic_content {
+    my $apache_r = $_[0];
 
     # Load the user object and pic and make sure the picture is viewable
-    my $u = LJ::load_userid($userid);
-    my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } )
+    my $u = LJ::load_userid( $RQ{'pic-userid'} );
+    my $pic = LJ::Userpic->get( $u, $RQ{'picid'}, { no_expunged => 1 } )
         or return NOT_FOUND;
 
-    # Read the mimetype from the pichash if dversion 7
-    $mime = $pic->mimetype;
-
-    ### Handle reproxyable requests
-
-    # For dversion 7+ and mogilefs userpics, follow this path
-    if ( $pic->in_mogile ) {
-        my $key = $u->mogfs_userpic_key( $picid );
-        my $memkey = [$picid, "mogp.up.$picid"];
-        mogile_fetch( $apache_r, $key, $memkey, 'userpics', $send_headers );
-        return OK;
-    }
-
-    # else, get it from db.
-    unless ($data) {
-        $lastmod = $pic->pictime;
-
-        my $dbb = LJ::get_cluster_reader( $u );
-        return SERVER_ERROR unless $dbb;
-        $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE " .
-                                       "userid=$userid AND picid=$picid" );
-    }
-
+    # Must have contents by now, or return 404
+    my $data = $pic->imagedata;
     return NOT_FOUND unless $data;
 
-    $set_mime->($data);
-    $size = length($data);
-    $send_headers->();
-    $apache_r->print($data) unless $apache_r->header_only;
+    # Everything looks good, send it
+    $apache_r->content_type( $pic->mimetype );
+    $apache_r->headers_out->{"Content-length"} = length $data;
+    $apache_r->headers_out->{"Cache-Control"} = "no-transform";
+    $apache_r->headers_out->{"Last-Modified"} = LJ::time_to_http( $pic->pictime );
+    $apache_r->print( $data )
+        unless $apache_r->header_only;
     return OK;
 }
 
@@ -1143,9 +1101,8 @@ sub vgift_trans
     return OK;
 }
 
-sub vgift_content
-{
-    my $apache_r = shift;
+sub vgift_content {
+    my $apache_r = $_[0];
     my $picid = $RQ{picid};
     my $picsize = $RQ{picsize};
 
@@ -1154,7 +1111,6 @@ sub vgift_content
     return NOT_FOUND unless $mime;
 
     my $size;
-
     my $send_headers = sub {
         $size = $_[0] if @_;
         $size ||= 0;
@@ -1164,8 +1120,12 @@ sub vgift_content
     };
 
     my $key = $vg->img_mogkey( $picsize );
-    my $memkey = $vg->img_memkey( $picsize ); #[$picid, "mogp.vg.$picsize.$picid"];
-    mogile_fetch( $apache_r, $key, $memkey, 'vgifts', $send_headers );
+    my $data = LJ::mogclient()->get_file_data( $key );
+    return NOT_FOUND unless $data;
+
+    $send_headers->( length $$data );
+    $apache_r->print( $$data )
+        unless $apache_r->header_only;
     return OK;
 }
 
@@ -1452,45 +1412,6 @@ sub interface_content
     $apache_r->content_type("text/plain");
     $apache_r->print("Unknown interface.");
     return OK;
-}
-
-sub mogile_fetch {
-    my ( $apache_r, $key, $memkey, $class, $send_headers ) = @_;
-
-    if ( !$LJ::REPROXY_DISABLE{$class} &&
-         $apache_r->headers_in->{'X-Proxy-Capabilities'} &&
-         $apache_r->headers_in->{'X-Proxy-Capabilities'} =~ m{\breproxy-file\b}i ) {
-
-        my $zone = $apache_r->headers_in->{'X-MogileFS-Explicit-Zone'} || undef;
-        $memkey->[1] .= ".$zone" if $zone;
-
-        my $cache_for = $LJ::MOGILE_PATH_CACHE_TIMEOUT || 3600;
-
-        my $paths = LJ::MemCache::get( $memkey );
-        unless ( $paths ) {
-            # load and add to memcache
-            my @paths = LJ::mogclient()->get_paths( $key, { noverify => 1, zone => $zone } );
-            $paths = \@paths;
-            LJ::MemCache::add( $memkey, $paths, $cache_for ) if @paths;
-        }
-
-        if ( defined $paths->[0] && $paths->[0] =~ m/^https?:/ ) {
-            # reproxy url
-            $apache_r->headers_out->{'X-REPROXY-CACHE-FOR'} = "$cache_for; Last-Modified Content-Type";
-            $apache_r->headers_out->{'X-REPROXY-URL'} = join( ' ', @$paths );
-        } else {
-            # reproxy file
-            $apache_r->headers_out->{'X-REPROXY-FILE'} = $paths->[0];
-        }
-
-        $send_headers->();
-
-    } else {  # no reproxy
-        my $data = LJ::mogclient()->get_file_data( $key );
-        return NOT_FOUND unless $data;
-        $send_headers->( length $$data );
-        $apache_r->print( $$data ) unless $apache_r->header_only;
-    }
 }
 
 package LJ::Protocol;

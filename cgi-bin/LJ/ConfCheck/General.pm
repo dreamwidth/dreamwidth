@@ -430,10 +430,6 @@ add_conf('$MEMCACHE_CB_CONNECT_FAIL',
          des => "Callback when a connection to a memcached instance fails.  Subref gets the IP address that was being connected to, but without the port number."
          );
 
-add_conf('%REPROXY_DISABLE',
-         des => "Set of file classes that shouldn't be internally redirected to mogstored nodes.  Values are true, keys are one of 'userpics', or site-local file types like 'phoneposts' for ljcom.  Seee also \%USERPIC_REPROXY_DISABLE"
-         );
-
 add_conf('$SQUAT_URL',
          des => "For anti-squatter checking in Apache/LiveJournal.pm."
          );
