@@ -216,19 +216,6 @@ if ( $LJ::STATS{host} && $LJ::STATS{port} ) {
     DW::Stats::setup( $LJ::STATS{host}, $LJ::STATS{port} );
 }
 
-sub get_blob_domainid
-{
-    my $name = shift;
-    my $id = {
-        "userpic" => 1,
-    }->{$name};
-    # FIXME: add hook support, so sites can't define their own
-    # general code gets priority on numbers, say, 1-200, so verify
-    # hook returns a number 201-255
-    return $id if $id;
-    die "Unknown blob domain: $name";
-}
-
 sub locker {
     return $LJ::LOCKER_OBJ if $LJ::LOCKER_OBJ;
     eval "use DDLockClient ();";
