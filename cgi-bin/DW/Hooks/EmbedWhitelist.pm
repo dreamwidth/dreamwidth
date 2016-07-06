@@ -65,6 +65,8 @@ my %host_path_match = (
     "docs.google.com"       => [ qr!^/(document|spreadsheets?|presentation)/!, 1 ],
     
     "books.google.com"      => [ qr!^/ngrams/!, 1 ],
+    
+    "jsfiddle.net"          => [ qr!^/.*/embedded/$!, 1 ],
 
     "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
