@@ -424,7 +424,6 @@ sub opt_usermsg {
     if ( defined $prop && $prop =~ /^(Y|F|M|N)$/ ) {
         return $prop;
     } else {
-        return 'M' if $u->is_minor;
         return 'Y';
     }
 }
