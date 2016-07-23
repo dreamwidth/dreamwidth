@@ -2,10 +2,8 @@
 #
 # DW::Console::Command::ScreenSet
 #
-# Console commands for setting and clearing suspend notes. If a
-# suspend note is set for an account, trying to suspend that
-# account will cause an error and make you confirm you really
-# want to do that.
+# Console command for listing adding a user to selective screening for a given account.
+# Based on LJ::Console::Command::BanSet
 #
 # Authors:
 #      Paul Niewoonder <woggy@dreamwidth.org>
