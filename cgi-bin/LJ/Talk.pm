@@ -1600,7 +1600,7 @@ sub talkform {
             $ret .= " " . $BML::ML{'.opt.willscreen'} if $screening eq 'A'
                     || ( $screening eq 'R' && !$remote->is_validated )
                     || ( $screening eq 'F' && !$journalu->trusts($remote) )
-                    || ( $journalu->has_autoscreen( $remote ) );
+                    || $journalu->has_autoscreen( $remote );
 
             $ret .= "<input type='hidden' name='usertype' value='cookieuser' />";
             $ret .= "<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
@@ -1646,7 +1646,7 @@ sub talkform {
                 # show willscreen if a) all comments are screened b) anonymous is screened and OpenID user not validated, c) non-access is screened and OpenID user
                 # is not on access list d) this user is being automatically screened
                 $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || ( $screening eq 'R' && !$remote->is_validated )
-                    || ( $screening eq 'F' && !$journalu->trusts($remote) ) || ( $journalu->has_autoscreen( $remote ) ) ;
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) ) || $journalu->has_autoscreen( $remote ) ;
                 $ret .= "</td></tr>\n";
             } else {
                 # logged out
@@ -1706,7 +1706,7 @@ sub talkform {
 
                     $ret .= "<strong>$logged_in</strong>";
 
-                    $ret .= $BML::ML{'.opt.willscreen'} if $screening || ( $journalu->has_autoscreen( $remote ) );
+                    $ret .= $BML::ML{'.opt.willscreen'} if $screening || $journalu->has_autoscreen( $remote );
                 }
                 $ret .= "</td></tr>\n";
             } else {
@@ -1759,7 +1759,7 @@ sub talkform {
                                                   { user => $journalu->user } );
                 }
 
-                $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || ( $journalu->has_autoscreen( $remote ) );
+                $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || $journalu->has_autoscreen( $remote );
                 $ret .= "</td></tr>\n";
             } else {
                 # logged out
@@ -1832,7 +1832,7 @@ sub talkform {
             $ret .= "<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
             if ($screening eq 'A' ||
                 ($screening eq 'F' && !$journalu->trusts_or_has_member( $remote )) ||
-                ( $journalu->has_autoscreen( $remote ) )) {
+                $journalu->has_autoscreen( $remote ) ) {
                 $ret .= " " . $BML::ML{'.opt.willscreen'};
             }
             $ret .= "</td>";
@@ -3338,7 +3338,7 @@ sub init {
     if ($screening eq 'A' ||
         ($screening eq 'R' && ! $up) ||
         ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up ))) ||
-        ($journalu->has_autoscreen( $up ) )) {
+        $journalu->has_autoscreen( $up ) ) {
         $state = 'S';
     }
 

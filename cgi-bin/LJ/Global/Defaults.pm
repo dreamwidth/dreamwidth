@@ -354,6 +354,9 @@ no strict "vars";
         /latest
         /edittags
     );
+    
+    # Selective screening limit. No user can have more than this.
+    $LJ::SEL_SCREEN_LIMIT ||= 500;
 }
 
 

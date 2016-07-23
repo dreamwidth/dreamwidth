@@ -1,17 +1,23 @@
-# This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by
-# Dreamwidth Studios, LLC. These files were originally licensed under
-# the terms of the license supplied by Live Journal, Inc, which can
-# currently be found at:
+#!/usr/bin/perl
 #
-# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+# DW::Console::Command::ScreenList
 #
-# In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License.
-# A copy of that license can be found in the LICENSE file included as
-# part of this distribution.
+# Console commands for setting and clearing suspend notes. If a
+# suspend note is set for an account, trying to suspend that
+# account will cause an error and make you confirm you really
+# want to do that.
+#
+# Authors:
+#      Paul Niewoonder <woggy@dreamwidth.org>
+#
+# Copyright (c) 2016 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
-package LJ::Console::Command::ScreenList;
+package DW::Console::Command::ScreenList;
 
 use strict;
 use base qw(LJ::Console::Command);
@@ -19,7 +25,7 @@ use Carp qw(croak);
 
 sub cmd { "screen_list" }
 
-sub desc { "Lists users who are being automatically screened by an account." }
+sub desc { "Lists users who are being automatically screened by an account. Requires priv: none." }
 
 sub args_desc { [
                  'user' => "Optional; lists automatic screens in a community you maintain, or any user if you have the 'finduser' priv."
