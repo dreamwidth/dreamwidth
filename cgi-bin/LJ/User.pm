@@ -3104,7 +3104,9 @@ shop.  For adjusting points on a user, please see C<<$self->give_shop_points>>.
 =cut
 
 sub shop_points {
-    return $_[0]->prop( 'shop_points' ) // 0;
+    # force false value to be 0 instead of any other false value
+    # useful to make sure this gets printed out as "0" in the frontend
+    return $_[0]->prop( 'shop_points' ) || 0;
 }
 
 
@@ -5856,13 +5858,119 @@ sub display_journal_deleted {
         $extra->{scope_data} = $opts{journal_opts};
     }
 
+    #get information on who deleted the account.
+    my $deleter_name_html;
+    if ( $u->is_community ) {
+        my $userid = $u->userid;
+        my $logtime = $u->statusvisdate_unix;
+        my $dbcr = LJ::get_cluster_reader( $u );
+        my ( $deleter_id ) = $dbcr->selectrow_array(
+            "SELECT remoteid FROM userlog" .
+            " WHERE userid=? AND logtime=? LIMIT 1", undef, $userid, $logtime );
+        my $deleter_name = LJ::get_username( $deleter_id );
+        $deleter_name_html = $deleter_name ? 
+            LJ::ljuser( $deleter_name ) : 'Unknown'; 
+    } else {
+        #If this isn't a community, it can only have been deleted by the 
+        # journal owner.
+        $deleter_name_html = LJ::ljuser( $u );
+    }
+
+    #Information to pass to the "deleted account" template
     my $data = {
         reason => $u->prop( 'delete_reason' ),
         u => $u,
 
-        is_member_of => $u->is_community && $u->trusts_or_has_member( $remote ),
+        #Showing an earliest purge date of 29 days after deletion, not 30,
+        # to be safe with time zones.
+        purge_date => LJ::mysql_date( 
+            $u->statusvisdate_unix + ( 29*24*3600 ), 0 ),
+
+        deleter_name_html => $deleter_name_html,
+        u_name_html => LJ::ljuser( $u ),
+
+        is_comm => $u->is_community,
         is_protected => LJ::User->is_protected_username( $u->user ),
     };
+
+    if ( $remote ) {
+        $data = {
+            %$data,
+
+            logged_in => 1,
+
+            #booleans for comms
+            is_admin => $u->is_community && $remote->can_manage( $u ),
+            is_sole_admin => $u->is_community && $remote->can_manage( $u ) &&
+                scalar( $u->maintainer_userids ) == 1,
+            is_member_or_watcher => $u->is_community && 
+                ( $remote->member_of( $u ) || $remote->watches( $u ) ),
+
+            #booleans for personal journals
+            is_remote => $u->equals( $remote ),
+            has_relationship => $remote->watches( $u ) || $remote->trusts( $u ),
+        };
+
+        #construct relationship description & link
+        my $relationship_ml;
+        my @relationship_links;
+        if ( $u->is_community && !( $remote->can_manage( $u ) && scalar( $u->maintainer_userids ) == 1 ) ) {
+         #don't offer the last admin of a deleted community a link to leave it
+             my $watching = $remote->watches( $u );
+             my $memberof = $remote->member_of( $u );
+
+             if ( $watching && $memberof ) {
+                 $relationship_ml = 'web.controlstrip.status.memberwatcher';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.leavecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                     } );
+             } elsif ( $watching ) {
+                 $relationship_ml = 'web.controlstrip.status.watcher';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.removecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                     } );
+             } elsif ( $memberof ) {
+                 $relationship_ml = 'web.controlstrip.status.member';
+                 @relationship_links = (
+                     { ml => 'web.controlstrip.links.leavecomm',
+                       url => "$LJ::SITEROOT/community/leave?comm=$u->{user}"
+                     } );
+             }
+        }
+
+        if ( !$u->is_community && !$remote->equals( $u ) ) {
+            #Check that it isn't the deleted account's owner, otherwise we'd
+            #tell them that they had granted access to themselves!
+            my $trusts = $remote->trusts( $u );
+            my $watches = $remote->watches( $u );
+
+            if ( $trusts && $watches ) {
+                $relationship_ml = 'web.controlstrip.status.trust_watch';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            } elsif ( $trusts ) { 
+                $relationship_ml = 'web.controlstrip.status.trusted';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            } elsif ( $watches ) {
+                $relationship_ml = 'web.controlstrip.status.watched';
+                @relationship_links = (
+                    { ml => 'web.controlstrip.links.modifycircle',
+                      url => "$LJ::SITEROOT/manage/circle/add?user=$u->{user}"
+                    } );
+            }
+        }
+
+        $data->{relationship_ml} = $relationship_ml if $relationship_ml;
+        $data->{relationship_links} = \@relationship_links if @relationship_links;
+
+    }
 
     return DW::Template->render_template_misc( "journal/deleted.tt", $data, $extra );
 }
