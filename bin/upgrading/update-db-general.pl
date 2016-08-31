@@ -262,7 +262,6 @@ CREATE TABLE moodthemedata (
     width tinyint(3) unsigned NOT NULL default '0',
     height tinyint(3) unsigned NOT NULL default '0',
 
-    KEY (moodthemeid),
     PRIMARY KEY  (moodthemeid,moodid)
 )
 EOC
