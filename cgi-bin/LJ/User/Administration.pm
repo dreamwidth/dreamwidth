@@ -337,7 +337,7 @@ sub has_autoscreen {
 
     my $uid = LJ::want_userid( $u );
     my $jid = LJ::want_userid( $target );
-    return 1 unless $uid && $jid;
+    return 0 unless $uid && $jid;  #can't autoscreen anons ($jid == 0)
     return 0 if $uid == $jid;  # can't autoscreen yourself
 
     return LJ::check_rel( $uid, $jid, 'S' );
