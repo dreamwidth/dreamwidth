@@ -6,6 +6,9 @@ body<=
 {
     use strict;
     
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+    
     my $dbr = LJ::get_db_reader();
     my $sth;
 
