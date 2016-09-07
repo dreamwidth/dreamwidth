@@ -1,4 +1,3 @@
-;; -*- coding: utf-8 -*-
 .btn.nextpage=Customize Selected Theme ->
 
 .setsiteskin.desc=This will set the look and style of your journal. If you'd like to change the way the main site pages look instead, you can do this at the "Site Skin" option on the <a [[aopts]]>Manage Settings</a> page.
