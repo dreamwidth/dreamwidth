@@ -1,0 +1,63 @@
+
+[%- dw.need_res( 'stc/customize.css' ) -%]
+[%- dw.need_res( 'js/customize.js' ) -%]
+[%- dw.need_res( 'stc/select-list.css' ) -%]
+
+    [%- authas_html -%]
+
+    [% IF is_community %]
+        [%- sections.title = '.title.comm' | ml -%]
+    [% ELSE %]
+        [%- sections.title = '.title2' | ml -%]
+    [% END %]
+
+
+
+    [%# if they're working as a community, reproduce the community management linkbar:%]
+    [% IF is_community %]
+        <p class='intro'>" [% $u.maintainer_linkbar("customize") %] </p>
+    [% END %]
+
+    [%# would you like to set the site skin instead? %]
+    [% IF is_community %]
+        <p> [% '.setsiteskin.desc.comm' | ml( aopts = "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" ) %]</p>
+    [% ELSE %]
+        <p> [% '.setsiteskin.desc' | ml( aopts = "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" ) %]</p>
+    [% END %]
+
+    [%#render current theme widget %]
+    <div class='theme-current pkg'>
+    [% $current_theme.render( show => $show ) %]
+    </div><!-- end .theme-current -->
+
+    [% #render journal titles widget %]
+    <div class='theme-titles pkg'>
+    [% $journal_titles.render %]
+    </div><!-- end .theme-titles -->
+    <br />
+
+    [% #render theme nav widget %]
+    <div class='theme-selector-wrapper pkg'>
+    [% $theme_nav.render(
+        cat => $cat,
+        layoutid => $layoutid,
+        designer => $designer,
+        search => $search,
+        page => $page,
+        show => $show,
+        headextra => \$headextra,
+    ) %]
+    </div><!-- end .theme-selector-wrapper -->
+
+    [%# render layout chooser widget %]
+    <a name='layout'></a>
+    <div class='layout-selector-wrapper pkg'>
+    [% $layout_chooser.render( headextra => \$headextra ) %]
+    </div><!-- end .layout-selector-wrapper' -->
+
+[% USE Dumper %]
+[% Dumper.dump(designer) %]
+
+
+
+
