@@ -2,6 +2,9 @@
 [%- dw.need_res( 'stc/customize.css' ) -%]
 [%- dw.need_res( 'js/customize.js' ) -%]
 [%- dw.need_res( 'stc/select-list.css' ) -%]
+[%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
+[%- dw.need_res( 'stc/widgets/themechooser.css' ) -%]
+[%- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
 
     [%- authas_html -%]
 
@@ -11,52 +14,266 @@
         [%- sections.title = '.title2' | ml -%]
     [% END %]
 
-
-
     [%# if they're working as a community, reproduce the community management linkbar:%]
     [% IF is_community %]
-        <p class='intro'>" [% $u.maintainer_linkbar("customize") %] </p>
+        <p class='intro'> [% $u.maintainer_linkbar("customize") %] </p>
     [% END %]
 
     [%# would you like to set the site skin instead? %]
     [% IF is_community %]
-        <p> [% '.setsiteskin.desc.comm' | ml( aopts = "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" ) %]</p>
+        <p> [% '.setsiteskin.desc.comm' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'" ) %]</p>
     [% ELSE %]
-        <p> [% '.setsiteskin.desc' | ml( aopts = "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" ) %]</p>
+        <p> [% '.setsiteskin.desc' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'" ) %]</p>
     [% END %]
 
     [%#render current theme widget %]
     <div class='theme-current pkg'>
-    [% $current_theme.render( show => $show ) %]
+    [% current_theme.render( show => $show ) %]
     </div><!-- end .theme-current -->
 
     [% #render journal titles widget %]
     <div class='theme-titles pkg'>
-    [% $journal_titles.render %]
+    [% journal_titles.render %]
     </div><!-- end .theme-titles -->
     <br />
 
     [% #render theme nav widget %]
     <div class='theme-selector-wrapper pkg'>
-    [% $theme_nav.render(
-        cat => $cat,
-        layoutid => $layoutid,
-        designer => $designer,
-        search => $search,
-        page => $page,
-        show => $show,
-        headextra => \$headextra,
-    ) %]
+    <h2 class='widget-header'> [% dw.ml( 'widget.themenav.title' ) %]</h2>
+    <script>Customize.ThemeNav.searchwords = [% keywords_string %];</script>
+
+    [%- form.textbox(
+            name = 'search'
+            id = 'search_box'
+            size = 30
+            raw = "autocomplete='off'"
+    )
+    -%]
+    [% form.submit( name = "action:create", id => "search_btn" value = dw.ml('widget.themenav.btn.search') ) %]
+    </p>
+
+    <div class='theme-nav-inner-wrapper section-nav-inner-wrapper'>
+    <div class='theme-selector-nav section-nav'>
+    <ul class='theme-nav nostyle'>
+    [% FOREACH c IN main_cats_sorted %]
+
+        [% NEXT IF c == 'special' && !special_themes_exist %]
+        [% NEXT IF c == 'custom' && !custom_themes %]
+
+        [% li_class = "" %]
+        [% IF (c == cat) || (c == 'featured' && !cat && !viewing_all) || (c == 'all' && viewing_all) %]
+            [% li_class = "$li_class on" %]
+        [% ELSIF c == main_cats_sorted.first %]
+            [% li_class = "$li_class first" %]
+        [% ELSIF c == main_cats_sorted.last %]
+            [% li_class = "$li_class last" %]
+        [% END %]
+        [% li_class = " class='$li_class'" IF li_class %]
+
+        [% arg = "" %]
+        [% arg = "cat=$c" UNLESS c == 'featured' %]
+        [% IF arg || showarg %]
+            [% allargs = arg %]
+            [% IF allargs && showarg %]
+                [% allargs = "$allargs&" %]
+            [% END %]
+            [% allargs.append($showarg) %]
+            [% arg = getextra ? "&$allargs" : "?$allargs" %]
+        [% END %]
+
+    <li[% li_class %]><a href='[% site.root %]/customize/[% getextra %][% arg %]' class='theme-nav-cat'>[% cats.$c.text %]</a></li>
+    [% END %]
+    </ul>
+
+    [% IF cats_sorted %]
+        <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+        <ul class='theme-nav nostyle section-nav'>
+        [% FOREACH c IN cats_sorted %]
+
+        [% NEXT IF c == 'special' && !special_themes_exist %]
+        [% NEXT IF c == 'custom' && !custom_themes %]
+
+        [% li_class = "" %]
+        [% IF (c == cat) || (c == 'featured' && !cat && !viewing_all) || (c == 'all' && viewing_all) %]
+            [% li_class = "$li_class on" %]
+        [% ELSIF c == cats_sorted.first %]
+            [% li_class = "$li_class first" %]
+        [% ELSIF c == cats_sorted.last %]
+            [% li_class = "$li_class last" %]
+        [% END %]
+        [% li_class = " class='$li_class'" IF li_class %]
+
+        [% arg = "" %]
+        [% arg = "cat=$c" UNLESS c == 'featured' %]
+        [% IF arg || showarg %]
+            [% allargs = arg %]
+            [% IF allargs && showarg %]
+                [% allargs = "$allargs&" %]
+            [% END %]
+            [% allargs.append($showarg) %]
+            [% arg = getextra ? "&$allargs" : "?$allargs" %]
+        [% END %]
+
+    <li[% li_class %]><a href='[% site.root %]/customize/[% getextra %][% arg %]' class='theme-nav-cat'>[% cats.$c.text %]</a></li>
+    [% END %]
+        </ul>
+        <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+    [% END %]
+                    
+    <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+    <ul class='theme-nav-small nostyle section-nav'>
+    <li class='first'><a href='$site.root/customize/advanced/'>[% dw.ml( 'widget.themenav.developer' ) %]</a>
+    </li>
+    </ul>
+
+    </div>
+
+    <div class='theme-nav-content section-nav-content'>
+    <div class='theme-selector-content pkg'>
+    <script>Customize.ThemeChooser.confirmation = " [% dw.ml('widget.themechooser.confirmation') %] ";</script>
+    
+    [% IF cat == 'all' %]
+        <h3>[% dw.ml('widget.themechooser.header.all') %] </h3>
+    [% ELSIF cat == 'custom' %]
+        <h3> [% dw.ml('widget.themechooser.header.custom') %]</h3>
+    [% ELSIF cat %]
+        <h3>[% cats.$cat.text %]</h3>
+    [% ELSIF layoutid %]
+        my $layout_name = LJ::Customize->get_layout_name($layoutid, user => $u);
+        <h3>$layout_name</h3>
+    [% ELSIF designer %]
+        <h3>[% designer %]</h3>
+   [% ELSIF search %]
+[%#FIXME: search needs to be properly escaped %]
+        <h3>[% dw.ml('widget.themechooser.header.search', {'term' => search}) %]</h3>
+    [% ELSE %]
+        <h3>[% cats.featured.text %]</h3>
+    [% END %]
+
+
+    [% q_string = getargs.join("&") %]
+
+    [% url = "$site.root/customize/$getextra$getsep$q_string" %]
+
+
+    <div class='theme-paging theme-paging-top'>
+    [% UNLESS page == 1 && $max_page == 1 %]
+        [% IF page - 1 >= 1 %] {
+            <span class='item'><a href='[% url %]page=1' class='theme-page'>&lt;&lt;</a></span>
+            <span class='item'><a href='[% url %]page="[% page - 1 %] "' class='theme-page'>&lt;</a></span>
+        [% ELSE %]
+            <span class='item'>&lt;&lt;</span>
+            <span class='item'>&lt;</span>
+        [% END %]
+
+        [% pages = [ ] %]
+        [% FOREACH pagenum IN [1 .. max_page] %]
+            [% pages.push(pagenum, pagenum) %]
+        [% END %]
+
+
+
+        <span class='item'> [% dw.ml('widget.themechooser.page') %]         
+    [% form.select( name = 'page',
+                        id = "page_dropdown_top",
+                        selected = page,
+                        items = pages ) %]
+
+        [% dw.ml('widget.themechooser.page.maxpage', { currentpage => currentpage, maxpage => max_page }) %]
+        <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.page' ) ) %]</noscript></span>
+
+        [% IF (page + 1) <= max_page %]
+            <span class='item'><a href='[% url %]page="[% page + 1 %]"' class='theme-page'>&gt;</a></span>
+            <span class='item'><a href='[% url %]page=[% max_page %]' class='theme-page'>&gt;&gt;</a></span>
+        [% ELSE %]
+            <span class='item'>&gt;</span>
+            <span class='item'>&gt;&gt;</span>
+        [% END %]
+
+         <span class='item'>|</span>
+    [% END %]
+
+    [% shows = [ 6 6 12 12 24 24 48 48 96 96 all All ] %]
+
+    <span class='item'> [% dw.ml('widget.themechooser.show') %]
+    [% form.select( name = 'show',
+                            id = "show_dropdown_top",
+                            selected = show,
+                            items = shows ) %]
+    <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.show' ) ) %] </noscript></span>
+
+   <span id='paging_msg_area_top'></span>
+   </div>
+
+    <div class='themes-area'><ul class='select-list'>
+ ## THEMES GO HERE ##
+[% theme_area %]
+
+    </ul></div><!-- end .themes-area --->
+
+    [% q_string = getargs.join("&") %]
+
+    [% url = "$site.root/customize/$getextra$getsep$q_string" %]
+
+    [%# code for the bottom paging area %]
+    <div class='theme-paging theme-paging-bottom'>
+    [% UNLESS page == 1 && $max_page == 1 %]
+        [% IF page - 1 >= 1 %] {
+            <span class='item'><a href='[% url %]page=1' class='theme-page'>&lt;&lt;</a></span>
+            <span class='item'><a href='[% url %]page="[% page - 1 %] "' class='theme-page'>&lt;</a></span>
+        [% ELSE %]
+            <span class='item'>&lt;&lt;</span>
+            <span class='item'>&lt;</span>
+        [% END %]
+
+        [% pages = [ ] %]
+        [% FOREACH pagenum IN [1 .. max_page] %]
+            [% pages.push(pagenum, pagenum) %]
+        [% END %]
+
+
+
+        <span class='item'> [% dw.ml('widget.themechooser.page') %]         
+    [% form.select( name = 'page',
+                        id = "page_dropdown_bottom",
+                        selected = page,
+                        items = pages ) %]
+
+        [% dw.ml('widget.themechooser.page.maxpage', { currentpage => currentpage, maxpage => max_page }) %]
+        <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.page' ) ) %]</noscript></span>
+
+        [% IF (page + 1) <= max_page %]
+            <span class='item'><a href='[% url %]page="[% page + 1 %]"' class='theme-page'>&gt;</a></span>
+            <span class='item'><a href='[% url %]page=[% max_page %]' class='theme-page'>&gt;&gt;</a></span>
+        [% ELSE %]
+            <span class='item'>&gt;</span>
+            <span class='item'>&gt;&gt;</span>
+        [% END %]
+
+         <span class='item'>|</span>
+    [% END %]
+
+    [% shows = [ 6 6 12 12 24 24 48 48 96 96 all All ] %]
+
+    <span class='item'> [% dw.ml('widget.themechooser.show') %]
+    [% form.select( name = 'show',
+                            id = "show_dropdown_bottom",
+                            selected = show,
+                            items = shows ) %]
+    <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.show' ) ) %] </noscript></span>
+
+   <span id='paging_msg_area_bottom'></span>
+   </div>
+
+    </div><!-- end .theme-selector-content -->
     </div><!-- end .theme-selector-wrapper -->
 
     [%# render layout chooser widget %]
     <a name='layout'></a>
     <div class='layout-selector-wrapper pkg'>
-    [% $layout_chooser.render( headextra => \$headextra ) %]
+    [% layout_chooser.render( headextra => \$headextra ) %]
     </div><!-- end .layout-selector-wrapper' -->
 
-[% USE Dumper %]
-[% Dumper.dump(designer) %]
 
 
 
