@@ -22,6 +22,7 @@ use DW::Routing;
 use DW::Template;
 use DW::Logic::MenuNav;
 use JSON;
+use Data::Dumper;
 
 # This registers a static string, which is an application page.
 DW::Routing->register_string( '/customize/', \&customize_handler, 
@@ -183,112 +184,77 @@ sub customize_handler {
     $vars->{custom_themes} = \@custom_themes;
     $vars->{special_themes_exist} = $special_themes_exist;
     $vars->{max_page} = $vars->{show} ne "all" ? POSIX::ceil(scalar(@themes) / $vars->{show}) || 1 : 1;
-    $vars->{themes} = @themes;
+    $vars->{themes} = \@themes;
     $vars->{getargs} = \@getargs;
-
-    #information for pagination of results
-    my $current_theme_id = LJ::Customize->get_current_theme($u);
-    my $index_of_first_theme = $vars->{show} ne "all" ? $vars->{show} * ($vars->{page} - 1) : 0;
-    my $index_of_last_theme = $vars->{show} ne "all" ? ($vars->{show} * $vars->{page}) - 1 : scalar @themes - 1;
-    my @themes_this_page = @themes[$index_of_first_theme..$index_of_last_theme];
-    my $ret;
-
-foreach my $theme (@themes_this_page) {
-        next unless defined $theme;
-
-        # figure out the type(s) of theme this is so we can modify the output accordingly
-        my %theme_types;
-        if ($theme->themeid) {
-            $theme_types{current} = 1 if $theme->themeid == $current_theme_id->themeid;
-        } elsif (!$theme->themeid && !$current_theme_id->themeid) {
-            $theme_types{current} = 1 if $theme->layoutid == $current_theme_id->layoutid;
-        }
-        $theme_types{upgrade} = 1 if !$theme->available_to($u);
-        $theme_types{special} = 1 if LJ::Hooks::run_hook("layer_is_special", $theme->uniq);
-
-        
-        my ($theme_class, $theme_options, $theme_icons) = ("", "", "");
-        
-        $theme_icons .= "<div class='theme-icons'>" if $theme_types{upgrade} || $theme_types{special};
-        if ($theme_types{current}) {
-            my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
-
-            $theme_class .= " selected";
-            $theme_options .= "<strong><a href='$LJ::SITEROOT/customize/options$getextra'>" . LJ::Lang::ml('widget.themechooser.theme.customize') . "</a></strong>";
-            if (! $no_layer_edit && $theme->is_custom && !$theme_types{upgrade}) {
-                if ($theme->layoutid && !$theme->layout_uniq) {
-                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->layoutid . "'>" . LJ::Lang::ml('widget.themechooser.theme.editlayoutlayer') . "</a></strong>";
-                }
-                if ($theme->themeid && !$theme->uniq) {
-                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->themeid . "'>" . LJ::Lang::ml('widget.themechooser.theme.editthemelayer') . "</a></strong>";
-                }
-            }
-        }
-        if ($theme_types{upgrade}) {
-            $theme_class .= " upgrade";
-            $theme_options .= "<br />" if $theme_options;
-            $theme_options .= LJ::Hooks::run_hook("customize_special_options", $u, $theme);
-            $theme_icons .= LJ::Hooks::run_hook("customize_special_icons", $u, $theme);
-        }
-        if ($theme_types{special}) {
-            $theme_class .= " special" if $viewing_featured && LJ::Hooks::run_hook("should_see_special_content", $u);
-            $theme_icons .= LJ::Hooks::run_hook("customize_available_until", $theme);
-        }
-        $theme_icons .= "</div><!-- end .theme-icons -->" if $theme_icons;
-
-        my $theme_layout_name = $theme->layout_name;
-        my $theme_designer = $theme->designer;
-
-        $ret .= "<li class='theme-item$theme_class'>";
-        $ret .= "<img src='" . $theme->preview_imgurl . "' class='theme-preview' />";
-
-        $ret .= "<h4>" . $theme->name . "</h4><div class='theme-action'><span class='theme-desc'>";
-
-        if ($theme_designer) {
-            my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($theme_designer) . "$showarg' class='theme-designer'>$theme_designer</a> ";
-            $ret .= LJ::Lang::ml('widget.themechooser.theme.designer', {'designer' => $designer_link});
-        }
-
-        my $preview_redirect_url;
-        if ($theme->themeid) {
-            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect$getextra${getsep}themeid=" . $theme->themeid;
-        } else {
-            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect$getextra${getsep}layoutid=" . $theme->layoutid;
-        }
-        $ret .= "<a href='$preview_redirect_url' target='_blank' class='theme-preview-link' title='" . LJ::Lang::ml('widget.themechooser.theme.preview') . "'>";
-
-        $ret .= "<img src='$LJ::IMGPREFIX/customize/preview-theme.gif' class='theme-preview-image' /></a>";
-        $ret .= $theme_icons;
-
-        my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$showarg' class='theme-layout'><em>$theme_layout_name</em></a>";
-        my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-cat'";
-        if ($theme_types{special}) {
-            $ret .= LJ::Lang::ml('widget.themechooser.theme.specialdesc2', {'aopts' => $special_link_opts});
-        } else {
-            $ret .= LJ::Lang::ml('widget.themechooser.theme.desc2', {'style' => $layout_link});
-        }
-        $ret .= "</span>";
-
-        if ($theme_options) {
-            $ret .= $theme_options;
-        } else { # apply theme form
-           # $ret .= $class->start_form( class => "theme-form" );
-          #  $ret .= $class->html_hidden(
-         #       apply_themeid => $theme->themeid,
-        #        apply_layoutid => $theme->layoutid,
-       #     );
-        #    $ret .= $class->html_submit(
-        #        apply => LJ::Lang::ml('widget.themechooser.theme.apply'),
-       #         { raw => "class='theme-button' id='theme_btn_" . $theme->layoutid . $theme->themeid . "'" },
-       #     );
-        #    $ret .= $class->end_form;
-        }
-        $ret .= "</div><!-- end .theme-action --></li><!-- end .theme-item -->";
-    }
-
-    $vars->{theme_area} = $ret;
     $vars->{run_hook} = \&LJ::Hooks::run_hook;
+    $vars->{get_layout_name} = sub { LJ::Customize->get_layout_name(@_); };
+
+    my $q_string = BML::get_query_string();
+    $q_string =~ s/&?page=\d+//g;
+
+    my $url = "$LJ::SITEROOT/customize/";
+
+    if ($r->did_post) {
+        if ($post->{"action:apply"}) {
+            die "Invalid user." unless LJ::isu($u);
+
+            my $themeid = $post->{apply_themeid}+0;
+            my $layoutid = $post->{apply_layoutid}+0;
+            my $key;
+            
+            # we need to load sponsor's themes for sponsored users
+            my $substitute_user = LJ::Hooks::run_hook("substitute_s2_layers_user", $u);
+            my $effective_u = defined $substitute_user ? $substitute_user : $u;
+            my $theme;
+            if ($themeid) {
+                $theme = LJ::S2Theme->load_by_themeid($themeid, $effective_u);
+            } elsif ($layoutid) {
+                $theme = LJ::S2Theme->load_custom_layoutid($layoutid, $effective_u);
+            } else {
+                die "No theme id or layout id specified.";
+            }
+
+            LJ::Customize->apply_theme($u, $theme);
+            LJ::Hooks::run_hooks('apply_theme', $u);
+        } elsif ($post->{filter}) {
+            $q_string = "?$q_string" if $q_string;
+            my $q_sep = $q_string ? "&" : "?";
+            $url .= $q_string;
+
+        } elsif ($post->{page}) {
+            $q_string = "?$q_string" if $q_string;
+            my $q_sep = $q_string ? "&" : "?";
+
+            $post->{page} = LJ::eurl($post->{page});
+            if ($post->{page} != 1) {
+                $url .= "$q_string${q_sep}page=$post->{page}";
+            } else {
+                $url .= $q_string;
+            }
+        } elsif ($post->{show}) {
+            $q_string =~ s/&?show=\w+//g;
+            $q_string = "?$q_string" if $q_string;
+            my $q_sep = $q_string ? "&" : "?";
+
+            $post->{show} = LJ::eurl($post->{show});
+            if ($post->{show} != 12) {
+                $url .= "$q_string${q_sep}show=$post->{show}";
+            } else {
+                $url .= $q_string;
+            }
+        } elsif ($post->{search}) {
+            my $show = ($q_string =~ /&?show=(\w+)/) ? "&show=$1" : "";
+            my $authas = ($q_string =~ /&?authas=(\w+)/) ? "&authas=$1" : "";
+            $q_string = "";
+
+            $post->{search} = LJ::eurl($post->{search});
+            $url .= "?search=$post->{search}$authas$show";
+        }
+    }
         
+
+    # get the current theme id - at the end because post actions may have changed it.
+    $vars->{current_theme_id} = LJ::Customize->get_current_theme($u);
     # Now we tell it what template to render and pass in our variables
     return DW::Template->render_template( 'customize.tt', $vars );
 
