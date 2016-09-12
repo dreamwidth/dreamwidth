@@ -1582,6 +1582,7 @@ sub talkform {
     $ret .= "<td>";
     $ret .= "<table summary=''>"; # Internal for "From" options
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
+    $screening = 'A' if $journalu->has_autoscreen( $remote );
 
     if ($editid) {
 
@@ -1599,8 +1600,7 @@ sub talkform {
 
             $ret .= " " . $BML::ML{'.opt.willscreen'} if $screening eq 'A'
                     || ( $screening eq 'R' && !$remote->is_validated )
-                    || ( $screening eq 'F' && !$journalu->trusts($remote) )
-                    || $journalu->has_autoscreen( $remote );
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) );
 
             $ret .= "<input type='hidden' name='usertype' value='cookieuser' />";
             $ret .= "<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
@@ -1644,9 +1644,9 @@ sub talkform {
                 $ret .= "<strong>$logged_in</strong>";
 
                 # show willscreen if a) all comments are screened b) anonymous is screened and OpenID user not validated, c) non-access is screened and OpenID user
-                # is not on access list d) this user is being automatically screened
+                # is not on access list d) this user is being automatically screened (in which case $screening has been forced to 'A')
                 $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || ( $screening eq 'R' && !$remote->is_validated )
-                    || ( $screening eq 'F' && !$journalu->trusts($remote) ) || $journalu->has_autoscreen( $remote ) ;
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
                 $ret .= "</td></tr>\n";
             } else {
                 # logged out
@@ -1706,7 +1706,7 @@ sub talkform {
 
                     $ret .= "<strong>$logged_in</strong>";
 
-                    $ret .= $BML::ML{'.opt.willscreen'} if $screening || $journalu->has_autoscreen( $remote );
+                    $ret .= $BML::ML{'.opt.willscreen'} if $screening;
                 }
                 $ret .= "</td></tr>\n";
             } else {
@@ -1759,7 +1759,7 @@ sub talkform {
                                                   { user => $journalu->user } );
                 }
 
-                $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || $journalu->has_autoscreen( $remote );
+                $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A';
                 $ret .= "</td></tr>\n";
             } else {
                 # logged out
@@ -1831,8 +1831,7 @@ sub talkform {
 
             $ret .= "<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
             if ($screening eq 'A' ||
-                ($screening eq 'F' && !$journalu->trusts_or_has_member( $remote )) ||
-                $journalu->has_autoscreen( $remote ) ) {
+                ($screening eq 'F' && !$journalu->trusts_or_has_member( $remote )) ) {
                 $ret .= " " . $BML::ML{'.opt.willscreen'};
             }
             $ret .= "</td>";
@@ -1848,12 +1847,8 @@ sub talkform {
     $ret .= $remote_can_comment ? $whocheck->('ljuser') : ' checked="checked"';
     $ret .= " /></td><td align='left'><b><label for='talkpostfromlj' onclick='handleRadios(2); return false;'>";
     $ret .= BML::ml( '.opt.siteuser', { sitename => $LJ::SITENAMESHORT } ) . "</label></b> ";
-    if ( $journalu->has_autoscreen( $remote ) ) {
-        $ret .= $BML::ML{'.opt.willscreen'};
-    } else {
-        $ret .= $BML::ML{'.opt.willscreenfriend'} if $screening eq 'F';
-        $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A';
-    }
+    $ret .= $BML::ML{'.opt.willscreenfriend'} if $screening eq 'F';
+    $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A';
     $ret .= "</td></tr>\n";
 
     if ($remote && ! defined $oid_identity) {
@@ -3335,10 +3330,10 @@ sub init {
     # figure out whether to post this comment screened
     my $state = 'A';
     my $screening = LJ::Talk::screening_level($journalu, $ditemid >> 8) || "";
+    $screening = 'A' if $journalu->has_autoscreen( $up );
     if ($screening eq 'A' ||
         ($screening eq 'R' && ! $up) ||
-        ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up ))) ||
-        $journalu->has_autoscreen( $up ) ) {
+        ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up )))) {
         $state = 'S';
     }
 
