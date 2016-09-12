@@ -1600,7 +1600,7 @@ sub talkform {
 
             $ret .= " " . $BML::ML{'.opt.willscreen'} if $screening eq 'A'
                     || ( $screening eq 'R' && !$remote->is_validated )
-                    || ( $screening eq 'F' && !$journalu->trusts($remote) );
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
 
             $ret .= "<input type='hidden' name='usertype' value='cookieuser' />";
             $ret .= "<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
@@ -1831,7 +1831,7 @@ sub talkform {
 
             $ret .= "<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
             if ($screening eq 'A' ||
-                ($screening eq 'F' && !$journalu->trusts_or_has_member( $remote )) ) {
+                ($screening eq 'F' && !$journalu->trusts_or_has_member( $remote ))) {
                 $ret .= " " . $BML::ML{'.opt.willscreen'};
             }
             $ret .= "</td>";
