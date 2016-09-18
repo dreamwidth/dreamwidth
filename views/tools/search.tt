@@ -1,0 +1,43 @@
+[%# Site search form.
+  #
+  # Authors:
+  #      Rachel Walmsley <rho@rho.me.uk>  (original BML)
+  #      Jen Griffin <kareila@livejournal.com>  (TT conversion)
+  #
+  # Copyright (c) 2009-2016 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml( sitename = sitename ) -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        div.appwidget form { margin-bottom: 0; }
+        div.appwidget input { width: auto; display: inline; }
+        div.appwidget select { width: auto; display: inline; }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>[% ".intro" | ml( sitename = sitename ) %]</p>
+
+<p>[% widget %]</p>
+
+<ul>
+  <li>
+    [% ".journal" | ml( aopts = "href='${site.root}/search'" ) %]
+    &mdash; [% ".journal.desc" | ml( aopts = "href='${site.root}/shop'" ) %]
+  </li>
+  <li>
+    [% ".directory" | ml( aopts = "href='${site.root}/directorysearch'" ) %]
+    &mdash; [% ".directory.desc" | ml %]
+  </li>
+  <li>
+    [% ".commsearch" | ml( aopts = "href='${site.root}/community/search'" ) %]
+    &mdash; [% ".commsearch.desc" | ml %]
+  </li>
+</ul>
