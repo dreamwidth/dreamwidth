@@ -55,6 +55,8 @@ sub work {
         Port    => 587,
         Timeout => 60,
     );
+    return $job->failed( "Temporary failure connecting to $LJ::EMAIL_VIA_SES{hostname}, will retry." )
+        unless defined $smtp;
     $smtp->auth($LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password});
 
     my $env_from = $args->{env_from};  # Envelope From
