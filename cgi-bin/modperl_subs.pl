@@ -57,7 +57,6 @@ use DateTime::TimeZone;
 use LJ::OpenID;
 use LJ::Location;
 use LJ::SpellCheck;
-use LJ::TextMessage;
 use LJ::ModuleCheck;
 use LJ::Widget;
 use MogileFS::Client;

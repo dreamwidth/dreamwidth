@@ -55,10 +55,6 @@
 
 .error.noname=Your name is a required field.  You must provide a first name or nickname.
 
-.error.txt.require.number=If you're going to use text messaging, you must enter your phone number.
-
-.error.txt.require_provider=If you're going to use text messaging, you must select your service provider.  If yours isn't listed, please contact us with information about how your service's text messaging feature works so that we can add support for it.
-
 .error.year.notenoughdigits=Invalid birthday year.  Enter a 4-digit year.
 
 .error.year.outofrange=Invalid birthday year.
@@ -125,10 +121,6 @@
 
 .fn.timezone=Timezone
 
-.fn.txtmsg=Allow text messaging from
-
-.fn.txtnum=Full phone number
-
 .fn.userpic2=Default icon
 
 .friendof3=Show all accounts that have given you access or subscribed to you, and not just the ones you reciprocate.
@@ -170,8 +162,6 @@
 .section.id=Identity
 
 .section.interests=Interests
-
-.section.textmsg=Text Messaging
 
 .security.visibility.access=Access List Only
 
