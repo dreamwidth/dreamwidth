@@ -905,8 +905,6 @@ You can:
 
 esn.bday.subject=[[bdayuser]]'s birthday is coming up.
 
-esn.befriended.subject=[[who]] added you as a friend!
-
 esn.community_join_requst.email_text<<
 Hi [[maintainer]],
 
@@ -2162,108 +2160,6 @@ poll.viewanswers=View Answers
 
 poll.viewrespondents=View Respondents
 
-portal.bdays.count.des=By default, the 5 friends with the soonest birthdays are shown.
-
-portal.bdays.count.name=Birthdays to Display
-
-portal.bdays.portalname=Birthdays
-
-portal.bdays.portaltitle=Birthdays
-
-portal.login.portalname=Login Box
-
-portal.memories.entriesnoun=entries
-
-portal.memories.entrynoun=entry
-
-portal.memories.portalname=Memorable Posts
-
-portal.memories.portaltitle=Memorable Posts
-
-portal.ministats.active=Active:
-
-portal.ministats.title=User Stats
-
-portal.ministats.total=Total:
-
-portal.popfaq.portalname=10 Most Viewed FAQs
-
-portal.popfaq.portaltitle=10 Most Viewed FAQs
-
-portal.popwithfriends.accttype=Your account type doesn't permit you to use this feature.
-
-portal.randuser.count.des=By default, 1 random user is shown, but you can have up to 10 vertically in the narrow columns, or 5 horizontally in a wide column
-
-portal.randuser.count.name=Number of random users to show
-
-portal.randuser.error.tableempty=There are no random users. Contact admin.
-
-portal.randuser.hidename.des=By default, the random user name is shown.  Check this to remove it.
-
-portal.randuser.hidename.name=Hide Name
-
-portal.randuser.hidepic.des=By default, the random user picture is shown, if available.  Check this to remove it.
-
-portal.randuser.hidepic.name=Hide User Picture
-
-portal.randuser.portalname=Random User
-
-portal.randuser.portaltitle=Random User
-
-portal.randuser.portaltitleplural=Random Users
-
-portal.recent.error.noentries=Sorry. No entries.
-
-portal.recent.error.notsetup=You have to configure this box.  Click the plus symbol to setup the journal you'd like to watch here.
-
-portal.recent.error.userstatus=User has deleted or suspended their account.
-
-portal.recent.items.description=By default, only the most recent entry is shown.
-
-portal.recent.items.name=Items to display
-
-portal.recent.journal.description=What journal do you want to see the recent items from?
-
-portal.recent.journal.name=Journal
-
-portal.recent.nosubject=(No Subject)
-
-portal.recent.permlink=Link
-
-portal.recent.portalname=Recent Entry View
-
-portal.recent.portaltitle=Recent Entry Box
-
-portal.recent.showtext.description=By default only subjects will be shown.
-
-portal.recent.showtext.name=Include Text
-
-portal.stats.journalentyest=Journal entries yesterday
-
-portal.stats.portalname=Site Statistics
-
-portal.stats.portaltitle=Statistics
-
-portal.stats.totalusers=Total users
-
-portal.update.entry=Entry:
-
-portal.update.mode.des=Full mode gives you a ton of extra posting options ... including posting in communities and setting your current mood, music, and picture.  Simple mode is nicer if you hardly use those features and would prefer not to see it all.
-
-portal.update.mode.full=Full
-
-portal.update.mode.name=Mode
-
-portal.update.mode.simple=Simple
-
-portal.update.moreopts=More Options
-
-portal.update.portalname=Journal Update
-
-portal.update.portaltitle=Update Your Journal
-
-portal.update.subject=Subject:
-
 post.security.access.c=The entry is visible to community members.
 
 post.security.access.p=The entry is visible to your access list.
@@ -2930,8 +2826,6 @@ setting.stickyentry.details.label=Note: blank entries will be ignored.
 setting.stickyentry.error.invalid2=Invalid Dreamwidth entry ID or URL entered for Sticky [[stickyid]].
 
 setting.stickyentry.error.duplicate=Duplicate ID or URL entered for Sticky [[stickyid]].
-
-setting.stickyentry.label=ID or URL of entry to make sticky
 
 setting.stickyentry.label2=IDs or URLs of Sticky Entries
 
