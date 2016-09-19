@@ -149,15 +149,15 @@ initJournalTitles();
             $("#journalsubtitle_cancel").click(function(event) { cancelTitle(event, "journalsubtitle"); });
             $("#friendspagetitle_cancel").click(function(event) { cancelTitle(event, "friendspagetitle"); });
             $("#friendspagesubtitle_cancel").click(function(event) { cancelTitle(event, "friendspagesubtitle"); });
-}
 
-            /*/ set up save forms
-            $("#journaltitle_form"), "submit", function (evt) { self.saveTitle(evt, "journaltitle") });
-            $("#journalsubtitle_form"), "submit", function (evt) { self.saveTitle(evt, "journalsubtitle") });
-            $("#friendspagetitle_form"), "submit", function (evt) { self.saveTitle(evt, "friendspagetitle") });
-            $("#friendspagesubtitle_form"), "submit", function (evt) { self.saveTitle(evt, "friendspagesubtitle") });
 
-        }*/
+            // set up save forms
+            $("#journaltitle_form").submit(function(event){ saveTitle(event, "journaltitle") });
+            $("#journalsubtitle_form").submit(function(event){ saveTitle(event, "journalsubtitle") });
+            $("#friendspagetitle_form").submit(function(event){ saveTitle(event, "friendspagetitle") });
+            $("#friendspagesubtitle_form").submit(function(event){ saveTitle(event, "friendspagesubtitle") });
+
+        }
 
         function editTitle (event, id) {
             event.preventDefault();
@@ -209,22 +209,23 @@ initJournalTitles();
 
             return false;
         }
-/*
-        saveTitle: function (evt, id) {
-            $("save_btn_" + id).disabled = true;
 
-            this.doPostAndUpdateContent({
-                which_title: id,
-                title_value: $(id).value
+        function saveTitle (event, id) {
+            $("#save_btn_" + id).attr("disabled", true);
+            var title = $("#" + id).attr(value);
+            $.ajax({
+              type: "POST",
+              url: "/__rpc_journaltitle",
+              data: {
+                     which_title: id,
+                     title_value: title
+                     },
+              success: function( data ) { $( "div.theme-titles" ).html(data);},
+              dataType: "html"
             });
 
-            Event.stop(evt);
-        },
-        onRefresh: function (data) {
-            this.initWidget();
+            event.preventDefault();
         }
-    ];    
-} */
 
 
 /* From LayoutChooser widget:

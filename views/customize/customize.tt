@@ -36,7 +36,7 @@
 
     [% #render journal titles widget %]
     <div class='theme-titles pkg'>
-    [% INCLUDE customize/journaltitles.tt %]
+    [% render_journaltitles() %]
     </div><!-- end .theme-titles -->
     <br />
 
