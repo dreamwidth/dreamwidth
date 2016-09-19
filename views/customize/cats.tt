@@ -1,0 +1,31 @@
+        <ul class='theme-nav nostyle section-nav'>
+        [% FOREACH c IN cat_list %]
+
+        [% NEXT IF c == 'special' && !special_themes_exist %]
+        [% NEXT IF c == 'custom' && !custom_themes %]
+
+        [% li_class = "" %]
+        [% IF (c == cat) || (c == 'featured' && !cat && !viewing_all) || (c == 'all' && viewing_all) %]
+            [% li_class = "$li_class on" %]
+        [% ELSIF c == cat_list.first %]
+            [% li_class = "$li_class first" %]
+        [% ELSIF c == cat_list.last %]
+            [% li_class = "$li_class last" %]
+        [% END %]
+        [% li_class = " class='$li_class'" IF li_class %]
+
+        [% arg = "" %]
+        [% arg = "cat=$c" UNLESS c == 'featured' %]
+        [% IF arg || showarg %]
+            [% allargs = arg %]
+            [% IF allargs && showarg %]
+                [% allargs = "$allargs&" %]
+            [% END %]
+            [% allargs.append($showarg) %]
+            [% arg = getextra ? "&$allargs" : "?$allargs" %]
+        [% END %]
+
+    <li[% li_class %]><a href='[% site.root %]/customize/[% getextra %][% arg %]' class='theme-nav-cat'>[% cats.$c.text %]</a></li>
+    [% END %]
+        </ul>
+

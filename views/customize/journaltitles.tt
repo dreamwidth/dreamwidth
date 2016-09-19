@@ -1,0 +1,49 @@
+<div class="appwidget-journaltitles">
+<h2 class='widget-header'>
+    [% IF no_theme_chooser %]
+        [% dw.ml('widget.journaltitles.title_nonum') %]
+    [% ELSE %]
+        [% dw.ml('widget.journaltitles.title') %]
+    [% END %]
+</h2>
+<div class='theme-titles-content'><p class='detail'>
+    [% IF is_community %]
+        [% dw.ml('widget.journaltitles.desc.comm') %]
+    [% ELSE %]
+        [% dw.ml('widget.journaltitles.desc') %]
+    [% END %]
+    [% help_icon("journal_titles") %]</p>
+
+    [% FOREACH id IN ['journaltitle', 'journalsubtitle', 'friendspagetitle', 'friendspagesubtitle' ] %]
+        [% eprop = ehtml( u.prop( id ) ) %]
+        <form id ="[% id %]_form" method=POST>
+        [% dw.form_auth %]
+        <p>
+        [% IF is_community %]
+            <label>[% dw.ml("widget.journaltitles.$id.comm") %]</label>
+        [% ELSE %]
+            <label>[% dw.ml("widget.journaltitles.$id") %]</label>
+        [% END %]
+        <span id='[% id %]_view'><strong>[% eprop %]</strong>
+        <a href='' class='theme-title-control' id='[% id %]_edit'>[% dw.ml('widget.journaltitles.edit') %]</a>
+        </span>
+
+        <span id='[% id %]_modify'>
+        [%- form.textbox(
+                name = 'title_value'
+                id = id
+                size = 30
+                maxlength => maxlength
+                value => u.prop(id)
+                raw = "class='text'"
+        )
+        -%]
+        [% form.hidden( name = "which_title", value = id) %]
+        [% form.submit( name = "save",  id="save_btn_$id" , value = dw.ml( 'widget.journaltitles.btn' ) ) %]
+        <a href='' class='theme-title-control' id='[% id %]_cancel'>[% dw.ml('widget.journaltitles.cancel') %]</a>
+        </span></p>
+
+        </form>
+    [% END %]
+    </div>
+</div>
