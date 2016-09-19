@@ -28,7 +28,7 @@ our $GET_DISABLED = 0;
                           [qw[1 userid user caps clusterid dversion email password status statusvis statusvisdate
                               name bdate themeid moodthemeid opt_forcemoodtheme allow_infoshow allow_contactshow
                               allow_getljnews opt_showtalklinks opt_whocanreply opt_gettalkemail opt_htmlemail
-                              opt_mangleemail useoverrides defaultpicid has_bio txtmsg_status is_system
+                              opt_mangleemail useoverrides defaultpicid has_bio is_system
                               journaltype lang oldenc]],
                           'trust_group' => [qw[2 userid groupnum groupname sortorder is_public]],
                           # version #101 because old userpic format in memcached was an arrayref of

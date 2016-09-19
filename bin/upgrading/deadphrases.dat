@@ -205,7 +205,9 @@ general /multisearch.bml.region.head
 general /multisearch.bml.region.text
 general /multisearch.bml.title.results
 
+general /profile.bml.contact.txtmsg
 general /profile.bml.label.feedchange
+general /profile.bml.label.textmessage
 
 general /register.bml.new.body
 general /register.bml.new.modify2
@@ -523,7 +525,6 @@ general cprod.friendsfriends.link.v3
 general cprod.friendsfriends.link.v4
 general cprod.friendsfriends.link.v5
 general cprod.friendsfriends.link2.v1
-general /tools/textmessage.bml.enter.user.text
 general cprod.friendsfriendsinline.link2.v1
 general cprod.friendsfriendsinline.link2.v2
 general cprod.friendsfriendsinline.link2.v3
@@ -874,6 +875,8 @@ general /manage/profile/index.bml.error.contact.child
 general /manage/profile/index.bml.error.email.lj_domain
 general /manage/profile/index.bml.error.locale.zip_ne_state
 general /manage/profile/index.bml.error.locale.zip_requires_us
+general /manage/profile/index.bml.error.txt.require.number
+general /manage/profile/index.bml.error.txt.require_provider
 general /manage/profile/index.bml.fn.contactinfo
 general /manage/profile/index.bml.fn.email
 general /manage/profile/index.bml.fn.emaildisplay
@@ -887,6 +890,8 @@ general /manage/profile/index.bml.fn.mutualfriends
 general /manage/profile/index.bml.fn.name
 general /manage/profile/index.bml.fn.schools
 general /manage/profile/index.bml.fn.sitename
+general /manage/profile/index.bml.fn.txtmsg
+general /manage/profile/index.bml.fn.txtnum
 general /manage/profile/index.bml.fn.userpic
 general /manage/profile/index.bml.fn.zip
 general /manage/profile/index.bml.friendof
@@ -900,6 +905,7 @@ general /manage/profile/index.bml.section.description
 general /manage/profile/index.bml.section.friends
 general /manage/profile/index.bml.section.location
 general /manage/profile/index.bml.section.members
+general /manage/profile/index.bml.section.textmsg
 general /manage/profile/index.bml.section.theme
 general /manage/profile/index.bml.section.usermessaging
 general /manage/profile/index.bml.section.web
@@ -1261,6 +1267,15 @@ general setting.stickyentry.error.invalid
 general setting.stickyentry.label
 general setting.stylealwaysmine.label
 general setting.stylealwaysmine.option
+general setting.txtmsgsetup.details
+general setting.txtmsgsetup.error.notsecured
+general setting.txtmsgsetup.error.number
+general setting.txtmsgsetup.error.provider
+general setting.txtmsgsetup.error.security
+general setting.txtmsgsetup.label
+general setting.txtmsgsetup.phone
+general setting.txtmsgsetup.select.provider
+general setting.txtmsgsetup.vis
 general setting.xpost.option.footer.vars.comment_image.alttext
 general settings.error.locale.zip_ne_state
 general settings.error.locale.zip_requires_us

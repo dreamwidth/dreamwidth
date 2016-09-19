@@ -497,17 +497,6 @@ CREATE TABLE talkproplist (
 )
 EOC
 
-register_tablecreate("txtmsg", <<'EOC');
-CREATE TABLE txtmsg (
-    userid int(10) unsigned NOT NULL default '0',
-    provider varchar(25) default NULL,
-    number varchar(60) default NULL,
-    security enum('all','reg','friends') NOT NULL default 'all',
-
-    PRIMARY KEY  (userid)
-)
-EOC
-
 register_tablecreate("user", <<'EOC');
 CREATE TABLE user (
     userid int(10) unsigned NOT NULL auto_increment,
@@ -534,7 +523,6 @@ CREATE TABLE user (
     useoverrides char(1) NOT NULL default 'N',
     defaultpicid int(10) unsigned default NULL,
     has_bio enum('Y','N') NOT NULL default 'N',
-    txtmsg_status enum('none','on','off') NOT NULL default 'none',
     is_system enum('Y','N') NOT NULL default 'N',
     journaltype char(1) NOT NULL default 'P',
     lang char(2) NOT NULL default 'EN',
@@ -925,6 +913,7 @@ register_tabledrop("domains");
 register_tabledrop("pollprop2");
 register_tabledrop("pollproplist2");
 register_tabledrop("dirsearchres2");
+register_tabledrop("txtmsg");
 
 
 register_tablecreate("infohistory", <<'EOC');
@@ -4113,6 +4102,11 @@ EOF
     unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
         do_alter( 'ml_items',
                   "ALTER TABLE ml_items MODIFY COLUMN itcode VARCHAR(120) CHARACTER SET ascii NOT NULL" );
+    }
+
+    if ( column_type( 'user', 'txtmsg_status' ) ) {
+        do_alter( 'user',
+                  "ALTER TABLE user DROP COLUMN txtmsg_status" );
     }
 
 });

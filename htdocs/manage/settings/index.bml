@@ -122,10 +122,9 @@ body<=
             visible => 1,
             disabled => !$u || $u->is_community ? 1 : 0,
             form => 1,
-            desc => $ML{'.cat.mobile.desc'},
+            desc => $ML{'.cat.mobile.desc2'},
             settings => [qw(
                 LJ::Setting::EmailPosting
-                DW::Setting::TxtMsgSetup
             )],
         },
         privacy => {

@@ -638,11 +638,6 @@ sub contact_rows {
         }
     }
 
-    # text message
-    if ( !$u->is_syndicated && $u->can_be_text_messaged_by( $remote ) ) {
-        push @ret, { url => "$LJ::SITEROOT/tools/textmessage?user=" . $u->user, text => LJ::Lang::ml( '.contact.txtmsg' ) };
-    }
-
     return @ret;
 }
 

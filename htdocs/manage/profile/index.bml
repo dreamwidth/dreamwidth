@@ -46,7 +46,6 @@ body<=
     my @settings = ();
     push @settings, "LJ::Setting::FindByEmail" if LJ::is_enabled('opt_findbyemail');
     push @settings, "DW::Setting::ProfileEmail";
-    push @settings, "DW::Setting::TxtMsgSetup";
 
     my $dbr = LJ::get_db_reader();
     my $sth;
@@ -389,22 +388,6 @@ body<=
                 $ret .= LJ::Setting::FindByEmail->as_html( $u, undef, { minimal_display => 1, helper => 0 } );
                 $ret .= "</td></tr>\n";
             }
-
-        } # end is_person check
-
-        if ( $u->can_use_textmessaging ) {
-
-            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.section.textmsg'}</td>\n";
-            $ret .= "<td>";
-
-            $ret .= DW::Setting::TxtMsgSetup->option( $u, undef, { info_only => 1 } );
-            $ret .= "</td>\n<td class='selectvis'>";
-            $ret .= DW::Setting::TxtMsgSetup->option( $u, undef, { vis_only => 1 } );
-
-            $ret .= "</td></tr>\n";
-        }
-
-        if ( $u->is_person ) {
 
             # chat thingies
 
