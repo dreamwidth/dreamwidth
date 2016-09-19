@@ -1,0 +1,51 @@
+<h2 class='widget-header'>
+    [% IF no_theme_chooser %]
+        [% dw.ml('widget.layoutchooser.title_nonum') %]
+    [% ELSE %]
+        [% dw.ml('widget.layoutchooser.title') %]
+    [% END %]
+</h2>
+<ul class='layout-content select-list'>
+
+    [% layout_prop = current_theme_id.layout_prop %]
+    [% show_sidebar_prop = current_theme_id.show_sidebar_prop %]
+
+    [% prop_value %]
+    [% IF layout_prop || show_sidebar_prop %]
+        [% IF layout_prop %]
+            [% prop_values = get_s2_prop_values(show_sidebar_prop, u, style) %]
+            [% USE Dumper %]
+[% Dumper.dump(prop_values.override) %]
+            [% prop_value = prop_values.override %]
+        [% END %]
+
+        [%# for layouts that have a separate prop that turns off the sidebar, use the value of that
+         prop instead if the sidebar is set to be off (false/0). %]
+        [% IF show_sidebar_prop %]
+            [% prop_values = get_s2_prop_values(show_sidebar_prop, u, style) %]
+            [% (prop_value = prop_values.override) IF prop_values.override == 0 %]
+        [% END %]
+    [% END %]
+        [% prop_value %]
+
+    [% UNLESS !current_theme_id.is_system_layout %]
+        [% FOREACH layout IN layouts.keys.sort %]
+            [% current = ((!layout_prop) || (layout_prop && layouts.$layout == prop_value)) ? 1 : 0 %]
+            [% current_class = current ? " selected" : "" %]
+            <li class='layout-item[% current_class %]'>
+            <img src='[% img_prefix %]/customize/layouts/[% layout %].png' class='layout-preview' />
+            <p class='layout-desc'>[% layout_names.$layout %]</p>
+            [% UNLESS current %]
+                <form class = "layout-form" method=POST>
+                [% dw.form_auth %]
+                [% form.hidden( name = "layout_choice", value = layout) %]
+                [% form.hidden( name = "layout_prop", value = layout_prop) %]
+                [% form.hidden( name = "show_sidebar_prop", value = show_sidebar_prop) %]
+                [% form.submit( name = "apply_layout", class = "layout_button", id="layout_btn_$layout" , value = dw.ml( 'widget.layoutchooser.layout.apply' ) ) %]
+                </form>
+            [% END %]
+            </li><!-- end .theme-item -->
+        [% END %]
+    [% END %]
+
+</ul>

@@ -1,0 +1,104 @@
+[%- dw.need_res( 'js/jquery/jquery-1.8.3.min.js' ) -%]
+[%- dw.need_res( 'stc/customize.css' ) -%]
+[%- dw.need_res( 'js/customize.js' ) -%]
+[%- dw.need_res( 'stc/select-list.css' ) -%]
+[%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
+[%- dw.need_res( 'stc/widgets/themechooser.css' ) -%]
+[%- dw.need_res( 'stc/widgets/journaltitles.css' ) -%]
+[%- dw.need_res( 'stc/widgets/layoutchooser.css' ) -%]
+[%#- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
+
+
+    [%- authas_html -%]
+
+    [% IF is_community %]
+        [%- sections.title = '.title.comm' | ml -%]
+    [% ELSE %]
+        [%- sections.title = '.title2' | ml -%]
+    [% END %]
+
+    [%# if they're working as a community, reproduce the community management linkbar:%]
+    [% IF is_community %]
+        <p class='intro'> [% $u.maintainer_linkbar("customize") %] </p>
+    [% END %]
+
+    [%# would you like to set the site skin instead? %]
+    [% IF is_community %]
+        <p> [% '.setsiteskin.desc.comm' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'" ) %]</p>
+    [% ELSE %]
+        <p> [% '.setsiteskin.desc' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'" ) %]</p>
+    [% END %]
+
+    [%#render current theme widget %]
+    <div class='theme-current pkg'>
+    [% current_theme %]
+    </div><!-- end .theme-current -->
+
+    [% #render journal titles widget %]
+    <div class='theme-titles pkg'>
+    [% INCLUDE customize/journaltitles.tt %]
+    </div><!-- end .theme-titles -->
+    <br />
+
+    [% #render search form and submit button %]
+    <div class='theme-selector-wrapper pkg'>
+    <h2 class='widget-header'> [% dw.ml( 'widget.themenav.title' ) %]</h2>
+    <script>searchwords = [% keywords_string %];</script>
+    <form id=search_form method=post>
+    <p class='detail theme-nav-search-box'>
+    [% dw.form_auth %]
+    [%- form.textbox(
+            name = 'search'
+            id = 'search_box'
+            size = 30
+            raw = "autocomplete='off'"
+    )
+    -%]
+    [% form.submit( name = "action:search", id => "search_btn" value = dw.ml('widget.themenav.btn.search') ) %]
+    </p>
+    </form>
+
+    <div class='theme-nav-inner-wrapper section-nav-inner-wrapper'>
+    <div class='theme-selector-nav section-nav'>
+    <ul class='theme-nav nostyle'>
+    [% INCLUDE customize/cats.tt cat_list = main_cats_sorted %]
+    </ul>
+
+    [% IF cats_sorted %]
+        <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+        [% INCLUDE customize/cats.tt cat_list = cats_sorted %]
+
+    [% END %]
+                    
+    <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+    <ul class='theme-nav-small nostyle section-nav'>
+    <li class='first'><a href='$site.root/customize/advanced/'>[% dw.ml( 'widget.themenav.developer' ) %]</a>
+    </li>
+    </ul>
+
+    </div>
+
+    <div class='theme-nav-content section-nav-content'>
+        <div class="appwidget appwidget-themechooser" id="LJWidget_92">
+    <div class='theme-selector-content pkg'>
+
+        [% render_themechooser( 'show', show, 'cat', cat, 'page', page, 'layoutid', layoutid, 'designer', designer, 'search', search ) %]
+
+    [%# INCLUDE customize/themechooser.tt %]
+
+
+
+    </div><!-- end .theme-selector-content -->
+        </div></div></div><!-- end .appwidget-themechooser -->
+    </div><!-- end .theme-selector-wrapper -->
+
+    [%# render layout chooser widget %]
+    <a name='layout'></a>
+    <div class='layout-selector-wrapper pkg'>
+    [% INCLUDE customize/layoutchooser.tt %]
+    </div><!-- end .layout-selector-wrapper' -->
+
+
+
+
+

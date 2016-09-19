@@ -17,6 +17,7 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 use LJ::Customize;
+use Data::Dumper;
 
 sub ajax          { 1 }
 sub authas        { 1 }
@@ -58,6 +59,7 @@ sub render_body {
         if ($layout_prop) {
             my %prop_values = LJ::Customize->get_s2_prop_values( $layout_prop, $u, $style );
             $prop_value = $prop_values{override};
+            warn Dumper(%prop_values);
         }
 
         # for layouts that have a separate prop that turns off the sidebar, use the value of that
@@ -73,6 +75,7 @@ sub render_body {
             my $current =
                 ( !$layout_prop ) || ( $layout_prop && $layouts{$layout} eq $prop_value ) ? 1 : 0;
             my $current_class = $current ? " selected" : "";
+
 
             $ret .= "<li class='layout-item$current_class'>";
             $ret .=

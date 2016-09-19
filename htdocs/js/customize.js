@@ -1,57 +1,85 @@
+$(document).ready(function(){
+
 var Customize = new Object();
 
-Customize.init = function () {
-    Customize.cat = "";
-    Customize.layoutid = 0;
-    Customize.designer = "";
-    Customize.search = "";
-    Customize.page = 1;
-    Customize.show = 12;
+       var pageGetArgs = LiveJournal.parseGetArgs(document.location.href);
+
+    Customize.cat = pageGetArgs["cat"] ? pageGetArgs["cat"] : "";
+    Customize.layoutid = pageGetArgs["layoutid"] ? pageGetArgs["layoutid"] : 0;
+    Customize.designer = pageGetArgs["designer"] ? pageGetArgs["designer"] : "";
+    Customize.search = pageGetArgs["search"] ? pageGetArgs["search"] : "";
+    Customize.page = pageGetArgs["page"] ? pageGetArgs["page"] : 1;
+    Customize.show = pageGetArgs["show"] ? pageGetArgs["show"] : 12;
     Customize.hourglass = null;
 
-    var pageGetArgs = LiveJournal.parseGetArgs(document.location.href);
+console.log("code is running!")
 
-    if (pageGetArgs["cat"]) {
-        Customize.cat = pageGetArgs["cat"];
-    }
+//Handle preview links
+$(".theme-preview-link").click(function(){
+            window.open($(this).attr("href"), 'theme_preview', 'resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');
+    return false;
+})
 
-    if (pageGetArgs["layoutid"]) {
-        Customize.layoutid = pageGetArgs["layoutid"];
-    }
+//Handle the 'apply theme' buttons
+$(".theme-form").submit(function(event){
+event.preventDefault();
+    var given_themeid = $(this).children("[name=apply_themeid]").attr("value"); 
+    var given_layoutid = $(this).children("[name=apply_layoutid]").attr("value"); 
+    var auth_token = $(this).children("[name=lj_form_auth]").attr("value"); 
+    $("#theme_btn_" + given_layoutid + given_themeid).attr("disabled", true);
+    $("#theme_btn_" + given_layoutid + given_themeid).addClass("theme-button-disabled disabled");
+    $.ajax({
+      type: "POST",
+      url: "/__rpc_themechooser",
+      data: {
+             apply_themeid: given_themeid,
+             apply_layoutid: given_layoutid,
+             lj_form_auth: auth_token,
+             'cat': Customize.cat,
+             'layoutid': Customize.layoutid,
+            'designer': Customize.designer,
+            'page': Customize.page,
+            'search': Customize.search,
+            'show': Customize.show },
+      success: function( data ) { $( "div.theme-selector-content" ).html(data);},
+      dataType: "html"
+    });
 
-    if (pageGetArgs["designer"]) {
-        Customize.designer = pageGetArgs["designer"];
-    }
-
-    if (pageGetArgs["search"]) {
-        Customize.search = pageGetArgs["search"];
-    }
-
-    if (pageGetArgs["page"]) {
-        Customize.page = pageGetArgs["page"];
-    }
-
-    if (pageGetArgs["show"]) {
-        Customize.show = pageGetArgs["show"];
-    }
+    
 }
 
-Customize.resetFilters = function () {
-    Customize.cat = "";
-    Customize.layoutid = 0;
-    Customize.designer = "";
-    Customize.search = "";
-    Customize.page = 1;
-}
+)
 
+
+
+//Handle page select
+$(".page_dropdown_top").change(
+    //Customize.filterThemes(evt, "page", $('page_dropdown_top').value)
+)
+
+$(".page_dropdown_bottom").change(
+    //Customize.filterThemes(evt, "page", $('page_dropdown_bottom').value)
+)
+
+//Handle show select
+$(".show_dropdown_top").change(
+    //Customize.filterThemes(evt, "show", $('page_dropdown_top').value)
+)
+
+$(".show_dropdown_bottom").change(
+    //Customize.filterThemes(evt, "show", $('page_dropdown_bottom').value)
+)
+
+// Functions for making hourglasses on our page
 Customize.cursorHourglass = function (evt) {
-    var pos = DOM.getAbsoluteCursorPosition(evt);
-    if (!pos) return;
+    var posX = evt.pageX;
+    var posY = evt.pageY
+    if (!posX) return;
 
     if (!Customize.hourglass) {
         Customize.hourglass = new Hourglass();
         Customize.hourglass.init();
-        Customize.hourglass.hourglass_at(pos.x, pos.y);
+        Customize.hourglass.hourglass_at(posX, posY);
     }
 }
 
@@ -72,191 +100,173 @@ Customize.hideHourglass = function () {
     }
 }
 
-LiveJournal.register_hook("page_load", Customize.init);
+//Clear filters
+Customize.resetFilters = function () {
+    Customize.cat = "";
+    Customize.layoutid = 0;
+    Customize.designer = "";
+    Customize.search = "";
+    Customize.page = 1;
+}
 
-//from ThemeChooser
+initJournalTitles();
 
-initWidget: function () {
-            var self = this;
 
-            var filter_links = DOM.getElementsByClassName(document, "theme-cat");
-            filter_links = filter_links.concat(DOM.getElementsByClassName(document, "theme-layout"));
-            filter_links = filter_links.concat(DOM.getElementsByClassName(document, "theme-designer"));
-            filter_links = filter_links.concat(DOM.getElementsByClassName(document, "theme-page"));
+});
 
-            // add event listeners to all of the category, layout, designer, and page links
-            // adding an event listener to page is done separately because we need to be sure to use that if it is there,
-            //     and we will miss it if it is there but there was another arg before it in the URL
-            filter_links.forEach(function (filter_link) {
-                var getArgs = LiveJournal.parseGetArgs(filter_link.href);
-                if (getArgs["page"]) {
-                    DOM.addEventListener(filter_link, "click", function (evt) { Customize.ThemeNav.filterThemes(evt, "page", getArgs["page"]) });
-                } else {
-                    for (var arg in getArgs) {
-                        if (!getArgs.hasOwnProperty(arg)) continue;
-                        if (arg == "authas" || arg == "show") continue;
-                        DOM.addEventListener(filter_link, "click", function (evt) { Customize.ThemeNav.filterThemes(evt, arg, getArgs[arg]) });
-                        break;
-                    }
-                }
+
+       function initJournalTitles() {
+
+            // store current field values
+            var journaltitle_value = $("journaltitle").value;
+            var journalsubtitle_value = $("journalsubtitle").value;
+            var friendspagetitle_value = $("friendspagetitle").value;
+            var friendspagesubtitle_value = $("friendspagesubtitle").value;
+
+            // show view mode
+            $("#journaltitle_view").css("display", "inline");
+            $("#journalsubtitle_view").css("display", "inline");
+            $("#friendspagetitle_view").css("display", "inline");
+            $("#friendspagesubtitle_view").css("display", "inline");
+            $("#journaltitle_cancel").css("display", "inline");
+            $("#journalsubtitle_cancel").css("display", "inline");
+            $("#friendspagetitle_cancel").css("display", "inline");
+            $("#friendspagesubtitle_cancel").css("display", "inline");
+            $("#journaltitle_modify").css("display", "none");
+            $("#journalsubtitle_modify").css("display", "none");
+            $("#friendspagetitle_modify").css("display", "none");
+            $("#friendspagesubtitle_modify").css("display", "none");
+
+
+            // set up edit links
+            $("#journaltitle_edit").click(function(event) { editTitle(event, "journaltitle"); });
+            $("#journalsubtitle_edit").click(function(event) { editTitle(event, "journalsubtitle"); });
+            $("#friendspagetitle_edit").click(function(event) { editTitle(event, "friendspagetitle"); });
+            $("#friendspagesubtitle_edit").click(function(event) { editTitle(event, "friendspagesubtitle"); });
+
+            // set up cancel links
+            $("#journaltitle_cancel").click(function(event) { cancelTitle(event, "journaltitle"); });
+            $("#journalsubtitle_cancel").click(function(event) { cancelTitle(event, "journalsubtitle"); });
+            $("#friendspagetitle_cancel").click(function(event) { cancelTitle(event, "friendspagetitle"); });
+            $("#friendspagesubtitle_cancel").click(function(event) { cancelTitle(event, "friendspagesubtitle"); });
+}
+
+            /*/ set up save forms
+            $("#journaltitle_form"), "submit", function (evt) { self.saveTitle(evt, "journaltitle") });
+            $("#journalsubtitle_form"), "submit", function (evt) { self.saveTitle(evt, "journalsubtitle") });
+            $("#friendspagetitle_form"), "submit", function (evt) { self.saveTitle(evt, "friendspagetitle") });
+            $("#friendspagesubtitle_form"), "submit", function (evt) { self.saveTitle(evt, "friendspagesubtitle") });
+
+        }*/
+
+        function editTitle (event, id) {
+            event.preventDefault();
+
+            $("#" + id + "_modify").css("display", "inline");
+            $("#" + id + "_view").css( "display",  "none");
+            $("#" + id).focus();
+
+            // cancel any other titles that are being edited since
+            // we only want one title in edit mode at a time
+            if (id == "journaltitle") {
+                cancelTitle(event, "journalsubtitle");
+                cancelTitle(event, "friendspagetitle");
+                cancelTitle(event, "friendspagesubtitle");
+            } else if (id == "journalsubtitle") {
+                cancelTitle(event, "journaltitle");
+                cancelTitle(event, "friendspagetitle");
+                cancelTitle(event, "friendspagesubtitle");
+            } else if (id == "friendspagetitle") {
+                cancelTitle(event, "journaltitle");
+                cancelTitle(event, "journalsubtitle");
+                cancelTitle(event, "friendspagesubtitle");
+            } else if (id == "friendspagesubtitle") {
+                cancelTitle(event, "journaltitle");
+                cancelTitle(event, "journalsubtitle");
+                cancelTitle(event, "friendspagetitle");
+            }
+
+
+            return false;
+        }
+
+        function cancelTitle (event, id) {
+            event.preventDefault();
+
+            $("#" + id + "_modify").css("display", "none");
+            $("#" + id + "_view").css("display",  "inline");
+
+            // reset appropriate field to default
+            if (id == "journaltitle") {
+                $("journaltitle").value = this.journaltitle_value;
+            } else if (id == "journalsubtitle") {
+                $("journalsubtitle").value = this.journalsubtitle_value;
+            } else if (id == "friendspagetitle") {
+                $("friendspagetitle").value = this.friendspagetitle_value;
+            } else if (id == "friendspagesubtitle") {
+                $("friendspagesubtitle").value = this.friendspagesubtitle_value;
+            }
+
+            return false;
+        }
+/*
+        saveTitle: function (evt, id) {
+            $("save_btn_" + id).disabled = true;
+
+            this.doPostAndUpdateContent({
+                which_title: id,
+                title_value: $(id).value
             });
 
-            // add event listeners to all of the apply theme forms
-            var apply_forms = DOM.getElementsByClassName(document, "theme-form");
-            apply_forms.forEach(function (form) {
-                DOM.addEventListener(form, "submit", function (evt) { self.applyTheme(evt, form) });
-            });
-
-            // add event listeners to the preview links
-            var preview_links = DOM.getElementsByClassName(document, "theme-preview-link");
-            preview_links.forEach(function (preview_link) {
-                DOM.addEventListener(preview_link, "click", function (evt) { self.previewTheme(evt, preview_link.href) });
-            });
-
-            // add event listener to the page and show dropdowns
-            DOM.addEventListener($('page_dropdown_top'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "page", $('page_dropdown_top').value) });
-            DOM.addEventListener($('page_dropdown_bottom'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "page", $('page_dropdown_bottom').value) });
-            DOM.addEventListener($('show_dropdown_top'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "show", $('show_dropdown_top').value) });
-            DOM.addEventListener($('show_dropdown_bottom'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "show", $('show_dropdown_bottom').value) });
-        },
-        applyTheme: function (evt, form) {
-            var given_themeid = form["Widget[ThemeChooser]_apply_themeid"].value + "";
-            var given_layoutid = form["Widget[ThemeChooser]_apply_layoutid"].value + "";
-            $("theme_btn_" + given_layoutid + given_themeid).disabled = true;
-            DOM.addClassName($("theme_btn_" + given_layoutid + given_themeid), "theme-button-disabled disabled");
-
-            this.doPost({
-                apply_themeid: given_themeid,
-                apply_layoutid: given_layoutid
-            });
-
-            Event.stop(evt);
-        },
-        onData: function (data) {
-            Customize.ThemeNav.updateContent({
-                method: "GET",
-                cat: Customize.cat,
-                layoutid: Customize.layoutid,
-                designer: Customize.designer,
-                search: Customize.search,
-                page: Customize.page,
-                show: Customize.show,
-                theme_chooser_id: $('theme_chooser_id').value
-            });
-            alert(Customize.ThemeChooser.confirmation);
-            LiveJournal.run_hook("update_other_widgets", "ThemeChooser");
-        },
-        previewTheme: function (evt, href) {
-            window.open(href, 'theme_preview', 'resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');
             Event.stop(evt);
         },
         onRefresh: function (data) {
             this.initWidget();
         }
+    ];    
+} */
 
 
-
-    //from ThemeNav
+/* From LayoutChooser widget:
 
         initWidget: function () {
             var self = this;
 
-            if ($('search_box')) {
-                var keywords = new InputCompleteData(Customize.ThemeNav.searchwords, "ignorecase");
-                var ic = new InputComplete($('search_box'), keywords);
+            var apply_forms = DOM.getElementsByClassName(document, "layout-form");
 
-                var text = "theme, layout, or designer";
-                var color = "#999";
-                $('search_box').style.color = color;
-                $('search_box').value = text;
-                DOM.addEventListener($('search_box'), "focus", function (evt) {
-                    if ($('search_box').value == text) {
-                        $('search_box').style.color = "";
-                        $('search_box').value = "";
-                    }
-                });
-                DOM.addEventListener($('search_box'), "blur", function (evt) {
-                    if ($('search_box').value == "") {
-                        $('search_box').style.color = color;
-                        $('search_box').value = text;
-                    }
-                });
-            }
-
-            // add event listener to the search form
-            DOM.addEventListener($('search_form'), "submit", function (evt) { self.filterThemes(evt, "search", $('search_box').value) });
-
-            var filter_links = DOM.getElementsByClassName(document, "theme-nav-cat");
-
-            // add event listeners to all of the category links
-            filter_links.forEach(function (filter_link) {
-                var evt_listener_added = 0;
-                var getArgs = LiveJournal.parseGetArgs(filter_link.href);
-                for (var arg in getArgs) {
-                    if (!getArgs.hasOwnProperty(arg)) continue;
-                    if (arg == "authas" || arg == "show") continue;
-                    DOM.addEventListener(filter_link, "click", function (evt) { self.filterThemes(evt, arg, unescape( getArgs[arg] ) ) });
-                    evt_listener_added = 1;
-                    break;
-                }
-
-                // if there was no listener added to a link, add it without any args (for the 'featured' category)
-                if (!evt_listener_added) {
-                    DOM.addEventListener(filter_link, "click", function (evt) { self.filterThemes(evt, "", "") });
-                }
+            // add event listeners to all of the apply layout forms
+            apply_forms.forEach(function (form) {
+                DOM.addEventListener(form, "submit", function (evt) { self.applyLayout(evt, form) });
             });
+
+            if ( ! self._init ) {
+                LiveJournal.register_hook( "update_other_widgets", function( updated ) { self.refreshLayoutChoices.apply( self, [ updated ] ) } )
+                self._init = true;
+            }
         },
-        filterThemes: function (evt, key, value) {
-            if (key == "show") {
-                // need to go back to page 1 if the show amount was switched because
-                // the current page may no longer have any themes to show on it
-                Customize.page = 1;
-            } else if (key != "page") {
-                Customize.resetFilters();
-            }
+        applyLayout: function (evt, form) {
+            var given_layout_choice = form["Widget[LayoutChooser]_layout_choice"].value + "";
+            $("layout_btn_" + given_layout_choice).disabled = true;
+            DOM.addClassName($("layout_btn_" + given_layout_choice), "layout-button-disabled disabled");
 
-            // do not do anything with a layoutid of 0
-            if (key == "layoutid" && value == 0) {
-                Event.stop(evt);
-                return;
-            }
-
-            if (key == "cat") Customize.cat = value;
-            if (key == "layoutid") Customize.layoutid = value;
-            if (key == "designer") Customize.designer = value;
-            if (key == "search") Customize.search = value;
-            if (key == "page") Customize.page = value;
-            if (key == "show") Customize.show = value;
-
-            this.updateContent({
-                method: "GET",
-                cat: Customize.cat,
-                layoutid: Customize.layoutid,
-                designer: Customize.designer,
-                search: Customize.search,
-                page: Customize.page,
-                show: Customize.show,
-                theme_chooser_id: $('theme_chooser_id').value
+            this.doPostAndUpdateContent({
+                layout_choice: given_layout_choice,
+                layout_prop: form["Widget[LayoutChooser]_layout_prop"].value + "",
+                show_sidebar_prop: form["Widget[LayoutChooser]_show_sidebar_prop"].value
             });
 
             Event.stop(evt);
-
-            if (key == "search") {
-                $("search_btn").disabled = true;
-            } else if (key == "page" || key == "show") {
-                $("paging_msg_area_top").innerHTML = "<em>Please wait...</em>";
-                $("paging_msg_area_bottom").innerHTML = "<em>Please wait...</em>";
-            } else {
-                Customize.cursorHourglass(evt);
-            }
         },
         onData: function (data) {
-            Customize.CurrentTheme.updateContent({
-                show: Customize.show
-            });
-            Customize.hideHourglass();
+            LiveJournal.run_hook("update_other_widgets", "LayoutChooser");
         },
         onRefresh: function (data) {
             this.initWidget();
-            Customize.ThemeChooser.initWidget();
+        },
+        refreshLayoutChoices: function( updatedWidget ) {
+            if ( updatedWidget == "ThemeChooser" ) {
+                this.updateContent();
+            }
         }
+    ];
+} */
