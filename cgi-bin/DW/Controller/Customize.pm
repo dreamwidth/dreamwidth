@@ -31,6 +31,7 @@ DW::Routing->register_string( '/customize/options/', \&options_handler,
     app => 1 );
 
 DW::Routing->register_rpc( "themechooser", \&themechooser_handler, format => 'html' );
+DW::Routing->register_rpc( "journaltitles", \&journaltitles_handler, format => 'html' );
 
 sub customize_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
@@ -160,6 +161,11 @@ sub customize_handler {
             set_theme(apply_themeid => $themeid, apply_layout => $layoutid);
             $url .= "?" . $q_string;
 
+        } elsif ($post->{"save"}) {
+       
+            set_journaltitles($post);
+            $url .= "?" . $q_string;
+
         } elsif ($post->{filter}) {
             $q_string =~ s/&?page=\d+//g;
             $q_string = "?$q_string" if $q_string;
@@ -258,6 +264,7 @@ sub customize_handler {
 
     $vars->{prop_value} = $prop_value;
     $vars->{render_themechooser} = \&render_themechooser;
+    $vars->{render_journaltitles} = \&render_journaltitles;
 
     # Now we tell it what template to render and pass in our variables
     return DW::Template->render_template( 'customize/customize.tt', $vars );
@@ -393,6 +400,40 @@ sub render_themechooser {
 
 return DW::Template->template_string( 'customize/themechooser.tt', $vars );
 
+}
+
+sub journaltitles_handler {
+
+    # gets the request and args
+    my $r = DW::Request->get;
+    my $args = $r->post_args;
+
+    # set the new titles
+
+    set_journaltitles($args);
+
+    $r->print( render_journaltitles() );
+    return $r->OK;
+}
+
+sub set_journaltitles {
+    my $post = shift;
+
+    my $u = LJ::get_effective_remote();
+    die "Invalid user." unless LJ::isu($u);
+
+    my $eff_val = LJ::text_trim($post->{title_value}, 0, LJ::std_max_length());
+    $eff_val = "" unless $eff_val;
+    $u->set_prop($post->{which_title}, $eff_val);
+}
+
+sub render_journaltitles {
+    my $vars;
+    my $u = LJ::get_effective_remote();
+    die "Invalid user." unless LJ::isu($u);
+
+    $vars->{u} = $u;
+    return DW::Template->template_string( 'customize/journaltitles.tt', $vars );
 }
 
 1;
