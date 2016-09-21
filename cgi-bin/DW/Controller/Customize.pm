@@ -23,6 +23,7 @@ use DW::Template;
 use DW::Logic::MenuNav;
 use JSON;
 use Data::Dumper;
+use Carp;
 
 # This registers a static string, which is an application page.
 DW::Routing->register_string( '/customize/', \&customize_handler, 
@@ -32,12 +33,12 @@ DW::Routing->register_string( '/customize/options/', \&options_handler,
 
 DW::Routing->register_rpc( "themechooser", \&themechooser_handler, format => 'html' );
 DW::Routing->register_rpc( "journaltitles", \&journaltitles_handler, format => 'html' );
+DW::Routing->register_rpc( "layoutchooser", \&layoutchooser_handler, format => 'html' );
+DW::Routing->register_rpc( "customizepaging", \&paging_handler, format => 'html' );
 
 sub customize_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
-    warn "Hit the handler";
-
 
     my $r = $rv->{r};
     my $post = $r->post_args;
@@ -56,6 +57,7 @@ sub customize_handler {
     $vars->{is_identity} = 1 if $u->is_identity;
     $vars->{is_community} = 1 if $u->is_community;
     $vars->{style} = LJ::Customize->verify_and_load_style($u);
+    $vars->{authas_html} = $rv->{authas_html};
 
 
 
@@ -132,19 +134,17 @@ sub customize_handler {
 
         my $style = LJ::S2::load_style($u->prop('s2_style'));
         die "Style not found." unless $style && $style->{userid} == $u->id;
-        my %layout_names = LJ::Customize->get_layouts; 
+
 
     # pass our computed values to the template
     $vars->{style} = $style;
     $vars->{custom_themes} = \@custom_themes;
     $vars->{special_themes_exist} = $special_themes_exist;
-    $vars->{get_layout_name} = sub { LJ::Customize->get_layout_name(@_); };
     $vars->{eurl} = \&LJ::eurl;
     $vars->{ehtml} = \&LJ::ehtml;
     $vars->{img_prefix} = $LJ::IMGPREFIX;
     $vars->{maxlength} = LJ::std_max_length();
     $vars->{help_icon} = \&LJ::help_icon;
-    $vars->{layout_names} = \%layout_names;
     $vars->{get_s2_prop_values} = sub { LJ::Customize->get_s2_prop_values(@_); };
 
     my $q_string = $r->query_string;
@@ -152,7 +152,6 @@ sub customize_handler {
     #handle post actions
 
     if ($r->did_post) {
-        warn "Hit post handler";
         if ($post->{"action_apply"}) {
 
             my $themeid = $post->{apply_themeid};
@@ -208,26 +207,11 @@ sub customize_handler {
             $u->set_prop($post->{which_title}, $eff_val);
             $url .= "?" . $q_string;
         } elsif ($post->{apply_layout})  {
-            my %override;
-            my $layout_choice = $post->{layout_choice};
-            my $layout_prop = $post->{layout_prop};
-            my $show_sidebar_prop = $post->{show_sidebar_prop};
-            my $current_theme_id = LJ::Customize->get_current_theme($u);
-            my %layouts = $current_theme_id->layouts;
 
-            # show_sidebar prop is set to false/0 if the 1 column layout was chosen,
-            # otherwise it's set to true/1 and the layout prop is set appropriately.
-            if ($show_sidebar_prop && $layout_choice eq "1") {
-                $override{$show_sidebar_prop} = 0;
-            } else {
-                $override{$show_sidebar_prop} = 1 if $show_sidebar_prop;
-                $override{$layout_prop} = $layouts{$layout_choice} if $layout_prop;
-            }
-
-            my $style = LJ::S2::load_style($u->prop('s2_style'));
-            die "Style not found." unless $style && $style->{userid} == $u->id;
-
-            LJ::Customize->save_s2_props($u, $style, \%override);
+            set_layout( { layout_choice => $post->{layout_choice},
+                       layout_prop => $post->{layout_prop},
+                        show_sidebar_prop => $post->{show_sidebar_prop},
+                        u => $u });
             $url .= "?" . $q_string;
         }
         return $r->redirect($url);
@@ -236,35 +220,10 @@ sub customize_handler {
         
 
     # get the current theme id - at the end because post actions may have changed it.
-    my $current_theme_id = LJ::Customize->get_current_theme($u);
-    $vars->{current_theme_id} = $current_theme_id;
-    my %layouts = $current_theme_id->layouts;
-    $vars->{layouts} = \%layouts;
-    my $show_sidebar_prop = $current_theme_id->show_sidebar_prop;
 
-    my $layout_prop = $current_theme_id->layout_prop;
-
-    my $prop_value;
-    if ($layout_prop || $show_sidebar_prop) {
-        my $style = LJ::S2::load_style($u->prop('s2_style'));
-        die "Style not found." unless $style && $style->{userid} == $u->id;
-
-        if ($layout_prop) {
-            my %prop_values = LJ::Customize->get_s2_prop_values($layout_prop, $u, $style);
-            $prop_value = $prop_values{override};
-        }
-
-        # for layouts that have a separate prop that turns off the sidebar, use the value of that
-        # prop instead if the sidebar is set to be off (false/0).
-        if ($show_sidebar_prop) {
-            my %prop_values = LJ::Customize->get_s2_prop_values($show_sidebar_prop, $u, $style);
-            $prop_value = $prop_values{override} if $prop_values{override} == 0;
-        }
-    }
-
-    $vars->{prop_value} = $prop_value;
     $vars->{render_themechooser} = \&render_themechooser;
     $vars->{render_journaltitles} = \&render_journaltitles;
+    $vars->{render_layoutchooser} = \&render_layoutchooser;
 
     # Now we tell it what template to render and pass in our variables
     return DW::Template->render_template( 'customize/customize.tt', $vars );
@@ -272,14 +231,17 @@ sub customize_handler {
 }
 
 sub themechooser_handler {
-    warn "Hit the themechooser handler";
-
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
     # gets the request and args
     my $r = DW::Request->get;
     my $args = $r->post_args;
     my %getargs;
     my $themeid = $args->{apply_themeid};
     my $layoutid = $args->{apply_layoutid};
+
+
+    warn Dumper($rv);
 
     $getargs{cat} = defined $args->{cat} ? $args->{cat} : "";
     $getargs{layoutid} = defined $args->{layoutid} ? $args->{layoutid} : 0;
@@ -299,7 +261,6 @@ sub themechooser_handler {
 }
 
 sub set_theme {
-    warn "Hit set_theme";
     my %opts = @_;
     my $u = LJ::get_effective_remote();
 
@@ -322,15 +283,14 @@ sub set_theme {
 }
 
 sub render_themechooser {
+    my $remote;
     my %args = @_;
     my $vars;   
     my @getargs;
     my @themes;
     my $u = LJ::get_effective_remote();
-    warn Dumper(%args);
-    warn Dumper($u);
-    
 
+    $vars->{u} = $u;
     $vars->{cat} = defined $args{cat} ? $args{cat} : "";
     $vars->{layoutid} = defined $args{layoutid} ? $args{layoutid} : 0;
     $vars->{designer} = defined $args{designer} ? $args{designer} : "";
@@ -436,4 +396,88 @@ sub render_journaltitles {
     return DW::Template->template_string( 'customize/journaltitles.tt', $vars );
 }
 
+sub layoutchooser_handler {
+
+    # gets the request and args
+    my $r = DW::Request->get;
+    my $args = $r->post_args;
+
+    # set the new titles
+
+    set_layout($args);
+
+    $r->print( render_layoutchooser($args) );
+    return $r->OK;
+}
+
+sub set_layout {
+    my $post = shift;
+
+    my $u = LJ::get_effective_remote();
+    die "Invalid user." unless LJ::isu($u);
+
+            my %override;
+            my $layout_choice = $post->{layout_choice};
+            my $layout_prop = $post->{layout_prop};
+            my $show_sidebar_prop = $post->{show_sidebar_prop};
+            my $current_theme_id = LJ::Customize->get_current_theme($u);
+            my %layouts = $current_theme_id->layouts;
+
+            # show_sidebar prop is set to false/0 if the 1 column layout was chosen,
+            # otherwise it's set to true/1 and the layout prop is set appropriately.
+            if ($show_sidebar_prop && $layout_choice eq "1") {
+                $override{$show_sidebar_prop} = 0;
+            } else {
+                $override{$show_sidebar_prop} = 1 if $show_sidebar_prop;
+                $override{$layout_prop} = $layouts{$layout_choice} if $layout_prop;
+            }
+
+            my $style = LJ::S2::load_style($u->prop('s2_style'));
+            die "Style not found." unless $style && $style->{userid} == $u->id;
+
+            LJ::Customize->save_s2_props($u, $style, \%override);
+}
+
+sub render_layoutchooser {
+    my $vars;
+    my $u = LJ::get_effective_remote();
+    die "Invalid user." unless LJ::isu($u);
+
+    my $current_theme_id = LJ::Customize->get_current_theme($u);
+    $vars->{current_theme_id} = $current_theme_id;
+    my %layouts = $current_theme_id->layouts;
+    $vars->{layouts} = \%layouts;
+    my $show_sidebar_prop = $current_theme_id->show_sidebar_prop;
+    $vars->{get_layout_name} = sub { LJ::Customize->get_layout_name(@_); };
+    my %layout_names = LJ::Customize->get_layouts; 
+    $vars->{layout_names} = \%layout_names;
+    $vars->{img_prefix} = $LJ::IMGPREFIX;
+
+    my $layout_prop = $current_theme_id->layout_prop;
+
+    my $prop_value;
+    if ($layout_prop || $show_sidebar_prop) {
+        my $style = LJ::S2::load_style($u->prop('s2_style'));
+        die "Style not found." unless $style && $style->{userid} == $u->id;
+
+        if ($layout_prop) {
+            my %prop_values = LJ::Customize->get_s2_prop_values($layout_prop, $u, $style);
+            $prop_value = $prop_values{override};
+        }
+
+        # for layouts that have a separate prop that turns off the sidebar, use the value of that
+        # prop instead if the sidebar is set to be off (false/0).
+        if ($show_sidebar_prop) {
+            my %prop_values = LJ::Customize->get_s2_prop_values($show_sidebar_prop, $u, $style);
+            $prop_value = $prop_values{override} if $prop_values{override} == 0;
+        }
+    }
+
+    $vars->{prop_value} = $prop_value;
+
+    $vars->{u} = $u;
+    return DW::Template->template_string( 'customize/layoutchooser.tt', $vars );
+}
+
 1;
+
