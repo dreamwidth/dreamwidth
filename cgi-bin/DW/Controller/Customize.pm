@@ -142,7 +142,6 @@ sub customize_handler {
     $vars->{special_themes_exist} = $special_themes_exist;
     $vars->{eurl} = \&LJ::eurl;
     $vars->{ehtml} = \&LJ::ehtml;
-    $vars->{img_prefix} = $LJ::IMGPREFIX;
     $vars->{maxlength} = LJ::std_max_length();
     $vars->{help_icon} = \&LJ::help_icon;
     $vars->{get_s2_prop_values} = sub { LJ::Customize->get_s2_prop_values(@_); };
@@ -284,19 +283,21 @@ sub set_theme {
 
 sub render_themechooser {
     my $remote;
-    my %args = @_;
+    my $args = shift;
     my $vars;   
     my @getargs;
     my @themes;
     my $u = LJ::get_effective_remote();
+    my $getextra;
+    my $getsep = $getextra ? "&" : "?";
 
     $vars->{u} = $u;
-    $vars->{cat} = defined $args{cat} ? $args{cat} : "";
-    $vars->{layoutid} = defined $args{layoutid} ? $args{layoutid} : 0;
-    $vars->{designer} = defined $args{designer} ? $args{designer} : "";
-    $vars->{search} = defined $args{search} ? $args{search} : "";
-    $vars->{page} = defined $args{page} ? $args{page} : 1;
-    $vars->{show} = defined $args{show} ? $args{show} : 12;
+    $vars->{cat} = defined $args->{cat} ? $args->{cat} : "";
+    $vars->{layoutid} = defined $args->{layoutid} ? $args->{layoutid} : 0;
+    $vars->{designer} = defined $args->{designer} ? $args->{designer} : "";
+    $vars->{search} = defined $args->{search} ? $args->{search} : "";
+    $vars->{page} = defined $args->{page} ? $args->{page} : 1;
+    $vars->{show} = defined $args->{show} ? $args->{show} : 12;
 
     my $showarg = $vars->{show} != 12 ? "show=$vars->{show}" : "";
 
@@ -357,6 +358,12 @@ sub render_themechooser {
     $vars->{themes} = \@themes;
     $vars->{getargs} = \@getargs;
     $vars->{run_hook} = \&LJ::Hooks::run_hook;
+    $vars->{img_prefix} = $LJ::IMGPREFIX;
+    $vars->{eurl} = \&LJ::eurl;
+    $vars->{ehtml} = \&LJ::ehtml;
+    $vars->{getextra} = '';
+    $vars->{getsep} = $getsep;
+
 
 return DW::Template->template_string( 'customize/themechooser.tt', $vars );
 
@@ -477,6 +484,23 @@ sub render_layoutchooser {
 
     $vars->{u} = $u;
     return DW::Template->template_string( 'customize/layoutchooser.tt', $vars );
+}
+
+sub paging_handler {
+
+    # gets the request and args
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+    my $r = $rv->{r};
+    my $args = $r->get_args;
+
+    # set the new titles
+
+    my $ret = render_themechooser($args);
+
+
+    $r->print( $ret );
+    return $r->OK;
 }
 
 1;
