@@ -82,7 +82,7 @@
         <div class="appwidget appwidget-themechooser" id="LJWidget_92">
     <div class='theme-selector-content pkg'>
 
-        [% render_themechooser( 'show', show, 'cat', cat, 'page', page, 'layoutid', layoutid, 'designer', designer, 'search', search ) %]
+        [% render_themechooser( {'show' => show, 'cat' => cat, 'page'=> page, 'layoutid'=> layoutid, 'designer' => designer, 'search'=> search }) %]
 
     [%# INCLUDE customize/themechooser.tt %]
 
@@ -95,7 +95,7 @@
     [%# render layout chooser widget %]
     <a name='layout'></a>
     <div class='layout-selector-wrapper pkg'>
-    [% INCLUDE customize/layoutchooser.tt %]
+    [% render_layoutchooser() %]
     </div><!-- end .layout-selector-wrapper' -->
 
 
