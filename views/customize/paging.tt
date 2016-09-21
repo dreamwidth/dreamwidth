@@ -1,10 +1,10 @@
-    [% q_string = getargs.join("&") %]
+    [% q_string = getargs.join("&")_"&" %]
 
     [% url = "$site.root/customize/$getextra$getsep$q_string" %]
 
     <div class='theme-paging theme-paging-[% location %]'>
     [% UNLESS page == 1 && $max_page == 1 %]
-        [% IF page - 1 >= 1 %] {
+        [% IF page - 1 >= 1 %]
             <span class='item'><a href='[% url %]page=1' class='theme-page'>&lt;&lt;</a></span>
             <span class='item'><a href='[% url %]page=[% page - 1 %] ' class='theme-page'>&lt;</a></span>
         [% ELSE %]

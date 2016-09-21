@@ -49,8 +49,12 @@
         [% ELSIF !theme.themeid && !current_theme_id.themeid  && theme.layoutid == current_theme_id.layoutid %]
               [% theme_types.current = 1 %]
         [% END %]
-        [% theme_types.upgrade = 1 IF !theme.available_to(u) %]
-        [% theme_types.special = 1 IF run_hook("layer_is_special", theme.uniq) %]
+        [% IF !theme.available_to(u) %]
+            [% theme_types.upgrade = 1 %]
+        [% END %]
+        [% IF run_hook("layer_is_special", theme.uniq) %]
+            [% theme_types.special = 1 %]
+        [% END %]
 
         [% theme_icons = "$theme_icons<div class='theme-icons'>" IF theme_types.upgrade || theme_types.special %]
 

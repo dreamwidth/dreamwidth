@@ -12,7 +12,7 @@
         [% ELSIF c == cat_list.last %]
             [% li_class = "$li_class last" %]
         [% END %]
-        [% li_class = " class='$li_class'" IF li_class %]
+        [% li_class = " class='$li_class.trim'" IF li_class %]
 
         [% arg = "" %]
         [% arg = "cat=$c" UNLESS c == 'featured' %]

@@ -23,9 +23,9 @@ $(".theme-preview-link").click(function(){
 //Handle the 'apply theme' buttons
 $(".theme-form").submit(function(event){
 event.preventDefault();
-    var given_themeid = $(this).children("[name=apply_themeid]").attr("value"); 
-    var given_layoutid = $(this).children("[name=apply_layoutid]").attr("value"); 
-    var auth_token = $(this).children("[name=lj_form_auth]").attr("value"); 
+    var given_themeid = $(this).children("[name=apply_themeid]").val(); 
+    var given_layoutid = $(this).children("[name=apply_layoutid]").val(); 
+    var auth_token = $(this).children("[name=lj_form_auth]").val(); 
     $("#theme_btn_" + given_layoutid + given_themeid).attr("disabled", true);
     $("#theme_btn_" + given_layoutid + given_themeid).addClass("theme-button-disabled disabled");
     $.ajax({
@@ -53,22 +53,73 @@ event.preventDefault();
 
 
 //Handle page select
-$(".page_dropdown_top").change(
-    //Customize.filterThemes(evt, "page", $('page_dropdown_top').value)
+$("#page_dropdown_top").change(
+    function (event) { filterThemes(event, "page", $(this).val()) }
 )
 
-$(".page_dropdown_bottom").change(
-    //Customize.filterThemes(evt, "page", $('page_dropdown_bottom').value)
+$("#page_dropdown_bottom").change(
+    function (event) { filterThemes(event, "page", $(this).val()) }
 )
 
 //Handle show select
-$(".show_dropdown_top").change(
-    //Customize.filterThemes(evt, "show", $('page_dropdown_top').value)
+$("#show_dropdown_top").change(
+    function (event) { filterThemes(event, "show", $(this).val()) }
 )
 
-$(".show_dropdown_bottom").change(
-    //Customize.filterThemes(evt, "show", $('page_dropdown_bottom').value)
+$("#show_dropdown_bottom").change(
+    function (event) { filterThemes(event, "show", $(this).val()) }
 )
+
+function filterThemes (evt, key, value) {
+            if (key == "show") {
+                // need to go back to page 1 if the show amount was switched because
+                // the current page may no longer have any themes to show on it
+                Customize.page = 1;
+            } else if (key != "page") {
+                Customize.resetFilters();
+            }
+
+            // do not do anything with a layoutid of 0
+            if (key == "layoutid" && value == 0) {
+                event.preventDefault();
+                return;
+            }
+
+            if (key == "cat") Customize.cat = value;
+            if (key == "layoutid") Customize.layoutid = value;
+            if (key == "designer") Customize.designer = value;
+            if (key == "search") Customize.search = value;
+            if (key == "page") Customize.page = value;
+            if (key == "show") Customize.show = value;
+
+            $.ajax({
+              type: "GET",
+              url: "/__rpc_customizepaging",
+              data: {
+                    cat: Customize.cat,
+                    layoutid: Customize.layoutid,
+                    designer: Customize.designer,
+                    search: Customize.search,
+                    page: Customize.page,
+                    show: Customize.show
+                     },
+              success: function( data ) { $( "div.theme-selector-content" ).html(data);},
+              dataType: "html"
+            });
+
+            evt.preventDefault();
+
+            if (key == "search") {
+                $("search_btn").disabled = true;
+            } else if (key == "page" || key == "show") {
+                $("paging_msg_area_top").innerHTML = "<em>Please wait...</em>";
+                $("paging_msg_area_bottom").innerHTML = "<em>Please wait...</em>";
+            } else {
+                Customize.cursorHourglass(evt);
+            }
+        }
+
+
 
 // Functions for making hourglasses on our page
 Customize.cursorHourglass = function (evt) {
@@ -109,7 +160,33 @@ Customize.resetFilters = function () {
     Customize.page = 1;
 }
 
+        function initThemeNav () {
+            //Handle cat links
+$(".theme-nav-cat").click(function(event){
+        event.preventDefault();
+        console.log("clicked a cat link!");
+        var catLink = $(this).attr('href');
+        var newCat = catLink.replace(/.*cat=([^&?]*)&?.*/, "$1");
+        console.log(newCat);
+        
+        //reload the theme chooser area
+        filterThemes(event, "cat", newCat);
+
+        //move CSS classes around for rendering
+        $('li.on').removeClass('on');
+        $(this).parent('li').addClass('on');
+        
+            
+    return false;
+})
+
+}
+
+
+
 initJournalTitles();
+initLayoutChooser();
+initThemeNav();
 
 
 });
@@ -212,7 +289,7 @@ initJournalTitles();
 
         function saveTitle (event, id) {
             $("#save_btn_" + id).attr("disabled", true);
-            var title = $("#" + id).attr(value);
+            var title = $("#" + id).val();
             $.ajax({
               type: "POST",
               url: "/__rpc_journaltitle",
@@ -228,46 +305,56 @@ initJournalTitles();
         }
 
 
-/* From LayoutChooser widget:
+        function initLayoutChooser () {
+            //Handle the 'apply theme' buttons
+            $(".layout-form").submit(function(event){
 
-        initWidget: function () {
-            var self = this;
+                applyLayout(this, event);       
+            })
 
-            var apply_forms = DOM.getElementsByClassName(document, "layout-form");
-
-            // add event listeners to all of the apply layout forms
-            apply_forms.forEach(function (form) {
-                DOM.addEventListener(form, "submit", function (evt) { self.applyLayout(evt, form) });
-            });
-
-            if ( ! self._init ) {
-                LiveJournal.register_hook( "update_other_widgets", function( updated ) { self.refreshLayoutChoices.apply( self, [ updated ] ) } )
-                self._init = true;
-            }
-        },
-        applyLayout: function (evt, form) {
-            var given_layout_choice = form["Widget[LayoutChooser]_layout_choice"].value + "";
-            $("layout_btn_" + given_layout_choice).disabled = true;
-            DOM.addClassName($("layout_btn_" + given_layout_choice), "layout-button-disabled disabled");
-
-            this.doPostAndUpdateContent({
-                layout_choice: given_layout_choice,
-                layout_prop: form["Widget[LayoutChooser]_layout_prop"].value + "",
-                show_sidebar_prop: form["Widget[LayoutChooser]_show_sidebar_prop"].value
-            });
-
-            Event.stop(evt);
-        },
-        onData: function (data) {
-            LiveJournal.run_hook("update_other_widgets", "LayoutChooser");
-        },
-        onRefresh: function (data) {
-            this.initWidget();
-        },
-        refreshLayoutChoices: function( updatedWidget ) {
-            if ( updatedWidget == "ThemeChooser" ) {
-                this.updateContent();
-            }
         }
-    ];
-} */
+
+        function applyLayout (form, event) {
+
+        var given_layout_choice = $(form).children("[name=layout_choice]").val(); 
+        var given_layout_prop = $(form).children("[name=layout_prop]").val(); 
+        var given_show_sidebar_prop = $(form).children("[name=show_sidebar_prop]").val(); 
+
+
+        $("#layout_btn_" + given_layout_choice).attr("disabled", true);
+        $("#layout_btn_" + given_layout_choice).addClass("layout-button-disabled disabled");
+        $.ajax({
+          type: "POST",
+          url: "/__rpc_layoutchooser",
+          data: {
+                 'layout_choice': given_layout_choice,
+                 'layout_prop': given_layout_prop,
+                 'show_sidebar_prop': given_show_sidebar_prop },
+          success: function( data ) { $( "div.layout-selector-wrapper" ).html(data);},
+          dataType: "html"
+        });
+                initLayoutChooser();
+                event.preventDefault();
+    }
+
+        function initThemeNav () {
+            //Handle cat links
+$(".theme-nav-cat").click(function(event){
+        event.preventDefault();
+        console.log("clicked a cat link!");
+        var catLink = $(this).attr('href');
+        var newCat = catLink.replace(/.*cat=([^&?]*)&?.*/, "$1");
+        console.log(newCat);
+        
+        //reload the theme chooser area
+        filterThemes(event, "cat", newCat);
+
+        //move CSS classes around for rendering
+        $('li .on').removeClass('on');
+        $(this).parent('li').addClass('on');
+        
+            
+    return false;
+})
+
+}
