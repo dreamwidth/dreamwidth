@@ -266,6 +266,31 @@ function resetFilters () {
                 return false;
             })
 
+            if ($('#search_box')) {
+                //var keywords = new InputCompleteData(Customize.ThemeNav.searchwords, "ignorecase");
+                //var ic = new InputComplete($('#search_box'), keywords);
+
+                var text = "theme, layout, or designer";
+                var color = "#999";
+                $('#search_box').css("color", color);
+                $('#search_box').val(text);
+                $('#search_box').focus( function (evt) {
+                    if ($('#search_box').val() == text) {
+                        $('#search_box').css("color", "");
+                        $('#search_box').val("");
+                    }
+                });
+                $('#search_box').blur(function (evt) {
+                    if ($('#search_box').val() == "") {
+                        $('#search_box').css("color", color);
+                        $('#search_box').val(text);
+                    }
+                });
+            }
+
+            // add event listener to the search form
+            $('#search_form').submit( function (evt) { self.filterThemes(evt, "search", $('#search_box').val()) });
+
             }
 
         function initThemeChooser () {
