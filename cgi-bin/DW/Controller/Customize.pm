@@ -235,25 +235,24 @@ sub themechooser_handler {
     # gets the request and args
     my $r = DW::Request->get;
     my $args = $r->post_args;
-    my %getargs;
+    my $getargs;
     my $themeid = $args->{apply_themeid};
     my $layoutid = $args->{apply_layoutid};
 
 
-    warn Dumper($rv);
-
-    $getargs{cat} = defined $args->{cat} ? $args->{cat} : "";
-    $getargs{layoutid} = defined $args->{layoutid} ? $args->{layoutid} : 0;
-    $getargs{designer} = defined $args->{designer} ? $args->{designer} : "";
-    $getargs{search} = defined $args->{search} ? $args->{search} : "";
-    $getargs{page} = defined $args->{page} ? $args->{page} : 1;
-    $getargs{show} = defined $args->{show} ? $args->{show} : 12;
+    $getargs->{cat} = defined $args->{cat} ? $args->{cat} : "";
+    $getargs->{layoutid} = defined $args->{layoutid} ? $args->{layoutid} : 0;
+    $getargs->{designer} = defined $args->{designer} ? $args->{designer} : "";
+    $getargs->{search} = defined $args->{search} ? $args->{search} : "";
+    $getargs->{page} = defined $args->{page} ? $args->{page} : 1;
+    $getargs->{show} = defined $args->{show} ? $args->{show} : 12;
 
     # apply the new theme selected
 
-    set_theme(apply_themeid => $themeid, apply_layoutid => $layoutid);
 
-    $r->print( render_themechooser(%getargs) );
+    set_theme(apply_themeid => $themeid, apply_layoutid => $layoutid);
+    warn Dumper($getargs);
+    $r->print( render_themechooser($getargs) );
     return $r->OK;
 
 
@@ -300,6 +299,9 @@ sub render_themechooser {
     $vars->{show} = defined $args->{show} ? $args->{show} : 12;
 
     my $showarg = $vars->{show} != 12 ? "show=$vars->{show}" : "";
+
+    my $current_theme_id = LJ::Customize->get_current_theme($u);
+    $vars->{current_theme_id} = $current_theme_id;
 
     if ( $vars->{cat} eq "base" ) {
         # sort alphabetically by layout
