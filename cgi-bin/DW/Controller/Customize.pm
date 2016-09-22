@@ -34,7 +34,7 @@ DW::Routing->register_string( '/customize/options/', \&options_handler,
 DW::Routing->register_rpc( "themechooser", \&themechooser_handler, format => 'html' );
 DW::Routing->register_rpc( "journaltitles", \&journaltitles_handler, format => 'html' );
 DW::Routing->register_rpc( "layoutchooser", \&layoutchooser_handler, format => 'html' );
-DW::Routing->register_rpc( "customizepaging", \&paging_handler, format => 'html' );
+DW::Routing->register_rpc( "themefilter", \&filter_handler, format => 'html' );
 
 sub customize_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
@@ -233,6 +233,7 @@ sub themechooser_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
     # gets the request and args
+
     my $r = DW::Request->get;
     my $args = $r->post_args;
     my $getargs;
@@ -251,7 +252,7 @@ sub themechooser_handler {
 
 
     set_theme(apply_themeid => $themeid, apply_layoutid => $layoutid);
-    warn Dumper($getargs);
+
     $r->print( render_themechooser($getargs) );
     return $r->OK;
 
@@ -281,13 +282,13 @@ sub set_theme {
 }
 
 sub render_themechooser {
-    my $remote;
     my $args = shift;
     my $vars;   
     my @getargs;
     my @themes;
     my $u = LJ::get_effective_remote();
-    my $getextra;
+    my $remote = LJ::get_remote();
+    my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
     my $getsep = $getextra ? "&" : "?";
 
     $vars->{u} = $u;
@@ -363,8 +364,9 @@ sub render_themechooser {
     $vars->{img_prefix} = $LJ::IMGPREFIX;
     $vars->{eurl} = \&LJ::eurl;
     $vars->{ehtml} = \&LJ::ehtml;
-    $vars->{getextra} = '';
+    $vars->{getextra} = $getextra;
     $vars->{getsep} = $getsep;
+    $vars->{get_layout_name} = sub { LJ::Customize->get_layout_name(@_); };
 
 
 return DW::Template->template_string( 'customize/themechooser.tt', $vars );
@@ -488,11 +490,12 @@ sub render_layoutchooser {
     return DW::Template->template_string( 'customize/layoutchooser.tt', $vars );
 }
 
-sub paging_handler {
+sub filter_handler {
 
     # gets the request and args
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
+
     my $r = $rv->{r};
     my $args = $r->get_args;
 

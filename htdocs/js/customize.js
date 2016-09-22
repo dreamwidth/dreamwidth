@@ -6,6 +6,7 @@
     search = pageGetArgs["search"] ? pageGetArgs["search"] : "";
     page = pageGetArgs["page"] ? pageGetArgs["page"] : 1;
     show = pageGetArgs["show"] ? pageGetArgs["show"] : 12;
+    authas = pageGetArgs["authas"] ? pageGetArgs["authas"] : "";
     hourglass = null;
 
 
@@ -178,7 +179,8 @@ function resetFilters () {
               url: "/__rpc_journaltitle",
               data: {
                      which_title: id,
-                     title_value: title
+                     title_value: title,
+                    "authas": authas
                      },
               success: function( data ) { $( "div.theme-titles" ).html(data);
                                         initJournalTitles();},
@@ -213,7 +215,8 @@ function resetFilters () {
           data: {
                  'layout_choice': given_layout_choice,
                  'layout_prop': given_layout_prop,
-                 'show_sidebar_prop': given_show_sidebar_prop },
+                 'show_sidebar_prop': given_show_sidebar_prop,
+                'authas': authas },
           success: function( data ) { $( "div.layout-selector-wrapper" ).html(data);
                                         initLayoutChooser();},
           dataType: "html"
@@ -232,6 +235,7 @@ function resetFilters () {
                          apply_themeid: themeid,
                          apply_layoutid: layoutid,
                          lj_form_auth: auth_token,
+                        'authas' : authas,
                          'cat': cat,
                          'layoutid': layoutid,
                         'designer': designer,
@@ -374,14 +378,15 @@ function filterThemes (evt, key, value) {
 
             $.ajax({
               type: "GET",
-              url: "/__rpc_customizepaging",
+              url: "/__rpc_themefilter",
               data: {
                     'cat': cat,
                     'layoutid': layoutid,
                     'designer': designer,
                     'search': search,
                     'page': page,
-                    'show': show
+                    'show': show,
+                    'authas': authas
                      },
               success: function( data ) { $( "div.theme-selector-content" ).html(data);
                                             initThemeChooser();},
