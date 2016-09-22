@@ -17,10 +17,11 @@
     [% FOREACH id IN ['journaltitle', 'journalsubtitle', 'friendspagetitle', 'friendspagesubtitle' ] %]
         [% eprop = ehtml( u.prop( id ) ) %]
         <form id ="[% id %]_form" method=POST>
+
         [% dw.form_auth %]
         <p>
         [% IF is_community %]
-            <label>[% dw.ml("widget.journaltitles.$id.comm") %]</label>
+            <label>[% dw.ml("widget.journaltitles.${id}.comm") %]</label>
         [% ELSE %]
             <label>[% dw.ml("widget.journaltitles.$id") %]</label>
         [% END %]
