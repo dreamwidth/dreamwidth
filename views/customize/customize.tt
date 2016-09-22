@@ -8,8 +8,9 @@
 [%- dw.need_res( 'stc/widgets/layoutchooser.css' ) -%]
 [%#- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
 
-
+<form method="get">
     [%- authas_html -%]
+</form>
 
     [% IF is_community %]
         [%- sections.title = '.title.comm' | ml -%]
