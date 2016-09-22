@@ -286,8 +286,6 @@ function resetFilters () {
                 
             })
 
-
-
             //Handle page select
             $("#page_dropdown_top").change(
                 function (event) { filterThemes(event, "page", $(this).val()) }
@@ -305,7 +303,27 @@ function resetFilters () {
             $("#show_dropdown_bottom").change(
                 function (event) { filterThemes(event, "show", $(this).val()) }
             )
-    }
+
+            //Handle designer and layoutid links
+            $(".theme-layout").click(function(event){
+                    event.preventDefault();
+                    var layoutLink = $(this).attr('href');
+                    var newLayout = layoutLink.replace(/.*layoutid=([^&?]*)&?.*/, "$1");
+                    
+                    //reload the theme chooser area
+                    filterThemes(event, "layoutid", newLayout);
+    })
+
+            $(".theme-designer").click(function(event){
+                    event.preventDefault();
+                    var designerLink = $(this).attr('href');
+                    var newDesigner = designerLink.replace(/.*designer=([^&?]*)&?.*/, "$1");
+                    
+                    //reload the theme chooser area
+                    filterThemes(event, "designer", newDesigner);
+    })
+
+}
 
 function filterThemes (evt, key, value) {
             if (key == "show") {
@@ -353,7 +371,7 @@ function filterThemes (evt, key, value) {
                 $("paging_msg_area_top").innerHTML = "<em>Please wait...</em>";
                 $("paging_msg_area_bottom").innerHTML = "<em>Please wait...</em>";
             } else {
-                cursorHourglass(evt);
+                //cursorHourglass(evt);
             }
         }
 
