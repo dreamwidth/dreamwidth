@@ -49,17 +49,23 @@ sub work {
     my $args = $job->arg;
     my $hstr = $job->handle->as_string;
 
-    my $smtp = $_SMTP || Net::SMTPS->new(
-        $LJ::EMAIL_VIA_SES{hostname},
-        doSSL   => 'starttls',
-        Port    => 587,
-        Timeout => 60,
-    );
-    return $job->failed( "Temporary failure connecting to $LJ::EMAIL_VIA_SES{hostname}, will retry." )
-        unless defined $smtp;
-    $_SMTP = $smtp;
+    my $smtp = $_SMTP;
 
-    $smtp->auth($LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password});
+    unless ( defined $smtp ) {
+        $smtp = Net::SMTPS->new(
+            $LJ::EMAIL_VIA_SES{hostname},
+            doSSL   => 'starttls',
+            Port    => 587,
+            Timeout => 60,
+        );
+        return $job->failed( "Temporary failure connecting to $LJ::EMAIL_VIA_SES{hostname}, will retry." )
+            unless defined $smtp;
+
+        $smtp->auth($LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password})
+            or return $job->failed( "Couldn't authenticate to $LJ::EMAIL_VIA_SES{hostname}, will retry." );
+
+        $_SMTP = $smtp;
+    }
 
     my $env_from = $args->{env_from};  # Envelope From
     my $rcpts    = $args->{rcpts};     # arrayref of recipients
