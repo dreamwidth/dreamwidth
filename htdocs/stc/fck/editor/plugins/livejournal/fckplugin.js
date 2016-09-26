@@ -269,8 +269,8 @@ LJEmbedCommand.Execute=function() {
         html = selection;
         do_embed(html);
     } else {
-        var prompt = "Add media from other websites by copying and pasting their embed code here. ";
-        top.LJ_IPPU.textPrompt("Insert Embedded Content", prompt, do_embed);
+        var prompt = window.parent.FCKLang.EmbedContents;
+        top.LJ_IPPU.textPrompt(window.parent.FCKLang.EmbedPrompt, prompt, do_embed);
     }
 
     return;
@@ -279,7 +279,7 @@ LJEmbedCommand.Execute=function() {
 FCKCommands.RegisterCommand('LJEmbedLink', LJEmbedCommand ); //otherwise our command will not be found
 
 // Create embed media button
-var oLJEmbedLink = new FCKToolbarButton('LJEmbedLink', "Embed Media");
+var oLJEmbedLink = new FCKToolbarButton('LJEmbedLink', window.parent.FCKLang.LJVideo);
 oLJEmbedLink.IconPath = FCKConfig.PluginsPath + 'livejournal/ljvideo.gif' ;
 
 // Register the button to use in the config

@@ -570,8 +570,8 @@ InOb.handleInsertSelect = function () {
 };
 
 entry_insert_embed = function (cb) {
-    var prompt = "Add media from other websites by copying and pasting their embed code here. ";
-    LJ_IPPU.textPrompt("Insert Embedded Content", prompt, cb);
+    var prompt = window.parent.FCKLang.EmbedContents;
+    LJ_IPPU.textPrompt(window.parent.FCKLang.EmbedPrompt, prompt, cb);
 };
 
 InOb.handleInsertEmbed = function () {

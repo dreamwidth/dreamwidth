@@ -1655,6 +1655,10 @@ fcklang.cutcontents=Enter your cut contents here.
 
 fcklang.cutprompt=Cut link text?
 
+fcklang.embedcontents=Add media from other websites by copying and pasting their embed code here.
+
+fcklang.embedprompt=Insert Embedded Content
+
 fcklang.invalidchars=Invalid characters in account name
 
 fcklang.ljcut=Cut
