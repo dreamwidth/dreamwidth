@@ -383,10 +383,10 @@ sub clean
                 next TOKEN;
             }
 
+            # deprecated - will always print an error msg (see #1869)
             if (($tag eq "div" || $tag eq "span") && lc $attr->{class} eq "ljvideo") {
                 $start_capture->($tag, $token, sub {
-                    my $expanded = LJ::Hooks::run_hook("expand_template_video", \@capture);
-                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
+                    $newdata .= "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
                 });
                 next TOKEN;
             }
