@@ -23,7 +23,7 @@ function LJUser(textArea) {
         while (( attrs=attrs_regexp.exec(users[1]) )) {
             if (attrs[1] == 'user' || attrs[1] == 'name')
                 postData.username = attrs[2];
-            else 
+            else
                 postData[attrs[1]] = attrs[2];
         }
         var url = window.parent.Site.siteroot + "/tools/endpoints/ljuser";
@@ -44,9 +44,9 @@ function LJUser(textArea) {
             }
             if (!data.success) return;
 
-            if ( site ) 
+            if ( site )
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser" site="' + site + '">');
-            else 
+            else
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
 
             data.ljuser = data.ljuser.replace(/<\/span>\s?/,'</div>');
@@ -60,7 +60,7 @@ function LJUser(textArea) {
         if ( UserTagCache[postData.username+"_"+postData.site] ) {
             html = html.replace( userStrToReplace, UserTagCache[postData.username+"_"+postData.site] );
             oEditor.SetData(html);
-            oEditor.Focus();            
+            oEditor.Focus();
         } else {
             var opts = {
                 "data": window.parent.HTTPReq.formEncoded(postData),
@@ -69,7 +69,7 @@ function LJUser(textArea) {
                 "onError": gotError,
                 "onData": gotInfo
             };
-    
+
             window.parent.HTTPReq.getJSON(opts);
         }
     }

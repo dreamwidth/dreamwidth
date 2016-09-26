@@ -40,13 +40,13 @@ LJUserCommand.Execute=function() {
         };
 
         if (username == null) return;
-    
+
         var url = window.parent.Site.siteroot + "/tools/endpoints/ljuser";
-    
+
         var gotError = function(err) {
             alert(err);
         }
-    
+
         var gotInfo = function (data) {
             if (data.error) {
                 alert(data.error);
@@ -55,9 +55,9 @@ LJUserCommand.Execute=function() {
 
             if (!data.success) return;
 
-            if ( site ) 
+            if ( site )
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser" site="' + site + '">');
-            else 
+            else
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
 
             data.ljuser = data.ljuser.replace(/<\/span>/,'</div>');
@@ -67,7 +67,7 @@ LJUserCommand.Execute=function() {
             if (selection != '') FCKSelection.Collapse();
             FCK.Focus();
         }
-    
+
         if ( UserTagCache[postData.username+"_"+postData.site] ) {
             FCK.InsertHtml(UserTagCache[postData.username+"_"+postData.site] + "&nbsp;");
             if (selection != '') FCKSelection.Collapse();
@@ -80,7 +80,7 @@ LJUserCommand.Execute=function() {
                 "onError": gotError,
                 "onData": gotInfo
             };
-        
+
             window.parent.HTTPReq.getJSON(opts);
         }
     }
@@ -146,11 +146,11 @@ LJUserCommand.Execute=function() {
         userPopup.show();
         username.focus();
 
-        DOM.addEventListener( window.parent.document, "keyup", function(userPopup) { 
+        DOM.addEventListener( window.parent.document, "keyup", function(userPopup) {
             return  LJUserCommand.KeyUpHandler = function(e) {
                 var code = e.keyCode || e.which;
                 // enter
-                if ( code == 13 ) {            
+                if ( code == 13 ) {
                     userPopup.hide();
                     do_insert( username.value, siteList.value );
                     return;
