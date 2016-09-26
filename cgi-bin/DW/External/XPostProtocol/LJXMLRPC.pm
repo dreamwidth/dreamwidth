@@ -478,7 +478,6 @@ sub clean_lj_tags {
 
     my %update_tags = (
         'cut' => 'lj-cut',
-        'site-template' => 'lj-template',
         'raw-code' => 'lj-raw'
     );
 

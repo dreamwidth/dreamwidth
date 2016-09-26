@@ -589,12 +589,6 @@ InOb.handleInsertImage = function () {
     onInsertObject(include);
     return true;
 }
-InOb.handleInsertVideo = function() {
-    var videoUrl = prompt('Please enter a video URL:');
-    var draft = $('draft');
-    var video = "<site-template name=\"video\">" + videoUrl + "</site-template>";
-    draft.value = draft.value + video;
-}
 
 InOb.onClosePopup = function () {
     if (! currentPopup) return;

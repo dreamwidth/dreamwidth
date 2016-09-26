@@ -276,7 +276,6 @@ sub clean
             'poll-question' => 'lj-pq',
             'raw-code'      => 'lj-raw',
             'site-embed'    => 'lj-embed',
-            'site-template' => 'lj-template',
             'user'          => 'lj',
         }->{$_[0]} || $_[0];
     };
