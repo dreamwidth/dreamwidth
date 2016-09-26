@@ -328,12 +328,9 @@ sub clean
                 $name =~ s/-/_/g;
 
                 my $run_template_hook = sub {
-                    # can pass in tokens to override passing the hook the @capture array
-                    my ($token, $override_capture) = @_;
-                    my $capture = $override_capture ? [$token] : \@capture;
-                    my $expanded = ($name =~ /^\w+$/) ? LJ::Hooks::run_hook("expand_template_$name", $capture) : "";
-                    my $template = LJ::ehtml( $name );
-                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template', { aopts => $template } ) . "</strong>";
+                     # deprecated - will always print an error msg (see #1869)
+                    $newdata .= "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template',
+                                { aopts => LJ::ehtml( $name ) } ) . "</strong>";
                 };
 
                 if ($attr->{'/'}) {
