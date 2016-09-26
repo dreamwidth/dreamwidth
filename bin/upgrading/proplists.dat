@@ -753,10 +753,10 @@ userproplist.opt_echi_display:
 userproplist.opt_embedplaceholders:
   cldversion: 4
   datatype: char
-  des: Y/N choice regarding whether lj-template tag embedded object should be hidden behind a placeholder.
+  des: Y/N choice regarding whether site-embed content should be hidden behind a placeholder.
   indexed: 0
   multihomed: 0
-  prettyname: Use Placeholders for lj-template embedded objects
+  prettyname: Use Placeholders for site-embed content
 
 userproplist.opt_findbyemail:
   cldversion: 4
