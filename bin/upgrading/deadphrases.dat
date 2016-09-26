@@ -1160,6 +1160,7 @@ general event.befriended.user
 general event.defriended.me
 general event.defriended.user
 general fcklang.ljvideo
+general fcklang.videoprompt
 general img.flag_btn
 general img.us_map
 general inbox.menu.friend_updates
