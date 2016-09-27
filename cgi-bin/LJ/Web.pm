@@ -1329,8 +1329,9 @@ sub entry_form {
     $out .= "<ul class='pkg'>\n";
     $out .= "<li class='image'><a href='javascript:void(0);' onclick='InOb.handleInsertImage();' title='"
         . BML::ml('fckland.ljimage') . "'>" . BML::ml('entryform.insert.image2') . "</a></li>\n";
-    $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='Embed Media'>"
-        . "Embed Media</a></li>\n" if LJ::is_enabled('embed_module');
+    $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='"
+        . BML::ml('fcklang.ljvideo2') . "'>" . BML::ml('fcklang.ljvideo2') . "</a></li>\n"
+            if LJ::is_enabled('embed_module');
     $out .= "</ul>\n";
     my $format_selected = ( $opts->{mode} eq "update" && $remote && $remote->disable_auto_formatting ) || $opts->{'prop_opt_preformatted'} || $opts->{'event_format'} ? "checked='checked'" : "";
     $out .= "<span id='linebreaks'><input type='checkbox' class='check' value='preformatted' name='event_format' id='event_format' $format_selected  />
@@ -1375,8 +1376,9 @@ RTE
     $out .= "FCKLang.UserPrompt_SiteList =" . LJ::js_dumper( \@sitevalues ) . ";\n";
     $out .= "FCKLang.InvalidChars = \"".LJ::ejs(BML::ml('fcklang.invalidchars'))."\";\n";
     $out .= "FCKLang.LJUser = \"".LJ::ejs(BML::ml('fcklang.ljuser'))."\";\n";
-    $out .= "FCKLang.VideoPrompt = \"".LJ::ejs(BML::ml('fcklang.videoprompt'))."\";\n";
     $out .= "FCKLang.LJVideo = \"".LJ::ejs(BML::ml('fcklang.ljvideo2'))."\";\n";
+    $out .= "FCKLang.EmbedContents = \"".LJ::ejs(BML::ml('fcklang.embedcontents'))."\";\n";
+    $out .= "FCKLang.EmbedPrompt = \"".LJ::ejs(BML::ml('fcklang.embedprompt'))."\";\n";
     $out .= "FCKLang.CutPrompt = \"".LJ::ejs(BML::ml('fcklang.cutprompt'))."\";\n";
     $out .= "FCKLang.ReadMore = \"".LJ::ejs(BML::ml('fcklang.readmore'))."\";\n";
     $out .= "FCKLang.CutContents = \"".LJ::ejs(BML::ml('fcklang.cutcontents'))."\";\n";

@@ -276,7 +276,6 @@ sub clean
             'poll-question' => 'lj-pq',
             'raw-code'      => 'lj-raw',
             'site-embed'    => 'lj-embed',
-            'site-template' => 'lj-template',
             'user'          => 'lj',
         }->{$_[0]} || $_[0];
     };
@@ -328,12 +327,9 @@ sub clean
                 $name =~ s/-/_/g;
 
                 my $run_template_hook = sub {
-                    # can pass in tokens to override passing the hook the @capture array
-                    my ($token, $override_capture) = @_;
-                    my $capture = $override_capture ? [$token] : \@capture;
-                    my $expanded = ($name =~ /^\w+$/) ? LJ::Hooks::run_hook("expand_template_$name", $capture) : "";
-                    my $template = LJ::ehtml( $name );
-                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template', { aopts => $template } ) . "</strong>";
+                     # deprecated - will always print an error msg (see #1869)
+                    $newdata .= "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template',
+                                { aopts => LJ::ehtml( $name ) } ) . "</strong>";
                 };
 
                 if ($attr->{'/'}) {
@@ -383,10 +379,10 @@ sub clean
                 next TOKEN;
             }
 
+            # deprecated - will always print an error msg (see #1869)
             if (($tag eq "div" || $tag eq "span") && lc $attr->{class} eq "ljvideo") {
                 $start_capture->($tag, $token, sub {
-                    my $expanded = LJ::Hooks::run_hook("expand_template_video", \@capture);
-                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
+                    $newdata .= "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
                 });
                 next TOKEN;
             }

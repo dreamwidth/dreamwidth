@@ -134,12 +134,6 @@ p, ul, li
         display: inline;
 }
 
-.ljvideo {
-        padding: 5px;
-        width: 8px;
-        height: 8px;
-}
-
 .ljembed {
     background-color: #CCCCCC;
     border: 1px solid #CCCCCC;
