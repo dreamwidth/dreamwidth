@@ -5,7 +5,7 @@
 
 .directory=<a [[aopts]]>Directory Search</a>
 
-.directory.desc=Search for Account Names
+.directory.desc=Search for accounts that match various criteria.
 
 .intro=Search [[sitename]] using this box, or use one of our advanced search options.
 
@@ -14,4 +14,3 @@
 .journal.desc=Search your journal. (This feature requires a <a [[aopts]]>paid account</a>.)
 
 .title=Search [[sitename]]
-
