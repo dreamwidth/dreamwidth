@@ -15,6 +15,11 @@
     margin-bottom: 0.75em;
 }
 
+// don't add the bottom spacing for success links
+#content ul.successlinks li {
+    margin-bottom: 0;
+}
+
 #content ul ul {
     margin-top: 0.75em;
 }

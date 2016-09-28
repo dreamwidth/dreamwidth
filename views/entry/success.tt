@@ -54,7 +54,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF links.size -%]
 <p>[%- links_header | ml -%]</p>
-<ul>
+<ul class="successlinks">
     [%- FOREACH link IN links -%]
         <li><a href="[% link.url %]">[% link.ml_string | ml %]</a></li>
     [%- END -%]
