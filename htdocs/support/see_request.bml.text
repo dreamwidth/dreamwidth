@@ -13,6 +13,8 @@
 
 .betatesting=Beta testing
 
+.no-beta=(none)
+
 .birthday=birthday
 
 .change.cat=Change Category
