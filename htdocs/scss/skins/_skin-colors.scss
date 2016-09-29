@@ -215,5 +215,15 @@ div.disabled, div.disabled * { color: scale-color($text-color, $lightness: 50%);
     }
 }
 
+// support boxes
+.bluebox {
+    background-color: $_support-bg-blue;
+    border-color: $_support-fg-blue;
+}
+.greenbox {
+    background-color: $_support-bg-green;
+    border-color: $_support-fg-green;
+}
+
 // replacement colors for jquery-ui elements
 @import "skins/jquery-ui-theme";
