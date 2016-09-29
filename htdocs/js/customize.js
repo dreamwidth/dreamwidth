@@ -1,5 +1,7 @@
        var pageGetArgs = LiveJournal.parseGetArgs(document.location.href);
 
+    var Customize = new Object();
+
     cat = pageGetArgs["cat"] ? pageGetArgs["cat"] : "";
     layoutid = pageGetArgs["layoutid"] ? pageGetArgs["layoutid"] : 0;
     designer = pageGetArgs["designer"] ? pageGetArgs["designer"] : "";
@@ -8,10 +10,6 @@
     show = pageGetArgs["show"] ? pageGetArgs["show"] : 12;
     authas = pageGetArgs["authas"] ? pageGetArgs["authas"] : "";
     hourglass = null;
-
-
-
-
 
 // Functions for making hourglasses on our page
 function cursorHourglass (evt) {
@@ -242,9 +240,15 @@ function resetFilters () {
                         'page': page,
                         'search': search,
                         'show': show },
-                  success: function( data ) { $( "div.theme-selector-content" ).html(data);
-                                                    initThemeChooser();},
-                  dataType: "html"
+                  success: function( data ) { $( "div.theme-selector-content" ).html(data.themechooser);
+                                                $( "div.layout-selector-wrapper" ).html(data.layoutchooser);
+                                                    initLayoutChooser();
+                                                    initThemeChooser();
+                                                    alert(confirmation);
+                                                                Customize.CurrentTheme.updateContent({
+                'show': show, 'authas': authas
+            });},
+                  dataType: "json"
                 });
                 event.preventDefault();
 

@@ -1,0 +1,60 @@
+[%- dw.need_res( 'stc/widgets/moodthemechooser.css' ) -%]
+
+
+    <fieldset><legend>[% dw.ml('widget.moodthemechooser.title') %]</legend></fieldset>
+    <p class='detail'>[% dw.ml('widget.moodthemechooser.desc') %] [% help_icon('mood_themes') %]</p>
+
+    <br /><br /><div class='moodtheme-form'>
+        [% form.select( name = "moodthemeid",
+                        id = "moodtheme_dropdown",
+                        selected = $preview_moodthemid,
+                        items = pages ) %]
+    $ret .= $class->html_select(
+        { name => 'moodthemeid',
+          id => 'moodtheme_dropdown',
+          selected => $preview_moodthemeid },
+        map { {value => $_->{moodthemeid}, text => $_->{name}, disabled => $_->{disabled}} } @themes,
+    ) . "<br />
+
+    [%- form.checkbox( label = dw.ml( "widget.moodthemechooser.forcetheme" )
+            name = "opt_forcemoodtheme"
+            id = "opt_forcemoodtheme"
+            selected = $forcemoodthem
+    ) -%]
+
+
+    [% journalarg = getextra ? "?journal=$u.user" : ""  %]
+    <ul class='moodtheme-links nostyle'>
+    <li><a href='$site.root/moodlist$journalarg'>[% dw.ml('widget.moodthemechooser.links.allthemes') %]</a></li>
+    <li><a href='$site.root/manage/moodthemes$getextra'>[% dw.ml('widget.moodthemechooser.links.customthemes') %]</a></li>
+    </ul>
+    </div>
+
+
+    [% show_moods = ( 'happy', 'sad', 'angry', 'tired' ) %]
+
+    [% IF mobj %]
+        [% count = 0 %]
+
+        <div class='moodtheme-preview moodtheme-preview highlight-box'>
+        [% FOREACH mood IN show_moods %]
+            [% pic = { } %]
+            [% IF  mobj.get_picture( mobj.mood_id( $mood ), \%pic ) ) %]
+                <div class='moodtheme-mood'>
+				$ret .= "<img alt='$mood' src=\"$pic{pic}\" width='$pic{w}' height='$pic{h}' />
+				<p>[% $mood %]</p>
+				</div>
+                $count++;
+            [% END %]]
+        [% END %]
+        <div class='moodtheme-view-link'>
+		<a href='$site.root/moodlist?moodtheme=$preview_moodthemeid'>
+        [% dw.ml( 'widget.moodthemechooser.viewtheme' ) %]</a>
+        </div>
+
+        <div class='moodtheme-description'>
+		<p>[% clean($mobj.des) %]</p></div>
+        </div>
+    [% END %]
+
+

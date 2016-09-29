@@ -28,10 +28,10 @@ use Carp;
 # This registers a static string, which is an application page.
 DW::Routing->register_string( '/customize/', \&customize_handler, 
     app => 1 );
-DW::Routing->register_string( '/customize/options/', \&options_handler, 
+DW::Routing->register_string( '/customize/options', \&options_handler, 
     app => 1 );
 
-DW::Routing->register_rpc( "themechooser", \&themechooser_handler, format => 'html' );
+DW::Routing->register_rpc( "themechooser", \&themechooser_handler, format => 'json' );
 DW::Routing->register_rpc( "journaltitles", \&journaltitles_handler, format => 'html' );
 DW::Routing->register_rpc( "layoutchooser", \&layoutchooser_handler, format => 'html' );
 DW::Routing->register_rpc( "themefilter", \&filter_handler, format => 'html' );
@@ -74,7 +74,7 @@ sub customize_handler {
     # create all our widgets
     my $current_theme = LJ::Widget::CurrentTheme->new;
     $vars->{current_theme} = $current_theme->render(show => $show);
-    $vars->{headextra} .= $current_theme->wrapped_js( page_js_obj => "Customize" );
+    my $headextra = $current_theme->wrapped_js( page_js_obj => "Customize" );
 
     # lazy migration of style name
     LJ::Customize->migrate_current_style($u);
@@ -225,7 +225,7 @@ sub customize_handler {
     $vars->{render_layoutchooser} = \&render_layoutchooser;
 
     # Now we tell it what template to render and pass in our variables
-    return DW::Template->render_template( 'customize/customize.tt', $vars );
+    return DW::Template->render_template( 'customize/customize.tt', $vars, { head => $headextra } );
 
 }
 
@@ -253,7 +253,10 @@ sub themechooser_handler {
 
     set_theme(apply_themeid => $themeid, apply_layoutid => $layoutid);
 
-    $r->print( render_themechooser($getargs) );
+    my $themechooser_html = render_themechooser($getargs);
+    my $layoutchooser_html = render_layoutchooser();
+
+    $r->print( to_json( { themechooser => $themechooser_html, layoutchooser => $layoutchooser_html } ) );
     return $r->OK;
 
 
@@ -506,6 +509,189 @@ sub filter_handler {
 
     $r->print( $ret );
     return $r->OK;
+}
+
+sub options_handler {
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $post = $r->post_args;
+    my $u = $rv->{u};
+    my $remote = $rv->{remote};
+    my $GET = DW::Request->get;
+    my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
+    my $getsep = $getextra ? "&" : "?";
+
+
+    my $vars;
+    $vars->{u} = $u;
+    $vars->{remote} = $remote;
+    $vars->{getextra} = ( $u ne $remote) ? ( "?authas=" . $u->user ) : '';
+    $vars->{getsep} = $getsep;
+    $vars->{is_identity} = 1 if $u->is_identity;
+    $vars->{is_community} = 1 if $u->is_community;
+    $vars->{style} = LJ::Customize->verify_and_load_style($u);
+    $vars->{authas_html} = $rv->{authas_html};
+    $vars->{render_journaltitles} = \&render_journaltitles;
+    $vars->{render_layoutchooser} = \&render_layoutchooser;
+    
+    LJ::Customize->migrate_current_style($u);
+
+    my $current_theme = LJ::Widget::CurrentTheme->new;
+    $vars->{current_theme} = $current_theme->render(show => $show);
+    my $headextra = $current_theme->wrapped_js( page_js_obj => "Customize" );
+
+    my $group = $GET{group} ? $GET{group} : "presentation";
+
+}
+
+sub render_customizetheme {
+    my $vars;
+    my $u = LJ::get_effective_remote();
+    die "Invalid user." unless LJ::isu($u);
+    
+    my $remote = LJ::get_remote();
+    my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
+    my $getsep = $getextra ? "&" : "?";
+    my $style = LJ::S2::load_style($u->prop('s2_style'));
+    die "Style not found." unless $style && $style->{userid} == $u->id;
+    my %groups = LJ::Customize->get_propgroups($u, $style);
+    my $group_names = $groups{groups};
+
+    my $group = $opts{group} ? $opts{group} : "display";
+
+    $vars->{u} = $u;
+    $vars->{remote} = $remote;
+    $vars->{getextra} = ( $u ne $remote) ? ( "?authas=" . $u->user ) : '';
+    $vars->{getsep} = $getsep;
+    $vars->{style} = $style;
+    $vars->{groups} = \%groups;
+    $vars->{group_names} = $group_names;
+    $vars->{propgroup_name} = \&LJ::Customize->propgroup_name;
+    $vars->{has_customcss} = map { customcss => 1 } @$group_names;
+    $vars->{group} = $group;
+
+    $vars->{help_icon} = \&LJ::help_icon;
+    my @moodthemes = LJ::Customize->get_moodtheme_select_list($u);
+    $vars->{moodthemes} = $moodthemes;
+    my $preview_moodthemeid = defined $opts{preview_moodthemeid} ? $opts{preview_moodthemeid} : $u->moodtheme;
+    my $forcemoodtheme = defined $opts{forcemoodtheme} ? $opts{forcemoodtheme} : $u->{opt_forcemoodtheme} eq 'Y';
+    $vars->{preview_moodthemeid} = $preview_moodthemeid;
+    $vars->{forcemoodtheme} = $forcemoodtheme;
+    my $mobj = DW::Mood->new( $preview_moodthemeid );
+    $vars->{mobj} = $mobj;
+    $vars->{clean} = \&LJ::CleanHTML::clean;
+
+
+    my $linkobj = LJ::Links::load_linkobj($u, "master");
+    my $link_min = $opts{link_min} || 5; # how many do they start with ?
+    my $link_more = $opts{link_more} || 5; # how many do they get when they click "more"
+    my $order_step = $opts{order_step} || 10; # step order numbers by
+    $vars->{link_min} = $link_min;
+    $vars->{link_more} = $link_more;
+    $vars->{order_step} = $order_step;
+    $vars->{linkobj} = $linkobj;
+
+    my $theme = LJ::Customize->get_current_theme($u);
+    my @props = S2::get_properties($theme->layoutid);
+    my %prop_is_used = map { $_ => 1 } @props;
+    my %colors_values = LJ::Customize->get_s2_prop_values("custom_control_strip_colors", $u, $style);
+    my %bgcolor_values = LJ::Customize->get_s2_prop_values("control_strip_bgcolor", $u, $style);
+    my %fgcolor_values = LJ::Customize->get_s2_prop_values("control_strip_fgcolor", $u, $style);
+    my %bordercolor_values = LJ::Customize->get_s2_prop_values("control_strip_bordercolor", $u, $style);
+    my %linkcolor_values = LJ::Customize->get_s2_prop_values("control_strip_linkcolor", $u, $style);
+    $vars->{props} = \@props;
+    $vars->{colors_values} = \%colors_values;
+    $vars->{bgcolor_values} = \%bgcolor_values;
+    $vars->{fgcolor_values} = \%fgcolor_values;
+    $vars->{bordercolor_values} = \%bordercolor_values;
+    $vars->{linkcolor_values} = \%linkcolor_values;
+    $vars->{get_property} = \&sub { S2::get_property($theme->coreid, $_); };
+    $vars->{isref} = \&sub { return ref $_; };
+
+
+
+
+}
+
+sub render_s2propgroup {
+    my $vars;
+    my $u = LJ::get_effective_remote();
+    die "Invalid user." unless LJ::isu($u);
+    
+    my $remote = LJ::get_remote();
+    my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
+    my $getsep = $getextra ? "&" : "?";
+    my %opts = @_;
+
+    $vars->{u} = $u;
+    $vars->{remote} = $remote;
+    $vars->{getextra} = ( $u ne $remote) ? ( "?authas=" . $u->user ) : '';
+    $vars->{getsep} = $getsep;
+    $vars->{style} = $style;
+
+    my $props = $opts{props};
+    my $propgroup = $opts{propgroup};
+    my $groupprops = $opts{groupprops};
+    return "" unless ($props && $propgroup && $groupprops) || $opts{show_lang_chooser};
+
+    my $style = LJ::S2::load_style($u->prop('s2_style'));
+    die "Style not found." unless $style && $style->{userid} == $u->id;
+
+    my $theme = LJ::Customize->get_current_theme($u);
+
+    $vars->{propgroup_name} = \&LJ::Customize->propgroup_name;
+    $vars->{skip_prop} = \&skip_prop;
+    $vars->{help_icon} = \&LJ::help_icon;
+    $vars->{eall} = \&LJ::eall;
+    $vars->{can_use_prop} = \&LJ::S2::can_use_prop;
+
+
+}
+
+sub skip_prop {
+    my $class = shift;
+    my $prop = shift;
+    my $prop_name = shift;
+    my %opts = @_;
+
+    my $props_to_skip = $opts{props_to_skip};
+    my $theme = $opts{theme};
+
+    if (!$prop) {
+        return 1 unless $prop_name eq "linklist_support" && $theme && $theme->linklist_support_tab;
+    }
+
+    return 1 if $prop->{noui};
+    return 1 if $prop->{grouped};
+
+    return 1 if $props_to_skip && $props_to_skip->{$prop_name};
+
+    if ($theme) {
+        return 1 if $prop_name eq $theme->layout_prop;
+        return 1 if $prop_name eq $theme->show_sidebar_prop;
+    }
+
+    if ( $opts{user}->is_community ) {
+        return 1 if $prop_name eq "text_view_network";
+        return 1 if $prop_name eq "text_view_friends";
+        return 1 if $prop_name eq "text_view_friends_filter";
+        return 1 if $prop_name eq "module_subscriptionfilters_group";
+    } else {
+        return 1 if $prop_name eq "text_view_friends_comm"
+    }
+
+    return 1 if $prop_name eq "custom_control_strip_colors";
+    return 1 if $prop_name eq "control_strip_bgcolor";
+    return 1 if $prop_name eq "control_strip_fgcolor";
+    return 1 if $prop_name eq "control_strip_bordercolor";
+    return 1 if $prop_name eq "control_strip_linkcolor";
+
+    my $hook_rv = LJ::Hooks::run_hook("skip_prop_override", $prop_name, user => $opts{user}, theme => $theme, style => $opts{style});
+    return $hook_rv if $hook_rv;
+
+    return 0;
 }
 
 1;
