@@ -329,6 +329,22 @@ sub unban_user_multi {
 
 
 ########################################################################
+### Selective Screening functions
+
+# return if $target's comments will automatically be screened in $u's journal
+sub has_autoscreen {
+    my ( $u, $target ) = @_;
+
+    my $uid = LJ::want_userid( $u );
+    my $jid = LJ::want_userid( $target );
+    return 0 unless $uid && $jid;  #can't autoscreen anons ($jid == 0)
+    return 0 if $uid == $jid;  # can't autoscreen yourself
+
+    return LJ::check_rel( $uid, $jid, 'S' );
+}
+
+
+########################################################################
 ### End LJ::User functions
 
 ########################################################################

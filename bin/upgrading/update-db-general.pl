@@ -1371,6 +1371,7 @@ EOC
 # 'M' means targetid can moderate the community userid
 # 'N' means targetid is preapproved to post to community userid w/o moderation
 # 'I' means targetid invited userid to the site
+# 'S' means targetid will have comments automatically screened in userid
 # new types to be added here
 
 register_tablecreate("reluser", <<'EOC');

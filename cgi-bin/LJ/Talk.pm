@@ -1582,6 +1582,7 @@ sub talkform {
     $ret .= "<td>";
     $ret .= "<table summary=''>"; # Internal for "From" options
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
+    $screening = 'A' if $journalu->has_autoscreen( $remote );
 
     if ($editid) {
 
@@ -1643,7 +1644,7 @@ sub talkform {
                 $ret .= "<strong>$logged_in</strong>";
 
                 # show willscreen if a) all comments are screened b) anonymous is screened and OpenID user not validated, c) non-access is screened and OpenID user
-                # is not on access list
+                # is not on access list d) this user is being automatically screened (in which case $screening has been forced to 'A')
                 $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || ( $screening eq 'R' && !$remote->is_validated )
                     || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
                 $ret .= "</td></tr>\n";
@@ -3329,6 +3330,7 @@ sub init {
     # figure out whether to post this comment screened
     my $state = 'A';
     my $screening = LJ::Talk::screening_level($journalu, $ditemid >> 8) || "";
+    $screening = 'A' if $journalu->has_autoscreen( $up );
     if ($screening eq 'A' ||
         ($screening eq 'R' && ! $up) ||
         ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up )))) {
