@@ -85,6 +85,7 @@ sub default_themes {
         tranquilityiii => 'tranquilityiii/nightsea',
         trifecta => 'trifecta/handlewithcare',
         wideopen => 'wideopen/koi',
+        venture => 'venture/radiantaqua',
         zesty => 'zesty/white',
     );
 
