@@ -1,0 +1,120 @@
+
+    my $post = $class->post_fields($opts{post});
+
+
+[%# info about the links textareas %]
+
+    <fieldset><legend>[% dw.ml('widget.linkslist.title') %]</legend></fieldset>
+
+[%# title of this module %]
+
+    <p class='detail'>[% dw.ml('widget.linkslist.about') %]</p>
+
+[%# explanation %]
+
+    <table summary='' cellspacing='2' cellpadding='0'><tr valign='top'><td>
+
+    [%# how many link inputs to show? %]
+    [% showlinks = $post->{numlinks} || @$linkobj %]
+    [% caplinks = u.count_max_userlinks %]
+    $showlinks += $link_more if $post->{'action:morelinks'};
+    [% showlinks = link_min IF showlinks < link_min %]
+    [% showlinks = caplinks IF showlinks > caplinks %]
+
+    <td><div class='highlight-box'><p class='tips-header'><strong>[% dw.ml('widget.linkslist.tips') %]</strong></p>
+    <ul><li>[% dw.ml('widget.linkslist.about.reorder') %]</li>
+    <li>[% dw.ml('widget.linkslist.about.blank') %]</li>
+    <li>[% dw.ml('widget.linkslist.about.heading') %]</li>
+    <li>[% dw.ml('widget.linkslist.about.hover') %]</li>
+    <li>[% dw.ml('widget.linkslist.about.hoverhead') %]
+    </li></ul></div>
+    </td></tr></table>
+
+
+[%# add the table-ey stuff at the top %]
+
+    <table border='0' cellspacing='5' cellpadding='0'>
+    <thead><tr><th>[% dw.ml('widget.linkslist.table.order') %]</th><th></th>
+    <th>[% dw.ml('widget.linkslist.table.title') %]</th><td>&nbsp;</td></tr></thead>
+
+[%# now we're building the textareas %]
+
+    [% FOREACH ct IN [1..showlinks] %]
+        [% it = linkobj[$ct-1] || {} %]
+
+[%# builds the order number %]
+
+        <tr><td>
+        [%- form.textbox(
+                name = "link_${ct}_ordernum"
+                size = 4
+                value = $ct * $order_step
+        )
+        -[%
+        </td>
+
+[%# the link itself %]
+
+        <td>
+        <label>Link</label></td><td>
+        [%- form.textbox(
+                name = "link_${ct}_url"
+                size = 50
+                maxlength = 255
+                value = ($it.url || "http://")
+        )
+        -%]
+
+[%# the title of the link %]
+
+        <tr><td></td><td>
+        <label>Link text</label></td><td>
+        [%- form.textbox(
+                name = "link_${ct}_title"
+                size = 50
+                maxlength = 255
+                value = $it.title
+        )
+        -%]
+
+        </td>
+
+[%# so here's where we might insert some hover text %]
+
+        <tr><td></td><td>
+        <label>Hover text<label></td><td>
+        [%- form.textbox(
+                name = "link_${ct}_hover"
+                size = 50
+                maxlength = 255
+                value = $it.hover
+        )
+        -%]
+        </td><td>&nbsp;</td></tr>
+
+
+        [%# more button at the end of the last line, but only if %]
+        [%# they are allowed more than the minimum %]
+        <td>&nbsp;
+        [% IF ct >= showlinks && caplinks > link_min %]
+            [% form.submit( name = "action:morelinks" value = dw.ml('widget.linkslist.table.more') ) %]
+            $ret .= $class->html_submit(
+                'action:morelinks' => $class->ml('widget.linkslist.table.more') . " &rarr;",
+                { 'disabled' => $ct >= $caplinks, 'noescape' => 1 }
+            );
+        [% END %]
+        [% IF ct >= caplinks %]
+            </td></tr><tr><td colspan='2'>&nbsp;</td><td>[% dw.ml('cprod.links.text3.v1') %]
+        [% END %]
+        </td></tr>
+
+        [%# blank line unless this is the last line %]
+        [% UNLESS ct >= showlinks %]
+            <tr><td colspan='3'>&nbsp;</td></tr>
+        [% END %]
+    [% END %]
+
+    [% form.hidden( name = "numlinks", value = showlinks) %]
+
+    </table></td>
+

@@ -1,0 +1,94 @@
+sub need_res { qw( stc/widgets/navstripchooser.css js/colorpicker.js ) }
+
+
+    <fieldset><legend>[% dw.ml('widget.navstripchooser.title') %]</legend>
+    </fieldset>
+   <p class='detail'>[% dw.ml( 'widget.navstripchooser.desc', { aopts => "href='/manage/settings/?cat=display'" } ) %] [% help_icon('navstrip') %]</p>
+
+    <p>[% dw.ml('widget.navstripchooser.colors') %]</p>
+
+    # choose colors
+    [% chosen_color = u.prop( 'control_strip_color' ) || '' %]
+    [% color_selected = chosen_color !== '' ? chosen_color : "dark" %]
+
+    [% color_custom = 0 %]
+    [% color_custom = 1 UNLESS colors_values.override == "off" %]
+
+
+    <div class='option'>
+    [%- form.radio( 
+        name = "control_strip_color"
+        id = "control_strip_color_dark"
+        value = "dark"
+        default = ( $color_selected == "dark" ? 1 : 0 )
+    ) -%]
+    </div>
+    <div><label for='control_strip_color_dark' class='color-dark'><strong>[% dw.ml('widget.navstripchooser.option.color.dark') %]</strong></label></div>
+
+    [%- form.radio( 
+        name = "control_strip_color"
+        id = "control_strip_color_light"
+        value = "light"
+        default = ( $color_selected == "light" ? 1 : 0 )
+    ) -%]
+    </div>
+    <div><label for='control_strip_color_light' class='color-light'><strong>[% dw.ml('widget.navstripchooser.option.color.light') %]</strong></label></div>
+
+    [% IF $prop_is_used{custom_control_strip_colors} %]
+        [% no_gradient = colors_values.override == "on_no_gradient" ? 1 : 0 %]
+
+        <div class='option'>
+        [%- form.checkbox( 
+                name = "control_strip_custom"
+                id = "control_strip_color_custom"
+                value = "custom"
+                selected = color_custom
+        ) -%]
+        </div>
+        <div><label for='control_strip_color_custom'><strong>[% dw.ml('widget.navstripchooser.option.color.custom') %]</strong></label><br /></div>
+
+        <div id='custom_subdiv' class='option'>
+        [%- form.checkbox( 
+                name = "control_strip_no_gradient_custom"
+                id = "control_strip_gradient_custom"
+                selected = no_gradient
+        ) -%]
+
+        <label for='control_strip_gradient_custom'>[% dw.ml('widget.navstripchooser.option.color.no_gradient') %]</label><br/>
+
+        [% count = 0 %]
+        <table summary='' class='color-picker'>
+        [% FOREACH prop IN props %]
+            [% prop = get_property(prop) UNLESS isref(prop) %]
+            [% NEXT UNLESS isref(prop) %]
+
+            [% prop_name = prop.name %]
+
+            [% NEXT UNLESS prop_name == "control_strip_bgcolor" || prop_name == "control_strip_fgcolor" ||
+                prop_name == "control_strip_bordercolor" || prop_name == "control_strip_linkcolor" %]
+
+            [% override = '' %]
+            [% override = prop_name == "control_strip_bgcolor" ? bgcolor_values.override : override %]
+            [% override = prop_name == "control_strip_fgcolor" ? fgcolor_values.override : override %]
+            [% override = prop_name == "control_strip_bordercolor" ? bordercolor_values.override : override %]
+            [% override = prop_name == "control_strip_linkcolor" ? linkcolor_values.override : override %]
+
+
+
+            [IF count % 2 == 0 %]
+                <tr valign='top'>
+            [% END %]
+            <td>[% dw.ml("widget.navstripchooser.option.color.$prop_name") %]</td>
+            $ret .= "<td>" . $class->html_color(
+                name => $prop_name,
+                default => $override,
+                des => $prop->{des},
+                no_btn => 1,
+            ) . "</td>";
+            [% IF count % 2 == 1 %]
+                </tr>
+            [% END %]
+            [% count++ %]
+        [% END %]
+        </table></div>
+    [% END %]
