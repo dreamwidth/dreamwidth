@@ -1,5 +1,5 @@
 layerinfo type = "layout";
-layerinfo name = "venture";
+layerinfo name = "Venture";
 layerinfo redist_uniq = "venture/layout";
 layerinfo author_name = "onlyembers";
 layerinfo lang = "en";
