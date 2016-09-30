@@ -696,6 +696,8 @@ propgroup text {
 ##===============================
 
 function Page::print() {
+    $*image_page_top = generate_image_url($*image_page_top);
+
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
     $this->print_meta_tags();
     $this->print_head();
@@ -994,8 +996,6 @@ function Page::print_default_stylesheet() {
     $*image_entry_tag = generate_image_url($*image_entry_tag);
     $*image_list_bullet = generate_image_url($*image_list_bullet);
     $*image_module_list_bullet = generate_image_url($*image_module_list_bullet);
-    $*image_page_top = generate_image_url($*image_page_top);
-
 
     var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
