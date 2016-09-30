@@ -102,6 +102,10 @@ set custom_foreground_element = "postername";
 set custom_background_element = "entry_border";
 set primary_width_size ="89";
 set primary_width_units ="%";
+set topbar_width_size ="100";
+set topbar_width_units ="%";
+set bottombar_width_size ="100";
+set bottombar_width_units ="%";
 set entry_management_links = "text";
 set comment_management_links = "text";
 set userlite_interaction_links = "text";
@@ -982,6 +986,17 @@ function Page::print_default_stylesheet() {
     var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
     var string entry_header_background = generate_background_css ($*image_background_entry_header_url, $*image_background_entry_header_repeat, $*image_background_entry_header_position, $*color_entry_title_background);
 
+    $*image_metadata_location = generate_image_url($*image_metadata_location);
+    $*image_metadata_mood = generate_image_url($*image_metadata_mood);
+    $*image_metadata_music = generate_image_url($*image_metadata_music);
+    $*image_metadata_groups = generate_image_url($*image_metadata_groups);
+    $*image_metadata_xpost = generate_image_url($*image_metadata_xpost);
+    $*image_entry_tag = generate_image_url($*image_entry_tag);
+    $*image_list_bullet = generate_image_url($*image_list_bullet);
+    $*image_module_list_bullet = generate_image_url($*image_module_list_bullet);
+    $*image_page_top = generate_image_url($*image_page_top);
+
+
     var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
     var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
@@ -1190,6 +1205,7 @@ blockquote:first-letter{
 
 @media $medium_media_query {
     #header .inner{
+        box-sizing: border-box;
         width: $*topbar_width_size$*topbar_width_units;
         margin: 0 auto;
     }
@@ -2056,6 +2072,7 @@ $topnav_display
     box-shadow:0px 8px 6px -4px $*color_entry_shadow;
     border-top: $*color_topbar_border_top 5px solid;
     border-bottom: $*color_topbar_border_bottom 5px solid;
+
 }
 
 #secondary .separator-after{
@@ -2069,6 +2086,7 @@ $topnav_display
 @media $medium_media_query {
     #secondary > .inner:first-child{
         width: $*topbar_width_size$*topbar_width_units;
+        box-sizing: border-box; 
         margin: 0 auto;
     }
 }
@@ -2315,6 +2333,7 @@ ul.userlite-interaction-links.icon-links li{
     #tertiary > .inner:first-child{
         width: $*bottombar_width_size$*bottombar_width_units;
         margin: 0 auto;
+        box-sizing: border-box;
     }
 }
 
