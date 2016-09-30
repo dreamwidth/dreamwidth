@@ -170,8 +170,9 @@ sub RecentPage
     # Only show sticky entry on first page of Recent Entries.
     # Do not show stickies unless they have the relevant permissions.
     # Do not sticky posts on tagged view but display in place.
+    # Do not sticky posts on poster view but display in place.
     # On skip pages show sticky entries in place.
-    my $show_sticky_entries = $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
+    my $show_sticky_entries = $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids} && ! $posteru_filter;
     if ( $show_sticky_entries ) {
         foreach my $sticky_entry ( $u->sticky_entries ) {
             # only show if visible to user
