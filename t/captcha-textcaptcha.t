@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 27;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -32,6 +32,13 @@ my $fakeanswers_multiple = {
     question => 'If I have twelve monkeys, how many monkeys do I have?',
     answer   => [ "c20ad4d76fe97759aa27a0c99bff6710",   # 12
                   "15f6f8dc036519d7fe15b39338f6e5db",   # twelve
+                ],
+};
+
+my $fakeanswers_zeroes = {
+    question => 'What is the third digit of 1304873111?',
+    answer   => [ "cfcd208495d565ef66e7dff9f98764da",   # 0
+                  "d02c4c4cde7ae76252540d116a40f23a",   # zero
                 ],
 };
 
@@ -110,6 +117,31 @@ note( "multiple valid answers" );
     $test_captcha->( "12"     , "correct ('12' is one of the valid choices)" );
     $test_captcha->( "twelve" , "correct ('twelve' is another of the valid choices)" );
     $test_captcha->( "a dozen", "incorrect ('a dozen' is not one of the valid choices)", fail => 1 );
+};
+
+note( "make sure zero is a valid answer" );
+{
+    LJ::start_request();
+    my $content = $fakeanswers_zeroes;
+    my $auth = LJ::form_auth( 1 );
+    my $captcha = DW::Captcha::textCAPTCHA::Logic::form_data( $content, $auth );
+
+    my %original_answers = map { $_ => 1 } @{$fakeanswers_zeroes->{answer}};
+    is( $captcha->{question}, $fakeanswers_zeroes->{question}, "got back the question for use in a form" );
+
+    foreach ( @{ _get_answers( $captcha ) } ) {
+        ok( !$original_answers{$_}, "one of multiple answers for use in a form (which does not look like what we put in)" );
+    }
+
+    my $test_captcha = sub {
+        my ( $answer, $msg, %opts ) = @_;
+        return _run_test( $content, $auth, $answer, $msg, $opts{fail} ? 1 : 0 );
+    };
+
+    # now validate user responses
+    $test_captcha->( 0      , "correct ('0' is one of the valid choices)" );
+    $test_captcha->( "zero" , "correct ('zero' is another of the valid choices)" );
+    $test_captcha->( "zilch", "incorrect ('zilch' is not one of the valid choices)", fail => 1 );
 };
 
 note( "no form auth passed in" );
