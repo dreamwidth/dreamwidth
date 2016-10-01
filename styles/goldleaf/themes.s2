@@ -1,0 +1,83 @@
+#NEWLAYER: goldleaf/elegantnotebook
+layerinfo type = "theme";
+layerinfo name = "Elegant Notebook";
+layerinfo redist_uniq = "goldleaf/elegantnotebook";
+layerinfo author_name = "rosecarmine";
+
+set layout_resources = [ {"name" => "Yusuke Kamiyamane", "url" => "http://p.yusukekamiyamane.com"}, { "name" => "Atle Mo", "url" => "http://subtlepatterns.com"}];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#222";
+set color_page_link = "#A36F34";
+set color_page_link_active = "#A36F34";
+set color_page_link_hover = "#333";
+set color_page_link_visited = "#A36F34";
+set color_page_text = "#333";
+set color_page_title = "#9C9170";
+set color_canvas_background = "#eee";
+set color_topbar_background = "#222";
+set color_topbar_border_bottom = "#d1c192";
+set color_topbar_border_top = "#960";
+set color_bottombar_background = "#222";
+set color_bottombar_border_top = "#d1c192";
+set control_strip_bgcolor = "#222";
+set control_strip_bordercolor = "#666";
+set control_strip_fgcolor = "#bbb";
+set control_strip_linkcolor = "#999";
+set color_header_background = "#222";
+set color_footer_background = "#222";
+set color_footer_link = "#d1c192";
+set color_footer_link_active = "#d1c192";
+set color_footer_link_hover = "#9C9170";
+set color_footer_link_visited = "#d1c192";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border ="ccc";
+set color_entry_datetime_text = "#999";
+set color_entry_interaction_links = "#d1c192";
+set color_entry_interaction_links_active = "#d1c192";
+set color_entry_interaction_links_hover = "#d1c192";
+set color_entry_interaction_links_visited = "#d1c192";
+set color_entry_shadow = "#A6A6A6";
+set color_entry_title = "#d1c192";
+set color_entry_title_background = "#222";
+set color_metadata_text = "#999";
+set color_comment_title = "999";
+set color_comment_title_background = "222";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#d1c192";
+set color_module_link_active = "#d1c192";
+set color_module_link_hover = "#9C9170";
+set color_module_link_visited = "#d1c192";
+set color_module_tag_link = "#A36F34";
+set color_module_tag_link_active = "#A36F34";
+set color_module_tag_link_hover = "#888";
+set color_module_tag_link_visited = "#A36F34";
+set color_module_text = "888";
+set color_module_title = "#9C9170";
+
+##===============================
+## Images
+##===============================
+
+set image_background_canvas_url = "goldleaf/elegantnotebook_bg.png";
+set image_entry_tag = "goldleaf/elegantnotebook_tag.png";
+set image_list_bullet = "goldleaf/elegantnotebook_bullet.png";
+set image_metadata_groups = "goldleaf/elegantnotebook_groups.png";
+set image_metadata_location = "goldleaf/elegantnotebook_location.png";
+set image_metadata_mood = "goldleaf/elegantnotebook_mood.png";
+set image_metadata_music = "goldleaf/elegantnotebook_music.png";
+set image_metadata_xpost = "goldleaf/elegantnotebook_xpost.png";
+set image_module_list_bullet = "goldleaf/elegantnotebook_module_bullet.png";
+set image_page_top = "goldleaf/elegantnotebook_top.png";
