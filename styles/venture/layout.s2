@@ -2075,14 +2075,14 @@ table.month caption { display: none; }
     
 .month dl .time { 
     display: inline-block; 
-    font-family: $*font_entry_datetime; 
+    $entry_datetime_font; 
     margin-right: .3em; 
     padding-right: 0; 
     }
 
 .month dl h3 { 
     display: inline; 
-    font-family: $*font_entry_title; 
+    $entry_title_font; 
     text-transform: uppercase; 
     }
 
