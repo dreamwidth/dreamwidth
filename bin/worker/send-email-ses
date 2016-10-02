@@ -64,7 +64,8 @@ sub work {
         $smtp->auth($LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password})
             or return $job->failed( "Couldn't authenticate to $LJ::EMAIL_VIA_SES{hostname}, will retry." );
 
-        $_SMTP = $smtp;
+#        this can cause permanent failures, need to investigate further
+#        $_SMTP = $smtp;
     }
 
     my $env_from = $args->{env_from};  # Envelope From
