@@ -417,7 +417,7 @@
             'checkfriends_interval' => 0,
             'directory' => 1,
             'edit_comments' => 0,
-            'emailpost' => 0,
+            'emailpost' => 1,
             'findsim' => 0,
             'friendsfriendsview' => 0,
             'friendspage_per_day' => 0,
