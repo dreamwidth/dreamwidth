@@ -25,7 +25,7 @@ our $GET_DISABLED = 0;
 # need to increment the version number, too.
 %LJ::MEMCACHE_ARRAYFMT = (
                           'user' =>
-                          [qw[1 userid user caps clusterid dversion email password status statusvis statusvisdate
+                          [qw[2 userid user caps clusterid dversion email password status statusvis statusvisdate
                               name bdate themeid moodthemeid opt_forcemoodtheme allow_infoshow allow_contactshow
                               allow_getljnews opt_showtalklinks opt_whocanreply opt_gettalkemail opt_htmlemail
                               opt_mangleemail useoverrides defaultpicid has_bio is_system
