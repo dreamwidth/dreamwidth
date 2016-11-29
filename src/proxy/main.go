@@ -113,6 +113,19 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	// SOURCE is ignored programmatically; it's only for admins
 	parts := strings.SplitN(req.URL.RequestURI(), "/", 5)
 
+	// Close the connection when we're done
+	defer func() {
+		hj, ok := w.(http.Hijacker)
+		if !ok {
+			return
+		}
+		conn, _, err := hj.Hijack()
+		if err != nil {
+			return
+		}
+		conn.Close()
+	} ()
+
 	if len(parts) != 5 || parts[0] != "" {
 		// Invalid request, treat it as a 404.
 		log.Printf("Invalid request: %s", req.URL.RequestURI())
