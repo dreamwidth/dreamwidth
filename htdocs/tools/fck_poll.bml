@@ -37,8 +37,8 @@ _c?>
     if (!FCK.EditorWindow.top.LJPoll) FCK.EditorWindow.top.LJPoll = new Array();
 
     // Dialog box tabs
-    window.parent.AddTab('setup', 'Setup');
-    window.parent.AddTab('questions', 'Questions');
+    window.parent.AddTab('setup', '<?_ml .tab.setup _ml?>');
+    window.parent.AddTab('questions', '<?_ml .tab.questions _ml?>');
 
     function OnDialogTabChange( tabCode )
     {
@@ -167,7 +167,7 @@ _c?>
         if (form["type_"+q_num] != null) html = insertA(switch_a, add_a, q_num);
 
         document.getElementById('QandA_'+q_num).innerHTML = html;
-        document.poll["setType_"+q_num].value = 'Switch';
+        document.poll["setType_"+q_num].value = '<?_ml .button.switch _ml?>';
         if (!add_a && !switch_a && poll) populateQandA(poll, form, q_num);
         if (add_a) {
             var opt = "pq_"+q_num+"_opt_" + (acount - aincrement);
@@ -203,19 +203,19 @@ _c?>
                 html += '<input maxlength="500" value="'+value+'" name="pq_'+q_num+'_opt_'+i+'" size="35" type="text"><br />';
             }
         } else if (type == "text") {
-            html += 'Size: <input maxlength="3" value="30" name="pq_'+q_num+'_size" size="3" type="text"> ';
-            html += 'Maxlength: <input maxlength="3" value="50" name="pq_'+q_num+'_maxlength" size="3" type="text">\n';
+            html += '<?_ml .field.size _ml?> <input maxlength="3" value="30" name="pq_'+q_num+'_size" size="3" type="text"> ';
+            html += '<?_ml .field.maxlength _ml?> <input maxlength="3" value="50" name="pq_'+q_num+'_maxlength" size="3" type="text">\n';
         } else if (type == "scale") {
-            html += 'From: <input maxlength="9" value="1" name="pq_'+q_num+'_from" size="3" type="text">\n';
-            html += 'To: <input maxlength="9" value="10" name="pq_'+q_num+'_to" size="3" type="text">\n';
-            html += 'By: <input maxlength="9" value="1" name="pq_'+q_num+'_by" size="3" type="text">\n';
+            html += '<?_ml .field.from _ml?> <input maxlength="9" value="1" name="pq_'+q_num+'_from" size="3" type="text">\n';
+            html += '<?_ml .field.to _ml?> <input maxlength="9" value="10" name="pq_'+q_num+'_to" size="3" type="text">\n';
+            html += '<?_ml .field.by _ml?> <input maxlength="9" value="1" name="pq_'+q_num+'_by" size="3" type="text">\n';
         }
 
         html += "</div>";
 
         // Add Answer button
         if (type == "radio" || type == "check" || type == "drop") {
-            html += "<input type='button' name='more_answer' value=' More... ' onclick='insertQandA(true)'>";
+            html += "<input type='button' name='more_answer' value=' <?_ml .button.more _ml?> ' onclick='insertQandA(true)'>";
         }
 
         return html;
@@ -293,19 +293,19 @@ _c?>
 
         // Only show questions nav if multiple questions
         if (Questions > 1) {
-            html += "Question " + (current_question+1) + " of " + Questions + " &nbsp; ";
+            html += "<?_ml .label.question _ml?> " + (current_question+1) + " <?_ml .label.of _ml?> " + Questions + " &nbsp; ";
             if (current_question > 0) {
                 html += "<a href='javascript:switchQuestion(" + (current_question-1);
-                html += ")'>Prev</a> ";
+                html += ")'><?_ml .label.previous _ml?></a> ";
             } else {
-                html += "Prev ";
+                html += "<?_ml .label.previous _ml?> ";
             }
             html += "| ";
             if (current_question < Questions-1) {
                 html += "<a href='javascript:switchQuestion(" + (current_question+1);
-                html += ")'>Next</a> ";
+                html += ")'><?_ml .label.next _ml?></a> ";
             } else {
-                html += "Next ";
+                html += "<?_ml .label.next _ml?> ";
             }
         }
         document.getElementById('QNav').innerHTML = html;
@@ -317,17 +317,17 @@ _c?>
         div.style.display = 'none';
 
         var html = '';
-        html += '<p><table summary=""><tr><td>Question #'+(q_num+1)+' </td><td><input name="question_'+q_num+'" type="text" size="50" value=""></td></tr>\n';
+        html += '<p><table summary=""><tr><td><?_ml .label.question _ml?> #'+(q_num+1)+' </td><td><input name="question_'+q_num+'" type="text" size="50" value=""></td></tr>\n';
         html += '<tr>\n';
-        html += '<td>Answer Type </td><td><select name="type_'+q_num+'">\n';
+        html += '<td><?_ml .field.answertype _ml?> </td><td><select name="type_'+q_num+'">\n';
         html += '<option value="--"></option>\n';
-        html += '<option value="radio">Radio Buttons</option>\n';
-        html += '<option value="check">Check Boxes</option>\n';
-        html += '<option value="drop">Drop-down box</option>\n';
-        html += '<option value="text">Text entry</option>\n';
-        html += '<option value="scale">Scale</option>\n';
+        html += '<option value="radio"><?_ml .field.type.radio _ml?></option>\n';
+        html += '<option value="check"><?_ml .field.type.check _ml?></option>\n';
+        html += '<option value="drop"><?_ml .field.type.drop _ml?></option>\n';
+        html += '<option value="text"><?_ml .field.type.text _ml?></option>\n';
+        html += '<option value="scale"><?_ml .field.type.scale _ml?></option>\n';
         html += '</select>\n';
-        html += '<input type="button" name="setType_'+q_num+'" value="Insert" onclick="insertQandA(false, true)" />\n';
+        html += '<input type="button" name="setType_'+q_num+'" value="<?_ml .button.insert _ml?>" onclick="insertQandA(false, true)" />\n';
         html += '</td></tr>\n';
         html += '<tr><td></td><td><div id="QandA_'+q_num+'"></div></td></tr></table></p>\n';
 
@@ -344,28 +344,28 @@ _c?>
 <form name="poll">
 <div id='divSetup'>
     <p>
-    Poll Name<br />
+    <?_ml .field.pollname _ml?><br />
     <input name="name" id="name" type="text" size="50">
     </p>
     <p>
-    Who can vote in this poll?<br />
-    <input name="whovote" value="all" type="radio" id="whovote_all" checked="checked"> <label for="whovote_all">Everyone</label><br />
-    <input name="whovote" value="friends" type="radio" id="whovote_friend"> <label for="whovote_friend">Friends</label>
+    <?_ml .field.whovote _ml?><br />
+    <input name="whovote" value="all" type="radio" id="whovote_all" checked="checked"> <label for="whovote_all"><?_ml poll.security.all _ml?></label><br />
+    <input name="whovote" value="friends" type="radio" id="whovote_friend"> <label for="whovote_friend"><?_ml poll.security.trusted _ml?></label>
     </p>
     <p>
-    Who can view this poll?<br />
-    <input name="whoview" value="all" type="radio" id="whoview_all" checked="checked"> <label for="whoview_all">Everyone</label><br />
-    <input name="whoview" value="friends" type="radio" id="whoview_friends"> <label for="whoview_friends">Friends</label><br />
-    <input name="whoview" value="none" type="radio" id="whoview_none"> <label for="whoview_none">Only You</label>
+    <?_ml .field.whoview _ml?><br />
+    <input name="whoview" value="all" type="radio" id="whoview_all" checked="checked"> <label for="whoview_all"><?_ml poll.security.all _ml?></label><br />
+    <input name="whoview" value="friends" type="radio" id="whoview_friends"> <label for="whoview_friends"><?_ml poll.security.trusted _ml?></label><br />
+    <input name="whoview" value="none" type="radio" id="whoview_none"> <label for="whoview_none"><?_ml poll.security.none_remote _ml?></label>
     </p>
 </div>
 <div id="divQuestions" style="DISPLAY: none">
     <div style="padding: 0px 3px 3px 3px; border-bottom: 1px dashed #cec6b5; width: 100%">
         <div style='float:right;'>
-            <input type='button' value=' Next Question ' onclick='addQuestion(true)'>
+            <input type='button' value=' <?_ml .button.nextquestion _ml?> ' onclick='addQuestion(true)'>
         </div>
         <div id='QNav' style="padding-top: 3px;">
-            Question 1 of 1  &nbsp; Prev | Next
+            <?_ml .label.question _ml?> 1 <?_ml .label.of _ml?> 1  &nbsp; <?_ml .label.previous _ml?> | <?_ml .label.next _ml?>
         </div>
         <div style="clear: both"></div>
     </div>
@@ -373,16 +373,16 @@ _c?>
         <div id="qa_0">
             <p>
             <table summary="">
-            <tr><td>Question #1 </td><td><input name="question_0" type="text" size="50" value=""></td></tr>
-            <tr><td>Answer Type </td><td><select name="type_0">
+            <tr><td><?_ml .label.question _ml?> #1 </td><td><input name="question_0" type="text" size="50" value=""></td></tr>
+            <tr><td><?_ml .field.answertype _ml?> </td><td><select name="type_0">
             <option value="--"></option>
-            <option value="radio">Radio Buttons</option>
-            <option value="check">Check Boxes</option>
-            <option value="drop">Drop-down box</option>
-            <option value="text">Text entry</option>
-            <option value="scale">Scale</option>
+            <option value="radio"><?_ml .field.type.radio _ml?></option>
+            <option value="check"><?_ml .field.type.check _ml?></option>
+            <option value="drop"><?_ml .field.type.drop _ml?></option>
+            <option value="text"><?_ml .field.type.text _ml?></option>
+            <option value="scale"><?_ml .field.type.scale _ml?></option>
             </select>
-            <input type="button" name="setType_0" value="Insert" onclick="insertQandA(false, true)" /></td></tr>
+            <input type="button" name="setType_0" value="<?_ml .button.insert _ml?>" onclick="insertQandA(false, true)" /></td></tr>
             <tr><td></td><td><div id="QandA_0"></div></td></tr>
             </table>
             </p>
