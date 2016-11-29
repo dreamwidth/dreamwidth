@@ -23,7 +23,8 @@ LJ::Hooks::register_hook( 'ssl_check', sub {
 
     # SSL_HEADER would be set by caching proxy
     return 1 if $LJ::SSL_HEADER &&
-                $apache_r->headers_in->{$LJ::SSL_HEADER} == 1;
+                ( $apache_r->headers_in->{$LJ::SSL_HEADER} == 1 ||
+                  lc $apache_r->headers_in->{$LJ::SSL_HEADER} eq 'https' );
     # fallback: true if using port defined in config
     return 1 if $LJ::SSL_PORT &&
                 $apache_r->get_server_port == $LJ::SSL_PORT;
