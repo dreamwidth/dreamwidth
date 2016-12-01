@@ -39,6 +39,7 @@ use DW::Auth;
 use DW::Request::XMLRPCTransport;
 use Cwd qw/abs_path/;
 use Carp qw/ croak confess /;
+use Fcntl ':mode';
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -226,6 +227,10 @@ sub send_concat_res_response {
         return 404
             if $mime ne $res->[3];
     }
+
+    # No files? Something went wrong
+    return 404
+        unless $body;
 
     # Got a bunch of files, let's concatenate them into the output
     $apache_r->status( 200 );
@@ -1186,23 +1191,32 @@ sub vgift_content {
 # (contents, size, mtime, mime). If the file doesn't exist, undef is returned.
 sub load_file_for_concat {
     my $fn = $_[0];
+
+    # No path traversal
+    return undef if $fn =~ /\.\./;
+
+    # Specific types only -- we only support loading files for concatenation if
+    # their extension is in this list
+    my $mime;
+    if ( $fn =~ /\.([a-z]+)$/ ) {
+        $mime = {
+            css => 'text/css',
+            js  => 'application/javascript',
+        }->{$1};
+    }
+    return undef unless $mime;
+
+    # Verify exists and is regular file
     my @stat = stat( $fn );
-    return undef unless scalar @stat > 0;
-    return undef unless -f $fn;
+    return undef
+        unless scalar @stat > 0 &&
+               S_ISREG( $stat[2] );
 
     my $contents;
     open FILE, "<$fn"
         or return undef;
     { local $/ = undef; $contents = <FILE>; }
     close FILE;
-
-    my $mime;
-    if ( $fn =~ /\.([a-z]+)$/ ) {
-        $mime = {
-            css => 'text/css',
-            js  => 'application/javascript',
-        }->{lc $1} // "text/plain";
-    }
 
     return [ $contents, $stat[7], $stat[9], $mime ];
 }
