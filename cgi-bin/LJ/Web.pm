@@ -2340,7 +2340,6 @@ sub res_includes {
     # TODO: automatic dependencies from external map and/or content of files,
     # currently it's limited to dependencies on the order you call LJ::need_res();
     my $ret = "";
-    my $do_concat = $LJ::IS_SSL ? $LJ::CONCAT_RES_SSL : $LJ::CONCAT_RES;
 
     # use correct root and prefixes for SSL pages
     my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix, $iconprefix);
@@ -2440,7 +2439,6 @@ sub res_includes {
             # the modtime, but rather do one global max modtime at the
             # end, which is done later in the tags function.
             $modtime = '' unless defined $modtime;
-            $what .= "?v=$modtime" unless $do_concat;
 
             $list{$type} ||= [];
             push @{$list{$type}[$order] ||= []}, $what;
@@ -2499,18 +2497,10 @@ sub res_includes {
                 my $template_order = $template;
                 next unless $list = $list{$type}[$o];
 
-                if ($do_concat) {
-                    my $csep = join(',', @$list);
-                    $csep .= "?v=" . $oldest{$type}[$o];
-                    $template_order =~ s/__+/??$csep/;
-                    $ret .= $template_order;
-                } else {
-                    foreach my $item (@$list) {
-                        my $inc = $template;
-                        $inc =~ s/__+/$item/;
-                        $ret .= $inc;
-                    }
-                }
+                my $csep = join(',', @$list);
+                $csep .= "?v=" . $oldest{$type}[$o];
+                $template_order =~ s/__+/??$csep/;
+                $ret .= $template_order;
             }
         };
 
