@@ -54,7 +54,7 @@ type ProxyFile struct {
 
 var (
 	PROXY_FILE_REQ chan *ProxyFileRequest
-	CACHE_FOR      time.Duration = time.Duration(3600 * time.Second)
+	CACHE_FOR      time.Duration = time.Duration(86400 * time.Second)
 	CACHE_DIR      string        = "/tmp"
 	MAXIMUM_SIZE   int64         = 20 * 1024 * 1024
 	MESSAGE_SALT   string        = "You should really use a salt file!"
@@ -79,7 +79,7 @@ func main() {
 	HOTLINK_DOMAIN = *hotlinkDomain
 
 	stat, err := os.Stat(CACHE_DIR)
-	if !stat.Mode().IsDir() || err != nil {
+	if err != nil || !stat.Mode().IsDir() {
 		log.Fatalf("Cache directory not found: %s", CACHE_DIR)
 	}
 
@@ -93,6 +93,7 @@ func main() {
 
 	PROXY_FILE_REQ = make(chan *ProxyFileRequest, 10)
 	go handleProxyFileRequests()
+	go cleanCacheFiles()
 
 	log.Printf("Listening on %s:%d", *listen, *port)
 	log.Printf("Caching to %s with a max of %d nanoseconds", CACHE_DIR, CACHE_FOR)
@@ -100,6 +101,36 @@ func main() {
 	http.HandleFunc("/robots.txt", robotsHandler)
 	http.HandleFunc("/", defaultHandler)
 	http.ListenAndServe(fmt.Sprintf("%s:%d", *listen, *port), nil)
+}
+
+func cleanCacheFiles() {
+	timer := time.NewTicker(5 * time.Minute)
+	defer timer.Stop()
+
+	for range timer.C {
+		log.Printf("Initiating scheduled cache clean...")
+		infos, err := ioutil.ReadDir(CACHE_DIR)
+		if err != nil {
+			log.Printf("Failed to Readdir: %s", err)
+			continue
+		}
+
+		for _, info := range infos {
+			if !info.Mode().IsRegular() || strings.HasPrefix(info.Name(), ".") {
+				continue
+			}
+			if info.ModTime().Before(time.Now().Add(-CACHE_FOR)) {
+				// File has expired, remove it
+				// TODO: There is maybe a race here with the handler, if someone requests this
+				// exactly when it expires and we happen to run and ... unlikely, and if this
+				// happens it will just 404 to the user and a refresh will fix it.
+				log.Printf("Removing expired cache file: %s", info.Name())
+				if err := os.Remove(filepath.Join(CACHE_DIR, info.Name())); err != nil {
+					log.Printf("Error removing cache file %s: %s", info.Name(), err)
+				}
+			}
+		}
+	}
 }
 
 func robotsHandler(w http.ResponseWriter, req *http.Request) {
@@ -270,13 +301,33 @@ func handleProxyFileRequests() {
 		req := <-PROXY_FILE_REQ
 
 		resp, ok := proxyFiles[req.Token]
-		if !ok {
-			resp = &ProxyFile{
-				SourceURL: req.SourceURL,
-			}
-			proxyFiles[req.Token] = resp
+		if ok {
+			req.Response <- resp
+			continue
 		}
 
+		// See if file is already in cache
+		fn := filepath.Join(CACHE_DIR, fmt.Sprintf("%x", md5.Sum([]byte(req.SourceURL))))
+		if info, err := os.Stat(fn); err == nil && info.Mode().IsRegular() {
+			// See if file is modified more recently than CACHE_FOR, if so return
+			if info.ModTime().After(time.Now().Add(-CACHE_FOR)) {
+				log.Printf("Returning cached %s: %d bytes", fn, info.Size())
+				resp = &ProxyFile{
+					SourceURL: req.SourceURL,
+					LocalPath: fn,
+					LastCheck: info.ModTime(),
+				}
+				proxyFiles[req.Token] = resp
+				req.Response <- resp
+				return
+			}
+		}
+
+		// File not local or expired, re-fetch
+		resp = &ProxyFile{
+			SourceURL: req.SourceURL,
+		}
+		proxyFiles[req.Token] = resp
 		req.Response <- resp
 	}
 }
