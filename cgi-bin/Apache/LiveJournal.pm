@@ -198,6 +198,47 @@ sub totally_down_content
     return OK;
 }
 
+sub send_concat_res_response {
+    my $apache_r = $_[0];
+    my $args = $apache_r->args;
+    my $uri = $apache_r->uri;
+
+    my $dir = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
+    return 404
+        unless -d $dir;
+
+    # Might contain cache buster "?v=3234234234" at the end
+    $args =~ s/\?v=\d+$//;
+
+    # Collect each file
+    my ( $body, $size, $mtime, $mime ) = ( '', 0, 0, undef );
+    foreach my $file ( split /,/, substr( $args, 1 ) ) {
+        my $res = load_file_for_concat( "$dir$file" );
+        return 404
+            unless defined $res;
+        $body .= $res->[0];
+        $size += $res->[1];
+        $mtime = $res->[2]
+            if $res->[2] > $mtime;
+        $mime //= $res->[3];
+
+        # And catch if they've mixed filetypes, we can't do that
+        return 404
+            if $mime ne $res->[3];
+    }
+
+    # Got a bunch of files, let's concatenate them into the output
+    $apache_r->status( 200 );
+    $apache_r->status_line( "200 OK" );
+    $apache_r->content_type( $mime );
+    $apache_r->headers_out->{"Content-length"} = $size;
+    $apache_r->headers_out->{"Last-Modified"} = LJ::time_to_http( $mtime );
+    if ( $apache_r->method eq 'GET' ) {
+        $apache_r->print( $body );
+    }
+    return OK;
+}
+
 sub blocked_bot
 {
     my $apache_r = shift;
@@ -290,10 +331,13 @@ sub resolve_path_for_uri {
     return undef;
 }
 
-sub trans
-{
-    my $apache_r = shift;
-    return DECLINED if defined $apache_r->main || $apache_r->method_number == M_OPTIONS;  # don't deal with subrequests or OPTIONS
+# trans does all the things. This is the initial entrypoint for all requests.
+sub trans {
+    my $apache_r = $_[0];
+
+    # don't deal with subrequests or OPTIONS
+    return DECLINED
+        if defined $apache_r->main || $apache_r->method_number == M_OPTIONS;
 
     my $uri = $apache_r->uri;
     my $args = $apache_r->args;
@@ -328,7 +372,7 @@ sub trans
     my $protocol = $is_ssl ? "https" : "http";
 
     my $bml_handler = sub {
-        my $filename = shift;
+        my $filename = $_[0];
 
         # redirect to HTTPS if necessary
         my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
@@ -364,7 +408,7 @@ sub trans
             $apache_r->handler( "perl-script" );
             $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
             return OK;
-            }
+        }
 
     } else { # not is_initial_req
         if ($apache_r->status == 404) {
@@ -470,6 +514,15 @@ sub trans
         }
     }
 
+    # See if this is a concatenated static file request. If so, the args will start with a '?'
+    # which means the original URL was of the form '/foo/??bar'.
+    if ( $args =~ /^\?/ ) {
+        $apache_r->handler( "perl-script" );
+        $apache_r->push_handlers( PerlResponseHandler => \&send_concat_res_response );
+        return OK;
+    }
+
+    # Normal request processing
     my %GET = LJ::parse_args( $apache_r->args );
 
     if ($LJ::IS_DEV_SERVER && $GET{'as'} =~ /^\w{1,25}$/) {
@@ -1127,6 +1180,31 @@ sub vgift_content {
     $apache_r->print( $$data )
         unless $apache_r->header_only;
     return OK;
+}
+
+# load_file_for_concat will retrieve the given file from the disk and return:
+# (contents, size, mtime, mime). If the file doesn't exist, undef is returned.
+sub load_file_for_concat {
+    my $fn = $_[0];
+    my @stat = stat( $fn );
+    return undef unless scalar @stat > 0;
+    return undef unless -f $fn;
+
+    my $contents;
+    open FILE, "<$fn"
+        or return undef;
+    { local $/ = undef; $contents = <FILE>; }
+    close FILE;
+
+    my $mime;
+    if ( $fn =~ /\.([a-z]+)$/ ) {
+        $mime = {
+            css => 'text/css',
+            js  => 'application/javascript',
+        }->{lc $1} // "text/plain";
+    }
+
+    return [ $contents, $stat[7], $stat[9], $mime ];
 }
 
 sub adult_interstitial {
