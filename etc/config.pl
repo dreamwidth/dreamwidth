@@ -610,6 +610,14 @@
     # X-Forwarded-For headers that you can trust (eg Perlbal), enable this.  otherwise, don't!
     # $TRUST_X_HEADERS = 1;
 
+    # By default, when using TRUST_X_HEADERS, all proxies using X-Forwarded-For
+    # are trusted and the real client IP is found first in the list. To trust
+    # only specific proxy IPs, write a sub that returns true when its input
+    # is a trusted proxy IP. In that case, trusted proxies will be removed from
+    # the end of X-Forwarded-For (or if supplied as the remote IP), and the
+    # real client IP will be found last in the resulting list.
+    # $IS_TRUSTED_PROXY = sub { $_[0] eq '192.168.1.1'; };
+
     # the following values allow you to control enabling your OpenID server and consumer
     # support.
     $OPENID_SERVER = 1;
