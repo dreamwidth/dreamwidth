@@ -208,8 +208,9 @@ sub send_concat_res_response {
     return 404
         unless -d $dir;
 
-    # Might contain cache buster "?v=3234234234" at the end
-    $args =~ s/\?v=\d+$//;
+    # Might contain cache buster "?v=3234234234" at the end;
+    # plus possibly other unique args (caught by the .*)
+    $args =~ s/\?v=\d+.*$//;
 
     # Collect each file
     my ( $body, $size, $mtime, $mime ) = ( '', 0, 0, undef );
