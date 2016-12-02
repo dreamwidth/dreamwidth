@@ -90,26 +90,44 @@ sub handler
         $apache_r->push_handlers(PerlCleanupHandler => "LJ::end_request");
         $apache_r->push_handlers(PerlCleanupHandler => "Apache::DebateSuicide");
 
-        if ($LJ::TRUST_X_HEADERS) {
+        if ( $LJ::TRUST_X_HEADERS ) {
             # if we're behind a lite mod_proxy front-end, we need to trick future handlers
             # into thinking they know the real remote IP address.  problem is, it's complicated
             # by the fact that mod_proxy did nothing, requiring mod_proxy_add_forward, then
             # decided to do X-Forwarded-For, then did X-Forwarded-Host, so we have to deal
-            # with all permutations of versions, hence all the ugliness:
-            @req_hosts = ($apache_r->connection->client_ip);
-            if (my $forward = $apache_r->headers_in->{'X-Forwarded-For'})
-            {
-                my (@hosts, %seen);
-                foreach (split(/\s*,\s*/, $forward)) {
+            # with all permutations of versions, hence all the ugliness.  Furthermore, we might
+            # be behind other types of proxies and loadbalancers that we trust, but the user
+            # might have their own, so we should distinguish trusted proxies from other IPs.
+            @req_hosts = ( $apache_r->connection->client_ip );
+            if ( my $forward = $apache_r->headers_in->{'X-Forwarded-For'} ) {
+                my @hosts = split( /\s*,\s*/, $forward );
+                my %seen;
+
+                foreach (@hosts) {
                     next if $seen{$_}++;
-                    push @hosts, $_;
                     push @req_hosts, $_;
                 }
-                if (@hosts) {
-                    my $real = shift @hosts;
-                    $apache_r->connection->client_ip($real);
+                if ( @hosts ) {
+                    my $real;
+                    if ( ref $LJ::IS_TRUSTED_PROXY eq 'CODE' ) {
+                        if ( $LJ::IS_TRUSTED_PROXY->( $req_hosts[0] ) ) {
+                            # Remote IP is a trusted proxy.  Find last IP in
+                            # X-Forwarded-For that isn't a trusted proxy.
+                            do {
+                                $real = pop @hosts;
+                            } while ( @hosts && $LJ::IS_TRUSTED_PROXY->( $real ) );
+                        } else {
+                            # Remote IP is not a trusted proxy, just keep it
+                            $real = $req_hosts[0];
+                        }
+                    } else {
+                        # Trust everything by default, real client IP is first.
+                        $real = shift @hosts;
+                        @hosts = ();
+                    }
+                    $apache_r->connection->client_ip( $real );
                 }
-                $apache_r->headers_in->{'X-Forwarded-For'} = join(", ", @hosts);
+                $apache_r->headers_in->{'X-Forwarded-For'} = join( ", ", @hosts );
             }
 
             # and now, deal with getting the right Host header
