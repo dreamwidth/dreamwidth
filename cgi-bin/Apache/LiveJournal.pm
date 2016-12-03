@@ -102,13 +102,9 @@ sub handler
             if ( my $forward = $apache_r->headers_in->{'X-Forwarded-For'} ) {
                 my @hosts = split( /\s*,\s*/, $forward );
                 if ( @hosts ) {
-                    my %seen;
-                    foreach (@hosts) {
-                        $seen{$_} = 1;
-                    }
                     # Completely ignore original client ip here, since it may belong to
                     # the previous pipelined request on this connection to this Apache worker.
-                    @req_hosts = keys %seen;
+                    @req_hosts = keys %{ { map { $_ => 1 } @hosts } };
 
                     my $real;
                     if ( ref $LJ::IS_TRUSTED_PROXY eq 'CODE' ) {
