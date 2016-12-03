@@ -101,25 +101,21 @@ sub handler
             @req_hosts = ( $apache_r->connection->client_ip );
             if ( my $forward = $apache_r->headers_in->{'X-Forwarded-For'} ) {
                 my @hosts = split( /\s*,\s*/, $forward );
-                my %seen;
-
-                foreach (@hosts) {
-                    next if $seen{$_}++;
-                    push @req_hosts, $_;
-                }
                 if ( @hosts ) {
+                    my %seen;
+                    foreach (@hosts) {
+                        $seen{$_} = 1;
+                    }
+                    # Completely ignore original client ip here, since it may belong to
+                    # the previous pipelined request on this connection to this Apache worker.
+                    @req_hosts = keys %seen;
+
                     my $real;
                     if ( ref $LJ::IS_TRUSTED_PROXY eq 'CODE' ) {
-                        if ( $LJ::IS_TRUSTED_PROXY->( $req_hosts[0] ) ) {
-                            # Remote IP is a trusted proxy.  Find last IP in
-                            # X-Forwarded-For that isn't a trusted proxy.
-                            do {
-                                $real = pop @hosts;
-                            } while ( @hosts && $LJ::IS_TRUSTED_PROXY->( $real ) );
-                        } else {
-                            # Remote IP is not a trusted proxy, just keep it
-                            $real = $req_hosts[0];
-                        }
+                        # Find last IP in X-Forwarded-For that isn't a trusted proxy.
+                        do {
+                            $real = pop @hosts;
+                        } while ( @hosts && $LJ::IS_TRUSTED_PROXY->( $real ) );
                     } else {
                         # Trust everything by default, real client IP is first.
                         $real = shift @hosts;
