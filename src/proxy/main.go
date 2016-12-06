@@ -319,7 +319,7 @@ func handleProxyFileRequests() {
 				}
 				proxyFiles[req.Token] = resp
 				req.Response <- resp
-				return
+				continue
 			}
 		}
 
