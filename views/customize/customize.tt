@@ -1,6 +1,7 @@
 [%- dw.need_res( 'js/jquery/jquery-1.8.3.min.js' ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
 [%- dw.need_res( 'js/customize.js' ) -%]
+[%- dw.need_res( 'js/customize-common.js' ) -%]
 [%- dw.need_res( 'stc/select-list.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themechooser.css' ) -%]
@@ -32,7 +33,7 @@
 
     [%#render current theme widget %]
     <div class='theme-current pkg'>
-    [% current_theme %]
+    [% render_currenttheme() %]
     </div><!-- end .theme-current -->
 
     [% #render journal titles widget %]

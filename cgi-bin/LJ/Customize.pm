@@ -398,6 +398,7 @@ sub load_all_s2_props {
     my $u = shift;
     my $style = shift;
 
+
     my $styleid = $style->{styleid};
 
     # return if props have already been loaded in this request
@@ -410,7 +411,6 @@ sub load_all_s2_props {
         die "Could not generate user layer" unless $style->{layer}->{user};
         $s2_style{user} = $style->{layer}->{user};
     }
-
     $class->implicit_style_create($u, %s2_style);
 
     my $dbh = LJ::get_db_writer();
@@ -556,6 +556,7 @@ sub get_propgroups {
     my $style = shift;
 
     $class->load_all_s2_props($u, $style);
+    warn "Loaded all s2 props";
 
     my $dbh = LJ::get_db_writer();
     my $layer = LJ::S2::load_layer($dbh, $style->{'layer'}->{'user'});

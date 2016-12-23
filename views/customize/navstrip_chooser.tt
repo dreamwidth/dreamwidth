@@ -1,15 +1,18 @@
-sub need_res { qw( stc/widgets/navstripchooser.css js/colorpicker.js ) }
+[%- dw.need_res( "stc/widgets/navstripchooser.css" ) -%]
+[%- dw.need_res( "js/colorpicker.js" ) -%]
+[% USE Dumper %]
 
 
+<div class = "appwidget appwidget-navstripchooser">
     <fieldset><legend>[% dw.ml('widget.navstripchooser.title') %]</legend>
     </fieldset>
    <p class='detail'>[% dw.ml( 'widget.navstripchooser.desc', { aopts => "href='/manage/settings/?cat=display'" } ) %] [% help_icon('navstrip') %]</p>
 
     <p>[% dw.ml('widget.navstripchooser.colors') %]</p>
 
-    # choose colors
+    [%# choose colors %]
     [% chosen_color = u.prop( 'control_strip_color' ) || '' %]
-    [% color_selected = chosen_color !== '' ? chosen_color : "dark" %]
+    [% color_selected = chosen_color != '' ? chosen_color : "dark" %]
 
     [% color_custom = 0 %]
     [% color_custom = 1 UNLESS colors_values.override == "off" %]
@@ -25,6 +28,7 @@ sub need_res { qw( stc/widgets/navstripchooser.css js/colorpicker.js ) }
     </div>
     <div><label for='control_strip_color_dark' class='color-dark'><strong>[% dw.ml('widget.navstripchooser.option.color.dark') %]</strong></label></div>
 
+    <div class='option'>
     [%- form.radio( 
         name = "control_strip_color"
         id = "control_strip_color_light"
@@ -34,15 +38,15 @@ sub need_res { qw( stc/widgets/navstripchooser.css js/colorpicker.js ) }
     </div>
     <div><label for='control_strip_color_light' class='color-light'><strong>[% dw.ml('widget.navstripchooser.option.color.light') %]</strong></label></div>
 
-    [% IF $prop_is_used{custom_control_strip_colors} %]
+    [% IF prop_is_used.custom_control_strip_colors %]
         [% no_gradient = colors_values.override == "on_no_gradient" ? 1 : 0 %]
 
         <div class='option'>
         [%- form.checkbox( 
-                name = "control_strip_custom"
-                id = "control_strip_color_custom"
-                value = "custom"
-                selected = color_custom
+                'name' = "control_strip_custom"
+                'id' = "control_strip_color_custom"
+                'value' = "custom"
+                'selected' = color_custom
         ) -%]
         </div>
         <div><label for='control_strip_color_custom'><strong>[% dw.ml('widget.navstripchooser.option.color.custom') %]</strong></label><br /></div>
@@ -55,17 +59,19 @@ sub need_res { qw( stc/widgets/navstripchooser.css js/colorpicker.js ) }
         ) -%]
 
         <label for='control_strip_gradient_custom'>[% dw.ml('widget.navstripchooser.option.color.no_gradient') %]</label><br/>
-
+    
         [% count = 0 %]
         <table summary='' class='color-picker'>
-        [% FOREACH prop IN props %]
-            [% prop = get_property(prop) UNLESS isref(prop) %]
-            [% NEXT UNLESS isref(prop) %]
+        [% FOREACH prop IN props.keys %]
 
-            [% prop_name = prop.name %]
+            [%# NEXT UNLESS isref(prop) %]
+            
 
-            [% NEXT UNLESS prop_name == "control_strip_bgcolor" || prop_name == "control_strip_fgcolor" ||
-                prop_name == "control_strip_bordercolor" || prop_name == "control_strip_linkcolor" %]
+            [% prop_name = props.$prop.name %]
+
+
+            [% NEXT UNLESS (prop_name == "control_strip_bgcolor") || (prop_name == "control_strip_fgcolor") ||
+                (prop_name == "control_strip_bordercolor") || (prop_name == "control_strip_linkcolor") %]
 
             [% override = '' %]
             [% override = prop_name == "control_strip_bgcolor" ? bgcolor_values.override : override %]
@@ -75,20 +81,21 @@ sub need_res { qw( stc/widgets/navstripchooser.css js/colorpicker.js ) }
 
 
 
-            [IF count % 2 == 0 %]
+            [% IF count % 2 == 0 %]
                 <tr valign='top'>
             [% END %]
             <td>[% dw.ml("widget.navstripchooser.option.color.$prop_name") %]</td>
-            $ret .= "<td>" . $class->html_color(
-                name => $prop_name,
-                default => $override,
-                des => $prop->{des},
+            <td>[% form.color(
+                name => prop_name,
+                default => override,
+                des => prop.des,
                 no_btn => 1,
-            ) . "</td>";
+            ) %]</td>
             [% IF count % 2 == 1 %]
                 </tr>
             [% END %]
-            [% count++ %]
+            [% count = count + 1 %]
         [% END %]
         </table></div>
     [% END %]
+    </div>

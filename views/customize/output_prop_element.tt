@@ -1,203 +1,155 @@
-sub output_prop_element {
-    my ( $class, $prop, $prop_name, $u, $style, $theme, $props, $is_group, $grouped_prop_override, $overriding_values ) = @_;
-    $grouped_prop_override ||= {};
-    $overriding_values ||= {};
 
-    [% name = prop.name %]
-    [% type = prop.type %]
 
-    [% can_use = can_use_prop(u, theme.layout_uniq, name) %]
+    [%# visually grouped properties. Allow nesting to only two levels %]
+    [% IF type == "string[]" AND is_group < 2 %]
+        [% IF prop.grouptype == "module" %]
 
-    my %prop_values = %$overriding_values ? %$overriding_values : LJ::Customize->get_s2_prop_values( $name, $u, $style );
-
-    [% existing = prop_values.existing %]
-    [% override = prop_values.override %]
-
-    my %values = split( /\|/, $prop->{values} || '' );
-    [% existing_display = existing && values.$existing ? values.$existing : existing %]
-
-    [% existing_display = eall(existing_display) %]
-
-    # visually grouped properties. Allow nesting to only two levels
-    [% IF type == "string[]" && is_group < 2  %] {
-
-        [% IF prop.grouptype == "module" %] 
-            my $has_opts;
             <td class='prop-grouped prop-[% prop.grouptype %]' colspan=2>
-            [% FOREACH prop_in_group IN override %] {
+            [% FOREACH prop_in_group IN override %]
 
-                my $overriding_values;
-                if ( $grouped_prop_override->{$prop_in_group} ) {
-                    $prop_in_group = $grouped_prop_override->{$prop_in_group};
-                    $overriding_values = $grouped_prop_override->{"${prop_in_group}_values"};
-                }
-
-                [% IF prop_in_group.match('opts_group$') %] 
+                [% IF grouped_prop_override.prop_in_group %]
+                    [% prop_in_group = grouped_prop_override.prop_in_group %]
+                    [% override_token = prop_in_group _ "_values" %]
+                    [% overriding_values = grouped_prop_override.override_token %]
+                [% END %]
+                
+                [% IF prop_in_group.match('opts_group') %]
                     [% has_opts = 1 %]
                     [% NEXT %]
                 [% END %]
-                [% INLCUDE customize/output_prop_element.tt
-                    prop = props.$prop_in_group
-                    prop_name = $prop_in_group
-                    is_group = is_group + 1
-                    overriding_values = $overriding_values 
-                %]
-            }
-
-            [% modulename = prop.name %]
-            $modulename =~ s/_group$//;
-
-            <label for='[% modulename %]_show'>[% eall( prop.des )  %]</label>
-            [% IF has_opts %]
-                [% INCLUDE customize/output_prop_element.tt
-                        prop = props.${modulename}_opts_group
-                        prop_name = ${modulename}_opts_group
-                        is_group = is_group + 1 
-                %]
+                [% output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1) %]
             [% END %]
+
+            [% modulename = prop.name.remove('_group') %]
+
+            <label for='[% modulename %]_show'>[% eall( prop.des ) %]</label>
+            [% modulename_token = modulename _ "_opts_group" %]
+
+            [% output_prop_element( props.$modulename_token, modulename_token, u, style, theme, props, is_group + 1  ) IF has_opts %]
 
             </td>
-         [% ELSIF prop.grouptype == "moduleopts" %] 
+        [% ELSIF prop.grouptype == "moduleopts" %]
             <ul class='prop-moduleopts'>
             [% FOREACH prop_in_group IN override %]
-                <li>[% INLCUDE customize/output_prop_element.tt
-                    prop = props.$prop_in_group
-                    prop_name = $prop_in_group
-                    is_group = is_group + 1
-                %]</li>
+                <li>[% output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1) %] 
             [% END %]
             </ul>
-         [% ELSE %]
-            <td class='prop-grouped prop-[% prop.grouptype %]' colspan=2><label class='prop-header'>[% eall( prop.des ) %] [% help_icon( "s2opt_$prop.name" ) %]</label>
+        [% ELSE %]
 
-            [% FOREACH prop_in_group IN override %] 
-                [% INLCUDE customize/output_prop_element.tt
-                    prop = props.$prop_in_group
-                    prop_name = $prop_in_group
-                    is_group = is_group + 1
-                %]
+            <td class='prop-grouped prop-[% prop.grouptype %]' colspan=2><label class='prop-header'>[% eall( prop.des ) _ help_icon( "s2opt_$prop->{name}" ) %]</label>
+
+            [% FOREACH prop_in_group IN override %]
+                [% output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1 ) %] 
             [% END %]
-
             [% IF prop.note %]
                 <ul class=''><li>[% eall(prop.note) %]</li></ul>
             [% END %]
+
             </td>
+        
         [% END %]
-    } [% ELSIF prop.values %] {
-        [% UNLESS is_group %]
-            <td class='prop-input'>
+    [% ELSIF prop.item('values') %]
+        [% "<td class='prop-input'>" UNLESS is_group %]
+
+        [%# take the list of allowed values, determine whether we allow custom values %]
+        [%# and whether we have a value not in the list (possibly set through the layer editor) %]
+        [%# if so, prepend custom values %]
+        [% value_list.unshift( override, "Custom: $override") IF prop.allow_other && override.defined && NOT value_list.grep($override) %]
+
+        [% form.select(
+            'name' = name,
+              'disabled' = !can_use,
+              'selected' = override, 
+              items = value_list,
+        ) %]
+        [% "<label>" _ eall( prop.des ) _ "</label>" IF is_group && prop.des %]
+        [% "</td>" UNLESS is_group %]
+    [% ELSIF type == "int" %]
+        [% "<td class='prop-input'>" UNLESS is_group %]
+        [% form.textbox(
+            'name' = name,
+            'disabled' = !can_use,
+            'value' = override,
+            'maxlength' = 5,
+            'size' = 7,
+        ) %]
+        [% "<label>" _ eall( prop.des ) _ "</label>" IF is_group && prop.des %]
+        [% "</td>" UNLESS is_group %]
+    [% ELSIF type == "bool" %]
+        [% "<td class='prop-check'>" UNLESS is_group %]
+        [% UNLESS prop.obsolete %]
+        [%  # can't be changed, so don't print %]
+
+            [% form.checkbox( 
+                'name' = name,
+                'disabled' = !can_use,
+                'selected' = override,
+                'label' = prop.label,
+                'id' = name,
+            ) %]
+
+            [%# force the checkbox to be submitted, if the user unchecked it %]
+            [%# so that it can be processed (disabled) when handling the post %]
+            [% form.hidden(
+                'name' = name,
+                 'value' = 0,
+                'disabled' = !can_use 
+            ) %]
         [% END %]
 
-        [%# take the list of allowed values, determine whether we allow custom values
-          and whether we have a value not in the list (possibly set through the layer editor)
-          if so, prepend custom values %]
-        [% values = prop.values.split( '|' ) %]
-        unshift @values, $override, "Custom: $override"
-            if $prop->{allow_other} && defined $override && ! first { $_ eq $override } @values;
-
-        [% form.select( 
-            name = name, 
-            disabled = !can_use, 
-            selected = override, 
-            items = values ) 
-        %]
-
-        [% IF is_group && prop.des %]
-            <label>[% eall(prop.des) %]</label>
-        [% END %]
-        [% UNLESS is_group %]
-            </td>
-        [% END %]
-    } [% ELSIF type == 'int' %] {
-        [% UNLESS is_group %]
-            <td class='prop-input'>
-        [% END %]
-        [%- form.textbox( 
-            name = name
-            disabled = !can_use
-            maxlength = 5
-            size = 7 )
-        -%]
-        [% IF is_group && prop.des %]
-            <label>[% eall(prop.des) %]</label>
-        [% END %]
-        [% UNLESS is_group %]
-            </td>
-        [% END %]
-    } [% ELSIF type == "bool" %] {
-        [% UNLESS is_group %]
-            <td class='prop-check'>
-        [% END %]
-        [% UNLESS prop.obsolete # can't be changed, so don't print %]
-            [%- form.checkbox( label = prop.label
-                name = name
-                id = name
-                selected = override
-                disabled = !can_use
-            ) -%]
-
-            [%# force the checkbox to be submitted, if the user unchecked it
-             so that it can be processed (disabled) when handling the post %]
-            [% form.hidden( name = name, value = 0, disabled = !can_use ) %]
-        [% END %]
-
-        [% UNLESS is_group %]
-            </td>
-        [% END %]
-    } [% ELSIF type == "string" %] {
+        [% "</td>" UNLESS is_group %]
+    [% ELSIF type == "string" %]
         [% rows = prop.rows ? prop.rows + 0 : 0 %]
         [% cols = prop.cols ? prop.cols + 0 : 0 %]
-        [% full = prop.full ? $rop.full + 0 : 0 %]
+        [% full = prop.full ? prop.full + 0 : 0 %]
 
-        [% UNLESS is_group %]
-            <td class='prop-input'>
-        [% END %]
-        if ($full > 0) {
-            $ret .= $class->html_textarea(
-                name => $name,
-                disabled => ! $can_use,
-                value => $override,
-                rows => "40",
-                cols => "40",
-                style => "width: 97%; height: 350px; ",
-            );
-        } elsif ($rows > 0 && $cols > 0) {
-            $ret .= $class->html_textarea(
-                name => $name,
-                disabled => ! $can_use,
-                value => $override,
-                rows => $rows,
-                cols => $cols,
-            );
-        } else {
-            my ($size, $maxlength) = ($prop->{size} || 30,
-                                      $prop->{maxlength} || 255);
+        [% "<td class='prop-input'>" UNLESS is_group %]
 
-            $ret .= $class->html_text(
-                name => $name,
-                disabled => ! $can_use,
-                value => $override,
-                maxlength => $maxlength,
-                size => $size,
-            );
-        }
-        $ret .= "</td>" unless $is_group;
-    } elsif ($type eq "Color") {
-        $ret .= "<td class='prop-color'>" unless $is_group;
-        $ret .= $class->html_color(
-            name => $name,
-            disabled => ! $can_use,
-            default => $override,
-            des => $prop->{des},
-            onchange => "Customize.CustomizeTheme.form_change();",
-            no_btn => 1,
-        );
-        $ret .= "</td>" unless $is_group;
-        $ret .= "<td>" . LJ::eall($prop->{des}) . " " . LJ::help_icon("s2opt_$name") . "</td>";
-    }
+        [% IF full > 0 %]
+            [% form.textarea(
+                'name' = name,
+                'disabled' = !can_use,
+                'value' = override,
+                'rows' = "40",
+                'cols' = "40",
+                'style' = "width: 97%; height: 350px; ",
+            ) %]
+        [% ELSIF rows > 0 && cols > 0 %]
+            [% form.textarea(
+                'name' = name,
+                'disabled' = !can_use,
+                'value' = override,
+                'rows' = rows,
+                'cols' = cols,
+            ) %]
+        [% ELSE %]
+            [% size = prop.item('size') || 30 %]
+            [% maxlength = prop.maxlength || 255 %]
+            [% form.textbox(
+                'name' = name,
+                'disabled' = !can_use
+                'value' = override
+                'maxlength' = maxlength
+                'size' = size
+            ) %]
+                [% END %]
+        [% "</td>" UNLESS is_group %]
+    [% ELSIF type == "Color" %]
+        [% "<td class='prop-color'>" UNLESS is_group %]
+        [% form.color(
+            'name' = name,
+            'disabled' = !can_use,
+            'default' = override,
+            'des' = prop.des,
+            'onchange' = "form_change();",
+            'no_btn' = 1,
+        ) %]
+        [% "</td>" UNLESS is_group %]
 
-    my $offhelp = ! $can_use ? LJ::help_icon('s2propoff', ' ') : "";
-    $ret .= " $offhelp";
+        <td>[% eall(prop.des) _ help_icon("s2opt_" _ $name) %]</td>
+    
+    [% END %]
 
-    return $ret;
-}
+    [% help_icon('s2propoff', ' ') IF NOT can_use %]
+
+
