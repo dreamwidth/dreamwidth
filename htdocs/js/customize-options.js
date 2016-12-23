@@ -1,3 +1,17 @@
+                     var pageGetArgs = LiveJournal.parseGetArgs(document.location.href);
+
+    var Customize = new Object();
+
+    cat = pageGetArgs["cat"] ? pageGetArgs["cat"] : "";
+    layoutid = pageGetArgs["layoutid"] ? pageGetArgs["layoutid"] : 0;
+    designer = pageGetArgs["designer"] ? pageGetArgs["designer"] : "";
+    search = pageGetArgs["search"] ? pageGetArgs["search"] : "";
+    page = pageGetArgs["page"] ? pageGetArgs["page"] : 1;
+    show = pageGetArgs["show"] ? pageGetArgs["show"] : 12;
+    authas = pageGetArgs["authas"] ? pageGetArgs["authas"] : "";
+    hourglass = null;
+
+
        function initNavStripChooser () {
             var self = this;
             if (!$('#control_strip_color_custom')) return;
@@ -110,9 +124,6 @@
                 preview_moodthemeid: $('moodtheme_dropdown').value,
                 forcemoodtheme: opt_forcemoodtheme
             });
-        }
-        function onRefresh (data) {
-            initMoodThemeChooser ();
         }
 
         function initExpandCollapse () {

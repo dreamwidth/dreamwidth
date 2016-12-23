@@ -71,11 +71,6 @@ sub customize_handler {
     my $showarg = $vars->{show} != 12 ? "show=$vars->{show}" : "";
     my $show = $vars->{show};
 
-    # create all our widgets
-    my $current_theme = LJ::Widget::CurrentTheme->new;
-    $vars->{current_theme} = $current_theme->render(show => $show);
-    my $headextra = $current_theme->wrapped_js( page_js_obj => "Customize" );
-
     # lazy migration of style name
     LJ::Customize->migrate_current_style($u);
 
@@ -226,7 +221,7 @@ sub customize_handler {
     $vars->{render_currenttheme} = \&render_currenttheme;
 
     # Now we tell it what template to render and pass in our variables
-    return DW::Template->render_template( 'customize/customize.tt', $vars, { head => $headextra } );
+    return DW::Template->render_template( 'customize/customize.tt', $vars );
 
 }
 
