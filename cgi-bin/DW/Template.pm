@@ -95,6 +95,7 @@ my $scheme_engine = Template->new(
     }
 );
 
+
 =head1 API
 
 =head2 C<< $class->template_string( $filename, $opts, $extra ) >>

@@ -1,11 +1,19 @@
 
-sub authas { 1 }
-sub need_res { qw( stc/widgets/s2propgroup.css js/colorpicker.js stc/collapsible.css ) }
+[%- dw.need_res( "stc/widgets/s2propgroup.css" ) -%]
+[%- dw.need_res( "js/colorpicker.js" ) -%]
+[%- dw.need_res( "stc/widgets/navstripchooser.css" ) -%]
+[%- dw.need_res( "stc/collapsible.css" ) -%]
+<script>
+var ml =  {
+            collapsed: "[% dw.ml('collapsible.collapsed') %]",
+            expanded: "[% dw.ml('collapsible.expanded') %]"
+        }
+</script>
 
+<div class="appwidget appwidget-s2propgroup">
+    [% pname = propgroup_name(propgroup, u, style) %]
 
-    [% name = propgroup_name($propgroup, $u, $style) %]
-
-    <fieldset><legend> [% name %]
+    <fieldset><legend> [% pname %]
     <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='[% propgroup %]__expand'>[% dw.ml('widget.s2propgroup.expand') %]</a></span>
     <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='[% propgroup %]__collapse'>[% dw.ml('widget.s2propgroup.collapse') %]</a></span>
     </legend></fieldset>
@@ -14,324 +22,291 @@ sub need_res { qw( stc/widgets/s2propgroup.css js/colorpicker.js stc/collapsible
     [% count = 1 %]
 
     [% IF propgroup == "presentation" %]
-        [% basic_props = theme.display_option_props %]
-        my %is_basic_prop = map { $_ => 1 } @basic_props;
-
         <p class='detail'>[% dw.ml('widget.s2propgroup.presentation.note') %]</p>
 
         <div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__basic'><div class='collapse-button'>[% dw.ml('collapsible.expanded') %]
          </div>
          [% dw.ml('widget.s2propgroup.presentation.basic') %]</div>
         <table summary='' cellspacing='0' class='prop-list first' id='proplist__presentation__basic'>
-        $ret .= $class->language_chooser($u) if $opts{show_lang_chooser};
+        [% IF show_lang_chooser %]
+            <tr class='prop-row' width='100%'>
+                <td>[% dw.ml('widget.s2propgroup.language.label') %]</td><td>
+                [% form.html_select(
+                    'name' = "langcode",
+                    'selected' = $langcode,
 
-        [% FOREACH prop_name in basic_props %]
-            [% NEXT IF skip_prop(props.$prop_name, $prop_name, theme => theme, user => u ) %]
+                    'items' = langs) 
+                %]</td>
+                </tr><tr class='prop-row-note'><td colspan='100%' class='prop-note'>[% dw.ml('widget.s2propgroup.language.note') %]</td></tr>
+        [% END %]
+
+        [% FOREACH prop_name IN basic_props %]
+
+            [% NEXT IF skip_prop(props.$prop_name, prop_name, 'theme', theme, 'user', u ) %]
 
             [% IF show_lang_chooser %]
-                # start on gray, since the language chooser will be white
+                [%# start on gray, since the language chooser will be white %]
                 [% row_class = count % 2 != 0 ? " odd" : " even" %]
             [% ELSE %]
                 [% row_class = count % 2 == 0 ? " even" : " odd" %]
             [% END %]
-            $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
-            [% count++ %]
+
+                [%# for themes that don't use the linklist_support prop %]
+                [% IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
+                    [% linklist_tab = theme.linklist_support_tab %]
+                [% END %]
+
+                <tr class='prop-row[% row_class %]' width='100%' valign='top'>
+                [% IF linklist_tab %]
+                    <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
+                    </tr>
+                [% END %]
+
+                [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
+                <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                [% END %]
+
+               [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0, grouped_prop_override ) %]
+
+                [% IF prop.note %]
+                    </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.prop_name.note) %]</td>
+                [% END %]
+                </tr>
+
+            [% count = count + 1 %]
         [% END %]
         </table>
 
-        $count = 1; # reset counter
-        my $header_printed = 0;
-        foreach my $prop_name (@$groupprops) {
-            next if $class->skip_prop($props->{$prop_name}, $prop_name, props_to_skip => \%is_basic_prop, theme => $theme, user => $u );
+        [% count = 1 %]
+        [% header_printed = 0 %]
 
-            # need to print the header inside the foreach because we don't want it printed if
-            # there's no props in this group that are also in this subheader
-            unless ($header_printed) {
-                $ret .= "<div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__additional'><div class='collapse-button'>"
-                    . $class->ml('collapsible.expanded')
-                    . "</div> "
-                    .  $class->ml('widget.s2propgroup.presentation.additional') . "</div>";
-                $ret .= "<table summary='' cellspacing='0' class='prop-list' id='proplist__presentation__additional'>";
-            }
-            $header_printed = 1;
-            $row_class = $count % 2 == 0 ? " even" : " odd";
-            $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
-            $count++;
-        }
-        $ret .= "</table>" if $header_printed;
-     elsif ( $propgroup eq "modules" ) {
+        [% FOREACH prop_name IN groupprops %]
+            [% NEXT IF skip_prop(props.$prop_name, prop_name, 'props_to_skip', is_basic_prop, 'theme', theme, 'user', u ) %]
 
-        my %prop_values = LJ::Customize->get_s2_prop_values( "module_layout_sections", $u, $style );
-        my $layout_sections_values = $prop_values{override};
-        my @layout_sections_order = split( /\|/, $layout_sections_values );
+            [%# need to print the header inside the foreach because we don't want it printed if %]
+            [%# there's no props in this group that are also in this subheader %]
+            [% UNLESS header_printed %]
+                <div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__additional'><div class='collapse-button'>
+                    [% dw.ml('collapsible.expanded') %]
+                    </div>
+                    [% dw.ml('widget.s2propgroup.presentation.additional') %]</div>
+                <table summary='' cellspacing='0' class='prop-list' id='proplist__presentation__additional'>
+            
+            [% END %]
+            [% header_printed = 1 %]
+            [% row_class = count % 2 == 0 ? " even" : " odd" %]
 
-        # allow to override the default property with your own custom property definition. Created and values set in layout layers.
-        my %grouped_prop_override = LJ::Customize->get_s2_prop_values( "grouped_property_override", $u, $style, noui => 1 );
-        %grouped_prop_override = %{$grouped_prop_override{override}} if %{$grouped_prop_override{override} || {}};
+                [%# for themes that don't use the linklist_support prop %]
+                [% IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
+                    [% linklist_tab = theme.linklist_support_tab %]
+                [% END %]
 
-        my %subheaders = @layout_sections_order;
-        $subheaders{none} = "Unassigned";
+                <tr class='prop-row[% row_class %]' width='100%' valign='top'>
+                [% IF linklist_tab %]
+                    <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
+                    </tr>
+                [% END %]
 
-        # use the module section order as defined by the layout
-        my $i=0;
-        @layout_sections_order = grep { $i++ % 2 == 0; } @layout_sections_order;
+                [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
+                <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                [% END %]
 
-        my %prop_in_subheader;
-        foreach my $prop_name ( @$groupprops ) {
-            next unless $prop_name =~ /_group$/;
+                [% output_prop_element(props.$prop_name, prop_name, u, style, theme, props, 0) %]
 
-            # use module_*_section for the dropdown
-            my $prop_name_section = $prop_name;
-            $prop_name_section =~ s/(.*)_group$/$1_section/;
+                [% IF prop.note %]
+                    </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.$prop_name.note) %]</td>
+                [% END %]
+                </tr>
+            [% count = count + 1 %]
+        [% END %]
+        [% '</table>'  IF header_printed %]
+        [% prop_is_in_subheader = {} %]
+     [% ELSIF propgroup == "modules" %]
 
-            my $overriding_prop_name = $grouped_prop_override{$prop_name_section};
+        [% subheader_counter = 1 %]
+        [% FOREACH subheader IN layout_sections_order %]
+            [% header_printed = 0 %]
+            [% FOREACH prop_name IN prop_in_subheader.$subheader.list %]
+            
+                [% NEXT IF skip_prop( props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style ) %]
 
-            # module_*_section_override overrides module_*_section;
-            # for use in child layouts since they cannot redefine an existing property
-            my $prop_name_section_override = defined $overriding_prop_name
-                ? $props->{$overriding_prop_name}->{values} : undef;
+                [% UNLESS header_printed %]
+                    [% prop_list_class = '' %]
+                    [% prop_list_class = " first" IF subheader_counter == 1 %]
 
-            # put this property under the proper subheader (this is the original; may be overriden)
-            my %prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
+                    <div class='subheader subheader-modules collapsible expanded' id='subheader__modules__[% subheader %]'><div class='collapse-button'>"
+                     [% dw.ml('collapsible.expanded') %]
+                     </div> [% subheaders.$subheader %]</div>
+                    <table summary='' cellspacing='0' class='prop-list[% prop_list_class %]' id='proplist__modules__[% subheader %]'>
+                    [% header_printed = 1 %]
+                    [% subheader_counter = subheader_counter + 1 %]
+                    [%count = 1 # reset counter %]
+                [% END %]
 
-            if ( $prop_name_section_override ) {
-                $prop_name_section = $overriding_prop_name;
+                [% row_class = count % 2 == 0 ? " even" : " odd" %]
 
-                # check if we have anything previously saved into the overriding property. If we don't we retain
-                # the value of the original (non-overridden) property, so we don't break existing customizations
-                my %overriding_prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
-                my $contains_values = 0;
+                    [%# for themes that don't use the linklist_support prop %]
+                    [% IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
+                        [% linklist_tab = theme.linklist_support_tab %]
+                    [% END %]
 
-                foreach ( keys %overriding_prop_values ) {
-                    if ( defined $overriding_prop_values{$_} ) {
-                        $contains_values++;
-                        last;
-                    }
-                }
+                    <tr class='prop-row[% row_class %]' width='100%' valign='top'>
+                    [% IF linklist_tab %]
+                        <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
+                        </tr>
+                    [% END %]
 
-                %prop_values = %overriding_prop_values if $contains_values;
-                $grouped_prop_override{"${prop_name_section}_values"} = \%prop_values;
-            }
+                    [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
+                    <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                    [% END %]
 
-            # populate section dropdown values with the layout's list of available sections, if not already set
-            $props->{$prop_name_section}->{values} ||= $layout_sections_values;
 
-            if ( $prop_name_section_override ) {
-                my %override_sections = split( /\|/, $prop_name_section_override );
+                    [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0, grouped_prop_override) %]
 
-                while ( my ( $key, $value ) = each %override_sections ) {
-                    unless ( $subheaders{$key} ) {
-                        $subheaders{$key} = $value;
-                        push @layout_sections_order, $key;
-                    }
-                }
-            }
+                    [% IF props.$prop_name.note %]
+                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.$prop_name.note) %]</td>
+                    [% END %]
+                    </tr>
+                [% count = count + 1 %]
+            [% END %]
+            [% '</table>'  IF header_printed %]
+            [% prop_is_in_subheader = {} %]
+        [% END %]
 
-            # see whether a cap is needed for this module and don't show the module if the user does not have that cap
-            my $cap;
-            $cap = $props->{$prop_name}->{requires_cap};
-            next if $cap && !( $u->get_cap( $cap ) );
+    [% ELSIF propgroup == "text" %]
+        [% subheader_counter = 1 %]
+        [% FOREACH subheader IN get_subheaders_order() %]
+            [% header_printed = 0 %]
 
-            # force it to the "none" section, if property value is not a valid subheader
-            my $subheader = $subheaders{$prop_values{override}} ? $prop_values{override} : "none";
-            $prop_in_subheader{$subheader} ||= [];
-            push @{$prop_in_subheader{$subheader}}, $prop_name;
-        }
+            [% subheader_token = subheader _ "_props" %]
+            [% subheader_props = {} %]
+            [% IF subheader == "unsorted" %]
+                [% subheader_props = unsorted_props.keys %]
+            [% ELSE %]
+                [% subheader_props = theme.$subheader_token %]
+            [% END %]
+            [% NEXT UNLESS subheader_props %]
 
-        my $subheader_counter = 1;
-        foreach my $subheader ( @layout_sections_order ) {
-            my $header_printed = 0;
-            foreach my $prop_name ( @{$prop_in_subheader{$subheader}} ) {
-                next if $class->skip_prop( $props->{$prop_name}, $prop_name, theme => $theme, user => $u, style => $style );
+            [% SET prop_is_in_subheader.$prop = 1 FOREACH prop IN subheader_props %]
 
-                unless ($header_printed) {
-                    my $prop_list_class = '';
-                    $prop_list_class = " first" if $subheader_counter == 1;
+            [% FOREACH prop_name IN groupprops %]
+                [% NEXT IF skip_prop(props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style) %]
+                [% NEXT UNLESS prop_is_in_subheader.$prop_name %]
 
-                    $ret .= "<div class='subheader subheader-modules collapsible expanded' id='subheader__modules__${subheader}'><div class='collapse-button'>"
-                     . $class->ml('collapsible.expanded')
-                     . "</div> $subheaders{$subheader}</div>";
-                    $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__modules__${subheader}'>";
-                    $header_printed = 1;
-                    $subheader_counter++;
-                    $count = 1; # reset counter
-                }
+                [%# need to print the header inside the foreach because we don't want it printed if %]
+                [%# there's no props in this group that are also in this subheader %]
+                [% UNLESS header_printed %]
+                    [% prop_list_class = "" %]
+                    [% prop_list_class = " first" IF subheader_counter == 1 %]
 
-                $row_class = $count % 2 == 0 ? " even" : " odd";
+                    <div class='subheader subheader-[% propgroup %] collapsible expanded' id='subheader__[% propgroup %]__[% subheader %]'><div class='collapse-button'>
+                     [% dw.ml('collapsible.expanded') %]
+                     </div>[% subheaders.$subheader %]</div>
+                    <table summary='' cellspacing='0' class='prop-list[% prop_list_class %]' id='proplist__[% propgroup %]__[% subheader %]'>
+                    [% header_printed = 1 %]
+                    [% subheader_counter = subheader_counter + 1 %]
+                    [% count = 1 # reset counter %]
+                [% END %]
 
-                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props, \%grouped_prop_override );
-                $count++;
-            }
-            $ret .= "</table>" if $header_printed;
-        }
+                [% row_class = count % 2 == 0 ? " even" : " odd" %]
 
-    } elsif ($propgroup eq "text") {
-        my %subheaders = LJ::Customize->get_propgroup_subheaders;
+                    [%# for themes that don't use the linklist_support prop %]
+                    [% IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
+                        [% linklist_tab = theme.linklist_support_tab %]
+                    [% END %]
 
-        # props under the unsorted subheader include all props in the group that aren't under any of the other subheaders
-        my %unsorted_props = map { $_ => 1 } @$groupprops;
-        foreach my $subheader (keys %subheaders) {
-            my @subheader_props = eval "\$theme->${subheader}_props";
-            foreach my $prop_name (@subheader_props) {
-                delete $unsorted_props{$prop_name} if $unsorted_props{$prop_name};
-            }
-        }
+                    <tr class='prop-row[% row_class %]' width='100%' valign='top'>
+                    [% IF linklist_tab %]
+                        <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
+                        </tr>
+                    [% END %]
 
-        my $subheader_counter = 1;
-        foreach my $subheader (LJ::Customize->get_propgroup_subheaders_order) {
-            my $header_printed = 0;
+                    [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
+                    <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                    [% END %]
 
-            my @subheader_props;
-            if ( $subheader eq "unsorted" ) {
-                @subheader_props = keys %unsorted_props;
-            } else {
-                @subheader_props = eval "\$theme->${subheader}_props";
-            }
-            next unless @subheader_props;
+                    [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0) %]
 
-            my %prop_is_in_subheader = map { $_ => 1 } @subheader_props;
+                    [% IF prop.note %]
+                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.$prop_name.note) %]</td>
+                    [% END %]
+                    </tr>
+                [% count = count + 1 %]
+            [% END %]
 
-            foreach my $prop_name (@$groupprops) {
-                next if $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme, user => $u, style => $style);
-                next unless $prop_is_in_subheader{$prop_name};
-
-                # need to print the header inside the foreach because we don't want it printed if
-                # there's no props in this group that are also in this subheader
-                unless ($header_printed) {
-                    my $prop_list_class = "";
-                    $prop_list_class = " first" if $subheader_counter == 1;
-
-                    $ret .= "<div class='subheader subheader-$propgroup collapsible expanded' id='subheader__${propgroup}__${subheader}'><div class='collapse-button'>"
-                     . $class->ml('collapsible.expanded')
-                     . "</div>$subheaders{$subheader}</div>";
-                    $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__${propgroup}__${subheader}'>";
-                    $header_printed = 1;
-                    $subheader_counter++;
-                    $count = 1; # reset counter
-                }
-
-                $row_class = $count % 2 == 0 ? " even" : " odd";
-                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
-                $count++;
-            }
-
-            #If we're in the module subsection, we also need to render the Custom Text widget
-            if ($subheaders{$subheader} eq $class->ml('customize.propgroup_subheaders.module')) {
+            [% #If we're in the module subsection, we also need to render the Custom Text widget %]
+            [% IF $subheaders.$subheader == dw.ml('customize.propgroup_subheaders.module') %] 
                 $ret .= LJ::Widget::CustomTextModule->render( count => $count );
-            }
-            $ret .= "</table>" if $header_printed;
-        }
-    } else {
-        my %subheaders = LJ::Customize->get_propgroup_subheaders;
+            [% END %]
 
-        # props under the unsorted subheader include all props in the group that aren't under any of the other subheaders
-        my %unsorted_props = map { $_ => 1 } @$groupprops;
-        foreach my $subheader (keys %subheaders) {
-            my @subheader_props = eval "\$theme->${subheader}_props";
-            foreach my $prop_name (@subheader_props) {
-                delete $unsorted_props{$prop_name} if $unsorted_props{$prop_name};
-            }
-        }
+            [% '</table>'  IF header_printed %]
+            [% prop_is_in_subheader = {} %]
+        [% END %]
+    [% ELSE %]
 
-        my $subheader_counter = 1;
-        foreach my $subheader (LJ::Customize->get_propgroup_subheaders_order) {
-            my $header_printed = 0;
+        [% subheader_counter = 1 %]
+        [% FOREACH subheader IN get_subheaders_order() %]
+            [% header_printed = 0 %]
 
-            my @subheader_props;
-            if ( $subheader eq "unsorted" ) {
-                @subheader_props = keys %unsorted_props;
-            } else {
-                @subheader_props = eval "\$theme->${subheader}_props";
-            }
-            next unless @subheader_props;
+            [% subheader_token = subheader _ "_props" %]
+            [% subheader_props = {} %]
+            [% IF subheader == "unsorted" %]
+                [% subheader_props = unsorted_props.keys %]
+            [% ELSE %]
+                [% subheader_props = theme.$subheader_token %]
+            [% END %]
+            [% NEXT UNLESS subheader_props %]
 
-            my %prop_is_in_subheader = map { $_ => 1 } @subheader_props;
+            [% SET prop_is_in_subheader.$prop = 1 FOREACH prop IN subheader_props %]
 
-            foreach my $prop_name (@$groupprops) {
-                next if $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme, user => $u, style => $style);
-                next unless $prop_is_in_subheader{$prop_name};
+            [% FOREACH prop_name IN groupprops %]
+                [% NEXT IF skip_prop(props.$prop_name, prop_name, 'theme' , theme, 'user' , u, 'style' , style) %]
+                [% NEXT UNLESS prop_is_in_subheader.$prop_name %]
 
-                # need to print the header inside the foreach because we don't want it printed if
-                # there's no props in this group that are also in this subheader
-                unless ($header_printed) {
-                    my $prop_list_class = "";
-                    $prop_list_class = " first" if $subheader_counter == 1;
+                [%# need to print the header inside the foreach because we don't want it printed if %]
+                [%# there's no props in this group that are also in this subheader %]
+                [% UNLESS header_printed %]
+                    [% prop_list_class = "" %]
+                    [% prop_list_class = " first" IF subheader_counter == 1 %]
 
-                    $ret .= "<div class='subheader subheader-$propgroup collapsible expanded' id='subheader__${propgroup}__${subheader}'><div class='collapse-button'>"
-                     . $class->ml('collapsible.expanded')
-                     . "</div>$subheaders{$subheader}</div>";
-                    $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__${propgroup}__${subheader}'>";
-                    $header_printed = 1;
-                    $subheader_counter++;
-                    $count = 1; # reset counter
-                }
+                    <div class='subheader subheader-[% propgroup %] collapsible expanded' id='subheader__[% propgroup %]__[% subheader %]'><div class='collapse-button'>
+                     [% dw.ml('collapsible.expanded') %]
+                     </div>[% subheaders.$subheader %]</div>
+                    <table summary='' cellspacing='0' class='prop-list[% prop_list_class %]' id='proplist__[% propgroup %]__[% subheader %]'>
+                    [% header_printed = 1 %]
+                    [% subheader_counter = subheader_counter + 1 %]
+                    [% count = 1 # reset counter %]
+                [% END %]
 
-                $row_class = $count % 2 == 0 ? " even" : " odd";
-                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
-                $count++;
-            }
-            $ret .= "</table>" if $header_printed;
-        }
-    }
+                [% row_class = count % 2 == 0 ? " even" : " odd" %]
 
-    return $ret;
-}
+                    [%# for themes that don't use the linklist_support prop %]
+                    [% SET linklist_tab = theme.linklist_support_tab IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
 
-sub language_chooser {
-    my $class = shift;
-    my $u = shift;
+                    <tr class='prop-row[% row_class %]' width='100%' valign='top'>
+                    [% IF linklist_tab %]
+                        <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
+                        </tr>
+                    [% END %]
 
-    my $pub = LJ::S2::get_public_layers();
-    my $userlay = LJ::S2::get_layers_of_user($u);
-    my %style = LJ::S2::get_style($u, "verify");
+                    [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
+                    <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                    [% END %]
 
-    my @langs = LJ::S2::get_layout_langs($pub, $style{'layout'});
-    my $get_lang = sub {
-        my $styleid = shift;
-        foreach ($userlay, $pub) {
-            return $_->{$styleid}->{'langcode'} if
-                $_->{$styleid} && $_->{$styleid}->{'langcode'};
-        }
-        return undef;
-    };
-
-    my $langcode = $get_lang->($style{'i18n'}) || $get_lang->($style{'i18nc'});
-    # they have set a custom i18n layer
-    if ($style{'i18n'} &&
-        ($style{'i18nc'} != $style{'i18n'} || ! defined $pub->{$style{'i18n'}})) {
-        push @langs, 'custom', $class->ml('widget.s2propgroup.language.custom');
-        $langcode = 'custom';
-    }
-
-    my $ret = "<tr class='prop-row' width='100%'>";
-    $ret .= "<td>[% dw.ml('widget.s2propgroup.language.label') . "</td><td>";
-    $ret .= $class->html_select(
-        { name => "langcode",
-          selected => $langcode, },
-        0 => $class->ml('widget.s2propgroup.language.default'), @langs) . "</td>";
-    $ret .= "</tr><tr class='prop-row-note'><td colspan='100%' class='prop-note'>[% dw.ml('widget.s2propgroup.language.note') . "</td></tr>";
-
-    return $ret;
-}
+                   [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0) %]
 
 
+                    [% IF props.$prop_name.note %]
+                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.$prop_name.note) %]</td>
+                    [% END %]
+                    </tr>
+                [% count = count + 1 %]
+            [% END %]
+
+            [% '</table>'  IF header_printed %]
+            [% prop_is_in_subheader = {} %]
+        [% END %]
+    [% END %]
+</div>
 
 
-
-
-# return if the propgroup has props to display or not
-sub group_exists_with_props {
-    my $class = shift;
-    my %opts = @_;
-
-    my $u = $opts{user};
-    my $props = $opts{props};
-    my $groupprops = $opts{groupprops};
-
-    my $theme = LJ::Customize->get_current_theme($u);
-    foreach my $prop_name (@$groupprops) {
-        return 1 unless $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme, user => $u );
-    }
-
-    return 0;
-}

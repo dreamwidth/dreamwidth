@@ -1,5 +1,5 @@
 <h2 class='widget-header'>
-    [% IF no_theme_chooser %]
+    [% IF no_themechooser %]
         [% dw.ml('widget.layoutchooser.title_nonum') %]
     [% ELSE %]
         [% dw.ml('widget.layoutchooser.title') %]

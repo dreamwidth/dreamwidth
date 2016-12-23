@@ -1,12 +1,14 @@
 [%- dw.need_res( 'js/jquery/jquery-1.8.3.min.js' ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
-[%- dw.need_res( 'js/customize.js' ) -%]
+[%- dw.need_res( 'js/customize-common.js' ) -%]
+[%- dw.need_res( 'js/customize-options.js' ) -%]
 [%- dw.need_res( 'stc/select-list.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themechooser.css' ) -%]
 [%- dw.need_res( 'stc/widgets/journaltitles.css' ) -%]
 [%- dw.need_res( 'stc/widgets/layoutchooser.css' ) -%]
 [%- dw.need_res( 'stc/widgets/customizetheme.css' ) -%]
+[%- dw.need_res( 'stc/widgets/currenttheme.css' ) -%]
 
 <form method="get">
     [%- authas_html -%]
@@ -14,32 +16,36 @@
 
 
 
-    $title = $u->is_community ? $ML{'.title.comm'} : $ML{'.title'};
+    [% IF is_community %]
+        [%- sections.title = '.title.comm' | ml -%]
+    [% ELSE %]
+        [%- sections.title = '.title' | ml -%]
+    [% END %]
 
 
 
     [%#render current theme widget %]
     <div class='theme-current pkg'>
-    [% current_theme %]
+    [% render_currenttheme('no_themechooser', 1) %]
     </div><!-- end .theme-current -->
 
-    [% #render journal titles widget %]
+    [%#render journal titles widget %]
     <div class='theme-titles pkg'>
-    [% render_journaltitles(no_theme_chooser = 1) %]
+    [% render_journaltitles('no_themechooser', 1) %]
     </div><!-- end .theme-titles -->
     <br />
 
     <div class='customize-wrapper one-percent'>
-    [% render_customizetheme() %]
-    </div><!-- end .customize-wrapper -->";
+    [% render_customizetheme('group', group) %]
+    </div><!-- end .customize-wrapper -->
 
     [%# render layout chooser widget %]
     <a name='layout'></a>
     <div class='layout-selector-wrapper pkg'>
-    [% render_layoutchooser(no_theme_chooser = 1) %]
+    [% render_layoutchooser('no_themechooser', 1) %]
     </div><!-- end .layout-selector-wrapper' -->
 
-    <h2 class='widget-header'>[% dw.ml( .advanced ) %]</h2>
-    <a href='advanced/'>[% dw.ml( .advanced ) %]</a>
+    <h2 class='widget-header'>[% dw.ml( '.advanced' ) %]</h2>
+    <a href='advanced/'>[% dw.ml( '.advanced' ) %]</a>
 
 

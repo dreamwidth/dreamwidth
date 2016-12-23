@@ -1,41 +1,29 @@
-    <h2 class='widget-header'>[ % dw.ml('widget.customizetheme.title') %]</h2>
+    <h2 class='widget-header'>[% dw.ml('widget.customizetheme.title') %]</h2>
+    [% USE Dumper %]
 
-    <form id="customize-form" method = GET>
+    <form id="customize-form" method = POST>
+    [% dw.form_auth() %]
 
     <div class='customize-inner-wrapper section-nav-inner-wrapper'>
     <div class='customize-nav section-nav'>
 
-
-    my $nav_class = sub {
-        my $g = shift;
-        my $classes = "";
-
-        if ($g eq $group) {
-            $classes .= " class='on";
-            $classes .= "'";
-        }
-
-        return $classes;
-    };
-
-
     [%# Navigation %]
 
     <ul class='customize-nav nostyle' id='customize_theme_nav_links'>
-    <li" . $nav_class->("display") . "><a class='customize-nav-group' href='$site.root/customize/options$getextra${getsep}group=display'>" [% dw.ml('widget.customizetheme.nav.display') %]</a></li>
+    <li [% nav_class("display") %]><a class='customize-nav-group' href='[% site.root %]/customize/options[% getextra %][% getsep %]group=display'>[% dw.ml('widget.customizetheme.nav.display') %]</a></li>
 
-    [% FOREACH g IN  group_naems %]
+    [% FOREACH g IN group_names %]
         [% NEXT IF g == "customcss" %]
 
-        [% name = propgroup_name($g, $u, $style) %]
-        <li" . $nav_class->($g) . "><a class='customize-nav-group' href='$site.root/customize/options$getextra${getsep}group=$g'>[% name %]</a></li>
+        [% name = propgroup_name(g, u, style) %]
+        <li [% nav_class(g) %]><a class='customize-nav-group' href='[% site.root %]/customize/options[% getextra %][% getsep %]group=[% g %]'>[% name %]</a></li>
     [% END %]
 
-    <li" . $nav_class->("linkslist") . "><a class='customize-nav-group' href='$site.root/customize/options$getextra${getsep}group=linkslist'>[% dw.ml('widget.customizetheme.nav.linkslist') %]</a></li>
+    <li [% nav_class("linkslist") %]><a class='customize-nav-group' href='[% site.root %]/customize/options[% getextra %][% getsep %]group=linkslist'>[% dw.ml('widget.customizetheme.nav.linkslist') %]</a></li>
 
     [% IF has_customcss %]
-        [% name = propgroup_name($g, $u, $style) %]
-        <li" . $nav_class->("customcss") . "><a class='customize-nav-group' href='$site.root/customize/options$getextra${getsep}group=customcss'>[% name %]</a></li>
+        [% name = propgroup_name("customcss", u, style) %]
+        <li[% nav_class("customcss") %]><a class='customize-nav-group' href='[% site.root %]/customize/options[% getextra %][% getsep %]group=customcss'>[% name %]</a></li>
     [% END %]
 
     </ul>
@@ -46,7 +34,7 @@
 
     <div class='customize-content section-nav-content'>
 
-    # Display Group
+    [%# Display Group %]
     [% IF group == "display" %]
         <div id='display-group' class='customize-group'>
         <div class='pkg'>
@@ -54,199 +42,104 @@
         </div>
 
         <div class='pkg'>
-        [% INCLUDE customize/navstrip_chooser.tt %]
+        [% INCLUDE customize/navstrip_chooser.tt 'props' = groups.props,%]
         </div>
 
-        $ret .= "</div>";
-    # Presentation Group
+        </div>
+    [%# Presentation Group %]
     [% ELSIF group == "presentation" %]
         <div id='presentation-group' class='customize-group'>
-
-        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
-        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
-
-        $ret .= "<div class='pkg'>";
-        $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "presentation",
-            groupprops => $groups{groupprops}->{presentation},
-            show_lang_chooser => 0,
-        );
-        $ret .= "</div>";
+        <div class='pkg'>
+        [% render_s2propgroup( 
+            'props', groups.props,
+            'propgroup', "presentation",
+            'groupprops', groups.groupprops.presentation,
+            'show_lang_chooser', 0  )
+        %]
+        </div>
 
         </div>
-    }
+    
+    [%# Colors Group %]
+    [% ELSIF group == "colors" %]
+        <div id='colors-group' class='customize-group'>
+        [% render_s2propgroup( 
+            'props' , groups.props,
+            'propgroup', "colors",
+            'groupprops' , groups.groupprops.colors,
+              )
+        %]
+        </div>
+    
 
-    # Colors Group
-    elsif ($group eq "colors") {
-        $ret .= "<div id='colors-group' class='customize-group'>";
+    [%# Fonts Group %]
+    [% ELSIF group == "fonts" %]
+        <div id='fonts-group' class='customize-group'>
+        [% render_s2propgroup( 
+            'props' , groups.props,
+            'propgroup', "fonts",
+            'groupprops' , groups.groupprops.fonts,
+             )
+        %]
+        </div>
 
-        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
-        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
+    [%# Images Group %]
+    [% ELSIF group == "images" %]
+        <div id='images-group' class='customize-group'>
+        [% render_s2propgroup( 
+            'props', groups.props,
+            'propgroup', "images",
+            'groupprops', groups.groupprops.images,
+             )
+        %]
+        </div>
 
-        $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "colors",
-            groupprops => $groups{groupprops}->{colors},
-        );
+    [%# Text Group %]
+    [% ELSIF group == "text" %]
+        <div id='text-group' class='customize-group'>
+        [% render_s2propgroup( 
+            'props', groups.props,
+            'propgroup', "text",
+            'groupprops', groups.groupprops.text,
+             )
+        %]
+        </div>
 
-        $ret .= "</div>";
-    }
+    [%# Links List Group %]
+    [% ELSIF group == "linkslist" %]
+        <div id='linkslist-group' class='customize-group'>
+        [% render_linkslist() %]
+        </div>
+    
 
-    # Fonts Group
-    elsif ($group eq "fonts") {
-        $ret .= "<div id='fonts-group' class='customize-group'>";
+    [%# Custom CSS Group %]
+    [% ELSIF group == "customcss" %]
+        <div id='customcss-group' class='customize-group'>
+        [% render_s2propgroup( 
+            'props', groups.props,
+            'propgroup', "customcss",
+            'groupprops', groups.groupprops.customcss,
+             )
+        %]
+        </div>
 
-        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
-        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
+    [%# Other Groups %]
+    [% ELSE %]
+        <div id='[% group %]-group' class='customize-group pkg'>
+        [% render_s2propgroup(
+            'props', groups.props,
+            'propgroup' , "$group",
+            'groupprops', groups.groupprops.$group,
+             )
+        %]
+    [% END %]
 
-        $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "fonts",
-            groupprops => $groups{groupprops}->{fonts},
-        );
+    <div class='customize-buttons action-bar'>
+    [% form.submit( name = 'save', value = dw.ml('widget.customizetheme.btn.save'), class = 'customize-button') %]
+    [% form.submit( name = 'reset', value = dw.ml('widget.customizetheme.btn.reset'), class='customize-button' id='reset_btn_bottom') %]
+    </div>
 
-        $ret .= "</div>";
-    }
+    </div><!-- end .customize-content -->
+    </div><!-- end .customize-inner-wrapper -->
 
-    # Images Group
-    elsif ($group eq "images") {
-        $ret .= "<div id='images-group' class='customize-group'>";
-
-        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
-        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
-
-        $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "images",
-            groupprops => $groups{groupprops}->{images},
-        );
-
-        $ret .= "</div>";
-    }
-
-    # Text Group
-    elsif ($group eq "text") {
-        $ret .= "<div id='text-group' class='customize-group'>";
-
-        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
-        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
-
-        $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "text",
-            groupprops => $groups{groupprops}->{text},
-        );
-
-        $ret .= "</div>";
-    }
-
-    # Links List Group
-    elsif ($group eq "linkslist") {
-        $ret .= "<div id='linkslist-group' class='customize-group'>";
-        $ret .= LJ::Widget::LinksList->render( post => $opts{post} );
-        $ret .= "</div>";
-    }
-
-    # Custom CSS Group
-    elsif ($group eq "customcss") {
-        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
-        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
-
-        $ret .= "<div id='customcss-group' class='customize-group pkg'>";
-        $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "customcss",
-            groupprops => $groups{groupprops}->{customcss},
-        );
-        $ret .= "</div>";
-    }
-
-    # Other Groups
-    else {
-        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
-        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
-
-        $ret .= "<div id='$group-group' class='customize-group pkg'>";
-        $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => $group,
-            groupprops => $groups{groupprops}->{$group},
-        );
-        $ret .= "</div>";
-    }
-
-    $ret .= "<div class='customize-buttons action-bar'>";
-    $ret .= $class->html_submit( save => $class->ml('widget.customizetheme.btn.save'), { raw => "class='customize-button'" } ) . " ";
-    $ret .= $class->html_submit( reset => $class->ml('widget.customizetheme.btn.reset'), { raw => "class='customize-button' id='reset_btn_bottom'" } );
-    $ret .= "</div>";
-
-    $ret .= "</div><!-- end .customize-content -->";
-    $ret .= "</div><!-- end .customize-inner-wrapper -->";
-
-    $ret .= $class->end_form;
-
-    return $ret;
-}
-
-sub js {
-    q [
-        initWidget: function () {
-            var self = this;
-
-            // confirmation when reseting the form
-            DOM.addEventListener($('reset_btn_top'), "click", function (evt) { self.confirmReset(evt) });
-            DOM.addEventListener($('reset_btn_bottom'), "click", function (evt) { self.confirmReset(evt) });
-
-            self.form_changed = false;
-
-            // capture onclicks on the nav links to confirm form saving
-            var links = $('customize_theme_nav_links').getElementsByTagName('a');
-            for (var i = 0; i < links.length; i++) {
-                if (links[i].href != "") {
-                    DOM.addEventListener(links[i], "click", function (evt) { self.navclick_save(evt) })
-                }
-            }
-
-            // register all form changes to confirm them later
-            var selects = $('customize-form').getElementsByTagName('select');
-            for (var i = 0; i < selects.length; i++) {
-                DOM.addEventListener(selects[i], "change", function (evt) { self.form_change() });
-            }
-            var inputs = $('customize-form').getElementsByTagName('input');
-            for (var i = 0; i < inputs.length; i++) {
-                DOM.addEventListener(inputs[i], "change", function (evt) { self.form_change() });
-            }
-            var textareas = $('customize-form').getElementsByTagName('textarea');
-            for (var i = 0; i < textareas.length; i++) {
-                DOM.addEventListener(textareas[i], "change", function (evt) { self.form_change() });
-            }
-        },
-        confirmReset: function (evt) {
-            if (! confirm("Are you sure you want to reset all changes on this page to their defaults?")) {
-                Event.stop(evt);
-            }
-        },
-        navclick_save: function (evt) {
-            var confirmed = false;
-            if (this.form_changed == false) {
-                return true;
-            } else {
-                confirmed = confirm("Save your changes?");
-            }
-
-            if (confirmed) {
-                $('customize-form').submit();
-            }
-        },
-        form_change: function () {
-            if (this.form_changed == true) { return; }
-            this.form_changed = true;
-        },
-        onRefresh: function (data) {
-            this.initWidget();
-        }
-    ];
-}
-
-1;
+    </form>
