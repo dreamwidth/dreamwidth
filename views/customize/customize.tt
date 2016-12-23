@@ -1,12 +1,13 @@
 [%- dw.need_res( 'js/jquery/jquery-1.8.3.min.js' ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
-[%- dw.need_res( 'js/customize.js' ) -%]
+[% dw.need_res( 'js/customize.js' ) -%]
 [%- dw.need_res( 'js/customize-common.js' ) -%]
 [%- dw.need_res( 'stc/select-list.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themechooser.css' ) -%]
 [%- dw.need_res( 'stc/widgets/journaltitles.css' ) -%]
 [%- dw.need_res( 'stc/widgets/layoutchooser.css' ) -%]
+[%- dw.need_res( 'stc/widgets/currenttheme.css' ) -%]
 [%#- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
 
 <form method="get">
@@ -74,7 +75,7 @@
                     
     <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
     <ul class='theme-nav-small nostyle section-nav'>
-    <li class='first'><a href='$site.root/customize/advanced/'>[% dw.ml( 'widget.themenav.developer' ) %]</a>
+    <li class='first'><a href='[% site.root %]/customize/advanced/'>[% dw.ml( 'widget.themenav.developer' ) %]</a>
     </li>
     </ul>
 
