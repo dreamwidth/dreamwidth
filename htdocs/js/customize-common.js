@@ -1,3 +1,5 @@
+       
+
        function initJournalTitles() {
 
             // store current field values
@@ -113,16 +115,10 @@
         }
 
 
-        function initLayoutChooser () {
-            //Handle the 'apply theme' buttons
-            $(".layout-form").submit(function(event){
 
-                applyLayout(this, event);       
-            })
-
-        }
 
         function applyLayout (form, event) {
+            console.log("trying to apply layout");
 
         var given_layout_choice = $(form).children("[name=layout_choice]").val(); 
         var given_layout_prop = $(form).children("[name=layout_prop]").val(); 
@@ -146,6 +142,15 @@
                 initLayoutChooser();
                 event.preventDefault();
     }
+
+            function initLayoutChooser () {
+            //Handle the 'apply theme' buttons
+            $(".layout-form").submit(function(event){
+                event.preventDefault();
+                applyLayout(this, event);       
+            })
+
+        }
 
     //Initialize everything
 $(document).ready(function(){

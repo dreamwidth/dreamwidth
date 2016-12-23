@@ -73,7 +73,6 @@ function hideHourglass () {
                 $("#theme_btn_" + layoutid + themeid).addClass("theme-button-disabled disabled");
                 $.ajax({
                   type: "POST",
-                  async: false,
                   url: "/__rpc_themechooser",
                   data: {
                          apply_themeid: themeid,
@@ -94,9 +93,7 @@ function hideHourglass () {
                                                     initThemeNav();
                                                     initCurrentTheme();
                                                     alert(confirmation);
-                                                                Customize.CurrentTheme.updateContent({
-                'show': show, 'authas': authas
-            });},
+                                                    },
                   dataType: "json"
                 });
                 event.preventDefault();
