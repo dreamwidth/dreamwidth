@@ -1,4 +1,10 @@
-       var pageGetArgs = LiveJournal.parseGetArgs(document.location.href);
+    var pageGetArgs = {};
+
+    window.location.search
+      .replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str,key,value) {
+        pageGetArgs[key] = value;
+      }
+    );
 
     var Customize = new Object();
 
@@ -304,7 +310,7 @@ function resetFilters () {
 
 
 //Initialize everything
-$(document).ready(function(){
+jQuery(document).ready(function(){
 
         initThemeChooser();
         initThemeNav();

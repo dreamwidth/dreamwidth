@@ -1,31 +1,21 @@
-                     var pageGetArgs = LiveJournal.parseGetArgs(document.location.href);
-
     var Customize = new Object();
 
-    cat = pageGetArgs["cat"] ? pageGetArgs["cat"] : "";
-    layoutid = pageGetArgs["layoutid"] ? pageGetArgs["layoutid"] : 0;
-    designer = pageGetArgs["designer"] ? pageGetArgs["designer"] : "";
-    search = pageGetArgs["search"] ? pageGetArgs["search"] : "";
-    page = pageGetArgs["page"] ? pageGetArgs["page"] : 1;
-    show = pageGetArgs["show"] ? pageGetArgs["show"] : 12;
-    authas = pageGetArgs["authas"] ? pageGetArgs["authas"] : "";
     hourglass = null;
 
 
        function initNavStripChooser () {
-            var self = this;
             if (!$('#control_strip_color_custom')) return;
-            self.hideSubDivs();
-            if ($('#control_strip_color_custom').checked) this.showSubDiv("custom_subdiv");
-            DOM.addEventListener($('#control_strip_color_dark'), "click", function (evt) { hideSubDivs() });
-            DOM.addEventListener($('#control_strip_color_light'), "click", function (evt) { hideSubDivs() });
-            DOM.addEventListener($('#control_strip_color_custom'), "click", function (evt) { showSubDiv() });
+            hideSubDivs();
+            if ($('#control_strip_color_custom').checked) showSubDiv();
+            $('#control_strip_color_dark').click( function (evt) { hideSubDivs() });
+            $('#control_strip_color_light').click( function (evt) { hideSubDivs() });
+            $('#control_strip_color_custom').click( function (evt) { showSubDiv() });
         }
         function hideSubDivs () {
-            $('custom_subdiv').css('display', "none");
+            $('#custom_subdiv').css('display', "none");
         }
         function showSubDivs () {
-            $('custom_subdiv').css('display', "block");
+            $('#custom_subdiv').css('display', "block");
         }
         function onRefresh (data) {
             initNavStripChooser();
@@ -115,15 +105,15 @@
 
         function initMoodThemeChooser () {
             var self = this;
-            DOM.addEventListener($('moodtheme_dropdown'), "change", function (evt) { previewMoodTheme(evt, self) });
+            $('#moodtheme_dropdown').change( function (evt) { previewMoodTheme(evt, self) });
         }
         function previewMoodTheme (evt, elem) {
             var opt_forcemoodtheme = 0;
-            if ($('opt_forcemoodtheme').checked) opt_forcemoodtheme = 1;
-            self.updateContent({
-                preview_moodthemeid: $('moodtheme_dropdown').value,
+            if ($('#opt_forcemoodtheme').checked) opt_forcemoodtheme = 1;
+            /*self.updateContent({
+                preview_moodthemeid: $('#moodtheme_dropdown').value,
                 forcemoodtheme: opt_forcemoodtheme
-            });
+            });*/
         }
 
         function initExpandCollapse () {
@@ -139,7 +129,7 @@
 
 
 //Initialize everything
-$(document).ready(function(){
+jQuery(document).ready(function(){
 
         initNavStripChooser();
         initMoodThemeChooser();
