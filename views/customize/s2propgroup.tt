@@ -1,6 +1,6 @@
 
 [%- dw.need_res( "stc/widgets/s2propgroup.css" ) -%]
-[%- dw.need_res( "js/colorpicker.js" ) -%]
+[%- dw.need_res( { group => 'jquery' }, "js/colorpicker.js" ) -%]
 [%- dw.need_res( "stc/widgets/navstripchooser.css" ) -%]
 [%- dw.need_res( "stc/collapsible.css" ) -%]
 <script>
