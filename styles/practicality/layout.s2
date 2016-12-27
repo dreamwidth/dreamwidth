@@ -18,7 +18,7 @@ set custom_control_strip_colors = "on_no_gradient";
 ## Colors
 ##===============================
 
-propgroup colors {
+propgroup colors_child {
     property use color_header_link;
     property use color_header_link_active;
     property use color_header_link_hover;
