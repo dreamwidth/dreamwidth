@@ -30,6 +30,12 @@ DW::Routing->register_string( '/customize/', \&customize_handler,
     app => 1 );
 DW::Routing->register_string( '/customize/options', \&options_handler, 
     app => 1 );
+DW::Routing->register_string( '/customize/advanced', \&advanced_handler, 
+    app => 1 );
+DW::Routing->register_string( '/customize/advanced/layerbrowse', \&layerbrowse_handler, 
+    app => 1 );
+DW::Routing->register_string( '/customize/advanced/layeredit', \&layeredit_handler, 
+    app => 1 );
 
 DW::Routing->register_rpc( "themechooser", \&themechooser_handler, format => 'json' );
 DW::Routing->register_rpc( "journaltitles", \&journaltitles_handler, format => 'html' );
@@ -1043,6 +1049,171 @@ sub render_currenttheme{
     $vars->{is_special} = LJ::Hooks::run_hook("layer_is_special", $theme->uniq);
 
     return DW::Template->template_string( 'customize/currenttheme.tt', $vars );
+}
+
+sub advanced_handler {
+    my ( $ok, $rv ) = controller( );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $post = $r->post_args;
+    my $u = $rv->{u};
+    my $remote = $rv->{remote};
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
+
+
+    my $vars;
+    $vars->{u} = $u;
+    $vars->{remote} = $remote;
+    $vars->{no_layer_edit} = $no_layer_edit;
+    
+
+    return DW::Template->render_template( 'customize/advanced/index.tt', $vars );
+
+}
+
+sub layerbrowse_handler {
+    my ( $ok, $rv ) = controller( );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $post = $r->post_args;
+    my $u = $rv->{u};
+    my $remote = $rv->{remote};
+    my $GET = DW::Request->get;
+
+    my $pub = LJ::S2::get_public_layers();
+
+    my $id;
+    if ($GET->get_args->{'id'} =~ /^\d+$/) { # numeric
+        $id = $GET->get_args->{'id'};
+    } elsif ($GET->get_args->{'id'}) {       # redist_uniq
+        $id = $pub->{$GET->get_args->{'id'}}->{'s2lid'};
+    }
+
+
+    my $vars;
+    $vars->{u} = $u;
+    $vars->{remote} = $remote;
+   
+
+    return DW::Template->render_template( 'customize/advanced/layerbrowse.tt', $vars );
+
+}
+
+sub layeredit_handler {
+    my ( $ok, $rv ) = controller( );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $post = $r->post_args;
+    my $u = $rv->{u};
+    my $remote = $rv->{remote};
+    my $GET = DW::Request->get;
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
+    my $id;
+    $id = $GET->get_args->{'id'} if $GET->get_args->{'id'} =~ /^\d+$/;
+
+    my $lay = LJ::S2::load_layer($id);
+
+    # get u of user they are acting as
+    my $u = LJ::load_userid( $lay->{userid} );
+
+    # if the b2lid of this layer has been remapped to a new layerid
+    # then update the b2lid mapping for this layer
+    my $b2lid = $lay->{b2lid};
+    if ($b2lid && $LJ::S2LID_REMAP{$b2lid}) {
+        LJ::S2::b2lid_remap($remote, $id, $b2lid);
+        $lay->{b2lid} = $LJ::S2LID_REMAP{$b2lid};
+    }
+
+
+        # get s2 code from db - use writer so we know it's up-to-date
+    my $dbh = LJ::get_db_writer();
+    my $s2code = $post->{'s2code'} || LJ::S2::load_layer_source($lay->{s2lid});
+
+    my $vars;
+    $vars->{u} = $u;
+    $vars->{remote} = $remote;
+    $vars->{no_layer_edit} = $no_layer_edit;
+
+    # we tried to compile something
+
+    my $build;
+    if ($post->{'action'} eq "compile") {
+        # return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+        $build = "<b>S2 Compiler Output</b> <em>at " . scalar(localtime) . "</em><br />\n";
+
+        my $error;
+        $post->{'s2code'} =~ tr/\r//d;  # just in case
+        unless (LJ::S2::layer_compile($lay, \$error, { 's2ref' => \$post->{'s2code'} })) {
+
+            $error =~ s/LJ::S2,.+//s;
+            $error =~ s!, .+?(src/s2|cgi-bin)/!, !g;
+
+            $build .= "Error compiling layer:\n<pre style=\"border-left: 1px red solid\">$error</pre>";
+
+            # display error with helpful context
+            if ($error =~ /^compile error: line (\d+)/i) {
+                my $errline = $1;
+                my $kill = $errline - 5 < 0 ? 0 : $errline - 5;
+                my $prehilite = $errline - 1 > 4 ? 4: $errline - 1;
+                my $snippet = $s2code;
+
+                # make sure there's a newlilne at the end
+                chomp $snippet;
+                $snippet .= "\n";
+
+                # and now, fun with regular expressions
+                my $ct = 0;
+                $snippet =~ s!(.*?)\n!sprintf("%3d", ++$ct) . ": " .
+                    $1 . "\n"!ge;                      # add line breaks and numbering
+                $snippet = LJ::ehtml($snippet);
+                $snippet =~ s!^((?:.*?\n){$kill,$kill})           # kill before relevant lines
+                               ((?:.*?\n){$prehilite,$prehilite}) # capture context before error
+                               (.*?\n){0,1}                       # capture error
+                               ((?:.*?\n){0,4})                   # capture context after error
+                               .*                                 # kill after relevant lines
+                             !$2<em class='error'>$3</em>$4!sx;
+
+                $build .= "<b>Context</b><br /><pre>$snippet</pre>\n";
+            }
+
+        } else {
+            $build .= "Compiled with no errors.\n";
+        }
+    } else {
+                $build = "Loaded layer $id.";
+        }
+
+
+    # load layer info
+    my $layinf = {};
+    LJ::S2::load_layer_info($layinf, [ $id ]);
+
+    # find a title to display on this page
+    my $type = $layinf->{$id}->{'type'};
+    my $name = $layinf->{$id}->{'name'};
+
+    # find name of parent layer if this is a child layer
+    if (! $name && $type =~ /^(user|theme|i18n)$/) {
+        my $par = $lay->{'b2lid'} + 0;
+        LJ::S2::load_layer_info($layinf, [$par]);
+        $name =  $layinf->{$par}->{'name'};
+    }
+
+    # Only use the layer name if there is one and it's more than just whitespace
+    my $title = "[$type] ";
+    $title .= $name && $name =~ /[^\s]/ ? "$name [\#$id]" : "Layer \#$id";
+
+    $vars->{title} = $title;
+    $vars->{build} = $build;
+    $vars->{code} = @{[ LJ::ehtml($s2code) ]};
+    
+
+    return DW::Template->render_template( 'customize/advanced/layeredit.tt', $vars, { 'no_sitescheme' => 1} );
+
 }
 
 

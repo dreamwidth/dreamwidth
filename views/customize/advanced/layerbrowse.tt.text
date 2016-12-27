@@ -1,0 +1,50 @@
+.back2=Advanced Customization
+
+.classes.header=Classes
+
+.classes.sort.alphabetical=Alphabetical
+
+.classes.sort.hierarchical=Hierarchical
+
+.classname.childclass=Child class of [[name]].
+
+.classname.header=[[name]] Class
+
+.error.cantviewlayer=You're not authorized to view this layer.
+
+.error.layerdoesntexist=The specified layer doesn't exist.
+
+.globalfunctions.header=Global Functions
+
+.layerchildren=[[numchildren]] [[?numchildren|child|children]]...
+
+.layerinfo.header=Layer Info
+
+.members.header=Members
+
+.members.readonly=(Read-only)
+
+.methods.header=Methods
+
+.nav.editlayer=Edit Layer
+
+.nav.parentlayer=Parent Layer
+
+.nav.publiclayers=Public Layers
+
+.nav.viewsource=View Source:
+
+.nav.viewsource.highlighted=Syntax Highlighted
+
+.nav.viewsource.raw=Raw Source Code
+
+.nav.yourlayers=Your Layers
+
+.propertiesset.header=Properties Set
+
+.propformat.empty=(empty)
+
+.propformat.object=[[type]] object
+
+.title=Public Layers
+
