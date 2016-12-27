@@ -1,4 +1,20 @@
     var Customize = new Object();
+    var pageGetArgs = {};
+
+    window.location.search
+      .replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str,key,value) {
+        pageGetArgs[key] = value;
+      }
+    );
+
+
+    cat = pageGetArgs["cat"] ? pageGetArgs["cat"] : "";
+    layoutid = pageGetArgs["layoutid"] ? pageGetArgs["layoutid"] : 0;
+    designer = pageGetArgs["designer"] ? pageGetArgs["designer"] : "";
+    search = pageGetArgs["search"] ? pageGetArgs["search"] : "";
+    page = pageGetArgs["page"] ? pageGetArgs["page"] : 1;
+    show = pageGetArgs["show"] ? pageGetArgs["show"] : 12;
+    authas = pageGetArgs["authas"] ? pageGetArgs["authas"] : "";
 
     hourglass = null;
 
