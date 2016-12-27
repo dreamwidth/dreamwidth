@@ -1,3 +1,4 @@
+<<<<<<< f185225baec611292fea42f34a55cf378decfda4
     [%# start of content %]
     [% dw.ml("Backlink", {
         'link' => "$site.root/customize/advanced/",
@@ -244,6 +245,4 @@ table.table_layerbrowse td.func, table.table_layerbrowse td.method {
     text-indent: -1.5em;
 }
 </style>
-[% END %]
-
-    
+[% END %]   
