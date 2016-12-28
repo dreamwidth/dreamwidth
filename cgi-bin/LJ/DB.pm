@@ -263,7 +263,7 @@ sub foreach_cluster {
     die $@ if $@;
 
     foreach my $cluster_id (@LJ::CLUSTERS) {
-        my $dbr = ($LJ::IS_DEV_SERVER) ?
+        my $dbr = (defined %LJ::CLUSTER_PAIR_ACTIVE) ?
             LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});
         $coderef->($cluster_id, $dbr);
     }
