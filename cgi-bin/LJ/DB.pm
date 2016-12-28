@@ -256,15 +256,8 @@ sub foreach_cluster {
     my $coderef = shift;
     my $opts = shift || {};
 
-    # have to include this via an eval so it doesn't actually get included
-    # until someone calls foreach cluster.  at which point, if they're in web
-    # context, it will fail.
-    eval "use LJ::DBUtil; 1;";
-    die $@ if $@;
-
     foreach my $cluster_id (@LJ::CLUSTERS) {
-        my $dbr = ($LJ::IS_DEV_SERVER) ?
-            LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});
+        my $dbr = LJ::get_cluster_reader( $cluster_id );
         $coderef->($cluster_id, $dbr);
     }
 }
