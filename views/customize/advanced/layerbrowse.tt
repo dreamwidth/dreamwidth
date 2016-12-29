@@ -1,4 +1,3 @@
-<<<<<<< f185225baec611292fea42f34a55cf378decfda4
     [%# start of content %]
     [% dw.ml("Backlink", {
         'link' => "$site.root/customize/advanced/",
@@ -20,6 +19,7 @@
             
             [%# show link to detailed view %]
             <li><a href='layerbrowse?id=[% lay.uniq %]' name='[% lay.uniq %]' id='[% lay.uniq %]'>[% layerinfo.$lid.name | html %]
+
             </a> ([% lay.type %][% NOT is_child ? ": <b>$lid</b>" : '' %])</li>
 
             [%# done unless there are children to recurse through %]
