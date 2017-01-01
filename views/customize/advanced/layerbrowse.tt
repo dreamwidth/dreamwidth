@@ -160,12 +160,12 @@
                     <ul>
                     [% didul = didul + 1 %]
                 [% END %]
-                [% PROCESS dumpsub parentclass = cname %]
+                [% INCLUDE dumpsub parentclass = cname %]
             [% END %]
             [% "</ul>" IF didul > 0 %]
 
         [% END %]
-        [% PROCESS dumpsub parentclass = "" %]
+        [% INCLUDE dumpsub parentclass = "" %]
         </td></tr></table>
 
         [%# classes %]
@@ -237,12 +237,13 @@
     [% END %]
     
 
+[% sections.head = BLOCK %]
 <style type='text/css'>
 table.table_layerbrowse td.func, table.table_layerbrowse td.method {
     padding-left: 1.7em;
     text-indent: -1.5em;
 }
 </style>
-<=head
+[% END %]
 
     
