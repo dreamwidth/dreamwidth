@@ -34,6 +34,12 @@ DW::Routing->register_string( '/customize/advanced', \&advanced_handler,
     app => 1 );
 DW::Routing->register_string( '/customize/advanced/layerbrowse', \&layerbrowse_handler, 
     app => 1 );
+DW::Routing->register_string( '/customize/advanced/layers', \&layers_handler, 
+    app => 1 );
+DW::Routing->register_string( '/customize/advanced/styles', \&styles_handler, 
+    app => 1 );
+DW::Routing->register_string( '/customize/advanced/layersource', \&layersource_handler, 
+    app => 1 );
 
 DW::Routing->register_rpc( "themechooser", \&themechooser_handler, format => 'json' );
 DW::Routing->register_rpc( "journaltitles", \&journaltitles_handler, format => 'html' );
@@ -41,7 +47,7 @@ DW::Routing->register_rpc( "layoutchooser", \&layoutchooser_handler, format => '
 DW::Routing->register_rpc( "themefilter", \&filter_handler, format => 'json' );
 
 sub customize_handler {
-    my ( $ok, $rv ) = controller( authas => 1 );
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
@@ -504,7 +510,7 @@ sub render_layoutchooser {
 sub filter_handler {
 
     # gets the request and args
-    my ( $ok, $rv ) = controller( authas => 1 );
+    my ( $ok, $rv ) = controller( authas => 1,  form_auth => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
@@ -520,7 +526,7 @@ sub filter_handler {
 }
 
 sub options_handler {
-    my ( $ok, $rv ) = controller( authas => 1 );
+    my ( $ok, $rv ) = controller( authas => 1,  form_auth => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
@@ -1198,7 +1204,7 @@ sub layerbrowse_handler {
                 $v = "<code>[]</code>";
             }
         } else {
-            $v = $v ne '' ? LJ::ehtml($v) : "<i>ML{'.propformat.empty'}</i>";
+            $v = $v ne '' ? LJ::ehtml($v) : "<i>". LJ::Lang::ml('.propformat.empty') . "</i>";
         }
 
         return $v;
@@ -1219,6 +1225,597 @@ sub layerbrowse_handler {
    
 
     return DW::Template->render_template( 'customize/advanced/layerbrowse.tt', $vars );
+
+}
+
+sub layers_handler {
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $post = $r->post_args;
+    my $u = $rv->{u};
+    my $remote = $rv->{remote};
+    my $no_layer_edit =  LJ::Hooks::run_hook("no_theme_or_layer_edit", $remote);
+    my $GET = DW::Request->get;
+    my $authas = $u->user ne $remote->user ? "?authas=" . $u->user : "";
+
+
+    # id is optional
+    my $id;
+    $id = $post->{'id'} if $post->{'id'} =~ /^\d+$/;
+
+    # this catches core_hidden if it's set
+    $post->{'parid'} ||= $post->{'parid_hidden'};
+
+    my $pub = LJ::S2::get_public_layers();
+    my $ulay = LJ::S2::get_layers_of_user($u);
+
+
+    my $vars;
+    $vars->{u} = $u;
+    $vars->{remote} = $remote;
+    $vars->{no_layer_edit} = $no_layer_edit;
+    $vars->{pub} = $pub;
+    $vars->{ulay} = $ulay;
+    $vars->{authas} = $authas;
+
+    return ml_error('/customize/advanced/index.bml.error.advanced.editing.denied')
+        if $no_layer_edit;
+
+    # if we don't have a u, maybe they're an admin and can view stuff anyway?
+    my $noactions = 0;
+    my $viewall = $remote && $remote->has_priv( 'siteadmin', 'styleview' );
+
+    if ($GET->get_args->{user} && $viewall) {
+        return ml_error('/customize/advanced/layers.tt.error.cantuseonsystem')
+            if $GET->get_args->{user} eq 'system';
+        $noactions = 1; # don't let admins change anything
+    }    
+    return ml_error('.error.cantbeauthenticated')
+        unless $u;
+
+    return error_ml($remote->{user} eq $u->{user} ?
+            '/customize/advanced/layers.tt.error.youcantuseadvanced' :
+            '/customize/advanced/layers.tt.error.usercantuseadvanced' )
+        unless $u->can_create_s2_styles || $viewall;
+
+    if ($post->{'action:create'} && !$noactions) {
+
+        return ml_error('/customize/advanced/layers.tt.error.maxlayers')
+            if keys %$ulay >= $u->count_s2layersmax;
+
+        my $type = $post->{'type'} or return ml_error('/customize/advanced/layers.tt.error.nolayertypeselected');
+        my $parid = $post->{'parid'}+0 or return error_ml('/customize/advanced/layers.tt.error.badparentid');
+        return ml_error('/customize/advanced/layers.tt.error.invalidlayertype') unless $type =~ /^layout|theme|user|i18nc?$/;
+        my $parent_type = ($type eq "theme" || $type eq "i18n" || $type eq "user") ? "layout" : "core";
+        
+        # parent ID is public layer
+        if ($pub->{$parid}) {
+            # of the wrong type
+            return error_ml('/customize/advanced/layers.tt.error.badparentid') if $pub->{$parid}->{'type'} ne $parent_type;
+
+        # parent ID is user layer, or completely invalid
+        } else {
+            return error_ml('.error.badparentid') if 
+                ! $ulay->{$parid} || $ulay->{$parid}->{'type'} != $parent_type;
+        }
+
+        my $id = LJ::S2::create_layer($u, $parid, $type);
+        return ml_error('/customize/advanced/layers.tt.error.cantcreatelayer') unless $id;
+
+        my $lay = { 
+            'userid' => $u->userid,
+            'type' => $type,
+            'b2lid' => $parid,
+            's2lid' => $id,
+        };
+
+        # help user out a bit, creating the beginning of their layer.
+        my $s2 = "layerinfo \"type\" = \"$type\";\n";
+        $s2 .= "layerinfo \"name\" = \"\";\n\n";
+        my $error;
+        unless (LJ::S2::layer_compile($lay, \$error, { 's2ref' => \$s2 })) {
+            return error_ml('/customize/advanced/layers.tt.error.cantsetuplayer', {'errormsg' => $error});
+        }
+
+        # redirect so they can't refresh and create a new layer again
+        return $r->redirect("$LJ::SITEROOT/customize/advanced/layers$authas");
+    }
+
+    # delete
+    if ($post->{'action:del'} && !$noactions) {
+
+        my $id = $post->{'id'}+0;
+        my $lay = LJ::S2::load_layer($id);
+        return ml_error('/customize/advanced/layers.tt.error.layerdoesntexist')
+            unless $lay;
+
+        return ml_error('/customize/advanced/layers.tt.error.notyourlayer')
+            unless $lay->{userid} == $u->userid;
+
+        LJ::S2::delete_layer($u, $id);
+        return $r->redirect("$LJ::SITEROOT/customize/advanced/layers$authas");
+    }
+
+            my %active_style = LJ::S2::get_style( $u );
+
+        # set up indices for the sort, because it's easier than the convoluted logic
+        # of doing all this within the sort itself
+        my @parentlayernames;
+        my @layernames;
+        my @weight;
+        my %specialnamelayers;
+        my @layerids = keys %$ulay;
+        foreach my $layerid ( @layerids ) {
+            my $parent = $ulay->{ $ulay->{$layerid}->{b2lid} } || $pub->{ $ulay->{$layerid}->{b2lid} };
+            push @parentlayernames, $parent->{name};
+
+            my $layername = $ulay->{$layerid}->{name};
+            push @layernames, $layername;
+
+            my $weight = {
+                    "Auto-generated Customizations" => 1,   # auto-generated
+                    "" => 2                                 # empty
+                }->{$layername};
+            push @weight, $weight;
+
+            $specialnamelayers{$layerid} = 1 if $weight;
+        }
+
+        my @sortedlayers = @layerids[ sort {
+                # alphabetically by parent layer's name
+                $parentlayernames[$a] cmp $parentlayernames[$b]
+
+                # special case empty names and auto-generated customizations (push them to the bottom)
+                || $weight[$a] cmp $weight[$b]
+
+                # alphabetically by layer name (for regular layer names)
+                || $layernames[$a] cmp $layernames[$b]
+
+                # Auto-generated customizations then layers with no name sorted by layer id
+                || $layerids[$a] <=> $layerids[$b]
+
+            } 0..$#layerids ];
+
+        my @corelayers = map { $_, $pub->{$_}->{'majorversion'} }
+             sort { $pub->{$b}->{'majorversion'} <=> $pub->{$a}->{'majorversion'} }
+             grep { $pub->{$_}->{'b2lid'} == 0 && $pub->{$_}->{'type'} eq 'core' && /^\d+$/}
+             keys %$pub;
+
+
+        my @layouts = ('', '');
+        push @layouts, map { $_, $pub->{$_}->{'name'} }
+                       sort { $pub->{$a}->{'name'} cmp $pub->{$b}->{'name'} || $a <=> $b}
+                       grep { $pub->{$_}->{'type'} eq 'layout' && /^\d+$/} 
+                       keys %$pub;
+        if (%$ulay) {
+            my @ulayouts = ();
+            push @ulayouts, map { $_, BML::ml('.createlayer.layoutspecific.select.userlayer', {'name' => $ulay->{$_}->{'name'}, 'id' => $_}) } 
+                            sort { $ulay->{$a}->{'name'} cmp $ulay->{$b}->{'name'} || $a <=> $b}
+                            grep { $ulay->{$_}->{'type'} eq 'layout' } 
+                            keys %$ulay;
+            push @layouts, ('', '---', @ulayouts) if @ulayouts;
+        }
+
+        $vars->{authas_html} = $rv->{authas_html};
+        $vars->{noactions} = $noactions;
+        $vars->{layouts} = \@layouts;
+        $vars->{corelayers} = \@corelayers;
+        $vars->{sortedlayers} = \@sortedlayers; 
+        $vars->{active_style} = \%active_style;
+        $vars->{specialnamelayers} = \%specialnamelayers;
+        $vars->{ehtml} = \&LJ::ehtml;
+        $vars->{ejs} = \&LJ::ejs;
+        
+    
+
+    return DW::Template->render_template( 'customize/advanced/layers.tt', $vars );
+
+}
+
+sub styles_handler {
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $post = $r->post_args;
+    my $u = $rv->{u};
+    my $remote = $rv->{remote};
+    my $no_layer_edit =  LJ::Hooks::run_hook("no_theme_or_layer_edit", $remote);
+    my $GET = DW::Request->get;
+    my $authas = $u->user ne $remote->user ? "?authas=" . $u->user : "";
+
+
+    my $vars;
+    $vars->{u} = $u;
+    $vars->{remote} = $remote;
+    $vars->{no_layer_edit} = $no_layer_edit;
+    $vars->{authas_html} = $rv->{authas_html};
+    $vars->{post} = $post;
+
+
+    # if we don't have a u, maybe they're an admin and can view stuff anyway?
+    my $noactions = 0;
+    my $viewall = $remote && $remote->has_priv( 'siteadmin', 'styleview' );
+
+    if ($GET->get_args->{user} && $viewall) {
+        return error_ml('/customize/advanced/styles.tt.error.cantuseonsystem')
+            if $GET->get_args->{user} eq 'system';
+        $noactions = 1; # don't let admins change anything
+    }
+
+
+    return ($remote->{user} eq $u->{user} ?
+            error_ml('.error.youcantuseadvanced') :
+            error_ml('.error.usercantuseadvanced') )
+        unless $u->can_create_s2_styles || $viewall;
+
+    return error_ml('/customize/advanced/index.tt.error.advanced.editing.denied')
+        if $no_layer_edit;
+
+
+
+    # extra arguments for get requests
+    my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : '';
+    my $getextra_amp = $getextra ? "&authas=" . $u->user : '';
+    if ($noactions) {
+        $getextra = "?user=" . $u->user;
+        $getextra_amp = "&user=" . $u->user;
+    }
+
+    $vars->{getextra} = $getextra;
+    $vars->{getextra_amp} = $getextra_amp;
+
+    # style id to edit, if we have one
+    # if we have this we're assumed to be in 'edit' mode
+    my $id = $GET->get_args->{'id'}+0;
+
+    my $dbh = LJ::get_db_writer();
+
+    # variables declared here, but only filled in if $id
+    my ($core, $layout);      # scalars
+    my ($pub, $ulay, $style); # hashrefs
+
+    if ($id) {
+        # load style
+        $style = LJ::S2::load_style($id);
+        return error_ml('/customize/advanced/styles.tt.error.stylenotfound') unless $style;
+
+        # check that they own the style
+        return error_ml('/customize/advanced/styles.tt.error.notyourstyle')
+        unless $style->{userid} == $u->userid;
+
+        # use selected style
+        if ($post->{'action:usestyle'} && !$noactions) {
+
+            # save to db and update user object
+            $u->set_prop( { stylesys => '2',
+                        s2_style => $id } );
+            LJ::Hooks::run_hooks('apply_theme', $u);
+            return $r->redirect("styles$getextra");
+        }
+
+
+        # get public layers
+        $pub = LJ::S2::get_public_layers();
+        $vars->{pub} = $pub;
+
+        # get user layers
+        $ulay = LJ::S2::get_layers_of_user($u);
+        $vars->{ulay} = $ulay;
+
+        # find effective layerids being used
+        my %eff_layer = ();
+        my @other_layers = ();
+        foreach (qw(i18nc layout theme i18n user)) {
+            my $lid = $post->{$_} eq "_other" ? $post->{"other_$_"} : $post->{$_};
+            next unless $lid;
+            $eff_layer{$_} = $lid;
+
+            unless ($ulay->{$eff_layer{$_}} || $pub->{$eff_layer{$_}}) {
+                push @other_layers, $lid;
+            }
+        }
+
+        # core lid (can't use user core layer)
+        $post->{core} ||= $post->{core_hidden};
+        $core = defined $post->{core} ? $post->{core} : $style->{layer}->{core};
+        my $highest_core;
+        map { $highest_core = $_ if $pub->{$_}->{type} eq 'core' && /^\d+$/ && 
+                $pub->{$_}->{majorversion} > $pub->{$highest_core}->{majorversion} } keys %$pub;
+        unless ( $core ) {
+            $core = $highest_core;
+
+            # update in POST to keep things in sync
+            $post->{core} = $highest_core;
+        }
+        $style->{layer}->{core} = $highest_core unless $style->{layer}->{core}; 
+
+        $vars->{core} = $core;
+
+        # layout lid
+        $layout = $post->{'action:change'} ? $eff_layer{'layout'} : $style->{'layer'}->{'layout'};
+
+        # if we're changing core, clear everything
+        if ($post->{'core'} && $style->{'layer'}->{'core'} &&
+            $post->{'core'} != $style->{'layer'}->{'core'}) {
+            foreach (qw(i18nc layout theme i18n user)) {
+                delete $eff_layer{$_};
+            }
+            undef $layout;
+        }
+
+        # if we're changing layout, clear everything below
+        if ($eff_layer{'layout'} && $style->{'layer'}->{'layout'} &&
+            $eff_layer{'layout'} != $style->{'layer'}->{'layout'}) {
+            foreach (qw(theme i18n user)) {
+                delete $eff_layer{$_};
+            }
+        }
+
+                ### process edit actions
+
+
+
+        # delete
+        if ($post->{'action:delete'} && !$noactions) {
+            LJ::S2::delete_user_style($u, $id);
+            undef $id; # don't show form below
+            return $r->redirect("styles$getextra");
+        }
+
+        # save changes
+        if (($post->{'action:change'} || $post->{'action:savechanges'}) && !$noactions) {
+            $vars->{post_action} = 'change';
+
+            # are they renaming their style?
+            if ($post->{'stylename'} && $style->{'name'} &&
+                $post->{'stylename'} ne $style->{'name'}) {
+
+                # update db
+                my $styleid = $style->{'styleid'};
+                LJ::S2::rename_user_style($u, $styleid, $post->{stylename});
+
+                # update style object
+                $style->{'name'} = $post->{'stylename'};
+            }
+
+            # load layer info of any "other" layers
+            my %other_info = ();
+            if (@other_layers) {
+                LJ::S2::load_layer_info(\%other_info, \@other_layers);
+                foreach (@other_layers) {
+                    return error_ml('/customize/advanced/styles.tt.error.layernotfound', {'layer' => $_}) unless exists $other_info{$_};
+                    return error_ml('/customize/advanced/styles.tt.error.layernotpublic', {'layer' => $_}) unless $other_info{$_}->{'is_public'};
+                }
+            }
+
+            # error check layer modifications
+            my $get_layername = sub {
+                my $lid = shift;
+
+                my $name;
+                $name = $pub->{$lid}->{'name'} if $pub->{$lid};
+                $name ||= $ulay->{$lid}->{'name'} if $ulay->{$lid};
+                $name ||= ml('.layerid', {'id' => $lid});
+
+                return $name;
+            };
+
+            # check layer hierarchy
+            my $error_check = sub {
+                my ($type, $parentid) = @_;
+
+                my $lid = $eff_layer{$type};
+                next if ! $lid;
+
+                my $layer = $ulay->{$lid} || $pub->{$lid} || LJ::S2::load_layer($lid);
+                my $parentname = $get_layername->($parentid);
+                my $layername = $get_layername->($lid);
+
+                # is valid layer type?
+                return error_ml('/customize/advanced/styles.tt.error.invalidlayertype', {'name' => "<i>$layername</i>", 'type' => $type})
+                    if $layer->{'type'} ne $type;
+
+                # is a child?
+                return error_ml('/customize/advanced/styles.tt.error.layerhierarchymismatch', {'layername' => "<i>$layername</i>", 'type' => $type, 'parentname' => "<i>$parentname</i>"})
+                    unless $layer->{'b2lid'} == $parentid;
+
+                return undef;
+            };
+
+            # check child layers of core
+            foreach my $type (qw(i18nc layout)) {
+                my $errmsg = $error_check->($type, $core);
+                return error_ml($errmsg) if $errmsg;
+            }
+
+            # don't check sub-layout layers if there's no layout
+            if ($layout) {
+
+                # check child layers of selected layout
+                foreach my $type (qw(theme i18n user)) {
+                    my $errmsg = $error_check->($type, $layout);
+                    return error_ml($errmsg) if $errmsg;
+                }
+            }
+
+            # save in database
+            my @layers = ( 'core' => $core );
+            push @layers, map { $_, $eff_layer{$_} } qw(i18nc layout i18n theme user);
+            LJ::S2::set_style_layers($u, $style->{'styleid'}, @layers);
+
+            # redirect if they clicked the bottom button
+            return return $r->redirect("styles$getextra") if $post->{'action:savechanges'};
+        }
+        $vars->{id} = $id;
+        $vars->{layout} = $layout;
+        $vars->{style} = $style;
+        } else {
+            # load user styles
+            my $ustyle = LJ::S2::load_user_styles($u);
+            my @sortedustyles = sort { $ustyle->{$a} cmp $ustyle->{$b} || $a <=> $b} keys %$ustyle;
+
+            $vars->{sortedustyles} = \@sortedustyles;
+            $vars->{ustyle} = $ustyle;
+            
+            # process create action
+            if (($post->{'action:create'} && $post->{'stylename'}) && !$noactions) {
+
+                return error_ml('/customize/advanced/styles.tt.error.maxstyles2', { 'numstyles' => scalar( keys %$ustyle ), 'maxstyles' => $u->count_s2stylesmax } )
+                    if scalar(keys %$ustyle) >= $u->count_s2stylesmax;
+
+                my $styleid = LJ::S2::create_style($u, $post->{'stylename'});
+                return error_ml('/customize/advanced/styles.tt.error.cantcreatestyle') unless $styleid;
+
+                return $r->redirect("styles?id=$styleid$getextra_amp");
+            }
+
+        # load style currently in use
+        $u->preload_props( 's2_style' );
+
+
+        }
+
+    my $layerselect_sub = sub {
+        my ($type, $b2lid) = @_;
+
+        my @opts = ();
+
+        my $lid = $post->{'action:change'} ? $post->{$type} : $style->{layer}->{$type};
+        $lid = $post->{"other_$type"} if $lid eq "_other";
+
+
+        # greps, and sorts a list
+        my $greplist = sub {
+            my $ref = shift;
+            return  sort { $ref->{$a}->{'name'} cmp $ref->{$b}->{'name'} || $a <=> $b}
+                    grep {
+                        my $is_active = LJ::Hooks::run_hook("layer_is_active", $ref->{$_}->{uniq});
+                        $ref->{$_}->{'type'} eq $type &&
+                        $ref->{$_}->{'b2lid'} == $b2lid &&
+                        (!defined $is_active || $is_active) &&
+                        ! ( $pub->{$_} && $pub->{$_}->{is_internal} ) && # checking this directly here, as I don't care if the parent layers are internal 
+                        /^\d+$/
+                    } keys %$ref;
+        };
+
+        # public layers 
+        my $name = $type eq 'core' ? 'majorversion' : 'name';
+        push @opts, map { $_, $pub->{$_}->{$name} } $greplist->($pub);
+
+        # no user core layers
+        return {'lid' => $lid, 'opts' => \@opts } if $type eq 'core';
+
+        # user layers / using an internal layer %
+        push @opts, ('', '---');
+        my $startsize = scalar(@opts);
+
+        # add the current layer if it's internal and the user is using it.
+        push @opts, ( $lid, LJ::Lang::ml('/customize/advanced/styles.tt.stylelayers.select.layout.user', {'layername' => $pub->{$lid}->{'name'}, 'id' => $lid}) ) if $lid && $pub->{$lid} && $pub->{$lid}->{is_internal};
+        push @opts, map { $_, LJ::Lang::ml('/customize/advanced/styles.tt.stylelayers.select.layout.user', {'layername' => $ulay->{$_}->{'name'}, 'id' => $_}) } $greplist->($ulay);
+
+        # if we didn't push anything above, remove dividing line %
+        pop @opts, pop @opts unless scalar(@opts) > $startsize;
+
+        # add option for other layerids 
+        push @opts, ('_other', LJ::Lang::ml('/customize/advanced/styles.tt.stylelayers.select.layout.other'));
+
+        # add blank option to beginning of list
+        unshift @opts, ('', @opts ? '' : ' ');
+        return {'lid' => $lid, 'opts' => \@opts };
+    };
+    
+        $vars->{layerselect_sub} = $layerselect_sub;
+        $vars->{ehtml} = \&LJ::ehtml;
+
+
+    return DW::Template->render_template( 'customize/advanced/styles.tt', $vars );
+
+}
+
+
+sub layersource_handler {
+    my ( $ok, $rv ) = controller( );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $post = $r->post_args;
+    my $GET = DW::Request->get;
+    my $u = $rv->{u};
+    my $remote = $rv->{remote};
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
+
+    my $pub = LJ::S2::get_public_layers();
+
+    my $dbr = LJ::get_db_reader();
+
+    my $id = $GET->get_args->{'id'};
+    return $r->redirect('layerbrowse') unless $id =~ /^\d+$/;
+
+    my $lay = defined $pub->{$id} ? $pub->{$id} : LJ::S2::load_layer($id);
+    return error_ml('/customize/advanced/layerbrowse.tt.error.layerdoesntexist')
+        unless $lay;
+
+    my $layerinfo = {};
+    LJ::S2::load_layer_info($layerinfo, [ $id ]);
+    my $srcview = exists $layerinfo->{$id}->{'source_viewable'} ?
+        $layerinfo->{$id}->{'source_viewable'} : undef;
+
+    # authorized to view this layer?
+    my $isadmin = ! defined $pub->{$id} && $remote && $remote->has_priv( 'siteadmin', 'styleview' );
+    # public styles are pulled from the system account, so we don't
+    # want to check privileges in case they're private styles
+    return error_ml('/customize/advanced/layerbrowse.tt.error.cantviewlayer')
+        unless defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
+               $srcview == 1 || $isadmin || $remote &&
+               $remote->can_manage( LJ::load_userid( $lay->{userid} ) );
+
+    my $s2code = LJ::S2::load_layer_source($id);
+
+    # get html version of the code?
+    if ($GET->get_args->{'fmt'} eq "html") {
+        my $html;
+        my ($md5, $save_cache);
+        if ($pub->{$id}) {
+            # let's see if we have it cached
+            $md5 = Digest::MD5::md5_hex($s2code);
+            my $cache = $dbr->selectrow_array("SELECT value FROM blobcache WHERE bckey='s2html-$id'");
+            if ($cache =~ s/^\[$md5\]//) {
+                $html = $cache;
+            } else {
+                $save_cache = 1;
+            }
+        }
+
+        unless ($html) {
+            my $cr = new S2::Compiler;
+            $cr->compile_source({
+                'source' => \$s2code,
+                'output' => \$html,
+                'format' => "html",
+                'type' => $pub->{$id}->{'type'},
+            });
+        }
+
+        if ($save_cache) {
+            my $dbh = LJ::get_db_writer();
+            $dbh->do("REPLACE INTO blobcache (bckey, dateupdate, value) VALUES (?,NOW(),?)",
+                     undef, "s2html-$id", "[$md5]$html");
+        }
+        return $r->print($html);
+    }
+
+    # return text version
+    $r->content_type("text/plain");
+    my $ua = $r->header_in("User-Agent");
+    if ($ua && $ua =~ /\bMSIE\b/) {
+        my $filename = "s2source-$id.txt";
+        $r->header_out('Content-Disposition' => "attachment; filename=$filename");
+    }
+
+    return $r->print($s2code);
 
 }
 

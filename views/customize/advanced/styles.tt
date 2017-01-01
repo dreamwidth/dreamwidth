@@ -3,12 +3,12 @@
     [% dw.ml("Backlink", { 'link' => "$site.root/customize/advanced/",'text' => dw.ml('.back2'),}) %]
     [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/layers$getextra'>" _ dw.ml('.nav.yourlayers') _ "</a>", }) %]
 
-
 [% UNLESS noactions %]
     <form method="get">
         [%- authas_html -%]
     </form>
 [% END %]
+
     [%# edit mode %]
     [% IF id %]
 
