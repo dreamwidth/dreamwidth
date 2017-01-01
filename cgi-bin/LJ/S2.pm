@@ -296,6 +296,7 @@ sub s2_run
     };
     my $out_clean = sub {
         my $text = shift;
+        $text = '' unless defined $text;
 
         $cleaner->parse($text);
 
