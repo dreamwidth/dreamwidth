@@ -37,8 +37,10 @@ sub format_time {
 }
 
 
+# return whether or not a user is in a given beta key (as defined by %LJ::BETA_FEATURES)
+# and enabled on the beta page
 sub is_in_beta {
-    my ($u, $key) = @_;
+    my ( $u, $key ) = @_;
     return LJ::BetaFeatures->user_in_beta( $u => $key );
 }
 

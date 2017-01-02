@@ -483,11 +483,21 @@ sub trans {
         }
     }
 
+    # force SSL if not currently and user is in httpseverywhere beta
+    my $remote = LJ::get_remote();
+    if ( $apache_r->is_initial_req && $LJ::USE_SSL && ! $is_ssl && $remote &&
+            ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' ) &&
+            $remote->is_in_beta( 'httpseverywhere' ) ) {
+
+        my $url = LJ::create_url( $uri, keep_args => 1, ssl => 1 );
+        return redir( $apache_r, $url );
+    }
+
     # block on IP address for anonymous users but allow users to log in,
     # and logged in users to go through
 
     # we're not logged in, and we're not in the middle of logging in
-    unless ( LJ::get_remote() || LJ::remote_bounce_url() ) {
+    unless ( $remote || LJ::remote_bounce_url() ) {
         # blocked anon uri contains more information for the user
         # re: why they're banned, and what they should do
         unless ( ( $LJ::BLOCKED_ANON_URI && index( $uri, $LJ::BLOCKED_ANON_URI ) == 0 )
