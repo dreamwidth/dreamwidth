@@ -15,7 +15,7 @@ package LJ::User;
 use strict;
 no warnings 'uninitialized';
 
-use Carp;
+use Carp qw/ confess /;
 use LJ::Identity;
 
 use DW::Pay;
@@ -822,7 +822,7 @@ sub preload_props {
                 LJ::get_db_reader();
             $used_slave = 1;
         }
-        die "No db\n" unless $db;
+        confess "No database handle available" unless $db;
 
         $sql = "SELECT upropid, value FROM $table WHERE userid=$uid";
         if (ref $loadfrom{$table}) {
