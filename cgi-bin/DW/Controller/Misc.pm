@@ -69,11 +69,14 @@ sub beta_handler {
     my $now = time();
     my @current_features;
     if ( keys %LJ::BETA_FEATURES ) {
-        my @all_features = sort { $LJ::BETA_FEATURES{$b}->{start_time} <=> $LJ::BETA_FEATURES{$a}->{start_time} } keys %LJ::BETA_FEATURES;
+        my @all_features = sort {
+                $LJ::BETA_FEATURES{$b}->{start_time} <=> $LJ::BETA_FEATURES{$a}->{start_time}
+            } keys %LJ::BETA_FEATURES;
         foreach my $feature ( @all_features ) {
             my $feature_handler = LJ::BetaFeatures->get_handler( $feature );
             push @current_features, $feature_handler
-                if $LJ::BETA_FEATURES{$feature}->{start_time} <= $now && $LJ::BETA_FEATURES{$feature}->{end_time} > $now
+                if $LJ::BETA_FEATURES{$feature}->{start_time} <= $now
+                    && $LJ::BETA_FEATURES{$feature}->{end_time} > $now
                     && ! $feature_handler->is_sitewide_beta;
         }
     }
@@ -82,7 +85,10 @@ sub beta_handler {
         remote => $rv->{remote},
         features => \@current_features,
         news_journal => LJ::load_user( $LJ::NEWS_JOURNAL ),
-        replace_ljuser_tag => sub { $_[0] =~ s/<\?ljuser (.+) ljuser\?>/LJ::ljuser($1)/mge; return $_[0] },
+        replace_ljuser_tag => sub {
+                $_[0] =~ s/<\?ljuser (.+) ljuser\?>/LJ::ljuser($1)/mge;
+                return $_[0];
+            },
     };
     return DW::Template->render_template( 'beta.tt', $vars );
 }
