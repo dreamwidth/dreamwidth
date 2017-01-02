@@ -822,6 +822,8 @@ sub preload_props {
                 LJ::get_db_reader();
             $used_slave = 1;
         }
+        die "No db\n" unless $db;
+
         $sql = "SELECT upropid, value FROM $table WHERE userid=$uid";
         if (ref $loadfrom{$table}) {
             $sql .= " AND upropid IN (" . join(",", @{$loadfrom{$table}}) . ")";
