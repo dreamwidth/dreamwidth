@@ -10,7 +10,7 @@
     <br /><br /><div class='moodtheme-form'>
         [% form.select( name = "moodthemeid",
                         id = "moodtheme_dropdown",
-                        selected = preview_moodthemid,
+                        selected = preview_moodthemeid,
                         items = themevalues) %]
     <br />
 
