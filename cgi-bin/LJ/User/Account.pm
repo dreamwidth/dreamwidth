@@ -445,7 +445,7 @@ sub set_renamed {
 sub set_statusvis {
     my ($u, $statusvis) = @_;
 
-    croak "Invalid statusvis: $statusvis"
+    Carp::croak "Invalid statusvis: $statusvis"
         unless $statusvis =~ /^(?:
             V|       # visible
             D|       # deleted
