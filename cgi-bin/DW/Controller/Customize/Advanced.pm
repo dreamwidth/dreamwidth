@@ -1,4 +1,3 @@
-
 #!/usr/bin/perl
 #
 # DW::Controller::Customize::Advanced
@@ -44,6 +43,7 @@ sub advanced_handler {
     $vars->{u}             = $u;
     $vars->{remote}        = $remote;
     $vars->{no_layer_edit} = $no_layer_edit;
+
 
     return DW::Template->render_template( 'customize/advanced/index.tt', $vars );
 
@@ -179,6 +179,7 @@ sub layerbrowse_handler {
                                 . ",</li>"
                         } keys %$v
                         ) . "</ul><code>}</code>";
+
                 }
                 else {
                     $v = "<code>{}</code>";
@@ -483,7 +484,6 @@ sub styles_handler {
     my ( $pub, $ulay, $style );    # hashrefs
 
     if ($id) {
-
         # load style
         $style = LJ::S2::load_style($id);
         return error_ml('/customize/advanced/styles.tt.error.stylenotfound') unless $style;
@@ -544,7 +544,6 @@ sub styles_handler {
             $POST->{core} = $highest_core;
         }
         $style->{layer}->{core} = $highest_core unless $style->{layer}->{core};
-
         $vars->{core} = $core;
 
         # layout lid

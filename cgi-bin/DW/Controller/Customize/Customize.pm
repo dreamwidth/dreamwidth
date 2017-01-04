@@ -549,9 +549,4 @@ sub render_currenttheme{
     return DW::Template->template_string( 'customize/currenttheme.tt', $vars );
 }
 
-
-
-
-
 1;
-

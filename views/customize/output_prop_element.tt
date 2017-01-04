@@ -90,11 +90,13 @@
 
             [%# force the checkbox to be submitted, if the user unchecked it %]
             [%# so that it can be processed (disabled) when handling the post %]
-            [% form.hidden(
-                'name' = name,
-                 'value' = 0,
-                'disabled' = !can_use 
-            ) %]
+
+            [% IF can_use %]
+                [% form.hidden(
+                    'name' = name,
+                     'value' = 0,
+                ) %]
+            [% END %]
         [% END %]
 
         [% "</td>" UNLESS is_group %]
