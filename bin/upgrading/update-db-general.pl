@@ -914,6 +914,7 @@ register_tabledrop("pollprop2");
 register_tabledrop("pollproplist2");
 register_tabledrop("dirsearchres2");
 register_tabledrop("txtmsg");
+register_tabledrop("comm_promo_list");
 
 
 register_tablecreate("infohistory", <<'EOC');
@@ -2192,16 +2193,6 @@ CREATE TABLE sch_exitstatus (
     delete_after    INTEGER UNSIGNED,
 
     INDEX (delete_after)
-)
-EOC
-
-register_tablecreate("comm_promo_list", <<'EOC');
-CREATE TABLE comm_promo_list (
-    journalid INT UNSIGNED NOT NULL,
-    r_start INT UNSIGNED NOT NULL,
-    r_end INT UNSIGNED NOT NULL,
-
-    INDEX (r_start)
 )
 EOC
 
