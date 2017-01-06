@@ -17,9 +17,6 @@ generic.pl:
   joinmail - Generates daily email digests for community join requests
   clean_spamreports - Clean out data from the spamreports table older than 90 days.
 
-comm_promo_list.pl:
-  comm_promo_list - Generates data needed for community promos
-
 captcha.pl:
   cache_textcaptcha - Generates textcaptcha instances
   clean_captchas - Clean out captchas that have been used
