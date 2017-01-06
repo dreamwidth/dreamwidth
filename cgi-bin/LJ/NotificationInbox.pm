@@ -417,7 +417,7 @@ sub enqueue {
     my ($self, %opts) = @_;
 
     my $evt = delete $opts{event};
-    my $archive = delete $opts{archive} || 1;
+    my $archive = delete $opts{archive} || LJ::is_enabled( 'esn_archive' );
     croak "No event" unless $evt;
     croak "Extra args passed to enqueue" if %opts;
 
