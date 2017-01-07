@@ -235,8 +235,40 @@ var ml =  {
             [% END %]
 
             [% #If we're in the module subsection, we also need to render the Custom Text widget %]
-            [% IF $subheaders.$subheader == dw.ml('customize.propgroup_subheaders.module') %] 
-                $ret .= LJ::Widget::CustomTextModule->render( count => $count );
+            [% IF subheaders.$subheader == dw.ml('customize.propgroup_subheaders.module') %] 
+
+                [% row_class = count % 2 == 0 ? " even" : " odd" %]
+
+                <tr class='prop-row[% row_class %]' valign='top' width='100%'><td class='prop-header' valign='top'>[% dw.ml('widget.customtext.title') %]</td>
+                <td valign='top'>[% form.textbox(
+                    name => "module_customtext_title",
+                    size => 20,
+                    value => custom_text_title,
+                ) %]</td></tr>
+
+                [% count = count + 1 %]
+                [% row_class = count % 2 == 0 ? " even" : " odd" %]
+
+                <tr class='prop-row[% row_class %]' valign='top' width='100%'><td class='prop-header' valign='top'>[% dw.ml('widget.customtext.url') %]</td>
+                <td valign='top'>[% form.textbox(
+                    name => "module_customtext_url",
+                    size=> 20,
+                    value => custom_text_url,
+                ) %]</td></tr>
+
+
+                [% count = count + 1 %]
+                [% row_class = count % 2 == 0 ? " even" : " odd" %]
+
+                <tr class='prop-row[% row_class %]' valign='top' width='100%'><td class='prop-header' valign='top'>[% dw.ml('widget.customtext.content') %]<br />
+                <td valign='top'>[% form.textarea(
+                    name => "module_customtext_content",
+                    rows => 10,
+                    cols => 50,
+                    wrap => 'soft',
+                    value => custom_text_content,
+                ) %]</td></tr>
+                </div>
             [% END %]
 
             [% '</table>'  IF header_printed %]
