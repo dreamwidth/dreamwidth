@@ -242,6 +242,21 @@ sub render_s2propgroup {
 
     my $theme = LJ::Customize->get_current_theme($u);
 
+    # get the custom text settings from the S2 layers, in case the userprops are empty.
+    my %module_custom_text_title = LJ::Customize->get_s2_prop_values("text_module_customtext", $u, $style);
+    my %module_custom_text_url = LJ::Customize->get_s2_prop_values("text_module_customtext_url", $u, $style);
+    my %module_custom_text_content = LJ::Customize->get_s2_prop_values("text_module_customtext_content", $u, $style);
+
+    # go for userprop values first, layer values second.
+    my $custom_text_title = $u->prop( 'customtext_title' ) ne ''
+        ? $u->prop( 'customtext_title' )
+        : "Custom Text";
+    my $custom_text_url = $u->prop( 'customtext_url' ) || $module_custom_text_url{override};
+    my $custom_text_content = $u->prop( 'customtext_content' ) || $module_custom_text_content{override};
+
+    $vars->{custom_text_title} = $custom_text_title;
+    $vars->{custom_text_url} = $custom_text_url;
+    $vars->{custom_text_content} = $custom_text_content;
     $vars->{theme} = $theme;
     $vars->{props} = $props;
     $vars->{propgroup} = $propgroup;

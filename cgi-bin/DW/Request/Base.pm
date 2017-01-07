@@ -212,7 +212,8 @@ sub _string_to_multivalue {
 
     my @out;
     foreach my $key ( keys %gets ) {
-        my @parts = split(/\0/, $gets{$key});
+
+        my @parts = defined $gets{$key} ? split(/\0/, $gets{$key}): '' ;
         push @out, map { $opts{lowercase} ? lc $key : $key => $_ } @parts;
     }
 
