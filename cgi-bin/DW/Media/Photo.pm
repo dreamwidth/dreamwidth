@@ -96,7 +96,9 @@ sub _resize {
         int($height * $ratio + 0.5) );
 
     # Load the image data, then scale it.
-    my $dataref = LJ::mogclient()->get_file_data( $self->mogkey );
+    my ( $username, $mediaid ) = ( $self->u->user, $self->{mediaid} );
+    my $dataref = LJ::mogclient()->get_file_data( $self->mogkey )
+        or croak "Failed to load image file $mediaid for $username.";
     my $timage = Image::Magick->new()
         or croak 'Failed to instantiate Image::Magick object.';
     $timage->BlobToImage( $$dataref );
