@@ -202,8 +202,17 @@ sub get_active_for_user {
     return () unless $rows && ref $rows eq 'ARRAY';
 
     # construct media objects for each of the items and return that
-    return sort { $b->logtime <=> $a->logtime }
-           map { DW::Media->new( user => $u, mediaid => $_, %opts ) } @$rows;
+    my @media;
+    foreach ( @$rows ) {
+        # use eval to catch croaks
+        my $obj = eval { DW::Media->new( user => $u, mediaid => $_, %opts ) };
+        if ( $obj ) {
+            push @media, $obj;
+        } else {
+            warn "Failed to load media: $@";
+        }
+    }
+    return sort { $b->logtime <=> $a->logtime } @media;
 }
 
 
