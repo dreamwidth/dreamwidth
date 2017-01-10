@@ -108,7 +108,7 @@
     [%# Links List Group %]
     [% ELSIF group == "linkslist" %]
         <div id='linkslist-group' class='customize-group'>
-        [% render_linkslist() %]
+        [% render_linkslist('numlinks', numlinks, 'morelinks', morelinks) %]
         </div>
     
 

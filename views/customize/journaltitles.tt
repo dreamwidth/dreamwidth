@@ -15,8 +15,7 @@
     [% help_icon("journal_titles") %]</p>
 
     [% FOREACH id IN ['journaltitle', 'journalsubtitle', 'friendspagetitle', 'friendspagesubtitle' ] %]
-        [% eprop = ehtml( u.prop( id ) ) %]
-        <form id ="[% id %]_form" method=POST>
+         <form id ="[% id %]_form" method=POST>
 
         [% dw.form_auth %]
         <p>
@@ -25,7 +24,7 @@
         [% ELSE %]
             <label>[% dw.ml("widget.journaltitles.$id") %]</label>
         [% END %]
-        <span id='[% id %]_view'><strong>[% eprop %]</strong>
+        <span id='[% id %]_view'><strong>[% u.prop( id ) | html %]</strong>
         <a href='' class='theme-title-control' id='[% id %]_edit'>[% dw.ml('widget.journaltitles.edit') %]</a>
         </span>
 

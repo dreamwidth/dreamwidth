@@ -63,13 +63,13 @@ var ml =  {
                 [% END %]
 
                 [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
                 [% END %]
 
                [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0, grouped_prop_override ) %]
 
                 [% IF prop.note %]
-                    </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.prop_name.note) %]</td>
+                    </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html %]</td>
                 [% END %]
                 </tr>
 
@@ -108,13 +108,13 @@ var ml =  {
                 [% END %]
 
                 [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
                 [% END %]
 
                 [% output_prop_element(props.$prop_name, prop_name, u, style, theme, props, 0) %]
 
                 [% IF prop.note %]
-                    </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.$prop_name.note) %]</td>
+                    </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html%]</td>
                 [% END %]
                 </tr>
             [% count = count + 1 %]
@@ -157,14 +157,14 @@ var ml =  {
                     [% END %]
 
                     [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                    <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                    <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
                     [% END %]
 
 
                     [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0, grouped_prop_override) %]
 
                     [% IF props.$prop_name.note %]
-                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.$prop_name.note) %]</td>
+                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html%]</td>
                     [% END %]
                     </tr>
                 [% count = count + 1 %]
@@ -222,13 +222,13 @@ var ml =  {
                     [% END %]
 
                     [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                    <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                    <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
                     [% END %]
 
                     [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0) %]
 
                     [% IF prop.note %]
-                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.$prop_name.note) %]</td>
+                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html%]</td>
                     [% END %]
                     </tr>
                 [% count = count + 1 %]
@@ -322,14 +322,14 @@ var ml =  {
                     [% END %]
 
                     [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                    <td class='prop-header' valign='top'>[% eall( props.$prop_name.des ) %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
+                    <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
                     [% END %]
 
                    [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0) %]
 
 
                     [% IF props.$prop_name.note %]
-                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% eall(props.$prop_name.note) %]</td>
+                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html%]</td>
                     [% END %]
                     </tr>
                 [% count = count + 1 %]
