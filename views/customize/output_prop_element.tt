@@ -22,7 +22,7 @@
 
             [% modulename = prop.name.remove('_group') %]
 
-            <label for='[% modulename %]_show'>[% eall( prop.des ) %]</label>
+            <label for='[% modulename %]_show'>[% prop.des | html %]</label>
             [% modulename_token = modulename _ "_opts_group" %]
 
             [% output_prop_element( props.$modulename_token, modulename_token, u, style, theme, props, is_group + 1  ) IF has_opts %]
@@ -36,13 +36,13 @@
             </ul>
         [% ELSE %]
 
-            <td class='prop-grouped prop-[% prop.grouptype %]' colspan=2><label class='prop-header'>[% eall( prop.des ) _ help_icon( "s2opt_$prop->{name}" ) %]</label>
+            <td class='prop-grouped prop-[% prop.grouptype %]' colspan=2><label class='prop-header'>[% prop.des| html %][% help_icon( "s2opt_$prop->{name}" ) %]</label>
 
             [% FOREACH prop_in_group IN override %]
                 [% output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1 ) %] 
             [% END %]
             [% IF prop.note %]
-                <ul class=''><li>[% eall(prop.note) %]</li></ul>
+                <ul class=''><li>[% prop.note | html %]</li></ul>
             [% END %]
 
             </td>
@@ -62,7 +62,9 @@
               'selected' = override, 
               items = value_list,
         ) %]
-        [% "<label>" _ eall( prop.des ) _ "</label>" IF is_group && prop.des %]
+        [% IF is_group && prop.des %]
+            <label>[% prop.des | html %]</label>
+        [% END %]
         [% "</td>" UNLESS is_group %]
     [% ELSIF type == "int" %]
         [% "<td class='prop-input'>" UNLESS is_group %]
@@ -73,7 +75,9 @@
             'maxlength' = 5,
             'size' = 7,
         ) %]
-        [% "<label>" _ eall( prop.des ) _ "</label>" IF is_group && prop.des %]
+        [% IF is_group && prop.des %]
+            <label>[% prop.des | html %]</label>
+        [% END %]
         [% "</td>" UNLESS is_group %]
     [% ELSIF type == "bool" %]
         [% "<td class='prop-check'>" UNLESS is_group %]
@@ -148,7 +152,7 @@
         ) %]
         [% "</td>" UNLESS is_group %]
 
-        <td>[% eall(prop.des) _ help_icon("s2opt_" _ $name) %]</td>
+        <td>[% prop.des| html %][% help_icon("s2opt_" _ $name) %]</td>
     
     [% END %]
 

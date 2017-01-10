@@ -18,7 +18,7 @@
             [% is_child = lay.type != 'core' && lay.type != 'layout' %]
             
             [%# show link to detailed view %]
-            <li><a href='layerbrowse?id=[% lay.uniq %]' name='[% lay.uniq %]' id='[% lay.uniq %]'>[% ehtml( layerinfo.$lid.name) %]
+            <li><a href='layerbrowse?id=[% lay.uniq %]' name='[% lay.uniq %]' id='[% lay.uniq %]'>[% layerinfo.$lid.name | html %]
             </a> ([% lay.type %][% NOT is_child ? ": <b>$lid</b>" : '' %])</li>
 
             [%# done unless there are children to recurse through %]
@@ -98,7 +98,7 @@
         [% IF k == "name" %]
             [%- sections.title = info.$k -%]
             [% END %]
-            <tr><td><b>[% ehtml(k) %]</b></td><td>[% ehtml(info.$k) %]</td></tr>
+            <tr><td><b>[% k | html %]</b></td><td>[% info.$k | html %]</td></tr>
         [% END %]
         </table>
     [% END %]

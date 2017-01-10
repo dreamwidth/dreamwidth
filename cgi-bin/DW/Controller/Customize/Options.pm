@@ -21,7 +21,6 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Logic::MenuNav;
-use DW::Controller::Customize;
 use Data::Dumper;
 
 # This registers a static string, which is an application page.
@@ -33,10 +32,10 @@ sub options_handler {
     return $rv unless $ok;
 
     my $r = $rv->{r};
-    my $post = $r->post_args;
+    my $POST = $r->post_args;
     my $u = $rv->{u};
     my $remote = $rv->{remote};
-    my $GET = $r;
+    my $GET = $r->get_args;
     my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
     my $getsep = $getextra ? "&" : "?";
     my $style = LJ::Customize->verify_and_load_style($u);
@@ -57,62 +56,114 @@ sub options_handler {
     $vars->{render_journaltitles} = \&DW::Controller::Customize::render_journaltitles;
     $vars->{render_layoutchooser} = \&DW::Controller::Customize::render_layoutchooser;
     $vars->{render_customizetheme} = \&render_customizetheme;
-
     $vars->{render_currenttheme} = \&DW::Controller::Customize::render_currenttheme;
 
-    $vars->{show} = defined $GET->get_args->{show} ? $GET->get_args->{show} : 12;
+    $vars->{show} = defined $GET->{show} ? $GET->{show} : 12;
     my $show = $vars->{show};
     
     LJ::Customize->migrate_current_style($u);
 
-    $vars->{group} = $GET->get_args->{group} ? $GET->get_args->{group} : "presentation";
+    $vars->{group} = $GET->{group} ? $GET->{group} : "presentation";
 
     #handle post actions
     
          my ($given_moodthemeid, $given_forcemoodtheme);
 
     if ($r->did_post) {
-        if ($post->{'action:morelinks'}) {}
+        if ($POST->{'action:morelinks'}) {
+            $vars->{morelinks} = 1;
+            $vars->{numlinks} = $POST->{numlinks};
+        }
          # this is handled in render_body
-        elsif ($post->{'reset'}) {
+        elsif ($POST->{'reset'}) {
             # reset all props except the layout props
             my $current_theme = LJ::Customize->get_current_theme($u);
             my $layout_prop = $current_theme->layout_prop;
             my $show_sidebar_prop = $current_theme->show_sidebar_prop;
 
-            my %override = %$post;
+            my %override = %$POST;
             delete $override{$layout_prop};
             delete $override{$show_sidebar_prop};
 
-            foreach my $val (keys %$post) {
+            foreach my $val (keys %$POST) {
             next unless $val =~ /^link_\d+_title$/ || $val =~ /^link_\d+_url$/;
 
-            $post->{$val} = "";
+            $POST->{$val} = "";
             }
 
             $given_moodthemeid = 1;
             $given_forcemoodtheme = 0;
 
             LJ::Customize->save_s2_props($u, $style, \%override, reset => 1);
-            LJ::Customize->save_language($u, $post->{langcode}, reset => 1) if defined $post->{langcode};
+            LJ::Customize->save_language($u, $POST->{langcode}, reset => 1) if defined $POST->{langcode};
+
+            # clear the custom-text values if we're on the text group page
+            if ($vars->{group} eq 'text') {
+                $u->set_prop( 'customtext_title', "Custom Text" );
+                $u->clear_prop( 'customtext_url' );
+                $u->clear_prop( 'customtext_content' );
+            }
         } else {
-            my %override = map { $_ => "" } keys %$post;
+            my %override = map { $_ => "" } keys %$POST;
+            warn Dumper($POST);
 
 
-            # ignore all values after the first true $value
-            # only checkboxes have multiple values (forced post of 0,
-            # so we don't ignore checkboxes that the user just unchecked)
-            foreach my $key ( keys %$post ) {
-                foreach my $value ( split ( /\0/, $post->{$key} ) ) {
-                    $override{$key} ||= $value;
+            # we need to remove properties that are set in userprops and
+            # handle checkboxes, which can have multiple values, so we can
+            # 'see' checkboxes the user has unchecked. If there are mutiple
+            # values, we know the box has been checked.
+            foreach my $key ( keys %$POST ) {
+                next if $key eq 'module_customtext_title' || $key eq 'module_customtext_url'
+                        || $key eq 'module_customtext_content'; # don't add customtext fields, we save these in userprops instead
+
+                my @value = $POST->get_all($key);
+                $override{$key} = $#value > 0 ? 'on' : $value[0];
+
+            }
+
+            $given_moodthemeid = $POST->{moodthemeid};
+            $given_forcemoodtheme = $POST->{opt_forcemoodtheme};
+
+            my $given_control_strip_color = $POST->{control_strip_color};
+            my $given_control_strip_custom = $POST->{control_strip_custom};
+
+            if ($given_control_strip_custom ne "custom") {
+                $override{custom_control_strip_colors} = "off";
+            } else {
+                if ($given_control_strip_custom eq "custom") {
+                    if ($POST->{control_strip_no_gradient_custom}) {
+                        $override{custom_control_strip_colors} = "on_no_gradient";
+                    } else {
+                        $override{custom_control_strip_colors} = "on_gradient";
+                    }
+
+                    $override{control_strip_bgcolor} = $POST->{control_strip_bgcolor} || "";
+                    $override{control_strip_fgcolor} = $POST->{control_strip_fgcolor} || "";
+                    $override{control_strip_bordercolor} = $POST->{control_strip_bordercolor} || "";
+                    $override{control_strip_linkcolor} = $POST->{control_strip_linkcolor} || "";
                 }
             }
 
-            $given_moodthemeid = $post->{moodthemeid};
-            $given_forcemoodtheme = $post->{opt_forcemoodtheme};
+            $u->set_prop('control_strip_color', $given_control_strip_color);
             
             LJ::Customize->save_s2_props($u, $style, \%override);
-            LJ::Customize->save_language($u, $post->{langcode}) if defined $post->{langcode};
+            LJ::Customize->save_language($u, $POST->{langcode}) if defined $POST->{langcode};
+
+            # try and set custom-text values only if we're on the text group page
+            # otherwise we'll clobber them with blank fields 
+            if ($vars->{group} eq 'text') {
+                $u->set_prop( 'customtext_title', $POST->{module_customtext_title} );
+                $u->set_prop( 'customtext_url', $POST->{module_customtext_url} );
+                $u->set_prop( 'customtext_content', $POST->{module_customtext_content} );
+            }
+    
+            # if we're on the linklist page, process the form into a link object
+            # and save it for the user
+            if ($vars->{group} eq 'linkslist') {
+                my $linkobj = LJ::Links::make_linkobj_from_form($u, $POST->as_hashref);
+                LJ::Links::save_linkobj($u, $linkobj);
+
+            }
         }
 
         #handle mood theme updates
@@ -174,23 +225,22 @@ sub render_customizetheme {
     $vars->{forcemoodtheme} = $forcemoodtheme;
     my $mobj = DW::Mood->new( $preview_moodthemeid );
     $vars->{mobj} = $mobj;
-    $vars->{eall} = \&LJ::eall;
 
 
     my $theme = LJ::Customize->get_current_theme($u);
     my @props = S2::get_properties($theme->layoutid);
     my %prop_is_used = map { $_ => 1 } @props;
-    my %colors_values = LJ::Customize->get_s2_prop_values("custom_control_strip_colors", $u, $style);
-    my %bgcolor_values = LJ::Customize->get_s2_prop_values("control_strip_bgcolor", $u, $style);
-    my %fgcolor_values = LJ::Customize->get_s2_prop_values("control_strip_fgcolor", $u, $style);
-    my %bordercolor_values = LJ::Customize->get_s2_prop_values("control_strip_bordercolor", $u, $style);
-    my %linkcolor_values = LJ::Customize->get_s2_prop_values("control_strip_linkcolor", $u, $style);
+
+    my %navstrip_custom_colors;
+    my %navstrip_options = LJ::Customize->get_s2_prop_values("custom_control_strip_colors", $u, $style);
+    $navstrip_custom_colors{control_strip_bgcolor} = LJ::Customize->get_s2_prop_values("control_strip_bgcolor", $u, $style);
+    $navstrip_custom_colors{control_strip_fgcolor} = LJ::Customize->get_s2_prop_values("control_strip_fgcolor", $u, $style);
+    $navstrip_custom_colors{control_strip_bordercolor} = LJ::Customize->get_s2_prop_values("control_strip_bordercolor", $u, $style);
+    $navstrip_custom_colors{control_strip_linkcolor} = LJ::Customize->get_s2_prop_values("control_strip_linkcolor", $u, $style);
+
     $vars->{props} = \@props;
-    $vars->{colors_values} = \%colors_values;
-    $vars->{bgcolor_values} = \%bgcolor_values;
-    $vars->{fgcolor_values} = \%fgcolor_values;
-    $vars->{bordercolor_values} = \%bordercolor_values;
-    $vars->{linkcolor_values} = \%linkcolor_values;
+    $vars->{navstrip_options} = \%navstrip_options;
+    $vars->{navstrip_custom_colors} = \%navstrip_custom_colors;
     $vars->{get_property} = sub { S2::get_property($theme->coreid, $_); };
     $vars->{prop_is_used} = \%prop_is_used;
     $vars->{isref} = sub { return ref $_; };
@@ -264,13 +314,9 @@ sub render_s2propgroup {
     $vars->{propgroup_name} = sub { LJ::Customize->propgroup_name(@_); };
     $vars->{skip_prop} = \&skip_prop;
     $vars->{help_icon} = \&LJ::help_icon;
-    $vars->{eall} = \&LJ::eall;
-    $vars->{can_use_prop} = \&LJ::S2::can_use_prop;
-    $vars->{get_s2_prop_values} = sub { LJ::Customize->get_s2_prop_values(@_); };
     $vars->{output_prop} = \&output_prop;
     $vars->{get_subheaders} =  sub {LJ::Customize->get_propgroup_subheaders; };
     $vars->{get_subheaders_order} =  sub {LJ::Customize->get_propgroup_subheaders_order; };
-    $vars->{eval} = sub { eval $_ };
     $vars->{output_prop_element} = \&output_prop_element;
 
     if ($propgroup eq "presentation") {
@@ -424,12 +470,14 @@ sub render_s2propgroup {
 return DW::Template->template_string( 'customize/s2propgroup.tt', $vars );
 }
 
-# helper subroutine to determine which properties not to show
+# Helper subroutine to determine which properties not to show in the normal
+# flow. These include hiding user-only properties if we're working as
+# a community, navstrip color blocks, because they're handled seperately,
+# and layout props, which have their own UI already.
+
 sub skip_prop {
 
-    my $prop = shift;
-    my $prop_name = shift;
-    my %opts = @_;
+    my ($prop, $prop_name, %opts) = @_;
 
     my $props_to_skip = $opts{props_to_skip};
     my $theme = $opts{theme};
@@ -469,6 +517,9 @@ sub skip_prop {
     return 0;
 }
 
+# Helper function to pull out the necessary bits of data
+# for formatting property form elements.
+
 sub output_prop_element {
     my ( $prop, $prop_name, $u, $style, $theme, $props, $is_group, $grouped_prop_override, $overriding_values ) = @_;
     $grouped_prop_override ||= {};
@@ -504,7 +555,6 @@ sub output_prop_element {
     $vars->{props} = $props;
     $vars->{prop} = $prop;
     $vars->{overriding_values} = $overriding_values;
-    $vars->{eall} = \&LJ::eall;
     $vars->{help_icon} = \&LJ::help_icon;
     $vars->{output_prop_element} = \&output_prop_element;
     $vars->{override} = $override;
@@ -522,16 +572,17 @@ sub render_linkslist {
     my $u = LJ::get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
-    my $post = $opts{post};
     my $linkobj = LJ::Links::load_linkobj($u, "master");
-    my $link_min = $opts{link_min} || 5; # how many do they start with ?
-    my $link_more = $opts{link_more} || 5; # how many do they get when they click "more"
-    my $order_step = $opts{order_step} || 10; # step order numbers by
+    my $link_min = 5; # how many do they start with ?
+    my $link_more = 5; # how many do they get when they click "more"
+    my $order_step = 10; # step order numbers by
+
+    warn Dumper($linkobj);
 
     # how many link inputs to show?
-    my $showlinks = $post->{numlinks} || @$linkobj;
+    my $showlinks = $opts{numlinks} || @$linkobj;
     my $caplinks = $u->count_max_userlinks;
-    $showlinks += $link_more if $post->{'action:morelinks'};
+    $showlinks += $link_more if $opts{morelinks};
     $showlinks = $link_min if $showlinks < $link_min;
     $showlinks = $caplinks if $showlinks > $caplinks;
     

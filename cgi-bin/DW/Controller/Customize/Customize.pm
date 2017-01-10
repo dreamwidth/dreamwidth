@@ -43,7 +43,7 @@ sub customize_handler {
     my $post = $r->post_args;
     my $u = $rv->{u};
     my $remote = $rv->{remote};
-    my $GET = DW::Request->get;
+    my $GET = $r->get_args;
     my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
     my $getsep = $getextra ? "&" : "?";
 
@@ -60,12 +60,12 @@ sub customize_handler {
 
 
 
-    $vars->{cat} = defined $GET->get_args->{cat} ? $GET->get_args->{cat} : "";
-    $vars->{layoutid} = defined $GET->get_args->{layoutid} ? $GET->get_args->{layoutid} : 0;
-    $vars->{designer} = defined $GET->get_args->{designer} ? $GET->get_args->{designer} : "";
-    $vars->{search} = defined $GET->get_args->{search} ? $GET->get_args->{search} : "";
-    $vars->{page} = defined $GET->get_args->{page} ? $GET->get_args->{page} : 1;
-    $vars->{show} = defined $GET->get_args->{show} ? $GET->get_args->{show} : 12;
+    $vars->{cat} = defined $GET->{cat} ? $GET->{cat} : "";
+    $vars->{layoutid} = defined $GET->{layoutid} ? $GET->{layoutid} : 0;
+    $vars->{designer} = defined $GET->{designer} ? $GET->{designer} : "";
+    $vars->{search} = defined $GET->{search} ? $GET->{search} : "";
+    $vars->{page} = defined $GET->{page} ? $GET->{page} : 1;
+    $vars->{show} = defined $GET->{show} ? $GET->{show} : 12;
 
     my $showarg = $vars->{show} != 12 ? "show=$vars->{show}" : "";
     my $show = $vars->{show};
@@ -135,7 +135,6 @@ sub customize_handler {
     $vars->{custom_themes} = \@custom_themes;
     $vars->{special_themes_exist} = $special_themes_exist;
     $vars->{eurl} = \&LJ::eurl;
-    $vars->{ehtml} = \&LJ::ehtml;
     $vars->{maxlength} = LJ::std_max_length();
     $vars->{help_icon} = \&LJ::help_icon;
     $vars->{get_s2_prop_values} = sub { LJ::Customize->get_s2_prop_values(@_); };
@@ -364,7 +363,6 @@ sub render_themechooser {
     $vars->{run_hook} = \&LJ::Hooks::run_hook;
     $vars->{img_prefix} = $LJ::IMGPREFIX;
     $vars->{eurl} = \&LJ::eurl;
-    $vars->{ehtml} = \&LJ::ehtml;
     $vars->{getextra} = $getextra;
     $vars->{getsep} = $getsep;
     $vars->{get_layout_name} = sub { LJ::Customize->get_layout_name(@_); };

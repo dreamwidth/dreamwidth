@@ -23,8 +23,8 @@
 
     [% journalarg = getextra ? "?journal=$u.user" : ""  %]
     <ul class='moodtheme-links nostyle'>
-    <li><a href='$site.root/moodlist$journalarg'>[% dw.ml('widget.moodthemechooser.links.allthemes') %]</a></li>
-    <li><a href='$site.root/manage/moodthemes$getextra'>[% dw.ml('widget.moodthemechooser.links.customthemes') %]</a></li>
+    <li><a href='[% site.root %]/moodlist[% journalarg %]'>[% dw.ml('widget.moodthemechooser.links.allthemes') %]</a></li>
+    <li><a href='[% site.root %]/manage/moodthemes[% getextra %]'>[% dw.ml('widget.moodthemechooser.links.customthemes') %]</a></li>
     </ul>
     </div>
 
@@ -47,13 +47,13 @@
             [% END %]
         [% END %]
         <div class='moodtheme-view-link'>
-		<a href='$site.root/moodlist?moodtheme=$preview_moodthemeid'>
+		<a href='[% site.root %]/moodlist?moodtheme=[% preview_moodthemeid %]'>
         [% dw.ml( 'widget.moodthemechooser.viewtheme' ) %]</a>
         </div>
 
         <div class='moodtheme-description'>
 
-		<p>[% eall(mobj.des) %]</p></div>
+		<p>[% mobj.des | html %]</p></div>
         </div>
     [% END %]
 

@@ -39,7 +39,7 @@ sub advanced_handler {
     return $rv unless $ok;
 
     my $r = $rv->{r};
-    my $post = $r->post_args;
+    my $POST = $r->post_args;
     my $u = $rv->{u};
     my $remote = $rv->{remote};
     my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
@@ -60,25 +60,25 @@ sub layerbrowse_handler {
     return $rv unless $ok;
 
     my $r = $rv->{r};
-    my $post = $r->post_args;
+    my $POST = $r->post_args;
     my $u = $rv->{u};
     my $remote = $rv->{remote};
-    my $GET = DW::Request->get;
+    my $GET = $r->get_args;
 
     my $vars;
     $vars->{u} = $u;
     $vars->{remote} = $remote;
-    $vars->{expand} = $GET->get_args->{'expand'};
+    $vars->{expand} = $GET->{'expand'};
 
     my $pub = LJ::S2::get_public_layers();
 
 
     my $id;
-    if ($GET->get_args->{'id'}) {
-        if ($GET->get_args->{'id'} =~ /^\d+$/) { # numeric
-            $id = $GET->get_args->{'id'};
+    if ($GET->{'id'}) {
+        if ($GET->{'id'} =~ /^\d+$/) { # numeric
+            $id = $GET->{'id'};
         } else {       # redist_uniq
-            $id = $pub->{$GET->get_args->{'id'}}->{'s2lid'};
+            $id = $pub->{$GET->{'id'}}->{'s2lid'};
         }
     }
 
@@ -212,20 +212,20 @@ sub layers_handler {
     return $rv unless $ok;
 
     my $r = $rv->{r};
-    my $post = $r->post_args;
+    my $POST = $r->post_args;
     my $u = $rv->{u};
     my $remote = $rv->{remote};
     my $no_layer_edit =  LJ::Hooks::run_hook("no_theme_or_layer_edit", $remote);
-    my $GET = DW::Request->get;
+    my $GET = $r->get_args;
     my $authas = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
 
     # id is optional
     my $id;
-    $id = $post->{'id'} if $post->{'id'} =~ /^\d+$/;
+    $id = $POST->{'id'} if $POST->{'id'} =~ /^\d+$/;
 
     # this catches core_hidden if it's set
-    $post->{'parid'} ||= $post->{'parid_hidden'};
+    $POST->{'parid'} ||= $POST->{'parid_hidden'};
 
     my $pub = LJ::S2::get_public_layers();
     my $ulay = LJ::S2::get_layers_of_user($u);
@@ -246,9 +246,9 @@ sub layers_handler {
     my $noactions = 0;
     my $viewall = $remote && $remote->has_priv( 'siteadmin', 'styleview' );
 
-    if ($GET->get_args->{user} && $viewall) {
+    if ($GET->{user} && $viewall) {
         return ml_error('/customize/advanced/layers.tt.error.cantuseonsystem')
-            if $GET->get_args->{user} eq 'system';
+            if $GET->{user} eq 'system';
         $noactions = 1; # don't let admins change anything
     }    
     return ml_error('.error.cantbeauthenticated')
@@ -259,13 +259,13 @@ sub layers_handler {
             '/customize/advanced/layers.tt.error.usercantuseadvanced' )
         unless $u->can_create_s2_styles || $viewall;
 
-    if ($post->{'action:create'} && !$noactions) {
+    if ($POST->{'action:create'} && !$noactions) {
 
         return ml_error('/customize/advanced/layers.tt.error.maxlayers')
             if keys %$ulay >= $u->count_s2layersmax;
 
-        my $type = $post->{'type'} or return ml_error('/customize/advanced/layers.tt.error.nolayertypeselected');
-        my $parid = $post->{'parid'}+0 or return error_ml('/customize/advanced/layers.tt.error.badparentid');
+        my $type = $POST->{'type'} or return ml_error('/customize/advanced/layers.tt.error.nolayertypeselected');
+        my $parid = $POST->{'parid'}+0 or return error_ml('/customize/advanced/layers.tt.error.badparentid');
         return ml_error('/customize/advanced/layers.tt.error.invalidlayertype') unless $type =~ /^layout|theme|user|i18nc?$/;
         my $parent_type = ($type eq "theme" || $type eq "i18n" || $type eq "user") ? "layout" : "core";
         
@@ -303,9 +303,9 @@ sub layers_handler {
     }
 
     # delete
-    if ($post->{'action:del'} && !$noactions) {
+    if ($POST->{'action:del'} && !$noactions) {
 
-        my $id = $post->{'id'}+0;
+        my $id = $POST->{'id'}+0;
         my $lay = LJ::S2::load_layer($id);
         return ml_error('/customize/advanced/layers.tt.error.layerdoesntexist')
             unless $lay;
@@ -398,11 +398,11 @@ sub styles_handler {
     return $rv unless $ok;
 
     my $r = $rv->{r};
-    my $post = $r->post_args;
+    my $POST = $r->post_args;
     my $u = $rv->{u};
     my $remote = $rv->{remote};
     my $no_layer_edit =  LJ::Hooks::run_hook("no_theme_or_layer_edit", $remote);
-    my $GET = DW::Request->get;
+    my $GET = $r->get_args;
     my $authas = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
 
@@ -411,16 +411,16 @@ sub styles_handler {
     $vars->{remote} = $remote;
     $vars->{no_layer_edit} = $no_layer_edit;
     $vars->{authas_html} = $rv->{authas_html};
-    $vars->{post} = $post;
+    $vars->{post} = $POST;
 
 
     # if we don't have a u, maybe they're an admin and can view stuff anyway?
     my $noactions = 0;
     my $viewall = $remote && $remote->has_priv( 'siteadmin', 'styleview' );
 
-    if ($GET->get_args->{user} && $viewall) {
+    if ($GET->{user} && $viewall) {
         return error_ml('/customize/advanced/styles.tt.error.cantuseonsystem')
-            if $GET->get_args->{user} eq 'system';
+            if $GET->{user} eq 'system';
         $noactions = 1; # don't let admins change anything
     }
 
@@ -448,7 +448,7 @@ sub styles_handler {
 
     # style id to edit, if we have one
     # if we have this we're assumed to be in 'edit' mode
-    my $id = $GET->get_args->{'id'}+0;
+    my $id = $GET->{'id'}+0;
 
     my $dbh = LJ::get_db_writer();
 
@@ -466,7 +466,7 @@ sub styles_handler {
         unless $style->{userid} == $u->userid;
 
         # use selected style
-        if ($post->{'action:usestyle'} && !$noactions) {
+        if ($POST->{'action:usestyle'} && !$noactions) {
 
             # save to db and update user object
             $u->set_prop( { stylesys => '2',
@@ -488,7 +488,7 @@ sub styles_handler {
         my %eff_layer = ();
         my @other_layers = ();
         foreach (qw(i18nc layout theme i18n user)) {
-            my $lid = $post->{$_} eq "_other" ? $post->{"other_$_"} : $post->{$_};
+            my $lid = $POST->{$_} eq "_other" ? $POST->{"other_$_"} : $POST->{$_};
             next unless $lid;
             $eff_layer{$_} = $lid;
 
@@ -498,8 +498,8 @@ sub styles_handler {
         }
 
         # core lid (can't use user core layer)
-        $post->{core} ||= $post->{core_hidden};
-        $core = defined $post->{core} ? $post->{core} : $style->{layer}->{core};
+        $POST->{core} ||= $POST->{core_hidden};
+        $core = defined $POST->{core} ? $POST->{core} : $style->{layer}->{core};
         my $highest_core;
         map { $highest_core = $_ if $pub->{$_}->{type} eq 'core' && /^\d+$/ && 
                 $pub->{$_}->{majorversion} > $pub->{$highest_core}->{majorversion} } keys %$pub;
@@ -507,18 +507,18 @@ sub styles_handler {
             $core = $highest_core;
 
             # update in POST to keep things in sync
-            $post->{core} = $highest_core;
+            $POST->{core} = $highest_core;
         }
         $style->{layer}->{core} = $highest_core unless $style->{layer}->{core}; 
 
         $vars->{core} = $core;
 
         # layout lid
-        $layout = $post->{'action:change'} ? $eff_layer{'layout'} : $style->{'layer'}->{'layout'};
+        $layout = $POST->{'action:change'} ? $eff_layer{'layout'} : $style->{'layer'}->{'layout'};
 
         # if we're changing core, clear everything
-        if ($post->{'core'} && $style->{'layer'}->{'core'} &&
-            $post->{'core'} != $style->{'layer'}->{'core'}) {
+        if ($POST->{'core'} && $style->{'layer'}->{'core'} &&
+            $POST->{'core'} != $style->{'layer'}->{'core'}) {
             foreach (qw(i18nc layout theme i18n user)) {
                 delete $eff_layer{$_};
             }
@@ -538,26 +538,26 @@ sub styles_handler {
 
 
         # delete
-        if ($post->{'action:delete'} && !$noactions) {
+        if ($POST->{'action:delete'} && !$noactions) {
             LJ::S2::delete_user_style($u, $id);
             undef $id; # don't show form below
             return $r->redirect("styles$getextra");
         }
 
         # save changes
-        if (($post->{'action:change'} || $post->{'action:savechanges'}) && !$noactions) {
+        if (($POST->{'action:change'} || $POST->{'action:savechanges'}) && !$noactions) {
             $vars->{post_action} = 'change';
 
             # are they renaming their style?
-            if ($post->{'stylename'} && $style->{'name'} &&
-                $post->{'stylename'} ne $style->{'name'}) {
+            if ($POST->{'stylename'} && $style->{'name'} &&
+                $POST->{'stylename'} ne $style->{'name'}) {
 
                 # update db
                 my $styleid = $style->{'styleid'};
-                LJ::S2::rename_user_style($u, $styleid, $post->{stylename});
+                LJ::S2::rename_user_style($u, $styleid, $POST->{stylename});
 
                 # update style object
-                $style->{'name'} = $post->{'stylename'};
+                $style->{'name'} = $POST->{'stylename'};
             }
 
             # load layer info of any "other" layers
@@ -626,7 +626,7 @@ sub styles_handler {
             LJ::S2::set_style_layers($u, $style->{'styleid'}, @layers);
 
             # redirect if they clicked the bottom button
-            return return $r->redirect("styles$getextra") if $post->{'action:savechanges'};
+            return return $r->redirect("styles$getextra") if $POST->{'action:savechanges'};
         }
         $vars->{id} = $id;
         $vars->{layout} = $layout;
@@ -640,12 +640,12 @@ sub styles_handler {
             $vars->{ustyle} = $ustyle;
             
             # process create action
-            if (($post->{'action:create'} && $post->{'stylename'}) && !$noactions) {
+            if (($POST->{'action:create'} && $POST->{'stylename'}) && !$noactions) {
 
                 return error_ml('/customize/advanced/styles.tt.error.maxstyles2', { 'numstyles' => scalar( keys %$ustyle ), 'maxstyles' => $u->count_s2stylesmax } )
                     if scalar(keys %$ustyle) >= $u->count_s2stylesmax;
 
-                my $styleid = LJ::S2::create_style($u, $post->{'stylename'});
+                my $styleid = LJ::S2::create_style($u, $POST->{'stylename'});
                 return error_ml('/customize/advanced/styles.tt.error.cantcreatestyle') unless $styleid;
 
                 return $r->redirect("styles?id=$styleid$getextra_amp");
@@ -662,8 +662,8 @@ sub styles_handler {
 
         my @opts = ();
 
-        my $lid = $post->{'action:change'} ? $post->{$type} : $style->{layer}->{$type};
-        $lid = $post->{"other_$type"} if $lid eq "_other";
+        my $lid = $POST->{'action:change'} ? $POST->{$type} : $style->{layer}->{$type};
+        $lid = $POST->{"other_$type"} if $lid eq "_other";
 
 
         # greps, and sorts a list
@@ -720,8 +720,8 @@ sub layersource_handler {
     return $rv unless $ok;
 
     my $r = $rv->{r};
-    my $post = $r->post_args;
-    my $GET = DW::Request->get;
+    my $POST = $r->post_args;
+    my $GET = $r->get_args;
     my $u = $rv->{u};
     my $remote = $rv->{remote};
     my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
@@ -730,7 +730,7 @@ sub layersource_handler {
 
     my $dbr = LJ::get_db_reader();
 
-    my $id = $GET->get_args->{'id'};
+    my $id = $GET->{'id'};
     return $r->redirect('layerbrowse') unless $id =~ /^\d+$/;
 
     my $lay = defined $pub->{$id} ? $pub->{$id} : LJ::S2::load_layer($id);
@@ -754,7 +754,7 @@ sub layersource_handler {
     my $s2code = LJ::S2::load_layer_source($id);
 
     # get html version of the code?
-    if ($GET->get_args->{'fmt'} eq "html") {
+    if ($GET->{'fmt'} eq "html") {
         my $html;
         my ($md5, $save_cache);
         if ($pub->{$id}) {

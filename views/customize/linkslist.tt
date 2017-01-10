@@ -31,9 +31,7 @@
 
     [% FOREACH ct IN  [1..showlinks] %]
         [% indextoken = ct - 1 %]
-        [% it = linkobj.indextoken || {} %]
-       [%# so $linkobj is an array ref? %]
-        [%# we get it from Links::load_linkobj so let's see what that does. %]
+        [% it = linkobj.$indextoken || {} %]
 
         [%# builds the order number %]
 
