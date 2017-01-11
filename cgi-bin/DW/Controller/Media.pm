@@ -44,7 +44,17 @@ sub media_manage_handler {
 
     # load all of a user's media.  this is inefficient and won't be like this forever,
     # but it's simple for now...
-    $rv->{media} = [ DW::Media->get_active_for_user( $rv->{remote} ) ];
+    my @media = DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 );
+    my @valid_sizes;
+    map { push @valid_sizes, ( $_, $_ ) } keys %VALID_SIZES;
+
+    $rv->{media} = \@media;
+    $rv->{make_embed_url} = \&make_embed_url;
+    $rv->{page} = $rv->{r}->get_args->{page} || '1';
+    $rv->{view_type} = $rv->{r}->get_args->{view} || '';
+    $rv->{maxpage} = POSIX::ceil(scalar @media / 20);
+    $rv->{valid_sizes} =\@valid_sizes;
+    $rv->{convert_time} = \&LJ::mysql_time;
 
     return DW::Template->render_template( 'media/index.tt', $rv );
 }
@@ -68,14 +78,38 @@ sub media_bulkedit_handler {
 
         if ( $post_args->{"action:edit"} ) {
             my %post = %{$post_args->as_hashref||{}};
-            while ( my ($key, $secval) = each %post ) {
-                next unless $key =~ m/^security-(\d+)/;
-                my $mediaid = $1 >> 8;
-                my $media = DW::Media->new( user => $rv->{u}, mediaid => $mediaid );
+
+            # transform our HTML field names to property names
+            # and group by what media object they belong to
+            # we don't care if the id or prop might not exist
+            # right now, later steps will verify them
+
+            my %props;
+            while ( my ($key, $val) = each %post ) {
+                next unless $key =~ m/^(\w*)-(\d+)/;
+                my $mediaid = $2 >> 8;
+                if ( exists $props{$mediaid} ) {
+                    $props{$mediaid}{$1} = $val;
+                } else {
+                    $props{$mediaid} = {$1 => $val};
+                }
+            }
+
+            # go through and try to fetch a media object from
+            # each id, then try to set it's properties
+
+            for my $media_key (keys %props) {
+                my $media = DW::Media->new( user => $rv->{u}, mediaid => $media_key );
                 next unless $media;
 
-                my $amask = $secval eq "usemask" ? 1 : 0;
-                $media->set_security( security => $secval, allowmask => $amask );
+                while ( my ($key, $val) = each %{$props{$media_key}} ) {
+                    if( $key eq 'security' ) {
+                        my $amask = $val eq "usemask" ? 1 : 0;
+                        $media->set_security( security => $val, allowmask => $amask );
+                    } else {
+                        $media->prop( $key, $val );
+                    }
+                }  
             }
 
         } elsif ( $post_args->{"action:delete"} ) {
@@ -92,10 +126,12 @@ sub media_bulkedit_handler {
         }
     }
 
-    $rv->{media} = [
-        DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 )
-    ];
+    my @media = DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 );
 
+    $rv->{ehtml} = \&LJ::ehtml;
+    $rv->{media} = \@media;
+    $rv->{page} = $r->get_args->{page} || '1';
+    $rv->{maxpage} = POSIX::ceil(scalar @media / 20);
     return DW::Template->render_template( 'media/edit.tt', $rv );
 }
 
@@ -194,6 +230,26 @@ sub media_index_handler {
     return $rv unless $ok;
 
     return DW::Template->render_template( 'media/home.tt', $rv );
+}
+
+# a helper function to build the embed code, being sure to
+# clean user-entered fields before outputing them.
+
+sub make_embed_url {
+    my ($obj, %opts) = @_;
+    my $url = $obj->full_url;
+    my $alt = $obj->prop('alttext') || '';
+    my $title = $obj->prop('title') || '';
+    my $embed;
+
+    if (defined $opts{type} && $opts{type} eq 'thumbnail') {
+        my $thumb_url = $obj->url();
+        $embed = "<a href='$url'><img src='$thumb_url' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "/></a>";
+    } else {
+        $embed = "<img src='$url' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "' />";
+    }
+
+    return $embed;
 }
 
 1;

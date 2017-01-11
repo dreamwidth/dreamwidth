@@ -227,3 +227,12 @@ div.disabled, div.disabled * { color: scale-color($text-color, $lightness: 50%);
 
 // replacement colors for jquery-ui elements
 @import "skins/jquery-ui-theme";
+
+// alternating row colors
+.odd, tr.odd th, tr.odd td {
+    background-color: $background_color;
+}
+
+.even, tr.even th, tr.even td {
+    background-color: darken($background_color, 5%);
+}

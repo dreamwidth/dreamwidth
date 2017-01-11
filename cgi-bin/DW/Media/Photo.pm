@@ -44,6 +44,11 @@ sub new_from_row {
         if ( $vid == $self->id ) {
             $self->{width} = $self->{versions}->{$vid}->{width};
             $self->{height} = $self->{versions}->{$vid}->{height};
+
+            # save the original values of these for reference in case we resize later
+            $self->{orig_width} = $self->{width};
+            $self->{orig_height} = $self->{height};
+            $self->{orig_filesize} = $self->{filesize};
             last;
         }
     }
