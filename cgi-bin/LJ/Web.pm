@@ -2018,10 +2018,13 @@ sub entry_form_postto_widget {
 
 sub entry_form_security_widget {
     my $ret = '';
+    my $remote = LJ::get_remote();
+    my $minsec = $remote && $remote->prop('newpost_minsecurity');
 
-    my @secs = ( "public", BML::ml( 'label.security.public2' ),
-                 "friends", BML::ml( 'label.security.accesslist' ),
-                 "private", BML::ml( 'label.security.private2' ) );
+    my @secs;
+    push @secs, { value => 'public',  text => BML::ml( 'label.security.public2' ), disabled => $minsec && ( $minsec eq 'private' || $minsec eq 'friends' ) };
+    push @secs, { value => 'friends', text => BML::ml( 'label.security.accesslist' ), disabled => $minsec && $minsec eq 'private' };
+    push @secs, { value => 'private', text => BML::ml( 'label.security.private2' ) };
 
     $ret .= LJ::html_select( { name => 'security', id => 'security' },
                             @secs );
