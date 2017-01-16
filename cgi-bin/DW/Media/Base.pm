@@ -149,7 +149,6 @@ sub delete {
     my $self = $_[0];
     return 0 if $self->is_deleted;
 
-    # we need a mogilefs client or we can't edit media
     my $u = $self->u
         or croak 'Sorry, unable to load the user.';
 

@@ -174,4 +174,45 @@ sub _select_version {
     # the resized image.
 }
 
+# this adds on to the base method by also deleting any associated thumbnails
+sub delete {
+    my $self = $_[0];
+    my $deleted = $self->SUPER::delete;
+    return 0 unless $deleted;  # was already deleted
+
+    # at this point the image has just been deleted - look for thumbnails
+    my $u = $self->u
+        or croak 'Sorry, unable to load the user.';
+    my @mv = $u->selectrow_array( "SELECT mediaid FROM media_versions" .
+                                  " WHERE userid=? AND versionid=?", undef,
+                                  $u->id, $self->versionid );
+    # this shouldn't happen unless something was saved in an incomplete state
+    # or the database has taken an unexpected vacation
+    return $deleted unless @mv;
+    my ( $mediaid ) = @mv;
+
+    if ( $mediaid == $self->versionid ) {
+        # find any resized versions and queue them for deletion as well
+        @mv = $u->selectrow_array(
+            "SELECT versionid FROM media_versions WHERE userid=? AND mediaid=?" .
+            " AND mediaid != versionid", undef, $u->id, $mediaid );
+        return $deleted unless @mv;  # no other versions found
+
+        foreach my $id ( @mv ) {
+            # create a fake object to get the mogkey
+            my $fakeobj = bless { userid => $u->id, versionid => $id },
+                                'DW::Media::Photo';
+            # we aren't concerned whether the file existed or not
+            DW::BlobStore->delete( media => $fakeobj->mogkey );
+        }
+
+        return 1;  # done
+
+    } else {
+        # this wasn't the original, don't do anything else
+        return $deleted;
+    }
+}
+
+
 1;
