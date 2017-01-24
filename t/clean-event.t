@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 45;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
@@ -293,4 +293,22 @@ note( "mismatched and misnested tags" );
     $clean->();
     is ( $orig_post, $clean_post, "Full text of entry, with mismatched HTML tags within and with-out the cut" );
 }
+
+note("expected wordbreak behavior");
+
+$orig_post  = qq{wordbreak};
+$clean_post = qq{word<wbr />brea<wbr />k};
+$clean->({ wordlength => 4 });
+is( $orig_post, $clean_post, "Word break tags inserted where requested" );
+
+$orig_post  = qq{insert a word<wbr>break};
+$clean_post = qq{insert a word<wbr>break};
+$clean->();
+is( $orig_post, $clean_post, "Existing word break tags unchanged" );
+
+$orig_post  = qq{word-break};
+$clean_post = qq{word-<wbr />break};
+$clean->({ wordlength => 8 });
+is( $orig_post, $clean_post, "Word break tag prefers punctuation points" );
+
 1;

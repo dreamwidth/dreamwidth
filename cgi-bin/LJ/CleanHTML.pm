@@ -1687,8 +1687,28 @@ sub break_word {
     my ($word, $at) = @_;
     return $word unless $at;
 
-    $word =~ s/((?:$onechar){$at})\B/$1<wbr \/>/g;
-    return $word;
+    my $ret = '';
+    my $chunk;
+
+    # This while loop splits up $word into chunks that are each $at characters
+    # long.  The \B ensures that the match fails if the word/chunk is EXACTLY
+    # $at characters long.  If the chunk contains punctuation (here defined as
+    # anything that isn't a word character or digit), the word break tag will
+    # be placed at the last punctuation point; otherwise it will be placed at
+    # the maximum length of the unbroken word as defined by $at.
+
+    while ( $word =~ s/((?:$onechar){$at})\B// ) {
+        $chunk = $1;
+
+        if ( $chunk =~ /([^\d\w])(.+?)$/p ) {
+            $ret .= "${^PREMATCH}$1<wbr />";
+            $word = "$2$word";
+        } else {
+            $ret .= "$chunk<wbr />";
+        }
+    }
+
+    return "$ret$word";
 }
 
 sub quote_html {
