@@ -1416,7 +1416,7 @@ my $subject_remove = [qw[bgsound embed object caption link font noscript]];
 sub clean_subject
 {
     my $ref = shift;
-    return unless $$ref =~ /[\<\>]/;
+    return unless defined $$ref and $$ref =~ /[\<\>]/;
     clean($ref, {
         'wordlength' => 40,
         'addbreaks' => 0,
