@@ -91,7 +91,7 @@ my %tag_substitute = (
 # slash and get the proper behavior from a browser.
 #
 # In HTML5 these are called "void elements".
-my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|lj-embed|site-embed)$/i;
+my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|wbr|lj-embed|site-embed)$/i;
 
 # <LJFUNC>
 # name: LJ::CleanHTML::clean
