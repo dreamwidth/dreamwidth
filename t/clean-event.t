@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 45;
+use Test::More tests => 48;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
@@ -310,5 +310,20 @@ $orig_post  = qq{word-break};
 $clean_post = qq{word-<wbr />break};
 $clean->({ wordlength => 8 });
 is( $orig_post, $clean_post, "Word break tag prefers punctuation points" );
+
+$orig_post  = qq{&quot;entity&quot; test};
+$clean_post = qq{&quot;entity&quot; test};
+$clean->({ wordlength => 8 });
+is( $orig_post, $clean_post, "Word break handling of HTML entities OK" );
+
+$orig_post  = qq{multi-character-string test};
+$clean_post = qq{multi-character-<wbr />string test};
+$clean->({ wordlength => 20 });
+is( $orig_post, $clean_post, "Choose last punctuation in string" );
+
+$orig_post  = qq{"This_is_a_test_of_the_emergency_word_break_system."};
+$clean_post = qq{"This_is_a_test_of_the_emergency_word_br<wbr />eak_system."};
+$clean->({ wordlength => 40 });
+is( $orig_post, $clean_post, "Don't choose first character in string" );
 
 1;

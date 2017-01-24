@@ -1691,21 +1691,33 @@ sub break_word {
     my $chunk;
 
     # This while loop splits up $word into chunks that are each $at characters
-    # long.  The \B ensures that the match fails if the word/chunk is EXACTLY
-    # $at characters long.  If the chunk contains punctuation (here defined as
-    # anything that isn't a word character or digit), the word break tag will
-    # be placed at the last punctuation point; otherwise it will be placed at
-    # the maximum length of the unbroken word as defined by $at.
+    # long.  If the chunk contains punctuation (here defined as anything that
+    # isn't a word character or digit), the word break tag will be placed at
+    # the last punctuation point; otherwise it will be placed at the maximum
+    # length of the unbroken word as defined by $at.
 
-    while ( $word =~ s/((?:$onechar){$at})\B// ) {
+    while ( $word =~ s/((?:$onechar){$at})// ) {
         $chunk = $1;
 
-        if ( $chunk =~ /([^\d\w])(.+?)$/p ) {
-            $ret .= "${^PREMATCH}$1<wbr />";
-            $word = "$2$word";
-        } else {
-            $ret .= "$chunk<wbr />";
+        # Edge case: if the next character would be whitespace, we
+        # don't want to insert a word break tag at the end of a word.
+
+        if ( $word eq '' ) {
+            $ret .= $chunk;
+            next;
         }
+
+        # Here we shift the breakpoint if the chunk contains punctuation,
+        # unless the punctuation occurs as the first character of the chunk,
+        # since it would be immediately preceded by either whitespace or the
+        # previous word break tag.
+
+        if ( $chunk =~ /([^\d\w])([\d\w]+)$/p && $-[1] != 0 ) {
+            $chunk = "${^PREMATCH}$1";
+            $word = "$2$word";
+        }
+
+        $ret .= "$chunk<wbr />";
     }
 
     return "$ret$word";
