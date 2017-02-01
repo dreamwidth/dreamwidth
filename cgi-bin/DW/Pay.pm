@@ -530,13 +530,13 @@ sub add_paid_time {
 
     # the following updates can error, and if they do then we don't want to break the
     # whole payment flow
-    my $rv = eval {
+    my $do_postflight = eval {
         $u->activate_userpics;
         $u->update_email_alias;
         1;
     };
     warn "Failed to perform one or more payment postflight tasks!\n"
-        unless $rv;
+        unless $do_postflight;
 
     # all good, we hope :-)
     return $rv;
