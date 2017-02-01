@@ -18,6 +18,8 @@ package DW::Controller::Entry;
 
 use strict;
 
+use LJ::Global::Constants;
+
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
