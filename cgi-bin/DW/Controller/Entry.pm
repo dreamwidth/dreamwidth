@@ -1493,7 +1493,8 @@ sub preview_handler {
         if ( $u->should_block_robots ) {
             $p->{head_content} .= LJ::robot_meta_tags();
         }
-        $p->{head_content} .= '<meta http-equiv="Content-Type" content="text/html; charset=' . $opts->{'saycharset'} . "\" />\n";
+        my $charset = $opts->{saycharset} // '';
+        $p->{head_content} .= '<meta http-equiv="Content-Type" content="text/html; charset=' . $charset . "\" />\n";
         # Don't show the navigation strip or invisible content
         $p->{head_content} .= qq{
             <style type="text/css">

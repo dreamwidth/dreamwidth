@@ -91,7 +91,7 @@ my %tag_substitute = (
 # slash and get the proper behavior from a browser.
 #
 # In HTML5 these are called "void elements".
-my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|lj-embed|site-embed)$/i;
+my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|wbr|lj-embed|site-embed)$/i;
 
 # <LJFUNC>
 # name: LJ::CleanHTML::clean
@@ -1416,7 +1416,7 @@ my $subject_remove = [qw[bgsound embed object caption link font noscript]];
 sub clean_subject
 {
     my $ref = shift;
-    return unless $$ref =~ /[\<\>]/;
+    return unless defined $$ref and $$ref =~ /[\<\>]/;
     clean($ref, {
         'wordlength' => 40,
         'addbreaks' => 0,
@@ -1687,8 +1687,40 @@ sub break_word {
     my ($word, $at) = @_;
     return $word unless $at;
 
-    $word =~ s/((?:$onechar){$at})\B/$1<wbr \/>/g;
-    return $word;
+    my $ret = '';
+    my $chunk;
+
+    # This while loop splits up $word into chunks that are each $at characters
+    # long.  If the chunk contains punctuation (here defined as anything that
+    # isn't a word character or digit), the word break tag will be placed at
+    # the last punctuation point; otherwise it will be placed at the maximum
+    # length of the unbroken word as defined by $at.
+
+    while ( $word =~ s/((?:$onechar){$at})// ) {
+        $chunk = $1;
+
+        # Edge case: if the next character would be whitespace, we
+        # don't want to insert a word break tag at the end of a word.
+
+        if ( $word eq '' ) {
+            $ret .= $chunk;
+            next;
+        }
+
+        # Here we shift the breakpoint if the chunk contains punctuation,
+        # unless the punctuation occurs as the first character of the chunk,
+        # since it would be immediately preceded by either whitespace or the
+        # previous word break tag.
+
+        if ( $chunk =~ /([^\d\w])([\d\w]+)$/p && $-[1] != 0 ) {
+            $chunk = "${^PREMATCH}$1";
+            $word = "$2$word";
+        }
+
+        $ret .= "$chunk<wbr />";
+    }
+
+    return "$ret$word";
 }
 
 sub quote_html {
