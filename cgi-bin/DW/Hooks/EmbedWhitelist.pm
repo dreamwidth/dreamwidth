@@ -136,6 +136,10 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
         return ( 1, 1 ) if $uri_path =~ m!^/wiki/File:! && $parsed_uri->query =~ m/embedplayer=yes/;
     }
 
+    if ( $uri_host eq "i.cdn.turner.com" ) {
+        return ( 1, 1 ) if $uri_path =~ '/cnn_\d+x\d+_embed.swf$' && $parsed_uri->query =~ m/^context=embed&videoId=/;
+    }
+
     if ( $uri_host eq "www.facebook.com" ) {
         return ( 1, 1 ) if $uri_path eq '/plugins/video.php' && $parsed_uri->query =~ m/^href=https%3A%2F%2Fwww.facebook.com%2F[^%]+%2Fvideos%2F/;
     }

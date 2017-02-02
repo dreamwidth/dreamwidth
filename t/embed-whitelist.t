@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 60;
+use Test::More tests => 61;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -136,6 +136,7 @@ note( "misc" );
 
     # T
     test_good_url( "http://embed.ted.com/talks/handpring_puppet_co_the_genius_puppetry_behind_war_horse.html" );
+    test_good_url( "http://i.cdn.turner.com/cnn/.element/apps/cvp/3.0/swf/cnn_416x234_embed.swf?context=embed&videoId=bestoftv/2012/09/05/exp-tsr-dem-platform-voice-vote.cnn" );
 
     # V
     test_good_url( "https://vid.me/e/v63?stats=1&amp;tools=1" );
