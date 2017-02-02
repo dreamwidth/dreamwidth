@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 62;
+use Test::More tests => 63;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -126,6 +126,7 @@ note( "misc" );
     test_good_url( "http://www.npr.org/templates/event/embeddedVideo.php?storyId=326182003&mediaId=327658636" );
 
     # P
+    test_good_url( "https://playmoss.com/embed/wingedbeastie/the-swamp-witch-nix-s-playlist" );
     test_good_url( "http://www.plurk.com/getWidget?uid=123123123&h=375&w=200&u_info=2&bg=cf682f&tl=cae7fd" );
 
     # S

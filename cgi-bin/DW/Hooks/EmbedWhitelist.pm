@@ -84,6 +84,7 @@ my %host_path_match = (
     "ext.nicovideo.jp"      => [ qr!^/thumb/!, 0 ],
     "www.npr.org"           => [ qr!^/templates/event/embeddedVideo\.php!, 1 ],
 
+    "playmoss.com"          => [ qr!^/embed/!, 1 ],
     "www.plurk.com"         => [ qr!^/getWidget$!, 1 ],
 
     "www.sbs.com.au"        => [ qr!/player/embed/!, 0 ],  # best guess; language parameter before /player may vary
