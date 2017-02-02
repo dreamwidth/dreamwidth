@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 61;
+use Test::More tests => 62;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -70,6 +70,7 @@ note( "youtube" );
 note( "misc" );
 {
     # 0-9
+    test_good_url( "http://www.4shared.com/web/embed/file/VtBG91EOba" );
     test_good_url( "http://8tracks.com/mixes/878698/player_v3_universal" );
 
     # A

@@ -48,6 +48,7 @@ sub match_full_path {
 
 my %host_path_match = (
                                 # regex, whether this supports https or not
+    "www.4shared.com"       => [ qr!^/web/embed/file/!, 1 ],
     "8tracks.com"           => [ qr!^/mixes/!, 0 ],
 
     "archive.org"           => [ qr!^/embed/!, 1 ],
