@@ -84,6 +84,8 @@ my %host_path_match = (
     "ext.nicovideo.jp"      => [ qr!^/thumb/!, 0 ],
     "www.npr.org"           => [ qr!^/templates/event/embeddedVideo\.php!, 1 ],
 
+    "onedrive.live.com"     => [ qr!^/embed$!, 1 ],
+
     "playmoss.com"          => [ qr!^/embed/!, 1 ],
     "www.plurk.com"         => [ qr!^/getWidget$!, 1 ],
 
