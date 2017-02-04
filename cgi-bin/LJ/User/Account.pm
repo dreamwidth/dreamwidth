@@ -1501,16 +1501,12 @@ sub load_user_or_identity {
         return _set_u_req_cache( $u ) if $u;
     }
 
-    my $dbh = LJ::get_db_writer();
-    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
-                                    undef, 'O', $url);
-
-    my $u = $uid ? LJ::load_userid($uid) : undef;
+    my $u = LJ::User::load_existing_identity_user( 'O', $url );
 
     # set user in memcache
     if ( $u ) {
         # memcache URL-to-userid for identity users
-        LJ::MemCache::set( "uidof:$url", $uid, 1800 );
+        LJ::MemCache::set( "uidof:$url", $u->id, 1800 );
         LJ::memcache_set_u( $u );
         return _set_u_req_cache( $u );
     }
