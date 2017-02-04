@@ -994,8 +994,26 @@ sub load_existing_identity_user {
     my ($type, $ident) = @_;
 
     my $dbh = LJ::get_db_reader();
-    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
-                                    undef, $type, $ident);
+    my $uid;
+
+    # if given an https URL, also look for existing http account
+    # (we should have stripped the protocol before storing these, sigh)
+    if ( $ident =~ s/^https:// ) {
+        my $secure_ident= "https:$ident";
+        $ident = "http:$ident";
+
+        # do the secure lookup first; if it fails, try the fallback below
+        $uid = $dbh->selectrow_array( "SELECT userid FROM identitymap WHERE " .
+                                      "idtype=? AND identity=?",
+                                      undef, $type, $secure_ident );
+    }
+
+    unless ( $uid ) {
+        $uid = $dbh->selectrow_array( "SELECT userid FROM identitymap WHERE " .
+                                      "idtype=? AND identity=?",
+                                      undef, $type, $ident );
+    }
+
     return $uid ? LJ::load_userid($uid) : undef;
 }
 
