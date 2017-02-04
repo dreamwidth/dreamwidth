@@ -147,7 +147,7 @@ _c?>
     $msg_custom_display =~ s/\n/<br \/>/g;
 
     my $msg_footer = BML::ml('.msg_footer2', {
-        sitenameshort => $LJ::SITENAMESHORT,
+        sitename => $LJ::SITENAMESHORT,
         siteroot => "$LJ::SITEROOT/",
         username => $u->display_username,
         name => $u->name_html,
