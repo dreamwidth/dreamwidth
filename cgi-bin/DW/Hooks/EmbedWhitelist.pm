@@ -75,11 +75,11 @@ my %host_path_match = (
     # forms arent being allowed for security concerns.
     "docs.google.com"       => [ qr!^/(document|spreadsheets?|presentation)/!, 1 ],
     "books.google.com"      => [ qr!^/ngrams/!, 1 ],
-    
-    "jsfiddle.net"          => [ qr!/embedded/$!, 1 ],
 
     "imgur.com"             => [ qr!^/a/.+?/embed!, 1 ],
     "instagram.com"         => [ qr!^/p/.*/embed/$!, 1 ],
+
+    "jsfiddle.net"          => [ qr!/embedded/$!, 1 ],
 
     "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 

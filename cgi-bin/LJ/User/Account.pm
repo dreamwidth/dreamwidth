@@ -1241,7 +1241,7 @@ use Carp;
 # returns: the canonical username given, or blank if the username is not well-formed
 # </LJFUNC>
 sub canonical_username {
-    my $input = lc( $_[0] );
+    my $input = lc( $_[0] // '' );
     my $user = "";
     if ( $input =~ /^\s*([a-z0-9_\-]{1,25})\s*$/ ) {  # good username
         $user = $1;
