@@ -40,9 +40,6 @@ my %SKIP = (
 
     'LJ/ConfCheck.pm' => 'omit defined warnings',
     'LJ/ConfCheck/General.pm' => 'omit defiend warnings',
-
-    'bin/ljubackup.pl' => 'omit defined warnings',
-    'bin/dev/newtheme.pl' => "Global symbol / bareword errors",
 );
 
 my @scripts = File::Find::Rule->file->name('*.pl')->in('cgi-bin', 'bin');
