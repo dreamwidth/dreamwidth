@@ -157,6 +157,8 @@ sub media_handler {
 # FIXME: support viewall
     return $error_out->( 403, 'Not authorized' )
         unless $obj->visible_to( LJ::get_remote() );
+    return $error_out->( 403, 'Not authorized' )
+        unless LJ::check_referer();  # no offsite loading
 
     # load the data for this object
     my $dataref = LJ::mogclient()->get_file_data( $obj->mogkey );
