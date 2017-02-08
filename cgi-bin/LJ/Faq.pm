@@ -41,9 +41,11 @@ sub new {
     my %opts = @_;
 
     $self->{$_} = delete $opts{$_}
-        foreach qw(faqid question summary answer faqcat lastmoduserid sortorder lastmodtime unixmodtime);
+        foreach qw(faqid summary answer faqcat lastmoduserid sortorder lastmodtime unixmodtime);
     # FIXME: shouldn't that be the root language of the faq domain instead?
     $self->{lang} = delete $opts{lang} || $LJ::DEFAULT_LANG;
+
+    $self->{question} = delete $opts{question} || '[Deleted question]';
 
     croak("unknown parameters: " . join(", ", keys %opts))
         if %opts;
@@ -69,6 +71,7 @@ sub load {
 
     my %opts = @_;
     my $lang = delete $opts{lang} || $LJ::DEFAULT_LANG;
+    my $rev = delete $opts{rev} || 0;
     croak("unknown parameters: " . join(", ", keys %opts))
         if %opts;
 
@@ -88,7 +91,7 @@ sub load {
         return undef unless $f;
         $faq = $class->new(%$f, lang => $lang);
 
-    } else { # Don't load fields that lang_update_in_place will overwrite.
+    } elsif ($rev == 0) { # Don't load fields that lang_update_in_place will overwrite.
         my $f = $dbr->selectrow_hashref
             ("SELECT faqid, faqcat, ".
              "UNIX_TIMESTAMP(lastmodtime) AS unixmodtime, sortorder ".
@@ -98,6 +101,16 @@ sub load {
         return undef unless $f;
         $faq = $class->new(%$f, lang => $lang);
         $faq->lang_update_in_place;
+    } else {
+        my $f = $dbr->selectrow_hashref
+                ("SELECT faqid, question, summary, answer, faqcat, lastmoduserid, ".
+                 "DATE_FORMAT(lastmodtime, '%M %D, %Y') AS lastmodtime, ".
+                 "UNIX_TIMESTAMP(lastmodtime) AS unixmodtime, sortorder ".
+                 "FROM faqhist WHERE faqid=? AND rev=?",
+                 undef, $faqid, $rev);
+        die $dbr->errstr if $dbr->err;
+        return undef unless $f;
+        $faq = $class->new(%$f, lang => $lang);
     }
 
     return $faq;

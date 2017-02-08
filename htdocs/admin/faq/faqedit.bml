@@ -26,6 +26,7 @@ body<=
     use strict;
 
     my $id = $FORM{id} + 0;
+    my $rev = $FORM{rev} + 0;
     my $ret = "";
 
     my $dbh = LJ::get_db_writer();
@@ -33,6 +34,8 @@ body<=
 
     my @display_privs = ( "faqadd", "faqedit" );
     my $numprivs =  @display_privs;
+
+    my $sth;
 
     return "<?needlogin?>" unless $remote;
 
@@ -47,8 +50,37 @@ body<=
     my ( $faqcat, $sortorder, $question, $summary, $answer, $has_summary );
 
     if ( $id != 0 ) {
-        my $faq = LJ::Faq->load( $id, lang => $rlang->{lncode} )
-            or return "<b>Error:</b> FAQ #$id does not exist.";
+        my $faq = LJ::Faq->load( $id, lang => $rlang->{lncode}, rev => $rev );
+
+        if ( ! $faq ) {
+            $ret .= "<b>Error:</b> FAQ #$id does not exist.";
+
+            $ret .= '<?h1 Version history h1?>';
+            $ret .= '<form action="faqedit" method="get">';
+            $ret .= '<input type="hidden" name="id" value="' . $id . '"/>';
+            $ret .= '<p>Revisions: ';
+
+            $sth = $dbh->prepare( 'SELECT rev, lastmodtime, lastmoduserid FROM faqhist WHERE faqid = ? ORDER BY rev DESC' );
+            $sth->execute($id);
+            my @revs;
+
+            while ( my ($rev, $modtime, $moduser) = $sth->fetchrow_array ) {
+                my $u = LJ::load_userid( $moduser );
+                my $opt_display = $modtime . ' (' . $u->display_name . ')';
+                push @revs, $rev, $opt_display;
+            }
+
+            if ( $rev == 0 ) {
+                $ret .= LJ::html_select( { name => 'rev' }, @revs );
+            } else {
+                $ret .= LJ::html_select( { name => 'rev', selected => $rev}, @revs );
+            }
+            $ret .= '&nbsp;';
+            $ret .= LJ::html_submit( 'Load' );
+            $ret .= '</p></form>';
+
+            return $ret;
+        }
 
         $faqcat = $faq->faqcat;
         $sortorder = $faq->sortorder;
@@ -109,6 +141,12 @@ body<=
                           undef, $question, $summary, $answer, $faqcat,
                           $sortorder, $remote->{userid} );
                 $id = $dbh->{mysql_insertid};
+                $dbh->do( qq{ INSERT INTO faqhist
+                              ( rev, faqid, question, summary, answer, faqcat,
+                                sortorder, lastmoduserid, lastmodtime)
+                              VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, NOW()) },
+                          undef, $id, $question, $summary, $answer, $faqcat,
+                          $sortorder, $remote->{userid} ) unless $dbh->errstr;
                 $ret .= $dbh->errstr || "Added FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
                 $opts_question->{childrenlatest} = 1;
@@ -125,12 +163,23 @@ body<=
                                          WHERE faqid=? },
                           undef, $question, $summary, $answer, $faqcat,
                           $remote->{userid}, $sortorder, $id );
-                $ret .= "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
+                $dbh->do( qq{ INSERT INTO faqhist
+                              ( rev, faqid, question, summary, answer, faqcat,
+                                sortorder, lastmoduserid, lastmodtime)
+                              VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, NOW()) },
+                          undef, $id, $question, $summary, $answer, $faqcat,
+                          $sortorder, $remote->{userid} ) unless $dbh->errstr;
+                $ret .= $dbh->errstr || "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
                 $do_trans->( $id );
             } else {
                 $dbh->do( "DELETE FROM faq WHERE faqid=?", undef, $id );
-                $ret .= "FAQ item deleted.";
+                $dbh->do( qq{ INSERT INTO faqhist
+                              ( rev, faqid, question, summary, answer, faqcat,
+                                sortorder, lastmoduserid, lastmodtime)
+                              VALUES (NULL, ?, NULL, NULL, NULL, NULL, NULL, ?, NOW()) },
+                          undef, $id, $remote->{userid} ) unless $dbh->errstr;
+                $ret .= $dbh->errstr || "FAQ item deleted.";
 
                 # FIXME: delete translation from ml_* ?
             }
@@ -222,7 +271,7 @@ body<=
     $ret .= LJ::html_hidden( 'id', $id );
     $ret .= "<p>Category: ";
 
-    my $sth = $dbh->prepare( "SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder" );
+    $sth = $dbh->prepare( "SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder" );
     $sth->execute;
     my @cats;
     push @cats, '', '';
@@ -268,6 +317,33 @@ body<=
     $ret .= "<p>" . LJ::html_submit( 'action:save', 'Add/Edit FAQ Item' );
     $ret .= " " . LJ::html_submit( 'action:preview', 'Preview FAQ Item' )
             . "</p></form>";
+
+    if ( $id != 0 ) {
+        $ret .= '<?h1 Version history h1?>';
+        $ret .= '<form action="faqedit" method="get">';
+        $ret .= '<input type="hidden" name="id" value="' . $id . '"/>';
+        $ret .= '<p>Revisions: ';
+
+        $sth = $dbh->prepare( 'SELECT rev, lastmodtime, lastmoduserid FROM faqhist WHERE faqid = ? ORDER BY rev DESC' );
+        $sth->execute($id);
+        my @revs;
+
+        while ( my ($rev, $modtime, $moduser) = $sth->fetchrow_array ) {
+            my $u = LJ::load_userid( $moduser );
+            my $opt_display = $modtime . ' (' . $u->display_name . ')';
+            push @revs, $rev, $opt_display;
+        }
+
+        if ($rev == 0) {
+            $ret .= LJ::html_select( { name => 'rev' }, @revs );
+        } else {
+            $ret .= LJ::html_select( { name => 'rev', selected => $rev}, @revs );
+        }
+        $ret .= '&nbsp;';
+        $ret .= LJ::html_submit( 'Load' );
+        $ret .= '</p></form>';
+    }
+
     return $ret;
 }
 _code?>

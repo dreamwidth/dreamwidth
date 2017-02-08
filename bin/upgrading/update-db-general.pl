@@ -181,6 +181,23 @@ CREATE TABLE faq (
 )
 EOC
 
+register_tablecreate("faqhist", <<'EOC');
+CREATE TABLE faqhist (
+    rev mediumint(8) unsigned NOT NULL auto_increment,
+    faqid mediumint(8) unsigned NOT NULL,
+    question text,
+    summary text,
+    answer text,
+    sortorder int(11) default NULL,
+    faqcat varchar(20) default NULL,
+    lastmodtime datetime default NULL,
+    lastmoduserid int(10) unsigned NOT NULL default '0',
+
+    PRIMARY KEY  (rev),
+    KEY (faqid)
+)
+EOC
+
 register_tablecreate("faqcat", <<'EOC');
 CREATE TABLE faqcat (
     faqcat varchar(20) NOT NULL default '',
