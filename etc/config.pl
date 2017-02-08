@@ -309,6 +309,7 @@
             'makepoll' => 0,
             'maxcomments' => 10000,
             'maxfriends' => 500,
+            'media_file_quota' => 500, # megabytes
             'mod_queue' => 50,
             'mod_queue_per_poster' => 5,
             'moodthemecreate' => 0,

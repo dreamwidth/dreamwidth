@@ -217,5 +217,38 @@ sub get_active_for_user {
     return sort { $b->logtime <=> $a->logtime } @media;
 }
 
+sub get_quota_for_user {
+    my ( $class, $u ) = @_;
+    confess 'Invalid user' unless LJ::isu( $u );
+
+    my $cap = $u->get_cap( 'media_file_quota' ) // 0;
+
+    # convert megabytes -> bytes
+    return $cap * 1024 * 1024;
+}
+
+sub get_usage_for_user {
+    my ( $class, $u ) = @_;
+    confess 'Invalid user' unless LJ::isu( $u );
+
+    my ( $usage ) = $u->selectrow_array(
+        q{SELECT SUM(filesize) FROM media_versions WHERE userid = ?},
+        undef, $u->id
+    );
+    croak 'Failed to get file sizes: ' . $u->errstr . '.' if $u->err;
+    $usage //= 0;
+    return $usage;  # in bytes
+}
+
+
+package LJ::User;
+
+sub can_upload_media {
+    my ( $u ) = @_;
+
+    my $quota = DW::Media->get_quota_for_user( $u );
+    my $usage = DW::Media->get_usage_for_user( $u );
+    return $usage > $quota ? 0 : 1;
+}
 
 1;
