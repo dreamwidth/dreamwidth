@@ -297,6 +297,8 @@ sub _upload_images {
     my @imgs = $self->get_entity( $self->{_entity}, 'image' );
     return 1 unless scalar @imgs;
 
+    return 1401 unless $u->can_upload_media;  # error code from insert_images
+
     my @images;
     foreach my $img_entity ( @imgs ) {
         my $obj = DW::Media->upload_media(

@@ -59,6 +59,9 @@ sub file_new_handler {
     LJ::isu( $rv->{u} )
         or return api_error( $r->HTTP_UNAUTHORIZED, 'Not logged in' );
 
+    return api_error( $r->HTTP_BAD_REQUEST, 'Quota exceeded' )
+        unless $u->can_upload_media;
+
     my $uploads = $r->uploads;
     return api_error( $r->HTTP_BAD_REQUEST, 'No uploads found' )
         unless ref $uploads eq 'ARRAY' && scalar @$uploads;
