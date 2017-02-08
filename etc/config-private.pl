@@ -86,11 +86,11 @@
     %OFFICIAL_JOURNALS = (
         news => 1,
     );
-    
+
     # the "news" journal, to be specially displayed on the front page, etc
     $NEWS_JOURNAL = "news";
 
-    # temporary config variables to trigger special import workflow, in the form of 
+    # temporary config variables to trigger special import workflow, in the form of
     #    username => 1
     # turned on for the duration of the import
     # %LJ::ALLOW_COMM_IMPORT = (
@@ -171,8 +171,37 @@
     # sites/single servers, the localdisk mode is useful. For production
     # systems S3 should be used.
     # %BLOBSTORE = (
+    #     # Local disk configuration, can be used to store everything on one machine
     #     localdisk => {
     #         path => "$LJ::HOME/var/blobstore",
+    #     },
+    #
+    #     # S3 configuration, requires separate setup and maintenance of an S3
+    #     # bucket with appropriate ACLs
+    #     s3 => {
+    #         # WARNING:
+    #         # The preferred/secure method of providing access is by using IAM Roles. If
+    #         # you are running Dreamwidth in EC2, please leave access_key/secret_key undef
+    #         # and assign your instance a role that has the appropriate permissions.
+    #         #
+    #         # If you are operating outside of EC2, you can specify access keys here and
+    #         # we will use them directly.
+    #         access_key => undef,
+    #         secret_key => undef,
+    #
+    #         # The name of your bucket. This is created in the S3 control panel.
+    #         bucket_name => 'my-bucket-name',
+    #
+    #         # The name of the region in AWS nomenclature. If you're in US Standard then
+    #         # this is us-east-1.
+    #         region => 'us-east-1',
+    #
+    #         # This is used in case you have multiple DWs using the same bucket,
+    #         # i.e. in our Hack setup. In that case we set the prefix to be different
+    #         # per environment so each user doesn't collide. This is prefixed to the
+    #         # files written. It can be undef which means don't use a prefix.
+    #         # If it is defined, it should match regex [a-zA-Z0-9_-]+.
+    #         prefix => undef,
     #     },
     # );
 }

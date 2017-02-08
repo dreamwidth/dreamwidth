@@ -43,28 +43,26 @@ sub _get_blobstores {
         return $blobstores;
     }
 
-    # Site owners must configure one of these.
-    if ( exists $LJ::BLOBSTORE{s3} ) {
-        $log->debug( 'Initializing S3 blobstore.' );
-        push @{$blobstores ||= []}, DW::BlobStore::S3->init( %{$LJ::BLOBSTORE{s3}} );
-    }
-    if ( exists $LJ::BLOBSTORE{localdisk} ) {
-        $log->logcroak( 'Must only define a single %LJ::BLOBSTORE entry.' )
-            if defined $blobstores;
-        $log->debug( 'Initializing localdisk blobstore.' );
-        push @{$blobstores ||= []}, DW::BlobStore::LocalDisk->init( %{$LJ::BLOBSTORE{localdisk}} );
+    my $idx = 0;
+    while ( $idx < scalar @LJ::BLOBSTORES ) {
+        my ( $name, $config ) = @LJ::BLOBSTORES[$idx, $idx+1];
+        $log->logcroak( 'Value must be a hashref.' )
+            unless $config && ref $config eq 'HASH';
+
+        if ( $name eq 'localdisk' ) {
+            push @{$blobstores ||= []}, DW::BlobStore::LocalDisk->init( %$config );
+        } elsif ( $name eq 'mogilefs' ) {
+            push @{$blobstores ||= []}, DW::BlobStore::MogileFS->init( %$config );
+        } elsif ( $name eq 's3' ) {
+            push @{$blobstores ||= []}, DW::BlobStore::S3->init( %$config );
+        } else {
+            $log->logcroack( 'Invalid blobstore type: ' . $name );
+        }
+
+        $idx += 2;
     }
 
-    # As a way to support migration of MogileFS data to the new storage
-    # system, we support a way of specifying a fallback MogileFS cluster which
-    # is activated if we ask for it. This is temporary and will be removed
-    # when Dreamwidth is fully off of MogileFS.
-    if ( %LJ::MOGILEFS_CONFIG && $LJ::MOGILEFS_CONFIG{hosts} ) {
-        $log->debug( 'Initializing MogileFS blobstore.' );
-        push @{$blobstores ||= []}, DW::BlobStore::MogileFS->init;
-    }
-
-    $log->logcroak( 'Must configure %LJ::BLOBSTORE or %LJ::MOGILEFS_CONFIG.' )
+    $log->logcroak( 'Must configure @LJ::BLOBSTORE.' )
         unless $blobstores;
     $log->debug( 'Blobstore initialized with ', scalar( @$blobstores ), ' blobstores.' );
     return $blobstores;

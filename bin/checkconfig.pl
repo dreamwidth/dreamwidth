@@ -296,6 +296,9 @@ my %modules = (
     "Text::Wrap" => {
         ver => '2013.0523', # issue #1447
     },
+    "Moose" => {
+        opt => "Used for BlobStore support of S3",
+    },
 );
 
 
