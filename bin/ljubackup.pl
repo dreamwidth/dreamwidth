@@ -194,7 +194,7 @@ MAIN: {
     DBI->trace( $Debug - 1 ) if $Debug >= 2;
 
     # If there's a MogileFS instance, test it for the required domain
-    if ( defined %LJ::MOGILEFS_CONFIG ) {
+    if ( %LJ::MOGILEFS_CONFIG ) {
         $MogileFS::DEBUG = $Debug;
 
         my %mogconfig = ( %LJ::MOGILEFS_CONFIG, domain => 'userbackup' );
