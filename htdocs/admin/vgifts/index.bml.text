@@ -27,8 +27,6 @@
 
 .error.upload.noheader=No content-length header: can't upload
 
-.error.upload.nomogilefs=Couldn't load MogileFS: can't upload
-
 .error.upload.nourl=You must enter the URL of an image
 
 .error.upload.urlerror=An error ocurred while trying to fetch your image.
