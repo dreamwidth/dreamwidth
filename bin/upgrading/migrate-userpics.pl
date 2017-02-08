@@ -23,6 +23,7 @@ use DW::BlobStore;
 use Getopt::Long;
 use IPC::Open3;
 use Digest::MD5;
+use Log::Log4perl;
 
 # this script is a migrater that will move userpics from an old storage method
 # into whatever blobstore method is defined in the site config.
@@ -91,6 +92,19 @@ if ($besteffort) {
     $| = 1;
     select($oldfd);
 }
+
+# use a custom log4perl config, to make sure we're getting
+# DEBUG messages from Blobstore if we've requested verbose
+# output, but not under normal use
+
+my $conf = 'log4perl.rootLogger=' . ( $verbose ? 'DEBUG' : 'ERROR' );
+$conf .= q{, STDERR
+
+log4perl.appender.STDERR=Log::Log4perl::Appender::Screen
+log4perl.appender.STDERR.stderr=1
+log4perl.appender.STDERR.layout=Log::Log4perl::Layout::SimpleLayout
+};
+Log::Log4perl::init( \$conf );
 
 # operation modes
 if ($user) {
