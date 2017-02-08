@@ -59,7 +59,6 @@ use LJ::Location;
 use LJ::SpellCheck;
 use LJ::ModuleCheck;
 use LJ::Widget;
-use MogileFS::Client;
 use DDLockClient;
 use LJ::BetaFeatures;
 use DW::InviteCodes;
