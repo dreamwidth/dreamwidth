@@ -25,8 +25,9 @@ use DW::BlobStore;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
+use POSXIX;
 
-my %VALID_SIZES = ( map { $_ => 1 } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
+my %VALID_SIZES = ( map { $_ => $_ } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
             800, 600, 720, 1600, 1200 ) );
 
 DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler,
@@ -45,15 +46,13 @@ sub media_manage_handler {
     # load all of a user's media.  this is inefficient and won't be like this forever,
     # but it's simple for now...
     my @media = DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 );
-    my @valid_sizes;
-    map { push @valid_sizes, ( $_, $_ ) } keys %VALID_SIZES;
 
     $rv->{media} = \@media;
     $rv->{make_embed_url} = \&make_embed_url;
     $rv->{page} = $rv->{r}->get_args->{page} || '1';
     $rv->{view_type} = $rv->{r}->get_args->{view} || '';
     $rv->{maxpage} = POSIX::ceil(scalar @media / 20);
-    $rv->{valid_sizes} =\@valid_sizes;
+    $rv->{valid_sizes} =[ %VALID_SIZES ];
     $rv->{convert_time} = \&LJ::mysql_time;
 
     return DW::Template->render_template( 'media/index.tt', $rv );
@@ -86,7 +85,7 @@ sub media_bulkedit_handler {
 
             my %props;
             while ( my ($key, $val) = each %post ) {
-                next unless $key =~ m/^(\w*)-(\d+)/;
+                next unless $key =~ m/^(\w+)-(\d+)/;
                 my $mediaid = $2 >> 8;
                 if ( exists $props{$mediaid} ) {
                     $props{$mediaid}{$1} = $val;

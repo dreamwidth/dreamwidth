@@ -29,7 +29,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/pages/media/new.css"
 ) -%]
 
-<p>[% dw.ml(".intro" {aopts1 => '/file/edit', aopts2 => '/file/new'}) %]</p>
+<p>[% dw.ml(".intro" {aopts1 => '/file/list', aopts2 => '/file/edit'}) %]</p>
 
 <div class="row">
     <div class="large-12 columns">

@@ -1,5 +1,4 @@
 #media-grid {
-    pasdding:0;
     margin: 0;
 }
 
@@ -54,10 +53,6 @@
     padding: 1em 0;
 }
 
-/*#media-list .media-item div, #media-list .media-item select, #media-list .media-item img {
-    display: inline-block;
-    margin: 0 1em;
-}*/
 
 #media-list .media-item .media {
     padding: 0 1em 1em 1em
