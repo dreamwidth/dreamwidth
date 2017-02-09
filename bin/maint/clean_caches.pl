@@ -65,19 +65,6 @@ $maint{'clean_caches'} = sub
     }
     print "    deleted $count\n";
 
-    # clean incoming emails older than 7 days from Mogile...
-    my $mogc = LJ::mogclient();
-    if ($mogc) {
-        print "-I- Cleaning incoming email temporary handles.\n";
-        $sth = $dbh->prepare("SELECT ieid FROM incoming_email_handle WHERE timerecv < UNIX_TIMESTAMP() - 86400*7 LIMIT 10000");
-        $sth->execute;
-        while (my ($id) = $sth->fetchrow_array) {
-            if ($mogc->delete("ie:$id")) {
-                $dbh->do("DELETE FROM incoming_email_handle WHERE ieid=?", undef, $id);
-            }
-        }
-    }
-
     print "-I- Cleaning old pending comments.\n";
     $count = 0;
     foreach my $c (@LJ::CLUSTERS) {

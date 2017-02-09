@@ -16,15 +16,18 @@
 #
 
 package DW::Worker::ContentImporter::LiveJournal::Userpics;
+
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use DW::XML::Parser;
-use Storable qw/ freeze /;
 use Carp qw/ croak confess /;
 use Encode qw/ encode_utf8 /;
+use Storable qw/ freeze /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
+
+use DW::BlobStore;
 use DW::Worker::ContentImporter::Local::Userpics;
+use DW::XML::Parser;
 
 sub work {
 
@@ -90,21 +93,14 @@ sub try_work {
     my $num_imported = scalar( @imported );
     my $to_import = scalar( @pics );
 
-    # FIXME: Uncomment when "select userpics later is implemented"
-    #my $has_backup = 0;
-    # There's nothing the user can do at this point if Mogile is not available, and any error relating to that will likely confuse them.
+    # Save extra pics to storage temporarily so we can get at them later
     if ( scalar( @imported ) != scalar( @pics ) ) {
-        my $mog = LJ::mogclient();
-        if ( $mog ) {
-            $opts->{userpics_later} = 1;
-            my $data = freeze {
-                imported => \@imported,
-                pics => \@pics,
-            };
-            $mog->store_content( 'import_upi:' . $u->id, 'temp', $data );
-            # FIXME: Uncomment when "select userpics later is implemented"
-            #$has_backup = 1;
-        }
+        $opts->{userpics_later} = 1;
+        my $data = freeze {
+            imported => \@imported,
+            pics => \@pics,
+        };
+        DW::BlobStore->store( temp => 'import_upi:' . $u->id, $data );
     }
 
     # FIXME: Link to "select userpics later" (once it is created) if we have the backup.

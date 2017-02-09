@@ -17,7 +17,11 @@
 package DW::Controller::Media;
 
 use strict;
-use warnings;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger( __PACKAGE__ );
+
+use DW::BlobStore;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
@@ -25,9 +29,10 @@ use DW::Controller;
 my %VALID_SIZES = ( map { $_ => 1 } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
             800, 600, 720, 1600, 1200 ) );
 
-DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler, user => 1, formats => 1, prefer_ssl => 1 );
+DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler,
+    user => 1, formats => 1, prefer_ssl => 1 );
 DW::Routing->register_regex( qr!^/file/(\d+x\d+|full)(/\w:[\d\w]+)*/(\d+)$!,
-        \&media_handler, user => 1, formats => 1, prefer_ssl => 1 );
+    \&media_handler, user => 1, formats => 1, prefer_ssl => 1 );
 DW::Routing->register_string( '/file/list', \&media_manage_handler, app => 1 );
 DW::Routing->register_string( '/file/edit', \&media_bulkedit_handler, app => 1 );
 DW::Routing->register_string( '/file/new', \&media_new_handler, app => 1  );
@@ -161,7 +166,7 @@ sub media_handler {
         unless LJ::check_referer();  # no offsite loading
 
     # load the data for this object
-    my $dataref = LJ::mogclient()->get_file_data( $obj->mogkey );
+    my $dataref = DW::BlobStore->retrieve( media => $obj->mogkey );
     return $error_out->( 500, 'Unexpected internal error locating file' )
         unless defined $dataref && ref $dataref eq 'SCALAR';
 

@@ -165,6 +165,16 @@
     #     username => '...',
     #     password => '...',
     # );
+
+    # Configuration of BlobStore. This is the new storage abstraction used to
+    # store any blobs (images, userpics, media, etc) that need storage. For small
+    # sites/single servers, the localdisk mode is useful. For production
+    # systems S3 should be used.
+    # %BLOBSTORE = (
+    #     localdisk => {
+    #         path => "$LJ::HOME/var/blobstore",
+    #     },
+    # );
 }
 
 {

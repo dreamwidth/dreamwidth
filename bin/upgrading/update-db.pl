@@ -25,7 +25,6 @@ use File::Copy ();
 use Cwd qw/ abs_path /;
 use Image::Size ();
 use LJ::S2;
-use MogileFS::Admin;
 
 my $opt_sql = 0;
 my $opt_drop = 0;
@@ -229,7 +228,6 @@ sub populate_database {
 
     populate_basedata();
     populate_proplists();
-    populate_mogile_conf();
 
     # system user
     my $made_system;
@@ -697,47 +695,6 @@ sub populate_moods {
             }
             close M;
             LJ::MemCache::delete( "moods_public" );
-        }
-    }
-}
-
-sub populate_mogile_conf {
-    # create/update the MogileFS database if we use it
-    return unless defined $LJ::MOGILEFS_CONFIG{hosts};
-
-    # create an admin MogileFS object
-    my $mgd = MogileFS::Admin->new(hosts => $LJ::MOGILEFS_CONFIG{hosts})
-        or die "Error: Unable to initalize MogileFS connection.\n";
-    my $exists = $mgd->get_domains();
-    print "Verifying MogileFS configuration...\n";
-
-    # verify domain exists?
-    my $domain = $LJ::MOGILEFS_CONFIG{domain};
-    unless (defined $exists->{$domain}) {
-        print "\tCreating domain $domain...\n";
-        $mgd->create_domain($domain)
-            or die "Error: Unable to create domain.\n";
-        $exists->{$domain} = {};
-    }
-
-    # now start verifying classes
-    foreach my $class (keys %{$LJ::MOGILEFS_CONFIG{classes} || {}}) {
-        if ($exists->{$domain}->{$class}) {
-            # version 2.35 of mogilefs changed this to a hashref
-            my $mindevcount = ref $exists->{$domain}->{$class} eq 'HASH'
-                ? $exists->{$domain}->{$class}->{mindevcount}
-                : $exists->{$domain}->{$class};
-            if ( $mindevcount != $LJ::MOGILEFS_CONFIG{classes}->{$class} ) {
-                # update the mindevcount since it's changed
-                print "\tUpdating class $class...\n";
-                $mgd->update_class( $domain, $class, { mindevcount => $LJ::MOGILEFS_CONFIG{classes}->{$class} } )
-                    or die "Error: Unable to update class.\n";
-            }
-        } else {
-            # create it
-            print "\tCreating class $class...\n";
-            $mgd->create_class( $domain, $class, { mindevcount => $LJ::MOGILEFS_CONFIG{classes}->{$class} } )
-                or die "Error: Unable to create class.\n";
         }
     }
 }

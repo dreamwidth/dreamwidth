@@ -20,6 +20,8 @@ package DW::Media::Base;
 use strict;
 use Carp qw/ croak confess /;
 
+use DW::BlobStore;
+
 sub new_from_row {
     croak "Children must override this method.";
 }
@@ -148,8 +150,6 @@ sub delete {
     return 0 if $self->is_deleted;
 
     # we need a mogilefs client or we can't edit media
-    my $mog = LJ::mogclient()
-        or croak 'Sorry, MogileFS is not currently available.';
     my $u = $self->u
         or croak 'Sorry, unable to load the user.';
 
@@ -159,7 +159,7 @@ sub delete {
 
     $self->{state} = 'D';
 
-    LJ::mogclient()->delete( $self->mogkey );
+    DW::BlobStore->delete( media => $self->mogkey );
 
     return 1;
 }

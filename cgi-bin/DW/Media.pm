@@ -25,6 +25,7 @@ use Carp qw/ croak confess /;
 use File::Type;
 use Image::Size;
 
+use DW::BlobStore;
 use DW::Media::Photo;
 
 use constant TYPE_PHOTO => 1;
@@ -74,10 +75,6 @@ sub upload_media {
         unless $opts{user} && LJ::isu( $opts{user} );
     confess 'Need a file key or data key'
         unless $opts{file} && -e $opts{file} || $opts{data};
-
-    # we need a mogilefs client or we can't store media
-    my $mog = LJ::mogclient()
-        or croak 'Sorry, MogileFS is not currently available.';
 
     # okay, we know who it's for and what it is, that's all we really need.
     if ( $opts{file} ) {
@@ -133,10 +130,8 @@ sub upload_media {
     # FIXME: have different MogileFS classes for different media types
 
     my $fakeobj = bless { userid => $opts{user}->id, versionid => $id }, 'DW::Media::Photo';
-    my $fh = $mog->new_file( $fakeobj->mogkey, 'media' )
-        or croak 'Unable to instantiate file in MogileFS.';
-    $fh->print( $opts{data} );
-    $fh->close or croak 'Unable to save file to MogileFS.';
+    DW::BlobStore->store( media => $fakeobj->mogkey, \$opts{data} )
+        or croak 'Failed to upload file to storage.';
 
     # now update the database tables
     $opts{user}->do(

@@ -21,25 +21,24 @@ no warnings 'uninitialized';
 use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
                        HTTP_MOVED_PERMANENTLY HTTP_MOVED_TEMPORARILY
                        M_TRACE M_OPTIONS /;
+use Carp qw/ croak confess /;
+use Compress::Zlib;
+use Cwd qw/abs_path/;
+use Fcntl ':mode';
 
-use LJ::Protocol;
-
-# needed to call S2::set_domain() so early:
-use LJ::S2;
 use Apache::LiveJournal::Interface::Blogger;
 use Apache::LiveJournal::PalImg;
-use LJ::ModuleCheck;
-use Compress::Zlib;
-use LJ::PageStats;
-use LJ::URI;
+use DW::Auth;
+use DW::BlobStore;
+use DW::Request::XMLRPCTransport;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
-use DW::Auth;
-use DW::Request::XMLRPCTransport;
-use Cwd qw/abs_path/;
-use Carp qw/ croak confess /;
-use Fcntl ':mode';
+use LJ::ModuleCheck;
+use LJ::PageStats;
+use LJ::Protocol;
+use LJ::S2;
+use LJ::URI;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -1199,7 +1198,7 @@ sub vgift_content {
     };
 
     my $key = $vg->img_mogkey( $picsize );
-    my $data = LJ::mogclient()->get_file_data( $key );
+    my $data = DW::BlobStore->retrieve( vgifts => $key );
     return NOT_FOUND unless $data;
 
     $send_headers->( length $$data );
