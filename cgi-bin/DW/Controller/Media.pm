@@ -25,7 +25,7 @@ use DW::BlobStore;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
-use POSXIX;
+use POSIX;
 
 my %VALID_SIZES = ( map { $_ => $_ } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
             800, 600, 720, 1600, 1200 ) );

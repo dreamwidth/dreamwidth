@@ -28,15 +28,15 @@ function updateEmbed ( evt ) {
 
 window.onload = function() {
   var dropdowns = document.getElementsByClassName('embed-select');
-  for (elem of dropdowns) {
-    elem.style = '';
-    elem.classList = "columns large-2 embed-select"
+  for (var i = 0; i < dropdowns.length; i++) {
+    dropdowns[i].style = '';
+    dropdowns[i] = "columns large-2 embed-select"
 }
 
   var textboxes = document.getElementsByClassName('embed-thumb');
-  for (elem of textboxes) {
-    elem.classList.remove('large-9')
-    elem.classList.add('large-7')
+  for (var i = 0; i < textboxes.length; i++) {
+    textboxes[i].classList.remove('large-9')
+    textboxes[i].classList.add('large-7')
 }
 };
 </script>
