@@ -70,7 +70,7 @@ log4perl.appender.DevNull.layout=Log::Log4perl::Layout::SimpleLayout
         };
         Log::Log4perl::init( \$conf );
     } else {
-        Log::Log4perl::init_and_watch($LJ::HOME . '/etc/log4perl.conf', 10);
+        Log::Log4perl::init_and_watch( LJ::resolve_file( 'etc/log4perl.conf' ), 10 );
     }
 }
 
