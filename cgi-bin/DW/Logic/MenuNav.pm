@@ -97,11 +97,11 @@ sub get_menu_navigation {
                     text_opts => { num => $userpic_count, max => $userpic_max },
                     display => $loggedin,
                 },
-#                {
-#                    url => "$LJ::SITEROOT/file/new",
-#                    text => "menunav.create.uploadimages",
-#                    display => $loggedin,
-#                },
+                {
+                    url => "$LJ::SITEROOT/file/new",
+                    text => "menunav.create.uploadimages",
+                    display => $loggedin_hasjournal,
+                },
                 {
                     url => "$LJ::SITEROOT/communities/new",
                     text => "menunav.create.createcommunity",
@@ -136,6 +136,11 @@ sub get_menu_navigation {
                     url => "$LJ::SITEROOT/communities/list",
                     text => "menunav.organize.managecommunities",
                     display => $loggedin_canjoincomms,
+                },
+                {
+                    url => "$LJ::SITEROOT/file/edit",
+                    text => "menunav.organize.manageimages",
+                    display => $loggedin_hasjournal,
                 },
                 {
                     url => "$LJ::SITEROOT/tools/importer",
