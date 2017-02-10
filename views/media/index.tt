@@ -30,7 +30,7 @@ window.onload = function() {
   var dropdowns = document.getElementsByClassName('embed-select');
   for (var i = 0; i < dropdowns.length; i++) {
     dropdowns[i].style = '';
-    dropdowns[i] = "columns large-2 embed-select"
+    dropdowns[i].classList = "columns large-2 embed-select"
 }
 
   var textboxes = document.getElementsByClassName('embed-thumb');
