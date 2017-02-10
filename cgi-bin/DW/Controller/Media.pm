@@ -85,6 +85,7 @@ sub media_bulkedit_handler {
 
             my %props;
             while ( my ($key, $val) = each %post ) {
+                next if $key =~ m/delete/;
                 next unless $key =~ m/^(\w+)-(\d+)/;
                 my $mediaid = $2 >> 8;
                 if ( exists $props{$mediaid} ) {
