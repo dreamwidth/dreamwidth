@@ -240,6 +240,7 @@ package LJ::User;
 
 sub can_upload_media {
     my ( $u ) = @_;
+    return 0 if $u->is_identity;
 
     my $quota = DW::Media->get_quota_for_user( $u );
     my $usage = DW::Media->get_usage_for_user( $u );

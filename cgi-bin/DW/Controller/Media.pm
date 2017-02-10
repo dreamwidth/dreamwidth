@@ -41,6 +41,9 @@ DW::Routing->register_string( '/file', \&media_index_handler, app => 1 );
 sub media_manage_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
+    return error_ml( 'error.openid', { sitename => $LJ::SITENAMESHORT,
+                                       aopts => '/create' } )
+        if $rv->{remote}->is_identity;
 
     # load all of a user's media.  this is inefficient and won't be like this forever,
     # but it's simple for now...
@@ -52,6 +55,9 @@ sub media_manage_handler {
 sub media_bulkedit_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
+    return error_ml( 'error.openid', { sitename => $LJ::SITENAMESHORT,
+                                       aopts => '/create' } )
+        if $rv->{remote}->is_identity;
 
     my @security = (
             { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },
@@ -179,6 +185,9 @@ sub media_handler {
 sub media_new_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
+    return error_ml( 'error.openid', { sitename => $LJ::SITENAMESHORT,
+                                       aopts => '/create' } )
+        if $rv->{remote}->is_identity;
 
     $rv->{security} = [
         { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },

@@ -59,6 +59,9 @@ sub file_new_handler {
     LJ::isu( $rv->{u} )
         or return api_error( $r->HTTP_UNAUTHORIZED, 'Not logged in' );
 
+    return api_error( $r->HTTP_UNAUTHORIZED, 'Invalid account type' )
+        if $rv->{u}->is_identity;
+
     return api_error( $r->HTTP_BAD_REQUEST, 'Quota exceeded' )
         unless $rv->{u}->can_upload_media;
 
