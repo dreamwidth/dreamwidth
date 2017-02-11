@@ -9,43 +9,108 @@ This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
-[% sections.title = '.title' | ml %]
+[% sections.title = '.title2' | ml %]
 
 [% CALL dw.active_resource_group( "jquery") %]
 [% CALL dw.need_res( { group => "jquery" },
     "js/media/bulkedit.js"
+) %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[% dw.need_res( { group => "foundation" },
     "stc/media.css"
 ) %]
 
-<p>[% ".intro" | ml %]</p>
+[% IF media.size %]
+    <p>[% dw.ml(".intro2", { aopts1 => '/file/list',
+                             aopts2 => '/file/new',
+                                 } ) %] 
+[% ELSE %]
+    <p>[% ".intro.empty" | ml %]</p>
+    <ul>
+        <li class='subnav'><a href="[%site.root%]/file/new">[% '.new' | ml %]</a></li>
+    </ul>
+[% END %]
 
 [% IF media.size %]
+[% IF maxpage > 1 %]
+    <div class="action-box">
+    [%- INCLUDE components/pagination.tt
+        current => page,
+        total_pages => maxpage, -%]
+    </div>
+[% END %]
 <form id="media-manage" method="POST" action="[%site.root%]/file/edit">
 [%- dw.form_auth -%]
-<fieldset id="media-list">
-<ul>
-    [%- FOREACH obj IN media -%]
-        <li class='media-item [% loop.count % 2 ? 'even' : 'odd' %]'>
+<div id="media-list">
+    [% first_index = (page - 1) * 20 %]
+    [% last_index = page * 20 - 1 < media.size ? page * 20 - 1 : media.max %]
+    [%- FOREACH obj IN media.slice(first_index, last_index) -%]
+        
+        <div class='media-item [% loop.count % 2 ? 'even' : 'odd' %] row'>
         <div class='inner'>
-            <div class='media'><img src="[% obj.url %]" /></div>
-            <div class='details'><span class='name '>[%obj.displayid%]</span>
-                <br /><span class='filesize'>[% obj.size / 1000 %] kb</span></div>
-            [%- form.select( name="security-$obj.displayid"
-                items = security
-                selected = obj.security ) -%]
-            <div><label for="delete_[% obj.displayid %]">Delete?</label>
-                <input type="checkbox" name="delete" id="delete_[% obj.displayid %]" value="[% obj.displayid %]" />
+            <div class='media large-3 column'><img src="[% obj.url %]" /></div>
+            <div class='edit large-9 column'>
+            <div class="row">
+                    <div class="large-8 columns">
+                        [%- INCLUDE 'media/field-row.tt' 
+                            label = dw.ml(".edit.title")
+                            type = "text" 
+                            id = "edit-title-$obj.displayid" 
+                            value = obj.prop('title') 
+                            name = "title-$obj.displayid" 
+                            maxlength = '125'
+                            labelSize = 3 
+                        -%]
+                    </div>
+                    <div class="large-4 columns">
+                        [%- INCLUDE 'media/field-row.tt' 
+                            label = dw.ml(".edit.security")
+                            type = "select"
+                            name="security-$obj.displayid"
+                            items = security
+                            selected = obj.security 
+                            labelSize = 4
+                        -%]
+                    </div>
+                </div>
+            [% INCLUDE 'media/field-row.tt'  
+                label = dw.ml(".edit.alt")
+                type = "text" 
+                id = "edit-alttext-$obj.displayid" 
+                value = obj.prop('alttext') 
+                name = "alttext-$obj.displayid" 
+                maxlength = '125'
+            %]
+            [% INCLUDE 'media/field-row.tt' 
+                label = dw.ml(".edit.desc") 
+                type = "textarea"
+                id = "edit-description-$obj.displayid" 
+                value = obj.prop('description') 
+                name = "description-$obj.displayid"
+            %]
+            [% INCLUDE 'media/field-row.tt' 
+                type = "checkbox"
+                label = dw.ml(".edit.delete") 
+                id = "delete_$obj.displayid" 
+                name = "delete"
+                value = "$obj.displayid"
+            %]
             </div>
         </div>
-        </li>
+        </div>
     [%- END -%]
-</ul>
-</fieldset>
-<fieldset class="submit">
-    <input type="submit" value="Change Security" name="action:edit" />
-</fieldset>
-<fieldset class="submit destructive">
-    <input type="submit" value="Delete Selected" name="action:delete" />
-</fieldset>
+</div>
+
+[% form.submit( name = "action:edit", value = dw.ml( '.submit.save' ) ) %]
+[% form.submit( name = "action:delete", value = dw.ml( '.submit.delete' ) ) %]
 </form>
+[% IF maxpage > 1 %]
+    <div class="action-box">
+    [%- INCLUDE components/pagination.tt
+        current => page,
+        total_pages => maxpage, -%]
+    </div>
+[% END %]
 [% END %]

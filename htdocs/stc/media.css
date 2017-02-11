@@ -1,8 +1,20 @@
+#media-grid {
+    margin: 0;
+}
+
 #media-grid .media-item {
     list-style-type: none;
     display: inline-block;
     vertical-align: top;
-    margin: 2em 1em;
+    padding: 0;
+    margin: 0;
+    min-width: 50px;
+    width:32%;
+}
+
+#media-grid .media-item .inner {
+    vertical-align: top;
+    margin: 1em;
     outline: 1px #666 solid;
     padding: 1em;
     min-width: 50px;
@@ -10,11 +22,12 @@
     box-shadow: 1px 2px 3px 1px rgba(200, 200, 200, 1);
 }
 
-#media-grid .media-item img {
-    max-height: 300px;
-    outline: 1px #eee solid;
-    margin: 0 auto 1em auto;
-    display: block;
+#media-grid .media-item .media {
+    height: 200px;
+    width: 200px;
+    line-height: 200px;
+    margin: auto;
+
 }
 
 #media-grid .media-item div {
@@ -22,13 +35,13 @@
     text-align: center;
 }
 
-#media-grid .media-item .name {
-    font-weight: bold;
+#media-grid .name {
+    height: 3.4em;
 }
 
-#media-grid .media-item .filesize {
-    font-size: smaller;
-    font-style: italic;
+
+.media-item .name {
+    font-weight: bold;
 }
 
 #media-list .media-item {
@@ -40,59 +53,25 @@
     padding: 1em 0;
 }
 
-#media-list .media-item div, #media-list .media-item select, #media-list .media-item img {
-    display: inline-block;
-    margin: 0 1em;
-}
 
 #media-list .media-item .media {
-    width: 200px;
-    padding: 0 1em 0 0;
+    padding: 0 1em 1em 1em
 }
 
-#media-list .details {
-    width: 10em;
+.media-item .details, .media-item .description {
+    padding-bottom: 0.5em;
 }
 
-#media-list .filesize {
+.media-item .dimensions, .media-item .time {
     font-size: smaller;
     font-style: italic;
-    display: none;
-}
+    }
 
-#media-list .name {
-    display: none;
-}
+.embed {padding: 0 1em;}
 
-fieldset.submit {
+@media screen and (min-width: 64.036em) {
+.edit label, .embed label {
     text-align: right;
 }
 
-fieldset.submit input {
-  margin-top: 2em;
-  border-width: 1px;
-  border-style: solid;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  font-weight: bold;
-  line-height: 1;
-  padding: 3px 8px 4px;
-  text-align: center;
-
-  font-size: 1.2em;
-  line-height: 1.5em;
-}
-
-fieldset.destructive input {
-  border: 0;
-  background: transparent;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-
-  font-size: 0.9em;
-  text-decoration: underline;
-  margin-right: 2em;
-  float: left;
 }

@@ -132,7 +132,8 @@ $(function() {
                     return file_id;
                 }).end()
                 .find(".progress").toggleClass( "secondary success" ).end()
-                .find("input[name=generated-code]").trigger("imagecodeupdate", [ response.result ]).end();
+                .find("input[name=generated-code]").trigger("imagecodeupdate", [ response.result ]).end()
+                .find(".success").attr("style", "").end();
         } else {
             $(data.context).trigger( "uploaderror", [ { error : data.error } ] );
         }
@@ -209,12 +210,10 @@ $(function() {
         $field.data( "image-attributes", image );
 
         var text = [];
-        text.push( "<figure>", "<a href='" + image.url + "'><img src='" + image.thumbnail_url + "'" );
-        if ( image.title ) text.push( " alt='" + image.title + "' " );
+        text.push( "<a href='" + image.url + "'><img src='" + image.thumbnail_url + "'" );
+        if ( image.title ) text.push( " title='" + image.title + "' " );
+        if ( image.alttext ) text.push(" alt='" + image.alttext + "' ");
         text.push( " /></a>" );
-        if ( image.description ) text.push("<figcaption>" + image.description + "</figcaption>");
-        text.push( "</figure>" );
-
         $field.val(text.join(""));
     });
 

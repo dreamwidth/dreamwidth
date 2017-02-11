@@ -1701,3 +1701,11 @@ contentflag.viewingexplicit.byposter
 
 general /customize/options.bml.widget.navstripchooser.option.color.control_strip_borderc
 general /customize/options.bml.widget.navstripchooser.option.color.control_strip_linkcol
+
+general /views/media/edit.tt.title
+general /views/media/edit.tt.intro
+general /views/media/home.tt.title
+general /views/media/home.tt.edit
+general /views/media/index.tt.title
+general /views/media/index.tt.intro
+general /views/media/index.tt.intro.edit

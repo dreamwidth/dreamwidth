@@ -113,6 +113,16 @@ sub url {
         '.' . $self->{ext};
 }
 
+# construct a URL for the fullsize version of this url. This is the same as
+# url if the object is the orignal, fullsize version, but returns the url of
+# the original if we're using version of it.
+sub full_url {
+    my $self = $_[0];
+
+    return $self->u->journal_base . '/file/' . $self->{displayid} .
+        '.' . $self->{ext};
+}
+
 # if user can see this
 sub visible_to {
     my ( $self, $other_u ) = @_;

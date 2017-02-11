@@ -10,11 +10,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[% sections.title = '.title' | ml %]
+[% sections.title = '.title2' | ml %]
 
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
 <ul>
     <li class='subnav'><a href="[%site.root%]/file/new">[% '.new' | ml %]</a></li>
-    <li class='subnav'><a href="[%site.root%]/file/edit">[% '.edit' | ml %]</a></li>
+    <li class='subnav'><a href="[%site.root%]/file/edit">[% '.edit2' | ml %]</a></li>
 </ul>
