@@ -25,7 +25,7 @@
                            )
             -%]
         [% ELSIF type == "checkbox" %]
-            [%- form.checkbox( "name" = name, "id" = id) -%]
+            [%- form.checkbox( "name" = name, "id" = id, "value" = value) -%]
         [% END %]
 
     </div>

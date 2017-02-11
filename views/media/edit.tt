@@ -94,7 +94,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 type = "checkbox"
                 label = dw.ml(".edit.delete") 
                 id = "delete_$obj.displayid" 
-                name = "delete-$obj.displayid"
+                name = "delete"
+                value = "$obj.displayid"
             %]
             </div>
         </div>
