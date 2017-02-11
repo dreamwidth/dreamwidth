@@ -92,6 +92,7 @@ my %host_path_match = (
     "www.plurk.com"         => [ qr!^/getWidget$!, 1 ],
 
     "www.sbs.com.au"        => [ qr!/player/embed/!, 0 ],  # best guess; language parameter before /player may vary
+    "scratch.mit.edu"       => [ qr!^/projects/embed/!, 1 ],
     "www.scribd.com"        => [ qr!^/embeds/!, 1 ],
     "www.slideshare.net"    => [ qr!^/slideshow/embed_code/!, 1 ],
     "w.soundcloud.com"      => [ qr!^/player/!, 1 ],
