@@ -69,7 +69,7 @@
 
 .embed {padding: 0 1em;}
 
-@media screen and (min-width: 64.01em) {
+@media screen and (min-width: 64.036em) {
 .edit label, .embed label {
     text-align: right;
 }
