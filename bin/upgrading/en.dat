@@ -769,6 +769,8 @@ error.noschwartz=TheSchwartz not installed or not configured properly.
 
 error.notloggedin=You have to <a [[aopts]]>log in</a> in order to use this page.
 
+error.openid=This page is not available to OpenID users. <a href="[[aopts]]">Create a [[sitename]] account?</a>
+
 error.pay.cmo.engbadstate=Payment engine is in a bad state.  Please try your order again.
 
 error.pay.dberr=Database error: [[errstr]].  Please try again later.
@@ -1979,6 +1981,8 @@ menunav.organize.manageaccount=Manage Account
 menunav.organize.managecommunities=Manage Communities
 
 menunav.organize.managefilters=Manage Filters
+
+menunav.organize.manageimages=Manage Images
 
 menunav.organize.managerelationships=Manage Circle
 
