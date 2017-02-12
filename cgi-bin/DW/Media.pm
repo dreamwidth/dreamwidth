@@ -229,7 +229,7 @@ sub get_usage_for_user {
     my ( $usage ) = $u->selectrow_array(
         q{SELECT SUM(mv.filesize) FROM media_versions AS mv, media AS m
           WHERE mv.userid=? AND m.userid=mv.userid AND m.mediaid=mv.mediaid
-          AND m.state = 'A';
+          AND m.state = 'A'
          },
         undef, $u->id
     );
