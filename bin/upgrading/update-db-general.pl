@@ -668,15 +668,6 @@ CREATE TABLE userpropblob (
 )
 EOC
 
-register_tablecreate("backupdirty", <<'EOC');
-CREATE TABLE backupdirty (
-    userid INT(10) unsigned NOT NULL default '0',
-    marktime INT(10) unsigned NOT NULL default '0',
-
-    PRIMARY KEY (userid)
-)
-EOC
-
 ################# above was a snapshot.  now, changes:
 
 register_tablecreate("log2", <<'EOC');
@@ -916,6 +907,7 @@ register_tabledrop("dirsearchres2");
 register_tabledrop("txtmsg");
 register_tabledrop("comm_promo_list");
 register_tabledrop("incoming_email_handle");
+register_tabledrop("backupdirty");
 
 
 register_tablecreate("infohistory", <<'EOC');
