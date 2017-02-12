@@ -398,18 +398,24 @@ sub register_string {
     $string_choices{'app'  . $string} = $hash if $hash->{app};
     $string_choices{'user' . $string} = $hash if $hash->{user};
 
+    my %redirect_opts = (
+        app => $hash->{app},
+        user => $hash->{user},
+        formats => $hash->{formats},
+        format => $hash->{format},
+        no_redirects => 1,
+        keep_args => 1,
+    );
+
     if ( $string =~ m!(^(.*)/)index$! && ! exists $opts{no_redirects} ) {
-        my %opts = (
-            app => $hash->{app},
-            user => $hash->{user},
-            formats => $hash->{formats},
-            format => $hash->{format},
-            no_redirects => 1,
-            keep_args => 1,
-        );
-        $class->register_redirect( $2, $1, %opts ) if $2;
+        $class->register_redirect( $2, $1, %redirect_opts ) if $2;
         $string_choices{'app'  . $1} = $hash if $hash->{app};
         $string_choices{'user' . $1} = $hash if $hash->{user};
+
+    } elsif ( ! exists $opts{no_redirects} ) {
+        # for all other (non-index) pages, redirect page/ to page
+        $class->register_redirect( "$string/", $string, %redirect_opts );
+
     }
 }
 
