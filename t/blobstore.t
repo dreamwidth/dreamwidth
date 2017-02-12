@@ -1,4 +1,4 @@
-# t/media-security.t
+# t/blobstore.t
 #
 # Test some BlobStore functionality.
 #

@@ -118,7 +118,7 @@ sub _resize {
     $self->{height} = $timage->Get( 'height' );
     $self->{filesize} = length $blob;
 
-    # Now save to MogileFS first, before adding it to the database.
+    # Now save to file storage first, before adding it to the database.
     DW::BlobStore->store( media => $self->mogkey, \$blob )
         or croak 'Unable to save resized file to storage.';
 

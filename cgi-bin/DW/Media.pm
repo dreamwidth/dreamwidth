@@ -127,7 +127,7 @@ sub upload_media {
     # to avoid having database rows for an image that failed to upload,
     # do the upload first - we can create a fake object to get the mogkey
 
-    # FIXME: have different MogileFS classes for different media types
+    # FIXME: have different storage classes for different media types
 
     my $fakeobj = bless { userid => $opts{user}->id, versionid => $id }, 'DW::Media::Photo';
     DW::BlobStore->store( media => $fakeobj->mogkey, \$opts{data} )

@@ -89,7 +89,7 @@ sub create {
     # opts are values for object properties as defined in PROPLIST.
     # also allowed: 'error' which should be a scalar reference;
     # 'img_small' & 'img_large' which should contain raw
-    # image data to be stored in MogileFS.
+    # image data to be stored in media storage (blobstore).
     my ( $class, %opts ) = @_;
     my %vg;  # hash for storing row data
     foreach ( PROPLIST ) {
@@ -204,7 +204,7 @@ sub edit {
     # opts are values for object properties as defined in PROPLIST.
     # also allowed: 'error' which should be a scalar reference;
     # 'img_small' & 'img_large' which should contain raw
-    # image data to be stored in MogileFS.
+    # image data to be stored in media storage (blobstore).
     my ( $self, %opts ) = @_;
     return undef unless $self->id;
 

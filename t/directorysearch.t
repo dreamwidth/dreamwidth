@@ -211,7 +211,7 @@ memcache_stress(sub {
 }
 });
 
-# search with a shitload of ids (force it to use Mogile for set handles)
+# search with a huge number of ids (force it to use blobstore for set handles)
 SKIP: {
     my ($search, $res);
 

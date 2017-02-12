@@ -241,6 +241,7 @@ my %modules = (
         },
     "MogileFS::Client" => {
         ver => '1.12',
+        opt => 'Used for legacy MogileFS support',
     },
     "TheSchwartz" => {
         deb => 'libtheschwartz-perl',
@@ -293,6 +294,9 @@ my %modules = (
     "Paws::S3" => {
         opt => "Used for BlobStore support of S3",
     },
+    "Text::Wrap" => {
+        ver => '2013.0523', # issue #1447
+    },
 );
 
 
@@ -303,7 +307,7 @@ sub check_modules {
     my (@debs, @mods);
 
     foreach my $mod (sort keys %modules) {
-        my $rv = eval "use $mod;";
+        my $rv = eval "use $mod ();";
         if ($@) {
             my $dt = $modules{$mod};
             unless ($debs_only) {
