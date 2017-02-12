@@ -249,7 +249,7 @@ body<=
         $body .= $reply_u->ljuser_display;
         $body .= LJ::html_hidden({
                     name      => 'msg_to',
-                    value     => "$reply_to",
+                    value     => $reply_u->username,
                  });
     } else {
         $body .= LJ::html_text({

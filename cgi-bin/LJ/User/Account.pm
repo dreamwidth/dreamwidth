@@ -1009,8 +1009,26 @@ sub load_existing_identity_user {
     my ($type, $ident) = @_;
 
     my $dbh = LJ::get_db_reader();
-    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
-                                    undef, $type, $ident);
+    my $uid;
+
+    # if given an https URL, also look for existing http account
+    # (we should have stripped the protocol before storing these, sigh)
+    if ( $ident =~ s/^https:// ) {
+        my $secure_ident= "https:$ident";
+        $ident = "http:$ident";
+
+        # do the secure lookup first; if it fails, try the fallback below
+        $uid = $dbh->selectrow_array( "SELECT userid FROM identitymap WHERE " .
+                                      "idtype=? AND identity=?",
+                                      undef, $type, $secure_ident );
+    }
+
+    unless ( $uid ) {
+        $uid = $dbh->selectrow_array( "SELECT userid FROM identitymap WHERE " .
+                                      "idtype=? AND identity=?",
+                                      undef, $type, $ident );
+    }
+
     return $uid ? LJ::load_userid($uid) : undef;
 }
 
@@ -1498,16 +1516,12 @@ sub load_user_or_identity {
         return _set_u_req_cache( $u ) if $u;
     }
 
-    my $dbh = LJ::get_db_writer();
-    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
-                                    undef, 'O', $url);
-
-    my $u = $uid ? LJ::load_userid($uid) : undef;
+    my $u = LJ::User::load_existing_identity_user( 'O', $url );
 
     # set user in memcache
     if ( $u ) {
         # memcache URL-to-userid for identity users
-        LJ::MemCache::set( "uidof:$url", $uid, 1800 );
+        LJ::MemCache::set( "uidof:$url", $u->id, 1800 );
         LJ::memcache_set_u( $u );
         return _set_u_req_cache( $u );
     }
