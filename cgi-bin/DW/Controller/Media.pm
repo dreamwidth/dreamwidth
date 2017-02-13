@@ -25,6 +25,7 @@ use DW::BlobStore;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
+use DW::External::Site;
 use POSIX;
 
 my %VALID_SIZES = ( map { $_ => $_ } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
@@ -212,8 +213,19 @@ sub media_handler {
     return $error_out->( 403, 'Not authorized' )
         unless $viewall || $obj->visible_to( $remote );
 
+    # remote access, including crossposts
+    my $refer_ok = sub {
+        return 1 if LJ::check_referer();
+        my @xpost = map { $_->{domain} } DW::External::Site->get_xpost_sites;
+        my ( $ref_dom ) = $r->header_in( "Referer" ) =~ m!^https?://([^/]+)!;
+        foreach my $domain ( @xpost ) {
+            return 1 if $ref_dom eq $domain;  # top level domain
+            return 1 if $ref_dom =~ m!\.\Q$domain\E$!;  # subdomain
+        }
+        return 0;
+    };
     return $error_out->( 403, 'Not authorized' )
-        unless LJ::check_referer();  # no offsite loading
+        unless $refer_ok->();  # limit offsite loading
 
     # load the data for this object
     my $dataref = DW::BlobStore->retrieve( media => $obj->mogkey );
