@@ -186,18 +186,15 @@ sub try_work {
         # but first clean subject to make sure it matches what we actually inserted into the db
         # separate condition from above so that we can log that we guessed these are similar
         $evt->{subject} = $class->remap_lj_user( $data, $evt->{subject} || "" );
-        my $dupecheck_key = LJ::mysqldate_to_time($evt->{logtime}) . "-$evt->{subject}";
+        my $dupecheck_key = $evt->{eventtime} . '-' . $evt->{subject};
         if ( $duplicates_map->{$dupecheck_key} ) {
-            $log->( "Skipping import of '%s' posted on %d. Remote entry jitemid %d looks similar to local entry jitemid %d.",
-                        $evt->{subject}, $evt->{logtime},
-                        $evt->{itemid}, $duplicates_map->{$dupecheck_key}
+            $log->( "Skipping entry on %s. Remote entry jitemid %d similar to local jitemid %d.",
+                        $evt->{eventtime}, $evt->{itemid}, $duplicates_map->{$dupecheck_key}
                     );
             $has{$evt->{itemid}} = 1;
 
             return;
         }
-
-
 
         # clean up event for LJ and remap friend groups
         my @item_errors;

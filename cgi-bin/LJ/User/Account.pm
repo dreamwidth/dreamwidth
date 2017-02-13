@@ -843,6 +843,8 @@ sub preload_props {
         if (ref $loadfrom{$table}) {
             $sql .= " AND upropid IN (" . join(",", @{$loadfrom{$table}}) . ")";
         }
+        die "No db\n" unless $db;
+
         $sth = $db->prepare($sql);
         $sth->execute;
         while (my ($id, $v) = $sth->fetchrow_array) {

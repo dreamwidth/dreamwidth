@@ -280,27 +280,37 @@ sub new_from_row {
 }
 
 
-sub new_from_url {
-    my ($class, $url) = @_;
+sub username_from_url {
+    my ( $class, $url ) = @_;
 
     # this doesn't seem to like URLs with ?...
     $url =~ s/\?.+$//;
 
     # /users, /community, or /~
     if ($url =~ m!^\Q$LJ::SITEROOT\E/(?:users/|community/|~)([\w-]+)/?!) {
-        return LJ::load_user($1);
+        return LJ::canonical_username( $1 );
     }
 
     # user subdomains
     if ($LJ::USER_DOMAIN && $url =~ m!^https?://([\w-]+)\.\Q$LJ::USER_DOMAIN\E/?$!) {
-        return LJ::load_user($1);
+        return LJ::canonical_username( $1 );
     }
 
     # subdomains that hold a bunch of users (eg, users.siteroot.com/username/)
     if ($url =~ m!^https?://\w+\.\Q$LJ::USER_DOMAIN\E/([\w-]+)/?$!) {
-        return LJ::load_user($1);
+        return LJ::canonical_username( $1 );
     }
 
+    return undef;
+}
+
+
+sub new_from_url {
+    my ($class, $url) = @_;
+
+    my $username = $class->username_from_url( $url );
+    return LJ::load_user( $username )
+        if defined $username;
     return undef;
 }
 

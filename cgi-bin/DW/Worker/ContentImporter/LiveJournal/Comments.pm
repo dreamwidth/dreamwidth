@@ -379,13 +379,17 @@ sub try_work {
             # if this comment already exists, we might need to update it, however
             my $err = "";
             if ( my $jtalkid = $jtalkid_map->{$comment->[C_orig_id]} ) {
-                $log->( 'Comment already exists, passing to updater.' );
+                if ( $comment->[C_state] ne 'D' ) {
+                    $log->( 'Comment already exists, passing to updater.' );
 
-                $comment->[C_local_parentid] = $jtalkid_map->{$comment->[C_remote_parentid]}+0;
-                $comment->[C_id] = $jtalkid;
+                    $comment->[C_local_parentid] = $jtalkid_map->{$comment->[C_remote_parentid]}+0;
+                    $comment->[C_id] = $jtalkid;
 
-                DW::Worker::ContentImporter::Local::Comments->update_comment( $u, hashify( $comment ), \$err );
-                $log->( 'ERROR: %s', $err ) if $err;
+                    DW::Worker::ContentImporter::Local::Comments->update_comment( $u, hashify( $comment ), \$err );
+                    $log->( 'ERROR: %s', $err ) if $err;
+                } else {
+                    $log->( 'Comment exists but is deleted, skipping.' );
+                }
 
                 $comment->[C_done] = 1;
                 next;
