@@ -115,7 +115,7 @@ sub media_bulkedit_handler {
                     } else {
                         $media->prop( $key, $val );
                     }
-                }  
+                }
             }
 
         } elsif ( $post_args->{"action:delete"} ) {
@@ -142,8 +142,10 @@ sub media_bulkedit_handler {
 }
 
 sub media_handler {
-    my $opts = shift;
-    my $r = DW::Request->get;
+    my ( $opts ) = @_;
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+    my $r = $rv->{r};
 
     # Outputs an error message
     my $error_out = sub {
@@ -201,9 +203,15 @@ sub media_handler {
         unless $obj->is_active && $obj->anum == $anum && $obj->ext eq $ext;
 
     # access control
-# FIXME: support viewall
+    my $remote = $rv->{remote};
+    my $viewall = $r->get_args->{viewall} ? 1 : 0;     # did they request it
+    $viewall &&= defined $remote;                      # are they logged in
+    $viewall &&= $remote->has_priv( 'canview', '*' );  # can they do it
+    LJ::statushistory_add( $u->userid, $remote->userid, "viewall", $obj->url )
+        if $viewall;
     return $error_out->( 403, 'Not authorized' )
-        unless $obj->visible_to( LJ::get_remote() );
+        unless $viewall || $obj->visible_to( $remote );
+
     return $error_out->( 403, 'Not authorized' )
         unless LJ::check_referer();  # no offsite loading
 
