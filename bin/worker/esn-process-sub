@@ -22,6 +22,12 @@ use LJ::Lang;
 use LJ::Worker::TheSchwartz;
 use LJ::ESN;
 
+# Enable prioritization for this job to avoid news posts slamming us with
+# work that delays comment notifications/other jobs
+# EDIT: Not safe; there is no index on priority in the table, so this just
+# causes the queries to get really bad. NEED FIX.
+# schwartz_prioritize( 1 );
+
 schwartz_decl("LJ::Worker::ProcessSub");
 
 schwartz_work();
