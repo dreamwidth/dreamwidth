@@ -253,7 +253,7 @@ sub make_embed_url {
 
     if (defined $opts{type} && $opts{type} eq 'thumbnail') {
         my $thumb_url = $obj->url();
-        $embed = "<a href='$url'><img src='$thumb_url' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "/></a>";
+        $embed = "<a href='$url'><img src='$thumb_url' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "'/></a>";
     } else {
         $embed = "<img src='$url' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "' />";
     }
