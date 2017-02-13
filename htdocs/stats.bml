@@ -376,10 +376,6 @@ body<=
  }
 
 
- # return early, since the graphs below are pretty much broken now
- # with index changes.  FIXME: make alternate means to generate stats
- return $ret;
-
  ### graphs!
  $ret .= "<?h1 Pretty Graphs! h1?><?p These are the most fun, aren't they? p?>";
  
