@@ -76,10 +76,10 @@ sub accounts_by_type {
 
     # Package the input for the DW::Graphs
     my $hashref = {
-                "$personal_label\n   $personal" => $personal,
-                "$identity_label\n   $identity" => $identity,
-                "$community_label\n   $community" => $community,
-                "$syndicated_label\n   $syndicated" => $syndicated,
+                "$personal_label\r\n   $personal" => $personal,
+                "$identity_label\r\n   $identity" => $identity,
+                "$community_label\r\n   $community" => $community,
+                "$syndicated_label\r\n   $syndicated" => $syndicated,
     };
 
     # create an image
@@ -252,10 +252,10 @@ sub paid_accounts {
 
     # Package the input for DW::Graphs
     my $input = {
-                "$paid_label\n   $paid" => $paid,
-                "$premium_label\n   $premium" => $premium,
-                "$seed_label\n   $seed" => $seed,
-                "$active_free_label\n   $active_30d_free" => $active_30d_free,
+                "$paid_label\r\n   $paid" => $paid,
+                "$premium_label\r\n   $premium" => $premium,
+                "$seed_label\r\n   $seed" => $seed,
+                "$active_free_label\r\n   $active_30d_free" => $active_30d_free,
     };
     # create an image
     my $gd = DW::Graphs::pie( $input );
