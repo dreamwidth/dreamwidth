@@ -1430,6 +1430,11 @@ sub postevent
             $res_done = 1;   # tell caller to bail out
             return;
         }
+
+        # If we're the importer, don't do duplicate detection here; the importer already
+        # has tooling to do that to compare remote vs local
+        return if $importer_bypass;
+
         my @parts = split(/:/, $u->{'dupsig_post'});
         if ($parts[0] eq $dupsig) {
             # duplicate!  let's make the client think this was just the
@@ -1635,9 +1640,11 @@ sub postevent
             $logtag_opts->{set_string} = $taginput;
         }
 
-        my $rv = LJ::Tags::update_logtags($uowner, $jitemid, $logtag_opts);
-        return fail($err,157,$tagerr) unless $rv;
-        # the next line will propagate any "skippable" errors
+        # Do not fail here; worst case we lose tags, but if we fail here we don't perform
+        # half of the processing below
+        LJ::Tags::update_logtags($uowner, $jitemid, $logtag_opts);
+
+        # Propagate any "skippable" errors
         $res->{message} = $tagerr if $tagerr;
     }
 

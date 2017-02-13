@@ -46,11 +46,6 @@ sub render_body {
             url => 'insanejournal.com',
             display_name => 'InsaneJournal',
         },
-        {
-            name => 'journalfen',
-            url => 'journalfen.net',
-            display_name => 'JournalFen',
-        },
     ) ){
         push @services, $service
             if LJ::is_enabled( "external_sites", { sitename => $service->{display_name}, domain => $service->{url} } );
@@ -116,11 +111,14 @@ sub handle_post {
     my $un = LJ::trim( lc $post->{username} );
     $un =~ s/-/_/g;
 
-    # be sure to sanitize the usejournal
+    # be sure to sanitize the usejournal, and require one if they're importing to
+    # a community
     my $uj;
     if ( $u->is_community ) {
         $uj = LJ::trim( lc $post->{usejournal} );
         $uj =~ s/-/_/g;
+        return ( ret => 'Sorry, you must enter a community name for the remote site.' )
+            unless $uj;
     }
 
     my $pw = LJ::trim( $post->{password} );
