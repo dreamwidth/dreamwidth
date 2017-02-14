@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 # DW::Controller::EditIcons
-# 
+#
 # This controller is for creating and managing icons. NOTE: The actual file
 # is still a BML file, this is just a forward looking controller to help us
 # migrate.
@@ -161,7 +161,6 @@ sub parse_post_uploads {
         my $counter = $tokens[1];
 
         my %current_upload = (
-            image        => $POST->{$userpic_key},
             comments     => $POST->{"comments_$counter"},
             descriptions => $POST->{"descriptions_$counter"},
             index        => $counter,
@@ -169,14 +168,19 @@ sub parse_post_uploads {
             keywords     => $POST->{"keywords_$counter"},
             make_default => $POST->{"make_default"} eq $counter,
         );
-        my $size = ref $current_upload{image} eq 'SCALAR' ?
-            length ${$current_upload{image}} : 0;
 
         # uploaded pics
         if ($userpic_key =~ /userpic_.*/) {
+            # Some callers to the function pass data, others pass
+            # a reference to data.  Figure out which type we got.
+            $current_upload{image} = ref $POST->{$userpic_key} ?
+                                         $POST->{$userpic_key} :
+                                        \$POST->{$userpic_key};
+
             # only use userpic_0 if we selected file for the source
             next if $userpic_key eq "userpic_0" && $POST->{"src"} ne "file";
 
+            my $size = length ${$current_upload{image}};
             if ( $size == 0 ) {
                 $current_upload{error} = LJ::Lang::ml('.error.nofile');
             } else {
