@@ -679,7 +679,7 @@ sub create {
 
     # don't throw a dimensions error if it's the wrong file type because its dimensions will always
     # be 0x0
-    unless ($w >= 1 && $w <= 100 && $h >= 1 && $h <= 100) {
+    unless ( $w && $w >= 1 && $w <= 100 && $h && $h >= 1 && $h <= 100 ) {
         push @errors, LJ::errobj("Userpic::Dimensions",
                                  w => $w, h => $h) unless $fmterror;
     }
