@@ -62,8 +62,8 @@ sub exists {
 	# retrieving files since keys are globally unique.
 	# Just check if any paths exist to see if the file exists
 	my @paths = $self->{mogclient}->get_paths( $key );
-	$log->debug( "Found $#paths paths from MogileFS for key: $key" );
-	return $#paths > 0 ? 1 : 0;
+	$log->debug( "Found ", $#paths + 1, " paths from MogileFS for key: ", $key );
+	return $#paths > -1 ? 1 : 0;
 }
 
 sub retrieve {
