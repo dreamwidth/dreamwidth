@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 48;
+use Test::More tests => 49;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
@@ -325,5 +325,10 @@ $orig_post  = qq{"This_is_a_test_of_the_emergency_word_break_system."};
 $clean_post = qq{"This_is_a_test_of_the_emergency_word_br<wbr />eak_system."};
 $clean->({ wordlength => 40 });
 is( $orig_post, $clean_post, "Don't choose first character in string" );
+
+$orig_post  = qq{"Auto-linkify: http://www.dreamwidth.org/file/edit"};
+$clean_post = qq{"Auto-linkify: <a href="http://www.dreamwidth.org/file/edit">http://www.dreamwidth.org/file/edit</a>"};
+$clean->({ wordlength => 40 });
+is( $orig_post, $clean_post, "Don't mutilate URL entity markers" );
 
 1;

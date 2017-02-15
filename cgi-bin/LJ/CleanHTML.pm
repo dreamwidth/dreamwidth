@@ -1696,7 +1696,7 @@ sub break_word {
     # the last punctuation point; otherwise it will be placed at the maximum
     # length of the unbroken word as defined by $at.
 
-    while ( $word =~ s/((?:$onechar){$at})// ) {
+    while ( $word =~ s/^((?:$onechar){$at})// ) {
         $chunk = $1;
 
         # Edge case: if the next character would be whitespace, we
