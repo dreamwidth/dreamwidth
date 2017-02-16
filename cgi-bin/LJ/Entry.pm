@@ -985,7 +985,7 @@ sub visible_to
     }
 
     # public is okay
-    return 1 if $self->{'security'} eq "public";
+    return 1 if $self->security eq "public";
 
     # must be logged in otherwise
     return 0 unless $remote;
@@ -998,7 +998,7 @@ sub visible_to
 
     # should be 'usemask' or 'private' security from here out, otherwise
     # assume it's something new and return 0
-    return 0 unless $self->{security} eq "usemask" || $self->{security} eq "private";
+    return 0 unless $self->security eq "usemask" || $self->security eq "private";
 
     return 0 unless $remote->is_individual;
 

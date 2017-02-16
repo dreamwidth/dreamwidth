@@ -1754,6 +1754,11 @@ sub postevent
         # TODO: error on failure?  depends on the job I suppose?  property of the job?
     }
 
+    # To minimize impact on legacy code, let's make sure the entry object in
+    # memory has been populated with data. Easiest way to do that is to call
+    # one of the methods that loads the relevant row from the database.
+    $entry->valid;
+
     return $res;
 }
 
