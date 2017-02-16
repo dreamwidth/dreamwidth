@@ -2207,15 +2207,9 @@ sub delete_comments {
         $u->do( "DELETE FROM talkprop2 $where" );
     }
 
-    my @jobs;
     foreach my $talkid ( @talkids ) {
-        my $cmt = LJ::Comment->new( $u, jtalkid => $talkid );
-        push @jobs, LJ::EventLogRecord::DeleteComment->new( $cmt )->fire_job;
         LJ::Hooks::run_hooks( 'delete_comment', $jid, $nodeid, $talkid ); # jitemid, jtalkid
     }
-
-    my $sclient = LJ::theschwartz();
-    $sclient->insert_jobs( @jobs ) if @jobs;
 
     $u->memc_delete( 'activeentries' );
     LJ::MemCache::delete( [ $jid, "screenedcount:$jid:$nodeid" ] );

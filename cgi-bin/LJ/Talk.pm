@@ -22,7 +22,6 @@ use LJ::Global::Constants;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
 use LJ::Comment;
-use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
 use LJ::S2;
 use DW::Captcha;
@@ -2646,7 +2645,6 @@ package LJ::Talk::Post;
 
 use Text::Wrap;
 use LJ::Entry;
-use LJ::EventLogRecord::NewComment;
 
 sub indent {
     my $a = shift;
@@ -2818,8 +2816,6 @@ sub enter_comment {
         if ( LJ::is_enabled('esn') ) {
             my $cmtobj = LJ::Comment->new($journalu, jtalkid => $jtalkid);
             push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
-            push @jobs, LJ::EventLogRecord::NewComment->new($cmtobj)->fire_job;
-
         }
 
         if ( @LJ::SPHINX_SEARCHD ) {
@@ -3611,7 +3607,6 @@ sub edit_comment {
 
         if ( LJ::is_enabled('esn') ) {
             push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj)->fire_job;
-            push @jobs, LJ::EventLogRecord::NewComment->new($comment_obj)->fire_job;
         }
 
         if ( @LJ::SPHINX_SEARCHD ) {

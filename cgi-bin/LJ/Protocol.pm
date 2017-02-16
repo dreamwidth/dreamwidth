@@ -23,8 +23,6 @@ use LJ::Event::JournalNewEntry;
 use LJ::Event::AddedToCircle;
 use LJ::Entry;
 use LJ::Poll;
-use LJ::EventLogRecord::NewEntry;
-use LJ::EventLogRecord::EditEntry;
 use LJ::Config;
 use LJ::Comment;
 
@@ -1741,7 +1739,6 @@ sub postevent
         # latest posts feed update
         DW::LatestFeed->new_item( $entry );
     }
-    push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 
     # update the sphinx search engine
     if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
@@ -2186,8 +2183,6 @@ sub editevent
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'} = $entry->url;
     }
-
-    LJ::EventLogRecord::EditEntry->new($entry)->fire;
 
     DW::Stats::increment( 'dw.action.entry.edit', 1,
             [ 'journal_type:' . $uowner->journaltype_readable ] );

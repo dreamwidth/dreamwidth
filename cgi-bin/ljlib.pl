@@ -105,8 +105,6 @@ use Mozilla::CA;
 
 use LJ::UniqCookie;
 use LJ::WorkerResultStorage;
-use LJ::EventLogRecord;
-use LJ::EventLogRecord::DeleteComment;
 use DW::External::Account;
 use DW::External::User;
 use DW::Logic::LogItems;
