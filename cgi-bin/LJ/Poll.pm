@@ -553,6 +553,8 @@ sub _load {
     my $journalid = $dbr->selectrow_array("SELECT journalid FROM pollowner WHERE pollid=?", undef, $self->pollid);
     die $dbr->errstr if $dbr->err;
 
+    return undef unless $journalid;
+
     my $row = '';
 
     my $u = LJ::load_userid( $journalid )
