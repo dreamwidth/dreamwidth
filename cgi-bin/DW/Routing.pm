@@ -205,7 +205,7 @@ sub _call_hash {
     if ( $opts->role eq 'user' && ( my $orig_u = LJ::load_user( $opts->username ) ) ) {
         my $renamed_u = $orig_u->get_renamed_user;
 
-        unless ( $renamed_u && $orig_u->equals( $renamed_u ) ) {
+        if ( $renamed_u && ! $orig_u->equals( $renamed_u ) ) {
             my $journal_host = $renamed_u->journal_base;
             $journal_host =~ s!https?://!!;
 
