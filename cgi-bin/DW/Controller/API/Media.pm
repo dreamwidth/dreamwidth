@@ -130,8 +130,15 @@ sub file_edit_handler {
     # First pass to check arguments.
     my %media;
     foreach my $id ( keys %$args ) {
-        $media{$id} = DW::Media->new( user => $rv->{u}, mediaid => int( $id / 256 ) )
-            or return api_error( $r->NOT_FOUND, 'Media ID not found or invalid' );
+        # sometimes JS sends us the string 'null' so let's make sure $id is OK
+        return api_error( $r->HTTP_BAD_REQUEST, 'Media ID not provided' )
+            unless defined $id && $id ne 'null';
+
+        # use eval to catch croaks
+        $media{$id} = eval { DW::Media->new( user => $rv->{u},
+                                             mediaid => int( $id / 256 ) ) };
+        return api_error( $r->NOT_FOUND, 'Media ID not found or invalid' )
+            unless $media{$id};
 
         return api_error( $r->HTTP_BAD_REQUEST, 'Security invalid' )
             if $args->{$id}->{security} &&
