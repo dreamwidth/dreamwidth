@@ -85,11 +85,9 @@ sub search_handler {
     return $error->( "Sorry, there were no results found for that search." )
         if $result->{total} <= 0;
 
-    use Data::Dumper;
-
     # Okay, render the results with the matches.
     return DW::Template->render_template( 'support/search.tt',
-        { query => $q, result => $result, offset => $offset, tmp => Dumper( $result ) } );
+        { query => $q, result => $result, offset => $offset } );
 }
 
 1;
