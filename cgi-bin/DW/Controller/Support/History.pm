@@ -33,23 +33,23 @@ sub history_handler {
 
     my ( $ok, $rv ) = controller( anonymous => 0, form_auth => 1 );
     return $rv unless $ok;
-    
-    my $vars = {};    
+
+    my $vars = {};
 
     my $remote = $rv->{remote};
     my $fullsearch = $remote->has_priv( 'supporthelp' );
 
     $vars->{fullsearch} = $fullsearch;
-    
+
     if ( $get->{user} || $get->{email} || $get->{userid} ) {
         my $dbr = LJ::get_db_reader();
         return error_ml( '/support/history.tt.error.nodatabase' ) unless $dbr;
-        
+
         $vars->{get_user} = ( $get->{user} ) ? 1 : 0;
         $vars->{get_userid} = ( $get->{userid} ) ? 1 : 0;
         $vars->{get_email} = ( $get->{email} ) ? 1 : 0;
         $vars->{user} = $remote->user;
-                
+
         my $reqlist;
         if ( $get->{user} || $get->{userid} ) {
             # get requests by a user, regardless of email (only gets user requests)
@@ -57,7 +57,7 @@ sub history_handler {
             return error_ml( '/support/history.tt.error.invaliduser' ) unless $userid
                 && ( $fullsearch || $remote->id == $userid );
             $vars->{username} = LJ::ljuser( LJ::get_username( $userid ) );
-            $reqlist = $dbr->selectall_arrayref( 
+            $reqlist = $dbr->selectall_arrayref(
                 'SELECT spid, subject, state, spcatid, requserid, ' .
                        'timecreate, timetouched, timelasthelp, reqemail ' .
                 'FROM support WHERE reqtype = \'user\' AND requserid = ?',
@@ -80,13 +80,13 @@ sub history_handler {
 
             return error_ml( '/support/history.tt.error.invalidemail' ) unless $email =~ /^.+\@.+$/
                 && ( $fullsearch || $user_emails{$email} );
-            $reqlist = $dbr->selectall_arrayref( 
+            $reqlist = $dbr->selectall_arrayref(
                 'SELECT spid, subject, state, spcatid, requserid, ' .
                        'timecreate, timetouched, timelasthelp, reqemail ' .
                 'FROM support WHERE reqemail = ?',
                 undef, $email );
-        } 
-        
+        }
+
         if ( @{$reqlist || []} ) {
             # construct a list of people who have answered these requests
             my @ids;
@@ -159,9 +159,9 @@ sub history_handler {
         $r->header_out( Location => "$LJ::SITEROOT/support/history?user=$redirect_user" );
         return $r->REDIRECT;
     }
-    
+
     return DW::Template->render_template( 'support/history.tt', $vars );
-    
+
 }
-    
+
 1;
