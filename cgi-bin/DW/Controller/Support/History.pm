@@ -154,6 +154,11 @@ sub history_handler {
         } else {
             $vars->{noresults} = 1;
         }
+    } elsif ( $get->{fulltext} ) {
+        $rv = DW::Controller::Support::Search::do_search(
+                remoteid => $remote->id, query => $get->{fulltext} );
+        return DW::Template->render_template( 'support/search.tt', $rv );
+
     } elsif ( ! $fullsearch ) {
         my $redirect_user = $remote->user;
         $r->header_out( Location => "$LJ::SITEROOT/support/history?user=$redirect_user" );

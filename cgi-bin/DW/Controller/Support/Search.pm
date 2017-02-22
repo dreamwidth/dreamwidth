@@ -38,15 +38,14 @@ sub search_handler {
     die "Invalid form auth.\n"
         unless LJ::check_form_auth( $args->{lj_form_auth} );
 
-    ( $ok, $rv ) = do_search( remoteid => $remote->id,
-                                 query => $args->{query},
-                                offset => $args->{offset} );
+    $rv = do_search( remoteid => $remote->id,
+                        query => $args->{query},
+                       offset => $args->{offset} );
 
     return DW::Template->render_template( 'support/search.tt', $rv );
 }
 
 # helper subroutine that can be called from other contexts
-# returns ( $ok, $rv ) like a controller
 
 sub do_search {
     my %args = @_;
@@ -60,9 +59,9 @@ sub do_search {
     die "Sorry, content searching is not configured on this server.\n"
         unless $gc && @LJ::SPHINX_SEARCHD;
 
-    my $error = sub { return ( 0, { query => $q, error => $_[0] } ); };
-    my $ok    = sub { return ( 1, { query => $q, offset => $offset,
-                                   result => $_[0] } ); };
+    my $error = sub { return { query => $q, error => $_[0] } };
+    my $ok    = sub { return { query => $q, offset => $offset,
+                               result => $_[0] } };
 
     return $error->( "Please specify a shorter search string." )
         if length $q > 255;
