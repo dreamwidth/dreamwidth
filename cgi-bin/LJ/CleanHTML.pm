@@ -1760,7 +1760,7 @@ sub clean_as_markdown {
             return qq|\@$user.$site|;
         }
     };
-    $$ref =~ s/(?<=\W)\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)/$usertag->($1, $2)/mge;
+    $$ref =~ s!(?<=[^\w/])\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)!$usertag->($1, $2)!mge;
 
     return 1;
 }
