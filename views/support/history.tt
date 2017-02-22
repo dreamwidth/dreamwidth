@@ -88,6 +88,18 @@ the same terms as Perl itself. For a copy of the license, please reference
             </div>
         </div>
         <div class="row">
+            <div class="large-6 columns">
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label for="fulltext" class="right inline">[% '.search.fulltext' | ml %]</label>
+                    </div>
+                    <div class="small-9 columns">
+                        <input type="text" id="fulltext" name="fulltext" placeholder="[% '.search.fulltext.text' | ml %]">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
       <div class="small-2 columns">
         <input type='submit' class="button" value='[% '.search.btn' | ml %]'>
         </div>
