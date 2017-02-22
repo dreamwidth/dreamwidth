@@ -32,7 +32,8 @@ sub contentfilters_handler {
 
     # make sure we have a user of some sort
     my $remote = LJ::get_remote();
-    my $u = LJ::get_authas_user( $get->{user} || $remote->user );
+    my $remote_user = $remote ? $remote->user : undef;
+    my $u = LJ::get_authas_user( $get->{user} || $remote_user );
     return DW::RPC->alert( 'Unable to load user for call.' ) unless $u;
 
     # in theory, they're passing a mode in the GET arguments
@@ -243,7 +244,7 @@ sub general_handler {
 
         my $uobjs = LJ::load_userids( keys %{ $ret{subs} } );
         foreach my $userid ( keys %$uobjs ) {
-            $ret{subs}->{$userid}->{username} = $uobjs->{$userid}->user;            
+            $ret{subs}->{$userid}->{username} = $uobjs->{$userid}->user;
             $ret{subs}->{$userid}->{journaltype} = $uobjs->{$userid}->journaltype;
         }
 
@@ -255,7 +256,7 @@ sub general_handler {
             delete $val->{security};
             delete $val->{display};
         }
-        
+
     # get the list of members of an access filter
     } elsif ( $mode eq 'list_filter_members' ) {
         my $filterid = $args->{filterid} + 0;
