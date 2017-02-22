@@ -985,7 +985,7 @@ sub visible_to
     }
 
     # public is okay
-    return 1 if $self->{'security'} eq "public";
+    return 1 if $self->security eq "public";
 
     # must be logged in otherwise
     return 0 unless $remote;
@@ -998,7 +998,7 @@ sub visible_to
 
     # should be 'usemask' or 'private' security from here out, otherwise
     # assume it's something new and return 0
-    return 0 unless $self->{security} eq "usemask" || $self->{security} eq "private";
+    return 0 unless $self->security eq "usemask" || $self->security eq "private";
 
     return 0 unless $remote->is_individual;
 
@@ -2207,15 +2207,9 @@ sub delete_comments {
         $u->do( "DELETE FROM talkprop2 $where" );
     }
 
-    my @jobs;
     foreach my $talkid ( @talkids ) {
-        my $cmt = LJ::Comment->new( $u, jtalkid => $talkid );
-        push @jobs, LJ::EventLogRecord::DeleteComment->new( $cmt )->fire_job;
         LJ::Hooks::run_hooks( 'delete_comment', $jid, $nodeid, $talkid ); # jitemid, jtalkid
     }
-
-    my $sclient = LJ::theschwartz();
-    $sclient->insert_jobs( @jobs ) if @jobs;
 
     $u->memc_delete( 'activeentries' );
     LJ::MemCache::delete( [ $jid, "screenedcount:$jid:$nodeid" ] );

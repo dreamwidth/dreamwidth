@@ -23,8 +23,6 @@ use LJ::Event::JournalNewEntry;
 use LJ::Event::AddedToCircle;
 use LJ::Entry;
 use LJ::Poll;
-use LJ::EventLogRecord::NewEntry;
-use LJ::EventLogRecord::EditEntry;
 use LJ::Config;
 use LJ::Comment;
 
@@ -1741,7 +1739,6 @@ sub postevent
         # latest posts feed update
         DW::LatestFeed->new_item( $entry );
     }
-    push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 
     # update the sphinx search engine
     if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
@@ -1756,6 +1753,11 @@ sub postevent
         my @handles = $sclient->insert_jobs(@jobs);
         # TODO: error on failure?  depends on the job I suppose?  property of the job?
     }
+
+    # To minimize impact on legacy code, let's make sure the entry object in
+    # memory has been populated with data. Easiest way to do that is to call
+    # one of the methods that loads the relevant row from the database.
+    $entry->valid;
 
     return $res;
 }
@@ -2186,8 +2188,6 @@ sub editevent
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'} = $entry->url;
     }
-
-    LJ::EventLogRecord::EditEntry->new($entry)->fire;
 
     DW::Stats::increment( 'dw.action.entry.edit', 1,
             [ 'journal_type:' . $uowner->journaltype_readable ] );
