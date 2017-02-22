@@ -233,6 +233,7 @@ sub media_handler {
         unless defined $dataref && ref $dataref eq 'SCALAR';
 
     # now we're done!
+    $r->set_last_modified( $obj->{logtime} ) if $obj->{logtime};
     $r->content_type( $obj->mimetype );
     $r->print( $$dataref );
     return $r->OK;
