@@ -2165,7 +2165,7 @@ sub editevent
     # present, we leave the slug alone.
     if ( exists $req->{slug} ) {
         LJ::MemCache::delete( [ $ownerid, "logslug:$ownerid:$itemid" ] );
-        $uowner->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
+        $u->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
                      undef, $ownerid, $itemid );
 
         my $slug = LJ::canonicalize_slug( $req->{slug} );
