@@ -217,6 +217,13 @@ sub _call_hash {
     $r->content_type( $default_content_types->{$format} )
         if $default_content_types->{$format};
 
+    # apply default cache-avoidant settings to "journal" content
+    # (similar to the behavior of our Apache server modules)
+    # so that proxies (e.g. Cloudflare) must revalidate the response
+    if ( $opts->role eq 'user' && ! $opts->no_cache ) {
+        $r->header_out( "Cache-Control" => "private, proxy-revalidate" );
+    }
+
     # apply no-cache if needed
     $r->no_cache if $opts->no_cache;
 
