@@ -215,7 +215,7 @@ sub parse_post_uploads {
                         # to get files between the N different web processes you might talk to
                         my $rv = DW::BlobStore->store(
                             temp => "upf_${counter}:$u->{userid}",
-                            \$POST->{$userpic_key}
+                            $current_upload{image}
                         );
                         unless ( $rv ) {
                             $current_upload{error} = 'Failed to upload file to storage system.';
@@ -235,8 +235,8 @@ sub parse_post_uploads {
                             $current_upload{image} = $picinfo->[0];
                         };
 
-                        if ( $@ || length $POST->{$userpic_key} > $MAX_UPLOAD ) {
-                            $current_upload{error} = ML::ml( '.error.filetoolarge',
+                        if ( $@ || length ${$current_upload{image}} > $MAX_UPLOAD ) {
+                            $current_upload{error} = LJ::Lang::ml( '.error.filetoolarge',
                                 { maxsize => int($MAX_UPLOAD / 1024) } );
                         }
 
