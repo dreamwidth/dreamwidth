@@ -58,8 +58,7 @@ sub changeemail_handler {
     $vars->{authas_html} = $rv->{authas_html};
 
     if ( $r->did_post && ( $post->{email} || $post->{password} ) ) {
-        my $password;
-        $password = $post->{password} unless $remote->is_identity;
+        my $password = $post->{password};
         my $email = LJ::trim( $post->{email} );
     
         my @errors = ();
@@ -81,7 +80,7 @@ sub changeemail_handler {
             push @errors, LJ::Lang::ml( '/changeemail.tt.error.nospace' );
         }
 
-        if ( $post->{password} ne $remote->password && !$remote->is_identity ) {
+        if ( ! $remote->is_identity && ( ! defined $password || $password ne $remote->password ) ) {
             push @errors, LJ::Lang::ml( '/changeemail.tt.error.invalidpassword' );
         }
 

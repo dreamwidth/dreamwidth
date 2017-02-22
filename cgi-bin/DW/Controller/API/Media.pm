@@ -71,7 +71,7 @@ sub file_new_handler {
 
     foreach my $upload ( @$uploads ) {
         my ( $type, $ext ) = DW::Media->get_upload_type( $upload->{'content-type' } );
-        next unless $type == DW::Media::TYPE_PHOTO;
+        next unless defined $type && $type == DW::Media::TYPE_PHOTO;
 
         # Try to upload this item since we know it's a photo.
         my $obj = DW::Media->upload_media(

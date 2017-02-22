@@ -159,6 +159,7 @@ sub parse_post_uploads {
 
         my @tokens = split(/_/, $userpic_key);
         my $counter = $tokens[1];
+        my $make_default = $POST->{make_default} // '';
 
         my %current_upload = (
             comments     => $POST->{"comments_$counter"},
@@ -166,7 +167,7 @@ sub parse_post_uploads {
             index        => $counter,
             key          => $userpic_key,
             keywords     => $POST->{"keywords_$counter"},
-            make_default => $POST->{"make_default"} eq $counter,
+            make_default => $make_default eq $counter,
         );
 
         # uploaded pics
