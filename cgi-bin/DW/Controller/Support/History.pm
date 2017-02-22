@@ -29,7 +29,8 @@ DW::Routing->register_string( '/support/history', \&history_handler, app => 1 );
 
 sub history_handler {
     my $r = DW::Request->get;
-    my $get = $r->get_args;
+    my $args = $r->get_args;
+    $args = $r->post_args if $r->did_post;
 
     my ( $ok, $rv ) = controller( anonymous => 0, form_auth => 1 );
     return $rv unless $ok;
@@ -41,19 +42,19 @@ sub history_handler {
 
     $vars->{fullsearch} = $fullsearch;
 
-    if ( $get->{user} || $get->{email} || $get->{userid} ) {
+    if ( $args->{user} || $args->{email} || $args->{userid} ) {
         my $dbr = LJ::get_db_reader();
         return error_ml( '/support/history.tt.error.nodatabase' ) unless $dbr;
 
-        $vars->{get_user} = ( $get->{user} ) ? 1 : 0;
-        $vars->{get_userid} = ( $get->{userid} ) ? 1 : 0;
-        $vars->{get_email} = ( $get->{email} ) ? 1 : 0;
+        $vars->{get_user} = ( $args->{user} ) ? 1 : 0;
+        $vars->{get_userid} = ( $args->{userid} ) ? 1 : 0;
+        $vars->{get_email} = ( $args->{email} ) ? 1 : 0;
         $vars->{user} = $remote->user;
 
         my $reqlist;
-        if ( $get->{user} || $get->{userid} ) {
+        if ( $args->{user} || $args->{userid} ) {
             # get requests by a user, regardless of email (only gets user requests)
-            my $userid = $get->{userid} ? $get->{userid}+0 : LJ::get_userid( LJ::trim( $get->{user} ) );
+            my $userid = $args->{userid} ? $args->{userid}+0 : LJ::get_userid( LJ::trim( $args->{user} ) );
             return error_ml( '/support/history.tt.error.invaliduser' ) unless $userid
                 && ( $fullsearch || $remote->id == $userid );
             $vars->{username} = LJ::ljuser( LJ::get_username( $userid ) );
@@ -62,10 +63,10 @@ sub history_handler {
                        'timecreate, timetouched, timelasthelp, reqemail ' .
                 'FROM support WHERE reqtype = \'user\' AND requserid = ?',
                 undef, $userid );
-        } elsif ( $get->{email} ) {
+        } elsif ( $args->{email} ) {
             # try by email, note that this gets requests opened by users and anonymous
             # requests, so we can view them all
-            my $email = LJ::trim( $get->{email} );
+            my $email = LJ::trim( $args->{email} );
             $vars->{email} = LJ::ehtml( $email );
             my %user_emails;
 
@@ -154,9 +155,9 @@ sub history_handler {
         } else {
             $vars->{noresults} = 1;
         }
-    } elsif ( $get->{fulltext} ) {
+    } elsif ( $args->{fulltext} ) {
         $rv = DW::Controller::Support::Search::do_search(
-                remoteid => $remote->id, query => $get->{fulltext} );
+                remoteid => $remote->id, query => $args->{fulltext} );
         return DW::Template->render_template( 'support/search.tt', $rv );
 
     } elsif ( ! $fullsearch ) {
