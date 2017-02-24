@@ -14,8 +14,9 @@
 package LJ::Widget::LayoutChooser;
 
 use strict;
+use warnings;
 use base qw(LJ::Widget);
-use Carp qw(croak);
+use Carp qw(croak carp);
 use LJ::Customize;
 
 sub ajax { 1 }
@@ -40,8 +41,10 @@ sub render_body {
     $ret .= "</h2>";
     $ret .= "<ul class='layout-content select-list'>";
 
+    my $styleid = $opts{styleid} && $opts{styleid} =~ /[0-9]+/ ? $opts{styleid} : $u->prop( 's2_style' );
+
     # Column option
-    my $current_theme = LJ::Customize->get_current_theme($u);
+    my $current_theme = LJ::Customize->get_current_theme( $u, $styleid );
     my %layouts = $current_theme->layouts;
     my $layout_prop = $current_theme->layout_prop;
     my $show_sidebar_prop = $current_theme->show_sidebar_prop;
@@ -49,8 +52,7 @@ sub render_body {
 
     my $prop_value;
     if ($layout_prop || $show_sidebar_prop) {
-        my $style = LJ::S2::load_style($u->prop('s2_style'));
-        die "Style not found." unless $style && $style->{userid} == $u->id;
+        my $style = LJ::S2::load_style( $styleid );
 
         if ($layout_prop) {
             my %prop_values = LJ::Customize->get_s2_prop_values($layout_prop, $u, $style);
@@ -79,6 +81,7 @@ sub render_body {
                     layout_choice => $layout,
                     layout_prop => $layout_prop,
                     show_sidebar_prop => $show_sidebar_prop,
+                    styleid => $styleid,
                 );
                 $ret .= $class->html_submit(
                     apply => $class->ml('widget.layoutchooser.layout.apply'),
@@ -119,7 +122,9 @@ sub handle_post {
         $override{$layout_prop} = $layouts{$layout_choice} if $layout_prop;
     }
 
-    my $style = LJ::S2::load_style($u->prop('s2_style'));
+    my $styleid = $post->{styleid} && $post->{styleid} =~ /[0-9]+/ ? $post->{styleid} : undef;
+    my $style = LJ::S2::load_style( $styleid );
+
     die "Style not found." unless $style && $style->{userid} == $u->id;
 
     LJ::Customize->save_s2_props($u, $style, \%override);
@@ -152,6 +157,7 @@ sub js {
             this.doPostAndUpdateContent({
                 layout_choice: given_layout_choice,
                 layout_prop: form["Widget[LayoutChooser]_layout_prop"].value + "",
+                styleid: form["Widget[LayoutChooser]_styleid"].value,
                 show_sidebar_prop: form["Widget[LayoutChooser]_show_sidebar_prop"].value
             });
 

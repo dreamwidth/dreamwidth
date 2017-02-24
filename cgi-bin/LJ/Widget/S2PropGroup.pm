@@ -30,13 +30,20 @@ sub render_body {
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
+    my $style;
+
+    if ( $opts{styleid} ) {
+        $style = LJ::S2::load_style( $opts{styleid} );
+    } else {
+        $style = LJ::S2::load_style( $u->prop( 's2_style' ) );
+    }
+
+    die "Style not found or user does not own style." unless $style && $style->{userid} == $u->id;
+
     my $props = $opts{props};
     my $propgroup = $opts{propgroup};
     my $groupprops = $opts{groupprops};
     return "" unless ($props && $propgroup && $groupprops) || $opts{show_lang_chooser};
-
-    my $style = LJ::S2::load_style($u->prop('s2_style'));
-    die "Style not found." unless $style && $style->{userid} == $u->id;
 
     my $name = LJ::Customize->propgroup_name($propgroup, $u, $style);
 
@@ -606,13 +613,16 @@ sub handle_post {
     my $u = $class->get_effective_remote();
     die "Invalid user." unless $u;
 
-    my $style = LJ::S2::load_style($u->prop('s2_style'));
-    die "Style not found." unless $style && $style->{userid} == $u->id;
+    # are we using the current style or a style passed in? load that style
+    my $styleid = $opts{styleid} =~ /[0-9]+/ ? $opts{styleid} : $u->prop('s2_style');
+    my $style = LJ::S2::load_style( $styleid );
+
+    die "Style not found or user does not own style." unless $style && $style->{userid} == $u->id;
 
     my $post_fields_of_parent = LJ::Widget->post_fields_of_widget("CustomizeTheme");
     if ($post_fields_of_parent->{reset}) {
         # reset all props except the layout props
-        my $current_theme = LJ::Customize->get_current_theme($u);
+        my $current_theme = LJ::Customize->get_current_theme( $u, $styleid );
         my $layout_prop = $current_theme->layout_prop;
         my $show_sidebar_prop = $current_theme->show_sidebar_prop;
 

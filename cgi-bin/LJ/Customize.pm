@@ -16,15 +16,18 @@ use strict;
 use Carp qw(croak);
 
 # returns the S2Theme object of the given user's current theme
+# or the theme of a given styleid
 sub get_current_theme {
-    my $class = shift;
-    my $u = shift;
+    my ( $class, $u, $styleid ) = @_;
 
     die "Invalid user object." unless LJ::isu($u);
 
     my $pub = LJ::S2::get_public_layers();
     my $userlay = LJ::S2::get_layers_of_user($u);
-    my %style = LJ::S2::get_style($u, { verify => 1, force_layers => 1 });
+
+    $styleid = $u->prop( 's2_style' ) unless $styleid;
+
+    my %style = LJ::S2::get_style( $styleid, { 'u' => $u, verify => 1, force_layers => 1 } );
 
     if ($style{theme} == 0) {
         # default theme of system layout
@@ -89,13 +92,27 @@ sub apply_theme {
     $class->implicit_style_create($u, %style);
 }
 
-# if there's no style set, load the default style and set it as the current theme
+# if there's no style set or given, load the default style and set it as the current theme
 # return the current style
 sub verify_and_load_style {
-    my $class = shift;
-    my $u = shift;
+    my ( $class, $u, $styleid ) = @_;
 
-    my $style = LJ::S2::load_style($u->prop('s2_style'));
+    my $style = undef;
+
+    # if we have a styleid, try and load it for editing
+    if ( $styleid ) {
+        $style = LJ::S2::load_style( $styleid );
+
+        # but only if it belongs to the user
+        if ( $style && $style->{userid} != $u->userid ) {
+            $style = undef;
+        }
+    }
+
+    # fallback -- load the current user's current style
+    unless ( $style ) {
+        $style = LJ::S2::load_style( $u->prop( 's2_style' ) );
+    };
 
     unless ( $style && $style->{layer}->{layout} ) {
         # we have no layout layer for this style, which causes errors in
@@ -107,33 +124,35 @@ sub verify_and_load_style {
 
     unless ( $style && $style->{userid} == $u->userid ) {
         my $theme;
-        if ($LJ::DEFAULT_STYLE->{theme}) {
-            $theme = LJ::S2Theme->load_by_uniq($LJ::DEFAULT_STYLE->{theme});
+        if ( $LJ::DEFAULT_STYLE->{theme} ) {
+            $theme = LJ::S2Theme->load_by_uniq( $LJ::DEFAULT_STYLE->{theme} );
         } else {
-            $theme = LJ::S2Theme->load_default_of($LJ::DEFAULT_STYLE->{layout});
+            $theme = LJ::S2Theme->load_default_of( $LJ::DEFAULT_STYLE->{layout} );
         }
 
-        LJ::Customize->apply_theme($u, $theme);
-        $style = LJ::S2::load_style($u->prop('s2_style')); # reload style
+        LJ::Customize->apply_theme( $u, $theme );
+        $style = LJ::S2::load_style( $u->prop( 's2_style' ) ); # reload style
     }
 
     return $style;
 }
 
 # migrates current style name from wizard-layoutname to wizard-layoutname/themename, if needed
+# can also migrate the style for a given styleid
 sub migrate_current_style {
-    my $class = shift;
-    my $u = shift;
+    my ( $class, $u, $styleid ) = @_;
 
-    my $s2style = LJ::S2::load_style($u->prop('s2_style'), skip_layer_load => 1);
-    my $theme = $class->get_current_theme($u);
+    $styleid = $u->prop( 's2_style' ) unless $styleid;
+
+    my $s2style = LJ::S2::load_style( $styleid, skip_layer_load => 1 );
+    my $theme = $class->get_current_theme( $u, $styleid );
 
     my $style_name_old = $theme->old_style_name_for_theme;
     my $style_name_new = $theme->new_style_name_for_theme;
 
     # migrate only if there's a need to
-    if ($s2style->{name} eq $style_name_old) {
-        LJ::S2::rename_user_style($u, $s2style->{styleid}, $style_name_new);
+    if ( $s2style->{name} eq $style_name_old ) {
+        LJ::S2::rename_user_style( $u, $s2style->{styleid}, $style_name_new );
     }
 
     return;
@@ -409,6 +428,8 @@ sub load_all_s2_props {
         $style->{layer}->{user} = LJ::S2::create_layer($u->{userid}, $style->{layer}->{layout}, "user");
         die "Could not generate user layer" unless $style->{layer}->{user};
         $s2_style{user} = $style->{layer}->{user};
+        # if we don't do this, the new user layer won't actually end up attached to the style
+        LJ::S2::set_style_layers( $u, $style->{styleid}, "user", $style->{layer}->{user} );
     }
 
     $class->implicit_style_create($u, %s2_style);
@@ -442,27 +463,24 @@ sub load_all_s2_props {
 # passing the opt "reset" will revert all submitted props in $post to their default values
 # passing the opt "delete_layer" will delete the entire user layer
 sub save_s2_props {
-    my $class = shift;
-    my $u = shift;
-    my $style = shift;
-    my $post = shift;
-    my %opts = @_;
+    my ( $class, $u, $style, $post, %opts ) = @_;
 
-    $class->load_all_s2_props($u, $style);
+    $class->load_all_s2_props( $u, $style );
 
     my $dbh = LJ::get_db_writer();
-    my $layer = LJ::S2::load_layer($dbh, $style->{'layer'}->{'user'});
-    my $layerid = $layer->{'s2lid'};
+    my $layer = LJ::S2::load_layer( $dbh, $style->{layer}->{user} );
 
-    if ($opts{delete_layer}) {
-        my %s2_style = LJ::S2::get_style($u, "verify");
+    my $layerid = $layer->{s2lid};
 
-        LJ::S2::delete_layer($s2_style{'user'});
-        $s2_style{'user'} = LJ::S2::create_layer($u->{userid}, $s2_style{'layout'}, "user");
-        LJ::S2::set_style_layers($u, $u->{'s2_style'}, "user", $s2_style{'user'});
-        $layerid = $s2_style{'user'};
+    if ( $opts{delete_layer} ) {
+        my %s2_style = LJ::S2::get_style( $style->{styleid}, { 'u' => $u, "verify" => 1 } );
 
-        LJ::S2::load_layers($layerid);
+        LJ::S2::delete_layer( $s2_style{user} );
+        $s2_style{user} = LJ::S2::create_layer( $u->{userid}, $s2_style{layout}, "user");
+        LJ::S2::set_style_layers( $u, $style->{styleid}, "user", $s2_style{user} );
+        $layerid = $s2_style{user};
+
+        LJ::S2::load_layers( $layerid );
 
         return;
     }

@@ -21,6 +21,36 @@ use LJ::Customize;
 sub authas { 1 }
 sub need_res { qw( stc/widgets/customizetheme.css ) }
 
+=head2 C<< $class->nav_link( $u, $remote, $label, $group ) >>
+
+Internal.  Given a user class, who the remote is, the label for the navigation link,
+and the group it belongs to, return a customize-nav-group link suitable for use
+in the side navigation on the customize options page.
+
+=cut
+
+sub nav_link {
+    my ( $class, $u, $remote, $label, $group ) = @_;
+
+    my $opts;
+    $opts->{keep_args} = [ 's2id' ];
+    push $opts->{keep_args}, 'authas' if ( $u->userid != $remote->userid );
+    $opts->{args}->{group} = $group;
+
+    return '<a class="customize-nav-group" href="' . LJ::create_url( "/customize/options",
+        %$opts ) . '">' . $label . '</a>';
+}
+
+=head2 C<< $class->render_body( $opts ) >>
+
+Renders the body of this widget.  Options are:
+
+* headextra
+* group -- if none given, defaults to "presentation"
+* style -- id number of a specific style being customized, if not the user's default
+
+=cut
+
 sub render_body {
     my $class = shift;
     my %opts = @_;
@@ -29,22 +59,33 @@ sub render_body {
     die "Invalid user." unless LJ::isu($u);
 
     my $remote = LJ::get_remote();
-    my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
-    my $getsep = $getextra ? "&" : "?";
 
     my $headextra = $opts{headextra};
-    my $group = $opts{group} ? $opts{group} : "display";
+    my $group = $opts{group} ? $opts{group} : "presentation";
+
+    my $styleid = $opts{styleid} =~ /[0-9]+/ ? $opts{styleid} : $u->prop( 's2_style' );
+    my $style = LJ::S2::load_style( $styleid );
+
+    die "Style not found." unless $style && $style->{userid} == $u->id;
 
     my $ret;
-    $ret .= "<h2 class='widget-header'>" . $class->ml('widget.customizetheme.title') . "</h2>";
+
+    # want to give some indication that they are not editing their applied style
+    if ( $u->prop( 's2_style' ) != $styleid ) {
+        my $journalbase = $u->journal_base;
+        $ret .= "<div class='highlight-box'><p>";
+        $ret .= $class->ml('widget.customizetheme.customstyle', {
+            'name' => LJ::ehtml( $style->{name} ),
+            'aopts' => "href='$journalbase/?s2id=$styleid'", 'id' => $styleid } );
+        $ret .= "</p></div>";
+    }
+
+    $ret .= "<h2 class='widget-header'>" . $class->ml( 'widget.customizetheme.title' ) . "</h2>";
 
     $ret .= $class->start_form( id => "customize-form" );
 
     $ret .= "<div class='customize-inner-wrapper section-nav-inner-wrapper'>";
     $ret .= "<div class='customize-nav section-nav'>";
-
-    my $style = LJ::S2::load_style($u->prop('s2_style'));
-    die "Style not found." unless $style && $style->{userid} == $u->id;
 
     my $nav_class = sub {
         my $g = shift;
@@ -65,21 +106,22 @@ sub render_body {
     ### Navigation ###
 
     $ret .= "<ul class='customize-nav nostyle' id='customize_theme_nav_links'>";
-    $ret .= "<li" . $nav_class->("display") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=display'>" . $class->ml('widget.customizetheme.nav.display') . "</a>";
+    $ret .= "<li" . $nav_class->( "display" ) . ">" . $class->nav_link( $u, $remote, $class->ml( 'widget.customizetheme.nav.display' ), "display" );
     $ret .= "</li>";
 
-    foreach my $g (@$group_names) {
+    foreach my $g ( @$group_names ) {
         next if $g eq "customcss";
 
-        my $name = LJ::Customize->propgroup_name($g, $u, $style);
-        $ret .= "<li" . $nav_class->($g) . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=$g'>$name</a></li>";
+        my $name = LJ::Customize->propgroup_name( $g, $u, $style );
+        $ret .= "<li" . $nav_class->( $g ) . ">" . $class->nav_link( $u, $remote, $name, $g ) . "</li>";
     }
 
-    $ret .= "<li" . $nav_class->("linkslist") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=linkslist'>" . $class->ml('widget.customizetheme.nav.linkslist') . "</a></li>";
+    $ret .= "<li" . $nav_class->( "linkslist" ) . ">" . $class->nav_link( $u, $remote, $class->ml( 'widget.customizetheme.nav.linkslist' ), 'linkslist' )
+        . "</li>";
 
-    if ($has_group{customcss}) {
-        my $name = LJ::Customize->propgroup_name("customcss", $u, $style);
-        $ret .= "<li" . $nav_class->("customcss") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=customcss'>$name</a></li>";
+    if ( $has_group{customcss} ) {
+        my $name = LJ::Customize->propgroup_name( "customcss", $u, $style );
+        $ret .= "<li" . $nav_class->( "customcss" ) . ">" . $class->nav_link( $u, $remote, $name, 'customcss' ) . "</li>";
     }
 
     $ret .= "</ul>";
@@ -124,6 +166,7 @@ sub render_body {
             propgroup => "presentation",
             groupprops => $groups{groupprops}->{presentation},
             show_lang_chooser => 0,
+            styleid => $styleid,
         );
         $ret .= "</div>";
 
@@ -141,6 +184,7 @@ sub render_body {
             props => $groups{props},
             propgroup => "colors",
             groupprops => $groups{groupprops}->{colors},
+            styleid => $styleid,
         );
 
         $ret .= "</div>";
@@ -157,6 +201,7 @@ sub render_body {
             props => $groups{props},
             propgroup => "fonts",
             groupprops => $groups{groupprops}->{fonts},
+            styleid => $styleid,
         );
 
         $ret .= "</div>";
@@ -173,6 +218,7 @@ sub render_body {
             props => $groups{props},
             propgroup => "images",
             groupprops => $groups{groupprops}->{images},
+            styleid => $styleid,
         );
 
         $ret .= "</div>";
@@ -211,6 +257,7 @@ sub render_body {
             props => $groups{props},
             propgroup => "customcss",
             groupprops => $groups{groupprops}->{customcss},
+            styleid => $styleid,
         );
         $ret .= "</div>";
     }
@@ -225,6 +272,7 @@ sub render_body {
             props => $groups{props},
             propgroup => $group,
             groupprops => $groups{groupprops}->{$group},
+            styleid => $styleid,
         );
         $ret .= "</div>";
     }
@@ -241,6 +289,13 @@ sub render_body {
 
     return $ret;
 }
+
+
+=head2 C<< $class->render_body( $opts ) >>
+
+Returns the JavaScript code for this widget.
+
+=cut
 
 sub js {
     q [
