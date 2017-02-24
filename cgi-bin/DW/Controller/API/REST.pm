@@ -23,39 +23,62 @@ use DW::Routing;
 use DW::Controller;
 use DW::Controller::API;
 use JSON;
+use Data::Dumper;
 
 use Carp qw/ croak /;
 
-# Usage: DW::Controller::API::REST->register_rest_endpoints( $endpoint , $ver );
-#
-# Registers default GET, POST, PUT, and DELETE handlers for 
-# /api/v$ver/$endpoint as well as /api/v$ver/$endpoint/($id)
-sub register_rest_endpoints {
-    my ( $self, $endpoint, $handler, $ver ) = @_;
+our %API_DOCS = ();
+our %TYPE_REGEX = (
+    string => '([^/]*)',
+    integer => '(\d*)',
+    boolean => '(true|false)',
+);
 
-    warn("registering endpoints for $endpoint using handler $handler ");
-    DW::Routing->register_api_regex_endpoints(
-        [ $endpoint . '$',   $handler, $ver ],
-        [ $endpoint . '/([^/]*)$', $handler, $ver ],
-        );
-}
+# # Usage: DW::Controller::API::REST->register_rest_endpoints( $endpoint , $ver );
+# #
+# # Registers default GET, POST, PUT, and DELETE handlers for 
+# # /api/v$ver/$endpoint as well as /api/v$ver/$endpoint/($id)
+# sub register_rest_endpoints {
+#     my ( $self, $endpoint, $handler, $ver ) = @_;
+
+#     warn("registering endpoints for $endpoint using handler $handler ");
+#     DW::Routing->register_api_regex_endpoints(
+#         [ $endpoint . '$',   $handler, $ver ],
+#         [ $endpoint . '/([^/]*)$', $handler, $ver ],
+#         );
+# }
 
 # Usage: DW::Controller::API::REST->register_rest_endpoints( $endpoint , $ver );
 #
 # Registers default GET, POST, PUT, and DELETE handlers for 
 # /api/v$ver/$endpoint as well as /api/v$ver/$endpoint/($id)
 sub register_rest_controller {
-    my ( $self, $endpoint, $ver ) = @_;
+    my ( $self, $info ) = @_;
+    my $path = $info->{path};
+    my $parameters = $info->{params};
+    my $ver = $info->{ver};
 
-    warn("register rest controller for $endpoint using $self ");
-    DW::Routing->register_api_rest_endpoints( 
-        [ $endpoint . '$', "_list_dispatcher", $self, $ver ],
-        [ $endpoint . '/([^/]*)$', "_item_dispatcher", $self, $ver ],
-        );
+    $API_DOCS{$path} = $info;
+    # check path parameters to make sure they're defined in the API docs
+    # substitute appropriate regex if they are
+    my @params = ( $path =~ /{([\w\d]+)}/g );
+
+    foreach my $param (@params) {
+        croak "Parameter $param is not defined." unless exists $parameters->{$param};
+        my $type = $parameters->{$param}{type};
+        $path =~ s/{$param}/$TYPE_REGEX{$type}/;
+
+    }
+
+    warn("register rest controller for $path using $self ");
+
+    DW::Routing->register_api_rest_endpoint( $path . '$', "_dispatcher", $self, version => $ver);
 }
 
-sub _item_dispatcher {
+sub _dispatcher {
     my ( $self, @args ) = @_;
+
+    warn Dumper(%API_DOCS);
     
     warn(" running REST _item_dispatcher; self = " . $self );
     my ( $ok, $rv ) = controller( anonymous => 1 );
@@ -63,71 +86,34 @@ sub _item_dispatcher {
     
     my $r = $rv->{r};
     if ( $r->method eq 'GET' ) {
-        return $self->rest_get_item( @args );
+        return $self->rest_get( @args );
     } elsif ( $r->method eq 'POST' ) {
-        return $self->rest_post_item( @args );
+        return $self->rest_post( @args );
     } elsif ( $r->method eq 'PUT' ) {
-        return $self->rest_put_item( @args );
+        return $self->rest_put( @args );
     } elsif ( $r->method eq 'DELETE' ) {
-        return $self->rest_delete_item( @args );
+        return $self->rest_delete( @args );
     } else {
         return $self->_rest_unimplemented();
     }
 }
-    
-sub _list_dispatcher {
-    my ( $self, @args ) = @_;
-    
-    warn(" running REST _list_dispatcher; self = " . $self );
-    my ( $ok, $rv ) = controller( anonymous => 1 );
-    return $rv unless $ok;
-    
-    my $r = $rv->{r};
-    if ( $r->method eq 'GET' ) {
-        return $self->rest_get_list( @args );
-    } elsif ( $r->method eq 'POST' ) {
-        return $self->rest_post_list( @args );
-    } elsif ( $r->method eq 'PUT' ) {
-        return $self->rest_put_list( @args );
-    } elsif ( $r->method eq 'DELETE' ) {
-        return $self->rest_delete_list( @args );
-    } else {
-        return $self->_rest_unimplemented();
-    }
-}
-    
-sub rest_get_list {
+     
+sub rest_get {
     my $self = $_[0];
     warn( "default get list; self=" . $self ); 
     return _rest_unimplemented( "GET" );
 }
 
-sub rest_post_list {
+sub rest_post {
     return _rest_unimplemented( "POST" );
 }
-sub rest_put_list {
+sub rest_put {
     return _rest_unimplemented( "PUT" );
 }
-sub rest_delete_list {
+sub rest_delete {
     return _rest_unimplemented( "DELETE" );
 }
  
-sub rest_get_item {
-    my $self = $_[0];
-    warn( "default get item; self=" . $self ); 
-    return _rest_unimplemented( "GET" );
-}
-
-sub rest_post_item {
-    return _rest_unimplemented( "POST" );
-}
-sub rest_put_item {
-    return _rest_unimplemented( "PUT" );
-}
-sub rest_delete_item {
-    return _rest_unimplemented( "DELETE" );
-}
-
 sub _rest_unimplemented {
 
     return api_error( { error => $_[0] . " Not Implemented"  } );
