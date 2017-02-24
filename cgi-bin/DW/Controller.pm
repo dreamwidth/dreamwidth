@@ -73,8 +73,8 @@ sub render_success {
 # Supported arguments: (1 stands for any true value, 0 for any false value)
 # - anonymous => 1 -- lets anonymous (not logged in) visitors view the page
 # - anonymous => 0 -- doesn't (default)
-# - authas => 1  or { args } -- allows ?authas= in URL, generates authas form (not permitted
-#                  if anonymous => 1 specified)
+# - authas => 1  or { args } -- allows ?authas= in URL, generates authas form
+#                              (not permitted if anonymous => 1 specified)
 # - authas => 0 -- doesn't (default)
 # - specify_user => 1 -- allows ?user= in URL (Note: requesting both authas and
 #                        specify_user is allowed, but probably not a good idea)
@@ -82,9 +82,9 @@ sub render_success {
 # - privcheck => $privs -- user must be logged in and have at least one priv of
 #                          the ones in this arrayref.
 #                          Example: [ "faqedit:guides", "faqcat", "admin:*" ]
-# - skip_domsess => 1 -- (for user domains) don't redirect if there is no domain
-#                      login cookie
-# - skip_domsess => 0 -- (for user domains) do redirect for the user domain 
+# - skip_domsess => 1 -- (for user domains) don't redirect if there is no
+#                         domain login cookie
+# - skip_domsess => 0 -- (for user domains) do redirect for the user domain
 #                        cookie (default)
 # - form_auth => 0 -- Do not automatically check form auth ( current default )
 # - form_auth => 1 -- Automatically check form auth ( planned to be future default )
@@ -121,7 +121,7 @@ sub controller {
     # 'anonymous' pages must declare themselves, else we assume that a remote is
     # necessary as most pages require a user
     $vars->{u} = $vars->{remote} = LJ::get_remote();
-    
+
     my $r = DW::Request->get;
     $vars->{r} = $r;
 
@@ -129,6 +129,7 @@ sub controller {
     unless ( $r->did_post || $args{skip_domsess} ) {
         my $burl = LJ::remote_bounce_url();
         if ( $burl ) {
+            $r->err_header_out( "Cache-Control" => "no-cache" );
             return $fail->( $r->redirect( $burl ) );
         }
     }

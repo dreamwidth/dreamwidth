@@ -154,6 +154,9 @@ sub media_handler {
        $r->status( $code );
        return $r->NOT_FOUND if $code == 404;
 
+       # don't cache transient error responses
+       $r->header_out( "Cache-Control" => "no-cache" );
+
        $r->print( $message );
        return $r->OK;
     };
