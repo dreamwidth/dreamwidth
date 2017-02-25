@@ -395,6 +395,8 @@
 
 .service.github=GitHub
 
+.service.medium=Medium
+
 .service.pinboard=Pinboard
 
 .service.pinterest=Pinterest

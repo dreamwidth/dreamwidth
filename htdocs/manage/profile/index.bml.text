@@ -209,6 +209,8 @@
 
 .services.last_fm=Last.fm Username
 
+.services.medium=Medium Username
+
 .services.pinboard=Pinboard Username
 
 .services.pinterest=Pinterest Username

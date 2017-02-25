@@ -630,6 +630,14 @@ userproplist.mailencoding:
   multihomed: 0
   prettyname: Mail Encoding
 
+userproplist.medium
+ cldversion: 4
+ datatype: char
+ des: Medium user account name
+ indexed: 0
+ multihomed: 0
+ prettyname: Medium user account name
+
 userproplist.moderated:
   cldversion: 4
   datatype: bool
