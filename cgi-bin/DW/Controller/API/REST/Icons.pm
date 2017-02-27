@@ -25,34 +25,26 @@ use DW::Controller;
 use JSON;
 
 # Define route and associated params
-my %route = (
+my $route = __PACKAGE__->resource (
     path => '/users/{username}/icons/{picid}',
-    params => {
-        username => {
-            type => 'string',
-            desc => 'The username you want icon information for',
-            required => 1,
-        },
-        picid => {
-            type => 'integer',
-            desc => 'The picid you want information for.',
-        }, 
-    }, 
     ver => 1,
 );
 
-# 
+$route->path (
+    $route->param({name => 'username', type => 'string', desc => 'The username you want icon information for', in => 'path', required => 1} ),
+    $route->param({name => 'picid', type => 'integer', desc => 'The picid you want information for.', in => 'path'})
+);
+
+# define our parameters and options for GET requests
+my $get = $route->get('Returns all icons for a specified username, or a single icon for a specified picid and username', \&rest_get);
+$get->success('a list of icons');
+$get->error(404, "No such userpic");
+
+__PACKAGE__->register_rest_controller($route);
+
 sub rest_get {
 
-    my %errors = (402 => {description => "No such userpic"} );
-
-    $route{method}{get} = {
-        description => 'Returns all icons for a specified username',
-        success => {    description => 'a list of icons',
-                        schema => '',
-                    },
-        errors => \%errors
-    };
+    my %responses = $route->{get}{responses};
 
     warn("icon list handler!");
     my ( $self, $opts, $username, $picid ) = @_;
@@ -69,7 +61,7 @@ sub rest_get {
         if ( $userpic ) {
             return $self->rest_ok( $userpic );
         } else {
-            return $self->rest_error($errors{402});
+            return $self->rest_error($responses{404});
         }
     } else {
         # otherwise, load all userpics.    
@@ -79,37 +71,5 @@ sub rest_get {
 
 }
 
-# # 
-# sub rest_get_item {
-
-
-#     $get{item} = {
-#         description => 'Returns icon with a given picid for a specified username'
-#         success => {    description => 'a list of icons'
-#                         schema => ''
-#                     }
-#         errors => %errors
-#     }
-
-#     my ( $self, $opts, $username, $picid ) = @_;
-#     warn("icon itom handler!");
-#     warn("username=$username");
-#     my $u = LJ::load_user( $username );
-
-#     # we want to handle the not logged in case ourselves
-#     my ( $ok, $rv ) = controller( anonymous => 1 );
-#     return $rv unless $ok;
-
-#     my $userpic = LJ::Userpic->new( $u, $picid );
-#     if ( $userpic ) {
-#         return $self->rest_ok( $userpic );
-#     } else {
-#         return $self->rest_error($error{402});
-#     }
-# }
-
-
-# register the endpoints
-__PACKAGE__->register_rest_controller( \%route);
 
 1;

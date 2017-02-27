@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+#
+# DW::Controller::API::REST::Icons
+#
+# API controls for the icon system
+#
+# Authors:
+#      Allen Petersen <allen@suberic.net>
+#
+# Copyright (c) 2016 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+package DW::Controller::API::Rest::Spec;
+use base 'DW::Controller::API::REST';
+
+use strict;
+use warnings;
+use DW::Routing;
+use DW::Request;
+use DW::Controller;
+use JSON;
+
+sub _spec_20 {
+    my ($self, $info) = @_;
+    return 1 if $self->{built};
+    my $ver = $info->{ver}
+
+    my @content_types = $app->format
+        ? $app->format
+        : qw(application/x-yaml application/json);
+
+
+    $DEFAULTS{consumes} = \@content_types;
+    $DEFAULTS{produces} = \@content_types;
+
+    my %spec = (
+        swagger => '2.0',
+        info => {
+            version => $ver
+            title => "Dreamwidth API",
+            description => "An OpenAPI-compatible API for dreamwidth.org"
+
+        },
+        host => $req->env->{SERVER_NAME} || $req->env->{HTTP_HOST},
+        basePath => '/api/v$ver'
+        schemes => ('https'),
+        consumes => \@content_types,
+        produces => \@content_types,
+        paths => $info,
+    );
+
+    \%spec;
+}

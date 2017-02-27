@@ -22,6 +22,8 @@ use DW::Request;
 use DW::Routing;
 use DW::Controller;
 use DW::Controller::API;
+use DW::API::Param;
+use DW::API::Method;
 use JSON;
 use Data::Dumper;
 
@@ -34,48 +36,36 @@ our %TYPE_REGEX = (
     boolean => '(true|false)',
 );
 
-# # Usage: DW::Controller::API::REST->register_rest_endpoints( $endpoint , $ver );
-# #
-# # Registers default GET, POST, PUT, and DELETE handlers for 
-# # /api/v$ver/$endpoint as well as /api/v$ver/$endpoint/($id)
-# sub register_rest_endpoints {
-#     my ( $self, $endpoint, $handler, $ver ) = @_;
-
-#     warn("registering endpoints for $endpoint using handler $handler ");
-#     DW::Routing->register_api_regex_endpoints(
-#         [ $endpoint . '$',   $handler, $ver ],
-#         [ $endpoint . '/([^/]*)$', $handler, $ver ],
-#         );
-# }
-
 # Usage: DW::Controller::API::REST->register_rest_endpoints( $endpoint , $ver );
 #
 # Registers default GET, POST, PUT, and DELETE handlers for 
 # /api/v$ver/$endpoint as well as /api/v$ver/$endpoint/($id)
 sub register_rest_controller {
     my ( $self, $info ) = @_;
-    my $path = $info->{path};
-    my $parameters = $info->{params};
+    my $path = $info->{path}{name};
+    my $parameters = $info->{path}{params};
     my $ver = $info->{ver};
 
-    $API_DOCS{$path} = $info;
+    $API_DOCS{$ver}{$self} = $info;
     # check path parameters to make sure they're defined in the API docs
     # substitute appropriate regex if they are
     my @params = ( $path =~ /{([\w\d]+)}/g );
 
     foreach my $param (@params) {
         croak "Parameter $param is not defined." unless exists $parameters->{$param};
-        my $type = $parameters->{$param}{type};
+        my $type = $parameters->{$param}->{type};
+
         $path =~ s/{$param}/$TYPE_REGEX{$type}/;
 
     }
 
     warn("register rest controller for $path using $self ");
 
-    DW::Routing->register_api_rest_endpoint( $path . '$', "_dispatcher", $self, version => $ver);
+    DW::Routing->register_api_rest_endpoint( $path . '$', "_dispatcher", $info, version => $ver);
 }
 
 sub _dispatcher {
+
     my ( $self, @args ) = @_;
 
     warn Dumper(%API_DOCS);
@@ -85,35 +75,18 @@ sub _dispatcher {
     return $rv unless $ok;
     
     my $r = $rv->{r};
-    if ( $r->method eq 'GET' ) {
-        return $self->rest_get( @args );
-    } elsif ( $r->method eq 'POST' ) {
-        return $self->rest_post( @args );
-    } elsif ( $r->method eq 'PUT' ) {
-        return $self->rest_put( @args );
-    } elsif ( $r->method eq 'DELETE' ) {
-        return $self->rest_delete( @args );
+    my $method = $r->method;
+    my $handler = $self->{path}{methods}->{$method}->{handler};
+
+    #$self->validate_params($method, @args);
+
+    if (defined $handler) {
+        return $handler->($self, @args);
     } else {
-        return $self->_rest_unimplemented();
+        return $self->_rest_unimplemented($method);
     }
 }
      
-sub rest_get {
-    my $self = $_[0];
-    warn( "default get list; self=" . $self ); 
-    return _rest_unimplemented( "GET" );
-}
-
-sub rest_post {
-    return _rest_unimplemented( "POST" );
-}
-sub rest_put {
-    return _rest_unimplemented( "PUT" );
-}
-sub rest_delete {
-    return _rest_unimplemented( "DELETE" );
-}
- 
 sub _rest_unimplemented {
 
     return api_error( { error => $_[0] . " Not Implemented"  } );
@@ -169,5 +142,109 @@ sub rest_ok {
     return;
 }
 
+# Usage: resource( path => path, ver => version #)
+# Creates a new REST API resource object with given path
+# and version number.
+sub resource { 
+     my ($self, %args) = @_;
+     my %resource = (
+        path => {
+            name => $args{path},
+            },
+        ver => $args{ver},
+        );
+
+     bless(\%resource, $self);
+     return \%resource;
+}
+# helper function for registering new descriptors or
+# path parameters.
+
+sub path {
+    my ($self, @args) = @_;
+
+    for my $arg (@args) {
+    my $type = ref $arg;
+
+
+    # if our argument is a hash ref, we move
+    # it's keys and values into the path hash
+    if ( $type eq 'HASH') {
+        for my $key (keys %$arg) {
+        $self->{path}{$key} = $arg->{$key};
+        }
+
+    } elsif ( $type eq 'DW::API::Param') {
+
+        # If our argument is a Param, push it 
+        # onto the list of path parameters
+        $self->{path}{params}{$arg->{name}} = $arg;
+    }
+}
+
+
+}
+
+sub param {
+    my ($self, $args) = @_;
+    my $param = DW::API::Param::define_parameter($args);
+    return $param;
+}
+
+# helper functions for creating new Method objects
+# and adding them to a resource path.
+
+sub get {
+    my ($self, @args) = @_;
+        my $method = DW::API::Method::define_method('GET', @args);
+        $self->{path}{methods}{GET} = $method;
+}
+
+sub post {
+    my ($self, @args) = @_;
+        my $method = define_method('POST', @args);
+        $self->{path}{methods}{POST} = $method;
+}
+
+sub delete {
+    my ($self, @args) = @_;
+        my $method = DW::API::Method::define_method('DELETE', @args);
+        $self->{path}{methods}{DELETE} = $method;
+}
+
+sub put {
+    my ($self, @args) = @_;
+        my $method = DW::API::Method::define_method('PUT', @args);
+        $self->{path}{methods}{PUT} = $method;
+}
+
+# # Usage: validate_params(resource object, HTTP verb, arguments)
+# # Validates path parameters so that handler routines don't have to.
+# # FIXME: assumes all params are path params right now - we need to add query params
+
+# sub validate_params {
+#     my ($self, $action, @args) = @_;
+#     my $path = $self->{path}{name};
+#     my $parameters = $self->{path}{params};
+
+#     my @required;
+#     for my $param (keys %$parameters) {
+#         push @required, $param if $parameters->{$param}->{required};
+#     }
+
+#     return $self->rest_error(400, "Missing required path argument") if scalar @required > scalar @args;
+
+#     my @params = ( $path =~ /{([\w\d]+)}/g );
+#     foreach (@args) {
+#         return $self->rest_error(400, "Too many path arguments supplied!") unless exists $params[$_];
+#         my $type = $parameters->{$params[$_]}->{type};
+#         my @type_check =grep( /$TYPE_REGEX{$type}/, $args[$_]);
+
+#         return $self->rest_error(400, "Argument %s is not of type, should be a %s", ($args[$_], $type)) unless @type_check && $type_check[0] != '';
+#     }
+
+#     return;
+
+# }
 
 1;
