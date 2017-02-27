@@ -55,7 +55,11 @@ sub register_rest_controller {
         croak "Parameter $param is not defined." unless exists $parameters->{$param};
         my $type = $parameters->{$param}->{type};
 
-        $path =~ s/{$param}/$TYPE_REGEX{$type}/;
+        if ($parameters->{$param}->{required}) {
+            $path =~ s/{$param}/$TYPE_REGEX{$type}/;
+        } else {
+            $path =~ s/\/{$param}/\/?$TYPE_REGEX{$type}/;
+        }
 
     }
 
@@ -218,33 +222,33 @@ sub put {
         $self->{path}{methods}{PUT} = $method;
 }
 
-# # Usage: validate_params(resource object, HTTP verb, arguments)
-# # Validates path parameters so that handler routines don't have to.
-# # FIXME: assumes all params are path params right now - we need to add query params
+# Usage: validate_params(resource object, HTTP verb, arguments)
+# Validates path parameters so that handler routines don't have to.
+# FIXME: assumes all params are path params right now - we need to add query params
 
-# sub validate_params {
-#     my ($self, $action, @args) = @_;
-#     my $path = $self->{path}{name};
-#     my $parameters = $self->{path}{params};
+sub validate_params {
+    my ($self, $action, @args) = @_;
+    my $path = $self->{path}{name};
+    my $parameters = $self->{path}{params};
 
-#     my @required;
-#     for my $param (keys %$parameters) {
-#         push @required, $param if $parameters->{$param}->{required};
-#     }
+    my @required;
+    for my $param (keys %$parameters) {
+        push @required, $param if $parameters->{$param}->{required};
+    }
 
-#     return $self->rest_error(400, "Missing required path argument") if scalar @required > scalar @args;
+    return $self->rest_error(400, "Missing required path argument") if scalar @required > scalar @args;
 
-#     my @params = ( $path =~ /{([\w\d]+)}/g );
-#     foreach (@args) {
-#         return $self->rest_error(400, "Too many path arguments supplied!") unless exists $params[$_];
-#         my $type = $parameters->{$params[$_]}->{type};
-#         my @type_check =grep( /$TYPE_REGEX{$type}/, $args[$_]);
+    my @params = ( $path =~ /{([\w\d]+)}/g );
+    foreach (@args) {
+        return $self->rest_error(400, "Too many path arguments supplied!") unless exists $params[$_];
+        my $type = $parameters->{$params[$_]}->{type};
+        my @type_check =grep( /$TYPE_REGEX{$type}/, $args[$_]);
 
-#         return $self->rest_error(400, "Argument %s is not of type, should be a %s", ($args[$_], $type)) unless @type_check && $type_check[0] != '';
-#     }
+        return $self->rest_error(400, "Argument %s is not of type, should be a %s", ($args[$_], $type)) unless @type_check && $type_check[0] != '';
+    }
 
-#     return;
+    return;
 
-# }
+}
 
 1;
