@@ -25,7 +25,6 @@ use DW::Controller::API;
 use DW::API::Parameter;
 use DW::API::Method;
 use JSON;
-use Data::Dumper;
 
 use Carp qw/ croak /;
 
@@ -74,9 +73,6 @@ sub _dispatcher {
 
     my ( $self, @args ) = @_;
 
-    warn Dumper(%API_DOCS);
-    
-    warn(" running REST _item_dispatcher; self = " . $self );
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
     
@@ -114,10 +110,10 @@ sub _rest_unimplemented {
 # it's passed to sprintf with the rest of the
 # arguments.
 sub rest_error {
-    my $self = shift;
-    my $status_code = shift;
-    my $message = scalar @_ >= 2 ?
-        sprintf( shift, @_ ) : 'Unknown error.';
+    my ($self, $action, $status_code, @args) = @_;
+    my $status_desc = $self->{path}{methods}{$action}->{responses}{$status_code}{desc};
+    my $message = defined $status_desc ?
+        sprintf( $status_desc ) : 'Unknown error.';
 
     my $res = {
         success => 0,

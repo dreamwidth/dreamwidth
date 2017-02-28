@@ -24,6 +24,7 @@ use DW::Request;
 use DW::Controller;
 use JSON;
 
+
 # Define route and associated params
 my $route_all = __PACKAGE__->resource (
     path => '/journals/{journal}/entries',
@@ -35,8 +36,9 @@ $route_all->path (
 );
 
 # define our parameters and options for GET requests
-my $get = $route_all->get('Returns recent entries for a specified journal', \&rest_get);
-$get->success('a list of recent entries');
+my $get_all = $route_all->get('Returns recent entries for a specified journal', \&rest_get);
+$get_all->success('a list of recent entries');
+$get_all->error(404, 'Journal specified does not exist');
 
 __PACKAGE__->register_rest_controller($route_all);
 
@@ -55,20 +57,24 @@ $route->path (
 my $get = $route->get('Returns a single entry for a specified entry id and journal', \&rest_get);
 $get->success('An entry.');
 $get->error(404, "No such item in that journal");
+$get->error(403, "Not authorized to view that entry");
 
 __PACKAGE__->register_rest_controller($route);
 
 sub rest_get {
     my ( $self, $opts, $journalname, $ditemid ) = @_;
     my ( $ok, $rv ) = controller( anonymous => 1 );
-    my %responses = $route->{method}{GET}{responses};
+    my $responses = $self->{path}{methods}{GET}{responses};
 
     my $journal = LJ::load_user( $journalname );
-    return $self->rest_error( "No such user: $journalname" ) unless $journal;
+    my $remote = $rv->{remote};
+    return $self->rest_error( 'GET', 404 ) unless $journal;
 
     if ($ditemid != "") {
 	    my $item = LJ::Entry->new($journal, ditemid => $ditemid);
-    	return $self->rest_error($responses{404}) unless $item;
+    	return $self->rest_error('GET', 404) unless $item;
+
+    	return $self->rest_error('GET', 403) unless $item->visible_to($remote);
     
     	return $self->rest_ok( $item );
 
@@ -77,14 +83,12 @@ sub rest_get {
 	    my $skip = 0;
 	   
 	    my $itemshow = 25;
-	    my $viewall = 1;
 	    my @itemids;
 	    my $err;
 	    my @items = $journal->recent_items(
 	        clusterid     => $journal->{clusterid},
 	        clustersource => 'slave',
-	        viewall       => $viewall,
-	        remote        => $rv->{remote},
+	        remote  	  => $remote,
 	        itemshow      => $itemshow + 1,
 	        skip          => $skip,
 	        tagids        => [],
@@ -97,7 +101,6 @@ sub rest_get {
 	        posterid      => undef,
 	        );
 
-	    #FIXME: we shouldn't output so many date formats!
 	    foreach my $it ( @items ) {
 	        my $itemid  = delete $it->{'itemid'};
 	        my $ditemid = $itemid*256 + delete $it->{'anum'};
@@ -106,6 +109,8 @@ sub rest_get {
 	        my $posterid = delete $it->{posterid};
 	        my $poster = LJ::load_userid($posterid);
 	        $it->{poster} = $poster->{user};
+	        delete $it->{alldatepart};
+	        delete $it->{system_alldatepart};
 	    }
 	    return $self->rest_ok( \@items );
 	}
