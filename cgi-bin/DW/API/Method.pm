@@ -1,11 +1,34 @@
+#!/usr/bin/perl
+#
+# DW::API::Method
+#
+# Defines Method objects and provides helper functions
+# for use in DW::Controller::API::REST resources.
+#
+# Authors:
+#      Ruth Hatch <ruth.s.hatch@gmail.com>
+#
+# Copyright (c) 2017 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
 package DW::API::Method;
 
 use strict;
 use warnings;
 use JSON;
 
-use DW::API::Param;
-use Carp;
+use DW::API::Parameter;
+
+my @ATTRIBUTES = qw(name desc handler responses);
+my @HTTP_VERBS = qw(GET POST DELETE PUT);
+
+# Usage: define_method ( action, desc, handler ) 
+# Creates and returns a new method object for use
+# in DW::Controller::API::REST resource definitions.
 
 sub define_method {
     my ($action, $desc, $handler) = @_;
@@ -21,13 +44,24 @@ sub define_method {
     return \%method;
 }
 
+# Usage: param ( @args ) 
+# Creates a new DW::API::Parameter object and
+# adds it to the parameters hash of the calling
+# method object
+
 sub param {
     my ($self, @args) = @_;
 
-    my $param = DW::API::Param::define_parameter(@args);
+    my $param = DW::API::Parameter::define_parameter(@args);
     my $name = $param->name;
     $self->{params}{$name} = $param;
 }
+
+# Usage: success ( desc, schema ) 
+# Adds a 200 response description and optional schema
+# to the responses hash of the calling method object
+# FIXME: In the future, we may want 'successes' that aren't
+# 200 responses. This will need to be changed accordingly.
 
 sub success {
     my ($self, $desc, $schema) = @_;
@@ -35,94 +69,56 @@ sub success {
     $self->{responses}{200} = { desc => $desc, schema => $schema};
 }
 
+# Usage: error ( code, desc ) 
+# Adds an error response status code and 
+# to the responses hash of the calling method object
+# FIXME: Register a sprintf string to use as well?
+
 sub error {
     my ($self, $code, $desc) = @_;
 
     $self->{responses}{$code} = { desc => $desc };
 }
 
-sub validate {
+# Usage: _validate ( Method object ) 
+# Does some simple validation checks for method objects
+# Makes sure required fields are present, and that the 
+# HTTP action is a valid one.
+
+sub _validate {
     my $self = $_[0];
 
-    for my $field ('name', 'desc', 'handler', 'responses') {
+    for my $field (@ATTRIBUTES) {
         die "$self is missing required field $field" unless defined $self->{field};
     }
+    my $action = $self->{name};
+    die "$action isn't a valid HTTP action" unless grep($action, @HTTP_VERBS);
+
+    return;
 
 }
+
+# Formatter method for the JSON package to output method objects as JSON.
 
 sub TO_JSON {
     my $self = $_[0];
 
-    my $json = qq(
-        "$self->{name}" : {
-            "description" : "$self->{desc}"
-            );
+    my $json = { description => $self->{desc} };
+
     if (defined $self->{params}) {
-        $json .= ', "parameters" : [ ';
-        my @params;
-
-        for my $key (keys $self->{params}) {
-            push ($self->{params}{$key}->TO_JSON()), @params;
-        }
-        $json .= join(",", @params);
-        $json .= " ]"
+        $json->{parameters} =  $self->{params};
     }
-    $json .='"responses" : {';
-    my @responses;
+
+    my $responses = $self->{responses};
+
     for my $key (keys $self->{responses}) {
-        my $response = $self->{responses}{$key};
-        my $res_json = qq("$key" : { "description" : "$response->{desc}"});
-        $res_json .= qq(,"schema" : $response->{schema}) if exists $response->{schema};
-        $res_json .= "}";
-
-        push(($res_json), @responses);
+        $json->{responses}{$key} = { description => $responses->{$key}{desc} };
+        $json->{responses}{$key}{schema} = $responses->{$key}{schema} if defined $responses->{$key}{schema};
     }
-    $json .= join(',', @responses);
-    $json .= "\n}";
+
     return $json;
 }
 
 
 1;
 
-__END__
-=head1 NAME
-Raisin::Routes - A routing class for Raisin.
-=head1 SYNOPSIS
-    use Raisin::Routes;
-    my $r = Raisin::Routes->new;
-    my $params = { require => ['name', ], };
-    my $code = sub { { name => $params{name} } }
-    $r->add('GET', '/user', params => $params, $code);
-    my $route = $r->find('GET', '/user');
-=head1 DESCRIPTION
-The router provides the connection between the HTTP requests and the web
-application code.
-=over
-=item B<Adding routes>
-    $r->add('GET', '/user', params => $params, $code);
-=cut
-=item B<Looking for a route>
-    $r->find($method, $path);
-=cut
-=back
-=head1 PLACEHOLDERS
-Regexp
-    qr#/user/(\d+)#
-Required
-    /user/:id
-Optional
-    /user/?id
-=head1 METHODS
-=head2 add
-Adds a new route
-=head2 find
-Looking for a route
-=head1 ACKNOWLEDGEMENTS
-This module was inspired by L<Kelp::Routes>.
-=head1 AUTHOR
-Artur Khabibullin - rtkh E<lt>atE<gt> cpan.org
-=head1 LICENSE
-This module and all the modules in this package are governed by the same license
-as Perl itself.
-=cut
