@@ -1313,7 +1313,6 @@ sub TO_JSON {
     };
 
     if ( $remote && $remote eq $self->u ) {
-        $returnval->{expunged} = $self->expunged;
         $returnval->{inactive} = $self->inactive;
     }
     return $returnval;

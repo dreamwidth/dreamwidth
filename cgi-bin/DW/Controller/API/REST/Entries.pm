@@ -96,10 +96,12 @@ sub rest_get {
 	        err           => \$err,
 	        posterid      => undef,
 	        );
+
+	    #FIXME: we shouldn't output so many date formats!
 	    foreach my $it ( @items ) {
-	        my $itemid  = $it->{'itemid'};
-	        my $ditemid = $itemid*256 + $it->{'anum'};
-	        $it->{ditemid} = $ditemid;
+	        my $itemid  = delete $it->{'itemid'};
+	        my $ditemid = $itemid*256 + delete $it->{'anum'};
+	        $it->{entery_id} = $ditemid;
 	    }
 	    return $self->rest_ok( \@items );
 	}
