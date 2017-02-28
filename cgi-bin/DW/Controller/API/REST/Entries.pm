@@ -101,11 +101,17 @@ sub rest_get {
 	    foreach my $it ( @items ) {
 	        my $itemid  = delete $it->{'itemid'};
 	        my $ditemid = $itemid*256 + delete $it->{'anum'};
-	        $it->{entery_id} = $ditemid;
+	        $it->{entry_id} = $ditemid;
+
+	        my $posterid = delete $it->{posterid};
+	        my $poster = LJ::load_userid($posterid);
+	        $it->{poster} = $poster->{user};
 	    }
 	    return $self->rest_ok( \@items );
 	}
 }
+
+
 
 
 1;
