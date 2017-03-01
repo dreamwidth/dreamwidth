@@ -52,7 +52,7 @@ sub _call_xmlrpc {
             return {
                 success => 0,
                 error => $result->faultstring,
-                code => $result->faultcode == 302 ? 'entry_deleted' : ''
+                code => $result->faultcode eq '302' ? 'entry_deleted' : ''
             }
         } else {
             # success
