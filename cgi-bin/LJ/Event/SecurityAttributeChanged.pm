@@ -31,16 +31,19 @@ sub new {
 
         die "Missing credentials" unless $ip && $action;
 
+        # We can't be sure which order the keys were saved in,
+        # so search for both possibilities (old/new or new/old).
+
         # $action == 1 -- deleted
-        my $extra = (1 == $action) ? 'new=D&old=V' : 'new=V&old=D';
+        my $extra = (1 == $action) ? "'old=V&new=D', 'new=D&old=V'"
+                                   : "'old=D&new=V', 'new=V&old=D'";
 
         my $dbcr = LJ::get_cluster_reader($u);
         my $sth = $dbcr->prepare(
-            "SELECT logtime, ip".
-            " FROM userlog".
-            " WHERE userid=? AND extra=?".
+            "SELECT logtime, ip FROM userlog" .
+            " WHERE userid=? AND extra IN ($extra)" .
             " ORDER BY logtime DESC LIMIT 2");
-        $sth->execute($u->{userid},$extra);
+        $sth->execute( $u->{userid} );
         my ($logtime, $logip) = $sth->fetchrow_array;
 
         # Check for errors

@@ -88,7 +88,7 @@ sub log_event {
     }
     my $remote = delete($info->{remote}) || LJ::get_remote() || undef;
     my $targetid = (delete($info->{actiontarget})+0) || undef;
-    my $extra = %$info ? join('&', map { LJ::eurl($_) . '=' . LJ::eurl($info->{$_}) } keys %$info) : undef;
+    my $extra = %$info ? join('&', map { LJ::eurl($_) . '=' . LJ::eurl($info->{$_}) } sort keys %$info) : undef;
 
     # now insert the data we have
     $u->do("INSERT INTO userlog (userid, logtime, action, actiontarget, remoteid, ip, uniq, extra) " .
