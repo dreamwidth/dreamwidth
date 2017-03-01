@@ -437,8 +437,8 @@ _c?>
     my $coresel = $layerselect->('core', 0);
     $body .= $coresel->[0];
     $body .= LJ::html_hidden('core_hidden', $core);
-    my $dis = $coresel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
-    $body .= " " . LJ::html_submit('action:change', $ML{'.btn.change'}, $dis) . "</td></tr>\n";
+    my $c_dis = $coresel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
+    $body .= " " . LJ::html_submit('action:change', $ML{'.btn.change'}, $c_dis) . "</td></tr>\n";
     $body .= "</table>\n";
 
     ### i18nc / layout
@@ -456,8 +456,8 @@ _c?>
     my $layoutsel = $layerselect->('layout', $core);
     $body .= $layoutsel->[0];
     $body .= $layerother->('layout');
-    my $dis = $layoutsel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
-    $body .= " " . LJ::html_submit("action:change", $ML{'.btn.change'}, $dis) . " </td></tr>\n";
+    my $l_dis = $layoutsel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
+    $body .= " " . LJ::html_submit("action:change", $ML{'.btn.change'}, $l_dis) . " </td></tr>\n";
     $body .= "</table>\n";
 
     # do we need to show the rest of the form?
