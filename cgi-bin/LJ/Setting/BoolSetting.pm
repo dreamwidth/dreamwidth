@@ -67,6 +67,7 @@ sub as_html {
 sub save {
     my ($class, $u, $args) = @_;
     my $new_val = $args->{val} ? $class->checked_value : $class->unchecked_value;
+    $new_val //= '';
     my $current_value = $class->current_value( $u );
     return 1 if (defined $current_value and $new_val eq $current_value);
     if (my $prop = $class->prop_name) {
@@ -78,6 +79,3 @@ sub save {
 }
 
 1;
-
-
-

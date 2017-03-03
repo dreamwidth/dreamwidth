@@ -281,7 +281,9 @@ my %modules = (
         deb => 'libfile-find-rule-perl',
         opt => "Used by t/00-compile.t test.",
     },
-    "Log::Log4perl" => {},
+    "Log::Log4perl" => {
+        deb => 'liblog-log4perl-perl',
+    },
     "Params::Validate" => {
         ver => '1.2',
     },

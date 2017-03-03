@@ -76,7 +76,7 @@ sub management_handler {
     #  - used
     @invitecodes = sort {
         return $a->is_used <=> $b->is_used if $a->is_used != $b->is_used;
-        return $a->timesent <=> $b->timesent;
+        return ( $a->timesent // 0 ) <=> ( $b->timesent // 0 );
     } @invitecodes;
 
     $rv->{has_codes} = scalar @invitecodes;
