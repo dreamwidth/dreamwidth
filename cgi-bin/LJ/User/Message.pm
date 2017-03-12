@@ -154,19 +154,6 @@ sub is_validated {
 }
 
 
-# return user selected mail encoding or undef
-sub mailencoding {
-    my $u = shift;
-    my $enc = $u->prop('mailencoding');
-
-    return undef unless $enc;
-
-    LJ::load_codes({ "encoding" => \%LJ::CACHE_ENCODINGS } )
-        unless %LJ::CACHE_ENCODINGS;
-    return $LJ::CACHE_ENCODINGS{$enc}
-}
-
-
 # return the setting indicating how a user can be found by their email address
 # Y - Findable, N - Not findable, H - Findable but identity hidden
 sub opt_findbyemail {

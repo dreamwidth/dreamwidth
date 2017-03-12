@@ -1428,15 +1428,12 @@ sub _format_mail_both {
         }
     }
 
-    my $encoding = $targetu->mailencoding;
-    my $charset  = $encoding ? "; charset=$encoding" : "";
-
     # Precache text lines
     my $lang     = $targetu->prop('browselang');
     LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
 
     my $body = '';
-    $body = "<head><meta http-equiv=\"Content-Type\" content=\"text/html$charset\" /></head><body>"
+    $body = "<head><meta http-equiv=\"Content-Type\" content=\"text/html\" /></head><body>"
         if $is_html;
 
     my $vars = {

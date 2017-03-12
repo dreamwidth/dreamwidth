@@ -228,7 +228,6 @@ sub accept {
         to => $u->email_raw,
         from => $LJ::ACCOUNTS_EMAIL,
         fromname => $LJ::SITENAME,
-        charset => $u->mailencoding,
         subject => LJ::Lang::ml( 'email.invitecoderequest.accept.subject' ),
         body => LJ::Lang::ml( 'email.invitecoderequest.accept.body2', {
             siteroot => $LJ::SITEROOT,
@@ -255,7 +254,6 @@ sub reject {
         to => $u->email_raw,
         from => $LJ::ACCOUNTS_EMAIL,
         fromname => $LJ::SITENAME,
-        charset => $u->mailencoding,
         subject => LJ::Lang::ml( 'email.invitecoderequest.reject.subject' ),
         body => LJ::Lang::ml( 'email.invitecoderequest.reject.body' ),
     });
