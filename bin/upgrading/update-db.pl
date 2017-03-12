@@ -384,9 +384,9 @@ sub populate_s2 {
             my $d_file = $file;
             my $d_LD = $LD;
 
-            $d_file =~ s!^\Q$LJ::HOME\E/*!!; 
+            $d_file =~ s!^\Q$LJ::HOME\E/*!!;
             $d_LD =~ s!^\Q$LJ::HOME\E/*!!;
- 
+
             print "SOURCE: $d_file ( $d_LD )\n";
 
             while (<SL>)
@@ -451,7 +451,7 @@ sub populate_s2 {
                 next if $known_id{$id};
                 push @del_ids, $id;
             }
-    
+
             # if we need to delete things, prompt before blowing away system layers
             if (@del_ids) {
                 print "\nWARNING: The following S2 layer ids are known as system layers but are no longer\n" .
@@ -466,11 +466,11 @@ sub populate_s2 {
                     print "\nOkay, I am NOT deleting the layers.\n";
                 }
             }
-    
+
             if ( $has_new_layer ) {
                 $LJ::CACHED_PUBLIC_LAYERS = undef;
                 LJ::MemCache::delete( "s2publayers" );
-    
+
                 print "\nCleared styles cache.\n";
             }
         }
@@ -630,15 +630,15 @@ sub populate_moods {
             my $sth = $dbh->prepare("SELECT moodid, mood, parentmood, weight FROM moods");
             $sth->execute;
             while (@_ = $sth->fetchrow_array) { $mood{$_[0]} = [ $_[1], $_[2], $_[3] ]; }
-            
+
             my %moodtheme;  # name -> [ id, des ]
             $sth = $dbh->prepare("SELECT moodthemeid, name, des FROM moodthemes WHERE is_public='Y'");
             $sth->execute;
             while (@_ = $sth->fetchrow_array) { $moodtheme{$_[1]} = [ $_[0], $_[2] ]; }
-            
+
             my $themeid;  # current themeid (from existing db or just made)
             my %data;     # moodid -> "$url$width$height" (for equality test)
-            
+
             while (<M>) {
                 chomp;
                 if (/^MOOD\s+(\d+)\s+(.+)\s+(\d+)\s+(\d+)\s*$/) {
@@ -652,7 +652,7 @@ sub populate_moods {
                             undef, $weight, $id );
                     }
                 }
-            
+
                 if (/^MOODTHEME\s+(.+?)\s*:\s*(.+)$/) {
                     my ($name, $des) = ($1, $2);
                     %data = ();
@@ -676,7 +676,7 @@ sub populate_moods {
                     }
                     next;
                 }
-            
+
                 if (/^(\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s*$/) {
                     next unless $themeid;
                     my ($moodid, $url, $w, $h) = ($1, $2, $3, $4);
