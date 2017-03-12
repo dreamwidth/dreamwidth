@@ -219,13 +219,6 @@ print "# Done.\n";
 ############################################################################
 
 sub populate_database {
-    # check for old style external_foaf_url (indexed:1, cldversion:0)
-    my $prop = LJ::get_prop('user', 'external_foaf_url');
-    if ($prop->{indexed} == 1 && $prop->{cldversion} == 0) {
-        print "Updating external_foaf_url userprop.\n";
-        system("$ENV{'LJHOME'}/bin/upgrading/migrate-userprop.pl", 'external_foaf_url');
-    }
-
     populate_basedata();
     populate_proplists();
 
