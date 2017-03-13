@@ -603,13 +603,7 @@ body<=
         my $title = $ML{$service->{title_ml}};
         $imlist .= "<li class=\"im_$service->{type}\">";
         $imlist .= "<div class=\"im_icon\"><img src=\"$LJ::IMGPREFIX/profile_icons/$service->{image}\" alt=\"$title\" title=\"$title\" /></div>";
-        if ( $service->{status_image} ) {
-            my $status_title = $ML{$service->{status_title_ml}};
-            $imlist .= " " . $linkify->( $service ) . " ";
-            $imlist .= "<div class=\"im_status\"><img src=\"$service->{status_image}\" alt=\"$status_title\" title=\"$status_title\" width='$service->{status_width}' height='$service->{status_height}' /></div>";
-        } else {
-            $imlist .= " " . $linkify->( $service );
-        }
+        $imlist .= " " . $linkify->( $service );
         $imlist .= "</li>";
     }
     if ( $imlist ) {
@@ -948,7 +942,7 @@ body<=
 
         if ( $u->is_personal ) {
             my @member_of_list = grep { $includeuser->( $_ ) }
-                map { $us->{$_} } @member_of_userids; 
+                map { $us->{$_} } @member_of_userids;
             $member_of_body = $content_inner_block->(
                 section_name    => 'member_of_comms',
                 section_name_ml => $mlsn->( '.comms.member_of', \@member_of_list ),

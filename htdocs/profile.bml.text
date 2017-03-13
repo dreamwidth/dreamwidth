@@ -149,8 +149,6 @@
 
 .im.aol=AIM
 
-.im.aol.status=AIM status
-
 .im.gtalk=Google Talk
 
 .im.header=Instant Message:
@@ -159,19 +157,13 @@
 
 .im.icq=ICQ
 
-.im.icq.status=ICQ status
-
 .im.jabber=Jabber
 
 .im.lastfm=Last.fm
 
 .im.skype=Skype
 
-.im.skype.status=Skype status
-
 .im.yim=Yahoo!
-
-.im.yim.status=Yahoo! status
 
 .label.addbuddy=Add Buddy
 

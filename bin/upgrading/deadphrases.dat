@@ -206,6 +206,10 @@ general /multisearch.bml.region.text
 general /multisearch.bml.title.results
 
 general /profile.bml.contact.txtmsg
+general /profile.bml.im.aol.status
+general /profile.bml.im.icq.status
+general /profile.bml.im.skype.status
+general /profile.bml.im.yim.status
 general /profile.bml.label.feedchange
 general /profile.bml.label.textmessage
 
