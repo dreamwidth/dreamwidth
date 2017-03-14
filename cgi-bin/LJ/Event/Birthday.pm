@@ -33,7 +33,6 @@ sub bdayuser {
     return $self->event_journal;
 }
 
-# $self->bday ==> $self->bday($lang) where $lang = $u->prop('browselang');
 # formats birthday as "August 1"
 sub bday {
     my $self = shift;
@@ -114,40 +113,35 @@ my @_ml_strings = (
 );
 
 sub as_email_subject {
-    my $self = shift;
-    my $u    = shift;
+    my ( $self, $u ) = @_;
 
-    return LJ::Lang::get_text($u->prop('browselang'),
-        'esn.bday.subject', undef,
+    return LJ::Lang::get_default_text( 'esn.bday.subject',
         { bdayuser => $self->bdayuser->display_username } );
 }
 
 # This is same method as 'bday', but it use ml-features.
 sub email_bday {
-    my ($self, $lang) = @_;
+    my ( $self ) = @_;
 
     my ($year, $mon, $day) = split(/-/, $self->bdayuser->{bdate});
-    return LJ::Lang::get_text($lang,
-       'esn.month.day_' . qw(jan feb mar apr may jun jul aug sep oct nov dec)[$mon-1],
-       undef, { day => $day } );
+    return LJ::Lang::get_default_text( 'esn.month.day_' .
+       qw(jan feb mar apr may jun jul aug sep oct nov dec)[$mon-1],
+       { day => $day } );
 }
 
 sub _as_email {
     my ($self, $is_html, $u) = @_;
 
-    my $lang = $u->prop('browselang');
-
     # Precache text lines
-    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings);
+    LJ::Lang::get_default_text_multi( \@_ml_strings );
 
-    return LJ::Lang::get_text($lang,
-       'esn.bday.email', undef,
+    return LJ::Lang::get_default_text( 'esn.bday.email',
         {
             user        => $is_html ? $u->ljuser_display : $u->display_username,
-            bday        => $self->email_bday($lang),
+            bday        => $self->email_bday,
             bdayuser    => $is_html ? $self->bdayuser->ljuser_display : $self->bdayuser->display_username,
         }) .
-        $self->format_options($is_html, $lang, undef,
+        $self->format_options( $is_html, undef, undef,
             {
                 'esn.post_happy_bday'       => [ 1, "$LJ::SITEROOT/update" ],
                 'esn.go_journal_happy_bday' => [ 2, $self->bdayuser->journal_base ],

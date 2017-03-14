@@ -59,16 +59,13 @@ my @_ml_strings_en = (
 sub as_email_subject {
     my ($self, $u) = @_;
     my $cu      = $self->community;
-    my $lang    = $u->prop('browselang');
-    return LJ::Lang::get_text($lang, 'esn.comm_join_approve.email_subject', undef, { 'community' => $cu->{user} });
+
+    return LJ::Lang::get_default_text( 'esn.comm_join_approve.email_subject',
+                                       { 'community' => $cu->{user} } );
 }
 
 sub _as_email {
     my ($self, $u, $cu, $is_html) = @_;
-
-    # Precache text lines
-    my $lang    = $u->prop('browselang');
-    #LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
 
     my $vars = {
             'user'      => $u->{name},
@@ -79,12 +76,12 @@ sub _as_email {
     };
 
     $vars->{'options'} =
-        $self->format_options($is_html, $lang, $vars,
+        $self->format_options( $is_html, undef, $vars,
             {
                 'esn.add_friend_community'  => [ 1, "$LJ::SITEROOT/circle/" . $cu->{user} . "/edit?action=subscribe" ],
-            });
+            } );
 
-    return LJ::Lang::get_text($lang, 'esn.comm_join_approve.email_text', undef, $vars);
+    return LJ::Lang::get_default_text( 'esn.comm_join_approve.email_text', $vars );
 }
 
 sub as_email_string {

@@ -110,7 +110,11 @@ sub content {
 
     my $admin_post = "";
     if ( $entry->admin_post ) {
-        $admin_post = '<div class="AdminPost">' . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_entry.admin_post", undef, { img => LJ::img('admin-post') } ) . '</div>';
+        $admin_post = '<div class="AdminPost">'
+                    . LJ::Lang::get_default_text(
+                        "esn.journal_new_entry.admin_post",
+                        { img => LJ::img('admin-post') } )
+                    . '</div>';
     }
 
     return $admin_post . $entry_body;
@@ -120,7 +124,6 @@ sub as_html_tags {
     my ( $self, $u ) = @_;
     my $tags = '';
     my $url = $self->entry->journal->journal_base;
-    my $lang = $u->prop( 'browselang' );
 
     my @taglist = $self->entry->tags;
 
@@ -129,7 +132,10 @@ sub as_html_tags {
         my @htmltags = ();
         push @htmltags, qq{<a href="$url/tag/$_">$_</a>} foreach @taglist;
 
-        $tags = "<div class='entry-tags'>" .  LJ::Lang::get_text( $lang, 'esn.tags.short', undef, { tags => join(', ', @htmltags ) } ).  "</div>";
+        $tags = "<div class='entry-tags'>"
+              .  LJ::Lang::get_default_text( 'esn.tags.short',
+                               { tags => join( ', ', @htmltags ) } )
+              .  "</div>";
     }
     return $tags;
 
@@ -224,17 +230,16 @@ sub as_email_subject {
     my ($self, $u) = @_;
 
     # Precache text lines
-    my $lang = $u->prop('browselang');
-    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
+    LJ::Lang::get_default_text_multi( \@_ml_strings_en );
 
     if ($self->entry->journal->is_comm) {
-        return LJ::Lang::get_text($lang, 'esn.journal_new_entry.posted_new_entry', undef,
+        return LJ::Lang::get_default_text( 'esn.journal_new_entry.posted_new_entry',
             {
                 who     => $self->entry->poster->display_username,
                 journal => $self->entry->journal->display_username,
             });
     } else {
-        return LJ::Lang::get_text($lang, 'esn.journal_new_entry.updated_their_journal', undef,
+        return LJ::Lang::get_default_text( 'esn.journal_new_entry.updated_their_journal',
             {
                 who     => $self->entry->journal->display_username,
             });
@@ -262,8 +267,8 @@ sub _as_email {
 
     my $subject_text = $self->entry->subject_text;
 
-    # Precache text lines
-    my $lang = $u->prop('browselang');
+    # Precache text lines, using DEFAULT_LANG for $u
+    my $lang = $LJ::DEFAULT_LANG;
     LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
 
     my $email = LJ::Lang::get_text($lang, 'esn.hi', undef, { username    => $username }) . "\n\n";

@@ -167,9 +167,8 @@ sub _arg1_to_mlkey {
 
 sub as_email_subject {
     my ($self, $u) = @_;
-    my $lang    = $u->prop('browselang');
-    return LJ::Lang::get_text($lang, _arg1_to_mlkey($self->arg1) . 'email_subject2',
-        undef,
+
+    return LJ::Lang::get_default_text( _arg1_to_mlkey( $self->arg1 ) . 'email_subject2',
         {
             'user' => $u->{user}
         });
@@ -178,7 +177,6 @@ sub as_email_subject {
 sub _as_email {
     my ($self, $u, $is_html) = @_;
 
-    my $lang    = $u->prop('browselang');
     my $action  = $self->arg1;
     my $logtime = $self->arg2;
 
@@ -258,8 +256,8 @@ sub _as_email {
 
     my $iscomm = $u->is_community ? '.comm' : '';
 
-    return LJ::Lang::get_text($lang, _arg1_to_mlkey($action) .
-        'email_text2' . $iscomm, undef, $vars);
+    return LJ::Lang::get_default_text( _arg1_to_mlkey( $action ) .
+        'email_text2' . $iscomm, $vars );
 }
 
 sub as_email_string {

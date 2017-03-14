@@ -56,17 +56,16 @@ my @_ml_strings_en = qw(
 sub as_email_subject {
     my ( $self, $u ) = @_;
 
-    if ( $self->trusted ) {
-        return LJ::Lang::get_text( $u->prop('browselang'), 'esn.addedtocircle.trusted.subject', undef, { who => $self->fromuser->display_username } );
-    } else { # watched
-        return LJ::Lang::get_text( $u->prop('browselang'), 'esn.addedtocircle.watched.subject', undef, { who => $self->fromuser->display_username } );
-    }
+    my $str = $self->trusted ? 'esn.addedtocircle.trusted.subject'
+                             : 'esn.addedtocircle.watched.subject';
+
+    return LJ::Lang::get_default_text( $str, { who => $self->fromuser->display_username } );
 }
 
 sub _as_email {
     my ( $self, $u, $is_html ) = @_;
 
-    my $lang        = $u->prop('browselang');
+    my $lang        = $LJ::DEFAULT_LANG;
     my $user        = $is_html ? ($u->ljuser_display) : ($u->display_username);
     my $poster      = $is_html ? ($self->fromuser->ljuser_display) : ($self->fromuser->display_username);
     my $postername  = $self->fromuser->user;

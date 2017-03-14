@@ -614,6 +614,20 @@ sub get_text
     return $text || ($LJ::IS_DEV_SERVER ? "[uhhh: $code]" : "");
 }
 
+# Sometimes we want to force $lang to be the default, because the user
+# generating the text display isn't the same user who will receive the
+# rendered text.  These helper functions make that easier.
+
+sub get_default_text {
+    my ( $code, $vars ) = @_;
+    return LJ::Lang::get_text( undef, $code, undef, $vars );
+}
+
+sub get_default_text_multi {
+    my ( $codes ) = @_;
+    return LJ::Lang::get_text_multi( undef, undef, $codes );
+}
+
 # Loads multiple language strings at once.  These strings
 # cannot however contain variables, if you have variables
 # you wouldn't be calling this anyway!
