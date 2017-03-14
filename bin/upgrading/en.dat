@@ -2745,10 +2745,6 @@ setting.interests.note=_none
 
 setting.interests.question=Interests:
 
-setting.language.error.invalid=Invalid language.
-
-setting.language.label=Language
-
 setting.minsecurity.label=Default Entry Security
 
 setting.minsecurity.option=Set all new entries to a minimum security of
