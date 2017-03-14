@@ -51,6 +51,7 @@ sub default_themes {
         drifting => 'drifting/blue',
         dustyfoot => 'dustyfoot/dreamer',
         easyread => 'easyread/green',
+        goldleaf => 'goldleaf/elegantnotebook',
         fantaisie => 'fantaisie/unrelentingroutine',
         fiveam => 'fiveam/earlyedition',
         fluidmeasure => 'fluidmeasure/spice',
@@ -71,6 +72,7 @@ sub default_themes {
         paletteable => 'paletteable/descending',
         paperme => 'paperme/newleaf',
         patsy => 'patsy/retro',
+        pattern => 'pattern/foundinthedesert',
         planetcaravan => 'planetcaravan/cheerfully',
         practicality => 'practicality/warmth',
         refriedtablet => 'refriedtablet/refriedclassic',
@@ -84,6 +86,7 @@ sub default_themes {
         tranquilityiii => 'tranquilityiii/nightsea',
         trifecta => 'trifecta/handlewithcare',
         wideopen => 'wideopen/koi',
+        venture => 'venture/radiantaqua',
         zesty => 'zesty/white',
     );
 

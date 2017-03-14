@@ -177,7 +177,8 @@ body<=
     # one formauth for the whole page
     my $form_auth = LJ::form_auth();
 
-    my $ret;
+    my $ret = '';
+    my $warn = '';
 
     #### Closure Definitions ####
     my $make_tree;
@@ -345,8 +346,8 @@ body<=
                 # about what the user specified.
                 if ( $key =~ /(^\d+$)/ ) {
                     my $mid = $1;
-                    my $width = $POST{$mid.'w'};
-                    my $height = $POST{$mid.'h'};
+                    my $width = $POST{$mid.'w'} || 0;
+                    my $height = $POST{$mid.'h'} || 0;
                     my $picurl = $POST{$key};
                     my $mname = DW::Mood->mood_name( $mid );
 
@@ -374,7 +375,11 @@ body<=
                     # one of these is blank, so delete the mood
                     unless ( $picurl && $width && $height ) {
                         push @picdata, [ $mid, {} ];
-                        $ret .= BML::ml( '.mood.reset', { mood => "$mname($mid)"} ) . "<br />\n";
+                        if ( $picdata{pic} ) {
+                            $ret .= BML::ml( '.mood.reset', { mood => "$mname($mid)"} ) . "<br />\n";
+                        } else {
+                            $warn .= BML::ml( '.mood.notcreated', { mood => "$mname($mid)" } ) . "<br />\n";
+                        }
                         next;
                     }
 
@@ -406,7 +411,11 @@ body<=
             $theme->set_picture_multi( \@picdata, \$err ) or
                 return "<?h1 $ML{'Error'} h1?><?p $err p?>";
 
-            $ret .= "<br />$ML{'.saved'}<br /><br />\n";
+            if ( $warn ) {
+                $ret .= "<br />$ML{'.partiallysaved'}<br /><br />$warn<br />\n";
+            } else {
+                $ret .= "<br />$ML{'.saved'}<br /><br />\n";
+            }
         }
 
         $ret .= BML::ml('Backlink', {

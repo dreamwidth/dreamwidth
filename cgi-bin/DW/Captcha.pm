@@ -209,8 +209,10 @@ sub validate {
 
     my $err_ref = $opts{err_ref};
 
-                    # captcha type, page captcha appeared on
-    my $stat_tags = [ (ref $self)->name, "page:" . $self->page ];
+    # error catching for undefined page
+    my $pageref = $self->page // '';
+    # captcha type, page captcha appeared on
+    my $stat_tags = [ (ref $self)->name, "page:$pageref" ];
     if ( $self->challenge && $self->_validate ) {
         DW::Stats::increment( "dw.captcha.success", 1, $stat_tags );
         return 1;

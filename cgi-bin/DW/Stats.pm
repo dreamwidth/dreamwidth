@@ -37,7 +37,6 @@ sub setup {
         PeerAddr => $_[0],
         PeerPort => $_[1],
     );
-    warn "DW::Stats initialized.\n";
 }
 
 # Usage: DW::Stats::increment( 'my.metric', $incrby, $tags, $sample_rate )

@@ -203,7 +203,7 @@ body<=
         $reply_u = $msg->other_u;
         $reply_to = $reply_u->display_name;
         $disabled_to = 1;
-        $msg_subject = $msg->subject || "(no subject)";
+        $msg_subject = $msg->subject_raw || "(no subject)";
         $msg_subject = "Re: " . $msg_subject
             unless $msg_subject =~ /Re: /;
         $msg_body = $msg->body_raw;
@@ -249,7 +249,7 @@ body<=
         $body .= $reply_u->ljuser_display;
         $body .= LJ::html_hidden({
                     name      => 'msg_to',
-                    value     => "$reply_to",
+                    value     => $reply_u->username,
                  });
     } else {
         $body .= LJ::html_text({

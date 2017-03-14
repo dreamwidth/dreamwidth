@@ -253,9 +253,7 @@ sub make_feed
                 $event =~ s!<(lj-)?poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
             }
 
-            my %args = LJ::parse_args( $r->query_string );
-            LJ::EmbedModule->expand_entry($u, \$event, expand_full => 1)
-                if %args && $args{'unfold_embed'};
+            LJ::EmbedModule->expand_entry( $u, \$event, expand_full => 1 );
 
             $ppid = $1
                 if $event =~ m!<lj-phonepost journalid=[\'\"]\d+[\'\"] dpid=[\'\"](\d+)[\'\"]( /)?>!;
@@ -615,7 +613,7 @@ sub create_view_foaf {
 
     # setup userprops we will need
     $u->preload_props( qw{
-        aolim icq yahoo jabber icbm url urlname external_foaf_url country city journaltitle
+        aolim icq yahoo jabber icbm url urlname country city journaltitle
     } );
 
     # create bare foaf document, for now
@@ -672,15 +670,6 @@ sub create_view_foaf {
     $ret .= "        <dc:description>Full $LJ::SITENAME profile, including information such as interests and bio.</dc:description>\n";
     $ret .= "      </foaf:Document>\n";
     $ret .= "    </foaf:page>\n";
-
-    # we want to bail out if they have an external foaf file, because
-    # we want them to be able to provide their own information.
-    if ($u->{external_foaf_url}) {
-        $ret .= "    <rdfs:seeAlso rdf:resource=\"" . LJ::eurl($u->{external_foaf_url}) . "\" />\n";
-        $ret .= ($comm ? "  </foaf:Group>\n" : "  </foaf:Person>\n");
-        $ret .= "</rdf:RDF>\n";
-        return $ret;
-    }
 
     # contact type information
     my %types = (

@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 36;
+use Test::More tests => 39;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Protocol;
@@ -65,6 +65,7 @@ test_esn_flow(sub {
     my ($u1, $u2) = @_;
     my $email;
     my $comment;
+    my $othercomment;
 
     # clear subs
     $_->delete foreach $u1->subscriptions;
@@ -100,7 +101,7 @@ test_esn_flow(sub {
     $comment = $u1e1->t_enter_comment;
     ok($comment, "left comment");
 
-    # make sure we got notification
+    # make sure we didn't get notification
     $email = $got_notified->($u1);
     ok(! $email, "got no email");
 
@@ -113,7 +114,7 @@ test_esn_flow(sub {
     $comment = $u2e2f->t_enter_comment;
     ok($comment, "got jtalkid");
 
-    # make sure we got notification
+    # make sure we didn't get notification
     $email = $got_notified->($u1);
     ok(! $email, "got no email, due to security (u2 doesn't trust u1)");
 
@@ -147,12 +148,26 @@ test_esn_flow(sub {
     $email = $got_notified->($u1);
     ok(!$email, "didn't get comment notification on unrelated post");
 
+    # entry gets locked
+    $u2e1->{security} = "friends";
+    ok($u2e1, "first entry locked");
+
+    # u2 comments on their own entry
+    $othercomment = $u2e1->t_enter_comment;
+    ok($othercomment, "comment added to locked entry");
+
+    # u1 can't see and doesn't get notified
+    $email = $got_notified->($u1);
+    ok(!$email, "didn't get comment notification on locked post");
+
+    $u2e1->{security} = "public";
+
     $subsc->delete;
 
     ######## S3 (watching a thread)
 
     # make sure we can track threads
-    $LJ::CAP{0...15}->{track_thread} = 1;
+    $LJ::CAP{$_}->{track_thread} = 1 foreach (0..15);
 
     # subscribe to replies to a thread
     $subsc = $u1->subscribe(
@@ -164,7 +179,7 @@ test_esn_flow(sub {
                             );
     ok($subsc, "Subscribed");
 
-    # post a reply to a comment
+    # post a reply to the comment from the earlier test
     my $reply = $comment->t_reply(u => $u2);
     ok($reply, "Got reply");
 
@@ -190,7 +205,7 @@ test_esn_flow(sub {
     $email = $got_notified->($u1);
     ok(! $email, "didn't get notified");
 
-    $LJ::CAP{0...15}->{track_thread} = 0;
+    $LJ::CAP{$_}->{track_thread} = 0 foreach (0..15);
     $subsc->delete;
 
     if ( ( LJ::Event::JournalNewComment->zero_journalid_subs_means // "" ) eq "friends") {

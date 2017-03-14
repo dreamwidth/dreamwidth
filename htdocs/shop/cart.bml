@@ -39,7 +39,14 @@ body<=
     $ret .= qq{
         <div class='warning-box message-box'>
             <div class='title'>$ML{'.payment.failed.title'}</div>
-            <p>$ML{'.payment.failed'}</p>
+            <p>$ML{'.payment.failed.duplicate'}</p>
+        </div>\n}
+        if $GET{duplicate};
+
+    $ret .= qq{
+        <div class='warning-box message-box'>
+            <div class='title'>$ML{'.payment.failed.title'}</div>
+            <p>$ML{'.payment.failed.other'}</p>
         </div>\n}
         if $GET{failed};
 

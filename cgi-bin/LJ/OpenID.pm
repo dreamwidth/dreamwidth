@@ -37,10 +37,11 @@ sub server_enabled {
 sub server {
     my ($get, $post) = @_;
 
+    my %args = ( %{ $get || {} }, %{ $post || {} } );
+
     return Net::OpenID::Server->new(
                                     compat       => $LJ::OPENID_COMPAT,
-                                    get_args     => $get  || {},
-                                    post_args    => $post || {},
+                                    args         => \%args,
 
                                     get_user     => \&LJ::get_remote,
                                     is_identity  => sub {
@@ -132,7 +133,8 @@ sub is_identity {
         # legacy:
         $ident eq "$LJ::SITEROOT/users/$user/" ||
         $ident eq "$LJ::SITEROOT/~$user/" ||
-        $ident eq "http://$user.$LJ::USER_DOMAIN/";
+        $ident eq "http://$user.$LJ::USER_DOMAIN/" ||
+        $ident eq "https://$user.$LJ::USER_DOMAIN/";
 
     return 0;
 }

@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "tag_display" }
 
-sub desc { "Set tag visibility to S2." }
+sub desc { "Set tag visibility to S2. Requires priv: none." }
 
 sub args_desc { [
                  'community' => "Community that this tag is in, if applicable.",

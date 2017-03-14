@@ -49,8 +49,8 @@ ContextualPopup.setup = function () {
     // attach to all userpics
     if (Site.ctx_popup_icons) {
         var images = document.getElementsByTagName("img") || [];
-        var old_icon_path = '/userpic';
-        var url_prefix = "(^" + Site.iconprefix + "|" + old_icon_path + ")";
+        var old_icon_url = 'www\\.dreamwidth\\.org/userpic';
+        var url_prefix = "(^" + Site.iconprefix + "|" + old_icon_url + ")";
         var re = new RegExp( url_prefix + "/\\d+\/\\d+$" );
         Array.prototype.forEach.call(images, function (image) {
             // if the image url matches a regex for userpic urls then attach to it
@@ -333,14 +333,20 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
             if (!data.is_closed_membership || data.is_member) {
                 var membershipLink  = document.createElement("a");
 
-                var membership_action = data.is_member ? "leave" : "join";
+                var membership_action;
 
                 if (data.is_member) {
                     membershipLink.href = data.url_leavecomm;
                     membershipLink.innerHTML = "Leave";
+                    membership_action = "leave";
+                } else if (data.is_invited) {
+                    membershipLink.href = data.url_acceptinvite;
+                    membershipLink.innerHTML = "Accept invitation";
+                    membership_action = "accept";
                 } else {
                     membershipLink.href = data.url_joincomm;
                     membershipLink.innerHTML = "Join community";
+                    membership_action = "join";
                 }
 
                 if (!ContextualPopup.disableAJAX) {

@@ -1,0 +1,1697 @@
+#NEWLAYER: pattern/alwaysontheball
+layerinfo type = "theme";
+layerinfo name = "Always On the Ball";
+layerinfo redist_uniq = "pattern/alwaysontheball";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Guilherme Simoes", "url" => "https://thenounproject.com/" },
+    { "name" => "Nicolas Vicent", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-sides";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#111";
+set color_page_link = "#a4a4a4";
+set color_page_link_active = "#e40045";
+set color_page_link_hover = "#e40045";
+set color_page_link_visited = "#a4a4a4";
+set color_page_text = "#fefefe";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/alwaysontheball_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/alwaysontheball_subj.png";
+set image_background_subject_width = 64;
+set image_background_tags_height = 24;
+set image_background_tags_url = "pattern/alwaysontheball_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(245,86,134,1) 0%, rgba(36,29,31,.3) 100%);
+    background: -moz-linear-gradient(top, rgba(245,86,134,1) 0%, rgba(36,29,31,.3) 100%);
+    background: -o-linear-gradient(top, rgba(245,86,134,1) 0%, rgba(36,29,31,.3) 100%);
+    background: -webkit-linear-gradient(top, rgba(245,86,134,1) 0%, rgba(36,29,31,.3) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(245,86,134,1) 0%, rgba(36,29,31,.3) 100%);
+    background: -moz-linear-gradient(bottom, rgba(245,86,134,1) 0%, rgba(36,29,31,.3) 100%);
+    background: -o-linear-gradient(bottom, rgba(245,86,134,1) 0%, rgba(36,29,31,.3) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(245,86,134,1) 0%, rgba(36,29,31,.3) 100%);
+}
+""";
+}
+
+#NEWLAYER: pattern/alwaysontheballii
+layerinfo type = "theme";
+layerinfo name = "Always On the Ball II";
+layerinfo redist_uniq = "pattern/alwaysontheballii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Marc David Rapoza", "url" => "https://thenounproject.com/" },
+    { "name" => "Andrey Vasiliev", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-sides";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#111";
+set color_page_link = "#a4a4a4";
+set color_page_link_active = "#e40045";
+set color_page_link_hover = "#e40045";
+set color_page_link_visited = "#a4a4a4";
+set color_page_text = "#fefefe";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/alwaysontheball_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/alwaysontheball_subj.png";
+set image_background_subject_width = 64;
+set image_background_tags_height = 24;
+set image_background_tags_url = "pattern/alwaysontheball_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(213,73,114,.65);
+    box-shadow: 1px 1px 1px #7b2942;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(213,73,114,.65);
+    box-shadow: 1px 1px 1px #7b2942;
+    padding: 1.2em 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/aspreciousasrocks
+layerinfo type = "theme";
+layerinfo name = "As Precious As Rocks";
+layerinfo redist_uniq = "pattern/aspreciousasrocks";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Arthur Shlain", "url" => "https://thenounproject.com/" },
+    { "name" => "Yo Szczepanska", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#424648";
+set color_page_link = "#c0cacb";
+set color_page_link_active = "#dbdddc";
+set color_page_link_hover = "#dbdddc";
+set color_page_link_visited = "#c0cacb";
+set color_page_text = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/aspreciousasrocks_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/aspreciousasrocks_subj.png";
+set image_background_subject_width = 46;
+set image_background_tags_height = 33;
+set image_background_tags_url = "pattern/aspreciousasrocks_tags.png";
+set image_background_tags_width = 22;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(109,135,135,1) 0%, rgba(70,76,77,.1) 100%);
+    background: -moz-linear-gradient(top, rgba(109,135,135,1) 0%, rgba(70,76,77,.1) 100%);
+    background: -o-linear-gradient(top, rgba(109,135,135,1) 0%, rgba(70,76,77,.1) 100%);
+    background: -webkit-linear-gradient(top, rgba(109,135,135,1) 0%, rgba(70,76,77,.1) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(109,135,135,1) 0%, rgba(70,76,77,.1) 100%);
+    background: -moz-linear-gradient(bottom, rgba(109,135,135,1) 0%, rgba(70,76,77,.1) 100%);
+    background: -o-linear-gradient(bottom, rgba(109,135,135,1) 0%, rgba(70,76,77,.1) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(109,135,135,1) 0%, rgba(70,76,77,.1) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/aspreciousasrocksii
+layerinfo type = "theme";
+layerinfo name = "As Precious As Rocks II";
+layerinfo redist_uniq = "pattern/aspreciousasrocksii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Arthur Shlain", "url" => "https://thenounproject.com/" },
+    { "name" => "Yo Szczepanska", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#424648";
+set color_page_link = "#c0cacb";
+set color_page_link_active = "#dbdddc";
+set color_page_link_hover = "#dbdddc";
+set color_page_link_visited = "#c0cacb";
+set color_page_text = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/aspreciousasrocks_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/aspreciousasrocks_subj.png";
+set image_background_subject_width = 46;
+set image_background_tags_height = 33;
+set image_background_tags_url = "pattern/aspreciousasrocks_tags.png";
+set image_background_tags_width = 22;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(101,104,106,.7);
+    box-shadow: 1px 1px 1px #454748;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(101,104,106,.7);
+    box-shadow: 1px 1px 1px #454748;
+    padding: 1.2em 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/bloodyleather
+layerinfo type = "theme";
+layerinfo name = "Bloody Leather";
+layerinfo redist_uniq = "pattern/bloodyleather";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Arthur Shlain", "url" => "https://thenounproject.com/" },
+    { "name" => "Yo Szczepanska", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-right";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#6c6967";
+set color_page_link_active = "#5c0505";
+set color_page_link_hover = "#5c0505";
+set color_page_link_visited = "#6c6967";
+set color_page_text = "#000";
+
+##===============================
+## Header Colors
+##===============================
+
+set color_page_title = "#fff";
+set color_header_link = "#ded8d4";
+set color_header_link_active = "#d50c0c";
+set color_header_link_hover = "#d50c0c";
+set color_header_link_visited = "#ded8d4";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#ded8d4";
+set color_footer_link_active = "#d50c0c";
+set color_footer_link_hover = "#d50c0c";
+set color_footer_link_visited = "#ded8d4";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/bloodyleather_bkg.png";
+set image_background_subject_height = 45;
+set image_background_subject_url = "pattern/bloodyleather_subj.png";
+set image_background_subject_width = 64;
+set image_background_tags_height = 22;
+set image_background_tags_url = "pattern/bloodyleather_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(117,6,6,1) 0%, rgba(223,210,199,.1) 100%);
+    background: -moz-linear-gradient(top, rgba(117,6,6,1) 0%, rgba(223,210,199,.1) 100%);
+    background: -o-linear-gradient(top, rgba(117,6,6,1) 0%, rgba(223,210,199,.1) 100%);
+    background: -webkit-linear-gradient(top, rgba(117,6,6,1) 0%, rgba(223,210,199,.1) 100%);
+}
+
+.entry .tag {
+    padding-top: 0;
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(117,6,6,1) 0%, rgba(223,210,199,.1) 100%);
+    background: -moz-linear-gradient(bottom, rgba(117,6,6,1) 0%, rgba(223,210,199,.1) 100%);
+    background: -o-linear-gradient(bottom, rgba(117,6,6,1) 0%, rgba(223,210,199,.1) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(117,6,6,1) 0%, rgba(223,210,199,.1) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/bloodyleatherii
+layerinfo type = "theme";
+layerinfo name = "Bloody Leather II";
+layerinfo redist_uniq = "pattern/bloodyleatherii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Arthur Shlain", "url" => "https://thenounproject.com/" },
+    { "name" => "Yo Szczepanska", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-right";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#504e4c";
+set color_page_link_active = "#5c0505";
+set color_page_link_hover = "#5c0505";
+set color_page_link_visited = "#504e4c";
+set color_page_text = "#000";
+
+##===============================
+## Header Colors
+##===============================
+
+set color_page_title = "#fff";
+set color_header_link = "#ded8d4";
+set color_header_link_active = "#d50c0c";
+set color_header_link_hover = "#d50c0c";
+set color_header_link_visited = "#ded8d4";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#ded8d4";
+set color_footer_link_active = "#d50c0c";
+set color_footer_link_hover = "#d50c0c";
+set color_footer_link_visited = "#ded8d4";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/bloodyleather_bkg.png";
+set image_background_subject_height = 45;
+set image_background_subject_url = "pattern/bloodyleather_subj.png";
+set image_background_subject_width = 64;
+set image_background_tags_height = 22;
+set image_background_tags_url = "pattern/bloodyleather_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(145,0,0,.65);
+    box-shadow: 1px 1px 1px #380000;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(145,0,0,.65);
+    box-shadow: 1px 1px 1px #380000;
+    padding: 1.2em 0;
+}
+
+.entry .tag {
+    padding-top: 0;
+}
+
+#footer .module { color: #000; }
+#footer .module a { color: #504e4c; }
+#footer .module a:visited { color: #504e4c; }
+#footer .module a:hover { color: #5c0505; }
+#footer .module a:active { color: #5c0505; }
+""";
+}
+
+
+#NEWLAYER: pattern/childrenofthestars
+layerinfo type = "theme";
+layerinfo name = "Children of the Stars";
+layerinfo redist_uniq = "pattern/childrenofthestars";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Jonas Nullens", "url" => "https://thenounproject.com/" },
+    { "name" => "Kevin White", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-sides";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#111";
+set color_page_link = "#aaa";
+set color_page_link_active = "#2c3e82";
+set color_page_link_hover = "#2c3e82";
+set color_page_link_visited = "#aaa";
+set color_page_text = "#fefefe";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/childrenofthestars_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/childrenofthestars_subj.png";
+set image_background_subject_width = 58;
+set image_background_tags_height = 27;
+set image_background_tags_url = "pattern/childrenofthestars_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(0,19,90,1) 0%, rgba(0,19,90,.1) 100%);
+    background: -moz-linear-gradient(top, rgba(0,19,90,1) 0%, rgba(0,19,90,.1) 100%);
+    background: -o-linear-gradient(top, rgba(0,19,90,1) 0%, rgba(0,19,90,.1) 100%);
+    background: -webkit-linear-gradient(top, rgba(0,19,90,1) 0%, rgba(0,19,90,.1) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(0,19,90,1) 0%, rgba(0,19,90,.1) 100%);
+    background: -moz-linear-gradient(bottom, rgba(0,19,90,1) 0%, rgba(0,19,90,.1) 100%);
+    background: -o-linear-gradient(bottom, rgba(0,19,90,1) 0%, rgba(0,19,90,.1) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(0,19,90,1) 0%, rgba(0,19,90,.1) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/childrenofthestarsii
+layerinfo type = "theme";
+layerinfo name = "Children of the Stars II";
+layerinfo redist_uniq = "pattern/childrenofthestarsii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Jonas Nullens", "url" => "https://thenounproject.com/" },
+    { "name" => "Kevin White", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-sides";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#111";
+set color_page_link = "#aaa";
+set color_page_link_active = "#2c3e82";
+set color_page_link_hover = "#2c3e82";
+set color_page_link_visited = "#aaa";
+set color_page_text = "#fefefe";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/childrenofthestars_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/childrenofthestars_subj.png";
+set image_background_subject_width = 58;
+set image_background_tags_height = 27;
+set image_background_tags_url = "pattern/childrenofthestars_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(38,42,79,.7);
+    box-shadow: 1px 1px 1px #1c1e39;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(38,42,79,.7);
+    box-shadow: 1px 1px 1px #1c1e39;
+    padding: 1.2em 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/elementarysmoke
+layerinfo type = "theme";
+layerinfo name = "Elementary Smoke";
+layerinfo redist_uniq = "pattern/elementarysmoke";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Simon Child", "url" => "https://thenounproject.com/" },
+    { "name" => "Ciprian Popescu", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-right";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#13213d";
+set color_page_link = "#c6cde0";
+set color_page_link_active = "#9abeff";
+set color_page_link_hover = "#9abeff";
+set color_page_link_visited = "#c6cde0";
+set color_page_text = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/elementarysmoke_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/elementarysmoke_subj.png";
+set image_background_subject_width = 56;
+set image_background_tags_height = 32;
+set image_background_tags_url = "pattern/elementarysmoke_tags.png";
+set image_background_tags_width = 24;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(8,14,26,1) 0%, rgba(8,14,26,.001) 100%);
+    background: -moz-linear-gradient(top, rgba(6,10,12,1) 0%, rgba(6,10,12,.001) 100%);
+    background: -o-linear-gradient(top, rgba(8,14,26,1) 0%, rgba(8,14,26,.001) 100%);
+    background: -webkit-linear-gradient(top, rgba(8,14,26,1) 0%, rgba(8,14,26,.001) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(8,14,26,1) 0%, rgba(8,14,26,.001) 100%);
+    background: -moz-linear-gradient(bottom, rgba(8,14,26,1) 0%, rgba(8,14,26,.001) 100%);
+    background: -o-linear-gradient(bottom, rgba(8,14,26,1) 0%, rgba(8,14,26,.001) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(8,14,26,1) 0%, rgba(8,14,26,.001) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/elementarysmokeii
+layerinfo type = "theme";
+layerinfo name = "Elementary Smoke II";
+layerinfo redist_uniq = "pattern/elementarysmokeii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Simon Child", "url" => "https://thenounproject.com/" },
+    { "name" => "Ciprian Popescu", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-right";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#13213d";
+set color_page_link = "#c6cde0";
+set color_page_link_active = "#9abeff";
+set color_page_link_hover = "#9abeff";
+set color_page_link_visited = "#c6cde0";
+set color_page_text = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/elementarysmoke_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/elementarysmoke_subj.png";
+set image_background_subject_width = 56;
+set image_background_tags_height = 32;
+set image_background_tags_url = "pattern/elementarysmoke_tags.png";
+set image_background_tags_width = 24;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(0,17,50,.75);
+    box-shadow: 1px 1px 1px #2c2d31;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(0,17,50,.65);
+    box-shadow: 1px 1px 1px #2c2d31;
+    padding: 1.2em 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/foundinthedesert
+layerinfo type = "theme";
+layerinfo name = "Found in the Desert";
+layerinfo redist_uniq = "pattern/foundinthedesert";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Edward Boatman", "url" => "https://thenounproject.com/" },
+    { "name" => "Gilad Fried", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f3e8cd";
+set color_page_link = "#4b483f";
+set color_page_link_active = "#00637c";
+set color_page_link_hover = "#00637c";
+set color_page_link_visited = "#4b483f";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/foundinthedesert_bkg.png";
+set image_background_subject_height = 46;
+set image_background_subject_url = "pattern/foundinthedesert_subj.png";
+set image_background_subject_width = 64;
+set image_background_tags_height = 33;
+set image_background_tags_url = "pattern/foundinthedesert_tags.png";
+set image_background_tags_width = 33;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(0,99,124,1) 0%, rgba(215,214,190,.001) 100%);
+    background: -moz-linear-gradient(top, rgba(0,99,124,1) 0%, rgba(201,205,187,.15) 100%);
+    background: -o-linear-gradient(top, rgba(0,99,124,1) 0%, rgba(215,214,190,.001) 100%);
+    background: -webkit-linear-gradient(top, rgba(0,99,124,1) 0%, rgba(215,214,190,.001) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(0,99,124,1) 0%, rgba(215,214,190,.001) 100%);
+    background: -moz-linear-gradient(bottom, rgba(0,99,124,1) 0%, rgba(215,214,190,.001) 100%);
+    background: -o-linear-gradient(bottom, rgba(0,99,124,1) 0%, rgba(215,214,190,.001) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(0,99,124,1) 0%, rgba(215,214,190,.001) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/foundinthedesertii
+layerinfo type = "theme";
+layerinfo name = "Found in the Desert II";
+layerinfo redist_uniq = "pattern/foundinthedesertii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Edward Boatman", "url" => "https://thenounproject.com/" },
+    { "name" => "Gilad Fried", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f3e8cd";
+set color_page_link = "#4b483f";
+set color_page_link_active = "#036127";
+set color_page_link_hover = "#036127";
+set color_page_link_visited = "#4b483f";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/foundinthedesert_bkg.png";
+set image_background_subject_height = 46;
+set image_background_subject_url = "pattern/foundinthedesert_subj.png";
+set image_background_subject_width = 64;
+set image_background_tags_height = 33;
+set image_background_tags_url = "pattern/foundinthedesert_tags.png";
+set image_background_tags_width = 33;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(129,151,137,.6);
+    box-shadow: 1px 1px 1px #687a6f;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(129,151,137,.6);
+    box-shadow: 1px 1px 1px #687a6f;
+    padding: 1.2em 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/lightasafeather
+layerinfo type = "theme";
+layerinfo name = "Light as a Feather";
+layerinfo redist_uniq = "pattern/lightasafeather";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Darrin Higgins", "url" => "https://thenounproject.com/" },
+    { "name" => "Paweł Wypych", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#6f6a60";
+set color_page_link_active = "#c05f00";
+set color_page_link_hover = "#c05f00";
+set color_page_link_visited = "#6f6a60";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/lightasafeather_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/lightasafeather_subj.png";
+set image_background_subject_width = 35;
+set image_background_tags_height = 32;
+set image_background_tags_url = "pattern/lightasafeather_tags.png";
+set image_background_tags_width = 12;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(203,193,175,1) 0%, rgba(203,193,175,.001) 100%);
+    background: -moz-linear-gradient(top, rgba(203,193,175,1) 0%, rgba(203,193,175,.001) 100%);
+    background: -o-linear-gradient(top, rgba(203,193,175,1) 0%, rgba(203,193,175,.001) 100%);
+    background: -webkit-linear-gradient(top, rgba(203,193,175,1) 0%, rgba(203,193,175,.001) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(203,193,175,1) 0%, rgba(203,193,175,.001) 100%);
+    background: -moz-linear-gradient(bottom, rgba(203,193,175,1) 0%, rgba(203,193,175,.001) 100%);
+    background: -o-linear-gradient(bottom, rgba(203,193,175,1) 0%, rgba(203,193,175,.001) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(203,193,175,1) 0%, rgba(203,193,175,.001) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/lightasafeatherii
+layerinfo type = "theme";
+layerinfo name = "Light as a Feather II";
+layerinfo redist_uniq = "pattern/lightasafeatherii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Darrin Higgins", "url" => "https://thenounproject.com/" },
+    { "name" => "Paweł Wypych", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#6f6a60";
+set color_page_link_active = "#c05f00";
+set color_page_link_hover = "#c05f00";
+set color_page_link_visited = "#6f6a60";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/lightasafeather_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/lightasafeather_subj.png";
+set image_background_subject_width = 35;
+set image_background_tags_height = 32;
+set image_background_tags_url = "pattern/lightasafeather_tags.png";
+set image_background_tags_width = 12;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(225,219,207,.8);
+    box-shadow: 1px 1px 1px #bbb6ac;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(225,219,207,.8);
+    box-shadow: 1px 1px 1px #bbb6ac;
+    padding: 1.2em 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/orangepyramids
+layerinfo type = "theme";
+layerinfo name = "Orange Pyramids";
+layerinfo redist_uniq = "pattern/orangepyramids";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "misirlou", "url" => "https://thenounproject.com/" },
+    { "name" => "Proletkult Graphik", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-left";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f2dac9";
+set color_page_link = "#504f44";
+set color_page_link_active = "#a84900";
+set color_page_link_hover = "#a84900";
+set color_page_link_visited = "#504f44";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/orangepyramids_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/pyramids_subj.png";
+set image_background_subject_width = 60;
+set image_background_tags_height = 31;
+set image_background_tags_url = "pattern/pyramids_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(223,101,7,1) 0%, rgba(238,225,188,.1) 100%);
+    background: -moz-linear-gradient(top, rgba(223,101,7,1) 0%, rgba(238,225,188,.1) 100%);
+    background: -o-linear-gradient(top, rgba(223,101,7,1) 0%, rgba(238,225,188,.1) 100%);
+    background: -webkit-linear-gradient(top, rgba(223,101,7,1) 0%, rgba(238,225,188,.1) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(223,101,7,1) 0%, rgba(238,225,188,.1) 100%);
+    background: -moz-linear-gradient(bottom, rgba(223,101,7,1) 0%, rgba(238,225,188,.1) 100%);
+    background: -o-linear-gradient(bottom, rgba(223,101,7,1) 0%, rgba(238,225,188,.1) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(223,101,7,1) 0%, rgba(238,225,188,.1) 100%);
+}
+
+.entry .tag {
+    padding-top: 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/orangepyramidsii
+layerinfo type = "theme";
+layerinfo name = "Orange Pyramids II";
+layerinfo redist_uniq = "pattern/orangepyramidsii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "misirlou", "url" => "https://thenounproject.com/" },
+    { "name" => "Proletkult Graphik", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-left";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f2dac9";
+set color_page_link = "#504f44";
+set color_page_link_active = "#a84900";
+set color_page_link_hover = "#a84900";
+set color_page_link_visited = "#504f44";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/orangepyramids_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/pyramids_subj.png";
+set image_background_subject_width = 60;
+set image_background_tags_height = 31;
+set image_background_tags_url = "pattern/pyramids_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(219,142,98,.6);
+    box-shadow: 1px 1px 1px #b87752;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(219,142,98,.6);
+    box-shadow: 1px 1px 1px #b87752;
+    padding: 1.2em 0;
+}
+
+.entry .tag {
+    padding-top: 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/pinkpyramids
+layerinfo type = "theme";
+layerinfo name = "Pink Pyramids";
+layerinfo redist_uniq = "pattern/pinkpyramids";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "misirlou", "url" => "https://thenounproject.com/" },
+    { "name" => "Proletkult Graphik", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "one-column-split";
+set content_margins = 20;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "two";
+set module_subscriptionfilters_show = false;
+set module_cuttagcontrols_show = false;
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f2c9d6";
+set color_page_link = "#504f44";
+set color_page_link_active = "#8b002c";
+set color_page_link_hover = "#8b002c";
+set color_page_link_visited = "#504f44";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/pinkpyramids_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/pyramids_subj.png";
+set image_background_subject_width = 60;
+set image_background_tags_height = 31;
+set image_background_tags_url = "pattern/pyramids_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(184,46,90,1) 0%, rgba(241,219,211,.1) 100%);
+    background: -moz-linear-gradient(top, rgba(184,46,90,1) 0%, rgba(241,219,211,.1) 100%);
+    background: -o-linear-gradient(top, rgba(184,46,90,1) 0%, rgba(241,219,211,.1) 100%);
+    background: -webkit-linear-gradient(top, rgba(184,46,90,1) 0%, rgba(241,219,211,.1) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(184,46,90,1) 0%, rgba(241,219,211,.1) 100%);
+    background: -moz-linear-gradient(bottom, rgba(184,46,90,1) 0%, rgba(241,219,211,.1) 100%);
+    background: -o-linear-gradient(bottom, rgba(184,46,90,1) 0%, rgba(241,219,211,.1) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(184,46,90,1) 0%, rgba(241,219,211,.1) 100%);
+}
+
+.entry .tag {
+    padding-top: 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/pinkpyramidsii
+layerinfo type = "theme";
+layerinfo name = "Pink Pyramids II";
+layerinfo redist_uniq = "pattern/pinkpyramidsii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "misirlou", "url" => "https://thenounproject.com/" },
+    { "name" => "Proletkult Graphik", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "one-column-split";
+set content_margins = 20;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "two";
+set module_subscriptionfilters_show = false;
+set module_cuttagcontrols_show = false;
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f2c9d6";
+set color_page_link = "#504f44";
+set color_page_link_active = "#8b002c";
+set color_page_link_hover = "#8b002c";
+set color_page_link_visited = "#504f44";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/pinkpyramids_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/pyramids_subj.png";
+set image_background_subject_width = 60;
+set image_background_tags_height = 31;
+set image_background_tags_url = "pattern/pyramids_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(212,90,130,.6);
+    box-shadow: 1px 1px 1px #ab4869;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(212,90,130,.6);
+    box-shadow: 1px 1px 1px #ab4869;
+    padding: 1.2em 0;
+}
+
+.entry .tag {
+    padding-top: 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/sunnyswirls
+layerinfo type = "theme";
+layerinfo name = "Sunny Swirls";
+layerinfo redist_uniq = "pattern/sunnyswirls";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Cassie McKown", "url" => "https://thenounproject.com/" },
+    { "name" => "Patrick Morrison", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#504f44";
+set color_page_link_active = "#007395";
+set color_page_link_hover = "#007395";
+set color_page_link_visited = "#504f44";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/sunnyswirls_bkg.png";
+set image_background_subject_height = 65;
+set image_background_subject_url = "pattern/sunnyswirls_subj.png";
+set image_background_subject_width = 54;
+set image_background_tags_height = 32;
+set image_background_tags_url = "pattern/sunnyswirls_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(245,241,175,1) 0%, rgba(245,241,175,.001) 100%);
+    background: -moz-linear-gradient(top, rgba(245,241,175,1) 0%, rgba(245,241,175,.001) 100%);
+    background: -o-linear-gradient(top, rgba(245,241,175,1) 0%, rgba(245,241,175,.001) 100%);
+    background: -webkit-linear-gradient(top, rgba(245,241,175,1) 0%, rgba(245,241,175,.001) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(245,241,175,1) 0%, rgba(245,241,175,.001) 100%);
+    background: -moz-linear-gradient(bottom, rgba(245,241,175,1) 0%, rgba(245,241,175,.001) 100%);
+    background: -o-linear-gradient(bottom, rgba(245,241,175,1) 0%, rgba(245,241,175,.001) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(245,241,175,1) 0%, rgba(245,241,175,.001) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/sunnyswirlsii
+layerinfo type = "theme";
+layerinfo name = "Sunny Swirls II";
+layerinfo redist_uniq = "pattern/sunnyswirlsii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "Cassie McKown", "url" => "https://thenounproject.com/" },
+    { "name" => "Patrick Morrison", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#504f44";
+set color_page_link_active = "#007395";
+set color_page_link_hover = "#007395";
+set color_page_link_visited = "#504f44";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/sunnyswirls_bkg.png";
+set image_background_subject_height = 65;
+set image_background_subject_url = "pattern/sunnyswirls_subj.png";
+set image_background_subject_width = 54;
+set image_background_tags_height = 32;
+set image_background_tags_url = "pattern/sunnyswirls_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(245,241,182,.7);
+    box-shadow: 1px 1px 1px #d7d39f;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(245,241,182,.7);
+    box-shadow: 1px 1px 1px #d7d39f;
+    padding: 1.2em 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/terraprima
+layerinfo type = "theme";
+layerinfo name = "Terra Prima";
+layerinfo redist_uniq = "pattern/terraprima";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "N.K.Narasimhan", "url" => "https://thenounproject.com/" },
+    { "name" => "Cagri Yurtbasi", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-left";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#47382E";
+set color_page_link = "#a7856b";
+set color_page_link_active = "#d0a585";
+set color_page_link_hover = "#d0a585";
+set color_page_link_visited = "#a7856b";
+set color_page_text = "#fefefe";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/terraprima_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/terraprima_subj.png";
+set image_background_subject_width = 36;
+set image_background_tags_height = 30;
+set image_background_tags_url = "pattern/terraprima_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(13,10,8,1) 0%, rgba(13,10,8,.001) 100%);
+    background: -moz-linear-gradient(top, rgba(13,10,8,1) 0%, rgba(13,10,8,.001) 100%);
+    background: -o-linear-gradient(top, rgba(13,10,8,1) 0%, rgba(13,10,8,.001) 100%);
+    background: -webkit-linear-gradient(top, rgba(13,10,8,1) 0%, rgba(13,10,8,.001) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(13,10,8,1) 0%, rgba(13,10,8,.001) 100%);
+    background: -moz-linear-gradient(bottom, rgba(13,10,8,1) 0%, rgba(13,10,8,.001) 100%);
+    background: -o-linear-gradient(bottom, rgba(13,10,8,1) 0%, rgba(13,10,8,.001) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(13,10,8,1) 0%, rgba(13,10,8,.001) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/terraprimaii
+layerinfo type = "theme";
+layerinfo name = "Terra Prima II";
+layerinfo redist_uniq = "pattern/terraprimaii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Subtle Patterns", "url" => "http://subtlepatterns.com/" },
+    { "name" => "N.K.Narasimhan", "url" => "https://thenounproject.com/" },
+    { "name" => "Cagri Yurtbasi", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "three-columns-left";
+set sidebar_width = "12em";
+set sidebar_width_doubled = "24em";
+set content_margins = 15;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "one";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#47382E";
+set color_page_link = "#a7856b";
+set color_page_link_active = "#d0a585";
+set color_page_link_hover = "#d0a585";
+set color_page_link_visited = "#a7856b";
+set color_page_text = "#fefefe";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/terraprima_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/terraprima_subj.png";
+set image_background_subject_width = 36;
+set image_background_tags_height = 30;
+set image_background_tags_url = "pattern/terraprima_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(41,29,22,.60);
+    box-shadow: 1px 1px 1px #16100c;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(41,29,22,.60);
+    box-shadow: 1px 1px 1px #16100c;
+    padding: 1.2em 0;
+}
+""";
+}
+
+
+#NEWLAYER: pattern/watercubes
+layerinfo type = "theme";
+layerinfo name = "Water Cubes";
+layerinfo redist_uniq = "pattern/watercubes";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Marc David Rapoza", "url" => "https://thenounproject.com/" },
+    { "name" => "Andrey Vasiliev", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "one-column-split";
+set content_margins = 20;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "two";
+set module_subscriptionfilters_show = false;
+set module_cuttagcontrols_show = false;
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#555";
+set color_page_link_active = "#1c7561";
+set color_page_link_hover = "#1c7561";
+set color_page_link_visited = "#555";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/watercubes_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/watercubes_subj.png";
+set image_background_subject_width = 64;
+set image_background_tags_height = 31;
+set image_background_tags_url = "pattern/watercubes_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: linear-gradient(top, rgba(140,191,169,1) 0%, rgba(140,191,169,.001) 100%);
+    background: -moz-linear-gradient(top, rgba(140,191,169,1) 0%, rgba(140,191,169,.001) 100%);
+    background: -o-linear-gradient(top, rgba(140,191,169,1) 0%, rgba(140,191,169,.001) 100%);
+    background: -webkit-linear-gradient(top, rgba(140,191,169,1) 0%, rgba(140,191,169,.001) 100%);
+}
+
+#footer {
+    background: linear-gradient(bottom, rgba(140,191,169,1) 0%, rgba(140,191,169,.001) 100%);
+    background: -moz-linear-gradient(bottom, rgba(140,191,169,1) 0%, rgba(140,191,169,.001) 100%);
+    background: -o-linear-gradient(bottom, rgba(140,191,169,1) 0%, rgba(140,191,169,.001) 100%);
+    background: -webkit-linear-gradient(bottom, rgba(140,191,169,1) 0%, rgba(140,191,169,.001) 100%);
+}
+""";
+}
+
+
+#NEWLAYER: pattern/watercubesii
+layerinfo type = "theme";
+layerinfo name = "Water Cubes II";
+layerinfo redist_uniq = "pattern/watercubesii";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [
+    { "name" => "Backgrounds ETC", "url" => "http://backgrounds.mysitemyway.com/" },
+    { "name" => "Marc David Rapoza", "url" => "https://thenounproject.com/" },
+    { "name" => "Andrey Vasiliev", "url" => "https://thenounproject.com/" }
+];
+
+##===============================
+## Settings
+##===============================
+
+set layout_type = "one-column-split";
+set content_margins = 20;
+set module_subscriptionfilters_section = "one";
+set module_active_section = "two";
+set module_links_section = "two";
+set module_tags_section = "one";
+set module_pagesummary_section = "two";
+set module_time_section = "two";
+set module_subscriptionfilters_show = false;
+set module_cuttagcontrols_show = false;
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#515251";
+set color_page_link_active = "#1c7561";
+set color_page_link_hover = "#1c7561";
+set color_page_link_visited = "#515251";
+set color_page_text = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "pattern/watercubes_bkg.png";
+set image_background_subject_height = 64;
+set image_background_subject_url = "pattern/watercubes_subj.png";
+set image_background_subject_width = 64;
+set image_background_tags_height = 31;
+set image_background_tags_url = "pattern/watercubes_tags.png";
+set image_background_tags_width = 32;
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background: rgba(155,187,174,.8);
+    box-shadow: 1px 1px 1px #748c82;
+    margin-top: 2.5em;
+}
+
+.page-top{
+    background: rgba(155,187,174,.8);
+    box-shadow: 1px 1px 1px #748c82;
+    padding: 1.2em 0;
+}
+""";
+}

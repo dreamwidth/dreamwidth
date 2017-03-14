@@ -17,15 +17,19 @@ BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 use LJ::User;
+use LJ::Userpic;
+use DW::BlobStore;
+
 use Getopt::Long;
 use IPC::Open3;
 use Digest::MD5;
+use Log::Log4perl;
 
 # this script is a migrater that will move userpics from an old storage method
-# into mogilefs.
+# into whatever blobstore method is defined in the site config.
 
 # the basic theory is that we iterate over all clusters, find all userpics that
-# aren't in mogile right now, and put them there
+# aren't in either mogile or blobstore right now, and put them in blobstore
 
 # determine
 my ($one, $besteffort, $dryrun, $user, $verify, $verbose, $clusters, $purge);
@@ -47,18 +51,18 @@ This script supports the following command line arguments:
 
     --user=username
         Only move this particular user.
-        
+
     --one
         Only move one user.  (But it moves all their pictures.)
         This is used for testing.
 
     --verify
         If specified, this option will reload the userpic from
-        MogileFS and make sure it's been stored successfully.
+        BlobStore and make sure it's been stored successfully.
 
     --dry-run
-        If on, do not update the database.  This mode will put the
-        userpic in MogileFS and give you paths to examine the picture
+        If on, do not update the database.  This mode will put
+        the userpic in BlobStore and let you examine the image
         and make sure everything is okay.  It will not update the
         userpic2 table, though.
 
@@ -79,14 +83,8 @@ ERRMSG
 }
 
 # make sure ljconfig is setup right (or so we hope)
-die "Please define a 'userpics' class in your \%LJ::MOGILEFS_CONFIG\n"
-    unless defined $LJ::MOGILEFS_CONFIG{classes}->{userpics} &&
-                   $LJ::USERPIC_MOGILEFS;
-
-# now make sure we can connect
-LJ::mogclient();
-die "Unable to find MogileFS object (\%LJ::MOGILEFS_CONFIG not setup?)\n"
-    unless $LJ::MogileFS;
+die "Please define \%LJ::BLOBSTORE in your site config\n"
+    unless %LJ::BLOBSTORE && scalar keys %LJ::BLOBSTORE;
 
 # setup stderr if we're in best effort mode
 if ($besteffort) {
@@ -95,13 +93,26 @@ if ($besteffort) {
     select($oldfd);
 }
 
+# use a custom log4perl config, to make sure we're getting
+# DEBUG messages from Blobstore if we've requested verbose
+# output, but not under normal use
+
+my $conf = 'log4perl.rootLogger=' . ( $verbose ? 'DEBUG' : 'ERROR' );
+$conf .= q{, STDERR
+
+log4perl.appender.STDERR=Log::Log4perl::Appender::Screen
+log4perl.appender.STDERR.stderr=1
+log4perl.appender.STDERR.layout=Log::Log4perl::Layout::SimpleLayout
+};
+Log::Log4perl::init( \$conf );
+
 # operation modes
 if ($user) {
     # move a single user
     my $u = LJ::load_user($user);
     die "No such user: $user\n" unless $u;
     handle_userid($u->{userid}, $u->{clusterid});
-    
+
 } else {
     # parse the clusters
     my @clusters;
@@ -115,7 +126,7 @@ if ($user) {
     } else {
         @clusters = @LJ::CLUSTERS;
     }
-    
+
     # now iterate over the clusters to pick
     my $ctotal = scalar(@clusters);
     my $ccount = 0;
@@ -131,7 +142,7 @@ if ($user) {
         print "Getting userids...\n";
         my $limit = $one ? 'LIMIT 1' : '';
         my $userids = $dbcm->selectcol_arrayref
-            ("SELECT DISTINCT userid FROM userpic2 WHERE location <> 'mogile' OR location IS NULL $limit");
+            ("SELECT DISTINCT userid FROM userpic2 WHERE (location <> 'mogile' AND location <> 'blobstore') OR location IS NULL $limit");
         my $total = scalar(@$userids);
 
         # iterate over userids
@@ -159,7 +170,7 @@ print "Updater terminating.\n";
 # (dversion < 7, etc)
 sub handle_userid {
     my ($userid, $cid, $extra) = @_;
-    
+
     # load user to move and do some sanity checks
     my $u = LJ::load_userid($userid);
     unless ($u) {
@@ -217,9 +228,9 @@ sub handle_userid {
         return;
     }
 
-    # get all their photos that aren't in mogile already
+    # get all their photos that aren't in mogile or blobstore already
     my $picids = $dbcm->selectall_arrayref
-        ("SELECT picid, md5base64, fmt, location FROM userpic2 WHERE userid = ? AND (location <> 'mogile' OR location IS NULL)",
+        ("SELECT picid, md5base64, fmt, location FROM userpic2 WHERE userid = ? AND ( (location <> 'mogile' AND location <> 'blobstore') OR location IS NULL )",
          undef, $u->{userid});
     return unless @$picids;
 
@@ -267,34 +278,23 @@ sub handle_userid {
         print "\tverified md5; database=$md5, blobserver=$blobmd5\n"
             if $verbose;
 
-        # get filehandle to Mogile and put the file there
-        print "\tdata length = $len bytes, uploading to MogileFS...\n"
+        # get filehandle to blobstore and put the file there
+        print "\tdata length = $len bytes, uploading to BlobStore...\n"
             if $verbose;
-        my $fh = $LJ::MogileFS->new_file($u->mogfs_userpic_key($picid), 'userpics');
-        if ($besteffort && !$fh) {
-            print STDERR "new_file_failed userid=$u->{userid} picid=$picid\n";
-            print "\twarning: failed in call to new_file\n\n"
+        my $storage_key = LJ::Userpic->storage_key( $u->userid, $picid );
+        my $bstore = DW::BlobStore->store( userpics => $storage_key, \$data );
+        if ( $besteffort && !$bstore ) {
+            print STDERR "store_failed userid=$u->{userid} picid=$picid\n";
+            print "\twarning: failed in call to store\n\n"
                 if $verbose;
             next;
         }
-        die "Unable to get filehandle to save file to MogileFS\n"
-            unless $fh;
-
-        # now save the file and close the handles
-        $fh->print($data);
-        my $rv = $fh->close;
-        if ($besteffort && !$rv) {
-            print STDERR "close_failed userid=$u->{userid} picid=$picid reason=$@\n";
-            print "\twarning: failed in call to cloes: $@\n\n"
-                if $verbose;
-            next;
-        }
-        die "Unable to save file to MogileFS: $@\n"
-            unless $rv;
+        die "Unable to store file in BlobStore\n"
+            unless $bstore;
 
         # extra verification
         if ($verify) {
-            my $data2 = $LJ::MogileFS->get_file_data($u->mogfs_userpic_key($picid));
+            my $data2 = DW::BlobStore->retrieve( userpics => $storage_key );
             my $eq = ($data2 && $$data2 eq $data) ? 1 : 0;
             if ($besteffort && !$eq) {
                 print STDERR "verify_failed userid=$u->{userid} picid=$picid\n";
@@ -312,14 +312,14 @@ sub handle_userid {
         unless ($dryrun) {
             print "\tupdating database for this picture...\n"
                 if $verbose;
-            $dbcm->do("UPDATE userpic2 SET location = 'mogile' WHERE userid = ? AND picid = ?",
+            $dbcm->do("UPDATE userpic2 SET location = 'blobstore' WHERE userid = ? AND picid = ?",
                       undef, $u->{userid}, $picid);
         }
 
         # get the paths so the user can verify if they want
         if ($verbose) {
-            my @paths = $LJ::MogileFS->get_paths($u->mogfs_userpic_key($picid), 1);
-            print "\tverify mogile path: $_\n" foreach @paths;
+            # Log4perl will print the blobstore path when in
+            # debug mode, no need to calculate it again here
             print "\tverify site url: $LJ::SITEROOT/userpic/$picid/$u->{userid}\n";
             print "\tpicture update complete.\n\n";
         }
@@ -329,7 +329,7 @@ sub handle_userid {
 # a sub to get a cluster handle and set it up for our use
 sub get_db_handle {
     my $cid = shift;
-    
+
     my $dbcm = LJ::get_cluster_master({ raw => 1 }, $cid);
     unless ($dbcm) {
         print STDERR "handle_unavailable clusterid=$cid\n";
@@ -341,6 +341,6 @@ sub get_db_handle {
     };
     die "Couldn't set wait_timeout on $cid: $@\n" if $@;
     $dbcm->{'RaiseError'} = 1;
-    
+
     return $dbcm;
 }

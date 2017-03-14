@@ -64,6 +64,6 @@ is($run->("change_community_admin " . $comm->user . " " . $u->user),
 
 $refresh->();
 ok( $u->can_manage( $comm ), "Verified user is maintainer" );
-ok( $u->email_raw eq $comm->email_raw, "Addresses match" );
+ok( $u->has_same_email_as( $comm ), "Addresses match" );
 ok(!$comm->password, "Password cleared");
 $u->revoke_priv("communityxfer");

@@ -62,7 +62,7 @@ sub get_sitekeyword_id {
     $autovivify = 1 unless defined $autovivify;
 
     # setup the keyword for use
-    return 0 unless $kw =~ /\S/;
+    return 0 unless defined $kw && $kw =~ /\S/;
     $kw = LJ::text_trim( $kw, LJ::BMAX_SITEKEYWORD, LJ::CMAX_SITEKEYWORD );
     $kw = LJ::utf8_lc( $kw ) unless $opts{allowmixedcase};
 

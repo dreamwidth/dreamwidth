@@ -112,6 +112,13 @@ sub openid_claimed_handler {
 
     my $ou = LJ::User::load_identity_user( 'O', $url, $vident );
     return $err->( '.error.failed_vivification' ) unless $ou;
+    return $err->( LJ::Lang::ml( '/openid/claim.tt.error.account_deleted',
+                                 { sitename => $LJ::SITENAMESHORT,
+                                   aopts1 => '/openid',
+                                   aopts2 => '/accountstatus',
+                                 }
+                               )
+                 ) if $ou->is_deleted;
 
     # generate the authaction
     my $aa = LJ::register_authaction( $u->id, 'claimopenid', $ou->id )
@@ -167,11 +174,20 @@ sub openid_claim_confirm_handler {
     my $ou = LJ::load_userid( $aa->{arg1}+0 );
     return $err->( '.error.invalid_account' )
         unless $ou && $ou->is_identity;
+
     if ( my $cbu = $ou->claimed_by ) {
         return $err->( '.error.already_claimed_self' )
             if $cbu->equals( $u );
         return $err->( '.error.already_claimed_other' );
     }
+
+    return $err->( LJ::Lang::ml( '/openid/claim.tt.error.account_deleted',
+                                 { sitename => $LJ::SITENAMESHORT,
+                                   aopts1 => '/openid',
+                                   aopts2 => '/accountstatus',
+                                 }
+                               )
+                 ) if $ou->is_deleted;
 
     # now start the claim process
     $u->claim_identity( $ou );

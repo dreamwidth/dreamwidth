@@ -50,6 +50,12 @@ general /editinfo.bml.schools.title
 general /editinfo.bml.topicdir.about
 general /editinfo.bml.topicdir.header
 
+general /editicons.bml.restriction.fileformat
+general /editicons.bml.restriction.filesize
+general /editicons.bml.restriction.imagesize2
+general /editicons.bml.restriction.keywords
+general /editicons.bml.restriction.keywords.faq
+
 general /editpics.bml.error.toomanypics2
 general /editpics.bml.error.toomanypics3
 general /editpics.bml.restriction.imagesize
@@ -173,6 +179,16 @@ general /modify.bml.modify.head
 general /modify.bml.modify.text
 general /modify.bml.title
 
+general /modify_do.bml.domainalias.about
+general /modify_do.bml.domainalias.about.comm
+general /modify_do.bml.domainalias.domainname
+general /modify_do.bml.domainalias.example
+general /modify_do.bml.domainalias.example.comm
+general /modify_do.bml.domainalias.head
+general /modify_do.bml.domainalias.helptext
+general /modify_do.bml.error.dupdomainalias
+general /modify_do.bml.error.samedomainalias
+general /modify_do.bml.success.head
 general /modify_do.bml.title
 
 general /multisearch.bml.formaterror
@@ -189,7 +205,13 @@ general /multisearch.bml.region.head
 general /multisearch.bml.region.text
 general /multisearch.bml.title.results
 
+general /profile.bml.contact.txtmsg
+general /profile.bml.im.aol.status
+general /profile.bml.im.icq.status
+general /profile.bml.im.skype.status
+general /profile.bml.im.yim.status
 general /profile.bml.label.feedchange
+general /profile.bml.label.textmessage
 
 general /register.bml.new.body
 general /register.bml.new.modify2
@@ -204,6 +226,8 @@ general /setscheme.bml.noschemes
 general /setscheme.bml.select
 general /setscheme.bml.switch
 general /setscheme.bml.title
+
+general /site/opensource.bml.development.directions3
 
 general /support/faqbrowse.bml.backfaq
 general /support/faqbrowse.bml.backfaqcat
@@ -505,7 +529,6 @@ general cprod.friendsfriends.link.v3
 general cprod.friendsfriends.link.v4
 general cprod.friendsfriends.link.v5
 general cprod.friendsfriends.link2.v1
-general /tools/textmessage.bml.enter.user.text
 general cprod.friendsfriendsinline.link2.v1
 general cprod.friendsfriendsinline.link2.v2
 general cprod.friendsfriendsinline.link2.v3
@@ -787,6 +810,9 @@ general /editprivacy.bml.calendar
 general /login.bml.createaccount.tour
 general /lostinfo.bml.captcha.invalid
 general /lostinfo.bml.recaptcha.title
+general /lostinfo_do.bml.lostpasswordmail.part1
+general /lostinfo_do.bml.lostpasswordmail.part2
+general /lostinfo_do.bml.lostpasswordmail.part5
 general /manage/circle/add.bml.confirm.syn.title1
 general /manage/circle/add.bml.confirm.syn.title1.add
 general /manage/circle/add.bml.confirm.text1.news
@@ -853,6 +879,8 @@ general /manage/profile/index.bml.error.contact.child
 general /manage/profile/index.bml.error.email.lj_domain
 general /manage/profile/index.bml.error.locale.zip_ne_state
 general /manage/profile/index.bml.error.locale.zip_requires_us
+general /manage/profile/index.bml.error.txt.require.number
+general /manage/profile/index.bml.error.txt.require_provider
 general /manage/profile/index.bml.fn.contactinfo
 general /manage/profile/index.bml.fn.email
 general /manage/profile/index.bml.fn.emaildisplay
@@ -866,6 +894,8 @@ general /manage/profile/index.bml.fn.mutualfriends
 general /manage/profile/index.bml.fn.name
 general /manage/profile/index.bml.fn.schools
 general /manage/profile/index.bml.fn.sitename
+general /manage/profile/index.bml.fn.txtmsg
+general /manage/profile/index.bml.fn.txtnum
 general /manage/profile/index.bml.fn.userpic
 general /manage/profile/index.bml.fn.zip
 general /manage/profile/index.bml.friendof
@@ -879,6 +909,7 @@ general /manage/profile/index.bml.section.description
 general /manage/profile/index.bml.section.friends
 general /manage/profile/index.bml.section.location
 general /manage/profile/index.bml.section.members
+general /manage/profile/index.bml.section.textmsg
 general /manage/profile/index.bml.section.theme
 general /manage/profile/index.bml.section.usermessaging
 general /manage/profile/index.bml.section.web
@@ -1030,6 +1061,7 @@ general error.interest.bytes.chars.words
 general error.interest.chars.words
 general error.interest.excessive
 general error.interest.words
+general error.vhost.nostyle
 general esn.add_friend
 general esn.befriended.email_text
 general esn.befriended.openid_email_text
@@ -1038,45 +1070,88 @@ general esn.defriended.email_text
 general esn.defriended.subject
 general esn.email.pm_without_body
 general esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.anonymous.reply_to.post
+general esn.journal_new_comment.anonymous.reply_to.post2
 general esn.journal_new_comment.anonymous.reply_to.user_comment.to_post
+general esn.journal_new_comment.anonymous.reply_to.user_comment.to_post2
 general esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post
+general esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.anonymous.reply_to.your_comment.to_post
+general esn.journal_new_comment.anonymous.reply_to.your_comment.to_post2
 general esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post
+general esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.anonymous.reply_to.your_post
+general esn.journal_new_comment.anonymous.reply_to.your_post2
 general esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.user.edit_reply_to.post
+general esn.journal_new_comment.user.edit_reply_to.post2
 general esn.journal_new_comment.user.edit_reply_to.user_comment.to_post
+general esn.journal_new_comment.user.edit_reply_to.user_comment.to_post2
 general esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post
+general esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.user.edit_reply_to.your_comment.to_post
+general esn.journal_new_comment.user.edit_reply_to.your_comment.to_post2
 general esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post
+general esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.user.edit_reply_to.your_post
+general esn.journal_new_comment.user.edit_reply_to.your_post2
 general esn.journal_new_comment.user.reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.user.reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.user.reply_to.post
+general esn.journal_new_comment.user.reply_to.post2
 general esn.journal_new_comment.user.reply_to.user_comment.to_post
+general esn.journal_new_comment.user.reply_to.user_comment.to_post2
 general esn.journal_new_comment.user.reply_to.user_comment.to_your_post
+general esn.journal_new_comment.user.reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.user.reply_to.your_comment.to_post
+general esn.journal_new_comment.user.reply_to.your_comment.to_post2
 general esn.journal_new_comment.user.reply_to.your_comment.to_your_post
+general esn.journal_new_comment.user.reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.user.reply_to.your_post
+general esn.journal_new_comment.user.reply_to.your_post2
 general esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.you.edit_reply_to.post
+general esn.journal_new_comment.you.edit_reply_to.post2
 general esn.journal_new_comment.you.edit_reply_to.user_comment.to_post
+general esn.journal_new_comment.you.edit_reply_to.user_comment.to_post2
 general esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post
+general esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.you.edit_reply_to.your_comment.to_post
+general esn.journal_new_comment.you.edit_reply_to.your_comment.to_post2
 general esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post
+general esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.you.edit_reply_to.your_post
+general esn.journal_new_comment.you.edit_reply_to.your_post2
 general esn.journal_new_comment.you.reply_to.anonymous_comment.to_post
+general esn.journal_new_comment.you.reply_to.anonymous_comment.to_post2
 general esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post
+general esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post2
 general esn.journal_new_comment.you.reply_to.post
+general esn.journal_new_comment.you.reply_to.post2
 general esn.journal_new_comment.you.reply_to.user_comment.to_post
+general esn.journal_new_comment.you.reply_to.user_comment.to_post2
 general esn.journal_new_comment.you.reply_to.user_comment.to_your_post
+general esn.journal_new_comment.you.reply_to.user_comment.to_your_post2
 general esn.journal_new_comment.you.reply_to.your_comment.to_post
+general esn.journal_new_comment.you.reply_to.your_comment.to_post2
 general esn.journal_new_comment.you.reply_to.your_comment.to_your_post
+general esn.journal_new_comment.you.reply_to.your_comment.to_your_post2
 general esn.journal_new_comment.you.reply_to.your_post
+general esn.journal_new_comment.you.reply_to.your_post2
+general esn.journal_new_entry.head_comm
+general esn.journal_new_entry.head_comm.admin_post
+general esn.journal_new_entry.head_user
 general esn.moderated_submission.subject
 general esn.officialpost.html
 general esn.officialpost.sms
@@ -1089,6 +1164,7 @@ general event.befriended.user
 general event.defriended.me
 general event.defriended.user
 general fcklang.ljvideo
+general fcklang.videoprompt
 general img.flag_btn
 general img.us_map
 general inbox.menu.friend_updates
@@ -1106,7 +1182,9 @@ general pingback.option.lj_only
 general pingback.option.open
 general pingback.public.comment.text
 general pingback.sourceuri.default_title
+general poll.error.alreadyvoted
 general poll.error.notvalidated
+general poll.error.notvalidated2
 general poll.error.scaletoobig
 general portal.bdays.count.des
 general portal.bdays.count.name
@@ -1161,6 +1239,9 @@ general portal.update.portaltitle
 general portal.update.subject
 general protocol.old_win32_client
 general search.user.nopic
+general setting.display.domainmapping.actionlink
+general setting.display.domainmapping.actionlink.remove
+general setting.display.domainmapping.label
 general setting.display.secretquestion.actionlink.change
 general setting.display.secretquestion.actionlink.set
 general setting.display.secretquestion.label
@@ -1191,6 +1272,15 @@ general setting.stickyentry.error.invalid
 general setting.stickyentry.label
 general setting.stylealwaysmine.label
 general setting.stylealwaysmine.option
+general setting.txtmsgsetup.details
+general setting.txtmsgsetup.error.notsecured
+general setting.txtmsgsetup.error.number
+general setting.txtmsgsetup.error.provider
+general setting.txtmsgsetup.error.security
+general setting.txtmsgsetup.label
+general setting.txtmsgsetup.phone
+general setting.txtmsgsetup.select.provider
+general setting.txtmsgsetup.vis
 general setting.xpost.option.footer.vars.comment_image.alttext
 general settings.error.locale.zip_ne_state
 general settings.error.locale.zip_requires_us
@@ -1596,3 +1686,30 @@ general widget.search.msn
 general /manage/profile/index.bml.chat.msnusername
 general /profile.bml.im.msn
 general /profile.bml.label.msnusername
+
+general widget.betafeature.btn.off
+general widget.betafeature.btn.on
+general widget.betafeature.s2comments.off
+general widget.betafeature.s2comments.on
+general widget.betafeature.s2comments.title
+general widget.betafeature.updatepage.off
+general widget.betafeature.updatepage.on
+general widget.betafeature.updatepage.title
+
+contentflag.viewingconcepts.bycommunity
+contentflag.viewingconcepts.byjournal
+contentflag.viewingconcepts.byposter
+contentflag.viewingexplicit.bycommunity
+contentflag.viewingexplicit.byjournal
+contentflag.viewingexplicit.byposter
+
+general /customize/options.bml.widget.navstripchooser.option.color.control_strip_borderc
+general /customize/options.bml.widget.navstripchooser.option.color.control_strip_linkcol
+
+general /views/media/edit.tt.title
+general /views/media/edit.tt.intro
+general /views/media/home.tt.title
+general /views/media/home.tt.edit
+general /views/media/index.tt.title
+general /views/media/index.tt.intro
+general /views/media/index.tt.intro.edit

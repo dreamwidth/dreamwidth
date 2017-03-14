@@ -12,12 +12,18 @@
 # part of this distribution.
 
 package LJ::Userpic;
+
 use strict;
-use Carp qw(croak);
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger( __PACKAGE__ );
+
 use Digest::MD5;
+use Storable;
+
+use DW::BlobStore;
 use LJ::Event::NewUserpic;
 use LJ::Global::Constants;
-use Storable;
 
 ##
 ## Potential properties of an LJ::Userpic object
@@ -55,7 +61,7 @@ my %MimeTypeMap = (
 
 # all LJ::Userpics in memory
 # userid -> picid -> LJ::Userpic
-my %singletons;  
+my %singletons;
 
 sub reset_singletons {
     %singletons = ();
@@ -315,10 +321,27 @@ sub location {
     return $self->{location};
 }
 
+sub storage_key {
+    my ( $self, $userid, $picid ) = @_;
+
+    # If called on LJ::Userpic...
+    return 'up:' . $self->userid . ':' . $self->picid
+        if ref $self;
+
+    # Else...
+    $log->logcroak( 'Invalid usage of storage_key.' )
+        unless defined $userid && defined $picid;
+    return 'up:' . ( $userid + 0 ) . ':' . ( $picid + 0 );
+}
+
 sub in_mogile {
     my $self = $_[0];
-    my $loc = defined $self->location ? $self->location : '';
-    return $loc eq 'mogile';
+    return ( $self->location // '' ) eq 'mogile';
+}
+
+sub in_blobstore {
+    my $self = $_[0];
+    return ( $self->location // '' ) eq 'blobstore';
 }
 
 # returns (width, height)
@@ -335,7 +358,7 @@ sub dimensions {
 
 sub max_allowed_bytes {
     my ($class, $u) = @_;
-    return 40960;
+    return 61440;
 }
 
 
@@ -360,15 +383,14 @@ sub fullurl {
     return $self->{url};
 }
 
-
 # given a userpic and a keyword, return the alt text
 sub alttext {
-    my ( $self, $kw ) = @_;
+    my ( $self, $kw, $mark_default ) = @_;
 
-    # load the alttext.  
+    # load the alttext.
     # "username: description (keyword)"
     # If any of those are not present leave them (and their
-    # affiliated punctuation) out. 
+    # affiliated punctuation) out.
 
     # always  include the username
     my $u = $self->owner;
@@ -379,10 +401,11 @@ sub alttext {
     }
 
     # 1. If there is a keyword associated with the icon, use it.
-    # 2. If it was chosen via the default icon, show "(Default)".
     if ( defined $kw ) {
         $alt .= " (" . $kw . ")";
-    } else {
+    }
+    # 2. If it was chosen via the default icon, show "(Default)".
+    if ( $mark_default // !defined $kw ) {
         $alt .= " (Default)";
     }
 
@@ -392,22 +415,23 @@ sub alttext {
 
 # given a userpic and a keyword, return the title text
 sub titletext {
-    my ( $self, $kw ) = @_;
+    my ( $self, $kw, $mark_default ) = @_;
 
-    # load the titletext.  
+    # load the titletext.
     # "username: keyword (description)"
     # If any of those are not present leave them (and their
-    # affiliated punctuation) out. 
+    # affiliated punctuation) out.
 
     # always  include the username
     my $u = $self->owner;
     my $title = $u->username . ":";
 
     # 1. If there is a keyword associated with the icon, use it.
-    # 2. If it was chosen via the default icon, show "(Default)".
     if ( defined $kw ) {
         $title .= " " . $kw;
-    } else {
+    }
+    # 2. If it was chosen via the default icon, show "(Default)".
+    if ( $mark_default // !defined $kw ) {
         $title .= " (Default)";
     }
 
@@ -435,8 +459,8 @@ sub imgtag {
     my $alttext = $self->alttext( $keyword );
     my $title = $self->titletext( $keyword );
 
-    return '<img src="' . $self->url . '" width="' . $width . 
-        '" height="' . $height . '" alt="' . $alttext . 
+    return '<img src="' . $self->url . '" width="' . $width .
+        '" height="' . $height . '" alt="' . $alttext .
         '" title="' . $title . '" class="userpic-img" />';
 }
 
@@ -474,7 +498,7 @@ sub img_fixedsize {
     my $width = $opts{width} || 0;
     my $height = $opts{height} || 0;
 
-    if ( $width > 0 && $width < $self->width && 
+    if ( $width > 0 && $width < $self->width &&
         ( !$height || ( $width <= $height && $self->width >= $self->height ) ) ) {
         my $ratio = $width / $self->width;
         $height = int( $self->height * $ratio );
@@ -499,7 +523,8 @@ sub keywords {
 
     my $raw = delete $opts{raw} || undef;
 
-    croak "Invalid opts passed to LJ::Userpic::keywords" if keys %opts;
+    $log->logcroak( "Invalid opts passed to LJ::Userpic::keywords" )
+        if keys %opts;
 
     my $u = $self->owner;
 
@@ -523,27 +548,11 @@ sub keywords {
 
 sub imagedata {
     my $self = $_[0];
-
     $self->load_row or return undef;
-    my $u = $self->owner;
-
     return undef if $self->expunged;
 
-    # check mogile
-    if ( $self->in_mogile ) {
-        my $key = $u->mogfs_userpic_key( $self->picid );
-        my $data = LJ::mogclient()->get_file_data( $key );
-        return $$data;
-    }
-
-    # check userpicblob2 table
-    my $dbb = LJ::get_cluster_reader($u)
-        or return undef;
-
-    my $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE ".
-                                      "userid=? AND picid=?", undef, $self->userid,
-                                      $self->picid );
-    return $data ? $data : undef;
+    my $data = DW::BlobStore->retrieve( userpics => $self->storage_key );
+    return $data ? $$data : undef;
 }
 
 # get : class :: load_row : object
@@ -637,22 +646,22 @@ sub create {
     my $dataref = delete $opts{data};
     my $maxbytesize = delete $opts{maxbytesize};
     my $nonotify = delete $opts{nonotify};
-    croak("dataref not a scalarref") unless ref $dataref eq 'SCALAR';
-
-    croak("Unknown options: " . join(", ", scalar keys %opts)) if %opts;
+    $log->logcroak( "dataref not a scalarref" )
+        unless ref $dataref eq 'SCALAR';
+    $log->logcroak( "Unknown extra options: " . join( ", ", scalar keys %opts ) )
+        if %opts;
 
     my $err = sub {
         my $msg = $_[0];
     };
 
-    eval "use Image::Size;";
-    # FIXME the filetype is supposed to be returned intthe next call
+    # FIXME the filetype is supposed to be returned in the next call
     # but according to the docs of Image::Size v3.2 it does not return that value
+    eval "use Image::Size;";
     my ($w, $h, $filetype) = Image::Size::imgsize($dataref);
     my $MAX_UPLOAD = $maxbytesize || LJ::Userpic->max_allowed_bytes($u);
 
     my $size = length $$dataref;
-
     my $fmterror = 0;
 
     my @errors;
@@ -670,20 +679,15 @@ sub create {
 
     # don't throw a dimensions error if it's the wrong file type because its dimensions will always
     # be 0x0
-    unless ($w >= 1 && $w <= 100 && $h >= 1 && $h <= 100) {
+    unless ( $w && $w >= 1 && $w <= 100 && $h && $h >= 1 && $h <= 100 ) {
         push @errors, LJ::errobj("Userpic::Dimensions",
                                  w => $w, h => $h) unless $fmterror;
     }
 
     LJ::throw(@errors);
 
-    my $base64 = Digest::MD5::md5_base64($$dataref);
-
-    my $target = $LJ::USERPIC_MOGILEFS ? 'mogile' : undef;
-
-    my $dbh = LJ::get_db_writer();
-
     # see if it's a duplicate, return it if it is
+    my $base64 = Digest::MD5::md5_base64($$dataref);
     if (my $dup_up = LJ::Userpic->new_from_md5($u, $base64)) {
         return $dup_up;
     }
@@ -699,59 +703,35 @@ sub create {
 
     @errors = (); # TEMP: FIXME: remove... using exceptions
 
-    my $dberr = 0;
-    $u->do( "INSERT INTO userpic2 (picid, userid, fmt, width, height, " .
-            "picdate, md5base64, location) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
-            undef, $picid, $u->userid, $contenttype, $w, $h, $base64, $target );
-    if ( $u->err ) {
-        push @errors, $err->( $u->errstr );
-        $dberr = 1;
+    $u->do(
+        q{INSERT INTO userpic2 (
+            picid, userid, fmt, width, height, picdate, md5base64, location)
+        VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)},
+        undef, $picid, $u->userid, $contenttype, $w, $h, $base64, 'blobstore'
+    );
+    push @errors, $err->( $u->errstr )
+        if $u->err;
+
+    # All pictures are now stored to blobstore
+    my $storage_key = LJ::Userpic->storage_key( $u->userid, $picid );
+    unless ( DW::BlobStore->store( userpics => $storage_key, $dataref ) ) {
+        $u->do(
+            q{DELETE FROM userpic2 WHERE userid=? AND picid=?},
+            undef, $u->userid, $picid
+        );
+        push @errors, 'Failed to store userpic in blobstore.';
     }
-
-    my $clean_err = sub {
-        $u->do( "DELETE FROM userpic2 WHERE userid=? AND picid=?",
-                undef, $u->userid, $picid ) if $picid;
-        return $err->(@_);
-    };
-
-    if ( $target && $target eq 'mogile' && !$dberr ) {
-        my $fh = LJ::mogclient()->new_file($u->mogfs_userpic_key($picid), 'userpics');
-        if (defined $fh) {
-            $fh->print($$dataref);
-            my $rv = $fh->close;
-            push @errors, $clean_err->("Error saving to storage server: $@") unless $rv;
-        } else {
-            # fatal error, we couldn't get a filehandle to use
-            push @errors, $clean_err->("Unable to contact storage server.  Your picture has not been saved.");
-        }
-
-        # even for mogile we use the userblob table as a means
-        # to track the number and size of user blob assets
-        my $dmid = LJ::get_blob_domainid('userpic');
-        $u->do("INSERT INTO userblob (journalid, domain, blobid, length) ".
-               "VALUES (?, ?, ?, ?)", undef, $u->{userid}, $dmid, $picid, $size);
-
-    } elsif ( !$dberr ) {  # use userpicblob2 table in database
-        my $dbcm = LJ::get_cluster_master($u);
-        return $err->($BML::ML{'error.nodb'}) unless $dbcm;
-        $u->do("INSERT INTO userpicblob2 (userid, picid, imagedata) " .
-               "VALUES (?, ?, ?)",
-               undef, $u->{'userid'}, $picid, $$dataref);
-        push @errors, $clean_err->($u->errstr) if $u->err;
-
-    } else { # We should never get here!
-        push @errors, "User picture uploading failed for unknown reason";
-    }
-
     LJ::throw(@errors);
 
     # now that we've created a new pic, invalidate the user's memcached userpic info
     LJ::Userpic->delete_cache( $u );
 
-    my $upic = LJ::Userpic->new( $u, $picid ) or die "Error insantiating userpic";
-    LJ::Event::NewUserpic->new( $upic )->fire if LJ::is_enabled('esn') && !$nonotify;
-
-    return $upic;
+    # Fire ESN and return
+    my $pic = LJ::Userpic->new( $u, $picid )
+        or $log->logcroak( 'Error insantiating userpic after creation' );
+    LJ::Event::NewUserpic->new( $pic )->fire
+        if LJ::is_enabled( 'esn' ) && !$nonotify;
+    return $pic;
 }
 
 # this will return a user's userpicfactory image stored in mogile scaled down.
@@ -767,42 +747,6 @@ sub create {
 #
 # note: this will always keep the image's original aspect ratio and not distort it.
 sub get_upf_scaled {
-    my ( $class, @args ) = @_;
-
-    my $gc = LJ::gearman_client();
-
-    # no gearman, do this in-process
-    return $class->_get_upf_scaled( @args ) unless $gc;
-
-    # invoke gearman
-    my $u = LJ::get_remote() or die "No remote user";
-    unshift @args, "userid" => $u->id;
-
-    my $result;
-    my $arg = Storable::nfreeze(\@args);
-    my $task = Gearman::Task->new('lj_upf_resize', \$arg,
-                                  {
-                                      uniq => '-',
-                                      on_complete => sub {
-                                          my $res = shift;
-                                          return unless $res;
-                                          $result = Storable::thaw($$res);
-                                      }
-                                  });
-
-    my $ts = $gc->new_task_set();
-    $ts->add_task($task);
-    $ts->wait(timeout => 30); # 30 sec timeout;
-
-    # job failed ... error reporting?
-    die "Could not resize image down\n" unless $result;
-
-    return $result;
-}
-
-# actual method
-sub _get_upf_scaled
-{
     my ( $class, %opts ) = @_;
     my $size = delete $opts{size} || 640;
     my $x1 = delete $opts{x1};
@@ -814,11 +758,13 @@ sub _get_upf_scaled
     my $u = LJ::want_user(delete $opts{userid} || delete $opts{u}) || LJ::get_remote();
     my $mogkey = delete $opts{mogkey};
     my $downsize_only = delete $opts{downsize_only};
-    croak "No userid or remote" unless $u || $mogkey;
+    $log->logcroak( "No userid or remote" )
+        unless $u || $mogkey;
 
     $maxfilesize *= 1024;
 
-    croak "Invalid parameters to get_upf_scaled\n" if scalar keys %opts;
+    $log->logcroak( "Invalid parameters to get_upf_scaled" )
+        if scalar keys %opts;
 
     my $mode = ($x1 || $y1 || $x2 || $y2) ? "crop" : "scale";
 
@@ -829,7 +775,8 @@ sub _get_upf_scaled
         or return undef;
 
     $mogkey ||= 'upf:' . $u->{userid};
-    my $dataref = LJ::mogclient()->get_file_data($mogkey) or return undef;
+    my $dataref = DW::BlobStore->retrieve( temp => $mogkey )
+        or return undef;
 
     # original width/height
     my ($ow, $oh) = Image::Size::imgsize($dataref);
@@ -980,13 +927,6 @@ sub delete {
     my $u = $self->owner;
     my $picid = $self->id;
 
-    # delete meta-data first so it doesn't get stranded if errors
-    # between this and deleting row
-    $u->do("DELETE FROM userblob WHERE journalid=? AND blobid=? " .
-           "AND domain=?", undef, $u->{'userid'}, $picid,
-           LJ::get_blob_domainid('userpic'));
-    $fail->() if $@;
-
     # userpic keywords
     eval {
         if ( $u->userpic_have_mapid ) {
@@ -1000,20 +940,7 @@ sub delete {
     $fail->() if $@;
 
     $u->log_event('delete_userpic', { picid => $picid });
-
-    # best-effort on deleteing the blobs
-    # TODO: we could fire warnings if they fail, then if $LJ::DIE_ON_WARN is set,
-    # the ->warn methods on errobjs are actually dies.
-    eval {
-        if ( $self->in_mogile ) {
-            LJ::mogclient()->delete($u->mogfs_userpic_key($picid));
-        } else {
-            $u->do( "DELETE FROM userpicblob2 WHERE ".
-                    "userid=? AND picid=?", undef,
-                    $u->userid, $picid );
-        }
-    };
-
+    DW::BlobStore->delete( userpics => $self->storage_key );
     LJ::Userpic->delete_cache($u);
 
     return 1;
@@ -1060,7 +987,7 @@ sub set_keywords {
     } else {
         @keywords = split(',', $_[0]);
     }
-    
+
     @keywords = grep { !/^pic\#\d+$/ } map { s/^\s+//; s/\s+$//; $_ } @keywords;
 
     my $u = $self->owner;
@@ -1080,7 +1007,7 @@ sub set_keywords {
     while ( my ($kwid) = $sth->fetchrow_array ) {
 
         # This is an edge case to catch keyword changes where the existing keyword
-        # is in the pic#  format.  In this case kwid is NULL and we want to 
+        # is in the pic#  format.  In this case kwid is NULL and we want to
         # delete any records from userpicmap3 that involve it.
         unless ( $kwid ) {
            $u->do( "DELETE FROM userpicmap3 WHERE userid=? AND picid=? AND kwid IS NULL", undef, $u->id, $self->id );
@@ -1145,7 +1072,7 @@ sub set_keywords {
         if ( $have_mapid ) {
             $u->do( "REPLACE INTO userpicmap3 (userid, mapid, kwid, picid) VALUES $bind",
                     undef, @data );
-        } else {            
+        } else {
             $u->do( "REPLACE INTO userpicmap2 (userid, kwid, picid) VALUES $bind",
                     undef, @data );
         }
@@ -1176,7 +1103,7 @@ sub set_keywords {
 # some ambiguity about which old keywords should match up with the new
 # keywords.  if the number of keywords don't match, then an error is thrown
 # and no changes are made to the keywords for this userpic.
-# 
+#
 # all new keywords must not currently be in use; you can't rename a keyword
 # to a keyword currently mapped to another (or the same) userpic.  this will
 # result in an error and no changes made to these keywords.
@@ -1209,14 +1136,14 @@ sub set_and_rename_keywords {
     foreach my $newkw (@keywords) {
         my $origkw = shift(@orig_keywords);
         # clear whitespace
-        $newkw =~ s/^\s+//; 
+        $newkw =~ s/^\s+//;
         $newkw =~ s/\s+$//;
-        $origkw =~ s/^\s+//; 
+        $origkw =~ s/^\s+//;
         $origkw =~ s/\s+$//;
 
         $keywordmap{$origkw} = $newkw if $origkw ne $newkw;
     }
-    
+
     # make sure there is at least one change.
     if (keys(%keywordmap)) {
 
@@ -1314,7 +1241,7 @@ sub set_fullurl {
 # Sorts the given list of Userpics.
 sub sort {
     my ( $class, $userpics ) = @_;
-    
+
     return () unless ( $userpics && ref $userpics );
 
     my %kwhash;
@@ -1362,9 +1289,9 @@ sub separate_keywords {
                 $keyword = $userpic->keywords;
                 push @nokw_array, { keyword => $keyword, userpic => $userpic };
             }
-        } 
+        }
     }
-        
+
     @userpic_array = sort { lc( $a->{keyword} ) cmp lc( $b->{keyword} ) } @userpic_array;
     push @userpic_array, sort { $a->{keyword} cmp $b->{keyword} } @nokw_array;
 

@@ -12,10 +12,13 @@
 # part of this distribution.
 
 package LJ::User;
-use strict;
-no warnings 'uninitialized';
 
-use Carp;
+use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger( __PACKAGE__ );
+
+use Carp qw/ confess /;
 use LJ::Identity;
 
 use DW::Pay;
@@ -54,6 +57,11 @@ sub can_expunge {
 sub create {
     my ($class, %opts) = @_;
 
+    my $err = sub {
+        $log->warn( @_ );
+        return undef;
+    };
+
     my $username = LJ::canonical_username($opts{user}) or return;
 
     my $cluster     = $opts{cluster} || LJ::DB::new_account_cluster();
@@ -61,32 +69,36 @@ sub create {
     my $journaltype = $opts{journaltype} || "P";
 
     # non-clustered accounts aren't supported anymore
-    return unless $cluster;
+    return $err->( 'Invalid cluster: ', $cluster )
+        unless $cluster;
 
     my $dbh = LJ::get_db_writer();
 
-    $dbh->do("INSERT INTO user (user, clusterid, dversion, caps, journaltype) " .
-             "VALUES (?, ?, ?, ?, ?)", undef,
+    $dbh->do('INSERT INTO user (user, clusterid, dversion, caps, journaltype) ' .
+             'VALUES (?, ?, ?, ?, ?)', undef,
              $username, $cluster, $LJ::MAX_DVERSION, $caps, $journaltype);
-    return if $dbh->err;
+    return $err->( 'Database error: ', $dbh->errstr ) if $dbh->err;
 
     my $userid = $dbh->{'mysql_insertid'};
-    return unless $userid;
+    return $err->( 'Failed to get userid' ) unless $userid;
 
-    $dbh->do("INSERT INTO useridmap (userid, user) VALUES (?, ?)",
+    $dbh->do('INSERT INTO useridmap (userid, user) VALUES (?, ?)',
              undef, $userid, $username);
-    $dbh->do("INSERT INTO userusage (userid, timecreate) VALUES (?, NOW())",
-             undef, $userid);
+    return $err->( 'Database error: ', $dbh->errstr ) if $dbh->err;
 
-    my $u = LJ::load_userid( $userid, "force" ) or return;
+    $dbh->do('INSERT INTO userusage (userid, timecreate) VALUES (?, NOW())',
+             undef, $userid);
+    return $err->( 'Database error: ', $dbh->errstr ) if $dbh->err;
+
+    my $u = LJ::load_userid( $userid, 'force' ) or return;
     DW::Stats::increment( 'dw.action.account.create', 1,
             [ 'journal_type:' . $u->journaltype_readable ] );
 
     my $status   = $opts{status}   || ($LJ::EVERYONE_VALID ? 'A' : 'N');
     my $name     = $opts{name}     || $username;
-    my $bdate    = $opts{bdate}    || "0000-00-00";
-    my $email    = $opts{email}    || "";
-    my $password = $opts{password} || "";
+    my $bdate    = $opts{bdate}    || '0000-00-00';
+    my $email    = $opts{email}    || '';
+    my $password = $opts{password} || '';
 
     $u->update_self( { status => $status, name => $name, bdate => $bdate,
                        email => $email, password => $password, %LJ::USER_INIT } );
@@ -108,7 +120,7 @@ sub create {
     }
 
     if ($opts{status_history}) {
-        my $system = LJ::load_user("system");
+        my $system = LJ::load_user( 'system' );
         if ($system) {
             while (my ($key, $value) = each( %{$opts{status_history}} )) {
                 LJ::statushistory_add($u, $system, $key, $value);
@@ -116,12 +128,15 @@ sub create {
         }
     }
 
-    LJ::Hooks::run_hooks("post_create", {
-        'userid' => $userid,
-        'user'   => $username,
-        'code'   => undef,
-        'news'   => $opts{get_news},
-    });
+    LJ::Hooks::run_hooks(
+        'post_create',
+        {
+            userid => $userid,
+            user   => $username,
+            code   => undef,
+            news   => $opts{get_news},
+        }
+    );
 
     return $u;
 }
@@ -445,7 +460,7 @@ sub set_renamed {
 sub set_statusvis {
     my ($u, $statusvis) = @_;
 
-    croak "Invalid statusvis: $statusvis"
+    Carp::croak "Invalid statusvis: $statusvis"
         unless $statusvis =~ /^(?:
             V|       # visible
             D|       # deleted
@@ -641,6 +656,11 @@ sub is_syndicated {
 }
 
 
+sub journal_base {
+    return LJ::journal_base( @_ );
+}
+
+
 sub journaltype {
     return $_[0]->{journaltype};
 }
@@ -817,10 +837,14 @@ sub preload_props {
                 LJ::get_db_reader();
             $used_slave = 1;
         }
+        confess "No database handle available" unless $db;
+
         $sql = "SELECT upropid, value FROM $table WHERE userid=$uid";
         if (ref $loadfrom{$table}) {
             $sql .= " AND upropid IN (" . join(",", @{$loadfrom{$table}}) . ")";
         }
+        die "No db\n" unless $db;
+
         $sth = $db->prepare($sql);
         $sth->execute;
         while (my ($id, $v) = $sth->fetchrow_array) {
@@ -987,8 +1011,26 @@ sub load_existing_identity_user {
     my ($type, $ident) = @_;
 
     my $dbh = LJ::get_db_reader();
-    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
-                                    undef, $type, $ident);
+    my $uid;
+
+    # if given an https URL, also look for existing http account
+    # (we should have stripped the protocol before storing these, sigh)
+    if ( $ident =~ s/^https:// ) {
+        my $secure_ident= "https:$ident";
+        $ident = "http:$ident";
+
+        # do the secure lookup first; if it fails, try the fallback below
+        $uid = $dbh->selectrow_array( "SELECT userid FROM identitymap WHERE " .
+                                      "idtype=? AND identity=?",
+                                      undef, $type, $secure_ident );
+    }
+
+    unless ( $uid ) {
+        $uid = $dbh->selectrow_array( "SELECT userid FROM identitymap WHERE " .
+                                      "idtype=? AND identity=?",
+                                      undef, $type, $ident );
+    }
+
     return $uid ? LJ::load_userid($uid) : undef;
 }
 
@@ -1234,7 +1276,7 @@ use Carp;
 # returns: the canonical username given, or blank if the username is not well-formed
 # </LJFUNC>
 sub canonical_username {
-    my $input = lc( $_[0] );
+    my $input = lc( $_[0] // '' );
     my $user = "";
     if ( $input =~ /^\s*([a-z0-9_\-]{1,25})\s*$/ ) {  # good username
         $user = $1;
@@ -1330,6 +1372,77 @@ sub isu {
     }
 }
 
+# <LJFUNC>
+# name: LJ::journal_base
+# des: Returns URL of a user's journal.
+# info: The tricky thing is that users with underscores in their usernames
+#       can't have some_user.example.com as a hostname, so that's changed into
+#       some-user.example.com.
+# args: uuser, vhost?
+# des-uuser: User hashref or username of user whose URL to make.
+# des-vhost: What type of URL.  Acceptable options: "users", to make a
+#            http://user.example.com/ URL; "tilde" for http://example.com/~user/;
+#            "community" for http://example.com/community/user; or the default
+#            will be http://example.com/users/user.  If unspecified and uuser
+#            is a user hashref, then the best/preferred vhost will be chosen.
+# returns: scalar; a URL.
+# </LJFUNC>
+sub journal_base {
+    my ($user, %opts) = @_;
+    my $vhost = $opts{vhost};
+    my $protocol = ( $LJ::USE_HTTPS_EVERYWHERE || $LJ::IS_SSL ) ? "https" : "http";
+
+    my $u = LJ::isu( $user ) ? $user : LJ::load_user( $user );
+    $user = $u->user if $u;
+
+    if ( $u && LJ::Hooks::are_hooks("journal_base") ) {
+        my $hookurl = LJ::Hooks::run_hook("journal_base", $u, $vhost);
+        return $hookurl if $hookurl;
+
+        unless (defined $vhost) {
+            if ($LJ::FRONTPAGE_JOURNAL eq $user) {
+                $vhost = "front";
+            } elsif ( $u->is_person ) {
+                $vhost = "";
+            } elsif ( $u->is_community ) {
+                $vhost = "community";
+            }
+        }
+    }
+
+    if ( $LJ::ONLY_USER_VHOSTS ) {
+        my $rule = $u ? $LJ::SUBDOMAIN_RULES->{$u->journaltype} : undef;
+        $rule ||= $LJ::SUBDOMAIN_RULES->{P};
+
+        # if no rule, then we don't have any idea what to do ...
+        die "Site misconfigured, no %LJ::SUBDOMAIN_RULES."
+            unless $rule && ref $rule eq 'ARRAY';
+
+        if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
+            $user =~ s/_/-/g;
+            return "$protocol://$user.$LJ::DOMAIN";
+        } else {
+            return "$protocol://$rule->[1]/$user";
+        }
+    }
+
+    if ($vhost eq "users") {
+        my $he_user = $user;
+        $he_user =~ s/_/-/g;
+        return "$protocol://$he_user.$LJ::USER_DOMAIN";
+    } elsif ($vhost eq "tilde") {
+        return "$LJ::SITEROOT/~$user";
+    } elsif ($vhost eq "community") {
+        return "$LJ::SITEROOT/community/$user";
+    } elsif ($vhost eq "front") {
+        return $LJ::SITEROOT;
+    } elsif ($vhost =~ /^other:(.+)/) {
+        return "$protocol://$1";
+    } else {
+        return "$LJ::SITEROOT/users/$user";
+    }
+}
+
 
 # <LJFUNC>
 # name: LJ::load_user
@@ -1405,16 +1518,12 @@ sub load_user_or_identity {
         return _set_u_req_cache( $u ) if $u;
     }
 
-    my $dbh = LJ::get_db_writer();
-    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
-                                    undef, 'O', $url);
-
-    my $u = $uid ? LJ::load_userid($uid) : undef;
+    my $u = LJ::User::load_existing_identity_user( 'O', $url );
 
     # set user in memcache
     if ( $u ) {
         # memcache URL-to-userid for identity users
-        LJ::MemCache::set( "uidof:$url", $uid, 1800 );
+        LJ::MemCache::set( "uidof:$url", $u->id, 1800 );
         LJ::memcache_set_u( $u );
         return _set_u_req_cache( $u );
     }

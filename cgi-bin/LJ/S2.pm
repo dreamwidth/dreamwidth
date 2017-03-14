@@ -296,6 +296,7 @@ sub s2_run
     };
     my $out_clean = sub {
         my $text = shift;
+        $text = '' unless defined $text;
 
         $cleaner->parse($text);
 
@@ -2374,7 +2375,11 @@ sub Page
     # other useful link rels
     $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
     $p->{head_content} .= qq{<link rel="apple-touch-icon" href="$LJ::APPLE_TOUCH_ICON" />\n}
-         if $LJ::APPLE_TOUCH_ICON;
+        if $LJ::APPLE_TOUCH_ICON;
+    $p->{head_content} .= qq{<meta property="og:image" content="$LJ::FACEBOOK_PREVIEW_ICON"/>\n}
+        if $LJ::FACEBOOK_PREVIEW_ICON;
+    $p->{head_content} .= qq{<meta property="og:image:width" content="363"/>\n};
+    $p->{head_content} .= qq{<meta property="og:image:height" content="363"/>\n};
     # Identity (type I) accounts only have read views
     $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
     # feed accounts only have recent entries views
@@ -2670,6 +2675,15 @@ sub sitescheme_secs_to_iso {
 sub current_box_type {}
 sub curr_page_supports_ebox { 0 }
 
+# Convenience method since it gets checked multiple times
+sub has_quickreply
+{
+    my ($page) = @_;
+    my $view = $page->{view};
+    # Also needs adding to the list in core2.s2
+    return $view eq 'entry' || $view eq 'read' || $view eq 'day' || $view eq 'recent' || $view eq 'network';
+}
+
 
 ###############
 
@@ -2693,7 +2707,8 @@ sub start_css {
     $sc->{_start_css_pout_s} = S2::get_output_safe();
     $sc->{_start_css_buffer} = "";
     my $printer = sub {
-        $sc->{_start_css_buffer} .= shift;
+        my $arg = shift;
+        $sc->{_start_css_buffer} .= $arg if defined $arg;
     };
     S2::set_output($printer);
     S2::set_output_safe($printer);
@@ -3662,7 +3677,7 @@ sub _print_quickreply_link
         $onclick = "onclick='$onclick'";
     }
 
-    $onclick = "" unless $page->{view} eq 'entry' || $page->{view} eq 'read';
+    $onclick = "" unless LJ::S2::has_quickreply($page);
     $onclick = "" unless LJ::is_enabled('s2quickreply');
     $onclick = "" if $page->{'_u'}->does_not_allow_comments_from( $remote );
 
@@ -3674,7 +3689,7 @@ sub _print_reply_container
     my ($ctx, $this, $opts) = @_;
 
     my $page = get_page();
-    return unless $page->{view} eq 'entry' || $page->{view} eq 'read';
+    return unless LJ::S2::has_quickreply($page);
 
     my $target = $opts->{target} || '';
     undef $target unless $target =~ /^[\w-]+$/;
@@ -3691,22 +3706,20 @@ sub _print_reply_container
     $class = $class ? "class=\"$class\"" : "";
 
     $S2::pout->("<div $class id=\"ljqrt$target\" data-quickreply-container=\"$target\" style=\"display: none;\"></div>");
-
     # unless we've already inserted the big qrdiv ugliness, do it.
     unless ($ctx->[S2::SCRATCH]->{'quickreply_printed_div'}++) {
-        if ( $page->{view} eq "entry" || $page->{view} eq "read" ) {
-            my $u = $page->{'_u'};
-            my $ditemid = $page->{'entry'}{'itemid'} || $this->{itemid} || 0;
-
-            my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
-            my $thread = $page->{_viewing_thread_id} + 0 || "";
-            $S2::pout->( LJ::create_qr_div( $u, $ditemid,
-                    style_opts => $page->{_styleopts},
-                    userpic => $userpic,
-                    thread => $thread,
-                    minimal => $page->{view} eq "read",
-                ) );
-        }
+        my $u = $page->{'_u'};
+        my $ditemid = $page->{'entry'}{'itemid'} || $this->{itemid} || 0;
+        my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
+        my $thread = "";
+        $thread = $page->{_viewing_thread_id} + 0
+            if defined $page->{_viewing_thread_id};
+        $S2::pout->( LJ::create_qr_div( $u, $ditemid,
+                style_opts => $page->{_styleopts},
+                userpic => $userpic,
+                thread => $thread,
+                minimal => $page->{view} ne "entry",
+            ) );
     }
 }
 

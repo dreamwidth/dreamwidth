@@ -23,8 +23,6 @@ use LJ::Event::JournalNewEntry;
 use LJ::Event::AddedToCircle;
 use LJ::Entry;
 use LJ::Poll;
-use LJ::EventLogRecord::NewEntry;
-use LJ::EventLogRecord::EditEntry;
 use LJ::Config;
 use LJ::Comment;
 
@@ -538,12 +536,12 @@ sub sendmessage
 
     my @msg;
     BML::set_language('en'); # FIXME
-    
+
     foreach my $to (@to) {
         my $tou = LJ::load_user($to);
         return fail($err, 100, $to)
             unless $tou;
-        
+
         my $msguserpic;
         $msguserpic = $req->{'userpic'} if defined $req->{'userpic'};
 
@@ -1218,9 +1216,8 @@ sub postevent
     return fail($err,306) unless $dbh && $dbcm && $uowner->writer;
     return fail($err,200) unless $req->{'event'} =~ /\S/;
 
-    ### make sure community or identity journals don't post
+    ### make sure community journals don't post
     return fail($err,150) if $u->is_community;
-    return fail($err,150) if ! $importer_bypass && ! $uowner->prop( "identity_posting" ) && $u->is_identity;
 
     # suspended users can't post
     return fail($err,305) if ! $importer_bypass && $u->is_suspended;
@@ -1431,6 +1428,11 @@ sub postevent
             $res_done = 1;   # tell caller to bail out
             return;
         }
+
+        # If we're the importer, don't do duplicate detection here; the importer already
+        # has tooling to do that to compare remote vs local
+        return if $importer_bypass;
+
         my @parts = split(/:/, $u->{'dupsig_post'});
         if ($parts[0] eq $dupsig) {
             # duplicate!  let's make the client think this was just the
@@ -1636,9 +1638,11 @@ sub postevent
             $logtag_opts->{set_string} = $taginput;
         }
 
-        my $rv = LJ::Tags::update_logtags($uowner, $jitemid, $logtag_opts);
-        return fail($err,157,$tagerr) unless $rv;
-        # the next line will propagate any "skippable" errors
+        # Do not fail here; worst case we lose tags, but if we fail here we don't perform
+        # half of the processing below
+        LJ::Tags::update_logtags($uowner, $jitemid, $logtag_opts);
+
+        # Propagate any "skippable" errors
         $res->{message} = $tagerr if $tagerr;
     }
 
@@ -1735,7 +1739,6 @@ sub postevent
         # latest posts feed update
         DW::LatestFeed->new_item( $entry );
     }
-    push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 
     # update the sphinx search engine
     if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
@@ -1751,6 +1754,11 @@ sub postevent
         # TODO: error on failure?  depends on the job I suppose?  property of the job?
     }
 
+    # To minimize impact on legacy code, let's make sure the entry object in
+    # memory has been populated with data. Easiest way to do that is to call
+    # one of the methods that loads the relevant row from the database.
+    $entry->valid;
+
     return $res;
 }
 
@@ -1760,6 +1768,15 @@ sub editevent
     my $res = {};
     my $deleted = 0;
     un_utf8_request($req);
+
+    my $add_message = sub {
+        my $new_message = shift;
+        if ( $res->{message} ) {
+            $res->{message} .= "\n\n" . $new_message;
+        } else {
+            $res->{message} = $new_message;
+        }
+    };
 
     return undef unless authenticate($req, $err, $flags);
 
@@ -2078,7 +2095,7 @@ sub editevent
     my $clean_event = $event;
     my $errref;
     LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref } );
-    $res->{message} = translate( $u, $errref, { aopts => "href='$LJ::SITEROOT/editjournal?journal=" . $uowner->user . "&itemid=$ditemid'" } ) if $errref;
+    $add_message->( translate( $u, $errref, { aopts => "href='$LJ::SITEROOT/editjournal?journal=" . $uowner->user . "&itemid=$ditemid'" } ) ) if $errref;
 
     # up the revision number
     $req->{'props'}->{'revnum'} = ($curprops{$itemid}->{'revnum'} || 0) + 1;
@@ -2108,8 +2125,8 @@ sub editevent
                 err_ref => \$tagerr,
             });
 
-        # we only want to fail if we tried to edit the tags, not if we just tried to edit the security
-        return fail( $err, 157, $tagerr ) if $tagerr && $do_tags;
+        # we only want to warn if we tried to edit the tags, not if we just tried to edit the security
+        $add_message->( $tagerr ) if $tagerr && $do_tags;
     }
 
     # handle the props
@@ -2150,7 +2167,7 @@ sub editevent
     # present, we leave the slug alone.
     if ( exists $req->{slug} ) {
         LJ::MemCache::delete( [ $ownerid, "logslug:$ownerid:$itemid" ] );
-        $uowner->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
+        $u->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
                      undef, $ownerid, $itemid );
 
         my $slug = LJ::canonicalize_slug( $req->{slug} );
@@ -2158,8 +2175,8 @@ sub editevent
             $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
                     undef, $ownerid, $itemid, $slug );
             if ( $u->err ) {
-                $res->{message} ||= 'Sorry, it looks like that slug has already been used. ' .
-                    'Your entry has been updated, but you can still edit it again to add a unique slug.';
+                $add_message->( 'Sorry, it looks like that slug has already been used. ' .
+                    'Your entry has been updated, but you can still edit it again to add a unique slug.' );
             }
         }
     }
@@ -2171,8 +2188,6 @@ sub editevent
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'} = $entry->url;
     }
-
-    LJ::EventLogRecord::EditEntry->new($entry)->fire;
 
     DW::Stats::increment( 'dw.action.entry.edit', 1,
             [ 'journal_type:' . $uowner->journaltype_readable ] );

@@ -4,7 +4,7 @@
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
-#      Mark Smith <mark@dwscoalition.org>
+#      Mark Smith <mark@dreamwidth.org>
 #
 # Copyright (c) 2013 by Dreamwidth Studios, LLC.
 #

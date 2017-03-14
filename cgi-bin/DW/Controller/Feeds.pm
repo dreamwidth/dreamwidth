@@ -70,7 +70,7 @@ sub index_handler {
         if ( $url ne "" ) {
             my $uri = URI->new( $url );
             return error_ml( '/feeds/index.tt.invalid.url' )
-                unless $uri->scheme =~ m/^(http|https)$/ && $uri->host;
+                unless $uri->scheme && $uri->scheme =~ m/^https?$/ && $uri->host;
 
             my $hostname = $uri->host;
             my $port = $uri->port;

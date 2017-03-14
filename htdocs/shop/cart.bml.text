@@ -3,7 +3,9 @@
 
 .gift=Give a Gift
 
-.payment.failed=Unfortunately, your method of payment was declined by our merchant processor.  If you would like to choose an alternate form of payment, or make sure you entered everything correctly, you will need to initiate the checkout process again.
+.payment.failed.duplicate=Your card was declined by our payment processor for trying to process a duplicate transaction. Usually, this happens because you just made a payment, and are trying to make another payment for the same amount on the same credit card: our payment processor tries to prevent consecutive identical charges on the same card. If that's what happened, please wait an hour and try again, or add or remove something from your cart so the amount you're charging is different. If you think you received this message in error, <a href="/support/submit">submit a support request</a> in the Account Payments category and we'll help you figure out what the problem is.
+
+.payment.failed.other=Unfortunately, your card was declined by our payment processor. Please try checking out again, making sure that you've entered your address and security code (CVN) correctly. You can also check with your credit card company to make sure they don't think the charge is suspicious. If none of that helps and you still get an error, <a href="/support/submit">submit a support request</a> in the Account Payments category and we'll help you figure out what the problem is.
 
 .payment.failed.title=Payment Failed
 

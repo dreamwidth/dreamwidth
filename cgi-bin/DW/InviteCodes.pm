@@ -119,7 +119,7 @@ contains DIGITS and is CODE_LEN long.
 sub could_be_code {
     my ( $class, %opts ) = @_;
 
-    my $string = uc $opts{string};
+    my $string = uc( $opts{string} // '' );
     return 0 unless length $string == CODE_LEN;
 
     my %valid_digits = map { $_ => 1 } DIGITS;

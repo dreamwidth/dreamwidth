@@ -35,7 +35,7 @@
 
 .cat.mobile=Mobile
 
-.cat.mobile.desc=Voice post, text messaging, and mobile options
+.cat.mobile.desc2=Email posting and other mobile options
 
 .cat.notifications=Notifications
 
@@ -179,6 +179,10 @@
 .title.comm=[[user]]'s Account Settings
 
 .title.self=My Account Settings
+
+.user=View notifications for user:
+
+.user.submit=View
 
 .viewingadult=Collapse content marked as inappropriate for:
 

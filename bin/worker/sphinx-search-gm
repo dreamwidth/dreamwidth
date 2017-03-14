@@ -34,6 +34,8 @@ sub _run_search {
     my $index = '*';
     $sx->SetServer( @LJ::SPHINX_SEARCHD );
 
+    $sx->SetEncoders( sub { shift }, sub { shift } );
+
     $sx->SetMatchMode( SPH_MATCH_ALL )
        ->SetSortMode( SPH_SORT_RELEVANCE )
        ->SetMaxQueryTime( 15_000 )

@@ -15,7 +15,6 @@ package LJ::User;
 use strict;
 no warnings 'uninitialized';
 
-use Carp;
 use List::Util qw/ min /;
 
 ########################################################################
@@ -746,33 +745,11 @@ sub get_userpic_kw_map {
     foreach my $keyword ( keys %{$picinfo->{kw}} ) {
         my $picid = $picinfo->{kw}->{$keyword}->{picid};
         $keywords->{$picid} = [] unless $keywords->{$picid};
-        push @{$keywords->{$picid}}, $keyword if ( defined( $keyword ) && $picid && $keyword !~ m/^pic\#(\d+)$/ );
+        push @{$keywords->{$picid}}, $keyword
+            if defined $keyword && $picid && $keyword !~ m/^pic\#(\d+)$/;
     }
 
     return $u->{picid_kw_map} = $keywords;
-}
-
-=head3 C<< $u->mogfs_userpic_key( $pic ) >>
-
-Make a mogilefs key for the given pic for the user.
-
-Arguments:
-
-=over 4
-
-=item pic
-
-Either the userpic hash or the picid of the userpic.
-
-=back
-
-=cut
-sub mogfs_userpic_key {
-    my $self = shift or return undef;
-    my $pic = shift or croak "missing required arg: userpic";
-
-    my $picid = ref $pic ? $pic->{picid} : $pic+0;
-    return "up:" . $self->userid . ":$picid";
 }
 
 =head3 C<< $u->resolve_mapid_redirects( $mapid, %opts ) >>

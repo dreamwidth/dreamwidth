@@ -20,7 +20,7 @@ use LJ::Feed;
 
 sub cmd { "syn_merge" }
 
-sub desc { "Merge two syndicated accounts into one, setting up a redirect and using one account's URL." }
+sub desc { "Merge two syndicated accounts into one, setting up a redirect and using one account's URL. Requires priv: syn_edit." }
 
 sub args_desc { [
                  'from_user' => "Syndicated account to merge into another.",

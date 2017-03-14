@@ -121,9 +121,6 @@ CREATE TABLE clients (
 )
 EOC
 
-post_create("clients",
-            "sqltry" => "INSERT INTO clients (client) SELECT DISTINCT client FROM logins");
-
 register_tablecreate("clientusage", <<'EOC');
 CREATE TABLE clientusage (
     userid int(10) unsigned NOT NULL default '0',
@@ -134,9 +131,6 @@ CREATE TABLE clientusage (
     UNIQUE KEY userid (userid,clientid)
 )
 EOC
-
-post_create("clientusage",
-            "sqltry" => "INSERT INTO clientusage SELECT u.userid, c.clientid, l.lastlogin FROM user u, clients c, logins l WHERE u.user=l.user AND l.client=c.client");
 
 register_tablecreate("codes", <<'EOC');
 CREATE TABLE codes (
@@ -157,17 +151,6 @@ CREATE TABLE community (
     postlevel enum('members','select','screened') default NULL,
 
     PRIMARY KEY  (userid)
-)
-EOC
-
-register_tablecreate("dirsearchres2", <<'EOC');
-CREATE TABLE dirsearchres2 (
-    qdigest varchar(32) NOT NULL default '',
-    dateins datetime NOT NULL default '0000-00-00 00:00:00',
-    userids blob,
-
-    PRIMARY KEY  (qdigest),
-    KEY (dateins)
 )
 EOC
 
@@ -279,7 +262,6 @@ CREATE TABLE moodthemedata (
     width tinyint(3) unsigned NOT NULL default '0',
     height tinyint(3) unsigned NOT NULL default '0',
 
-    KEY (moodthemeid),
     PRIMARY KEY  (moodthemeid,moodid)
 )
 EOC
@@ -515,17 +497,6 @@ CREATE TABLE talkproplist (
 )
 EOC
 
-register_tablecreate("txtmsg", <<'EOC');
-CREATE TABLE txtmsg (
-    userid int(10) unsigned NOT NULL default '0',
-    provider varchar(25) default NULL,
-    number varchar(60) default NULL,
-    security enum('all','reg','friends') NOT NULL default 'all',
-
-    PRIMARY KEY  (userid)
-)
-EOC
-
 register_tablecreate("user", <<'EOC');
 CREATE TABLE user (
     userid int(10) unsigned NOT NULL auto_increment,
@@ -552,7 +523,6 @@ CREATE TABLE user (
     useoverrides char(1) NOT NULL default 'N',
     defaultpicid int(10) unsigned default NULL,
     has_bio enum('Y','N') NOT NULL default 'N',
-    txtmsg_status enum('none','on','off') NOT NULL default 'none',
     is_system enum('Y','N') NOT NULL default 'N',
     journaltype char(1) NOT NULL default 'P',
     lang char(2) NOT NULL default 'EN',
@@ -631,27 +601,9 @@ CREATE TABLE userpic2 (
     comment varchar(255) BINARY NOT NULL default '',
     description varchar(255) BINARY NOT NULL default '',
     flags tinyint(1) unsigned NOT NULL default 0,
-    location enum('blob','disk','mogile') default NULL,
+    location enum('blob','disk','mogile','blobstore') default NULL,
 
     PRIMARY KEY  (userid, picid)
-)
-EOC
-
-# - blobids aren't necessarily unique between domains;
-# global userpicids may collide with the counter used for the rest.
-# so type must be in the key.
-# - domain ids are set up in etc/config.pl.
-# - NULL length indicates the data is external-- we need another
-# table for more data for that.
-register_tablecreate("userblob", <<'EOC'); # clustered
-CREATE TABLE userblob (
-    journalid   INT       UNSIGNED NOT NULL,
-    domain      TINYINT   UNSIGNED NOT NULL,
-    blobid      MEDIUMINT UNSIGNED NOT NULL,
-    length      MEDIUMINT UNSIGNED,
-
-    PRIMARY KEY (journalid, domain, blobid),
-    KEY (domain)
 )
 EOC
 
@@ -713,15 +665,6 @@ CREATE TABLE userpropblob (
     value blob,
 
     PRIMARY KEY (userid,upropid)
-)
-EOC
-
-register_tablecreate("backupdirty", <<'EOC');
-CREATE TABLE backupdirty (
-    userid INT(10) unsigned NOT NULL default '0',
-    marktime INT(10) unsigned NOT NULL default '0',
-
-    PRIMARY KEY (userid)
 )
 EOC
 
@@ -934,6 +877,7 @@ register_tabledrop("schools");
 register_tabledrop("schools_attended");
 register_tabledrop("schools_pending");
 register_tabledrop("user_schools");
+register_tabledrop("userblob");
 register_tabledrop("userblobcache");
 register_tabledrop("commenturls");
 register_tabledrop("captchas");
@@ -956,6 +900,14 @@ register_tabledrop("jabroster");
 register_tabledrop("jabpresence");
 register_tabledrop("jabcluster");
 register_tabledrop("jablastseen");
+register_tabledrop("domains");
+register_tabledrop("pollprop2");
+register_tabledrop("pollproplist2");
+register_tabledrop("dirsearchres2");
+register_tabledrop("txtmsg");
+register_tabledrop("comm_promo_list");
+register_tabledrop("incoming_email_handle");
+register_tabledrop("backupdirty");
 
 
 register_tablecreate("infohistory", <<'EOC');
@@ -1200,7 +1152,7 @@ CREATE TABLE ml_items (
     dmid    TINYINT UNSIGNED NOT NULL,
     itid    MEDIUMINT UNSIGNED AUTO_INCREMENT NOT NULL,
     PRIMARY KEY (dmid, itid),
-    itcode  VARCHAR(80) NOT NULL,
+    itcode  VARCHAR(120) CHARACTER SET ascii NOT NULL,
     UNIQUE  (dmid, itcode),
     proofed TINYINT NOT NULL DEFAULT 0, -- boolean, really
     INDEX   (proofed),
@@ -1264,16 +1216,6 @@ CREATE TABLE ml_text (
     text    TEXT NOT NULL,
     userid  INT UNSIGNED NOT NULL
 ) ENGINE=MYISAM
-EOC
-
-register_tablecreate("domains", <<'EOC');
-CREATE TABLE domains (
-    domain  VARCHAR(80) NOT NULL,
-    PRIMARY KEY (domain),
-    userid  INT UNSIGNED NOT NULL,
-
-    INDEX (userid)
-)
 EOC
 
 register_tablecreate("procnotify", <<'EOC');
@@ -1423,6 +1365,7 @@ EOC
 # 'M' means targetid can moderate the community userid
 # 'N' means targetid is preapproved to post to community userid w/o moderation
 # 'I' means targetid invited userid to the site
+# 'S' means targetid will have comments automatically screened in userid
 # new types to be added here
 
 register_tablecreate("reluser", <<'EOC');
@@ -2246,16 +2189,6 @@ CREATE TABLE sch_exitstatus (
 )
 EOC
 
-register_tablecreate("comm_promo_list", <<'EOC');
-CREATE TABLE comm_promo_list (
-    journalid INT UNSIGNED NOT NULL,
-    r_start INT UNSIGNED NOT NULL,
-    r_end INT UNSIGNED NOT NULL,
-
-    INDEX (r_start)
-)
-EOC
-
 register_tablecreate("usersearch_packdata", <<'EOC');
 CREATE TABLE usersearch_packdata (
     userid      INT UNSIGNED NOT NULL PRIMARY KEY,
@@ -2304,15 +2237,6 @@ CREATE TABLE dirmogsethandles (
     exptime  INT UNSIGNED NOT NULL,
 
     INDEX    (exptime)
-)
-EOC
-
-register_tablecreate("incoming_email_handle", <<'EOC');
-CREATE TABLE incoming_email_handle (
-    ieid     INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    timerecv INT UNSIGNED NOT NULL DEFAULT '0',
-
-    PRIMARY KEY  (ieid)
 )
 EOC
 
@@ -2395,28 +2319,6 @@ CREATE TABLE pollsubmission2 (
 EOC
 
 # clustered
-register_tablecreate("pollprop2", <<'EOC');
-CREATE TABLE pollprop2 (
-    journalid INT UNSIGNED NOT NULL,
-    pollid INT UNSIGNED NOT NULL,
-    propid SMALLINT UNSIGNED NOT NULL,
-    propval VARCHAR(255) NOT NULL,
-
-    PRIMARY KEY (journalid,pollid,propid)
-)
-EOC
-
-register_tablecreate("pollproplist2", <<'EOC');
-CREATE TABLE pollproplist2 (
-    propid SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) DEFAULT NULL,
-    des VARCHAR(255) DEFAULT NULL,
-    scope ENUM('general', 'local') DEFAULT 'general' NOT NULL,
-
-    UNIQUE KEY (name)
-)
-EOC
-
 # clustered
 register_tablecreate("embedcontent", <<'EOC');
 CREATE TABLE embedcontent (
@@ -3418,10 +3320,6 @@ register_alter(sub {
                  "count int(5) UNSIGNED NOT NULL DEFAULT 0 AFTER challenge");
     }
 
-    if (column_type("userblob", "length") =~ /mediumint/) {
-        do_alter("userblob", "ALTER TABLE userblob MODIFY length INT UNSIGNED");
-    }
-
     unless (index_name("support", "INDEX:requserid")) {
         do_alter("support", "ALTER IGNORE TABLE support ADD INDEX (requserid), ADD INDEX (reqemail)");
     }
@@ -3444,10 +3342,6 @@ register_alter(sub {
         do_alter("userpic2", "ALTER TABLE userpic2 " .
                  "ADD flags tinyint(1) unsigned NOT NULL default 0 AFTER comment, " .
                  "ADD location enum('blob','disk','mogile') default NULL AFTER flags");
-    }
-
-    if (column_type("userblob", "blobid") =~ /mediumint/) {
-        do_alter("userblob", "ALTER TABLE userblob MODIFY blobid INT UNSIGNED NOT NULL");
     }
 
     if (column_type("counter", "max") =~ /mediumint/) {
@@ -4142,7 +4036,7 @@ EOF
                         userid => $row->{userid},
                         versionid => $row->{mediaid}
                 );
-                my $imagedata = LJ::mogclient()->get_file_data( $media_file->mogkey );
+                my $imagedata = DW::BlobStore->retrieve( media => $media_file->mogkey );
                 my ( $width, $height ) = Image::Size::imgsize( $imagedata );
                 unless (defined $width && defined $height) {
                     $failed++;
@@ -4180,6 +4074,25 @@ EOF
                   "ALTER TABLE spamreports ".
                   "MODIFY ip VARCHAR(45)" );
     }
+
+    unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
+        do_alter( 'ml_items',
+                  "ALTER TABLE ml_items MODIFY COLUMN itcode VARCHAR(120) CHARACTER SET ascii NOT NULL" );
+    }
+
+    if ( column_type( 'user', 'txtmsg_status' ) ) {
+        do_alter( 'user',
+                  "ALTER TABLE user DROP COLUMN txtmsg_status" );
+    }
+
+    unless ( column_type( 'userpic2', 'location' ) =~ /blobstore/ ) {
+        do_alter( 'userpic2',
+            q{ALTER TABLE userpic2
+            MODIFY COLUMN location ENUM('blob', 'disk', 'mogile', 'blobstore')
+            DEFAULT NULL}
+        );
+    }
+
 });
 
 

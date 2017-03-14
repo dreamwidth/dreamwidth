@@ -21,24 +21,24 @@ no warnings 'uninitialized';
 use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
                        HTTP_MOVED_PERMANENTLY HTTP_MOVED_TEMPORARILY
                        M_TRACE M_OPTIONS /;
+use Carp qw/ croak confess /;
+use Compress::Zlib;
+use Cwd qw/abs_path/;
+use Fcntl ':mode';
 
-use LJ::Protocol;
-
-# needed to call S2::set_domain() so early:
-use LJ::S2;
 use Apache::LiveJournal::Interface::Blogger;
 use Apache::LiveJournal::PalImg;
-use LJ::ModuleCheck;
-use Compress::Zlib;
-use LJ::PageStats;
-use LJ::URI;
+use DW::Auth;
+use DW::BlobStore;
+use DW::Request::XMLRPCTransport;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
-use DW::Auth;
-use DW::Request::XMLRPCTransport;
-use Cwd qw/abs_path/;
-use Carp qw/ croak confess /;
+use LJ::ModuleCheck;
+use LJ::PageStats;
+use LJ::Protocol;
+use LJ::S2;
+use LJ::URI;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -89,26 +89,36 @@ sub handler
         $apache_r->push_handlers(PerlCleanupHandler => "LJ::end_request");
         $apache_r->push_handlers(PerlCleanupHandler => "Apache::DebateSuicide");
 
-        if ($LJ::TRUST_X_HEADERS) {
+        if ( $LJ::TRUST_X_HEADERS ) {
             # if we're behind a lite mod_proxy front-end, we need to trick future handlers
             # into thinking they know the real remote IP address.  problem is, it's complicated
             # by the fact that mod_proxy did nothing, requiring mod_proxy_add_forward, then
             # decided to do X-Forwarded-For, then did X-Forwarded-Host, so we have to deal
-            # with all permutations of versions, hence all the ugliness:
-            @req_hosts = ($apache_r->connection->client_ip);
-            if (my $forward = $apache_r->headers_in->{'X-Forwarded-For'})
-            {
-                my (@hosts, %seen);
-                foreach (split(/\s*,\s*/, $forward)) {
-                    next if $seen{$_}++;
-                    push @hosts, $_;
-                    push @req_hosts, $_;
+            # with all permutations of versions, hence all the ugliness.  Furthermore, we might
+            # be behind other types of proxies and loadbalancers that we trust, but the user
+            # might have their own, so we should distinguish trusted proxies from other IPs.
+            @req_hosts = ( $apache_r->connection->client_ip );
+            if ( my $forward = $apache_r->headers_in->{'X-Forwarded-For'} ) {
+                my @hosts = split( /\s*,\s*/, $forward );
+                if ( @hosts ) {
+                    # Completely ignore original client ip here, since it may belong to
+                    # the previous pipelined request on this connection to this Apache worker.
+                    @req_hosts = keys %{ { map { $_ => 1 } @hosts } };
+
+                    my $real;
+                    if ( ref $LJ::IS_TRUSTED_PROXY eq 'CODE' ) {
+                        # Find last IP in X-Forwarded-For that isn't a trusted proxy.
+                        do {
+                            $real = pop @hosts;
+                        } while ( @hosts && $LJ::IS_TRUSTED_PROXY->( $real ) );
+                    } else {
+                        # Trust everything by default, real client IP is first.
+                        $real = shift @hosts;
+                        @hosts = ();
+                    }
+                    $apache_r->connection->client_ip( $real );
                 }
-                if (@hosts) {
-                    my $real = shift @hosts;
-                    $apache_r->connection->client_ip($real);
-                }
-                $apache_r->headers_in->{'X-Forwarded-For'} = join(", ", @hosts);
+                $apache_r->headers_in->{'X-Forwarded-For'} = join( ", ", @hosts );
             }
 
             # and now, deal with getting the right Host header
@@ -127,11 +137,10 @@ sub handler
                 next if $cur_mod == $mod;
                 $to_reload{$file} = 1;
             }
-            my @key_del;
-            foreach (my ($key, $file) = each %INC) {
-                push @key_del, $key if $to_reload{$file};
+            foreach my $key ( keys %INC ) {
+                my $file = $INC{$key};
+                delete $INC{$key} if $to_reload{$file};
             }
-            delete $INC{$_} foreach @key_del;
 
             foreach my $file (keys %to_reload) {
                 print STDERR "[$$] Reloading file: $file.\n";
@@ -188,12 +197,6 @@ sub totally_down_content
         return OK;
     }
 
-    if ($uri =~ m!^/customview.cgi!) {
-        $apache_r->content_type("text/html");
-        $apache_r->print("<!-- $LJ::SERVER_DOWN_MESSAGE -->");
-        return OK;
-    }
-
     # set to 500 so people don't cache this error message
     my $body = "<h1>$LJ::SERVER_DOWN_SUBJECT</h1>$LJ::SERVER_DOWN_MESSAGE<!-- " . ("x" x 1024) . " -->";
     $apache_r->status( 503 );
@@ -202,6 +205,52 @@ sub totally_down_content
     $apache_r->headers_out->{"Content-length"} = length $body;
 
     $apache_r->print($body);
+    return OK;
+}
+
+sub send_concat_res_response {
+    my $apache_r = $_[0];
+    my $args = $apache_r->args;
+    my $uri = $apache_r->uri;
+
+    my $dir = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
+    return 404
+        unless -d $dir;
+
+    # Might contain cache buster "?v=3234234234" at the end;
+    # plus possibly other unique args (caught by the .*)
+    $args =~ s/\?v=\d+.*$//;
+
+    # Collect each file
+    my ( $body, $size, $mtime, $mime ) = ( '', 0, 0, undef );
+    foreach my $file ( split /,/, substr( $args, 1 ) ) {
+        my $res = load_file_for_concat( "$dir$file" );
+        return 404
+            unless defined $res;
+        $body .= $res->[0];
+        $size += $res->[1];
+        $mtime = $res->[2]
+            if $res->[2] > $mtime;
+        $mime //= $res->[3];
+
+        # And catch if they've mixed filetypes, we can't do that
+        return 404
+            if $mime ne $res->[3];
+    }
+
+    # No files? Something went wrong
+    return 404
+        unless $body;
+
+    # Got a bunch of files, let's concatenate them into the output
+    $apache_r->status( 200 );
+    $apache_r->status_line( "200 OK" );
+    $apache_r->content_type( $mime );
+    $apache_r->headers_out->{"Content-length"} = $size;
+    $apache_r->headers_out->{"Last-Modified"} = LJ::time_to_http( $mtime );
+    if ( $apache_r->method eq 'GET' ) {
+        $apache_r->print( $body );
+    }
     return OK;
 }
 
@@ -297,10 +346,13 @@ sub resolve_path_for_uri {
     return undef;
 }
 
-sub trans
-{
-    my $apache_r = shift;
-    return DECLINED if defined $apache_r->main || $apache_r->method_number == M_OPTIONS;  # don't deal with subrequests or OPTIONS
+# trans does all the things. This is the initial entrypoint for all requests.
+sub trans {
+    my $apache_r = $_[0];
+
+    # don't deal with subrequests or OPTIONS
+    return DECLINED
+        if defined $apache_r->main || $apache_r->method_number == M_OPTIONS;
 
     my $uri = $apache_r->uri;
     my $args = $apache_r->args;
@@ -335,7 +387,7 @@ sub trans
     my $protocol = $is_ssl ? "https" : "http";
 
     my $bml_handler = sub {
-        my $filename = shift;
+        my $filename = $_[0];
 
         # redirect to HTTPS if necessary
         my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
@@ -371,7 +423,7 @@ sub trans
             $apache_r->handler( "perl-script" );
             $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
             return OK;
-            }
+        }
 
     } else { # not is_initial_req
         if ($apache_r->status == 404) {
@@ -430,11 +482,21 @@ sub trans
         }
     }
 
+    # force SSL if not currently and user is in httpseverywhere beta
+    my $remote = LJ::get_remote();
+    if ( $apache_r->is_initial_req && $LJ::USE_SSL && ! $is_ssl && $remote &&
+            ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' ) &&
+            $remote->is_in_beta( 'httpseverywhere' ) ) {
+
+        my $url = LJ::create_url( $uri, keep_args => 1, ssl => 1 );
+        return redir( $apache_r, $url );
+    }
+
     # block on IP address for anonymous users but allow users to log in,
     # and logged in users to go through
 
     # we're not logged in, and we're not in the middle of logging in
-    unless ( LJ::get_remote() || LJ::remote_bounce_url() ) {
+    unless ( $remote || LJ::remote_bounce_url() ) {
         # blocked anon uri contains more information for the user
         # re: why they're banned, and what they should do
         unless ( ( $LJ::BLOCKED_ANON_URI && index( $uri, $LJ::BLOCKED_ANON_URI ) == 0 )
@@ -477,6 +539,15 @@ sub trans
         }
     }
 
+    # See if this is a concatenated static file request. If so, the args will start with a '?'
+    # which means the original URL was of the form '/foo/??bar'.
+    if ( $args =~ /^\?/ ) {
+        $apache_r->handler( "perl-script" );
+        $apache_r->push_handlers( PerlResponseHandler => \&send_concat_res_response );
+        return OK;
+    }
+
+    # Normal request processing
     my %GET = LJ::parse_args( $apache_r->args );
 
     if ($LJ::IS_DEV_SERVER && $GET{'as'} =~ /^\w{1,25}$/) {
@@ -501,7 +572,7 @@ sub trans
 
         # do redirects:
         # -- uppercase usernames
-        # -- users with hyphens/underscores, except users from external domains (see table 'domains')
+        # -- users with hyphens/underscores, except users from external domains
         if ( $orig_user ne lc($orig_user) ||
             $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^$protocol://$host!i && $opts->{'vhost'} !~ /^other:/) {
             my $newurl = $uri;
@@ -633,11 +704,6 @@ sub trans
 
             my ($mode, $path) = ($1, $2);
 
-            if ($mode eq "customview") {
-                $apache_r->handler("perl-script");
-                $apache_r->push_handlers(PerlResponseHandler => \&customview_content);
-                return OK;
-            }
             if (my $handler = LJ::Hooks::run_hook("data_handler:$mode", $RQ{'user'}, $path)) {
                 $apache_r->handler("perl-script");
                 $apache_r->push_handlers(PerlResponseHandler => $handler);
@@ -809,11 +875,6 @@ sub trans
         });
     };
 
-    # flag if we hit a domain that was configured as a "normal" domain
-    # which shouldn't be inspected for its domain name.  (for use with
-    # Akamai and other CDN networks...)
-    my $skip_domain_checks = 0;
-
     # user domains
     if (($LJ::USER_VHOSTS || $LJ::ONLY_USER_VHOSTS) &&
         $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/ &&
@@ -833,9 +894,7 @@ sub trans
         my $func = $LJ::SUBDOMAIN_FUNCTION{$user};
         if ($func eq "normal") {
             # site admin wants this domain to be ignored and treated as if it
-            # were "www", so set this flag so the custom "OTHER_VHOSTS" check
-            # below fails.
-            $skip_domain_checks = 1;
+            # were "www"
 
         } elsif ($func eq "cssproxy") {
 
@@ -899,31 +958,6 @@ sub trans
             return $view if defined $view;
             return 404;
         }
-    }
-
-    # custom used-specified domains
-    if ($LJ::OTHER_VHOSTS && !$skip_domain_checks &&
-        $host !~ /$LJ::DOMAIN$/ &&
-        $host =~ /\./ &&
-        $host =~ /[^\d\.]/)
-    {
-        my $dbr = LJ::get_db_reader();
-        my $checkhost = lc( $host );
-        $checkhost =~ s/^www\.//i;
-        my $key = "domain:$checkhost";
-        my $userid = LJ::MemCache::get( $key );
-        unless (defined $userid) {
-            my $db = LJ::get_db_reader();
-            ($userid) = $db->selectrow_array( qq{SELECT userid FROM domains WHERE domain=?}, undef, $checkhost );
-            $userid ||= 0; ## we do cache negative results - if no user for such domain, set userid=0
-            LJ::MemCache::set( $key, $userid );
-        }
-        my $user = LJ::load_userid( $userid );
-        return 404 unless $user;
-
-        my $view = $determine_view->( $user->user, "other:$host$hostport", $uri );
-        return $view if defined $view;
-        return 404;
     }
 
     # userpic
@@ -1026,13 +1060,6 @@ sub trans
         return $view if defined $view;
     }
 
-    # customview (get an S1 journal by number)
-    if ($uri =~ m!^/customview\.cgi!) {
-        $apache_r->handler("perl-script");
-        $apache_r->push_handlers(PerlResponseHandler => \&customview_content);
-        return OK;
-    }
-
     if ($uri =~ m!^/palimg/!) {
         Apache::LiveJournal::PalImg->load;
         $apache_r->handler("perl-script");
@@ -1075,7 +1102,7 @@ sub userpic_trans
         my $host = $apache_r->headers_in->{"Host"};
         unless (    $LJ::USERPIC_ROOT =~ m!^https?://\Q$host\E!i
                     || $LJ::USERPIC_ROOT_CDN && $LJ::USERPIC_ROOT_CDN =~ m!^https?://\Q$host\E!i
-                    || $host eq '127.0.0.1' # FIXME: lame hack for DW config
+                    || $host eq '127.0.0.1' # FIXME: not great hack for DW config
         ) {
             return redir($apache_r, "$LJ::USERPIC_ROOT/$picid/$userid");
         }
@@ -1093,67 +1120,25 @@ sub userpic_trans
     return OK;
 }
 
-sub userpic_content
-{
-    my $apache_r = shift;
-    my $file = $apache_r->filename;
-
-    my $picid = $RQ{'picid'};
-    my $userid = $RQ{'pic-userid'}+0;
-
-    my ($data, $lastmod);
-
-    my $mime = "image/jpeg";
-    my $set_mime = sub {
-        my $data = shift;
-        if ($data =~ /^GIF/) { $mime = "image/gif"; }
-        elsif ($data =~ /^\x89PNG/) { $mime = "image/png"; }
-    };
-    my $size;
-
-    my $send_headers = sub {
-        $size = $_[0] if @_;
-        $size ||= 0;
-        $apache_r->content_type( $mime );
-        $apache_r->headers_out->{"Content-length"} = $size + 0;
-        $apache_r->headers_out->{"Cache-Control"} = "no-transform";
-        $apache_r->headers_out->{"Last-Modified"} = LJ::time_to_http($lastmod);
-    };
+sub userpic_content {
+    my $apache_r = $_[0];
 
     # Load the user object and pic and make sure the picture is viewable
-    my $u = LJ::load_userid($userid);
-    my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } )
+    my $u = LJ::load_userid( $RQ{'pic-userid'} );
+    my $pic = LJ::Userpic->get( $u, $RQ{'picid'}, { no_expunged => 1 } )
         or return NOT_FOUND;
 
-    # Read the mimetype from the pichash if dversion 7
-    $mime = $pic->mimetype;
-
-    ### Handle reproxyable requests
-
-    # For dversion 7+ and mogilefs userpics, follow this path
-    if ( $pic->in_mogile ) {
-        my $key = $u->mogfs_userpic_key( $picid );
-        my $memkey = [$picid, "mogp.up.$picid"];
-        mogile_fetch( $apache_r, $key, $memkey, 'userpics', $send_headers );
-        return OK;
-    }
-
-    # else, get it from db.
-    unless ($data) {
-        $lastmod = $pic->pictime;
-
-        my $dbb = LJ::get_cluster_reader( $u );
-        return SERVER_ERROR unless $dbb;
-        $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE " .
-                                       "userid=$userid AND picid=$picid" );
-    }
-
+    # Must have contents by now, or return 404
+    my $data = $pic->imagedata;
     return NOT_FOUND unless $data;
 
-    $set_mime->($data);
-    $size = length($data);
-    $send_headers->();
-    $apache_r->print($data) unless $apache_r->header_only;
+    # Everything looks good, send it
+    $apache_r->content_type( $pic->mimetype );
+    $apache_r->headers_out->{"Content-length"} = length $data;
+    $apache_r->headers_out->{"Cache-Control"} = "no-transform";
+    $apache_r->headers_out->{"Last-Modified"} = LJ::time_to_http( $pic->pictime );
+    $apache_r->print( $data )
+        unless $apache_r->header_only;
     return OK;
 }
 
@@ -1194,9 +1179,8 @@ sub vgift_trans
     return OK;
 }
 
-sub vgift_content
-{
-    my $apache_r = shift;
+sub vgift_content {
+    my $apache_r = $_[0];
     my $picid = $RQ{picid};
     my $picsize = $RQ{picsize};
 
@@ -1205,7 +1189,6 @@ sub vgift_content
     return NOT_FOUND unless $mime;
 
     my $size;
-
     my $send_headers = sub {
         $size = $_[0] if @_;
         $size ||= 0;
@@ -1215,9 +1198,47 @@ sub vgift_content
     };
 
     my $key = $vg->img_mogkey( $picsize );
-    my $memkey = $vg->img_memkey( $picsize ); #[$picid, "mogp.vg.$picsize.$picid"];
-    mogile_fetch( $apache_r, $key, $memkey, 'vgifts', $send_headers );
+    my $data = DW::BlobStore->retrieve( vgifts => $key );
+    return NOT_FOUND unless $data;
+
+    $send_headers->( length $$data );
+    $apache_r->print( $$data )
+        unless $apache_r->header_only;
     return OK;
+}
+
+# load_file_for_concat will retrieve the given file from the disk and return:
+# (contents, size, mtime, mime). If the file doesn't exist, undef is returned.
+sub load_file_for_concat {
+    my $fn = $_[0];
+
+    # No path traversal
+    return undef if $fn =~ /\.\./;
+
+    # Specific types only -- we only support loading files for concatenation if
+    # their extension is in this list
+    my $mime;
+    if ( $fn =~ /\.([a-z]+)$/ ) {
+        $mime = {
+            css => 'text/css',
+            js  => 'application/javascript',
+        }->{$1};
+    }
+    return undef unless $mime;
+
+    # Verify exists and is regular file
+    my @stat = stat( $fn );
+    return undef
+        unless scalar @stat > 0 &&
+               S_ISREG( $stat[2] );
+
+    my $contents;
+    open FILE, "<$fn"
+        or return undef;
+    { local $/ = undef; $contents = <FILE>; }
+    close FILE;
+
+    return [ $contents, $stat[7], $stat[9], $mime ];
 }
 
 sub adult_interstitial {
@@ -1477,83 +1498,6 @@ sub journal_content
     return OK;
 }
 
-sub customview_content
-{
-    my $apache_r = shift;
-    my %FORM = $apache_r->args;
-
-    my $charset = "utf-8";
-
-    if ($LJ::UNICODE && $FORM{'charset'}) {
-        $charset = $FORM{'charset'};
-        if ($charset ne "utf-8" && ! Unicode::MapUTF8::utf8_supported_charset($charset)) {
-            $apache_r->content_type("text/html");
-            $apache_r->print("<b>Error:</b> requested charset not supported.");
-            return OK;
-        }
-    }
-
-    my $ctype = "text/html";
-    if ($FORM{'type'} eq "xml") {
-        $ctype = "text/xml";
-    }
-
-    if ($LJ::UNICODE) {
-        $ctype .= "; charset=$charset";
-    }
-
-    $apache_r->content_type($ctype);
-
-    my $cur_journal = LJ::Session->domain_journal;
-    my $user = LJ::canonical_username($FORM{'username'} || $FORM{'user'} || $cur_journal);
-    my $styleid = $FORM{'styleid'} + 0;
-    my $nooverride = $FORM{'nooverride'} ? 1 : 0;
-
-    if ($LJ::ONLY_USER_VHOSTS && $cur_journal ne $user) {
-        my $u = LJ::load_user($user)
-            or return 404;
-        my $safeurl = $u->journal_base . "/data/customview?";
-        my %get_args = %FORM;
-        delete $get_args{'user'};
-        delete $get_args{'username'};
-        $safeurl .= join("&", map { LJ::eurl($_) . "=" . LJ::eurl($get_args{$_}) } keys %get_args);
-        return redir($apache_r, $safeurl);
-    }
-
-    my $remote;
-    if ($FORM{'checkcookies'}) {
-        $remote = LJ::get_remote();
-    }
-
-    my $data = (LJ::make_journal($user, "", $remote,
-                 { "nocache" => $FORM{'nocache'},
-                   "vhost" => "customview",
-                   "nooverride" => $nooverride,
-                   "styleid" => $styleid,
-                   "saycharset" => $charset,
-                   "args" => scalar $apache_r->args,
-                   "r" => $apache_r,
-               })
-          || "<b>[$LJ::SITENAME: Bad username, styleid, or style definition]</b>");
-
-    if ($FORM{'enc'} eq "js") {
-        $data =~ s/\\/\\\\/g;
-        $data =~ s/\"/\\\"/g;
-        $data =~ s/\n/\\n/g;
-        $data =~ s/\r//g;
-        $data = "document.write(\"$data\")";
-    }
-
-    if ($LJ::UNICODE && $charset ne 'utf-8') {
-        $data = Unicode::MapUTF8::from_utf8({-string=>$data, -charset=>$charset});
-    }
-
-    $apache_r->headers_out->{"Cache-Control"} = "must-revalidate";
-    $apache_r->headers_out->{"Content-Length"} = length($data);
-    $apache_r->print($data) unless $apache_r->header_only;
-    return OK;
-}
-
 sub correct_url_redirect_code {
     if ($LJ::CORRECT_URL_PERM_REDIRECT) {
         return HTTP_MOVED_PERMANENTLY;
@@ -1582,45 +1526,6 @@ sub interface_content
     return OK;
 }
 
-sub mogile_fetch {
-    my ( $apache_r, $key, $memkey, $class, $send_headers ) = @_;
-
-    if ( !$LJ::REPROXY_DISABLE{$class} &&
-         $apache_r->headers_in->{'X-Proxy-Capabilities'} &&
-         $apache_r->headers_in->{'X-Proxy-Capabilities'} =~ m{\breproxy-file\b}i ) {
-
-        my $zone = $apache_r->headers_in->{'X-MogileFS-Explicit-Zone'} || undef;
-        $memkey->[1] .= ".$zone" if $zone;
-
-        my $cache_for = $LJ::MOGILE_PATH_CACHE_TIMEOUT || 3600;
-
-        my $paths = LJ::MemCache::get( $memkey );
-        unless ( $paths ) {
-            # load and add to memcache
-            my @paths = LJ::mogclient()->get_paths( $key, { noverify => 1, zone => $zone } );
-            $paths = \@paths;
-            LJ::MemCache::add( $memkey, $paths, $cache_for ) if @paths;
-        }
-
-        if ( defined $paths->[0] && $paths->[0] =~ m/^https?:/ ) {
-            # reproxy url
-            $apache_r->headers_out->{'X-REPROXY-CACHE-FOR'} = "$cache_for; Last-Modified Content-Type";
-            $apache_r->headers_out->{'X-REPROXY-URL'} = join( ' ', @$paths );
-        } else {
-            # reproxy file
-            $apache_r->headers_out->{'X-REPROXY-FILE'} = $paths->[0];
-        }
-
-        $send_headers->();
-
-    } else {  # no reproxy
-        my $data = LJ::mogclient()->get_file_data( $key );
-        return NOT_FOUND unless $data;
-        $send_headers->( length $$data );
-        $apache_r->print( $$data ) unless $apache_r->header_only;
-    }
-}
-
 package LJ::Protocol;
 use Encode();
 
@@ -1644,6 +1549,10 @@ sub xmlrpc_method {
     }
     my $res = LJ::Protocol::do_request($method, $req, \$error);
     if ($error) {
+        # FIXME [#1709]: which errors don't start with numbers?
+        print STDERR "[#1709] xmlrpc error for $method needs faultcode: $error\n"
+            unless $error =~ /^\d{3}/;
+        # existing behavior
         die SOAP::Fault
             ->faultstring(LJ::Protocol::error_message($error))
             ->faultcode(substr($error, 0, 3));

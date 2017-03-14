@@ -570,6 +570,9 @@ sub file_request
     my $o = shift;
 
     my $email = $o->{'reqtype'} eq "email" ? $o->{'reqemail'} : "";
+    unless ( LJ::is_enabled( 'loggedout_support_requests' ) || !$email ) {
+        push @$errors, LJ::Lang::ml( "error.support.mustbeloggedin" );
+    }
     my $log = { 'uniq' => $o->{'uniq'},
                 'email' => $email };
     my $userid = 0;
@@ -1009,7 +1012,7 @@ sub mail_response_to_user
         if ( $faq ) {
             $faq->render_in_place;
             $body .= LJ::Lang::ml( "support.email.update.faqref") . " " . $faq->question_raw . "\n";
-            $body .= "$LJ::SITEROOT/support/faqbrowse?faqid=$faqid&view=full";
+            $body .= $faq->url_full;
             $body .= "\n\n";
         }
     }
@@ -1108,6 +1111,7 @@ sub work {
           }
 
         $body = LJ::Lang::ml( "support.email.notif.new.body2", {
+                sitename => $LJ::SITENAMESHORT,
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
                 username => LJ::trim( $show_name ),
@@ -1129,19 +1133,20 @@ sub work {
 
     } elsif ($type eq 'update') {
         # load the response we want to stuff in the email
-        my ($resp, $rtype, $posterid) =
-            $dbr->selectrow_array("SELECT message, type, userid FROM supportlog WHERE spid = ? AND splid = ?",
+        my ($resp, $rtype, $posterid, $faqid) =
+            $dbr->selectrow_array("SELECT message, type, userid, faqid FROM supportlog WHERE spid = ? AND splid = ?",
                                   undef, $sp->{spid}, $a->{splid}+0);
 
         # set up $show_name for this environment
         my $show_name;
         if ( $posterid ) {
-            my $u = LJ::load_userid ( $posterid );
+            my $u = LJ::load_userid( $posterid );
             $show_name = $u->display_name if $u;
         }
 
         $show_name ||= $sp->{reqname};
 
+        # set up $response_type for this environment
         my $response_type = {
             req => "New Request", # not applicable here
             answer => "Answer",
@@ -1151,14 +1156,39 @@ sub work {
         }->{$rtype};
 
         # build body
-        $body = LJ::Lang::ml( "support.email.notif.update.body3", {
+        $body = LJ::Lang::ml( "support.email.notif.update.body4", {
+                sitename => $LJ::SITENAMESHORT,
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
-                type => $response_type,
                 username => LJ::trim( $show_name ),
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",
-                text => $resp
+                type => $response_type
             } );
+        if ( $faqid ) {
+            # need to set up $lang
+            my ( $lang, $u );
+            $u = LJ::load_userid( $posterid ) if $posterid;
+            $lang = LJ::Support::prop( $spid, 'language' )
+                if LJ::is_enabled( 'support_request_language' );
+            $lang ||= $u->prop( 'browselang' ) if $u;
+            $lang ||= $LJ::DEFAULT_LANG;
+            
+            # now actually get the FAQ
+            my $faq = LJ::Faq->load( $faqid, lang => $lang );
+            if ( $faq ) {
+                $faq->render_in_place;
+                my $faqref = $faq->question_raw . " " . $faq->url_full;
+
+                # now add it to the e-mail!
+                $body .= "\n" . LJ::Lang::ml( "support.email.notif.update.body.faqref", {
+                        faqref => $faqref
+                } );
+                $body .= "\n";
+            }
+        }
+        $body .= LJ::Lang::ml( "support.email.notif.update.body.text", {
+                text => $resp
+        } );
         $body .= "\n\n" . "="x4 . "\n\n";
         $body .= LJ::Lang::ml( "support.email.notif.update.footer", {
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",

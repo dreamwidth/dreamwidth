@@ -46,7 +46,6 @@ body<=
     my @settings = ();
     push @settings, "LJ::Setting::FindByEmail" if LJ::is_enabled('opt_findbyemail');
     push @settings, "DW::Setting::ProfileEmail";
-    push @settings, "DW::Setting::TxtMsgSetup";
 
     my $dbr = LJ::get_db_reader();
     my $sth;
@@ -55,7 +54,7 @@ body<=
     # props in this list will be preloaded on page load and saved on post
     my @uprops = qw/
         opt_whatemailshow comm_theme
-        ao3 aolim delicious diigo etsy ffnet google_talk icq jabber
+        ao3 aolim delicious deviantart diigo etsy ffnet github google_talk icq jabber
         last_fm_user pinboard pinterest plurk ravelry skype tumblr twitter yahoo
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
@@ -390,26 +389,10 @@ body<=
                 $ret .= "</td></tr>\n";
             }
 
-        } # end is_person check
-
-        if ( $u->can_use_textmessaging ) {
-
-            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.section.textmsg'}</td>\n";
-            $ret .= "<td>";
-
-            $ret .= DW::Setting::TxtMsgSetup->option( $u, undef, { info_only => 1 } );
-            $ret .= "</td>\n<td class='selectvis'>";
-            $ret .= DW::Setting::TxtMsgSetup->option( $u, undef, { vis_only => 1 } );
-
-            $ret .= "</td></tr>\n";
-        }
-
-        if ( $u->is_person ) {
-
             # chat thingies
 
             $ret .= qq{
-    <tr class='section_subhead'><td colspan=2>$ML{'.subsection.other'}
+    <tr id='iminfo' class='section_subhead'><td colspan=2><a name='iminfo'></a>$ML{'.subsection.other'}
     </td><td class='view_options'>
     <a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'>
     $ML{'.fn.privacy'}: $curr_privacy</a></td></tr>\n
@@ -422,9 +405,11 @@ body<=
                            ["ao3", $ML{ '.services.ao3' }, 40],
                            ["aolim", $ML{'.chat.aolim'}, 28],
                            ["delicious", $ML{ '.services.delicious' }, 40],
+                           ["deviantart", $ML{'.services.deviantart'}, 20],
                            ["diigo", $ML{ '.services.diigo' }, 16],
                            ["etsy", $ML{ '.services.etsy' }, 20],
                            ["ffnet", $ML{ '.services.ffnet' }, 30],
+                           ["github", $ML{'.services.github'}, 39],
                            ["google_talk", $ML{'.chat.googletalk'}, 60],
                            ["icq", $ML{'.chat.icquin'}, 12],
                            ["jabber", $ML{'.chat.jabber'}, 60],
@@ -589,7 +574,7 @@ body<=
             push @errors, $ML{'.error.day.outofrange'};
         }
 
-        if (@errors == 0 && $POST{'day'} > LJ::days_in_month($POST{'month'}, $POST{'year'})) {
+        if ( @errors == 0 && $POST{'day'} && $POST{'day'} > LJ::days_in_month($POST{'month'}, $POST{'year'}) ) {
             push @errors, $ML{'.error.day.notinmonth'};
         }
 
@@ -625,10 +610,17 @@ body<=
 
         my $newbio = defined($POST{'bio_absent'}) ? $saved{'bio'} : $POST{'bio'};
         my $has_bio = ($newbio =~ /\S/) ? "Y" : "N";
+        my $new_bdate = sprintf( "%04d-%02d-%02d",
+                                 $POST{'year'}  || 0,
+                                 $POST{'month'} || 0,
+                                 $POST{'day'}   || 0
+                               );
+        my $new_bday = sprintf( "%02d-%02d", $POST{'month'} || 0, $POST{'day'} || 0 );
+
         # setup what we're gonna update in the user table:
         my %update = (
                       'name' => $newname,
-                      'bdate' => sprintf("%04d-%02d-%02d", $POST{'year'}, $POST{'month'}, $POST{'day'}),
+                      'bdate' => $new_bdate,
                       'has_bio' => $has_bio,
                       'allow_getljnews' => $POST{'allow_getljnews'} ? "Y" : "N",
                       );
@@ -668,15 +660,15 @@ body<=
             # if they share their birthdate publically
             if ($POST{'opt_sharebday'} =~ /^[AR]$/) {
                 # and actually provided a birthday
-                if ($POST{'month'} > 0 && $POST{'day'} > 0) {
+                if ( $POST{'month'} && $POST{'month'} > 0 && $POST{'day'} > 0 ) {
                     # and allow the entire thing to be displayed
                     if ($POST{'opt_showbday'} eq "F" && $POST{'year'}) {
-                        $POST{'sidx_bdate'} = sprintf("%04d-%02d-%02d", map { $POST{$_} } qw(year month day));
+                        $POST{'sidx_bdate'} = $new_bdate;
                     }
 
                     # or allow the date portion to be displayed
                     if ($POST{'opt_showbday'} =~ /^[FD]$/) {
-                        $POST{'sidx_bday'} = sprintf("%02d-%02d", map { $POST{$_} } qw(month day));
+                        $POST{'sidx_bday'} = $new_bday;
                     }
                 }
             }

@@ -94,6 +94,8 @@ sub change_relation_handler {
             unless $remote->can_leave( $targetu, errref => \$error );
 
         $success = $remote->leave_community( $targetu );
+    } elsif ( $action eq 'accept' ) {
+        $success = $remote->accept_comm_invite( $targetu );
     } elsif ( $action eq 'setBan' ) {
         my $list_of_banned = LJ::load_rel_user( $remote, 'B' ) || [];
 
@@ -152,12 +154,12 @@ sub ctxpopup_handler {
         # three ways to load a user:
 
         # username:
-        if ( my $user = LJ::canonical_username( $get->{user} ) ) {
+        if ( defined $get->{user} && ( my $user = LJ::canonical_username( $get->{user} ) ) ) {
             return LJ::load_user( $user );
         }
 
         # identity:
-        if ( my $userid = $get->{userid} ) {
+        if ( defined $get->{userid} && ( my $userid = $get->{userid} ) ) {
             return undef unless $userid =~ /^\d+$/;
             my $u = LJ::load_userid( $userid );
             return undef unless $u && $u->identity;
@@ -165,7 +167,7 @@ sub ctxpopup_handler {
         }
 
         # based on userpic url
-        if ( my $upurl = $get->{userpic_url} ) {
+        if ( defined $get->{userpic_url} && ( my $upurl = $get->{userpic_url} ) ) {
             return undef unless $upurl =~ m!(\d+)/(\d+)!;
             my ( $picid, $userid ) = ( $1, $2 );
             my $u = LJ::load_userid( $userid );
@@ -237,10 +239,13 @@ sub ctxpopup_handler {
     if ($u->is_comm) {
         $ret{url_joincomm}   = "$LJ::SITEROOT/circle/" . $u->{user} . "/edit";
         $ret{url_leavecomm}  = "$LJ::SITEROOT/circle/" . $u->{user} . "/edit";
+        $ret{url_acceptinvite}  = "$LJ::SITEROOT/manage/invites";
         $ret{is_member} = $remote->member_of( $u ) if $remote;
         $ret{is_closed_membership} = $u->is_closed_membership;
+        my $pending = $remote ? ( $remote->get_pending_invites || [] ) : [];
+        $ret{is_invited} = ( grep { $_->[0] == $u->id } @$pending ) ? 1 : 0;
 
-        push @actions, 'join', 'leave';
+        push @actions, 'join', 'leave', 'accept';
     }
 
     # generate auth tokens
@@ -557,9 +562,11 @@ sub profileexpandcollapse_handler {
     my $get = $r->get_args;
 
     # if any opts aren't defined, they'll be passed in as empty strings
+    # (actually header and expand are sometimes undefined in my testing,
+    #  hence the updates below.  --kareila 2015/08/19)
     my $mode = $get->{mode} eq "save" ? "save" : "load";
-    my $header = $get->{header} eq "" ? undef : $get->{header};
-    my $expand = $get->{expand} eq "false" ? 0 : 1;
+    my $header = ( defined $get->{header} && $get->{header} eq "" ) ? undef : $get->{header};
+    my $expand = ( defined $get->{expand} && $get->{expand} eq "false" ) ? 0 : 1;
 
     my $remote = LJ::get_remote();
     return unless $remote;
@@ -584,7 +591,8 @@ sub profileexpandcollapse_handler {
             $remote->set_prop( profile_collapsed_headers => join( ",", keys %is_collapsed ) );
         }
     } else { # load
-        return DW::RPC->out( headers => [ split( /,/, $remote->prop( "profile_collapsed_headers" ) ) ] );
+        my $profile_collapsed_headers = $remote->prop( "profile_collapsed_headers" ) // '';
+        return DW::RPC->out( headers => [ split( /,/, $profile_collapsed_headers ) ] );
     }
 }
 

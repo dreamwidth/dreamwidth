@@ -31,10 +31,6 @@ _c?>
         js/6alib/image-region-select.js
     ));
 
-    # optional suffix, for beta testing.  can be removed soon after 2006-03-29
-    my $sfx = $GET{'sfx'} || "";
-    $sfx = "" unless $sfx =~ /^[\-\w]{1,10}$/;
-
     my $w = int($GET{'imageWidth'});
     my $h = int($GET{'imageHeight'});
 
@@ -42,8 +38,13 @@ _c?>
 
     if (!$w || !$h) {
         # we do not have the width and height passed in, we have to compute it ourselves
-        my $upf = LJ::Userpic->get_upf_scaled( size => $scaledSizeMax, userid => $remote->userid, mogkey => "upf_$GET{index}:$remote->{userid}" );
-        ($w, $h) = ($upf->[2], $upf->[3]) if ($upf && $upf->[2]);
+        my $upf = LJ::Userpic->get_upf_scaled(
+            size => $scaledSizeMax,
+            userid => $remote->userid,
+            mogkey => "upf_$GET{index}:$remote->{userid}"
+        );
+        ($w, $h) = ($upf->[2], $upf->[3])
+            if $upf && $upf->[2];
     }
 
     my $picpath = $LJ::SITEROOT . "/misc/mogupic?size=$scaledSizeMax&authas=$GET{authas}&index=$GET{index}";
@@ -179,7 +180,7 @@ if ($GET{successcount}) {
 }
 
 $body .= qq {
-    <a href="/editicons$sfx"><< Edit Icons</a>
+    <a href="/editicons"><< Edit Icons</a>
     <noscript><p><b>
 You need JavaScript in order to use the
 Icon Factory. Since you have JavaScript disabled, you will be unable
@@ -191,7 +192,7 @@ Create Icon button.</b></p>
 
 
 my $upload_form = qq {
-        <form enctype="multipart/form-data" action="/editicons$sfx"
+        <form enctype="multipart/form-data" action="/editicons"
         method='post'>
       From File: <input type="file" name="userpic" /><br/>
       <small>JPEG only.</small>
@@ -199,33 +200,23 @@ my $upload_form = qq {
     LJ::html_hidden({name => 'src', value => 'file'}) .
     LJ::html_submit('Upload') . '</form>';
 
-
-# is there a pic in mogile?
-my @paths = LJ::mogclient()->get_paths("upf_$GET{index}:$remote->{userid}");
-if (! @paths) {
+# is there a pic?
+if (! DW::BlobStore->exists( temp => "upf_$GET{index}:$remote->{userid}" )) {
     $body .= '<?p You have no picture uploaded. You must upload one: p?>';
     $body .= $upload_form;
-
     return;
 }
 
-if (0) {
-    $body .= qq {
-        <div class='highlight-box'>
-            <?p You can edit your currently uploaded picture or you can upload a new one: p?>
-
-            $upload_form
-            </div>
-        };
-}
-
 $body .= qq {
-        <?p Click and drag anywhere within the photo to create your icon. When you're happy with what you see in the preview box click the Create Icon button to save it. p?>
+        <?p Click and drag anywhere within the photo to create your icon. When you're
+        happy with what you see in the preview box click the Create Icon button to save it. p?>
 
-      <div id="picContainer" style="float: left; margin-bottom: 15px; width: ${scaledSizeMax}px; height: ${scaledSizeMax}px; border: 2px solid #EEEEEE; padding: 2px;"> <img src="$picpath" id="userpic" style="display: none;" /></div>
+      <div id="picContainer" style="float: left; margin-bottom: 15px; width: ${scaledSizeMax}px;
+      height: ${scaledSizeMax}px; border: 2px solid #EEEEEE; padding: 2px;"> <img src="$picpath"
+      id="userpic" style="display: none;" /></div>
 
       <div class='highlight-box' style='float: right;'>
-      <form action="$LJ::SITEROOT/editicons$sfx?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
+      <form action="$LJ::SITEROOT/editicons?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
       <table summary="" cellpadding="4"><tr>
       <td style='whitespace: nowrap'>
         <nobr><input type="checkbox" id="constrain" onchange="setConstrain();" />
@@ -263,7 +254,6 @@ $body .= qq {
       </form></div>
     };
 }
-#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
 return;
 

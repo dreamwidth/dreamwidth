@@ -4,8 +4,14 @@
 
 .label.title=Title
 
+.label.alttext=Short Description
+
 .title=Upload Images
 
 .upload.legend=Upload
 
 .upload.submit=Upload
+
+.success=Image uploaded successfully.
+
+.intro=Upload new images to the site below. <a href="[[aopts1]]">View all your images</a> or <a href="[[aopts2]]">manage your images</a>.

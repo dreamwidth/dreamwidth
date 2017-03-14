@@ -65,24 +65,6 @@ $maint{'clean_caches'} = sub
     }
     print "    deleted $count\n";
 
-    print "-I- Cleaning diresearchres.\n";
-    # need insert before delete so master logs delete and slaves actually do it
-    $dbh->do("INSERT INTO dirsearchres2 VALUES (MD5(NOW()), DATE_SUB(NOW(), INTERVAL 31 MINUTE), '')");
-    $dbh->do("DELETE FROM dirsearchres2 WHERE dateins < DATE_SUB(NOW(), INTERVAL 30 MINUTE)");
-
-    # clean incoming emails older than 7 days from Mogile...
-    my $mogc = LJ::mogclient();
-    if ($mogc) {
-        print "-I- Cleaning incoming email temporary handles.\n";
-        $sth = $dbh->prepare("SELECT ieid FROM incoming_email_handle WHERE timerecv < UNIX_TIMESTAMP() - 86400*7 LIMIT 10000");
-        $sth->execute;
-        while (my ($id) = $sth->fetchrow_array) {
-            if ($mogc->delete("ie:$id")) {
-                $dbh->do("DELETE FROM incoming_email_handle WHERE ieid=?", undef, $id);
-            }
-        }
-    }
-
     print "-I- Cleaning old pending comments.\n";
     $count = 0;
     foreach my $c (@LJ::CLUSTERS) {
@@ -191,7 +173,7 @@ $maint{'clean_caches'} = sub
         my ($yr, $mo, $day, $hr) =
             $time_str =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d)/;
 
-        # Building up all this sql is pretty ghetto but otherwise it
+        # Building up all this sql is pretty messy but otherwise it
         # becomes unwieldy with tons of code duplication and more places
         # for this fairly-complicated where condition to break.  So we'll
         # build a nice where clause which uses bind vars and then create

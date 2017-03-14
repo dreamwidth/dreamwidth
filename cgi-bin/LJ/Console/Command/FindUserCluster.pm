@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "find_user_cluster" }
 
-sub desc { "List the name of the cluster a user is on." }
+sub desc { "List the name of the cluster a user is on. Requires priv: supportviewscreened or supporthelp." }
 
 sub args_desc { [
                  'user' => "Username of the account to look up",

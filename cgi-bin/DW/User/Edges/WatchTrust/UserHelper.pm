@@ -47,7 +47,7 @@ sub new {
     # should we exclude mutual watches from 'w_rev_userids'?
     $self->{mutualsep} = delete $args{mutuals_separate};
 
-    # TODO: lame that we have to pass this in, but currently
+    # FIXME: sad that we have to pass this in, but currently
     # it's not cached on the $u singleton.  in future, remove this.
     # it's a hashref of { $userid => 1 }, for user's trusts
     $self->{t_userids} = delete $args{t_userids} || {};

@@ -116,10 +116,12 @@ sub IconsPage {
             });
         }
 
+        my $kwstr = join( ', ', @{$keywords} );
+
         push @pics_out, {
             '_type' => 'Icon',
             id => $pic->picid,
-            image => Image( $pic->url, $pic->width, $pic->height, LJ::ehtml( $pic->alttext ), title => LJ::ehtml( $pic->keywords ) ),
+            image => Image( $pic->url, $pic->width, $pic->height, $pic->alttext( $kwstr, $pic->is_default ), title => $pic->titletext( $kwstr, $pic->is_default ) ),
             keywords => [ map { LJ::ehtml($_) } sort { lc($a) cmp lc($b) } ( @$keywords ) ],
             comment => $eh_comment,
             description => $eh_description,

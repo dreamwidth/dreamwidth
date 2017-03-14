@@ -119,7 +119,7 @@ sub caps_string {
     foreach my $bit (0..15) {
         my $class = class_of_bit( $bit );
         next unless $class && caps_in_group( $caps, $class );
-        my $name = $LJ::CAP{$bit}->{$name_value};
+        my $name = $LJ::CAP{$bit}->{$name_value} // "";
         push @classes, $name if $name ne "";
     }
 

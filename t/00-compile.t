@@ -37,16 +37,13 @@ my %SKIP = (
 
     'cgi-bin/modperl.pl' => "Special file",
     'cgi-bin/modperl_subs.pl' => "Special file",
-
-    'LJ/ConfCheck.pm' => 'omit defined warnings',
-    'LJ/ConfCheck/General.pm' => 'omit defiend warnings',
 );
 
-my @scripts = File::Find::Rule->file->name('*.pl')->in('cgi-bin');
+my @scripts = File::Find::Rule->file->name('*.pl')->in('cgi-bin', 'bin');
 my @modules = File::Find::Rule->relative->file->name('*.pm')->in('cgi-bin');
 
 
-plan tests => 2 * @scripts + 2 * @modules;
+plan tests => 1 * @scripts + 2 * @modules;
 bail_on_fail;
 
 #diag explain \@scripts;
@@ -71,16 +68,13 @@ foreach my $file (@modules) {
 
 foreach my $file (@scripts) {
     if ($SKIP{$file}) {
-        Test::More->builder->skip($SKIP{$file}) for 1..2;
+        Test::More->builder->skip($SKIP{$file});
         next;
     }
 
-    system qq($^X -I$lib $file > $out 2>$err);
+    system qq($^X -c -I$lib $file > $out 2>$err);
     my $err_data = slurp($err);
-    is($err_data, '', "STDERR of $file");
-
-    my $out_data = slurp($out);
-    is($out_data, '', "STDOUT of $file");
+    is($err_data, "$file syntax OK\n", "STDERR of $file");
 }
 
 # Bail out if any of the tests failed

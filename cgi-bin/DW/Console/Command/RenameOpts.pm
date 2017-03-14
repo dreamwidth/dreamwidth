@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 #
 # DW::Console::Command::RenameOpts
-# This module 
+#
+# Console command for tweaking options on renamed users.
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
@@ -20,11 +21,11 @@ use base qw/ LJ::Console::Command /;
 use Carp qw/ croak /;
 
 sub cmd { 'rename_opts' }
-sub desc { 'Manage options attached to a rename.' }
+sub desc { 'Manage options attached to a rename. Requires priv: siteadmin:rename.' }
 
 sub args_desc {
     [
-        'command' => 'Subcommand: redirect, break_redirect, break_redirect_email, del_trusted_by, del_watched_by, del_trusted, del_watched, del_communities.',
+        'command' => 'Subcommand: redirect, break_redirect, break_email_redirect, del_trusted_by, del_watched_by, del_trusted, del_watched, del_communities.',
         'username' => 'Username to act on.',
     ]
 }
@@ -57,7 +58,7 @@ sub execute {
 
         return $self->error( 'Unable to break the email redirect. Note that from_user must redirect to to_user' )
             unless DW::User::Rename->break_email_redirection( $user, $tousername );
-            
+
     } else {
         my $u = LJ::load_user( $user );
         return $self->error( 'Invalid user.' )
@@ -65,7 +66,7 @@ sub execute {
 
         if ( $cmd eq 'break_redirect' )  {
             if ( $u->break_redirects ) {
-                $u->set_deleted;
+                $u->set_expunged;
             } else {
                 $self->error( "Unable to break redirection" );
             }

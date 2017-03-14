@@ -56,7 +56,10 @@ $domaintosite{"pinboard.in"} = DW::External::Site->new("20", "www.pinboard.in", 
 $domaintosite{"fanfiction.net"} = DW::External::Site->new("21", "www.fanfiction.net", "fanfiction.net", "FanFiction", "FanFiction");
 $domaintosite{"pinterest.com"} = DW::External::Site->new("22", "www.pinterest.com", "pinterest.com", "Pinterest", "pinterest");
 $domaintosite{"youtube.com"} = DW::External::Site->new("23", "www.youtube.com", "youtube.com", "YouTube", "yt");
-$domaintosite{"github.com"} = DW::External::Site->new("24", "www.github.com", "github.com", "github", "gh"); 
+$domaintosite{"github.com"} = DW::External::Site->new("24", "www.github.com", "github.com", "GitHub", "gh"); 
+# three-part domain name
+$domaintosite{"lj.rossia.org"} = DW::External::Site->new("25", "lj.rossia.org", "lj.rossia.org", "LJRossia", "lj"); 
+
 
 @all_sites_without_alias = values %domaintosite;
 
@@ -94,7 +97,8 @@ $domaintosite{"ffn"} = $domaintosite{"fanfiction.net"};
 $domaintosite{"pinterest"} = $domaintosite{"pinterest.com"};
 $domaintosite{"youtube"} = $domaintosite{"youtube.com"};
 $domaintosite{"github"} = $domaintosite{"github.com"};
-
+$domaintosite{"lj.rossia"} = $domaintosite{"lj.rossia.org"};
+$domaintosite{"ljr"} = $domaintosite{"lj.rossia.org"};
 foreach my $value (@all_sites_without_alias) {
     $idtosite{$value->{siteid}} = $value;
 }
@@ -142,6 +146,8 @@ sub get_site {
                     split( /\./, $site );
 
         $mapped = $domaintosite{"$parts[-2].$parts[-1]"};
+        # if two-part domain not matched, try three-part (for e.g. lj.rossia.org) 
+        $mapped ||= $domaintosite{"$parts[-3].$parts[-2].$parts[-1]"};
         $mapped ||= DW::External::Site::Unknown->accepts( \@parts );
     }
 

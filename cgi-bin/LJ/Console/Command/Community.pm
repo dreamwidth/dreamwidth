@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "community" }
 
-sub desc { "Add or remove a user from a community." }
+sub desc { "Add or remove a user from a community. Requires priv: none." }
 
 sub args_desc { [
                  'community' => "The username of the community.",

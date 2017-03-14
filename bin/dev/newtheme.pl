@@ -10,6 +10,8 @@ use strict;
 
 my ( $author_name, $layout_human, $is_nonfree ) = @ARGV;
 
+my ( $layout_name, $theme_name, $theme_human );
+
 sub diehelp {
     warn "Syntax: newtheme AuthorName LayoutName IsNonfree";
     exit;
@@ -27,7 +29,7 @@ if ( !$layout_human ) {
 # Input section
 # - collect input, do very basic parsing/checking as we collect it
 ####################
-my ( @dropped, @css, @set, $in_css );
+my ( @dropped, @css, @set, $in_css, $in_css_2 );
 my $line_number = 0;
 while ( <STDIN> ) {
     my $line = $_;
@@ -65,7 +67,7 @@ while ( <STDIN> ) {
         $in_css_2 = 1;
         push( @css, $1 );
     } elsif ( /^\.$/ ) {
-        break;
+        last;
 } else {
         next unless $line;
         if ( $line =~ m/^layerinfo / || $line =~ m/ "";/ ) {
@@ -103,7 +105,7 @@ foreach ( @set ){
     } elsif ( /layout/ ) {
         push( @presentation, $_ );
     } elsif ( /module/ ) {
-        push( @module, $_ );
+        push( @modules, $_ );
     } elsif ( /color/ ) {
         push( @page, $_ );
     } else {
@@ -116,7 +118,7 @@ foreach ( @set ){
 # eg
 #    input: "arial black, verdana, helvetica, serif"
 #    output: "'Arial Black', Verdana, Helvetica, serif";
-foreach $line ( @fonts ) {
+foreach my $line ( @fonts ) {
     if ( $line =~ m/_size / || $line =~ m/_units / ) {
         # Nothing - these aren't font names so leave them alone
     } else {
@@ -128,14 +130,14 @@ foreach $line ( @fonts ) {
                 # Unquote it if it's already quoted
                 s/^'(.*)'$/$1/;
                 s/^"(.*)"$/$1/;
-               
+
                 # Capitalise each word
                 # TODO don't capitalize font-family names
                 s/ ( (^\w)    #at the beginning of the line
                       |       # or
                      (\s\w)   #preceded by whitespace
                       )/\U$1/xg;
-                
+
                 # Single-quote multi-word font names
                 if ( m/ / ) {
                     $_ = "'" . $_ . "'";
@@ -191,7 +193,7 @@ EOT
 print_section( "Presentation", @presentation );
 print_section( "Page", @page );
 print_section( "Entry", @entries );
-print_section( "Module", @module );
+print_section( "Module", @modules );
 print_section( "Fonts", @fonts );
 print_section( "Images", @images );
 if ( @css ) {
@@ -218,6 +220,6 @@ if ( @images ) {
     }
 print "Theme also needs a preview screenshot. Resize to 150x114px and put in:\n";
 print "$ENV{LJHOME}/htdocs/img/customize/previews/$layout_name/$theme_name.png\n\n";
-print "(for additional reference on cleaning themes, see http://wiki.dwscoalition.org/notes/Newbie_Guide_for_People_Patching_Styles#Adding_a_New_Color_Theme )\n";
+print "(for additional reference on cleaning themes, see http://wiki.dreamwidth.net/notes/Newbie_Guide_for_People_Patching_Styles#Adding_a_New_Color_Theme )\n";
 
 

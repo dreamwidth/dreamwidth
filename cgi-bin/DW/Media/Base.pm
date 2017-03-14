@@ -20,6 +20,8 @@ package DW::Media::Base;
 use strict;
 use Carp qw/ croak confess /;
 
+use DW::BlobStore;
+
 sub new_from_row {
     croak "Children must override this method.";
 }
@@ -111,6 +113,16 @@ sub url {
         '.' . $self->{ext};
 }
 
+# construct a URL for the fullsize version of this url. This is the same as
+# url if the object is the orignal, fullsize version, but returns the url of
+# the original if we're using version of it.
+sub full_url {
+    my $self = $_[0];
+
+    return $self->u->journal_base . '/file/' . $self->{displayid} .
+        '.' . $self->{ext};
+}
+
 # if user can see this
 sub visible_to {
     my ( $self, $other_u ) = @_;
@@ -147,9 +159,6 @@ sub delete {
     my $self = $_[0];
     return 0 if $self->is_deleted;
 
-    # we need a mogilefs client or we can't edit media
-    my $mog = LJ::mogclient()
-        or croak 'Sorry, MogileFS is not currently available.';
     my $u = $self->u
         or croak 'Sorry, unable to load the user.';
 
@@ -159,7 +168,7 @@ sub delete {
 
     $self->{state} = 'D';
 
-    LJ::mogclient()->delete( $self->mogkey );
+    DW::BlobStore->delete( media => $self->mogkey );
 
     return 1;
 }
@@ -170,13 +179,22 @@ sub set_security {
     return 0 if $self->is_deleted;
 
     my $security = $opts{security};
-    confess 'Invalid security type passed to set_security.'
-        unless $security =~ /^(?:private|public|usemask)$/;
+    confess 'Invalid argument hash passed to set_security.'
+        unless defined $security;
 
     my $mask = 0;
     if ( $security eq 'usemask' ) {
+        # default allowmask of 0 unless defined otherwise
+        $opts{allowmask} //= 0;
         $mask = int $opts{allowmask};
     }
+
+    if ( $security =~ /^(?:friends|access)$/ ) {
+        $security = 'usemask';
+        $mask = 1;
+    }
+    confess 'Invalid security type passed to set_security.'
+        unless $security =~ /^(?:private|public|usemask)$/;
 
     my $u = $self->u
         or croak 'Sorry, unable to load the user.';

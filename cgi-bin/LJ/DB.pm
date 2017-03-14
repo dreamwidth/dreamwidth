@@ -44,7 +44,7 @@ $LJ::DBIRole = new DBI::Role {
                     "userpicblob2", "subs", "subsprop", "has_subs",
                     "ratelog", "loginstall", "sessions", "sessions_data",
                     "modlog", "modblob", "userproplite2", "links",
-                    "userblob", "userpropblob",
+                    "userpropblob",
                     "clustertrack2", "reluser2",
                     "tempanonips", "inviterecv", "invitesent",
                     "memorable2", "memkeyword2", "userkeywords",
@@ -57,7 +57,7 @@ $LJ::DBIRole = new DBI::Role {
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2", "vgift_trans",
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
-                    "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
+                    "notifyarchive", "notifybookmarks", "embedcontent_preview",
                     "logprop_history", "import_status", "externalaccount",
                     "content_filters", "content_filter_data", "userpicmap3",
                     "media", "collections", "collection_items", "logslugs",
@@ -256,15 +256,8 @@ sub foreach_cluster {
     my $coderef = shift;
     my $opts = shift || {};
 
-    # have to include this via an eval so it doesn't actually get included
-    # until someone calls foreach cluster.  at which point, if they're in web
-    # context, it will fail.
-    eval "use LJ::DBUtil; 1;";
-    die $@ if $@;
-
     foreach my $cluster_id (@LJ::CLUSTERS) {
-        my $dbr = ($LJ::IS_DEV_SERVER) ?
-            LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});
+        my $dbr = LJ::get_cluster_reader( $cluster_id );
         $coderef->($cluster_id, $dbr);
     }
 }

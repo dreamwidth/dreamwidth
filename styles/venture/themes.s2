@@ -1,0 +1,100 @@
+#NEWLAYER: venture/radiantaqua
+layerinfo type = "theme";
+layerinfo name = "Radiant Aqua";
+layerinfo redist_uniq = "venture/radiantaqua";
+layerinfo author_name = "onlyembers";
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e9e9e9";
+set color_page_link = "#2A90A2";
+set color_page_link_active = "#999";
+set color_page_link_hover = "#39B7CC";
+set color_page_link_visited = "#888";
+set color_page_pagetitle = "#aaa";
+set color_page_subtitle = "#7DCFDE";
+set color_page_text = "#444";
+set color_page_title = "#eee";
+set color_header_background = "#333";
+set color_header_navigation_background = "#39B7CC";
+set color_header_navigation_link = "#222";
+set color_header_navigation_link_active = "#bbb";
+set color_header_navigation_link_background = "#f7f7f7";
+set color_header_navigation_link_background_current = "#333";
+set color_header_navigation_link_current = "#ddd";
+set color_header_navigation_link_hover = "#BEE7EE";
+set color_header_navigation_link_visited = "#195661";
+set color_footer_background = "#222";
+set color_footer_link = "#7dcfde";
+set color_footer_link_active = "#888";
+set color_footer_link_hover = "#BEE7EE";
+set color_footer_link_visited = "#39B7CC";
+set color_calendar_background = "#f7f7f7";
+set color_calendar_foreground = "#f4f4f4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f7f7f7";
+set color_entry_border = "#dadada";
+set color_entry_datetime_background = "#39B7CC";
+set color_entry_datetime_link = "#555";
+set color_entry_datetime_link_active = "#888";
+set color_entry_datetime_link_hover = "#217382";
+set color_entry_datetime_link_visited = "#195661";
+set color_entry_datetime_sub_background = "#BEE7EE";
+set color_entry_datetime_text = "#333";
+set color_entry_interaction_links = "#555";
+set color_entry_link = "#2A90A2";
+set color_entry_link_active = "#999";
+set color_entry_link_hover = "#39B7CC";
+set color_entry_link_visited = "#888";
+set color_entry_metadata = "#777";
+set color_entry_quote_background = "#eaeaea";
+set color_entry_quote_border = "#dadada";
+set color_entry_quote_text = "#666";
+set color_entry_text = "#444";
+set color_entry_title = "#eee";
+set color_entry_title_background = "#333";
+set color_entry_title_rightborder = "#39B7CC";
+set color_entry_userpic_background = "#333";
+set color_entry_userpic_border = "#39B7CC";
+set color_comment_title = "#eee";
+set color_comment_title_background = "333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7f7f7";
+set color_module_border = "#dadada";
+set color_module_link = "#2A90A2";
+set color_module_link_active = "#999";
+set color_module_link_alt = "#888";
+set color_module_link_alt_active = "#999";
+set color_module_link_alt_hover = "#2A90A2";
+set color_module_link_alt_visited = "#666";
+set color_module_link_hover = "#39B7CC";
+set color_module_link_visited = "#888";
+set color_module_list_border = "#e4e4e4";
+set color_module_navigation_background = "#f4f4f4";
+set color_module_navigation_background_current = "#333";
+set color_module_navigation_link = "#333";
+set color_module_navigation_link_active = "#39B7CC";
+set color_module_navigation_link_current = "#eee";
+set color_module_navigation_link_hover = "#BEE7EE";
+set color_module_navigation_link_visited = "#195661";
+set color_module_text = "#444";
+set color_module_title = "#eee";
+set color_module_title_background = "#333";
+set color_module_title_link = "#eee";
+set color_module_title_link_active = "#aaa";
+set color_module_title_link_hover = "#BEE7EE";
+set color_module_title_link_visited = "#ddd";
+set color_module_title_rightborder = "#39B7CC";
+
+

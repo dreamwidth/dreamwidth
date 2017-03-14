@@ -54,6 +54,26 @@ BEGIN {
     }
 }
 
+# Now set up logging support for everybody else to access; this is done
+# very early. We may be called by a test though, which will set the flag,
+# and in that case we disable all the logging.
+use Log::Log4perl;
+BEGIN {
+    if ( $LJ::_T_CONFIG ) {
+        # Tests, don't log
+        my $conf = q{
+log4perl.rootLogger=FATAL, DevNull
+
+log4perl.appender.DevNull=Log::Log4perl::Appender::File
+log4perl.appender.DevNull.filename=/dev/null
+log4perl.appender.DevNull.layout=Log::Log4perl::Layout::SimpleLayout
+        };
+        Log::Log4perl::init( \$conf );
+    } else {
+        Log::Log4perl::init_and_watch( LJ::resolve_file( 'etc/log4perl.conf' ), 10 );
+    }
+}
+
 use Apache2::Connection ();
 use Carp;
 use DBI;
@@ -85,8 +105,6 @@ use Mozilla::CA;
 
 use LJ::UniqCookie;
 use LJ::WorkerResultStorage;
-use LJ::EventLogRecord;
-use LJ::EventLogRecord::DeleteComment;
 use DW::External::Account;
 use DW::External::User;
 use DW::Logic::LogItems;
@@ -216,19 +234,6 @@ if ( $LJ::STATS{host} && $LJ::STATS{port} ) {
     DW::Stats::setup( $LJ::STATS{host}, $LJ::STATS{port} );
 }
 
-sub get_blob_domainid
-{
-    my $name = shift;
-    my $id = {
-        "userpic" => 1,
-    }->{$name};
-    # FIXME: add hook support, so sites can't define their own
-    # general code gets priority on numbers, say, 1-200, so verify
-    # hook returns a number 201-255
-    return $id if $id;
-    die "Unknown blob domain: $name";
-}
-
 sub locker {
     return $LJ::LOCKER_OBJ if $LJ::LOCKER_OBJ;
     eval "use DDLockClient ();";
@@ -253,30 +258,6 @@ sub gearman_client {
     $client->job_servers(@LJ::GEARMAN_SERVERS);
 
     return $client;
-}
-
-sub mogclient {
-    return $LJ::MogileFS if $LJ::MogileFS;
-
-    if (%LJ::MOGILEFS_CONFIG && $LJ::MOGILEFS_CONFIG{hosts}) {
-        eval "use MogileFS::Client;";
-        die "Couldn't load MogileFS: $@" if $@;
-
-        $LJ::MogileFS = MogileFS::Client->new(
-                                      domain => $LJ::MOGILEFS_CONFIG{domain},
-                                      root   => $LJ::MOGILEFS_CONFIG{root},
-                                      hosts  => $LJ::MOGILEFS_CONFIG{hosts},
-                                      readonly => $LJ::DISABLE_MEDIA_UPLOADS,
-                                      timeout => $LJ::MOGILEFS_CONFIG{timeout},
-                                      )
-            or die "Could not initialize MogileFS";
-
-        # set preferred ip list if we have one
-        $LJ::MogileFS->set_pref_ip(\%LJ::MOGILEFS_PREF_IP)
-            if %LJ::MOGILEFS_PREF_IP;
-    }
-
-    return $LJ::MogileFS;
 }
 
 sub theschwartz {
@@ -1000,6 +981,8 @@ sub get_useragent {
         ssl_opts => {
             # FIXME: we still need verify_hostname off. Investigate.
             verify_hostname => 0,
+            # also needed for LWP::Protocol::https < 6.06
+            SSL_verify_mode => 0,
             #ca_file => Mozilla::CA::SSL_ca_file()
         });
     #$ua->agent($agent) if $agent;
@@ -1024,9 +1007,9 @@ sub no_utf8_flag {
     return substr($_[0], 0);
 }
 
-# return true if root caller is a test file
-sub is_from_test {
-    return $0 && $0 =~ m!(^|/)t/!;
+# return 1 if root caller is a test, else 0
+sub in_test {
+    return $LJ::_T_CONFIG == 1 ? 1 : 0;
 }
 
 our $AUTOLOAD;

@@ -1,0 +1,135 @@
+[%# faq.tt
+
+Support History page
+
+Authors:
+    hotlevel4 <hotlevel4@hotmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.title = '.title' | ml -%]
+
+[% IF get_user OR get_userid %]
+    <h3>[% '.viewing' | ml(username = username) %]</h3>
+[% ELSIF get_email %]
+    <h3>[% '.viewing' | ml(username = email) %]</h3>
+[% END %]
+[% IF noresults %]
+    [% '.noresults' | ml %]
+[% ELSIF get_user OR get_userid OR get_email %]
+    <table><thead><tr>
+        <th>[% '.table.summary' | ml %]</th>
+        <th>[% '.table.state' | ml %]</th>
+        <th>[% '.table.answeredby' | ml %]</th>
+        <th>[% '.table.category' | ml %]</th>
+        <th>[% '.table.openedby' | ml %]</th>
+        <th>[% '.table.timeopened' | ml %]</th>
+    </tr></thead>
+    [% FOREACH id = reqs %]
+        <tr><td><a href='see_request?id=[% id.spid %]'>[% id.subject %]</a></td>
+        <td align='center'>[% id.status %]</td>
+        <td align='center'>
+            [% IF id.answered %]
+                [% id.answeredby %] ([% id.points %])
+            [% ELSE %]
+                [% id.answeredby %]
+            [% END %]
+        </td>
+        <td align='center'>[% id.catname %]</td>
+        <td align='center'>[% id.openedby %]</td>
+        <td align='center'>[% id.timeopened %]</td></tr>
+    [% END %]
+    </table>
+[% END %]
+[% IF fullsearch %]
+    <form method='post' action='history'>
+        <fieldset>
+            <legend>[% '.search.text' | ml %]</legend>
+        <div class="row">
+            <div class="large-6 columns">
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label for="email" class="right inline">[% '.search.email' | ml %]</label>
+                    </div>
+                    <div class="small-9 columns">
+                        <input type="text" id="email" name="email" placeholder="[% '.search.email.text' | ml %]">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-6 columns">
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label for="user" class="right inline">[% '.search.user' | ml %]</label>
+                    </div>
+                    <div class="small-9 columns">
+                        <input type="text" id="user" name="user" placeholder="[% '.search.user.text' | ml %]">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-6 columns">
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label for="userid" class="right inline">[% '.search.userid' | ml %]</label>
+                    </div>
+                    <div class="small-9 columns">
+                        <input type="text" id="userid" name="userid" placeholder="[% '.search.userid.text' | ml %]">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-6 columns">
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label for="fulltext" class="right inline">[% '.search.fulltext' | ml %]</label>
+                    </div>
+                    <div class="small-9 columns">
+                        <input type="text" id="fulltext" name="fulltext" placeholder="[% '.search.fulltext.text' | ml %]">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+      <div class="small-2 columns">
+        <input type='submit' class="button" value='[% '.search.btn' | ml %]'>
+        </div>
+        </div>
+        <div class="row">
+            <div data-alert class="alert-box radius">[% '.search.onefield' | ml %]</div>
+        </div>
+        </fieldset>
+    [% dw.form_auth %]
+    </form>
+[% ELSE %]
+    [% IF get_user %]
+        <hr>
+        <h4>[% '.search.otheremails' | ml %]</h4>
+    [% END %]
+    <form method='get' action='history'>
+        <div class='row'>
+            <div class='large-6 columns'>
+                <div class='row'>
+                    <div class='small-9 columns'>
+                        <input type='text' name='email' placeholder='[% '.search.email.text' | ml %]'>
+                    </div>
+                    <div class='small-3 columns'>
+                        <input type='submit' class='button postfix' value='[% '.search.otheremails.label' | ml %]'>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    [% IF get_email %]
+        <p><a href='[% site.root %]/support/history?user=[% user %]'>[% '.return' | ml %]</a></p>
+    [% END %]
+[% END %]

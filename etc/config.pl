@@ -3,6 +3,15 @@
 
 # LiveJournal configuration file.
 
+# THIS FILE IS INTENDED FOR EXAMPLE/DOCUMENTATION PURPOSES ONLY.
+
+# Ideally, any configuration changes for your site should go in
+# config-local.pl or config-private.pl.  If you feel like you need
+# a site-specific config.pl, make sure you copy it to ext/local/etc
+# and customize it there.  This will protect it from getting clobbered
+# when you upgrade to the newest Dreamwidth code in the future, but
+# you will not automatically inherit additions or updates to this file.
+
 {
     package LJ;
 
@@ -19,6 +28,8 @@
 
     # this is what gets prepended to all URLs
     $SITEROOT = "http://$DOMAIN_WEB";
+    $SSLROOT = "https://$DOMAIN_WEB";
+    $RELATIVE_SITEROOT = "//$DOMAIN_WEB";
 
     # prefix for images
     $IMGPREFIX = "$SITEROOT/img";
@@ -34,6 +45,7 @@
     # email addresses
     $ADMIN_EMAIL = "webmaster\@$DOMAIN";
     $ABUSE_EMAIL = "abuse\@$DOMAIN";
+    $ANTISPAM_EMAIL = "antispam\@$DOMAIN";
     $SUPPORT_EMAIL = "support\@$DOMAIN";
     $COMMUNITY_EMAIL = "community_invitation\@$DOMAIN";
     $BOGUS_EMAIL = "dw_null\@$DOMAIN";
@@ -57,6 +69,8 @@
             mobile => 'mobile',
             m => 'mobile',
             support => 'support',
+            u => 'userpics',
+            v => 'userpics',
         );
 
 
@@ -85,6 +99,9 @@
     # command-line to spell checker, or undefined if you don't want spell checking
     #$SPELLER = "/usr/local/bin/ispell -a";
     #$SPELLER = "/usr/bin/aspell pipe --mode=html --sug-mode=fast --ignore-case";
+
+    # use a gearman worker for spellcheck
+    #$RUN_SPELLCHECK_USING_GEARMAN = 1;
 
     # to save bandwidth, should we compress pages before they go out?
     # require Compress::Zlib to be installed
@@ -130,20 +147,16 @@
     # (versions 3.14 and above) for Maildir support.
     #$MAILSPOOL = '/home/livejournal/mail';
 
-    # Allow users to point their own domains here?
-    $OTHER_VHOSTS = 1;
-
     # turns these from 0 to 1 to disable parts of the site that are
     # CPU & database intensive or that you simply don't want to use
     %DISABLED = (
                  adult_content => 0,
+                 loggedout_support_requests => 1,
                  'community-logins' => 0,
                  captcha => 0,
                  directory => 0,
                  esn_archive => 1,
                  eventlogrecord => 1,
-                 feedster_search => 0,
-                 free_create => 1,
                  googlecheckout => 1,
                  icon_renames => 0,
                  importing => 0,
@@ -154,6 +167,7 @@
                  'show-talkleft' => 0,
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
+                 'support_request_language' => 1,
                  tellafriend => 0,
                  );
 
@@ -170,6 +184,7 @@
     #   return 0 if $module eq "textcaptcha";
     #   return 0;
     #};
+    #$DEFAULT_CAPTCHA_TYPE = "T";
 
 
     # turn $SERVER_DOWN on while you do any maintenance
@@ -202,7 +217,9 @@
 
     # supported languages (defaults to qw(en) if none given)
     # First element is default language for user interface, untranslated text
-    @LANGS = qw( en_DW );
+    unless (@LANGS) {
+      @LANGS = qw( en_DW ) if -d "$HOME/ext/dw-nonfree";
+    }
 
     # support unicode (posts in multiple languages)?  leave enabled.
     $UNICODE = 1;
@@ -271,49 +288,112 @@
     # default capability limits, used only when no other
     # class-specific limit below matches.
     %CAP_DEF = (
-            activeentries => 0,
-            'getselfemail' => 0,
+            'activeentries' => 0,
+            'bonus_icons' => 0,
+            'can_post' => 1,
             'checkfriends' => 0,
             'checkfriends_interval' => 300,
-            'friendsviewupdate' => 30,
-            'interests' => 150,
-            'makepoll' => 0,
-            'maxfriends' => 500,
-            'moodthemecreate' => 0,
             'directorysearch' => 0,
-            'styles' => 0,
-            's2styles' => 0,
-            's2viewentry' => 1,
-            's2viewreply' => 1,
-            's2stylesmax' => 0,
-            's2layersmax' => 0,
-            'textmessage' => 0,
-            'userdomain' => 1,
-            'useremail' => 1,
-            'userpics' => 5,
+            'emailpost' => 0,
             'findsim' => 0,
             'friendspage_per_day' => 0,
+            'friendsviewupdate' => 30,
             'full_rss' => 1,
-            'can_post' => 1,
             'get_comments' => 1,
+            'getselfemail' => 0,
+            'google_analytics' => 0,
+            'hide_email_after' => 60,
+            'import_comm' => 0,
+            'interests' => 150,
             'leave_comments' => 1,
+            'makepoll' => 0,
+            'maxcomments' => 10000,
+            'maxfriends' => 500,
+            'media_file_quota' => 500, # megabytes
             'mod_queue' => 50,
             'mod_queue_per_poster' => 5,
-            'hide_email_after' => 60,
-            'userlinks' => 10,
-            'maxcomments' => 10000,
-            'rateperiod-lostinfo' => 60*60*24, # 24 hours
-            'rateallowed-lostinfo' => 3,
-            'rateperiod-failed_login' => 60*5, # 5 minutes
-            'rateallowed-failed_login' => 3,
-            'rateperiod-commcreate' => 86400*7, # 7 days / 1 week
+            'moodthemecreate' => 0,
             'rateallowed-commcreate' => 3,
+            'rateallowed-failed_login' => 3,
+            'rateallowed-lostinfo' => 3,
+            'rateperiod-commcreate' => 86400*7, # 7 days / 1 week
+            'rateperiod-failed_login' => 60*5, # 5 minutes
+            'rateperiod-lostinfo' => 60*60*24, # 24 hours
+            's2layersmax' => 0,
+            's2styles' => 0,
+            's2stylesmax' => 0,
+            's2viewentry' => 1,
+            's2viewreply' => 1,
             'staff_headicon' => 0,
-            thread_expand_all => 0,
-            thread_expander => 0,
+            'styles' => 0,
+            'thread_expand_all' => 0,
+            'thread_expander' => 0,
             'track_all_comments' => 0,
+            'userdomain' => 1,
+            'useremail' => 1,
+            'userlinks' => 10,
+            'userpics' => 5,
             'xpost_accounts' => 0,
             );
+
+    # for convenience and consistency, let's put common caps for all paid account types here:
+    my %CAP_PAID = (
+            'paid' => 1,
+            'activeentries' => 1,
+            'bonus_icons' => 1,
+            'checkfriends' => 1,
+            'checkfriends_interval' => 600,
+            'directory' => 1,
+            'edit_comments' => 1,
+            'emailpost' => 1,
+            'fastserver' => 1,
+            'findsim' => 1,
+            'friendsfriendsview' => 1,
+            'friendspage_per_day' => 1,
+            'friendsviewupdate' => 1,
+            'full_rss' => 1,
+            'getselfemail' => 1,
+            'google_analytics' => 1,
+            'import_comm' => 1,
+            'makepoll' => 1,
+            'mass_privacy' => 1,
+            'mod_queue' => 100,
+            'mod_queue_per_poster' => 5,
+            'moodthemecreate' => 1,
+            'popsubscriptions' => 1,
+            's2props' => 1,
+            's2styles' => 1,
+            'security_filter' => 1,
+            'stickies' => 5,
+            'synd_create' => 1,
+            'thread_expand_all' => 1,
+            'thread_expander' => 1,
+            'track_defriended' => 1,
+            'track_pollvotes' => 1,
+            'track_thread' => 1,
+            'track_user_newuserpic' => 1,
+            'useremail' => 1,
+            'userlinks' => 50,
+            'usermessage_length' => 10000,
+            'userpicselect' => 1,
+            'viewmailqueue' => 1,
+    );
+
+    # for convenience and consistency, let's put common caps for all premium account types here:
+    my %CAP_PREMIUM = (
+            'bookmark_max' => 1000,
+            'inbox_max' => 6000,
+            'interests' => 250,
+            'maxfriends' => 2000,
+            's2layersmax' => 300,
+            's2stylesmax' => 100,
+            'subscriptions' => 1000,
+            'tags_max' => 2000,
+            'tools_recent_comments_display' => 150,
+            'track_all_comments' => 1,
+            'userpics' => 150,
+            'xpost_accounts' => 5,
+    );
 
     # capability class limits.
     # keys are bit numbers, from 0 .. 15.  values are hashrefs
@@ -337,16 +417,16 @@
             'checkfriends' => 0,
             'checkfriends_interval' => 0,
             'directory' => 1,
-            'domainmap' => 0,
             'edit_comments' => 0,
-            'emailpost' => 0,
+            'emailpost' => 1,
             'findsim' => 0,
             'friendsfriendsview' => 0,
             'friendspage_per_day' => 0,
             'friendsviewupdate' => 0,
             'full_rss' => 1,
             'getselfemail' => 0,
-            google_analytics => 0,
+            'google_analytics' => 0,
+            'import_comm' => 1,
             'inbox_max' => 2000,
             'interests' => 150,
             'makepoll' => 0,
@@ -355,18 +435,18 @@
             'mod_queue' => 50,
             'mod_queue_per_poster' => 3,
             'moodthemecreate' => 0,
-            popsubscriptions => 0,
+            'popsubscriptions' => 0,
             's2layersmax' => 0,
             's2props' => 0,
             's2styles' => 0,
             's2stylesmax' => 0,
             'security_filter' => 0,
+            'stickies' => 2,
             'subscriptions' => 25,
             'synd_create' => 1,
             'tags_max' => 1000,
-            'textmessaging' => 0,
-            thread_expand_all => 0,
-            thread_expander => 0,
+            'thread_expand_all' => 0,
+            'thread_expander' => 0,
             'tools_recent_comments_display' => 10,
             'track_all_comments' => 0,
             'track_defriended' => 0,
@@ -391,56 +471,19 @@
             '_visible_name' => 'Paid Account',
             '_account_type' => 'paid',
             '_refund_points' => 30,
-            'activeentries' => 1,
+            %CAP_PAID,
             'bookmark_max' => 500,
-            'checkfriends' => 1,
-            'checkfriends_interval' => 600,
-            'directory' => 1,
-            'domainmap' => 1,
-            'edit_comments' => 1,
-            'emailpost' => 1,
-            'findsim' => 1,
-            'friendsfriendsview' => 1,
-            'friendspage_per_day' => 1,
-            'friendsviewupdate' => 1,
-            'full_rss' => 1,
-            'getselfemail' => 1,
-            google_analytics => 1,
             'inbox_max' => 4000,
             'interests' => 200,
-            'makepoll' => 1,
-            'mass_privacy' => 1,
             'maxfriends' => 1500,
-            'mod_queue' => 100,
-            'mod_queue_per_poster' => 5,
-            'moodthemecreate' => 1,
-            popsubscriptions => 1,
             's2layersmax' => 150,
-            's2props' => 1,
-            's2styles' => 1,
             's2stylesmax' => 50,
-            'security_filter' => 1,
             'subscriptions' => 500,
-            'synd_create' => 1,
             'tags_max' => 1500,
-            'textmessaging' => 1,
-            thread_expand_all => 1,
-            thread_expander => 1,
             'tools_recent_comments_display' => 100,
             'track_all_comments' => 0,
-            'track_defriended' => 1,
-            'track_pollvotes' => 1,
-            'track_thread' => 1,
-            'track_user_newuserpic' => 1,
-            'useremail' => 1,
-            'userlinks' => 50,
-            'usermessage_length' => 10000,
             'userpics' => 75,
-            'userpicselect' => 1,
-            'viewmailqueue' => 1,
             'xpost_accounts' => 3,
-            'paid' => 1,
-            'fastserver' => 1,
         },
         '4' => {  # 0x10
             '_name' => 'Premium Paid',
@@ -448,56 +491,8 @@
             '_visible_name' => 'Premium Paid Account',
             '_account_type' => 'premium',
             '_refund_points' => 41,
-            'activeentries' => 1,
-            'bookmark_max' => 1000,
-            'checkfriends' => 1,
-            'checkfriends_interval' => 600,
-            'directory' => 1,
-            'domainmap' => 1,
-            'edit_comments' => 1,
-            'emailpost' => 1,
-            'findsim' => 1,
-            'friendsfriendsview' => 1,
-            'friendspage_per_day' => 1,
-            'friendsviewupdate' => 1,
-            'full_rss' => 1,
-            'getselfemail' => 1,
-            google_analytics => 1,
-            'inbox_max' => 6000,
-            'interests' => 250,
-            'makepoll' => 1,
-            'mass_privacy' => 1,
-            'maxfriends' => 2000,
-            'mod_queue' => 100,
-            'mod_queue_per_poster' => 5,
-            'moodthemecreate' => 1,
-            popsubscriptions => 1,
-            's2layersmax' => 300,
-            's2props' => 1,
-            's2styles' => 1,
-            's2stylesmax' => 100,
-            'security_filter' => 1,
-            'subscriptions' => 1000,
-            'synd_create' => 1,
-            'tags_max' => 2000,
-            'textmessaging' => 1,
-            thread_expand_all => 1,
-            thread_expander => 1,
-            'tools_recent_comments_display' => 150,
-            'track_all_comments' => 1,
-            'track_defriended' => 1,
-            'track_pollvotes' => 1,
-            'track_thread' => 1,
-            'track_user_newuserpic' => 1,
-            'useremail' => 1,
-            'userlinks' => 50,
-            'usermessage_length' => 10000,
-            'userpics' => 150,
-            'userpicselect' => 1,
-            'viewmailqueue' => 1,
-            'xpost_accounts' => 5,
-            'paid' => 1,
-            'fastserver' => 1,
+            %CAP_PAID,
+            %CAP_PREMIUM,
         },
         # a capability class with a name of "_moveinprogress" is required
         # if you want to be able to move users between clusters with the
@@ -511,112 +506,16 @@
             '_key' => 'permanent_user',
             '_visible_name' => 'Seed Account',
             '_account_type' => 'seed',
-            'activeentries' => 1,
-            'bookmark_max' => 1000,
-            'checkfriends' => 1,
-            'checkfriends_interval' => 600,
-            'directory' => 1,
-            'domainmap' => 1,
-            'edit_comments' => 1,
-            'emailpost' => 1,
-            'findsim' => 1,
-            'friendsfriendsview' => 1,
-            'friendspage_per_day' => 1,
-            'friendsviewupdate' => 1,
-            'full_rss' => 1,
-            'getselfemail' => 1,
-            google_analytics => 1,
-            'inbox_max' => 6000,
-            'interests' => 250,
-            'makepoll' => 1,
-            'mass_privacy' => 1,
-            'maxfriends' => 2000,
-            'mod_queue' => 100,
-            'mod_queue_per_poster' => 5,
-            'moodthemecreate' => 1,
-            popsubscriptions => 1,
-            's2layersmax' => 300,
-            's2props' => 1,
-            's2styles' => 1,
-            's2stylesmax' => 100,
-            'security_filter' => 1,
-            'subscriptions' => 1000,
-            'synd_create' => 1,
-            'tags_max' => 2000,
-            'textmessaging' => 1,
-            thread_expand_all => 1,
-            thread_expander => 1,
-            'tools_recent_comments_display' => 150,
-            'track_all_comments' => 1,
-            'track_defriended' => 1,
-            'track_pollvotes' => 1,
-            'track_thread' => 1,
-            'track_user_newuserpic' => 1,
-            'useremail' => 1,
-            'userlinks' => 50,
-            'usermessage_length' => 10000,
-            'userpics' => 150,
-            'userpicselect' => 1,
-            'viewmailqueue' => 1,
-            'xpost_accounts' => 5,
-            'paid' => 1,
-            'fastserver' => 1,
+            %CAP_PAID,
+            %CAP_PREMIUM,
         },
         '7' => {  # 0x80
             '_name' => 'Staff',
             '_key' => 'staff',
             '_visible_name' => 'Staff Account',
-            'activeentries' => 1,
-            'bookmark_max' => 1000,
-            'checkfriends' => 1,
-            'checkfriends_interval' => 600,
-            'directory' => 1,
-            'domainmap' => 1,
-            'edit_comments' => 1,
-            'emailpost' => 1,
-            'findsim' => 1,
-            'friendsfriendsview' => 1,
-            'friendspage_per_day' => 1,
-            'friendsviewupdate' => 1,
-            'full_rss' => 1,
-            'getselfemail' => 1,
-            google_analytics => 1,
-            'inbox_max' => 6000,
-            'interests' => 250,
-            'makepoll' => 1,
-            'mass_privacy' => 1,
-            'maxfriends' => 2000,
-            'mod_queue' => 100,
-            'mod_queue_per_poster' => 5,
-            'moodthemecreate' => 1,
-            popsubscriptions => 1,
-            's2layersmax' => 300,
-            's2props' => 1,
-            's2styles' => 1,
-            's2stylesmax' => 100,
-            'security_filter' => 1,
-            'subscriptions' => 1000,
-            'synd_create' => 1,
-            'tags_max' => 2000,
-            'textmessaging' => 1,
-            thread_expand_all => 1,
-            thread_expander => 1,
-            'tools_recent_comments_display' => 150,
-            'track_all_comments' => 1,
-            'track_defriended' => 1,
-            'track_pollvotes' => 1,
-            'track_thread' => 1,
-            'track_user_newuserpic' => 1,
-            'useremail' => 1,
-            'userlinks' => 50,
-            'usermessage_length' => 10000,
-            'userpics' => 150,
-            'userpicselect' => 1,
-            'viewmailqueue' => 1,
-            'xpost_accounts' => 9,
-            'paid' => 1,
-            'fastserver' => 1,
             'staff_headicon' => 1,
+            %CAP_PAID,
+            %CAP_PREMIUM,
         },
         8 => { _name => 'beta', _key => 'betafeatures' }, # 0x100
     );
@@ -647,82 +546,6 @@
     # which users' s2 layers should always run trusted un-cleaned?
     #%S2_TRUSTED = ( '2' => 'whitaker' ); # userid => username
 
-
-    ###
-    ### Portal Options
-    ###
-
-    @PORTAL_BOXES = (
-                     'Birthdays',
-                     'UpdateJournal',
-                     'TextMessage',
-                     'PopWithFriends',
-                     'Friends',
-                     'Manage',
-                     'RecentComments',
-                     'NewUser',
-                     'FriendsPage',
-                     'FAQ',
-                     'Debug',
-                     'Note',
-                     'RandomUser',
-                     );
-
-    @PORTAL_BOXES_HIDDEN = (
-                            'Debug',
-                            );
-
-    %PORTAL_DEFAULTBOXSTATES = (
-                         'Birthdays' => {
-                             'added' => 1,
-                             'sort'  => 4,
-                             'col'   => 'R',
-                         },
-                         'FriendsPage' => {
-                             'added' => 1,
-                             'sort'  => 6,
-                             'col'   => 'L',
-                         },
-                         'FAQ' => {
-                             'added' => 1,
-                             'sort'  => 8,
-                             'col'   => 'R',
-                         },
-                         'Friends' => {
-                             'added' => 1,
-                             'sort'  => 10,
-                             'col'   => 'R',
-                         },
-                         'Manage' => {
-                             'added' => 1,
-                             'sort'  => 12,
-                             'col'   => 'L',
-                         },
-                         'PopWithFriends' => {
-                             'added' => 0,
-                             'col'   => 'R',
-                         },
-                         'RecentComments' => {
-                             'added' => 1,
-                             'sort'  => 10,
-                             'col'   => 'L',
-                         },
-                         'UpdateJournal' => {
-                             'added' => 1,
-                             'sort'  => 4,
-                             'col'   => 'L',
-                         },
-                         'NewUser' => {
-                             'added' => 1,
-                             'sort'  => 2,
-                             'col'   => 'L',
-                         },
-                         'TextMessage' => {
-                             'added'  => 1,
-                             'sort'   => 12,
-                             'col'    => 'R',
-                         },
-                         );
 
     # Setup support email address to not accept new emails.  Basically if an
     # address is specified below, any user who emails it out of the blue will
@@ -759,26 +582,6 @@
     #    },
     #);
 
-    # If you have multiple internal networks and would like the MogileFS libraries
-    # to pick one network over the other, you can set the preferred IP list...
-    #%MOGILEFS_PREF_IP = (
-    #    10.0.0.1 => 10.10.0.1,
-    #);
-    #That says "if we try to connect to 10.0.0.1, instead try 10.10.0.1 first and
-    #then fall back to 10.0.0.1".
-
-    # In addition to setting up MogileFS above, you need to enable some options
-    # if you want to use MogileFS.
-    #$USERPIC_MOGILEFS = 1; # uncomment to put new userpics in MogileFS
-
-    # if you are using Perlbal to balance your web site, by default it uses
-    # reproxying to distribute the files itself.  however, in some situations
-    # you may not want to do that.  use this option to disable that on an
-    # item by item basis.
-    #%REPROXY_DISABLE = (
-    #    userpics => 1,
-    #);
-
     # Some people on portable devices may have troubles viewing the nice site
     # scheme you've setup, so you can specify that some user-agent prefixes
     # should instead use fallback presentation information.
@@ -795,6 +598,14 @@
     # if you know that your installation is behind a proxy or other fence that inserts
     # X-Forwarded-For headers that you can trust (eg Perlbal), enable this.  otherwise, don't!
     # $TRUST_X_HEADERS = 1;
+
+    # By default, when using TRUST_X_HEADERS, all proxies using X-Forwarded-For
+    # are trusted and the real client IP is found first in the list. To trust
+    # only specific proxy IPs, write a sub that returns true when its input
+    # is a trusted proxy IP. In that case, trusted proxies will be removed from
+    # the end of X-Forwarded-For (or if supplied as the remote IP), and the
+    # real client IP will be found last in the resulting list.
+    # $IS_TRUSTED_PROXY = sub { $_[0] eq '192.168.1.1'; };
 
     # the following values allow you to control enabling your OpenID server and consumer
     # support.
@@ -837,6 +648,9 @@
             safe_search_level => 11,
         },
     );
+
+    # default is plain (change to 'rich' if you want RTE by default)
+    $DEFAULT_EDITOR = 'plain';
 
     # page that 'noanon_ip' sysbanned users can access to get more information
     # on why they're banned

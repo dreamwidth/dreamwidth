@@ -204,18 +204,28 @@ span.expandcollapse {
 }
 
 .external_services {
-    float: left;
     margin: 10px 70px 0 0;
 }
-    .external_services img {
-        padding-right: 3px;
-        max-width: 19px;
-    }
-    .external_services table td.im_icon,
-    .external_services table td.im_status {
-        text-align: center;
-    }
-        .external_services table td.im_icon img,
-        .external_services table td.im_status img {
-            border: 0;
-        }
+.external_services img {
+    padding-right: 3px;
+    max-width: 19px;
+}
+.external_services ul {
+    -webkit-column-width: 15em;
+    -moz-column-width: 15em;
+    column-width: 15em;
+    list-style-type: none;
+}
+.external_services ul li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.external_services div.im_icon {
+    text-align: center;
+    display: inline;
+    width: 19px;
+}
+.external_services div.im_icon img {
+    border: 0;
+}

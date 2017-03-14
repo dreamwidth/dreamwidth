@@ -80,7 +80,7 @@ sub nonquoted_text {
 
 =head2 C<< $class->reply_subject( $text ) >>
 
-Clean out "Re:" from the subject
+Clean out "Re:" from the subject and decode HTML entities
 
 =cut
 sub reply_subject {
@@ -89,7 +89,7 @@ sub reply_subject {
     $subject =~ s/^(Re:\s*)*//i;
     $subject = "Re: $subject" if $subject;
 
-    return $subject;
+    return LJ::dhtml( $subject );
 }
 
 1;

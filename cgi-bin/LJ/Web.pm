@@ -263,7 +263,7 @@ sub make_postto_select {
 #      be returned.
 # args: topic, pre?, post?
 # des-topic: Help topic key.
-#            See doc/ljconfig.pl.txt, or [special[helpurls]] for examples.
+#            See etc/config-local.pl, or [special[helpurls]] for examples.
 # des-pre: HTML/BML to place before the help icon.
 # des-post: HTML/BML to place after the help icon.
 # </LJFUNC>
@@ -884,11 +884,14 @@ sub create_qr_div {
         }
     }
 
+    my $post_disabled = $u->does_not_allow_comments_from( $remote ) || $u->does_not_allow_comments_from_unconfirmed_openid( $remote );
     return DW::Template->template_string( 'journal/quickreply.tt', {
         form_url                => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         hidden_form_elements    => $hidden_form_elements,
         can_checkspell          => $LJ::SPELLER ? 1 : 0,
         minimal                 => $opts{minimal} ? 1 : 0,
+        post_disabled           => $post_disabled,
+        post_button_class       => $post_disabled ? 'ui-state-disabled' : '',
 
         quote_button_js         => LJ::Talk::js_quote_button( 'body' ),
         iconbrowser_js          => $remote->can_use_userpic_select ? LJ::Talk::js_iconbrowser_button() : "",
@@ -917,47 +920,6 @@ sub create_qr_div {
 
         ejs => sub { return LJ::ejs( @_ ) },
     });
-}
-
-# <LJFUNC>
-# name: LJ::make_qr_link
-# class: web
-# des: Creates the link to toggle the QR reply form or if
-#      JavaScript is not enabled, then forwards the user through
-#      to replyurl.
-# returns: undef upon failure or HTML for the link
-# args: dtid, basesubject, linktext, replyurl
-# des-dtid: dtalkid for this comment
-# des-basesubject: parent comment's subject
-# des-linktext: text for the user to click
-# des-replyurl: URL to forward user to if their browser
-#               does not support QR.
-# </LJFUNC>
-sub make_qr_link
-{
-    my ($dtid, $basesubject, $linktext, $replyurl) = @_;
-
-    return undef unless defined $dtid && $linktext && $replyurl;
-
-    my $remote = LJ::get_remote();
-    unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
-        my $pid = ( $dtid =~ /^\d+$/) ? int( $dtid / 256 ) : 0;
-
-        $basesubject =~ s/^(Re:\s*)*//i;
-        $basesubject = "Re: $basesubject" if $basesubject;
-        $basesubject = LJ::ehtml(LJ::ejs($basesubject));
-        my $onclick = "return function(that) { return quickreply(\"$dtid\", $pid, \"$basesubject\", that)}(this)";
-
-        my $r = DW::Request->get;
-        my $ju;
-        $ju = LJ::load_userid( $r->note( 'journalid' ) )
-            if $r and $r->note( 'journalid' );
-
-        $onclick = "" if $ju && $ju->does_not_allow_comments_from( $remote );
-        return "<a onclick='$onclick' href='$replyurl' >$linktext</a>";
-    } else { # QR Disabled
-        return "<a href='$replyurl' >$linktext</a>";
-    }
 }
 
 # <LJFUNC>
@@ -1126,7 +1088,7 @@ sub create_url {
     my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
     my $url = $proto . "://$host$path";
 
-    my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
+    my $orig_args = $opts{cur_args} || DW::Request->get->get_args( preserve_case => 1 );
 
     # Move over viewing style arguments
     if( $opts{viewing_style} ) {
@@ -1349,8 +1311,9 @@ sub entry_form {
     $out .= "<ul class='pkg'>\n";
     $out .= "<li class='image'><a href='javascript:void(0);' onclick='InOb.handleInsertImage();' title='"
         . BML::ml('fckland.ljimage') . "'>" . BML::ml('entryform.insert.image2') . "</a></li>\n";
-    $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='Embed Media'>"
-        . "Embed Media</a></li>\n" if LJ::is_enabled('embed_module');
+    $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='"
+        . BML::ml('fcklang.ljvideo2') . "'>" . BML::ml('fcklang.ljvideo2') . "</a></li>\n"
+            if LJ::is_enabled('embed_module');
     $out .= "</ul>\n";
     my $format_selected = ( $opts->{mode} eq "update" && $remote && $remote->disable_auto_formatting ) || $opts->{'prop_opt_preformatted'} || $opts->{'event_format'} ? "checked='checked'" : "";
     $out .= "<span id='linebreaks'><input type='checkbox' class='check' value='preformatted' name='event_format' id='event_format' $format_selected  />
@@ -1395,8 +1358,9 @@ RTE
     $out .= "FCKLang.UserPrompt_SiteList =" . LJ::js_dumper( \@sitevalues ) . ";\n";
     $out .= "FCKLang.InvalidChars = \"".LJ::ejs(BML::ml('fcklang.invalidchars'))."\";\n";
     $out .= "FCKLang.LJUser = \"".LJ::ejs(BML::ml('fcklang.ljuser'))."\";\n";
-    $out .= "FCKLang.VideoPrompt = \"".LJ::ejs(BML::ml('fcklang.videoprompt'))."\";\n";
     $out .= "FCKLang.LJVideo = \"".LJ::ejs(BML::ml('fcklang.ljvideo2'))."\";\n";
+    $out .= "FCKLang.EmbedContents = \"".LJ::ejs(BML::ml('fcklang.embedcontents'))."\";\n";
+    $out .= "FCKLang.EmbedPrompt = \"".LJ::ejs(BML::ml('fcklang.embedprompt'))."\";\n";
     $out .= "FCKLang.CutPrompt = \"".LJ::ejs(BML::ml('fcklang.cutprompt'))."\";\n";
     $out .= "FCKLang.ReadMore = \"".LJ::ejs(BML::ml('fcklang.readmore'))."\";\n";
     $out .= "FCKLang.CutContents = \"".LJ::ejs(BML::ml('fcklang.cutcontents'))."\";\n";
@@ -2376,7 +2340,6 @@ sub res_includes {
     # TODO: automatic dependencies from external map and/or content of files,
     # currently it's limited to dependencies on the order you call LJ::need_res();
     my $ret = "";
-    my $do_concat = $LJ::IS_SSL ? $LJ::CONCAT_RES_SSL : $LJ::CONCAT_RES;
 
     # use correct root and prefixes for SSL pages
     my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix, $iconprefix);
@@ -2476,7 +2439,6 @@ sub res_includes {
             # the modtime, but rather do one global max modtime at the
             # end, which is done later in the tags function.
             $modtime = '' unless defined $modtime;
-            $what .= "?v=$modtime" unless $do_concat;
 
             $list{$type} ||= [];
             push @{$list{$type}[$order] ||= []}, $what;
@@ -2535,18 +2497,10 @@ sub res_includes {
                 my $template_order = $template;
                 next unless $list = $list{$type}[$o];
 
-                if ($do_concat) {
-                    my $csep = join(',', @$list);
-                    $csep .= "?v=" . $oldest{$type}[$o];
-                    $template_order =~ s/__+/??$csep/;
-                    $ret .= $template_order;
-                } else {
-                    foreach my $item (@$list) {
-                        my $inc = $template;
-                        $inc =~ s/__+/$item/;
-                        $ret .= $inc;
-                    }
-                }
+                my $csep = join(',', @$list);
+                $csep .= "?v=" . $oldest{$type}[$o];
+                $template_order =~ s/__+/??$csep/;
+                $ret .= $template_order;
             }
         };
 
@@ -2802,19 +2756,37 @@ sub control_strip
                 # since this is only shown if $remote->equals( $journal ) , we don't have to care whether a filter is public or not
                 my @custom_filters = $journal->content_filters;
 
+                # Making as few changes to existing behaviour
+                my $default_filter = "default view";
                 foreach my $f ( @custom_filters ) {
+                    # Both 'default' and 'default view' are default filters
+                    $default_filter = "default" if lc( $f->name ) eq "default";
                     push @filters, "filter:" . lc( $f->name ), $f->name;
                 }
 
                 my $selected = "all";
+
+                # first, change the selection state to reflect any filter in use;
+                # if we have no default filter or if the named filter somehow
+                # fails to exist, this will effectively select nothing
+                if ( $r->uri =~ /^\/read\/?(.+)?/i ) {
+                    my $filter = $1 || $default_filter;
+                    $selected = "filter:" . LJ::durl( lc( $filter ) );
+                    # but don't select the filter if the query string contains filter=0
+                    # (fun fact: named filter + filter=0 returns a 404 error)
+                    $selected = "all" if $r->query_string && $r->query_string =~ /\bfilter=0\b/;
+                }
+
+                # next, change the selection state to reflect showtypes from getargs;
+                # note this will override the implicit default filter or filter=0 selection
+                # if a match is found, but not a filter explicitly named in the URL.
+                # (of course you can use both! we're just competing for the
+                #  state of the pop-up menu in the control strip here)
                 if ( ( $r->uri eq "/read" || $r->uri eq "/network" ) &&
                      $r->query_string && $r->query_string ne "" ) {
                     $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
                     $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
                     $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
-                } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
-                    my $filter = $1 || "default view";
-                    $selected = "filter:" . LJ::durl( lc( $filter ) );
                 }
 
                 $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";
@@ -3368,7 +3340,8 @@ sub subscribe_interface {
             my $subscribed = ! $pending_sub->pending;
 
             unless ($pending_sub->enabled) {
-                $title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $title . $upgrade_notice;
+                my $hooktext = LJ::Hooks::run_hook( "disabled_esn_sub", $u ) // '';
+                $title = $hooktext . $title . $upgrade_notice;
                 $unavailable_subs++;
             }
             next if ! $pending_sub->event_class->is_visible && $showtracking;

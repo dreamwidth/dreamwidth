@@ -29,7 +29,7 @@ my %LJISH_SITES = map { $_ => 1 } (
 );
 
 my $LJISH_URL_PART = "(data/(?:rss|atom)(?:_friends|\.xml|\.html)?|"
-    . "data/customview|rss(?:/friends|/data|\.xml|\.html)?)(/.+?)?(.+?)?";
+    . "rss(?:/friends|/data|\.xml|\.html)?)(/.+?)?(.+?)?";
 
 sub canonicalize {
     my $uri_string = $_[0];
@@ -319,25 +319,15 @@ sub make_ljish {
     $username =~ s/-/_/g;
 
     my $extra = "";
-    if ( $feed =~ m/customview$/i ) {
-        $extra = $extra_raw if $extra_raw =~ m!^/!;
-        return LJ::create_url("/$username/customview$extra",
-            proto => "ljish",
-            host => $domain,
-            cur_args => { $uri->query_form },
-            keep_args => [ qw/ styleid show filter / ] );
-    } else {
-        my $extra;
-        $extra = "/friends" if $feed =~ /friends$/;
+    $extra = "/friends" if $feed =~ /friends$/;
 
-        my %query = $uri->query_form;
+    my %query = $uri->query_form;
 
-        if ( $query{tag} ) {
-            return "ljish://$domain/$username$extra?tag=" . uri_escape( $query{tag} );
-        }
-
-        return "ljish://$domain/$username$extra";
+    if ( $query{tag} ) {
+        $extra .= "?tag=" . uri_escape( $query{tag} );
     }
+
+    return "ljish://$domain/$username$extra";
 }
 
 1;

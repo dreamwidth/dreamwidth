@@ -75,22 +75,11 @@ sub EntryPage
     # canonical link to the entry or comment thread
     $p->{head_content} .= LJ::canonical_link( $permalink, $get->{thread} );
 
-    # quickreply js libs
-    # if we're using the site skin, don't override the jquery-ui theme, as that's already included
-    my @iconbrowser_extra_stylesheet;
-    @iconbrowser_extra_stylesheet = ( 'stc/jquery/jquery.ui.theme.smoothness.css' )
-        unless $opts->{handle_with_siteviews_ref} && ${$opts->{handle_with_siteviews_ref}};
-
-    LJ::need_res( LJ::Talk::init_iconbrowser_js( 1, @iconbrowser_extra_stylesheet ) )
-        if $remote && $remote->can_use_userpic_select;
-
-    LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.core.js
-            stc/jquery/jquery.ui.core.css
-            js/jquery/jquery.ui.widget.js
-            js/jquery.quickreply.js
-            js/jquery.threadexpander.js
-        ) );
+    # include JS for quick reply, icon browser, and ajax cut tag
+    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref} &&
+                              ${$opts->{handle_with_siteviews_ref}};
+    LJ::Talk::init_s2journal_js( iconbrowser => $remote && $remote->can_use_userpic_select,
+                                 siteskin => $handle_with_siteviews );
 
     $p->{'entry'} = $s2entry;
     LJ::Hooks::run_hook('notify_event_displayed', $entry);

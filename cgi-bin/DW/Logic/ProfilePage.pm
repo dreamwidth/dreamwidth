@@ -638,11 +638,6 @@ sub contact_rows {
         }
     }
 
-    # text message
-    if ( !$u->is_syndicated && $u->can_be_text_messaged_by( $remote ) ) {
-        push @ret, { url => "$LJ::SITEROOT/tools/textmessage?user=" . $u->user, text => LJ::Lang::ml( '.contact.txtmsg' ) };
-    }
-
     return @ret;
 }
 
@@ -732,10 +727,6 @@ sub external_services {
             text => LJ::ehtml( $aol ),
             image => 'aim.gif',
             title_ml => '.im.aol',
-            status_image => "http://big.oscar.aol.com/$eaol?on_url=http://cdn.aim.com/remote/gr/MNB_online.gif&amp;off_url=http://cdn.aim.com/remote/gr/MNB_offline.gif",
-            status_title_ml => '.im.aol.status',
-            status_width => 11,
-            status_height => 13,
         };
     }
 
@@ -747,6 +738,17 @@ sub external_services {
             url => "http://www.delicious.com/$delicious",
             image => 'delicious.png',
             title_ml => '.service.delicious',
+        };
+    }
+
+    if ( my $deviantart = $u->prop( 'deviantart' ) ) {
+        my $deviantart = LJ::eurl( $deviantart );
+        push @ret, {
+            type => 'deviantart',
+            text => LJ::ehtml( $deviantart ),
+            url => "http://$deviantart.deviantart.com",
+            image => 'deviantart.png',
+            title_ml => '.service.deviantart',
         };
     }
 
@@ -783,6 +785,17 @@ sub external_services {
         };
     }
 
+    if ( my $github = $u->prop( 'github' ) ) {
+        my $github = LJ::eurl( $github );
+        push @ret, {
+            type => 'github',
+            text => LJ::ehtml( $github ),
+            url => "https://github.com/$github",
+            image => 'github.png',
+            title_ml => '.service.github',
+        };
+    }
+
     if ( my $google = $u->prop( 'google_talk' ) ) {
         push @ret, {
             type => 'google',
@@ -800,10 +813,6 @@ sub external_services {
             url => "http://wwp.icq.com/$eicq",
             image => 'icq.gif',
             title_ml => '.im.icq',
-            status_image => "http://web.icq.com/whitepages/online?icq=$eicq&amp;img=5",
-            status_title_ml => '.im.icq.status',
-            status_width => 18,
-            status_height => 18,
         };
     }
 
@@ -882,13 +891,6 @@ sub external_services {
             image => 'skype.gif',
             title_ml => '.im.skype',
         };
-        if ( $skype =~ /^[\w\.\-]+$/ ) {
-            my $eskype = LJ::eurl( $skype );
-            $service->{status_image} = "http://mystatus.skype.com/smallicon/$eskype";
-            $service->{status_title_ml} = '.im.skype.status';
-            $service->{status_width} = 16;
-            $service->{status_height} = 16;
-        }
         push @ret, $service;
     }
 
@@ -922,10 +924,6 @@ sub external_services {
             url => "http://profiles.yahoo.com/$eyahoo",
             image => 'yahoo.gif',
             title_ml => '.im.yim',
-            status_image => "http://opi.yahoo.com/online?u=$eyahoo&amp;m=g&amp;t=0",
-            status_title_ml => '.im.yim.status',
-            status_width => 12,
-            status_height => 12,
         };
     }
 

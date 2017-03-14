@@ -45,6 +45,10 @@
 
 .event=Event:
 
+.extradata.subj=The entry was posted with the following subject:
+
+.extradata.subject.no_subject=(no subject)
+
 .full=Full Update Page
 
 .htmlokay.norich=(HTML okay; by default, newlines will be auto-formatted to <tt>&lt;br&gt;</tt>)
@@ -138,14 +142,3 @@
 .update.success2.community=Your update was successful. <a [[aopts]]>View your updated community</a>.
 
 .username=Account name:
-
-.extradata.sec.public=The entry was posted publicly.
-
-.extradata.sec.access=The entry was posted with circle access.
-
-.extradata.sec.private=The entry was posted privately.
-
-.extradata.sec.custom=The entry was posted with custom access.
-
-.extradata.subject=The entry was posted with the following subject: [[subject]]
-

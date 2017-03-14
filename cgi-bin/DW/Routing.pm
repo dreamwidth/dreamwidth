@@ -196,7 +196,6 @@ sub _call_hash {
     # prefer SSL if wanted and possible
     #  cannot do SSL if it's not set up
     #  cannot do the redirect safely for non-GET/HEAD requests.
-    my $url = LJ::create_url( $r->uri, keep_args => 1, ssl => 1 );
     return $r->redirect( LJ::create_url( $r->uri, keep_args => 1, ssl => 1 ) )
         if $opts->prefer_ssl && $LJ::USE_SSL &&
             ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
@@ -205,7 +204,7 @@ sub _call_hash {
     if ( $opts->role eq 'user' && ( my $orig_u = LJ::load_user( $opts->username ) ) ) {
         my $renamed_u = $orig_u->get_renamed_user;
 
-        unless ( $renamed_u && $orig_u->equals( $renamed_u ) ) {
+        if ( $renamed_u && ! $orig_u->equals( $renamed_u ) ) {
             my $journal_host = $renamed_u->journal_base;
             $journal_host =~ s!https?://!!;
 
@@ -217,6 +216,13 @@ sub _call_hash {
     my $format = $opts->format;
     $r->content_type( $default_content_types->{$format} )
         if $default_content_types->{$format};
+
+    # apply default cache-avoidant settings to "journal" content
+    # (similar to the behavior of our Apache server modules)
+    # so that proxies (e.g. Cloudflare) must revalidate the response
+    if ( $opts->role eq 'user' && ! $opts->no_cache ) {
+        $r->header_out( "Cache-Control" => "private, proxy-revalidate" );
+    }
 
     # apply no-cache if needed
     $r->no_cache if $opts->no_cache;
@@ -398,18 +404,24 @@ sub register_string {
     $string_choices{'app'  . $string} = $hash if $hash->{app};
     $string_choices{'user' . $string} = $hash if $hash->{user};
 
+    my %redirect_opts = (
+        app => $hash->{app},
+        user => $hash->{user},
+        formats => $hash->{formats},
+        format => $hash->{format},
+        no_redirects => 1,
+        keep_args => 1,
+    );
+
     if ( $string =~ m!(^(.*)/)index$! && ! exists $opts{no_redirects} ) {
-        my %opts = (
-            app => $hash->{app},
-            user => $hash->{user},
-            formats => $hash->{formats},
-            format => $hash->{format},
-            no_redirects => 1,
-            keep_args => 1,
-        );
-        $class->register_redirect( $2, $1, %opts ) if $2;
+        $class->register_redirect( $2, $1, %redirect_opts ) if $2;
         $string_choices{'app'  . $1} = $hash if $hash->{app};
         $string_choices{'user' . $1} = $hash if $hash->{user};
+
+    } elsif ( ! exists $opts{no_redirects} ) {
+        # for all other (non-index) pages, redirect page/ to page
+        $class->register_redirect( "$string/", $string, %redirect_opts );
+
     }
 }
 

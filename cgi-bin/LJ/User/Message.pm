@@ -72,6 +72,19 @@ sub email_raw {
     return $u->{_email};
 }
 
+sub has_same_email_as {
+    my ( $u, $other ) = @_;
+    croak "invalid user object passed" unless LJ::isu( $u ) && LJ::isu( $other );
+
+    my $email_1 = lc( $u->email_raw );
+    my $email_2 = lc( $other->email_raw );
+    return 1 if $email_1 eq $email_2;
+
+    # if unequal, try stripping any +mailbox addressing
+    $email_1 =~ s/\+[^@]+@/@/;
+    $email_2 =~ s/\+[^@]+@/@/;
+    return $email_1 eq $email_2;
+}
 
 sub email_status {
     my $u = shift;
@@ -138,19 +151,6 @@ sub emails_visible {
 sub is_validated {
     my $u = shift;
     return $u->email_status eq "A";
-}
-
-
-# return user selected mail encoding or undef
-sub mailencoding {
-    my $u = shift;
-    my $enc = $u->prop('mailencoding');
-
-    return undef unless $enc;
-
-    LJ::load_codes({ "encoding" => \%LJ::CACHE_ENCODINGS } )
-        unless %LJ::CACHE_ENCODINGS;
-    return $LJ::CACHE_ENCODINGS{$enc}
 }
 
 
@@ -419,7 +419,6 @@ sub opt_usermsg {
     if ( defined $prop && $prop =~ /^(Y|F|M|N)$/ ) {
         return $prop;
     } else {
-        return 'M' if $u->is_minor;
         return 'Y';
     }
 }

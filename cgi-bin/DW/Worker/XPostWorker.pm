@@ -82,20 +82,18 @@ sub work {
     if ($result->{success}) {
         $sclient->insert_jobs(LJ::Event::XPostSuccess->new($u, $acctid, $ditemid)->fire_job );
         DW::Stats::increment( 'dw.worker.crosspost.success', 1, [ "domain:$domain" ] );
-        DW::Stats::timing( 'dw.worker.crosspost.success_time', $start, [ "domain:$domain" ] );
+        # FIXME: subroutine not implemented
+        # DW::Stats::timing( 'dw.worker.crosspost.success_time', $start, [ "domain:$domain" ] );
         printf STDERR "[xpost] Successful post to %s for %s(%d).\n",
                $domain, $u->user, $u->id;
     } else {
         # In case this was a connection timeout, then we want to do special
-        # handling to make sure we retry. Yes, this will retry permanently.
+        # handling to make sure we retry immediately, but if we exhaust
+        # max_retries, we should give up instead of rescheduling for later.
         if ( $result->{error} =~ /Failed to connect/ ) {
             printf STDERR "[xpost] Timeout posting to %s for %s(%d)... will retry.\n",
                    $domain, $u->user, $u->id;
-
-            # If we just decline immediately, we'll retry every 10 seconds. This
-            # logic makes us back off to a slower interval.
-            return $job->declined if $job->failures > 3;
-            return $job->failed( "Timeout encountered, will retry." );
+            return $job->failed( "Timeout encountered, maybe retry." );
         }
 
         # Some other failure, so let's just let it go through.
@@ -105,7 +103,8 @@ sub work {
             )->fire_job
         );
         DW::Stats::increment( 'dw.worker.crosspost.failure', 1, [ "domain:$domain" ] );
-        DW::Stats::timing( 'dw.worker.crosspost.failure_time', $start, [ "domain:$domain" ] );
+        # FIXME: subroutine not implemented
+        # DW::Stats::timing( 'dw.worker.crosspost.failure_time', $start, [ "domain:$domain" ] );
         printf STDERR "[xpost] Failed to post to %s for %s(%d): %s.\n",
                $domain, $u->user, $u->id, $result->{error} || 'Unknown error message.';
     }

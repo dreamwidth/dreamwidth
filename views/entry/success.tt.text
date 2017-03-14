@@ -20,6 +20,10 @@
 
 .edit.links.viewentry=View this entry
 
+.extradata.subj=The entry was posted with the following subject: 
+
+.extradata.subject.no_subject=(no subject)
+
 .new.community=Your update was successful. <a href="[[url]]">View your updated community</a>.
 
 .new.journal=Your update was successful. <a href="[[url]]">View your updated journal</a>.
@@ -39,13 +43,3 @@
 .new.links.view=View the entry
 
 .sticky.max=This entry was not made sticky because you've reached your limit of [[limit]] for sticky entries.
-
-.extradata.sec.public=The entry was posted publicly.
-
-.extradata.sec.access=The entry was posted with circle access.
-
-.extradata.sec.private=The entry was posted privately.
-
-.extradata.sec.custom=The entry was posted with custom access.
-
-.extradata.subject=The entry was posted with the following subject: [[subject]]

@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "entry" }
 
-sub desc { "Manage entries in an account" }
+sub desc { "Manage entries in an account. Requires priv: deletetalk." }
 
 sub args_desc { [
                  'action' => "Currently only 'delete'",

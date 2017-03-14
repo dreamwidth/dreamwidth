@@ -104,7 +104,7 @@ _c?>
         return;
     }
 
-    # first pageview, show authas and pregeneration hook
+    # first pageview, show authas
     if (! LJ::did_post() || $POST{'start_over'}) {
 
         # postto switcher form
@@ -122,9 +122,6 @@ _c?>
                     }) . "\n";
         }
         $body .= "</form>\n\n";
-
-        # show pregenerate options
-        $body .= LJ::Hooks::run_hook('poll_pregeneration_html', $u, $authas);
     }
 
     # does the remote or selected user have the 'makepoll' cap?
@@ -801,11 +798,6 @@ _c?>
     # variables to pass around
     my $poll = {};
     my $err  = {};
-
-    # should we pregenerate something?
-    if (my $pgid = $GET{'pregen'}+0) {
-        $poll = LJ::Hooks::run_hook('pregenerate_poll', $u, $pgid);
-    }
 
     # process post input
     if (LJ::did_post() && ! $POST{'start_over'}) {

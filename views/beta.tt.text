@@ -1,4 +1,38 @@
 ;; -*- coding: utf-8 -*-
+.betafeature.btn.off=Turn OFF beta testing
+
+.betafeature.btn.on=Turn ON beta testing
+
+.betafeature.httpseverywhere.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.httpseverywhere.off<<
+<p>Activate HTTPS Everywhere. This will force your account to use a secure connection whenever
+you're logged in and browsing.</p>
+.
+
+.betafeature.httpseverywhere.on<<
+<p>You currently have HTTPS Everywhere enabled. Toggle off if you wish to resume browsing
+the site normally (unencrypted).</p>
+.
+
+.betafeature.httpseverywhere.title=HTTPS Everywhere
+
+.betafeature.updatepage.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.updatepage.off<<
+<p>Activate the testing version of the new Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
+
+<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.updatepage.on<<
+<p>You are currently testing the Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
+
+<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.updatepage.title=New Create Entries Page
+
 .nofeatures=There are no features currently available for beta testing.
 
 .staytuned.newscomm=Stay tuned to [[news]] for upcoming testing opportunities. Thank you.

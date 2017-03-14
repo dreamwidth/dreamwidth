@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "priv" }
 
-sub desc { "Grant or revoke user privileges, or list available privileges and their arguments." }
+sub desc { "Grant or revoke user privileges, or list available privileges and their arguments. Requires priv: admin." }
 
 sub args_desc { [
                  'action'    => "'list', 'grant', 'revoke', or 'revoke_all' to revoke all args for a given priv.",

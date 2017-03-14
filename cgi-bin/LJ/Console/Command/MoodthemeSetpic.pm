@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "moodtheme_setpic" }
 
-sub desc { "Change data for a mood theme. If picurl, width, or height is empty or zero, the data is deleted." }
+sub desc { "Change data for a mood theme. If picurl, width, or height is empty or zero, the data is deleted. Requires priv: none." }
 
 sub args_desc { [
                  'themeid' => "Mood theme ID number.",

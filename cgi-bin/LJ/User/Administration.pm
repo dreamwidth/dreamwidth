@@ -88,7 +88,7 @@ sub log_event {
     }
     my $remote = delete($info->{remote}) || LJ::get_remote() || undef;
     my $targetid = (delete($info->{actiontarget})+0) || undef;
-    my $extra = %$info ? join('&', map { LJ::eurl($_) . '=' . LJ::eurl($info->{$_}) } keys %$info) : undef;
+    my $extra = %$info ? join('&', map { LJ::eurl($_) . '=' . LJ::eurl($info->{$_}) } sort keys %$info) : undef;
 
     # now insert the data we have
     $u->do("INSERT INTO userlog (userid, logtime, action, actiontarget, remoteid, ip, uniq, extra) " .
@@ -325,6 +325,22 @@ sub unban_user_multi {
     }
 
     return 1;
+}
+
+
+########################################################################
+### Selective Screening functions
+
+# return if $target's comments will automatically be screened in $u's journal
+sub has_autoscreen {
+    my ( $u, $target ) = @_;
+
+    my $uid = LJ::want_userid( $u );
+    my $jid = LJ::want_userid( $target );
+    return 0 unless $uid && $jid;  #can't autoscreen anons ($jid == 0)
+    return 0 if $uid == $jid;  # can't autoscreen yourself
+
+    return LJ::check_rel( $uid, $jid, 'S' );
 }
 
 

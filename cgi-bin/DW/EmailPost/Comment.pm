@@ -220,7 +220,6 @@ sub determine_subject {
         # we always have a parent comment, because that's the only way we can get an auth hash
         # if that changes, we'll have to add checking here
         my $parent_obj = LJ::Comment->new( $ju, dtalkid => $parent );
-        #$subject = DW::CleanEmail->reply_subject( $parent_obj->subject_text );
         $subject = DW::CleanEmail->reply_subject( $parent_obj->subject_text );
     }
 

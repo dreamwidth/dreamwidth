@@ -1,3 +1,12 @@
 .pagination a {
     text-decoration: none;
 }
+
+.pagination-wrapper { 
+	margin: 1em auto;
+    text-align: center;
+}
+
+ul.pagination {
+    display: inline-block;
+}

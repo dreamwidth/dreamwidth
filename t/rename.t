@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 153;
+use Test::More tests => 154;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -530,6 +530,16 @@ note( "-- two username swap (personal to personal)" );
 
     is( $u1->userid, $u1id, "Id of u1 remains the same after rename." );
     is( $u2->userid, $u2id, "Id of u2 remains the same after rename." );
+}
+
+note( "-- two username swap (personal to personal), one token owned by each user" );
+{
+    my ( $u1, $u2 ) = $create_users->( match => 1, validated => 1 );
+
+    ok( $u1->swap_usernames(
+        $u2,
+        tokens => [ new_token( $u1 ), new_token( $u2 ) ]
+     ), "Swap usernames with one token owned by each account" );
 }
 
 note( "-- two username swap (one user is suspended)" );

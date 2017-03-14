@@ -11,7 +11,7 @@ function LJUser(textArea) {
     var html = oEditor.GetXHTML(false);
     if (html) html = html.replace(/<\/(lj|user)>/, '');
     var regexp = /<(?:lj|user)( (?:user|name|site)=[^/>]+)\/?>\s?(?:<\/(?:lj|user)>)?\s?/g;
-    var attrs_regexp = /(user|name|site)=['"]([.\w]+?)['"]/g;
+    var attrs_regexp = /(user|name|site)=['"]([.\w-]+?)['"]/g;
     var userstr;
     var users = [];
     var username;
@@ -23,7 +23,7 @@ function LJUser(textArea) {
         while (( attrs=attrs_regexp.exec(users[1]) )) {
             if (attrs[1] == 'user' || attrs[1] == 'name')
                 postData.username = attrs[2];
-            else 
+            else
                 postData[attrs[1]] = attrs[2];
         }
         var url = window.parent.Site.siteroot + "/tools/endpoints/ljuser";
@@ -44,9 +44,9 @@ function LJUser(textArea) {
             }
             if (!data.success) return;
 
-            if ( site ) 
+            if ( site )
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser" site="' + site + '">');
-            else 
+            else
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
 
             data.ljuser = data.ljuser.replace(/<\/span>\s?/,'</div>');
@@ -60,7 +60,7 @@ function LJUser(textArea) {
         if ( UserTagCache[postData.username+"_"+postData.site] ) {
             html = html.replace( userStrToReplace, UserTagCache[postData.username+"_"+postData.site] );
             oEditor.SetData(html);
-            oEditor.Focus();            
+            oEditor.Focus();
         } else {
             var opts = {
                 "data": window.parent.HTTPReq.formEncoded(postData),
@@ -69,7 +69,7 @@ function LJUser(textArea) {
                 "onError": gotError,
                 "onData": gotInfo
             };
-    
+
             window.parent.HTTPReq.getJSON(opts);
         }
     }
@@ -245,8 +245,6 @@ function convertToTags(html) {
     html = html.replace(/<div class=['"]ljuser['"]>.+?<b>(\w+?)<\/b><\/a><\/div>/g, '<user name=\"$1\">');
     // with site
     html = html.replace(/<div(?: site=['"](.+?)['"]) class=['"]ljuser['"]>.+?<b>(\w+?)<\/b><\/a><\/div>/g, '<user name=\"$2\" site=\"$1\">');
-    html = html.replace(/<div class=['"]ljvideo['"] url=['"](\S+)['"]><img.+?\/><\/div>/g, '<site-template name=\"video\">$1</site-template>');
-    html = html.replace(/<div class=['"]ljvideo['"] url=['"](\S+)['"]><br \/><\/div>/g, '');
     html = html.replace(/<div class=['"]ljraw['"]>(.+?)<\/div>/g, '<raw-code>$1</raw-code>');
     html = html.replace(/<div class=['"]ljembed['"](\s*embedid="(\d*)")?\s*>(.*?)<\/div>/gi, '<site-embed id="$2">$3</site-embed>');
     html = html.replace(/<div\s*(embedid="(\d*)")?\s*class=['"]ljembed['"]\s*>(.*?)<\/div>/gi, '<site-embed id="$2">$3</site-embed>');
@@ -262,7 +260,6 @@ function convertToHTMLTags(html, statPrefix) {
     html = html.replace(/<(lj-)?cut text=['"](.+?)['"]>([\S\s]+?)<\/\1cut>/gm, '<div text="$2" class="ljcut">$3</div>');
     html = html.replace(/<(lj-)?cut>([\S\s]+?)<\/\1cut>/gm, '<div class="ljcut">$2</div>');
     html = html.replace(/<(lj-raw|raw-code)>([\w\s]+?)<\/\1>/gm, '<div class="ljraw">$2</div>');
-    html = html.replace(/<(lj|site)-template name=['"]video['"]>(\S+?)<\/\1-template>/g, "<div url=\"$2\" class=\"ljvideo\"><img src='" + statPrefix + "/fck/editor/plugins/livejournal/ljvideo.gif' /></div>");
     // Match across multiple lines and extract ID if it exists
     html = html.replace(/<(lj|site)-embed\s*(id="(\d*)")?\s*>\s*(.*)\s*<\/\1-embed>/gim, '<div class="ljembed" embedid="$3">$4</div>');
 

@@ -117,17 +117,7 @@
 
 .nopics=No Icons
 
-.piclimitstatus=Currently uploaded: [[current]] out of [[max]]. 
-
-.restriction.fileformat=File format must be either PNG, GIF, or JPG
-
-.restriction.filesize=File size must be less than 40k
-
-.restriction.imagesize2=If dimensions are larger than 100x100 pixels, you will be taken to the Create Icon page
-
-.restriction.keywords=Icon will not be usable if keywords are not supplied
-
-.restriction.keywords.faq=Icon will not be usable if <a [[aopts]]>keywords</a> are not supplied
+.piclimitstatus=Currently uploaded: [[current]] out of [[max]].
 
 .sort.default=Upload Order
 

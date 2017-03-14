@@ -80,17 +80,17 @@ sub handle {
     # add 24h to the final date; otherwise we don't get entries on that date
     if ($opts->{s_unixtime} && $opts->{e_unixtime}) {
         @jids = $u->get_post_ids(
-                             'security' => $opts->{'s_security'},
+                            'security' => $opts->{'s_security'},
                             'allowmask' => $s_allowmask,
-                           'start_date' => $opts->{'s_unixtime'},
-                             'end_date' => $opts->{'e_unixtime'} + 24*60*60 );
+                            'start_date' => $opts->{'s_unixtime'},
+                            'end_date' => $opts->{'e_unixtime'} + 24*60*60 );
         my $s_dt = DateTime->from_epoch( epoch => $opts->{s_unixtime} );
         my $e_dt = DateTime->from_epoch( epoch => $opts->{e_unixtime} );
-        $timeframe = "between " . $s_dt->ymd . " and " . $e_dt->ymd . " ";
+        $timeframe = "between " . $s_dt->ymd . " and " . $e_dt->ymd;
 
     } else {
         @jids = $u->get_post_ids(
-                             'security' => $opts->{'s_security'},
+                            'security' => $opts->{'s_security'},
                             'allowmask' => $s_allowmask, );
     }
 
@@ -143,7 +143,7 @@ sub handle {
         timeframe => $timeframe,
         oldsecurity => $privacy{$opts->{s_security}},
         newsecurity => $privacy{$opts->{e_security}},
-        privacy => '$LJ::SITEROOT/editprivacy',
+        privacyurl => "$LJ::SITEROOT/editprivacy",
     } );
 
     LJ::send_mail({

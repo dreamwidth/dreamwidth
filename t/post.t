@@ -145,8 +145,11 @@ note( "Logged in - init" );
     $u->update_self( { moodthemeid => $customtheme->id } );
     $u = LJ::load_user($u->user, 'force');
 
-    # pick a mood, any mood
-    my $testmoodid = (keys %$moods)[0];
+    # we used to pick a random mood here - whichever moodid was the
+    # first one returned from the keys array - but the test would
+    # fail if we picked a mood that had other moods inherit from it,
+    # so now we pick a mood that is known to be childless
+    my $testmoodid = 105;  # quixotic
     my $err;
     $customtheme->set_picture( $testmoodid, { picurl => "http://example.com/moodpic", width => 10, height => 20 }, \$err );
 
@@ -388,7 +391,7 @@ note( "Post - security:public" );
     }, "decoded entry form" );
 
     my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
-    is( $entry->{security}, "public", "Public security" );
+    is( $entry->security, "public", "Public security" );
 
 
     ( $req, $res, $u ) = post_with( security => "public" );
@@ -397,7 +400,7 @@ note( "Post - security:public" );
     }, "decoded entry form" );
 
     $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
-    is( $entry->{security}, "public", "Public security" );
+    is( $entry->security, "public", "Public security" );
 }
 
 note( "Post - security:access" );
@@ -409,7 +412,7 @@ note( "Post - security:access" );
     }, "decoded entry form for access-locked entry" );
 
     my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
-    is( $entry->{security}, "usemask", "Locked security" );
+    is( $entry->security, "usemask", "Locked security" );
 }
 
 note( "Post - security:private" );

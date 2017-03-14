@@ -231,12 +231,6 @@ sub get_daycounts {
     return \@days;
 }
 
-
-sub journal_base {
-    return LJ::journal_base( @_ );
-}
-
-
 sub meta_discovery_links {
     my $u = shift;
     my $journalbase = $u->journal_base;
@@ -263,7 +257,7 @@ sub meta_discovery_links {
 
     # FOAF autodiscovery
     if ( $opts{foaf} ) {
-        my $foafurl = $u->{external_foaf_url} ? LJ::eurl( $u->{external_foaf_url} ) : "$journalbase/data/foaf";
+        my $foafurl = "$journalbase/data/foaf";
         $ret .= qq{<link rel="meta" type="application/rdf+xml" title="FOAF" href="$foafurl" />\n};
 
         if ($u->email_visible($opts{remote})) {
@@ -416,77 +410,6 @@ use Carp;
 =head2 Styles and S2-Related Functions (LJ)
 =cut
 
-# <LJFUNC>
-# name: LJ::journal_base
-# des: Returns URL of a user's journal.
-# info: The tricky thing is that users with underscores in their usernames
-#       can't have some_user.example.com as a hostname, so that's changed into
-#       some-user.example.com.
-# args: uuser, vhost?
-# des-uuser: User hashref or username of user whose URL to make.
-# des-vhost: What type of URL.  Acceptable options: "users", to make a
-#            http://user.example.com/ URL; "tilde" for http://example.com/~user/;
-#            "community" for http://example.com/community/user; or the default
-#            will be http://example.com/users/user.  If unspecified and uuser
-#            is a user hashref, then the best/preferred vhost will be chosen.
-# returns: scalar; a URL.
-# </LJFUNC>
-sub journal_base {
-    my ($user, %opts) = @_;
-    my $vhost = $opts{vhost};
-    my $protocol = $LJ::IS_SSL ? "https" : "http";
-
-    my $u = LJ::isu( $user ) ? $user : LJ::load_user( $user );
-    $user = $u->user if $u;
-
-    if ( $u && LJ::Hooks::are_hooks("journal_base") ) {
-        my $hookurl = LJ::Hooks::run_hook("journal_base", $u, $vhost);
-        return $hookurl if $hookurl;
-
-        unless (defined $vhost) {
-            if ($LJ::FRONTPAGE_JOURNAL eq $user) {
-                $vhost = "front";
-            } elsif ( $u->is_person ) {
-                $vhost = "";
-            } elsif ( $u->is_community ) {
-                $vhost = "community";
-            }
-        }
-    }
-
-    if ( $LJ::ONLY_USER_VHOSTS ) {
-        my $rule = $u ? $LJ::SUBDOMAIN_RULES->{$u->journaltype} : undef;
-        $rule ||= $LJ::SUBDOMAIN_RULES->{P};
-
-        # if no rule, then we don't have any idea what to do ...
-        die "Site misconfigured, no %LJ::SUBDOMAIN_RULES."
-            unless $rule && ref $rule eq 'ARRAY';
-
-        if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
-            $user =~ s/_/-/g;
-            return "$protocol://$user.$LJ::DOMAIN";
-        } else {
-            return "$protocol://$rule->[1]/$user";
-        }
-    }
-
-    if ($vhost eq "users") {
-        my $he_user = $user;
-        $he_user =~ s/_/-/g;
-        return "$protocol://$he_user.$LJ::USER_DOMAIN";
-    } elsif ($vhost eq "tilde") {
-        return "$LJ::SITEROOT/~$user";
-    } elsif ($vhost eq "community") {
-        return "$LJ::SITEROOT/community/$user";
-    } elsif ($vhost eq "front") {
-        return $LJ::SITEROOT;
-    } elsif ($vhost =~ /^other:(.+)/) {
-        return "$protocol://$1";
-    } else {
-        return "$LJ::SITEROOT/users/$user";
-    }
-}
-
 
 # FIXME: Update to pull out S1 support.
 # <LJFUNC>
@@ -534,7 +457,7 @@ sub make_journal {
 
     my @needed_props = ("stylesys", "s2_style", "url", "urlname", "opt_nctalklinks",
                         "renamedto",  "opt_blockrobots", "opt_usesharedpic", "icbm",
-                        "journaltitle", "journalsubtitle", "external_foaf_url",
+                        "journaltitle", "journalsubtitle",
                         "adult_content", "opt_viewjournalstyle", "opt_viewentrystyle");
 
     # preload props the view creation code will need later (combine two selects)
@@ -690,11 +613,8 @@ sub make_journal {
         ! LJ::get_cap( $u, "userdomain" ) ) {
         return $notice->( BML::ml( 'error.vhost.nodomain1', { user_domain => $LJ::USER_DOMAIN } ) );
     }
-    if ($opts->{'vhost'} =~ /^other:/ && ! LJ::get_cap($u, "domainmap")) {
-        return $notice->( BML::ml( 'error.vhost.noalias' ) );
-    }
-    if ($opts->{'vhost'} eq "customview" && ! LJ::get_cap($u, "styles")) {
-        return $notice->( BML::ml( 'error.vhost.nostyle' ) );
+    if ( $opts->{'vhost'} =~ /^other:/ ) {
+        return $notice->( BML::ml( 'error.vhost.noalias1' ) );
     }
     if ($opts->{'vhost'} eq "community" && $u->journaltype !~ /[CR]/) {
         $opts->{'badargs'} = 1; # Output a generic 'bad URL' message if available
@@ -762,6 +682,10 @@ sub make_journal {
     if (exists $opts->{getargs}->{security}) {
         my $securityfilter = $opts->{getargs}->{security};
 
+        my $canview_groups = ( $view eq "lastn"  # viewing recent entries
+          # ... or your own read page (can't see locked entries on others' read page anyway)
+            || ( $view eq "read" && $u->equals( $remote ) ) );
+
         my $r = DW::Request->get;
         my $security_err = sub {
             my ( $args, %opts ) = @_;
@@ -771,11 +695,7 @@ sub make_journal {
             my @levels;
             my @groups;
             # error message is an appropriate type to show the list
-            if ( $opts{show_list}
-                # viewing recent entries
-                && ( $view eq "lastn"
-                    # or your own read page (can't see locked entries on others' read page anyway)
-                    || ( $view eq "read" && $u->equals( $remote ) ) ) ) {
+            if ( $opts{show_list} && $canview_groups ) {
 
                 my $path = $view eq "read" ? "/read/security" : "/security";
                 @levels  = ( { link => LJ::create_url( "$path/public", viewing_style => 1 ),
@@ -836,7 +756,7 @@ sub make_journal {
             $opts->{securityfilter} = lc($securityfilter);
 
         # see if they want to filter by a custom group
-        } elsif ( $securityfilter =~ /^group:(.+)$/i && $view eq 'lastn' ) {
+        } elsif ( $securityfilter =~ /^group:(.+)$/i && $canview_groups ) {
             my $tf = $u->trust_groups( name => $1 );
             if ( $tf && ( $u->equals( $remote ) ||
                           $u->trustmask( $remote ) & ( 1 << $tf->{groupnum} ) ) ) {

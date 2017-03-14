@@ -295,10 +295,11 @@ body<=
                 if $view_userlog;
         }
 
-        if ( $u->in_class( LJ::BetaFeatures->cap_name )
+        if ( %LJ::BETA_FEATURES
             && LJ::Support::has_any_support_priv( $remote ) ) {
             $ret .= "<br />$ML{'.betatesting'}: ";
-            $ret .= join ", ", $u->prop( LJ::BetaFeatures->prop_name );
+            my $betafeatures = join ", ", $u->prop( LJ::BetaFeatures->prop_name );
+            $ret .= $betafeatures || $ML{'.no-beta'};
         }
 
         $ret .= "</td></tr>\n";

@@ -63,8 +63,6 @@
 
 .contact.pm=Send Message
 
-.contact.txtmsg=Send Text Message
-
 .date.never=<em>Never.</em>
 
 .details.accounttype.expireson=[[type]], expires on [[date]]
@@ -151,8 +149,6 @@
 
 .im.aol=AIM
 
-.im.aol.status=AIM status
-
 .im.gtalk=Google Talk
 
 .im.header=Instant Message:
@@ -161,19 +157,13 @@
 
 .im.icq=ICQ
 
-.im.icq.status=ICQ status
-
 .im.jabber=Jabber
 
 .im.lastfm=Last.fm
 
 .im.skype=Skype
 
-.im.skype.status=Skype status
-
 .im.yim=Yahoo!
-
-.im.yim.status=Yahoo! status
 
 .label.addbuddy=Add Buddy
 
@@ -276,8 +266,6 @@
 .label.syndicatedstatus=Status:
 
 .label.syndreadcount=Subscribers:
-
-.label.textmessage=<nobr>Text<br>Message</nobr>:
 
 .label.theme=Theme:
 
@@ -385,11 +373,15 @@
 
 .service.delicious=Delicious
 
+.service.deviantart=DeviantArt
+
 .service.diigo=Diigo
 
 .service.etsy=Etsy
 
 .services.ffnet=FanFiction.net
+
+.service.github=GitHub
 
 .service.pinboard=Pinboard
 

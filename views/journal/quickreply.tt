@@ -62,9 +62,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
   ) -%]
 </div>
 <div class="qr-footer">
+  [%- IF post_disabled -%]
+  <div class='ui-state-error'>[%- '/talkpost.bml.error.nocomment_quick' | ml -%]</div>
+  [%- END -%]
   [%- form.submit(
       name = 'submitpost'
       value = dw.ml( '/talkread.bml.button.post' ),
+      disabled = post_disabled,
+      class = post_button_class,
       id = 'submitpost'
   ) -%]
   [%- form.submit(
@@ -125,16 +130,21 @@ the same terms as Perl itself.  For a copy of the license, please reference
   <tr valign='top'>
     <td align='right'><label for='body'><b>[%- '/talkpost.bml.opt.message' | ml -%]</b></td>
     <td colspan='3' style='width: 90%'>
-      <textarea class='textbox' rows='10' cols='50' wrap='soft' name='body' id='body' style='width: 99%'></textarea>
+      <textarea class='textbox' rows='10' cols='50' wrap='soft' name='body' id='body' style='width: 99%; height: 99%'></textarea>
     </td>
   </tr>
 
   <tr>
     <td>&nbsp;</td>
     <td colspan='3' align='left'>
+      [%- IF post_disabled -%]
+      <div class='ui-state-error'>[%- '/talkpost.bml.error.nocomment_quick' | ml -%]</div>
+      [%- END -%]
       [%- form.submit(
           name = 'submitpost'
           value = dw.ml( '/talkread.bml.button.post' ),
+          disabled = post_disabled,
+          class = post_button_class,
           id = 'submitpost'
       ) -%]
       &nbsp;

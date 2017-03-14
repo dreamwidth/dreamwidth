@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "moodtheme_list" }
 
-sub desc { "List mood themes, or data about a mood theme." }
+sub desc { "List mood themes, or data about a mood theme. Requires priv: none." }
 
 sub args_desc { [
                  'themeid' => 'Optional; mood theme ID to view data for. If not given, lists all available mood themes.'

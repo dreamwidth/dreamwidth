@@ -1,0 +1,11 @@
+;; -*- coding: utf-8 -*-
+
+.nav.frontpage=Front Page
+
+.nav.goback=Go Back
+
+.reports.close=Close Reports
+
+.reports.close.closed=Closed [[count]] [[?num|report|reports]].
+
+.reports.close.done=Reports were already closed.

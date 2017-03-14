@@ -22,7 +22,6 @@ use LJ::Global::Constants;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
 use LJ::Comment;
-use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
 use LJ::S2;
 use DW::Captcha;
@@ -1582,6 +1581,7 @@ sub talkform {
     $ret .= "<td>";
     $ret .= "<table summary=''>"; # Internal for "From" options
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
+    $screening = 'A' if $journalu->has_autoscreen( $remote );
 
     if ($editid) {
 
@@ -1596,7 +1596,7 @@ sub talkform {
             $ret .= LJ::img( 'id_user', '', { onclick => 'handleRadios(1);' } ) . "</td>";
             $ret .= "<td align='left'><label for='talkpostfromremote'>";
             $ret .= BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } ) . "</label>\n";
-            
+
             $ret .= " " . $BML::ML{'.opt.willscreen'} if $screening eq 'A'
                     || ( $screening eq 'R' && !$remote->is_validated )
                     || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
@@ -1643,7 +1643,7 @@ sub talkform {
                 $ret .= "<strong>$logged_in</strong>";
 
                 # show willscreen if a) all comments are screened b) anonymous is screened and OpenID user not validated, c) non-access is screened and OpenID user
-                # is not on access list
+                # is not on access list d) this user is being automatically screened (in which case $screening has been forced to 'A')
                 $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || ( $screening eq 'R' && !$remote->is_validated )
                     || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
                 $ret .= "</td></tr>\n";
@@ -2221,6 +2221,43 @@ sub init_iconbrowser_js {
     return @list;
 }
 
+# convenience/deduplication function for QR, cut tag, & icon browser JS loading
+# args: hash of opts to determine which JS files to load (iconbrowser, siteskin, lastn, noqr)
+# returns: nothing, just calls need_res
+sub init_s2journal_js {
+    my %opts = @_;
+
+    # load for quick reply (every view except ReplyPage)
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.core.js
+            stc/jquery/jquery.ui.core.css
+            js/jquery/jquery.ui.widget.js
+            js/jquery.quickreply.js
+            js/jquery.threadexpander.js
+        ) ) unless $opts{noqr};
+
+    # this is only used on lastn-type pages (DayPage, RecentPage, FriendsPage)
+    LJ::need_res( { group => "jquery" }, qw(
+            stc/css/components/quick-reply.css
+        ) ) if $opts{lastn};
+
+    # load for userpicselect
+    LJ::need_res( init_iconbrowser_js( 1 ) ) if $opts{iconbrowser};
+
+    # if we're using the site skin, don't override the jquery-ui theme,
+    # as that's already included
+    LJ::need_res( { group => "jquery" }, qw(
+            stc/jquery/jquery.ui.theme.smoothness.css
+        ) ) unless $opts{siteskin};
+
+    # load for ajax cuttag - again, only needed on lastn-type pages
+    LJ::need_res( 'js/cuttag-ajax.js' ) if $opts{lastn};
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.widget.js
+            js/jquery.cuttag-ajax.js
+        ) ) if $opts{lastn};
+}
+
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
     my $remote = LJ::get_remote();
@@ -2608,7 +2645,6 @@ package LJ::Talk::Post;
 
 use Text::Wrap;
 use LJ::Entry;
-use LJ::EventLogRecord::NewComment;
 
 sub indent {
     my $a = shift;
@@ -2780,8 +2816,6 @@ sub enter_comment {
         if ( LJ::is_enabled('esn') ) {
             my $cmtobj = LJ::Comment->new($journalu, jtalkid => $jtalkid);
             push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
-            push @jobs, LJ::EventLogRecord::NewComment->new($cmtobj)->fire_job;
-
         }
 
         if ( @LJ::SPHINX_SEARCHD ) {
@@ -3040,9 +3074,10 @@ sub init {
                 ### see if the user is banned from posting here
                 $mlerr->("$SC.error.banned$iscomm") if $journalu->has_banned( $up );
 
-                # TEMP until we have better openid support
-                if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg") {
-                    $mlerr->("$SC.error.noopenid");
+                # Reject OpenIDs that are neither validated nor granted access by the user
+                if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg"
+                        && ! ( $up->is_validated || $journalu->trusts( $remote ) ) ) {
+                    $mlerr->("$SC.error.noopenidpost", { aopts1 => "href='$LJ::SITEROOT/changeemail'", aopts2 => "href='$LJ::SITEROOT/register'" })
                 }
 
                 unless ( $up->is_person || ( $up->is_identity && $cookie_auth ) ) {
@@ -3291,6 +3326,7 @@ sub init {
     # figure out whether to post this comment screened
     my $state = 'A';
     my $screening = LJ::Talk::screening_level($journalu, $ditemid >> 8) || "";
+    $screening = 'A' if $journalu->has_autoscreen( $up );
     if ($screening eq 'A' ||
         ($screening eq 'R' && ! $up) ||
         ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up )))) {
@@ -3571,7 +3607,6 @@ sub edit_comment {
 
         if ( LJ::is_enabled('esn') ) {
             push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj)->fire_job;
-            push @jobs, LJ::EventLogRecord::NewComment->new($comment_obj)->fire_job;
         }
 
         if ( @LJ::SPHINX_SEARCHD ) {
@@ -3627,11 +3662,13 @@ sub make_preview {
 
     $ret .= "$BML::ML{'/talkpost_do.bml.preview.poster'} ";
     # displays the username or openid url of the commenter, or anonymous otherwise
-    if ($form->{'usertype'} eq 'cookieuser' || $form->{'usertype'} eq 'openid_cookie') {
+    my $has_remote = LJ::isu( $remote );
+    my $has_cookie = { cookieuser => $has_remote, openid_cookie => $has_remote };
+    if ( $has_cookie->{ $form->{usertype} } ) {
         $ret .= $remote->ljuser_display;
     } elsif ($form->{'usertype'} eq 'openid') {
         $ret .= BML::ml( ".preview.unauthenticated_openid", { openid => $form->{oidurl} } );
-    } elsif ($form->{'usertype'} eq 'anonymous') {
+    } else {  # anonymous usertype or not logged in
         $ret .= $BML::ML{'/talkpost_do.bml.preview.anonymous'};
     }
     $ret .= "<br />";
@@ -3694,7 +3731,12 @@ sub make_preview {
             unless $_ eq 'body' || $_ eq 'subject' || $_ eq 'prop_opt_preformatted' || $_ eq 'editreason';
     }
 
-    $ret .= "<br /><input type='submit' value='$BML::ML{'/talkpost_do.bml.preview.submit'}' />\n";
+    my $post_disabled = $u->does_not_allow_comments_from( $remote ) || $u->does_not_allow_comments_from_unconfirmed_openid( $remote );
+    if ($post_disabled) {
+        $ret .= "<div class='ui-state-error'>$BML::ML{'/talkpost.bml.error.nocomment_quick'}</div>";
+    }
+    my $disabling_extra = $post_disabled ? ' disabled="disabled" class="ui-state-disabled"' : '';
+    $ret .= "<br /><input type='submit' $disabling_extra value='$BML::ML{'/talkpost_do.bml.preview.postcomment'}' />\n";
     $ret .= "<input type='submit' name='submitpreview' value='$BML::ML{'talk.btn.preview'}' />\n";
     $ret .= "<span id='moreoptions-container'></span>\n";
     if ($LJ::SPELLER) {

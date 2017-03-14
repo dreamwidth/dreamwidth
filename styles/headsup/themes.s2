@@ -1,3 +1,79 @@
+#NEWLAYER: headsup/abrighterview
+layerinfo type = "theme";
+layerinfo name = "A Brighter View";
+layerinfo redist_uniq = "headsup/abrighterview";
+layerinfo author_name = "phidari";
+
+set theme_authors = [ { "name" => "phidari", "type" => "user" }, { "name" => "skylark_photos", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#bad3fb";
+set color_page_link = "#2636ae";
+set color_page_link_active = "#ae2636";
+set color_page_link_hover = "#c8c826";
+set color_page_link_visited = "#ae36ae";
+set color_page_title = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
+set color_entry_title_border = "#bad3fb";
+set color_userpic_background = "#bad3fb";
+set color_comment_title = "#000";
+set color_comment_title_border = "#bad3fb";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#bad3fb";
+set color_module_text = "#000";
+set color_module_title = "#000";
+
+##===============================
+## Fonts
+##===============================
+
+set font_entry_title_size = "1.1";
+set font_entry_title_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 375;
+set image_background_header_position = "top center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "headsup/abrighterview.png";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+    .comment-thread .inner {background-color:#fff; color:#000 !important; margin-left:10px;}    
+    .module-section-two .module-content {padding:20px;}
+    
+    table.month {background-color:#eaf3ff; color:#000;}
+    
+    table.month a {color:#ae2636;}
+    
+    table.month th {background-color:#bad3fb; border:none;}
+    
+    table.month td {border:none;}
+    
+    h1#title {font-size:1.5em; text-align:right;}
+    h2#subtitle {font-size:1.2em; text-align:right;}
+    h2#pagetitle {font-size:1em; text-align:right;}    
+    
+"""; }
+
 #NEWLAYER: headsup/caturdaygreytabby
 layerinfo type = "theme";
 layerinfo name = "Caturday - Grey Tabby";
@@ -217,6 +293,255 @@ set image_foreground_header_url = "headsup/caturdayorangetabby.png";
 set image_foreground_header_width = 300;
 
 
+#NEWLAYER: headsup/damselfly
+layerinfo type = "theme";
+layerinfo name = "Damselfly";
+layerinfo redist_uniq = "headsup/damselfly";
+layerinfo author_name = "phidari";
+
+set theme_authors = [ { "name" => "phidari", "type" => "user" }, { "name" => "skylark_photos", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#c7c8cb";
+set color_page_link = "#78c695";
+set color_page_link_active = "#c67895";
+set color_page_link_hover = "#7895c6";
+set color_page_link_visited = "#7ca765";
+set color_page_title = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "ffffff";
+set color_entry_text = "#000";
+set color_comment_title = "#000";
+set color_comment_title_border = "#78c695";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffedd1";
+set color_module_link = "#61a077";
+set color_module_link_active = "#a06178";
+set color_module_link_hover = "#6178a0";
+set color_module_link_visited = "#547144";
+set color_module_title = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 288;
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "headsup/damselfly.png";
+
+set content_size = "800px";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+    .module-section-two .module-content {padding:20px;}    
+    table.month {background-color:#f2f3f4;}
+    
+    table.month th {background-color:#C7C8CB; border:none;}
+    
+    table.month td {border:none;}
+    
+    .canvas .inner {border-left:5px solid #fff !important; border-right:5px solid #fff !important;}
+    
+    h1#title {font-size:1.5em; text-align:right;}
+    h2#subtitle {font-size:1.2em; text-align:right;}
+    h2#pagetitle {font-size:1em; text-align:right;}    
+    
+"""; }
+
+
+#NEWLAYER: headsup/gibbous
+layerinfo type = "theme";
+layerinfo name = "Gibbous";
+layerinfo redist_uniq = "headsup/gibbous";
+layerinfo author_name = "phidari";
+
+set theme_authors = [ { "name" => "phidari", "type" => "user" }, { "name" => "skylark_photos", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#05070c";
+set color_page_link = "#3c68b0";
+set color_page_link_active = "#b03c68";
+set color_page_link_hover = "#b0683c";
+set color_page_link_visited = "#683cb0";
+set color_page_title = "#fff";
+set color_header_link = "#fff";
+set color_header_link_active = "#fff";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#fff";
+set color_footer_link = "#cbd8ee";
+set color_footer_link_active = "#eecbd8";
+set color_footer_link_hover = "#eed8cb";
+set color_footer_link_visited = "#d8cbee";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
+set color_entry_title_border = "#1d242c";
+set color_userpic_background = "#05070c";
+set color_comment_title = "#000";
+set color_comment_title_border = "#1d242c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#1d242c";
+set color_module_link = "#cbd8ee";
+set color_module_link_active = "#eecbd8";
+set color_module_link_hover = "#eed8cb";
+set color_module_link_visited = "#d8cbee";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+
+##===============================
+## Fonts
+##===============================
+
+set font_comment_title_units = "em";
+set font_entry_title_size = "1.1";
+set font_entry_title_units = "em";
+set font_journal_subtitle_units = "em";
+set font_journal_title_units = "em";
+set font_module_heading_units = "em";
+set font_module_text_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 288;
+set image_background_header_position = "top center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "headsup/gibbous.png";
+
+
+set content_size = "800px";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+    .comment-thread .inner {background-color:#fff; color:#000 !important; margin-left:10px;}    
+    .module-section-two .module-content {padding:20px;}
+    
+    table.month {background-color:#1D242C; color:#fff;}
+    
+    table.month a {color:#cbd8ee;}
+    
+    table.month th {background-color:#05070C; border:none;}
+    
+    table.month td {border:none;}
+    
+    h1#title {font-size:1.5em; text-align:right;}
+    h2#subtitle {font-size:1.2em; text-align:right;}
+    h2#pagetitle {font-size:1em; text-align:right;}"""; }
+
+
+#NEWLAYER: headsup/loveofmylife
+layerinfo type = "theme";
+layerinfo name = "Love of my Life";
+layerinfo redist_uniq = "headsup/loveofmylife";
+layerinfo author_name = "phidari";
+
+set theme_authors = [ { "name" => "phidari", "type" => "user" }, { "name" => "skylark_photos", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f2d4ff";
+set color_page_link = "#5e309d";
+set color_page_link_active = "#ae2636";
+set color_page_link_hover = "#304911";
+set color_page_link_visited = "#304911";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
+set color_entry_title_border = "#d7afea";
+set color_userpic_background = "#d7afea";
+set color_comment_title = "#000";
+set color_comment_title_border = "#d7afea";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d7afea";
+set color_module_title = "#000";
+
+##===============================
+## Fonts
+##===============================
+
+set font_comment_title_units = "em";
+set font_entry_title_size = "1.1";
+set font_entry_title_units = "em";
+set font_journal_subtitle_units = "em";
+set font_journal_title_units = "em";
+set font_module_heading_units = "em";
+set font_module_text_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 288;
+set image_background_header_position = "top center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "headsup/loveofmylife.png";
+
+
+set content_size = "800px";
+set control_strip_bgcolor = "#000";
+set control_strip_fgcolor = "#fff";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+    .comment-thread .inner {background-color:#fff; color:#000 !important; margin-left:10px;}    
+    .module-section-two .module-content {padding:20px;}
+    
+    table.month {background-color:#f2d4ff; color:#000;}
+    
+    table.month th {background-color:#d7afea; border:none;}
+    
+    table.month td {border:none;}
+    
+    h1#title {font-size:1.5em; text-align:right; text-shadow: 2px 2px 2px #2b043b;}
+    h2#subtitle {font-size:1.2em; text-align:right; text-shadow: 2px 2px 2px #2b043b;}
+    h2#pagetitle {font-size:1em; text-align:right; text-shadow: 2px 2px 2px #2b043b;}    
+    
+"""; }
+
+
 #NEWLAYER: headsup/midnight
 layerinfo type = "theme";
 layerinfo name = "Midnight";
@@ -282,3 +607,166 @@ set image_foreground_header_height = 200;
 set image_foreground_header_position = "inline";
 set image_foreground_header_url = "headsup/midnight_moon.png";
 set image_foreground_header_width = 200;
+
+
+#NEWLAYER: headsup/reliable
+layerinfo type = "theme";
+layerinfo name = "Reliable";
+layerinfo redist_uniq = "headsup/reliable";
+layerinfo author_name = "phidari";
+
+set theme_authors = [ { "name" => "phidari", "type" => "user" }, { "name" => "skylark_photos", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3a2921";
+set color_page_link = "#80a645";
+set color_page_link_active = "#ffe87a";
+set color_page_link_hover = "#ffe87a";
+set color_page_link_visited = "#748953";
+set color_page_title = "#fff";
+set color_header_link = "#fff";
+set color_header_link_active = "#fff";
+set color_header_link_hover = "#fff";
+set color_header_link_visited = "#fff";
+set color_footer_link = "#80a645";
+set color_footer_link_active = "#80a645";
+set color_footer_link_hover = "#80a645";
+set color_footer_link_visited = "#80a645";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e5e5e5";
+set color_entry_link = "#80a645";
+set color_entry_link_visited = "#748953";
+set color_entry_text = "#000";
+set color_comment_title = "#000";
+set color_comment_title_border = "#80a645";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#6a3c25";
+set color_module_link = "#ffe457";
+set color_module_link_active = "#80a645";
+set color_module_link_hover = "#80a645";
+set color_module_link_visited = "#ffe987";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 288;
+set image_background_header_position = "top center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "headsup/reliable.png";
+
+set content_size = "800px";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+    .module-section-two .module-content {padding:20px;}    
+    table.month {background-color:#6a3c25; color:#fff;}
+    
+    table.month th {background-color:#3A2921; border:none;}
+    
+    table.month td {border:none;}
+    
+    .canvas .inner {border-left:5px solid #fff !important; border-right:5px solid #fff !important;}
+    
+    h1#title {font-size:1.5em; text-align:right;}
+    h2#subtitle {font-size:1.2em; text-align:right;}
+    h2#pagetitle {font-size:1em; text-align:right;}    
+    
+"""; }
+
+
+#NEWLAYER: headsup/sungoesdown
+layerinfo type = "theme";
+layerinfo name = "Sun Goes Down";
+layerinfo redist_uniq = "headsup/sungoesdown";
+layerinfo author_name = "phidari";
+
+set theme_authors = [ { "name" => "phidari", "type" => "user" }, { "name" => "skylark_photos", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffde77";
+set color_page_link = "#ffa339";
+set color_page_link_active = "#ffa339";
+set color_page_link_hover = "#ffe457";
+set color_page_link_visited = "#ffe457";
+set color_page_title = "#fff";
+set color_footer_link = "#b31612";
+set color_footer_link_active = "#b31612";
+set color_footer_link_hover = "#b31612";
+set color_footer_link_visited = "#b31612";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_text = "#fff";
+set color_comment_title = "#000";
+set color_comment_title_border = "#ffa339";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffa339";
+set color_module_link = "#b31612";
+set color_module_link_active = "#b31612";
+set color_module_link_hover = "#b31612";
+set color_module_link_visited = "#b31612";
+set color_module_text = "#000";
+set color_module_title = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 288;
+set image_background_header_position = "top center";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "headsup/sungoesdown.png";
+
+
+set content_size = "800px";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() { """
+    .comment-thread .inner {background-color:#fff; color:#000 !important; margin-left:10px;}    
+    .comment-thread .inner a {color:#b34332 !important;}
+    
+    .module-section-two .module-content {padding:20px;}
+    
+    table.month {background-color:#FFE457; color:#000;}
+    
+    table.month a {color:#b31612;}
+    
+    table.month th {background-color:#FFA339; border:none;}
+    
+    table.month td {border:none;}
+    
+    h1#title {font-size:1.5em; text-align:right;}
+    h2#subtitle {font-size:1.2em; text-align:right;}
+    h2#pagetitle {font-size:1em; text-align:right;}    
+    
+"""; }

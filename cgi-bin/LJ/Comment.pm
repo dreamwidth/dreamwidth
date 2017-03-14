@@ -35,7 +35,7 @@ LJ::Comment
 
 # internal fields:
 #
-#    journalid:     journalid where the commend was
+#    journalid:     journalid where the comment was
 #                   posted,                          always present
 #    jtalkid:       jtalkid identifying this comment
 #                   within the journal_u,            always present
@@ -208,11 +208,10 @@ sub create {
         if LJ::Talk::Post::over_maxcomments($init->{journalu}, $init->{item}->{'jitemid'});
 
     # no replying to frozen comments
-    return $err->( "frozen", "Can't reply to frozen thread." )
-        if $init->{parent}->{state} eq 'F';
+    my $parent_state = $init->{parent}->{state} // '';
+    return $err->( "frozen", "Can't reply to frozen thread." ) if $parent_state eq 'F';
 
     ## insertion
-    my $wasscreened = ($init->{parent}->{state} eq 'S');
     my $post_err_ref;
     return $err->( "post_comment", $post_err_ref )
         unless LJ::Talk::Post::post_comment($init->{entryu},  $init->{journalu},
@@ -866,6 +865,8 @@ sub body_html {
     $opts->{anon_comment} = LJ::Talk::treat_as_anon( $self->poster, $self->journal );
     $opts->{nocss} = $opts->{anon_comment};
     $opts->{editor} = $self->prop( "editor" );
+    $opts->{journal} = $self->journal->user;
+    $opts->{ditemid} = $self->entry->ditemid;
 
     my $body = $self->body_raw;
     LJ::CleanHTML::clean_comment(\$body, $opts) if $body;
@@ -1203,44 +1204,44 @@ my @_ml_strings_en = (
     'esn.if_suport_form',                                                        # 'If your mail client supports it, you can also reply here:',
 
     'esn.journal_new_comment.anonymous.comment',                                 # 'Their reply was:',
-    'esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post2',# 'Somebody replied to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post2',     # 'Somebody replied to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.anonymous.reply_to.your_comment.to_post2',          # 'Somebody replied to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2',     # 'Somebody replied to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.anonymous.reply_to.your_post2',                     # 'Somebody replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:',
+    'esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post3',# 'Somebody replied to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post3',     # 'Somebody replied to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.anonymous.reply_to.your_comment.to_post3',          # 'Somebody replied to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post3',     # 'Somebody replied to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.anonymous.reply_to.your_post3',                     # 'Somebody replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]] in which you said:',
 
     'esn.journal_new_comment.edit_reason',
     'esn.journal_new_comment.user.comment',                                      # 'Their reply was:',
-    'esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post2',# '[[who]] edited a reply to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post2',     # '[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.user.edit_reply_to.your_comment.to_post2',          # '[[who]] edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post2',     # '[[who]] edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.user.edit_reply_to.your_post2',                     # '[[who]] edited a reply to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:',
+    'esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post3',# '[[who]] edited a reply to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post3',     # '[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.user.edit_reply_to.your_comment.to_post3',          # '[[who]] edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post3',     # '[[who]] edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.user.edit_reply_to.your_post3',                     # '[[who]] edited a reply to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]] in which you said:',
     'esn.journal_new_comment.user.new_comment',                                  # 'Their new reply was:',
 
-    'esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post2',     # '[[who]] replied to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.user.reply_to.user_comment.to_your_post2',          # '[[who]] replied to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.user.reply_to.your_comment.to_post2',               # '[[who]] replied to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.user.reply_to.your_comment.to_your_post2',          # '[[who]] replied to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
-    'esn.journal_new_comment.user.reply_to.your_post2',                          # '[[who]] replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:',
+    'esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post3',     # '[[who]] replied to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.user.reply_to.user_comment.to_your_post3',          # '[[who]] replied to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.user.reply_to.your_comment.to_post3',               # '[[who]] replied to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.user.reply_to.your_comment.to_your_post3',          # '[[who]] replied to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment they replied to was:',
+    'esn.journal_new_comment.user.reply_to.your_post3',                          # '[[who]] replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]] in which you said:',
 
-    'esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post2',      # 'You edited a reply to another comment somebody left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post2', # 'You edited a reply to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.edit_reply_to.post2',                           # 'You edited a reply to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]] in which [[pwho]] said:',
-    'esn.journal_new_comment.you.edit_reply_to.user_comment.to_post2',           # 'You edited a reply to another comment [[pwho]] left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post2',      # 'You edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.edit_reply_to.your_comment.to_post2',           # 'You edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post2',      # 'You edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.edit_reply_to.your_post2',                      # 'You edited a reply to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:',
+    'esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post3',      # 'You edited a reply to another comment somebody left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post3', # 'You edited a reply to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.edit_reply_to.post3',                           # 'You edited a reply to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:',
+    'esn.journal_new_comment.you.edit_reply_to.user_comment.to_post3',           # 'You edited a reply to another comment [[pwho]] left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post3',      # 'You edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.edit_reply_to.your_comment.to_post3',           # 'You edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post3',      # 'You edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.edit_reply_to.your_post3',                      # 'You edited a reply to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]] in which you said:',
 
-    'esn.journal_new_comment.you.reply_to.anonymous_comment.to_post2',           # 'You replied to another comment somebody left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post2',      # 'You replied to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.reply_to.post2',                                # 'You replied to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]] in which [[pwho]] said:',
-    'esn.journal_new_comment.you.reply_to.user_comment.to_post2',                # 'You replied to another comment [[pwho]] left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.reply_to.user_comment.to_your_post2',           # 'You replied to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.reply_to.your_comment.to_post2',                # 'You replied to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.reply_to.your_comment.to_your_post2',           # 'You replied to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:',
-    'esn.journal_new_comment.you.reply_to.your_post2',                           # 'You replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:',
+    'esn.journal_new_comment.you.reply_to.anonymous_comment.to_post3',           # 'You replied to another comment somebody left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post3',      # 'You replied to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.reply_to.post3',                                # 'You replied to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]] in which [[pwho]] said:',
+    'esn.journal_new_comment.you.reply_to.user_comment.to_post3',                # 'You replied to another comment [[pwho]] left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.reply_to.user_comment.to_your_post3',           # 'You replied to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.reply_to.your_comment.to_post3',                # 'You replied to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.reply_to.your_comment.to_your_post3',           # 'You replied to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]]. The comment you replied to was:',
+    'esn.journal_new_comment.you.reply_to.your_post3',                           # 'You replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]][[postsecurity]] in which you said:',
 
     'esn.journal_new_comment.your.comment',                                      # 'Your reply was:',
     'esn.journal_new_comment.your.new_comment',                                  # 'Your new reply was:',
@@ -1352,6 +1353,13 @@ sub _format_mail_both {
         }
     }
 
+    # Parent post security. Only include if post is locked/filtered.
+    my $postsecurity = ''; # if empty, the post is public or private
+
+    if ( $self->entry->security eq 'usemask' ) {
+        $postsecurity = ' [locked]';
+    }
+
     # ESN directed to comment poster
     if ( $targetu->equals( $self->poster ) ) {
         # ->parent returns undef/0 if parent is an entry.
@@ -1368,15 +1376,15 @@ sub _format_mail_both {
                 }
             }
             if ( $targetu->equals( $entry->journal ) ) {
-                $k_what .= '.to_your_post2';
+                $k_what .= '.to_your_post3';
             } else {
-                $k_what .= '.to_post2';
+                $k_what .= '.to_post3';
             }
         } else {
             if ($pwho) {
-                $k_what = 'post2';
+                $k_what = 'post3';
             } else {
-                $k_what = 'your_post2';
+                $k_what = 'your_post3';
             }
         }
     # ESN directed to entry author
@@ -1384,57 +1392,55 @@ sub _format_mail_both {
         if ($parent) {
             if ($pwho) {
                 # '... another comment ' . $pwho . ' left in your post.';
-                $k_what = 'user_comment.to_your_post2';
+                $k_what = 'user_comment.to_your_post3';
             } else {
                 if($parent->poster) {
-                    $k_what = 'your_comment.to_your_post2';
+                    $k_what = 'your_comment.to_your_post3';
                 } else {
                     # '... another comment you left in your post.';
-                    $k_what = 'anonymous_comment.to_your_post2';
+                    $k_what = 'anonymous_comment.to_your_post3';
                 }
             }
         } else {
-            $k_what = 'your_post2';
+            $k_what = 'your_post3';
         }
     # ESN directed to author parent comment or post
     } else {
         if ($parent) {
             if($parent->poster) {
                 if ($pwho) {
-                    $k_what = 'user_comment.to_post2';
+                    $k_what = 'user_comment.to_post3';
                 }
                 else {
-                    $k_what = 'your_comment.to_post2';
+                    $k_what = 'your_comment.to_post3';
                 }
             } else {
                 # '... another comment you left in your post.';
-                $k_what = 'anonymous_comment.to_post2';
+                $k_what = 'anonymous_comment.to_post3';
             }
         } else {
             if ($pwho) {
-                $k_what = 'post2';
+                $k_what = 'post3';
             }
             else {
-                $k_what = 'your_post2';
+                $k_what = 'your_post3';
             }
         }
     }
-
-    my $encoding = $targetu->mailencoding;
-    my $charset  = $encoding ? "; charset=$encoding" : "";
 
     # Precache text lines
     my $lang     = $targetu->prop('browselang');
     LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
 
     my $body = '';
-    $body = "<head><meta http-equiv=\"Content-Type\" content=\"text/html$charset\" /></head><body>"
+    $body = "<head><meta http-equiv=\"Content-Type\" content=\"text/html\" /></head><body>"
         if $is_html;
 
     my $vars = {
         who             => $who,
         pwho            => $pwho,
-        sitenameshort   => $LJ::SITENAMESHORT
+        sitenameshort   => $LJ::SITENAMESHORT,
+        postsecurity    => $postsecurity
     };
 
     # make hyperlinks for post
@@ -1468,7 +1474,7 @@ sub _format_mail_both {
                 $pichtml = "<img src=\"$LJ::USERPIC_ROOT/$pic->{picid}/$pic->{userid}\" align='absmiddle' "
                     . "width='$pic->{width}' height='$pic->{height}' "
                     . "hspace='1' vspace='2' alt='"
-                    . $pic->alttext( $pic_kw ) 
+                    . $pic->alttext( $pic_kw )
                     . "' /> ";
             }
         }
@@ -1509,7 +1515,7 @@ sub _format_mail_both {
         $heading .= $icon;
         $heading .= "<br />" if $heading;
         # this needs to be one string so blockquote handles it properly.
-        
+
         if ( $self->admin_post ) {
             $body .= '<br/>' . LJ::Lang::get_text( $lang, "esn.journal_new_entry.admin_post", undef, { img => LJ::img('admin-post') } ) . '<br/>';
         }
@@ -1522,7 +1528,7 @@ sub _format_mail_both {
         if (my $subj = $self->subject_raw) {
             $body .= Text::Wrap::wrap(" " . LJ::Lang::get_text($lang, $ml_prefix . 'subject', undef) . " ", "", $subj) . "\n\n";
         }
-        
+
         if ( $self->admin_post ) {
             $body .= LJ::Lang::get_text( $lang, "esn.journal_new_entry.admin_post.text" ) . "\n\n";
         }
@@ -1624,7 +1630,7 @@ sub is_text_spam($\$) {
     $ref = \$ref unless ref ($ref) eq 'SCALAR';
 
     my $plain = $$ref; # otherwise we modify the source text
-       $plain = LJ::CleanHTML::clean_comment(\$plain);
+    $plain = LJ::CleanHTML::clean_comment(\$plain);
 
     foreach my $re ($LJ::TALK_ABORT_REGEXP, @LJ::TALKSPAM){
         return 1 # spam

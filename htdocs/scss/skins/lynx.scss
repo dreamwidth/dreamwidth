@@ -3,6 +3,11 @@ $_black:     #000;
 $_white:     #FFF;
 $_dark-gray: #636363;
 
+$_support-bg-blue:  #c5dff9;
+$_support-fg-blue:  darken( $_support-bg-blue, 15% );
+$_support-bg-green: #d0fbca;
+$_support-fg-green: darken( $_support-bg-green, 15% );
+
 // color assignment
 $text-color: $_black;
 $primary-text-color: $_white;

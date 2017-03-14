@@ -232,7 +232,7 @@ s2.runtime = {
         return ret;
     },
     reverseString: function (s) {
-        // This is pretty lame
+        // FIXME: There is probably a better way to do this.
         var ret = "";
         for (var i = s.length; i >= 0; i--) {
             ret = ret.concat(s.charAt(i));

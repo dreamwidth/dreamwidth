@@ -75,6 +75,7 @@
 
     li {
         display: inline-block;
+        margin-left: 0 !important;
 
         input, .button {
             border-radius: 0;
@@ -287,6 +288,11 @@
     .icon {
         text-align: center;
         margin-bottom: $paragraph-margin-bottom;
+        height: 100px;
+        line-height: 100px;
+        img {
+            vertical-align: middle;
+        }
     }
 
     .inner button {

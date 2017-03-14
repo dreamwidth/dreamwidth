@@ -19,29 +19,11 @@
 
 .colortheme.head=Color Theme
 
-.domainalias.about=If you have a domain name already registered (or which you're planning on registering) and would like it to automatically load your <?sitename?>, enter it here:
-
-.domainalias.about.comm=If you have a domain name already registered (or which you're planning on registering) and would like it to automatically load this <?sitename?> community, enter it here:
-
-.domainalias.domainname=Domain name:
-
-.domainalias.example=Example: <i>my-journal.com</i>
-
-.domainalias.example.comm=Example: <i>my-community.com</i>
-
-.domainalias.head=Domain Aliasing
-
-.domainalias.helptext=For this to work, you'll need to arrange to have your domain name's DNS point to the same IP address of [[sitename]].
-
 .done.btn.savechanges=Save Changes
 
 .done.head=Done?
 
 .done.text=When done, press the "Save Changes" button below...
-
-.error.dupdomainalias=Another user has already registered themselves as using your selected domain alias.
-
-.error.samedomainalias=You can't point to a domain on this site.
 
 .error.stylenotavailable=One of the styles you've selected is not available.  This is either the result of somebody deleting the style, or you trying to pick one that you don't have access to.
 
@@ -102,8 +84,6 @@ used in the *_HEAD overrides are those elements that are valid in the head of a 
 .pagelayoutstyle.head=Page Layout Style
 
 .pagelayoutstyle.warning=Your account type only permits you to select between a small number of default styles.
-
-.success.head=Success
 
 .success.text2=Your journal settings have been updated. You can view your journal <a [[aopts]]>here</a>.
 

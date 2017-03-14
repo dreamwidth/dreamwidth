@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "ban_unset" }
 
-sub desc { "Remove a ban on a user." }
+sub desc { "Remove a ban on a user. Requires priv: none." }
 
 sub args_desc { [
                  'user' => "The user you want to unban.",

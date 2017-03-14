@@ -39,8 +39,9 @@ sub current_value {
 sub is_selected {
     my ($class, $u) = @_;
     my $current_value = $class->current_value($u);
+    my $checked_value = $class->checked_value // '';
     return 0 unless defined( $current_value );
-    return $current_value eq $class->checked_value;
+    return $current_value eq $checked_value;
 }
 
 sub label { croak; }
@@ -66,6 +67,7 @@ sub as_html {
 sub save {
     my ($class, $u, $args) = @_;
     my $new_val = $args->{val} ? $class->checked_value : $class->unchecked_value;
+    $new_val //= '';
     my $current_value = $class->current_value( $u );
     return 1 if (defined $current_value and $new_val eq $current_value);
     if (my $prop = $class->prop_name) {
@@ -77,6 +79,3 @@ sub save {
 }
 
 1;
-
-
-

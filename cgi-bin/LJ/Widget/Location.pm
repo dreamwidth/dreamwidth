@@ -265,6 +265,9 @@ sub country_options {
     my %countries;
     # load country codes
     DW::Countries->load( \%countries );
+    delete $countries{UK}; # we need to include UK in the hash for legacy reasons -- some users still have
+                           # their country set as UK -- but UK is mapped to GB, so there's no need to confuse
+                           # users by offering them expansions of both "UK" and "GB" in the drop-down.
 
     my $options = ['' => $class->ml('widget.location.country.choose'), 'US' => 'United States',
                    map { $_, $countries{$_} } sort { $countries{$a} cmp $countries{$b} } keys %countries];

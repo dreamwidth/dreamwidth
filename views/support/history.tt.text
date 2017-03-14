@@ -1,0 +1,53 @@
+;; -*- coding: utf-8 -*-
+
+.error.invalidemail=Invalid email to search on.
+
+.error.invaliduser=Invalid user to search on.
+
+.error.nodatabase=Failed to get database handle.
+
+.noresults=No results found for the search terms you entered.
+
+.return=Back to account results
+
+.search.btn=Perform Search
+
+.search.email=By Email:
+
+.search.email.text=Email Address
+
+.search.fulltext=Containing Text:
+
+.search.fulltext.text=Search Text
+
+.search.onefield=Please fill out only one of the search fields.
+
+.search.otheremails=You may also search for requests from email addresses associated with your account.
+
+.search.otheremails.label=Search
+
+.search.text=Search for Requests
+
+.search.user=By User:
+
+.search.user.text=Username
+
+.search.userid=By Userid:
+
+.search.userid.text=Userid
+
+.table.answeredby=Answered By
+
+.table.category=Category
+
+.table.openedby=Opened By
+
+.table.state=State
+
+.table.summary=Summary
+
+.table.timeopened=Time Opened
+
+.title=Support Request History
+
+.viewing=Viewing support requests for [[username]]

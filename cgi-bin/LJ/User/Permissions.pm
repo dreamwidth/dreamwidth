@@ -80,29 +80,6 @@ sub caps {
     return $u->{caps};
 }
 
-
-sub can_be_text_messaged_by {
-    my ($u, $sender) = @_;
-
-    return 0 unless $u->get_cap("textmessaging");
-
-    # check for valid configuration
-    my $tminfo = LJ::TextMessage->tm_info( $u );
-    return 0 unless $tminfo->{provider} && $tminfo->{number};
-
-    my $security = LJ::TextMessage->tm_security($u);
-
-    return 0 if $security eq "none";
-    return 1 if $security eq "all";
-
-    if ($sender) {
-        return 1 if $security eq "reg";
-        return 1 if $security eq "friends" && $u->trusts( $sender );
-    }
-
-    return 0;
-}
-
 sub can_beta_payments {
     return $_[0]->get_cap( 'beta_payments' ) ? 1 : 0;
 }
@@ -167,10 +144,6 @@ sub can_manage_invites_light {
     return 1 if $u->has_priv( "siteadmin", "invites" );
 
     return 0;
-}
-
-sub can_map_domains {
-    return $_[0]->get_cap( 'domainmap' ) ? 1 : 0;
 }
 
 sub can_post {
@@ -321,10 +294,6 @@ sub can_use_active_entries {
 # Check if the user can use *any* page statistic module for their own journal.
 sub can_use_page_statistics {
     return $_[0]->can_use_google_analytics;
-}
-
-sub can_use_textmessaging {
-    return $_[0]->get_cap( 'textmessaging' ) ? 1 : 0;
 }
 
 sub can_use_userpic_select {

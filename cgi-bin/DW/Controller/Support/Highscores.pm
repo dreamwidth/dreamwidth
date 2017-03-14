@@ -69,7 +69,7 @@ sub highscores_handler {
         $sth->execute;
         my @rows;
         push @rows, $_ while $_ = $sth->fetchrow_hashref;
-        if ( $args->{'sort'} eq "lastupdate" ) { 
+        if ( defined $args->{sort} && $args->{sort} eq "lastupdate" ) {
             @rows = sort { $b->{lastupdate} <=> $a->{lastupdate} } @rows;
         } else {
             @rows = sort { $b->{points} <=> $a->{points} } @rows;
@@ -123,7 +123,7 @@ sub highscores_handler {
             } else {
                 $buildup++;
             }
-            my $change = "";
+            my $change = 0;
             if ($rank{$userid}->{'now'} && $rank{$userid}->{'last'}) {
                 $change = $rank{$userid}->{'last'} - $rank{$userid}->{'now'};  # from 5th to 4th is 5-4 = 1 (+1 for increase)
              }

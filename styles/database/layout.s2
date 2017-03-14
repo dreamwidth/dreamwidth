@@ -111,7 +111,7 @@ propgroup fonts_child {
     property use font_sources;
 }
 
-set font_sources = "http://fonts.googleapis.com/css?family=Iceland";
+set font_sources = "https://fonts.googleapis.com/css?family=Iceland";
 set font_base = "Iceland, 'Courier New'";
 set font_fallback = "monospace";
 set font_base_size = "1.3";
@@ -472,10 +472,13 @@ function CommentInfo::print_readlink {
     var string text_screened = get_plural_phrase($.screened_count, "text_read_comments_screened");
     var string text_both = $text_visible + $*text_default_separator + $text_screened;
     var string text_total = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_sing = get_plural_phrase(1, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_dual = get_plural_phrase(2, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    var string text_plur = get_plural_phrase(3, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
 
     if ($.screened) {
         if ($*entry_interaction_links == "text") {
-            print safe """<a href="$.read_url#comments">"""+ $text_visible + $*text_default_separator + $text_screened + """</a>""";
+            print safe """<a href="$.read_url#comments" data-sing="$text_sing" data-dual="$text_dual" data-plur="$text_plur">"""+ $text_visible + $*text_default_separator + $text_screened + """</a>""";
         } else {
             print safe """<a href="$.read_url#comments" alt="$text_both" title="$text_both">$.count <img src="$*image_comments" />"""
                 + """ + $.screened_count <img src="$*image_screen" />"""
@@ -483,7 +486,7 @@ function CommentInfo::print_readlink {
         }
     } else {
         if ($*entry_interaction_links == "text") {
-            print safe """<a href="$.read_url#comments">"""+ $text_total + """</a>""";
+            print safe """<a href="$.read_url#comments" data-sing="$text_sing" data-dual="$text_dual" data-plur="$text_plur">"""+ $text_total + """</a>""";
         } else {
             print safe """<a href="$.read_url#comments" alt="$text_total" title="$text_total">$.count <img src="$*image_comments" /></a>""";
         }
