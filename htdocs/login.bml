@@ -222,7 +222,7 @@ _c?>
     my $logout_remote = sub {
         $remote->kill_session if $remote;
         my $r = DW::Request->get;
-        foreach ( qw(langpref BMLschemepref) ) {
+        foreach ( qw(BMLschemepref) ) {
             $r->delete_cookie( name => $_ ) if $r->cookie( $_ );
         }
         $remote  = undef;

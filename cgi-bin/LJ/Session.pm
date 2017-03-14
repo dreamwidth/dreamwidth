@@ -289,19 +289,6 @@ sub update_master_cookie {
                    delete          => 1);
     }
 
-    if (my $lang = $sess->owner->prop('browselang')) {
-        set_cookie(langpref        => $lang . "/" . time(),
-                   domain          => $LJ::DOMAIN,
-                   path            => '/',
-                   http_only       => 1,
-                   @expires,);
-    } else {
-        set_cookie(langpref        => "",
-                   domain          => $LJ::DOMAIN,
-                   path            => '/',
-                   delete          => 1);
-    }
-
     return;
 }
 

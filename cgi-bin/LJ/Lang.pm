@@ -745,24 +745,10 @@ sub set_lang {
     my $remote = LJ::get_remote();
     my $r = DW::Request->get;
 
-    # default cookie value to set
-    my $cval = $l->{lncode} . "/" . time();
-
-    # if logged in, change userprop and make cookie expiration
-    # the same as their login expiration
-    my $expires = undef;
+    # if logged in, change userprop
     if ($remote) {
         $remote->set_prop("browselang", $l->{lncode});
-
-        $expires = $remote->{_session}->{timeexpire} if $remote->{_session}->{exptype} eq 'long';
     }
-
-    # set cookie
-    $r->add_cookie(
-        name    => 'langpref',
-        value   => $cval,
-        expires => $expires,
-    );
 
     # set language through BML so it will apply immediately
     BML::set_language($l->{lncode});

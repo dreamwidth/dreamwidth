@@ -1743,17 +1743,6 @@ sub decide_language
         return $uselang;
     }
 
-    # next is their cookie preference
-    if ($BML::COOKIE{'langpref'} =~ m!^(\w{2,10})/(\d+)$!) {
-        if (exists $env->{"Langs-$1"}) {
-            # make sure the document says it was changed at least as new as when
-            # the user last set their current language, else their browser might
-            # show a cached (wrong language) version.
-            note_mod_time($req, $2);
-            return $1;
-        }
-    }
-
     # next is their browser's preference
     my %lang_weight = ();
     my @langs = split(/\s*,\s*/, lc($req->{'r'}->headers_in->{"Accept-Language"}));
