@@ -1428,15 +1428,12 @@ sub _format_mail_both {
         }
     }
 
-    my $encoding = $targetu->mailencoding;
-    my $charset  = $encoding ? "; charset=$encoding" : "";
-
     # Precache text lines
     my $lang     = $targetu->prop('browselang');
     LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
 
     my $body = '';
-    $body = "<head><meta http-equiv=\"Content-Type\" content=\"text/html$charset\" /></head><body>"
+    $body = "<head><meta http-equiv=\"Content-Type\" content=\"text/html\" /></head><body>"
         if $is_html;
 
     my $vars = {
@@ -1477,7 +1474,7 @@ sub _format_mail_both {
                 $pichtml = "<img src=\"$LJ::USERPIC_ROOT/$pic->{picid}/$pic->{userid}\" align='absmiddle' "
                     . "width='$pic->{width}' height='$pic->{height}' "
                     . "hspace='1' vspace='2' alt='"
-                    . $pic->alttext( $pic_kw ) 
+                    . $pic->alttext( $pic_kw )
                     . "' /> ";
             }
         }
@@ -1518,7 +1515,7 @@ sub _format_mail_both {
         $heading .= $icon;
         $heading .= "<br />" if $heading;
         # this needs to be one string so blockquote handles it properly.
-        
+
         if ( $self->admin_post ) {
             $body .= '<br/>' . LJ::Lang::get_text( $lang, "esn.journal_new_entry.admin_post", undef, { img => LJ::img('admin-post') } ) . '<br/>';
         }
@@ -1531,7 +1528,7 @@ sub _format_mail_both {
         if (my $subj = $self->subject_raw) {
             $body .= Text::Wrap::wrap(" " . LJ::Lang::get_text($lang, $ml_prefix . 'subject', undef) . " ", "", $subj) . "\n\n";
         }
-        
+
         if ( $self->admin_post ) {
             $body .= LJ::Lang::get_text( $lang, "esn.journal_new_entry.admin_post.text" ) . "\n\n";
         }
