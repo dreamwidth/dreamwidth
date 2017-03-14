@@ -65,9 +65,9 @@ sub js {
 sub decide_language {
     my $r = DW::Request->get;
     return $r->note( 'ml_lang' ) if $r->note( 'ml_lang' );
-    
+
     my $lang = _decide_language();
-    
+
     $r->note( ml_lang => $lang );
     return $lang;
 }

@@ -47,7 +47,7 @@ _c?>
         my @error_codes = @_;
 
         if ($POST{ret_fail} && $POST{ret_fail} =~ m!^https?://([\.:\w-]+)!i &&
-            $LJ::REDIRECT_ALLOWED{$1}) 
+            $LJ::REDIRECT_ALLOWED{$1})
         {
             BML::redirect($POST{ret_fail} . LJ::eurl(join(',', @error_codes)));
             return 1;

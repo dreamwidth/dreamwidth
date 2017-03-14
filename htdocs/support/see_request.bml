@@ -166,14 +166,14 @@ body<=
     my $ret = "";
     $ret .= "<table summary='' class='support-requesttable'>\n";
     $ret .= "<tr><td valign='bottom' align='right'><b>$ML{'.from'}</b></td><td>";
-    
+
     if ( $u->{'defaultpicid'} && !$u->is_suspended ) {
         my $userpic_obj = $u->userpic;
         $ret .= "<a href='" . $u->allpics_base . "'>";
         $ret .= $userpic_obj->imgtag;
         $ret .= "</a>";
     }
-    
+
     # show requester name + email
     {
         my $visemail = $email;
@@ -671,11 +671,11 @@ _code?>
 
     my $spid = $FORM{'id'}+0;
     my $ret;
-    
+
     $ret .= BML::ml('.see.preview', {preview_link=>"href='$LJ::SITEROOT/support/see_request?id=$spid&amp;find=prev'"});
     $ret .= BML::ml('.see.next', {next_link=>"href='$LJ::SITEROOT/support/see_request?id=$spid&amp;find=next'"});
-    
-    return $ret; 
+
+    return $ret;
 }
 _code?>
 <br>

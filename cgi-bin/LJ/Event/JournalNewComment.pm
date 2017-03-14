@@ -576,7 +576,7 @@ sub available_for_user {
 sub raw_info {
     my ($self, $target, $flags) = @_;
     my $extended = ($flags and $flags->{extended}) ? 1 : 0; # add comments body
-    
+
     my $res = $self->SUPER::raw_info;
 
     my $comment = $self->comment;

@@ -123,7 +123,7 @@ sub _as_email {
 
     # Precache text
     LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
- 
+
     my $vars = {
         maintainer      => $maintainer,
         username        => $username,

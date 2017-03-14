@@ -83,7 +83,7 @@ sub matches_filter {
 
 sub _can_view_content {
     my ( $self, $entry, $target ) = @_;
-    
+
     return undef unless $entry && $entry->valid;
     return undef unless $entry->visible_to( $target );
 
@@ -137,7 +137,7 @@ sub as_html_tags {
 
 sub content_summary {
     my ( $self, $target ) = @_;
-    
+
     my $entry = $self->entry;
     return undef unless $self->_can_view_content( $entry, $target );
 
@@ -207,7 +207,7 @@ my @_ml_strings_en = (
     'esn.hi',                                       # 'Hi [[username]],',
     'esn.journal_new_entry.about',                  # ' titled "[[title]]"',
     'esn.tags',                                     # 'The entry is tagged "[[tags]]"',
-    'esn.tags.short',                               
+    'esn.tags.short',
     'esn.journal_new_entry.head_comm2',              # 'There is a new entry by [[poster]][[about]][[postsecurity]] in [[journal]]![[tags]]',
     'esn.journal_new_entry.head_user2',              # '[[poster]] has posted a new entry[[about]][[postsecurity]].[[tags]]',
     'esn.you_can',                                  # 'You can:',

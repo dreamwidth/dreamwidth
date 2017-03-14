@@ -74,7 +74,7 @@ sub pollname {
 
 sub as_string {
     my $self = shift;
-    
+
     my $voter = ($self->poll->isanon eq "yes") ? "Anonymous user" : $self->voter->display_username;
     return sprintf("%s has voted in %s at %s",
                    $voter, $self->pollname, $self->entry->url);
