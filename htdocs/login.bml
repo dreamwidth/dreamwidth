@@ -330,7 +330,7 @@ _c?>
             }
 
             # at this point, $u is known good
-            $u->preload_props( "browselang", "schemepref" );
+            $u->preload_props( "schemepref" );
 
             my $exptype = ($POST{'expire'} eq "never" || $POST{'remember_me'}) ? "long" : "short";
             my $bindip  = ($POST{'bindip'} eq "yes") ? BML::get_remote_ip() : "";

@@ -274,7 +274,7 @@ sub update_master_cookie {
                http_only       => 1,
                @expires,);
 
-    $sess->owner->preload_props('schemepref', 'browselang');
+    $sess->owner->preload_props( 'schemepref' );
 
     if (my $scheme = $sess->owner->prop('schemepref')) {
         set_cookie(BMLschemepref   => $scheme,

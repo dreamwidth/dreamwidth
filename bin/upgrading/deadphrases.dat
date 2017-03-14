@@ -989,7 +989,8 @@ general /support/faq.bml.cannotfind.note
 general /support/faqbrowse.bml.title_num
 general /support/help.bml.interim
 general /support/see_request.bml.email.validared
-general /support/see_rquest.bml.important.notes.text
+general /support/see_request.bml.important.notes.text
+general /support/see_request.bml.language
 general /talkpost.bml.opt.ljuser
 general /talkpost.bml.opt.ljuser2
 general /talkpost.bml.warnscreened

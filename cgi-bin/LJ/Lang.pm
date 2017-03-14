@@ -506,10 +506,6 @@ sub get_effective_lang {
     if (LJ::is_web_context()) {
         $lang = BML::get_language();
     }
-    if (my $remote = LJ::get_remote()) {
-        # we have a user; try their browse language
-        $lang ||= $remote->prop("browselang");
-    }
 
     # did we get a valid language code?
     if ($lang && $LN_CODE{$lang}) {
@@ -752,17 +748,13 @@ sub get_lang_names {
     return \@list;
 }
 
+# FIXME: this isn't used anywhere; just falls through to BML::set_language,
+# which only affects the BML code package in the active process. Keeping this
+# as a stub to assist with the gradual transition to non-BML functions.
 sub set_lang {
     my $lang = shift;
 
     my $l = LJ::Lang::get_lang($lang);
-    my $remote = LJ::get_remote();
-    my $r = DW::Request->get;
-
-    # if logged in, change userprop
-    if ($remote) {
-        $remote->set_prop("browselang", $l->{lncode});
-    }
 
     # set language through BML so it will apply immediately
     BML::set_language($l->{lncode});
