@@ -265,9 +265,6 @@ no strict "vars";
     my %ajaxmapping = (
                        delcomment     => "delcomment.bml",
                        talkscreen     => "talkscreen.bml",
-                       dirsearch      => "tools/endpoints/directorysearch.bml",
-                       jobstatus      => "tools/endpoints/jobstatus.bml",
-                       multisearch    => "tools/endpoints/multisearch.bml",
                        );
 
     foreach my $src (keys %ajaxmapping) {
