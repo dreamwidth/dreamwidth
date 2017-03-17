@@ -147,7 +147,7 @@ use strict;
             $parsetomogile = 0 if $POST{'src'} && $POST{'src'} eq 'factory';
 
             if ($parsetomogile) {
-                my $res = parse_large_upload( \%POST, \$error, $u, $err );
+                my $res = DW::Controller::EditIcons::parse_large_upload( \%POST, \$error, $u, $err );
                 # large path
 
                 # was there an error parsing the multipart form?
@@ -597,121 +597,6 @@ use strict;
             };
     }
 
-    sub parse_large_upload {
-        my ( $POST, $errorref, $user, $err ) = @_;
-
-        my %upload = (); # { spool_data, spool_file_name, filename, bytes, md5sum, md5ctx, mime }
-        my @uploaded_files = ();
-        my $curr_name;
-
-        # called when the beginning of an upload is encountered
-        my $hook_newheaders = sub {
-            my ( $name, $filename ) = @_;
-            $curr_name = $name;
-            $POST->{$curr_name} = '';
-            return 1 unless $curr_name =~ /userpic.*/;
-
-            # new file, need to create a filehandle, etc
-            %upload = ();
-            $upload{filename} = $filename;
-            $upload{md5ctx} = new Digest::MD5;
-
-            my @tokens = split(/_/, $curr_name);
-            my $counter = $tokens[1];
-
-            $upload{spool_file_name} = "upf_${counter}:$user->{userid}";
-            $upload{spool_data} = '';
-
-            push @uploaded_files, $upload{spool_file_name};
-            return 1;
-        };
-
-        # called as data is received
-        my $hook_data = sub {
-            my ( $len, $data ) = @_;
-            unless ( $curr_name =~ /userpic.*/ ) {
-                $POST->{$curr_name} .= $data;
-                return 1;
-            }
-
-            # check that we've not exceeded the max read limit
-            my $max_read = (1<<20) * 5; # 5 MiB
-            $upload{bytes} += $len;
-            if ( $upload{bytes} > $max_read ) {
-                $$errorref = "Upload max $max_read exceeded at $upload{bytes} bytes";
-                return $err->( $$errorref );
-            }
-
-            $upload{md5ctx}->add($data);
-            $upload{spool_data} .= $data;
-
-            return 1;
-        };
-
-        # called when the end of an upload is encountered
-        my $hook_enddata = sub {
-            return 1 unless $curr_name =~ /userpic.*/;
-
-            # since we've just finished a potentially slow upload, we need to
-            # make sure the database handles in DBI::Role's cache haven't expired,
-            # so we'll just trigger a revalidation now so that subsequent database
-            # calls will be safe.
-            $LJ::DBIRole->clear_req_cache();
-
-            # don't try to operate on 0-length spoolfiles
-            unless ( $upload{bytes} ) {
-                %upload = ();
-                return 1;
-            }
-            unless ( length $upload{spool_data} > 0 ) {
-                $$errorref = "Failed to read a file";
-                return $err->( $$errorref );
-            }
-
-            # Get MIME type from magic bytes
-            $upload{mime} = File::Type->new->mime_type( $upload{spool_data} );
-            unless ( $upload{mime} ) {
-                $$errorref = "Unknown format for upload";
-                return $err->( $$errorref );
-            }
-
-            # finished adding data for md5, create digest (but don't destroy original)
-            $upload{md5sum} = $upload{md5ctx}->digest;
-            $POST->{$curr_name} = \$upload{spool_data};
-            return 1;
-        };
-
-
-        # parse multipart-mime submission, one chunk at a time,
-        # calling our hooks as we go to put uploads in temporary
-        # MogileFS filehandles
-        my $retval = eval { BML::parse_multipart_interactive($errorref, {
-            newheaders => $hook_newheaders,
-            data       => $hook_data,
-            enddata    => $hook_enddata,
-                                                             }); };
-
-        # if BML::Parse_multipart_interactive failed, we need to add
-        # all of our gpics to the gpic_delete queue.  if any of them
-        # still have refcounts, they won't really be deleted because
-        # the async job will realize and leave them alone
-        unless ( $retval ) {
-            # if we hit a parse error, delete the uploaded files
-            foreach my $mogkey ( @uploaded_files ) {
-                DW::BlobStore->delete( temp => $mogkey );
-            }
-
-            if (index(lc($$errorref), 'unknown format') == 0) {
-                $$errorref = BML::ml(".error.unknowntype");
-            } else {
-                $$errorref = "couldn't parse upload: $$errorref";
-            }
-            # the error page is printed in the caller
-            return 0;
-        }
-
-        return $retval;
-    }
 
     return;
 }

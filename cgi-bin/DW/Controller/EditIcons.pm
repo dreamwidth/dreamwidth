@@ -291,4 +291,277 @@ sub parse_post_uploads {
     return @uploads;
 }
 
+sub parse_large_upload {
+    my ( $POST, $errorref, $user, $err ) = @_;
+
+    my %upload = (); # { spool_data, spool_file_name, filename, bytes, md5sum, md5ctx, mime }
+    my @uploaded_files = ();
+    my $curr_name;
+
+    # called when the beginning of an upload is encountered
+    my $hook_newheaders = sub {
+        my ( $name, $filename ) = @_;
+        $curr_name = $name;
+        $POST->{$curr_name} = '';
+        return 1 unless $curr_name =~ /userpic.*/;
+
+        # new file, need to create a filehandle, etc
+        %upload = ();
+        $upload{filename} = $filename;
+        $upload{md5ctx} = new Digest::MD5;
+
+        my @tokens = split(/_/, $curr_name);
+        my $counter = $tokens[1];
+
+        $upload{spool_file_name} = "upf_${counter}:$user->{userid}";
+        $upload{spool_data} = '';
+
+        push @uploaded_files, $upload{spool_file_name};
+        return 1;
+    };
+
+    # called as data is received
+    my $hook_data = sub {
+        my ( $len, $data ) = @_;
+        unless ( $curr_name =~ /userpic.*/ ) {
+            $POST->{$curr_name} .= $data;
+            return 1;
+        }
+
+        # check that we've not exceeded the max read limit
+        my $max_read = (1<<20) * 5; # 5 MiB
+        $upload{bytes} += $len;
+        if ( $upload{bytes} > $max_read ) {
+            $$errorref = "Upload max $max_read exceeded at $upload{bytes} bytes";
+            return $err->( $$errorref );
+        }
+
+        $upload{md5ctx}->add($data);
+        $upload{spool_data} .= $data;
+
+        return 1;
+    };
+
+    # called when the end of an upload is encountered
+    my $hook_enddata = sub {
+        return 1 unless $curr_name =~ /userpic.*/;
+
+        # since we've just finished a potentially slow upload, we need to
+        # make sure the database handles in DBI::Role's cache haven't expired,
+        # so we'll just trigger a revalidation now so that subsequent database
+        # calls will be safe.
+        $LJ::DBIRole->clear_req_cache();
+
+        # don't try to operate on 0-length spoolfiles
+        unless ( $upload{bytes} ) {
+            %upload = ();
+            return 1;
+        }
+        unless ( length $upload{spool_data} > 0 ) {
+            $$errorref = "Failed to read a file";
+            return $err->( $$errorref );
+        }
+
+        # Get MIME type from magic bytes
+        $upload{mime} = File::Type->new->mime_type( $upload{spool_data} );
+        unless ( $upload{mime} ) {
+            $$errorref = "Unknown format for upload";
+            return $err->( $$errorref );
+        }
+
+        # finished adding data for md5, create digest (but don't destroy original)
+        $upload{md5sum} = $upload{md5ctx}->digest;
+        $POST->{$curr_name} = \$upload{spool_data};
+        return 1;
+    };
+
+
+    # parse multipart-mime submission, one chunk at a time,
+    # calling our hooks as we go to put uploads in temporary
+    # MogileFS filehandles
+    my $retval = eval { parse_multipart_interactive($errorref, {
+        newheaders => $hook_newheaders,
+        data       => $hook_data,
+        enddata    => $hook_enddata,
+                                                         }); };
+
+    # if parse_multipart_interactive failed, we need to add
+    # all of our gpics to the gpic_delete queue.  if any of them
+    # still have refcounts, they won't really be deleted because
+    # the async job will realize and leave them alone
+    unless ( $retval ) {
+        # if we hit a parse error, delete the uploaded files
+        foreach my $mogkey ( @uploaded_files ) {
+            DW::BlobStore->delete( temp => $mogkey );
+        }
+
+        if (index(lc($$errorref), 'unknown format') == 0) {
+            $$errorref = LJ::Lang::ml(".error.unknowntype");
+        } else {
+            $$errorref = "couldn't parse upload: $$errorref";
+        }
+        # the error page is printed in the caller
+        return 0;
+    }
+
+    return $retval;
+}
+
+sub parse_multipart_interactive {
+    my ($errref, $hooks) = @_;
+    my $apache_r = DW::Request->get;
+
+    # subref to set $@ and $$errref, then return false
+    my $err = sub { $$errref = $@ = $_[0]; return 0 };
+
+    my $run_hook = sub {
+        my $name = shift;
+        my $ret = eval { $hooks->{$name}->(@_) };
+        return $err->($@) if $@;
+
+        # return a default hook error if the hook didn't set $$errref
+        return $err->( $$errref ? $$errref : "Hook: '$name' returned false" )
+            unless $ret;
+
+        return 1;
+    };
+
+    my $mimetype = $apache_r->header_in( "Content-Type" );
+    my $size     = $apache_r->header_in( "Content-length" );
+
+    unless ( $mimetype =~ m!^multipart/form-data;\s*boundary=(\S+)! ) {
+        return $err->("No MIME boundary.  Bogus Content-type? $mimetype");
+    }
+    my $sep = "--$1";
+    my $seplen = length($sep) + 2;  # plus \r\n
+
+    my $window = '';
+    my $to_read = $size;
+    my $max_read = 8192;
+
+    my $seen_chunk = 0;  # have we seen any chunk yet?
+
+    my $state = 0;  # what we last parsed
+    # 0 = nothing  (looking for a separator)
+    # 1 = separator (looking for headers)
+    # 0 = headers   (looking for data)
+    # 0 = data      (looking for a separator)
+
+    while (1) {
+        my $read = -1;
+        if ($to_read) {
+            $read = $apache_r->read($window,
+                             $to_read < $max_read ? $to_read : $max_read,
+                             length($window));
+            $to_read -= $read;
+
+            # prevent loops.  Opera, in particular, alerted us to
+            # this bug, since it doesn't upload proper MIME on
+            # reload and its Content-Length header is correct,
+            # but its body tiny
+            if ($read == 0) {
+                return $err->("No data from client.  Possibly a refresh?");
+            }
+        }
+
+        # starting case, or data-reading case (looking for separator)
+        if ($state == 0) {
+            my $idx = index($window, $sep);
+
+            # didn't find a separator.  emit the previous data
+            # which we know for sure is data and not a possible
+            # new separator
+            if ($idx == -1) {
+                # bogus if we're done reading and didn't find what we're
+                # looking for:
+                if ($read == -1) {
+                    return $err->("Couldn't find separator, no more data to read");
+                }
+
+                if ($seen_chunk) {
+
+                    # data hook is required
+                    my $len = length($window) - $seplen;
+                    $run_hook->('data', $len, substr($window, 0, $len, ''))
+                        or return 0;
+                }
+                next;
+            }
+
+            # we found a separator.  emit the previous read's
+            # data and enddata.
+            if ($seen_chunk) {
+                my $len = $idx - 2;
+                if ($len > 0) {
+
+                    # data hook is required
+                    $run_hook->('data', $len, substr($window, 0, $len))
+                        or return 0;
+                }
+
+                # enddata hook is required
+                substr($window, 0, $idx, '');
+                $run_hook->('enddata')
+                    or return 0;
+            }
+
+            # we're now looking for a header
+            $seen_chunk = 1;
+            $state = 1;
+
+            # have we hit the end?
+            return 1 if $to_read <= 2 && length($window) <= $seplen + 4;
+        }
+
+        # read a separator, looking for headers
+        if ($state == 1) {
+            my $idx = index($window, "\r\n\r\n");
+            if ($idx == -1) {
+                if (length($window) > 8192) {
+                    return $err->("Window too large: " . length($window) . " bytes > 8192");
+                }
+
+                # bogus if we're done reading and didn't find what we're
+                # looking for:
+                if ($read == -1) {
+                    return $err->("Couldn't find headers, no more data to read");
+                }
+
+                next;
+            }
+
+            # +4 is \r\n\r\n
+            my $header = substr($window, 0, $idx+4, '');
+            my @lines = split(/\r\n/, $header);
+
+            my %hdval;
+            my $lasthd;
+            foreach (@lines) {
+                if (/^(\S+?):\s*(.+)/) {
+                    $lasthd = lc($1);
+                    $hdval{$lasthd} = $2;
+                } elsif (/^\s+.+/) {
+                    $hdval{$lasthd} .= $&;
+                }
+            }
+
+            my ($name, $filename);
+            if ($hdval{'content-disposition'} =~ /\bNAME=\"(.+?)\"/i) {
+                $name = $1;
+            }
+            if ($hdval{'content-disposition'} =~ /\bFILENAME=\"(.+?)\"/i) {
+                $filename = $1;
+            }
+
+            # newheaders hook is required
+            $run_hook->('newheaders', $name, $filename)
+                or return 0;
+
+            $state = 0;
+        }
+
+    }
+    return 1;
+}
+
 1;
