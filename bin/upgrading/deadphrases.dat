@@ -261,6 +261,11 @@ general /talkpost_do.bml.opt.spellcheck
 
 general /talkread.bml.pageofpages
 
+general /tools/endpoints/extacct_auth.bml.error.authfailed
+general /tools/endpoints/extacct_auth.bml.error.nochallenge
+general /tools/endpoints/extacct_auth.bml.error.nosuchaccount
+general /tools/endpoints/extacct_auth.bml.error.nouser
+
 general /tools/memadd.bml.body.added.body
 
 general /update.bml.update.about
