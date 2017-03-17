@@ -4612,8 +4612,6 @@ widget.friendbirthdays.userbirthday=[[month]] [[day]]
 
 widget.friendbirthdays.viewall=More
 
-widget.friendinterests.intro=You might also like some things your friend [[user]] is interested in:
-
 widget.friendupdates.noupdates=You have no updates.
 
 widget.friendupdates.noupdates.setup=Set up your notifications in <a [[aopts]]>Manage Settings</a>.
