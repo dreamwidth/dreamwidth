@@ -1670,9 +1670,11 @@ sub https_url {
     # https:// and the relative // protocol don't need proxying
     return $url if $url =~ m!^(?:https://|//)!;
 
-    # if this link is on our site, let's just switch it to https
-    if ( $url =~ $LJ::DOMAIN || defined $LJ::HTTPS_UPGRADE_REGEX
-                             && $url =~ $LJ::HTTPS_UPGRADE_REGEX ) {
+    # if this link is on a site that supports HTTPS, upgrade the protocol
+    my $https_ok = %LJ::KNOWN_HTTPS_SITES ? \%LJ::KNOWN_HTTPS_SITES : {};
+    my ( $domain ) = ( $url =~ m!://[^/]*?([^.]+\.\w{2,3})/! );
+
+    if ( $domain && ( $domain eq $LJ::DOMAIN || $https_ok->{$domain} ) ) {
         $url =~ s!^http:!https:!;
         return $url;
     }
