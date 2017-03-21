@@ -1672,7 +1672,7 @@ sub https_url {
 
     # if this link is on a site that supports HTTPS, upgrade the protocol
     my $https_ok = %LJ::KNOWN_HTTPS_SITES ? \%LJ::KNOWN_HTTPS_SITES : {};
-    my ( $domain ) = ( $url =~ m!://[^/]*?([^.]+\.\w{2,3})/! );
+    my ( $domain ) = ( $url =~ m!^http://[^/]*?([^.]+\.\w{2,3})/! );
 
     if ( $domain && ( $domain eq $LJ::DOMAIN || $https_ok->{$domain} ) ) {
         $url =~ s!^http:!https:!;
