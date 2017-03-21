@@ -36,7 +36,11 @@ _c?>
 
     my $scaledSizeMax = 640;
 
-    if (!$w || !$h) {
+    # make sure index is given and points to a valid file
+    my $has_index = defined $GET{index} && length $GET{index} ? 1 : 0;
+    $has_index &&= DW::BlobStore->exists( temp => "upf_$GET{index}:$remote->{userid}" );
+
+    if ( $has_index && ! ($w && $h) ) {
         # we do not have the width and height passed in, we have to compute it ourselves
         my $upf = LJ::Userpic->get_upf_scaled(
             size => $scaledSizeMax,
@@ -201,7 +205,7 @@ my $upload_form = qq {
     LJ::html_submit('Upload') . '</form>';
 
 # is there a pic?
-if (! DW::BlobStore->exists( temp => "upf_$GET{index}:$remote->{userid}" )) {
+unless ( $has_index ) {
     $body .= '<?p You have no picture uploaded. You must upload one: p?>';
     $body .= $upload_form;
     return;
