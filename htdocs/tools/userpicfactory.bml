@@ -221,21 +221,22 @@ $body .= qq {
 
       <div class='highlight-box' style='float: right;'>
       <form action="$LJ::SITEROOT/editicons?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
-      <table summary="" cellpadding="4"><tr>
-      <td style='whitespace: nowrap'>
+      <ul style="list-style-type: none; margin-left: 0;">
+      <li style='whitespace: nowrap;'>
         <nobr><input type="checkbox" id="constrain" onchange="setConstrain();" />
-        <label for="constrain">Keep square</nobr></label><br /><small>(or hold Shift)</small>
-        <br/><input type="checkbox" id="borderToggle" name="border" />
-        <label for="borderToggle">Add Border</label><br />
-      </td></tr><tr>
-      <td valign="center"><small>Low quality preview:</small><br />
-      <div style="width: 102px; height: 102px; overflow: hidden; padding: 0px;">
+        <label for="constrain">Keep square</label></nobr><br />
+        <small>(or hold Shift)</small></li>
+      <li style='whitespace: nowrap;'>
+        <nobr><input type="checkbox" id="borderToggle" name="border" />
+        <label for="borderToggle">Add Border</label></nobr></li>
+      </ul>
+      <p style="margin: 0.5em 0 0 0.5em;"><small>Low quality preview:</small></p>
+      <div style="width: 102px; height: 102px; overflow: hidden; padding: 0 5px;">
         <div style="width: 100px; height: 100px; overflow: hidden; display:inline; float:left; border: 1px solid transparent;"
                 id="prevcon">
             <img src="$picpath" id="userpicpreview" />
         </div>
       </div>
-      </td></tr></table>
 
       <input type="hidden" name="create" value="1" />
 
