@@ -28,6 +28,17 @@ use File::Type;
 use DW::BlobStore;
 
 
+sub mogkey {
+    my ( $u, $index ) = @_;
+    $log->logcroak( "No user given" ) unless LJ::isu( $u );
+
+    my $key = 'upf';
+    $key .= "_$index" if defined $index && length $index;
+    $key .= ':' . $u->id;
+
+    return $key;
+}
+
 sub update_userpics {
     my ( $POST, $errors, $userpicsref, $u, $err ) = @_;
     my @userpics = @$userpicsref;
@@ -211,10 +222,12 @@ sub parse_post_uploads {
 
                     # if it's the right size, just too large a file, see if we can resize it down
                     } elsif ( $imagew <= 100 && $imageh <= 100 ) {
-                        # have to store the file, this is the interface that the userpic factory uses
-                        # to get files between the N different web processes you might talk to
+                        # have to store the file, this is the interface that
+                        # the userpic factory uses to get files between
+                        # the N different web processes you might talk to
+                        my $mogkey = mogkey( $u, $counter );
                         my $rv = DW::BlobStore->store(
-                            temp => "upf_${counter}:$u->{userid}",
+                            temp => $mogkey,
                             $current_upload{image}
                         );
                         unless ( $rv ) {
@@ -225,7 +238,7 @@ sub parse_post_uploads {
 
                         eval {
                             my $picinfo = LJ::Userpic->get_upf_scaled(
-                                mogkey => "upf_${counter}:$u->{userid}",
+                                mogkey => $mogkey,
                                 size   => 100,
                                 u      => $u,
                             );
@@ -292,7 +305,7 @@ sub parse_post_uploads {
 }
 
 sub parse_large_upload {
-    my ( $POST, $errorref, $user, $err ) = @_;
+    my ( $POST, $errorref, $u, $err ) = @_;
 
     my %upload = (); # { spool_data, spool_file_name, filename, bytes, md5sum, md5ctx, mime }
     my @uploaded_files = ();
@@ -313,7 +326,7 @@ sub parse_large_upload {
         my @tokens = split(/_/, $curr_name);
         my $counter = $tokens[1];
 
-        $upload{spool_file_name} = "upf_${counter}:$user->{userid}";
+        $upload{spool_file_name} = mogkey( $u, $counter );
         $upload{spool_data} = '';
 
         push @uploaded_files, $upload{spool_file_name};
