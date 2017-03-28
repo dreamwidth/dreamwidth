@@ -27,6 +27,43 @@ use File::Type;
 
 use DW::BlobStore;
 
+use DW::Controller;
+use DW::Routing;
+
+DW::Routing->register_string( "/misc/mogupic", \&mogupic_handler, app => 1, formats => 1 );
+
+sub mogupic_handler {
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+
+    my $u = $rv->{u};  # authas || remote
+    my $r = $rv->{r};  # DW::Request
+    my $args = $r->get_args;
+
+    return $r->FORBIDDEN
+        unless $r->header_in( "Referer" )  # can't load page directly
+            && LJ::check_referer( '/tools/userpicfactory' );
+
+    my $mogkey = mogkey( $u, $args->{index} );
+    my $size = int( $args->{size} // 0 );
+    $size = 640 if $size <= 0 || $size > 640;
+
+    my $upf = LJ::Userpic->get_upf_scaled( size   => $size,
+                                           userid => $u->id,
+                                           mogkey => $mogkey );
+
+    return $r->NOT_FOUND unless $upf;
+
+    my $blob = $upf->[0];
+    my $mime = $upf->[1];
+
+    # return the image
+    $r->content_type( $mime );
+    $r->print( $$blob );
+
+    return $r->OK;
+}
+
 
 sub mogkey {
     my ( $u, $index ) = @_;
