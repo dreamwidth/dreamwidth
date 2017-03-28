@@ -72,11 +72,6 @@ function editiconsInit() {
         $("upload_desc_link").style.display = 'block';
         $("upload_desc").style.display = 'none';
     }
-
-    if ($("upload_desc_photo_link")) {
-        $("upload_desc_photo_link").style.display = 'block';
-        $("upload_desc_photo").style.display = 'none';
-    }
 }
 
 function toggleElement(elementId) {

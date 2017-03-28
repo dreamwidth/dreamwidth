@@ -30,7 +30,7 @@ hr {
 #uploadBox-inner  {
     padding: 6px 12px;
 }
-#upload_desc, #upload_desc_photo {
+#upload_desc {
     font-size: 0.9em;
     line-height: 1.4em;
     margin-bottom: 8px;
