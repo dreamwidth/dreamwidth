@@ -42,7 +42,7 @@ sub nonquoted_text {
         last if m/^\s*-{3,}[^-]+-{3,}\s*$/;
 
         # the bogus email we sent the comments as wrapped in <>
-        last if m/<$LJ::BOGUS_EMAIL>/;
+        last if m/<\s?$LJ::BOGUS_EMAIL>/;
 
         $num_lines++;
     }

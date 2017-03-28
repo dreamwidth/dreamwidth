@@ -15,10 +15,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::CleanEmail;
+
+local $LJ::BOGUS_EMAIL = 'dw_null@dreamwidth.org';  # for testing only
 
 {
     my $nonquoted = DW::CleanEmail->nonquoted_text(q{
@@ -64,6 +66,27 @@ testing 123
 foo bar
 
 baaaaz}, "got nonquoted text from an email without any quoted text");
+}
+
+# seen in the wild: extra address space
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(q{
+testing 123
+foo bar
+
+baaaaz
+
+On Jan 11, 2017 6:18 AM, "DW Comment" < dw_null@dreamwidth.org> wrote:
+
+A user replied to your Dreamwidth entry "test subject" ( http://testuser.dreamwidth.org/7718044.html ) in which you said:
+});
+
+    is( $nonquoted, q{
+testing 123
+foo bar
+
+baaaaz
+}, "removed all quoted text when bogus email includes leading space");
 }
 
 # gmail fixes
