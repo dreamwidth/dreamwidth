@@ -272,10 +272,12 @@
         my $size = $r->header_in( "Content-Length" );
         return $error->( $ML{'.error.upload.noheader'} ) unless $size;
 
-        my $errparse;
-        BML::parse_multipart( \%POST, \$errparse );
-        return $error->( $errparse ) if $errparse;
+        my $uploads = eval { $r->uploads };
+        return $error->( $@ ) if $@;
 
+        foreach my $h ( @$uploads ) {
+            $POST{$h->{name}} = $h->{body};
+        }
         # now %POST is set, we can continue
     }
 

@@ -1498,55 +1498,6 @@ sub get_template_def
     return $SchemeData->{$schemefile}->{uc($blockname)};
 }
 
-sub parse_multipart
-{
-    my ($dest, $error, $max_size) = @_;
-    my $apache_r = $Apache::BML::r;
-    my $err = sub { $$error = $_[0]; return 0; };
-
-    my $size = $apache_r->headers_in->{"Content-length"};
-    unless ($size) {
-        return $err->("No content-length header: can't parse");
-    }
-    if ($max_size && $size > $max_size) {
-        return $err->("[toolarge] Upload too large");
-    }
-
-    my $sep;
-    unless ($apache_r->headers_in->{"Content-Type"} =~ m!^multipart/form-data;\s*boundary=(\S+)!) {
-        return $err->("[unknowntype] Unknown content type");
-    }
-    $sep = $1;
-
-    my $content;
-    $apache_r->read($content, $size);
-    my @lines = split(/\r\n/, $content);
-    my $line = shift @lines;
-    return $err->("[parse] Error parsing upload") unless $line eq "--$sep";
-
-    while (@lines) {
-        $line = shift @lines;
-        my %h;
-        while (defined $line && $line ne "") {
-            $line =~ /^(\S+?):\s*(.+)/;
-            $h{lc($1)} = $2;
-            $line = shift @lines;
-        }
-        while (defined $line && $line ne "--$sep") {
-            last if $line eq "--$sep--";
-            $h{'body'} .= "\r\n" if $h{'body'};
-            $h{'body'} .= $line;
-            $line = shift @lines;
-        }
-        if ($h{'content-disposition'} =~ /name="(\S+?)"/) {
-            my $name = $1 || $2;
-            $dest->{$name} = $h{'body'};
-        }
-    }
-
-    return 1;
-}
-
 sub reset_cookies
 {
     %BML::COOKIE_M = ();

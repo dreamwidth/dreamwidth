@@ -6,6 +6,10 @@ general /allpics.bml.nopics.text
 general /allpics.bml.nopics.text.other
 general /allpics.bml.pics
 
+general BML.parse_multipart.parse
+general BML.parse_multipart.toolarge
+general BML.parse_multipart.unknowntype
+
 general /changeemail.bml.label.password
 
 general /community/join.bml.label.authpost

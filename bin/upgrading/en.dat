@@ -15,12 +15,6 @@ bml.needlogin.body5=In order to view this page, you must <a [[aopts1]]>log in</a
 
 bml.needlogin.head=Login Required
 
-BML.parse_multipart.parse=Error parsing upload
-
-BML.parse_multipart.toolarge=Upload too large
-
-BML.parse_multipart.unknowntype=Unknown content type
-
 bml.requirepost=As a security precaution, the page you're viewing requires a POST request, not a GET. If you're trying to submit this form legitimately, please contact us.
 
 btn.add=Add

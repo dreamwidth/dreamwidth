@@ -118,7 +118,6 @@ use strict;
             }
 
             my $MAX_UPLOAD = LJ::Userpic->max_allowed_bytes($u);
-            my $error;
             my $parsetomogile = $size > $MAX_UPLOAD + 2048;
 
             # array of map references
@@ -128,13 +127,11 @@ use strict;
             # just parse it, large upload, in which case we save the
             # files to mogile, or coming from the factory.
             if (!$parsetomogile) {
-                # BML::parse_multipart(\%POST, \$error, $MAX_UPLOAD + 2048);
-                BML::parse_multipart(\%POST, \$error);
+                my $uploads = eval { $r->uploads };  # multipart/form-data
+                return $err->( $@ ) if $@;
 
-                # couldn't parse correctly
-                if ($error) {
-                    # return parse_multipart error
-                    return $err->($error);
+                foreach my $h ( @$uploads ) {
+                    $POST{$h->{name}} = $h->{body};
                 }
 
                 # parse the post parameters into an array of pics
@@ -147,21 +144,12 @@ use strict;
             $parsetomogile = 0 if $POST{'src'} && $POST{'src'} eq 'factory';
 
             if ($parsetomogile) {
+                my $error;
                 my $res = DW::Controller::EditIcons::parse_large_upload( \%POST, \$error, $u, $err );
                 # large path
 
                 # was there an error parsing the multipart form?
-                if ($error) {
-                    if ($error =~ /^\[(\S+?)\]/) {
-                        my $code = $1;
-                        if ($code eq "toolarge") {
-                            return $err->(BML::ml('.error.filetoolarge',
-                                                  { 'maxsize' => int($MAX_UPLOAD / 1024) }));
-                        }
-                        $error = BML::ml("BML.parse_multipart.$code");
-                    }
-                    return $err->($error) if $error;
-                }
+                return $err->($error) if $error;
 
                 # parse the post parameters into an array of pics
                 @uploaded_userpics = DW::Controller::EditIcons::parse_post_uploads(
