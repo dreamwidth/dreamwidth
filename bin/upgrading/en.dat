@@ -701,6 +701,8 @@ error.dberror=A database error occurred:
 
 error.editicons.blobstore=Failed to upload file to storage system.
 
+error.editicons.contentlength=No content-length header: can't upload
+
 error.editicons.empty.file=You must choose a file to upload.
 
 error.editicons.empty.url=You must enter the URL of the icon you want to add.
@@ -708,6 +710,8 @@ error.editicons.empty.url=You must enter the URL of the icon you want to add.
 error.editicons.dimstoolarge=The dimensions of this image are much too large. Please reduce the size using an image editor before submitting.
 
 error.editicons.filetoolarge=The icon you tried to upload is too large.  File size can't exceed [[maxsize]] KB.
+
+error.editicons.get_upf_scaled=There was an error in generating the icon: [[err]]
 
 error.editicons.giffiledimensions=You can't upload an icon larger than 100x100 pixels if it's in GIF format.
 
@@ -718,6 +722,8 @@ error.editicons.multipleresize=Error: only one image requiring resizing may be u
 error.editicons.nomediauploads.delete=Unable to delete icons at this time.
 
 error.editicons.parse.boundary=Couldn't parse upload: No MIME boundary.  Bogus Content-type? [[type]]
+
+error.editicons.parse.factory=Invalid userpic creation parameters.
 
 error.editicons.parse.maxread=Couldn't parse upload: Upload max [[max_read]] exceeded at [[bytes]] bytes
 
@@ -730,6 +736,10 @@ error.editicons.parse.notfound=Couldn't parse upload: Couldn't find [[what]], no
 error.editicons.parse.unknowntype=You can only upload GIF, PNG, or JPG files.
 
 error.editicons.parse.window=Couldn't parse upload: Window too large: [[len]] bytes > 8192
+
+error.editicons.toolarge=Image is too large; please submit it separately to resize.
+
+error.editicons.toomanyicons=You're already at your limit of [[num]] [[?num|icon|icons]]. You can't upload this icon until you delete one of your existing ones.
 
 error.editicons.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]] not been saved as [[?numwords|its|their]] icon already has [[max]] keywords.
 

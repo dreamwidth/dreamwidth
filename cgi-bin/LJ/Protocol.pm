@@ -1128,9 +1128,10 @@ sub common_event_validation
     if ( ( my $pickwd = $req->{'props'}->{'picture_keyword'} ) and !$flags->{allow_inactive}) {
         my $pic = LJ::Userpic->new_from_keyword( $flags->{u}, $pickwd );
 
-        # need to make sure they aren't trying to post with an inactive keyword, but also
-        # we don't want to allow them to post with a keyword that has no pic at all to prevent
-        # them from deleting the keyword, posting, then adding it back with editicons.bml
+        # need to make sure they aren't trying to post with an inactive keyword,
+        # but also we don't want to allow them to post with a keyword that has
+        # no pic at all to prevent them from deleting the keyword, posting, then
+        # adding it back with the editicons page
         delete $req->{props}->{picture_keyword}
             unless $pic && $pic->state ne 'I';
     }

@@ -2,12 +2,11 @@
 #
 # DW::Controller::EditIcons
 #
-# This controller is for creating and managing icons. NOTE: The actual file
-# is still a BML file, this is just a forward looking controller to help us
-# migrate.
+# This controller is for creating and managing icons.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Jen Griffin <kareila@livejournal.com>
 #
 # Copyright (c) 2016-2017 by Dreamwidth Studios, LLC.
 #
@@ -28,12 +27,265 @@ use File::Type;
 use DW::BlobStore;
 use LJ::Userpic;
 
+use LJ::Global::Constants;
+
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
+DW::Routing->register_string( "/editicons", \&editicons_handler, app => 1 );
 DW::Routing->register_string( "/tools/userpicfactory", \&factory_handler, app => 1 );
 DW::Routing->register_string( "/misc/mogupic", \&mogupic_handler, app => 1, formats => 1 );
+
+sub editicons_handler {
+    # don't automatically check form_auth: causes problems with
+    # processing multipart/form-data where the post arguments
+    # have to be parsed out of $r->uploads
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 0 );
+    return $rv unless $ok;
+
+    my $u = $rv->{u};  # authas || remote
+    my $r = $rv->{r};  # DW::Request
+
+    # error pages must be returned from handler context, not subroutines!
+    # this is basically error_ml without the implicit ML call
+    my $err = sub {
+        return DW::Template->render_template( 'error.tt', { message => $_[0] } )
+    };
+
+    return $err->( $LJ::MSG_READONLY_USER ) if $u->is_readonly;
+
+    # update this user's activated pics
+    $u->activate_userpics;
+
+    # get userpics and count 'em
+    my @userpics = LJ::Userpic->load_user_userpics( $u );
+
+    # get the maximum number of icons for this user
+    my $max = $u->count_max_userpics;
+
+    # keep track of fatal errors vs. non-fatal/informative messages
+    my $errors = DW::FormErrors->new;
+    my @info;
+
+    if ( $r->did_post ) {
+        my $post = $r->post_args;
+        return error_ml( "error.utf8" ) unless LJ::text_in( $post );
+
+        ### save changes to existing pics
+        if ( $post->{'action:save'} ) {
+            # form being posted isn't multipart, so check form_auth
+            return error_ml( 'error.invalidform' )
+                unless LJ::check_form_auth( $post->{lj_form_auth} );
+
+            my $refresh = update_userpics( $post, \@info, \@userpics, $u );
+
+            # reload the pictures to account for deleted
+            @userpics = LJ::Userpic->load_user_userpics( $u ) if $refresh;
+        }
+
+        unless ( %$post ) {
+            ### no post data, so we'll parse the multipart data -
+            ### this means that we have a new pic to handle.
+            my $size = $r->header_in( "Content-Length" );
+            return error_ml( "error.editicons.contentlength" ) unless $size;
+
+            my $MAX_UPLOAD = LJ::Userpic->max_allowed_bytes( $u );
+            my $parsetomogile = $size > $MAX_UPLOAD + 2048;
+
+            # array of map references
+            my @uploaded_userpics;
+
+            # Three possibilities here: (a) small upload, in which case we
+            # just parse it; (b) large upload, in which case we save the
+            # files to temp storage; or (c) coming from the factory.
+
+            unless ( $parsetomogile ) {  # for options (a) and (c)
+                my $uploads = eval { $r->uploads };  # multipart/form-data
+                return $err->( $@ ) if $@;
+
+                $post->{$_->{name}} = $_->{body} foreach @$uploads;
+
+                # parse the post parameters into an array of new pics
+                @uploaded_userpics = parse_post_uploads( $post, $u, $MAX_UPLOAD );
+            }
+
+            # if we're (c) coming from the factory, then we don't
+            # need to save the image to temporary storage again
+            my $used_factory = $post->{src} && $post->{src} eq 'factory';
+            $parsetomogile = 0 if $used_factory;
+
+            if ( $parsetomogile ) {
+                # (b) save large images to temporary storage and populate %$post
+                my $error;
+                parse_large_upload( $post, \$error, $u );
+
+                # was there an error parsing the multipart form?
+                return $err->( $error ) if $error;
+
+                # parse the post parameters into an array of new pics
+                @uploaded_userpics = parse_post_uploads( $post, $u, $MAX_UPLOAD );
+
+            } elsif ( $used_factory ) {
+                # (c) parse the data submitted from the factory
+                my $scaledsizemax = $post->{'scaledSizeMax'};
+                my ( $x1, $x2, $y1, $y2 ) = map { $_ + 0 }
+                                            @$post{qw( x1 x2 y1 y2 )};
+
+                return error_ml( "error.editicons.parse.factory" )
+                    unless $scaledsizemax && $x2;
+
+                my $picinfo = eval {
+                    LJ::Userpic->get_upf_scaled(
+                        x1     => $x1,
+                        y1     => $y1,
+                        x2     => $x2,
+                        y2     => $y2,
+                        border => $post->{border},
+                        userid => $u->userid,
+                        mogkey => mogkey( $u, $post->{index} ),
+                    );
+                };
+                return error_ml( "error.editicons.get_upf_scaled", { err => $@ } )
+                    unless $picinfo;
+
+                # create image data hash for userpic array
+                my %current_upload = (
+                    key   => 'userpic_0',
+                    image => \${$picinfo->[0]},
+                    index => 0,
+                );
+                $current_upload{$_} = $post->{$_}
+                    foreach qw/ keywords default comments descriptions make_default /;
+                push @uploaded_userpics, \%current_upload;
+            }
+
+            # throw an error if @uploaded_userpics is still empty
+            return error_ml( $post->{src}
+                             ? "error.editicons.empty." . $post->{src}
+                             : "error.editicons.parse.nodata" )
+                unless @uploaded_userpics;
+
+            # count how many icons the user already has
+            my $userpic_count = scalar @userpics;
+
+            my $factory_redirect;
+            my $success_count = 0;
+
+            my $index_sort = sub { $a->{index} cmp $b->{index} };
+            my $current_index = 0;
+
+            my $message_prefix = sub {
+                my $idx = $_[0];
+                return "" unless scalar @uploaded_userpics > 1;
+                return LJ::Lang::ml( "/edit/icons.tt.icon.msgprefix",
+                                     { num => $idx } ) . " ";
+            };
+
+            # go through each userpic and try to create it
+            foreach my $cur_upload_ref ( sort $index_sort @uploaded_userpics ) {
+                $current_index++;
+                my %current_upload = %$cur_upload_ref;
+
+                ## see if they are trying to go over their limit
+                if ( $userpic_count >= $max ) {
+                    $errors->add( undef, "error.editicons.toomanyicons",
+                                         { num => $max } );
+                    last;
+                }
+
+                my $mp = $message_prefix->( $current_index );
+                my $err_add = sub { $errors->add_string( undef, $mp . $_[0] ) };
+                my $info_add = sub { push( @info, $mp . $_[0] ) };
+
+                if ( $current_upload{error} ) {
+                    # error returned from parse_post_uploads
+                    $err_add->( $current_upload{error} );
+                    next;
+                }
+
+                if ( $current_upload{requires_factory} ) {
+                    $factory_redirect = factory_prepare( \%current_upload, $u );
+
+                    # go ahead and add this error message to @info; it
+                    # will get displayed only if we can't do the redirect.
+                    $info_add->( LJ::Lang::ml( "error.editicons.toolarge" ) );
+                    next;
+                }
+
+                # save this userpic
+                my $userpic = eval { LJ::Userpic->create( $u, data => $current_upload{image} ); };
+
+                if ( ! $userpic ) {
+                    $@ = $@->as_html if $@->isa('LJ::Error');
+                    $err_add->( $@ );
+
+                } else {
+                    $info_add->( LJ::Lang::ml( "/edit/icons.tt.upload.success" ) );
+                    $success_count++;
+
+                    set_userpic_info( $userpic, \%current_upload );
+                    $userpic_count++;
+                }
+            }
+
+            # yay we (probably) created new pics, reload the @userpics
+            @userpics = LJ::Userpic->load_user_userpics( $u );
+
+            # did we designate an image to redirect to the factory?
+            if ( $factory_redirect && ! $errors->exist ) {
+                $factory_redirect->{successcount} = $success_count
+                    if $success_count;
+
+                return $r->redirect(
+                    LJ::create_url( "/tools/userpicfactory",
+                                    keep_args => [ 'authas' ],
+                                    args => $factory_redirect ) );
+            }
+        }
+    }
+    #  finished post processing
+
+    # if we're disabling media, say so
+    $rv->{uploads_disabled} = $LJ::DISABLE_MEDIA_UPLOADS;
+    $errors->add( undef, 'error.mediauploadsdisabled' )
+        if $LJ::DISABLE_MEDIA_UPLOADS;
+
+    $rv->{errors} = $errors;
+    $rv->{messages} = \@info;
+
+    my $args = $r->get_args;
+    $rv->{sort_by_kw} = $args->{'keywordSort'} ? 1 : 0;
+
+    $rv->{selflink} = sub {
+        my $want_kw = $_[0] // $args->{'keywordSort'};
+        my $keyword_sort = $want_kw ? { 'keywordSort' => 1 } : {};
+        return LJ::create_url( "/editicons", keep_args => [ 'authas' ],
+                                             args => $keyword_sort );
+    };
+
+    $rv->{icons} = $args->{'keywordSort'} ? [ LJ::Userpic->sort( \@userpics ) ]
+                                          : \@userpics;
+    $rv->{num_icons} = scalar @userpics;
+    $rv->{max_icons} = $max;
+
+    # Check for default userpic keywords
+    foreach my $pic ( @userpics ) {
+        if ( substr( $pic->keywords, 0, 4 ) eq "pic#" ) {
+            $rv->{uses_default_keywords} = 1;
+            last;
+        }
+    }
+
+    $rv->{display_rename} = LJ::is_enabled( "icon_renames" ) ? 1 : 0;
+    $rv->{help_icon} = sub { LJ::help_icon_html( @_ ) };
+    $rv->{alttext_faq} = sub { LJ::Hooks::run_hook( 'faqlink', 'alttext', $_[0] ) };
+
+    $rv->{maxlength} = { comment => LJ::CMAX_UPIC_COMMENT,
+                         description => LJ::CMAX_UPIC_DESCRIPTION };
+
+    return DW::Template->render_template( 'edit/icons.tt', $rv );
+}
 
 sub factory_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
@@ -117,6 +369,37 @@ sub mogkey {
     $key .= ':' . $u->id;
 
     return $key;
+}
+
+sub set_userpic_info {
+    my ( $userpic, $upload ) = @_;
+
+    $userpic->make_default if $upload->{make_default};
+    $userpic->set_keywords( $upload->{keywords} )
+        if defined $upload->{keywords};
+    $userpic->set_comment( $upload->{comments} )
+        if $upload->{comments};
+    $userpic->set_description( $upload->{descriptions} )
+        if $upload->{descriptions};
+    $userpic->set_fullurl( $upload->{url} ) if $upload->{url};
+}
+
+# prepare to send a particular upload to the factory
+sub factory_prepare {
+    my ( $upload, $u ) = @_;
+
+    # save the file
+    DW::BlobStore->store( temp => mogkey( $u, $upload->{index} ),
+                          $upload->{image} );
+
+    # save the arguments for the factory URL
+    my $args = { imageWidth  => $upload->{imagew},
+                 imageHeight => $upload->{imageh} };
+
+    $args->{$_} = $upload->{$_} foreach qw/ keywords comments descriptions
+                                            make_default index /;
+
+    return $args;
 }
 
 # save changes to existing userpics
