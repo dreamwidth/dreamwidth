@@ -404,6 +404,7 @@ sub parse_post_uploads {
                     LJ::Lang::ml( 'error.editicons.url.filetoolarge' )
                         if $current_upload{image} &&
                             length ${$current_upload{image}} > $MAX_UPLOAD;
+                $current_upload{url} = $POST->{$userpic_key};
             }
             push @uploads, \%current_upload;
         }

@@ -259,7 +259,7 @@ use strict;
                         $userpic->set_description( $current_upload{descriptions} )
                             if $current_upload{descriptions};
                         $userpic->set_fullurl( $current_upload{url} )
-                            if $POST{url};
+                            if $current_upload{url};
 
                         $userpic_count++;
                     }
