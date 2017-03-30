@@ -78,7 +78,6 @@ sub notify {
     }
 
     my $u = $self->u;
-    my $lang = $u->prop('browselang');
     my $vars = { sitenameshort => $LJ::SITENAMESHORT, sitename => $LJ::SITENAME, siteroot => $LJ::SITEROOT };
 
     my @events = @_;
@@ -89,7 +88,7 @@ sub notify {
         croak "invalid event passed" unless ref $ev;
 
         $vars->{'hook'} = LJ::Hooks::run_hook("esn_email_footer", $ev, $u);
-        my $footer = LJ::Lang::get_text($lang, 'esn.footer.text2', undef, $vars);
+        my $footer = LJ::Lang::get_default_text( 'esn.footer.text2', $vars );
 
         my $plain_body = LJ::Hooks::run_hook("esn_email_plaintext", $ev, $u);
         unless ($plain_body) {

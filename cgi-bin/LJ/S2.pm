@@ -78,8 +78,8 @@ sub make_journal
         return;
     }
 
-    my $lang = $remote && $remote->prop( "browselang" );
-    LJ::Hooks::run_hook('set_s2bml_lang', $ctx, \$lang);
+    # see also Apache/LiveJournal.pm
+    my $lang = $LJ::DEFAULT_LANG;
 
     # note that's it's very important to pass LJ::Lang::get_text here explicitly
     # rather than relying on BML::set_language's fallback mechanism, which won't

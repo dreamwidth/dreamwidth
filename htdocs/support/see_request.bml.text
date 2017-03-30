@@ -77,8 +77,6 @@
 
 .internal.comment=Internal Comment
 
-.language=Language
-
 .lock.request=Lock Request
 
 .manualset=manual set 

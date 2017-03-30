@@ -988,7 +988,6 @@ sub mail_response_to_user
     my $lang;
     $lang = LJ::Support::prop( $spid, 'language' )
         if LJ::is_enabled( 'support_request_language' );
-    $lang ||= $u->prop( 'browselang' ) if $u;
     $lang ||= $LJ::DEFAULT_LANG;
 
     my $body = "";
@@ -1170,9 +1169,8 @@ sub work {
             $u = LJ::load_userid( $posterid ) if $posterid;
             $lang = LJ::Support::prop( $spid, 'language' )
                 if LJ::is_enabled( 'support_request_language' );
-            $lang ||= $u->prop( 'browselang' ) if $u;
             $lang ||= $LJ::DEFAULT_LANG;
-            
+
             # now actually get the FAQ
             my $faq = LJ::Faq->load( $faqid, lang => $lang );
             if ( $faq ) {

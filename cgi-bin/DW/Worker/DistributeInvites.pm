@@ -71,7 +71,7 @@ sub work {
     my $inv_nusers = scalar @$inv_uids;
 
     # Report email for requester
-    my $req_lang = $req_user->prop( 'browselang' ) || $LJ::DEFAULT_LANG;
+    my $req_lang = $LJ::DEFAULT_LANG;
     my $req_usehtml = $req_user->prop( 'opt_htmlemail' ) eq 'Y';
     my $req_charset = 'utf-8';
     my %req_email = (
@@ -127,8 +127,7 @@ sub work {
                     my @ics = DW::InviteCodes->generate( count => $inv_peruser,
                                                          owner => $inv_user,
                                                          reason => $reason );
-                    my $inv_lang = $inv_user->prop( 'browselang' )
-                        || $LJ::DEFAULT_LANG;
+                    my $inv_lang = $LJ::DEFAULT_LANG;
                     my $inv_usehtml = $inv_user->prop( 'opt_htmlemail' ) eq 'Y';
                     my $inv_charset = 'utf-8';
                     my $invemail_vars = {

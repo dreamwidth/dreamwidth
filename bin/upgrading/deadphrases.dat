@@ -926,6 +926,7 @@ general /manage/profile/index.bml.success.editpics
 general /manage/profile/index.bml.theme
 general /manage/profile/index.bml.zip.usonly
 general /manage/settings/index.bml.fn.gettingstarted
+general /manage/settings/index.bml.fn.language
 general /manage/settings/index.bml.fn.navstrip
 general /manage/settings/index.bml.fn.stylealwaysmine
 general /manage/settings/index.bml.fn.verticalincl
@@ -988,7 +989,8 @@ general /support/faq.bml.cannotfind.note
 general /support/faqbrowse.bml.title_num
 general /support/help.bml.interim
 general /support/see_request.bml.email.validared
-general /support/see_rquest.bml.important.notes.text
+general /support/see_request.bml.important.notes.text
+general /support/see_request.bml.language
 general /talkpost.bml.opt.ljuser
 general /talkpost.bml.opt.ljuser2
 general /talkpost.bml.warnscreened
@@ -1249,6 +1251,8 @@ general setting.display.smshistory.label
 general setting.display.smshistory.option
 general setting.gettingstarted.label
 general setting.gettingstarted.option
+general setting.language.error.invalid
+general setting.language.label
 general setting.minsecurity.option.select.admin
 general setting.minsecurity.option.select.friends
 general setting.minsecurity.option.select.members

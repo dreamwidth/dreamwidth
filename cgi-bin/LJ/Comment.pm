@@ -1428,8 +1428,8 @@ sub _format_mail_both {
         }
     }
 
-    # Precache text lines
-    my $lang     = $targetu->prop('browselang');
+    # Precache text lines, using DEFAULT_LANG for $targetu
+    my $lang = $LJ::DEFAULT_LANG;
     LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
 
     my $body = '';

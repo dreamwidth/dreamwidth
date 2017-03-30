@@ -166,10 +166,6 @@ sub make_login_session {
         LJ::UniqCookie->save_mapping($uniq => $u);
     }
 
-    # restore scheme and language
-    my $bl = LJ::Lang::get_lang($u->prop('browselang'));
-    BML::set_language($bl->{'lncode'}) if $bl;
-
     # don't set/force the scheme for this page if we're on SSL.
     # we'll pick it up from cookies on subsequent pageloads
     # but if their scheme doesn't have an SSL equivalent,

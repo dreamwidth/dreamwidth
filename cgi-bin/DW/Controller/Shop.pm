@@ -137,7 +137,7 @@ sub shop_transfer_points_handler {
             $u->give_shop_points( amount => $points, reason => sprintf( 'transfer from %s(%d)', $remote->user, $remote->id ) );
             $remote->give_shop_points( amount => -$points, reason => sprintf( 'transfer to %s(%d)', $u->user, $u->id ) );
 
-            my $get_text = sub { LJ::Lang::get_text( $u->prop( 'browselang' ), $_[0], undef, $_[1] ) };
+            my $get_text = sub { LJ::Lang::get_default_text( @_ ) };
 
             # send notification to person transferring the points...
             {

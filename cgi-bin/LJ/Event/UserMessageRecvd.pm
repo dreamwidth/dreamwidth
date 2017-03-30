@@ -37,9 +37,8 @@ sub as_email_subject {
     my ($self, $u) = @_;
 
     my $other_u = $self->load_message->other_u;
-    my $lang    = $u->prop('browselang');
 
-    return LJ::Lang::get_text($lang, 'esn.email.pm.subject', undef,
+    return LJ::Lang::get_default_text( 'esn.email.pm.subject',
         {
             sender => $self->load_message->other_u->display_username,
         });
@@ -48,13 +47,13 @@ sub as_email_subject {
 sub _as_email {
     my ($self, $u, $is_html) = @_;
 
-    my $lang        = $u->prop('browselang');
     my $msg         = $self->load_message;
     my $replyurl    = "$LJ::SITEROOT/inbox/compose?mode=reply&msgid=" . $msg->msgid;
     my $other_u     = $msg->other_u;
     my $sender      = $other_u->user;
     my $inbox       = "$LJ::SITEROOT/inbox/";
-    $inbox = "<a href=\"$inbox\">" . LJ::Lang::get_text($lang, 'esn.your_inbox') . "</a>" if $is_html;
+    $inbox = "<a href=\"$inbox\">" . LJ::Lang::get_default_text( 'esn.your_inbox' ) . "</a>"
+        if $is_html;
 
     my $vars = {
         user            => $is_html ? ($u->ljuser_display) : ($u->user),
@@ -67,8 +66,8 @@ sub _as_email {
         inbox           => $inbox,
     };
 
-    my $body = LJ::Lang::get_text($lang, 'esn.email.pm_with_body', undef, $vars) .
-        $self->format_options($is_html, $lang, $vars,
+    my $body = LJ::Lang::get_default_text( 'esn.email.pm_with_body', $vars ) .
+        $self->format_options($is_html, undef, $vars,
         {
             'esn.reply_to_message' => [ 1, $replyurl ],
             'esn.view_profile'     => [ 2, $other_u->profile_url ],
