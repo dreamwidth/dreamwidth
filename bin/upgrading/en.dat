@@ -699,9 +699,13 @@ error.console.notpermitted=You are not permitted to run this command.
 
 error.dberror=A database error occurred:
 
+error.editicons.blobstore=Failed to upload file to storage system.
+
 error.editicons.empty.file=You must choose a file to upload.
 
 error.editicons.empty.url=You must enter the URL of the icon you want to add.
+
+error.editicons.dimstoolarge=The dimensions of this image are much too large. Please reduce the size using an image editor before submitting.
 
 error.editicons.filetoolarge=The icon you tried to upload is too large.  File size can't exceed [[maxsize]] KB.
 

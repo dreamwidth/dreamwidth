@@ -270,107 +270,112 @@ sub parse_post_uploads {
 
         # uploaded pics
         if ($userpic_key =~ /userpic_.*/) {
+            # only use userpic_0 if we selected file for the source
+            next if $userpic_key eq "userpic_0" && $POST->{"src"} ne "file";
+
             # Some callers to the function pass data, others pass
             # a reference to data.  Figure out which type we got.
             $current_upload{image} = ref $POST->{$userpic_key} ?
                                          $POST->{$userpic_key} :
                                         \$POST->{$userpic_key};
 
-            # only use userpic_0 if we selected file for the source
-            next if $userpic_key eq "userpic_0" && $POST->{"src"} ne "file";
-
             my $size = length ${$current_upload{image}};
             if ( $size == 0 ) {
                 $current_upload{error} =
                     LJ::Lang::ml( 'error.editicons.empty.file' );
-            } else {
-                my ( $imagew, $imageh, $filetype ) =
-                    Image::Size::imgsize( $current_upload{image} );
+                push @uploads, \%current_upload;
+                next;
+            }
 
-                # couldn't parse the file
-                if ( !$imagew || !$imageh ) {
-                    $current_upload{error} =
-                        LJ::Lang::ml( 'error.editicons.unsupportedtype', {
-                            filetype => $filetype,
-                        } );
+            my ( $imagew, $imageh, $filetype ) =
+                Image::Size::imgsize( $current_upload{image} );
 
-                # file is too big, no matter what.
-                } elsif ( $imagew > 5000 || $imageh > 5000 ) {
-                    $current_upload{error} = 'The dimensions of this image are too large.';
+            # couldn't parse the file
+            if ( !$imagew || !$imageh ) {
+                $current_upload{error} =
+                    LJ::Lang::ml( 'error.editicons.unsupportedtype', {
+                        filetype => $filetype,
+                    } );
 
-                # let's try to use the factory
-                } elsif ( int($imagew) > 100 || int($imageh) > 100 || $size > $MAX_UPLOAD ) {
-                    # file wrong type for factory
-                    if ( $filetype ne 'JPG' && $filetype ne 'PNG' ) {
-                        # factory only works on jpegs and pngs
-                        # because Image::Magick has issues
-                        if ( int($imagew) > 100 || int($imageh) > 100 ) {
-                            $current_upload{error} =
-                                LJ::Lang::ml( 'error.editicons.giffiledimensions' );
-                        } else {
-                            $current_upload{error} =
-                                LJ::Lang::ml( 'error.editicons.filetoolarge', {
-                                    maxsize => int($MAX_UPLOAD / 1024),
-                                } );
-                        }
+            # file is too big, no matter what.
+            } elsif ( $imagew > 5000 || $imageh > 5000 ) {
+                $current_upload{error} =
+                    LJ::Lang::ml( 'error.editicons.dimstoolarge' );
 
-                    # if it's the right size, just too large a file,
-                    # see if we can resize it down
-                    } elsif ( $imagew <= 100 && $imageh <= 100 ) {
-                        # have to store the file, this is the interface that
-                        # the userpic factory uses to get files between
-                        # the N different web processes you might talk to
-                        my $mogkey = mogkey( $u, $counter );
-                        my $rv = DW::BlobStore->store(
-                            temp => $mogkey,
-                            $current_upload{image}
-                        );
-                        unless ( $rv ) {
-                            $current_upload{error} = 'Failed to upload file to storage system.';
-                            push @uploads, \%current_upload;
-                            next;
-                        }
-
-                        eval {
-                            my $picinfo = LJ::Userpic->get_upf_scaled(
-                                mogkey => $mogkey,
-                                size   => 100,
-                                u      => $u,
-                            );
-
-                            # success! don't go to the factory, and
-                            # pretend the user just uploaded the file
-                            # and continue on normally
-                            $current_upload{image} = $picinfo->[0];
-                        };
-
-                        if ( $@ || length ${$current_upload{image}} > $MAX_UPLOAD ) {
-                            $current_upload{error} =
-                                LJ::Lang::ml( 'error.editicons.filetoolarge', {
-                                    maxsize => int($MAX_UPLOAD / 1024),
-                                } );
-                        }
-
-                    # this is a candidate for the userpicfactory.
+            # let's try to use the factory
+            } elsif ( int($imagew) > 100 || int($imageh) > 100 || $size > $MAX_UPLOAD ) {
+                # file wrong type for factory
+                if ( $filetype ne 'JPG' && $filetype ne 'PNG' ) {
+                    # factory only works on jpegs and pngs
+                    # because Image::Magick has issues
+                    if ( int($imagew) > 100 || int($imageh) > 100 ) {
+                        $current_upload{error} =
+                            LJ::Lang::ml( 'error.editicons.giffiledimensions' );
                     } else {
-                        # we can only do a single pic in the factory, so if there are two,
-                        # then error out for both.
-                        if ($requires_factory) {
-                            $requires_factory->{error} = $current_upload{error} =
-                                LJ::Lang::ml( 'error.editicons.multipleresize' );
-                            $requires_factory->{requires_factory} = 0;
-                        } else {
-                            $current_upload{requires_factory} = 1;
-                            $current_upload{imageh} = $imageh;
-                            $current_upload{imagew} = $imagew;
-                            if ( $POST->{"spool_data_$counter"} ) {
-                                $current_upload{spool_data} = $POST->{"spool_data_$counter"};
-                            }
-                            $requires_factory = \%current_upload;
+                        $current_upload{error} =
+                            LJ::Lang::ml( 'error.editicons.filetoolarge', {
+                                maxsize => int($MAX_UPLOAD / 1024),
+                            } );
+                    }
+
+                # if it's the right size, just too large a file,
+                # see if we can resize it down
+                } elsif ( $imagew <= 100 && $imageh <= 100 ) {
+                    # have to store the file, this is the interface that
+                    # the userpic factory uses to get files between
+                    # the N different web processes you might talk to
+                    my $mogkey = mogkey( $u, $counter );
+                    my $rv = DW::BlobStore->store(
+                        temp => $mogkey,
+                        $current_upload{image}
+                    );
+                    unless ( $rv ) {
+                        $current_upload{error} =
+                            LJ::Lang::ml( 'error.editicons.blobstore' );
+                        push @uploads, \%current_upload;
+                        next;
+                    }
+
+                    eval {
+                        my $picinfo = LJ::Userpic->get_upf_scaled(
+                            mogkey => $mogkey,
+                            size   => 100,
+                            u      => $u,
+                        );
+
+                        # success! don't go to the factory, and
+                        # pretend the user just uploaded the file
+                        # and continue on normally
+                        $current_upload{image} = $picinfo->[0];
+                    };
+
+                    if ( $@ || length ${$current_upload{image}} > $MAX_UPLOAD ) {
+                        $current_upload{error} =
+                            LJ::Lang::ml( 'error.editicons.filetoolarge', {
+                                maxsize => int($MAX_UPLOAD / 1024),
+                            } );
+                    }
+
+                # this is a candidate for the userpicfactory.
+                } else {
+                    # we can only do a single pic in the factory, so if there are two,
+                    # then error out for both.
+                    if ($requires_factory) {
+                        $requires_factory->{error} = $current_upload{error} =
+                            LJ::Lang::ml( 'error.editicons.multipleresize' );
+                        $requires_factory->{requires_factory} = 0;
+                    } else {
+                        $current_upload{requires_factory} = 1;
+                        $current_upload{imageh} = $imageh;
+                        $current_upload{imagew} = $imagew;
+                        if ( $POST->{"spool_data_$counter"} ) {
+                            $current_upload{spool_data} = $POST->{"spool_data_$counter"};
                         }
+                        $requires_factory = \%current_upload;
                     }
                 }
             }
+
             push @uploads, \%current_upload;
 
         } elsif ($userpic_key =~ /urlpic_.*/) {
