@@ -171,7 +171,8 @@ sub update_userpics {
                        $up->set_and_rename_keywords($kws, $POST->{"kw_orig_$picid"});
                     } or push @$errors, $@->as_html;
                 } else {
-                    push @$errors, LJ::Lang::ml('.label.rename.disabled');
+                    push @$errors,
+                         LJ::Lang::ml( 'error.iconkw.rename.disabled' );
                 }
             } else {
                 eval {
@@ -194,11 +195,12 @@ sub update_userpics {
 
     foreach my $kw (keys %used_keywords) {
         next unless $used_keywords{$kw} > 1;
-        push @$errors, LJ::Lang::ml('.error.keywords', {ekw => $kw});
+        push @$errors,
+             LJ::Lang::ml( 'error.iconkw.rename.multiple', { ekw => $kw } );
     }
 
     if (@delete && $LJ::DISABLE_MEDIA_UPLOADS) {
-        push @$errors, LJ::Lang::ml('.error.nomediauploads.delete');
+        push @$errors, LJ::Lang::ml( 'error.editicons.nomediauploads.delete' );
 
     } elsif (@delete) {
 
@@ -274,15 +276,18 @@ sub parse_post_uploads {
 
             my $size = length ${$current_upload{image}};
             if ( $size == 0 ) {
-                $current_upload{error} = LJ::Lang::ml('.error.nofile');
+                $current_upload{error} =
+                    LJ::Lang::ml( 'error.editicons.empty.file' );
             } else {
                 my ( $imagew, $imageh, $filetype ) =
                     Image::Size::imgsize( $current_upload{image} );
 
                 # couldn't parse the file
                 if ( !$imagew || !$imageh ) {
-                    $current_upload{error} = LJ::Lang::ml( '.error.unsupportedtype', {
-                        filetype => $filetype } );
+                    $current_upload{error} =
+                        LJ::Lang::ml( 'error.editicons.unsupportedtype', {
+                            filetype => $filetype,
+                        } );
 
                 # file is too big, no matter what.
                 } elsif ( $imagew > 5000 || $imageh > 5000 ) {
@@ -292,15 +297,20 @@ sub parse_post_uploads {
                 } elsif ( int($imagew) > 100 || int($imageh) > 100 || $size > $MAX_UPLOAD ) {
                     # file wrong type for factory
                     if ( $filetype ne 'JPG' && $filetype ne 'PNG' ) {
-                        # factory only works on jpegs and pngs because Image::Magick has issues
+                        # factory only works on jpegs and pngs
+                        # because Image::Magick has issues
                         if ( int($imagew) > 100 || int($imageh) > 100 ) {
-                            $current_upload{error} = LJ::Lang::ml('.error.giffiledimensions');
+                            $current_upload{error} =
+                                LJ::Lang::ml( 'error.editicons.giffiledimensions' );
                         } else {
-                            $current_upload{error} = LJ::Lang::ml( '.error.filetoolarge',
-                                { 'maxsize' => int($MAX_UPLOAD / 1024) } );
+                            $current_upload{error} =
+                                LJ::Lang::ml( 'error.editicons.filetoolarge', {
+                                    maxsize => int($MAX_UPLOAD / 1024),
+                                } );
                         }
 
-                    # if it's the right size, just too large a file, see if we can resize it down
+                    # if it's the right size, just too large a file,
+                    # see if we can resize it down
                     } elsif ( $imagew <= 100 && $imageh <= 100 ) {
                         # have to store the file, this is the interface that
                         # the userpic factory uses to get files between
@@ -323,14 +333,17 @@ sub parse_post_uploads {
                                 u      => $u,
                             );
 
-                            # success! don't go to the factory, and pretend the user just uploaded the file
+                            # success! don't go to the factory, and
+                            # pretend the user just uploaded the file
                             # and continue on normally
                             $current_upload{image} = $picinfo->[0];
                         };
 
                         if ( $@ || length ${$current_upload{image}} > $MAX_UPLOAD ) {
-                            $current_upload{error} = LJ::Lang::ml( '.error.filetoolarge',
-                                { maxsize => int($MAX_UPLOAD / 1024) } );
+                            $current_upload{error} =
+                                LJ::Lang::ml( 'error.editicons.filetoolarge', {
+                                    maxsize => int($MAX_UPLOAD / 1024),
+                                } );
                         }
 
                     # this is a candidate for the userpicfactory.
@@ -338,8 +351,8 @@ sub parse_post_uploads {
                         # we can only do a single pic in the factory, so if there are two,
                         # then error out for both.
                         if ($requires_factory) {
-                            $requires_factory -> {error} = LJ::Lang::ml('.error.multipleresize');
-                            $current_upload{error} = LJ::Lang::ml('.error.multipleresize');
+                            $requires_factory->{error} = $current_upload{error} =
+                                LJ::Lang::ml( 'error.editicons.multipleresize' );
                             $requires_factory->{requires_factory} = 0;
                         } else {
                             $current_upload{requires_factory} = 1;
@@ -360,9 +373,11 @@ sub parse_post_uploads {
             next if $userpic_key eq "urlpic_0" && $POST->{src} ne "url";
 
             if ( !$POST->{$userpic_key} ) {
-                $current_upload{error} = LJ::Lang::ml('.error.nourl');
+                $current_upload{error} =
+                    LJ::Lang::ml( 'error.editicons.empty.url' );
             } elsif ( $POST->{$userpic_key} !~ /^https?:\/\// ) {
-                $current_upload{error} = LJ::Lang::ml('.error.badurl');
+                $current_upload{error} =
+                    LJ::Lang::ml( 'error.editicons.url.format' );
             } else {
                 my $ua = LJ::get_useragent(
                     role     => 'userpic',
@@ -372,10 +387,13 @@ sub parse_post_uploads {
                 my $res = $ua->get( $POST->{$userpic_key} );
                 $current_upload{image} = \$res->content
                     if $res && $res->is_success;
-                $current_upload{error} = LJ::Lang::ml('.error.urlerror')
-                    unless $current_upload{image};
-                $current_upload{error} = LJ::Lang::ml('.error.urlfiletoolarge')
-                    if $current_upload{image} && length ${$current_upload{image}} > $MAX_UPLOAD;
+                $current_upload{error} =
+                    LJ::Lang::ml( 'error.editicons.url.fetch' )
+                        unless $current_upload{image};
+                $current_upload{error} =
+                    LJ::Lang::ml( 'error.editicons.url.filetoolarge' )
+                        if $current_upload{image} &&
+                            length ${$current_upload{image}} > $MAX_UPLOAD;
             }
             push @uploads, \%current_upload;
         }

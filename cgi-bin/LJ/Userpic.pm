@@ -1318,12 +1318,11 @@ sub lost_keywords_as_html {
 
 sub as_html {
     my $self = $_[0];
-    my $num_words = $self->number_lost;
-    return BML::ml("/editicons.bml.error.toomanykeywords", {
+    return LJ::Lang::ml( "error.editicons.toomanykeywords", {
         numwords => $self->number_lost,
         words    => $self->lost_keywords_as_html,
         max      => $LJ::MAX_USERPIC_KEYWORDS,
-    });
+    } );
 }
 
 package LJ::Error::Userpic::Bytesize;
@@ -1331,9 +1330,9 @@ sub user_caused { 1 }
 sub fields      { qw(size max); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml('/editicons.bml.error.filetoolarge',
-                   { 'maxsize' => $self->{'max'} .
-                         BML::ml('/editicons.bml.kilobytes')} );
+    return LJ::Lang::ml( 'error.editicons.filetoolarge',{
+        maxsize => $self->{'max'},
+    } );
 }
 
 package LJ::Error::Userpic::Dimensions;
@@ -1341,9 +1340,9 @@ sub user_caused { 1 }
 sub fields      { qw(w h); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml('/editicons.bml.error.imagetoolarge', {
-        imagesize => $self->{'w'} . 'x' . $self->{'h'}
-        });
+    return LJ::Lang::ml( 'error.editicons.imagetoolarge', {
+        imagesize => $self->{'w'} . 'x' . $self->{'h'},
+    } );
 }
 
 package LJ::Error::Userpic::FileType;
@@ -1351,8 +1350,9 @@ sub user_caused { 1 }
 sub fields      { qw(type); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.unsupportedtype",
-                          { 'filetype' => $self->{'type'} });
+    return LJ::Lang::ml( "error.editicons.unsupportedtype", {
+        filetype => $self->{'type'},
+    } );
 }
 
 package LJ::Error::Userpic::MismatchRenameKeywords;
@@ -1360,9 +1360,10 @@ sub user_caused { 1 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.rename.mismatchedlength",
-                          { 'origkw' => $self->{'origkw'},
-                            'newkw' => $self->{'newkw'} });
+    return LJ::Lang::ml( "error.iconkw.rename.mismatchedlength", {
+        origkw => $self->{'origkw'},
+        newkw  => $self->{'newkw'},
+    } );
 }
 
 package LJ::Error::Userpic::RenameBlankKeywords;
@@ -1370,9 +1371,10 @@ sub user_caused { 1 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.rename.blankkw",
-                          { 'origkw' => $self->{'origkw'},
-                            'newkw' => $self->{'newkw'} });
+    return LJ::Lang::ml( "error.iconkw.rename.blankkw", {
+        origkw => $self->{'origkw'},
+        newkw  => $self->{'newkw'},
+    } );
 }
 
 package LJ::Error::Userpic::RenameKeywordExisting;
@@ -1380,8 +1382,9 @@ sub user_caused { 1 }
 sub fields      { qw(keyword); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.rename.keywordexists",
-                          { 'keyword' => $self->{'keyword'} });
+    return LJ::Lang::ml( "error.iconkw.rename.keywordexists", {
+        keyword => $self->{'keyword'},
+    } );
 }
 
 package LJ::Error::Userpic::RenameKeywords;
@@ -1389,9 +1392,10 @@ sub user_caused { 0 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.rename.keywords",
-                          { 'origkw' => $self->{'origkw'},
-                            'newkw' => $self->{'newkw'} });
+    return LJ::Lang::ml( "error.iconkw.rename.keywords", {
+        origkw => $self->{'origkw'},
+        newkw  => $self->{'newkw'},
+    } );
 }
 
 package LJ::Error::Userpic::DeleteFailed;

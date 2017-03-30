@@ -191,9 +191,9 @@ use strict;
             # throw an error if we didn't get a first pic.
             unless (@uploaded_userpics) {
                 if ($POST{src} eq "file")  {
-                    return $err->($ML{'.error.nofile'});
+                    return $err->($ML{'error.editicons.empty.file'});
                 } else {
-                    return $err->($ML{'.error.nourl'});
+                    return $err->($ML{'error.editicons.empty.url'});
                 }
             }
 
@@ -508,7 +508,7 @@ use strict;
                                               'disabled' => $LJ::DISABLE_MEDIA_UPLOADS });
                     $body .= "<label for='rename_keyword_$pid'>$ML{'.label.rename'}</label>";
                 } else {
-                    $body .= "$ML{'.label.rename.disabled'}";
+                    $body .= "$ML{'error.iconkw.rename.disabled'}";
                 }
 
                 $body .= "</div>\n";

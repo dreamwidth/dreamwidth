@@ -699,6 +699,30 @@ error.console.notpermitted=You are not permitted to run this command.
 
 error.dberror=A database error occurred:
 
+error.editicons.empty.file=You must choose a file to upload.
+
+error.editicons.empty.url=You must enter the URL of the icon you want to add.
+
+error.editicons.filetoolarge=The icon you tried to upload is too large.  File size can't exceed [[maxsize]] KB.
+
+error.editicons.giffiledimensions=You can't upload an icon larger than 100x100 pixels if it's in GIF format.
+
+error.editicons.imagetoolarge=Your image is too large at [[imagesize]]; the maximum size for icons is 100x100 pixels. Please resize your image to 100x100 pixels or less and then try uploading it again.
+
+error.editicons.multipleresize=Error: only one image requiring resizing may be uploaded at a time.
+
+error.editicons.nomediauploads.delete=Unable to delete icons at this time.
+
+error.editicons.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]] not been saved as [[?numwords|its|their]] icon already has [[max]] keywords.
+
+error.editicons.unsupportedtype=Files of type [[filetype]] aren't supported.  You can only upload GIF, PNG or JPG files.  Most image/photo programs can do this conversion for you.
+
+error.editicons.url.fetch=An error occurred while trying to fetch your image.
+
+error.editicons.url.filetoolarge=You can't upload large images from URLs.
+
+error.editicons.url.format=Please double-check the address for the icon to be uploaded; it should start with <strong>http://</strong> or <strong>https://</strong>
+
 error.expiredchal=Your login window has expired.  Please try again.
 
 error.extacct_auth.authfailed=Failed to connect to [[account]]
@@ -712,6 +736,18 @@ error.extacct_auth.nouser=Sorry, you must be logged in to use this feature.
 error.guidelines.none=[[user]] has not defined an entry for their community guidelines. See <a [[aopts]]>their profile</a> for further information about the community.
 
 error.guidelines.notcomm=Community guidelines are only available for communities.
+
+error.iconkw.rename.blankkw=Error renaming '[[origkw]]' to '[[newkw]]':  renaming of blank (pic#) keywords not allowed.
+
+error.iconkw.rename.disabled=Retroactively renaming keywords is temporarily disabled. You can change this keyword, but it won't update old posts.
+
+error.iconkw.rename.keywordexists=Cannot rename to '[[keyword]]':  keyword already exists.
+
+error.iconkw.rename.keywords=An error occurred trying to rename '[[origkw]]' to '[[newkw]]'; entries and comments with the old keywords may not have changed to use the new keywords.
+
+error.iconkw.rename.mismatchedlength=Error renaming '[[origkw]]' to '[[newkw]]':  must rename to the same number of keywords.
+
+error.iconkw.rename.multiple=You used the keyword "[[ekw]]" for multiple pictures.  One was randomly chosen, but it may not have been the one you wanted.  You might want to go back and fix that.
 
 error.interest.bytes=You couldn't make any changes to your interests because you listed an interest with [[bytes]] bytes.  Each interest has a limit of [[bytes_max]] bytes.  Go back and remove or modify "[[int]]".
 
