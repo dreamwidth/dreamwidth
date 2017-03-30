@@ -29,6 +29,7 @@ body<=
 
     my $authas = $GET{'authas'} || $remote->user;
     my $getextra = $authas ne $remote->user ? "?authas=$authas" : '';
+    my $view_banned = $GET{view} eq 'banned';
 
     my $u = LJ::get_authas_user($authas);
     return LJ::bad_input($ML{'error.invalidauth'})
@@ -42,6 +43,9 @@ body<=
 
     # no post, show edit form
     unless ( LJ::did_post() ) {
+        my @banned_userids = @{$u->banned_userids || []};
+        my %is_banned = map { $_ => 1 } @banned_userids;
+
         my $trust_list = $u->trust_list;
         my $watch_list = $u->watch_list;
         my @trusted_by_userids = $u->trusted_by_userids;
@@ -58,6 +62,12 @@ body<=
         $ret .= LJ::form_auth();
         $ret .= "<p>" . BML::ml( '.circle.intro2', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'", aopts4 => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'", aopts5 => "href='$LJ::SITEROOT/manage/banusers'" }) . "</p>\n\n";
         $ret .= "<p>" . BML::ml( '.circle.intro.feeds', { sitename => "$LJ::SITENAMESHORT", aopts => "href='$LJ::SITEROOT/feeds'" }) . "</p>\n\n";
+        if ($view_banned) {
+            $ret .= "<p>" . BML::ml( '.circle.hide_banned', { aopts => "href='/manage/circle/edit'"} ) . "</p>\n";
+        } else {
+            $ret .= "<p>" . BML::ml( '.circle.show_banned', { aopts => "href='/manage/circle/edit?view=banned'" } ) . "</p>\n" if @banned_userids;
+        }
+
         $ret .= "<?h2 $ML{'.circle.header'} h2?>\n";
 
         # little standout box to repeat before each section:
@@ -69,6 +79,8 @@ body<=
 
             # get sorted arrays
             foreach my $uid ( sort { $us->{$a}->display_name cmp $us->{$b}->display_name } keys %$us ) {
+                next if $is_banned{$uid} && !$view_banned;
+
                 my $other_u = $us->{$uid};
                 next unless $other_u;
 

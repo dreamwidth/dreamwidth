@@ -154,7 +154,7 @@ body<=
 
     # unban users
     $ret .= "<h2 style='margin-top: 20px;'>$ML{'.header.unban'}</h2>";
-    my $banned = LJ::load_rel_user($u, 'B');
+    my $banned = $u->banned_userids;
     if ($banned && @$banned) {
         my $us = LJ::load_userids(@$banned);
         my $notes = $u->ban_note( $banned );
