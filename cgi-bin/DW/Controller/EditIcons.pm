@@ -234,6 +234,7 @@ sub update_userpics {
     return scalar @delete;
 }
 
+# parse the post parameters into an array of new pics
 sub parse_post_uploads {
     my ( $POST, $u, $MAX_UPLOAD ) = @_;
     my @uploads;
@@ -259,6 +260,13 @@ sub parse_post_uploads {
             keywords     => $POST->{"keywords_$counter"},
             make_default => $make_default eq $counter,
         );
+
+        # check input text for comments, descriptions, and keywords
+        unless ( LJ::text_in( \%current_upload ) ) {
+           $current_upload{error} = LJ::Lang::ml( "error.utf8" );
+           push @uploads, \%current_upload;
+           next;
+        }
 
         # uploaded pics
         if ($userpic_key =~ /userpic_.*/) {

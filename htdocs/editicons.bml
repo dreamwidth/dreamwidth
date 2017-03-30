@@ -36,10 +36,6 @@ use strict;
         return;
     };
 
-    unless (LJ::text_in(\%POST)) {
-        return $err->("Invalid UTF-8 Input");
-    }
-
     my $remote = LJ::get_remote();
     unless ($remote) {
         $body = "<?needlogin?>";
@@ -95,6 +91,8 @@ use strict;
 
     ### save/update mode
     if (LJ::did_post()) {
+        return $err->( LJ::Lang::ml( "error.utf8" ) )
+            unless LJ::text_in( \%POST );
 
         ### save changes to existing pics
         if ($POST{'action:save'}) {

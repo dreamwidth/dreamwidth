@@ -887,6 +887,8 @@ error.usernamelong=This account name is too long.  Account names can't be longer
 
 error.username_notfound=This account name wasn't found.
 
+error.utf8=Invalid UTF-8 Input
+
 error.vhost.noalias1=The domain aliasing feature has been retired.
 
 error.vhost.nocomm=This account isn't a community journal.
