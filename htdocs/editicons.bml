@@ -98,8 +98,12 @@ use strict;
 
         ### save changes to existing pics
         if ($POST{'action:save'}) {
+            # form being posted isn't multipart, so check form_auth
+            return $err->( LJ::Lang::ml( 'error.invalidform' ) )
+                unless LJ::check_form_auth( $POST{lj_form_auth} );
+
             my $refresh = DW::Controller::EditIcons::update_userpics(
-                \%POST, \@errors, \@userpics, $u, $err );
+                \%POST, \@errors, \@userpics, $u );
 
             # push all the errors to info
             push(@info, @errors);

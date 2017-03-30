@@ -119,15 +119,11 @@ sub mogkey {
     return $key;
 }
 
+# save changes to existing userpics
 sub update_userpics {
-    my ( $POST, $errors, $userpicsref, $u, $err ) = @_;
+    my ( $POST, $errors, $userpicsref, $u ) = @_;
     my @userpics = @$userpicsref;
     my $display_rename = LJ::is_enabled( "icon_renames" ) ? 1 : 0 ;
-
-    # form being posted isn't multipart, since we were able to read from %POST
-    unless (LJ::check_form_auth()) {
-        return $err->(LJ::Lang::ml('error.invalidform'));
-    }
 
     my @delete; # userpic objects to delete
     my @inactive_picids;
@@ -138,12 +134,11 @@ sub update_userpics {
     # to find duplicates. $up->keywords doesn't work, because re-using a
     # keyword will remove it from the other userpic without our knowing
     my $count_keywords = sub {
-        my $kwlist = shift;
+        my $kwlist = $_[0];
         $used_keywords{$_}++ foreach split(/,\s*/, $kwlist);
     };
 
     foreach my $up (@userpics) {
-
         my $picid = $up->id;
 
         # delete this pic
@@ -183,12 +178,14 @@ sub update_userpics {
 
         eval {
             $up->set_comment ($POST->{"com_$picid"})
-                unless $POST->{"com_$picid"} eq $POST->{"com_orig_$picid"};
+                unless ( $POST->{"com_$picid"} // '' )
+                    eq ( $POST->{"com_orig_$picid"} // '' );
         } or push @$errors, $@;
 
         eval {
             $up->set_description ($POST->{"desc_$picid"})
-                unless $POST->{"desc_$picid"} eq $POST->{"desc_orig_$picid"};
+                unless ( $POST->{"desc_$picid"} // '' )
+                    eq ( $POST->{"desc_orig_$picid"} // '' );
         } or push @$errors, $@;
 
     }
