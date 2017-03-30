@@ -25,8 +25,6 @@
 
 .error.toomanypics_standout=You're at your limit of [[num]] [[?num|icon|icons]]. You can't upload any more icons until you delete one of your existing ones.
 
-.error.unknowntype=You can only upload GIF, PNG, or JPG files.
-
 .fromfile=From <u>F</u>ile:
 
 .fromfile.key|notes=Enter here a <b>lower-case</b> version of the letter you underlined in ".fromfile". This is the shortcut key for the fromfile option.

@@ -717,6 +717,20 @@ error.editicons.multipleresize=Error: only one image requiring resizing may be u
 
 error.editicons.nomediauploads.delete=Unable to delete icons at this time.
 
+error.editicons.parse.boundary=Couldn't parse upload: No MIME boundary.  Bogus Content-type? [[type]]
+
+error.editicons.parse.maxread=Couldn't parse upload: Upload max [[max_read]] exceeded at [[bytes]] bytes
+
+error.editicons.parse.nodata=Couldn't parse upload: No data from client.  Possibly a refresh?
+
+error.editicons.parse.nosize=Couldn't parse upload: Failed to read a file
+
+error.editicons.parse.notfound=Couldn't parse upload: Couldn't find [[what]], no more data to read
+
+error.editicons.parse.unknowntype=You can only upload GIF, PNG, or JPG files.
+
+error.editicons.parse.window=Couldn't parse upload: Window too large: [[len]] bytes > 8192
+
 error.editicons.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]] not been saved as [[?numwords|its|their]] icon already has [[max]] keywords.
 
 error.editicons.unsupportedtype=Files of type [[filetype]] aren't supported.  You can only upload GIF, PNG or JPG files.  Most image/photo programs can do this conversion for you.

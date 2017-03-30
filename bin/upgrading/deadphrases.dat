@@ -70,6 +70,7 @@ general /editicons.bml.error.rename.keywordexists
 general /editicons.bml.error.rename.keywords
 general /editicons.bml.error.rename.mismatchedlength
 general /editicons.bml.error.toomanykeywords
+general /editicons.bml.error.unknowntype
 general /editicons.bml.error.unsupportedtype
 general /editicons.bml.error.urlerror
 general /editicons.bml.error.urlfiletoolarge

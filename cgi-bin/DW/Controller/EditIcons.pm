@@ -413,12 +413,16 @@ sub parse_post_uploads {
     return @uploads;
 }
 
+# save large images to temporary storage and populate post parameters
 sub parse_large_upload {
-    my ( $POST, $errorref, $u, $err ) = @_;
+    my ( $POST, $errref, $u ) = @_;
 
     my %upload = (); # { spool_data, spool_file_name, filename, bytes, md5sum, md5ctx, mime }
     my @uploaded_files = ();
     my $curr_name;
+
+    # subref to set $$errref and return false
+    my $err = sub { $$errref = LJ::Lang::ml( @_ ); return 0 };
 
     # called when the beginning of an upload is encountered
     my $hook_newheaders = sub {
@@ -454,8 +458,8 @@ sub parse_large_upload {
         my $max_read = (1<<20) * 5; # 5 MiB
         $upload{bytes} += $len;
         if ( $upload{bytes} > $max_read ) {
-            $$errorref = "Upload max $max_read exceeded at $upload{bytes} bytes";
-            return $err->( $$errorref );
+            return $err->( "error.editicons.parse.maxread",
+                           { max_read => $max_read, bytes => $upload{bytes} } );
         }
 
         $upload{md5ctx}->add($data);
@@ -480,15 +484,13 @@ sub parse_large_upload {
             return 1;
         }
         unless ( length $upload{spool_data} > 0 ) {
-            $$errorref = "Failed to read a file";
-            return $err->( $$errorref );
+            return $err->( "error.editicons.parse.nosize" );
         }
 
         # Get MIME type from magic bytes
         $upload{mime} = File::Type->new->mime_type( $upload{spool_data} );
         unless ( $upload{mime} ) {
-            $$errorref = "Unknown format for upload";
-            return $err->( $$errorref );
+            return $err->( "error.editicons.parse.unknowntype" );
         }
 
         # finished adding data for md5, create digest (but don't destroy original)
@@ -498,31 +500,22 @@ sub parse_large_upload {
     };
 
 
-    # parse multipart-mime submission, one chunk at a time,
-    # calling our hooks as we go to put uploads in temporary
-    # MogileFS filehandles
-    my $retval = eval { parse_multipart_interactive($errorref, {
-        newheaders => $hook_newheaders,
-        data       => $hook_data,
-        enddata    => $hook_enddata,
-                                                         }); };
+    # parse multipart-mime submission, one chunk at a time, calling
+    # our hooks as we go to put uploads in temporary file storage
+    my $retval = eval { parse_multipart_interactive(
+                            $errref, { newheaders => $hook_newheaders,
+                                       data       => $hook_data,
+                                       enddata    => $hook_enddata,
+                                     } );
+                      };
 
-    # if parse_multipart_interactive failed, we need to add
-    # all of our gpics to the gpic_delete queue.  if any of them
-    # still have refcounts, they won't really be deleted because
-    # the async job will realize and leave them alone
     unless ( $retval ) {
         # if we hit a parse error, delete the uploaded files
         foreach my $mogkey ( @uploaded_files ) {
             DW::BlobStore->delete( temp => $mogkey );
         }
 
-        if (index(lc($$errorref), 'unknown format') == 0) {
-            $$errorref = LJ::Lang::ml(".error.unknowntype");
-        } else {
-            $$errorref = "couldn't parse upload: $$errorref";
-        }
-        # the error page is printed in the caller
+        # $errref is already set by parse_multipart_interactive
         return 0;
     }
 
@@ -552,7 +545,8 @@ sub parse_multipart_interactive {
     my $size     = $apache_r->header_in( "Content-length" );
 
     unless ( $mimetype =~ m!^multipart/form-data;\s*boundary=(\S+)! ) {
-        return $err->("No MIME boundary.  Bogus Content-type? $mimetype");
+        return $err->( LJ::Lang::ml( "error.editicons.parse.boundary",
+                                     { type => $mimetype } ) );
     }
     my $sep = "--$1";
     my $seplen = length($sep) + 2;  # plus \r\n
@@ -582,7 +576,7 @@ sub parse_multipart_interactive {
             # reload and its Content-Length header is correct,
             # but its body tiny
             if ($read == 0) {
-                return $err->("No data from client.  Possibly a refresh?");
+                return $err->( LJ::Lang::ml( "error.editicons.parse.nodata" ) );
             }
         }
 
@@ -597,7 +591,8 @@ sub parse_multipart_interactive {
                 # bogus if we're done reading and didn't find what we're
                 # looking for:
                 if ($read == -1) {
-                    return $err->("Couldn't find separator, no more data to read");
+                    return $err->( LJ::Lang::ml( "error.editicons.parse.notfound",
+                                                 { what => 'separator' } ) );
                 }
 
                 if ($seen_chunk) {
@@ -640,13 +635,15 @@ sub parse_multipart_interactive {
             my $idx = index($window, "\r\n\r\n");
             if ($idx == -1) {
                 if (length($window) > 8192) {
-                    return $err->("Window too large: " . length($window) . " bytes > 8192");
+                    return $err->( LJ::Lang::ml( "error.editicons.parse.window",
+                                                 { len => length($window) } ) );
                 }
 
                 # bogus if we're done reading and didn't find what we're
                 # looking for:
                 if ($read == -1) {
-                    return $err->("Couldn't find headers, no more data to read");
+                    return $err->( LJ::Lang::ml( "error.editicons.parse.notfound",
+                                                 { what => 'headers' } ) );
                 }
 
                 next;
