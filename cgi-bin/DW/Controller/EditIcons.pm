@@ -26,11 +26,54 @@ my $log = Log::Log4perl->get_logger( __PACKAGE__ );
 use File::Type;
 
 use DW::BlobStore;
+use LJ::Userpic;
 
 use DW::Controller;
 use DW::Routing;
+use DW::Template;
 
+DW::Routing->register_string( "/tools/userpicfactory", \&factory_handler, app => 1 );
 DW::Routing->register_string( "/misc/mogupic", \&mogupic_handler, app => 1, formats => 1 );
+
+sub factory_handler {
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+
+    my $u = $rv->{u};  # authas || remote
+    my $args = $rv->{r}->get_args;
+
+    my $w = int( $args->{'imageWidth'}  // 0 );
+    my $h = int( $args->{'imageHeight'} // 0 );
+
+    my $mogkey = mogkey( $u, $args->{index} );
+
+    # make sure index is given and points to a valid file
+    my $has_index = defined $args->{index} && length $args->{index} ? 1 : 0;
+    $has_index &&= DW::BlobStore->exists( temp => $mogkey );
+
+    $rv->{no_index} = $has_index ? 0 : 1;
+
+    if ( $has_index && ! ($w && $h) ) {
+        # we do not have the width and height passed in, must compute it
+        my $upf = LJ::Userpic->get_upf_scaled( userid => $u->id,
+                                               mogkey => $mogkey );
+        ( $w, $h ) = ( $upf->[2], $upf->[3] )
+            if $upf && $upf->[2];
+    }
+
+    $rv->{upf_w} = $w;
+    $rv->{upf_h} = $h;
+
+    $rv->{scaledSizeMax} = 640;
+
+    $rv->{successcount} = $args->{successcount};
+
+    my %keepargs = map { $_ => $args->{$_} }
+                   qw( keywords comments descriptions make_default index );
+    $rv->{form_keepargs} = LJ::html_hidden( %keepargs );
+
+    return DW::Template->render_template( 'tools/userpicfactory.tt', $rv );
+}
 
 sub mogupic_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
