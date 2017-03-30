@@ -345,9 +345,8 @@ use strict;
 
             $body .= "<p class='pkg'>\n";
             $body .= "<label class='left' for='comments_0'>$ML{'.label.comment'}</label>\n";
-            my $comments = $POST{'comments'};
             $body .= "<span class='input-wrapper'>";
-            $body .= LJ::html_text({ 'name' => 'comments_0', 'class' => 'text', id => 'comments_0', 'maxlength' => LJ::CMAX_UPIC_COMMENT, 'value', $comments }) . "\n";
+            $body .= LJ::html_text({ 'name' => 'comments_0', 'class' => 'text', id => 'comments_0', 'maxlength' => LJ::CMAX_UPIC_COMMENT }) . "\n";
             $body .= LJ::help_icon_html('upic_comments') . "\n";
             $body .= "</span>";
             $body .= "</p>\n";
@@ -355,9 +354,8 @@ use strict;
 
             $body .= "<p class='pkg'>\n";
             $body .= "<label class='left' for='descriptions_0'>$ML{'.label.description'}</label>\n";
-            my $descriptions = $POST{'descriptions'};
             $body .= "<span class='input-wrapper'>";
-            $body .= LJ::html_text( { name => 'descriptions_0', class => 'text', id => 'descriptions_0', 'maxlength' => LJ::CMAX_UPIC_DESCRIPTION, value => $descriptions } ) . "\n";
+            $body .= LJ::html_text( { name => 'descriptions_0', class => 'text', id => 'descriptions_0', 'maxlength' => LJ::CMAX_UPIC_DESCRIPTION } ) . "\n";
             $body .= LJ::help_icon_html('upic_descriptions') . "\n";
             $body .= "</span>";
             $body .= "</p>\n";
