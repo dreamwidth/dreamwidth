@@ -117,15 +117,36 @@ general /logout.bml.loggedout.success
 
 general /manage/comments/index.bml.disablecomment2
 
+general /manage/index.bml.about
+general /manage/index.bml.customization.modify.about
+general /manage/index.bml.customization.moodtheme.header
+general /manage/index.bml.customization.s1.header
+general /manage/index.bml.customization.s2.header
+general /manage/index.bml.deleteaccount
+general /manage/index.bml.friends
+general /manage/index.bml.friends.edit.about
+general /manage/index.bml.friends.filter
+general /manage/index.bml.friends.filter.about
+general /manage/index.bml.friends.groups.about
+general /manage/index.bml.friends.header
 general /manage/index.bml.information.editinfo.about
+general /manage/index.bml.information.header
 general /manage/index.bml.information.setlang.about
 general /manage/index.bml.information.setscheme.about
 general /manage/index.bml.information.siteopts.about
+general /manage/index.bml.information.status
+general /manage/index.bml.login2
+general /manage/index.bml.mobile.settings
+general /manage/index.bml.undeleteaccount
+general /manage/index.bml.userpics
+general /manage/index.bml.userpics.comm
+general /manage/index.bml.userpics.header
 general /manage/index.bml.userpictures
 general /manage/index.bml.userpictures.edit.about
 general /manage/index.bml.userpictures.header
 general /manage/index.bml.information.emailpost
 general /manage/index.bml.information.emailpost.about
+general /manage/index.bml.youraccount.validated
 
 general /manage/invitecodes.bml.code.use
 general /manage/invitecodes.bml.form.request.header

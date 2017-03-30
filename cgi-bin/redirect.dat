@@ -14,6 +14,7 @@
 /manage/comments/index.bml          /manage/settings/?cat=privacy
 /manage/domain                      /manage/settings/
 /manage/domain.bml                  /manage/settings/
+/manage/index.bml                   /manage/
 /manage/invitecodes                 /invite
 /manage/invitecodes.bml             /invite
 /manage/subscriptions               /manage/subscriptions/filters
