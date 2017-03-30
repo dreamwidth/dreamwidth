@@ -599,7 +599,7 @@ CREATE TABLE userpic2 (
     picdate datetime default NULL,
     md5base64 char(22) NOT NULL default '',
     comment varchar(255) BINARY NOT NULL default '',
-    description varchar(255) BINARY NOT NULL default '',
+    description varchar(600) BINARY NOT NULL default '',
     flags tinyint(1) unsigned NOT NULL default 0,
     location enum('blob','disk','mogile','blobstore') default NULL,
 
@@ -4091,6 +4091,12 @@ EOF
             MODIFY COLUMN location ENUM('blob', 'disk', 'mogile', 'blobstore')
             DEFAULT NULL}
         );
+    }
+
+    # widen the description field for userpics
+    if ( column_type( 'userpic2', 'description' ) eq "varchar(255)" ) {
+        do_alter( 'userpic2',
+            "ALTER TABLE userpic2 MODIFY COLUMN description VARCHAR(600) DEFAULT NULL");
     }
 
 });

@@ -53,8 +53,8 @@ use constant BMAX_SITEKEYWORD => 100;
 use constant CMAX_SITEKEYWORD => 50;
 use constant BMAX_UPIC_COMMENT => 255;
 use constant CMAX_UPIC_COMMENT => 120;
-use constant BMAX_UPIC_DESCRIPTION => 255;
-use constant CMAX_UPIC_DESCRIPTION => 120;
+use constant BMAX_UPIC_DESCRIPTION => 600;
+use constant CMAX_UPIC_DESCRIPTION => 300;
 
 # user.dversion values:
 #    0: unclustered  (unsupported)
