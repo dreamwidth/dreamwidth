@@ -115,6 +115,8 @@
 
 .details.profile.full=<a [[aopts]]>View extended profile</a>
 
+.details.rp=This account is a roleplaying account.
+
 .details.search=Search
 
 .details.supportpoints=<a [[aopts]]>Support Points</a>: [[num]]

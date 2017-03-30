@@ -396,7 +396,13 @@ body<=
                           style => 'vertical-align: middle; border: 0;' } );
         $ret .= "</a>\n";
     }
+
+    if ( $u->is_rp_account ) {
+        $ret .= ": " . BML::ml( '.details.rp' );
+    }
+
     $ret .= q{ </div> };
+
 
 ################################################################################
 ##### ACTION LINKS

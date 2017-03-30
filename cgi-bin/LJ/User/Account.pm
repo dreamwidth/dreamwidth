@@ -402,6 +402,10 @@ sub is_renamed {
     return $u->statusvis eq 'R';
 }
 
+sub is_rp_account {
+    my $u = shift;
+    return $u->prop( 'opt_rpacct' );
+}
 
 sub is_suspended {
     my $u = shift;
