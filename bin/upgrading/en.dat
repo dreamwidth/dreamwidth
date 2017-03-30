@@ -2803,6 +2803,10 @@ setting.randompaidgifts.option.paid=If your paid account expires, include yourse
 
 setting.randompaidgifts.option.paid.comm=If this community's paid account expires, include it in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
+setting.rpaccount.label=Roleplaying Account?
+
+setting.rpaccount.des=Check to identify your account as a roleplaying account on your profile.
+
 setting.safesearch.error.invalid=Invalid safe search setting.
 
 setting.safesearch.label=Safe Search Filter

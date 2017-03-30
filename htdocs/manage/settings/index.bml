@@ -106,6 +106,7 @@ body<=
                 DW::Setting::ExcludeOwnStats
                 DW::Setting::StickyEntry
                 DW::Setting::MobileView
+                DW::Setting::RPAccount
                 LJ::Setting::SiteScheme
             )],
         },

@@ -894,6 +894,14 @@ userproplist.opt_randompaidgifts:
   multihomed: 0
   prettyname: Random Paid Gifts
 
+userproplist.opt_rpacct:
+  cldversion: 4
+  datatype: bool
+  des: Roleplaying account self-identification flag
+  indexed: 0
+  multihomed: 0
+  prettyname: RP flag
+
 userproplist.opt_sharebday:
   cldversion: 4
   datatype: char
