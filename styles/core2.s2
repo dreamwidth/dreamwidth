@@ -4025,10 +4025,10 @@ function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list
                 var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
                 println """<li $tag_class><a href="$t.url" title="$uses">$t.name</a></li>\n""";
             } elseif ($print_uses == "number") {
-                println """<li $tag_class><a href="$t.url">$t.name</a> [$t.use_count]</li>\n""";
+                println """<li $tag_class><a href="$t.url">$t.name</a> <span class='detail-tagcount'>[$t.use_count]</span></li>\n""";
             } else {
                 var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-                println """<li $tag_class><a href="$t.url">$t.name</a> - $uses</li>\n""";
+                println """<li $tag_class><a href="$t.url">$t.name</a> - <span class='detail-tagcount'>$uses</span></li>\n""";
             }
         }
         println """</ul>""";
@@ -4063,10 +4063,10 @@ function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a lis
         }
         var string tag_size_em = $tag_size->substr(0,($tag_size->length())-1) + "." + $tag_size->substr(($tag_size->length())-1,1) + "em";
         if ($print_uses == "number") {
-            println """<li $tag_class style="font-size: $tag_size_em;"><a rel="tag" href="$t.url">$t.name</a> [$t.use_count]</li>\n""";
+            println """<li $tag_class style="font-size: $tag_size_em;"><a rel="tag" href="$t.url">$t.name</a> <span class='detail-tagcount'>[$t.use_count]</span></li>\n""";
         } elseif ($print_uses == "text") {
             var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-            println """<li $tag_class style="font-size: $tag_size_em;"><a rel="tag" href="$t.url">$t.name</a> - $uses</li>\n""";
+            println """<li $tag_class style="font-size: $tag_size_em;"><a rel="tag" href="$t.url">$t.name</a> - <span class='detail-tagcount'>$uses</span></li>\n""";
         } else {
             var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
             # if the style hides the number of uses, put it both
@@ -4112,9 +4112,9 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
                     $tier_code = """<a rel="tag" href="$t.url" title="$uses">$tier</a>""";
                 } elseif ($print_uses == "text") {
                     var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-                    $tier_code = """<a rel="tag" href="$t.url">$tier</a> - $uses""";
+                    $tier_code = """<a rel="tag" href="$t.url">$tier</a> <span style='detail-tagcount'>- $uses</span>""";
                 } else {
-                    $tier_code = """<a rel="tag" href="$t.url">$tier</a> [${t.use_count}]""";
+                    $tier_code = """<a rel="tag" href="$t.url">$tier</a> <span style='detail-tagcount'>[${t.use_count}]</span>""";
                 }
             }
             else {
@@ -5191,7 +5191,7 @@ function Entry::print_wrapper_start() {
         """<div class="sticky-entry entry" id="sticky-entry-$this.itemid">\n""";
     }
     else {
-        """<div class="entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic $entrysubject" id="entry-wrapper-$this.itemid">\n""";
+        """<div class="entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic $mod_post $entrysubject" id="entry-wrapper-$this.itemid">\n""";
         """<div class="separator separator-before"><div class="inner"></div></div>\n""";
         """<div class="entry" id="entry-$this.itemid">\n""";
     }
@@ -6037,10 +6037,10 @@ var Entry[] entries = $*reverse_sortorder_month ? reverse $.entries : $.entries;
         $e->print_metatypes();
         $e->print_subject();
         if ($e.comments.count > 0) {
-            print safe " - " + get_plural_phrase($e.comments.count, "text_read_comments");
+            print safe "<span class='overview-commentcount'> - " + get_plural_phrase($e.comments.count, "text_read_comments") + "</span>";
         }
         if ($e.comments.screened) {
-            print safe " <b>$*text_month_screened_comments</b>";
+            print safe "<span class='overview-commentcount'> <b>$*text_month_screened_comments</b></span>";
         }
         "<br />\n";
         $e->print_tags();
