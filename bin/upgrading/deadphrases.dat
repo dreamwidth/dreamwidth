@@ -261,6 +261,11 @@ general /talkpost_do.bml.opt.spellcheck
 
 general /talkread.bml.pageofpages
 
+general /tools/endpoints/extacct_auth.bml.error.authfailed
+general /tools/endpoints/extacct_auth.bml.error.nochallenge
+general /tools/endpoints/extacct_auth.bml.error.nosuchaccount
+general /tools/endpoints/extacct_auth.bml.error.nouser
+
 general /tools/memadd.bml.body.added.body
 
 general /update.bml.update.about
@@ -1398,6 +1403,7 @@ general widget.createaccount.error.username.reserved
 general widget.createaccount.field.captcha
 general widget.createaccountnextsteps.steps.explore
 general widget.friendbirthdays.paidtime_link
+general widget.friendinterests.intro
 general widget.gettingstarted.entry.link
 general widget.gettingstarted.entry.note
 general widget.gettingstarted.expires

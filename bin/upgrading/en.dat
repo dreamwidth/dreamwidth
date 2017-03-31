@@ -707,6 +707,14 @@ error.dberror=A database error occurred:
 
 error.expiredchal=Your login window has expired.  Please try again.
 
+error.extacct_auth.authfailed=Failed to connect to [[account]]
+
+error.extacct_auth.nochallenge=[[account]] does not support challenge/response authentication.
+
+error.extacct_auth.nosuchaccount=No account with ID [[acctid]] for user [[username]].
+
+error.extacct_auth.nouser=Sorry, you must be logged in to use this feature.
+
 error.guidelines.none=[[user]] has not defined an entry for their community guidelines. See <a [[aopts]]>their profile</a> for further information about the community.
 
 error.guidelines.notcomm=Community guidelines are only available for communities.
@@ -4611,8 +4619,6 @@ widget.friendbirthdays.title=Birthdays
 widget.friendbirthdays.userbirthday=[[month]] [[day]]
 
 widget.friendbirthdays.viewall=More
-
-widget.friendinterests.intro=You might also like some things your friend [[user]] is interested in:
 
 widget.friendupdates.noupdates=You have no updates.
 
