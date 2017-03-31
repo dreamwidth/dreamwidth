@@ -217,6 +217,11 @@ sub rate_log {
 =head2 Banning-Related Functions
 =cut
 
+sub banned_userids {
+    my ( $u ) = @_;
+    return LJ::load_rel_user( $u, 'B' );
+}
+
 sub ban_note {
     my ( $u, $ban_u, $text ) = @_;
     my @banned;
@@ -297,7 +302,6 @@ sub ban_user_multi {
 
     return 1;
 }
-
 
 # return if $target is banned from $u's journal
 sub has_banned {

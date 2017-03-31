@@ -541,11 +541,6 @@
     # kept in memcache and the database by doing:
     # %FILEEDIT_VIA_DB = ( 'support_links' => 1, );
 
-    ### S2 Style Options
-
-    # which users' s2 layers should always run trusted un-cleaned?
-    #%S2_TRUSTED = ( '2' => 'whitaker' ); # userid => username
-
 
     # Setup support email address to not accept new emails.  Basically if an
     # address is specified below, any user who emails it out of the blue will

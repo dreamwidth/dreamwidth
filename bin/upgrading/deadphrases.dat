@@ -117,15 +117,36 @@ general /logout.bml.loggedout.success
 
 general /manage/comments/index.bml.disablecomment2
 
+general /manage/index.bml.about
+general /manage/index.bml.customization.modify.about
+general /manage/index.bml.customization.moodtheme.header
+general /manage/index.bml.customization.s1.header
+general /manage/index.bml.customization.s2.header
+general /manage/index.bml.deleteaccount
+general /manage/index.bml.friends
+general /manage/index.bml.friends.edit.about
+general /manage/index.bml.friends.filter
+general /manage/index.bml.friends.filter.about
+general /manage/index.bml.friends.groups.about
+general /manage/index.bml.friends.header
 general /manage/index.bml.information.editinfo.about
+general /manage/index.bml.information.header
 general /manage/index.bml.information.setlang.about
 general /manage/index.bml.information.setscheme.about
 general /manage/index.bml.information.siteopts.about
+general /manage/index.bml.information.status
+general /manage/index.bml.login2
+general /manage/index.bml.mobile.settings
+general /manage/index.bml.undeleteaccount
+general /manage/index.bml.userpics
+general /manage/index.bml.userpics.comm
+general /manage/index.bml.userpics.header
 general /manage/index.bml.userpictures
 general /manage/index.bml.userpictures.edit.about
 general /manage/index.bml.userpictures.header
 general /manage/index.bml.information.emailpost
 general /manage/index.bml.information.emailpost.about
+general /manage/index.bml.youraccount.validated
 
 general /manage/invitecodes.bml.code.use
 general /manage/invitecodes.bml.form.request.header
@@ -239,6 +260,11 @@ general /talkpost.bml.label.picturetouse
 general /talkpost_do.bml.opt.spellcheck
 
 general /talkread.bml.pageofpages
+
+general /tools/endpoints/extacct_auth.bml.error.authfailed
+general /tools/endpoints/extacct_auth.bml.error.nochallenge
+general /tools/endpoints/extacct_auth.bml.error.nosuchaccount
+general /tools/endpoints/extacct_auth.bml.error.nouser
 
 general /tools/memadd.bml.body.added.body
 
@@ -926,6 +952,7 @@ general /manage/profile/index.bml.success.editpics
 general /manage/profile/index.bml.theme
 general /manage/profile/index.bml.zip.usonly
 general /manage/settings/index.bml.fn.gettingstarted
+general /manage/settings/index.bml.fn.language
 general /manage/settings/index.bml.fn.navstrip
 general /manage/settings/index.bml.fn.stylealwaysmine
 general /manage/settings/index.bml.fn.verticalincl
@@ -988,7 +1015,8 @@ general /support/faq.bml.cannotfind.note
 general /support/faqbrowse.bml.title_num
 general /support/help.bml.interim
 general /support/see_request.bml.email.validared
-general /support/see_rquest.bml.important.notes.text
+general /support/see_request.bml.important.notes.text
+general /support/see_request.bml.language
 general /talkpost.bml.opt.ljuser
 general /talkpost.bml.opt.ljuser2
 general /talkpost.bml.warnscreened
@@ -1249,6 +1277,8 @@ general setting.display.smshistory.label
 general setting.display.smshistory.option
 general setting.gettingstarted.label
 general setting.gettingstarted.option
+general setting.language.error.invalid
+general setting.language.label
 general setting.minsecurity.option.select.admin
 general setting.minsecurity.option.select.friends
 general setting.minsecurity.option.select.members
@@ -1373,6 +1403,7 @@ general widget.createaccount.error.username.reserved
 general widget.createaccount.field.captcha
 general widget.createaccountnextsteps.steps.explore
 general widget.friendbirthdays.paidtime_link
+general widget.friendinterests.intro
 general widget.gettingstarted.entry.link
 general widget.gettingstarted.entry.note
 general widget.gettingstarted.expires

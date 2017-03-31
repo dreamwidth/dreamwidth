@@ -192,13 +192,13 @@ sub extacct_auth_handler {
     my $get = $r->get_args;
 
     my $u = LJ::get_remote();
-    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nouser' ) )
+    return DW::RPC->err( LJ::Lang::ml( 'error.extacct_auth.nouser' ) )
         unless $u;
 
     # get the account
     my $acctid = LJ::ehtml( $get->{acctid} );
     my $account = DW::External::Account->get_external_account( $u, $acctid );
-    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nosuchaccount',
+    return DW::RPC->err( LJ::Lang::ml( 'error.extacct_auth.nosuchaccount',
                             {
                                 acctid => $acctid,
                                 username => $u->username
@@ -206,7 +206,7 @@ sub extacct_auth_handler {
                         ) ) unless $account;
 
     # make sure this account supports challenge/response authentication
-    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nochallenge',
+    return DW::RPC->err( LJ::Lang::ml( 'error.extacct_auth.nochallenge',
                             {
                                 account => LJ::ehtml( $account->displayname )
                             }
@@ -214,7 +214,7 @@ sub extacct_auth_handler {
 
     # get the auth challenge
     my $challenge = $account->challenge;
-    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.authfailed',
+    return DW::RPC->err( LJ::Lang::ml( 'error.extacct_auth.authfailed',
                             {
                                 account => LJ::ehtml( $account->displayname )
                             }

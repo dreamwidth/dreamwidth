@@ -128,8 +128,8 @@ my %e = (
 sub translate
 {
     my ($u, $msg, $vars) = @_;
-    return LJ::Lang::get_text( LJ::isu( $u ) ? $u->prop( "browselang" ) : undef,
-                               "protocol.$msg", undef, $vars );
+    # we no longer support preferred language selection
+    return LJ::Lang::get_default_text( "protocol.$msg", $vars );
 }
 
 sub error_class

@@ -190,9 +190,7 @@ Returns the reply-to address with a pretty name, suitable for use in the reply-t
 sub replyto_address_header {
     my ( $class, $u, $journal, $ditemid, $dtalkid ) = @_;
 
-    my $reply_as = LJ::Lang::get_text( $u->prop( "browselang" ),
-        "emailpost.reply.address",
-        undef,
+    my $reply_as = LJ::Lang::get_default_text( "emailpost.reply.address",
         {
             user  => $u->display_username,
         } );

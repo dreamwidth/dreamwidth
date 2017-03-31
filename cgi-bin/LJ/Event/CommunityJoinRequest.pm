@@ -100,7 +100,7 @@ my @_ml_strings_en = (
 
 sub as_email_subject {
     my ($self, $u) = @_;
-    return LJ::Lang::get_text($u->prop('browselang'), 'esn.community_join_requst.subject', undef,
+    return LJ::Lang::get_default_text( 'esn.community_join_requst.subject',
         {
             comm    => $self->comm->display_username,
             who     => $self->requestor->display_username,
@@ -119,19 +119,19 @@ sub _as_email {
     my $rej_url         = $auth_url;
        $rej_url         =~ s/approve/reject/;
     my $queue_url       = $self->comm->member_queue_url;
-    my $lang            = $u->prop('browselang');
 
     # Precache text
-    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
- 
+    LJ::Lang::get_default_text_multi( \@_ml_strings_en );
+
     my $vars = {
         maintainer      => $maintainer,
         username        => $username,
         communityname   => $community,
     };
 
-    return LJ::Lang::get_text($lang, 'esn.community_join_requst.email_text', undef, $vars) .
-        $self->format_options($is_html, $lang, $vars,
+    return LJ::Lang::get_default_text( 'esn.community_join_requst.email_text',
+                                       $vars ) .
+        $self->format_options( $is_html, undef, $vars,
         {
             'esn.manage_request_approve'  => [ 1, $auth_url ],
             'esn.manage_request_reject'   => [ 2, $rej_url ],

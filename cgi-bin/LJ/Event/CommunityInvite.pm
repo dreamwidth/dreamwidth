@@ -48,17 +48,16 @@ my @_ml_strings = (
 sub as_email_subject {
     my ($self, $u) = @_;
     my $cu      = $self->comm;
-    my $lang    = $u->prop( 'browselang' );
-    return LJ::Lang::get_text( $lang, 'esn.comm_invite.email.subject', undef, { 'community' => $cu->user } );
+
+    return LJ::Lang::get_default_text( 'esn.comm_invite.email.subject',
+                                       { 'community' => $cu->user } );
 }
 
 sub _as_email {
     my ($self, $u, $is_html) = @_;
 
-    my $lang        = $u->prop('browselang');
-
     # Precache text lines
-    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings);
+    LJ::Lang::get_default_text_multi( \@_ml_strings );
 
     my $username    = $u->user;
     my $user        = $is_html ? $u->ljuser_display : $u->display_username;
@@ -80,8 +79,8 @@ sub _as_email {
         journal         => $communityname,
     };
 
-    return LJ::Lang::get_text($lang, 'esn.comm_invite.email', undef, $vars) .
-        $self->format_options($is_html, $lang, $vars,
+    return LJ::Lang::get_default_text( 'esn.comm_invite.email', $vars ) .
+        $self->format_options( $is_html, undef, $vars,
         {
             'esn.manage_invitations2'       => [ 1, "$LJ::SITEROOT/manage/invites" ],
             'esn.read_last_comm_entries'    => [ 2, $community_url ],

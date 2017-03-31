@@ -59,10 +59,7 @@ sub as_email_subject {
         $label .= '.nosubject';
     }
 
-    return LJ::Lang::get_text(
-        $u->prop("browselang"),
-        $label,
-        undef,
+    return LJ::Lang::get_default_text( $label,
         {
             siteroot        => $LJ::SITEROOT,
             sitename        => $LJ::SITENAME,
@@ -100,10 +97,7 @@ sub as_html {
     my $u = shift;
     my $entry = $self->entry or return "(Invalid entry)";
 
-    return LJ::Lang::get_text(
-        $u->prop("browselang"),
-        _construct_prefix($self) . '.html2',
-        undef,
+    return LJ::Lang::get_default_text( _construct_prefix($self) . '.html2',
         {
             siteroot        => $LJ::SITEROOT,
             sitename        => $LJ::SITENAME,
@@ -120,10 +114,7 @@ sub as_string {
     my $u = shift;
     my $entry = $self->entry or return "(Invalid entry)";
 
-    return LJ::Lang::get_text(
-        $u->prop("browselang"),
-        _construct_prefix($self) . '.string2',
-        undef,
+    return LJ::Lang::get_default_text( _construct_prefix($self) . '.string2',
         {
             siteroot        => $LJ::SITEROOT,
             sitename        => $LJ::SITENAME,

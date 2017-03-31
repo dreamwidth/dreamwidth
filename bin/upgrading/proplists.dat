@@ -54,14 +54,6 @@ userproplist.bonus_icons:
   multihomed: 0
   prettyname: How many bonus icon slots the user has purchased
 
-userproplist.browselang:
-  cldversion: 4
-  datatype: char
-  des: LJ lang code in ml_langs
-  indexed: 1
-  multihomed: 0
-  prettyname: Language to browse with
-
 userproplist.captcha:
   cldversion: 4
   datatype: char
@@ -893,6 +885,14 @@ userproplist.opt_randompaidgifts:
   indexed: 1
   multihomed: 0
   prettyname: Random Paid Gifts
+
+userproplist.opt_rpacct:
+  cldversion: 4
+  datatype: bool
+  des: Roleplaying account self-identification flag
+  indexed: 0
+  multihomed: 0
+  prettyname: RP flag
 
 userproplist.opt_sharebday:
   cldversion: 4

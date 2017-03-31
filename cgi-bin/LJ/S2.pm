@@ -78,8 +78,8 @@ sub make_journal
         return;
     }
 
-    my $lang = $remote && $remote->prop( "browselang" );
-    LJ::Hooks::run_hook('set_s2bml_lang', $ctx, \$lang);
+    # see also Apache/LiveJournal.pm
+    my $lang = $LJ::DEFAULT_LANG;
 
     # note that's it's very important to pass LJ::Lang::get_text here explicitly
     # rather than relying on BML::set_language's fallback mechanism, which won't
@@ -1389,7 +1389,7 @@ sub layer_compile
     }
 
     my $is_system = $layer->{userid} == LJ::get_userid( "system" );
-    my $untrusted = ! $LJ::S2_TRUSTED{$layer->{userid}} && ! $is_system;
+    my $untrusted = ! $is_system;
 
     # system writes go to global.  otherwise to user clusters.
     my $dbcm;

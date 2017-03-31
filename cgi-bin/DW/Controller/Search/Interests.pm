@@ -369,6 +369,7 @@ sub interest_handler {
         # (already set to intcount, unless we have multiple ints)
         if ( $opt_map{$type} ) {
             $rv->{allcount} ||= scalar LJ::users_with_all_ints( \@intids );
+            $rv->{allcount} //= 0;  # scalar(undef) isn't zero
         } else {
             # we just did the full search; count the existing list
             $rv->{allcount} ||= scalar @uids;
