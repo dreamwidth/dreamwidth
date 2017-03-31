@@ -13,9 +13,7 @@
 
 [%- sections.title = '.title' | ml -%]
 
-[%- dw.need_res( "stc/editicons.css", "js/6alib/progressbar.js",
-                 "js/ljprogressbar.js", "js/6alib/perlbal-uploadtrack.js",
-                 "js/editicons.js" ) -%]
+[%- dw.need_res( "stc/editicons.css", "js/editicons.js" ) -%]
 
 <form method="get" id='userpic_authas' action='editicons'>[% authas_html %]</form>
 
