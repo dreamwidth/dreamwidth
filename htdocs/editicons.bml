@@ -58,9 +58,6 @@ use strict;
         $getextra = $getextra ? $getextra . "&keywordSort=1" : "?keywordSort=1";
     }
 
-    my $returl = LJ::CleanHTML::canonical_url($POST{'ret'});
-    my $picurl = LJ::CleanHTML::canonical_url($POST{'urlpic'});
-
     if ( $u->is_readonly ) {
         $title = "Read-only mode";
         $body = $LJ::MSG_READONLY_USER;
@@ -270,15 +267,6 @@ use strict;
                 $factory_redirect .= '&successcount=' . $success_count;
             }
             return BML::redirect($factory_redirect);
-        }
-
-        # now fall through to edit page and show the updated userpic info
-        # redirect back to ourselves
-        $returl = LJ::CleanHTML::canonical_url($POST{'ret'});
-        if ($returl) {
-            my $redir_host;
-            $redir_host = $1 if $returl =~ m!^https?://([\.:\w-]+)!i;
-            return BML::redirect($returl) if $LJ::REDIRECT_ALLOWED{$redir_host};
         }
     }
 
