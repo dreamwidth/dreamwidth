@@ -1389,7 +1389,7 @@ sub layer_compile
     }
 
     my $is_system = $layer->{userid} == LJ::get_userid( "system" );
-    my $untrusted = ! $LJ::S2_TRUSTED{$layer->{userid}} && ! $is_system;
+    my $untrusted = ! $is_system;
 
     # system writes go to global.  otherwise to user clusters.
     my $dbcm;
