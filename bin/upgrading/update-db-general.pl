@@ -4096,7 +4096,7 @@ EOF
     # widen the description field for userpics
     if ( column_type( 'userpic2', 'description' ) eq "varchar(255)" ) {
         do_alter( 'userpic2',
-            "ALTER TABLE userpic2 MODIFY COLUMN description VARCHAR(600) DEFAULT NULL");
+            "ALTER TABLE userpic2 MODIFY COLUMN description VARCHAR(600) BINARY NOT NULL default ''");
     }
 
 });
