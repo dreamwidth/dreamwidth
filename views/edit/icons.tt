@@ -30,12 +30,9 @@
 [%- IF num_icons >= max_icons -%]
   <div id='limit'>[% '.error.icon.quota' | ml( num = max_icons ) %]</div>
 [%- ELSE -%]
-  <!-- this iframe is used by 6alib/perlbal-uploadtrack.js -->
-  <iframe name='upiframe' width='1' height='1' style='border: none'></iframe>
   <div id='uploadBox' class='highlight-box box pkg'><div id='uploadBox-inner'>
   <form enctype="multipart/form-data" action="[% selflink() %]" method='post'
         id='uploadPic'>
-    [% form.hidden( id = "go_to", name = "go_to", value = selflink() ) %]
 
     <h1>[% '.upload.header' | ml %]</h1>
     <p class='detail'>
@@ -144,8 +141,6 @@
     </p>
   </form>
   </div></div><!-- end #uploadBox -->
-  <div id="uploadStatus" style="display: none;"></div>
-  <div id="progressBar" style="display: none;"></div>
 [%- END -%]
 
 [%- IF ! num_icons -%]
