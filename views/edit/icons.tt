@@ -57,7 +57,8 @@
       <p class='pkg'>
         [%# can't use auto-label with ml strings that contain HTML formats -%]
         [% form.radio( name = "src", id = "radio_url", value = "url",
-                       class = "radio", accesskey = dw.ml( '.fromurl.key' ) ) %]
+                       class = "radio", accesskey = dw.ml( '.fromurl.key' ),
+                       selected = formdata.urlpic_0.length ) %]
         <label for="radio_url">[% '.fromurl' | ml %]</label>
         <br />
         [% form.textbox( name = "urlpic_0", id = "urlpic_0", class = "text",

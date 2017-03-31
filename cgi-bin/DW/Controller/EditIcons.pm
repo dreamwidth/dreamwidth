@@ -243,6 +243,10 @@ sub editicons_handler {
                                     args => $factory_redirect ) );
             }
         }
+
+        # make the processed post data accessible to the template
+        # in case there was an error and they need to resubmit
+        $rv->{formdata} = $post if $errors->exist;
     }
     #  finished post processing
 
