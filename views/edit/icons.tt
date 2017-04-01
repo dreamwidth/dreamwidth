@@ -39,16 +39,17 @@
     </p>
     <div id='upload_desc'><p>[% '.upload.desc' | ml %]</p></div>
     <div id='upload_wrapper' class='pkg'>
-      <p class='pkg'>
+      <p class='pkg' style='margin-bottom: 0;'>
         [%# can't use auto-label with ml strings that contain HTML formats -%]
         [% form.radio( name = "src", id = "radio_file", value = "file",
                        class = "radio", accesskey = dw.ml( '.fromfile.key' ),
                        selected = 1 ) %]
         <label for="radio_file">[% '.fromfile' | ml %]</label>
-        <br />
-        <input type='file' class='file' name='userpic_0' id='userpic_0'
-               size='18' style='margin: 0em 0em 0.5em 2em;' />
       </p>
+      <div style="overflow: hidden; margin: 0em 0em 0.5em 2em;">
+        <input type='file' class='file' name='userpic_0' id='userpic_0'
+               size='18' />
+      </div>
       <p class='pkg'>
         [%# can't use auto-label with ml strings that contain HTML formats -%]
         [% form.radio( name = "src", id = "radio_url", value = "url",
