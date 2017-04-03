@@ -21,6 +21,20 @@ _info?><?_code
 
     my $err = sub { BML::finish(); return $_[0] };
 
+    my $parse_content = sub {
+        my $content = $_[0];
+        my $event = { 'props' => {} };
+        if ($content =~ s/(^|\n)lj-mood:\s*(.*)\n//i) {
+            $event->{'props'}->{'current_mood'} = $2;
+        }
+        if ($content =~ s/(^|\n)lj-music:\s*(.*)\n//i) {
+            $event->{'props'}->{'current_music'} = $2;
+        }
+        $content =~ s/^\s+//; $content =~ s/\s+$//;
+        $event->{'event'} = $content;
+        return $event;
+    };
+
     $u = LJ::get_remote()
         or return $err->( BML::ml( ".post.login", { aopts => "href='login'" } ) );
 
@@ -36,7 +50,7 @@ _info?><?_code
     return "" unless LJ::did_post();
     return "<b>$ML{'.post.error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
-    my $event = LJ::Util::blogger_deserialize($POST{'event'});
+    my $event = $parse_content->($POST{'event'});
     my $journal = $POST{'usejournal'};
 
     my $sec = $POST{'security'};
