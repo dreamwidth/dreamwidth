@@ -19,21 +19,18 @@ _info?><?_code
     use strict;
     use vars qw(%POST $u $res);
 
-    my $err = sub {
-	BML::finish();
-	return $_[0];
-    };
+    my $err = sub { BML::finish(); return $_[0] };
 
     $u = LJ::get_remote()
-	or return $err->( BML::ml( ".post.login", { aopts => "href='login'" } ) );
+        or return $err->( BML::ml( ".post.login", { aopts => "href='login'" } ) );
 
     $res = LJ::Protocol::do_request("login", {
-	"ver" => $LJ::PROTOCOL_VER,
-	"username" => $u->{'user'},
-	"getpickws" => 1,
+        "ver" => $LJ::PROTOCOL_VER,
+        "username" => $u->{'user'},
+        "getpickws" => 1,
     }, undef, {
-	"noauth" => 1,
-	"u" => $u,
+        "noauth" => 1,
+        "u" => $u,
     });
 
     return "" unless LJ::did_post();
@@ -45,8 +42,8 @@ _info?><?_code
     my $sec = $POST{'security'};
     my $allowmask = undef;
     if ($sec eq "friends") {
-	$sec = "usemask";
-	$allowmask = 1;
+        $sec = "usemask";
+        $allowmask = 1;
     }
 
     my $req = {
@@ -58,14 +55,14 @@ _info?><?_code
         'subject' => $POST{'subject'},
         'props' => $event->{'props'},
         'tz'    => 'guess',
-	'security' => $sec,
-	'allowmask' => $allowmask,
+        'security' => $sec,
+        'allowmask' => $allowmask,
     };
 
     my $errcode;
     my $res = LJ::Protocol::do_request("postevent", $req, \$errcode);
     if ($errcode) {
-	return $err->( "<?_ml .post.error_posting _ml?>: " . LJ::Protocol::error_message($errcode) );
+        return $err->( "<?_ml .post.error_posting _ml?>: " . LJ::Protocol::error_message($errcode) );
     }
 
     my $url = $res->{url};
