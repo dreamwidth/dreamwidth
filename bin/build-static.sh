@@ -20,13 +20,22 @@ fi
 # if compass is installed, build that first
 compass=$(which compass)
 if [ "$compass" != "" ]; then
-    echo "* Building SCSS..."
-    cd $LJHOME
-    $compass compile -e production --force
-    if [ -d "$LJHOME/ext/dw-nonfree" ]; then
-        cd $LJHOME/ext/dw-nonfree
+    # see if we have Compass version 0.12 or later
+    compass_version_ok=$(compass version | perl -ne '/^Compass (\d\.\d+)/ && print $1 >= 0.12')
+    if [ $compass_version_ok ]; then
+        echo "* Building SCSS..."
+        cd $LJHOME
         $compass compile -e production --force
+        if [ -d "$LJHOME/ext/dw-nonfree" ]; then
+            cd $LJHOME/ext/dw-nonfree
+            $compass compile -e production --force
+        fi
+    else
+        echo "Compass version must be 0.12 or higher. Please upgrade."
+        echo "Warning: Skipping compass compile..."
     fi
+else
+    echo "Warning: No compass command found"
 fi
 
 # check the relevant paths using the same logic as the codebase
