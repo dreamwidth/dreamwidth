@@ -100,7 +100,7 @@ sub try_work {
             imported => \@imported,
             pics => \@pics,
         };
-        DW::BlobStore->store( temp => 'import_upi:' . $u->id, $data );
+        DW::BlobStore->store( temp => 'import_upi:' . $u->id, \$data );
     }
 
     # FIXME: Link to "select userpics later" (once it is created) if we have the backup.
