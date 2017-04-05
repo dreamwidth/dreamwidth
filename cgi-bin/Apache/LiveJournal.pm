@@ -1380,7 +1380,8 @@ sub journal_content
 
         # otherwise be vague with a 403
         } else {
-            return 403;
+            $status = "403 Forbidden";
+            $html = "<h1>Invalid Filter</h1><p>Either this reading filter doesn't exist or you are not authorized to view it. Try <a href='$LJ::SITEROOT/login'>checking that you are logged in</a> if you're sure you have the name right.</p>";
         }
 
         $generate_iejunk = 1;
