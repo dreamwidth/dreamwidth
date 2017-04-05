@@ -15,6 +15,8 @@
 
 [%- dw.need_res( "stc/editicons.css", "js/editicons.js" ) -%]
 
+[%- USE Scalar; # needed to force scalar return context for keywords -%]
+
 <form method="get" id='userpic_authas' action='editicons'>[% authas_html %]</form>
 
 [%- INCLUDE components/errors.tt errors = errors -%]
@@ -186,9 +188,9 @@
             <div class='userpic_keywords pkg'>
               <label class='left' for='kw_[% pid %]'>[% '.upload.label.keywords' | ml %]</label>
               [% form.textbox( name = "kw_$pid", id = "kw_$pid", class = "text",
-                               value = pic.keywords, disabled = pic.inactive,
+                               value = pic.scalar.keywords, disabled = pic.inactive,
                                onfocus = display_rename ? "\$(\'rename_div_$pid\').style.display = \'block\';" : "" ) %]
-              [% form.hidden( name = "kw_orig_$pid", value = pic.keywords ) %]
+              [% form.hidden( name = "kw_orig_$pid", value = pic.scalar.keywords ) %]
               [%- IF display_rename -%]
                 <div id='rename_div_[% pid %]' class='userpic_rename pkg'>
                   <script type='text/javascript'>
