@@ -46,7 +46,14 @@ sub render_body {
             url => 'insanejournal.com',
             display_name => 'InsaneJournal',
         },
+        {
+            name => 'dreamwidth',
+            url => 'dreamwidth.org',
+            display_name => 'Dreamwidth',
+        },
     ) ){
+        # only dev servers can import from Dreamwidth for testing
+        next if ( $service->{name} eq 'dreamwidth' ) && ! $LJ::IS_DEV_SERVER;
         push @services, $service
             if LJ::is_enabled( "external_sites", { sitename => $service->{display_name}, domain => $service->{url} } );
     }
