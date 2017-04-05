@@ -10,9 +10,6 @@ old: js/6alib/selectable_table.js
 
 old: js/6alib/checkallbutton.js
 
-old: js/6alib/progressbar.js
-old: js/ljprogressbar.js
-
 old: js/6alib/ippu.js
 old: js/6alib/lj_ippu.js
 old: js/6alib/template.js
@@ -54,18 +51,6 @@ test( "misc utils", function() {
     });
     ok( o, "SelectableTable" );
 
-});
-test( "LJProgressBar", function() {
-    expect(2);
-
-    var o;
-    o = new ProgressBar();
-    o.init();
-    ok( o, "ProgressBar" );
-
-    o = new LJProgressBar();
-    o.init();
-    ok( o, "LJProgressBar" );
 });
 
 test( "UserpicSelect", function() {

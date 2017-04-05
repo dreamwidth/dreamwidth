@@ -1,0 +1,84 @@
+;; -*- coding: utf-8 -*-
+.edit.btn.save=Save
+
+.edit.icons.desc=These are your current icons. You can choose which icon to use as your default, add new icons, and delete icons you no longer want. If you assign keywords to your icons, you can select them by keyword for entries and comments. You can also assign a description to each icon. To upload a new icon, use the form at the left.
+
+.edit.icons.header=Current Icons
+
+.edit.label.default=Default
+
+.edit.label.delete=Delete
+
+.edit.label.nodefault=No default icon
+
+.edit.label.rename=Rename Keywords
+
+.edit.nokeywords=WARNING: You have not added keywords for one or more of your icons. They have been assigned an automated keyword, in the form of "pic#__". Icons with automated keywords can be used in posts and comments, but may behave strangely. We strongly recommend that you assign keywords to your icons before using them.
+
+.edit.nopics.desc=You don't have any icons uploaded.  You can upload icons using the form above.
+
+.edit.nopics.header=No Icons
+
+.error.icon.quota=You're at your limit of [[num]] [[?num|icon|icons]]. You can't upload any more icons until you delete one of your existing ones.
+
+.fromfile=From <u>F</u>ile:
+
+.fromfile.key|notes=Enter here a <b>lower-case</b> version of the letter you underlined in ".fromfile". This is the shortcut key for the fromfile option.
+.fromfile.key=f
+
+.fromurl=From U<u>R</u>L:
+
+.fromurl.key|notes=Enter here a <b>lower-case</b> version of the letter you underlined in ".fromurl". This is the shortcut key for the fromurl option.
+.fromurl.key=r
+
+.icon.countstatus=Currently uploaded: [[current]] out of [[max]].
+
+.icon.msgprefix=Icon [[num]]:
+
+.icon.sort.default=Upload Order
+
+.icon.sort.keyword=Keyword Order
+
+.icon.viewall=[<a [[aopts]]>View all uploaded icons</a>]
+
+.keepdefault=Keep existing default icon
+
+.makedefault=Make this your <u>d</u>efault icon
+
+.makedefault.key|notes=Enter here a <b>lower-case</b> version of the letter you underlined in ".makedefault". This is the shortcut key for the makedefault option.
+.makedefault.key=d
+
+.title=Manage Icons
+
+.upload.about=About Icons
+
+.upload.btn.addfile=Add another from file
+
+.upload.btn.addurl=Add another from URL
+
+.upload.btn.proceed=Proceed
+
+.upload.btn.remove=Remove
+
+.upload.desc=Use the form below to upload a new icon.
+
+.upload.formats.desc=Acceptable formats are GIF, JPG, and PNG.
+
+.upload.header=Upload a new icon
+
+.upload.label.comment=Comment:
+
+.upload.label.comment.desc=Optional comments about the icon. Credit can go here. For example: "I made this!"
+
+.upload.label.description=Description:
+
+.upload.label.description.desc=This is an optional description of the picture that will be displayed for people who can't view it, e.g. visually-impaired people using screen readers. Example: "Photo of me in the mirror, holding up camera."
+
+.upload.label.description.faq=Read more about good descriptions.
+
+.upload.label.keywords=Keywords:
+
+.upload.label.keywords.desc=Comma-separated list of up to 10 terms you'll use to select this icon. Keywords over 40 characters will be truncated.
+
+.upload.success=Image has been successfully uploaded.
+

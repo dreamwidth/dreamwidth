@@ -1,0 +1,27 @@
+;; -*- coding: utf-8 -*-
+.backtext=<< Edit Icons
+
+.error.noindex=You have no picture uploaded. You must upload one using the <a href="[[pagelink]]">Edit Icons</a> page.
+
+.howtouse=Click and drag anywhere within the photo to create your icon. When you're happy with what you see in the preview box, click the Create Icon button to save it.
+
+.noscript<<
+You need JavaScript enabled in order to use the Icon Factory.
+Since you have JavaScript disabled, you will be unable to
+select a region or preview your icon. However, you can create
+an icon-sized version of the image you uploaded by clicking
+on the Create Icon button.
+.
+
+.preview.label.bordertoggle=Add Border
+
+.preview.label.constrain=Keep square
+
+.preview.label.constrain.shift=(or hold Shift)
+
+.preview.label.icon=Low quality preview:
+
+.success=Uploaded [[num]] [[?num|image|images]] successfully.
+
+.title=Create Icon
+
