@@ -17,8 +17,6 @@ old: js/userpicselect.js
 
 old: js/6alib/view.js
 
-old: js/esnmanager.js
-
 old: js/ljwidget.js
 old: js/ljwidget_ippu.js
 old: js/widget_ippu/settingprod.js
@@ -72,17 +70,6 @@ test( "UserpicSelect", function() {
     o = new UserpicSelect();
     o.init();
     ok( o, "UserpicSelect" );
-});
-
-test( "ESN", function() {
-    expect(1);
-
-    var o;
-
-    // possibly unused?
-    o = new ESNManager();
-    o.init();
-    ok( o, "ESNManager" );
 });
 
 test( "Widget", function() {
