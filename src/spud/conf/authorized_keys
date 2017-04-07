@@ -1,1 +1,0 @@
-environment="LJUSERNAME=replicator",environment="LJCOMMAND=replicator" ssh-dss SOMEKEY replicator@comment.field.stuff
