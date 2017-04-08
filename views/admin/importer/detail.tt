@@ -5,7 +5,7 @@ Details for pending imports for a user
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2015 by Dreamwidth Studios, LLC.
+Copyright (c) 2015-2017 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -28,10 +28,10 @@ Pending imports for [% username %].
     <h3>Import #[% import_id %]</h3>
     <table>
     <thead><tr>
-        <th>Item</th>
-        <th>Status</th>
-        <th>Created</th>
-        <th>Last Touch</th>
+        <th>[% '.col.item' | ml %]</th>
+        <th>[% '.col.status' | ml %]</th>
+        <th>[% '.col.created' | ml %]</th>
+        <th>[% '.col.lasttouch' | ml %]</th>
     </tr></thead>
     <tbody>
     [%- FOREACH item = import_items.$import_id.pairs -%]
