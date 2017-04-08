@@ -117,8 +117,22 @@ sub history_controller {
         my $u = LJ::load_user( $user );
         return error_ml( "error.invaliduser" ) unless $u;
 
+        my $items = DW::Logic::Importer->get_all_import_items( $u );
+        my $data = DW::Logic::Importer->get_import_data( $u, keys %$items );
+
+        # 1. iterate over every import to get the user/host info
+        # 2. iterate over every job in that import to add the user/host info
+        foreach my $row ( @$data ) {
+            my ( $importid, $host, $user ) = @$row;
+            my $source = sprintf( "%s@%s", $user, $host );
+
+            foreach my $key ( keys %{ $items->{$importid} } ) {
+                $items->{$importid}->{$key}->{source} = $source;
+            }
+        }
+
         $vars->{username} = $u->ljuser_display;
-        $vars->{import_items} = DW::Logic::Importer->get_all_import_items( $u );
+        $vars->{import_items} = $items;
         $vars->{formdata} = $r->get_args;
     }
 

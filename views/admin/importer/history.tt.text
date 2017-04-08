@@ -12,7 +12,11 @@
 
 .col.lasttouch=Last Touch
 
+.col.source=Import Source
+
 .col.status=Status
+
+.empty=No import history for this user.
 
 .form.submit=View Import History
 
