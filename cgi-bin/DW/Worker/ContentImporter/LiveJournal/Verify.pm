@@ -65,7 +65,7 @@ sub try_work {
             q{UPDATE import_items SET status = 'aborted'
               WHERE userid = ? AND item <> 'lj_verify'
               AND import_data_id = ? AND status = 'init'},
-            undef, $u->id, $opts->{import_data_id}        
+            undef, $u->id, $opts->{import_data_id}
         );
 
         # this is a permanent failure.  if the password is bad, we're not going to ever
@@ -96,7 +96,7 @@ sub try_work {
         q{UPDATE import_items SET status = 'ready'
           WHERE userid = ? AND item IN ('lj_bio', 'lj_userpics', 'lj_friendgroups', 'lj_tags')
           AND import_data_id = ? AND status = 'init'},
-        undef, $u->id, $opts->{import_data_id}        
+        undef, $u->id, $opts->{import_data_id}
     );
 
     # okay, but don't fire off a message to say it's done, this job doesn't matter to
