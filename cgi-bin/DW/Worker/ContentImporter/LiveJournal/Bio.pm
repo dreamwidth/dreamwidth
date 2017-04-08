@@ -65,7 +65,7 @@ sub try_work {
 # abstract out sites?
     my $un = $data->{usejournal} || $data->{username};
     my ( $items, $interests, $schools ) = $class->get_foaf_from( "http://$un.$data->{hostname}/data/foaf" );
-    return $temp_fail->( 'Unable to load FOAF data' )
+    return $temp_fail->( "Unable to load FOAF data for $un.$data->{hostname}." )
         unless $items;
 
     DW::Worker::ContentImporter::Local::Bio->merge_interests( $u, $interests );

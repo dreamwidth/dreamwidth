@@ -70,7 +70,7 @@ sub try_work {
 
         # this is a permanent failure.  if the password is bad, we're not going to ever
         # bother retrying.  that's life.
-        return $fail->( 'Username or password rejected by ' . $data->{hostname} . '.' );
+        return $fail->( "Username or password for $data->{username} rejected by $data->{hostname}." );
     }
 
     # if we got any other type of failure, call it temporary...
@@ -84,9 +84,12 @@ sub try_work {
         $r = $class->call_xmlrpc( $data, 'consolecommand', {
             commands => [ "ban_unset $data->{username} from $data->{usejournal}" ],
         } );
-        return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
-            if ! $r || $r->{fault};
-        return $fail->( 'You are not an administrator/maintainer of the remote community.' )
+
+        my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
+        $xmlrpc_fail .=  " (community: $data->{usejournal})";
+        return $temp_fail->( $xmlrpc_fail ) if ! $r || $r->{fault};
+        return $fail->( 'You are not an administrator/maintainer of the remote' .
+                        ' community named ' . $data->{usejournal} . '.' )
             unless $r->{results}->[0]->{output}->[0]->[0] eq 'success';
     }
 
