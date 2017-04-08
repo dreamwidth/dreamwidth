@@ -110,7 +110,7 @@
     $EMBED_MODULE_DOMAIN = "embed.my-other-domain.net";
 
     # merchandise link
-    # $MERCH_URL = "http://www.zazzle.com/dreamwidth*";
+    # $MERCH_URL = "https://www.zazzle.com/dreamwidth*";
 
     # shop/pricing configuration
     # %SHOP = (
