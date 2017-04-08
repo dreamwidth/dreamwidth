@@ -32,6 +32,7 @@ Pending imports for [% username %].
         <th>[% '.col.status' | ml %]</th>
         <th>[% '.col.created' | ml %]</th>
         <th>[% '.col.lasttouch' | ml %]</th>
+        <th>[% '.col.source' | ml %]</th>
     </tr></thead>
     <tbody>
     [%- FOREACH item = import_items.$import_id.pairs -%]
@@ -40,9 +41,12 @@ Pending imports for [% username %].
         <td>[% item.value.status %]</td>
         <td>[% date.format( item.value.created ) %]</td>
         <td>[% item.value.last_touch ? date.format( item.value.last_touch ) : "-" %]</td>
+        <td>[% item.value.source %]</td>
     </tr>
     [%- END -%]
     </tbody>
     </table>
     [%- END %]
+[%- ELSE -%]
+    <p>[% '.error.none_pending' | ml %]</p>
 [%- END -%]
