@@ -31,6 +31,8 @@ Get import data for this user for all provided import ids
 sub get_import_data {
     my ( $class, $u, @ids ) = @_;
 
+    return [] unless @ids;
+
     my $dbh = LJ::get_db_writer()
         or die "No database.";
 
@@ -167,9 +169,10 @@ sub get_import_items_for_user {
 
 =head2 C<<DW::Logic::Importer->get_queued_imports( $u )>>
 
-Get a list of imports that have yet to be processed. May be in the schwartz queue, and thus running soon
-or else in the import queue, and have yet to be put into the schwartz queue. The latter may not run if they
-are duplicates of something in the schwartz queue.
+Get a list of imports that have yet to be processed. May be in the schwartz
+queue, and thus running soon; or else in the import queue, and have yet to be
+put into the schwartz queue. The latter may not run if they are duplicates of
+something in the schwartz queue.
 
 =cut
 
@@ -214,7 +217,7 @@ sub set_import_data_for_user {
 
     # this is a hack, but we use it until we get a better frontend.  we abort all
     # existing import jobs if they schedule a new one.  this won't actually stop any
-    # TheSchwartz jobs thateare in progress, of course, but that should be okay
+    # TheSchwartz jobs that are in progress, of course, but that should be okay
     $dbh->do(
         q{UPDATE import_items SET status = 'aborted'
           WHERE userid = ? AND status IN ('init', 'ready', 'queued')},
