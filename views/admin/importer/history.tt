@@ -30,7 +30,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </fieldset>
 </form>
 
-[%- IF import_items.size > 0 -%]
+[%- IF import_items.defined && import_items.size > 0 -%]
 <table>
 <thead><tr>
     <th>[% '.col.importnum' | ml %]</th>
