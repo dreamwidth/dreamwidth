@@ -99,8 +99,8 @@ sub detail_controller {
     # 1. iterate over every import to get the user/host info
     # 2. iterate over every job in that import to add the user/host info
     foreach my $row ( @$data ) {
-        my ( $importid, $host, $user ) = @$row;
-        my $source = sprintf( "%s@%s", $user, $host );
+        my ( $importid, $host, $user, $usejournal ) = @$row;
+        my $source = sprintf( "%s@%s", $usejournal || $user, $host );
 
         foreach my $key ( keys %{ $items->{$importid} } ) {
             $items->{$importid}->{$key}->{source} = $source;
@@ -136,8 +136,8 @@ sub history_controller {
         # 1. iterate over every import to get the user/host info
         # 2. iterate over every job in that import to add the user/host info
         foreach my $row ( @$data ) {
-            my ( $importid, $host, $user ) = @$row;
-            my $source = sprintf( "%s@%s", $user, $host );
+            my ( $importid, $host, $user, $usejournal ) = @$row;
+            my $source = sprintf( "%s@%s", $usejournal || $user, $host );
 
             foreach my $key ( keys %{ $items->{$importid} } ) {
                 $items->{$importid}->{$key}->{source} = $source;
