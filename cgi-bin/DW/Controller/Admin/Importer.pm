@@ -93,10 +93,23 @@ sub detail_controller {
     my $u = LJ::load_user( $user );
     return error_ml( "error.invaliduser" ) unless $u;
 
-    my $import_items = DW::Logic::Importer->get_queued_imports( $u );
-    my $vars = { username => $u->ljuser_display, import_items => $import_items };
+    my $items = DW::Logic::Importer->get_queued_imports( $u );
+    my $data = DW::Logic::Importer->get_import_data( $u, keys %$items );
 
-    if ( scalar keys %{$import_items||{}} > 1 ) {
+    # 1. iterate over every import to get the user/host info
+    # 2. iterate over every job in that import to add the user/host info
+    foreach my $row ( @$data ) {
+        my ( $importid, $host, $user, $usejournal ) = @$row;
+        my $source = sprintf( "%s@%s", $usejournal || $user, $host );
+
+        foreach my $key ( keys %{ $items->{$importid} } ) {
+            $items->{$importid}->{$key}->{source} = $source;
+        }
+    }
+
+    my $vars = { username => $u->ljuser_display, import_items => $items };
+
+    if ( scalar keys %{$items||{}} > 1 ) {
         $vars->{errmsg} = ".error.toomanypending";
     }
 
@@ -117,8 +130,22 @@ sub history_controller {
         my $u = LJ::load_user( $user );
         return error_ml( "error.invaliduser" ) unless $u;
 
+        my $items = DW::Logic::Importer->get_all_import_items( $u );
+        my $data = DW::Logic::Importer->get_import_data( $u, keys %$items );
+
+        # 1. iterate over every import to get the user/host info
+        # 2. iterate over every job in that import to add the user/host info
+        foreach my $row ( @$data ) {
+            my ( $importid, $host, $user, $usejournal ) = @$row;
+            my $source = sprintf( "%s@%s", $usejournal || $user, $host );
+
+            foreach my $key ( keys %{ $items->{$importid} } ) {
+                $items->{$importid}->{$key}->{source} = $source;
+            }
+        }
+
         $vars->{username} = $u->ljuser_display;
-        $vars->{import_items} = DW::Logic::Importer->get_all_import_items( $u );
+        $vars->{import_items} = $items;
         $vars->{formdata} = $r->get_args;
     }
 
