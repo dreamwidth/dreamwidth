@@ -86,7 +86,8 @@ sub try_work {
     my $un = $data->{usejournal} || $data->{username};
     my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{hostname}/users/$un/", $data, $log, \$fetch_error );
 
-    return $temp_fail->( $fetch_error ) if $fetch_error;
+    return $temp_fail->( "Could not import icons for $un: $fetch_error" )
+        if $fetch_error;
 
     my $errs = [];
     my @imported = DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, $errs, $default, \@pics, $log );

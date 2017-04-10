@@ -114,8 +114,9 @@ sub try_work {
         }
     );
 
-    return $temp_fail->( 'XMLRPC failure: ' . $last->{faultString} )
-        if ! $last || $last->{fault};
+    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $last ? $last->{faultString} : '[unknown]' );
+    $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
+    return $temp_fail->( $xmlrpc_fail ) if ! $last || $last->{fault};
 
     # we weren't able to get any data. Maybe weren't able to connect to remote server?
     # we want to try again
@@ -283,8 +284,9 @@ sub try_work {
         );
 
         # if we get an error, then we have to abort the import
-        return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
-            if ! $hash || $hash->{fault};
+        my $xmlrpc_fail = 'XMLRPC failure: ' . ( $hash ? $hash->{faultString} : '[unknown]' );
+        $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
+        return $temp_fail->( $xmlrpc_fail ) if ! $hash || $hash->{fault};
 
         # good, import this event
         $process_entry->( $_ )

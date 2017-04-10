@@ -348,7 +348,7 @@ sub try_work {
             }
 
             # this body is done
-            $comment->[C_body_fixed] = 1;                
+            $comment->[C_body_fixed] = 1;
         }
 
         # variable setup for the database work
