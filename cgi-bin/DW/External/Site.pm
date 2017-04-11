@@ -206,6 +206,24 @@ sub journal_url {
     return "http://$self->{hostname}/users/" . $u->user . '/';
 }
 
+# returns an entry link for this user on this site.
+sub entry_url {
+    my ( $self, $u, %opts ) = @_;
+    croak 'need a DW::External::User'
+        unless $u && ref $u eq 'DW::External::User';
+
+    # override this on a site-by-site basis if needed
+    my $base = $self->journal_url( $u );
+
+    # several possible options for specifying an entry;
+    # for now we just support itemid + anum
+    return unless exists $opts{itemid} && exists $opts{anum};
+
+    my $pagenum = $opts{itemid} * 256 + $opts{anum};
+
+    return $base . $pagenum . ".html";
+}
+
 # returns the profile_url for this user on this site.
 sub profile_url {
     my ( $self, $u ) = @_;
