@@ -156,11 +156,21 @@ sub try_work {
     my $count = 0;
     my $process_entry = sub {
         my $evt = $_[0];
+        my $user = $data->{usejournal} // $data->{username};
 
-        # URL remapping. We know the username and the site, so we set this to
+        # Key for entry_map. We know the username and the site, so we set this to
         # something that is dependable.
-        $evt->{key} = $evt->{url} = $data->{hostname} . '/' . ( $data->{usejournal} // $data->{username} ) . '/' .
+        $evt->{key} = $data->{hostname} . '/' . $user . '/' .
             ( $evt->{itemid} * 256 + $evt->{anum} );
+
+        # We also need to calculate the remote URL for ESN purposes.
+        my $ext_u = DW::External::User->new( user => $user,
+                                             site => $data->{hostname} );
+
+        # Although I don't think this is likely to ever croak,
+        # I'm being extra-cautious and using an eval here to
+        # make sure this can't interrupt the import process.
+        $evt->{url} = eval { $ext_u->site->entry_url( $ext_u, %$evt ) };
 
         $count++;
         $log->( '    %d %s %s; mapped = %d (import_source) || %d (xpost).',
