@@ -37,21 +37,6 @@ form {
     white-space: nowrap;
 }
 
-.lj_progresscontainer {
-    height: 25px;
-    width: 400px;
-    margin: 1em;
-    background: url(/img/progress/inactive.gif) repeat;
-}
-
-.lj_progressoverlay {
-    background: url(/img/progress/active.gif) repeat;
-}
-
-.lj_progressindefinite {
-    background-image: url(/img/progress/barber.gif);
-}
-
 .lj_hourglass {
         z-index: 20000;
 }
@@ -87,13 +72,13 @@ div.lj_ippu_titlebar {
 }
 
 	div.lj_ippu_titlebar div {
-		
+
 	}
 
 	.lj_ippu_titlebar img {
 		opacity: .25;
 	}
-	
+
 		.lj_ippu_titlebar img:hover {
 			opacity: 1;
 		}

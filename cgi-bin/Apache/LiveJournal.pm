@@ -26,11 +26,9 @@ use Compress::Zlib;
 use Cwd qw/abs_path/;
 use Fcntl ':mode';
 
-use Apache::LiveJournal::Interface::Blogger;
 use Apache::LiveJournal::PalImg;
 use DW::Auth;
 use DW::BlobStore;
-use DW::Request::XMLRPCTransport;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
@@ -971,16 +969,6 @@ sub trans {
         return $view if defined $view;
     }
 
-    # custom interface handler
-    if ($uri =~ m!^/interface/([\w\-]+)$!) {
-        my $inthandle = LJ::Hooks::run_hook("interface_handler", {
-            int         => $1,
-            r           => $apache_r,
-            bml_handler => $bml_handler,
-        });
-        return $inthandle if defined $inthandle;
-    }
-
     # Attempt to handle a URI given the old-style LJ handler, falling back to
     # the new style Dreamwidth routing system.
     my $ret = LJ::URI->handle( $uri, $apache_r ) //
@@ -1008,19 +996,6 @@ sub trans {
         $apache_r->uri( $alt_uri );
         $apache_r->filename( $alt_path );
         return OK;
-    }
-
-    # protocol support
-    if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
-        my $int = $1;
-        $apache_r->handler("perl-script");
-        if ($int =~ /^blogger|elsewhere_info$/) {
-            $RQ{'interface'} = $int;
-            $RQ{'is_ssl'} = $is_ssl;
-            $apache_r->push_handlers(PerlResponseHandler => \&interface_content);
-            return OK;
-        }
-        return 404;
     }
 
     # normal (non-domain) journal view
@@ -1405,7 +1380,8 @@ sub journal_content
 
         # otherwise be vague with a 403
         } else {
-            return 403;
+            $status = "403 Forbidden";
+            $html = "<h1>Invalid Filter</h1><p>Either this reading filter doesn't exist or you are not authorized to view it. Try <a href='$LJ::SITEROOT/login'>checking that you are logged in</a> if you're sure you have the name right.</p>";
         }
 
         $generate_iejunk = 1;
@@ -1503,27 +1479,6 @@ sub correct_url_redirect_code {
         return HTTP_MOVED_PERMANENTLY;
     }
     return REDIRECT;
-}
-
-sub interface_content
-{
-    my $apache_r = shift;
-    my $args = $apache_r->args;
-
-    if ($RQ{'interface'} eq "blogger") {
-        Apache::LiveJournal::Interface::Blogger->load;
-        my $pkg = "Apache::LiveJournal::Interface::Blogger";
-        my $server = DW::Request::XMLRPCTransport
-            -> on_action(sub { die "Access denied\n" if $_[2] =~ /:|\'/ })
-            -> dispatch_with({ 'blogger' => $pkg })
-            -> dispatch_to($pkg)
-            -> handle;
-        return OK;
-    }
-
-    $apache_r->content_type("text/plain");
-    $apache_r->print("Unknown interface.");
-    return OK;
 }
 
 package LJ::Protocol;

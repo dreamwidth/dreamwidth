@@ -6,6 +6,10 @@ general /allpics.bml.nopics.text
 general /allpics.bml.nopics.text.other
 general /allpics.bml.pics
 
+general BML.parse_multipart.parse
+general BML.parse_multipart.toolarge
+general BML.parse_multipart.unknowntype
+
 general /changeemail.bml.label.password
 
 general /community/join.bml.label.authpost
@@ -50,11 +54,39 @@ general /editinfo.bml.schools.title
 general /editinfo.bml.topicdir.about
 general /editinfo.bml.topicdir.header
 
+general /editicons.bml.error.badurl
+general /editicons.bml.error.filetoolarge
+general /editicons.bml.error.giffiledimensions
+general /editicons.bml.error.giffiletoolarge
+general /editicons.bml.error.imagetoolarge
+general /editicons.bml.error.invalidimage
+general /editicons.bml.error.keywords
+general /editicons.bml.error.multipleresize
+general /editicons.bml.error.nofile
+general /editicons.bml.error.nomediauploads.delete
+general /editicons.bml.error.nourl
+general /editicons.bml.error.rename.blankkw
+general /editicons.bml.error.rename.keywordexists
+general /editicons.bml.error.rename.keywords
+general /editicons.bml.error.rename.mismatchedlength
+general /editicons.bml.error.toomanykeywords
+general /editicons.bml.error.unknowntype
+general /editicons.bml.error.unsupportedtype
+general /editicons.bml.error.urlerror
+general /editicons.bml.error.urlfiletoolarge
+general /editicons.bml.imagesize.by
+general /editicons.bml.kilobytes
+general /editicons.bml.label.rename.disabled
+general /editicons.bml.noneupload
 general /editicons.bml.restriction.fileformat
 general /editicons.bml.restriction.filesize
 general /editicons.bml.restriction.imagesize2
 general /editicons.bml.restriction.keywords
 general /editicons.bml.restriction.keywords.faq
+general /editicons.bml.title
+general /editicons.bml.uploaddesc.userpicfactory
+general /editicons.bml.warning.keywords
+general /editicons.bml.warning.keywords.faq
 
 general /editpics.bml.error.toomanypics2
 general /editpics.bml.error.toomanypics3
@@ -282,6 +314,7 @@ general /uploadpic.bml.error.invalidauth
 general /uploadpic.bml.error.invalidimage
 general /uploadpic.bml.error.toomanypics
 general /uploadpic.bml.error.unknownmode
+general /uploadpic.bml.error.unsupportedtype
 general /uploadpic.bml.error.urlerror
 general /uploadpic.bml.fromfile
 general /uploadpic.bml.fromfile.key
@@ -780,9 +813,17 @@ general /allpics.bml.pics2
 general /allpics.bml.sort.default
 general /allpics.bml.sort.keyword
 general /allpics.bml.title
+general /approve.bml.comm.success
 general /approve.bml.comm.text
+general /approve.bml.commjoin.text
+general /approve.bml.error.actionperformed
+general /approve.bml.error.approving
+general /approve.bml.error.internerr.invalidaction
+general /approve.bml.error.invalidargument
+general /approve.bml.error.unknownactiontype
 general /approve.bml.shared.success
 general /approve.bml.shared.text
+general /approve.bml.title
 general /changeemail.bml.newemail.body2
 general /changeemail.bml.error.lj_domain
 general /changepassword.bml.changepassword.header
@@ -1001,7 +1042,15 @@ general /register.bml.new.101.friends.question
 general /register.bml.new.bodyuser
 general /register.bml.validate.human.submit
 general /register.bml.validate.human.title
+general /reject.bml.comm.success
+general /reject.bml.commreject.text
+general /reject.bml.error.actionperformed
+general /reject.bml.error.internerr.invalidaction
+general /reject.bml.error.invalidargument
+general /reject.bml.error.rejecting
+general /reject.bml.error.unknownactiontype
 general /reject.bml.shared.success
+general /reject.bml.title
 general /shop/account.bml.footnote.prices
 general /shop/gifts.bml.buy
 general /shop/gifts.bml.paid.about

@@ -4,6 +4,20 @@
 
 .admin.text=View a user's entire import history
 
+.col.created=Created
+
+.col.importnum=Import #
+
+.col.item=Item
+
+.col.lasttouch=Last Touch
+
+.col.source=Import Source
+
+.col.status=Status
+
+.empty=No import history for this user.
+
 .form.submit=View Import History
 
 .title=User Import History
