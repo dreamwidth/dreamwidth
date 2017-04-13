@@ -18,7 +18,7 @@ body<=
 use strict;
 {
     use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
-    
+
     if ($LJ::USE_SSL && ! $LJ::IS_SSL && $FORM{ssl} ne "no") {
         my $getextra = $GET{acctid} ? "?acctid=" . LJ::eurl($GET{acctid}) : "";
         return BML::redirect("$LJ::SSLROOT/manage/externalaccount$getextra");
@@ -61,7 +61,7 @@ use strict;
             $editpage = 1;
         }
     }
-    
+
     $title = $editpage ? $ML{'.title.edit'} : $ML{'.title.new'};
 
     my $body .= qq {
@@ -86,7 +86,7 @@ use strict;
     } else {
         my @sitevalues;
         my @sites = DW::External::Site->get_xpost_sites;
-        
+
         # sort the sites for the site dropdown, but also add in the protocol
         # map for the options hide/show
         $body .= "<script type='text/javascript'>\n";
@@ -95,19 +95,19 @@ use strict;
             $body .= "siteProtocolMap[" . $site->{siteid} . "] = '" . $site->servicetype . "';\n";
         }
         $body .= "</script>\n";
-        
+
         # add the custom site option
         push @sitevalues, '-1';
         push @sitevalues, $ML{'.setting.xpost.option.site.custom'};
-        
+
         # the values for the protocol selection dropdown for custom sites
         my %protocolselectmap;
         foreach my $protocol (keys %protocols) {
             $protocolselectmap{$protocol} = $protocol;
         }
-        
+
         $body .= "<td>" . LJ::html_select({
-            name => "site", 
+            name => "site",
             onchange => "updateSiteSelection()",
             selected => $POST{site} || '2'
                                           }, @sitevalues);
@@ -116,7 +116,7 @@ use strict;
         $body .= "<br />$servicetype_errdiv\n" if $servicetype_errdiv;
 
         $body .= "<table summary='' id='customsite'>";
-    
+
         $body .= "<tr><td class='setting_label'><label for='servicetype'>" . $ML{'.setting.xpost.option.servicetype'} . "</label></td>";
         $body .= "<td>" . LJ::html_select({
             name => "servicetype",
@@ -137,7 +137,7 @@ use strict;
 
         # servicename
         $body .= "<tr class='customsite_all'><td class='setting_label'><label for='servicename'>" . $ML{'.setting.xpost.option.servicename'} . "</label></td>";
-        $body .= "<td>" . LJ::html_text({ 
+        $body .= "<td>" . LJ::html_text({
             name => "servicename",
             id => "servicename",
             value => $POST{servicename},
@@ -149,7 +149,7 @@ use strict;
         my $servicename_errdiv = errdiv(\%errs, "servicename");
         $body .= "<br />$servicename_errdiv" if $servicename_errdiv;
         $body .= "</td></tr>\n";
-        
+
         # serviceurl
         $body .= "<tr class='customsite_all'><td class='setting_label'><label for='serviceurl'>" . $ML{'.setting.xpost.option.serviceurl'} . "</label></td>";
         $body .= "<td>" . LJ::html_text({
@@ -165,7 +165,7 @@ use strict;
         $body .= "</td></tr>\n";
 
         $body .= "</table>"; # end customsite table
-        $body .= "</td></tr>\n"; # end 
+        $body .= "</td></tr>\n"; # end
     }
 
     $body .= "<tr><td class='setting_label'><label for='username'>" . $ML{'.setting.xpost.option.username'} . "</label></td>";
@@ -231,14 +231,14 @@ use strict;
         name     => "savepassword",
         value    => 1,
         id       => "savepassword",
-        selected => LJ::did_post() ? 
+        selected => LJ::did_post() ?
                       $POST{savepassword} :
                       $editpage ? $editacct->password ne "" : 1,
     });
     my $savepassword_errdiv = errdiv(\%errs, "savepassword");
     $body .= "<br />$savepassword_errdiv" if $savepassword_errdiv;
     $body .= "</td></tr>\n";
-    
+
     # put in the protocol option section for each protocol
     foreach my $protocol_id ( keys %protocols ) {
         my $protocol = $protocols{$protocol_id};
@@ -246,7 +246,7 @@ use strict;
         if ( @protocol_options ) {
             $body .= "<tbody class='protocol_options' id='" . $protocol_id . "_options'><tr><td>" . BML::ml( '.protocol.options', { protocol => $protocol->protocolid } ) . "</td>\n";
             $body .="<td>";
-            foreach my $option ( @protocol_options ) { 
+            foreach my $option ( @protocol_options ) {
                 if ( $option->{type} eq 'select' ) {
                     $body .= "<label for=" . $option->{opts}->{propid} . ">" . LJ::ehtml( $option->{description} ) . "</label>" . LJ::html_select( $option->{opts}, @{$option->{options}} ) . "</td>\n";
                 }
@@ -373,7 +373,7 @@ sub create_external_account {
         if ( $opts{siteid} ) {
             my $site = DW::External::Site->get_site_by_id( $opts{siteid} );
             $protocol = DW::External::XPostProtocol->get_protocol( $site->servicetype );
-        } else { 
+        } else {
             $protocol = DW::External::XPostProtocol->get_protocol( $opts{servicetype} );
         }
         my $options = parse_options( $protocol, $extacct_info );
@@ -391,7 +391,7 @@ sub create_external_account {
             return 0;
         }
     }
-    
+
     return $ok;
 }
 
@@ -409,7 +409,7 @@ sub account_isvalid {
         $proxyurl = "http://" . $externalsite->{domain} . "/interface/xmlrpc";
         $protocol_id = $externalsite->servicetype;
     } else {
-        $proxyurl = $extacct->{serviceurl}; 
+        $proxyurl = $extacct->{serviceurl};
         $protocol_id = $extacct->{servicetype};
     }
 
