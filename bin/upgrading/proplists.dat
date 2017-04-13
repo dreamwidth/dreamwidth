@@ -597,16 +597,7 @@ userproplist.latest_optout:
   indexed: 0
   multihomed: 0
   prettyname: Latest Updates Opt Out
-
-
-userproplist.mailencoding:
-  cldversion: 4
-  datatype: num
-  des: Encoding in which to mail comments to the user. Defaults to UTF-8.
-  indexed: 0
-  multihomed: 0
-  prettyname: Mail Encoding
-
+  
 userproplist.medium
  cldversion: 4
  datatype: char
