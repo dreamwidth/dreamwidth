@@ -123,7 +123,7 @@ sub load_all {
     my $lang = delete $opts{lang} || $LJ::DEFAULT_LANG;
     my $faqcat = delete $opts{cat};
     my $allow_no_cat = delete $opts{allow_no_cat} || 0;
-    
+
     my $wherecat = "";
     if ( $allow_no_cat ) {
         $wherecat = "WHERE faqcat = " . $dbr->quote($faqcat) if defined $faqcat;
@@ -493,34 +493,22 @@ sub load_matching {
         or die "initial FAQ rendering failed";
 
     foreach my $f (@faqs) {
-	my $score = 0;
+        my $score = 0;
 
-	if ($f->question_raw =~ /\Q$term\E/i) {
-	    $score += 3;
-	}
-	if ($f->question_raw =~ /\b\Q$term\E\b/i) {
-	    $score += 5;
-	}
+        $score += 3 if $f->question_raw =~ /\Q$term\E/i;
+        $score += 5 if $f->question_raw =~ /\b\Q$term\E\b/i;
 
-	if ($f->summary_raw =~ /\Q$term\E/i) {
-	    $score += 2;
-	}
-	if ($f->summary_raw =~ /\b\Q$term\E\b/i) {
-	    $score += 4;
-	}
+        $score += 2 if $f->summary_raw =~ /\Q$term\E/i;
+        $score += 4 if $f->summary_raw =~ /\b\Q$term\E\b/i;
 
-	if ($f->answer_raw =~ /\Q$term\E/i) {
-	    $score += 1;
-	}
-	if ($f->answer_raw =~ /\b\Q$term\E\b/i) {
-	    $score += 3;
-	}
+        $score += 1 if $f->answer_raw =~ /\Q$term\E/i;
+        $score += 3 if $f->answer_raw =~ /\b\Q$term\E\b/i;
 
-	next unless $score;
+        next unless $score;
 
-	$scores{$f->{faqid}} = $score;
+        $scores{$f->{faqid}} = $score;
 
-	push @results, $f;
+        push @results, $f;
     }
 
     return sort { $scores{$b->{faqid}} <=> $scores{$a->{faqid}} } @results;
