@@ -62,9 +62,21 @@ sub work {
     my $acct = DW::External::Account->get_external_account( $u, $acctid )
         or return $job->failed("Unable to load account $acctid for uid $uid");
 
-    # LJRossia is temporarily broken, so skip
-    return $job->permanent_failure( "Crossposts to LJRossia are disabled until the remote site fixes their XMLRPC protocol handler." )
-        if $acct->externalsite && $acct->externalsite->{sitename} eq 'LJRossia';
+    my $sclient = LJ::theschwartz();
+    my $notify_fail = sub {
+        $sclient->insert_jobs(
+            LJ::Event::XPostFailure->new(
+                $u, $acctid, $ditemid, ( $_[0] || 'Unknown error message.' )
+            )->fire_job
+        );
+    };
+
+    # LJRossia is temporarily broken, so skip - but we do want to notify
+    if ( $acct->externalsite && $acct->externalsite->{sitename} eq 'LJRossia' ) {
+        my $ljr_msg = "Crossposts to LJRossia are disabled until the remote site fixes their XMLRPC protocol handler.";
+        $notify_fail->( $ljr_msg );
+        return $job->permanent_failure( $ljr_msg );
+    }
 
     my $domain = $acct->externalsite ? $acct->externalsite->{domain} : 'unknown';
 
@@ -82,7 +94,6 @@ sub work {
     my $start = [ gettimeofday ];
     my $result = $delete ? $acct->delete_entry(\%auth, $entry) : $acct->crosspost(\%auth, $entry);
 
-    my $sclient = LJ::theschwartz();
     if ($result->{success}) {
         $sclient->insert_jobs(LJ::Event::XPostSuccess->new($u, $acctid, $ditemid)->fire_job );
         DW::Stats::increment( 'dw.worker.crosspost.success', 1, [ "domain:$domain" ] );
@@ -101,11 +112,7 @@ sub work {
         }
 
         # Some other failure, so let's just let it go through.
-        $sclient->insert_jobs(
-            LJ::Event::XPostFailure->new(
-                $u, $acctid, $ditemid, ( $result->{error} || 'Unknown error message.' )
-            )->fire_job
-        );
+        $notify_fail->( $result->{error} );
         DW::Stats::increment( 'dw.worker.crosspost.failure', 1, [ "domain:$domain" ] );
         # FIXME: subroutine not implemented
         # DW::Stats::timing( 'dw.worker.crosspost.failure_time', $start, [ "domain:$domain" ] );
