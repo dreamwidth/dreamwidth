@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 66;
+use Test::More tests => 67;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -85,6 +85,7 @@ note( "misc" );
     # C
     test_good_url( "//codepen.io/enxaneta/embed/gPeZdP/?height=268&theme-id=0&default-tab=result" );
     test_good_url( "http://www.criticalcommons.org/Members/china_shop/clips/handle-with-care-white-collar-fanvid/embed_view" );
+    test_good_url( "http://coub.com/embed/x1xx2xxxxxX" );
 
     # D
     test_good_url( "http://www.dailymotion.com/embed/video/x1xx11x" );
