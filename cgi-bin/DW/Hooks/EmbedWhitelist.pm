@@ -55,6 +55,8 @@ my %host_path_match = (
 
     "bandcamp.com"          => [ qr!^/EmbeddedPlayer/!, 1 ],
     "blip.tv"               => [ qr!^/play/!, 1 ],
+    
+    "coub.com"              => [ qr!^/embed/!, 1 ],
 
     "codepen.io"            => [ qr!^/enxaneta/embed/!, 1 ],
     "www.criticalcommons.org" => [ qr!/embed_view$!, 0 ],
