@@ -851,12 +851,12 @@ sub external_services {
         };
     }
 
-    if ( my $medium = $u->prop( 'medium' ) ) {
-	my $medium = LJ::eurl( $medium );
+    if ( my $emedium = $u->prop( 'medium' ) ) {
+	my $emedium = LJ::eurl( $emedium );
 	push @ret, {
 	    type => 'medium',
-	    text => LJ::ehtml( $medium ),
-	    url => "https://medium.com/\@$medium",
+	    text => LJ::ehtml( $emedium ),
+	    url => "https://medium.com/\@$emedium",
 	    image => 'medium.png',
 	    title_ml => '.service.medium',
 	};
