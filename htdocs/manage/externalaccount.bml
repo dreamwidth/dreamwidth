@@ -91,6 +91,8 @@ use strict;
         # map for the options hide/show
         $body .= "<script type='text/javascript'>\n";
         foreach my $site (sort { $a->{sitename} cmp $b->{sitename} } @sites) {
+            # LJRossia is temporarily broken, so remove from list
+            next if $site->{sitename} eq 'LJRossia';
             push @sitevalues, $site->{siteid},  $site->{sitename};
             $body .= "siteProtocolMap[" . $site->{siteid} . "] = '" . $site->servicetype . "';\n";
         }

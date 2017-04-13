@@ -62,6 +62,10 @@ sub work {
     my $acct = DW::External::Account->get_external_account( $u, $acctid )
         or return $job->failed("Unable to load account $acctid for uid $uid");
 
+    # LJRossia is temporarily broken, so skip
+    return $job->permanent_failure( "Crossposts to LJRossia are disabled until the remote site fixes their XMLRPC protocol handler." )
+        if $acct->externalsite && $acct->externalsite->{sitename} eq 'LJRossia';
+
     my $domain = $acct->externalsite ? $acct->externalsite->{domain} : 'unknown';
 
     my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
