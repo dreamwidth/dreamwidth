@@ -32,7 +32,8 @@ sub contentfilters_handler {
 
     # make sure we have a user of some sort
     my $remote = LJ::get_remote();
-    my $u = LJ::get_authas_user( $get->{user} || $remote->user );
+    my $remote_user = $remote ? $remote->user : undef;
+    my $u = LJ::get_authas_user( $get->{user} || $remote_user );
     return DW::RPC->alert( 'Unable to load user for call.' ) unless $u;
 
     # in theory, they're passing a mode in the GET arguments
@@ -191,13 +192,13 @@ sub extacct_auth_handler {
     my $get = $r->get_args;
 
     my $u = LJ::get_remote();
-    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nouser' ) )
+    return DW::RPC->err( LJ::Lang::ml( 'error.extacct_auth.nouser' ) )
         unless $u;
 
     # get the account
     my $acctid = LJ::ehtml( $get->{acctid} );
     my $account = DW::External::Account->get_external_account( $u, $acctid );
-    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nosuchaccount',
+    return DW::RPC->err( LJ::Lang::ml( 'error.extacct_auth.nosuchaccount',
                             {
                                 acctid => $acctid,
                                 username => $u->username
@@ -205,7 +206,7 @@ sub extacct_auth_handler {
                         ) ) unless $account;
 
     # make sure this account supports challenge/response authentication
-    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.nochallenge',
+    return DW::RPC->err( LJ::Lang::ml( 'error.extacct_auth.nochallenge',
                             {
                                 account => LJ::ehtml( $account->displayname )
                             }
@@ -213,7 +214,7 @@ sub extacct_auth_handler {
 
     # get the auth challenge
     my $challenge = $account->challenge;
-    return DW::RPC->err( LJ::Lang::ml( '/tools/endpoints/extacct_auth.bml.error.authfailed',
+    return DW::RPC->err( LJ::Lang::ml( 'error.extacct_auth.authfailed',
                             {
                                 account => LJ::ehtml( $account->displayname )
                             }
@@ -243,7 +244,7 @@ sub general_handler {
 
         my $uobjs = LJ::load_userids( keys %{ $ret{subs} } );
         foreach my $userid ( keys %$uobjs ) {
-            $ret{subs}->{$userid}->{username} = $uobjs->{$userid}->user;            
+            $ret{subs}->{$userid}->{username} = $uobjs->{$userid}->user;
             $ret{subs}->{$userid}->{journaltype} = $uobjs->{$userid}->journaltype;
         }
 
@@ -255,7 +256,7 @@ sub general_handler {
             delete $val->{security};
             delete $val->{display};
         }
-        
+
     # get the list of members of an access filter
     } elsif ( $mode eq 'list_filter_members' ) {
         my $filterid = $args->{filterid} + 0;

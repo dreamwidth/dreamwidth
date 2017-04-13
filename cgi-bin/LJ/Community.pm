@@ -216,7 +216,7 @@ sub get_pending_invites {
     my $dbcr = LJ::get_cluster_def_reader($u);
     return LJ::error('db') unless $dbcr;
     my $pending = $dbcr->selectall_arrayref('SELECT commid, maintid, recvtime, args FROM inviterecv WHERE userid = ? ' .
-                                            'AND recvtime > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))', 
+                                            'AND recvtime > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))',
                                             undef, $u->{userid});
     return undef if $dbcr->err;
     return $pending;
@@ -343,7 +343,7 @@ sub get_community_row {
 
     # hit up database
     my $dbr = LJ::get_db_reader() or return;
-    my ($membership, $postlevel) = 
+    my ($membership, $postlevel) =
         $dbr->selectrow_array('SELECT membership, postlevel FROM community WHERE userid=?',
                               undef, $cu->{userid});
     return if $dbr->err;
@@ -366,7 +366,7 @@ sub get_community_row {
 sub get_pending_members {
     my ( $cu ) = @_;
     return unless LJ::isu( $cu );
-    
+
     # database request
     my $dbr = LJ::get_db_reader() or return;
     my $args = $dbr->selectcol_arrayref('SELECT arg1 FROM authactions WHERE userid = ? ' .
@@ -713,6 +713,8 @@ sub get_members_by_role {
 # returns same as get_members_by_role
 sub get_member {
     my ( $cu, $u ) = @_;
+
+    return ( {}, {} ) unless LJ::isu( $u );
 
     my $dbr = LJ::get_db_reader();
 

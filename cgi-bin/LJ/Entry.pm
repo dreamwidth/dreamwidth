@@ -718,6 +718,7 @@ sub comment_info {
         screened => $has_screened,
         screened_count => $screenedcount,
         show_readlink => $comments_enabled && ( $replycount || $has_screened ),
+        show_readlink_hidden => $comments_enabled,
         show_postlink => $comments_enabled,
     };
 }
@@ -878,6 +879,8 @@ sub event_html
     my $suspend_msg = $self->should_show_suspend_msg_to($remote) ? 1 : 0;
     $opts->{suspend_msg} = $suspend_msg;
     $opts->{unsuspend_supportid} = $suspend_msg ? $self->prop("unsuspend_supportid") : 0;
+    $opts->{journal} = $self->{u}->user;
+    $opts->{ditemid} = $self->{ditemid};
 
     $self->_load_text unless $self->{_loaded_text};
     my $event = $self->{event};
@@ -982,7 +985,7 @@ sub visible_to
     }
 
     # public is okay
-    return 1 if $self->{'security'} eq "public";
+    return 1 if $self->security eq "public";
 
     # must be logged in otherwise
     return 0 unless $remote;
@@ -995,7 +998,7 @@ sub visible_to
 
     # should be 'usemask' or 'private' security from here out, otherwise
     # assume it's something new and return 0
-    return 0 unless $self->{security} eq "usemask" || $self->{security} eq "private";
+    return 0 unless $self->security eq "usemask" || $self->security eq "private";
 
     return 0 unless $remote->is_individual;
 
@@ -2204,15 +2207,9 @@ sub delete_comments {
         $u->do( "DELETE FROM talkprop2 $where" );
     }
 
-    my @jobs;
     foreach my $talkid ( @talkids ) {
-        my $cmt = LJ::Comment->new( $u, jtalkid => $talkid );
-        push @jobs, LJ::EventLogRecord::DeleteComment->new( $cmt )->fire_job;
         LJ::Hooks::run_hooks( 'delete_comment', $jid, $nodeid, $talkid ); # jitemid, jtalkid
     }
-
-    my $sclient = LJ::theschwartz();
-    $sclient->insert_jobs( @jobs ) if @jobs;
 
     $u->memc_delete( 'activeentries' );
     LJ::MemCache::delete( [ $jid, "screenedcount:$jid:$nodeid" ] );

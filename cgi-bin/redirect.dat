@@ -1,7 +1,6 @@
 /community.bml                      /community/
 /communities                        /community/
 /support.bml                        /support/
-/textmessage.bml                    /tools/textmessage.bml
 /memories.bml                       /tools/memories.bml
 /memadd.bml                         /tools/memadd.bml
 /faq.bml                            /support/faq.bml
@@ -13,6 +12,9 @@
 /manage/comments                    /manage/settings/?cat=privacy
 /manage/comments/                   /manage/settings/?cat=privacy
 /manage/comments/index.bml          /manage/settings/?cat=privacy
+/manage/domain                      /manage/settings/
+/manage/domain.bml                  /manage/settings/
+/manage/index.bml                   /manage/
 /manage/invitecodes                 /invite
 /manage/invitecodes.bml             /invite
 /manage/subscriptions               /manage/subscriptions/filters

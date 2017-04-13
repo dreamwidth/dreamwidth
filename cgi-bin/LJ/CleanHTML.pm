@@ -91,7 +91,7 @@ my %tag_substitute = (
 # slash and get the proper behavior from a browser.
 #
 # In HTML5 these are called "void elements".
-my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|lj-embed|site-embed)$/i;
+my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|wbr|lj-embed|site-embed)$/i;
 
 # <LJFUNC>
 # name: LJ::CleanHTML::clean
@@ -136,7 +136,7 @@ sub clean
     my $remove_abs_sizes = $opts->{remove_abs_sizes} || 0;
     my $remove_fonts = $opts->{'remove_fonts'} || 0;
     my $blocked_links = (exists $opts->{'blocked_links'}) ? $opts->{'blocked_links'} : \@LJ::BLOCKED_LINKS;
-    my $blocked_link_substitute = 
+    my $blocked_link_substitute =
         (exists $opts->{'blocked_link_substitute'}) ? $opts->{'blocked_link_substitute'} :
         ($LJ::BLOCKED_LINK_SUBSTITUTE) ? $LJ::BLOCKED_LINK_SUBSTITUTE : '#';
     my $suspend_msg = $opts->{'suspend_msg'} || 0;
@@ -276,17 +276,16 @@ sub clean
             'poll-question' => 'lj-pq',
             'raw-code'      => 'lj-raw',
             'site-embed'    => 'lj-embed',
-            'site-template' => 'lj-template',
             'user'          => 'lj',
         }->{$_[0]} || $_[0];
     };
 
-    
-    # if we're retrieving a cut tag, then we want to eat everything 
+
+    # if we're retrieving a cut tag, then we want to eat everything
     # until we hit the first cut tag.
     my @cuttag_stack = ();
     my $eatall = $cut_retrieve ? 1 : 0;
-    
+
   TOKEN:
     while (my $token = $p->get_token)
     {
@@ -328,12 +327,9 @@ sub clean
                 $name =~ s/-/_/g;
 
                 my $run_template_hook = sub {
-                    # can pass in tokens to override passing the hook the @capture array
-                    my ($token, $override_capture) = @_;
-                    my $capture = $override_capture ? [$token] : \@capture;
-                    my $expanded = ($name =~ /^\w+$/) ? LJ::Hooks::run_hook("expand_template_$name", $capture) : "";
-                    my $template = LJ::ehtml( $name );
-                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template', { aopts => $template } ) . "</strong>";
+                     # deprecated - will always print an error msg (see #1869)
+                    $newdata .= "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template',
+                                { aopts => LJ::ehtml( $name ) } ) . "</strong>";
                 };
 
                 if ($attr->{'/'}) {
@@ -383,10 +379,10 @@ sub clean
                 next TOKEN;
             }
 
+            # deprecated - will always print an error msg (see #1869)
             if (($tag eq "div" || $tag eq "span") && lc $attr->{class} eq "ljvideo") {
                 $start_capture->($tag, $token, sub {
-                    my $expanded = LJ::Hooks::run_hook("expand_template_video", \@capture);
-                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
+                    $newdata .= "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
                 });
                 next TOKEN;
             }
@@ -714,7 +710,7 @@ sub clean
                                     next ATTR;
                                 }
                             }
-                            
+
                             if ($opts->{'strongcleancss'}) {
                                 if ($hash->{style} =~ /-moz-|absolute|relative|outline|z-index|(?<!-)(?:top|left|right|bottom)\s*:|filter|-webkit-/io) {
                                     delete $hash->{style};
@@ -774,7 +770,7 @@ sub clean
                         delete $hash->{$attr};
                         next;
 		    }
-		    
+
                     # reserve ljs_* ids for divs, etc so users can't override them to replace content
                     if ($attr eq 'id' && $hash->{$attr} =~ /^ljs_/i) {
                         delete $hash->{$attr};
@@ -807,7 +803,7 @@ sub clean
                             }
                         }
                     }
-                    
+
                     unless ($hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei) {
                         $hash->{href} = canonical_url($hash->{href}, 1);
                     }
@@ -825,9 +821,19 @@ sub clean
                         ! defined $hash->{height}) { $img_bad ||= $opts->{imageplaceundef}; }
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
-                    my $url = canonical_url($hash->{src}, 1);
-                    $url = https_url( $url, journal => $journal, ditemid => $ditemid ) if $LJ::IS_SSL;
-                    $hash->{src} = $url;
+                    my $sanitize_url = sub {
+                        my $url = canonical_url( $_[0], 1 );
+                        return $url unless $LJ::IS_SSL;
+                        return https_url( $url, journal => $journal, ditemid => $ditemid );
+                    };
+
+                    $hash->{src} = $sanitize_url->( $hash->{src} );
+
+                    # some responsive images use srcset as well as src;
+                    # both attributes should be proxied for https if requested
+                    if ( defined $hash->{srcset} ) {
+                        $hash->{srcset} =~ s!\b(http://\S+)!$sanitize_url->( $1 )!egi;
+                    }
 
                     if ($img_bad) {
                         $newdata .= "<a class=\"ljimgplaceholder\" href=\"" .
@@ -850,6 +856,8 @@ sub clean
                 # customview.cgi makes it very easy for someone to replace their entire journal
                 # in S1 with a page that embeds scripting as well.  An example being an AJAX
                 # six degrees tool, while cool it should not be allowed.
+                #
+                # FIXME Dreamwidth does not support S1 and customview has been removed.
                 #
                 # Example syntax:
                 # <xsl:element name="script">
@@ -985,18 +993,18 @@ sub clean
 
                 next TOKEN if @eatuntil;
             }
-            
+
             # if we're just getting the contents of a cut tag, then pop the
             # tag off the stack.  if this is the last tag on the stack, then
             # go back to eating the rest of the content.
             if ( @cuttag_stack ) {
                 if ( $cuttag_stack[-1] eq $tag ) {
                     pop @cuttag_stack;
-                    
+
                     last TOKEN unless ( @cuttag_stack );
                 }
             }
-            
+
             if ( $eatall ) {
                 next TOKEN;
             }
@@ -1004,7 +1012,7 @@ sub clean
             if ( $eating_ljuser_span ) {
                 if ( $tag eq "span" ) {
                     $eating_ljuser_span = 0;
-                    
+
                     if ( $opts->{textonly} ) {
                         $newdata .= $ljuser_text_node;
                     } else {
@@ -1408,7 +1416,7 @@ my $subject_remove = [qw[bgsound embed object caption link font noscript]];
 sub clean_subject
 {
     my $ref = shift;
-    return unless $$ref =~ /[\<\>]/;
+    return unless defined $$ref and $$ref =~ /[\<\>]/;
     clean($ref, {
         'wordlength' => 40,
         'addbreaks' => 0,
@@ -1662,8 +1670,11 @@ sub https_url {
     # https:// and the relative // protocol don't need proxying
     return $url if $url =~ m!^(?:https://|//)!;
 
-    # if this link is on our site, let's just switch it to https
-    if ( $url =~ $LJ::DOMAIN ) {
+    # if this link is on a site that supports HTTPS, upgrade the protocol
+    my $https_ok = %LJ::KNOWN_HTTPS_SITES ? \%LJ::KNOWN_HTTPS_SITES : {};
+    my ( $domain ) = ( $url =~ m!^http://[^/]*?([^.]+\.\w{2,3})/! );
+
+    if ( $domain && ( $domain eq $LJ::DOMAIN || $https_ok->{$domain} ) ) {
         $url =~ s!^http:!https:!;
         return $url;
     }
@@ -1678,8 +1689,40 @@ sub break_word {
     my ($word, $at) = @_;
     return $word unless $at;
 
-    $word =~ s/((?:$onechar){$at})\B/$1<wbr \/>/g;
-    return $word;
+    my $ret = '';
+    my $chunk;
+
+    # This while loop splits up $word into chunks that are each $at characters
+    # long.  If the chunk contains punctuation (here defined as anything that
+    # isn't a word character or digit), the word break tag will be placed at
+    # the last punctuation point; otherwise it will be placed at the maximum
+    # length of the unbroken word as defined by $at.
+
+    while ( $word =~ s/^((?:$onechar){$at})// ) {
+        $chunk = $1;
+
+        # Edge case: if the next character would be whitespace, we
+        # don't want to insert a word break tag at the end of a word.
+
+        if ( $word eq '' ) {
+            $ret .= $chunk;
+            next;
+        }
+
+        # Here we shift the breakpoint if the chunk contains punctuation,
+        # unless the punctuation occurs as the first character of the chunk,
+        # since it would be immediately preceded by either whitespace or the
+        # previous word break tag.
+
+        if ( $chunk =~ /([^\d\w])([\d\w]+)$/p && $-[1] != 0 ) {
+            $chunk = "${^PREMATCH}$1";
+            $word = "$2$word";
+        }
+
+        $ret .= "$chunk<wbr />";
+    }
+
+    return "$ret$word";
 }
 
 sub quote_html {
@@ -1705,13 +1748,21 @@ sub clean_as_markdown {
     # second, convert @-style addressing to user tags
     my $usertag = sub {
         my ($user, $site) = ($1, $2 || $LJ::DOMAIN);
-        if (my $siteobj = DW::External::Site->get_site( site => $site )) {
+        my $siteobj = DW::External::Site->get_site( site => $site );
+
+        if ( $site eq $LJ::DOMAIN ) {
+            # just use a plain usertag in the most common case, which
+            # also avoids problems with other sites (dreamhacks etc.)
+            # that aren't found in DW::External::Site
+            return qq|<user name="$user" />|;
+        } elsif ( $siteobj && ref $siteobj ne 'DW::External::Site::Unknown' ) {
+            # only do site tags for known site formats
             return qq|<user name="$user" site="$siteobj->{domain}" />|;
         } else {
             return qq|\@$user.$site|;
         }
     };
-    $$ref =~ s/(?<=\W)\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)/$usertag->($1, $2)/mge;
+    $$ref =~ s!(?<=[^\w/])\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)!$usertag->($1, $2)!mge;
 
     return 1;
 }

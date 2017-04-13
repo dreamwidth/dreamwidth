@@ -120,9 +120,7 @@ no strict "vars";
                       's2viewreply' => 1,
                       's2stylesmax' => 10,
                       's2layersmax' => 50,
-                      'textmessaging' => 1,
                       'userdomain' => 0,
-                      'domainmap' => 0,
                       'useremail' => 0,
                       'userpics' => 5,
                       'findsim' => 1,
@@ -196,10 +194,6 @@ no strict "vars";
     $MOGILEFS_CONFIG{classes}->{vgifts}      ||= 3;
     $MOGILEFS_CONFIG{classes}->{media}       ||= 3;
 
-    # Default to allow all reproxying.
-    %REPROXY_DISABLE = () unless %REPROXY_DISABLE;
-
-
     # detect whether we are running on 32-bit architecture
     my $arch = ( length(pack "L!", 0) == 4 ) ? 1 : 0;
     if ( defined $ARCH32 ) {
@@ -208,7 +202,6 @@ no strict "vars";
     } else {
         $ARCH32 = $arch;
     }
-
 
     # setup default minimal style information
     $MINIMAL_USERAGENT{$_} ||= 1 foreach qw(Links Lynx w BlackBerry WebTV); # w is for w3m
@@ -272,9 +265,6 @@ no strict "vars";
     my %ajaxmapping = (
                        delcomment     => "delcomment.bml",
                        talkscreen     => "talkscreen.bml",
-                       dirsearch      => "tools/endpoints/directorysearch.bml",
-                       jobstatus      => "tools/endpoints/jobstatus.bml",
-                       multisearch    => "tools/endpoints/multisearch.bml",
                        );
 
     foreach my $src (keys %ajaxmapping) {
@@ -360,6 +350,9 @@ no strict "vars";
         /latest
         /edittags
     );
+    
+    # Selective screening limit. No user can have more than this.
+    $LJ::SEL_SCREEN_LIMIT ||= 500;
 }
 
 

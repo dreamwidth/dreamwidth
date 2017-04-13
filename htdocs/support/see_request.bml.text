@@ -13,6 +13,8 @@
 
 .betatesting=Beta testing
 
+.no-beta=(none)
+
 .birthday=birthday
 
 .change.cat=Change Category
@@ -74,8 +76,6 @@
 .
 
 .internal.comment=Internal Comment
-
-.language=Language
 
 .lock.request=Lock Request
 

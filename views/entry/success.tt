@@ -23,11 +23,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>[% poststatus.ml_string | ml( url => poststatus.url)%]</p>
 [%- END -%]
 
-    [%- IF poststatus.ml_string != ".edit.delete" -%]
+[%- IF warnings.exist -%]
+    [%- FOREACH warning IN warnings.get_all -%]
+        <div class="alert-box">[%- warning.message -%]</div>
+    [%- END -%]
+[%- END -%]
 
-    <p>[% extradata.security_ml | ml %]</p>
+[%- IF poststatus.ml_string != ".edit.delete" -%]
+
+    <p>[% extradata.security_ml | ml( filters => extradata.filters ) %]</p>
     <p>[% ".extradata.subj" | ml %]
-        [% IF extradata.subject.length > 0 %]
+        [% IF extradata.subject.length %]
             [%# cleaned subject should render HTML #%]
             [% extradata.subject %]
         [% ELSE %]
@@ -36,13 +42,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- END -%]
 [%- END -%]
 
-[%- IF warnings.exist -%]
-    [%- FOREACH warning IN warnings.get_all -%]
-        <div class="alert-box">[%- warning.message -%]</div>
-    [%- END -%]
-[%- END -%]
-
-[%- IF crossposts.size > 0 -%]
+[%- IF crossposts.size -%]
 <ul class='no-bullet'>
     [%- FOREACH crosspost IN crossposts -%]
         <li class="alert-box [% IF crosspost.status == "error" %] alert [%- ELSE -%] success [%- END -%]">
@@ -52,9 +52,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </ul>
 [%- END -%]
 
-[%- IF links.size > 0 -%]
+[%- IF links.size -%]
 <p>[%- links_header | ml -%]</p>
-<ul>
+<ul class="successlinks">
     [%- FOREACH link IN links -%]
         <li><a href="[% link.url %]">[% link.ml_string | ml %]</a></li>
     [%- END -%]

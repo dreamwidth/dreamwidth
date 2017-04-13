@@ -396,7 +396,13 @@ body<=
                           style => 'vertical-align: middle; border: 0;' } );
         $ret .= "</a>\n";
     }
+
+    if ( $u->is_rp_account ) {
+        $ret .= ": " . BML::ml( '.details.rp' );
+    }
+
     $ret .= q{ </div> };
+
 
 ################################################################################
 ##### ACTION LINKS
@@ -601,16 +607,10 @@ body<=
     my $imlist;
     foreach my $service ( $profile->external_services ) {
         my $title = $ML{$service->{title_ml}};
-        $imlist .= "<tr class='im_$service->{type}'>";
-        $imlist .= "<td class='im_icon'><img src='$LJ::IMGPREFIX/profile_icons/$service->{image}' alt=\"$title\" title=\"$title\" /></td>";
-        if ( $service->{status_image} ) {
-            my $status_title = $ML{$service->{status_title_ml}};
-            $imlist .= "<td>" . $linkify->( $service ) . "</td>";
-            $imlist .= "<td class='im_status'><img src='$service->{status_image}' alt=\"$status_title\" title=\"$status_title\" width='$service->{status_width}' height='$service->{status_height}' /></td>";
-        } else {
-            $imlist .= "<td colspan='2'>" . $linkify->( $service ) . "</td>";
-        }
-        $imlist .= "</tr>";
+        $imlist .= "<li class=\"im_$service->{type}\">";
+        $imlist .= "<div class=\"im_icon\"><img src=\"$LJ::IMGPREFIX/profile_icons/$service->{image}\" alt=\"$title\" title=\"$title\" /></div>";
+        $imlist .= " " . $linkify->( $service );
+        $imlist .= "</li>";
     }
     if ( $imlist ) {
         my $secimg = $profile->security_image( $u->opt_showcontact );
@@ -625,7 +625,7 @@ body<=
             section_name_postfix => $secimg,
             section_link    => 'services',
             extra_attrs     => $new_im_margin,
-            body            => "<table summary=''>$imlist</table>",
+            body            => "<ul>$imlist</ul>",
             links           => $links,
             collapsible     => 0,
         );
@@ -948,7 +948,7 @@ body<=
 
         if ( $u->is_personal ) {
             my @member_of_list = grep { $includeuser->( $_ ) }
-                map { $us->{$_} } @member_of_userids; 
+                map { $us->{$_} } @member_of_userids;
             $member_of_body = $content_inner_block->(
                 section_name    => 'member_of_comms',
                 section_name_ml => $mlsn->( '.comms.member_of', \@member_of_list ),

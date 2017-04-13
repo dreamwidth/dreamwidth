@@ -10,20 +10,12 @@ old: js/6alib/selectable_table.js
 
 old: js/6alib/checkallbutton.js
 
-old: js/6alib/progressbar.js
-old: js/ljprogressbar.js
-
 old: js/6alib/ippu.js
 old: js/6alib/lj_ippu.js
 old: js/6alib/template.js
 old: js/userpicselect.js
 
 old: js/6alib/view.js
-old: js/directorysearch.js
-old: js/directorysearchconstraints.js
-old: js/directorysearchresults.js
-
-old: js/esnmanager.js
 
 old: js/ljwidget.js
 old: js/ljwidget_ippu.js
@@ -58,18 +50,6 @@ test( "misc utils", function() {
     ok( o, "SelectableTable" );
 
 });
-test( "LJProgressBar", function() {
-    expect(2);
-
-    var o;
-    o = new ProgressBar();
-    o.init();
-    ok( o, "ProgressBar" );
-
-    o = new LJProgressBar();
-    o.init();
-    ok( o, "LJProgressBar" );
-});
 
 test( "UserpicSelect", function() {
     expect(4);
@@ -90,46 +70,6 @@ test( "UserpicSelect", function() {
     o = new UserpicSelect();
     o.init();
     ok( o, "UserpicSelect" );
-});
-
-test( "Directory", function() {
-    expect(6);
-
-    var o;
-    o = new View();
-    o.init({});
-    ok( o, "View" );
-
-    o = new DirectorySearchView();
-    o.init($("searchview"), {});
-    ok( o, "DirectorySearchView" );
-
-    o = new DirectorySearch();
-    o.init() ;
-    ok( o, "DirectorySearch" );
-
-    o = new DirectorySearchResults();
-    o.init({}, {"resultsView": $("searchresults")});
-    ok( o, "DirectorySearchResults" );
-
-    o = new DirectorySearchConstraintsView();
-    o.init({view: $("searchconstraints")});
-    ok( o, "DirectorySearchConstraintsView" );
-
-    o = new DirectorySearchConstraint();
-    o.init();
-    ok( o, "DirectorySearchConstraint" );
-});
-
-test( "ESN", function() {
-    expect(1);
-
-    var o;
-
-    // possibly unused?
-    o = new ESNManager();
-    o.init();
-    ok( o, "ESNManager" );
 });
 
 test( "Widget", function() {

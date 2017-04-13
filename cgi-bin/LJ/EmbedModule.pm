@@ -519,24 +519,9 @@ sub module_iframe_tag {
                     my $src;
                     next unless $src = $attr->{src};
 
-                    # we have an object/embed tag with src, make a fake lj-template object
-                    my @tags = (
-                                ['S', 'lj-template', {
-                                    name => 'video',
-                                    (defined $elewidth     ? ( width  => $width  ) : ()),
-                                    (defined $eleheight    ? ( height => $height ) : ()),
-                                    (defined $flashvars ? ( flashvars => $flashvars ) : ()),
-                                }],
-                                [ 'T', $src, {}],
-                                ['E', 'lj-template', {}],
-                                );
+                    # RIP lj-template (#1869)
+                    $no_whitelist = 1;
 
-                    $embedcodes = LJ::Hooks::run_hook('expand_template_video', \@tags);
-
-                    $found_embed = 1 if $embedcodes;
-                    $found_embed &&= $embedcodes !~ /Invalid video/i;
-
-                    $no_whitelist = !$found_embed;
                 } elsif ($tag ne 'param') {
                     $no_whitelist = 1;
                 }

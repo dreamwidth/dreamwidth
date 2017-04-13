@@ -78,8 +78,8 @@ sub make_journal
         return;
     }
 
-    my $lang = $remote && $remote->prop( "browselang" );
-    LJ::Hooks::run_hook('set_s2bml_lang', $ctx, \$lang);
+    # see also Apache/LiveJournal.pm
+    my $lang = $LJ::DEFAULT_LANG;
 
     # note that's it's very important to pass LJ::Lang::get_text here explicitly
     # rather than relying on BML::set_language's fallback mechanism, which won't
@@ -296,6 +296,7 @@ sub s2_run
     };
     my $out_clean = sub {
         my $text = shift;
+        $text = '' unless defined $text;
 
         $cleaner->parse($text);
 
@@ -1388,7 +1389,7 @@ sub layer_compile
     }
 
     my $is_system = $layer->{userid} == LJ::get_userid( "system" );
-    my $untrusted = ! $LJ::S2_TRUSTED{$layer->{userid}} && ! $is_system;
+    my $untrusted = ! $is_system;
 
     # system writes go to global.  otherwise to user clusters.
     my $dbcm;
@@ -2374,7 +2375,11 @@ sub Page
     # other useful link rels
     $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
     $p->{head_content} .= qq{<link rel="apple-touch-icon" href="$LJ::APPLE_TOUCH_ICON" />\n}
-         if $LJ::APPLE_TOUCH_ICON;
+        if $LJ::APPLE_TOUCH_ICON;
+    $p->{head_content} .= qq{<meta property="og:image" content="$LJ::FACEBOOK_PREVIEW_ICON"/>\n}
+        if $LJ::FACEBOOK_PREVIEW_ICON;
+    $p->{head_content} .= qq{<meta property="og:image:width" content="363"/>\n};
+    $p->{head_content} .= qq{<meta property="og:image:height" content="363"/>\n};
     # Identity (type I) accounts only have read views
     $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
     # feed accounts only have recent entries views

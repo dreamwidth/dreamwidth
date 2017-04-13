@@ -1,6 +1,6 @@
 # t/emailpost-comment.t
 #
-# Test TODO
+# Test replying to comments via email.
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -54,16 +54,29 @@ $subject = DW::EmailPost::Comment->determine_subject(
 );
 is( $subject, "Re: Some custom subject", "custom parent subject, default email subject" );
 
+$c_parent->set_subject( "Make sure punctuation isn't escaped" );
+$subject = DW::EmailPost::Comment->determine_subject(
+    "Re: Make sure punctuation isn't escaped $generated",
+    $u, $ditemid, $c_parent->dtalkid
+);
+is( $subject, "Re: Make sure punctuation isn't escaped", "punctuated parent subject, default email subject" );
+
 $c_parent->set_subject( "" );
 $subject = DW::EmailPost::Comment->determine_subject(
     "Change of topic mid-thread",
     $u, $ditemid, $c_parent->dtalkid
 );
-is( $subject, "Change of topic mid-thread", "default parent subjct, custom email subject" );
+is( $subject, "Change of topic mid-thread", "default parent subject, custom email subject" );
 
 $c_parent->set_subject( "Some custom subject" );
 $subject = DW::EmailPost::Comment->determine_subject(
     "Change of topic mid-thread",
     $u, $ditemid, $c_parent->dtalkid
 );
-is( $subject, "Change of topic mid-thread", "custom parent subjct, custom email subject" );
+is( $subject, "Change of topic mid-thread", "custom parent subject, custom email subject" );
+
+$subject = DW::EmailPost::Comment->determine_subject(
+    "Make sure punctuation isn't escaped",
+    $u, $ditemid, $c_parent->dtalkid
+);
+is( $subject, "Make sure punctuation isn't escaped", "custom parent subject, punctuated email subject" );

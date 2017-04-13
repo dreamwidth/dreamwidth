@@ -67,7 +67,7 @@ sub add_to_beta {
         $u->add_to_class($class->cap_name);
     }
 
-    my $propval = $u->prop($class->prop_name);
+    my $propval = $u->prop($class->prop_name) // '';
     my @features = split(/\s*,\s*/, $propval);
     return 1 if grep { $_ eq $key } @features;
 
@@ -108,8 +108,7 @@ sub remove_from_beta {
 }
 
 sub user_in_beta {
-    my $class = shift;
-    my ($u, $key) = @_;
+    my ( $class, $u, $key ) = @_;
 
     my $key_handler = $class->get_handler( $key );
     return 1 if $key_handler->is_sitewide_beta;

@@ -71,7 +71,6 @@ body<=
                 LJ::Setting::Display::AccountStatus
                 LJ::Setting::Display::Email
                 LJ::Setting::Display::Password
-                LJ::Setting::Display::DomainMapping
             )],
         },
         display => {
@@ -107,6 +106,7 @@ body<=
                 DW::Setting::ExcludeOwnStats
                 DW::Setting::StickyEntry
                 DW::Setting::MobileView
+                DW::Setting::RPAccount
                 LJ::Setting::SiteScheme
             )],
         },
@@ -123,10 +123,9 @@ body<=
             visible => 1,
             disabled => !$u || $u->is_community ? 1 : 0,
             form => 1,
-            desc => $ML{'.cat.mobile.desc'},
+            desc => $ML{'.cat.mobile.desc2'},
             settings => [qw(
                 LJ::Setting::EmailPosting
-                DW::Setting::TxtMsgSetup
             )],
         },
         privacy => {
@@ -211,7 +210,7 @@ body<=
         $given_cat = "display";
     }
 
-    if ( $u->user ne $authas ) {
+    if ( $u && $u->user ne $authas ) {
         # can only impersonate notification settings -
         # if invisible or disabled, print this error
         return LJ::bad_input( $ML{'error.invalidauth'} )
@@ -247,7 +246,7 @@ body<=
 
         # can't make changes while impersonating
         return LJ::bad_input( $ML{'error.invalidauth'} )
-            if $u->user ne $authas;
+            if $u && $u->user ne $authas;
 
         if ( $given_cat eq "notifications" && $POST{deleteinactive} ) {
             $u->delete_all_inactive_subscriptions;

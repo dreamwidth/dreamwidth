@@ -1,0 +1,32 @@
+[% DEFAULT
+    labelSize = 2
+    fieldSize = 12 - labelSize
+    type      = "text"
+%]
+<div class="row">
+    <div class="large-[% labelSize %] columns">
+        <label for="[% name %]">[% label %]</label>
+    </div>
+    <div class="large-[% fieldSize %] columns">
+        [% IF type == "text" %]
+            [%- form.textbox( "name" = name, "id" = id, "value" = value ) -%]
+        [% ELSIF type == "textarea" %]
+            [%- form.textarea( "name" = name 
+                                rows = 3
+                                "id" = id
+                                "value" = value
+                                "maxlength" = maxlength) 
+            -%]
+        [% ELSIF type == "select" %]
+            [%- form.select( "items"   = items
+                             "name"    = name
+                             "id" = id
+                             "selected" = selected
+                           )
+            -%]
+        [% ELSIF type == "checkbox" %]
+            [%- form.checkbox( "name" = name, "id" = id, "value" = value) -%]
+        [% END %]
+
+    </div>
+</div>

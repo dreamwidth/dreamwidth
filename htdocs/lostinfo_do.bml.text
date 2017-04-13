@@ -3,39 +3,10 @@
 
 .error1.text=You've never used that email address with this account, or it was never confirmed.
 
-.lostpasswordmail.part1<<
-*** This is an automated email.  You do not need to respond to it. ***
-
-This is your requested password reminder from [[sitename]].
-Below is your username, password, and email address your journal is
-registered under.
-
-          Username: [[username]]
-          Password: [[password]]
-     EMail Address: [[emailadr]]
-.
-
-.lostpasswordmail.part2=To validate your email address, go here:
-
 .lostpasswordmail.part3<<
 This information was requested on the website from [[remoteip]].
 
-If you didn't ask to have your password emailed to you, don't be alarmed - after all, you're the one reading this email, not the person who made the request on the website.  It's possible that the person who made the request simply made a typo in an account name or email address.
-.
-
-.lostpasswordmail.part5<<
-Useful links:
-
-  Your Dreamwidth Studio:
-    [[journalurl]]
-
-  Update your journal online:
-    [[updateurl]]
-
-Regards,
-The site team
-
-[[rooturl]]
+If you didn't ask to have a password reset token emailed to you, don't be alarmed - after all, you're the one reading this email, not the person who made the request on the website.  It's possible that the person who made the request simply made a typo in an account name or email address.
 .
 
 .lostpasswordmail.reset<<

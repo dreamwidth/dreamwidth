@@ -54,14 +54,6 @@ userproplist.bonus_icons:
   multihomed: 0
   prettyname: How many bonus icon slots the user has purchased
 
-userproplist.browselang:
-  cldversion: 4
-  datatype: char
-  des: LJ lang code in ml_langs
-  indexed: 1
-  multihomed: 0
-  prettyname: Language to browse with
-
 userproplist.captcha:
   cldversion: 4
   datatype: char
@@ -205,7 +197,7 @@ userproplist.delicious:
   indexed: 0
   multihomed: 0
   prettyname: Delicious user account name
-  
+
 userproplist.deviantart:
   cldversion: 4
   datatype: char
@@ -406,14 +398,6 @@ userproplist.exclude_from_own_stats:
   multihomed: 0
   prettyname: Exclude from self journal stats
 
-userproplist.external_foaf_url:
-  cldversion: 4
-  datatype: char
-  des: Location of External FOAF file
-  indexed: 0
-  multihomed: 0
-  prettyname: FOAF address
-
 userproplist.ffnet:
   cldversion: 4
   datatype: char
@@ -558,14 +542,6 @@ userproplist.jabber:
   multihomed: 1
   prettyname: Jabber Address
 
-userproplist.journaldomain:
-  cldversion: 4
-  datatype: char
-  des: Domain which will load user's journal
-  indexed: 0
-  multihomed: 0
-  prettyname: Domain Alias
-
 userproplist.journalsubtitle:
   cldversion: 4
   datatype: char
@@ -621,6 +597,7 @@ userproplist.latest_optout:
   indexed: 0
   multihomed: 0
   prettyname: Latest Updates Opt Out
+
 
 userproplist.mailencoding:
   cldversion: 4
@@ -769,18 +746,10 @@ userproplist.opt_echi_display:
 userproplist.opt_embedplaceholders:
   cldversion: 4
   datatype: char
-  des: Y/N choice regarding whether lj-template tag embedded object should be hidden behind a placeholder.
+  des: Y/N choice regarding whether site-embed content should be hidden behind a placeholder.
   indexed: 0
   multihomed: 0
-  prettyname: Use Placeholders for lj-template embedded objects
-
-userproplist.opt_exclude_stats:
-  cldversion: 4
-  datatype: bool
-  des: 1: don't include user when using offsite hit tracker
-  indexed: 0
-  multihomed: 0
-  prettyname: Exclude From Offsite Stats Tracking
+  prettyname: Use Placeholders for site-embed content
 
 userproplist.opt_findbyemail:
   cldversion: 4
@@ -933,6 +902,14 @@ userproplist.opt_randompaidgifts:
   indexed: 1
   multihomed: 0
   prettyname: Random Paid Gifts
+
+userproplist.opt_rpacct:
+  cldversion: 4
+  datatype: bool
+  des: Roleplaying account self-identification flag
+  indexed: 0
+  multihomed: 0
+  prettyname: RP flag
 
 userproplist.opt_sharebday:
   cldversion: 4
@@ -1669,12 +1646,6 @@ logproplist.xpostdetail:
 
 usermsgproplist.userpic:
   des: Userpic chosen by the user who created the message
-
-pollproplist2.unique:
-  des: If set to 1, then a person with a given email address can only vote once in the poll
-
-pollproplist2.createdate:
-  des: The voter must have created their account by the date specified (Pacific time) in order to vote.  Must be in format YYYY-MM-DD, otherwise there will be no restriction.
 
 media_prop_list.title:
   des: Title of this object

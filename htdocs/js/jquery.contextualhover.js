@@ -285,6 +285,8 @@ _renderPopup: function() {
         if ( ! data.is_closed_membership || data.is_member ) {
             if ( data.is_member )
                 this._addAction( data.url_leavecomm, "Leave", "leave" );
+            else if ( data.is_invited )
+                this._addAction( data.url_acceptinvite, "Accept invitation", "accept");
             else
                 this._addAction( data.url_joincomm, "Join community", "join" );
         } else {
@@ -314,13 +316,13 @@ _renderPopup: function() {
         }
     }
 
-    if ( data.is_logged_in && ! data.is_requester && ! data.is_syndicated ) {
+    if ( data.is_logged_in && ! data.is_requester && ! data.is_syndicated && ! data.is_comm ) {
         if ( data.is_banned ) {
             this._addAction( Site.siteroot + "/manage/banusers",
-                data.is_comm ? "Unban community" : "Unban user", "setUnban" );
+                "Unban user", "setUnban" );
         } else {
             this._addAction( Site.siteroot + "/manage/banusers",
-                data.is_comm ? "Ban community" : "Ban user", "setBan" );
+                "Ban user", "setBan" );
             var $banlink = $("<a></a>", { href: Site.siteroot + "/manage/banusers" });
         }
     }

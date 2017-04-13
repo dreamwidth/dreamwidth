@@ -18,6 +18,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- dw.need_res( { group => "foundation" }
     "stc/entrypage.css"
     "stc/css/pages/communities/queue/entries/edit.css"
+    "js/jquery.autogrow-textarea.js"
 ) -%]
 
 [%- linkbar -%]
@@ -68,6 +69,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% form.textarea(
             name  = "message"
             label = dw.ml( ".form.label.message" )
+            class = "expand"
         ) %]
         [%- END -%]
 

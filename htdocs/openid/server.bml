@@ -39,6 +39,13 @@ _info?><?_code
         }
     }
 
+    ## Non-OpenID-compliant section: rewrite LiveJournal's trust_root to
+    ## https so that it will match their return_to URL and pass validation.
+    if ( $GET{'openid.trust_root'} eq 'http://www.livejournal.com/' &&
+         $GET{'openid.return_to'} =~ m|^https://www\.livejournal\.com/| ) {
+        $GET{'openid.trust_root'} = 'https://www.livejournal.com/';
+    }
+
     my $nos = LJ::OpenID::server(\%GET, \%POST);
 
     my ($type, $data) = $nos->handle_page(redirect_for_setup => 1);

@@ -29,6 +29,10 @@
 
 .circle.header=Current Relationships
 
+.circle.show_banned=<a [[aopts]]>Show accounts you have banned?</a>
+
+.circle.hide_banned=<a [[aopts]]>Hide accounts you have banned?</a>
+
 .circle.header.comms=Communities ([[num]])
 
 .circle.header.feeds=Feeds ([[num]])
@@ -52,10 +56,6 @@
 .circle.join.open=(Open)
 
 .circle.member=Member
-
-.circle.member.n=Not a member
-
-.circle.member.y=Member
 
 .circle.na=N/A
 

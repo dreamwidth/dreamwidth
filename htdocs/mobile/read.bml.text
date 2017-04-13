@@ -7,9 +7,7 @@
 
 .read.back=<a [[aopts]]>&lt;&lt; Back</a> to [[sitename]] Mobile.
 
-.read.groupname=Viewing: [[groupname]]
-
 .read.login=You must <a [[aopts]]>log in</a> to access your reading page.
 
-.read.noentries=<i>No further entries to display in group: [[groupname]]</i>
+.read.noneleft=<i>No further entries to display in selected filter.</i>
 

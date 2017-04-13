@@ -25,6 +25,7 @@ use Carp qw/ croak confess /;
 use File::Type;
 use Image::Size;
 
+use DW::BlobStore;
 use DW::Media::Photo;
 
 use constant TYPE_PHOTO => 1;
@@ -75,10 +76,6 @@ sub upload_media {
     confess 'Need a file key or data key'
         unless $opts{file} && -e $opts{file} || $opts{data};
 
-    # we need a mogilefs client or we can't store media
-    my $mog = LJ::mogclient()
-        or croak 'Sorry, MogileFS is not currently available.';
-
     # okay, we know who it's for and what it is, that's all we really need.
     if ( $opts{file} ) {
         open FILE, "<$opts{file}"
@@ -126,6 +123,17 @@ sub upload_media {
     # now we can cook -- allocate an id and upload
     my $id = LJ::alloc_user_counter( $opts{user}, 'A' )
         or croak 'Unable to allocate user counter for uploaded file.';
+
+    # to avoid having database rows for an image that failed to upload,
+    # do the upload first - we can create a fake object to get the mogkey
+
+    # FIXME: have different storage classes for different media types
+
+    my $fakeobj = bless { userid => $opts{user}->id, versionid => $id }, 'DW::Media::Photo';
+    DW::BlobStore->store( media => $fakeobj->mogkey, \$opts{data} )
+        or croak 'Failed to upload file to storage.';
+
+    # now update the database tables
     $opts{user}->do(
         q{INSERT INTO media (userid, mediaid, anum, ext, state, mediatype, security, allowmask,
             logtime, mimetype, filesize) VALUES (?, ?, ?, ?, 'A', ?, ?, ?, UNIX_TIMESTAMP(), ?, ?)},
@@ -143,19 +151,8 @@ sub upload_media {
     croak "Failed to insert version row: " . $opts{user}->errstr . "."
         if $opts{user}->err;
 
-    # now get this back as an object
-    my $obj = DW::Media->new( user => $opts{user}, mediaid => $id );
-
-    # now we have to stick this in MogileFS
-    # FIXME: have different MogileFS classes for different media types
-    my $fh = $mog->new_file( $obj->mogkey, 'media' )
-        or croak 'Unable to instantiate file in MogileFS.'; # FIXME: nuke the row!
-    $fh->print( $opts{data} );
-    $fh->close
-        or croak 'Unable to save file to MogileFS.'; # FIXME: nuke the row!
-
     # uploaded, so return an object for this item
-    return $obj;
+    return DW::Media->new( user => $opts{user}, mediaid => $id );
 }
 
 sub preprocess {
@@ -202,9 +199,55 @@ sub get_active_for_user {
     return () unless $rows && ref $rows eq 'ARRAY';
 
     # construct media objects for each of the items and return that
-    return sort { $b->logtime <=> $a->logtime }
-           map { DW::Media->new( user => $u, mediaid => $_, %opts ) } @$rows;
+    my @media;
+    foreach ( @$rows ) {
+        # use eval to catch croaks
+        my $obj = eval { DW::Media->new( user => $u, mediaid => $_, %opts ) };
+        if ( $obj ) {
+            push @media, $obj;
+        } else {
+            warn "Failed to load media: $@";
+        }
+    }
+    return sort { $b->logtime <=> $a->logtime } @media;
 }
 
+sub get_quota_for_user {
+    my ( $class, $u ) = @_;
+    confess 'Invalid user' unless LJ::isu( $u );
+
+    my $cap = $u->get_cap( 'media_file_quota' ) // 0;
+
+    # convert megabytes -> bytes
+    return $cap * 1024 * 1024;
+}
+
+sub get_usage_for_user {
+    my ( $class, $u ) = @_;
+    confess 'Invalid user' unless LJ::isu( $u );
+
+    my ( $usage ) = $u->selectrow_array(
+        q{SELECT SUM(mv.filesize) FROM media_versions AS mv, media AS m
+          WHERE mv.userid=? AND m.userid=mv.userid AND m.mediaid=mv.mediaid
+          AND m.state = 'A'
+         },
+        undef, $u->id
+    );
+    croak 'Failed to get file sizes: ' . $u->errstr . '.' if $u->err;
+    $usage //= 0;
+    return $usage;  # in bytes
+}
+
+
+package LJ::User;
+
+sub can_upload_media {
+    my ( $u ) = @_;
+    return 0 if $u->is_identity;
+
+    my $quota = DW::Media->get_quota_for_user( $u );
+    my $usage = DW::Media->get_usage_for_user( $u );
+    return $usage > $quota ? 0 : 1;
+}
 
 1;

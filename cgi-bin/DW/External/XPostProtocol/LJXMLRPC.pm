@@ -20,7 +20,6 @@ use warnings;
 
 use Digest::MD5 qw(md5_hex);
 use XMLRPC::Lite;
-use HTML::Entities ();
 
 # create a new instance of LJXMLRPC
 sub instance {
@@ -53,7 +52,7 @@ sub _call_xmlrpc {
             return {
                 success => 0,
                 error => $result->faultstring,
-                code => $result->faultcode == 302 ? 'entry_deleted' : ''
+                code => $result->faultcode eq '302' ? 'entry_deleted' : ''
             }
         } else {
             # success
@@ -132,7 +131,7 @@ sub call_xmlrpc {
     my $xmlrpc = eval {
         XMLRPC::Lite->proxy( $proxyurl,
             agent => "$LJ::SITENAME XPoster ($LJ::ADMIN_EMAIL)",
-            timeout => 3,
+            timeout => 90,
         );
     };
 
@@ -337,9 +336,12 @@ sub entry_to_req {
     my $entryprops = $entry->props;
     $req->{props} = {};
     # only bring over these properties
-    for my $entrykey (qw ( adult_content current_coords current_location current_music opt_backdated opt_nocomments opt_noemail opt_preformatted opt_screening used_rte pingback )) {
+    for my $entrykey (qw ( adult_content current_coords current_location current_music opt_backdated opt_nocomments opt_noemail opt_screening used_rte pingback )) {
         $req->{props}->{$entrykey} = $entryprops->{$entrykey} if defined $entryprops->{$entrykey};
     }
+
+    # always carry over opt_preformatted, otherwise we can't request to clear it
+    $req->{props}->{opt_preformatted} = $entryprops->{opt_preformatted} ? 1 : 0;
 
     # determine if we used Markdown by examining the raw entry text (not
     # the cleaned text) and advertise the opt_preformatted flag if so
@@ -476,7 +478,6 @@ sub clean_lj_tags {
 
     my %update_tags = (
         'cut' => 'lj-cut',
-        'site-template' => 'lj-template',
         'raw-code' => 'lj-raw'
     );
 

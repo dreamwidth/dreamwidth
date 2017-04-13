@@ -190,9 +190,7 @@ Returns the reply-to address with a pretty name, suitable for use in the reply-t
 sub replyto_address_header {
     my ( $class, $u, $journal, $ditemid, $dtalkid ) = @_;
 
-    my $reply_as = LJ::Lang::get_text( $u->prop( "browselang" ),
-        "emailpost.reply.address",
-        undef,
+    my $reply_as = LJ::Lang::get_default_text( "emailpost.reply.address",
         {
             user  => $u->display_username,
         } );
@@ -220,7 +218,6 @@ sub determine_subject {
         # we always have a parent comment, because that's the only way we can get an auth hash
         # if that changes, we'll have to add checking here
         my $parent_obj = LJ::Comment->new( $ju, dtalkid => $parent );
-        #$subject = DW::CleanEmail->reply_subject( $parent_obj->subject_text );
         $subject = DW::CleanEmail->reply_subject( $parent_obj->subject_text );
     }
 

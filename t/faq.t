@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 60;
+use Test::More tests => 72;
 
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -45,6 +45,10 @@ sub run_tests {
         {
             my $f = eval { LJ::Faq->new(%skel, lang => 'xx') };
             is($f->lang, $LJ::DEFAULT_LANG, "unknown language code falls back to default");
+
+            # URLs should provide something sane
+            like($f->url, qr#/support/faqbrowse#, "Support URL matches expected");
+            like($f->url_full, qr#view=full#, "Full support URL matches expected");
         }
 
         foreach my $lang (qw(en)) {
@@ -113,6 +117,9 @@ sub run_tests {
             ok($f->has_summary, "${sum}: summary present");
         }
     }
+
+    like(LJ::Faq->url(123), qr#/support/faqbrowse#, "Support URL matches expected");
+    like(LJ::Faq->url_full(123), qr#view=full#, "Full support URL matches expected");
 
     # TODO: render_in_place (needs FAQs in the database)
     # FIXME: more robust tests

@@ -29,6 +29,8 @@ use Time::Local ();
 sub days_in_month
 {
     my ($month, $year) = @_;
+    return unless $month;  # not a mind reader
+
     if ($month == 2)
     {
         return 29 unless $year;  # assume largest

@@ -391,7 +391,7 @@ note( "Post - security:public" );
     }, "decoded entry form" );
 
     my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
-    is( $entry->{security}, "public", "Public security" );
+    is( $entry->security, "public", "Public security" );
 
 
     ( $req, $res, $u ) = post_with( security => "public" );
@@ -400,7 +400,7 @@ note( "Post - security:public" );
     }, "decoded entry form" );
 
     $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
-    is( $entry->{security}, "public", "Public security" );
+    is( $entry->security, "public", "Public security" );
 }
 
 note( "Post - security:access" );
@@ -412,7 +412,7 @@ note( "Post - security:access" );
     }, "decoded entry form for access-locked entry" );
 
     my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
-    is( $entry->{security}, "usemask", "Locked security" );
+    is( $entry->security, "usemask", "Locked security" );
 }
 
 note( "Post - security:private" );

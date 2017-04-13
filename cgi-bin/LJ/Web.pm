@@ -884,11 +884,14 @@ sub create_qr_div {
         }
     }
 
+    my $post_disabled = $u->does_not_allow_comments_from( $remote ) || $u->does_not_allow_comments_from_unconfirmed_openid( $remote );
     return DW::Template->template_string( 'journal/quickreply.tt', {
         form_url                => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         hidden_form_elements    => $hidden_form_elements,
         can_checkspell          => $LJ::SPELLER ? 1 : 0,
         minimal                 => $opts{minimal} ? 1 : 0,
+        post_disabled           => $post_disabled,
+        post_button_class       => $post_disabled ? 'ui-state-disabled' : '',
 
         quote_button_js         => LJ::Talk::js_quote_button( 'body' ),
         iconbrowser_js          => $remote->can_use_userpic_select ? LJ::Talk::js_iconbrowser_button() : "",
@@ -1085,7 +1088,7 @@ sub create_url {
     my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
     my $url = $proto . "://$host$path";
 
-    my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
+    my $orig_args = $opts{cur_args} || DW::Request->get->get_args( preserve_case => 1 );
 
     # Move over viewing style arguments
     if( $opts{viewing_style} ) {
@@ -1308,8 +1311,9 @@ sub entry_form {
     $out .= "<ul class='pkg'>\n";
     $out .= "<li class='image'><a href='javascript:void(0);' onclick='InOb.handleInsertImage();' title='"
         . BML::ml('fckland.ljimage') . "'>" . BML::ml('entryform.insert.image2') . "</a></li>\n";
-    $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='Embed Media'>"
-        . "Embed Media</a></li>\n" if LJ::is_enabled('embed_module');
+    $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='"
+        . BML::ml('fcklang.ljvideo2') . "'>" . BML::ml('fcklang.ljvideo2') . "</a></li>\n"
+            if LJ::is_enabled('embed_module');
     $out .= "</ul>\n";
     my $format_selected = ( $opts->{mode} eq "update" && $remote && $remote->disable_auto_formatting ) || $opts->{'prop_opt_preformatted'} || $opts->{'event_format'} ? "checked='checked'" : "";
     $out .= "<span id='linebreaks'><input type='checkbox' class='check' value='preformatted' name='event_format' id='event_format' $format_selected  />
@@ -1354,8 +1358,9 @@ RTE
     $out .= "FCKLang.UserPrompt_SiteList =" . LJ::js_dumper( \@sitevalues ) . ";\n";
     $out .= "FCKLang.InvalidChars = \"".LJ::ejs(BML::ml('fcklang.invalidchars'))."\";\n";
     $out .= "FCKLang.LJUser = \"".LJ::ejs(BML::ml('fcklang.ljuser'))."\";\n";
-    $out .= "FCKLang.VideoPrompt = \"".LJ::ejs(BML::ml('fcklang.videoprompt'))."\";\n";
     $out .= "FCKLang.LJVideo = \"".LJ::ejs(BML::ml('fcklang.ljvideo2'))."\";\n";
+    $out .= "FCKLang.EmbedContents = \"".LJ::ejs(BML::ml('fcklang.embedcontents'))."\";\n";
+    $out .= "FCKLang.EmbedPrompt = \"".LJ::ejs(BML::ml('fcklang.embedprompt'))."\";\n";
     $out .= "FCKLang.CutPrompt = \"".LJ::ejs(BML::ml('fcklang.cutprompt'))."\";\n";
     $out .= "FCKLang.ReadMore = \"".LJ::ejs(BML::ml('fcklang.readmore'))."\";\n";
     $out .= "FCKLang.CutContents = \"".LJ::ejs(BML::ml('fcklang.cutcontents'))."\";\n";
@@ -2335,7 +2340,6 @@ sub res_includes {
     # TODO: automatic dependencies from external map and/or content of files,
     # currently it's limited to dependencies on the order you call LJ::need_res();
     my $ret = "";
-    my $do_concat = $LJ::IS_SSL ? $LJ::CONCAT_RES_SSL : $LJ::CONCAT_RES;
 
     # use correct root and prefixes for SSL pages
     my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix, $iconprefix);
@@ -2435,7 +2439,6 @@ sub res_includes {
             # the modtime, but rather do one global max modtime at the
             # end, which is done later in the tags function.
             $modtime = '' unless defined $modtime;
-            $what .= "?v=$modtime" unless $do_concat;
 
             $list{$type} ||= [];
             push @{$list{$type}[$order] ||= []}, $what;
@@ -2494,18 +2497,10 @@ sub res_includes {
                 my $template_order = $template;
                 next unless $list = $list{$type}[$o];
 
-                if ($do_concat) {
-                    my $csep = join(',', @$list);
-                    $csep .= "?v=" . $oldest{$type}[$o];
-                    $template_order =~ s/__+/??$csep/;
-                    $ret .= $template_order;
-                } else {
-                    foreach my $item (@$list) {
-                        my $inc = $template;
-                        $inc =~ s/__+/$item/;
-                        $ret .= $inc;
-                    }
-                }
+                my $csep = join(',', @$list);
+                $csep .= "?v=" . $oldest{$type}[$o];
+                $template_order =~ s/__+/??$csep/;
+                $ret .= $template_order;
             }
         };
 
@@ -3345,7 +3340,8 @@ sub subscribe_interface {
             my $subscribed = ! $pending_sub->pending;
 
             unless ($pending_sub->enabled) {
-                $title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $title . $upgrade_notice;
+                my $hooktext = LJ::Hooks::run_hook( "disabled_esn_sub", $u ) // '';
+                $title = $hooktext . $title . $upgrade_notice;
                 $unavailable_subs++;
             }
             next if ! $pending_sub->event_class->is_visible && $showtracking;

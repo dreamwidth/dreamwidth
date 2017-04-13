@@ -77,206 +77,229 @@ my @cpanm_packages = ('libexpat1-dev', 'g++', 'make', 'libgtop2-dev', 'libgmp3-d
         'libxml2-dev');
 
 my %modules = (
-               "Date::Parse" => { 'deb' => 'libtimedate-perl' },
-               "DateTime" => { 'deb' => 'libdatetime-perl' },
-               "DBI" => { 'deb' => 'libdbi-perl', 'system' => 1, },
-               "DBD::mysql" => { 'deb' => 'libdbd-mysql-perl', 'system' => 1, },
-               "Class::Autouse" => { 'deb' => 'libclass-autouse-perl', },
-               "Digest::MD5" => { 'deb' => 'libmd5-perl', },
-               "Digest::SHA1" => { 'deb' => 'libdigest-sha1-perl', },
-               "Digest::SHA" => { 'deb' =>'libdigest-sha-perl' },
-               "Image::Size" => { 'deb' => 'libimage-size-perl', },
-               "MIME::Lite" => { 'deb' => 'libmime-lite-perl', },
-               "MIME::Words" => { 'deb' => 'libmime-perl', },
-               "Compress::Zlib" => { 'deb' => 'libcompress-zlib-perl', },
-               "Net::DNS" => { 'deb' => 'libnet-dns-perl', },
-               "Template" => { 'deb' => 'libtemplate-perl', },
-               "CGI" => { deb => 'libcgi-pm-perl', },
-               "Net::OpenID::Server" => {
-                   opt => 'Required for OpenID server support.'
-               },
-               "Net::OpenID::Consumer" => {
-                   opt => 'Required for OpenID consumer support.'
-               },
-               "Net::OAuth" => {
-                   #opt => 'Required for OAuth support.' # FIXME: Not optional
-               },
-               "URI::URL" => { 'deb' => 'liburi-perl' },
-               "HTML::Tagset" => { 'deb' => 'libhtml-tagset-perl' },
-               "HTML::Parser" => { 'deb' => 'libhtml-parser-perl', },
-               "LWP::Simple" => { 'deb' => 'libwww-perl', },
-               "LWP::UserAgent" => { 'deb' => 'libwww-perl', },
-               "GD" => { 'deb' => 'libgd-gd2-perl', 'system' => 1, },
-               "GD::Graph" => {
-                   'deb' => 'libgd-graph-perl',
-                   'opt' => 'Required for making graphs for the statistics page.',
-                   'system' => 1,
-               },
-               "Mail::Address" => { 'deb' => 'libmailtools-perl', },
-               "Proc::ProcessTable" => {
-                   'deb' => 'libproc-process-perl',
-                   'opt' => "Better reliability for starting daemons necessary for high-traffic installations.",
-               },
-               "RPC::XML" => {
-                   'deb' => 'librpc-xml-perl',
-                   'opt' => 'Required for outgoing XML-RPC support',
-               },
-               "XMLRPC::Lite" => {},
-               "SOAP::Lite" => {
-                   'deb' => 'libsoap-lite-perl',
-                   'opt' => 'Required for XML-RPC support.',
-                   'ver' => '0.710.8',
-               },
-               "Unicode::MapUTF8" => { 'deb' => 'libunicode-maputf8-perl', },
-               "XML::RSS" => {
-                   'deb' => 'libxml-rss-perl',
-                   'opt' => 'Required for retrieving RSS off of other sites (syndication).',
-               },
-               "XML::Simple" => {
-                   'deb' => 'libxml-simple-perl',
-                   'ver' => 2.12,
-               },
-               "String::CRC32" => {
-                   'deb' => 'libstring-crc32-perl',
-                   'opt' => 'Required for palette-altering of PNG files.  Only necessary if you plan to make your own S2 styles that use PNGs, not GIFs.',
-               },
-               "IO::WrapTie" => { 'deb' => 'libio-stringy-perl' },
-               "XML::Atom" => {
-                   'deb' => 'libxml-atom-perl',
-               },
-               "Math::BigInt::GMP" => {
-                   'deb' => 'libmath-bigint-gmp-perl',
-                   'opt' => 'Aides Crypt::DH so it is not crazy slow.',
-               },
-               "URI::Fetch" => {
-                   'deb' => 'liburi-fetch-perl',
-                   'opt' => 'Required for OpenID support.',
-               },
-               "Crypt::DH" => {
-                   'deb' => 'libcrypt-dh-perl',
-                   'opt' => 'Required for OpenID support.',
-               },
-               "Unicode::CheckUTF8" => {},
-               "Captcha::reCAPTCHA" => {
-                   'deb' => 'libcaptcha-recaptcha-perl',
-               },
-               "Digest::HMAC_SHA1" => {
-                   'deb' => 'libdigest-hmac-perl',
-               },
-               "Image::Magick" => {
-                   'deb' => 'perlmagick',
-                   'opt' => "Required for the userpic factory.",
-                   'system' => 1,
-               },
-               "Class::Accessor" => {
-                   'deb' => 'libclass-accessor-perl',
-               },
-               "Class::Trigger" => {
-                   'deb' => 'libclass-trigger-perl',
-               },
-               "Class::Data::Inheritable" => {
-                   'deb' => 'libclass-data-inheritable-perl',
-               },
-               "Data::ObjectDriver" => {
-                   'deb' => 'libdata-objectdriver-perl',
-               },
-               "GnuPG::Interface" => {
-                   'deb' => 'libgnupg-interface-perl',
-                   'opt' => "Required for email posting.",
-               },
-               "Mail::GnuPG" => {
-                   'deb' => 'libmail-gnupg-perl',
-                   'opt' => "Required for email posting.",
-               },
-               "Text::vCard" => {
-                   'deb' => 'libtext-vcard-perl',
-                   'opt' => "Used to generate user vCards.",
-               },
-               "IP::Country::Fast" => {
-                   'opt' => "Required for country lookup with IP address.",
-               },
-               "GTop" => {},
-               "Apache2::RequestRec"   => {
-                   'deb' => "libapache2-mod-perl2",
-                   #'opt' => "Required for modperl2",   # FIXME: actually required
-                   'system' => 1, # don't cpanm this
-               },
-               "Apache2::Request"      => {
-                   'deb' => "libapache2-request-perl",
-                   #'opt' => "Required for Apache2",    # FIXME: actually required
-                   'system' => 1, # don't cpanm this
-               },
-               "Test::More" => {
-                   'deb' => "libtest-simple-perl",
-                   'opt' => "Required for subtest support.",
-                   'ver' => '0.96',
-               },
-               "HTML::TokeParser" => {
-                   'deb' => "libhtml-parser-perl",
-                   'opt' => "Required for clean-embed.t.",
-                   'ver' => '3.56',
-               },
-               "YAML" => { 'deb' => 'libyaml-perl', },
-               "Business::CreditCard" => {
-                   'deb' => "libbusiness-creditcard-perl",
-                   'opt' => "Required for taking credit/debit cards in the shop.",
-               },
-               "Hash::MultiValue" => { ver => '0.10' },
-               "DateTime::TimeZone" => { 'deb' => "libdatetime-timezone-perl", },
-               "Sys::Syscall" => {
-                    deb => 'libsys-syscall-perl',
-                    opt => 'Required for Perlbal',
-               },
-               "Danga::Socket" => {
-                    deb => 'libdanga-socket-perl',
-                    opt => 'Required for Perlbal',
-                },
-               "IO::AIO" => {
-                    deb => 'libio-aio-perl',
-                    opt => 'Required for Perlbal',
-                 },
-               "MogileFS::Client" => {
-                   ver => '1.12',
-               },
-               "TheSchwartz" => {
-                   deb => 'libtheschwartz-perl',
-               },
-               "TheSchwartz::Worker::SendEmail" => {},
-               "Text::Markdown" => {
-                   deb => 'libtext-markdown-perl',
-                   opt => 'Required to allow using Markdown in entries.',
-               },
-               "Cache::Memcached" => {
-                   deb => 'libcache-memcached-perl',
-               },
-               "Gearman::Client" => {
-                   deb => 'libgearman-client-perl',
-               },
-               "File::Type" => {
-                   deb => 'libfile-type-perl',
-               },
-               "JSON" => {
-                   deb => 'libjson-perl',
-                   ver => '2.53',
-               },
-               "Image::ExifTool" => {
-                   deb => 'libimage-exiftool-perl',
-               },
-               "Net::SSL" => { ver => "2.85" },
-               "MIME::Base64::URLSafe" => {
-                   deb => 'libmime-base64-urlsafe-perl',
-               },
-               "List::MoreUtils" => {},
-               "Locale::Country" => { ver => '3.32' },
-               "Net::SMTPS" => {},
-               "IO::Socket::SSL" => {},
-               "LWP::UserAgent::Paranoid" => {},
-               "Mozilla::CA" => {},
-               "File::Find::Rule" => {
-                   deb => 'libfile-find-rule-perl',
-                   opt => "Used by t/00-compile.t test.",
-               },
-              );
+    "Date::Parse" => { 'deb' => 'libtimedate-perl' },
+    "DateTime" => { 'deb' => 'libdatetime-perl' },
+    "DBI" => { 'deb' => 'libdbi-perl', 'system' => 1, },
+    "DBD::mysql" => { 'deb' => 'libdbd-mysql-perl', 'system' => 1, },
+    "DBD::SQLite" => {
+        deb => 'libdbd-sqlite3-perl',
+        opt => 'Required for tests',
+    },
+    "Class::Autouse" => { 'deb' => 'libclass-autouse-perl', },
+    "Digest::MD5" => { 'deb' => 'libmd5-perl', },
+    "Digest::SHA1" => { 'deb' => 'libdigest-sha1-perl', },
+    "Digest::SHA" => { 'deb' =>'libdigest-sha-perl' },
+    "Image::Size" => { 'deb' => 'libimage-size-perl', },
+    "MIME::Lite" => { 'deb' => 'libmime-lite-perl', },
+    "MIME::Words" => { 'deb' => 'libmime-perl', },
+    "Compress::Zlib" => { 'deb' => 'libcompress-zlib-perl', },
+    "Net::DNS" => { 'deb' => 'libnet-dns-perl', },
+    "Template" => { 'deb' => 'libtemplate-perl', },
+    "CGI" => { deb => 'libcgi-pm-perl', },
+    "Net::OpenID::Server" => {
+        opt => 'Required for OpenID server support.'
+    },
+    "Net::OpenID::Consumer" => {
+        opt => 'Required for OpenID consumer support.'
+    },
+    "Net::OAuth" => {
+        #opt => 'Required for OAuth support.' # FIXME: Not optional
+    },
+    "URI::URL" => { 'deb' => 'liburi-perl' },
+    "HTML::Tagset" => { 'deb' => 'libhtml-tagset-perl' },
+    "HTML::Parser" => { 'deb' => 'libhtml-parser-perl', },
+    "LWP::Simple" => { 'deb' => 'libwww-perl', },
+    "LWP::UserAgent" => { 'deb' => 'libwww-perl', },
+    "GD" => { 'deb' => 'libgd-gd2-perl', 'system' => 1, },
+    "GD::Graph" => {
+        'deb' => 'libgd-graph-perl',
+        'opt' => 'Required for making graphs for the statistics page.',
+        'system' => 1,
+    },
+    "Mail::Address" => { 'deb' => 'libmailtools-perl', },
+    "Proc::ProcessTable" => {
+        'deb' => 'libproc-process-perl',
+        'opt' => "Better reliability for starting daemons necessary for high-traffic installations.",
+    },
+    "RPC::XML" => {
+        'deb' => 'librpc-xml-perl',
+        'opt' => 'Required for outgoing XML-RPC support',
+    },
+    "XMLRPC::Lite" => {},
+    "SOAP::Lite" => {
+        'deb' => 'libsoap-lite-perl',
+        'opt' => 'Required for XML-RPC support.',
+        'ver' => '0.710.8',
+    },
+    "Unicode::MapUTF8" => { 'deb' => 'libunicode-maputf8-perl', },
+    "XML::RSS" => {
+        'deb' => 'libxml-rss-perl',
+        'opt' => 'Required for retrieving RSS off of other sites (syndication).',
+    },
+    "XML::Simple" => {
+        'deb' => 'libxml-simple-perl',
+        'ver' => 2.12,
+    },
+    "String::CRC32" => {
+        'deb' => 'libstring-crc32-perl',
+        'opt' => 'Required for palette-altering of PNG files.  Only necessary if you plan to make your own S2 styles that use PNGs, not GIFs.',
+    },
+    "IO::WrapTie" => { 'deb' => 'libio-stringy-perl' },
+    "XML::Atom" => {
+        'deb' => 'libxml-atom-perl',
+    },
+    "Math::BigInt::GMP" => {
+        'deb' => 'libmath-bigint-gmp-perl',
+        'opt' => 'Aides Crypt::DH so it is not crazy slow.',
+    },
+    "URI::Fetch" => {
+        'deb' => 'liburi-fetch-perl',
+        'opt' => 'Required for OpenID support.',
+    },
+    "Crypt::DH" => {
+        'deb' => 'libcrypt-dh-perl',
+        'opt' => 'Required for OpenID support.',
+    },
+    "Unicode::CheckUTF8" => {},
+    "Captcha::reCAPTCHA" => {
+        'deb' => 'libcaptcha-recaptcha-perl',
+    },
+    "Digest::HMAC_SHA1" => {
+        'deb' => 'libdigest-hmac-perl',
+    },
+    "Image::Magick" => {
+        'deb' => 'perlmagick',
+        'opt' => "Required for the userpic factory.",
+        'system' => 1,
+    },
+    "Class::Accessor" => {
+        'deb' => 'libclass-accessor-perl',
+    },
+    "Class::Trigger" => {
+        'deb' => 'libclass-trigger-perl',
+    },
+    "Class::Data::Inheritable" => {
+        'deb' => 'libclass-data-inheritable-perl',
+    },
+    "Data::ObjectDriver" => {
+        'deb' => 'libdata-objectdriver-perl',
+    },
+    "GnuPG::Interface" => {
+        'deb' => 'libgnupg-interface-perl',
+        'opt' => "Required for email posting.",
+    },
+    "Mail::GnuPG" => {
+        'deb' => 'libmail-gnupg-perl',
+        'opt' => "Required for email posting.",
+    },
+    "IP::Country::Fast" => {
+        'opt' => "Required for country lookup with IP address.",
+    },
+    "GTop" => {},
+    "Apache2::RequestRec"   => {
+        'deb' => "libapache2-mod-perl2",
+        #'opt' => "Required for modperl2",   # FIXME: actually required
+        'system' => 1, # don't cpanm this
+    },
+    "Apache2::Request"      => {
+        'deb' => "libapache2-request-perl",
+        #'opt' => "Required for Apache2",    # FIXME: actually required
+        'system' => 1, # don't cpanm this
+    },
+    "Test::Most" => {
+        deb => "libtest-most-perl",
+        opt => "Required for tests",
+    },
+    "Test::More" => {
+        'deb' => "libtest-simple-perl",
+        'opt' => "Required for subtest support.",
+        'ver' => '0.96',
+    },
+    "HTML::TokeParser" => {
+        'deb' => "libhtml-parser-perl",
+        'opt' => "Required for clean-embed.t.",
+        'ver' => '3.56',
+    },
+    "YAML" => { 'deb' => 'libyaml-perl', },
+    "Business::CreditCard" => {
+        'deb' => "libbusiness-creditcard-perl",
+        'opt' => "Required for taking credit/debit cards in the shop.",
+    },
+    "Hash::MultiValue" => { ver => '0.10' },
+    "DateTime::TimeZone" => { 'deb' => "libdatetime-timezone-perl", },
+    "Sys::Syscall" => {
+        deb => 'libsys-syscall-perl',
+        opt => 'Required for Perlbal',
+    },
+    "Danga::Socket" => {
+        deb => 'libdanga-socket-perl',
+        opt => 'Required for Perlbal',
+    },
+    "IO::AIO" => {
+        deb => 'libio-aio-perl',
+        opt => 'Required for Perlbal',
+        },
+    "MogileFS::Client" => {
+        ver => '1.12',
+        opt => 'Used for legacy MogileFS support',
+    },
+    "TheSchwartz" => {
+        deb => 'libtheschwartz-perl',
+    },
+    "TheSchwartz::Worker::SendEmail" => {},
+    "Text::Markdown" => {
+        deb => 'libtext-markdown-perl',
+        opt => 'Required to allow using Markdown in entries.',
+    },
+    "Cache::Memcached" => {
+        deb => 'libcache-memcached-perl',
+    },
+    "Gearman::Client" => {
+        deb => 'libgearman-client-perl',
+    },
+    "File::Type" => {
+        deb => 'libfile-type-perl',
+    },
+    "JSON" => {
+        deb => 'libjson-perl',
+        ver => '2.53',
+    },
+    "Image::ExifTool" => {
+        deb => 'libimage-exiftool-perl',
+    },
+    "Net::SSL" => { ver => "2.85" },
+    "MIME::Base64::URLSafe" => {
+        deb => 'libmime-base64-urlsafe-perl',
+    },
+    "List::MoreUtils" => {},
+    "Locale::Country" => { ver => '3.32' },
+    "Net::SMTPS" => {},
+    "IO::Socket::SSL" => {},
+    "LWP::UserAgent::Paranoid" => {},
+    "Mozilla::CA" => {},
+    "File::Find::Rule" => {
+        deb => 'libfile-find-rule-perl',
+        opt => "Used by t/00-compile.t test.",
+    },
+    "Log::Log4perl" => {
+        deb => 'liblog-log4perl-perl',
+    },
+    "Params::Validate" => {
+        ver => '1.2',
+    },
+    "List::Util" => {
+        ver => '1.45',
+    },
+    "Params::Util" => {
+        opt => "Used for BlobStore support of S3",
+    },
+    "Paws::S3" => {
+        opt => "Used for BlobStore support of S3",
+    },
+    "Text::Wrap" => {
+        ver => '2013.0523', # issue #1447
+    },
+);
 
 
 sub check_modules {
@@ -286,7 +309,7 @@ sub check_modules {
     my (@debs, @mods);
 
     foreach my $mod (sort keys %modules) {
-        my $rv = eval "use $mod;";
+        my $rv = eval "use $mod ();";
         if ($@) {
             my $dt = $modules{$mod};
             unless ($debs_only) {
@@ -381,7 +404,6 @@ sub check_env {
 }
 
 sub check_database {
-
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
     my $dbh = LJ::get_dbh("master");
     unless ($dbh) {
@@ -391,12 +413,6 @@ sub check_database {
         my $dbc = LJ::get_cluster_master($c);
         next if $dbc;
         $err->("Couldn't get db handle for cluster \#$c");
-    }
-
-    if (%LJ::MOGILEFS_CONFIG && $LJ::MOGILEFS_CONFIG{hosts}) {
-        print "[Checking MogileFS client.]\n";
-        my $mog = LJ::mogclient();
-        die "Couldn't create MogileFS client." unless $mog;
     }
 }
 

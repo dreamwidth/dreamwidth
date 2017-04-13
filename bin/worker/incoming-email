@@ -53,6 +53,8 @@ use MIME::Parser;
 use File::Temp ();
 my $last_job;
 
+use DW::BlobStore;
+
 sub max_retries {   5 }
 sub retry_delay { 100 }
 sub grab_for { 300 }
@@ -89,22 +91,10 @@ sub work {
     $parser->output_dir($tmpdir);
 
     my $entity;
-    if ($arg =~ /^\d+$/) {
-        # email is stored on Mogile...
-        my @paths = LJ::mogclient()->get_paths("ie:$arg", { noverify => 1 })
-            or die "No paths";
-        my $uo = URI->new($paths[0]);
-        my $sock = IO::Socket::INET->new(PeerAddr => $uo->host_port,
-                                         Timeout  => 5);
-        print $sock "GET " . $uo->path . " HTTP/1.0\r\n\r\n";
-        # make sure we get a 200...
-        my $res = <$sock>;
-        die "Not 200" unless $res =~ m!^HTTP.+200!;
-        # skip headers
-        while (<$sock>) {
-            last unless /\S/;
-        }
-        $entity = eval { $parser->parse($sock) };
+    if ($arg =~ /^ie:.+$/) {
+        my $email = DW::BlobStore->retrieve( temp => $arg )
+            or return dequeue("Can't retrieve from BlobStore: $arg");
+        $entity = eval { $parser->parse_data( $$email ) };
     } else {
         $entity = eval { $parser->parse_data($arg) };
     }

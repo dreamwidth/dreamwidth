@@ -20,6 +20,8 @@ package DW::Media::Base;
 use strict;
 use Carp qw/ croak confess /;
 
+use DW::BlobStore;
+
 sub new_from_row {
     croak "Children must override this method.";
 }
@@ -111,6 +113,16 @@ sub url {
         '.' . $self->{ext};
 }
 
+# construct a URL for the fullsize version of this url. This is the same as
+# url if the object is the orignal, fullsize version, but returns the url of
+# the original if we're using version of it.
+sub full_url {
+    my $self = $_[0];
+
+    return $self->u->journal_base . '/file/' . $self->{displayid} .
+        '.' . $self->{ext};
+}
+
 # if user can see this
 sub visible_to {
     my ( $self, $other_u ) = @_;
@@ -147,9 +159,6 @@ sub delete {
     my $self = $_[0];
     return 0 if $self->is_deleted;
 
-    # we need a mogilefs client or we can't edit media
-    my $mog = LJ::mogclient()
-        or croak 'Sorry, MogileFS is not currently available.';
     my $u = $self->u
         or croak 'Sorry, unable to load the user.';
 
@@ -159,7 +168,7 @@ sub delete {
 
     $self->{state} = 'D';
 
-    LJ::mogclient()->delete( $self->mogkey );
+    DW::BlobStore->delete( media => $self->mogkey );
 
     return 1;
 }

@@ -32,7 +32,7 @@ sub option {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
 
-    my $usermsg = $class->get_arg($args, "usermsg") || $u->prop("opt_usermsg");
+    my $usermsg = $class->get_arg($args, "usermsg") || $u->opt_usermsg;
 
     my @options = (
         "Y" => $class->ml( 'setting.usermessaging.opt.y' ),

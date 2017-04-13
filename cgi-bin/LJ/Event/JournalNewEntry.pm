@@ -83,7 +83,7 @@ sub matches_filter {
 
 sub _can_view_content {
     my ( $self, $entry, $target ) = @_;
-    
+
     return undef unless $entry && $entry->valid;
     return undef unless $entry->visible_to( $target );
 
@@ -110,7 +110,11 @@ sub content {
 
     my $admin_post = "";
     if ( $entry->admin_post ) {
-        $admin_post = '<div class="AdminPost">' . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_entry.admin_post", undef, { img => LJ::img('admin-post') } ) . '</div>';
+        $admin_post = '<div class="AdminPost">'
+                    . LJ::Lang::get_default_text(
+                        "esn.journal_new_entry.admin_post",
+                        { img => LJ::img('admin-post') } )
+                    . '</div>';
     }
 
     return $admin_post . $entry_body;
@@ -120,7 +124,6 @@ sub as_html_tags {
     my ( $self, $u ) = @_;
     my $tags = '';
     my $url = $self->entry->journal->journal_base;
-    my $lang = $u->prop( 'browselang' );
 
     my @taglist = $self->entry->tags;
 
@@ -129,7 +132,10 @@ sub as_html_tags {
         my @htmltags = ();
         push @htmltags, qq{<a href="$url/tag/$_">$_</a>} foreach @taglist;
 
-        $tags = "<div class='entry-tags'>" .  LJ::Lang::get_text( $lang, 'esn.tags.short', undef, { tags => join(', ', @htmltags ) } ).  "</div>";
+        $tags = "<div class='entry-tags'>"
+              .  LJ::Lang::get_default_text( 'esn.tags.short',
+                               { tags => join( ', ', @htmltags ) } )
+              .  "</div>";
     }
     return $tags;
 
@@ -137,7 +143,7 @@ sub as_html_tags {
 
 sub content_summary {
     my ( $self, $target ) = @_;
-    
+
     my $entry = $self->entry;
     return undef unless $self->_can_view_content( $entry, $target );
 
@@ -207,9 +213,9 @@ my @_ml_strings_en = (
     'esn.hi',                                       # 'Hi [[username]],',
     'esn.journal_new_entry.about',                  # ' titled "[[title]]"',
     'esn.tags',                                     # 'The entry is tagged "[[tags]]"',
-    'esn.tags.short',                               
-    'esn.journal_new_entry.head_comm',              # 'There is a new entry by [[poster]][[about]] in [[journal]]![[tags]]',
-    'esn.journal_new_entry.head_user',              # '[[poster]] has posted a new entry[[about]].[[tags]]',
+    'esn.tags.short',
+    'esn.journal_new_entry.head_comm2',              # 'There is a new entry by [[poster]][[about]][[postsecurity]] in [[journal]]![[tags]]',
+    'esn.journal_new_entry.head_user2',              # '[[poster]] has posted a new entry[[about]][[postsecurity]].[[tags]]',
     'esn.you_can',                                  # 'You can:',
     'esn.view_entry.nosubject',                     # '[[openlink]]View entry [[ditemid]][[closelink]]'
     'esn.view_entry.subject',                       # '[[openlink]]View entry titled [[subject]][[closelink]]',
@@ -224,17 +230,16 @@ sub as_email_subject {
     my ($self, $u) = @_;
 
     # Precache text lines
-    my $lang = $u->prop('browselang');
-    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
+    LJ::Lang::get_default_text_multi( \@_ml_strings_en );
 
     if ($self->entry->journal->is_comm) {
-        return LJ::Lang::get_text($lang, 'esn.journal_new_entry.posted_new_entry', undef,
+        return LJ::Lang::get_default_text( 'esn.journal_new_entry.posted_new_entry',
             {
                 who     => $self->entry->poster->display_username,
                 journal => $self->entry->journal->display_username,
             });
     } else {
-        return LJ::Lang::get_text($lang, 'esn.journal_new_entry.updated_their_journal', undef,
+        return LJ::Lang::get_default_text( 'esn.journal_new_entry.updated_their_journal',
             {
                 who     => $self->entry->journal->display_username,
             });
@@ -262,8 +267,8 @@ sub _as_email {
 
     my $subject_text = $self->entry->subject_text;
 
-    # Precache text lines
-    my $lang = $u->prop('browselang');
+    # Precache text lines, using DEFAULT_LANG for $u
+    my $lang = $LJ::DEFAULT_LANG;
     LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
 
     my $email = LJ::Lang::get_text($lang, 'esn.hi', undef, { username    => $username }) . "\n\n";
@@ -276,10 +281,16 @@ sub _as_email {
         $tags = ' ' . LJ::Lang::get_text($lang, 'esn.tags', undef, { tags => join(', ', $self->entry->tags ) });
     }
 
-    my $head_ml = 'esn.journal_new_entry.head_user';
+    # indicate post security if it is locked or filtered
+    my $postsecurity = '';
+    if ( $self->entry->security eq 'usemask' ) {
+        $postsecurity = ' [locked]';
+    }
+
+    my $head_ml = 'esn.journal_new_entry.head_user2';
     my $entry = $self->entry;
     if ( $entry->journal->is_comm ) {
-        $head_ml = 'esn.journal_new_entry.head_comm';
+        $head_ml = 'esn.journal_new_entry.head_comm2';
 
         $head_ml .= '.admin_post'
             if $entry->admin_post;

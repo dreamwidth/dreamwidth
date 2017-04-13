@@ -1,5 +1,0 @@
-;; -*- coding: utf-8 -*-
-.error.image=Error retrieving image.
-
-.error.referer=Invalid Referer
-

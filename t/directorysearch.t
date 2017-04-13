@@ -211,9 +211,8 @@ memcache_stress(sub {
 }
 });
 
-# search with a shitload of ids (force it to use Mogile for set handles)
+# search with a huge number of ids (force it to use blobstore for set handles)
 SKIP: {
-    skip "No Mogile client installed", 6 unless LJ::mogclient();
     my ($search, $res);
 
     memcache_stress(sub {
@@ -225,6 +224,4 @@ SKIP: {
         is($res->pages, 1, "50 pages");
         is_deeply([$res->userids], [reverse(51..100)], "got the right results back");
     });
-
-
 }

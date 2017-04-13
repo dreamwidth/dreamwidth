@@ -36,6 +36,7 @@ use LWP::UserAgent;
 use XMLRPC::Lite;
 use Digest::MD5 qw/ md5_hex /;
 use DW::External::Account;
+use DW::RenameToken;
 
 # storage for import related stuff
 our %MAPS;
@@ -274,7 +275,33 @@ sub remap_username_friend {
         if ( $url =~ m!http://(.+)\.$LJ::DOMAIN\/$! ) {
             # this appears to be a local user!
             # Map this to the local userid in feed_map too, as this is a local user.
-            return LJ::User->new_from_url( $url )->id;
+            if ( my $u = LJ::User->new_from_url( $url ) ) {
+                return $u->id;
+            }
+
+            # so the OpenID had to return to a valid DW user at some point, this probably
+            # means the user renamed
+            my $username = LJ::User->username_from_url( $url );
+            if ( defined $username ) {
+                my $tokens = DW::RenameToken->by_username( user => $username );
+                return undef
+                    unless defined $tokens && ref $tokens eq 'ARRAY';
+                foreach my $token ( @$tokens ) {
+                    if ( $token->fromuser eq $username ) {
+                        my $u = LJ::load_user( $token->touser );
+                        return $u if defined $u;
+
+                        # it is technically possible for there to be a second rename and
+                        # there to be a chain of renames, but wow. die for now.
+                        confess "$username was renamed but new name not found, renamed again?";
+                    }
+                }
+            }
+
+            # failed to map this user to something local, make anonymous; we don't want to
+            # fall through to creating an OpenID account because then we'll have an OpenID
+            # account for an OpenID account, yo dawg
+            return undef;
         }
 
         my $iu = LJ::User::load_identity_user( 'O', $url, undef )

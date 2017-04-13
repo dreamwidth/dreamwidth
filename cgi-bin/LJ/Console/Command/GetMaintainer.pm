@@ -40,7 +40,16 @@ sub execute {
 
     my $relation = LJ::Console::Command::GetRelation->new( command => 'get_maintainer', args => [ $user, 'A' ] );
     $relation->execute($relation->args);
-    $self->add_responses($relation->responses);
+    if ( $relation->responses ) {
+        $self->add_responses($relation->responses);
+    } else {
+        my $u = LJ::load_user_or_identity($user);
+        if ( $u->is_community ) {
+            return $self->error("No admins");
+        } else {
+            return $self->error("No communities adminned");
+        }
+    }
 
     return 1;
 }

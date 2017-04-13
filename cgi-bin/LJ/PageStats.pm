@@ -93,9 +93,6 @@ sub should_do_pagestats {
     my $self = shift;
 
     my $u = $self->get_user;
-
-    return 0 if $u && $u->prop('opt_exclude_stats');
-
     my $ctx = $self->get_context;
 
     if ( $ctx && $ctx eq 'journal' ) {

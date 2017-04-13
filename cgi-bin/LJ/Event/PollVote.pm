@@ -74,7 +74,7 @@ sub pollname {
 
 sub as_string {
     my $self = shift;
-    
+
     my $voter = ($self->poll->isanon eq "yes") ? "Anonymous user" : $self->voter->display_username;
     return sprintf("%s has voted in %s at %s",
                    $voter, $self->pollname, $self->entry->url);
@@ -122,9 +122,11 @@ sub as_email_subject {
     my $self = shift;
     my $u    = shift;
     if ( $self->poll->name ) {
-        return LJ::Lang::get_text($u->prop('browselang'), 'esn.poll_vote.subject2', undef, { number => $self->poll->id, topic => $self->poll->name } );
+        return LJ::Lang::get_default_text( 'esn.poll_vote.subject2',
+                             { number => $self->poll->id, topic => $self->poll->name } );
     } else {
-        return LJ::Lang::get_text($u->prop('browselang'), 'esn.poll_vote.subject2.notopic', undef, { number => $self->poll->id } );
+        return LJ::Lang::get_default_text( 'esn.poll_vote.subject2.notopic',
+                             { number => $self->poll->id } );
     }
 }
 
@@ -138,13 +140,11 @@ sub _as_email {
         pollname => $self->pollname,
     };
 
-    my $lang     = $u->prop('browselang');
-
     # Precache text lines
-    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings);
+    LJ::Lang::get_default_text_multi( \@_ml_strings );
 
-    return LJ::Lang::get_text($lang, 'esn.poll_vote.email_text', undef, $vars) .
-        $self->format_options($is_html, $lang, $vars,
+    return LJ::Lang::get_default_text( 'esn.poll_vote.email_text', $vars ) .
+        $self->format_options( $is_html, undef, $vars,
         {
             'esn.view_poll_status'  => [ 1, $self->poll->url ],
             'esn.discuss_poll'      => [ 2, $self->entry->url ],

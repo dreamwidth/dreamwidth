@@ -16,6 +16,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
+use v5.10;
 use strict;
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
@@ -29,7 +30,7 @@ croak 'SES is not configured. What do!'
 
 schwartz_decl('TheSchwartz::Worker::SendEmail');
 schwartz_on_idle(sub {
-    $0 = "send-email [idle]";
+    $0 = "send-email-ses [idle, $TheSchwartz::Worker::SendEmail::_COUNT, $TheSchwartz::Worker::SendEmail::_BAD]";
 });
 schwartz_work();
 
@@ -40,19 +41,32 @@ use Carp qw/ croak /;
 use Net::SMTPS;
 
 my $_SMTP = undef;
+our $_COUNT = 0;
+our $_BAD = 0;
 
 sub work {
     my ( $class, $job ) = @_;
     my $args = $job->arg;
     my $hstr = $job->handle->as_string;
 
-    my $smtp = $_SMTP || Net::SMTPS->new(
-        $LJ::EMAIL_VIA_SES{hostname},
-        doSSL   => 'starttls',
-        Port    => 587,
-        Timeout => 60,
-    );
-    $smtp->auth($LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password});
+    my $smtp = $_SMTP;
+
+    unless ( defined $smtp ) {
+        $smtp = Net::SMTPS->new(
+            $LJ::EMAIL_VIA_SES{hostname},
+            doSSL   => 'starttls',
+            Port    => 587,
+            Timeout => 60,
+        );
+        return $job->failed( "Temporary failure connecting to $LJ::EMAIL_VIA_SES{hostname}, will retry." )
+            unless defined $smtp;
+
+        $smtp->auth($LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password})
+            or return $job->failed( "Couldn't authenticate to $LJ::EMAIL_VIA_SES{hostname}, will retry." );
+
+#        this can cause permanent failures, need to investigate further
+#        $_SMTP = $smtp;
+    }
 
     my $env_from = $args->{env_from};  # Envelope From
     my $rcpts    = $args->{rcpts};     # arrayref of recipients
@@ -89,6 +103,11 @@ sub work {
 
     my $got_an_okay = 0;
     foreach my $rcpt (@$rcpts) {
+        if ( $LJ::BAD_EMAILS{$rcpt} ) {
+            $_BAD++;
+            next;
+        }
+
         if ( $smtp->to($rcpt) ) {
             $got_an_okay = 1;
             next;
@@ -108,6 +127,10 @@ sub work {
     return $not_ok->("DATAEND")  unless $smtp->dataend;
 
     $job->completed;
+
+    DW::Stats::increment( 'dw.email.sent', 1, [ "status:completed", "via:ses" ] );
+
+    $_COUNT++;
 }
 
 sub keep_exit_status_for { 0 }

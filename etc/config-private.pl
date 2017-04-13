@@ -20,9 +20,9 @@
                'master' => {  # master must be named 'master'
                    'host' => "localhost",
                    'port' => 3306,
-                   'user' => 'dw',
+                   'user' => 'dw',    # CHANGETHIS if on Dreamhack to dh_username
                    'pass' => 'password',    # CHANGETHIS
-                   'dbname' => 'dw',
+                   'dbname' => 'dw',    # CHANGETHIS if on Dreamhack to dreamhack_username
                    'role' => {
                        'cluster1' => 1,
                        'slow' => 1,
@@ -49,8 +49,8 @@
     # Schwartz DB configuration
     @THESCHWARTZ_DBS = (
             {
-                dsn => 'dbi:mysql:dw_schwartz;host=localhost',
-                user => 'dw',
+                dsn => 'dbi:mysql:dw_schwartz;host=localhost', # CHANGETHIS if on Dreamhack to dreamhack_username instead of dw_schwartz
+                user => 'dw', # CHANGETHIS if on Dreamhack to dh_username
                 pass => 'password',     # CHANGETHIS
             },
         );
@@ -164,6 +164,16 @@
     #     hostname => '...',
     #     username => '...',
     #     password => '...',
+    # );
+
+    # Configuration of BlobStore. This is the new storage abstraction used to
+    # store any blobs (images, userpics, media, etc) that need storage. For small
+    # sites/single servers, the localdisk mode is useful. For production
+    # systems S3 should be used.
+    # %BLOBSTORE = (
+    #     localdisk => {
+    #         path => "$LJ::HOME/var/blobstore",
+    #     },
     # );
 }
 

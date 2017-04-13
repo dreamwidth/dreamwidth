@@ -16,16 +16,18 @@
 #
 
 package DW::Worker::ContentImporter::LiveJournal::Userpics;
+
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use DW::XML::Parser;
-use HTML::Entities;
-use Storable qw/ freeze /;
 use Carp qw/ croak confess /;
 use Encode qw/ encode_utf8 /;
+use Storable qw/ freeze /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
+
+use DW::BlobStore;
 use DW::Worker::ContentImporter::Local::Userpics;
+use DW::XML::Parser;
 
 sub work {
 
@@ -84,28 +86,22 @@ sub try_work {
     my $un = $data->{usejournal} || $data->{username};
     my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{hostname}/users/$un/", $data, $log, \$fetch_error );
 
-    return $temp_fail->( $fetch_error ) if $fetch_error;
+    return $temp_fail->( "Could not import icons for $un: $fetch_error" )
+        if $fetch_error;
 
     my $errs = [];
     my @imported = DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, $errs, $default, \@pics, $log );
     my $num_imported = scalar( @imported );
     my $to_import = scalar( @pics );
 
-    # FIXME: Uncomment when "select userpics later is implemented"
-    #my $has_backup = 0;
-    # There's nothing the user can do at this point if Mogile is not available, and any error relating to that will likely confuse them.
+    # Save extra pics to storage temporarily so we can get at them later
     if ( scalar( @imported ) != scalar( @pics ) ) {
-        my $mog = LJ::mogclient();
-        if ( $mog ) {
-            $opts->{userpics_later} = 1;
-            my $data = freeze {
-                imported => \@imported,
-                pics => \@pics,
-            };
-            $mog->store_content( 'import_upi:' . $u->id, 'temp', $data );
-            # FIXME: Uncomment when "select userpics later is implemented"
-            #$has_backup = 1;
-        }
+        $opts->{userpics_later} = 1;
+        my $data = freeze {
+            imported => \@imported,
+            pics => \@pics,
+        };
+        DW::BlobStore->store( temp => 'import_upi:' . $u->id, \$data );
     }
 
     # FIXME: Link to "select userpics later" (once it is created) if we have the backup.
@@ -155,9 +151,9 @@ sub get_lj_userpic_data {
     my ( @upics, $upic, $default_upic, $text_tag );
 
     my $cleanup_string = sub {
-        # FIXME: If LJ ever fixes their /data/userpics feed to double-escepe, this will cause issues.
+        # FIXME: If LJ ever fixes their /data/userpics feed to double-escape, this will cause issues.
         # Probably need to figure out a way to detect that a double-escape happened and only fix in that case.
-        return HTML::Entities::decode_entities( encode_utf8( $_[0] || "" ) );
+        return LJ::dhtml( encode_utf8( $_[0] || "" ) );
     };
 
     my $upic_handler = sub {
@@ -172,7 +168,7 @@ sub get_lj_userpic_data {
         } elsif ( $tag eq 'category' ) {
             # keywords get triple-escaped
             # DW::XML::Parser handles unescaping it once, $cleanup_string second, and then we have to unescape it a third time.
-            push @{$upic->{keywords}}, HTML::Entities::decode_entities( $cleanup_string->( $temp{term} ) );
+            push @{$upic->{keywords}}, LJ::dhtml( $cleanup_string->( $temp{term} ) );
         } else {
             $text_tag = $tag;
         }

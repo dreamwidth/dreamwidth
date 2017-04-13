@@ -9,24 +9,134 @@ This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
-[% sections.title = '.title' | ml %]
+[% sections.title = '.title2' | ml %]
 
-[% dw.need_res(
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[% dw.need_res( { group => "foundation" }
     "stc/media.css"
 ) %]
 
-<p>[% ".intro" | ml %] <a href="[%site.root%]/file/edit">[% '.intro.edit' | ml %]</a></p>
+[% sections.head = BLOCK %]
+<script>
+function updateEmbed ( evt ) {
+    var thumbnail_value = evt.target.value;
+    var name = evt.target.id.replace(/thumbnail_sizes/, 'embed-thumb');
+    var url = document.getElementById(name).value;
+    document.getElementById(name).value = url.replace(/\d{3,4}x\d{3,4}/, thumbnail_value + 'x' + thumbnail_value);
+}
+
+window.onload = function() {
+  var dropdowns = document.getElementsByClassName('embed-select');
+  for (var i = 0; i < dropdowns.length; i++) {
+    dropdowns[i].style = '';
+    dropdowns[i].classList = "columns large-2 embed-select"
+}
+
+  var textboxes = document.getElementsByClassName('embed-thumb');
+  for (var i = 0; i < textboxes.length; i++) {
+    textboxes[i].classList.remove('large-9')
+    textboxes[i].classList.add('large-7')
+}
+};
+</script>
+[% END  # sections.head %]
+
+<p>[% dw.ml(".intro2" {aopts1 => '/file/edit', aopts2 => '/file/new'}) %]</p>
+
+[% getextra = page == 1 ? '' : "?page=$page" %]
+[% getsep = getextra == '' ? "?" : "&" %]
 
 [% IF media.size %]
+<p>
+[% IF view_type == 'grid' %]
+    <a href="[% "$site.root/file/list$getextra${getsep}view=list" %]">[% '.view.list' | ml %]</a> | [% '.view.grid' | ml %]
+[% ELSE %]
+    [% '.view.list' | ml %] | <a href="[% "$site.root/file/list$getextra${getsep}view=grid" %]">[% '.view.grid' | ml %]</a>
+[% END %]
+</p>
+[% IF maxpage > 1 %]
+    <div class="action-box">
+    [%- INCLUDE components/pagination.tt
+        current => page,
+        total_pages => maxpage, -%]
+    </div>
+[% END %]
+
+[% first_index = (page - 1) * 20 %]
+[% last_index = page * 20 - 1 < media.size ? page * 20 - 1 : media.max %]
+[% media_page = media.slice(first_index, last_index) %]
+
+[% IF view_type == 'grid' %]
 <ul id="media-grid">
-    [%- FOREACH obj IN media -%]
+    [%- FOREACH obj IN media_page -%]
         <li class='media-item'>
         <div class='inner'>
-            <p class='media'><img src="[% obj.url %]" /></p>
-            <p class='details'><span class='name'>[% obj.displayid %]. [% obj.ext %]</span><br /><span class='filesize'>[% obj.size / 1000 %] kb</span></p>
+            <div class='media'><img src="[% obj.url %]" alt='[% obj.prop('alttext') %]'/></div>
+            <div class='details'><div class='name'>[% obj.prop('title') != '' ? obj.prop('title') : obj.displayid _ "." _ obj.ext %]</div>
+            <span class='dimensions'>[% obj.orig_filesize / 1000 | format('%d') %] kb | [% obj.orig_width %] x [% obj.orig_height %] px</span></div>
+            <div class='embed row'>
+            <div class="columns large-3"><label for="embed-thumb-[% obj.displayid %]">[% dw.ml(".embed.short") %]</label></div>
+            <div class="columns large-9 embed-thumb">[%- form.textbox( id = "embed-thumb-$obj.displayid" value = make_embed_url(obj, 'type', 'thumbnail', 'size', 100)) -%]</div>
+            <div class="embed-select" style = 'display:none;'>
+            [%- form.select( "items"   = valid_sizes.nsort
+                             "id"    = "thumbnail_sizes-$obj.displayid"
+                             "class" = "select"
+                             "onChange" = "return updateEmbed(event);"
+                           )
+            -%]
+            </div>
+            </div>
         </div>
         </li>
     [%- END -%]
 </ul>
-
+[% ELSE %]
+<div id="media-list">
+    [%- FOREACH obj IN media_page -%]
+        <div class='media-item [% loop.count % 2 ? 'even' : 'odd' %] row'>
+        <div class='inner'>
+            <div class='media large-3 column'>
+            <img src="[% obj.url %]" alt='[% obj.prop('alttext') %]' />
+            </div>
+            <div class='large-9 column'>
+            <div class='details'><span class='name'>[% obj.prop('title') != '' ? obj.prop('title') : obj.displayid _ "." _ obj.ext %]</span><br />
+                        <span class='time'>[% convert_time(obj.logtime, "1") %] UTC<span><br />
+                <span class='dimensions'>[% obj.orig_filesize / 1000 | format('%d') %] kb | [% obj.orig_width %] x [% obj.orig_height %] px</span></div>
+            [% IF obj.prop('description') != '' %]
+            <div class='description'>[% obj.prop('description') %]</div>
+            [% END %]
+            <div class='embed'>
+            [%- INCLUDE 'media/field-row.tt' label = dw.ml(".embed.full") id = "embed-full-$obj.displayid" value = make_embed_url(obj) type="text" labelSize=3 %]
+            </div>
+            <div class='embed row'>
+                <div class="large-3 columns">
+                    <label for="embed-thumb-[% obj.displayid %]">[% dw.ml(".embed.thumbnail") %]</label>
+                </div>
+                <div class="large-9 columns embed-thumb">
+                        [%- form.textbox( id = "embed-thumb-$obj.displayid" value = make_embed_url(obj, 'type', 'thumbnail', 'size', 100)) -%]
+                </div>
+            <div class="embed-select" style = 'display:none;'>
+            [%- form.select( "items"   = valid_sizes.nsort
+                             "id"    = "thumbnail_sizes-$obj.displayid"
+                             "class" = "select"
+                             "onChange" = "return updateEmbed(event);"
+                           )
+            -%]
+            </div>
+            </div>
+            </div>
+            
+        </div>
+        </div>
+    [%- END -%]
+</div>
+[% END %]
+[% IF maxpage > 1 %]
+    <div class="action-box">
+    [%- INCLUDE components/pagination.tt
+        current => page,
+        total_pages => maxpage, -%]
+    </div>
+[% END %]
 [% END %]

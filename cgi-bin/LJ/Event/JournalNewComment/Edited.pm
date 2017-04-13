@@ -32,7 +32,9 @@ sub content {
     my $comment_body =
         "This comment was edited. " .
         "Please see the original notification for the updated text.";
-    $comment_body .= " " . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.edit_reason", undef, { reason => $reason } ) . "."
+    $comment_body .= " " . LJ::Lang::get_default_text(
+                                "esn.journal_new_comment.edit_reason",
+                                { reason => $reason } ) . "."
             if $reason;
 
     my $ret = qq {

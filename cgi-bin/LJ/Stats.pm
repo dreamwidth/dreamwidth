@@ -62,8 +62,9 @@ sub LJ::Stats::run_stats {
             # rather than passing an actual db handle to the stat handler,
             # just pass a getter subef so it can be revalidated as necessary
             my $dbr_getter = sub {
-                return LJ::Stats::get_db("dbr")
+                my $dbr = LJ::Stats::get_db("dbr")
                     or die "Can't get db reader handle.";
+                return $dbr;
             };
 
             print "-I- Running: $jobname\n";
@@ -109,8 +110,9 @@ sub LJ::Stats::run_stats {
                 # pass a dbcr getter subref so the stat handler knows how
                 # to revalidate its database handles, by invoking this closure
                 my $dbcr_getter = sub {
-                    return LJ::Stats::get_db("dbcr", $cid)
+                    my $dbcr = LJ::Stats::get_db("dbcr", $cid)
                         or die "Can't get cluster $cid db handle.";
+                    return $dbcr;
                 };
 
                 print "-I- Running: $jobname, cluster $cid\n";

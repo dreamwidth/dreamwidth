@@ -27,6 +27,8 @@ Regards,
 
 .email.subject=Your [[sitename]] Request
 
+.error.account_deleted=The specified account has been deleted. You must first <a href="[[aopts1]]">log in</a> to the OpenID account on [[sitename]] and <a href="[[aopts2]]">undelete it</a> before you can claim the account.
+
 .error.cantuseownsite=You can't claim a [[sitename]] account!
 
 .error.failed_vivification=We failed to load a user account for that OpenID. Please try again and if it continues to fail, report this error.

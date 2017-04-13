@@ -257,7 +257,7 @@ sub meta_discovery_links {
 
     # FOAF autodiscovery
     if ( $opts{foaf} ) {
-        my $foafurl = $u->{external_foaf_url} ? LJ::eurl( $u->{external_foaf_url} ) : "$journalbase/data/foaf";
+        my $foafurl = "$journalbase/data/foaf";
         $ret .= qq{<link rel="meta" type="application/rdf+xml" title="FOAF" href="$foafurl" />\n};
 
         if ($u->email_visible($opts{remote})) {
@@ -457,7 +457,7 @@ sub make_journal {
 
     my @needed_props = ("stylesys", "s2_style", "url", "urlname", "opt_nctalklinks",
                         "renamedto",  "opt_blockrobots", "opt_usesharedpic", "icbm",
-                        "journaltitle", "journalsubtitle", "external_foaf_url",
+                        "journaltitle", "journalsubtitle",
                         "adult_content", "opt_viewjournalstyle", "opt_viewentrystyle");
 
     # preload props the view creation code will need later (combine two selects)
@@ -613,11 +613,8 @@ sub make_journal {
         ! LJ::get_cap( $u, "userdomain" ) ) {
         return $notice->( BML::ml( 'error.vhost.nodomain1', { user_domain => $LJ::USER_DOMAIN } ) );
     }
-    if ($opts->{'vhost'} =~ /^other:/ && ! LJ::get_cap($u, "domainmap")) {
-        return $notice->( BML::ml( 'error.vhost.noalias' ) );
-    }
-    if ($opts->{'vhost'} eq "customview" && ! LJ::get_cap($u, "styles")) {
-        return $notice->( BML::ml( 'error.vhost.nostyle' ) );
+    if ( $opts->{'vhost'} =~ /^other:/ ) {
+        return $notice->( BML::ml( 'error.vhost.noalias1' ) );
     }
     if ($opts->{'vhost'} eq "community" && $u->journaltype !~ /[CR]/) {
         $opts->{'badargs'} = 1; # Output a generic 'bad URL' message if available

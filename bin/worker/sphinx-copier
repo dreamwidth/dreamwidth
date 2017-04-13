@@ -31,7 +31,6 @@ schwartz_work();
 package DW::Worker::Sphinx::Copier;
 use base 'TheSchwartz::Worker';
 use Encode;
-use LJ::DBUtil;
 use Carp qw/ croak /;
 
 sub sphinx_db {

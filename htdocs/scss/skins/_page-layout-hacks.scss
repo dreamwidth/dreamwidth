@@ -10,6 +10,24 @@
     padding-top: 1px;  /*to ensure margin*/
 }
 
+#content ul li {
+    margin-left: 2em;
+    margin-bottom: 0.75em;
+}
+
+// don't add the bottom spacing for success links
+#content ul.successlinks li {
+    margin-bottom: 0;
+}
+
+#content ul ul {
+    margin-top: 0.75em;
+}
+
+#content dl dd {
+    margin-left: 1.5em;
+}
+
 /**
  * Temporary hack to hide account links / userpics on small screens
  */

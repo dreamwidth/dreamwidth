@@ -63,19 +63,19 @@ function customboxes (e) {
     if (! e) var e = window.event;
     if (! document.getElementById) return false;
 
-    
+
     f = document.updateForm;
     if (! f) return false;
-    
+
     var custom_boxes = $('custom_boxes');
     if (! custom_boxes) return false;
-    
+
     if (f.security.selectedIndex != 3) {
         custom_boxes.style.display = 'none';
         return false;
     }
 
-    var altlogin_username = $('altlogin_username');    
+    var altlogin_username = $('altlogin_username');
     if (altlogin_username != undefined && (altlogin_username.style.display == 'table-row' ||
                                            altlogin_username.style.display == 'block')) {
         f.security.selectedIndex = 0;
@@ -84,7 +84,7 @@ function customboxes (e) {
     } else {
         custom_boxes.style.display = 'block';
     }
-    
+
     if (e) {
         e.cancelBubble = true;
         if (e.stopPropagation) e.stopPropagation();
@@ -98,15 +98,15 @@ function altlogin (e) {
 
     if (! e) var e = window.event;
     if (! document.getElementById) return false;
-    
+
     var altlogin_wrapper = $('altlogin_wrapper');
     if (! altlogin_wrapper) return false;
     altlogin_wrapper.style.display = 'block';
-   
+
     var remotelogin = $('remotelogin');
     if (! remotelogin) return false;
     remotelogin.style.display = 'none';
-    
+
     var usejournal_list = $('usejournal_list');
     if (usejournal_list) {
         usejournal_list.style.display = 'none';
@@ -145,7 +145,7 @@ function altlogin (e) {
     f = document.updateForm;
     if (! f) return false;
     f.action = 'update?altlogin=1';
-    
+
     if (f.security) {
         f.security.options[3] = null;
         f.security.selectedIndex = 0;
@@ -160,7 +160,7 @@ function altlogin (e) {
         if (e.stopPropagation) e.stopPropagation();
     }
 
-    return false;    
+    return false;
 }
 
 function insertFormHints() {
@@ -185,7 +185,7 @@ function mood_preview() {
     if (moodid == "") {
         if ($('mood_preview')) {
             moodPreview = $('mood_preview');
-            moodPreview.innerHTML = '';         
+            moodPreview.innerHTML = '';
         }
         return false
     } else {
@@ -197,7 +197,7 @@ function mood_preview() {
             var moodPreview = document.createElement('span');
             moodPreview.id = 'mood_preview';
             wrapper.appendChild(moodPreview);
-        } 
+        }
         var moodPreviewImage = document.createElement('img');
         moodPreviewImage.id = 'mood_image_preview';
         moodPreviewImage.src = moodpics[moodid];
@@ -226,8 +226,8 @@ function entryPreview(entryForm) {
     f.target='preview';
     window.open('','preview','width=760,height=600,resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');
     f.submit();
-    f.action=action; 
-    f.target='_self'; 
+    f.action=action;
+    f.target='_self';
     return false;
 }
 
@@ -272,7 +272,7 @@ function setColumns(number) {
 
     // hide original list
     listObj.style.display = 'none';
-    
+
     // determine number of columns
     if (number) {   // if it's passed as an argument
         var columns = number;
@@ -285,9 +285,9 @@ function setColumns(number) {
 
     // set the class of list-wrapper to reflect the number of columns
     if ((theList.length / perColumn) <= (columns - 1)) {
-        // If the number of items divided by the calculated items per column is less than 
-        // the number of columns minus one, the number of columns will be adjusted down by one. 
-        // In other words, if you have 9 items and try to break them into 4 columns, the last 
+        // If the number of items divided by the calculated items per column is less than
+        // the number of columns minus one, the number of columns will be adjusted down by one.
+        // In other words, if you have 9 items and try to break them into 4 columns, the last
         // column would be empty, so I've made the adjustment automatic.
         columns = columns - 1;
     }
@@ -321,12 +321,12 @@ function settime( dateUpdatedText, fromButton ) {
         if (n < 10) { return "0" + n; }
         else { return n; }
     }
-    
+
     now = new Date();
     if (! now) return false;
     f = document.updateForm;
     if (! f) return false;
-    
+
     f.date_ymd_yyyy.value = now.getYear() < 1900 ? now.getYear() + 1900 : now.getYear();
     f.date_ymd_mm.selectedIndex = twodigit(now.getMonth());
     f.date_ymd_dd.value = twodigit(now.getDate());
@@ -335,8 +335,8 @@ function settime( dateUpdatedText, fromButton ) {
 
     f.date_diff.value = 1;
 
-    var mNames = new Array("January", "February", "March", 
-        "April", "May", "June", "July", "August", "September", 
+    var mNames = new Array("January", "February", "March",
+        "April", "May", "June", "July", "August", "September",
         "October", "November", "December");
     var currentdate = document.getElementById('currentdate-date');
     var cMonth = now.getMonth();
@@ -570,8 +570,8 @@ InOb.handleInsertSelect = function () {
 };
 
 entry_insert_embed = function (cb) {
-    var prompt = "Add media from other websites by copying and pasting their embed code here. ";
-    LJ_IPPU.textPrompt("Insert Embedded Content", prompt, cb);
+    var prompt = window.parent.FCKLang.EmbedContents;
+    LJ_IPPU.textPrompt(window.parent.FCKLang.EmbedPrompt, prompt, cb);
 };
 
 InOb.handleInsertEmbed = function () {
@@ -588,12 +588,6 @@ InOb.handleInsertImage = function () {
     include = '/imgupload';
     onInsertObject(include);
     return true;
-}
-InOb.handleInsertVideo = function() {
-    var videoUrl = prompt('Please enter a video URL:');
-    var draft = $('draft');
-    var video = "<site-template name=\"video\">" + videoUrl + "</site-template>";
-    draft.value = draft.value + video;
 }
 
 InOb.onClosePopup = function () {
@@ -678,8 +672,8 @@ InOb.onSubmit = function () {
     if (! form) return InOb.fail('no form');
 
     var div_err = InOb.popid('img_error');
-    if (div_err) { 
-            div_err.style.display = 'block'; 
+    if (div_err) {
+            div_err.style.display = 'block';
             // add wai-aria roles
             div_err.setAttribute("role", "alert");
     }
@@ -902,7 +896,7 @@ LJDraft.startTimer = function () {
       url: "/tools/endpoints/draft",
       onData: function (resObj) {
               draftProperties = resObj;
-              }, 
+              },
       data: HTTPReq.formEncoded({"getProperties": 1})
       });
 
@@ -954,9 +948,9 @@ LJDraft.checkProperties = function (properties) {
          currentAdultReason != properties.adultreason ||
          currentCommentSet  != properties.commentset  ||
          currentCommentScr  != properties.commentscr  ||
-         currentAdultCnt    != properties.adultcnt       ) 
+         currentAdultCnt    != properties.adultcnt       )
        {
-         
+
          properties.userpic = currentUserpic;
          properties.subject = currentSubject;
          properties.taglist = currentTaglist;

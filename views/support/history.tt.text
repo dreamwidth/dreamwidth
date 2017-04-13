@@ -16,6 +16,10 @@
 
 .search.email.text=Email Address
 
+.search.fulltext=Containing Text:
+
+.search.fulltext.text=Search Text
+
 .search.onefield=Please fill out only one of the search fields.
 
 .search.otheremails=You may also search for requests from email addresses associated with your account.

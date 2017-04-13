@@ -57,8 +57,8 @@ sub try_work {
     $0 = sprintf( 'content-importer [friends: %s(%d)]', $u->user, $u->id );
 
     my $r = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
-    return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
-        if ! $r || $r->{fault};
+    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
+    return $temp_fail->( $xmlrpc_fail ) if ! $r || $r->{fault};
 
     my ( @friends, @feeds );
     foreach my $friend (@{ $r->{friends} || [] }) {

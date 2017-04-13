@@ -106,7 +106,7 @@ body<=
         $clusterdown = 1 unless $dbr;
 
         $email = $u->email_raw if $u->email_raw;
-        $u->preload_props( "stylesys", "s2_style", "browselang", "schemepref" )
+        $u->preload_props( "stylesys", "s2_style", "schemepref" )
             unless $clusterdown;
     }
 
@@ -166,14 +166,14 @@ body<=
     my $ret = "";
     $ret .= "<table summary='' class='support-requesttable'>\n";
     $ret .= "<tr><td valign='bottom' align='right'><b>$ML{'.from'}</b></td><td>";
-    
+
     if ( $u->{'defaultpicid'} && !$u->is_suspended ) {
         my $userpic_obj = $u->userpic;
         $ret .= "<a href='" . $u->allpics_base . "'>";
         $ret .= $userpic_obj->imgtag;
         $ret .= "</a>";
     }
-    
+
     # show requester name + email
     {
         my $visemail = $email;
@@ -281,8 +281,8 @@ body<=
         $ret .= "$ML{'.cluster'}: <b>" . LJ::DB::get_cluster_description( $u->{clusterid} ) . "</b>; "
             if $u->{clusterid};
         $ret .= "$ML{'.dataversion'}: <b>$u->{dversion}</b>";
-        $ret .= "<br />$ML{'.scheme'}: <b>" . ($u->{schemepref} ? $u->{schemepref} : "default") . "</b>; ";
-        $ret .= "$ML{'.language'}: <b>" . ($u->{browselang} ? $u->{browselang} : "default") . "</b>";
+        $ret .= "<br />$ML{'.scheme'}: <b>" .
+                ( $u->{schemepref} ? $u->{schemepref} : "default" ) . "</b>";
 
         my $view_history = $remote && $remote->has_priv( 'historyview' );
         my $view_userlog = $remote && $remote->has_priv( 'canview', 'userlog' );
@@ -295,10 +295,11 @@ body<=
                 if $view_userlog;
         }
 
-        if ( $u->in_class( LJ::BetaFeatures->cap_name )
+        if ( %LJ::BETA_FEATURES
             && LJ::Support::has_any_support_priv( $remote ) ) {
             $ret .= "<br />$ML{'.betatesting'}: ";
-            $ret .= join ", ", $u->prop( LJ::BetaFeatures->prop_name );
+            my $betafeatures = join ", ", $u->prop( LJ::BetaFeatures->prop_name );
+            $ret .= $betafeatures || $ML{'.no-beta'};
         }
 
         $ret .= "</td></tr>\n";
@@ -670,11 +671,11 @@ _code?>
 
     my $spid = $FORM{'id'}+0;
     my $ret;
-    
+
     $ret .= BML::ml('.see.preview', {preview_link=>"href='$LJ::SITEROOT/support/see_request?id=$spid&amp;find=prev'"});
     $ret .= BML::ml('.see.next', {next_link=>"href='$LJ::SITEROOT/support/see_request?id=$spid&amp;find=next'"});
-    
-    return $ret; 
+
+    return $ret;
 }
 _code?>
 <br>

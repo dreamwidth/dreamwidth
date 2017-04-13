@@ -17,17 +17,24 @@
 package DW::Controller::Media;
 
 use strict;
-use warnings;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger( __PACKAGE__ );
+
+use DW::BlobStore;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
+use DW::External::Site;
+use POSIX;
 
-my %VALID_SIZES = ( map { $_ => 1 } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
+my %VALID_SIZES = ( map { $_ => $_ } ( 100, 320, 200, 640, 480, 1024, 768, 1280,
             800, 600, 720, 1600, 1200 ) );
 
-DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler, user => 1, formats => 1, prefer_ssl => 1 );
+DW::Routing->register_regex( qr!^/file/(\d+)$!, \&media_handler,
+    user => 1, formats => 1, prefer_ssl => 1 );
 DW::Routing->register_regex( qr!^/file/(\d+x\d+|full)(/\w:[\d\w]+)*/(\d+)$!,
-        \&media_handler, user => 1, formats => 1, prefer_ssl => 1 );
+    \&media_handler, user => 1, formats => 1, prefer_ssl => 1 );
 DW::Routing->register_string( '/file/list', \&media_manage_handler, app => 1 );
 DW::Routing->register_string( '/file/edit', \&media_bulkedit_handler, app => 1 );
 DW::Routing->register_string( '/file/new', \&media_new_handler, app => 1  );
@@ -36,10 +43,21 @@ DW::Routing->register_string( '/file', \&media_index_handler, app => 1 );
 sub media_manage_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
+    return error_ml( 'error.openid', { sitename => $LJ::SITENAMESHORT,
+                                       aopts => '/create' } )
+        if $rv->{remote}->is_identity;
 
     # load all of a user's media.  this is inefficient and won't be like this forever,
     # but it's simple for now...
-    $rv->{media} = [ DW::Media->get_active_for_user( $rv->{remote} ) ];
+    my @media = DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 );
+
+    $rv->{media} = \@media;
+    $rv->{make_embed_url} = \&make_embed_url;
+    $rv->{page} = $rv->{r}->get_args->{page} || '1';
+    $rv->{view_type} = $rv->{r}->get_args->{view} || '';
+    $rv->{maxpage} = POSIX::ceil(scalar @media / 20);
+    $rv->{valid_sizes} =[ %VALID_SIZES ];
+    $rv->{convert_time} = \&LJ::mysql_time;
 
     return DW::Template->render_template( 'media/index.tt', $rv );
 }
@@ -47,6 +65,9 @@ sub media_manage_handler {
 sub media_bulkedit_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
+    return error_ml( 'error.openid', { sitename => $LJ::SITENAMESHORT,
+                                       aopts => '/create' } )
+        if $rv->{remote}->is_identity;
 
     my @security = (
             { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },
@@ -63,14 +84,39 @@ sub media_bulkedit_handler {
 
         if ( $post_args->{"action:edit"} ) {
             my %post = %{$post_args->as_hashref||{}};
-            while ( my ($key, $secval) = each %post ) {
-                next unless $key =~ m/^security-(\d+)/;
-                my $mediaid = $1 >> 8;
-                my $media = DW::Media->new( user => $rv->{u}, mediaid => $mediaid );
+
+            # transform our HTML field names to property names
+            # and group by what media object they belong to
+            # we don't care if the id or prop might not exist
+            # right now, later steps will verify them
+
+            my %props;
+            while ( my ($key, $val) = each %post ) {
+                next if $key eq "delete";
+                next unless $key =~ m/^(\w+)-(\d+)/;
+                my $mediaid = $2 >> 8;
+                if ( exists $props{$mediaid} ) {
+                    $props{$mediaid}{$1} = $val;
+                } else {
+                    $props{$mediaid} = {$1 => $val};
+                }
+            }
+
+            # go through and try to fetch a media object from
+            # each id, then try to set it's properties
+
+            for my $media_key (keys %props) {
+                my $media = DW::Media->new( user => $rv->{u}, mediaid => $media_key );
                 next unless $media;
 
-                my $amask = $secval eq "usemask" ? 1 : 0;
-                $media->set_security( security => $secval, allowmask => $amask );
+                while ( my ($key, $val) = each %{$props{$media_key}} ) {
+                    if( $key eq 'security' ) {
+                        my $amask = $val eq "usemask" ? 1 : 0;
+                        $media->set_security( security => $val, allowmask => $amask );
+                    } else {
+                        $media->prop( $key, $val );
+                    }
+                }
             }
 
         } elsif ( $post_args->{"action:delete"} ) {
@@ -87,22 +133,29 @@ sub media_bulkedit_handler {
         }
     }
 
-    $rv->{media} = [
-        DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 )
-    ];
+    my @media = DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 );
 
+    $rv->{ehtml} = \&LJ::ehtml;
+    $rv->{media} = \@media;
+    $rv->{page} = $r->get_args->{page} || '1';
+    $rv->{maxpage} = POSIX::ceil(scalar @media / 20);
     return DW::Template->render_template( 'media/edit.tt', $rv );
 }
 
 sub media_handler {
-    my $opts = shift;
-    my $r = DW::Request->get;
+    my ( $opts ) = @_;
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+    my $r = $rv->{r};
 
     # Outputs an error message
     my $error_out = sub {
        my ( $code, $message ) = @_;
        $r->status( $code );
        return $r->NOT_FOUND if $code == 404;
+
+       # don't cache transient error responses
+       $r->header_out( "Cache-Control" => "no-cache" );
 
        $r->print( $message );
        return $r->OK;
@@ -154,17 +207,36 @@ sub media_handler {
         unless $obj->is_active && $obj->anum == $anum && $obj->ext eq $ext;
 
     # access control
-# FIXME: support viewall
+    my $remote = $rv->{remote};
+    my $viewall = $r->get_args->{viewall} ? 1 : 0;     # did they request it
+    $viewall &&= defined $remote;                      # are they logged in
+    $viewall &&= $remote->has_priv( 'canview', '*' );  # can they do it
+    LJ::statushistory_add( $u->userid, $remote->userid, "viewall", $obj->url )
+        if $viewall;
     return $error_out->( 403, 'Not authorized' )
-        unless $obj->visible_to( LJ::get_remote() );
+        unless $viewall || $obj->visible_to( $remote );
+
+    # remote access, including crossposts
+    my $refer_ok = sub {
+        return 1 if LJ::check_referer();
+        my @xpost = map { $_->{domain} } DW::External::Site->get_xpost_sites;
+        my ( $ref_dom ) = $r->header_in( "Referer" ) =~ m!^https?://([^/]+)!;
+        foreach my $domain ( @xpost ) {
+            return 1 if $ref_dom eq $domain;  # top level domain
+            return 1 if $ref_dom =~ m!\.\Q$domain\E$!;  # subdomain
+        }
+        return 0;
+    };
+    return $error_out->( 403, 'Not authorized' )
+        unless $refer_ok->();  # limit offsite loading
 
     # load the data for this object
-# FIXME: support X-REPROXY headers here
-    my $dataref = LJ::mogclient()->get_file_data( $obj->mogkey );
+    my $dataref = DW::BlobStore->retrieve( media => $obj->mogkey );
     return $error_out->( 500, 'Unexpected internal error locating file' )
         unless defined $dataref && ref $dataref eq 'SCALAR';
 
     # now we're done!
+    $r->set_last_modified( $obj->{logtime} ) if $obj->{logtime};
     $r->content_type( $obj->mimetype );
     $r->print( $$dataref );
     return $r->OK;
@@ -173,6 +245,9 @@ sub media_handler {
 sub media_new_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
+    return error_ml( 'error.openid', { sitename => $LJ::SITENAMESHORT,
+                                       aopts => '/create' } )
+        if $rv->{remote}->is_identity;
 
     $rv->{security} = [
         { value => "public",  text => LJ::Lang::ml( 'label.security.public2' ) },
@@ -188,6 +263,26 @@ sub media_index_handler {
     return $rv unless $ok;
 
     return DW::Template->render_template( 'media/home.tt', $rv );
+}
+
+# a helper function to build the embed code, being sure to
+# clean user-entered fields before outputing them.
+
+sub make_embed_url {
+    my ($obj, %opts) = @_;
+    my $url = $obj->full_url;
+    my $alt = $obj->prop('alttext') || '';
+    my $title = $obj->prop('title') || '';
+    my $embed;
+
+    if (defined $opts{type} && $opts{type} eq 'thumbnail') {
+        my $thumb_url = $obj->url();
+        $embed = "<a href='$url'><img src='$thumb_url' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "'/></a>";
+    } else {
+        $embed = "<img src='$url' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "' />";
+    }
+
+    return $embed;
 }
 
 1;

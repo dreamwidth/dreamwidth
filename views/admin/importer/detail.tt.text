@@ -1,4 +1,16 @@
 ;; -*- coding: utf-8 -*-
+.col.created=Created
+
+.col.item=Item
+
+.col.lasttouch=Last Touch
+
+.col.source=Import Source
+
+.col.status=Status
+
+.error.none_pending=No pending imports for this user.
+
 .error.toomanypending=There are too many pending imports. *Probably* what is happening here is that the user's import is already in the schwartz async queue where we can't look it up easily, but then they started a new import. The old import will still keep running, and the new import will show up as aborted.
 
 .title=Pending Import Details

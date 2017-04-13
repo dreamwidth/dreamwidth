@@ -47,8 +47,7 @@ my @_ml_strings = (
 
 sub as_email_subject {
     my ($self, $u) = @_;
-    return LJ::Lang::get_text($u->prop('browselang'),
-        'esn.invited_friend_joins.subject', undef,
+    return LJ::Lang::get_default_text( 'esn.invited_friend_joins.subject',
         { who => $self->friend->display_username } );
 }
 
@@ -57,7 +56,6 @@ sub _as_email {
 
     return '' unless $u && $self->friend;
 
-    my $lang            = $u->prop('browselang');
     my $user            = $is_html ? $u->ljuser_display : $u->display_username;
     my $newusername     = $self->friend->display_username;
     my $newuser         = $is_html ? $self->friend->ljuser_display : $newusername;
@@ -65,7 +63,7 @@ sub _as_email {
     my $newuser_profile = $self->friend->profile_url;
 
     # Precache text lines
-    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings);
+    LJ::Lang::get_default_text_multi( \@_ml_strings );
 
     my $vars = {
             user            => $user,
@@ -76,8 +74,8 @@ sub _as_email {
             sitenameshort   => $LJ::SITENAMESHORT,
     };
 
-    return LJ::Lang::get_text($lang, 'esn.invited_friend_joins.email', undef, $vars) .
-        $self->format_options($is_html, $lang, $vars,
+    return LJ::Lang::get_default_text( 'esn.invited_friend_joins.email', $vars ) .
+        $self->format_options( $is_html, undef, $vars,
         {
             'esn.add_trust'             => [ 1, "$LJ::SITEROOT/circle/$newusername/edit?action=access" ],
             'esn.add_watch'             => [ 2, "$LJ::SITEROOT/circle/$newusername/edit?action=subscribe" ],

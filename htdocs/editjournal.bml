@@ -259,7 +259,7 @@ body<=
 
                 # check response
                 unless ($res{'success'} eq "OK") {
-                    return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.modify'} <ul><li><b>$res{'errmsg'}</b></li></ul> p?>";
+                    return "<?h1 $ML{'Error'} h1?><?p <ul><li><b>$res{'errmsg'}</b></li></ul> p?>";
                 }
 
                 my $deleted = $req{event} ? 0 : 1;
@@ -318,11 +318,11 @@ body<=
                     my $deleted_extras = LJ::Hooks::run_hook('entry_deleted_page_extras');
                     $result .= $deleted_extras if defined $deleted_extras;
                 } else {
-                    $message = LJ::auto_linkify( LJ::ehtml( $res{message} ) );
+                    $message = LJ::auto_linkify( LJ::html_newlines( LJ::ehtml( $res{message} ) ) );
                     $result .= ($journalu->is_community) ?
                         "<?p $ML{'.success.edited.comm'} p?>" :
                         "<?p $ML{'.success.edited'} p?>";
-                    $result .= "<?p $message p?>" if $message;
+                    $result .= "<div class='alert-box'>$message</div>" if $message;
                     $result .= $xpost_result;
                     # open a request about the unsuspension if one doesn't already exist
                     if ($POST{'action:saveunsuspend'} && !$entry_obj->prop("unsuspend_supportid") && $LJ::UNSUSPENSION_REQUEST_SPCATID) {
@@ -349,19 +349,26 @@ body<=
                 }
 
                 if (!$deleted) {
+                    my $security_ml;
+                    my $filternames = '';
+                    my $c_or_p = $journalu->is_community ? 'c' : 'p';
+
                     if ($req{"security"} eq "private") {
-                        $result .="<p>$ML{'.extradata.sec.private'}</p>";
+                        $security_ml = "post.security.private.$c_or_p";
                     } elsif ($req{"security"} eq "usemask") {
                         if ($req{"allowmask"} == 0) { # custom security with no group -- essentially private
-                            $result .="<p>$ML{'.extradata.sec.private'}</p>";
+                            $security_ml = "post.security.private.$c_or_p";
                         } elsif ($req{"allowmask"} > 1) { # custom group
-                            $result .="<p>$ML{'.extradata.sec.custom'}</p>";
-                        } else { # friends only
-                            $result .="<p>$ML{'.extradata.sec.access'}</p>";
+                            $filternames = $journalu->security_group_display( $req{allowmask} );
+                            $security_ml = "post.security.custom";
+                        } else { # access list only
+                            $security_ml = "post.security.access.$c_or_p";
                         }
                     } else {
-                        $result .="<p>$ML{'.extradata.sec.public'}</p>";
+                        $security_ml = "post.security.public";
                     }
+
+                    $result .= "<?p " . BML::ml( $security_ml, { filters => $filternames } ) . " p?>";
 
                     my $subject = $req{subject};
 

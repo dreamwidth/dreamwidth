@@ -1,0 +1,67 @@
+[%# index.tt
+
+Support Index page
+
+Authors:
+    hotlevel4 <hotlevel4@hotmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.title = '.title1' | ml( sitename = site.nameshort ) -%]
+
+<div class='columns medium-6'>
+    [%# Known Issues Box %]
+        <div class='panel radius bluebox'>
+            <h3>[% '.knownissues.head' | ml %]</h3>
+            [% currentproblems %]
+    </div>
+    [%# Ask a Question Box %]
+        <div class='panel radius greenbox'>
+            <h3>[% '.ask.head' | ml %]</h3>
+            <p>[% '.ask.text' | ml ( aopts = 'href=/support/submit' ) %]</p>
+            <p>[% '.search.text' | ml ( aopts = 'href=/support/history' ) %]</p>
+    </div>
+</div>
+
+<div class='columns medium-6'>
+    [%# Did You Know Box %]
+        <div class='panel radius greenbox'>
+            <h3>[% '.volunteer.head' | ml %]</h3>
+            <p>[% '.volunteer.text2' | ml( sitename = site.nameshort, aoptshelp = 'href=/support/help', aoptspoints = 'href=/support/highscores' ) %]</p>
+        </div>
+    [%# FAQ Box %]    
+        <div class='panel radius bluebox'>
+            <h3>[% '.faq.head' | ml %]</h3>
+            <p>[% '.faq.text' | ml %]</p>
+            <div align='center'>
+                <form method='GET' action='[% site.root %]/support/faqsearch'>
+                    <div class="row">
+                    <div class="large-12 columns">
+                    <div class="row collapse">
+                    <div class="small-9 columns">
+                        <input type="search" placeholder="Search terms" name="q">
+                    </div>
+                    <div class="small-3 columns">
+                        <input type='submit' class="button postfix" value='[% '.faq.search.btn' | ml %]'>
+                    </div>    
+                    </div>
+                    </div>
+                    </div>
+                </form>
+            </div>
+            <ul>
+            [% FOREACH faq=f %]
+                <li><a href='faqbrowse?faqid=[% faq.faqid %]'>[% faq.q %]</a></li>
+            [% END %]
+            </ul>
+            <p align='right'>
+                &raquo; <a href = '[% site.root %]/support/faq'>[% '.faq.all' | ml %]</a>
+            </p>
+    </div>    
+</div>

@@ -123,8 +123,6 @@ includefile:<name> == text of BML include file
 
 <uid> supportpointsum:<uid> == total number of support points that this user has
 
-<uid> txtmsgsecurity:<uid> == security level that the user has set for their text messages
-
 # Widgets
 
 qotd:<type> == QotDs of the type <type> ('current' or 'old')

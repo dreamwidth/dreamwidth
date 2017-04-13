@@ -30,7 +30,6 @@ use strict;
 use LJ::Protocol;
 
 use Date::Parse;
-use HTML::Entities;
 use IO::Handle;
 use XML::Simple;
 
@@ -298,6 +297,8 @@ sub _upload_images {
     my @imgs = $self->get_entity( $self->{_entity}, 'image' );
     return 1 unless scalar @imgs;
 
+    return 1401 unless $self->{u}->can_upload_media;  # error code from insert_images
+
     my @images;
     foreach my $img_entity ( @imgs ) {
         my $obj = DW::Media->upload_media(
@@ -513,7 +514,8 @@ sub _cleanup_mobile_carriers {
         return $self->err( "Unable to find XML content in PictureMail message." )
             unless $xml_string;
 
-        HTML::Entities::decode_entities( $xml_string );
+        LJ::dhtml( $xml_string ); # $xml_string is being modified by this function call
+                                  # special characters are replaced with equivalent HTML entities
         my $xml = eval { XML::Simple::XMLin( $xml_string ); };
         return $self->err( "Unable to parse XML content in PictureMail message." )
             if ! $xml || $@;
@@ -522,8 +524,7 @@ sub _cleanup_mobile_carriers {
             unless $xml->{messageContents}->{type} eq 'PICTURE';
 
         my $url =
-          HTML::Entities::decode_entities(
-            $xml->{messageContents}->{mediaItems}->{mediaItem}->{url} );
+          LJ::dhtml( $xml->{messageContents}->{mediaItems}->{mediaItem}->{url} );
         $url = LJ::trim($url);
         $url =~ s#</?url>##g;
 
@@ -550,7 +551,7 @@ sub _cleanup_mobile_carriers {
         my $ua_rv = $ua->get( $url, ':content_file' => $tempfile );
 
         $self->{body} = $xml->{messageContents}->{messageText};
-        $self->{body} = ref $self->{body} ? "" : HTML::Entities::decode( $self->{body} );
+        $self->{body} = ref $self->{body} ? "" : LJ::dhtml( $self->{body} );
 
         if ($ua_rv->is_success) {
             # (re)create a basic mime entity, so the rest of the

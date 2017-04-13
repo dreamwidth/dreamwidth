@@ -115,7 +115,7 @@ my @_ml_strings_en = (
 sub as_email_subject {
     my ( $self, $u ) = @_;
 
-    return LJ::Lang::get_text( $u->prop( 'browselang' ), 'esn.moderated_submission.subject2', undef,
+    return LJ::Lang::get_default_text( 'esn.moderated_submission.subject2',
         {
             community => $self->comm->username,
         });
@@ -127,10 +127,9 @@ sub _as_email {
 
     my $moderated_entry = $self->moderated_entry;
     my $comm            = $self->comm;
-    my $lang            = $u->prop( 'browselang' );
 
     # Precache text
-    LJ::Lang::get_text_multi( $lang, undef, \@_ml_strings_en );
+    LJ::Lang::get_default_text_multi( \@_ml_strings_en );
 
     my $links = {
         'esn.moderated_submission.queue'      => [ 2, $comm->moderation_queue_url ],
@@ -140,17 +139,17 @@ sub _as_email {
 
     my $format_username = sub { return $is_html ? $_[0]->ljuser_display : $_[0]->display_username };
     my $text = $moderated_entry
-        ? LJ::Lang::get_text( $lang, 'esn.moderated_submission.body2', undef, {
+        ? LJ::Lang::get_default_text( 'esn.moderated_submission.body2', {
                 user        => $format_username->( $moderated_entry->poster ),
                 community   => $format_username->( $self->comm ),
                 subject     => $moderated_entry->subject,
           } )
-        : LJ::Lang::get_text( $lang, 'esn.moderated_submission.handled.body', undef, {
+        : LJ::Lang::get_default_text( 'esn.moderated_submission.handled.body', {
                 community   => $format_username->( $self->comm ),
                 entryid     => $self->moderated_entryid,
-          });
+          } );
 
-    return $text . $self->format_options( $is_html, $lang, {}, $links );
+    return $text . $self->format_options( $is_html, undef, {}, $links );
 }
 
 sub as_email_string {

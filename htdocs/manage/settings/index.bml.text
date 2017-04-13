@@ -35,7 +35,7 @@
 
 .cat.mobile=Mobile
 
-.cat.mobile.desc=Voice post, text messaging, and mobile options
+.cat.mobile.desc2=Email posting and other mobile options
 
 .cat.notifications=Notifications
 
@@ -74,8 +74,6 @@
 .fn.contextualhover=Contextual Hover Menu
 
 .fn.imageplace=Image placeholders
-
-.fn.language=Language
 
 .fn.minsecurity=Minimum Entry Security
 

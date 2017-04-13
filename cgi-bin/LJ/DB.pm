@@ -44,7 +44,7 @@ $LJ::DBIRole = new DBI::Role {
                     "userpicblob2", "subs", "subsprop", "has_subs",
                     "ratelog", "loginstall", "sessions", "sessions_data",
                     "modlog", "modblob", "userproplite2", "links",
-                    "userblob", "userpropblob",
+                    "userpropblob",
                     "clustertrack2", "reluser2",
                     "tempanonips", "inviterecv", "invitesent",
                     "memorable2", "memkeyword2", "userkeywords",
@@ -57,7 +57,7 @@ $LJ::DBIRole = new DBI::Role {
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2", "vgift_trans",
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
-                    "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
+                    "notifyarchive", "notifybookmarks", "embedcontent_preview",
                     "logprop_history", "import_status", "externalaccount",
                     "content_filters", "content_filter_data", "userpicmap3",
                     "media", "collections", "collection_items", "logslugs",
@@ -72,132 +72,11 @@ package LJ::DB;
 
 use Carp qw(croak);  # import croak into package LJ::DB
 
-# <LJFUNC>
-# name: LJ::DB::time_range_to_ids
-# des:  Performs a binary search on a table's primary id key looking
-#       for time boundaries as specified.  Returns the boundary ids
-#       that were found, effectively simulating a key on 'time' for
-#       the specified table.
-# info: This function shouldn't normally be used, but there are
-#       rare instances where it's useful.
-# args: opts
-# des-opts: A hashref of keys. Keys are:
-#           'table' - table name to query;
-#           'roles' - arrayref of db roles to use, in order. Defaults to ['slow'];
-#           'idcol' - name of 'id' primary key column.
-#           'timecol' - name of unixtime column to use for constraint;
-#           'starttime' - starting unixtime time of rows to match;
-#           'endtime' - ending unixtime of rows to match.
-# returns: startid, endid; id boundaries which should be used by
-#          the caller.
-# </LJFUNC>
-
-sub time_range_to_ids {
-    my %args = @_;
-
-    my $table     = delete $args{table}     or croak("no table arg");
-    my $idcol     = delete $args{idcol}     or croak("no idcol arg");
-    my $timecol   = delete $args{timecol}   or croak("no timecol arg");
-    my $starttime = delete $args{starttime} or croak("no starttime arg");
-    my $endtime   = delete $args{endtime}   or croak("no endtime arg");
-    my $roles     = delete $args{roles};
-    unless (ref $roles eq 'ARRAY' && @$roles) {
-        $roles = [ 'slow' ];
-    }
-    croak("bogus args: " . join(",", keys %args))
-        if %args;
-
-    my $db = LJ::get_dbh(@$roles)
-        or die "unable to acquire db handle, roles=", join(",", @$roles);
-
-    my ($db_min_id, $db_max_id) = $db->selectrow_array
-        ("SELECT MIN($idcol), MAX($idcol) FROM $table");
-    die $db->errstr if $db->err;
-    die "error finding min/max ids: $db_max_id < $db_min_id"
-        if $db_max_id < $db_min_id;
-
-    # final output
-    my ($startid, $endid);
-    my $ct_max = 100;
-
-    foreach my $curr_ref ([$starttime => \$startid], [$endtime => \$endid]) {
-        my ($want_time, $dest_ref) = @$curr_ref;
-
-        my ($min_id, $max_id) = ($db_min_id, $db_max_id);
-
-        my $curr_time = 0;
-        my $last_time = 0;
-
-        my $ct = 0;
-        while ($ct++ < $ct_max) {
-            die "unable to find row after $ct tries" if $ct > 100;
-
-            my $curr_id = $min_id + int(($max_id - $min_id) / 2)+0;
-
-            my $sql =
-                "SELECT $idcol, $timecol FROM $table " .
-                "WHERE $idcol>=$curr_id ORDER BY 1 LIMIT 1";
-
-            $last_time = $curr_time;
-            ($curr_id, $curr_time) = $db->selectrow_array($sql);
-            die $db->errstr if $db->err;
-
-            # stop condition, two trigger cases:
-            #  * we've found exactly the time we want
-            #  * we're still narrowing but not finding rows in between, stop here with
-            #    the current time being just short of what we were trying to find
-            if ($curr_time == $want_time || $curr_time == $last_time) {
-
-                # if we never modified the max id, then we
-                # have searched to the end without finding
-                # what we were looking for
-                if ($max_id == $db_max_id && $curr_time <= $want_time) {
-                    $$dest_ref = $max_id;
-
-                # same for min id
-                } elsif ($min_id == $db_min_id && $curr_time >= $want_time) {
-                    $$dest_ref = $min_id;
-
-                } else {
-                    $$dest_ref = $curr_id;
-                }
-                last;
-            }
-
-            # need to traverse into the larger half
-            if ($curr_time < $want_time) {
-                $min_id = $curr_id;
-                next;
-            }
-
-            # need to traverse into the smaller half
-            if ($curr_time > $want_time) {
-                $max_id = $curr_id;
-                next;
-            }
-        }
-    }
-
-    return ($startid, $endid);
-}
-
 sub isdb { return ref $_[0] && (ref $_[0] eq "DBI::db" ||
                                 ref $_[0] eq "Apache::DBI::db"); }
 
 sub dbh_by_role {
     return $LJ::DBIRole->get_dbh( @_ );
-}
-
-sub dbh_by_name {
-    my $name = shift;
-    my $dbh = dbh_by_role("master")
-        or die "Couldn't contact master to find name of '$name'\n";
-
-    my $fdsn = $dbh->selectrow_array("SELECT fdsn FROM dbinfo WHERE name=?", undef, $name);
-    die "No fdsn found for db name '$name'\n" unless $fdsn;
-
-    return $LJ::DBIRole->get_dbh_conn($fdsn);
-
 }
 
 sub root_dbh_by_name {
@@ -211,60 +90,12 @@ sub root_dbh_by_name {
     return $LJ::DBIRole->get_dbh_conn($fdsn);
 }
 
-sub backup_in_progress {
-    my $name = shift;
-    my $dbh = dbh_by_role("master")
-        or die "Couldn't contact master to find name of '$name'";
-
-    # return 0 if this a/b is the active side, as wecan't ever have a backup of active side in progress
-    my ($cid, $is_a_or_b) = user_cluster_details($name);
-    if ($cid) {
-        my $active_ab = $LJ::CLUSTER_PAIR_ACTIVE{$cid} or
-            die "Neither 'a' nor 'b' is active for clusterid $cid?\n";
-        die "Bogus active side" unless $active_ab =~ /^[ab]$/;
-
-        # can't have a backup in progress for an active a/b side.  short-circuit
-        # and don't even ask the database, as it might lie if the process
-        # was killed or something
-        return 0 if $active_ab eq $is_a_or_b;
-    }
-
-    my $fdsn = $dbh->selectrow_array("SELECT rootfdsn FROM dbinfo WHERE name=?", undef, $name);
-    die "No rootfdsn found for db name '$name'\n" unless $fdsn;
-    $fdsn =~ /\bhost=([\w\.\-]+)/ or die "Can't find host for database '$name'";
-    my $host = $1;
-
-    eval "use IO::Socket::INET; 1;" or die;
-    my $sock = IO::Socket::INET->new(PeerAddr => "$host:7602")  or return 0;
-    print $sock "is_backup_in_progress\r\n";
-    my $answer = <$sock>;
-    chomp $answer;
-    return $answer eq "1";
-}
-
-sub user_cluster_details {
-    my $name = shift;
-    my $dbh = dbh_by_role("master") or die;
-
-    my $role = $dbh->selectrow_array("SELECT role FROM dbweights w, dbinfo i WHERE i.name=? AND i.dbid=w.dbid",
-                                     undef, $name);
-    return () unless $role && $role =~ /^cluster(\d+)([ab])$/;
-    return ($1, $2);
-}
-
 sub foreach_cluster {
     my $coderef = shift;
     my $opts = shift || {};
 
-    # have to include this via an eval so it doesn't actually get included
-    # until someone calls foreach cluster.  at which point, if they're in web
-    # context, it will fail.
-    eval "use LJ::DBUtil; 1;";
-    die $@ if $@;
-
     foreach my $cluster_id (@LJ::CLUSTERS) {
-        my $dbr = ($LJ::IS_DEV_SERVER) ?
-            LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});
+        my $dbr = LJ::get_cluster_reader( $cluster_id );
         $coderef->($cluster_id, $dbr);
     }
 }
@@ -295,12 +126,6 @@ sub no_cache {
 sub cond_no_cache {
     my ($cond, $sb) = @_;
     return no_cache($sb) if $cond;
-    return $sb->();
-}
-
-sub no_ml_cache {
-    my $sb = shift;
-    local $LJ::NO_ML_CACHE = 1;
     return $sb->();
 }
 

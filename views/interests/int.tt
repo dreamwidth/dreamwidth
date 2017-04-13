@@ -57,7 +57,9 @@
   </div>
     [%- FOREACH not_interested -%]
         <p class='interestinfo'>
-        [%- '.addint3' | ml(int = int, aopts = "href='$site.root/interests?mode=add&amp;intid=$intid'") -%]</p>
+        [%- intadd = dw.create_url( '/interests', args =>
+                                    { mode = 'add', intid = intid } ) -%]
+        [%- '.addint3' | ml(int = int, aopts = "href='${intadd}'") -%]</p>
     [%- END -%]
     [%- UNLESS comm_count -%]
         <p class='interestinfo'>
@@ -104,7 +106,9 @@
         [%- '.notall' | ml %]</p>
         [%- FOREACH not_interested -%]
             <p class='interestinfo'>
-            [%- '.addint3' | ml(int = int, aopts = "href='$site.root/interests?mode=add&amp;intid=$intid'") -%]</p>
+            [%- intadd = dw.create_url( '/interests', args =>
+                                        { mode = 'add', intid = intid } ) -%]
+            [%- '.addint3' | ml(int = int, aopts = "href='${intadd}'") -%]</p>
         [%- END -%]
     [%- END -%]
     <p class='interestinfo'>

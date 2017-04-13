@@ -58,11 +58,6 @@ FCKConfig.AutoGrowMax = 400 ;
 // LIVEJOURNAL SPECIFIC
 FCKConfig.Plugins.Add('livejournal');
 FCKConfig.ProtectedSource.Add( /<(lj )?user[\s\S]*?\/lj>/gi ); // <(lj) user>
-FCKConfig.ProtectedSource.Add( /<(lj|site)-template name=['"]\w+['"]\S+?<\/\1template>/gi ); // <lj/site-template>
-FCKConfig.ProtectedSource.Add( /<(lj|site)-template id=['"]?\d+['"]? name=['"]?\w+['"]?>.*?<\/\1template>/gi ); // <lj/site-template></lj/site-template>
-FCKConfig.ProtectedSource.Add( /<(lj|site)-template name=['"]?\w+['"]? id=['"]?\d+['"]?>.*?<\/\1template>/gi ); // <lj/site-template></lj/site-template>
-FCKConfig.ProtectedSource.Add( /<(lj|site)-template id=['"]?\d+['"]? name=['"]?\w+['"]? \/>/gi ); // <lj/site-template />
-FCKConfig.ProtectedSource.Add( /<(lj|site)-template name=['"]?\w+['"]? id=['"]?\d+['"]? \/>/gi ); // <lj/site-template />
 FCKConfig.ProtectedSource.Add( /<(lj-)?poll[\s\S]*?<\/\1poll>/gi ); // polls
 FCKConfig.ProtectedSource.Add( /<div.*?><(lj-)?poll-\d+?><\/\1poll-\d+?><\/div>/gi ); // generated polls
 //FCKConfig.ProtectedSource.Add( /<lj-pq.+?>.+?<\/lj-pq>/gi ); // lj polls

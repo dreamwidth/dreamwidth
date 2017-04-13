@@ -36,10 +36,10 @@ _c?>
     my $email = $POST{invite_email} || '';
     my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT) . "/create?from=$u->{user}";
 
-    
+
     my @invitecodes;
     my $code;
-    
+
     if ( $LJ::USE_ACCT_CODES )  {
         @invitecodes = DW::InviteCodes->by_owner_unused( userid => $u->id );
 
@@ -57,7 +57,7 @@ _c?>
 
         $code = $POST{code} || $invitecodes[0]->code;
         $create_link .= "&code=".$code;
-        
+
         # sort so that those which have been sent are last on the list
         @invitecodes = sort { ( $a->timesent || 0 ) <=> ( $b->timesent || 0 ) } @invitecodes;
     }
@@ -147,7 +147,7 @@ _c?>
     $msg_custom_display =~ s/\n/<br \/>/g;
 
     my $msg_footer = BML::ml('.msg_footer2', {
-        sitenameshort => $LJ::SITENAMESHORT,
+        sitename => $LJ::SITENAMESHORT,
         siteroot => "$LJ::SITEROOT/",
         username => $u->display_username,
         name => $u->name_html,
@@ -220,37 +220,37 @@ _c?>
     if ($inerr->("email")) {
         $body .= "<br />" . $inerr->("email");
     }
-    
+
     if ( $LJ::USE_ACCT_CODES ) {
         $body .= "<br />" . LJ::labelfy("code-".$invitecodes[0]->code, $ML{'.form.input.code'});
 
         my $is_first = 1;
         foreach my $invitecode ( splice( @invitecodes, 0, 5 ) ) {
-        
+
             my $label = $invitecode->code;
-            
+
             if ( $invitecode->code eq $POST{code} && $code_sent ) {
                 $label .= " - " . $ML{'.form.codelist.justsent'};
             } elsif ( $invitecode->timesent ) {
-                $label .= " - " . BML::ml( '.form.codelist.alreadysent', { 
-                    date => LJ::time_to_http( $invitecode->timesent ) 
+                $label .= " - " . BML::ml( '.form.codelist.alreadysent', {
+                    date => LJ::time_to_http( $invitecode->timesent )
                   })
             }
-            
+
             $body .= "<p>";
-            $body .= LJ::html_check( { 
+            $body .= LJ::html_check( {
                     selected => $is_first,
-                    name => "code", 
-                    id => "code-".$invitecode->code, 
-                    type=> "radio", 
-                    value => $invitecode->code, 
+                    name => "code",
+                    id => "code-".$invitecode->code,
+                    type=> "radio",
+                    value => $invitecode->code,
                     label => $label,
             } );
             $body .= "</p>";
             $is_first = 0 if $invitecode->code ne $POST{code};
         }
     }
-    
+
     $body .= "</div>";
 
     $body .= $inerr->('form_auth');
@@ -272,7 +272,7 @@ _c?>
     $body .= "</div>";
     $body .= $msg_sig_display;
     $body .= "</div>";
-    
+
     $body .= LJ::html_submit($ML{'.btn.invite2'});
     $body .= "</form>";
 

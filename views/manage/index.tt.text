@@ -1,0 +1,133 @@
+;; -*- coding: utf-8 -*-
+
+.circle=Manage your relationships and filters:
+
+.circle.edit.about=Add, edit, or remove access and subscriptions
+
+.circle.filter=Manage Subscription Filters
+
+.circle.filter.about=Filter your reading page with subscription filters
+
+.circle.groups.about=Create, edit, or delete subgroups of your access list
+
+.circle.header=Access Page
+
+.communities=Create and manage your own communities:
+
+.communities.create.about=Create a new community
+
+.communities.header=Communities
+
+.communities.invites.about=View any pending invitations you've received to join communities.
+
+.communities.manage.about=Manage your communities' settings and members
+
+.customization=Customize the look of your journal pages:
+
+.customization.advanced=Advanced Customization
+
+.customization.advanced.about=Browse, create, and edit your S2 layouts and styles
+
+.customization.comm=Customize the look of your community pages:
+
+.customization.customize=Customize Journal
+
+.customization.customize.about=Change the appearance of your journal
+
+.customization.header=Customization
+
+.customization.links=Links List
+
+.customization.links.about=Create a list of links to appear in your journal
+
+.customization.moodtheme.editor=Create and edit your custom mood themes
+
+.customization.moodtheme.editor.header=Mood Theme Editor
+
+.customization.moodtheme.set=Select the mood theme set your journal will use
+
+.customization.moodtheme.set.header=Set Your Mood Theme
+
+.customization.navstrip=Navigation Strip Settings
+
+.entries=Work with entries you've made in your journal:
+
+.entries.comm=Work with entries in your community:
+
+.entries.edit.about=Edit or delete entries in your journal
+
+.entries.header=Journal Entries
+
+.entries.media=Manage Uploaded Images
+
+.entries.media.about=View and work with your uploaded images
+
+.entries.memories.about=View and work with your memorable entries
+
+.entries.tags.about=View and work with your journal's tags
+
+.information=Choose what information is displayed on your account:
+
+.information.changeemail=Change Account Email Address
+
+.information.changeemail.about=Change your email address
+
+.information.changepass=Change Account Password
+
+.information.changepass.about=Change your password
+
+.information.comm=Choose what information is displayed for your community:
+
+.information.comments=Manage Comment Settings
+
+.information.comments.about=Change your comment settings
+
+.information.mobilepost=Mobile Post Settings
+
+.information.mobilepost.about=Manage your email addresses and PIN for mobile posting support
+
+.information.profile.about=Edit your profile information
+
+.information.pubkey=PGP/GPG public key
+
+.information.pubkey.about=Upload your public key
+
+.information.settings.about=Change your viewing options and other account settings
+
+.information.status.about=Set your account's activation status
+
+.information.status.delete=Delete Account
+
+.information.status.undelete=Undelete Account
+
+.invites.manage=Manage Invite Codes
+
+.invites.manage.about=Manage your invite codes
+
+.manage.logins=Manage Logins
+
+.manage.notifications=Manage Notification Options
+
+.manage.notifications.about=Manage your notification tracking options
+
+.settings_pref=Settings and Preferences
+
+.title=Manage Accounts
+
+.userpics.edit.about=Upload and Manage Your Icons
+
+.youraccount.email=Email Address:
+
+.youraccount.header=Your Account:
+
+.youraccount.header.comm=Your Community:
+
+.youraccount.name=Name:
+
+.youraccount.setemail=Set
+
+.youraccount.user=Account:
+
+.youraccount.validated.no=Not Confirmed
+
+.youraccount.validated.yes=Confirmed

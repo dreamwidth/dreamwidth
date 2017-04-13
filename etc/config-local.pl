@@ -26,8 +26,11 @@
     # keep this enabled only if this site is a development server
     $IS_DEV_SERVER = 1;
 
+    # change this to "1" to enable certain site content to respond securely
+    $USE_SSL = 0;
+
     # change this to "1" to redirect all incoming connections to use HTTPS
-    $USE_SSL_EVERYWHERE = 0;
+    $USE_HTTPS_EVERYWHERE = 0;
 
     # home directory
     $HOME = $ENV{'LJHOME'};
@@ -43,6 +46,10 @@
     $SITECOMPANY = "YourSite's Company";
     $SITEADDRESS = "123 Main St.<br />Somewhere, XX 12345";
     $SITEADDRESSLINE = "123 Main St. Somewhere, XX 12345";
+
+    # supported languages (defaults to qw(en) if none given)
+    # First element is default language for user interface, untranslated text
+    #@LANGS = qw( en_DW );
 
     # MemCache information, if you have MemCache servers running
     #@MEMCACHE_SERVERS = ('hostname:port');
@@ -103,7 +110,7 @@
     $EMBED_MODULE_DOMAIN = "embed.my-other-domain.net";
 
     # merchandise link
-    # $MERCH_URL = "http://www.zazzle.com/dreamwidth*";
+    # $MERCH_URL = "https://www.zazzle.com/dreamwidth*";
 
     # shop/pricing configuration
     # %SHOP = (
@@ -145,6 +152,8 @@
     # S2). This file is not part of the dw-free installation, and is
     # therefore disabled by default.
     #$APPLE_TOUCH_ICON = "$LJ::RELATIVE_SITEROOT/apple-touch-icon.png";
+    # Similarly for the icon used by Facebook for previews on links
+    #$FACEBOOK_PREVIEW_ICON = "$LJ::RELATIVE_SITEROOT/img/Swirly-d-square.png";
 
     # sphinx search daemon
     #@SPHINX_SEARCHD = ( '127.0.0.1', 3312 );
@@ -162,6 +171,14 @@
 #            sitewide => 1,
 #        },
 #    );
+
+    # Domains that are known to support HTTPS. This is an optimization to
+    # reduce traffic to our proxy and improve the user experience.
+    %KNOWN_HTTPS_SITES = map { $_ => 1 }
+                         qw/ imgur.com yandex.ru xkcd.com abload.de tumblr.com
+                             flickr.com staticflickr.com blogspot.com feedburner.com
+                             imageshack.us levkonoe.com wikimedia.org plurk.com
+                           /;
 
 }
 

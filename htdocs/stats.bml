@@ -375,16 +375,22 @@ body<=
      }
  }
 
+my %graphs = ( newbyday => 'stats/newbyday.png',
+             );
 
- # return early, since the graphs below are pretty much broken now
- # with index changes.  FIXME: make alternate means to generate stats
- return $ret;
+foreach ( keys %graphs ) {
+    delete $graphs{$_} unless -f "$LJ::HOME/htdocs/$graphs{$_}";
+}
 
- ### graphs!
- $ret .= "<?h1 Pretty Graphs! h1?><?p These are the most fun, aren't they? p?>";
- 
- $ret .= "<?h2 New accounts -- last 60 days h2?><?p How fast are we growing? p?>";
- $ret .= "<p align='center'><img src=\"stats/newbyday.png\" width='520' height='350' /></p>";
+if ( %graphs ) {
+    $ret .= "<?h1 $ML{'.graphs.header'} h1?><?p $ML{'.graphs.desc'} p?>";
+
+    if ( $graphs{newbyday} ) {
+        $ret .= "<?h2 $ML{'.graphs.newbyday.header'} h2?>";
+        $ret .= "<?p $ML{'.graphs.newbyday.desc'} p?>";
+        $ret .= "<p align='center'><img src=\"$graphs{newbyday}\" width='520' height='350' /></p>";
+    }
+}
 
  return $ret;
 

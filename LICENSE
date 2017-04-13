@@ -1,9 +1,16 @@
-This repository was originally based off of code retrieved from
-Six Apart's public "livejournal" svn repository, located at:
+This repository was originally based off of code retrieved
+in 2008 from Six Apart's public "livejournal" svn repository,
+located at:
 
   http://code.livejournal.org/trac/livejournal
 
-The original code carries this copyright:
+In 2014, LiveJournal.com, Inc. made the official LiveJournal
+code repository private, and so this source is no longer available.
+An archived version of the original source is located at:
+
+  https://github.com/apparentlymart/livejournal
+
+The original LiveJournal code carries this copyright:
 
   The code in LiveJournal.org's "livejournal" cvs repository are
   Copyright (C) 1994-2005 LiveJournal.com, Inc., a subsidiary of Six
@@ -14,28 +21,28 @@ contained in this repository carry the following copyright:
 
   Original code copyright (C) 1994-2005 LiveJournal.com, Inc., a
   subsidiary of Six Apart, Ltd.  Modifications copyright (C)
-  2008-2009 by Dreamwidth Studios, LLC.
+  2008-2016 by Dreamwidth Studios, LLC.
 
-Files that do not have an explicit header indicating that they 
-were wholly authored by Dreamwidth Studios, LLC, are either wholly 
+Files that do not have an explicit header indicating that they
+were wholly authored by Dreamwidth Studios, LLC, are either wholly
 authored by LiveJournal, Inc or authored by LiveJournal, Inc and
 modified by Dreamwidth Studios. These files are licensed under the
-terms of the license supplied by LiveJournal, Inc, which can currently
-be found here:
+terms of the license supplied by LiveJournal, Inc, which is archived
+here:
 
-  http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+  https://github.com/apparentlymart/livejournal/blob/master/LICENSE-LiveJournal.txt
 
-Some files committed to this repository were wholly authored by 
+Some files committed to this repository were wholly authored by
 Dreamwidth Studios, LLC.  These files carry this copyright:
 
-  Copyright (C) 2008-2009 by Dreamwidth Studios, LLC.
+  Copyright (C) 2008-2016 by Dreamwidth Studios, LLC.
 
 Files wholly authored by Dreamwidth Studios, LLC contain an explicit
 header indicating authorship and license information. These files are
 licensed under the terms indicated in each file, specifically:
 
   This program is free software; you can redistribute it and/or
-  modify it under the same terms as Perl itself. For a copy of the 
+  modify it under the same terms as Perl itself. For a copy of the
   license, please reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 --------

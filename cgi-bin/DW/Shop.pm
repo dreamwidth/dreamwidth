@@ -187,8 +187,9 @@ use Carp qw/ confess /;
 
 # returns the shop on a user
 sub shop {
-    return $_[0]->{_shop}
+    my $shop = $_[0]->{_shop}
         or confess 'tried to get shop without calling DW::Shop->initialize()';
+    return $shop;
 }
 
 1;
