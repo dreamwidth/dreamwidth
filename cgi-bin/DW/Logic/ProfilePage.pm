@@ -581,10 +581,10 @@ sub _basic_info_syn_status {
         posterror => "Posting error",
         ok => "",     # no status line necessary
         nonew => "",  # no status line necessary
-    }->{ $synd->{laststatus} };
+    }->{ $synd->{laststatus} // 'ok' };
     $syn_status .= " ($status)" if $status;
 
-    if ($synd->{laststatus} eq 'parseerror') {
+    if ( $synd->{laststatus} && $synd->{laststatus} eq 'parseerror' ) {
        $syn_status .= "<br />" . LJ::Lang::ml( '.syn.parseerror' ) . " " . LJ::ehtml( $u->prop( 'rssparseerror' ) );
     }
 
