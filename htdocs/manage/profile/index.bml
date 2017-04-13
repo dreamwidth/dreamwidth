@@ -431,7 +431,7 @@ body<=
                            ["icq", $ML{'.chat.icquin'}, 12],
                            ["jabber", $ML{'.chat.jabber'}, 60],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
-			   ["medium", $ML{'services.medium'}, 40],
+                           ["medium", $ML{'services.medium'}, 40],
                            ["pinboard", $ML{'.services.pinboard'}, 30],
                            ["pinterest", $ML{'.services.pinterest'}, 30],
                            ["plurk", $ML{ '.services.plurk' }, 255],
