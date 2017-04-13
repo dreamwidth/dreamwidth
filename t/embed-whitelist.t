@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 66;
+use Test::More tests => 67;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -74,6 +74,7 @@ note( "misc" );
     test_good_url( "http://8tracks.com/mixes/878698/player_v3_universal" );
 
     # A
+    test_good_url( "https://airtable.com/embed/shr5l5zt9nyBVMj4L" );
     test_good_url( "https://archive.org/embed/LeonardNimoy15Oct2013YiddishBookCenter" );
 
     # B

@@ -51,6 +51,7 @@ my %host_path_match = (
     "www.4shared.com"       => [ qr!^/web/embed/file/!, 1 ],
     "8tracks.com"           => [ qr!^/mixes/!, 0 ],
 
+    "airtable.com"          => [ qr!^/embed/!, 1 ],
     "archive.org"           => [ qr!^/embed/!, 1 ],
 
     "bandcamp.com"          => [ qr!^/EmbeddedPlayer/!, 1 ],
