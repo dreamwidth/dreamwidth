@@ -270,6 +270,7 @@ general /modify_do.bml.journalstatus.select.suspended
 general /modify_do.bml.moodicons.about
 general /modify_do.bml.moodicons.head
 general /modify_do.bml.moodicons.opt.forcefriends.about
+general /modify_do.bml.moodicons.personal
 general /modify_do.bml.moodicons.preview
 general /modify_do.bml.moodicons.select
 general /modify_do.bml.overrides.about2
