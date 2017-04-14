@@ -379,7 +379,7 @@ set font_base = "Sintony, Helvetica, Arial";
 set font_fallback = "sans-serif";
 set font_base_size = "1";
 set font_base_units = "em";
-set font_sources = "http://fonts.googleapis.com/css?family=Sintony";
+set font_sources = "https://fonts.googleapis.com/css?family=Sintony";
 
 set font_journal_subtitle = "Cambria, Georgia, Times, 'Times New Roman', serif";
 set font_journal_pagetitle_size = "1";
