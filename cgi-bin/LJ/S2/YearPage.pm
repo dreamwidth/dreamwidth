@@ -30,9 +30,8 @@ sub YearPage
     if ($u->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
-    if ($LJ::UNICODE) {
-        $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
-    }
+
+    $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
 
     my $get = $opts->{'getargs'};
 

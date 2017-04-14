@@ -84,7 +84,7 @@ sub load_cuttext {
     
     #load and prepare text of entry
     my $text = LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
-    LJ::item_toutf8( $journal, \$subject, \$text ) if $LJ::UNICODE && $entry_obj->props->{unknown8bit};
+    LJ::item_toutf8( $journal, \$subject, \$text ) if $entry_obj->props->{unknown8bit};
 
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
     my $cleanhtml_opts = { cuturl => $entry_obj->url,

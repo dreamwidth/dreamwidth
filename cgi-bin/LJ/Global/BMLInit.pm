@@ -57,9 +57,7 @@ BML::register_hook("codeerror", sub {
     }
 });
 
-if ($LJ::UNICODE) {
-    BML::set_config("DefaultContentType", "text/html; charset=utf-8");
-}
+BML::set_config("DefaultContentType", "text/html; charset=utf-8");
 
 # register BML multi-language hook
 BML::register_hook("ml_getter", \&LJ::Lang::get_text);

@@ -1352,7 +1352,7 @@ sub journal_content
     my $status = $opts->{'status'} || "200 OK";
     $opts->{'contenttype'} ||= $opts->{'contenttype'} = "text/html";
     if ($opts->{'contenttype'} =~ m!^text/! &&
-        $LJ::UNICODE && $opts->{'contenttype'} !~ /charset=/) {
+        $opts->{'contenttype'} !~ /charset=/) {
         $opts->{'contenttype'} .= "; charset=utf-8";
     }
 

@@ -193,7 +193,7 @@ sub make_feed
         next ENTRY if $posteru{$it->{'posterid'}} && $posteru{$it->{'posterid'}}->is_suspended;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
-        if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
+        if ( $logprops{$itemid}->{'unknown8bit'} ) {
             LJ::item_toutf8($u, \$logtext->{$itemid}->[0],
                             \$logtext->{$itemid}->[1], $logprops{$itemid});
         }

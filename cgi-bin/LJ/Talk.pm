@@ -258,7 +258,7 @@ sub get_journal_item
     LJ::load_log_props2($u->{'userid'}, [ $itemid ], \%logprops);
     $item->{'props'} = $logprops{$itemid} || {};
 
-    if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
+    if ( $logprops{$itemid}->{'unknown8bit'} ) {
         LJ::item_toutf8($u, \$item->{'subject'}, \$item->{'event'},
                         $item->{'logprops'}->{$itemid});
     }
@@ -1233,14 +1233,12 @@ sub load_comments
         }
     }
 
-    if ($LJ::UNICODE) {
-        foreach (@posts_to_load) {
-            if ($posts->{$_}->{'props'}->{'unknown8bit'}) {
-                LJ::item_toutf8($u, \$posts->{$_}->{'subject'},
-                                \$posts->{$_}->{'body'},
-                                {});
-              }
-        }
+    foreach (@posts_to_load) {
+        if ($posts->{$_}->{'props'}->{'unknown8bit'}) {
+            LJ::item_toutf8($u, \$posts->{$_}->{'subject'},
+                            \$posts->{$_}->{'body'},
+                            {});
+          }
     }
 
     # load users who posted
@@ -2129,7 +2127,7 @@ sub icon_dropdown {
     my %res;
     if ( $remote ) {
         LJ::do_request({ mode => "login",
-                         ver  => ($LJ::UNICODE ? "1" : "0"),
+                         ver  => $LJ::PROTOCOL_VER,
                          user => $remote->{'user'},
                          getpickws => 1,
                        }, \%res, { "noauth" => 1, "userid" => $remote->{'userid'} });
@@ -3296,15 +3294,6 @@ sub init {
     return $err->("<?badinput?>") unless LJ::text_in($form);
 
     $init->{unknown8bit} = 0;
-    unless (LJ::is_ascii($form->{'body'}) && LJ::is_ascii($form->{'subject'})) {
-        if ($LJ::UNICODE) {
-            # no need to check if they're well-formed, we did that above
-        } else {
-            # so rest of site can change chars to ? marks until
-            # default user's encoding is set.  (legacy support)
-            $init->{unknown8bit} = 1;
-        }
-    }
 
     my ($bl, $cl) = LJ::text_length($form->{'body'});
     if ($cl > LJ::CMAX_COMMENT) {
