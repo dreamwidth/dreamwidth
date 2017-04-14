@@ -6,8 +6,9 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2017 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -22,9 +23,40 @@ use DW::Routing;
 use DW::Controller;
 use DW::Template;
 
+# for responding to OpenID authentication requests
+DW::Routing->register_string( '/openid/server', \&openid_server_handler,
+                                                app => 1, no_cache => 1 );
+
+# for claiming imported comments
 DW::Routing->register_string( '/openid/claim', \&openid_claim_handler, app => 1 );
 DW::Routing->register_string( '/openid/claimed', \&openid_claimed_handler, app => 1 );
 DW::Routing->register_string( '/openid/claim_confirm', \&openid_claim_confirm_handler, app => 1 );
+
+sub openid_server_handler {
+    return "OpenID consumer support is disabled"
+        unless LJ::OpenID::server_enabled();
+
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    my $trust_root = $get->{'openid.trust_root'} // '';
+    my $return_to  = $get->{'openid.return_to'} // '';
+
+    ## Non-OpenID-compliant section: rewrite LiveJournal's trust_root to
+    ## https so that it will match their return_to URL and pass validation.
+    $get->{'openid.trust_root'} = 'https://www.livejournal.com/'
+        if ( $trust_root eq 'http://www.livejournal.com/' &&
+             $return_to =~ m|^https://www\.livejournal\.com/| );
+
+    my $nos = LJ::OpenID::server( $get, $r->post_args );
+    my ( $type, $data ) = $nos->handle_page( redirect_for_setup => 1 );
+
+    return $r->redirect( $data ) if $type eq "redirect";
+
+    $r->content_type( $type ) if $type;
+    $r->print( $data );
+    return $r->OK;
+}
 
 sub openid_claim_handler {
     my $opts = shift;
