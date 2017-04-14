@@ -3,7 +3,7 @@ layerinfo name = "Venture";
 layerinfo redist_uniq = "venture/layout";
 layerinfo author_name = "onlyembers";
 layerinfo lang = "en";
- 
+
 set layout_authors = [ { "name" => "onlyembers", "type" => "user" } ];
 
 
@@ -42,8 +42,8 @@ propgroup presentation {
 propgroup presentation_child {
 
 ## DISABLE/ENABLE ENTRY/CALENDAR TOPNAV ##
-    property bool link_display_topnav { 
-        des = "Enable navigation above entry content, calendar, etc."; 
+    property bool link_display_topnav {
+        des = "Enable navigation above entry content, calendar, etc.";
         }
 
 ## CUSTOM MARGIN WITH BETWEEN ENTRIES & MODULES ##
@@ -222,8 +222,8 @@ propgroup fonts {
 propgroup fonts_child {
 
 ## DISABLES ALL CAPITALIZATION IN HEADERS & SUCH ##
-    property bool font_display_allcaps { 
-        des = "Display all-capitalized headers?"; 
+    property bool font_display_allcaps {
+        des = "Display all-capitalized headers?";
         }
 
 ## HEADER NAVIGATION ##
@@ -241,7 +241,7 @@ propgroup fonts_child {
         des = "Units for header navigation size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-    
+
 ## JOURNAL PAGE TITLE ##
     property string font_journal_pagetitle {
         des = "Preferred font for journal page-title";
@@ -257,7 +257,7 @@ propgroup fonts_child {
         des = "Units for page-title size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-    
+
 ## JOURNAL ENTRY FONT ##
     property string font_entry_text {
         des = "Preferred font for entry text";
@@ -273,7 +273,7 @@ propgroup fonts_child {
         des = "Units for entry text size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-    
+
 ## JOURNAL ENTRY DATETIME ##
     property string font_entry_datetime {
         des = "Preferred font for entry date/time";
@@ -289,7 +289,7 @@ propgroup fonts_child {
         des = "Units for entry date/time size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-    
+
 ## JOURNAL ENTRY METADATA ##
     property string font_entry_metadata {
         des = "Preferred font for entry metadata";
@@ -305,7 +305,7 @@ propgroup fonts_child {
         des = "Units for entry metadata size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-    
+
 ## JOURNAL ENTRY TAGS FONT ##
     property string font_entry_tags {
         des = "Preferred font for entry tag list";
@@ -321,7 +321,7 @@ propgroup fonts_child {
         des = "Units for entry tag list size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
-        
+
 ## JOURNAL ENTRY MANAGE & INTERACT TEXT LINKS ##
     property string font_entry_manageinteract {
         des = "Preferred font for entry interaction links";
@@ -336,7 +336,7 @@ propgroup fonts_child {
     property string font_entry_manageinteract_units {
         des = "Units for entry interaction link size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
-        } 
+        }
 
 ## MODULE NAVIGATION FONT OPTION ##
     property string font_module_navigation {
@@ -352,7 +352,7 @@ propgroup fonts_child {
     property string font_module_navigation_units {
         des = "Units for navigation module text size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
-        } 
+        }
 
 ## MODULE CUSTOMTEXT FONT OPTION ##
     property string font_module_customtext {
@@ -368,7 +368,7 @@ propgroup fonts_child {
     property string font_module_customtext_units {
         des = "Units for custom text module size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
-        }   
+        }
 }
 
 
@@ -429,8 +429,8 @@ propgroup images_child {
         grouptype = "image";
         }
     set image_background_header_navigation_group = [ "image_background_header_navigation_url", "image_background_header_navigation_repeat", "image_background_header_navigation_position" ];
-    property string image_background_header_navigation_url { 
-        grouped = 1; 
+    property string image_background_header_navigation_url {
+        grouped = 1;
         }
     property string image_background_header_navigation_repeat {
         values = "repeat|tile|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
@@ -441,7 +441,7 @@ propgroup images_child {
         grouped = 1;
         allow_other = 1;
         }
-    
+
 ## HEADER NAVIGATION LINK BACKGROUND IMAGE ##
     property string[] image_background_header_navigation_link_group {
         des = "Header navigation link background image";
@@ -517,9 +517,9 @@ propgroup images_child {
         grouped = 1;
         allow_other = 1;
         }
-    
-    
-## ENTRY DATE & TIME SUB-BAR BACKGROUND IMAGE ## 
+
+
+## ENTRY DATE & TIME SUB-BAR BACKGROUND IMAGE ##
     property string[] image_background_entry_datetime_sub_group {
         des = "Entry date/time sub-header background image (behind text) ";
         grouptype = "image";
@@ -537,7 +537,7 @@ propgroup images_child {
         grouped = 1;
         allow_other = 1;
         }
-    
+
 ## MODULE TITLE BACKGROUND IMAGE ##
     property string[] image_background_module_title_group {
         des = "Module title background image";
@@ -1004,15 +1004,15 @@ function Page::print_default_stylesheet() {
     var string entry_datetime_background = generate_background_css ($*image_background_entry_datetime_url, $*image_background_entry_datetime_repeat, $*image_background_entry_datetime_position, $*color_entry_datetime_background);
     var string entry_datetime_sub_background = generate_background_css ($*image_background_entry_datetime_sub_url, $*image_background_entry_datetime_sub_repeat, $*image_background_entry_datetime_sub_position, $*color_entry_datetime_sub_background);
     var string entry_title_background = generate_background_css ($*image_background_entry_title_url, $*image_background_entry_title_repeat, $*image_background_entry_title_position, $*color_entry_title_background);
-    
+
     var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
     var string module_title_background = generate_background_css ($*image_background_module_title_url, $*image_background_module_title_repeat, $*image_background_module_title_position, $*color_module_title_background);
- 
+
     var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
     var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
 
-    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color); 
+    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
     var string comment_title_colors = generate_color_css($*color_comment_title, $*color_comment_title_background, new Color);
     var string module_title_colors = generate_color_css($*color_module_title, $*color_module_title_background, new Color);
@@ -1023,7 +1023,7 @@ function Page::print_default_stylesheet() {
     var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
     var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
     var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
-    
+
     var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
     var string entry_link_active_colors = generate_color_css($*color_entry_link_active, new Color, new Color);
     var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, new Color, new Color);
@@ -1044,11 +1044,11 @@ function Page::print_default_stylesheet() {
 
     var string entry_font = generate_font_css($*font_entry_text, $*font_base, $*font_fallback, $*font_entry_text_size, $*font_entry_text_units);
     var string entry_datetime_font = generate_font_css($*font_entry_datetime, $*font_base, $*font_fallback, $*font_entry_datetime_size, $*font_entry_datetime_units);
-    var string entry_manageinteract_font = generate_font_css($*font_entry_manageinteract, $*font_base, $*font_fallback, $*font_entry_manageinteract_size, $*font_entry_manageinteract_units);    
+    var string entry_manageinteract_font = generate_font_css($*font_entry_manageinteract, $*font_base, $*font_fallback, $*font_entry_manageinteract_size, $*font_entry_manageinteract_units);
     var string entry_metadata_font = generate_font_css($*font_entry_metadata, $*font_base, $*font_fallback, $*font_entry_metadata_size, $*font_entry_metadata_units);
     var string entry_tags_font = generate_font_css($*font_entry_tags, $*font_base, $*font_fallback, $*font_entry_tags_size, $*font_entry_tags_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
- 
+
     var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
 
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
@@ -1057,7 +1057,7 @@ function Page::print_default_stylesheet() {
     var string module_navigation_font = generate_font_css($*font_module_navigation, $*font_base, $*font_fallback, $*font_module_navigation_size, $*font_module_navigation_units);
 
     var string userpicpadding = "";
-        if ($*color_entry_userpic_background) { $userpicpadding = "padding: 0 3px 3px;"; } 
+        if ($*color_entry_userpic_background) { $userpicpadding = "padding: 0 3px 3px;"; }
         else { $userpicpadding = ""; }
 
     var string calendar_dayheader_border = "";
@@ -1111,13 +1111,13 @@ function Page::print_default_stylesheet() {
     var string header_gradient = "";
         if ($*color_page_header_gradient) {
         $header_gradient = """
-        background: -moz-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%); 
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$*color_header_background), color-stop(100%,$*color_page_header_gradient)); 
-        background: -webkit-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%); 
-        background: -o-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%); 
-        background: -ms-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%); 
-        background: linear-gradient(to bottom, $*color_header_background 0%, $*color_page_header_gradient 100%); 
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$*color_header_background', endColorstr='$*color_page_header_gradient',GradientType=0 ); 
+        background: -moz-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$*color_header_background), color-stop(100%,$*color_page_header_gradient));
+        background: -webkit-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        background: -o-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        background: -ms-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        background: linear-gradient(to bottom, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$*color_header_background', endColorstr='$*color_page_header_gradient',GradientType=0 );
         """;
         }
         else { $header_gradient = ""; }
@@ -1130,7 +1130,7 @@ function Page::print_default_stylesheet() {
         if ($*color_module_title_rightborder) { $module_right_border = """border-right: solid 8px $*color_module_title_rightborder;"""; }
         else { $module_right_border = ""; }
 
-    var string module_layout_css = ""; 
+    var string module_layout_css = "";
         if ($*modules_layout_mode == "full") { $module_layout_css = ".one-column #content .module { margin: 0 0 $*margins_between_size$*margins_between_unit; }"; }
         else { $module_layout_css = """
             .one-column #content .module {
@@ -1176,7 +1176,7 @@ img { border: none; }
 
 hr { display: none; }
 
-q, blockquote { 
+q, blockquote {
     $entry_quote_colors
     display: block;
     font-style: italic;
@@ -1221,7 +1221,7 @@ $module_layout_css
 .three-columns-sides #content { border-right: $*sidebar_width solid transparent; }
 
 .three-columns-left #content { border-left: $*sidebar_width_doubled solid transparent; }
-    
+
 .three-columns-right #content { border-right: $*sidebar_width_doubled solid transparent; }
 
 .column-right #content { min-width: $*sidebar_width; }
@@ -1287,17 +1287,17 @@ $module_layout_css
 /* ---------- TERTIARY COLUMN ---------- */
 .one-column #tertiary { text-align: center; width: auto; overflow: hidden; }
 
-.two-columns-left #tertiary { 
-    clear: left; 
+.two-columns-left #tertiary {
+    clear: left;
     margin-left: -$*sidebar_width;
-    width: $*sidebar_width; 
+    width: $*sidebar_width;
     }
 
-.two-columns-right #tertiary { 
+.two-columns-right #tertiary {
     clear: right;
-    float: right; 
+    float: right;
     margin-right: -$*sidebar_width;
-    width: $*sidebar_width; 
+    width: $*sidebar_width;
     }
 
 .three-columns-left #tertiary {
@@ -1368,7 +1368,7 @@ h2#pagetitle {
     $header_background
     $header_gradient
     }
-   
+
 #header_navwrapper {
     $header_navigation_background
     $headernavigation_minheight
@@ -1377,11 +1377,11 @@ h2#pagetitle {
     }
 
 /* RESET SO LATER DEFS DONT HOSE TOPNAV */
-#header .module-content { 
-    background-color: transparent; 
+#header .module-content {
+    background-color: transparent;
     border: none;
-    font-size: $*font_base_size$*font_base_units; 
-    padding: 0; 
+    font-size: $*font_base_size$*font_base_units;
+    padding: 0;
     }
 
 #header .module-headernavigation ul {
@@ -1426,10 +1426,10 @@ h2#pagetitle {
     color: $*color_header_navigation_link_hover;
     }
 
-#header .module-headernavigation li a:visited { color: $*color_header_navigation_link_visited; }  
+#header .module-headernavigation li a:visited { color: $*color_header_navigation_link_visited; }
 
 /* ugly !important fix, but makes active work as intended w/ other defs */
-#header .module-headernavigation li a:active { color: $*color_header_navigation_link_active !important; } 
+#header .module-headernavigation li a:active { color: $*color_header_navigation_link_active !important; }
 
 /* -------------------------------------------------------------------------------------------------------- */
 
@@ -1438,7 +1438,7 @@ h2#pagetitle {
 
 
 /* -------------------------------------------------------------------------------- CONTENT DEFS ---------- */
-#content { 
+#content {
     $page_background
     $page_colors
     padding-top: $*margins_between_size$*margins_between_unit;
@@ -1448,12 +1448,12 @@ h2#pagetitle {
 
 .navigation ul { margin: 0; padding: 0; }
 
-.navigation li { 
+.navigation li {
     $entry_title_colors
     $entry_right_border
     display: inline-block;
-    margin: 0 0 $*margins_between_size$*margins_between_unit .3em; 
-    padding: .4em; 
+    margin: 0 0 $*margins_between_size$*margins_between_unit .3em;
+    padding: .4em;
     text-transform: uppercase;
     }
 
@@ -1467,10 +1467,10 @@ h2#pagetitle {
 .navigation li a:active { color: $*color_module_title_link_active }
 
 .topnav, .bottomnav {
-    display: block; 
+    display: block;
     margin: 0;
-    overflow: hidden; 
-    text-align: right; 
+    overflow: hidden;
+    text-align: right;
     }
 
 .bottomnav.empty, .topnav.empty { display: none; }
@@ -1512,9 +1512,9 @@ $display_topnav_css
 
 .entry-wrapper { margin: 0 0 $*margins_between_size$*margins_between_unit; }
 
-.entry .entry-title, 
+.entry .entry-title,
 .tags-container .header,
-.icons-container .header, 
+.icons-container .header,
 #archive-year h3,
 #archive-month dt {
     $entry_title_font
@@ -1524,16 +1524,16 @@ $display_topnav_css
     text-transform: uppercase;
     }
 
-.entry .entry-title, .entry .entry-title a, 
+.entry .entry-title, .entry .entry-title a,
 .tags-container .header,
-.icons-container .header, 
+.icons-container .header,
 #archive-year h3,
 #archive-month dt, #archive-month dt a {
     $entry_title_colors
     $entry_title_background
     }
 
-.entry .contents { 
+.entry .contents {
     $entry_background
     $entry_colors
     border-width: 0 1px;
@@ -1547,7 +1547,7 @@ $display_topnav_css
     line-height: 1.3em;
     margin-bottom: 1.4em;
     min-height: 60px;
-    text-align: left;  
+    text-align: left;
     }
 
 .entry .contents a { $entry_link_colors }
@@ -1596,7 +1596,7 @@ $display_topnav_css
     vertical-align: middle;
     }
 
-.poster, .poster-ip { 
+.poster, .poster-ip {
     $entry_font
     display: inline-block;
     margin-bottom: 1.2em;
@@ -1624,7 +1624,7 @@ $display_topnav_css
     margin: 0;
     padding: 0;
     }
-    
+
 .metadata li { margin-bottom: 0; }
 
 .entry .metadata-label { text-transform: uppercase; }
@@ -1635,7 +1635,7 @@ $display_topnav_css
     $entry_tags_font
     clear: both;
     }
-   
+
 .tag ul {
     display: inline;
     margin: 0;
@@ -1653,12 +1653,12 @@ $display_topnav_css
     margin: 0;
     padding: 0;
     }
-    
+
 .entry-management-links li {
     display: inline;
     list-style: none;
     padding: 0 .5em 0 0;
-    text-transform: uppercase; 
+    text-transform: uppercase;
     }
 
 .entry-interaction-links {
@@ -1671,7 +1671,7 @@ $display_topnav_css
     display: inline;
     list-style: none;
     padding: 0 0 0 .5em;
-    text-transform: uppercase; 
+    text-transform: uppercase;
     }
 
 .entry-interaction-links a,
@@ -1685,20 +1685,20 @@ $display_topnav_css
 .entry-interaction-links a:hover, .entry-management-links a:hover { $entry_link_hover_colors }
 .entry-interaction-links a:active, .entry-management-links a:active { $entry_link_active_colors }
 
-    
+
 .no-userpic .userpic {display: none;}
 
 
-/* ---------- OTHER ENTRY STYLES ---------- */ 
+/* ---------- OTHER ENTRY STYLES ---------- */
 .entry-content li,
-.comment-content li { 
+.comment-content li {
     list-style-position: outside;
-    margin: 1em 0; 
+    margin: 1em 0;
     }
 
 .entry-content ul, .entry-content ol, .entry-content dl {
     margin: 1em 0;
-    padding: 0 0 0 2em; 
+    padding: 0 0 0 2em;
     }
 
 .entry-content img { max-width: 100%; }
@@ -1714,7 +1714,7 @@ $display_topnav_css
     padding: 0 1.4em 1em;
     }
 
-.noentries { 
+.noentries {
     $entry_colors
     $entry_font
     display: block;
@@ -1738,7 +1738,7 @@ $display_topnav_css
 .comment {
     margin: 0;
     padding: 0;
-    background-color: $*color_entry_background; 
+    background-color: $*color_entry_background;
     }
 
 .comment .comment-title {
@@ -1750,7 +1750,7 @@ $display_topnav_css
     text-transform: uppercase;
     }
 
-.comment .comment-title { $comment_title_colors } 
+.comment .comment-title { $comment_title_colors }
 
 .comment .comment-title a { color: $*color_comment_title; }
 
@@ -1758,13 +1758,13 @@ $display_topnav_css
     $entry_datetime_background
     }
 
-.comment-wrapper.partial .comment-title { 
+.comment-wrapper.partial .comment-title {
     $entry_background
     font-size: $*font_base_size$*font_base_units;
     border: none;
     display: inline;
     margin: 0;
-    padding: 0; 
+    padding: 0;
     }
 .comment-wrapper.partial .comment-title:after { content: " - "; color: $*color_entry_text; }
 
@@ -1790,11 +1790,11 @@ $display_topnav_css
 .comment-wrapper .datetime span,
 .comment-wrapper .comment-posted span { $entry_datetime_font }
 
-.comment .poster { 
+.comment .poster {
     margin: 1.2em 0 1em 1.4em;
     }
 
-.comment .poster-ip { 
+.comment .poster-ip {
     margin: 1.2em 0 1em .5em;
     font-style: italic;
     }
@@ -1816,7 +1816,7 @@ $display_topnav_css
     }
 
 .comment-wrapper .footer {
-    $entry_colors 
+    $entry_colors
     border-width: 0 1px 1px;
     overflow: hidden;
     padding: 0 1.4em 1em;
@@ -1837,7 +1837,7 @@ $display_topnav_css
     padding: 0;
     text-transform: uppercase;
     }
-    
+
 .comment-management-links li {
     display: inline-block;
     margin: 0 .4em 0 0;
@@ -1865,11 +1865,11 @@ $display_topnav_css
     clear: right;
     }
 
-#comments .footer .multiform-checkbox { 
-    $entry_manageinteract_font 
-    display: block; 
-    margin: 0 0 .8em; 
-    text-transform: uppercase; 
+#comments .footer .multiform-checkbox {
+    $entry_manageinteract_font
+    display: block;
+    margin: 0 0 .8em;
+    text-transform: uppercase;
     }
 
 .comment-pages {
@@ -1935,7 +1935,7 @@ $display_topnav_css
     }
 
 .talkform tr > td:first-child {
-    text-align: left; 
+    text-align: left;
     text-transform: uppercase;
     }
 
@@ -1976,12 +1976,12 @@ $display_topnav_css
     text-align: left;
     }
 
-#qrform td b { 
+#qrform td b {
     font-weight: normal;
     text-transform: uppercase;
     }
 
-#qrform input, #qrform select, #qrform textarea, 
+#qrform input, #qrform select, #qrform textarea,
 .talkform input, .talkform select, .talkform textarea,
 .bottomcomment select, .bottomcomment input {
     padding: .25em;
@@ -2024,7 +2024,7 @@ table.month td {
     width: 14%;
     }
 
-table.month thead { 
+table.month thead {
     $entry_datetime_background
     border: solid 1px transparent;
     $calendar_dayheader_border
@@ -2060,7 +2060,7 @@ table.month caption { display: none; }
     text-transform: uppercase;
     }
 
-#archive-year .footer a {     
+#archive-year .footer a {
     $entry_interaction_link_colors
     $entry_manageinteract_font
     }
@@ -2072,18 +2072,18 @@ table.month caption { display: none; }
 .page-month .month .entry-poster { margin: 0; }
 
 .month dl dt { font-weight: normal; }
-    
-.month dl .time { 
-    display: inline-block; 
+
+.month dl .time {
+    display: inline-block;
     $entry_datetime_font
-    margin-right: .3em; 
-    padding-right: 0; 
+    margin-right: .3em;
+    padding-right: 0;
     }
 
-.month dl h3 { 
-    display: inline; 
-    $entry_title_font 
-    text-transform: uppercase; 
+.month dl h3 {
+    display: inline;
+    $entry_title_font
+    text-transform: uppercase;
     }
 
 .month dl .tag ul { margin: 0; }
@@ -2110,8 +2110,8 @@ table.month caption { display: none; }
     }
 
 #archive-month .navigation li {
-    border: none; 
-    padding:0; 
+    border: none;
+    padding:0;
     }
 
 #archive-month .navigation input {
@@ -2122,11 +2122,11 @@ table.month caption { display: none; }
     vertical-align: middle;
     }
 
-#archive-month .navigation select { 
+#archive-month .navigation select {
     $entry_title_colors
     $entry_title_font
     border: none;
-    margin: 0; 
+    margin: 0;
     padding: 0;
     text-transform: uppercase;
     vertical-align: middle;
@@ -2233,13 +2233,13 @@ ul.userlite-interaction-links.text-links {
     text-align: left;
     }
 
-.journal-website-name a, 
+.journal-website-name a,
 .module .manage-link a { color: $*color_module_link_alt; }
 
 .journal-website-name a:visited,
 .module .manage-link a:visited { color: $*color_module_link_alt_visited; }
 
-.journal-website-name a:hover, 
+.journal-website-name a:hover,
 .module .manage-link a:hover { color: $*color_module_link_alt_hover; }
 
 .journal-website-name a:active,
@@ -2248,13 +2248,13 @@ ul.userlite-interaction-links.text-links {
 
 
 /* ---------- TAG MODULE ---------- */
-.module-tags_multilevel li, 
+.module-tags_multilevel li,
 .ljtaglist li { border: none; list-style: inside square; margin: 0; }
 
-.module-tags_multilevel li li, 
+.module-tags_multilevel li li,
 .ljtaglist li li { border: none; list-style: outside circle; margin: 0 0 0 2.5em; }
 
-.module-tags_multilevel li li li, 
+.module-tags_multilevel li li li,
 .ljtaglist li li li { border: none; list-style: none; margin: 0 0 0 1em; }
 
 .module-tags_multilevel ul li + li > span,
@@ -2264,7 +2264,7 @@ ul.userlite-interaction-links.text-links {
 .ljtaglist li > ul:last-child { display: block; margin: 0 0 .4em; }
 
 .non-link-tag { text-transform: uppercase; }
-    
+
 .module .manage-link {
     margin: .8em 0 0;
     text-align: right;
@@ -2274,10 +2274,10 @@ ul.userlite-interaction-links.text-links {
 
 /* ---------- CALENDAR MODULE ---------- */
 
-.module-calendar .module-content { 
-    background-color: transparent; 
-    padding: 0; 
-    text-align: center; 
+.module-calendar .module-content {
+    background-color: transparent;
+    padding: 0;
+    text-align: center;
     }
 
 .one-column .module-calendar .module-content { text-align: left; }
@@ -2288,7 +2288,7 @@ ul.userlite-interaction-links.text-links {
     width: 100%;
     }
 
-.module-calendar tr:first-child { 
+.module-calendar tr:first-child {
     $entry_datetime_background
     border: solid transparent;
     $calendar_dayheader_border
@@ -2320,7 +2320,7 @@ ul.userlite-interaction-links.text-links {
 
 .one-column .module-calendar table { margin: 0; }
 
-#content .module-calendar.calendar-horizontal .module-content { 
+#content .module-calendar.calendar-horizontal .module-content {
     $module_colors
     padding: 1.1em 1.2em 1.2em;
     }
@@ -2349,14 +2349,14 @@ ul.userlite-interaction-links.text-links {
 .module-credit .module-content { overflow: hidden; }
 
 .module-credit dl { margin: 0; padding: 0; }
-    
+
 .module-credit dt, .module-credit dd {
     display: inline;
     float: left;
     margin: 0;
     padding: 0;
     }
-    
+
 .module-credit dt {
     clear: left;
     font-weight: normal;
@@ -2369,11 +2369,11 @@ ul.userlite-interaction-links.text-links {
 
 /* ---------- TAGS MODULE ---------- */
 .tags_cloud li, .module-tags_cloud li,
-.module-tags_cloud li, .ljtaglist ul { 
+.module-tags_cloud li, .ljtaglist ul {
     border-bottom: none !important;
-    display: inline; 
+    display: inline;
     margin: 0;
-    padding: 0; 
+    padding: 0;
     }
 
 .tags_list li, .module-tags_list li { padding: 0.2em 0.2em 0.1em !important; }
@@ -2388,10 +2388,10 @@ ul.userlite-interaction-links.text-links {
 /* ---------- NAVIGATION MODULE ---------- */
 #content .module-navlinks .module-content { background-color: transparent; padding: 0; }
 #content .module-navlinks ul { list-style: none; }
-#content .module-navlinks li { 
+#content .module-navlinks li {
     border: none;
     margin-bottom: 3px;
-    $module_right_border 
+    $module_right_border
     }
 
 #content .module-navlinks li a {
@@ -2432,20 +2432,20 @@ ul.userlite-interaction-links.text-links {
 /* ------------------------------------------------------------------------------ TAGS PAGE DEFS ---------- */
 .ljtaglist { list-style: none; margin: 0; padding: 0; }
 
-.tags-container .contents { 
+.tags-container .contents {
     $entry_colors
     border-width: 0 1px 1px;
     margin: 0;
     overflow: hidden;
-    padding: 1.2em 1.4em; 
+    padding: 1.2em 1.4em;
     }
 
-.tags-container .manage-link { 
+.tags-container .manage-link {
     $entry_colors
     border-width: 0 1px 1px;
-    padding: 0 1.4em 1.2em; 
+    padding: 0 1.4em 1.2em;
     text-align: right;
-    text-transform: uppercase; 
+    text-transform: uppercase;
     }
 
 .tags-container .manage-link a,
@@ -2469,7 +2469,7 @@ ul.userlite-interaction-links.text-links {
 
 .icons-container .contents {
     overflow: hidden;
-    text-align: center; 
+    text-align: center;
     }
 
 .icons-container .footer { margin: 0 0 $*margins_between_size$*margins_between_unit; margin-top: -1px; }
@@ -2484,14 +2484,14 @@ ul.userlite-interaction-links.text-links {
 
 .icon-keywords ul li { display: inline; }
 
-.sorting-options ul { 
-    $entry_datetime_sub_background 
-    display: inline-block; 
-    margin: 0; 
-    padding: .2em .6em .3em; 
+.sorting-options ul {
+    $entry_datetime_sub_background
+    display: inline-block;
+    margin: 0;
+    padding: .2em .6em .3em;
     }
 
-.sorting-options li { 
+.sorting-options li {
     $entry_datetime_font
     color: $*color_entry_datetime_text;
     display: inline;
@@ -2503,7 +2503,7 @@ ul.userlite-interaction-links.text-links {
 .icon {
     $entry_colors
     border-width: 0 1px;
-    clear: both; 
+    clear: both;
     margin: 0;
     overflow: hidden;
     padding: 1.5em 1.5em 0;
@@ -2513,17 +2513,17 @@ ul.userlite-interaction-links.text-links {
 
 .icon:last-child { padding-bottom: 1.5em; }
 
-.icon .icon-image { 
+.icon .icon-image {
     background-color: $*color_entry_userpic_background;
     border: solid transparent;
     border-color: $*color_entry_userpic_border;
     border-width: 0 0 0 8px;
-    float: left; 
+    float: left;
     margin: 15px;
     padding: 3px;
     }
 
-.icon .icon-info { 
+.icon .icon-info {
     $entry_metadata_font
     $entry_quote_colors
     min-height: 100px;
@@ -2558,12 +2558,12 @@ ul.userlite-interaction-links.text-links {
     }
 
 
-.tags-container .manage-link, .icons-container .manage-link { 
+.tags-container .manage-link, .icons-container .manage-link {
     $entry_colors
     border-width: 0 1px 1px;
-    padding: 0 1.4em 1.2em; 
+    padding: 0 1.4em 1.2em;
     text-align: right;
-    text-transform: uppercase; 
+    text-transform: uppercase;
     }
 
 
@@ -2582,10 +2582,10 @@ ul.userlite-interaction-links.text-links {
 
 /* ------------------------------------------------------------------------------ ICON PAGE DEFS ---------- */
 
-.ui-widget-content { 
-    $page_background 
+.ui-widget-content {
+    $page_background
     width: auto;
-    min-width: 20em; 
+    min-width: 20em;
     }
 
 .ui-widget-content a { color: $*color_page_link; }
@@ -2593,9 +2593,9 @@ ul.userlite-interaction-links.text-links {
 .ui-widget-content a:hover { color: $*color_page_link_hover; }
 .ui-widget-content a:active { color: $*color_page_link_active; }
 
-.ContextualPopup .ui-tooltip-content { 
+.ContextualPopup .ui-tooltip-content {
     border: solid $*color_entry_title_background;
-    border-width: 10px 0 0; 
+    border-width: 10px 0 0;
     overflow: hidden;
     }
 
@@ -2613,20 +2613,20 @@ div.ContextualPopup .Userpic img {
     border: solid $*color_entry_userpic_background;
     border-width: 0 2px 2px;
     max-width: 100px;
-    max-height: 100px; 
+    max-height: 100px;
     }
 
-div.ContextualPopup .Content { 
+div.ContextualPopup .Content {
     $entry_colors
-    border-width: 0 1px 1px; 
-    margin-right: 0; 
+    border-width: 0 1px 1px;
+    margin-right: 0;
     padding: 0 !important;
     }
 
 div.ContextualPopup .Content > span { display: inline-block; margin: 0 5px 3px; }
 
 div.ContextualPopup .Relation {
-    $entry_datetime_background 
+    $entry_datetime_background
     color: $*color_entry_datetime_text;
     font-family: $*font_entry_datetime;
     font-size: $*font_base_size$*font_base_units;
@@ -2635,7 +2635,7 @@ div.ContextualPopup .Relation {
     }
 
 div.ContextualPopup .Relation div {
-    $entry_datetime_sub_background 
+    $entry_datetime_sub_background
     display: inline-block;
     font-weight: normal;
     font-style: italic;
