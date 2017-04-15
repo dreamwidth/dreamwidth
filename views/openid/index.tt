@@ -13,23 +13,27 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
 [%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- sections.head = BLOCK %]
     <style type="text/css">
     input.shiny {
         background: url("[% site.imgroot %]/openid-inputicon.gif") no-repeat;
         background-color: #fff;
-        background-position: 0 50%;
-        padding-left: 18px;
+        background-position: 3px 50%;
+        padding-left: 21px;
     }
     input.button {
         background: #ff6200;
         color: #fff;
+        padding: 0.25rem 1rem;
+        margin-bottom: 0.25rem;
     }
     div.formdiv {
         padding: 0.4em;
         margin-left: 25px;
         margin-right: 25px;
+        margin-bottom: 0.75rem;
         width: auto;
         text-align: center;
         background: #ccc;
@@ -38,6 +42,12 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
     div.formdiv form {
         display: inline;
         width: auto;
+    }
+    h2 {
+        font-size: 125%;
+    }
+    p.expository {
+        font-size: 85%;
     }
     </style>
 
@@ -64,14 +74,14 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 <h2>[% '.main.what_is_openid' | ml %]</h2>
 
-<p>[% ".main.what_is_openid.content" | ml( sitename => site.nameshort ) %]</p>
+<p class="expository">[% ".main.what_is_openid.content" | ml( sitename => site.nameshort ) %]</p>
 
 <h2>[% '.main.using_your_openid_here' | ml %]</h2>
 
-<p>[% ".main.using_your_openid_here.content" | ml( sitename => site.nameshort ) %]</p>
+<p class="expository">[% ".main.using_your_openid_here.content" | ml( sitename => site.nameshort ) %]</p>
 
 [%- uselinks = [ "$site.root/changeemail", "$site.root/register" ] %]
-<p>[% ".main.using_your_openid_here.email" | ml( aopts1 =>
+<p class="expository">[% ".main.using_your_openid_here.email" | ml( aopts1 =>
         "href='$uselinks.0'", aopts2 => "href='$uselinks.1'" ) %]</p>
 
 <div class='formdiv'>
@@ -90,5 +100,5 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 <h2>[% '.main.openid_other_sites' | ml %]</h2>
 
-<p>[% ".main.openid_other_sites.content" | ml( sitename => site.nameshort,
+<p class="expository">[% ".main.openid_other_sites.content" | ml( sitename => site.nameshort,
                                                domain => site.domain ) %]</p>
