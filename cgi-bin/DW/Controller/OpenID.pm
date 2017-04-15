@@ -23,6 +23,8 @@ use DW::Routing;
 use DW::Controller;
 use DW::Template;
 
+DW::Routing->register_string( '/openid/index', \&openid_index_handler, app => 1 );
+
 # for responding to OpenID authentication requests
 DW::Routing->register_string( '/openid/server', \&openid_server_handler,
                                                 app => 1, no_cache => 1 );
@@ -31,6 +33,17 @@ DW::Routing->register_string( '/openid/server', \&openid_server_handler,
 DW::Routing->register_string( '/openid/claim', \&openid_claim_handler, app => 1 );
 DW::Routing->register_string( '/openid/claimed', \&openid_claimed_handler, app => 1 );
 DW::Routing->register_string( '/openid/claim_confirm', \&openid_claim_confirm_handler, app => 1 );
+
+sub openid_index_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $vars = { continue_to => $r->get_args->{returnto}
+                             || $r->header_in( "Referer" ) };
+
+    return DW::Template->render_template( 'openid/index.tt', $vars );
+}
 
 sub openid_server_handler {
     return "OpenID consumer support is disabled"
