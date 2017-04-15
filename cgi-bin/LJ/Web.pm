@@ -866,7 +866,7 @@ sub create_qr_div {
     {
         my %res;
         LJ::do_request({ mode => "login",
-                         ver => ($LJ::UNICODE ? "1" : "0"),
+                         ver => $LJ::PROTOCOL_VER,
                          user => $remote->user,
                          getpickws => 1,
                          getpickwurls => 1,

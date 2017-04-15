@@ -176,7 +176,7 @@ _c?>
 
     # if the entry is pre-UTF-8 conversion, the
     # subject may need conversion into UTF-8
-    if ($LJ::UNICODE) {
+    {
         my %props = ();
         LJ::load_log_props2($dbcr, $log->{'journalid'}, [ $itemid ], \%props);
         if ($props{$itemid}->{'unknown8bit'}) {

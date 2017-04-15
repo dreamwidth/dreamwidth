@@ -149,8 +149,10 @@ if ($LJ::IS_DEV_SERVER) {
 LJ::MemCache::init();
 
 # $LJ::PROTOCOL_VER is the version of the client-server protocol
-# used uniformly by server code which uses the protocol.
-$LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
+# used uniformly by server code which uses the protocol.  We used
+# to set this to "0" if $LJ::UNICODE was false, but now we assume
+# we always want to use Unicode.
+$LJ::PROTOCOL_VER = "1";
 
 # declare views for user journals
 %LJ::viewinfo = (

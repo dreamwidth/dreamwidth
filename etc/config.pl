@@ -221,9 +221,6 @@
       @LANGS = qw( en_DW ) if -d "$HOME/ext/dw-nonfree";
     }
 
-    # support unicode (posts in multiple languages)?  leave enabled.
-    $UNICODE = 1;
-
 
     ###
     ### Database Configuration

@@ -578,12 +578,6 @@ sub login
     my $res = {};
     my $ver = $req->{'ver'};
 
-    ## check for version mismatches
-    ## non-Unicode installations can't handle versions >=1
-
-    return fail($err,207, "This installation does not support Unicode clients")
-        if $ver>=1 and not $LJ::UNICODE;
-
     # do not let locked people log in
     return fail($err, 308) if $u->is_locked;
 
@@ -1045,8 +1039,6 @@ sub common_event_validation
             my $uowner = $flags->{u_owner} || $flags->{u};
             return fail($err,207,'Posting in a community with international or special characters require a Unicode-capable LiveJournal client.  Download one at http://www.livejournal.com/download/.')
                 if ! $uowner->is_person;
-        } else {
-            return fail($err,207, "This installation does not support Unicode clients") unless $LJ::UNICODE;
         }
 
         # validate that the text is valid UTF-8
@@ -2455,9 +2447,8 @@ sub getevents
     }
 
     # load properties. Even if the caller doesn't want them, we need
-    # them in Unicode installations to recognize older 8bit non-UF-8
+    # them in Unicode installations to recognize older 8bit non-UTF-8
     # entries.
-    unless ($req->{'noprops'} && !$LJ::UNICODE)
     {
         ### do the properties now
         $count = 0;
@@ -2520,12 +2511,12 @@ sub getevents
 
         # now that we have the subject, the event and the props,
         # auto-translate them to UTF-8 if they're not in UTF-8.
-        if ($LJ::UNICODE && $req->{ver} >= 1 && $evt->{props}->{unknown8bit}) {
+        if ( $req->{ver} >= 1 && $evt->{props}->{unknown8bit} ) {
             LJ::item_toutf8($uowner, \$t->[0], \$t->[1], $evt->{props});
             $evt->{converted_with_loss} = 1;
         }
 
-        if ($LJ::UNICODE && $req->{'ver'} < 1 && !$evt->{'props'}->{'unknown8bit'}) {
+        if ( $req->{'ver'} < 1 && !$evt->{'props'}->{'unknown8bit'} ) {
             unless ( LJ::is_ascii($t->[0]) &&
                      LJ::is_ascii($t->[1]) &&
                      LJ::is_ascii(join(' ', values %{$evt->{'props'}}) )) {

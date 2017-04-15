@@ -1513,7 +1513,7 @@ sub get_posts
 
 
     while (my ($id, $rp) = each %$rawposts) {
-        if ($LJ::UNICODE && $rp->{props}{unknown8bit}) {
+        if ( $rp->{props}{unknown8bit} ) {
             #LJ::item_toutf8($u, \$rp->{text}[0], \$rp->{text}[1], $rp->{props});
         }
     }
@@ -2611,7 +2611,6 @@ sub expand_embedded {
 sub item_toutf8
 {
     my ($u, $subject, $text, $props) = @_;
-    return unless $LJ::UNICODE;
     $props ||= {};
 
     my $convert = sub {
