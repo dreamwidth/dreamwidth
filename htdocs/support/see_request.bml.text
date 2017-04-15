@@ -83,6 +83,8 @@
 
 .mast.login=You must <a [[loginlink]]>log in</a> to answer Support requests.
 
+.media=Media storage used
+
 .message=Message
 
 .next=Next

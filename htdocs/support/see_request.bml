@@ -284,6 +284,13 @@ body<=
         $ret .= "<br />$ML{'.scheme'}: <b>" .
                 ( $u->{schemepref} ? $u->{schemepref} : "default" ) . "</b>";
 
+        my $media_usage = DW::Media->get_usage_for_user( $u );
+        my $media_quota = DW::Media->get_quota_for_user( $u );
+        my $megabytes  = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
+        my $percentage = sprintf( "%0.1f%%", $media_usage / $media_quota );
+
+        $ret .= "<br />$ML{'.media'}: $megabytes ($percentage)";
+
         my $view_history = $remote && $remote->has_priv( 'historyview' );
         my $view_userlog = $remote && $remote->has_priv( 'canview', 'userlog' );
 
