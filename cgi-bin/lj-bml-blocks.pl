@@ -57,7 +57,7 @@ BML::register_block("NEEDLOGIN", "", sub {
     BML::register_block("DL", "DR", $dl);
 }
 
-BML::register_block("METACTYPE", "S", '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
+BML::register_block("METACTYPE", "S", '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">');
 
 
 1;
