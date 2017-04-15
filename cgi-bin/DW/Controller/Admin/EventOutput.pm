@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::Controller::EventOutput
+# DW::Controller::Admin::EventOutput
 #
 # This controller is for getting a preview of the output for events, for easy debugging.
 #
@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Controller::EventOutput;
+package DW::Controller::Admin::EventOutput;
 
 use strict;
 use warnings;

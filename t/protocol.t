@@ -374,9 +374,11 @@ note( "editcircle" );
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, setcontentfilters => \%contentfilters );
     $success->( "Set content filters." );
     is( scalar keys %$res, 1, "Response contains only the newly added content filters." );
+    # FIXME (1/3): this sometimes returns 1 instead of 2
     is( scalar @{$res->{addedcontentfilters}}, scalar keys %contentfilters, "Got back the newly-added content filters." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
+    # FIXME (2/3): this sometimes returns 1 instead of 2
     is( scalar @{$res->{contentfilters}}, scalar keys %contentfilters, "Number of content filters match." );
     foreach my $filter ( @{$res->{contentfilters}} ) {
         my $id = $filter->{id};
@@ -406,6 +408,7 @@ note( "editcircle" );
     is( scalar @{$res->{addedcontentfilters}}, 1, "Got back the newly-added content filter." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
+    # FIXME (3/3): this sometimes returns 2 instead of 3
     is( scalar @{$res->{contentfilters}}, scalar keys %contentfilters, "Number of content filters match." );
     foreach my $filter ( @{$res->{contentfilters}} ) {
         my $id = $filter->{id};
@@ -641,7 +644,8 @@ note( "editing an entry with existing tags, when only admins can edit tags" );
         event       => "new entry text lalala",
         props       => { taglist => "admin-tag, user-tag" },
     );
-    $check_err->( 157, "error fails because we can't edit the tags" );
+    is( $res->{message}, "You are not allowed to tag entries in this journal.",
+        "warning given because we can't edit the tags" );
 
     LJ::start_request();
     $entry = LJ::Entry->new( $comm, jitemid => $itemid );
