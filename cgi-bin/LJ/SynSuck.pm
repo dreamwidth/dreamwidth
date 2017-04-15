@@ -61,6 +61,17 @@ sub delay {
     return undef;
 }
 
+sub max_size {
+    my ( $u ) = @_;  # optional user object for feed
+    my $max_size = $LJ::SYNSUCK_MAX_SIZE || 3000; # in kb
+
+    if ( $u && $u->has_priv( "siteadmin", "largefeedsize" ) ) {
+        $max_size = $LJ::SYNSUCK_LARGE_MAX_SIZE || 6000; # in kb
+    }
+
+    return 1024 * $max_size;  # in bytes
+}
+
 sub get_content {
     my ($urow, $verbose) = @_;
 
@@ -91,14 +102,11 @@ sub get_content {
         if $etag;
 
     my ($content, $too_big);
-    my $max_size = $LJ::SYNSUCK_MAX_SIZE || 3000; # in kb
     my $syn_u = LJ::load_user($user);
-    if ( $syn_u && $syn_u->has_priv( "siteadmin", "largefeedsize" ) ) {
-        $max_size = $LJ::SYNSUCK_LARGE_MAX_SIZE || 6000; # in kb
-    }
+    my $max_size = max_size( $syn_u );
     my $res = eval {
         $ua->request($req, sub {
-            if (length($content) > 1024*$max_size) { $too_big = 1; return; }
+            if ( length($content) > $max_size ) { $too_big = 1; return; }
             $content .= $_[0];
         }, 4096);
     };
