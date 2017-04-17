@@ -1069,6 +1069,7 @@ ssl -- use ssl
 fragment -- add fragment identifier
 cur_args -- hashref of current GET arguments to the page
 keep_args -- arguments to keep
+keep_query_string -- keep the raw query string (ignores keep_args)
 no_blank -- remove keys with null values from GET args
 viewing_style -- include viewing style args
 =cut
@@ -1088,33 +1089,43 @@ sub create_url {
     my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
     my $url = $proto . "://$host$path";
 
-    my $orig_args = $opts{cur_args} || DW::Request->get->get_args( preserve_case => 1 );
+    # TWO PATHS: if keep_query_string is used, we simply preserve that
+    # with no further logic. If not, however, we perform arguments logic.
+    my $args;
+    if ( $opts{keep_query_string} ) {
+        $args = $r->query_string;
 
-    # Move over viewing style arguments
-    if( $opts{viewing_style} ) {
-        my $vs_args = LJ::viewing_style_opts( %$orig_args );
-        foreach my $k ( keys %$vs_args ) {
-            $out_args{$k} = $vs_args->{$k} unless exists $out_args{$k};
+    } else {
+        my $orig_args = $opts{cur_args} || $r->get_args( preserve_case => 1 );
+
+        # Move over viewing style arguments
+        if( $opts{viewing_style} ) {
+            my $vs_args = LJ::viewing_style_opts( %$orig_args );
+            foreach my $k ( keys %$vs_args ) {
+                $out_args{$k} = $vs_args->{$k} unless exists $out_args{$k};
+            }
         }
-    }
 
-    $opts{keep_args} = [ keys %$orig_args ] if defined $opts{keep_args} and $opts{keep_args} == 1;
-    $opts{keep_args} = [] if ref $opts{keep_args} ne 'ARRAY';
+        $opts{keep_args} = [ keys %$orig_args ]
+            if defined $opts{keep_args} and $opts{keep_args} == 1;
+        $opts{keep_args} = [] if ref $opts{keep_args} ne 'ARRAY';
 
-    # Move over arguments that we need to keep
-    foreach my $k ( @{$opts{keep_args}} ) {
-        $out_args{$k} = $orig_args->{$k} if exists $orig_args->{$k} && ! exists $out_args{$k};
-    }
-
-    foreach my $k ( keys %out_args ) {
-        if ( ! defined $out_args{$k} ) {
-            delete $out_args{$k};
-        } elsif ( ! length $out_args{$k} ) {
-            delete $out_args{$k} if $opts{no_blank};
+        # Move over arguments that we need to keep
+        foreach my $k ( @{$opts{keep_args}} ) {
+            $out_args{$k} = $orig_args->{$k}
+                if exists $orig_args->{$k} && ! exists $out_args{$k};
         }
-    }
 
-    my $args = LJ::encode_url_string( \%out_args, [ sort keys %out_args ] );
+        foreach my $k ( keys %out_args ) {
+            if ( ! defined $out_args{$k} ) {
+                delete $out_args{$k};
+            } elsif ( ! length $out_args{$k} ) {
+                delete $out_args{$k} if $opts{no_blank};
+            }
+        }
+
+        $args = LJ::encode_url_string( \%out_args, [ sort keys %out_args ] );
+    }
 
     $url .= "?$args" if $args;
     $url .= "#" . $opts{fragment} if $opts{fragment};
