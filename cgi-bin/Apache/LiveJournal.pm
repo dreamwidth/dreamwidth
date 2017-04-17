@@ -488,7 +488,7 @@ sub trans {
             ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' ) &&
             $remote->is_in_beta( 'httpseverywhere' ) ) {
 
-        my $url = LJ::create_url( $uri, keep_args => 1, ssl => 1 );
+        my $url = LJ::create_url( $uri, keep_query_string => 1, ssl => 1 );
         return redir( $apache_r, $url );
     }
 
