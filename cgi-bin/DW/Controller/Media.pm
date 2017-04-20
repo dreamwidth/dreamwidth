@@ -262,6 +262,13 @@ sub media_index_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
+    my $media_usage = DW::Media->get_usage_for_user( $rv->{u} );
+    my $media_quota = DW::Media->get_quota_for_user( $rv->{u} );
+
+    $rv->{usage} = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
+    $rv->{quota} = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
+    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota );
+
     return DW::Template->render_template( 'media/home.tt', $rv );
 }
 
