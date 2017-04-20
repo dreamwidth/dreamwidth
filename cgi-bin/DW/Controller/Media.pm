@@ -64,7 +64,7 @@ sub media_manage_handler {
 
     $rv->{usage} = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
     $rv->{quota} = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
-    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota );
+    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota * 100 );
 
     return DW::Template->render_template( 'media/index.tt', $rv );
 }
@@ -147,7 +147,7 @@ sub media_bulkedit_handler {
 
     $rv->{usage} = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
     $rv->{quota} = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
-    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota );
+    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota * 100 );
 
     $rv->{ehtml} = \&LJ::ehtml;
     $rv->{media} = \@media;
@@ -281,7 +281,7 @@ sub media_index_handler {
 
     $rv->{usage} = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
     $rv->{quota} = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
-    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota );
+    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota * 100 );
 
     return DW::Template->render_template( 'media/home.tt', $rv );
 }
