@@ -42,8 +42,10 @@
 /syn/raw.bml                        /feeds/list
 /feeds/raw                          /feeds/list
 /feeds/raw.bml                      /feeds/list
-/editpics                           /editicons
-/editpics.bml                       /editicons
+/editpics                           /manage/icons
+/editpics.bml                       /manage/icons
+/editicons                          /manage/icons
+/editicons.bml                      /manage/icons
 /userinfo                           /profile
 /userinfo.bml                       /profile
 /help                               /support/

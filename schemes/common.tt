@@ -72,7 +72,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- userpic_class = 'account-links-userpic' -%]
 [%- BLOCK block.userpic -%]
-<div id='[% userpic_class %]'><a href='[% site.root %]/editicons'>
+<div id='[% userpic_class %]'><a href='[% site.root %]/manage/icons'>
     [%- IF remote -%][%- userpic = remote.userpic -%]
         [%- IF userpic -%]
             <img src='[% userpic.url %]' [% userpic.img_fixedsize( 'width', 80, 'height', 80 ) %] alt='[% 'sitescheme.accountlinks.userpic.alt' | ml %]' />

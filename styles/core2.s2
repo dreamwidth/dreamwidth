@@ -3468,7 +3468,7 @@ function UserLite::tag_manage_url() [fixed] : string
 function UserLite::icon_manage_url() [fixed] : string
 "Returns a link to the user's icon management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    return "$*SITEROOT/editicons?authas=$.username";
+    return "$*SITEROOT/manage/icons?authas=$.username";
 }
 
 function UserLite::subscriptionfilters_manage_url() [fixed] : string

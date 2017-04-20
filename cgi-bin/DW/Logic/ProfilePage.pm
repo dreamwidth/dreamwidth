@@ -110,11 +110,11 @@ sub userpic {
             if ( $u->get_userpic_count ) {
                 $ret->{userpic_url} = $u->allpics_base;
                 $ret->{caption_text} = LJ::Lang::ml( '.section.edit' );
-                $ret->{caption_url} = "$LJ::SITEROOT/editicons?authas=$user"
+                $ret->{caption_url} = "$LJ::SITEROOT/manage/icons?authas=$user"
             } else {
-                $ret->{userpic_url} = "$LJ::SITEROOT/editicons?authas=$user";
+                $ret->{userpic_url} = "$LJ::SITEROOT/manage/icons?authas=$user";
                 $ret->{caption_text} = LJ::Lang::ml( '.userpic.upload' );
-                $ret->{caption_url} = "$LJ::SITEROOT/editicons?authas=$user"
+                $ret->{caption_url} = "$LJ::SITEROOT/manage/icons?authas=$user"
             }
         } else {
             if ( $u->get_userpic_count ) {

@@ -2713,7 +2713,7 @@ sub control_strip
         my $userpic = $remote->userpic;
         if ( $userpic ) {
             my $wh = $userpic->img_fixedsize( width => 43, height => 43 );
-            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/editicons'>";
+            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/manage/icons'>";
             $ret .= "<img src='" . $userpic->url . "' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" $wh /></a></td>";
         } else {
             my $tinted_nouserpic_img = "";
@@ -2730,7 +2730,7 @@ sub control_strip
                     }
                 }
             }
-            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/editicons'>";
+            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/manage/icons'>";
             if ($tinted_nouserpic_img eq "") {
                 $ret .= "<img src='$LJ::IMGPREFIX/controlstrip/nouserpic.gif' ";
             } else {

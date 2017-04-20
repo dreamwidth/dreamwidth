@@ -172,7 +172,7 @@ body<=
         $ret .= "</div><div style='margin-left: 110px'>\n";
         $ret .= "<span class='helper'>" . $ML{".userpic$iscomm"} . "</span>";
         $ret .= LJ::help_icon('upic_keywords');
-        $ret .= "<?p <a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
+        $ret .= "<?p <a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";
 
         $ret .= "<td>";
@@ -729,14 +729,14 @@ body<=
                  "<?p $ML{'.success.gonext'} p?>" .
                  "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile.comm'}</a></li>" .
                  "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile.comm'}</a></li>" .
-                 "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons.comm'}</a></li></ul>";
+                 "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.success.editicons.comm'}</a></li></ul>";
         } else {
             return "<?h1 $ML{'.success.header'} h1?>\n" .
                  "<?p $ML{'.success.text'} p?>" .
                  "<?p $ML{'.success.gonext'} p?>" .
                  "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
                  "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-                 "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
+                 "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
         }
     }
 
