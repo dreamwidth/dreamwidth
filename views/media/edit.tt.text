@@ -19,3 +19,5 @@
 .submit.save=Save Changes
 
 .submit.delete=Delete Selected
+
+.usage=You have used [[usage]] ([[percentage]]) of your [[quota]] quota.

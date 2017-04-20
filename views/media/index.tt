@@ -44,6 +44,8 @@ window.onload = function() {
 
 <p>[% dw.ml(".intro2" {aopts1 => '/file/edit', aopts2 => '/file/new'}) %]</p>
 
+<p>[% '.usage' | ml( usage => usage, percentage => percentage, quota => quota ) %]</p>
+
 [% getextra = page == 1 ? '' : "?page=$page" %]
 [% getsep = getextra == '' ? "?" : "&" %]
 

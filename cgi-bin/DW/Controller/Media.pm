@@ -59,6 +59,13 @@ sub media_manage_handler {
     $rv->{valid_sizes} =[ %VALID_SIZES ];
     $rv->{convert_time} = \&LJ::mysql_time;
 
+    my $media_usage = DW::Media->get_usage_for_user( $rv->{u} );
+    my $media_quota = DW::Media->get_quota_for_user( $rv->{u} );
+
+    $rv->{usage} = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
+    $rv->{quota} = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
+    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota );
+
     return DW::Template->render_template( 'media/index.tt', $rv );
 }
 
@@ -134,6 +141,13 @@ sub media_bulkedit_handler {
     }
 
     my @media = DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 );
+
+    my $media_usage = DW::Media->get_usage_for_user( $rv->{u} );
+    my $media_quota = DW::Media->get_quota_for_user( $rv->{u} );
+
+    $rv->{usage} = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
+    $rv->{quota} = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
+    $rv->{percentage} = sprintf( "%0.1f%%", $media_usage / $media_quota );
 
     $rv->{ehtml} = \&LJ::ehtml;
     $rv->{media} = \@media;
