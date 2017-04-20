@@ -213,10 +213,13 @@ $(function() {
         $.extend( image, data );
         $field.data( "image-attributes", image );
 
+        var escape_titletext = image.title.replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
+        var escape_alttext = image.alttext.replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
+
         var text = [];
         text.push( "<a href='" + image.url + "'><img src='" + image.thumbnail_url + "'" );
-        if ( image.title ) text.push( " title='" + image.title + "' " );
-        if ( image.alttext ) text.push(" alt='" + image.alttext + "' ");
+        if ( escape_titletext ) text.push( " title='" + escape_titletext + "' " );
+        if ( escape_alttext ) text.push(" alt='" + escape_alttext + "' ");
         text.push( " /></a>" );
         $field.val(text.join(""));
     });
