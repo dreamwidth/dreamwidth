@@ -27,6 +27,10 @@ $(function() {
                 data[file_id] = {};
 
             data[file_id][form_field.name] = form_field.value;
+
+            if (form_field.name == "security" && form_field.value == "usemask")
+                data[file_id]["allowmask"] = 1;
+
         });
 
         $.ajax( Site.siteroot + '/api/v1/file/edit', {
