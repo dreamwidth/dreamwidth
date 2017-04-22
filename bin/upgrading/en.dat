@@ -3509,6 +3509,34 @@ Regards,
 The [[sitename]] Team
 .
 
+shop.expiration.comm.premium.14.body<<
+Dear [[touser]],
+
+We wanted to let you know that your paid [[sitename]] community,
+[[commname]], will be expiring in two weeks.
+
+If you'd like, you can add more paid time to your community account
+here:
+
+  [[shopurl]]
+
+You currently have a premium paid account. If you want to renew your
+account with regular paid time and not premium paid time, it's best to
+let your account expire completely before you renew. If you add
+regular paid time to a premium paid account that has not yet expired,
+the regular paid time will be converted to premium paid time at our
+standard conversion rate of 70% and your new expiration date won't be
+what you expect it to be.
+
+If you don't want to renew your community's paid account, don't worry -- it'll still be there for you to use. You and your community members just
+won't have access to all of the paid account features.
+
+Thank you for supporting [[sitename]].
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.expiration.comm.14.subject=[[sitename]] Account Expiration
 
 shop.expiration.comm.3.body<<
@@ -3526,6 +3554,36 @@ Your community will automatically revert to a free account in
 another three days if you don't renew. If that happens, you'll still
 be able to use it; you just won't have access to our paid features
 anymore.
+
+Thank you for supporting [[sitename]].
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.comm.premium.3.body<<
+Dear [[touser]],
+
+We just wanted to remind you that your paid [[sitename]] community,
+[[commname]], will be expiring in approximately three days.
+
+You can renew your paid account in our Shop:
+
+  [[shopurl]]
+
+This is the last reminder we'll send you -- we don't want to nag!
+Your community will automatically revert to a free account in
+another three days if you don't renew. If that happens, you'll still
+be able to use it; you just won't have access to our paid features
+anymore.
+
+You currently have a premium paid account. If you want to renew your
+account with regular paid time and not premium paid time, it's best to
+let your account expire completely before you renew. If you add
+regular paid time to a premium paid account that has not yet expired,
+the regular paid time will be converted to premium paid time at our
+standard conversion rate of 70% and your new expiration date won't be
+what you expect it to be.
 
 Thank you for supporting [[sitename]].
 
@@ -3578,6 +3636,34 @@ Regards,
 The [[sitename]] Team
 .
 
+shop.expiration.user.premium.14.body<<
+Dear [[touser]],
+
+We wanted to let you know that your paid [[sitename]] account will be
+expiring in two weeks.
+
+If you'd like, you can add more paid time to your account here:
+
+  [[shopurl]]
+
+You currently have a premium paid account. If you want to renew your
+account with regular paid time and not premium paid time, it's best to
+let your account expire completely before you renew. If you add
+regular paid time to a premium paid account that has not yet expired,
+the regular paid time will be converted to premium paid time at our
+standard conversion rate of 70% and your new expiration date won't be
+what you expect it to be.
+
+If you don't want to renew your paid account, don't worry -- you can
+still keep using the site. You just won't have access to all of the
+paid account features.
+
+Thank you so much for supporting [[sitename]].
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.expiration.user.14.subject=[[sitename]] Account Expiration
 
 shop.expiration.user.3.body<<
@@ -3595,6 +3681,36 @@ Your account will automatically revert to a free account in
 another three days if you don't renew. If that happens, you'll still
 be able to use it; you just won't have access to our paid features
 anymore.
+
+Thank you for supporting [[sitename]].
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.user.premium.3.body<<
+Dear [[touser]],
+
+We just wanted to remind you that your paid [[sitename]] account,
+[[touser]], will be expiring in approximately three days.
+
+You can renew your paid account in our Shop:
+
+  [[shopurl]]
+
+This is the last reminder we'll send you -- we don't want to nag!
+Your account will automatically revert to a free account in
+another three days if you don't renew. If that happens, you'll still
+be able to use it; you just won't have access to our paid features
+anymore.
+
+You currently have a premium paid account. If you want to renew your
+account with regular paid time and not premium paid time, it's best to
+let your account expire completely before you renew. If you add
+regular paid time to a premium paid account that has not yet expired,
+the regular paid time will be converted to premium paid time at our
+standard conversion rate of 70% and your new expiration date won't be
+what you expect it to be.
 
 Thank you for supporting [[sitename]].
 
