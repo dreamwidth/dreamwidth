@@ -227,13 +227,13 @@ sub _extract_post_headers {
     my ( %post_headers, $amask );
 
     # first look for old style lj headers
-    while ( $self->{body} =~ s/^lj-(.+?):\s*(.+?)\n//is ) {
+    while ( $self->{body} =~ s/(?:^|\n)lj-(.+?):\s*(.+?)(?:$|\n)//is ) {
         $post_headers{lc($1)} = LJ::trim($2);
     }
 
     # next look for new style post headers
     # so if both are specified, this value will be retained
-    while ($self->{body} =~ s/^post-(.+?):\s*(.+?)\n//is) {
+    while ($self->{body} =~ s/(?:^|\n)post-(.+?):\s*(.+?)(?:$|\n)//is) {
         $post_headers{lc($1)} = LJ::trim($2);
     }
 
