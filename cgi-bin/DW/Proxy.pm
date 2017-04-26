@@ -41,6 +41,9 @@ sub get_proxy_url {
     my ( $url, %opts ) = @_;
     return undef unless $LJ::PROXY_URL && substr($url, 0, 7) eq 'http://';
 
+    # replace any space characters with %20 before calculating checksum
+    $url =~ s/ /%20/g;
+
     my $signature = DW::Proxy::get_url_signature($url);
     return undef unless $signature;
 
