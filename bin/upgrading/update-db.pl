@@ -168,9 +168,20 @@ CLUSTER: foreach my $cluster (@clusters) {
         delete $table_unknown{$t};
     }
 
-    foreach my $t (keys %table_unknown)
     {
-        print "# Warning: unknown live table: $t\n";
+        # dreamhacks use the same database for website, schwartz, and mogilefs
+        my @mogile_tables = qw( domain class file tempfile file_to_delete
+                                unreachable_fids file_on file_on_corrupt
+                                host device server_settings file_to_replicate
+                                file_to_delete_later fsck_log file_to_queue
+                                file_to_delete2 checksum );
+        my @schwartz_tables = qw( note error job funcmap exitstatus );
+        my %skip_tables = map { $_ => 1 } ( @mogile_tables, @schwartz_tables );
+
+        foreach my $t ( keys %table_unknown ) {
+            print "# Warning: unknown live table: $t\n"
+                unless $LJ::IGNORE_MOGILE_SCHWARTZ_TABLES && $skip_tables{$t};
+        }
     }
 
     my $run_alter = $table_exists{dbnotes};
