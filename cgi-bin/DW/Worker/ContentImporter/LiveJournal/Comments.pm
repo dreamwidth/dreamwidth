@@ -181,7 +181,7 @@ sub try_work {
 
     foreach my $jitemid ( keys %$xpost_map ) {
         $jitemid_map{$jitemid} = $xpost_map->{$jitemid};
-        $entry_source{$jitemid_map{$jitemid}} = "CROSSPOSTER " . $data->{hostname} . " " . $data->{username} . " $jitemid "
+        $entry_source{$jitemid_map{$jitemid}} = "CROSSPOSTER " . $data->{hostname} . " " . $data->{username} . " $jitemid ";
     }
 
     # this will take a talk_map (old URL -> new jtalkid) and convert it to a jtalkid map (old jtalkid -> new jtalkid)
