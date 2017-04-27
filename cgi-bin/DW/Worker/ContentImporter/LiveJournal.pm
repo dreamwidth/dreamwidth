@@ -459,9 +459,16 @@ sub xmlrpc_call_helper {
             };
     }
 
-    # typically this is timeouts
-    return $class->call_xmlrpc( $opts, $mode, $hash, $depth+1 )
-        unless $res;
+    # Typically this is timeouts; but since we probably need a new challenge we have to
+    # call the call_xmlrpc method to do the retry. However, if we're actually trying to
+    # get a challenge we should call ourselves.
+    unless ( $res ) {
+        if ( $method eq 'LJ.XMLRPC.getchallenge' ) {
+            return $class->xmlrpc_call_helper( $opts, $xmlrpc, $method, $req, $mode, $hash, $depth+1 );
+        } else {
+            return $class->call_xmlrpc( $opts, $mode, $hash, $depth+1 );
+        }
+    }
 
     return $res->result;
 }
@@ -484,7 +491,8 @@ sub call_xmlrpc {
 
     my $chal;
     while ( ! $chal ) {
-        my $res = $class->xmlrpc_call_helper( $opts, $xmlrpc, 'LJ.XMLRPC.getchallenge', $depth );
+        my $res = $class->xmlrpc_call_helper(
+                $opts, $xmlrpc, 'LJ.XMLRPC.getchallenge', undef, undef, undef, $depth );
         if ( $res && $res->{fault} ) {
             return $res;
         }

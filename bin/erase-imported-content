@@ -3,12 +3,14 @@
 use v5.10;
 use strict;
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+
 use LJ::Entry;
 use LJ::Talk;
 use DW::Worker::ContentImporter::LiveJournal;
 use DW::Worker::ContentImporter::Local::Entries;
 use DW::Worker::ContentImporter::Local::Comments;
 
+use Digest::MD5 qw/ md5_hex /;
 use Getopt::Long;
 
 my ( $user, $confirm, $dupes );
@@ -43,11 +45,28 @@ $csrc{$csrc_in{$_}} = $_ foreach keys %csrc_in; # Invert it.
 # over the years.
 my $dbcr = LJ::get_cluster_reader( $u ) or die;
 my $entries = $dbcr->selectall_hashref(q{
-        SELECT log2.jitemid, posterid, eventtime, replycount, subject
+        SELECT log2.jitemid, posterid, eventtime, replycount, subject, event, security, allowmask
         FROM log2 INNER JOIN logtext2
             ON log2.journalid = logtext2.journalid AND log2.jitemid = logtext2.jitemid
         WHERE log2.journalid = ?
     }, 'jitemid', undef, $u->id );
+
+for my $jitemid ( keys %$entries ) {
+    $entries->{$jitemid}->{subject} = md5_hex( $entries->{$jitemid}->{subject} );
+    $entries->{$jitemid}->{event} = md5_hex( $entries->{$jitemid}->{event} );
+
+    my %cmts = %{ LJ::Talk::get_talk_data( $u, 'L', $jitemid ) || {} };
+    foreach my $jtalkid ( keys %cmts ) {
+        next if $cmts{$jtalkid}->{state} =~ /^[DSB]$/;
+
+        $entries->{$jitemid}->{replycount}--
+            if exists $csrc{$jtalkid};
+        if ( $entries->{$jitemid}->{replycount} < 0 ) {
+            die "Invalid accounting! $jitemid replycount went negative!\n";
+        }
+    }
+}
+
 sub entry_key {
     my $jitemid = $_[0] + 0;
 
@@ -78,7 +97,7 @@ if ( $dupes ) {
 }
 
 # Iterate each imported entry and see if we can delete it
-ENTRY: foreach my $jitemid ( sort { $a <=> $b } keys %rmap ) {
+ENTRY: foreach my $jitemid ( sort { $b <=> $a } keys %rmap ) {
     # Load entry and attempt to canonicalize source if we need to; if we can't
     # canonicalize the source then we must delete this entry
     my $o_entry = LJ::Entry->new( $u, jitemid => $jitemid );
@@ -119,19 +138,15 @@ ENTRY: foreach my $jitemid ( sort { $a <=> $b } keys %rmap ) {
             canonicalize_source( $entry );
         }
 
-        # If it has comments, keep it (saves us time later).
+        # If any organic comments, skip this entry
         next ENTRY if $entries->{$jitemid}->{replycount} > 0;
+
+        # Has no comments, or only imported comments
+        goto DELETE;
     }
 
     # See if there are any non-imported contents on the entry
-    my %cmts = %{ LJ::Talk::get_talk_data( $u, 'L', $jitemid ) || {} };
-    foreach my $jtalkid ( keys %cmts ) {
-        next if exists $csrc{$jtalkid};
-
-        # If we hit this, we found a non-imported comment on the entry
-        # so we need to not delete it
-        next ENTRY;
-    }
+    next ENTRY if $entries->{$jitemid}->{replycount} > 0;
 
     # If we get here, the entry is destined for the shredder
 DELETE:
@@ -168,11 +183,35 @@ sub canonicalize_source {
     my $source = $entry->prop( 'import_source' );
     return 1 if $source =~ m!^(?:livejournal|insanejournal)\.com/[a-z0-9_]+/\d+$!;
 
+    # The dupe fixer had a bug in it 5 minutes ago where this could happen...
+    if ( $source =~ m!^livejournal\.com//(\d+)$! ) {
+        my $new_source = "livejournal.com/$user/$1";
+        say "Fixing import_source: $source => $new_source";
+        $entry->set_prop( import_source => $new_source );
+        return 1;
+    }
+
     # http://runpunkrun.livejournal.com/334.html
-    if ( $source =~ m!http://([a-z0-9_-]+)\.((?:livejournal|insanejournal)\.com)/(\d+)\.html$! ) {
-        my ( $host, $user, $ditemid ) = ( $2, $1, $3 );
-        $user =~ s/-/_/g;
-        my $new_source = "$host/$user/$ditemid";
+    if ( $source =~ m!http://([a-z0-9_-]*)\.((?:livejournal|insanejournal)\.com)/(\d+)\.html$! ) {
+        my ( $host, $loc_user, $ditemid ) = ( $2, $1, $3 );
+        $loc_user =~ s/-/_/g;
+
+        # If the source didn't have a user, this was one class of issues where we
+        # had an undefined variable ages ago. Add it.
+        $loc_user ||= $user;
+
+        my $new_source = "$host/$loc_user/$ditemid";
+        say "Fixing import_source: $source => $new_source";
+        $entry->set_prop( import_source => $new_source );
+        return 1;
+    }
+
+    # There was, at one point, a bad bug that showed up with the following source,
+    # since there are 90 LJ imports for every IJ import (or more) let's just assume
+    # that it's LJ... and the same username
+    if ( $source =~ m!^#/(\d+)\.html$! ) {
+        my ( $ditemid ) = ( $1 );
+        my $new_source = "livejournal.com/$user/$ditemid";
         say "Fixing import_source: $source => $new_source";
         $entry->set_prop( import_source => $new_source );
         return 1;

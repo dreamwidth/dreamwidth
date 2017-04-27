@@ -26,6 +26,8 @@ $LJ::LOG_GTOP = 1;
 use DW::Logic::Importer;
 use DW::Worker::ContentImporter::LiveJournal::Comments;
 use DW::Worker::ContentImporter::LiveJournal::Entries;
+use DW::Worker::ContentImporter::LiveJournal::Userpics;
+use DW::Worker::ContentImporter::LiveJournal::Verify;
 
 
 my ( $user, $list, $run, $type, $import_id, $schedule_copy );
@@ -79,13 +81,15 @@ if ( $schedule_copy ) {
 }
 
 if ( $run ) {
-    if ( ! defined $type || $type !~ /^lj_(?:entries|comments)$/ ) {
-        croak "--type must be one of: lj_entries, lj_comments";
+    if ( ! defined $type || $type !~ /^lj_(?:entries|comments|verify|userpics)$/ ) {
+        croak "--type must be one of: lj_entries, lj_comments, lj_verify, lj_userpics";
     }
 
     my $class = "DW::Worker::ContentImporter::LiveJournal::" . {
         lj_comments => 'Comments',
         lj_entries  => 'Entries',
+        lj_verify   => 'Verify',
+        lj_userpics => 'Userpics',
     }->{$type};
 
     my $tmpdata;
@@ -118,7 +122,7 @@ if ( $run ) {
 
 sub ago {
     my $delta = time() - $_[0];
-    if ( $delta > 86400 * 7 ) {
+    if ( $delta > 86400 * 28 ) {
         return int($delta / (86400 * 7)) . 'w';
     } elsif ( $delta > 86400 ) {
         return int($delta / 86400) . 'd';
@@ -150,8 +154,12 @@ sub failures { 0 }
 sub funcname { $_[0] }
 sub max_retries { 5 }
 
+sub permanent_failure {
+    failed(@_);
+}
+
 sub failed {
-    print "Failed: $_[1]";
+    say "Failed: $_[1]";
 }
 
 sub debug {
