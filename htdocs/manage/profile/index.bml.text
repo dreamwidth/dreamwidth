@@ -197,6 +197,8 @@
 
 .services.github=GitHub Username
 
+.services.imzy=Imzy Username
+
 .services.instagram=Instagram Username
 
 .services.last_fm=Last.fm Username

@@ -534,6 +534,14 @@ userproplist.interest_ids_blob:
   multihomed: 0
   prettyname: Interest IDs blob
 
+userproplist.imzy:
+  cldversion: 4
+  datatype: char
+  des: Imzy account name for user profile
+  indexed: 0
+  multihomed: 0
+  prettyname: Imzy Account
+
 userproplist.instagram:
   cldversion: 4
   datatype: char
