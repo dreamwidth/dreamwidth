@@ -59,6 +59,8 @@ $domaintosite{"youtube.com"} = DW::External::Site->new("23", "www.youtube.com", 
 $domaintosite{"github.com"} = DW::External::Site->new("24", "www.github.com", "github.com", "GitHub", "gh");
 # three-part domain name
 $domaintosite{"lj.rossia.org"} = DW::External::Site->new("25", "lj.rossia.org", "lj.rossia.org", "LJRossia", "lj");
+# more two-part sites
+$domaintosite{"medium.com"} = DW::External::Site->new("26", "medium.com", "medium.com", "Medium", "medium");
 
 
 @all_sites_without_alias = values %domaintosite;
@@ -99,6 +101,7 @@ $domaintosite{"youtube"} = $domaintosite{"youtube.com"};
 $domaintosite{"github"} = $domaintosite{"github.com"};
 $domaintosite{"lj.rossia"} = $domaintosite{"lj.rossia.org"};
 $domaintosite{"ljr"} = $domaintosite{"lj.rossia.org"};
+$domaintosite{"medium"} = $domaintosite{"medium.com"};
 foreach my $value (@all_sites_without_alias) {
     $idtosite{$value->{siteid}} = $value;
 }
