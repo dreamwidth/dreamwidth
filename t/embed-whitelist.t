@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 67;
+use Test::More tests => 69;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -85,8 +85,8 @@ note( "misc" );
 
     # C
     test_good_url( "//codepen.io/enxaneta/embed/gPeZdP/?height=268&theme-id=0&default-tab=result" );
-    test_good_url( "http://www.criticalcommons.org/Members/china_shop/clips/handle-with-care-white-collar-fanvid/embed_view" );
     test_good_url( "http://coub.com/embed/x1xx2xxxxxX" );
+    test_good_url( "http://www.criticalcommons.org/Members/china_shop/clips/handle-with-care-white-collar-fanvid/embed_view" );
 
     # D
     test_good_url( "http://www.dailymotion.com/embed/video/x1xx11x" );
@@ -120,6 +120,9 @@ note( "misc" );
     # K
     test_good_url( "http://www.kickstarter.com/projects/25352323/arrival-a-short-film-by-alex-myung/widget/video.html" );
     test_good_url( "http://www.kickstarter.com/projects/25352323/arrival-a-short-film-by-alex-myung/widget/card.html" );
+
+    # M
+    test_good_url( "https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2Fvladmradio%2F25-podcast-from-august-24-2016%2F&hide_cover=1&light=1" );
 
     # N
     test_good_url( "http://ext.nicovideo.jp/thumb/sm123123123" );

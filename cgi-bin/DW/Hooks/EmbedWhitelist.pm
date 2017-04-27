@@ -56,10 +56,9 @@ my %host_path_match = (
 
     "bandcamp.com"          => [ qr!^/EmbeddedPlayer/!, 1 ],
     "blip.tv"               => [ qr!^/play/!, 1 ],
-    
-    "coub.com"              => [ qr!^/embed/!, 1 ],
 
     "codepen.io"            => [ qr!^/enxaneta/embed/!, 1 ],
+    "coub.com"              => [ qr!^/embed/!, 1 ],
     "www.criticalcommons.org" => [ qr!/embed_view$!, 0 ],
 
     "www.dailymotion.com"   => [ qr!^/embed/video/!, 1 ],
@@ -85,6 +84,8 @@ my %host_path_match = (
     "jsfiddle.net"          => [ qr!/embedded/$!, 1 ],
 
     "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
+
+    "www.mixcloud.com"      => [ qr!^/widget/iframe/$!, 1 ],
 
     "ext.nicovideo.jp"      => [ qr!^/thumb/!, 0 ],
     "www.npr.org"           => [ qr!^/templates/event/embeddedVideo\.php!, 1 ],
