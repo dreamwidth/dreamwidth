@@ -816,6 +816,28 @@ sub external_services {
         };
     }
 
+    if ( my $imzy = $u->prop( 'imzy' ) ) {
+        my $eimzy = LJ::eurl( $imzy );
+        push @ret, {
+            type => 'imzy',
+            text => LJ::ehtml( $imzy ),
+            url => "https://www.imzy.com/\@$eimzy",
+            image => 'imzy.png',
+            title_ml => '.service.imzy',
+        };
+    }
+
+    if ( my $instagram = $u->prop( 'instagram' ) ) {
+        my $einstagram = LJ::eurl( $instagram );
+        push @ret, {
+            type => 'instagram',
+            text => LJ::ehtml( $instagram ),
+            url => "https://www.instagram.com/$einstagram",
+            image => 'instagram.png',
+            title_ml => '.service.instagram',
+        };
+    }
+
     if ( my $jabber = $u->prop( 'jabber' ) ) {
         push @ret, {
             type => 'jabber',

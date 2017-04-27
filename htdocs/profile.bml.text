@@ -385,6 +385,10 @@
 
 .service.github=GitHub
 
+.service.imzy=Imzy
+
+.service.instagram=Instagram
+
 .service.pinboard=Pinboard
 
 .service.pinterest=Pinterest
