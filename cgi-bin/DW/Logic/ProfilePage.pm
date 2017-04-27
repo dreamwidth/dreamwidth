@@ -816,6 +816,17 @@ sub external_services {
         };
     }
 
+    if ( my $instagram = $u->prop( 'instagram' ) ) {
+        my $einstagram = LJ::eurl( $instagram );
+        push @ret, {
+            type => 'instagram',
+            text => LJ::ehtml( $instagram ),
+            url => "https://www.instagram.com/$einstagram",
+            image => 'instagram.png',
+            title_ml => '.service.instagram',
+        };
+    }
+
     if ( my $jabber = $u->prop( 'jabber' ) ) {
         push @ret, {
             type => 'jabber',
