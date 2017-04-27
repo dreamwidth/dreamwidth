@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+#
+# blobadm
+#
+# Administrative tool for managing the BlobStore.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2017 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+
+use Carp qw/ croak /;
+use Getopt::Long;
+
+use DW::BlobStore;
+
+my ( $get, $put, $domain, $key );
+GetOptions(
+    'get' => \$get,
+    'put' => \$put,
+    'domain=s' => \$domain,
+    'key=s' => \$key,
+);
+
+unless ( $domain && $key ) {
+    say "Usage: $0 [ --get ] --domain DOMAIN --key KEY";
+    exit 0;
+}
+
+if ( $get && $put ) {
+    say "Can't get and put at the same time!";
+    exit 1;
+}
+
+# If we're putting, start with that and write the file
+if ( $put ) {
+    say "Putting $domain :: $key ...";
+    my $file;
+    { local $/ = undef; $file = <STDIN>; }
+    unless ( length $file > 0 ) {
+        say "Can't put empty file.";
+        exit 1;
+    }
+    DW::BlobStore->store( $domain => $key, \$file );
+}
+
+unless ( DW::BlobStore->exists( $domain => $key ) ) {
+    say "$domain :: $key does not exist.";
+    exit 1;
+}
+
+my $file = DW::BlobStore->retrieve( $domain => $key );
+if ( $get ) {
+    print $$file;
+    exit 0;
+}
+
+say "$domain :: $key exists, length: " . length( $$file ) . " bytes";
+exit 0;
