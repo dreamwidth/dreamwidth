@@ -2679,6 +2679,8 @@ sub curr_page_supports_ebox { 0 }
 sub has_quickreply
 {
     my ($page) = @_;
+    return 0 if $page->{_type} eq 'EntryPreviewPage';
+
     my $view = $page->{view};
     # Also needs adding to the list in core2.s2
     return $view eq 'entry' || $view eq 'read' || $view eq 'day' || $view eq 'recent' || $view eq 'network';
