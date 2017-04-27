@@ -25,7 +25,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 <img id="js-icon-preview-image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" data-no-ctx="true" />
             [% END %]
         [% ELSE %]
-            <a href='[% site.root %]/editicons'>[% 'entryform.userpic.upload' | ml %]</a>
+            <a href='[% site.root %]/manage/icons'>[% 'entryform.userpic.upload' | ml %]</a>
         [% END %]
         </div>
     </div>

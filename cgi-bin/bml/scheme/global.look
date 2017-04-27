@@ -79,7 +79,7 @@ LOAD_PAGE_INFO<=
                   { 'name' => 'Your Entries',
                 'uri' => '/editjournal', },
                   { 'name' => 'Your Pictures',
-                'uri' => '/editicons', },
+                'uri' => '/manage/icons', },
                   { 'name' => 'Your Password',
                 'uri' => '/changepassword', },
                   ],

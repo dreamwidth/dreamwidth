@@ -33,7 +33,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
-DW::Routing->register_string( "/editicons", \&editicons_handler, app => 1 );
+DW::Routing->register_string( "/manage/icons", \&editicons_handler, app => 1 );
 DW::Routing->register_string( "/tools/userpicfactory", \&factory_handler, app => 1 );
 DW::Routing->register_string( "/misc/mogupic", \&mogupic_handler, app => 1, formats => 1 );
 
@@ -264,8 +264,8 @@ sub editicons_handler {
     $rv->{selflink} = sub {
         my $want_kw = $_[0] // $args->{'keywordSort'};
         my $keyword_sort = $want_kw ? { 'keywordSort' => 1 } : {};
-        return LJ::create_url( "/editicons", keep_args => [ 'authas' ],
-                                             args => $keyword_sort );
+        return LJ::create_url( "/manage/icons", keep_args => [ 'authas' ],
+                                                args => $keyword_sort );
     };
 
     $rv->{icons} = $args->{'keywordSort'} ? [ LJ::Userpic->sort( \@userpics ) ]
