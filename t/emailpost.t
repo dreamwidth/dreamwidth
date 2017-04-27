@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 24;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -97,6 +97,17 @@ ok($text =~ qr!http://krow\.livejournal\.com/434338\.html!, "got correct URL in 
     ok( $ok, "posted entry with long subject" );
     my $entry = LJ::Entry->new( $u, jitemid => 2 );
     is( $entry->subject_raw, "Here's an entry emailed-in with a long subject (>100 characters) which will end up being truncated s", "Entry subject truncated" );
+}
+
+{
+    my $email_post = DW::EmailPost->get_handler(get_mime("parse-props", $user_email_info));
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted entry with custom settings" );
+    my $entry = LJ::Entry->new( $u, jitemid => 3 );
+    is ( $entry->event_raw, "This is a test post.", "Settings removed from body text" );
+    is ( $entry->security, 'private', "Entry security is correct" );
+    is ( $entry->prop( 'current_moodid' ), 56, "Entry mood is correct" );
+    is ( $entry->prop( 'current_music' ), "Jonathan Coulton -- Code Monkey", "Entry music is correct" );
 }
 
 sub get_mime {
