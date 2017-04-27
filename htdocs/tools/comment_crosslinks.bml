@@ -1,0 +1,55 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{authas} || $remote->user;
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'})
+        unless $u;
+
+	my $ret = '<form>';
+	$ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
+	$ret .= '</form>';
+
+	my $dbcr = LJ::get_cluster_reader($u) or die;
+
+	my $props = $dbcr->selectall_arrayref(
+		q{
+select
+    l.jitemid * 256 + l.anum as 'ditemid',
+    t.jtalkid * 256 + l.anum as 'dtalkid',
+    tp.value
+from
+    log2 l
+       inner join talk2 t on (t.journalid = l.journalid and l.jitemid = t.nodeid and t.nodetype = 'L')
+       inner join talkprop2 tp on (tp.journalid = t.journalid and t.jtalkid = tp.jtalkid)
+where
+    tp.tpropid = 13 and tp.journalid = ?
+		}, undef, $u->id );
+
+	my $base = $u->journal_base;
+
+	foreach my $prop ( @$props ) {
+		my ($ditemid, $dtalkid, $value) = @$prop;
+
+		my $was = 'UNKNOWN';
+		if ( $value =~ m!^livejournal.com/([a-z0-9_]+)/(\d+)/(\d+)$! ) {
+			my ( $user, $remote_ditemid, $remote_dtalkid ) = ( $1, $2, $3 );
+			$user =~ s/_/-/g;
+			$was = qq{http://$user.livejournal.com/$remote_ditemid.html?thread=$remote_dtalkid};
+		}
+
+		$ret .= qq{$base/$ditemid.html?thread=$dtalkid was $was<br />\n};
+	}
+
+	return $ret;
+}
+_code?>
+<=body
+title=>Comment Crosslinks
+page?>
