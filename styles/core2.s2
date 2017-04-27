@@ -614,6 +614,8 @@ class Page
     var readonly DateTime time
     "A DateTime object filled with the time (GMT) when the page was created.";
 
+    var readonly string timezone "The timezone associated with the value of local_time";
+
     var Link{} data_link "Links to various machine-readable data sources relating to this page";
     var string[] data_links_order "An array of data views which can be used to order the data_link hash";
 
@@ -5700,6 +5702,7 @@ function Entry::time_display(string datefmt, string timefmt) : string {
     if ($datefmt != "none") { $ret = $ret + """<span class="date">""" + $this.time->date_format($datefmt, $linkify) + "</span>"; }
     if ($datefmt != "none" and $timefmt != "none") { $ret = $ret + " "; }
     if ($timefmt != "none") { $ret = $ret + """<span class="time">""" + $this.time->time_format($timefmt) + "</span>"; }
+    if ($datefmt != "none") { $ret = $ret + """ <span class="timezone">""" + $p.timezone + "</span>"; }
 
     if ($ret != "") { $ret = """<span class="datetime">$ret</span>"""; }
 
