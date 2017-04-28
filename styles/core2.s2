@@ -3462,7 +3462,7 @@ function UserLite::linklist_manage_url() [fixed] : string
 function UserLite::tag_manage_url() [fixed] : string
 "Returns a link to the user's tag management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    return "$*SITEROOT/manage/tags.bml?authas=$.username";
+    return "$*SITEROOT/manage/tags?authas=$.username";
 }
 
 function UserLite::icon_manage_url() [fixed] : string
