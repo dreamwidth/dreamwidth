@@ -1104,8 +1104,11 @@ sub userpic_kw {
 sub can_tellafriend {
     my ($entry, $u) = @_;
 
-    return 1 if $entry->security eq 'public';
-    return 0 if $entry->security eq 'private';
+    # this is undefined in preview
+    my $seclevel = $entry->security // '';
+
+    return 1 if $seclevel eq 'public';
+    return 0 if $seclevel eq 'private';
 
     # friends only
     return 0 unless $entry->journal->is_person;

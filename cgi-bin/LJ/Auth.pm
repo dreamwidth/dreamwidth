@@ -109,7 +109,7 @@ sub check_sessionless_auth_token {
     my $auth_token = delete $reqvars{auth_token} or return 0;
 
     # recompute post vars
-    my $reqvars = join('&', map { $reqvars{$_} } qw(journalid moduleid preview) );
+    my $reqvars = join( '&', map { $reqvars{$_} // '' } qw(journalid moduleid preview) );
 
     # get vars out of token string
     my ($c_ver, $stime, $chal_uri, $chal_reqvars, $chalsig) = split(':', $auth_token);

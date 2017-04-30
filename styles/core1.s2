@@ -2062,7 +2062,7 @@ function UserLite::base_url() [fixed] : string {
 }
 
 function UserLite::tag_manage_url() [fixed] : string {
-    return "$*SITEROOT/manage/tags.bml?authas=$.username";
+    return "$*SITEROOT/manage/tags?authas=$.username";
 }
 
 function UserLite::as_string() [fixed] : string {
