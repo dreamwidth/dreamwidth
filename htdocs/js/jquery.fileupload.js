@@ -213,8 +213,13 @@ $(function() {
         $.extend( image, data );
         $field.data( "image-attributes", image );
 
-        var escape_titletext = image.title.replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
-        var escape_alttext = image.alttext.replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
+        var escape_titletext = '';
+        if ( image.title ) escape_titletext = image.title
+            .replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
+
+        var escape_alttext = '';
+        if ( image.alttext ) escape_alttext = image.alttext
+            .replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
 
         var text = [];
         text.push( "<a href='" + image.url + "'><img src='" + image.thumbnail_url + "'" );
