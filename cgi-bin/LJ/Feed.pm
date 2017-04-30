@@ -207,7 +207,7 @@ sub make_feed
 
         # an HTML link to the entry. used if we truncate or summarize
         my $entry_url = $entry_obj->url;
-        my $readmore = q{<b>(<a href="$entry_url">Read more ...</a>)</b>};
+        my $readmore = qq{<b>(<a href="$entry_url">Read more ...</a>)</b>};
 
         # empty string so we don't waste time cleaning an entry that won't be used
         my $event = $u->{'opt_synlevel'} eq 'title' ? '' : $logtext->{$itemid}->[1];
