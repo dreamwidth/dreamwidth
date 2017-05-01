@@ -210,7 +210,7 @@ sub get {
 
 sub post {
     my ($self, @args) = @_;
-        my $method = define_method('POST', @args);
+        my $method = DW::API::Method::define_method('POST', @args);
         $self->{path}{methods}{POST} = $method;
 }
 

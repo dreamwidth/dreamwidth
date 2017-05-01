@@ -53,7 +53,7 @@ sub param {
     my ($self, @args) = @_;
 
     my $param = DW::API::Parameter::define_parameter(@args);
-    my $name = $param->name;
+    my $name = $param->{name};
     $self->{params}{$name} = $param;
 }
 
