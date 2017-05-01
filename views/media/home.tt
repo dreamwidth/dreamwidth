@@ -14,7 +14,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
+<p>[% '.usage' | ml( usage => usage, percentage => percentage, quota => quota ) %]</p>
+
 <ul>
     <li class='subnav'><a href="[%site.root%]/file/new">[% '.new' | ml %]</a></li>
+    <li class='subnav'><a href="[%site.root%]/file/list">[% '.view' | ml %]</a></li>
     <li class='subnav'><a href="[%site.root%]/file/edit">[% '.edit2' | ml %]</a></li>
 </ul>
