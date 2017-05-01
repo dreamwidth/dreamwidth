@@ -168,6 +168,11 @@ dl dt { font-weight: bold; }
     padding: .5em 1em;
     }
 
+#title a {
+    color: $*color_page_title;
+    text-decoration: none;
+    }
+
 #pagetitle {
     font-size: large;
     text-align: right;

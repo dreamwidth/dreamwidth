@@ -349,6 +349,10 @@ input, select {
     padding: 1em;
 }
 
+h1#title a {
+    color: $*color_page_title;
+    }
+
 h1#title,
 h2#pagetitle,
 h2#subtitle {

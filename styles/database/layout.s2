@@ -1389,6 +1389,14 @@ h1#title {
     text-shadow: 2px 2px 2px $*color_page_title_shadow;
     }
 
+h1#title a {
+    color: $*color_page_link;
+    }
+
+h1#title a:hover {
+    text-decoration: none;
+    }
+
 h2#subtitle,
 h2#pagetitle {
     font-weight: normal;

@@ -600,19 +600,19 @@ hr,
     padding: .5em 0;
 }
 
-#header h1 {
+#header h1, #header h2 {
     font-style: italic;
     margin: 0;
     padding: 0;
     text-transform: lowercase;
 }
 
+#header h1 a {
+    text-decoration: none;
+}
+
 #header h2 {
-    font-style: italic;
     line-height: 1em;
-    margin: 0;
-    padding: 0;
-    text-transform: lowercase;
 }
 
 $header_css

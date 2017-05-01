@@ -137,6 +137,10 @@ dl dt { font-weight: bold; }
     margin: 1em;
     }
 
+#title a {
+    color: $*color_page_title;
+    }
+
 #title,
 #subtitle,
 #pagetitle {

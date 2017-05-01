@@ -133,6 +133,10 @@ div.navigation ul { display: inline; padding: 0; margin: 0; }
     margin: 0;
 }
 
+#title a {
+    color: $*color_page_title;
+}
+
 #subtitle {
     font-weight: normal;
     text-transform: lowercase;

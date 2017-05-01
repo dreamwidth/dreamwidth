@@ -584,6 +584,10 @@ body {
         margin-right: 200px;
         }
 
+    #title a {
+        color: $*color_page_title;
+        }
+
     #subtitle, #pagetitle {
         margin-left: 2em;
         margin-right: 2em;

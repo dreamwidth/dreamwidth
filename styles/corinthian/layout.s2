@@ -288,6 +288,10 @@ h1#title {
     text-transform: uppercase;
     }
 
+h1#title a {
+    color: $*color_page_title;
+    }
+
 h2#subtitle,
 h2#pagetitle {
     color: $*color_page_subtitle;

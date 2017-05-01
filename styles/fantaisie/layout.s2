@@ -607,6 +607,10 @@ h1#title {
     padding: 0;
 }
 
+h1#title a {
+    text-decoration: none;
+}
+
 #header .module-navlinks ul {
     list-style: none;
     margin: 0;

@@ -466,6 +466,11 @@ html body {
     $page_title_font
 }
 
+#header h1#title a {
+    color: $*color_page_title;
+    text-decoration: none;
+}
+
 #header h2#subtitle {
     font-style: italic;
     margin-top: 0;

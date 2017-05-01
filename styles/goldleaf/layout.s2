@@ -2099,10 +2099,10 @@ $topnav_display
     vertical-align:top;
 }
 
-.module a { $module_link_colors }
-.module a:visited { $module_link_visited_colors }
-.module a:hover { $module_link_hover_colors }
-.module a:active { $module_link_active_colors }
+h1#title a, .module a { $module_link_colors }
+h1#title a:visited, .module a:visited { $module_link_visited_colors }
+h1#title a:hover, .module a:hover { $module_link_hover_colors }
+h1#title a:active, .module a:active { $module_link_active_colors }
 
 .module h2 {
     $module_title_font

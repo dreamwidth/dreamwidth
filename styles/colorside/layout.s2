@@ -142,6 +142,7 @@ width: 96% !important; }
     margin-bottom: 1em; }
 
 #title { font-size: x-large; }
+#title a { color: $*color_page_text; }
 #subtitle { font-size: large; }
 #pagetitle { font-size:  medium;
     font-weight: bold; }

@@ -283,6 +283,11 @@ h1, h2, h3, h4 {
     padding-right: .25em;
     }
 
+h1#title a {
+    color: $*color_page_title;
+    text-decoration: none;
+    }
+
 .tags-container h2,
 .page-archive h3,
 .page-day h3.day-date {

@@ -478,11 +478,15 @@ function Page::print_default_stylesheet()
         min-height: 4.7em;
     }
 
+    #header h1#title, #header h1#title a {
+        color: $*color_page_title;
+        text-decoration: none;
+    }
+
     #header h1#title {
         $page_title_font
         font-weight: bold;
         font-style: italic;
-        color: $*color_page_title;
         line-height: 0.9em;
         width: 100%;
         margin: 0;

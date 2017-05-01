@@ -285,7 +285,8 @@ ol {
     padding: .1em .5em;
     }
 
-h1#title {
+h1#title, h1#title a {
+    color: $*color_page_title;
     font-variant: small-caps;
     text-align: right;
     }
