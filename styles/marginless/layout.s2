@@ -220,6 +220,11 @@ H1, H2, H3 {
     margin: 0;
 }
 
+h1#title a {
+    color: $*color_page_title;
+    text-decoration: none;
+}
+
 blockquote {
     font-style: italic;
     padding: 1em 1em .5em 2em;

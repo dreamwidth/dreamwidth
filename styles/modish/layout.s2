@@ -73,6 +73,11 @@ body {
     font-style: italic;
     font-weight: normal; }
 
+#title a,
+#title a:visited { color: $*color_page_title;
+    text-decoration: none; }
+#title a:hover { text-decoration: underline; }
+
 
 /* main column */
 

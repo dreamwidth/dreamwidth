@@ -265,6 +265,10 @@ body {
     padding-top: 1em;
     }
 
+#title a {
+    color: $*color_page_title;
+    }
+
 #subtitle {
     font-size: large;
     font-weight: normal;

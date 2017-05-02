@@ -594,9 +594,11 @@ ul ul {list-style: circle;}
         }
 }
 
-#title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; color: $*color_page_title; margin: 0; }
+#title, #title a, #subtitle { color: $*color_page_title; }
 
-#subtitle { $page_subtitle_font padding-left: 1.5em; color: $*color_page_title; }
+#title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; margin: 0; }
+
+#subtitle { $page_subtitle_font padding-left: 1.5em; }
 
 #pagetitle { border-bottom: 0.083em solid $*color_page_border; font-size: 1em; padding: 0 0 1em 2.2em; margin: 0.5em 0 0 0; }
 

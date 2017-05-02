@@ -348,6 +348,8 @@ $header_spacing_css
     padding-right: 1em; }
 
 #title { font-size: large; }
+#title a { color: $*color_page_text;
+    text-decoration: none; }
 #subtitle { font-size: medium;
     font-style: italic; }
 #pagetitle { font-weight: normal;

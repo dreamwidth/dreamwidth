@@ -311,6 +311,10 @@ h1#title {
     box-shadow: inset -.667em .067em .667em $*color_shadow;
     }
 
+h1#title a {
+    color: $*color_page_title;
+    }
+
 h2#subtitle,
 h2#pagetitle {
     background: transparent;
