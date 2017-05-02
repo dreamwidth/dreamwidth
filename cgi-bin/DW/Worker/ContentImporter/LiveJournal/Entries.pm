@@ -274,7 +274,8 @@ sub try_work {
 
     };
 
-    # helper to load some events
+    # helper to load some events -- if this function does not return a true value,
+    # the caller must exit (errors were encountered).
     my $fetch_events = sub {
         # let them know we're still working
         $job->grabbed_until( time() + 3600 );
@@ -296,11 +297,15 @@ sub try_work {
         # if we get an error, then we have to abort the import
         my $xmlrpc_fail = 'XMLRPC failure: ' . ( $hash ? $hash->{faultString} : '[unknown]' );
         $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
-        return $temp_fail->( $xmlrpc_fail ) if ! $hash || $hash->{fault};
+        if ( ! $hash || $hash->{fault} ) {
+            $temp_fail->( $xmlrpc_fail );
+            return 0;
+        }
 
         # good, import this event
         $process_entry->( $_ )
             foreach @{ $hash->{events} || [] };
+        return 1;
     };
 
     # now get the actual events
@@ -309,12 +314,13 @@ sub try_work {
         push @toload, $jid
             unless exists $has{$jid} && $has{$jid};
         if ( scalar @toload == 100 ) {
-            $fetch_events->( @toload );
+            return unless $fetch_events->( @toload );
             @toload = ();
         }
     }
-    $fetch_events->( @toload )
-        if scalar @toload > 0;
+    if ( scalar @toload > 0 ) {
+        return unless $fetch_events->( @toload );
+    }
 
     # mark the comments mode as ready to schedule
     my $dbh = LJ::get_db_writer();
