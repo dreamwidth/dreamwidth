@@ -694,7 +694,8 @@ sub widget_handler {
         # just a normal post request, handle it and then return status
 
         local $LJ::WIDGET_NO_AUTH_CHECK = 1 if
-            $remote->check_ajax_auth_token( "/_widget", auth_token => delete $post->{auth_token} );
+            LJ::Auth->check_ajax_auth_token( $remote, "/_widget",
+                                             auth_token => delete $post->{auth_token} );
 
         my %res;
 
@@ -709,7 +710,8 @@ sub widget_handler {
         $ret{_widget_post} = 1;
 
         # generate new auth token for future requests if succesfully checked auth token
-        $ret{auth_token} = $remote->ajax_auth_token( "/_widget" ) if $LJ::WIDGET_NO_AUTH_CHECK;
+        $ret{auth_token} = LJ::Auth->ajax_auth_token( $remote, "/_widget" )
+            if $LJ::WIDGET_NO_AUTH_CHECK;
     }
 
     if ( delete $post->{_widget_update} ) {
