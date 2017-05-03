@@ -233,9 +233,10 @@ sub handle_swap_post {
     my $remote = $opts{user};
     my $get_unused_tokens = sub { @{DW::RenameToken->by_owner_unused( userid => $_[0]->id ) || []} };
 
-    my @unused_tokens = grep { defined } ( $get_unused_tokens->( $remote ),
-                                           $get_unused_tokens->( $journal ),
-                                           $get_unused_tokens->( $swapjournal ) );
+    my @check_users = ( $journal, $swapjournal );
+    unshift @check_users, $remote if $remote;
+
+    my @unused_tokens = grep { defined } map { $get_unused_tokens->( $_ ) } @check_users;
 
     $errors->add( '', '/rename/swap.tt.numtokens.toofew',
                       { aopts => "href='/shop/renames?for=self'" } )
