@@ -87,6 +87,8 @@ customize.cats.custom=Your Custom Layers
 
 customize.cats.featured=Featured
 
+customize.cats.special=Special
+
 customize.layoutname.default=(Unnamed - [[layoutid]])
 
 customize.layouts2.1=1 Column (modules at bottom; no sidebar)
