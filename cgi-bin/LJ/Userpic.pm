@@ -101,6 +101,7 @@ sub get {
     my ( $class, $u, $picid, $opts ) = @_;
     return unless LJ::isu( $u );
     return if $u->is_expunged || $u->is_suspended;
+    return unless defined $picid;
 
     my $obj = ref $class ? $class : $class->new( $u, $picid );
     my @cache = $class->load_user_userpics( $u );
