@@ -34,9 +34,9 @@ sub multisearch_handler {
     my $r = DW::Request->get;
     my $args = $r->did_post ? $r->post_args : $r->get_args;
 
-    my $type   = lc $args->{'type'}   || '';
-    my $q      = lc $args->{'q'}      || '';
-    my $output = lc $args->{'output'} || '';
+    my $type   = lc( $args->{'type'}   || '' );
+    my $q      = lc( $args->{'q'}      || '' );
+    my $output = lc( $args->{'output'} || '' );
 
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
