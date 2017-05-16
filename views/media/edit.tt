@@ -25,7 +25,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% IF media.size %]
     <p>[% dw.ml(".intro2", { aopts1 => '/file/list',
                              aopts2 => '/file/new',
-                                 } ) %] 
+                                 } ) %]</p>
+
+    <p>[% '.usage' | ml( usage => usage, percentage => percentage, quota => quota ) %]</p>
+
 [% ELSE %]
     <p>[% ".intro.empty" | ml %]</p>
     <ul>
@@ -47,53 +50,53 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [% first_index = (page - 1) * 20 %]
     [% last_index = page * 20 - 1 < media.size ? page * 20 - 1 : media.max %]
     [%- FOREACH obj IN media.slice(first_index, last_index) -%]
-        
+
         <div class='media-item [% loop.count % 2 ? 'even' : 'odd' %] row'>
         <div class='inner'>
             <div class='media large-3 column'><img src="[% obj.url %]" /></div>
             <div class='edit large-9 column'>
             <div class="row">
                     <div class="large-8 columns">
-                        [%- INCLUDE 'media/field-row.tt' 
+                        [%- INCLUDE 'media/field-row.tt'
                             label = dw.ml(".edit.title")
-                            type = "text" 
-                            id = "edit-title-$obj.displayid" 
-                            value = obj.prop('title') 
-                            name = "title-$obj.displayid" 
+                            type = "text"
+                            id = "edit-title-$obj.displayid"
+                            value = obj.prop('title')
+                            name = "title-$obj.displayid"
                             maxlength = '125'
-                            labelSize = 3 
+                            labelSize = 3
                         -%]
                     </div>
                     <div class="large-4 columns">
-                        [%- INCLUDE 'media/field-row.tt' 
+                        [%- INCLUDE 'media/field-row.tt'
                             label = dw.ml(".edit.security")
                             type = "select"
                             name="security-$obj.displayid"
                             items = security
-                            selected = obj.security 
+                            selected = obj.security
                             labelSize = 4
                         -%]
                     </div>
                 </div>
-            [% INCLUDE 'media/field-row.tt'  
+            [% INCLUDE 'media/field-row.tt'
                 label = dw.ml(".edit.alt")
-                type = "text" 
-                id = "edit-alttext-$obj.displayid" 
-                value = obj.prop('alttext') 
-                name = "alttext-$obj.displayid" 
+                type = "text"
+                id = "edit-alttext-$obj.displayid"
+                value = obj.prop('alttext')
+                name = "alttext-$obj.displayid"
                 maxlength = '125'
             %]
-            [% INCLUDE 'media/field-row.tt' 
-                label = dw.ml(".edit.desc") 
+            [% INCLUDE 'media/field-row.tt'
+                label = dw.ml(".edit.desc")
                 type = "textarea"
-                id = "edit-description-$obj.displayid" 
-                value = obj.prop('description') 
+                id = "edit-description-$obj.displayid"
+                value = obj.prop('description')
                 name = "description-$obj.displayid"
             %]
-            [% INCLUDE 'media/field-row.tt' 
+            [% INCLUDE 'media/field-row.tt'
                 type = "checkbox"
-                label = dw.ml(".edit.delete") 
-                id = "delete_$obj.displayid" 
+                label = dw.ml(".edit.delete")
+                id = "delete_$obj.displayid"
                 name = "delete"
                 value = "$obj.displayid"
             %]

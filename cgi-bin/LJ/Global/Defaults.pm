@@ -47,8 +47,6 @@ no strict "vars";
 
     $SERVER_NAME ||= Sys::Hostname::hostname();
 
-    $UNICODE = 1 unless defined $UNICODE;
-
     @LANGS = ("en") unless @LANGS;
     $DEFAULT_LANG ||= $LANGS[0];
 

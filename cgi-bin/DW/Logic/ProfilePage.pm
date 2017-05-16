@@ -110,11 +110,11 @@ sub userpic {
             if ( $u->get_userpic_count ) {
                 $ret->{userpic_url} = $u->allpics_base;
                 $ret->{caption_text} = LJ::Lang::ml( '.section.edit' );
-                $ret->{caption_url} = "$LJ::SITEROOT/editicons?authas=$user"
+                $ret->{caption_url} = "$LJ::SITEROOT/manage/icons?authas=$user"
             } else {
-                $ret->{userpic_url} = "$LJ::SITEROOT/editicons?authas=$user";
+                $ret->{userpic_url} = "$LJ::SITEROOT/manage/icons?authas=$user";
                 $ret->{caption_text} = LJ::Lang::ml( '.userpic.upload' );
-                $ret->{caption_url} = "$LJ::SITEROOT/editicons?authas=$user"
+                $ret->{caption_url} = "$LJ::SITEROOT/manage/icons?authas=$user"
             }
         } else {
             if ( $u->get_userpic_count ) {
@@ -581,10 +581,10 @@ sub _basic_info_syn_status {
         posterror => "Posting error",
         ok => "",     # no status line necessary
         nonew => "",  # no status line necessary
-    }->{ $synd->{laststatus} };
+    }->{ $synd->{laststatus} // 'ok' };
     $syn_status .= " ($status)" if $status;
 
-    if ($synd->{laststatus} eq 'parseerror') {
+    if ( $synd->{laststatus} && $synd->{laststatus} eq 'parseerror' ) {
        $syn_status .= "<br />" . LJ::Lang::ml( '.syn.parseerror' ) . " " . LJ::ehtml( $u->prop( 'rssparseerror' ) );
     }
 
@@ -813,6 +813,28 @@ sub external_services {
             url => "http://wwp.icq.com/$eicq",
             image => 'icq.gif',
             title_ml => '.im.icq',
+        };
+    }
+
+    if ( my $imzy = $u->prop( 'imzy' ) ) {
+        my $eimzy = LJ::eurl( $imzy );
+        push @ret, {
+            type => 'imzy',
+            text => LJ::ehtml( $imzy ),
+            url => "https://www.imzy.com/\@$eimzy",
+            image => 'imzy.png',
+            title_ml => '.service.imzy',
+        };
+    }
+
+    if ( my $instagram = $u->prop( 'instagram' ) ) {
+        my $einstagram = LJ::eurl( $instagram );
+        push @ret, {
+            type => 'instagram',
+            text => LJ::ehtml( $instagram ),
+            url => "https://www.instagram.com/$einstagram",
+            image => 'instagram.png',
+            title_ml => '.service.instagram',
         };
     }
 

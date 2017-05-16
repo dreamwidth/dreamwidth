@@ -70,7 +70,7 @@
             if ( length( $data ) == 0 ) {
                 $$loaderr = $ML{'.error.upload.nourl'};
             } elsif ( $data !~ m!^https?://! ) {
-                $$loaderr = $ML{'.error.upload.badurl'};
+                $$loaderr = $ML{'.error.upload.badurl2'};
             } else {
                 my $ua = LJ::get_useragent( role => 'vgift' );
                 my $res = $ua->get( $data );

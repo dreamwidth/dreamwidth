@@ -39,7 +39,7 @@
 
 .message.explicit.bycommunity=You're about to view content that community administrators on [[journal]] have marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 
-.message.explicit.communityreason=[[journal]] provided the following reason for this community being marked"suitable for 18+": <strong>[[reason]]</strong>.
+.message.explicit.communityreason=[[journal]] provided the following reason for this community being marked "suitable for 18+": <strong>[[reason]]</strong>.
 
 .message.explicit.journalreason=[[journal]] provided the following reason for this journal being marked "suitable for 18+": <strong>[[reason]]</strong>.
 

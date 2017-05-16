@@ -28,8 +28,8 @@ use constant MAX_32BIT_SIGNED => 2147483647;
 $LJ::MAX_32BIT_SIGNED = 2147483647;
 
 # width constants. BMAX_ constants are restrictions on byte width,
-# CMAX_ on character width (character means byte unless $LJ::UNICODE,
-# in which case it means a UTF-8 character).
+# CMAX_ on character width (character used to mean byte, but now
+# it means a UTF-8 character).
 
 use constant BMAX_SUBJECT => 255; # *_SUBJECT for journal events, not comments
 use constant CMAX_SUBJECT => 100;
@@ -53,8 +53,8 @@ use constant BMAX_SITEKEYWORD => 100;
 use constant CMAX_SITEKEYWORD => 50;
 use constant BMAX_UPIC_COMMENT => 255;
 use constant CMAX_UPIC_COMMENT => 120;
-use constant BMAX_UPIC_DESCRIPTION => 255;
-use constant CMAX_UPIC_DESCRIPTION => 120;
+use constant BMAX_UPIC_DESCRIPTION => 600;
+use constant CMAX_UPIC_DESCRIPTION => 300;
 
 # user.dversion values:
 #    0: unclustered  (unsupported)

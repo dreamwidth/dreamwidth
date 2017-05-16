@@ -405,9 +405,6 @@ sub text_out
 {
     my $rtext = shift;
 
-    # if we're not Unicode, do nothing
-    return unless $LJ::UNICODE;
-
     # is this valid UTF-8 already?
     return if LJ::is_utf8($$rtext);
 
@@ -427,7 +424,7 @@ sub text_out
 sub text_in
 {
     my $text = shift;
-    return 1 unless $LJ::UNICODE;
+
     if (ref ($text) eq "HASH") {
         return ! (grep { !LJ::is_utf8($_) } values %{$text});
     }
@@ -478,9 +475,8 @@ sub text_convert {
 
 # <LJFUNC>
 # name: LJ::text_length
-# des: returns both byte length and character length of a string. In a non-Unicode
-#      environment, this means byte length twice. In a Unicode environment,
-#      the function assumes that its argument is a valid UTF-8 string.
+# des: returns both byte length and character length of a string.
+#      The function assumes that its argument is a valid UTF-8 string.
 # args: text
 # des-text: the string to measure
 # returns: a list of two values, (byte_length, char_length).
@@ -490,9 +486,6 @@ sub text_length
 {
     my $text = shift;
     my $bl = length($text);
-    unless ($LJ::UNICODE) {
-        return ($bl, $bl);
-    }
     my $cl = 0;
     my $utf_char = "([\x00-\x7f]|[\xc0-\xdf].|[\xe0-\xef]..|[\xf0-\xf7]...)";
 
@@ -503,8 +496,7 @@ sub text_length
 # <LJFUNC>
 # name: LJ::text_trim
 # des: truncate string according to requirements on byte length, char
-#      length, or both. "char length" means number of UTF-8 characters if
-#      [ljconfig[unicode]] is set, or the same thing as byte length otherwise.
+#      length, or both. "char length" means number of UTF-8 characters.
 # args: text, byte_max, char_max
 # des-text: the string to trim
 # des-byte_max: maximum allowed length in bytes; if 0, there's no restriction
@@ -517,11 +509,6 @@ sub text_trim
     $text = defined $text ? LJ::trim( $text ) : '';
     return $text unless $byte_max or $char_max;
 
-    if (!$LJ::UNICODE) {
-        $byte_max = $char_max if $char_max and $char_max < $byte_max;
-        $byte_max = $char_max unless $byte_max;
-        return LJ::trim( substr( $text, 0, $byte_max ) );
-    }
     my $cur = 0;
     my $utf_char = "([\x00-\x7f]|[\xc0-\xdf].|[\xe0-\xef]..|[\xf0-\xf7]...)";
 

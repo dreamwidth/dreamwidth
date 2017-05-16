@@ -204,8 +204,10 @@ h2#subtitle {
     padding-bottom: 0;
 }
 
-h1#title {
+h1#title, h1#title a {
     line-height: 1em;
+    color: $*color_page_title;
+    text-decoration: none;
 }
 
 h1#title:after {

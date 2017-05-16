@@ -376,7 +376,7 @@ body<=
     $res = LJ::Protocol::do_request(
         "login",
         {
-            "ver" => ( $LJ::UNICODE ? "1" : "0" ),
+            "ver" => $LJ::PROTOCOL_VER,
             "username"     => $u->{'user'},
 #            "friendgroups" => 1,
             "getpickws"    => 1,

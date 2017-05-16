@@ -904,18 +904,19 @@ q {
 * #Header *
 ************************************************/
 
-#title, #subtitle {
+#title, #title a, #subtitle {
     $page_title_colors
-    line-height: 150%;
 }
 
 #title {
     $page_title_font
+    line-height: 150%;
     opacity: .5;
 }
 
 #subtitle {
     $page_subtitle_font
+    line-height: 150%;
     opacity: .2;
 }
 

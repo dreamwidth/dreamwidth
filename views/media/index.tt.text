@@ -10,6 +10,8 @@
 
 .embed.short=Embed:
 
+.usage=You have used [[usage]] ([[percentage]]) of your [[quota]] quota.
+
 .view.list=List View
 
 .view.grid=Grid View

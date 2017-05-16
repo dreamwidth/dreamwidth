@@ -1104,8 +1104,11 @@ sub userpic_kw {
 sub can_tellafriend {
     my ($entry, $u) = @_;
 
-    return 1 if $entry->security eq 'public';
-    return 0 if $entry->security eq 'private';
+    # this is undefined in preview
+    my $seclevel = $entry->security // '';
+
+    return 1 if $seclevel eq 'public';
+    return 0 if $seclevel eq 'private';
 
     # friends only
     return 0 unless $entry->journal->is_person;
@@ -1513,7 +1516,7 @@ sub get_posts
 
 
     while (my ($id, $rp) = each %$rawposts) {
-        if ($LJ::UNICODE && $rp->{props}{unknown8bit}) {
+        if ( $rp->{props}{unknown8bit} ) {
             #LJ::item_toutf8($u, \$rp->{text}[0], \$rp->{text}[1], $rp->{props});
         }
     }
@@ -2611,7 +2614,6 @@ sub expand_embedded {
 sub item_toutf8
 {
     my ($u, $subject, $text, $props) = @_;
-    return unless $LJ::UNICODE;
     $props ||= {};
 
     my $convert = sub {

@@ -3462,13 +3462,13 @@ function UserLite::linklist_manage_url() [fixed] : string
 function UserLite::tag_manage_url() [fixed] : string
 "Returns a link to the user's tag management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    return "$*SITEROOT/manage/tags.bml?authas=$.username";
+    return "$*SITEROOT/manage/tags?authas=$.username";
 }
 
 function UserLite::icon_manage_url() [fixed] : string
 "Returns a link to the user's icon management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    return "$*SITEROOT/editicons?authas=$.username";
+    return "$*SITEROOT/manage/icons?authas=$.username";
 }
 
 function UserLite::subscriptionfilters_manage_url() [fixed] : string
@@ -3826,7 +3826,7 @@ function Page::print_head_title()
 }
 function Page::print_global_title() {
     if ($.global_title) {
-        """<h1 id="title"><span>""" + $.global_title + """</span></h1>""";
+        """<h1 id="title"><span><a href='""" + $.base_url + """'>""" + $.global_title + """</a></span></h1>""";
     }
 }
 function FriendsPage::print_global_title() {
@@ -3834,7 +3834,7 @@ function FriendsPage::print_global_title() {
         """<h1 id="title"><span>""" + $.friends_title + """</span></h1>""";
     }
     else {
-        """<h1 id="title"><span>""" + $.global_title + """</span></h1>""";
+        """<h1 id="title"><span><a href='""" + $.base_url + """'>""" + $.global_title + """</a></span></h1>""";
     }
 }
 function Page::print_global_subtitle() {
@@ -5562,18 +5562,22 @@ function RecentPage::print_body {
     <div id="entries" class="hfeed">
         <div class="inner">
             """;
-        $this->print_navigation( { "class" => "topnav" } );
+            $this->print_navigation( { "class" => "topnav" } );
 
-    foreach var Entry e ($.entries) {
-        # Print the entry
-        if ( $e isa StickyEntry ) {
-            var StickyEntry s = $e as StickyEntry;
-            $this->print_sticky_entry($s);
-        }
-        else {
-            $this->print_entry($e);
-        }
-    }
+            if (size $.entries) {
+                foreach var Entry e ($.entries) {
+                    # Print the entry
+                    if ( $e isa StickyEntry ) {
+                        var StickyEntry s = $e as StickyEntry;
+                        $this->print_sticky_entry($s);
+                    }
+                    else {
+                        $this->print_entry($e);
+                    }
+                }
+            } elseif ( $this isa FriendsPage and $.nav.backward_url != "" ) {
+                print safe "<div class=\"text_noentries text_noentries_day\">$*text_noentries_day</div>";
+            }
 
             $this->print_navigation( { "class" => "bottomnav" } );
             """
@@ -5598,13 +5602,21 @@ function RecentPage::print_navigation( string{} opts ) [fixed] {
         if ( $.nav.backward_url != "" or $.nav.forward_url != "" ) {
             "<ul>";
             if ( $.nav.backward_url != "" ) {
-                print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
+                if ( $.nav.backward_count ) {
+                    print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
+                } else {
+                    print safe """<li class="page-back"><a href="$.nav.backward_url">$*text_day_prev</a></li>\n""";
+                }
             }
             if ( $.nav.backward_url != "" and $.nav.forward_url != "" ) {
                 print safe """<li class="page-separator">$*text_default_separator</li>""";
             }
             if ( $.nav.forward_url != "" ) {
-                print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
+                if ( $.nav.forward_count ) {
+                    print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
+                } else {
+                    print safe """<li class="page-forward"><a href="$.nav.forward_url">$*text_day_next</a></li>\n""";
+                }
             }
             "</ul>";
         }

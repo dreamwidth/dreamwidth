@@ -17,7 +17,7 @@
 
 [%- USE Scalar; # needed to force scalar return context for keywords -%]
 
-<form method="get" id='userpic_authas' action='editicons'>[% authas_html %]</form>
+<form method="get" id='userpic_authas' action='/manage/icons'>[% authas_html %]</form>
 
 [%- INCLUDE components/errors.tt errors = errors -%]
 

@@ -300,9 +300,8 @@ _c?>
         if ($u->should_block_robots) {
             $p->{'head_content'} .= LJ::robot_meta_tags();
         }
-        if ($LJ::UNICODE) {
-            $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
-        }
+
+        $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
 
         # Don't show the navigation strip or invisible content
         $p->{'head_content'} .= qq{
@@ -322,6 +321,24 @@ _c?>
                 border: 1px solid #c1272c;
                 background-color: #ffd8d8;
                 color: #000;
+            }
+            /* lj_embedcontent styling copied from lj_base.css */
+            .lj_embedcontent-wrapper {
+                overflow: hidden;
+            }
+            .lj_embedcontent-ratio {
+                position: relative;
+                height: 0;
+                /* this technique requires a padding top, but we
+                   calculate that dynamically and put it inline */
+            }
+            iframe.lj_embedcontent {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: 0;
             }
             </style>
         };

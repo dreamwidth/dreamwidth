@@ -210,7 +210,7 @@ sub create_handler {
                 lostinfourl => "$LJ::SITEROOT/lostinfo",
                 editprofileurl => "$LJ::SITEROOT/manage/profile/",
                 searchinterestsurl => "$LJ::SITEROOT/interests",
-                editiconsurl => "$LJ::SITEROOT/editicons",
+                editiconsurl => "$LJ::SITEROOT/manage/icons",
                 customizeurl => "$LJ::SITEROOT/customize/",
                 postentryurl => "$LJ::SITEROOT/update",
                 setsecreturl => "$LJ::SITEROOT/set_secret",

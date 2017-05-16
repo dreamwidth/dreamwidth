@@ -832,7 +832,9 @@ sub get_moodtheme_select_list {
             push @theme_user, $strip->( $_ );
         }
         if (@theme_user) {
-            push @themes, { 'moodthemeid' => 0, 'name' => "--- " . BML::ml('/modify_do.bml.moodicons.personal'). " ---", disabled => 1 };
+            my $text = LJ::Lang::ml( 'customize.moodicons.personal' );
+            push @themes, { moodthemeid => 0, name => "--- $text ---",
+                            disabled => 1 };
             push @themes, @theme_user;
         }
     }

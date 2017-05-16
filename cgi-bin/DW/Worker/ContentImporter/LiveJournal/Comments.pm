@@ -181,7 +181,7 @@ sub try_work {
 
     foreach my $jitemid ( keys %$xpost_map ) {
         $jitemid_map{$jitemid} = $xpost_map->{$jitemid};
-        $entry_source{$jitemid_map{$jitemid}} = "CROSSPOSTER " . $data->{hostname} . " " . $data->{username} . " $jitemid "
+        $entry_source{$jitemid_map{$jitemid}} = "CROSSPOSTER " . $data->{hostname} . " " . $data->{username} . " $jitemid ";
     }
 
     # this will take a talk_map (old URL -> new jtalkid) and convert it to a jtalkid map (old jtalkid -> new jtalkid)
@@ -314,7 +314,8 @@ sub try_work {
     my %in_flight;
 
     # this method is called when we have some comments to post. this will do a best effort
-    # attempt to post all comments that are filled in.
+    # attempt to post all comments that are filled in. if this returns 0, the caller should
+    # consider the import failed and exit.
     my $post_comments = sub {
         $log->( 'post sub starting with %d comments in flight', scalar( keys %in_flight ) );
 
@@ -417,7 +418,8 @@ sub try_work {
                 $log->( 'Successfully imported remote id %d to new jtalkid %d.', $comment->[C_orig_id], $talkid );
             } else {
                 $log->( 'Failed to import comment %d: %s.', $comment->[C_orig_id], $err );
-                return $temp_fail->( 'Failure importing comment: %s.', $err );
+                $temp_fail->( 'Failure importing comment: %s.', $err );
+                return 0;
             }
 
             # store this information
@@ -434,6 +436,7 @@ sub try_work {
                     keys %in_flight;
         $log->( 'end of post sub has %d comments in flight', scalar( keys %in_flight ) );
         $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+        return 1;
     };
 
     # body handling section now
@@ -549,11 +552,11 @@ sub try_work {
 
         # now we've got some body text, try to post these comments. if we can do that, we can clear
         # them from memory to reduce how much we're storing.
-        $post_comments->();
+        return unless $post_comments->();
     }
 
     # now we have the final post loop...
-    $post_comments->();
+    return unless $post_comments->();
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # Kick off an indexing job for this user

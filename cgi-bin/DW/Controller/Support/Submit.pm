@@ -117,8 +117,9 @@ sub submit_handler {
     $vars->{include_email} = ($remote && $remote->email_raw) ? 0 : 1;
 
     my $cats = LJ::Support::load_cats();
+    my $catarg = $r->get_args->{cat} || $r->get_args->{category};
     my $cat;
-    if ( ( $cat = LJ::Support::get_cat_by_key($cats, $r->get_args->{category} ) )
+    if ( ( $cat = LJ::Support::get_cat_by_key( $cats, $catarg ) )
         && $cat->{is_selectable} ) {
         # Passed in ?category=, display name and hide spcatid
         $vars->{spcatid} = $cat->{spcatid};

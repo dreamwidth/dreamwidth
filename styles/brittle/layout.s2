@@ -488,8 +488,8 @@ q { font-style: italic; }
     text-transform: lowercase;
 }
 
-#header {
-  color: $*color_page_title;
+#header, #header #title a {
+  color: $*color_page_text;
 }
 #header h1 {
   $journal_title_font

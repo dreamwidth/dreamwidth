@@ -54,8 +54,9 @@ body<=
     # props in this list will be preloaded on page load and saved on post
     my @uprops = qw/
         opt_whatemailshow comm_theme
-        ao3 aolim delicious deviantart diigo etsy ffnet github google_talk icq jabber
-        last_fm_user pinboard pinterest plurk ravelry skype tumblr twitter yahoo
+        ao3 aolim delicious deviantart diigo etsy ffnet github google_talk
+        icq imzy instagram jabber last_fm_user pinboard pinterest
+        plurk ravelry skype tumblr twitter yahoo
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
@@ -172,7 +173,7 @@ body<=
         $ret .= "</div><div style='margin-left: 110px'>\n";
         $ret .= "<span class='helper'>" . $ML{".userpic$iscomm"} . "</span>";
         $ret .= LJ::help_icon('upic_keywords');
-        $ret .= "<?p <a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
+        $ret .= "<?p <a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";
 
         $ret .= "<td>";
@@ -412,6 +413,8 @@ body<=
                            ["github", $ML{'.services.github'}, 39],
                            ["google_talk", $ML{'.chat.googletalk'}, 60],
                            ["icq", $ML{'.chat.icquin'}, 12],
+                           ["imzy", $ML{'.services.imzy'}, 30],
+                           ["instagram", $ML{'.services.instagram'}, 30],
                            ["jabber", $ML{'.chat.jabber'}, 60],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
                            ["pinboard", $ML{'.services.pinboard'}, 30],
@@ -729,14 +732,14 @@ body<=
                  "<?p $ML{'.success.gonext'} p?>" .
                  "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile.comm'}</a></li>" .
                  "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile.comm'}</a></li>" .
-                 "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons.comm'}</a></li></ul>";
+                 "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.success.editicons.comm'}</a></li></ul>";
         } else {
             return "<?h1 $ML{'.success.header'} h1?>\n" .
                  "<?p $ML{'.success.text'} p?>" .
                  "<?p $ML{'.success.gonext'} p?>" .
                  "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
                  "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-                 "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
+                 "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
         }
     }
 

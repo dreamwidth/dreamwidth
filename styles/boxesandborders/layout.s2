@@ -145,7 +145,7 @@ function Page::print_global_title() {
     }
 
     if ($.global_title) {
-        """<h1 id="title"><span>""" + $.global_title + """</span></h1>""";
+        """<h1 id="title"><span><a href='""" + $.base_url + """'>""" + $.global_title + """</a></span></h1>""";
     }
 }
 
@@ -263,6 +263,10 @@ body {
     font-weight: normal;
     padding-right: 20px;
     padding-top: 1em;
+    }
+
+#title a {
+    color: $*color_page_title;
     }
 
 #subtitle {

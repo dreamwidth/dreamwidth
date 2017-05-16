@@ -27,6 +27,10 @@ $(function() {
                 data[file_id] = {};
 
             data[file_id][form_field.name] = form_field.value;
+
+            if (form_field.name == "security" && form_field.value == "usemask")
+                data[file_id]["allowmask"] = 1;
+
         });
 
         $.ajax( Site.siteroot + '/api/v1/file/edit', {
@@ -209,10 +213,18 @@ $(function() {
         $.extend( image, data );
         $field.data( "image-attributes", image );
 
+        var escape_titletext = '';
+        if ( image.title ) escape_titletext = image.title
+            .replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
+
+        var escape_alttext = '';
+        if ( image.alttext ) escape_alttext = image.alttext
+            .replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
+
         var text = [];
         text.push( "<a href='" + image.url + "'><img src='" + image.thumbnail_url + "'" );
-        if ( image.title ) text.push( " title='" + image.title + "' " );
-        if ( image.alttext ) text.push(" alt='" + image.alttext + "' ");
+        if ( escape_titletext ) text.push( " title='" + escape_titletext + "' " );
+        if ( escape_alttext ) text.push(" alt='" + escape_alttext + "' ");
         text.push( " /></a>" );
         $field.val(text.join(""));
     });

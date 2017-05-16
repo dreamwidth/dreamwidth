@@ -60,7 +60,7 @@ $img{btn_del} = {
 };
 
 $img{btn_trash} = {
-    src => '/portal/btn_del.gif',
+    src => '/btn_trash.gif',
     width => 15,
     height => 15,
     alt => 'img.btn_del',

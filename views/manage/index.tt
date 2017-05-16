@@ -81,9 +81,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     text = dw.ml( '/manage/profile/index.bml.title' )
   },
   {
-    href = dw.create_url( '/editicons', keep_args => [ 'authas' ] )
+    href = dw.create_url( '/manage/icons', keep_args => [ 'authas' ] )
     title = dw.ml( '.userpics.edit.about' )
-    text = dw.ml( '/editicons.bml.title3' )
+    text = dw.ml( '/edit/icons.tt.title' )
   },
   {
     href = dw.create_url( '/manage/comments/', keep_args => [ 'authas' ] )

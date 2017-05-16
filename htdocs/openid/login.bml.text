@@ -1,11 +1,11 @@
 ;; -*- coding: utf-8 -*-
-.error.cantuseownsite=You can't use a [[sitename]] OpenID account on [[sitename]]:  <a href='/login.bml'>go log in</a> with your actual [[sitename]] account.
+.error.cantuseownsite=You can't use a [[sitename]] OpenID account on [[sitename]]:  <a href='/login'>go log in</a> with your actual [[sitename]] account.
 
 .error.invalidcharacters=Unable to continue: the provided OpenID URL contains invalid characters.
 
 .error.invalidparameter=There was a problem loading the page: invalid parameter [[item]]
 
-.error.logout.content=Hello, [[user]]. Before logging in with <a href='http://openid.net/'>OpenID</a>, you must first <a href='/logout.bml'>log out</a>.
+.error.logout.content=Hello, [[user]]. Before logging in with <a href='http://openid.net/'>OpenID</a>, you must first <a href='/logout'>log out</a>.
 
 .error.logout.heading=Already logged in
 

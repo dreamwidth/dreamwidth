@@ -486,7 +486,7 @@ sub trans {
             ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' ) &&
             $remote->is_in_beta( 'httpseverywhere' ) ) {
 
-        my $url = LJ::create_url( $uri, keep_args => 1, ssl => 1 );
+        my $url = LJ::create_url( $uri, keep_query_string => 1, ssl => 1 );
         return redir( $apache_r, $url );
     }
 
@@ -1352,7 +1352,7 @@ sub journal_content
     my $status = $opts->{'status'} || "200 OK";
     $opts->{'contenttype'} ||= $opts->{'contenttype'} = "text/html";
     if ($opts->{'contenttype'} =~ m!^text/! &&
-        $LJ::UNICODE && $opts->{'contenttype'} !~ /charset=/) {
+        $opts->{'contenttype'} !~ /charset=/) {
         $opts->{'contenttype'} .= "; charset=utf-8";
     }
 

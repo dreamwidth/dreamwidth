@@ -630,7 +630,12 @@ h2#pagetitle {
     padding: 0 1.5px 0;
 }
 
-#header a {
+#header-primary a {
+    color: $*color_page_title;
+    text-decoration: none;
+    }
+
+#header-secondary a {
     background-color: $*color_header_icons_background;
     background-repeat: no-repeat;
     border-radius: 50%;
@@ -644,8 +649,8 @@ h2#pagetitle {
     width: 45px;
 }
 
-#header a.current,
-#header a:hover {
+#header-secondary a.current,
+#header-secondary a:hover {
     background-color: $*color_header_icons_background_alt;
     transition: all .65s ease-out;
     -moz-transition: all .65s ease-out;
@@ -653,73 +658,73 @@ h2#pagetitle {
     -webkit-transition: all .65s ease-out;
 }
 
-#header a:hover {
+#header-secondary a:hover {
     transform: rotate(360deg);
     -moz-transform: rotate(360deg);
     -o-transform: rotate(360deg);
     -webkit-transform: rotate(360deg);
 }
 
-#header a.recent {
+#header-secondary a.recent {
     background-image: url($*image_recent) ;
 }
 
-#header a.current.recent,
-#header a.recent:hover {
+#header-secondary a.current.recent,
+#header-secondary a.recent:hover {
     background-image: url($*image_recent_alt);
 }
 
-#header a.archive {
+#header-secondary a.archive {
     background-image: url($*image_archive);
 }
 
-#header a.current.archive,
-#header a.archive:hover {
+#header-secondary a.current.archive,
+#header-secondary a.archive:hover {
     background-image: url($*image_archive_alt);
 }
 
-#header a.read {
+#header-secondary a.read {
     background-image: url($*image_reading);
 }
 
-#header a.current.read,
-#header a.read:hover {
+#header-secondary a.current.read,
+#header-secondary a.read:hover {
     background-image: url($*image_reading_alt);
 }
 
-#header a.network {
+#header-secondary a.network {
     background-image: url($*image_network);
 }
 
-#header a.current.network,
-#header a.network:hover {
+#header-secondary a.current.network,
+#header-secondary a.network:hover {
     background-image: url($*image_network_alt);
 }
 
-#header a.tags {
+#header-secondary a.tags {
     background-image: url($*image_tags);
 }
 
-#header a.current.tags,
-#header a.tags:hover {
+#header-secondary a.current.tags,
+#header-secondary a.tags:hover {
     background-image: url($*image_tags_alt);
 }
 
-#header a.memories {
+#header-secondary a.memories {
     background-image: url($*image_memories);
 }
 
-#header a.current.memories,
-#header a.memories:hover {
+#header-secondary a.current.memories,
+#header-secondary a.memories:hover {
     background-image: url($*image_memories_alt);
 }
 
-#header a.userinfo {
+#header-secondary a.userinfo {
     background-image: url($*image_profile);
 }
 
-#header a.current.userinfo,
-#header a.userinfo:hover {
+#header-secondary a.current.userinfo,
+#header-secondary a.userinfo:hover {
     background-image: url($*image_profile_alt);
 }
 

@@ -40,7 +40,7 @@ body<=
    <li><a href='/manage/tags'><?_ml .maplinks.manage-tags _ml?></a></li>
    <li><a href='/tools/memories'><?_ml .maplinks.manage-memories _ml?></a></li>
    <li><a href='/manage/profile/'><?_ml .maplinks.manage-profile _ml?></a></li>
-   <li><a href='/editicons'><?_ml .maplinks.manage-userpics _ml?></a></li>
+   <li><a href='/manage/icons'><?_ml .maplinks.manage-userpics _ml?></a></li>
    <li><a href='/poll/create'><?_ml .maplinks.create-poll _ml?></a></li>
    <li><a href='/editprivacy'><?_ml .maplinks.massprivacy _ml?></a></li>
   </ul></dd>

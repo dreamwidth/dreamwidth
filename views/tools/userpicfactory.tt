@@ -55,10 +55,10 @@
     <p>[% '.success' | ml( num = successcount ) %]</p>
 [%- END -%]
 
-<a href="/editicons">[% '.backtext' | ml %]</a>
+<a href="/manage/icons">[% '.backtext' | ml %]</a>
 
 [%- IF no_index -%]
-    <p>[% '.error.noindex' | ml( pagelink = dw.create_url( '/editicons' ) ) %]</p>
+    <p>[% '.error.noindex' | ml( pagelink = dw.create_url( '/manage/icons' ) ) %]</p>
 [%- ELSE -%]
     <noscript><p style="font-weight: bold;">[% '.noscript' | ml %]</p></noscript>
     <p>[% '.howtouse' | ml %]</p>
@@ -70,7 +70,7 @@
     </div>
 
     <div class='highlight-box' style='float: right;'>
-    <form action="[% dw.create_url( '/editicons', keep_args => [ 'authas' ] ) %]"
+    <form action="[% dw.create_url( '/manage/icons', keep_args => [ 'authas' ] ) %]"
           method="POST" enctype='multipart/form-data'>
     <ul class="previewbox"><li>
       <nobr><input type="checkbox" id="constrain" onchange="setConstrain();" />

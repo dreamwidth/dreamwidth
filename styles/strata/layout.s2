@@ -122,6 +122,10 @@ h1#title, h2#subtitle, h2#pagetitle {
     text-align: right;
 }
 
+h1#title a {
+    color: $*color_page_title;
+    }
+
 /* -- primary -- */
 #content { padding: 20px 0; }
 

@@ -43,10 +43,10 @@ _c?>
         }
 
         $encoding ||= $POST{'encoding'};
-        $encoding ||= $LJ::UNICODE ? 'utf-8' : 'iso-8859-1';
+        $encoding ||= 'utf-8';
 
-        if ($LJ::UNICODE && lc($encoding) ne "utf-8" &&
-            ! Unicode::MapUTF8::utf8_supported_charset($encoding)) {
+        if ( lc($encoding) ne "utf-8" &&
+             ! Unicode::MapUTF8::utf8_supported_charset($encoding) ) {
             push @errors, $ML{'.error.encoding'};
         }
 
@@ -137,7 +137,7 @@ _c?>
                 my $eprops = $props{$e->{'ritemid'}};
 
                 # convert to UTF-8 if necessary
-                if ($LJ::UNICODE && $eprops->{'unknown8bit'} && !$opts->{'notranslation'}) {
+                if ( $eprops->{'unknown8bit'} && !$opts->{'notranslation'} ) {
                     my $error;
                     $e->{'subject'} = LJ::text_convert($e->{'subject'}, $u, \$error);
                     $e->{'event'} = LJ::text_convert($e->{'event'}, $u, \$error);
@@ -161,7 +161,7 @@ _c?>
                 # Unicode environment. In a pre-Unicode environment the chosen encoding
                 # is merely a label.
 
-                if ($LJ::UNICODE && lc($opts->{'encoding'}) ne 'utf-8' && !$opts->{'notranslation'}) {
+                if ( lc($opts->{'encoding'}) ne 'utf-8' && !$opts->{'notranslation'} ) {
                     $entry = Unicode::MapUTF8::from_utf8({-string=>$entry,
                                                           -charset=>$opts->{'encoding'}});
                 }

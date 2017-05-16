@@ -43,6 +43,9 @@ my @urls = (
     # links that can be upgraded via KNOWN_HTTPS_SITES
     [ "http://xkcd.com/file/foo",  "https://xkcd.com/file/foo" ],
     [ "http://username.blogspot.com/a.png",  "https://username.blogspot.com/a.png" ],
+
+    # link that includes a space - will be transformed into %20 by the browser
+    [ "http://example.com/a%20b.png", DW::Proxy::get_proxy_url( "http://example.com/a b.png" ) ],
 );
 
 local %LJ::KNOWN_HTTPS_SITES = qw( xkcd.com 1 blogspot.com 1 );

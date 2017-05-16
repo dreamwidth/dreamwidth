@@ -20,6 +20,7 @@ use strict;
 use warnings;
 
 use LJ::Feed;
+use LJ::SynSuck;
 use HTTP::Message;
 use URI;
 
@@ -110,8 +111,9 @@ sub index_handler {
                 }
 
                 # create a safeagent to fetch the feed for validation purposes
+                my $max_size = LJ::SynSuck::max_size();
                 my $ua = LJ::get_useragent( role     => 'syn_new',
-                                            max_size => (1024 * 300) );
+                                            max_size => $max_size );
                 $ua->agent( "$LJ::SITENAME ($LJ::ADMIN_EMAIL; Initial check)" );
 
                 my $can_accept = HTTP::Message::decodable;
@@ -121,6 +123,9 @@ sub index_handler {
                             : undef;
 
                 unless ( $content ) {
+                    return error_ml( '/feeds/index.tt.invalid.toolarge',
+                                     { max => ( $max_size / 1024 ) } )
+                        if $res && $res->is_success;
                     return DW::Template->render_template( 'error.tt',
                             { message => $res->status_line } )
                         if $remote->show_raw_errors;
@@ -167,16 +172,21 @@ sub index_handler {
                 return error_ml( '/feeds/index.tt.invalid.notrss.text' )
                     unless $content =~ m/<(\w+:)?(?:rss|feed|RDF)/;
 
+                # before we try to create the account, make
+                # sure that the name is not already in use
+                if ( my $u = LJ::load_user( $acct ) ) {
+                    return error_ml( '/feeds/index.tt.invalid.inuse.text2',
+                                     { user => $u->ljuser_display } );
+                }
+
                 # create the feed account
                 my $synfeed =
                     LJ::User->create_syndicated(    user => $acct,
                                                  feedurl => $syn_url );
-                unless ( $synfeed ) {
-                    # if creation failed, we assume the name is already in use
-                    my $u = LJ::load_user( $acct );
-                    return error_ml( '/feeds/index.tt.invalid.inuse.text2',
-                                     { user => $u->ljuser_display } );
-                }
+
+                # we made sure the name was OK, not sure why we failed
+                return error_ml( '/feeds/index.tt.error.unknown' )
+                    unless $synfeed;
 
                 $su = LJ::Feed::synrow_select( userid => $synfeed->id );
             }

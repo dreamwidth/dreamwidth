@@ -883,10 +883,11 @@ sub make_default {
     $u->{'defaultpicid'} = $self->id;
 }
 
-# returns true if this picture if the default userpic
+# returns true if this picture is the default userpic
 sub is_default {
-    my $self = shift;
+    my $self = $_[0];
     my $u = $self->owner;
+    return unless defined $u->{'defaultpicid'};
 
     return $u->{'defaultpicid'} == $self->id;
 }

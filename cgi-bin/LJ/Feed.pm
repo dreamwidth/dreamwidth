@@ -193,7 +193,7 @@ sub make_feed
         next ENTRY if $posteru{$it->{'posterid'}} && $posteru{$it->{'posterid'}}->is_suspended;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
-        if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
+        if ( $logprops{$itemid}->{'unknown8bit'} ) {
             LJ::item_toutf8($u, \$logtext->{$itemid}->[0],
                             \$logtext->{$itemid}->[1], $logprops{$itemid});
         }
@@ -207,7 +207,7 @@ sub make_feed
 
         # an HTML link to the entry. used if we truncate or summarize
         my $entry_url = $entry_obj->url;
-        my $readmore = q{<b>(<a href="$entry_url">Read more ...</a>)</b>};
+        my $readmore = qq{<b>(<a href="$entry_url">Read more ...</a>)</b>};
 
         # empty string so we don't waste time cleaning an entry that won't be used
         my $event = $u->{'opt_synlevel'} eq 'title' ? '' : $logtext->{$itemid}->[1];

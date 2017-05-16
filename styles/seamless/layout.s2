@@ -373,6 +373,10 @@ function print_stylesheet () {
         font-weight: lighter; 
         }
 
+        h1#title a {
+        color: $*color_page_title;
+        }
+
         h2#subtitle { 
         letter-spacing: -0.07em;
         color: $*color_page_subtitle;     

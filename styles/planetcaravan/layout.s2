@@ -415,7 +415,11 @@ a:hover {text-decoration:underline;}
     text-align:center;
     }
 
-h1#title {font-weight: normal; letter-spacing: .1em;}
+h1#title, h1#title a {
+    font-weight: normal;
+    letter-spacing: .1em;
+    color: $*color_page_title;
+}
 
 h2#pagetitle, h2#subtitle {font-weight: normal; padding:.25em; margin:0; color: $*color_journal_subtitle; letter-spacing: .1em;}
 

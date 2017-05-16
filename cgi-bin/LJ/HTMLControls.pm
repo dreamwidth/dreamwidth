@@ -224,8 +224,10 @@ sub _html_option {
 
     # are there additional data-attributes?
     my $data_attribute = '';
-    if ( $item->{data} ) {
-        $data_attribute .= " data-$_='$item->{data}->{$_}'" foreach keys %{$item->{data} || {}};
+    my %item_data = $item->{data} ? %{$item->{data}} : ();
+    foreach ( keys %item_data ) {
+        my $val = $item_data{$_} // '';
+        $data_attribute .= " data-$_='$val'";
     }
 
     return "<option value=\"$value\"$id$sel$dis$data_attribute>" .

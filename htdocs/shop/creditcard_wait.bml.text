@@ -5,6 +5,8 @@
 
 .state.paid=Your payment has been successful.  We will process your order in the next few minutes.  Please keep an eye on your email for a confirmation.
 
+.state.paid.noemail=Your payment has been successful. We will process your order in the next few minutes. Because you aren't logged in to a Dreamwidth account, you will not receive an emailed receipt. If you need a copy of your receipt, you can <a href="[[url]]">view and print it</a>.
+
 .state.queued=We are attempting to process your payment request, please wait...
 
 .title=Please Wait

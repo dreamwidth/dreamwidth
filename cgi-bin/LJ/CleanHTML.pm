@@ -62,16 +62,11 @@ sub helper_preload
 
 
 # this treats normal characters and &entities; as single characters
-# also treats UTF-8 chars as single characters if $LJ::UNICODE
+# also treats UTF-8 chars as single characters
 my $onechar;
 {
     my $utf_longchar = '[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xef][\x80-\xbf][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf][\x80-\xbf]|[\xf1-\xf7][\x80-\xbf][\x80-\xbf][\x80-\xbf]';
-    my $match;
-    if (not $LJ::UNICODE) {
-        $match = '[^&\s]|(&\#?\w{1,7};)';
-    } else {
-        $match = $utf_longchar . '|[^&\s\x80-\xff]|(?:&\#?\w{1,7};)';
-    }
+    my $match = $utf_longchar . '|[^&\s\x80-\xff]|(?:&\#?\w{1,7};)';
     $onechar = qr/$match/o;
 }
 
@@ -1649,13 +1644,6 @@ sub canonical_url {
 
         # rebuild safe url
         $url = "$pref://$url";
-    }
-
-    if ($LJ::DEBUG{'aol_http_to_ftp'}) {
-        # aol blocks http referred from lj, but ftp has no referer header.
-        if ($url =~ m!^http://(?:www\.)?(?:members|hometown|users)\.aol\.com/!) {
-            $url =~ s!^http!ftp!;
-        }
     }
 
     return $url;

@@ -170,15 +170,15 @@ sub ReplyPage
             LJ::load_talk_props2($u, [ $re_talkid ])->{$re_talkid} || {};
         $parpost->{'dtid'} = $dtalkid;
 
-        if($LJ::UNICODE && $parpost->{'props'}->{'unknown8bit'}) {
+        if( $parpost->{'props'}->{'unknown8bit'} ) {
             LJ::item_toutf8($u, \$parpost->{'subject'}, \$parpost->{'body'}, {});
         }
 
         my $datetime = DateTime_unix(LJ::mysqldate_to_time($parpost->{'datepost'}));
-        
+
         my $comment_userpic;
         my $s2poster;
-        
+
         my $pu = $parentcomment->poster;
         if ( $pu ) {
             return $opts->{handler_return} = 403 if $pu->is_suspended; # do not show comments by suspended users

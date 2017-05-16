@@ -187,6 +187,9 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
 
 #lj_controlstrip { z-index: 200 !important;}
 
+#title a { color: $*color_page_title;
+    text-decoration: none; }
+
 #canvas { background-color: $*color_entry_title_background;
     padding: 1px;}
 #canvas > .inner:first-child { 

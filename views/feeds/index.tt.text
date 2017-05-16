@@ -35,6 +35,8 @@
 
 .invalid.reserved=This account name is reserved. Please choose a different one.
 
+.invalid.toolarge=The feed data exceeds the maximum allowable size of [[max]] KB.
+
 .invalid.url=The URL you've entered is invalid. Please make sure you've entered it correctly and try again.
 
 .remove=Remove Selected

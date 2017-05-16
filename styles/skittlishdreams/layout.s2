@@ -702,10 +702,11 @@ html body {
 
 /*--- Header ---*/
 
-#header {
+#header, #header a {
     $header_colors
     border-bottom: 2px solid $header_bottom_color;
     padding: 0;
+    text-decoration: none;
     }
 
 @media $medium_media_query {

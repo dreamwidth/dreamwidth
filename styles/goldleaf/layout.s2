@@ -323,7 +323,7 @@ propgroup fonts {
     property use font_sources;
 }
 
-set font_sources = "http://fonts.googleapis.com/css?family=Sofia";
+set font_sources = "https://fonts.googleapis.com/css?family=Sofia";
 
 set font_base = "'Times New Roman', Times";
 set font_fallback = "serif";
@@ -731,7 +731,7 @@ function Page::print() {
     """;
     """
                     <div id="primary"><div class="inner">
-    """; 
+    """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -747,9 +747,9 @@ function Page::print() {
                     <div id="content-footer"></div>
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -772,7 +772,7 @@ function Page::print() {
     """
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -1064,11 +1064,11 @@ function Page::print_default_stylesheet() {
              .tag ul li:before{
                  padding-right: 2px;
                  content: url($*image_entry_tag);
-             } 
+             }
 
              .tag-text{
                  display:none;
-             } 
+             }
 
              .metadata-label{
                  display:none;
@@ -1104,7 +1104,7 @@ function Page::print_default_stylesheet() {
     var string controlstrip_css = "";
          if ($*custom_control_strip_colors == "on_gradient" or $*custom_control_strip_colors == "on_no_gradient") {
          $controlstrip_css = """
-             #lj_controlstrip td { 
+             #lj_controlstrip td {
                  border:none;
              }
 
@@ -1150,7 +1150,7 @@ hr {
 
 body {
     $page_font
-    margin: 0; 
+    margin: 0;
     padding: 0;
     $page_background
     $page_colors
@@ -1720,7 +1720,7 @@ ul.ljtaglist{
 }
 
 ul.ljtaglist li{
-    margin:.3em 0; 
+    margin: .3em 0;
 }
 
 .tags_cloud ul{
@@ -1778,7 +1778,7 @@ ul.ljtaglist li{
 }
 
 .month table {
-    width:30em; 
+    width: 30em;
 }
 
 .month thead{
@@ -1872,7 +1872,7 @@ table.month th {
     line-height:2.6;
 }
 
-#archive-year .navigation li a{ 
+#archive-year .navigation li a {
     background: $*color_entry_title_background;
     padding: 8px;
     border-radius: 20px 0 20px 0;
@@ -1890,7 +1890,7 @@ table.month th {
 #archive-year .navigation li.active{
     font-weight:bold;
     padding:0 .5em;
-} 
+}
 
 /*------------ icons ------------*/
 
@@ -2030,7 +2030,7 @@ li.page-back{
 
 li.page-forward{
     background: $*color_entry_title_background;
-    float:right; 
+    float: right;
     padding:7px 30px 7px 20px;
     border-radius: 0 0 100px 0;
     -webkit-border-radius: 0 0 100px 0;
@@ -2086,7 +2086,7 @@ $topnav_display
 @media $medium_media_query {
     #secondary > .inner:first-child{
         width: $*topbar_width_size$*topbar_width_units;
-        box-sizing: border-box; 
+        box-sizing: border-box;
         margin: 0 auto;
     }
 }
@@ -2099,10 +2099,10 @@ $topnav_display
     vertical-align:top;
 }
 
-.module a { $module_link_colors }
-.module a:visited { $module_link_visited_colors }
-.module a:hover { $module_link_hover_colors }
-.module a:active { $module_link_active_colors }
+h1#title a, .module a { $module_link_colors }
+h1#title a:visited, .module a:visited { $module_link_visited_colors }
+h1#title a:hover, .module a:hover { $module_link_hover_colors }
+h1#title a:active, .module a:active { $module_link_active_colors }
 
 .module h2 {
     $module_title_font
@@ -2129,7 +2129,7 @@ $topnav_display
 }
 
 .module-content li {
-    margin:.3em 0; 
+    margin: .3em 0;
 }
 
 @media $medium_media_query {
@@ -2144,8 +2144,8 @@ $topnav_display
 
 @media $medium_media_query {
     .module-userprofile{
-        float:left; 
-        width:150px;
+        float: left;
+        width: 150px;
     }
 
     .module-userprofile .userpic{
@@ -2253,7 +2253,7 @@ ul.userlite-interaction-links.icon-links li{
     }
 
     .module-typelist, .module-typelist .module-content ul{
-        text-align:right;	
+        text-align: right;
     }
 
     .module-typelist ul.module-list li {
@@ -2276,7 +2276,7 @@ ul.userlite-interaction-links.icon-links li{
 
 @media $medium_media_query {
     .module-tags_cloud .module-content ul{
-        text-align:center;	
+        text-align: center;
     }
 
     .module-userprofile h2,.module-typelist h2, .module-tags_cloud h2, .module-customtext h2 {
@@ -2301,8 +2301,8 @@ ul.userlite-interaction-links.icon-links li{
 }
 
 .module-customtext{
-    text-align:left; 
-    font-style:italic;
+    text-align: left;
+    font-style: italic;
 }
 
 @media $medium_media_query {
@@ -2458,7 +2458,7 @@ ul.userlite-interaction-links.icon-links li{
 
 .ContextualPopup{
     $page_font
-    padding: 10px; 
+    padding: 10px;
     margin: 4px 59px 4px 4px;
     border-radius: 40px 0 40px 0;
     -webkit-border-radius: 40px 0 40px 0;
