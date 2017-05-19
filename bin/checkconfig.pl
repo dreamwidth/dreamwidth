@@ -192,9 +192,6 @@ my %modules = (
         'deb' => 'libmail-gnupg-perl',
         'opt' => "Required for email posting.",
     },
-    "IP::Country::Fast" => {
-        'opt' => "Required for country lookup with IP address.",
-    },
     "GTop" => {},
     "Apache2::RequestRec"   => {
         'deb' => "libapache2-mod-perl2",
