@@ -1,5 +1,5 @@
 #faq ul, #faq ol {
     margin-left: 3em;
     margin-bottom: 2em;
-    list-style-type: outside;
+    list-style-position: outside;
 }
