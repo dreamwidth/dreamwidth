@@ -53,6 +53,9 @@ sub FriendsPage
   </script>
     ];
 
+    # init shortcut js if selected
+    LJ::Talk::init_s2journal_shortcut_js( $remote, $p );
+
     my $sth;
     my $user = $u->{'user'};
 

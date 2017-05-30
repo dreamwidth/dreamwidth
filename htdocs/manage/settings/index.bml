@@ -53,6 +53,7 @@ body<=
         community
         notifications
         mobile
+        shortcuts
         privacy
         history
         othersites
@@ -108,6 +109,21 @@ body<=
                 DW::Setting::MobileView
                 DW::Setting::RPAccount
                 LJ::Setting::SiteScheme
+            )],
+        },
+        shortcuts => {
+            name => $ML{'.cat.shortcuts'},
+            visible => 1,
+            disabled => !$u || $u->is_community ? 1 : 0,
+            form => 1,
+            desc => $ML{'.cat.shortcuts.desc2'},
+            settings => [qw(
+                DW::Setting::Shortcuts
+                DW::Setting::ShortcutsNext
+                DW::Setting::ShortcutsPrev
+                DW::Setting::ShortcutsTouch
+                DW::Setting::ShortcutsTouchNext
+                DW::Setting::ShortcutsTouchPrev
             )],
         },
         notifications => {

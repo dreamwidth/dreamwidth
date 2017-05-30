@@ -49,6 +49,10 @@
 
 .cat.privacy.desc=Journal privacy options
 
+.cat.shortcuts=Shortcuts
+
+.cat.shortcuts.desc2=Keyboard and mobile (touch) shortcuts
+
 .commentpage=View comment pages in your own journal style
 
 .commentpage.text=When you follow a comment link from your Reading page, you can view that comment page in your own journal style.

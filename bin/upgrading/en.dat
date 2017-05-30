@@ -2889,6 +2889,46 @@ setting.searchinclusion.option.comm=Attempt to block outside search engines from
 
 setting.searchinclusion.option.self=Attempt to block outside search engines from indexing my journal
 
+setting.shortcuts.des=Enables keyboard shorcuts.
+
+setting.shortcuts.label=Keyboard shortcuts
+
+setting.shortcuts.next.des=Next entry/top-level comment
+
+setting.shortcuts.next.label=Next
+
+setting.shortcuts.prev.des=Previous entry/top-level comment
+
+setting.shortcuts.prev.label=Previous
+
+setting.shortcuts_touch.des=Enables touch shorcuts.
+
+setting.shortcuts_touch.label=Touch shortcuts
+
+setting.shortcuts_touch.option.select.direction.down=Down
+
+setting.shortcuts_touch.option.select.direction.left=Left
+
+setting.shortcuts_touch.option.select.direction.right=Right
+
+setting.shortcuts_touch.option.select.direction.up=Up
+
+setting.shortcuts_touch.option.select.disabled=Disabled
+
+setting.shortcuts_touch.option.select.finger.1=1 finger
+
+setting.shortcuts_touch.option.select.finger.2=2 finger
+
+setting.shortcuts_touch.option.select.swipe=Swipe
+
+setting.shortcuts_touch.next.des=Next entry/top-level comment
+
+setting.shortcuts_touch.next.label=Next
+
+setting.shortcuts_touch.prev.des=Next entry/top-level comment
+
+setting.shortcuts_touch.prev.label=Previous
+
 setting.sitescheme.error.invalid=Invalid site skin.
 
 setting.sitescheme.journal.style=Would you like to select your journal style?

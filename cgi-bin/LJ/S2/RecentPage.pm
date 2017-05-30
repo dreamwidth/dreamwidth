@@ -115,6 +115,9 @@ sub RecentPage
   </script>
     ];
 
+    # init shortcut js if selected
+    LJ::Talk::init_s2journal_shortcut_js( $remote, $p );
+
     my $itemshow = S2::get_property_value($opts->{'ctx'}, "num_items_recent")+0;
     if ($itemshow < 1) { $itemshow = 20; }
     elsif ($itemshow > 50) { $itemshow = 50; }
