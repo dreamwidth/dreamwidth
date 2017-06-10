@@ -73,7 +73,7 @@ $(function() {
     if ( ! Modernizr.touch ) {
         $(".upload-form-file-inputs")
             .find('.row')
-                .append('<div class="large-12 columns"><div class="drop_zone">or drop images here</div></div>')
+                .prepend('<div class="large-12 columns"><div class="drop_zone">or drop images here</div></div>')
             .end()
     }
     $(".upload-form-file-inputs")
@@ -96,7 +96,7 @@ $(function() {
 
             // show the file preview and let the user upload metadata
             data.context = $($('#template-file-metadata').html())
-                .appendTo( $output );
+                .prependTo( $output );
 
             data.context
                 .find("label").attr( "for", function() {
