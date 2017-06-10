@@ -37,6 +37,7 @@ sub define_method {
         name => $action,
         desc => $desc,
         handler => $handler,
+        tags => [], 
         responses => {},
         );
 
