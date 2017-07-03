@@ -20,62 +20,77 @@ package DW::API::Path;
 use strict;
 use warnings;
 use JSON;
-use YAML qw'LoadFile';
+use YAML::XS qw'LoadFile';
 
 use DW::API::Parameter;
 use DW::API::Method;
 
 use Carp qw(croak);
+use Data::Dumper;
+require Exporter;
 
-# Usage: path ( yaml_source_path, hash_of_HTTP_handlers ) 
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw(path);
+
+# Usage: path ( yaml_source_path, ver, hash_of_HTTP_handlers ) 
 # Creates a new path object for use in DW::Controller::API::REST 
 #resource definitions from a OpenAPI-compliant YAML file and handler sub references
 
-%METHODS = (get => 1, post => 1, delete => 1);
+our %METHODS = (get => 1, post => 1, delete => 1);
+our $API_PATH = "$ENV{LJHOME}/api/";
 
 sub path {
-    my ($source, %handlers) = @_;
+    my ($source, $ver, $handlers) = @_;
 
-    my $config = LoadFile($source);
+    my $config = LoadFile($API_PATH . $source);
 
+    my $route = {
+    	ver => $ver};
 
-    my %route = (
-    	get_handler => $handlers{get},
-    	post_handler => $hanlders{})
-
-    for my $path (keys %$config) {
-    	$route{'path'} = $path;
+    my $path;
+    for my $key (keys $config->{paths}) {
+    	$route->{'path'}{'name'} = $key;
+    	$path = $key;
     }
 
-    bless \%route;
+    bless $route;
 
-    for my $method (keys $config->{$path}) {
-		# first, make sure that it's a valid HTTP method, and we have a handler for it
-		unless METHODS{$method} die "$method isn't a valid HTTP method";
-		unless $handlers{$method} die "No handler sub was passed for $method";
-
-		my $method_config = $config->{$path}->{$method};
-		FIXME: make sure 
-		\%route->_add_method($method, $handlers{$method}, $method_config)
-
+    if (exists $config->{paths}->{$path}->{parameters}) {
+		for my $param (@{$config->{paths}->{$path}->{parameters}}) {
+			my $new_param = DW::API::Parameter::define_parameter($param);
+			$route->{path}{params}{$param->{name}} = $new_param;
+			}
+    	delete $config->{paths}->{$path}->{parameters};
     }
 
-    return \%route;
+    for my $method (keys $config->{paths}->{$path}) {
+		# make sure that it's a valid HTTP method, and we have a handler for it
+		die "$method isn't a valid HTTP method" unless $METHODS{$method};
+		die "No handler sub was passed for $method" unless $handlers->{$method};
+
+		my $method_config = $config->{paths}->{$path}->{$method};
+		$route->_add_method($method, $handlers->{$method}, $method_config);
+
+    }
+	DW::Controller::API::REST::register_rest_controller($route);
+    return $route;
 }
 
 sub _add_method {
 	my ($self, $method, $handler, $config) = @_;
-    		# FIXME: make sure Method def matches this.
-		my $new_method = DW::API::Method::define_method($method, $handler, $config->{summary}, $config->{description})
+		my $new_method = DW::API::Method::define_method($method, $handler, $config->{summary}, $config->{description});
 
 		# add method params
-		for my $param ($config->{parameters}) {
-			$new_method->param($param);
+		if (exists $config->{parameters}){
+			for my $param (@{$config->{parameters}}) {
+				$new_method->param($param);
+			}
 		}
 
 		# add response descriptions
-		for my $response (keys $config->{responses}) {
-			$new_method->response($config->{responses}->{$response});
+		for my $response (keys %{$config->{responses}}) {
+			my $desc = $config->{$response}->{description};
+			$new_method->response($response, $desc);
 		}
 
 
@@ -83,5 +98,6 @@ sub _add_method {
 
 
 }
+
 
 1;

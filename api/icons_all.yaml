@@ -1,0 +1,14 @@
+---
+paths:
+  /users/{username}/icons:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want icon information for
+        type: string
+        required: true
+    get:
+      description: Returns all icons for a specified username.
+      responses:
+        200:
+          description: a list of icons

@@ -31,10 +31,11 @@ my @HTTP_VERBS = qw(GET POST DELETE PUT);
 # in DW::Controller::API::REST resource definitions.
 
 sub define_method {
-    my ($action, $desc, $handler) = @_;
+    my ($action, $handler, $desc, $summary) = @_;
 
     my %method = (
         name => $action,
+        summary => $summary,
         desc => $desc,
         handler => $handler,
         tags => [], 
@@ -75,7 +76,7 @@ sub success {
 # to the responses hash of the calling method object
 # FIXME: Register a sprintf string to use as well?
 
-sub error {
+sub response {
     my ($self, $code, $desc) = @_;
 
     $self->{responses}{$code} = { desc => $desc };
@@ -107,7 +108,7 @@ sub TO_JSON {
     my $json = { description => $self->{desc} };
 
     if (defined $self->{params}) {
-        $json->{parameters} =  $self->{params};
+        $json->{parameters} =  [ values $self->{params} ];
     }
 
     my $responses = $self->{responses};

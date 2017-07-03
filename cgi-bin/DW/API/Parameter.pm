@@ -35,7 +35,7 @@ sub define_parameter {
     my $args = $_[0];
     my %parameter = (
         name => $args->{name},
-        desc => $args->{desc},
+        desc => $args->{description},
         in => $args->{in},
         type => $args->{type},
         required => $args->{required}

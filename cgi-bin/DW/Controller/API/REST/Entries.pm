@@ -15,7 +15,7 @@
 #
 
 package DW::Controller::API::REST::Entries;
-use base 'DW::Controller::API::REST';
+use DW::Controller::API::REST qw(path);
 
 use strict;
 use warnings;
@@ -24,6 +24,7 @@ use DW::Request;
 use DW::Controller;
 use JSON;
 use Data::Dumper;
+#use DW::API::Path qw(path);
 
 ################################################
 # /journals/{journal}/entries
@@ -31,39 +32,7 @@ use Data::Dumper;
 # Get recent entries or post a new entry.
 ################################################
 
-
-# Define route and associated params
-my $route_all = __PACKAGE__->resource (
-    path => '/journals/{journal}/entries',
-    ver => 1,
-);
-
-$route_all->path (
-	$route_all->param({name => 'journal', type => 'string', desc => 'The journal you want entry information for', in => 'path', required => 1} )
-);
-
-# define our parameters and options for GET requests
-my $get_all = $route_all->get('Returns recent entries for a specified journal', \&rest_get);
-$get_all->success('a list of recent entries');
-$get_all->error(404, 'Journal specified does not exist');
-
-# define our parameters and options for POST requests
-my $post = $route_all->post('Post a new entry in a given journal', \&new_entry);
-$post->param({name => 'subject', type => 'string', desc => 'Entry subject line', in => 'body'});
-$post->param({name => 'text', type => 'string', desc => 'Entry text', in => 'body', required => 1});
-$post->param({name => 'icon', type => 'string', desc => 'Keyword of icon to use', in => 'body'});
-$post->param({name => 'datetime', type => 'string', desc => 'The date and time of the entry in the format `FIXME`. If omitted, the server time will be used instead.', in => 'body'});
-$post->param({name => 'security', type => 'string', desc => 'Security level to use. Can be public, private, or a filter name.', in => 'body'});
-$post->param({name => 'age_restriction', type => 'string', desc => 'Age restriction flag. `none` puts no flags on the entry, `discretion` marks it as "viewer discretion advised", and `restricted` marks it inacessible to users under eighteen. If omitted, the journal default will be used.', in => 'body'});
-$post->param({name => 'age_restriction_reason', type => 'string', desc => 'A optional description of why you chose the age-restriction setting you did.', in => 'body'});
-$post->param({name => 'comment_settings', type => 'string', desc => 'Specify comment settings for the new entry. `nocomments` disables comments, and `noemail` disables notifications. If omitted, the journal default will be used.', in => 'body'});
-$post->param({name => 'tags', type => 'array', desc => 'An array of tags to apply to the entry.', in => 'body'});
-$post->success('a list of recent entries');
-$post->error(403, "You aren't allowed to post in that journal");
-$post->error(404, 'Journal specified does not exist');
-$post->error(400, 'Bad input value supplied.');
-
-__PACKAGE__->register_rest_controller($route_all);
+my $entries_all = path('entries_all.yaml', 1, { get => \&rest_get, post => \&new_entry});
 
 ################################################
 # /journals/{journal}/entries/{entry_id}
@@ -71,31 +40,7 @@ __PACKAGE__->register_rest_controller($route_all);
 # Get single entry or update existing entry.
 ################################################
 
-
-# Define route and associated params
-my $route = __PACKAGE__->resource (
-    path => '/journals/{journal}/entries/{entry_id}',
-    ver => 1,
-);
-
-$route->path (
-    $route->param({name => 'journal', type => 'string', desc => 'The journal you want entry information for', in => 'path', required => 1} ),
-    $route->param({name => 'entry_id', type => 'integer', desc => 'The id of the entry you want information for.', in => 'path', required => 1})
-);
-
-# define our parameters and options for GET requests
-my $get = $route->get('Returns a single entry for a specified entry id and journal', \&rest_get);
-$get->success('An entry.');
-$get->error(404, "No such item in that journal");
-$get->error(403, "Not authorized to view that entry");
-
-my $edit = $route->post('Returns a single entry for a specified entry id and journal', \&edit_entry);
-$edit->success('An entry.');
-$edit->error(404, "No such item in that journal");
-$edit->error(403, "Not authorized to view that entry");
-
-__PACKAGE__->register_rest_controller($route);
-
+my $entries = path('entries.yaml', 1, { get => \&rest_get, post => \&edit_entry});
 
 ###################################################
 #

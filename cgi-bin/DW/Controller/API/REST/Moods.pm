@@ -15,7 +15,7 @@
 #
 
 package DW::Controller::API::Moods;
-use base 'DW::Controller::API::REST';
+use DW::Controller::API::REST qw(path);
 
 use strict;
 use warnings;
@@ -24,18 +24,10 @@ use DW::Request;
 use DW::Controller;
 use JSON;
 use DW::Mood;
+#use DW::API::Path qw(path);
 
 # Define route and associated params
-my $route = __PACKAGE__->resource (
-    path => '/moods',
-    ver => 1,
-);
-
-# define our parameters and options for GET requests
-my $get = $route->get('Returns all mood themes', \&rest_get);
-$get->success('a list of mood themes');
-
-__PACKAGE__->register_rest_controller($route);
+my $moods = path('moods.yaml', 1, {'get' => \&rest_get_list});
 
 
 sub rest_get_list {

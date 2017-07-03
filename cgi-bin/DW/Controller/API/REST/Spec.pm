@@ -15,7 +15,7 @@
 #
 
 package DW::Controller::API::REST::Spec;
-use base 'DW::Controller::API::REST';
+use DW::Controller::API::REST qw(path);
 
 use strict;
 use warnings;
@@ -23,23 +23,16 @@ use DW::Routing;
 use DW::Request;
 use DW::Controller;
 use JSON;
+use Data::Dumper;
+
 
 # Define route and associated params
-my $route = __PACKAGE__->resource (
-    path => '/spec',
-    ver => 1,
-);
-
-# define our parameters and options for GET requests
-my $get = $route->get('Returns the API specification', \&rest_get);
-$get->success('This API specification!');
-
-__PACKAGE__->register_rest_controller($route);
+my $spec = path('spec.yaml', 1, {'get' => \&rest_get});
 
 sub rest_get {
     my $self = $_[0];
     my ( $ok, $rv ) = controller( anonymous => 1 );
-    my $spec = $self->_spec_20;
+    my $spec = _spec_20();
     my $ver = $self->{ver};
     my %api = %DW::Controller::API::REST::API_DOCS;
 
@@ -49,6 +42,7 @@ sub rest_get {
     # }
 
     $spec->{paths} = $api{$ver};
+    warn Dumper($spec);
 
     return $self->rest_ok($spec);
 
@@ -56,7 +50,7 @@ sub rest_get {
 
 sub _spec_20 {
     my $self = $_[0];
-    my $ver = $self->{ver};
+    my $ver = $spec->{ver};
 
     my @content_types = qw(application/json);
     my @schemes = qw(https http);

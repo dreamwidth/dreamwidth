@@ -25,15 +25,86 @@ use DW::Controller::API;
 use DW::API::Parameter;
 use DW::API::Method;
 use JSON;
+use YAML::XS qw'LoadFile';
+use Data::Dumper;
 
 use Carp qw/ croak /;
+require Exporter;
 
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw(path);
 our %API_DOCS = ();
 our %TYPE_REGEX = (
     string => '([^/]*)',
     integer => '(\d*)',
     boolean => '(true|false)',
 );
+our %METHODS = (get => 1, post => 1, delete => 1);
+our $API_PATH = "$ENV{LJHOME}/api/";
+
+# Usage: path ( yaml_source_path, ver, hash_of_HTTP_handlers ) 
+# Creates a new path object for use in DW::Controller::API::REST 
+#resource definitions from a OpenAPI-compliant YAML file and handler sub references
+
+sub path {
+    my ($source, $ver, $handlers) = @_;
+
+    my $config = LoadFile($API_PATH . $source);
+
+    my $route = {
+        ver => $ver};
+
+    my $path;
+    for my $key (keys $config->{paths}) {
+        $route->{'path'}{'name'} = $key;
+        $path = $key;
+    }
+
+    bless $route;
+
+    if (exists $config->{paths}->{$path}->{parameters}) {
+        for my $param (@{$config->{paths}->{$path}->{parameters}}) {
+            my $new_param = DW::API::Parameter::define_parameter($param);
+            $route->{path}{params}{$param->{name}} = $new_param;
+            }
+        delete $config->{paths}->{$path}->{parameters};
+    }
+
+    for my $method (keys $config->{paths}->{$path}) {
+        # make sure that it's a valid HTTP method, and we have a handler for it
+        die "$method isn't a valid HTTP method" unless $METHODS{$method};
+        die "No handler sub was passed for $method" unless $handlers->{$method};
+
+        my $method_config = $config->{paths}->{$path}->{$method};
+        $route->_add_method($method, $handlers->{$method}, $method_config);
+
+    }
+    register_rest_controller($route);
+    return $route;
+}
+
+sub _add_method {
+    my ($self, $method, $handler, $config) = @_;
+        my $new_method = DW::API::Method::define_method($method, $handler, $config->{description}, $config->{summary});
+
+        # add method params
+        if (exists $config->{parameters}){
+            for my $param (@{$config->{parameters}}) {
+                $new_method->param($param);
+            }
+        }
+
+        # add response descriptions
+        for my $response (keys %{$config->{responses}}) {
+            my $desc = $config->{responses}->{$response}->{description};
+            $new_method->response($response, $desc);
+        }
+
+
+    $self->{path}->{methods}->{$method} = $new_method;
+
+}
+
 
 # Usage: DW::Controller::API::REST->register_rest_endpoints( $resource , $ver );
 #
@@ -43,7 +114,7 @@ our %TYPE_REGEX = (
 # the resource object to the %API_DOCS hash for building our API documentation.
 
 sub register_rest_controller {
-    my ( $self, $info ) = @_;
+    my ( $info ) = shift;
     my $path = $info->{path}{name};
     my $parameters = $info->{path}{params};
     my $ver = $info->{ver};
@@ -72,12 +143,13 @@ sub register_rest_controller {
 sub _dispatcher {
 
     my ( $self, @args ) = @_;
+    warn Dumper(@args);
 
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
     
     my $r = $rv->{r};
-    my $method = $r->method;
+    my $method = lc $r->method;
     my $handler = $self->{path}{methods}->{$method}->{handler};
 
     if (defined $handler) {
@@ -144,87 +216,6 @@ sub rest_ok {
     return;
 }
 
-# Usage: resource( path => path, ver => version #)
-# Creates a new REST API resource object with given path
-# and version number.
-sub resource { 
-     my ($self, %args) = @_;
-     my %resource = (
-        path => {
-            name => $args{path},
-            },
-        ver => $args{ver},
-        );
-
-     bless(\%resource, $self);
-     return \%resource;
-}
-
-# helper function for registering new descriptors or
-# path parameters.
-
-sub path {
-    my ($self, @args) = @_;
-
-    for my $arg (@args) {
-    my $type = ref $arg;
-
-
-    # if our argument is a hash ref, we move
-    # it's keys and values into the path hash
-    if ( $type eq 'HASH') {
-        for my $key (keys %$arg) {
-        $self->{path}{$key} = $arg->{$key};
-        }
-
-    } elsif ( $type eq 'DW::API::Parameter') {
-
-        # If our argument is a Param, push it 
-        # onto the list of path parameters
-        $self->{path}{params}{$arg->{name}} = $arg;
-    }
-}
-
-
-}
-
-# Usage: resource->param(\%args)
-# A wrapper around DW::API::Parameter::define_parameter,
-# to make it a little nicer to define new ones in API
-# resoure files.
-sub param {
-    my ($self, $args) = @_;
-    my $param = DW::API::Parameter::define_parameter($args);
-    return $param;
-}
-
-# Usage: resource->method($desc)
-# helper functions for creating new Method objects
-# and adding them to the methods hash of a resource object.
-
-sub get {
-    my ($self, @args) = @_;
-        my $method = DW::API::Method::define_method('GET', @args);
-        $self->{path}{methods}{GET} = $method;
-}
-
-sub post {
-    my ($self, @args) = @_;
-        my $method = DW::API::Method::define_method('POST', @args);
-        $self->{path}{methods}{POST} = $method;
-}
-
-sub delete {
-    my ($self, @args) = @_;
-        my $method = DW::API::Method::define_method('DELETE', @args);
-        $self->{path}{methods}{DELETE} = $method;
-}
-
-sub put {
-    my ($self, @args) = @_;
-        my $method = DW::API::Method::define_method('PUT', @args);
-        $self->{path}{methods}{PUT} = $method;
-}
 
 # Formatter method for the JSON package to output resource objects as JSON.
 

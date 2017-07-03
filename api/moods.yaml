@@ -1,0 +1,8 @@
+---
+paths:
+  /moods:
+    get:
+      description: Returns all mood themes
+      responses:
+        200:
+          description: a list of mood themes

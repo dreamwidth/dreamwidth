@@ -15,56 +15,21 @@
 #
 
 package DW::Controller::API::Rest::Icons;
-use base 'DW::Controller::API::REST';
-
+use DW::Controller::API::REST qw(path);
 use strict;
 use warnings;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
+#use DW::API::Path qw(path);
 use JSON;
 
-# Define route and associated params
-my $route_all = __PACKAGE__->resource (
-    path => '/users/{username}/icons',
-    ver => 1,
-);
-
-$route_all->path (
-    $route_all->param({name => 'username', type => 'string', desc => 'The username you want icon information for', in => 'path', required => 1} )
-);
-
-# define our parameters and options for GET requests
-my $get = $route_all->get('Returns all icons for a specified username.', \&rest_get);
-$get->success('a list of icons');
-
-__PACKAGE__->register_rest_controller($route_all);
-
-# Define route and associated params
-my $route = __PACKAGE__->resource (
-    path => '/users/{username}/icons/{picid}',
-    ver => 1,
-);
-
-$route->path (
-    $route->param({name => 'username', type => 'string', desc => 'The username you want icon information for', in => 'path', required => 1} ),
-    $route->param({name => 'picid', type => 'integer', desc => 'The picid you want information for.', in => 'path', required => 1})
-);
-
-# define our parameters and options for GET requests
-my $get = $route->get('Returns a single icon for a specified picid and username', \&rest_get);
-$get->success('a list of icons');
-$get->error(404, "No such userpic");
-
-__PACKAGE__->register_rest_controller($route);
+my $icons_all = path('icons_all.yaml', 1, {'get' => \&rest_get});
+my $icons = path('icons.yaml', 1, {'get' => \&rest_get});
 
 sub rest_get {
-
-    my $responses = $route->{get}{responses};
-
-    warn("icon list handler!");
     my ( $self, $opts, $username, $picid ) = @_;
-    warn("username=$username");
+
     my $u = LJ::load_user( $username );
 
     # we want to handle the not logged in case ourselves
@@ -77,7 +42,7 @@ sub rest_get {
         if ( $userpic ) {
             return $self->rest_ok( $userpic );
         } else {
-            return $self->rest_error($responses->{404});
+            return $self->rest_error("404");
         }
     } else {
         # otherwise, load all userpics.    

@@ -1,0 +1,67 @@
+---
+paths:
+  /journals/{journal}/entries:
+    parameters:
+      - name: journal
+        in: path
+        description: The journal you want entry information for
+        type: string
+        required: true
+    get:
+      description: Returns recent entries for a specified journal
+      responses:
+        200:
+          description: a list of recent entries
+        404:
+          description: Journal specified does not exist
+    post:
+      description: Post a new journal entry.
+      parameters:
+        - name: subject
+          in: formData
+          description: Entry subject line
+          type: string
+        - name: text
+          in: formData
+          description: Entry text
+          type: string
+          required: true
+        - name: icon
+          in: formData
+          description: Keyword of icon to use
+          type: string
+        - name: datetime
+          in: formData
+          description: The date and time of the entry in the format `FIXME`. If omitted, the server time will be used instead.
+          type: string
+        - name: security
+          in: formData
+          description: Security level to use. Can be public, private, or a filter name.
+          type: string
+        - name: age_restriction
+          in: formData
+          description: Age restriction flag. `none` puts no flags on the entry, `discretion` marks it as "viewer discretion advised", and `restricted` marks it inacessible to users under eighteen. If omitted, the journal default will be used.
+          type: string
+        - name: age_restriction_reason
+          in: formData
+          description: A optional description of why you chose the age-restriction setting you did.
+          type: string
+        - name: comment_settings
+          in: formData
+          description: Comment settings for the new entry. `nocomments` disables comments, and `noemail` disables notifications. If omitted, the journal default will be used.
+          type: string
+        - name: tags
+          in: formData
+          description: An array of tags to apply to the entry.
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: The new entry in JSON format.
+        400:
+          description: Bad input value supplied.
+        404:
+          description: Journal specified does not exist.
+        403:
+          description: You aren't allowed to post in that journal.
