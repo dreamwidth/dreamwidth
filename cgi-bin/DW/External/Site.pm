@@ -46,7 +46,7 @@ $domaintosite{"tumblr.com"} = DW::External::Site->new("10", "tumblr.com", "tumbl
 $domaintosite{"etsy.com"} = DW::External::Site->new("11", "www.etsy.com", "etsy.com", "Etsy", "Etsy");
 $domaintosite{"diigo.com"} = DW::External::Site->new("12", "www.diigo.com", "diigo.com", "Diigo", "Diigo");
 $domaintosite{"blogspot.com"} = DW::External::Site->new("13", "blogspot.com", "blogspot.com", "Blogspot", "blogspot");
-$domaintosite{"delicious.com"} = DW::External::Site->new("14", "delicious.com", "delicious.com", "Delicious", "delicious");
+$domaintosite{"delicious.com"} = DW::External::Site->new("14", "delicious.com", "delicious.com", "Delicious", "delicious"); 
 $domaintosite{"deviantart.com"} = DW::External::Site->new("15", "deviantart.com", "deviantart.com", "DeviantArt", "da");
 $domaintosite{"last.fm"} = DW::External::Site->new("16", "last.fm", "last.fm", "LastFM", "lastfm");
 $domaintosite{"ravelry.com"} = DW::External::Site->new("17", "www.ravelry.com", "ravelry.com", "Ravelry", "ravelry");
@@ -64,7 +64,7 @@ $domaintosite{"medium.com"} = DW::External::Site->new("26", "medium.com", "mediu
 $domaintosite{"imzy.com"} = DW::External::Site->new("27", "www.imzy.com", "imzy.com", "Imzy", "imzy");
 $domaintosite{"facebook.com"} = DW::External::Site->new("28", "www.facebook.com", "facebook.com", "Facebook", "FB");
 $domaintosite{"instagram.com"} = DW::External::Site->new("29", "www.instagram.com", "instagram.com", "Instagram", "instagram");
-
+$domaintosite{"del.icio.us"} = DW::External::Site->new("30", "del.icio.us", "del.icio.us", "Delicious", "delicious");
 
 @all_sites_without_alias = values %domaintosite;
 
@@ -92,7 +92,8 @@ $domaintosite{"diigo"} = $domaintosite{"diigo.com"};
 $domaintosite{"blogspot"} = $domaintosite{"blogspot.com"};
 $domaintosite{"blogger.com"} = $domaintosite{"blogspot.com"};
 $domaintosite{"blogger"} = $domaintosite{"blogspot.com"};
-$domaintosite{"delicious"} = $domaintosite{"delicious.com"};
+$domaintosite{"delicious"} = $domaintosite{"del.icio.us"};
+$domaintosite{"delicious.com"} = $domaintosite{"del.icio.us"};
 $domaintosite{"deviantart"} = $domaintosite{"deviantart.com"};
 $domaintosite{"ravelry"} = $domaintosite{"ravelry.com"};
 $domaintosite{"wordpress"} = $domaintosite{"wordpress.com"};

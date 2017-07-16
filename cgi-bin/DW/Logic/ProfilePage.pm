@@ -735,7 +735,7 @@ sub external_services {
         push @ret, {
             type => 'delicious',
             text => LJ::ehtml( $delicious ),
-            url => "http://www.delicious.com/$delicious",
+            url => "https://del.icio.us/$delicious",
             image => 'delicious.png',
             title_ml => '.service.delicious',
         };
