@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 69;
+use Test::More tests => 70;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -128,6 +128,8 @@ note( "misc" );
     test_good_url( "http://ext.nicovideo.jp/thumb/sm123123123" );
     test_good_url( "http://ext.nicovideo.jp/thumb/nm123123123" );
     test_good_url( "http://ext.nicovideo.jp/thumb/123123123" );
+
+    test_good_url( "http://noisetrade.com/service/widgetv2/ff3a6475-69ef-479d-9773-8ef1676f3cfb" );
 
     test_good_url( "http://www.npr.org/templates/event/embeddedVideo.php?storyId=326182003&mediaId=327658636" );
 

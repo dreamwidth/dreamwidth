@@ -88,6 +88,7 @@ my %host_path_match = (
     "www.mixcloud.com"      => [ qr!^/widget/iframe/$!, 1 ],
 
     "ext.nicovideo.jp"      => [ qr!^/thumb/!, 0 ],
+    "noisetrade.com"        => [ qr!^/service/widgetv2/!, 1 ],
     "www.npr.org"           => [ qr!^/templates/event/embeddedVideo\.php!, 1 ],
 
     "onedrive.live.com"     => [ qr!^/embed$!, 1 ],
