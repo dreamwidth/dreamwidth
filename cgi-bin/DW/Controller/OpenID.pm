@@ -19,9 +19,15 @@ package DW::Controller::OpenID;
 
 use strict;
 use warnings;
+
 use DW::Routing;
 use DW::Controller;
 use DW::Template;
+
+use LJ::OpenID;
+
+DW::Routing->register_string( '/openid/index', \&openid_index_handler, app => 1 );
+DW::Routing->register_string( '/openid/options', \&openid_options_handler, app => 1 );
 
 # for responding to OpenID authentication requests
 DW::Routing->register_string( '/openid/server', \&openid_server_handler,
@@ -32,8 +38,66 @@ DW::Routing->register_string( '/openid/claim', \&openid_claim_handler, app => 1 
 DW::Routing->register_string( '/openid/claimed', \&openid_claimed_handler, app => 1 );
 DW::Routing->register_string( '/openid/claim_confirm', \&openid_claim_confirm_handler, app => 1 );
 
+sub openid_index_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $vars = { continue_to => $r->get_args->{returnto}
+                             || $r->header_in( "Referer" ) };
+
+    return DW::Template->render_template( 'openid/index.tt', $vars );
+}
+
+sub openid_options_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    return error_ml( LJ::Lang::ml( '/openid/options.tt.error.no_support' ) )
+        unless LJ::OpenID::server_enabled();
+
+    my $r = $rv->{r};
+    my $u = $rv->{remote};
+
+    my $dbh = LJ::get_db_writer();
+    my $trusted = {};
+
+    my $load_trusted = sub {
+        $trusted = $dbh->selectall_hashref( q{
+            SELECT ye.endpoint_id as 'endid', ye.url
+            FROM openid_endpoint ye, openid_trust yt
+            WHERE yt.endpoint_id=ye.endpoint_id
+            AND yt.userid=? }, 'endid', undef, $u->userid );
+    };
+
+    $load_trusted->();
+
+    # check for deletions
+    if ( $r->did_post ) {
+        foreach my $endid ( keys %$trusted ) {
+            next unless $r->post_args->{"delete:$endid"};
+            $dbh->do(
+                "DELETE FROM openid_trust WHERE userid=? AND endpoint_id=?",
+                undef, $u->userid, $endid );
+        }
+
+        $load_trusted->();
+    }
+
+    # construct row data
+    my @rows;
+    my $url_sort = sub { $trusted->{$a}->{url} cmp $trusted->{$b}->{url} };
+    foreach my $endid ( sort $url_sort keys %$trusted ) {
+        push @rows, [ "delete:$endid", $trusted->{$endid}->{url} ];
+    }
+
+    $rv->{rows} = \@rows;
+
+    return DW::Template->render_template( 'openid/options.tt', $rv );
+}
+
 sub openid_server_handler {
-    return "OpenID consumer support is disabled"
+    return LJ::Lang::ml( '/openid/options.tt.error.no_support' )
         unless LJ::OpenID::server_enabled();
 
     my $r = DW::Request->get;

@@ -1075,6 +1075,15 @@ general /openid/approve.bml.form.request
 general /openid/approve.bml.form.title
 general /openid/index.bml.beta.content
 general /openid/index.bml.beta.heading
+general /openid/options.bml.error.form_tampering
+general /openid/options.bml.error.login
+general /openid/options.bml.error.no_support
+general /openid/options.bml.error.title
+general /openid/options.bml.main.delete
+general /openid/options.bml.main.none
+general /openid/options.bml.main.trust.content
+general /openid/options.bml.main.trust.heading
+general /openid/options.bml.title
 general /poll/index.bml.gotocreate2
 general /register.bml.ask.header
 general /register.bml.email.body
