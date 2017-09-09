@@ -1729,13 +1729,17 @@ sub clean_as_markdown {
     die "Attempted to use Markdown without the Text::Markdown module.\n"
         unless $rv;
 
-    # first, markdown-ize the world
-    $$ref = Text::Markdown::markdown( $$ref );
-    $opts->{preformatted} = 1;
+    # First, convert @-style addressing to <user> tags, ignoring escaped '@'s.
+    # We're relying on the fact that Markdown generally passes HTML-like
+    # elements--even pseudo-elements like <user>--thru unscathed.
+    #
+    # Note that we HAVE to do this first to avoid issues with escaped '@'s.  If
+    # we wait until AFTER the markdown has been converted to HTML, we won't be
+    # able to tell the difference between "\@foo" and "\\@foo", since
+    # Text::Markdown will helpfully un-escape the double backslash.
 
-    # second, convert @-style addressing to user tags
     my $usertag = sub {
-        my ($user, $site) = ($1, $2 || $LJ::DOMAIN);
+        my ($user, $site) = ($_[0], $_[1] || $LJ::DOMAIN);
         my $siteobj = DW::External::Site->get_site( site => $site );
 
         if ( $site eq $LJ::DOMAIN ) {
@@ -1750,7 +1754,19 @@ sub clean_as_markdown {
             return qq|\@$user.$site|;
         }
     };
-    $$ref =~ s!(?<=[^\w/])\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)!$usertag->($1, $2)!mge;
+
+    # We also have to look for (and explicitly ignore) Markdown-supported escape
+    # sequences here, to avoid parsing edge cases like '\\@foo' incorrectly
+    # (note that's two user-supplied backslashes).  That's why the (\\.) case is
+    # actually (\\.) and not (\\\@).
+    $$ref =~ s!(\\.)|(?<=[^\w/])\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)!
+        defined($1) ? $1 : $usertag->($2, $3)
+        !mge;
+
+    # Second, markdown-ize the result, complete with <user> tags.
+
+    $$ref = Text::Markdown::markdown( $$ref );
+    $opts->{preformatted} = 1;
 
     return 1;
 }
