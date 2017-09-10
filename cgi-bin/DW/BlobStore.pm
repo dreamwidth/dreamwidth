@@ -56,7 +56,7 @@ sub _get_blobstores {
         } elsif ( $name eq 's3' ) {
             push @{$blobstores ||= []}, DW::BlobStore::S3->init( %$config );
         } else {
-            $log->logcroack( 'Invalid blobstore type: ' . $name );
+            $log->logcroak( 'Invalid blobstore type: ' . $name );
         }
 
         $idx += 2;
