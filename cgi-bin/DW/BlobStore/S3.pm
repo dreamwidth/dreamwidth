@@ -25,6 +25,8 @@ use Digest::MD5 qw/ md5_hex /;
 use Paws;
 use Paws::Credential::InstanceProfile;
 
+sub type { 's3' }
+
 sub init {
     my ( $class, %args ) = @_;
 

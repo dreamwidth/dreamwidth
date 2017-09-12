@@ -24,6 +24,8 @@ my $log = Log::Log4perl->get_logger( __PACKAGE__ );
 
 use Digest::MD5 qw/ md5_hex /;
 
+sub type { 'mogilefs' }
+
 sub init {
 	my ( $class, %args ) = @_;
 

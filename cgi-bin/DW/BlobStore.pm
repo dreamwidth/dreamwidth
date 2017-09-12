@@ -23,6 +23,7 @@ my $log = Log::Log4perl->get_logger( __PACKAGE__ );
 
 use File::Temp;
 
+use DW::Stats;
 use LJ::ModuleLoader;
 
 LJ::ModuleLoader->require_subclasses('DW::BlobStore');
@@ -73,8 +74,10 @@ sub ensure_namespace_is_valid {
     my ( $namespace ) = @_;
 
     # Ensure that namespace is alpha-numeric
-    $log->logcroak( "Namespace '$namespace' is invalid." )
-        unless $namespace =~ m!^(?:[a-z][a-z0-9]+)$!;
+    unless ( $namespace =~ m!^(?:[a-z][a-z0-9]+)$! ) {
+        DW::Stats::increment( 'dw.blobstore.error.namespace_invalid', 1 );
+        $log->logcroak( "Namespace '$namespace' is invalid." );
+    }
     return 1;
 }
 
@@ -84,8 +87,10 @@ sub ensure_key_is_valid {
 
     # This is just a check to ensure that nobody uses a key without path
     # elements or with invalid characters.
-    $log->logcroak( "Key '$key' is invalid." )
-        unless $key =~ m!^(?:[a-z0-9]+[_:/-])+([a-z0-9]+)$!;
+    unless ( $key =~ m!^(?:[a-z0-9]+[_:/-])+([a-z0-9]+)$! ) {
+        DW::Stats::increment( 'dw.blobstore.error.key_invalid', 1 );
+        $log->logcroak( "Key '$key' is invalid." );
+    }
     return 1;
 }
 
@@ -109,9 +114,15 @@ sub store {
     # we never store something twice.
     foreach my $bs ( @{$class->_get_blobstores} ) {
         my $rv = $bs->store( $namespace, $key, $blobref );
-        return $rv if $rv;
+        if ( $rv ) {
+            DW::Stats::increment( 'dw.blobstore.action.store_ok', 1, [ 'store:' . $bs->type ] );
+            return $rv;
+        } else {
+            DW::Stats::increment( 'dw.blobstore.action.store_failed', 1, [ 'store:' . $bs->type ] );
+        }
     }
     $log->info( "Meta-blobstore: failed to store ($namespace, $key)" );
+    DW::Stats::increment( 'dw.blobstore.action.store_error', 1 );
     return 0;
 }
 
@@ -135,6 +146,13 @@ sub delete {
     foreach my $bs ( @{$class->_get_blobstores} ) {
         $rv = $bs->delete( $namespace, $key ) || $rv;
     }
+    if ( $rv ) {
+        DW::Stats::increment( 'dw.blobstore.action.delete_ok', 1 );
+    } else {
+        # No 'failed' stat, delete operations can only fail entirely and not per-store since
+        # we are for sure sending deletes to all stores
+        DW::Stats::increment( 'dw.blobstore.action.delete_error', 1 );
+    }
     return $rv;
 }
 
@@ -149,9 +167,15 @@ sub retrieve {
     # Try blobstores in priority order.
     foreach my $bs ( @{$class->_get_blobstores} ) {
         my $rv = $bs->retrieve( $namespace, $key );
-        return $rv if $rv;
+        if ( $rv ) {
+            DW::Stats::increment( 'dw.blobstore.action.retrieve_ok', 1, [ 'store:' . $bs->type ] );
+            return $rv;
+        } else {
+            DW::Stats::increment( 'dw.blobstore.action.retrieve_failed', 1, [ 'store:' . $bs->type ] );
+        }
     }
     $log->info( "Meta-blobstore: failed to retrieve ($namespace, $key)" );
+    DW::Stats::increment( 'dw.blobstore.action.retrieve_error', 1 );
     return undef;
 }
 
@@ -165,9 +189,15 @@ sub exists {
     # Try blobstores in priority order.
     foreach my $bs ( @{$class->_get_blobstores} ) {
         my $rv = $bs->exists( $namespace, $key );
-        return $rv if $rv;
+        if ( $rv ) {
+            DW::Stats::increment( 'dw.blobstore.action.exists_ok', 1, [ 'store:' . $bs->type ] );
+            return $rv;
+        } else {
+            DW::Stats::increment( 'dw.blobstore.action.exists_failed', 1, [ 'store:' . $bs->type ] );
+        }
     }
     $log->info( "Meta-blobstore: file doesn't exist in any store ($namespace, $key)" );
+    DW::Stats::increment( 'dw.blobstore.action.exists_error', 1 );
     return 0;
 }
 
