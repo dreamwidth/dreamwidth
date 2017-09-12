@@ -165,12 +165,25 @@ sub retrieve {
     $log->debug( "Meta-blobstore: retrieving ($namespace, $key)" );
 
     # Try blobstores in priority order.
+    my $num_failures = 0;
     foreach my $bs ( @{$class->_get_blobstores} ) {
         my $rv = $bs->retrieve( $namespace, $key );
         if ( $rv ) {
+            if ( $num_failures == 1 ) {
+                # If we're in a migration, we often expect to see one failure followed by a
+                # success. In that case, we want to cascade a store off of this retrieve to
+                # store the file.
+                $log->info( "Meta-blobstore: cascading store for ($namespace, $key)" );
+                if ( $class->store( $namespace => $key, $rv ) ) {
+                    DW::Stats::increment( 'dw.blobstore.action.retrieve_cascade_ok', 1 );
+                } else {
+                    DW::Stats::increment( 'dw.blobstore.action.retrieve_cascade_error', 1 );
+                }
+            }
             DW::Stats::increment( 'dw.blobstore.action.retrieve_ok', 1, [ 'store:' . $bs->type ] );
             return $rv;
         } else {
+            $num_failures++;
             DW::Stats::increment( 'dw.blobstore.action.retrieve_failed', 1, [ 'store:' . $bs->type ] );
         }
     }
