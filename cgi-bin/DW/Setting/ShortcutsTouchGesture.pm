@@ -122,14 +122,12 @@ sub option {
 
 sub save {
     my ( $class, $u, $args ) = @_;
-    warn ("checking " . $class->prop_key);
     $class->error_check( $u, $args );
 
     my $event = $class->get_arg( $args, $class->prop_key . "event" );
     my $fingers = $class->get_arg( $args, $class->prop_key . "finger" );
     my $direction = $class->get_arg( $args, $class->prop_key . "direction" );
     my $val = $event . "," . $fingers . "," . $direction;
-    warn("setting val " . $val . " for " .  $class->prop_name);
     $u->set_prop( $class->prop_name => $val );
 
     return 1;

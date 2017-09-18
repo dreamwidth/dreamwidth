@@ -48,13 +48,11 @@ sub option {
         $metaval = $class->get_arg( $args, $class->prop_key . 'meta');
     } else {
         $keyval = $u->prop( $class->prop_name );
-        warn("keyval= $keyval\n");
         $ctrlval = $keyval =~ m/ctrl\+/;
         $altval = $keyval =~ m/alt\+/;
         $metaval = $keyval =~ m/meta\+/;
         $keyval =~ s/.*\+//g;
     }
-    warn(" vals $keyval $ctrlval $altval $metaval \n");
     my $ret;
     
     $ret .= LJ::html_text({
@@ -106,7 +104,6 @@ sub save {
     my ( $class, $u, $args ) = @_;
     $class->error_check( $u, $args );
 
-    warn ("saving...\n");
     my $val = $class->get_arg( $args, $class->prop_key );
     # prepend any modifiers
     if ( $class->get_arg( $args, $class->prop_key . 'ctrl' ) ) {
@@ -118,7 +115,6 @@ sub save {
     if ( $class->get_arg( $args, $class->prop_key . 'meta' ) ) {
         $val = 'meta+' . $val;
     }
-    warn("saving " . $class->prop_name . " as $val \n");
 
     $u->set_prop( $class->prop_name => $val );
 

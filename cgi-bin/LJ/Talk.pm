@@ -2262,32 +2262,32 @@ sub init_s2journal_js {
 sub init_s2journal_shortcut_js {
     my ( $remote, $p ) = @_;
 
-    if ( $remote ) {
-        my $connect_string = "";
-        if ( $remote->prop( "opt_shortcuts" ) ||  $remote->prop( "opt_shortcuts") ) {
-            # only load the javascript if we have shortcuts enabled
-            LJ::need_res( { group => "jquery" }, "js/shortcuts.js" );
-            LJ::need_res( { group => "jquery" }, "js/jquery.shortcuts.nextentry.js" );
-
-            $p->{'head_content'} .= "  <script type='text/javascript'>\n  var dw_shortcuts = {\n";
-            if ( $remote->prop( "opt_shortcuts" ) ) {
-                LJ::need_res( { group => "jquery" }, "js/mousetrap.min.js" );
-                $p->{'head_content'} .= "    keyboard: {\n";
-
-                my $nextKey = $remote->prop( "opt_shortcuts_next" );
-                my $prevKey = $remote->prop( "opt_shortcuts_prev" );
-                $p->{'head_content'} .= "      nextEntry: '$nextKey',\n      prevEntry: '$prevKey'\n    }\n";
-                $connect_string = ",";
-            }
-            if ( $remote->prop( "opt_shortcuts_touch" ) ) {
-                LJ::need_res( { group => "jquery" }, "js/jquery.touchSwipe.js" );
-                my $nextTouch = $remote->prop( "opt_shortcuts_touch_next" );
-                my $prevTouch = $remote->prop( "opt_shortcuts_touch_prev" );
-                $p->{'head_content'} .= "$connect_string\n    touch: {\n      nextEntry: '$nextTouch',\n      prevEntry: '$prevTouch'\n    }\n";
-            }
-            $p->{'head_content'} .= "  };\n  </script>\n";
-        }
+    # skip everything if there's no remote user, or if neither opt_shortcuts
+    # nor opt_shortcuts_touch is set.
+    return unless $remote && ( $remote->prop( "opt_shortcuts" ) ||  $remote->prop( "opt_shortcuts_touch") );
+    
+    my $connect_string = "";
+    
+    LJ::need_res( { group => "jquery" }, "js/shortcuts.js" );
+    LJ::need_res( { group => "jquery" }, "js/jquery.shortcuts.nextentry.js" );
+    
+    $p->{'head_content'} .= "  <script type='text/javascript'>\n  var dw_shortcuts = {\n";
+    if ( $remote->prop( "opt_shortcuts" ) ) {
+        LJ::need_res( { group => "jquery" }, "js/mousetrap.js" );
+        $p->{'head_content'} .= "    keyboard: {\n";
+        
+        my $nextKey = $remote->prop( "opt_shortcuts_next" );
+        my $prevKey = $remote->prop( "opt_shortcuts_prev" );
+        $p->{'head_content'} .= "      nextEntry: '$nextKey',\n      prevEntry: '$prevKey'\n    }\n";
+        $connect_string = ",";
     }
+    if ( $remote->prop( "opt_shortcuts_touch" ) ) {
+        LJ::need_res( { group => "jquery" }, "js/jquery.touchSwipe.js" );
+        my $nextTouch = $remote->prop( "opt_shortcuts_touch_next" );
+        my $prevTouch = $remote->prop( "opt_shortcuts_touch_prev" );
+        $p->{'head_content'} .= "$connect_string\n    touch: {\n      nextEntry: '$nextTouch',\n      prevEntry: '$prevTouch'\n    }\n";
+    }
+    $p->{'head_content'} .= "  };\n  </script>\n";
 }
 
 # generate the javascript code for the icon browser
