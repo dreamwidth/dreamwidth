@@ -409,6 +409,9 @@ sub EntryPage
         ) );
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
+    # init shortcut js if selected
+    LJ::Talk::init_s2journal_shortcut_js( $remote, $p );
+
     $p->{'_picture_keyword'} = $get->{'prop_picture_keyword'};
 
     $p->{'viewing_thread'} = $get->{'thread'} ? 1 : 0;

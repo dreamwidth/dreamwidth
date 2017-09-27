@@ -918,6 +918,54 @@ userproplist.opt_sharebday:
   multihomed: 0
   prettyname: Share Birthday
 
+userproplist.opt_shortcuts:
+  cldversion: 4
+  datatype: bool
+  des: Enable keyboard shortcuts
+  indexed: 0
+  multihomed: 0
+  prettyname: Keyboard Shortcuts
+
+userproplist.opt_shortcuts_next:
+  cldversion: 4
+  datatype: char
+  des: Keyboard shortcut for next entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Keyboard Shortcut Next
+
+userproplist.opt_shortcuts_prev:
+  cldversion: 4
+  datatype: char
+  des: Keyboard shortcut for previous entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Keyboard Shortcut Previous
+
+userproplist.opt_shortcuts_touch:
+  cldversion: 4
+  datatype: bool
+  des: Enable touch shortcuts
+  indexed: 0
+  multihomed: 0
+  prettyname: Touch Shortcuts
+
+userproplist.opt_shortcuts_touch_next:
+  cldversion: 4
+  datatype: char
+  des: Touch shortcut for next entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Touch Shortcut Next
+
+userproplist.opt_shortcuts_touch_prev:
+  cldversion: 4
+  datatype: char
+  des: Touch shortcut for previous entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Touch Shortcut Previous
+
 userproplist.opt_showbday:
   cldversion: 4
   datatype: char
