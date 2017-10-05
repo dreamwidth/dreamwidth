@@ -40,7 +40,6 @@ sub server {
     my %args = ( %{ $get || {} }, %{ $post || {} } );
 
     return Net::OpenID::Server->new(
-                                    compat       => $LJ::OPENID_COMPAT,
                                     args         => \%args,
 
                                     get_user     => \&LJ::get_remote,
