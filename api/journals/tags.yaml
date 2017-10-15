@@ -1,0 +1,42 @@
+---
+paths:
+  /journals/{username}/tags:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want tag information for
+        type: string
+        required: true
+    get:
+      description: Returns a list of tags for the given journal
+      responses:
+        200:
+          description: A list of tags.
+    post:
+      description: Add new tags for a given journal
+      parameters:
+        - name: tags
+          in: formData
+          description: An array of tags to apply to the entry.
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: The newly created tags.
+        403:
+          description: You cannot create tags on that journal.
+    delete:
+      description: Delete tags for a given journal
+      parameters:
+        - name: tags
+          in: formData
+          description: An array of tags to apply to the entry.
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: The newly created tags.
+        403:
+          description: You cannot remove tags on that journal.          

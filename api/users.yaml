@@ -1,0 +1,16 @@
+---
+paths:
+  /users/{username}:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want profile information for
+        type: string
+        required: true
+    get:
+      description: Returns information about a specific user.
+      responses:
+        200:
+          description: An array of user information.
+        404:
+          description: No such journal.

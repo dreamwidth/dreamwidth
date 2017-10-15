@@ -1,0 +1,34 @@
+---
+paths:
+  /journals/{username}/accesslists/{accesslistid}:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want accesslist information for
+        type: string
+        required: true
+      - name: accesslistid
+        in: path
+        description: The id of the accesslist you want information for.
+        type: integer
+        required: true
+    get:
+      description: Returns a list journals on a given access list.
+      responses:
+        200:
+          description: A list of journals.
+    post:
+      description: Add users to a given accesslist
+      parameters:
+        - name: journals
+          in: formData
+          description: An array of tags to apply to the entry.
+          type: array
+          required: true
+          items:
+            type: string
+      responses:
+        200:
+          description: The newly updated accesslist.
+        403:
+          description: You cannot update accesslists on that journal.

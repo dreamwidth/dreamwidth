@@ -53,7 +53,7 @@ sub _spec_20 {
     my $ver = $spec->{ver};
 
     my @content_types = qw(application/json);
-    my @schemes = qw(https http);
+    my @schemes = qw(http);
 
     my %spec = (
         swagger => '2.0',

@@ -8,7 +8,32 @@ paths:
         type: string
         required: true
     get:
-      description: Returns recent entries for a specified journal
+      description: Returns recent entries for a specified journal, optionally filtered by the extra parameters given.
+      parameters:
+        - name: start
+          in: formData
+          description: The beginning of a date range to fetch.
+          type: string
+        - name: end
+          in: formData
+          description: The end of a date range to fetch.
+          type: string
+        - name: count
+          in: formData
+          description: The number of entries to fetch. FIXME - max
+          type: int
+        - name: offset
+          in: formData
+          description: The offset from the most recent entry to start fetching from.
+          type: int
+        - name: tag
+          in: formData
+          description: The tag to filter fetched entries by
+          type: string
+        - name: accesslist
+          in: formData
+          description: The security level to filter fetched entries by
+          type: string
       responses:
         200:
           description: a list of recent entries
@@ -65,3 +90,19 @@ paths:
           description: Journal specified does not exist.
         403:
           description: You aren't allowed to post in that journal.
+  /journals/{journal}/entries/defaults:
+    parameters:
+      - name: journal
+        in: path
+        description: The journal you want entry information for
+        type: string
+        required: true
+    get:
+      description: Returns the default entry posting values
+      responses:
+        200:
+          description: a list of recent entries
+        404:
+          description: Journal specified does not exist
+        403:
+          description: You don't have post access for that journal.

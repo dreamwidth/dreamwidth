@@ -1,0 +1,44 @@
+---
+paths:
+  /users/{username}/grants:
+    parameters:
+      - name: username
+        in: path
+        description: The journal you want entry information for
+        type: string
+        required: true    
+    get:
+      description: Returns a list of journals the username grants read access to.
+      responses:
+        200:
+          description: A list of journal names.
+    post:
+      description: Grant read access to journals in the `journals` list.
+      parameters:
+      - name: journals
+        in: formBody
+        description: The journals you wish to grant access for.
+        type: string
+        required: true      
+      responses:
+        200:
+          description: A list of journal names.
+        403:
+          description: You can't grant access for that username.
+        403:
+          description: No user found.
+    delete:
+      description: Remove read access to journals in the `journals` list.
+      parameters:
+      - name: journals
+        in: formBody
+        description: The journals you wish to grant access for.
+        type: string
+        required: true      
+      responses:
+        200:
+          description: A list of journal names.
+        403:
+          description: You can't remove access for that username.
+        403:
+          description: No user found.

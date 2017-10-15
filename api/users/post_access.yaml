@@ -1,0 +1,14 @@
+---
+paths:
+  /users/{username}/journals:
+    parameters:
+      - name: username
+        in: path
+        description: The journal you want entry information for
+        type: string
+        required: true    
+    get:
+      description: Returns a list of journals the username has posting access to.
+      responses:
+        200:
+          description: A list of journal names.

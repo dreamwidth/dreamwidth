@@ -1,0 +1,35 @@
+---
+paths:
+  /journals/{username}/accesslists:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want accesslist information for
+        type: string
+        required: true
+    get:
+      description: Returns a list of entry accesslists for the journal
+      responses:
+        200:
+          description: A list of accesslists.
+    post:
+      description: Create a new entry accesslist for the journal
+      parameters:
+        - name: name
+          in: formData
+          description: The name of the new accesslist.
+          type: string
+          required: true
+        - name: sortorder
+          in: formData
+          description: Sort order for the new accesslist, 0 to 255.
+          type: integer
+        - name: is_public
+          in: formData
+          description: The visibility of the new accesslist. Default is false (private).
+          type: boolean
+      responses:
+        200:
+          description: The newly created accesslist.
+        403:
+          description: You cannot create accesslists on that journal.

@@ -2,7 +2,7 @@
 paths:
   /moods:
     get:
-      description: Returns all mood themes
+      description: Returns all mood choices
       responses:
         200:
-          description: a list of mood themes
+          description: a list of mood choices
