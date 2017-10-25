@@ -818,7 +818,7 @@ sub clean
 
                     my $sanitize_url = sub {
                         my $url = canonical_url( $_[0], 1 );
-                        return $url unless $LJ::IS_SSL;
+                        return $url unless $LJ::IS_SSL && ! $to_external_site;
                         return https_url( $url, journal => $journal, ditemid => $ditemid );
                     };
 
