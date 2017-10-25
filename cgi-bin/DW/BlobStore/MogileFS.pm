@@ -24,18 +24,20 @@ my $log = Log::Log4perl->get_logger( __PACKAGE__ );
 
 use Digest::MD5 qw/ md5_hex /;
 
+sub type { 'mogilefs' }
+
 sub init {
-	my $class = $_[0];
+	my ( $class, %args ) = @_;
 
     eval 'use MogileFS::Client;';
     $log->logcroak( "Couldn't load MogileFS: $@" )
     	if $@;
 
     my $mogclient = MogileFS::Client->new(
-		domain   => $LJ::MOGILEFS_CONFIG{domain},
-		root     => $LJ::MOGILEFS_CONFIG{root},
-		hosts    => $LJ::MOGILEFS_CONFIG{hosts},
-		timeout  => $LJ::MOGILEFS_CONFIG{timeout},
+		domain   => $args{domain},
+		root     => $args{root},
+		hosts    => $args{hosts},
+		timeout  => $args{timeout},
 	) or $log->logcroak( 'Could not initialize MogileFS' );
 
 	$log->debug( 'Initialized MogileFS blobstore' );

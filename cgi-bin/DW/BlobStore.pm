@@ -23,6 +23,7 @@ my $log = Log::Log4perl->get_logger( __PACKAGE__ );
 
 use File::Temp;
 
+use DW::Stats;
 use LJ::ModuleLoader;
 
 LJ::ModuleLoader->require_subclasses('DW::BlobStore');
@@ -43,28 +44,26 @@ sub _get_blobstores {
         return $blobstores;
     }
 
-    # Site owners must configure one of these.
-    if ( exists $LJ::BLOBSTORE{s3} ) {
-        $log->debug( 'Initializing S3 blobstore.' );
-        push @{$blobstores ||= []}, DW::BlobStore::S3->init( %{$LJ::BLOBSTORE{s3}} );
-    }
-    if ( exists $LJ::BLOBSTORE{localdisk} ) {
-        $log->logcroak( 'Must only define a single %LJ::BLOBSTORE entry.' )
-            if defined $blobstores;
-        $log->debug( 'Initializing localdisk blobstore.' );
-        push @{$blobstores ||= []}, DW::BlobStore::LocalDisk->init( %{$LJ::BLOBSTORE{localdisk}} );
+    my $idx = 0;
+    while ( $idx < scalar @LJ::BLOBSTORES ) {
+        my ( $name, $config ) = @LJ::BLOBSTORES[$idx, $idx+1];
+        $log->logcroak( 'Value must be a hashref.' )
+            unless $config && ref $config eq 'HASH';
+
+        if ( $name eq 'localdisk' ) {
+            push @{$blobstores ||= []}, DW::BlobStore::LocalDisk->init( %$config );
+        } elsif ( $name eq 'mogilefs' ) {
+            push @{$blobstores ||= []}, DW::BlobStore::MogileFS->init( %$config );
+        } elsif ( $name eq 's3' ) {
+            push @{$blobstores ||= []}, DW::BlobStore::S3->init( %$config );
+        } else {
+            $log->logcroak( 'Invalid blobstore type: ' . $name );
+        }
+
+        $idx += 2;
     }
 
-    # As a way to support migration of MogileFS data to the new storage
-    # system, we support a way of specifying a fallback MogileFS cluster which
-    # is activated if we ask for it. This is temporary and will be removed
-    # when Dreamwidth is fully off of MogileFS.
-    if ( %LJ::MOGILEFS_CONFIG && $LJ::MOGILEFS_CONFIG{hosts} ) {
-        $log->debug( 'Initializing MogileFS blobstore.' );
-        push @{$blobstores ||= []}, DW::BlobStore::MogileFS->init;
-    }
-
-    $log->logcroak( 'Must configure %LJ::BLOBSTORE or %LJ::MOGILEFS_CONFIG.' )
+    $log->logcroak( 'Must configure @LJ::BLOBSTORE.' )
         unless $blobstores;
     $log->debug( 'Blobstore initialized with ', scalar( @$blobstores ), ' blobstores.' );
     return $blobstores;
@@ -75,8 +74,10 @@ sub ensure_namespace_is_valid {
     my ( $namespace ) = @_;
 
     # Ensure that namespace is alpha-numeric
-    $log->logcroak( "Namespace '$namespace' is invalid." )
-        unless $namespace =~ m!^(?:[a-z][a-z0-9]+)$!;
+    unless ( $namespace =~ m!^(?:[a-z][a-z0-9]+)$! ) {
+        DW::Stats::increment( 'dw.blobstore.error.namespace_invalid', 1 );
+        $log->logcroak( "Namespace '$namespace' is invalid." );
+    }
     return 1;
 }
 
@@ -86,8 +87,10 @@ sub ensure_key_is_valid {
 
     # This is just a check to ensure that nobody uses a key without path
     # elements or with invalid characters.
-    $log->logcroak( "Key '$key' is invalid." )
-        unless $key =~ m!^(?:[a-z0-9]+[_:/-])+([a-z0-9]+)$!;
+    unless ( $key =~ m!^(?:[a-z0-9]+[_:/-])+([a-z0-9]+)$! ) {
+        DW::Stats::increment( 'dw.blobstore.error.key_invalid', 1 );
+        $log->logcroak( "Key '$key' is invalid." );
+    }
     return 1;
 }
 
@@ -111,9 +114,15 @@ sub store {
     # we never store something twice.
     foreach my $bs ( @{$class->_get_blobstores} ) {
         my $rv = $bs->store( $namespace, $key, $blobref );
-        return $rv if $rv;
+        if ( $rv ) {
+            DW::Stats::increment( 'dw.blobstore.action.store_ok', 1, [ 'store:' . $bs->type ] );
+            return $rv;
+        } else {
+            DW::Stats::increment( 'dw.blobstore.action.store_failed', 1, [ 'store:' . $bs->type ] );
+        }
     }
     $log->info( "Meta-blobstore: failed to store ($namespace, $key)" );
+    DW::Stats::increment( 'dw.blobstore.action.store_error', 1 );
     return 0;
 }
 
@@ -137,6 +146,13 @@ sub delete {
     foreach my $bs ( @{$class->_get_blobstores} ) {
         $rv = $bs->delete( $namespace, $key ) || $rv;
     }
+    if ( $rv ) {
+        DW::Stats::increment( 'dw.blobstore.action.delete_ok', 1 );
+    } else {
+        # No 'failed' stat, delete operations can only fail entirely and not per-store since
+        # we are for sure sending deletes to all stores
+        DW::Stats::increment( 'dw.blobstore.action.delete_error', 1 );
+    }
     return $rv;
 }
 
@@ -149,11 +165,30 @@ sub retrieve {
     $log->debug( "Meta-blobstore: retrieving ($namespace, $key)" );
 
     # Try blobstores in priority order.
+    my $num_failures = 0;
     foreach my $bs ( @{$class->_get_blobstores} ) {
         my $rv = $bs->retrieve( $namespace, $key );
-        return $rv if $rv;
+        if ( $rv ) {
+            if ( $num_failures == 1 ) {
+                # If we're in a migration, we often expect to see one failure followed by a
+                # success. In that case, we want to cascade a store off of this retrieve to
+                # store the file.
+                $log->info( "Meta-blobstore: cascading store for ($namespace, $key)" );
+                if ( $class->store( $namespace => $key, $rv ) ) {
+                    DW::Stats::increment( 'dw.blobstore.action.retrieve_cascade_ok', 1 );
+                } else {
+                    DW::Stats::increment( 'dw.blobstore.action.retrieve_cascade_error', 1 );
+                }
+            }
+            DW::Stats::increment( 'dw.blobstore.action.retrieve_ok', 1, [ 'store:' . $bs->type ] );
+            return $rv;
+        } else {
+            $num_failures++;
+            DW::Stats::increment( 'dw.blobstore.action.retrieve_failed', 1, [ 'store:' . $bs->type ] );
+        }
     }
     $log->info( "Meta-blobstore: failed to retrieve ($namespace, $key)" );
+    DW::Stats::increment( 'dw.blobstore.action.retrieve_error', 1 );
     return undef;
 }
 
@@ -167,9 +202,15 @@ sub exists {
     # Try blobstores in priority order.
     foreach my $bs ( @{$class->_get_blobstores} ) {
         my $rv = $bs->exists( $namespace, $key );
-        return $rv if $rv;
+        if ( $rv ) {
+            DW::Stats::increment( 'dw.blobstore.action.exists_ok', 1, [ 'store:' . $bs->type ] );
+            return $rv;
+        } else {
+            DW::Stats::increment( 'dw.blobstore.action.exists_failed', 1, [ 'store:' . $bs->type ] );
+        }
     }
     $log->info( "Meta-blobstore: file doesn't exist in any store ($namespace, $key)" );
+    DW::Stats::increment( 'dw.blobstore.action.exists_error', 1 );
     return 0;
 }
 

@@ -83,8 +83,8 @@ ERRMSG
 }
 
 # make sure ljconfig is setup right (or so we hope)
-die "Please define \%LJ::BLOBSTORE in your site config\n"
-    unless %LJ::BLOBSTORE && scalar keys %LJ::BLOBSTORE;
+die "Please define \@LJ::BLOBSTORES in your site config\n"
+    unless @LJ::BLOBSTORES && scalar @LJ::BLOBSTORES;
 
 # setup stderr if we're in best effort mode
 if ($besteffort) {
