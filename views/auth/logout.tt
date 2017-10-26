@@ -1,0 +1,47 @@
+[%#
+    auth/logout.tt
+
+    Allow a user to log out of the site or to expire all of their sessions.
+
+    Authors:
+        Mark Smith <mark@dreamwidth.org>
+
+    Copyright (c) 2017 by Dreamwidth Studios, LLC.
+
+    This program is free software; you may redistribute it and/or modify it under
+    the same terms as Perl itself.  For a copy of the license, please reference
+    'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.windowtitle = "Log Out" -%]
+[%- sections.title = "Log Out" -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[% IF success == 'one' %]
+
+    <p>
+    You have successfully logged out of [% site.nameshort %] in this browser.
+    </p>
+
+[% ELSIF success == 'all' %]
+
+    <p>
+    You have successfully logged out of [% site.nameshort %] in every browser.
+    </p>
+
+[% ELSE %]
+
+    <p>
+    If you would like to log out of [% site.nameshort %], you can choose to either log out
+    this browser only, or to log out everywhere. This is useful if you were logged in on another
+    computer and want to log it out remotely.
+    </p>
+
+    <form method='post'>
+        [% dw.form_auth %]
+        [% form.submit( name = "logout_one", value = "Log Out Here Only") %]
+        or
+        [% form.submit( name = "logout_all", value = "Log Out Everywhere" ) %]
+    </form>
+
+[% END %]

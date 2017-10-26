@@ -105,12 +105,11 @@ the table based way can be removed when the entire site is Foundation-based.
 <div id='account-links-text' role="navigation" aria-label="[% 'sitescheme.navigation.accountlinks' | ml %]" data-reveal>
 [%- IF dw_scheme.show_logout_button -%]
 <div class='row'><div class='columns'>
-<form action='[% site.root %]/logout?ret=1' method='post'>
-[%- remote.ljuser_display -%]
-<input type='hidden' name='user' value='[% remote.user %]' />
-<input type='hidden' name='sessid' value='[% remote.session.sessid %]' />
-<input class="logout button secondary" type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
-</form>
+    <form action='[% site.root %]/logout' method='post'>
+        [%- dw.form_auth -%]
+        [%- remote.ljuser_display -%]
+        <input class="logout button secondary" type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
+    </form>
 </div></div>
 [%- END -%]
 <div class='row'><div class='small-12 large-12 columns'>
@@ -177,12 +176,11 @@ the table based way can be removed when the entire site is Foundation-based.
     [%- identity = remote.is_identity -%]
     [%- -%]<div id='account-links-text'>
     [%- IF dw_scheme.show_logout_button -%]
-    [%- -%]<form action='[% site.root %]/logout?ret=1' method='post'>
-    [%- remote.ljuser_display -%]
-    [%- -%]<input type='hidden' name='user' value='[% remote.user %]' />
-    [%- -%]<input type='hidden' name='sessid' value='[% remote.session.sessid %]' />
-    [%- -%]<input type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
-    [%- -%]</form>
+    <form action='[% site.root %]/logout' method='post'>
+        [%- dw.form_auth -%]
+        [%- remote.ljuser_display -%]
+        <input type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
+    </form>
     [%- END -%]
     [%- -%]<ul>
     [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
