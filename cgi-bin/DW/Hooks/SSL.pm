@@ -21,6 +21,9 @@ LJ::Hooks::register_hook( 'ssl_check', sub {
     my $apache_r = $_[0]->{r}
         or return 0;
 
+    # Set if all traffic is SSL
+    return 1 if $LJ::ALL_TRAFFIC_IS_SSL;
+
     # SSL_HEADER would be set by caching proxy
     return 1 if $LJ::SSL_HEADER &&
                 ( $apache_r->headers_in->{$LJ::SSL_HEADER} == 1 ||

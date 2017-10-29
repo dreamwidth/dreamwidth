@@ -169,7 +169,8 @@ sub handler
 }
 
 sub redir {
-    my ($apache_r, $url, $code) = @_;
+    my ( $apache_r, $url, $code ) = @_;
+
     $apache_r->content_type("text/html");
     $apache_r->headers_out->{Location} = $url;
 
@@ -636,7 +637,9 @@ sub trans {
                     my $adult_content_handler = sub {
                         $apache_r->handler( "perl-script" );
                         $apache_r->notes->{adult_content_type} = $_[0];
-                        $apache_r->push_handlers( PerlHandler => \&adult_interstitial );
+                        $apache_r->push_handlers(
+                            PerlHandler => sub { adult_interstitial( $_[0], is_ssl => $is_ssl ) },
+                        );
                         return OK;
                     };
 
@@ -1217,8 +1220,11 @@ sub load_file_for_concat {
 }
 
 sub adult_interstitial {
-    my $apache_r = shift;
-    my $int_redir = DW::Routing->call( uri => $apache_r->notes->{adult_content_type} );
+    my ( $apache_r, %opts ) = @_;
+    my $int_redir = DW::Routing->call(
+        uri => $apache_r->notes->{adult_content_type},
+        ssl => $opts{is_ssl},
+    );
 
     if ( defined $int_redir ) {
         # we got a match; clear the request cache and return DECLINED.
