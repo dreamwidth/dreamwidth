@@ -1666,9 +1666,6 @@ sub postevent
     # argh, this is all too ugly.  need to unify more postpost stuff into async
     $u->invalidate_directory_record;
 
-    # note this post in recentactions table
-    LJ::DB::note_recent_action($uowner, 'post');
-
     # Insert the slug (try to, this will fail if this slug is already used)
     my $slug = LJ::canonicalize_slug( $req->{slug} );
     if ( defined $slug && length $slug > 0 ) {

@@ -51,7 +51,7 @@ $LJ::DBIRole = new DBI::Role {
                     "trust_groups", "userpicmap2", "userpic2",
                     "s2stylelayers2", "s2compiled2", "userlog",
                     "logtags", "logtagsrecent", "logkwsum",
-                    "recentactions", "usertags", "pendcomments",
+                    "usertags", "pendcomments",
                     "loginlog", "active_user", "bannotes",
                     "notifyqueue", "dbnotes", "random_user_set",
                     "poll2", "pollquestion2", "pollitem2",
@@ -302,31 +302,6 @@ sub random_cluster {
 
     # if we get here, we found no clusters that were up...
     return 0;
-}
-
-
-sub note_recent_action {
-    my ( $cid, $action ) = @_;
-
-    # make sure they gave us an action (and it's not a long string)
-    return undef if ! $action || length( $action ) > 20;
-
-    # fall back to selecting a random cluster if none specified
-    $cid = LJ::DB::random_cluster() unless defined $cid;
-
-    # accept a user object
-    $cid = ref $cid ? $cid->{clusterid} + 0 : $cid + 0;
-
-    return undef unless $cid;
-
-    my $dbcm = LJ::get_cluster_master( $cid )
-        or return undef;
-
-    # append to recentactions table
-    $dbcm->do( "INSERT INTO recentactions VALUES (?)", undef, $action );
-    return undef if $dbcm->err;
-
-    return 1;
 }
 
 

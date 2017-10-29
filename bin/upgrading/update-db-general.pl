@@ -908,6 +908,8 @@ register_tabledrop("txtmsg");
 register_tabledrop("comm_promo_list");
 register_tabledrop("incoming_email_handle");
 register_tabledrop("backupdirty");
+register_tabledrop("actionhistory");
+register_tabledrop("recentactions");
 
 
 register_tablecreate("infohistory", <<'EOC');
@@ -1838,25 +1840,6 @@ CREATE TABLE logkwsum (
     PRIMARY KEY (journalid, kwid, security),
     KEY (journalid, security)
 )
-EOC
-
-# action history tables
-register_tablecreate("actionhistory", <<'EOC');
-CREATE TABLE actionhistory (
-    time      INT UNSIGNED NOT NULL,
-    clusterid TINYINT UNSIGNED NOT NULL,
-    what      CHAR(2) NOT NULL,
-    count     INT UNSIGNED NOT NULL DEFAULT 0,
-
-    INDEX(time)
-)
-EOC
-
-# TODO: why is this myisam?
-register_tablecreate("recentactions", <<'EOC');
-CREATE TABLE recentactions (
-    what CHAR(2) NOT NULL
-) ENGINE=MYISAM
 EOC
 
 # external identities
@@ -3414,14 +3397,6 @@ register_alter(sub {
     if (column_type("includetext", "inctext") !~ /mediumtext/) {
         do_alter("includetext",
                  "ALTER TABLE includetext MODIFY COLUMN inctext MEDIUMTEXT");
-    }
-
-    foreach my $table (qw(recentactions actionhistory)) {
-
-        if (column_type($table, "what") =~ /^char/i) {
-            do_alter($table,
-                     "ALTER TABLE $table MODIFY COLUMN what VARCHAR(20) NOT NULL");
-        }
     }
 
     # table format totally changed, we'll just truncate and modify

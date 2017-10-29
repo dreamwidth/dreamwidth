@@ -689,7 +689,6 @@ sub moveUser {
                       "cmdbuffer" => 1,       # pre-flushed
                       "events" => 1,          # handled by qbufferd (not yet used)
                       "tempanonips" => 1,     # temporary ip storage for spam reports
-                      "recentactions" => 1,   # pre-flushed by clean_caches
                       "pendcomments" => 1,    # don't need to copy these
                       "active_user"  => 1,    # don't need to copy these
                       "random_user_set" => 1, # "
@@ -1035,7 +1034,7 @@ sub fetchTableInfo
     my $memkey = "moveucluster:" . Digest::MD5::md5_hex(join(",",@tables));
     my $tinfo = LJ::MemCache::get($memkey) || {};
     foreach my $table (@tables) {
-        next if grep { $_ eq $table } qw(events cmdbuffer recentactions pendcomments active_user random_user_set dbnotes);
+        next if grep { $_ eq $table } qw(events cmdbuffer pendcomments active_user random_user_set dbnotes);
         next if $tinfo->{$table};  # no need to load this one
 
         # find the index we'll use
