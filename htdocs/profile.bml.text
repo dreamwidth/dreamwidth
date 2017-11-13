@@ -149,8 +149,6 @@
 
 .flag=Flag Journal
 
-.im.aol=AIM
-
 .im.gtalk=Google Talk
 
 .im.header=Instant Message:
@@ -172,8 +170,6 @@
 .label.adduser=Add User
 
 .label.alsofriendof=Also Friend of:
-
-.label.aolim=AOL IM:
 
 .label.birthdate=Birthdate:
 
