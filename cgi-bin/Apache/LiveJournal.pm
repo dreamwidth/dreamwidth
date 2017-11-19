@@ -1339,7 +1339,7 @@ sub journal_content
 
     # check for redirects
     if ( $opts->{internal_redir} ) {
-        my $int_redir = DW::Routing->call( uri => $opts->{internal_redir} );
+        my $int_redir = DW::Routing->call( uri => $opts->{internal_redir}, ssl => $LJ::IS_SSL );
         if ( defined $int_redir ) {
             # we got a match; clear the request cache and return DECLINED.
             LJ::start_request();
