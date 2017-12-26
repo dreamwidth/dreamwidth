@@ -1171,7 +1171,8 @@ sub entry_form {
 
     $opts->{'richtext'} = $opts->{'richtext_default'};
     my $tabnum = 10; #make allowance for username and password
-    my $tabindex = sub { return $tabnum++; };
+    # Leave gaps for interpolated fields eg date/time
+    my $tabindex = sub { return ( $tabnum += 10 ) - 10; };
     $opts->{'event'} = LJ::durl($opts->{'event'}) if $opts->{'mode'} eq "edit";
 
     # 1 hour auth token, should be adequate
@@ -1244,7 +1245,7 @@ sub entry_form {
             my ($year, $mon, $mday, $hour, $min) = split( /\D/, $opts->{'datetime'});
             my $monthlong = LJ::Lang::month_long($mon);
             # date entry boxes / formatting note
-            my $datetime = LJ::html_datetime({ 'name' => "date_ymd", 'notime' => 1, 'default' => "$year-$mon-$mday", 'disabled' => $opts->{'disabled_save'}});
+            my $datetime = LJ::html_datetime( { name => 'date_ymd', notime => 1, default => "$year-$mon-$mday", tabindex => $tabindex->(), disabled => $opts->{'disabled_save'} } );
             $datetime .= "<span class='float-left'>&nbsp;&nbsp;</span>";
             $datetime .=   LJ::html_text({ size => 2, class => 'text', maxlength => 2, value => $hour, name => "hour", tabindex => $tabindex->(), disabled => $opts->{'disabled_save'} }) . "<span class='float-left'>:</span>";
             $datetime .=   LJ::html_text({ size => 2, class => 'text', maxlength => 2, value => $min, name => "min", tabindex => $tabindex->(), disabled => $opts->{'disabled_save'} });
