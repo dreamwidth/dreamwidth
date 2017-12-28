@@ -18,7 +18,7 @@
 #      Janine Smith <janine@netrophic.com>
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2009-2014 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2017 by Dreamwidth Studios, LLC.
 
 package DW::Controller::Create;
 
@@ -200,7 +200,7 @@ sub create_handler {
             # send welcome mail
             my $aa = LJ::register_authaction( $nu->id, "validateemail", $email );
 
-            my $body = LJ::Lang::ml( 'email.newacct5.body', {
+            my $body = LJ::Lang::ml( 'email.newacct6.body', {
                 sitename => $LJ::SITENAME,
                 regurl => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}",
                 journal_base => $nu->journal_base,
@@ -214,11 +214,12 @@ sub create_handler {
                 customizeurl => "$LJ::SITEROOT/customize/",
                 postentryurl => "$LJ::SITEROOT/update",
                 setsecreturl => "$LJ::SITEROOT/set_secret",
+                supporturl => "$LJ::SITEROOT/support/submit",
             });
 
             LJ::send_mail({
                 to => $email,
-                from => $LJ::ADMIN_EMAIL,
+                from => $LJ::BOGUS_EMAIL,
                 fromname => $LJ::SITENAME,
                 charset => 'utf-8',
                 subject => LJ::Lang::ml( 'email.newacct.subject', { sitename => $LJ::SITENAME } ),

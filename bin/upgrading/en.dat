@@ -440,7 +440,7 @@ email.invitedist.req.subject=Result of your invite code distribution request
 
 email.newacct.subject=Welcome to [[sitename]]
 
-email.newacct5.body<<
+email.newacct6.body<<
 Congratulations, you have a new [[sitename]] account!
 
 To complete your journal creation and verify your email address,
@@ -462,6 +462,11 @@ If you need to reset your password, you can do so at any time by
 visiting the following URL:
 
    [[lostinfourl]]
+
+Please do not reply to this email. For any questions or additional
+information, please visit the following URL:
+
+   [[supporturl]]
 
 Enjoy!
 
