@@ -22,14 +22,6 @@ userproplist.ao3:
   multihomed: 0
   prettyname: Archive of Our Own user account name
 
-userproplist.aolim:
-  cldversion: 0
-  datatype: char
-  des: AOL IM ScreenName
-  indexed: 1
-  multihomed: 1
-  prettyname: AOL Instant Messanger
-
 userproplist.badpassword:
   cldversion: 4
   datatype: num

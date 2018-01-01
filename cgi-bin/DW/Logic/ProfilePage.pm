@@ -719,17 +719,6 @@ sub external_services {
         };
     }
 
-    if ( my $aol = $u->prop( 'aolim') ) {
-        my $eaol = LJ::eurl( $aol );
-        $eaol =~ s/ //g;
-        push @ret, {
-            type => 'aim',
-            text => LJ::ehtml( $aol ),
-            image => 'aim.gif',
-            title_ml => '.im.aol',
-        };
-    }
-
     if ( my $delicious = $u->prop( 'delicious' ) ) {
         my $delicious = LJ::eurl( $delicious );
         push @ret, {
