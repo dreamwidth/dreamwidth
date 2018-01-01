@@ -110,7 +110,7 @@ sub as_html {
     my $subject = $msg->subject;
 
     if ( $other_u->is_suspended ) {
-        $subject = "(Reply from suspended user)";
+        $subject = "(Message from suspended user)";
     }
 
     my $ret;
@@ -174,7 +174,7 @@ sub content {
     my $other_u = $msg->other_u;
 
     if ( $other_u->is_suspended ) {
-        $body = "(Reply from suspended user)";
+        $body = "(Message from suspended user)";
     }
     $body = LJ::html_newlines($body);
     $body = "<div class='actions_top'>" . $self->as_html_actions . "</div>" . $body
