@@ -11,7 +11,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -189,6 +189,7 @@ sub get_upload_type {
 sub get_active_for_user {
     my ( $class, $u, %opts ) = @_;
     confess 'Invalid user' unless LJ::isu( $u );
+    return () if $u->is_expunged;
 
     # get all active rows for this user
     my $rows = $u->selectcol_arrayref(
@@ -215,6 +216,7 @@ sub get_active_for_user {
 sub get_quota_for_user {
     my ( $class, $u ) = @_;
     confess 'Invalid user' unless LJ::isu( $u );
+    return 0 if $u->is_expunged;
 
     my $cap = $u->get_cap( 'media_file_quota' ) // 0;
 
@@ -225,6 +227,7 @@ sub get_quota_for_user {
 sub get_usage_for_user {
     my ( $class, $u ) = @_;
     confess 'Invalid user' unless LJ::isu( $u );
+    return 0 if $u->is_expunged;
 
     my ( $usage ) = $u->selectrow_array(
         q{SELECT SUM(mv.filesize) FROM media_versions AS mv, media AS m
@@ -243,7 +246,7 @@ package LJ::User;
 
 sub can_upload_media {
     my ( $u ) = @_;
-    return 0 if $u->is_identity;
+    return 0 if $u->is_expunged || $u->is_identity;
 
     my $quota = DW::Media->get_quota_for_user( $u );
     my $usage = DW::Media->get_usage_for_user( $u );
