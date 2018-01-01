@@ -1770,7 +1770,7 @@ CREATE TABLE userlog (
     action        VARCHAR(30) NOT NULL,
     actiontarget  INT UNSIGNED,
     remoteid      INT UNSIGNED,
-    ip            VARCHAR(15),
+    ip            VARCHAR(45),
     uniq          VARCHAR(15),
     extra         VARCHAR(255),
 
@@ -4072,6 +4072,12 @@ EOF
     if ( column_type( 'userpic2', 'description' ) eq "varchar(255)" ) {
         do_alter( 'userpic2',
             "ALTER TABLE userpic2 MODIFY COLUMN description VARCHAR(600) BINARY NOT NULL default ''");
+    }
+
+    # widen ip column for IPv6 addresses
+    if ( column_type("userlog", "ip") eq "varchar(15)" ) {
+        do_alter( "spamreports",
+                  "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
     }
 
 });
