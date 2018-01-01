@@ -289,7 +289,9 @@ body<=
             my $media_usage = DW::Media->get_usage_for_user( $u );
             my $media_quota = DW::Media->get_quota_for_user( $u );
             my $megabytes  = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
-            my $percentage = sprintf( "%0.1f%%", $media_usage / $media_quota * 100 );
+            my $percentage = ( $media_quota != 0 )
+                ? sprintf( "%0.1f%%", $media_usage / $media_quota * 100 )
+                : $ML{'.noquota'};
 
             $ret .= "<br />$ML{'.media'}: $megabytes ($percentage)";
         }

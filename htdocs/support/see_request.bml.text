@@ -95,6 +95,8 @@
 
 .none=None
 
+.noquota=no quota
+
 .not.have.access=You don't have authorization to answer people's support requests in this category.
 
 .nothaveprivilege=You don't have the necessary privileges to view this request. 
