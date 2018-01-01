@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2010-2014 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -40,7 +40,7 @@ DW::Routing->register_string( "/admin/rename/new", \&siteadmin_rename_handler, a
 DW::Controller::Admin->register_admin_page( '/',
     path => '/admin/rename/',
     ml_scope => '/admin/rename.tt',
-    privs => [ 'siteadmin:rename' ]
+    privs => [ 'siteadmin:rename', 'payments' ]
 );
 
 sub rename_handler {
@@ -259,7 +259,7 @@ sub handle_swap_post {
 }
 
 sub rename_admin_handler {
-    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:rename" ] );
+    my ( $ok, $rv ) = controller( privcheck => [ 'siteadmin:rename', 'payments' ] );
     return $rv unless $ok;
 
     my $r = DW::Request->get;
@@ -299,7 +299,7 @@ sub rename_admin_handler {
 }
 
 sub rename_admin_edit_handler {
-    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:rename" ] );
+    my ( $ok, $rv ) = controller( privcheck => [ 'siteadmin:rename', 'payments' ] );
     return $rv unless $ok;
 
     my $r = DW::Request->get;
@@ -409,7 +409,7 @@ sub handle_admin_post {
 
 
 sub siteadmin_rename_handler {
-    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:rename" ] );
+    my ( $ok, $rv ) = controller( privcheck => [ 'siteadmin:rename', 'payments' ] );
     return $rv unless $ok;
 
     my $r = DW::Request->get;
