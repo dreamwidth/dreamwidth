@@ -18,7 +18,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [% remote.username %]
 </a>
 [%- ELSE # Show a login modal link -%]
-<a id="login-form-access" href="/login" class="show-for-small-only" data-reveal-id="nav-login-form">
+<a id="login-form-access" href="[% site.root %]/login" class="show-for-small-only" data-reveal-id="nav-login-form">
   [% 'sitescheme.accountlinks.btn.login' | ml %]
 </a>
 [%- END -%]
