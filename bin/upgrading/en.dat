@@ -5309,6 +5309,8 @@ widget.shopcart.total=Total:
 
 widget.shopitemoptions.error.banned=You are restricted from making purchases for this journal.
 
+widget.shopitemoptions.error.expungedusername=You cannot buy items for purged usernames. If you're trying to buy a rename token to rename to a purged username, buy it for yourself.
+
 widget.shopitemoptions.error.invalidusername=The username you entered is invalid or the user does not exist.
 
 widget.shopitemoptions.error.nocart=Unable to get a shopping cart for you.  Please try again later.
