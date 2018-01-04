@@ -1300,6 +1300,26 @@ sub separate_keywords {
     return @userpic_array;
 }
 
+# convert to json
+sub TO_JSON { 
+    my $self = shift;
+
+    my $remote = LJ::get_remote();
+    my $returnval = { 
+        username => $self->u->user,
+        picid => $self->picid,
+        keywords => @{$self->keywords},
+        url => $self->url,
+        comment => $self->comment,
+    };
+
+    if ( $remote && $remote eq $self->u ) {
+        $returnval->{inactive} = $self->inactive;
+    }
+    return $returnval;
+}
+
+
 ####
 # error classes:
 
