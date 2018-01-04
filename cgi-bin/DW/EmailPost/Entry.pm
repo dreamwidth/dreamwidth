@@ -3,7 +3,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2013-2018 by Dreamwidth Studios, LLC.
 #
 # This code is a refactoring and extension of code originally forked
 # from the LiveJournal project owned and operated by Live Journal, Inc.
@@ -204,6 +204,25 @@ sub _set_props {
     $props->{opt_noemail} = 1
       if $post_headers{comments}    =~ /noemail/i
       || $u->{emailpost_comments} =~ /noemail/i;
+    if ( exists $post_headers{screenlevel} ) {
+        if ( $post_headers{screenlevel} =~ /^all$/i ) {
+            $props->{opt_screening} = 'A';
+        } elsif ( $post_headers{screenlevel} =~ /^untrusted$/i ) {
+            $props->{opt_screening} = 'F';
+        } elsif ( $post_headers{screenlevel} =~ /^(anonymous|anon)$/i ) {
+            $props->{opt_screening} = 'R'; # needs-Remote
+        } elsif ( $post_headers{screenlevel} =~ /^(disabled|none)$/i ) {
+            $props->{opt_screening} = 'N';
+        } elsif ( $post_headers{screenlevel} ne '' ) {
+            $props->{opt_screening} = 'A';
+            $self->send_error( "Unrecognized screening keyword. Your entry was posted with all comments screened.",
+                               { nolog => 1 } );
+        } else { # blank
+            $props->{opt_screening} = ''; # User default
+        }
+    } else { # unspecified
+        $props->{opt_screening} = ''; # User default
+    }
 
     my $security;
     my $amask;

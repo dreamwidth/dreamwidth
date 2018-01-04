@@ -6,7 +6,7 @@
 #      Afuna <coder.dw@afunamatata.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2013-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 24;
+use Test::More tests => 25;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -51,7 +51,7 @@ $email_post->destination( $user );
 ( $ok, $msg ) = $email_post->process;
 ok( ! $ok, "not posted" );
 like($msg, qr/No allowed senders have been saved for your account/, "rejected due to no allowed senders");
-is( $email_post->dequeue, 1, "and it's deqeueued" );
+is( $email_post->dequeue, 1, "and it's dequeued" );
 
 
 LJ::Emailpost::Web::set_allowed_senders( $u, { 'foo@example.com' => { get_errors => 1 } } );
@@ -63,7 +63,7 @@ $email_post->destination( $user );
 ( $ok, $msg ) = $email_post->process;
 ok( ! $ok, "not posted" );
 like($msg, qr/Unable to locate your PIN/, "rejected due to no PIN");
-is( $email_post->dequeue, 1, "and it's deqeueued" );
+is( $email_post->dequeue, 1, "and it's dequeued" );
 
 
 $email_post = DW::EmailPost->get_handler( $mime );
@@ -71,7 +71,7 @@ $email_post->destination( "$user+$emailpin" );
 ( $ok, $msg ) = $email_post->process;
 ok( ! $ok, "not posted" );
 like($msg, qr/Invalid PIN/, "rejected due to invalid PIN");
-is( $email_post->dequeue, 1, "and it's deqeueued" );
+is( $email_post->dequeue, 1, "and it's dequeued" );
 
 
 $u->set_prop("emailpost_pin", $emailpin);
@@ -81,7 +81,7 @@ $email_post->destination( "$user+$emailpin" );
 ( $ok, $msg ) = $email_post->process;
 ok( $ok, "posted" );
 like($msg, qr/Post success/, "posted!");
-is( $email_post->dequeue, 1, "and it's deqeueued" );
+is( $email_post->dequeue, 1, "and it's dequeued" );
 
 my $entry = LJ::Entry->new($u, jitemid => 1);
 ok($entry->valid, "Entry is valid");
@@ -100,6 +100,7 @@ ok($text =~ qr!http://krow\.livejournal\.com/434338\.html!, "got correct URL in 
 }
 
 {
+    $u->set_prop( 'opt_whoscreened', 'F' );
     my $email_post = DW::EmailPost->get_handler(get_mime("parse-props", $user_email_info));
     my ( $ok, $msg ) = $email_post->process;
     ok( $ok, "posted entry with custom settings" );
@@ -108,6 +109,7 @@ ok($text =~ qr!http://krow\.livejournal\.com/434338\.html!, "got correct URL in 
     is ( $entry->security, 'private', "Entry security is correct" );
     is ( $entry->prop( 'current_moodid' ), 56, "Entry mood is correct" );
     is ( $entry->prop( 'current_music' ), "Jonathan Coulton -- Code Monkey", "Entry music is correct" );
+    is ( $entry->prop( 'opt_screening' ), 'R', 'Entry comment screening is correct' );
 }
 
 sub get_mime {
