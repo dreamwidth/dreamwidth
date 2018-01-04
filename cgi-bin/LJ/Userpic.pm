@@ -1308,10 +1308,15 @@ sub TO_JSON {
     my $returnval = { 
         username => $self->u->user,
         picid => $self->picid,
-        keywords => @{$self->keywords},
         url => $self->url,
         comment => $self->comment,
     };
+
+    if (ref($self->keywords) eq 'ARRAY') {
+        $returnval->{keywords} =  @{$self->keywords};
+    } else {
+        $returnval->{keywords} = $self->keywords;
+    }
 
     if ( $remote && $remote eq $self->u ) {
         $returnval->{inactive} = $self->inactive;
