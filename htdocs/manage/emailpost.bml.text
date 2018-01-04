@@ -152,6 +152,18 @@
 
 .reply.text=You can reply to a comment by using the "Reply" function of your email client. These emails reply to a secret address so we can identify who the comment is coming from. You should reset the secret address if you've accidentally exposed it to anyone else.
 
+.api.button=Generate new API key 
+
+.api.button.delete=Delete 
+
+.api.header=Manage API Keys
+
+.api.status.error=Problem generating a new API key. Please try again.
+
+.api.status.success=New API key has been generated.
+
+.api.text=You can use these keys with the Dreamwidth API to authenticate youself. Anyone with access to a key can act as you, so keys should not be shared. Deleting a key here will make it unusable.
+
 .save=Save Settings
 
 .settings.entry.comments=Comments:

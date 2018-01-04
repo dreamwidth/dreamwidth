@@ -367,6 +367,12 @@ body<=
                     : "<div class='error-box'>$ML{'.reply.status.error'}</div>";
     }
 
+    if ( LJ::did_post() && $POST{"action:apikey"}) {
+        $ret .= $u->generate_apikey
+                    ? "<div class='highlight-box'>$ML{'.api.status.success'}</div>"
+                    : "<div class='error-box'>$ML{'.api.status.error'}</div>";
+    }
+
     # Initial page
     my $addrlist = LJ::Emailpost::Web::get_allowed_senders( $u );
     my (@address, $res);
@@ -385,6 +391,8 @@ body<=
         { "noauth" => 1, }
     );
 
+    #FIXME
+    my $apikeys = DW::API::Key::lookup_all($u);
     my @trusted = $u->trust_groups;
     my @groups = map { $_->{'groupname'} } @trusted;
     my @userpics = @{ $res->{'pickws'} };
@@ -429,8 +437,25 @@ body<=
     $ret .= '</div><br />';
 
     $ret .= "<h1>$ML{'.reply.header'}</h1>";
-    $ret.= "<p>$ML{'.reply.text'}</p>";
+    $ret .= "<p>$ML{'.reply.text'}</p>";
     $ret .= "<input type='submit' value='$ML{'.reply.button'}' name='action:token'></input>";
+
+    $ret .= "<h1>$ML{'.api.header'}</h1>";
+    $ret .= "<p>$ML{'.api.text'}</p>";
+    if (defined $apikeys) {
+        $ret .= "<table border=\"0\">";
+        for my $key (@$apikeys) { # Limited to 3 addresses.
+            $ret .= '<tr><td>';
+            $ret .= $key->{hash};
+            $ret .= '</td><td>';
+            # TODO: actually support delete
+            $ret .= "<input type='submit' value='$ML{'.api.button.delete'}' name='action:delete'></input>";
+            $ret .= '</td></tr>';
+        }
+        $ret .= '</table></div><br />';
+    }
+    $ret .= "<input type='submit' value='$ML{'.api.button'}' name='action:apikey'></input>";
+
 
     $ret .= "<?h1 $ML{'.settings.header'} h1?>";
     $ret .= "<?p " . BML::ml('.settings.text', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";
