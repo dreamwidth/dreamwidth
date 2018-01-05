@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 26;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -101,12 +101,17 @@ ok($text =~ qr!http://krow\.livejournal\.com/434338\.html!, "got correct URL in 
 
 {
     $u->set_prop( 'opt_whoscreened', 'F' );
+    my $foobit = $u->create_trust_group( groupname => 'foo' );
+    $u->create_trust_group( groupname => 'foo, bar' );
+    my $barbit = $u->create_trust_group( groupname => 'bar' );
     my $email_post = DW::EmailPost->get_handler(get_mime("parse-props", $user_email_info));
     my ( $ok, $msg ) = $email_post->process;
     ok( $ok, "posted entry with custom settings" );
     my $entry = LJ::Entry->new( $u, jitemid => 3 );
     is ( $entry->event_raw, "This is a test post.", "Settings removed from body text" );
-    is ( $entry->security, 'private', "Entry security is correct" );
+    is ( $entry->security, 'usemask', "Entry security is correct" );
+    is ( $entry->allowmask, ( 1 << $foobit ) | ( 1 << $barbit ),
+         'Entry allowmask is correct' );
     is ( $entry->prop( 'current_moodid' ), 56, "Entry mood is correct" );
     is ( $entry->prop( 'current_music' ), "Jonathan Coulton -- Code Monkey", "Entry music is correct" );
     is ( $entry->prop( 'opt_screening' ), 'R', 'Entry comment screening is correct' );
