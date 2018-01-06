@@ -148,7 +148,7 @@ sub create_handler {
             my $age = LJ::calc_age( $year, $mon, $day );
             $is_underage = 1 if $age < 13;
         } else {
-            $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.invalid' );
+            $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.invalid2' );
         }
 
         # note this unique cookie as underage (if we have a unique cookie)

@@ -4627,7 +4627,7 @@ widget.communitymanagement.pending.member=[[num]] [[?num|member|members]]
 
 widget.communitymanagement.title=Community Management
 
-widget.createaccount.error.birthdate.invalid=You must enter a valid birthdate.
+widget.createaccount.error.birthdate.invalid2=You must enter a valid birthdate, including the year.
 
 widget.createaccount.error.birthdate.underage=You must be over 13 to create an account.
 
