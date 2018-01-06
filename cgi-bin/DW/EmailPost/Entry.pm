@@ -226,27 +226,39 @@ sub _set_props {
 
     my $security;
     my $amask;
+    # "lc" is right here because groupnames are forcibly lowercased in
+    # LJ::User->trust_groups;
     $security = lc $post_headers{security} ||
-        $u->emailpost_security;
+        $u->emailpost_security; # FIXME: relies on emailpost_security ne 'usemask'?
 
     if ( $security =~ /^(public|private|friends|access)$/ ) {
         if ( $1 eq 'friends' or $1 eq 'access' ) {
             $security = 'usemask';
             $amask = 1;
         }
-    } elsif ( $security ) { # Assume a friendgroup if unknown security mode.
-        # Get the mask for the requested friends group, or default to private.
-        my $group = $u->trust_groups( name => $security );
-        if ($group) {
-            $amask = (1 << $group->{groupnum});
-            $security = 'usemask';
-        } else {
+    } elsif ( $security ) { # Assume a trust group list if unknown security.
+        # Get the mask for the requested trust group list, discarding those
+        # that don't exist.
+        $amask = 0;
+        my @unrecognized = ();
+        foreach my $groupname ( split( /\s*,\s*/, $security ) ) {
+            my $group = $u->trust_groups( name => $groupname );
+            if ( $group ) {
+                $amask |= ( 1 << $group->{groupnum} )
+            } else {
+                push @unrecognized, $groupname;
+            }
+        }
+
+        $security = 'usemask';
+
+        if ( @unrecognized ) {
             # send the error, but not shortcircuiting the posting process
             # probably the only time that we call $self->send_error inside of a convenience sub
-            $self->send_error( "Access group \"$security\" not found.  Your journal entry was posted privately.",
+            my $unrecognized = join( ', ', @unrecognized );
+            $self->send_error( "Access group(s) \"$unrecognized\" not found. Your journal entry was posted to the other groups, or privately if no groups exist.",
                    { nolog => 1 }
             );
-            $security = 'private';
         }
     }
 

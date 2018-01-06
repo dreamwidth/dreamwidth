@@ -16,4 +16,4 @@ post-music: Jonathan Coulton -- Code Monkey
 
 This is a test post.
 
-post-security: private
+post-security: foo, bar
