@@ -5,7 +5,7 @@ Page to upload new files
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2013 by Dreamwidth Studios, LLC.
+Copyright (c) 2013-2018 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -84,6 +84,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% ELSIF type == "select" %]
             [%- form.select( "items"   = items
                              "name"    = name
+                             "selected" = selected
                            )
             -%]
         [% END %]
@@ -113,6 +114,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
                     type  = "select"
                     items = security
+                    selected = default_security
 
                     labelSize = 4
                 ) -%]
