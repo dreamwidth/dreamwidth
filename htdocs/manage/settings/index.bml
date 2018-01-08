@@ -564,16 +564,7 @@ body<=
         }
 
         # Translate legacy pre-ESN notifs to ESN notifs
-        {
-            LJ::Event::JournalNewComment::Reply->migrate_user( $u );
-
-            $u->migrate_prop_to_esn( "opt_nomodemail", "CommunityModeratedEntryNew",
-                                        check_enabled => sub {
-                                                my ( $prop ) = @_;
-                                                # opt_nomodemail is a negative prop
-                                                return $prop eq "1" ? 0 : 1;
-                                        });
-        }
+        LJ::Event::JournalNewComment::Reply->migrate_user( $u );
 
         my @categories = (
             {

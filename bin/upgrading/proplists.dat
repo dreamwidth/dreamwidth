@@ -854,14 +854,6 @@ userproplist.opt_nctalklinks:
   multihomed: 0
   prettyname: Show number of comments in URL
 
-userproplist.opt_nomodemail:
-  cldversion: 4
-  datatype: bool
-  des: 1: do not send moderation emails, 0: default, send them
-  indexed: 0
-  multihomed: 0
-  prettyname: No Moderation Email
-
 userproplist.opt_notalkicons:
   cldversion: 4
   datatype: bool
