@@ -258,7 +258,7 @@ sub make_feed
         # include comment count image at bottom of event (for readers
         # that don't understand the commentcount)
         $event .= "<br /><br />" . $entry_obj->comment_imgtag . " comments"
-            unless $opts->{'apilinks'};
+            unless $opts->{'apilinks'} || $r->get_args->{no_comment_count};
 
         my $mood;
         if ($logprops{$itemid}->{'current_mood'}) {
