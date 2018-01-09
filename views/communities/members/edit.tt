@@ -7,7 +7,7 @@ Conversion of htdocs/community/members.bml
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2015 by Dreamwidth Studios, LLC.
+Copyright (c) 2015-2018 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -27,6 +27,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- linkbar -%]
 
 <div class="row"><div class="columns large-12">
+
+<div class='highlight-box'>[% '.manage.membership.queue' | ml( aopts = "href='$site.root/communities/$community.user/queue/members'" ) %]</div>
 
 [%- INCLUDE components/filter.tt links => filter_links -%]
 
