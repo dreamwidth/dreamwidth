@@ -42,8 +42,9 @@ sub needlogin {
 
 # returns an error page using a language string
 sub error_ml {
+    my ($string, $opts) = @_;
     return DW::Template->render_template(
-        'error.tt', { message => LJ::Lang::ml( @_ ) }
+        'error.tt', { message => LJ::Lang::ml( $string ), opts => $opts }
     );
 }
 
