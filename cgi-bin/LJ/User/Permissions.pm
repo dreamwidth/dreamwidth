@@ -794,30 +794,6 @@ sub member_queue_url {
     return "$LJ::SITEROOT/communities/" . $_[0]->user . "/queue/members";
 }
 
-sub migrate_prop_to_esn {
-    my ( $u, $prop_name, $event_name, %opts ) = @_;
-
-    my $migrated_value = $opts{migrated_value} || '-';
-    my $check_enabled = $opts{check_enabled}
-                        || sub {
-                                my ( $prop ) = @_;
-                                return $prop ? 1 : 0;
-                            };
-
-    my $prop = $u->prop( $prop_name );
-
-    # not yet migrated
-    if ( $prop ne $migrated_value ) {
-        if ( $check_enabled->( $prop ) ) {
-            my %params = ( event => $event_name, journal => $u );
-            unless ( $u->has_subscription( %params ) ) {
-                $u->subscribe( %params, method => $_ ) foreach qw( Inbox Email );
-            }
-        }
-        $u->set_prop( $prop_name, $migrated_value );
-    }
-}
-
 # des: Given a list of caps to add and caps to remove, updates a user's caps.
 # args: cap_add, cap_del, res
 # des-cap_add: arrayref of bit numbers to turn on

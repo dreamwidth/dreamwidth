@@ -1497,12 +1497,6 @@ sub postevent
 
                     next unless $mod->is_visible;
 
-                    $mod->migrate_prop_to_esn( "opt_nomodemail", "CommunityModeratedEntryNew",
-                                                check_enabled => sub {
-                                                        my ( $prop ) = @_;
-                                                        # opt_nomodemail is a negative prop
-                                                        return $prop eq "1" ? 0 : 1;
-                                                });
                     LJ::Event::CommunityModeratedEntryNew->new( $mod, $uowner, $modid )->fire;
                 }
             }
