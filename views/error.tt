@@ -12,9 +12,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- sections.title = 'error' | ml -%]
 [% IF opts.defined('authas') %]
 <form method="get">
-<<<<<<< 2ab268afb544a5faf4f1ef55d0d0fb425cd01886
     [%- opts.authas -%]
->>>>>>> Global backend changes to allow converting /customize to TT
 </form>
 [% END %]
 <p>[% message %]</p>
