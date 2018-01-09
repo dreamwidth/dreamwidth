@@ -7,7 +7,7 @@
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2016 by Dreamwidth Studios, LLC.
+# Copyright (c) 2016-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -63,7 +63,7 @@ sub _get_blobstores {
         $idx += 2;
     }
 
-    $log->logcroak( 'Must configure @LJ::BLOBSTORE.' )
+    $log->logcroak( 'Must configure @LJ::BLOBSTORES.' )
         unless $blobstores;
     $log->debug( 'Blobstore initialized with ', scalar( @$blobstores ), ' blobstores.' );
     return $blobstores;
