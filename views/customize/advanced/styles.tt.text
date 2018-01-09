@@ -1,0 +1,83 @@
+;; -*- coding: utf-8 -*-
+.back2=Advanced Customization
+
+.back2styles=Your Styles
+
+.btn.change=Change
+
+.btn.create=Create
+
+.btn.delete=Delete
+
+.btn.edit=Edit
+
+.btn.savechanges=Save Changes
+
+.btn.use=Use
+
+.createstyle.header=Create Style
+
+.createstyle.label.name=Name:
+
+.delete.confirm=Are you sure you want to delete style #[[id]]?
+
+.editstyle.title=Edit Style
+
+.error.cantbeauthenticated=You couldn't be authenticated as the specified account.
+
+.error.cantcreatestyle=Style wasn't created: Database error
+
+.error.invalidlayertype=Invalid layer type: [[name]] isn't a [[type]] layer
+
+.error.layerhierarchymismatch=Layer hierarchy mismatch: [[layername]] isn't a child [[type]] layer of [[parentname]]
+
+.error.layernotfound=Layer not found: [[layer]]
+
+.error.layernotpublic=Layer not public: [[layer]]
+
+.error.maxstyles2=You've reached your maximum number of styles. You have [[numstyles]] current styles of [[maxstyles]] maximum styles.
+
+.error.notloggedin=You must be logged in to view your styles.
+
+.error.notyourstyle=You don't own this style.
+
+.error.stylenotfound=Style not found.
+
+.error.usercantuseadvanced=The selected journal's account type doesn't allow advanced customization.
+
+.error.youcantuseadvanced=Your account type doesn't allow advanced customization.
+
+.layerid=#[[id]]
+
+.nav.yourlayers=Your Layers
+
+.stylelayers.header=Style Layers
+
+.stylelayers.label.corelanguage=Language (i18nc):
+
+.stylelayers.label.coreversion=Core Version:
+
+.stylelayers.label.language=Language (i18n):
+
+.stylelayers.label.layerid=Layerid:
+
+.stylelayers.label.layout=Layout:
+
+.stylelayers.label.theme=Theme:
+
+.stylelayers.label.user2=Wizard:
+
+.stylelayers.select.layout.other=Other
+
+.stylelayers.select.layout.user=[[layername]] (#[[id]])
+
+.styleoptions.header=Style Options
+
+.title=Your Styles
+
+.yourstyles.header=Your Styles
+
+.yourstyles.layername=[[name]] (<a [[aopts]]>#[[id]]</a>)
+
+.yourstyles.none=none
+

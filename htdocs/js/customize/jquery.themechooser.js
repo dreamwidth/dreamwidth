@@ -1,112 +1,6 @@
-    var pageGetArgs = {};
+var ThemeChooser = {
 
-    window.location.search
-      .replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str,key,value) {
-        pageGetArgs[key] = value;
-      }
-    );
-
-    var Customize = new Object();
-
-    cat = pageGetArgs["cat"] ? pageGetArgs["cat"] : "";
-    layoutid = pageGetArgs["layoutid"] ? pageGetArgs["layoutid"] : 0;
-    designer = pageGetArgs["designer"] ? pageGetArgs["designer"] : "";
-    search = pageGetArgs["search"] ? pageGetArgs["search"] : "";
-    page = pageGetArgs["page"] ? pageGetArgs["page"] : 1;
-    show = pageGetArgs["show"] ? pageGetArgs["show"] : 12;
-    authas = pageGetArgs["authas"] ? pageGetArgs["authas"] : "";
-    hourglass = null;
-
-// Functions for making hourglasses on our page
-function cursorHourglass (evt) {
-    var posX = evt.pageX;
-    var posY = evt.pageY
-    if (!posX) return;
-
-    if (!hourglass) {
-        hourglass = new Hourglass();
-        hourglass.init();
-        hourglass.hourglass_at(posX, posY);
-    }
-}
-
-function elementHourglass (element) {
-    if (!element) return;
-
-    if (!hourglass) {
-        hourglass = new Hourglass();
-        hourglass.init();
-        hourglass.hourglass_at_widget(element);
-    }
-}
-
-function hideHourglass () {
-    if (hourglass) {
-        hourglass.hide();
-        hourglass = null;
-    }
-}
-
-
-    function initThemeNav () {
-            //Handle cat links
-        $(".theme-nav-cat").click(function(event){
-        event.preventDefault();
-
-        var catLink = $(this).attr('href');
-        var newCat = catLink.replace(/.*cat=([^&?]*)&?.*/, "$1");
-
-        
-        //reload the theme chooser area
-        filterThemes(event, "cat", newCat);
-
-        //move CSS classes around for rendering
-        $('li.on').removeClass('on');
-        $(this).parent('li').addClass('on');
-        
-            
-    return false;
-})
-
-}
-
-
-
-
-
-        function applyTheme (event, themeid, layoutid, auth_token) {
-                $("#theme_btn_" + layoutid + themeid).attr("disabled", true);
-                $("#theme_btn_" + layoutid + themeid).addClass("theme-button-disabled disabled");
-                $.ajax({
-                  type: "POST",
-                  url: "/__rpc_themechooser",
-                  data: {
-                         apply_themeid: themeid,
-                         apply_layoutid: layoutid,
-                         lj_form_auth: auth_token,
-                        'authas' : authas,
-                         'cat': cat,
-                         'layoutid': layoutid,
-                        'designer': designer,
-                        'page': page,
-                        'search': search,
-                        'show': show },
-                  success: function( data ) { $( "div.theme-selector-content" ).html(data.themechooser);
-                                                $( "div.layout-selector-wrapper" ).html(data.layoutchooser);
-                                                $("div.theme-current").html(data.currenttheme);
-                                                    initLayoutChooser();
-                                                    initThemeChooser();
-                                                    initThemeNav();
-                                                    initCurrentTheme();
-                                                    alert(confirmation);
-                                                    },
-                  dataType: "json"
-                });
-                event.preventDefault();
-
-}
-
-        function initThemeNav () {
+        init: function () {
             //Handle cat links
             $(".theme-nav-cat").click(function(event){
                     event.preventDefault();
@@ -151,9 +45,6 @@ function hideHourglass () {
             // add event listener to the search form
             $('#search_form').submit( function (evt) { self.filterThemes(evt, "search", $('#search_box').val()) });
 
-            }
-
-        function initThemeChooser () {
             //Handle preview links
             $(".theme-preview-link").click(function(){
                         window.open($(this).attr("href"), 'theme_preview', 'resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');
@@ -196,7 +87,7 @@ function hideHourglass () {
                     
                     //reload the theme chooser area
                     filterThemes(event, "page", newPage);
-    })
+            })
 
             //Handle designer and layoutid links
             $(".theme-layout").click(function(event){
@@ -206,7 +97,7 @@ function hideHourglass () {
                     
                     //reload the theme chooser area
                     filterThemes(event, "layoutid", newLayout);
-    })
+            })
 
             $(".theme-designer").click(function(event){
                     event.preventDefault();
@@ -215,11 +106,43 @@ function hideHourglass () {
                     
                     //reload the theme chooser area
                     filterThemes(event, "designer", newDesigner);
-    })
+            })
 
-}
+        },
 
-function filterThemes (evt, key, value) {
+        applyTheme: function (event, themeid, layoutid, auth_token) {
+                $("#theme_btn_" + layoutid + themeid).attr("disabled", true);
+                $("#theme_btn_" + layoutid + themeid).addClass("theme-button-disabled disabled");
+                $.ajax({
+                  type: "POST",
+                  url: "/__rpc_themechooser",
+                  data: {
+                         apply_themeid: themeid,
+                         apply_layoutid: layoutid,
+                         lj_form_auth: auth_token,
+                        'authas' : authas,
+                         'cat': cat,
+                         'layoutid': layoutid,
+                        'designer': designer,
+                        'page': page,
+                        'search': search,
+                        'show': show },
+                  success: function( data ) { $( "div.theme-selector-content" ).html(data.themechooser);
+                                                $( "div.layout-selector-wrapper" ).html(data.layoutchooser);
+                                                $("div.theme-current").html(data.currenttheme);
+                                                    initLayoutChooser();
+                                                    initThemeChooser();
+                                                    initThemeNav();
+                                                    initCurrentTheme();
+                                                    alert(confirmation);
+                                                    },
+                  dataType: "json"
+                });
+                event.preventDefault();
+
+        },
+
+        filterThemes: function (evt, key, value) {
             if (key == "show") {
                 // need to go back to page 1 if the show amount was switched because
                 // the current page may no longer have any themes to show on it
@@ -255,7 +178,7 @@ function filterThemes (evt, key, value) {
                      },
               success: function( data ) { $( "div.theme-selector-content" ).html(data.themechooser);
                                             $("div.theme-current").html(data.currenttheme);
-                                            initThemeChooser();
+                                            ThemeChooser.init();
                                             initCurrentTheme();
                                             initThemeNav();},
               dataType: "json"
@@ -271,49 +194,19 @@ function filterThemes (evt, key, value) {
             } else {
                 //cursorHourglass(evt);
             }
-        }
+        },
 
         //Clear filters
-function resetFilters () {
-    cat = "";
-    layoutid = 0;
-    designer = "";
-    search = "";
-    page = 1;
+        resetFilters: function () {
+            cat = "";
+            layoutid = 0;
+            designer = "";
+            search = "";
+            page = 1;
+        },
+
 }
 
-        function initCurrentTheme () {
-                        //Handle designer and layoutid links
-
-        $(".theme-current-designer").click(function(event){
-                    event.preventDefault();
-                    var designerLink = $(this).attr('href');
-                    var newDesigner = designerLink.replace(/.*designer=([^&?]*)&?.*/, "$1");
-                    
-                    //reload the theme chooser area
-                    filterThemes(event, "designer", newDesigner);
-            })
-
-
-            $(".theme-current-layout").click(function(event){
-                    event.preventDefault();
-                    var layoutLink = $(this).attr('href');
-                    var newLayout = layoutLink.replace(/.*layoutid=([^&?]*)&?.*/, "$1");
-                    
-                    //reload the theme chooser area
-                    filterThemes(event, "layoutid", newLayout);
-            })
-
-
-
-        }
-
-
-//Initialize everything
 jQuery(document).ready(function(){
-
-        initThemeChooser();
-        initThemeNav();
-        initCurrentTheme();
-});
-
+    ThemeChooser.init;
+})

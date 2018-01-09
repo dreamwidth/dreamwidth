@@ -1,0 +1,29 @@
+.advancedoptions.header=Advanced Options
+
+.disclaimer.header=Disclaimer
+
+.disclaimer.text=Unless you're a programmer or web designer, you should probably stay away from this area and use the <a [[aopts]]>main customization area</a>, which is designed for anybody to use.
+
+.documentation.header=Documentation
+
+.documentation.text=Before you jump into tweaking or programming S2, you should understand how it works.
+
+.error.advanced.editing.denied=You're not allowed to use the advanced customization area.
+
+.publiclayers.desc=system layers (good reference &amp; place to learn)
+
+.publiclayers.link=Public Layers
+
+.s2doc.desc=under construction, but some good content
+
+.s2doc.link=S2 Documentation
+
+.title=Advanced Customization
+
+.yourlayers.desc=create/manage your layers
+
+.yourlayers.link=Your Layers
+
+.yourstyles.desc=create/manage your styles
+
+.yourstyles.link=Your Styles

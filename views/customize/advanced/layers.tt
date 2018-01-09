@@ -1,0 +1,124 @@
+
+
+    [%# start of output %]
+    [%- sections.title = '.title' | ml -%]
+    [% dw.ml("Backlink", {
+        'link' => "$site.root/customize/advanced/",
+        'text' => dw.ml('.back2'),
+    }) %]
+    [% dw.ml("Actionlink", {'link' => "<a href='$site.root/doc/s2/'>" _ dw.ml('.nav.documentation') _ "</a>"}) %]
+    [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/layerbrowse'>" _ dw.ml('.nav.publiclayers') _ "</a>"}) %]
+    [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/styles$authas'>" _ dw.ml('.nav.yourstyles') _ "</a>"}) %]
+
+
+    [%# authas switcher form %]
+    [% UNLESS noactions %]
+            <br />[%- authas_html -%]
+    [% END %]
+
+    [%# show list of layers %]
+    <h1> [% dw.ml('.yourlayers.header') %]</h1>
+    [% IF ulay.size %]
+        <table id='table_yourlayers' class='grid' cellpadding='3' border='1'>
+        <thead><tr><th>[% dw.ml('.yourlayers.table.layerid') %]</th><th>[% dw.ml('.yourlayers.table.type') %]</th><th>[% dw.ml('.yourlayers.table.name') %]</th><th>[% dw.ml('.yourlayers.table.actions') %]</th></tr></thead>
+        [% lastbase = 0 %]
+
+        [% FOREACH lid IN sortedlayers %]
+            [% bid = ulay.$lid.b2lid %]
+            [% IF bid != lastbase %]
+                [% lastbase = bid %]
+                [% parlay = ulay.$bid || pub.$bid %]
+                [% pname = ehtml(parlay.name) %]
+
+                <tr><td colspan='4'><small>[% dw.ml('.yourlayers.childof', {'aopts' => "href='$site.root/customize/advanced/layerbrowse?id=$bid'", 'layerid' => bid, 'name' => pname}) %]</small></td></tr>
+            [% END %]
+            [% lay = ulay.$lid %]
+
+            [%# this ensures that 'user' layers are called 'wizard' layers in the user interface %]
+            [% laytype = ( lay.type == 'user' ) ? 'wizard' : lay.type %]
+            [% name = ehtml(lay.name) || dw.ml('.yourlayers.noname') %]
+
+            [% class = active_style.${lay.type} == lid ? "class='selected'" : "" %]
+            [% nameclass = specialnamelayers.$lid ? 'class="detail specialname"' : "" %]
+
+            <tr [% class %]><td><a href='layerbrowse?id=[% lid %]'>[% lid %]</a></td><td>[% laytype %]</td><td [% nameclass %]>[% name %]</td><td>
+            <form method='post' style='display:inline' action='layeredit?id=[% lid %]'>
+            [% dw.form_auth() %]
+            [% form.submit(name = 'action:edit', value = dw.ml('.btn.edit'),  disabled = noactions ) %]
+            </form>
+
+            <form method='post' style='display:inline' action='layers[% authas %]'>
+            [% dw.form_auth() %]
+            [% form.hidden('name' => 'id', 'value' =>lid) %]
+
+            [% confirm_msg = dw.ml('.delete.text', {'type' => laytype, 'name' => name}) %]
+
+            [% form.submit(name = 'action:del', value = dw.ml('.btn.delete2'),
+                                    'onclick' = "return confirm('$confirm_msg')", disabled = noactions ) %]
+
+            </form>
+            </td></tr>
+        [% END %]
+        </table>
+    [% ELSE %]
+        <p><i>[% dw.ml('.yourlayers.none') %]</i></p>
+    [% END %]
+
+    [%# jump out if we're just viewing %]
+    [% RETURN IF noactions %]
+
+    [%# create layer %]
+    <h1>[% dw.ml('.createlayer.header') %]</h1>
+
+    <div style='margin-top: 10px;'>
+    <h2>[% dw.ml('.createlayer.toplevel') %]</h2>
+    <form method='post' action='layers[% authas %]'>
+    
+    [% '.createlayer.toplevel.label.type' | ml %]
+    [% toplevel_types = [
+        "", "",
+        "layout", dw.ml( '.createlayer.toplevel.select.layout' ),
+        "i18nc", dw.ml( '.createlayer.toplevel.select.language' ),
+    ] %]
+    [% form.select( name = 'type', items = toplevel_types ) %]
+
+
+    [% '.createlayer.toplevel.label.coreversion' | ml %]
+    [% disabled = corelayers.size > 2 ? 0 : 1 %]
+    [% form.select( 'name' => 'parid', 
+                    'selected' => corelayers.0,
+                    'disabled' => disabled,
+                    'items' => corelayers ) %]
+
+    [%# store value in hidden to later be copied to 'parid' if necessary %]
+    [%# defaults to $corelayers[0] which should be the highest numbered core %]
+    [% form.hidden('name' =>"parid_hidden", 'value' => parid || corelayers.0) %]
+    [% dw.form_auth() %]
+    [% form.submit('name' = "action:create", 'value' = dw.ml('.btn.toplevel.create')) %]
+    </form>
+    </div>
+
+    <h2>[% dw.ml('.createlayer.layoutspecific') %]</h2>
+    <form method='post' action='layers[% authas %]'>
+    [% dw.form_auth() %]
+
+    [% '.createlayer.layoutspecific.label.type' | ml %]
+    [% layer_types = [
+        "theme", dw.ml( '.createlayer.layoutspecific.select.theme' ),
+        "i18n", dw.ml( '.createlayer.layoutspecific.select.language' ),
+        "user", dw.ml( '.createlayer.layoutspecific.select.user2' ),
+    ] %]
+    [% form.select( name = 'type', items = layer_types ) %]
+
+
+
+    [% dw.ml ('.createlayer.layoutspecific.label.layout') %] [% form.select('name' => 'parid', 'items' => layouts) %]
+    [% form.submit('name' => "action:create", 'value' => dw.ml('.btn.layoutspecific.create')) %]
+    </form>
+    
+[% sections.head = BLOCK %]
+<style type="text/css">
+    .specialname { font-style: italic; }
+</style>
+[% END %]
+    
