@@ -388,6 +388,7 @@
             'tags_max' => 2000,
             'tools_recent_comments_display' => 150,
             'track_all_comments' => 1,
+            'userlinks' => 100,
             'userpics' => 150,
             'xpost_accounts' => 5,
     );
