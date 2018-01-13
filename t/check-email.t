@@ -35,8 +35,12 @@ my @tests = (
     [ 'example@a.baddomainname', 'bad_domain'   ],
 
     # misspellings
-    [ 'example@hotmail.cm',     'bad_hotmail_spelling' ],
-    [ 'example@aoll.com',       'bad_aol_spelling' ],
+    [ 'example@gmali.com',      'bad_spelling' ],
+    [ 'example@yaaho.com',      'bad_spelling' ],
+    [ 'example@hotmail.cm',     'bad_spelling' ],
+    [ 'example@outlok.com',     'bad_spelling' ],
+    [ 'example@aoll.com',       'bad_spelling' ],
+    [ 'example@liev.com',       'bad_spelling' ],
 
 );
 

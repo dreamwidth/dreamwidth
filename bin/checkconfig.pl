@@ -299,6 +299,9 @@ my %modules = (
     "Moose" => {
         opt => "Used for BlobStore support of S3",
     },
+    "Text::Fuzzy" => {
+        ver => '0.27',
+    }
 );
 
 
